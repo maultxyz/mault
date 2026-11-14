@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import {
   clearUnmatchedScans,
   removeUnmatchedScan,
@@ -78,15 +79,11 @@ export function MobileMonitorActivity({
               const content = (
                 <>
                   <div className="relative aspect-[2.5/3.5] w-10 shrink-0 overflow-hidden rounded-md bg-muted">
-                    <img
+                    <CardImage
                       src={
-                        entry.card.image?.small ||
-                        entry.card.image?.normal ||
-                        ""
+                        entry.card.image?.small || entry.card.image?.normal
                       }
                       alt=""
-                      loading="lazy"
-                      className="h-full w-full object-cover"
                     />
                     {entry.isFoil && (
                       <span

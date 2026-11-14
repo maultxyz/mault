@@ -113,7 +113,19 @@
     "emptyDescription": "Permanently removes all cards from the selected collections, but keeps the collections themselves. This cannot be undone.",
     "deleteTitle_one": "Delete {{count}} collection",
     "deleteTitle_other": "Delete {{count}} collections",
-    "deleteDescription": "Deletes the selected collections and hides all their cards. Contact support if you need them back."
+    "deleteDescription": "Deletes the selected collections and hides all their cards. Contact support if you need them back.",
+    "progress": {
+      "delete": "Deleting {{current}} of {{total}} collections",
+      "empty": "Emptying {{current}} of {{total}} collections",
+      "deleteDone_one": "Deleted {{count}} collection",
+      "deleteDone_other": "Deleted {{count}} collections",
+      "emptyDone_one": "Emptied {{count}} collection",
+      "emptyDone_other": "Emptied {{count}} collections",
+      "deleteFailed_one": "{{count}} of {{total}} collections couldn't be deleted",
+      "deleteFailed_other": "{{count}} of {{total}} collections couldn't be deleted",
+      "emptyFailed_one": "{{count}} of {{total}} collections couldn't be emptied",
+      "emptyFailed_other": "{{count}} of {{total}} collections couldn't be emptied"
+    }
   },
   "emptyChoice": {
     "title": "Empty {{name}}",

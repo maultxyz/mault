@@ -7,8 +7,9 @@ import { useTranslation } from "react-i18next";
 import { Alert, View } from "react-native";
 import type { Announcement } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
-import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { ListGroup } from "@/components/ui/list-group";
+import { ListRow } from "@/components/ui/list-row";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { SaveBar } from "@/components/ui/save-bar";
@@ -243,13 +244,15 @@ function AdminAnnouncementContent() {
               )}
             />
             {existing ? (
-              <Button
-                variant="ghost"
-                icon="trash"
-                label={t("admin.discord.announcements.delete")}
-                loading={remove.isPending}
-                onPress={confirmDelete}
-              />
+              <ListGroup>
+                <ListRow
+                  icon="trash"
+                  tone="destructive"
+                  title={t("admin.discord.announcements.delete")}
+                  disabled={remove.isPending}
+                  onPress={confirmDelete}
+                />
+              </ListGroup>
             ) : null}
           </>
         )}

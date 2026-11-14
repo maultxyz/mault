@@ -589,9 +589,9 @@
     "findSet": "Set suchen",
     "openCard": "{{name}} ansehen ({{details}})",
     "cardNotFound": "Diese Karte ist nicht mehr verfügbar.",
+    "cardLoadFailed": "Diese Karte konnte nicht geladen werden.",
     "referenceImage": "Referenzbild",
     "backToCards": "Zurück zu den Karten",
-    "loading": "Karten werden geladen",
     "tradeHint": "Öffne eine Karte, um sie zum Tauschangebot hinzuzufügen"
   },
   "tradeOffers": {

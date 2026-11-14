@@ -2,7 +2,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, RefreshControl, View } from "react-native";
+import { AccessibilityInfo, FlatList, RefreshControl, View } from "react-native";
 import {
   CARD_CONDITIONS,
   CARD_LANGUAGES,
@@ -31,7 +31,7 @@ import {
 import { ReviewGridTile } from "@/features/cards/components/review-grid-tile";
 import { useTheme } from "@/hooks/use-theme";
 import { usePanelWidth } from "@/hooks/use-panel-width";
-import { REVIEW_GRID_WIDE_MIN_WIDTH } from "@/lib/constants/cards";
+import { REVIEW_GRID_SKELETON_HEIGHT_RATIO, REVIEW_GRID_WIDE_MIN_WIDTH } from "@/lib/constants/cards";
 import { CARD_ART_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import type { ReviewGridAttributePicker, ReviewLayout } from "@/lib/interfaces/cards";
@@ -44,11 +44,10 @@ export default function ReviewGridScreen() {
   const queryClient = useQueryClient();
   const width = usePanelWidth();
   const columns = width >= REVIEW_GRID_WIDE_MIN_WIDTH ? 2 : 1;
-  const review = useQuery(
-    storageGuid ? storageReviewGridQueryOptions(storageGuid) : collectionReviewGridQueryOptions(guid ?? ""),
-  );
+  const collectionReview = useQuery({ ...collectionReviewGridQueryOptions(guid ?? ""), enabled: !storageGuid });
+  const storageReview = useQuery({ ...storageReviewGridQueryOptions(storageGuid ?? ""), enabled: !!storageGuid });
+  const review = storageGuid ? storageReview : collectionReview;
   const [hiddenScanIds, setHiddenScanIds] = useState<Set<string>>(new Set());
-  const [acceptingScanIds, setAcceptingScanIds] = useState<Set<string>>(new Set());
   const [acceptFailedCount, setAcceptFailedCount] = useState(0);
   const [attributeDrafts, setAttributeDrafts] = useState<Record<string, ReviewGridAttributes>>({});
   const [attributePicker, setAttributePicker] = useState<ReviewGridAttributePicker | null>(null);
@@ -73,7 +72,6 @@ export default function ReviewGridScreen() {
     if (cardsToAccept.length === 0) return;
     const scanIds = cardsToAccept.map((card) => card.scanId);
     setAcceptFailedCount(0);
-    updateSet(setAcceptingScanIds, scanIds, true);
     updateSet(setHiddenScanIds, scanIds, true);
     const attributeUpdates = new Map<string, ReviewGridAttributeUpdate>();
     for (const card of cardsToAccept) {
@@ -81,13 +79,16 @@ export default function ReviewGridScreen() {
       if (update) attributeUpdates.set(card.scanId, update);
     }
     const failed = await acceptReviewCards(queryClient, cardsToAccept, attributeUpdates);
-    updateSet(setAcceptingScanIds, scanIds, false);
     updateSet(
       setHiddenScanIds,
       failed.map((card) => card.scanId),
       false,
     );
     setAcceptFailedCount(failed.length);
+    const acceptedCount = cardsToAccept.length - failed.length;
+    if (acceptedCount > 0) {
+      AccessibilityInfo.announceForAccessibility(t("reviewGrid.accepted", { count: acceptedCount }));
+    }
   };
 
   const switchLayout = (layout: ReviewLayout) => {
@@ -156,6 +157,16 @@ export default function ReviewGridScreen() {
         title={t("reviewGrid.title")}
         subtitle={review.data ? t("reviewGrid.remaining", { count: remaining }) : null}
         onBack={() => router.back()}
+        tabs={
+          <TabStrip<ReviewLayout>
+            items={[
+              { value: "grid", label: t("reviewGrid.layoutGrid") },
+              { value: "single", label: t("reviewGrid.layoutOneByOne") },
+            ]}
+            value="grid"
+            onChange={switchLayout}
+          />
+        }
       />
       <FlatList
         key={columns}
@@ -174,22 +185,11 @@ export default function ReviewGridScreen() {
           />
         }
         ListHeaderComponent={
-          <View style={{ gap: SPACING.md, paddingTop: SPACING.lg }}>
-            <View style={{ marginHorizontal: -SCREEN_GUTTER }}>
-              <TabStrip<ReviewLayout>
-                items={[
-                  { value: "grid", label: t("reviewGrid.layoutGrid") },
-                  { value: "single", label: t("reviewGrid.layoutOneByOne") },
-                ]}
-                value="grid"
-                onChange={switchLayout}
-              />
-            </View>
+          <View style={{ gap: SPACING.md }}>
             {visibleCards.length > 0 ? (
               <Button
                 icon="checkAll"
                 label={t("reviewGrid.acceptAll", { count: visibleCards.length })}
-                loading={acceptingScanIds.size > 0 && visibleCards.every((card) => acceptingScanIds.has(card.scanId))}
                 onPress={() => void accept(visibleCards)}
               />
             ) : null}
@@ -203,10 +203,10 @@ export default function ReviewGridScreen() {
           review.isPending || isWaitingForMore ? (
             <View style={{ gap: SPACING.md }}>
               {Array.from({ length: 2 }).map((_, index) => (
-                <Skeleton key={index} width={tileWidth} height={tileWidth * 0.85} radius={CARD_ART_RADIUS} />
+                <Skeleton key={index} width={tileWidth} height={tileWidth * REVIEW_GRID_SKELETON_HEIGHT_RATIO} radius={CARD_ART_RADIUS} />
               ))}
             </View>
-          ) : review.isError ? null : (
+          ) : review.isError ? undefined : (
             <EmptyState
               icon="success"
               title={t("reviewGrid.doneTitle")}
@@ -221,7 +221,6 @@ export default function ReviewGridScreen() {
               card={item}
               attributes={attributesOf(item)}
               onPickAttribute={(field) => setAttributePicker({ card: item, field })}
-              accepting={acceptingScanIds.has(item.scanId)}
               onAccept={() => void accept([item])}
               onCorrect={() =>
                 router.push({ pathname: "/card/[scanId]", params: { scanId: item.scanId, guid: item.collectionGuid } })

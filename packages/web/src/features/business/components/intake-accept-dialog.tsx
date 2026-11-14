@@ -125,7 +125,11 @@ export function IntakeAcceptDialog({
             render={({ field }) => (
               <label className="flex items-center justify-between gap-3">
                 <span className="text-sm">{t("intake.overrideLabel")}</span>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch
+                  aria-label={t("intake.overrideLabel")}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </label>
             )}
           />
@@ -151,7 +155,7 @@ export function IntakeAcceptDialog({
               )}
             />
           )}
-          <div className="rounded-xl bg-muted p-3">
+          <div className="rounded-lg bg-foreground/6 p-3">
             <p className="text-xs text-foreground/70">
               {t(`intake.payoutTotal.${payoutMethod}`)}
             </p>

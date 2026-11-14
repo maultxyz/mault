@@ -2,12 +2,11 @@
   "title": "Integrations",
   "subtitle": "Connect Mault to other apps and choose what gets posted where.",
   "discord": {
-    "heading": "Discord",
-    "description": "Post scans and alerts to your Discord server.",
     "connectedTo": "Connected to {{server}}",
     "statusLinked": "Linked",
     "statusNotLinked": "Not linked",
     "botUnreachable": "Couldn't reach the Discord bot, so channel names and permissions can't be shown right now.",
+    "loadFailed": "Couldn't load the Discord settings.",
     "botNotInServer": "The bot isn't in your linked server anymore. Add it back, then link again.",
     "connection": "Connection"
   },

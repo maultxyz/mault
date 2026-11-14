@@ -971,7 +971,9 @@ export interface BinCorrectionDialogProps {
 export interface CorrectionAutoCloseTimerProps {
   seconds: number;
   willMove: boolean;
+  isPaused: boolean;
   onElapsed: () => void;
+  onKeepOpen: () => void;
 }
 
 export interface BinCorrectionTileProps {

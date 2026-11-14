@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
+import { CardArt } from "@/components/cards/card-art";
 import { useTranslation } from "react-i18next";
 import { FlatList, RefreshControl, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
@@ -47,8 +48,8 @@ function MatchValidationScanRow({ scan, authHeaders }: MatchValidationScanRowPro
         </View>
         <View style={thumbnailFrame}>
           {catalogUrl ? (
-            <Image
-              source={{ uri: catalogUrl }}
+            <CardArt
+              imageUrl={catalogUrl}
               style={{ flex: 1 }}
               contentFit="cover"
               accessibilityLabel={t("matchValidations.matchedCardAlt", { name: cardName })}
@@ -56,7 +57,7 @@ function MatchValidationScanRow({ scan, authHeaders }: MatchValidationScanRowPro
           ) : null}
         </View>
       </View>
-      <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+      <View style={{ flex: 1, minWidth: 0, gap: SPACING.xs }}>
         <AppText weight="medium" numberOfLines={1}>
           {cardName}
         </AppText>

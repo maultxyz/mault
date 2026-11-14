@@ -25,7 +25,6 @@ export interface ReviewGridData {
 export interface ReviewGridTileProps {
   card: ReviewGridCard;
   attributes: ReviewGridAttributes;
-  accepting: boolean;
   onAccept: () => void;
   onCorrect: () => void;
   onPickAttribute: (field: ReviewGridAttributeField) => void;
@@ -178,6 +177,16 @@ export interface CardTagToggle {
   isUndo?: boolean;
 }
 
+export interface CardReviewAccept {
+  kind: "confirm" | "review";
+  acceptedScanId: string;
+}
+
+export interface CardReviewAcceptState {
+  status: "idle" | "pending" | "success" | "error";
+  variables: CardReviewAccept | undefined;
+}
+
 export interface CardArtImageUrls {
   normal?: string | null;
   small?: string | null;
@@ -192,6 +201,13 @@ export type CardArtProps = Omit<ImageProps, "source" | "placeholder" | "placehol
   imageUrl: string | null;
   placeholderUrl?: string | null;
 };
+
+export interface CardThumbnailProps {
+  imageUrl: string | null;
+  placeholderUrl?: string | null;
+  width?: number;
+  accessibilityLabel?: string;
+}
 
 export interface ScanDraftSave {
   values: ScanDraftFormValues;

@@ -15,7 +15,7 @@ export function useOrgApiKeys() {
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
   const keysOptions = orgApiKeysQueryOptions(activeOrg?.id);
-  const { data, isLoading, isError } = useQuery(keysOptions);
+  const { data, isLoading, isError, refetch } = useQuery(keysOptions);
   const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
 
   const invalidate = () =>
@@ -53,6 +53,7 @@ export function useOrgApiKeys() {
     isLocked: billing?.apiAccess === false,
     isLoading,
     isError,
+    refetch,
     create,
     revoke,
   };

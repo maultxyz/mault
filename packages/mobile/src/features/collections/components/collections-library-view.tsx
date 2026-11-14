@@ -13,11 +13,12 @@ import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
+import { Skeleton } from "@/components/ui/skeleton";
 import { TabStrip } from "@/components/ui/tab-strip";
 import { CollectionChangeTrend } from "@/features/collections/components/collection-change-trend";
 import { widgetSummaryQueryOptions } from "@/features/widgets/api/widget-summary";
 import { valueChangeOf } from "@magic-vault/shared";
-import { LIBRARY_VALUE_MODES } from "@/lib/constants/library";
+import { LIBRARY_CHANGE_PILL_MIN_WIDTH, LIBRARY_CHANGE_SPARKLINE, LIBRARY_VALUE_MODES } from "@/lib/constants/library";
 import type { LibraryValueMode } from "@/lib/interfaces/library";
 import { useCollectionActions } from "@/features/collections/api/use-collection-actions";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
@@ -124,6 +125,13 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
       }
     >
       {collectionsQuery.isError ? <Callout tone="destructive" title={t("collections.loadFailed")} /> : null}
+      {valueMode === "change" && widgetSummary.isError ? (
+        <Callout
+          tone="destructive"
+          title={t("library.changeLoadFailed")}
+          action={<Button label={t("recovery.retry")} onPress={() => void widgetSummary.refetch()} />}
+        />
+      ) : null}
       {collectionActions.empty.isError || collectionActions.remove.isError ? (
         <Callout
           tone="destructive"
@@ -166,15 +174,19 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
                 value={valueMode === "value" ? rowValue(value) : null}
                 trailing={
                   valueMode === "change" ? (
+                    widgetSummary.isPending ? (
+                      <Skeleton width={LIBRARY_CHANGE_SPARKLINE.width + LIBRARY_CHANGE_PILL_MIN_WIDTH} height={LIBRARY_CHANGE_SPARKLINE.height} />
+                    ) : (
                     <CollectionChangeTrend
                       values={change.values}
                       baseline={change.baseline}
                       change={change.change}
                       noChangeLabel={t("library.noChange")}
                     />
+                    )
                   ) : undefined
                 }
-                trailingAccessibilityLabel={change.label}
+                trailingAccessibilityLabel={widgetSummary.isPending ? undefined : change.label}
                 subtitle={[statusLabel, t("collection.cardsCount", { count: collection.cardCount })]
                   .filter(Boolean)
                   .join(" · ")}

@@ -96,7 +96,9 @@
     "shareLinkWithCount_other": "Link zur Live-Ansicht teilen ({{count}} aktiv)",
     "scanTarget": "Hier wird gescannt",
     "scanInto": "In diese Sammlung scannen",
-    "scan": "Scannen"
+    "scan": "Scannen",
+    "notFoundTitle": "Sammlung nicht gefunden",
+    "notFoundDescription": "Sie wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf."
   },
   "shareLink": {
     "collectionTitle": "Live-Ansicht teilen",
@@ -210,8 +212,14 @@
     "activity": {
       "title": "Scan-Aktivität",
       "description": {
-        "day": "Gescannte Karten pro Tag",
-        "week": "Gescannte Karten pro Woche"
+        "count": {
+          "day": "Gescannte Karten pro Tag",
+          "week": "Gescannte Karten pro Woche"
+        },
+        "value": {
+          "day": "Wert der pro Tag gescannten Karten",
+          "week": "Wert der pro Woche gescannten Karten"
+        }
       },
       "metrics": {
         "count": "Karten",
@@ -244,7 +252,8 @@
         "avgValue": "Ø Karte",
         "scansInRange": "Gescannt",
         "lastScanAt": "Letzter Scan"
-      }
+      },
+      "filterHint": "Zeigt die Statistik für diese Sammlung"
     },
     "prices": {
       "title": "Preisverteilung",
@@ -375,7 +384,8 @@
         "confirmationSent": "Bestätigungs-E-Mail gesendet",
         "confirmationSentDescription": "Öffne {{email}} und klicke auf den Link, um die Änderung abzuschließen.",
         "updateFailed": "E-Mail konnte nicht aktualisiert werden",
-        "sameAsCurrent": "Das ist bereits deine aktuelle E-Mail-Adresse"
+        "sameAsCurrent": "Das ist bereits deine aktuelle E-Mail-Adresse",
+        "change": "E-Mail-Adresse ändern"
       },
       "password": {
         "heading": "Passwort",
@@ -385,7 +395,8 @@
         "revokeOtherSessions": "Auf allen anderen Geräten abmelden",
         "submit": "Passwort aktualisieren",
         "updated": "Passwort aktualisiert",
-        "updateFailed": "Passwort konnte nicht aktualisiert werden"
+        "updateFailed": "Passwort konnte nicht aktualisiert werden",
+        "change": "Passwort ändern"
       },
       "sessions": {
         "heading": "Sitzungen",
@@ -411,13 +422,16 @@
         "cancel": "Abbrechen"
       },
       "localSubtitle": "Deine Kontodaten. Bitte einen Admin dieses Servers, sie zu ändern.",
-      "nameLabel": "Name"
+      "nameLabel": "Name",
+      "signInHeading": "Anmeldung"
     },
     "settingsRow": "Kontoeinstellungen",
     "settingsRowSubtitle": "Name, E-Mail, Passwort und Sitzungen",
     "settingsRowSubtitleLocal": "Dein Name und deine E-Mail",
     "language": "Sprache",
-    "languageSystem": "Sprache des Telefons"
+    "languageSystem": "Sprache des Telefons",
+    "sorterConnection": "Sortierer-Verbindung",
+    "manageSection": "Verwalten"
   },
   "sorter": {
     "noSorter": "Kein Sortierer verbunden",
@@ -530,7 +544,9 @@
       "online": "Online",
       "offline": "Offline",
       "inUse": "Auf einem anderen Gerät in Verwendung"
-    }
+    },
+    "showCommLog": "Kommunikationsprotokoll anzeigen",
+    "hideCommLog": "Kommunikationsprotokoll ausblenden"
   },
   "retractCard": {
     "failedTitle": "Karte konnte nicht zurückgezogen werden",
@@ -716,6 +732,7 @@
       "handScanDescription": "Ohne Sortierer scannen. Tippe auf Start und halte eine Karte ruhig ins Bild, dann wird sie automatisch gescannt.",
       "handScanBins": "In Fächer sortieren",
       "handScanBinsDescription": "Zeigt mit deinem Preset, in welches Fach jede Karte gehört. Aus lassen, um Karten nur in der Sammlung zu speichern.",
+      "handScanBinsNoPreset": "Wähle ein Preset für dieses Spiel, um Karten in Fächer zu sortieren.",
       "camera": "Kamera",
       "cameraFallback": "Kamera {{number}}",
       "cameraPosition": {
@@ -865,7 +882,7 @@
       "today": "Heute",
       "scans_one": "{{count}} Scan",
       "scans_other": "{{count}} Scans",
-      "chartLabel": "Scans pro Tag in den letzten 14 Tagen",
+      "chartLabel": "Scans pro Tag in den letzten {{count}} Tagen",
       "lastDays_one": "Letzte {{count}} Tag",
       "lastDays_other": "Letzte {{count}} Tage"
     },
@@ -994,7 +1011,10 @@
       "deletedSorter": "{{name}} (gelöscht)"
     },
     "name": "Name",
-    "actions": "Kartenaktionen"
+    "actions": "Kartenaktionen",
+    "similarMatchesCount_one": "{{count}} ähnliche Übereinstimmung",
+    "similarMatchesCount_other": "{{count}} ähnliche Übereinstimmungen",
+    "reviewAcceptFailed": "Die vorherige Karte konnte nicht bestätigt werden"
   },
   "reviewGrid": {
     "title": "Karten prüfen",
@@ -1012,7 +1032,9 @@
     "done": "Fertig",
     "loadFailed": "Die zu prüfenden Karten konnten nicht geladen werden. Versuche es erneut.",
     "acceptFailed_one": "{{count}} Karte konnte nicht bestätigt werden. Versuche es erneut.",
-    "acceptFailed_other": "{{count}} Karten konnten nicht bestätigt werden. Versuche es erneut."
+    "acceptFailed_other": "{{count}} Karten konnten nicht bestätigt werden. Versuche es erneut.",
+    "accepted_one": "{{count}} Karte bestätigt",
+    "accepted_other": "{{count}} Karten bestätigt"
   },
   "rules": {
     "title": "Sortierregeln",
@@ -1237,7 +1259,9 @@
     },
     "maxCardsLabel": "Max. Karten",
     "maxCardsPlaceholder": "Kein Limit",
-    "maxCardsDescription": "Das Sortieren pausiert, wenn dieses Fach so viele Karten enthält, auch wenn noch Platz ist. Leer lassen, um die physische Größe des Fachs zu nutzen."
+    "maxCardsDescription": "Dieses Fach gilt bei so vielen Karten als voll, auch wenn noch Platz ist: Passende Karten gehen dann in sein Überlauffach oder das Sortieren pausiert. Leer lassen, um die physische Größe des Fachs zu nutzen.",
+    "maxCardsPill_one": "Fasst {{count}}",
+    "maxCardsPill_other": "Fasst {{count}}"
   },
   "calibration": {
     "title": "Sortierer einrichten",
@@ -1565,7 +1589,10 @@
     },
     "share": "Lagerort teilen",
     "shareWithCount_one": "Lagerort teilen ({{count}} aktiv)",
-    "shareWithCount_other": "Lagerort teilen ({{count}} aktiv)"
+    "shareWithCount_other": "Lagerort teilen ({{count}} aktiv)",
+    "searchFailed": "Die Lagerorte konnten nicht durchsucht werden",
+    "notFoundTitle": "Lagerort nicht gefunden",
+    "notFoundDescription": "Er wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf."
   },
   "settings": {
     "title": "Einstellungen",
@@ -1617,7 +1644,26 @@
       "heading": "Erscheinungsbild",
       "description": "Passe die Akzentfarbe der App an.",
       "primaryColor": "Primärfarbe",
-      "resetColor": "Auf Standard zurücksetzen"
+      "resetColor": "Auf Standard zurücksetzen",
+      "colors": {
+        "red": "Rot",
+        "orange": "Orange",
+        "amber": "Bernstein",
+        "yellow": "Gelb",
+        "lime": "Limette",
+        "green": "Grün",
+        "emerald": "Smaragd",
+        "teal": "Blaugrün",
+        "cyan": "Cyan",
+        "sky": "Himmelblau",
+        "blue": "Blau",
+        "indigo": "Indigo",
+        "violet": "Violett",
+        "purple": "Lila",
+        "fuchsia": "Fuchsia",
+        "pink": "Pink",
+        "rose": "Rosé"
+      }
     },
     "leaderboard": {
       "heading": "Bestenliste",
@@ -3015,6 +3061,7 @@
     "reviewTitle": "Angebot von {{name}}",
     "respondFailed": "Antwort auf das Tauschangebot fehlgeschlagen.",
     "answered": "Dieses Tauschangebot wurde schon beantwortet.",
+    "loadFailed": "Das Tauschangebot konnte nicht geladen werden",
     "reviewDescription": "Gesendet über {{source}} am {{date}}",
     "unknownSource": "einen geteilten Link",
     "contact": "Kontakt",
@@ -3081,6 +3128,7 @@
     "selectedCount_other": "{{count}} ausgewählt",
     "searchLinkCards": "Diese Karten durchsuchen",
     "noLinkCards": "Keine Karten gefunden",
+    "linkCardsLoadFailed": "Die Karten dieses Links konnten nicht geladen werden",
     "tapToAdd": "Fügt sie deinem Tauschangebot hinzu",
     "tapToRemove": "Entfernt sie aus deinem Tauschangebot",
     "loadMore": "Mehr laden",
@@ -3095,6 +3143,7 @@
     "added": "{{name}} zu deinem Angebot hinzugefügt",
     "noCollections": "Du hast noch keine Sammlung",
     "noCollectionCards": "Keine Karten gefunden",
+    "collectionCardsLoadFailed": "Die Karten dieser Sammlung konnten nicht geladen werden",
     "scanCollectionLabel": "Karten abgleichen mit",
     "scanHint": "Halte eine deiner Karten in den Rahmen und tippe auf den Auslöser, um sie hinzuzufügen.",
     "scanButton": "Karte scannen",
@@ -3249,6 +3298,7 @@
       "value": "Wert",
       "change": "Änderung"
     },
-    "noChange": "Noch kein Verlauf"
+    "noChange": "Noch kein Verlauf",
+    "changeLoadFailed": "Wertänderungen konnten nicht geladen werden"
   }
 }

@@ -152,7 +152,7 @@ function StoragePickListView() {
           isMobile
             ? MOBILE_PAGE_BODY_CLASS
             : cn(
-                "mx-auto flex w-full flex-col gap-4 p-4 md:px-3 md:py-2",
+                "mx-auto flex w-full flex-col gap-4 md:gap-2 p-4 md:px-3 md:py-2",
                 showScanPanel ? "max-w-6xl" : "max-w-4xl",
               )
         }

@@ -13,7 +13,7 @@ export function Pill({ label, tone = "neutral", icon }: PillProps) {
     info: { bg: colors.infoMuted, border: "transparent", fg: colors.infoForeground },
     success: { bg: colors.successMuted, border: "transparent", fg: colors.successForeground },
     warning: { bg: colors.warningMuted, border: "transparent", fg: colors.warningForeground },
-    destructive: { bg: colors.destructiveTint, border: "transparent", fg: colors.destructive },
+    destructive: { bg: colors.destructiveTint, border: "transparent", fg: colors.destructiveForeground },
     primary: { bg: colors.primary, border: "transparent", fg: colors.primaryForeground },
   }[tone];
   const isStatusTone = tone !== "neutral";

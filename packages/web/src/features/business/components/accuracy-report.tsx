@@ -1,5 +1,6 @@
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { StatGroup } from "@/components/stat-group";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,7 +42,12 @@ export function AccuracyReportView({
   const { collections, activeCollection } = useCollections();
   const selectedGuid = collectionGuid ?? activeCollection?.guid ?? null;
   const selected = collections.find((c) => c.guid === selectedGuid);
-  const { data: report, isLoading } = useQuery(
+  const {
+    data: report,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(
     accuracyReportQueryOptions(selectedGuid, null),
   );
   const [startOpen, setStartOpen] = useState(false);
@@ -83,6 +89,11 @@ export function AccuracyReportView({
 
       {!selectedGuid ? (
         <EmptyState icon={IconTargetArrow} title={t("accuracy.pickCollection")} />
+      ) : isError && !report ? (
+        <LoadErrorCallout
+          message={t("errors.loadFailed")}
+          onRetry={() => void refetch()}
+        />
       ) : isLoading || !report || !stats ? (
         <ListSkeleton rows={6} />
       ) : (

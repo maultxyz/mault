@@ -501,6 +501,7 @@ export interface ReviewGridProps {
   total: number;
   isLoading: boolean;
   isError: boolean;
+  onRetry?: () => void;
   onOpenOneByOne: (card: ReviewGridCard) => void;
   onClose: () => void;
   onCorrect?: (card: ReviewGridCard, correctedCard: PlayingCard) => void;
@@ -656,6 +657,7 @@ export interface ReviewQueueListProps {
   totalCards: number;
   isPending: boolean;
   isError: boolean;
+  onRetry?: () => void;
   currentScanId: string | null;
   reviewedScanIds: ReadonlySet<string>;
   removedScanIds: ReadonlySet<string>;

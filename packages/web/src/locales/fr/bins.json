@@ -90,11 +90,12 @@
     "advancedTitle": "Avancé",
     "rulesSectionDescription": "Les cartes qui correspondent vont dans ce bac.",
     "maxCardsLabel": "Cartes max.",
-    "maxCardsDescription": "Le tri se met en pause quand ce bac contient autant de cartes, même s'il reste de la place. Laissez vide pour utiliser la taille physique du bac.",
+    "maxCardsDescription": "Ce bac est considéré comme plein à ce nombre de cartes, même s'il reste de la place : les cartes correspondantes vont alors dans son bac de débordement ou le tri se met en pause. Laissez vide pour utiliser la taille physique du bac.",
     "maxCardsPlaceholder": "Aucune limite"
   },
   "binList": {
-    "needCatchAll": "Un bac doit être défini comme fourre-tout."
+    "needCatchAll": "Un bac doit être défini comme fourre-tout.",
+    "loadFailed": "Impossible de charger vos bacs."
   },
   "binLocationDiagram": {},
   "conditionRow": {

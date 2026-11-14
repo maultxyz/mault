@@ -1,6 +1,7 @@
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { Callout } from "@/components/callout";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SaveBar } from "@/components/save-bar";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
@@ -24,9 +25,20 @@ import { useTranslation } from "react-i18next";
 
 export function PlanSettingsManager() {
   const { t } = useTranslation("admin");
-  const { form, data, isLoading, save, restoreDefaults } =
+  const { form, data, isLoading, isError, refetch, save, restoreDefaults } =
     usePlanSettingsDraft();
   const { isDirty, isSubmitting, errors } = form.formState;
+
+  if (isError) {
+    return (
+      <SettingsSection heading={t("plans.featuresHeading")}>
+        <LoadErrorCallout
+          message={t("plans.loadFailed")}
+          onRetry={() => void refetch()}
+        />
+      </SettingsSection>
+    );
+  }
 
   if (isLoading || !data) {
     return (

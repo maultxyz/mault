@@ -1,6 +1,7 @@
 import { Callout } from "@/components/callout";
 import { DisplayHeadline } from "@/components/display-headline";
 import { EmptyState } from "@/components/empty-state";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
 import { PiSorterCalibrationLink } from "@/features/calibration/components/pi-sorter-calibration-link";
@@ -73,7 +74,15 @@ export function HomeDashboard() {
       <DisplayHeadline title={title} subtitle={t("subtitle")} />
 
       {overview.isError && (
-        <Callout variant="error" icon={IconAlertTriangle}>
+        <Callout
+          variant="error"
+          icon={IconAlertTriangle}
+          action={
+            <Button variant="outline" onClick={() => void overview.refetch()}>
+              {t("common:a11y.retry")}
+            </Button>
+          }
+        >
           {t("loadFailed")}
         </Callout>
       )}
@@ -118,7 +127,11 @@ export function HomeDashboard() {
                   key={guid}
                   icon={IconBroadcast}
                   tone="success"
-                  title={t("live.title", { name: lock.displayName, collection: collectionNames.get(guid) ?? "" })}
+                  title={
+                    collectionNames.has(guid)
+                      ? t("live.title", { name: lock.displayName, collection: collectionNames.get(guid) })
+                      : t("live.scanningBy", { name: lock.displayName })
+                  }
                   description={t("live.scanning")}
                   to={collectionPath(guid)}
                 />

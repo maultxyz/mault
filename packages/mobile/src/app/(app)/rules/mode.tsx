@@ -248,7 +248,7 @@ export default function SortingModeScreen() {
                 {matchGameKeys.length === 0 ? (
                   <Callout tone="warning" title={t("rules.mode.matchGamesEmpty")} />
                 ) : (
-                  <AppText size="sm" tone="secondary">
+                  <AppText size="xs" tone="secondary">
                     {t("rules.mode.matchGamesHint")}
                   </AppText>
                 )}

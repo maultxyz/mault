@@ -15,7 +15,7 @@ export default function HomePage() {
       {isMobile && <MobilePageHeader title={t("title")} />}
       <div className={cn("min-h-0 flex-1 overflow-y-auto", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
         {!isMobile && <PageHeader title={t("title")} />}
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:px-3 md:py-2">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 md:gap-2 p-4 md:px-3 md:py-2">
           <HomeDashboard />
         </div>
       </div>

@@ -9,7 +9,7 @@ export function useShareLinks(subjectGuid: string) {
   const { t } = useTranslation("share-links");
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
-  const { data, isLoading, isError } = useQuery(
+  const { data, isLoading, isError, refetch } = useQuery(
     shareLinksQueryOptions(activeOrg?.id, subjectGuid),
   );
 
@@ -24,5 +24,5 @@ export function useShareLinks(subjectGuid: string) {
       queryClient.invalidateQueries({ queryKey: SHARE_LINKS_QUERY_KEY }),
   });
 
-  return { links: data ?? [], isLoading, isError, revoke };
+  return { links: data ?? [], isLoading, isError, retry: () => void refetch(), revoke };
 }

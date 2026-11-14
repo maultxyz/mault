@@ -36,7 +36,7 @@ export default function AuthPage() {
       <main
         id={MAIN_CONTENT_ID}
         tabIndex={-1}
-        className="bg-muted flex min-h-screen flex-col items-center justify-center gap-6 p-4 outline-none"
+        className="bg-background flex min-h-screen flex-col items-center justify-center gap-6 p-4 outline-none"
       >
         <h1 className="sr-only">{t(headingKey)}</h1>
         <BrandMark />

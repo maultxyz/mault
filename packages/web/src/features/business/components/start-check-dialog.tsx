@@ -101,7 +101,11 @@ export function StartCheckDialog({
             render={({ field }) => (
               <label className="flex items-center justify-between gap-3">
                 <span className="text-sm">{t("accuracy.unreviewedOnly")}</span>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch
+                  aria-label={t("accuracy.unreviewedOnly")}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </label>
             )}
           />

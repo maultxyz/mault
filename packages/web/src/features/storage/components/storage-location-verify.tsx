@@ -1,4 +1,5 @@
 import { Callout } from "@/components/callout";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { Button } from "@/components/ui/button";
@@ -36,7 +37,9 @@ export function StorageLocationVerify({
 
   if (verify.isLoading) return <ListSkeleton />;
   if (verify.isError) {
-    return <Callout variant="error">{t("verify.loadFailed")}</Callout>;
+    return (
+      <LoadErrorCallout message={t("verify.loadFailed")} onRetry={verify.retry} />
+    );
   }
   if (verify.cards.length === 0) {
     return (

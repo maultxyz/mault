@@ -113,7 +113,19 @@
     "emptyDescription": "Entfernt dauerhaft alle Karten aus den ausgewählten Sammlungen, behält aber die Sammlungen selbst. Dies kann nicht rückgängig gemacht werden.",
     "deleteTitle_one": "{{count}} Sammlung löschen",
     "deleteTitle_other": "{{count}} Sammlungen löschen",
-    "deleteDescription": "Löscht die ausgewählten Sammlungen und blendet alle enthaltenen Karten aus. Wende dich an den Support, wenn du sie zurück brauchst."
+    "deleteDescription": "Löscht die ausgewählten Sammlungen und blendet alle enthaltenen Karten aus. Wende dich an den Support, wenn du sie zurück brauchst.",
+    "progress": {
+      "delete": "{{current}} von {{total}} Sammlungen werden gelöscht",
+      "empty": "{{current}} von {{total}} Sammlungen werden geleert",
+      "deleteDone_one": "{{count}} Sammlung gelöscht",
+      "deleteDone_other": "{{count}} Sammlungen gelöscht",
+      "emptyDone_one": "{{count}} Sammlung geleert",
+      "emptyDone_other": "{{count}} Sammlungen geleert",
+      "deleteFailed_one": "{{count}} von {{total}} Sammlungen konnte nicht gelöscht werden",
+      "deleteFailed_other": "{{count}} von {{total}} Sammlungen konnten nicht gelöscht werden",
+      "emptyFailed_one": "{{count}} von {{total}} Sammlungen konnte nicht geleert werden",
+      "emptyFailed_other": "{{count}} von {{total}} Sammlungen konnten nicht geleert werden"
+    }
   },
   "emptyChoice": {
     "title": "{{name}} leeren",

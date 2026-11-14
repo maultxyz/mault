@@ -1,24 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
 import { LEADERBOARD_SIZE } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
-import { Pill } from "@/components/ui/pill";
+import { ListGroup } from "@/components/ui/list-group";
+import { ListRow } from "@/components/ui/list-row";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Sheet } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
 import { leaderboardQueryOptions } from "@/features/stats/api/stats";
 import { buildLeaderboardRows } from "@/features/stats/lib/stats-breakdown";
 import { useActiveOrgId } from "@/hooks/use-org";
-import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
+import { LIST_ROW_ICON_SIZE } from "@/lib/constants/ui";
 import type { StatsLeaderboardSheetProps } from "@/lib/interfaces/stats";
 
 export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardSheetProps) {
   const { t, i18n } = useTranslation();
-  const colors = useTheme();
   const orgId = useActiveOrgId();
   const { data: leaderboard, isPending, isError } = useQuery({
     ...leaderboardQueryOptions(orgId),
@@ -36,11 +35,7 @@ export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardShee
       {isError ? (
         <Callout tone="destructive" title={t("stats.leaderboard.error")} />
       ) : isPending || !leaderboard ? (
-        <View style={{ gap: SPACING.sm }}>
-          {[0, 1, 2, 3, 4].map((key) => (
-            <Skeleton key={key} height={44} />
-          ))}
-        </View>
+        <ListSkeleton rows={5} />
       ) : (
         <>
           {!leaderboard.optedIn ? (
@@ -61,41 +56,28 @@ export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardShee
               }
             />
           ) : null}
-          <View>
+          <ListGroup>
             {buildLeaderboardRows(leaderboard).map(({ key, entry }) => (
-              <View
+              <ListRow
                 key={key}
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                  gap: SPACING.md,
-                  minHeight: 52,
-                  paddingHorizontal: SPACING.sm,
-                  marginHorizontal: -SPACING.sm,
-                  borderRadius: RADIUS.md,
-                  backgroundColor: entry.isOwnOrg ? colors.primarySelected : "transparent",
-                }}
-              >
-                <AppText weight="bold" style={{ width: 40 }}>
-                  {t("stats.leaderboard.rank", { rank: entry.rank })}
-                </AppText>
-                <View style={{ flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-                  <AppText weight="medium" numberOfLines={1} style={{ flexShrink: 1 }}>
-                    {entry.name ?? t("stats.leaderboard.unknownOrg")}
+                leading={
+                  <AppText weight="bold" style={{ width: LIST_ROW_ICON_SIZE }}>
+                    {t("stats.leaderboard.rank", { rank: entry.rank })}
                   </AppText>
-                  {entry.isOwnOrg ? (
-                    <Pill
-                      tone="info"
-                      label={leaderboard.optedIn ? t("stats.leaderboard.you") : t("stats.leaderboard.hidden")}
-                    />
-                  ) : null}
-                </View>
-                <AppText>
-                  {entry.scanCount.toLocaleString(i18n.language)}
-                </AppText>
-              </View>
+                }
+                title={entry.name ?? t("stats.leaderboard.unknownOrg")}
+                subtitle={
+                  entry.isOwnOrg
+                    ? leaderboard.optedIn
+                      ? t("stats.leaderboard.you")
+                      : t("stats.leaderboard.hidden")
+                    : undefined
+                }
+                value={entry.scanCount.toLocaleString(i18n.language)}
+                selected={entry.isOwnOrg}
+              />
             ))}
-          </View>
+          </ListGroup>
         </>
       )}
     </Sheet>

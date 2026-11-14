@@ -56,7 +56,6 @@ export function ScannerControlsSheet({
           subtitle={t("scan.controls.scanNowDescription")}
           subtitleNumberOfLines={0}
           disabled={running || !canScan || busy !== null}
-          right={spinner("scan")}
           onPress={() => {
             onScanNow();
             onClose();

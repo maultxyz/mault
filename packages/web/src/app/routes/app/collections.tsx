@@ -28,6 +28,7 @@ import {
 } from "@/lib/constants/collections";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
+import { toast } from "@/lib/toast";
 import {
   IconAlbum,
   IconEraser,
@@ -86,6 +87,7 @@ export default function CollectionsPage() {
   const [selectedGuids, setSelectedGuids] = useState<Set<string>>(new Set());
   const [lastToggledGuid, setLastToggledGuid] = useState<string | null>(null);
   const [bulkAction, setBulkAction] = useState<"empty" | "delete" | null>(null);
+  const [isBulkRunning, setIsBulkRunning] = useState(false);
   useHotkeys({
     clearSelection:
       selectedGuids.size > 0 ? () => setSelectedGuids(new Set()) : undefined,
@@ -121,10 +123,34 @@ export default function CollectionsPage() {
     const action = bulkAction;
     const guids = liveSelectedGuids;
     setBulkAction(null);
-    for (const guid of guids) {
-      if (action === "delete") await deleteCollection(guid);
-      else if (action === "empty") await emptyCollection(guid);
+    if (!action || guids.length === 0) return;
+    setIsBulkRunning(true);
+    const total = guids.length;
+    const progressToastId = toast.loading(
+      t(`selection.progress.${action}`, { current: 1, total }),
+    );
+    let failedCount = 0;
+    for (const [index, guid] of guids.entries()) {
+      toast.loading(t(`selection.progress.${action}`, { current: index + 1, total }), {
+        id: progressToastId,
+      });
+      const succeeded =
+        action === "delete"
+          ? await deleteCollection(guid)
+          : await emptyCollection(guid);
+      if (!succeeded) failedCount += 1;
     }
+    if (failedCount === 0) {
+      toast.success(t(`selection.progress.${action}Done`, { count: total }), {
+        id: progressToastId,
+      });
+    } else {
+      toast.dismiss(progressToastId);
+      toast.error(
+        t(`selection.progress.${action}Failed`, { count: failedCount, total }),
+      );
+    }
+    setIsBulkRunning(false);
     setSelectedGuids(new Set());
     void queryClient.invalidateQueries({
       queryKey: collectionsQueryOptions.queryKey,
@@ -369,7 +395,7 @@ export default function CollectionsPage() {
                 <Button
                   variant="ghost"
                   className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}
-                  disabled={isMutating}
+                  disabled={isMutating || isBulkRunning}
                   onClick={() =>
                     setEmptyChoice({
                       targets: collections
@@ -385,7 +411,7 @@ export default function CollectionsPage() {
                 <Button
                   variant="destructive"
                   className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
-                  disabled={isMutating}
+                  disabled={isMutating || isBulkRunning}
                   onClick={() => setBulkAction("delete")}
                 >
                   <IconTrash />

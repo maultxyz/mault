@@ -145,7 +145,7 @@ export function useScanSession({
   const [handScanBins, setHandScanBinsState] = useState(
     () => readKv(HAND_SCAN_BINS_KEY) === "true",
   );
-  const routesIntoBins = sorter.isConnected || handScanBins;
+  const routesIntoBins = sorter.isReady || handScanBins;
   const handScanActive = handScan && !sorter.isReady;
 
   const set = useMemo(() => {
@@ -1287,6 +1287,7 @@ export function useScanSession({
     handScanBins,
     setHandScanBins,
     handScanActive,
+    hasBinPreset: !!set,
     trackLiveCorners,
     forcedFoilType,
     setForcedFoilType,

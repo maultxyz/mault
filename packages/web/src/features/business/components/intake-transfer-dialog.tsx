@@ -175,7 +175,13 @@ export function IntakeTransferDialog({
                       {t("transfer.deleteSourceHint")}
                     </span>
                   </span>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch
+                    aria-label={t("transfer.deleteSource", {
+                      name: lot.collectionName,
+                    })}
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
                 </label>
               )}
             />

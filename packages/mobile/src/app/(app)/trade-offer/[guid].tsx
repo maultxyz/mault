@@ -3,8 +3,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, View } from "react-native";
 import { formatPrice } from "@magic-vault/shared";
-import { CardArt } from "@/components/cards/card-art";
-import type { TradeOfferCardsProps } from "@/lib/interfaces/trade-offers";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -12,56 +10,14 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
+import { SectionHeader } from "@/components/ui/section-header";
 import { Surface } from "@/components/ui/surface";
 import { pendingTradeOffersQueryOptions, respondToTradeOffer } from "@/features/trade-offers/api/trade-offers";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
-import { TRADE_OFFER_CARD_IMAGE_WIDTH, TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
-import { CARD_THUMBNAIL_RADIUS, SPACING } from "@/lib/constants/theme";
-
-function TradeOfferCards({ cards, prices, priceSource }: TradeOfferCardsProps) {
-  const { t } = useTranslation();
-  const colors = useTheme();
-  return (
-    <View style={{ gap: SPACING.sm }}>
-      {cards.map((card, index) => (
-        <View
-          key={"scanId" in card ? card.scanId : `${card.gameKey}-${card.cardId}-${index}`}
-          style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}
-        >
-          <CardArt
-            imageUrl={card.imageUrl}
-            accessible={false}
-            style={{
-              width: TRADE_OFFER_CARD_IMAGE_WIDTH,
-              aspectRatio: 2.5 / 3.5,
-              borderRadius: CARD_THUMBNAIL_RADIUS,
-              backgroundColor: colors.muted,
-            }}
-          />
-          <View style={{ flex: 1, minWidth: 0 }}>
-            <AppText size="sm" weight="medium" numberOfLines={2}>
-              {card.name}
-            </AppText>
-            <AppText size="xs" tone="secondary" numberOfLines={1}>
-              {[
-                card.setName || card.setCode.toUpperCase(),
-                card.condition,
-                card.isFoil ? t("tradeOffers.foil") : null,
-                "quantity" in card && card.quantity > 1 ? `×${card.quantity}` : null,
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-            </AppText>
-          </View>
-          <AppText size="sm" weight="medium">
-            {prices[index] == null ? t("tradeOffers.noPrice") : formatPrice(prices[index], priceSource)}
-          </AppText>
-        </View>
-      ))}
-    </View>
-  );
-}
+import { TradeOfferCards } from "@/features/trade-offers/components/trade-offer-cards";
+import { TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
+import { SPACING } from "@/lib/constants/theme";
 
 export default function TradeOfferScreen() {
   const { guid } = useLocalSearchParams<{ guid: string }>();
@@ -115,12 +71,14 @@ export default function TradeOfferScreen() {
                 variant="destructive"
                 label={t("tradeOffers.decline")}
                 loading={respond.isPending && respond.variables === false}
+                disabled={respond.isPending}
                 onPress={confirmDecline}
               />
               <Button
                 style={{ flex: 1 }}
                 label={t("tradeOffers.accept")}
                 loading={respond.isPending && respond.variables === true}
+                disabled={respond.isPending}
                 onPress={confirmAccept}
               />
             </>
@@ -130,6 +88,12 @@ export default function TradeOfferScreen() {
         {respond.isError ? <Callout tone="destructive" title={t("tradeOffers.respondFailed")} /> : null}
         {offers.isLoading ? (
           <ListSkeleton />
+        ) : offers.isError && !offer ? (
+          <Callout
+            tone="destructive"
+            title={t("tradeOffers.loadFailed")}
+            action={<Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={() => void offers.refetch()} />}
+          />
         ) : !offer ? (
           <EmptyState icon="check" title={t("tradeOffers.answered")} />
         ) : (
@@ -172,27 +136,23 @@ export default function TradeOfferScreen() {
                 </AppText>
               ) : null}
             </Surface>
-            <View style={{ gap: SPACING.xs }}>
-              <AppText size="sm" weight="semibold" accessibilityRole="header">
-                {t("tradeOffers.contact")}
-              </AppText>
-              <AppText selectable>{offer.guestContact}</AppText>
-              {offer.guestNote ? (
-                <AppText size="sm" tone="secondary" selectable>
-                  {offer.guestNote}
-                </AppText>
-              ) : null}
+            <View style={{ gap: SPACING.sm }}>
+              <SectionHeader title={t("tradeOffers.contact")} />
+              <Surface style={{ gap: SPACING.xs }}>
+                <AppText selectable>{offer.guestContact}</AppText>
+                {offer.guestNote ? (
+                  <AppText size="sm" tone="secondary" selectable>
+                    {offer.guestNote}
+                  </AppText>
+                ) : null}
+              </Surface>
             </View>
             <View style={{ gap: SPACING.sm }}>
-              <AppText size="sm" weight="semibold" accessibilityRole="header">
-                {t("tradeOffers.theyWant", { count: offer.wanted.length })}
-              </AppText>
+              <SectionHeader title={t("tradeOffers.theyWant", { count: offer.wanted.length })} />
               <TradeOfferCards cards={offer.wanted} prices={offer.wantedPrices} priceSource={offer.priceSource} />
             </View>
             <View style={{ gap: SPACING.sm }}>
-              <AppText size="sm" weight="semibold" accessibilityRole="header">
-                {t("tradeOffers.theyOffer", { count: offer.offered.length })}
-              </AppText>
+              <SectionHeader title={t("tradeOffers.theyOffer", { count: offer.offered.length })} />
               <TradeOfferCards cards={offer.offered} prices={offer.offeredPrices} priceSource={offer.priceSource} />
             </View>
           </>

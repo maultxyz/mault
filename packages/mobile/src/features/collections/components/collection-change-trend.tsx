@@ -5,7 +5,6 @@ import { AppText } from "@/components/ui/app-text";
 import { useTheme } from "@/hooks/use-theme";
 import {
   LIBRARY_CHANGE_PILL_MIN_WIDTH,
-  LIBRARY_CHANGE_PILL_TEXT_COLORS,
   LIBRARY_CHANGE_SPARKLINE,
 } from "@/lib/constants/library";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
@@ -26,13 +25,8 @@ export function CollectionChangeTrend({ values, baseline, change, noChangeLabel 
         ? colors.destructiveForeground
         : colors.foregroundSecondary;
   const pillBackground =
-    direction === "up" ? colors.success : direction === "down" ? colors.destructiveStrong : colors.tonal;
-  const pillText =
-    direction === "up"
-      ? LIBRARY_CHANGE_PILL_TEXT_COLORS.up
-      : direction === "down"
-        ? LIBRARY_CHANGE_PILL_TEXT_COLORS.down
-        : colors.foreground;
+    direction === "up" ? colors.successStrong : direction === "down" ? colors.destructiveStrong : colors.tonal;
+  const pillText = direction === "flat" ? colors.foreground : colors.onStatusStrong;
 
   return (
     <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
@@ -65,7 +59,7 @@ export function CollectionChangeTrend({ values, baseline, change, noChangeLabel 
           minWidth: LIBRARY_CHANGE_PILL_MIN_WIDTH,
           alignItems: "center",
           paddingHorizontal: SPACING.sm,
-          paddingVertical: SPACING.xs + 2,
+          paddingVertical: SPACING.xs,
           borderRadius: RADIUS.sm,
           borderCurve: "continuous",
           backgroundColor: pillBackground,

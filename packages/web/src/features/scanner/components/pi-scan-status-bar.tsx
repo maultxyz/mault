@@ -15,8 +15,9 @@ import {
 } from "@/features/scanner/api/pi-scan-session";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { PiCameraPreview } from "@/features/scanner/components/pi-camera-preview";
+import { StationStatusDot } from "@/features/scanner/components/station-status-dot";
+import { settlePiScanSessionRequest } from "@/features/scanner/lib/pi-scan-session-result";
 import {
-  applyPiScanState,
   getPiScanState,
   subscribePiScan,
   takePiScanAnnouncement,
@@ -139,17 +140,17 @@ export function PiScanStatusBar() {
   const paused = state.phase === "paused";
 
   const onPause = () => {
-    void (paused ? resumePiScanSession() : pausePiScanSession()).then(
-      (result) => {
-        if (result.data) applyPiScanState(result.data);
-      },
+    void settlePiScanSessionRequest(
+      paused ? resumePiScanSession() : pausePiScanSession(),
+      t("piScan.requestFailed"),
     );
   };
 
   const onStop = () => {
-    void stopPiScanSession().then((result) => {
-      if (result.data) applyPiScanState(result.data);
-    });
+    void settlePiScanSessionRequest(
+      stopPiScanSession(),
+      t("piScan.requestFailed"),
+    );
   };
 
   return (
@@ -163,12 +164,7 @@ export function PiScanStatusBar() {
           )}
         />
       )}
-      <span
-        className={cn(
-          "size-2 shrink-0 rounded-full",
-          paused ? "bg-warning" : "bg-success",
-        )}
-      />
+      <StationStatusDot status={paused ? "paused" : "sorting"} />
       <div className="min-w-0 flex-1">
         <p
           role="status"

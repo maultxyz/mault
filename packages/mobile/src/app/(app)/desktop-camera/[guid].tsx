@@ -14,9 +14,11 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
+import { CameraPermissionEmptyState } from "@/features/scanner/components/camera-permission-empty-state";
 import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
 import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { usePhoneCameraResponder } from "@/features/scanner/api/use-phone-camera-responder";
+import { CameraEmptyStateFrame } from "@/features/scanner/components/camera-empty-state-frame";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
 import { captureFrame, imageToJpegDataUrl } from "@/features/scanner/lib/frame";
@@ -96,14 +98,12 @@ export default function DesktopCameraScreen() {
     <View style={{ flex: 1, backgroundColor: colors.camera }}>
       {focused ? <StatusBar style="light" /> : null}
       {!permission.hasPermission ? (
-        <View style={[StyleSheet.absoluteFill, { justifyContent: "center", padding: SCREEN_GUTTER }]}>
-          <EmptyState
-            icon="camera"
-            title={t("scan.cameraPermissionTitle")}
-            description={t("scan.cameraPermissionDescription")}
-            action={<Button label={t("scan.allowCamera")} onPress={() => void permission.requestPermission()} />}
+        <CameraEmptyStateFrame>
+          <CameraPermissionEmptyState
+            canRequestPermission={permission.canRequestPermission}
+            onRequestPermission={() => void permission.requestPermission()}
           />
-        </View>
+        </CameraEmptyStateFrame>
       ) : device ? (
         <>
           {cameraMounted ? (
@@ -128,9 +128,9 @@ export default function DesktopCameraScreen() {
           ) : null}
         </>
       ) : (
-        <View style={[StyleSheet.absoluteFill, { justifyContent: "center" }]}>
+        <CameraEmptyStateFrame>
           <EmptyState icon="camera" title={t("scan.noCamera")} />
-        </View>
+        </CameraEmptyStateFrame>
       )}
 
       <View
@@ -144,7 +144,9 @@ export default function DesktopCameraScreen() {
               label={collection ? t("phoneCamera.streamingTo", { name: collection.name }) : t("phoneCamera.title")}
             />
           </View>
-          <CameraChip dotColor={responder.connected ? colors.success : colors.warning} label={status} />
+          <View accessibilityLiveRegion="polite">
+            <CameraChip dotColor={responder.connected ? colors.success : colors.warning} label={status} />
+          </View>
           <TorchToggle torch={torch} />
         </View>
         <TorchBrightness torch={torch} />
@@ -156,10 +158,10 @@ export default function DesktopCameraScreen() {
           left: SCREEN_GUTTER,
           right: SCREEN_GUTTER,
           bottom: insets.bottom + SPACING.lg,
-          gap: SPACING.sm,
+          gap: SPACING.md,
         }}
       >
-        <AppText size="xs" style={{ color: colors.onCamera, textAlign: "center" }}>
+        <AppText size="xs" accessibilityLiveRegion="polite" style={{ color: colors.onCamera, textAlign: "center" }}>
           {responder.capturedCount > 0
             ? t("phoneCamera.captured", { count: responder.capturedCount })
             : t("phoneCamera.keepOpen")}

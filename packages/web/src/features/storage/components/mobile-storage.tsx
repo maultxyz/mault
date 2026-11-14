@@ -190,6 +190,7 @@ export function MobileStorage() {
           total={reviewGridPage.data?.total ?? 0}
           isLoading={reviewGridPage.isPending}
           isError={reviewGridPage.isError}
+          onRetry={() => void reviewGridPage.refetch()}
           onOpenOneByOne={(card) => {
             setReviewLayout("single");
             openCard(selected.guid, card.scanId, true);

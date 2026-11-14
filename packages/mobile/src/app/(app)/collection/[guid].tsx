@@ -91,7 +91,7 @@ export default function CollectionScreen() {
   const debounced = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
   const orgId = useActiveOrgId();
   const collectionsOptions = collectionsQueryOptions(orgId);
-  const { data: collections } = useQuery(collectionsOptions);
+  const { data: collections, isPending: collectionsPending } = useQuery(collectionsOptions);
   const collection = collections?.find((c) => c.guid === guid);
   const [viewMemory] = useState(() => readCollectionViewMemory(orgId, guid));
   useRecordLastOpenedCollection(orgId, guid);
@@ -171,7 +171,7 @@ export default function CollectionScreen() {
     pendingScrollRestoreRef.current = null;
     listRef.current?.scrollToOffset({ offset: targetOffset, animated: false });
   };
-  const totalCards = cards.data?.pages[0]?.totalCards ?? collection?.cardCount ?? 0;
+  const totalCards = cards.data?.pages[0]?.totalCards ?? collection?.cardCount ?? null;
   const scanTimelineRows = useMemo(
     () =>
       scanTimelineGrouping
@@ -201,7 +201,7 @@ export default function CollectionScreen() {
   const tileWidth = (width - CARD_GRID_GUTTER * 2 - CARD_GRID_GAP_X * (CARD_GRID_COLUMNS - 1)) / CARD_GRID_COLUMNS;
   const headerSummary = [
     collection?.game?.name,
-    t("collection.cardsCount", { count: totalCards }),
+    totalCards != null ? t("collection.cardsCount", { count: totalCards }) : null,
     hasPricing && stats ? pricing.format(stats.totalValue) : null,
   ]
     .filter(Boolean)
@@ -305,7 +305,7 @@ export default function CollectionScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
-        title={collection?.name ?? t("collections.title")}
+        title={collection?.name ?? (collectionsPending ? undefined : t("collections.title"))}
         subtitle={headerSummary}
         onBack={() => router.back()}
         actions={

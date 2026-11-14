@@ -43,7 +43,7 @@ export function ColumnChart({
           </AppText>
         ) : null}
       </AppText>
-      <View accessibilityLabel={accessibilityLabel} style={{ height: STATS_CHART_HEIGHT }}>
+      <View accessible accessibilityRole="image" accessibilityLabel={accessibilityLabel} style={{ height: STATS_CHART_HEIGHT }}>
         {formatColumnValue
           ? null
           : STATS_CHART_GRID_FRACTIONS.map((fraction) => (

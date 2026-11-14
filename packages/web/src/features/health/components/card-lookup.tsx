@@ -121,7 +121,7 @@ export function CardLookup() {
       </div>
 
       {isQueryReady && (
-        <div className="rounded-xl bg-muted p-2">
+        <div className="rounded-lg bg-foreground/6 p-2">
           {loading && <CardSearchResultSkeletonGrid />}
           {!loading && results.length === 0 && (
             <p className="py-8 text-center text-sm text-foreground/70">

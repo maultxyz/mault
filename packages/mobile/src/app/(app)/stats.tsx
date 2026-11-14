@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { STATS_DEFAULT_RANGE, STATS_RANGES, type StatsRange } from "@magic-vault/shared";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
@@ -31,7 +32,7 @@ export default function StatsScreen() {
   const [collectionsOpen, setCollectionsOpen] = useState(false);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const collections = useQuery(collectionsQueryOptions(orgId));
-  const { data: report, isPending, isError, refetch, isRefetching } = useQuery(
+  const { data: report, isPending, isError, isPlaceholderData, refetch, isRefetching } = useQuery(
     statsQueryOptions(orgId, range, collectionGuid),
   );
   const selected = collections.data?.find((c) => c.guid === collectionGuid);
@@ -70,9 +71,13 @@ export default function StatsScreen() {
         />
       </View>
 
-      {isError ? (
-        <Callout tone="destructive" title={t("stats.error")} />
-      ) : isPending || !report ? (
+      {isError && !report ? (
+        <Callout
+          tone="destructive"
+          title={t("stats.error")}
+          action={<Button label={t("recovery.retry")} onPress={() => void refetch()} />}
+        />
+      ) : isPending || isPlaceholderData || !report ? (
         <StatsDashboardSkeleton />
       ) : report.totals.cardCount === 0 ? (
         <EmptyState icon="stats" title={t("stats.empty.title")} description={t("stats.empty.description")} />

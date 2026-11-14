@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import {
   COLLECTION_PREVIEW_CARD_CLASS,
   COLLECTION_PREVIEW_FAN_CLASSES,
@@ -21,16 +22,16 @@ export function CollectionPreviewStack({
         images
           .slice(0, COLLECTION_PREVIEW_FAN_CLASSES.length)
           .map((src, i) => (
-            <img
+            <span
               key={`${i}-${src}`}
-              src={src}
-              alt=""
-              loading="lazy"
               className={cn(
                 COLLECTION_PREVIEW_CARD_CLASS,
                 COLLECTION_PREVIEW_FAN_CLASSES[i],
+                "overflow-hidden",
               )}
-            />
+            >
+              <CardImage src={src} alt="" />
+            </span>
           ))
       )}
     </div>

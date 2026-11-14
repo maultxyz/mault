@@ -211,7 +211,9 @@ export function CollectionsProvider({
               : c,
           ),
         );
+        return;
       }
+      toast.error(r.message || t("errors.emptyFailed"));
     },
     onError: () => toast.error(t("errors.emptyFailed")),
   });
@@ -247,14 +249,16 @@ export function CollectionsProvider({
 
   const remove = useCallback(
     async (guid: string) => {
-      await deleteMutation.mutateAsync(guid);
+      const result = await deleteMutation.mutateAsync(guid).catch(() => null);
+      return !!result?.success;
     },
     [deleteMutation],
   );
 
   const empty = useCallback(
     async (guid: string) => {
-      await emptyMutation.mutateAsync(guid);
+      const result = await emptyMutation.mutateAsync(guid).catch(() => null);
+      return !!result?.success;
     },
     [emptyMutation],
   );

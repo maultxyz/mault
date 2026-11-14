@@ -3,7 +3,8 @@ import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, View } from "react-native";
-import { CardArt } from "@/components/cards/card-art";
+import { CardThumbnail } from "@/components/cards/card-thumbnail";
+import { cardArtSources } from "@/lib/card-art";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
@@ -22,18 +23,15 @@ import { storageLocationsQueryOptions } from "@/features/storage/api/storage";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePricing } from "@/hooks/use-pricing";
 import { useActiveOrgId } from "@/hooks/use-org";
-import { useTheme } from "@/hooks/use-theme";
-import { CARD_ASPECT_RATIO, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
+import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { GLOBAL_SEARCH_MIN_QUERY_LENGTH } from "@/lib/constants/search";
 import { SETTINGS_SECTION_LINKS } from "@/lib/constants/settings";
-import { CARD_THUMBNAIL_RADIUS, SPACING } from "@/lib/constants/theme";
-import { LIST_ROW_ICON_SIZE } from "@/lib/constants/ui";
+import { SPACING } from "@/lib/constants/theme";
 import type { CatalogCardResult } from "@/lib/interfaces/search";
 import { absoluteUrl } from "@/lib/url";
 
 export default function GlobalSearchScreen() {
   const { t } = useTranslation();
-  const colors = useTheme();
   const orgId = useActiveOrgId();
   const [search, setSearch] = useState("");
   const query = search.trim();
@@ -127,28 +125,14 @@ export default function GlobalSearchScreen() {
                         key={result.scanId}
                         title={result.cardName}
                         subtitle={[
+                          placement,
                           result.collectionName,
                           result.setName ?? result.setCode?.toUpperCase(),
                           result.isFoil ? t("search.foil") : null,
-                          placement,
                         ]
                           .filter(Boolean)
                           .join(" · ")}
-                        leading={
-                          <View
-                            style={{
-                              width: LIST_ROW_ICON_SIZE,
-                              aspectRatio: CARD_ASPECT_RATIO,
-                              borderRadius: CARD_THUMBNAIL_RADIUS,
-                              overflow: "hidden",
-                              backgroundColor: colors.muted,
-                            }}
-                          >
-                            {imageUrl ? (
-                              <CardArt imageUrl={imageUrl} accessible={false} style={{ flex: 1 }} contentFit="cover" />
-                            ) : null}
-                          </View>
-                        }
+                        leading={<CardThumbnail imageUrl={imageUrl} />}
                         onPress={() =>
                           router.push({
                             pathname: "/card/[scanId]",
@@ -171,7 +155,7 @@ export default function GlobalSearchScreen() {
               ) : (
                 <ListGroup>
                   {catalogResults.map(({ game, card }) => {
-                    const imageUrl = absoluteUrl(card.image?.small ?? card.image?.normal);
+                    const artSources = cardArtSources(card.image);
                     const price = pricing.priceOf(card);
                     return (
                       <ListRow
@@ -185,21 +169,7 @@ export default function GlobalSearchScreen() {
                         ]
                           .filter(Boolean)
                           .join(" · ")}
-                        leading={
-                          <View
-                            style={{
-                              width: LIST_ROW_ICON_SIZE,
-                              aspectRatio: CARD_ASPECT_RATIO,
-                              borderRadius: CARD_THUMBNAIL_RADIUS,
-                              overflow: "hidden",
-                              backgroundColor: colors.muted,
-                            }}
-                          >
-                            {imageUrl ? (
-                              <CardArt imageUrl={imageUrl} accessible={false} style={{ flex: 1 }} contentFit="cover" />
-                            ) : null}
-                          </View>
-                        }
+                        leading={<CardThumbnail {...artSources} />}
                         onPress={() => {
                           rememberCatalogCard(queryClient, game.gameKey, card);
                           router.push({ pathname: "/catalog-card", params: { id: card.id, gameKey: game.gameKey } });

@@ -220,7 +220,7 @@ export function ApiKeysManager() {
           </Button>
         }
       >
-        <div className="flex items-center gap-2 rounded-xl bg-muted p-2">
+        <div className="flex items-center gap-2 rounded-lg bg-foreground/6 p-2">
           <code className="flex-1 overflow-x-auto whitespace-nowrap text-sm">
             {newRawKey}
           </code>

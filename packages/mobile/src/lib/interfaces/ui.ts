@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { StyleProp, TextProps, ViewStyle } from "react-native";
+import type { AccessibilityValue, StyleProp, TextProps, ViewStyle } from "react-native";
 import type { CommLogEntry, PlayingCard, ScanRegion } from "@magic-vault/shared";
 import type { ICONS } from "@/lib/constants/icons";
 import type { LiveCorners } from "@/lib/interfaces/scanner";
@@ -108,6 +108,17 @@ export interface ListRowProps {
   selected?: boolean;
   subtitleNumberOfLines?: number;
   swipeDestructiveAction?: SwipeRowAction;
+  accessibilityHint?: string;
+}
+
+export interface CheckboxIndicatorProps {
+  checked: boolean;
+  disabled?: boolean;
+}
+
+export interface ProgressBarProps {
+  fraction: number;
+  accessibilityValue?: AccessibilityValue;
 }
 
 export interface ScreenProps {

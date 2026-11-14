@@ -17,6 +17,7 @@ import {
 } from "@/features/public-cards/lib/public-card-filters";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
+import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import {
   ALL_PUBLIC_CARD_GAMES,
   PUBLIC_CARD_PARAM,
@@ -217,7 +218,7 @@ export function PublicCardBrowser({
       tabIndex={-1}
       className="flex h-dvh flex-col bg-background outline-none"
     >
-      <header className="grid shrink-0 grid-cols-1 items-center gap-3 border-b px-4 py-3 md:grid-cols-[minmax(0,1fr)_minmax(0,36rem)_minmax(0,1fr)]">
+      <header className="grid shrink-0 grid-cols-1 items-center gap-3 border-b px-4 py-3 md:px-3 md:py-2 md:grid-cols-[minmax(0,1fr)_minmax(0,36rem)_minmax(0,1fr)]">
         <div className="flex min-w-0 items-center gap-3">
           {info.shopPhotoUrl && (
             <img
@@ -228,7 +229,7 @@ export function PublicCardBrowser({
           )}
           <div className="flex min-w-0 flex-col">
             <div className="flex min-w-0 items-center gap-2">
-              <h1 className="truncate text-sm font-semibold">{title}</h1>
+              <h1 className={cn(PAGE_TITLE_CLASS, "truncate")}>{title}</h1>
               {titleBadge}
             </div>
             <p className="truncate text-xs text-foreground/70">
@@ -238,7 +239,7 @@ export function PublicCardBrowser({
         </div>
         <div className="relative w-full min-w-0">
           <IconSearch
-            className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-foreground/70"
+            className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70 max-md:left-3"
             aria-hidden
           />
           <Input
@@ -252,7 +253,7 @@ export function PublicCardBrowser({
               setRequestedPage(1);
               if (openScanId || showsTradeOffer) leaveCardForResults();
             }}
-            className="h-10 rounded-lg pl-9 md:text-sm max-md:h-11"
+            className="pl-8 max-md:pl-10"
           />
         </div>
         <div className="flex items-center gap-1.5 md:justify-end">
@@ -274,12 +275,13 @@ export function PublicCardBrowser({
           {sidebarTop}
           {filterPanel}
         </aside>
-        <div ref={resultsRef} className="min-w-0 flex-1 overflow-y-auto p-4">
+        <div ref={resultsRef} className="min-w-0 flex-1 overflow-y-auto p-4 md:px-3 md:py-2">
           <PublicCardResults
             info={info}
             page={cards.data}
             isPending={cards.isPending}
             isError={cards.isError}
+            onRetry={() => void cards.refetch()}
             onPageChange={(next) => {
               setRequestedPage(next);
               resultsRef.current?.scrollTo({ top: 0 });

@@ -14,6 +14,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SwitchRow } from "@/components/ui/switch-row";
@@ -59,6 +60,8 @@ export default function ShopCatalogEditScreen() {
   const isNew = !guid;
   const collections = useQuery(collectionsQueryOptions(orgId));
   const storageLocations = useQuery(storageLocationsQueryOptions(orgId, true));
+  const isLoadingForm =
+    (!isNew && (access.isLoading || list.isLoading)) || collections.isLoading || storageLocations.isLoading;
   const form = useForm<ShopCatalogFormValues>({
     resolver: zodResolver(shopCatalogFormSchema),
     defaultValues: {
@@ -112,83 +115,89 @@ export default function ShopCatalogEditScreen() {
         }
       >
         {save.isError ? <Callout tone="destructive" title={save.error.message} /> : null}
-        <Controller
-          control={form.control}
-          name="name"
-          render={({ field, fieldState }) => (
-            <TextField
-              label={t("settings.shopCatalogs.nameLabel")}
-              placeholder={t("settings.shopCatalogs.namePlaceholder")}
-              value={field.value}
-              onBlur={field.onBlur}
-              onChangeText={field.onChange}
-              returnKeyType="done"
-              error={translateFormErrorMessage(t, fieldState.error?.message)}
+        {isLoadingForm ? (
+          <PageSkeleton />
+        ) : (
+          <>
+            <Controller
+              control={form.control}
+              name="name"
+              render={({ field, fieldState }) => (
+                <TextField
+                  label={t("settings.shopCatalogs.nameLabel")}
+                  placeholder={t("settings.shopCatalogs.namePlaceholder")}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={field.onChange}
+                  returnKeyType="done"
+                  error={translateFormErrorMessage(t, fieldState.error?.message)}
+                />
+              )}
             />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="showsPrices"
-          render={({ field }) => (
-            <SwitchRow
-              title={t("settings.shopCatalogs.showPrices")}
-              description={t("settings.shopCatalogs.showPricesDescription")}
-              value={field.value}
-              onValueChange={field.onChange}
+            <Controller
+              control={form.control}
+              name="showsPrices"
+              render={({ field }) => (
+                <SwitchRow
+                  title={t("settings.shopCatalogs.showPrices")}
+                  description={t("settings.shopCatalogs.showPricesDescription")}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              )}
             />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="isPublic"
-          render={({ field }) => (
-            <SwitchRow
-              title={t("settings.shopCatalogs.isPublic")}
-              description={t("settings.shopCatalogs.isPublicDescription")}
-              value={field.value}
-              onValueChange={field.onChange}
+            <Controller
+              control={form.control}
+              name="isPublic"
+              render={({ field }) => (
+                <SwitchRow
+                  title={t("settings.shopCatalogs.isPublic")}
+                  description={t("settings.shopCatalogs.isPublicDescription")}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              )}
             />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="collectionGuids"
-          render={({ field, fieldState }) => (
-            <View style={{ gap: SPACING.sm }}>
-              <SectionHeader title={t("settings.shopCatalogs.collectionsLabel")} />
-              <ShopCatalogSourceSwitches
-                options={(collections.data ?? []).map((collection) => ({ guid: collection.guid, name: collection.name }))}
-                value={field.value}
-                onChange={field.onChange}
-                emptyLabel={t("settings.shopCatalogs.noSources")}
-              />
-              {fieldState.error ? (
-                <AppText size="xs" style={{ color: colors.destructiveForeground }} accessibilityRole="alert">
-                  {translateFormErrorMessage(t, fieldState.error.message)}
-                </AppText>
-              ) : null}
-            </View>
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="storageLocationGuids"
-          render={({ field }) => (
-            <View style={{ gap: SPACING.sm }}>
-              <SectionHeader title={t("settings.shopCatalogs.storageLocationsLabel")} />
-              <ShopCatalogSourceSwitches
-                options={(storageLocations.data ?? []).map((location) => ({ guid: location.guid, name: location.name }))}
-                value={field.value}
-                onChange={field.onChange}
-                emptyLabel={t("settings.shopCatalogs.noSources")}
-              />
-            </View>
-          )}
-        />
-        <AppText size="xs" tone="secondary">
-          {t("settings.shopCatalogs.inventoryNote")}
-        </AppText>
+            <Controller
+              control={form.control}
+              name="collectionGuids"
+              render={({ field, fieldState }) => (
+                <View style={{ gap: SPACING.sm }}>
+                  <SectionHeader title={t("settings.shopCatalogs.collectionsLabel")} />
+                  <ShopCatalogSourceSwitches
+                    options={(collections.data ?? []).map((collection) => ({ guid: collection.guid, name: collection.name }))}
+                    value={field.value}
+                    onChange={field.onChange}
+                    emptyLabel={t("settings.shopCatalogs.noSources")}
+                  />
+                  {fieldState.error ? (
+                    <AppText size="xs" style={{ color: colors.destructiveForeground }} accessibilityRole="alert">
+                      {translateFormErrorMessage(t, fieldState.error.message)}
+                    </AppText>
+                  ) : null}
+                </View>
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="storageLocationGuids"
+              render={({ field }) => (
+                <View style={{ gap: SPACING.sm }}>
+                  <SectionHeader title={t("settings.shopCatalogs.storageLocationsLabel")} />
+                  <ShopCatalogSourceSwitches
+                    options={(storageLocations.data ?? []).map((location) => ({ guid: location.guid, name: location.name }))}
+                    value={field.value}
+                    onChange={field.onChange}
+                    emptyLabel={t("settings.shopCatalogs.noSources")}
+                  />
+                </View>
+              )}
+            />
+            <AppText size="xs" tone="secondary">
+              {t("settings.shopCatalogs.inventoryNote")}
+            </AppText>
+          </>
+        )}
       </PinnedActionsLayout>
     </View>
   );

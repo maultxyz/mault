@@ -8,6 +8,7 @@ export function EmptyState({
   description,
   action,
   size = "default",
+  titleAs: TitleElement = "p",
   className,
 }: EmptyStateProps) {
   const compact = size === "compact";
@@ -36,7 +37,7 @@ export function EmptyState({
         </div>
       )}
       <div className="flex max-w-sm flex-col gap-1">
-        <p className="text-sm font-medium">{title}</p>
+        <TitleElement className="text-sm font-medium">{title}</TitleElement>
         {description && (
           <p className="text-xs text-foreground/70">{description}</p>
         )}

@@ -29,7 +29,7 @@ export function SorterWifiStatusList({ status }: SorterWifiStatusListProps) {
 
   return (
     <div className="grid gap-2 sm:grid-cols-2">
-      <div className="flex flex-col gap-1 rounded-xl bg-muted px-3 py-2">
+      <div className="flex flex-col gap-1 rounded-lg bg-foreground/6 px-3 py-2">
         <span className="text-xs font-medium text-foreground/70">
           {t("sorterWifi.wifiLabel")}
         </span>
@@ -45,7 +45,7 @@ export function SorterWifiStatusList({ status }: SorterWifiStatusListProps) {
           </span>
         )}
       </div>
-      <div className="flex flex-col gap-1 rounded-xl bg-muted px-3 py-2">
+      <div className="flex flex-col gap-1 rounded-lg bg-foreground/6 px-3 py-2">
         <span className="text-xs font-medium text-foreground/70">
           {t("sorterWifi.cloudLabel")}
         </span>

@@ -55,6 +55,7 @@ export function useStoragePickList(): StoragePickListState {
     data: pickList,
     isPending,
     isError,
+    refetch,
   } = useQuery(storagePickListQueryOptions(activeOrg?.id, entries));
   const cards = useMemo(() => pickList?.cards ?? [], [pickList?.cards]);
   const pickedCount = cards.filter((card) =>
@@ -101,6 +102,7 @@ export function useStoragePickList(): StoragePickListState {
     pickedCount,
     isLoading: entries.length > 0 && isPending,
     isError,
+    retry: () => void refetch(),
     isFinishing: finishMutation.isPending,
     setDecklist: (decklist) => save({ ...latestStored.current, decklist }),
     setPicked,

@@ -15,6 +15,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { Surface } from "@/components/ui/surface";
 import { useToast } from "@/components/ui/toast-provider";
 import { useAddCatalogCard } from "@/features/cards/api/add-catalog-card";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
@@ -25,12 +26,12 @@ import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { CATALOG_CARD_ART_WIDTH } from "@/lib/constants/search";
 import { CARD_ART_RADIUS, SPACING } from "@/lib/constants/theme";
 import { cardArtSources } from "@/lib/card-art";
-import type { CatalogCardRouteParams } from "@/lib/interfaces/search";
+import type { CatalogCardDetail, CatalogCardRouteParams } from "@/lib/interfaces/search";
 
 export default function CatalogCardScreen() {
   const { t } = useTranslation();
   const { id, gameKey } = useLocalSearchParams<CatalogCardRouteParams>();
-  const { collections, collection: scanTargetCollection } = useScanTarget();
+  const { collections, collection: scanTargetCollection, collectionsQuery } = useScanTarget();
   const pricing = usePricing();
   const { showToast } = useToast();
   const addCard = useAddCatalogCard();
@@ -70,19 +71,19 @@ export default function CatalogCardScreen() {
   const foilPrice = card ? pricing.priceOf(card, true) : null;
   const details = card
     ? [
-        { key: "set", title: t("catalogCard.set"), value: card.setName || card.set.toUpperCase() },
+        { key: "set", title: t("catalogCard.set"), value: card.setName || card.set.toUpperCase(), wraps: true },
         { key: "number", title: t("catalogCard.number"), value: card.collectorNumber ? `#${card.collectorNumber}` : null },
         { key: "rarity", title: t("catalogCard.rarity"), value: card.rarity || null },
-        { key: "type", title: t("catalogCard.type"), value: card.typeLine || null },
-        { key: "artist", title: t("catalogCard.artist"), value: card.artist || null },
+        { key: "type", title: t("catalogCard.type"), value: card.typeLine || null, wraps: true },
+        { key: "artist", title: t("catalogCard.artist"), value: card.artist || null, wraps: true },
         { key: "game", title: t("catalogCard.game"), value: game?.gameName ?? null },
-      ].filter((detail): detail is { key: string; title: string; value: string } => !!detail.value)
+      ].filter((detail): detail is CatalogCardDetail => !!detail.value)
     : [];
 
   return (
     <View style={{ flex: 1 }}>
       <Screen header={<PageHeader title={card?.name ?? t("catalogCard.title")} onBack={() => router.back()} />}>
-        {isError || (!isPending && !card) ? (
+        {isError || (!isPending && !card) || (!game && !collectionsQuery.isPending) ? (
           <Callout tone="destructive" title={t("catalogCard.loadFailed")} />
         ) : isPending || !card ? (
           <PageSkeleton />
@@ -124,16 +125,22 @@ export default function CatalogCardScreen() {
                 <SectionHeader title={t("catalogCard.details")} />
                 <ListGroup>
                   {details.map((detail) => (
-                    <ListRow key={detail.key} title={detail.title} value={detail.value} />
+                    detail.wraps ? (
+                      <ListRow key={detail.key} title={detail.title} subtitle={detail.value} subtitleNumberOfLines={0} />
+                    ) : (
+                      <ListRow key={detail.key} title={detail.title} value={detail.value} />
+                    )
                   ))}
                 </ListGroup>
               </View>
             ) : null}
 
             {card.text ? (
-              <AppText size="sm" tone="secondary">
-                {card.text}
-              </AppText>
+              <Surface>
+                <AppText size="sm" tone="secondary">
+                  {card.text}
+                </AppText>
+              </Surface>
             ) : null}
 
             {targets.length === 0 ? (

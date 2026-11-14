@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Alert, Switch, View } from "react-native";
+import { Alert, View } from "react-native";
 import {
   changedDiscordPingRoles,
   DEFAULT_ORG_SETTINGS,
@@ -17,7 +17,6 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { SectionHeader } from "@/components/ui/section-header";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { Surface } from "@/components/ui/surface";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
@@ -41,7 +40,9 @@ import {
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions, saveOrgSettings } from "@/features/org/api/org-settings";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
+import { RuleEnabledSwitch } from "@/features/settings/components/rule-enabled-switch";
 import { SettingsPage } from "@/features/settings/components/settings-page";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { NOTIFICATION_TEST_TYPES } from "@/lib/constants/integrations";
@@ -334,8 +335,7 @@ export default function NotificationsSettingsScreen() {
       {integration.isError ? <Callout tone="destructive" title={t("settings.discord.channelSettings.saveFailed")} /> : null}
       {message ? <Callout tone={message.tone} title={message.text} /> : null}
 
-      <View style={{ gap: SPACING.sm }}>
-        <SectionHeader title={t("settings.discord.bot.heading")} />
+      <SettingsSection title={t("settings.discord.bot.heading")}>
         <ListGroup>
           <ListRow
             icon="discord"
@@ -379,15 +379,11 @@ export default function NotificationsSettingsScreen() {
             </AppText>
           </Surface>
         ) : null}
-      </View>
+      </SettingsSection>
 
       {ready ? (
         <>
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("settings.discord.channelSettings.heading")} />
-            <AppText size="xs" tone="secondary">
-              {t("settings.discord.channelSettings.description")}
-            </AppText>
+          <SettingsSection title={t("settings.discord.channelSettings.heading")} description={t("settings.discord.channelSettings.description")}>
             <ListGroup>
               <ListRow
                 title={t("settings.discord.channelSettings.scan")}
@@ -429,13 +425,9 @@ export default function NotificationsSettingsScreen() {
             <AppText size="xs" tone="secondary">
               {t("settings.discord.channelSettings.roleHint")}
             </AppText>
-          </View>
+          </SettingsSection>
 
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("settings.discord.overrides.heading")} />
-            <AppText size="xs" tone="secondary">
-              {t("settings.discord.overrides.description")}
-            </AppText>
+          <SettingsSection title={t("settings.discord.overrides.heading")} description={t("settings.discord.overrides.description")}>
             {visibleOverrides.length === 0 ? <EmptyState icon="discord" title={t("settings.discord.overrides.empty")} /> : null}
             <ListGroup>
               {visibleOverrides.map(([collectionGuid, override]) => {
@@ -465,13 +457,9 @@ export default function NotificationsSettingsScreen() {
                 />
               ) : null}
             </ListGroup>
-          </View>
+          </SettingsSection>
 
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("settings.discord.rules.heading")} />
-            <AppText size="xs" tone="secondary">
-              {t("settings.discord.rules.description")}
-            </AppText>
+          <SettingsSection title={t("settings.discord.rules.heading")} description={t("settings.discord.rules.description")}>
             {atRuleLimit && ruleLimit !== null ? (
               <Callout tone="info" title={t("settings.discord.rules.limitReached", { count: ruleLimit })} />
             ) : null}
@@ -502,12 +490,11 @@ export default function NotificationsSettingsScreen() {
                             longPressLabel={canManage ? t("settings.discord.rules.edit", { name: rule.name }) : undefined}
                             rightIsInteractive
                             right={
-                              <Switch
+                              <RuleEnabledSwitch
                                 accessibilityLabel={`${t("settings.discord.rules.enabled")}, ${rule.name}`}
                                 value={field.value ?? rule.isEnabled}
                                 disabled={!canManage || !rule.channelId}
                                 onValueChange={field.onChange}
-                                trackColor={{ true: colors.primary, false: colors.muted }}
                               />
                             }
                           />
@@ -526,10 +513,9 @@ export default function NotificationsSettingsScreen() {
                 </ListGroup>
               </>
             )}
-          </View>
+          </SettingsSection>
 
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("settings.discord.notificationsHeading")} />
+          <SettingsSection title={t("settings.discord.notificationsHeading")}>
             <Controller
               control={form.control}
               name="discordNotifyOnScan"
@@ -556,15 +542,11 @@ export default function NotificationsSettingsScreen() {
                 />
               )}
             />
-          </View>
+          </SettingsSection>
         </>
       ) : null}
 
-      <View style={{ gap: SPACING.sm }}>
-        <SectionHeader title={t("settings.discord.notifications.heading")} />
-        <AppText size="xs" tone="secondary">
-          {ready ? t("settings.discord.notifications.testHintReady") : t("settings.discord.notifications.testHintNotLinked")}
-        </AppText>
+      <SettingsSection title={t("settings.discord.notifications.heading")} description={ready ? t("settings.discord.notifications.testHintReady") : t("settings.discord.notifications.testHintNotLinked")}>
         <ListGroup>
           {NOTIFICATION_TEST_TYPES.map((type: NotificationTestType) => (
             <ListRow
@@ -577,7 +559,7 @@ export default function NotificationsSettingsScreen() {
             />
           ))}
         </ListGroup>
-      </View>
+      </SettingsSection>
 
       <OptionSheet
         visible={!!pickerConfig}

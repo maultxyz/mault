@@ -21,7 +21,7 @@ export function OptionCard({
         "relative flex w-full items-start gap-3 rounded-lg border bg-card p-3 text-left transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
         selected
           ? "border-primary bg-primary/5 ring-1 ring-primary dark:bg-primary/10"
-          : "hover:bg-muted",
+          : "hover:bg-foreground/6",
         disabled && !selected && "cursor-not-allowed opacity-50 hover:bg-card",
         disabled && selected && "cursor-default",
       )}

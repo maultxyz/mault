@@ -3,11 +3,16 @@ import { buildStatsInsightFacts, type StatsInsightFact, type StatsReport } from 
 import { IconAlbum, IconCoins, IconCrown, IconFlame, IconHelpCircle } from "@tabler/icons-react";
 import type { TFunction } from "i18next";
 
-function formatDay(date: string): string {
-  return new Date(`${date}T00:00:00Z`).toLocaleDateString(undefined, { month: "short", day: "numeric", timeZone: "UTC" });
+function formatDay(date: string, locale: string): string {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, { month: "short", day: "numeric", timeZone: "UTC" });
 }
 
-function toInsight(fact: StatsInsightFact, t: TFunction<"stats">, formatPrice: (value: number) => string): StatsInsight {
+function toInsight(
+  fact: StatsInsightFact,
+  t: TFunction<"stats">,
+  formatPrice: (value: number) => string,
+  locale: string,
+): StatsInsight {
   switch (fact.kind) {
     case "topCard":
       return {
@@ -34,7 +39,7 @@ function toInsight(fact: StatsInsightFact, t: TFunction<"stats">, formatPrice: (
       return {
         key: fact.kind,
         icon: IconFlame,
-        title: t(`insights.busiest.title.${fact.bucket}`, { date: formatDay(fact.start) }),
+        title: t(`insights.busiest.title.${fact.bucket}`, { date: formatDay(fact.start, locale) }),
         detail: t("insights.busiest.detail", { count: fact.count }),
       };
     case "review":
@@ -51,6 +56,7 @@ export function buildStatsInsights(
   report: StatsReport,
   t: TFunction<"stats">,
   formatPrice: (value: number) => string,
+  locale: string,
 ): StatsInsight[] {
-  return buildStatsInsightFacts(report).map((fact) => toInsight(fact, t, formatPrice));
+  return buildStatsInsightFacts(report).map((fact) => toInsight(fact, t, formatPrice, locale));
 }

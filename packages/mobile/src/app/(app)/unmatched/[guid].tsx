@@ -8,8 +8,8 @@ import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
+import { CollectionGridSkeleton } from "@/features/collections/components/collection-grid-skeleton";
 import {
   clearUnmatchedCards,
   invalidateUnmatchedCards,
@@ -100,12 +100,8 @@ export default function UnmatchedCardsScreen() {
         }
         ListEmptyComponent={
           unmatched.isPending ? (
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: CARD_GRID_GAP_X, rowGap: CARD_GRID_GAP_Y }}>
-              {Array.from({ length: 6 }).map((_, index) => (
-                <Skeleton key={index} width={tileWidth} height={tileWidth / CARD_ASPECT_RATIO} radius={CARD_ART_RADIUS} />
-              ))}
-            </View>
-          ) : unmatched.isError ? null : (
+            <CollectionGridSkeleton tileWidth={tileWidth} />
+          ) : unmatched.isError ? undefined : (
             <EmptyState
               icon="check"
               title={t("unmatchedCards.emptyTitle")}
@@ -126,7 +122,7 @@ export default function UnmatchedCardsScreen() {
               accessibilityRole="button"
               accessibilityLabel={t("unmatchedCards.identifyScan", { scannedAt })}
               onPress={() => router.push({ pathname: "/unmatched-card", params: { guid, scanId: item.scanId } })}
-              style={{ width: tileWidth, gap: SPACING.xs }}
+              style={({ pressed }) => ({ width: tileWidth, gap: 6, transform: [{ scale: pressed ? 0.97 : 1 }] })}
             >
               <View
                 style={{
@@ -140,7 +136,7 @@ export default function UnmatchedCardsScreen() {
                   <Image source={{ uri: imageUrl }} style={{ flex: 1 }} contentFit="fill" accessible={false} />
                 ) : null}
               </View>
-              <AppText size="2xs" tone="secondary" numberOfLines={1}>
+              <AppText size="xs" tone="secondary" numberOfLines={1} style={{ paddingHorizontal: 2 }}>
                 {scannedAt}
               </AppText>
             </Pressable>

@@ -102,3 +102,10 @@ export interface NeonFullOrganization {
   members?: { id: string; userId: string; role: OrgRole; user?: { name?: string; email?: string } }[];
   invitations?: { id: string; email: string; role: OrgRole; status: string }[];
 }
+
+export interface RuleEnabledSwitchProps {
+  accessibilityLabel: string;
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+  disabled?: boolean;
+}

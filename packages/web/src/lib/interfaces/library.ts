@@ -19,6 +19,7 @@ export interface CollectionChangeTrendProps {
   change: ValueChange | null;
   noChangeLabel: string;
   label: string;
+  isLoading?: boolean;
   className?: string;
 }
 
@@ -27,4 +28,5 @@ export interface CollectionChangeSummary {
   baseline: number | null;
   change: ValueChange | null;
   label: string;
+  isLoading: boolean;
 }

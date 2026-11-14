@@ -53,7 +53,8 @@
     "pause": "Pause",
     "resume": "Weiter",
     "stop": "Stopp",
-    "openScanner": "Scanner öffnen"
+    "openScanner": "Scanner öffnen",
+    "requestFailed": "Der Pi ist nicht erreichbar. Prüfe die Verbindung und versuche es erneut."
   },
   "serial": {
     "connectionFailed": {
@@ -789,7 +790,9 @@
       "countdown_one": "Schließt in {{count}} Sekunde",
       "countdown_other": "Schließt in {{count}} Sekunden",
       "doneMoved": "Als umgelegt markiert",
-      "done": "Fertig"
+      "done": "Fertig",
+      "paused": "Countdown pausiert",
+      "keepOpen": "Offen lassen"
     },
     "keys": {
       "enter": "Enter",
@@ -917,7 +920,8 @@
       "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
       "sorterDescription": "Verbindung, Selbsttest und Status"
     },
-    "condition": "Zustand"
+    "condition": "Zustand",
+    "foilType": "Foil-Typ"
   },
   "mobileSorter": {
     "title": "Sortierer",

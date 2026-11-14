@@ -1,20 +1,18 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Pressable, View } from "react-native";
-import { AppText } from "@/components/ui/app-text";
+import { View } from "react-native";
 import { Button } from "@/components/ui/button";
-import { Icon } from "@/components/ui/icon";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PickerCard } from "@/components/ui/picker-card";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
-import { Skeleton } from "@/components/ui/skeleton";
 import { usePresetPicker } from "@/features/rules/api/use-preset-picker";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { AlphabetPassCard } from "@/features/rules/components/alphabet-pass-card";
@@ -22,12 +20,10 @@ import { PresetStageCard } from "@/features/rules/components/preset-stage-card";
 import { BinRow } from "@/features/rules/components/bin-row";
 import { binModeSummaries } from "@/features/rules/lib/rules";
 import { binSetMode } from "@magic-vault/shared";
-import { useTheme } from "@/hooks/use-theme";
-import { SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 
 export default function RulesScreen() {
   const { t } = useTranslation();
-  const colors = useTheme();
   const data = useRulesData();
   const { collection, sets, activeSet, bins, fieldDefinitions } = data;
   const mode = binSetMode(activeSet);
@@ -45,11 +41,7 @@ export default function RulesScreen() {
       {picker.isError ? <Callout tone="destructive" title={t("rules.activateFailed")} /> : null}
 
       {data.isPending ? (
-        <View style={{ gap: SPACING.sm }}>
-          <Skeleton height={48} />
-          <Skeleton height={48} />
-          <Skeleton height={48} />
-        </View>
+        <ListSkeleton />
       ) : !collection ? (
         <EmptyState
           icon="collections"
@@ -75,29 +67,15 @@ export default function RulesScreen() {
           )}
 
           {activeSet ? (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={
-                activeSet.description
-                  ? `${t("rules.description.label")}: ${activeSet.description}. ${t("rules.description.edit")}`
-                  : t("rules.description.add")
-              }
-              onPress={() => router.push({ pathname: "/preset-description", params: { guid: activeSet.guid } })}
-              style={({ pressed }) => ({
-                flexDirection: "row",
-                alignItems: "flex-start",
-                gap: SPACING.md,
-                padding: SPACING.lg,
-                borderRadius: SURFACE_RADIUS,
-                borderCurve: "continuous",
-                backgroundColor: pressed ? colors.tonal : colors.card,
-              })}
-            >
-              <Icon name="edit" size={18} color={colors.foregroundSecondary} />
-              <AppText size="sm" tone={activeSet.description ? "default" : "secondary"} style={{ flex: 1 }}>
-                {activeSet.description || t("rules.description.add")}
-              </AppText>
-            </Pressable>
+            <ListGroup>
+              <ListRow
+                icon="edit"
+                title={t("rules.description.title")}
+                subtitle={activeSet.description || t("rules.description.add")}
+                subtitleNumberOfLines={0}
+                onPress={() => router.push({ pathname: "/preset-description", params: { guid: activeSet.guid } })}
+              />
+            </ListGroup>
           ) : null}
 
           {activeSet && !activeSet.isActive ? (

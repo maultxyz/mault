@@ -18,8 +18,6 @@ import {
   useCameraPermission,
   usePhotoOutput,
 } from "react-native-vision-camera";
-import { AppText } from "@/components/ui/app-text";
-import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -43,7 +41,9 @@ import { useScanLiveActivity } from "@/features/scanner/api/use-scan-live-activi
 import { useScanStatusAnnouncements } from "@/features/scanner/api/use-scan-status-announcements";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { BinBadge } from "@/features/scanner/components/bin-badge";
+import { CameraEmptyStateFrame } from "@/features/scanner/components/camera-empty-state-frame";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
+import { CameraPermissionEmptyState } from "@/features/scanner/components/camera-permission-empty-state";
 import { DetectedOutline } from "@/features/scanner/components/detected-outline";
 import { ScanOptionsSheet } from "@/features/scanner/components/scan-options-sheet";
 import { ScanRemovalQueueSheet } from "@/features/scanner/components/scan-removal-queue-sheet";
@@ -221,7 +221,6 @@ export default function ScanScreen() {
         : t("scan.status.modes.scanOnce");
   const statusText = [
     scanModeLabel,
-    collection?.name ?? t("scan.chooseCollection"),
     savedCardName ? t("scan.status.saved", { name: savedCardName }) : t(`scan.phase.${session.phase}`),
   ].join(" · ");
   useScanStatusAnnouncements(session.phase, statusText);
@@ -281,17 +280,9 @@ export default function ScanScreen() {
   if (!permission.hasPermission) {
     return (
       <Screen header={<PageHeader title={t("tabs.scan")} />}>
-        <EmptyState
-          icon="camera"
-          title={t("scan.cameraPermissionTitle")}
-          description={t("scan.cameraPermissionDescription")}
-          action={
-            permission.canRequestPermission ? (
-              <Button label={t("scan.allowCamera")} onPress={() => void permission.requestPermission()} />
-            ) : (
-              <AppText tone="secondary">{t("scan.cameraPermissionSettings")}</AppText>
-            )
-          }
+        <CameraPermissionEmptyState
+          canRequestPermission={permission.canRequestPermission}
+          onRequestPermission={() => void permission.requestPermission()}
         />
       </Screen>
     );
@@ -375,9 +366,9 @@ export default function ScanScreen() {
           />
         ) : null
       ) : (
-        <View style={[StyleSheet.absoluteFill, { justifyContent: "center" }]}>
+        <CameraEmptyStateFrame>
           <EmptyState icon="camera" title={t("scan.noCamera")} />
-        </View>
+        </CameraEmptyStateFrame>
       )}
       {device ? (
         <View
@@ -531,6 +522,7 @@ export default function ScanScreen() {
         onHandScanChange={session.setHandScan}
         handScanBins={session.handScanBins}
         onHandScanBinsChange={session.setHandScanBins}
+        hasBinPreset={session.hasBinPreset}
         removeMode={session.removal.isEnabled}
         onRemoveModeChange={changeRemoveMode}
         presetName={presetLabel}

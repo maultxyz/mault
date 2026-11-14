@@ -27,6 +27,7 @@ export interface ShareMonitorLinkDialogProps {
 export type WatchLinkState =
   | { status: "checking" }
   | { status: "invalid" }
+  | { status: "failed" }
   | { status: "valid"; info: MonitorLinkInfo };
 
 export interface CollectionsContextValue {
@@ -41,8 +42,8 @@ export interface CollectionsContextValue {
     values: EditCollectionFormValues,
   ) => Promise<void>;
   activateCollection: (guid: string) => Promise<void>;
-  deleteCollection: (guid: string) => Promise<void>;
-  emptyCollection: (guid: string) => Promise<void>;
+  deleteCollection: (guid: string) => Promise<boolean>;
+  emptyCollection: (guid: string) => Promise<boolean>;
 }
 
 export interface CreateCollectionDialogProps {

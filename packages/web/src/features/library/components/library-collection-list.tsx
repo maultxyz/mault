@@ -123,6 +123,7 @@ export function LibraryCollectionList() {
                     change={change.change}
                     noChangeLabel={t("library.noChange")}
                     label={change.label}
+                    isLoading={change.isLoading}
                   />
                 ) : (
                   value != null && <span className="shrink-0 font-semibold tabular-nums">{format(value)}</span>

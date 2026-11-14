@@ -10,6 +10,7 @@ import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { TextField } from "@/components/ui/text-field";
+import { renameSystemSoundClip, systemSoundClipsQueryOptions } from "@/features/admin/api/sounds-system-clips";
 import { renameSoundClip } from "@/features/sounds/api/sounds";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
@@ -21,23 +22,28 @@ export default function SoundClipNameScreen() {
   const queryClient = useQueryClient();
   const org = useActiveOrg();
   const orgId = org?.id ?? null;
-  const { guid, name } = useLocalSearchParams<{ guid: string; name?: string }>();
+  const { guid, name, scope } = useLocalSearchParams<{ guid: string; name?: string; scope?: "system" }>();
+  const isSystemClip = scope === "system";
   const form = useForm<SoundClipNameFormValues>({
     resolver: zodResolver(soundClipNameFormSchema),
     defaultValues: { name: name ?? "" },
   });
   const rename = useMutation({
-    mutationFn: (values: SoundClipNameFormValues) => renameSoundClip(guid, values.name.trim()),
+    mutationFn: (values: SoundClipNameFormValues) =>
+      isSystemClip ? renameSystemSoundClip(guid, values.name.trim()) : renameSoundClip(guid, values.name.trim()),
     onSuccess: () => {
       AccessibilityInfo.announceForAccessibility(t("settings.sounds.library.renamed"));
       router.back();
     },
-    onSettled: () => void queryClient.invalidateQueries({ queryKey: ["sound-clips", orgId] }),
+    onSettled: () => {
+      if (isSystemClip) void queryClient.invalidateQueries({ queryKey: systemSoundClipsQueryOptions.queryKey });
+      void queryClient.invalidateQueries({ queryKey: isSystemClip ? ["sound-clips"] : ["sound-clips", orgId] });
+    },
   });
 
   return (
     <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
-      <PageHeader title={t("settings.sounds.library.rename", { name: name ?? "" })} subtitle={org?.name} />
+      <PageHeader title={t("settings.sounds.library.rename", { name: name ?? "" })} subtitle={isSystemClip ? t("admin.sections.sounds.title") : org?.name} />
       <PinnedActionsLayout
         actions={
           <Button

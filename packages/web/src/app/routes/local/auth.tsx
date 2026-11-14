@@ -79,7 +79,7 @@ export default function AuthLocalPage() {
     <main
       id={MAIN_CONTENT_ID}
       tabIndex={-1}
-      className="flex min-h-screen flex-col items-center justify-center gap-6 bg-muted p-4 outline-none"
+      className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background p-4 outline-none"
     >
       <BrandMark />
       <Card className="w-full max-w-sm">

@@ -35,3 +35,10 @@ export type CatalogCardRouteParams = {
   id: string;
   gameKey: string;
 };
+
+export interface CatalogCardDetail {
+  key: string;
+  title: string;
+  value: string;
+  wraps?: boolean;
+}

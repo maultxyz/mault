@@ -84,7 +84,7 @@ export function CollectionTile({
             : isActive && COLLECTION_TILE_ACTIVE_CLASS,
       )}
     >
-      <Link to={viewPath} aria-label={collection.name} className="block">
+      <Link to={viewPath} tabIndex={-1} aria-hidden="true" className="block">
         <CollectionPreviewStack images={collection.previewImages} />
       </Link>
       <div className="pointer-events-none absolute inset-x-2 top-2 flex items-start justify-between gap-2">
@@ -201,6 +201,7 @@ export function CollectionTile({
               change={change.change}
               noChangeLabel={tHome("library.noChange")}
               label={change.label}
+              isLoading={change.isLoading}
             />
           ) : (
             value != null && (

@@ -444,7 +444,7 @@ export function ScanRegionCalibrationPanel({
               onClick={onResetRegion}
               title={t("scanRegionCalibrationPanel.resetToDefault")}
             >
-              <IconRotate size={14} />
+              <IconRotate />
               <span className="sr-only">
                 {t("scanRegionCalibrationPanel.resetToDefault")}
               </span>
@@ -523,7 +523,7 @@ export function ScanRegionCalibrationPanel({
                 />
               )}
             </label>
-            <p className="text-2xs text-foreground/70">
+            <p className="text-xs text-foreground/70">
               {t("scanRegionCalibrationPanel.flipCameraDescription")}
             </p>
           </div>
@@ -545,7 +545,7 @@ export function ScanRegionCalibrationPanel({
                 />
               )}
             </label>
-            <p className="text-2xs text-foreground/70">
+            <p className="text-xs text-foreground/70">
               {t("scanRegionCalibrationPanel.checkBothOrientationsDescription")}
             </p>
           </div>
@@ -554,7 +554,7 @@ export function ScanRegionCalibrationPanel({
             <p className="text-xs font-medium">
               {t("scanRegionCalibrationPanel.executionProviderLabel")}
             </p>
-            <p className="text-2xs text-foreground/70">
+            <p className="text-xs text-foreground/70">
               {t("scanRegionCalibrationPanel.executionProviderDescription")}
             </p>
             <Select

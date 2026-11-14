@@ -623,18 +623,18 @@ export function CardGrid() {
     return (
       <>
         <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b">
-          <div className="flex flex-row gap-2 items-center w-full">
-            <Skeleton className="h-9 flex-1 rounded-md" />
-            <Skeleton className="h-9 w-full sm:w-64 rounded-md shrink-0" />
-            <Skeleton className="size-9 rounded-md shrink-0" />
-            <Skeleton className="size-9 rounded-md shrink-0" />
-            <Skeleton className="size-9 rounded-md shrink-0" />
+          <div className="flex flex-row gap-1.5 items-center w-full">
+            <Skeleton className="h-11 flex-1 rounded-lg md:h-7" />
+            <Skeleton className="h-11 w-full sm:w-64 rounded-lg shrink-0 md:h-7" />
+            <Skeleton className="size-10 rounded-lg shrink-0 md:size-7" />
+            <Skeleton className="size-10 rounded-lg shrink-0 md:size-7" />
+            <Skeleton className="size-10 rounded-lg shrink-0 md:size-7" />
           </div>
         </div>
         <div className="p-2 flex-1">
           <div className={CARD_GRID_CLASS}>
             {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="rounded-lg p-1 bg-muted border">
+              <div key={i} className="rounded-card bg-card p-1.5">
                 <Skeleton className="aspect-[2.5/3.5] rounded-lg" />
                 <div className="flex flex-row justify-between items-center px-1 pb-1">
                   <div className="flex flex-row items-center gap-2">
@@ -727,6 +727,7 @@ export function CardGrid() {
         total={reviewGridPage.data?.totalCards ?? 0}
         isLoading={reviewGridPage.isPending}
         isError={reviewGridPage.isError}
+        onRetry={() => void reviewGridPage.refetch()}
         onOpenOneByOne={(card) => {
           setReviewLayout("single");
           setReviewTotal(reviewGridPage.data?.totalCards ?? null);

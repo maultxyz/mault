@@ -589,9 +589,9 @@
     "findSet": "Find a set",
     "openCard": "View {{name}} ({{details}})",
     "cardNotFound": "This card is no longer available.",
+    "cardLoadFailed": "Couldn't load this card.",
     "referenceImage": "Reference image",
     "backToCards": "Back to cards",
-    "loading": "Loading cards",
     "tradeHint": "Open a card to add it to your trade offer"
   },
   "tradeOffers": {

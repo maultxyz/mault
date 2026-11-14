@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Badge } from "@/components/ui/badge";
 import {
   Drawer,
@@ -89,12 +90,19 @@ export function ActiveScanSessionsDrawer({
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex flex-col gap-2 rounded-xl bg-muted p-3"
+                  className="flex flex-col gap-2 rounded-lg bg-foreground/6 p-3"
                 >
                   <Skeleton className="h-3 w-32" />
                   <Skeleton className="h-3 w-full" />
                 </div>
               ))}
+            </div>
+          ) : sessionsQuery.isError && !sessionsQuery.data ? (
+            <div className="p-3">
+              <LoadErrorCallout
+                message={t("activeScanSessions.loadFailed")}
+                onRetry={() => void sessionsQuery.refetch()}
+              />
             </div>
           ) : groups.length === 0 ? (
             <EmptyState
@@ -108,7 +116,7 @@ export function ActiveScanSessionsDrawer({
               {groups.map(([orgId, sessions]) => (
                 <section
                   key={orgId}
-                  className="overflow-hidden rounded-xl bg-muted"
+                  className="overflow-hidden rounded-lg bg-foreground/6"
                 >
                   <div className="flex items-center justify-between gap-2 border-b px-3 py-2">
                     <p className="truncate text-sm font-medium">

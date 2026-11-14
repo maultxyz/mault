@@ -53,7 +53,8 @@
     "pause": "Pause",
     "resume": "Resume",
     "stop": "Stop",
-    "openScanner": "Open scanner"
+    "openScanner": "Open scanner",
+    "requestFailed": "Couldn't reach the Pi. Check its connection and try again."
   },
   "serial": {
     "connectionFailed": {
@@ -789,7 +790,9 @@
       "countdown_one": "Closing in {{count}} second",
       "countdown_other": "Closing in {{count}} seconds",
       "doneMoved": "Marked as moved",
-      "done": "Done"
+      "done": "Done",
+      "paused": "Countdown paused",
+      "keepOpen": "Keep open"
     },
     "keys": {
       "enter": "Enter",
@@ -917,7 +920,8 @@
       "neutralDescription": "Move every servo back to its resting position",
       "sorterDescription": "Connection, self-test and status"
     },
-    "condition": "Condition"
+    "condition": "Condition",
+    "foilType": "Foil type"
   },
   "mobileSorter": {
     "title": "Sorter",

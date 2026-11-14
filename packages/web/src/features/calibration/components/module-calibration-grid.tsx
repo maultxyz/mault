@@ -361,9 +361,9 @@ export function ModuleCalibrationGrid({
           : cal;
         const showRaw = rawModeByModule[module] ?? false;
         return (
-          <div key={module} className="flex flex-col gap-5 md:gap-2 rounded-xl bg-muted p-3">
+          <div key={module} className="flex flex-col gap-5 md:gap-2 rounded-lg bg-foreground/6 p-3">
             <div className="flex items-center justify-between gap-2">
-              <h3 className="text-sm font-semibold font-heading">
+              <h3 className="font-heading text-sm font-semibold">
                 {t("moduleLabel", { module })}
               </h3>
               <div className="flex items-center gap-1.5">

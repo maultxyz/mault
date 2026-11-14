@@ -52,7 +52,7 @@ export function AutoAssignControl() {
   );
 
   return (
-    <div className="flex flex-none items-center justify-between gap-2 rounded-card bg-card p-3">
+    <div className="flex flex-none items-center justify-between gap-2 rounded-card bg-card p-3 md:p-2.5">
       <div className="flex flex-col min-w-0">
         <span className="text-sm font-medium">
           {tBins("autoAssignPanel.heading")}

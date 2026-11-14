@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 export function ReviewQueuePanel({ session }: ReviewQueuePanelProps) {
   const navigate = useNavigate();
-  const { data, isPending, isError } = useReviewQueueCards(session);
+  const { data, isPending, isError, refetch } = useReviewQueueCards(session);
 
   return (
     <ReviewQueueList
@@ -14,6 +14,7 @@ export function ReviewQueuePanel({ session }: ReviewQueuePanelProps) {
       totalCards={data?.totalCards ?? 0}
       isPending={isPending}
       isError={isError}
+      onRetry={() => void refetch()}
       currentScanId={session.currentScanId}
       reviewedScanIds={session.reviewedScanIds}
       removedScanIds={session.removedScanIds}

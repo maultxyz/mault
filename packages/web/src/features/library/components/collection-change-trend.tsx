@@ -1,9 +1,13 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import { sparklinePaths } from "@magic-vault/shared";
 import { LIBRARY_CHANGE_SPARKLINE } from "@/lib/constants/library";
 import type { CollectionChangeTrendProps } from "@/lib/interfaces/library";
 import { cn } from "@/lib/utils";
 
-export function CollectionChangeTrend({ values, baseline, change, noChangeLabel, label, className }: CollectionChangeTrendProps) {
+export function CollectionChangeTrend({ values, baseline, change, noChangeLabel, label, isLoading, className }: CollectionChangeTrendProps) {
+  if (isLoading) {
+    return <Skeleton className={cn("h-5 w-36 shrink-0 rounded-sm", className)} />;
+  }
   const { width, height, strokeWidth, baselineDash } = LIBRARY_CHANGE_SPARKLINE;
   const sparkline = sparklinePaths(values, width, height, 0);
   const min = Math.min(...values);
@@ -48,7 +52,7 @@ export function CollectionChangeTrend({ values, baseline, change, noChangeLabel,
         className={cn(
           "min-w-18 rounded-sm px-2 py-0.5 text-center text-xs font-semibold tabular-nums",
           direction === "up"
-            ? "bg-success text-black"
+            ? "bg-success-strong text-white"
             : direction === "down"
               ? "bg-destructive-strong text-white"
               : "bg-foreground/6 text-foreground",

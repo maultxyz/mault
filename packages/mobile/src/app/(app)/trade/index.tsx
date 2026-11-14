@@ -17,10 +17,13 @@ import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
+import { ListGroup } from "@/components/ui/list-group";
+import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { Screen } from "@/components/ui/screen";
+import { SectionHeader } from "@/components/ui/section-header";
 import { Surface } from "@/components/ui/surface";
 import { TextField } from "@/components/ui/text-field";
 import { submitTradeOffer, tradeLinkInfoQueryOptions } from "@/features/trade-offers/api/public-trade";
@@ -149,124 +152,109 @@ export default function TradeScreen() {
       {sent ? <Callout tone="success" title={t("trade.sent")} /> : null}
       {send.isError ? <Callout tone="destructive" title={send.error.message || t("trade.sendFailed")} /> : null}
 
-      <Surface style={{ gap: SPACING.md }}>
-        <AppText weight="semibold" accessibilityRole="header">
-          {t("trade.detailsTitle")}
-        </AppText>
-        <Controller
-          control={form.control}
-          name="guestName"
-          render={({ field, fieldState }) => (
-            <TextField
-              label={t("trade.nameLabel")}
-              value={field.value}
-              onBlur={field.onBlur}
-              onChangeText={field.onChange}
-              autoComplete="name"
-              textContentType="name"
-              error={translateFormErrorMessage(t, fieldState.error?.message)}
-            />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="guestContact"
-          render={({ field, fieldState }) => (
-            <TextField
-              label={t("trade.contactLabel")}
-              value={field.value}
-              onBlur={field.onBlur}
-              onChangeText={field.onChange}
-              autoCapitalize="none"
-              error={translateFormErrorMessage(t, fieldState.error?.message)}
-            />
-          )}
-        />
-        <Controller
-          control={form.control}
-          name="guestNote"
-          render={({ field, fieldState }) => (
-            <TextField
-              label={t("trade.noteLabel")}
-              value={field.value}
-              onBlur={field.onBlur}
-              onChangeText={field.onChange}
-              multiline
-              error={translateFormErrorMessage(t, fieldState.error?.message)}
-            />
-          )}
-        />
-      </Surface>
+      <View style={{ gap: SPACING.sm }}>
+        <SectionHeader title={t("trade.detailsTitle")} />
+        <Surface style={{ gap: SPACING.md }}>
+          <Controller
+            control={form.control}
+            name="guestName"
+            render={({ field, fieldState }) => (
+              <TextField
+                label={t("trade.nameLabel")}
+                value={field.value}
+                onBlur={field.onBlur}
+                onChangeText={field.onChange}
+                autoComplete="name"
+                textContentType="name"
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
+              />
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="guestContact"
+            render={({ field, fieldState }) => (
+              <TextField
+                label={t("trade.contactLabel")}
+                value={field.value}
+                onBlur={field.onBlur}
+                onChangeText={field.onChange}
+                autoCapitalize="none"
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
+              />
+            )}
+          />
+          <Controller
+            control={form.control}
+            name="guestNote"
+            render={({ field, fieldState }) => (
+              <TextField
+                label={t("trade.noteLabel")}
+                value={field.value}
+                onBlur={field.onBlur}
+                onChangeText={field.onChange}
+                multiline
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
+              />
+            )}
+          />
+        </Surface>
+      </View>
 
-      <Surface style={{ gap: SPACING.sm }}>
-        <AppText weight="semibold" accessibilityRole="header">
-          {t("trade.getTitle", { count: draft.wanted.length })}
-        </AppText>
+      <View style={{ gap: SPACING.sm }}>
+        <SectionHeader title={t("trade.getTitle", { count: draft.wanted.length })} />
         <AppText size="xs" tone="secondary">
           {t("trade.getDescription", { source: info.data.name })}
         </AppText>
-        {draft.wanted.map((card) => (
-          <TradeCardRow
-            key={card.scanId}
-            name={card.card.name}
-            subtitle={[card.card.setName, card.condition, card.isFoil ? (card.foilType ?? t("trade.foil")) : null]
-              .filter(Boolean)
-              .join(" · ")}
-            imageUrl={card.card.image?.small ?? card.card.image?.normal ?? null}
-            right={
-              <IconButton
-                icon="trash"
-                variant="plain"
-                accessibilityLabel={t("trade.removeCard", { name: card.card.name })}
-                onPress={() => toggleWantedCard(card)}
-              />
-            }
+        <ListGroup>
+          {draft.wanted.map((card) => (
+            <TradeCardRow
+              key={card.scanId}
+              name={card.card.name}
+              subtitle={[card.card.setName, t(`trade.conditions.${card.condition}`), card.isFoil ? (card.foilType ?? t("trade.foil")) : null]
+                .filter(Boolean)
+                .join(" · ")}
+              imageUrl={card.card.image?.small ?? card.card.image?.normal ?? null}
+              right={
+                <IconButton
+                  icon="trash"
+                  variant="plain"
+                  accessibilityLabel={t("trade.removeCard", { name: card.card.name })}
+                  onPress={() => toggleWantedCard(card)}
+                />
+              }
+            />
+          ))}
+          <ListRow
+            icon="search"
+            title={draft.wanted.length === 0 ? t("trade.chooseCards") : t("trade.addMoreCards")}
+            onPress={() => router.push("/trade/browse")}
           />
-        ))}
-        <Button
-          variant="secondary"
-          icon="search"
-          label={draft.wanted.length === 0 ? t("trade.chooseCards") : t("trade.addMoreCards")}
-          onPress={() => router.push("/trade/browse")}
-        />
-      </Surface>
+        </ListGroup>
+      </View>
 
-      <Surface style={{ gap: SPACING.sm }}>
-        <AppText weight="semibold" accessibilityRole="header">
-          {t("trade.giveTitle", { count: offeredCount })}
-        </AppText>
+      <View style={{ gap: SPACING.sm }}>
+        <SectionHeader title={t("trade.giveTitle", { count: offeredCount })} />
         <AppText size="xs" tone="secondary">
           {t("trade.giveDescription")}
         </AppText>
-        {draft.offered.map((card) => (
-          <TradeCardRow
-            key={card.key}
-            name={card.name}
-            subtitle={[`×${card.quantity}`, card.condition, card.isFoil ? t("trade.foil") : null, card.setName]
-              .filter(Boolean)
-              .join(" · ")}
-            imageUrl={card.imageUrl}
-            accessibilityHint={t("trade.editCardHint")}
-            onPress={() => setEditingCard(card)}
-          />
-        ))}
-        <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-          <Button
-            style={{ flex: 1 }}
-            variant="secondary"
-            icon="camera"
-            label={t("trade.scanCards")}
-            onPress={() => router.push("/trade/scan")}
-          />
-          <Button
-            style={{ flex: 1 }}
-            variant="secondary"
-            icon="collections"
-            label={t("trade.fromCollection")}
-            onPress={() => router.push("/trade/collection")}
-          />
-        </View>
-      </Surface>
+        <ListGroup>
+          {draft.offered.map((card) => (
+            <TradeCardRow
+              key={card.key}
+              name={card.name}
+              subtitle={[`×${card.quantity}`, t(`trade.conditions.${card.condition}`), card.isFoil ? t("trade.foil") : null, card.setName]
+                .filter(Boolean)
+                .join(" · ")}
+              imageUrl={card.imageUrl}
+              accessibilityHint={t("trade.editCardHint")}
+              onPress={() => setEditingCard(card)}
+            />
+          ))}
+          <ListRow icon="camera" title={t("trade.scanCards")} onPress={() => router.push("/trade/scan")} />
+          <ListRow icon="collections" title={t("trade.fromCollection")} onPress={() => router.push("/trade/collection")} />
+        </ListGroup>
+      </View>
 
       <View style={{ gap: SPACING.sm }}>
         <AppText size="sm" accessibilityLiveRegion="polite">

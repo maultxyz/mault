@@ -55,7 +55,7 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
   return (
     <StatsSection
       title={t("stats.activity.title")}
-      description={t(`stats.activity.description.${report.bucket}`)}
+      description={t(`stats.activity.description.${metric}.${report.bucket}`)}
       action={
         <TabStrip<StatsActivityMetric>
           inline
@@ -196,7 +196,7 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
               </View>
             </View>
             <View>
-              <AppText size="sm" weight="semibold" numberOfLines={1}>
+              <AppText size="xs" weight="medium" numberOfLines={1}>
                 {entry.card.name}
               </AppText>
               <AppText size="xs" tone="secondary" numberOfLines={1}>

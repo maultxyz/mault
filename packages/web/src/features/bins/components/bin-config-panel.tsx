@@ -896,7 +896,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
         >
           <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
             {showTitle && (
-              <h2 className="text-sm font-semibold font-heading">
+              <h2 className="font-heading text-sm font-semibold">
                 {t("binLabel", { number: config.binNumber })}
               </h2>
             )}
@@ -918,7 +918,7 @@ export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
       <div className="flex flex-col gap-3 md:gap-2">
         <div className="flex items-center gap-4">
           {showTitle && (
-            <h2 className="text-sm font-semibold font-heading">
+            <h2 className="font-heading text-sm font-semibold">
               {t("binLabel", { number: config.binNumber })}
             </h2>
           )}

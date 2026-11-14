@@ -4,16 +4,16 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Alert, View } from "react-native";
+import { Alert } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { SectionHeader } from "@/components/ui/section-header";
 import { TextField } from "@/components/ui/text-field";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { SettingsPage } from "@/features/settings/components/settings-page";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 import {
   cancelInvitation,
   deleteOrganization,
@@ -24,7 +24,6 @@ import {
 } from "@/features/org/api/organization";
 import { useActiveOrg } from "@/hooks/use-org";
 import { refreshOrganizations, useSession } from "@/lib/auth/session";
-import { SPACING } from "@/lib/constants/theme";
 import type { OrgMember, OrgRole } from "@/lib/interfaces/settings";
 import { organizationNameFormSchema, type OrganizationNameFormValues } from "@magic-vault/shared";
 import { translateFormErrorMessage } from "@/lib/form-validation";
@@ -135,8 +134,7 @@ export default function OrganizationSettingsScreen() {
         />
       ) : null}
 
-      <View style={{ gap: SPACING.sm }}>
-        <SectionHeader title={t("settings.org.membersHeading")} />
+      <SettingsSection title={t("settings.org.membersHeading")}>
         {details.data && !details.data.canManageMembers ? (
           <AppText size="xs" tone="secondary">
             {t("settings.org.membersUnavailable")}
@@ -170,11 +168,10 @@ export default function OrganizationSettingsScreen() {
             ) : null}
           </ListGroup>
         )}
-      </View>
+      </SettingsSection>
 
       {canManage && invitations.length > 0 ? (
-        <View style={{ gap: SPACING.sm }}>
-          <SectionHeader title={t("settings.org.pendingInvites")} />
+        <SettingsSection title={t("settings.org.pendingInvites")}>
           <ListGroup>
             {invitations.map((invitation) => (
               <ListRow
@@ -188,12 +185,11 @@ export default function OrganizationSettingsScreen() {
               />
             ))}
           </ListGroup>
-        </View>
+        </SettingsSection>
       ) : null}
 
       {role === "owner" ? (
-        <View style={{ gap: SPACING.sm }}>
-          <SectionHeader title={t("settings.org.dangerZoneHeading")} />
+        <SettingsSection title={t("settings.org.dangerZoneHeading")}>
           <ListGroup>
             <ListRow
               icon="trash"
@@ -209,7 +205,7 @@ export default function OrganizationSettingsScreen() {
               onPress={confirmDelete}
             />
           </ListGroup>
-        </View>
+        </SettingsSection>
       ) : null}
 
       <OptionSheet

@@ -524,7 +524,7 @@ export function DeviceSetupWizard() {
                 {SETUP_INTRO_PARTS.map(({ key, icon: PartIcon }) => (
                   <li key={key} className="flex items-start gap-3">
                     <span className="grid size-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-                      <PartIcon size={16} />
+                      <PartIcon className="size-4" />
                     </span>
                     <span className="flex flex-col">
                       <span className="font-medium">
@@ -595,7 +595,7 @@ export function DeviceSetupWizard() {
               title={t("setupWizard.moduleDelays.heading")}
               body={t("setupWizard.moduleDelays.body")}
             />
-            <div className="flex flex-col gap-4 md:gap-2 rounded-xl bg-muted p-4">
+            <div className="flex flex-col gap-4 md:gap-2 rounded-lg bg-foreground/6 p-4">
               {MODULE_DELAY_FIELDS.map((field) => (
                 <ModuleDelayControl
                   key={field}
@@ -629,7 +629,7 @@ export function DeviceSetupWizard() {
               title={t("setupWizard.irSensors.heading")}
               body={t("setupWizard.irSensors.body")}
             />
-            <div className="flex flex-col divide-y divide-border rounded-xl bg-muted">
+            <div className="flex flex-col divide-y divide-border rounded-lg bg-foreground/6">
               {[
                 ...Array.from(
                   { length: moduleCount.displayCount },
@@ -812,8 +812,8 @@ function IrSensorRow({ label, hint, present, seen }: SetupIrSensorRowProps) {
           : t("setupWizard.irSensors.clear")}
       </span>
       {seen ? (
-        <IconCircleCheck size={18}
-          className="shrink-0 text-primary"
+        <IconCircleCheck
+          className="size-5 shrink-0 text-primary"
           role="img"
           aria-label={t("setupWizard.irSensors.verified")}
         />
@@ -834,7 +834,7 @@ function ControlPanel({
   children,
 }: SetupControlPanelProps) {
   return (
-    <div className="flex flex-col gap-3 md:gap-2 rounded-xl bg-muted p-4">
+    <div className="flex flex-col gap-3 md:gap-2 rounded-lg bg-foreground/6 p-4">
       {(label || value) && (
         <div className="flex items-baseline justify-between">
           <span className="text-xs font-medium text-foreground/70">
@@ -879,7 +879,7 @@ function ServoStep({
               i > currentIndex && "text-foreground/70",
             )}
           >
-            {i < currentIndex && <IconCheck size={12} />}
+            {i < currentIndex && <IconCheck className="size-3" />}
             {t(`moduleCalibrationGrid.positions.${p.position}`)}
           </span>
         ))}
@@ -887,7 +887,7 @@ function ServoStep({
 
       <StepHeading title={t(`setupWizard.positions.${currentKey}.title`)} />
 
-      <div className="rounded-xl bg-muted p-3">
+      <div className="rounded-lg bg-foreground/6 p-3">
         <p className="text-xs font-medium text-foreground/70">
           {t("setupWizard.aboutPart", { servo: t(`servos.${servo}.label`) })}
         </p>

@@ -14,7 +14,7 @@ export function PlanUpgradeOption({
   const yearlySavings = yearlySavingsPercent(prices.month, prices.year);
 
   return (
-    <div className="flex flex-col gap-2 rounded-xl bg-muted p-3">
+    <div className="flex flex-col gap-2 rounded-lg bg-foreground/6 p-3">
       <p className="text-sm font-medium">
         {t("upgradeTo", { plan: t(`plan.${plan}`) })}
       </p>

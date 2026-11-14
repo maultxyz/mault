@@ -29,7 +29,7 @@ export function GuestTradeOfferList({ link }: GuestTradeOfferListProps) {
         <AccordionContent className="pb-0">
           <ul className="flex flex-col gap-3 md:gap-2">
             {offers.map((offer) => (
-              <li key={offer.guid} className="flex flex-col gap-2 rounded-card bg-card p-3">
+              <li key={offer.guid} className="flex flex-col gap-2 rounded-card bg-card p-3 md:p-2.5">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-foreground/70">
                     {new Date(offer.createdAt).toLocaleString(i18n.language, {

@@ -156,10 +156,8 @@ export function ScannerOverlay({
           <div className="text-center text-sm text-foreground/70 max-w-56 flex flex-col items-center gap-2">
             <IconAlertTriangle className="mx-auto size-5 text-destructive" />
             <p>{t("scannerOverlay.dailyLimitReached")}</p>
-            <Button nativeButton={false}>
-              <Link to={SETTINGS_PATHS.billing}>
-                {t("scannerOverlay.upgradeButton")}
-              </Link>
+            <Button render={<Link to={SETTINGS_PATHS.billing} />}>
+              {t("scannerOverlay.upgradeButton")}
             </Button>
           </div>
         </div>
@@ -354,7 +352,7 @@ export function ScannerOverlay({
           ) : (
             <IconScan className="size-3.5 shrink-0" />
           )}
-          <span aria-live="polite">{flatbedInstruction(t, flatbedScan)}</span>
+          <span>{flatbedInstruction(t, flatbedScan)}</span>
         </StatusPill>
       );
     }
@@ -376,15 +374,18 @@ export function ScannerOverlay({
       case "error":
         return (
           <StatusPill placement={pillPlacement} variant="error">
-            <span className="flex-1">{errorMessage}</span>
+            <IconAlertTriangle className="size-3.5 shrink-0" />
+            <span className="flex-1">
+              {errorMessage || t("mobileScan.phase.error")}
+            </span>
             <Button
               aria-label={t("common:a11y.retry")}
               variant="outline"
               size="icon"
               onClick={onRetryError}
-              className="size-6 shrink-0"
+              className="shrink-0"
             >
-              <IconRefresh className="size-3" />
+              <IconRefresh />
             </Button>
           </StatusPill>
         );

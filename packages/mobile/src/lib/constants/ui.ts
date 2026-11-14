@@ -60,3 +60,5 @@ export const TOAST_SCREEN_READER_DURATION_MULTIPLIER = 3;
 export const TOAST_BOTTOM_OFFSET = 72;
 export const TOAST_FADE_MS = 160;
 export const EMPTY_STATE_ICON_SIZE = 56;
+export const PROGRESS_BAR_HEIGHT = 6;
+export const CHECKBOX_INDICATOR_SIZE = 24;

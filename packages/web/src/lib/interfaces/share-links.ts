@@ -44,7 +44,17 @@ export type ShareLinkTriggerButtonProps = ComponentProps<typeof Button> & {
 export type SharedStorageLinkState =
   | { status: "checking" }
   | { status: "invalid" }
+  | { status: "failed" }
   | { status: "valid"; info: StorageShareLinkInfo };
+
+export type ShareLinkCheckStatus = "checking" | "invalid" | "failed";
+
+export interface ShareLinkStatusScreenProps {
+  status: ShareLinkCheckStatus;
+  invalidTitle: string;
+  invalidDescription: string;
+  onRetry: () => void;
+}
 
 
 

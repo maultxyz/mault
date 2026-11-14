@@ -65,6 +65,8 @@ export function BarList({ items, collapsedCount }: BarListProps) {
           <Pressable
             key={item.key}
             accessibilityRole="button"
+            accessibilityLabel={[item.label, item.display, item.secondary].filter(Boolean).join(", ")}
+            accessibilityHint={t("stats.compare.filterHint")}
             onPress={item.onPress}
             style={({ pressed }) => ({
               gap: 6,
@@ -72,7 +74,7 @@ export function BarList({ items, collapsedCount }: BarListProps) {
               paddingHorizontal: SPACING.sm,
               paddingVertical: 6,
               borderRadius: RADIUS.md,
-              backgroundColor: pressed ? colors.muted : "transparent",
+              backgroundColor: pressed ? colors.tonal : "transparent",
             })}
           >
             {renderContent(item)}

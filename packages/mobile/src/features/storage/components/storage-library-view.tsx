@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, RefreshControl, View } from "react-native";
 import { CardRow } from "@/components/cards/card-row";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListRow } from "@/components/ui/list-row";
@@ -14,7 +15,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { ListGroupItem } from "@/components/ui/list-group-item";
-import { Surface } from "@/components/ui/surface";
+import { ListGroup } from "@/components/ui/list-group";
 import { AppText } from "@/components/ui/app-text";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import { billingQueryOptions } from "@/features/org/api/billing";
@@ -114,11 +115,27 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
                 <Callout tone="destructive" title={t("storage.actionFailed")} />
               ) : null}
               {query ? (
-                results.data && results.data.length === 0 ? (
+                results.isError ? (
+                  <Callout
+                    tone="destructive"
+                    title={t("storage.searchFailed")}
+                    action={
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        label={t("recovery.retry")}
+                        loading={results.isRefetching}
+                        onPress={() => void results.refetch()}
+                      />
+                    }
+                  />
+                ) : results.isPending ? (
+                  <ListSkeleton rows={3} />
+                ) : results.data.length === 0 ? (
                   <EmptyState icon="search" title={t("storage.noResultsTitle")} description={t("storage.noResultsDescription", { query })} />
                 ) : (
-                  <Surface style={{ padding: SPACING.sm }}>
-                    {(results.data ?? []).map((entry) => (
+                  <ListGroup>
+                    {results.data.map((entry) => (
                       <CardRow
                         key={entry.scanId}
                         name={entry.card.name}
@@ -127,7 +144,7 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
                         onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: entry.locationGuid } })}
                       />
                     ))}
-                  </Surface>
+                  </ListGroup>
                 )
               ) : null}
             </View>

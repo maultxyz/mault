@@ -1,3 +1,4 @@
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ export function ReviewGrid({
   total,
   isLoading,
   isError,
+  onRetry,
   onOpenOneByOne,
   onClose,
   onCorrect,
@@ -105,9 +107,9 @@ export function ReviewGrid({
 
   return (
     <div className="flex min-h-full shrink-0 flex-col">
-      <div className="sticky top-0 z-10 flex flex-wrap items-center gap-2 border-b bg-background/80 p-2 backdrop-blur-2xl">
+      <div className="sticky top-0 z-10 flex flex-wrap items-center gap-1.5 border-b bg-background/80 p-2 backdrop-blur-2xl">
         <div className="mr-auto min-w-0">
-          <h2 className="truncate text-base font-semibold">
+          <h2 className="truncate font-heading text-base font-semibold">
             {t("reviewGrid.title")}
           </h2>
           <p role="status" className="text-xs tabular-nums text-foreground/70">
@@ -148,7 +150,11 @@ export function ReviewGrid({
       </div>
       <div className="flex-1 p-2">
         {isError ? (
-          <Callout variant="error">{t("reviewGrid.loadFailed")}</Callout>
+          onRetry ? (
+            <LoadErrorCallout message={t("reviewGrid.loadFailed")} onRetry={onRetry} />
+          ) : (
+            <Callout variant="error">{t("reviewGrid.loadFailed")}</Callout>
+          )
         ) : isLoading || (visibleCards.length === 0 && remaining > 0) ? (
           <div className={REVIEW_GRID_CLASS}>
             {Array.from({ length: 8 }).map((_, index) => (

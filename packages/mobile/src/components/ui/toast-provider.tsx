@@ -101,7 +101,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
 
   const value = useMemo(() => ({ showToast, dismissToast: () => finish(false) }), [showToast, finish]);
   const toneColor =
-    toast?.tone === "destructive" ? colors.destructive : toast?.tone === "success" ? colors.successForeground : colors.foreground;
+    toast?.tone === "destructive" ? colors.destructiveForeground : toast?.tone === "success" ? colors.successForeground : colors.foreground;
 
   return (
     <ToastContext.Provider value={value}>

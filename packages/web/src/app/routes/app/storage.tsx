@@ -47,6 +47,7 @@ import {
   LEGACY_STORAGE_VIEW_PARAM,
   STORAGE_PICK_LIST_PATH,
   STORAGE_REVIEW_SEARCH_PARAM,
+  STORAGE_PANEL_PADDING_TOP,
   STORAGE_TOOLBAR_TOP_CSS_VARIABLE,
 } from "@/lib/constants/storage";
 import { useElementHeight } from "@/hooks/use-element-height";
@@ -228,6 +229,7 @@ function DesktopStoragePage() {
               totalCards={reviewQueue.totalCards}
               isPending={reviewQueue.isPending}
               isError={reviewQueue.isError}
+              onRetry={reviewQueue.retry}
               currentScanId={openScanId}
               reviewedScanIds={reviewQueue.reviewedScanIds}
               removedScanIds={reviewQueue.removedScanIds}
@@ -314,6 +316,7 @@ function DesktopStoragePage() {
               total={reviewGridPage.data?.total ?? 0}
               isLoading={reviewGridPage.isPending}
               isError={reviewGridPage.isError}
+              onRetry={() => void reviewGridPage.refetch()}
               onOpenOneByOne={(card) => {
                 setReviewLayout("single");
                 openCard(selected.guid, card.scanId, true);
@@ -323,17 +326,17 @@ function DesktopStoragePage() {
           </section>
         ) : (
           <section
-            className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 lg:col-span-9"
+            className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 md:gap-2 md:px-3 md:py-2 lg:col-span-9"
             style={
               {
-                [STORAGE_TOOLBAR_TOP_CSS_VARIABLE]: `calc(${locationHeaderHeight}px - 1rem)`,
+                [STORAGE_TOOLBAR_TOP_CSS_VARIABLE]: `calc(${locationHeaderHeight}px - ${STORAGE_PANEL_PADDING_TOP})`,
               } as CSSProperties
             }
           >
             {selected && !isSearching && (
               <div
                 ref={setLocationHeaderElement}
-                className="sticky -top-4 z-50 -mx-4 -mt-4 flex items-center gap-2 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
+                className="sticky -top-4 z-50 -mx-4 -mt-4 flex items-center gap-1.5 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl md:-top-2 md:-mx-3 md:-mt-2 md:pl-3">
                 <div className="mr-auto min-w-0">
                   <h1 className="truncate font-heading text-lg font-semibold">
                     {selected.name}

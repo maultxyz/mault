@@ -2,12 +2,11 @@
   "title": "Integrationen",
   "subtitle": "Verbinde Mault mit anderen Apps und lege fest, was wo gepostet wird.",
   "discord": {
-    "heading": "Discord",
-    "description": "Poste Scans und Warnungen auf deinem Discord-Server.",
     "connectedTo": "Verbunden mit {{server}}",
     "statusLinked": "Verknüpft",
     "statusNotLinked": "Nicht verknüpft",
     "botUnreachable": "Der Discord-Bot ist nicht erreichbar, daher können Kanalnamen und Berechtigungen gerade nicht angezeigt werden.",
+    "loadFailed": "Die Discord-Einstellungen konnten nicht geladen werden.",
     "botNotInServer": "Der Bot ist nicht mehr auf deinem verknüpften Server. Füge ihn wieder hinzu und verknüpfe ihn erneut.",
     "connection": "Verbindung"
   },

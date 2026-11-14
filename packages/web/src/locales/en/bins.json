@@ -90,11 +90,12 @@
     "advancedTitle": "Advanced",
     "rulesSectionDescription": "Cards that match go to this bin.",
     "maxCardsLabel": "Max cards",
-    "maxCardsDescription": "Sorting pauses when this bin holds this many cards, even if it has room. Leave empty to use the bin's physical size.",
+    "maxCardsDescription": "This bin counts as full at this many cards, even if it has room: matching cards then go to its overflow bin or pause sorting. Leave empty to use the bin's physical size.",
     "maxCardsPlaceholder": "No limit"
   },
   "binList": {
-    "needCatchAll": "One bin must be set as catch-all."
+    "needCatchAll": "One bin must be set as catch-all.",
+    "loadFailed": "Couldn't load your bins."
   },
   "binLocationDiagram": {},
   "conditionRow": {

@@ -252,7 +252,7 @@ export function RepackPanel() {
                 </span>
               </div>
               {field.value != null && (
-                <div className="flex flex-col gap-2 rounded-card bg-card p-3">
+                <div className="flex flex-col gap-2 rounded-card bg-card p-3 md:p-2.5">
                   <p className="text-xs text-foreground/70">
                     {siftBin
                       ? t("repackPanel.siftHint", { bin: siftBin.binNumber })
@@ -279,7 +279,7 @@ export function RepackPanel() {
                   {field.value.map((slot, index) => (
                     <div
                       key={slot.id}
-                      className="flex flex-col gap-2 rounded-card bg-card p-3"
+                      className="flex flex-col gap-2 rounded-card bg-card p-3 md:p-2.5"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <Field className="flex-1 gap-1">

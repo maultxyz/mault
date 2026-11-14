@@ -31,7 +31,7 @@ export function AutoAssignSnapshot() {
     });
 
   return (
-    <div className="my-2 flex max-h-40 flex-col gap-1 overflow-y-auto rounded-xl bg-muted p-2 text-xs">
+    <div className="my-2 flex max-h-40 flex-col gap-1 overflow-y-auto rounded-lg bg-foreground/6 p-2 text-xs">
       {rows.map((row) => (
         <div key={row.binNumber} className="flex gap-2">
           <span className="w-16 shrink-0 text-foreground/70">

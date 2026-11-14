@@ -30,7 +30,7 @@ export function DesktopScannerPip() {
       }}
       action={{
         label: t("scannerPip.hide"),
-        icon: <IconX size={16} />,
+        icon: <IconX className="size-4" />,
         onClick: dismissDesktopPip,
       }}
       controls={<DesktopPipControls />}

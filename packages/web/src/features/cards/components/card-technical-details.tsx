@@ -53,7 +53,7 @@ export function CardTechnicalDetails({
   };
 
   return (
-    <div className="flex flex-col gap-6 md:gap-2 rounded-xl bg-muted p-4">
+    <div className="flex flex-col gap-6 md:gap-2 rounded-lg bg-foreground/6 p-4">
       <DetailSection title={t("technicalDetails.match")}>
         <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-6 gap-y-1.5 text-sm">
           <Row label={t("technicalDetails.matchedBy")}>

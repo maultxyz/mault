@@ -6,7 +6,7 @@ import { router } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Alert, Switch } from "react-native";
+import { Alert } from "react-native";
 import {
   SOUND_CLIP_MAX_BYTES,
   SOUND_CLIP_NAME_MAX_LENGTH,
@@ -21,10 +21,11 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { SectionHeader } from "@/components/ui/section-header";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
+import { RuleEnabledSwitch } from "@/features/settings/components/rule-enabled-switch";
 import { SettingsPage } from "@/features/settings/components/settings-page";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 import {
   deleteSoundClip,
   deleteSoundRule,
@@ -38,12 +39,10 @@ import {
 import { createClipPlayer, isPlayerActive, playSoundExclusively, stopSound } from "@/features/sounds/lib/sound-playback";
 import { orderSoundRules, toSoundRulesDraft } from "@/features/sounds/lib/sound-rules-draft";
 import { useActiveOrg } from "@/hooks/use-org";
-import { useTheme } from "@/hooks/use-theme";
 import { SOUND_CLIP_MIME_TYPES } from "@/lib/constants/sounds";
 
 export default function SoundsSettingsScreen() {
   const { t } = useTranslation();
-  const colors = useTheme();
   const queryClient = useQueryClient();
   const org = useActiveOrg();
   const orgId = org?.id ?? null;
@@ -241,90 +240,85 @@ export default function SoundsSettingsScreen() {
       </AppText>
       {message ? <Callout tone={message.tone} title={message.text} /> : null}
 
-      <SectionHeader title={t("settings.sounds.library.heading")} />
-      <AppText size="xs" tone="secondary">
-        {t("settings.sounds.library.description")}
-      </AppText>
-      {clips.data && clips.data.length === 0 ? <EmptyState icon="music" title={t("settings.sounds.library.empty")} /> : null}
-      <ListGroup>
-        {(clips.data ?? []).map((clip) => {
-          const isPlaying = playingGuid === clip.guid;
-          const previewLabel = isPlaying
-            ? t("settings.sounds.library.stop", { name: clip.name })
-            : t("settings.sounds.library.play", { name: clip.name });
-          return (
-            <ListRow
-              key={clip.guid}
-              icon={isPlaying ? "stop" : "play"}
-              title={clip.name}
-              subtitle={[
-                clip.isSystem ? t("settings.sounds.library.builtIn") : null,
-                t("settings.sounds.library.size", { kb: Math.max(1, Math.round(clip.sizeBytes / 1024)) }),
-              ]
-                .filter(Boolean)
-                .join(" · ")}
-              disabled={clip.isSystem && !clip.url}
-              onPress={clip.isSystem ? () => togglePreview(clip) : () => setClipActions(clip)}
-              onLongPress={clip.isSystem ? undefined : () => setClipActions(clip)}
-              longPressLabel={clip.isSystem ? undefined : previewLabel}
-            />
-          );
-        })}
-        <ListRow
-          icon="upload"
-          title={upload.isPending ? t("settings.sounds.library.uploading") : t("settings.sounds.library.upload")}
-          subtitle={isUploadLocked ? t("settings.sounds.library.notInPlan") : undefined}
-          subtitleNumberOfLines={3}
-          disabled={isUploadLocked || upload.isPending}
-          onPress={() => void pickClip()}
-        />
-      </ListGroup>
+      <SettingsSection title={t("settings.sounds.library.heading")} description={t("settings.sounds.library.description")}>
+        {clips.data && clips.data.length === 0 ? <EmptyState icon="music" title={t("settings.sounds.library.empty")} /> : null}
+        <ListGroup>
+          {(clips.data ?? []).map((clip) => {
+            const isPlaying = playingGuid === clip.guid;
+            const previewLabel = isPlaying
+              ? t("settings.sounds.library.stop", { name: clip.name })
+              : t("settings.sounds.library.play", { name: clip.name });
+            return (
+              <ListRow
+                key={clip.guid}
+                icon={isPlaying ? "stop" : "play"}
+                title={clip.name}
+                subtitle={[
+                  clip.isSystem ? t("settings.sounds.library.builtIn") : null,
+                  t("settings.sounds.library.size", { kb: Math.max(1, Math.round(clip.sizeBytes / 1024)) }),
+                ]
+                  .filter(Boolean)
+                  .join(" · ")}
+                disabled={clip.isSystem && !clip.url}
+                onPress={clip.isSystem ? () => togglePreview(clip) : () => setClipActions(clip)}
+                onLongPress={clip.isSystem ? undefined : () => setClipActions(clip)}
+                longPressLabel={clip.isSystem ? undefined : previewLabel}
+              />
+            );
+          })}
+          <ListRow
+            icon="upload"
+            title={upload.isPending ? t("settings.sounds.library.uploading") : t("settings.sounds.library.upload")}
+            subtitle={isUploadLocked ? t("settings.sounds.library.notInPlan") : undefined}
+            subtitleNumberOfLines={3}
+            disabled={isUploadLocked || upload.isPending}
+            onPress={() => void pickClip()}
+          />
+        </ListGroup>
+      </SettingsSection>
 
       {gameGuid ? (
         <>
-          <SectionHeader title={t("settings.sounds.rules.heading")} />
-          <AppText size="xs" tone="secondary">
-            {t("settings.sounds.rules.description")}
-          </AppText>
-          {atRuleLimit && ruleLimit !== null ? (
-            <Callout tone="info" title={t("settings.sounds.rules.limitReached", { count: ruleLimit })} />
-          ) : null}
-          {clips.data && clips.data.length === 0 ? (
-            <Callout tone="info" title={t("settings.sounds.rules.needsClip")} />
-          ) : null}
-          {rulesQuery.data && orderedRules.length === 0 ? (
-            <EmptyState icon="music" title={t("settings.sounds.rules.empty")} />
-          ) : null}
-          <ListGroup>
-            {orderedRules.map((rule) => {
-              const clip = clipName(rule.clipGuid);
-              return (
-                <ListRow
-                  key={rule.guid}
-                  title={rule.name}
-                  subtitle={clip ? t("settings.sounds.rules.plays", { clip }) : t("settings.sounds.rules.noClip")}
-                  onPress={() => router.push({ pathname: "/settings/sound-rule", params: { guid: rule.guid } })}
-                  onLongPress={() => setRuleActions(rule)}
-                  longPressLabel={t("settings.sounds.rules.edit", { name: rule.name })}
-                  rightIsInteractive
-                  right={
-                    <Switch
-                      accessibilityLabel={`${t("settings.sounds.rules.enabled")}, ${rule.name}`}
-                      value={enabled?.[rule.guid] ?? rule.isEnabled}
-                      onValueChange={(value) => form.setValue(`enabled.${rule.guid}`, value, { shouldDirty: true })}
-                      trackColor={{ true: colors.primary, false: colors.muted }}
-                    />
-                  }
-                />
-              );
-            })}
-            <ListRow
-              icon="plus"
-              title={t("settings.sounds.rules.add")}
-              disabled={atRuleLimit || !clips.data?.length}
-              onPress={() => router.push("/settings/sound-rule")}
-            />
-          </ListGroup>
+          <SettingsSection title={t("settings.sounds.rules.heading")} description={t("settings.sounds.rules.description")}>
+            {atRuleLimit && ruleLimit !== null ? (
+              <Callout tone="info" title={t("settings.sounds.rules.limitReached", { count: ruleLimit })} />
+            ) : null}
+            {clips.data && clips.data.length === 0 ? (
+              <Callout tone="info" title={t("settings.sounds.rules.needsClip")} />
+            ) : null}
+            {rulesQuery.data && orderedRules.length === 0 ? (
+              <EmptyState icon="music" title={t("settings.sounds.rules.empty")} />
+            ) : null}
+            <ListGroup>
+              {orderedRules.map((rule) => {
+                const clip = clipName(rule.clipGuid);
+                return (
+                  <ListRow
+                    key={rule.guid}
+                    title={rule.name}
+                    subtitle={clip ? t("settings.sounds.rules.plays", { clip }) : t("settings.sounds.rules.noClip")}
+                    onPress={() => router.push({ pathname: "/settings/sound-rule", params: { guid: rule.guid } })}
+                    onLongPress={() => setRuleActions(rule)}
+                    longPressLabel={t("settings.sounds.rules.edit", { name: rule.name })}
+                    rightIsInteractive
+                    right={
+                      <RuleEnabledSwitch
+                        accessibilityLabel={`${t("settings.sounds.rules.enabled")}, ${rule.name}`}
+                        value={enabled?.[rule.guid] ?? rule.isEnabled}
+                        onValueChange={(value) => form.setValue(`enabled.${rule.guid}`, value, { shouldDirty: true })}
+                      />
+                    }
+                  />
+                );
+              })}
+              <ListRow
+                icon="plus"
+                title={t("settings.sounds.rules.add")}
+                disabled={atRuleLimit || !clips.data?.length}
+                onPress={() => router.push("/settings/sound-rule")}
+              />
+            </ListGroup>
+          </SettingsSection>
         </>
       ) : null}
 

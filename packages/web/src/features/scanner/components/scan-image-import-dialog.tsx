@@ -181,7 +181,7 @@ export function ScanImageImportDialog({
                 ].join(", ")}
               </p>
             </div>
-            <ul className="max-h-[50dvh] min-h-0 divide-y divide-border overflow-y-auto rounded-xl bg-muted">
+            <ul className="max-h-[50dvh] min-h-0 divide-y divide-border overflow-y-auto rounded-lg bg-foreground/6">
               {items.map((item) => (
                 <ScanImageImportRow
                   key={item.id}

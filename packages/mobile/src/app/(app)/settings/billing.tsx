@@ -16,6 +16,7 @@ import { SettingsSection } from "@/features/settings/components/settings-section
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
 
 export default function BillingSettingsScreen() {
   const { t, i18n } = useTranslation();
@@ -72,7 +73,7 @@ export default function BillingSettingsScreen() {
             }
           >
             <ListGroup>
-              {planRows.map((row, index) => {
+              {planRows.map((row) => {
                 const usagePercent = billingPlanRowUsagePercent(row);
                 const unavailable = row.kind === "feature" ? !row.included : row.limit === 0;
                 const rowName = t(`settings.billing.planTable.rows.${row.key}`);
@@ -84,10 +85,10 @@ export default function BillingSettingsScreen() {
                     accessibilityLabel={`${rowName}, ${offeringText(row)}, ${usageLine}`}
                     style={{
                       gap: SPACING.xs,
+                      justifyContent: "center",
+                      minHeight: LIST_ROW_MIN_HEIGHT,
                       paddingHorizontal: SCREEN_GUTTER,
                       paddingVertical: SPACING.sm,
-                      borderTopWidth: index > 0 ? 1 : 0,
-                      borderTopColor: colors.border,
                     }}
                   >
                     <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>

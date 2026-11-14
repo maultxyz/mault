@@ -18,7 +18,7 @@ import { useTranslation } from "react-i18next";
 export function usePlatformStatsDraft() {
   const { t } = useTranslation("admin");
   const queryClient = useQueryClient();
-  const { data, isPending } = useQuery(platformStatsQueryOptions);
+  const { data, isPending, isError, refetch } = useQuery(platformStatsQueryOptions);
   const [isPosting, setIsPosting] = useState(false);
 
   const form = useForm<PlatformStatsFormValues>({
@@ -52,7 +52,9 @@ export function usePlatformStatsDraft() {
   return {
     form,
     data,
-    isLoading: isPending,
+    isLoading: isPending && !isError,
+    isError: isError && !data,
+    refetch,
     isPosting,
     save: form.handleSubmit(save),
     postNow,

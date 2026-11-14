@@ -32,7 +32,7 @@ function BinSlot({
 }) {
   const { t } = useTranslation("calibration");
   return (
-    <div className="flex flex-col gap-1.5 rounded-xl bg-muted p-2">
+    <div className="flex flex-col gap-1.5 rounded-lg bg-foreground/6 p-2">
       <span className="text-xs text-foreground/70">
         {label}
       </span>
@@ -40,7 +40,7 @@ function BinSlot({
         value={binNumber != null ? String(binNumber) : ""}
         onValueChange={(value) => onBinChange(Number(value))}
       >
-        <SelectTrigger aria-label={label} className="h-8 w-full text-xs">
+        <SelectTrigger aria-label={label} className="w-full">
           <SelectValue>
             {binNumber != null ? t("binLabel", { bin: binNumber }) : ""}
           </SelectValue>
@@ -146,7 +146,7 @@ export function BinConfigurations() {
       </div>
 
       {bottomRoutes.length > 0 && (
-        <div className="flex flex-col gap-2 rounded-xl bg-muted p-2">
+        <div className="flex flex-col gap-2 rounded-lg bg-foreground/6 p-2">
           <span className="text-xs text-foreground/70">
             {t("binConfigurations.bottomSectionLabel")}
           </span>
@@ -166,7 +166,7 @@ export function BinConfigurations() {
                   aria-label={t("binConfigurations.bottomModuleSelect", {
                     bin: route.binNumber,
                   })}
-                  className="h-8 w-32 text-xs"
+                  className="w-32"
                 >
                   <SelectValue>
                     {t("moduleLabel", {
@@ -192,7 +192,7 @@ export function BinConfigurations() {
                   aria-label={t("binConfigurations.bottomBinSelect", {
                     module: route.module,
                   })}
-                  className="h-8 flex-1 text-xs"
+                  className="flex-1"
                 >
                   <SelectValue>
                     {t("binLabel", {

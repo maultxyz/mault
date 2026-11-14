@@ -1,3 +1,4 @@
+import { DeleteDialog } from "@/components/delete-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -38,6 +39,7 @@ export function SoundClipRow({
   const queryClient = useQueryClient();
   const canManage = !!renameClip && !!deleteClip;
   const [editing, setEditing] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [preview] = useState<ClipPreviewState>(() => ({
     audio: null,
     frame: 0,
@@ -149,7 +151,7 @@ export function SoundClipRow({
                 aria-label={t("library.saveName")}
                 title={t("library.saveName")}
               >
-                <IconCheck size={14} />
+                <IconCheck />
               </Button>
               <Button
                 type="button"
@@ -159,7 +161,7 @@ export function SoundClipRow({
                 title={t("library.cancelRename")}
                 onClick={() => setEditing(false)}
               >
-                <IconX size={14} />
+                <IconX />
               </Button>
             </ButtonGroup>
           </form>
@@ -216,7 +218,7 @@ export function SoundClipRow({
             title={t("library.rename", { name: clip.name })}
             onClick={startEditing}
           >
-            <IconPencil size={14} />
+            <IconPencil />
           </Button>
           <Button
             size="icon"
@@ -224,11 +226,22 @@ export function SoundClipRow({
             disabled={remove.isPending}
             aria-label={t("library.delete", { name: clip.name })}
             title={t("library.delete", { name: clip.name })}
-            onClick={() => remove.mutate()}
+            onClick={() => setDeleteOpen(true)}
           >
-            <IconTrash size={14} />
+            <IconTrash />
           </Button>
         </ButtonGroup>
+      )}
+      {canManage && (
+        <DeleteDialog
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+          title={t("library.deleteConfirmTitle")}
+          description={t("library.deleteConfirmDescription", {
+            name: clip.name,
+          })}
+          onConfirm={() => remove.mutate()}
+        />
       )}
     </li>
   );

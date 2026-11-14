@@ -7,7 +7,7 @@ export function StatsHighlights({ insights }: StatsHighlightsProps) {
 
   return (
     <section className="flex flex-col gap-2">
-      <h2 className="font-heading text-sm font-semibold text-foreground">{t("highlights.title")}</h2>
+      <h2 className="font-heading text-base font-semibold text-foreground md:text-sm">{t("highlights.title")}</h2>
       <ul className="grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5">
         {insights.map((insight) => {
           const InsightIcon = insight.icon;

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ListGroup } from "@/components/ui/list-group";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
@@ -83,16 +84,18 @@ export default function SharedLinkScreen() {
       ) : entries.length === 0 ? (
         <EmptyState icon="search" title={t("sharedLink.empty")} />
       ) : (
-        entries.map((card) => (
-          <TradeCardRow
-            key={card.scanId}
-            name={card.card.name}
-            subtitle={[card.card.setName, card.condition, card.isFoil ? (card.foilType ?? t("trade.foil")) : null]
-              .filter(Boolean)
-              .join(" · ")}
-            imageUrl={card.card.image?.small ?? card.card.image?.normal ?? null}
-          />
-        ))
+        <ListGroup>
+          {entries.map((card) => (
+            <TradeCardRow
+              key={card.scanId}
+              name={card.card.name}
+              subtitle={[card.card.setName, card.condition, card.isFoil ? (card.foilType ?? t("trade.foil")) : null]
+                .filter(Boolean)
+                .join(" · ")}
+              imageUrl={card.card.image?.small ?? card.card.image?.normal ?? null}
+            />
+          ))}
+        </ListGroup>
       )}
       {cards.hasNextPage ? (
         <Button

@@ -71,7 +71,7 @@ export default function AccountScreen() {
         {organizations.length === 0 ? (
           <Callout tone="warning" title={t("account.noOrganizations")} />
         ) : (
-        <ListGroup>
+          <ListGroup>
             {organizations.map((org) => {
               const active = org.id === activeOrgId;
               return (
@@ -91,13 +91,13 @@ export default function AccountScreen() {
       <View style={{ gap: SPACING.sm }}>
         <SectionHeader title={t("tabs.sorter")} />
         <ListGroup>
-          <ListRow icon="sorter" title={t("tabs.sorter")} onPress={() => router.push("/sorter")} />
+          <ListRow icon="sorter" title={t("account.sorterConnection")} onPress={() => router.push("/sorter")} />
           <ListRow icon="rules" title={t("rules.title")} onPress={() => router.push("/rules")} />
           <ListRow icon="stats" title={t("tabs.stats")} onPress={() => router.push("/stats")} />
         </ListGroup>
       </View>
       <View style={{ gap: SPACING.sm }}>
-        <SectionHeader title={t("account.profile.title")} />
+        <SectionHeader title={t("account.manageSection")} />
         <ListGroup>
           <ListRow
             icon="adjust"

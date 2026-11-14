@@ -139,7 +139,7 @@ export function SorterCalibrationPanel({
           aria-label={t("sorterModel.closeDrawer")}
           className="rounded-sm text-foreground/70 transition-colors hover:text-foreground"
         >
-          <IconX size={14} />
+          <IconX className="size-3.5" />
         </button>
       </div>
       <div className="flex min-h-0 flex-1 flex-col gap-5 md:gap-2 overflow-y-auto p-4">

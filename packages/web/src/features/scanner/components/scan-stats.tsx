@@ -87,7 +87,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
     return (
       <div
         data-tour="scan-stats"
-        className="rounded-card bg-card p-3 text-xs font-semibold text-foreground/70"
+        className="rounded-card bg-card p-3 md:p-2.5 text-xs font-semibold text-foreground/70"
       >
         {t("scanStats.emptyState")}
       </div>
@@ -249,7 +249,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                     onClick={() => toggleRarity(r.key)}
                     className={cn(
                       "flex items-center justify-between text-xs rounded-sm px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
-                      active ? "bg-primary/15" : "hover:bg-muted",
+                      active ? "bg-primary/15" : "hover:bg-foreground/6",
                     )}
                   >
                     <div className="flex items-center gap-1.5">
@@ -285,7 +285,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                     onClick={() => toggleColor(c.key)}
                     className={cn(
                       "flex items-center justify-between text-xs rounded-sm px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
-                      active ? "bg-primary/15" : "hover:bg-muted",
+                      active ? "bg-primary/15" : "hover:bg-foreground/6",
                     )}
                   >
                     <div className="flex items-center gap-1.5">
@@ -322,7 +322,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                   onClick={() => toggleSet(s.code)}
                   className={cn(
                     "flex items-center justify-between text-xs gap-2 rounded-sm px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
-                    active ? "bg-primary/15" : "hover:bg-muted",
+                    active ? "bg-primary/15" : "hover:bg-foreground/6",
                   )}
                 >
                   <span

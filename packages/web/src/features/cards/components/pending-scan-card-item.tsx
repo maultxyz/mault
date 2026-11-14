@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { Badge } from "@/components/ui/badge";
 import type { PendingScanCardItemProps } from "@/lib/interfaces/cards";
 import { useTranslation } from "react-i18next";
@@ -7,16 +8,16 @@ export function PendingScanCardItem({ card }: PendingScanCardItemProps) {
   return (
     <div
       aria-busy="true"
-      className="relative rounded-lg p-1 bg-muted border animate-in fade-in-0 zoom-in-90 duration-300 motion-reduce:animate-none"
+      className="relative rounded-card bg-card p-1.5 animate-in fade-in-0 zoom-in-90 duration-300 motion-reduce:animate-none"
     >
       <span className="sr-only">
         {t("cardGrid.pendingScanSavingName", { name: card.name })}
       </span>
-      <div className="aspect-[2.5/3.5] rounded-md overflow-hidden animate-pulse motion-reduce:animate-none motion-reduce:opacity-60">
-        <img
-          src={card.image?.normal || ""}
+      <div className="aspect-[2.5/3.5] rounded-lg overflow-hidden animate-pulse motion-reduce:animate-none motion-reduce:opacity-60">
+        <CardImage
+          src={card.image?.normal || card.image?.small}
+          placeholderSrc={card.image?.small}
           alt=""
-          className="w-full h-full object-cover"
         />
       </div>
       <Badge

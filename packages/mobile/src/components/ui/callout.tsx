@@ -12,7 +12,7 @@ export function Callout({ tone = "info", title, description, action }: CalloutPr
     info: { bg: colors.infoMuted, fg: colors.infoForeground, icon: "info" },
     success: { bg: colors.successMuted, fg: colors.successForeground, icon: "success" },
     warning: { bg: colors.warningMuted, fg: colors.warningForeground, icon: "warning" },
-    destructive: { bg: colors.destructiveMuted, fg: colors.destructive, icon: "error" },
+    destructive: { bg: colors.destructiveMuted, fg: colors.destructiveForeground, icon: "error" },
   } as const;
   const { bg, fg, icon } = palette[tone];
   const announcesChanges = tone === "destructive";

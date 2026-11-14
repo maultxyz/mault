@@ -19,7 +19,12 @@ import { DonutChart } from "@/features/stats/components/donut-chart";
 import { StatsHighlights } from "@/features/stats/components/stats-highlights";
 import { ValueHero } from "@/features/stats/components/value-hero";
 import { buildStatsInsights } from "@/features/stats/lib/stats-insights";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePriceSource } from "@/hooks/use-price-source";
+import {
+  collectionViewPath,
+  monitorCollectionPath,
+} from "@/lib/constants/collections";
 import {
   STATS_ACTIVITY_METRICS,
   STATS_BAR_LIST_LIMIT,
@@ -68,17 +73,17 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-function formatDay(date: string): string {
-  return new Date(`${date}T00:00:00Z`).toLocaleDateString(undefined, {
+function formatDay(date: string, locale: string): string {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     timeZone: "UTC",
   });
 }
 
-function formatShortDate(iso: string | null): string | null {
+function formatShortDate(iso: string | null, locale: string): string | null {
   if (!iso) return null;
-  return new Date(iso).toLocaleDateString(undefined, {
+  return new Date(iso).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -86,11 +91,12 @@ function formatShortDate(iso: string | null): string | null {
 }
 
 function StatsActivitySection({ report }: StatsActivitySectionProps) {
-  const { t } = useTranslation("stats");
+  const { t, i18n } = useTranslation("stats");
+  const locale = i18n.language;
   const { format } = usePriceSource();
   const [metric, setMetric] = useState<StatsActivityMetric>("count");
   const isWeekly = report.bucket === "week";
-  const compactNumber = new Intl.NumberFormat(undefined, {
+  const compactNumber = new Intl.NumberFormat(locale, {
     notation: "compact",
     maximumFractionDigits: 1,
   });
@@ -116,12 +122,12 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
         data={report.activity.map((bucket) => ({
           key: bucket.start,
           label: isWeekly
-            ? t("activity.weekOf", { date: formatDay(bucket.start) })
-            : formatDay(bucket.start),
+            ? t("activity.weekOf", { date: formatDay(bucket.start, locale) })
+            : formatDay(bucket.start, locale),
           value: metric === "count" ? bucket.count : bucket.value,
         }))}
         formatValue={(value) =>
-          metric === "count" ? value.toLocaleString() : format(value)
+          metric === "count" ? value.toLocaleString(locale) : format(value)
         }
         formatAxisValue={(value) =>
           metric === "count" ? compactNumber.format(value) : format(value)
@@ -147,7 +153,8 @@ function sortValue(row: StatsCollectionRow, column: StatsCollectionColumn) {
 }
 
 function StatsValueSection({ report }: StatsValueSectionProps) {
-  const { t } = useTranslation("stats");
+  const { t, i18n } = useTranslation("stats");
+  const locale = i18n.language;
   const { t: tBusiness } = useTranslation("business");
   const { format } = usePriceSource();
   const history = report.valueHistory ?? [];
@@ -171,7 +178,7 @@ function StatsValueSection({ report }: StatsValueSectionProps) {
           formatAxisValue={format}
           data={history.map((point) => ({
             key: point.day,
-            label: formatDay(point.day),
+            label: formatDay(point.day, locale),
             value: point.marketValue,
           }))}
         />
@@ -186,7 +193,8 @@ function StatsCollectionsTable({
   onSelectCollection,
   onSetCost,
 }: StatsCollectionsTableProps) {
-  const { t } = useTranslation("stats");
+  const { t, i18n } = useTranslation("stats");
+  const locale = i18n.language;
   const { t: tBusiness } = useTranslation("business");
   const { access } = useBusinessAccess();
   const columns: StatsCollectionColumn[] = costsVisible
@@ -210,9 +218,13 @@ function StatsCollectionsTable({
       case "name":
         return (
           <span className="flex min-w-0 flex-col">
-            <span className="truncate font-medium text-foreground">
+            <button
+              type="button"
+              onClick={() => onSelectCollection(row.guid)}
+              className="truncate rounded-sm text-left font-medium text-foreground after:absolute after:inset-0 after:content-[''] group-hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
               {row.name}
-            </span>
+            </button>
             {row.gameName && (
               <span className="truncate text-2xs text-foreground/70">
                 {row.gameName}
@@ -224,7 +236,7 @@ function StatsCollectionsTable({
       case "avgValue":
         return format(row[column]);
       case "lastScanAt":
-        return formatShortDate(row.lastScanAt) ?? t("compare.never");
+        return formatShortDate(row.lastScanAt, locale) ?? t("compare.never");
       case "costBasis":
         return row.costedCount ? format(row.costBasis ?? 0) : "-";
       case "margin": {
@@ -232,7 +244,7 @@ function StatsCollectionsTable({
         return margin === null ? "-" : format(margin);
       }
       default:
-        return row[column].toLocaleString();
+        return row[column].toLocaleString(locale);
     }
   };
 
@@ -282,8 +294,7 @@ function StatsCollectionsTable({
           {rows.map((row) => (
             <TableRow
               key={row.guid}
-              className="cursor-pointer"
-              onClick={() => onSelectCollection(row.guid)}
+              className="group relative cursor-pointer hover:bg-foreground/6 focus-within:bg-foreground/6"
             >
               {columns.map((column) => (
                 <TableCell
@@ -300,11 +311,9 @@ function StatsCollectionsTable({
                 <TableCell className="py-0 text-right">
                   <Button
                     variant="ghost"
+                    className="relative z-10"
                     disabled={access?.isLocked || row.cardCount === 0}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSetCost(row);
-                    }}
+                    onClick={() => onSetCost(row)}
                   >
                     {tBusiness("reports.inventory.setCost")}
                   </Button>
@@ -323,7 +332,8 @@ function StatsCollectionsSection({
   costsVisible,
   onSelectCollection,
 }: StatsCollectionsSectionProps) {
-  const { t } = useTranslation("stats");
+  const { t, i18n } = useTranslation("stats");
+  const locale = i18n.language;
   const { format } = usePriceSource();
   const [costTarget, setCostTarget] = useState<CollectionCostTarget | null>(
     null,
@@ -358,7 +368,7 @@ function StatsCollectionsSection({
             display:
               metric === "totalValue"
                 ? format(row.totalValue)
-                : row[metric].toLocaleString(),
+                : row[metric].toLocaleString(locale),
             secondary: t("compare.share", {
               percent: statsSharePercent(row[metric], total),
             }),
@@ -382,6 +392,7 @@ function StatsCollectionsSection({
 
 function StatsTopCards({ cards }: StatsTopCardsProps) {
   const { t } = useTranslation("stats");
+  const isMobile = useIsMobile();
   const { format } = usePriceSource();
   if (cards.length === 0) return null;
 
@@ -393,10 +404,14 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
         {cards.map((entry) => (
           <Link
             key={entry.scanId}
-            to={`/app/monitor/${entry.collectionGuid}`}
-            className="flex min-w-0 flex-col gap-1.5 transition-transform active:scale-[0.97] motion-reduce:active:scale-100"
+            to={
+              isMobile
+                ? monitorCollectionPath(entry.collectionGuid)
+                : `${collectionViewPath(entry.collectionGuid)}/cards/${entry.scanId}`
+            }
+            className="flex min-w-0 flex-col gap-1.5 rounded-lg transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-[0.97] motion-reduce:active:scale-100"
           >
-            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-border">
+            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted">
               <CardImage
                 src={entry.card.image?.normal || entry.card.image?.small}
                 placeholderSrc={entry.card.image?.small}
@@ -408,11 +423,9 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
                 {entry.card.name}
               </p>
               <p className="truncate text-xs text-foreground/70 tabular-nums">
-                {entry.price != null ? format(entry.price) : null}
-                <span className="text-foreground/70">
-                  {" · "}
-                  {entry.collectionName}
-                </span>
+                {[entry.price != null ? format(entry.price) : null, entry.collectionName]
+                  .filter(Boolean)
+                  .join(" · ")}
               </p>
             </div>
           </Link>
@@ -426,7 +439,8 @@ export function StatsDashboard({
   report,
   onSelectCollection,
 }: StatsDashboardProps) {
-  const { t } = useTranslation("stats");
+  const { t, i18n } = useTranslation("stats");
+  const locale = i18n.language;
   const { format } = usePriceSource();
   const { totals } = report;
   const breakdown = report.breakdown ? toScanStats(report.breakdown) : null;
@@ -434,7 +448,7 @@ export function StatsDashboard({
   const { t: tBusiness } = useTranslation("business");
   const costed = report.costsVisible && (totals.costedCount ?? 0) > 0;
   const margin = (totals.costedValue ?? 0) - (totals.costBasis ?? 0);
-  const insights = buildStatsInsights(report, t, format);
+  const insights = buildStatsInsights(report, t, format, locale);
 
   const priceColumns = report.priceBuckets.map((bucket) => ({
     key: bucket.key,
@@ -463,7 +477,7 @@ export function StatsDashboard({
         STATS_SPLIT_MAX_SEGMENTS,
         { key: "other", label: t("other"), color: "var(--muted-foreground)" },
       )}
-      centerValue={totals.cardCount.toLocaleString()}
+      centerValue={totals.cardCount.toLocaleString(locale)}
       centerLabel={t("tiles.cards")}
       formatShare={(value, total) =>
         t("compare.share", { percent: statsSharePercent(value, total) })
@@ -484,8 +498,8 @@ export function StatsDashboard({
           value={format(totals.totalValue)}
           sparklineValues={statsHeroSparklineValues(report)}
           stats={[
-            { label: t("tiles.cards"), value: totals.cardCount.toLocaleString() },
-            { label: t("tiles.unique"), value: totals.uniqueCount.toLocaleString() },
+            { label: t("tiles.cards"), value: totals.cardCount.toLocaleString(locale) },
+            { label: t("tiles.unique"), value: totals.uniqueCount.toLocaleString(locale) },
             { label: t("tiles.avgValue"), value: format(totals.avgValue) },
           ]}
         />
@@ -497,7 +511,7 @@ export function StatsDashboard({
               key: "scanned",
               icon: IconScan,
               label: t(`tiles.scanned.${report.range}`),
-              value: totals.scansInRange.toLocaleString(),
+              value: totals.scansInRange.toLocaleString(locale),
               detail: t("tiles.valueAddedHint", {
                 value: format(totals.valueAddedInRange),
               }),
@@ -506,7 +520,7 @@ export function StatsDashboard({
               key: "priced",
               icon: IconCoins,
               label: t("tiles.priced"),
-              value: totals.priceableCount.toLocaleString(),
+              value: totals.priceableCount.toLocaleString(locale),
               detail: t("tiles.shareHint", {
                 percent: statsSharePercent(totals.priceableCount, totals.cardCount),
               }),
@@ -515,7 +529,7 @@ export function StatsDashboard({
               key: "foils",
               icon: IconSparkles,
               label: t("tiles.foils"),
-              value: totals.foilCount.toLocaleString(),
+              value: totals.foilCount.toLocaleString(locale),
               detail: t("tiles.shareHint", {
                 percent: statsSharePercent(totals.foilCount, totals.cardCount),
               }),
@@ -524,7 +538,7 @@ export function StatsDashboard({
               key: "needsReview",
               icon: IconHelpCircle,
               label: t("tiles.needsReview"),
-              value: totals.needsReviewCount.toLocaleString(),
+              value: totals.needsReviewCount.toLocaleString(locale),
               detail: t("tiles.correctedHint", { count: totals.correctedCount }),
             },
             ...(report.costsVisible
@@ -573,7 +587,7 @@ export function StatsDashboard({
             data={priceColumns}
             ariaLabel={t("prices.title")}
             formatValue={(value) => t("cardCount", { count: value })}
-            formatColumnValue={(value) => value.toLocaleString()}
+            formatColumnValue={(value) => value.toLocaleString(locale)}
             labelEachColumn
           />
         </SettingsSection>
@@ -649,7 +663,7 @@ export function StatsDashboard({
                 key: foil.key,
                 label: foil.label,
                 value: foil.count,
-                display: foil.count.toLocaleString(),
+                display: foil.count.toLocaleString(locale),
               }))}
             />
           </SettingsSection>

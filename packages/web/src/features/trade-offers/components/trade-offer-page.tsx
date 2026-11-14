@@ -95,13 +95,13 @@ export function TradeOfferPage({
 
   return (
     <form id={formId} onSubmit={submit} className="flex min-h-full flex-col">
-      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 md:gap-2 p-6 max-md:p-4">
+      <div className="mx-auto flex w-full max-w-5xl flex-1 flex-col gap-5 md:gap-2 p-4 md:px-3 md:py-2">
         <Button type="button" variant="ghost" className="self-start" onClick={onBack}>
           <IconArrowLeft />
           {t("publicBrowse.backToCards")}
         </Button>
         <div className="flex flex-col gap-1">
-          <h2 ref={headingRef} tabIndex={-1} className="text-base font-semibold outline-none">
+          <h2 ref={headingRef} tabIndex={-1} className="font-heading text-base font-semibold outline-none">
             {t("tradeOffers.title")}
           </h2>
           <p className="text-sm text-foreground/70">
@@ -138,7 +138,7 @@ export function TradeOfferPage({
           </Field>
         </TradeOfferPanel>
 
-        <div className="grid items-stretch gap-3 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
+        <div className="grid items-stretch gap-3 md:gap-1.5 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]">
           <TradeOfferPanel
             step={2}
             headingId={`${formId}-get`}
@@ -146,7 +146,7 @@ export function TradeOfferPage({
             description={t("tradeOffers.getDescription", { source: sourceName })}
           >
             {wanted.length === 0 ? (
-              <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-xl bg-muted p-6 text-center">
+              <div className="flex flex-1 flex-col items-center justify-center gap-2 rounded-lg bg-foreground/6 p-6 text-center">
                 <IconCards className="size-5 text-foreground/70" aria-hidden />
                 <p className="text-xs text-foreground/70">{t("tradeOffers.getEmpty")}</p>
                 <Button type="button" variant="outline" onClick={onBack}>
@@ -191,7 +191,7 @@ export function TradeOfferPage({
           </TradeOfferPanel>
 
           <div className="flex items-center justify-center max-md:hidden" aria-hidden>
-            <span className="flex size-8 items-center justify-center rounded-full bg-muted">
+            <span className="flex size-8 items-center justify-center rounded-full bg-card">
               <IconArrowsExchange className="size-4 text-foreground/70" />
             </span>
           </div>
@@ -214,7 +214,7 @@ export function TradeOfferPage({
               }
             />
             {offered.length === 0 ? (
-              <p className="rounded-xl bg-muted p-4 text-center text-xs text-foreground/70">
+              <p className="rounded-lg bg-foreground/6 p-4 text-center text-xs text-foreground/70">
                 {t("tradeOffers.giveEmpty")}
               </p>
             ) : (
@@ -242,7 +242,7 @@ export function TradeOfferPage({
       </div>
 
       <div className="sticky bottom-0 border-t bg-background/80 backdrop-blur-2xl">
-        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2 px-6 py-3 max-md:px-4">
+        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 md:px-3 md:py-2">
           <p role="status" className="text-control">
             {isReady
               ? t("tradeOffers.summary", { get: wanted.length, give: offeredCount })

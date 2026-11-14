@@ -6,12 +6,10 @@ import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Screen } from "@/components/ui/screen";
-import { Surface } from "@/components/ui/surface";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { SettingsSection } from "@/features/settings/components/settings-section";
 import { useDeviceTogglesDraft } from "@/features/calibration/api/use-device-toggles-draft";
 import { useSorter } from "@/features/sorter/api/use-sorter";
-import { SPACING } from "@/lib/constants/theme";
 
 export default function CalibrationConnectionScreen() {
   const { t } = useTranslation();
@@ -36,38 +34,34 @@ export default function CalibrationConnectionScreen() {
       >
         {draft.saveError ? <Callout tone="destructive" title={t("calibration.saveFailed")} /> : null}
         <SettingsSection title={t("calibration.connection.title")}>
-          <Surface style={{ gap: SPACING.xl }}>
-            <SwitchRow
-              title={t("calibration.connection.autoConnectLabel")}
-              description={t("calibration.connection.autoConnectDescription")}
-              value={draft.values.autoConnect}
-              onValueChange={(value) => draft.set("autoConnect", value)}
-            />
-            <SwitchRow
-              title={t("calibration.connection.testOnConnectLabel")}
-              description={t("calibration.connection.testOnConnectDescription")}
-              value={draft.values.testOnConnect}
-              onValueChange={(value) => draft.set("testOnConnect", value)}
-            />
-          </Surface>
+          <SwitchRow
+            title={t("calibration.connection.autoConnectLabel")}
+            description={t("calibration.connection.autoConnectDescription")}
+            value={draft.values.autoConnect}
+            onValueChange={(value) => draft.set("autoConnect", value)}
+          />
+          <SwitchRow
+            title={t("calibration.connection.testOnConnectLabel")}
+            description={t("calibration.connection.testOnConnectDescription")}
+            value={draft.values.testOnConnect}
+            onValueChange={(value) => draft.set("testOnConnect", value)}
+          />
         </SettingsSection>
         <SettingsSection
           title={t("calibration.connection.experimentalTitle")}
           badge={t("calibration.connection.experimentalBadge")}
         >
-          <Surface style={{ gap: SPACING.xl }}>
-            <SwitchRow
-              title={t("calibration.connection.pipelinedFeedLabel")}
-              description={
-                pipelinedSupported
-                  ? t("calibration.connection.pipelinedFeedDescription")
-                  : t("calibration.firmwareRequired", { version: FIRMWARE_FEATURE_MIN_VERSIONS.pipelinedFeed })
-              }
-              value={draft.values.pipelinedFeed}
-              disabled={!pipelinedSupported}
-              onValueChange={(value) => draft.set("pipelinedFeed", value)}
-            />
-          </Surface>
+          <SwitchRow
+            title={t("calibration.connection.pipelinedFeedLabel")}
+            description={
+              pipelinedSupported
+                ? t("calibration.connection.pipelinedFeedDescription")
+                : t("calibration.firmwareRequired", { version: FIRMWARE_FEATURE_MIN_VERSIONS.pipelinedFeed })
+            }
+            value={draft.values.pipelinedFeed}
+            disabled={!pipelinedSupported}
+            onValueChange={(value) => draft.set("pipelinedFeed", value)}
+          />
         </SettingsSection>
         <Callout
           tone="info"

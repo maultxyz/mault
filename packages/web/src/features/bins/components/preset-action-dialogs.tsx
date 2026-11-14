@@ -299,7 +299,7 @@ export function PresetActionDialogs({
               disabled={!renameForm.formState.isValid || isPresetMutating}
             >
               {isPresetMutating && (
-                <IconLoader2 className="size-4 animate-spin" />
+                <IconLoader2 className="animate-spin" />
               )}
               {t("presetSelector.save")}
             </Button>
@@ -383,7 +383,7 @@ export function PresetActionDialogs({
               }
             >
               {(isPresetMutating || isSavingWorkflow) && (
-                <IconLoader2 className="size-4 animate-spin" />
+                <IconLoader2 className="animate-spin" />
               )}
               {t("presetSelector.create")}
             </Button>

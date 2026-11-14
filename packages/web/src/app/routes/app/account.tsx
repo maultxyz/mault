@@ -4,6 +4,7 @@ import {
 } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { MobilePageHeader } from "@/components/mobile-page-header";
+import { PageHeader } from "@/components/page-header";
 import {
   SettingsSection,
   SettingsSections,
@@ -63,16 +64,10 @@ export default function AccountPage() {
           MOBILE_NAV_SCROLL_PADDING_CLASS,
         )}
       >
+        {!isMobile && (
+          <PageHeader title={t("title")} description={t("subtitle")} />
+        )}
         <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 md:gap-2 p-4 md:px-3 md:py-2">
-          {!isMobile && (
-            <div>
-              <h1 className="font-heading text-lg font-semibold">
-                {t("title")}
-              </h1>
-              <p className="text-sm text-foreground/70">{t("subtitle")}</p>
-            </div>
-          )}
-
           <SettingsSections>
             {AUTH_PROVIDER === "local" ? (
               <>

@@ -15,6 +15,7 @@ export const PAGE_TITLE_CLASS =
   "font-heading text-lg font-semibold tracking-tight text-foreground";
 export const SIDEBAR_SELECTED_ITEM_CLASS =
   "bg-sidebar-selected text-primary hover:bg-sidebar-selected hover:text-primary dark:hover:bg-sidebar-selected aria-expanded:bg-sidebar-selected aria-expanded:text-primary";
+export const SIDEBAR_TOGGLE_ARIA_KEYSHORTCUTS = "[";
 export const SIDEBAR_EXPANDED_ITEM_CLASS =
   "w-full justify-start gap-2 px-2 border-0";
 
@@ -43,7 +44,7 @@ export const MOBILE_PAGE_BODY_CLASS = "flex w-full flex-col gap-5 px-4 pt-4 pb-6
 export const MOBILE_LIST_CLASS =
   "flex shrink-0 flex-col divide-y divide-border overflow-hidden rounded-card bg-card px-4";
 export const MOBILE_LIST_ROW_CLASS =
-  "flex min-h-12 w-full items-center gap-3 py-2 text-left text-sm font-medium text-foreground transition-colors active:bg-muted";
+  "flex min-h-12 w-full items-center gap-3 py-2 text-left text-sm font-medium text-foreground transition-colors active:bg-foreground/6";
 export const MOBILE_ICON_TILE_CLASS =
   "flex size-8 shrink-0 items-center justify-center rounded-full bg-muted text-foreground [&_svg]:size-4";
 export const MOBILE_SECTION_LABEL_CLASS =
@@ -52,10 +53,10 @@ export const MOBILE_SECTION_CLASS = "flex flex-col gap-2";
 export const MOBILE_SEARCH_INPUT_CLASS =
   "h-11 rounded-lg pl-10 text-base";
 export const MOBILE_ICON_BUTTON_CLASS =
-  "size-10 shrink-0 rounded-lg border-border bg-card text-foreground hover:bg-muted active:bg-muted dark:bg-input/30 dark:hover:bg-input/30 aria-expanded:bg-muted [&_svg:not([class*='size-'])]:size-5";
+  "size-10 shrink-0 rounded-lg border-border bg-card text-foreground hover:bg-foreground/6 active:bg-foreground/6 dark:bg-input/30 dark:hover:bg-input/30 aria-expanded:bg-foreground/6 [&_svg:not([class*='size-'])]:size-5";
 export const MOBILE_COUNT_BUTTON_CLASS = "h-10 w-auto px-2.5";
 export const MOBILE_CIRCLE_BUTTON_CLASS =
-  "size-10 rounded-lg border-border bg-card text-foreground hover:bg-muted active:bg-muted dark:bg-input/30 dark:hover:bg-input/30 [&_svg:not([class*='size-'])]:size-5";
+  "size-10 rounded-lg border-border bg-card text-foreground hover:bg-foreground/6 active:bg-foreground/6 dark:bg-input/30 dark:hover:bg-input/30 [&_svg:not([class*='size-'])]:size-5";
 export const MOBILE_PRIMARY_CIRCLE_BUTTON_CLASS =
   "size-10 rounded-lg bg-primary text-primary-foreground hover:bg-primary active:bg-primary-hover [&_svg:not([class*='size-'])]:size-5";
 export const MOBILE_PILL_BUTTON_CLASS =
@@ -67,7 +68,7 @@ export const MOBILE_FILTER_CHIP_CLASS =
 export const MOBILE_FILTER_CHIP_ACTIVE_CLASS =
   "border-primary/40 bg-primary/10 text-primary hover:bg-primary/10 hover:text-primary dark:bg-primary/20 dark:hover:bg-primary/20";
 export const MOBILE_FILTER_CHIP_IDLE_CLASS =
-  "border-border bg-card text-foreground hover:bg-muted active:bg-muted dark:bg-input/30 dark:hover:bg-input/30";
+  "border-border bg-card text-foreground hover:bg-foreground/6 active:bg-foreground/6 dark:bg-input/30 dark:hover:bg-input/30";
 export const MOBILE_CARD_CLASS = "overflow-hidden rounded-card bg-card";
 export const MOBILE_HERO_LABEL_CLASS = "text-xs font-medium text-foreground/70";
 export const MOBILE_HERO_VALUE_CLASS =

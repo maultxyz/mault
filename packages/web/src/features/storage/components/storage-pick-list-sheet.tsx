@@ -1,4 +1,4 @@
-import { Callout } from "@/components/callout";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { StorageCheckList } from "@/features/storage/components/storage-check-list";
@@ -18,7 +18,12 @@ export function StoragePickListSheet({ pickList }: StoragePickListSheetProps) {
 
   if (pickList.isLoading) return <ListSkeleton />;
   if (pickList.isError) {
-    return <Callout variant="error">{t("pickList.loadFailed")}</Callout>;
+    return (
+      <LoadErrorCallout
+        message={t("pickList.loadFailed")}
+        onRetry={pickList.retry}
+      />
+    );
   }
   if (cards.length === 0) {
     return (

@@ -27,6 +27,7 @@ export function BusinessPermissionsSettings({
                 </span>
               </span>
               <Switch
+                aria-label={t(`settings.permissions.${key}.label`)}
                 checked={field.value}
                 disabled={disabled}
                 onCheckedChange={field.onChange}

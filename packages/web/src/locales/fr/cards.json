@@ -589,9 +589,9 @@
     "findSet": "Trouver une extension",
     "openCard": "Voir {{name}} ({{details}})",
     "cardNotFound": "Cette carte n'est plus disponible.",
+    "cardLoadFailed": "Impossible de charger cette carte.",
     "referenceImage": "Image de référence",
     "backToCards": "Retour aux cartes",
-    "loading": "Chargement des cartes",
     "tradeHint": "Ouvrez une carte pour l'ajouter à votre offre"
   },
   "tradeOffers": {

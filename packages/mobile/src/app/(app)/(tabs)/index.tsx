@@ -82,7 +82,13 @@ export default function HomeScreen() {
         />
       }
     >
-      {overview.isError ? <Callout tone="destructive" title={t("home.loadFailed")} /> : null}
+      {overview.isError && !overviewData ? (
+        <Callout
+          tone="destructive"
+          title={t("home.loadFailed")}
+          action={<Button label={t("recovery.retry")} onPress={() => void overview.refetch()} />}
+        />
+      ) : null}
 
       {overview.isPending ? (
         <View style={{ gap: SPACING.lg + SPACING.xs }}>
@@ -106,7 +112,7 @@ export default function HomeScreen() {
             sparklineValues={
               summaryData && summaryData.all.valueHistory.length >= 2
                 ? summaryData.all.valueHistory.map((point) => point.totalValue)
-                : overviewData.scansByDay.map((day) => day.count)
+                : []
             }
             onPress={() => router.push("/stats")}
             accessibilityHint={t("home.hero.openStats")}
@@ -138,7 +144,7 @@ export default function HomeScreen() {
                   <HomeHighlightRow
                     key={collectionGuid}
                     icon="live"
-                    tone="success"
+                    tone="warning"
                     title={t("home.live.title", {
                       name: lock.displayName,
                       collection: collectionNames.get(collectionGuid) ?? t("widgets.scanner.unknownCollection"),
@@ -211,7 +217,7 @@ export default function HomeScreen() {
                     value: day.count,
                   }))}
                   formatValue={(value) => t("home.activity.scans", { count: value })}
-                  accessibilityLabel={t("home.activity.chartLabel")}
+                  accessibilityLabel={t("home.activity.chartLabel", { count: overviewData.scansByDay.length })}
                 />
               </Surface>
             </View>

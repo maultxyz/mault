@@ -1,5 +1,6 @@
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
+import { CardArt } from "@/components/cards/card-art";
 import { useTranslation } from "react-i18next";
 import { ScrollView, View } from "react-native";
 import {
@@ -134,9 +135,9 @@ export function MatchValidationQueue({ gameKey }: MatchValidationGameFilterProps
                 </AppText>
                 <View style={imageFrame}>
                   {catalogUrl ? (
-                    <Image
+                    <CardArt
                       key={current.scanId}
-                      source={{ uri: catalogUrl }}
+                      imageUrl={catalogUrl}
                       style={{ flex: 1 }}
                       contentFit="cover"
                       accessibilityLabel={t("matchValidations.matchedCardAlt", { name: cardName })}

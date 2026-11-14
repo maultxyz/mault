@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import {
   useCardDetailActions,
@@ -628,10 +629,11 @@ export function CardDetailPanel({
             imageWidthClass,
           )}
         >
-          <img
-            src={selectedCard?.image?.normal || ""}
-            alt={selectedCard?.name}
-            className="w-full h-full object-cover"
+          <CardImage
+            src={selectedCard?.image?.normal || selectedCard?.image?.small}
+            placeholderSrc={selectedCard?.image?.small}
+            alt={selectedCard?.name ?? ""}
+            loading="eager"
           />
           {ocrRegionsVisible && selectedCard?.image?.normal && (
             <OcrRegionOverlay
@@ -975,11 +977,11 @@ export function CardDetailPanel({
             </Button>
           </div>
         )}
-        <div className="@container flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6 md:gap-2 max-md:p-4 max-md:gap-5">
+        <div className="@container flex-1 min-h-0 overflow-y-auto p-4 md:px-3 md:py-2 flex flex-col gap-5 md:gap-2">
           <div className="flex items-start gap-2">
             <div className="min-w-0 flex-1">
               <div className="flex items-baseline gap-2 max-md:flex-wrap max-md:gap-y-1">
-                <h2 className="font-semibold text-base truncate max-md:whitespace-normal max-md:line-clamp-2">
+                <h2 className="font-heading font-semibold text-base truncate max-md:whitespace-normal max-md:line-clamp-2">
                   {cardName}
                 </h2>
                 {headerPrice != null && (
@@ -1116,7 +1118,7 @@ export function CardDetailPanel({
                       <div className="flex flex-col gap-4 md:gap-2">
                         <CardDetailsList card={selectedCard} />
                         {selectedCard.text && (
-                          <p className="rounded-md bg-muted p-3 text-sm whitespace-pre-line leading-relaxed">
+                          <p className="rounded-lg bg-foreground/6 p-3 text-sm whitespace-pre-line leading-relaxed">
                             {selectedCard.text}
                           </p>
                         )}
@@ -1214,7 +1216,7 @@ export function CardDetailPanel({
                           {binNumber != null && (
                             <div className="flex flex-col gap-1.5">
                               <Label>{t("cardDetailPanel.binLocation")}</Label>
-                              <div className="w-48 rounded-lg bg-muted">
+                              <div className="w-48 rounded-lg bg-foreground/6">
                                 <BinLocationDiagram
                                   binNumber={binNumber}
                                   inverted={false}

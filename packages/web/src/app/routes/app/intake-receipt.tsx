@@ -1,6 +1,7 @@
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { BaseProviders } from "@/app/providers";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -28,7 +29,12 @@ function IntakeReceipt() {
   const { activeOrg } = useOrg();
   const { access } = useBusinessAccess();
   const { format } = usePriceSource();
-  const { data: lot, isLoading } = useQuery(intakeLotReceiptQueryOptions(guid));
+  const {
+    data: lot,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(intakeLotReceiptQueryOptions(guid));
   const [searchParams] = useSearchParams();
   const autoPrint = searchParams.get(RECEIPT_PRINT_PARAM) === "1";
   const printedRef = useRef(false);
@@ -42,7 +48,14 @@ function IntakeReceipt() {
   if (isLoading || !lot) {
     return (
       <div className="mx-auto w-full max-w-3xl p-6">
-        <ListSkeleton rows={10} />
+        {isError ? (
+          <LoadErrorCallout
+            message={t("errors.loadFailed")}
+            onRetry={() => void refetch()}
+          />
+        ) : (
+          <ListSkeleton rows={10} />
+        )}
       </div>
     );
   }

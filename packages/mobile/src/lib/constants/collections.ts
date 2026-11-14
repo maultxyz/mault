@@ -1,6 +1,4 @@
 import type { CardViewMode, CollectionScanTimeline } from "@/lib/interfaces/collections";
-export const CARD_THUMB_WIDTH = 44;
-export const CARD_THUMB_HEIGHT = Math.round((CARD_THUMB_WIDTH * 3.5) / 2.5);
 export const SEARCH_DEBOUNCE_MS = 300;
 export const LIST_END_THRESHOLD = 0.5;
 export const CARD_GRID_COLUMNS = 3;

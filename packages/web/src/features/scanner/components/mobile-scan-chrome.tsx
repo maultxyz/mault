@@ -14,6 +14,7 @@ import {
   MOBILE_SCAN_CHIP_CLASS,
   SESSION_TIMER_RUNNING_STATUSES,
 } from "@/lib/constants/scanner";
+import { MOBILE_SORTER_PATH } from "@/lib/constants/nav";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { MobileScanChromeProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
@@ -157,12 +158,14 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           description={t("mobileScan.noSorterDescription")}
           action={
             chrome.bluetoothSupported ? (
-              <Button
-                onClick={chrome.onConnectBluetooth}
-              >
+              <Button onClick={chrome.onConnectBluetooth}>
                 {t("mobileScan.connect")}
               </Button>
-            ) : undefined
+            ) : (
+              <Button render={<Link to={MOBILE_SORTER_PATH} />}>
+                {t("mobileScan.connect")}
+              </Button>
+            )
           }
         />
       );
@@ -176,7 +179,10 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
         <div className="flex items-center gap-2 px-4 pt-3">
           <span className={MOBILE_SCAN_CHIP_CLASS}>
             {running && (
-              <span className="size-2 shrink-0 rounded-full bg-success animate-pulse motion-reduce:animate-none" />
+              <span
+                aria-hidden
+                className="size-2 shrink-0 rounded-full bg-success animate-pulse motion-reduce:animate-none"
+              />
             )}
             <span role="status" aria-live="polite" className="truncate">
               {phaseLabel}
@@ -186,12 +192,9 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             <button
               type="button"
               onClick={() => setRemovalQueueOpen(true)}
-              className={cn(
-                MOBILE_SCAN_CHIP_CLASS,
-                "shrink-0 text-destructive",
-              )}
+              className={cn(MOBILE_SCAN_CHIP_CLASS, "shrink-0")}
             >
-              <IconTrash className="size-4 shrink-0" />
+              <IconTrash aria-hidden className="size-4 shrink-0 text-destructive" />
               {t("scanRemoval.queuedCount", { count: removalQueuedCount })}
               <IconChevronRight className="size-4 shrink-0" />
             </button>
@@ -258,7 +261,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             </button>
             <button
               type="button"
-              disabled={!canShoot}
+              disabled={sorterDriven && running ? false : !canShoot}
               aria-label={
                 sorterDriven
                   ? running

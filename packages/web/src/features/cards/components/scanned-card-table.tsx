@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -126,11 +127,9 @@ export function ScannedCardTable({
               )}
               <TableCell>
                 <div className="relative h-10 aspect-[2.5/3.5] overflow-hidden rounded-sm">
-                  <img
-                    src={card.image?.normal || ""}
+                  <CardImage
+                    src={card.image?.small || card.image?.normal}
                     alt=""
-                    loading="lazy"
-                    className="h-full w-full object-cover"
                   />
                 </div>
               </TableCell>

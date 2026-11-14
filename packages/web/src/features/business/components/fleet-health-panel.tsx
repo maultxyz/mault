@@ -1,6 +1,7 @@
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { PlanNotice } from "@/components/plan-notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,7 +32,7 @@ export function FleetHealthPanel() {
   const { billing } = useBilling();
   const isFleetHealthLocked = billing?.fleetHealth === false;
   const fleetOptions = fleetQueryOptions(orgId);
-  const { data: fleet, isLoading } = useQuery({
+  const { data: fleet, isLoading, isError, refetch } = useQuery({
     ...fleetOptions,
     enabled: fleetOptions.enabled && !isFleetHealthLocked,
   });
@@ -53,7 +54,16 @@ export function FleetHealthPanel() {
     );
   }
 
-  if (isLoading || !fleet) return <ListSkeleton rows={4} />;
+  if (isLoading || !fleet) {
+    return isError ? (
+      <LoadErrorCallout
+        message={t("errors.loadFailed")}
+        onRetry={() => void refetch()}
+      />
+    ) : (
+      <ListSkeleton rows={4} />
+    );
+  }
 
   return (
     <div className="flex flex-col gap-4 md:gap-2">

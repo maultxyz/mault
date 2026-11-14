@@ -97,7 +97,7 @@ export function WebhookDialog({
             control={form.control}
             name="events"
             render={({ field }) => (
-              <div className="divide-y divide-border overflow-hidden rounded-xl bg-muted">
+              <div className="divide-y divide-border overflow-hidden rounded-lg bg-foreground/6">
                 {WEBHOOK_EVENTS.map((event) => {
                   const id = `webhook-event-${event}`;
                   return (

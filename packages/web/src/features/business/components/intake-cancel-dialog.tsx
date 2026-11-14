@@ -72,7 +72,11 @@ export function IntakeCancelDialog({
                     )}
                   </span>
                 </span>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch
+                  aria-label={t("intake.removeCards", { count: lot.cardCount })}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </label>
             )}
           />

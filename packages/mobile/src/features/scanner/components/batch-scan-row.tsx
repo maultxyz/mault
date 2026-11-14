@@ -2,6 +2,7 @@ import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
+import { CheckboxIndicator } from "@/components/ui/checkbox-indicator";
 import { Icon } from "@/components/ui/icon";
 import { Pill } from "@/components/ui/pill";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,7 +10,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { BATCH_SCAN_THUMBNAIL_WIDTH } from "@/lib/constants/scanner";
 import { CARD_THUMBNAIL_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import { MIN_TOUCH_TARGET } from "@/lib/constants/ui";
+import { CHECKBOX_INDICATOR_SIZE, MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import type { BatchScanRowProps } from "@/lib/interfaces/scanner";
 import { absoluteUrl } from "@/lib/url";
 
@@ -27,6 +28,12 @@ export function BatchScanRow({ index, card, isRemoveMode, onToggleIncluded, onCo
   const subtitle = matchedCard
     ? [matchedCard.setName, matchedCard.collectorNumber ? `#${matchedCard.collectorNumber}` : null].filter(Boolean).join(" · ")
     : null;
+  const statusPillLabel = card.correctedCard
+    ? t("batchScan.corrected")
+    : !isWorking && card.outcome?.matched?.lowConfidenceMatch
+      ? t("batchScan.lowConfidence")
+      : null;
+  const rowAccessibilityLabel = [`${index + 1}. ${title}`, subtitle, statusPillLabel].filter(Boolean).join(", ");
   const canInclude = !isWorking && card.status !== "failed" && (!isRemoveMode || !!matchedCard);
 
   return (
@@ -37,24 +44,13 @@ export function BatchScanRow({ index, card, isRemoveMode, onToggleIncluded, onCo
         accessibilityState={{ checked: card.included && canInclude, disabled: !canInclude }}
         disabled={!canInclude}
         onPress={onToggleIncluded}
-        hitSlop={(MIN_TOUCH_TARGET - 24) / 2}
-        style={{
-          width: 24,
-          height: 24,
-          borderRadius: CARD_THUMBNAIL_RADIUS,
-          borderWidth: 1.5,
-          borderColor: card.included && canInclude ? colors.primary : colors.foregroundSecondary,
-          backgroundColor: card.included && canInclude ? colors.primary : "transparent",
-          alignItems: "center",
-          justifyContent: "center",
-          opacity: canInclude ? 1 : 0.4,
-        }}
+        hitSlop={(MIN_TOUCH_TARGET - CHECKBOX_INDICATOR_SIZE) / 2}
       >
-        {card.included && canInclude ? <Icon name="check" size={16} color={colors.primaryForeground} /> : null}
+        <CheckboxIndicator checked={card.included && canInclude} disabled={!canInclude} />
       </Pressable>
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={`${index + 1}. ${title}`}
+        accessibilityLabel={rowAccessibilityLabel}
         accessibilityHint={t("batchScan.correctHint")}
         disabled={isWorking}
         onPress={onCorrect}
@@ -87,10 +83,12 @@ export function BatchScanRow({ index, card, isRemoveMode, onToggleIncluded, onCo
               {subtitle}
             </AppText>
           ) : null}
-          {card.correctedCard ? (
-            <Pill tone="success" icon="check" label={t("batchScan.corrected")} />
-          ) : !isWorking && card.outcome?.matched?.lowConfidenceMatch ? (
-            <Pill tone="warning" label={t("batchScan.lowConfidence")} />
+          {statusPillLabel ? (
+            <Pill
+              tone={card.correctedCard ? "success" : "warning"}
+              icon={card.correctedCard ? "check" : undefined}
+              label={statusPillLabel}
+            />
           ) : null}
         </View>
         {isWorking ? null : <Icon name="edit" size={16} color={colors.foregroundSecondary} />}

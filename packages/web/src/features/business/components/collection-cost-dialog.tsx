@@ -117,7 +117,11 @@ export function CollectionCostDialog({
                     {t("cost.overwriteHint")}
                   </span>
                 </span>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch
+                  aria-label={t("cost.overwrite")}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </label>
             )}
           />

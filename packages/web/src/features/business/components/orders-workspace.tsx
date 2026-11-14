@@ -8,7 +8,10 @@ import { OrderDetail } from "@/features/business/components/order-detail";
 import { OrderImportDialog } from "@/features/business/components/order-import-dialog";
 import { OrderList } from "@/features/business/components/order-list";
 import { ORDER_PARAM } from "@/lib/constants/business";
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import {
+  MOBILE_CIRCLE_BUTTON_CLASS,
+  MOBILE_NAV_SCROLL_PADDING_CLASS,
+} from "@/lib/constants/nav";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { cn } from "@/lib/utils";
 import type { OrdersWorkspaceProps } from "@/lib/interfaces/business";
@@ -81,8 +84,8 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
           title={tCommon("nav.intake")}
           actions={
             <Button
-              variant="outline"
-              size="icon"
+              variant="ghost"
+              className={MOBILE_CIRCLE_BUTTON_CLASS}
               aria-label={t("orders.importButton")}
               disabled={access?.isLocked || !access?.canFulfilOrders}
               onClick={() => setImportOpen(true)}
@@ -136,7 +139,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
             onSelect={select}
           />
         </section>
-        <section className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 lg:col-span-9">
+        <section className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 md:gap-2 md:px-3 md:py-2 lg:col-span-9">
           {access?.isLocked && <BusinessUpgradeCallout />}
           {selectedGuid ? (
             <OrderDetail

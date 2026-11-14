@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
@@ -6,6 +7,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { listCards, revectorizeCard } from "@/lib/api/admin";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import {
+  IconCards,
   IconRefresh,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -77,7 +79,7 @@ export function CardDatabaseManager() {
           aria-label={t("cardDatabase.searchLabel")}
           value={cardSearchInput}
           onChange={(e) => handleSearchInput(e.target.value)}
-          className="h-7 text-xs max-w-48"
+          className="max-w-48"
         />
       }
     >
@@ -141,9 +143,11 @@ export function CardDatabaseManager() {
             </div>
           ))}
           {cardsQuery.data?.cards.length === 0 && (
-            <p className="text-sm text-foreground/70 text-center py-6">
-              {t("cardDatabase.empty")}
-            </p>
+            <EmptyState
+              size="compact"
+              icon={IconCards}
+              title={t("cardDatabase.empty")}
+            />
           )}
         </div>
 

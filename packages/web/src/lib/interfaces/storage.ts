@@ -241,6 +241,7 @@ export interface StorageReviewQueue {
   totalCards: number;
   isPending: boolean;
   isError: boolean;
+  retry: () => void;
   reviewedScanIds: ReadonlySet<string>;
   removedScanIds: ReadonlySet<string>;
   markReviewed: (scanId: string) => void;
@@ -256,6 +257,7 @@ export interface StoragePickListState {
   pickedCount: number;
   isLoading: boolean;
   isError: boolean;
+  retry: () => void;
   isFinishing: boolean;
   setDecklist: (decklist: string) => void;
   setPicked: (scanId: string, picked: boolean) => void;
@@ -336,6 +338,7 @@ export interface StorageVerifyState {
   notInLocation: StorageVerifyNameCount[];
   isLoading: boolean;
   isError: boolean;
+  retry: () => void;
   isTruncated: boolean;
   setVerified: (scanId: string, verified: boolean) => void;
   addNotInLocation: (cardName: string) => void;

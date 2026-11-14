@@ -2,6 +2,7 @@ import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import {
   Select,
@@ -45,11 +46,20 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
   const [user, setUser] = useState<string | null>(null);
   const [action, setAction] = useState<ActivityAction | null>(null);
   const allowed = access?.canViewActivity ?? false;
-  const { data: staff, isLoading } = useQuery({
+  const {
+    data: staff,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     ...staffReportQueryOptions(orgId, range),
     enabled: !!orgId && allowed,
   });
-  const { data: activity } = useQuery({
+  const {
+    data: activity,
+    isError: isActivityError,
+    refetch: refetchActivity,
+  } = useQuery({
     ...activityQueryOptions(orgId, page, user, action),
     enabled: !!orgId && allowed,
   });
@@ -82,7 +92,12 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
           onChange={onRangeChange}
         />
       </div>
-      {isLoading || !staff ? (
+      {isError && !staff ? (
+        <LoadErrorCallout
+          message={t("errors.loadFailed")}
+          onRetry={() => void refetch()}
+        />
+      ) : isLoading || !staff ? (
         <ListSkeleton rows={4} />
       ) : staff.rows.length === 0 ? (
         <EmptyState
@@ -191,7 +206,12 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
           </Select>
         </div>
       </div>
-      {!activity ? (
+      {isActivityError && !activity ? (
+        <LoadErrorCallout
+          message={t("errors.loadFailed")}
+          onRetry={() => void refetchActivity()}
+        />
+      ) : !activity ? (
         <ListSkeleton rows={6} />
       ) : activity.entries.length === 0 ? (
         <EmptyState

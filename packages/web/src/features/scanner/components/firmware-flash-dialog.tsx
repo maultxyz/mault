@@ -205,7 +205,7 @@ export function FirmwareFlashDialog({
           {flashLog.length > 0 && (
             <ScrollArea
               viewportRef={flashLogRef}
-              className="h-40 rounded-xl bg-muted p-2"
+              className="h-40 rounded-lg bg-foreground/6 p-2"
             >
               <div className="flex flex-col gap-0.5 font-mono text-xs text-foreground/70">
                 {flashLog.map((line, i) => (

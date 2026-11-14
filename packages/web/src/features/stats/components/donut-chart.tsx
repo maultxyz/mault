@@ -58,7 +58,7 @@ export function DonutChart({ segments, centerValue, centerLabel, formatShare }: 
                 aria-pressed={isSelected}
                 onClick={() => setSelectedKey(isSelected ? null : segment.key)}
                 className={cn(
-                  "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted",
+                  "flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-foreground/6",
                   isSelected && "bg-primary/10 dark:bg-primary/20",
                 )}
               >

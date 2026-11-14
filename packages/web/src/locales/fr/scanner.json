@@ -53,7 +53,8 @@
     "pause": "Pause",
     "resume": "Reprendre",
     "stop": "Arrêter",
-    "openScanner": "Ouvrir le scanner"
+    "openScanner": "Ouvrir le scanner",
+    "requestFailed": "Impossible de joindre le Pi. Vérifie la connexion et réessaie."
   },
   "serial": {
     "connectionFailed": {
@@ -789,7 +790,9 @@
       "countdown_one": "Fermeture dans {{count}} seconde",
       "countdown_other": "Fermeture dans {{count}} secondes",
       "doneMoved": "Marquée comme déplacée",
-      "done": "Terminé"
+      "done": "Terminé",
+      "paused": "Compte à rebours en pause",
+      "keepOpen": "Garder ouvert"
     },
     "keys": {
       "enter": "Entrée",
@@ -917,7 +920,8 @@
       "neutralDescription": "Ramener chaque servo à sa position de repos",
       "sorterDescription": "Connexion, autotest et état"
     },
-    "condition": "État"
+    "condition": "État",
+    "foilType": "Type de foil"
   },
   "mobileSorter": {
     "title": "Trieuse",

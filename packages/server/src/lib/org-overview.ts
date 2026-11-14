@@ -25,6 +25,7 @@ import {
   collectionCardPricesJoinOn,
 } from "./card-price-sql";
 import { ONE_DAY_MS } from "./constants/timing";
+import { inventoryCardSql } from "./inventory-sql";
 import { loadOrgPricing } from "./price-source";
 import type { OrgOverviewCardsQuery } from "./interfaces/org-overview";
 import { hydrateSavedCards } from "./saved-cards";
@@ -110,7 +111,10 @@ export async function loadOrgOverview(
       value: sql<number | null>`sum(${cardPrice})`,
     })
     .from(collections)
-    .leftJoin(collectionCards, eq(collectionCards.collectionId, collections.id))
+    .leftJoin(
+      collectionCards,
+      and(eq(collectionCards.collectionId, collections.id), inventoryCardSql()),
+    )
     .leftJoin(games, eq(games.id, collections.gameId))
     .leftJoin(cardPrices, collectionCardPricesJoinOn())
     .where(liveCollections)
@@ -143,7 +147,7 @@ export async function loadOrgOverview(
     .groupBy(dayKey);
 
   const topCards = await loadOrgOverviewCards(tx, orgId, pricing, {
-    where: isNotNull(cardPrice),
+    where: and(isNotNull(cardPrice), inventoryCardSql()),
     orderBy: desc(cardPrice),
     limit: ORG_OVERVIEW_TOP_CARDS_LIMIT,
   });

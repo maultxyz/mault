@@ -106,7 +106,7 @@ export function SortTestResult({
                 .join(" · ")}
             </span>
           </div>
-          <div className="flex flex-col gap-1.5 rounded-xl bg-muted p-3">
+          <div className="flex flex-col gap-1.5 rounded-lg bg-foreground/6 p-3">
             <div className="flex items-center gap-2">
               <IconArrowRight className="size-4 shrink-0" />
               <span className="text-sm font-semibold">{testedBinLabel}</span>
@@ -133,7 +133,7 @@ export function SortTestResult({
           <h3 className="font-heading text-sm font-semibold">
             {t("sortTest.rulesChecked")}
           </h3>
-          <div className="flex flex-col divide-y divide-border overflow-hidden rounded-xl bg-muted">
+          <div className="flex flex-col divide-y divide-border overflow-hidden rounded-lg bg-foreground/6">
             {explanation.binChecks.map((binCheck) => {
               const isExpanded = expandedBinNumbers.includes(
                 binCheck.binNumber,

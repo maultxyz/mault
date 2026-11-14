@@ -83,7 +83,7 @@ export function SupportPromptToast({
             </Button>
           )}
         </div>
-        <div className="flex justify-end gap-1">
+        <div className="flex justify-end gap-1.5">
           <Button
             variant="ghost"
             className="text-foreground/70"

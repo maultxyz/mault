@@ -13,7 +13,6 @@ import { ValidateMatchesTopBarButton } from "@/features/match-validations/compon
 import { PlanPreviewTopBarChip } from "@/features/admin/components/plan-preview-top-bar-chip";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
-import { useSession } from "@/lib/auth/session";
 import { ALERT_BADGE_MAX } from "@/lib/constants/stream";
 import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import {
@@ -28,10 +27,8 @@ import type { AppTopBarProps, AppTopBarSheet } from "@/lib/interfaces/ui";
 export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBarProps) {
   const { t } = useTranslation();
   const colors = useTheme();
-  const { organizations } = useSession();
   const org = useActiveOrg();
   const orgId = org?.id ?? null;
-  const hasSeveralOrganizations = organizations.length > 1;
   const alerts = useAppAlerts();
   const { data: tradeOffers = [] } = useQuery(pendingTradeOffersQueryOptions(orgId));
   const notificationCount = alerts.length + tradeOffers.length;
@@ -56,11 +53,11 @@ export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBa
       }}
     >
       <BrandIcon size={TOP_BAR_BRAND_ICON_SIZE} color={colors.foreground} />
-      {hasSeveralOrganizations ? (
+      {org ? (
         <View style={{ width: 1, height: 16, marginHorizontal: SPACING.xs, backgroundColor: colors.border }} />
       ) : null}
       <View style={{ flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
-        {hasSeveralOrganizations && org ? (
+        {org ? (
           <AppText weight="semibold" numberOfLines={1} style={{ flexShrink: 1 }}>
             {org.name}
           </AppText>

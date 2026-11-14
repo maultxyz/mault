@@ -17,14 +17,16 @@ import { CardTile } from "@/components/cards/card-tile";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ListGroupItem } from "@/components/ui/list-group-item";
 import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { TabStrip } from "@/components/ui/tab-strip";
 import { Screen } from "@/components/ui/screen";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import {
+  cachedStorageLocation,
   downloadStorageLocationCsv,
   fetchFirstUnreviewedStorageCard,
   markStorageLocationCardsDownloaded,
@@ -36,6 +38,7 @@ import {
 import { useStorageLocationActions } from "@/features/storage/api/use-storage-location-actions";
 import { ExportSheet } from "@/features/cards/components/export-sheet";
 import { CardToolbar } from "@/features/collections/components/card-toolbar";
+import { CollectionGridSkeleton } from "@/features/collections/components/collection-grid-skeleton";
 import { CardViewOptionsSheet } from "@/features/collections/components/card-view-options-sheet";
 import { cardSortOptions, countActiveCardFilters } from "@/features/collections/lib/card-query";
 import { toStatsBreakdown } from "@/features/stats/lib/stats-breakdown";
@@ -44,6 +47,8 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { shareCsv } from "@/features/cards/lib/share-csv";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { useActiveOrgId } from "@/hooks/use-org";
+import { usePanelWidth } from "@/hooks/use-panel-width";
+import { usePrefetchCollectionCard } from "@/hooks/use-prefetch-collection-card";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import {
@@ -58,7 +63,7 @@ import type { CardViewMode } from "@/lib/interfaces/collections";
 import { readKv, writeKv } from "@/lib/storage/kv";
 import { STORAGE_LOCATION_TABS } from "@/lib/constants/storage";
 import type { StorageLocationTab } from "@/lib/interfaces/storage";
-import { SPACING } from "@/lib/constants/theme";
+import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { readReviewLayout } from "@/lib/review-layout";
 import { cardArtSources } from "@/lib/card-art";
 import { absoluteUrl } from "@/lib/url";
@@ -74,7 +79,14 @@ export default function StorageLocationScreen() {
   const orgId = useActiveOrgId();
   const { data: billing } = useQuery(billingQueryOptions(orgId));
   const isStorageLocked = billing?.storage === false;
-  const { data: location } = useQuery(storageLocationQueryOptions(guid));
+  const locationQuery = useQuery({
+    ...storageLocationQueryOptions(guid),
+    placeholderData: () => cachedStorageLocation(queryClient, orgId, guid),
+  });
+  const location = locationQuery.data;
+  const isLocationMissing = locationQuery.data === null && !locationQuery.isPlaceholderData;
+  const prefetchCollectionCard = usePrefetchCollectionCard();
+  const panelWidth = usePanelWidth();
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
   const [sort, setSort] = useState<string | null>(null);
@@ -83,9 +95,8 @@ export default function StorageLocationScreen() {
   const [viewMode, setViewMode] = useState<CardViewMode>(() =>
     readKv(STORAGE_CARD_VIEW_MODE_KEY) === "list" ? "list" : "grid",
   );
-  const [listWidth, setListWidth] = useState(0);
   const isGrid = viewMode === "grid";
-  const tileWidth = (listWidth - SPACING.sm * 2 - CARD_GRID_GAP_X * (CARD_GRID_COLUMNS - 1)) / CARD_GRID_COLUMNS;
+  const tileWidth = (panelWidth - SCREEN_GUTTER * 2 - CARD_GRID_GAP_X * (CARD_GRID_COLUMNS - 1)) / CARD_GRID_COLUMNS;
   const changeViewMode = (mode: CardViewMode) => {
     setViewMode(mode);
     writeKv(STORAGE_CARD_VIEW_MODE_KEY, mode);
@@ -174,6 +185,19 @@ export default function StorageLocationScreen() {
     locationActions.runAction({ guid, name: location?.name ?? "" }, action);
   };
 
+  if (isLocationMissing) {
+    return (
+      <Screen scroll={false} header={<PageHeader title={t("storage.title")} onBack={() => router.back()} />}>
+        <EmptyState
+          icon="storage"
+          title={t("storage.notFoundTitle")}
+          description={t("storage.notFoundDescription")}
+          action={<Button variant="secondary" label={t("common.back")} onPress={() => router.back()} />}
+        />
+      </Screen>
+    );
+  }
+
   return (
     <Screen
       scroll={false}
@@ -218,7 +242,6 @@ export default function StorageLocationScreen() {
         <FlatList
           key={viewMode}
           style={{ marginHorizontal: -SPACING.sm }}
-          onLayout={(event) => setListWidth(event.nativeEvent.layout.width)}
           data={items}
           keyExtractor={(entry) => entry.scanId}
           numColumns={isGrid ? CARD_GRID_COLUMNS : 1}
@@ -277,9 +300,8 @@ export default function StorageLocationScreen() {
           }
           ListEmptyComponent={
             cards.isPending ? (
-              <View style={{ gap: SPACING.sm, paddingHorizontal: SPACING.sm }}>
-                <Skeleton height={61} />
-                <Skeleton height={61} />
+              <View style={{ paddingHorizontal: SPACING.sm }}>
+                {isGrid ? <CollectionGridSkeleton tileWidth={tileWidth} /> : <ListSkeleton rows={3} />}
               </View>
             ) : (
               <EmptyState
@@ -291,7 +313,7 @@ export default function StorageLocationScreen() {
           ListFooterComponent={
             cards.isFetchingNextPage ? <ListLoadingFooter /> : undefined
           }
-          renderItem={({ item: entry }) => {
+          renderItem={({ item: entry, index }) => {
             const value = pricing.priceOf(
               entry.card,
               { isFoil: entry.isFoil, foilType: entry.foilType },
@@ -299,6 +321,7 @@ export default function StorageLocationScreen() {
             );
             const openEntry = () =>
               router.push({ pathname: "/card/[scanId]", params: { scanId: entry.scanId, guid: entry.collectionGuid } });
+            const prefetchEntry = () => prefetchCollectionCard(entry.collectionGuid, entry.scanId);
             if (isGrid) {
               return (
                 <View style={{ width: tileWidth }}>
@@ -310,21 +333,25 @@ export default function StorageLocationScreen() {
                     flagged={(entry.lowConfidenceMatch || entry.hasAlternatives) && !entry.reviewed}
                     corrected={entry.corrected || entry.reviewed}
                     onPress={openEntry}
+                    onPressIn={prefetchEntry}
                   />
                 </View>
               );
             }
             return (
-              <CardRow
-                name={entry.card.name}
-                subtitle={`${t("storage.position", { position: entry.position })} · ${entry.collectionName}`}
-                imageUrl={absoluteUrl(entry.card.image?.small)}
-                price={value != null ? pricing.format(value) : null}
-                lowConfidence={entry.lowConfidenceMatch && !entry.reviewed}
-                onPress={() =>
-                  router.push({ pathname: "/card/[scanId]", params: { scanId: entry.scanId, guid: entry.collectionGuid } })
-                }
-              />
+              <View style={{ paddingHorizontal: SPACING.sm }}>
+                <ListGroupItem index={index} count={items.length}>
+                  <CardRow
+                    name={entry.card.name}
+                    subtitle={`${t("storage.position", { position: entry.position })} · ${entry.collectionName}`}
+                    imageUrl={absoluteUrl(entry.card.image?.small)}
+                    price={value != null ? pricing.format(value) : null}
+                    lowConfidence={entry.lowConfidenceMatch && !entry.reviewed}
+                    onPress={openEntry}
+                    onPressIn={prefetchEntry}
+                  />
+                </ListGroupItem>
+              </View>
             );
           }}
         />

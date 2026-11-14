@@ -75,6 +75,11 @@ export function BinCard({
               {isDisabled && (
                 <Badge variant="outline">{t("binCard.disabled")}</Badge>
               )}
+              {!isDisabled && config.maxCards != null && (
+                <Badge variant="outline">
+                  {t("binCard.maxCards", { count: config.maxCards })}
+                </Badge>
+              )}
               <Badge variant="default">{t("binCard.pickList")}</Badge>
             </>
           ) : (

@@ -2,12 +2,11 @@
   "title": "Intégrations",
   "subtitle": "Connecte Mault à d'autres applications et choisis ce qui est publié et où.",
   "discord": {
-    "heading": "Discord",
-    "description": "Publie les scans et les alertes sur ton serveur Discord.",
     "connectedTo": "Connecté à {{server}}",
     "statusLinked": "Lié",
     "statusNotLinked": "Non lié",
     "botUnreachable": "Impossible de joindre le bot Discord, les noms de salons et les permissions ne peuvent donc pas être affichés pour le moment.",
+    "loadFailed": "Impossible de charger les paramètres Discord.",
     "botNotInServer": "Le bot n'est plus sur ton serveur lié. Ajoute-le à nouveau, puis relie-le.",
     "connection": "Connexion"
   },

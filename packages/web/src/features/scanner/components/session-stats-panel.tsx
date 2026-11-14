@@ -47,7 +47,7 @@ export function SessionStatsPanel({
       </div>
 
       {stats && stats.rarities.length > 0 && (
-        <div className="rounded-card bg-card p-3">
+        <div className="rounded-card bg-card p-3 md:p-2.5">
           <p className="mb-1.5 text-xs text-foreground/70">
             {t("byRarity")}
           </p>

@@ -56,7 +56,12 @@ export function SorterWifiDialog({
       title={t("sorterWifi.dialogTitle")}
       description={t("sorterWifi.dialogDescription")}
       footer={
-        <Button type="submit" form="sorter-wifi-form" disabled={isSubmitting}>
+        <Button
+          type="submit"
+          form="sorter-wifi-form"
+          disabled={isSubmitting}
+          className="w-full"
+        >
           {isSubmitting && <IconLoader2 className="animate-spin" />}
           {t("sorterWifi.save")}
         </Button>

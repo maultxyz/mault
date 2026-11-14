@@ -96,7 +96,9 @@
     "shareLinkWithCount_other": "Share live view link ({{count}} active)",
     "scanTarget": "Scanning here",
     "scanInto": "Scan into this collection",
-    "scan": "Scan"
+    "scan": "Scan",
+    "notFoundTitle": "Collection not found",
+    "notFoundDescription": "It may have been deleted, or you no longer have access to it."
   },
   "shareLink": {
     "collectionTitle": "Share live view",
@@ -210,8 +212,14 @@
     "activity": {
       "title": "Scanning activity",
       "description": {
-        "day": "Cards scanned each day",
-        "week": "Cards scanned each week"
+        "count": {
+          "day": "Cards scanned each day",
+          "week": "Cards scanned each week"
+        },
+        "value": {
+          "day": "Value of the cards scanned each day",
+          "week": "Value of the cards scanned each week"
+        }
       },
       "metrics": {
         "count": "Cards",
@@ -244,7 +252,8 @@
         "avgValue": "Avg card",
         "scansInRange": "Scanned",
         "lastScanAt": "Last scan"
-      }
+      },
+      "filterHint": "Shows stats for this collection"
     },
     "prices": {
       "title": "Price distribution",
@@ -375,7 +384,8 @@
         "confirmationSent": "Confirmation email sent",
         "confirmationSentDescription": "Check {{email}} and click the link to finish changing your email.",
         "updateFailed": "Couldn't update your email",
-        "sameAsCurrent": "That's already your current email"
+        "sameAsCurrent": "That's already your current email",
+        "change": "Change email"
       },
       "password": {
         "heading": "Password",
@@ -385,7 +395,8 @@
         "revokeOtherSessions": "Sign out of all other devices",
         "submit": "Update password",
         "updated": "Password updated",
-        "updateFailed": "Couldn't update your password"
+        "updateFailed": "Couldn't update your password",
+        "change": "Change password"
       },
       "sessions": {
         "heading": "Sessions",
@@ -411,13 +422,16 @@
         "cancel": "Cancel"
       },
       "localSubtitle": "Your account details. Ask an admin on this server to change them.",
-      "nameLabel": "Name"
+      "nameLabel": "Name",
+      "signInHeading": "Sign-in"
     },
     "settingsRow": "Account settings",
     "settingsRowSubtitle": "Name, email, password and sessions",
     "settingsRowSubtitleLocal": "Your name and email",
     "language": "Language",
-    "languageSystem": "Phone language"
+    "languageSystem": "Phone language",
+    "sorterConnection": "Sorter connection",
+    "manageSection": "Manage"
   },
   "sorter": {
     "noSorter": "No sorter connected",
@@ -530,7 +544,9 @@
       "online": "Online",
       "offline": "Offline",
       "inUse": "In use on another device"
-    }
+    },
+    "showCommLog": "Show communication log",
+    "hideCommLog": "Hide communication log"
   },
   "retractCard": {
     "failedTitle": "Couldn't retract the card",
@@ -716,6 +732,7 @@
       "handScanDescription": "Scan without a sorter. Press Start, then hold a card still in view and it scans on its own.",
       "handScanBins": "Sort into bins",
       "handScanBinsDescription": "Show which bin each card goes in, using your rule preset. Leave off to just save cards to the collection.",
+      "handScanBinsNoPreset": "Choose a rule preset for this game to sort cards into bins.",
       "camera": "Camera",
       "cameraFallback": "Camera {{number}}",
       "cameraPosition": {
@@ -865,7 +882,7 @@
       "today": "Today",
       "scans_one": "{{count}} scan",
       "scans_other": "{{count}} scans",
-      "chartLabel": "Scans per day for the last 14 days",
+      "chartLabel": "Scans per day for the last {{count}} days",
       "lastDays_one": "Last {{count}} day",
       "lastDays_other": "Last {{count}} days"
     },
@@ -994,7 +1011,10 @@
       "deletedSorter": "{{name}} (deleted)"
     },
     "name": "Name",
-    "actions": "Card actions"
+    "actions": "Card actions",
+    "similarMatchesCount_one": "{{count}} similar match",
+    "similarMatchesCount_other": "{{count}} similar matches",
+    "reviewAcceptFailed": "Couldn't accept the previous card"
   },
   "reviewGrid": {
     "title": "Review cards",
@@ -1012,7 +1032,9 @@
     "done": "Done",
     "loadFailed": "Couldn't load the cards to review. Try again.",
     "acceptFailed_one": "Couldn't accept {{count}} card. Try again.",
-    "acceptFailed_other": "Couldn't accept {{count}} cards. Try again."
+    "acceptFailed_other": "Couldn't accept {{count}} cards. Try again.",
+    "accepted_one": "{{count}} card accepted",
+    "accepted_other": "{{count}} cards accepted"
   },
   "rules": {
     "title": "Sorting rules",
@@ -1237,7 +1259,9 @@
     },
     "maxCardsLabel": "Max cards",
     "maxCardsPlaceholder": "No limit",
-    "maxCardsDescription": "Sorting pauses when this bin holds this many cards, even if it has room. Leave empty to use the bin's physical size."
+    "maxCardsDescription": "This bin counts as full at this many cards, even if it has room: matching cards then go to its overflow bin or pause sorting. Leave empty to use the bin's physical size.",
+    "maxCardsPill_one": "Holds {{count}}",
+    "maxCardsPill_other": "Holds {{count}}"
   },
   "calibration": {
     "title": "Sorter setup",
@@ -1565,7 +1589,10 @@
     },
     "share": "Share location",
     "shareWithCount_one": "Share location ({{count}} active)",
-    "shareWithCount_other": "Share location ({{count}} active)"
+    "shareWithCount_other": "Share location ({{count}} active)",
+    "searchFailed": "Couldn't search your storage locations",
+    "notFoundTitle": "Location not found",
+    "notFoundDescription": "It may have been deleted, or you no longer have access to it."
   },
   "settings": {
     "title": "Settings",
@@ -1617,7 +1644,26 @@
       "heading": "Appearance",
       "description": "Customize the app's accent color.",
       "primaryColor": "Primary color",
-      "resetColor": "Reset to default"
+      "resetColor": "Reset to default",
+      "colors": {
+        "red": "Red",
+        "orange": "Orange",
+        "amber": "Amber",
+        "yellow": "Yellow",
+        "lime": "Lime",
+        "green": "Green",
+        "emerald": "Emerald",
+        "teal": "Teal",
+        "cyan": "Cyan",
+        "sky": "Sky",
+        "blue": "Blue",
+        "indigo": "Indigo",
+        "violet": "Violet",
+        "purple": "Purple",
+        "fuchsia": "Fuchsia",
+        "pink": "Pink",
+        "rose": "Rose"
+      }
     },
     "leaderboard": {
       "heading": "Leaderboard",
@@ -3015,6 +3061,7 @@
     "reviewTitle": "Offer from {{name}}",
     "respondFailed": "Couldn't answer the trade offer.",
     "answered": "This trade offer was already answered.",
+    "loadFailed": "Couldn't load the trade offer",
     "reviewDescription": "Sent from {{source}} on {{date}}",
     "unknownSource": "a shared link",
     "contact": "Contact",
@@ -3081,6 +3128,7 @@
     "selectedCount_other": "{{count}} selected",
     "searchLinkCards": "Search these cards",
     "noLinkCards": "No cards match",
+    "linkCardsLoadFailed": "Couldn't load the cards on this link",
     "tapToAdd": "Adds it to your trade offer",
     "tapToRemove": "Removes it from your trade offer",
     "loadMore": "Load more",
@@ -3095,6 +3143,7 @@
     "added": "Added {{name}} to your offer",
     "noCollections": "You don't have a collection yet",
     "noCollectionCards": "No cards match",
+    "collectionCardsLoadFailed": "Couldn't load the cards in this collection",
     "scanCollectionLabel": "Match cards from",
     "scanHint": "Hold one of your cards in the frame and tap the shutter to add it.",
     "scanButton": "Scan card",
@@ -3249,6 +3298,7 @@
       "value": "Value",
       "change": "Change"
     },
-    "noChange": "No history yet"
+    "noChange": "No history yet",
+    "changeLoadFailed": "Couldn't load value changes"
   }
 }

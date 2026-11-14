@@ -7,7 +7,7 @@ export function HomeHighlightRow({ icon: RowIcon, tone, title, description, to }
   return (
     <Link
       to={to}
-      className="flex items-center gap-3 rounded-card bg-card p-4 md:p-2.5 transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+      className="flex items-center gap-3 rounded-card bg-card p-4 md:p-2.5 transition-colors hover:bg-foreground/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
     >
       <span
         aria-hidden

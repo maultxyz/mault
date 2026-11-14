@@ -70,7 +70,7 @@ export function AlphabetPanel() {
     <div className="flex flex-col gap-4 md:gap-2">
       <div className="flex items-start justify-between gap-2">
         <div className="flex flex-col gap-1">
-          <h2 className="text-sm font-semibold font-heading">
+          <h2 className="font-heading text-sm font-semibold">
             {t("alphabetPanel.passHeading", {
               current: pass + 1,
               total: passCount,
@@ -98,7 +98,7 @@ export function AlphabetPanel() {
         {configs.map((config) => (
           <div
             key={config.binNumber}
-            className="flex items-center justify-between gap-2 rounded-card bg-card p-3"
+            className="flex items-center justify-between gap-2 rounded-card bg-card p-3 md:p-2.5"
           >
             <span className="text-sm font-medium">
               {t("binLabel", { number: config.binNumber })}

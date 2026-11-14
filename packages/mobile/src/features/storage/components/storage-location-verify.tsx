@@ -8,11 +8,13 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ListGroupItem } from "@/components/ui/list-group-item";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { useStorageVerify } from "@/features/storage/api/use-storage-verify";
 import { useTheme } from "@/hooks/use-theme";
 import { absoluteUrl } from "@/lib/url";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 import type { StorageLocationVerifyProps } from "@/lib/interfaces/storage";
 
 export function StorageLocationVerify({ location }: StorageLocationVerifyProps) {
@@ -29,9 +31,8 @@ export function StorageLocationVerify({ location }: StorageLocationVerifyProps) 
 
   if (verify.isLoading) {
     return (
-      <View style={{ gap: SPACING.sm, paddingTop: SPACING.md }}>
-        <Skeleton height={61} />
-        <Skeleton height={61} />
+      <View style={{ paddingTop: SPACING.md }}>
+        <ListSkeleton rows={3} />
       </View>
     );
   }
@@ -92,15 +93,10 @@ export function StorageLocationVerify({ location }: StorageLocationVerifyProps) 
             <AppText size="xs" tone="secondary">
               {t("storage.verify.progress", { verified: verify.verifiedCount, total })}
             </AppText>
-            <View
-              accessibilityRole="progressbar"
+            <ProgressBar
+              fraction={verifiedFraction}
               accessibilityValue={{ min: 0, max: total, now: verify.verifiedCount }}
-              style={{ flex: 1, height: 6, borderRadius: RADIUS.full, backgroundColor: colors.muted, overflow: "hidden" }}
-            >
-              <View
-                style={{ width: `${Math.round(verifiedFraction * 100)}%`, height: "100%", backgroundColor: colors.primary }}
-              />
-            </View>
+            />
           </View>
           {verify.isTruncated ? (
             <Callout tone="warning" title={t("storage.verify.truncated", { max: STORAGE_VERIFY_CARDS_MAX })} />
@@ -117,15 +113,17 @@ export function StorageLocationVerify({ location }: StorageLocationVerifyProps) 
           ) : null}
         </View>
       }
-      renderItem={({ item: row }) =>
+      renderItem={({ item: row, index }) =>
         row.kind === "card" ? (
-          <CardRow
-            name={row.entry.card.name}
-            subtitle={`${t("storage.position", { position: row.entry.position })} · ${row.entry.card.setName}`}
-            imageUrl={absoluteUrl(row.entry.card.image?.small)}
-            checked={row.isPicked}
-            onPress={() => verify.setVerified(row.entry.scanId, !row.isPicked)}
-          />
+          <ListGroupItem index={index} count={rows.length}>
+            <CardRow
+              name={row.entry.card.name}
+              subtitle={`${t("storage.position", { position: row.entry.position })} · ${row.entry.card.setName}`}
+              imageUrl={absoluteUrl(row.entry.card.image?.small)}
+              checked={row.isPicked}
+              onPress={() => verify.setVerified(row.entry.scanId, !row.isPicked)}
+            />
+          </ListGroupItem>
         ) : null
       }
     />

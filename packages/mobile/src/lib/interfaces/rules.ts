@@ -64,6 +64,7 @@ export interface ActivePresetWorkflowState {
   nextStep: PresetWorkflowStep | null;
   label: string;
   presetName: (presetGuid: string) => string;
+  isPending: boolean;
 }
 
 export interface AlphabetPassCardProps {

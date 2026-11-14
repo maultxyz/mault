@@ -76,7 +76,7 @@ export default function SettingsScanningPage() {
               <span className="text-sm">
                 {t("ocr.highAccuracyToggleLabel")}
               </span>
-              <span className="text-2xs text-foreground/70">
+              <span className="text-xs text-foreground/70">
                 {t("ocr.highAccuracyDescription")}
               </span>
             </span>
@@ -106,7 +106,7 @@ export default function SettingsScanningPage() {
               <span className="text-sm">
                 {t("foilDetection.starToggleLabel")}
               </span>
-              <span className="text-2xs text-foreground/70">
+              <span className="text-xs text-foreground/70">
                 {t("foilDetection.starToggleDescription")}
               </span>
             </span>
@@ -129,7 +129,7 @@ export default function SettingsScanningPage() {
                 <span className="text-sm">
                   {t("foilDetection.toggleLabel")}
                 </span>
-                <span className="text-2xs text-foreground/70">
+                <span className="text-xs text-foreground/70">
                   {t("foilDetection.nudgeToggleDescription")}
                 </span>
               </span>
@@ -159,7 +159,7 @@ export default function SettingsScanningPage() {
               <span className="text-sm">
                 {t("correctionAutoClose.promptToggleLabel")}
               </span>
-              <span className="text-2xs text-foreground/70">
+              <span className="text-xs text-foreground/70">
                 {t("correctionAutoClose.promptToggleDescription")}
               </span>
             </span>

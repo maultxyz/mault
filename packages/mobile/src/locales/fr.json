@@ -96,7 +96,9 @@
     "shareLinkWithCount_other": "Partager le lien de la vue en direct ({{count}} actifs)",
     "scanTarget": "Scans ajoutés ici",
     "scanInto": "Scanner dans cette collection",
-    "scan": "Scanner"
+    "scan": "Scanner",
+    "notFoundTitle": "Collection introuvable",
+    "notFoundDescription": "Elle a peut-être été supprimée, ou tu n'y as plus accès."
   },
   "shareLink": {
     "collectionTitle": "Partager la vue en direct",
@@ -210,8 +212,14 @@
     "activity": {
       "title": "Activité de scan",
       "description": {
-        "day": "Cartes scannées par jour",
-        "week": "Cartes scannées par semaine"
+        "count": {
+          "day": "Cartes scannées par jour",
+          "week": "Cartes scannées par semaine"
+        },
+        "value": {
+          "day": "Valeur des cartes scannées par jour",
+          "week": "Valeur des cartes scannées par semaine"
+        }
       },
       "metrics": {
         "count": "Cartes",
@@ -244,7 +252,8 @@
         "avgValue": "Carte moy.",
         "scansInRange": "Scannée",
         "lastScanAt": "Dernier scan"
-      }
+      },
+      "filterHint": "Affiche les statistiques de cette collection"
     },
     "prices": {
       "title": "Répartition des prix",
@@ -375,7 +384,8 @@
         "confirmationSent": "E-mail de confirmation envoyé",
         "confirmationSentDescription": "Ouvre {{email}} et clique sur le lien pour terminer le changement d'adresse.",
         "updateFailed": "Impossible de mettre à jour l'e-mail",
-        "sameAsCurrent": "C'est déjà ton adresse e-mail actuelle"
+        "sameAsCurrent": "C'est déjà ton adresse e-mail actuelle",
+        "change": "Changer d'adresse e-mail"
       },
       "password": {
         "heading": "Mot de passe",
@@ -385,7 +395,8 @@
         "revokeOtherSessions": "Déconnecter tous les autres appareils",
         "submit": "Mettre à jour le mot de passe",
         "updated": "Mot de passe mis à jour",
-        "updateFailed": "Impossible de mettre à jour le mot de passe"
+        "updateFailed": "Impossible de mettre à jour le mot de passe",
+        "change": "Changer de mot de passe"
       },
       "sessions": {
         "heading": "Sessions",
@@ -411,13 +422,16 @@
         "cancel": "Annuler"
       },
       "localSubtitle": "Les détails de ton compte. Demande à un admin de ce serveur de les modifier.",
-      "nameLabel": "Nom"
+      "nameLabel": "Nom",
+      "signInHeading": "Connexion"
     },
     "settingsRow": "Paramètres du compte",
     "settingsRowSubtitle": "Nom, e-mail, mot de passe et sessions",
     "settingsRowSubtitleLocal": "Ton nom et ton e-mail",
     "language": "Langue",
-    "languageSystem": "Langue du téléphone"
+    "languageSystem": "Langue du téléphone",
+    "sorterConnection": "Connexion de la trieuse",
+    "manageSection": "Gérer"
   },
   "sorter": {
     "noSorter": "Aucun trieur connecté",
@@ -530,7 +544,9 @@
       "online": "En ligne",
       "offline": "Hors ligne",
       "inUse": "Utilisé sur un autre appareil"
-    }
+    },
+    "showCommLog": "Afficher le journal de communication",
+    "hideCommLog": "Masquer le journal de communication"
   },
   "retractCard": {
     "failedTitle": "Impossible de retirer la carte",
@@ -716,6 +732,7 @@
       "handScanDescription": "Scanner sans trieuse. Appuie sur Démarrer, puis tiens une carte immobile dans le cadre et elle est scannée toute seule.",
       "handScanBins": "Trier dans les bacs",
       "handScanBinsDescription": "Indique dans quel bac va chaque carte, d'après ton préréglage de règles. Laisse désactivé pour simplement enregistrer les cartes dans la collection.",
+      "handScanBinsNoPreset": "Choisis un préréglage de règles pour ce jeu afin de trier les cartes dans des bacs.",
       "camera": "Caméra",
       "cameraFallback": "Caméra {{number}}",
       "cameraPosition": {
@@ -865,7 +882,7 @@
       "today": "Aujourd'hui",
       "scans_one": "{{count}} scan",
       "scans_other": "{{count}} scans",
-      "chartLabel": "Scans par jour sur les 14 derniers jours",
+      "chartLabel": "Scans par jour sur les {{count}} derniers jours",
       "lastDays_one": "{{count}} dernier jour",
       "lastDays_other": "{{count}} derniers jours"
     },
@@ -994,7 +1011,10 @@
       "deletedSorter": "{{name}} (supprimé)"
     },
     "name": "Nom",
-    "actions": "Actions de la carte"
+    "actions": "Actions de la carte",
+    "similarMatchesCount_one": "{{count}} correspondance similaire",
+    "similarMatchesCount_other": "{{count}} correspondances similaires",
+    "reviewAcceptFailed": "Impossible de valider la carte précédente"
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",
@@ -1012,7 +1032,9 @@
     "done": "Terminé",
     "loadFailed": "Impossible de charger les cartes à vérifier. Réessayez.",
     "acceptFailed_one": "Impossible de valider {{count}} carte. Réessayez.",
-    "acceptFailed_other": "Impossible de valider {{count}} cartes. Réessayez."
+    "acceptFailed_other": "Impossible de valider {{count}} cartes. Réessayez.",
+    "accepted_one": "{{count}} carte validée",
+    "accepted_other": "{{count}} cartes validées"
   },
   "rules": {
     "title": "Règles de tri",
@@ -1237,7 +1259,9 @@
     },
     "maxCardsLabel": "Cartes max.",
     "maxCardsPlaceholder": "Aucune limite",
-    "maxCardsDescription": "Le tri se met en pause quand ce bac contient autant de cartes, même s'il reste de la place. Laissez vide pour utiliser la taille physique du bac."
+    "maxCardsDescription": "Ce bac est considéré comme plein à ce nombre de cartes, même s'il reste de la place : les cartes correspondantes vont alors dans son bac de débordement ou le tri se met en pause. Laissez vide pour utiliser la taille physique du bac.",
+    "maxCardsPill_one": "Contient {{count}}",
+    "maxCardsPill_other": "Contient {{count}}"
   },
   "calibration": {
     "title": "Réglage du trieur",
@@ -1565,7 +1589,10 @@
     },
     "share": "Partager l'emplacement",
     "shareWithCount_one": "Partager l'emplacement ({{count}} actif)",
-    "shareWithCount_other": "Partager l'emplacement ({{count}} actifs)"
+    "shareWithCount_other": "Partager l'emplacement ({{count}} actifs)",
+    "searchFailed": "Impossible de rechercher dans tes emplacements",
+    "notFoundTitle": "Emplacement introuvable",
+    "notFoundDescription": "Il a peut-être été supprimé, ou tu n'y as plus accès."
   },
   "settings": {
     "title": "Paramètres",
@@ -1617,7 +1644,26 @@
       "heading": "Apparence",
       "description": "Personnalise la couleur d'accent de l'application.",
       "primaryColor": "Couleur principale",
-      "resetColor": "Réinitialiser par défaut"
+      "resetColor": "Réinitialiser par défaut",
+      "colors": {
+        "red": "Rouge",
+        "orange": "Orange",
+        "amber": "Ambre",
+        "yellow": "Jaune",
+        "lime": "Citron vert",
+        "green": "Vert",
+        "emerald": "Émeraude",
+        "teal": "Sarcelle",
+        "cyan": "Cyan",
+        "sky": "Ciel",
+        "blue": "Bleu",
+        "indigo": "Indigo",
+        "violet": "Violet",
+        "purple": "Pourpre",
+        "fuchsia": "Fuchsia",
+        "pink": "Rose",
+        "rose": "Rose vif"
+      }
     },
     "leaderboard": {
       "heading": "Classement",
@@ -3015,6 +3061,7 @@
     "reviewTitle": "Offre de {{name}}",
     "respondFailed": "Impossible de répondre à l'offre.",
     "answered": "Cette offre a déjà reçu une réponse.",
+    "loadFailed": "Impossible de charger l'offre d'échange",
     "reviewDescription": "Envoyée depuis {{source}} le {{date}}",
     "unknownSource": "un lien partagé",
     "contact": "Contact",
@@ -3081,6 +3128,7 @@
     "selectedCount_other": "{{count}} sélectionnées",
     "searchLinkCards": "Rechercher dans ces cartes",
     "noLinkCards": "Aucune carte trouvée",
+    "linkCardsLoadFailed": "Impossible de charger les cartes de ce lien",
     "tapToAdd": "L'ajoute à votre offre",
     "tapToRemove": "La retire de votre offre",
     "loadMore": "Charger plus",
@@ -3095,6 +3143,7 @@
     "added": "{{name}} ajoutée à votre offre",
     "noCollections": "Vous n'avez pas encore de collection",
     "noCollectionCards": "Aucune carte trouvée",
+    "collectionCardsLoadFailed": "Impossible de charger les cartes de cette collection",
     "scanCollectionLabel": "Reconnaître avec",
     "scanHint": "Tenez une de vos cartes dans le cadre et touchez le déclencheur pour l'ajouter.",
     "scanButton": "Scanner la carte",
@@ -3249,6 +3298,7 @@
       "value": "Valeur",
       "change": "Variation"
     },
-    "noChange": "Pas encore d'historique"
+    "noChange": "Pas encore d'historique",
+    "changeLoadFailed": "Impossible de charger les variations de valeur"
   }
 }

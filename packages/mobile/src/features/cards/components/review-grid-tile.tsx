@@ -21,7 +21,7 @@ import { cardArtSources } from "@/lib/card-art";
 import { absoluteUrl } from "@/lib/url";
 import { cardStampOptionsFor } from "@magic-vault/shared";
 
-export function ReviewGridTile({ card, attributes, accepting, onAccept, onCorrect, onPickAttribute }: ReviewGridTileProps) {
+export function ReviewGridTile({ card, attributes, onAccept, onCorrect, onPickAttribute }: ReviewGridTileProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const image = useQuery(scanImageQueryOptions(card.collectionGuid, card.scanId));
@@ -124,7 +124,7 @@ export function ReviewGridTile({ card, attributes, accepting, onAccept, onCorrec
           label={t("reviewGrid.correct")}
           onPress={onCorrect}
         />
-        <Button style={{ flex: 1 }} icon="check" label={t("reviewGrid.accept")} loading={accepting} onPress={onAccept} />
+        <Button style={{ flex: 1 }} icon="check" label={t("reviewGrid.accept")} onPress={onAccept} />
       </View>
     </Surface>
   );

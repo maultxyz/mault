@@ -563,7 +563,7 @@ export function SessionSummaryDialog({
 
   const statsRecap = (
     <div className="flex flex-col gap-3 md:gap-2">
-      <div className="divide-y divide-border overflow-hidden rounded-xl bg-muted">
+      <div className="divide-y divide-border overflow-hidden rounded-lg bg-foreground/6">
         <div
           className={cn(
             "grid",
@@ -608,7 +608,7 @@ export function SessionSummaryDialog({
           }
         >
           {stats.rarities.length > 0 && (
-            <div className="rounded-xl bg-muted p-2.5">
+            <div className="rounded-lg bg-foreground/6 p-2.5">
               <p className="mb-1.5 text-xs text-foreground/70">
                 {t("sessionSummaryDialog.byRarity")}
               </p>
@@ -631,7 +631,7 @@ export function SessionSummaryDialog({
               </div>
             </div>
           )}
-          <div className="rounded-xl bg-muted p-2.5">
+          <div className="rounded-lg bg-foreground/6 p-2.5">
             <p className="mb-1.5 text-xs text-foreground/70">
               {t("sessionSummaryDialog.topSets")}
             </p>
@@ -698,14 +698,14 @@ export function SessionSummaryDialog({
           render={<Button disabled={exportCardCount === 0 || downloading} className="w-full" />}
         >
           {downloading ? (
-            <IconLoader2 className="size-4 animate-spin motion-reduce:animate-none" />
+            <IconLoader2 className="animate-spin motion-reduce:animate-none" />
           ) : (
-            <IconDownload className="size-4" />
+            <IconDownload />
           )}
           {downloading
             ? t("sessionSummaryDialog.exporting")
             : t("sessionSummaryDialog.download", { count: exportCardCount })}
-          <IconChevronDown className="size-4" />
+          <IconChevronDown />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center">
           {exportAdapters.map((adapter) => (
@@ -813,7 +813,7 @@ export function SessionSummaryDialog({
                   />
                 }
               >
-                <IconX className="size-4" />
+                <IconX />
                 <span className="sr-only">{t("sessionSummaryDialog.close")}</span>
               </DialogPrimitive.Close>
             </div>

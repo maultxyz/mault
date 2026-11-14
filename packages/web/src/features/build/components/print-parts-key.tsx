@@ -34,8 +34,8 @@ export function PrintPartsKey({
               onFocus={() => onPreview(part)}
               onBlur={() => onPreview(null)}
               className={cn(
-                "flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-muted focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
-                active && "bg-muted font-medium",
+                "flex w-full items-center gap-2.5 rounded-md px-2 py-1.5 text-left text-sm transition-colors hover:bg-foreground/6 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                active && "bg-foreground/6 font-medium",
               )}
             >
               <span

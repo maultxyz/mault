@@ -93,7 +93,7 @@ export function OrderEditDialog({
         </DialogHeader>
         <form
           id="order-edit-form"
-          className="flex min-h-0 flex-col gap-4"
+          className="flex min-h-0 flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(submit)}
         >
           <Controller
@@ -113,7 +113,7 @@ export function OrderEditDialog({
           />
           <Field data-invalid={!!form.formState.errors.lines || undefined}>
             <FieldLabel>{t("orders.lines")}</FieldLabel>
-            <ul className="flex max-h-[40svh] flex-col divide-y divide-border overflow-y-auto rounded-xl bg-muted">
+            <ul className="flex max-h-[40svh] flex-col divide-y divide-border overflow-y-auto rounded-lg bg-foreground/6">
               {fields.map((lineField, index) => (
                 <Controller
                   key={lineField.id}
@@ -140,7 +140,7 @@ export function OrderEditDialog({
                           inputMode="numeric"
                           min={1}
                           max={ORDER_LINE_QUANTITY_MAX}
-                          className="h-8 w-20 tabular-nums"
+                          className="w-20 tabular-nums"
                           aria-label={t("orders.quantityLabel", {
                             name: lineField.name,
                           })}

@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useScanImage } from "@/features/cards/api/use-scan-image";
@@ -49,11 +50,10 @@ export function ReviewGridTile({
           </figcaption>
           <div className="relative aspect-[2.5/3.5] overflow-hidden rounded-lg bg-muted">
             {matchedImageUrl && (
-              <img
+              <CardImage
                 src={matchedImageUrl}
+                placeholderSrc={card.card.image?.small}
                 alt={card.card.name}
-                loading="lazy"
-                className="h-full w-full object-cover"
               />
             )}
           </div>

@@ -38,7 +38,7 @@ export function TextField({ label, error, autoComplete, multiline, ...props }: T
         }}
       />
       {error ? (
-        <AppText size="xs" accessibilityLiveRegion="polite" style={{ color: colors.destructive }}>
+        <AppText size="xs" accessibilityLiveRegion="polite" style={{ color: colors.destructiveForeground }}>
           {error}
         </AppText>
       ) : null}

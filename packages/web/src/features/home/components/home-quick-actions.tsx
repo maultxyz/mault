@@ -11,7 +11,7 @@ export function HomeQuickActions({ actions }: HomeQuickActionsProps) {
                 "flex h-full flex-col items-center gap-2 rounded-card px-2 py-4 text-center text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring",
                 action.isPrimary
                   ? "bg-primary text-primary-foreground hover:bg-primary-hover"
-                  : "bg-card text-foreground hover:bg-muted",
+                  : "bg-card text-foreground hover:bg-foreground/6",
         );
         const content = (
           <>

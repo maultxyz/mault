@@ -1095,7 +1095,7 @@ export function CardScanner({
                 aria-label={t("a11y.showLastSearchImage")}
                 className="absolute bottom-2 left-2 z-30 flex items-center justify-center size-7 rounded-lg bg-background/70 text-foreground backdrop-blur-sm hover:bg-background/90 transition-colors"
               >
-                <IconEye size={16} />
+                <IconEye className="size-4" />
               </TooltipTrigger>
               <TooltipContent
                 side="right"

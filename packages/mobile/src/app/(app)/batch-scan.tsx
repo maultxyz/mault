@@ -15,15 +15,18 @@ import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Surface } from "@/components/ui/surface";
+import { useToast } from "@/components/ui/toast-provider";
 import { useBatchScan } from "@/features/scanner/api/use-batch-scan";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
+import { CameraPermissionEmptyState } from "@/features/scanner/components/camera-permission-empty-state";
 import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
 import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { BatchScanCorrectionSheet } from "@/features/scanner/components/batch-scan-correction-sheet";
 import { BatchScanPhoto } from "@/features/scanner/components/batch-scan-photo";
 import { BatchScanRow } from "@/features/scanner/components/batch-scan-row";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
+import { CameraEmptyStateFrame } from "@/features/scanner/components/camera-empty-state-frame";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { ScanRemovalQueueSheet } from "@/features/scanner/components/scan-removal-queue-sheet";
 import { ShutterButton } from "@/features/scanner/components/shutter-button";
@@ -40,6 +43,7 @@ export default function BatchScanScreen() {
   useKeepAwake();
   const { t } = useTranslation();
   const colors = useTheme();
+  const { showToast } = useToast();
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
   const cameraMounted = useCameraMountReady(focused);
@@ -90,8 +94,8 @@ export default function BatchScanScreen() {
       Alert.alert(t("batchScan.savePartialTitle", { count: saved }), t("batchScan.savePartialDescription", { count: failed }));
       return;
     }
-    Alert.alert(t("batchScan.savedTitle", { count: saved }), batch.collection?.name);
     router.back();
+    showToast({ message: t("batchScan.savedTitle", { count: saved }), tone: "success" });
   };
 
   const reviewRemoval = async () => {
@@ -107,8 +111,8 @@ export default function BatchScanScreen() {
   };
 
   const finishRemoval = (removedCount: number) => {
-    Alert.alert(t("scan.removal.notice.removed", { count: removedCount }), batch.collection?.name);
     router.back();
+    showToast({ message: t("scan.removal.notice.removed", { count: removedCount }), tone: "success" });
   };
 
   const modeControl = (
@@ -229,14 +233,12 @@ export default function BatchScanScreen() {
     <View style={{ flex: 1, backgroundColor: colors.camera }}>
       {focused ? <StatusBar style="light" /> : null}
       {!permission.hasPermission ? (
-        <View style={[StyleSheet.absoluteFill, { justifyContent: "center", padding: SCREEN_GUTTER }]}>
-          <EmptyState
-            icon="camera"
-            title={t("scan.cameraPermissionTitle")}
-            description={t("scan.cameraPermissionDescription")}
-            action={<Button label={t("scan.allowCamera")} onPress={() => void permission.requestPermission()} />}
+        <CameraEmptyStateFrame>
+          <CameraPermissionEmptyState
+            canRequestPermission={permission.canRequestPermission}
+            onRequestPermission={() => void permission.requestPermission()}
           />
-        </View>
+        </CameraEmptyStateFrame>
       ) : device ? (
         cameraMounted ? (
           <Camera
@@ -251,9 +253,9 @@ export default function BatchScanScreen() {
           />
         ) : null
       ) : (
-        <View style={[StyleSheet.absoluteFill, { justifyContent: "center" }]}>
+        <CameraEmptyStateFrame>
           <EmptyState icon="camera" title={t("scan.noCamera")} />
-        </View>
+        </CameraEmptyStateFrame>
       )}
 
       <View
@@ -311,7 +313,7 @@ export default function BatchScanScreen() {
             >
               {t("batchScan.title")}
             </AppText>
-            <AppText size="sm" style={{ color: colors.onCamera, textAlign: "center" }}>
+            <AppText size="sm" accessibilityLiveRegion="polite" style={{ color: colors.onCamera, textAlign: "center" }}>
               {modelsReady ? t("batchScan.hint") : t("batchScan.loadingModels")}
             </AppText>
           </View>

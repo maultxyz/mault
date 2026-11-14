@@ -54,7 +54,7 @@ export function CalibrationConflictDialog({
             <TableBody>
               {groups.map(([moduleNumber, differences]) => (
                 <Fragment key={moduleNumber ?? "feeder"}>
-                  <TableRow className="bg-muted hover:bg-muted">
+                  <TableRow className="bg-foreground/6 hover:bg-foreground/6">
                     <TableCell
                       colSpan={3}
                       className="text-xs font-medium text-foreground/70"

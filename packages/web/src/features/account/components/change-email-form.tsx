@@ -44,7 +44,7 @@ export function ChangeEmailForm() {
   }
 
   return (
-    <div className="flex max-w-sm flex-col gap-4">
+    <div className="flex max-w-sm flex-col gap-3 md:gap-2">
       <div className="flex items-center gap-2">
         <p className="text-sm">{currentEmail}</p>
         <Badge variant={isVerified ? "success" : "outline"}>

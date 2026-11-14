@@ -1,5 +1,6 @@
 import { Callout } from "@/components/callout";
 import { MobileListRow } from "@/components/mobile-list-row";
+import { MobileIconBadge } from "@/components/mobile-icon-badge";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileSection } from "@/components/mobile-section";
 import { Button } from "@/components/ui/button";
@@ -113,9 +114,9 @@ export default function SorterPage() {
       >
         <div className={MOBILE_PAGE_BODY_CLASS}>
           <div className={cn(MOBILE_CARD_CLASS, "flex items-center gap-3 p-3")}>
-            <span className="flex size-10 shrink-0 items-center justify-center rounded-md bg-muted text-foreground [&_svg]:size-5">
+            <MobileIconBadge className="size-10 [&_svg]:size-5">
               <IconCpu />
-            </span>
+            </MobileIconBadge>
             <div className="min-w-0 flex-1">
               <p className="flex items-center gap-2 font-heading text-sm font-semibold text-foreground">
                 <span className={cn("size-2.5 shrink-0 rounded-full", stateDot)} />

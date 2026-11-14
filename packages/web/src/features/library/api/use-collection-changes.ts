@@ -10,7 +10,7 @@ export function useCollectionChanges(enabled: boolean) {
   const { t, i18n } = useTranslation("home");
   const { activeOrg } = useOrg();
   const { format } = usePriceSource();
-  const { data } = useQuery({
+  const { data, isLoading } = useQuery({
     ...widgetSummaryQueryOptions(activeOrg?.id),
     enabled: enabled && !!activeOrg?.id,
   });
@@ -23,6 +23,7 @@ export function useCollectionChanges(enabled: boolean) {
       baseline: trend?.previousValue ?? null,
       change,
       label: change ? `${change.change}, ${change.percent}` : t("library.noChange"),
+      isLoading,
     };
   };
 }

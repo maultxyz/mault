@@ -130,7 +130,7 @@ export function CardSearchResultTile({
     </>
   );
   const tileClassName =
-    "flex min-w-0 flex-col rounded-xl bg-muted p-1.5 text-left";
+    "flex min-w-0 flex-col rounded-lg bg-muted p-1.5 text-left";
   if (!onClick) {
     return <div className={cn(tileClassName, className)}>{content}</div>;
   }

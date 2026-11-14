@@ -35,7 +35,7 @@ export function StatGroup({
   return (
     <section className="flex flex-col gap-2">
       <div className="flex items-center gap-1.5">
-        <h2 className="font-heading text-sm font-semibold text-foreground">
+        <h2 className="font-heading text-base font-semibold text-foreground md:text-sm">
           {heading}
         </h2>
         {live !== undefined && (
@@ -62,7 +62,7 @@ export function StatGroup({
               key={tile.key}
               type="button"
               onClick={tile.onClick}
-              className="flex cursor-pointer flex-col items-start rounded-card bg-card p-3 md:p-2 text-left transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className="flex cursor-pointer flex-col items-start rounded-card bg-card p-3 md:p-2 text-left transition-colors hover:bg-foreground/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
               <StatTileContent tile={tile} />
             </button>

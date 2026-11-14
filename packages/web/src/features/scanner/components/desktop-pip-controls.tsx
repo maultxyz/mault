@@ -23,8 +23,7 @@ export function DesktopPipControls() {
           <Button
             key={button.command}
             type="button"
-            size="icon"
-            className="max-md:size-6 max-md:[&_svg:not([class*='size-'])]:size-3"
+            size="icon-compact"
             variant={
               button.icon === "auto-feed-on" ? "outline-selected" : "outline"
             }

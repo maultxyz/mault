@@ -8,6 +8,7 @@ import { presetDescriptionFormSchema, type BinSet, type PresetDescriptionFormVal
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { TextField } from "@/components/ui/text-field";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
@@ -24,7 +25,7 @@ export default function PresetDescriptionScreen() {
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
   const setsQuery = binSetsQueryOptions(orgId);
-  const { data: sets } = useQuery(setsQuery);
+  const { data: sets, isLoading: isLoadingSets } = useQuery(setsQuery);
   const preset = sets?.find((set) => set.guid === guid);
   const form = useForm<PresetDescriptionFormValues>({
     resolver: zodResolver(presetDescriptionFormSchema),
@@ -68,21 +69,25 @@ export default function PresetDescriptionScreen() {
         }
       >
         {save.isError ? <Callout tone="destructive" title={t("rules.description.saveFailed")} /> : null}
-        <Controller
-          control={form.control}
-          name="description"
-          render={({ field, fieldState }) => (
-            <TextField
-              label={t("rules.description.label")}
-              placeholder={t("rules.description.placeholder")}
-              value={field.value}
-              onBlur={field.onBlur}
-              onChangeText={field.onChange}
-              multiline
-              error={translateFormErrorMessage(t, fieldState.error?.message)}
-            />
-          )}
-        />
+        {isLoadingSets ? (
+          <PageSkeleton sections={1} />
+        ) : (
+          <Controller
+            control={form.control}
+            name="description"
+            render={({ field, fieldState }) => (
+              <TextField
+                label={t("rules.description.label")}
+                placeholder={t("rules.description.placeholder")}
+                value={field.value}
+                onBlur={field.onBlur}
+                onChangeText={field.onChange}
+                multiline
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
+              />
+            )}
+          />
+        )}
       </PinnedActionsLayout>
     </View>
   );

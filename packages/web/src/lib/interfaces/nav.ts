@@ -10,6 +10,8 @@ export interface NavSubItemDef {
   onClick?: () => void;
 }
 
+export type NavSubItemProps = Omit<NavSubItemDef, "key">;
+
 export interface NavItemDef {
   to: string;
   activePaths?: string[];
@@ -22,6 +24,10 @@ export interface NavItemDef {
   lockTag?: string;
   external?: boolean;
   subItems?: NavSubItemDef[];
+}
+
+export interface NavItemWithSubItemsProps extends NavItemDef {
+  subItems: NavSubItemDef[];
 }
 
 export interface SectionNavItem {

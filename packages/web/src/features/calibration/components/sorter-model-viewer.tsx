@@ -143,7 +143,7 @@ export default function SorterModelViewer({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2">
-      <div className="relative flex min-h-64 flex-1 overflow-hidden rounded-xl bg-muted">
+      <div className="relative flex min-h-64 flex-1 overflow-hidden rounded-lg bg-foreground/6">
         <div className="relative min-w-0 flex-1">
           <div
             ref={containerRef}

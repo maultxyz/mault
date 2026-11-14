@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, FlatList, RefreshControl, View } from "react-native";
 import type { DeletedItem } from "@magic-vault/shared";
+import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
@@ -12,6 +13,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { SelectField } from "@/components/ui/select-field";
+import { ListGroupItem } from "@/components/ui/list-group-item";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import { deletedItemsQueryOptions, restoreDeletedItem } from "@/features/admin/api/deleted-items";
 import { AdminGate } from "@/features/admin/components/admin-gate";
@@ -97,7 +99,9 @@ function DeletedItemsScreen() {
         }
         ListHeaderComponent={
           <View style={{ gap: SPACING.md, padding: SCREEN_GUTTER }}>
-            <Callout title={t("admin.deleted.description")} />
+            <AppText size="sm" tone="secondary">
+              {t("admin.deleted.description")}
+            </AppText>
             {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
             <SearchInput
               value={search}
@@ -136,15 +140,19 @@ function DeletedItemsScreen() {
             <ListLoadingFooter accessibilityLabel={t("admin.deleted.loadingMore")} />
           ) : undefined
         }
-        renderItem={({ item }) => (
-          <DeletedItemRow
-            item={item}
-            isRestoring={
-              restore.isPending && restore.variables?.guid === item.guid && restore.variables.type === item.type
-            }
-            isRestoreDisabled={restore.isPending}
-            onRestore={(restoredItem) => restore.mutate(restoredItem)}
-          />
+        renderItem={({ item, index }) => (
+          <View style={{ paddingHorizontal: SCREEN_GUTTER }}>
+            <ListGroupItem index={index} count={items.length}>
+              <DeletedItemRow
+                item={item}
+                isRestoring={
+                  restore.isPending && restore.variables?.guid === item.guid && restore.variables.type === item.type
+                }
+                isRestoreDisabled={restore.isPending}
+                onRestore={(restoredItem) => restore.mutate(restoredItem)}
+              />
+            </ListGroupItem>
+          </View>
         )}
       />
       <OptionSheet

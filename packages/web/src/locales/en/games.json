@@ -72,7 +72,8 @@
       "keyTaken": "A game with this key already exists",
       "urlFormat": "Enter a valid URL",
       "minFields": "Add at least one field"
-    }
+    },
+    "loadFailed": "Couldn't load games."
   },
   "fieldMapping": {
     "heading": "Field mapping",

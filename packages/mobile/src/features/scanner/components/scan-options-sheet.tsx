@@ -21,6 +21,7 @@ export function ScanOptionsSheet({
   onHandScanChange,
   handScanBins,
   onHandScanBinsChange,
+  hasBinPreset,
   removeMode,
   onRemoveModeChange,
   presetName,
@@ -60,7 +61,7 @@ export function ScanOptionsSheet({
         ) : null}
       </ListGroup>
       <View style={{ gap: SPACING.sm }}>
-        {!sorter.isConnected ? (
+        {!sorter.isReady ? (
           <SwitchRow
             title={t("scan.options.handScan")}
             description={t("scan.options.handScanDescription")}
@@ -68,11 +69,14 @@ export function ScanOptionsSheet({
             onValueChange={onHandScanChange}
           />
         ) : null}
-        {!sorter.isConnected ? (
+        {!sorter.isReady ? (
           <SwitchRow
             title={t("scan.options.handScanBins")}
-            description={t("scan.options.handScanBinsDescription")}
-            value={handScanBins}
+            description={
+              hasBinPreset ? t("scan.options.handScanBinsDescription") : t("scan.options.handScanBinsNoPreset")
+            }
+            value={handScanBins && hasBinPreset}
+            disabled={!hasBinPreset}
             onValueChange={onHandScanBinsChange}
           />
         ) : null}

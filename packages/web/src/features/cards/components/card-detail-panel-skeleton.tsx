@@ -14,7 +14,7 @@ export function CardDetailPanelSkeleton() {
           <Skeleton className="size-7 rounded-md" />
         </div>
       </div>
-      <div className="@container flex-1 min-h-0 overflow-hidden p-6 flex flex-col gap-6 md:gap-2">
+      <div className="@container flex-1 min-h-0 overflow-hidden p-4 md:px-3 md:py-2 flex flex-col gap-5 md:gap-2">
         <div className="flex flex-col gap-1.5">
           <Skeleton className="h-5 w-48 rounded-sm" />
           <Skeleton className="h-4 w-32 rounded-sm" />

@@ -49,6 +49,7 @@
     "empty": "Keine aktiven Sitzungen",
     "lastActive": "Zuletzt aktiv am {{date}}",
     "unknownDevice": "Unbekanntes Gerät",
+    "browserOnOs": "{{browser}} auf {{os}}",
     "noIp": "Unbekannter Standort"
   },
   "discord": {

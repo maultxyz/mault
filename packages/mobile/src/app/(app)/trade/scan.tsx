@@ -4,7 +4,7 @@ import { router, useIsFocused } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Camera, type CameraRef, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
 import {
@@ -23,7 +23,9 @@ import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
+import { CameraPermissionEmptyState } from "@/features/scanner/components/camera-permission-empty-state";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
+import { CameraEmptyStateFrame } from "@/features/scanner/components/camera-empty-state-frame";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
 import { ShutterButton } from "@/features/scanner/components/shutter-button";
@@ -120,7 +122,6 @@ export default function TradeScanScreen() {
       }
       addOfferedCard(offered);
       showNotice({ kind: "added", cardName: outcome.card.name });
-      AccessibilityInfo.announceForAccessibility(t("trade.added", { name: outcome.card.name }));
     } catch {
       showNotice({ kind: "failed" });
     } finally {
@@ -139,14 +140,12 @@ export default function TradeScanScreen() {
     <View style={{ flex: 1, backgroundColor: colors.camera }}>
       {focused ? <StatusBar style="light" /> : null}
       {!permission.hasPermission ? (
-        <View style={[StyleSheet.absoluteFill, { justifyContent: "center", padding: SCREEN_GUTTER }]}>
-          <EmptyState
-            icon="camera"
-            title={t("scan.cameraPermissionTitle")}
-            description={t("scan.cameraPermissionDescription")}
-            action={<Button label={t("scan.allowCamera")} onPress={() => void permission.requestPermission()} />}
+        <CameraEmptyStateFrame>
+          <CameraPermissionEmptyState
+            canRequestPermission={permission.canRequestPermission}
+            onRequestPermission={() => void permission.requestPermission()}
           />
-        </View>
+        </CameraEmptyStateFrame>
       ) : device ? (
         <>
           {cameraMounted ? (
@@ -168,9 +167,9 @@ export default function TradeScanScreen() {
           />
         </>
       ) : (
-        <View style={[StyleSheet.absoluteFill, { justifyContent: "center" }]}>
+        <CameraEmptyStateFrame>
           <EmptyState icon="camera" title={t("scan.noCamera")} />
-        </View>
+        </CameraEmptyStateFrame>
       )}
 
       <View

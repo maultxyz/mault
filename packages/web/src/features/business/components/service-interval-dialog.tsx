@@ -78,7 +78,11 @@ export function ServiceIntervalDialog({
             render={({ field }) => (
               <label className="flex items-center justify-between gap-3">
                 <span className="text-sm">{t("fleet.intervalEnabled")}</span>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch
+                  aria-label={t("fleet.intervalEnabled")}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </label>
             )}
           />

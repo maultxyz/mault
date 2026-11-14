@@ -209,7 +209,7 @@ export function BuylistSettings({ control, disabled }: BuylistSettingsProps) {
             const cash = buylistOfferFor(price, buylist);
             const declined = isBelowBuylistMinimum(price, buylist);
             return (
-              <div key={price} className="rounded-xl bg-muted p-2">
+              <div key={price} className="rounded-lg bg-foreground/6 p-2">
                 <p className="text-xs text-foreground/70">
                   {t("settings.buylist.previewMarket", {
                     price: format(price),

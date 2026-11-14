@@ -25,7 +25,7 @@ export function useWebhooks() {
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
   const listOptions = webhooksQueryOptions(activeOrg?.id);
-  const { data, isLoading, isError } = useQuery(listOptions);
+  const { data, isLoading, isError, refetch } = useQuery(listOptions);
   const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
 
   const invalidate = () =>
@@ -102,6 +102,7 @@ export function useWebhooks() {
     isLocked: billing?.apiAccess === false,
     isLoading,
     isError,
+    refetch,
     create,
     update,
     enable,

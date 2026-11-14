@@ -126,7 +126,7 @@ export function KitServoBench({ session, disabled }: KitPanelProps) {
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-1.5 rounded-xl bg-muted p-2">
+      <div className="flex flex-wrap items-center gap-1.5 rounded-lg bg-foreground/6 p-2">
         <span className="mr-auto text-sm">
           {t("kitTest.servos.verdictPrompt", { channel })}
         </span>

@@ -258,7 +258,7 @@ export function UnmatchedCardDetail({
         <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background/80 p-2 backdrop-blur-2xl">
           <div className="flex w-full flex-wrap items-center gap-1.5">
             <Button disabled={!hasNext || isBusy} onClick={goNext}>
-              <IconPlayerSkipForward className="size-4" />
+              <IconPlayerSkipForward />
               {t("unmatchedCardsPanel.skip")}
               <HotkeyHint id="reviewAccept" />
             </Button>
@@ -268,7 +268,7 @@ export function UnmatchedCardDetail({
                 disabled={isBusy}
                 onClick={() => void handleRemove()}
               >
-                <IconTrash className="size-4" />
+                <IconTrash />
                 {t("unmatchedCardsPanel.remove")}
                 <HotkeyHint id="cardRemove" />
               </Button>

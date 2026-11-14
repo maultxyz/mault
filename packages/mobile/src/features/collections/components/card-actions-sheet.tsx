@@ -218,6 +218,7 @@ export function CardActionsSheet({ entry, collectionGuid, foilOptions, onClose }
         searchPlaceholder={t("storage.searchCollections")}
         onSelect={(targetCollectionGuid) => {
           setPicker(null);
+          onClose();
           moveToCollection.mutate({ scanIds, targetCollectionGuid });
         }}
         onClose={() => setPicker(null)}

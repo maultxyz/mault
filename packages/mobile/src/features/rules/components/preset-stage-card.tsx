@@ -31,7 +31,7 @@ export function PresetStageCard() {
             />
           }
         />
-        <AppText size="sm" tone="secondary">
+        <AppText size="xs" tone="secondary">
           {label}
         </AppText>
       </View>
