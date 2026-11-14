@@ -172,8 +172,8 @@ export function IntakeLotDetail({
     value == null ? null : format(value);
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex flex-wrap items-center gap-2 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
+    <div className="flex flex-col gap-4 md:gap-2">
+      <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex flex-wrap items-center gap-1.5 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
         <div className="mr-auto min-w-0">
           <div className="flex items-center gap-2">
             <DetailHeading className="truncate font-heading text-lg font-semibold">
@@ -373,7 +373,7 @@ export function IntakeLotDetail({
             </Callout>
           )}
           {canRemove && liveSelected.length > 0 && (
-            <div className="flex items-center justify-between gap-2 rounded-lg border bg-muted/40 px-3 py-1.5 text-sm animate-in fade-in-0 motion-reduce:animate-none">
+            <div className="flex items-center justify-between gap-2 rounded-xl bg-card px-3 py-1.5 text-sm animate-in fade-in-0 motion-reduce:animate-none">
               <span className="font-medium">
                 {t("intake.remove.selected", { count: liveSelected.length })}
               </span>
@@ -398,7 +398,7 @@ export function IntakeLotDetail({
             alignsEnd
             pagination={toServerPagination(cardsPageData, setCardsPage)}
           />
-          <div className="overflow-hidden rounded-lg border">
+          <div className="overflow-hidden rounded-card bg-card">
             <Table>
               <TableHeader>
                 <TableRow>

@@ -38,7 +38,7 @@ export function ShareLinkList({
       className={cn(
         isMobile
           ? MOBILE_LIST_CLASS
-          : "flex flex-col divide-y divide-border rounded-lg border",
+          : "flex flex-col divide-y divide-border rounded-xl bg-muted",
         SHARE_LINK_LIST_MAX_HEIGHT_CLASS,
       )}
     >

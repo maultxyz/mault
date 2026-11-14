@@ -5,14 +5,16 @@ import { IconBadge } from "@/components/ui/icon-badge";
 import { SwipeRowActions } from "@/components/ui/swipe-row-actions";
 import { longPressProps } from "@/lib/long-press";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
-import { LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
+import { SPACING } from "@/lib/constants/theme";
+import { LIST_ROW_ICON_SIZE, LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
 import type { HomeCollectionRowProps } from "@/lib/interfaces/ui";
 
 export function HomeCollectionRow({
   name,
   subtitle,
   value,
+  trailing,
+  trailingAccessibilityLabel,
   isScanTarget,
   isLive = false,
   onPress,
@@ -31,7 +33,7 @@ export function HomeCollectionRow({
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={name}
+        accessibilityLabel={[name, subtitle, trailing ? trailingAccessibilityLabel : value].filter(Boolean).join(", ")}
         onPress={onPress}
         onPressIn={onPressIn}
         {...longPressHandlers}
@@ -39,30 +41,30 @@ export function HomeCollectionRow({
           flexDirection: "row",
           alignItems: "center",
           gap: SPACING.md,
-          minHeight: LIST_ROW_MIN_HEIGHT + 8,
-          paddingHorizontal: SPACING.sm,
+          minHeight: LIST_ROW_MIN_HEIGHT,
+          paddingHorizontal: SPACING.lg,
           paddingVertical: SPACING.sm,
-          borderRadius: RADIUS.md,
-          backgroundColor: pressed ? colors.muted : "transparent",
+          backgroundColor: pressed ? colors.tonal : "transparent",
         })}
       >
         <IconBadge
           name={isLive ? "live" : isScanTarget ? "scan" : "collections"}
           tone={isLive ? "warning" : isScanTarget ? "primary" : "neutral"}
+          size={LIST_ROW_ICON_SIZE}
         />
         <View style={{ flex: 1, minWidth: 0 }}>
-          <AppText size="base" weight="semibold" numberOfLines={1}>
+          <AppText weight="medium" numberOfLines={1}>
             {name}
           </AppText>
           <AppText size="xs" tone="secondary" numberOfLines={1}>
             {subtitle}
           </AppText>
         </View>
-        {value ? (
-          <AppText size="base" weight="semibold" numberOfLines={1} style={{ fontVariant: ["tabular-nums"] }}>
+        {trailing ?? (value ? (
+          <AppText weight="semibold" numberOfLines={1}>
             {value}
           </AppText>
-        ) : null}
+        ) : null)}
       </Pressable>
     </SwipeRowActions>
   );

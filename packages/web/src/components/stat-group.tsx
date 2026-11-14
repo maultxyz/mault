@@ -1,6 +1,29 @@
-import type { StatGroupProps } from "@/lib/interfaces/stat-group";
+import type { StatGroupProps, StatTileContentProps } from "@/lib/interfaces/stat-group";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+
+function StatTileContent({ tile }: StatTileContentProps) {
+  const TileIcon = tile.icon;
+  return (
+    <>
+      {TileIcon && (
+        <span
+          aria-hidden
+          className="mb-2 flex size-8 items-center md:mb-1.5 md:size-7 justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-sidebar-primary"
+        >
+          <TileIcon className="size-4" />
+        </span>
+      )}
+      <p className="text-xs text-foreground/70">{tile.label}</p>
+      <p className="text-lg font-semibold tabular-nums text-foreground md:text-base">
+        {tile.value ?? "-"}
+      </p>
+      {tile.detail !== undefined && (
+        <p className="text-2xs text-foreground/70">{tile.detail ?? "-"}</p>
+      )}
+    </>
+  );
+}
 
 export function StatGroup({
   heading,
@@ -10,11 +33,11 @@ export function StatGroup({
 }: StatGroupProps) {
   const { t } = useTranslation("common");
   return (
-    <div className="overflow-hidden rounded-lg border border-input bg-input/20 dark:bg-input/30">
-      <div className="flex items-center gap-1.5 border-b border-input px-2 py-1.5">
-        <p className="text-xs font-medium uppercase tracking-wide text-foreground/70">
+    <section className="flex flex-col gap-2">
+      <div className="flex items-center gap-1.5">
+        <h2 className="font-heading text-sm font-semibold text-foreground">
           {heading}
-        </p>
+        </h2>
         {live !== undefined && (
           <>
             <span
@@ -32,39 +55,24 @@ export function StatGroup({
           </>
         )}
       </div>
-      <div className={cn("-mr-px -mb-px grid", gridClassName)}>
-        {tiles.map((tile) => {
-          const content = (
-            <>
-              <p className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
-                {tile.label}
-              </p>
-              <p className="text-sm font-semibold tabular-nums">
-                {tile.value ?? "-"}
-              </p>
-              {tile.detail !== undefined && (
-                <p className="text-2xs text-foreground/70">
-                  {tile.detail ?? "-"}
-                </p>
-              )}
-            </>
-          );
-          return tile.onClick ? (
+      <div className={cn("grid gap-2", gridClassName)}>
+        {tiles.map((tile) =>
+          tile.onClick ? (
             <button
               key={tile.key}
               type="button"
               onClick={tile.onClick}
-              className="cursor-pointer border-r border-b border-input p-2 text-left transition-colors hover:bg-input/40 focus-visible:bg-input/40 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
+              className="flex cursor-pointer flex-col items-start rounded-card bg-card p-3 md:p-2 text-left transition-colors hover:bg-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
             >
-              {content}
+              <StatTileContent tile={tile} />
             </button>
           ) : (
-            <div key={tile.key} className="border-r border-b border-input p-2">
-              {content}
+            <div key={tile.key} className="flex flex-col items-start rounded-card bg-card p-3 md:p-2">
+              <StatTileContent tile={tile} />
             </div>
-          );
-        })}
+          ),
+        )}
       </div>
-    </div>
+    </section>
   );
 }

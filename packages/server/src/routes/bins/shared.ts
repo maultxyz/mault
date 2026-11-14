@@ -44,6 +44,11 @@ export function toMaxCopies(
   return Number.isInteger(value) && value >= 1 ? value : null;
 }
 
+export function toMaxCards(value: number | null | undefined): number | null {
+  if (value == null) return null;
+  return Number.isInteger(value) && value >= 1 ? value : null;
+}
+
 export function toRepackPriority(
   value: number | null | undefined,
   isCatchAll: boolean | undefined,
@@ -164,6 +169,7 @@ function toBinSet(row: {
   skipSaving: boolean;
   isResortMode: boolean;
   matchGameKeys: string[];
+  description: string;
   createdAt: Date;
   updatedAt: Date;
   bins: {
@@ -176,6 +182,7 @@ function toBinSet(row: {
     lowMatchPercent: number | null;
     maxCopies: number | null;
     maxCopiesBy: string | null;
+    maxCards: number | null;
     overflowBin: number | null;
     isDisabled: boolean;
     pickList: unknown;
@@ -214,6 +221,7 @@ function toBinSet(row: {
     skipSaving: row.skipSaving,
     isResortMode: row.isResortMode,
     matchGameKeys: row.matchGameKeys,
+    description: row.description,
     bins: row.bins.map((bin) => ({
       guid: bin.guid!,
       binNumber: bin.binNumber,
@@ -224,6 +232,7 @@ function toBinSet(row: {
       lowMatchPercent: bin.lowMatchPercent,
       maxCopies: bin.maxCopies,
       maxCopiesBy: bin.maxCopiesBy,
+      maxCards: bin.maxCards,
       overflowBin: bin.overflowBin,
       isDisabled: bin.isDisabled,
       pickList: bin.isCatchAll ? null : toPickList(bin.pickList),
@@ -270,6 +279,7 @@ const binSetQuery = {
     skipSaving: true,
     isResortMode: true,
     matchGameKeys: true,
+    description: true,
     createdAt: true,
     updatedAt: true,
   },
@@ -286,6 +296,7 @@ const binSetQuery = {
         lowMatchPercent: true,
         maxCopies: true,
         maxCopiesBy: true,
+        maxCards: true,
         overflowBin: true,
         isDisabled: true,
         pickList: true,
@@ -330,6 +341,7 @@ export async function snapshotBinSet(
       lowMatchPercent: true,
       maxCopies: true,
       maxCopiesBy: true,
+      maxCards: true,
       overflowBin: true,
       isDisabled: true,
       pickList: true,
@@ -346,6 +358,7 @@ export async function snapshotBinSet(
     lowMatchPercent: r.lowMatchPercent,
     maxCopies: r.maxCopies,
     maxCopiesBy: r.maxCopiesBy,
+    maxCards: r.maxCards,
     overflowBin: r.overflowBin,
     isDisabled: r.isDisabled,
     pickList: r.isCatchAll ? null : toPickList(r.pickList),

@@ -1,0 +1,67 @@
+{
+  "title": "Home",
+  "subtitle": "Here's how your collection is doing",
+  "greeting": {
+    "morning": "Good morning",
+    "afternoon": "Good afternoon",
+    "evening": "Good evening"
+  },
+  "greetingWithName": "{{greeting}}, {{name}}",
+  "hero": {
+    "value": "Collection value",
+    "cards": "Cards",
+    "collections": "Collections",
+    "scanned": "Scanned all time",
+    "sinceYesterday": "since yesterday",
+    "sinceDate": "since {{date}}"
+  },
+  "actions": {
+    "scan": "Scan cards",
+    "newCollection": "New collection",
+    "stats": "Stats"
+  },
+  "welcome": {
+    "title": "Welcome to Mault",
+    "description": "Create a collection, then start scanning to see its value, your top cards and more right here."
+  },
+  "review": {
+    "title_one": "{{count}} scan needs review",
+    "title_other": "{{count}} scans need review",
+    "description": "Check the matches so your collection stays accurate.",
+    "open": "Opens the review screen"
+  },
+  "live": {
+    "yourSession": "Your session",
+    "scanning": "Scanning",
+    "scanningBy": "{{name}} is scanning",
+    "title": "{{name}} · {{collection}}",
+    "open": "Opens the collection"
+  },
+  "cardOfTheDay": "Cards of the day",
+  "activity": {
+    "title": "Scan activity",
+    "today": "Today",
+    "thisWeek": "This week",
+    "scans_one": "{{count}} scan",
+    "scans_other": "{{count}} scans",
+    "chartLabel": "Scans per day for the last 14 days"
+  },
+  "topCards": "Top cards",
+  "recentScans": "Recently scanned",
+  "seeAllStats": "All stats",
+  "loadFailed": "Couldn't load your overview. Try again in a moment.",
+  "library": {
+    "title": "Library",
+    "collections": "Collections",
+    "storage": "Storage",
+    "searchPlaceholder": "Search collections",
+    "noSearchResultsTitle": "No collections found",
+    "noSearchResultsDescription": "Try a different name.",
+    "valueModeLabel": "Collection values",
+    "valueModes": {
+      "value": "Value",
+      "change": "Change"
+    },
+    "noChange": "No history yet"
+  }
+}

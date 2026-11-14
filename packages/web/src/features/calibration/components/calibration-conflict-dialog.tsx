@@ -38,7 +38,7 @@ export function CalibrationConflictDialog({
             })}
           </DialogDescription>
         </DialogHeader>
-        <div className="max-h-80 overflow-y-auto rounded-lg border">
+        <div className="max-h-80 overflow-y-auto">
           <Table>
             <TableHeader>
               <TableRow>
@@ -57,7 +57,7 @@ export function CalibrationConflictDialog({
                   <TableRow className="bg-muted hover:bg-muted">
                     <TableCell
                       colSpan={3}
-                      className="text-xs font-medium uppercase tracking-wide text-foreground/70"
+                      className="text-xs font-medium text-foreground/70"
                     >
                       {moduleNumber === null
                         ? t("storedCalibration.dialog.feeder")

@@ -33,7 +33,7 @@ export default function ControlCardsPage() {
       )}
     >
       <style>{CONTROL_CARD_PRINT_PAGE_STYLE}</style>
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 md:gap-2 p-4 md:px-3 md:py-2">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div className="flex flex-col gap-1">
             <Button
@@ -45,7 +45,7 @@ export default function ControlCardsPage() {
               <IconArrowLeft />
               {t("controlCards.page.back")}
             </Button>
-            <h1 className="font-heading text-2xl font-semibold">
+            <h1 className="font-heading text-lg font-semibold">
               {t("controlCards.page.title")}
             </h1>
             <p className="text-sm text-foreground/70">

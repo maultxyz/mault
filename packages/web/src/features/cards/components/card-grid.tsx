@@ -144,8 +144,7 @@ export function CardGrid() {
   } = useViewedCollection();
   const viewedCardActions = useCollectionCardActions(viewedCollection?.guid);
   const {
-    removeCard,
-    removeCards,
+    removeCardsWithUndo,
     clearCards,
     correctCard,
     setCardsCondition,
@@ -603,18 +602,18 @@ export function CardGrid() {
 
   const handleDeleteExported = useCallback(() => {
     if (!exportedScanIds) return;
-    removeCards(exportedScanIds);
+    removeCardsWithUndo(exportedScanIds);
     setSelectedIds((prev) => {
       const next = new Set(prev);
       for (const id of exportedScanIds) next.delete(id);
       return next;
     });
-  }, [exportedScanIds, removeCards, setSelectedIds]);
+  }, [exportedScanIds, removeCardsWithUndo, setSelectedIds]);
 
   const handleBulkDelete = useCallback(() => {
-    removeCards(Array.from(selectedIds));
+    removeCardsWithUndo(Array.from(selectedIds));
     setSelectedIds(new Set());
-  }, [removeCards, selectedIds, setSelectedIds]);
+  }, [removeCardsWithUndo, selectedIds, setSelectedIds]);
 
   const handleClearSession = useCallback(async () => {
     clearCards();
@@ -773,7 +772,7 @@ export function CardGrid() {
           readOnly
             ? undefined
             : () => {
-                removeCard(openEntry.scanId);
+                removeCardsWithUndo([openEntry.scanId]);
                 if (isReviewing) {
                   reviewSession.forget(openEntry.scanId);
                   reviewQueueStore.markRemoved(openEntry.scanId);
@@ -879,7 +878,7 @@ export function CardGrid() {
   };
 
   const renderCardList = (entries: GroupedScannedCard[]) => (
-    <div className="rounded-lg border">
+    <div className="overflow-hidden rounded-card bg-card">
       <ScannedCardTable
         rows={entries.map(toCardTableRow)}
         showQuantity={groupDuplicates && !scanTimelineGrouping}

@@ -203,6 +203,8 @@ export interface ScanSessionValue extends ScanSessionState {
   setAllowDuplicates: (value: boolean) => void;
   handScan: boolean;
   setHandScan: (value: boolean) => void;
+  handScanBins: boolean;
+  setHandScanBins: (value: boolean) => void;
   handScanActive: boolean;
   trackLiveCorners: (corners: LiveCorners | null) => void;
   forcedFoilType: string | null;
@@ -322,6 +324,8 @@ export interface ScanOptionsSheetProps {
   onAllowDuplicatesChange: (value: boolean) => void;
   handScan: boolean;
   onHandScanChange: (value: boolean) => void;
+  handScanBins: boolean;
+  onHandScanBinsChange: (value: boolean) => void;
   removeMode: boolean;
   onRemoveModeChange: (value: boolean) => void;
   presetName: string | null;

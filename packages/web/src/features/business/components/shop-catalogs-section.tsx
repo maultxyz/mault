@@ -77,7 +77,7 @@ export function ShopCatalogsSection() {
         />
       )}
       {isError && <Callout variant="error">{t("shopCatalogs.loadFailed")}</Callout>}
-      {isLoading && <Skeleton className="h-14 w-full" />}
+      {isLoading && <Skeleton className="h-14 w-full rounded-xl" />}
       {!isLoading && canManage && !isError && catalogs.length === 0 && (
         <EmptyState
           size="compact"
@@ -86,7 +86,7 @@ export function ShopCatalogsSection() {
         />
       )}
       {!isLoading && catalogs.length > 0 && (
-        <div className="flex flex-col divide-y rounded-lg border">
+        <div className="flex flex-col divide-y divide-border">
           {catalogs.map((catalog) => {
             const sources = sourceSummary(catalog);
             return (

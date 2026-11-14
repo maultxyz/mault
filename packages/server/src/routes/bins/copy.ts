@@ -38,7 +38,7 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
 
       const active = await tx.query.binSets.findFirst({
         where: (t) => activeBinSetWhere(t, orgId, gameId),
-        columns: { id: true },
+        columns: { id: true, description: true },
         with: {
           bins: {
             where: (bin, { eq }) => eq(bin.isDeleted, false),
@@ -51,6 +51,7 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
               lowMatchPercent: true,
               maxCopies: true,
               maxCopiesBy: true,
+              maxCards: true,
               overflowBin: true,
               isDisabled: true,
               pickList: true,
@@ -62,7 +63,13 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
       const activeBins = active?.bins ?? [];
       const [newBinSet] = await tx
         .insert(binSets)
-        .values({ name, isActive: false, gameId, orgId })
+        .values({
+          name,
+          description: active?.description ?? "",
+          isActive: false,
+          gameId,
+          orgId,
+        })
         .returning({ id: binSets.id });
       if (activeBins.length > 0) {
         await tx.insert(bins).values(
@@ -75,6 +82,7 @@ export const copyBinSetRoute = new Hono<AppEnv>().post(
             lowMatchPercent: bin.lowMatchPercent,
             maxCopies: bin.maxCopies,
             maxCopiesBy: bin.maxCopiesBy,
+            maxCards: bin.maxCards,
             overflowBin: bin.overflowBin,
             isDisabled: bin.isDisabled,
             pickList: resetPickList(bin.pickList),

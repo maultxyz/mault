@@ -143,7 +143,7 @@ export default function SorterModelViewer({
 
   return (
     <div className="flex min-h-0 flex-1 flex-col gap-2">
-      <div className="relative flex min-h-64 flex-1 overflow-hidden rounded-lg border bg-muted/40">
+      <div className="relative flex min-h-64 flex-1 overflow-hidden rounded-xl bg-muted">
         <div className="relative min-w-0 flex-1">
           <div
             ref={containerRef}
@@ -179,7 +179,7 @@ export default function SorterModelViewer({
                 variant={xray ? "default" : "outline"}
                 aria-pressed={xray}
                 onClick={() => setXray((value) => !value)}
-                className={xray ? undefined : "bg-background/80"}
+                className={xray ? undefined : "bg-card/80"}
               >
                 <IconEye />
                 {t("sorterModel.xray")}
@@ -187,7 +187,7 @@ export default function SorterModelViewer({
               <Button
                 variant="outline"
                 onClick={() => sceneRef.current?.resetView()}
-                className="bg-background/80"
+                className="bg-card/80"
               >
                 <IconFocusCentered />
                 {t("sorterModel.resetView")}

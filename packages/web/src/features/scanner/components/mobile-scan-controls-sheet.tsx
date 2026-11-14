@@ -42,7 +42,7 @@ export function MobileScanControlsSheet({
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
-        <div className="flex flex-col gap-4 px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="flex flex-col gap-4 md:gap-2 px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <DrawerTitle className="font-heading text-base font-semibold text-foreground">
             {t("mobileScan.controls.title")}
           </DrawerTitle>

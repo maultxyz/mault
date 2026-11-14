@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import type { StyleProp, TextProps, ViewStyle } from "react-native";
 import type { CommLogEntry, PlayingCard, ScanRegion } from "@magic-vault/shared";
 import type { ICONS } from "@/lib/constants/icons";
-import type { LiveCorners, MonitorState } from "@/lib/interfaces/scanner";
+import type { LiveCorners } from "@/lib/interfaces/scanner";
 import type { SwipeRowAction } from "@/lib/interfaces/search";
 import type { FontSize, StatusTone } from "@/lib/interfaces/theme";
 
@@ -155,6 +155,8 @@ export interface PillButtonProps {
   label: string;
   tone?: PillProps["tone"];
   icon?: IconName;
+  accessibilityLabel?: string;
+  accessibilityRole?: "button" | "link";
   onPress: () => void;
 }
 
@@ -187,11 +189,11 @@ export interface StatTileProps {
   icon?: IconName;
 }
 
-
 export interface CardRowProps {
   name: string;
   subtitle: string;
   imageUrl: string | null;
+  placeholderUrl?: string | null;
   quantity?: number;
   price?: string | null;
   binNumber?: number;
@@ -205,11 +207,11 @@ export interface CommLogProps {
   entries: CommLogEntry[];
 }
 
-
 export interface CardTileProps {
   name: string;
   caption: string;
   imageUrl: string | null;
+  placeholderUrl?: string | null;
   isFoil?: boolean;
   quantity?: number;
   flagged?: boolean;
@@ -238,6 +240,8 @@ export interface HomeCollectionRowProps {
   name: string;
   subtitle: string;
   value?: string | null;
+  trailing?: ReactNode;
+  trailingAccessibilityLabel?: string;
   isScanTarget: boolean;
   isLive?: boolean;
   onPress: () => void;
@@ -256,7 +260,6 @@ export interface DetailRowProps {
   label: string;
   value: string;
 }
-
 
 export interface BinBadgeProps {
   binNumber: number;
@@ -393,14 +396,21 @@ export interface StepperRowProps {
   onChange: (value: number) => void;
 }
 
-export interface DisplayHeadlineProps {
-  title: string;
-  subtitle?: string;
-}
-
 export interface IconBadgeProps {
   name: IconName;
   tone?: "neutral" | "primary" | "destructive" | "success" | "warning";
+  size?: number;
+}
+
+export interface ListGroupItemProps {
+  index: number;
+  count: number;
+  children: ReactNode;
+}
+
+export interface InitialBadgeProps {
+  initials: string;
+  tone?: "neutral" | "primary" | "solid";
   size?: number;
 }
 
@@ -414,14 +424,7 @@ export interface IconButtonProps {
   selected?: boolean;
 }
 
-export interface TopBarSwitcherProps {
-  initial: string;
-  label: string;
-  accessibilityLabel: string;
-  onPress: () => void;
-}
-
-export type AppTopBarSheet = "alerts" | "organizations";
+export type AppTopBarSheet = "alerts";
 
 export interface AppTopBarProps {
   opensNotificationsFromWidgetLink?: boolean;
@@ -468,6 +471,11 @@ export interface SheetContentProps {
   maxHeightRatio?: number;
   contentContainerStyle?: StyleProp<ViewStyle>;
   children: ReactNode;
+}
+
+export interface SheetContentLayoutProps {
+  topPadding: number;
+  contentWidth?: number;
 }
 
 export interface SheetProps extends SheetContentProps {

@@ -33,7 +33,7 @@ export function StorageLocationContent(props: StorageLocationCardsProps) {
     );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       <ViewTabs<StorageLocationView>
         label={t("verify.tabs.label")}
         items={STORAGE_LOCATION_VIEWS.map((key) => ({

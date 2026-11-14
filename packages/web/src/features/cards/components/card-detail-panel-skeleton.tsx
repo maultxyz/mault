@@ -14,7 +14,7 @@ export function CardDetailPanelSkeleton() {
           <Skeleton className="size-7 rounded-md" />
         </div>
       </div>
-      <div className="@container flex-1 min-h-0 overflow-hidden p-6 flex flex-col gap-6">
+      <div className="@container flex-1 min-h-0 overflow-hidden p-6 flex flex-col gap-6 md:gap-2">
         <div className="flex flex-col gap-1.5">
           <Skeleton className="h-5 w-48 rounded-sm" />
           <Skeleton className="h-4 w-32 rounded-sm" />
@@ -24,7 +24,7 @@ export function CardDetailPanelSkeleton() {
             <Skeleton className="w-56 aspect-[2.5/3.5] rounded-lg" />
             <Skeleton className="w-56 aspect-[2.5/3.5] rounded-lg" />
           </div>
-          <div className="flex flex-col gap-6 min-w-0">
+          <div className="flex flex-col gap-6 md:gap-2 min-w-0">
             {[0, 1, 2].map((section) => (
               <div key={section} className="flex flex-col gap-2">
                 <Skeleton className="h-3 w-20 rounded-sm" />

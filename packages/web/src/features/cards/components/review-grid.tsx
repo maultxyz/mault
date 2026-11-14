@@ -154,7 +154,7 @@ export function ReviewGrid({
             {Array.from({ length: 8 }).map((_, index) => (
               <div
                 key={index}
-                className="flex flex-col gap-2 rounded-lg border p-2"
+                className="flex flex-col gap-2 rounded-card bg-card p-2"
               >
                 <div className="grid grid-cols-2 gap-2">
                   <Skeleton className="aspect-[2.5/3.5] rounded-md" />

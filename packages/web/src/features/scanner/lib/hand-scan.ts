@@ -1,9 +1,14 @@
 import { HAND_SCAN_FINGERPRINT_SIZE } from "@/lib/constants/scanner";
-import { HAND_SCAN_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import {
+  HAND_SCAN_BINS_STORAGE_KEY,
+  HAND_SCAN_STORAGE_KEY,
+} from "@/lib/constants/storage-keys";
 import { contourToPoints, type CardContour } from "@magic-vault/shared";
 import { createStoredFlag } from "@/lib/stored-flag";
 
 export const useHandScan = createStoredFlag(HAND_SCAN_STORAGE_KEY);
+
+export const useHandScanBins = createStoredFlag(HAND_SCAN_BINS_STORAGE_KEY);
 
 let fingerprintCanvas: HTMLCanvasElement | null = null;
 

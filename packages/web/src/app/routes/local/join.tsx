@@ -1,3 +1,4 @@
+import { HOME_PATH } from "@/lib/constants/nav";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import {
   Card,
@@ -38,7 +39,7 @@ export default function AuthJoinPage() {
           setAccepting(false);
           return;
         }
-        navigate("/app", { replace: true });
+        navigate(HOME_PATH, { replace: true });
       })
       .catch(() => {
         setError(t("local.joinUnreachable"));

@@ -222,7 +222,7 @@ export function OrgSettings() {
 
   return (
     <>
-      <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-6 md:gap-2">
         {!activeOrg && (
           <p className="text-xs text-foreground/70">
             {t("orgSettings.noOrgSelected")}
@@ -267,7 +267,7 @@ export function OrgSettings() {
               <h3 className="text-sm font-semibold font-heading">
                 {t("orgSettings.membersHeading")}
               </h3>
-              <div className="flex flex-col divide-y divide-border rounded-lg border">
+              <div className="flex flex-col divide-y divide-border">
                 {activeOrg.members.map((m) => (
                   <div
                     key={m.id}
@@ -342,7 +342,7 @@ export function OrgSettings() {
             </div>
 
             {canManage && (
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 md:gap-2">
                 <h3 className="text-sm font-semibold font-heading">
                   {t("orgSettings.inviteMemberHeading")}
                 </h3>
@@ -409,7 +409,7 @@ export function OrgSettings() {
                     <p className="text-xs text-foreground/70">
                       {t("orgSettings.pendingInvites")}
                     </p>
-                    <div className="flex flex-col divide-y divide-border rounded-lg border">
+                    <div className="flex flex-col divide-y divide-border">
                       {pendingInvites.map((inv) => (
                         <div
                           key={inv.id}
@@ -438,7 +438,7 @@ export function OrgSettings() {
             )}
 
             {isOwner && (
-              <div className="flex flex-col gap-3 bg-destructive rounded-lg p-4 text-destructive-foreground">
+              <div className="flex flex-col gap-3 md:gap-2 bg-destructive rounded-lg p-4 text-destructive-foreground">
                 <h3 className="text-sm font-semibold font-heading">
                   {t("orgSettings.dangerZoneHeading")}
                 </h3>

@@ -1,3 +1,4 @@
+import { HOME_PATH } from "@/lib/constants/nav";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
@@ -57,7 +58,7 @@ export default function AuthLocalPage() {
       setServerError(result.error);
       return;
     }
-    navigate("/app", { replace: true });
+    navigate(HOME_PATH, { replace: true });
   }
 
   async function onSignUp(values: z.infer<typeof signUpSchema>) {
@@ -71,7 +72,7 @@ export default function AuthLocalPage() {
       setServerError(result.error);
       return;
     }
-    navigate("/app", { replace: true });
+    navigate(HOME_PATH, { replace: true });
   }
 
   return (
@@ -99,7 +100,7 @@ export default function AuthLocalPage() {
             <form
               id="local-auth-form"
               onSubmit={signUpForm.handleSubmit(onSignUp)}
-              className="flex flex-col gap-3"
+              className="flex flex-col gap-3 md:gap-2"
             >
               <Field data-invalid={!!signUpForm.formState.errors.name}>
                 <FieldLabel htmlFor="name">{t("local.nameLabel")}</FieldLabel>
@@ -142,7 +143,7 @@ export default function AuthLocalPage() {
             <form
               id="local-auth-form"
               onSubmit={signInForm.handleSubmit(onSignIn)}
-              className="flex flex-col gap-3"
+              className="flex flex-col gap-3 md:gap-2"
             >
               <Field data-invalid={!!signInForm.formState.errors.email}>
                 <FieldLabel htmlFor="email">{t("local.emailLabel")}</FieldLabel>
@@ -183,7 +184,7 @@ export default function AuthLocalPage() {
             </form>
           )}
         </CardContent>
-        <CardFooter className="flex flex-col gap-3">
+        <CardFooter className="flex flex-col gap-3 md:gap-2">
           <Button
             type="submit"
             form="local-auth-form"

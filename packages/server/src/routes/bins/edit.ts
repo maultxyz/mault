@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { SET_DESCRIPTION_MAX_LENGTH } from "@magic-vault/shared";
 import { authQuery } from "../../db";
 import { binSets } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -12,7 +13,12 @@ export const editBinSetRoute = new Hono<AppEnv>().put(
   async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
-    const { name } = await c.req.json<{ name: string }>();
+    const body = await c.req.json<{ name: string; description?: unknown }>();
+    const name = body.name;
+    const description =
+      typeof body.description === "string"
+        ? body.description.trim().slice(0, SET_DESCRIPTION_MAX_LENGTH)
+        : undefined;
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const target = await tx.query.binSets.findFirst({
         where: (binSets, { eq, and }) =>
@@ -33,7 +39,11 @@ export const editBinSetRoute = new Hono<AppEnv>().put(
       }
       await tx
         .update(binSets)
-        .set({ name, updatedAt: new Date() })
+        .set({
+          name,
+          ...(description !== undefined ? { description } : {}),
+          updatedAt: new Date(),
+        })
         .where(eq(binSets.id, target.id));
       return loadSets(tx, orgId);
     });

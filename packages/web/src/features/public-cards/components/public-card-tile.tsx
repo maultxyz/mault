@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { PublicCardBadges } from "@/features/public-cards/components/public-card-badges";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { raritySwatch } from "@/lib/card-swatches";
@@ -28,9 +29,9 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
           .filter(Boolean)
           .join(", "),
       })}
-      className="flex cursor-pointer flex-col rounded-lg border bg-muted p-1 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
+      className="flex cursor-pointer flex-col rounded-card bg-card p-1.5 text-left outline-none focus-visible:ring-2 focus-visible:ring-ring"
     >
-      <span className="relative block aspect-[2.5/3.5] overflow-hidden rounded-md">
+      <span className="relative block aspect-[2.5/3.5] overflow-hidden rounded-lg">
         {entry.isFoil && (
           <span
             className={cn(
@@ -43,11 +44,10 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
           </span>
         )}
         <PublicCardBadges entry={entry} className="absolute right-1 bottom-1 left-1 z-20" />
-        <img
-          loading="lazy"
-          src={entry.card.image?.normal || ""}
+        <CardImage
+          src={entry.card.image?.normal || entry.card.image?.small}
+          placeholderSrc={entry.card.image?.small}
           alt=""
-          className="h-full w-full object-cover"
         />
       </span>
       <span className="flex min-w-0 flex-col gap-0.5 px-1 pt-1 pb-1">

@@ -114,7 +114,7 @@ export function SorterCalibrationPanel({
       onKeyDown={(event) => {
         if (event.key === "Escape") onClose();
       }}
-      className="absolute inset-0 z-10 flex flex-col bg-background animate-in fade-in slide-in-from-right-4 duration-200 motion-reduce:animate-none md:static md:w-80 md:shrink-0 md:border-l"
+      className="absolute inset-0 z-10 flex flex-col bg-card animate-in fade-in slide-in-from-right-4 duration-200 motion-reduce:animate-none md:static md:w-80 md:shrink-0 md:border-l"
     >
       <div className="flex items-start justify-between gap-2 border-b p-4 pb-3">
         <div className="flex min-w-0 flex-col gap-1">
@@ -142,7 +142,7 @@ export function SorterCalibrationPanel({
           <IconX size={14} />
         </button>
       </div>
-      <div className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto p-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-5 md:gap-2 overflow-y-auto p-4">
         {hotspot.kind === "feeder" ? (
           <FeederCalibrationPanel
             speedValue={state.feederSpeedValue}

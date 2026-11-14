@@ -57,7 +57,7 @@ export function ScannerPip() {
         type="button"
         onClick={() => setMinimized(false)}
         title={t("scannerPip.expand")}
-        className="fixed bottom-8 right-0 z-50 flex items-center gap-2 rounded-l-lg border border-r-0 bg-background py-2 pr-2.5 pl-1.5 text-sm font-medium text-foreground shadow-xl transition-[padding] hover:pl-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        className="fixed bottom-8 right-0 z-50 flex items-center gap-2 rounded-l-xl bg-popover py-2 pr-2.5 pl-1.5 text-sm font-medium text-popover-foreground shadow-popover ring-1 ring-border transition-[padding] hover:pl-2.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
       >
         <IconChevronLeft size={16} className="text-foreground/70" />
         <StationStatusDot
@@ -78,7 +78,7 @@ export function ScannerPip() {
   return (
     <ScannerPipPreview
       variant="overlay"
-      className="fixed bottom-8 right-4 z-50 w-48 rounded-lg border shadow-xl"
+      className="fixed bottom-8 right-4 z-50 w-48 rounded-xl shadow-popover ring-1 ring-border"
       onOpen={() => navigate(SCANNER_PATH)}
       action={{
         label: t("scannerPip.minimize"),

@@ -3,7 +3,7 @@ import { SessionLock } from "@/features/scanner/components/session-lock";
 
 export default function AdminHardwarePage() {
   return (
-    <SessionLock bannerClassName="mb-4 rounded-lg border">
+    <SessionLock bannerClassName="mb-4 rounded-card">
       <KitTestBench />
     </SessionLock>
   );

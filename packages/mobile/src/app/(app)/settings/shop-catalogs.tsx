@@ -13,6 +13,7 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { SectionHeader } from "@/components/ui/section-header";
+import { Surface } from "@/components/ui/surface";
 import {
   deleteShopCatalog,
   removeShopPhoto,
@@ -155,7 +156,7 @@ export default function ShopCatalogsSettingsScreen() {
       {canManage ? (
         <View style={{ gap: SPACING.sm }}>
           <SectionHeader title={t("settings.shopCatalogs.photo.heading")} />
-          <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
+          <Surface style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
             <View
               style={{
                 width: SHOP_PHOTO_PREVIEW_WIDTH,
@@ -177,7 +178,7 @@ export default function ShopCatalogsSettingsScreen() {
             <AppText size="xs" tone="secondary" style={{ flex: 1 }}>
               {t("settings.shopCatalogs.photo.description")}
             </AppText>
-          </View>
+          </Surface>
           {!locked ? (
             <ListGroup>
               <ListRow

@@ -3,7 +3,7 @@ import { AccessibilityInfo, Animated, Pressable, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { SCREEN_GUTTER, SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import {
   TOAST_BOTTOM_OFFSET,
   TOAST_DEFAULT_DURATION_MS,
@@ -122,10 +122,14 @@ export function ToastProvider({ children }: ToastProviderProps) {
                 gap: SPACING.md,
                 paddingHorizontal: SPACING.lg,
                 paddingVertical: SPACING.md,
-                borderRadius: RADIUS.lg,
-                borderWidth: 1,
-                borderColor: colors.border,
+                borderRadius: SURFACE_RADIUS,
+                borderCurve: "continuous",
                 backgroundColor: colors.card,
+                shadowColor: colors.popoverShadow,
+                shadowOffset: { width: 0, height: 6 },
+                shadowOpacity: 1,
+                shadowRadius: 16,
+                elevation: 6,
               }}
             >
               <AppText size="sm" weight="medium" style={{ flex: 1, color: toneColor }}>

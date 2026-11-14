@@ -50,7 +50,7 @@ export function SorterCalibrationSection({
       className={enabled ? "min-h-0 flex-1" : undefined}
     >
       {enabled && (
-        <Suspense fallback={<Skeleton className="min-h-0 flex-1 rounded-lg" />}>
+        <Suspense fallback={<Skeleton className="min-h-0 flex-1 rounded-xl" />}>
           <SorterModelViewer
             modules={state.modules}
             configs={state.configs}

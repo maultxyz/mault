@@ -15,7 +15,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Surface } from "@/components/ui/surface";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
@@ -185,154 +185,166 @@ export default function ProfileScreen() {
           </ListGroup>
         ) : (
           <>
-            <SectionHeader title={t("account.profile.profile.heading")} />
-            <Controller
-              control={nameForm.control}
-              name="name"
-              render={({ field, fieldState }) => (
-                <TextField
-                  label={t("account.profile.profile.nameLabel")}
-                  value={field.value}
-                  onBlur={field.onBlur}
-                  onChangeText={field.onChange}
-                  autoComplete="name"
-                  textContentType="name"
-                  autoCapitalize="words"
-                  error={translateFormErrorMessage(t, fieldState.error?.message)}
-                />
-              )}
-            />
-
-            <SectionHeader title={t("account.profile.email.heading")} />
-            <Surface style={{ gap: SPACING.md }}>
-              <AppText weight="semibold" selectable>
-                {user?.email ?? ""}
-              </AppText>
-              <Controller
-                control={emailForm.control}
-                name="newEmail"
-                render={({ field, fieldState }) => (
-                  <TextField
-                    label={t("account.profile.email.newLabel")}
-                    placeholder={t("account.profile.email.placeholder")}
-                    value={field.value}
-                    onBlur={field.onBlur}
-                    onChangeText={field.onChange}
-                    autoComplete="email"
-                    textContentType="emailAddress"
-                    keyboardType="email-address"
-                    autoCapitalize="none"
-                    error={fieldState.error ? (translateFormErrorMessage(t, fieldState.error.message) ?? t("account.profile.email.updateFailed")) : undefined}
-                  />
-                )}
-              />
-              <Button
-                variant="secondary"
-                label={t("account.profile.email.submit")}
-                loading={emailChange.isPending}
-                onPress={() => void submitEmail()}
-              />
-            </Surface>
-
-            <SectionHeader title={t("account.profile.password.heading")} />
-            <Surface style={{ gap: SPACING.md }}>
-              <Controller
-                control={passwordForm.control}
-                name="currentPassword"
-                render={({ field, fieldState }) => (
-                  <TextField
-                    label={t("account.profile.password.currentLabel")}
-                    value={field.value}
-                    onBlur={field.onBlur}
-                    onChangeText={field.onChange}
-                    secureTextEntry
-                    autoComplete="password"
-                    textContentType="password"
-                    autoCapitalize="none"
-                    error={translateFormErrorMessage(t, fieldState.error?.message)}
-                  />
-                )}
-              />
-              <Controller
-                control={passwordForm.control}
-                name="newPassword"
-                render={({ field, fieldState }) => (
-                  <TextField
-                    label={t("account.profile.password.newLabel")}
-                    value={field.value}
-                    onBlur={field.onBlur}
-                    onChangeText={field.onChange}
-                    secureTextEntry
-                    autoComplete="new-password"
-                    textContentType="newPassword"
-                    autoCapitalize="none"
-                    error={translateFormErrorMessage(t, fieldState.error?.message)}
-                  />
-                )}
-              />
-              <Controller
-                control={passwordForm.control}
-                name="confirmPassword"
-                render={({ field, fieldState }) => (
-                  <TextField
-                    label={t("account.profile.password.confirmLabel")}
-                    value={field.value}
-                    onBlur={field.onBlur}
-                    onChangeText={field.onChange}
-                    secureTextEntry
-                    autoComplete="new-password"
-                    textContentType="newPassword"
-                    autoCapitalize="none"
-                    error={translateFormErrorMessage(t, fieldState.error?.message)}
-                  />
-                )}
-              />
-              <Controller
-                control={passwordForm.control}
-                name="revokeOtherSessions"
-                render={({ field }) => (
-                  <SwitchRow
-                    title={t("account.profile.password.revokeOtherSessions")}
-                    value={field.value}
-                    onValueChange={field.onChange}
-                  />
-                )}
-              />
-              <Button
-                variant="secondary"
-                label={t("account.profile.password.submit")}
-                loading={passwordChange.isPending}
-                onPress={passwordForm.handleSubmit((values) => passwordChange.mutate(values))}
-              />
-            </Surface>
-
-            <SectionHeader title={t("account.profile.sessions.heading")} />
-            <AppText size="xs" tone="secondary">
-              {t("account.profile.sessions.description")}
-            </AppText>
-            {sessions.isError ? <Callout tone="destructive" title={t("account.profile.sessions.loadFailed")} /> : null}
-            {sessions.isPending ? (
-              <Skeleton height={120} />
-            ) : sessions.data && sessions.data.length === 0 ? (
-              <EmptyState icon="account" title={t("account.profile.sessions.empty")} />
-            ) : (
-              <ListGroup>
-                {(sessions.data ?? []).map((row) => {
-                  const device = describeUserAgent(row.userAgent);
-                  const isCurrent = row.token === currentToken;
-                  return (
-                    <ListRow
-                      key={row.id}
-                      icon={device.isMobile ? "phone" : "desktop"}
-                      title={`${device.label || t("account.profile.sessions.unknownDevice")}${isCurrent ? ` · ${t("account.profile.sessions.current")}` : ""}`}
-                      subtitle={`${row.ipAddress || t("account.profile.sessions.noIp")}\n${t("account.profile.sessions.lastActive", { date: formatShortDate(row.updatedAt, i18n.language) })}`}
-                      onPress={() => confirmRevoke(row)}
-                      disabled={revoke.isPending}
+            <View style={{ gap: SPACING.sm }}>
+              <SectionHeader title={t("account.profile.profile.heading")} />
+              <Surface>
+                <Controller
+                  control={nameForm.control}
+                  name="name"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      label={t("account.profile.profile.nameLabel")}
+                      value={field.value}
+                      onBlur={field.onBlur}
+                      onChangeText={field.onChange}
+                      autoComplete="name"
+                      textContentType="name"
+                      autoCapitalize="words"
+                      error={translateFormErrorMessage(t, fieldState.error?.message)}
                     />
-                  );
-                })}
-              </ListGroup>
-            )}
+                  )}
+                />
+              </Surface>
+            </View>
+
+            <View style={{ gap: SPACING.sm }}>
+              <SectionHeader title={t("account.profile.email.heading")} />
+              <Surface style={{ gap: SPACING.md }}>
+                <AppText weight="semibold" selectable>
+                  {user?.email ?? ""}
+                </AppText>
+                <Controller
+                  control={emailForm.control}
+                  name="newEmail"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      label={t("account.profile.email.newLabel")}
+                      placeholder={t("account.profile.email.placeholder")}
+                      value={field.value}
+                      onBlur={field.onBlur}
+                      onChangeText={field.onChange}
+                      autoComplete="email"
+                      textContentType="emailAddress"
+                      keyboardType="email-address"
+                      autoCapitalize="none"
+                      error={fieldState.error ? (translateFormErrorMessage(t, fieldState.error.message) ?? t("account.profile.email.updateFailed")) : undefined}
+                    />
+                  )}
+                />
+                <Button
+                  variant="secondary"
+                  label={t("account.profile.email.submit")}
+                  loading={emailChange.isPending}
+                  onPress={() => void submitEmail()}
+                />
+              </Surface>
+            </View>
+
+            <View style={{ gap: SPACING.sm }}>
+              <SectionHeader title={t("account.profile.password.heading")} />
+              <Surface style={{ gap: SPACING.md }}>
+                <Controller
+                  control={passwordForm.control}
+                  name="currentPassword"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      label={t("account.profile.password.currentLabel")}
+                      value={field.value}
+                      onBlur={field.onBlur}
+                      onChangeText={field.onChange}
+                      secureTextEntry
+                      autoComplete="password"
+                      textContentType="password"
+                      autoCapitalize="none"
+                      error={translateFormErrorMessage(t, fieldState.error?.message)}
+                    />
+                  )}
+                />
+                <Controller
+                  control={passwordForm.control}
+                  name="newPassword"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      label={t("account.profile.password.newLabel")}
+                      value={field.value}
+                      onBlur={field.onBlur}
+                      onChangeText={field.onChange}
+                      secureTextEntry
+                      autoComplete="new-password"
+                      textContentType="newPassword"
+                      autoCapitalize="none"
+                      error={translateFormErrorMessage(t, fieldState.error?.message)}
+                    />
+                  )}
+                />
+                <Controller
+                  control={passwordForm.control}
+                  name="confirmPassword"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      label={t("account.profile.password.confirmLabel")}
+                      value={field.value}
+                      onBlur={field.onBlur}
+                      onChangeText={field.onChange}
+                      secureTextEntry
+                      autoComplete="new-password"
+                      textContentType="newPassword"
+                      autoCapitalize="none"
+                      error={translateFormErrorMessage(t, fieldState.error?.message)}
+                    />
+                  )}
+                />
+                <Controller
+                  control={passwordForm.control}
+                  name="revokeOtherSessions"
+                  render={({ field }) => (
+                    <SwitchRow
+                      title={t("account.profile.password.revokeOtherSessions")}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                    />
+                  )}
+                />
+                <Button
+                  variant="secondary"
+                  label={t("account.profile.password.submit")}
+                  loading={passwordChange.isPending}
+                  onPress={passwordForm.handleSubmit((values) => passwordChange.mutate(values))}
+                />
+              </Surface>
+            </View>
+
+            <View style={{ gap: SPACING.sm }}>
+              <SectionHeader title={t("account.profile.sessions.heading")} />
+              <AppText size="xs" tone="secondary">
+                {t("account.profile.sessions.description")}
+              </AppText>
+              {sessions.isError ? <Callout tone="destructive" title={t("account.profile.sessions.loadFailed")} /> : null}
+              {sessions.isPending ? (
+                <ListSkeleton rows={2} />
+              ) : sessions.data && sessions.data.length === 0 ? (
+                <Surface>
+                  <EmptyState icon="account" title={t("account.profile.sessions.empty")} />
+                </Surface>
+              ) : (
+                <ListGroup>
+                  {(sessions.data ?? []).map((row) => {
+                    const device = describeUserAgent(row.userAgent);
+                    const isCurrent = row.token === currentToken;
+                    return (
+                      <ListRow
+                        key={row.id}
+                        icon={device.isMobile ? "phone" : "desktop"}
+                        title={`${device.label || t("account.profile.sessions.unknownDevice")}${isCurrent ? ` · ${t("account.profile.sessions.current")}` : ""}`}
+                        subtitle={`${row.ipAddress || t("account.profile.sessions.noIp")}\n${t("account.profile.sessions.lastActive", { date: formatShortDate(row.updatedAt, i18n.language) })}`}
+                        onPress={() => confirmRevoke(row)}
+                        disabled={revoke.isPending}
+                      />
+                    );
+                  })}
+                </ListGroup>
+              )}
+            </View>
             {otherSessions.length > 0 ? (
               <Button
                 variant="ghost"

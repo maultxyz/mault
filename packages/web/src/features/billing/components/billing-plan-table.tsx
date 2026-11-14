@@ -42,7 +42,7 @@ export function BillingPlanTable({ billing }: BillingPlanTableProps) {
 
   return (
     <div className="flex flex-col gap-2">
-      <div className="overflow-hidden rounded-lg ring-1 ring-border">
+      <div>
         <Table>
           <TableHeader>
             <TableRow>

@@ -55,12 +55,12 @@ function IntakeReceipt() {
     <main
       id={MAIN_CONTENT_ID}
       tabIndex={-1}
-      className="min-h-dvh bg-background text-foreground outline-none"
+      className="min-h-dvh bg-card text-foreground outline-none"
     >
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6 print:p-0">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 md:gap-2 p-6 print:p-0">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="font-heading text-2xl font-semibold">
+            <h1 className="font-heading text-lg font-semibold">
               {activeOrg?.name ?? t("receipt.title")}
             </h1>
             <p className="text-sm text-foreground/70">

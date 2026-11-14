@@ -9,7 +9,7 @@
     "scanner": "Sort",
     "collections": "Collections",
     "scan": "Link camera",
-    "storage": "Locations",
+    "storage": "Storage",
     "calibrate": "Sorter setup",
     "settings": "Settings",
     "organization": "Org",
@@ -33,7 +33,9 @@
     "sortingRules": "Sorting rules",
     "intake": "Buy & sell",
     "upgradeYourPlan": "Upgrade your plan",
-    "upgradeShort": "Upgrade"
+    "upgradeShort": "Upgrade",
+    "home": "Home",
+    "library": "Library"
   },
   "alerts": {
     "dismiss": "Dismiss",
@@ -231,7 +233,7 @@
       "clearSelection": "Clear the selection",
       "goScanner": "Go to sorting",
       "goCollections": "Go to collections",
-      "goStorage": "Go to storage boxes",
+      "goStorage": "Go to storage",
       "goCalibrate": "Go to sorter setup",
       "goSettings": "Go to settings",
       "goAdmin": "Go to admin",
@@ -285,9 +287,8 @@
   "mobileTabs": {
     "home": "Home",
     "scan": "Scan",
-    "rules": "Rules",
-    "storage": "Storage",
-    "account": "Account"
+    "library": "Library",
+    "more": "More"
   },
   "pagination": {
     "previous": "Previous",

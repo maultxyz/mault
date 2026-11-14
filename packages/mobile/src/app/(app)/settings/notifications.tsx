@@ -19,6 +19,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SwitchRow } from "@/components/ui/switch-row";
+import { Surface } from "@/components/ui/surface";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import {
   discordIntegrationQueryOptions,
@@ -364,7 +365,7 @@ export default function NotificationsSettingsScreen() {
         {linked && data && !data.botReachable ? <Callout tone="warning" title={t("settings.discord.discord.botUnreachable")} /> : null}
         {linked && data?.botReachable && !guild ? <Callout tone="warning" title={t("settings.discord.discord.botNotInServer")} /> : null}
         {linkCode ? (
-          <View style={{ gap: SPACING.sm }}>
+          <Surface style={{ gap: SPACING.sm }}>
             <AppText size="xs" tone="secondary">
               {t("settings.discord.bot.codeInstructions")}
             </AppText>
@@ -376,7 +377,7 @@ export default function NotificationsSettingsScreen() {
             <AppText size="xs" tone="secondary" accessibilityLiveRegion="polite">
               {t("settings.discord.bot.expiresIn", { seconds: secondsLeft })}
             </AppText>
-          </View>
+          </Surface>
         ) : null}
       </View>
 

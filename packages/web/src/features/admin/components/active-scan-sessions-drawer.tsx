@@ -85,11 +85,11 @@ export function ActiveScanSessionsDrawer({
 
         <div className="flex-1 overflow-y-auto">
           {sessionsQuery.isLoading ? (
-            <div className="flex flex-col gap-3 p-3">
+            <div className="flex flex-col gap-3 md:gap-2 p-3">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex flex-col gap-2 rounded-lg border p-3"
+                  className="flex flex-col gap-2 rounded-xl bg-muted p-3"
                 >
                   <Skeleton className="h-3 w-32" />
                   <Skeleton className="h-3 w-full" />
@@ -104,13 +104,13 @@ export function ActiveScanSessionsDrawer({
               description={t("activeScanSessions.emptyDescription")}
             />
           ) : (
-            <div className="flex flex-col gap-3 p-3">
+            <div className="flex flex-col gap-3 md:gap-2 p-3">
               {groups.map(([orgId, sessions]) => (
                 <section
                   key={orgId}
-                  className="overflow-hidden rounded-lg border"
+                  className="overflow-hidden rounded-xl bg-muted"
                 >
-                  <div className="flex items-center justify-between gap-2 border-b bg-muted px-3 py-2">
+                  <div className="flex items-center justify-between gap-2 border-b px-3 py-2">
                     <p className="truncate text-sm font-medium">
                       {sessions[0].orgName ?? orgId}
                     </p>

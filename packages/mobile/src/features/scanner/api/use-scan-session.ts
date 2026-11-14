@@ -87,7 +87,7 @@ import {
   SESSION_FEED_IMAGE_LIMIT,
   SESSION_FEED_LIMIT,
 } from "@/lib/constants/scanner";
-import { HAND_SCAN_KEY } from "@/lib/constants/storage-keys";
+import { HAND_SCAN_BINS_KEY, HAND_SCAN_KEY } from "@/lib/constants/storage-keys";
 import { readKv, writeKv } from "@/lib/storage/kv";
 import { ROUTE_TIMEOUT_MODULE_PATTERN } from "@/lib/constants/sorter";
 import type {
@@ -140,8 +140,12 @@ export function useScanSession({
   const [autoFeed, setAutoFeedState] = useState(true);
   const [allowDuplicates, setAllowDuplicates] = useState(true);
   const [handScan, setHandScanState] = useState(
-    () => readKv(HAND_SCAN_KEY) === "true",
+    () => readKv(HAND_SCAN_KEY) !== "false",
   );
+  const [handScanBins, setHandScanBinsState] = useState(
+    () => readKv(HAND_SCAN_BINS_KEY) === "true",
+  );
+  const routesIntoBins = sorter.isConnected || handScanBins;
   const handScanActive = handScan && !sorter.isReady;
 
   const set = useMemo(() => {
@@ -156,8 +160,8 @@ export function useScanSession({
     ? computeBinCount(moduleCount)
     : Math.max(0, ...(set?.bins ?? []).map((bin) => bin.binNumber));
   const configs = useMemo(
-    () => (binCount ? configsFromSet(set, binCount) : []),
-    [set, binCount],
+    () => (binCount && routesIntoBins ? configsFromSet(set, binCount) : []),
+    [set, binCount, routesIntoBins],
   );
   const removal = useScanRemoval({
     collectionGuid: collection?.guid ?? null,
@@ -1252,7 +1256,12 @@ export function useScanSession({
 
   const setHandScan = useCallback((value: boolean) => {
     setHandScanState(value);
-    writeKv(HAND_SCAN_KEY, value ? "true" : null);
+    writeKv(HAND_SCAN_KEY, value ? "true" : "false");
+  }, []);
+
+  const setHandScanBins = useCallback((value: boolean) => {
+    setHandScanBinsState(value);
+    writeKv(HAND_SCAN_BINS_KEY, value ? "true" : null);
   }, []);
 
   return {
@@ -1275,6 +1284,8 @@ export function useScanSession({
     setAllowDuplicates,
     handScan,
     setHandScan,
+    handScanBins,
+    setHandScanBins,
     handScanActive,
     trackLiveCorners,
     forcedFoilType,

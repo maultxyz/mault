@@ -23,13 +23,13 @@ export function GuestTradeOfferList({ link }: GuestTradeOfferListProps) {
   return (
     <Accordion>
       <AccordionItem value={GUEST_TRADE_OFFERS_ACCORDION_VALUE} className="border-b-0">
-        <AccordionTrigger className="py-1 text-xs font-medium tracking-wide text-foreground/70 uppercase">
+        <AccordionTrigger className="py-1 text-xs font-medium text-foreground/70">
           {t("tradeOffers.yourOffers", { count: offers.length })}
         </AccordionTrigger>
         <AccordionContent className="pb-0">
-          <ul className="flex flex-col gap-3">
+          <ul className="flex flex-col gap-3 md:gap-2">
             {offers.map((offer) => (
-              <li key={offer.guid} className="flex flex-col gap-2 rounded-lg p-3 ring-1 ring-border">
+              <li key={offer.guid} className="flex flex-col gap-2 rounded-card bg-card p-3">
                 <div className="flex items-center justify-between gap-2">
                   <span className="text-xs text-foreground/70">
                     {new Date(offer.createdAt).toLocaleString(i18n.language, {
@@ -41,7 +41,7 @@ export function GuestTradeOfferList({ link }: GuestTradeOfferListProps) {
                     {t(`tradeOffers.status.${offer.status}`)}
                   </Badge>
                 </div>
-                <div className="grid gap-3 md:grid-cols-2">
+                <div className="grid gap-3 md:gap-2 md:grid-cols-2">
                   <div className="flex min-w-0 flex-col gap-1.5">
                     <p className="text-xs text-foreground/70">{t("tradeOffers.youWant")}</p>
                     <TradeOfferCardList cards={offer.wanted} />

@@ -37,7 +37,7 @@ import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { ANY_SET_OPTION, CARD_SET_PICKER_LIMIT } from "@/lib/constants/scanner";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";
-import { absoluteUrl } from "@/lib/url";
+import { cardArtSources } from "@/lib/card-art";
 
 export default function HealthScreen() {
   const { t, i18n } = useTranslation();
@@ -227,7 +227,7 @@ export default function HealthScreen() {
               <CardTile
                 name={card.name}
                 caption={cardLookupCaption(card)}
-                imageUrl={absoluteUrl(card.image?.normal ?? card.image?.small)}
+                {...cardArtSources(card.image)}
               />
             </View>
           ))}

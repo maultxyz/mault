@@ -1,3 +1,4 @@
+import type { ImageProps } from "expo-image";
 import type { CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
 import type {
   CardCondition,
@@ -10,6 +11,7 @@ import type {
   PriceSource,
   ReviewGridAttributes,
   ReviewGridCard,
+  ScanDraftFormValues,
   ScannedCard,
 } from "@magic-vault/shared";
 
@@ -174,4 +176,29 @@ export interface CardTagToggle {
   tag: CardTag;
   enabled: boolean;
   isUndo?: boolean;
+}
+
+export interface CardArtImageUrls {
+  normal?: string | null;
+  small?: string | null;
+}
+
+export interface CardArtSources {
+  imageUrl: string | null;
+  placeholderUrl: string | null;
+}
+
+export type CardArtProps = Omit<ImageProps, "source" | "placeholder" | "placeholderContentFit" | "transition"> & {
+  imageUrl: string | null;
+  placeholderUrl?: string | null;
+};
+
+export interface ScanDraftSave {
+  values: ScanDraftFormValues;
+  dirtyFields: Partial<Record<keyof ScanDraftFormValues, boolean>>;
+}
+
+export interface AddCatalogCardInput {
+  collectionGuid: string;
+  card: PlayingCard;
 }

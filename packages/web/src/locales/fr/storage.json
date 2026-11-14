@@ -69,7 +69,7 @@
   "cardLocation": {
     "heading": "Rangement",
     "value": "{{name}} · #{{position}}",
-    "remove": "Retirer de la boîte",
+    "remove": "Retirer de l'emplacement",
     "move": "Déplacer"
   },
   "toasts": {

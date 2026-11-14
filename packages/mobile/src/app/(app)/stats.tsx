@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { STATS_DEFAULT_RANGE, STATS_RANGES, type StatsRange } from "@magic-vault/shared";
 import { Callout } from "@/components/ui/callout";
-import { DisplayHeadline } from "@/components/ui/display-headline";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -20,7 +19,7 @@ import { StatsDashboardSkeleton } from "@/features/stats/components/stats-dashbo
 import { StatsLeaderboardSheet } from "@/features/stats/components/stats-leaderboard-sheet";
 import { useActiveOrg } from "@/hooks/use-org";
 import { STATS_ALL_COLLECTIONS } from "@/lib/constants/stats";
-import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 
 export default function StatsScreen() {
   const { t } = useTranslation();
@@ -44,7 +43,6 @@ export default function StatsScreen() {
       header={
         <PageHeader
           title={t("stats.title")}
-          subtitle={t("stats.subtitle")}
           onBack={() => router.back()}
           actions={
             <IconButton
@@ -56,8 +54,6 @@ export default function StatsScreen() {
         />
       }
     >
-      <DisplayHeadline title={t("stats.headline.title")} subtitle={t("stats.headline.subtitle")} />
-
       <View style={{ gap: SPACING.sm }}>
         <PickerCard
           icon="collections"
@@ -66,13 +62,12 @@ export default function StatsScreen() {
           placeholder={t("stats.controls.allCollections")}
           onPress={() => setCollectionsOpen(true)}
         />
-        <View style={{ marginHorizontal: -SCREEN_GUTTER }}>
-          <TabStrip<StatsRange>
-            value={range}
-            onChange={setRange}
-            items={STATS_RANGES.map((value) => ({ value, label: t(`stats.controls.ranges.${value}`) }))}
-          />
-        </View>
+        <TabStrip<StatsRange>
+          inline
+          value={range}
+          onChange={setRange}
+          items={STATS_RANGES.map((value) => ({ value, label: t(`stats.controls.ranges.${value}`) }))}
+        />
       </View>
 
       {isError ? (

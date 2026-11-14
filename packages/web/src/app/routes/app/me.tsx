@@ -22,12 +22,14 @@ import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { ADMIN_PATH } from "@/lib/constants/admin";
 import { useRole } from "@/hooks/use-role";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { INTAKE_PATH } from "@/lib/constants/business";
 import type { SupportedLanguage } from "@/lib/interfaces/languages";
 import type { ThemeOption } from "@/lib/interfaces/nav";
 import { cn } from "@/lib/utils";
 import {
   IconActivityHeartbeat,
+  IconArrowsSplit2,
   IconDatabaseCog,
   IconBrandDiscord,
   IconBuilding,
@@ -65,7 +67,7 @@ export default function MePage() {
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
-      <MobilePageHeader title={t("mobileTabs.account")} />
+      <MobilePageHeader title={t("mobileTabs.more")} />
       <div
         className={cn(
           "min-h-0 flex-1 overflow-y-auto",
@@ -73,12 +75,12 @@ export default function MePage() {
         )}
       >
         <div className={MOBILE_PAGE_BODY_CLASS}>
-          <div className="flex items-center gap-3 rounded-lg bg-card p-3 ring-1 ring-border">
+          <div className="flex items-center gap-3 rounded-card bg-card p-4 md:p-2.5">
             <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
               {getInitials(name)}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-heading text-sm font-semibold text-foreground">
+              <p className="truncate text-sm font-semibold text-foreground">
                 {name || email}
               </p>
               {name && email && (
@@ -139,6 +141,11 @@ export default function MePage() {
               label={tSettings("appearance.language")}
               value={LANGUAGE_NATIVE_NAMES[language] ?? language}
               to={SETTINGS_PATHS.general}
+            />
+            <MobileListRow
+              icon={<IconArrowsSplit2 />}
+              label={t("nav.sortingRules")}
+              to={SORTING_RULES_PATH}
             />
             <MobileListRow
               icon={<IconChartBar />}

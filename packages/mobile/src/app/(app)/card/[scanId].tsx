@@ -6,7 +6,6 @@ import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, Pressable, ScrollView, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CARD_CONDITIONS,
   CARD_LANGUAGES,
@@ -22,6 +21,7 @@ import {
   scanDraftFormSchema,
   type ScanDraftFormValues,
 } from "@magic-vault/shared";
+import { CardArt } from "@/components/cards/card-art";
 import { AppText } from "@/components/ui/app-text";
 import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { Button } from "@/components/ui/button";
@@ -35,17 +35,26 @@ import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { Pill } from "@/components/ui/pill";
 import { SaveBar } from "@/components/ui/save-bar";
+import { PillButton } from "@/components/ui/pill-button";
 import { SectionHeader } from "@/components/ui/section-header";
+import { Surface } from "@/components/ui/surface";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCardCorrection } from "@/features/cards/api/use-card-correction";
 import { useDeferredCardRemoval } from "@/features/cards/api/use-deferred-card-removal";
-import { restoreCardCaches, setCardTagsInCaches, snapshotCardCaches } from "@/features/cards/lib/card-list-cache";
+import {
+  patchCardsInCaches,
+  restoreCardCaches,
+  reviewedCardPatch,
+  setCardTagsInCaches,
+  snapshotCardCaches,
+} from "@/features/cards/lib/card-list-cache";
 import { useToast } from "@/components/ui/toast-provider";
 import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-details";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
 import { CardDetailSkeleton, PricePaidFieldSkeleton } from "@/features/cards/components/card-detail-skeleton";
-import type { CardDetailSheet, CardTagToggle, MatchesOpenState } from "@/lib/interfaces/cards";
+import type { CardDetailSheet, CardTagToggle, MatchesOpenState, ScanDraftSave } from "@/lib/interfaces/cards";
+import type { CardCachePatchContext } from "@/lib/interfaces/undo";
 import type { IconName } from "@/lib/interfaces/ui";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
 import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
@@ -83,6 +92,7 @@ import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { CARD_ART_RADIUS, RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { PAGE_HEADER_ICON_BUTTON_SIZE, TOAST_UNDO_DURATION_MS } from "@/lib/constants/ui";
 import { saveReviewLayout } from "@/lib/review-layout";
+import { cardArtSources } from "@/lib/card-art";
 import { absoluteUrl } from "@/lib/url";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
@@ -98,7 +108,6 @@ export default function CardDetailScreen() {
   const { t, i18n } = useTranslation();
   const colors = useTheme();
   const pricing = usePricing();
-  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -194,8 +203,7 @@ export default function CardDetailScreen() {
   const stampOptions = cardStampOptionsFor(card, draftStamp);
 
   const saveDraft = useMutation({
-    mutationFn: async (values: ScanDraftFormValues) => {
-      const { dirtyFields } = form.formState;
+    mutationFn: async ({ values, dirtyFields }: ScanDraftSave) => {
       if (dirtyFields.foilType || dirtyFields.stamp || dirtyFields.condition || dirtyFields.language) {
         await updateCollectionCard(guid, scanId, {
           isFoil: values.foilType != null,
@@ -209,29 +217,56 @@ export default function CardDetailScreen() {
         await setCardAcquisitionCost(scanId, values.acquisitionCost);
       }
     },
-    onSuccess: (_, values) => form.reset(values),
+    onMutate: async ({ values, dirtyFields }: ScanDraftSave): Promise<CardCachePatchContext> => {
+      const snapshot = await patchCardsInCaches(queryClient, guid, [scanId], {
+        ...(dirtyFields.foilType ? { isFoil: values.foilType != null, foilType: values.foilType } : {}),
+        ...(dirtyFields.stamp ? { stamp: values.stamp } : {}),
+        ...(dirtyFields.condition ? { condition: values.condition as CardCondition } : {}),
+        ...(dirtyFields.language && values.language ? { language: values.language } : {}),
+      });
+      return { snapshot };
+    },
+    onSuccess: (_, { values }) => form.reset(values),
+    onError: (_error, _save, context) => {
+      if (context) restoreCardCaches(queryClient, context.snapshot);
+    },
     onSettled: () => {
       invalidateCollectionCards(queryClient, guid);
       void queryClient.invalidateQueries({ queryKey: cardAcquisitionCostQueryOptions(activeOrgId, scanId).queryKey });
     },
   });
 
+  const submitDraft = form.handleSubmit((values) =>
+    saveDraft.mutate({ values, dirtyFields: { ...form.formState.dirtyFields } }),
+  );
+
   const markCorrect = useMutation({
     mutationFn: (kind: "confirm" | "review") =>
       updateCollectionCard(guid, scanId, kind === "confirm" ? { confirmed: true } : { reviewed: true }),
+    onMutate: async (kind): Promise<CardCachePatchContext> => ({
+      snapshot: await patchCardsInCaches(queryClient, guid, [scanId], reviewedCardPatch(kind)),
+    }),
+    onError: (_error, _kind, context) => {
+      if (context) restoreCardCaches(queryClient, context.snapshot);
+    },
     onSettled: () => invalidateCollectionCards(queryClient, guid),
   });
 
   const acceptInBackground = useMutation({
     mutationFn: ({ kind, acceptedScanId }: { kind: "confirm" | "review"; acceptedScanId: string }) =>
       updateCollectionCard(guid, acceptedScanId, kind === "confirm" ? { confirmed: true } : { reviewed: true }),
+    onMutate: async ({ kind, acceptedScanId }): Promise<CardCachePatchContext> => ({
+      snapshot: await patchCardsInCaches(queryClient, guid, [acceptedScanId], reviewedCardPatch(kind)),
+    }),
     onSettled: () => invalidateCollectionCards(queryClient, guid),
-    onError: (_error, variables) =>
+    onError: (_error, variables, context) => {
+      if (context) restoreCardCaches(queryClient, context.snapshot);
       showToast({
         message: t("cardDetail.saveFailed"),
         tone: "destructive",
         action: { label: t("recovery.retry"), onPress: () => acceptInBackground.mutate(variables) },
-      }),
+      });
+    },
   });
 
   const toggleTag = useMutation({
@@ -379,14 +414,13 @@ export default function CardDetailScreen() {
   };
 
   const attributePill = (icon: IconName, fieldLabel: string, value: string, menuSheet: CardDetailSheet) => (
-    <Pressable
+    <PillButton
       key={menuSheet}
-      accessibilityRole="button"
+      icon={icon}
+      label={value}
       accessibilityLabel={`${fieldLabel}: ${value}`}
       onPress={() => setSheet(menuSheet)}
-    >
-      <Pill icon={icon} label={value} />
-    </Pressable>
+    />
   );
   const scanAttributePills = [
     attributePill("sparkles", t("cardDetail.foil"), draftFoil ?? t("cardDetail.foilNone"), "foil"),
@@ -401,8 +435,6 @@ export default function CardDetailScreen() {
     aspectRatio: CARD_ASPECT_RATIO,
     borderRadius: CARD_ART_RADIUS,
     overflow: "hidden" as const,
-    borderWidth: 1,
-    borderColor: colors.border,
     backgroundColor: colors.muted,
   };
 
@@ -441,7 +473,7 @@ export default function CardDetailScreen() {
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.xl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.lg + SPACING.xs }}
       >
         {position.isError ? (
           <Callout
@@ -460,7 +492,7 @@ export default function CardDetailScreen() {
                 variant="secondary"
                 label={t("recovery.retry")}
                 loading={saveDraft.isPending}
-                onPress={form.handleSubmit((values) => saveDraft.mutate(values))}
+                onPress={submitDraft}
               />
             }
           />
@@ -501,7 +533,7 @@ export default function CardDetailScreen() {
                 </AppText>
               ) : null}
               {price != null ? (
-                <AppText size="lg" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
+                <AppText size="lg" heading weight="bold">
                   {pricing.format(price)}
                 </AppText>
               ) : null}
@@ -510,19 +542,16 @@ export default function CardDetailScreen() {
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
                 {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
                 {storage.data ? (
-                  <Pressable
+                  <PillButton
+                    icon="storage"
+                    label={`${storage.data.name} · ${t("storage.position", { position: storage.data.position })}`}
                     accessibilityRole="link"
                     accessibilityLabel={t("storage.storedIn", { name: storage.data.name, position: storage.data.position })}
                     onPress={() => {
                       router.back();
                       router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } });
                     }}
-                  >
-                    <Pill
-                      icon="storage"
-                      label={`${storage.data.name} · ${t("storage.position", { position: storage.data.position })}`}
-                    />
-                  </Pressable>
+                  />
                 ) : entry.binNumber != null ? (
                   <Pill icon="sorter" label={t("cards.bin", { number: entry.binNumber })} />
                 ) : null}
@@ -631,12 +660,11 @@ export default function CardDetailScreen() {
                 ) : null}
                 <View style={imageFrame}>
                   {card ? (
-                    <Image
+                    <CardArt
+                      {...cardArtSources(card.image)}
                       accessibilityLabel={card.name}
-                      source={{ uri: absoluteUrl(card.image?.normal ?? card.image?.small) ?? undefined }}
                       style={{ flex: 1 }}
                       contentFit="cover"
-                      transition={120}
                     />
                   ) : null}
                 </View>
@@ -659,33 +687,37 @@ export default function CardDetailScreen() {
 
             {card ? (
               <CollapsibleSection title={t("cardDetail.details")} initiallyOpen>
-                <CardDetailsList card={card} binNumber={entry?.binNumber} />
+                <Surface>
+                  <CardDetailsList card={card} binNumber={entry?.binNumber} />
+                </Surface>
               </CollapsibleSection>
             ) : null}
 
             {card ? (
               <CollapsibleSection title={t("cardDetail.prices")} initiallyOpen>
-                <CardPriceDetails
-                  card={card}
-                  isFoil={draftFoil != null}
-                  foilType={draftFoil}
-                  stamp={draftStamp}
-                  condition={draftCondition}
-                />
-                <CardPurchaseLinks card={card} />
-                {entry && acquisitionCost.data ? (
-                  <PricePaidField
-                    label={t("cardDetail.pricePaid", { currency: acquisitionCost.data.currency })}
-                    placeholder={t("cardDetail.pricePaidEmpty")}
-                    value={form.watch("acquisitionCost")}
-                    onChange={(cost) => form.setValue("acquisitionCost", cost, { shouldDirty: true })}
-                    error={
-                      errors.acquisitionCost ? translateFormErrorMessage(t, errors.acquisitionCost.message) : undefined
-                    }
+                <Surface style={{ gap: SPACING.md }}>
+                  <CardPriceDetails
+                    card={card}
+                    isFoil={draftFoil != null}
+                    foilType={draftFoil}
+                    stamp={draftStamp}
+                    condition={draftCondition}
                   />
-                ) : entry && billing.data?.businessTools && acquisitionCost.isLoading ? (
-                  <PricePaidFieldSkeleton />
-                ) : null}
+                  <CardPurchaseLinks card={card} />
+                  {entry && acquisitionCost.data ? (
+                    <PricePaidField
+                      label={t("cardDetail.pricePaid", { currency: acquisitionCost.data.currency })}
+                      placeholder={t("cardDetail.pricePaidEmpty")}
+                      value={form.watch("acquisitionCost")}
+                      onChange={(cost) => form.setValue("acquisitionCost", cost, { shouldDirty: true })}
+                      error={
+                        errors.acquisitionCost ? translateFormErrorMessage(t, errors.acquisitionCost.message) : undefined
+                      }
+                    />
+                  ) : entry && billing.data?.businessTools && acquisitionCost.isLoading ? (
+                    <PricePaidFieldSkeleton />
+                  ) : null}
+                </Surface>
               </CollapsibleSection>
             ) : null}
 
@@ -717,12 +749,12 @@ export default function CardDetailScreen() {
                   </ListGroup>
                 ) : null}
                 {entry?.binNumber != null ? (
-                  <View style={{ gap: SPACING.sm, marginTop: SPACING.sm }}>
+                  <Surface style={{ gap: SPACING.sm }}>
                     <AppText size="sm" weight="medium" tone="secondary">
                       {t("cardDetail.binLocation")}
                     </AppText>
                     <BinLocationDiagram binNumber={entry.binNumber} />
-                  </View>
+                  </Surface>
                 ) : null}
               </CollapsibleSection>
             ) : null}
@@ -732,17 +764,7 @@ export default function CardDetailScreen() {
       </ScrollView>
 
       {!editing && entry && !isDirty && (reviewMode || canConfirm) ? (
-        <View
-          style={{
-            flexDirection: "row",
-            gap: SPACING.sm,
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-            paddingHorizontal: SCREEN_GUTTER,
-            paddingTop: SPACING.md,
-            paddingBottom: SPACING.md + insets.bottom,
-          }}
-        >
+        <BottomActionBar direction="row">
           {reviewMode ? (
             <Button
               style={{ flex: 1 }}
@@ -763,7 +785,7 @@ export default function CardDetailScreen() {
               }}
             />
           )}
-        </View>
+        </BottomActionBar>
       ) : null}
 
       {editing ? (
@@ -774,7 +796,7 @@ export default function CardDetailScreen() {
         <SaveBar
           visible={isDirty}
           saving={saveDraft.isPending}
-          onSave={form.handleSubmit((values) => saveDraft.mutate(values))}
+          onSave={submitDraft}
           onDiscard={() => form.reset()}
         />
       )}

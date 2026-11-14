@@ -27,7 +27,7 @@ export function ScanRemovalRow({
   const shownCard = selectedCopy?.card ?? entry.matchedCard;
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border bg-card p-2">
+    <div className="flex items-center gap-3 rounded-card bg-card p-2">
       <span className="relative aspect-[2.5/3.5] w-10 shrink-0 overflow-hidden rounded-sm bg-muted">
         {shownCard.image?.small && (
           <img

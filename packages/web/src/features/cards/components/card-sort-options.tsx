@@ -92,7 +92,7 @@ export function CardSortOptions({
   return (
     <div
       ref={optionListRef}
-      className="relative flex max-h-56 flex-col gap-0.5 overflow-y-auto overscroll-contain rounded-lg p-1 ring-1 ring-border"
+      className="relative flex max-h-56 flex-col gap-0.5 overflow-y-auto overscroll-contain rounded-xl bg-muted p-1"
     >
       <SortOption
         ref={isScanOrderActive ? activeOptionRef : undefined}

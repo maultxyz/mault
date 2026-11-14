@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { useLongPress } from "@/hooks/use-long-press";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { MobileCardTileProps } from "@/lib/interfaces/scanner";
@@ -35,17 +36,15 @@ export const MobileCardTile = memo(function MobileCardTile({
     >
       <div
         className={cn(
-          "relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted ring-1 ring-border",
+          "relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted",
           awaitingReview &&
             "ring-2 ring-warning ring-offset-2 ring-offset-background",
         )}
       >
-        <img
-          src={entry.card.image?.normal || entry.card.image?.small || ""}
+        <CardImage
+          src={entry.card.image?.normal || entry.card.image?.small}
+          placeholderSrc={entry.card.image?.small}
           alt=""
-          loading="lazy"
-          draggable={false}
-          className="h-full w-full object-cover"
         />
         {flagged && (
           <span

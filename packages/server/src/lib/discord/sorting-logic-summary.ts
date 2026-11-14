@@ -88,6 +88,7 @@ export async function buildPresetBinLines(binSetId: number): Promise<string[]> {
       lowMatchPercent: bins.lowMatchPercent,
       maxCopies: bins.maxCopies,
       maxCopiesBy: bins.maxCopiesBy,
+      maxCards: bins.maxCards,
       overflowBin: bins.overflowBin,
       isDisabled: bins.isDisabled,
     })
@@ -111,7 +112,7 @@ export async function buildPresetBinLines(binSetId: number): Promise<string[]> {
     if (sources.length > 0) {
       return `**Bin ${b.binNumber}${overflowLabel(b.overflowBin)}:** overflow for bin ${sources.join(", ")}`;
     }
-    return `**Bin ${b.binNumber}${b.isOverride ? ` (override${priorityLabel(b.overridePriority)})` : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per ${copiesByLabel(b.maxCopiesBy)})` : ""}${overflowLabel(b.overflowBin)}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`;
+    return `**Bin ${b.binNumber}${b.isOverride ? ` (override${priorityLabel(b.overridePriority)})` : ""}${b.maxCopies != null ? ` (max ${b.maxCopies} per ${copiesByLabel(b.maxCopiesBy)})` : ""}${b.maxCards != null ? ` (holds ${b.maxCards} cards)` : ""}${overflowLabel(b.overflowBin)}:** ${describeRuleGroup(b.rules as BinRuleGroup)}`;
   });
 }
 

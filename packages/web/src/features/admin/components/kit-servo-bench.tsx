@@ -52,7 +52,7 @@ export function KitServoBench({ session, disabled }: KitPanelProps) {
         <div
           role="group"
           aria-labelledby={channelLabelId}
-          className="grid grid-cols-8 gap-2"
+          className="grid grid-cols-8 gap-1.5"
         >
           {KIT_CHANNELS.map((ch) => (
             <Button
@@ -126,7 +126,7 @@ export function KitServoBench({ session, disabled }: KitPanelProps) {
         </p>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2 rounded-lg border p-2">
+      <div className="flex flex-wrap items-center gap-1.5 rounded-xl bg-muted p-2">
         <span className="mr-auto text-sm">
           {t("kitTest.servos.verdictPrompt", { channel })}
         </span>

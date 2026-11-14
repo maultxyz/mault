@@ -1,0 +1,67 @@
+{
+  "title": "Accueil",
+  "subtitle": "Voici l'état de votre collection",
+  "greeting": {
+    "morning": "Bonjour",
+    "afternoon": "Bon après-midi",
+    "evening": "Bonsoir"
+  },
+  "greetingWithName": "{{greeting}}, {{name}}",
+  "hero": {
+    "value": "Valeur de la collection",
+    "cards": "Cartes",
+    "collections": "Collections",
+    "scanned": "Scannées au total",
+    "sinceYesterday": "depuis hier",
+    "sinceDate": "depuis le {{date}}"
+  },
+  "actions": {
+    "scan": "Scanner des cartes",
+    "newCollection": "Nouvelle collection",
+    "stats": "Statistiques"
+  },
+  "welcome": {
+    "title": "Bienvenue sur Mault",
+    "description": "Créez une collection puis lancez un scan pour voir ici sa valeur, vos meilleures cartes et plus encore."
+  },
+  "review": {
+    "title_one": "{{count}} scan à vérifier",
+    "title_other": "{{count}} scans à vérifier",
+    "description": "Vérifiez les correspondances pour garder une collection exacte.",
+    "open": "Ouvre l'écran de vérification"
+  },
+  "live": {
+    "yourSession": "Ta session",
+    "scanning": "Scan en cours",
+    "scanningBy": "{{name}} scanne",
+    "title": "{{name}} · {{collection}}",
+    "open": "Ouvre la collection"
+  },
+  "cardOfTheDay": "Cartes du jour",
+  "activity": {
+    "title": "Activité de scan",
+    "today": "Aujourd'hui",
+    "thisWeek": "Cette semaine",
+    "scans_one": "{{count}} scan",
+    "scans_other": "{{count}} scans",
+    "chartLabel": "Scans par jour sur les 14 derniers jours"
+  },
+  "topCards": "Meilleures cartes",
+  "recentScans": "Scannées récemment",
+  "seeAllStats": "Toutes les stats",
+  "loadFailed": "Impossible de charger votre aperçu. Réessayez dans un instant.",
+  "library": {
+    "title": "Bibliothèque",
+    "collections": "Collections",
+    "storage": "Rangement",
+    "searchPlaceholder": "Rechercher des collections",
+    "noSearchResultsTitle": "Aucune collection trouvée",
+    "noSearchResultsDescription": "Essaie un autre nom.",
+    "valueModeLabel": "Valeurs des collections",
+    "valueModes": {
+      "value": "Valeur",
+      "change": "Variation"
+    },
+    "noChange": "Pas encore d'historique"
+  }
+}

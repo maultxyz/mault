@@ -136,10 +136,10 @@ export default function StatsPage() {
         {t("error")}
       </Callout>
     ) : isLoading || !report ? (
-      <div className="flex flex-col gap-4">
-        <Skeleton className="h-24 rounded-lg" />
-        <Skeleton className="h-56 rounded-lg" />
-        <Skeleton className="h-48 rounded-lg" />
+      <div className="flex flex-col gap-4 md:gap-2">
+        <Skeleton className="h-24 rounded-card" />
+        <Skeleton className="h-56 rounded-card" />
+        <Skeleton className="h-48 rounded-card" />
       </div>
     ) : report.totals.cardCount === 0 ? (
       <EmptyState
@@ -181,7 +181,7 @@ export default function StatsPage() {
             tabs={viewSwitch}
           />
         )}
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:p-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:px-3 md:py-2">
           {isMobile && viewSwitch}
           {isMobile && view === STATS_OVERVIEW_VIEW && controls}
           {body}

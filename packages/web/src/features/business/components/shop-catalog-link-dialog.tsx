@@ -61,7 +61,7 @@ export function ShopCatalogLinkDialog({
         footerClassName="flex-col-reverse md:flex-row"
       >
         {url ? (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 md:gap-2">
             {qrCodeDataUrl && (
               <figure className="flex flex-col items-center gap-1.5">
                 <img

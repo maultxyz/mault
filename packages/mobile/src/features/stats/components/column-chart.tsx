@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
-import { niceCeiling } from "@/features/stats/lib/chart-scale";
+import { niceCeiling } from "@magic-vault/shared";
 import { useTheme } from "@/hooks/use-theme";
 import { STATS_CHART_GRID_FRACTIONS, STATS_CHART_HEIGHT, STATS_COLUMN_VALUE_LABEL_HEIGHT } from "@/lib/constants/stats";
 import { SPACING } from "@/lib/constants/theme";
@@ -30,7 +30,7 @@ export function ColumnChart({
 
   return (
     <View style={{ gap: SPACING.sm }}>
-      <AppText size="sm" style={{ fontVariant: ["tabular-nums"] }}>
+      <AppText size="sm">
         <AppText size="sm" tone="secondary">
           {`${current.label}: `}
         </AppText>
@@ -77,7 +77,7 @@ export function ColumnChart({
                     weight={isSelected ? "semibold" : undefined}
                     tone={isSelected ? undefined : "secondary"}
                     numberOfLines={1}
-                    style={{ textAlign: "center", fontVariant: ["tabular-nums"], marginBottom: 2 }}
+                    style={{ textAlign: "center", marginBottom: 2 }}
                   >
                     {formatColumnValue(datum.value)}
                   </AppText>

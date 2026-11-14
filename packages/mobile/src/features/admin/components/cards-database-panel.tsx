@@ -19,6 +19,7 @@ import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";
 import type { AdminCatalogCard } from "@/lib/interfaces/admin-cards";
+import { SectionHeader } from "@/components/ui/section-header";
 
 export function CardsDatabasePanel() {
   const { t, i18n } = useTranslation();
@@ -58,16 +59,16 @@ export function CardsDatabasePanel() {
   return (
     <View style={{ gap: SPACING.lg }}>
       <View style={{ gap: SPACING.md }}>
-        <View style={{ flexDirection: "row", alignItems: "baseline", justifyContent: "space-between", gap: SPACING.sm }}>
-          <AppText heading weight="semibold" accessibilityRole="header">
-            {t("admin.cards.database.heading")}
-          </AppText>
-          {data ? (
-            <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
-              {t("admin.cards.database.cardCount", { count: data.total })}
-            </AppText>
-          ) : null}
-        </View>
+        <SectionHeader
+          title={t("admin.cards.database.heading")}
+          action={
+            data ? (
+              <AppText size="xs" tone="secondary">
+                {t("admin.cards.database.cardCount", { count: data.total })}
+              </AppText>
+            ) : undefined
+          }
+        />
         <SearchInput
           value={searchText}
           onChangeText={setSearchText}
@@ -116,7 +117,7 @@ export function CardsDatabasePanel() {
               disabled={page <= 1 || catalog.isFetching}
               onPress={() => goToPage(page - 1)}
             />
-            <AppText size="xs" tone="secondary" accessibilityLiveRegion="polite" style={{ flex: 1, textAlign: "center", fontVariant: ["tabular-nums"] }}>
+            <AppText size="xs" tone="secondary" accessibilityLiveRegion="polite" style={{ flex: 1, textAlign: "center" }}>
               {t("admin.cards.database.pageStatus", { page, pageCount })}
             </AppText>
             <Button

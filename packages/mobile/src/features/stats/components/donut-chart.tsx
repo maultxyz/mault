@@ -91,7 +91,7 @@ export function DonutChart({ segments, centerValue, centerLabel, formatShare }: 
               <AppText size="sm" numberOfLines={1} style={{ flex: 1, minWidth: 0 }}>
                 {segment.label}
               </AppText>
-              <AppText size="sm" weight="semibold" style={{ fontVariant: ["tabular-nums"] }}>
+              <AppText size="sm" weight="semibold">
                 {formatShare(segment.value, total)}
               </AppText>
             </Pressable>

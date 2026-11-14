@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
+import { CardArt } from "@/components/cards/card-art";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/components/ui/icon";
@@ -13,9 +14,10 @@ import { scanImageQueryOptions } from "@/features/collections/api/collection-car
 import { useTheme } from "@/hooks/use-theme";
 import { SCAN_ATTRIBUTE_FIELD_WIDTH } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, SPACING } from "@/lib/constants/theme";
 import type { ReviewGridTileProps } from "@/lib/interfaces/cards";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
+import { cardArtSources } from "@/lib/card-art";
 import { absoluteUrl } from "@/lib/url";
 import { cardStampOptionsFor } from "@magic-vault/shared";
 
@@ -24,15 +26,13 @@ export function ReviewGridTile({ card, attributes, accepting, onAccept, onCorrec
   const colors = useTheme();
   const image = useQuery(scanImageQueryOptions(card.collectionGuid, card.scanId));
   const capturedUrl = absoluteUrl(image.data?.capturedImageUrl);
-  const matchedUrl = absoluteUrl(card.card.image?.normal ?? card.card.image?.small);
+  const matchedArt = cardArtSources(card.card.image);
   const hasStamps = cardStampOptionsFor(card.card, attributes.stamp).length > 0;
   const attributeFieldStyle = { width: SCAN_ATTRIBUTE_FIELD_WIDTH, flexGrow: 1 } as const;
   const imageFrame = {
     aspectRatio: CARD_ASPECT_RATIO,
-    borderRadius: RADIUS.md,
+    borderRadius: CARD_ART_RADIUS,
     overflow: "hidden" as const,
-    borderWidth: 1,
-    borderColor: colors.border,
     backgroundColor: colors.muted,
   };
 
@@ -63,8 +63,8 @@ export function ReviewGridTile({ card, attributes, accepting, onAccept, onCorrec
             {t("cardDetail.matchedCard")}
           </AppText>
           <View style={imageFrame}>
-            {matchedUrl ? (
-              <Image source={{ uri: matchedUrl }} style={{ flex: 1 }} contentFit="cover" transition={120} accessibilityLabel={card.card.name} />
+            {matchedArt.imageUrl ? (
+              <CardArt {...matchedArt} style={{ flex: 1 }} contentFit="cover" accessibilityLabel={card.card.name} />
             ) : null}
           </View>
         </View>

@@ -1,13 +1,19 @@
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
+import { useTranslation } from "react-i18next";
+import { AccessibilityInfo } from "react-native";
 import { EMPTY_STORED_STORAGE_VERIFY, STORAGE_VERIFY_CARDS_MAX, storageVerifyNameCounts } from "@magic-vault/shared";
+import { useToast } from "@/components/ui/toast-provider";
 import { storageVerifyCardsQueryOptions } from "@/features/storage/api/storage";
 import { useStoredVerify } from "@/features/storage/lib/pick-list-store";
 import { useActiveOrgId } from "@/hooks/use-org";
+import { TOAST_UNDO_DURATION_MS } from "@/lib/constants/ui";
 import type { StorageVerifyState } from "@/lib/interfaces/storage";
 
 export function useStorageVerify(locationGuid: string | undefined): StorageVerifyState {
   const orgId = useActiveOrgId();
+  const { t } = useTranslation();
+  const { showToast } = useToast();
   const [stored, update] = useStoredVerify(orgId, locationGuid ?? "");
   const query = useQuery(storageVerifyCardsQueryOptions(locationGuid));
   const cards = useMemo(() => query.data ?? [], [query.data]);
@@ -44,7 +50,21 @@ export function useStorageVerify(locationGuid: string | undefined): StorageVerif
     isTruncated: cards.length >= STORAGE_VERIFY_CARDS_MAX,
     setVerified,
     addNotInLocation,
-    startOver: () => update(() => EMPTY_STORED_STORAGE_VERIFY),
+    startOver: () => {
+      const previous = stored;
+      update(() => EMPTY_STORED_STORAGE_VERIFY);
+      showToast({
+        message: t("recovery.verifyProgressCleared"),
+        durationMs: TOAST_UNDO_DURATION_MS,
+        action: {
+          label: t("recovery.undo"),
+          onPress: () => {
+            update(() => previous);
+            AccessibilityInfo.announceForAccessibility(t("recovery.restored"));
+          },
+        },
+      });
+    },
     refetch: () => void query.refetch(),
   };
 }

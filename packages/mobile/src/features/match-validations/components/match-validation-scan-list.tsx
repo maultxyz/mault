@@ -7,6 +7,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Pill } from "@/components/ui/pill";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
+import { Surface } from "@/components/ui/surface";
 import {
   authHeadersQueryOptions,
   matchValidationScansQueryOptions,
@@ -14,7 +15,7 @@ import {
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO, LIST_END_THRESHOLD } from "@/lib/constants/collections";
 import { MATCH_VALIDATION_STATUS_TONES, MATCH_VALIDATION_THUMBNAIL_WIDTH } from "@/lib/constants/match-validations";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_THUMBNAIL_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { MatchValidationGameFilterProps, MatchValidationScanRowProps } from "@/lib/interfaces/match-validations";
 import { absoluteUrl } from "@/lib/url";
 
@@ -27,12 +28,12 @@ function MatchValidationScanRow({ scan, authHeaders }: MatchValidationScanRowPro
   const thumbnailFrame = {
     width: MATCH_VALIDATION_THUMBNAIL_WIDTH,
     aspectRatio: CARD_ASPECT_RATIO,
-    borderRadius: RADIUS.md,
+    borderRadius: CARD_THUMBNAIL_RADIUS,
     overflow: "hidden" as const,
     backgroundColor: colors.muted,
   };
   return (
-    <View style={{ flexDirection: "row", gap: SPACING.md, paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.md }}>
+    <Surface style={{ flexDirection: "row", gap: SPACING.md }}>
       <View style={{ flexDirection: "row", gap: SPACING.xs }}>
         <View style={thumbnailFrame}>
           {thumbnailUrl && authHeaders ? (
@@ -76,7 +77,7 @@ function MatchValidationScanRow({ scan, authHeaders }: MatchValidationScanRowPro
           </AppText>
         ) : null}
       </View>
-    </View>
+    </Surface>
   );
 }
 
@@ -92,7 +93,7 @@ export function MatchValidationScanList({ gameKey }: MatchValidationGameFilterPr
       accessibilityLabel={t("matchValidations.scans.listLabel")}
       data={items}
       keyExtractor={(scan) => scan.scanId}
-      contentContainerStyle={{ paddingBottom: SPACING.xxl }}
+      contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SPACING.md, paddingBottom: SPACING.xxl, gap: SPACING.md }}
       onEndReachedThreshold={LIST_END_THRESHOLD}
       onEndReached={() => {
         if (scans.hasNextPage && !scans.isFetchingNextPage) void scans.fetchNextPage();
@@ -108,17 +109,13 @@ export function MatchValidationScanList({ gameKey }: MatchValidationGameFilterPr
       }
       ListEmptyComponent={
         scans.isPending ? (
-          <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SPACING.md }}>
-            <ListSkeleton rows={5} />
-          </View>
+          <ListSkeleton rows={5} />
         ) : (
-          <View style={{ padding: SCREEN_GUTTER }}>
-            <EmptyState
-              icon="collections"
-              title={t("matchValidations.scans.empty.title")}
-              description={t("matchValidations.scans.empty.description")}
-            />
-          </View>
+          <EmptyState
+            icon="collections"
+            title={t("matchValidations.scans.empty.title")}
+            description={t("matchValidations.scans.empty.description")}
+          />
         )
       }
       ListFooterComponent={

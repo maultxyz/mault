@@ -32,8 +32,8 @@ function BinSlot({
 }) {
   const { t } = useTranslation("calibration");
   return (
-    <div className="flex flex-col gap-1.5 p-2 bg-sidebar">
-      <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
+    <div className="flex flex-col gap-1.5 rounded-xl bg-muted p-2">
+      <span className="text-xs text-foreground/70">
         {label}
       </span>
       <Select
@@ -120,9 +120,9 @@ export function BinConfigurations() {
         </Button>
       }
     >
-      <div className="overflow-hidden rounded-lg border divide-y bg-border">
+      <div className="flex flex-col gap-1.5">
         {modules.map((module) => (
-          <div key={module} className="grid grid-cols-2 gap-px bg-border">
+          <div key={module} className="grid grid-cols-2 gap-1.5">
             {BIN_SLOTS_PHYSICAL_ORDER.map(({ direction, labelKey }) => {
               const route = routes.find(
                 (r) => r.module === module && r.direction === direction,
@@ -146,8 +146,8 @@ export function BinConfigurations() {
       </div>
 
       {bottomRoutes.length > 0 && (
-        <div className="flex flex-col gap-2 rounded-lg border p-2 bg-sidebar">
-          <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
+        <div className="flex flex-col gap-2 rounded-xl bg-muted p-2">
+          <span className="text-xs text-foreground/70">
             {t("binConfigurations.bottomSectionLabel")}
           </span>
           {bottomRoutes.map((route) => (

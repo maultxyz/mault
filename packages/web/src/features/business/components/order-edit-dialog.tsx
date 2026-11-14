@@ -113,7 +113,7 @@ export function OrderEditDialog({
           />
           <Field data-invalid={!!form.formState.errors.lines || undefined}>
             <FieldLabel>{t("orders.lines")}</FieldLabel>
-            <ul className="flex max-h-[40svh] flex-col divide-y overflow-y-auto rounded-lg border">
+            <ul className="flex max-h-[40svh] flex-col divide-y divide-border overflow-y-auto rounded-xl bg-muted">
               {fields.map((lineField, index) => (
                 <Controller
                   key={lineField.id}

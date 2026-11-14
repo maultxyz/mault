@@ -13,7 +13,7 @@ export function PresetStagesPanel() {
   if (!workflow) return null;
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 rounded-lg p-3 ring-1 ring-border">
+    <div className="flex flex-wrap items-center justify-between gap-3 rounded-card bg-card p-3">
       <div className="flex min-w-0 flex-col">
         <span className="truncate text-sm font-medium">{label}</span>
         <span className="text-xs text-foreground/70">

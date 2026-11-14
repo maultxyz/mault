@@ -55,7 +55,7 @@ export default function SettingsScanningPage() {
         heading={t("ocr.heading")}
         description={t("ocr.description")}
       >
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 md:gap-2">
           <label className="flex items-center justify-between gap-3">
             <span className="text-sm">{t("ocr.toggleLabel")}</span>
             <Controller
@@ -100,7 +100,7 @@ export default function SettingsScanningPage() {
         badge={<Badge variant="outline">{t("foilDetection.badge")}</Badge>}
         description={t("foilDetection.description")}
       >
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 md:gap-2">
           <label className="flex items-center justify-between gap-3">
             <span className="flex flex-col gap-0.5">
               <span className="text-sm">
@@ -153,7 +153,7 @@ export default function SettingsScanningPage() {
         heading={t("correctionAutoClose.heading")}
         description={t("correctionAutoClose.description")}
       >
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 md:gap-2">
           <label className="flex items-center justify-between gap-3">
             <span className="flex flex-col gap-0.5">
               <span className="text-sm">

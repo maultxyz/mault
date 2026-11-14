@@ -126,7 +126,7 @@ export function RepackPanel() {
       <form
         id="repack-form"
         onSubmit={form.handleSubmit(handleSave)}
-        className="flex flex-col gap-3"
+        className="flex flex-col gap-3 md:gap-2"
         data-tour="repack-panel"
       >
         <Controller
@@ -252,7 +252,7 @@ export function RepackPanel() {
                 </span>
               </div>
               {field.value != null && (
-                <div className="rounded-lg border p-2.5 flex flex-col gap-2">
+                <div className="flex flex-col gap-2 rounded-card bg-card p-3">
                   <p className="text-xs text-foreground/70">
                     {siftBin
                       ? t("repackPanel.siftHint", { bin: siftBin.binNumber })
@@ -275,11 +275,11 @@ export function RepackPanel() {
             <div className="flex flex-col gap-2" data-tour="repack-slots">
               <Label>{t("repackPanel.slotsLabel")}</Label>
               <ScrollArea>
-                <div className="flex flex-col gap-3 pr-2">
+                <div className="flex flex-col gap-3 md:gap-2 pr-2">
                   {field.value.map((slot, index) => (
                     <div
                       key={slot.id}
-                      className="rounded-lg border p-2.5 flex flex-col gap-2"
+                      className="flex flex-col gap-2 rounded-card bg-card p-3"
                     >
                       <div className="flex items-center justify-between gap-2">
                         <Field className="flex-1 gap-1">

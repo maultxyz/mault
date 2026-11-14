@@ -1,4 +1,5 @@
 import {
+  LIBRARY_PATH,
   MOBILE_ACCOUNT_PATH,
   MOBILE_ACCOUNT_TAB_PATHS,
   MOBILE_HOME_PATH,
@@ -10,18 +11,16 @@ import {
 } from "@/lib/constants/nav";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STORAGE_PATH } from "@/lib/constants/storage";
-import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import type {
   MobileNavTabIconProps,
   MobileNavTabProps,
 } from "@/lib/interfaces/nav";
 import { cn } from "@/lib/utils";
 import {
-  IconArrowsSplit2,
-  IconBox,
+  IconAlbum,
   IconHome,
+  IconMenu2,
   IconScan,
-  IconUserCircle,
 } from "@tabler/icons-react";
 import { usePiHost } from "@/hooks/use-pi-host";
 import { usesHostHardware } from "@/lib/host";
@@ -83,8 +82,6 @@ export function MobileNav() {
   const scanPath = piRemote ? "/app" : MOBILE_SCAN_PATH;
   const { locks, currentUserId } = useCollectionLocks();
   const liveCounts = useLiveSessionCounts();
-  const { planLockFor } = usePlanLockedPath();
-  const storageLock = planLockFor(STORAGE_PATH);
 
   const hasLiveSessions = !!(
     currentUserId &&
@@ -96,7 +93,7 @@ export function MobileNav() {
   return (
     <nav
       aria-label={t("a11y.mainNavigation")}
-      className="absolute inset-x-0 bottom-0 z-40 grid grid-cols-5 bg-sidebar pb-[env(safe-area-inset-bottom)]"
+      className="absolute inset-x-0 bottom-0 z-40 grid grid-cols-4 bg-sidebar pb-[env(safe-area-inset-bottom)]"
     >
       <MobileNavTab
         to={MOBILE_HOME_PATH}
@@ -117,26 +114,23 @@ export function MobileNav() {
         }
       />
       <MobileNavTab
-        to={SORTING_RULES_PATH}
-        icon={<IconArrowsSplit2 size={22} />}
-        label={t("mobileTabs.rules")}
-        active={pathname.startsWith(SORTING_RULES_PATH)}
-      />
-      <MobileNavTab
-        to={STORAGE_PATH}
-        icon={<IconBox size={22} />}
-        label={t("mobileTabs.storage")}
-        active={pathname.startsWith(STORAGE_PATH)}
-        lockTag={storageLock && t("nav.upgradeShort")}
-        disabled={storageLock?.isDisabled}
+        to={LIBRARY_PATH}
+        icon={<IconAlbum size={22} />}
+        label={t("mobileTabs.library")}
+        active={
+          pathname.startsWith(LIBRARY_PATH) ||
+          pathname.startsWith(STORAGE_PATH) ||
+          pathname.startsWith("/app/monitor/")
+        }
       />
       <MobileNavTab
         to={MOBILE_ACCOUNT_PATH}
-        icon={<IconUserCircle size={22} />}
-        label={t("mobileTabs.account")}
-        active={MOBILE_ACCOUNT_TAB_PATHS.some((path) =>
-          pathname.startsWith(path),
-        )}
+        icon={<IconMenu2 size={22} />}
+        label={t("mobileTabs.more")}
+        active={
+          MOBILE_ACCOUNT_TAB_PATHS.some((path) => pathname.startsWith(path)) ||
+          pathname.startsWith(SORTING_RULES_PATH)
+        }
       />
     </nav>
   );

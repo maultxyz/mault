@@ -68,7 +68,7 @@ export function OcrRegionCrops({
   };
 
   return (
-    <div className={cn("flex flex-col gap-3", className)}>
+    <div className={cn("flex flex-col gap-3 md:gap-2", className)}>
       {regions.map((region, i) => (
         <RegionCrop
           key={`${region.field}-${i}`}

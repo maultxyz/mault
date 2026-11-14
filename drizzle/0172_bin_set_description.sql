@@ -1,0 +1,1 @@
+ALTER TABLE "bin_sets" ADD COLUMN "description" text DEFAULT '' NOT NULL;

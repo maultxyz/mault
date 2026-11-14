@@ -55,7 +55,7 @@ export function TradeOfferReviewDialog({ offer, onOpenChange }: TradeOfferReview
       }
     >
       {offer && (
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4 md:gap-2">
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-control">
             <dt className="text-foreground/70">{t("tradeOffers.contact")}</dt>
             <dd className="break-words select-all">{offer.guestContact}</dd>
@@ -71,7 +71,7 @@ export function TradeOfferReviewDialog({ offer, onOpenChange }: TradeOfferReview
             {t("tradeOffers.acceptRemovesCards", { count: offer.wanted.length })}
           </Callout>
           <section className="flex flex-col gap-2">
-            <h3 className="text-xs font-medium tracking-wide text-foreground/70 uppercase">
+            <h3 className="text-xs font-medium text-foreground/70">
               {t("tradeOffers.theyWant", { count: offer.wanted.length })}
             </h3>
             <TradeOfferCardList
@@ -81,7 +81,7 @@ export function TradeOfferReviewDialog({ offer, onOpenChange }: TradeOfferReview
             />
           </section>
           <section className="flex flex-col gap-2">
-            <h3 className="text-xs font-medium tracking-wide text-foreground/70 uppercase">
+            <h3 className="text-xs font-medium text-foreground/70">
               {t("tradeOffers.theyOffer", { count: offer.offered.length })}
             </h3>
             <TradeOfferCardList

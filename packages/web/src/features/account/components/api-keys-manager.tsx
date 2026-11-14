@@ -104,7 +104,7 @@ export function ApiKeysManager() {
   const activeKeys = (keys ?? []).filter((k) => k.status === "active");
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:gap-2">
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs text-foreground/70">
           {t("apiKeys.description")}
@@ -130,7 +130,7 @@ export function ApiKeysManager() {
       )}
 
       {!isLoading && activeKeys.length > 0 && (
-        <div className="flex flex-col divide-y divide-border rounded-lg border">
+        <div className="flex flex-col divide-y divide-border">
           {activeKeys.map((key) => {
             const isRevoking = revokingPrefix === key.keyPrefix;
             const expires = key.expiresAt ? formatShortDate(key.expiresAt) : null;
@@ -220,7 +220,7 @@ export function ApiKeysManager() {
           </Button>
         }
       >
-        <div className="flex items-center gap-2 rounded-lg border bg-muted p-2">
+        <div className="flex items-center gap-2 rounded-xl bg-muted p-2">
           <code className="flex-1 overflow-x-auto whitespace-nowrap text-sm">
             {newRawKey}
           </code>

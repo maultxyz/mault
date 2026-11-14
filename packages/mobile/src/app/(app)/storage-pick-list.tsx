@@ -104,7 +104,7 @@ export default function StoragePickListScreen() {
             />
             {pickList.cards.length > 0 ? (
               <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
-                <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+                <AppText size="xs" tone="secondary">
                   {t("storage.pickList.progress", { picked: pickList.pickedCount, total: pickList.cards.length })}
                 </AppText>
                 <View

@@ -54,6 +54,7 @@ export function ScannerControlsSheet({
           icon="scan"
           title={t("scan.controls.scanNow")}
           subtitle={t("scan.controls.scanNowDescription")}
+          subtitleNumberOfLines={0}
           disabled={running || !canScan || busy !== null}
           right={spinner("scan")}
           onPress={() => {
@@ -65,6 +66,7 @@ export function ScannerControlsSheet({
           icon="play"
           title={t("scan.controls.feed")}
           subtitle={t("scan.controls.feedDescription")}
+          subtitleNumberOfLines={0}
           disabled={feedDisabled || !canScan}
           right={spinner("feed")}
           onPress={() => void run("feed", onFeedOne, true)}
@@ -73,6 +75,7 @@ export function ScannerControlsSheet({
           icon="arrowDown"
           title={t("scan.controls.drop")}
           subtitle={t("scan.controls.dropDescription")}
+          subtitleNumberOfLines={0}
           disabled={sorterActionsDisabled}
           right={spinner("drop")}
           onPress={() => void run("drop", sorter.clearDevice)}
@@ -81,6 +84,7 @@ export function ScannerControlsSheet({
           icon="arrowUp"
           title={t("scan.controls.retract")}
           subtitle={retract.retractLockedReason ?? t("scan.controls.retractDescription")}
+          subtitleNumberOfLines={0}
           disabled={sorterActionsDisabled || retract.retractLockedReason !== null}
           right={spinner("retract")}
           onPress={() => void run("retract", () => retract.retractCard())}
@@ -89,6 +93,7 @@ export function ScannerControlsSheet({
           icon="refresh"
           title={t("scan.controls.neutral")}
           subtitle={t("scan.controls.neutralDescription")}
+          subtitleNumberOfLines={0}
           disabled={sorterActionsDisabled}
           right={spinner("neutral")}
           onPress={() =>
@@ -103,6 +108,7 @@ export function ScannerControlsSheet({
           icon="sorter"
           title={t("scan.controls.sorter")}
           subtitle={t("scan.controls.sorterDescription")}
+          subtitleNumberOfLines={0}
           onPress={() => {
             onClose();
             router.push("/sorter");

@@ -15,6 +15,9 @@ import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
+import { translateFormErrorMessage } from "@/lib/form-validation";
+import { Surface } from "@/components/ui/surface";
+import { TextField } from "@/components/ui/text-field";
 import { saveBinConfig } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
@@ -47,6 +50,7 @@ export default function BinEditorScreen() {
             isCatchAll: !!bin.isCatchAll,
             isDisabled: !!bin.isDisabled,
             overflowBin: bin.overflowBin ?? null,
+            maxCards: bin.maxCards ?? null,
           }
         : undefined,
     [bin],
@@ -85,6 +89,7 @@ export default function BinEditorScreen() {
         lowMatchPercent: bin?.lowMatchPercent,
         maxCopies: bin?.maxCopies,
         maxCopiesBy: bin?.maxCopiesBy,
+        maxCards: values.maxCards,
       }),
     onSuccess: async (_, values) => {
       form.reset(values);
@@ -142,7 +147,7 @@ export default function BinEditorScreen() {
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.lg + SPACING.xs }}
       >
         {isRulesDataPending ? (
           <PageSkeleton />
@@ -243,6 +248,34 @@ export default function BinEditorScreen() {
                 )}
               </View>
             ) : null}
+
+            <View style={{ gap: SPACING.sm }}>
+              {isCatchAll ? <SectionHeader title={t("rules.settingsTitle")} /> : null}
+              <Surface style={{ gap: SPACING.xs }}>
+                <Controller
+                  control={form.control}
+                  name="maxCards"
+                  render={({ field, fieldState }) => (
+                    <TextField
+                      label={t("rules.maxCardsLabel")}
+                      placeholder={t("rules.maxCardsPlaceholder")}
+                      keyboardType="number-pad"
+                      editable={!readOnly}
+                      value={field.value == null ? "" : String(field.value)}
+                      onBlur={field.onBlur}
+                      onChangeText={(text) => {
+                        const digits = text.replace(/\D/g, "");
+                        field.onChange(digits === "" ? null : Number(digits));
+                      }}
+                      error={translateFormErrorMessage(t, fieldState.error?.message)}
+                    />
+                  )}
+                />
+                <AppText size="xs" tone="secondary">
+                  {t("rules.maxCardsDescription")}
+                </AppText>
+              </Surface>
+            </View>
 
             {!isCatchAll ? (
               <View style={{ gap: SPACING.sm }}>

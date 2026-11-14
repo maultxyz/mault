@@ -114,7 +114,7 @@ export function NotificationRuleDialog({
   return (
     <Dialog drawerOnMobile={false} open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 md:gap-2">
           <DialogHeader>
             <DialogTitle>
               {rule ? t("ruleDialog.editTitle") : t("ruleDialog.addTitle")}
@@ -122,7 +122,7 @@ export function NotificationRuleDialog({
             <DialogDescription>{t("ruleDialog.description")}</DialogDescription>
           </DialogHeader>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 md:gap-2 sm:grid-cols-2">
             <Field data-invalid={!!errors.name}>
               <Label htmlFor="notification-rule-name">
                 {t("ruleDialog.name")}

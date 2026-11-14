@@ -1,6 +1,10 @@
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { PageHeader } from "@/components/page-header";
+import { LibraryViewTabs } from "@/features/library/components/library-view-tabs";
+import { LibraryValueModeTabs } from "@/features/library/components/library-value-mode-tabs";
+import { useCollectionChanges } from "@/features/library/api/use-collection-changes";
+import type { LibraryValueMode } from "@/lib/interfaces/library";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -39,6 +43,7 @@ import type { Collection } from "@magic-vault/shared";
 
 export default function CollectionsPage() {
   const { t } = useTranslation("collections");
+  const { t: tCommon } = useTranslation("common");
   const {
     collections,
     activeCollection,
@@ -58,6 +63,8 @@ export default function CollectionsPage() {
   const viewersByGuid = useSessionViewersByGuid();
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [valueMode, setValueMode] = useState<LibraryValueMode>("value");
+  const changeOf = useCollectionChanges(valueMode === "change");
   const filteredCollections = collections.filter((collection) =>
     collection.name.toLowerCase().includes(searchQuery.trim().toLowerCase()),
   );
@@ -190,8 +197,9 @@ export default function CollectionsPage() {
       )}
     >
       <PageHeader
-        title={t("page.title")}
+        title={tCommon("nav.library")}
         description={t("page.subtitle")}
+        tabs={<LibraryViewTabs value="collections" />}
         actions={
           <CreateCollectionDialog
             trigger={({ disabled }) => (
@@ -204,14 +212,8 @@ export default function CollectionsPage() {
         }
       >
         {!isLoading && collections.length > 0 && (
-          <>
-            <StatGroup
-              heading={t("page.stats.heading")}
-              tiles={stats}
-              live={liveCount > 0}
-              gridClassName="grid-cols-2 sm:grid-cols-4"
-            />
-            <div className="relative">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="relative min-w-48 flex-1">
               <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
               <Input
                 type="search"
@@ -223,24 +225,37 @@ export default function CollectionsPage() {
                 className="pl-8"
               />
             </div>
-          </>
+            <LibraryValueModeTabs value={valueMode} onChange={setValueMode} />
+          </div>
         )}
       </PageHeader>
 
       <div
         className={cn(
-          "mx-auto flex w-full max-w-6xl flex-col gap-5 p-4 md:p-6",
+          "mx-auto flex w-full max-w-6xl flex-col gap-5 md:gap-2 p-4 md:px-3 md:py-2",
           liveSelectedGuids.length > 0 && "pb-24 md:pb-24",
         )}
       >
+        {!isLoading && collections.length > 0 && (
+          <StatGroup
+            heading={t("page.stats.heading")}
+            tiles={stats}
+            live={liveCount > 0}
+            gridClassName="grid-cols-2 sm:grid-cols-4"
+          />
+        )}
+
         {isLoading && (
           <div className={COLLECTIONS_GRID_CLASS}>
             {Array.from({ length: COLLECTIONS_SKELETON_COUNT }).map((_, i) => (
-              <div key={i} className="overflow-hidden rounded-lg border">
-                <Skeleton className="h-40 rounded-none" />
-                <div className="space-y-1.5 border-t p-3">
-                  <Skeleton className="h-3 w-32" />
-                  <Skeleton className="h-2.5 w-20" />
+              <div key={i} className="overflow-hidden rounded-card border border-border bg-card">
+                <Skeleton className="h-32 rounded-none" />
+                <div className="flex flex-col gap-1.5 border-t px-3 py-2">
+                  <Skeleton className="h-3.5 w-32" />
+                  <div className="flex justify-between">
+                    <Skeleton className="h-3 w-24" />
+                    <Skeleton className="h-3.5 w-14" />
+                  </div>
                 </div>
               </div>
             ))}
@@ -291,6 +306,8 @@ export default function CollectionsPage() {
                   isActivating={isActivating}
                   isMutating={isMutating}
                   onActivate={() => activateCollection(collection.guid)}
+                  valueMode={valueMode}
+                  change={valueMode === "change" ? changeOf(collection.guid) : null}
                   onEdit={() => setEditTarget(collection)}
                   onEmpty={() =>
                     setEmptyChoice({ targets: [target], bulk: false })
@@ -305,9 +322,9 @@ export default function CollectionsPage() {
                   <button
                     type="button"
                     disabled={disabled}
-                    className="flex min-h-56 flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none"
+                    className="flex min-h-56 flex-col items-center justify-center gap-2 rounded-card border-2 border-dashed border-border text-sm text-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none"
                   >
-                    <span className="rounded-lg border border-dashed p-3">
+                    <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-sidebar-primary">
                       <IconPlus className="size-5" />
                     </span>
                     {t("newCollection")}

@@ -31,7 +31,7 @@ export function MobileScanRemovalSheet({
           </div>
           {isSorterConnected && <ScanRemovalBinSelect />}
           <ScanRemovalList />
-          <ScanRemovalActions className="sticky bottom-0 bg-background pt-2" />
+          <ScanRemovalActions className="sticky bottom-0 bg-popover pt-2" />
         </div>
       </DrawerContent>
     </Drawer>

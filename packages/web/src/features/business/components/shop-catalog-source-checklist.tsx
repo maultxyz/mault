@@ -16,7 +16,7 @@ export function ShopCatalogSourceChecklist({
       {options.length === 0 ? (
         <p className="text-xs text-foreground/70">{t("shopCatalogs.noSources")}</p>
       ) : (
-        <div className="max-h-48 divide-y overflow-y-auto rounded-lg border">
+        <div className="max-h-48 divide-y divide-border overflow-y-auto rounded-xl bg-muted">
           {options.map((option) => {
             const id = `${idPrefix}-${option.guid}`;
             return (

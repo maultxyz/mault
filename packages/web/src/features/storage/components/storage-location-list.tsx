@@ -13,12 +13,9 @@ export function StorageLocationList({
 }: StorageLocationListProps) {
   if (isLoading) {
     return (
-      <div className="flex flex-col overflow-hidden rounded-lg border">
+      <div className="flex flex-col gap-2">
         {Array.from({ length: STORAGE_LIST_SKELETON_COUNT }).map((_, i) => (
-          <Skeleton
-            key={i}
-            className="h-13 rounded-none border-b last:border-b-0"
-          />
+          <Skeleton key={i} className="h-13 rounded-lg" />
         ))}
       </div>
     );

@@ -50,7 +50,7 @@ export function StorageLocationVerify({
   }
 
   const list = (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       {verify.isTruncated && (
         <Callout variant="warning">
           {t("verify.truncated", { max: STORAGE_VERIFY_CARDS_MAX })}
@@ -85,7 +85,7 @@ export function StorageLocationVerify({
   );
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       <div className="flex flex-wrap items-center gap-1.5">
         <p className="mr-auto text-xs text-foreground/70">
           {t("verify.description")}
@@ -109,7 +109,7 @@ export function StorageLocationVerify({
       <div
         className={cn(
           isScanOpen &&
-            "flex flex-col gap-4 md:grid md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] md:items-start",
+            "flex flex-col gap-4 md:gap-2 md:grid md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] md:items-start",
         )}
       >
         {isScanOpen && (

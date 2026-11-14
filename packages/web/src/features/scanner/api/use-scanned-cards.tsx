@@ -112,6 +112,7 @@ import type {
 import type { StationAttention } from "@/lib/interfaces/stations";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import { generateScanId } from "@/lib/utils";
+import { CARD_REMOVAL_UNDO_MS } from "@/lib/constants/toast";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
@@ -125,6 +126,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { useCollectionLocks } from "@/lib/app-stream";
 import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
+import { useHandScanBins } from "@/features/scanner/lib/hand-scan";
 
 const ScannedCardsContext = createContext<ScannedCardsContextValue | null>(
   null,
@@ -137,6 +139,10 @@ export function ScannedCardsProvider({
 }) {
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
+  const notifyEditFailed = useCallback(
+    () => toast.error(t("scannedCards.editFailed.title")),
+    [t, toast],
+  );
   const [unmatchedCards, setUnmatchedCards] = useState<UnmatchedCard[]>([]);
   const [unmatchedCount, setUnmatchedCount] = useState(0);
   const unmatchedRequestRef = useRef(0);
@@ -296,6 +302,8 @@ export function ScannedCardsProvider({
   const selectedSetRef = useRef(selectedSet);
   const binContentsRef = useRef<BinContentCard[]>([]);
   const [ignoreIrSensors] = useIgnoreIrSensors();
+  const [handScanBins] = useHandScanBins();
+  const handScanBinsRef = useRef(handScanBins);
   const serialRef = useRef({
     sendRoute,
     sendRequest,
@@ -438,10 +446,17 @@ export function ScannedCardsProvider({
     };
   }, [sendRoute, sendRequest, isConnected, isReady, ignoreIrSensors]);
 
+  useEffect(() => {
+    handScanBinsRef.current = handScanBins;
+  }, [handScanBins]);
+
   const scanRoutingContext = useCallback(
     (): ScanRoutingContext => ({
       binSet: selectedSetRef.current,
-      configs: rawBinConfigsRef.current,
+      configs:
+        serialRef.current.isConnected || handScanBinsRef.current
+          ? rawBinConfigsRef.current
+          : [],
       fieldDefinitions: fieldDefinitionsRef.current,
       binContents: binContentsRef.current,
       countCardsInBin: countCardsLocally,
@@ -1460,6 +1475,78 @@ export function ScannedCardsProvider({
     [removeCards],
   );
 
+  const pendingRemovalsRef = useRef(new Map<string, () => void>());
+
+  const removeCardsWithUndo = useCallback(
+    (scanIds: string[]) => {
+      const collection = activeCollectionRef.current;
+      if (!collection || scanIds.length === 0) return;
+      const idSet = new Set(scanIds);
+      const removedEntries = binContentsRef.current.filter((c) =>
+        idSet.has(c.scanId),
+      );
+      binContentsRef.current = binContentsRef.current.filter(
+        (c) => !idSet.has(c.scanId),
+      );
+      removeFromCardPages(queryClient, collection.guid, idSet);
+      const removalId = generateScanId();
+      const send = () => {
+        if (!pendingRemovalsRef.current.delete(removalId)) return;
+        const request =
+          scanIds.length === 1
+            ? removeCollectionCard(collection.guid, scanIds[0])
+            : removeCollectionCards(collection.guid, scanIds);
+        request
+          .then((result) => {
+            if (!result.success) notifyEditFailed();
+          })
+          .catch((err) => {
+            console.error("Failed to remove cards:", err);
+            notifyEditFailed();
+          })
+          .finally(
+            () => void invalidateCollectionCards(queryClient, collection.guid),
+          );
+      };
+      pendingRemovalsRef.current.set(removalId, send);
+      toast(t("scannedCards.removed.title", { count: scanIds.length }), {
+        id: removalId,
+        duration: CARD_REMOVAL_UNDO_MS,
+        onAutoClose: send,
+        onDismiss: send,
+        action: {
+          label: t("scannedCards.removed.undo"),
+          onClick: () => {
+            if (!pendingRemovalsRef.current.delete(removalId)) return;
+            binContentsRef.current = [
+              ...binContentsRef.current,
+              ...removedEntries,
+            ];
+            void invalidateCollectionCards(queryClient, collection.guid);
+          },
+        },
+      });
+    },
+    [queryClient, t, toast, notifyEditFailed],
+  );
+
+  useEffect(() => {
+    const pending = pendingRemovalsRef.current;
+    const flush = () => {
+      for (const send of [...pending.values()]) send();
+    };
+    const flushWhenHidden = () => {
+      if (document.visibilityState === "hidden") flush();
+    };
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", flushWhenHidden);
+    return () => {
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", flushWhenHidden);
+      flush();
+    };
+  }, []);
+
   const correctCard = useCallback(
     (scanId: string, card: PlayingCard) => {
       const collection = activeCollectionRef.current;
@@ -1515,12 +1602,15 @@ export function ScannedCardsProvider({
         }),
       );
       updateCollectionCard(collection.guid, scanId, corrected, currentBin)
-        .catch((err) => console.error("Failed to update card:", err))
+        .catch((err) => {
+          console.error("Failed to update card:", err);
+          notifyEditFailed();
+        })
         .finally(
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
     },
-    [resolveCorrectedBin, pickListNameInBin, queryClient],
+    [resolveCorrectedBin, pickListNameInBin, queryClient, notifyEditFailed],
   );
 
   const moveCorrectedCard = useCallback(
@@ -1640,12 +1730,15 @@ export function ScannedCardsProvider({
         foilType: foilType ?? undefined,
       }));
       setCollectionCardsFoilType(collection.guid, scanIds, foilType)
-        .catch((err) => console.error("Failed to update foil status:", err))
+        .catch((err) => {
+          console.error("Failed to update foil status:", err);
+          notifyEditFailed();
+        })
         .finally(
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
     },
-    [queryClient],
+    [queryClient, notifyEditFailed],
   );
 
   const setCardFoilType = useCallback(
@@ -1665,12 +1758,15 @@ export function ScannedCardsProvider({
         (entry) => ({ ...entry, condition }),
       );
       setCollectionCardsCondition(collection.guid, scanIds, condition)
-        .catch((err) => console.error("Failed to update condition:", err))
+        .catch((err) => {
+          console.error("Failed to update condition:", err);
+          notifyEditFailed();
+        })
         .finally(
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
     },
-    [queryClient],
+    [queryClient, notifyEditFailed],
   );
 
   const setCardCondition = useCallback(
@@ -1690,12 +1786,15 @@ export function ScannedCardsProvider({
         (entry) => ({ ...entry, stamp: stamp ?? undefined }),
       );
       setCollectionCardStamp(collection.guid, scanId, stamp)
-        .catch((err) => console.error("Failed to update stamp:", err))
+        .catch((err) => {
+          console.error("Failed to update stamp:", err);
+          notifyEditFailed();
+        })
         .finally(
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
     },
-    [queryClient],
+    [queryClient, notifyEditFailed],
   );
 
   const setCardLanguage = useCallback(
@@ -1709,12 +1808,15 @@ export function ScannedCardsProvider({
         (entry) => ({ ...entry, language }),
       );
       setCollectionCardLanguage(collection.guid, scanId, language)
-        .catch((err) => console.error("Failed to update language:", err))
+        .catch((err) => {
+          console.error("Failed to update language:", err);
+          notifyEditFailed();
+        })
         .finally(
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
     },
-    [queryClient],
+    [queryClient, notifyEditFailed],
   );
 
   const setCardsTags = useCallback(
@@ -1728,12 +1830,15 @@ export function ScannedCardsProvider({
         (entry) => withCardTags(entry, tags, enabled),
       );
       setCollectionCardTags(collection.guid, { scanIds, tags, enabled })
-        .catch((err) => console.error("Failed to update card tags:", err))
+        .catch((err) => {
+          console.error("Failed to update card tags:", err);
+          notifyEditFailed();
+        })
         .finally(
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
     },
-    [queryClient],
+    [queryClient, notifyEditFailed],
   );
 
   const resetSessionStats = useCallback(() => {
@@ -1810,6 +1915,7 @@ export function ScannedCardsProvider({
         dismissFullBins,
         removeCard,
         removeCards,
+        removeCardsWithUndo,
         moveCardsToCollection,
         correctCard,
         confirmCard,

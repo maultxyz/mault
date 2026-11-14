@@ -1,4 +1,5 @@
-import type { ChartPoint, SparklinePaths } from "@/lib/interfaces/home";
+import { CHART_NICE_STEPS } from "./constants/chart.constant";
+import type { ChartPoint, SparklinePaths } from "./interfaces/chart.interface";
 
 export function sparklinePaths(values: number[], width: number, height: number, top: number): SparklinePaths | null {
   if (values.length < 2 || width <= 0 || height <= 0) return null;
@@ -28,4 +29,27 @@ export function smoothLinePath(points: ChartPoint[], maxY = Number.POSITIVE_INFI
     line += ` C ${firstControlX} ${firstControlY} ${secondControlX} ${secondControlY} ${next.x} ${next.y}`;
   }
   return line;
+}
+
+export function niceCeiling(value: number): number {
+  if (value <= 0) return 1;
+  const magnitude = 10 ** Math.floor(Math.log10(value));
+  const step = CHART_NICE_STEPS.find((candidate) => candidate * magnitude >= value) ?? 10;
+  return step * magnitude;
+}
+
+export function indexAtX(x: number, width: number, count: number): number {
+  if (count <= 1 || width <= 0) return 0;
+  return Math.max(0, Math.min(count - 1, Math.round((x / width) * (count - 1))));
+}
+
+export function foldChartSegments<T extends { key: string; label: string; value: number }>(
+  segments: T[],
+  maxSegments: number,
+  other: Omit<T, "value">,
+): T[] {
+  if (segments.length <= maxSegments) return segments;
+  const kept = segments.slice(0, maxSegments - 1);
+  const otherValue = segments.slice(maxSegments - 1).reduce((sum, segment) => sum + segment.value, 0);
+  return [...kept, { ...other, value: otherValue } as T];
 }

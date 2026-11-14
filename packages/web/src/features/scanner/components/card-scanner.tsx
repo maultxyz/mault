@@ -70,7 +70,10 @@ import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { EmptyBinOptions } from "@magic-vault/shared";
 import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
-import { useHandScan } from "@/features/scanner/lib/hand-scan";
+import {
+  useHandScan,
+  useHandScanBins,
+} from "@/features/scanner/lib/hand-scan";
 import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
 
 export function CardScanner({
@@ -175,6 +178,7 @@ export function CardScanner({
   } = useResetToNeutral();
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const [handScan, setHandScan] = useHandScan();
+  const [handScanBins, setHandScanBins] = useHandScanBins();
   const handScanActive = handScan && !isConnected;
   const { isRemoveModeActive, queueScannedCard, handleRemovalNoMatch } =
     useScanRemoval();
@@ -969,6 +973,8 @@ export function CardScanner({
           handScanActive,
           lastRoutedBin: visibleLastRoutedBin,
           onHandScanChange: setHandScan,
+          handScanBins,
+          onHandScanBinsChange: setHandScanBins,
         })}
         {dialogs}
       </div>
@@ -1045,15 +1051,14 @@ export function CardScanner({
       >
         <div
           className={cn(
-            "relative isolate overflow-hidden bg-background rounded-lg border",
-            viewerTouchesPanelEdges && "rounded-none border-x-0 border-t-0",
+            "relative isolate overflow-hidden rounded-card bg-card",
+            viewerTouchesPanelEdges && "rounded-none border-b",
             isSideControls
               ? "h-full aspect-[2.5/3.5] shrink-0"
               : "w-full h-full max-w-full",
             !compact && !isSideControls && "md:aspect-[2.5/3.5]",
             piRemote && !isSideControls && "max-md:flex-1 max-md:min-h-0",
-            isRemoveModeActive &&
-              "border-destructive ring-2 ring-destructive/40",
+            isRemoveModeActive && "ring-2 ring-destructive ring-inset",
           )}
         >
           <video ref={videoRef} className="hidden" playsInline muted />
@@ -1094,7 +1099,7 @@ export function CardScanner({
               </TooltipTrigger>
               <TooltipContent
                 side="right"
-                className="bg-background text-foreground border border-border p-0 shadow-lg max-w-none"
+                className="max-w-none overflow-hidden rounded-xl bg-popover p-0 text-popover-foreground shadow-popover ring-1 ring-border"
               >
                 <img
                   src={debugImageUrl}
@@ -1151,6 +1156,8 @@ export function CardScanner({
             onAllowDuplicatesChange={setAllowDuplicates}
             handScan={handScan}
             onHandScanChange={setHandScan}
+            handScanBins={handScanBins}
+            onHandScanBinsChange={setHandScanBins}
           />
         </div>
         {showStatusStrip && (

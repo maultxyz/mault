@@ -223,7 +223,7 @@ export function PublicCardBrowser({
             <img
               src={info.shopPhotoUrl}
               alt=""
-              className="h-12 w-20 shrink-0 rounded-lg object-cover ring-1 ring-border md:h-14 md:w-24"
+              className="h-12 w-20 shrink-0 rounded-lg object-cover md:h-14 md:w-24"
             />
           )}
           <div className="flex min-w-0 flex-col">

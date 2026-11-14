@@ -1,5 +1,5 @@
-import { Image } from "expo-image";
 import { Pressable, View } from "react-native";
+import { CardArt } from "@/components/cards/card-art";
 import { AppText } from "@/components/ui/app-text";
 import { useTheme } from "@/hooks/use-theme";
 import { TRADE_CARD_THUMBNAIL_WIDTH } from "@/lib/constants/trade";
@@ -18,8 +18,8 @@ export function TradeCardRow({
   const colors = useTheme();
   const content = (
     <>
-      <Image
-        source={imageUrl ? { uri: imageUrl } : undefined}
+      <CardArt
+        imageUrl={imageUrl}
         accessible={false}
         style={{
           width: TRADE_CARD_THUMBNAIL_WIDTH,

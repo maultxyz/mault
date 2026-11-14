@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { MobileListRow } from "@/components/mobile-list-row";
 import { MobilePageHeader } from "@/components/mobile-page-header";
+import { LibraryViewTabs } from "@/features/library/components/library-view-tabs";
 import { MobileSearchInput } from "@/components/mobile-search-input";
 import { Button } from "@/components/ui/button";
 import { DrawerTitle } from "@/components/ui/drawer";
@@ -61,6 +62,7 @@ import { Link, useSearchParams } from "react-router-dom";
 export function MobileStorage() {
   const { t } = useTranslation("storage");
   const { t: tCards } = useTranslation("cards");
+  const { t: tHome } = useTranslation("home");
   const { locations, isLoading, isMutating, create, rename, remove } =
     useStorageLocations();
   const { format } = usePriceSource();
@@ -302,7 +304,7 @@ export function MobileStorage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <MobilePageHeader
-        title={t("page.title")}
+        title={tHome("library.title")}
         actions={
           <>
             {locations.length > 0 && (
@@ -329,6 +331,7 @@ export function MobileStorage() {
           </>
         }
       >
+        <LibraryViewTabs value="storage" />
         {!isLoading && locations.length > 0 && (
           <MobileSearchInput
             placeholder={t("search.placeholder")}

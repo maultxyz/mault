@@ -1,3 +1,4 @@
+import { LibraryViewTabs } from "@/features/library/components/library-view-tabs";
 import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
@@ -214,8 +215,11 @@ function DesktopStoragePage() {
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
       {!showsLocationHeading && (
-        <h1 className="sr-only">{tCommon("nav.storage")}</h1>
+        <h1 className="sr-only">{tCommon("nav.library")}</h1>
       )}
+      <div className="shrink-0 border-b px-3 pt-1">
+        <LibraryViewTabs value="storage" />
+      </div>
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         {isOneByOneReviewing && selected ? (
           <section className="col-span-4 flex h-full flex-col overflow-hidden border-r lg:col-span-3">

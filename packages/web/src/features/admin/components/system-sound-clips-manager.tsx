@@ -65,7 +65,7 @@ export function SystemSoundClipsManager() {
           title={t("systemSoundClips.empty")}
         />
       ) : (
-        <ul className="flex flex-col divide-y rounded-lg border">
+        <ul className="flex flex-col divide-y divide-border">
           {clips.map((clip) => (
             <SoundClipRow
               key={clip.guid}

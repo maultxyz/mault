@@ -23,6 +23,7 @@ export interface BinSaveInput {
   lowMatchPercent?: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
+  maxCards?: number | null;
   pickList?: null;
 }
 
@@ -126,4 +127,12 @@ export interface BinRowProps {
   fieldDefinitions: FieldMeta[];
   summary?: string;
   onPress: () => void;
+}
+
+export type PresetDescriptionRouteParams = {
+  guid: string;
+};
+
+export interface PresetDescriptionSaveContext {
+  previous: BinSet[] | undefined;
 }

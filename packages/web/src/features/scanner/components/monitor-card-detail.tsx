@@ -17,7 +17,7 @@ export function MonitorCardDetail({
   onNavigate,
   onClose,
 }: MonitorCardDetailProps) {
-  const { removeCard } = useScannedCards();
+  const { removeCardsWithUndo } = useScannedCards();
   const queryClient = useQueryClient();
   const { data: position, isPending } = useQuery(
     collectionCardPositionQueryOptions(collectionGuid, scanId, cardsQuery),
@@ -68,7 +68,7 @@ export function MonitorCardDetail({
       binNumber={entry.binNumber}
       onClose={onClose}
       onRemove={() => {
-        removeCard(entry.scanId);
+        removeCardsWithUndo([entry.scanId]);
         onClose();
       }}
       onPrev={() => onNavigate(position?.prevScanId ?? null)}

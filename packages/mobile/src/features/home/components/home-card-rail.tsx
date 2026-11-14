@@ -6,7 +6,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { HOME_CARD_RAIL_TILE_WIDTH } from "@/lib/constants/home";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { HomeCardRailProps } from "@/lib/interfaces/home";
-import { absoluteUrl } from "@/lib/url";
+import { cardArtSources } from "@/lib/card-art";
 
 export function HomeCardRail({ title, cards, captionOf, tileWidth = HOME_CARD_RAIL_TILE_WIDTH, action }: HomeCardRailProps) {
   if (cards.length === 0) return null;
@@ -27,7 +27,7 @@ export function HomeCardRail({ title, cards, captionOf, tileWidth = HOME_CARD_RA
             <CardTile
               name={card.card.name}
               caption={captionOf(card)}
-              imageUrl={absoluteUrl(card.card.image?.normal ?? card.card.image?.small)}
+              {...cardArtSources(card.card.image)}
               isFoil={card.isFoil}
               onPress={() =>
                 router.push({ pathname: "/card/[scanId]", params: { scanId: card.scanId, guid: card.collectionGuid } })

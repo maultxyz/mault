@@ -65,7 +65,7 @@ export function PickListProgress({
           />
         </div>
       )}
-      <ul className="flex flex-col divide-y rounded-lg border">
+      <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-card bg-card">
         {pickList.entries.map((entry) => {
           const complete = isPickListEntryComplete(entry, pickList);
           return (

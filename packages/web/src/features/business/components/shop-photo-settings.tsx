@@ -32,8 +32,8 @@ export function ShopPhotoSettings({
   };
 
   return (
-    <div className="flex items-center gap-3 rounded-lg border p-3">
-      <div className="flex h-16 w-24 shrink-0 items-center justify-center overflow-hidden rounded-md bg-muted">
+    <div className="flex items-center gap-3 rounded-xl bg-muted p-3">
+      <div className="flex h-16 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-card">
         {photoUrl ? (
           <img
             src={photoUrl}

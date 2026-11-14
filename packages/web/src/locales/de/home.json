@@ -1,0 +1,67 @@
+{
+  "title": "Start",
+  "subtitle": "So steht es um deine Sammlung",
+  "greeting": {
+    "morning": "Guten Morgen",
+    "afternoon": "Guten Tag",
+    "evening": "Guten Abend"
+  },
+  "greetingWithName": "{{greeting}}, {{name}}",
+  "hero": {
+    "value": "Sammlungswert",
+    "cards": "Karten",
+    "collections": "Sammlungen",
+    "scanned": "Insgesamt gescannt",
+    "sinceYesterday": "seit gestern",
+    "sinceDate": "seit {{date}}"
+  },
+  "actions": {
+    "scan": "Karten scannen",
+    "newCollection": "Neue Sammlung",
+    "stats": "Statistiken"
+  },
+  "welcome": {
+    "title": "Willkommen bei Mault",
+    "description": "Lege eine Sammlung an und scanne los, um hier ihren Wert, deine Top-Karten und mehr zu sehen."
+  },
+  "review": {
+    "title_one": "{{count}} Scan muss geprüft werden",
+    "title_other": "{{count}} Scans müssen geprüft werden",
+    "description": "Prüfe die Treffer, damit deine Sammlung stimmt.",
+    "open": "Öffnet die Prüfung"
+  },
+  "live": {
+    "yourSession": "Deine Sitzung",
+    "scanning": "Wird gescannt",
+    "scanningBy": "{{name}} scannt",
+    "title": "{{name}} · {{collection}}",
+    "open": "Öffnet die Sammlung"
+  },
+  "cardOfTheDay": "Karten des Tages",
+  "activity": {
+    "title": "Scan-Aktivität",
+    "today": "Heute",
+    "thisWeek": "Diese Woche",
+    "scans_one": "{{count}} Scan",
+    "scans_other": "{{count}} Scans",
+    "chartLabel": "Scans pro Tag in den letzten 14 Tagen"
+  },
+  "topCards": "Top-Karten",
+  "recentScans": "Zuletzt gescannt",
+  "seeAllStats": "Alle Statistiken",
+  "loadFailed": "Deine Übersicht konnte nicht geladen werden. Versuche es gleich noch einmal.",
+  "library": {
+    "title": "Bibliothek",
+    "collections": "Sammlungen",
+    "storage": "Lager",
+    "searchPlaceholder": "Sammlungen durchsuchen",
+    "noSearchResultsTitle": "Keine Sammlungen gefunden",
+    "noSearchResultsDescription": "Versuche einen anderen Namen.",
+    "valueModeLabel": "Sammlungswerte",
+    "valueModes": {
+      "value": "Wert",
+      "change": "Änderung"
+    },
+    "noChange": "Noch kein Verlauf"
+  }
+}

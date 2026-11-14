@@ -74,18 +74,18 @@ export default function ReviewGridScreen() {
     const scanIds = cardsToAccept.map((card) => card.scanId);
     setAcceptFailedCount(0);
     updateSet(setAcceptingScanIds, scanIds, true);
+    updateSet(setHiddenScanIds, scanIds, true);
     const attributeUpdates = new Map<string, ReviewGridAttributeUpdate>();
     for (const card of cardsToAccept) {
       const update = reviewGridAttributeUpdate(savedAttributesOf(card), attributeDrafts[card.scanId]);
       if (update) attributeUpdates.set(card.scanId, update);
     }
     const failed = await acceptReviewCards(queryClient, cardsToAccept, attributeUpdates);
-    const failedScanIds = new Set(failed.map((card) => card.scanId));
     updateSet(setAcceptingScanIds, scanIds, false);
     updateSet(
       setHiddenScanIds,
-      scanIds.filter((scanId) => !failedScanIds.has(scanId)),
-      true,
+      failed.map((card) => card.scanId),
+      false,
     );
     setAcceptFailedCount(failed.length);
   };
@@ -163,7 +163,7 @@ export default function ReviewGridScreen() {
         keyExtractor={(card) => card.scanId}
         numColumns={columns}
         columnWrapperStyle={columns > 1 ? { gap: SPACING.md } : undefined}
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.md }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg + SPACING.xs }}
         refreshControl={
           <RefreshControl
             refreshing={review.isRefetching}

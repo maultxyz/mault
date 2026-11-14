@@ -8,7 +8,7 @@ export function ShareLinkDetails({ details }: ShareLinkDetailsProps) {
   const { t: tShareLinks } = useTranslation("share-links");
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       <div className="flex flex-wrap items-center gap-2">
         <Badge variant="outline">
           {details.purpose === "trade"

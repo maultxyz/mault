@@ -49,7 +49,7 @@ export function LocalAuditLog() {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:gap-2">
       <p className="text-xs text-foreground/70">
         {t("auditLog.description")}
       </p>
@@ -66,7 +66,7 @@ export function LocalAuditLog() {
       )}
 
       {!isLoading && events && events.length > 0 && (
-        <div className="flex max-h-80 flex-col divide-y divide-border overflow-y-auto rounded-lg border">
+        <div className="flex max-h-80 flex-col divide-y divide-border overflow-y-auto">
           {events.slice(0, 100).map((event) => (
             <div
               key={event.id}

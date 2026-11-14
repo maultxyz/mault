@@ -5,7 +5,7 @@ import { View } from "react-native";
 import Svg, { Circle, G, Path, Text as SvgText } from "react-native-svg";
 import { contourToPoints } from "@magic-vault/shared";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS } from "@/lib/constants/theme";
+import { SURFACE_RADIUS } from "@/lib/constants/theme";
 import { BATCH_SCAN_LABEL_RADIUS } from "@/lib/constants/scanner";
 import type { BatchScanPhotoProps } from "@/lib/interfaces/scanner";
 
@@ -22,7 +22,8 @@ export function BatchScanPhoto({ photo, cards }: BatchScanPhotoProps) {
       style={{
         width: "100%",
         aspectRatio: photo.width / photo.height,
-        borderRadius: RADIUS.lg,
+        borderRadius: SURFACE_RADIUS,
+        borderCurve: "continuous",
         overflow: "hidden",
         backgroundColor: colors.camera,
       }}

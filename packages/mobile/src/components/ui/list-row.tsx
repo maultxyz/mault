@@ -46,7 +46,7 @@ export function ListRow({
         minHeight: LIST_ROW_MIN_HEIGHT,
         paddingHorizontal: SCREEN_GUTTER,
         paddingVertical: SPACING.sm,
-        backgroundColor: selected ? colors.primarySelected : pressed ? colors.muted : "transparent",
+        backgroundColor: selected ? colors.primarySelected : pressed ? colors.tonal : "transparent",
         opacity: disabled ? DISABLED_OPACITY : 1,
       })}
     >

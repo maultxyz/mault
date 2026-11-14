@@ -14,6 +14,7 @@ export function binSaveInputWithRules(
     lowMatchPercent: bin.lowMatchPercent ?? null,
     maxCopies: bin.maxCopies ?? null,
     maxCopiesBy: bin.maxCopiesBy ?? null,
+    maxCards: bin.maxCards ?? null,
     overflowBin: bin.overflowBin ?? null,
     isDisabled: bin.isDisabled,
     pickList: null,

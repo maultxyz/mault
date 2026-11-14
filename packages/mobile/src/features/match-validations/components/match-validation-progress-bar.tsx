@@ -32,7 +32,7 @@ export function MatchValidationProgressBar() {
       <View style={{ flex: 1, height: 6, borderRadius: RADIUS.full, backgroundColor: colors.tonal, overflow: "hidden" }}>
         <View style={{ width: `${percent}%`, height: "100%", borderRadius: RADIUS.full, backgroundColor: colors.primary }} />
       </View>
-      <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+      <AppText size="xs" tone="secondary">
         {t("matchValidations.progress.percent", { percent })}
       </AppText>
     </View>

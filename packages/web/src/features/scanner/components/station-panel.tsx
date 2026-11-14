@@ -16,7 +16,7 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
     return (
       <>
         <LazyCardScanner className="h-full shrink-0" controlsPosition="side" />
-        <div className="flex flex-col gap-4 shrink-0 overflow-y-auto">
+        <div className="flex flex-col gap-4 md:gap-2 shrink-0 overflow-y-auto">
           <ActiveCollectionUnmatchedCardsPanel />
           <BinStatusMeter />
           <AutoAssignControl />

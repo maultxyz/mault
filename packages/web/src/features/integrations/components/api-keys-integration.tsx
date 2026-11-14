@@ -75,9 +75,9 @@ export function ApiKeysIntegration() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 md:gap-2">
       <div className="flex items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
           <IconApi size={24} />
         </span>
         <div className="min-w-0 flex-1">
@@ -162,7 +162,7 @@ export function ApiKeysIntegration() {
           )}
 
           {!isLoading && keys.length > 0 && (
-            <div className="flex flex-col divide-y rounded-lg border">
+            <div className="flex flex-col divide-y divide-border">
               {keys.map((key) => (
                 <div
                   key={key.guid}
@@ -237,7 +237,7 @@ export function ApiKeysIntegration() {
       >
         <form
           id="create-org-api-key-form"
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(handleCreate)}
         >
           <Field data-invalid={!!form.formState.errors.name}>
@@ -314,7 +314,7 @@ export function ApiKeysIntegration() {
           </div>
         }
       >
-        <div className="flex items-center gap-2 rounded-lg border bg-muted p-2">
+        <div className="flex items-center gap-2 rounded-xl bg-muted p-2">
           <code className="flex-1 overflow-x-auto whitespace-nowrap text-sm">
             {newRawKey}
           </code>

@@ -235,6 +235,14 @@
     "pickListComplete": {
       "title": "Pick list complete",
       "description": "Every card on the list is in bin {{bin}}."
+    },
+    "removed": {
+      "title_one": "Removed {{count}} card",
+      "title_other": "Removed {{count}} cards",
+      "undo": "Undo"
+    },
+    "editFailed": {
+      "title": "Couldn't save that change. It's been put back."
     }
   },
   "cardScanner": {
@@ -359,6 +367,7 @@
     "autoFeed": "Auto-feed",
     "allowDuplicates": "Allow duplicates",
     "scanWithoutSorter": "Scan without sorter",
+    "sortIntoBins": "Sort into bins",
     "calibrate": "Sorter setup",
     "retryConnection": "Retry Connection",
     "phoneCameraConnected": "Phone Camera Connected",
@@ -561,15 +570,9 @@
     "sessionReleased": "Session released",
     "releaseFailed": "Failed to release session",
     "leaveSession": "Leave session",
-    "searchPlaceholder": "Search sessions...",
-    "noSearchResultsTitle": "No matching sessions",
-    "noSearchResultsDescription": "Try a different search term",
     "title": "Live view",
     "subtitle": "Watch a sorter scan in real time from any device.",
-    "noSessionsFound": "No sessions found",
-    "noSessionsHint": "Active sessions will appear here",
-    "liveNow": "Live now",
-    "allCollections": "All collections"
+    "liveNow": "Live now"
   },
   "repackCompleteDialog": {
     "description": "Every pack is complete, so scanning is paused. Take the pack out of bin {{bin}} and pick where it's going. Each card is recorded there in the order it was scanned."
@@ -815,43 +818,6 @@
     "cameraErrorDescription": "Allow camera access for this site in your browser settings, then try again.",
     "retry": "Try again"
   },
-  "home": {
-    "greeting": "Hi, {{name}}",
-    "greetingNoName": "Welcome back",
-    "totalValue": "Collection value",
-    "collectionCount_one": "{{count}} collection",
-    "collectionCount_other": "{{count}} collections",
-    "scannedToday": "Scanned today",
-    "thisWeek": "This week",
-    "collections": "Collections",
-    "activityTitle": "Scans, last 14 days",
-    "activityLabel": "Cards scanned per day over the last 14 days",
-    "activityPoint_one": "{{date}}: {{count}} card",
-    "activityPoint_other": "{{date}}: {{count}} cards",
-    "today": "Today",
-    "mostValuable": "Most valuable",
-    "recentlyScanned": "Recently scanned",
-    "seeAllStats": "See all stats",
-    "actions": {
-      "newCollection": "New",
-      "stats": "Stats",
-      "buySell": "Buy & sell"
-    },
-    "activeCollection": "Active",
-    "scanHero": {
-      "title": "Start scanning",
-      "sortInto": "Sort into {{collection}}",
-      "noCollection": "Pick a collection to sort into"
-    },
-    "actionHints": {
-      "newCollection": "Add a collection",
-      "buySell": "Intake and picks",
-      "buySellOpen_one": "{{count}} open intake",
-      "buySellOpen_other": "{{count}} open intakes",
-      "stats": "Charts and history"
-    },
-    "statsHeading": "Overview"
-  },
   "resetToNeutral": {
     "done": "Sorter reset to neutral",
     "failed": {
@@ -894,6 +860,8 @@
     "allowDuplicatesDescription": "Save the same printing more than once",
     "handScan": "Auto-detect cards",
     "handScanDescription": "Scan without a sorter. Hold a card still in view and it scans on its own.",
+    "handScanBins": "Sort into bins",
+    "handScanBinsDescription": "Show which bin each card goes in, using your rule preset. Leave off to just save cards to the collection.",
     "camera": "Camera",
     "preset": "Rule preset",
     "choosePreset": "Choose a preset",

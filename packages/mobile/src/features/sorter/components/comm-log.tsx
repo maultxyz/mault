@@ -1,20 +1,21 @@
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
-import { useTheme } from "@/hooks/use-theme";
+import { Surface } from "@/components/ui/surface";
 import { COMM_LOG_VISIBLE_ENTRIES } from "@/lib/constants/sorter";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CommLogProps } from "@/lib/interfaces/ui";
 
 export function CommLog({ entries }: CommLogProps) {
   const { t } = useTranslation();
-  const colors = useTheme();
   const visible = entries.slice(-COMM_LOG_VISIBLE_ENTRIES).reverse();
   if (visible.length === 0) {
-    return <AppText tone="secondary">{t("sorter.commLogEmpty")}</AppText>;
+    return (
+      <Surface>
+        <AppText tone="secondary">{t("sorter.commLogEmpty")}</AppText>
+      </Surface>
+    );
   }
   return (
-    <View style={{ gap: 2, padding: SPACING.md, borderRadius: RADIUS.md, backgroundColor: colors.muted }}>
+    <Surface style={{ gap: 2 }}>
       {visible.map((entry, index) => (
         <AppText
           key={`${entry.timestamp}-${index}`}
@@ -26,6 +27,6 @@ export function CommLog({ entries }: CommLogProps) {
           {`${entry.direction === "sent" ? "→" : "←"} ${entry.text}`}
         </AppText>
       ))}
-    </View>
+    </Surface>
   );
 }

@@ -9,7 +9,7 @@ export function MatchValidationScanTile({ scan }: MatchValidationScanTileProps) 
   const cardName = scan.cardName ?? t("unknownCard");
 
   return (
-    <li className="flex flex-col gap-2 rounded-lg p-2 ring-1 ring-border">
+    <li className="flex flex-col gap-2 rounded-card bg-card p-2">
       <div className="grid grid-cols-2 gap-1.5">
         <div className="aspect-[2.5/3.5] overflow-hidden rounded-md bg-muted">
           <ScanThumbnail

@@ -66,3 +66,7 @@ export function setMatchGames(guid: string, gameKeys: string[]): Promise<BinSet[
 export function setSkipSaving(guid: string, skipSaving: boolean): Promise<BinSet[]> {
   return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/skip-saving`, { skipSaving }));
 }
+
+export function updateBinSetDetails(guid: string, name: string, description: string): Promise<BinSet[]> {
+  return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}`, { name, description }));
+}

@@ -69,7 +69,7 @@ export function ServiceIntervalDialog({
         </DialogHeader>
         <form
           id="service-interval-form"
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(submit)}
         >
           <Controller

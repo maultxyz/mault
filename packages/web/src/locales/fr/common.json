@@ -9,7 +9,7 @@
     "scanner": "Trier",
     "collections": "Collections",
     "scan": "Lier la caméra",
-    "storage": "Emplacements",
+    "storage": "Rangement",
     "calibrate": "Réglage du trieur",
     "settings": "Paramètres",
     "organization": "Org",
@@ -33,7 +33,9 @@
     "sortingRules": "Règles de tri",
     "intake": "Achat & vente",
     "upgradeYourPlan": "Changez d'offre",
-    "upgradeShort": "Changer"
+    "upgradeShort": "Changer",
+    "home": "Accueil",
+    "library": "Bibliothèque"
   },
   "alerts": {
     "dismiss": "Ignorer",
@@ -285,9 +287,8 @@
   "mobileTabs": {
     "home": "Accueil",
     "scan": "Scanner",
-    "rules": "Règles",
-    "storage": "Rangement",
-    "account": "Compte"
+    "library": "Bibliothèque",
+    "more": "Plus"
   },
   "pagination": {
     "previous": "Précédent",

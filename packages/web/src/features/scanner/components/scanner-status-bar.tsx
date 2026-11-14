@@ -106,6 +106,8 @@ export function ScannerStatusBar({
   onUpgrade,
   handScan,
   onHandScanChange,
+  handScanBins,
+  onHandScanBinsChange,
 }: ScannerStatusBarProps) {
   const { t } = useTranslation("scanner");
   const { retractCard, isRetracting, retractLockedReason } = useRetractCard();
@@ -286,6 +288,14 @@ export function ScannerStatusBar({
                   onCheckedChange={onAllowDuplicatesChange}
                 >
                   {t("scannerMenu.allowDuplicates")}
+                </DropdownMenuCheckboxItem>
+              )}
+              {handScan && (
+                <DropdownMenuCheckboxItem
+                  checked={handScanBins}
+                  onCheckedChange={onHandScanBinsChange}
+                >
+                  {t("scannerMenu.sortIntoBins")}
                 </DropdownMenuCheckboxItem>
               )}
               {webSerialSupported && (

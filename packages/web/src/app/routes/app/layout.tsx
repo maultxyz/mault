@@ -99,7 +99,7 @@ export default function AppLayout() {
             <main
               id={MAIN_CONTENT_ID}
               tabIndex={-1}
-              className="relative flex-1 min-w-0 overflow-hidden flex flex-col rounded-lg border bg-background/70 shadow-xs outline-none dark:bg-background/60"
+              className="relative flex-1 min-w-0 overflow-hidden flex flex-col rounded-card bg-background outline-none"
             >
               <ImpersonationBanner />
 

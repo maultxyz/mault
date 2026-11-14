@@ -15,14 +15,14 @@ export function CollapsibleStatPanel({
   const [expanded, setExpanded] = usePersistedFlag(expandedStorageKey);
 
   return (
-    <div className="rounded-lg border border-input bg-input/20 dark:bg-input/30">
+    <div className="overflow-hidden rounded-card bg-card">
       <button
         type="button"
         onClick={() => setExpanded(!expanded)}
         aria-expanded={expanded}
-        className="flex w-full min-w-0 items-center gap-2 p-2 text-left"
+        className="flex w-full min-w-0 items-center gap-2 p-3 text-left"
       >
-        <p className="shrink-0 text-2xs font-medium uppercase tracking-wide text-foreground/70">
+        <p className="shrink-0 text-xs font-medium text-foreground/70">
           {heading}
         </p>
         {!expanded && (
@@ -44,7 +44,7 @@ export function CollapsibleStatPanel({
           )}
         />
       </button>
-      {expanded && <div className="border-t border-input">{children}</div>}
+      {expanded && <div className="border-t border-border">{children}</div>}
     </div>
   );
 }

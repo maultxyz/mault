@@ -168,7 +168,6 @@
   },
   "stats": {
     "title": "Statistiken",
-    "subtitle": "Diagramme und Zahlen zu deinen Sammlungen",
     "error": "Statistiken konnten nicht geladen werden. Versuch es gleich noch einmal.",
     "empty": {
       "title": "Noch keine Karten",
@@ -331,11 +330,7 @@
     },
     "showAll": "Alle anzeigen ({{count}})",
     "showLess": "Weniger anzeigen",
-    "other": "Sonstige",
-    "headline": {
-      "title": "Deine Sammlung",
-      "subtitle": "in Zahlen"
-    }
+    "other": "Sonstige"
   },
   "account": {
     "organizations": "Organisationen",
@@ -719,6 +714,8 @@
       "allowDuplicatesDescription": "Denselben Druck mehrfach speichern",
       "handScan": "Karten automatisch erkennen",
       "handScanDescription": "Ohne Sortierer scannen. Tippe auf Start und halte eine Karte ruhig ins Bild, dann wird sie automatisch gescannt.",
+      "handScanBins": "In Fächer sortieren",
+      "handScanBinsDescription": "Zeigt mit deinem Preset, in welches Fach jede Karte gehört. Aus lassen, um Karten nur in der Sammlung zu speichern.",
       "camera": "Kamera",
       "cameraFallback": "Kamera {{number}}",
       "cameraPosition": {
@@ -842,26 +839,15 @@
       "title": "{{name}} · {{collection}}",
       "open": "Öffnet die Sammlung"
     },
-    "subtitle": "So steht es um deine Sammlung",
     "loadFailed": "Deine Übersicht konnte nicht geladen werden. Zum Aktualisieren nach unten ziehen.",
-    "greeting": {
-      "morning": "Guten Morgen",
-      "afternoon": "Guten Tag",
-      "evening": "Guten Abend"
-    },
-    "greetingWithName": "{{greeting}}, {{name}}",
     "hero": {
       "value": "Sammlungswert",
       "cards": "Karten",
       "collections": "Sammlungen",
       "scanned": "Insgesamt gescannt",
       "sinceYesterday": "seit gestern",
-      "sinceDate": "seit {{date}}"
-    },
-    "actions": {
-      "scan": "Karten scannen",
-      "newCollection": "Neue Sammlung",
-      "stats": "Statistiken"
+      "sinceDate": "seit {{date}}",
+      "openStats": "Öffnet deine Statistiken"
     },
     "welcome": {
       "title": "Willkommen bei Mault",
@@ -877,10 +863,11 @@
     "activity": {
       "title": "Scan-Aktivität",
       "today": "Heute",
-      "thisWeek": "Diese Woche",
       "scans_one": "{{count}} Scan",
       "scans_other": "{{count}} Scans",
-      "chartLabel": "Scans pro Tag in den letzten 14 Tagen"
+      "chartLabel": "Scans pro Tag in den letzten 14 Tagen",
+      "lastDays_one": "Letzte {{count}} Tag",
+      "lastDays_other": "Letzte {{count}} Tage"
     },
     "topCards": "Top-Karten",
     "recentScans": "Zuletzt gescannt",
@@ -1238,10 +1225,22 @@
     },
     "modeLocked": "Regeln gelten im Modus {{mode}} nicht. Ändere den Sortiermodus, um sie zu bearbeiten.",
     "autoAssignLocked": "Die automatische Erkennung legt diese Regeln für dich fest. Ändere den Sortiermodus, um sie zu bearbeiten.",
-    "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die im Sortiermodus gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren."
+    "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die im Sortiermodus gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren.",
+    "description": {
+      "title": "Preset-Notizen",
+      "label": "Beschreibung",
+      "placeholder": "Notizen zu diesem Preset, was es sortiert, wann man es nutzt...",
+      "add": "Beschreibung hinzufügen",
+      "edit": "Bearbeiten",
+      "save": "Speichern",
+      "saveFailed": "Die Beschreibung konnte nicht gespeichert werden."
+    },
+    "maxCardsLabel": "Max. Karten",
+    "maxCardsPlaceholder": "Kein Limit",
+    "maxCardsDescription": "Das Sortieren pausiert, wenn dieses Fach so viele Karten enthält, auch wenn noch Platz ist. Leer lassen, um die physische Größe des Fachs zu nutzen."
   },
   "calibration": {
-    "title": "Kalibrierung",
+    "title": "Sortierer einrichten",
     "subtitle": "Servos und Einzug einstellen",
     "entryTitle": "Kalibrierung",
     "entrySubtitle": "Servopositionen, Timings und der Einzug",
@@ -1598,11 +1597,11 @@
         "description": "Schlüssel für die öffentliche API"
       },
       "notifications": {
-        "title": "Benachrichtigungen",
+        "title": "Discord",
         "description": "Discord-Kanäle, Warnungen und Benachrichtigungsregeln"
       },
       "sounds": {
-        "title": "Sounds",
+        "title": "Scan-Sounds",
         "description": "Spiele einen Clip ab, wenn eine sortierte Karte zu einer Regel passt"
       },
       "webhooks": {
@@ -3190,7 +3189,7 @@
     "open": "Alles durchsuchen",
     "placeholder": "Karten, Sammlungen, Lagerorte und Einstellungen suchen",
     "promptTitle": "Alles durchsuchen",
-    "promptDescription": "Finde eine Karte in jeder Sammlung, eine Sammlung, einen Lagerort oder eine Einstellung.",
+    "promptDescription": "Finde jede Karte, ob in deinen Sammlungen oder nicht, sowie Sammlungen, Lagerorte und Einstellungen.",
     "emptyTitle": "Nichts gefunden",
     "emptyDescription": "Versuche einen anderen Namen oder eine andere Schreibweise.",
     "loadFailed": "Deine Karten konnten nicht durchsucht werden. Zum erneuten Versuchen nach unten ziehen.",
@@ -3199,11 +3198,13 @@
     "resultsCount_one": "{{count}} Ergebnis",
     "resultsCount_other": "{{count}} Ergebnisse",
     "sections": {
-      "cards": "Karten",
+      "cards": "Deine Karten",
       "collections": "Sammlungen",
       "locations": "Lagerorte",
-      "settings": "Einstellungen"
-    }
+      "settings": "Einstellungen",
+      "catalog": "Alle Karten"
+    },
+    "catalogLoadFailed": "Der Kartenkatalog konnte nicht durchsucht werden. Zum Aktualisieren nach unten ziehen."
   },
   "recovery": {
     "undo": "Rückgängig",
@@ -3215,6 +3216,39 @@
     "tagAdded": "{{tag}} hinzugefügt",
     "tagRemoved": "{{tag}} entfernt",
     "movedTo": "Verschoben nach {{name}}",
-    "cardsLoadFailed": "Die Karten konnten nicht geladen werden"
+    "cardsLoadFailed": "Die Karten konnten nicht geladen werden",
+    "foilChanged": "Foil auf {{value}} gesetzt",
+    "conditionChanged": "Zustand auf {{value}} gesetzt",
+    "pickListCleared": "Pickliste geleert",
+    "verifyProgressCleared": "Prüffortschritt zurückgesetzt"
+  },
+  "catalogCard": {
+    "title": "Karte",
+    "loadFailed": "Diese Karte konnte nicht geladen werden.",
+    "prices": "Preise",
+    "price": "Preis",
+    "foilPrice": "Foil-Preis",
+    "noPrice": "Noch kein Preis",
+    "details": "Details",
+    "set": "Set",
+    "number": "Nummer",
+    "rarity": "Seltenheit",
+    "type": "Typ",
+    "artist": "Künstler",
+    "game": "Spiel",
+    "add": "Zur Sammlung hinzufügen",
+    "addTo": "Zu {{collection}} hinzufügen",
+    "chooseCollection": "Zu welcher Sammlung hinzufügen?",
+    "added": "{{name}} zu {{collection}} hinzugefügt",
+    "view": "Ansehen",
+    "addFailed": "Die Karte konnte nicht hinzugefügt werden.",
+    "noCollection": "Erstelle eine {{game}}-Sammlung, um diese Karte hinzuzufügen."
+  },
+  "library": {
+    "valueModes": {
+      "value": "Wert",
+      "change": "Änderung"
+    },
+    "noChange": "Noch kein Verlauf"
   }
 }

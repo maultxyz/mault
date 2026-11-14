@@ -36,7 +36,9 @@
     "shareHint": "{{percent}}% of cards",
     "needsReview": "Needs review",
     "correctedHint": "{{count}} reviewed",
-    "heading": "Overview"
+    "heading": "Overview",
+    "unique": "Unique",
+    "priced": "Priced cards"
   },
   "activity": {
     "title": "Scanning activity",
@@ -89,10 +91,12 @@
     "title": "Top sets by value"
   },
   "rarities": {
-    "title": "Rarity"
+    "title": "Rarity",
+    "description": "Share of your cards by rarity"
   },
   "colors": {
-    "title": "Colors"
+    "title": "Colors",
+    "description": "Share of your cards by color"
   },
   "foils": {
     "title": "Foil types"
@@ -130,5 +134,41 @@
   },
   "value": {
     "description": "Daily market value of everything you own, with cards in open intakes left out."
-  }
+  },
+  "headline": {
+    "title": "Your collection",
+    "subtitle": "by the numbers"
+  },
+  "highlights": {
+    "title": "Highlights"
+  },
+  "insights": {
+    "topCard": {
+      "title": "Your top card is {{name}}",
+      "detail": "Worth {{price}}, in {{collection}}"
+    },
+    "highValue": {
+      "title_one": "{{count}} card holds {{percent}}% of your value",
+      "title_other": "{{count}} cards hold {{percent}}% of your value",
+      "detail": "Cards worth {{min}} or more"
+    },
+    "topCollection": {
+      "title": "{{name}} is your most valuable collection",
+      "detail": "{{percent}}% of your total value"
+    },
+    "busiest": {
+      "title": {
+        "day": "Your busiest day was {{date}}",
+        "week": "Your busiest week started {{date}}"
+      },
+      "detail_one": "{{count}} card scanned",
+      "detail_other": "{{count}} cards scanned"
+    },
+    "review": {
+      "title_one": "{{count}} scan needs review",
+      "title_other": "{{count}} scans need review",
+      "detail": "Check them so your numbers stay accurate."
+    }
+  },
+  "other": "Other"
 }

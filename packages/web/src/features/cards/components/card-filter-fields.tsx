@@ -31,10 +31,10 @@ export function CardFilterFields({
   const minMatchLabelId = useId();
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:gap-2">
       {availableColors.length > 0 && (
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
+          <p className="text-xs font-medium text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:text-foreground">
             {t("cardFilterPopover.color")}
           </p>
           <div className="flex flex-col gap-1">
@@ -80,7 +80,7 @@ export function CardFilterFields({
 
       {availableRarities.length > 0 && (
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
+          <p className="text-xs font-medium text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:text-foreground">
             {t("cardFilterPopover.rarity")}
           </p>
           <div className="flex flex-col gap-1">
@@ -120,7 +120,7 @@ export function CardFilterFields({
 
       {availableFoilTypes.length > 0 && (
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
+          <p className="text-xs font-medium text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:text-foreground">
             {t("cardFilterPopover.foilType")}
           </p>
           <div className="flex flex-col gap-1">
@@ -155,7 +155,7 @@ export function CardFilterFields({
 
       {binCount !== undefined && (
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
+          <p className="text-xs font-medium text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:text-foreground">
             {t("cardFilterPopover.bin")}
           </p>
           <div className="flex gap-1 flex-wrap">
@@ -211,7 +211,7 @@ export function CardFilterFields({
       )}
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground flex items-center justify-between">
+        <p className="text-xs font-medium text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:text-foreground flex items-center justify-between">
           <span id={minMatchLabelId}>{t("cardFilterPopover.minMatch")}</span>
           <span className="text-foreground font-semibold">
             {activeFilters.minMatchPercent}%
@@ -233,7 +233,7 @@ export function CardFilterFields({
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
+        <p className="text-xs font-medium text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:text-foreground">
           {t("cardFilterPopover.status")}
         </p>
         <button
@@ -259,7 +259,7 @@ export function CardFilterFields({
       </div>
 
       <div>
-        <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
+        <p className="text-xs font-medium text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:text-foreground">
           {t("downloaded")}
         </p>
         <button
@@ -286,7 +286,7 @@ export function CardFilterFields({
 
       {activeFilters.sets.length > 0 && (
         <div>
-          <p className="text-xs font-medium uppercase tracking-wide text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:normal-case max-md:tracking-normal max-md:text-foreground">
+          <p className="text-xs font-medium text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:text-foreground">
             {t("cardFilterPopover.sets")}
           </p>
           <div className="flex gap-1 flex-wrap">

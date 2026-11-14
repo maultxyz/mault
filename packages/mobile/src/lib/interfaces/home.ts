@@ -1,6 +1,6 @@
 import type { OrgOverviewCard } from "@magic-vault/shared";
 import type { IconName } from "@/lib/interfaces/ui";
-import type { ValueChange } from "@/lib/interfaces/value-change";
+import type { ValueChange } from "@magic-vault/shared";
 
 export interface HomeHeroStat {
   label: string;
@@ -14,19 +14,10 @@ export interface HomeHeroProps {
   changeCaption: string;
   stats: HomeHeroStat[];
   sparklineValues: number[];
+  onPress?: () => void;
+  accessibilityHint?: string;
 }
 
-export interface HomeQuickAction {
-  key: string;
-  icon: IconName;
-  label: string;
-  onPress: () => void;
-  isPrimary?: boolean;
-}
-
-export interface HomeQuickActionsProps {
-  actions: HomeQuickAction[];
-}
 
 export interface HomeCardRailProps {
   title: string;
@@ -50,12 +41,9 @@ export interface HomeActivityFigureProps {
   label: string;
 }
 
-export interface SparklinePaths {
-  line: string;
-  area: string;
-}
-
-export interface ChartPoint {
-  x: number;
-  y: number;
+export interface HomeTopCardsListProps {
+  title: string;
+  cards: OrgOverviewCard[];
+  priceOf: (card: OrgOverviewCard) => string | undefined;
+  action?: { label: string; onPress: () => void };
 }

@@ -56,21 +56,21 @@ export function FleetHealthPanel() {
   if (isLoading || !fleet) return <ListSkeleton rows={4} />;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       <div>
         <h2 className="font-heading text-sm font-semibold">{t("fleet.title")}</h2>
         <p className="text-xs text-foreground/70">{t("fleet.description")}</p>
       </div>
-      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-3 md:gap-2 md:grid-cols-2 xl:grid-cols-3">
         {fleet.devices.map((device) => {
           const interval = device.maintenanceIntervalCards;
           const progress = interval
             ? Math.min(device.cardsSinceService / interval, 1)
             : null;
           return (
-            <div key={device.guid} className="flex flex-col gap-3 rounded-lg border p-3">
+            <div key={device.guid} className="flex flex-col gap-3 md:gap-2 rounded-card bg-card p-4 md:p-2.5">
               <div className="flex items-center gap-2">
-                <p className="min-w-0 flex-1 truncate font-heading text-sm font-medium">
+                <p className="min-w-0 flex-1 truncate text-sm font-medium">
                   {device.name}
                 </p>
                 {device.isConnected ? (
@@ -186,7 +186,7 @@ export function FleetHealthPanel() {
           />
         ) : (
           <>
-            <div className="flex flex-col divide-y rounded-lg border">
+            <div className="flex flex-col divide-y divide-border overflow-hidden rounded-card bg-card">
               {alertsPagination.pageItems.map((alert) => (
                 <div key={alert.guid} className="flex flex-col gap-0.5 px-3 py-2">
                   <div className="flex items-center gap-2">

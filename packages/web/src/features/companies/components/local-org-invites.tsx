@@ -134,7 +134,7 @@ export function LocalOrgInvites() {
   }
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:gap-2">
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs text-foreground/70">
           {t("invites.description")}
@@ -156,7 +156,7 @@ export function LocalOrgInvites() {
       )}
 
       {!isLoading && invites && invites.length > 0 && (
-        <div className="flex flex-col divide-y divide-border rounded-lg border">
+        <div className="flex flex-col divide-y divide-border">
           {invites.map((invite) => (
             <div
               key={invite.id}
@@ -201,7 +201,7 @@ export function LocalOrgInvites() {
         <form
           id="invite-form"
           onSubmit={form.handleSubmit(handleInvite)}
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-3 md:gap-2"
         >
           <Field data-invalid={!!form.formState.errors.email}>
             <FieldLabel htmlFor="invite-email">
@@ -265,7 +265,7 @@ export function LocalOrgInvites() {
           </Button>
         }
       >
-        <div className="flex items-center gap-2 rounded-lg border bg-muted p-2">
+        <div className="flex items-center gap-2 rounded-xl bg-muted p-2">
           <code className="flex-1 overflow-x-auto whitespace-nowrap text-sm">
             {newInviteUrl}
           </code>

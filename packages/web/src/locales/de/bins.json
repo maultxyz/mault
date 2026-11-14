@@ -31,7 +31,8 @@
     "pickList": "Pickliste",
     "pickListProgress": "Karten der Pickliste, {{found}} von {{total}} gefunden",
     "pickListAll_one": "Jede Kopie der Pickliste, {{count}} gefunden",
-    "pickListAll_other": "Jede Kopie der Pickliste, {{count}} gefunden"
+    "pickListAll_other": "Jede Kopie der Pickliste, {{count}} gefunden",
+    "maxCards": "Fasst {{count}}"
   },
   "binConfigPanel": {
     "overflowLabel": "Wenn voll, überlaufen in",
@@ -87,7 +88,10 @@
     "sortSourcePickListDescription": "Nur Karten auf der Liste unten, etwa eine Deckliste. Wird vor den Regeln aller anderen Fächer geprüft.",
     "settingsTitle": "Fach-Einstellungen",
     "advancedTitle": "Erweitert",
-    "rulesSectionDescription": "Passende Karten kommen in dieses Fach."
+    "rulesSectionDescription": "Passende Karten kommen in dieses Fach.",
+    "maxCardsLabel": "Max. Karten",
+    "maxCardsDescription": "Das Sortieren pausiert, wenn dieses Fach so viele Karten enthält, auch wenn noch Platz ist. Leer lassen, um die physische Größe des Fachs zu nutzen.",
+    "maxCardsPlaceholder": "Kein Limit"
   },
   "binList": {
     "needCatchAll": "Ein Fach muss als Auffangfach festgelegt werden."
@@ -124,8 +128,8 @@
     "deleteSetDescription": "Löscht \"{{name}}\". Wende dich an den Support, wenn du sie zurück brauchst.",
     "revertSuccess": "Vorlage auf den vorherigen Stand zurückgesetzt",
     "revertFailed": "Zurücksetzen fehlgeschlagen",
-    "renameSetTitle": "Vorlage umbenennen",
-    "renameSetDescription": "Gib einen neuen Namen für diese Vorlage ein.",
+    "renameSetTitle": "Vorlage bearbeiten",
+    "renameSetDescription": "Ändere den Namen und füge Notizen hinzu, was diese Vorlage macht.",
     "cancel": "Abbrechen",
     "rename": "Umbenennen",
     "setNameLabel": "Name der Vorlage",
@@ -145,7 +149,10 @@
       "alphabet": "Alphabetisch",
       "chaos": "Chaos-Sortierung",
       "game-sort": "Nach Spiel"
-    }
+    },
+    "save": "Speichern",
+    "descriptionLabel": "Beschreibung",
+    "descriptionPlaceholder": "Notizen zu dieser Vorlage, was sie sortiert, wann man sie nutzt..."
   },
   "useBinConfigs": {
     "toasts": {

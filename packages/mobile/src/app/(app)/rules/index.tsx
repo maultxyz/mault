@@ -1,8 +1,10 @@
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
+import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
+import { Icon } from "@/components/ui/icon";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
@@ -20,10 +22,12 @@ import { PresetStageCard } from "@/features/rules/components/preset-stage-card";
 import { BinRow } from "@/features/rules/components/bin-row";
 import { binModeSummaries } from "@/features/rules/lib/rules";
 import { binSetMode } from "@magic-vault/shared";
-import { SPACING } from "@/lib/constants/theme";
+import { useTheme } from "@/hooks/use-theme";
+import { SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 
 export default function RulesScreen() {
   const { t } = useTranslation();
+  const colors = useTheme();
   const data = useRulesData();
   const { collection, sets, activeSet, bins, fieldDefinitions } = data;
   const mode = binSetMode(activeSet);
@@ -69,6 +73,32 @@ export default function RulesScreen() {
               onPress={() => setPickerOpen(true)}
             />
           )}
+
+          {activeSet ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={
+                activeSet.description
+                  ? `${t("rules.description.label")}: ${activeSet.description}. ${t("rules.description.edit")}`
+                  : t("rules.description.add")
+              }
+              onPress={() => router.push({ pathname: "/preset-description", params: { guid: activeSet.guid } })}
+              style={({ pressed }) => ({
+                flexDirection: "row",
+                alignItems: "flex-start",
+                gap: SPACING.md,
+                padding: SPACING.lg,
+                borderRadius: SURFACE_RADIUS,
+                borderCurve: "continuous",
+                backgroundColor: pressed ? colors.tonal : colors.card,
+              })}
+            >
+              <Icon name="edit" size={18} color={colors.foregroundSecondary} />
+              <AppText size="sm" tone={activeSet.description ? "default" : "secondary"} style={{ flex: 1 }}>
+                {activeSet.description || t("rules.description.add")}
+              </AppText>
+            </Pressable>
+          ) : null}
 
           {activeSet && !activeSet.isActive ? (
             <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} />

@@ -31,7 +31,8 @@
     "pickList": "Liste de tri",
     "pickListProgress": "Cartes de la liste, {{found}} sur {{total}} trouvées",
     "pickListAll_one": "Chaque exemplaire de la liste, {{count}} trouvé",
-    "pickListAll_other": "Chaque exemplaire de la liste, {{count}} trouvés"
+    "pickListAll_other": "Chaque exemplaire de la liste, {{count}} trouvés",
+    "maxCards": "Contient {{count}}"
   },
   "binConfigPanel": {
     "overflowLabel": "Une fois plein, déborder dans",
@@ -87,7 +88,10 @@
     "sortSourcePickListDescription": "Uniquement les cartes de la liste ci-dessous, comme une liste de deck. Vérifiée avant les règles de tous les autres bacs.",
     "settingsTitle": "Réglages du bac",
     "advancedTitle": "Avancé",
-    "rulesSectionDescription": "Les cartes qui correspondent vont dans ce bac."
+    "rulesSectionDescription": "Les cartes qui correspondent vont dans ce bac.",
+    "maxCardsLabel": "Cartes max.",
+    "maxCardsDescription": "Le tri se met en pause quand ce bac contient autant de cartes, même s'il reste de la place. Laissez vide pour utiliser la taille physique du bac.",
+    "maxCardsPlaceholder": "Aucune limite"
   },
   "binList": {
     "needCatchAll": "Un bac doit être défini comme fourre-tout."
@@ -124,8 +128,8 @@
     "deleteSetDescription": "Supprime « {{name}} ». Contacte le support si tu as besoin de le récupérer.",
     "revertSuccess": "Préréglage rétabli à son état précédent",
     "revertFailed": "Échec du rétablissement",
-    "renameSetTitle": "Renommer le préréglage",
-    "renameSetDescription": "Saisis un nouveau nom pour ce préréglage.",
+    "renameSetTitle": "Modifier le préréglage",
+    "renameSetDescription": "Changez le nom et ajoutez des notes sur ce que fait ce préréglage.",
     "cancel": "Annuler",
     "rename": "Renommer",
     "setNameLabel": "Nom du préréglage",
@@ -145,7 +149,10 @@
       "alphabet": "Tri alphabétique",
       "chaos": "Tri chaos",
       "game-sort": "Par jeu"
-    }
+    },
+    "save": "Enregistrer",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Notes sur ce préréglage, ce qu'il trie, quand l'utiliser..."
   },
   "useBinConfigs": {
     "toasts": {

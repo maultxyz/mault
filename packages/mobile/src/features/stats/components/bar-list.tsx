@@ -36,7 +36,7 @@ export function BarList({ items, collapsedCount }: BarListProps) {
             {item.label}
           </AppText>
         </View>
-        <AppText weight="semibold" style={{ fontVariant: ["tabular-nums"] }}>
+        <AppText weight="semibold">
           {item.display}
           {item.secondary ? (
             <AppText size="xs" tone="secondary">

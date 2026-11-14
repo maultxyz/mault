@@ -67,7 +67,7 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
     : 1;
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <h2 className="font-heading text-sm font-semibold">
           {t("reports.staff.throughput")}
@@ -91,7 +91,7 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
           title={t("reports.staff.empty")}
         />
       ) : (
-        <div className="overflow-hidden rounded-lg border">
+        <div className="overflow-hidden rounded-card bg-card">
           <Table>
             <TableHeader>
               <TableRow>
@@ -212,7 +212,7 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
               setPage,
             }}
           />
-          <div className="overflow-hidden rounded-lg border">
+          <div className="overflow-hidden rounded-card bg-card">
             <Table>
               <TableHeader>
                 <TableRow>

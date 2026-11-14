@@ -46,7 +46,7 @@ export function MobileMonitorActivity({
   }
 
   return (
-    <div className="flex flex-col gap-6 p-4">
+    <div className="flex flex-col gap-6 md:gap-2 p-4">
       <SessionErrorsPanel errors={errors} />
       <UnmatchedCardsPanel
         cards={unmatchedCards}
@@ -77,7 +77,7 @@ export function MobileMonitorActivity({
               );
               const content = (
                 <>
-                  <div className="relative aspect-[2.5/3.5] w-10 shrink-0 overflow-hidden rounded-md border bg-muted">
+                  <div className="relative aspect-[2.5/3.5] w-10 shrink-0 overflow-hidden rounded-md bg-muted">
                     <img
                       src={
                         entry.card.image?.small ||

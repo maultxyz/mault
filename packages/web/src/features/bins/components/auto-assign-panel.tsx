@@ -87,8 +87,8 @@ export function AutoAssignPanel() {
   return (
     <Field
       className={cn(
-        "rounded-lg border p-2 gap-2",
-        isMobile && "gap-3 border-0 bg-card p-3 ring-1 ring-border",
+        "gap-2 rounded-card bg-card p-3",
+        isMobile && "gap-3",
       )}
       data-tour="auto-assign-panel"
     >

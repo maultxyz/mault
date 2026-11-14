@@ -209,10 +209,10 @@ export function ControlCardBuilder({ onAdd }: ControlCardBuilderProps) {
       </CardHeader>
       <CardContent>
         <form
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(submit)}
         >
-          <div className="flex flex-col gap-3 sm:flex-row sm:items-start">
+          <div className="flex flex-col gap-3 md:gap-2 sm:flex-row sm:items-start">
             <Controller
               name="title"
               control={form.control}
@@ -252,7 +252,7 @@ export function ControlCardBuilder({ onAdd }: ControlCardBuilderProps) {
               )}
             />
           </div>
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-3 md:gap-2 sm:grid-cols-2">
             <ControlCardSelectField
               control={form.control}
               name="collectionGuid"

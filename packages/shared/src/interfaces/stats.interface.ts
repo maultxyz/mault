@@ -81,3 +81,10 @@ export interface StatsReport {
   costsVisible: boolean;
   valueHistory: StatsValuePoint[] | null;
 }
+
+export type StatsInsightFact =
+  | { kind: "topCard"; name: string; price: number; collectionName: string }
+  | { kind: "highValue"; count: number; percent: number; minPrice: number }
+  | { kind: "topCollection"; name: string; percent: number }
+  | { kind: "busiest"; bucket: StatsBucketUnit; start: string; count: number }
+  | { kind: "review"; count: number };

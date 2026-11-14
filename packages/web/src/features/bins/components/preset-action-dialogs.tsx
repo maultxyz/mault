@@ -2,6 +2,7 @@ import { AuditDrawer } from "@/components/audit-drawer";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import {
@@ -21,9 +22,9 @@ import type {
 import { toast } from "@/lib/toast";
 import {
   createPresetSchema,
-  createSetSchema,
+  editSetSchema,
   type CreatePresetFormValues,
-  type CreateSetFormValues,
+  type EditSetFormValues,
 } from "@/schemas/sort-bins.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -153,15 +154,18 @@ export function PresetActionDialogs({
   });
   const createKind = createForm.watch("kind");
 
-  const renameForm = useForm<CreateSetFormValues>({
-    resolver: zodResolver(createSetSchema),
-    defaultValues: { name: selectedSetName },
+  const selectedSetDescription = selectedSet?.description ?? "";
+  const renameForm = useForm<EditSetFormValues>({
+    resolver: zodResolver(editSetSchema),
+    defaultValues: { name: selectedSetName, description: selectedSetDescription },
     mode: "onChange",
   });
 
   useEffect(() => {
-    if (renameDialogOpen) renameForm.reset({ name: selectedSetName });
-  }, [renameDialogOpen, selectedSetName, renameForm]);
+    if (renameDialogOpen) {
+      renameForm.reset({ name: selectedSetName, description: selectedSetDescription });
+    }
+  }, [renameDialogOpen, selectedSetName, selectedSetDescription, renameForm]);
 
   const activeGameGuid = activeCollection?.game?.guid;
 
@@ -261,9 +265,9 @@ export function PresetActionDialogs({
   );
 
   const handleRename = useCallback(
-    async (values: CreateSetFormValues) => {
+    async (values: EditSetFormValues) => {
       if (!selectedSet) return;
-      await renameSet(selectedSet.guid, values.name);
+      await renameSet(selectedSet.guid, values.name, values.description);
       closeDialog();
     },
     [selectedSet, renameSet, closeDialog],
@@ -297,7 +301,7 @@ export function PresetActionDialogs({
               {isPresetMutating && (
                 <IconLoader2 className="size-4 animate-spin" />
               )}
-              {t("presetSelector.rename")}
+              {t("presetSelector.save")}
             </Button>
           </>
         }
@@ -305,6 +309,7 @@ export function PresetActionDialogs({
       >
         <form
           id="rename-set-form"
+          className="flex flex-col gap-3"
           onSubmit={renameForm.handleSubmit(handleRename)}
         >
           <Controller
@@ -321,6 +326,27 @@ export function PresetActionDialogs({
                   placeholder={t("presetSelector.setNamePlaceholder")}
                   aria-invalid={fieldState.invalid}
                   autoFocus
+                />
+                {fieldState.invalid && (
+                  <FieldError errors={[fieldState.error]} />
+                )}
+              </Field>
+            )}
+          />
+          <Controller
+            name="description"
+            control={renameForm.control}
+            render={({ field, fieldState }) => (
+              <Field data-invalid={fieldState.invalid || undefined}>
+                <FieldLabel htmlFor="rename-set-description">
+                  {t("presetSelector.descriptionLabel")}
+                </FieldLabel>
+                <Textarea
+                  {...field}
+                  id="rename-set-description"
+                  rows={4}
+                  placeholder={t("presetSelector.descriptionPlaceholder")}
+                  aria-invalid={fieldState.invalid}
                 />
                 {fieldState.invalid && (
                   <FieldError errors={[fieldState.error]} />
@@ -367,7 +393,7 @@ export function PresetActionDialogs({
       >
         <form
           id="create-set-form"
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-3 md:gap-2"
           onSubmit={createForm.handleSubmit(handleCreate)}
         >
           <Controller

@@ -66,7 +66,8 @@
     },
     "liveView": "Live-Ansicht",
     "printControlCard": "Steuerkarte drucken",
-    "viewStats": "Statistiken"
+    "viewStats": "Statistiken",
+    "actions": "Aktionen für {{name}}"
   },
   "editDialog": {
     "title": "Sammlung bearbeiten",
@@ -117,12 +118,12 @@
   "emptyChoice": {
     "title": "{{name}} leeren",
     "titleBulk": "{{count}} Sammlungen leeren",
-    "description": "Wähle eine Aufbewahrungsbox, in die die Karten verschoben werden. Sie bleiben in der Sammlung und erscheinen in der Box. Karten, die schon in einer Box liegen, bleiben, wo sie sind.",
-    "lockedDescription": "Aufbewahrungsboxen sind in deinem Tarif nicht verfügbar, daher werden die Karten beim Leeren gelöscht.",
+    "description": "Wähle einen Lagerort, in den die Karten verschoben werden. Sie bleiben in der Sammlung und erscheinen an diesem Lagerort. Karten, die schon an einem Lagerort liegen, bleiben, wo sie sind.",
+    "lockedDescription": "Lager ist in deinem Tarif nicht verfügbar, daher werden die Karten beim Leeren gelöscht.",
     "locationLabel": "Karten verschieben nach",
-    "placeholder": "Aufbewahrungsbox wählen",
-    "newBox": "Neue Aufbewahrungsbox",
-    "newBoxName": "Name der Box",
+    "placeholder": "Lagerort wählen",
+    "newBox": "Neuer Lagerort",
+    "newBoxName": "Name des Lagerorts",
     "delete": "Karten dauerhaft löschen",
     "confirm": "Karten verschieben",
     "continue": "Weiter"

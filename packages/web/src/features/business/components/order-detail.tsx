@@ -179,8 +179,8 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex flex-wrap items-center gap-2 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
+    <div className="flex flex-col gap-4 md:gap-2">
+      <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex flex-wrap items-center gap-1.5 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
         <div className="mr-auto min-w-0">
           <div className="flex items-center gap-2">
             <DetailHeading className="truncate font-heading text-lg font-semibold">
@@ -309,7 +309,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
 
       <section className="flex flex-col gap-2">
         <h2 className="font-heading text-sm font-semibold">{t("orders.lines")}</h2>
-        <div className="overflow-hidden rounded-lg border">
+        <div className="overflow-hidden rounded-card bg-card">
           <Table>
             <TableHeader>
               <TableRow>

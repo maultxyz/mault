@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { Badge } from "@/components/ui/badge";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { raritySwatch } from "@/lib/card-swatches";
@@ -20,13 +21,12 @@ export function CardSearchResultTile({
     "distance" in card && card.distance != null ? getMatchPercent(card) : null;
   const content = (
     <>
-      <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-md">
+      <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg">
         {card.image?.small ? (
-          <img
+          <CardImage
             src={card.image.normal || card.image.small}
+            placeholderSrc={card.image.small}
             alt={card.name}
-            loading="lazy"
-            className="h-full w-full object-cover"
           />
         ) : (
           <div className="h-full w-full bg-background" />
@@ -44,10 +44,7 @@ export function CardSearchResultTile({
             {matchPercent != null && (
               <Badge
                 variant={matchPercent >= 80 ? "default" : "destructive"}
-                className={cn(
-                  "shrink-0 tabular-nums",
-                  matchPercent < 80 && "bg-destructive text-white",
-                )}
+                className="shrink-0 tabular-nums"
               >
                 {matchPercent.toFixed(2)}%
               </Badge>
@@ -91,10 +88,7 @@ export function CardSearchResultTile({
             {matchPercent != null && (
               <Badge
                 variant={matchPercent >= 80 ? "default" : "destructive"}
-                className={cn(
-                  "shrink-0 tabular-nums",
-                  matchPercent < 80 && "bg-destructive text-white",
-                )}
+                className="shrink-0 tabular-nums"
               >
                 {matchPercent.toFixed(2)}%
               </Badge>
@@ -136,7 +130,7 @@ export function CardSearchResultTile({
     </>
   );
   const tileClassName =
-    "flex min-w-0 flex-col rounded-lg border bg-muted p-1 text-left";
+    "flex min-w-0 flex-col rounded-xl bg-muted p-1.5 text-left";
   if (!onClick) {
     return <div className={cn(tileClassName, className)}>{content}</div>;
   }

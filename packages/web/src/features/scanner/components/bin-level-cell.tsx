@@ -59,7 +59,7 @@ export function BinLevelCell({
           className="pointer-events-none absolute inset-0 bg-primary/25 animate-out fade-out-0 duration-1000 fill-mode-forwards motion-reduce:hidden"
         />
       )}
-      <span className="relative truncate text-2xs font-medium uppercase tracking-wide text-foreground/70">
+      <span className="relative truncate text-xs font-medium text-foreground/70">
         {t("binStatusMeter.binLabel", { bin: level.binNumber })}
         {isCatchAll && ` · ${t("binStatusMeter.catchAll")}`}
         {isDisabled && ` · ${t("binStatusMeter.disabled")}`}

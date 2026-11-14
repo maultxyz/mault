@@ -42,7 +42,7 @@ export function ApiUsagePanel() {
       heading={t("apiUsage.heading")}
       description={t("apiUsage.description")}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 md:gap-2">
         <ResponsiveSegmented
           label={t("apiUsage.daysLabel")}
           items={API_USAGE_REPORT_DAYS.map((option) => ({

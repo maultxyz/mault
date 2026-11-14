@@ -31,7 +31,8 @@
     "pickList": "Pick list",
     "pickListProgress": "Cards on the pick list, {{found}} of {{total}} found",
     "pickListAll_one": "Every copy of the pick list, {{count}} found",
-    "pickListAll_other": "Every copy of the pick list, {{count}} found"
+    "pickListAll_other": "Every copy of the pick list, {{count}} found",
+    "maxCards": "Holds {{count}}"
   },
   "binConfigPanel": {
     "overflowLabel": "When full, overflow to",
@@ -87,7 +88,10 @@
     "sortSourcePickListDescription": "Only cards on the list below, like a decklist. Checked before every other bin's rules.",
     "settingsTitle": "Bin settings",
     "advancedTitle": "Advanced",
-    "rulesSectionDescription": "Cards that match go to this bin."
+    "rulesSectionDescription": "Cards that match go to this bin.",
+    "maxCardsLabel": "Max cards",
+    "maxCardsDescription": "Sorting pauses when this bin holds this many cards, even if it has room. Leave empty to use the bin's physical size.",
+    "maxCardsPlaceholder": "No limit"
   },
   "binList": {
     "needCatchAll": "One bin must be set as catch-all."
@@ -124,8 +128,8 @@
     "deleteSetDescription": "Deletes \"{{name}}\". Contact support if you need it back.",
     "revertSuccess": "Reverted the preset to its previous state",
     "revertFailed": "Failed to revert",
-    "renameSetTitle": "Rename preset",
-    "renameSetDescription": "Enter a new name for this preset.",
+    "renameSetTitle": "Edit preset",
+    "renameSetDescription": "Change the name and add notes about what this preset does.",
     "cancel": "Cancel",
     "rename": "Rename",
     "setNameLabel": "Preset name",
@@ -145,7 +149,10 @@
       "alphabet": "Alphabetical",
       "chaos": "Chaos sort",
       "game-sort": "By game"
-    }
+    },
+    "save": "Save",
+    "descriptionLabel": "Description",
+    "descriptionPlaceholder": "Notes about this preset, what it sorts, when to use it..."
   },
   "useBinConfigs": {
     "toasts": {

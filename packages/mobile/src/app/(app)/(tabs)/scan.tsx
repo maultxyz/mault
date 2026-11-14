@@ -529,6 +529,8 @@ export default function ScanScreen() {
         onAllowDuplicatesChange={session.setAllowDuplicates}
         handScan={session.handScan}
         onHandScanChange={session.setHandScan}
+        handScanBins={session.handScanBins}
+        onHandScanBinsChange={session.setHandScanBins}
         removeMode={session.removal.isEnabled}
         onRemoveModeChange={changeRemoveMode}
         presetName={presetLabel}

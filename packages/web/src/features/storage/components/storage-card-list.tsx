@@ -62,7 +62,7 @@ export function StorageCardList({
 
   return (
     <>
-      <div className="rounded-lg border">
+      <div className="overflow-hidden rounded-card bg-card">
         <Table>
           <TableHeader>
             <TableRow className="hover:bg-transparent">

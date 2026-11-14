@@ -66,7 +66,8 @@
     },
     "liveView": "Vue en direct",
     "printControlCard": "Imprimer une carte de contrôle",
-    "viewStats": "Statistiques"
+    "viewStats": "Statistiques",
+    "actions": "Actions pour {{name}}"
   },
   "editDialog": {
     "title": "Modifier la collection",
@@ -117,12 +118,12 @@
   "emptyChoice": {
     "title": "Vider {{name}}",
     "titleBulk": "Vider {{count}} collections",
-    "description": "Choisis une boîte de rangement où déplacer les cartes. Elles restent dans la collection et apparaissent dans la boîte. Les cartes déjà rangées dans une boîte y restent.",
-    "lockedDescription": "Les boîtes de rangement ne sont pas disponibles avec ton abonnement, donc vider supprime les cartes.",
+    "description": "Choisis un emplacement de rangement où déplacer les cartes. Elles restent dans la collection et apparaissent à cet emplacement. Les cartes déjà rangées à un emplacement y restent.",
+    "lockedDescription": "Le rangement n'est pas disponible avec ton abonnement, donc vider supprime les cartes.",
     "locationLabel": "Déplacer les cartes vers",
-    "placeholder": "Choisis une boîte de rangement",
-    "newBox": "Nouvelle boîte de rangement",
-    "newBoxName": "Nom de la boîte",
+    "placeholder": "Choisis un emplacement de rangement",
+    "newBox": "Nouvel emplacement de rangement",
+    "newBoxName": "Nom de l'emplacement",
     "delete": "Supprimer définitivement les cartes",
     "confirm": "Déplacer les cartes",
     "continue": "Continuer"

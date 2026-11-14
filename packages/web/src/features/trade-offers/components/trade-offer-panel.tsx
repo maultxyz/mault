@@ -12,7 +12,7 @@ export function TradeOfferPanel({
   return (
     <section
       aria-labelledby={headingId}
-      className={cn("flex min-w-0 flex-col gap-3 rounded-lg p-4 ring-1 ring-border", className)}
+      className={cn("flex min-w-0 flex-col gap-3 rounded-card bg-card p-4 md:p-2.5", className)}
     >
       <div className="flex items-start gap-2.5">
         <span

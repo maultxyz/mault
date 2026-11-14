@@ -1,9 +1,9 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, View } from "react-native";
 import { formatPrice } from "@magic-vault/shared";
+import { CardArt } from "@/components/cards/card-art";
 import type { TradeOfferCardsProps } from "@/lib/interfaces/trade-offers";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -29,8 +29,8 @@ function TradeOfferCards({ cards, prices, priceSource }: TradeOfferCardsProps) {
           key={"scanId" in card ? card.scanId : `${card.gameKey}-${card.cardId}-${index}`}
           style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}
         >
-          <Image
-            source={card.imageUrl ? { uri: card.imageUrl } : undefined}
+          <CardArt
+            imageUrl={card.imageUrl}
             accessible={false}
             style={{
               width: TRADE_OFFER_CARD_IMAGE_WIDTH,

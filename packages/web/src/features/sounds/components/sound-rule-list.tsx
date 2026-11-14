@@ -100,7 +100,7 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
         <EmptyState size="compact" icon={IconMusic} title={t("rules.empty")} />
       )}
 
-      <ol className="flex flex-col divide-y rounded-lg border empty:hidden">
+      <ol className="flex flex-col divide-y divide-border empty:hidden">
         {draft.orderedRules.map((rule, index) => {
           const clip = clips.find((c) => c.guid === rule.clipGuid);
           return (
