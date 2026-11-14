@@ -87,6 +87,7 @@ export type ScannerPauseReason =
   | "feeder-empty"
   | "no-card"
   | "card-missing"
+  | "card-stuck-in-module-one"
   | "feed-failed"
   | "route-failed"
   | "jam"

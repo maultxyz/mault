@@ -14,6 +14,7 @@ import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CARD_CONDITION,
   DEFAULT_FEEDER_CALIBRATION,
+  feedNextCardAfterRoutedCard,
   feedWithRetries,
   findScannerControlCommandProblem,
   runScanWorkflow,
@@ -554,6 +555,7 @@ export function useScanSession({
   }, []);
 
   const triggerFeedRef = useRef<() => void>(() => {});
+  const triggerFeedAfterRoutedCardRef = useRef<() => void>(() => {});
   const onCardArrivedRef = useRef<() => void>(() => {});
 
   const continueAfterCard = useCallback(() => {
@@ -615,7 +617,7 @@ export function useScanSession({
       }
       if (res.fedNext) return;
       if (runningRef.current && latestRef.current.autoFeed)
-        triggerFeedRef.current();
+        triggerFeedAfterRoutedCardRef.current();
       else if (phaseRef.current === "routing") setPhase("ready");
     },
     [pause, setPhase, reportSorterEvent],
@@ -1120,6 +1122,23 @@ export function useScanSession({
     );
   }, [feedWithConfiguredRetries, handleFeedResult, setPhase]);
   triggerFeedRef.current = triggerFeed;
+
+  const triggerFeedAfterRoutedCard = useCallback(() => {
+    setPhase("feeding");
+    void feedNextCardAfterRoutedCard({
+      readSensors: () => latestRef.current.sorter.readSensors(),
+      feedOnce: () => latestRef.current.sorter.feed(),
+      replyOf: (reply) => reply,
+      retryCount: latestRef.current.feedRetryCount,
+    }).then((outcome) => {
+      if (outcome.kind === "stuckInModuleOne") {
+        pause("card-stuck-in-module-one");
+        return;
+      }
+      handleFeedResult(outcome.result);
+    });
+  }, [handleFeedResult, pause, setPhase]);
+  triggerFeedAfterRoutedCardRef.current = triggerFeedAfterRoutedCard;
 
   const onCardArrived = useCallback(() => {
     if (!runningRef.current) {

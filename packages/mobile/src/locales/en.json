@@ -582,6 +582,10 @@
         "title": "Card missing before sorting",
         "description": "Module 1 no longer detects the scanned card, so nothing was sorted. Check module 1, then tap Resume."
       },
+      "card-stuck-in-module-one": {
+        "title": "Card stuck in module 1",
+        "description": "A card is stuck in module 1. Remove it, then tap Resume."
+      },
       "feed-failed": {
         "title": "Feeder problem",
         "description": "The feeder didn't respond as expected. {{detail}}"

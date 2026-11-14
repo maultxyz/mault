@@ -266,6 +266,10 @@
       "title": "Keine Karte erkannt",
       "description": "Der Sensor von Modul 1 erkennt keine Karte - führe eine zu, bevor du scannst."
     },
+    "cardStuckInModuleOne": {
+      "title": "Karte steckt in Modul 1",
+      "description": "Eine Karte steckt in Modul 1 fest. Entferne sie und setze dann fort."
+    },
     "feedFailed": {
       "title": "Zufuhr fehlgeschlagen"
     },
@@ -706,6 +710,7 @@
         "hopperEmpty": "Der Kartenschacht ist leer",
         "feederError": "Fehler im Einzug",
         "noCardDetected": "Keine Karte ist beim Scanner angekommen",
+        "cardStuckInModuleOne": "Eine Karte steckt in Modul 1 fest",
         "sorterNotResponding": "Der Sortierer antwortet nicht",
         "routingFailed": "Eine Karte konnte nicht einsortiert werden",
         "binLimit": "Fach {{bins}} ist voll",

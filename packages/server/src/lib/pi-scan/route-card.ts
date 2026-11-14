@@ -1,6 +1,7 @@
 import {
   requestSorterRoute,
   isFirmwareFeatureSupported,
+  routeAllowsPipelinedFeed,
   type BinRoute,
 } from "@magic-vault/shared";
 import {
@@ -19,6 +20,7 @@ export async function routeLoadedPiCard(
   pipeline?: PiScanPipelineOptions,
 ): Promise<void> {
   const feedNext =
+    routeAllowsPipelinedFeed(route) &&
     !!pipeline?.enabled() &&
     isFirmwareFeatureSupported(link.firmwareVersion, "pipelinedFeed");
   let receivedFeed = false;

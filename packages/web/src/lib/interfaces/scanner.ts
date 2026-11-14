@@ -1013,7 +1013,7 @@ export interface RouteCardToBinParams {
   isAutoFeedEnabled: () => boolean;
   isPipelinedFeedEnabled: () => boolean;
   pause: () => void;
-  triggerAutoFeed: () => void;
+  triggerAutoFeedAfterRoutedCard: () => Promise<void>;
   onJam: (options: JamToastOptions) => void;
 }
 

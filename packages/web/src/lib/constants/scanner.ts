@@ -313,6 +313,7 @@ export const STATION_ATTENTION_FIXES: Record<
   hopperEmpty: "resume",
   feederError: "resume",
   noCardDetected: "resume",
+  cardStuckInModuleOne: "resume",
   sorterNotResponding: "resume",
   routingFailed: "resume",
   saveFailed: "resume",

@@ -266,6 +266,10 @@
       "title": "Aucune carte détectée",
       "description": "Le capteur du module 1 ne détecte aucune carte - insère-en une avant de scanner."
     },
+    "cardStuckInModuleOne": {
+      "title": "Carte coincée dans le module 1",
+      "description": "Une carte est coincée dans le module 1. Retire-la, puis reprends."
+    },
     "feedFailed": {
       "title": "Échec de l'alimentation"
     },
@@ -706,6 +710,7 @@
         "hopperEmpty": "Le bac d'alimentation est vide",
         "feederError": "Erreur du chargeur",
         "noCardDetected": "Aucune carte n'est arrivée au scanner",
+        "cardStuckInModuleOne": "Une carte est coincée dans le module 1",
         "sorterNotResponding": "La trieuse ne répond pas",
         "routingFailed": "Une carte n'a pas pu être triée",
         "binLimit": "Le bac {{bins}} est plein",

@@ -582,6 +582,10 @@
         "title": "Karte fehlt vor dem Sortieren",
         "description": "Modul 1 erkennt die gescannte Karte nicht mehr, daher wurde nichts sortiert. Prüfe Modul 1 und tippe dann auf Fortsetzen."
       },
+      "card-stuck-in-module-one": {
+        "title": "Karte steckt in Modul 1",
+        "description": "Eine Karte steckt in Modul 1 fest. Entferne sie und tippe dann auf Fortsetzen."
+      },
       "feed-failed": {
         "title": "Problem mit dem Einzug",
         "description": "Der Einzug hat nicht wie erwartet reagiert. {{detail}}"

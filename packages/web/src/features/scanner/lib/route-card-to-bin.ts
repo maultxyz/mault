@@ -16,7 +16,7 @@ export async function routeCardToBin({
   isAutoFeedEnabled,
   isPipelinedFeedEnabled,
   pause,
-  triggerAutoFeed,
+  triggerAutoFeedAfterRoutedCard,
   onJam,
 }: RouteCardToBinParams): Promise<void> {
   const feedNext = isAutoFeedEnabled() && isPipelinedFeedEnabled();
@@ -118,6 +118,6 @@ export async function routeCardToBin({
   if (res.fedNext) return;
 
   if (isAutoFeedEnabled()) {
-    triggerAutoFeed();
+    await triggerAutoFeedAfterRoutedCard();
   }
 }

@@ -338,7 +338,7 @@ export function ScannedCardsProvider({
     pause,
     pauseForAttention,
     attention: feedAttention,
-    triggerAutoFeed,
+    triggerAutoFeedAfterRoutedCard,
     registerCardArrivedHook,
     registerFeedSource,
     hasCustomFeedSource,
@@ -908,7 +908,7 @@ export function ScannedCardsProvider({
               isAutoFeedEnabled,
               isPipelinedFeedEnabled,
               pause: pauseForRoutingFailure,
-              triggerAutoFeed,
+              triggerAutoFeedAfterRoutedCard,
               onJam: showJamToast,
             });
           }
@@ -1054,7 +1054,7 @@ export function ScannedCardsProvider({
       isPipelinedFeedEnabled,
       pauseForRoutingFailure,
       pauseForAttention,
-      triggerAutoFeed,
+      triggerAutoFeedAfterRoutedCard,
       showJamToast,
       trackPendingBinCard,
       settlePendingBinCard,
@@ -1136,7 +1136,7 @@ export function ScannedCardsProvider({
         isAutoFeedEnabled,
         isPipelinedFeedEnabled,
         pause: pauseForRoutingFailure,
-        triggerAutoFeed,
+        triggerAutoFeedAfterRoutedCard,
         onJam: showJamToast,
       });
     },
@@ -1147,7 +1147,7 @@ export function ScannedCardsProvider({
       isAutoFeedEnabled,
       isPipelinedFeedEnabled,
       pauseForRoutingFailure,
-      triggerAutoFeed,
+      triggerAutoFeedAfterRoutedCard,
       showJamToast,
     ],
   );

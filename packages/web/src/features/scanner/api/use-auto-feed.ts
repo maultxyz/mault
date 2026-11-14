@@ -3,15 +3,18 @@ import {
 } from "@/features/notifications/api/notification-settings";
 import { useSerialMessage } from "@/features/scanner/api/use-serial";
 import {
+  feedNextCardAfterRoutedCard,
   feedWithRetries,
   isFedEvent,
   isFeedTimeoutReply,
   parseSerialReply,
+  SERIAL_DEFAULT_RESPONSE_TIMEOUT_MS,
 } from "@magic-vault/shared";
-import type { Collection } from "@magic-vault/shared";
+import type { Collection, SerialRequestResult } from "@magic-vault/shared";
 import { useCallback, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
+import { replyOfFeedRequest } from "@/features/scanner/lib/feed-request-reply";
 import type { AutoFeedSerial, FeedSource } from "@/lib/interfaces/scanner";
 import type {
   StationAttention,
@@ -170,12 +173,10 @@ export function useAutoFeed({
     [serialRef, feedRetryCountRef],
   );
 
-  const sendAutoFeed = useCallback(async (retryCount: number) => {
-    const { sent, line: response } = await feedWithRetries(
-      feedOneCard,
-      (result) => (result.sent ? parseSerialReply(result.line) : null),
-      retryCount,
-    );
+  const handleFeedRequestResult = useCallback(({
+    sent,
+    line: response,
+  }: SerialRequestResult) => {
     if (!sent) {
       pauseForAttention({ kind: "sorterNotResponding" });
       toast.error(t("scannedCards.autoFeedFailed.title"), {
@@ -222,17 +223,65 @@ export function useAutoFeed({
   }, [
     toast,
     t,
-    feedOneCard,
     activeCollectionRef,
     deviceGuidRef,
     pauseForAttention,
     handleFeedResult,
   ]);
 
+  const sendAutoFeed = useCallback(
+    async (retryCount: number) =>
+      handleFeedRequestResult(
+        await feedWithRetries(feedOneCard, replyOfFeedRequest, retryCount),
+      ),
+    [feedOneCard, handleFeedRequestResult],
+  );
+
   const triggerAutoFeed = useCallback(
     () => sendAutoFeed(feedRetryCount()),
     [sendAutoFeed, feedRetryCount],
   );
+
+  const readSensors = useCallback(async () => {
+    const { sent, line } = await serialRef.current.sendRequest(
+      { readIR: true },
+      SERIAL_DEFAULT_RESPONSE_TIMEOUT_MS,
+    );
+    return sent ? parseSerialReply(line) : null;
+  }, [serialRef]);
+
+  const triggerAutoFeedAfterRoutedCard = useCallback(async () => {
+    if (feedSourceRef.current || serialRef.current.ignoreIrSensors) {
+      await triggerAutoFeed();
+      return;
+    }
+    const outcome = await feedNextCardAfterRoutedCard({
+      readSensors,
+      feedOnce: feedOneCard,
+      replyOf: replyOfFeedRequest,
+      retryCount: feedRetryCount(),
+    });
+    if (outcome.kind === "fed") {
+      handleFeedRequestResult(outcome.result);
+      return;
+    }
+    pauseForAttention({ kind: "cardStuckInModuleOne" });
+    toast.error(t("cardScanner.cardStuckInModuleOne.title"), {
+      description: t("cardScanner.cardStuckInModuleOne.description"),
+      duration: Infinity,
+      dismissible: true,
+    });
+  }, [
+    serialRef,
+    readSensors,
+    triggerAutoFeed,
+    feedOneCard,
+    feedRetryCount,
+    handleFeedRequestResult,
+    pauseForAttention,
+    toast,
+    t,
+  ]);
 
   useSerialMessage((message) => {
     if (!isFedEvent(message) || !autoFeedRef.current) return;
@@ -254,6 +303,7 @@ export function useAutoFeed({
     pauseForAttention,
     attention,
     triggerAutoFeed,
+    triggerAutoFeedAfterRoutedCard,
     registerCardArrivedHook,
     registerFeedSource,
     hasCustomFeedSource,

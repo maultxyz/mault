@@ -78,6 +78,7 @@ export * from "./interfaces/form-validation.interface";
 export * from "./interfaces/form-schemas.interface";
 export * from "./interfaces/scan-identify.interface";
 export * from "./interfaces/serial-session.interface";
+export * from "./interfaces/module-one-clearance.interface";
 export * from "./interfaces/servo-pulse.interface";
 export * from "./interfaces/card-swatches.interface";
 export * from "./constants/scryfall.constant";
@@ -216,6 +217,7 @@ export * from "./constants/trade-offers.constant";
 export * from "./card-tags";
 
 export * from "./serial-route";
+export * from "./module-one-clearance";
 export * from "./scan-workflow";
 export * from "./interfaces/scan-workflow.interface";
 export * from "./scan-sound";

@@ -219,3 +219,18 @@ test("route failure is not treated as successful just because the next card arri
   await prefetch.discard();
   link.close();
 });
+
+test("a module 1 route is never pipelined, even on firmware that supports it", async () => {
+  const port = new FakePort();
+  const link = new SorterLink(port);
+  link.firmwareVersion = "pi-0.1.0";
+  const route = routeLoadedPiCard(link, { binNumber: 1, module: 1, direction: "left" }, {
+    enabled: () => true,
+    onFed: () => assert.fail("No feed event expected"),
+  });
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.deepEqual(port.writes[1].route, { module: 1, direction: "left" });
+  port.reply({ seq: port.writes[1].seq, status: "routed" });
+  await route;
+  link.close();
+});

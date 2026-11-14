@@ -266,6 +266,10 @@
       "title": "No card detected",
       "description": "Module 1's sensor doesn't see a card - feed one before scanning."
     },
+    "cardStuckInModuleOne": {
+      "title": "Card stuck in module 1",
+      "description": "A card is stuck in module 1. Remove it, then resume."
+    },
     "feedFailed": {
       "title": "Feed failed"
     },
@@ -706,6 +710,7 @@
         "hopperEmpty": "Hopper is empty",
         "feederError": "Feeder error",
         "noCardDetected": "No card reached the scanner",
+        "cardStuckInModuleOne": "A card is stuck in module 1",
         "sorterNotResponding": "Sorter isn't responding",
         "routingFailed": "A card couldn't be routed",
         "binLimit": "Bin {{bins}} is full",
