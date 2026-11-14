@@ -24,6 +24,7 @@ import {
   orgDailyScanUsage,
 } from "../db/schema";
 import {
+  collectionCardPriceRiseSql,
   collectionCardPriceSql,
   collectionCardPricesJoinOn,
 } from "./card-price-sql";
@@ -47,6 +48,10 @@ function utcDay(): string {
 
 function dailyShuffleOrderSql(day: string) {
   return sql`md5(${collectionCards.guid}::text || ${day})`;
+}
+
+function cardsOfTheDayOrderSql(pricing: OrgPricing, day: string) {
+  return sql`GREATEST(COALESCE(${collectionCardPriceRiseSql(pricing)}, 0), 0) DESC, ${dailyShuffleOrderSql(day)}`;
 }
 
 function valueTrend(
@@ -87,7 +92,7 @@ async function loadCollectionCards(
       scanId: collectionCards.guid,
       hasPrice: sql<boolean>`${cardPrice} IS NOT NULL`.as("has_price"),
       topRank: sql<number>`row_number() OVER (PARTITION BY ${collectionCards.collectionId} ORDER BY ${cardPrice} DESC NULLS LAST)`.as("top_rank"),
-      dayRank: sql<number>`row_number() OVER (PARTITION BY ${collectionCards.collectionId} ORDER BY ${dailyShuffleOrderSql(day)})`.as("day_rank"),
+      dayRank: sql<number>`row_number() OVER (PARTITION BY ${collectionCards.collectionId} ORDER BY ${cardsOfTheDayOrderSql(pricing, day)})`.as("day_rank"),
     })
     .from(collectionCards)
     .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
@@ -106,6 +111,7 @@ async function loadCollectionCards(
       scanId: ranked.scanId,
       isTopCard: sql<boolean>`${ranked.hasPrice} AND ${ranked.topRank} <= ${WIDGET_SUMMARY_TOP_CARDS_PER_COLLECTION}`,
       isCardOfTheDay: sql<boolean>`${ranked.dayRank} <= ${WIDGET_SUMMARY_CARDS_OF_THE_DAY}`,
+      dayRank: ranked.dayRank,
     })
     .from(ranked)
     .where(
@@ -119,10 +125,14 @@ async function loadCollectionCards(
     limit: scanIds.length,
   });
   const topScanIds = new Set(picks.filter((pick) => pick.isTopCard).map((pick) => pick.scanId));
-  const cardOfTheDayScanIds = new Set(picks.filter((pick) => pick.isCardOfTheDay).map((pick) => pick.scanId));
+  const cardOfTheDayRanks = new Map(
+    picks.filter((pick) => pick.isCardOfTheDay).map((pick) => [pick.scanId, Number(pick.dayRank)]),
+  );
   return {
     topCards: cards.filter((card) => topScanIds.has(card.scanId)),
-    cardsOfTheDay: cards.filter((card) => cardOfTheDayScanIds.has(card.scanId)),
+    cardsOfTheDay: cards
+      .filter((card) => cardOfTheDayRanks.has(card.scanId))
+      .sort((first, second) => cardOfTheDayRanks.get(first.scanId)! - cardOfTheDayRanks.get(second.scanId)!),
   };
 }
 
@@ -234,7 +244,7 @@ export async function loadWidgetSummary(
     day,
   );
   const orgCardsOfTheDay = await loadOrgOverviewCards(tx, orgId, pricing, {
-    orderBy: dailyShuffleOrderSql(day),
+    orderBy: cardsOfTheDayOrderSql(pricing, day),
     limit: WIDGET_SUMMARY_CARDS_OF_THE_DAY,
   });
   const valueHistories = await loadCollectionValueHistories(

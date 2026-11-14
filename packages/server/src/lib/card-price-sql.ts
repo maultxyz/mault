@@ -181,3 +181,16 @@ export function cardWithStoredPricesSql(
   const prices = storedCardPriceSelect(cols, joinedCardPricesJsonSql());
   return sql`(${card} || ${cardPricesAtScanJsonSql(card)} || COALESCE(${prices}, '{}'::jsonb))`;
 }
+
+export function collectionCardPriceRiseSql(pricing: OrgPricing): SQL<number | null> {
+  const noPrice = () => sql`NULL::float8`;
+  const currentPrice = scannedPriceFrom(
+    pricing,
+    COLLECTION_CARD_SQL_COLUMNS,
+    (key) => sql.raw(`card_prices.${CARD_PRICE_COLUMNS[key]}`),
+    noPrice,
+    noPrice,
+  );
+  const priceAtScan = scannedPriceFrom(pricing, COLLECTION_CARD_SQL_COLUMNS, noPrice, noPrice, noPrice);
+  return sql<number | null>`(${currentPrice} - ${priceAtScan})`;
+}
