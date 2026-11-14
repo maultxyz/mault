@@ -1,11 +1,14 @@
-import type { PriceSource, TradeOffer, TradeOfferOfferedCard, TradeOfferStatus, TradeOfferWantedCard } from "@magic-vault/shared";
+import type {
+  PriceSource,
+  TradeOffer,
+  TradeOfferCardGroup,
+  TradeOfferPickListItem,
+  TradeOfferReviewCard,
+  TradeOfferStatus,
+  TradeOfferWantedPlacement,
+} from "@magic-vault/shared";
+import type { TRADE_OFFER_SIDES } from "@/lib/constants/trade-offers";
 import type { StatusTone } from "@/lib/interfaces/theme";
-
-export interface TradeOfferCardsProps {
-  cards: (TradeOfferWantedCard | TradeOfferOfferedCard)[];
-  prices: (number | null)[];
-  priceSource: PriceSource;
-}
 
 export interface TradeOfferLibrarySectionProps {
   title: string;
@@ -13,3 +16,45 @@ export interface TradeOfferLibrarySectionProps {
 }
 
 export type TradeOfferStatusTones = Record<TradeOfferStatus, StatusTone>;
+
+export interface TradeOfferReviewSideProps {
+  title: string;
+  cards: TradeOfferReviewCard[];
+  prices: (number | null)[];
+  placements?: (TradeOfferWantedPlacement | null)[];
+  priceSource: PriceSource;
+}
+
+export interface TradeOfferReviewRowProps {
+  row: TradeOfferCardGroup;
+  priceSource: PriceSource;
+  showsPlacement: boolean;
+}
+
+export type TradeOfferSide = (typeof TRADE_OFFER_SIDES)[number];
+
+export interface TradeOfferPicking {
+  remainingScanIds: string[];
+  placements: (TradeOfferWantedPlacement | null)[];
+  pickError: string | null;
+  markPicked: (scanId: string) => void;
+  finish: () => void;
+  isFinishing: boolean;
+}
+
+export interface TradeOfferPickListProps {
+  offer: TradeOffer;
+  remainingScanIds: string[];
+  placements: (TradeOfferWantedPlacement | null)[];
+  onPicked: (scanId: string) => void;
+}
+
+export interface TradeOfferPickListRowProps {
+  item: TradeOfferPickListItem;
+  priceSource: PriceSource;
+  onPicked: (scanId: string) => void;
+}
+
+export interface TradeOfferReviewProps {
+  offer: TradeOffer;
+}

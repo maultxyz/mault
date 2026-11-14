@@ -1219,6 +1219,13 @@
       "when": 1794613922604,
       "tag": "0173_bin_max_cards",
       "breakpoints": true
+    },
+    {
+      "idx": 174,
+      "version": "7",
+      "when": 1794684530930,
+      "tag": "0174_trade_offer_pick_list",
+      "breakpoints": true
     }
   ]
 }

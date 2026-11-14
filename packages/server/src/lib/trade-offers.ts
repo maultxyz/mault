@@ -1,6 +1,8 @@
 import {
   TRADE_OFFER_PENDING_PER_GUEST_MAX,
   cardPriceFor,
+  initialTradeOfferPickScanIds,
+  splitTradeOfferPickScanIds,
   type StorageLocationCard,
   type PlayingCard,
   type PublicTradeOffer,
@@ -32,6 +34,10 @@ import { searchCards, searchCardsByIds } from "./card-search/stored-cards";
 import type {
   CreateTradeOfferInput,
   CreateTradeOfferResult,
+  PickTradeOfferCardsInput,
+  PickTradeOfferCardsResult,
+  RemoveTradeOfferWantedCardsInput,
+  RespondToTradeOfferInput,
   TradeOfferResponse,
   TradeOfferRow,
   TradeOfferScope,
@@ -366,37 +372,22 @@ export async function listOwnerTradeOffers(
       guestNote: offer.guestNote,
       linkKind: offer.linkKind as TradeOffer["linkKind"],
       sourceName: collectionName ?? locationName ?? null,
+      remainingPickScanIds: offer.remainingPickScanIds ?? null,
     };
   });
 }
 
-export async function respondToTradeOffer(
+export async function removeTradeOfferWantedCards(
   tx: Transaction,
-  orgId: string,
-  guid: string,
-  status: Exclude<TradeOfferStatus, "pending">,
-  userId: string,
-): Promise<TradeOfferResponse | null> {
-  const [updated] = await tx
-    .update(tradeOffers)
-    .set({ status, respondedAt: new Date(), respondedByUserId: userId })
-    .where(
-      and(
-        eq(tradeOffers.orgId, orgId),
-        eq(tradeOffers.guid, guid),
-        eq(tradeOffers.status, "pending"),
-      ),
-    )
-    .returning({ wantedCards: tradeOffers.wantedCards, guestName: tradeOffers.guestName });
-  if (!updated) return null;
-  if (status !== "accepted") return { removedCards: [], imageKeys: [] };
-  const scanIds = (updated.wantedCards as TradeOfferWantedCard[]).map((card) => card.scanId);
+  input: RemoveTradeOfferWantedCardsInput,
+): Promise<TradeOfferResponse> {
+  if (input.scanIds.length === 0) return { removedCards: [], imageKeys: [] };
   const removed = await tx
     .delete(collectionCards)
     .where(
       and(
-        sql`${collectionCards.guid} = ANY(${uuidArraySql(scanIds)})`,
-        eq(collectionCards.orgId, orgId),
+        sql`${collectionCards.guid} = ANY(${uuidArraySql(input.scanIds)})`,
+        eq(collectionCards.orgId, input.orgId),
       ),
     )
     .returning({
@@ -412,11 +403,11 @@ export async function respondToTradeOffer(
     .where(inArray(collections.id, [...new Set(removed.map((row) => row.collectionId))]));
   const collectionGuidById = new Map(collectionRows.map((row) => [row.id, row.guid]));
   await logActivity(tx, {
-    orgId,
-    userId,
+    orgId: input.orgId,
+    userId: input.userId,
     action: "cards.deleted",
-    summary: updated.guestName,
-    details: { count: removed.length, tradeOfferGuid: guid },
+    summary: input.guestName,
+    details: { count: removed.length, tradeOfferGuid: input.tradeOfferGuid },
   });
   return {
     removedCards: removed.flatMap((row) => {
@@ -425,6 +416,77 @@ export async function respondToTradeOffer(
     }),
     imageKeys: removed.flatMap((row) => [row.imageKey, row.backImageKey]),
   };
+}
+
+export async function respondToTradeOffer(
+  tx: Transaction,
+  input: RespondToTradeOfferInput,
+): Promise<TradeOfferResponse | null> {
+  const [offer] = await tx
+    .select({ wantedCards: tradeOffers.wantedCards, guestName: tradeOffers.guestName })
+    .from(tradeOffers)
+    .where(
+      and(
+        eq(tradeOffers.orgId, input.orgId),
+        eq(tradeOffers.guid, input.tradeOfferGuid),
+        eq(tradeOffers.status, "pending"),
+      ),
+    )
+    .for("update");
+  if (!offer) return null;
+  const wantedScanIds = (offer.wantedCards as TradeOfferWantedCard[]).map((card) => card.scanId);
+  const defersRemovalToPickList = input.status === "accepted" && input.removeWantedCardsWhenPicked;
+  await tx
+    .update(tradeOffers)
+    .set({
+      status: input.status,
+      respondedAt: new Date(),
+      respondedByUserId: input.userId,
+      remainingPickScanIds: defersRemovalToPickList
+        ? initialTradeOfferPickScanIds(offer.wantedCards as TradeOfferWantedCard[])
+        : null,
+    })
+    .where(and(eq(tradeOffers.orgId, input.orgId), eq(tradeOffers.guid, input.tradeOfferGuid)));
+  if (input.status !== "accepted" || defersRemovalToPickList) return { removedCards: [], imageKeys: [] };
+  return removeTradeOfferWantedCards(tx, {
+    orgId: input.orgId,
+    userId: input.userId,
+    tradeOfferGuid: input.tradeOfferGuid,
+    guestName: offer.guestName,
+    scanIds: wantedScanIds,
+  });
+}
+
+export async function pickTradeOfferCards(
+  tx: Transaction,
+  input: PickTradeOfferCardsInput,
+): Promise<PickTradeOfferCardsResult> {
+  const [offer] = await tx
+    .select({
+      status: tradeOffers.status,
+      guestName: tradeOffers.guestName,
+      remainingPickScanIds: tradeOffers.remainingPickScanIds,
+    })
+    .from(tradeOffers)
+    .where(and(eq(tradeOffers.orgId, input.orgId), eq(tradeOffers.guid, input.tradeOfferGuid)))
+    .for("update");
+  if (!offer) return { status: "not-found" };
+  if (offer.status !== "accepted" || !offer.remainingPickScanIds?.length) {
+    return { status: "nothing-to-pick" };
+  }
+  const split = splitTradeOfferPickScanIds(offer.remainingPickScanIds, input.pickedScanIds);
+  await tx
+    .update(tradeOffers)
+    .set({ remainingPickScanIds: split.remainingScanIds.length > 0 ? split.remainingScanIds : null })
+    .where(and(eq(tradeOffers.orgId, input.orgId), eq(tradeOffers.guid, input.tradeOfferGuid)));
+  const response = await removeTradeOfferWantedCards(tx, {
+    orgId: input.orgId,
+    userId: input.userId,
+    tradeOfferGuid: input.tradeOfferGuid,
+    guestName: offer.guestName,
+    scanIds: split.pickedScanIds,
+  });
+  return { status: "picked", response, remainingScanIds: split.remainingScanIds };
 }
 
 export async function searchTradeOfferCards(

@@ -1,3 +1,5 @@
+import type { TradeOfferLocationSectionKind } from "../interfaces/trade-offers.interface";
+
 export const TRADE_OFFER_STATUSES = ["pending", "accepted", "declined"] as const;
 export const TRADE_OFFERS_CHANGED_EVENT = "trade_offers_changed";
 export const SHARE_LINK_GUEST_KEY_HEADER = "X-Guest-Key";
@@ -14,3 +16,11 @@ export const TRADE_OFFER_CARD_SORTS = ["value", "name", "set"] as const;
 export const DEFAULT_TRADE_OFFER_CARD_SORT = "value";
 export const TRADE_OFFER_COLLAPSED_ROW_COUNT = 8;
 export const TRADE_OFFER_FILTER_ROW_THRESHOLD = 8;
+export const TRADE_OFFER_PICK_FLUSH_DELAY_MS = 400;
+
+export const TRADE_OFFER_LOCATION_SECTION_ORDER: Record<TradeOfferLocationSectionKind, number> = {
+  storage: 0,
+  bin: 1,
+  collection: 2,
+  missing: 3,
+};

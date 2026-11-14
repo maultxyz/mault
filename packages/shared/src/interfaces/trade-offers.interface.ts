@@ -72,6 +72,7 @@ export interface TradeOfferWantedPlacement {
 export interface TradeOffer extends PublicTradeOffer {
   wantedPrices: (number | null)[];
   wantedPlacements?: (TradeOfferWantedPlacement | null)[];
+  remainingPickScanIds?: string[] | null;
   offeredPrices: (number | null)[];
   wantedValue: number;
   offeredValue: number;
@@ -115,6 +116,39 @@ export interface TradeOfferLocationSection {
   name: string;
   binNumber: number | null;
   rows: TradeOfferCardGroup[];
+}
+
+export type TradeOfferPickListSectionKind = TradeOfferLocationSectionKind | "picked";
+
+export interface TradeOfferPickListItem {
+  scanId: string;
+  card: TradeOfferWantedCard;
+  price: number | null;
+  placement: TradeOfferWantedPlacement | null;
+  isPicked: boolean;
+}
+
+export interface TradeOfferPickListSection {
+  key: string;
+  kind: TradeOfferPickListSectionKind;
+  name: string;
+  binNumber: number | null;
+  items: TradeOfferPickListItem[];
+}
+
+export interface TradeOfferPickProgress {
+  pickedCount: number;
+  totalCount: number;
+}
+
+export interface TradeOfferPickSplit {
+  pickedScanIds: string[];
+  remainingScanIds: string[];
+}
+
+export interface TradeOfferPickResult {
+  removedCount: number;
+  remainingScanIds: string[];
 }
 
 export interface TradeOfferSideTotals {

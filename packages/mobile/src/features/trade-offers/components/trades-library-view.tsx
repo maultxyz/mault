@@ -1,4 +1,4 @@
-import { formatPrice } from "@magic-vault/shared";
+import { formatPrice, isTradeOfferBeingPicked, type TradeOffer } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -43,7 +43,12 @@ function TradeOfferLibrarySection({ title, offers }: TradeOfferLibrarySectionPro
                 <AppText weight="semibold" numberOfLines={1}>
                   {formatPrice(offer.offeredValue, offer.priceSource)}
                 </AppText>
-                {offer.status !== "pending" ? (
+                {isTradeOfferBeingPicked(offer) ? (
+                  <Pill
+                    label={t("tradeOffers.library.picking", { count: offer.remainingPickScanIds?.length ?? 0 })}
+                    tone="info"
+                  />
+                ) : offer.status !== "pending" ? (
                   <Pill label={t(`tradeOffers.library.status.${offer.status}`)} tone={TRADE_OFFER_STATUS_TONES[offer.status]} />
                 ) : null}
               </View>
@@ -62,8 +67,9 @@ export function TradesLibraryView({ title, viewSwitcher }: LibraryViewProps) {
   const orgId = useActiveOrgId();
   const offers = useQuery(tradeOffersQueryOptions(orgId));
   const newestFirst = [...(offers.data ?? [])].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-  const pendingOffers = newestFirst.filter((offer) => offer.status === "pending");
-  const answeredOffers = newestFirst.filter((offer) => offer.status !== "pending");
+  const isOpen = (offer: TradeOffer) => offer.status === "pending" || isTradeOfferBeingPicked(offer);
+  const openOffers = newestFirst.filter(isOpen);
+  const answeredOffers = newestFirst.filter((offer) => !isOpen(offer));
 
   return (
     <Screen
@@ -95,7 +101,7 @@ export function TradesLibraryView({ title, viewSwitcher }: LibraryViewProps) {
         <EmptyState icon="transfer" title={t("tradeOffers.library.emptyTitle")} description={t("tradeOffers.library.emptyDescription")} />
       ) : (
         <>
-          <TradeOfferLibrarySection title={t("tradeOffers.library.pending")} offers={pendingOffers} />
+          <TradeOfferLibrarySection title={t("tradeOffers.library.open")} offers={openOffers} />
           <TradeOfferLibrarySection title={t("tradeOffers.library.answered")} offers={answeredOffers} />
         </>
       )}

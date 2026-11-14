@@ -3064,7 +3064,6 @@
     "title": "Trade offer",
     "reviewTitle": "Offer from {{name}}",
     "respondFailed": "Couldn't answer the trade offer.",
-    "answered": "This trade offer was already answered.",
     "loadFailed": "Couldn't load the trade offer",
     "reviewDescription": "Sent from {{source}} on {{date}}",
     "unknownSource": "a shared link",
@@ -3074,8 +3073,6 @@
     "theyOffer_one": "They offer {{count}} card",
     "theyOffer_other": "They offer {{count}} cards",
     "acceptTitle": "Accept this trade offer?",
-    "acceptRemovesCards_one": "This removes the {{count}} card they want from your collection.",
-    "acceptRemovesCards_other": "This removes the {{count}} cards they want from your collection.",
     "theyGetValue": "They get",
     "youGetValue": "You get",
     "youGainValue": "Their offer is worth {{amount}} more than what they're asking for.",
@@ -3085,7 +3082,7 @@
     "noPrice": "No price",
     "library": {
       "subtitle": "Trade offers sent through your trade links",
-      "pending": "Pending",
+      "open": "Open",
       "answered": "Answered",
       "unnamedGuest": "Guest",
       "rowDetails": "{{source}} · {{wanted}} wanted · {{offered}} offered",
@@ -3096,7 +3093,9 @@
         "pending": "Pending",
         "accepted": "Accepted",
         "declined": "Declined"
-      }
+      },
+      "picking_one": "Picking, {{count}} left",
+      "picking_other": "Picking, {{count}} left"
     },
     "cardList": {
       "cardCount_one": "{{count}} card",
@@ -3131,6 +3130,31 @@
       "sectionBin": "{{collection}}, bin {{bin}}",
       "sectionCollection": "{{collection}}, not in storage",
       "sectionMissing": "No longer in your collection"
+    },
+    "notFound": "This trade offer no longer exists.",
+    "sideTabs": {
+      "label": "Trade sides",
+      "wanted": "They want ({{count}})",
+      "offered": "They offer ({{count}})"
+    },
+    "pickList": {
+      "started": "Trade accepted. Tick off the cards they want as you pick them.",
+      "acceptHint": "Accepting gives you a pick list. Each card they want is removed from your inventory when you tick it off.",
+      "acceptDescription_one": "You get a pick list for the {{count}} card they want. It's removed from your inventory when you tick it off, and a tick can't be undone.",
+      "acceptDescription_other": "You get a pick list for the {{count}} cards they want. Each one is removed from your inventory when you tick it off, and a tick can't be undone.",
+      "title": "Pick list",
+      "hint": "Tick each card as you pull it. Ticked cards are removed from your inventory right away.",
+      "progress": "{{picked}} of {{count}} picked",
+      "picked": "Picked and removed",
+      "pickedSection": "Picked",
+      "finish": "Finish",
+      "finishTitle": "Finish picking?",
+      "finishDescription_one": "This removes the {{count}} card you haven't ticked off from your inventory.",
+      "finishDescription_other": "This removes the {{count}} cards you haven't ticked off from your inventory.",
+      "finished_one": "Trade finished. Removed {{count}} card from your inventory.",
+      "finished_other": "Trade finished. Removed {{count}} cards from your inventory.",
+      "pickFailed": "Couldn't remove the picked card. Tick it again to retry.",
+      "finishFailed": "Couldn't finish the pick list."
     }
   },
   "trade": {

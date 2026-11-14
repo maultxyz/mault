@@ -7,9 +7,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import type { ConfirmDialogProps } from "@/lib/interfaces/business";
+import type { ConfirmDialogProps } from "@/lib/interfaces/confirm-dialog";
 import { IconLoader2 } from "@tabler/icons-react";
-import { useTranslation } from "react-i18next";
 
 export function ConfirmDialog({
   open,
@@ -22,7 +21,6 @@ export function ConfirmDialog({
   destructive,
   onConfirm,
 }: ConfirmDialogProps) {
-  const { t } = useTranslation("business");
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -32,7 +30,7 @@ export function ConfirmDialog({
         </DialogHeader>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>
-            {cancelLabel ?? t("actions.back")}
+            {cancelLabel}
           </Button>
           <Button
             variant={destructive ? "destructive" : "default"}

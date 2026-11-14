@@ -466,10 +466,6 @@
     "trayMessage": "{{name}} veut {{wanted}} contre {{offered}} des siennes",
     "review": "Voir",
     "newOfferToast": "Nouvelle offre d'échange de {{name}}",
-    "acceptedRemoved_one": "Échange accepté. {{count}} carte retirée de votre stock.",
-    "acceptedRemoved_other": "Échange accepté. {{count}} cartes retirées de votre stock.",
-    "acceptRemovesCards_one": "Accepter retire la carte demandée ({{count}}) de votre stock.",
-    "acceptRemovesCards_other": "Accepter retire les {{count}} cartes demandées de votre stock.",
     "theyGetValue": "Ils reçoivent",
     "youGetValue": "Vous recevez",
     "youGainValue": "Leur offre vaut {{amount}} de plus que ce qu'ils demandent.",
@@ -478,7 +474,7 @@
     "missingPrices": "Certaines cartes n'ont pas de prix, les totaux peuvent donc être bas.",
     "library": {
       "subtitle": "Offres d'échange reçues via vos liens d'échange",
-      "pending": "En attente",
+      "open": "En cours",
       "answered": "Répondues",
       "unnamedGuest": "Invité",
       "rowDetails": "{{source}} · demande {{wanted}} · propose {{offered}}",
@@ -489,7 +485,9 @@
         "pending": "En attente",
         "accepted": "Acceptée",
         "declined": "Refusée"
-      }
+      },
+      "picking_one": "Préparation, {{count}} restante",
+      "picking_other": "Préparation, {{count}} restantes"
     },
     "cardList": {
       "cardCount_one": "{{count}} carte",
@@ -524,6 +522,34 @@
       "sectionBin": "{{collection}}, bac {{bin}}",
       "sectionCollection": "{{collection}}, pas en stockage",
       "sectionMissing": "Plus dans votre collection"
+    },
+    "title": "Offre d'échange",
+    "notFound": "Cette offre d'échange n'existe plus.",
+    "backToTrades": "Retour aux échanges",
+    "acceptTitle": "Accepter cette offre d'échange ?",
+    "sideTabs": {
+      "label": "Côtés de l'échange",
+      "wanted": "Demande ({{count}})",
+      "offered": "Propose ({{count}})"
+    },
+    "pickList": {
+      "started": "Échange accepté. Cochez les cartes demandées à mesure que vous les sortez.",
+      "acceptHint": "En acceptant, vous obtenez une liste de préparation. Chaque carte demandée est retirée de votre stock quand vous la cochez.",
+      "acceptDescription_one": "Vous obtenez une liste de préparation pour la {{count}} carte demandée. Elle est retirée de votre stock quand vous la cochez, et une coche ne peut pas être annulée.",
+      "acceptDescription_other": "Vous obtenez une liste de préparation pour les {{count}} cartes demandées. Chacune est retirée de votre stock quand vous la cochez, et une coche ne peut pas être annulée.",
+      "title": "Liste de préparation",
+      "hint": "Cochez chaque carte quand vous la sortez. Les cartes cochées sont retirées de votre stock tout de suite.",
+      "progress": "{{picked}} sur {{count}} préparées",
+      "picked": "Préparée et retirée",
+      "pickedSection": "Préparées",
+      "finish": "Terminer",
+      "finishTitle": "Terminer la préparation ?",
+      "finishDescription_one": "Cela retire de votre stock la {{count}} carte que vous n'avez pas cochée.",
+      "finishDescription_other": "Cela retire de votre stock les {{count}} cartes que vous n'avez pas cochées.",
+      "finished_one": "Échange terminé. {{count}} carte retirée de votre stock.",
+      "finished_other": "Échange terminé. {{count}} cartes retirées de votre stock.",
+      "pickFailed": "Impossible de retirer la carte préparée. Cochez-la à nouveau pour réessayer.",
+      "finishFailed": "Impossible de terminer la liste de préparation."
     }
   }
 }

@@ -5,11 +5,13 @@ import type {
   TradeOffer,
   TradeOfferCardGroup,
   TradeOfferCardOption,
+  TradeOfferPickListItem,
   TradeOfferReviewCard,
   TradeOfferWantedPlacement,
   TradeOfferOfferedCard,
   TradeOfferWantedCard,
 } from "@magic-vault/shared";
+import type { TRADE_OFFER_SIDES } from "@/lib/constants/trade-offers";
 import type { TFunction } from "i18next";
 import type { ReactNode } from "react";
 
@@ -82,20 +84,36 @@ export interface GuestTradeOfferListProps {
   link: TradeOfferLink;
 }
 
-export interface TradeOfferReviewDialogProps {
-  offer: TradeOffer | null;
-  onOpenChange: (open: boolean) => void;
-}
-
 export interface TradeOfferLibraryRowProps {
   offer: TradeOffer;
-  onOpen: (guid: string) => void;
 }
 
 export interface TradeOfferLibrarySectionProps {
   title: string;
   offers: TradeOffer[];
-  onOpen: (guid: string) => void;
+}
+
+export interface TradeOfferDetailProps {
+  offer: TradeOffer;
+}
+
+export interface TradeOfferPickListProps {
+  offer: TradeOffer;
+  remainingScanIds: string[];
+  placements: (TradeOfferWantedPlacement | null)[];
+  onPicked: (scanId: string) => void;
+  className?: string;
+}
+
+export interface TradeOfferPickListRowProps {
+  item: TradeOfferPickListItem;
+  priceSource: PriceSource;
+  onPicked: (scanId: string) => void;
+}
+
+export interface TradeOfferPickProgressBarProps {
+  pickedCount: number;
+  totalCount: number;
 }
 
 export type TradeOfferReviewTFunction = TFunction<"common">;
@@ -111,6 +129,7 @@ export interface TradeOfferReviewSideProps {
   prices: (number | null)[];
   placements?: (TradeOfferWantedPlacement | null)[];
   priceSource: PriceSource;
+  className?: string;
 }
 
 export interface TradeOfferReviewRowProps {
@@ -118,3 +137,7 @@ export interface TradeOfferReviewRowProps {
   priceSource: PriceSource;
   showsPlacement: boolean;
 }
+
+export type TradeOfferSide = (typeof TRADE_OFFER_SIDES)[number];
+
+export type TradeOfferConfirmation = "accept" | "finish" | null;

@@ -2,25 +2,18 @@ import type {
   TradeOfferCardGroup,
   TradeOfferCardSort,
   TradeOfferLocationSection,
-  TradeOfferLocationSectionKind,
   TradeOfferPlacementSummary,
   TradeOfferReviewCard,
   TradeOfferSideTotals,
   TradeOfferWantedPlacement,
 } from "./interfaces/trade-offers.interface";
-
-const LOCATION_SECTION_ORDER: Record<TradeOfferLocationSectionKind, number> = {
-  storage: 0,
-  bin: 1,
-  collection: 2,
-  missing: 3,
-};
+import { TRADE_OFFER_LOCATION_SECTION_ORDER } from "./constants/trade-offers.constant";
 
 function roundCents(value: number): number {
   return Math.round(value * 100) / 100;
 }
 
-function compareText(left: string, right: string): number {
+export function compareTradeOfferText(left: string, right: string): number {
   return left.localeCompare(right, undefined, { numeric: true, sensitivity: "base" });
 }
 
@@ -76,10 +69,10 @@ export function sortTradeOfferCardGroups(
   sort: TradeOfferCardSort,
 ): TradeOfferCardGroup[] {
   const byName = (left: TradeOfferCardGroup, right: TradeOfferCardGroup) =>
-    compareText(left.card.name, right.card.name);
+    compareTradeOfferText(left.card.name, right.card.name);
   const bySet = (left: TradeOfferCardGroup, right: TradeOfferCardGroup) =>
-    compareText(left.card.setName || left.card.setCode, right.card.setName || right.card.setCode) ||
-    compareText(left.card.collectorNumber, right.card.collectorNumber);
+    compareTradeOfferText(left.card.setName || left.card.setCode, right.card.setName || right.card.setCode) ||
+    compareTradeOfferText(left.card.collectorNumber, right.card.collectorNumber);
   return [...rows].sort((left, right) => {
     if (sort === "name") return byName(left, right) || bySet(left, right);
     if (sort === "set") return bySet(left, right) || byName(left, right);
@@ -116,7 +109,7 @@ export function tradeOfferSideTotals(
   };
 }
 
-function placementSection(
+export function tradeOfferPlacementSection(
   placement: TradeOfferWantedPlacement | null,
 ): Omit<TradeOfferLocationSection, "rows"> {
   if (!placement) return { key: "missing", kind: "missing", name: "", binNumber: null };
@@ -159,7 +152,7 @@ export function groupTradeOfferCardsByLocation(
 ): TradeOfferLocationSection[] {
   const partitions = new Map<string, { section: Omit<TradeOfferLocationSection, "rows">; indexes: number[] }>();
   cards.forEach((_, index) => {
-    const section = placementSection(placements[index] ?? null);
+    const section = tradeOfferPlacementSection(placements[index] ?? null);
     const partition = partitions.get(section.key) ?? { section, indexes: [] };
     partition.indexes.push(index);
     partitions.set(section.key, partition);
@@ -184,8 +177,8 @@ export function groupTradeOfferCardsByLocation(
     })
     .sort(
       (left, right) =>
-        LOCATION_SECTION_ORDER[left.kind] - LOCATION_SECTION_ORDER[right.kind] ||
-        compareText(left.name, right.name) ||
+        TRADE_OFFER_LOCATION_SECTION_ORDER[left.kind] - TRADE_OFFER_LOCATION_SECTION_ORDER[right.kind] ||
+        compareTradeOfferText(left.name, right.name) ||
         (left.binNumber ?? 0) - (right.binNumber ?? 0),
     );
 }

@@ -30,9 +30,9 @@ export function TradeOfferReviewRow({ row, priceSource, showsPlacement }: TradeO
           <Badge variant="secondary">{card.condition}</Badge>
           {card.isFoil && <Badge variant="secondary">{t("tradeOffers.cardList.foil")}</Badge>}
         </div>
-        {placementLines.map((line) => (
+        {placementLines.map((line, index) => (
           <span
-            key={line.text}
+            key={`${line.text}-${index}`}
             className={cn(
               "flex items-center gap-1 text-xs",
               line.isMissing ? "text-warning-foreground" : "text-foreground/70",

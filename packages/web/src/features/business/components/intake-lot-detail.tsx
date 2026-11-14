@@ -1,6 +1,6 @@
 import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
-import { ConfirmDialog } from "@/features/business/components/confirm-dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";

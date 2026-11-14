@@ -6,3 +6,7 @@ export const TRADE_OFFER_WANTED_NOT_FOUND_MESSAGE = "A card you asked for is no 
 export const TRADE_OFFER_OFFERED_NOT_FOUND_MESSAGE = "A card you offered couldn't be found.";
 export const TRADE_OFFER_UNKNOWN_GAME_MESSAGE = "Unknown game.";
 export const TRADE_OFFERS_NOT_ALLOWED_MESSAGE = "Trade offers can only be sent from a trade link.";
+export const TRADE_OFFER_NOT_FOUND_MESSAGE = "This trade offer no longer exists.";
+export const TRADE_OFFER_NOTHING_TO_PICK_MESSAGE = "This trade offer has no cards left to pick.";
+export const TRADE_OFFER_INVALID_ACCEPT_MESSAGE = "Invalid trade offer answer.";
+export const TRADE_OFFER_INVALID_PICKED_MESSAGE = "Invalid list of picked cards.";

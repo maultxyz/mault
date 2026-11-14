@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { TradeOfferReviewRow } from "@/features/trade-offers/components/trade-offer-review-row";
 import type { TradeOfferReviewSideProps } from "@/lib/interfaces/trade-offers";
+import { cn } from "@/lib/utils";
 import {
   DEFAULT_TRADE_OFFER_CARD_SORT,
   TRADE_OFFER_CARD_SORTS,
@@ -31,6 +32,7 @@ export function TradeOfferReviewSide({
   prices,
   placements,
   priceSource,
+  className,
 }: TradeOfferReviewSideProps) {
   const { t } = useTranslation("common");
   const headingId = useId();
@@ -71,11 +73,11 @@ export function TradeOfferReviewSide({
   }));
 
   return (
-    <section aria-labelledby={headingId} className="flex flex-col gap-2">
+    <section aria-labelledby={headingId} className={cn("flex flex-col gap-2", className)}>
       <div className="flex flex-col gap-0.5">
-        <h3 id={headingId} className="text-sm font-semibold">
+        <h2 id={headingId} className="font-heading text-sm font-semibold">
           {title}
-        </h3>
+        </h2>
         <p className="text-xs text-foreground/70 tabular-nums">
           {[
             t("tradeOffers.cardList.cardCount", { count: totals.totalCards }),
@@ -130,7 +132,7 @@ export function TradeOfferReviewSide({
         <div className="flex flex-col gap-3 md:gap-2">
           {visibleSections.map((section) => (
             <div key={section.key} className="flex flex-col">
-              <h4
+              <h3
                 className={
                   section.kind === "missing"
                     ? "text-xs font-medium text-warning-foreground"
@@ -144,7 +146,7 @@ export function TradeOfferReviewSide({
                     : section.kind === "collection"
                       ? t("tradeOffers.cardList.sectionCollection", { collection: section.name })
                       : t("tradeOffers.cardList.sectionMissing")}
-              </h4>
+              </h3>
               <ul className="flex flex-col divide-y divide-border">
                 {section.rows.map((row) => (
                   <TradeOfferReviewRow

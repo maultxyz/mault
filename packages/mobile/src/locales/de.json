@@ -3064,7 +3064,6 @@
     "title": "Tauschangebot",
     "reviewTitle": "Angebot von {{name}}",
     "respondFailed": "Antwort auf das Tauschangebot fehlgeschlagen.",
-    "answered": "Dieses Tauschangebot wurde schon beantwortet.",
     "loadFailed": "Das Tauschangebot konnte nicht geladen werden",
     "reviewDescription": "Gesendet über {{source}} am {{date}}",
     "unknownSource": "einen geteilten Link",
@@ -3074,8 +3073,6 @@
     "theyOffer_one": "Bietet {{count}} Karte",
     "theyOffer_other": "Bietet {{count}} Karten",
     "acceptTitle": "Dieses Tauschangebot annehmen?",
-    "acceptRemovesCards_one": "Dadurch wird die gewünschte Karte ({{count}}) aus deiner Sammlung entfernt.",
-    "acceptRemovesCards_other": "Dadurch werden die {{count}} gewünschten Karten aus deiner Sammlung entfernt.",
     "theyGetValue": "Sie bekommen",
     "youGetValue": "Du bekommst",
     "youGainValue": "Das Angebot ist {{amount}} mehr wert als das, was angefragt wird.",
@@ -3085,7 +3082,7 @@
     "noPrice": "Kein Preis",
     "library": {
       "subtitle": "Tauschangebote über deine Tauschlinks",
-      "pending": "Offen",
+      "open": "Offen",
       "answered": "Beantwortet",
       "unnamedGuest": "Gast",
       "rowDetails": "{{source}} · {{wanted}} gewünscht · {{offered}} angeboten",
@@ -3096,7 +3093,9 @@
         "pending": "Offen",
         "accepted": "Angenommen",
         "declined": "Abgelehnt"
-      }
+      },
+      "picking_one": "Wird gepickt, noch {{count}}",
+      "picking_other": "Wird gepickt, noch {{count}}"
     },
     "cardList": {
       "cardCount_one": "{{count}} Karte",
@@ -3131,6 +3130,31 @@
       "sectionBin": "{{collection}}, Fach {{bin}}",
       "sectionCollection": "{{collection}}, nicht eingelagert",
       "sectionMissing": "Nicht mehr in deiner Sammlung"
+    },
+    "notFound": "Dieses Tauschangebot gibt es nicht mehr.",
+    "sideTabs": {
+      "label": "Seiten des Tauschs",
+      "wanted": "Möchte ({{count}})",
+      "offered": "Bietet ({{count}})"
+    },
+    "pickList": {
+      "started": "Tausch angenommen. Hake die gewünschten Karten ab, während du sie heraussuchst.",
+      "acceptHint": "Beim Annehmen bekommst du eine Pickliste. Jede gewünschte Karte wird aus deinem Bestand entfernt, sobald du sie abhakst.",
+      "acceptDescription_one": "Du bekommst eine Pickliste für die {{count}} gewünschte Karte. Sie wird aus deinem Bestand entfernt, sobald du sie abhakst, und ein Haken lässt sich nicht zurücknehmen.",
+      "acceptDescription_other": "Du bekommst eine Pickliste für die {{count}} gewünschten Karten. Jede wird aus deinem Bestand entfernt, sobald du sie abhakst, und ein Haken lässt sich nicht zurücknehmen.",
+      "title": "Pickliste",
+      "hint": "Hake jede Karte ab, wenn du sie herausziehst. Abgehakte Karten werden sofort aus deinem Bestand entfernt.",
+      "progress": "{{picked}} von {{count}} gepickt",
+      "picked": "Gepickt und entfernt",
+      "pickedSection": "Gepickt",
+      "finish": "Abschließen",
+      "finishTitle": "Picken abschließen?",
+      "finishDescription_one": "Dadurch wird die {{count}} nicht abgehakte Karte aus deinem Bestand entfernt.",
+      "finishDescription_other": "Dadurch werden die {{count}} nicht abgehakten Karten aus deinem Bestand entfernt.",
+      "finished_one": "Tausch abgeschlossen. {{count}} Karte aus deinem Bestand entfernt.",
+      "finished_other": "Tausch abgeschlossen. {{count}} Karten aus deinem Bestand entfernt.",
+      "pickFailed": "Die gepickte Karte konnte nicht entfernt werden. Hake sie erneut ab, um es noch einmal zu versuchen.",
+      "finishFailed": "Die Pickliste konnte nicht abgeschlossen werden."
     }
   },
   "trade": {

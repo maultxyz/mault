@@ -7,3 +7,6 @@ export const TRADE_OFFER_STATUS_TONES: TradeOfferStatusTones = {
   declined: "destructive",
 };
 export const TRADE_OFFERS_SKELETON_ROWS = 4;
+export const COLLECTION_CARDS_QUERY_ROOT = "collection-cards";
+export const TRADE_OFFER_TWO_COLUMN_MIN_WINDOW_WIDTH = 768;
+export const TRADE_OFFER_SIDES = ["wanted", "offered"] as const;

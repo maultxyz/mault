@@ -42,6 +42,16 @@ export const tradeOfferRequestSchema = tradeOfferFormSchema.extend({
   offered: z.array(tradeOfferOfferedCardInputSchema).min(1).max(TRADE_OFFER_OFFERED_CARDS_MAX),
 });
 
+export const tradeOfferAcceptRequestSchema = z.object({
+  removeWantedCardsWhenPicked: z.boolean().optional(),
+});
+
+export const tradeOfferPickedRequestSchema = z.object({
+  scanIds: z.array(z.uuid()).min(1).max(TRADE_OFFER_WANTED_CARDS_MAX),
+});
+
 export type TradeOfferFormValues = z.infer<typeof tradeOfferFormSchema>;
 export type TradeOfferRequest = z.infer<typeof tradeOfferRequestSchema>;
 export type TradeOfferOfferedCardInput = z.infer<typeof tradeOfferOfferedCardInputSchema>;
+export type TradeOfferAcceptRequest = z.infer<typeof tradeOfferAcceptRequestSchema>;
+export type TradeOfferPickedRequest = z.infer<typeof tradeOfferPickedRequestSchema>;

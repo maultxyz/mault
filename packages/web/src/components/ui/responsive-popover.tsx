@@ -23,6 +23,8 @@ interface DynamicPopoverProps {
   align?: "start" | "center" | "end";
   sideOffset?: number;
   alignOffset?: number;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export function DynamicPopover({
@@ -33,13 +35,15 @@ export function DynamicPopover({
   align,
   sideOffset,
   alignOffset,
+  open,
+  onOpenChange,
 }: DynamicPopoverProps) {
   const isMobile = useIsMobile();
   const { t } = useTranslation("common");
 
   if (isMobile) {
     return (
-      <Drawer>
+      <Drawer open={open} onOpenChange={onOpenChange}>
         <DrawerTrigger asChild>{trigger}</DrawerTrigger>
         <DrawerContent className="min-h-0">
           <DrawerHeader className="sr-only">
@@ -59,7 +63,7 @@ export function DynamicPopover({
   }
 
   return (
-    <Popover>
+    <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger render={trigger}></PopoverTrigger>
       <PopoverContent
         side={side}

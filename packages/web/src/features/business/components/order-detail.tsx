@@ -34,7 +34,7 @@ import {
   useBusinessAction,
 } from "@/features/business/api/use-business";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
-import { ConfirmDialog } from "@/features/business/components/confirm-dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { OrderEditDialog } from "@/features/business/components/order-edit-dialog";
 import { StatusBadge } from "@/features/business/components/status-badge";
 import { buildPullSheetCsv } from "@/features/business/lib/pull-sheet";
@@ -556,6 +556,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
               name: lastCopyName ?? "",
             })}
             confirmLabel={t("orders.removeCopy")}
+            cancelLabel={t("actions.back")}
             destructive
             isPending={pending}
             onConfirm={async () => {
@@ -583,6 +584,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
               },
             )}
             confirmLabel={t("orders.removeFromPick")}
+            cancelLabel={t("actions.back")}
             destructive
             isPending={pending}
             onConfirm={async () => {
@@ -614,6 +616,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
           count: livePicked.length,
         })}
         confirmLabel={t("orders.fulfil")}
+        cancelLabel={t("actions.back")}
         isPending={pending}
         onConfirm={async () => {
           const result = await act(
@@ -632,6 +635,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
         title={t("orders.cancelTitle")}
         description={t("orders.cancelDescription")}
         confirmLabel={t("orders.cancel")}
+        cancelLabel={t("actions.back")}
         destructive
         isPending={pending}
         onConfirm={async () => {

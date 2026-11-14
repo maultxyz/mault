@@ -1,7 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { DynamicPopover } from "@/components/ui/responsive-popover";
 import { usePendingTradeOffers } from "@/features/trade-offers/api/trade-offers";
-import { TradeOfferReviewDialog } from "@/features/trade-offers/components/trade-offer-review-dialog";
+import { tradeOfferPath } from "@/lib/constants/trade-offers";
+import { Link } from "react-router-dom";
 import { IconArrowsExchange, IconRefresh } from "@tabler/icons-react";
 import { useAlertTrayRefresh } from "@/hooks/alerts/use-alert-tray-refresh";
 import { useAppAlertsContext } from "@/hooks/alerts/use-app-alerts";
@@ -60,8 +61,7 @@ export function AlertTrayTrigger({
   const tradeOffersHeadingId = useId();
   const { trayAlerts } = useAppAlertsContext();
   const tradeOffers = usePendingTradeOffers();
-  const [reviewedOfferGuid, setReviewedOfferGuid] = useState<string | null>(null);
-  const reviewedOffer = tradeOffers.find((offer) => offer.guid === reviewedOfferGuid) ?? null;
+  const [isTrayOpen, setIsTrayOpen] = useState(false);
   const { refresh, isRefreshing } = useAlertTrayRefresh();
   const [refreshStatus, setRefreshStatus] = useState("");
   const refreshTray = async () => {
@@ -71,8 +71,9 @@ export function AlertTrayTrigger({
   };
 
   return (
-    <>
     <DynamicPopover
+      open={isTrayOpen}
+      onOpenChange={setIsTrayOpen}
       side={side}
       align={align}
       contentClassName="w-80"
@@ -125,7 +126,9 @@ export function AlertTrayTrigger({
                 <div className="flex flex-wrap gap-1">
                   <Button
                     variant="outline"
-                    onClick={() => setReviewedOfferGuid(offer.guid)}
+                    nativeButton={false}
+                    render={<Link to={tradeOfferPath(offer.guid)} />}
+                    onClick={() => setIsTrayOpen(false)}
                   >
                     {t("tradeOffers.review")}
                   </Button>
@@ -147,12 +150,5 @@ export function AlertTrayTrigger({
         </div>
       )}
     </DynamicPopover>
-    <TradeOfferReviewDialog
-      offer={reviewedOffer}
-      onOpenChange={(open) => {
-        if (!open) setReviewedOfferGuid(null);
-      }}
-    />
-    </>
   );
 }

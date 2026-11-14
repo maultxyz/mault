@@ -882,6 +882,7 @@ export const tradeOffers = pgTable(
     status: text("status").notNull().default("pending"),
     respondedAt: timestamp("responded_at"),
     respondedByUserId: text("responded_by_user_id"),
+    remainingPickScanIds: text("remaining_pick_scan_ids").array(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
