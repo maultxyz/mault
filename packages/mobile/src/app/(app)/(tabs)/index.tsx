@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
-import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
@@ -63,7 +62,6 @@ export default function HomeScreen() {
   const firstReviewCard = summaryData?.review.cards[0];
   const scanActivityByCollection = new Map((summaryData?.scanActivity ?? []).map((activity) => [activity.collectionGuid, activity]));
   const liveScanners = Object.entries(locks);
-  const hasNoCollections = overviewData?.collectionCount === 0;
 
   const refresh = () => {
     void overview.refetch();
@@ -123,17 +121,6 @@ export default function HomeScreen() {
                 : []),
             ]}
           />
-
-          {hasNoCollections ? (
-            <Surface>
-              <EmptyState
-                icon="sparkles"
-                title={t("home.welcome.title")}
-                description={t("home.welcome.description")}
-                action={<Button icon="plus" label={t("collections.new")} onPress={() => router.push("/collection-new")} />}
-              />
-            </Surface>
-          ) : null}
 
           {liveScanners.length > 0 || reviewCount > 0 ? (
             <View style={{ gap: SPACING.sm }}>

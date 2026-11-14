@@ -20,10 +20,6 @@
     "newCollection": "Nouvelle collection",
     "stats": "Statistiques"
   },
-  "welcome": {
-    "title": "Bienvenue sur Mault",
-    "description": "Créez une collection puis lancez un scan pour voir ici sa valeur, vos meilleures cartes et plus encore."
-  },
   "review": {
     "title_one": "{{count}} scan à vérifier",
     "title_other": "{{count}} scans à vérifier",

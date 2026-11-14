@@ -870,10 +870,6 @@
       "sinceDate": "since {{date}}",
       "openStats": "Opens your stats"
     },
-    "welcome": {
-      "title": "Welcome to Mault",
-      "description": "Create a collection, then start scanning to see its value, your top cards and more right here."
-    },
     "review": {
       "title_one": "{{count}} scan needs review",
       "title_other": "{{count}} scans need review",

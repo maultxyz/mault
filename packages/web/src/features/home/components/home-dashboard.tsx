@@ -1,6 +1,5 @@
 import { Callout } from "@/components/callout";
 import { DisplayHeadline } from "@/components/display-headline";
-import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
@@ -26,7 +25,7 @@ import { STATS_PATH } from "@/lib/constants/stats";
 import { ONE_DAY_MS } from "@/lib/constants/timing";
 import { usesHostHardware } from "@/lib/host";
 import { greetingPeriodFor, valueChangeOf } from "@magic-vault/shared";
-import { IconAlertTriangle, IconBroadcast, IconChartBar, IconHelpCircle, IconPlus, IconScan, IconSparkles } from "@tabler/icons-react";
+import { IconAlertTriangle, IconBroadcast, IconChartBar, IconHelpCircle, IconPlus, IconScan } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -153,12 +152,6 @@ export function HomeDashboard() {
           </div>
 
           {isMobile && <PiSorterCalibrationLink />}
-
-          {overviewData.collectionCount === 0 && (
-            <div className="rounded-card bg-card">
-              <EmptyState icon={IconSparkles} title={t("welcome.title")} description={t("welcome.description")} />
-            </div>
-          )}
 
           {(summary.isPending || summaryData) && (
             <HomeCardRail

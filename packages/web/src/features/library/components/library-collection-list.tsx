@@ -60,7 +60,7 @@ export function LibraryCollectionList() {
   if (sorted.length === 0) {
     return (
       <div className="rounded-card bg-card">
-        <EmptyState icon={IconAlbum} title={t("welcome.title")} description={t("welcome.description")} />
+        <EmptyState icon={IconAlbum} title={tCollections("noCollectionsYet")} description={tCollections("page.emptyDescription")} />
       </div>
     );
   }

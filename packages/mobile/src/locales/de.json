@@ -870,10 +870,6 @@
       "sinceDate": "seit {{date}}",
       "openStats": "Öffnet deine Statistiken"
     },
-    "welcome": {
-      "title": "Willkommen bei Mault",
-      "description": "Lege eine Sammlung an und scanne los, um hier ihren Wert, deine Top-Karten und mehr zu sehen."
-    },
     "review": {
       "title_one": "{{count}} Scan muss geprüft werden",
       "title_other": "{{count}} Scans müssen geprüft werden",
