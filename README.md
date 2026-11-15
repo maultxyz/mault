@@ -95,7 +95,7 @@ For a production install, follow the step-by-step guide at [mault.xyz/self-host]
 Mault needs Postgres with pgvector and an identity provider, picked with `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER`:
 
 - **`neon`** (default): a hosted [Neon](https://neon.com) project. The free tier is enough.
-- **`local`**: fully self-hosted. `docker-compose.yml` runs Postgres, the API, the web app and the API docs. A Raspberry Pi can host the same local-auth app with `scripts/pi/install.sh` ([Raspberry Pi](#raspberry-pi)).
+- **`local`**: fully self-hosted. `docker-compose.yml` runs Postgres, the API, the web app and the API docs. A Raspberry Pi can host the same local-auth app with `scripts/pi/install.sh` ([Raspberry Pi](#Raspberry-Pi-and-Orange-Pi-Zero-4)).
 
 Both read one `.env` in the repo root:
 
@@ -310,7 +310,7 @@ The firmware has no idea what a bin is: the app resolves each bin to a module an
 
 ### Raspberry Pi
 
-See [Raspberry Pi](#raspberry-pi). The sorter stays plugged into the Pi, and a USB webcam on the Pi is the scanner camera.
+See [Raspberry Pi](#Raspberry-Pi-and-Orange-Pi-Zero-4). The sorter stays plugged into the Pi, and a USB webcam on the Pi is the scanner camera.
 
 ### Wi-Fi remote
 
