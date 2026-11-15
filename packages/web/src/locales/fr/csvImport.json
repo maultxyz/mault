@@ -1,0 +1,84 @@
+{
+  "contents": {
+    "label": "Contenu du fichier",
+    "placeholder": "Collez du CSV/TSV ou choisissez un fichier, ou collez une liste de deck"
+  },
+  "fallback": {
+    "decklist_one": "Lu comme une liste : {{count}} nom de carte.",
+    "decklist_other": "Lu comme une liste : {{count}} cartes différentes.",
+    "unrecognized": "Aucun tableau détecté. Collez du texte CSV avec en-têtes ou une liste de deck."
+  },
+  "composition": {
+    "label": "Les lignes forment des commandes par",
+    "reference": "Colonne de référence",
+    "masterdetail": "Lignes d'en-tête puis lignes d'articles",
+    "single": "Une seule commande"
+  },
+  "column": {
+    "assign": "Assigner la colonne {{column}}",
+    "ignore": "Ignorer",
+    "orderFields": "Champs de commande",
+    "itemFields": "Champs d'article",
+    "required": "requis"
+  },
+  "fields": {
+    "orderRef": "Référence de commande",
+    "customerName": "Nom du client",
+    "customerContact": "Contact client",
+    "shippingAddress": "Adresse de livraison",
+    "orderNote": "Note de commande",
+    "carrier": "Transporteur",
+    "trackingNumber": "Numéro de suivi",
+    "labelUrl": "URL de l'étiquette",
+    "shippedDate": "Date d'envoi",
+    "lineNote": "Note de ligne",
+    "storageLocation": "Emplacement de stockage",
+    "name": "Nom de la carte",
+    "setCode": "Code d'extension",
+    "setName": "Nom d'extension",
+    "collectorNumber": "Numéro de collection",
+    "condition": "État",
+    "foil": "Foil",
+    "quantity": "Quantité",
+    "unitPrice": "Prix unitaire",
+    "language": "Langue"
+  },
+  "validation": {
+    "missingFields": "Champs requis sans colonne : {{fields}}"
+  },
+  "orders": {
+    "title": "Commandes",
+    "empty": "Aucune commande pour l'instant. Assignez d'abord la colonne du nom de carte.",
+    "referencePlaceholder": "Nom de la commande",
+    "referenceLabel": "Nom de la commande {{index}}",
+    "lineCount_one": "{{count}} ligne",
+    "lineCount_other": "{{count}} lignes",
+    "quantity_one": "{{count}} carte",
+    "quantity_other": "{{count}} cartes",
+    "revenue": "Valeur {{value}}",
+    "skippedRows_one": "{{count}} ligne ignorée",
+    "skippedRows_other": "{{count}} lignes ignorées",
+    "emptyOrders_one": "{{count}} commande sans articles ignorée",
+    "emptyOrders_other": "{{count}} commandes sans articles ignorées",
+    "conflicts_one": "{{count}} valeur conflictuelle, la première conservée",
+    "conflicts_other": "{{count}} valeurs conflictuelles, la première conservée",
+    "nameLabel": "Nom de la commande"
+  },
+  "picks": {
+    "entries_one": "{{count}} carte différente",
+    "entries_other": "{{count}} cartes différentes",
+    "noEntries": "Aucune carte trouvée pour l'instant."
+  },
+  "templates": {
+    "label": "Modèle",
+    "none": "Aucun modèle",
+    "save": "Enregistrer comme modèle",
+    "namePlaceholder": "Nom du modèle",
+    "saved": "Modèle enregistré.",
+    "saveFailed": "Impossible d'enregistrer le modèle.",
+    "builtin": {
+      "shopify": "Shopify (intégré)",
+      "tcgplayer": "TCGplayer (intégré)"
+    }
+  }
+}

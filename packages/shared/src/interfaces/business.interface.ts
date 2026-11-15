@@ -179,6 +179,7 @@ export interface OrderLineInput {
   collectorNumber?: string | null;
   condition?: CardCondition | null;
   isFoil?: boolean | null;
+  language?: string | null;
   quantity: number;
   unitPrice?: number | null;
   orderRef?: string | null;

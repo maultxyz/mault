@@ -190,7 +190,10 @@
     "missingCount_other": "{{count}} copies not stored",
     "moreActions": "More actions",
     "picked": "Picked",
-    "back": "Back to locations"
+    "back": "Back to locations",
+    "import": "Import CSV",
+    "importTitle": "Import pick list",
+    "importDescription": "Map the columns of a CSV or TSV file to build the pick list."
   },
   "verify": {
     "tabs": {

@@ -17,4 +17,5 @@ export const DELETED_ITEM_TYPES = [
   "fulfilmentOrder",
   "accuracyCheck",
   "shopCatalog",
+  "importTemplate",
 ] as const;

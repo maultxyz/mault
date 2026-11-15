@@ -3,6 +3,7 @@ import type { CardPriceDetails } from "../lib/interfaces/card-prices";
 import {
   REPACK_UNIQUE_BY_PRINTING,
   type PrintingMarkGroups,
+  type CsvImportMapping,
 } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
 import { authenticatedRole, crudPolicy } from "drizzle-orm/neon/rls";
@@ -861,6 +862,32 @@ export const webhookDeliveries = pgTable(
   },
   (table) => [
     index("webhook_deliveries_next_attempt_idx").on(table.nextAttemptAt),
+  ],
+).enableRLS();
+
+export const importTemplates = pgTable(
+  "import_templates",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    orgId: text("org_id").notNull(),
+    name: text("name").notNull(),
+    type: text("type").notNull(),
+    mapping: jsonb("mapping").$type<CsvImportMapping>().notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("import_templates_guid_idx").on(table.guid),
+    uniqueIndex("import_templates_org_type_name_idx")
+      .on(table.orgId, table.type, sql`lower(${table.name})`)
+      .where(sql`${table.isDeleted} = false`),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
   ],
 ).enableRLS();
 

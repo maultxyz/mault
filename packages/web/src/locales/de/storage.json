@@ -190,7 +190,10 @@
     "missingCount_other": "{{count}} Exemplare nicht gelagert",
     "moreActions": "Weitere Aktionen",
     "picked": "Herausgesucht",
-    "back": "Zurück zu den Lagerorten"
+    "back": "Zurück zu den Lagerorten",
+    "import": "CSV importieren",
+    "importTitle": "Suchliste importieren",
+    "importDescription": "Ordne die Spalten einer CSV- oder TSV-Datei zu, um die Suchliste aufzubauen."
   },
   "verify": {
     "tabs": {

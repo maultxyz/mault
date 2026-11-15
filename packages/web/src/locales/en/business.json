@@ -308,7 +308,8 @@
     "deleteTitle": "Delete this pick?",
     "deleteDescription": "The pick's record is removed. Cards it already took out of inventory stay removed.",
     "pickFirst": "Tick every card you pulled first",
-    "pickAll": "Pick all"
+    "pickAll": "Pick all",
+    "importedName": "Imported order {{index}}"
   },
   "cost": {
     "title": "Set cost basis",

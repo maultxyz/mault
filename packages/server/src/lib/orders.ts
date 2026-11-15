@@ -61,6 +61,7 @@ export function normalizeOrderLines(value: unknown): OrderLineInput[] | null {
           : 1,
       unitPrice: price(line.unitPrice),
       orderRef: text(line.orderRef),
+      language: text(line.language),
     });
   }
   return lines;

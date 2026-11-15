@@ -190,7 +190,10 @@
     "missingCount_other": "{{count}} exemplaires non rangés",
     "moreActions": "Plus d'actions",
     "picked": "Sortie",
-    "back": "Retour aux emplacements"
+    "back": "Retour aux emplacements",
+    "import": "Importer un CSV",
+    "importTitle": "Importer une liste de recherche",
+    "importDescription": "Associez les colonnes d'un fichier CSV ou TSV pour construire la liste de recherche."
   },
   "verify": {
     "tabs": {

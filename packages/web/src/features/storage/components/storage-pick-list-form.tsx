@@ -20,6 +20,7 @@ export function StoragePickListForm({
   initialDecklist,
   onSubmit,
   onCancel,
+  onImportCsv,
 }: StoragePickListFormProps) {
   const { t } = useTranslation("storage");
   const { t: tCommon } = useTranslation("common");
@@ -59,6 +60,11 @@ export function StoragePickListForm({
         {onCancel && (
           <Button type="button" variant="outline" onClick={onCancel}>
             {tCommon("actions.cancel")}
+          </Button>
+        )}
+        {onImportCsv && (
+          <Button type="button" variant="outline" onClick={onImportCsv}>
+            {t("pickList.import")}
           </Button>
         )}
         <Button type="submit">

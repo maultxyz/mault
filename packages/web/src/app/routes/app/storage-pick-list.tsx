@@ -2,6 +2,7 @@ import { DeleteDialog } from "@/components/delete-dialog";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
+import { CsvImportDialog } from "@/components/csv-import-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,8 +29,10 @@ import {
   IconCameraOff,
   IconDots,
   IconEdit,
+  IconFileImport,
   IconX,
 } from "@tabler/icons-react";
+import { formatDecklist } from "@magic-vault/shared";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -41,6 +44,7 @@ function StoragePickListView() {
   const [isEditing, setIsEditing] = useState(false);
   const [finishOpen, setFinishOpen] = useState(false);
   const [isScanOpen, setIsScanOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
   const hasList = pickList.entries.length > 0;
   const showForm = !hasList || isEditing;
   const allPicked = pickList.pickedCount >= pickList.cards.length;
@@ -55,6 +59,10 @@ function StoragePickListView() {
       >
         {showScanPanel ? <IconCameraOff /> : <IconCamera />}
         {showScanPanel ? t("pickList.scan.stop") : t("pickList.scan.button")}
+      </Button>
+      <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+        <IconFileImport />
+        {t("pickList.import")}
       </Button>
       <DropdownMenu>
         <DropdownMenuTrigger
@@ -104,6 +112,7 @@ function StoragePickListView() {
         setIsEditing(false);
       }}
       onCancel={hasList ? () => setIsEditing(false) : undefined}
+      onImportCsv={() => setIsImportOpen(true)}
     />
   ) : showScanPanel ? (
     <div className="flex flex-col gap-4 md:gap-2 md:grid md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] md:items-start">
@@ -159,6 +168,20 @@ function StoragePickListView() {
       >
         {body}
       </div>
+      <CsvImportDialog
+        open={isImportOpen}
+        onOpenChange={setIsImportOpen}
+        type="picks"
+        title={t("pickList.importTitle")}
+        description={t("pickList.importDescription")}
+        importLabel={t("pickList.import")}
+        onImport={async (payload) => {
+          if (payload.type !== "picks") return false;
+          pickList.setDecklist(formatDecklist(payload.entries));
+          setIsEditing(false);
+          return true;
+        }}
+      />
       <DeleteDialog
         open={finishOpen}
         onOpenChange={setFinishOpen}

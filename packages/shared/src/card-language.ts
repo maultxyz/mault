@@ -35,6 +35,34 @@ export function pickedCardLanguage(card: Pick<PlayingCard, "lang">): CardLanguag
   return isCardLanguage(card.lang) ? card.lang : null;
 }
 
+export function cardLanguageFromText(
+  value: string | null | undefined,
+): CardLanguage | null {
+  const text = value?.trim().toLowerCase();
+  if (!text) return null;
+  if (isCardLanguage(text)) return text;
+  const byName: Record<string, CardLanguage> = {
+    english: "en",
+    german: "de",
+    deutsch: "de",
+    french: "fr",
+    francais: "fr",
+    italian: "it",
+    italiano: "it",
+    spanish: "es",
+    espanol: "es",
+    portuguese: "pt",
+    japanese: "ja",
+    korean: "ko",
+    russian: "ru",
+    "chinese simplified": "zhs",
+    "simplified chinese": "zhs",
+    "chinese traditional": "zht",
+    "traditional chinese": "zht",
+  };
+  return byName[text] ?? null;
+}
+
 export function gameReadsPrintedLanguage(gameKey: string): boolean {
   return (OCR_REGIONS_BY_GAME_KEY[gameKey] ?? []).some(
     (region) => region.field === "language",
