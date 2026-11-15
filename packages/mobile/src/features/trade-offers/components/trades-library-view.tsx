@@ -15,7 +15,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
-import { TabStrip } from "@/components/ui/tab-strip";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { outgoingTradeOffersQueryOptions } from "@/features/trade-offers/api/outgoing-trade-offers";
 import { tradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -169,9 +169,8 @@ export function TradesLibraryView({ title, viewSwitcher }: LibraryViewProps) {
         </PageHeader>
       }
     >
-      <TabStrip
-        inline
-        items={TRADES_BOXES.map((value) => ({ value, label: t(`tradeOffers.boxes.${value}`) }))}
+      <SegmentedControl
+        options={TRADES_BOXES.map((value) => ({ value, label: t(`tradeOffers.boxes.${value}`) }))}
         value={box}
         onChange={setBox}
       />

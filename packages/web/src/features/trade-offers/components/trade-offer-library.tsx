@@ -1,12 +1,11 @@
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ViewTabs } from "@/components/view-tabs";
 import { useTradeOffers } from "@/features/trade-offers/api/trade-offers";
 import { OutgoingTradeOfferList } from "@/features/trade-offers/components/outgoing-trade-offer-list";
-import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   TRADE_OFFER_STATUS_BADGE_VARIANTS,
   TRADE_OFFERS_SKELETON_ROWS,
@@ -138,7 +137,6 @@ function ReceivedTradeOfferList() {
 
 export function TradeOfferLibrary() {
   const { t } = useTranslation("common");
-  const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const requestedBox = searchParams.get(TRADES_BOX_PARAM);
   const box: TradesBox = (TRADES_BOXES as readonly string[]).includes(requestedBox ?? "")
@@ -157,12 +155,12 @@ export function TradeOfferLibrary() {
 
   return (
     <>
-      <ViewTabs
+      <ResponsiveSegmented
         items={TRADES_BOXES.map((key) => ({ key, label: t(`tradeOffers.boxes.${key}`) }))}
         value={box}
         onChange={changeBox}
         label={t("tradeOffers.boxes.label")}
-        fill={isMobile}
+        className="self-start"
       />
       {box === "sent" ? <OutgoingTradeOfferList /> : <ReceivedTradeOfferList />}
     </>
