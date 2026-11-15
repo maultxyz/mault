@@ -25,6 +25,7 @@ export type HotkeyId =
   | "goAdmin"
   | "goNextSorterNeedingAttention"
   | "scanPauseResume"
+  | "scanEmergencyStop"
   | "scanNow"
   | "scanFeed"
   | "scanFlatbedCard"

@@ -595,6 +595,14 @@
         "title": "Karte konnte nicht einsortiert werden",
         "description": "Prüfe den Sortierer und tippe dann auf Fortsetzen. {{detail}}"
       },
+      "emergency-stop": {
+        "title": "Sortierer gestoppt",
+        "stopped": "Entferne alle Karten, die noch im Sortierer liegen, und setze ihn dann zurück, um fortzufahren.",
+        "unsupported": "Die Firmware dieses Sortierers kann nicht mitten in einer Karte anhalten, daher wird die aktuelle Karte noch einsortiert. Aktualisiere die Firmware, um sofort anzuhalten. Setze den Sortierer dann zurück.",
+        "unconfirmed": "Der Sortierer hat den Stopp nicht bestätigt. Schalte ihn aus, falls er sich noch bewegt, und prüfe dann die Verbindung.",
+        "resetFailed": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe die Verbindung und versuche es erneut.",
+        "reset": "Sortierer zurücksetzen"
+      },
       "jam": {
         "title": "Kartenstau",
         "description": "In Modul {{detail}} steckt eine Karte fest. Entferne sie und tippe dann auf Fortsetzen."
@@ -701,6 +709,8 @@
     "handScanBinLabel": "Ablegen in",
     "handScanBin": "Fach {{number}}",
     "pauseAction": "Pause",
+    "emergencyStop": "Stopp",
+    "emergencyStopHint": "Not-Stopp: hält Einzug, Klappen und Schieber sofort an",
     "sessionChip_one": "{{count}} gescannt",
     "sessionChip_other": "{{count}} gescannt",
     "sessionScans": {

@@ -84,6 +84,7 @@ export type ScannerPhase =
 
 export type ScannerPauseReason =
   | "user"
+  | "emergency-stop"
   | "feeder-empty"
   | "no-card"
   | "card-missing"
@@ -197,6 +198,8 @@ export interface ScanSessionValue extends ScanSessionState {
   start: () => void;
   pause: () => void;
   resume: () => void;
+  emergencyStop: () => Promise<void>;
+  resetAfterEmergencyStop: () => Promise<boolean>;
   scanOnce: () => void;
   feedOnce: () => Promise<void>;
   autoFeed: boolean;

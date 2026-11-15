@@ -29,6 +29,7 @@ export const PAUSE_TONES = {
   "collection-locked": "warning",
   "feed-failed": "destructive",
   "route-failed": "destructive",
+  "emergency-stop": "destructive",
   jam: "destructive",
   "save-failed": "destructive",
   "sorter-disconnected": "destructive",

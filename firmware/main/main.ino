@@ -428,9 +428,15 @@ void startWatchdog() {
 void pumpInput();
 extern bool commandInProgress;
 
+// Set by {"stop": true}, which is accepted even mid-command (see
+// handleCommand()). While set, setServoPosition() moves nothing and every
+// wait returns at once, so the interrupted command unwinds without motion.
+// Only {"neutral": true} clears it.
+bool emergencyStopped = false;
+
 void waitMs(unsigned long ms) {
   unsigned long start = millis();
-  while (millis() - start < ms) {
+  while (millis() - start < ms && !emergencyStopped) {
     feedWatchdog();
     if (commandInProgress) pumpInput();
     unsigned long left = ms - (millis() - start);
@@ -442,7 +448,7 @@ void waitMs(unsigned long ms) {
 bool waitForCard(int module, int timeoutMs = IR_TIMEOUT_MS) {
   unsigned long start = millis();
   while (digitalRead(irPin(module)) == HIGH) {
-    if (millis() - start > (unsigned long)timeoutMs) return false;
+    if (emergencyStopped || millis() - start > (unsigned long)timeoutMs) return false;
     waitMs(5);
   }
   return true;
@@ -451,7 +457,7 @@ bool waitForCard(int module, int timeoutMs = IR_TIMEOUT_MS) {
 bool waitForClear(int module, int timeoutMs = IR_TIMEOUT_MS) {
   unsigned long start = millis();
   while (digitalRead(irPin(module)) == LOW) {
-    if (millis() - start > (unsigned long)timeoutMs) return false;
+    if (emergencyStopped || millis() - start > (unsigned long)timeoutMs) return false;
     waitMs(5);
   }
   return true;
@@ -845,6 +851,7 @@ bool isPusherNudge(int module, int value) {
 }
 
 void setServoPosition(int channel, int pulse) {
+  if (emergencyStopped) return;
   int value = servoPulse(pulse);
   int module = moduleForChannel(channel);
   int slot = module ? (channel - moduleChannelOffset) % 3 : -1;
@@ -960,7 +967,7 @@ FeedResult runFeeder() {
 
   if (feederConfig.pulseDuration <= 0) {
     setServoPosition(getFeederChannel(), feederConfig.speed);
-    while (millis() - start < (unsigned long)feederConfig.duration) {
+    while (millis() - start < (unsigned long)feederConfig.duration && !emergencyStopped) {
       if (digitalRead(irPin(1)) == LOW) {
         settleAndStopFeeder();
         return FEED_DETECTED;
@@ -971,13 +978,13 @@ FeedResult runFeeder() {
     return FEED_TIMEOUT;
   }
 
-  while (millis() - start < (unsigned long)feederConfig.duration) {
+  while (millis() - start < (unsigned long)feederConfig.duration && !emergencyStopped) {
     if (digitalRead(irPin(1)) == LOW) return FEED_DETECTED;
 
     setServoPosition(getFeederChannel(), feederConfig.speed);
 
     unsigned long pulseStart = millis();
-    while (millis() - pulseStart < (unsigned long)feederConfig.pulseDuration) {
+    while (millis() - pulseStart < (unsigned long)feederConfig.pulseDuration && !emergencyStopped) {
       if (digitalRead(irPin(1)) == LOW) {
         settleAndStopFeeder();
         return FEED_DETECTED;
@@ -1454,15 +1461,64 @@ class SeqPrint : public Print {
   bool atLineStart = true;
 };
 
+// Drops everything the interrupted command still prints once an emergency
+// stop lands, so its only remaining line is the {"error":"stopped"} that
+// handleCommand() prints for it. A stop is only read inside waitMs(), never
+// mid-line, so no half-written line gets cut.
+class StopAwarePrint : public Print {
+ public:
+  explicit StopAwarePrint(Print& out) : out(out) {}
+
+  size_t write(uint8_t c) override { return write(&c, 1); }
+
+  size_t write(const uint8_t* buffer, size_t size) override {
+    if (emergencyStopped) return size;
+    return out.write(buffer, size);
+  }
+  using Print::write;
+
+ private:
+  Print& out;
+};
+
 bool commandInProgress = false;
 
 void runCommand(JsonDocument& doc, Print& reply);
+
+// Cuts the signal on every PCA9685 channel (feeder, every module servo and
+// any raw channel under test), so nothing keeps moving or holding.
+void emergencyStop() {
+  emergencyStopped = true;
+  for (int channel = 0; channel <= 15; channel++) cutServoSignal(channel);
+  for (int m = 1; m <= maxModuleForOffset(); m++) paddleOpenedAt[m - 1] = 0;
+  servosReleased = true;
+}
+
+// Commands that move a servo or the feeder. While emergencyStopped they're
+// refused with {"error":"stopped"} until {"neutral": true} resets the
+// sorter; reads, config writes and the stop commands still run.
+// setChannelOffset runs too (every app connection sends it) but its neutral
+// move is skipped by setServoPosition() while stopped.
+bool isMotionCommand(JsonDocument& doc) {
+  return isTrue(doc["test"]) || isTrue(doc["clearDevice"]) ||
+         isTrue(doc["retractCard"]) || !doc["servo"].isNull() ||
+         (doc["channel"].is<int>() && doc["value"].is<int>()) ||
+         isTrue(doc["feeder"]) || doc["feederValue"].is<int>() ||
+         !doc["route"].isNull() || !doc["pushTest"].isNull();
+}
 
 void handleCommand(const char* json, Print& reply) {
   JsonDocument doc;
   DeserializationError err = deserializeJson(doc, json);
   bool hasSeq = !err && doc["seq"].is<uint32_t>();
   SeqPrint tagged(reply, hasSeq, hasSeq ? doc["seq"].as<uint32_t>() : 0);
+  // {"stop": true} — emergency stop, the one command accepted while another
+  // is in progress. See PROTOCOL.md.
+  if (!err && isTrue(doc["stop"])) {
+    emergencyStop();
+    tagged.println(F("{\"status\":\"stopped\"}"));
+    return;
+  }
   if (commandInProgress) {
     tagged.println(F("{\"error\":\"busy\",\"reason\":\"another command is in progress\"}"));
     return;
@@ -1477,9 +1533,18 @@ void handleCommand(const char* json, Print& reply) {
     reply.println(F("\"}"));
     return;
   }
+  if (emergencyStopped && isMotionCommand(doc)) {
+    tagged.println(F("{\"error\":\"stopped\"}"));
+    return;
+  }
+  bool stoppedBefore = emergencyStopped;
+  StopAwarePrint guarded(tagged);
   commandInProgress = true;
-  runCommand(doc, tagged);
+  runCommand(doc, guarded);
   commandInProgress = false;
+  if (!stoppedBefore && emergencyStopped) {
+    tagged.println(F("{\"error\":\"stopped\"}"));
+  }
 }
 
 void printStatus(Print& reply, bool live) {
@@ -1499,6 +1564,7 @@ void printStatus(Print& reply, bool live) {
   reply.print(PUSHER_NUDGE_MAX_PULSE);
   reply.print(F(",\"pusherNudgeMaxTravelPercent\":"));
   reply.print(PUSHER_NUDGE_MAX_TRAVEL_PERCENT);
+  if (emergencyStopped) reply.print(F(",\"stopped\":true"));
   if (live) {
     reply.print(F(",\"uptimeMs\":"));
     reply.print(millis());
@@ -1587,8 +1653,10 @@ void runCommand(JsonDocument& doc, Print& reply) {
     return;
   }
 
-  // {"neutral": true} — reset all servos
+  // {"neutral": true} — reset all servos; also the reset after an emergency
+  // stop
   if (isTrue(doc["neutral"])) {
+    emergencyStopped = false;
     setAllNeutral();
     reply.println(F("{\"status\":\"ok\"}"));
     return;

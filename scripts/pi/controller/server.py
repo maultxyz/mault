@@ -29,6 +29,7 @@ class ControllerServer:
             return
         self.owner = writer
         command_task = None
+        running_message = None
 
         async def execute(message):
             try:
@@ -39,9 +40,25 @@ class ControllerServer:
                 with contextlib.suppress(OSError):
                     self.controller.release()
                 response = dict(error="hardware I/O failed; outputs released where possible")
+            await emit(tagged(response, message))
+
+        def tagged(response, message):
             if type(message.get("seq")) is int and 0 <= message["seq"] <= 0xFFFFFFFF:
                 response["seq"] = message["seq"]
-            await emit(response)
+            return response
+
+        async def emergency_stop(message):
+            nonlocal command_task
+            interrupted = command_task is not None and not command_task.done()
+            if interrupted:
+                command_task.cancel()
+                with contextlib.suppress(asyncio.CancelledError, ConnectionError, OSError, ValueError):
+                    await command_task
+                command_task = None
+            self.controller.emergency_stop()
+            await emit(tagged(dict(status="stopped"), message))
+            if interrupted:
+                await emit(tagged(dict(error="stopped"), running_message))
 
         try:
             while True:
@@ -62,6 +79,9 @@ class ControllerServer:
                 except (ValueError, UnicodeDecodeError):
                     await emit(dict(error="invalid JSON command"))
                     continue
+                if message.get("stop") is True:
+                    await emergency_stop(message)
+                    continue
                 if command_task is not None and not command_task.done():
                     response = dict(error="busy", reason="another command is in progress")
                     if type(message.get("seq")) is int:
@@ -70,6 +90,7 @@ class ControllerServer:
                     continue
                 if command_task is not None:
                     command_task.result()
+                running_message = message
                 command_task = asyncio.create_task(execute(message))
         except (ConnectionError, OSError, ValueError):
             pass

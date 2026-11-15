@@ -242,6 +242,7 @@
       "goAdmin": "Aller à l'administration",
       "goNextSorterNeedingAttention": "Aller à la prochaine trieuse à vérifier",
       "scanPauseResume": "Mettre en pause ou reprendre le scan",
+      "scanEmergencyStop": "Arrêt d'urgence",
       "scanNow": "Scanner maintenant",
       "scanFeed": "Charger la carte suivante",
       "scanToggleAutoFeed": "Activer ou désactiver l'alimentation auto",

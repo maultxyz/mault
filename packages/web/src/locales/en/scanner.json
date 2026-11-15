@@ -722,7 +722,8 @@
         "scanLimit": "Daily scan limit reached",
         "sorterLimit": "Sorter limit reached",
         "collectionLocked": "Collection is locked",
-        "scannerError": "Camera error"
+        "scannerError": "Camera error",
+        "emergencyStopped": "Emergency stop"
       },
       "fixes": {
         "resume": "Resume",
@@ -1241,6 +1242,26 @@
       "previewAlt": "Scan of the whole flatbed glass",
       "editorLabel": "Flatbed glass. Drag to mark where the card sits.",
       "previewFailed": "Couldn't scan the glass. Check that the scanner is on and try again."
+    }
+  },
+  "emergencyStop": {
+    "stop": "Stop",
+    "stopTooltip": "Emergency stop: halt the feeder, paddles and pushers now",
+    "stoppedTitle": "Sorter stopped",
+    "stoppedDescription": "Remove any card left in the sorter, then reset it to continue.",
+    "stoppedSessionDescription": "Remove any card left in the sorter, then start again to reset it.",
+    "reset": "Reset sorter",
+    "unsupported": {
+      "title": "The current card will still be sorted",
+      "description": "This sorter's firmware can't stop mid-card. Scanning stops after this card. Update the firmware to stop instantly."
+    },
+    "unconfirmed": {
+      "title": "The sorter didn't confirm the stop",
+      "description": "Switch the sorter off if it is still moving, then check the connection."
+    },
+    "resetFailed": {
+      "title": "Couldn't reset the sorter",
+      "description": "The sorter didn't confirm the reset. Check the connection and try again."
     }
   }
 }

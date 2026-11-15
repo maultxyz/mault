@@ -242,6 +242,7 @@
       "goAdmin": "Go to admin",
       "goNextSorterNeedingAttention": "Go to next sorter needing attention",
       "scanPauseResume": "Pause or resume scanning",
+      "scanEmergencyStop": "Emergency stop",
       "scanNow": "Scan now",
       "scanFeed": "Feed next card",
       "scanToggleAutoFeed": "Toggle auto-feed",

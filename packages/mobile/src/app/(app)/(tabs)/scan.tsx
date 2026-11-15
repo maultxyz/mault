@@ -3,7 +3,7 @@ import { activateKeepAwakeAsync, deactivateKeepAwake } from "expo-keep-awake";
 import { router, useIsFocused } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, StyleSheet, View } from "react-native";
+import { AccessibilityInfo, Alert, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {
   binSetMode,
@@ -19,6 +19,7 @@ import {
   usePhotoOutput,
 } from "react-native-vision-camera";
 import { EmptyState } from "@/components/ui/empty-state";
+import { Button } from "@/components/ui/button";
 import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
@@ -267,6 +268,20 @@ export default function ScanScreen() {
           ? colors.warning
           : undefined;
   const pauseNotice = session.phase === "paused" && session.pauseReason && session.pauseReason !== "user";
+  const emergencyStopped = session.pauseReason === "emergency-stop";
+  const [resettingSorter, setResettingSorter] = useState(false);
+  const stopSorter = () => {
+    AccessibilityInfo.announceForAccessibility(t("scan.pause.emergency-stop.title"));
+    void session.emergencyStop();
+  };
+  const resetSorter = async () => {
+    setResettingSorter(true);
+    try {
+      await session.resetAfterEmergencyStop();
+    } finally {
+      setResettingSorter(false);
+    }
+  };
   const cameraLabel = (index: number) =>
     camera.devices[index]?.localizedName || t("scan.options.cameraFallback", { number: index + 1 });
   const selectedCameraIndex = camera.devices.findIndex((d) => d.id === device?.id);
@@ -316,6 +331,14 @@ export default function ScanScreen() {
       tone="success"
       title={t("scan.controlCards.applied")}
       description={controlCardDescription}
+    />
+  ) : pauseNotice && emergencyStopped ? (
+    <CameraNotice
+      tone={PAUSE_TONES["emergency-stop"]}
+      title={t("scan.pause.emergency-stop.title")}
+      description={t(`scan.pause.emergency-stop.${session.pauseDetail ?? "stopped"}`)}
+      actionLabel={resettingSorter ? undefined : t("scan.pause.emergency-stop.reset")}
+      onAction={() => void resetSorter()}
     />
   ) : pauseNotice && session.pauseReason ? (
     <CameraNotice
@@ -462,6 +485,15 @@ export default function ScanScreen() {
           {notice}
           <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
             <View pointerEvents="box-none" style={{ flex: 1, alignItems: "flex-start" }}>
+              {sorter.isConnected && !emergencyStopped ? (
+                <Button
+                  variant="destructive"
+                  icon="handStop"
+                  label={t("scan.emergencyStop")}
+                  accessibilityHint={t("scan.emergencyStopHint")}
+                  onPress={stopSorter}
+                />
+              ) : null}
               {collection && !sorter.isConnected && !session.isRunning ? (
                 <IconButton
                   icon="multiCard"
@@ -484,7 +516,7 @@ export default function ScanScreen() {
                 label={
                   session.isRunning ? t("scan.pauseAction") : session.phase === "paused" ? t("scan.resume") : t("scan.start")
                 }
-                disabled={!session.isRunning && !session.canStart}
+                disabled={emergencyStopped || (!session.isRunning && !session.canStart)}
                 onPress={
                   session.isRunning ? session.pause : session.phase === "paused" ? session.resume : session.start
                 }

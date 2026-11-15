@@ -1407,6 +1407,10 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   );
 
   const sendNeutral = useCallback(() => session.sendNeutral(), [session]);
+  const sendEmergencyStop = useCallback(
+    () => session.sendEmergencyStop(),
+    [session],
+  );
   const runWhenIdle = useCallback(
     <T,>(task: () => Promise<T>) => session.runWhenIdle(task),
     [session],
@@ -1463,6 +1467,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         isRouteBusy,
         readIR,
         sendNeutral,
+        sendEmergencyStop,
         runWhenIdle,
         sendTest,
         runTest: runTestOnActiveTransport,

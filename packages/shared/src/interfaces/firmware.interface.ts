@@ -8,7 +8,8 @@ export type FirmwareFeature =
   | "wifiRemote"
   | "retractCard"
   | "moduleDetection"
-  | "pusherNudge";
+  | "pusherNudge"
+  | "emergencyStop";
 
 export type RetractCardOutcome = "retracted" | "rollback_off" | "failed";
 

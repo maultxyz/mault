@@ -722,7 +722,8 @@
         "scanLimit": "Tägliches Scanlimit erreicht",
         "sorterLimit": "Sortiererlimit erreicht",
         "collectionLocked": "Die Sammlung ist gesperrt",
-        "scannerError": "Kamerafehler"
+        "scannerError": "Kamerafehler",
+        "emergencyStopped": "Not-Stopp"
       },
       "fixes": {
         "resume": "Fortsetzen",
@@ -1241,6 +1242,26 @@
       "previewAlt": "Scan des gesamten Flachbettglases",
       "editorLabel": "Flachbettglas. Ziehe, um die Position der Karte zu markieren.",
       "previewFailed": "Das Glas konnte nicht gescannt werden. Prüfe, ob der Scanner eingeschaltet ist, und versuche es erneut."
+    }
+  },
+  "emergencyStop": {
+    "stop": "Stopp",
+    "stopTooltip": "Not-Stopp: Einzug, Klappen und Schieber sofort anhalten",
+    "stoppedTitle": "Sortierer gestoppt",
+    "stoppedDescription": "Entferne alle Karten, die noch im Sortierer liegen, und setze ihn dann zurück, um fortzufahren.",
+    "stoppedSessionDescription": "Entferne alle Karten, die noch im Sortierer liegen, und starte dann erneut, um ihn zurückzusetzen.",
+    "reset": "Sortierer zurücksetzen",
+    "unsupported": {
+      "title": "Die aktuelle Karte wird noch einsortiert",
+      "description": "Die Firmware dieses Sortierers kann nicht mitten in einer Karte anhalten. Das Scannen stoppt nach dieser Karte. Aktualisiere die Firmware, um sofort anzuhalten."
+    },
+    "unconfirmed": {
+      "title": "Der Sortierer hat den Stopp nicht bestätigt",
+      "description": "Schalte den Sortierer aus, falls er sich noch bewegt, und prüfe dann die Verbindung."
+    },
+    "resetFailed": {
+      "title": "Sortierer konnte nicht zurückgesetzt werden",
+      "description": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe die Verbindung und versuche es erneut."
     }
   }
 }

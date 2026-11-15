@@ -18,10 +18,13 @@ test("Pi only advertises implemented firmware commands", () => {
     "feederRollback",
     "storedCalibration",
     "paddleOpenDelay",
+    "emergencyStop",
   ] as const) {
     assert.equal(isFirmwareFeatureSupported("pi-0.1.0", feature), true);
   }
   assert.equal(isFirmwareFeatureSupported("pi-0.1.0", "wifiRemote"), false);
   assert.equal(isFirmwareFeatureSupported("pi-0.1.0", "retractCard"), false);
   assert.equal(isFirmwareFeatureSupported("2.11.0", "retractCard"), true);
+  assert.equal(isFirmwareFeatureSupported("2.13.1", "emergencyStop"), false);
+  assert.equal(isFirmwareFeatureSupported("2.14.0", "emergencyStop"), true);
 });

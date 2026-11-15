@@ -24,6 +24,7 @@ import {
   findPickListEntry,
   reservePickListBins,
   findLowMatchCatchAll,
+  isFirmwareFeatureSupported,
   isRulesMode,
   matchScanBin,
   prepareMatchedScanPlan,
@@ -180,7 +181,19 @@ export function ScannedCardsProvider({
     () => pipelinedFeedRef.current && !hasCustomFeedSourceRef.current(),
     [],
   );
-  const { sendRoute, sendRequest, isConnected, isReady } = useSerial();
+  const {
+    sendRoute,
+    sendRequest,
+    sendEmergencyStop,
+    sendNeutral,
+    firmwareVersion,
+    isConnected,
+    isReady,
+  } = useSerial();
+  const supportsEmergencyStop = isFirmwareFeatureSupported(
+    firmwareVersion,
+    "emergencyStop",
+  );
   const { activeCollection, emptyCollection } = useCollections();
   const playSoundForCard = useSoundRulePlayer(
     activeCollection?.game?.guid,
@@ -307,6 +320,9 @@ export function ScannedCardsProvider({
   const serialRef = useRef({
     sendRoute,
     sendRequest,
+    sendEmergencyStop,
+    sendNeutral,
+    supportsEmergencyStop,
     isConnected,
     isReady,
     ignoreIrSensors,
@@ -337,6 +353,8 @@ export function ScannedCardsProvider({
     clearFeedHalt,
     pause,
     pauseForAttention,
+    emergencyStop,
+    resetAfterEmergencyStop,
     attention: feedAttention,
     triggerAutoFeedAfterRoutedCard,
     registerCardArrivedHook,
@@ -440,11 +458,23 @@ export function ScannedCardsProvider({
     serialRef.current = {
       sendRoute,
       sendRequest,
+      sendEmergencyStop,
+      sendNeutral,
+      supportsEmergencyStop,
       isConnected,
       isReady,
       ignoreIrSensors,
     };
-  }, [sendRoute, sendRequest, isConnected, isReady, ignoreIrSensors]);
+  }, [
+    sendRoute,
+    sendRequest,
+    sendEmergencyStop,
+    sendNeutral,
+    supportsEmergencyStop,
+    isConnected,
+    isReady,
+    ignoreIrSensors,
+  ]);
 
   useEffect(() => {
     handScanBinsRef.current = handScanBins;
@@ -1892,6 +1922,9 @@ export function ScannedCardsProvider({
         pause,
         pauseForAttention,
         resume,
+        emergencyStop,
+        resetAfterEmergencyStop,
+        isEmergencyStopped: feedAttention?.kind === "emergencyStopped",
         attention,
         reopenAttention,
         reportScannerError,

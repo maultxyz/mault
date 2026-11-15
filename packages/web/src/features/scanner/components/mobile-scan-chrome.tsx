@@ -24,6 +24,7 @@ import {
   IconCards,
   IconChevronRight,
   IconDots,
+  IconHandStop,
   IconPlayerPauseFilled,
   IconPlayerPlayFilled,
   IconTrash,
@@ -78,6 +79,23 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
   })();
 
   const notice = (() => {
+    if (chrome.isEmergencyStopped) {
+      return (
+        <MobileScanNotice
+          tone="error"
+          title={t("emergencyStop.stoppedTitle")}
+          description={t("emergencyStop.stoppedDescription")}
+          action={
+            <Button
+              onClick={chrome.onResetAfterEmergencyStop}
+              disabled={chrome.isResettingSorter}
+            >
+              {t("emergencyStop.reset")}
+            </Button>
+          }
+        />
+      );
+    }
     if (chrome.isAtScanLimit) {
       return (
         <MobileScanNotice
@@ -248,6 +266,16 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             {notice}
           </div>
           <div className="flex items-center justify-end gap-3">
+            {chrome.isConnected && !chrome.isEmergencyStopped && (
+              <Button
+                variant="destructive"
+                className="mr-auto"
+                onClick={chrome.onEmergencyStop}
+              >
+                <IconHandStop />
+                {t("emergencyStop.stop")}
+              </Button>
+            )}
             <button
               type="button"
               aria-label={t("mobileScan.controls.open")}
@@ -261,7 +289,10 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             </button>
             <button
               type="button"
-              disabled={sorterDriven && running ? false : !canShoot}
+              disabled={
+                chrome.isEmergencyStopped ||
+                (sorterDriven && running ? false : !canShoot)
+              }
               aria-label={
                 sorterDriven
                   ? running

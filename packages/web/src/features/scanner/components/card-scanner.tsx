@@ -104,6 +104,9 @@ export function CardScanner({
     registerResumeHook,
     pause,
     pauseForAttention,
+    emergencyStop,
+    resetAfterEmergencyStop,
+    isEmergencyStopped,
     reportScannerError,
     attention,
     reopenAttention,
@@ -170,6 +173,7 @@ export function CardScanner({
   } = useConnectWithStaleCheck();
   const bluetoothSupported = isWebBluetoothSupported();
   const [isFeeding, setIsFeeding] = useState(false);
+  const [isResettingSorter, setIsResettingSorter] = useState(false);
   const [isClearingDevice, setIsClearingDevice] = useState(false);
   const {
     resetToNeutral,
@@ -794,6 +798,16 @@ export function CardScanner({
     wasReadyRef.current = canScan;
   }, [canScan, handlePause, handleResume, piScan.cameraReady, status]);
 
+  const handleResetAfterEmergencyStop = async () => {
+    setIsResettingSorter(true);
+    try {
+      await resetAfterEmergencyStop();
+    } finally {
+      setIsResettingSorter(false);
+    }
+  };
+  const piScanEmergencyStopped = piScan.state.emergencyStopped === true;
+
   const scannerControls = (
     <ScannerControls
       flatbedScan={isFlatbedMode ? flatbedScan : undefined}
@@ -837,6 +851,20 @@ export function CardScanner({
       sessionFeed={piScan.cameraReady}
       sessionLive={piScanLive}
       onStop={() => void piScan.stop()}
+      onEmergencyStop={
+        piScan.cameraReady
+          ? () => void piScan.emergencyStop()
+          : () => void emergencyStop()
+      }
+      emergencyStopped={
+        piScan.cameraReady ? piScanEmergencyStopped : isEmergencyStopped
+      }
+      onResetAfterEmergencyStop={
+        piScan.cameraReady
+          ? undefined
+          : () => void handleResetAfterEmergencyStop()
+      }
+      isResettingSorter={isResettingSorter}
       onAutoFeedChange={changeAutoFeed}
     />
   );
@@ -969,6 +997,11 @@ export function CardScanner({
           onFeed: () => void handleFeed(),
           onClearDevice: () => void handleClearDevice(),
           onResetDevice: () => void handleResetToNeutral(),
+          isEmergencyStopped,
+          isResettingSorter,
+          onEmergencyStop: () => void emergencyStop(),
+          onResetAfterEmergencyStop: () =>
+            void handleResetAfterEmergencyStop(),
           handScan,
           handScanActive,
           lastRoutedBin: visibleLastRoutedBin,

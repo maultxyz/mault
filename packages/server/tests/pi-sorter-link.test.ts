@@ -107,3 +107,18 @@ test("a reply and reboot banner in one chunk immediately close the restarted sor
   await assert.rejects(pending, /restarted/);
   await assert.rejects(link.command({ readIR: true }, 1000), /closed/);
 });
+
+test("an emergency stop reaches the sorter while a route is in flight", async () => {
+  const { port, link } = connection();
+  const routing = link.command({ route: { module: 2, direction: "left" } }, 1000);
+  await new Promise((resolve) => setImmediate(resolve));
+  await assert.rejects(link.command({ readIR: true }, 1000), /busy/);
+  const stopping = link.emergencyStop();
+  await new Promise((resolve) => setImmediate(resolve));
+  assert.equal(port.writes[1].stop, true);
+  port.reply({ seq: port.writes[1].seq, status: "stopped" });
+  port.reply({ seq: port.writes[0].seq, error: "stopped" });
+  assert.equal(await stopping, true);
+  assert.equal((await routing).error, "stopped");
+  link.close();
+});

@@ -7,6 +7,7 @@ import {
 import { Hono } from "hono";
 import {
   getPiScanSession,
+  emergencyStopPiScanSession,
   pausePiScanSession,
   resumePiScanSession,
   startPiScanSession,
@@ -61,6 +62,19 @@ export const piScanRouter = new Hono<AppEnv>()
     }
     return c.json({ success: true, data: state });
   })
+  .post(
+    "/emergency-stop",
+    requireAuth,
+    requireOrg,
+    rejectWhileImpersonating,
+    async (c) => {
+      const state = await emergencyStopPiScanSession(c.get("orgId"));
+      if (!state) {
+        return c.json({ success: false, message: "No scan is running." }, 409);
+      }
+      return c.json({ success: true, data: state });
+    },
+  )
   .post("/resume", requireAuth, requireOrg, rejectWhileImpersonating, (c) => {
     const state = resumePiScanSession(c.get("orgId"));
     if (!state) {

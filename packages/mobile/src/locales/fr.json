@@ -595,6 +595,14 @@
         "title": "Impossible de trier la carte",
         "description": "Vérifie le trieur, puis touche Reprendre. {{detail}}"
       },
+      "emergency-stop": {
+        "title": "Trieuse arrêtée",
+        "stopped": "Retirez toute carte restée dans la trieuse, puis réinitialisez-la pour continuer.",
+        "unsupported": "Le micrologiciel de cette trieuse ne peut pas s'arrêter en cours de carte, la carte en cours est donc quand même triée. Mettez à jour le micrologiciel pour un arrêt immédiat. Réinitialisez ensuite la trieuse.",
+        "unconfirmed": "La trieuse n'a pas confirmé l'arrêt. Éteignez-la si elle bouge encore, puis vérifiez la connexion.",
+        "resetFailed": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez la connexion et réessayez.",
+        "reset": "Réinitialiser la trieuse"
+      },
       "jam": {
         "title": "Carte coincée",
         "description": "Une carte est coincée dans le module {{detail}}. Retire-la, puis touche Reprendre."
@@ -701,6 +709,8 @@
     "handScanBinLabel": "À ranger dans",
     "handScanBin": "Bac {{number}}",
     "pauseAction": "Pause",
+    "emergencyStop": "Arrêt",
+    "emergencyStopHint": "Arrêt d'urgence : arrête immédiatement le chargeur, les volets et les poussoirs",
     "sessionChip_one": "{{count}} scannée",
     "sessionChip_other": "{{count}} scannée",
     "sessionScans": {

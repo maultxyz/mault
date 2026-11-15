@@ -63,3 +63,39 @@ test("calibration routes still go straight to firmware", async () => {
   assert.equal(sent.length, 1);
   assert.ok("route" in sent[0]);
 });
+
+test("an emergency stop reaches firmware mid-route and skips queued routes", async () => {
+  const sent: Record<string, unknown>[] = [];
+  let deliver: (chunk: Uint8Array) => void = () => {};
+  const reply = (payload: object) =>
+    deliver(new TextEncoder().encode(`${JSON.stringify(payload)}\n`));
+  const session = new SerialSession<SerialSessionTransport>({
+    createDecoder: () => new TextDecoder(),
+    encodeText: (text) => new TextEncoder().encode(text),
+    maxCommLogEntries: 10,
+  });
+  session.attach({
+    write: async (data) => {
+      const command = JSON.parse(new TextDecoder().decode(data)) as Record<string, unknown>;
+      sent.push(command);
+      if ("stop" in command) {
+        const routing = sent.find((entry) => "route" in entry);
+        queueMicrotask(() => {
+          reply({ seq: command.seq, status: "stopped" });
+          reply({ seq: routing?.seq, error: "stopped" });
+        });
+      }
+    },
+    onData: (listener) => {
+      deliver = listener;
+    },
+  });
+  const first = session.sendRoute(route);
+  const second = session.sendRoute(route);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  assert.equal(session.isRunningExclusiveCommand(), true);
+  assert.equal(await session.sendEmergencyStop(), true);
+  assert.deepEqual(await first, { error: "stopped", seq: sent[0].seq });
+  assert.deepEqual(await second, { skipped: true });
+  assert.equal(sent.filter((command) => "route" in command).length, 1);
+});

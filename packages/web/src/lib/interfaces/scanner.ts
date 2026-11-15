@@ -230,6 +230,9 @@ export interface ScannedCardsContextValue {
   pause: () => void;
   pauseForAttention: (attention: StationAttentionDetails) => void;
   resume: () => void;
+  emergencyStop: () => Promise<void>;
+  resetAfterEmergencyStop: () => Promise<boolean>;
+  isEmergencyStopped: boolean;
   attention: StationAttention | null;
   reopenAttention: () => void;
   reportScannerError: (message: string | null) => void;
@@ -359,6 +362,7 @@ export interface SerialContextValue {
   isRouteBusy: () => boolean;
   readIR: () => Promise<boolean[] | null>;
   sendNeutral: () => Promise<boolean>;
+  sendEmergencyStop: () => Promise<boolean>;
   sendTest: () => Promise<TestResult>;
   runTest: () => Promise<void>;
   checkFirmwareVersion: () => Promise<FirmwareCheckResult>;
@@ -395,6 +399,10 @@ export interface ScannerControlsProps {
   canFeedStandalone?: boolean;
   sessionLive?: boolean;
   onStop?: () => void;
+  onEmergencyStop?: () => void;
+  emergencyStopped?: boolean;
+  onResetAfterEmergencyStop?: () => void;
+  isResettingSorter?: boolean;
   onAutoFeedChange?: (enabled: boolean) => void;
   flatbedScan?: FlatbedScanFlow;
   onCalibrateFlatbed?: () => void;
@@ -801,6 +809,10 @@ export interface ScannerChromeContext {
   onFeed: () => void;
   onClearDevice: () => void;
   onResetDevice: () => void;
+  isEmergencyStopped: boolean;
+  isResettingSorter: boolean;
+  onEmergencyStop: () => void;
+  onResetAfterEmergencyStop: () => void;
   handScan: boolean;
   handScanActive: boolean;
   lastRoutedBin: LastRoutedBin | null;
@@ -1109,6 +1121,9 @@ export interface AutoFeedSerial {
     command: object,
     timeoutMs?: number,
   ) => Promise<SerialRequestResult>;
+  sendEmergencyStop: () => Promise<boolean>;
+  sendNeutral: () => Promise<boolean>;
+  supportsEmergencyStop: boolean;
   ignoreIrSensors: boolean;
 }
 

@@ -27,8 +27,10 @@ import {
   getCatchAllBin,
   getChaosBins,
   hasMaxCopiesBins,
+  isEmergencyStopReply,
   isFedEvent,
   isFeedTimeoutReply,
+  isFirmwareFeatureSupported,
   OCR_REGIONS_BY_GAME_KEY,
   SERIAL_JAM_ERROR,
   type SerialReply,
@@ -238,8 +240,10 @@ export function useScanSession({
     setPhaseState(next);
   }, []);
 
+  const emergencyStoppedRef = useRef(false);
   const pause = useCallback(
     (reason: ScannerPauseReason, detail?: string) => {
+      if (emergencyStoppedRef.current && reason !== "emergency-stop") return;
       runningRef.current = false;
       setIsRunning(false);
       setPauseReason(reason);
@@ -571,6 +575,7 @@ export function useScanSession({
   const handleRouteResponse = useCallback(
     (response: unknown, target: RoutedCardTarget) => {
       const res = response as SerialReply | null;
+      if (emergencyStoppedRef.current || isEmergencyStopReply(res)) return;
       if (!res) {
         reportSorterEvent({
           command: "bin",
@@ -1086,6 +1091,7 @@ export function useScanSession({
 
   const handleFeedResult = useCallback(
     (reply: SerialReply | null, command: FeedCommand = "auto-feed") => {
+      if (emergencyStoppedRef.current) return;
       if (!reply || reply.empty || reply.error || reply.detected === false) {
         reportSorterEvent({ command, sent: true, response: reply });
       }
@@ -1184,6 +1190,7 @@ export function useScanSession({
 
   const start = useCallback(() => {
     const ctx = latestRef.current;
+    if (emergencyStoppedRef.current) return;
     if (!ctx.collection || (!ctx.sorter.isReady && !ctx.handScanActive)) return;
     runningRef.current = true;
     setIsRunning(true);
@@ -1208,6 +1215,28 @@ export function useScanSession({
   }, [handleMatched, runCapture, setPhase, triggerFeed]);
 
   const pauseByUser = useCallback(() => pause("user"), [pause]);
+
+  const emergencyStop = useCallback(async () => {
+    const { sorter: s } = latestRef.current;
+    emergencyStoppedRef.current = true;
+    if (!isFirmwareFeatureSupported(s.firmwareVersion, "emergencyStop")) {
+      pause("emergency-stop", "unsupported");
+      return;
+    }
+    pause("emergency-stop", "stopped");
+    if (!(await s.sendEmergencyStop())) setPauseDetail("unconfirmed");
+  }, [pause]);
+
+  const resetAfterEmergencyStop = useCallback(async () => {
+    if (!(await latestRef.current.sorter.sendNeutral())) {
+      setPauseDetail("resetFailed");
+      return false;
+    }
+    emergencyStoppedRef.current = false;
+    setPauseReason("user");
+    setPauseDetail(null);
+    return true;
+  }, []);
 
   const markFullBinsEmpty = useCallback(async (): Promise<boolean> => {
     const ctx = latestRef.current;
@@ -1300,6 +1329,8 @@ export function useScanSession({
     start,
     pause: pauseByUser,
     resume: start,
+    emergencyStop,
+    resetAfterEmergencyStop,
     scanOnce,
     feedOnce,
     autoFeed,
