@@ -56,3 +56,8 @@ export interface LabelSheetOptionFieldsProps {
   };
   startPositionError?: { message?: string };
 }
+
+export interface LabelBrandProps {
+  fontSize: number;
+  className?: string;
+}

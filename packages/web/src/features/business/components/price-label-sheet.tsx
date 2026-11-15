@@ -1,3 +1,4 @@
+import { LabelBrand } from "@/components/label-brand";
 import { LabelSheet } from "@/components/label-sheet";
 import {
   PRICE_LABEL_DETAIL_FONT_RATIO,
@@ -7,6 +8,7 @@ import {
   PRICE_LABEL_NAME_MAX_LINES,
   PRICE_LABEL_PRICE_COLUMN_RATIO,
   PRICE_LABEL_PRICE_FONT_SIZE_PER_LABEL_HEIGHT,
+  PRICE_LABEL_PRICE_LINE_HEIGHT,
   PRICE_LABEL_PRICE_MAX_FONT_SIZE,
   PRICE_LABEL_TEXT_GAP,
 } from "@/lib/constants/price-labels";
@@ -26,13 +28,14 @@ function PriceLabel({ template, item, formatLabelPrice }: PriceLabelProps) {
   const priceWidth = contentWidth * PRICE_LABEL_PRICE_COLUMN_RATIO;
   const textWidth = contentWidth - priceWidth - PRICE_LABEL_TEXT_GAP;
   const priceText = labelPrice === null ? "" : formatLabelPrice(labelPrice);
+  const nameMaxFontSize = Math.min(
+    PRICE_LABEL_NAME_MAX_FONT_SIZE,
+    template.labelHeight * PRICE_LABEL_NAME_FONT_SIZE_PER_LABEL_HEIGHT,
+  );
   const nameFontSize = fittedLabelFontSize(
     card.name,
     textWidth,
-    Math.min(
-      PRICE_LABEL_NAME_MAX_FONT_SIZE,
-      template.labelHeight * PRICE_LABEL_NAME_FONT_SIZE_PER_LABEL_HEIGHT,
-    ),
+    nameMaxFontSize,
     PRICE_LABEL_NAME_MAX_LINES,
   );
   const priceFontSize = fittedLabelFontSize(
@@ -44,40 +47,45 @@ function PriceLabel({ template, item, formatLabelPrice }: PriceLabelProps) {
     ),
     1,
   );
-  const detailStyle = {
-    fontSize: `${nameFontSize * PRICE_LABEL_DETAIL_FONT_RATIO}px`,
-    lineHeight: PRICE_LABEL_LINE_HEIGHT,
-  };
+  const detailFontSize = nameMaxFontSize * PRICE_LABEL_DETAIL_FONT_RATIO;
+  const detailText = [
+    [card.setCode.toUpperCase(), card.collectorNumber && `#${card.collectorNumber}`]
+      .filter(Boolean)
+      .join(" "),
+    card.condition,
+    card.isFoil && tCards("foil"),
+    card.language?.toUpperCase(),
+  ]
+    .filter(Boolean)
+    .join(" · ");
   return (
     <foreignObject x={padding} y={padding} width={contentWidth} height={contentHeight}>
-      <div className="flex h-full items-center text-black" style={{ gap: `${PRICE_LABEL_TEXT_GAP}px` }}>
-        <div className="flex min-w-0 flex-1 flex-col justify-center">
+      <div className="flex h-full text-black" style={{ gap: `${PRICE_LABEL_TEXT_GAP}px` }}>
+        <div className="flex min-w-0 flex-1 flex-col justify-between">
           <div
             className="line-clamp-2 font-heading font-semibold break-words"
             style={{ fontSize: `${nameFontSize}px`, lineHeight: PRICE_LABEL_LINE_HEIGHT }}
           >
             {card.name}
           </div>
-          <div className="truncate tabular-nums" style={detailStyle}>
-            {[card.setCode.toUpperCase(), card.collectorNumber && `#${card.collectorNumber}`]
-              .filter(Boolean)
-              .join(" ")}
-          </div>
-          <div className="truncate" style={detailStyle}>
-            {[card.condition, card.isFoil && tCards("foil"), card.language?.toUpperCase()]
-              .filter(Boolean)
-              .join(" · ")}
+          <div
+            className="truncate font-medium tabular-nums"
+            style={{ fontSize: `${detailFontSize}px`, lineHeight: PRICE_LABEL_LINE_HEIGHT }}
+          >
+            {detailText}
           </div>
         </div>
         <div
-          className="shrink-0 text-right font-heading font-bold tabular-nums whitespace-nowrap"
-          style={{
-            width: `${priceWidth}px`,
-            fontSize: `${priceFontSize}px`,
-            lineHeight: PRICE_LABEL_LINE_HEIGHT,
-          }}
+          className="flex shrink-0 flex-col items-end justify-between"
+          style={{ width: `${priceWidth}px` }}
         >
-          {priceText}
+          <div
+            className="font-heading font-bold tabular-nums whitespace-nowrap"
+            style={{ fontSize: `${priceFontSize}px`, lineHeight: PRICE_LABEL_PRICE_LINE_HEIGHT }}
+          >
+            {priceText}
+          </div>
+          <LabelBrand fontSize={detailFontSize} />
         </div>
       </div>
     </foreignObject>

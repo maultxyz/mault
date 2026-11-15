@@ -1,10 +1,13 @@
+import { LabelBrand } from "@/components/label-brand";
 import { LabelSheet } from "@/components/label-sheet";
 import { qrCodeModules } from "@/features/storage-labels/lib/storage-label-sheet";
 import {
   STORAGE_LABEL_DETAIL_FONT_RATIO,
+  STORAGE_LABEL_NAME_COUNT_GAP_RATIO,
   STORAGE_LABEL_NAME_LINE_HEIGHT,
   STORAGE_LABEL_NAME_MAX_FONT_SIZE,
   STORAGE_LABEL_NAME_MAX_LINES,
+  STORAGE_LABEL_QR_HEIGHT_PER_NAME_FONT_SIZE,
   STORAGE_LABEL_QR_QUIET_ZONE_MODULES,
   STORAGE_LABEL_TEXT_GAP,
 } from "@/lib/constants/storage-labels";
@@ -31,19 +34,22 @@ function StorageLabel({ template, location, orgId }: StorageLabelProps) {
   );
   const padding = template.contentPadding;
   const qrSize = Math.min(template.labelHeight - padding * 2, template.labelWidth / 2);
+  const qrTop = (template.labelHeight - qrSize) / 2;
   const qrModuleSpan = qrCode.moduleCount + STORAGE_LABEL_QR_QUIET_ZONE_MODULES * 2;
+  const qrQuietZoneSize = (qrSize / qrModuleSpan) * STORAGE_LABEL_QR_QUIET_ZONE_MODULES;
   const textLeft = padding + qrSize + STORAGE_LABEL_TEXT_GAP;
   const textWidth = template.labelWidth - textLeft - padding;
   const nameFontSize = fittedLabelFontSize(
     location.name,
     textWidth,
-    Math.min(STORAGE_LABEL_NAME_MAX_FONT_SIZE, qrSize / 3),
+    Math.min(STORAGE_LABEL_NAME_MAX_FONT_SIZE, qrSize / STORAGE_LABEL_QR_HEIGHT_PER_NAME_FONT_SIZE),
     STORAGE_LABEL_NAME_MAX_LINES,
   );
+  const detailFontSize = nameFontSize * STORAGE_LABEL_DETAIL_FONT_RATIO;
   return (
     <>
       <g
-        transform={`translate(${padding} ${(template.labelHeight - qrSize) / 2}) scale(${qrSize / qrModuleSpan}) translate(${STORAGE_LABEL_QR_QUIET_ZONE_MODULES} ${STORAGE_LABEL_QR_QUIET_ZONE_MODULES})`}
+        transform={`translate(${padding} ${qrTop}) scale(${qrSize / qrModuleSpan}) translate(${STORAGE_LABEL_QR_QUIET_ZONE_MODULES} ${STORAGE_LABEL_QR_QUIET_ZONE_MODULES})`}
       >
         <rect
           x={-STORAGE_LABEL_QR_QUIET_ZONE_MODULES}
@@ -54,26 +60,37 @@ function StorageLabel({ template, location, orgId }: StorageLabelProps) {
         />
         <path d={qrCode.path} fill="#000000" />
       </g>
-      <foreignObject x={textLeft} y={padding} width={textWidth} height={template.labelHeight - padding * 2}>
-        <div className="flex h-full flex-col justify-center text-black">
+      <foreignObject
+        x={textLeft}
+        y={qrTop + qrQuietZoneSize}
+        width={textWidth}
+        height={qrSize - qrQuietZoneSize * 2}
+      >
+        <div className="flex h-full flex-col justify-between text-black">
           <div
-            className="line-clamp-2 font-heading font-semibold break-words"
-            style={{
-              fontSize: `${nameFontSize}px`,
-              lineHeight: STORAGE_LABEL_NAME_LINE_HEIGHT,
-            }}
+            className="flex min-w-0 flex-col"
+            style={{ gap: `${detailFontSize * STORAGE_LABEL_NAME_COUNT_GAP_RATIO}px` }}
           >
-            {location.name}
+            <div
+              className="line-clamp-2 font-heading font-semibold break-words"
+              style={{
+                fontSize: `${nameFontSize}px`,
+                lineHeight: STORAGE_LABEL_NAME_LINE_HEIGHT,
+              }}
+            >
+              {location.name}
+            </div>
+            <div
+              className="tabular-nums"
+              style={{
+                fontSize: `${detailFontSize}px`,
+                lineHeight: STORAGE_LABEL_NAME_LINE_HEIGHT,
+              }}
+            >
+              {t("page.cardCount", { count: location.cardCount })}
+            </div>
           </div>
-          <div
-            className="tabular-nums"
-            style={{
-              fontSize: `${nameFontSize * STORAGE_LABEL_DETAIL_FONT_RATIO}px`,
-              lineHeight: STORAGE_LABEL_NAME_LINE_HEIGHT,
-            }}
-          >
-            {t("page.cardCount", { count: location.cardCount })}
-          </div>
+          <LabelBrand fontSize={detailFontSize} />
         </div>
       </foreignObject>
     </>

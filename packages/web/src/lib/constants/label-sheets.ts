@@ -57,3 +57,7 @@ export const LABEL_SHEET_PRINT_PAGE_STYLE =
   "@page { size: letter; margin: 0; } @media print { #root { display: none !important; } body { background: white !important; margin: 0 !important; } }";
 
 export const LABEL_SHEET_AVERAGE_CHARACTER_WIDTH_RATIO = 0.55;
+
+export const LABEL_BRAND_GAP_RATIO = 0.3;
+
+export const LABEL_BRAND_MARK_HEIGHT_RATIO = 0.8;
