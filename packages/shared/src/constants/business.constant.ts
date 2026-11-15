@@ -201,3 +201,11 @@ export const ORDER_SUBSTITUTE_PRINTING_DIFFERENCE_COST = 4;
 export const ORDER_SUBSTITUTE_FINISH_DIFFERENCE_COST = 3;
 
 export const ORDER_SUBSTITUTE_WORSE_CONDITION_EXTRA_COST = 0.5;
+
+export const ORDERS_CHANGED_EVENT = "orders_changed";
+export const ORDER_PICKS_PATH = "/app/orders/pick";
+export const ORDER_BATCH_PICK_PATH = `${ORDER_PICKS_PATH}/batch`;
+export const ORDER_PICK_SEARCH_PARAM = "order";
+export const ORDER_PICK_ORG_SEARCH_PARAM = "org";
+export const ORDER_PICK_LINK_MAX_ORDERS = 50;
+export const INTAKE_TRANSFER_NEW_COLLECTION_OPTION = "__new__";

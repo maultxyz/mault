@@ -8,6 +8,7 @@ import type {
   CardTextSearchResult,
   MatchedScanDetails,
   ParsedShareLinkUrl,
+  OrderPickLinkTarget,
   StorageLabelTarget,
   PlayingCard,
   PlayingCardWithDistance,
@@ -375,6 +376,7 @@ export interface PhoneCameraResponder {
 
 export type ScannerQrLink =
   | { kind: "storage-label"; storageLabel: StorageLabelTarget }
+  | { kind: "order-pick"; orderPick: OrderPickLinkTarget }
   | { kind: "share-link"; shareLink: ParsedShareLinkUrl }
   | { kind: "short-link"; shortCode: string }
   | { kind: "desktop-camera"; collectionGuid: string };

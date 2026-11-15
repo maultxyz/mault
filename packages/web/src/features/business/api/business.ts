@@ -39,6 +39,7 @@ import type {
   IntakeTransferResult,
   OrderBinsInput,
   OrderFulfilInput,
+  OrderPickedInput,
   OrderSortPresetResult,
   OrderBulkActionInput,
   OrderBulkActionResult,
@@ -336,6 +337,10 @@ export function fulfilOrder(guid: string, input: OrderFulfilInput) {
     `/api/business/orders/${guid}/fulfil`,
     input,
   );
+}
+
+export function setOrderPicked(guid: string, input: OrderPickedInput) {
+  return apiPut<Result<null>>(`/api/business/orders/${guid}/picked`, input);
 }
 
 export function updateOrderBins(guid: string, input: OrderBinsInput) {

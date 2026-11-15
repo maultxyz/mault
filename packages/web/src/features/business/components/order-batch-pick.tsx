@@ -5,28 +5,26 @@ import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
-import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { Button } from "@/components/ui/button";
 import { fulfilOrder, orderQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess, useBusinessAction } from "@/features/business/api/use-business";
 import { OrderPickByLocation } from "@/features/business/components/order-pick-by-location";
-import { buildBatchPullSheet, fullyPickedOrders } from "@/features/business/lib/pick-batch";
+import { OrderPhonePickDialog } from "@/features/business/components/order-phone-pick-dialog";
+import { useOrderPickProgress } from "@/features/business/api/use-order-pick-progress";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
-  EMPTY_PICKS,
   packingSlipsPath,
   PICKS_PATH,
   picksPath,
 } from "@/lib/constants/business";
-import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import type { OrderBatchPickProps } from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
-import { orderPicksSchema, type OrderPicksFormValues } from "@/schemas/business.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { buildPickWalk, fullyPickedOrders, type PickWalkEntry } from "@magic-vault/shared";
 import {
   IconAlertTriangle,
+  IconDeviceMobile,
   IconInfoCircle,
   IconPackageExport,
   IconPrinter,
@@ -34,7 +32,6 @@ import {
 } from "@tabler/icons-react";
 import { useQueries } from "@tanstack/react-query";
 import { useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -45,38 +42,27 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
   const run = useBusinessAction();
   const [completeOpen, setCompleteOpen] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [phonePickOpen, setPhonePickOpen] = useState(false);
   const orderQueries = useQueries({
     queries: orderGuids.map((orderGuid) => orderQueryOptions(orderGuid)),
   });
-  const form = useForm<OrderPicksFormValues>({
-    resolver: zodResolver(orderPicksSchema),
-    defaultValues: EMPTY_PICKS,
-  });
-  const picked = useWatch({ control: form.control, name: "picked" });
-  const pickedSet = new Set(picked);
-  const isDirty = picked.length > 0;
-  const discardPicks = () => form.reset(EMPTY_PICKS, DISCARD_RESET_OPTIONS);
 
   const orders = orderQueries.flatMap((query) => (query.data ? [query.data] : []));
   const openOrders = orders.filter((order) => order.status === "open");
+  const pickProgress = useOrderPickProgress(openOrders);
+  const pickedSet = pickProgress.pickedScanIds;
   const closedOrders = orders.filter((order) => order.status !== "open");
   const shortOrders = openOrders.filter((order) =>
     order.lines.some((line) => line.allocations.length < line.quantity),
   );
-  const entries = buildBatchPullSheet(openOrders);
-  const orderByGuid = new Map(openOrders.map((order) => [order.guid, order]));
-  const orderGuidByScanId = new Map(entries.map((entry) => [entry.scanId, entry.orderGuid]));
+  const entries = buildPickWalk(openOrders);
+  const walkEntryByScanId = new Map<string, PickWalkEntry>(
+    entries.map((entry) => [entry.scanId, entry]),
+  );
   const completedOrders = fullyPickedOrders(openOrders, pickedSet);
   const canAct = access?.canFulfilOrders ?? false;
   const isPending = orderQueries.some((query) => query.isPending);
   const failedQuery = orderQueries.find((query) => query.isError);
-
-  const changePicked = (scanIds: string[], isPicked: boolean) =>
-    form.setValue(
-      "picked",
-      [...picked.filter((id) => !scanIds.includes(id)), ...(isPicked ? scanIds : [])],
-      { shouldDirty: true },
-    );
 
   const completePicks = async () => {
     setIsCompleting(true);
@@ -94,7 +80,6 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
     if (completedCount > 0) {
       toast.success(t("orders.batch.completed", { count: completedCount }));
     }
-    form.reset({ picked: picked.filter((id) => !completedScanIds.includes(id)) });
   };
 
   const title = t("orders.batch.title");
@@ -104,6 +89,16 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
   });
   const actions = (
     <>
+      {canAct && (
+        <Button
+          variant="outline"
+          disabled={entries.length === 0}
+          onClick={() => setPhonePickOpen(true)}
+        >
+          <IconDeviceMobile />
+          {t("orders.phonePick.button")}
+        </Button>
+      )}
       <Button
         variant="outline"
         disabled={orders.length === 0}
@@ -184,18 +179,11 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
             </p>
             <OrderPickByLocation
               entries={entries}
-              orderBinOf={(entry) => {
-                const order = orderByGuid.get(orderGuidByScanId.get(entry.scanId) ?? "");
-                return entry.orderRef == null || !order
-                  ? null
-                  : (order.orderBins[entry.orderRef] ?? null);
-              }}
-              pickNameOf={(entry) =>
-                orderByGuid.get(orderGuidByScanId.get(entry.scanId) ?? "")?.name ?? ""
-              }
+              orderBinOf={(entry) => walkEntryByScanId.get(entry.scanId)?.orderBin ?? null}
+              pickNameOf={(entry) => walkEntryByScanId.get(entry.scanId)?.orderName ?? ""}
               pickedScanIds={pickedSet}
               canPick={canAct}
-              onPickedChange={changePicked}
+              onPickedChange={pickProgress.changePicked}
             />
           </>
         )}
@@ -213,7 +201,11 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
         isPending={isCompleting}
         onConfirm={() => void completePicks()}
       />
-      <UnsavedChangesGuard isDirty={isDirty} onDiscard={discardPicks} />
+      <OrderPhonePickDialog
+        open={phonePickOpen}
+        onOpenChange={setPhonePickOpen}
+        orderGuids={openOrders.map((order) => order.guid)}
+      />
     </div>
   );
 }

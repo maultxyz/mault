@@ -244,6 +244,30 @@ export interface PullSheetEntry {
   gameKey: string | null;
 }
 
+export interface OrderPickedInput {
+  scanIds: string[];
+  isPicked: boolean;
+}
+
+export interface OrderPickLinkTarget {
+  orderGuids: string[];
+  orgId: string | null;
+}
+
+export interface PickWalkEntry extends PullSheetEntry {
+  orderGuid: string;
+  orderName: string;
+  orderBin: number | null;
+}
+
+export interface PickWalkStop {
+  stopKey: string;
+  locationName: string | null;
+  collectionName: string;
+  binNumber: number | null;
+  entries: PickWalkEntry[];
+}
+
 export type OrderBins = Record<string, number>;
 
 export interface FulfilmentOrderDetail extends FulfilmentOrder {

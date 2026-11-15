@@ -25,6 +25,8 @@ import {
   type OrderBulkActionResult,
   type OrderLineSubstitute,
   type OrderLineSubstituteInput,
+  ORDERS_CHANGED_EVENT,
+  type OrderPickedInput,
 } from "@magic-vault/shared";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { uuidArraySql } from "../../lib/sql-arrays";
@@ -99,6 +101,26 @@ const PICK_SUBSTITUTE_UNAVAILABLE_MESSAGE = "That copy is no longer available.";
 const PICK_LINE_FULL_MESSAGE = "This line already has every copy it needs.";
 const PICK_DELETE_OPEN_MESSAGE = "Complete or cancel the pick before deleting it.";
 
+function validScanIds(value: unknown): Set<string> {
+  return new Set(
+    Array.isArray(value)
+      ? value.filter(
+          (id): id is string => typeof id === "string" && UUID_PATTERN.test(id),
+        )
+      : [],
+  );
+}
+
+async function findOrderForUpdate(tx: Transaction, orgId: string, guid: string) {
+  if (!UUID_PATTERN.test(guid)) return null;
+  await tx.execute(sql`
+    SELECT 1 FROM fulfilment_orders
+    WHERE guid = ${guid} AND org_id = ${orgId} AND is_deleted = false
+    FOR UPDATE
+  `);
+  return findOrder(tx, orgId, guid);
+}
+
 async function allocateOrderRow(
   tx: Transaction,
   orgId: string,
@@ -145,6 +167,13 @@ async function deleteOrderRow(tx: Transaction, row: OrderRow): Promise<string | 
 }
 
 export const ordersRoute = new Hono<AppEnv>()
+  .use("/orders/*", async (c, next) => {
+    await next();
+    const orgId = c.get("orgId");
+    if (c.req.method !== "GET" && c.res.status === 200 && orgId) {
+      emitToOrg(orgId, ORDERS_CHANGED_EVENT, {});
+    }
+  })
   .get("/orders", requireAuth, requireOrg, (c) => {
     const params = parsePageParams(c);
     return businessQuery(c, async (tx, access) => {
@@ -330,14 +359,7 @@ export const ordersRoute = new Hono<AppEnv>()
   .post("/orders/:guid/fulfil", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
     const body = await readJson<OrderFulfilInput>(c);
-    const requested = new Set(
-      Array.isArray(body.scanIds)
-        ? body.scanIds.filter(
-            (id): id is string =>
-              typeof id === "string" && UUID_PATTERN.test(id),
-          )
-        : [],
-    );
+    const requested = validScanIds(body.scanIds);
     if (requested.size === 0) {
       return c.json({ success: false, message: "Pick at least one card." }, 400);
     }
@@ -445,6 +467,34 @@ export const ordersRoute = new Hono<AppEnv>()
       emitToOrg(orgId, "collections_changed", { guid: collectionGuid });
     }
     return response;
+  })
+  .put("/orders/:guid/picked", requireAuth, requireOrg, async (c) => {
+    const body = await readJson<OrderPickedInput>(c);
+    const scanIds = validScanIds(body.scanIds);
+    if (scanIds.size === 0 || typeof body.isPicked !== "boolean") {
+      return c.json({ success: false, message: "Invalid picked cards." }, 400);
+    }
+    const isPicked = body.isPicked;
+    return businessQuery(c, async (tx, access) => {
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
+      const row = await findOrderForUpdate(tx, c.get("orgId"), c.req.param("guid"));
+      if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
+      if (row.status !== "open") return { success: false, message: PICK_CLOSED_MESSAGE };
+      const lines = toOrderLines(row.lines).map((line) => {
+        const picked = line.picked.filter((id) => !scanIds.has(id));
+        return {
+          ...line,
+          picked: isPicked
+            ? [...picked, ...line.allocations.filter((id) => scanIds.has(id))]
+            : picked,
+        };
+      });
+      await tx
+        .update(fulfilmentOrders)
+        .set({ lines, updatedAt: new Date() })
+        .where(eq(fulfilmentOrders.id, row.id));
+      return { success: true, data: null };
+    });
   })
   .put("/orders/:guid/order-bins", requireAuth, requireOrg, async (c) => {
     const body = await readJson<OrderBinsInput>(c);

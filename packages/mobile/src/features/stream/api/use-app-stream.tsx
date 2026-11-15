@@ -3,9 +3,11 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import EventSource from "react-native-sse";
 import {
   DEPLOY_STATUS_EVENT,
+  ORDERS_CHANGED_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
   type DeployNotice,
 } from "@magic-vault/shared";
+import { BUSINESS_ORDERS_QUERY_KEY } from "@/lib/constants/business";
 import { TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
 import { getRequestAuth } from "@/lib/api/client";
 import { useSession } from "@/lib/auth/session";
@@ -77,6 +79,7 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
         setLiveCounts((prev) => (live.count <= 0 ? without(prev, live.guid) : { ...prev, [live.guid]: live.count }));
       });
       on("collections_changed", () => void queryClient.invalidateQueries({ queryKey: ["collections"] }));
+      on(ORDERS_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: BUSINESS_ORDERS_QUERY_KEY }));
       on(TRADE_OFFERS_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] }));
       on(DEPLOY_STATUS_EVENT, (data) => setDeployNotice(parse<DeployNotice | null>(data)));
       es.addEventListener("error", () => {

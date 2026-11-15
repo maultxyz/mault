@@ -97,6 +97,23 @@ export default function AccountScreen() {
         </ListGroup>
       </View>
       <View style={{ gap: SPACING.sm }}>
+        <SectionHeader title={t("business.title")} />
+        <ListGroup>
+          <ListRow
+            icon="coins"
+            title={t("business.views.intake")}
+            subtitle={t("business.intake.entrySubtitle")}
+            onPress={() => router.push({ pathname: "/business", params: { view: "intake" } })}
+          />
+          <ListRow
+            icon="checkAll"
+            title={t("business.views.picks")}
+            subtitle={t("business.picks.entrySubtitle")}
+            onPress={() => router.push({ pathname: "/business", params: { view: "picks" } })}
+          />
+        </ListGroup>
+      </View>
+      <View style={{ gap: SPACING.sm }}>
         <SectionHeader title={t("account.manageSection")} />
         <ListGroup>
           <ListRow

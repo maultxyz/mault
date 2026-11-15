@@ -423,6 +423,19 @@
       "emptyTitle": "Aucun bon de livraison",
       "emptyDescription": "Les préparations annulées n'ont pas de bon de livraison.",
       "image": "Image de la carte"
+    },
+    "pickSaveFailed": "Impossible d'enregistrer la préparation. Vos coches ont été rechargées depuis le serveur.",
+    "phonePick": {
+      "button": "Préparer sur le téléphone",
+      "title": "Préparer sur votre téléphone",
+      "description_one": "Scannez ce code depuis l'onglet Scan de l'application MAULT pour parcourir la préparation par emplacement. Les coches sont enregistrées au fur et à mesure, vous pouvez donc changer d'appareil à tout moment.",
+      "description_other": "Scannez ce code depuis l'onglet Scan de l'application MAULT pour parcourir ces {{count}} préparations par emplacement. Les coches sont enregistrées au fur et à mesure, vous pouvez donc changer d'appareil à tout moment.",
+      "qrAlt": "QR code qui ouvre cette préparation dans l'application MAULT",
+      "hint": "Ouvrez l'application, allez dans Scan et pointez l'appareil photo vers le code.",
+      "copy": "Copier le lien",
+      "copied": "Lien de préparation copié",
+      "copyFailed": "Impossible de copier le lien",
+      "done": "Terminé"
     }
   },
   "cost": {

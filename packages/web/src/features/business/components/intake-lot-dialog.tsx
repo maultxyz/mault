@@ -28,10 +28,10 @@ import {
 import { EMPTY_LANGUAGES, LANGUAGE_LABELS } from "@/lib/constants/languages";
 import type { IntakeLotDialogProps } from "@/lib/interfaces/business";
 import {
+  INTAKE_COLLECTION_MODES,
   intakeLotSchema,
   type IntakeLotFormValues,
-} from "@/schemas/business.schema";
-import { INTAKE_COLLECTION_MODES } from "@magic-vault/shared";
+} from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";

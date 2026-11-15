@@ -162,9 +162,15 @@ export interface OrderSubstituteDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export interface BatchPullSheetEntry extends PullSheetEntry {
-  orderGuid: string;
-  orderName: string;
+export interface OrderPickProgress {
+  pickedScanIds: ReadonlySet<string>;
+  changePicked: (scanIds: string[], isPicked: boolean) => void;
+}
+
+export interface OrderPhonePickDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  orderGuids: string[];
 }
 
 export interface OrderBatchPickProps {

@@ -19,13 +19,11 @@ import { NumberInput } from "@/features/business/components/number-input";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { IntakeAcceptDialogProps } from "@/lib/interfaces/business";
 import {
-  intakeAcceptSchema,
-  type IntakeAcceptFormValues,
-} from "@/schemas/business.schema";
-import {
   creditOfferFor,
   DEFAULT_BUYLIST_CONFIG,
   INTAKE_PAYOUT_METHODS,
+  intakeAcceptSchema,
+  type IntakeAcceptFormValues,
 } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";

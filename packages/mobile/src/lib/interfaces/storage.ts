@@ -1,6 +1,7 @@
 import type {
   PickListEntry,
   PickListEntryInput,
+  ScanCheckCard,
   StorageLocation,
   StorageLocationSearchResult,
   StorageVerifyNameCount,
@@ -68,4 +69,17 @@ export interface StorageLocationActionTarget {
 export interface StorageLocationActionsOptions {
   onDeleted?: () => void;
   shareLinkCountGuid?: string | null;
+}
+
+export interface ScanCheckSourceCard extends ScanCheckCard {
+  locationName: string;
+  position: number;
+}
+
+export interface ScanCheckSource {
+  cards: ScanCheckSourceCard[];
+  checkedScanIds: ReadonlySet<string>;
+  checkedCount: number;
+  setChecked: (scanId: string, checked: boolean) => void;
+  onNotListed: ((cardName: string) => void) | undefined;
 }

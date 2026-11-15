@@ -1,10 +1,13 @@
 import type {
+  FulfilmentOrderDetail,
   OrderBins,
   OrderBinsError,
   OrderLine,
   OrderLineInput,
   OrderSortPresetBin,
   PickOrderGroup,
+  PickWalkEntry,
+  PickWalkStop,
   PullSheetEntry,
 } from "./interfaces/business.interface";
 import type { PickList } from "./interfaces/pick-list.interface";
@@ -151,4 +154,91 @@ export function buildOrderSortPresetBins(
       pickList: pickListByBin.get(binNumber) ?? null,
     };
   });
+}
+
+const comparePickText = (left: string | null, right: string | null) =>
+  (left ?? "").localeCompare(right ?? "", undefined, { numeric: true, sensitivity: "base" });
+
+export function buildPickWalk(orders: FulfilmentOrderDetail[]): PickWalkEntry[] {
+  return orders
+    .filter((order) => order.status === "open")
+    .flatMap((order) =>
+      order.pullSheet.map((entry) => ({
+        ...entry,
+        orderGuid: order.guid,
+        orderName: order.name,
+        orderBin: entry.orderRef == null ? null : (order.orderBins[entry.orderRef] ?? null),
+      })),
+    )
+    .sort(
+      (left, right) =>
+        Number(left.locationName === null) - Number(right.locationName === null) ||
+        comparePickText(left.locationName, right.locationName) ||
+        (left.locationPosition ?? 0) - (right.locationPosition ?? 0) ||
+        comparePickText(left.collectionName, right.collectionName) ||
+        (left.binNumber ?? 0) - (right.binNumber ?? 0) ||
+        comparePickText(left.card.name, right.card.name),
+    );
+}
+
+export function pickWalkStops(entries: PickWalkEntry[]): PickWalkStop[] {
+  const stops: PickWalkStop[] = [];
+  for (const entry of entries) {
+    const stopKey =
+      entry.locationName != null
+        ? `location:${entry.locationName}`
+        : `collection:${entry.collectionGuid}:${entry.binNumber ?? ""}`;
+    const last = stops[stops.length - 1];
+    if (last?.stopKey === stopKey) {
+      last.entries.push(entry);
+      continue;
+    }
+    stops.push({
+      stopKey,
+      locationName: entry.locationName,
+      collectionName: entry.collectionName,
+      binNumber: entry.locationName != null ? null : entry.binNumber,
+      entries: [entry],
+    });
+  }
+  return stops;
+}
+
+export function fullyPickedOrders(
+  orders: FulfilmentOrderDetail[],
+  pickedScanIds: ReadonlySet<string>,
+): FulfilmentOrderDetail[] {
+  return orders.filter(
+    (order) =>
+      order.status === "open" &&
+      order.pullSheet.length > 0 &&
+      order.pullSheet.every((entry) => pickedScanIds.has(entry.scanId)),
+  );
+}
+
+export function pickedScanIdsOf(orders: FulfilmentOrderDetail[]): Set<string> {
+  return new Set(
+    orders.flatMap((order) => order.pullSheet.filter((entry) => entry.picked).map((entry) => entry.scanId)),
+  );
+}
+
+export function withOrderPicks(
+  order: FulfilmentOrderDetail,
+  scanIds: ReadonlySet<string>,
+  isPicked: boolean,
+): FulfilmentOrderDetail {
+  const pullSheet = order.pullSheet.map((entry) =>
+    scanIds.has(entry.scanId) ? { ...entry, picked: isPicked } : entry,
+  );
+  const pickedIds = new Set(pullSheet.filter((entry) => entry.picked).map((entry) => entry.scanId));
+  const lines = order.lines.map((line) => ({
+    ...line,
+    picked: line.allocations.filter((id) => pickedIds.has(id)),
+  }));
+  return {
+    ...order,
+    lines,
+    pullSheet,
+    picked: lines.reduce((sum, line) => sum + line.picked.length, 0),
+  };
 }

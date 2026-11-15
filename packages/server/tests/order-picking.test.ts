@@ -3,6 +3,11 @@ import { test } from "node:test";
 import {
   autoAssignOrderBins,
   buildOrderSortPresetBins,
+  buildPickWalk,
+  fullyPickedOrders,
+  pickWalkStops,
+  withOrderPicks,
+  type FulfilmentOrderDetail,
   hasEveryOrderBin,
   orderBinsError,
   orderRefsOf,
@@ -151,4 +156,53 @@ test("order picking: combining imported orders tags every line with its order", 
       { name: "Island", quantity: 4, orderRef: null },
     ],
   );
+});
+
+function order(guid: string, lines: OrderLine[], pullSheet: PullSheetEntry[], status: FulfilmentOrderDetail["status"] = "open"): FulfilmentOrderDetail {
+  return {
+    guid,
+    name: `Pick ${guid}`,
+    source: "generic",
+    status,
+    lineCount: lines.length,
+    quantity: lines.length,
+    allocated: pullSheet.length,
+    picked: 0,
+    revenue: null,
+    createdAt: "",
+    closedAt: null,
+    createdByName: null,
+    lines,
+    pullSheet,
+    orderBins: { "#1": 3 },
+    binCount: 9,
+  };
+}
+
+test("walks open picks by location, then position, with unlocated cards last", () => {
+  const binder = { ...entry("b1", 0, "Bolt"), locationName: null, binNumber: 2 };
+  const late = { ...entry("a2", 0, "Opt"), locationPosition: 7, orderRef: "#1" };
+  const early = { ...entry("a1", 1, "Ponder"), locationPosition: 2 };
+  const walk = buildPickWalk([
+    order("x", [line("Bolt", null, ["b1", "a2"]), line("Ponder", null, ["a1"])], [binder, late, early]),
+    order("closed", [line("Opt", null, ["c1"])], [entry("c1", 0, "Opt")], "fulfilled"),
+  ]);
+  assert.deepEqual(walk.map((item) => item.scanId), ["a1", "a2", "b1"]);
+  assert.equal(walk[1].orderBin, 3);
+  assert.equal(walk[0].orderName, "Pick x");
+  const stops = pickWalkStops(walk);
+  assert.deepEqual(stops.map((stop) => [stop.locationName, stop.binNumber, stop.entries.length]), [
+    ["Box A", null, 2],
+    [null, 2, 1],
+  ]);
+});
+
+test("marks picks on an order and finds fully picked orders", () => {
+  const detail = order("x", [line("Bolt", null, ["a1", "a2"], 2)], [entry("a1", 0, "Bolt"), entry("a2", 0, "Bolt")]);
+  const partly = withOrderPicks(detail, new Set(["a1"]), true);
+  assert.equal(partly.picked, 1);
+  assert.deepEqual(partly.lines[0].picked, ["a1"]);
+  assert.deepEqual(fullyPickedOrders([partly], new Set(["a1"])), []);
+  assert.deepEqual(fullyPickedOrders([partly], new Set(["a1", "a2"])).map((item) => item.guid), ["x"]);
+  assert.equal(withOrderPicks(partly, new Set(["a1"]), false).picked, 0);
 });

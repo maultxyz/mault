@@ -423,6 +423,19 @@
       "emptyTitle": "No packing slips",
       "emptyDescription": "Cancelled picks don't get packing slips.",
       "image": "Card image"
+    },
+    "pickSaveFailed": "Couldn't save the pick. Your ticks were refreshed from the server.",
+    "phonePick": {
+      "button": "Pick on phone",
+      "title": "Pick on your phone",
+      "description_one": "Scan this code with the MAULT app's scan tab to walk the pick by location. Ticks save as you go, so you can switch devices anytime.",
+      "description_other": "Scan this code with the MAULT app's scan tab to walk these {{count}} picks by location. Ticks save as you go, so you can switch devices anytime.",
+      "qrAlt": "QR code that opens this pick in the MAULT app",
+      "hint": "Open the app, go to Scan and point the camera at the code.",
+      "copy": "Copy link",
+      "copied": "Pick link copied",
+      "copyFailed": "Couldn't copy the link",
+      "done": "Done"
     }
   },
   "cost": {

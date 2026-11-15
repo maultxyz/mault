@@ -84,6 +84,15 @@ export default function AppLayout() {
           <Stack.Screen name="trade-offer/[guid]" options={sheetOptions} />
           <Stack.Screen name="sent-trade-offer/[guid]" options={sheetOptions} />
           <Stack.Screen name="storage-pick-list" />
+          <Stack.Screen name="business/index" />
+          <Stack.Screen name="business/intake/[guid]" />
+          <Stack.Screen name="business/order/[guid]" />
+          <Stack.Screen name="business/pick" />
+          <Stack.Screen name="business/intake-new" options={sheetOptions} />
+          <Stack.Screen name="business/intake-accept" options={sheetOptions} />
+          <Stack.Screen name="business/intake-transfer" options={sheetOptions} />
+          <Stack.Screen name="business/pick-new" options={sheetOptions} />
+          <Stack.Screen name="business/substitute" options={sheetOptions} />
           <Stack.Screen name="batch-scan" options={{ contentStyle: { backgroundColor: colors.background } }} />
           <Stack.Screen
             name="storage-card-scan"

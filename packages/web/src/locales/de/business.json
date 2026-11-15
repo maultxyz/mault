@@ -423,6 +423,19 @@
       "emptyTitle": "Keine Lieferscheine",
       "emptyDescription": "Abgebrochene Picks bekommen keinen Lieferschein.",
       "image": "Kartenbild"
+    },
+    "pickSaveFailed": "Der Pick konnte nicht gespeichert werden. Deine Häkchen wurden vom Server neu geladen.",
+    "phonePick": {
+      "button": "Auf dem Handy picken",
+      "title": "Auf dem Handy picken",
+      "description_one": "Scanne diesen Code im Scan-Tab der MAULT-App, um den Pick nach Lagerort abzulaufen. Häkchen werden sofort gespeichert, du kannst also jederzeit das Gerät wechseln.",
+      "description_other": "Scanne diesen Code im Scan-Tab der MAULT-App, um diese {{count}} Picks nach Lagerort abzulaufen. Häkchen werden sofort gespeichert, du kannst also jederzeit das Gerät wechseln.",
+      "qrAlt": "QR-Code, der diesen Pick in der MAULT-App öffnet",
+      "hint": "Öffne die App, gehe zu Scannen und richte die Kamera auf den Code.",
+      "copy": "Link kopieren",
+      "copied": "Pick-Link kopiert",
+      "copyFailed": "Link konnte nicht kopiert werden",
+      "done": "Fertig"
     }
   },
   "cost": {

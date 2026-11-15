@@ -2,18 +2,20 @@ import type {
   BusinessBadgeVariant,
   BusinessStatus,
 } from "@/lib/interfaces/business";
-import type {
-  OrderPicksFormValues,
-  PickImportFormValues,
-} from "@/schemas/business.schema";
-import type { CsvImportField } from "@magic-vault/shared";
+import type { PickImportFormValues } from "@/schemas/business.schema";
+import {
+  ORDER_BATCH_PICK_PATH,
+  ORDER_PICK_SEARCH_PARAM,
+  ORDER_PICKS_PATH,
+  type CsvImportField,
+} from "@magic-vault/shared";
 
 export const ORDERS_PATH = "/app/orders";
 export const INTAKE_PATH = `${ORDERS_PATH}/intake`;
-export const PICKS_PATH = `${ORDERS_PATH}/pick`;
+export const PICKS_PATH = ORDER_PICKS_PATH;
 export const PICK_IMPORT_PATH = `${PICKS_PATH}/new`;
 export const PRICE_LABELS_PATH = `${ORDERS_PATH}/labels`;
-export const PICK_BATCH_PATH = `${PICKS_PATH}/batch`;
+export const PICK_BATCH_PATH = ORDER_BATCH_PICK_PATH;
 export const PACKING_SLIPS_PATH = `${PICKS_PATH}/packing-slips`;
 export const LEGACY_INTAKE_PATH = "/app/intake";
 export const LEGACY_PICKS_VIEW_PARAM = "view";
@@ -46,7 +48,7 @@ export const picksPath = (orderGuid?: string | null) =>
   `${PICKS_PATH}${orderGuid ? `?${ORDER_PARAM}=${orderGuid}` : ""}`;
 
 export const INTAKE_LOT_PARAM = "lot";
-export const ORDER_PARAM = "order";
+export const ORDER_PARAM = ORDER_PICK_SEARCH_PARAM;
 
 export const INTAKE_LIVE_REFETCH_MS = 4000;
 export const INTAKE_BANNER_REFETCH_MS = 10000;
@@ -112,8 +114,6 @@ export const STATUS_BADGE_VARIANTS: Record<
   completed: "success",
   cancelled: "secondary",
 };
-export const EMPTY_PICKS: OrderPicksFormValues = { picked: [] };
-export const NEW_COLLECTION_OPTION = "__new__";
 export const INTAKE_CARD_PARAM = "card";
 export const INTAKE_REVIEW_PARAM = "review";
 export const RECEIPT_PRINT_PARAM = "print";
