@@ -80,7 +80,21 @@ export const cardListLayout = (props: WidgetCardListProps, environment: WidgetEn
       {cardArt(card.imageUri)}
       <VStack alignment="leading" spacing={2} modifiers={[frame({ maxWidth: 10_000, alignment: "leading" })]}>
         <Text modifiers={[font({ textStyle: "footnote", weight: "semibold" }), lineLimit(2), minimumScaleFactor(0.8)]}>{card.name}</Text>
-        {card.detail ? <Text modifiers={[font({ textStyle: "caption2" }), secondary, lineLimit(2)]}>{card.detail}</Text> : null}
+        {card.detail ? (
+          <Text
+            modifiers={[
+              font({ textStyle: "caption2", weight: card.detailDirection ? "semibold" : undefined }),
+              card.detailDirection === "up"
+                ? foregroundStyle(environment.colorScheme === "dark" ? "#4ade80" : "#15803d")
+                : card.detailDirection === "down"
+                  ? foregroundStyle(environment.colorScheme === "dark" ? "#f87171" : "#b91c1c")
+                  : secondary,
+              lineLimit(2),
+            ]}
+          >
+            {card.detail}
+          </Text>
+        ) : null}
         {card.price ? (
           <Text modifiers={[font({ textStyle: "subheadline", weight: "bold" }), monospacedDigit(), lineLimit(1), minimumScaleFactor(0.6), privacySensitive()]}>
             {card.price}

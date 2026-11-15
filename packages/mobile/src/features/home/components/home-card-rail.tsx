@@ -18,6 +18,7 @@ export function HomeCardRail({
   title,
   cards,
   captionOf,
+  priceChangeOf,
   tileWidth = HOME_CARD_RAIL_TILE_WIDTH,
   action,
   isLoading = false,
@@ -44,11 +45,18 @@ export function HomeCardRail({
                 <Skeleton width="55%" height={HOME_CARD_RAIL_SKELETON_LINE_HEIGHT} />
               </View>
             ))
-          : cards.map((card) => (
+          : cards.map((card) => {
+          const priceChange = priceChangeOf?.(card) ?? null;
+          return (
           <View key={card.scanId} style={{ width: tileWidth }}>
             <CardTile
               name={card.card.name}
               caption={captionOf(card)}
+              captionHighlight={
+                priceChange
+                  ? { text: priceChange.change, tone: priceChange.direction === "up" ? "success" : "destructive" }
+                  : null
+              }
               {...cardArtSources(card.card.image)}
               isFoil={card.isFoil}
               onPress={() =>
@@ -56,7 +64,8 @@ export function HomeCardRail({
               }
             />
           </View>
-        ))}
+          );
+        })}
       </ScrollView>
     </View>
   );

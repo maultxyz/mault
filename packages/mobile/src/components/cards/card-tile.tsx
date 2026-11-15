@@ -12,6 +12,7 @@ import type { CardTileProps } from "@/lib/interfaces/ui";
 export const CardTile = memo(function CardTile({
   name,
   caption,
+  captionHighlight = null,
   imageUrl,
   placeholderUrl,
   quantity,
@@ -28,6 +29,7 @@ export const CardTile = memo(function CardTile({
   const awaitingReview = flagged && !corrected;
   const accessibilityLabel = [
     name,
+    captionHighlight?.text,
     caption,
     quantity && quantity > 1 ? t("cards.quantity", { count: quantity }) : null,
     flagged ? (corrected ? t("cards.reviewed") : t("cards.needsReview")) : null,
@@ -116,6 +118,14 @@ export const CardTile = memo(function CardTile({
           {name}
         </AppText>
         <AppText size="xs" tone="secondary" numberOfLines={1}>
+          {captionHighlight ? (
+            <>
+              <AppText size="xs" weight="semibold" tone={captionHighlight.tone}>
+                {captionHighlight.text}
+              </AppText>
+              {caption ? " · " : ""}
+            </>
+          ) : null}
           {caption}
         </AppText>
       </View>

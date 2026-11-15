@@ -19,7 +19,7 @@ import { HOME_CARD_OF_THE_DAY_TILE_CLASS } from "@/lib/constants/home";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { TRADES_PATH, tradeOfferPath } from "@/lib/constants/trade-offers";
 import { ONE_DAY_MS } from "@/lib/constants/timing";
-import { valueChangeOf } from "@magic-vault/shared";
+import { cardPriceChangeSinceScanOf, valueChangeOf, type OrgOverviewCard } from "@magic-vault/shared";
 import { IconAlertTriangle, IconArrowsExchange, IconBroadcast, IconHelpCircle } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -54,6 +54,13 @@ export function HomeDashboard() {
   const reviewCount = summaryData?.review.needsReviewCount ?? 0;
   const firstReviewCard = summaryData?.review.cards[0];
   const liveCollections = Object.entries(locks);
+  const cardOfTheDayPriceChange = (card: OrgOverviewCard) => cardPriceChangeSinceScanOf(card, format, locale);
+  const cardOfTheDayCaption = (card: OrgOverviewCard) => {
+    const price = card.price != null ? format(card.price) : null;
+    return cardOfTheDayPriceChange(card)
+      ? (price ?? "")
+      : [price, card.collectionName].filter(Boolean).join(" · ");
+  };
   const collectionNames = new Map((summaryData?.collections ?? []).map((collection) => [collection.guid, collection.name]));
 
   return (
@@ -140,7 +147,8 @@ export function HomeDashboard() {
               cards={summaryData?.all.cardsOfTheDay ?? []}
               isLoading={summary.isPending}
               tileClassName={HOME_CARD_OF_THE_DAY_TILE_CLASS}
-              captionOf={(card) => [card.price != null ? format(card.price) : null, card.collectionName].filter(Boolean).join(" · ")}
+              captionOf={cardOfTheDayCaption}
+              priceChangeOf={cardOfTheDayPriceChange}
             />
           )}
 

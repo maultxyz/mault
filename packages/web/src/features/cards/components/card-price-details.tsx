@@ -122,7 +122,7 @@ function PriceHeadline({
               "font-medium",
               changeSinceScan.direction === "up"
                 ? "text-success-foreground"
-                : "text-destructive",
+                : "text-destructive-strong dark:text-destructive",
             )}
           >
             {changeSinceScan.percentLabel}

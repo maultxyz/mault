@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { valueChangeOf } from "@magic-vault/shared";
+import { cardPriceChangeSinceScanOf, valueChangeOf, type OrgOverviewCard } from "@magic-vault/shared";
 import { router, useIsFocused } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -65,6 +65,14 @@ export default function HomeScreen() {
   const scanActivityByCollection = new Map((summaryData?.scanActivity ?? []).map((activity) => [activity.collectionGuid, activity]));
   const liveScanners = Object.entries(locks);
   const pendingTradeOfferList = pendingTradeOffers.data ?? [];
+
+  const cardOfTheDayPriceChange = (card: OrgOverviewCard) => cardPriceChangeSinceScanOf(card, pricing.format, locale);
+  const cardOfTheDayCaption = (card: OrgOverviewCard) => {
+    const price = card.price != null ? pricing.format(card.price) : null;
+    return cardOfTheDayPriceChange(card)
+      ? (price ?? "")
+      : [price, card.collectionName].filter(Boolean).join(" · ");
+  };
 
   const refresh = () => {
     void overview.refetch();
@@ -196,7 +204,8 @@ export default function HomeScreen() {
               cards={summaryData?.all.cardsOfTheDay ?? []}
               isLoading={summary.isPending}
               tileWidth={HOME_CARD_OF_THE_DAY_TILE_WIDTH}
-              captionOf={(card) => [card.price != null ? pricing.format(card.price) : null, card.collectionName].filter(Boolean).join(" · ")}
+              captionOf={cardOfTheDayCaption}
+              priceChangeOf={cardOfTheDayPriceChange}
             />
           ) : null}
 

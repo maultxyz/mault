@@ -28,6 +28,9 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
   );
   const changeIcon = change?.direction === "up" ? "arrowUp" : change?.direction === "down" ? "arrowDown" : null;
   const changeText = change ? `${change.change} · ${change.percent}` : null;
+  const changeBackground =
+    change?.direction === "up" ? colors.successStrong : change?.direction === "down" ? colors.destructiveStrong : undefined;
+  const changeTextColor = changeBackground ? colors.onStatusStrong : heroTextColor;
   const accessibilityLabel = [
     `${label}: ${value}`,
     changeText ? `${changeText} ${changeCaption}` : null,
@@ -118,10 +121,22 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
               backgroundColor: HOME_HERO_CHIP_BACKGROUND,
             }}
           >
-            {changeIcon ? <Icon name={changeIcon} size={14} color={heroTextColor} /> : null}
-            <AppText size="xs" weight="semibold" style={{ color: heroTextColor }}>
-              {changeText}
-            </AppText>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: SPACING.xs,
+                paddingHorizontal: changeBackground ? SPACING.sm : 0,
+                paddingVertical: changeBackground ? 2 : 0,
+                borderRadius: RADIUS.full,
+                backgroundColor: changeBackground,
+              }}
+            >
+              {changeIcon ? <Icon name={changeIcon} size={14} color={changeTextColor} /> : null}
+              <AppText size="xs" weight="semibold" style={{ color: changeTextColor }}>
+                {changeText}
+              </AppText>
+            </View>
             <AppText size="xs" style={{ color: HOME_HERO_SECONDARY_TEXT_COLOR }}>
               {changeCaption}
             </AppText>

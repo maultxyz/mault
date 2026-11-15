@@ -1,5 +1,6 @@
 import {
   WIDGET_SUMMARY_TOP_CARDS_PER_COLLECTION,
+  cardPriceChangeSinceScanOf,
   valueChangeOf,
   type OrgOverviewCard,
   type WidgetCollectionSummary,
@@ -60,6 +61,7 @@ function toWidgetCard(
   detail: string,
   { formatPrice, cardImageUris }: WidgetSummaryPropsOptions,
   isReview = false,
+  detailDirection: WidgetCard["detailDirection"] = "",
 ): WidgetCard {
   const imageUrl = widgetCardImageUrl(card);
   const price = card.price == null ? "" : formatPrice(card.price);
@@ -68,6 +70,7 @@ function toWidgetCard(
     collectionGuid: card.collectionGuid,
     name: card.card.name,
     detail,
+    detailDirection,
     price,
     imageUri: imageUrl ? (cardImageUris.get(imageUrl) ?? "") : "",
     url: cardDetailUrl(card, isReview),
@@ -264,6 +267,13 @@ export function buildTopCardsWidgetProps(options: WidgetSummaryPropsOptions): Wi
   };
 }
 
+function toCardOfTheDayWidgetCard(card: OrgOverviewCard, fallbackDetail: string, options: WidgetSummaryPropsOptions): WidgetCard {
+  const priceChange = cardPriceChangeSinceScanOf(card, options.formatPrice, options.locale);
+  return priceChange
+    ? toWidgetCard(card, priceChange.change, options, false, priceChange.direction)
+    : toWidgetCard(card, fallbackDetail, options);
+}
+
 export function buildCardOfTheDayWidgetProps(options: WidgetSummaryPropsOptions): WidgetCardListProps {
   const { t, summary } = options;
   return {
@@ -278,12 +288,12 @@ export function buildCardOfTheDayWidgetProps(options: WidgetSummaryPropsOptions)
       () => ({
         title: t("widgets.allCollections"),
         url: COLLECTION_VALUE_WIDGET_URL,
-        cards: summary.all.cardsOfTheDay.map((card) => toWidgetCard(card, setAndCollection(card), options)),
+        cards: summary.all.cardsOfTheDay.map((card) => toCardOfTheDayWidgetCard(card, setAndCollection(card), options)),
       }),
       (collection) => ({
         title: collection.name,
         url: collectionUrl(collection.guid),
-        cards: collection.cardsOfTheDay.map((card) => toWidgetCard(card, card.card.setName, options)),
+        cards: collection.cardsOfTheDay.map((card) => toCardOfTheDayWidgetCard(card, card.card.setName, options)),
       }),
     ),
   };

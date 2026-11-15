@@ -45,13 +45,24 @@ export function ValueHero({ label, value, stats, sparklineValues, change }: Valu
           <p className="text-sm font-medium">{label}</p>
           <p className="text-4xl font-bold tracking-tight proportional-nums md:text-2xl">{value}</p>
           {change && (
-            <p className="mt-1 flex w-fit items-center gap-1 rounded-full bg-primary-foreground/18 px-2.5 py-1 text-xs font-semibold tabular-nums">
-              {change.change.direction === "up" ? (
-                <IconArrowUpRight aria-hidden className="size-3.5" />
-              ) : change.change.direction === "down" ? (
-                <IconArrowDownRight aria-hidden className="size-3.5" />
-              ) : null}
-              {`${change.change.change} · ${change.change.percent}`}
+            <p className="mt-1 flex w-fit items-center gap-1 rounded-full bg-primary-foreground/18 py-1 pr-2.5 pl-1 text-xs font-semibold tabular-nums">
+              <span
+                className={cn(
+                  "flex items-center gap-1 rounded-full px-1.5 py-0.5",
+                  change.change.direction === "up"
+                    ? "bg-success-strong text-white"
+                    : change.change.direction === "down"
+                      ? "bg-destructive-strong text-white"
+                      : "",
+                )}
+              >
+                {change.change.direction === "up" ? (
+                  <IconArrowUpRight aria-hidden className="size-3.5" />
+                ) : change.change.direction === "down" ? (
+                  <IconArrowDownRight aria-hidden className="size-3.5" />
+                ) : null}
+                {`${change.change.change} · ${change.change.percent}`}
+              </span>
               <span className="font-normal">{change.caption}</span>
             </p>
           )}

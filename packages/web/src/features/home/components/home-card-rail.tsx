@@ -4,12 +4,14 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
 import { HOME_CARD_RAIL_LOADING_TILE_COUNT, HOME_CARD_RAIL_TILE_CLASS } from "@/lib/constants/home";
 import type { HomeCardRailProps } from "@/lib/interfaces/home";
+import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
 
 export function HomeCardRail({
   title,
   cards,
   captionOf,
+  priceChangeOf,
   tileClassName = HOME_CARD_RAIL_TILE_CLASS,
   action,
   isLoading = false,
@@ -45,7 +47,9 @@ export function HomeCardRail({
               </span>
             </li>
           ))}
-        {!isLoading && cards.map((card) => (
+        {!isLoading && cards.map((card) => {
+          const priceChange = priceChangeOf?.(card) ?? null;
+          return (
           <li key={card.scanId} className={tileClassName}>
             <Link
               to={
@@ -64,11 +68,29 @@ export function HomeCardRail({
               </span>
               <span className="min-w-0">
                 <span className="block truncate text-sm font-semibold text-foreground">{card.card.name}</span>
-                <span className="block truncate text-xs text-foreground/70 tabular-nums">{captionOf(card)}</span>
+                <span className="block truncate text-xs text-foreground/70 tabular-nums">
+                  {priceChange && (
+                    <>
+                      <span
+                        className={cn(
+                          "font-semibold",
+                          priceChange.direction === "up"
+                            ? "text-success-foreground"
+                            : "text-destructive-strong dark:text-destructive",
+                        )}
+                      >
+                        {priceChange.change}
+                      </span>
+                      {" · "}
+                    </>
+                  )}
+                  {captionOf(card)}
+                </span>
               </span>
             </Link>
           </li>
-        ))}
+          );
+        })}
       </ul>
     </section>
   );

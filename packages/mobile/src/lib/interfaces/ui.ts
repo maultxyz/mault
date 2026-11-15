@@ -221,6 +221,7 @@ export interface CommLogProps {
 export interface CardTileProps {
   name: string;
   caption: string;
+  captionHighlight?: { text: string; tone: StatusTone } | null;
   imageUrl: string | null;
   placeholderUrl?: string | null;
   isFoil?: boolean;
