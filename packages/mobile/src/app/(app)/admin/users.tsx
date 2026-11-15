@@ -20,8 +20,7 @@ export default function AdminUsersScreen() {
   return (
     <AdminGate>
       <Screen
-        refreshing={activeTab === "audit" && auditQuery.isRefetching}
-        onRefresh={activeTab === "audit" ? () => void auditQuery.refetch() : undefined}
+        onRefresh={activeTab === "audit" ? () => auditQuery.refetch() : undefined}
         header={
           <PageHeader
             title={t("admin.sections.users.title")}

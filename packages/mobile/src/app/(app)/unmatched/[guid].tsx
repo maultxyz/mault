@@ -2,7 +2,8 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { Alert, FlatList, Pressable, RefreshControl, View } from "react-native";
+import { Alert, FlatList, Pressable, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -80,12 +81,8 @@ export default function UnmatchedCardsScreen() {
           if (unmatched.hasNextPage && !unmatched.isFetchingNextPage) void unmatched.fetchNextPage();
         }}
         refreshControl={
-          <RefreshControl
-            refreshing={unmatched.isRefetching && !unmatched.isFetchingNextPage}
-            onRefresh={() => void unmatched.refetch()}
-            tintColor={colors.primaryText}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.card}
+          <PullToRefreshControl
+            onRefresh={() => unmatched.refetch()}
           />
         }
         ListHeaderComponent={

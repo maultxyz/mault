@@ -161,8 +161,7 @@ export function TradesLibraryView({ title, viewSwitcher }: LibraryViewProps) {
 
   return (
     <Screen
-      refreshing={visibleOffers.isRefetching}
-      onRefresh={() => void visibleOffers.refetch()}
+      onRefresh={() => visibleOffers.refetch()}
       header={
         <PageHeader title={title} subtitle={t("tradeOffers.library.subtitle")}>
           {viewSwitcher}

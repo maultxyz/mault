@@ -2,7 +2,8 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, RefreshControl, View } from "react-native";
+import { FlatList, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import {
   allExportAdapters,
   DEFAULT_CARD_SORT,
@@ -50,7 +51,6 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { usePanelWidth } from "@/hooks/use-panel-width";
 import { usePrefetchCollectionCard } from "@/hooks/use-prefetch-collection-card";
 import { usePricing } from "@/hooks/use-pricing";
-import { useTheme } from "@/hooks/use-theme";
 import {
   CARD_GRID_COLUMNS,
   CARD_GRID_GAP_X,
@@ -71,7 +71,6 @@ import { absoluteUrl } from "@/lib/url";
 export default function StorageLocationScreen() {
   const { guid } = useLocalSearchParams<{ guid: string }>();
   const { t } = useTranslation();
-  const colors = useTheme();
   const pricing = usePricing();
   const queryClient = useQueryClient();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -252,15 +251,8 @@ export default function StorageLocationScreen() {
             if (cards.hasNextPage && !cards.isFetchingNextPage) void cards.fetchNextPage();
           }}
           refreshControl={
-            <RefreshControl
-              refreshing={cards.isRefetching && !cards.isFetchingNextPage}
-              onRefresh={() => {
-                void cards.refetch();
-                void summary.refetch();
-              }}
-              tintColor={colors.primaryText}
-              colors={[colors.primary]}
-              progressBackgroundColor={colors.card}
+            <PullToRefreshControl
+              onRefresh={() => Promise.all([cards.refetch(), summary.refetch()])}
             />
           }
           ListHeaderComponent={

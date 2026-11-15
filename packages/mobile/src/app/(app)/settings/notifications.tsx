@@ -333,8 +333,7 @@ export default function NotificationsSettingsScreen() {
     <SettingsPage
       title={t("settings.sections.notifications.title")}
       isLoading={integration.isLoading || rules.isLoading || settings.isLoading}
-      refreshing={integration.isRefetching}
-      onRefresh={() => void integration.refetch()}
+      onRefresh={() => integration.refetch()}
       isDirty={form.formState.isDirty}
       isSaving={form.formState.isSubmitting}
       saveError={saveError}

@@ -1,6 +1,7 @@
 import Constants from "expo-constants";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Linking, Pressable, RefreshControl, View } from "react-native";
+import { AccessibilityInfo, Linking, Pressable, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { AppText } from "@/components/ui/app-text";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
@@ -38,12 +39,8 @@ export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, on
         />
       }
       refreshControl={
-        <RefreshControl
-          refreshing={isRefreshing}
-          onRefresh={() => void refreshAlerts()}
-          tintColor={colors.primaryText}
-          colors={[colors.primary]}
-          progressBackgroundColor={colors.card}
+        <PullToRefreshControl
+          onRefresh={() => refreshAlerts()}
         />
       }
     >

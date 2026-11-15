@@ -33,7 +33,6 @@ export default function RulesScreen() {
 
   return (
     <Screen
-      refreshing={data.isRefetching}
       onRefresh={data.refetch}
       header={<PageHeader title={t("rules.title")} subtitle={collection?.game?.name ?? collection?.name} onBack={() => router.back()} />}
     >

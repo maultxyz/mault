@@ -101,8 +101,7 @@ export default function ProfileScreen() {
     <SettingsPage
       title={t("account.profile.title")}
       subtitle={isLocal ? t("account.profile.localSubtitle") : t("account.profile.subtitle")}
-      refreshing={sessions.isRefetching}
-      onRefresh={isLocal ? undefined : () => void sessions.refetch()}
+      onRefresh={isLocal ? undefined : () => sessions.refetch()}
       isDirty={!isLocal && nameForm.formState.isDirty}
       isSaving={nameForm.formState.isSubmitting}
       onSave={() => void nameForm.handleSubmit(saveName)()}

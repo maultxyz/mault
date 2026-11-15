@@ -69,6 +69,6 @@ export function useStoragePickList(): StoragePickListState {
       });
     },
     finish: () => finish.mutate(cards.filter((card) => pickedScanIds.has(card.scanId)).map((card) => card.scanId)),
-    refetch: () => void pickList.refetch(),
+    refetch: () => pickList.refetch(),
   };
 }

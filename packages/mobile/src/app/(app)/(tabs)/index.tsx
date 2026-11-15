@@ -74,16 +74,11 @@ export default function HomeScreen() {
       : [price, card.collectionName].filter(Boolean).join(" · ");
   };
 
-  const refresh = () => {
-    void overview.refetch();
-    void summary.refetch();
-    void collections.refetch();
-    void pendingTradeOffers.refetch();
-  };
+  const refresh = () =>
+    Promise.all([overview.refetch(), summary.refetch(), collections.refetch(), pendingTradeOffers.refetch()]);
 
   return (
     <Screen
-      refreshing={overview.isRefetching || summary.isRefetching}
       onRefresh={refresh}
       header={
         <PageHeader

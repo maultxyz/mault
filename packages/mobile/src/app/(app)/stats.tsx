@@ -32,15 +32,14 @@ export default function StatsScreen() {
   const [collectionsOpen, setCollectionsOpen] = useState(false);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const collections = useQuery(collectionsQueryOptions(orgId));
-  const { data: report, isPending, isError, isPlaceholderData, refetch, isRefetching } = useQuery(
+  const { data: report, isPending, isError, isPlaceholderData, refetch } = useQuery(
     statsQueryOptions(orgId, range, collectionGuid),
   );
   const selected = collections.data?.find((c) => c.guid === collectionGuid);
 
   return (
     <Screen
-      refreshing={isRefetching}
-      onRefresh={() => void refetch()}
+      onRefresh={() => refetch()}
       header={
         <PageHeader
           title={t("stats.title")}

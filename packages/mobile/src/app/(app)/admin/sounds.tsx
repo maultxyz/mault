@@ -56,10 +56,11 @@ function AdminSoundsContent() {
     [],
   );
 
-  const refreshClips = () => {
-    void queryClient.invalidateQueries({ queryKey: systemSoundClipsQueryOptions.queryKey });
-    void queryClient.invalidateQueries({ queryKey: ["sound-clips"] });
-  };
+  const refreshClips = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: systemSoundClipsQueryOptions.queryKey }),
+      queryClient.invalidateQueries({ queryKey: ["sound-clips"] }),
+    ]);
   const showFailure = (text: string) => setMessage({ tone: "destructive", text });
 
   const upload = useMutation({
@@ -142,7 +143,6 @@ function AdminSoundsContent() {
 
   return (
     <Screen
-      refreshing={clips.isRefetching}
       onRefresh={refreshClips}
       header={
         <PageHeader

@@ -92,7 +92,7 @@ export interface RulesData {
   freeformOptions: boolean;
   isPending: boolean;
   isError: boolean;
-  refetch: () => void;
+  refetch: () => Promise<unknown>;
   isRefetching: boolean;
 }
 

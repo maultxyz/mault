@@ -1,7 +1,8 @@
 import { router } from "expo-router";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, RefreshControl, View } from "react-native";
+import { FlatList, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { STORAGE_VERIFY_CARDS_MAX, storagePickListRows } from "@magic-vault/shared";
 import { CardRow } from "@/components/cards/card-row";
 import { AppText } from "@/components/ui/app-text";
@@ -12,14 +13,12 @@ import { ListGroupItem } from "@/components/ui/list-group-item";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { useStorageVerify } from "@/features/storage/api/use-storage-verify";
-import { useTheme } from "@/hooks/use-theme";
 import { absoluteUrl } from "@/lib/url";
 import { SPACING } from "@/lib/constants/theme";
 import type { StorageLocationVerifyProps } from "@/lib/interfaces/storage";
 
 export function StorageLocationVerify({ location }: StorageLocationVerifyProps) {
   const { t } = useTranslation();
-  const colors = useTheme();
   const verify = useStorageVerify(location.guid);
   const rows = useMemo(
     () => storagePickListRows([], verify.cards, verify.verifiedScanIds),
@@ -61,12 +60,8 @@ export function StorageLocationVerify({ location }: StorageLocationVerifyProps) 
       keyExtractor={(row) => (row.kind === "card" ? row.entry.scanId : row.line.name)}
       contentContainerStyle={{ paddingBottom: SPACING.xxl }}
       refreshControl={
-        <RefreshControl
-          refreshing={false}
+        <PullToRefreshControl
           onRefresh={verify.refetch}
-          tintColor={colors.primaryText}
-          colors={[colors.primary]}
-          progressBackgroundColor={colors.card}
         />
       }
       ListHeaderComponent={

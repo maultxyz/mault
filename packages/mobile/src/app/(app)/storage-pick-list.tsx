@@ -1,7 +1,8 @@
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, FlatList, RefreshControl, View } from "react-native";
+import { Alert, FlatList, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { storagePickListRows } from "@magic-vault/shared";
 import { CardRow } from "@/components/cards/card-row";
 import { AppText } from "@/components/ui/app-text";
@@ -17,13 +18,11 @@ import { Screen } from "@/components/ui/screen";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { useStoragePickList } from "@/features/storage/api/use-storage-pick-list";
 import { StoragePickListForm } from "@/features/storage/components/storage-pick-list-form";
-import { useTheme } from "@/hooks/use-theme";
 import { SPACING } from "@/lib/constants/theme";
 import { absoluteUrl } from "@/lib/url";
 
 export default function StoragePickListScreen() {
   const { t } = useTranslation();
-  const colors = useTheme();
   const pickList = useStoragePickList();
   const [isEditing, setIsEditing] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -88,12 +87,8 @@ export default function StoragePickListScreen() {
         keyExtractor={(row) => (row.kind === "card" ? row.entry.scanId : `missing-${row.line.name}`)}
         contentContainerStyle={{ paddingBottom: SPACING.xxl }}
         refreshControl={
-          <RefreshControl
-            refreshing={false}
+          <PullToRefreshControl
             onRefresh={pickList.refetch}
-            tintColor={colors.primaryText}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.card}
           />
         }
         ListHeaderComponent={

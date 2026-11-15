@@ -3,7 +3,8 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
-import { FlatList, RefreshControl, View, type NativeScrollEvent, type NativeSyntheticEvent } from "react-native";
+import { FlatList, View, type NativeScrollEvent, type NativeSyntheticEvent } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import {
   computeBinCount,
   DEFAULT_MODULE_COUNT,
@@ -269,16 +270,14 @@ export default function CollectionScreen() {
       if (cards.hasNextPage && !cards.isFetchingNextPage) void cards.fetchNextPage();
     },
     refreshControl: (
-      <RefreshControl
-        refreshing={cards.isRefetching && !cards.isFetchingNextPage}
-        onRefresh={() => {
-          void cards.refetch();
-          void summary.refetch();
-          if (scanTimelineGrouping) void scanTimelineBuckets.refetch();
-        }}
-        tintColor={colors.primaryText}
-        colors={[colors.primary]}
-        progressBackgroundColor={colors.card}
+      <PullToRefreshControl
+        onRefresh={() =>
+          Promise.all([
+            cards.refetch(),
+            summary.refetch(),
+            scanTimelineGrouping ? scanTimelineBuckets.refetch() : null,
+          ])
+        }
       />
     ),
     ListHeaderComponent: (

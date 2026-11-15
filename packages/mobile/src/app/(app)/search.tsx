@@ -85,11 +85,7 @@ export default function GlobalSearchScreen() {
 
   return (
     <Screen
-      refreshing={cards.isRefetching}
-      onRefresh={() => {
-        void locations.refetch();
-        if (searchesCards) void cards.refetch();
-      }}
+      onRefresh={() => Promise.all([locations.refetch(), searchesCards ? cards.refetch() : null])}
       header={<PageHeader title={t("search.title")} onBack={() => router.back()} />}
     >
       <SearchInput

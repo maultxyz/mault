@@ -2,7 +2,8 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { CardArt } from "@/components/cards/card-art";
 import { useTranslation } from "react-i18next";
-import { FlatList, RefreshControl, View } from "react-native";
+import { FlatList, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { AppText } from "@/components/ui/app-text";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
@@ -84,7 +85,6 @@ function MatchValidationScanRow({ scan, authHeaders }: MatchValidationScanRowPro
 
 export function MatchValidationScanList({ gameKey }: MatchValidationGameFilterProps) {
   const { t } = useTranslation();
-  const colors = useTheme();
   const scans = useInfiniteQuery(matchValidationScansQueryOptions(gameKey));
   const { data: authHeaders } = useQuery(authHeadersQueryOptions);
   const items = scans.data?.pages.flatMap((page) => page.items) ?? [];
@@ -100,12 +100,8 @@ export function MatchValidationScanList({ gameKey }: MatchValidationGameFilterPr
         if (scans.hasNextPage && !scans.isFetchingNextPage) void scans.fetchNextPage();
       }}
       refreshControl={
-        <RefreshControl
-          refreshing={scans.isRefetching && !scans.isFetchingNextPage}
-          onRefresh={() => void scans.refetch()}
-          tintColor={colors.primaryText}
-          colors={[colors.primary]}
-          progressBackgroundColor={colors.card}
+        <PullToRefreshControl
+          onRefresh={() => scans.refetch()}
         />
       }
       ListEmptyComponent={

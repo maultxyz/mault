@@ -86,11 +86,7 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
 
   return (
     <Screen
-      refreshing={collectionsQuery.isRefetching || overview.isRefetching}
-      onRefresh={() => {
-        void collectionsQuery.refetch();
-        void overview.refetch();
-      }}
+      onRefresh={() => Promise.all([collectionsQuery.refetch(), overview.refetch()])}
       header={
         <PageHeader
           title={title}

@@ -65,6 +65,6 @@ export function useStorageVerify(locationGuid: string | undefined): StorageVerif
         },
       });
     },
-    refetch: () => void query.refetch(),
+    refetch: () => query.refetch(),
   };
 }

@@ -142,8 +142,7 @@ export default function ShopCatalogsSettingsScreen() {
     <SettingsPage
       title={t("settings.shopCatalogs.heading")}
       isLoading={access.isLoading || (canManage && list.isLoading)}
-      refreshing={list.isRefetching}
-      onRefresh={() => void list.refetch()}
+      onRefresh={() => list.refetch()}
     >
       <AppText size="sm" tone="secondary">
         {t("settings.shopCatalogs.description")}

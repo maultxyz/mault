@@ -108,8 +108,7 @@ export default function OrganizationSettingsScreen() {
     <SettingsPage
       title={t("settings.sections.organization.title")}
       isLoading={details.isLoading}
-      refreshing={details.isRefetching}
-      onRefresh={() => void details.refetch()}
+      onRefresh={() => details.refetch()}
       isDirty={canRename && renameForm.formState.isDirty}
       isSaving={mutate.isPending}
       onSave={() => void saveName()}

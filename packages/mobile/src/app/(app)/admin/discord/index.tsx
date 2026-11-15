@@ -169,14 +169,11 @@ function AdminDiscordContent() {
     />
   );
 
-  const refresh = () => {
-    void queryClient.invalidateQueries({ queryKey: ["admin", "discord"] });
-  };
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin", "discord"] });
 
   return (
     <View style={{ flex: 1 }}>
       <Screen
-        refreshing={channelsQuery.isRefetching || announcementsQuery.isRefetching}
         onRefresh={refresh}
         header={
           <PageHeader

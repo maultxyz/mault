@@ -2,7 +2,8 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, RefreshControl, View } from "react-native";
+import { FlatList, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { CardRow } from "@/components/cards/card-row";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -24,7 +25,6 @@ import { useStorageLocationActions } from "@/features/storage/api/use-storage-lo
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
-import { useTheme } from "@/hooks/use-theme";
 import { LIST_END_THRESHOLD, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { LibraryViewProps } from "@/lib/interfaces/library";
@@ -34,7 +34,6 @@ import { absoluteUrl } from "@/lib/url";
 export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
   const { t } = useTranslation();
   const pricing = usePricing();
-  const colors = useTheme();
   const orgId = useActiveOrgId();
   const [search, setSearch] = useState("");
   const query = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
@@ -93,12 +92,8 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
           if (!query && locations.hasNextPage && !locations.isFetchingNextPage) void locations.fetchNextPage();
         }}
         refreshControl={
-          <RefreshControl
-            refreshing={locations.isRefetching && !locations.isFetchingNextPage}
-            onRefresh={() => void locations.refetch()}
-            tintColor={colors.primaryText}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.card}
+          <PullToRefreshControl
+            onRefresh={() => locations.refetch()}
           />
         }
         ListHeaderComponent={

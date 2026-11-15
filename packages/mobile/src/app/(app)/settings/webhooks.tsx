@@ -93,8 +93,7 @@ export default function WebhooksSettingsScreen() {
     <SettingsPage
       title={t("settings.webhooks.heading")}
       isLoading={list.isLoading}
-      refreshing={list.isRefetching}
-      onRefresh={() => void list.refetch()}
+      onRefresh={() => list.refetch()}
     >
       <AppText size="sm" tone="secondary">
         {t("settings.webhooks.description")}

@@ -2,7 +2,8 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, FlatList, RefreshControl, View } from "react-native";
+import { AccessibilityInfo, FlatList, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import type { DeletedItem } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
@@ -19,7 +20,6 @@ import { deletedItemsQueryOptions, restoreDeletedItem } from "@/features/admin/a
 import { AdminGate } from "@/features/admin/components/admin-gate";
 import { DeletedItemRow } from "@/features/admin/components/deleted-item-row";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { useTheme } from "@/hooks/use-theme";
 import { ALL_DELETED_ITEM_TYPES, DELETED_ITEM_TYPE_FILTERS } from "@/lib/constants/admin-deleted";
 import { LIST_END_THRESHOLD, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
@@ -27,7 +27,6 @@ import type { DeletedItemsNotice, DeletedItemTypeFilter } from "@/lib/interfaces
 
 function DeletedItemsScreen() {
   const { t } = useTranslation();
-  const colors = useTheme();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<DeletedItemTypeFilter>(ALL_DELETED_ITEM_TYPES);
@@ -89,12 +88,8 @@ function DeletedItemsScreen() {
           if (deletedItems.hasNextPage && !deletedItems.isFetchingNextPage) void deletedItems.fetchNextPage();
         }}
         refreshControl={
-          <RefreshControl
-            refreshing={deletedItems.isRefetching && !deletedItems.isFetchingNextPage}
-            onRefresh={() => void deletedItems.refetch()}
-            tintColor={colors.primaryText}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.card}
+          <PullToRefreshControl
+            onRefresh={() => deletedItems.refetch()}
           />
         }
         ListHeaderComponent={

@@ -89,11 +89,7 @@ export default function HealthScreen() {
 
   return (
     <Screen
-      refreshing={health.isRefetching}
-      onRefresh={() => {
-        void health.refetch();
-        void coverage.refetch();
-      }}
+      onRefresh={() => Promise.all([health.refetch(), coverage.refetch()])}
       header={
         <PageHeader
           title={t("health.title")}

@@ -125,8 +125,7 @@ export interface ScreenProps {
   children: ReactNode;
   scroll?: boolean;
   padded?: boolean;
-  refreshing?: boolean;
-  onRefresh?: () => void;
+  onRefresh?: () => unknown;
   edges?: ("top" | "bottom")[];
   header?: ReactNode;
   contentStartsWithList?: boolean;
@@ -525,4 +524,8 @@ export interface ToastContextValue {
 
 export interface ToastProviderProps {
   children: ReactNode;
+}
+
+export interface PullToRefreshControlProps extends Omit<RefreshControlProps, "refreshing" | "onRefresh"> {
+  onRefresh: () => unknown;
 }

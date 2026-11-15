@@ -2,7 +2,8 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, FlatList, RefreshControl, View } from "react-native";
+import { AccessibilityInfo, FlatList, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import {
   CARD_CONDITIONS,
   CARD_LANGUAGES,
@@ -176,12 +177,8 @@ export default function ReviewGridScreen() {
         columnWrapperStyle={columns > 1 ? { gap: SPACING.md } : undefined}
         contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg + SPACING.xs }}
         refreshControl={
-          <RefreshControl
-            refreshing={review.isRefetching}
-            onRefresh={() => void review.refetch()}
-            tintColor={colors.primaryText}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.card}
+          <PullToRefreshControl
+            onRefresh={() => review.refetch()}
           />
         }
         ListHeaderComponent={

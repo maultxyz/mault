@@ -50,8 +50,7 @@ export interface SettingsPageProps {
   isSaving?: boolean;
   saveError?: boolean;
   isLoading?: boolean;
-  refreshing?: boolean;
-  onRefresh?: () => void;
+  onRefresh?: () => unknown;
   onSave?: () => void;
   onDiscard?: () => void;
   isSaveBarVisible?: boolean;
