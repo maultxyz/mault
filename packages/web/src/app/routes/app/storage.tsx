@@ -35,6 +35,7 @@ import { StorageLocationNameDialog } from "@/features/storage/components/storage
 import { StorageSearchResults } from "@/features/storage/components/storage-search-results";
 import { StorageUpgradeNote } from "@/features/storage/components/storage-upgrade-note";
 import { MobileStorage } from "@/features/storage/components/mobile-storage";
+import { useStorageLabelOrgSwitch } from "@/features/storage-labels/api/use-storage-label-org-switch";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useHotkeys } from "@/hooks/use-hotkeys";
@@ -49,6 +50,7 @@ import {
   STORAGE_REVIEW_SEARCH_PARAM,
   STORAGE_PANEL_PADDING_TOP,
   STORAGE_TOOLBAR_TOP_CSS_VARIABLE,
+  storageLabelsPath,
 } from "@/lib/constants/storage";
 import { useElementHeight } from "@/hooks/use-element-height";
 import { ORDER_PARAM, picksPath } from "@/lib/constants/business";
@@ -60,6 +62,7 @@ import {
   IconListCheck,
   IconListSearch,
   IconPlus,
+  IconPrinter,
   IconTrash,
 } from "@tabler/icons-react";
 import { useCallback, useState, type CSSProperties } from "react";
@@ -270,6 +273,18 @@ function DesktopStoragePage() {
                 </Button>
                 {!isLocked && (
                   <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label={t("labels.printLabels")}
+                    title={t("labels.printLabels")}
+                    nativeButton={false}
+                    render={<Link to={storageLabelsPath()} />}
+                  >
+                    <IconPrinter />
+                  </Button>
+                )}
+                {!isLocked && (
+                  <Button
                     size="icon"
                     aria-label={t("page.newLocation")}
                     title={t("page.newLocation")}
@@ -394,6 +409,16 @@ function DesktopStoragePage() {
                 )}
                 {!isLocked && (
                   <>
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      aria-label={t("labels.printLabel")}
+                      title={t("labels.printLabel")}
+                      nativeButton={false}
+                      render={<Link to={storageLabelsPath([selected.guid])} />}
+                    >
+                      <IconPrinter />
+                    </Button>
                     <ShareStorageLinkDialog
                       locationGuid={selected.guid}
                       renderTrigger={(activeLinkCount) => (
@@ -538,11 +563,13 @@ function DesktopStoragePage() {
 export default function StoragePage() {
   const isMobile = useIsMobile();
   const [searchParams] = useSearchParams();
+  const isSwitchingToLabelOrg = useStorageLabelOrgSwitch();
   if (
     searchParams.get(LEGACY_STORAGE_VIEW_PARAM) === LEGACY_STORAGE_PICKS_VIEW
   ) {
     return <Navigate to={picksPath(searchParams.get(ORDER_PARAM))} replace />;
   }
+  if (isSwitchingToLabelOrg) return <ListSkeleton />;
   if (isMobile) return <MobileStorage />;
   return <DesktopStoragePage />;
 }

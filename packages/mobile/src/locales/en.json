@@ -828,7 +828,7 @@
       },
       "qrCode": {
         "title": "Point at a QR code to open it",
-        "description": "Shared collection, storage and trade links open in the app. A desktop camera pairing code connects this phone as the sorter's camera."
+        "description": "Shared collection, storage and trade links open in the app, and so do storage labels you printed. A desktop camera pairing code connects this phone as the sorter's camera."
       },
       "sorter": {
         "title": "Connect a sorter for auto-feed",
@@ -1609,7 +1609,8 @@
     "shareWithCount_other": "Share location ({{count}} active)",
     "searchFailed": "Couldn't search your storage locations",
     "notFoundTitle": "Location not found",
-    "notFoundDescription": "It may have been deleted, or you no longer have access to it."
+    "notFoundDescription": "It may have been deleted, or you no longer have access to it.",
+    "printLabel": "Print label"
   },
   "settings": {
     "title": "Settings",

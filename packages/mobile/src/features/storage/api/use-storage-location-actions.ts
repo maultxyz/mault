@@ -1,11 +1,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { Alert } from "react-native";
+import { STORAGE_LABELS_PATH, STORAGE_LOCATION_SEARCH_PARAM } from "@magic-vault/shared";
+import { Alert, Linking } from "react-native";
 import { useActiveShareLinkCount } from "@/features/share-links/api/use-active-share-link-count";
 import { deleteStorageLocation } from "@/features/storage/api/storage";
 import type { StorageLocationActionsOptions, StorageLocationActionTarget } from "@/lib/interfaces/storage";
 import type { OptionItem } from "@/lib/interfaces/ui";
+import { WEB_URL } from "@/lib/constants/config";
 
 export function useStorageLocationActions({ onDeleted, shareLinkCountGuid }: StorageLocationActionsOptions = {}) {
   const { t } = useTranslation();
@@ -24,6 +26,7 @@ export function useStorageLocationActions({ onDeleted, shareLinkCountGuid }: Sto
       value: "share",
       label: activeShareLinkCount > 0 ? t("storage.shareWithCount", { count: activeShareLinkCount }) : t("storage.share"),
     },
+    { value: "printLabel", label: t("storage.printLabel") },
     { value: "rename", label: t("storage.rename") },
     { value: "delete", label: t("storage.delete") },
   ];
@@ -31,6 +34,10 @@ export function useStorageLocationActions({ onDeleted, shareLinkCountGuid }: Sto
   const runAction = (location: StorageLocationActionTarget, action: string) => {
     if (action === "share") {
       router.push({ pathname: "/share-link", params: { kind: "storage", guid: location.guid } });
+    } else if (action === "printLabel") {
+      void Linking.openURL(
+        `${WEB_URL}${STORAGE_LABELS_PATH}?${STORAGE_LOCATION_SEARCH_PARAM}=${encodeURIComponent(location.guid)}`,
+      );
     } else if (action === "rename") {
       router.push({ pathname: "/storage-name", params: { guid: location.guid, name: location.name } });
     } else if (action === "delete") {

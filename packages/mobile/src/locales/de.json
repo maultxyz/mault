@@ -828,7 +828,7 @@
       },
       "qrCode": {
         "title": "Auf einen QR-Code richten, um ihn zu öffnen",
-        "description": "Geteilte Sammlungs-, Lager- und Tauschlinks öffnen sich in der App. Ein Kopplungscode für die Desktop-Kamera verbindet dieses Handy als Kamera des Sortierers."
+        "description": "Geteilte Sammlungs-, Lager- und Tauschlinks öffnen sich in der App, ebenso gedruckte Lagerort-Etiketten. Ein Kopplungscode für die Desktop-Kamera verbindet dieses Handy als Kamera des Sortierers."
       },
       "sorter": {
         "title": "Sortierer für automatisches Einziehen verbinden",
@@ -1609,7 +1609,8 @@
     "shareWithCount_other": "Lagerort teilen ({{count}} aktiv)",
     "searchFailed": "Die Lagerorte konnten nicht durchsucht werden",
     "notFoundTitle": "Lagerort nicht gefunden",
-    "notFoundDescription": "Er wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf."
+    "notFoundDescription": "Er wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf.",
+    "printLabel": "Etikett drucken"
   },
   "settings": {
     "title": "Einstellungen",

@@ -3,13 +3,24 @@ import type {
   ScanCardsResultKind,
   StorageLocationView,
 } from "@/lib/interfaces/storage";
-import type { FieldMeta } from "@magic-vault/shared";
+import {
+  STORAGE_LABEL_ORG_SEARCH_PARAM,
+  STORAGE_LABELS_PATH,
+  STORAGE_LOCATION_SEARCH_PARAM,
+  STORAGE_PATH,
+  type FieldMeta,
+} from "@magic-vault/shared";
+
+export {
+  STORAGE_LABEL_ORG_SEARCH_PARAM,
+  STORAGE_LABELS_PATH,
+  STORAGE_LOCATION_SEARCH_PARAM,
+  STORAGE_PATH,
+};
 
 export const EMPTY_BIN_NEW_LOCATION = "__new__";
 export const EMPTY_BIN_NO_LOCATION = "__none__";
 export const MOVE_TARGET_COLLECTION_PREFIX = "collection:";
-export const STORAGE_PATH = "/app/storage";
-export const STORAGE_LOCATION_SEARCH_PARAM = "location";
 export const STORAGE_CARD_SEARCH_PARAM = "card";
 export const STORAGE_REVIEW_SEARCH_PARAM = "review";
 export const STORAGE_PAGE_SEARCH_PARAM = "page";
@@ -33,3 +44,11 @@ export const STORAGE_LOCATION_VIEWS: readonly StorageLocationView[] = [
 ];
 export const STORAGE_PANEL_PADDING_TOP = "0.5rem";
 export const STORAGE_TOOLBAR_TOP_CSS_VARIABLE = "--storage-toolbar-top";
+
+export function storageLabelsPath(locationGuids: string[] = []): string {
+  const params = new URLSearchParams(
+    locationGuids.map((locationGuid) => [STORAGE_LOCATION_SEARCH_PARAM, locationGuid]),
+  );
+  const query = params.toString();
+  return query ? `${STORAGE_LABELS_PATH}?${query}` : STORAGE_LABELS_PATH;
+}
