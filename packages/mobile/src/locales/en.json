@@ -877,6 +877,12 @@
       "description": "Check the matches so your collection stays accurate.",
       "open": "Opens the review screen"
     },
+    "trades": {
+      "title_one": "{{count}} trade offer waiting",
+      "title_other": "{{count}} trade offers waiting",
+      "description": "See what was offered and accept or decline.",
+      "open": "Opens trade offers"
+    },
     "cardOfTheDay": "Cards of the day",
     "activity": {
       "title": "Scan activity",

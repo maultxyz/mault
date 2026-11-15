@@ -1,12 +1,5 @@
 {
   "title": "Accueil",
-  "subtitle": "Voici l'état de votre collection",
-  "greeting": {
-    "morning": "Bonjour",
-    "afternoon": "Bon après-midi",
-    "evening": "Bonsoir"
-  },
-  "greetingWithName": "{{greeting}}, {{name}}",
   "hero": {
     "value": "Valeur de la collection",
     "cards": "Cartes",
@@ -15,16 +8,16 @@
     "sinceYesterday": "depuis hier",
     "sinceDate": "depuis le {{date}}"
   },
-  "actions": {
-    "scan": "Scanner des cartes",
-    "newCollection": "Nouvelle collection",
-    "stats": "Statistiques"
-  },
   "review": {
     "title_one": "{{count}} scan à vérifier",
     "title_other": "{{count}} scans à vérifier",
     "description": "Vérifiez les correspondances pour garder une collection exacte.",
     "open": "Ouvre l'écran de vérification"
+  },
+  "trades": {
+    "title_one": "{{count}} offre d'échange en attente",
+    "title_other": "{{count}} offres d'échange en attente",
+    "description": "Consultez ce qui est proposé, puis acceptez ou refusez."
   },
   "live": {
     "yourSession": "Ta session",

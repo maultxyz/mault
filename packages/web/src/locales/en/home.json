@@ -1,12 +1,5 @@
 {
   "title": "Home",
-  "subtitle": "Here's how your collection is doing",
-  "greeting": {
-    "morning": "Good morning",
-    "afternoon": "Good afternoon",
-    "evening": "Good evening"
-  },
-  "greetingWithName": "{{greeting}}, {{name}}",
   "hero": {
     "value": "Collection value",
     "cards": "Cards",
@@ -15,16 +8,16 @@
     "sinceYesterday": "since yesterday",
     "sinceDate": "since {{date}}"
   },
-  "actions": {
-    "scan": "Scan cards",
-    "newCollection": "New collection",
-    "stats": "Stats"
-  },
   "review": {
     "title_one": "{{count}} scan needs review",
     "title_other": "{{count}} scans need review",
     "description": "Check the matches so your collection stays accurate.",
     "open": "Opens the review screen"
+  },
+  "trades": {
+    "title_one": "{{count}} trade offer waiting",
+    "title_other": "{{count}} trade offers waiting",
+    "description": "See what was offered and accept or decline."
   },
   "live": {
     "yourSession": "Your session",

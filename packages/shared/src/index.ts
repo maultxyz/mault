@@ -106,7 +106,6 @@ export * from "./stats-insights";
 export * from "./interfaces/chart.interface";
 export * from "./constants/chart.constant";
 export * from "./chart-geometry";
-export * from "./greeting";
 export * from "./interfaces/value-change.interface";
 export * from "./value-change";
 export * from "./constants/sync.constant";

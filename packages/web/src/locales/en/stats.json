@@ -135,10 +135,6 @@
   "value": {
     "description": "Daily market value of everything you own, with cards in open intakes left out."
   },
-  "headline": {
-    "title": "Your collection",
-    "subtitle": "by the numbers"
-  },
   "highlights": {
     "title": "Highlights"
   },

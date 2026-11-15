@@ -1,5 +1,4 @@
 import { CardImage } from "@/components/card-image";
-import { DisplayHeadline } from "@/components/display-headline";
 import { StatGroup } from "@/components/stat-group";
 import { SettingsSection } from "@/components/settings-section";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
@@ -487,11 +486,6 @@ export function StatsDashboard({
 
   return (
     <div className="flex flex-col gap-6 md:gap-2">
-      <DisplayHeadline
-        title={t("headline.title")}
-        subtitle={t("headline.subtitle")}
-      />
-
       <div className="grid gap-4 md:gap-1.5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <ValueHero
           label={t("tiles.totalValue")}

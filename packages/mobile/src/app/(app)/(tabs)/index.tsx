@@ -18,6 +18,7 @@ import { HomeCardRail } from "@/features/home/components/home-card-rail";
 import { HomeHero } from "@/features/home/components/home-hero";
 import { HomeHighlightRow } from "@/features/home/components/home-highlight-row";
 import { HomeTopCardsList } from "@/features/home/components/home-top-cards-list";
+import { pendingTradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { ColumnChart } from "@/features/stats/components/column-chart";
 import { useAppStream } from "@/features/stream/api/use-app-stream";
 import { widgetSummaryQueryOptions } from "@/features/widgets/api/widget-summary";
@@ -37,6 +38,7 @@ export default function HomeScreen() {
   const overview = useQuery(orgOverviewQueryOptions(orgId, isScreenFocused));
   const summary = useQuery(widgetSummaryQueryOptions(orgId, isAnyScannerRunning));
   const collections = useQuery(collectionsQueryOptions(orgId));
+  const pendingTradeOffers = useQuery(pendingTradeOffersQueryOptions(orgId));
   const locale = i18n.language;
   const numberFormat = new Intl.NumberFormat(locale);
   const overviewData = overview.data;
@@ -62,11 +64,13 @@ export default function HomeScreen() {
   const firstReviewCard = summaryData?.review.cards[0];
   const scanActivityByCollection = new Map((summaryData?.scanActivity ?? []).map((activity) => [activity.collectionGuid, activity]));
   const liveScanners = Object.entries(locks);
+  const pendingTradeOfferList = pendingTradeOffers.data ?? [];
 
   const refresh = () => {
     void overview.refetch();
     void summary.refetch();
     void collections.refetch();
+    void pendingTradeOffers.refetch();
   };
 
   return (
@@ -122,7 +126,7 @@ export default function HomeScreen() {
             ]}
           />
 
-          {liveScanners.length > 0 || reviewCount > 0 ? (
+          {liveScanners.length > 0 || reviewCount > 0 || pendingTradeOfferList.length > 0 ? (
             <View style={{ gap: SPACING.sm }}>
               {liveScanners.map(([collectionGuid, lock]) => {
                 const activity = scanActivityByCollection.get(collectionGuid);
@@ -159,6 +163,20 @@ export default function HomeScreen() {
                     firstReviewCard
                       ? router.push({ pathname: "/review-grid", params: { guid: firstReviewCard.collectionGuid } })
                       : router.navigate("/collections")
+                  }
+                />
+              ) : null}
+              {pendingTradeOfferList.length > 0 ? (
+                <HomeHighlightRow
+                  icon="transfer"
+                  tone="primary"
+                  title={t("home.trades.title", { count: pendingTradeOfferList.length })}
+                  description={t("home.trades.description")}
+                  actionLabel={t("home.trades.open")}
+                  onPress={() =>
+                    pendingTradeOfferList.length === 1
+                      ? router.push({ pathname: "/trade-offer/[guid]", params: { guid: pendingTradeOfferList[0].guid } })
+                      : router.navigate({ pathname: "/collections", params: { view: "trades" } })
                   }
                 />
               ) : null}

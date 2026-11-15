@@ -1,12 +1,5 @@
 {
   "title": "Start",
-  "subtitle": "So steht es um deine Sammlung",
-  "greeting": {
-    "morning": "Guten Morgen",
-    "afternoon": "Guten Tag",
-    "evening": "Guten Abend"
-  },
-  "greetingWithName": "{{greeting}}, {{name}}",
   "hero": {
     "value": "Sammlungswert",
     "cards": "Karten",
@@ -15,16 +8,16 @@
     "sinceYesterday": "seit gestern",
     "sinceDate": "seit {{date}}"
   },
-  "actions": {
-    "scan": "Karten scannen",
-    "newCollection": "Neue Sammlung",
-    "stats": "Statistiken"
-  },
   "review": {
     "title_one": "{{count}} Scan muss geprüft werden",
     "title_other": "{{count}} Scans müssen geprüft werden",
     "description": "Prüfe die Treffer, damit deine Sammlung stimmt.",
     "open": "Öffnet die Prüfung"
+  },
+  "trades": {
+    "title_one": "{{count}} Tauschangebot wartet",
+    "title_other": "{{count}} Tauschangebote warten",
+    "description": "Sieh dir an, was angeboten wurde, und nimm an oder lehne ab."
   },
   "live": {
     "yourSession": "Deine Sitzung",

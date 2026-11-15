@@ -877,6 +877,12 @@
       "description": "Vérifiez les correspondances pour garder une collection exacte.",
       "open": "Ouvre l'écran de vérification"
     },
+    "trades": {
+      "title_one": "{{count}} offre d'échange en attente",
+      "title_other": "{{count}} offres d'échange en attente",
+      "description": "Consultez ce qui est proposé, puis acceptez ou refusez.",
+      "open": "Ouvre les offres d'échange"
+    },
     "cardOfTheDay": "Cartes du jour",
     "activity": {
       "title": "Activité de scan",

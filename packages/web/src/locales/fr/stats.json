@@ -135,10 +135,6 @@
   "value": {
     "description": "Valeur marché quotidienne de tout ce que vous possédez, sans les cartes des rachats en cours."
   },
-  "headline": {
-    "title": "Votre collection",
-    "subtitle": "en chiffres"
-  },
   "highlights": {
     "title": "En bref"
   },

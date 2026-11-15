@@ -877,6 +877,12 @@
       "description": "Prüfe die Treffer, damit deine Sammlung stimmt.",
       "open": "Öffnet die Prüfung"
     },
+    "trades": {
+      "title_one": "{{count}} Tauschangebot wartet",
+      "title_other": "{{count}} Tauschangebote warten",
+      "description": "Sieh dir an, was angeboten wurde, und nimm an oder lehne ab.",
+      "open": "Öffnet die Tauschangebote"
+    },
     "cardOfTheDay": "Karten des Tages",
     "activity": {
       "title": "Scan-Aktivität",
