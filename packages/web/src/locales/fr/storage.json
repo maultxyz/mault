@@ -9,6 +9,7 @@
     "cardCount_other": "{{count}} cartes",
     "rename": "Renommer l'emplacement",
     "delete": "Supprimer l'emplacement",
+    "actions": "Actions pour {{name}}",
     "deleteTitle": "Supprimer {{name}} ?",
     "deleteDescription": "Les cartes restent dans tes collections, mais perdent cet emplacement et leur position.",
     "summary_one": "{{count}} carte · {{value}} au total",
@@ -69,7 +70,7 @@
   "cardLocation": {
     "heading": "Rangement",
     "value": "{{name}} · #{{position}}",
-    "remove": "Retirer de la boîte",
+    "remove": "Retirer de l'emplacement",
     "move": "Déplacer"
   },
   "toasts": {

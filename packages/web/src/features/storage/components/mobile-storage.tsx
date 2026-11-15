@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { MobileListRow } from "@/components/mobile-list-row";
 import { MobilePageHeader } from "@/components/mobile-page-header";
+import { LibraryViewTabs } from "@/features/library/components/library-view-tabs";
 import { MobileSearchInput } from "@/components/mobile-search-input";
 import { Button } from "@/components/ui/button";
 import { DrawerTitle } from "@/components/ui/drawer";
@@ -23,6 +24,7 @@ import { StorageCardDetail } from "@/features/storage/components/storage-card-de
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
 import { ShareLinkTriggerButton } from "@/components/share-link-trigger-button";
 import { ShareStorageLinkDialog } from "@/features/storage/components/share-storage-link-dialog";
+import { StorageLocationActionsMenu } from "@/features/storage/components/storage-location-actions-menu";
 import { StorageLocationContent } from "@/features/storage/components/storage-location-content";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
 import { StorageSearchResults } from "@/features/storage/components/storage-search-results";
@@ -56,11 +58,13 @@ import {
 } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
+import type { StorageLocation } from "@magic-vault/shared";
 import { Link, useSearchParams } from "react-router-dom";
 
 export function MobileStorage() {
   const { t } = useTranslation("storage");
   const { t: tCards } = useTranslation("cards");
+  const { t: tHome } = useTranslation("home");
   const { locations, isLoading, isMutating, create, rename, remove } =
     useStorageLocations();
   const { format } = usePriceSource();
@@ -69,6 +73,8 @@ export function MobileStorage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [menuLocation, setMenuLocation] = useState<StorageLocation | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedQuery = useDebouncedValue(
     searchQuery.trim(),
@@ -78,6 +84,11 @@ export function MobileStorage() {
 
   const selectedGuid = searchParams.get(STORAGE_LOCATION_SEARCH_PARAM);
   const selected = locations.find((l) => l.guid === selectedGuid);
+  const actionTarget = menuLocation ?? selected;
+  const openLocationAction = (location: StorageLocation, openDialog: (open: boolean) => void) => {
+    setMenuLocation(location);
+    openDialog(true);
+  };
   const cardQuery = useStorageLocationCardQuery(selected?.guid);
   const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
   const [shownScanId, setShownScanId] = useState(openScanId);
@@ -153,24 +164,31 @@ export function MobileStorage() {
       <StorageLocationNameDialog
         open={renameOpen}
         onOpenChange={setRenameOpen}
-        initialName={selected?.name}
+        initialName={actionTarget?.name}
         title={t("page.rename")}
         submitLabel={t("nameDialog.save")}
         onSubmit={(name) =>
-          selected ? rename(selected.guid, name) : Promise.resolve(false)
+          actionTarget ? rename(actionTarget.guid, name) : Promise.resolve(false)
         }
       />
       <DeleteDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title={t("page.deleteTitle", { name: selected?.name ?? "" })}
+        title={t("page.deleteTitle", { name: actionTarget?.name ?? "" })}
         description={t("page.deleteDescription")}
-        confirm={{ type: "name", name: selected?.name ?? "" }}
+        confirm={{ type: "name", name: actionTarget?.name ?? "" }}
         onConfirm={async () => {
           setDeleteOpen(false);
-          if (selected && (await remove(selected.guid))) select(null);
+          if (actionTarget && (await remove(actionTarget.guid)) && actionTarget.guid === selected?.guid) select(null);
         }}
       />
+      {menuLocation && (
+        <ShareStorageLinkDialog
+          locationGuid={menuLocation.guid}
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+        />
+      )}
     </>
   );
 
@@ -188,6 +206,7 @@ export function MobileStorage() {
           total={reviewGridPage.data?.total ?? 0}
           isLoading={reviewGridPage.isPending}
           isError={reviewGridPage.isError}
+          onRetry={() => void reviewGridPage.refetch()}
           onOpenOneByOne={(card) => {
             setReviewLayout("single");
             openCard(selected.guid, card.scanId, true);
@@ -227,7 +246,10 @@ export function MobileStorage() {
                   className={MOBILE_CIRCLE_BUTTON_CLASS}
                   aria-label={t("page.rename")}
                   disabled={isMutating}
-                  onClick={() => setRenameOpen(true)}
+                  onClick={() => {
+                    setMenuLocation(null);
+                    setRenameOpen(true);
+                  }}
                 >
                   <IconEdit />
                 </Button>
@@ -236,7 +258,10 @@ export function MobileStorage() {
                   className={cn(MOBILE_CIRCLE_BUTTON_CLASS, "text-destructive")}
                   aria-label={t("page.delete")}
                   disabled={isMutating}
-                  onClick={() => setDeleteOpen(true)}
+                  onClick={() => {
+                    setMenuLocation(null);
+                    setDeleteOpen(true);
+                  }}
                 >
                   <IconTrash />
                 </Button>
@@ -302,7 +327,7 @@ export function MobileStorage() {
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <MobilePageHeader
-        title={t("page.title")}
+        title={tHome("library.title")}
         actions={
           <>
             {locations.length > 0 && (
@@ -329,6 +354,7 @@ export function MobileStorage() {
           </>
         }
       >
+        <LibraryViewTabs value="storage" />
         {!isLoading && locations.length > 0 && (
           <MobileSearchInput
             placeholder={t("search.placeholder")}
@@ -382,16 +408,29 @@ export function MobileStorage() {
           ) : (
             <div className={MOBILE_LIST_CLASS}>
               {locations.map((location) => (
-                <MobileListRow
-                  key={location.guid}
-                  icon={<IconBox />}
-                  label={location.name}
-                  description={t("page.summary", {
-                    count: location.cardCount,
-                    value: format(location.totalValue),
-                  })}
-                  onClick={() => select(location.guid)}
-                />
+                <div key={location.guid} className="flex items-center gap-1">
+                  <div className="min-w-0 flex-1">
+                    <MobileListRow
+                      icon={<IconBox />}
+                      label={location.name}
+                      description={t("page.summary", {
+                        count: location.cardCount,
+                        value: format(location.totalValue),
+                      })}
+                      onClick={() => select(location.guid)}
+                    />
+                  </div>
+                  {!isLocked && (
+                    <StorageLocationActionsMenu
+                      location={location}
+                      disabled={isMutating}
+                      className="-mr-2 shrink-0"
+                      onShare={(target) => openLocationAction(target, setShareOpen)}
+                      onRename={(target) => openLocationAction(target, setRenameOpen)}
+                      onDelete={(target) => openLocationAction(target, setDeleteOpen)}
+                    />
+                  )}
+                </div>
               ))}
             </div>
           )}

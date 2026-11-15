@@ -48,6 +48,7 @@ export function useMoveCardsToCollection({ sourceCollectionGuid, onMoved }: Move
       moveCollectionCardsToCollection(sourceCollectionGuid, scanIds, targetCollectionGuid),
     onSuccess: (_result, variables) => {
       refreshAfterMove(sourceCollectionGuid, variables.targetCollectionGuid);
+      onMoved?.();
       const targetName =
         (collections.data ?? []).find((collection) => collection.guid === variables.targetCollectionGuid)?.name ?? "";
       showToast({
@@ -55,7 +56,6 @@ export function useMoveCardsToCollection({ sourceCollectionGuid, onMoved }: Move
         durationMs: TOAST_UNDO_DURATION_MS,
         action: { label: t("recovery.undo"), onPress: () => moveBack.mutate(variables) },
       });
-      onMoved?.();
     },
     onError: (_error, variables) =>
       showToast({

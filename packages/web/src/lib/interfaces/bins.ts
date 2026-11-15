@@ -32,6 +32,7 @@ export interface BinConfigSaveInput {
   lowMatchPercent?: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
+  maxCards?: number | null;
   overflowBin?: number | null;
   isDisabled?: boolean;
   pickList?: PickListInput | null;
@@ -192,7 +193,7 @@ export interface BinConfigsContextValue {
   createSet: (name: string) => Promise<void>;
   importSet: (name: string, bins: DefaultBinInit[]) => Promise<boolean>;
   saveSet: (name: string) => Promise<void>;
-  renameSet: (guid: string, name: string) => Promise<void>;
+  renameSet: (guid: string, name: string, description: string) => Promise<void>;
   deleteSet: (guid: string) => Promise<void>;
   setAutoAssignField: (field: string | null) => Promise<void>;
   resetAutoAssign: () => Promise<void>;
@@ -324,4 +325,10 @@ export interface BinListProps {
 
 export interface BinConfigPanelProps {
   showTitle?: boolean;
+}
+
+export interface RenameSetInput {
+  guid: string;
+  name: string;
+  description: string;
 }

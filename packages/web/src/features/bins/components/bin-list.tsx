@@ -1,3 +1,4 @@
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { binsQueryOptions } from "@/features/bins/api/sort-bins";
@@ -47,7 +48,10 @@ export function BinList({ onOpenBin }: BinListProps) {
         )
       : null;
   const { activeOrg } = useOrg();
-  const { isLoading } = useQuery({ ...binsQueryOptions, enabled: !!activeOrg });
+  const { isLoading, isError, refetch } = useQuery({
+    ...binsQueryOptions,
+    enabled: !!activeOrg,
+  });
   const binNumbers = useMemo(
     () => configs.map((config) => config.binNumber),
     [configs],
@@ -78,7 +82,7 @@ export function BinList({ onOpenBin }: BinListProps) {
   if (isLoading) {
     return (
       <ScrollArea>
-        <div className="flex flex-col rounded-lg overflow-hidden border">
+        <div className="flex flex-col overflow-hidden rounded-card bg-card">
           {Array.from({ length: configs.length || 7 }).map((_, i) => (
             <Skeleton
               key={i}
@@ -90,10 +94,19 @@ export function BinList({ onOpenBin }: BinListProps) {
     );
   }
 
+  if (isError && configs.length === 0) {
+    return (
+      <LoadErrorCallout
+        message={t("binList.loadFailed")}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
+
   return (
     <div className="flex flex-col gap-2 overflow-y-auto" data-tour="bin-list">
       <SortTestButton disabled={isModeDirty} />
-      <div className="grid grid-cols-2 overflow-hidden rounded-lg border">
+      <div className="grid grid-cols-2 overflow-hidden rounded-card bg-card">
         {slots.map(({ key, config, cellClassName }) =>
           config ? (
             <div key={key} className={cn("flex min-w-0", cellClassName)}>

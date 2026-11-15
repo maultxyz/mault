@@ -16,6 +16,7 @@ import {
 import { toast } from "@/lib/toast";
 import {
   changedDiscordPingRoles,
+  changedDiscordTradeNotificationTargets,
   type DiscordIntegration,
   discordSettingsDraftFormSchema,
   type DiscordSettingsDraftFormValues,
@@ -54,8 +55,11 @@ export function useDiscordSettingsDraft(
 
     const orgChannels = changedDiscordChannels(integration, draft);
     const orgPingRoles = changedDiscordPingRoles(integration, draft);
-    if (orgChannels || orgPingRoles) {
-      requests.push(setDiscordChannel({ ...orgChannels, ...orgPingRoles }));
+    const orgTradeTargets = changedDiscordTradeNotificationTargets(integration, draft);
+    if (orgChannels || orgPingRoles || orgTradeTargets) {
+      requests.push(
+        setDiscordChannel({ ...orgChannels, ...orgPingRoles, ...orgTradeTargets }),
+      );
     }
 
     for (const override of integration.collections) {

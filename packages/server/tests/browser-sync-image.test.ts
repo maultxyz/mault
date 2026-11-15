@@ -51,3 +51,26 @@ test("existing proxy relays YGOPRODeck image bytes and keeps its host restrictio
   }
   assert.equal(fetches, 1);
 });
+
+test("image proxy refuses redirects off the allowlist and SVG responses", async (t) => {
+  const imageUrl = "https://images.ygoprodeck.com/images/cards/5479217.jpg";
+  const requestedUrls: string[] = [];
+  let upstreamResponse = () =>
+    new Response(null, {
+      status: 302,
+      headers: { Location: "http://169.254.169.254/latest/meta-data" },
+    });
+  t.mock.method(globalThis, "fetch", async (url: string) => {
+    requestedUrls.push(url);
+    return upstreamResponse();
+  });
+  const proxied = () =>
+    imageProxyRoute.request(`/image-proxy?url=${encodeURIComponent(imageUrl)}`);
+
+  assert.equal((await proxied()).status, 502);
+  assert.deepEqual(requestedUrls, [imageUrl]);
+
+  upstreamResponse = () =>
+    new Response("<svg/>", { headers: { "Content-Type": "image/svg+xml" } });
+  assert.equal((await proxied()).status, 502);
+});

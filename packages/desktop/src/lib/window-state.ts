@@ -110,6 +110,7 @@ export function trackWindowState(window: BrowserWindow) {
 
 export function registerWindowStateIpc() {
   ipcMain.handle(WINDOW_STATE_CHANNELS.get, (event): DesktopWindowState => {
+    if (!isAppOrigin(event.senderFrame?.origin)) return { background: false };
     const window = BrowserWindow.fromWebContents(event.sender);
     return window ? stateOf(window) : { background: false };
   });

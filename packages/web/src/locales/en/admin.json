@@ -211,7 +211,8 @@
     "averageMatchPercentLabel": "Avg. match confidence",
     "correctedLabel": "Corrected",
     "multipleMatchesLabel": "Multiple matches",
-    "percentValue": "{{percent}}%"
+    "percentValue": "{{percent}}%",
+    "loadFailed": "Couldn't load some scan stats."
   },
   "activeScanning": {
     "heading": "Active scanning",
@@ -232,7 +233,8 @@
     "scans_other": "{{count}} scans",
     "collectionWithGame": "{{collection}} · {{game}}",
     "unknownCollection": "Unknown collection",
-    "timing": "Started {{started}}, last activity {{lastActivity}}"
+    "timing": "Started {{started}}, last activity {{lastActivity}}",
+    "loadFailed": "Couldn't load active scan sessions."
   },
   "scanVectorizeStats": {
     "heading": "Scan vectorization source",
@@ -257,7 +259,8 @@
     "active": "Active",
     "entryLabel": "{{admin}} → {{target}}",
     "startedAndEnded": "{{started}} – {{ended}}",
-    "startedOnly": "Started {{started}}"
+    "startedOnly": "Started {{started}}",
+    "loadFailed": "Couldn't load the impersonation log."
   },
   "cancel": "Cancel",
   "starting": "Starting...",
@@ -370,7 +373,8 @@
         "confirmTitle": "Switch back to the old pricing?",
         "confirmDescription": "Enthusiast and the new Business plan stop being sold, and Business checkout goes back to the legacy prices. People who already subscribed to a new plan keep it."
       }
-    }
+    },
+    "loadFailed": "Couldn't load plan settings."
   },
   "deletedItems": {
     "typeLabel": "Item type",
@@ -478,12 +482,14 @@
       "role": "Role",
       "saved": "Linked account role saved.",
       "saveFailed": "Couldn't save the linked account role."
-    }
+    },
+    "loadFailed": "Couldn't load Discord settings."
   },
   "systemSoundClips": {
     "heading": "System sound clips",
     "description": "Clips every organization can use in its sound rules. Organizations can play them but can't rename or delete them.",
-    "empty": "No system sound clips yet."
+    "empty": "No system sound clips yet.",
+    "loadFailed": "Couldn't load system sounds."
   },
   "apiUsage": {
     "heading": "API usage",

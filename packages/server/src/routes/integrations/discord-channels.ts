@@ -26,14 +26,21 @@ export const setDiscordChannelRoute = new Hono<AppEnv>().put(
     if (!input.success) {
       return c.json({ success: false, message: "Invalid channel." }, 400);
     }
-    const { scanChannelId, errorChannelId, scanRoleId, errorRoleId, collectionGuid } =
-      input.data;
+    const {
+      scanChannelId,
+      errorChannelId,
+      tradeChannelId,
+      scanRoleId,
+      errorRoleId,
+      tradeRoleId,
+      collectionGuid,
+    } = input.data;
     const targetError = await checkDiscordTargets(
       orgId,
-      [...new Set([scanChannelId, errorChannelId])].filter(
+      [...new Set([scanChannelId, errorChannelId, tradeChannelId])].filter(
         (channelId): channelId is string => !!channelId,
       ),
-      [...new Set([scanRoleId, errorRoleId])].filter(
+      [...new Set([scanRoleId, errorRoleId, tradeRoleId])].filter(
         (roleId): roleId is string => !!roleId,
       ),
     );

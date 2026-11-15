@@ -153,19 +153,51 @@ export function CollectionsProvider({
       guid: string;
       values: EditCollectionFormValues;
     }) => updateCollectionFn(guid, values),
-    onSuccess: (r) => {
-      if (r.success && r.data) setCollections(r.data);
+    onMutate: async ({ guid, values }) => {
+      await queryClient.cancelQueries({ queryKey: ["collections"] });
+      const previous = queryClient.getQueryData<Collection[]>(["collections"]);
+      if (previous) {
+        setCollections(
+          previous.map((c) => (c.guid === guid ? { ...c, ...values } : c)),
+        );
+      }
+      return { previous };
     },
-    onError: () => toast.error(t("errors.renameFailed")),
+    onSuccess: (r, _variables, context) => {
+      if (r.success && r.data) {
+        setCollections(r.data);
+        return;
+      }
+      if (context?.previous) setCollections(context.previous);
+      toast.error(r.message || t("errors.renameFailed"));
+    },
+    onError: (_error, _variables, context) => {
+      if (context?.previous) setCollections(context.previous);
+      toast.error(t("errors.renameFailed"));
+    },
   });
 
   const deleteMutation = useMutation({
     mutationFn: deleteCollectionFn,
-    onSuccess: (r) => {
-      if (r.success && r.data) setCollections(r.data);
-      void queryClient.invalidateQueries({ queryKey: billingKeys.root() });
+    onMutate: async (guid: string) => {
+      await queryClient.cancelQueries({ queryKey: ["collections"] });
+      const previous = queryClient.getQueryData<Collection[]>(["collections"]);
+      if (previous) setCollections(previous.filter((c) => c.guid !== guid));
+      return { previous };
     },
-    onError: () => toast.error(t("errors.deleteFailed")),
+    onSuccess: (r, _guid, context) => {
+      void queryClient.invalidateQueries({ queryKey: billingKeys.root() });
+      if (r.success && r.data) {
+        setCollections(r.data);
+        return;
+      }
+      if (context?.previous) setCollections(context.previous);
+      toast.error(r.message || t("errors.deleteFailed"));
+    },
+    onError: (_error, _guid, context) => {
+      if (context?.previous) setCollections(context.previous);
+      toast.error(t("errors.deleteFailed"));
+    },
   });
 
   const emptyMutation = useMutation({
@@ -179,7 +211,9 @@ export function CollectionsProvider({
               : c,
           ),
         );
+        return;
       }
+      toast.error(r.message || t("errors.emptyFailed"));
     },
     onError: () => toast.error(t("errors.emptyFailed")),
   });
@@ -215,14 +249,16 @@ export function CollectionsProvider({
 
   const remove = useCallback(
     async (guid: string) => {
-      await deleteMutation.mutateAsync(guid);
+      const result = await deleteMutation.mutateAsync(guid).catch(() => null);
+      return !!result?.success;
     },
     [deleteMutation],
   );
 
   const empty = useCallback(
     async (guid: string) => {
-      await emptyMutation.mutateAsync(guid);
+      const result = await emptyMutation.mutateAsync(guid).catch(() => null);
+      return !!result?.success;
     },
     [emptyMutation],
   );

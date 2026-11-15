@@ -3,6 +3,7 @@ import { EmptyState } from "@/components/empty-state";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
 import { ViewTabs } from "@/components/view-tabs";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AccuracyReportView } from "@/features/business/components/accuracy-report";
 import { StaffReportView } from "@/features/business/components/staff-report";
@@ -14,7 +15,7 @@ import { StatsLeaderboardButton } from "@/features/stats/components/stats-leader
 import { useBackNavigation } from "@/hooks/use-back-navigation";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
-  MOBILE_HOME_PATH,
+  MOBILE_ACCOUNT_PATH,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
 } from "@/lib/constants/nav";
 import {
@@ -45,7 +46,7 @@ function parseRange(value: string | null): StatsRange {
 export default function StatsPage() {
   const { t } = useTranslation("stats");
   const isMobile = useIsMobile();
-  const goBack = useBackNavigation(MOBILE_HOME_PATH);
+  const goBack = useBackNavigation(MOBILE_ACCOUNT_PATH);
   const { activeOrg } = useOrg();
   const scrollRef = useRef<HTMLDivElement>(null);
   const [params, setParams] = useSearchParams();
@@ -58,6 +59,8 @@ export default function StatsPage() {
     data: report,
     isLoading,
     isError,
+    isPlaceholderData,
+    refetch,
   } = useQuery(statsReportQueryOptions(activeOrg?.id, range, collectionGuid));
 
   const setParam = (key: string, value: string | null) => {
@@ -132,14 +135,22 @@ export default function StatsPage() {
         onCheckChange={(guid) => setParam(STATS_CHECK_PARAM, guid)}
       />
     ) : isError ? (
-      <Callout variant="error" icon={IconAlertTriangle}>
+      <Callout
+        variant="error"
+        icon={IconAlertTriangle}
+        action={
+          <Button variant="outline" onClick={() => void refetch()}>
+            {t("common:a11y.retry")}
+          </Button>
+        }
+      >
         {t("error")}
       </Callout>
     ) : isLoading || !report ? (
-      <div className="flex flex-col gap-4">
-        <Skeleton className="h-24 rounded-lg" />
-        <Skeleton className="h-56 rounded-lg" />
-        <Skeleton className="h-48 rounded-lg" />
+      <div className="flex flex-col gap-4 md:gap-2">
+        <Skeleton className="h-24 rounded-card" />
+        <Skeleton className="h-56 rounded-card" />
+        <Skeleton className="h-48 rounded-card" />
       </div>
     ) : report.totals.cardCount === 0 ? (
       <EmptyState
@@ -148,7 +159,15 @@ export default function StatsPage() {
         description={t("empty.description")}
       />
     ) : (
-      <StatsDashboard report={report} onSelectCollection={selectCollection} />
+      <div
+        aria-busy={isPlaceholderData}
+        className={cn(
+          "transition-opacity motion-reduce:transition-none",
+          isPlaceholderData && "pointer-events-none opacity-60",
+        )}
+      >
+        <StatsDashboard report={report} onSelectCollection={selectCollection} />
+      </div>
     );
 
   return (
@@ -181,7 +200,7 @@ export default function StatsPage() {
             tabs={viewSwitch}
           />
         )}
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:p-6">
+        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 md:gap-2 p-4 md:px-3 md:py-2">
           {isMobile && viewSwitch}
           {isMobile && view === STATS_OVERVIEW_VIEW && controls}
           {body}

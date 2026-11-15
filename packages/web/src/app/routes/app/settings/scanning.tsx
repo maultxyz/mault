@@ -55,7 +55,7 @@ export default function SettingsScanningPage() {
         heading={t("ocr.heading")}
         description={t("ocr.description")}
       >
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 md:gap-2">
           <label className="flex items-center justify-between gap-3">
             <span className="text-sm">{t("ocr.toggleLabel")}</span>
             <Controller
@@ -76,7 +76,7 @@ export default function SettingsScanningPage() {
               <span className="text-sm">
                 {t("ocr.highAccuracyToggleLabel")}
               </span>
-              <span className="text-2xs text-foreground/70">
+              <span className="text-xs text-foreground/70">
                 {t("ocr.highAccuracyDescription")}
               </span>
             </span>
@@ -100,13 +100,13 @@ export default function SettingsScanningPage() {
         badge={<Badge variant="outline">{t("foilDetection.badge")}</Badge>}
         description={t("foilDetection.description")}
       >
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 md:gap-2">
           <label className="flex items-center justify-between gap-3">
             <span className="flex flex-col gap-0.5">
               <span className="text-sm">
                 {t("foilDetection.starToggleLabel")}
               </span>
-              <span className="text-2xs text-foreground/70">
+              <span className="text-xs text-foreground/70">
                 {t("foilDetection.starToggleDescription")}
               </span>
             </span>
@@ -129,7 +129,7 @@ export default function SettingsScanningPage() {
                 <span className="text-sm">
                   {t("foilDetection.toggleLabel")}
                 </span>
-                <span className="text-2xs text-foreground/70">
+                <span className="text-xs text-foreground/70">
                   {t("foilDetection.nudgeToggleDescription")}
                 </span>
               </span>
@@ -153,13 +153,13 @@ export default function SettingsScanningPage() {
         heading={t("correctionAutoClose.heading")}
         description={t("correctionAutoClose.description")}
       >
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 md:gap-2">
           <label className="flex items-center justify-between gap-3">
             <span className="flex flex-col gap-0.5">
               <span className="text-sm">
                 {t("correctionAutoClose.promptToggleLabel")}
               </span>
-              <span className="text-2xs text-foreground/70">
+              <span className="text-xs text-foreground/70">
                 {t("correctionAutoClose.promptToggleDescription")}
               </span>
             </span>

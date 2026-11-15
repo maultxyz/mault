@@ -1,5 +1,5 @@
-import { eq } from "drizzle-orm";
-import { authQuery } from "../../db";
+import { and, eq } from "drizzle-orm";
+import { authQuery, orgIdOfJwtClaims } from "../../db";
 import { collectionCards, unmatchedCards } from "../../db/schema";
 
 export async function isScanSaved(
@@ -7,19 +7,30 @@ export async function isScanSaved(
   table: typeof collectionCards | typeof unmatchedCards,
   scanId: string,
 ): Promise<boolean> {
-  if (!scanId) return false;
+  const orgId = orgIdOfJwtClaims(jwtClaims);
+  if (!scanId || !orgId) return false;
   return authQuery(jwtClaims, async (tx) => {
     const rows =
       table === collectionCards
         ? await tx
             .select({ id: collectionCards.id })
             .from(collectionCards)
-            .where(eq(collectionCards.guid, scanId))
+            .where(
+              and(
+                eq(collectionCards.guid, scanId),
+                eq(collectionCards.orgId, orgId),
+              ),
+            )
             .limit(1)
         : await tx
             .select({ id: unmatchedCards.id })
             .from(unmatchedCards)
-            .where(eq(unmatchedCards.guid, scanId))
+            .where(
+              and(
+                eq(unmatchedCards.guid, scanId),
+                eq(unmatchedCards.orgId, orgId),
+              ),
+            )
             .limit(1);
     return rows.length > 0;
   });

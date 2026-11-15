@@ -21,7 +21,6 @@ export function PlanLimitInput({
         type="number"
         min={0}
         inputMode="numeric"
-        className="h-8"
         aria-label={label}
         aria-invalid={invalid || undefined}
         disabled={isUnlimited}

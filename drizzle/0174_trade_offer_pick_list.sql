@@ -1,0 +1,1 @@
+ALTER TABLE "trade_offers" ADD COLUMN "remaining_pick_scan_ids" text[];

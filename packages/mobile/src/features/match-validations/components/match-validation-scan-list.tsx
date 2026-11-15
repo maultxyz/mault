@@ -1,12 +1,15 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
+import { CardArt } from "@/components/cards/card-art";
 import { useTranslation } from "react-i18next";
-import { FlatList, RefreshControl, View } from "react-native";
+import { FlatList, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { AppText } from "@/components/ui/app-text";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Pill } from "@/components/ui/pill";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
+import { Surface } from "@/components/ui/surface";
 import {
   authHeadersQueryOptions,
   matchValidationScansQueryOptions,
@@ -14,7 +17,7 @@ import {
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO, LIST_END_THRESHOLD } from "@/lib/constants/collections";
 import { MATCH_VALIDATION_STATUS_TONES, MATCH_VALIDATION_THUMBNAIL_WIDTH } from "@/lib/constants/match-validations";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { CARD_THUMBNAIL_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { MatchValidationGameFilterProps, MatchValidationScanRowProps } from "@/lib/interfaces/match-validations";
 import { absoluteUrl } from "@/lib/url";
 
@@ -27,12 +30,12 @@ function MatchValidationScanRow({ scan, authHeaders }: MatchValidationScanRowPro
   const thumbnailFrame = {
     width: MATCH_VALIDATION_THUMBNAIL_WIDTH,
     aspectRatio: CARD_ASPECT_RATIO,
-    borderRadius: RADIUS.md,
+    borderRadius: CARD_THUMBNAIL_RADIUS,
     overflow: "hidden" as const,
     backgroundColor: colors.muted,
   };
   return (
-    <View style={{ flexDirection: "row", gap: SPACING.md, paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.md }}>
+    <Surface style={{ flexDirection: "row", gap: SPACING.md }}>
       <View style={{ flexDirection: "row", gap: SPACING.xs }}>
         <View style={thumbnailFrame}>
           {thumbnailUrl && authHeaders ? (
@@ -46,8 +49,8 @@ function MatchValidationScanRow({ scan, authHeaders }: MatchValidationScanRowPro
         </View>
         <View style={thumbnailFrame}>
           {catalogUrl ? (
-            <Image
-              source={{ uri: catalogUrl }}
+            <CardArt
+              imageUrl={catalogUrl}
               style={{ flex: 1 }}
               contentFit="cover"
               accessibilityLabel={t("matchValidations.matchedCardAlt", { name: cardName })}
@@ -55,7 +58,7 @@ function MatchValidationScanRow({ scan, authHeaders }: MatchValidationScanRowPro
           ) : null}
         </View>
       </View>
-      <View style={{ flex: 1, minWidth: 0, gap: 4 }}>
+      <View style={{ flex: 1, minWidth: 0, gap: SPACING.xs }}>
         <AppText weight="medium" numberOfLines={1}>
           {cardName}
         </AppText>
@@ -76,13 +79,12 @@ function MatchValidationScanRow({ scan, authHeaders }: MatchValidationScanRowPro
           </AppText>
         ) : null}
       </View>
-    </View>
+    </Surface>
   );
 }
 
 export function MatchValidationScanList({ gameKey }: MatchValidationGameFilterProps) {
   const { t } = useTranslation();
-  const colors = useTheme();
   const scans = useInfiniteQuery(matchValidationScansQueryOptions(gameKey));
   const { data: authHeaders } = useQuery(authHeadersQueryOptions);
   const items = scans.data?.pages.flatMap((page) => page.items) ?? [];
@@ -92,33 +94,25 @@ export function MatchValidationScanList({ gameKey }: MatchValidationGameFilterPr
       accessibilityLabel={t("matchValidations.scans.listLabel")}
       data={items}
       keyExtractor={(scan) => scan.scanId}
-      contentContainerStyle={{ paddingBottom: SPACING.xxl }}
+      contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SPACING.md, paddingBottom: SPACING.xxl, gap: SPACING.md }}
       onEndReachedThreshold={LIST_END_THRESHOLD}
       onEndReached={() => {
         if (scans.hasNextPage && !scans.isFetchingNextPage) void scans.fetchNextPage();
       }}
       refreshControl={
-        <RefreshControl
-          refreshing={scans.isRefetching && !scans.isFetchingNextPage}
-          onRefresh={() => void scans.refetch()}
-          tintColor={colors.primaryText}
-          colors={[colors.primary]}
-          progressBackgroundColor={colors.card}
+        <PullToRefreshControl
+          onRefresh={() => scans.refetch()}
         />
       }
       ListEmptyComponent={
         scans.isPending ? (
-          <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SPACING.md }}>
-            <ListSkeleton rows={5} />
-          </View>
+          <ListSkeleton rows={5} />
         ) : (
-          <View style={{ padding: SCREEN_GUTTER }}>
-            <EmptyState
-              icon="collections"
-              title={t("matchValidations.scans.empty.title")}
-              description={t("matchValidations.scans.empty.description")}
-            />
-          </View>
+          <EmptyState
+            icon="collections"
+            title={t("matchValidations.scans.empty.title")}
+            description={t("matchValidations.scans.empty.description")}
+          />
         )
       }
       ListFooterComponent={

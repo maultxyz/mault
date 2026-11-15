@@ -1,12 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useMutationState, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams, useNavigation, usePreventRemove } from "expo-router";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Alert, Pressable, ScrollView, View } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { AccessibilityInfo, Alert, Pressable, View } from "react-native";
 import {
   CARD_CONDITIONS,
   CARD_LANGUAGES,
@@ -23,7 +22,6 @@ import {
   type ScanDraftFormValues,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
-import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
@@ -33,24 +31,40 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { Pill } from "@/components/ui/pill";
-import { SaveBar } from "@/components/ui/save-bar";
+import { PillButton } from "@/components/ui/pill-button";
 import { SectionHeader } from "@/components/ui/section-header";
+import { Surface } from "@/components/ui/surface";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCardCorrection } from "@/features/cards/api/use-card-correction";
 import { useDeferredCardRemoval } from "@/features/cards/api/use-deferred-card-removal";
-import { restoreCardCaches, setCardTagsInCaches, snapshotCardCaches } from "@/features/cards/lib/card-list-cache";
+import {
+  patchCardsInCaches,
+  restoreCardCaches,
+  reviewedCardPatch,
+  setCardTagsInCaches,
+  snapshotCardCaches,
+} from "@/features/cards/lib/card-list-cache";
 import { useToast } from "@/components/ui/toast-provider";
 import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-details";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
 import { CardDetailSkeleton, PricePaidFieldSkeleton } from "@/features/cards/components/card-detail-skeleton";
-import type { CardDetailSheet, CardTagToggle, MatchesOpenState } from "@/lib/interfaces/cards";
+import type {
+  CardDetailSheet,
+  CardReviewAccept,
+  CardReviewAcceptState,
+  CardTagToggle,
+  MatchesOpenState,
+  ScanDraftSave,
+} from "@/lib/interfaces/cards";
+import type { CardCachePatchContext } from "@/lib/interfaces/undo";
 import type { IconName } from "@/lib/interfaces/ui";
-import { CardPriceDetails } from "@/features/cards/components/card-price-details";
-import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
-import { CardDetailsList } from "@/features/cards/components/card-details-list";
+import { CardDetailArt, CardImageFrame } from "@/features/cards/components/card-detail-art";
+import { CardDetailInfoSections } from "@/features/cards/components/card-detail-info-sections";
+import { CardDetailTitleBlock } from "@/features/cards/components/card-detail-title-block";
 import { PricePaidField } from "@/features/cards/components/price-paid-field";
 import { cardAcquisitionCostQueryOptions, setCardAcquisitionCost } from "@/features/business/api/card-cost";
 import {
@@ -76,11 +90,14 @@ import {
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
-import { CARD_DETAIL_HEADER_ACTION_COUNT, CARD_DETAIL_MENU_SHEETS } from "@/lib/constants/cards";
-import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
+import {
+  CARD_DETAIL_HEADER_ACTION_COUNT,
+  CARD_DETAIL_MENU_SHEETS,
+  CARD_REVIEW_ACCEPT_MUTATION_KEY,
+} from "@/lib/constants/cards";
 import { formatDateTime } from "@/lib/dates";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
-import { CARD_ART_RADIUS, RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { PAGE_HEADER_ICON_BUTTON_SIZE, TOAST_UNDO_DURATION_MS } from "@/lib/constants/ui";
 import { saveReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
@@ -98,7 +115,6 @@ export default function CardDetailScreen() {
   const { t, i18n } = useTranslation();
   const colors = useTheme();
   const pricing = usePricing();
-  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const { showToast } = useToast();
@@ -194,8 +210,7 @@ export default function CardDetailScreen() {
   const stampOptions = cardStampOptionsFor(card, draftStamp);
 
   const saveDraft = useMutation({
-    mutationFn: async (values: ScanDraftFormValues) => {
-      const { dirtyFields } = form.formState;
+    mutationFn: async ({ values, dirtyFields }: ScanDraftSave) => {
       if (dirtyFields.foilType || dirtyFields.stamp || dirtyFields.condition || dirtyFields.language) {
         await updateCollectionCard(guid, scanId, {
           isFoil: values.foilType != null,
@@ -209,30 +224,66 @@ export default function CardDetailScreen() {
         await setCardAcquisitionCost(scanId, values.acquisitionCost);
       }
     },
-    onSuccess: (_, values) => form.reset(values),
+    onMutate: async ({ values, dirtyFields }: ScanDraftSave): Promise<CardCachePatchContext> => {
+      const snapshot = await patchCardsInCaches(queryClient, guid, [scanId], {
+        ...(dirtyFields.foilType ? { isFoil: values.foilType != null, foilType: values.foilType } : {}),
+        ...(dirtyFields.stamp ? { stamp: values.stamp } : {}),
+        ...(dirtyFields.condition ? { condition: values.condition as CardCondition } : {}),
+        ...(dirtyFields.language && values.language ? { language: values.language } : {}),
+      });
+      return { snapshot };
+    },
+    onSuccess: (_, { values }) => {
+      form.reset(values);
+      AccessibilityInfo.announceForAccessibility(t("common.changesSaved"));
+    },
+    onError: (_error, _save, context) => {
+      if (context) restoreCardCaches(queryClient, context.snapshot);
+    },
     onSettled: () => {
       invalidateCollectionCards(queryClient, guid);
       void queryClient.invalidateQueries({ queryKey: cardAcquisitionCostQueryOptions(activeOrgId, scanId).queryKey });
     },
   });
 
+  const submitDraft = form.handleSubmit((values) =>
+    saveDraft.mutate({ values, dirtyFields: { ...form.formState.dirtyFields } }),
+  );
+
   const markCorrect = useMutation({
     mutationFn: (kind: "confirm" | "review") =>
       updateCollectionCard(guid, scanId, kind === "confirm" ? { confirmed: true } : { reviewed: true }),
+    onMutate: async (kind): Promise<CardCachePatchContext> => ({
+      snapshot: await patchCardsInCaches(queryClient, guid, [scanId], reviewedCardPatch(kind)),
+    }),
+    onError: (_error, _kind, context) => {
+      if (context) restoreCardCaches(queryClient, context.snapshot);
+    },
     onSettled: () => invalidateCollectionCards(queryClient, guid),
   });
 
   const acceptInBackground = useMutation({
-    mutationFn: ({ kind, acceptedScanId }: { kind: "confirm" | "review"; acceptedScanId: string }) =>
+    mutationKey: [CARD_REVIEW_ACCEPT_MUTATION_KEY, guid],
+    mutationFn: ({ kind, acceptedScanId }: CardReviewAccept) =>
       updateCollectionCard(guid, acceptedScanId, kind === "confirm" ? { confirmed: true } : { reviewed: true }),
+    onMutate: async ({ kind, acceptedScanId }): Promise<CardCachePatchContext> => ({
+      snapshot: await patchCardsInCaches(queryClient, guid, [acceptedScanId], reviewedCardPatch(kind)),
+    }),
     onSettled: () => invalidateCollectionCards(queryClient, guid),
-    onError: (_error, variables) =>
-      showToast({
-        message: t("cardDetail.saveFailed"),
-        tone: "destructive",
-        action: { label: t("recovery.retry"), onPress: () => acceptInBackground.mutate(variables) },
-      }),
+    onError: (_error, _variables, context) => {
+      if (context) restoreCardCaches(queryClient, context.snapshot);
+      AccessibilityInfo.announceForAccessibility(t("cardDetail.reviewAcceptFailed"));
+    },
   });
+  const reviewAcceptStates = useMutationState<CardReviewAcceptState>({
+    filters: { mutationKey: [CARD_REVIEW_ACCEPT_MUTATION_KEY, guid] },
+    select: (mutation) => ({
+      status: mutation.state.status,
+      variables: mutation.state.variables as CardReviewAccept | undefined,
+    }),
+  });
+  const latestReviewAccept = reviewAcceptStates.at(-1);
+  const failedReviewAccept = latestReviewAccept?.status === "error" ? latestReviewAccept.variables : undefined;
 
   const toggleTag = useMutation({
     mutationFn: ({ tag, enabled }: CardTagToggle) =>
@@ -243,27 +294,13 @@ export default function CardDetailScreen() {
       setCardTagsInCaches(queryClient, guid, [scanId], [tag], enabled);
       return { snapshot };
     },
-    onSuccess: (_result, toggle) => {
-      if (toggle.isUndo) {
-        AccessibilityInfo.announceForAccessibility(t("recovery.restored"));
-        return;
-      }
-      showToast({
-        message: t(toggle.enabled ? "recovery.tagAdded" : "recovery.tagRemoved", { tag: t(`cardTags.names.${toggle.tag}`) }),
-        durationMs: TOAST_UNDO_DURATION_MS,
-        action: {
-          label: t("recovery.undo"),
-          onPress: () => toggleTag.mutate({ tag: toggle.tag, enabled: !toggle.enabled, isUndo: true }),
-        },
-      });
-    },
-    onError: (_error, toggle, context) => {
+    onSuccess: (_result, toggle) =>
+      AccessibilityInfo.announceForAccessibility(
+        t(toggle.enabled ? "recovery.tagAdded" : "recovery.tagRemoved", { tag: t(`cardTags.names.${toggle.tag}`) }),
+      ),
+    onError: (_error, _toggle, context) => {
       if (context) restoreCardCaches(queryClient, context.snapshot);
-      showToast({
-        message: t("cardTags.saveFailed"),
-        tone: "destructive",
-        action: { label: t("recovery.retry"), onPress: () => toggleTag.mutate(toggle) },
-      });
+      AccessibilityInfo.announceForAccessibility(t("cardTags.saveFailed"));
     },
     onSettled: () => invalidateCollectionCards(queryClient, guid),
   });
@@ -295,6 +332,7 @@ export default function CardDetailScreen() {
     onMutate: () => ({ previousLocationGuid: storage.data?.guid ?? null }),
     onSuccess: (_result, locationGuid, context) => {
       refreshAfterLocationChange();
+      router.back();
       const locationName = (locations.data ?? []).find((location) => location.guid === locationGuid)?.name ?? "";
       showToast({
         message: t("recovery.movedTo", { name: locationName }),
@@ -302,12 +340,7 @@ export default function CardDetailScreen() {
         action: { label: t("recovery.undo"), onPress: () => restoreLocation.mutate(context.previousLocationGuid) },
       });
     },
-    onError: (_error, locationGuid) =>
-      showToast({
-        message: t("storage.actionFailed"),
-        tone: "destructive",
-        action: { label: t("recovery.retry"), onPress: () => moveToLocation.mutate(locationGuid) },
-      }),
+    onError: () => AccessibilityInfo.announceForAccessibility(t("storage.actionFailed")),
   });
 
   const actionMenuOptions = [
@@ -379,14 +412,13 @@ export default function CardDetailScreen() {
   };
 
   const attributePill = (icon: IconName, fieldLabel: string, value: string, menuSheet: CardDetailSheet) => (
-    <Pressable
+    <PillButton
       key={menuSheet}
-      accessibilityRole="button"
+      icon={icon}
+      label={value}
       accessibilityLabel={`${fieldLabel}: ${value}`}
       onPress={() => setSheet(menuSheet)}
-    >
-      <Pill icon={icon} label={value} />
-    </Pressable>
+    />
   );
   const scanAttributePills = [
     attributePill("sparkles", t("cardDetail.foil"), draftFoil ?? t("cardDetail.foilNone"), "foil"),
@@ -397,14 +429,36 @@ export default function CardDetailScreen() {
     attributePill("language", t("cardDetail.language"), LANGUAGE_LABELS[draftLanguage] ?? draftLanguage, "language"),
   ];
 
-  const imageFrame = {
-    aspectRatio: CARD_ASPECT_RATIO,
-    borderRadius: CARD_ART_RADIUS,
-    overflow: "hidden" as const,
-    borderWidth: 1,
-    borderColor: colors.border,
-    backgroundColor: colors.muted,
-  };
+  const bottomActions = editing ? (
+    <Button style={{ flex: 1 }} variant="secondary" label={t("common.cancel")} onPress={() => setEditing(false)} />
+  ) : isDirty ? (
+    <>
+      <AppText size="xs" tone="secondary" style={{ flex: 1, alignSelf: "center" }}>
+        {t("common.unsavedChanges")}
+      </AppText>
+      <Button variant="ghost" label={t("common.discard")} disabled={saveDraft.isPending} onPress={() => form.reset()} />
+      <Button label={t("common.save")} loading={saveDraft.isPending} onPress={submitDraft} />
+    </>
+  ) : entry && reviewMode ? (
+    <Button
+      style={{ flex: 1 }}
+      icon="check"
+      label={nextScanId ? t("cardDetail.acceptNext") : t("cardDetail.acceptFinish")}
+      loading={markCorrect.isPending}
+      onPress={() => void acceptInReview()}
+    />
+  ) : entry && canConfirm ? (
+    <Button
+      style={{ flex: 1 }}
+      icon="check"
+      label={t("cardDetail.markCorrect")}
+      loading={markCorrect.isPending}
+      onPress={() => {
+        setMatchesOpenState({ scanId, isOpen: false });
+        markCorrect.mutate("confirm");
+      }}
+    />
+  ) : null;
 
   const cardDetailSubtitle =
     storageReview && storageContext.data
@@ -439,10 +493,7 @@ export default function CardDetailScreen() {
           ) : null
         }
       />
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.xl }}
-      >
+      <PinnedActionsLayout actions={bottomActions} actionsDirection="row">
         {position.isError ? (
           <Callout
             tone="destructive"
@@ -460,7 +511,7 @@ export default function CardDetailScreen() {
                 variant="secondary"
                 label={t("recovery.retry")}
                 loading={saveDraft.isPending}
-                onPress={form.handleSubmit((values) => saveDraft.mutate(values))}
+                onPress={submitDraft}
               />
             }
           />
@@ -479,6 +530,65 @@ export default function CardDetailScreen() {
             }
           />
         ) : null}
+        {failedReviewAccept ? (
+          <Callout
+            tone="destructive"
+            title={t("cardDetail.reviewAcceptFailed")}
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                label={t("recovery.retry")}
+                onPress={() => acceptInBackground.mutate(failedReviewAccept)}
+              />
+            }
+          />
+        ) : null}
+        {toggleTag.isError ? (
+          <Callout
+            tone="destructive"
+            title={t("cardTags.saveFailed")}
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                label={t("recovery.retry")}
+                loading={toggleTag.isPending}
+                onPress={() => toggleTag.variables && toggleTag.mutate(toggleTag.variables)}
+              />
+            }
+          />
+        ) : null}
+        {moveToLocation.isError ? (
+          <Callout
+            tone="destructive"
+            title={t("storage.actionFailed")}
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                label={t("recovery.retry")}
+                loading={moveToLocation.isPending}
+                onPress={() => moveToLocation.variables && moveToLocation.mutate(moveToLocation.variables)}
+              />
+            }
+          />
+        ) : null}
+        {moveToCollection.isError ? (
+          <Callout
+            tone="destructive"
+            title={t("storage.moveToCollectionFailed")}
+            action={
+              <Button
+                size="sm"
+                variant="secondary"
+                label={t("recovery.retry")}
+                loading={moveToCollection.isPending}
+                onPress={() => moveToCollection.variables && moveToCollection.mutate(moveToCollection.variables)}
+              />
+            }
+          />
+        ) : null}
 
         {editing && card ? (
           <CardCorrectionSearch
@@ -491,45 +601,37 @@ export default function CardDetailScreen() {
           <CardDetailSkeleton showsCapturedScan={showCaptured} />
         ) : (
           <>
-            <View style={{ gap: SPACING.xs }}>
-              <AppText size="xl" heading weight="semibold" accessibilityRole="header">
-                {card?.name ?? t("cardDetail.fallbackTitle")}
-              </AppText>
-              {cardDetailSubtitle ? (
-                <AppText size="sm" tone="secondary">
-                  {cardDetailSubtitle}
-                </AppText>
-              ) : null}
-              {price != null ? (
-                <AppText size="lg" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
-                  {pricing.format(price)}
-                </AppText>
-              ) : null}
-            </View>
+            <CardDetailTitleBlock
+              name={card?.name ?? t("cardDetail.fallbackTitle")}
+              subtitle={cardDetailSubtitle}
+              price={price}
+            />
             {entry ? (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
                 {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
                 {storage.data ? (
-                  <Pressable
+                  <PillButton
+                    icon="storage"
+                    label={`${storage.data.name} · ${t("storage.position", { position: storage.data.position })}`}
                     accessibilityRole="link"
                     accessibilityLabel={t("storage.storedIn", { name: storage.data.name, position: storage.data.position })}
                     onPress={() => {
                       router.back();
                       router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } });
                     }}
-                  >
-                    <Pill
-                      icon="storage"
-                      label={`${storage.data.name} · ${t("storage.position", { position: storage.data.position })}`}
-                    />
-                  </Pressable>
+                  />
                 ) : entry.binNumber != null ? (
                   <Pill icon="sorter" label={t("cards.bin", { number: entry.binNumber })} />
                 ) : null}
                 {scanAttributePills}
                 <Pressable
                   accessibilityRole="button"
-                  accessibilityLabel={t("cardTags.edit")}
+                  accessibilityLabel={
+                    tagsSet.length > 0
+                      ? `${t("cardTags.edit")}: ${tagsSet.map((tag) => t(`cardTags.names.${tag}`)).join(", ")}`
+                      : t("cardTags.edit")
+                  }
+                  accessibilityState={{ disabled: toggleTag.isPending }}
                   disabled={toggleTag.isPending}
                   onPress={() => setSheet("tags")}
                   style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: SPACING.xs }}
@@ -554,6 +656,7 @@ export default function CardDetailScreen() {
               <View style={{ gap: SPACING.sm }}>
                 <Pressable
                   accessibilityRole="button"
+                  accessibilityLabel={t("cardDetail.similarMatchesCount", { count: candidates.length })}
                   accessibilityState={{ expanded: areMatchesOpen }}
                   onPress={() => setMatchesOpenState({ scanId, isOpen: !areMatchesOpen })}
                 >
@@ -607,7 +710,7 @@ export default function CardDetailScreen() {
                       />
                     ) : null}
                   </View>
-                  <View style={imageFrame}>
+                  <CardImageFrame>
                     {capturedUrl ? (
                       <Image
                         source={{ uri: capturedUrl }}
@@ -620,27 +723,10 @@ export default function CardDetailScreen() {
                     ) : (
                       <Skeleton height="100%" radius={0} />
                     )}
-                  </View>
+                  </CardImageFrame>
                 </View>
               ) : null}
-              <View style={{ flex: 1, gap: 6 }}>
-                {showCaptured ? (
-                  <AppText size="xs" tone="secondary">
-                    {t("cardDetail.matchedCard")}
-                  </AppText>
-                ) : null}
-                <View style={imageFrame}>
-                  {card ? (
-                    <Image
-                      accessibilityLabel={card.name}
-                      source={{ uri: absoluteUrl(card.image?.normal ?? card.image?.small) ?? undefined }}
-                      style={{ flex: 1 }}
-                      contentFit="cover"
-                      transition={120}
-                    />
-                  ) : null}
-                </View>
-              </View>
+              <CardDetailArt card={card} caption={showCaptured ? t("cardDetail.matchedCard") : undefined} />
             </View>
 
             {reviewMode && entry ? (
@@ -658,35 +744,29 @@ export default function CardDetailScreen() {
             ) : null}
 
             {card ? (
-              <CollapsibleSection title={t("cardDetail.details")} initiallyOpen>
-                <CardDetailsList card={card} binNumber={entry?.binNumber} />
-              </CollapsibleSection>
-            ) : null}
-
-            {card ? (
-              <CollapsibleSection title={t("cardDetail.prices")} initiallyOpen>
-                <CardPriceDetails
-                  card={card}
-                  isFoil={draftFoil != null}
-                  foilType={draftFoil}
-                  stamp={draftStamp}
-                  condition={draftCondition}
-                />
-                <CardPurchaseLinks card={card} />
-                {entry && acquisitionCost.data ? (
-                  <PricePaidField
-                    label={t("cardDetail.pricePaid", { currency: acquisitionCost.data.currency })}
-                    placeholder={t("cardDetail.pricePaidEmpty")}
-                    value={form.watch("acquisitionCost")}
-                    onChange={(cost) => form.setValue("acquisitionCost", cost, { shouldDirty: true })}
-                    error={
-                      errors.acquisitionCost ? translateFormErrorMessage(t, errors.acquisitionCost.message) : undefined
-                    }
-                  />
-                ) : entry && billing.data?.businessTools && acquisitionCost.isLoading ? (
-                  <PricePaidFieldSkeleton />
-                ) : null}
-              </CollapsibleSection>
+              <CardDetailInfoSections
+                card={card}
+                binNumber={entry?.binNumber}
+                isFoil={draftFoil != null}
+                foilType={draftFoil}
+                stamp={draftStamp}
+                condition={draftCondition}
+                priceExtras={
+                  entry && acquisitionCost.data ? (
+                    <PricePaidField
+                      label={t("cardDetail.pricePaid", { currency: acquisitionCost.data.currency })}
+                      placeholder={t("cardDetail.pricePaidEmpty")}
+                      value={form.watch("acquisitionCost")}
+                      onChange={(cost) => form.setValue("acquisitionCost", cost, { shouldDirty: true })}
+                      error={
+                        errors.acquisitionCost ? translateFormErrorMessage(t, errors.acquisitionCost.message) : undefined
+                      }
+                    />
+                  ) : entry && billing.data?.businessTools && acquisitionCost.isLoading ? (
+                    <PricePaidFieldSkeleton />
+                  ) : null
+                }
+              />
             ) : null}
 
             {hasScanOrigin || entry?.binNumber != null || (entry && origin.isLoading) ? (
@@ -717,67 +797,19 @@ export default function CardDetailScreen() {
                   </ListGroup>
                 ) : null}
                 {entry?.binNumber != null ? (
-                  <View style={{ gap: SPACING.sm, marginTop: SPACING.sm }}>
+                  <Surface style={{ gap: SPACING.sm }}>
                     <AppText size="sm" weight="medium" tone="secondary">
                       {t("cardDetail.binLocation")}
                     </AppText>
                     <BinLocationDiagram binNumber={entry.binNumber} />
-                  </View>
+                  </Surface>
                 ) : null}
               </CollapsibleSection>
             ) : null}
 
           </>
         )}
-      </ScrollView>
-
-      {!editing && entry && !isDirty && (reviewMode || canConfirm) ? (
-        <View
-          style={{
-            flexDirection: "row",
-            gap: SPACING.sm,
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-            paddingHorizontal: SCREEN_GUTTER,
-            paddingTop: SPACING.md,
-            paddingBottom: SPACING.md + insets.bottom,
-          }}
-        >
-          {reviewMode ? (
-            <Button
-              style={{ flex: 1 }}
-              icon="check"
-              label={nextScanId ? t("cardDetail.acceptNext") : t("cardDetail.acceptFinish")}
-              loading={markCorrect.isPending}
-              onPress={() => void acceptInReview()}
-            />
-          ) : (
-            <Button
-              style={{ flex: 1 }}
-              icon="check"
-              label={t("cardDetail.markCorrect")}
-              loading={markCorrect.isPending}
-              onPress={() => {
-                setMatchesOpenState({ scanId, isOpen: false });
-                markCorrect.mutate("confirm");
-              }}
-            />
-          )}
-        </View>
-      ) : null}
-
-      {editing ? (
-        <BottomActionBar>
-          <Button variant="secondary" label={t("common.cancel")} onPress={() => setEditing(false)} />
-        </BottomActionBar>
-      ) : (
-        <SaveBar
-          visible={isDirty}
-          saving={saveDraft.isPending}
-          onSave={form.handleSubmit((values) => saveDraft.mutate(values))}
-          onDiscard={() => form.reset()}
-        />
-      )}
+      </PinnedActionsLayout>
 
       <OptionSheet
         visible={sheet === "actions"}

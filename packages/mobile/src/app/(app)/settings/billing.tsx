@@ -16,12 +16,13 @@ import { SettingsSection } from "@/features/settings/components/settings-section
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
 
 export default function BillingSettingsScreen() {
   const { t, i18n } = useTranslation();
   const colors = useTheme();
   const org = useActiveOrg();
-  const { data: billing, isPending, refetch, isRefetching } = useQuery(billingQueryOptions(org?.id ?? null));
+  const { data: billing, isPending, refetch } = useQuery(billingQueryOptions(org?.id ?? null));
   const isPaidPlan = !!billing && billing.plan !== "free";
   const planRows = billing ? billingPlanTableRows(billing) : [];
   const offeringText = (row: BillingPlanTableRow) => {
@@ -41,8 +42,7 @@ export default function BillingSettingsScreen() {
     <SettingsPage
       title={t("settings.sections.billing.title")}
       isLoading={isPending || !billing}
-      refreshing={isRefetching}
-      onRefresh={() => void refetch()}
+      onRefresh={() => refetch()}
     >
       {billing ? (
         <>
@@ -72,7 +72,7 @@ export default function BillingSettingsScreen() {
             }
           >
             <ListGroup>
-              {planRows.map((row, index) => {
+              {planRows.map((row) => {
                 const usagePercent = billingPlanRowUsagePercent(row);
                 const unavailable = row.kind === "feature" ? !row.included : row.limit === 0;
                 const rowName = t(`settings.billing.planTable.rows.${row.key}`);
@@ -84,22 +84,22 @@ export default function BillingSettingsScreen() {
                     accessibilityLabel={`${rowName}, ${offeringText(row)}, ${usageLine}`}
                     style={{
                       gap: SPACING.xs,
+                      justifyContent: "center",
+                      minHeight: LIST_ROW_MIN_HEIGHT,
                       paddingHorizontal: SCREEN_GUTTER,
                       paddingVertical: SPACING.sm,
-                      borderTopWidth: index > 0 ? 1 : 0,
-                      borderTopColor: colors.border,
                     }}
                   >
                     <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
                       <AppText weight="medium" style={{ flex: 1, minWidth: 0 }}>
                         {rowName}
                       </AppText>
-                      <AppText tone={unavailable ? "secondary" : undefined} style={{ fontVariant: ["tabular-nums"] }}>
+                      <AppText tone={unavailable ? "secondary" : undefined}>
                         {offeringText(row)}
                       </AppText>
                     </View>
                     {row.used != null ? (
-                      <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+                      <AppText size="xs" tone="secondary">
                         {usageLine}
                       </AppText>
                     ) : null}

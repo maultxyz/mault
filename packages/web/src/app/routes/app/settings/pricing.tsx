@@ -5,6 +5,7 @@ import {
   SettingsSection,
   SettingsSections,
 } from "@/components/settings-section";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
 import { Controller } from "react-hook-form";
@@ -21,30 +22,41 @@ export default function SettingsPricingPage() {
         heading={t("pricing.heading")}
         description={t("pricing.description")}
       >
-        <Controller
-          control={draft.control}
-          name="priceSource"
-          render={({ field }) => (
-            <PriceSourceToggle value={field.value} onChange={field.onChange} />
-          )}
-        />
+        {draft.isLoading ? (
+          <div className="flex gap-2">
+            <Skeleton className="h-14 w-36 rounded-lg" />
+            <Skeleton className="h-14 w-36 rounded-lg" />
+          </div>
+        ) : (
+          <Controller
+            control={draft.control}
+            name="priceSource"
+            render={({ field }) => (
+              <PriceSourceToggle value={field.value} onChange={field.onChange} />
+            )}
+          />
+        )}
       </SettingsSection>
       <SettingsSection
         heading={t("conditionPricing.heading")}
         description={t("conditionPricing.description")}
       >
-        <Controller
-          control={draft.control}
-          name="conditionMultipliers"
-          render={({ field, fieldState }) => (
-            <ConditionMultipliersSetting
-              value={field.value}
-              disabled={disabled}
-              errors={[fieldState.error]}
-              onChange={field.onChange}
-            />
-          )}
-        />
+        {draft.isLoading ? (
+          <Skeleton className="h-32 w-full" />
+        ) : (
+          <Controller
+            control={draft.control}
+            name="conditionMultipliers"
+            render={({ field, fieldState }) => (
+              <ConditionMultipliersSetting
+                value={field.value}
+                disabled={disabled}
+                errors={[fieldState.error]}
+                onChange={field.onChange}
+              />
+            )}
+          />
+        )}
       </SettingsSection>
       <SaveBar
         show={draft.isDirty}

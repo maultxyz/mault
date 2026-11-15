@@ -8,6 +8,7 @@ export function EmptyState({
   description,
   action,
   size = "default",
+  titleAs: TitleElement = "p",
   className,
 }: EmptyStateProps) {
   const compact = size === "compact";
@@ -22,7 +23,7 @@ export function EmptyState({
       {Icon && (
         <div
           className={cn(
-            "relative flex items-center justify-center rounded-full bg-muted text-foreground/70",
+            "relative flex items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-sidebar-primary",
             compact ? "size-10" : "size-14",
           )}
         >
@@ -36,7 +37,7 @@ export function EmptyState({
         </div>
       )}
       <div className="flex max-w-sm flex-col gap-1">
-        <p className="text-sm font-medium">{title}</p>
+        <TitleElement className="text-sm font-medium">{title}</TitleElement>
         {description && (
           <p className="text-xs text-foreground/70">{description}</p>
         )}

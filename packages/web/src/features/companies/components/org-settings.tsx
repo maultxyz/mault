@@ -3,6 +3,7 @@ import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { SaveBar } from "@/components/save-bar";
 import { Button } from "@/components/ui/button";
+import { Field, FieldError } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,6 +12,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useBilling } from "@/features/billing/api/use-billing";
 import { hasActiveSubscription } from "@/features/billing/lib/subscription";
@@ -43,8 +45,11 @@ export function OrgSettings() {
     member: t("roleMember"),
   };
   const { refetch: refetchOrgs } = neon.auth.useListOrganizations();
-  const { data: activeOrg, refetch: refetchActive } =
-    neon.auth.useActiveOrganization();
+  const {
+    data: activeOrg,
+    isPending: isActiveOrgPending,
+    refetch: refetchActive,
+  } = neon.auth.useActiveOrganization();
   const { data: activeMember } = neon.auth.useActiveMember();
 
   const myRole = activeMember?.role as OrgRole | undefined;
@@ -55,6 +60,9 @@ export function OrgSettings() {
   const blockedBySubscription = hasActiveSubscription(billing);
 
   const [deleteOrgOpen, setDeleteOrgOpen] = useState(false);
+  const [cancelInviteTarget, setCancelInviteTarget] = useState<string | null>(
+    null,
+  );
   const [removeMemberTarget, setRemoveMemberTarget] = useState<{
     id: string;
     name: string;
@@ -125,12 +133,15 @@ export function OrgSettings() {
     }
   }
 
-  async function handleCancelInvite(invitationId: string) {
+  async function handleCancelInvite() {
+    const invitationId = cancelInviteTarget;
+    if (!invitationId) return;
     try {
       const { error } = await neon.auth.organization.cancelInvitation({
         invitationId,
       });
       if (error) throw new Error(error.message);
+      setCancelInviteTarget(null);
       await refetchActive();
       toast.success(t("orgSettings.inviteCancelled"));
     } catch (e: unknown) {
@@ -222,8 +233,16 @@ export function OrgSettings() {
 
   return (
     <>
-      <div className="flex flex-col gap-6">
-        {!activeOrg && (
+      <div className="flex flex-col gap-6 md:gap-2">
+        {!activeOrg && isActiveOrgPending && (
+          <div className="flex flex-col gap-2">
+            <Skeleton className="h-7 w-full" />
+            <Skeleton className="h-12 w-full" />
+            <Skeleton className="h-12 w-full" />
+          </div>
+        )}
+
+        {!activeOrg && !isActiveOrgPending && (
           <p className="text-xs text-foreground/70">
             {t("orgSettings.noOrgSelected")}
           </p>
@@ -240,15 +259,19 @@ export function OrgSettings() {
                 >
                   <h3
                     id="org-rename-heading"
-                    className="text-sm font-semibold font-heading"
+                    className="font-heading text-sm font-semibold"
                   >
                     {t("orgSettings.renameHeading", { name: activeOrg.name })}
                   </h3>
-                  <Input
-                    aria-labelledby="org-rename-heading"
-                    placeholder={activeOrg.name}
-                    {...renameForm.register("name")}
-                  />
+                  <Field data-invalid={!!renameForm.formState.errors.name}>
+                    <Input
+                      aria-labelledby="org-rename-heading"
+                      placeholder={activeOrg.name}
+                      aria-invalid={!!renameForm.formState.errors.name}
+                      {...renameForm.register("name")}
+                    />
+                    <FieldError errors={[renameForm.formState.errors.name]} />
+                  </Field>
                 </form>
                 <SaveBar
                   show={isDirty}
@@ -264,10 +287,10 @@ export function OrgSettings() {
             )}
 
             <div className="flex flex-col gap-2">
-              <h3 className="text-sm font-semibold font-heading">
+              <h3 className="font-heading text-sm font-semibold">
                 {t("orgSettings.membersHeading")}
               </h3>
-              <div className="flex flex-col divide-y divide-border rounded-lg border">
+              <div className="flex flex-col divide-y divide-border">
                 {activeOrg.members.map((m) => (
                   <div
                     key={m.id}
@@ -342,8 +365,8 @@ export function OrgSettings() {
             </div>
 
             {canManage && (
-              <div className="flex flex-col gap-3">
-                <h3 className="text-sm font-semibold font-heading">
+              <div className="flex flex-col gap-3 md:gap-2">
+                <h3 className="font-heading text-sm font-semibold">
                   {t("orgSettings.inviteMemberHeading")}
                 </h3>
                 {atMemberLimit && (
@@ -356,15 +379,21 @@ export function OrgSettings() {
                 )}
                 <form
                   onSubmit={inviteForm.handleSubmit(handleInvite)}
-                  className="flex gap-2"
+                  className="flex items-start gap-2"
                 >
-                  <Input
-                    type="email"
-                    aria-label={t("orgSettings.emailPlaceholder")}
-                    placeholder={t("orgSettings.emailPlaceholder")}
-                    {...inviteForm.register("email")}
+                  <Field
+                    data-invalid={!!inviteForm.formState.errors.email}
                     className="flex-1"
-                  />
+                  >
+                    <Input
+                      type="email"
+                      aria-label={t("orgSettings.emailPlaceholder")}
+                      placeholder={t("orgSettings.emailPlaceholder")}
+                      aria-invalid={!!inviteForm.formState.errors.email}
+                      {...inviteForm.register("email")}
+                    />
+                    <FieldError errors={[inviteForm.formState.errors.email]} />
+                  </Field>
                   <Controller
                     control={inviteForm.control}
                     name="role"
@@ -409,7 +438,7 @@ export function OrgSettings() {
                     <p className="text-xs text-foreground/70">
                       {t("orgSettings.pendingInvites")}
                     </p>
-                    <div className="flex flex-col divide-y divide-border rounded-lg border">
+                    <div className="flex flex-col divide-y divide-border">
                       {pendingInvites.map((inv) => (
                         <div
                           key={inv.id}
@@ -418,16 +447,16 @@ export function OrgSettings() {
                           <span className="flex-1 text-foreground/70 truncate">
                             {inv.email}
                           </span>
-                          <span className="capitalize text-foreground/70">
-                            {inv.role}
+                          <span className="text-foreground/70">
+                            {ROLE_LABELS[inv.role as OrgRole] ?? inv.role}
                           </span>
                           <Button
                             aria-label={t("common:a11y.cancelInvite", { email: inv.email })}
                             variant="ghost"
                             size="icon"
-                            onClick={() => handleCancelInvite(inv.id)}
+                            onClick={() => setCancelInviteTarget(inv.id)}
                           >
-                            <IconTrash size={12} />
+                            <IconTrash />
                           </Button>
                         </div>
                       ))}
@@ -438,8 +467,8 @@ export function OrgSettings() {
             )}
 
             {isOwner && (
-              <div className="flex flex-col gap-3 bg-destructive rounded-lg p-4 text-destructive-foreground">
-                <h3 className="text-sm font-semibold font-heading">
+              <div className="flex flex-col gap-3 md:gap-2 bg-destructive rounded-lg p-4 text-destructive-foreground">
+                <h3 className="font-heading text-sm font-semibold">
                   {t("orgSettings.dangerZoneHeading")}
                 </h3>
                 <p className="text-sm">
@@ -485,6 +514,18 @@ export function OrgSettings() {
         })}
         confirm={{ type: "simple" }}
         onConfirm={handleRemoveMember}
+      />
+
+      <DeleteDialog
+        open={!!cancelInviteTarget}
+        onOpenChange={(open) => {
+          if (!open) setCancelInviteTarget(null);
+        }}
+        title={t("invites.revokeConfirmTitle")}
+        description={t("invites.revokeConfirmDescription")}
+        confirm={{ type: "simple" }}
+        confirmLabel={t("invites.revoke")}
+        onConfirm={handleCancelInvite}
       />
 
       <DeleteDialog

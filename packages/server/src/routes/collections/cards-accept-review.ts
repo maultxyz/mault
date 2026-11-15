@@ -54,7 +54,7 @@ export const acceptReviewCollectionCardsRoute = new Hono<AppEnv>().post(
     );
     if (confirmedScanIds.length + reviewedScanIds.length > 0) {
       const event: CardsReviewedEvent = { confirmedScanIds, reviewedScanIds };
-      emitToSession(guid, "cards_reviewed", event);
+      emitToSession(orgId, guid, "cards_reviewed", event);
       emitCollectionCardsChanged(orgId, guid);
     }
     return c.json({

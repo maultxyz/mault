@@ -135,7 +135,9 @@ export default function SorterScreen() {
               onPress={() => void retract.retractCard()}
             />
           </ListGroup>
-          <Button variant="destructive" label={t("sorter.disconnect")} onPress={() => void sorter.disconnect()} />
+          <ListGroup>
+            <ListRow icon="close" tone="destructive" title={t("sorter.disconnect")} onPress={() => void sorter.disconnect()} />
+          </ListGroup>
         </>
       ) : (
         <>
@@ -196,6 +198,7 @@ export default function SorterScreen() {
               size="sm"
               variant="ghost"
               label={showLog ? t("common.hide") : t("common.show")}
+              accessibilityLabel={showLog ? t("sorter.hideCommLog") : t("sorter.showCommLog")}
               onPress={() => setShowLog((value) => !value)}
             />
           }

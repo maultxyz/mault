@@ -57,6 +57,7 @@ export function CardToolbar({
   scanTimeline,
   onScanTimelineChange,
   leading,
+  extraActions,
   onAddCard,
   onImportScans,
 }: CardToolbarProps) {
@@ -68,7 +69,7 @@ export function CardToolbar({
 
   return (
     <div className="w-full">
-      <div className="flex min-w-0 flex-row items-center gap-2">
+      <div className="flex min-w-0 flex-row items-center gap-1.5">
         {leading}
         {watchers && watchers.length > 0 && (
           <WatcherStack watchers={watchers} />
@@ -113,6 +114,7 @@ export function CardToolbar({
           scanTimeline={scanTimeline}
           onScanTimelineChange={onScanTimelineChange}
         />
+        {extraActions}
         {hasMoreActions && (
           <DropdownMenu>
             <DropdownMenuTrigger

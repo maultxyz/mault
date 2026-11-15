@@ -45,7 +45,7 @@ export const deleteCollectionCardRoute = new Hono<AppEnv>().delete(
     });
     if (result.success) {
       deleteScanImages(result.imageKeys);
-      emitToSession(guid, "card_removed", { scanId });
+      emitToSession(orgId, guid, "card_removed", { scanId });
       emitCollectionCardsChanged(orgId, guid);
     }
     return c.json({ success: result.success, data: result.data });

@@ -27,6 +27,7 @@
     "sorter": "Sorter",
     "stats": "Stats",
     "storage": "Storage",
+    "trades": "Trades",
     "more": "More",
     "home": "Home",
     "library": "Library"
@@ -96,7 +97,9 @@
     "shareLinkWithCount_other": "Share live view link ({{count}} active)",
     "scanTarget": "Scanning here",
     "scanInto": "Scan into this collection",
-    "scan": "Scan"
+    "scan": "Scan",
+    "notFoundTitle": "Collection not found",
+    "notFoundDescription": "It may have been deleted, or you no longer have access to it."
   },
   "shareLink": {
     "collectionTitle": "Share live view",
@@ -168,7 +171,6 @@
   },
   "stats": {
     "title": "Stats",
-    "subtitle": "Charts and numbers across your collections",
     "error": "Couldn't load stats. Try again in a moment.",
     "empty": {
       "title": "No cards yet",
@@ -211,8 +213,14 @@
     "activity": {
       "title": "Scanning activity",
       "description": {
-        "day": "Cards scanned each day",
-        "week": "Cards scanned each week"
+        "count": {
+          "day": "Cards scanned each day",
+          "week": "Cards scanned each week"
+        },
+        "value": {
+          "day": "Value of the cards scanned each day",
+          "week": "Value of the cards scanned each week"
+        }
       },
       "metrics": {
         "count": "Cards",
@@ -245,7 +253,8 @@
         "avgValue": "Avg card",
         "scansInRange": "Scanned",
         "lastScanAt": "Last scan"
-      }
+      },
+      "filterHint": "Shows stats for this collection"
     },
     "prices": {
       "title": "Price distribution",
@@ -331,11 +340,7 @@
     },
     "showAll": "Show all ({{count}})",
     "showLess": "Show less",
-    "other": "Other",
-    "headline": {
-      "title": "Your collection",
-      "subtitle": "by the numbers"
-    }
+    "other": "Other"
   },
   "account": {
     "organizations": "Organizations",
@@ -380,7 +385,8 @@
         "confirmationSent": "Confirmation email sent",
         "confirmationSentDescription": "Check {{email}} and click the link to finish changing your email.",
         "updateFailed": "Couldn't update your email",
-        "sameAsCurrent": "That's already your current email"
+        "sameAsCurrent": "That's already your current email",
+        "change": "Change email"
       },
       "password": {
         "heading": "Password",
@@ -390,7 +396,8 @@
         "revokeOtherSessions": "Sign out of all other devices",
         "submit": "Update password",
         "updated": "Password updated",
-        "updateFailed": "Couldn't update your password"
+        "updateFailed": "Couldn't update your password",
+        "change": "Change password"
       },
       "sessions": {
         "heading": "Sessions",
@@ -416,13 +423,16 @@
         "cancel": "Cancel"
       },
       "localSubtitle": "Your account details. Ask an admin on this server to change them.",
-      "nameLabel": "Name"
+      "nameLabel": "Name",
+      "signInHeading": "Sign-in"
     },
     "settingsRow": "Account settings",
     "settingsRowSubtitle": "Name, email, password and sessions",
     "settingsRowSubtitleLocal": "Your name and email",
     "language": "Language",
-    "languageSystem": "Phone language"
+    "languageSystem": "Phone language",
+    "sorterConnection": "Sorter connection",
+    "manageSection": "Manage"
   },
   "sorter": {
     "noSorter": "No sorter connected",
@@ -535,7 +545,9 @@
       "online": "Online",
       "offline": "Offline",
       "inUse": "In use on another device"
-    }
+    },
+    "showCommLog": "Show communication log",
+    "hideCommLog": "Hide communication log"
   },
   "retractCard": {
     "failedTitle": "Couldn't retract the card",
@@ -570,6 +582,10 @@
       "card-missing": {
         "title": "Card missing before sorting",
         "description": "Module 1 no longer detects the scanned card, so nothing was sorted. Check module 1, then tap Resume."
+      },
+      "card-stuck-in-module-one": {
+        "title": "Card stuck in module 1",
+        "description": "A card is stuck in module 1. Remove it, then tap Resume."
       },
       "feed-failed": {
         "title": "Feeder problem",
@@ -719,6 +735,9 @@
       "allowDuplicatesDescription": "Save the same printing more than once",
       "handScan": "Auto-detect cards",
       "handScanDescription": "Scan without a sorter. Press Start, then hold a card still in view and it scans on its own.",
+      "handScanBins": "Sort into bins",
+      "handScanBinsDescription": "Show which bin each card goes in, using your rule preset. Leave off to just save cards to the collection.",
+      "handScanBinsNoPreset": "Choose a rule preset for this game to sort cards into bins.",
       "camera": "Camera",
       "cameraFallback": "Camera {{number}}",
       "cameraPosition": {
@@ -842,30 +861,15 @@
       "title": "{{name}} · {{collection}}",
       "open": "Opens the collection"
     },
-    "subtitle": "Here's how your collection is doing",
     "loadFailed": "Couldn't load your overview. Pull down to try again.",
-    "greeting": {
-      "morning": "Good morning",
-      "afternoon": "Good afternoon",
-      "evening": "Good evening"
-    },
-    "greetingWithName": "{{greeting}}, {{name}}",
     "hero": {
       "value": "Collection value",
       "cards": "Cards",
       "collections": "Collections",
       "scanned": "Scanned all time",
       "sinceYesterday": "since yesterday",
-      "sinceDate": "since {{date}}"
-    },
-    "actions": {
-      "scan": "Scan cards",
-      "newCollection": "New collection",
-      "stats": "Stats"
-    },
-    "welcome": {
-      "title": "Welcome to Mault",
-      "description": "Create a collection, then start scanning to see its value, your top cards and more right here."
+      "sinceDate": "since {{date}}",
+      "openStats": "Opens your stats"
     },
     "review": {
       "title_one": "{{count}} scan needs review",
@@ -873,14 +877,21 @@
       "description": "Check the matches so your collection stays accurate.",
       "open": "Opens the review screen"
     },
+    "trades": {
+      "title_one": "{{count}} trade offer waiting",
+      "title_other": "{{count}} trade offers waiting",
+      "description": "See what was offered and accept or decline.",
+      "open": "Opens trade offers"
+    },
     "cardOfTheDay": "Cards of the day",
     "activity": {
       "title": "Scan activity",
       "today": "Today",
-      "thisWeek": "This week",
       "scans_one": "{{count}} scan",
       "scans_other": "{{count}} scans",
-      "chartLabel": "Scans per day for the last 14 days"
+      "chartLabel": "Scans per day for the last {{count}} days",
+      "lastDays_one": "Last {{count}} day",
+      "lastDays_other": "Last {{count}} days"
     },
     "topCards": "Top cards",
     "recentScans": "Recently scanned",
@@ -1007,7 +1018,10 @@
       "deletedSorter": "{{name}} (deleted)"
     },
     "name": "Name",
-    "actions": "Card actions"
+    "actions": "Card actions",
+    "similarMatchesCount_one": "{{count}} similar match",
+    "similarMatchesCount_other": "{{count}} similar matches",
+    "reviewAcceptFailed": "Couldn't accept the previous card"
   },
   "reviewGrid": {
     "title": "Review cards",
@@ -1025,7 +1039,9 @@
     "done": "Done",
     "loadFailed": "Couldn't load the cards to review. Try again.",
     "acceptFailed_one": "Couldn't accept {{count}} card. Try again.",
-    "acceptFailed_other": "Couldn't accept {{count}} cards. Try again."
+    "acceptFailed_other": "Couldn't accept {{count}} cards. Try again.",
+    "accepted_one": "{{count}} card accepted",
+    "accepted_other": "{{count}} cards accepted"
   },
   "rules": {
     "title": "Sorting rules",
@@ -1238,10 +1254,24 @@
     },
     "modeLocked": "Rules don't apply in {{mode}} mode. Change the sorting mode to edit them.",
     "autoAssignLocked": "Auto-detect sets these rules for you. Change the sorting mode to edit them.",
-    "scanOnlyLocked": "Scan only is on. Scanned and unidentified cards go to the bins picked in Sorting mode. Turn it off to configure bins."
+    "scanOnlyLocked": "Scan only is on. Scanned and unidentified cards go to the bins picked in Sorting mode. Turn it off to configure bins.",
+    "description": {
+      "title": "Preset notes",
+      "label": "Description",
+      "placeholder": "Notes about this preset, what it sorts, when to use it...",
+      "add": "Add a description",
+      "edit": "Edit",
+      "save": "Save",
+      "saveFailed": "Couldn't save the description."
+    },
+    "maxCardsLabel": "Max cards",
+    "maxCardsPlaceholder": "No limit",
+    "maxCardsDescription": "This bin counts as full at this many cards, even if it has room: matching cards then go to its overflow bin or pause sorting. Leave empty to use the bin's physical size.",
+    "maxCardsPill_one": "Holds {{count}}",
+    "maxCardsPill_other": "Holds {{count}}"
   },
   "calibration": {
-    "title": "Calibration",
+    "title": "Sorter setup",
     "subtitle": "Tune servos and the feeder",
     "entryTitle": "Calibration",
     "entrySubtitle": "Servo positions, timings and the feeder",
@@ -1566,7 +1596,10 @@
     },
     "share": "Share location",
     "shareWithCount_one": "Share location ({{count}} active)",
-    "shareWithCount_other": "Share location ({{count}} active)"
+    "shareWithCount_other": "Share location ({{count}} active)",
+    "searchFailed": "Couldn't search your storage locations",
+    "notFoundTitle": "Location not found",
+    "notFoundDescription": "It may have been deleted, or you no longer have access to it."
   },
   "settings": {
     "title": "Settings",
@@ -1598,11 +1631,11 @@
         "description": "Keys for the public API"
       },
       "notifications": {
-        "title": "Notifications",
+        "title": "Discord",
         "description": "Discord channels, alerts and notification rules"
       },
       "sounds": {
-        "title": "Sounds",
+        "title": "Scan sounds",
         "description": "Play a clip when a sorted card matches a rule"
       },
       "webhooks": {
@@ -1618,7 +1651,26 @@
       "heading": "Appearance",
       "description": "Customize the app's accent color.",
       "primaryColor": "Primary color",
-      "resetColor": "Reset to default"
+      "resetColor": "Reset to default",
+      "colors": {
+        "red": "Red",
+        "orange": "Orange",
+        "amber": "Amber",
+        "yellow": "Yellow",
+        "lime": "Lime",
+        "green": "Green",
+        "emerald": "Emerald",
+        "teal": "Teal",
+        "cyan": "Cyan",
+        "sky": "Sky",
+        "blue": "Blue",
+        "indigo": "Indigo",
+        "violet": "Violet",
+        "purple": "Purple",
+        "fuchsia": "Fuchsia",
+        "pink": "Pink",
+        "rose": "Rose"
+      }
     },
     "leaderboard": {
       "heading": "Leaderboard",
@@ -1869,14 +1921,16 @@
       },
       "channelSettings": {
         "heading": "Channels",
-        "description": "Where every scan and every error or alert gets posted. Only owners and admins can change these.",
+        "description": "Where every scan, every error or alert and every new trade offer gets posted. Only owners and admins can change these.",
         "scan": "Every scan",
         "error": "Errors and alerts",
+        "trade": "Trade offers",
         "none": "Don't post",
         "sameScan": "Same as every scan",
         "sameError": "Same as errors",
         "scanRole": "Ping role for scans",
         "errorRole": "Ping role for errors",
+        "tradeRole": "Ping role for trade offers",
         "roleHint": "Pick a role to mention with each post, including posts to collection override channels. The role must be mentionable by the bot.",
         "saved": "Channel saved.",
         "saveFailed": "Couldn't save the channel."
@@ -2151,7 +2205,7 @@
     "acrossPrintings": "Range across {{count}} printings"
   },
   "health": {
-    "title": "System Health",
+    "title": "System health",
     "subtitle": "Live status of the database.",
     "refresh": "Refresh",
     "allHealthy": "Everything is operational.",
@@ -2222,7 +2276,10 @@
     "title": "Notifications",
     "empty": "You're all caught up.",
     "learnMore": "Learn more",
-    "firmwareMissing": "Your sorter's firmware doesn't report a version and can't be used to scan. Re-upload the latest firmware/main/main.ino to enable scanning."
+    "firmwareMissing": "Your sorter's firmware doesn't report a version and can't be used to scan. Re-upload the latest firmware/main/main.ino to enable scanning.",
+    "refresh": "Refresh notifications",
+    "refreshed": "Notifications refreshed",
+    "refreshFailed": "Couldn't refresh notifications"
   },
   "phoneCamera": {
     "title": "Use Phone as Camera",
@@ -2263,6 +2320,7 @@
     "percentAtLeast": "Must be at least {{min}}%.",
     "percentAtMost": "Must be at most {{max}}%.",
     "amountRequired": "Enter an amount.",
+    "amountInvalid": "Enter an amount like 12.50.",
     "percentageRequired": "Enter a percentage.",
     "tiersRequired": "Add at least one tier.",
     "tooManyTiers": "Add no more than {{max}} tiers.",
@@ -3003,6 +3061,9 @@
   "tradeOffers": {
     "trayHeading": "Trade offers",
     "trayMessage": "{{name}} wants {{wanted}} for {{offered}} of theirs",
+    "trayMessageCash": "{{name}} wants {{wanted}} for {{cash}}",
+    "trayMessageCardsAndCash": "{{name}} wants {{wanted}} for {{offered}} of theirs plus {{cash}}",
+    "trayMessageNothing": "{{name}} asks for {{wanted}} with nothing in return",
     "review": "Review",
     "foil": "Foil",
     "accepted": "Trade offer accepted",
@@ -3015,7 +3076,7 @@
     "title": "Trade offer",
     "reviewTitle": "Offer from {{name}}",
     "respondFailed": "Couldn't answer the trade offer.",
-    "answered": "This trade offer was already answered.",
+    "loadFailed": "Couldn't load the trade offer",
     "reviewDescription": "Sent from {{source}} on {{date}}",
     "unknownSource": "a shared link",
     "contact": "Contact",
@@ -3023,20 +3084,131 @@
     "theyWant_other": "They want {{count}} cards",
     "theyOffer_one": "They offer {{count}} card",
     "theyOffer_other": "They offer {{count}} cards",
+    "theyOfferCash": "They offer cash",
+    "theyOfferNothing": "They offer nothing in return",
+    "cashAmount": "{{amount}} in cash",
+    "nothingOffered": "Nothing offered in return.",
     "acceptTitle": "Accept this trade offer?",
-    "acceptRemovesCards_one": "This removes the {{count}} card they want from your collection.",
-    "acceptRemovesCards_other": "This removes the {{count}} cards they want from your collection.",
     "theyGetValue": "They get",
     "youGetValue": "You get",
     "youGainValue": "Their offer is worth {{amount}} more than what they're asking for.",
     "youLoseValue": "Their offer is worth {{amount}} less than what they're asking for.",
     "evenValue": "Both sides are worth the same.",
     "missingPrices": "Some cards have no price, so the totals may be low.",
-    "noPrice": "No price"
+    "noPrice": "No price",
+    "library": {
+      "subtitle": "Trade offers sent through your trade links",
+      "open": "Open",
+      "answered": "Answered",
+      "unnamedGuest": "Guest",
+      "rowDetails": "{{source}} · {{wanted}} wanted · {{offered}} offered",
+      "loadFailed": "Couldn't load trade offers",
+      "emptyTitle": "No trade offers yet",
+      "emptyDescription": "Offers arrive when someone opens one of your trade links and picks cards. Create a trade link from the share menu of a collection or storage location.",
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "declined": "Declined"
+      },
+      "picking_one": "Picking, {{count}} left",
+      "picking_other": "Picking, {{count}} left"
+    },
+    "cardList": {
+      "cardCount_one": "{{count}} card",
+      "cardCount_other": "{{count}} cards",
+      "uniqueCount_one": "{{count}} unique",
+      "uniqueCount_other": "{{count}} unique",
+      "sortLabel": "Sort by",
+      "sort": {
+        "value": "Value",
+        "name": "Name",
+        "set": "Set"
+      },
+      "groupByLocation": "Group by location",
+      "groupByLocationHint": "Cards in storage are listed in box order, so you can pull them in one pass.",
+      "filterLabel": "Filter cards",
+      "filterPlaceholder": "Name or set",
+      "filterResults_one": "{{count}} card matches",
+      "filterResults_other": "{{count}} cards match",
+      "noFilterResults": "No cards match your filter.",
+      "showAll": "Show all {{count}}",
+      "showLess": "Show less",
+      "unitPrice": "{{price}} each",
+      "foil": "Foil",
+      "noPrice": "No price",
+      "placementStorage": "{{location}} · #{{positions}}",
+      "placementStorageNoPosition": "{{location}}",
+      "placementBin_one": "{{collection}}, bin {{bins}}",
+      "placementBin_other": "{{collection}}, bins {{bins}}",
+      "placementCollection": "In {{collection}}, not in storage",
+      "placementMissing_one": "{{count}} copy is no longer in your collection",
+      "placementMissing_other": "{{count}} copies are no longer in your collection",
+      "sectionBin": "{{collection}}, bin {{bin}}",
+      "sectionCollection": "{{collection}}, not in storage",
+      "sectionMissing": "No longer in your collection"
+    },
+    "notFound": "This trade offer no longer exists.",
+    "sideTabs": {
+      "label": "Trade sides",
+      "wanted": "They want ({{count}})",
+      "offered": "They offer ({{count}})"
+    },
+    "pickList": {
+      "started": "Trade accepted. Tick off the cards they want as you pick them.",
+      "acceptHint": "Accepting gives you a pick list. Each card they want is removed from your inventory when you tick it off.",
+      "acceptDescription_one": "You get a pick list for the {{count}} card they want. It's removed from your inventory when you tick it off, and a tick can't be undone.",
+      "acceptDescription_other": "You get a pick list for the {{count}} cards they want. Each one is removed from your inventory when you tick it off, and a tick can't be undone.",
+      "title": "Pick list",
+      "hint": "Tick each card as you pull it. Ticked cards are removed from your inventory right away.",
+      "progress": "{{picked}} of {{count}} picked",
+      "picked": "Picked and removed",
+      "pickedSection": "Picked",
+      "finish": "Finish",
+      "finishTitle": "Finish picking?",
+      "finishDescription_one": "This removes the {{count}} card you haven't ticked off from your inventory.",
+      "finishDescription_other": "This removes the {{count}} cards you haven't ticked off from your inventory.",
+      "finished_one": "Trade finished. Removed {{count}} card from your inventory.",
+      "finished_other": "Trade finished. Removed {{count}} cards from your inventory.",
+      "pickFailed": "Couldn't remove the picked card. Tick it again to retry.",
+      "finishFailed": "Couldn't finish the pick list."
+    },
+    "boxes": {
+      "received": "Received",
+      "sent": "Sent"
+    },
+    "sent": {
+      "title": "Sent trade offer",
+      "unknownRecipient": "A shared link",
+      "rowDetails": "{{wanted}} asked for · {{offered}} offered",
+      "loadFailed": "Couldn't load your sent offers.",
+      "emptyTitle": "No sent offers yet",
+      "emptyDescription": "Offers you send from someone's trade link show up here.",
+      "detailTitle": "Your offer to {{name}}",
+      "detailDescription": "Sent on {{date}}",
+      "answeredOn": "Answered on {{date}}",
+      "waitingHint": "Waiting for an answer.",
+      "yourDetails": "Your details",
+      "openHint": "Opens the offer",
+      "youWant_one": "You asked for {{count}} card",
+      "youWant_other": "You asked for {{count}} cards",
+      "youOffer_one": "You offered {{count}} card",
+      "youOffer_other": "You offered {{count}} cards",
+      "youOfferCash": "You offered cash",
+      "youOfferNothing": "You offered nothing in return",
+      "sideTabs": {
+        "wanted": "You asked for ({{count}})",
+        "offered": "You offered ({{count}})"
+      },
+      "status": {
+        "pending": "Waiting",
+        "accepted": "Accepted",
+        "declined": "Declined"
+      }
+    }
   },
   "trade": {
     "title": "Trade offer",
-    "description": "Pick cards you want from {{source}}, add cards you'll give in return, and send it. The owner accepts or declines.",
+    "description": "Pick cards you want from {{source}}, add cards or cash you'll give in return (or nothing), and send it. The owner accepts or declines.",
     "sent": "Trade offer sent. The owner will get back to you.",
     "sendFailed": "Couldn't send the trade offer. Try again.",
     "invalidLink": "This trade link isn't available",
@@ -3054,15 +3226,18 @@
     "addMoreCards": "Add more cards",
     "giveTitle_one": "You give ({{count}})",
     "giveTitle_other": "You give ({{count}})",
-    "giveDescription": "Scan your cards or pick them from your collection.",
+    "giveDescription": "Scan your cards, pick them from your collection, or offer cash.",
+    "cashLabel": "Cash in {{currency}} (optional)",
+    "cashHint": "Offer cash with your cards or on its own. Leave both empty to offer nothing in return.",
     "scanCards": "Scan cards",
     "fromCollection": "From collection",
     "editCardHint": "Change quantity, condition or foil",
     "foil": "Foil",
     "removeCard": "Remove {{name}}",
     "summary": "Cards you get: {{get}} · Cards you give: {{give}}",
+    "summaryWithCash": "Cards you get: {{get}} · Cards you give: {{give}} · Cash: {{cash}}",
+    "summaryNothing": "Cards you get: {{get}} · Nothing in return",
     "needGet": "Add a card you want to continue.",
-    "needGive": "Add a card you're giving to continue.",
     "send": "Send trade offer",
     "quantityIncrease": "Quantity: {{count}}",
     "quantityDecrease": "Quantity: {{count}}",
@@ -3082,6 +3257,7 @@
     "selectedCount_other": "{{count}} selected",
     "searchLinkCards": "Search these cards",
     "noLinkCards": "No cards match",
+    "linkCardsLoadFailed": "Couldn't load the cards on this link",
     "tapToAdd": "Adds it to your trade offer",
     "tapToRemove": "Removes it from your trade offer",
     "loadMore": "Load more",
@@ -3096,6 +3272,7 @@
     "added": "Added {{name}} to your offer",
     "noCollections": "You don't have a collection yet",
     "noCollectionCards": "No cards match",
+    "collectionCardsLoadFailed": "Couldn't load the cards in this collection",
     "scanCollectionLabel": "Match cards from",
     "scanHint": "Hold one of your cards in the frame and tap the shutter to add it.",
     "scanButton": "Scan card",
@@ -3190,7 +3367,7 @@
     "open": "Search everything",
     "placeholder": "Search cards, collections, locations and settings",
     "promptTitle": "Search everything",
-    "promptDescription": "Find a card in any collection, a collection, a storage location or a setting.",
+    "promptDescription": "Find any card, in your collections or not, plus collections, storage locations and settings.",
     "emptyTitle": "Nothing found",
     "emptyDescription": "Try a different name or spelling.",
     "loadFailed": "Couldn't search your cards. Pull down to try again.",
@@ -3199,10 +3376,22 @@
     "resultsCount_one": "{{count}} result",
     "resultsCount_other": "{{count}} results",
     "sections": {
-      "cards": "Cards",
+      "cards": "Your cards",
       "collections": "Collections",
       "locations": "Storage locations",
-      "settings": "Settings"
+      "settings": "Settings",
+      "catalog": "All cards"
+    },
+    "catalogLoadFailed": "Couldn't search the card catalog. Pull down to try again.",
+    "printings": {
+      "title": "Printings",
+      "titleWithCount_one": "Printings ({{count}})",
+      "titleWithCount_other": "Printings ({{count}})",
+      "count_one": "{{count}} printing",
+      "count_other": "{{count}} printings",
+      "selected": "Showing the {{printing}} printing",
+      "loadFailed": "Couldn't load the other printings.",
+      "showMore": "Show more printings"
     }
   },
   "recovery": {
@@ -3215,6 +3404,29 @@
     "tagAdded": "{{tag}} added",
     "tagRemoved": "{{tag}} removed",
     "movedTo": "Moved to {{name}}",
-    "cardsLoadFailed": "Couldn't load these cards"
+    "cardsLoadFailed": "Couldn't load these cards",
+    "foilChanged": "Foil set to {{value}}",
+    "conditionChanged": "Condition set to {{value}}",
+    "pickListCleared": "Pick list cleared",
+    "verifyProgressCleared": "Verification progress cleared"
+  },
+  "catalogCard": {
+    "title": "Card",
+    "loadFailed": "Couldn't load this card.",
+    "add": "Add to collection",
+    "addTo": "Add to {{collection}}",
+    "chooseCollection": "Add to which collection?",
+    "added": "Added {{name}} to {{collection}}",
+    "view": "View",
+    "addFailed": "Couldn't add the card.",
+    "noCollection": "Create a {{game}} collection to add this card."
+  },
+  "library": {
+    "valueModes": {
+      "value": "Value",
+      "change": "Change"
+    },
+    "noChange": "No history yet",
+    "changeLoadFailed": "Couldn't load value changes"
   }
 }

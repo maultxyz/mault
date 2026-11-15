@@ -69,14 +69,14 @@ export function UnmatchedCardsPanel({
     </>
   );
   const tileClass =
-    "relative shrink-0 rounded-md overflow-hidden border bg-muted w-20 aspect-[2.5/3.5] group";
+    "relative shrink-0 rounded-lg overflow-hidden bg-muted w-20 aspect-[2.5/3.5] group";
 
   return (
-    <div className="rounded-lg border border-warning-border bg-warning-muted overflow-hidden flex-none">
+    <div className="flex-none overflow-hidden rounded-card bg-warning-muted">
       <div
         className={cn(
-          "flex items-center gap-2 px-2",
-          expanded ? "pt-2" : "py-1.5",
+          "flex items-center gap-2 px-3",
+          expanded ? "pt-3" : "py-2",
         )}
       >
         <button
@@ -86,7 +86,7 @@ export function UnmatchedCardsPanel({
           onClick={() => setStoredExpanded(!storedExpanded)}
           className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left disabled:cursor-default"
         >
-          <span className="text-2xs font-medium text-warning-foreground uppercase tracking-wide">
+          <span className="text-xs font-medium text-warning-foreground">
             {t("unmatchedCardsPanel.heading", {
               count: Math.max(total, cards.length),
             })}
@@ -117,7 +117,7 @@ export function UnmatchedCardsPanel({
         )}
       </div>
       {expanded && (
-        <div className="flex gap-1.5 p-1.5 overflow-x-auto">
+        <div className="flex gap-1.5 overflow-x-auto p-3 pt-2">
           {cards.map((entry, index) =>
             collectionGuid ? (
               <div key={entry.scanId} className={tileClass}>

@@ -3,13 +3,12 @@ import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { MATCH_VALIDATION_REVIEWS_REQUIRED } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
+import { ProgressBar } from "@/components/ui/progress-bar";
 import { matchValidationProgressQueryOptions } from "@/features/match-validations/api/match-validations";
-import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 
 export function MatchValidationProgressBar() {
   const { t } = useTranslation();
-  const colors = useTheme();
   const { data: progress } = useQuery(matchValidationProgressQueryOptions);
   if (!progress || progress.scanCount === 0) return null;
 
@@ -29,10 +28,8 @@ export function MatchValidationProgressBar() {
       }}
       style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}
     >
-      <View style={{ flex: 1, height: 6, borderRadius: RADIUS.full, backgroundColor: colors.tonal, overflow: "hidden" }}>
-        <View style={{ width: `${percent}%`, height: "100%", borderRadius: RADIUS.full, backgroundColor: colors.primary }} />
-      </View>
-      <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+      <ProgressBar fraction={percent / 100} />
+      <AppText size="xs" tone="secondary">
         {t("matchValidations.progress.percent", { percent })}
       </AppText>
     </View>

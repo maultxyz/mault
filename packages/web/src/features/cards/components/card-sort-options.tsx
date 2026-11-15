@@ -46,7 +46,7 @@ function SortOption({
       onClick={onSelect}
       className={cn(
         "flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-xs text-left transition-colors max-md:min-h-12 max-md:px-3 max-md:text-base",
-        active ? "bg-primary/15 font-medium" : "hover:bg-muted",
+        active ? "bg-primary/15 font-medium" : "hover:bg-foreground/6",
       )}
     >
       <span>
@@ -92,7 +92,7 @@ export function CardSortOptions({
   return (
     <div
       ref={optionListRef}
-      className="relative flex max-h-56 flex-col gap-0.5 overflow-y-auto overscroll-contain rounded-lg p-1 ring-1 ring-border"
+      className="relative flex max-h-56 flex-col gap-0.5 overflow-y-auto overscroll-contain rounded-lg bg-foreground/6 p-1"
     >
       <SortOption
         ref={isScanOrderActive ? activeOptionRef : undefined}

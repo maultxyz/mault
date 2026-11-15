@@ -154,7 +154,7 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
   return (
     <View style={{ gap: SPACING.md }}>
       <View>
-        {headlineRows.map(({ source: key, headline }, index) => {
+        {headlineRows.map(({ source: key, headline }) => {
           const showFoil = isFoil && headline.foilPrice != null;
           const main = showFoil ? headline.foilPrice : headline.price;
           const secondary = showFoil ? headline.price : headline.foilPrice;
@@ -167,9 +167,7 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                 flexDirection: "row",
                 alignItems: "center",
                 gap: SPACING.md,
-                paddingVertical: SPACING.sm + 2,
-                borderTopWidth: index > 0 ? 1 : 0,
-                borderTopColor: colors.border,
+                paddingVertical: SPACING.sm,
               }}
             >
               <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
@@ -177,14 +175,14 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                   {headline.label}
                 </AppText>
                 {secondary != null ? (
-                  <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+                  <AppText size="xs" tone="secondary">
                     {t(showFoil ? "priceTable.nonFoilPrice" : "priceTable.foilPrice", {
                       price: headline.format(secondary),
                     })}
                   </AppText>
                 ) : null}
                 {mainAtScan != null && changeSinceScan ? (
-                  <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+                  <AppText size="xs" tone="secondary">
                     {t("priceTable.priceAtScan", { price: headline.format(mainAtScan) })}{" "}
                     <AppText
                       size="xs"
@@ -196,7 +194,7 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                   </AppText>
                 ) : null}
               </View>
-              <AppText size="lg" heading weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
+              <AppText size="lg" heading weight="bold">
                 {main != null ? headline.format(main) : t("priceTable.noPrice")}
               </AppText>
             </View>
@@ -237,9 +235,7 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                     flexDirection: "row",
                     alignItems: "center",
                     gap: SPACING.sm,
-                    paddingVertical: SPACING.xs + 2,
-                    borderTopWidth: 1,
-                    borderTopColor: colors.border,
+                    paddingVertical: SPACING.xs,
                   }}
                 >
                   <AppText size="sm" tone="secondary" style={{ flex: 1, minWidth: 0 }}>
@@ -250,7 +246,7 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                       key={finishColumns[valueIndex].label}
                       size="sm"
                       weight={metricIndex === table.highlightColumn ? "semibold" : "regular"}
-                      style={{ width: PRICE_TABLE_COLUMN_WIDTH, textAlign: "right", fontVariant: ["tabular-nums"] }}
+                      style={{ width: PRICE_TABLE_COLUMN_WIDTH, textAlign: "right" }}
                     >
                       {value != null ? table.format(value) : t("priceTable.noPrice")}
                     </AppText>

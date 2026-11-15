@@ -107,7 +107,7 @@ export function GameEditor({ game }: GameEditorProps) {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 md:gap-2">
       <div className="flex flex-col items-start gap-1">
         <Button
           variant="ghost"
@@ -132,7 +132,7 @@ export function GameEditor({ game }: GameEditorProps) {
               heading={t("gameForm.general.heading")}
               description={t("gameForm.general.description")}
             >
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 md:gap-2 sm:grid-cols-2">
                 <Field data-invalid={!!errors.key}>
                   <FieldLabel>{t("gameForm.keyLabel")}</FieldLabel>
                   <Controller
@@ -216,7 +216,7 @@ export function GameEditor({ game }: GameEditorProps) {
               heading={t("gameForm.physical.heading")}
               description={t("gameForm.physical.description")}
             >
-              <div className="grid gap-4 sm:grid-cols-2">
+              <div className="grid gap-4 md:gap-2 sm:grid-cols-2">
                 <Field data-invalid={!!errors.cardThickness}>
                   <FieldLabel htmlFor="game-card-thickness">
                     {t("gameForm.cardThicknessLabel")}

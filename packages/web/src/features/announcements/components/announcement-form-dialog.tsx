@@ -126,7 +126,7 @@ export function AnnouncementFormDialog({
       <form
         id="announcement-form"
         onSubmit={handleSubmit(handleFormSubmit)}
-        className="flex flex-col gap-4"
+        className="flex flex-col gap-4 md:gap-2"
       >
         <Field data-invalid={!!errors.severity}>
           <FieldLabel>{t("formDialog.severityLabel")}</FieldLabel>

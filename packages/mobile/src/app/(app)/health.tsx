@@ -12,11 +12,11 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
-import { SectionHeader } from "@/components/ui/section-header";
 import { SelectField } from "@/components/ui/select-field";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
@@ -37,7 +37,8 @@ import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { ANY_SET_OPTION, CARD_SET_PICKER_LIMIT } from "@/lib/constants/scanner";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";
-import { absoluteUrl } from "@/lib/url";
+import { cardArtSources } from "@/lib/card-art";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 
 export default function HealthScreen() {
   const { t, i18n } = useTranslation();
@@ -88,11 +89,7 @@ export default function HealthScreen() {
 
   return (
     <Screen
-      refreshing={health.isRefetching}
-      onRefresh={() => {
-        void health.refetch();
-        void coverage.refetch();
-      }}
+      onRefresh={() => Promise.all([health.refetch(), coverage.refetch()])}
       header={
         <PageHeader
           title={t("health.title")}
@@ -117,7 +114,7 @@ export default function HealthScreen() {
         />
       ) : null}
       {health.isPending ? (
-        <Skeleton height={64} />
+        <ListSkeleton withIcon={false} />
       ) : (
         <ListGroup>
           {(data?.checks ?? []).map((check) => (
@@ -142,122 +139,116 @@ export default function HealthScreen() {
         </ListGroup>
       )}
 
-      <SectionHeader title={t("health.gameCoverage.heading")} />
-      <AppText size="xs" tone="secondary">
-        {t("health.gameCoverage.description")}
-      </AppText>
-      {coverage.isPending ? (
-        <Skeleton height={120} />
-      ) : coverage.data && coverage.data.length === 0 ? (
-        <EmptyState icon="collections" title={t("health.gameCoverage.empty")} />
-      ) : (
-        <ListGroup>
-          {(coverage.data ?? []).map((entry) => (
-            <ListRow
-              key={entry.guid}
-              title={entry.isActive ? entry.name : `${entry.name} · ${t("health.gameCoverage.inactive")}`}
-              subtitle={
-                [
-                  entry.languages.map((code) => LANGUAGE_LABELS[code] ?? code).join(", "),
-                  entry.lastUpdated
-                    ? t("health.gameCoverage.lastUpdated", { date: formatShortDate(entry.lastUpdated, i18n.language) })
-                    : null,
-                ]
-                  .filter(Boolean)
-                  .join("\n") || undefined
-              }
-              value={t("health.gameCoverage.cardCount", { count: entry.cardCount })}
-            />
-          ))}
-        </ListGroup>
-      )}
+      <SettingsSection title={t("health.gameCoverage.heading")} description={t("health.gameCoverage.description")}>
+        {coverage.isPending ? (
+          <ListSkeleton withIcon={false} />
+        ) : coverage.data && coverage.data.length === 0 ? (
+          <EmptyState icon="collections" title={t("health.gameCoverage.empty")} />
+        ) : (
+          <ListGroup>
+            {(coverage.data ?? []).map((entry) => (
+              <ListRow
+                key={entry.guid}
+                title={entry.isActive ? entry.name : `${entry.name} · ${t("health.gameCoverage.inactive")}`}
+                subtitle={
+                  [
+                    entry.languages.map((code) => LANGUAGE_LABELS[code] ?? code).join(", "),
+                    entry.lastUpdated
+                      ? t("health.gameCoverage.lastUpdated", { date: formatShortDate(entry.lastUpdated, i18n.language) })
+                      : null,
+                  ]
+                    .filter(Boolean)
+                    .join("\n") || undefined
+                }
+                value={t("health.gameCoverage.cardCount", { count: entry.cardCount })}
+              />
+            ))}
+          </ListGroup>
+        )}
+      </SettingsSection>
 
-      <SectionHeader title={t("health.cardLookup.heading")} />
-      <AppText size="xs" tone="secondary">
-        {t("health.cardLookup.description")}
-      </AppText>
-      <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-        <View style={{ flex: 1 }}>
-          <SelectField
-            label={t("health.cardLookup.game")}
-            value={game?.name ?? null}
-            placeholder={t("health.cardLookup.noGames")}
-            disabled={games.length === 0}
-            onPress={() => setPicker("game")}
-          />
-        </View>
-        {languages.length > 1 ? (
+      <SettingsSection title={t("health.cardLookup.heading")} description={t("health.cardLookup.description")}>
+        <View style={{ flexDirection: "row", gap: SPACING.sm }}>
           <View style={{ flex: 1 }}>
             <SelectField
-              label={t("health.cardLookup.language")}
-              value={LANGUAGE_LABELS[activeLang] ?? activeLang}
-              placeholder={t("health.cardLookup.language")}
-              onPress={() => setPicker("lang")}
+              label={t("health.cardLookup.game")}
+              value={game?.name ?? null}
+              placeholder={t("health.cardLookup.noGames")}
+              disabled={games.length === 0}
+              onPress={() => setPicker("game")}
             />
           </View>
-        ) : null}
-      </View>
-      <SearchInput
-        value={query}
-        onChangeText={(text) => {
-          setQuery(text);
-          setSetCode(null);
-        }}
-        placeholder={t("health.cardLookup.searchPlaceholder")}
-        accessibilityLabel={t("health.cardLookup.searchPlaceholder")}
-      />
-      {queryReady && sets.length > 1 ? (
-        <SelectField
-          label={t("cardDetail.set")}
-          value={selectedSetName ?? t("health.cardLookup.allSets")}
-          placeholder={t("health.cardLookup.allSets")}
-          onPress={() => setPicker("set")}
-        />
-      ) : null}
-      {queryReady && search.isPending ? <Skeleton height={tileWidth * 1.4} /> : null}
-      {queryReady && search.data && results.length === 0 ? (
-        <AppText size="sm" tone="secondary">
-          {t("health.cardLookup.noResults")}
-        </AppText>
-      ) : null}
-      {results.length > 0 ? (
-        <View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: CARD_GRID_GAP_X, rowGap: CARD_GRID_GAP_Y }}>
-          {results.map((card) => (
-            <View key={card.id} style={{ width: tileWidth }}>
-              <CardTile
-                name={card.name}
-                caption={cardLookupCaption(card)}
-                imageUrl={absoluteUrl(card.image?.normal ?? card.image?.small)}
+          {languages.length > 1 ? (
+            <View style={{ flex: 1 }}>
+              <SelectField
+                label={t("health.cardLookup.language")}
+                value={LANGUAGE_LABELS[activeLang] ?? activeLang}
+                placeholder={t("health.cardLookup.language")}
+                onPress={() => setPicker("lang")}
               />
             </View>
+          ) : null}
+        </View>
+        <SearchInput
+          value={query}
+          onChangeText={(text) => {
+            setQuery(text);
+            setSetCode(null);
+          }}
+          placeholder={t("health.cardLookup.searchPlaceholder")}
+          accessibilityLabel={t("health.cardLookup.searchPlaceholder")}
+        />
+        {queryReady && sets.length > 1 ? (
+          <SelectField
+            label={t("cardDetail.set")}
+            value={selectedSetName ?? t("health.cardLookup.allSets")}
+            placeholder={t("health.cardLookup.allSets")}
+            onPress={() => setPicker("set")}
+          />
+        ) : null}
+        {queryReady && search.isPending ? <Skeleton height={tileWidth * 1.4} /> : null}
+        {queryReady && search.data && results.length === 0 ? (
+          <AppText size="sm" tone="secondary">
+            {t("health.cardLookup.noResults")}
+          </AppText>
+        ) : null}
+        {results.length > 0 ? (
+          <View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: CARD_GRID_GAP_X, rowGap: CARD_GRID_GAP_Y }}>
+            {results.map((card) => (
+              <View key={card.id} style={{ width: tileWidth }}>
+                <CardTile
+                  name={card.name}
+                  caption={cardLookupCaption(card)}
+                  {...cardArtSources(card.image)}
+                />
+              </View>
+            ))}
+          </View>
+        ) : null}
+        {search.hasNextPage ? (
+          <Button
+            variant="secondary"
+            label={t("health.cardLookup.loadMore")}
+            loading={search.isFetchingNextPage}
+            onPress={() => void search.fetchNextPage()}
+          />
+        ) : null}
+      </SettingsSection>
+
+      <SettingsSection title={t("health.ocrRegions.heading")} description={t("health.ocrRegions.description")}>
+        <View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: SPACING.lg, rowGap: SPACING.xl }}>
+          {ocrGames.map((entry) => (
+            <OcrRegionTile
+              key={entry.key}
+              gameKey={entry.key}
+              name={entry.name}
+              lang={entry.lang}
+              regions={entry.regions}
+              width={ocrWidth}
+            />
           ))}
         </View>
-      ) : null}
-      {search.hasNextPage ? (
-        <Button
-          variant="secondary"
-          label={t("health.cardLookup.loadMore")}
-          loading={search.isFetchingNextPage}
-          onPress={() => void search.fetchNextPage()}
-        />
-      ) : null}
-
-      <SectionHeader title={t("health.ocrRegions.heading")} />
-      <AppText size="xs" tone="secondary">
-        {t("health.ocrRegions.description")}
-      </AppText>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", columnGap: SPACING.lg, rowGap: SPACING.xl }}>
-        {ocrGames.map((entry) => (
-          <OcrRegionTile
-            key={entry.key}
-            gameKey={entry.key}
-            name={entry.name}
-            lang={entry.lang}
-            regions={entry.regions}
-            width={ocrWidth}
-          />
-        ))}
-      </View>
+      </SettingsSection>
 
       <OptionSheet
         visible={picker === "game"}

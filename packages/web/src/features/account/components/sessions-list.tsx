@@ -1,8 +1,10 @@
 import { EmptyState } from "@/components/empty-state";
 import { DeleteDialog } from "@/components/delete-dialog";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { sessionsQueryKey, sessionsQueryOptions } from "@/features/account/api/sessions";
 import { neon } from "@/lib/auth/client";
 import type { SessionRow } from "@/lib/interfaces/account";
 import {
@@ -11,16 +13,18 @@ import {
   IconDevices,
   IconLoader2,
 } from "@tabler/icons-react";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
 import { formatShortDateTime } from "@/lib/format";
 
 function describeUserAgent(ua: string | null | undefined): {
-  label: string;
+  browser: string;
+  os: string;
   isMobile: boolean;
 } {
-  if (!ua) return { label: "", isMobile: false };
+  if (!ua) return { browser: "", os: "", isMobile: false };
 
   const isTablet = /iPad|Tablet/i.test(ua);
   const isMobile = isTablet || /Mobi|Android|iPhone/i.test(ua);
@@ -39,8 +43,7 @@ function describeUserAgent(ua: string | null | undefined): {
   else if (/iPhone|iPad|iPod/.test(ua)) os = "iOS";
   else if (/Linux/.test(ua)) os = "Linux";
 
-  const label = [browser, os].filter(Boolean).join(" on ");
-  return { label, isMobile };
+  return { browser, os, isMobile };
 }
 
 export function SessionsList() {
@@ -48,34 +51,19 @@ export function SessionsList() {
   const { data } = neon.auth.useSession();
   const currentToken = data?.session?.token;
 
-  const [sessions, setSessions] = useState<SessionRow[] | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const {
+    data: sessions,
+    isLoading,
+    isError: loadFailed,
+    refetch,
+  } = useQuery(sessionsQueryOptions());
   const [revokeTarget, setRevokeTarget] = useState<SessionRow | null>(null);
   const [revokeAllOpen, setRevokeAllOpen] = useState(false);
   const [revokingToken, setRevokingToken] = useState<string | null>(null);
   const [isRevokingAll, setIsRevokingAll] = useState(false);
-
-  const load = useCallback(async () => {
-    setIsLoading(true);
-    try {
-      const { data, error } = await neon.auth.listSessions();
-      if (error) throw new Error(error.message);
-      setSessions(
-        [...(data ?? [])].sort(
-          (a, b) =>
-            new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime(),
-        ),
-      );
-    } catch {
-      toast.error(t("sessions.loadFailed"));
-    } finally {
-      setIsLoading(false);
-    }
-  }, [t]);
-
-  useEffect(() => {
-    load();
-  }, [load]);
+  const refreshSessions = () =>
+    queryClient.invalidateQueries({ queryKey: sessionsQueryKey });
 
   async function handleRevoke() {
     if (!revokeTarget) return;
@@ -90,7 +78,7 @@ export function SessionsList() {
         return;
       }
       toast.success(t("sessions.revoked"));
-      await load();
+      await refreshSessions();
     } catch (e: unknown) {
       toast.error(e instanceof Error ? e.message : t("sessions.revokeFailed"));
     } finally {
@@ -105,7 +93,7 @@ export function SessionsList() {
       const { error } = await neon.auth.revokeOtherSessions();
       if (error) throw new Error(error.message);
       toast.success(t("sessions.allRevoked"));
-      await load();
+      await refreshSessions();
     } catch (e: unknown) {
       toast.error(
         e instanceof Error ? e.message : t("sessions.revokeAllFailed"),
@@ -121,7 +109,7 @@ export function SessionsList() {
   ).length;
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:gap-2">
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs text-foreground/70">
           {t("sessions.description")}
@@ -145,15 +133,28 @@ export function SessionsList() {
         </div>
       )}
 
+      {!isLoading && loadFailed && !sessions && (
+        <LoadErrorCallout
+          message={t("sessions.loadFailed")}
+          onRetry={() => void refetch()}
+        />
+      )}
+
       {!isLoading && sessions?.length === 0 && (
         <EmptyState size="compact" icon={IconDevices} title={t("sessions.empty")} />
       )}
 
       {!isLoading && sessions && sessions.length > 0 && (
-        <div className="flex flex-col divide-y divide-border rounded-lg border">
+        <div className="flex flex-col divide-y divide-border">
           {sessions.map((session) => {
             const isCurrent = session.token === currentToken;
-            const { label, isMobile } = describeUserAgent(session.userAgent);
+            const { browser, os, isMobile } = describeUserAgent(
+              session.userAgent,
+            );
+            const label =
+              browser && os
+                ? t("sessions.browserOnOs", { browser, os })
+                : browser || os;
             const Icon = isMobile ? IconDeviceMobile : IconDeviceDesktop;
             const isRevoking = revokingToken === session.token;
 

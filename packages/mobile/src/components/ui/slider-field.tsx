@@ -11,7 +11,7 @@ export function SliderField({ label, description, valueLabel, children, ...slide
         <AppText size="xs" weight="medium" style={{ flex: 1 }}>
           {label}
         </AppText>
-        <AppText size="xs" weight="semibold" style={{ fontVariant: ["tabular-nums"] }}>
+        <AppText size="xs" weight="semibold">
           {valueLabel}
         </AppText>
       </View>

@@ -1,7 +1,7 @@
-import { Image } from "expo-image";
 import { memo } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
+import { CardArt } from "@/components/cards/card-art";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
@@ -12,7 +12,9 @@ import type { CardTileProps } from "@/lib/interfaces/ui";
 export const CardTile = memo(function CardTile({
   name,
   caption,
+  captionHighlight = null,
   imageUrl,
+  placeholderUrl,
   quantity,
   flagged = false,
   corrected = false,
@@ -27,6 +29,7 @@ export const CardTile = memo(function CardTile({
   const awaitingReview = flagged && !corrected;
   const accessibilityLabel = [
     name,
+    captionHighlight?.text,
     caption,
     quantity && quantity > 1 ? t("cards.quantity", { count: quantity }) : null,
     flagged ? (corrected ? t("cards.reviewed") : t("cards.needsReview")) : null,
@@ -55,13 +58,13 @@ export const CardTile = memo(function CardTile({
           borderRadius: CARD_ART_RADIUS,
           overflow: "hidden",
           backgroundColor: colors.muted,
-          borderWidth: selected || awaitingReview ? 2 : 1,
-          borderColor: selected ? colors.primary : awaitingReview ? colors.warning : colors.border,
+          borderWidth: selected || awaitingReview ? 2 : 0,
+          borderColor: selected ? colors.primary : colors.warning,
           opacity: disabled ? 0.5 : 1,
         }}
       >
         {imageUrl ? (
-          <Image source={{ uri: imageUrl }} style={{ flex: 1 }} contentFit="cover" transition={120} />
+          <CardArt imageUrl={imageUrl} placeholderUrl={placeholderUrl} style={{ flex: 1 }} contentFit="cover" />
         ) : null}
         {flagged ? (
           <View
@@ -75,6 +78,21 @@ export const CardTile = memo(function CardTile({
             }}
           >
             <Icon name={corrected ? "check" : "help"} size={12} color={colors.onStatusStrong} />
+          </View>
+        ) : null}
+        {selected ? (
+          <View
+            accessible={false}
+            style={{
+              position: "absolute",
+              bottom: SPACING.xs,
+              right: SPACING.xs,
+              padding: 2,
+              borderRadius: RADIUS.full,
+              backgroundColor: colors.primary,
+            }}
+          >
+            <Icon name="check" size={12} color={colors.primaryForeground} />
           </View>
         ) : null}
         {quantity && quantity > 1 ? (
@@ -99,7 +117,15 @@ export const CardTile = memo(function CardTile({
         <AppText size="xs" weight="medium" numberOfLines={1}>
           {name}
         </AppText>
-        <AppText size="xs" tone="secondary" numberOfLines={1} style={{ fontVariant: ["tabular-nums"] }}>
+        <AppText size="xs" tone="secondary" numberOfLines={1}>
+          {captionHighlight ? (
+            <>
+              <AppText size="xs" weight="semibold" tone={captionHighlight.tone}>
+                {captionHighlight.text}
+              </AppText>
+              {caption ? " · " : ""}
+            </>
+          ) : null}
           {caption}
         </AppText>
       </View>

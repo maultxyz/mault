@@ -8,6 +8,7 @@ import { Pill } from "@/components/ui/pill";
 import { Surface } from "@/components/ui/surface";
 import { planConfigQueryOptions, savePricingMode } from "@/features/admin/api/plans-config";
 import { SPACING } from "@/lib/constants/theme";
+import { SectionHeader } from "@/components/ui/section-header";
 
 export function PlansPricingModeSection() {
   const { t } = useTranslation();
@@ -42,29 +43,33 @@ export function PlansPricingModeSection() {
   };
 
   return (
-    <Surface style={{ gap: SPACING.md }}>
-      <View style={{ gap: SPACING.xs }}>
-        <AppText heading weight="semibold" accessibilityRole="header">
-          {t("admin.plans.pricingMode.heading")}
-        </AppText>
-        <Pill
-          tone={isLegacyPricingActive ? "warning" : "success"}
-          label={t(`admin.plans.pricingMode.${pricingModeKey}.badge`)}
+    <View style={{ gap: SPACING.sm }}>
+      <View style={{ gap: 2 }}>
+        <SectionHeader
+          title={t("admin.plans.pricingMode.heading")}
+          action={
+            <Pill
+              tone={isLegacyPricingActive ? "warning" : "success"}
+              label={t(`admin.plans.pricingMode.${pricingModeKey}.badge`)}
+            />
+          }
         />
         <AppText size="xs" tone="secondary">
           {t(`admin.plans.pricingMode.${pricingModeKey}.description`)}
         </AppText>
       </View>
-      {pricingModeMutation.isError ? (
-        <Callout tone="destructive" title={t("admin.plans.pricingMode.saveFailed")} />
-      ) : null}
-      <Button
-        variant="secondary"
-        label={t(`admin.plans.pricingMode.${pricingModeKey}.switch`)}
-        loading={pricingModeMutation.isPending}
-        disabled={pricingModeMutation.isPending}
-        onPress={confirmPricingModeSwitch}
-      />
-    </Surface>
+      <Surface style={{ gap: SPACING.md }}>
+        {pricingModeMutation.isError ? (
+          <Callout tone="destructive" title={t("admin.plans.pricingMode.saveFailed")} />
+        ) : null}
+        <Button
+          variant="secondary"
+          label={t(`admin.plans.pricingMode.${pricingModeKey}.switch`)}
+          loading={pricingModeMutation.isPending}
+          disabled={pricingModeMutation.isPending}
+          onPress={confirmPricingModeSwitch}
+        />
+      </Surface>
+    </View>
   );
 }

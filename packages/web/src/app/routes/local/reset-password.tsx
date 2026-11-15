@@ -1,3 +1,4 @@
+import { BrandMark } from "@/components/brand-mark";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import {
   Card,
@@ -63,8 +64,9 @@ export default function AuthResetPasswordPage() {
     <main
       id={MAIN_CONTENT_ID}
       tabIndex={-1}
-      className="flex min-h-screen items-center justify-center bg-muted p-4 outline-none"
+      className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background p-4 outline-none"
     >
+      <BrandMark />
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
@@ -81,7 +83,7 @@ export default function AuthResetPasswordPage() {
             <form
               id="reset-password-form"
               onSubmit={form.handleSubmit(onSubmit)}
-              className="flex flex-col gap-3"
+              className="flex flex-col gap-3 md:gap-2"
             >
               <Field data-invalid={!!form.formState.errors.password}>
                 <FieldLabel htmlFor="password">

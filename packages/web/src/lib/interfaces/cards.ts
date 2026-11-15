@@ -90,6 +90,42 @@ export interface CardPurchaseLinksProps {
   card: PlayingCard;
 }
 
+export type CardDetailTitleTag = "h1" | "h2" | "p";
+
+export interface CardDetailTitleProps {
+  name: string;
+  price?: number | null;
+  typeLine?: string | null;
+  titleTag?: CardDetailTitleTag;
+  badges?: ReactNode;
+  trailing?: ReactNode;
+}
+
+export interface CardDetailArtProps {
+  card: PlayingCard | undefined;
+  widthClass: string;
+  caption?: string;
+  children?: ReactNode;
+  footer?: ReactNode;
+}
+
+export interface CardRulesSectionProps {
+  card: PlayingCard;
+}
+
+export interface CardPricesSectionProps {
+  card: PlayingCard;
+  isFoil?: boolean;
+  foilType?: string | null;
+  stamp?: string | null;
+  condition?: CardCondition | null;
+  children?: ReactNode;
+}
+
+export interface CardDetailBodySkeletonProps {
+  imageCount: number;
+}
+
 export interface CardPriceDetailsProps {
   card: PlayingCard;
   isFoil?: boolean;
@@ -190,6 +226,7 @@ export interface PendingScanCardItemProps {
 
 export interface CardToolbarProps {
   leading?: ReactNode;
+  extraActions?: ReactNode;
   onAddCard?: () => void;
   onImportScans?: () => void;
   searchQuery: string;
@@ -501,6 +538,7 @@ export interface ReviewGridProps {
   total: number;
   isLoading: boolean;
   isError: boolean;
+  onRetry?: () => void;
   onOpenOneByOne: (card: ReviewGridCard) => void;
   onClose: () => void;
   onCorrect?: (card: ReviewGridCard, correctedCard: PlayingCard) => void;
@@ -656,6 +694,7 @@ export interface ReviewQueueListProps {
   totalCards: number;
   isPending: boolean;
   isError: boolean;
+  onRetry?: () => void;
   currentScanId: string | null;
   reviewedScanIds: ReadonlySet<string>;
   removedScanIds: ReadonlySet<string>;

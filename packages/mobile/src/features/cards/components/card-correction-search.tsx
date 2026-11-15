@@ -5,6 +5,7 @@ import { View } from "react-native";
 import { CardRow } from "@/components/cards/card-row";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -70,9 +71,7 @@ export function CardCorrectionSearch({
       ) : search.isPending ? (
         <ListSkeleton rows={4} />
       ) : results.length === 0 ? (
-        <AppText tone="secondary" style={{ textAlign: "center", paddingVertical: SPACING.xl }}>
-          {t("cardDetail.noCardsFound")}
-        </AppText>
+        <EmptyState icon="search" title={t("cardDetail.noCardsFound")} />
       ) : (
         <>
           <ListGroup>

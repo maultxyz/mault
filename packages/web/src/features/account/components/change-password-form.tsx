@@ -46,7 +46,7 @@ export function ChangePasswordForm() {
       <form
         id="change-password-form"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex max-w-sm flex-col gap-3"
+        className="flex max-w-sm flex-col gap-3 md:gap-2"
       >
         <Field data-invalid={!!form.formState.errors.currentPassword}>
           <FieldLabel htmlFor="currentPassword">

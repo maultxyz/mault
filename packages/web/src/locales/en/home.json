@@ -1,0 +1,57 @@
+{
+  "title": "Home",
+  "hero": {
+    "value": "Collection value",
+    "cards": "Cards",
+    "collections": "Collections",
+    "scanned": "Scanned all time",
+    "sinceYesterday": "since yesterday",
+    "sinceDate": "since {{date}}"
+  },
+  "review": {
+    "title_one": "{{count}} scan needs review",
+    "title_other": "{{count}} scans need review",
+    "description": "Check the matches so your collection stays accurate.",
+    "open": "Opens the review screen"
+  },
+  "trades": {
+    "title_one": "{{count}} trade offer waiting",
+    "title_other": "{{count}} trade offers waiting",
+    "description": "See what was offered and accept or decline."
+  },
+  "live": {
+    "yourSession": "Your session",
+    "scanning": "Scanning",
+    "scanningBy": "{{name}} is scanning",
+    "title": "{{name}} · {{collection}}",
+    "open": "Opens the collection"
+  },
+  "cardOfTheDay": "Cards of the day",
+  "activity": {
+    "title": "Scan activity",
+    "today": "Today",
+    "thisWeek": "This week",
+    "scans_one": "{{count}} scan",
+    "scans_other": "{{count}} scans",
+    "chartLabel": "Scans per day for the last 14 days"
+  },
+  "topCards": "Top cards",
+  "recentScans": "Recently scanned",
+  "seeAllStats": "All stats",
+  "loadFailed": "Couldn't load your overview. Try again in a moment.",
+  "library": {
+    "title": "Library",
+    "collections": "Collections",
+    "storage": "Storage",
+    "trades": "Trades",
+    "searchPlaceholder": "Search collections",
+    "noSearchResultsTitle": "No collections found",
+    "noSearchResultsDescription": "Try a different name.",
+    "valueModeLabel": "Collection values",
+    "valueModes": {
+      "value": "Value",
+      "change": "Change"
+    },
+    "noChange": "No history yet"
+  }
+}

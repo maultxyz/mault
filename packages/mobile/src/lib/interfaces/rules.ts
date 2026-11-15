@@ -23,6 +23,7 @@ export interface BinSaveInput {
   lowMatchPercent?: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
+  maxCards?: number | null;
   pickList?: null;
 }
 
@@ -63,6 +64,7 @@ export interface ActivePresetWorkflowState {
   nextStep: PresetWorkflowStep | null;
   label: string;
   presetName: (presetGuid: string) => string;
+  isPending: boolean;
 }
 
 export interface AlphabetPassCardProps {
@@ -90,7 +92,7 @@ export interface RulesData {
   freeformOptions: boolean;
   isPending: boolean;
   isError: boolean;
-  refetch: () => void;
+  refetch: () => Promise<unknown>;
   isRefetching: boolean;
 }
 
@@ -126,4 +128,12 @@ export interface BinRowProps {
   fieldDefinitions: FieldMeta[];
   summary?: string;
   onPress: () => void;
+}
+
+export type PresetDescriptionRouteParams = {
+  guid: string;
+};
+
+export interface PresetDescriptionSaveContext {
+  previous: BinSet[] | undefined;
 }

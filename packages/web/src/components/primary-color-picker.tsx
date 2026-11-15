@@ -19,7 +19,7 @@ export function PrimaryColorPicker({
   }, [value, savedValue]);
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:gap-2">
       <div className="flex flex-wrap gap-2">
         {THEME_COLORS.map((color) => {
           const isSelected = value === color.name;
@@ -31,7 +31,7 @@ export function PrimaryColorPicker({
               aria-pressed={isSelected}
               onClick={() => onChange(color.name)}
               className={cn(
-                "size-7 rounded-md shrink-0 transition-all ring-offset-background",
+                "size-7 rounded-md shrink-0 transition-all ring-offset-transparent",
                 isSelected
                   ? "ring-2 ring-offset-2 ring-foreground scale-110"
                   : "hover:scale-110",

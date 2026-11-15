@@ -4,8 +4,9 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
+import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
-import { Icon } from "@/components/ui/icon";
+import { ListGroup } from "@/components/ui/list-group";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
@@ -15,12 +16,10 @@ import { useTradeDraft } from "@/features/trade-offers/api/use-trade-draft";
 import { TradeCardRow } from "@/features/trade-offers/components/trade-card-row";
 import { toggleWantedCard } from "@/features/trade-offers/lib/trade-draft";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { useTheme } from "@/hooks/use-theme";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 
 export default function TradeBrowseScreen() {
   const { t } = useTranslation();
-  const colors = useTheme();
   const draft = useTradeDraft();
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
@@ -49,30 +48,33 @@ export default function TradeBrowseScreen() {
       />
       {cards.isLoading ? (
         <ListSkeleton />
+      ) : cards.isError && entries.length === 0 ? (
+        <Callout
+          tone="destructive"
+          title={t("trade.linkCardsLoadFailed")}
+          action={<Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={() => void cards.refetch()} />}
+        />
       ) : entries.length === 0 ? (
         <EmptyState icon="search" title={t("trade.noLinkCards")} />
       ) : (
-        entries.map((card) => {
-          const isWanted = wantedScanIds.has(card.scanId);
-          return (
-            <TradeCardRow
-              key={card.scanId}
-              name={card.card.name}
-              subtitle={[card.card.setName, card.condition, card.isFoil ? (card.foilType ?? t("trade.foil")) : null]
-                .filter(Boolean)
-                .join(" · ")}
-              imageUrl={card.card.image?.small ?? card.card.image?.normal ?? null}
-              accessibilityHint={isWanted ? t("trade.tapToRemove") : t("trade.tapToAdd")}
-              selected={isWanted}
-              onPress={() => toggleWantedCard(card)}
-              right={
-                isWanted ? (
-                  <Icon name="success" size={22} color={colors.successForeground} />
-                ) : null
-              }
-            />
-          );
-        })
+        <ListGroup>
+          {entries.map((card) => {
+            const isWanted = wantedScanIds.has(card.scanId);
+            return (
+              <TradeCardRow
+                key={card.scanId}
+                name={card.card.name}
+                subtitle={[card.card.setName, t(`trade.conditions.${card.condition}`), card.isFoil ? (card.foilType ?? t("trade.foil")) : null]
+                  .filter(Boolean)
+                  .join(" · ")}
+                imageUrl={card.card.image?.small ?? card.card.image?.normal ?? null}
+                accessibilityHint={isWanted ? t("trade.tapToRemove") : t("trade.tapToAdd")}
+                selected={isWanted}
+                onPress={() => toggleWantedCard(card)}
+              />
+            );
+          })}
+        </ListGroup>
       )}
       {cards.hasNextPage ? (
         <Button

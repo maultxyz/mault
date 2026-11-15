@@ -1,3 +1,4 @@
+import { EmptyState } from "@/components/empty-state";
 import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -19,7 +20,11 @@ import {
   QUERY_MIN_LENGTH,
   type AdminUserSummary,
 } from "@magic-vault/shared";
-import { IconClockHour3, IconUserScan } from "@tabler/icons-react";
+import {
+  IconClockHour3,
+  IconUserScan,
+  IconUsers,
+} from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -91,7 +96,7 @@ export function ImpersonationUsersManager() {
             aria-label={t("impersonationUsersManager.searchPlaceholder")}
             value={searchInput}
             onChange={(e) => handleSearchInput(e.target.value)}
-            className="h-7 text-xs max-w-56"
+            className="max-w-56"
           />
           <Tooltip>
             <TooltipTrigger
@@ -114,7 +119,7 @@ export function ImpersonationUsersManager() {
         </>
       }
     >
-      <div className="divide-y max-h-80 overflow-y-auto rounded-lg border">
+      <div className="max-h-80 divide-y divide-border overflow-y-auto">
         {!isQueryReady && (
           <p className="text-sm text-foreground/70 text-center py-6">
             {t("impersonationUsersManager.startTyping")}
@@ -174,9 +179,11 @@ export function ImpersonationUsersManager() {
         {isQueryReady &&
           !usersQuery.isLoading &&
           usersQuery.data?.length === 0 && (
-            <p className="text-sm text-foreground/70 text-center py-6">
-              {t("impersonationUsersManager.empty")}
-            </p>
+            <EmptyState
+              size="compact"
+              icon={IconUsers}
+              title={t("impersonationUsersManager.empty")}
+            />
           )}
       </div>
 

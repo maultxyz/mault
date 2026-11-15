@@ -61,7 +61,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       <div className="flex flex-wrap items-center gap-2">
         <Button variant="ghost" onClick={onClose}>
           <IconArrowLeft />
@@ -105,7 +105,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
       />
 
       {sample && (
-        <div className="flex flex-col gap-3 rounded-lg border p-4">
+        <div className="flex flex-col gap-3 md:gap-2 rounded-card bg-card p-4 md:p-2.5">
           <div className="flex items-center justify-between gap-2">
             <Button
               variant="ghost"
@@ -206,7 +206,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
           <h3 className="font-heading text-sm font-semibold">
             {t("accuracy.wrongList")}
           </h3>
-          <div className="flex flex-col divide-y rounded-lg border">
+          <div className="flex flex-col divide-y divide-border overflow-hidden rounded-card bg-card">
             {wrong.map((entry) => (
               <div key={entry.scanId} className="flex items-center gap-2 px-3 py-2">
                 <span className="min-w-0 flex-1 truncate text-sm">

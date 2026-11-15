@@ -75,7 +75,7 @@ export function ServoControl({
           {servo.positions.map((position) => {
             const key = getCalibrationKey(servo.name, position);
             return key ? (
-              <AppText key={position} weight="bold" style={{ flex: 1, textAlign: "center", fontVariant: ["tabular-nums"] }}>
+              <AppText key={position} weight="bold" style={{ flex: 1, textAlign: "center" }}>
                 {showRaw ? String(calibration[key]) : `${pulseToPercent(calibration[key])}%`}
               </AppText>
             ) : null;
@@ -87,13 +87,14 @@ export function ServoControl({
         style={{
           flexDirection: "row",
           borderRadius: RADIUS.md,
-          borderWidth: 1,
-          borderColor: colors.border,
+          backgroundColor: colors.muted,
+          padding: 2,
+          gap: 2,
           overflow: "hidden",
           opacity: canCalibrate ? 1 : DISABLED_OPACITY,
         }}
       >
-        {servo.positions.map((position, index) => {
+        {servo.positions.map((position) => {
           const selected = activePosition === position;
           return (
             <Pressable
@@ -107,9 +108,8 @@ export function ServoControl({
                 height: 36,
                 alignItems: "center",
                 justifyContent: "center",
-                borderLeftWidth: index > 0 ? 1 : 0,
-                borderLeftColor: colors.border,
-                backgroundColor: selected ? colors.primarySelected : pressed ? colors.muted : "transparent",
+                borderRadius: RADIUS.md - 2,
+                backgroundColor: selected ? colors.primarySelected : pressed ? colors.tonal : "transparent",
               })}
             >
               <AppText size="xs" weight="semibold" style={{ color: selected ? colors.primaryText : colors.foreground }}>
@@ -134,7 +134,7 @@ export function ServoControl({
               ? t("calibration.editingPosition", { position: positionLabel(activePosition) })
               : t("calibration.noPositionSelected")}
           </AppText>
-          <AppText weight="bold" style={{ fontVariant: ["tabular-nums"] }}>
+          <AppText weight="bold">
             {`${pulseToPercent(sliderValue)}%`}
           </AppText>
         </View>

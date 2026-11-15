@@ -1,3 +1,4 @@
+import { HOME_PATH } from "@/lib/constants/nav";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
@@ -12,12 +13,14 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { signInLocal, signUpLocal } from "@/lib/auth";
+import { authPathReturningTo, safeAuthRedirectPath } from "@/lib/auth-redirect";
+import { AUTH_REDIRECT_PARAM, SIGN_IN_PATH, SIGN_UP_PATH } from "@/lib/constants/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 
 const signInSchema = z.object({
@@ -35,6 +38,8 @@ export default function AuthLocalPage() {
   const { path } = useParams();
   const navigate = useNavigate();
   const isSignUp = path === "sign-up";
+  const [searchParams] = useSearchParams();
+  const redirectPath = safeAuthRedirectPath(searchParams.get(AUTH_REDIRECT_PARAM));
   const [serverError, setServerError] = useState<string | null>(null);
 
   const signInForm = useForm<z.infer<typeof signInSchema>>({
@@ -57,7 +62,7 @@ export default function AuthLocalPage() {
       setServerError(result.error);
       return;
     }
-    navigate("/app", { replace: true });
+    navigate(redirectPath ?? HOME_PATH, { replace: true });
   }
 
   async function onSignUp(values: z.infer<typeof signUpSchema>) {
@@ -71,14 +76,14 @@ export default function AuthLocalPage() {
       setServerError(result.error);
       return;
     }
-    navigate("/app", { replace: true });
+    navigate(redirectPath ?? HOME_PATH, { replace: true });
   }
 
   return (
     <main
       id={MAIN_CONTENT_ID}
       tabIndex={-1}
-      className="flex min-h-screen flex-col items-center justify-center gap-6 bg-muted p-4 outline-none"
+      className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background p-4 outline-none"
     >
       <BrandMark />
       <Card className="w-full max-w-sm">
@@ -99,7 +104,7 @@ export default function AuthLocalPage() {
             <form
               id="local-auth-form"
               onSubmit={signUpForm.handleSubmit(onSignUp)}
-              className="flex flex-col gap-3"
+              className="flex flex-col gap-3 md:gap-2"
             >
               <Field data-invalid={!!signUpForm.formState.errors.name}>
                 <FieldLabel htmlFor="name">{t("local.nameLabel")}</FieldLabel>
@@ -142,7 +147,7 @@ export default function AuthLocalPage() {
             <form
               id="local-auth-form"
               onSubmit={signInForm.handleSubmit(onSignIn)}
-              className="flex flex-col gap-3"
+              className="flex flex-col gap-3 md:gap-2"
             >
               <Field data-invalid={!!signInForm.formState.errors.email}>
                 <FieldLabel htmlFor="email">{t("local.emailLabel")}</FieldLabel>
@@ -183,7 +188,7 @@ export default function AuthLocalPage() {
             </form>
           )}
         </CardContent>
-        <CardFooter className="flex flex-col gap-3">
+        <CardFooter className="flex flex-col gap-3 md:gap-2">
           <Button
             type="submit"
             form="local-auth-form"
@@ -207,7 +212,12 @@ export default function AuthLocalPage() {
               type="button"
               className="text-primary hover:underline"
               onClick={() =>
-                navigate(isSignUp ? "/auth/sign-in" : "/auth/sign-up")
+                navigate(
+                  authPathReturningTo(
+                    isSignUp ? SIGN_IN_PATH : SIGN_UP_PATH,
+                    redirectPath ?? "",
+                  ),
+                )
               }
             >
               {isSignUp ? t("local.signInLink") : t("local.signUpLink")}

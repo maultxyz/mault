@@ -260,7 +260,7 @@ The scanner downloads its ONNX weights from `huggingface.co` at runtime (pinned 
 
 ```bash
 docker compose up --build -d                 # postgres, server, web (:8080), api-docs (:8081)
-docker compose --profile bot up --build -d   # + Discord bot (:3002)
+docker compose --profile bot up --build -d   # + Discord bot (internal :3002)
 ```
 
 - For production, set `WEB_URL` to your public origin and use real secrets.

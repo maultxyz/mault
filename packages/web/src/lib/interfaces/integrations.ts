@@ -76,3 +76,11 @@ export interface WebhookDialogProps {
   isSaving: boolean;
   onSubmit: (input: WebhookEndpointInput) => void;
 }
+
+export interface DiscordChannelTargetFieldsProps {
+  channelName: "scanChannelId" | "errorChannelId" | "tradeChannelId";
+  roleName: "scanRoleId" | "errorRoleId" | "tradeRoleId";
+  channelLabel: string;
+  roleLabel: string;
+  integration: DiscordIntegration;
+}

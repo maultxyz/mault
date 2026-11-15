@@ -1,0 +1,45 @@
+{
+  "title": "Suche",
+  "placeholder": "Karten, Sammlungen, Lagerorte und Einstellungen suchen",
+  "promptTitle": "Alles durchsuchen",
+  "promptDescription": "Finde jede Karte, ob in deinen Sammlungen oder nicht, sowie Sammlungen, Lagerorte und Einstellungen.",
+  "emptyTitle": "Nichts gefunden",
+  "emptyDescription": "Versuche einen anderen Namen oder eine andere Schreibweise.",
+  "loadFailed": "Deine Karten konnten nicht durchsucht werden.",
+  "catalogLoadFailed": "Der Kartenkatalog konnte nicht durchsucht werden.",
+  "locationsLoadFailed": "Deine Lagerorte konnten nicht geladen werden.",
+  "foil": "Foil",
+  "locationPosition": "{{location}}, Platz {{position}}",
+  "resultsCount_one": "{{count}} Ergebnis",
+  "resultsCount_other": "{{count}} Ergebnisse",
+  "cardsCount_one": "{{count}} Karte",
+  "cardsCount_other": "{{count}} Karten",
+  "sections": {
+    "cards": "Deine Karten",
+    "collections": "Sammlungen",
+    "locations": "Lagerorte",
+    "settings": "Einstellungen",
+    "catalog": "Alle Karten"
+  },
+  "catalogCard": {
+    "title": "Karte",
+    "loadFailed": "Diese Karte konnte nicht geladen werden.",
+    "add": "Zur Sammlung hinzufügen",
+    "addTo": "Zu {{collection}} hinzufügen",
+    "chooseCollection": "Zu welcher Sammlung hinzufügen?",
+    "added": "{{name}} zu {{collection}} hinzugefügt",
+    "view": "Ansehen",
+    "addFailed": "Die Karte konnte nicht hinzugefügt werden.",
+    "noCollection": "Erstelle eine {{game}}-Sammlung, um diese Karte hinzuzufügen."
+  },
+  "printings": {
+    "title": "Drucke",
+    "titleWithCount_one": "Drucke ({{count}})",
+    "titleWithCount_other": "Drucke ({{count}})",
+    "count_one": "{{count}} Druck",
+    "count_other": "{{count}} Drucke",
+    "selected": "Druck {{printing}} wird angezeigt",
+    "loadFailed": "Die anderen Drucke konnten nicht geladen werden.",
+    "showMore": "Weitere Drucke anzeigen"
+  }
+}

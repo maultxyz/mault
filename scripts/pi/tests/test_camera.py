@@ -82,6 +82,7 @@ class CameraFrameTimingTests(unittest.TestCase):
         camera.buffer.publish(b'old')
         handler = CAMERA_HELPER.Handler.__new__(CAMERA_HELPER.Handler)
         handler.path = '/frame?fresh=1'
+        handler.headers = {'Host': '127.0.0.1:8765'}
         replies = []
         handler._send = lambda *reply: replies.append(reply)
         timer = threading.Timer(0.05, lambda: camera.buffer.publish(b'new'))
@@ -98,6 +99,7 @@ class CameraFrameTimingTests(unittest.TestCase):
         camera.buffer.publish(b'old')
         handler = CAMERA_HELPER.Handler.__new__(CAMERA_HELPER.Handler)
         handler.path = '/frame?fresh=1'
+        handler.headers = {'Host': '127.0.0.1:8765'}
         replies = []
         handler._send = lambda *reply: replies.append(reply)
         with patch.object(CAMERA_HELPER, 'CAMERA', camera), patch.object(
@@ -105,6 +107,17 @@ class CameraFrameTimingTests(unittest.TestCase):
         ):
             handler.do_GET()
         self.assertEqual(replies[0][0], 503)
+
+
+    def test_rejects_requests_for_other_host_names(self):
+        handler = CAMERA_HELPER.Handler.__new__(CAMERA_HELPER.Handler)
+        handler.path = '/frame'
+        handler.headers = {'Host': 'attacker.example:8765'}
+        replies = []
+        handler._send = lambda *reply: replies.append(reply)
+        handler.do_GET()
+        handler.do_POST()
+        self.assertEqual([reply[0] for reply in replies], [403, 403])
 
 
 class CameraFocusTests(unittest.TestCase):
@@ -210,7 +223,7 @@ class CameraFocusTests(unittest.TestCase):
         handler = CAMERA_HELPER.Handler.__new__(CAMERA_HELPER.Handler)
         body = b'{"mode":"lock"}'
         handler.path = "/focus"
-        handler.headers = {"Content-Length": str(len(body))}
+        handler.headers = {"Content-Length": str(len(body)), "Host": "127.0.0.1:8765"}
         handler.rfile = io.BytesIO(body)
         replies = []
         handler._send = lambda *reply: replies.append(reply)

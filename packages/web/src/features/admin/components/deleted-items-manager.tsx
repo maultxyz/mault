@@ -122,7 +122,7 @@ export function DeletedItemsManager() {
       ) : (
         <>
           <ListPagination alignsEnd pagination={pagination} />
-          <div className="divide-y rounded-lg border">
+          <div className="divide-y divide-border">
             {pagination.pageItems.map((item) => {
               const restoring =
                 restoreMutation.isPending &&

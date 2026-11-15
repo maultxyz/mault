@@ -66,6 +66,7 @@ export interface WidgetCard {
   collectionGuid: string;
   name: string;
   detail: string;
+  detailDirection: "up" | "down" | "";
   price: string;
   imageUri: string;
   url: string;

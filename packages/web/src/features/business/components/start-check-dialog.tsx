@@ -71,7 +71,7 @@ export function StartCheckDialog({
         </DialogHeader>
         <form
           id="start-check-form"
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(submit)}
         >
           <Controller
@@ -101,7 +101,11 @@ export function StartCheckDialog({
             render={({ field }) => (
               <label className="flex items-center justify-between gap-3">
                 <span className="text-sm">{t("accuracy.unreviewedOnly")}</span>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch
+                  aria-label={t("accuracy.unreviewedOnly")}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </label>
             )}
           />

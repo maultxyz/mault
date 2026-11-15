@@ -27,6 +27,7 @@
     "sorter": "Sortierer",
     "stats": "Statistiken",
     "storage": "Lager",
+    "trades": "Tausch",
     "more": "Mehr",
     "home": "Start",
     "library": "Bibliothek"
@@ -96,7 +97,9 @@
     "shareLinkWithCount_other": "Link zur Live-Ansicht teilen ({{count}} aktiv)",
     "scanTarget": "Hier wird gescannt",
     "scanInto": "In diese Sammlung scannen",
-    "scan": "Scannen"
+    "scan": "Scannen",
+    "notFoundTitle": "Sammlung nicht gefunden",
+    "notFoundDescription": "Sie wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf."
   },
   "shareLink": {
     "collectionTitle": "Live-Ansicht teilen",
@@ -168,7 +171,6 @@
   },
   "stats": {
     "title": "Statistiken",
-    "subtitle": "Diagramme und Zahlen zu deinen Sammlungen",
     "error": "Statistiken konnten nicht geladen werden. Versuch es gleich noch einmal.",
     "empty": {
       "title": "Noch keine Karten",
@@ -211,8 +213,14 @@
     "activity": {
       "title": "Scan-Aktivität",
       "description": {
-        "day": "Gescannte Karten pro Tag",
-        "week": "Gescannte Karten pro Woche"
+        "count": {
+          "day": "Gescannte Karten pro Tag",
+          "week": "Gescannte Karten pro Woche"
+        },
+        "value": {
+          "day": "Wert der pro Tag gescannten Karten",
+          "week": "Wert der pro Woche gescannten Karten"
+        }
       },
       "metrics": {
         "count": "Karten",
@@ -245,7 +253,8 @@
         "avgValue": "Ø Karte",
         "scansInRange": "Gescannt",
         "lastScanAt": "Letzter Scan"
-      }
+      },
+      "filterHint": "Zeigt die Statistik für diese Sammlung"
     },
     "prices": {
       "title": "Preisverteilung",
@@ -331,11 +340,7 @@
     },
     "showAll": "Alle anzeigen ({{count}})",
     "showLess": "Weniger anzeigen",
-    "other": "Sonstige",
-    "headline": {
-      "title": "Deine Sammlung",
-      "subtitle": "in Zahlen"
-    }
+    "other": "Sonstige"
   },
   "account": {
     "organizations": "Organisationen",
@@ -380,7 +385,8 @@
         "confirmationSent": "Bestätigungs-E-Mail gesendet",
         "confirmationSentDescription": "Öffne {{email}} und klicke auf den Link, um die Änderung abzuschließen.",
         "updateFailed": "E-Mail konnte nicht aktualisiert werden",
-        "sameAsCurrent": "Das ist bereits deine aktuelle E-Mail-Adresse"
+        "sameAsCurrent": "Das ist bereits deine aktuelle E-Mail-Adresse",
+        "change": "E-Mail-Adresse ändern"
       },
       "password": {
         "heading": "Passwort",
@@ -390,7 +396,8 @@
         "revokeOtherSessions": "Auf allen anderen Geräten abmelden",
         "submit": "Passwort aktualisieren",
         "updated": "Passwort aktualisiert",
-        "updateFailed": "Passwort konnte nicht aktualisiert werden"
+        "updateFailed": "Passwort konnte nicht aktualisiert werden",
+        "change": "Passwort ändern"
       },
       "sessions": {
         "heading": "Sitzungen",
@@ -416,13 +423,16 @@
         "cancel": "Abbrechen"
       },
       "localSubtitle": "Deine Kontodaten. Bitte einen Admin dieses Servers, sie zu ändern.",
-      "nameLabel": "Name"
+      "nameLabel": "Name",
+      "signInHeading": "Anmeldung"
     },
     "settingsRow": "Kontoeinstellungen",
     "settingsRowSubtitle": "Name, E-Mail, Passwort und Sitzungen",
     "settingsRowSubtitleLocal": "Dein Name und deine E-Mail",
     "language": "Sprache",
-    "languageSystem": "Sprache des Telefons"
+    "languageSystem": "Sprache des Telefons",
+    "sorterConnection": "Sortierer-Verbindung",
+    "manageSection": "Verwalten"
   },
   "sorter": {
     "noSorter": "Kein Sortierer verbunden",
@@ -535,7 +545,9 @@
       "online": "Online",
       "offline": "Offline",
       "inUse": "Auf einem anderen Gerät in Verwendung"
-    }
+    },
+    "showCommLog": "Kommunikationsprotokoll anzeigen",
+    "hideCommLog": "Kommunikationsprotokoll ausblenden"
   },
   "retractCard": {
     "failedTitle": "Karte konnte nicht zurückgezogen werden",
@@ -570,6 +582,10 @@
       "card-missing": {
         "title": "Karte fehlt vor dem Sortieren",
         "description": "Modul 1 erkennt die gescannte Karte nicht mehr, daher wurde nichts sortiert. Prüfe Modul 1 und tippe dann auf Fortsetzen."
+      },
+      "card-stuck-in-module-one": {
+        "title": "Karte steckt in Modul 1",
+        "description": "Eine Karte steckt in Modul 1 fest. Entferne sie und tippe dann auf Fortsetzen."
       },
       "feed-failed": {
         "title": "Problem mit dem Einzug",
@@ -719,6 +735,9 @@
       "allowDuplicatesDescription": "Denselben Druck mehrfach speichern",
       "handScan": "Karten automatisch erkennen",
       "handScanDescription": "Ohne Sortierer scannen. Tippe auf Start und halte eine Karte ruhig ins Bild, dann wird sie automatisch gescannt.",
+      "handScanBins": "In Fächer sortieren",
+      "handScanBinsDescription": "Zeigt mit deinem Preset, in welches Fach jede Karte gehört. Aus lassen, um Karten nur in der Sammlung zu speichern.",
+      "handScanBinsNoPreset": "Wähle ein Preset für dieses Spiel, um Karten in Fächer zu sortieren.",
       "camera": "Kamera",
       "cameraFallback": "Kamera {{number}}",
       "cameraPosition": {
@@ -842,30 +861,15 @@
       "title": "{{name}} · {{collection}}",
       "open": "Öffnet die Sammlung"
     },
-    "subtitle": "So steht es um deine Sammlung",
     "loadFailed": "Deine Übersicht konnte nicht geladen werden. Zum Aktualisieren nach unten ziehen.",
-    "greeting": {
-      "morning": "Guten Morgen",
-      "afternoon": "Guten Tag",
-      "evening": "Guten Abend"
-    },
-    "greetingWithName": "{{greeting}}, {{name}}",
     "hero": {
       "value": "Sammlungswert",
       "cards": "Karten",
       "collections": "Sammlungen",
       "scanned": "Insgesamt gescannt",
       "sinceYesterday": "seit gestern",
-      "sinceDate": "seit {{date}}"
-    },
-    "actions": {
-      "scan": "Karten scannen",
-      "newCollection": "Neue Sammlung",
-      "stats": "Statistiken"
-    },
-    "welcome": {
-      "title": "Willkommen bei Mault",
-      "description": "Lege eine Sammlung an und scanne los, um hier ihren Wert, deine Top-Karten und mehr zu sehen."
+      "sinceDate": "seit {{date}}",
+      "openStats": "Öffnet deine Statistiken"
     },
     "review": {
       "title_one": "{{count}} Scan muss geprüft werden",
@@ -873,14 +877,21 @@
       "description": "Prüfe die Treffer, damit deine Sammlung stimmt.",
       "open": "Öffnet die Prüfung"
     },
+    "trades": {
+      "title_one": "{{count}} Tauschangebot wartet",
+      "title_other": "{{count}} Tauschangebote warten",
+      "description": "Sieh dir an, was angeboten wurde, und nimm an oder lehne ab.",
+      "open": "Öffnet die Tauschangebote"
+    },
     "cardOfTheDay": "Karten des Tages",
     "activity": {
       "title": "Scan-Aktivität",
       "today": "Heute",
-      "thisWeek": "Diese Woche",
       "scans_one": "{{count}} Scan",
       "scans_other": "{{count}} Scans",
-      "chartLabel": "Scans pro Tag in den letzten 14 Tagen"
+      "chartLabel": "Scans pro Tag in den letzten {{count}} Tagen",
+      "lastDays_one": "Letzte {{count}} Tag",
+      "lastDays_other": "Letzte {{count}} Tage"
     },
     "topCards": "Top-Karten",
     "recentScans": "Zuletzt gescannt",
@@ -1007,7 +1018,10 @@
       "deletedSorter": "{{name}} (gelöscht)"
     },
     "name": "Name",
-    "actions": "Kartenaktionen"
+    "actions": "Kartenaktionen",
+    "similarMatchesCount_one": "{{count}} ähnliche Übereinstimmung",
+    "similarMatchesCount_other": "{{count}} ähnliche Übereinstimmungen",
+    "reviewAcceptFailed": "Die vorherige Karte konnte nicht bestätigt werden"
   },
   "reviewGrid": {
     "title": "Karten prüfen",
@@ -1025,7 +1039,9 @@
     "done": "Fertig",
     "loadFailed": "Die zu prüfenden Karten konnten nicht geladen werden. Versuche es erneut.",
     "acceptFailed_one": "{{count}} Karte konnte nicht bestätigt werden. Versuche es erneut.",
-    "acceptFailed_other": "{{count}} Karten konnten nicht bestätigt werden. Versuche es erneut."
+    "acceptFailed_other": "{{count}} Karten konnten nicht bestätigt werden. Versuche es erneut.",
+    "accepted_one": "{{count}} Karte bestätigt",
+    "accepted_other": "{{count}} Karten bestätigt"
   },
   "rules": {
     "title": "Sortierregeln",
@@ -1238,10 +1254,24 @@
     },
     "modeLocked": "Regeln gelten im Modus {{mode}} nicht. Ändere den Sortiermodus, um sie zu bearbeiten.",
     "autoAssignLocked": "Die automatische Erkennung legt diese Regeln für dich fest. Ändere den Sortiermodus, um sie zu bearbeiten.",
-    "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die im Sortiermodus gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren."
+    "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die im Sortiermodus gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren.",
+    "description": {
+      "title": "Preset-Notizen",
+      "label": "Beschreibung",
+      "placeholder": "Notizen zu diesem Preset, was es sortiert, wann man es nutzt...",
+      "add": "Beschreibung hinzufügen",
+      "edit": "Bearbeiten",
+      "save": "Speichern",
+      "saveFailed": "Die Beschreibung konnte nicht gespeichert werden."
+    },
+    "maxCardsLabel": "Max. Karten",
+    "maxCardsPlaceholder": "Kein Limit",
+    "maxCardsDescription": "Dieses Fach gilt bei so vielen Karten als voll, auch wenn noch Platz ist: Passende Karten gehen dann in sein Überlauffach oder das Sortieren pausiert. Leer lassen, um die physische Größe des Fachs zu nutzen.",
+    "maxCardsPill_one": "Fasst {{count}}",
+    "maxCardsPill_other": "Fasst {{count}}"
   },
   "calibration": {
-    "title": "Kalibrierung",
+    "title": "Sortierer einrichten",
     "subtitle": "Servos und Einzug einstellen",
     "entryTitle": "Kalibrierung",
     "entrySubtitle": "Servopositionen, Timings und der Einzug",
@@ -1566,7 +1596,10 @@
     },
     "share": "Lagerort teilen",
     "shareWithCount_one": "Lagerort teilen ({{count}} aktiv)",
-    "shareWithCount_other": "Lagerort teilen ({{count}} aktiv)"
+    "shareWithCount_other": "Lagerort teilen ({{count}} aktiv)",
+    "searchFailed": "Die Lagerorte konnten nicht durchsucht werden",
+    "notFoundTitle": "Lagerort nicht gefunden",
+    "notFoundDescription": "Er wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf."
   },
   "settings": {
     "title": "Einstellungen",
@@ -1598,11 +1631,11 @@
         "description": "Schlüssel für die öffentliche API"
       },
       "notifications": {
-        "title": "Benachrichtigungen",
+        "title": "Discord",
         "description": "Discord-Kanäle, Warnungen und Benachrichtigungsregeln"
       },
       "sounds": {
-        "title": "Sounds",
+        "title": "Scan-Sounds",
         "description": "Spiele einen Clip ab, wenn eine sortierte Karte zu einer Regel passt"
       },
       "webhooks": {
@@ -1618,7 +1651,26 @@
       "heading": "Erscheinungsbild",
       "description": "Passe die Akzentfarbe der App an.",
       "primaryColor": "Primärfarbe",
-      "resetColor": "Auf Standard zurücksetzen"
+      "resetColor": "Auf Standard zurücksetzen",
+      "colors": {
+        "red": "Rot",
+        "orange": "Orange",
+        "amber": "Bernstein",
+        "yellow": "Gelb",
+        "lime": "Limette",
+        "green": "Grün",
+        "emerald": "Smaragd",
+        "teal": "Blaugrün",
+        "cyan": "Cyan",
+        "sky": "Himmelblau",
+        "blue": "Blau",
+        "indigo": "Indigo",
+        "violet": "Violett",
+        "purple": "Lila",
+        "fuchsia": "Fuchsia",
+        "pink": "Pink",
+        "rose": "Rosé"
+      }
     },
     "leaderboard": {
       "heading": "Bestenliste",
@@ -1869,14 +1921,16 @@
       },
       "channelSettings": {
         "heading": "Kanäle",
-        "description": "Wohin jeder Scan und jeder Fehler oder jede Warnung gepostet wird. Nur Inhaber und Admins können das ändern.",
+        "description": "Wohin jeder Scan, jeder Fehler oder jede Warnung und jedes neue Tauschangebot gepostet wird. Nur Inhaber und Admins können das ändern.",
         "scan": "Jeder Scan",
         "error": "Fehler und Warnungen",
+        "trade": "Tauschangebote",
         "none": "Nicht posten",
         "sameScan": "Wie jeder Scan",
         "sameError": "Wie Fehler",
         "scanRole": "Rolle bei Scans pingen",
         "errorRole": "Rolle bei Fehlern pingen",
+        "tradeRole": "Rolle bei Tauschangeboten pingen",
         "roleHint": "Wähle eine Rolle, die bei jedem Beitrag erwähnt wird, auch in Kanälen von Sammlungsüberschreibungen. Der Bot muss die Rolle erwähnen können.",
         "saved": "Kanal gespeichert.",
         "saveFailed": "Der Kanal konnte nicht gespeichert werden."
@@ -2222,7 +2276,10 @@
     "title": "Benachrichtigungen",
     "empty": "Du bist auf dem neuesten Stand.",
     "learnMore": "Mehr erfahren",
-    "firmwareMissing": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren."
+    "firmwareMissing": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren.",
+    "refresh": "Benachrichtigungen aktualisieren",
+    "refreshed": "Benachrichtigungen aktualisiert",
+    "refreshFailed": "Benachrichtigungen konnten nicht aktualisiert werden"
   },
   "phoneCamera": {
     "title": "Telefon als Kamera verwenden",
@@ -2263,6 +2320,7 @@
     "percentAtLeast": "Muss mindestens {{min}} % sein.",
     "percentAtMost": "Darf höchstens {{max}} % sein.",
     "amountRequired": "Gib einen Betrag ein.",
+    "amountInvalid": "Gib einen Betrag wie 12,50 ein.",
     "percentageRequired": "Gib einen Prozentwert ein.",
     "tiersRequired": "Füge mindestens eine Stufe hinzu.",
     "tooManyTiers": "Höchstens {{max}} Stufen.",
@@ -3003,6 +3061,9 @@
   "tradeOffers": {
     "trayHeading": "Tauschangebote",
     "trayMessage": "{{name}} möchte {{wanted}} für {{offered}} eigene",
+    "trayMessageCash": "{{name}} möchte {{wanted}} für {{cash}}",
+    "trayMessageCardsAndCash": "{{name}} möchte {{wanted}} für {{offered}} eigene plus {{cash}}",
+    "trayMessageNothing": "{{name}} bittet um {{wanted}} ohne Gegenleistung",
     "review": "Ansehen",
     "foil": "Foil",
     "accepted": "Tauschangebot angenommen",
@@ -3015,7 +3076,7 @@
     "title": "Tauschangebot",
     "reviewTitle": "Angebot von {{name}}",
     "respondFailed": "Antwort auf das Tauschangebot fehlgeschlagen.",
-    "answered": "Dieses Tauschangebot wurde schon beantwortet.",
+    "loadFailed": "Das Tauschangebot konnte nicht geladen werden",
     "reviewDescription": "Gesendet über {{source}} am {{date}}",
     "unknownSource": "einen geteilten Link",
     "contact": "Kontakt",
@@ -3023,20 +3084,131 @@
     "theyWant_other": "Möchte {{count}} Karten",
     "theyOffer_one": "Bietet {{count}} Karte",
     "theyOffer_other": "Bietet {{count}} Karten",
+    "theyOfferCash": "Bietet Bargeld",
+    "theyOfferNothing": "Bietet nichts im Gegenzug",
+    "cashAmount": "{{amount}} in bar",
+    "nothingOffered": "Im Gegenzug wird nichts angeboten.",
     "acceptTitle": "Dieses Tauschangebot annehmen?",
-    "acceptRemovesCards_one": "Dadurch wird die gewünschte Karte ({{count}}) aus deiner Sammlung entfernt.",
-    "acceptRemovesCards_other": "Dadurch werden die {{count}} gewünschten Karten aus deiner Sammlung entfernt.",
     "theyGetValue": "Sie bekommen",
     "youGetValue": "Du bekommst",
     "youGainValue": "Das Angebot ist {{amount}} mehr wert als das, was angefragt wird.",
     "youLoseValue": "Das Angebot ist {{amount}} weniger wert als das, was angefragt wird.",
     "evenValue": "Beide Seiten sind gleich viel wert.",
     "missingPrices": "Einige Karten haben keinen Preis, die Summen können daher zu niedrig sein.",
-    "noPrice": "Kein Preis"
+    "noPrice": "Kein Preis",
+    "library": {
+      "subtitle": "Tauschangebote über deine Tauschlinks",
+      "open": "Offen",
+      "answered": "Beantwortet",
+      "unnamedGuest": "Gast",
+      "rowDetails": "{{source}} · {{wanted}} gewünscht · {{offered}} angeboten",
+      "loadFailed": "Tauschangebote konnten nicht geladen werden",
+      "emptyTitle": "Noch keine Tauschangebote",
+      "emptyDescription": "Angebote kommen an, wenn jemand einen deiner Tauschlinks öffnet und Karten auswählt. Erstelle einen Tauschlink über das Teilen-Menü einer Sammlung oder eines Lagerorts.",
+      "status": {
+        "pending": "Offen",
+        "accepted": "Angenommen",
+        "declined": "Abgelehnt"
+      },
+      "picking_one": "Wird gepickt, noch {{count}}",
+      "picking_other": "Wird gepickt, noch {{count}}"
+    },
+    "cardList": {
+      "cardCount_one": "{{count}} Karte",
+      "cardCount_other": "{{count}} Karten",
+      "uniqueCount_one": "{{count}} verschiedene",
+      "uniqueCount_other": "{{count}} verschiedene",
+      "sortLabel": "Sortieren nach",
+      "sort": {
+        "value": "Wert",
+        "name": "Name",
+        "set": "Set"
+      },
+      "groupByLocation": "Nach Lagerort gruppieren",
+      "groupByLocationHint": "Karten im Lager stehen in der Reihenfolge der Box, damit du sie in einem Durchgang heraussuchen kannst.",
+      "filterLabel": "Karten filtern",
+      "filterPlaceholder": "Name oder Set",
+      "filterResults_one": "{{count}} Karte passt",
+      "filterResults_other": "{{count}} Karten passen",
+      "noFilterResults": "Keine Karte passt zu deinem Filter.",
+      "showAll": "Alle {{count}} anzeigen",
+      "showLess": "Weniger anzeigen",
+      "unitPrice": "je {{price}}",
+      "foil": "Foil",
+      "noPrice": "Kein Preis",
+      "placementStorage": "{{location}} · #{{positions}}",
+      "placementStorageNoPosition": "{{location}}",
+      "placementBin_one": "{{collection}}, Fach {{bins}}",
+      "placementBin_other": "{{collection}}, Fächer {{bins}}",
+      "placementCollection": "In {{collection}}, nicht eingelagert",
+      "placementMissing_one": "{{count}} Exemplar ist nicht mehr in deiner Sammlung",
+      "placementMissing_other": "{{count}} Exemplare sind nicht mehr in deiner Sammlung",
+      "sectionBin": "{{collection}}, Fach {{bin}}",
+      "sectionCollection": "{{collection}}, nicht eingelagert",
+      "sectionMissing": "Nicht mehr in deiner Sammlung"
+    },
+    "notFound": "Dieses Tauschangebot gibt es nicht mehr.",
+    "sideTabs": {
+      "label": "Seiten des Tauschs",
+      "wanted": "Möchte ({{count}})",
+      "offered": "Bietet ({{count}})"
+    },
+    "pickList": {
+      "started": "Tausch angenommen. Hake die gewünschten Karten ab, während du sie heraussuchst.",
+      "acceptHint": "Beim Annehmen bekommst du eine Pickliste. Jede gewünschte Karte wird aus deinem Bestand entfernt, sobald du sie abhakst.",
+      "acceptDescription_one": "Du bekommst eine Pickliste für die {{count}} gewünschte Karte. Sie wird aus deinem Bestand entfernt, sobald du sie abhakst, und ein Haken lässt sich nicht zurücknehmen.",
+      "acceptDescription_other": "Du bekommst eine Pickliste für die {{count}} gewünschten Karten. Jede wird aus deinem Bestand entfernt, sobald du sie abhakst, und ein Haken lässt sich nicht zurücknehmen.",
+      "title": "Pickliste",
+      "hint": "Hake jede Karte ab, wenn du sie herausziehst. Abgehakte Karten werden sofort aus deinem Bestand entfernt.",
+      "progress": "{{picked}} von {{count}} gepickt",
+      "picked": "Gepickt und entfernt",
+      "pickedSection": "Gepickt",
+      "finish": "Abschließen",
+      "finishTitle": "Picken abschließen?",
+      "finishDescription_one": "Dadurch wird die {{count}} nicht abgehakte Karte aus deinem Bestand entfernt.",
+      "finishDescription_other": "Dadurch werden die {{count}} nicht abgehakten Karten aus deinem Bestand entfernt.",
+      "finished_one": "Tausch abgeschlossen. {{count}} Karte aus deinem Bestand entfernt.",
+      "finished_other": "Tausch abgeschlossen. {{count}} Karten aus deinem Bestand entfernt.",
+      "pickFailed": "Die gepickte Karte konnte nicht entfernt werden. Hake sie erneut ab, um es noch einmal zu versuchen.",
+      "finishFailed": "Die Pickliste konnte nicht abgeschlossen werden."
+    },
+    "boxes": {
+      "received": "Erhalten",
+      "sent": "Gesendet"
+    },
+    "sent": {
+      "title": "Gesendetes Tauschangebot",
+      "unknownRecipient": "Ein geteilter Link",
+      "rowDetails": "{{wanted}} angefragt · {{offered}} angeboten",
+      "loadFailed": "Deine gesendeten Angebote konnten nicht geladen werden.",
+      "emptyTitle": "Noch keine gesendeten Angebote",
+      "emptyDescription": "Angebote, die du über einen Tauschlink sendest, erscheinen hier.",
+      "detailTitle": "Dein Angebot an {{name}}",
+      "detailDescription": "Gesendet am {{date}}",
+      "answeredOn": "Beantwortet am {{date}}",
+      "waitingHint": "Wartet auf eine Antwort.",
+      "yourDetails": "Deine Angaben",
+      "openHint": "Öffnet das Angebot",
+      "youWant_one": "Du hast {{count}} Karte angefragt",
+      "youWant_other": "Du hast {{count}} Karten angefragt",
+      "youOffer_one": "Du hast {{count}} Karte angeboten",
+      "youOffer_other": "Du hast {{count}} Karten angeboten",
+      "youOfferCash": "Du hast Bargeld angeboten",
+      "youOfferNothing": "Du hast nichts im Gegenzug angeboten",
+      "sideTabs": {
+        "wanted": "Angefragt ({{count}})",
+        "offered": "Angeboten ({{count}})"
+      },
+      "status": {
+        "pending": "Ausstehend",
+        "accepted": "Angenommen",
+        "declined": "Abgelehnt"
+      }
+    }
   },
   "trade": {
     "title": "Tauschangebot",
-    "description": "Wähle Karten aus {{source}}, füge Karten hinzu, die du dafür gibst, und sende das Angebot. Der Besitzer nimmt an oder lehnt ab.",
+    "description": "Wähle Karten aus {{source}}, füge Karten oder Bargeld hinzu, die du dafür gibst (oder nichts), und sende das Angebot. Der Besitzer nimmt an oder lehnt ab.",
     "sent": "Tauschangebot gesendet. Der Besitzer meldet sich bei dir.",
     "sendFailed": "Tauschangebot konnte nicht gesendet werden. Versuch es noch einmal.",
     "invalidLink": "Dieser Tausch-Link ist nicht verfügbar",
@@ -3054,15 +3226,18 @@
     "addMoreCards": "Weitere Karten hinzufügen",
     "giveTitle_one": "Du gibst ({{count}})",
     "giveTitle_other": "Du gibst ({{count}})",
-    "giveDescription": "Scanne deine Karten oder wähle sie aus deiner Sammlung.",
+    "giveDescription": "Scanne deine Karten, wähle sie aus deiner Sammlung oder biete Bargeld an.",
+    "cashLabel": "Bargeld in {{currency}} (optional)",
+    "cashHint": "Biete Bargeld zusätzlich zu deinen Karten oder allein an. Lass beides leer, um nichts im Gegenzug anzubieten.",
     "scanCards": "Karten scannen",
     "fromCollection": "Aus der Sammlung",
     "editCardHint": "Anzahl, Zustand oder Foil ändern",
     "foil": "Foil",
     "removeCard": "{{name}} entfernen",
     "summary": "Karten, die du bekommst: {{get}} · Karten, die du gibst: {{give}}",
+    "summaryWithCash": "Karten, die du bekommst: {{get}} · Karten, die du gibst: {{give}} · Bargeld: {{cash}}",
+    "summaryNothing": "Karten, die du bekommst: {{get}} · Nichts im Gegenzug",
     "needGet": "Füge eine gewünschte Karte hinzu, um fortzufahren.",
-    "needGive": "Füge eine Karte hinzu, die du gibst, um fortzufahren.",
     "send": "Tauschangebot senden",
     "quantityIncrease": "Anzahl: {{count}}",
     "quantityDecrease": "Anzahl: {{count}}",
@@ -3082,6 +3257,7 @@
     "selectedCount_other": "{{count}} ausgewählt",
     "searchLinkCards": "Diese Karten durchsuchen",
     "noLinkCards": "Keine Karten gefunden",
+    "linkCardsLoadFailed": "Die Karten dieses Links konnten nicht geladen werden",
     "tapToAdd": "Fügt sie deinem Tauschangebot hinzu",
     "tapToRemove": "Entfernt sie aus deinem Tauschangebot",
     "loadMore": "Mehr laden",
@@ -3096,6 +3272,7 @@
     "added": "{{name}} zu deinem Angebot hinzugefügt",
     "noCollections": "Du hast noch keine Sammlung",
     "noCollectionCards": "Keine Karten gefunden",
+    "collectionCardsLoadFailed": "Die Karten dieser Sammlung konnten nicht geladen werden",
     "scanCollectionLabel": "Karten abgleichen mit",
     "scanHint": "Halte eine deiner Karten in den Rahmen und tippe auf den Auslöser, um sie hinzuzufügen.",
     "scanButton": "Karte scannen",
@@ -3190,7 +3367,7 @@
     "open": "Alles durchsuchen",
     "placeholder": "Karten, Sammlungen, Lagerorte und Einstellungen suchen",
     "promptTitle": "Alles durchsuchen",
-    "promptDescription": "Finde eine Karte in jeder Sammlung, eine Sammlung, einen Lagerort oder eine Einstellung.",
+    "promptDescription": "Finde jede Karte, ob in deinen Sammlungen oder nicht, sowie Sammlungen, Lagerorte und Einstellungen.",
     "emptyTitle": "Nichts gefunden",
     "emptyDescription": "Versuche einen anderen Namen oder eine andere Schreibweise.",
     "loadFailed": "Deine Karten konnten nicht durchsucht werden. Zum erneuten Versuchen nach unten ziehen.",
@@ -3199,10 +3376,22 @@
     "resultsCount_one": "{{count}} Ergebnis",
     "resultsCount_other": "{{count}} Ergebnisse",
     "sections": {
-      "cards": "Karten",
+      "cards": "Deine Karten",
       "collections": "Sammlungen",
       "locations": "Lagerorte",
-      "settings": "Einstellungen"
+      "settings": "Einstellungen",
+      "catalog": "Alle Karten"
+    },
+    "catalogLoadFailed": "Der Kartenkatalog konnte nicht durchsucht werden. Zum Aktualisieren nach unten ziehen.",
+    "printings": {
+      "title": "Drucke",
+      "titleWithCount_one": "Drucke ({{count}})",
+      "titleWithCount_other": "Drucke ({{count}})",
+      "count_one": "{{count}} Druck",
+      "count_other": "{{count}} Drucke",
+      "selected": "Druck {{printing}} wird angezeigt",
+      "loadFailed": "Die anderen Drucke konnten nicht geladen werden.",
+      "showMore": "Weitere Drucke anzeigen"
     }
   },
   "recovery": {
@@ -3215,6 +3404,29 @@
     "tagAdded": "{{tag}} hinzugefügt",
     "tagRemoved": "{{tag}} entfernt",
     "movedTo": "Verschoben nach {{name}}",
-    "cardsLoadFailed": "Die Karten konnten nicht geladen werden"
+    "cardsLoadFailed": "Die Karten konnten nicht geladen werden",
+    "foilChanged": "Foil auf {{value}} gesetzt",
+    "conditionChanged": "Zustand auf {{value}} gesetzt",
+    "pickListCleared": "Pickliste geleert",
+    "verifyProgressCleared": "Prüffortschritt zurückgesetzt"
+  },
+  "catalogCard": {
+    "title": "Karte",
+    "loadFailed": "Diese Karte konnte nicht geladen werden.",
+    "add": "Zur Sammlung hinzufügen",
+    "addTo": "Zu {{collection}} hinzufügen",
+    "chooseCollection": "Zu welcher Sammlung hinzufügen?",
+    "added": "{{name}} zu {{collection}} hinzugefügt",
+    "view": "Ansehen",
+    "addFailed": "Die Karte konnte nicht hinzugefügt werden.",
+    "noCollection": "Erstelle eine {{game}}-Sammlung, um diese Karte hinzuzufügen."
+  },
+  "library": {
+    "valueModes": {
+      "value": "Wert",
+      "change": "Änderung"
+    },
+    "noChange": "Noch kein Verlauf",
+    "changeLoadFailed": "Wertänderungen konnten nicht geladen werden"
   }
 }

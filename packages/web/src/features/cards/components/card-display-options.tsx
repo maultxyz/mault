@@ -22,7 +22,7 @@ export function CardDisplayOptions({
   const { t } = useTranslation("cards");
 
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3 md:gap-2">
       {viewMode && onViewModeChange && (
         <ButtonGroup className="w-full">
           <Button

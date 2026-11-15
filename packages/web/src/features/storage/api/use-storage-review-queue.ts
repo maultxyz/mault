@@ -54,7 +54,7 @@ export function useStorageReviewQueue(
     setSession(null);
   }
 
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: ["storage-review-queue", session?.locationGuid, session?.id],
     queryFn: () => loadStorageReviewQueueCards(session!.locationGuid),
     enabled: !!session,
@@ -67,6 +67,7 @@ export function useStorageReviewQueue(
     totalCards: data?.totalCards ?? 0,
     isPending,
     isError,
+    retry: () => void refetch(),
     reviewedScanIds: session?.reviewedScanIds ?? new Set(),
     removedScanIds: session?.removedScanIds ?? new Set(),
     markReviewed: (scanId) =>

@@ -20,6 +20,7 @@ import {
   setPiScanHoldOverride,
   subscribePiScan,
 } from "@/features/scanner/lib/pi-scan-store";
+import { settlePiScanSessionRequest } from "@/features/scanner/lib/pi-scan-session-result";
 import { toast } from "@/lib/toast";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
@@ -117,37 +118,38 @@ export function usePiScanSession(getAllowDuplicates?: () => boolean) {
     t,
   ]);
 
-  const pause = useCallback(async () => {
-    const result = await pausePiScanSession();
-    if (result.data) applyPiScanState(result.data);
-  }, []);
+  const unreachableMessage = t("piScan.requestFailed");
 
-  const resume = useCallback(async () => {
-    const result = await resumePiScanSession();
-    if (result.data) applyPiScanState(result.data);
-  }, []);
+  const pause = useCallback(
+    () => settlePiScanSessionRequest(pausePiScanSession(), unreachableMessage),
+    [unreachableMessage],
+  );
 
-  const stop = useCallback(async () => {
-    const result = await stopPiScanSession();
-    if (result.data) applyPiScanState(result.data);
-  }, []);
+  const resume = useCallback(
+    () => settlePiScanSessionRequest(resumePiScanSession(), unreachableMessage),
+    [unreachableMessage],
+  );
+
+  const stop = useCallback(
+    () => settlePiScanSessionRequest(stopPiScanSession(), unreachableMessage),
+    [unreachableMessage],
+  );
 
   const setAutoFeed = useCallback(
     (enabled: boolean) => {
       if (!piScanHoldsPort(state)) return;
-      void updatePiScanSettings({ autoFeed: enabled }).then((result) => {
-        if (result.data) applyPiScanState(result.data);
-      });
+      void settlePiScanSessionRequest(
+        updatePiScanSettings({ autoFeed: enabled }),
+        unreachableMessage,
+      );
     },
-    [state],
+    [state, unreachableMessage],
   );
 
   const feed = useCallback(() => {
     if (!piScanHoldsPort(state)) return;
-    void feedPiScanSession().then((result) => {
-      if (result.data) applyPiScanState(result.data);
-    });
-  }, [state]);
+    void settlePiScanSessionRequest(feedPiScanSession(), unreachableMessage);
+  }, [state, unreachableMessage]);
 
   const startOrResume = useCallback(() => {
     if (state.phase === "running") return;

@@ -1,3 +1,4 @@
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SettingsSection } from "@/components/settings-section";
 import { ActiveScanSessionsDrawer } from "@/features/admin/components/active-scan-sessions-drawer";
 import { StatGroup } from "@/components/stat-group";
@@ -20,23 +21,33 @@ export function ScanStatsOverviewPanel() {
   const [sessionsOpen, setSessionsOpen] = useState(false);
   const openSessions = () => setSessionsOpen(true);
 
-  const { data: active } = useQuery({
+  const activeQuery = useQuery({
     queryKey: ["admin", "active-scanning"],
     queryFn: () => getActiveScanning().then((r) => r.data),
     refetchInterval: ACTIVE_SCANNING_REFRESH_MS,
   });
 
-  const { data: metrics } = useQuery({
+  const metricsQuery = useQuery({
     queryKey: ["admin", "scan-metrics"],
     queryFn: () => getAdminScanMetrics().then((r) => r.data),
     refetchInterval: SCAN_METRICS_REFRESH_MS,
   });
 
-  const { data: vectorize } = useQuery({
+  const vectorizeQuery = useQuery({
     queryKey: ["admin", "scan-vectorize-stats"],
     queryFn: () => getScanVectorizeStats().then((r) => r.data),
     refetchInterval: SCAN_VECTORIZE_STATS_REFRESH_MS,
   });
+
+  const active = activeQuery.data;
+  const metrics = metricsQuery.data;
+  const vectorize = vectorizeQuery.data;
+  const failedQueries = [activeQuery, metricsQuery, vectorizeQuery].filter(
+    (query) => query.isError && !query.data,
+  );
+  const retryFailed = () => {
+    for (const query of failedQueries) void query.refetch();
+  };
 
   const minutes = active?.windowMinutes ?? 5;
   const percent = (value: number | null | undefined) =>
@@ -97,7 +108,13 @@ export function ScanStatsOverviewPanel() {
       heading={t("metricsStats.heading")}
       description={t("metricsStats.description", { minutes })}
     >
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 md:gap-2">
+        {failedQueries.length > 0 && (
+          <LoadErrorCallout
+            message={t("metricsStats.loadFailed")}
+            onRetry={retryFailed}
+          />
+        )}
         <StatGroup
           heading={t("activeScanning.heading")}
           tiles={activeTiles}

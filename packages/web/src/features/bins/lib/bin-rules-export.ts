@@ -34,6 +34,7 @@ export function buildBinRulesExport(
       maxCopies: c.isCatchAll ? null : (c.maxCopies ?? null),
       maxCopiesBy:
         c.isCatchAll || c.maxCopies == null ? null : (c.maxCopiesBy ?? null),
+      maxCards: c.maxCards ?? null,
       overflowBin: c.overflowBin ?? null,
       isDisabled: !c.isCatchAll && !!c.isDisabled,
     })),

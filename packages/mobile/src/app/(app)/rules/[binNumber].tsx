@@ -4,10 +4,11 @@ import { router, useLocalSearchParams, useNavigation, usePreventRemove } from "e
 import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, Switch, View } from "react-native";
+import { Alert, KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { Input } from "@/components/ui/input";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -15,6 +16,8 @@ import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
+import { translateFormErrorMessage } from "@/lib/form-validation";
+import { SwitchRow } from "@/components/ui/switch-row";
 import { saveBinConfig } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
@@ -47,6 +50,7 @@ export default function BinEditorScreen() {
             isCatchAll: !!bin.isCatchAll,
             isDisabled: !!bin.isDisabled,
             overflowBin: bin.overflowBin ?? null,
+            maxCards: bin.maxCards ?? null,
           }
         : undefined,
     [bin],
@@ -59,6 +63,8 @@ export default function BinEditorScreen() {
   const { isDirty } = form.formState;
   const isCatchAll = form.watch("isCatchAll");
   const overflowBin = form.watch("overflowBin");
+  const isDisabled = form.watch("isDisabled");
+  const maxCardsError = form.formState.errors.maxCards?.message;
 
   const editableSet = !!activeSet?.isActive;
   const sources = overflowSourcesFor(binNumber, bins);
@@ -85,6 +91,7 @@ export default function BinEditorScreen() {
         lowMatchPercent: bin?.lowMatchPercent,
         maxCopies: bin?.maxCopies,
         maxCopiesBy: bin?.maxCopiesBy,
+        maxCards: values.maxCards,
       }),
     onSuccess: async (_, values) => {
       form.reset(values);
@@ -142,7 +149,7 @@ export default function BinEditorScreen() {
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.lg + SPACING.xs }}
       >
         {isRulesDataPending ? (
           <PageSkeleton />
@@ -158,38 +165,26 @@ export default function BinEditorScreen() {
 
             <View style={{ gap: SPACING.sm }}>
               {catchAllError ? <Callout tone="warning" title={t("rules.needCatchAll")} /> : null}
-              <ListGroup>
-                <Controller
-                  control={form.control}
-                  name="isCatchAll"
-                  render={({ field }) => (
-                    <ListRow
-                      title={t("rules.catchAllLabel")}
-                      subtitle={t("rules.catchAllDescription")}
-                      disabled={readOnly}
-                      rightIsInteractive
-                      right={
-                        <Switch
-                          accessibilityLabel={t("rules.catchAllLabel")}
-                          value={field.value}
-                          disabled={readOnly}
-                          trackColor={{ false: colors.muted, true: colors.primary }}
-                          thumbColor={colors.background}
-                          ios_backgroundColor={colors.muted}
-                          onValueChange={(next) => {
-                            if (!next && !otherCatchAll) {
-                              setCatchAllError(true);
-                              return;
-                            }
-                            setCatchAllError(false);
-                            field.onChange(next);
-                          }}
-                        />
+              <Controller
+                control={form.control}
+                name="isCatchAll"
+                render={({ field }) => (
+                  <SwitchRow
+                    title={t("rules.catchAllLabel")}
+                    description={t("rules.catchAllDescription")}
+                    value={field.value}
+                    disabled={readOnly}
+                    onValueChange={(next) => {
+                      if (!next && !otherCatchAll) {
+                        setCatchAllError(true);
+                        return;
                       }
-                    />
-                  )}
-                />
-              </ListGroup>
+                      setCatchAllError(false);
+                      field.onChange(next);
+                    }}
+                  />
+                )}
+              />
             </View>
 
             {!isScanOnly ? (
@@ -209,7 +204,7 @@ export default function BinEditorScreen() {
                       ) : null
                     }
                   />
-                  <AppText size="sm" tone="secondary">
+                  <AppText size="xs" tone="secondary">
                     {isCatchAll ? t("rules.overrideDescription") : t("rules.rulesDescription")}
                   </AppText>
                 </View>
@@ -244,45 +239,68 @@ export default function BinEditorScreen() {
               </View>
             ) : null}
 
-            {!isCatchAll ? (
-              <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("rules.settingsTitle")} />
-                <ListGroup>
+            <View style={{ gap: SPACING.sm }}>
+              <SectionHeader title={t("rules.settingsTitle")} />
+              {!isCatchAll ? (
+                <Controller
+                  control={form.control}
+                  name="isDisabled"
+                  render={({ field }) => (
+                    <SwitchRow
+                      title={t("rules.disabledLabel")}
+                      description={t("rules.disabledDescription")}
+                      value={field.value}
+                      disabled={readOnly}
+                      onValueChange={field.onChange}
+                    />
+                  )}
+                />
+              ) : null}
+              <ListGroup>
+                {!isCatchAll && !modeLocksRules && !isScanOnly ? (
+                  <ListRow
+                    title={t("rules.overflowLabel")}
+                    subtitle={targets.length === 0 && overflowBin == null ? t("rules.overflowNoOptions") : undefined}
+                    value={overflowBin != null ? t("rules.bin", { number: overflowBin }) : t("rules.overflowNone")}
+                    disabled={readOnly || (targets.length === 0 && overflowBin == null)}
+                    onPress={() => setOverflowOpen(true)}
+                  />
+                ) : null}
+                {isCatchAll || !isDisabled ? (
                   <Controller
                     control={form.control}
-                    name="isDisabled"
+                    name="maxCards"
                     render={({ field }) => (
                       <ListRow
-                        title={t("rules.disabledLabel")}
-                        subtitle={t("rules.disabledDescription")}
-                        disabled={readOnly}
+                        title={t("rules.maxCardsLabel")}
+                        subtitle={t("rules.maxCardsDescription")}
+                        subtitleNumberOfLines={0}
                         rightIsInteractive
                         right={
-                          <Switch
-                            accessibilityLabel={t("rules.disabledLabel")}
-                            value={field.value}
-                            disabled={readOnly}
-                            trackColor={{ false: colors.muted, true: colors.primary }}
-                            thumbColor={colors.background}
-                            ios_backgroundColor={colors.muted}
-                            onValueChange={field.onChange}
+                          <Input
+                            compact
+                            accessibilityLabel={t("rules.maxCardsLabel")}
+                            keyboardType="number-pad"
+                            placeholder={t("rules.maxCardsPlaceholder")}
+                            editable={!readOnly}
+                            value={field.value == null ? "" : String(field.value)}
+                            onChangeText={(text) => {
+                              const digits = text.replace(/\D/g, "");
+                              field.onChange(digits === "" ? null : Number(digits));
+                            }}
                           />
                         }
                       />
                     )}
                   />
-                  {!modeLocksRules && !isScanOnly ? (
-                    <ListRow
-                      title={t("rules.overflowLabel")}
-                      subtitle={targets.length === 0 && overflowBin == null ? t("rules.overflowNoOptions") : undefined}
-                      value={overflowBin != null ? t("rules.bin", { number: overflowBin }) : t("rules.overflowNone")}
-                      disabled={readOnly || (targets.length === 0 && overflowBin == null)}
-                      onPress={() => setOverflowOpen(true)}
-                    />
-                  ) : null}
-                </ListGroup>
-              </View>
-            ) : null}
+                ) : null}
+              </ListGroup>
+              {maxCardsError ? (
+                <AppText size="xs" accessibilityRole="alert" style={{ color: colors.destructiveForeground }}>
+                  {translateFormErrorMessage(t, maxCardsError)}
+                </AppText>
+              ) : null}
+            </View>
           </>
         )}
       </ScrollView>

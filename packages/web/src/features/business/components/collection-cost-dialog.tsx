@@ -63,7 +63,7 @@ export function CollectionCostDialog({
         </DialogHeader>
         <form
           id="collection-cost-form"
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(submit)}
         >
           <Controller
@@ -117,7 +117,11 @@ export function CollectionCostDialog({
                     {t("cost.overwriteHint")}
                   </span>
                 </span>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch
+                  aria-label={t("cost.overwrite")}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </label>
             )}
           />

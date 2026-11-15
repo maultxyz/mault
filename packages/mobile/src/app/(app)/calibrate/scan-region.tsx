@@ -9,6 +9,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SliderField } from "@/components/ui/slider-field";
 import { Surface } from "@/components/ui/surface";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { useScanSettingsDraft } from "@/features/calibration/api/use-scan-settings-draft";
 import { ScanRegionEditor } from "@/features/calibration/components/scan-region-editor";
@@ -44,61 +45,55 @@ export default function CalibrationScanRegionScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader title={t("calibration.sections.scanRegion.title")} subtitle={sorter.device?.name} onBack={() => router.back()} />
-      <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg + SPACING.xs }}>
         {draft.saveError ? <Callout tone="destructive" title={t("calibration.saveFailed")} /> : null}
 
-        <Surface style={{ gap: SPACING.md }}>
-          <View>
-            <AppText heading weight="semibold" accessibilityRole="header">
-              {t("calibration.scanRegion.heading")}
-            </AppText>
+        <SettingsSection title={t("calibration.scanRegion.heading")} description={t("calibration.scanRegion.instructions")}>
+          <Surface style={{ gap: SPACING.md }}>
+            {permission.hasPermission ? (
+              <ScanRegionEditor region={draft.region} onChange={draft.setRegion} />
+            ) : (
+              <Button
+                variant="secondary"
+                icon="camera"
+                label={t("scan.allowCamera")}
+                disabled={!permission.canRequestPermission}
+                onPress={() => void permission.requestPermission()}
+              />
+            )}
             <AppText size="xs" tone="secondary">
-              {t("calibration.scanRegion.instructions")}
+              {t("calibration.scanRegion.liveDetectionHint")}
             </AppText>
-          </View>
-          {permission.hasPermission ? (
-            <ScanRegionEditor region={draft.region} onChange={draft.setRegion} />
-          ) : (
-            <Button
-              variant="secondary"
-              icon="camera"
-              label={t("scan.allowCamera")}
-              disabled={!permission.canRequestPermission}
-              onPress={() => void permission.requestPermission()}
+            <SliderField
+              label={t("calibration.scanRegion.size")}
+              valueLabel={percentLabel(draft.region.coverage)}
+              accessibilityLabel={t("calibration.scanRegion.size")}
+              min={pct(SCAN_REGION_COVERAGE_MIN)}
+              max={100}
+              value={pct(draft.region.coverage)}
+              onValueChange={(value) => draft.setRegion({ ...draft.region, coverage: value / 100 })}
             />
-          )}
-          <AppText size="xs" tone="secondary">
-            {t("calibration.scanRegion.liveDetectionHint")}
-          </AppText>
-          <SliderField
-            label={t("calibration.scanRegion.size")}
-            valueLabel={percentLabel(draft.region.coverage)}
-            accessibilityLabel={t("calibration.scanRegion.size")}
-            min={pct(SCAN_REGION_COVERAGE_MIN)}
-            max={100}
-            value={pct(draft.region.coverage)}
-            onValueChange={(value) => draft.setRegion({ ...draft.region, coverage: value / 100 })}
-          />
-          <SliderField
-            label={t("calibration.scanRegion.offsetX")}
-            valueLabel={percentLabel(draft.region.offsetX)}
-            accessibilityLabel={t("calibration.scanRegion.offsetX")}
-            min={-pct(SCAN_REGION_OFFSET_LIMIT)}
-            max={pct(SCAN_REGION_OFFSET_LIMIT)}
-            value={pct(draft.region.offsetX)}
-            onValueChange={(value) => draft.setRegion({ ...draft.region, offsetX: value / 100 })}
-          />
-          <SliderField
-            label={t("calibration.scanRegion.offsetY")}
-            valueLabel={percentLabel(draft.region.offsetY)}
-            accessibilityLabel={t("calibration.scanRegion.offsetY")}
-            min={-pct(SCAN_REGION_OFFSET_LIMIT)}
-            max={pct(SCAN_REGION_OFFSET_LIMIT)}
-            value={pct(draft.region.offsetY)}
-            onValueChange={(value) => draft.setRegion({ ...draft.region, offsetY: value / 100 })}
-          />
-          <Button size="sm" variant="ghost" icon="refresh" label={t("calibration.scanRegion.resetToDefault")} onPress={draft.resetRegion} />
-        </Surface>
+            <SliderField
+              label={t("calibration.scanRegion.offsetX")}
+              valueLabel={percentLabel(draft.region.offsetX)}
+              accessibilityLabel={t("calibration.scanRegion.offsetX")}
+              min={-pct(SCAN_REGION_OFFSET_LIMIT)}
+              max={pct(SCAN_REGION_OFFSET_LIMIT)}
+              value={pct(draft.region.offsetX)}
+              onValueChange={(value) => draft.setRegion({ ...draft.region, offsetX: value / 100 })}
+            />
+            <SliderField
+              label={t("calibration.scanRegion.offsetY")}
+              valueLabel={percentLabel(draft.region.offsetY)}
+              accessibilityLabel={t("calibration.scanRegion.offsetY")}
+              min={-pct(SCAN_REGION_OFFSET_LIMIT)}
+              max={pct(SCAN_REGION_OFFSET_LIMIT)}
+              value={pct(draft.region.offsetY)}
+              onValueChange={(value) => draft.setRegion({ ...draft.region, offsetY: value / 100 })}
+            />
+            <Button size="sm" variant="ghost" icon="refresh" label={t("calibration.scanRegion.resetToDefault")} onPress={draft.resetRegion} />
+          </Surface>
+        </SettingsSection>
 
         <Surface style={{ gap: SPACING.xl }}>
           <SliderField

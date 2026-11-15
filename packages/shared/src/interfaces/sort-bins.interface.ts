@@ -72,6 +72,7 @@ export interface BinConfig {
   lowMatchPercent?: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
+  maxCards?: number | null;
   overflowBin?: number | null;
   isDisabled?: boolean;
   pickList?: PickList | null;
@@ -147,6 +148,7 @@ export interface PresetWorkflowsAndPresets {
 export interface BinSet {
   guid: string;
   name: string;
+  description: string;
   isActive: boolean;
   bins: BinConfig[];
   game: Game | null;
@@ -184,6 +186,7 @@ export type DefaultBinInit = {
   lowMatchPercent?: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
+  maxCards?: number | null;
   overflowBin?: number | null;
   isDisabled?: boolean;
   pickList?: PickList | null;

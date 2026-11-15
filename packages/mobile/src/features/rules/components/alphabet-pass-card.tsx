@@ -71,7 +71,7 @@ export function AlphabetPassCard({ set, bins }: AlphabetPassCardProps) {
     <View style={{ gap: SPACING.md }}>
       <View style={{ gap: 2 }}>
         <SectionHeader title={t("rules.alphabet.passHeading", { current: pass + 1, total: passCount })} />
-        <AppText size="sm" tone="secondary">
+        <AppText size="xs" tone="secondary">
           {prefix
             ? t("rules.alphabet.prefixRange", { prefix, from: labels[0], to: labels[labels.length - 1] })
             : t("rules.alphabet.passRange", { from: labels[0], to: labels[labels.length - 1] })}

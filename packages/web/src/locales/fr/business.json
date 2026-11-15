@@ -6,7 +6,8 @@
     "save": "Enregistrer"
   },
   "errors": {
-    "generic": "Une erreur est survenue. Réessayez."
+    "generic": "Une erreur est survenue. Réessayez.",
+    "loadFailed": "Impossible de charger ce contenu. Vérifiez votre connexion et réessayez."
   },
   "upgrade": {
     "locked": "L'achat et la vente (rachat, préparations, suivi des coûts et contrôles par échantillon) ne font pas partie de votre offre. Vous pouvez toujours consulter ce que vous avez déjà.",

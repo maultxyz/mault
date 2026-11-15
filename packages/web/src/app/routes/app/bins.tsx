@@ -10,6 +10,7 @@ import { MobileBins } from "@/features/bins/components/mobile-bins";
 import { BinRulesMenu } from "@/features/bins/components/bin-rules-menu";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { NonEnglishRulesBanner } from "@/features/bins/components/non-english-rules-banner";
+import { PresetDescriptionNote } from "@/features/bins/components/preset-description-note";
 import { PresetStagesPanel } from "@/features/bins/components/preset-stages-panel";
 import { RepackPanel } from "@/features/bins/components/repack-panel";
 import { RepackTour } from "@/features/bins/components/repack-tour";
@@ -46,14 +47,15 @@ export default function BinsPage() {
         <AutoAssignPanel />
         <BinList />
       </section>
-      <section className="col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4 flex flex-col gap-4">
+      <section className="col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4 md:px-3 md:py-2 flex flex-col gap-4 md:gap-2">
         <div className="flex items-start justify-between gap-4">
           <SortingRulesIntro />
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center gap-1.5">
             <BinRulesMenu />
             <BinsHelpTour />
           </div>
         </div>
+        <PresetDescriptionNote />
         <PresetStagesPanel />
         <RepackPanel />
         <AlphabetPanel />

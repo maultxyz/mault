@@ -13,7 +13,7 @@ export function CardDetailActionsSheet({
   return (
     <DrawerPrimitive.NestedRoot open={open} onOpenChange={onOpenChange}>
       <DrawerContent>
-        <div className="flex flex-col gap-3 px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="flex flex-col gap-3 md:gap-2 px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <DrawerTitle className="truncate font-heading text-base font-semibold text-foreground">
             {title}
           </DrawerTitle>

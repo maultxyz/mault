@@ -53,7 +53,8 @@
     "pause": "Pause",
     "resume": "Weiter",
     "stop": "Stopp",
-    "openScanner": "Scanner öffnen"
+    "openScanner": "Scanner öffnen",
+    "requestFailed": "Der Pi ist nicht erreichbar. Prüfe die Verbindung und versuche es erneut."
   },
   "serial": {
     "connectionFailed": {
@@ -235,6 +236,14 @@
     "pickListComplete": {
       "title": "Pickliste vollständig",
       "description": "Jede Karte der Liste liegt in Fach {{bin}}."
+    },
+    "removed": {
+      "title_one": "{{count}} Karte entfernt",
+      "title_other": "{{count}} Karten entfernt",
+      "undo": "Rückgängig"
+    },
+    "editFailed": {
+      "title": "Die Änderung konnte nicht gespeichert werden und wurde zurückgesetzt."
     }
   },
   "cardScanner": {
@@ -256,6 +265,10 @@
     "noCardDetected": {
       "title": "Keine Karte erkannt",
       "description": "Der Sensor von Modul 1 erkennt keine Karte - führe eine zu, bevor du scannst."
+    },
+    "cardStuckInModuleOne": {
+      "title": "Karte steckt in Modul 1",
+      "description": "Eine Karte steckt in Modul 1 fest. Entferne sie und setze dann fort."
     },
     "feedFailed": {
       "title": "Zufuhr fehlgeschlagen"
@@ -359,6 +372,7 @@
     "autoFeed": "Automatische Zufuhr",
     "allowDuplicates": "Duplikate zulassen",
     "scanWithoutSorter": "Ohne Sortierer scannen",
+    "sortIntoBins": "In Fächer sortieren",
     "calibrate": "Sortierer einrichten",
     "retryConnection": "Verbindung erneut versuchen",
     "phoneCameraConnected": "Telefonkamera verbunden",
@@ -561,15 +575,9 @@
     "sessionReleased": "Sitzung freigegeben",
     "releaseFailed": "Sitzung konnte nicht freigegeben werden",
     "leaveSession": "Sitzung verlassen",
-    "searchPlaceholder": "Sitzungen durchsuchen...",
-    "noSearchResultsTitle": "Keine passenden Sitzungen",
-    "noSearchResultsDescription": "Versuche einen anderen Suchbegriff",
     "title": "Live-Ansicht",
     "subtitle": "Sieh einem Sortierer von jedem Gerät aus live beim Scannen zu.",
-    "noSessionsFound": "Keine Sitzungen gefunden",
-    "noSessionsHint": "Aktive Sitzungen werden hier angezeigt",
-    "liveNow": "Gerade live",
-    "allCollections": "Alle Sammlungen"
+    "liveNow": "Gerade live"
   },
   "repackCompleteDialog": {
     "description": "Alle Packs sind fertig, deshalb ist das Scannen pausiert. Nimm das Pack aus Fach {{bin}} und wähle, wohin es kommt. Jede Karte wird dort in der Reihenfolge erfasst, in der sie gescannt wurde."
@@ -702,6 +710,7 @@
         "hopperEmpty": "Der Kartenschacht ist leer",
         "feederError": "Fehler im Einzug",
         "noCardDetected": "Keine Karte ist beim Scanner angekommen",
+        "cardStuckInModuleOne": "Eine Karte steckt in Modul 1 fest",
         "sorterNotResponding": "Der Sortierer antwortet nicht",
         "routingFailed": "Eine Karte konnte nicht einsortiert werden",
         "binLimit": "Fach {{bins}} ist voll",
@@ -786,7 +795,9 @@
       "countdown_one": "Schließt in {{count}} Sekunde",
       "countdown_other": "Schließt in {{count}} Sekunden",
       "doneMoved": "Als umgelegt markiert",
-      "done": "Fertig"
+      "done": "Fertig",
+      "paused": "Countdown pausiert",
+      "keepOpen": "Offen lassen"
     },
     "keys": {
       "enter": "Enter",
@@ -814,43 +825,6 @@
     "cameraErrorTitle": "Kamera konnte nicht geöffnet werden",
     "cameraErrorDescription": "Erlaube dieser Website in den Browser-Einstellungen den Kamerazugriff und versuche es erneut.",
     "retry": "Erneut versuchen"
-  },
-  "home": {
-    "greeting": "Hallo, {{name}}",
-    "greetingNoName": "Willkommen zurück",
-    "totalValue": "Sammlungswert",
-    "collectionCount_one": "{{count}} Sammlung",
-    "collectionCount_other": "{{count}} Sammlungen",
-    "scannedToday": "Heute gescannt",
-    "thisWeek": "Diese Woche",
-    "collections": "Sammlungen",
-    "activityTitle": "Scans, letzte 14 Tage",
-    "activityLabel": "Gescannte Karten pro Tag in den letzten 14 Tagen",
-    "activityPoint_one": "{{date}}: {{count}} Karte",
-    "activityPoint_other": "{{date}}: {{count}} Karten",
-    "today": "Heute",
-    "mostValuable": "Wertvollste",
-    "recentlyScanned": "Zuletzt gescannt",
-    "seeAllStats": "Alle Statistiken",
-    "actions": {
-      "newCollection": "Neu",
-      "stats": "Statistik",
-      "buySell": "Handel"
-    },
-    "activeCollection": "Aktiv",
-    "scanHero": {
-      "title": "Scannen starten",
-      "sortInto": "In {{collection}} sortieren",
-      "noCollection": "Wähle eine Sammlung zum Sortieren"
-    },
-    "actionHints": {
-      "newCollection": "Sammlung anlegen",
-      "buySell": "Ankauf und Picks",
-      "buySellOpen_one": "{{count}} offener Ankauf",
-      "buySellOpen_other": "{{count}} offene Ankäufe",
-      "stats": "Diagramme und Verlauf"
-    },
-    "statsHeading": "Übersicht"
   },
   "resetToNeutral": {
     "done": "Sortierer in Grundstellung",
@@ -894,6 +868,8 @@
     "allowDuplicatesDescription": "Denselben Druck mehrfach speichern",
     "handScan": "Karten automatisch erkennen",
     "handScanDescription": "Ohne Sortierer scannen. Halte eine Karte ruhig ins Bild, dann wird sie automatisch gescannt.",
+    "handScanBins": "In Fächer sortieren",
+    "handScanBinsDescription": "Zeigt mit deiner Vorlage, in welches Fach jede Karte gehört. Aus lassen, um Karten nur in der Sammlung zu speichern.",
     "camera": "Kamera",
     "preset": "Regel-Vorlage",
     "choosePreset": "Vorlage wählen",
@@ -949,7 +925,8 @@
       "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
       "sorterDescription": "Verbindung, Selbsttest und Status"
     },
-    "condition": "Zustand"
+    "condition": "Zustand",
+    "foilType": "Foil-Typ"
   },
   "mobileSorter": {
     "title": "Sortierer",

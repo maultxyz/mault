@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import type { PlayingCard } from "@magic-vault/shared";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
 import {
@@ -109,6 +110,7 @@ export const lorcanaAdapter: CardSearchAdapter = {
     lang === "de"
       ? normalizeLorcanaDeCard(raw as LorcanaDeCard)
       : normalizeLorcanaCard(raw as LorcastCard),
+  releasedAtSql: sql`data->>'released_at'`,
   tcgplayer: {
     categoryId: 71,
     subTypes: () => ({

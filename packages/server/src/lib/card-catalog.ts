@@ -61,7 +61,9 @@ function groupKeysByGame(keys: CatalogCardKey[]): Map<string, CatalogCardKey[]> 
     const id = catalogCardKey(key);
     if (seen.has(id)) continue;
     seen.add(id);
-    byGame.set(key.gameKey, [...(byGame.get(key.gameKey) ?? []), key]);
+    let gameKeys = byGame.get(key.gameKey);
+    if (!gameKeys) byGame.set(key.gameKey, (gameKeys = []));
+    gameKeys.push(key);
   }
   return byGame;
 }

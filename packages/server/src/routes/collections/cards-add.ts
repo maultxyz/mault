@@ -124,14 +124,16 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         };
 
     let keepOnlyExistingImage = false;
-    const storedImage = await storeScanImage(
-      { orgId, collectionGuid: guid, scanId, kind: "cards" },
-      capturedImageUrl,
-    );
-    const storedBackImage = await storeScanImage(
-      { orgId, collectionGuid: guid, scanId, kind: "cards", side: "back" },
-      capturedBackImageUrl,
-    );
+    const [storedImage, storedBackImage] = await Promise.all([
+      storeScanImage(
+        { orgId, collectionGuid: guid, scanId, kind: "cards" },
+        capturedImageUrl,
+      ),
+      storeScanImage(
+        { orgId, collectionGuid: guid, scanId, kind: "cards", side: "back" },
+        capturedBackImageUrl,
+      ),
+    ]);
     try {
       const { result, collectionName, gameName, gameId } = await authQuery<{
         result: AddCardResult;
@@ -374,7 +376,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           userId,
         );
         void recordDeviceSorted(orgId, deviceGuid);
-        emitToSession(guid, "card_added", result.data);
+        emitToSession(orgId, guid, "card_added", result.data);
         emitCollectionCardsChanged(orgId, guid);
 
         notifyCardScanned({
@@ -403,7 +405,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       return c.json(result);
     } catch (err) {
       deleteScanImages([storedImage.key, storedBackImage.key]);
-      emitToSession(guid, "scan_error", {
+      emitToSession(orgId, guid, "scan_error", {
         message: "Failed to save card to collection.",
         timestamp: Date.now(),
       });

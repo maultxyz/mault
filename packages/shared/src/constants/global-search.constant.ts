@@ -1,0 +1,6 @@
+export const GLOBAL_SEARCH_MIN_QUERY_LENGTH = 2;
+export const GLOBAL_SEARCH_MAX_LOCAL_RESULTS = 8;
+export const CATALOG_RESULTS_PER_GAME = 8;
+export const CATALOG_SEARCH_GROUP_BY_PARAM = "groupBy";
+export const CATALOG_SEARCH_GROUP_BY_NAME = "name";
+export const CARD_PRINTINGS_PAGE_SIZE = 60;

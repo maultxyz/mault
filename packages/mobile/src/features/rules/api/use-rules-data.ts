@@ -53,9 +53,6 @@ export function useRulesData(): RulesData {
     isPending: collections.isPending || binSets.isPending,
     isError: collections.isError || binSets.isError,
     isRefetching: collections.isRefetching || binSets.isRefetching,
-    refetch: () => {
-      void collections.refetch();
-      void binSets.refetch();
-    },
+    refetch: () => Promise.all([collections.refetch(), binSets.refetch()]),
   };
 }

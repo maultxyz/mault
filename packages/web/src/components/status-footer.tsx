@@ -26,16 +26,17 @@ import { IconCopy } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
+import { usePriceSource } from "@/hooks/use-price-source";
+import type {
+  StatusDotProps,
+  StatusItemProps,
+} from "@/lib/interfaces/status-footer";
 
 export function FooterDivider() {
   return <span aria-hidden className="h-3 w-px bg-border shrink-0" />;
 }
 
-function StatusDot({
-  variant,
-}: {
-  variant: "success" | "warning" | "error" | "muted";
-}) {
+function StatusDot({ variant }: StatusDotProps) {
   const colors = {
     success: "bg-success",
     warning: "bg-warning animate-pulse",
@@ -43,7 +44,10 @@ function StatusDot({
     muted: "bg-muted-foreground/30",
   };
   return (
-    <span className={`size-1.5 rounded-full shrink-0 ${colors[variant]}`} />
+    <span
+      aria-hidden
+      className={`size-1.5 rounded-full shrink-0 ${colors[variant]}`}
+    />
   );
 }
 
@@ -52,12 +56,7 @@ function StatusItem({
   dot,
   tooltip,
   onClick,
-}: {
-  label: string;
-  dot: "success" | "warning" | "error" | "muted";
-  tooltip: string;
-  onClick?: () => void;
-}) {
+}: StatusItemProps) {
   return (
     <Tooltip>
       <TooltipTrigger
@@ -76,7 +75,7 @@ function StatusItem({
 }
 
 function SyncStatusItem() {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
   const syncState = useSyncState();
   const navigate = useNavigate();
   const { pathname } = useLocation();
@@ -106,8 +105,8 @@ function SyncStatusItem() {
   const countLabel =
     status === "running" && progressTotal > 0
       ? t("statusFooter.syncProgress", {
-          done: done.toLocaleString(),
-          total: progressTotal.toLocaleString(),
+          done: done.toLocaleString(i18n.language),
+          total: progressTotal.toLocaleString(i18n.language),
         })
       : t("statusFooter.syncStatus", { status });
 
@@ -225,11 +224,9 @@ function SorterStatusItem() {
               size="icon"
               onClick={handleCopy}
               title={tScanner("serial.copyCommunication")}
+              aria-label={tScanner("serial.copyCommunication")}
             >
               <IconCopy />
-              <span className="sr-only">
-                {tScanner("serial.copyCommunication")}
-              </span>
             </Button>
           </div>
         </div>
@@ -293,6 +290,7 @@ export function StatusFooter() {
   const { t } = useTranslation("common");
   const { status: cameraStatus } = useCameraContext();
   const { totalCount, totalValue } = useCollectionCardsSummary();
+  const { format } = usePriceSource();
 
   const cameraDot =
     cameraStatus === "ready"
@@ -330,7 +328,7 @@ export function StatusFooter() {
           <p className="text-xs tabular-nums">
             {t("statusFooter.cardTotal", {
               count: totalCount,
-              value: totalValue.toFixed(2),
+              value: format(totalValue),
             })}
           </p>
         </>

@@ -1,17 +1,17 @@
+import { isPublicCardsUnavailableError } from "@/features/public-cards/api/public-cards";
 import { PublicCardBrowser } from "@/features/public-cards/components/public-card-browser";
 import {
   publicShopCatalogQueryOptions,
   shopCatalogSource,
 } from "@/features/business/api/shop-catalogs";
 import { PriceSourceProvider } from "@/hooks/use-price-source";
-import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
+import { ShareLinkStatusScreen } from "@/features/public-cards/components/share-link-status-screen";
 import { publicQueryClient } from "@/lib/query-client";
 import {
   SHARE_LINK_TOKEN_PARAM,
   toConditionMultipliers,
   type OrgPricing,
 } from "@magic-vault/shared";
-import { IconLinkOff, IconLoader2 } from "@tabler/icons-react";
 import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { useEffect, useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,7 +26,7 @@ function ShopCatalogContent() {
     () => shopCatalogSource(catalogGuid ?? "", token),
     [catalogGuid, token],
   );
-  const { data: info, isPending } = useQuery({
+  const { data: info, isPending, isFetching, error, refetch } = useQuery({
     ...publicShopCatalogQueryOptions(source),
     enabled: !!catalogGuid,
   });
@@ -50,28 +50,18 @@ function ShopCatalogContent() {
 
   if (!validInfo || !pricing) {
     return (
-      <main
-        id={MAIN_CONTENT_ID}
-        tabIndex={-1}
-        className="flex h-dvh flex-col items-center justify-center gap-3 bg-background p-6 text-center outline-none"
-      >
-        {catalogGuid && isPending ? (
-          <IconLoader2
-            className="size-6 animate-spin text-foreground/70"
-            aria-label={t("shopCatalogs.public.loading")}
-          />
-        ) : (
-          <>
-            <IconLinkOff className="size-8 text-foreground/70" aria-hidden />
-            <h1 className="text-base font-semibold">
-              {t("shopCatalogs.public.invalidTitle")}
-            </h1>
-            <p className="max-w-sm text-sm text-foreground/70">
-              {t("shopCatalogs.public.invalidDescription")}
-            </p>
-          </>
-        )}
-      </main>
+      <ShareLinkStatusScreen
+        status={
+          catalogGuid && (isPending || isFetching)
+            ? "checking"
+            : isPublicCardsUnavailableError(error)
+              ? "failed"
+              : "invalid"
+        }
+        invalidTitle={t("shopCatalogs.public.invalidTitle")}
+        invalidDescription={t("shopCatalogs.public.invalidDescription")}
+        onRetry={() => void refetch()}
+      />
     );
   }
 

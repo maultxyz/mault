@@ -4,6 +4,7 @@ import {
   SERIAL_DEFAULT_RESPONSE_TIMEOUT_MS,
 } from "./constants/serial-timing.constant";
 import type { BinRoute } from "./interfaces/bin-routes.interface";
+import { routeAllowsPipelinedFeed } from "./module-one-clearance";
 import type {
   RouteOptions,
   SorterRouteRequest,
@@ -13,7 +14,7 @@ export async function requestSorterRoute(
   request: SorterRouteRequest,
   route: BinRoute,
   options: RouteOptions = {},
-  timeoutMs = options.feedNext
+  timeoutMs = options.feedNext && routeAllowsPipelinedFeed(route)
     ? ROUTE_WITH_FEED_RESPONSE_TIMEOUT_MS
     : ROUTE_RESPONSE_TIMEOUT_MS,
   sensorTimeoutMs = SERIAL_DEFAULT_RESPONSE_TIMEOUT_MS,
@@ -33,7 +34,9 @@ export async function requestSorterRoute(
       route: {
         module: route.module,
         direction: route.direction,
-        ...(options.feedNext ? { feedNext: true } : {}),
+        ...(options.feedNext && routeAllowsPipelinedFeed(route)
+          ? { feedNext: true }
+          : {}),
       },
     },
     timeoutMs,

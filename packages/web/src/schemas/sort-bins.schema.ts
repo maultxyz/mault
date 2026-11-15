@@ -4,6 +4,7 @@ import {
   formValidationMessage,
   LOW_MATCH_PERCENT_MAX,
   OVERRIDE_PRIORITY_MAX,
+  presetDescriptionFormSchema,
   SET_NAME_MAX_LENGTH,
   type BinRuleGroup,
 } from "@magic-vault/shared";
@@ -26,6 +27,10 @@ export const createSetSchema = z.object({
 });
 
 export type CreateSetFormValues = z.infer<typeof createSetSchema>;
+
+export const editSetSchema = createSetSchema.merge(presetDescriptionFormSchema);
+
+export type EditSetFormValues = z.infer<typeof editSetSchema>;
 
 export const createPresetSchema = createSetSchema
   .extend({
@@ -134,6 +139,12 @@ export const binConfigSchema = z.object({
     .max(CONDITION_NUMERIC_MAX)
     .nullable(),
   maxCopiesBy: z.string(),
+  maxCards: z
+    .number()
+    .int(formValidationMessage("wholeNumber"))
+    .min(1, formValidationMessage("atLeast", { min: 1 }))
+    .max(CONDITION_NUMERIC_MAX, formValidationMessage("atMost", { max: CONDITION_NUMERIC_MAX }))
+    .nullable(),
   overflowBin: z.number().int().positive().nullable(),
   lowMatchPercent: z
     .number()

@@ -1,4 +1,5 @@
 import {
+  PRICE_SOURCE_FIELDS,
   SHARE_LINK_GUEST_KEY_HEADER,
   type MonitorLinkInfo,
   type PublicCardPage,
@@ -8,6 +9,7 @@ import {
 } from "@magic-vault/shared";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { tradeGuestKey } from "@/features/trade-offers/lib/guest-key";
+import { getAccessToken } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/config";
 import {
   TRADE_LINK_BASE_PATHS,
@@ -34,10 +36,18 @@ export const tradeLinkInfoQueryOptions = (link: TradeLinkRef) =>
     queryFn: async (): Promise<TradeLinkInfo> => {
       if (link.kind === "collection") {
         const info = await readResult<MonitorLinkInfo>(await fetch(publicUrl(link, "")));
-        return { name: info.collectionName, purpose: info.purpose };
+        return {
+          name: info.collectionName,
+          purpose: info.purpose,
+          cashCurrency: PRICE_SOURCE_FIELDS[info.priceSource].currency,
+        };
       }
       const info = await readResult<StorageShareLinkInfo>(await fetch(publicUrl(link, "")));
-      return { name: info.locationName, purpose: info.purpose };
+      return {
+        name: info.locationName,
+        purpose: info.purpose,
+        cashCurrency: PRICE_SOURCE_FIELDS[info.priceSource].currency,
+      };
     },
     retry: false,
   });
@@ -60,10 +70,15 @@ export const tradeLinkCardsQueryOptions = (link: TradeLinkRef, search: string) =
   });
 
 export async function submitTradeOffer(link: TradeLinkRef, request: TradeOfferRequest): Promise<void> {
+  const accessToken = await getAccessToken().catch(() => null);
   await readResult<{ guid: string }>(
     await fetch(publicUrl(link, "/trade-offers"), {
       method: "POST",
-      headers: { "Content-Type": "application/json", [SHARE_LINK_GUEST_KEY_HEADER]: tradeGuestKey() },
+      headers: {
+        "Content-Type": "application/json",
+        [SHARE_LINK_GUEST_KEY_HEADER]: tradeGuestKey(),
+        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      },
       body: JSON.stringify(request),
     }),
   );

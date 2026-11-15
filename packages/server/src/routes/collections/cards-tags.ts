@@ -54,7 +54,7 @@ export const setCollectionCardTagsRoute = new Hono<AppEnv>().post(
         tags,
         enabled,
       };
-      emitToSession(guid, "cards_tags_changed", event);
+      emitToSession(orgId, guid, "cards_tags_changed", event);
       emitCollectionCardsChanged(orgId, guid);
     }
     return c.json({ success: true, data: { changedScanIds } });

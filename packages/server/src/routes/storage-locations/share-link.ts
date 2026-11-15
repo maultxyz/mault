@@ -69,7 +69,7 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
         return { success: false, message: "Storage location not found." };
       }
       const allowsLongLinks = await allowsLongShareLinks(tx, orgId);
-      const { guid: linkGuid, token, expiresAt } = await issueShareLink(tx, {
+      const { guid: linkGuid, token, shortCode, expiresAt } = await issueShareLink(tx, {
         orgId,
         kind: "storage",
         subjectId: location.id,
@@ -83,6 +83,7 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
       const data: StorageShareLink = {
         guid: linkGuid,
         token,
+        shortCode,
         expiresAt: expiresAt.toISOString(),
       };
       return { success: true, message: "Created share link.", data };

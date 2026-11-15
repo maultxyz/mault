@@ -7,6 +7,7 @@ import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
 import { Pill } from "@/components/ui/pill";
 import { SaveBar } from "@/components/ui/save-bar";
+import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCalibration } from "@/features/calibration/api/use-calibration";
 import { FeederPanel } from "@/features/calibration/components/feeder-panel";
@@ -42,12 +43,12 @@ export default function CalibrateScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
-        title={t("calibration.title")}
+        title={t("calibration.sections.servos.title")}
         subtitle={sorter.device?.name ?? t("calibration.subtitle")}
         onBack={() => router.back()}
         subtitleAccessory={<Pill tone={PHASE_TONES[sorter.phase]} label={t(`sorter.phase.${sorter.phase}`)} />}
       />
-      <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg + SPACING.xs }}>
         {!sorter.isConnected ? (
           <Callout
             tone="warning"
@@ -112,19 +113,19 @@ export default function CalibrateScreen() {
           ) : null}
         </View>
 
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-          <AppText size="xs" tone="secondary">
-            {t("calibration.modules")}
-          </AppText>
-          <Button
-            size="sm"
-            variant="ghost"
-            icon="refresh"
-            label={t("calibration.resetServosToDefaults")}
-            disabled={!state.canCalibrate}
-            onPress={state.handleResetServosToDefaults}
-          />
-        </View>
+        <SectionHeader
+          title={t("calibration.modules")}
+          action={
+            <Button
+              size="sm"
+              variant="ghost"
+              icon="refresh"
+              label={t("calibration.resetServosToDefaults")}
+              disabled={!state.canCalibrate}
+              onPress={state.handleResetServosToDefaults}
+            />
+          }
+        />
         {state.isLoading && sorter.isConnected ? (
           <View style={{ gap: SPACING.md }}>
             <Skeleton height={320} />

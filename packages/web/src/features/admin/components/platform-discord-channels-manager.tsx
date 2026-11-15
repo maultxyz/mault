@@ -2,6 +2,7 @@ import { DONATE_URL, PLATFORM_STATS_SCRIPT_COMMAND, PRICE_SYNC_SCRIPT_COMMAND } 
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { Callout } from "@/components/callout";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SaveBar } from "@/components/save-bar";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
@@ -30,6 +31,22 @@ export function PlatformDiscordChannelsManager() {
     channels.form.formState.isSubmitting ||
     stats.form.formState.isSubmitting ||
     linkedRole.form.formState.isSubmitting;
+
+  if (channels.isError || stats.isError || linkedRole.isError) {
+    const retryFailed = () => {
+      if (channels.isError) void channels.refetch();
+      if (stats.isError) void stats.refetch();
+      if (linkedRole.isError) void linkedRole.refetch();
+    };
+    return (
+      <SettingsSection heading={t("discordChannels.channels.stats.heading")}>
+        <LoadErrorCallout
+          message={t("discordChannels.loadFailed")}
+          onRetry={retryFailed}
+        />
+      </SettingsSection>
+    );
+  }
 
   if (
     channels.isLoading ||

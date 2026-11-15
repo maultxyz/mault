@@ -13,6 +13,7 @@ export type StationAttentionKind =
   | "hopperEmpty"
   | "feederError"
   | "noCardDetected"
+  | "cardStuckInModuleOne"
   | "sorterNotResponding"
   | "routingFailed"
   | "binLimit"

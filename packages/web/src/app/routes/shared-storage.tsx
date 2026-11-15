@@ -1,7 +1,7 @@
 import { verifyStorageShareLink } from "@/features/storage/api/storage-share-links";
 import { StorageCardBrowser } from "@/features/public-cards/components/storage-card-browser";
 import { PriceSourceProvider } from "@/hooks/use-price-source";
-import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
+import { ShareLinkStatusScreen } from "@/features/public-cards/components/share-link-status-screen";
 import type { SharedStorageLinkState } from "@/lib/interfaces/share-links";
 import { publicQueryClient } from "@/lib/query-client";
 import {
@@ -9,7 +9,6 @@ import {
   toConditionMultipliers,
   type OrgPricing,
 } from "@magic-vault/shared";
-import { IconLinkOff, IconLoader2 } from "@tabler/icons-react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -21,6 +20,7 @@ export default function SharedStoragePage() {
   const [searchParams] = useSearchParams();
   const token = searchParams.get(SHARE_LINK_TOKEN_PARAM);
   const [link, setLink] = useState<SharedStorageLinkState>({ status: "checking" });
+  const [checkCount, setCheckCount] = useState(0);
 
   useEffect(() => {
     if (!token || !locationGuid) {
@@ -38,12 +38,12 @@ export default function SharedStoragePage() {
         );
       })
       .catch(() => {
-        if (!cancelled) setLink({ status: "invalid" });
+        if (!cancelled) setLink({ status: "failed" });
       });
     return () => {
       cancelled = true;
     };
-  }, [token, locationGuid]);
+  }, [token, locationGuid, checkCount]);
 
   const linkInfo = link.status === "valid" ? link.info : undefined;
   const pricing = useMemo<OrgPricing | null>(
@@ -65,28 +65,15 @@ export default function SharedStoragePage() {
 
   if (!linkInfo || !pricing || !token) {
     return (
-      <main
-        id={MAIN_CONTENT_ID}
-        tabIndex={-1}
-        className="flex h-dvh flex-col items-center justify-center gap-3 bg-background p-6 text-center outline-none"
-      >
-        {link.status === "checking" ? (
-          <IconLoader2
-            className="size-6 animate-spin text-foreground/70"
-            aria-hidden
-          />
-        ) : (
-          <>
-            <IconLinkOff className="size-8 text-foreground/70" aria-hidden />
-            <h1 className="text-base font-semibold">
-              {t("sharedPage.invalidTitle")}
-            </h1>
-            <p className="max-w-sm text-sm text-foreground/70">
-              {t("sharedPage.invalidDescription")}
-            </p>
-          </>
-        )}
-      </main>
+      <ShareLinkStatusScreen
+        status={link.status === "valid" ? "invalid" : link.status}
+        invalidTitle={t("sharedPage.invalidTitle")}
+        invalidDescription={t("sharedPage.invalidDescription")}
+        onRetry={() => {
+          setLink({ status: "checking" });
+          setCheckCount((n) => n + 1);
+        }}
+      />
     );
   }
 

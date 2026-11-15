@@ -14,13 +14,15 @@ import {
   pausePiScanSession,
   resumePiScanSession,
 } from "@/features/scanner/api/pi-scan-session";
+import { settlePiScanSessionRequest } from "@/features/scanner/lib/pi-scan-session-result";
 import {
-  applyPiScanState,
   getPiScanState,
   subscribePiScan,
 } from "@/features/scanner/lib/pi-scan-store";
+import { useTranslation } from "react-i18next";
 
 export function StationSummaryReporter() {
+  const { t } = useTranslation("scanner");
   const { station } = useStation();
   const { stations } = useStations();
   const piHost = usePiHost();
@@ -51,17 +53,19 @@ export function StationSummaryReporter() {
   const pauseSorter = useCallback(() => {
     if (!usesHostSession) return pause();
     if (hostState.phase !== "running" || hostState.stopping) return;
-    void pausePiScanSession().then((result) => {
-      if (result.data) applyPiScanState(result.data);
-    });
-  }, [usesHostSession, hostState.phase, hostState.stopping, pause]);
+    void settlePiScanSessionRequest(
+      pausePiScanSession(),
+      t("piScan.requestFailed"),
+    );
+  }, [usesHostSession, hostState.phase, hostState.stopping, pause, t]);
   const resumeSorter = useCallback(() => {
     if (!usesHostSession) return resume();
     if (hostState.phase !== "paused" || hostState.stopping) return;
-    void resumePiScanSession().then((result) => {
-      if (result.data) applyPiScanState(result.data);
-    });
-  }, [usesHostSession, hostState.phase, hostState.stopping, resume]);
+    void settlePiScanSessionRequest(
+      resumePiScanSession(),
+      t("piScan.requestFailed"),
+    );
+  }, [usesHostSession, hostState.phase, hostState.stopping, resume, t]);
 
   useEffect(
     () =>

@@ -2,14 +2,15 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
-import { Alert, FlatList, Pressable, RefreshControl, View } from "react-native";
+import { Alert, FlatList, Pressable, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
-import { Skeleton } from "@/components/ui/skeleton";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
+import { CollectionGridSkeleton } from "@/features/collections/components/collection-grid-skeleton";
 import {
   clearUnmatchedCards,
   invalidateUnmatchedCards,
@@ -80,12 +81,8 @@ export default function UnmatchedCardsScreen() {
           if (unmatched.hasNextPage && !unmatched.isFetchingNextPage) void unmatched.fetchNextPage();
         }}
         refreshControl={
-          <RefreshControl
-            refreshing={unmatched.isRefetching && !unmatched.isFetchingNextPage}
-            onRefresh={() => void unmatched.refetch()}
-            tintColor={colors.primaryText}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.card}
+          <PullToRefreshControl
+            onRefresh={() => unmatched.refetch()}
           />
         }
         ListHeaderComponent={
@@ -100,12 +97,8 @@ export default function UnmatchedCardsScreen() {
         }
         ListEmptyComponent={
           unmatched.isPending ? (
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: CARD_GRID_GAP_X, rowGap: CARD_GRID_GAP_Y }}>
-              {Array.from({ length: 6 }).map((_, index) => (
-                <Skeleton key={index} width={tileWidth} height={tileWidth / CARD_ASPECT_RATIO} radius={CARD_ART_RADIUS} />
-              ))}
-            </View>
-          ) : unmatched.isError ? null : (
+            <CollectionGridSkeleton tileWidth={tileWidth} />
+          ) : unmatched.isError ? undefined : (
             <EmptyState
               icon="check"
               title={t("unmatchedCards.emptyTitle")}
@@ -126,15 +119,13 @@ export default function UnmatchedCardsScreen() {
               accessibilityRole="button"
               accessibilityLabel={t("unmatchedCards.identifyScan", { scannedAt })}
               onPress={() => router.push({ pathname: "/unmatched-card", params: { guid, scanId: item.scanId } })}
-              style={{ width: tileWidth, gap: SPACING.xs }}
+              style={({ pressed }) => ({ width: tileWidth, gap: 6, transform: [{ scale: pressed ? 0.97 : 1 }] })}
             >
               <View
                 style={{
                   aspectRatio: CARD_ASPECT_RATIO,
                   borderRadius: CARD_ART_RADIUS,
                   overflow: "hidden",
-                  borderWidth: 1,
-                  borderColor: colors.border,
                   backgroundColor: colors.muted,
                 }}
               >
@@ -142,7 +133,7 @@ export default function UnmatchedCardsScreen() {
                   <Image source={{ uri: imageUrl }} style={{ flex: 1 }} contentFit="fill" accessible={false} />
                 ) : null}
               </View>
-              <AppText size="2xs" tone="secondary" numberOfLines={1}>
+              <AppText size="xs" tone="secondary" numberOfLines={1} style={{ paddingHorizontal: 2 }}>
                 {scannedAt}
               </AppText>
             </Pressable>

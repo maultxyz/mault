@@ -494,7 +494,7 @@ export function CsvImportDialog({
     >
       <form
         id="csv-import-form"
-        className="flex flex-col gap-3 md:max-h-[68svh] md:overflow-y-auto md:pr-1"
+        className="flex flex-col gap-3 md:gap-2 md:max-h-[68svh] md:overflow-y-auto md:pr-1"
         onSubmit={form.handleSubmit(submit)}
       >
         <Controller

@@ -255,12 +255,22 @@ export function requireOrgRole(...roles: OrgRole[]) {
   });
 }
 
+function secretHeaderMatches(
+  expectedSecret: string | undefined,
+  providedSecret: string | undefined,
+): boolean {
+  const expected = Buffer.from(expectedSecret ?? "");
+  const provided = Buffer.from(providedSecret ?? "");
+  return (
+    expected.length > 0 &&
+    provided.length === expected.length &&
+    timingSafeEqual(provided, expected)
+  );
+}
+
 export const requireBotSecret = createMiddleware<AppEnv>(async (c, next) => {
-  const secret = c.req.header("X-Bot-Secret");
   if (
-    !secret ||
-    !process.env.BOT_API_SECRET ||
-    secret !== process.env.BOT_API_SECRET
+    !secretHeaderMatches(process.env.BOT_API_SECRET, c.req.header("X-Bot-Secret"))
   ) {
     return c.json({ success: false, message: "Unauthorized" }, 401);
   }
@@ -268,12 +278,8 @@ export const requireBotSecret = createMiddleware<AppEnv>(async (c, next) => {
 });
 
 export const requireDeployKey = createMiddleware<AppEnv>(async (c, next) => {
-  const expected = Buffer.from(process.env.DEPLOY_API_KEY ?? "");
-  const provided = Buffer.from(c.req.header("X-Deploy-Key") ?? "");
   if (
-    expected.length === 0 ||
-    provided.length !== expected.length ||
-    !timingSafeEqual(provided, expected)
+    !secretHeaderMatches(process.env.DEPLOY_API_KEY, c.req.header("X-Deploy-Key"))
   ) {
     return c.json({ success: false, message: "Unauthorized" }, 401);
   }

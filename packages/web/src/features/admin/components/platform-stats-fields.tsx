@@ -16,7 +16,7 @@ export function PlatformStatsFields({ form }: PlatformStatsFieldsProps) {
         control={form.control}
         name="stats"
         render={({ field }) => (
-          <div className="divide-y rounded-lg border">
+          <div className="divide-y divide-border">
             {PLATFORM_STAT_KEYS.map((key) => {
               const id = `platform-stat-${key}`;
               return (

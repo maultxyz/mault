@@ -1,5 +1,6 @@
 import { shareLinkGuestKey } from "@/features/trade-offers/lib/guest-identity";
 import { publicGet } from "@/lib/api/client";
+import { getAuthSession } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/api";
 import {
   PUBLIC_GAMES_QUERY_KEY,
@@ -65,12 +66,14 @@ export async function submitTradeOffer(
   link: TradeOfferLink,
   request: TradeOfferRequest,
 ): Promise<{ guid: string }> {
+  const session = await getAuthSession().catch(() => null);
   return readResult<{ guid: string }>(
     await fetch(tradeOffersUrl(link, ""), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         [SHARE_LINK_GUEST_KEY_HEADER]: shareLinkGuestKey(),
+        ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {}),
       },
       body: JSON.stringify(request),
     }),

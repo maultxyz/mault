@@ -114,7 +114,7 @@ export default function NewCollectionScreen() {
             onPress={() => setSheet("game")}
           />
           {errors.gameGuid ? (
-            <AppText size="xs" style={{ color: colors.destructive }}>
+            <AppText size="xs" tone="destructive" accessibilityLiveRegion="polite">
               {translateFormErrorMessage(t, errors.gameGuid.message)}
             </AppText>
           ) : null}
@@ -151,7 +151,7 @@ export default function NewCollectionScreen() {
             onPress={() => setSheet("lang")}
           />
           {errors.lang ? (
-            <AppText size="xs" style={{ color: colors.destructive }}>
+            <AppText size="xs" tone="destructive" accessibilityLiveRegion="polite">
               {translateFormErrorMessage(t, errors.lang.message)}
             </AppText>
           ) : null}

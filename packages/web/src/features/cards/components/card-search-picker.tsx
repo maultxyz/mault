@@ -78,7 +78,7 @@ export function CardSearchPicker({
       </div>
       <div
         data-vaul-no-drag
-        className="max-h-[50dvh] min-h-48 flex-1 overflow-y-auto rounded-lg border bg-muted/40 p-2"
+        className="max-h-[50dvh] min-h-48 flex-1 overflow-y-auto"
       >
         {loading && <CardSearchResultSkeletonGrid />}
         {!loading && results.length === 0 && (

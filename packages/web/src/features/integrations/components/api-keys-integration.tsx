@@ -1,5 +1,6 @@
 import { PlanNotice } from "@/components/plan-notice";
 import { Callout } from "@/components/callout";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import {
@@ -45,7 +46,7 @@ import { formatShortDate } from "@/lib/format";
 
 export function ApiKeysIntegration() {
   const { t } = useTranslation("integrations");
-  const { keys, canManage, isLocked, isLoading, isError, create, revoke } =
+  const { keys, canManage, isLocked, isLoading, isError, refetch, create, revoke } =
     useOrgApiKeys();
   const [showCreate, setShowCreate] = useState(false);
   const [revokeTarget, setRevokeTarget] = useState<OrgApiKey | null>(null);
@@ -75,9 +76,9 @@ export function ApiKeysIntegration() {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 md:gap-2">
       <div className="flex items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
           <IconApi size={24} />
         </span>
         <div className="min-w-0 flex-1">
@@ -148,7 +149,10 @@ export function ApiKeysIntegration() {
             <Callout variant="neutral">{t("apiKeys.managersOnly")}</Callout>
           )}
           {isError && (
-            <Callout variant="error">{t("apiKeys.loadFailed")}</Callout>
+            <LoadErrorCallout
+              message={t("apiKeys.loadFailed")}
+              onRetry={() => void refetch()}
+            />
           )}
 
           {isLoading && <Skeleton className="h-14 w-full" />}
@@ -162,7 +166,7 @@ export function ApiKeysIntegration() {
           )}
 
           {!isLoading && keys.length > 0 && (
-            <div className="flex flex-col divide-y rounded-lg border">
+            <div className="flex flex-col divide-y divide-border">
               {keys.map((key) => (
                 <div
                   key={key.guid}
@@ -237,7 +241,7 @@ export function ApiKeysIntegration() {
       >
         <form
           id="create-org-api-key-form"
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(handleCreate)}
         >
           <Field data-invalid={!!form.formState.errors.name}>
@@ -314,7 +318,7 @@ export function ApiKeysIntegration() {
           </div>
         }
       >
-        <div className="flex items-center gap-2 rounded-lg border bg-muted p-2">
+        <div className="flex items-center gap-2 rounded-lg bg-foreground/6 p-2">
           <code className="flex-1 overflow-x-auto whitespace-nowrap text-sm">
             {newRawKey}
           </code>

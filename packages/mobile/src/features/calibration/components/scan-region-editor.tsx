@@ -56,7 +56,7 @@ export function ScanRegionEditor({ region, onChange }: ScanRegionEditorProps) {
       style={{
         width: "100%",
         aspectRatio: CAMERA_ASPECT_RATIO,
-        borderRadius: RADIUS.lg,
+        borderRadius: RADIUS.md,
         overflow: "hidden",
         backgroundColor: colors.camera,
       }}

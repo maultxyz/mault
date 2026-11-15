@@ -25,7 +25,7 @@ export function PlatformDiscordChannelFields({
   const isGuildLoading = guildQuery.isFetching;
 
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
+    <div className="grid gap-3 md:gap-2 sm:grid-cols-2">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor={guildSelectId}>{t("discordChannels.server")}</Label>
         <Controller

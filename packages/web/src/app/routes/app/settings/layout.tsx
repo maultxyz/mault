@@ -48,7 +48,7 @@ export default function SettingsLayout() {
             MOBILE_NAV_SCROLL_PADDING_CLASS,
           )}
         >
-          <div className="flex w-full flex-col gap-5 p-4">
+          <div className="flex w-full flex-col gap-5 md:gap-2 p-4">
             <Outlet />
           </div>
         </div>
@@ -75,7 +75,7 @@ export default function SettingsLayout() {
       />
 
       <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto">
-        <div className="flex flex-col p-4 md:p-6 max-w-4xl mx-auto w-full gap-4">
+        <div className="flex flex-col p-4 md:px-3 md:py-2 max-w-4xl mx-auto w-full gap-4">
           {current && (
             <PageIntro
               className="mb-2"

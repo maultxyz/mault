@@ -151,8 +151,8 @@ export function CameraPrintingScore({
               <DialogDescription>{activeCollection.game.name}</DialogDescription>
             )}
           </DialogHeader>
-          <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_20rem]">
-            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg border bg-background">
+          <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_20rem] md:gap-2">
+            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted">
               <canvas ref={previewRef} className="absolute inset-0 h-full w-full object-contain" />
               {!canCapture && (
                 <div className="absolute inset-0 flex items-center justify-center p-4 text-center">

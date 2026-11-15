@@ -27,7 +27,7 @@ export function HomeHighlightRow({ icon, tone, title, description, actionLabel, 
     >
       <IconBadge name={icon} tone={tone} />
       <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
-        <AppText weight="semibold" numberOfLines={1}>
+        <AppText weight="semibold" numberOfLines={2}>
           {title}
         </AppText>
         <AppText size="xs" tone="secondary" numberOfLines={2}>

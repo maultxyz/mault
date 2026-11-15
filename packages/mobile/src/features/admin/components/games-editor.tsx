@@ -35,6 +35,7 @@ import { GAME_EDITOR_VALIDATION_KEYS } from "@/lib/constants/admin-cards";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SPACING } from "@/lib/constants/theme";
 import type { GameEditorFormValues, GamesEditorExit, GamesEditorProps } from "@/lib/interfaces/admin-cards";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 
 export function GamesEditor({ game }: GamesEditorProps) {
   const { t } = useTranslation();
@@ -156,130 +157,112 @@ export function GamesEditor({ game }: GamesEditorProps) {
           />
         ) : null}
 
-        <Surface style={{ gap: SPACING.md }}>
-          <View>
-            <AppText heading weight="semibold" accessibilityRole="header">
-              {t("admin.cards.gameForm.generalHeading")}
-            </AppText>
-            <AppText size="xs" tone="secondary">
-              {t("admin.cards.gameForm.generalDescription")}
-            </AppText>
-          </View>
-          <View style={{ gap: SPACING.xs }}>
-            <SelectField
-              label={t("admin.cards.gameForm.keyLabel")}
-              value={keyValue ? sourceLabel(keyValue) : null}
-              placeholder={t("admin.cards.gameForm.keyPlaceholder")}
-              disabled={!!game}
-              onPress={() => setKeySheetOpen(true)}
-            />
-            {errors.key ? (
-              <AppText size="xs" tone="destructive" accessibilityRole="alert">
-                {translateError(errors.key.message)}
-              </AppText>
-            ) : null}
-          </View>
-          <Controller
-            control={control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <TextField
-                label={t("admin.cards.gameForm.nameLabel")}
-                placeholder={t("admin.cards.gameForm.namePlaceholder")}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-                error={translateError(fieldState.error?.message)}
+        <SettingsSection title={t("admin.cards.gameForm.generalHeading")} description={t("admin.cards.gameForm.generalDescription")}>
+          <Surface style={{ gap: SPACING.md }}>
+            <View style={{ gap: SPACING.xs }}>
+              <SelectField
+                label={t("admin.cards.gameForm.keyLabel")}
+                value={keyValue ? sourceLabel(keyValue) : null}
+                placeholder={t("admin.cards.gameForm.keyPlaceholder")}
+                disabled={!!game}
+                onPress={() => setKeySheetOpen(true)}
               />
-            )}
-          />
-          <Controller
-            control={control}
-            name="apiDocsUrl"
-            render={({ field, fieldState }) => (
-              <TextField
-                label={t("admin.cards.gameForm.apiDocsUrlLabel")}
-                placeholder={t("admin.cards.gameForm.apiDocsUrlPlaceholder")}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-                autoCapitalize="none"
-                autoComplete="off"
-                error={translateError(fieldState.error?.message)}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="isActive"
-            render={({ field }) => (
-              <SwitchRow
-                title={t("admin.cards.games.active")}
-                description={t("admin.cards.gameForm.activeDescription")}
-                value={field.value}
-                onValueChange={field.onChange}
-              />
-            )}
-          />
-        </Surface>
-
-        <Surface style={{ gap: SPACING.md }}>
-          <View>
-            <AppText heading weight="semibold" accessibilityRole="header">
-              {t("admin.cards.gameForm.physicalHeading")}
-            </AppText>
-            <AppText size="xs" tone="secondary">
-              {t("admin.cards.gameForm.physicalDescription")}
-            </AppText>
-          </View>
-          <Controller
-            control={control}
-            name="cardThicknessText"
-            render={({ field, fieldState }) => (
-              <View style={{ gap: SPACING.xs }}>
+              {errors.key ? (
+                <AppText size="xs" tone="destructive" accessibilityRole="alert">
+                  {translateError(errors.key.message)}
+                </AppText>
+              ) : null}
+            </View>
+            <Controller
+              control={control}
+              name="name"
+              render={({ field, fieldState }) => (
                 <TextField
-                  label={t("admin.cards.gameForm.cardThicknessLabel")}
-                  placeholder={t("admin.cards.gameForm.cardThicknessPlaceholder")}
+                  label={t("admin.cards.gameForm.nameLabel")}
+                  placeholder={t("admin.cards.gameForm.namePlaceholder")}
                   value={field.value}
                   onBlur={field.onBlur}
                   onChangeText={field.onChange}
-                  keyboardType="decimal-pad"
                   error={translateError(fieldState.error?.message)}
                 />
-                <AppText size="xs" tone="secondary">
-                  {t("admin.cards.gameForm.cardThicknessDescription")}
-                </AppText>
-              </View>
-            )}
-          />
-        </Surface>
+              )}
+            />
+            <Controller
+              control={control}
+              name="apiDocsUrl"
+              render={({ field, fieldState }) => (
+                <TextField
+                  label={t("admin.cards.gameForm.apiDocsUrlLabel")}
+                  placeholder={t("admin.cards.gameForm.apiDocsUrlPlaceholder")}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={field.onChange}
+                  autoCapitalize="none"
+                  autoComplete="off"
+                  error={translateError(fieldState.error?.message)}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="isActive"
+              render={({ field }) => (
+                <SwitchRow
+                  title={t("admin.cards.games.active")}
+                  description={t("admin.cards.gameForm.activeDescription")}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              )}
+            />
+          </Surface>
+        </SettingsSection>
 
-        <View style={{ gap: SPACING.md }}>
-          <View>
-            <AppText heading weight="semibold" accessibilityRole="header">
-              {t("admin.cards.fields.heading")}
-            </AppText>
-            <AppText size="xs" tone="secondary">
-              {t("admin.cards.fields.description")}
-            </AppText>
+        <SettingsSection title={t("admin.cards.gameForm.physicalHeading")} description={t("admin.cards.gameForm.physicalDescription")}>
+          <Surface style={{ gap: SPACING.md }}>
+            <Controller
+              control={control}
+              name="cardThicknessText"
+              render={({ field, fieldState }) => (
+                <View style={{ gap: SPACING.xs }}>
+                  <TextField
+                    label={t("admin.cards.gameForm.cardThicknessLabel")}
+                    placeholder={t("admin.cards.gameForm.cardThicknessPlaceholder")}
+                    value={field.value}
+                    onBlur={field.onBlur}
+                    onChangeText={field.onChange}
+                    keyboardType="decimal-pad"
+                    error={translateError(fieldState.error?.message)}
+                  />
+                  <AppText size="xs" tone="secondary">
+                    {t("admin.cards.gameForm.cardThicknessDescription")}
+                  </AppText>
+                </View>
+              )}
+            />
+          </Surface>
+        </SettingsSection>
+
+        <SettingsSection title={t("admin.cards.fields.heading")} description={t("admin.cards.fields.description")}>
+          <View style={{ gap: SPACING.md }}>
+            {fieldListError ? <Callout tone="destructive" title={translateError(fieldListError) ?? ""} /> : null}
+            {fieldDefinitions.fields.length === 0 ? (
+              <EmptyState icon="rules" title={t("admin.cards.fields.empty")} />
+            ) : (
+              <FormProvider {...form}>
+                {fieldDefinitions.fields.map((row, index) => (
+                  <GamesFieldDefinitionCard key={row.id} index={index} onRemove={() => fieldDefinitions.remove(index)} />
+                ))}
+              </FormProvider>
+            )}
+            <Button
+              variant="secondary"
+              icon="plus"
+              label={t("admin.cards.fields.addField")}
+              onPress={() => fieldDefinitions.append(emptyGameFieldDefinition(), { shouldFocus: false })}
+            />
           </View>
-          {fieldListError ? <Callout tone="destructive" title={translateError(fieldListError) ?? ""} /> : null}
-          {fieldDefinitions.fields.length === 0 ? (
-            <EmptyState icon="rules" title={t("admin.cards.fields.empty")} />
-          ) : (
-            <FormProvider {...form}>
-              {fieldDefinitions.fields.map((row, index) => (
-                <GamesFieldDefinitionCard key={row.id} index={index} onRemove={() => fieldDefinitions.remove(index)} />
-              ))}
-            </FormProvider>
-          )}
-          <Button
-            variant="secondary"
-            icon="plus"
-            label={t("admin.cards.fields.addField")}
-            onPress={() => fieldDefinitions.append(emptyGameFieldDefinition(), { shouldFocus: false })}
-          />
-        </View>
+        </SettingsSection>
 
         {game ? (
           confirmingDelete ? (

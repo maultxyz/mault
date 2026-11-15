@@ -47,7 +47,7 @@ export const removeBulkCollectionCardsRoute = new Hono<AppEnv>().post(
     });
     if (result.success) {
       deleteScanImages(result.imageKeys);
-      emitToSession(guid, "cards_removed", { scanIds });
+      emitToSession(orgId, guid, "cards_removed", { scanIds });
       emitCollectionCardsChanged(orgId, guid);
     }
     return c.json({ success: result.success, data: result.data });

@@ -1,4 +1,4 @@
-import { Callout } from "@/components/callout";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { PlanNotice } from "@/components/plan-notice";
@@ -29,6 +29,7 @@ export function ShopCatalogsSection() {
     isLocked,
     isLoading,
     isError,
+    refetch,
     create,
     update,
     resetLink,
@@ -76,8 +77,13 @@ export function ShopCatalogsSection() {
           onRemove={() => removePhoto.mutate()}
         />
       )}
-      {isError && <Callout variant="error">{t("shopCatalogs.loadFailed")}</Callout>}
-      {isLoading && <Skeleton className="h-14 w-full" />}
+      {isError && (
+        <LoadErrorCallout
+          message={t("shopCatalogs.loadFailed")}
+          onRetry={() => void refetch()}
+        />
+      )}
+      {isLoading && <Skeleton className="h-14 w-full rounded-lg" />}
       {!isLoading && canManage && !isError && catalogs.length === 0 && (
         <EmptyState
           size="compact"
@@ -86,7 +92,7 @@ export function ShopCatalogsSection() {
         />
       )}
       {!isLoading && catalogs.length > 0 && (
-        <div className="flex flex-col divide-y rounded-lg border">
+        <div className="flex flex-col divide-y divide-border">
           {catalogs.map((catalog) => {
             const sources = sourceSummary(catalog);
             return (

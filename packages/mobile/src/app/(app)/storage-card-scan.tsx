@@ -27,7 +27,9 @@ import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
 import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
 import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
+import { CameraEmptyStateFrame } from "@/features/scanner/components/camera-empty-state-frame";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
+import { CameraPermissionEmptyState } from "@/features/scanner/components/camera-permission-empty-state";
 import { ScanRegionOverlay } from "@/features/scanner/components/scan-region-overlay";
 import { ShutterButton } from "@/features/scanner/components/shutter-button";
 import { captureFrame } from "@/features/scanner/lib/frame";
@@ -185,14 +187,12 @@ export default function StorageCardScanScreen() {
     <View style={{ flex: 1, backgroundColor: colors.camera }}>
       {focused ? <StatusBar style="light" /> : null}
       {!permission.hasPermission ? (
-        <View style={[StyleSheet.absoluteFill, { justifyContent: "center", padding: SCREEN_GUTTER }]}>
-          <EmptyState
-            icon="camera"
-            title={t("scan.cameraPermissionTitle")}
-            description={t("scan.cameraPermissionDescription")}
-            action={<Button label={t("scan.allowCamera")} onPress={() => void permission.requestPermission()} />}
+        <CameraEmptyStateFrame>
+          <CameraPermissionEmptyState
+            canRequestPermission={permission.canRequestPermission}
+            onRequestPermission={() => void permission.requestPermission()}
           />
-        </View>
+        </CameraEmptyStateFrame>
       ) : device ? (
         <>
           {cameraMounted ? (
@@ -214,9 +214,9 @@ export default function StorageCardScanScreen() {
           />
         </>
       ) : (
-        <View style={[StyleSheet.absoluteFill, { justifyContent: "center" }]}>
+        <CameraEmptyStateFrame>
           <EmptyState icon="camera" title={t("scan.noCamera")} />
-        </View>
+        </CameraEmptyStateFrame>
       )}
 
       <View

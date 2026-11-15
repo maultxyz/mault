@@ -15,6 +15,7 @@ import {
   restrictedShareLinkLifetime,
 } from "./share-link-policy";
 import { signShareToken } from "./share-tokens";
+import { generateShortLinkCode } from "./short-link-codes";
 
 const ISSUER_BY_KIND: Record<ShareLinkKind, string> = {
   collection: MONITOR_LINK_ISSUER,
@@ -25,7 +26,7 @@ function wholeSeconds(date: Date): Date {
   return new Date(Math.floor(date.getTime() / 1000) * 1000);
 }
 
-function signShareLinkRow(row: {
+export function signShareLinkRow(row: {
   guid: string;
   orgId: string;
   linkKind: string;
@@ -69,9 +70,15 @@ export async function issueShareLink(
       issuedAt,
       expiresAt,
       createdByUserId: input.createdByUserId,
+      shortCode: generateShortLinkCode(),
     })
     .returning();
-  return { guid: row.guid, token: await signShareLinkRow(row), expiresAt };
+  return {
+    guid: row.guid,
+    token: await signShareLinkRow(row),
+    shortCode: row.shortCode,
+    expiresAt,
+  };
 }
 
 export async function isShareLinkActive(orgId: string, linkGuid: string): Promise<boolean> {
@@ -139,6 +146,7 @@ export async function listSubjectShareLinks(
       createdAt: link.issuedAt.toISOString(),
       expiresAt: expiresAt.toISOString(),
       token: await signShareLinkRow(link),
+      shortCode: link.shortCode,
     });
   }
   return links;

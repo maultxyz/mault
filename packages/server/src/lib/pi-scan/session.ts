@@ -7,6 +7,7 @@ import { loadSoundRules } from "../../routes/sounds/shared";
 import { loadCollections } from "../../routes/collections/shared";
 import { PiScanPrefetch } from "./prefetch";
 import { routeLoadedPiCard } from "./route-card";
+import { feedNextPiScanCard } from "./feed-next-card";
 import { retainPiScanUnsavedCards, waitForPiScanResume } from "./recovery";
 import { randomUUID } from "node:crypto";
 import { and, eq, inArray, sql } from "drizzle-orm";
@@ -29,7 +30,6 @@ import {
   DEFAULT_CARD_CONDITION,
   toCardCondition,
   DEFAULT_FEEDER_CALIBRATION,
-  feedWithRetries,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEWARP_OUTPUT_SIZE,
@@ -97,6 +97,7 @@ import type {
   PiScanStartResult,
 } from "../interfaces/pi-scan";
 import {
+  PI_SCAN_CARD_STUCK_IN_MODULE_ONE_MESSAGE,
   PI_SCAN_FEED_TIMEOUT_MS,
   PI_SCAN_NEUTRAL_TIMEOUT_MS,
   PI_SCAN_PORT_DRAIN_MS,
@@ -877,6 +878,16 @@ async function waitForResume(session: PiScanLive): Promise<boolean> {
   });
 }
 
+async function routeScannedPiCard(
+  session: PiScanLive,
+  link: SorterLink,
+  route: BinRoute,
+  pipeline?: Parameters<typeof routeLoadedPiCard>[2],
+) {
+  await routeLoadedPiCard(link, route, pipeline);
+  session.routedCardMustLeaveModuleOneBeforeFeed = true;
+}
+
 function holdCard(session: PiScanLive, message: string) {
   pausePiScanSession(session.orgId);
   session.message = message;
@@ -986,7 +997,8 @@ async function processMatched(
     route: async (decision) => {
       if (!decision.bin) throw new Error("No bin matched this card.");
       showCard(session, card.name, decision.bin.binNumber, true);
-      await routeLoadedPiCard(
+      await routeScannedPiCard(
+        session,
         link,
         routeForBin(decision.bin.binNumber, context.routes),
         pipeline,
@@ -1134,7 +1146,8 @@ async function processUnmatched(
     pick: () => {},
     route: async (decision) => {
       showCard(session, null, decision.bin!.binNumber, false);
-      await routeLoadedPiCard(
+      await routeScannedPiCard(
+        session,
         link,
         routeForBin(decision.bin!.binNumber, context.routes),
         pipeline,
@@ -1179,7 +1192,7 @@ async function routeUnsavedCard(
       continue;
     }
     showCard(session, null, bin, false);
-    await routeLoadedPiCard(link, routeForBin(bin, context.routes));
+    await routeScannedPiCard(session, link, routeForBin(bin, context.routes));
     context.counts.set(bin, (context.counts.get(bin) ?? 0) + 1);
     context.contents.push({
       binNumber: bin,
@@ -1452,8 +1465,12 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         prefetched.identified = null;
       }
       let bufferedFeed = prefetched?.feed;
-      const fed = await feedWithRetries(
-        async () => {
+      const confirmRoutedCardLeftModuleOne =
+        session.routedCardMustLeaveModuleOneBeforeFeed && !bufferedFeed;
+      session.routedCardMustLeaveModuleOneBeforeFeed = false;
+      const feedOutcome = await feedNextPiScanCard(link, {
+        confirmRoutedCardLeftModuleOne,
+        feedOnce: async () => {
           if (!(await waitForResume(session))) {
             throw new Error("Feeding interrupted.");
           }
@@ -1464,9 +1481,15 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           }
           return link.command({ feeder: true }, PI_SCAN_FEED_TIMEOUT_MS);
         },
-        (reply) => reply,
-        context.feedRetryCount,
-      );
+        retryCount: context.feedRetryCount,
+      });
+      if (feedOutcome.kind === "stuckInModuleOne") {
+        console.log("[pi-scan] the routed card is still in module 1");
+        session.activity = null;
+        holdCard(session, PI_SCAN_CARD_STUCK_IN_MODULE_ONE_MESSAGE);
+        continue;
+      }
+      const fed = feedOutcome.result;
       const fedError = lineError(fed);
       if (fedError) {
         const empty = fed.empty === true || fedError.startsWith("empty");
@@ -1702,6 +1725,7 @@ function createSession(
     autoFeed: body.autoFeed !== false,
     feedRequested: false,
     cardInFlight: false,
+    routedCardMustLeaveModuleOneBeforeFeed: false,
     startedAt: 0,
     pausedMs: 0,
     pauseStartedAt: null,

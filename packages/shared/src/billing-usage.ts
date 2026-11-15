@@ -2,6 +2,7 @@ import { PLAN_FEATURE_KEYS, PLAN_LIMIT_KEYS } from "./constants/plans.constant";
 import type {
   BillingPlanTableRow,
   BillingStatus,
+  DailyScanLimitResetCountdown,
   PlanFeatureKey,
   PlanLimitKey,
 } from "./interfaces/plans.interface";
@@ -83,4 +84,22 @@ export function billingPlanRowUsagePercent(
   }
   if (row.limit <= 0) return 0;
   return Math.min(100, Math.round((row.used / row.limit) * 100));
+}
+
+export function dailyScanLimitResetCountdown(
+  now: Date,
+): DailyScanLimitResetCountdown {
+  const nextUtcMidnight = Date.UTC(
+    now.getUTCFullYear(),
+    now.getUTCMonth(),
+    now.getUTCDate() + 1,
+  );
+  const minutesUntilReset = Math.max(
+    1,
+    Math.ceil((nextUtcMidnight - now.getTime()) / 60_000),
+  );
+  return {
+    hours: Math.floor(minutesUntilReset / 60),
+    minutes: minutesUntilReset % 60,
+  };
 }

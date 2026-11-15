@@ -2,7 +2,7 @@ import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useTheme } from "@/hooks/use-theme";
+import { Surface } from "@/components/ui/surface";
 import {
   CARD_DETAIL_SKELETON_DETAIL_ROWS,
   CARD_DETAIL_SKELETON_PILL_WIDTHS,
@@ -30,9 +30,8 @@ export function PricePaidFieldSkeleton() {
   );
 }
 
-export function CardDetailSkeleton({ showsCapturedScan }: CardDetailSkeletonProps) {
+export function CardDetailSkeleton({ showsCapturedScan, showsAttributePills = true }: CardDetailSkeletonProps) {
   const { t } = useTranslation();
-  const colors = useTheme();
   const imageFrame = (
     <View style={{ flex: 1, gap: 6 }}>
       {showsCapturedScan ? <SkeletonTextLine fontSize={FONT_SIZE.xs} lineHeight={Math.round(FONT_SIZE.xs * 1.45)} width="50%" /> : null}
@@ -41,8 +40,6 @@ export function CardDetailSkeleton({ showsCapturedScan }: CardDetailSkeletonProp
           aspectRatio: CARD_ASPECT_RATIO,
           borderRadius: CARD_ART_RADIUS,
           overflow: "hidden",
-          borderWidth: 1,
-          borderColor: colors.border,
         }}
       >
         <Skeleton height="100%" radius={0} />
@@ -56,18 +53,20 @@ export function CardDetailSkeleton({ showsCapturedScan }: CardDetailSkeletonProp
         <SkeletonTextLine fontSize={FONT_SIZE.sm} lineHeight={Math.round(FONT_SIZE.sm * 1.45)} width="50%" />
         <SkeletonTextLine fontSize={FONT_SIZE.lg} lineHeight={Math.round(FONT_SIZE.lg * 1.2)} width="30%" />
       </View>
-      <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
-        {CARD_DETAIL_SKELETON_PILL_WIDTHS.map((width, index) => (
-          <Skeleton key={index} width={width} height={PILL_MIN_HEIGHT + 2} radius={BADGE_RADIUS} />
-        ))}
-      </View>
+      {showsAttributePills ? (
+        <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
+          {CARD_DETAIL_SKELETON_PILL_WIDTHS.map((width, index) => (
+            <Skeleton key={index} width={width} height={PILL_MIN_HEIGHT + 2} radius={BADGE_RADIUS} />
+          ))}
+        </View>
+      ) : null}
       <View style={{ flexDirection: "row", gap: SPACING.md, alignItems: "flex-start" }}>
         {showsCapturedScan ? imageFrame : null}
         {imageFrame}
       </View>
       <View style={{ gap: SPACING.sm }}>
         <SectionHeader title={t("cardDetail.details")} />
-        <View style={{ gap: 6 }}>
+        <Surface style={{ gap: 6 }}>
           {Array.from({ length: CARD_DETAIL_SKELETON_DETAIL_ROWS }).map((_, index) => (
             <SkeletonTextLine
               key={index}
@@ -76,26 +75,26 @@ export function CardDetailSkeleton({ showsCapturedScan }: CardDetailSkeletonProp
               width={index % 2 === 0 ? "75%" : "60%"}
             />
           ))}
-        </View>
+        </Surface>
       </View>
       <View style={{ gap: SPACING.sm }}>
         <SectionHeader title={t("cardDetail.prices")} />
-        {Array.from({ length: CARD_DETAIL_SKELETON_PRICE_ROWS }).map((_, index) => (
-          <View
-            key={index}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              paddingVertical: SPACING.sm + 2,
-              borderTopWidth: index > 0 ? 1 : 0,
-              borderTopColor: colors.border,
-            }}
-          >
-            <SkeletonTextLine fontSize={FONT_SIZE.sm} lineHeight={Math.round(FONT_SIZE.sm * 1.45)} width={96} />
-            <SkeletonTextLine fontSize={FONT_SIZE.lg} lineHeight={Math.round(FONT_SIZE.lg * 1.2)} width={72} />
-          </View>
-        ))}
+        <Surface>
+          {Array.from({ length: CARD_DETAIL_SKELETON_PRICE_ROWS }).map((_, index) => (
+            <View
+              key={index}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                paddingVertical: SPACING.sm,
+              }}
+            >
+              <SkeletonTextLine fontSize={FONT_SIZE.sm} lineHeight={Math.round(FONT_SIZE.sm * 1.45)} width={96} />
+              <SkeletonTextLine fontSize={FONT_SIZE.lg} lineHeight={Math.round(FONT_SIZE.lg * 1.2)} width={72} />
+            </View>
+          ))}
+        </Surface>
       </View>
     </>
   );

@@ -17,12 +17,12 @@ import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
+import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Screen } from "@/components/ui/screen";
-import { SectionHeader } from "@/components/ui/section-header";
 import { SwitchRow } from "@/components/ui/switch-row";
 import {
   hasSameValues,
@@ -51,6 +51,7 @@ import { SPACING } from "@/lib/constants/theme";
 import { formatDateTime } from "@/lib/dates";
 import type { PlatformDiscordAdminDraftFormValues } from "@/lib/interfaces/admin-discord";
 import type { StatusTone } from "@/lib/interfaces/theme";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 
 export default function AdminDiscordScreen() {
   return (
@@ -168,14 +169,11 @@ function AdminDiscordContent() {
     />
   );
 
-  const refresh = () => {
-    void queryClient.invalidateQueries({ queryKey: ["admin", "discord"] });
-  };
+  const refresh = () => queryClient.invalidateQueries({ queryKey: ["admin", "discord"] });
 
   return (
     <View style={{ flex: 1 }}>
       <Screen
-        refreshing={channelsQuery.isRefetching || announcementsQuery.isRefetching}
         onRefresh={refresh}
         header={
           <PageHeader
@@ -193,120 +191,112 @@ function AdminDiscordContent() {
           <Callout
             tone="destructive"
             title={t("admin.discord.loadFailed")}
-            action={<Button variant="secondary" icon="refresh" label={t("admin.discord.retry")} onPress={refresh} />}
+            action={<Button size="sm" variant="secondary" label={t("admin.discord.retry")} onPress={refresh} />}
           />
         ) : (
           <>
             {!botReachable ? <Callout tone="warning" title={t("admin.discord.botUnreachable")} /> : null}
 
-            <SectionHeader title={t("admin.discord.channels.stats.heading")} />
-            <AppText size="xs" tone="secondary">
-              {t("admin.discord.channels.stats.description")}
-            </AppText>
-            {channelFields("stats")}
-            <AppText size="xs" tone="secondary">
-              {t("admin.discord.stats.statsDescription")}
-            </AppText>
-            <View style={{ gap: SPACING.md }}>
-              {PLATFORM_STAT_KEYS.map((statKey) => (
-                <SwitchRow
-                  key={statKey}
-                  title={t(`admin.discord.stats.keys.${statKey}.label`)}
-                  description={t(`admin.discord.stats.keys.${statKey}.description`)}
-                  value={(draftStatKeys ?? []).includes(statKey)}
-                  onValueChange={(isSelected) =>
-                    form.setValue("stats", toggledPlatformStatKeys(draftStatKeys ?? [], statKey, isSelected), {
-                      shouldDirty: true,
-                    })
-                  }
-                />
-              ))}
-            </View>
-            <DiscordScriptCommand command={PLATFORM_STATS_SCRIPT_COMMAND} description={t("admin.discord.stats.scheduleDescription")} />
-            <AppText size="xs" tone="secondary">
-              {[
-                statsData?.lastPostedAt
-                  ? t("admin.discord.stats.lastPosted", { date: formatDateTime(statsData.lastPostedAt, i18n.language) })
-                  : t("admin.discord.stats.neverPosted"),
-                isDirty ? t("admin.discord.stats.saveBeforePosting") : null,
-              ]
-                .filter(Boolean)
-                .join(" ")}
-            </AppText>
-            <Button
-              variant="secondary"
-              icon="send"
-              label={t("admin.discord.stats.postNow")}
-              loading={postNow.isPending}
-              disabled={!canPostStats}
-              onPress={() => postNow.mutate()}
-            />
+            <SettingsSection title={t("admin.discord.channels.stats.heading")} description={t("admin.discord.channels.stats.description")}>
+              {channelFields("stats")}
+              <AppText size="xs" tone="secondary">
+                {t("admin.discord.stats.statsDescription")}
+              </AppText>
+              <View style={{ gap: SPACING.md }}>
+                {PLATFORM_STAT_KEYS.map((statKey) => (
+                  <SwitchRow
+                    key={statKey}
+                    title={t(`admin.discord.stats.keys.${statKey}.label`)}
+                    description={t(`admin.discord.stats.keys.${statKey}.description`)}
+                    value={(draftStatKeys ?? []).includes(statKey)}
+                    onValueChange={(isSelected) =>
+                      form.setValue("stats", toggledPlatformStatKeys(draftStatKeys ?? [], statKey, isSelected), {
+                        shouldDirty: true,
+                      })
+                    }
+                  />
+                ))}
+              </View>
+              <DiscordScriptCommand command={PLATFORM_STATS_SCRIPT_COMMAND} description={t("admin.discord.stats.scheduleDescription")} />
+              <AppText size="xs" tone="secondary">
+                {[
+                  statsData?.lastPostedAt
+                    ? t("admin.discord.stats.lastPosted", { date: formatDateTime(statsData.lastPostedAt, i18n.language) })
+                    : t("admin.discord.stats.neverPosted"),
+                  isDirty ? t("admin.discord.stats.saveBeforePosting") : null,
+                ]
+                  .filter(Boolean)
+                  .join(" ")}
+              </AppText>
+              <Button
+                variant="secondary"
+                icon="send"
+                label={t("admin.discord.stats.postNow")}
+                loading={postNow.isPending}
+                disabled={!canPostStats}
+                onPress={() => postNow.mutate()}
+              />
+            </SettingsSection>
 
-            <SectionHeader title={t("admin.discord.channels.donations.heading")} />
-            <AppText size="xs" tone="secondary">
-              {t("admin.discord.channels.donations.description")}
-            </AppText>
-            {channelFields("donations")}
-            <Button
-              variant="ghost"
-              icon="external"
-              label={t("admin.discord.donationsLink")}
-              accessibilityHint={t("admin.discord.opensInBrowser")}
-              onPress={() => void Linking.openURL(DONATE_URL)}
-            />
+            <SettingsSection title={t("admin.discord.channels.donations.heading")} description={t("admin.discord.channels.donations.description")}>
+              {channelFields("donations")}
+              <Button
+                variant="ghost"
+                icon="external"
+                label={t("admin.discord.donationsLink")}
+                accessibilityHint={t("admin.discord.opensInBrowser")}
+                onPress={() => void Linking.openURL(DONATE_URL)}
+              />
+            </SettingsSection>
 
-            <SectionHeader title={t("admin.discord.channels.pricing.heading")} />
-            <AppText size="xs" tone="secondary">
-              {t("admin.discord.channels.pricing.description")}
-            </AppText>
-            {channelFields("pricing")}
-            <DiscordScriptCommand command={PRICE_SYNC_SCRIPT_COMMAND} description={t("admin.discord.priceSyncCommand")} />
+            <SettingsSection title={t("admin.discord.channels.pricing.heading")} description={t("admin.discord.channels.pricing.description")}>
+              {channelFields("pricing")}
+              <DiscordScriptCommand command={PRICE_SYNC_SCRIPT_COMMAND} description={t("admin.discord.priceSyncCommand")} />
+            </SettingsSection>
 
-            <SectionHeader title={t("admin.discord.linkedRole.heading")} />
-            <AppText size="xs" tone="secondary">
-              {t("admin.discord.linkedRole.description")}
-            </AppText>
-            <DiscordGuildTargetFields
-              targetKind="role"
-              guilds={guilds}
-              botReachable={botReachable}
-              guildId={draftLinkedRole?.guildId ?? null}
-              targetId={draftLinkedRole?.roleId ?? null}
-              onGuildChange={(next) => form.setValue("linkedRole.guildId", next, { shouldDirty: true })}
-              onTargetChange={(next) => form.setValue("linkedRole.roleId", next, { shouldDirty: true })}
-            />
+            <SettingsSection title={t("admin.discord.linkedRole.heading")} description={t("admin.discord.linkedRole.description")}>
+              <DiscordGuildTargetFields
+                targetKind="role"
+                guilds={guilds}
+                botReachable={botReachable}
+                guildId={draftLinkedRole?.guildId ?? null}
+                targetId={draftLinkedRole?.roleId ?? null}
+                onGuildChange={(next) => form.setValue("linkedRole.guildId", next, { shouldDirty: true })}
+                onTargetChange={(next) => form.setValue("linkedRole.roleId", next, { shouldDirty: true })}
+              />
+            </SettingsSection>
           </>
         )}
 
-        <SectionHeader title={t("admin.discord.announcements.heading")} />
-        <AppText size="xs" tone="secondary">
-          {t("admin.discord.announcements.description")}
-        </AppText>
-        {announcementsQuery.isPending ? (
-          <ListSkeleton withIcon={false} />
-        ) : announcementsQuery.isError ? (
-          <Callout tone="destructive" title={t("admin.discord.announcements.loadFailed")} />
-        ) : announcementsQuery.data.length === 0 ? (
-          <EmptyState icon="announcement" title={t("admin.discord.announcements.empty")} />
-        ) : (
-          <ListGroup>
-            {announcementsQuery.data.map((announcement) => (
-              <DiscordAnnouncementRow
-                key={announcement.guid}
-                announcement={announcement}
-                onPress={() =>
-                  router.push({ pathname: ADMIN_DISCORD_ANNOUNCEMENT_ROUTE, params: { guid: announcement.guid } })
-                }
-              />
-            ))}
-          </ListGroup>
-        )}
-        <Button
-          variant="secondary"
-          icon="plus"
-          label={t("admin.discord.announcements.add")}
-          onPress={() => router.push(ADMIN_DISCORD_ANNOUNCEMENT_ROUTE)}
-        />
+        <SettingsSection title={t("admin.discord.announcements.heading")} description={t("admin.discord.announcements.description")}>
+          {announcementsQuery.isPending ? (
+            <ListSkeleton withIcon={false} />
+          ) : announcementsQuery.isError ? (
+            <Callout tone="destructive" title={t("admin.discord.announcements.loadFailed")} />
+          ) : (
+            <>
+              {announcementsQuery.data.length === 0 ? (
+                <EmptyState icon="announcement" title={t("admin.discord.announcements.empty")} />
+              ) : null}
+              <ListGroup>
+                {announcementsQuery.data.map((announcement) => (
+                  <DiscordAnnouncementRow
+                    key={announcement.guid}
+                    announcement={announcement}
+                    onPress={() =>
+                      router.push({ pathname: ADMIN_DISCORD_ANNOUNCEMENT_ROUTE, params: { guid: announcement.guid } })
+                    }
+                  />
+                ))}
+                <ListRow
+                  icon="plus"
+                  title={t("admin.discord.announcements.add")}
+                  onPress={() => router.push(ADMIN_DISCORD_ANNOUNCEMENT_ROUTE)}
+                />
+              </ListGroup>
+            </>
+          )}
+        </SettingsSection>
       </Screen>
       <SaveBar
         visible={isDirty}

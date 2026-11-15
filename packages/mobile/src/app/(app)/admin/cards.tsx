@@ -21,24 +21,19 @@ export default function AdminCardsScreen() {
   const { isAdmin } = useRole();
   const queryClient = useQueryClient();
   const [selectedTab, setSelectedTab] = useState<AdminCardsTab>("stats");
-  const [refreshing, setRefreshing] = useState(false);
   const availableTabs: readonly AdminCardsTab[] = isAdmin ? ADMIN_CARDS_TABS : ADMIN_CARDS_STAFF_TABS;
   const tab = availableTabs.includes(selectedTab) ? selectedTab : "stats";
 
-  const refresh = async () => {
-    setRefreshing(true);
-    await Promise.all([
+  const refresh = () =>
+    Promise.all([
       queryClient.invalidateQueries({ queryKey: ADMIN_CARDS_QUERY_KEY }),
       queryClient.invalidateQueries({ queryKey: gamesQueryOptions.queryKey }),
     ]);
-    setRefreshing(false);
-  };
 
   return (
     <AdminGate>
       <Screen
-        refreshing={refreshing}
-        onRefresh={() => void refresh()}
+        onRefresh={refresh}
         header={
           <PageHeader
             title={t("admin.sections.cards.title")}

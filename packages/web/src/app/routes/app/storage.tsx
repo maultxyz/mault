@@ -1,3 +1,4 @@
+import { LibraryViewTabs } from "@/features/library/components/library-view-tabs";
 import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
@@ -46,6 +47,7 @@ import {
   LEGACY_STORAGE_VIEW_PARAM,
   STORAGE_PICK_LIST_PATH,
   STORAGE_REVIEW_SEARCH_PARAM,
+  STORAGE_PANEL_PADDING_TOP,
   STORAGE_TOOLBAR_TOP_CSS_VARIABLE,
 } from "@/lib/constants/storage";
 import { useElementHeight } from "@/hooks/use-element-height";
@@ -61,6 +63,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useCallback, useState, type CSSProperties } from "react";
+import type { StorageLocation } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 
@@ -77,6 +80,8 @@ function DesktopStoragePage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [menuLocation, setMenuLocation] = useState<StorageLocation | null>(null);
   const [addCardOpen, setAddCardOpen] = useState(false);
   const { collections } = useCollections();
   const [searchQuery, setSearchQuery] = useState("");
@@ -106,6 +111,11 @@ function DesktopStoragePage() {
   const selected =
     locations.find((l) => l.guid === selectedGuid) ??
     (selectedLocation?.guid === selectedGuid ? selectedLocation : undefined);
+  const actionTarget = menuLocation ?? selected;
+  const openLocationAction = (location: StorageLocation, openDialog: (open: boolean) => void) => {
+    setMenuLocation(location);
+    openDialog(true);
+  };
   const cardQuery = useStorageLocationCardQuery(selected?.guid);
   const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
   const reviewParam = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM);
@@ -214,8 +224,11 @@ function DesktopStoragePage() {
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
       {!showsLocationHeading && (
-        <h1 className="sr-only">{tCommon("nav.storage")}</h1>
+        <h1 className="sr-only">{tCommon("nav.library")}</h1>
       )}
+      <div className="shrink-0 border-b px-3 pt-1">
+        <LibraryViewTabs value="storage" />
+      </div>
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         {isOneByOneReviewing && selected ? (
           <section className="col-span-4 flex h-full flex-col overflow-hidden border-r lg:col-span-3">
@@ -224,6 +237,7 @@ function DesktopStoragePage() {
               totalCards={reviewQueue.totalCards}
               isPending={reviewQueue.isPending}
               isError={reviewQueue.isError}
+              onRetry={reviewQueue.retry}
               currentScanId={openScanId}
               reviewedScanIds={reviewQueue.reviewedScanIds}
               removedScanIds={reviewQueue.removedScanIds}
@@ -285,6 +299,16 @@ function DesktopStoragePage() {
               selectedGuid={isSearching ? undefined : selected?.guid}
               isLoading={isLoading}
               onSelect={openLocation}
+              actions={
+                isLocked
+                  ? undefined
+                  : {
+                      disabled: isMutating,
+                      onShare: (location) => openLocationAction(location, setShareOpen),
+                      onRename: (location) => openLocationAction(location, setRenameOpen),
+                      onDelete: (location) => openLocationAction(location, setDeleteOpen),
+                    }
+              }
             />
           </section>
         )}
@@ -310,6 +334,7 @@ function DesktopStoragePage() {
               total={reviewGridPage.data?.total ?? 0}
               isLoading={reviewGridPage.isPending}
               isError={reviewGridPage.isError}
+              onRetry={() => void reviewGridPage.refetch()}
               onOpenOneByOne={(card) => {
                 setReviewLayout("single");
                 openCard(selected.guid, card.scanId, true);
@@ -319,17 +344,17 @@ function DesktopStoragePage() {
           </section>
         ) : (
           <section
-            className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 lg:col-span-9"
+            className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 md:gap-2 md:px-3 md:py-2 lg:col-span-9"
             style={
               {
-                [STORAGE_TOOLBAR_TOP_CSS_VARIABLE]: `calc(${locationHeaderHeight}px - 1rem)`,
+                [STORAGE_TOOLBAR_TOP_CSS_VARIABLE]: `calc(${locationHeaderHeight}px - ${STORAGE_PANEL_PADDING_TOP})`,
               } as CSSProperties
             }
           >
             {selected && !isSearching && (
               <div
                 ref={setLocationHeaderElement}
-                className="sticky -top-4 z-50 -mx-4 -mt-4 flex items-center gap-2 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
+                className="sticky -top-4 z-50 -mx-4 -mt-4 flex items-center gap-1.5 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl md:-top-2 md:-mx-3 md:-mt-2 md:pl-3">
                 <div className="mr-auto min-w-0">
                   <h1 className="truncate font-heading text-lg font-semibold">
                     {selected.name}
@@ -387,7 +412,10 @@ function DesktopStoragePage() {
                       aria-label={t("page.rename")}
                       title={t("page.rename")}
                       disabled={isMutating}
-                      onClick={() => setRenameOpen(true)}
+                      onClick={() => {
+                        setMenuLocation(null);
+                        setRenameOpen(true);
+                      }}
                     >
                       <IconEdit />
                     </Button>
@@ -397,7 +425,10 @@ function DesktopStoragePage() {
                       aria-label={t("page.delete")}
                       title={t("page.delete")}
                       disabled={isMutating}
-                      onClick={() => setDeleteOpen(true)}
+                      onClick={() => {
+                        setMenuLocation(null);
+                        setDeleteOpen(true);
+                      }}
                     >
                       <IconTrash />
                     </Button>
@@ -473,26 +504,33 @@ function DesktopStoragePage() {
       <StorageLocationNameDialog
         open={renameOpen}
         onOpenChange={setRenameOpen}
-        initialName={selected?.name}
+        initialName={actionTarget?.name}
         title={t("page.rename")}
         submitLabel={t("nameDialog.save")}
         onSubmit={(name) =>
-          selected ? rename(selected.guid, name) : Promise.resolve(false)
+          actionTarget ? rename(actionTarget.guid, name) : Promise.resolve(false)
         }
       />
       <DeleteDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title={t("page.deleteTitle", { name: selected?.name ?? "" })}
+        title={t("page.deleteTitle", { name: actionTarget?.name ?? "" })}
         description={t("page.deleteDescription")}
-        confirm={{ type: "name", name: selected?.name ?? "" }}
+        confirm={{ type: "name", name: actionTarget?.name ?? "" }}
         onConfirm={async () => {
           setDeleteOpen(false);
-          if (selected && (await remove(selected.guid))) {
+          if (actionTarget && (await remove(actionTarget.guid)) && actionTarget.guid === selected?.guid) {
             setSearchParams({}, { replace: true });
           }
         }}
       />
+      {menuLocation && (
+        <ShareStorageLinkDialog
+          locationGuid={menuLocation.guid}
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+        />
+      )}
     </div>
   );
 }

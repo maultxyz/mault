@@ -7,6 +7,7 @@ export interface OrgOverviewCard {
   card: PlayingCard;
   isFoil: boolean;
   price: number | null;
+  priceChangeSinceScan: number | null;
   scannedAt: string;
 }
 

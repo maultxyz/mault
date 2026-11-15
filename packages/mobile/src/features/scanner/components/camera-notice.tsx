@@ -1,7 +1,8 @@
 import { useEffect } from "react";
-import { AccessibilityInfo, Platform, Pressable, View } from "react-native";
+import { AccessibilityInfo, Platform, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
+import { CameraNoticeAction } from "@/features/scanner/components/camera-notice-action";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CameraNoticeProps } from "@/lib/interfaces/ui";
@@ -39,28 +40,13 @@ export function CameraNotice({ tone, title, description, actionLabel, onAction }
           {title}
         </AppText>
         {description ? (
-          <AppText size="xs" numberOfLines={2} style={{ color: colors.onCamera, opacity: 0.8 }}>
+          <AppText size="xs" style={{ color: colors.onCamera, opacity: 0.8 }}>
             {description}
           </AppText>
         ) : null}
       </View>
       {actionLabel && onAction ? (
-        <Pressable
-          accessibilityRole="button"
-          onPress={onAction}
-          hitSlop={SPACING.sm}
-          style={({ pressed }) => ({
-            paddingHorizontal: SPACING.sm + 2,
-            paddingVertical: 6,
-            borderRadius: RADIUS.md,
-            backgroundColor: colors.onBrandSurface,
-            opacity: pressed ? 0.8 : 1,
-          })}
-        >
-          <AppText size="xs" weight="medium" style={{ color: colors.onCamera }}>
-            {actionLabel}
-          </AppText>
-        </Pressable>
+        <CameraNoticeAction label={actionLabel} onPress={onAction} />
       ) : null}
     </View>
   );

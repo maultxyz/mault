@@ -18,5 +18,7 @@ export type DiscordChannelPicker =
   | { kind: "scan" | "error"; collectionGuid: string | null }
   | { kind: "scan-role" }
   | { kind: "error-role" }
+  | { kind: "trade" }
+  | { kind: "trade-role" }
   | { kind: "add-collection" }
   | { kind: "add-channel"; collectionGuid: string };

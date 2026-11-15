@@ -11,7 +11,7 @@ import {
 export function useSyncApiKeys() {
   const { t } = useTranslation("admin");
   const queryClient = useQueryClient();
-  const { data, isLoading, isError } = useQuery(syncApiKeysQueryOptions);
+  const { data, isLoading, isError, refetch } = useQuery(syncApiKeysQueryOptions);
 
   const invalidate = () =>
     queryClient.invalidateQueries({
@@ -44,5 +44,5 @@ export function useSyncApiKeys() {
     onError: (err) => toast.error(err.message),
   });
 
-  return { keys: data ?? [], isLoading, isError, create, revoke };
+  return { keys: data ?? [], isLoading, isError, refetch, create, revoke };
 }

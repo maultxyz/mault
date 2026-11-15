@@ -28,3 +28,8 @@ export interface AlertsSheetProps {
   onClose: () => void;
 }
 
+
+export interface AlertsRefresh {
+  refresh: () => Promise<boolean>;
+  isRefreshing: boolean;
+}

@@ -17,7 +17,7 @@ import {
   SHOP_CATALOG_NAME_MAX_LENGTH,
   SHOP_CATALOG_SOURCES_MAX,
 } from "../constants/shop-catalogs.constant";
-import { SET_NAME_MAX_LENGTH } from "../constants/sort-bins.constant";
+import { SET_DESCRIPTION_MAX_LENGTH, SET_NAME_MAX_LENGTH } from "../constants/sort-bins.constant";
 import { storagePickListEntries } from "../storage-pick-list";
 import { STORAGE_LOCATION_NAME_MAX_LENGTH } from "../constants/sorters.constant";
 import {
@@ -158,6 +158,8 @@ export const discordSettingsDraftFormSchema = z.object({
   errorChannelId: discordChannelIdSchema,
   scanRoleId: discordChannelIdSchema,
   errorRoleId: discordChannelIdSchema,
+  tradeChannelId: discordChannelIdSchema,
+  tradeRoleId: discordChannelIdSchema,
   overrides: z.record(
     z.string(),
     z.object({
@@ -277,3 +279,15 @@ export const feederTestFormSchema = z.object({
     .min(FEEDER_TEST_MIN_CARD_COUNT, formValidationMessage("atLeast", { min: FEEDER_TEST_MIN_CARD_COUNT }))
     .max(FEEDER_TEST_MAX_CARD_COUNT, formValidationMessage("atMost", { max: FEEDER_TEST_MAX_CARD_COUNT })),
 });
+
+export const presetDescriptionFormSchema = z.object({
+  description: z
+    .string()
+    .trim()
+    .max(
+      SET_DESCRIPTION_MAX_LENGTH,
+      formValidationMessage("textTooLong", { max: SET_DESCRIPTION_MAX_LENGTH }),
+    ),
+});
+
+export type PresetDescriptionFormValues = z.infer<typeof presetDescriptionFormSchema>;

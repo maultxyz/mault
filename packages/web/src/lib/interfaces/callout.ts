@@ -15,3 +15,9 @@ export interface CalloutProps {
   className?: string;
   children?: ReactNode;
 }
+
+export interface LoadErrorCalloutProps {
+  message: string;
+  onRetry: () => void;
+  className?: string;
+}

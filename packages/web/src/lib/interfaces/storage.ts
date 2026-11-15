@@ -125,10 +125,23 @@ export interface StorageExportMenuProps {
   location: StorageLocation;
 }
 
+export interface StorageLocationActionHandlers {
+  onShare: (location: StorageLocation) => void;
+  onRename: (location: StorageLocation) => void;
+  onDelete: (location: StorageLocation) => void;
+}
+
+export interface StorageLocationActionsMenuProps extends StorageLocationActionHandlers {
+  location: StorageLocation;
+  disabled?: boolean;
+  className?: string;
+}
+
 export interface StorageLocationRowProps {
   location: StorageLocation;
   isSelected: boolean;
   onSelect: () => void;
+  actions?: StorageLocationActionHandlers & { disabled: boolean };
 }
 
 export interface StorageLocationListProps {
@@ -137,6 +150,7 @@ export interface StorageLocationListProps {
   selectedGuid: string | undefined;
   isLoading: boolean;
   onSelect: (guid: string) => void;
+  actions?: StorageLocationActionHandlers & { disabled: boolean };
 }
 
 export interface StorageLocationNameDialogProps {
@@ -241,6 +255,7 @@ export interface StorageReviewQueue {
   totalCards: number;
   isPending: boolean;
   isError: boolean;
+  retry: () => void;
   reviewedScanIds: ReadonlySet<string>;
   removedScanIds: ReadonlySet<string>;
   markReviewed: (scanId: string) => void;
@@ -256,6 +271,7 @@ export interface StoragePickListState {
   pickedCount: number;
   isLoading: boolean;
   isError: boolean;
+  retry: () => void;
   isFinishing: boolean;
   setDecklist: (decklist: string) => void;
   setPicked: (scanId: string, picked: boolean) => void;
@@ -337,6 +353,7 @@ export interface StorageVerifyState {
   notInLocation: StorageVerifyNameCount[];
   isLoading: boolean;
   isError: boolean;
+  retry: () => void;
   isTruncated: boolean;
   setVerified: (scanId: string, verified: boolean) => void;
   addNotInLocation: (cardName: string) => void;

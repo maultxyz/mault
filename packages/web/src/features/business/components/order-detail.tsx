@@ -2,6 +2,7 @@ import { Callout } from "@/components/callout";
 import { CardThumbnail } from "@/components/card-thumbnail";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { StatGroup } from "@/components/stat-group";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -33,7 +34,7 @@ import {
   useBusinessAction,
 } from "@/features/business/api/use-business";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
-import { ConfirmDialog } from "@/features/business/components/confirm-dialog";
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { OrderEditDialog } from "@/features/business/components/order-edit-dialog";
 import { StatusBadge } from "@/features/business/components/status-badge";
 import { buildPullSheetCsv } from "@/features/business/lib/pull-sheet";
@@ -75,11 +76,17 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 
 export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
   const { t } = useTranslation("business");
-  const DetailHeading = useIsMobile() ? "h2" : "h1";
+  const isMobile = useIsMobile();
+  const DetailHeading = isMobile ? "h2" : "h1";
   const { format } = usePriceSource();
   const { access } = useBusinessAccess();
   const run = useBusinessAction();
-  const { data: order, isLoading } = useQuery(orderQueryOptions(guid));
+  const {
+    data: order,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(orderQueryOptions(guid));
   const [fulfilOpen, setFulfilOpen] = useState(false);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
@@ -98,7 +105,15 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
   if (isLoading || !order) {
     return (
       <>
-        <ListSkeleton rows={8} />
+        {!isMobile && <h1 className="sr-only">{t("views.picks")}</h1>}
+        {isError ? (
+          <LoadErrorCallout
+            message={t("errors.loadFailed")}
+            onRetry={() => void refetch()}
+          />
+        ) : (
+          <ListSkeleton rows={8} />
+        )}
         <UnsavedChangesGuard isDirty={isDirty} onDiscard={discardPicks} />
       </>
     );
@@ -179,8 +194,8 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex flex-wrap items-center gap-2 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl">
+    <div className="flex flex-col gap-4 md:gap-2">
+      <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex flex-wrap items-center gap-1.5 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl md:-top-2 md:-mx-3 md:-mt-2 md:pl-3">
         <div className="mr-auto min-w-0">
           <div className="flex items-center gap-2">
             <DetailHeading className="truncate font-heading text-lg font-semibold">
@@ -309,7 +324,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
 
       <section className="flex flex-col gap-2">
         <h2 className="font-heading text-sm font-semibold">{t("orders.lines")}</h2>
-        <div className="overflow-hidden rounded-lg border">
+        <div className="overflow-hidden rounded-card bg-card">
           <Table>
             <TableHeader>
               <TableRow>
@@ -541,6 +556,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
               name: lastCopyName ?? "",
             })}
             confirmLabel={t("orders.removeCopy")}
+            cancelLabel={t("actions.back")}
             destructive
             isPending={pending}
             onConfirm={async () => {
@@ -568,6 +584,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
               },
             )}
             confirmLabel={t("orders.removeFromPick")}
+            cancelLabel={t("actions.back")}
             destructive
             isPending={pending}
             onConfirm={async () => {
@@ -599,6 +616,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
           count: livePicked.length,
         })}
         confirmLabel={t("orders.fulfil")}
+        cancelLabel={t("actions.back")}
         isPending={pending}
         onConfirm={async () => {
           const result = await act(
@@ -617,6 +635,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
         title={t("orders.cancelTitle")}
         description={t("orders.cancelDescription")}
         confirmLabel={t("orders.cancel")}
+        cancelLabel={t("actions.back")}
         destructive
         isPending={pending}
         onConfirm={async () => {

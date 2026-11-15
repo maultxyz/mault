@@ -6,14 +6,21 @@ import { piCameraRouter } from "./routes/pi-camera";
 import { piUpdateRouter } from "./routes/pi-update";
 import { createPiSerialRouter, createPiSorterRouter } from "./routes/pi-serial";
 import { PI_SERIAL_PATH, PI_SORTER_PATH } from "./lib/constants/pi-serial";
-import { API_PORT, getApiHost } from "./lib/constants/server";
+import {
+  API_PORT,
+  getApiHost,
+  PUBLIC_REQUEST_BODY_MAX_BYTES,
+  REQUEST_BODY_MAX_BYTES,
+} from "./lib/constants/server";
 import { PI_SCAN_SESSION_PATH, piScanRouter } from "./routes/pi-scan";
 import { Hono } from "hono";
 import {
   PLAN_PREVIEW_HEADER,
   PUBLIC_API_KEY_HEADER,
+  SHARE_LINK_GUEST_KEY_HEADER,
   SYNC_API_PATH,
 } from "@magic-vault/shared";
+import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
 import { getWebUrl } from "./lib/constants/urls";
 import type { AppEnv } from "./middleware/auth";
@@ -74,6 +81,7 @@ const appCors = cors({
     "Authorization",
     "X-Org-Id",
     PLAN_PREVIEW_HEADER,
+    SHARE_LINK_GUEST_KEY_HEADER,
   ],
 });
 const publicApiCors = cors({
@@ -87,6 +95,20 @@ app.use((c, next) =>
   c.req.path.startsWith(PUBLIC_API_PATH_PREFIX)
     ? publicApiCors(c, next)
     : appCors(c, next),
+);
+
+const payloadTooLarge = bodyLimit({
+  maxSize: REQUEST_BODY_MAX_BYTES,
+  onError: (c) => c.json({ success: false, message: "Payload too large." }, 413),
+});
+const publicPayloadTooLarge = bodyLimit({
+  maxSize: PUBLIC_REQUEST_BODY_MAX_BYTES,
+  onError: (c) => c.json({ success: false, message: "Payload too large." }, 413),
+});
+app.use((c, next) =>
+  c.req.path.startsWith("/public/")
+    ? publicPayloadTooLarge(c, next)
+    : payloadTooLarge(c, next),
 );
 
 if (process.env.AUTH_PROVIDER === "local") {

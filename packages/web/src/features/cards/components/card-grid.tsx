@@ -65,6 +65,7 @@ import { useStoredCardCount } from "@/features/collections/api/use-stored-card-c
 import { useCollectionCardActions } from "@/features/collections/api/use-collection-card-actions";
 import { useMarkCardsDownloaded } from "@/features/collections/api/use-mark-cards-downloaded";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
+import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
 import {
   loadCollectionPositionStep,
@@ -144,8 +145,7 @@ export function CardGrid() {
   } = useViewedCollection();
   const viewedCardActions = useCollectionCardActions(viewedCollection?.guid);
   const {
-    removeCard,
-    removeCards,
+    removeCardsWithUndo,
     clearCards,
     correctCard,
     setCardsCondition,
@@ -603,18 +603,18 @@ export function CardGrid() {
 
   const handleDeleteExported = useCallback(() => {
     if (!exportedScanIds) return;
-    removeCards(exportedScanIds);
+    removeCardsWithUndo(exportedScanIds);
     setSelectedIds((prev) => {
       const next = new Set(prev);
       for (const id of exportedScanIds) next.delete(id);
       return next;
     });
-  }, [exportedScanIds, removeCards, setSelectedIds]);
+  }, [exportedScanIds, removeCardsWithUndo, setSelectedIds]);
 
   const handleBulkDelete = useCallback(() => {
-    removeCards(Array.from(selectedIds));
+    removeCardsWithUndo(Array.from(selectedIds));
     setSelectedIds(new Set());
-  }, [removeCards, selectedIds, setSelectedIds]);
+  }, [removeCardsWithUndo, selectedIds, setSelectedIds]);
 
   const handleClearSession = useCallback(async () => {
     clearCards();
@@ -624,18 +624,18 @@ export function CardGrid() {
     return (
       <>
         <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b">
-          <div className="flex flex-row gap-2 items-center w-full">
-            <Skeleton className="h-9 flex-1 rounded-md" />
-            <Skeleton className="h-9 w-full sm:w-64 rounded-md shrink-0" />
-            <Skeleton className="size-9 rounded-md shrink-0" />
-            <Skeleton className="size-9 rounded-md shrink-0" />
-            <Skeleton className="size-9 rounded-md shrink-0" />
+          <div className="flex flex-row gap-1.5 items-center w-full">
+            <Skeleton className="h-11 flex-1 rounded-lg md:h-7" />
+            <Skeleton className="h-11 w-full sm:w-64 rounded-lg shrink-0 md:h-7" />
+            <Skeleton className="size-10 rounded-lg shrink-0 md:size-7" />
+            <Skeleton className="size-10 rounded-lg shrink-0 md:size-7" />
+            <Skeleton className="size-10 rounded-lg shrink-0 md:size-7" />
           </div>
         </div>
         <div className="p-2 flex-1">
           <div className={CARD_GRID_CLASS}>
             {Array.from({ length: 12 }).map((_, i) => (
-              <div key={i} className="rounded-lg p-1 bg-muted border">
+              <div key={i} className="rounded-card bg-card p-1.5">
                 <Skeleton className="aspect-[2.5/3.5] rounded-lg" />
                 <div className="flex flex-row justify-between items-center px-1 pb-1">
                   <div className="flex flex-row items-center gap-2">
@@ -728,6 +728,7 @@ export function CardGrid() {
         total={reviewGridPage.data?.totalCards ?? 0}
         isLoading={reviewGridPage.isPending}
         isError={reviewGridPage.isError}
+        onRetry={() => void reviewGridPage.refetch()}
         onOpenOneByOne={(card) => {
           setReviewLayout("single");
           setReviewTotal(reviewGridPage.data?.totalCards ?? null);
@@ -773,7 +774,7 @@ export function CardGrid() {
           readOnly
             ? undefined
             : () => {
-                removeCard(openEntry.scanId);
+                removeCardsWithUndo([openEntry.scanId]);
                 if (isReviewing) {
                   reviewSession.forget(openEntry.scanId);
                   reviewQueueStore.markRemoved(openEntry.scanId);
@@ -879,7 +880,7 @@ export function CardGrid() {
   };
 
   const renderCardList = (entries: GroupedScannedCard[]) => (
-    <div className="rounded-lg border">
+    <div className="overflow-hidden rounded-card bg-card">
       <ScannedCardTable
         rows={entries.map(toCardTableRow)}
         showQuantity={groupDuplicates && !scanTimelineGrouping}
@@ -913,6 +914,11 @@ export function CardGrid() {
           onAddCard={() => setAddCardOpen(true)}
           onImportScans={() => setImportScansOpen(true)}
           collectionName={viewedCollection?.name}
+          extraActions={
+            collectionGuid && !readOnly ? (
+              <ShareMonitorLinkDialog collectionGuid={collectionGuid} />
+            ) : undefined
+          }
           onClearAll={readOnly ? undefined : handleClearSession}
           hasCards={totalCards > 0}
           activeFilters={filters}

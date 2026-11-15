@@ -1,8 +1,6 @@
 import { apiPost } from "@/lib/api/client";
 import { API_BASE } from "@/lib/constants/api";
 import {
-  SHARED_STORAGE_PATH_PREFIX,
-  SHARE_LINK_TOKEN_PARAM,
   type Result,
   type ShareLinkPurpose,
   type StorageShareLink,
@@ -39,10 +37,3 @@ export async function verifyStorageShareLink(
   return response.json();
 }
 
-export function buildStorageShareLinkUrl(
-  locationGuid: string,
-  token: string,
-): string {
-  const params = new URLSearchParams({ [SHARE_LINK_TOKEN_PARAM]: token });
-  return `${window.location.origin}${SHARED_STORAGE_PATH_PREFIX}/${locationGuid}?${params}`;
-}

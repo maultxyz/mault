@@ -30,7 +30,7 @@ export const markCollectionCardsDownloadedRoute = new Hono<AppEnv>().post(
         );
       return { success: true, data: null };
     });
-    if (result.success) emitToSession(guid, "cards_downloaded", { scanIds });
+    if (result.success) emitToSession(orgId, guid, "cards_downloaded", { scanIds });
     return c.json(result);
   },
 );

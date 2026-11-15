@@ -74,7 +74,7 @@ export function FeederCalibrationPanel({
     >
       <div
         className={cn(
-          "flex flex-col gap-5",
+          "flex flex-col gap-5 md:gap-2",
           !fullWidth && "col-span-2 lg:col-span-1",
         )}
       >
@@ -277,7 +277,7 @@ export function FeederCalibrationPanel({
 
         <FirmwareFeatureGate
           feature="feederRollback"
-          className="flex flex-col gap-5"
+          className="flex flex-col gap-5 md:gap-2"
         >
           <SliderField
             label={t("feederCalibrationPanel.reverseDurationLabel")}

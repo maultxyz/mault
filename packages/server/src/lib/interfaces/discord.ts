@@ -1,4 +1,5 @@
-import type { PriceSource } from "@magic-vault/shared";
+import type { PriceSource, TradeOfferCash } from "@magic-vault/shared";
+import type { TradeOfferScope } from "./trade-offers";
 
 export type DiscordEmbed = {
   title: string;
@@ -16,7 +17,7 @@ export interface DiscordWebhookPayload {
   embeds: DiscordEmbed[];
 }
 
-export type DiscordNotificationKind = "scan" | "error";
+export type DiscordNotificationKind = "scan" | "error" | "trade";
 
 export type DiscordMemberRoleAction = "add" | "remove";
 
@@ -74,4 +75,13 @@ export interface PriceSyncSummary {
   forced: boolean;
   sources: Record<string, PriceSyncSourceOutcome>;
   refreshedCards: number | null;
+}
+
+export interface TradeOfferCreatedNotification {
+  scope: TradeOfferScope;
+  offerGuid: string;
+  guestName: string;
+  wantedCount: number;
+  offeredCount: number;
+  offeredCash: TradeOfferCash | null;
 }

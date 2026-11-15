@@ -6,6 +6,7 @@ import {
   SettingsSection,
   SettingsSections,
 } from "@/components/settings-section";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
@@ -27,33 +28,44 @@ export default function SettingsGeneralPage() {
       >
         <div className="flex flex-col gap-1.5">
           <p className="text-sm font-medium">{t("appearance.primaryColor")}</p>
-          <Controller
-            control={draft.control}
-            name="primaryColor"
-            render={({ field }) => (
-              <PrimaryColorPicker
-                value={field.value}
-                savedValue={draft.savedPrimaryColor}
-                onChange={field.onChange}
-              />
-            )}
-          />
+          {draft.isLoading ? (
+            <Skeleton className="h-7 w-full max-w-sm" />
+          ) : (
+            <Controller
+              control={draft.control}
+              name="primaryColor"
+              render={({ field }) => (
+                <PrimaryColorPicker
+                  value={field.value}
+                  savedValue={draft.savedPrimaryColor}
+                  onChange={field.onChange}
+                />
+              )}
+            />
+          )}
         </div>
         {!isMobile && (
           <div className="flex flex-col gap-1.5">
             <p className="text-sm font-medium">
               {t("appearance.scannerLayout")}
             </p>
-            <Controller
-              control={draft.control}
-              name="scannerLayout"
-              render={({ field }) => (
-                <ScannerLayoutToggle
-                  value={field.value}
-                  onChange={field.onChange}
-                />
-              )}
-            />
+            {draft.isLoading ? (
+              <div className="flex gap-2">
+                <Skeleton className="h-24 w-36 rounded-lg" />
+                <Skeleton className="h-24 w-36 rounded-lg" />
+              </div>
+            ) : (
+              <Controller
+                control={draft.control}
+                name="scannerLayout"
+                render={({ field }) => (
+                  <ScannerLayoutToggle
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                )}
+              />
+            )}
           </div>
         )}
       </SettingsSection>

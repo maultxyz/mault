@@ -9,6 +9,7 @@ import {
   loadSets,
   toIsDisabled,
   toLowMatchPercent,
+  toMaxCards,
   toMaxCopies,
   toMaxCopiesBy,
   toOverflowBin,
@@ -71,6 +72,7 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
             config.isCatchAll,
             toMaxCopies(config.maxCopies, config.isCatchAll),
           ),
+          maxCards: toMaxCards(config.maxCards),
           overflowBin: toOverflowBin(config.overflowBin, config.binNumber),
           isDisabled: toIsDisabled(config.isDisabled, config.isCatchAll),
           repackPriority: toRepackPriority(

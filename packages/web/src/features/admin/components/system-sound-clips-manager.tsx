@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,7 +22,12 @@ export function SystemSoundClipsManager() {
   const { t: tSounds } = useTranslation("sounds");
   const inputRef = useRef<HTMLInputElement>(null);
   const clipsOpts = systemSoundClipsQueryOptions();
-  const { data: clips = [], isLoading } = useQuery(clipsOpts);
+  const {
+    data: clips = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(clipsOpts);
   const { uploadFile, isUploading } = useSoundClipUpload({
     uploadClip: uploadSystemSoundClip,
     clipsQueryKey: clipsOpts.queryKey,
@@ -58,6 +64,11 @@ export function SystemSoundClipsManager() {
     >
       {isLoading ? (
         <Skeleton className="h-24 rounded-lg" />
+      ) : isError && clips.length === 0 ? (
+        <LoadErrorCallout
+          message={t("systemSoundClips.loadFailed")}
+          onRetry={() => void refetch()}
+        />
       ) : clips.length === 0 ? (
         <EmptyState
           size="compact"
@@ -65,7 +76,7 @@ export function SystemSoundClipsManager() {
           title={t("systemSoundClips.empty")}
         />
       ) : (
-        <ul className="flex flex-col divide-y rounded-lg border">
+        <ul className="flex flex-col divide-y divide-border">
           {clips.map((clip) => (
             <SoundClipRow
               key={clip.guid}

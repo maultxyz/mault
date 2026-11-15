@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -126,11 +127,9 @@ export function ScannedCardTable({
               )}
               <TableCell>
                 <div className="relative h-10 aspect-[2.5/3.5] overflow-hidden rounded-sm">
-                  <img
-                    src={card.image?.normal || ""}
+                  <CardImage
+                    src={card.image?.small || card.image?.normal}
                     alt=""
-                    loading="lazy"
-                    className="h-full w-full object-cover"
                   />
                 </div>
               </TableCell>
@@ -205,10 +204,7 @@ export function ScannedCardTable({
                     render={
                       <Badge
                         variant={matchPercent >= 80 ? "default" : "destructive"}
-                        className={cn(
-                          "tabular-nums",
-                          matchPercent < 80 && "bg-destructive text-white",
-                        )}
+                        className="tabular-nums"
                       >
                         {matchPercent.toFixed(2)}%
                       </Badge>

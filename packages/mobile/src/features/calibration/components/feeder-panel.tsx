@@ -27,6 +27,7 @@ import {
 } from "@/lib/constants/calibration";
 import { SPACING } from "@/lib/constants/theme";
 import type { FeederPanelProps } from "@/lib/interfaces/calibration";
+import { SectionHeader } from "@/components/ui/section-header";
 
 export function FeederPanel({ state, firmwareVersion }: FeederPanelProps) {
   const { t } = useTranslation();
@@ -102,75 +103,77 @@ export function FeederPanel({ state, firmwareVersion }: FeederPanelProps) {
   );
 
   return (
-    <Surface style={{ gap: SPACING.xl }}>
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-        <AppText heading weight="semibold" accessibilityRole="header">
-          {t("calibration.feeder.heading")}
-        </AppText>
-        <Button
-          size="sm"
-          variant="ghost"
-          label={advanced ? t("calibration.feeder.hideAdvanced") : t("calibration.feeder.showAdvanced")}
-          onPress={() => setAdvanced((value) => !value)}
-        />
-      </View>
-      {speed("speed", "calibration.feeder.speedLabel", t("calibration.feeder.speedTooltip"))}
-      {timing("duration", "calibration.feeder.timeoutLabel", 10, FEEDER_DURATION_SLIDER_MAX, ms(values.duration))}
-      <SliderField
-        label={t("calibration.feeder.feedRetryCountLabel")}
-        description={t("calibration.feeder.feedRetryCountDescription")}
-        valueLabel={values.feedRetryCount === 0 ? t("calibration.feeder.off") : String(values.feedRetryCount)}
-        accessibilityLabel={t("calibration.feeder.feedRetryCountLabel")}
-        min={FEED_RETRY_COUNT_MIN}
-        max={FEED_RETRY_COUNT_MAX}
-        step={1}
-        value={values.feedRetryCount}
-        onValueChange={(value) => state.handleFeederChange("feedRetryCount", value)}
+    <View style={{ gap: SPACING.sm }}>
+      <SectionHeader
+        title={t("calibration.feeder.heading")}
+        action={
+          <Button
+            size="sm"
+            variant="ghost"
+            label={advanced ? t("calibration.feeder.hideAdvanced") : t("calibration.feeder.showAdvanced")}
+            onPress={() => setAdvanced((value) => !value)}
+          />
+        }
       />
-      <View style={{ gap: SPACING.sm }}>
-        {timing(
-          "pulseDuration",
-          "calibration.feeder.pulseDurationLabel",
-          0,
-          FEEDER_PULSE_DURATION_SLIDER_MAX,
-          values.pulseDuration <= 0 ? t("calibration.continuous") : ms(values.pulseDuration),
-        )}
-        <Button
-          size="sm"
-          variant="secondary"
-          label={t("calibration.feeder.continuousFeedButton")}
-          disabled={disabled || values.pulseDuration <= 0}
-          onPress={() => state.handleFeederChange("pulseDuration", 0)}
+      <Surface style={{ gap: SPACING.xl }}>
+        {speed("speed", "calibration.feeder.speedLabel", t("calibration.feeder.speedTooltip"))}
+        {timing("duration", "calibration.feeder.timeoutLabel", 10, FEEDER_DURATION_SLIDER_MAX, ms(values.duration))}
+        <SliderField
+          label={t("calibration.feeder.feedRetryCountLabel")}
+          description={t("calibration.feeder.feedRetryCountDescription")}
+          valueLabel={values.feedRetryCount === 0 ? t("calibration.feeder.off") : String(values.feedRetryCount)}
+          accessibilityLabel={t("calibration.feeder.feedRetryCountLabel")}
+          min={FEED_RETRY_COUNT_MIN}
+          max={FEED_RETRY_COUNT_MAX}
+          step={1}
+          value={values.feedRetryCount}
+          onValueChange={(value) => state.handleFeederChange("feedRetryCount", value)}
         />
-      </View>
-      {timing("pauseDuration", "calibration.feeder.pauseDurationLabel", 0, FEEDER_PAUSE_DURATION_SLIDER_MAX, ms(values.pauseDuration))}
-      {timing(
-        "settleDuration",
-        "calibration.feeder.settleDurationLabel",
-        0,
-        FEEDER_SETTLE_DURATION_SLIDER_MAX,
-        ms(values.settleDuration),
-        t("calibration.feeder.settleDurationDescription"),
-      )}
-      {rollbackSupported ? (
-        <>
+        <View style={{ gap: SPACING.sm }}>
           {timing(
-            "reverseDuration",
-            "calibration.feeder.reverseDurationLabel",
+            "pulseDuration",
+            "calibration.feeder.pulseDurationLabel",
             0,
-            FEEDER_REVERSE_DURATION_SLIDER_MAX,
-            values.reverseDuration <= 0 ? t("calibration.feeder.off") : ms(values.reverseDuration),
-            t("calibration.feeder.reverseDurationDescription"),
+            FEEDER_PULSE_DURATION_SLIDER_MAX,
+            values.pulseDuration <= 0 ? t("calibration.continuous") : ms(values.pulseDuration),
           )}
-          {values.reverseDuration > 0 ? speed("reverseSpeed", "calibration.feeder.reverseSpeedLabel") : null}
-        </>
-      ) : (
-        <AppText size="xs" tone="secondary">
-          {`${t("calibration.feeder.reverseDurationLabel")}: ${t("calibration.firmwareRequired", {
-            version: FIRMWARE_FEATURE_MIN_VERSIONS.feederRollback,
-          })}`}
-        </AppText>
-      )}
-    </Surface>
+          <Button
+            size="sm"
+            variant="secondary"
+            label={t("calibration.feeder.continuousFeedButton")}
+            disabled={disabled || values.pulseDuration <= 0}
+            onPress={() => state.handleFeederChange("pulseDuration", 0)}
+          />
+        </View>
+        {timing("pauseDuration", "calibration.feeder.pauseDurationLabel", 0, FEEDER_PAUSE_DURATION_SLIDER_MAX, ms(values.pauseDuration))}
+        {timing(
+          "settleDuration",
+          "calibration.feeder.settleDurationLabel",
+          0,
+          FEEDER_SETTLE_DURATION_SLIDER_MAX,
+          ms(values.settleDuration),
+          t("calibration.feeder.settleDurationDescription"),
+        )}
+        {rollbackSupported ? (
+          <>
+            {timing(
+              "reverseDuration",
+              "calibration.feeder.reverseDurationLabel",
+              0,
+              FEEDER_REVERSE_DURATION_SLIDER_MAX,
+              values.reverseDuration <= 0 ? t("calibration.feeder.off") : ms(values.reverseDuration),
+              t("calibration.feeder.reverseDurationDescription"),
+            )}
+            {values.reverseDuration > 0 ? speed("reverseSpeed", "calibration.feeder.reverseSpeedLabel") : null}
+          </>
+        ) : (
+          <AppText size="xs" tone="secondary">
+            {`${t("calibration.feeder.reverseDurationLabel")}: ${t("calibration.firmwareRequired", {
+              version: FIRMWARE_FEATURE_MIN_VERSIONS.feederRollback,
+            })}`}
+          </AppText>
+        )}
+      </Surface>
+    </View>
   );
 }

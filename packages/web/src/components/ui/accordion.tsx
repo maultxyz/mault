@@ -48,7 +48,7 @@ function AccordionContent({
 }: AccordionPrimitive.Panel.Props) {
   return (
     <AccordionPrimitive.Panel data-slot="accordion-content" {...props}>
-      <div className={cn("flex flex-col gap-4 pb-4", className)}>
+      <div className={cn("flex flex-col gap-4 md:gap-2 pb-4", className)}>
         {children}
       </div>
     </AccordionPrimitive.Panel>

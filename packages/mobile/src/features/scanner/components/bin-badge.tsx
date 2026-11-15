@@ -24,7 +24,7 @@ export function BinBadge({ binNumber }: BinBadgeProps) {
       <AppText size="xs" weight="medium" style={{ color: colors.primaryForeground }}>
         {t("scan.handScanBinLabel")}
       </AppText>
-      <AppText size="3xl" heading weight="bold" style={{ color: colors.primaryForeground, fontVariant: ["tabular-nums"] }}>
+      <AppText size="3xl" heading weight="bold" style={{ color: colors.primaryForeground }}>
         {label}
       </AppText>
     </View>

@@ -7,21 +7,26 @@ import { Alert, ScrollView, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Camera, type CameraRef, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
 import { AppText } from "@/components/ui/app-text";
+import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { Surface } from "@/components/ui/surface";
+import { useToast } from "@/components/ui/toast-provider";
 import { useBatchScan } from "@/features/scanner/api/use-batch-scan";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
+import { CameraPermissionEmptyState } from "@/features/scanner/components/camera-permission-empty-state";
 import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
 import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { BatchScanCorrectionSheet } from "@/features/scanner/components/batch-scan-correction-sheet";
 import { BatchScanPhoto } from "@/features/scanner/components/batch-scan-photo";
 import { BatchScanRow } from "@/features/scanner/components/batch-scan-row";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
+import { CameraEmptyStateFrame } from "@/features/scanner/components/camera-empty-state-frame";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { ScanRemovalQueueSheet } from "@/features/scanner/components/scan-removal-queue-sheet";
 import { ShutterButton } from "@/features/scanner/components/shutter-button";
@@ -38,6 +43,7 @@ export default function BatchScanScreen() {
   useKeepAwake();
   const { t } = useTranslation();
   const colors = useTheme();
+  const { showToast } = useToast();
   const insets = useSafeAreaInsets();
   const focused = useIsFocused();
   const cameraMounted = useCameraMountReady(focused);
@@ -88,8 +94,8 @@ export default function BatchScanScreen() {
       Alert.alert(t("batchScan.savePartialTitle", { count: saved }), t("batchScan.savePartialDescription", { count: failed }));
       return;
     }
-    Alert.alert(t("batchScan.savedTitle", { count: saved }), batch.collection?.name);
     router.back();
+    showToast({ message: t("batchScan.savedTitle", { count: saved }), tone: "success" });
   };
 
   const reviewRemoval = async () => {
@@ -105,8 +111,8 @@ export default function BatchScanScreen() {
   };
 
   const finishRemoval = (removedCount: number) => {
-    Alert.alert(t("scan.removal.notice.removed", { count: removedCount }), batch.collection?.name);
     router.back();
+    showToast({ message: t("scan.removal.notice.removed", { count: removedCount }), tone: "success" });
   };
 
   const modeControl = (
@@ -139,7 +145,7 @@ export default function BatchScanScreen() {
           subtitle={batch.collection?.name}
           onBack={() => router.back()}
         />
-        <ScrollView contentContainerStyle={{ paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.lg }}>
+        <ScrollView contentContainerStyle={{ paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.lg + SPACING.xs }}>
           <View style={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.sm }}>
             {modeControl}
             <BatchScanPhoto photo={batch.photo} cards={batch.cards} />
@@ -154,7 +160,7 @@ export default function BatchScanScreen() {
               <Callout tone="warning" title={t("batchScan.noneFoundTitle")} description={t("batchScan.noneFoundDescription")} />
             </View>
           ) : (
-            <View>
+            <Surface padded={false} style={{ marginHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.xs }}>
               {batch.cards.map((card, index) => (
                 <View key={card.key}>
                   <BatchScanRow
@@ -166,20 +172,10 @@ export default function BatchScanScreen() {
                   />
                 </View>
               ))}
-            </View>
+            </Surface>
           )}
         </ScrollView>
-        <View
-          style={{
-            flexDirection: "row",
-            gap: SPACING.sm,
-            borderTopWidth: 1,
-            borderTopColor: colors.border,
-            paddingHorizontal: SCREEN_GUTTER,
-            paddingTop: SPACING.md,
-            paddingBottom: SPACING.md + insets.bottom,
-          }}
-        >
+        <BottomActionBar direction="row">
           <Button
             style={{ flex: 1 }}
             variant="secondary"
@@ -208,7 +204,7 @@ export default function BatchScanScreen() {
               onPress={() => void saveCards()}
             />
           )}
-        </View>
+        </BottomActionBar>
         {batch.collection ? (
           <BatchScanCorrectionSheet
             card={correcting}
@@ -237,14 +233,12 @@ export default function BatchScanScreen() {
     <View style={{ flex: 1, backgroundColor: colors.camera }}>
       {focused ? <StatusBar style="light" /> : null}
       {!permission.hasPermission ? (
-        <View style={[StyleSheet.absoluteFill, { justifyContent: "center", padding: SCREEN_GUTTER }]}>
-          <EmptyState
-            icon="camera"
-            title={t("scan.cameraPermissionTitle")}
-            description={t("scan.cameraPermissionDescription")}
-            action={<Button label={t("scan.allowCamera")} onPress={() => void permission.requestPermission()} />}
+        <CameraEmptyStateFrame>
+          <CameraPermissionEmptyState
+            canRequestPermission={permission.canRequestPermission}
+            onRequestPermission={() => void permission.requestPermission()}
           />
-        </View>
+        </CameraEmptyStateFrame>
       ) : device ? (
         cameraMounted ? (
           <Camera
@@ -259,9 +253,9 @@ export default function BatchScanScreen() {
           />
         ) : null
       ) : (
-        <View style={[StyleSheet.absoluteFill, { justifyContent: "center" }]}>
+        <CameraEmptyStateFrame>
           <EmptyState icon="camera" title={t("scan.noCamera")} />
-        </View>
+        </CameraEmptyStateFrame>
       )}
 
       <View
@@ -309,9 +303,20 @@ export default function BatchScanScreen() {
         ) : !batch.collection ? (
           <CameraNotice tone="warning" title={t("scan.noCollectionTitle")} description={t("scan.noCollectionDescription")} />
         ) : (
-          <AppText size="sm" style={{ color: colors.onCamera, textAlign: "center" }}>
-            {modelsReady ? t("batchScan.hint") : t("batchScan.loadingModels")}
-          </AppText>
+          <View style={{ alignItems: "center", gap: SPACING.xs }}>
+            <AppText
+              accessibilityRole="header"
+              size="lg"
+              heading
+              weight="semibold"
+              style={{ color: colors.onCamera, textAlign: "center" }}
+            >
+              {t("batchScan.title")}
+            </AppText>
+            <AppText size="sm" accessibilityLiveRegion="polite" style={{ color: colors.onCamera, textAlign: "center" }}>
+              {modelsReady ? t("batchScan.hint") : t("batchScan.loadingModels")}
+            </AppText>
+          </View>
         )}
         {modeControl}
         <ShutterButton

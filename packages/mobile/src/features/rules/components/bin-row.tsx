@@ -17,12 +17,15 @@ export function BinRow({ bin, bins, fieldDefinitions, summary, onPress }: BinRow
   const chips = bin.pickList || summary ? [] : ruleChips(bin.rules, fieldDefinitions, t);
   const shownChips = chips.slice(0, BIN_ROW_MAX_CHIPS);
   const hiddenCount = chips.length - shownChips.length;
-  const hasTags = bin.isCatchAll || bin.isDisabled || !!bin.pickList || sources.length > 0 || bin.overflowBin != null;
+  const showsMaxCards = bin.maxCards != null && !bin.isDisabled;
+  const hasTags =
+    bin.isCatchAll || bin.isDisabled || !!bin.pickList || sources.length > 0 || bin.overflowBin != null || showsMaxCards;
   const empty = chips.length === 0 && !hasTags;
   const accessibilityLabel = [
     t("rules.bin", { number: bin.binNumber }),
     bin.isCatchAll ? t("rules.catchAll") : null,
     bin.isDisabled ? t("rules.disabled") : null,
+    showsMaxCards ? t("rules.maxCardsPill", { count: bin.maxCards ?? 0 }) : null,
     bin.pickList && !summary ? t("rules.pickList") : null,
     summary ?? (empty ? t("rules.noRulesTapToAdd") : chips.join(", ")),
     bin.overflowBin != null && !summary ? t("rules.overflowsTo", { bin: t("rules.bin", { number: bin.overflowBin }) }) : null,
@@ -41,14 +44,14 @@ export function BinRow({ bin, bins, fieldDefinitions, summary, onPress }: BinRow
         gap: SPACING.md,
         paddingHorizontal: SPACING.md,
         paddingVertical: SPACING.md,
-        backgroundColor: pressed ? colors.muted : "transparent",
+        backgroundColor: pressed ? colors.tonal : "transparent",
       })}
     >
       <View
         style={{
           width: ICON_BADGE_SIZE,
           height: ICON_BADGE_SIZE,
-          borderRadius: RADIUS.md,
+          borderRadius: RADIUS.full,
           alignItems: "center",
           justifyContent: "center",
           backgroundColor: bin.isCatchAll ? colors.primaryMuted : colors.muted,
@@ -65,10 +68,11 @@ export function BinRow({ bin, bins, fieldDefinitions, summary, onPress }: BinRow
         </AppText>
         {summary ? (
           <View style={{ gap: SPACING.xs + 2 }}>
-            {bin.isCatchAll || bin.isDisabled ? (
+            {bin.isCatchAll || bin.isDisabled || showsMaxCards ? (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.xs + 2 }}>
                 {bin.isCatchAll ? <Pill tone="primary" label={t("rules.catchAll")} /> : null}
                 {bin.isDisabled ? <Pill tone="warning" label={t("rules.disabled")} /> : null}
+                {showsMaxCards ? <Pill label={t("rules.maxCardsPill", { count: bin.maxCards ?? 0 })} /> : null}
               </View>
             ) : null}
             <AppText size="sm" tone="secondary">
@@ -83,6 +87,7 @@ export function BinRow({ bin, bins, fieldDefinitions, summary, onPress }: BinRow
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.xs + 2 }}>
             {bin.isCatchAll ? <Pill tone="primary" label={t("rules.catchAll")} /> : null}
             {bin.isDisabled ? <Pill tone="warning" label={t("rules.disabled")} /> : null}
+            {showsMaxCards ? <Pill label={t("rules.maxCardsPill", { count: bin.maxCards ?? 0 })} /> : null}
             {bin.pickList ? <Pill tone="info" label={t("rules.pickList")} /> : null}
             {sources.length > 0 ? <Pill label={t("rules.overflowFor", { bins: sources.join(", ") })} /> : null}
             {shownChips.map((chip, index) => (
@@ -93,8 +98,7 @@ export function BinRow({ bin, bins, fieldDefinitions, summary, onPress }: BinRow
                   paddingHorizontal: SPACING.sm + 2,
                   paddingVertical: 3,
                   borderRadius: CONTROL_RADIUS,
-                  borderWidth: 1,
-                  borderColor: colors.border,
+                  backgroundColor: colors.tonal,
                 }}
               >
                 <AppText size="xs" weight="medium" numberOfLines={1}>

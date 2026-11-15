@@ -12,6 +12,7 @@ import { collections } from "../db/schema";
 import {
   MAX_TIMER_DELAY_MS,
   MONITOR_LINK_GUEST_NAME,
+  MONITOR_LINK_GUEST_SESSION_EVENTS,
 } from "../lib/constants/auth";
 import {
   trackMonitorLinkStream,
@@ -69,7 +70,7 @@ async function streamMonitorLink(c: Context<AppEnv>, shareToken: string) {
         .catch(() => {});
     };
     const sessionWrite = (event: string, data: unknown) => {
-      if (event === "viewers_updated") return;
+      if (!MONITOR_LINK_GUEST_SESSION_EVENTS.has(event)) return;
       write(`session:${guid}:${event}`, data);
     };
 
@@ -168,6 +169,7 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
       unsubs.push(subscribeOrgLocks(orgId, write));
       unsubs.push(subscribeOrgLiveCounts(orgId, write));
 
+      let orgGuids: string[] = [];
       try {
         const guids = await authQuery(jwtClaims!, async (tx) =>
           tx
@@ -180,7 +182,7 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
               ),
             ),
         );
-        const orgGuids = guids.map((r) => r.guid!).filter(Boolean);
+        orgGuids = guids.map((r) => r.guid!).filter(Boolean);
         write("lock_init", { locks: getLocksForGuids(orgGuids) });
         write("live_init", {
           counts: getLiveCountsForGuids(orgGuids),
@@ -188,7 +190,9 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
         });
       } catch {}
 
+      const orgGuidSet = new Set(orgGuids);
       for (const guid of watchGuids) {
+        if (!orgGuidSet.has(guid)) continue;
         const sessionWrite = (event: string, data: unknown) =>
           write(`session:${guid}:${event}`, data);
 

@@ -138,7 +138,7 @@ export function UnmatchedCardDetail({
         </Button>
       </div>
 
-      <div className="@container flex flex-1 flex-col gap-6 p-6">
+      <div className="@container flex flex-1 flex-col gap-6 md:gap-2 p-6">
         {isDone ? (
           <EmptyState
             icon={IconChecks}
@@ -152,7 +152,7 @@ export function UnmatchedCardDetail({
             className="flex-1"
           />
         ) : !entry ? (
-          <div className="flex flex-col gap-6 @2xl:flex-row">
+          <div className="flex flex-col gap-6 md:gap-2 @2xl:flex-row">
             <Skeleton className="aspect-[2.5/3.5] w-48 rounded-lg @2xl:w-56" />
             <div className="flex flex-1 flex-col gap-2">
               <Skeleton className="h-5 w-48 rounded-md" />
@@ -185,7 +185,7 @@ export function UnmatchedCardDetail({
               </p>
             </div>
 
-            <div className="flex flex-col gap-6 @2xl:flex-row">
+            <div className="flex flex-col gap-6 md:gap-2 @2xl:flex-row">
               <div className="flex w-full flex-none flex-col gap-3 @2xl:w-64">
                 {entry.capturedBackImageUrl && (
                   <div className="flex w-48 items-center justify-between gap-1.5 @2xl:w-full">
@@ -258,7 +258,7 @@ export function UnmatchedCardDetail({
         <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background/80 p-2 backdrop-blur-2xl">
           <div className="flex w-full flex-wrap items-center gap-1.5">
             <Button disabled={!hasNext || isBusy} onClick={goNext}>
-              <IconPlayerSkipForward className="size-4" />
+              <IconPlayerSkipForward />
               {t("unmatchedCardsPanel.skip")}
               <HotkeyHint id="reviewAccept" />
             </Button>
@@ -268,7 +268,7 @@ export function UnmatchedCardDetail({
                 disabled={isBusy}
                 onClick={() => void handleRemove()}
               >
-                <IconTrash className="size-4" />
+                <IconTrash />
                 {t("unmatchedCardsPanel.remove")}
                 <HotkeyHint id="cardRemove" />
               </Button>

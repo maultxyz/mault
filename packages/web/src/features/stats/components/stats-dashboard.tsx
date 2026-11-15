@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { StatGroup } from "@/components/stat-group";
 import { SettingsSection } from "@/components/settings-section";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
@@ -10,15 +11,26 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { toScanStats } from "@/features/scanner/lib/compute-stats";
+import { AreaChart } from "@/features/stats/components/area-chart";
 import { BarList } from "@/features/stats/components/bar-list";
 import { ColumnChart } from "@/features/stats/components/column-chart";
+import { DonutChart } from "@/features/stats/components/donut-chart";
+import { StatsHighlights } from "@/features/stats/components/stats-highlights";
+import { ValueHero } from "@/features/stats/components/value-hero";
+import { buildStatsInsights } from "@/features/stats/lib/stats-insights";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePriceSource } from "@/hooks/use-price-source";
+import {
+  collectionViewPath,
+  monitorCollectionPath,
+} from "@/lib/constants/collections";
 import {
   STATS_ACTIVITY_METRICS,
   STATS_BAR_LIST_LIMIT,
   STATS_COLLECTION_COST_COLUMNS,
   STATS_COLLECTION_METRICS,
   STATS_COLLECTION_TABLE_COLUMNS,
+  STATS_SPLIT_MAX_SEGMENTS,
 } from "@/lib/constants/stats";
 import type {
   StatsActivityMetric,
@@ -29,6 +41,7 @@ import type {
   StatsCollectionsSectionProps,
   StatsCollectionsTableProps,
   StatsDashboardProps,
+  StatsSplitEntry,
   StatsTopCardsProps,
   StatsValueSectionProps,
 } from "@/lib/interfaces/stats";
@@ -39,47 +52,56 @@ import { Button } from "@/components/ui/button";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { CollectionCostDialog } from "@/features/business/components/collection-cost-dialog";
 import { cn } from "@/lib/utils";
-import type { StatsCollectionRow } from "@magic-vault/shared";
+import {
+  foldChartSegments,
+  statsHeroSparklineValues,
+  statsSharePercent,
+  type StatsCollectionRow,
+} from "@magic-vault/shared";
 import {
   IconArrowDown,
   IconArrowUp,
   IconChartLine,
   IconCoin,
+  IconCoins,
+  IconHelpCircle,
+  IconScan,
+  IconSparkles,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-function formatDay(date: string): string {
-  return new Date(`${date}T00:00:00Z`).toLocaleDateString(undefined, {
+function formatDay(date: string, locale: string): string {
+  return new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     timeZone: "UTC",
   });
 }
 
-function formatShortDate(iso: string | null): string | null {
+function formatShortDate(iso: string | null, locale: string): string | null {
   if (!iso) return null;
-  return new Date(iso).toLocaleDateString(undefined, {
+  return new Date(iso).toLocaleDateString(locale, {
     month: "short",
     day: "numeric",
     year: "numeric",
   });
 }
 
-function percent(part: number, whole: number): number {
-  return whole > 0 ? Math.round((part / whole) * 100) : 0;
-}
-
 function StatsActivitySection({ report }: StatsActivitySectionProps) {
-  const { t } = useTranslation("stats");
+  const { t, i18n } = useTranslation("stats");
+  const locale = i18n.language;
   const { format } = usePriceSource();
   const [metric, setMetric] = useState<StatsActivityMetric>("count");
   const isWeekly = report.bucket === "week";
+  const compactNumber = new Intl.NumberFormat(locale, {
+    notation: "compact",
+    maximumFractionDigits: 1,
+  });
 
   return (
     <SettingsSection
-      className="bg-card"
       heading={t("activity.title")}
       description={t(`activity.description.${report.bucket}`)}
       action={
@@ -94,17 +116,20 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
         />
       }
     >
-      <ColumnChart
+      <AreaChart
         ariaLabel={t(`activity.metrics.${metric}`)}
         data={report.activity.map((bucket) => ({
           key: bucket.start,
           label: isWeekly
-            ? t("activity.weekOf", { date: formatDay(bucket.start) })
-            : formatDay(bucket.start),
+            ? t("activity.weekOf", { date: formatDay(bucket.start, locale) })
+            : formatDay(bucket.start, locale),
           value: metric === "count" ? bucket.count : bucket.value,
         }))}
         formatValue={(value) =>
-          metric === "count" ? value.toLocaleString() : format(value)
+          metric === "count" ? value.toLocaleString(locale) : format(value)
+        }
+        formatAxisValue={(value) =>
+          metric === "count" ? compactNumber.format(value) : format(value)
         }
         endLabel={isWeekly ? t("activity.thisWeek") : t("activity.today")}
       />
@@ -127,14 +152,14 @@ function sortValue(row: StatsCollectionRow, column: StatsCollectionColumn) {
 }
 
 function StatsValueSection({ report }: StatsValueSectionProps) {
-  const { t } = useTranslation("stats");
+  const { t, i18n } = useTranslation("stats");
+  const locale = i18n.language;
   const { t: tBusiness } = useTranslation("business");
   const { format } = usePriceSource();
   const history = report.valueHistory ?? [];
 
   return (
     <SettingsSection
-      className="bg-card"
       heading={tBusiness("reports.inventory.history")}
       description={t("value.description")}
     >
@@ -146,12 +171,13 @@ function StatsValueSection({ report }: StatsValueSectionProps) {
           description={tBusiness("reports.inventory.historyEmptyDescription")}
         />
       ) : (
-        <ColumnChart
+        <AreaChart
           ariaLabel={tBusiness("reports.inventory.history")}
           formatValue={format}
+          formatAxisValue={format}
           data={history.map((point) => ({
             key: point.day,
-            label: formatDay(point.day),
+            label: formatDay(point.day, locale),
             value: point.marketValue,
           }))}
         />
@@ -166,7 +192,8 @@ function StatsCollectionsTable({
   onSelectCollection,
   onSetCost,
 }: StatsCollectionsTableProps) {
-  const { t } = useTranslation("stats");
+  const { t, i18n } = useTranslation("stats");
+  const locale = i18n.language;
   const { t: tBusiness } = useTranslation("business");
   const { access } = useBusinessAccess();
   const columns: StatsCollectionColumn[] = costsVisible
@@ -190,9 +217,13 @@ function StatsCollectionsTable({
       case "name":
         return (
           <span className="flex min-w-0 flex-col">
-            <span className="truncate font-medium text-foreground">
+            <button
+              type="button"
+              onClick={() => onSelectCollection(row.guid)}
+              className="truncate rounded-sm text-left font-medium text-foreground after:absolute after:inset-0 after:content-[''] group-hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            >
               {row.name}
-            </span>
+            </button>
             {row.gameName && (
               <span className="truncate text-2xs text-foreground/70">
                 {row.gameName}
@@ -204,7 +235,7 @@ function StatsCollectionsTable({
       case "avgValue":
         return format(row[column]);
       case "lastScanAt":
-        return formatShortDate(row.lastScanAt) ?? t("compare.never");
+        return formatShortDate(row.lastScanAt, locale) ?? t("compare.never");
       case "costBasis":
         return row.costedCount ? format(row.costBasis ?? 0) : "-";
       case "margin": {
@@ -212,7 +243,7 @@ function StatsCollectionsTable({
         return margin === null ? "-" : format(margin);
       }
       default:
-        return row[column].toLocaleString();
+        return row[column].toLocaleString(locale);
     }
   };
 
@@ -262,8 +293,7 @@ function StatsCollectionsTable({
           {rows.map((row) => (
             <TableRow
               key={row.guid}
-              className="cursor-pointer"
-              onClick={() => onSelectCollection(row.guid)}
+              className="group relative cursor-pointer hover:bg-foreground/6 focus-within:bg-foreground/6"
             >
               {columns.map((column) => (
                 <TableCell
@@ -280,11 +310,9 @@ function StatsCollectionsTable({
                 <TableCell className="py-0 text-right">
                   <Button
                     variant="ghost"
+                    className="relative z-10"
                     disabled={access?.isLocked || row.cardCount === 0}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSetCost(row);
-                    }}
+                    onClick={() => onSetCost(row)}
                   >
                     {tBusiness("reports.inventory.setCost")}
                   </Button>
@@ -303,7 +331,8 @@ function StatsCollectionsSection({
   costsVisible,
   onSelectCollection,
 }: StatsCollectionsSectionProps) {
-  const { t } = useTranslation("stats");
+  const { t, i18n } = useTranslation("stats");
+  const locale = i18n.language;
   const { format } = usePriceSource();
   const [costTarget, setCostTarget] = useState<CollectionCostTarget | null>(
     null,
@@ -314,7 +343,6 @@ function StatsCollectionsSection({
 
   return (
     <SettingsSection
-      className="bg-card"
       heading={t("compare.title")}
       description={t("compare.description")}
       action={
@@ -339,9 +367,9 @@ function StatsCollectionsSection({
             display:
               metric === "totalValue"
                 ? format(row.totalValue)
-                : row[metric].toLocaleString(),
+                : row[metric].toLocaleString(locale),
             secondary: t("compare.share", {
-              percent: percent(row[metric], total),
+              percent: statsSharePercent(row[metric], total),
             }),
             onSelect: () => onSelectCollection(row.guid),
           }))}
@@ -363,28 +391,30 @@ function StatsCollectionsSection({
 
 function StatsTopCards({ cards }: StatsTopCardsProps) {
   const { t } = useTranslation("stats");
+  const isMobile = useIsMobile();
   const { format } = usePriceSource();
   if (cards.length === 0) return null;
 
   return (
     <SettingsSection
-      className="rounded-none border-0 p-0 pt-2"
       heading={t("topCards.title")}
     >
       <div className="grid grid-cols-3 gap-x-3 gap-y-4 sm:grid-cols-5">
         {cards.map((entry) => (
           <Link
             key={entry.scanId}
-            to={`/app/monitor/${entry.collectionGuid}`}
-            className="flex min-w-0 flex-col gap-1.5 transition-transform active:scale-[0.97] motion-reduce:active:scale-100"
+            to={
+              isMobile
+                ? monitorCollectionPath(entry.collectionGuid)
+                : `${collectionViewPath(entry.collectionGuid)}/cards/${entry.scanId}`
+            }
+            className="flex min-w-0 flex-col gap-1.5 rounded-lg transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-[0.97] motion-reduce:active:scale-100"
           >
-            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-border">
-              <img
-                src={entry.card.image?.normal || entry.card.image?.small || ""}
+            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted">
+              <CardImage
+                src={entry.card.image?.normal || entry.card.image?.small}
+                placeholderSrc={entry.card.image?.small}
                 alt={entry.card.name}
-                loading="lazy"
-                draggable={false}
-                className="h-full w-full object-cover"
               />
             </div>
             <div className="min-w-0">
@@ -392,11 +422,9 @@ function StatsTopCards({ cards }: StatsTopCardsProps) {
                 {entry.card.name}
               </p>
               <p className="truncate text-xs text-foreground/70 tabular-nums">
-                {entry.price != null ? format(entry.price) : null}
-                <span className="text-foreground/70">
-                  {" · "}
-                  {entry.collectionName}
-                </span>
+                {[entry.price != null ? format(entry.price) : null, entry.collectionName]
+                  .filter(Boolean)
+                  .join(" · ")}
               </p>
             </div>
           </Link>
@@ -410,7 +438,8 @@ export function StatsDashboard({
   report,
   onSelectCollection,
 }: StatsDashboardProps) {
-  const { t } = useTranslation("stats");
+  const { t, i18n } = useTranslation("stats");
+  const locale = i18n.language;
   const { format } = usePriceSource();
   const { totals } = report;
   const breakdown = report.breakdown ? toScanStats(report.breakdown) : null;
@@ -418,8 +447,9 @@ export function StatsDashboard({
   const { t: tBusiness } = useTranslation("business");
   const costed = report.costsVisible && (totals.costedCount ?? 0) > 0;
   const margin = (totals.costedValue ?? 0) - (totals.costBasis ?? 0);
+  const insights = buildStatsInsights(report, t, format, locale);
 
-  const priceItems = report.priceBuckets.map((bucket) => ({
+  const priceColumns = report.priceBuckets.map((bucket) => ({
     key: bucket.key,
     label:
       bucket.max == null
@@ -431,84 +461,105 @@ export function StatsDashboard({
               max: format(bucket.max),
             }),
     value: bucket.count,
-    display: bucket.count.toLocaleString(),
-    secondary: format(bucket.value),
+    detail: format(bucket.value),
   }));
 
+  const renderSplit = (entries: StatsSplitEntry[]) => (
+    <DonutChart
+      segments={foldChartSegments(
+        entries.map((entry) => ({
+          key: entry.key,
+          label: entry.label,
+          value: entry.count,
+          color: entry.bg,
+        })),
+        STATS_SPLIT_MAX_SEGMENTS,
+        { key: "other", label: t("other"), color: "var(--muted-foreground)" },
+      )}
+      centerValue={totals.cardCount.toLocaleString(locale)}
+      centerLabel={t("tiles.cards")}
+      formatShare={(value, total) =>
+        t("compare.share", { percent: statsSharePercent(value, total) })
+      }
+    />
+  );
+
   return (
-    <div className="flex flex-col gap-4">
-      <StatGroup
-        heading={t("tiles.heading")}
-        gridClassName={
-          report.costsVisible
-            ? "grid-cols-2 sm:grid-cols-4"
-            : "grid-cols-2 sm:grid-cols-3 xl:grid-cols-6"
-        }
-        tiles={[
-          {
-            key: "totalValue",
-            label: t("tiles.totalValue"),
-            value: format(totals.totalValue),
-            detail: isOrg
-              ? t("tiles.collectionCount", { count: totals.collectionCount })
-              : undefined,
-          },
-          {
-            key: "cards",
-            label: t("tiles.cards"),
-            value: totals.cardCount.toLocaleString(),
-            detail: t("tiles.uniqueHint", { count: totals.uniqueCount }),
-          },
-          {
-            key: "avgValue",
-            label: t("tiles.avgValue"),
-            value: format(totals.avgValue),
-            detail: t("tiles.pricedHint", { count: totals.priceableCount }),
-          },
-          {
-            key: "scanned",
-            label: t(`tiles.scanned.${report.range}`),
-            value: totals.scansInRange.toLocaleString(),
-            detail: t("tiles.valueAddedHint", {
-              value: format(totals.valueAddedInRange),
-            }),
-          },
-          {
-            key: "foils",
-            label: t("tiles.foils"),
-            value: totals.foilCount.toLocaleString(),
-            detail: t("tiles.shareHint", {
-              percent: percent(totals.foilCount, totals.cardCount),
-            }),
-          },
-          {
-            key: "needsReview",
-            label: t("tiles.needsReview"),
-            value: totals.needsReviewCount.toLocaleString(),
-            detail: t("tiles.correctedHint", { count: totals.correctedCount }),
-          },
-          ...(report.costsVisible
-            ? [
-                {
-                  key: "costBasis",
-                  label: tBusiness("reports.inventory.costBasis"),
-                  value: costed ? format(totals.costBasis ?? 0) : "-",
-                  detail: tBusiness("reports.inventory.costedCards", {
-                    percent: `${percent(totals.costedCount ?? 0, totals.cardCount)}%`,
-                  }),
-                },
-                {
-                  key: "margin",
-                  label: tBusiness("reports.inventory.unrealized"),
-                  value: costed ? format(margin) : "-",
-                  detail: costed
-                    ? `${percent(margin, totals.costBasis ?? 0)}%`
-                    : null,
-                },
-              ]
-            : []),
-        ]}
-      />
+    <div className="flex flex-col gap-6 md:gap-2">
+      <div className="grid gap-4 md:gap-1.5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+        <ValueHero
+          label={t("tiles.totalValue")}
+          value={format(totals.totalValue)}
+          sparklineValues={statsHeroSparklineValues(report)}
+          stats={[
+            { label: t("tiles.cards"), value: totals.cardCount.toLocaleString(locale) },
+            { label: t("tiles.unique"), value: totals.uniqueCount.toLocaleString(locale) },
+            { label: t("tiles.avgValue"), value: format(totals.avgValue) },
+          ]}
+        />
+        <StatGroup
+          heading={t("tiles.heading")}
+          gridClassName="grid-cols-2"
+          tiles={[
+            {
+              key: "scanned",
+              icon: IconScan,
+              label: t(`tiles.scanned.${report.range}`),
+              value: totals.scansInRange.toLocaleString(locale),
+              detail: t("tiles.valueAddedHint", {
+                value: format(totals.valueAddedInRange),
+              }),
+            },
+            {
+              key: "priced",
+              icon: IconCoins,
+              label: t("tiles.priced"),
+              value: totals.priceableCount.toLocaleString(locale),
+              detail: t("tiles.shareHint", {
+                percent: statsSharePercent(totals.priceableCount, totals.cardCount),
+              }),
+            },
+            {
+              key: "foils",
+              icon: IconSparkles,
+              label: t("tiles.foils"),
+              value: totals.foilCount.toLocaleString(locale),
+              detail: t("tiles.shareHint", {
+                percent: statsSharePercent(totals.foilCount, totals.cardCount),
+              }),
+            },
+            {
+              key: "needsReview",
+              icon: IconHelpCircle,
+              label: t("tiles.needsReview"),
+              value: totals.needsReviewCount.toLocaleString(locale),
+              detail: t("tiles.correctedHint", { count: totals.correctedCount }),
+            },
+            ...(report.costsVisible
+              ? [
+                  {
+                    key: "costBasis",
+                    icon: IconCoin,
+                    label: tBusiness("reports.inventory.costBasis"),
+                    value: costed ? format(totals.costBasis ?? 0) : "-",
+                    detail: tBusiness("reports.inventory.costedCards", {
+                      percent: `${statsSharePercent(totals.costedCount ?? 0, totals.cardCount)}%`,
+                    }),
+                  },
+                  {
+                    key: "margin",
+                    icon: IconChartLine,
+                    label: tBusiness("reports.inventory.unrealized"),
+                    value: costed ? format(margin) : "-",
+                    detail: costed
+                      ? `${statsSharePercent(margin, totals.costBasis ?? 0)}%`
+                      : null,
+                  },
+                ]
+              : []),
+          ]}
+        />
+      </div>
 
       {costed && (totals.costedCount ?? 0) < totals.cardCount && (
         <Callout variant="info" icon={IconCoin}>
@@ -518,20 +569,29 @@ export function StatsDashboard({
         </Callout>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+      <StatsHighlights insights={insights} />
+
+      <div className="grid gap-4 md:gap-1.5 lg:grid-cols-2 [&>*]:min-w-0">
         <StatsActivitySection report={report} />
         <SettingsSection
-          className="bg-card"
           heading={t("prices.title")}
           description={t("prices.description")}
         >
-          <BarList items={priceItems} />
+          <ColumnChart
+            data={priceColumns}
+            ariaLabel={t("prices.title")}
+            formatValue={(value) => t("cardCount", { count: value })}
+            formatColumnValue={(value) => value.toLocaleString(locale)}
+            labelEachColumn
+          />
         </SettingsSection>
       </div>
 
       {isOrg && report.costsVisible && report.valueHistory && (
         <StatsValueSection report={report} />
       )}
+
+      <StatsTopCards cards={report.topCards} />
 
       {isOrg && (report.collections.length > 1 || report.costsVisible) && (
         <StatsCollectionsSection
@@ -541,9 +601,27 @@ export function StatsDashboard({
         />
       )}
 
-      <div className="grid gap-4 lg:grid-cols-2 [&>*]:min-w-0">
+      <div className="grid gap-4 md:gap-1.5 lg:grid-cols-2 [&>*]:min-w-0">
+        {breakdown && breakdown.rarities.length > 0 && (
+          <SettingsSection
+            heading={t("rarities.title")}
+            description={t("rarities.description")}
+          >
+            {renderSplit(breakdown.rarities)}
+          </SettingsSection>
+        )}
+
+        {breakdown && breakdown.colors.length > 0 && (
+          <SettingsSection
+            heading={t("colors.title")}
+            description={t("colors.description")}
+          >
+            {renderSplit(breakdown.colors)}
+          </SettingsSection>
+        )}
+
         {isOrg && report.games.length > 1 && (
-          <SettingsSection className="bg-card" heading={t("games.title")}>
+          <SettingsSection heading={t("games.title")}>
             <BarList
               items={report.games.map((game) => ({
                 key: game.key ?? "none",
@@ -557,7 +635,7 @@ export function StatsDashboard({
         )}
 
         {breakdown && breakdown.sets.length > 0 && (
-          <SettingsSection className="bg-card" heading={t("sets.title")}>
+          <SettingsSection heading={t("sets.title")}>
             <BarList
               items={breakdown.sets
                 .slice(0, STATS_BAR_LIST_LIMIT)
@@ -572,55 +650,19 @@ export function StatsDashboard({
           </SettingsSection>
         )}
 
-        {breakdown && breakdown.rarities.length > 0 && (
-          <SettingsSection className="bg-card" heading={t("rarities.title")}>
-            <BarList
-              items={breakdown.rarities.map((rarity) => ({
-                key: rarity.key,
-                label: rarity.label,
-                value: rarity.count,
-                display: rarity.count.toLocaleString(),
-                secondary: t("compare.share", {
-                  percent: percent(rarity.count, totals.cardCount),
-                }),
-                swatch: rarity.bg,
-              }))}
-            />
-          </SettingsSection>
-        )}
-
-        {breakdown && breakdown.colors.length > 0 && (
-          <SettingsSection className="bg-card" heading={t("colors.title")}>
-            <BarList
-              items={breakdown.colors.map((color) => ({
-                key: color.key,
-                label: color.label,
-                value: color.count,
-                display: color.count.toLocaleString(),
-                secondary: t("compare.share", {
-                  percent: percent(color.count, totals.cardCount),
-                }),
-                swatch: color.bg,
-              }))}
-            />
-          </SettingsSection>
-        )}
-
         {breakdown && breakdown.foilTypes.length > 0 && (
-          <SettingsSection className="bg-card" heading={t("foils.title")}>
+          <SettingsSection heading={t("foils.title")}>
             <BarList
               items={breakdown.foilTypes.map((foil) => ({
                 key: foil.key,
                 label: foil.label,
                 value: foil.count,
-                display: foil.count.toLocaleString(),
+                display: foil.count.toLocaleString(locale),
               }))}
             />
           </SettingsSection>
         )}
       </div>
-
-      <StatsTopCards cards={report.topCards} />
     </div>
   );
 }

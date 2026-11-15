@@ -42,3 +42,6 @@ export const PRICE_SYNC_EMBED_COLORS = {
   failed: 0xed4245,
 } as const;
 export const DISCORD_SELECT_MENU_MAX_OPTIONS = 25;
+
+export const TRADE_OFFER_EMBED_COLOR = 0x57f287;
+export const TRADE_OFFER_REVIEW_WEB_PATH = "/app/trades";

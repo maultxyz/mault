@@ -39,7 +39,7 @@ export function ShareLinkForm({ formId, form, onSubmit }: ShareLinkFormProps) {
     <form
       id={formId}
       onSubmit={form.handleSubmit(onSubmit)}
-      className="flex flex-col gap-4"
+      className="flex flex-col gap-4 md:gap-2"
     >
       <Controller
         name="purpose"

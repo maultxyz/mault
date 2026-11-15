@@ -1,8 +1,11 @@
 import {
   SHARED_STORAGE_PATH_PREFIX,
   SHOP_CATALOG_PATH_PREFIX,
+  SHORT_LINK_PATH_PREFIX,
 } from "@magic-vault/shared";
 import {
+  HOME_PATH,
+  LIBRARY_PATH,
   MOBILE_ACCOUNT_PATH,
   MOBILE_SCAN_PAIR_PATH,
   MOBILE_SCAN_PATH,
@@ -24,7 +27,13 @@ import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import { STORAGE_PATH, STORAGE_PICK_LIST_PATH } from "@/lib/constants/storage";
+import {
+  SENT_TRADE_OFFER_PATH,
+  TRADE_OFFER_PATH,
+  TRADES_PATH,
+} from "@/lib/constants/trade-offers";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { CATALOG_CARD_ROUTE_PATH, SEARCH_PATH } from "@/lib/constants/search";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { MATCH_VALIDATIONS_PATH } from "@/lib/constants/match-validations";
 import { lazy, Suspense, useEffect } from "react";
@@ -69,6 +78,9 @@ const ShopCatalogPage = lazy(
     ["common", "business", "cards"],
   ),
 );
+const ShortLinkPage = lazy(
+  withNamespaces(() => import("@/app/routes/short-link"), ["common"]),
+);
 const AuthPage = lazy(
   withNamespaces(() => import("@/app/routes/neon/auth"), ["common", "auth"]),
 );
@@ -103,6 +115,11 @@ const loadAppLayout = withNamespaces(
 const loadScannerPage = () => import("@/app/routes/app/index");
 const loadMonitorSessionsPage = () =>
   import("@/app/routes/app/monitor-sessions");
+const loadHomePage = () => import("@/app/routes/app/home");
+const HomePage = lazy(loadHomePage);
+const LibraryPage = lazy(() => import("@/app/routes/app/library"));
+const SearchPage = lazy(() => import("@/app/routes/app/search"));
+const CatalogCardPage = lazy(() => import("@/app/routes/app/catalog-card"));
 const AppLayout = lazy(loadAppLayout);
 const ScannerPage = lazy(loadScannerPage);
 const CollectionsPage = lazy(() => import("@/app/routes/app/collections"));
@@ -187,6 +204,9 @@ const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(() => import("@/app/routes/app/storage"));
+const TradesPage = lazy(() => import("@/app/routes/app/trades"));
+const TradeOfferRoutePage = lazy(() => import("@/app/routes/app/trade-offer"));
+const SentTradeOfferRoutePage = lazy(() => import("@/app/routes/app/sent-trade-offer"));
 const StoragePickListPage = lazy(
   () => import("@/app/routes/app/storage-pick-list"),
 );
@@ -212,9 +232,8 @@ function AppChunkPreloader() {
   useEffect(() => {
     const ignoreFailure = () => {};
     loadAppLayout().catch(ignoreFailure);
-    (isMobile && !piHost ? loadMonitorSessionsPage() : loadScannerPage()).catch(
-      ignoreFailure,
-    );
+    loadHomePage().catch(ignoreFailure);
+    if (!isMobile || piHost) loadScannerPage().catch(ignoreFailure);
   }, [isMobile, piHost]);
   return null;
 }
@@ -250,7 +269,7 @@ function DesktopOnlyGuard() {
   if (!isMobile) return <Outlet />;
   if (piPage && !settled) return null;
   if (piPage && piHost) return <Outlet />;
-  return <Navigate to="/app/monitor" replace />;
+  return <Navigate to={HOME_PATH} replace />;
 }
 
 function LegacyIntakeRedirect() {
@@ -313,6 +332,10 @@ export const routes: RouteObject[] = [
       {
         path: `${SHOP_CATALOG_PATH_PREFIX}/:catalogGuid`,
         element: <ShopCatalogPage />,
+      },
+      {
+        path: `${SHORT_LINK_PATH_PREFIX}/:shortCode`,
+        element: <ShortLinkPage />,
       },
       {
         path: MARKETING_PAGE_PATHS.privacy,
@@ -542,6 +565,22 @@ export const routes: RouteObject[] = [
                 ],
               },
               {
+                path: HOME_PATH,
+                element: <HomePage />,
+              },
+              {
+                path: LIBRARY_PATH,
+                element: <LibraryPage />,
+              },
+              {
+                path: SEARCH_PATH,
+                element: <SearchPage />,
+              },
+              {
+                path: CATALOG_CARD_ROUTE_PATH,
+                element: <CatalogCardPage />,
+              },
+              {
                 path: "/app/monitor",
                 element: <MonitorSessionsPage />,
               },
@@ -573,6 +612,18 @@ export const routes: RouteObject[] = [
               {
                 path: STORAGE_PATH,
                 element: <StoragePage />,
+              },
+              {
+                path: TRADES_PATH,
+                element: <TradesPage />,
+              },
+              {
+                path: TRADE_OFFER_PATH,
+                element: <TradeOfferRoutePage />,
+              },
+              {
+                path: SENT_TRADE_OFFER_PATH,
+                element: <SentTradeOfferRoutePage />,
               },
               {
                 path: STORAGE_PICK_LIST_PATH,

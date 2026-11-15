@@ -4,7 +4,7 @@ import { usePricing } from "@/hooks/use-pricing";
 import { CANDIDATE_THUMB_WIDTH } from "@/lib/constants/cards";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { CandidateStripProps } from "@/lib/interfaces/cards";
-import { absoluteUrl } from "@/lib/url";
+import { cardArtSources } from "@/lib/card-art";
 
 export function CandidateStrip({ candidates, selectedId, onSelect, disabled = false }: CandidateStripProps) {
   const pricing = usePricing();
@@ -23,7 +23,7 @@ export function CandidateStrip({ candidates, selectedId, onSelect, disabled = fa
             <CardTile
               name={candidate.name}
               caption={price != null ? `${printing} · ${pricing.format(price)}` : printing}
-              imageUrl={absoluteUrl(candidate.image?.normal ?? candidate.image?.small)}
+              {...cardArtSources(candidate.image)}
               selected={candidate.id === selectedId}
               disabled={disabled}
               onPress={() => onSelect(candidate)}

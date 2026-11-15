@@ -54,7 +54,7 @@ export function MonitorCardGrid({
           role="alert"
           className="flex items-center justify-center h-32 text-destructive text-sm gap-2"
         >
-          <IconWifiOff size={16} />
+          <IconWifiOff aria-hidden className="size-4" />
           {t("monitorPage.connectFailed")}
         </div>
       )}
@@ -65,8 +65,8 @@ export function MonitorCardGrid({
         <EmptyState icon={IconSearch} title={t("monitorPage.noCardsMatchSearch")} />
       )}
       {entries.length === 0 ? null : viewMode === "list" ? (
-        <div className="p-4">
-          <div className="rounded-lg border">
+        <div className="p-4 md:px-3 md:py-2">
+          <div className="overflow-hidden rounded-card bg-card">
             <ScannedCardTable
               rows={entries.map((entry) => ({
                 scanId: entry.scanId,
@@ -90,7 +90,7 @@ export function MonitorCardGrid({
           </div>
         </div>
       ) : (
-        <div className="grid gap-2 p-4 grid-cols-3 @md:grid-cols-4 @4xl:grid-cols-6 @5xl:grid-cols-8">
+        <div className="grid gap-2 p-4 md:gap-1.5 md:px-3 md:py-2 grid-cols-3 @md:grid-cols-4 @4xl:grid-cols-6 @5xl:grid-cols-8">
           {entries.map((entry) => (
             <ScannedCardItem
               key={entry.scanId}

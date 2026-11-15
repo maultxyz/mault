@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Badge } from "@/components/ui/badge";
 import {
   Drawer,
@@ -85,16 +86,23 @@ export function ActiveScanSessionsDrawer({
 
         <div className="flex-1 overflow-y-auto">
           {sessionsQuery.isLoading ? (
-            <div className="flex flex-col gap-3 p-3">
+            <div className="flex flex-col gap-3 md:gap-2 p-3">
               {Array.from({ length: 3 }).map((_, i) => (
                 <div
                   key={i}
-                  className="flex flex-col gap-2 rounded-lg border p-3"
+                  className="flex flex-col gap-2 rounded-lg bg-foreground/6 p-3"
                 >
                   <Skeleton className="h-3 w-32" />
                   <Skeleton className="h-3 w-full" />
                 </div>
               ))}
+            </div>
+          ) : sessionsQuery.isError && !sessionsQuery.data ? (
+            <div className="p-3">
+              <LoadErrorCallout
+                message={t("activeScanSessions.loadFailed")}
+                onRetry={() => void sessionsQuery.refetch()}
+              />
             </div>
           ) : groups.length === 0 ? (
             <EmptyState
@@ -104,13 +112,13 @@ export function ActiveScanSessionsDrawer({
               description={t("activeScanSessions.emptyDescription")}
             />
           ) : (
-            <div className="flex flex-col gap-3 p-3">
+            <div className="flex flex-col gap-3 md:gap-2 p-3">
               {groups.map(([orgId, sessions]) => (
                 <section
                   key={orgId}
-                  className="overflow-hidden rounded-lg border"
+                  className="overflow-hidden rounded-lg bg-foreground/6"
                 >
-                  <div className="flex items-center justify-between gap-2 border-b bg-muted px-3 py-2">
+                  <div className="flex items-center justify-between gap-2 border-b px-3 py-2">
                     <p className="truncate text-sm font-medium">
                       {sessions[0].orgName ?? orgId}
                     </p>

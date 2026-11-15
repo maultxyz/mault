@@ -35,7 +35,7 @@ export function CardScanTimeline({
   }, [loadMoreIsNearViewport, hasMoreCards, isLoadingMoreCards, onLoadMoreCards]);
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 md:gap-2">
       {blocks.map((block) => {
         const label = formatScanTimelineBucketLabel(
           block.bucketKey,
@@ -58,7 +58,7 @@ export function CardScanTimeline({
               style={{ top: stickyHeaderTopOffset }}
             >
               <div aria-hidden className="h-px flex-1 bg-border" />
-              <div className="flex min-w-0 items-center gap-2 rounded-full bg-secondary px-3 py-1 text-secondary-foreground">
+              <div className="flex min-w-0 items-center gap-2 rounded-full bg-foreground/6 px-3 py-1 text-foreground">
                 {onToggleBlockSelect && (
                   <Checkbox
                     aria-label={t("scanTimeline.selectBlock", { period: label })}
@@ -76,7 +76,7 @@ export function CardScanTimeline({
                 <h2 id={headingId} className="truncate text-xs font-semibold">
                   {label}
                 </h2>
-                <span className="shrink-0 text-xs text-secondary-foreground/70">
+                <span className="shrink-0 text-xs text-foreground/70">
                   {t("scanTimeline.blockCardCount", { count: block.cardCount })}
                 </span>
               </div>

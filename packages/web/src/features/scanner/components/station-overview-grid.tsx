@@ -84,9 +84,9 @@ export function StationOverviewGrid({
     return (
       <div className={SORTERS_GRID_CLASS}>
         {Array.from({ length: COLLECTIONS_SKELETON_COUNT }).map((_, i) => (
-          <div key={i} className="overflow-hidden rounded-lg border">
+          <div key={i} className="overflow-hidden rounded-card border border-border bg-card">
             <Skeleton className="aspect-[3/4] rounded-none" />
-            <div className="space-y-1.5 border-t p-3">
+            <div className="space-y-1.5 p-3">
               <Skeleton className="h-3 w-32" />
               <Skeleton className="h-2.5 w-20" />
             </div>
@@ -138,11 +138,11 @@ export function StationOverviewGrid({
               render={
                 <button
                   type="button"
-                  className="flex min-h-56 flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground aria-expanded:border-primary/50 aria-expanded:bg-primary/5 motion-reduce:transition-none"
+                  className="flex min-h-56 flex-col items-center justify-center gap-2 rounded-card border-2 border-dashed border-border text-sm text-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground aria-expanded:border-primary/50 aria-expanded:bg-primary/5 motion-reduce:transition-none"
                 />
               }
             >
-              <span className="rounded-full border border-dashed p-3">
+              <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-sidebar-primary">
                 <IconPlus className="size-5" />
               </span>
               {t("stations.connect")}

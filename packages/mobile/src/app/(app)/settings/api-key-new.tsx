@@ -13,10 +13,10 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
+import { Surface } from "@/components/ui/surface";
 import { createApiKey } from "@/features/integrations/api/api-keys";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function NewApiKeyScreen() {
@@ -55,11 +55,11 @@ export default function NewApiKeyScreen() {
           <AppText size="sm" tone="secondary">
             {t("settings.apiKeys.revealDescription")}
           </AppText>
-          <View style={{ padding: SPACING.md, borderRadius: RADIUS.md, backgroundColor: colors.muted }}>
+          <Surface>
             <AppText mono selectable>
               {rawKey}
             </AppText>
-          </View>
+          </Surface>
         </PinnedActionsLayout>
       </View>
     );

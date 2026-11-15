@@ -49,6 +49,7 @@
     "empty": "No active sessions",
     "lastActive": "Last active {{date}}",
     "unknownDevice": "Unknown device",
+    "browserOnOs": "{{browser}} on {{os}}",
     "noIp": "Unknown location"
   },
   "apiKeys": {

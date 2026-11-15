@@ -21,7 +21,7 @@ export interface StoragePickListState {
   setPicked: (scanId: string, picked: boolean) => void;
   clear: () => void;
   finish: () => void;
-  refetch: () => void;
+  refetch: () => Promise<unknown>;
 }
 
 export interface StorageVerifyState {
@@ -35,7 +35,7 @@ export interface StorageVerifyState {
   setVerified: (scanId: string, verified: boolean) => void;
   addNotInLocation: (cardName: string) => void;
   startOver: () => void;
-  refetch: () => void;
+  refetch: () => Promise<unknown>;
 }
 
 export type CardScanNoticeKind = "checked" | "already-checked" | "not-listed" | "no-match" | "failed";

@@ -1,6 +1,7 @@
 import { sql } from "drizzle-orm";
 import type { CardSearchAdapter } from "../interfaces/card-search";
 import { tcgtrackingCardImage } from "./catalog";
+import { TCGTRACKING_FALLBACK_SOURCE } from "../constants/tcgtracking";
 import {
   isTcgtrackingFallbackData,
   normalizeTcgtrackingFallback,
@@ -16,6 +17,7 @@ export function withTcgtracking(
   const categoryId = adapter.tcgplayer?.categoryId;
   if (!config || !categoryId) return adapter;
   const superseded = sql`(data->>'supersededByCardId') IS NOT NULL`;
+  const isFallback = sql`(data->>'source') = ${TCGTRACKING_FALLBACK_SOURCE}`;
 
   return {
     ...adapter,
@@ -58,6 +60,13 @@ export function withTcgtracking(
               : (adapter.cardmarket?.productNames?.(card) ?? [])
         : undefined,
     },
+    releasedAtSql: adapter.releasedAtSql
+      ? sql`CASE WHEN ${isFallback} THEN data->'set'->>'published_on' ELSE (${adapter.releasedAtSql}) END`
+      : undefined,
+    releaseSequenceSql: sql`CASE
+      WHEN jsonb_typeof(data->'tcgtrackingProductId') = 'number' THEN (data->>'tcgtrackingProductId')::bigint
+      WHEN ${isFallback} AND jsonb_typeof(data->'product'->'id') = 'number' THEN (data->'product'->>'id')::bigint
+    END`,
     excludedFromMatchingSql: adapter.excludedFromMatchingSql
       ? sql`((${adapter.excludedFromMatchingSql}) OR ${superseded})`
       : superseded,

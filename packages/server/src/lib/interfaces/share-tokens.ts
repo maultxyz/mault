@@ -26,6 +26,7 @@ export interface IssueShareLinkInput {
 export interface IssuedShareLink {
   guid: string;
   token: string;
+  shortCode: string;
   expiresAt: Date;
 }
 

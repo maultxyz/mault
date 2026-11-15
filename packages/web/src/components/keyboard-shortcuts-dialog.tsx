@@ -50,7 +50,7 @@ export function KeyboardShortcutsButton() {
             <DialogTitle>{t("hotkeys.title")}</DialogTitle>
             <DialogDescription>{t("hotkeys.description")}</DialogDescription>
           </DialogHeader>
-          <div className="flex flex-col gap-4 max-h-[60vh] overflow-y-auto">
+          <div className="flex flex-col gap-4 md:gap-2 max-h-[60vh] overflow-y-auto">
             {groups.map((group) => (
               <section key={group} className="flex flex-col gap-1.5">
                 <h3 className="text-xs font-semibold text-foreground">

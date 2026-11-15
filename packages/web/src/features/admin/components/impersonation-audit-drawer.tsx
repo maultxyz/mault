@@ -1,3 +1,5 @@
+import { EmptyState } from "@/components/empty-state";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Badge } from "@/components/ui/badge";
 import {
   Drawer,
@@ -8,7 +10,11 @@ import {
 } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { listImpersonationAudit } from "@/lib/api/admin";
-import { IconClockHour3, IconX } from "@tabler/icons-react";
+import {
+  IconClockHour3,
+  IconHistory,
+  IconX,
+} from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import type { ImpersonationAuditDrawerProps } from "@/lib/interfaces/admin";
@@ -40,6 +46,7 @@ export function ImpersonationAuditDrawer({
           <DrawerClose asChild>
             <button
               type="button"
+              aria-label={t("common:a11y.close")}
               className="text-foreground/70 hover:text-foreground transition-colors"
             >
               <IconX size={14} />
@@ -49,18 +56,27 @@ export function ImpersonationAuditDrawer({
 
         <div className="flex-1 overflow-y-auto">
           {auditQuery.isLoading ? (
-            <div className="flex flex-col gap-3 p-3">
+            <div className="flex flex-col divide-y">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="flex flex-col gap-2 p-3 border rounded-lg">
+                <div key={i} className="flex flex-col gap-2 p-3">
                   <Skeleton className="h-3 w-32" />
                   <Skeleton className="h-3 w-full" />
                 </div>
               ))}
             </div>
+          ) : auditQuery.isError && !auditQuery.data ? (
+            <div className="p-3">
+              <LoadErrorCallout
+                message={t("impersonationAuditDrawer.loadFailed")}
+                onRetry={() => void auditQuery.refetch()}
+              />
+            </div>
           ) : auditQuery.data?.length === 0 ? (
-            <p className="p-4 text-sm text-foreground/70">
-              {t("impersonationAuditDrawer.empty")}
-            </p>
+            <EmptyState
+              size="compact"
+              icon={IconHistory}
+              title={t("impersonationAuditDrawer.empty")}
+            />
           ) : (
             <div className="flex flex-col divide-y">
               {auditQuery.data?.map((entry) => (

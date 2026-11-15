@@ -40,8 +40,7 @@ export default function ApiKeysSettingsScreen() {
     <SettingsPage
       title={t("settings.apiKeys.heading")}
       isLoading={keys.isLoading}
-      refreshing={keys.isRefetching}
-      onRefresh={() => void keys.refetch()}
+      onRefresh={() => keys.refetch()}
     >
       <AppText size="sm" tone="secondary">
         {t("settings.apiKeys.description")}

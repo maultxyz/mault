@@ -51,14 +51,16 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
         data: { scanId, scannedAt, binNumber } as UnmatchedCard,
       });
     }
-    const storedImage = await storeScanImage(
-      { orgId, collectionGuid: guid, scanId, kind: "unmatched" },
-      capturedImageUrl,
-    );
-    const storedBackImage = await storeScanImage(
-      { orgId, collectionGuid: guid, scanId, kind: "unmatched", side: "back" },
-      capturedBackImageUrl,
-    );
+    const [storedImage, storedBackImage] = await Promise.all([
+      storeScanImage(
+        { orgId, collectionGuid: guid, scanId, kind: "unmatched" },
+        capturedImageUrl,
+      ),
+      storeScanImage(
+        { orgId, collectionGuid: guid, scanId, kind: "unmatched", side: "back" },
+        capturedBackImageUrl,
+      ),
+    ]);
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const collection = await tx.query.collections.findFirst({
@@ -138,7 +140,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
           c.get("userId"),
         );
         void recordDeviceSorted(orgId, deviceGuid);
-        emitToSession(guid, "unmatched_added", result.data);
+        emitToSession(orgId, guid, "unmatched_added", result.data);
       }
       if (!result.success && "binLimitReached" in result) {
         return c.json(result, 409);

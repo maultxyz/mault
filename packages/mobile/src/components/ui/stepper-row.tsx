@@ -29,7 +29,7 @@ export function StepperRow({ value, min, max, bigStep, smallStep, disabled = fal
           borderColor: colors.border,
         }}
       >
-        <AppText size="xs" weight="semibold" style={{ fontVariant: ["tabular-nums"] }}>
+        <AppText size="xs" weight="semibold">
           {valueLabel}
         </AppText>
       </View>

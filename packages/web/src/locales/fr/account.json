@@ -49,6 +49,7 @@
     "empty": "Aucune session active",
     "lastActive": "Dernière activité {{date}}",
     "unknownDevice": "Appareil inconnu",
+    "browserOnOs": "{{browser}} sur {{os}}",
     "noIp": "Emplacement inconnu"
   },
   "discord": {

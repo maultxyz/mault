@@ -130,7 +130,7 @@ export function FeederCardSetupDialog({ open, onOpenChange }: FeederCardSetupDia
     >
       <form
         id={FEEDER_CARD_SETUP_FORM_ID}
-        className="flex flex-col gap-3 text-control sm:flex-row"
+        className="flex flex-col gap-3 md:gap-2 text-control sm:flex-row"
         onSubmit={form.handleSubmit(save)}
       >
         <div className="flex min-w-0 flex-1 flex-col gap-3">
@@ -215,7 +215,7 @@ export function FeederCardSetupDialog({ open, onOpenChange }: FeederCardSetupDia
           </Button>
         </div>
         <div className="flex w-full shrink-0 flex-col items-center gap-1.5 sm:w-44">
-          <div className="flex aspect-[2.5/3.5] w-44 items-center justify-center overflow-hidden rounded-lg bg-muted ring-1 ring-border">
+          <div className="flex aspect-[2.5/3.5] w-44 items-center justify-center overflow-hidden rounded-lg bg-muted">
             {testPreviewUrl && (
               <img
                 src={testPreviewUrl}

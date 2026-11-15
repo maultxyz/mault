@@ -12,7 +12,14 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { OptionSheet } from "@/components/ui/option-sheet";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Skeleton } from "@/components/ui/skeleton";
+import { TabStrip } from "@/components/ui/tab-strip";
+import { CollectionChangeTrend } from "@/features/collections/components/collection-change-trend";
+import { widgetSummaryQueryOptions } from "@/features/widgets/api/widget-summary";
+import { valueChangeOf } from "@magic-vault/shared";
+import { LIBRARY_CHANGE_PILL_MIN_WIDTH, LIBRARY_CHANGE_SPARKLINE, LIBRARY_VALUE_MODES } from "@/lib/constants/library";
+import type { LibraryValueMode } from "@/lib/interfaces/library";
 import { useCollectionActions } from "@/features/collections/api/use-collection-actions";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { orgOverviewQueryOptions } from "@/features/home/api/overview";
@@ -28,7 +35,7 @@ import type { CollectionActionTarget } from "@/lib/interfaces/collections";
 import type { LibraryViewProps } from "@/lib/interfaces/library";
 
 export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const pricing = usePricing();
   const orgId = useActiveOrgId();
   const prefetchCollectionFirstPage = usePrefetchCollectionFirstPage();
@@ -38,6 +45,20 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
   const { collection: scanTarget, collections: allCollections, collectionsQuery } = useScanTarget();
   const isScreenFocused = useIsFocused();
   const overview = useQuery(orgOverviewQueryOptions(orgId, isScreenFocused));
+  const [valueMode, setValueMode] = useState<LibraryValueMode>("value");
+  const widgetSummary = useQuery({
+    ...widgetSummaryQueryOptions(orgId, Object.keys(locks).length > 0),
+    enabled: !!orgId && valueMode === "change",
+  });
+  const trendsByGuid = new Map((widgetSummary.data?.collections ?? []).map((trend) => [trend.guid, trend]));
+  const rowValue = (value: number | undefined) => (value != null ? pricing.format(value) : null);
+  const rowChange = (guid: string) => {
+    const trend = trendsByGuid.get(guid);
+    const change = trend ? valueChangeOf(trend, pricing.format, i18n.language) : null;
+    const values = trend ? [...trend.valueHistory.map((point) => point.totalValue), trend.totalValue] : [];
+    const label = change ? `${change.change}, ${change.percent}` : t("library.noChange");
+    return { change, values, baseline: trend?.previousValue ?? null, label };
+  };
   const scanTargetGuid = scanTarget?.guid;
   const [actionsCollection, setActionsCollection] = useState<CollectionActionTarget | null>(null);
   const collectionActions = useCollectionActions({ includesScanInto: true, shareLinkCountGuid: actionsCollection?.guid });
@@ -65,12 +86,7 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
 
   return (
     <Screen
-      contentStartsWithList={!collectionsQuery.isError && !collectionsQuery.isPending && filtered.length > 0}
-      refreshing={collectionsQuery.isRefetching || overview.isRefetching}
-      onRefresh={() => {
-        void collectionsQuery.refetch();
-        void overview.refetch();
-      }}
+      onRefresh={() => Promise.all([collectionsQuery.refetch(), overview.refetch()])}
       header={
         <PageHeader
           title={title}
@@ -93,10 +109,25 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
               accessibilityLabel={t("home.searchPlaceholder")}
             />
           ) : null}
+          {sorted.length > 0 ? (
+            <TabStrip<LibraryValueMode>
+              inline
+              value={valueMode}
+              onChange={setValueMode}
+              items={LIBRARY_VALUE_MODES.map((mode) => ({ value: mode, label: t(`library.valueModes.${mode}`) }))}
+            />
+          ) : null}
         </PageHeader>
       }
     >
       {collectionsQuery.isError ? <Callout tone="destructive" title={t("collections.loadFailed")} /> : null}
+      {valueMode === "change" && widgetSummary.isError ? (
+        <Callout
+          tone="destructive"
+          title={t("library.changeLoadFailed")}
+          action={<Button label={t("recovery.retry")} onPress={() => void widgetSummary.refetch()} />}
+        />
+      ) : null}
       {collectionActions.empty.isError || collectionActions.remove.isError ? (
         <Callout
           tone="destructive"
@@ -105,11 +136,7 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
       ) : null}
 
       {collectionsQuery.isPending ? (
-        <View style={{ gap: SPACING.sm }}>
-          <Skeleton height={56} />
-          <Skeleton height={56} />
-          <Skeleton height={56} />
-        </View>
+        <ListSkeleton rows={3} />
       ) : sorted.length === 0 ? (
         <EmptyState
           icon="collections"
@@ -124,6 +151,7 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
           {filtered.map((collection) => {
             const value = overviewData?.collectionValues[collection.guid];
             const lock = locks[collection.guid];
+            const change = rowChange(collection.guid);
             const isScanTarget = collection.guid === scanTargetGuid;
             const statusLabel = lock
               ? lock.userId === user?.id
@@ -139,7 +167,22 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
                 name={collection.name}
                 isScanTarget={isScanTarget}
                 isLive={!!lock}
-                value={value != null ? pricing.format(value) : null}
+                value={valueMode === "value" ? rowValue(value) : null}
+                trailing={
+                  valueMode === "change" ? (
+                    widgetSummary.isPending ? (
+                      <Skeleton width={LIBRARY_CHANGE_SPARKLINE.width + LIBRARY_CHANGE_PILL_MIN_WIDTH} height={LIBRARY_CHANGE_SPARKLINE.height} />
+                    ) : (
+                    <CollectionChangeTrend
+                      values={change.values}
+                      baseline={change.baseline}
+                      change={change.change}
+                      noChangeLabel={t("library.noChange")}
+                    />
+                    )
+                  ) : undefined
+                }
+                trailingAccessibilityLabel={widgetSummary.isPending ? undefined : change.label}
                 subtitle={[statusLabel, t("collection.cardsCount", { count: collection.cardCount })]
                   .filter(Boolean)
                   .join(" · ")}

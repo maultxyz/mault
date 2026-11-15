@@ -49,7 +49,7 @@ function OcrRegionTile({ gameKey, name, lang, regions }: OcrRegionTileProps) {
           </Button>
         )}
       </div>
-      <div className="relative mb-3 aspect-[2.5/3.5] w-full rounded-lg border bg-muted">
+      <div className="relative mb-3 aspect-[2.5/3.5] w-full rounded-lg bg-muted">
         {sample.isLoading && (
           <Skeleton className="absolute inset-0 rounded-lg" />
         )}

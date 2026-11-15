@@ -1,10 +1,10 @@
 import { ShareLinkDialog } from "@/components/share-link-dialog";
 import { ShareLinkTriggerButton } from "@/components/share-link-trigger-button";
 import {
-  buildMonitorLinkUrl,
   createMonitorLink,
   revokeMonitorLinks,
 } from "@/features/collections/api/monitor-links";
+import { shareLinkUrl } from "@/features/share-links/lib/share-link-paths";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { ShareMonitorLinkDialogProps } from "@/lib/interfaces/collections";
 import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";
@@ -15,6 +15,8 @@ import { useTranslation } from "react-i18next";
 
 export function ShareMonitorLinkDialog({
   collectionGuid,
+  open,
+  onOpenChange,
 }: ShareMonitorLinkDialogProps) {
   const { t } = useTranslation("collections");
   const isMobile = useIsMobile();
@@ -30,7 +32,7 @@ export function ShareMonitorLinkDialog({
       if (!result.success || !result.data) throw new Error(result.message);
       return {
         guid: result.data.guid,
-        url: buildMonitorLinkUrl(collectionGuid, result.data.token),
+        url: shareLinkUrl(result.data),
         expiresAt: result.data.expiresAt,
       };
     },
@@ -50,7 +52,9 @@ export function ShareMonitorLinkDialog({
       revokedMessage={t("shareMonitorLink.revoked")}
       createLink={createLink}
       revokeLinks={revokeLinks}
-      renderTrigger={(activeLinkCount) => (
+      open={open}
+      onOpenChange={onOpenChange}
+      renderTrigger={open === undefined ? (activeLinkCount) => (
         <ShareLinkTriggerButton
           variant="outline"
           size="icon"
@@ -59,7 +63,7 @@ export function ShareMonitorLinkDialog({
           activeLinkCount={activeLinkCount}
           showsTitle
         />
-      )}
+      ) : undefined}
     />
   );
 }

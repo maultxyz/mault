@@ -19,6 +19,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 HOST = "127.0.0.1"
+LOOPBACK_HOST_NAMES = frozenset({"127.0.0.1", "localhost"})
 PORT = 8765
 SIZES = ((1920, 1080), (1280, 720), (640, 480))
 FRAME_INTERVAL_S = 0.1
@@ -320,10 +321,19 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(body)
 
+    def _host_is_loopback(self) -> bool:
+        host = (self.headers.get("Host") or "").rsplit(":", 1)[0]
+        if host in LOOPBACK_HOST_NAMES:
+            return True
+        self._send(403, b"forbidden", "text/plain")
+        return False
+
     def do_OPTIONS(self) -> None:  # noqa: N802
         self._send(405, b"method not allowed", "text/plain")
 
     def do_GET(self) -> None:  # noqa: N802
+        if not self._host_is_loopback():
+            return
         path = self.path.split("?", 1)[0]
         if path == "/health":
             if not CAMERA.healthy():
@@ -416,6 +426,8 @@ class Handler(BaseHTTPRequestHandler):
             return
 
     def do_POST(self) -> None:  # noqa: N802
+        if not self._host_is_loopback():
+            return
         if self.path.split("?", 1)[0] != "/focus":
             self._send(404, b"not found", "text/plain")
             return

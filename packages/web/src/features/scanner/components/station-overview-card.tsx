@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { CardImage } from "@/components/card-image";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { StationStatusDot } from "@/features/scanner/components/station-status-dot";
@@ -104,10 +105,10 @@ export function StationOverviewCard({
       <div className="flex items-center gap-3 border-t p-3">
         <div className="relative aspect-[2.5/3.5] w-8 shrink-0 overflow-hidden rounded-sm bg-muted">
           {latestImage ? (
-            <img
+            <CardImage
               src={latestImage}
               alt=""
-              className="absolute inset-0 size-full object-cover"
+              className="absolute inset-0"
             />
           ) : (
             <IconCards className="absolute inset-0 m-auto size-3.5 text-foreground/70" />

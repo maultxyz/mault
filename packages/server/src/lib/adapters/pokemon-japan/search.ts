@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import type { PlayingCard } from "@magic-vault/shared";
 import {
   POKEMON_JAPAN_CARDMARKET_GAME_ID,
@@ -75,6 +76,8 @@ export const pokemonJapanAdapter: CardSearchAdapter = {
   defaultUrl: POKEMON_JAPAN_DEFAULT_URL,
   normalizeStored: (raw, id, lang) =>
     normalizePokemonJapanCard(raw as TcgtrackingCatalogEntry, id, lang),
+  releasedAtSql: sql`data->'set'->>'published_on'`,
+  releaseSequenceSql: sql`CASE WHEN jsonb_typeof(data->'product'->'id') = 'number' THEN (data->'product'->>'id')::bigint END`,
   ocrMatchesByPrintedSetAndNumber: true,
   tcgplayer: {
     categoryId: POKEMON_JAPAN_TCGPLAYER_CATEGORY_ID,

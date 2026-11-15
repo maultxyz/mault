@@ -8,7 +8,12 @@ export type ShareLinkKind = (typeof SHARE_LINK_KINDS)[number];
 export interface MonitorLink {
   guid: string;
   token: string;
+  shortCode: string;
   expiresAt: string;
+}
+
+export interface ShortLinkTarget {
+  path: string;
 }
 
 export interface MonitorLinkInfo {
@@ -37,4 +42,5 @@ export interface OrgShareLink {
   createdAt: string;
   expiresAt: string;
   token: string;
+  shortCode: string;
 }

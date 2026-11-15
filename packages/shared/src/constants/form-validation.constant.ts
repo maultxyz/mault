@@ -27,6 +27,7 @@ export const FORM_VALIDATION_MESSAGE_KEYS = [
   "percentAtLeast",
   "percentAtMost",
   "amountRequired",
+  "amountInvalid",
   "percentageRequired",
   "tiersRequired",
   "tooManyTiers",

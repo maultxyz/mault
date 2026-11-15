@@ -123,14 +123,7 @@ export default function SortersPage() {
         }
       >
         {!isLoading && totalCount > 0 && (
-          <>
-            <StatGroup
-              heading={t("stations.overview.stats.heading")}
-              tiles={stats}
-              live={sortingCount > 0}
-              gridClassName="grid-cols-2 sm:grid-cols-5"
-            />
-            <div className="relative">
+          <div className="relative">
               <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
               <Input
                 type="search"
@@ -141,17 +134,24 @@ export default function SortersPage() {
                 onChange={(event) => setSearchQuery(event.target.value)}
                 className="pl-8"
               />
-            </div>
-          </>
+          </div>
         )}
       </PageHeader>
 
       <div
         className={cn(
-          "mx-auto flex w-full max-w-6xl flex-col gap-5 p-4 md:p-6",
+          "mx-auto flex w-full max-w-6xl flex-col gap-5 md:gap-2 p-4 md:px-3 md:py-2",
           selectedKeys.size > 0 && "pb-24 md:pb-24",
         )}
       >
+        {!isLoading && totalCount > 0 && (
+          <StatGroup
+            heading={t("stations.overview.stats.heading")}
+            tiles={stats}
+            live={sortingCount > 0}
+            gridClassName="grid-cols-2 sm:grid-cols-5"
+          />
+        )}
         <StationOverviewGrid
           overview={overview}
           isSearching={!!searchQuery.trim()}

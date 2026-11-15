@@ -2,7 +2,7 @@ import { verifyMonitorLink } from "@/features/collections/api/monitor-links";
 import { useSharedSessionMonitor } from "@/features/scanner/api/use-shared-session-monitor";
 import { WatchCardBrowser } from "@/features/public-cards/components/watch-card-browser";
 import { PriceSourceProvider } from "@/hooks/use-price-source";
-import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
+import { ShareLinkStatusScreen } from "@/features/public-cards/components/share-link-status-screen";
 import {
   SHARE_LINK_TOKEN_PARAM,
   DEFAULT_ORG_PRICING,
@@ -11,7 +11,6 @@ import {
 } from "@magic-vault/shared";
 import { publicQueryClient } from "@/lib/query-client";
 import type { WatchLinkState } from "@/lib/interfaces/collections";
-import { IconLinkOff, IconLoader2 } from "@tabler/icons-react";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -41,7 +40,7 @@ export default function WatchPage() {
         );
       })
       .catch(() => {
-        if (!cancelled) setLink({ status: "invalid" });
+        if (!cancelled) setLink({ status: "failed" });
       });
     return () => {
       cancelled = true;
@@ -69,25 +68,15 @@ export default function WatchPage() {
 
   if (link.status !== "valid") {
     return (
-      <main
-        id={MAIN_CONTENT_ID}
-        tabIndex={-1}
-        className="flex h-dvh flex-col items-center justify-center gap-3 bg-background p-6 text-center outline-none"
-      >
-        {link.status === "checking" ? (
-          <IconLoader2 className="size-6 animate-spin text-foreground/70" />
-        ) : (
-          <>
-            <IconLinkOff className="size-8 text-foreground/70" />
-            <h1 className="text-base font-semibold">
-              {t("watchPage.invalidTitle")}
-            </h1>
-            <p className="max-w-sm text-sm text-foreground/70">
-              {t("watchPage.invalidDescription")}
-            </p>
-          </>
-        )}
-      </main>
+      <ShareLinkStatusScreen
+        status={link.status}
+        invalidTitle={t("watchPage.invalidTitle")}
+        invalidDescription={t("watchPage.invalidDescription")}
+        onRetry={() => {
+          setLink({ status: "checking" });
+          setCheckCount((n) => n + 1);
+        }}
+      />
     );
   }
 

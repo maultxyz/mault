@@ -153,7 +153,6 @@ export function PresetMenu() {
                   <span className="flex-1 truncate">{item.name}</span>
                   <PresetPickerBadge item={item} />
                   <IconCheck
-                    size={14}
                     className={
                       picker.isSelected(item)
                         ? "shrink-0 text-primary"
@@ -169,21 +168,21 @@ export function PresetMenu() {
             disabled={!activeCollection}
             onClick={() => navigate(SORTING_RULES_PATH)}
           >
-            <IconEdit size={14} />
+            <IconEdit />
             {t("presetSelector.editSortingLogic")}
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={!selectedSet || isPresetMutating}
             onClick={() => setOpenDialog("rename")}
           >
-            <IconPencil size={14} />
+            <IconPencil />
             {t("presetSelector.renameSetTitle")}
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={!selectedSet}
             onClick={() => setOpenDialog("history")}
           >
-            <IconClockHour3 size={14} />
+            <IconClockHour3 />
             {t("presetSelector.viewHistory")}
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -192,14 +191,14 @@ export function PresetMenu() {
               navigate(controlCardsPath({ presetGuid: selectedSet?.guid }))
             }
           >
-            <IconQrcode size={14} />
+            <IconQrcode />
             {t("presetSelector.printControlCard")}
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={isPresetMutating}
             onClick={() => setOpenDialog("create")}
           >
-            <IconPlus size={14} />
+            <IconPlus />
             {t("presetSelector.newSetTitle")}
           </DropdownMenuItem>
           {!!selectedSet?.autoAssignField && (
@@ -207,7 +206,7 @@ export function PresetMenu() {
               disabled={isPresetMutating}
               onClick={() => setOpenDialog("resetAutoAssign")}
             >
-              <IconRefresh size={14} />
+              <IconRefresh />
               {t("presetSelector.resetAutoAssign")}
             </DropdownMenuItem>
           )}
@@ -217,7 +216,7 @@ export function PresetMenu() {
             disabled={!selectedSet || isPresetMutating || sets.length <= 1}
             onClick={() => setOpenDialog("delete")}
           >
-            <IconTrash size={14} />
+            <IconTrash />
             {t("presetSelector.deleteSetTitle")}
           </DropdownMenuItem>
         </DropdownMenuContent>

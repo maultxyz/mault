@@ -29,6 +29,7 @@ export interface TradeDraft {
 export interface TradeLinkInfo {
   name: string;
   purpose: ShareLinkPurpose;
+  cashCurrency: string;
 }
 
 export interface TradeCardRowProps {

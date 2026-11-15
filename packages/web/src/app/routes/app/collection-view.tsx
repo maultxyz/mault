@@ -4,11 +4,14 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CardGrid } from "@/features/cards/components/card-grid";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { ViewedCollectionContext } from "@/features/collections/api/use-viewed-collection";
+import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import {
   COLLECTIONS_PATH,
   monitorCollectionPath,
 } from "@/lib/constants/collections";
+import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import { STATS_COLLECTION_PARAM, STATS_PATH } from "@/lib/constants/stats";
+import { cn } from "@/lib/utils";
 import {
   IconAlbum,
   IconArrowLeft,
@@ -38,8 +41,8 @@ export default function CollectionViewPage() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center gap-3 border-b px-4 py-3">
-        <Skeleton className="size-9 rounded-md" />
+      <div className="flex items-center gap-3 border-b px-4 py-2 md:gap-1.5 md:px-3">
+        <Skeleton className="size-10 rounded-lg md:size-7" />
         <div className="flex flex-1 flex-col gap-1.5">
           <Skeleton className="h-3.5 w-40" />
           <Skeleton className="h-3 w-64" />
@@ -54,6 +57,7 @@ export default function CollectionViewPage() {
         className="flex-1"
         icon={IconAlbum}
         title={t("view.notFoundTitle")}
+        titleAs="h1"
         description={t("view.notFoundDescription")}
         action={
           <Button
@@ -67,7 +71,7 @@ export default function CollectionViewPage() {
 
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
-      <div className="flex items-center gap-3 border-b px-4 py-2">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2 border-b px-4 py-2 md:gap-x-1.5 md:px-3">
         <Button
           variant="ghost"
           size="icon"
@@ -78,8 +82,8 @@ export default function CollectionViewPage() {
             </Link>
           }
         />
-        <div className="min-w-0 flex-1">
-          <h1 className="truncate text-sm font-medium">{collection.name}</h1>
+        <div className="min-w-0 flex-1 basis-40">
+          <h1 className={cn(PAGE_TITLE_CLASS, "truncate")}>{collection.name}</h1>
           <p className="text-xs text-foreground/70">{t("view.subtitle")}</p>
         </div>
         <Button
@@ -93,6 +97,7 @@ export default function CollectionViewPage() {
             </Link>
           }
         />
+        <ShareMonitorLinkDialog collectionGuid={collection.guid} />
         <Button
           variant="outline"
           render={

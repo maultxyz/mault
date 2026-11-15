@@ -1,5 +1,5 @@
 import { useId, useState } from "react";
-import { View } from "react-native";
+import { Pressable, View } from "react-native";
 import Svg, { Defs, LinearGradient, Path, Rect, Stop } from "react-native-svg";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
@@ -10,11 +10,11 @@ import {
   HOME_HERO_SPARKLINE,
   HOME_HERO_SECONDARY_TEXT_COLOR,
 } from "@/lib/constants/home";
-import { sparklinePaths } from "@/features/home/lib/sparkline";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { sparklinePaths } from "@magic-vault/shared";
+import { RADIUS, SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import type { HomeHeroProps } from "@/lib/interfaces/home";
 
-export function HomeHero({ label, value, change, changeCaption, stats, sparklineValues }: HomeHeroProps) {
+export function HomeHero({ label, value, change, changeCaption, stats, sparklineValues, onPress, accessibilityHint }: HomeHeroProps) {
   const gradientId = useId();
   const sparklineFillId = useId();
   const colors = useTheme();
@@ -28,6 +28,9 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
   );
   const changeIcon = change?.direction === "up" ? "arrowUp" : change?.direction === "down" ? "arrowDown" : null;
   const changeText = change ? `${change.change} · ${change.percent}` : null;
+  const changeBackground =
+    change?.direction === "up" ? colors.successStrong : change?.direction === "down" ? colors.destructiveStrong : undefined;
+  const changeTextColor = changeBackground ? colors.onStatusStrong : heroTextColor;
   const accessibilityLabel = [
     `${label}: ${value}`,
     changeText ? `${changeText} ${changeCaption}` : null,
@@ -37,14 +40,26 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
     .join(", ");
 
   return (
-    <View
+    <Pressable
       accessible
+      accessibilityRole={onPress ? "button" : undefined}
       accessibilityLabel={accessibilityLabel}
+      accessibilityHint={accessibilityHint}
+      disabled={!onPress}
+      onPress={onPress}
       onLayout={(event) => {
         const { width, height } = event.nativeEvent.layout;
         if (width !== size.width || height !== size.height) setSize({ width, height });
       }}
-      style={{ borderRadius: RADIUS.xl, overflow: "hidden", padding: SPACING.xl, gap: SPACING.lg, backgroundColor: colors.primary }}
+      style={({ pressed }) => ({
+        borderRadius: SURFACE_RADIUS,
+        borderCurve: "continuous",
+        overflow: "hidden",
+        padding: SPACING.lg,
+        gap: SPACING.md,
+        backgroundColor: colors.primary,
+        transform: [{ scale: pressed ? 0.99 : 1 }],
+      })}
     >
       <Svg
         pointerEvents="none"
@@ -84,12 +99,12 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
           {label}
         </AppText>
         <AppText
-          size="display"
+          size="3xl"
           heading
           weight="bold"
           numberOfLines={1}
           adjustsFontSizeToFit
-          style={{ color: heroTextColor, fontVariant: ["tabular-nums"] }}
+          style={{ color: heroTextColor, fontVariant: ["proportional-nums"] }}
         >
           {value}
         </AppText>
@@ -106,10 +121,22 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
               backgroundColor: HOME_HERO_CHIP_BACKGROUND,
             }}
           >
-            {changeIcon ? <Icon name={changeIcon} size={14} color={heroTextColor} /> : null}
-            <AppText size="xs" weight="semibold" style={{ color: heroTextColor, fontVariant: ["tabular-nums"] }}>
-              {changeText}
-            </AppText>
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                gap: SPACING.xs,
+                paddingHorizontal: changeBackground ? SPACING.sm : 0,
+                paddingVertical: changeBackground ? 2 : 0,
+                borderRadius: RADIUS.full,
+                backgroundColor: changeBackground,
+              }}
+            >
+              {changeIcon ? <Icon name={changeIcon} size={14} color={changeTextColor} /> : null}
+              <AppText size="xs" weight="semibold" style={{ color: changeTextColor }}>
+                {changeText}
+              </AppText>
+            </View>
             <AppText size="xs" style={{ color: HOME_HERO_SECONDARY_TEXT_COLOR }}>
               {changeCaption}
             </AppText>
@@ -136,7 +163,7 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
               weight="bold"
               numberOfLines={1}
               adjustsFontSizeToFit
-              style={{ color: heroTextColor, fontVariant: ["tabular-nums"] }}
+              style={{ color: heroTextColor }}
             >
               {stat.value}
             </AppText>
@@ -146,6 +173,6 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
           </View>
         ))}
       </View>
-    </View>
+    </Pressable>
   );
 }

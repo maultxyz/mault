@@ -30,6 +30,8 @@ export const channelInputSchema = z
     errorChannelId: optionalSnowflakeSchema,
     scanRoleId: optionalSnowflakeSchema,
     errorRoleId: optionalSnowflakeSchema,
+    tradeChannelId: optionalSnowflakeSchema,
+    tradeRoleId: optionalSnowflakeSchema,
     collectionGuid: z.string().uuid().optional(),
   })
   .refine(
@@ -37,12 +39,17 @@ export const channelInputSchema = z
       input.scanChannelId !== undefined ||
       input.errorChannelId !== undefined ||
       input.scanRoleId !== undefined ||
-      input.errorRoleId !== undefined,
+      input.errorRoleId !== undefined ||
+      input.tradeChannelId !== undefined ||
+      input.tradeRoleId !== undefined,
   )
   .refine(
     (input) =>
       !input.collectionGuid ||
-      (input.scanRoleId === undefined && input.errorRoleId === undefined),
+      (input.scanRoleId === undefined &&
+        input.errorRoleId === undefined &&
+        input.tradeChannelId === undefined &&
+        input.tradeRoleId === undefined),
   );
 
 export function channelUpdate(
@@ -63,6 +70,12 @@ export function channelUpdate(
     }),
     ...(input.errorRoleId !== undefined && {
       discordErrorRoleId: input.errorRoleId,
+    }),
+    ...(input.tradeChannelId !== undefined && {
+      discordTradeChannelId: input.tradeChannelId,
+    }),
+    ...(input.tradeRoleId !== undefined && {
+      discordTradeRoleId: input.tradeRoleId,
     }),
     updatedAt,
   };

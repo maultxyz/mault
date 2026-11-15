@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 
 export function MobilePageHeader({
   title,
+  titleVisuallyHidden = false,
   subtitle,
   subtitleLeading,
   backTo,
@@ -42,25 +43,29 @@ export function MobilePageHeader({
           {actionGroup}
         </div>
       )}
-      <div className="flex min-h-10 items-center gap-3">
-        <div className="min-w-0 flex-1">
-          <h1
-            className={cn(
-              MOBILE_PAGE_TITLE_CLASS,
-              "line-clamp-2",
+      {titleVisuallyHidden ? (
+        <h1 className="sr-only">{title}</h1>
+      ) : (
+        <div className="flex min-h-10 items-center gap-3">
+          <div className="min-w-0 flex-1">
+            <h1
+              className={cn(
+                MOBILE_PAGE_TITLE_CLASS,
+                "line-clamp-2",
+              )}
+            >
+              {title}
+            </h1>
+            {subtitle && (
+              <div className="mt-0.5 flex items-center gap-1.5">
+                {subtitleLeading}
+                <p className="truncate text-xs text-foreground/70">{subtitle}</p>
+              </div>
             )}
-          >
-            {title}
-          </h1>
-          {subtitle && (
-            <div className="mt-0.5 flex items-center gap-1.5">
-              {subtitleLeading}
-              <p className="truncate text-xs text-foreground/70">{subtitle}</p>
-            </div>
-          )}
+          </div>
+          {!hasBack && actionGroup}
         </div>
-        {!hasBack && actionGroup}
-      </div>
+      )}
       {children && (
         <div
           aria-hidden={collapsed || undefined}

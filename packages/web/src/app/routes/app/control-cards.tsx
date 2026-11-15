@@ -1,4 +1,5 @@
 import { Callout } from "@/components/callout";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { ControlCardBuilder } from "@/features/control-cards/components/control-card-builder";
 import { ControlCardSheet } from "@/features/control-cards/components/control-card-sheet";
@@ -9,15 +10,10 @@ import {
 import type { ControlCardSheetEntry } from "@/lib/interfaces/control-cards";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
-import {
-  IconArrowLeft,
-  IconInfoCircle,
-  IconPrinter,
-} from "@tabler/icons-react";
+import { IconInfoCircle, IconPrinter } from "@tabler/icons-react";
 import { useState } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 
 export default function ControlCardsPage() {
   const { t } = useTranslation("scanner");
@@ -33,25 +29,12 @@ export default function ControlCardsPage() {
       )}
     >
       <style>{CONTROL_CARD_PRINT_PAGE_STYLE}</style>
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex flex-col gap-1">
-            <Button
-              variant="ghost"
-              className="-ml-2 self-start"
-              nativeButton={false}
-              render={<Link to={CONTROL_CARDS_BACK_PATH} />}
-            >
-              <IconArrowLeft />
-              {t("controlCards.page.back")}
-            </Button>
-            <h1 className="font-heading text-2xl font-semibold">
-              {t("controlCards.page.title")}
-            </h1>
-            <p className="text-sm text-foreground/70">
-              {t("controlCards.page.description")}
-            </p>
-          </div>
+      <PageHeader
+        title={t("controlCards.page.title")}
+        description={t("controlCards.page.description")}
+        backTo={CONTROL_CARDS_BACK_PATH}
+        backLabel={t("controlCards.page.back")}
+        actions={
           <Button
             disabled={entries.length === 0}
             onClick={() => window.print()}
@@ -59,7 +42,9 @@ export default function ControlCardsPage() {
             <IconPrinter />
             {t("controlCards.page.print")}
           </Button>
-        </div>
+        }
+      />
+      <div className="mx-auto flex w-full max-w-4xl flex-col gap-6 md:gap-2 p-4 md:px-3 md:py-2">
         <Callout icon={IconInfoCircle}>
           {t("controlCards.page.printTip")}
         </Callout>

@@ -206,7 +206,8 @@
     "active": "Active",
     "entryLabel": "{{admin}} → {{target}}",
     "startedAndEnded": "{{started}} – {{ended}}",
-    "startedOnly": "Démarré {{started}}"
+    "startedOnly": "Démarré {{started}}",
+    "loadFailed": "Impossible de charger le journal d'usurpation d'identité."
   },
   "metricsStats": {
     "heading": "Statistiques de scan",
@@ -219,7 +220,8 @@
     "averageMatchPercentLabel": "Confiance moy.",
     "correctedLabel": "Corrigés",
     "multipleMatchesLabel": "Correspondances multiples",
-    "percentValue": "{{percent}}%"
+    "percentValue": "{{percent}}%",
+    "loadFailed": "Impossible de charger certaines statistiques de scan."
   },
   "activeScanning": {
     "heading": "Scan en cours",
@@ -240,7 +242,8 @@
     "scans_other": "{{count}} scans",
     "collectionWithGame": "{{collection}} · {{game}}",
     "unknownCollection": "Collection inconnue",
-    "timing": "Démarrée à {{started}}, dernière activité à {{lastActivity}}"
+    "timing": "Démarrée à {{started}}, dernière activité à {{lastActivity}}",
+    "loadFailed": "Impossible de charger les sessions de scan actives."
   },
   "scanVectorizeStats": {
     "heading": "Source de vectorisation des scans",
@@ -359,7 +362,8 @@
         "confirmTitle": "Revenir aux anciens tarifs ?",
         "confirmDescription": "Passionné et la nouvelle offre Business ne sont plus vendues, et le paiement Business repasse aux anciens prix. Les personnes déjà abonnées à une nouvelle offre la conservent."
       }
-    }
+    },
+    "loadFailed": "Impossible de charger les paramètres des forfaits."
   },
   "deletedItems": {
     "typeLabel": "Type d'élément",
@@ -467,7 +471,8 @@
       "role": "Rôle",
       "saved": "Rôle des comptes liés enregistré.",
       "saveFailed": "Impossible d'enregistrer le rôle des comptes liés."
-    }
+    },
+    "loadFailed": "Impossible de charger les paramètres Discord."
   },
   "errorReportingTest": {
     "heading": "Tester PostHog",
@@ -483,7 +488,8 @@
   "systemSoundClips": {
     "heading": "Clips sonores système",
     "description": "Des clips que chaque organisation peut utiliser dans ses règles sonores. Les organisations peuvent les écouter, mais pas les renommer ni les supprimer.",
-    "empty": "Aucun clip sonore système pour le moment."
+    "empty": "Aucun clip sonore système pour le moment.",
+    "loadFailed": "Impossible de charger les sons système."
   },
   "apiUsage": {
     "heading": "Utilisation de l'API",

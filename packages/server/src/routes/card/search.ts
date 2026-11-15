@@ -3,7 +3,14 @@ import {
   resolveCardSearchForGame,
   resolveManualCardSearch,
 } from "../../lib/card-search/resolve";
-import { searchCards } from "../../lib/card-search/stored-cards";
+import {
+  CATALOG_SEARCH_GROUP_BY_NAME,
+  CATALOG_SEARCH_GROUP_BY_PARAM,
+} from "@magic-vault/shared";
+import {
+  searchCards,
+  searchCatalogCardsGroupedByName,
+} from "../../lib/card-search/stored-cards";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const searchCardRoute = new Hono<AppEnv>().get(
@@ -29,12 +36,14 @@ export const searchCardRoute = new Hono<AppEnv>().get(
       );
     }
     const offset = Number.parseInt(c.req.query("offset") ?? "0", 10);
-    const result = await searchCards(
-      resolved,
-      query,
-      Number.isFinite(offset) && offset > 0 ? offset : 0,
-      c.req.query("set") || undefined,
-    );
+    const validOffset = Number.isFinite(offset) && offset > 0 ? offset : 0;
+    const setCode = c.req.query("set") || undefined;
+    if (c.req.query(CATALOG_SEARCH_GROUP_BY_PARAM) === CATALOG_SEARCH_GROUP_BY_NAME) {
+      return c.json(
+        await searchCatalogCardsGroupedByName(resolved, query, validOffset, setCode),
+      );
+    }
+    const result = await searchCards(resolved, query, validOffset, setCode);
     return c.json(result);
   },
 );

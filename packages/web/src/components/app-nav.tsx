@@ -23,45 +23,56 @@ import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useRole } from "@/hooks/use-role";
 import { DISCORD_URL, REPO_URL, SHOP_URL } from "@/lib/constants/links";
 import {
+  HOME_PATH,
   NAV_SUBITEMS_LIMIT,
   SIDEBAR_EXPANDED_ITEM_CLASS,
   SIDEBAR_IDLE_ITEM_CLASS,
+  SIDEBAR_TOGGLE_ARIA_KEYSHORTCUTS,
 } from "@/lib/constants/nav";
-import { sidebarItemClassName } from "@/lib/sidebar-item";
-import { SIDEBAR_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
-import type { NavItemDef, NavSubItemDef } from "@/lib/interfaces/nav";
+import { sidebarItemClassName, useSidebarExpanded } from "@/lib/sidebar-item";
+import type {
+  NavItemDef,
+  NavItemWithSubItemsProps,
+  NavSubItemProps,
+} from "@/lib/interfaces/nav";
 import { STORAGE_PATH } from "@/lib/constants/storage";
+import { TRADES_PATH } from "@/lib/constants/trade-offers";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { ORDERS_PATH } from "@/lib/constants/business";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
   IconAlbum,
   IconArrowsSplit2,
-  IconBox,
   IconChartBar,
   IconBrandDiscord,
   IconBrandGithub,
   IconCameraSpark,
   IconCash,
   IconDatabaseCog,
+  IconHome,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
+  IconSettings,
   IconShoppingCart,
   IconStarFilled,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useId, useState } from "react";
+import { useCallback, useId } from "react";
 import { useTranslation } from "react-i18next";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { PlanLockTag } from "@/components/plan-lock-tag";
+import { HotkeyHint } from "@/components/hotkey-hint";
 import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
+import { SEARCH_PATH } from "@/lib/constants/search";
 
 function CollapsedNavItem({
   icon,
   label,
+  activePaths,
   to,
   end,
   badge,
@@ -70,6 +81,8 @@ function CollapsedNavItem({
   lockTag,
   external,
 }: NavItemDef) {
+  const { pathname } = useLocation();
+  const isAlsoActive = !!activePaths?.some((path) => pathname.startsWith(path));
   const { t } = useTranslation("common");
   const descriptionId = useId();
   const accessibleLabel = [label, lockTag, badge && t("a11y.liveSession")]
@@ -106,7 +119,7 @@ function CollapsedNavItem({
               to={to}
               end={end}
               className={({ isActive }) =>
-                sidebarItemClassName({ isActive, size: "icon-lg" })
+                sidebarItemClassName({ isActive: isActive || isAlsoActive, size: "icon-lg" })
               }
             />
           )
@@ -141,12 +154,15 @@ function CollapsedNavItem({
 }
 
 function CollapsedNavItemWithSubItems({
+  activePaths,
   to,
   end,
   icon,
   label,
   subItems,
-}: NavItemDef & { subItems: NavSubItemDef[] }) {
+}: NavItemWithSubItemsProps) {
+  const { pathname } = useLocation();
+  const isAlsoActive = !!activePaths?.some((path) => pathname.startsWith(path));
   const { t } = useTranslation("collections");
   const { t: tCommon } = useTranslation("common");
   const navigate = useNavigate();
@@ -163,7 +179,7 @@ function CollapsedNavItemWithSubItems({
             to={to}
             end={end}
             className={({ isActive }) =>
-              sidebarItemClassName({ isActive, size: "icon-lg" })
+              sidebarItemClassName({ isActive: isActive || isAlsoActive, size: "icon-lg" })
             }
           />
         }
@@ -208,6 +224,7 @@ function CollapsedNavItemWithSubItems({
 }
 
 function ExpandedNavItem({
+  activePaths,
   to,
   icon,
   label,
@@ -218,6 +235,8 @@ function ExpandedNavItem({
   lockTag,
   external,
 }: NavItemDef) {
+  const { pathname } = useLocation();
+  const isAlsoActive = !!activePaths?.some((path) => pathname.startsWith(path));
   const { t } = useTranslation("common");
   const descriptionId = useId();
   const inner = (
@@ -286,7 +305,7 @@ function ExpandedNavItem({
       to={to}
       end={end}
       className={({ isActive }) =>
-        cn(sidebarItemClassName({ isActive }), SIDEBAR_EXPANDED_ITEM_CLASS)
+        cn(sidebarItemClassName({ isActive: isActive || isAlsoActive }), SIDEBAR_EXPANDED_ITEM_CLASS)
       }
     >
       {inner}
@@ -299,12 +318,7 @@ function SubItem({
   label,
   badge,
   onClick,
-}: {
-  to: string;
-  label: string;
-  badge?: boolean;
-  onClick?: () => void;
-}) {
+}: NavSubItemProps) {
   const { t } = useTranslation("common");
   return (
     <NavLink
@@ -354,19 +368,17 @@ export function AppNav() {
   const { collections, activeCollection } = useCollections();
   const { locks, currentUserId } = useCollectionLocks();
 
-  const [expanded, setExpanded] = useState(
-    () => localStorage.getItem(SIDEBAR_EXPANDED_STORAGE_KEY) === "true",
-  );
+  const [expanded, setExpanded] = useSidebarExpanded();
 
   const toggle = useCallback(() => {
-    setExpanded((prev) => {
-      const next = !prev;
-      localStorage.setItem(SIDEBAR_EXPANDED_STORAGE_KEY, String(next));
-      return next;
-    });
-  }, []);
+    setExpanded(!expanded);
+  }, [expanded, setExpanded]);
 
   useHotkeys({ toggleSidebar: toggle });
+
+  const sidebarToggleLabel = expanded
+    ? t("nav.collapseSidebar")
+    : t("nav.expandSidebar");
 
   const liveCounts = useLiveSessionCounts();
 
@@ -386,6 +398,12 @@ export function AppNav() {
 
   const navItems: NavItemDef[] = [
     {
+      to: HOME_PATH,
+      activePaths: [SEARCH_PATH],
+      icon: <IconHome size={16} />,
+      label: t("nav.home"),
+    },
+    {
       to: "/app",
       icon: <IconCameraSpark size={16} />,
       label: t("nav.scanner"),
@@ -393,8 +411,9 @@ export function AppNav() {
     },
     {
       to: COLLECTIONS_PATH,
+      activePaths: [STORAGE_PATH, TRADES_PATH],
       icon: <IconAlbum size={16} />,
-      label: t("nav.collections"),
+      label: t("nav.library"),
       badge: hasLiveSessions,
       subItems: monitorCollections.map((c) => ({
         key: c.guid,
@@ -418,12 +437,6 @@ export function AppNav() {
       label: t("nav.stats"),
     },
     {
-      to: STORAGE_PATH,
-      icon: <IconBox size={16} />,
-      label: t("nav.storage"),
-      ...planGated(STORAGE_PATH),
-    },
-    {
       to: ORDERS_PATH,
       icon: <IconCash size={16} />,
       label: t("nav.intake"),
@@ -435,6 +448,11 @@ export function AppNav() {
       to: "/app/calibrate",
       icon: <IconAdjustments size={16} />,
       label: t("nav.calibrate"),
+    },
+    {
+      to: SETTINGS_PATHS.root,
+      icon: <IconSettings size={16} />,
+      label: t("nav.settings"),
     },
     ...(isStaff
       ? [
@@ -563,26 +581,39 @@ export function AppNav() {
           <span className="truncate">{t("nav.discord")}</span>
         )}
       </a>
-      <Button
-        onClick={toggle}
-        className={cn(
-          SIDEBAR_IDLE_ITEM_CLASS,
-          expanded && "mx-2 justify-start gap-2.5 px-2.5 border-0",
-        )}
-        size={expanded ? "default" : "icon-lg"}
-        variant="ghost"
-        aria-expanded={expanded}
-        title={expanded ? t("nav.collapseSidebar") : t("nav.expandSidebar")}
-      >
-        {expanded ? (
-          <>
-            <IconLayoutSidebarLeftCollapse size={16} />
-            {t("nav.collapse")}
-          </>
-        ) : (
-          <IconLayoutSidebarLeftExpand size={16} />
-        )}
-      </Button>
+      <Tooltip>
+        <TooltipTrigger
+          render={
+            <Button
+              onClick={toggle}
+              className={cn(
+                SIDEBAR_IDLE_ITEM_CLASS,
+                expanded && "mx-2 justify-start gap-2.5 px-2.5 border-0",
+              )}
+              size={expanded ? "default" : "icon-lg"}
+              variant="ghost"
+              aria-expanded={expanded}
+              aria-keyshortcuts={SIDEBAR_TOGGLE_ARIA_KEYSHORTCUTS}
+              aria-label={sidebarToggleLabel}
+            />
+          }
+        >
+          {expanded ? (
+            <>
+              <IconLayoutSidebarLeftCollapse size={16} />
+              {t("nav.collapse")}
+            </>
+          ) : (
+            <IconLayoutSidebarLeftExpand size={16} />
+          )}
+        </TooltipTrigger>
+        <TooltipContent side="right">
+          <span className="flex items-center gap-1.5">
+            {sidebarToggleLabel}
+            <HotkeyHint id="toggleSidebar" />
+          </span>
+        </TooltipContent>
+      </Tooltip>
     </aside>
   );
 }

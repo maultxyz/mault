@@ -68,6 +68,7 @@ export function subscribeSession(
     session = { orgId, viewers: new Set() };
     sessions.set(guid, session);
   }
+  if (session.orgId !== orgId) return () => {};
   const entry: ViewerEntry = { userId, displayName, writer };
   session.viewers.add(entry);
   broadcastViewers(guid, session);
@@ -85,12 +86,13 @@ export function subscribeSession(
 }
 
 export function emitToSession(
+  orgId: string,
   guid: string,
   event: string,
   data: unknown,
 ): void {
   const session = sessions.get(guid);
-  if (!session) return;
+  if (!session || session.orgId !== orgId) return;
   for (const entry of session.viewers) {
     try {
       entry.writer(event, data);

@@ -11,7 +11,7 @@ export function ScanRemovalPanel() {
   const { setRemoveModeEnabled } = useScanRemoval();
 
   return (
-    <div className="flex flex-col gap-4 p-4">
+    <div className="flex flex-col gap-4 md:gap-2 p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h2 className="font-heading text-lg font-bold">

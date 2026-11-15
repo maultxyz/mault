@@ -8,6 +8,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type {
+  RenameSetInput,
   AlphabetConfig,
   BinConfigSaveInput,
   BinConfigsContextValue,
@@ -265,6 +266,7 @@ export function BinConfigsProvider({
         lowMatchPercent,
         maxCopies,
         maxCopiesBy,
+        maxCards,
         overflowBin,
         isDisabled,
         pickList,
@@ -300,6 +302,12 @@ export function BinConfigsProvider({
             maxCopies: isCatchAll ? null : (maxCopies ?? null),
             maxCopiesBy:
               isCatchAll || maxCopies == null ? null : (maxCopiesBy ?? null),
+            maxCards:
+              maxCards === undefined
+                ? idx >= 0
+                  ? (set.bins[idx].maxCards ?? null)
+                  : null
+                : maxCards,
             overflowBin:
               overflowBin === undefined
                 ? idx >= 0
@@ -397,8 +405,8 @@ export function BinConfigsProvider({
   });
 
   const renameSetMutation = useMutation({
-    mutationFn: ({ guid, name }: { guid: string; name: string }) =>
-      renameSetAction(guid, name),
+    mutationFn: ({ guid, name, description }: RenameSetInput) =>
+      renameSetAction(guid, name, description),
     ...presetsMutationHandlers("useBinConfigs.toasts.renameSetFailed"),
   });
 
@@ -637,8 +645,8 @@ export function BinConfigsProvider({
   );
 
   const renameSetFn = useCallback(
-    async (guid: string, name: string) => {
-      await renameSetMutation.mutateAsync({ guid, name });
+    async (guid: string, name: string, description: string) => {
+      await renameSetMutation.mutateAsync({ guid, name, description });
     },
     [renameSetMutation],
   );

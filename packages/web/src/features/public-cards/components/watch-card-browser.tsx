@@ -1,13 +1,12 @@
 import { Badge } from "@/components/ui/badge";
 import { publicCardsInfoQueryOptions } from "@/features/public-cards/api/public-cards";
 import { useLivePublicCards } from "@/features/public-cards/api/use-live-public-cards";
+import { PublicCardsLoadingScreen } from "@/features/public-cards/components/public-cards-loading-screen";
 import { PublicCardBrowser } from "@/features/public-cards/components/public-card-browser";
 import { WatchLiveSidebar } from "@/features/public-cards/components/watch-live-sidebar";
-import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { PUBLIC_CARDS_SOURCE_PATHS } from "@/lib/constants/public-cards";
 import { TRADE_OFFER_LINK_PATHS } from "@/lib/constants/trade-offers";
 import type { WatchCardBrowserProps } from "@/lib/interfaces/public-cards";
-import { IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -28,20 +27,7 @@ export function WatchCardBrowser({
   const { data: info } = useQuery(publicCardsInfoQueryOptions(source));
   const live = useLivePublicCards(source, token, collectionGuid, session.cardsVersion);
 
-  if (!info) {
-    return (
-      <main
-        id={MAIN_CONTENT_ID}
-        tabIndex={-1}
-        className="flex h-dvh items-center justify-center bg-background outline-none"
-      >
-        <IconLoader2
-          className="size-6 animate-spin text-foreground/70"
-          aria-label={tCards("publicBrowse.loading")}
-        />
-      </main>
-    );
-  }
+  if (!info) return <PublicCardsLoadingScreen />;
 
   return (
     <PublicCardBrowser

@@ -26,11 +26,21 @@ async function getNotifyConfig(
       discordErrorThreadId: orgSettings.discordErrorThreadId,
       discordScanRoleId: orgSettings.discordScanRoleId,
       discordErrorRoleId: orgSettings.discordErrorRoleId,
+      discordTradeChannelId: orgSettings.discordTradeChannelId,
+      discordTradeRoleId: orgSettings.discordTradeRoleId,
     })
     .from(orgSettings)
     .where(eq(orgSettings.orgId, orgId))
     .limit(1);
   const row = rows[0];
+  if (kind === "trade") {
+    return {
+      channelId: row?.discordTradeChannelId ?? null,
+      threadId: null,
+      pingRoleId: row?.discordTradeRoleId ?? null,
+      source: "org",
+    };
+  }
   const pingRoleId =
     (kind === "scan" ? row?.discordScanRoleId : row?.discordErrorRoleId) ??
     null;
@@ -139,7 +149,7 @@ export async function sendDiscordNotification(
   if (!config.channelId) return "no_channel";
   const pingRoleIds = config.pingRoleId ? [config.pingRoleId] : [];
 
-  if (kind === "error" || !(await scanThreadsEnabled(orgId))) {
+  if (kind !== "scan" || !(await scanThreadsEnabled(orgId))) {
     const { ok } = await postEmbedToBot({
       channelId: config.channelId,
       embed,

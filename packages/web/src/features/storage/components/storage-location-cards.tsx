@@ -186,8 +186,8 @@ export function StorageLocationCards({
     isPending || (isPlaceholderData && data?.page !== requestedPage);
 
   return (
-    <div ref={topRef} className="flex scroll-mt-20 flex-col gap-4">
-      <div className="sticky top-[var(--storage-toolbar-top,0px)] z-50 -mx-4 border-b bg-background/80 px-4 py-2 backdrop-blur-2xl">
+    <div ref={topRef} className="flex scroll-mt-20 flex-col gap-4 md:gap-2">
+      <div className="sticky top-[var(--storage-toolbar-top,0px)] z-50 -mx-4 border-b bg-background/80 px-4 py-2 backdrop-blur-2xl md:-mx-3 md:px-3">
         <StorageCardQueryToolbar
           cardQuery={cardQuery}
           allSelected={allSelected}
