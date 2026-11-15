@@ -1,6 +1,9 @@
 import type { PlayingCard } from "../interfaces/card.interface";
 import { conditionLabel, csvEscape, exportEntryKey, finishLabel } from "./base";
-import { TCGPLAYER_PRODUCT_LINES } from "../constants/card-export.constant";
+import {
+  TCGPLAYER_NON_FOIL_PRINTING_WORD_PATTERN,
+  TCGPLAYER_PRODUCT_LINES,
+} from "../constants/card-export.constant";
 import { cardPriceFor } from "../price-source";
 import type {
   ExportAdapter,
@@ -35,11 +38,20 @@ export function productLine(ctx: ExportContext): string {
   return TCGPLAYER_PRODUCT_LINES[ctx.gameKey] ?? ctx.gameName ?? "";
 }
 
+function tcgplayerPrintingName(variant: string): string {
+  return variant.replace(TCGPLAYER_NON_FOIL_PRINTING_WORD_PATTERN, "").trim();
+}
+
 function tcgplayerCondition(entry: GroupedEntry, ctx: ExportContext): string {
   const skuMatch = skuMatchFor(entry, ctx);
-  const isFoil = skuMatch?.skuId ? skuMatch.isFoilVariant : entry.isFoil;
   const label = conditionLabel(entry.condition);
-  return isFoil ? `${label} ${finishLabel(true, ctx.isMtg ? null : entry.foilType)}` : label;
+  if (skuMatch?.skuId && skuMatch.variant) {
+    const printingName = tcgplayerPrintingName(skuMatch.variant);
+    return printingName ? `${label} ${printingName}` : label;
+  }
+  return entry.isFoil
+    ? `${label} ${finishLabel(true, ctx.isMtg ? null : entry.foilType)}`
+    : label;
 }
 
 export function marketPrice({ card, isFoil, foilType }: GroupedEntry): string {
