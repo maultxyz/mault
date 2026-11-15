@@ -6,6 +6,11 @@ import { useBusinessAccess } from "@/features/business/api/use-business";
 import { BusinessUpgradeCallout } from "@/features/business/components/business-upgrade-callout";
 import { OrderDetail } from "@/features/business/components/order-detail";
 import { OrderList } from "@/features/business/components/order-list";
+import { OrderSelectionBar } from "@/features/business/components/order-selection-bar";
+import { useHotkeys } from "@/hooks/use-hotkeys";
+import type { FulfilmentOrder } from "@magic-vault/shared";
+import { useRef, useState } from "react";
+import type { SelectToggleOptions } from "@/lib/interfaces/cards";
 import { ORDER_PARAM, PICK_IMPORT_PATH } from "@/lib/constants/business";
 import {
   MOBILE_CIRCLE_BUTTON_CLASS,
@@ -37,9 +42,47 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
   const selectedGuid = isMobile
     ? (selectedParam ?? undefined)
     : (selectedParam ?? orders[0]?.guid);
+  const [checkedOrders, setCheckedOrders] = useState<ReadonlyMap<string, FulfilmentOrder>>(
+    new Map(),
+  );
+  const clearCheckedOrders = () => setCheckedOrders(new Map());
+  useHotkeys({ clearSelection: checkedOrders.size > 0 ? clearCheckedOrders : undefined });
+  const checkAnchorGuidRef = useRef<string | null>(null);
+  const toggleOrderChecked = (orderGuid: string, { shiftKey }: SelectToggleOptions) => {
+    const index = orders.findIndex((candidate) => candidate.guid === orderGuid);
+    if (index === -1) return;
+    const anchorIndex = orders.findIndex(
+      (candidate) => candidate.guid === checkAnchorGuidRef.current,
+    );
+    checkAnchorGuidRef.current = orderGuid;
+    const rangeOrders =
+      shiftKey && anchorIndex !== -1 && anchorIndex !== index
+        ? orders.slice(Math.min(anchorIndex, index), Math.max(anchorIndex, index) + 1)
+        : [orders[index]];
+    setCheckedOrders((previous) => {
+      const shouldCheck = !previous.has(orderGuid);
+      const next = new Map(previous);
+      for (const order of rangeOrders) {
+        if (shouldCheck) next.set(order.guid, order);
+        else next.delete(order.guid);
+      }
+      return next;
+    });
+  };
+  const checkedOrderGuids = new Set(checkedOrders.keys());
 
   const select = (guid: string | null) =>
     setSearchParams(guid ? { [ORDER_PARAM]: guid } : {}, { replace: true });
+
+  const selectionBar = (
+    <OrderSelectionBar
+      checkedOrders={[...checkedOrders.values()]}
+      onClear={clearCheckedOrders}
+      onOrdersDeleted={(orderGuids) => {
+        if (selectedParam && orderGuids.includes(selectedParam)) select(null);
+      }}
+    />
+  );
 
   if (isMobile) {
     if (selectedGuid) {
@@ -99,7 +142,10 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
               selectedGuid={selectedGuid}
               isLoading={isLoading}
               onSelect={select}
+              checkedOrderGuids={checkedOrderGuids}
+              onToggleOrderChecked={toggleOrderChecked}
             />
+            {selectionBar}
           </div>
         </div>
       </div>
@@ -127,7 +173,10 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
             selectedGuid={selectedGuid}
             isLoading={isLoading}
             onSelect={select}
+            checkedOrderGuids={checkedOrderGuids}
+            onToggleOrderChecked={toggleOrderChecked}
           />
+          {selectionBar}
         </section>
         <section className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 md:gap-2 md:px-3 md:py-2 lg:col-span-9">
           {access?.isLocked && <BusinessUpgradeCallout />}

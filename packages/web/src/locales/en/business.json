@@ -332,7 +332,34 @@
     "sortPresetCreated_other": "{{count}} sort presets created, one per game",
     "openSortPreset": "Open preset",
     "batchName_one": "{{count}} order",
-    "batchName_other": "{{count}} orders"
+    "batchName_other": "{{count}} orders",
+    "bulk": {
+      "selectPick": "Select {{name}}",
+      "selected_one": "{{count}} pick selected",
+      "selected_other": "{{count}} picks selected",
+      "allocate": "Re-allocate ({{count}})",
+      "cancel": "Cancel ({{count}})",
+      "delete": "Delete ({{count}})",
+      "keep": "Keep picks",
+      "cancelTitle_one": "Cancel {{count}} pick?",
+      "cancelTitle_other": "Cancel {{count}} picks?",
+      "cancelDescription_one": "Its cards stay in inventory and are free for other picks. Closed picks in the selection are left as they are.",
+      "cancelDescription_other": "Their cards stay in inventory and are free for other picks. Closed picks in the selection are left as they are.",
+      "cancelConfirm_one": "Cancel {{count}} pick",
+      "cancelConfirm_other": "Cancel {{count}} picks",
+      "deleteTitle_one": "Delete {{count}} closed pick?",
+      "deleteTitle_other": "Delete {{count}} closed picks?",
+      "deleteDescription_one": "The pick's record is removed. Cards it already took out of inventory stay removed. Open picks in the selection are left as they are.",
+      "deleteDescription_other": "The picks' records are removed. Cards they already took out of inventory stay removed. Open picks in the selection are left as they are.",
+      "done": {
+        "allocate_one": "{{count}} pick re-allocated",
+        "allocate_other": "{{count}} picks re-allocated",
+        "cancel_one": "{{count}} pick cancelled",
+        "cancel_other": "{{count}} picks cancelled",
+        "delete_one": "{{count}} pick deleted",
+        "delete_other": "{{count}} picks deleted"
+      }
+    }
   },
   "cost": {
     "title": "Set cost basis",

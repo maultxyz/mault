@@ -332,7 +332,34 @@
     "sortPresetCreated_other": "{{count}} préréglages de tri créés, un par jeu",
     "openSortPreset": "Ouvrir le préréglage",
     "batchName_one": "{{count}} commande",
-    "batchName_other": "{{count}} commandes"
+    "batchName_other": "{{count}} commandes",
+    "bulk": {
+      "selectPick": "Sélectionner {{name}}",
+      "selected_one": "{{count}} préparation sélectionnée",
+      "selected_other": "{{count}} préparations sélectionnées",
+      "allocate": "Réattribuer ({{count}})",
+      "cancel": "Annuler ({{count}})",
+      "delete": "Supprimer ({{count}})",
+      "keep": "Garder les préparations",
+      "cancelTitle_one": "Annuler {{count}} préparation ?",
+      "cancelTitle_other": "Annuler {{count}} préparations ?",
+      "cancelDescription_one": "Ses cartes restent en stock et sont disponibles pour d'autres préparations. Les préparations clôturées de la sélection ne changent pas.",
+      "cancelDescription_other": "Leurs cartes restent en stock et sont disponibles pour d'autres préparations. Les préparations clôturées de la sélection ne changent pas.",
+      "cancelConfirm_one": "Annuler {{count}} préparation",
+      "cancelConfirm_other": "Annuler {{count}} préparations",
+      "deleteTitle_one": "Supprimer {{count}} préparation clôturée ?",
+      "deleteTitle_other": "Supprimer {{count}} préparations clôturées ?",
+      "deleteDescription_one": "La fiche est supprimée. Les cartes déjà sorties du stock le restent. Les préparations ouvertes de la sélection ne changent pas.",
+      "deleteDescription_other": "Les fiches sont supprimées. Les cartes déjà sorties du stock le restent. Les préparations ouvertes de la sélection ne changent pas.",
+      "done": {
+        "allocate_one": "{{count}} préparation réattribuée",
+        "allocate_other": "{{count}} préparations réattribuées",
+        "cancel_one": "{{count}} préparation annulée",
+        "cancel_other": "{{count}} préparations annulées",
+        "delete_one": "{{count}} préparation supprimée",
+        "delete_other": "{{count}} préparations supprimées"
+      }
+    }
   },
   "cost": {
     "title": "Fixer le coût d'achat",

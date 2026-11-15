@@ -19,6 +19,10 @@ import {
   type FulfilmentOrderUpdateInput,
   type OrderFulfilInput,
   type OrderSource,
+  ORDER_BULK_ACTION_MAX,
+  ORDER_BULK_ACTIONS,
+  type OrderBulkActionInput,
+  type OrderBulkActionResult,
 } from "@magic-vault/shared";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { uuidArraySql } from "../../lib/sql-arrays";
@@ -81,6 +85,56 @@ async function findOrder(tx: Transaction, orgId: string, guid: string) {
     ),
   });
   return row ?? null;
+}
+
+type OrderRow = NonNullable<Awaited<ReturnType<typeof findOrder>>>;
+
+const PICK_CLOSED_MESSAGE = "This pick is closed.";
+const PICK_DELETE_OPEN_MESSAGE = "Complete or cancel the pick before deleting it.";
+
+async function allocateOrderRow(
+  tx: Transaction,
+  orgId: string,
+  row: OrderRow,
+): Promise<string | null> {
+  if (row.status !== "open") return PICK_CLOSED_MESSAGE;
+  const lines = await allocateOrderLines(tx, orgId, row.id, toOrderLines(row.lines));
+  await tx
+    .update(fulfilmentOrders)
+    .set({ lines, updatedAt: new Date() })
+    .where(eq(fulfilmentOrders.id, row.id));
+  return null;
+}
+
+async function cancelOrderRow(
+  tx: Transaction,
+  orgId: string,
+  userId: string,
+  row: OrderRow,
+): Promise<string | null> {
+  if (row.status !== "open") return PICK_CLOSED_MESSAGE;
+  const now = new Date();
+  await tx
+    .update(fulfilmentOrders)
+    .set({ status: "cancelled", closedAt: now, closedByUserId: userId, updatedAt: now })
+    .where(eq(fulfilmentOrders.id, row.id));
+  await logActivity(tx, {
+    orgId,
+    userId,
+    action: "order.cancelled",
+    summary: row.name,
+    details: { orderGuid: row.guid },
+  });
+  return null;
+}
+
+async function deleteOrderRow(tx: Transaction, row: OrderRow): Promise<string | null> {
+  if (row.status === "open") return PICK_DELETE_OPEN_MESSAGE;
+  await tx
+    .update(fulfilmentOrders)
+    .set({ isDeleted: true, updatedAt: new Date() })
+    .where(eq(fulfilmentOrders.id, row.id));
+  return null;
 }
 
 export const ordersRoute = new Hono<AppEnv>()
@@ -262,20 +316,8 @@ export const ordersRoute = new Hono<AppEnv>()
       const orgId = c.get("orgId");
       const row = await findOrder(tx, orgId, c.req.param("guid"));
       if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
-      if (row.status !== "open") {
-        return { success: false, message: "This pick is closed." };
-      }
-      const lines = await allocateOrderLines(
-        tx,
-        orgId,
-        row.id,
-        toOrderLines(row.lines),
-      );
-      await tx
-        .update(fulfilmentOrders)
-        .set({ lines, updatedAt: new Date() })
-        .where(eq(fulfilmentOrders.id, row.id));
-      return { success: true, data: null };
+      const failure = await allocateOrderRow(tx, orgId, row);
+      return failure ? { success: false, message: failure } : { success: true, data: null };
     }),
   )
   .post("/orders/:guid/fulfil", requireAuth, requireOrg, async (c) => {
@@ -518,27 +560,8 @@ export const ordersRoute = new Hono<AppEnv>()
       const orgId = c.get("orgId");
       const row = await findOrder(tx, orgId, c.req.param("guid"));
       if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
-      if (row.status !== "open") {
-        return { success: false, message: "This pick is closed." };
-      }
-      const now = new Date();
-      await tx
-        .update(fulfilmentOrders)
-        .set({
-          status: "cancelled",
-          closedAt: now,
-          closedByUserId: c.get("userId"),
-          updatedAt: now,
-        })
-        .where(eq(fulfilmentOrders.id, row.id));
-      await logActivity(tx, {
-        orgId,
-        userId: c.get("userId"),
-        action: "order.cancelled",
-        summary: row.name,
-        details: { orderGuid: row.guid },
-      });
-      return { success: true, data: null };
+      const failure = await cancelOrderRow(tx, orgId, c.get("userId"), row);
+      return failure ? { success: false, message: failure } : { success: true, data: null };
     }),
   )
   .delete("/orders/:guid", requireAuth, requireOrg, (c) =>
@@ -546,16 +569,43 @@ export const ordersRoute = new Hono<AppEnv>()
       if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
       const row = await findOrder(tx, c.get("orgId"), c.req.param("guid"));
       if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
-      if (row.status === "open") {
-        return {
-          success: false,
-          message: "Complete or cancel the pick before deleting it.",
-        };
-      }
-      await tx
-        .update(fulfilmentOrders)
-        .set({ isDeleted: true, updatedAt: new Date() })
-        .where(eq(fulfilmentOrders.id, row.id));
-      return { success: true, data: null };
+      const failure = await deleteOrderRow(tx, row);
+      return failure ? { success: false, message: failure } : { success: true, data: null };
     }),
-  );
+  )
+  .post("/orders/bulk", requireAuth, requireOrg, async (c) => {
+    const input = await readJson<OrderBulkActionInput>(c);
+    return businessQuery(c, async (tx, access) => {
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
+      const action = ORDER_BULK_ACTIONS.find((candidate) => candidate === input.action);
+      const orderGuids = Array.isArray(input.orderGuids)
+        ? [...new Set(input.orderGuids.filter((guid) => typeof guid === "string" && UUID_PATTERN.test(guid)))]
+        : [];
+      if (!action || orderGuids.length === 0 || orderGuids.length > ORDER_BULK_ACTION_MAX) {
+        return { success: false, message: "Invalid bulk pick request." };
+      }
+      const orgId = c.get("orgId");
+      const rows = await tx.query.fulfilmentOrders.findMany({
+        where: and(
+          inArray(fulfilmentOrders.guid, orderGuids),
+          eq(fulfilmentOrders.orgId, orgId),
+          eq(fulfilmentOrders.isDeleted, false),
+        ),
+      });
+      let updated = 0;
+      for (const row of rows) {
+        const failure =
+          action === "allocate"
+            ? await allocateOrderRow(tx, orgId, row)
+            : action === "cancel"
+              ? await cancelOrderRow(tx, orgId, c.get("userId"), row)
+              : await deleteOrderRow(tx, row);
+        if (!failure) updated += 1;
+      }
+      const data: OrderBulkActionResult = {
+        updated,
+        skipped: orderGuids.length - updated,
+      };
+      return { success: true, data };
+    });
+  });

@@ -332,7 +332,34 @@
     "sortPresetCreated_other": "{{count}} Sortiervorlagen erstellt, eine pro Spiel",
     "openSortPreset": "Vorlage öffnen",
     "batchName_one": "{{count}} Bestellung",
-    "batchName_other": "{{count}} Bestellungen"
+    "batchName_other": "{{count}} Bestellungen",
+    "bulk": {
+      "selectPick": "{{name}} auswählen",
+      "selected_one": "{{count}} Pick ausgewählt",
+      "selected_other": "{{count}} Picks ausgewählt",
+      "allocate": "Neu zuweisen ({{count}})",
+      "cancel": "Abbrechen ({{count}})",
+      "delete": "Löschen ({{count}})",
+      "keep": "Picks behalten",
+      "cancelTitle_one": "{{count}} Pick abbrechen?",
+      "cancelTitle_other": "{{count}} Picks abbrechen?",
+      "cancelDescription_one": "Die Karten bleiben im Bestand und stehen anderen Picks zur Verfügung. Abgeschlossene Picks in der Auswahl bleiben unverändert.",
+      "cancelDescription_other": "Die Karten bleiben im Bestand und stehen anderen Picks zur Verfügung. Abgeschlossene Picks in der Auswahl bleiben unverändert.",
+      "cancelConfirm_one": "{{count}} Pick abbrechen",
+      "cancelConfirm_other": "{{count}} Picks abbrechen",
+      "deleteTitle_one": "{{count}} abgeschlossenen Pick löschen?",
+      "deleteTitle_other": "{{count}} abgeschlossene Picks löschen?",
+      "deleteDescription_one": "Der Eintrag wird entfernt. Bereits aus dem Bestand genommene Karten bleiben entfernt. Offene Picks in der Auswahl bleiben unverändert.",
+      "deleteDescription_other": "Die Einträge werden entfernt. Bereits aus dem Bestand genommene Karten bleiben entfernt. Offene Picks in der Auswahl bleiben unverändert.",
+      "done": {
+        "allocate_one": "{{count}} Pick neu zugewiesen",
+        "allocate_other": "{{count}} Picks neu zugewiesen",
+        "cancel_one": "{{count}} Pick abgebrochen",
+        "cancel_other": "{{count}} Picks abgebrochen",
+        "delete_one": "{{count}} Pick gelöscht",
+        "delete_other": "{{count}} Picks gelöscht"
+      }
+    }
   },
   "cost": {
     "title": "Einkaufspreis festlegen",

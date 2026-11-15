@@ -1,3 +1,4 @@
+import type { SelectToggleOptions } from "@/lib/interfaces/cards";
 import type {
   BUSINESS_VIEWS,
   ORDER_DETAIL_VIEWS,
@@ -116,6 +117,14 @@ export interface OrderListProps {
   selectedGuid: string | undefined;
   isLoading: boolean;
   onSelect: (guid: string) => void;
+  checkedOrderGuids?: ReadonlySet<string>;
+  onToggleOrderChecked?: (guid: string, options: SelectToggleOptions) => void;
+}
+
+export interface OrderSelectionBarProps {
+  checkedOrders: FulfilmentOrder[];
+  onClear: () => void;
+  onOrdersDeleted: (orderGuids: string[]) => void;
 }
 
 export interface OrderEditDialogProps {

@@ -343,6 +343,7 @@ export interface ScannedCardTableProps {
 
 export interface SelectionActionBarProps {
   selectedCount: number;
+  selectionLabel?: string;
   onClear: () => void;
   children: ReactNode;
 }

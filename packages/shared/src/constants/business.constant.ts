@@ -187,3 +187,7 @@ export const ACTIVITY_ACTION_KEYS: Record<ActivityAction, string> = {
 };
 export const PAGED_LIST_DEFAULT_SIZE = 20;
 export const PAGED_LIST_MAX_SIZE = 100;
+
+export const ORDER_BULK_ACTIONS = ["allocate", "cancel", "delete"] as const;
+
+export const ORDER_BULK_ACTION_MAX = 200;

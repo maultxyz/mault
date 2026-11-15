@@ -40,6 +40,8 @@ import type {
   OrderBinsInput,
   OrderFulfilInput,
   OrderSortPresetResult,
+  OrderBulkActionInput,
+  OrderBulkActionResult,
   PagedList,
   PriceLabelCardsResponse,
   PriceLabelSource,
@@ -298,6 +300,10 @@ export function createOrder(input: FulfilmentOrderInput) {
 
 export function updateOrder(guid: string, input: FulfilmentOrderUpdateInput) {
   return apiPut<Result<null>>(`/api/business/orders/${guid}`, input);
+}
+
+export function runOrderBulkAction(input: OrderBulkActionInput) {
+  return apiPost<Result<OrderBulkActionResult>>("/api/business/orders/bulk", input);
 }
 
 export function allocateOrder(guid: string) {

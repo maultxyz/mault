@@ -1,3 +1,4 @@
+import type { ORDER_BULK_ACTIONS } from "../constants/business.constant";
 import type {
   ACTIVITY_ACTIONS,
   BUSINESS_PERMISSION_KEYS,
@@ -463,4 +464,16 @@ export interface AccuracyCheckInput {
 export interface AccuracySampleInput {
   scanId: string;
   result: AccuracySampleResult | null;
+}
+
+export type OrderBulkAction = (typeof ORDER_BULK_ACTIONS)[number];
+
+export interface OrderBulkActionInput {
+  action: OrderBulkAction;
+  orderGuids: string[];
+}
+
+export interface OrderBulkActionResult {
+  updated: number;
+  skipped: number;
 }

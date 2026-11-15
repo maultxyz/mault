@@ -15,7 +15,7 @@ export function CheckboxIndicator({ checked, disabled = false }: CheckboxIndicat
         borderRadius: CARD_THUMBNAIL_RADIUS,
         borderWidth: 1.5,
         borderColor: checked ? colors.primary : colors.foregroundSecondary,
-        backgroundColor: checked ? colors.primary : "transparent",
+        backgroundColor: checked ? colors.primary : colors.card,
         alignItems: "center",
         justifyContent: "center",
         opacity: disabled ? DISABLED_OPACITY : 1,
