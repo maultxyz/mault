@@ -35,6 +35,8 @@ import type {
   DeletedItemSource,
 } from "../../lib/interfaces/deleted-items";
 import { findRestorableName } from "../../lib/restored-name";
+import { shopCatalogShortTarget } from "../../lib/short-links";
+import { registerShortLinks } from "../../lib/shortener-client";
 
 const NOT_FOUND: DeletedItemRestoreResult = {
   success: false,
@@ -733,8 +735,10 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
           .where(
             and(eq(shopCatalogs.guid, guid), eq(shopCatalogs.isDeleted, true)),
           )
-          .returning({ orgId: shopCatalogs.orgId });
-        return row ? restored(row.orgId) : NOT_FOUND;
+          .returning();
+        if (!row) return NOT_FOUND;
+        await registerShortLinks([await shopCatalogShortTarget(row)]);
+        return restored(row.orgId);
       },
     },
     importTemplate: {

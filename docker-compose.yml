@@ -49,6 +49,8 @@ services:
       # .env's BOT_URL is for `pnpm dev` (localhost). Inside the compose
       # network the bot is reachable by its service name instead.
       BOT_URL: ${DOCKER_BOT_URL:-http://bot:3002}
+      SHORTENER_URL: ${DOCKER_SHORTENER_URL:-http://shortener:3003}
+      SHORTENER_API_SECRET: ${SHORTENER_API_SECRET:?Set SHORTENER_API_SECRET in your .env - see .env.docker.example}
     # AUTH_PROVIDER=local only: point DATABASE_URL/DATABASE_SSL at this
     # compose stack's own Postgres (unless .env already overrides them) and
     # run the local migrate script - own-auth migrations, auth_is_org_member(),
@@ -95,8 +97,40 @@ services:
       VITE_API_DOCS_URL: ${VITE_API_DOCS_URL:-}
     depends_on:
       - server
+      - shortener
     ports:
       - "8080:80"
+    restart: unless-stopped
+
+  # Standalone link shortener: answers /s/<code> (proxied by the web
+  # container's nginx) and, with SHORT_LINK_TARGET_ORIGIN set, /<code> on its
+  # own short domain. Keeps its table in the database's `shortener` schema.
+  shortener:
+    build:
+      context: .
+      dockerfile: Dockerfile.shortener
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      AUTH_PROVIDER: ${AUTH_PROVIDER:-neon}
+      SHORTENER_PORT: 3003
+      SHORTENER_API_SECRET: ${SHORTENER_API_SECRET:?Set SHORTENER_API_SECRET in your .env - see .env.docker.example}
+      SHORT_LINK_TARGET_ORIGIN: ${SHORT_LINK_TARGET_ORIGIN:-}
+    command:
+      - sh
+      - -c
+      - |
+        if [ "$$AUTH_PROVIDER" = "local" ]; then
+          export DATABASE_URL="$${DATABASE_URL:-postgresql://mault:${POSTGRES_PASSWORD:-change-me}@postgres:5432/mault}"
+          export DATABASE_SSL="$${DATABASE_SSL:-false}"
+        fi
+        exec node packages/shortener/dist/index.js
+    expose:
+      - "3003"
+    ports:
+      - "${SHORTENER_HOST_PORT:-8082}:3003"
     restart: unless-stopped
 
   api-docs:

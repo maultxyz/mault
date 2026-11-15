@@ -1,5 +1,5 @@
-import { buildShortLinkUrl, type OrgShareLink } from "@magic-vault/shared";
+import { shortLinkUrlOf, type ShortLinkReference } from "@magic-vault/shared";
 
-export function shareLinkUrl(link: Pick<OrgShareLink, "shortCode">): string {
-  return buildShortLinkUrl(window.location.origin, link.shortCode);
+export function shareLinkUrl(link: ShortLinkReference): string {
+  return shortLinkUrlOf(link, window.location.origin);
 }

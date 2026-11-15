@@ -181,6 +181,7 @@ export * from "./schemas/forms.schema";
 export * from "./schemas/card-export.schema";
 export * from "./schemas/storage-pick-list.schema";
 export * from "./schemas/review-accept.schema";
+export * from "./schemas/shortener.schema";
 export * from "./interfaces/public-api.interface";
 export * from "./constants/public-api.constant";
 export * from "./openapi";

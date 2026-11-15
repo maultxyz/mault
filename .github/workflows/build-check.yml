@@ -63,3 +63,6 @@ jobs:
 
       - name: Test (web)
         run: pnpm --filter @magic-vault/web test
+
+      - name: Test (shortener)
+        run: pnpm --filter @magic-vault/shortener test

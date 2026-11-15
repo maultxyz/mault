@@ -27,6 +27,19 @@ export interface IssuedShareLink {
   guid: string;
   token: string;
   shortCode: string;
+  shortUrl: string | null;
+  expiresAt: Date;
+}
+
+export interface ShareLinkSigningRow {
+  guid: string;
+  orgId: string;
+  linkKind: string;
+  subjectGuid: string;
+  subjectVersion: number;
+  purpose: string;
+  showsPrices: boolean;
+  issuedAt: Date;
   expiresAt: Date;
 }
 

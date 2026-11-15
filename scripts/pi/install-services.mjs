@@ -40,6 +40,7 @@ const units = [
   "mault-api.service",
   "mault-web.service",
   "mault-camera.service",
+  "mault-shortener.service",
 ];
 if (builtin) units.push("mault-controller.service");
 for (const unit of units) {

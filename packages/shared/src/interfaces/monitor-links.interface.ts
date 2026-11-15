@@ -9,11 +9,31 @@ export interface MonitorLink {
   guid: string;
   token: string;
   shortCode: string;
+  shortUrl?: string | null;
   expiresAt: string;
 }
 
 export interface ShortLinkTarget {
   path: string;
+}
+
+export interface ShortLinkReference {
+  shortCode: string;
+  shortUrl?: string | null;
+}
+
+export interface ShortenerLink {
+  code: string;
+  targetPath: string;
+  expiresAt: string | null;
+}
+
+export interface ShortenerRegisterLinksRequest {
+  links: ShortenerLink[];
+}
+
+export interface ShortenerDeleteLinksRequest {
+  codes: string[];
 }
 
 export interface MonitorLinkInfo {
@@ -43,4 +63,5 @@ export interface OrgShareLink {
   expiresAt: string;
   token: string;
   shortCode: string;
+  shortUrl?: string | null;
 }
