@@ -77,7 +77,7 @@ export const moveCollectionCardsToCollectionRoute = new Hono<AppEnv>().post(
       return c.json({ success: false, message: result.errorMessage }, 400);
     }
     if (result.movedScanIds.length > 0) {
-      emitToSession(sourceGuid, "cards_removed", { scanIds: result.movedScanIds });
+      emitToSession(orgId, sourceGuid, "cards_removed", { scanIds: result.movedScanIds });
       emitCollectionCardsChanged(orgId, sourceGuid);
     }
     const data: MoveCardsToCollectionResult = { moved: result.movedScanIds.length };

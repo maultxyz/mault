@@ -9,3 +9,5 @@ firmware
 *.md
 .env
 .env.*.example
+**/.env
+**/.env.*

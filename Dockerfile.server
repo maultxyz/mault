@@ -7,12 +7,10 @@ WORKDIR /app
 ENV HF_HOME=/app/.cache/huggingface
 ENV COLLECTORVISION_CACHE=/app/.cache/collectorvision
 
-# Copy manifests for layer caching
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-COPY patches/ patches/
-COPY packages/shared/package.json packages/shared/
-COPY packages/server/package.json packages/server/
-RUN pnpm install --frozen-lockfile
+# The runtime user must be able to write models fetched on first use into
+# this cache, so create it as that user before the downloads below.
+RUN mkdir -p /app/.cache && chown node:node /app/.cache
+USER node
 
 # Pre-download the pinned CollectorVision Milo embedder into the image at build
 # time. Pinned repo/revision/sha256 must match packages/server/src/lib/models/
@@ -72,6 +70,15 @@ RUN node -e " \
     .catch(e => { console.error(e); process.exit(1); }); \
 "
 
+USER root
+
+# Copy manifests for layer caching
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY patches/ patches/
+COPY packages/shared/package.json packages/shared/
+COPY packages/server/package.json packages/server/
+RUN pnpm install --frozen-lockfile
+
 # Copy source
 COPY packages/shared/ packages/shared/
 COPY packages/server/ packages/server/
@@ -95,6 +102,8 @@ ENV NODE_ENV=production
 # in the web image from the same commit; served by /public/version so open
 # tabs refresh when it changes. Dev deploys write the dev version into it.
 COPY firmware/main/main.ino firmware/main/main.ino
+
+USER node
 
 EXPOSE 3001
 CMD ["node", "packages/server/dist/index.js"]

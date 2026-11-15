@@ -84,7 +84,9 @@ async function priceCardsByLanguage(
   const indexesByLang = new Map<string, number[]>();
   cards.forEach((card, index) => {
     const lang = card.lang ?? fallbackLang;
-    indexesByLang.set(lang, [...(indexesByLang.get(lang) ?? []), index]);
+    const existingEntries = indexesByLang.get(lang);
+    if (existingEntries) existingEntries.push(index);
+    else indexesByLang.set(lang, [index]);
   });
   const priced = [...cards];
   for (const [lang, indexes] of indexesByLang) {

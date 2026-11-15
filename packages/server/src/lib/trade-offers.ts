@@ -15,7 +15,7 @@ import {
   type TradeOfferWantedCard,
   type TradeOfferWantedPlacement,
 } from "@magic-vault/shared";
-import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import type { Transaction } from "../db";
 import {
   collectionCards,
@@ -43,6 +43,10 @@ import type {
   TradeOfferScope,
 } from "./interfaces/trade-offers";
 import { uuidArraySql } from "./sql-arrays";
+import {
+  TRADE_OFFER_PENDING_PER_ORG_HOURLY_MAX,
+  TRADE_OFFER_PENDING_PER_ORG_WINDOW_MS,
+} from "./constants/trade-offers";
 
 function scopeColumns(scope: TradeOfferScope) {
   return scope.kind === "collection"
@@ -111,7 +115,9 @@ async function loadOfferedCards(
   const groups = new Map<string, TradeOfferRequest["offered"]>();
   for (const entry of offered) {
     const key = `${entry.gameKey}|${entry.lang}`;
-    groups.set(key, [...(groups.get(key) ?? []), entry]);
+    const existingEntries = groups.get(key);
+    if (existingEntries) existingEntries.push(entry);
+    else groups.set(key, [entry]);
   }
   const cardsByKey = new Map<string, PlayingCard>();
   for (const entries of groups.values()) {
@@ -156,6 +162,24 @@ export async function createTradeOffer(
       ),
     );
   if ((pending?.total ?? 0) >= TRADE_OFFER_PENDING_PER_GUEST_MAX) {
+    return { status: "guest-limit-reached" };
+  }
+  const [recentPendingForOrg] = await tx
+    .select({ total: count() })
+    .from(tradeOffers)
+    .where(
+      and(
+        eq(tradeOffers.orgId, scope.orgId),
+        eq(tradeOffers.status, "pending"),
+        gt(
+          tradeOffers.createdAt,
+          new Date(Date.now() - TRADE_OFFER_PENDING_PER_ORG_WINDOW_MS),
+        ),
+      ),
+    );
+  if (
+    (recentPendingForOrg?.total ?? 0) >= TRADE_OFFER_PENDING_PER_ORG_HOURLY_MAX
+  ) {
     return { status: "guest-limit-reached" };
   }
   const wanted = await loadWantedCards(tx, scope, request.wantedScanIds);
@@ -282,7 +306,9 @@ async function loadCurrentOfferedCards(
   const groups = new Map<string, TradeOfferOfferedCard[]>();
   for (const card of offered) {
     const key = `${card.gameKey}|${card.lang}`;
-    groups.set(key, [...(groups.get(key) ?? []), card]);
+    const existingEntries = groups.get(key);
+    if (existingEntries) existingEntries.push(card);
+    else groups.set(key, [card]);
   }
   const result = new Map<string, PlayingCard>();
   for (const entries of groups.values()) {

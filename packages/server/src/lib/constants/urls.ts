@@ -58,3 +58,6 @@ export const ALLOWED_IMAGE_HOSTS = new Set([
   "assets.tcgdex.net",
   "cdn.swu-db.com",
 ]);
+
+export const IMAGE_PROXY_MAX_BYTES = 15 * 1024 * 1024;
+export const IMAGE_PROXY_MAX_REDIRECTS = 3;

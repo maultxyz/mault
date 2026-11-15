@@ -65,7 +65,9 @@ async function resolveProductIds(
   const byNumber = new Map<string, typeof candidates>();
   for (const candidate of candidates) {
     const key = candidate.number ?? "";
-    byNumber.set(key, [...(byNumber.get(key) ?? []), candidate]);
+    const existingEntries = byNumber.get(key);
+    if (existingEntries) existingEntries.push(candidate);
+    else byNumber.set(key, [candidate]);
   }
 
   return cards.map((_, i) => {

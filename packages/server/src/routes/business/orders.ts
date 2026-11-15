@@ -357,7 +357,7 @@ export const ordersRoute = new Hono<AppEnv>()
     if (!committed || response.status !== 200) return response;
     deleteScanImages(imageKeys);
     for (const [collectionGuid, scanIds] of removedByCollection) {
-      emitToSession(collectionGuid, "cards_removed", { scanIds });
+      emitToSession(orgId, collectionGuid, "cards_removed", { scanIds });
       emitToOrg(orgId, "collections_changed", { guid: collectionGuid });
     }
     return response;

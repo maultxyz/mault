@@ -180,8 +180,8 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
 
       const data: ScannedCard = outcome.card;
       void markScanCorrected(scanId);
-      emitToSession(guid, "unmatched_removed", { scanId });
-      emitToSession(guid, "card_added", data);
+      emitToSession(orgId, guid, "unmatched_removed", { scanId });
+      emitToSession(orgId, guid, "card_added", data);
       emitCollectionCardsChanged(orgId, guid);
       notifyCardScanned({
         orgId,
@@ -199,7 +199,7 @@ export const identifyUnmatchedCardRoute = new Hono<AppEnv>().post(
 
       return c.json({ success: true, data });
     } catch (err) {
-      emitToSession(guid, "scan_error", {
+      emitToSession(orgId, guid, "scan_error", {
         message: "Failed to add the identified card.",
         timestamp: Date.now(),
       });

@@ -42,7 +42,7 @@ export const clearCollectionCardsRoute = new Hono<AppEnv>().delete(
     });
     if (result.success) {
       deleteScanImagePrefix(collectionScanImagePrefix(orgId, guid, "cards"));
-      emitToSession(guid, "cards_cleared", {});
+      emitToSession(orgId, guid, "cards_cleared", {});
       emitToOrg(orgId, "collections_changed", { guid });
     }
     return c.json(result);

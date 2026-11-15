@@ -38,7 +38,7 @@ export const deleteUnmatchedCardRoute = new Hono<AppEnv>().delete(
       return existing ? [existing.imageKey, existing.backImageKey] : [];
     });
     deleteScanImages(imageKeys);
-    emitToSession(guid, "unmatched_removed", { scanId });
+    emitToSession(orgId, guid, "unmatched_removed", { scanId });
     return c.json({ success: true, data: null });
   },
 );

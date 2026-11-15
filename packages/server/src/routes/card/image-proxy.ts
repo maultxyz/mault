@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import { CARD_API_USER_AGENT } from "../../lib/constants/card-search";
 import { ALLOWED_IMAGE_HOSTS } from "../../lib/constants/urls";
+import { fetchProxiedImage } from "../../lib/image-proxy-fetch";
 import type { AppEnv } from "../../middleware/auth";
 
 export const imageProxyRoute = new Hono<AppEnv>().get("/image-proxy", async (c) => {
@@ -20,18 +20,19 @@ export const imageProxyRoute = new Hono<AppEnv>().get("/image-proxy", async (c) 
     return c.json({ success: false, message: "Host not allowed." }, 400);
   }
 
-  const upstream = await fetch(parsed.toString(), {
-    headers: { "User-Agent": CARD_API_USER_AGENT, Accept: "image/*" },
-  });
-  const contentType = upstream.headers.get("content-type") ?? "";
-  if (!upstream.ok || !contentType.startsWith("image/")) {
+  const image = await fetchProxiedImage(
+    parsed.toString(),
+    (candidate) =>
+      candidate.protocol === "https:" &&
+      ALLOWED_IMAGE_HOSTS.has(candidate.hostname),
+  );
+  if (!image) {
     return c.json({ success: false, message: "Failed to fetch image." }, 502);
   }
-
-  const buffer = Buffer.from(await upstream.arrayBuffer());
-  return c.body(buffer, 200, {
-    "Content-Type": contentType,
+  return c.body(image.body, 200, {
+    "Content-Type": image.contentType,
     "Cache-Control": "public, max-age=86400",
     "Cross-Origin-Resource-Policy": "cross-origin",
+    "X-Content-Type-Options": "nosniff",
   });
 });

@@ -122,8 +122,8 @@ services:
       # .env's SERVER_URL is for `pnpm dev` (localhost). Inside the compose
       # network the server is reachable by its service name instead.
       SERVER_URL: ${DOCKER_SERVER_URL:-http://server:3001}
-    ports:
-      - "3002:3002"
+    expose:
+      - "3002"
     depends_on:
       - server
     restart: unless-stopped

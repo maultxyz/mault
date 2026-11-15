@@ -14,9 +14,10 @@ export const phoneCameraSignalRoute = new Hono<AppEnv>().post(
   requireOrg,
   rejectWhileImpersonating,
   async (c) => {
+    const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     const message = await c.req.json<PhoneCameraMessage>();
-    emitToSession(guid, "phone_camera_message", message);
+    emitToSession(orgId, guid, "phone_camera_message", message);
     return c.json({ success: true, data: null });
   },
 );

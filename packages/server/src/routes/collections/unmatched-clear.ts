@@ -42,7 +42,7 @@ export const clearUnmatchedCardsRoute = new Hono<AppEnv>().delete(
       deleteScanImagePrefix(
         collectionScanImagePrefix(orgId, guid, "unmatched"),
       );
-      emitToSession(guid, "unmatched_cleared", {});
+      emitToSession(orgId, guid, "unmatched_cleared", {});
     }
     return c.json(result);
   },

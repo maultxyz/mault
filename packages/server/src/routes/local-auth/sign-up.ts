@@ -26,15 +26,17 @@ export const signUpRoute = new Hono<AppEnv>().post("/sign-up", async (c) => {
       name,
     });
 
-    const [{ count }] = await db
-      .select({ count: sql<number>`count(*)` })
-      .from(platformUserRoles);
-    if (Number(count) === 0) {
-      await db
-        .insert(platformUserRoles)
-        .values({ userId: result.user.id, role: "admin" })
-        .onConflictDoNothing();
-    }
+    await db.transaction(async (tx) => {
+      await tx.execute(
+        sql`SELECT pg_advisory_xact_lock(hashtext('mault:first-platform-admin'))`,
+      );
+      await tx.execute(
+        sql`INSERT INTO ${platformUserRoles} (user_id, role)
+            SELECT ${result.user.id}, 'admin'
+            WHERE NOT EXISTS (SELECT 1 FROM ${platformUserRoles})
+            ON CONFLICT DO NOTHING`,
+      );
+    });
 
     return c.json({
       success: true,

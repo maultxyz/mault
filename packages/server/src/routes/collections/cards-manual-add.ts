@@ -154,7 +154,7 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
     }
 
     const data: ScannedCard = outcome.card;
-    emitToSession(guid, "card_added", data);
+    emitToSession(orgId, guid, "card_added", data);
     emitCollectionCardsChanged(orgId, guid);
     if (locationGuid) emitCardsStoredWebhook(orgId, locationGuid, [scanId]);
     return c.json({ success: true, data });

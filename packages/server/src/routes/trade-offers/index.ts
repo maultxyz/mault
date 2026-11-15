@@ -64,7 +64,7 @@ function publishTradeOfferChanges(orgId: string, response: TradeOfferResponse) {
     ]);
   }
   for (const [collectionGuid, scanIds] of scanIdsByCollection) {
-    emitToSession(collectionGuid, "cards_removed", { scanIds });
+    emitToSession(orgId, collectionGuid, "cards_removed", { scanIds });
     emitCollectionCardsChanged(orgId, collectionGuid);
   }
   const changed: TradeOffersChangedEvent = { createdOffer: null };

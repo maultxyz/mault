@@ -162,11 +162,11 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
       });
       if (result.success) {
         if (card !== undefined) void markScanCorrected(scanId);
-        emitToSession(guid, "card_updated", result.data);
+        emitToSession(orgId, guid, "card_updated", result.data);
       }
       return c.json(result);
     } catch (err) {
-      emitToSession(guid, "scan_error", {
+      emitToSession(orgId, guid, "scan_error", {
         message: "Failed to update card.",
         timestamp: Date.now(),
       });
