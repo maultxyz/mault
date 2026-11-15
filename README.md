@@ -275,7 +275,7 @@ Short links are optional. Without them, share links and shop catalogs are shared
 1. Route the short domain to the shortener on port 3003 and set its `SHORT_LINK_TARGET_ORIGIN` to the web origin. It keeps its table in the database's `shortener` schema, created on start.
 2. On the API, set `SHORT_LINK_BASE_URL` (the short domain), `SHORTENER_URL` (how the API reaches the shortener internally) and `SHORTENER_API_SECRET` (also given to the shortener).
 
-The API then registers each link's code with the shortener and re-registers every live link when it starts, so links created while short links were off also get short URLs. Unknown codes redirect to the web app's `/link-not-found`. Mobile builds need `MOBILE_SHORT_LINK_URL` set to the same domain to read those QR codes.
+The API then registers each link's code with the shortener and re-registers every live link when it starts, so links created while short links were off also get short URLs. Unknown codes redirect to the web app's `/link-not-found`. Platform admins can also create custom links on the short domain (for example `/discord` to an invite) under Admin > Short links. Mobile builds need `MOBILE_SHORT_LINK_URL` set to the same domain to read those QR codes.
 
 ### Coolify
 

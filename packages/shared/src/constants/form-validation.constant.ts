@@ -45,6 +45,9 @@ export const FORM_VALIDATION_MESSAGE_KEYS = [
   "verificationCodeNumeric",
   "controlCardActionRequired",
   "orderBinDuplicate",
+  "shortLinkCodeInvalid",
+  "shortLinkCodeReserved",
+  "shortLinkTargetInvalid",
   "orderBinCatchAll",
 ] as const;
 
