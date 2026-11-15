@@ -8,6 +8,7 @@ import type {
   CardTextSearchResult,
   MatchedScanDetails,
   ParsedShareLinkUrl,
+  StorageLabelTarget,
   PlayingCard,
   PlayingCardWithDistance,
   RgbaImage,
@@ -373,6 +374,7 @@ export interface PhoneCameraResponder {
 }
 
 export type ScannerQrLink =
+  | { kind: "storage-label"; storageLabel: StorageLabelTarget }
   | { kind: "share-link"; shareLink: ParsedShareLinkUrl }
   | { kind: "short-link"; shortCode: string }
   | { kind: "desktop-camera"; collectionGuid: string };

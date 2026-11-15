@@ -7,8 +7,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { StorageLocationActionsMenuProps } from "@/lib/interfaces/storage";
-import { IconDots, IconEdit, IconShare, IconTrash } from "@tabler/icons-react";
+import { storageLabelsPath } from "@/lib/constants/storage";
+import { IconDots, IconEdit, IconPrinter, IconShare, IconTrash } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 export function StorageLocationActionsMenu({
   location,
@@ -19,6 +21,7 @@ export function StorageLocationActionsMenu({
   onDelete,
 }: StorageLocationActionsMenuProps) {
   const { t } = useTranslation("storage");
+  const navigate = useNavigate();
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
@@ -38,6 +41,10 @@ export function StorageLocationActionsMenu({
         <DropdownMenuItem onClick={() => onShare(location)}>
           <IconShare />
           {t("shareLink.trigger")}
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => navigate(storageLabelsPath([location.guid]))}>
+          <IconPrinter />
+          {t("labels.printLabel")}
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => onRename(location)}>
           <IconEdit />

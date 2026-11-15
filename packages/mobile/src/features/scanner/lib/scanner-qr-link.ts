@@ -1,8 +1,10 @@
-import { parseShareLinkUrl, parseShortLinkUrl } from "@magic-vault/shared";
+import { parseShareLinkUrl, parseShortLinkUrl, parseStorageLabelUrl } from "@magic-vault/shared";
 import { parsePairingLink } from "@/features/scanner/api/phone-camera";
 import type { ScannerQrLink } from "@/lib/interfaces/scanner";
 
 export function parseScannerQrLink(text: string): ScannerQrLink | null {
+  const storageLabel = parseStorageLabelUrl(text);
+  if (storageLabel) return { kind: "storage-label", storageLabel };
   const shareLink = parseShareLinkUrl(text);
   if (shareLink) return { kind: "share-link", shareLink };
   const shortCode = parseShortLinkUrl(text);

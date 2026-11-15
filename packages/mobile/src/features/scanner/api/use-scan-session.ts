@@ -21,6 +21,7 @@ import {
   runScanDisposition,
   parseShareLinkUrl,
   parseShortLinkUrl,
+  parseStorageLabelUrl,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
@@ -110,12 +111,14 @@ import type {
   SorterEventDetails,
 } from "@/lib/interfaces/scanner";
 import { delay } from "@/lib/delay";
+import { useOpenStorageLabel } from "@/features/storage/api/use-open-storage-label";
 
 export function useScanSession({
   capture,
 }: ScanSessionInputs): ScanSessionValue {
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
+  const openStorageLabel = useOpenStorageLabel();
   const sorter = useSorter();
   const { saveCard, saveUnmatched } = usePendingSaves();
   const { collection, collections, setScanTargetGuid } = useScanTarget();
@@ -229,6 +232,7 @@ export function useScanSession({
     allowDuplicates,
     handScanActive,
     removal,
+    openStorageLabel,
     feedRetryCount:
       feederConfig?.feedRetryCount ?? DEFAULT_FEEDER_CALIBRATION.feedRetryCount,
   };
@@ -1008,6 +1012,12 @@ export function useScanSession({
         readControl: (captured) =>
           captured.frame ? readScannerQrText(captured.frame) : null,
         applyOtherCode: (text) => {
+          const storageLabel = parseStorageLabelUrl(text);
+          if (storageLabel) {
+            pause("user");
+            ctx.openStorageLabel(storageLabel);
+            return true;
+          }
           const shareLink = parseShareLinkUrl(text);
           const shortCode = shareLink ? null : parseShortLinkUrl(text);
           if (!shareLink && !shortCode) return false;

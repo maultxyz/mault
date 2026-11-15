@@ -828,7 +828,7 @@
       },
       "qrCode": {
         "title": "Visez un QR code pour l'ouvrir",
-        "description": "Les liens partagés de collection, de rangement et d'échange s'ouvrent dans l'app. Un code d'association de caméra de bureau connecte ce téléphone comme caméra du trieur."
+        "description": "Les liens partagés de collection, de rangement et d'échange s'ouvrent dans l'app, tout comme les étiquettes de rangement imprimées. Un code d'association de caméra de bureau connecte ce téléphone comme caméra du trieur."
       },
       "sorter": {
         "title": "Connectez un trieur pour l'alimentation automatique",
@@ -1609,7 +1609,8 @@
     "shareWithCount_other": "Partager l'emplacement ({{count}} actifs)",
     "searchFailed": "Impossible de rechercher dans tes emplacements",
     "notFoundTitle": "Emplacement introuvable",
-    "notFoundDescription": "Il a peut-être été supprimé, ou tu n'y as plus accès."
+    "notFoundDescription": "Il a peut-être été supprimé, ou tu n'y as plus accès.",
+    "printLabel": "Imprimer l'étiquette"
   },
   "settings": {
     "title": "Paramètres",

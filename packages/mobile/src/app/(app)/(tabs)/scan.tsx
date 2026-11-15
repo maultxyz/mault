@@ -76,6 +76,7 @@ import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
 import { SCAN_TIPS_SEEN_KEY } from "@/lib/constants/storage-keys";
 import type { UnmatchedScanRecovery } from "@/lib/interfaces/scanner";
 import { readKv, writeKv } from "@/lib/storage/kv";
+import { useOpenStorageLabel } from "@/features/storage/api/use-open-storage-label";
 
 export default function ScanScreen() {
   const { t } = useTranslation();
@@ -160,6 +161,7 @@ export default function ScanScreen() {
     LIVE_DETECTION_PAUSED_PHASES.includes(session.phase),
     session.trackLiveCorners,
   );
+  const openStorageLabel = useOpenStorageLabel();
   const lastQrLinkRef = useRef<{ linkKey: string; seenAt: number } | null>(null);
   const scannerQr = useScannerQrWatcher({
     active:
@@ -176,7 +178,9 @@ export default function ScanScreen() {
       if (last && last.linkKey === linkKey && Date.now() - last.seenAt < SCANNER_QR_REPEAT_MS) return;
       lastQrLinkRef.current = { linkKey, seenAt: Date.now() };
       if (session.isRunning) session.pause();
-      if (qrLink.kind === "share-link") {
+      if (qrLink.kind === "storage-label") {
+        openStorageLabel(qrLink.storageLabel);
+      } else if (qrLink.kind === "share-link") {
         router.push({ pathname: "/shared-link", params: { ...qrLink.shareLink } });
       } else if (qrLink.kind === "short-link") {
         router.push({ pathname: "/shared-link", params: { shortCode: qrLink.shortCode } });

@@ -26,7 +26,11 @@ import { useImpersonation } from "@/hooks/use-impersonation";
 import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked-while-impersonating";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
-import { STORAGE_PATH, STORAGE_PICK_LIST_PATH } from "@/lib/constants/storage";
+import {
+  STORAGE_LABELS_PATH,
+  STORAGE_PATH,
+  STORAGE_PICK_LIST_PATH,
+} from "@/lib/constants/storage";
 import {
   SENT_TRADE_OFFER_PATH,
   TRADE_OFFER_PATH,
@@ -210,6 +214,9 @@ const TradeOfferRoutePage = lazy(() => import("@/app/routes/app/trade-offer"));
 const SentTradeOfferRoutePage = lazy(() => import("@/app/routes/app/sent-trade-offer"));
 const StoragePickListPage = lazy(
   () => import("@/app/routes/app/storage-pick-list"),
+);
+const StorageLabelsPage = lazy(
+  () => import("@/app/routes/app/storage-labels"),
 );
 const StatsPage = lazy(() => import("@/app/routes/app/stats"));
 const IntakePage = lazy(() => import("@/app/routes/app/intake"));
@@ -635,6 +642,10 @@ export const routes: RouteObject[] = [
               {
                 path: STORAGE_PICK_LIST_PATH,
                 element: <StoragePickListPage />,
+              },
+              {
+                path: STORAGE_LABELS_PATH,
+                element: <StorageLabelsPage />,
               },
               {
                 path: ORDERS_PATH,
