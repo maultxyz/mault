@@ -9,7 +9,9 @@
   },
   "planFooterTooltip": {
     "free": "Plan gratuit · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour passer à la version supérieure.",
-    "paidLimited": "Plan {{plan}} · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour gérer la facturation."
+    "paidLimited": "Plan {{plan}} · {{used}} sur {{limit}} cartes scannées aujourd'hui. Clique pour gérer la facturation.",
+    "resetsInHours": "La limite se réinitialise dans {{hours}} h {{minutes}} min.",
+    "resetsInMinutes": "La limite se réinitialise dans {{minutes}} min."
   },
   "planTable": {
     "columns": {

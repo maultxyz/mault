@@ -6,9 +6,22 @@ import {
 } from "@/components/ui/tooltip";
 import { useBilling } from "@/features/billing/api/use-billing";
 import { billingPlanNameKey } from "@/features/billing/lib/billing-plan-name";
+import { dailyScanLimitResetCountdown } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+
+function DailyScanLimitResetCountdown() {
+  const { t } = useTranslation("billing");
+  const { hours, minutes } = dailyScanLimitResetCountdown(new Date());
+  return (
+    <span className="block">
+      {hours > 0
+        ? t("planFooterTooltip.resetsInHours", { hours, minutes })
+        : t("planFooterTooltip.resetsInMinutes", { minutes })}
+    </span>
+  );
+}
 
 export function PlanBadge() {
   const { t } = useTranslation("billing");
@@ -56,7 +69,10 @@ export function PlanBadge() {
             </span>
           </div>
         </TooltipTrigger>
-        <TooltipContent side="top">{tooltip}</TooltipContent>
+        <TooltipContent side="top">
+          <span className="block">{tooltip}</span>
+          {!isPaid && <DailyScanLimitResetCountdown />}
+        </TooltipContent>
       </Tooltip>
       <FooterDivider />
     </>

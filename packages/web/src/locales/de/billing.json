@@ -9,7 +9,9 @@
   },
   "planFooterTooltip": {
     "free": "Kostenloser Plan · {{used}} von {{limit}} Karten heute gescannt. Klicken, um zu upgraden.",
-    "paidLimited": "{{plan}}-Plan · {{used}} von {{limit}} Karten heute gescannt. Klicken, um die Abrechnung zu verwalten."
+    "paidLimited": "{{plan}}-Plan · {{used}} von {{limit}} Karten heute gescannt. Klicken, um die Abrechnung zu verwalten.",
+    "resetsInHours": "Das Limit wird in {{hours}} Std. {{minutes}} Min. zurückgesetzt.",
+    "resetsInMinutes": "Das Limit wird in {{minutes}} Min. zurückgesetzt."
   },
   "planTable": {
     "columns": {
