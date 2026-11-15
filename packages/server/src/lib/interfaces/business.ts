@@ -110,3 +110,12 @@ export interface IntakeLotCardPrice {
   marketPrice: number | null;
   manualOffer: number | null;
 }
+
+export interface OrderSubstituteCandidateRow {
+  scan_id: string;
+  set_code: string | null;
+  set_name: string | null;
+  collector_number: string | null;
+  condition: string | null;
+  is_foil: boolean;
+}

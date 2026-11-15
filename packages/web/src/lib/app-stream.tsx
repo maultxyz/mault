@@ -2,6 +2,7 @@ import { resetPiScanScope } from "@/features/scanner/lib/pi-scan-store";
 import { recordSessionInits } from "@/lib/session-init-registry";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { businessKeys } from "@/features/business/api/business";
 import { createAppStreamSource } from "@/lib/api/stream";
 import { useAuthSession } from "@/lib/auth";
 import { DEFAULT_SYNC_STATE, isBrowserSaveLog } from "@/lib/constants/admin";
@@ -13,6 +14,7 @@ import type {
 import {
   DEPLOY_STATUS_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
+  ORDERS_CHANGED_EVENT,
   type TradeOffersChangedEvent,
   type DeployNotice,
   type SyncState,
@@ -183,6 +185,9 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
               }),
             );
           }
+        });
+        es.addEventListener(ORDERS_CHANGED_EVENT, () => {
+          queryClient.invalidateQueries({ queryKey: businessKeys.ordersRoot() });
         });
         es.addEventListener("collections_changed", () => {
           queryClient.invalidateQueries({

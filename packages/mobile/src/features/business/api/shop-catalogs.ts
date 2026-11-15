@@ -1,6 +1,6 @@
 import {
-  buildShortLinkUrl,
   SHOP_PHOTO_UPLOAD_FIELD,
+  shortLinkUrlOf,
   type Result,
   type ShopCatalog,
   type ShopCatalogInput,
@@ -38,7 +38,7 @@ export function deleteShopCatalog(guid: string): Promise<unknown> {
 
 export function buildShopCatalogUrl(catalog: ShopCatalog): string | null {
   if (!catalog.isPublic && !catalog.linkToken) return null;
-  return buildShortLinkUrl(WEB_URL, catalog.shortCode);
+  return shortLinkUrlOf(catalog, WEB_URL);
 }
 
 export const shopPhotoQueryOptions = (orgId: string | null, enabled: boolean) =>

@@ -36,12 +36,14 @@ import {
   useBusinessAccess,
   useBusinessAction,
 } from "@/features/business/api/use-business";
-import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { OrderPhonePickDialog } from "@/features/business/components/order-phone-pick-dialog";
+import { useOrderPickProgress } from "@/features/business/api/use-order-pick-progress";
 import { OrderBinsDialog } from "@/features/business/components/order-bins-dialog";
 import { OrderEditDialog } from "@/features/business/components/order-edit-dialog";
 import { OrderPickByLocation } from "@/features/business/components/order-pick-by-location";
 import { OrderRefLabel } from "@/features/business/components/order-ref-label";
+import { OrderSubstituteDialog } from "@/features/business/components/order-substitute-dialog";
 import { StatusBadge } from "@/features/business/components/status-badge";
 import { buildPullSheetCsv } from "@/features/business/lib/pull-sheet";
 import {
@@ -51,18 +53,15 @@ import {
 import { usePriceSource } from "@/hooks/use-price-source";
 import { copyTextFromPromise } from "@/lib/clipboard";
 import { sortingRulesPresetPath } from "@/lib/constants/bins";
-import { EMPTY_PICKS, ORDER_DETAIL_VIEWS } from "@/lib/constants/business";
+import {
+  ORDER_DETAIL_VIEWS,
+  packingSlipsPath,
+} from "@/lib/constants/business";
 import type {
   OrderDetailProps,
   OrderDetailView,
 } from "@/lib/interfaces/business";
-import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { toast } from "@/lib/toast";
-import {
-  orderPicksSchema,
-  type OrderPicksFormValues,
-} from "@/schemas/business.schema";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
   formatDecklist,
   hasEveryOrderBin,
@@ -77,19 +76,21 @@ import {
   IconAlertTriangle,
   IconClipboardList,
   IconDots,
+  IconDeviceMobile,
   IconDownload,
   IconPackageExport,
   IconPencil,
   IconArrowsSort,
   IconBox,
+  IconPrinter,
   IconRefresh,
+  IconReplace,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { Fragment, useState } from "react";
-import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 
@@ -116,15 +117,11 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [removeLineIndex, setRemoveLineIndex] = useState<number | null>(null);
+  const [substituteLineIndex, setSubstituteLineIndex] = useState<number | null>(null);
   const [lastCopyName, setLastCopyName] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
-  const form = useForm<OrderPicksFormValues>({
-    resolver: zodResolver(orderPicksSchema),
-    defaultValues: EMPTY_PICKS,
-  });
-  const picked = useWatch({ control: form.control, name: "picked" });
-  const isDirty = picked.length > 0;
-  const discardPicks = () => form.reset(EMPTY_PICKS, DISCARD_RESET_OPTIONS);
+  const [phonePickOpen, setPhonePickOpen] = useState(false);
+  const pickProgress = useOrderPickProgress(order ? [order] : []);
 
   if (isLoading || !order) {
     return (
@@ -138,29 +135,16 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
         ) : (
           <ListSkeleton rows={8} />
         )}
-        <UnsavedChangesGuard isDirty={isDirty} onDiscard={discardPicks} />
       </>
     );
   }
 
-  const pickedSet = new Set(picked);
+  const pickedSet = pickProgress.pickedScanIds;
   const allScanIds = order.pullSheet.map((entry) => entry.scanId);
-  const livePicked = picked.filter((id) => allScanIds.includes(id));
+  const livePicked = allScanIds.filter((id) => pickedSet.has(id));
   const allPicked =
     allScanIds.length > 0 && allScanIds.every((id) => pickedSet.has(id));
-  const setPicked = (next: string[]) =>
-    form.setValue("picked", next, { shouldDirty: true });
-  const changePicked = (scanIds: string[], isPicked: boolean) =>
-    setPicked([
-      ...picked.filter((id) => !scanIds.includes(id)),
-      ...(isPicked ? scanIds : []),
-    ]);
-  const togglePick = (scanId: string, checked: boolean) =>
-    setPicked(
-      checked
-        ? [...picked.filter((id) => id !== scanId), scanId]
-        : picked.filter((id) => id !== scanId),
-    );
+  const changePicked = pickProgress.changePicked;
 
   const isOpen = order.status === "open";
   const canAct = isOpen && (access?.canFulfilOrders ?? false);
@@ -287,6 +271,14 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
               <IconClipboardList />
               {t("orders.copyDecklist")}
             </DropdownMenuItem>
+            {order.status !== "cancelled" && (
+              <DropdownMenuItem
+                onClick={() => window.open(packingSlipsPath([order.guid]), "_blank")}
+              >
+                <IconPrinter />
+                {t("orders.packingSlips.print")}
+              </DropdownMenuItem>
+            )}
             {order.pullSheet.length > 0 && (
               <DropdownMenuItem
                 onClick={() =>
@@ -341,6 +333,14 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
         </DropdownMenu>
         {canAct && (
           <>
+            <Button
+              variant="outline"
+              disabled={!showPullSheet}
+              onClick={() => setPhonePickOpen(true)}
+            >
+              <IconDeviceMobile />
+              {t("orders.phonePick.button")}
+            </Button>
             <Button
               variant="outline-destructive"
               onClick={() => setCancelOpen(true)}
@@ -427,7 +427,9 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
         {showPullSheet && view === "location" ? (
           <OrderPickByLocation
             entries={order.pullSheet}
-            orderBins={order.orderBins}
+            orderBinOf={(entry) =>
+              entry.orderRef == null ? null : (order.orderBins[entry.orderRef] ?? null)
+            }
             pickedScanIds={pickedSet}
             canPick={canAct}
             onPickedChange={changePicked}
@@ -445,7 +447,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                         disabled={!canAct}
                         aria-label={t("orders.pickAll")}
                         onCheckedChange={(checked) =>
-                          setPicked(checked === true ? allScanIds : [])
+                          changePicked(allScanIds, checked === true)
                         }
                       />
                     </TableHead>
@@ -553,12 +555,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                                       name: line.name,
                                     })}
                                     onCheckedChange={(checked) =>
-                                      setPicked([
-                                        ...picked.filter(
-                                          (id) => !copyIds.includes(id),
-                                        ),
-                                        ...(checked === true ? copyIds : []),
-                                      ])
+                                      changePicked(copyIds, checked === true)
                                     }
                                   />
                                 </TableCell>
@@ -613,6 +610,17 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                                       <IconDots />
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
+                                      {line.allocations.length < line.quantity && (
+                                        <>
+                                          <DropdownMenuItem
+                                            onClick={() => setSubstituteLineIndex(index)}
+                                          >
+                                            <IconReplace />
+                                            {t("orders.substitutes.find")}
+                                          </DropdownMenuItem>
+                                          <DropdownMenuSeparator />
+                                        </>
+                                      )}
                                       <DropdownMenuItem
                                         variant="destructive"
                                         onClick={() =>
@@ -640,7 +648,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                                       name: entry.card.name,
                                     })}
                                     onCheckedChange={(checked) =>
-                                      togglePick(entry.scanId, checked === true)
+                                      changePicked([entry.scanId], checked === true)
                                     }
                                   />
                                 </TableCell>
@@ -744,6 +752,13 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
             open={orderBinsOpen}
             onOpenChange={setOrderBinsOpen}
           />
+          <OrderSubstituteDialog
+            order={order}
+            lineIndex={substituteLineIndex}
+            onOpenChange={(open) => {
+              if (!open) setSubstituteLineIndex(null);
+            }}
+          />
           <ConfirmDialog
             open={sortPresetOpen}
             onOpenChange={setSortPresetOpen}
@@ -772,7 +787,6 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                 await act(() => cancelOrder(order.guid), t("orders.cancelled"))
               ) {
                 setLastCopyName(null);
-                form.reset(EMPTY_PICKS);
               }
             }}
           />
@@ -816,7 +830,6 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                   );
               if (!result) return;
               setRemoveLineIndex(null);
-              if (isLastLine) form.reset(EMPTY_PICKS);
             }}
           />
         </>
@@ -836,10 +849,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
             () => fulfilOrder(order.guid, { scanIds: livePicked }),
             t("orders.fulfilled"),
           );
-          if (result) {
-            form.reset(EMPTY_PICKS);
-            setFulfilOpen(false);
-          }
+          if (result) setFulfilOpen(false);
         }}
       />
       <ConfirmDialog
@@ -853,7 +863,6 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
         isPending={pending}
         onConfirm={async () => {
           if (await act(() => cancelOrder(order.guid), t("orders.cancelled"))) {
-            form.reset(EMPTY_PICKS);
             setCancelOpen(false);
           }
         }}
@@ -868,7 +877,11 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
           if (await run(() => deleteOrder(order.guid))) onDeleted();
         }}
       />
-      <UnsavedChangesGuard isDirty={isDirty} onDiscard={discardPicks} />
+      <OrderPhonePickDialog
+        open={phonePickOpen}
+        onOpenChange={setPhonePickOpen}
+        orderGuids={[order.guid]}
+      />
     </div>
   );
 }

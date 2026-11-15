@@ -1,4 +1,12 @@
-import type { OrgShareLink, ShareLinkKind, ShareLinkPurpose } from "@magic-vault/shared";
+import {
+  SHARED_STORAGE_PATH_PREFIX,
+  WATCH_PATH_PREFIX,
+  shareLinkPathWithToken,
+  type OrgShareLink,
+  type ShareLinkKind,
+  type ShareLinkPurpose,
+  type ShortenerLink,
+} from "@magic-vault/shared";
 import { and, desc, eq, gt, isNull, or, sql } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { collections, shareLinks, storageLocations } from "../db/schema";
@@ -8,6 +16,7 @@ import type {
   IssueShareLinkInput,
   IssuedShareLink,
   RevokedShareLink,
+  ShareLinkSigningRow,
 } from "./interfaces/share-tokens";
 import {
   allowsLongShareLinks,
@@ -16,6 +25,7 @@ import {
 } from "./share-link-policy";
 import { signShareToken } from "./share-tokens";
 import { generateShortLinkCode } from "./short-link-codes";
+import { deleteShortLinks, registerShortLinks, shortLinkUrlFor } from "./shortener-client";
 
 const ISSUER_BY_KIND: Record<ShareLinkKind, string> = {
   collection: MONITOR_LINK_ISSUER,
@@ -26,17 +36,7 @@ function wholeSeconds(date: Date): Date {
   return new Date(Math.floor(date.getTime() / 1000) * 1000);
 }
 
-export function signShareLinkRow(row: {
-  guid: string;
-  orgId: string;
-  linkKind: string;
-  subjectGuid: string;
-  subjectVersion: number;
-  purpose: string;
-  showsPrices: boolean;
-  issuedAt: Date;
-  expiresAt: Date;
-}): Promise<string> {
+export function signShareLinkRow(row: ShareLinkSigningRow): Promise<string> {
   return signShareToken({
     issuer: ISSUER_BY_KIND[row.linkKind as ShareLinkKind],
     linkGuid: row.guid,
@@ -48,6 +48,17 @@ export function signShareLinkRow(row: {
     showsPrices: row.showsPrices,
     purpose: row.purpose as ShareLinkPurpose,
   });
+}
+
+export async function shareLinkShortTarget(
+  row: ShareLinkSigningRow & { shortCode: string },
+): Promise<ShortenerLink> {
+  const prefix = row.linkKind === "storage" ? SHARED_STORAGE_PATH_PREFIX : WATCH_PATH_PREFIX;
+  return {
+    code: row.shortCode,
+    targetPath: shareLinkPathWithToken(`${prefix}/${row.subjectGuid}`, await signShareLinkRow(row)),
+    expiresAt: row.expiresAt.toISOString(),
+  };
 }
 
 export async function issueShareLink(
@@ -73,10 +84,12 @@ export async function issueShareLink(
       shortCode: generateShortLinkCode(),
     })
     .returning();
+  await registerShortLinks([await shareLinkShortTarget(row)]);
   return {
     guid: row.guid,
     token: await signShareLinkRow(row),
     shortCode: row.shortCode,
+    shortUrl: shortLinkUrlFor(row.shortCode),
     expiresAt,
   };
 }
@@ -147,6 +160,7 @@ export async function listSubjectShareLinks(
       expiresAt: expiresAt.toISOString(),
       token: await signShareLinkRow(link),
       shortCode: link.shortCode,
+      shortUrl: shortLinkUrlFor(link.shortCode),
     });
   }
   return links;
@@ -163,8 +177,14 @@ export async function revokeShareLink(
     .where(
       and(eq(shareLinks.guid, linkGuid), eq(shareLinks.orgId, orgId), isNull(shareLinks.revokedAt)),
     )
-    .returning({ linkKind: shareLinks.linkKind, subjectGuid: shareLinks.subjectGuid });
-  return row ? { kind: row.linkKind as ShareLinkKind, subjectGuid: row.subjectGuid } : null;
+    .returning({
+      linkKind: shareLinks.linkKind,
+      subjectGuid: shareLinks.subjectGuid,
+      shortCode: shareLinks.shortCode,
+    });
+  if (!row) return null;
+  await deleteShortLinks([row.shortCode]);
+  return { kind: row.linkKind as ShareLinkKind, subjectGuid: row.subjectGuid };
 }
 
 export async function revokeShareLinksForSubject(
@@ -172,7 +192,7 @@ export async function revokeShareLinksForSubject(
   orgId: string,
   subjectGuid: string,
 ): Promise<void> {
-  await tx
+  const revoked = await tx
     .update(shareLinks)
     .set({ revokedAt: new Date() })
     .where(
@@ -181,5 +201,7 @@ export async function revokeShareLinksForSubject(
         eq(shareLinks.subjectGuid, subjectGuid),
         isNull(shareLinks.revokedAt),
       ),
-    );
+    )
+    .returning({ shortCode: shareLinks.shortCode });
+  await deleteShortLinks(revoked.map((row) => row.shortCode));
 }

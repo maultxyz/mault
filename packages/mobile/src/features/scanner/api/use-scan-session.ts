@@ -95,6 +95,7 @@ import {
 import { HAND_SCAN_BINS_KEY, HAND_SCAN_KEY } from "@/lib/constants/storage-keys";
 import { readKv, writeKv } from "@/lib/storage/kv";
 import { ROUTE_TIMEOUT_MODULE_PATTERN } from "@/lib/constants/sorter";
+import { SHORT_LINK_BASE_URL } from "@/lib/constants/config";
 import type {
   CapturedFrame,
   CardSaveResult,
@@ -1019,7 +1020,7 @@ export function useScanSession({
             return true;
           }
           const shareLink = parseShareLinkUrl(text);
-          const shortCode = shareLink ? null : parseShortLinkUrl(text);
+          const shortCode = shareLink ? null : parseShortLinkUrl(text, SHORT_LINK_BASE_URL);
           if (!shareLink && !shortCode) return false;
           pause("user");
           router.push({

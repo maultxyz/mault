@@ -13,6 +13,7 @@ const files = [
   "packages/shared/package.json",
   "packages/api-docs/package.json",
   "packages/bot/package.json",
+  "packages/shortener/package.json",
 ];
 
 for (const file of files) {

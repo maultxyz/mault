@@ -1,4 +1,8 @@
 import type {
+  ORDER_BULK_ACTIONS,
+  ORDER_SUBSTITUTE_DIFFERENCES,
+} from "../constants/business.constant";
+import type {
   ACTIVITY_ACTIONS,
   BUSINESS_PERMISSION_KEYS,
   DEVICE_ALERT_TYPES,
@@ -240,6 +244,30 @@ export interface PullSheetEntry {
   gameKey: string | null;
 }
 
+export interface OrderPickedInput {
+  scanIds: string[];
+  isPicked: boolean;
+}
+
+export interface OrderPickLinkTarget {
+  orderGuids: string[];
+  orgId: string | null;
+}
+
+export interface PickWalkEntry extends PullSheetEntry {
+  orderGuid: string;
+  orderName: string;
+  orderBin: number | null;
+}
+
+export interface PickWalkStop {
+  stopKey: string;
+  locationName: string | null;
+  collectionName: string;
+  binNumber: number | null;
+  entries: PickWalkEntry[];
+}
+
 export type OrderBins = Record<string, number>;
 
 export interface FulfilmentOrderDetail extends FulfilmentOrder {
@@ -463,4 +491,36 @@ export interface AccuracyCheckInput {
 export interface AccuracySampleInput {
   scanId: string;
   result: AccuracySampleResult | null;
+}
+
+export type OrderBulkAction = (typeof ORDER_BULK_ACTIONS)[number];
+
+export interface OrderBulkActionInput {
+  action: OrderBulkAction;
+  orderGuids: string[];
+}
+
+export interface OrderBulkActionResult {
+  updated: number;
+  skipped: number;
+}
+
+export type OrderSubstituteDifference = (typeof ORDER_SUBSTITUTE_DIFFERENCES)[number];
+
+export interface OrderLineSubstitute {
+  entry: PullSheetEntry;
+  differences: OrderSubstituteDifference[];
+}
+
+export interface OrderLineSubstituteInput {
+  lineIndex: number;
+  scanId: string;
+}
+
+export interface OrderSubstituteCandidate {
+  setCode: string | null;
+  setName: string | null;
+  collectorNumber: string | null;
+  condition: CardCondition;
+  isFoil: boolean;
 }

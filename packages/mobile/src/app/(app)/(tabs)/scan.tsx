@@ -32,6 +32,7 @@ import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { useLiveCorners } from "@/features/scanner/api/use-live-corners";
 import { useLiveFrameSource } from "@/features/scanner/api/use-live-frame-source";
 import { useScannerQrWatcher } from "@/features/scanner/api/use-scanner-qr-watcher";
+import { useOpenOrderPick } from "@/features/business/api/use-open-order-pick";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
 import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
@@ -162,6 +163,7 @@ export default function ScanScreen() {
     session.trackLiveCorners,
   );
   const openStorageLabel = useOpenStorageLabel();
+  const openOrderPick = useOpenOrderPick();
   const lastQrLinkRef = useRef<{ linkKey: string; seenAt: number } | null>(null);
   const scannerQr = useScannerQrWatcher({
     active:
@@ -180,6 +182,8 @@ export default function ScanScreen() {
       if (session.isRunning) session.pause();
       if (qrLink.kind === "storage-label") {
         openStorageLabel(qrLink.storageLabel);
+      } else if (qrLink.kind === "order-pick") {
+        openOrderPick(qrLink.orderPick);
       } else if (qrLink.kind === "share-link") {
         router.push({ pathname: "/shared-link", params: { ...qrLink.shareLink } });
       } else if (qrLink.kind === "short-link") {

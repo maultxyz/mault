@@ -18,10 +18,10 @@ import {
   STORAGE_PATH,
 } from "@/lib/constants/storage";
 import {
-  STORAGE_LABEL_DEFAULT_VALUES,
-  STORAGE_LABEL_PRINT_PAGE_STYLE,
-  STORAGE_LABEL_TEMPLATES,
-} from "@/lib/constants/storage-labels";
+  LABEL_SHEET_PRINT_PAGE_STYLE,
+  LABEL_SHEET_TEMPLATES,
+} from "@/lib/constants/label-sheets";
+import { STORAGE_LABEL_DEFAULT_VALUES } from "@/lib/constants/storage-labels";
 import type { StorageLabelsViewProps } from "@/lib/interfaces/storage-labels";
 import { cn } from "@/lib/utils";
 import {
@@ -39,6 +39,7 @@ import { useSearchParams } from "react-router-dom";
 
 function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
   const { t } = useTranslation("storage");
+  const { t: tCommon } = useTranslation("common");
   const isMobile = useIsMobile();
   const [searchParams] = useSearchParams();
   const { data: locations = [], isPending } = useQuery(storageLocationsQueryOptions(orgId));
@@ -63,7 +64,7 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
   });
   const selectedGuids = new Set(locationGuids);
   const selectedLocations = locations.filter((location) => selectedGuids.has(location.guid));
-  const template = STORAGE_LABEL_TEMPLATES[templateId];
+  const template = LABEL_SHEET_TEMPLATES[templateId];
   const canPrint = selectedLocations.length > 0 && form.formState.isValid;
   const sheet = (
     <StorageLabelSheet
@@ -76,14 +77,32 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
   const printButton = (
     <Button disabled={!canPrint} onClick={() => window.print()}>
       <IconPrinter />
-      {t("labels.page.print")}
+      {tCommon("labelSheets.print")}
     </Button>
   );
 
-  return (
-    <div className={cn("min-h-0 flex-1 overflow-y-auto text-foreground", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
-      <style>{STORAGE_LABEL_PRINT_PAGE_STYLE}</style>
-      {isMobile ? (
+  const sheetPreview =
+    selectedLocations.length > 0 ? (
+      sheet
+    ) : (
+      <EmptyState
+        icon={IconPrinter}
+        title={t("labels.sheet.emptyTitle")}
+        description={t("labels.sheet.emptyDescription")}
+      />
+    );
+  const emptyLocations = (
+    <EmptyState icon={IconBox} title={t("page.emptyTitle")} description={t("page.emptyDescription")} />
+  );
+  const printPortal = createPortal(
+    <div className="hidden bg-white print:block">{sheet}</div>,
+    document.body,
+  );
+
+  if (isMobile) {
+    return (
+      <div className={cn("min-h-0 flex-1 overflow-y-auto text-foreground", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
+        <style>{LABEL_SHEET_PRINT_PAGE_STYLE}</style>
         <MobilePageHeader
           title={t("labels.page.title")}
           subtitle={t("labels.page.description")}
@@ -91,41 +110,58 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
         >
           {printButton}
         </MobilePageHeader>
-      ) : (
-        <PageHeader
-          title={t("labels.page.title")}
-          description={t("labels.page.description")}
-          backTo={STORAGE_PATH}
-          backLabel={t("pickList.back")}
-          actions={printButton}
-        />
-      )}
-      <div
-        className={
-          isMobile ? MOBILE_PAGE_BODY_CLASS : "mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:gap-2 md:px-3 md:py-2"
-        }
-      >
-        {isPending ? (
-          <ListSkeleton />
-        ) : locations.length === 0 ? (
-          <EmptyState icon={IconBox} title={t("page.emptyTitle")} description={t("page.emptyDescription")} />
-        ) : (
-          <>
-            <Callout icon={IconInfoCircle}>{t("labels.page.printTip")}</Callout>
-            <StorageLabelOptionsForm form={form} locations={locations} />
-            {selectedLocations.length > 0 ? (
-              sheet
-            ) : (
-              <EmptyState
-                icon={IconPrinter}
-                title={t("labels.sheet.emptyTitle")}
-                description={t("labels.sheet.emptyDescription")}
-              />
-            )}
-          </>
-        )}
+        <div className={MOBILE_PAGE_BODY_CLASS}>
+          {isPending ? (
+            <ListSkeleton />
+          ) : locations.length === 0 ? (
+            emptyLocations
+          ) : (
+            <>
+              <Callout icon={IconInfoCircle}>{tCommon("labelSheets.printTip")}</Callout>
+              <StorageLabelOptionsForm form={form} locations={locations} />
+              {sheetPreview}
+            </>
+          )}
+        </div>
+        {printPortal}
       </div>
-      {createPortal(<div className="hidden bg-white print:block">{sheet}</div>, document.body)}
+    );
+  }
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden text-foreground">
+      <style>{LABEL_SHEET_PRINT_PAGE_STYLE}</style>
+      <div className="grid min-h-0 flex-1 grid-cols-12 overflow-hidden">
+        <section className="col-span-4 flex h-full flex-col gap-2 overflow-y-auto border-r bg-sidebar/70 p-2 lg:col-span-3">
+          {isPending ? (
+            <ListSkeleton />
+          ) : (
+            locations.length > 0 && <StorageLabelOptionsForm form={form} locations={locations} />
+          )}
+        </section>
+        <section className="col-span-8 flex min-h-0 flex-col overflow-y-auto lg:col-span-9">
+          <PageHeader
+            title={t("labels.page.title")}
+            description={t("labels.page.description")}
+            backTo={STORAGE_PATH}
+            backLabel={t("pickList.back")}
+            actions={printButton}
+          />
+          <div className="flex flex-col gap-2 px-3 py-2">
+            {isPending ? (
+              <ListSkeleton />
+            ) : locations.length === 0 ? (
+              emptyLocations
+            ) : (
+              <>
+                <Callout icon={IconInfoCircle}>{tCommon("labelSheets.printTip")}</Callout>
+                {sheetPreview}
+              </>
+            )}
+          </div>
+        </section>
+      </div>
+      {printPortal}
     </div>
   );
 }

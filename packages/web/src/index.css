@@ -247,6 +247,13 @@ code {
   --color-tooltip-foreground: var(--tooltip-foreground);
   --shadow-popover: 0 8px 24px -4px var(--shadow-color), 0 2px 6px -2px var(--shadow-color);
   --shadow-card-hover: 0 4px 12px -2px var(--shadow-color);
+  --shadow-button-raised: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 2px -1px var(--shadow-color);
+  --shadow-button-raised-pressed: inset 0 1px 1px rgb(0 0 0 / 0.12);
+  --shadow-button-outline: 0 1px 1px -0.5px var(--shadow-color);
+  --shadow-input: inset 0 1px 1px rgb(16 24 40 / 0.05), 0 1px 1px -0.5px var(--shadow-color);
+  --shadow-control-thumb: 0 1px 2px var(--shadow-color), 0 0 0 0.5px rgb(16 24 40 / 0.06);
+  --shadow-kbd: inset 0 -1px 0 var(--border);
+  --shadow-control-track: inset 0 1px 1px rgb(16 24 40 / 0.08);
   --text-color-primary: var(--primary-text);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);

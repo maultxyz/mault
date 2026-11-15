@@ -383,6 +383,40 @@ importers:
         specifier: ^4.6.5
         version: 4.6.5
 
+  packages/shortener:
+    dependencies:
+      '@hono/node-server':
+        specifier: ^1.19.17
+        version: 1.19.17(hono@4.12.2)
+      '@magic-vault/shared':
+        specifier: workspace:*
+        version: link:../shared
+      hono:
+        specifier: ^4.12.2
+        version: 4.12.2
+      pg:
+        specifier: ^8.16.3
+        version: 8.22.0
+      zod:
+        specifier: ^4.6.5
+        version: 4.6.5
+    devDependencies:
+      '@types/node':
+        specifier: ^26
+        version: 26.6.5
+      '@types/pg':
+        specifier: ^8.15.6
+        version: 8.16.0
+      tsup:
+        specifier: ^8.4.0
+        version: 8.5.1(jiti@2.7.0)(postcss@8.5.29)(tsx@4.21.0)(typescript@5.9.3)(yaml@2.9.1)
+      tsx:
+        specifier: ^4.19.3
+        version: 4.21.0
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
   packages/web:
     dependencies:
       '@base-ui/react':
@@ -13309,7 +13343,7 @@ snapshots:
 
   '@modelcontextprotocol/sdk@1.27.1(zod@3.25.76)':
     dependencies:
-      '@hono/node-server': 1.19.9(hono@4.12.2)
+      '@hono/node-server': 1.19.17(hono@4.12.2)
       ajv: 8.18.0
       ajv-formats: 3.0.1(ajv@8.18.0)
       content-type: 1.0.5

@@ -212,7 +212,7 @@ export function ControlCardBuilder({ onAdd }: ControlCardBuilderProps) {
           className="flex flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(submit)}
         >
-          <div className="flex flex-col gap-3 md:gap-2 sm:flex-row sm:items-start">
+          <div className="flex flex-col gap-3 md:gap-2">
             <Controller
               name="title"
               control={form.control}
@@ -240,7 +240,7 @@ export function ControlCardBuilder({ onAdd }: ControlCardBuilderProps) {
               name="style"
               control={form.control}
               render={({ field }) => (
-                <Field className="sm:w-auto sm:shrink-0">
+                <Field>
                   <FieldLabel>{t("controlCards.form.style")}</FieldLabel>
                   <ResponsiveSegmented
                     label={t("controlCards.form.style")}
@@ -252,7 +252,7 @@ export function ControlCardBuilder({ onAdd }: ControlCardBuilderProps) {
               )}
             />
           </div>
-          <div className="grid gap-3 md:gap-2 sm:grid-cols-2">
+          <div className="flex flex-col gap-3 md:gap-2">
             <ControlCardSelectField
               control={form.control}
               name="collectionGuid"

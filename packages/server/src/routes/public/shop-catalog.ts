@@ -40,6 +40,7 @@ const shopCatalogBrowseRoute = createPublicCardBrowseRoute({
       collectionIds: claims.collectionIds,
       storageLocationIds: claims.storageLocationIds,
       inventoryOnly: true,
+      hidesCardsReservedByOpenPicks: true,
       showsPrices: claims.showsPrices,
       readsCacheKey: `${claims.catalogGuid}|${claims.orgId}`,
     };

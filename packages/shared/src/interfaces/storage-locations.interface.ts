@@ -148,6 +148,7 @@ export interface StorageShareLink {
   guid: string;
   token: string;
   shortCode: string;
+  shortUrl?: string | null;
   expiresAt: string;
 }
 

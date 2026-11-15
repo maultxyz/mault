@@ -44,6 +44,7 @@ import type {
   TradeOfferResponse,
   TradeOfferScope,
 } from "./interfaces/trade-offers";
+import { notReservedByOpenPicksSql } from "./order-reservations";
 import { uuidArraySql } from "./sql-arrays";
 import {
   TRADE_OFFER_PENDING_PER_ORG_HOURLY_MAX,
@@ -93,6 +94,7 @@ async function loadWantedCards(
       scope.kind === "collection"
         ? eq(collectionCards.collectionId, scope.collectionId)
         : eq(collectionCards.locationId, scope.locationId),
+      notReservedByOpenPicksSql(scope.orgId, sql`${collectionCards.guid}`),
     ),
   );
   if (rows.length !== uniqueScanIds.length) return null;

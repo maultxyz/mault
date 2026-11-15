@@ -53,6 +53,7 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
               collectionIds: [],
               storageLocationIds: [claims.locationId],
               inventoryOnly: false,
+              hidesCardsReservedByOpenPicks: claims.purpose === "trade",
               showsPrices: claims.showsPrices,
               readsCacheKey: null,
             }

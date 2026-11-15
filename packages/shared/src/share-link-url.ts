@@ -4,7 +4,10 @@ import {
   SHORT_LINK_PATH_PREFIX,
   WATCH_PATH_PREFIX,
 } from "./constants/monitor-links.constant";
-import type { ParsedShareLinkUrl } from "./interfaces/monitor-links.interface";
+import type {
+  ParsedShareLinkUrl,
+  ShortLinkReference,
+} from "./interfaces/monitor-links.interface";
 
 const UUID_TEXT = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
 
@@ -37,10 +40,33 @@ const SHORT_LINK_URL_PATTERN = new RegExp(
   `^https?://[^/?#\\s]+${escapeForPattern(SHORT_LINK_PATH_PREFIX)}/([0-9A-Za-z]{8,16})/?(?:[?#]\\S*)?$`,
 );
 
+export function shareLinkPathWithToken(path: string, token: string | null): string {
+  return token ? `${path}?${new URLSearchParams({ [SHARE_LINK_TOKEN_PARAM]: token })}` : path;
+}
+
 export function buildShortLinkUrl(origin: string, shortCode: string): string {
   return `${origin.replace(/\/$/, "")}${SHORT_LINK_PATH_PREFIX}/${shortCode}`;
 }
 
-export function parseShortLinkUrl(text: string): string | null {
-  return SHORT_LINK_URL_PATTERN.exec(text.trim())?.[1] ?? null;
+export function shortLinkUrlOf(link: ShortLinkReference, appOrigin: string): string {
+  return link.shortUrl ?? buildShortLinkUrl(appOrigin, link.shortCode);
+}
+
+export function buildShortenerUrl(shortLinkBaseUrl: string, shortCode: string): string {
+  return `${shortLinkBaseUrl.replace(/\/$/, "")}/${shortCode}`;
+}
+
+function shortenerUrlPattern(shortLinkBaseUrl: string): RegExp {
+  return new RegExp(
+    `^${escapeForPattern(shortLinkBaseUrl.replace(/\/$/, ""))}/([0-9A-Za-z]{8,16})/?(?:[?#]\\S*)?$`,
+    "i",
+  );
+}
+
+export function parseShortLinkUrl(text: string, shortLinkBaseUrl?: string | null): string | null {
+  const trimmed = text.trim();
+  const appPathCode = SHORT_LINK_URL_PATTERN.exec(trimmed)?.[1];
+  if (appPathCode) return appPathCode;
+  if (!shortLinkBaseUrl) return null;
+  return shortenerUrlPattern(shortLinkBaseUrl).exec(trimmed)?.[1] ?? null;
 }

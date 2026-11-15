@@ -20,18 +20,18 @@ import { Switch } from "@/components/ui/switch";
 import { transferIntakeLot } from "@/features/business/api/business";
 import { useBusinessAction } from "@/features/business/api/use-business";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { NEW_COLLECTION_OPTION } from "@/lib/constants/business";
 import type { IntakeTransferDialogProps } from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
-import {
-  intakeTransferSchema,
-  type IntakeTransferFormValues,
-} from "@/schemas/business.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect, useMemo } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import {
+  intakeTransferSchema,
+  type IntakeTransferFormValues,
+  INTAKE_TRANSFER_NEW_COLLECTION_OPTION,
+} from "@magic-vault/shared";
 
 export function IntakeTransferDialog({
   lot,
@@ -53,7 +53,7 @@ export function IntakeTransferDialog({
   const form = useForm<IntakeTransferFormValues>({
     resolver: zodResolver(intakeTransferSchema),
     defaultValues: {
-      targetCollectionGuid: NEW_COLLECTION_OPTION,
+      targetCollectionGuid: INTAKE_TRANSFER_NEW_COLLECTION_OPTION,
       newCollectionName: "",
       deleteSource: true,
     },
@@ -63,14 +63,14 @@ export function IntakeTransferDialog({
   useEffect(() => {
     if (!open) return;
     form.reset({
-      targetCollectionGuid: targets[0]?.guid ?? NEW_COLLECTION_OPTION,
+      targetCollectionGuid: targets[0]?.guid ?? INTAKE_TRANSFER_NEW_COLLECTION_OPTION,
       newCollectionName: "",
       deleteSource: lot.ownsCollection,
     });
   }, [open, targets, lot.ownsCollection, form]);
 
   const target = useWatch({ control: form.control, name: "targetCollectionGuid" });
-  const isNew = target === NEW_COLLECTION_OPTION;
+  const isNew = target === INTAKE_TRANSFER_NEW_COLLECTION_OPTION;
 
   const submit = async (values: IntakeTransferFormValues) => {
     const result = await run(() =>
@@ -126,7 +126,7 @@ export function IntakeTransferDialog({
                         {collection.name}
                       </SelectItem>
                     ))}
-                    <SelectItem value={NEW_COLLECTION_OPTION}>
+                    <SelectItem value={INTAKE_TRANSFER_NEW_COLLECTION_OPTION}>
                       {t("transfer.newCollection")}
                     </SelectItem>
                   </SelectContent>

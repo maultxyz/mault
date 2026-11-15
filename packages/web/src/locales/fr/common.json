@@ -598,5 +598,17 @@
         "declined": "Refusée"
       }
     }
+  },
+  "labelSheets": {
+    "template": "Planche",
+    "startPosition": "Commencer à l'étiquette",
+    "startPositionHint": "Ignorez les étiquettes déjà utilisées sur une planche entamée. Elles se comptent de gauche à droite, de haut en bas.",
+    "print": "Imprimer",
+    "printTip": "Imprimez à l'échelle 100 % (taille réelle) sans marges pour que les étiquettes s'alignent sur la planche.",
+    "templates": {
+      "avery-5160": "Avery 5160 (30 par planche, 2,625 x 1 po)",
+      "avery-5163": "Avery 5163 (10 par planche, 4 x 2 po)",
+      "avery-5164": "Avery 5164 (6 par planche, 4 x 3,33 po)"
+    }
   }
 }

@@ -5,13 +5,18 @@ import {
   ORDER_LINE_QUANTITY_MAX,
   ORDER_LINE_TEXT_MAX_LENGTH,
   ORDER_LINES_MAX,
+  ORDER_SUBSTITUTES_LIMIT,
+  orderSubstituteCost,
+  orderSubstituteDifferences,
   toCardCondition,
   type FulfilmentOrder,
   type FulfilmentOrderStatus,
   type OrderLine,
   type OrderBins,
   type OrderLineInput,
+  type OrderLineSubstitute,
   type OrderSource,
+  type OrderSubstituteCandidate,
   type PlayingCard,
   type PullSheetEntry,
 } from "@magic-vault/shared";
@@ -20,7 +25,11 @@ import { uuidArraySql } from "./sql-arrays";
 import type { Transaction } from "../db";
 import { fulfilmentOrders } from "../db/schema";
 import { getUserDisplayName } from "../middleware/auth";
-import type { PullSheetRow } from "./interfaces/business";
+import { ORDER_SUBSTITUTE_CANDIDATES_SCANNED } from "./constants/business";
+import type {
+  OrderSubstituteCandidateRow,
+  PullSheetRow,
+} from "./interfaces/business";
 import { hydrateSavedCards } from "./saved-cards";
 
 function text(value: unknown): string | null {
@@ -144,7 +153,7 @@ async function existingScanIds(
   );
 }
 
-async function allocatedElsewhere(
+export async function allocatedElsewhere(
   tx: Transaction,
   orgId: string,
   orderId: number | null,
@@ -202,6 +211,76 @@ async function findCandidates(
     LIMIT ${limit}
   `);
   return (result.rows as { scan_id: string }[]).map((row) => row.scan_id);
+}
+
+async function findSubstituteCandidates(
+  tx: Transaction,
+  orgId: string,
+  line: OrderLineInput,
+  excluded: Set<string>,
+  onlyScanIds: string[] | null,
+): Promise<OrderSubstituteCandidateRow[]> {
+  const name = line.name.trim().toLowerCase();
+  const result = await tx.execute(sql`
+    SELECT cc.guid::text AS scan_id, cc.card_set AS set_code, cc.card_set_name AS set_name,
+      cc.card_collector_number AS collector_number, cc.condition, cc.is_foil
+    FROM collection_cards cc
+    JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
+    LEFT JOIN intake_lots il ON il.id = cc.intake_lot_id
+    WHERE cc.org_id = ${orgId}
+      AND (il.id IS NULL OR il.status = 'accepted')
+      AND (
+        lower(cc.card_name) = ${name}
+        OR lower(split_part(cc.card_name, ' // ', 1)) = ${name}
+      )
+      ${onlyScanIds ? sql`AND cc.guid = ANY(${uuidArraySql(onlyScanIds)})` : sql``}
+      ${excluded.size > 0 ? sql`AND NOT (cc.guid = ANY(${uuidArraySql([...excluded])}))` : sql``}
+    LIMIT ${ORDER_SUBSTITUTE_CANDIDATES_SCANNED}
+  `);
+  return result.rows as unknown as OrderSubstituteCandidateRow[];
+}
+
+function toSubstituteCandidate(row: OrderSubstituteCandidateRow): OrderSubstituteCandidate {
+  return {
+    setCode: row.set_code,
+    setName: row.set_name,
+    collectorNumber: row.collector_number,
+    condition: toCardCondition(row.condition),
+    isFoil: row.is_foil,
+  };
+}
+
+export async function loadOrderLineSubstitutes(
+  tx: Transaction,
+  orgId: string,
+  line: OrderLine,
+): Promise<OrderLineSubstitute[]> {
+  const excluded = await allocatedElsewhere(tx, orgId, null);
+  const ranked = (await findSubstituteCandidates(tx, orgId, line, excluded, null))
+    .map((row) => ({ row, cost: orderSubstituteCost(line, toSubstituteCandidate(row)) }))
+    .sort((left, right) => left.cost - right.cost)
+    .slice(0, ORDER_SUBSTITUTES_LIMIT);
+  const entries = await loadPullSheet(tx, orgId, [
+    { ...line, allocations: ranked.map(({ row }) => row.scan_id), picked: [] },
+  ]);
+  const entryByScanId = new Map(entries.map((entry) => [entry.scanId, entry]));
+  return ranked.flatMap(({ row }) => {
+    const entry = entryByScanId.get(row.scan_id);
+    return entry
+      ? [{ entry, differences: orderSubstituteDifferences(line, toSubstituteCandidate(row)) }]
+      : [];
+  });
+}
+
+export async function isOrderLineSubstituteAvailable(
+  tx: Transaction,
+  orgId: string,
+  line: OrderLine,
+  scanId: string,
+): Promise<boolean> {
+  const excluded = await allocatedElsewhere(tx, orgId, null);
+  const rows = await findSubstituteCandidates(tx, orgId, line, excluded, [scanId]);
+  return rows.length === 1;
 }
 
 export async function allocateOrderLines(

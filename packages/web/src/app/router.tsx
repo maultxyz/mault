@@ -1,7 +1,7 @@
 import {
   SHARED_STORAGE_PATH_PREFIX,
   SHOP_CATALOG_PATH_PREFIX,
-  SHORT_LINK_PATH_PREFIX,
+  SHORT_LINK_NOT_FOUND_PATH,
 } from "@magic-vault/shared";
 import {
   HOME_PATH,
@@ -60,7 +60,10 @@ import {
   ORDER_PARAM,
   ORDERS_PATH,
   PICK_IMPORT_PATH,
+  PACKING_SLIPS_PATH,
+  PICK_BATCH_PATH,
   PICKS_PATH,
+  PRICE_LABELS_PATH,
   picksPath,
   LEGACY_REPORTS_PATH,
 } from "@/lib/constants/business";
@@ -83,8 +86,8 @@ const ShopCatalogPage = lazy(
     ["common", "business", "cards"],
   ),
 );
-const ShortLinkPage = lazy(
-  withNamespaces(() => import("@/app/routes/short-link"), ["common"]),
+const LinkNotFoundPage = lazy(
+  withNamespaces(() => import("@/app/routes/link-not-found"), ["common"]),
 );
 const AuthPage = lazy(
   withNamespaces(() => import("@/app/routes/neon/auth"), ["common", "auth"]),
@@ -221,6 +224,9 @@ const StorageLabelsPage = lazy(
 const StatsPage = lazy(() => import("@/app/routes/app/stats"));
 const IntakePage = lazy(() => import("@/app/routes/app/intake"));
 const PicksPage = lazy(() => import("@/app/routes/app/picks"));
+const PriceLabelsPage = lazy(() => import("@/app/routes/app/price-labels"));
+const PickBatchPage = lazy(() => import("@/app/routes/app/pick-batch"));
+const PackingSlipsPage = lazy(() => import("@/app/routes/app/packing-slips"));
 const PickImportPage = lazy(
   withNamespaces(
     () => import("@/app/routes/app/pick-import"),
@@ -348,8 +354,8 @@ export const routes: RouteObject[] = [
         element: <ShopCatalogPage />,
       },
       {
-        path: `${SHORT_LINK_PATH_PREFIX}/:shortCode`,
-        element: <ShortLinkPage />,
+        path: SHORT_LINK_NOT_FOUND_PATH,
+        element: <LinkNotFoundPage />,
       },
       {
         path: MARKETING_PAGE_PATHS.privacy,
@@ -387,6 +393,10 @@ export const routes: RouteObject[] = [
           {
             path: `${INTAKE_PATH}/:guid/receipt`,
             element: <IntakeReceiptPage />,
+          },
+          {
+            path: PACKING_SLIPS_PATH,
+            element: <PackingSlipsPage />,
           },
           {
             path: `${LEGACY_INTAKE_PATH}/:guid/receipt`,
@@ -662,6 +672,14 @@ export const routes: RouteObject[] = [
               {
                 path: PICK_IMPORT_PATH,
                 element: <PickImportPage />,
+              },
+              {
+                path: PRICE_LABELS_PATH,
+                element: <PriceLabelsPage />,
+              },
+              {
+                path: PICK_BATCH_PATH,
+                element: <PickBatchPage />,
               },
               {
                 path: LEGACY_INTAKE_PATH,

@@ -1,41 +1,31 @@
 import {
   BUSINESS_PERMISSION_KEYS,
+  businessMoneySchema,
   BUYLIST_CREDIT_BONUS_MAX,
   BUYLIST_PERCENT_MAX,
-  BUYLIST_PRICE_MAX,
   BUYLIST_TIERS_MAX,
   CARD_CONDITIONS,
   CSV_IMPORT_NAME_MAX_LENGTH,
   DEVICE_MAINTENANCE_INTERVAL_MAX,
   DEVICE_MAINTENANCE_INTERVAL_MIN,
   formValidationMessage,
-  INTAKE_NOTES_MAX_LENGTH,
-  INTAKE_TEXT_MAX_LENGTH,
   ORDER_LINE_QUANTITY_MAX,
   ORDER_LINES_MAX,
   ORDER_NAME_MAX_LENGTH,
+  orderDecklistSchema,
   orderSortCatchAllBin,
   ACCURACY_SAMPLE_SIZES,
-  SET_NAME_MAX_LENGTH,
 } from "@magic-vault/shared";
-import {
-  NEW_COLLECTION_OPTION,
-  PICK_IMPORT_CREATE_MODES,
-} from "@/lib/constants/business";
+import { PICK_IMPORT_CREATE_MODES } from "@/lib/constants/business";
 import { z } from "zod";
-
-const money = z
-  .number({ message: formValidationMessage("amountRequired") })
-  .min(0, formValidationMessage("atLeast", { min: 0 }))
-  .max(BUYLIST_PRICE_MAX, formValidationMessage("atMost", { max: BUYLIST_PRICE_MAX }));
 
 export const businessSettingsDraftSchema = z.object({
   buylist: z.object({
-    minCardValue: money,
+    minCardValue: businessMoneySchema,
     tiers: z
       .array(
         z.object({
-          minPrice: money,
+          minPrice: businessMoneySchema,
           percent: z
             .number({ message: formValidationMessage("percentageRequired") })
             .min(0, formValidationMessage("atLeast", { min: 0 }))
@@ -44,8 +34,8 @@ export const businessSettingsDraftSchema = z.object({
       )
       .min(1, formValidationMessage("tiersRequired"))
       .max(BUYLIST_TIERS_MAX, formValidationMessage("tooManyTiers", { max: BUYLIST_TIERS_MAX })),
-    bulkThreshold: money,
-    bulkOffer: money,
+    bulkThreshold: businessMoneySchema,
+    bulkOffer: businessMoneySchema,
     creditBonusPercent: z
       .number({ message: formValidationMessage("percentageRequired") })
       .min(0, formValidationMessage("atLeast", { min: 0 }))
@@ -65,73 +55,9 @@ export type BusinessSettingsDraftValues = z.infer<
   typeof businessSettingsDraftSchema
 >;
 
-export const intakeLotSchema = z
-  .object({
-    collectionMode: z.enum(["new", "existing"]),
-    collectionGuid: z.string(),
-    gameGuid: z.string(),
-    lang: z.string(),
-    customerName: z
-      .string()
-      .trim()
-      .min(1, formValidationMessage("customerNameRequired"))
-      .max(INTAKE_TEXT_MAX_LENGTH, formValidationMessage("nameTooLong", { max: INTAKE_TEXT_MAX_LENGTH })),
-    customerContact: z
-      .string()
-      .trim()
-      .max(INTAKE_TEXT_MAX_LENGTH, formValidationMessage("nameTooLong", { max: INTAKE_TEXT_MAX_LENGTH })),
-    notes: z
-      .string()
-      .trim()
-      .max(
-        INTAKE_NOTES_MAX_LENGTH,
-        formValidationMessage("nameTooLong", { max: INTAKE_NOTES_MAX_LENGTH }),
-      ),
-  })
-  .superRefine((values, ctx) => {
-    if (values.collectionMode === "existing" && !values.collectionGuid) {
-      ctx.addIssue({
-        code: "custom",
-        message: formValidationMessage("collectionRequired"),
-        path: ["collectionGuid"],
-      });
-    }
-    if (values.collectionMode === "new" && !values.gameGuid) {
-      ctx.addIssue({ code: "custom", message: formValidationMessage("gameRequired"), path: ["gameGuid"] });
-    }
-    if (values.collectionMode === "new" && !values.lang) {
-      ctx.addIssue({ code: "custom", message: formValidationMessage("languageRequired"), path: ["lang"] });
-    }
-  });
-
-export type IntakeLotFormValues = z.infer<typeof intakeLotSchema>;
-
-export const intakeAcceptSchema = z.object({
-  payoutMethod: z.enum(["cash", "credit"]),
-  useOverride: z.boolean(),
-  totalOverride: money.nullable(),
-});
-
-export type IntakeAcceptFormValues = z.infer<typeof intakeAcceptSchema>;
-
-export const intakeOfferSchema = z.object({ offer: money });
+export const intakeOfferSchema = z.object({ offer: businessMoneySchema });
 
 export type IntakeOfferFormValues = z.infer<typeof intakeOfferSchema>;
-
-export const intakeCancelSchema = z.object({ removeCards: z.boolean() });
-
-export type IntakeCancelFormValues = z.infer<typeof intakeCancelSchema>;
-
-export const orderImportSchema = z.object({
-  name: z
-    .string()
-    .trim()
-    .min(1, formValidationMessage("nameRequired"))
-    .max(ORDER_NAME_MAX_LENGTH, formValidationMessage("nameTooLong", { max: ORDER_NAME_MAX_LENGTH })),
-  text: z.string().trim().min(1, formValidationMessage("orderTextRequired")),
-});
-
-export type OrderImportFormValues = z.infer<typeof orderImportSchema>;
 
 const orderLineQuantity = z
   .number(formValidationMessage("wholeNumber"))
@@ -140,7 +66,7 @@ const orderLineQuantity = z
   .max(ORDER_LINE_QUANTITY_MAX, formValidationMessage("atMost", { max: ORDER_LINE_QUANTITY_MAX }));
 
 export const orderEditSchema = z.object({
-  name: orderImportSchema.shape.name,
+  name: orderDecklistSchema.shape.name,
   lines: z
     .array(
       z.object({
@@ -212,7 +138,7 @@ export const orderBinsSchema = (binCount: number) =>
 export type OrderBinsFormValues = z.infer<ReturnType<typeof orderBinsSchema>>;
 
 export const collectionCostSchema = z.object({
-  total: money,
+  total: businessMoneySchema,
   mode: z.enum(["spread", "each"]),
   overwrite: z.boolean(),
 });
@@ -247,30 +173,3 @@ export const serviceIntervalSchema = z.object({
 
 export type ServiceIntervalFormValues = z.infer<typeof serviceIntervalSchema>;
 
-export const orderPicksSchema = z.object({ picked: z.array(z.string()) });
-
-export type OrderPicksFormValues = z.infer<typeof orderPicksSchema>;
-
-export const intakeTransferSchema = z
-  .object({
-    targetCollectionGuid: z.string().min(1, formValidationMessage("collectionRequired")),
-    newCollectionName: z
-      .string()
-      .trim()
-      .max(SET_NAME_MAX_LENGTH, formValidationMessage("nameTooLong", { max: SET_NAME_MAX_LENGTH })),
-    deleteSource: z.boolean(),
-  })
-  .superRefine((values, ctx) => {
-    if (
-      values.targetCollectionGuid === NEW_COLLECTION_OPTION &&
-      !values.newCollectionName
-    ) {
-      ctx.addIssue({
-        code: "custom",
-        message: formValidationMessage("nameRequired"),
-        path: ["newCollectionName"],
-      });
-    }
-  });
-
-export type IntakeTransferFormValues = z.infer<typeof intakeTransferSchema>;

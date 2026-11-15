@@ -50,6 +50,7 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
 import { intakeReceiptPath } from "@/lib/constants/business";
+import { priceLabelsPath } from "@/lib/constants/price-labels";
 import { toServerPagination } from "@/lib/pagination";
 import type { IntakeLotDetailProps } from "@/lib/interfaces/business";
 import {
@@ -62,6 +63,7 @@ import {
   IconListCheck,
   IconPrinter,
   IconScan,
+  IconTag,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
@@ -263,6 +265,12 @@ export function IntakeLotDetail({
               <IconPrinter />
               {t("intake.printReceipt")}
             </DropdownMenuItem>
+            {!access?.isLocked && (
+              <DropdownMenuItem onClick={() => navigate(priceLabelsPath("lot", lot.guid))}>
+                <IconTag />
+                {t("priceLabels.printForLot")}
+              </DropdownMenuItem>
+            )}
             {access?.canAcceptIntake && (
               <>
                 <DropdownMenuSeparator />

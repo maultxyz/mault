@@ -3,9 +3,9 @@ import { fetchPublicCards, publicCardsKeys } from "@/features/public-cards/api/p
 import { PUBLIC_CARDS_SOURCE_PATHS } from "@/lib/constants/public-cards";
 import type { PublicCardsSource } from "@/lib/interfaces/public-cards";
 import {
-  buildShortLinkUrl,
   SHOP_CATALOG_GUID_PARAM,
   SHOP_PHOTO_UPLOAD_FIELD,
+  shortLinkUrlOf,
   type Result,
   type ShopCatalog,
   type ShopCatalogInfo,
@@ -58,7 +58,7 @@ export function deleteShopCatalog(guid: string): Promise<Result<null>> {
 
 export function buildShopCatalogUrl(catalog: ShopCatalog): string | null {
   if (!catalog.isPublic && !catalog.linkToken) return null;
-  return buildShortLinkUrl(window.location.origin, catalog.shortCode);
+  return shortLinkUrlOf(catalog, window.location.origin);
 }
 
 export const publicShopCatalogQueryOptions = (source: PublicCardsSource) =>

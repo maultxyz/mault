@@ -8,6 +8,7 @@ export interface PublicCardBrowseScope {
   collectionIds: number[];
   storageLocationIds: number[];
   inventoryOnly: boolean;
+  hidesCardsReservedByOpenPicks: boolean;
   showsPrices: boolean;
   readsCacheKey: string | null;
 }

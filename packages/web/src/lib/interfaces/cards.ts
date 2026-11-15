@@ -343,6 +343,7 @@ export interface ScannedCardTableProps {
 
 export interface SelectionActionBarProps {
   selectedCount: number;
+  selectionLabel?: string;
   onClear: () => void;
   children: ReactNode;
 }
@@ -641,6 +642,7 @@ export interface OpenScanOptions {
 export interface CardThumbnailProps {
   image: PlayingCardImage | null | undefined;
   className?: string;
+  loading?: "lazy" | "eager";
 }
 
 export interface MobileCardDrawerProps {

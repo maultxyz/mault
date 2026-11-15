@@ -23,12 +23,12 @@ fi
 pi_require_user
 pi_ensure_user_bus
 
-if [[ ! -f "$ROOT/packages/server/dist/index.js" || ! -f "$ROOT/packages/web/dist/index.html" ]]; then
+if [[ ! -f "$ROOT/packages/server/dist/index.js" || ! -f "$ROOT/packages/shortener/dist/index.js" || ! -f "$ROOT/packages/web/dist/index.html" ]]; then
   echo "The app is not built yet. Run scripts/pi/install.sh first." >&2
   exit 1
 fi
 
-systemctl --user start mault-camera.service mault-api.service mault-web.service
+systemctl --user start mault-camera.service mault-shortener.service mault-api.service mault-web.service
 
 for _ in $(seq 1 60); do
   if curl -sf http://127.0.0.1:8080/ >/dev/null; then

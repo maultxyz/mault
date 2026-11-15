@@ -69,6 +69,7 @@ import { startDeviceOfflineAlerts } from "./lib/device-alerts";
 import { startInventorySnapshots } from "./lib/inventory";
 import { startApiUsageFlushing } from "./lib/api-usage";
 import { startCardMatchIndexWarmup } from "./lib/card-match-index";
+import { startShortLinkStartupSync } from "./lib/short-links";
 
 const app = new Hono<AppEnv>();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
@@ -170,6 +171,7 @@ startDeviceOfflineAlerts();
 startInventorySnapshots();
 startApiUsageFlushing();
 startCardMatchIndexWarmup();
+startShortLinkStartupSync();
 
 const server = serve(
   { fetch: app.fetch, port: API_PORT, hostname: getApiHost() },

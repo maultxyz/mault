@@ -238,25 +238,15 @@
     "printLabels": "Print labels",
     "page": {
       "title": "Storage labels",
-      "description": "Print QR labels for your boxes and binders. Scan one with the MAULT app to open that location's cards.",
-      "print": "Print",
-      "printTip": "Print at 100% scale (actual size) with no margins so the labels line up with the sticker sheet."
+      "description": "Print QR labels for your boxes and binders. Scan one with the MAULT app to open that location's cards."
     },
     "form": {
       "title": "Label sheet",
       "description": "Pick the locations and the Avery sheet you are printing on.",
-      "template": "Sheet",
-      "startPosition": "Start at label",
-      "startPositionHint": "Skip labels already used on a partial sheet. Labels count left to right, top to bottom.",
       "locations_one": "{{count}} location selected",
       "locations_other": "{{count}} locations selected",
       "selectAll": "Select all",
       "selectNone": "Select none"
-    },
-    "templates": {
-      "avery-5160": "Avery 5160 (30 per sheet, 2.625 x 1 in)",
-      "avery-5163": "Avery 5163 (10 per sheet, 4 x 2 in)",
-      "avery-5164": "Avery 5164 (6 per sheet, 4 x 3.33 in)"
     },
     "sheet": {
       "emptyTitle": "No locations selected",
