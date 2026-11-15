@@ -12,6 +12,7 @@ export const GAME_ABBREVIATIONS: Record<string, string> = {
   grandarchive: "GA",
   cyberpunk: "CP",
   sorcery: "SCR",
+  digimon: "DCG",
 };
 
 export const GAME_ABBREVIATION_FALLBACK_LENGTH = 4;

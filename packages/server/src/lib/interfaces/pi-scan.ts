@@ -81,6 +81,7 @@ export interface PiScanRunContext extends PiScanSorterConfiguration {
 }
 
 export interface PiScanLive {
+  emergencyStopMessage: string | null;
   pendingSave: PiScanPendingSave | null;
   configurationVersion: number;
   allowDuplicates: boolean;

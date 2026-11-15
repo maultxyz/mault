@@ -255,17 +255,7 @@
     "subtitle": "{{source}} · erstellt {{date}}",
     "importButton": "Neuer Pick",
     "importTitle": "Neuer Pick",
-    "importDescription": "Füge die zu ziehenden Karten ein oder lade sie hoch: eine TCGplayer-Pickliste, einen Shopify-Bestellexport, eine beliebige CSV mit Kartennamen-Spalte oder eine einfache Liste wie \"4 Lightning Bolt\".",
     "name": "Name",
-    "namePlaceholder": "Bestellungen von Montag",
-    "contents": "Zu ziehende Karten",
-    "contentsPlaceholder": "Product Name,Set,Number,Condition,Quantity,Price",
-    "preview": "{{source}}: {{lines}} Zeilen, {{quantity}} Karten.",
-    "previewEmpty": "Keine Karten gefunden. Prüfe, ob die erste Zeile Spaltennamen wie Product Name und Quantity enthält.",
-    "previewSkipped_one": "{{count}} Zeile ohne Kartennamen wurde übersprungen.",
-    "previewSkipped_other": "{{count}} Zeilen ohne Kartennamen wurden übersprungen.",
-    "import": "Pick erstellen",
-    "created": "Pick erstellt",
     "sources": {
       "tcgplayer": "TCGplayer",
       "shopify": "Shopify",
@@ -309,7 +299,39 @@
     "deleteDescription": "Der Eintrag wird entfernt. Bereits aus dem Bestand genommene Karten bleiben entfernt.",
     "pickFirst": "Hake zuerst jede gezogene Karte ab",
     "pickAll": "Alle picken",
-    "importedName": "Importierte Bestellung {{index}}"
+    "importedName": "Importierte Bestellung {{index}}",
+    "noOrder": "Keine Bestellung",
+    "orderRefLabel": "Bestellung {{order}}",
+    "orderBinLabel": "Fach {{bin}}",
+    "pickCopyForOrder": "{{name}} für Bestellung {{order}} als gepickt markieren",
+    "pickOrder": "Alle Karten der Bestellung {{order}} als gepickt markieren",
+    "pickNoOrder": "Alle Karten ohne Bestellung als gepickt markieren",
+    "orderPickedCount": "{{picked}} von {{quantity}} gepickt",
+    "orderCardCount_one": "{{count}} Karte",
+    "orderCardCount_other": "{{count}} Karten",
+    "locationColumn": "Lagerort",
+    "viewsLabel": "Pick-Ansicht",
+    "views": {
+      "location": "Nach Lagerort picken",
+      "order": "Nach Bestellung sortieren"
+    },
+    "orderRefPlaceholder": "Bestellung",
+    "orderRefInputLabel": "Bestellung für {{name}}",
+    "assignOrderBins": "Fächer für Bestellungen",
+    "orderBinsTitle": "Fächer für Bestellungen",
+    "orderBinsDescription": "Gib jeder Bestellung ein eigenes Fach oder einen eigenen Behälter. Ziehe die Karten nach Lagerort und lege jede in das Fach ihrer Bestellung. Dieselben Nummern gelten beim Sortieren mit dem Sortierer, wo Fach {{catchAll}} alles Übrige aufnimmt.",
+    "autoAssignBins": "Automatisch zuweisen",
+    "tooManyOrders": "Dein Sortierer hat {{count}} Fächer für Bestellungen, daher bleiben einige Bestellungen ohne Fach.",
+    "saveOrderBins": "Fächer speichern",
+    "orderBinsSaved": "Fächer gespeichert",
+    "createSortPreset": "Sortiervorlage erstellen",
+    "sortPresetTitle": "Diesen Pick nach Bestellung sortieren?",
+    "sortPresetDescription": "Erstellt eine Sortiervorlage mit einem Fach pro Bestellung und aktiviert sie. Lass die gezogenen Karten durch den Sortierer laufen, dann landet jede im Fach ihrer Bestellung. Scans mit dieser Vorlage werden nicht gespeichert, dein Bestand bleibt also unverändert.",
+    "sortPresetCreated_one": "Sortiervorlage erstellt und aktiviert",
+    "sortPresetCreated_other": "{{count}} Sortiervorlagen erstellt, eine pro Spiel",
+    "openSortPreset": "Vorlage öffnen",
+    "batchName_one": "{{count}} Bestellung",
+    "batchName_other": "{{count}} Bestellungen"
   },
   "cost": {
     "title": "Einkaufspreis festlegen",
@@ -378,7 +400,8 @@
       "intakeTransferred": "Ankauf verschoben",
       "catalogCreated": "Shop-Katalog erstellt",
       "catalogUpdated": "Shop-Katalog geändert",
-      "catalogDeleted": "Shop-Katalog gelöscht"
+      "catalogDeleted": "Shop-Katalog gelöscht",
+      "orderSortPresetCreated": "Sortiervorlage erstellt"
     },
     "messages": {
       "cardCorrected": "{{from}} zu {{to}} korrigiert",
@@ -406,7 +429,8 @@
       "intakeTransferred": "{{cards}} von {{summary}} gekaufte Karten verschoben",
       "catalogCreated": "Hat den Shop-Katalog {{summary}} erstellt",
       "catalogUpdated": "Hat den Shop-Katalog {{summary}} geändert",
-      "catalogDeleted": "Hat den Shop-Katalog {{summary}} gelöscht"
+      "catalogDeleted": "Hat den Shop-Katalog {{summary}} gelöscht",
+      "orderSortPresetCreated": "Sortiervorlage für {{summary}} erstellt"
     }
   },
   "accuracy": {

@@ -619,7 +619,13 @@
   },
   "cameraFocus": {
     "label": "Mise au point",
-    "auto": "Auto"
+    "auto": "Auto",
+    "autoOnHelp": "L'automatique refait la mise au point en continu, donc une image peut être floue pendant que l'objectif cherche. Sur un trieur, la carte est toujours à la même distance : désactivez Auto et déplacez le curseur jusqu'à ce que le texte de la carte soit net. Laissez Auto activé seulement si vous tenez les cartes à la main à des distances variables.",
+    "autoOffHelp": "La mise au point manuelle reste là où vous la réglez, ce qui convient le mieux à un trieur, car chaque carte est à la même distance. Déplacez le curseur jusqu'à ce que le texte de la carte soit net. Activez Auto si vous tenez les cartes à la main."
+  },
+  "cameraZoom": {
+    "label": "Zoom",
+    "description": "Zoomez jusqu'à ce que la carte remplisse la majeure partie de la zone de scan. Plus de pixels sur la carte donnent une meilleure correspondance ; gardez une petite marge pour que les bords restent visibles."
   },
   "stations": {
     "label": "Trieuse {{number}}",
@@ -722,7 +728,8 @@
         "scanLimit": "Limite quotidienne de scans atteinte",
         "sorterLimit": "Limite de trieuses atteinte",
         "collectionLocked": "La collection est verrouillée",
-        "scannerError": "Erreur de caméra"
+        "scannerError": "Erreur de caméra",
+        "emergencyStopped": "Arrêt d'urgence"
       },
       "fixes": {
         "resume": "Reprendre",
@@ -1241,6 +1248,26 @@
       "previewAlt": "Numérisation de toute la vitre du scanner à plat",
       "editorLabel": "Vitre du scanner à plat. Faites glisser pour marquer l'emplacement de la carte.",
       "previewFailed": "Impossible de numériser la vitre. Vérifiez que le scanner est allumé et réessayez."
+    }
+  },
+  "emergencyStop": {
+    "stop": "Arrêt",
+    "stopTooltip": "Arrêt d'urgence : arrête immédiatement le chargeur, les volets et les poussoirs",
+    "stoppedTitle": "Trieuse arrêtée",
+    "stoppedDescription": "Retirez toute carte restée dans la trieuse, puis réinitialisez-la pour continuer.",
+    "stoppedSessionDescription": "Retirez toute carte restée dans la trieuse, puis relancez pour la réinitialiser.",
+    "reset": "Réinitialiser la trieuse",
+    "unsupported": {
+      "title": "La carte en cours sera quand même triée",
+      "description": "Le micrologiciel de cette trieuse ne peut pas s'arrêter en cours de carte. Le scan s'arrête après cette carte. Mettez à jour le micrologiciel pour un arrêt immédiat."
+    },
+    "unconfirmed": {
+      "title": "La trieuse n'a pas confirmé l'arrêt",
+      "description": "Éteignez la trieuse si elle bouge encore, puis vérifiez la connexion."
+    },
+    "resetFailed": {
+      "title": "Impossible de réinitialiser la trieuse",
+      "description": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez la connexion et réessayez."
     }
   }
 }

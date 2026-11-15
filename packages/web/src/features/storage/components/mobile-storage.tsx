@@ -44,6 +44,7 @@ import {
   STORAGE_LOCATION_SEARCH_PARAM,
   STORAGE_PICK_LIST_PATH,
   STORAGE_REVIEW_SEARCH_PARAM,
+  storageLabelsPath,
 } from "@/lib/constants/storage";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { toast } from "@/lib/toast";
@@ -54,6 +55,7 @@ import {
   IconListCheck,
   IconListSearch,
   IconPlus,
+  IconPrinter,
   IconTrash,
 } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
@@ -230,6 +232,15 @@ export function MobileStorage() {
           actions={
             !isLocked && (
               <>
+                <Button
+                  variant="ghost"
+                  className={MOBILE_CIRCLE_BUTTON_CLASS}
+                  aria-label={t("labels.printLabel")}
+                  nativeButton={false}
+                  render={<Link to={storageLabelsPath([selected.guid])} />}
+                >
+                  <IconPrinter />
+                </Button>
                 <ShareStorageLinkDialog
                   locationGuid={selected.guid}
                   renderTrigger={(activeLinkCount) => (
@@ -339,6 +350,17 @@ export function MobileStorage() {
                 render={<Link to={STORAGE_PICK_LIST_PATH} />}
               >
                 <IconListSearch />
+              </Button>
+            )}
+            {locations.length > 0 && !isLocked && (
+              <Button
+                variant="ghost"
+                className={MOBILE_CIRCLE_BUTTON_CLASS}
+                aria-label={t("labels.printLabels")}
+                nativeButton={false}
+                render={<Link to={storageLabelsPath()} />}
+              >
+                <IconPrinter />
               </Button>
             )}
             {!isLocked && (

@@ -1,8 +1,6 @@
 import { CsvImportDialog } from "@/components/csv-import-dialog";
-import type {
-  CsvImportPayload,
-  ImportTemplateRow,
-} from "@/lib/interfaces/csv-import";
+import type { ImportTemplateRow } from "@/lib/interfaces/csv-import";
+import type { PickListEntryInput } from "@magic-vault/shared";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -38,11 +36,10 @@ Object.defineProperty(window, "matchMedia", {
   }),
 });
 
-const SHOPIFY_CSV = [
-  "Name,Lineitem name,Lineitem quantity,Lineitem price",
-  "1001,Lightning Bolt - Foil,2,$1.50",
-  "1001,Giant Growth,1,$0.10",
-  "1002,Counterspell,4,$0.75",
+const PICK_CSV = [
+  "Card Name,Qty,Set",
+  "Lightning Bolt,2,M10",
+  "Giant Growth,1,M10",
 ].join("\n");
 
 const NO_NAME_CSV = [
@@ -52,8 +49,7 @@ const NO_NAME_CSV = [
 ].join("\n");
 
 function renderDialog(
-  type: "orders" | "picks",
-  onImport: (payload: CsvImportPayload) => Promise<boolean>,
+  onImport: (entries: PickListEntryInput[]) => Promise<boolean>,
 ) {
   const client = new QueryClient({
     defaultOptions: { queries: { retry: false } },
@@ -63,7 +59,6 @@ function renderDialog(
       <CsvImportDialog
         open
         onOpenChange={() => {}}
-        type={type}
         title="Import"
         description="Import description"
         importLabel="Import"
@@ -80,77 +75,57 @@ function setText(text: string) {
 
 describe("CsvImportDialog", () => {
   beforeEach(() => {
+    mockTemplates.length = 0;
     try {
       localStorage.clear();
-    } catch {}
-    mockTemplates.length = 0;
+    } catch {
+      return;
+    }
   });
 
   it("auto-selects a saved template when the header row matches", async () => {
     mockTemplates.push({
       guid: "tpl-1",
-      name: "Cardmarket",
-      type: "orders",
+      name: "Deck export",
+      type: "picks",
       mapping: {
-        type: "orders",
-        columns: { name: 7, quantity: 4, language: 8, orderRef: 0 },
-        composition: "reference",
+        type: "picks",
+        columns: { name: 0, quantity: 1 },
+        composition: "single",
         singleOrderName: null,
-        sourceHeaders: [
-          "idOrder",
-          "customer",
-          "status",
-          "pos",
-          "items",
-          "category",
-          "expansion",
-          "name",
-          "language",
-        ],
+        sourceHeaders: ["Card Name", "Qty", "Set"],
       },
       createdAt: "2026-11-13T00:00:00.000Z",
       updatedAt: "2026-11-13T00:00:00.000Z",
     });
-    renderDialog("orders", vi.fn().mockResolvedValue(true));
-    setText(
-      [
-        "idOrder,customer,status,pos,items,category,expansion,name,language",
-        '1,buyer,picking,1/1,1,,"Roaring Skies",\'Trainers\' Mail\',English',
-      ].join("\n"),
-    );
+    renderDialog(vi.fn().mockResolvedValue(true));
+    setText(PICK_CSV);
 
     await waitFor(() => {
-      expect(screen.getAllByText("Cardmarket").length).toBeGreaterThan(0);
+      expect(screen.getAllByText("Deck export").length).toBeGreaterThan(0);
     });
   });
 
-  it("prefills a Shopify mapping, previews derived orders and imports them", async () => {
+  it("imports the mapped CSV rows as pick list entries", async () => {
     const onImport = vi
-    .fn<(payload: CsvImportPayload) => Promise<boolean>>()
-    .mockResolvedValue(true);
-    renderDialog("orders", onImport);
-    setText(SHOPIFY_CSV);
+      .fn<(entries: PickListEntryInput[]) => Promise<boolean>>()
+      .mockResolvedValue(true);
+    renderDialog(onImport);
+    setText(PICK_CSV);
 
-    await waitFor(() => {
-      expect(screen.getByText("orders.title")).toBeTruthy();
-    });
     const importButton = screen.getByRole("button", { name: "Import" });
     await waitFor(() => expect(importButton).not.toBeDisabled());
     fireEvent.click(importButton);
 
     await waitFor(() => expect(onImport).toHaveBeenCalledTimes(1));
-    const payload = onImport.mock.calls[0][0];
-    expect(payload.type).toBe("orders");
-    if (payload.type !== "orders") return;
-    expect(payload.source).toBe("shopify");
-    expect(
-      payload.orders.map((order) => order.reference),
-    ).toEqual(["1001", "1002"]);
-    expect(payload.orders[0].lines[0].isFoil).toBe(true);
+    expect(onImport.mock.calls[0][0]).toEqual([
+      { name: "Lightning Bolt", quantity: 2 },
+      { name: "Giant Growth", quantity: 1 },
+    ]);
   });
 
   it("disables import until the required card name column is mapped", async () => {
-    renderDialog("orders", vi.fn().mockResolvedValue(true));
+    renderDialog(vi.fn().mockResolvedValue(true));
     setText(NO_NAME_CSV);
 
     const importButton = screen.getByRole("button", { name: "Import" });
@@ -159,9 +134,9 @@ describe("CsvImportDialog", () => {
 
   it("falls back to decklist parsing for plain text", async () => {
     const onImport = vi
-    .fn<(payload: CsvImportPayload) => Promise<boolean>>()
-    .mockResolvedValue(true);
-    renderDialog("picks", onImport);
+      .fn<(entries: PickListEntryInput[]) => Promise<boolean>>()
+      .mockResolvedValue(true);
+    renderDialog(onImport);
     setText("2 Lightning Bolt\n1 Giant Growth");
 
     const importButton = screen.getByRole("button", { name: "Import" });
@@ -169,10 +144,7 @@ describe("CsvImportDialog", () => {
     fireEvent.click(importButton);
 
     await waitFor(() => expect(onImport).toHaveBeenCalledTimes(1));
-    const payload = onImport.mock.calls[0][0];
-    expect(payload.type).toBe("picks");
-    if (payload.type !== "picks") return;
-    expect(payload.entries).toEqual([
+    expect(onImport.mock.calls[0][0]).toEqual([
       { name: "Lightning Bolt", quantity: 2 },
       { name: "Giant Growth", quantity: 1 },
     ]);

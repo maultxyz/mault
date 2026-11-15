@@ -17,6 +17,8 @@ FEEDER_DEFAULTS = dict(speed=315, duration=1000, pulseDuration=40,
                        pauseDuration=100, settleDuration=100,
                        reverseSpeed=295, reverseDuration=0)
 PARTS = ("bottom", "paddle", "pusher")
+MOTION_COMMAND_KEYS = ("route", "feederValue", "channel", "servo", "pushTest")
+MOTION_COMMAND_FLAGS = ("feeder", "clearDevice", "test", "retractCard")
 
 
 def integer(value, minimum, maximum):
@@ -54,6 +56,7 @@ class Controller:
         self.last_move = clock()
         self.preview_started = None
         self.jams = {}
+        self.emergency_stopped = False
         self.load()
 
     @property
@@ -106,6 +109,15 @@ class Controller:
         self.paddle_opened.clear()
         self.preview_started = None
 
+    def emergency_stop(self):
+        self.emergency_stopped = True
+        self.release()
+
+    @staticmethod
+    def is_motion_command(data):
+        return (any(key in data for key in MOTION_COMMAND_KEYS) or
+                any(data.get(flag) is True for flag in MOTION_COMMAND_FLAGS))
+
     async def wait(self, milliseconds):
         await self.sleep(max(0, milliseconds) / 1000)
 
@@ -119,6 +131,8 @@ class Controller:
                 offset * 100 <= abs(side - neutral) * PUSHER_NUDGE_MAX_TRAVEL_PERCENT)
 
     async def move(self, channel, pulse):
+        if self.emergency_stopped:
+            return
         integer(channel, 0, 15)
         pulse = max(120, min(490, pulse))
         relative = channel - self.config["channelOffset"]
@@ -305,7 +319,8 @@ class Controller:
                         servoDriver="ok" if self.hardware.present_driver() else "missing",
                         uptimeMs=int((self.clock() - self.started) * 1000),
                         pusherNudgeMaxPulse=PUSHER_NUDGE_MAX_PULSE,
-                        pusherNudgeMaxTravelPercent=PUSHER_NUDGE_MAX_TRAVEL_PERCENT)
+                        pusherNudgeMaxTravelPercent=PUSHER_NUDGE_MAX_TRAVEL_PERCENT,
+                        **({"stopped": True} if self.emergency_stopped else {}))
         if data.get("readIR") is True:
             return dict(status="ok", ir=[self.hardware.present(module) for module in range(1, self.count + 1)],
                         hopper=self.hardware.hopper())
@@ -331,6 +346,8 @@ class Controller:
                 return dict(status="ok", feeder=self.stored["feeder"])
             module = integer(section, 1, 5)
             return dict(status="ok", module=module, **self.stored["modules"][module - 1])
+        if self.emergency_stopped and self.is_motion_command(data):
+            return dict(error="stopped")
         if not self.hardware.present_driver():
             return dict(error="servo driver not detected - check PCA9685 I2C wiring and power", servoDriver="missing")
         if "setChannelOffset" in data:
@@ -386,6 +403,7 @@ class Controller:
             await self.push(module, direction, settings)
             return dict(status="pushed", module=module, direction=direction)
         elif data.get("neutral") is True:
+            self.emergency_stopped = False
             await self.neutral()
         elif data.get("clearDevice") is True:
             for module in range(1, self.count + 1):

@@ -31,6 +31,7 @@ export interface PiScanPendingSave {
 }
 
 export interface PiScanSessionState {
+  emergencyStopped?: boolean;
   pendingSave?: PiScanPendingSave | null;
   allowDuplicates?: boolean;
   removalEnabled?: boolean;

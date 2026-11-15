@@ -21,14 +21,17 @@ import {
   runScanDisposition,
   parseShareLinkUrl,
   parseShortLinkUrl,
+  parseStorageLabelUrl,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
   getCatchAllBin,
   getChaosBins,
   hasMaxCopiesBins,
+  isEmergencyStopReply,
   isFedEvent,
   isFeedTimeoutReply,
+  isFirmwareFeatureSupported,
   OCR_REGIONS_BY_GAME_KEY,
   SERIAL_JAM_ERROR,
   type SerialReply,
@@ -108,12 +111,14 @@ import type {
   SorterEventDetails,
 } from "@/lib/interfaces/scanner";
 import { delay } from "@/lib/delay";
+import { useOpenStorageLabel } from "@/features/storage/api/use-open-storage-label";
 
 export function useScanSession({
   capture,
 }: ScanSessionInputs): ScanSessionValue {
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
+  const openStorageLabel = useOpenStorageLabel();
   const sorter = useSorter();
   const { saveCard, saveUnmatched } = usePendingSaves();
   const { collection, collections, setScanTargetGuid } = useScanTarget();
@@ -227,6 +232,7 @@ export function useScanSession({
     allowDuplicates,
     handScanActive,
     removal,
+    openStorageLabel,
     feedRetryCount:
       feederConfig?.feedRetryCount ?? DEFAULT_FEEDER_CALIBRATION.feedRetryCount,
   };
@@ -238,8 +244,10 @@ export function useScanSession({
     setPhaseState(next);
   }, []);
 
+  const emergencyStoppedRef = useRef(false);
   const pause = useCallback(
     (reason: ScannerPauseReason, detail?: string) => {
+      if (emergencyStoppedRef.current && reason !== "emergency-stop") return;
       runningRef.current = false;
       setIsRunning(false);
       setPauseReason(reason);
@@ -571,6 +579,7 @@ export function useScanSession({
   const handleRouteResponse = useCallback(
     (response: unknown, target: RoutedCardTarget) => {
       const res = response as SerialReply | null;
+      if (emergencyStoppedRef.current || isEmergencyStopReply(res)) return;
       if (!res) {
         reportSorterEvent({
           command: "bin",
@@ -1003,6 +1012,12 @@ export function useScanSession({
         readControl: (captured) =>
           captured.frame ? readScannerQrText(captured.frame) : null,
         applyOtherCode: (text) => {
+          const storageLabel = parseStorageLabelUrl(text);
+          if (storageLabel) {
+            pause("user");
+            ctx.openStorageLabel(storageLabel);
+            return true;
+          }
           const shareLink = parseShareLinkUrl(text);
           const shortCode = shareLink ? null : parseShortLinkUrl(text);
           if (!shareLink && !shortCode) return false;
@@ -1086,6 +1101,7 @@ export function useScanSession({
 
   const handleFeedResult = useCallback(
     (reply: SerialReply | null, command: FeedCommand = "auto-feed") => {
+      if (emergencyStoppedRef.current) return;
       if (!reply || reply.empty || reply.error || reply.detected === false) {
         reportSorterEvent({ command, sent: true, response: reply });
       }
@@ -1184,6 +1200,7 @@ export function useScanSession({
 
   const start = useCallback(() => {
     const ctx = latestRef.current;
+    if (emergencyStoppedRef.current) return;
     if (!ctx.collection || (!ctx.sorter.isReady && !ctx.handScanActive)) return;
     runningRef.current = true;
     setIsRunning(true);
@@ -1208,6 +1225,28 @@ export function useScanSession({
   }, [handleMatched, runCapture, setPhase, triggerFeed]);
 
   const pauseByUser = useCallback(() => pause("user"), [pause]);
+
+  const emergencyStop = useCallback(async () => {
+    const { sorter: s } = latestRef.current;
+    emergencyStoppedRef.current = true;
+    if (!isFirmwareFeatureSupported(s.firmwareVersion, "emergencyStop")) {
+      pause("emergency-stop", "unsupported");
+      return;
+    }
+    pause("emergency-stop", "stopped");
+    if (!(await s.sendEmergencyStop())) setPauseDetail("unconfirmed");
+  }, [pause]);
+
+  const resetAfterEmergencyStop = useCallback(async () => {
+    if (!(await latestRef.current.sorter.sendNeutral())) {
+      setPauseDetail("resetFailed");
+      return false;
+    }
+    emergencyStoppedRef.current = false;
+    setPauseReason("user");
+    setPauseDetail(null);
+    return true;
+  }, []);
 
   const markFullBinsEmpty = useCallback(async (): Promise<boolean> => {
     const ctx = latestRef.current;
@@ -1300,6 +1339,8 @@ export function useScanSession({
     start,
     pause: pauseByUser,
     resume: start,
+    emergencyStop,
+    resetAfterEmergencyStop,
     scanOnce,
     feedOnce,
     autoFeed,

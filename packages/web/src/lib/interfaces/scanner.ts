@@ -83,6 +83,8 @@ export interface PiCameraReady {
   width: number;
   height: number;
   focus: CameraRange | null;
+  zoom: CameraRange | null;
+  zoomLevel?: number;
 }
 
 export type PiCameraHealth = PiCameraReady | { status: "down" | "absent" };
@@ -91,8 +93,13 @@ export interface CameraFocusControlProps {
   className?: string;
 }
 
+export interface CameraZoomControlProps {
+  className?: string;
+}
+
 export type CameraTrackSettings = MediaTrackSettings & {
   focusDistance?: number;
+  zoom?: number;
 };
 
 export type CameraTrackCapabilities = MediaTrackCapabilities & {
@@ -107,10 +114,13 @@ export interface CameraContextValue {
   errorMessage: string;
   focusRange: CameraRange | null;
   focusDistance: number | null;
+  zoomRange: CameraRange | null;
+  zoomLevel: number | null;
   cameras: MediaDeviceInfo[];
   camerasInUseElsewhere: MediaDeviceInfo[];
   selectedCameraId: string | null;
   setFocusDistance: (value: number | null) => void;
+  setZoomLevel: (value: number) => void;
   selectCamera: (deviceId: string) => void;
   retryCamera: () => Promise<void>;
   stopCamera: () => void;
@@ -230,6 +240,9 @@ export interface ScannedCardsContextValue {
   pause: () => void;
   pauseForAttention: (attention: StationAttentionDetails) => void;
   resume: () => void;
+  emergencyStop: () => Promise<void>;
+  resetAfterEmergencyStop: () => Promise<boolean>;
+  isEmergencyStopped: boolean;
   attention: StationAttention | null;
   reopenAttention: () => void;
   reportScannerError: (message: string | null) => void;
@@ -359,6 +372,7 @@ export interface SerialContextValue {
   isRouteBusy: () => boolean;
   readIR: () => Promise<boolean[] | null>;
   sendNeutral: () => Promise<boolean>;
+  sendEmergencyStop: () => Promise<boolean>;
   sendTest: () => Promise<TestResult>;
   runTest: () => Promise<void>;
   checkFirmwareVersion: () => Promise<FirmwareCheckResult>;
@@ -395,6 +409,10 @@ export interface ScannerControlsProps {
   canFeedStandalone?: boolean;
   sessionLive?: boolean;
   onStop?: () => void;
+  onEmergencyStop?: () => void;
+  emergencyStopped?: boolean;
+  onResetAfterEmergencyStop?: () => void;
+  isResettingSorter?: boolean;
   onAutoFeedChange?: (enabled: boolean) => void;
   flatbedScan?: FlatbedScanFlow;
   onCalibrateFlatbed?: () => void;
@@ -801,6 +819,10 @@ export interface ScannerChromeContext {
   onFeed: () => void;
   onClearDevice: () => void;
   onResetDevice: () => void;
+  isEmergencyStopped: boolean;
+  isResettingSorter: boolean;
+  onEmergencyStop: () => void;
+  onResetAfterEmergencyStop: () => void;
   handScan: boolean;
   handScanActive: boolean;
   lastRoutedBin: LastRoutedBin | null;
@@ -1109,6 +1131,9 @@ export interface AutoFeedSerial {
     command: object,
     timeoutMs?: number,
   ) => Promise<SerialRequestResult>;
+  sendEmergencyStop: () => Promise<boolean>;
+  sendNeutral: () => Promise<boolean>;
+  supportsEmergencyStop: boolean;
   ignoreIrSensors: boolean;
 }
 

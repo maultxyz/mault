@@ -8,6 +8,7 @@ import { useDevice } from "@/features/calibration/api/use-device";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { invalidateCollectionCards } from "@/features/collections/lib/card-page-cache";
 import {
+  emergencyStopPiScanSession,
   pausePiScanSession,
   piScanHoldsPort,
   resumePiScanSession,
@@ -29,6 +30,7 @@ import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import {
+  IconHandStop,
   IconPlayerPause,
   IconPlayerPlay,
   IconPlayerStop,
@@ -153,6 +155,13 @@ export function PiScanStatusBar() {
     );
   };
 
+  const onEmergencyStop = () => {
+    void settlePiScanSessionRequest(
+      emergencyStopPiScanSession(),
+      t("piScan.requestFailed"),
+    );
+  };
+
   return (
     <div className="flex items-center gap-2 border-b bg-card px-3 py-1.5 text-xs">
       {!onScanner && (
@@ -193,6 +202,10 @@ export function PiScanStatusBar() {
       <Button variant="outline" onClick={onStop} disabled={state.stopping}>
         <IconPlayerStop />
         {t("piScan.stop")}
+      </Button>
+      <Button variant="destructive" onClick={onEmergencyStop}>
+        <IconHandStop />
+        {t("emergencyStop.stop")}
       </Button>
     </div>
   );

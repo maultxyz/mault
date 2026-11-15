@@ -207,3 +207,28 @@ test("a lost command times out by closing hardware rather than running queued st
   assert.equal(physical.isOpen, false);
   assert.equal(hub.owner(), null);
 });
+
+test("an emergency stop skips the busy guard and exclusive owner", async (context) => {
+  const physical = new FakeControllerPort();
+  const hub = new PiControllerHub(async () => physical);
+  context.after(() => {
+    hub.release("session");
+    hub.release("bridge");
+  });
+  const session = await hub.open("session");
+  const browser = await hub.open("bridge");
+  const sessionReplies: Record<string, unknown>[] = [];
+  const browserReplies: Record<string, unknown>[] = [];
+  session.on("data", (data) => sessionReplies.push(JSON.parse(data.toString())));
+  browser.on("data", (data) => browserReplies.push(JSON.parse(data.toString())));
+  session.write(`${JSON.stringify({ seq: 1, route: { module: 1, direction: "left" } })}\n`);
+  browser.write(`${JSON.stringify({ seq: 9, stop: true })}\n`);
+  assert.deepEqual(
+    physical.commands.map((command) => ("stop" in command ? "stop" : "route")),
+    ["route", "stop"],
+  );
+  physical.reply(1, { status: "stopped" });
+  assert.deepEqual(browserReplies, [{ status: "stopped", seq: 9 }]);
+  physical.reply(0, { error: "stopped" });
+  assert.deepEqual(sessionReplies, [{ error: "stopped", seq: 1 }]);
+});

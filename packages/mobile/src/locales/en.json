@@ -595,6 +595,14 @@
         "title": "Couldn't sort the card",
         "description": "Check the sorter, then tap Resume. {{detail}}"
       },
+      "emergency-stop": {
+        "title": "Sorter stopped",
+        "stopped": "Remove any card left in the sorter, then reset it to continue.",
+        "unsupported": "This sorter's firmware can't stop mid-card, so the current card is still sorted. Update the firmware to stop instantly. Then reset the sorter.",
+        "unconfirmed": "The sorter didn't confirm the stop. Switch it off if it is still moving, then check the connection.",
+        "resetFailed": "The sorter didn't confirm the reset. Check the connection and try again.",
+        "reset": "Reset sorter"
+      },
       "jam": {
         "title": "Card jammed",
         "description": "A card is stuck in module {{detail}}. Clear it, then tap Resume."
@@ -701,6 +709,8 @@
     "handScanBinLabel": "Put in",
     "handScanBin": "Bin {{number}}",
     "pauseAction": "Pause",
+    "emergencyStop": "Stop",
+    "emergencyStopHint": "Emergency stop: halts the feeder, paddles and pushers now",
     "sessionChip_one": "{{count}} scanned",
     "sessionChip_other": "{{count}} scanned",
     "sessionScans": {
@@ -818,7 +828,7 @@
       },
       "qrCode": {
         "title": "Point at a QR code to open it",
-        "description": "Shared collection, storage and trade links open in the app. A desktop camera pairing code connects this phone as the sorter's camera."
+        "description": "Shared collection, storage and trade links open in the app, and so do storage labels you printed. A desktop camera pairing code connects this phone as the sorter's camera."
       },
       "sorter": {
         "title": "Connect a sorter for auto-feed",
@@ -1599,7 +1609,8 @@
     "shareWithCount_other": "Share location ({{count}} active)",
     "searchFailed": "Couldn't search your storage locations",
     "notFoundTitle": "Location not found",
-    "notFoundDescription": "It may have been deleted, or you no longer have access to it."
+    "notFoundDescription": "It may have been deleted, or you no longer have access to it.",
+    "printLabel": "Print label"
   },
   "settings": {
     "title": "Settings",
@@ -2334,6 +2345,8 @@
     "verificationCodeLength": "Enter the {{length}}-digit code.",
     "verificationCodeNumeric": "The code can only contain numbers.",
     "controlCardActionRequired": "Pick at least one thing for the card to change.",
+    "orderBinDuplicate": "Each order needs its own bin.",
+    "orderBinCatchAll": "The last bin catches every other card, so pick another one.",
     "catalogSourcesRequired": "Pick at least one collection or storage location.",
     "contactRequired": "Add a way to reach you.",
     "textTooLong": "Keep this under {{max}} characters."

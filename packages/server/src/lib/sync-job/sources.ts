@@ -1,4 +1,5 @@
 import { cyberpunkSyncSource } from "../adapters/cyberpunk/sync";
+import { digimonSyncSource } from "../adapters/digimon/sync";
 import { fabSyncSource } from "../adapters/fab/sync";
 import { grandArchiveSyncSource } from "../adapters/grand-archive/sync";
 import { gundamSyncSource } from "../adapters/gundam/sync";
@@ -19,6 +20,7 @@ const BASE_SYNC_SOURCES: Record<string, SyncSource> = {
   gundam: gundamSyncSource,
   pokemon: pokemonSyncSource,
   pokemonjp: pokemonJapanSyncSource,
+  digimon: digimonSyncSource,
   lorcana: lorcanaSyncSource,
   onepiece: onePieceSyncSource,
   fab: fabSyncSource,

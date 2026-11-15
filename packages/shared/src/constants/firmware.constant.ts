@@ -30,6 +30,7 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   retractCard: "2.11.0",
   moduleDetection: "2.12.0",
   pusherNudge: "2.13.0",
+  emergencyStop: "2.14.0",
 };
 
 export const MODULE_DETECTION_BOARDS: readonly string[] = ["esp32"];
@@ -62,6 +63,8 @@ export const SERIAL_FED_EVENT = "fed";
 export const SERIAL_FEED_TIMEOUT_ERROR_PREFIX = "timeout";
 export const SERIAL_JAM_ERROR = "jam";
 export const SERIAL_BUSY_ERROR = "busy";
+export const SERIAL_STOPPED_ERROR = "stopped";
+export const SERIAL_STOPPED_STATUS = "stopped";
 export const SERIAL_PUSH_BLOCKED_ERROR = "push_blocked";
 export const SERIAL_ROLLBACK_OFF_ERROR = "rollback_off";
 export const SERIAL_RETRACTED_STATUS = "retracted";

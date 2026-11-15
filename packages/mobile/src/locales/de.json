@@ -595,6 +595,14 @@
         "title": "Karte konnte nicht einsortiert werden",
         "description": "Prüfe den Sortierer und tippe dann auf Fortsetzen. {{detail}}"
       },
+      "emergency-stop": {
+        "title": "Sortierer gestoppt",
+        "stopped": "Entferne alle Karten, die noch im Sortierer liegen, und setze ihn dann zurück, um fortzufahren.",
+        "unsupported": "Die Firmware dieses Sortierers kann nicht mitten in einer Karte anhalten, daher wird die aktuelle Karte noch einsortiert. Aktualisiere die Firmware, um sofort anzuhalten. Setze den Sortierer dann zurück.",
+        "unconfirmed": "Der Sortierer hat den Stopp nicht bestätigt. Schalte ihn aus, falls er sich noch bewegt, und prüfe dann die Verbindung.",
+        "resetFailed": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe die Verbindung und versuche es erneut.",
+        "reset": "Sortierer zurücksetzen"
+      },
       "jam": {
         "title": "Kartenstau",
         "description": "In Modul {{detail}} steckt eine Karte fest. Entferne sie und tippe dann auf Fortsetzen."
@@ -701,6 +709,8 @@
     "handScanBinLabel": "Ablegen in",
     "handScanBin": "Fach {{number}}",
     "pauseAction": "Pause",
+    "emergencyStop": "Stopp",
+    "emergencyStopHint": "Not-Stopp: hält Einzug, Klappen und Schieber sofort an",
     "sessionChip_one": "{{count}} gescannt",
     "sessionChip_other": "{{count}} gescannt",
     "sessionScans": {
@@ -818,7 +828,7 @@
       },
       "qrCode": {
         "title": "Auf einen QR-Code richten, um ihn zu öffnen",
-        "description": "Geteilte Sammlungs-, Lager- und Tauschlinks öffnen sich in der App. Ein Kopplungscode für die Desktop-Kamera verbindet dieses Handy als Kamera des Sortierers."
+        "description": "Geteilte Sammlungs-, Lager- und Tauschlinks öffnen sich in der App, ebenso gedruckte Lagerort-Etiketten. Ein Kopplungscode für die Desktop-Kamera verbindet dieses Handy als Kamera des Sortierers."
       },
       "sorter": {
         "title": "Sortierer für automatisches Einziehen verbinden",
@@ -1599,7 +1609,8 @@
     "shareWithCount_other": "Lagerort teilen ({{count}} aktiv)",
     "searchFailed": "Die Lagerorte konnten nicht durchsucht werden",
     "notFoundTitle": "Lagerort nicht gefunden",
-    "notFoundDescription": "Er wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf."
+    "notFoundDescription": "Er wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf.",
+    "printLabel": "Etikett drucken"
   },
   "settings": {
     "title": "Einstellungen",
@@ -2334,6 +2345,8 @@
     "verificationCodeLength": "Gib den {{length}}-stelligen Code ein.",
     "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten.",
     "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte.",
+    "orderBinDuplicate": "Jede Bestellung braucht ein eigenes Fach.",
+    "orderBinCatchAll": "Das letzte Fach nimmt alle übrigen Karten auf, wähle ein anderes.",
     "catalogSourcesRequired": "Wähle mindestens eine Sammlung oder einen Lagerort.",
     "contactRequired": "Gib an, wie man dich erreicht.",
     "textTooLong": "Bleib unter {{max}} Zeichen."

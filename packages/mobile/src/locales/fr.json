@@ -595,6 +595,14 @@
         "title": "Impossible de trier la carte",
         "description": "Vérifie le trieur, puis touche Reprendre. {{detail}}"
       },
+      "emergency-stop": {
+        "title": "Trieuse arrêtée",
+        "stopped": "Retirez toute carte restée dans la trieuse, puis réinitialisez-la pour continuer.",
+        "unsupported": "Le micrologiciel de cette trieuse ne peut pas s'arrêter en cours de carte, la carte en cours est donc quand même triée. Mettez à jour le micrologiciel pour un arrêt immédiat. Réinitialisez ensuite la trieuse.",
+        "unconfirmed": "La trieuse n'a pas confirmé l'arrêt. Éteignez-la si elle bouge encore, puis vérifiez la connexion.",
+        "resetFailed": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez la connexion et réessayez.",
+        "reset": "Réinitialiser la trieuse"
+      },
       "jam": {
         "title": "Carte coincée",
         "description": "Une carte est coincée dans le module {{detail}}. Retire-la, puis touche Reprendre."
@@ -701,6 +709,8 @@
     "handScanBinLabel": "À ranger dans",
     "handScanBin": "Bac {{number}}",
     "pauseAction": "Pause",
+    "emergencyStop": "Arrêt",
+    "emergencyStopHint": "Arrêt d'urgence : arrête immédiatement le chargeur, les volets et les poussoirs",
     "sessionChip_one": "{{count}} scannée",
     "sessionChip_other": "{{count}} scannée",
     "sessionScans": {
@@ -818,7 +828,7 @@
       },
       "qrCode": {
         "title": "Visez un QR code pour l'ouvrir",
-        "description": "Les liens partagés de collection, de rangement et d'échange s'ouvrent dans l'app. Un code d'association de caméra de bureau connecte ce téléphone comme caméra du trieur."
+        "description": "Les liens partagés de collection, de rangement et d'échange s'ouvrent dans l'app, tout comme les étiquettes de rangement imprimées. Un code d'association de caméra de bureau connecte ce téléphone comme caméra du trieur."
       },
       "sorter": {
         "title": "Connectez un trieur pour l'alimentation automatique",
@@ -1599,7 +1609,8 @@
     "shareWithCount_other": "Partager l'emplacement ({{count}} actifs)",
     "searchFailed": "Impossible de rechercher dans tes emplacements",
     "notFoundTitle": "Emplacement introuvable",
-    "notFoundDescription": "Il a peut-être été supprimé, ou tu n'y as plus accès."
+    "notFoundDescription": "Il a peut-être été supprimé, ou tu n'y as plus accès.",
+    "printLabel": "Imprimer l'étiquette"
   },
   "settings": {
     "title": "Paramètres",
@@ -2334,6 +2345,8 @@
     "verificationCodeLength": "Saisis le code à {{length}} chiffres.",
     "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
     "controlCardActionRequired": "Choisis au moins une chose que la carte modifie.",
+    "orderBinDuplicate": "Chaque commande a besoin de son propre bac.",
+    "orderBinCatchAll": "Le dernier bac reçoit toutes les autres cartes, choisis-en un autre.",
     "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
     "contactRequired": "Indique comment te joindre.",
     "textTooLong": "Reste sous {{max}} caractères."

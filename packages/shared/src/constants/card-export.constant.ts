@@ -62,6 +62,8 @@ export const DETECTED_FOIL_TYPE_BY_GAME_KEY: Record<string, string> = {
   mtg: "Traditional",
 };
 
+export const TCGPLAYER_NON_FOIL_PRINTING_WORD_PATTERN = /\s*\bNormal\b/g;
+
 export const TCGPLAYER_PRODUCT_LINES: Record<string, string> = {
   mtg: "Magic",
   pokemon: "Pokemon",
@@ -73,6 +75,7 @@ export const TCGPLAYER_PRODUCT_LINES: Record<string, string> = {
   swu: "Star Wars: Unlimited",
   gundam: "Gundam Card Game",
   grandarchive: "Grand Archive TCG",
+  digimon: "Digimon Card Game",
 };
 
 export const SORTSWIFT_CONDITION_CODES: Record<CardCondition, string> = {

@@ -1,6 +1,7 @@
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
+  emergencyStopPiScanSession,
   feedPiScanSession,
   pausePiScanSession,
   piScanHoldsPort,
@@ -135,6 +136,15 @@ export function usePiScanSession(getAllowDuplicates?: () => boolean) {
     [unreachableMessage],
   );
 
+  const emergencyStop = useCallback(
+    () =>
+      settlePiScanSessionRequest(
+        emergencyStopPiScanSession(),
+        unreachableMessage,
+      ),
+    [unreachableMessage],
+  );
+
   const setAutoFeed = useCallback(
     (enabled: boolean) => {
       if (!piScanHoldsPort(state)) return;
@@ -167,6 +177,7 @@ export function usePiScanSession(getAllowDuplicates?: () => boolean) {
     startOrResume,
     pause,
     stop,
+    emergencyStop,
     feed,
     setAutoFeed,
   };

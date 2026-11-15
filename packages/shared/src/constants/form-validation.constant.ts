@@ -44,6 +44,8 @@ export const FORM_VALIDATION_MESSAGE_KEYS = [
   "verificationCodeLength",
   "verificationCodeNumeric",
   "controlCardActionRequired",
+  "orderBinDuplicate",
+  "orderBinCatchAll",
 ] as const;
 
 export const ORGANIZATION_NAME_MAX_LENGTH = 100;

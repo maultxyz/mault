@@ -36,6 +36,7 @@ import IconArrowLeft from "@tabler/icons-react-native/IconArrowLeft";
 import IconArrowRight from "@tabler/icons-react-native/IconArrowRight";
 import IconUpload from "@tabler/icons-react-native/IconUpload";
 import IconPlayerStopFilled from "@tabler/icons-react-native/IconPlayerStopFilled";
+import IconHandStop from "@tabler/icons-react-native/IconHandStop";
 import IconMusic from "@tabler/icons-react-native/IconMusic";
 import IconBluetooth from "@tabler/icons-react-native/IconBluetooth";
 import IconWifi from "@tabler/icons-react-native/IconWifi";
@@ -111,6 +112,7 @@ export const ICONS = {
   arrowRight: IconArrowRight,
   upload: IconUpload,
   stop: IconPlayerStopFilled,
+  handStop: IconHandStop,
   music: IconMusic,
   bluetooth: IconBluetooth,
   wifi: IconWifi,

@@ -619,7 +619,13 @@
   },
   "cameraFocus": {
     "label": "Fokus",
-    "auto": "Auto"
+    "auto": "Auto",
+    "autoOnHelp": "Auto stellt ständig neu scharf, daher kann ein Bild unscharf sein, während die Linse sucht. Im Sortierer liegt die Karte immer im selben Abstand: Schalte Auto aus und schiebe den Regler, bis der Kartentext scharf ist. Lass Auto nur an, wenn du Karten in wechselndem Abstand in der Hand hältst.",
+    "autoOffHelp": "Der manuelle Fokus bleibt, wo du ihn einstellst. Das ist für einen Sortierer am besten, weil jede Karte im selben Abstand liegt. Schiebe den Regler, bis der Kartentext scharf ist. Schalte Auto ein, wenn du Karten in der Hand hältst."
+  },
+  "cameraZoom": {
+    "label": "Zoom",
+    "description": "Zoome hinein, bis die Karte den Großteil des Scanbereichs füllt. Mehr Pixel auf der Karte ergeben eine bessere Übereinstimmung; lass einen kleinen Rand, damit die Kanten sichtbar bleiben."
   },
   "stations": {
     "label": "Sortierer {{number}}",
@@ -722,7 +728,8 @@
         "scanLimit": "Tägliches Scanlimit erreicht",
         "sorterLimit": "Sortiererlimit erreicht",
         "collectionLocked": "Die Sammlung ist gesperrt",
-        "scannerError": "Kamerafehler"
+        "scannerError": "Kamerafehler",
+        "emergencyStopped": "Not-Stopp"
       },
       "fixes": {
         "resume": "Fortsetzen",
@@ -1241,6 +1248,26 @@
       "previewAlt": "Scan des gesamten Flachbettglases",
       "editorLabel": "Flachbettglas. Ziehe, um die Position der Karte zu markieren.",
       "previewFailed": "Das Glas konnte nicht gescannt werden. Prüfe, ob der Scanner eingeschaltet ist, und versuche es erneut."
+    }
+  },
+  "emergencyStop": {
+    "stop": "Stopp",
+    "stopTooltip": "Not-Stopp: Einzug, Klappen und Schieber sofort anhalten",
+    "stoppedTitle": "Sortierer gestoppt",
+    "stoppedDescription": "Entferne alle Karten, die noch im Sortierer liegen, und setze ihn dann zurück, um fortzufahren.",
+    "stoppedSessionDescription": "Entferne alle Karten, die noch im Sortierer liegen, und starte dann erneut, um ihn zurückzusetzen.",
+    "reset": "Sortierer zurücksetzen",
+    "unsupported": {
+      "title": "Die aktuelle Karte wird noch einsortiert",
+      "description": "Die Firmware dieses Sortierers kann nicht mitten in einer Karte anhalten. Das Scannen stoppt nach dieser Karte. Aktualisiere die Firmware, um sofort anzuhalten."
+    },
+    "unconfirmed": {
+      "title": "Der Sortierer hat den Stopp nicht bestätigt",
+      "description": "Schalte den Sortierer aus, falls er sich noch bewegt, und prüfe dann die Verbindung."
+    },
+    "resetFailed": {
+      "title": "Sortierer konnte nicht zurückgesetzt werden",
+      "description": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe die Verbindung und versuche es erneut."
     }
   }
 }

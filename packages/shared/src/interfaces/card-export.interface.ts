@@ -14,7 +14,6 @@ export interface TcgplayerSkuMatch {
   productId: string;
   variant: string | null;
   skuId: string | null;
-  isFoilVariant: boolean;
   marketPrice: number | null;
   product: TcgplayerProductDetails | null;
 }

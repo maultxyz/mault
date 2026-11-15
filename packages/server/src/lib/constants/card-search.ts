@@ -84,6 +84,33 @@ export const POKEMON_JAPAN_EXT_KEYS = {
 } as const;
 export const POKEMON_JAPAN_RARITY_NONE = "None";
 
+export const DIGIMON_TCGPLAYER_CATEGORY_ID = 63;
+export const DIGIMON_CARDMARKET_GAME_ID = 17;
+export const DIGIMON_LANGUAGES = ["en"];
+export const DIGIMON_EXT_KEYS = {
+  cardType: ["cardType", "Card Type"],
+  colors: ["color", "Color"],
+  level: ["levelLv", "Level"],
+  form: ["digimonForm", "Form"],
+  attribute: ["digimonAttribute", "Attribute"],
+  traits: ["digimonType", "Type"],
+  dp: ["digimonPowerDp", "DP"],
+  playCost: ["playCost", "Play Cost"],
+  effects: [
+    ["description", "Description"],
+    ["inheritedEffect", "Inherited Effect"],
+    ["securityEffect", "Security Effect"],
+  ],
+} as const;
+export const DIGIMON_PRODUCT_NUMBER_TAG_PATTERN =
+  /\s+-\s+[A-Z]+\d*-\d+[A-Z]?(?=\s*(?:[([]|$))/;
+export const DIGIMON_PRODUCT_VARIANT_TAG_PATTERN =
+  /\s*(?:\((?!X Antibody\))[^)]*\)|\[[^\]]*\])/g;
+export const DIGIMON_RARE_PRINTING_NAME_PATTERN =
+  "\\s-\\s[A-Z]+[0-9]*-[0-9]+|\\[|\\((?!X Antibody\\)|Alternate Art\\))";
+export const DIGIMON_RARITY_NONE = "None";
+export const DIGIMON_SET_ABBREVIATION_PATTERN = /^([A-Z]+)-0*(\d+)(_[A-Z]+)?$/;
+
 export const FAB_STANDARD_FOILING = "S";
 export const FAB_TCGPLAYER_FOIL_NAMES: Record<string, string> = {
   S: "Normal",

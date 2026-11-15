@@ -242,6 +242,7 @@
       "goAdmin": "Zum Admin-Bereich",
       "goNextSorterNeedingAttention": "Zum nächsten Sortierer, der Hilfe braucht",
       "scanPauseResume": "Scannen pausieren oder fortsetzen",
+      "scanEmergencyStop": "Not-Stopp",
       "scanNow": "Jetzt scannen",
       "scanFeed": "Nächste Karte zuführen",
       "scanToggleAutoFeed": "Automatische Zuführung umschalten",
@@ -356,6 +357,8 @@
     "verificationCodeLength": "Gib den {{length}}-stelligen Code ein.",
     "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten.",
     "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte.",
+    "orderBinDuplicate": "Jede Bestellung braucht ein eigenes Fach.",
+    "orderBinCatchAll": "Das letzte Fach nimmt alle übrigen Karten auf, wähle ein anderes.",
     "catalogSourcesRequired": "Wähle mindestens eine Sammlung oder einen Lagerort.",
     "contactRequired": "Gib an, wie man dich erreicht.",
     "textTooLong": "Bleib unter {{max}} Zeichen."

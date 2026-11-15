@@ -8,6 +8,7 @@ import {
   SERIAL_RETRACTED_STATUS,
   SERIAL_ROLLBACK_OFF_ERROR,
   SERIAL_SERVO_DRIVER_MISSING,
+  SERIAL_STOPPED_ERROR,
 } from "./constants/firmware.constant";
 import type {
   RetractCardOutcome,
@@ -40,6 +41,14 @@ export function isUnsolicitedSerialMessage(message: unknown): boolean {
 
 export function isBusyResponse(message: unknown): boolean {
   return asFields(message)?.error === SERIAL_BUSY_ERROR;
+}
+
+export function isEmergencyStopReply(message: unknown): boolean {
+  return asFields(message)?.error === SERIAL_STOPPED_ERROR;
+}
+
+export function isEmergencyStopLatched(message: unknown): boolean {
+  return asFields(message)?.stopped === true;
 }
 
 export function isFedEvent(message: unknown): message is Record<string, unknown> {

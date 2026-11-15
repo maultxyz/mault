@@ -281,6 +281,15 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
                          [(0, 183), (1, 209), (2, 268), (2, 342), (2, 305), (1, 453), (0, 453)])
         self.assertEqual(self.hardware.writes[-2:], [(15, 315), (15, 0)])
 
+    async def test_emergency_stop_blocks_moves_and_reads_still_answer(self):
+        self.controller.emergency_stop()
+        self.assertEqual(await self.command(dict(feeder=True)), dict(error="stopped"))
+        self.assertEqual(await self.command(dict(servo="pusher", module=1, position="left")),
+                         dict(error="stopped"))
+        self.assertIn("ir", await self.command(dict(readIR=True)))
+        await self.controller.move(0, 310)
+        self.assertEqual(self.hardware.writes, [])
+
     async def test_preview_has_deadman_timeout_and_idle_releases_paddle_state(self):
         await self.command(dict(feederValue=315))
         await self.command(dict(channel=1, value=310))
@@ -330,6 +339,30 @@ class SocketTests(unittest.IsolatedAsyncioTestCase):
         self.assertIsNone(self.service.owner)
         self.assertGreater(self.hardware.releases, 0)
         self.assertEqual(self.hardware.writes[-1], (15, 0))
+
+    async def test_stop_interrupts_a_running_command_and_latches_until_neutral(self):
+        reader, writer = await asyncio.open_unix_connection(self.path)
+        writer.write(b'{"seq":1,"feeder":true}\n')
+        await asyncio.sleep(0.02)
+        writer.write(b'{"seq":2,"stop":true}\n')
+        stopped = json.loads(await asyncio.wait_for(reader.readline(), 1))
+        interrupted = json.loads(await asyncio.wait_for(reader.readline(), 1))
+        self.assertEqual(stopped, dict(status="stopped", seq=2))
+        self.assertEqual(interrupted, dict(error="stopped", seq=1))
+        self.assertGreater(self.hardware.releases, 0)
+        writes_after_stop = len(self.hardware.writes)
+        writer.write(b'{"seq":3,"route":{"module":1,"direction":"left"}}\n')
+        self.assertEqual(json.loads(await asyncio.wait_for(reader.readline(), 1)),
+                         dict(error="stopped", seq=3))
+        writer.write(b'{"seq":4,"getStatus":true}\n')
+        self.assertTrue(json.loads(await asyncio.wait_for(reader.readline(), 1))["stopped"])
+        self.assertEqual(len(self.hardware.writes), writes_after_stop)
+        writer.write(b'{"seq":5,"neutral":true}\n')
+        self.assertEqual(json.loads(await asyncio.wait_for(reader.readline(), 3)),
+                         dict(status="ok", seq=5))
+        self.assertFalse(self.controller.emergency_stopped)
+        writer.close()
+        await writer.wait_closed()
 
 
 if __name__ == "__main__":

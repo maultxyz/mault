@@ -255,17 +255,7 @@
     "subtitle": "{{source}} · créé {{date}}",
     "importButton": "Nouvelle préparation",
     "importTitle": "Nouvelle préparation",
-    "importDescription": "Collez ou importez les cartes à sortir : une liste de préparation TCGplayer, un export de commandes Shopify, n'importe quel CSV avec une colonne de nom de carte, ou une simple liste comme \"4 Lightning Bolt\".",
     "name": "Nom",
-    "namePlaceholder": "Commandes de lundi",
-    "contents": "Cartes à sortir",
-    "contentsPlaceholder": "Product Name,Set,Number,Condition,Quantity,Price",
-    "preview": "{{source}} : {{lines}} lignes, {{quantity}} cartes.",
-    "previewEmpty": "Aucune carte trouvée. Vérifiez que la première ligne contient des noms de colonnes comme Product Name et Quantity.",
-    "previewSkipped_one": "{{count}} ligne sans nom de carte a été ignorée.",
-    "previewSkipped_other": "{{count}} lignes sans nom de carte ont été ignorées.",
-    "import": "Créer la préparation",
-    "created": "Préparation créée",
     "sources": {
       "tcgplayer": "TCGplayer",
       "shopify": "Shopify",
@@ -309,7 +299,39 @@
     "deleteDescription": "La fiche est supprimée. Les cartes déjà sorties du stock le restent.",
     "pickFirst": "Coche d'abord chaque carte sortie",
     "pickAll": "Tout prélever",
-    "importedName": "Commande importée {{index}}"
+    "importedName": "Commande importée {{index}}",
+    "noOrder": "Aucune commande",
+    "orderRefLabel": "Commande {{order}}",
+    "orderBinLabel": "Bac {{bin}}",
+    "pickCopyForOrder": "Marquer {{name}} pour la commande {{order}} comme prélevée",
+    "pickOrder": "Marquer toutes les cartes de la commande {{order}} comme prélevées",
+    "pickNoOrder": "Marquer toutes les cartes sans commande comme prélevées",
+    "orderPickedCount": "{{picked}} sur {{quantity}} prélevées",
+    "orderCardCount_one": "{{count}} carte",
+    "orderCardCount_other": "{{count}} cartes",
+    "locationColumn": "Emplacement",
+    "viewsLabel": "Vue de préparation",
+    "views": {
+      "location": "Prélever par emplacement",
+      "order": "Trier par commande"
+    },
+    "orderRefPlaceholder": "Commande",
+    "orderRefInputLabel": "Commande pour {{name}}",
+    "assignOrderBins": "Bacs par commande",
+    "orderBinsTitle": "Bacs par commande",
+    "orderBinsDescription": "Attribuez à chaque commande son propre bac ou contenant. Prélevez les cartes par emplacement, puis placez chacune dans le bac de sa commande. Les mêmes numéros servent au tri avec le trieur, où le bac {{catchAll}} reçoit tout le reste.",
+    "autoAssignBins": "Attribuer automatiquement",
+    "tooManyOrders": "Votre trieur a {{count}} bacs pour les commandes, certaines commandes restent donc sans bac.",
+    "saveOrderBins": "Enregistrer les bacs",
+    "orderBinsSaved": "Bacs enregistrés",
+    "createSortPreset": "Créer un préréglage de tri",
+    "sortPresetTitle": "Trier cette préparation par commande ?",
+    "sortPresetDescription": "Crée un préréglage de tri avec un bac par commande et l'active. Passez les cartes prélevées dans le trieur et chacune arrive dans le bac de sa commande. Les scans avec ce préréglage ne sont pas enregistrés, votre inventaire reste donc inchangé.",
+    "sortPresetCreated_one": "Préréglage de tri créé et activé",
+    "sortPresetCreated_other": "{{count}} préréglages de tri créés, un par jeu",
+    "openSortPreset": "Ouvrir le préréglage",
+    "batchName_one": "{{count}} commande",
+    "batchName_other": "{{count}} commandes"
   },
   "cost": {
     "title": "Fixer le coût d'achat",
@@ -378,7 +400,8 @@
       "intakeTransferred": "Rachat déplacé",
       "catalogCreated": "Catalogue boutique créé",
       "catalogUpdated": "Catalogue boutique modifié",
-      "catalogDeleted": "Catalogue boutique supprimé"
+      "catalogDeleted": "Catalogue boutique supprimé",
+      "orderSortPresetCreated": "Préréglage de tri créé"
     },
     "messages": {
       "cardCorrected": "{{from}} corrigée en {{to}}",
@@ -406,7 +429,8 @@
       "intakeTransferred": "{{cards}} cartes achetées à {{summary}} déplacées",
       "catalogCreated": "A créé le catalogue boutique {{summary}}",
       "catalogUpdated": "A modifié le catalogue boutique {{summary}}",
-      "catalogDeleted": "A supprimé le catalogue boutique {{summary}}"
+      "catalogDeleted": "A supprimé le catalogue boutique {{summary}}",
+      "orderSortPresetCreated": "Préréglage de tri créé pour {{summary}}"
     }
   },
   "accuracy": {

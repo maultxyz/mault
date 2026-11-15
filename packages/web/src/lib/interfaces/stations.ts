@@ -23,7 +23,8 @@ export type StationAttentionKind =
   | "scanLimit"
   | "sorterLimit"
   | "collectionLocked"
-  | "scannerError";
+  | "scannerError"
+  | "emergencyStopped";
 
 export type StationAttentionFix = "resume" | "emptyBin" | "openSorter";
 

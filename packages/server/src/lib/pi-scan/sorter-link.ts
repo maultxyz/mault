@@ -100,6 +100,11 @@ export class SorterLink {
     return parsed;
   }
 
+  async emergencyStop(): Promise<boolean> {
+    if (this.closedError || !this.port.isOpen) return false;
+    return this.session.sendEmergencyStop();
+  }
+
   close(error = new Error("The sorter link is closed.")) {
     if (this.closedError) return;
     this.closedError = error;

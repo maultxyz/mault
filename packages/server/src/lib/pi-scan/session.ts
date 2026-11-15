@@ -98,6 +98,8 @@ import type {
 } from "../interfaces/pi-scan";
 import {
   PI_SCAN_CARD_STUCK_IN_MODULE_ONE_MESSAGE,
+  PI_SCAN_EMERGENCY_STOP_MESSAGE,
+  PI_SCAN_EMERGENCY_STOP_UNCONFIRMED_MESSAGE,
   PI_SCAN_FEED_TIMEOUT_MS,
   PI_SCAN_NEUTRAL_TIMEOUT_MS,
   PI_SCAN_PORT_DRAIN_MS,
@@ -208,6 +210,7 @@ function publicState(session: PiScanLive | undefined): PiScanSessionState {
         ? new Date(session.pauseStartedAt).toISOString()
         : null,
     autoFeed: session.autoFeed,
+    emergencyStopped: session.emergencyStopMessage !== null,
     allowDuplicates: session.allowDuplicates,
     removalEnabled: session.removalEnabled,
     removalBinNumber: session.removalBinNumber,
@@ -1582,6 +1585,10 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
     if (session.phase === "running" || session.phase === "paused") {
       session.phase = "stopped";
     }
+    if (session.emergencyStopMessage !== null) {
+      session.phase = "stopped";
+      session.message = session.emergencyStopMessage;
+    }
     console.log(
       `[pi-scan] finished (${session.phase}, ${session.cardsScanned} cards)`,
     );
@@ -1732,6 +1739,7 @@ function createSession(
     pauseRequested: false,
     refreshRequested: false,
     stopRequested: false,
+    emergencyStopMessage: null,
     handedOff: false,
     locked: false,
     portHeld: false,
@@ -1832,6 +1840,29 @@ export function stopPiScanSession(orgId: string): PiScanSessionState {
       ? "A card may remain in the sorter. Remove it before starting again."
       : null;
   }
+  return publicState(session);
+}
+
+export async function emergencyStopPiScanSession(
+  orgId: string,
+): Promise<PiScanSessionState | null> {
+  const session = sessions.get(orgId);
+  if (
+    !session?.link ||
+    (session.phase !== "running" && session.phase !== "paused")
+  ) {
+    return null;
+  }
+  session.stopRequested = true;
+  session.pauseRequested = false;
+  session.emergencyStopMessage = PI_SCAN_EMERGENCY_STOP_MESSAGE;
+  session.message = PI_SCAN_EMERGENCY_STOP_MESSAGE;
+  const confirmed = await session.link.emergencyStop();
+  if (!confirmed) {
+    session.emergencyStopMessage = PI_SCAN_EMERGENCY_STOP_UNCONFIRMED_MESSAGE;
+    session.message = PI_SCAN_EMERGENCY_STOP_UNCONFIRMED_MESSAGE;
+  }
+  console.log(`[pi-scan] ${session.message}`);
   return publicState(session);
 }
 

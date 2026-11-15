@@ -46,7 +46,6 @@ test("tcgplayer export: a card with a SKU exports the SKU id", () => {
         productId: "610421",
         variant: "Normal",
         skuId: "8488983",
-        isFoilVariant: false,
         marketPrice: 0.05,
         product: { name: "Bronzor", setName: "SV: Prismatic Evolutions", number: "063/131", rarity: "Common" },
       },
@@ -63,4 +62,38 @@ test("tcgplayer export: a card without a SKU never falls back to the product id"
     tcgplayerSkusByEntryKey: {},
   });
   assert.equal(row[0], "");
+});
+
+function conditionForVariant(variant: string, isFoil: boolean, foilType?: string): string {
+  const entry = { ...exportedCard, isFoil, foilType };
+  const entryKey = exportEntryKey({ ...entry, stamp: undefined });
+  const csv = buildExportCsv(
+    tcgplayerAdapter,
+    [entry],
+    {
+      isMtg: false,
+      fieldDefinitions: [],
+      gameKey: "pokemon",
+      tcgplayerSkusByEntryKey: {
+        [entryKey]: {
+          productId: "610421",
+          variant,
+          skuId: "8488983",
+          marketPrice: 0.05,
+          product: null,
+        },
+      },
+    },
+    true,
+  );
+  return csv.trim().split("\n")[1].split(",")[6];
+}
+
+test("tcgplayer export: the condition carries TCGplayer's printing name", () => {
+  assert.equal(conditionForVariant("Normal", false), "Near Mint");
+  assert.equal(conditionForVariant("Holofoil", true, "Holo"), "Near Mint Holofoil");
+  assert.equal(conditionForVariant("Reverse Holofoil", true, "Reverse Holo"), "Near Mint Reverse Holofoil");
+  assert.equal(conditionForVariant("1st Edition Holofoil", true, "Holo"), "Near Mint 1st Edition Holofoil");
+  assert.equal(conditionForVariant("1st Edition Normal", false), "Near Mint 1st Edition");
+  assert.equal(conditionForVariant("Foil", true), "Near Mint Foil");
 });

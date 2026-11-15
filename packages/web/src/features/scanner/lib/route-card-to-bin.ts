@@ -1,3 +1,4 @@
+import { isEmergencyStopReply } from "@magic-vault/shared";
 import {
   reportSerialEvent,
 } from "@/features/notifications/api/notification-settings";
@@ -46,7 +47,7 @@ export async function routeCardToBin({
 
   const res = response as Record<string, unknown>;
 
-  if (res.skipped) {
+  if (res.skipped || isEmergencyStopReply(res)) {
     pause();
     return;
   }

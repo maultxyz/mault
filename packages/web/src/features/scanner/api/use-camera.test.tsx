@@ -11,6 +11,9 @@ const mocks = vi.hoisted(() => ({
   applyTrackFocus: vi.fn().mockResolvedValue(undefined),
   applyPiFocus: vi.fn().mockResolvedValue(undefined),
   loadSavedFocus: vi.fn(),
+  loadSavedZoom: vi.fn(),
+  applyZoom: vi.fn().mockResolvedValue(undefined),
+  applyPiZoom: vi.fn().mockResolvedValue(undefined),
   isMobile: vi.fn(),
   setStationCamera: vi.fn(),
   queryClient: { fetchQuery: vi.fn() },
@@ -44,6 +47,12 @@ vi.mock("../lib/camera-focus", () => ({
   loadSavedFocus: mocks.loadSavedFocus,
   saveFocus: vi.fn(),
 }));
+vi.mock("../lib/camera-zoom", () => ({
+  loadSavedZoom: mocks.loadSavedZoom,
+  saveZoom: vi.fn(),
+  applyZoom: mocks.applyZoom,
+  currentZoomLevel: () => null,
+}));
 vi.mock("../lib/camera-stream", () => ({
   acquireFreeStream: mocks.acquireStream,
   camerasHeldByOtherStations: () => new Set(),
@@ -56,7 +65,9 @@ vi.mock("../lib/pi-camera", () => ({
   acquirePiRelayStream: mocks.acquireRelay,
   applyTrackFocus: mocks.applyTrackFocus,
   applyPiFocus: mocks.applyPiFocus,
+  applyPiZoom: mocks.applyPiZoom,
   focusRangeForTrack: () => ({ min: 0, max: 100, step: 1 }),
+  zoomRangeForTrack: () => ({ min: 1, max: 4, step: 0.1 }),
   piCameraDevice: () => ({ deviceId: "pi-camera", kind: "videoinput" }),
   isPiRelayTrack: () => false,
 }));
@@ -71,6 +82,7 @@ describe("camera startup focus", () => {
     mocks.mustUsePi.mockReturnValue(false);
     mocks.isMobile.mockReturnValue(false);
     mocks.loadSavedFocus.mockReturnValue(null);
+    mocks.loadSavedZoom.mockReturnValue(null);
     mocks.acquireStream.mockResolvedValue(stream);
     mocks.acquireRelay.mockResolvedValue(stream);
     Object.defineProperty(navigator, "mediaDevices", {
@@ -107,6 +119,32 @@ describe("camera startup focus", () => {
       expect(mocks.applyPiFocus).not.toHaveBeenCalled();
     },
   );
+
+  it("reapplies this webcam's saved zoom after the stream opens", async () => {
+    mocks.loadSavedZoom.mockReturnValue(2.5);
+    const { result } = renderHook(() => useCameraContext(), {
+      wrapper: CameraProvider,
+    });
+    await waitFor(() => expect(mocks.applyZoom).toHaveBeenCalledWith(track, 2.5));
+    expect(result.current.zoomLevel).toBe(2.5);
+    expect(result.current.zoomRange).toEqual({ min: 1, max: 4, step: 0.1 });
+  });
+
+  it("reads the Pi camera's zoom from the helper without changing it", async () => {
+    mocks.readHealth.mockResolvedValue({
+      status: "ready",
+      focus: null,
+      zoom: { min: 100, max: 500, step: 1 },
+      zoomLevel: 240,
+    });
+    mocks.loadSavedZoom.mockReturnValue(300);
+    const { result } = renderHook(() => useCameraContext(), {
+      wrapper: CameraProvider,
+    });
+    await waitFor(() => expect(result.current.zoomLevel).toBe(240));
+    expect(mocks.applyPiZoom).not.toHaveBeenCalled();
+    expect(mocks.applyZoom).not.toHaveBeenCalled();
+  });
 
   it("does not enable Pi autofocus when this browser has no saved setting", async () => {
     mocks.readHealth.mockResolvedValue({

@@ -136,6 +136,19 @@ export function OrderEditDialog({
                           )}
                         </span>
                         <Input
+                          className="w-28"
+                          placeholder={t("orders.orderRefPlaceholder")}
+                          aria-label={t("orders.orderRefInputLabel", {
+                            name: lineField.name,
+                          })}
+                          {...form.register(`lines.${index}.orderRef`, {
+                            setValueAs: (value: unknown) =>
+                              typeof value === "string"
+                                ? value.trim() || null
+                                : value,
+                          })}
+                        />
+                        <Input
                           type="number"
                           inputMode="numeric"
                           min={1}

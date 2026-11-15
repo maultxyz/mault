@@ -232,5 +232,36 @@
     "invalidTitle": "Dieser Link funktioniert nicht mehr",
     "invalidDescription": "Er ist möglicherweise abgelaufen oder wurde widerrufen. Bitte die Person, die ihn geteilt hat, um einen neuen Link.",
     "empty": "An diesem Lagerort sind noch keine Karten."
+  },
+  "labels": {
+    "printLabel": "Etikett drucken",
+    "printLabels": "Etiketten drucken",
+    "page": {
+      "title": "Lagerort-Etiketten",
+      "description": "Drucke QR-Etiketten für deine Boxen und Ordner. Scanne eines mit der MAULT-App, um die Karten dieses Lagerorts zu öffnen.",
+      "print": "Drucken",
+      "printTip": "Drucke mit 100 % Skalierung (tatsächliche Größe) und ohne Ränder, damit die Etiketten auf den Etikettenbogen passen."
+    },
+    "form": {
+      "title": "Etikettenbogen",
+      "description": "Wähle die Lagerorte und den Avery-Bogen, auf den du druckst.",
+      "template": "Bogen",
+      "startPosition": "Bei Etikett beginnen",
+      "startPositionHint": "Überspringe Etiketten, die auf einem angebrochenen Bogen schon verwendet wurden. Gezählt wird von links nach rechts, von oben nach unten.",
+      "locations_one": "{{count}} Lagerort ausgewählt",
+      "locations_other": "{{count}} Lagerorte ausgewählt",
+      "selectAll": "Alle auswählen",
+      "selectNone": "Keine auswählen"
+    },
+    "templates": {
+      "avery-5160": "Avery 5160 (30 pro Bogen, 2,625 x 1 Zoll)",
+      "avery-5163": "Avery 5163 (10 pro Bogen, 4 x 2 Zoll)",
+      "avery-5164": "Avery 5164 (6 pro Bogen, 4 x 3,33 Zoll)"
+    },
+    "sheet": {
+      "emptyTitle": "Keine Lagerorte ausgewählt",
+      "emptyDescription": "Wähle mindestens einen Lagerort, um sein Etikett in der Vorschau zu sehen.",
+      "pageDescription": "Etikettenbogen Seite {{page}}: {{names}}"
+    }
   }
 }

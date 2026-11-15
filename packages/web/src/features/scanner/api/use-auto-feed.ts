@@ -5,6 +5,7 @@ import { useSerialMessage } from "@/features/scanner/api/use-serial";
 import {
   feedNextCardAfterRoutedCard,
   feedWithRetries,
+  isEmergencyStopReply,
   isFedEvent,
   isFeedTimeoutReply,
   parseSerialReply,
@@ -47,6 +48,7 @@ export function useAutoFeed({
   }, []);
 
   const haltedRef = useRef(false);
+  const emergencyStoppedRef = useRef(false);
   const [attention, setAttention] = useState<StationAttention | null>(null);
 
   const isAutoFeedEnabled = useCallback(
@@ -55,6 +57,7 @@ export function useAutoFeed({
   );
   const isFeedHalted = useCallback(() => haltedRef.current, []);
   const clearFeedHalt = useCallback(() => {
+    if (emergencyStoppedRef.current) return;
     haltedRef.current = false;
     setAttention(null);
   }, []);
@@ -66,13 +69,51 @@ export function useAutoFeed({
 
   const pauseForAttention = useCallback(
     (details: StationAttentionDetails) => {
-      setAttention({ ...details, raisedAt: Date.now() });
+      if (
+        !emergencyStoppedRef.current ||
+        details.kind === "emergencyStopped"
+      ) {
+        setAttention({ ...details, raisedAt: Date.now() });
+      }
       pause();
     },
     [pause],
   );
 
+  const emergencyStop = useCallback(async () => {
+    emergencyStoppedRef.current = true;
+    pauseForAttention({ kind: "emergencyStopped" });
+    if (!serialRef.current.supportsEmergencyStop) {
+      toast.warning(t("emergencyStop.unsupported.title"), {
+        description: t("emergencyStop.unsupported.description"),
+        duration: Infinity,
+        dismissible: true,
+      });
+      return;
+    }
+    if (!(await serialRef.current.sendEmergencyStop())) {
+      toast.error(t("emergencyStop.unconfirmed.title"), {
+        description: t("emergencyStop.unconfirmed.description"),
+        duration: Infinity,
+        dismissible: true,
+      });
+    }
+  }, [pauseForAttention, serialRef, toast, t]);
+
+  const resetAfterEmergencyStop = useCallback(async () => {
+    if (!(await serialRef.current.sendNeutral())) {
+      toast.error(t("emergencyStop.resetFailed.title"), {
+        description: t("emergencyStop.resetFailed.description"),
+      });
+      return false;
+    }
+    emergencyStoppedRef.current = false;
+    setAttention(null);
+    return true;
+  }, [serialRef, toast, t]);
+
   const resume = useCallback(() => {
+    if (emergencyStoppedRef.current) return;
     haltedRef.current = false;
     setAttention(null);
     resumeHookRef.current?.();
@@ -118,6 +159,7 @@ export function useAutoFeed({
 
   const handleFeedResult = useCallback(
     (parsed: Record<string, unknown>) => {
+      if (emergencyStoppedRef.current || isEmergencyStopReply(parsed)) return;
       if (parsed.empty && !serialRef.current.ignoreIrSensors) {
         pauseForAttention({ kind: "hopperEmpty" });
         toast.error(t("feederEmpty.title"), {
@@ -177,6 +219,7 @@ export function useAutoFeed({
     sent,
     line: response,
   }: SerialRequestResult) => {
+    if (emergencyStoppedRef.current) return;
     if (!sent) {
       pauseForAttention({ kind: "sorterNotResponding" });
       toast.error(t("scannedCards.autoFeedFailed.title"), {
@@ -301,6 +344,8 @@ export function useAutoFeed({
     clearFeedHalt,
     pause,
     pauseForAttention,
+    emergencyStop,
+    resetAfterEmergencyStop,
     attention,
     triggerAutoFeed,
     triggerAutoFeedAfterRoutedCard,

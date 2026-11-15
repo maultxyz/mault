@@ -91,6 +91,7 @@ export class PiControllerHub {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private buffer = "";
   private sequence = 0;
+  private emergencyStops = new Map<number, PiControllerCommand>();
   private status: Record<string, unknown> | null = null;
 
   constructor(
@@ -148,6 +149,10 @@ export class PiControllerHub {
       originalSeq: replySeq(payload),
       readOnly: isReadOnly(payload),
     };
+    if (payload.stop === true) {
+      this.sendEmergencyStop(command);
+      return;
+    }
     if (
       (!command.readOnly &&
         this.exclusiveOwner &&
@@ -192,6 +197,27 @@ export class PiControllerHub {
     delete response.seq;
     if (command.originalSeq !== null) response.seq = command.originalSeq;
     command.client.receive(response);
+  }
+
+  private sendEmergencyStop(command: PiControllerCommand) {
+    if (!this.port) {
+      this.reply(command, { error: "The controller is not connected." });
+      return;
+    }
+    const queued = this.queue.filter((queuedCommand) => !queuedCommand.readOnly);
+    this.queue = this.queue.filter((queuedCommand) => queuedCommand.readOnly);
+    for (const queuedCommand of queued) {
+      this.reply(queuedCommand, { error: "stopped" });
+    }
+    this.sequence = this.sequence >= SERIAL_SEQ_MAX ? 1 : this.sequence + 1;
+    command.wireSeq = this.sequence;
+    this.emergencyStops.set(this.sequence, command);
+    this.port.write(
+      `${JSON.stringify({ ...command.payload, seq: this.sequence })}\n`,
+      (error) => {
+        if (error) this.shutdown(error);
+      },
+    );
   }
 
   private pump() {
@@ -249,6 +275,12 @@ export class PiControllerHub {
         for (const client of this.clients) client.receive(payload);
         continue;
       }
+      const emergencyStop = this.emergencyStops.get(sequence);
+      if (emergencyStop) {
+        this.emergencyStops.delete(sequence);
+        this.reply(emergencyStop, payload);
+        continue;
+      }
       const command = this.active;
       if (!command || sequence !== command.wireSeq) continue;
       if (
@@ -288,6 +320,7 @@ export class PiControllerHub {
     this.timer = null;
     this.active = null;
     this.queue = [];
+    this.emergencyStops.clear();
     this.status = null;
     this.buffer = "";
     this.exclusiveOwner = null;

@@ -171,13 +171,11 @@ function StoragePickListView() {
       <CsvImportDialog
         open={isImportOpen}
         onOpenChange={setIsImportOpen}
-        type="picks"
         title={t("pickList.importTitle")}
         description={t("pickList.importDescription")}
         importLabel={t("pickList.import")}
-        onImport={async (payload) => {
-          if (payload.type !== "picks") return false;
-          pickList.setDecklist(formatDecklist(payload.entries));
+        onImport={async (entries) => {
+          pickList.setDecklist(formatDecklist(entries));
           setIsEditing(false);
           return true;
         }}

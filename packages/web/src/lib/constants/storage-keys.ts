@@ -46,6 +46,7 @@ export const CARD_SCAN_TIMELINE_STORAGE_KEY = "magic-vault:card-scan-timeline";
 export const DEVICE_PREFS_STORAGE_KEY_PREFIX = "magic-vault:device-prefs:";
 
 export const CAMERA_FOCUS_STORAGE_KEY = "magic-vault:camera-focus";
+export const CAMERA_ZOOM_STORAGE_KEY = "magic-vault:camera-zoom";
 
 export const SUPPORT_PROMPT_STORAGE_KEY = "magic-vault:support-prompt";
 

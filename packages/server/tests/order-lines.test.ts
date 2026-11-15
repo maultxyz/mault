@@ -49,3 +49,17 @@ test("order lines: identity ignores letter case but not the set", () => {
     orderLineIdentity({ name: "Sol Ring", setCode: "CMR", quantity: 1 }),
   );
 });
+
+test("order lines: the same card for two orders stays two lines", () => {
+  const lines = addOrderLines(
+    [{ name: "Sol Ring", quantity: 1, orderRef: "1001" }],
+    [
+      { name: "Sol Ring", quantity: 1, orderRef: "1002" },
+      { name: "sol ring", quantity: 1, orderRef: "1001" },
+    ],
+  );
+  assert.deepEqual(lines, [
+    { name: "Sol Ring", quantity: 2, orderRef: "1001" },
+    { name: "Sol Ring", quantity: 1, orderRef: "1002" },
+  ]);
+});

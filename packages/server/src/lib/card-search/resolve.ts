@@ -3,6 +3,7 @@ import { and, eq } from "drizzle-orm";
 import { authQuery, orgIdOfJwtClaims } from "../../db";
 import { collections, games } from "../../db/schema";
 import { cyberpunkAdapter } from "../adapters/cyberpunk/search";
+import { digimonAdapter } from "../adapters/digimon/search";
 import { fabAdapter } from "../adapters/fab/search";
 import { grandArchiveAdapter } from "../adapters/grand-archive/search";
 import { gundamAdapter } from "../adapters/gundam/search";
@@ -32,6 +33,7 @@ export const ADAPTERS_BY_GAME_KEY: Record<string, CardSearchAdapter> = {
   gundam: withTcgtracking("gundam", gundamAdapter),
   pokemon: withTcgtracking("pokemon", pokemonAdapter),
   pokemonjp: pokemonJapanAdapter,
+  digimon: digimonAdapter,
   lorcana: withTcgtracking("lorcana", lorcanaAdapter),
   onepiece: withTcgtracking("onepiece", onePieceAdapter),
   fab: withTcgtracking("fab", fabAdapter),

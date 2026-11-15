@@ -8,6 +8,7 @@ import type {
   CardTextSearchResult,
   MatchedScanDetails,
   ParsedShareLinkUrl,
+  StorageLabelTarget,
   PlayingCard,
   PlayingCardWithDistance,
   RgbaImage,
@@ -84,6 +85,7 @@ export type ScannerPhase =
 
 export type ScannerPauseReason =
   | "user"
+  | "emergency-stop"
   | "feeder-empty"
   | "no-card"
   | "card-missing"
@@ -197,6 +199,8 @@ export interface ScanSessionValue extends ScanSessionState {
   start: () => void;
   pause: () => void;
   resume: () => void;
+  emergencyStop: () => Promise<void>;
+  resetAfterEmergencyStop: () => Promise<boolean>;
   scanOnce: () => void;
   feedOnce: () => Promise<void>;
   autoFeed: boolean;
@@ -370,6 +374,7 @@ export interface PhoneCameraResponder {
 }
 
 export type ScannerQrLink =
+  | { kind: "storage-label"; storageLabel: StorageLabelTarget }
   | { kind: "share-link"; shareLink: ParsedShareLinkUrl }
   | { kind: "short-link"; shortCode: string }
   | { kind: "desktop-camera"; collectionGuid: string };

@@ -324,6 +324,7 @@ export const STATION_ATTENTION_FIXES: Record<
   sorterLimit: "openSorter",
   collectionLocked: "openSorter",
   scannerError: "openSorter",
+  emergencyStopped: "openSorter",
 };
 
 export const STATION_TILE_ATTENTION_CLASS =

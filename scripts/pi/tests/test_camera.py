@@ -246,5 +246,66 @@ class CameraFocusTests(unittest.TestCase):
                 camera.set_focus("lock", None)
 
 
+class CameraZoomTests(unittest.TestCase):
+    def setUp(self):
+        temp = tempfile.TemporaryDirectory()
+        self.addCleanup(temp.cleanup)
+        state = patch.object(CAMERA_HELPER, "ZOOM_STATE_PATH", Path(temp.name) / "zoom.json")
+        state.start()
+        self.addCleanup(state.stop)
+
+    def camera_with_zoom(self):
+        camera = CAMERA_HELPER.Camera()
+        camera.device = "/dev/video0"
+        camera.zoom = {"min": 100, "max": 500, "step": 1}
+        return camera
+
+    def test_zoom_range_reads_only_zoom_absolute(self):
+        from types import SimpleNamespace
+        listing = (
+            "  zoom_absolute_extra 0x1 (int) : min=0 max=9 step=1\n"
+            "  zoom_absolute 0x009a090d (int) : min=100 max=500 step=1 default=100 value=100\n"
+        )
+        with patch.object(CAMERA_HELPER.subprocess, "run", return_value=SimpleNamespace(
+            returncode=0, stdout=listing
+        )):
+            self.assertEqual(CAMERA_HELPER.read_zoom_range("/dev/video0"), {
+                "min": 100, "max": 500, "step": 1
+            })
+
+    def test_saved_zoom_is_restored_after_restart(self):
+        first = self.camera_with_zoom()
+        with patch.object(first, "healthy", return_value=True), patch.object(first, "_set_control"):
+            self.assertEqual(first.set_zoom(240.4), 240)
+        second = self.camera_with_zoom()
+        with patch.object(second, "healthy", return_value=True), patch.object(second, "_set_control") as control:
+            second.restore_zoom()
+        control.assert_called_once_with("zoom_absolute=240")
+
+    def test_zoom_outside_range_is_rejected_without_writing(self):
+        camera = self.camera_with_zoom()
+        with patch.object(camera, "healthy", return_value=True), patch.object(camera, "_set_control") as control:
+            with self.assertRaises(ValueError):
+                camera.set_zoom(900)
+        control.assert_not_called()
+        self.assertFalse(CAMERA_HELPER.ZOOM_STATE_PATH.exists())
+
+    def test_zoom_endpoint_returns_applied_level(self):
+        import io
+        import json
+        handler = CAMERA_HELPER.Handler.__new__(CAMERA_HELPER.Handler)
+        body = b'{"zoomLevel":240}'
+        handler.path = "/zoom"
+        handler.headers = {"Content-Length": str(len(body)), "Host": "127.0.0.1:8765"}
+        handler.rfile = io.BytesIO(body)
+        replies = []
+        handler._send = lambda *reply: replies.append(reply)
+        with patch.object(CAMERA_HELPER.CAMERA, "set_zoom", return_value=240) as zoom:
+            handler.do_POST()
+        zoom.assert_called_once_with(240.0)
+        self.assertEqual(replies[0][0], 200)
+        self.assertEqual(json.loads(replies[0][1]), {"zoomLevel": 240})
+
+
 if __name__ == "__main__":
     unittest.main()

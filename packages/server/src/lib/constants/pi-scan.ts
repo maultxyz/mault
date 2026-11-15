@@ -13,5 +13,9 @@ export const PI_SCAN_COMM_LOG_ENTRIES = 200;
 export const PI_SCAN_PENDING_REJECTED_SUFFIX = ".rejected";
 export const PI_SCAN_RECOVERY_MAX_ATTEMPTS = 3;
 export const PI_SCAN_KEPT_REJECTION_STATUSES = [403];
+export const PI_SCAN_EMERGENCY_STOP_MESSAGE =
+  "Emergency stop. Remove any card left in the sorter, then start again to reset it.";
+export const PI_SCAN_EMERGENCY_STOP_UNCONFIRMED_MESSAGE =
+  "Scanning stopped, but the sorter did not confirm the emergency stop, so the current card may still be sorted. Update the sorter firmware.";
 export const PI_SCAN_CARD_STUCK_IN_MODULE_ONE_MESSAGE =
   "A card is stuck in module 1. Remove it, then resume.";

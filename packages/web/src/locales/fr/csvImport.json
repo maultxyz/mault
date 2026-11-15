@@ -8,17 +8,9 @@
     "decklist_other": "Lu comme une liste : {{count}} cartes différentes.",
     "unrecognized": "Aucun tableau détecté. Collez du texte CSV avec en-têtes ou une liste de deck."
   },
-  "composition": {
-    "label": "Les lignes forment des commandes par",
-    "reference": "Colonne de référence",
-    "masterdetail": "Lignes d'en-tête puis lignes d'articles",
-    "single": "Une seule commande"
-  },
   "column": {
     "assign": "Assigner la colonne {{column}}",
     "ignore": "Ignorer",
-    "orderFields": "Champs de commande",
-    "itemFields": "Champs d'article",
     "required": "requis"
   },
   "fields": {
@@ -47,22 +39,18 @@
     "missingFields": "Champs requis sans colonne : {{fields}}"
   },
   "orders": {
-    "title": "Commandes",
-    "empty": "Aucune commande pour l'instant. Assignez d'abord la colonne du nom de carte.",
-    "referencePlaceholder": "Nom de la commande",
-    "referenceLabel": "Nom de la commande {{index}}",
     "lineCount_one": "{{count}} ligne",
     "lineCount_other": "{{count}} lignes",
     "quantity_one": "{{count}} carte",
     "quantity_other": "{{count}} cartes",
-    "revenue": "Valeur {{value}}",
     "skippedRows_one": "{{count}} ligne ignorée",
     "skippedRows_other": "{{count}} lignes ignorées",
     "emptyOrders_one": "{{count}} commande sans articles ignorée",
     "emptyOrders_other": "{{count}} commandes sans articles ignorées",
     "conflicts_one": "{{count}} valeur conflictuelle, la première conservée",
     "conflicts_other": "{{count}} valeurs conflictuelles, la première conservée",
-    "nameLabel": "Nom de la commande"
+    "pickNamePlaceholder_one": "{{count}} commande",
+    "pickNamePlaceholder_other": "{{count}} commandes"
   },
   "picks": {
     "entries_one": "{{count}} carte différente",
@@ -79,6 +67,111 @@
     "builtin": {
       "shopify": "Shopify (intégré)",
       "tcgplayer": "TCGplayer (intégré)"
+    }
+  },
+  "pickImport": {
+    "description": "Transformez un export TCGplayer ou Shopify, n'importe quel CSV avec une colonne de nom de carte, ou une simple liste de cartes en préparation.",
+    "back": "Retour aux préparations",
+    "stepsLabel": "Étapes de l'import",
+    "stepDone": "(terminé)",
+    "steps": {
+      "source": "Ajouter les cartes",
+      "columns": "Associer les colonnes",
+      "review": "Vérifier"
+    },
+    "stepHeading": "Étape {{current}} sur {{total}} : {{title}}",
+    "headings": {
+      "source": "Ajoutez les cartes à prélever",
+      "columns": "Associez vos colonnes",
+      "review": "Vérifier et créer"
+    },
+    "intros": {
+      "source": "Importez un fichier ou collez son contenu. Une simple liste comme \"4 Lightning Bolt\" fonctionne aussi.",
+      "columns": "Choisissez quelle colonne contient chaque information. Seul le nom de la carte est obligatoire ; laissez ce que votre fichier n'a pas sur \"Absent de ce fichier\".",
+      "review": "Vérifiez comment les lignes deviennent des commandes, puis créez la préparation."
+    },
+    "noAccess": "Votre rôle ne peut pas créer de préparations. Demandez à un propriétaire ou un admin de l'autoriser dans Paramètres > Business.",
+    "source": {
+      "dropTitle": "Déposez un fichier CSV ici",
+      "dropHint": "ou cliquez pour choisir un fichier",
+      "pasteLabel": "Ou collez le contenu",
+      "pastePlaceholder": "Order #,Product Name,Quantity\n1001,Sol Ring,1\n\nou\n\n4 Lightning Bolt\n1 Sol Ring",
+      "formats": {
+        "tcgplayer": "Export TCGplayer",
+        "shopify": "Export Shopify",
+        "generic": "Fichier CSV"
+      },
+      "savedLayout": "Disposition enregistrée \"{{name}}\" appliquée",
+      "rowCount_one": "{{count}} ligne",
+      "rowCount_other": "{{count}} lignes",
+      "columnCount_one": "{{count}} colonne",
+      "columnCount_other": "{{count}} colonnes"
+    },
+    "columns": {
+      "layout": "Disposition des colonnes",
+      "layoutHint": "Une disposition enregistrée est choisie automatiquement quand un fichier a les mêmes colonnes.",
+      "automatic": "Automatique",
+      "required": "Obligatoire",
+      "notInFile": "Absent de ce fichier",
+      "columnNumber": "Colonne {{index}}",
+      "samples": "Par exemple : {{values}}",
+      "noSamples": "Cette colonne est vide",
+      "saveLayout": "Enregistrer cette disposition",
+      "saveLayoutHint": "Les fichiers avec les mêmes colonnes utiliseront ces choix automatiquement la prochaine fois.",
+      "layoutName": "Nom de la disposition",
+      "layoutNamePlaceholder": "ex. Commandes Cardmarket",
+      "save": "Enregistrer la disposition",
+      "preview_one": "Aperçu du fichier (première ligne)",
+      "preview_other": "Aperçu du fichier ({{count}} premières lignes)"
+    },
+    "fieldHints": {
+      "name": "La carte à prélever. Les variantes comme \"- Foil\" sont aussi lues.",
+      "quantity": "Nombre d'exemplaires. Sans cette colonne, chaque ligne compte pour 1.",
+      "orderRef": "Numéro ou nom de commande. Les lignes avec la même valeur forment une commande.",
+      "setCode": "Code court de l'extension, comme MH3. Précise l'impression à prélever.",
+      "setName": "Nom complet de l'extension. Utilisé s'il n'y a pas de code.",
+      "collectorNumber": "Numéro de collection de l'impression.",
+      "condition": "NM, LP, MP, HP ou DMG, ou des mots comme Near Mint.",
+      "foil": "Foil ou non. Oui/Non, Foil/Normal et similaires fonctionnent.",
+      "language": "Langue de la carte, comme Anglais ou EN.",
+      "unitPrice": "Prix de vente par carte, pour le chiffre d'affaires."
+    },
+    "review": {
+      "split": {
+        "legend": "Comment les lignes sont-elles réparties en commandes ?",
+        "reference": "Une commande par référence de commande",
+        "referenceWithColumn": "Une commande par valeur de \"{{column}}\"",
+        "referenceHint": "Les lignes avec le même numéro de commande vont ensemble.",
+        "referenceDisabled": "Associez la colonne de référence de commande à l'étape précédente pour utiliser cette option.",
+        "masterdetail": "Des lignes d'en-tête commencent chaque commande",
+        "masterdetailHint": "Une ligne avec des infos de commande mais sans carte commence une nouvelle commande, et les lignes de cartes en dessous en font partie.",
+        "single": "Tout le fichier est une seule commande",
+        "singleHint": "Toutes les lignes vont dans une seule commande."
+      },
+      "create": {
+        "legend": "Que faut-il créer ?",
+        "together": "Une préparation pour toutes les commandes",
+        "togetherHint": "Recommandé. Prélevez chaque carte une seule fois par emplacement, puis triez-les par commande.",
+        "separate": "Une préparation par commande",
+        "separateHint": "Chaque commande a sa propre préparation et sa propre liste de prélèvement."
+      },
+      "pickName": "Nom de la préparation",
+      "orders_one": "{{count}} commande",
+      "orders_other": "{{count}} commandes",
+      "ordersHint": "Renommer une commande modifie sa référence dans la préparation.",
+      "orderName": "Nom de la commande {{name}}",
+      "noOrder": "Aucune commande",
+      "showCards": "Afficher les cartes",
+      "cards_one": "{{count}} carte",
+      "cards_other": "{{count}} cartes",
+      "created_one": "Préparation créée",
+      "created_other": "{{count}} préparations créées"
+    },
+    "actions": {
+      "back": "Retour",
+      "next": "Suivant",
+      "create_one": "Créer la préparation",
+      "create_other": "Créer {{count}} préparations"
     }
   }
 }

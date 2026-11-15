@@ -111,6 +111,7 @@ export interface SorterContextValue {
   feed: () => Promise<SerialReply | null>;
   readSensors: () => Promise<SerialReply | null>;
   sendNeutral: () => Promise<boolean>;
+  sendEmergencyStop: () => Promise<boolean>;
   clearDevice: () => Promise<void>;
   retractCard: () => Promise<RetractCardOutcome>;
   sendCommand: (command: object) => void;

@@ -75,6 +75,10 @@ export function resumePiScanSession(): Promise<PiScanSessionResult> {
   return send("POST", `${PI_SCAN_SESSION_API}/resume`);
 }
 
+export function emergencyStopPiScanSession(): Promise<PiScanSessionResult> {
+  return send("POST", `${PI_SCAN_SESSION_API}/emergency-stop`);
+}
+
 export function stopPiScanSession(): Promise<PiScanSessionResult> {
   return send("DELETE", PI_SCAN_SESSION_API);
 }

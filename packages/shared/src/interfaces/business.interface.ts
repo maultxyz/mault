@@ -5,6 +5,7 @@ import type {
 } from "../constants/business.constant";
 import type { PlayingCard, PlayingCardWithDistance } from "./card.interface";
 import type { CardCondition } from "./card-condition.interface";
+import type { PickList } from "./pick-list.interface";
 import type { PriceSource } from "./price-source.interface";
 import type { StatsRange } from "./stats.interface";
 
@@ -235,11 +236,48 @@ export interface PullSheetEntry {
   locationName: string | null;
   locationPosition: number | null;
   picked: boolean;
+  orderRef: string | null;
+  gameKey: string | null;
 }
+
+export type OrderBins = Record<string, number>;
 
 export interface FulfilmentOrderDetail extends FulfilmentOrder {
   lines: OrderLine[];
   pullSheet: PullSheetEntry[];
+  orderBins: OrderBins;
+  binCount: number;
+}
+
+export interface OrderBinsInput {
+  orderBins: OrderBins;
+}
+
+export type OrderBinsError = "duplicate" | "outOfRange" | "catchAll";
+
+export interface PickOrderGroup {
+  orderRef: string | null;
+  binNumber: number | null;
+  lineIndexes: number[];
+  entries: PullSheetEntry[];
+  quantity: number;
+  allocated: number;
+}
+
+export interface OrderSortPreset {
+  guid: string;
+  name: string;
+  gameKey: string;
+}
+
+export interface OrderSortPresetBin {
+  binNumber: number;
+  isCatchAll: boolean;
+  pickList: PickList | null;
+}
+
+export interface OrderSortPresetResult {
+  presets: OrderSortPreset[];
 }
 
 export interface OrderFulfilInput {

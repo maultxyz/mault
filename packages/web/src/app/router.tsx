@@ -26,7 +26,11 @@ import { useImpersonation } from "@/hooks/use-impersonation";
 import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked-while-impersonating";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
-import { STORAGE_PATH, STORAGE_PICK_LIST_PATH } from "@/lib/constants/storage";
+import {
+  STORAGE_LABELS_PATH,
+  STORAGE_PATH,
+  STORAGE_PICK_LIST_PATH,
+} from "@/lib/constants/storage";
 import {
   SENT_TRADE_OFFER_PATH,
   TRADE_OFFER_PATH,
@@ -55,6 +59,7 @@ import {
   LEGACY_PICKS_VIEW_PARAM,
   ORDER_PARAM,
   ORDERS_PATH,
+  PICK_IMPORT_PATH,
   PICKS_PATH,
   picksPath,
   LEGACY_REPORTS_PATH,
@@ -210,9 +215,18 @@ const SentTradeOfferRoutePage = lazy(() => import("@/app/routes/app/sent-trade-o
 const StoragePickListPage = lazy(
   () => import("@/app/routes/app/storage-pick-list"),
 );
+const StorageLabelsPage = lazy(
+  () => import("@/app/routes/app/storage-labels"),
+);
 const StatsPage = lazy(() => import("@/app/routes/app/stats"));
 const IntakePage = lazy(() => import("@/app/routes/app/intake"));
 const PicksPage = lazy(() => import("@/app/routes/app/picks"));
+const PickImportPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/app/pick-import"),
+    ["common", "business", "csvImport"],
+  ),
+);
 const ControlCardsPage = lazy(
   withNamespaces(
     () => import("@/app/routes/app/control-cards"),
@@ -630,6 +644,10 @@ export const routes: RouteObject[] = [
                 element: <StoragePickListPage />,
               },
               {
+                path: STORAGE_LABELS_PATH,
+                element: <StorageLabelsPage />,
+              },
+              {
                 path: ORDERS_PATH,
                 element: <Navigate to={INTAKE_PATH} replace />,
               },
@@ -640,6 +658,10 @@ export const routes: RouteObject[] = [
               {
                 path: PICKS_PATH,
                 element: <PicksPage />,
+              },
+              {
+                path: PICK_IMPORT_PATH,
+                element: <PickImportPage />,
               },
               {
                 path: LEGACY_INTAKE_PATH,
