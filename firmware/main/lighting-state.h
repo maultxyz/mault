@@ -3,6 +3,21 @@
 
 enum class LightWarning : uint8_t { None, Empty, Blocked };
 
+struct RgbwColor {
+  uint8_t r;
+  uint8_t g;
+  uint8_t b;
+  uint8_t w;
+};
+
+inline RgbwColor whiteLedColor(uint8_t level) {
+  return {0, 0, 0, level};
+}
+
+inline uint8_t scaleLightChannel(uint8_t value, uint8_t brightness) {
+  return ((uint16_t)value * brightness + 127) / 255;
+}
+
 struct LightWarningCycle {
   bool empty = false;
   bool blocked = false;

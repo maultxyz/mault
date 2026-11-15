@@ -587,18 +587,23 @@ For the current lighting diagnostic, `ENABLE_ONBOARD_RGB_STATUS` defaults to
 interaction with the external strip driver. Set it to `1` (or build with
 `-DENABLE_ONBOARD_RGB_STATUS=1`) to restore them.
 
-Drives the WS2812B strip (5 LEDs) on `LED_PIN`: GPIO 18 on the ESP32-S3,
+Drives the SK6812 RGBW strip (5 LEDs, GRBW byte order, neutral-white LEDs)
+on `LED_PIN`: GPIO 18 on the ESP32-S3,
 13 on classic ESP32, D8 on the Uno R4. Older firmware answers
 `{"error":"unknown command"}`.
+Firmware 2.13.0+ drives SK6812 RGBW pixels and is not compatible with RGB-only
+WS2812B strips.
 
 ```json
 {"setLight": "white"}
-{"setLight": {"mode": "custom", "r": 255, "g": 120, "b": 0, "brightness": 160}, "clearAlert": true}
+{"setLight": {"mode": "custom", "r": 255, "g": 120, "b": 0, "w": 64, "brightness": 160}, "clearAlert": true}
 ```
 `mode` is `white`, `auto` (same color as white), `off`, `custom` (needs
-`r`, `g` and `b`), `foil` (a white light chasing around the strip) or
+`r`, `g` and `b`; RGBW firmware also accepts `w` from 0 to 255), `foil`
+(a white light chasing around the strip) or
 `value` (one LED at a time sweeps 0,1,2,3,4,3,2,1,0, cycling green/red/blue
-with a dark gap between flashes, leaving the mode alone). White and auto use neutral RGB 255/255/255, not a blue-biased white.
+with a dark gap between flashes, leaving the mode alone). Firmware 2.13.0+
+uses the strip's dedicated neutral-white diode for white and auto modes.
 For `value`, an object request can set `durationMs` to an integer from 100 to
 3000 (default 500). For example:
 `{"setLight":{"mode":"value","durationMs":500}}`.
@@ -606,7 +611,7 @@ The reply includes `"durationMs":500` while the value animation is active.
 The scanner requires this acknowledgement, waits for that duration plus a
 150 ms margin, and confirms restoration of main lighting before feeding again.
 Older firmware without the duration echo pauses scanning rather than assuming
-the shorter animation completed. `brightness` and the color channels are integers from 0 to 255;
+the shorter animation completed. `brightness` and the RGBW color channels are integers from 0 to 255;
 `brightness` defaults to the current one (160 at boot).
 
 An object request may also set `leds`, a bitmask of the LEDs to light
@@ -623,8 +628,13 @@ ignores it and replies without `leds`.
 #### Timed warnings (lighting release 2.??.0)
 
 The placeholder above names the shipping lighting release; the compiled version
-and feature minimum are numeric `2.12.0`. Older versions retain their existing
+and warning feature minimum are numeric `2.12.0`. Older versions retain their existing
 lighting behavior; clients omit warning configuration unless this feature is supported.
+
+RGBW output requires firmware `2.13.0+`; clients send `w` only to firmware with
+the `rgbwLighting` feature. The custom mode's `w` value directly controls the
+SK6812's neutral-white channel. Older RGB-only firmware ignores this extra
+setting, but firmware 2.13.0+ requires RGBW-compatible hardware.
 
 ```json
 {"setLight":{"mode":"white","brightness":160,"warnings":{"enabled":true,"emptySeconds":3,"blockedSeconds":3,"normalSeconds":5}}}

@@ -635,7 +635,7 @@
     "previewUnavailable": "Connect the sorter and pass its self-test to preview changes on the strip. You can still edit and save.",
     "strip": {
       "heading": "Light strip",
-      "description": "Five LEDs: diffused center LEDs 1 to 3 provide normal lighting; exposed LEDs 0 and 4 are for foil detection. Warnings and celebrations can use all five. Choose normal color and brightness here. Changes preview immediately and are kept with Save."
+      "description": "Five SK6812 RGBW LEDs: diffused center LEDs 1 to 3 provide normal lighting; exposed LEDs 0 and 4 are for foil detection. Warnings and celebrations can use all five. Choose the RGB color, white-channel level, and brightness here."
     },
     "modeLabel": "Mode",
     "modes": {
@@ -645,11 +645,11 @@
       },
       "white": {
         "label": "White",
-        "description": "Equal red, green and blue output, without the previous blue boost. Camera white balance and LED quality can still affect card colour; this is not calibrated colour."
+        "description": "Firmware 2.13+ uses the strip's dedicated neutral-white channel. Camera white balance and LED quality can still affect card colour; this is not calibrated colour."
       },
       "custom": {
         "label": "Custom color",
-        "description": "Any solid color you pick."
+        "description": "Choose an RGB color and independently set the neutral-white channel."
       },
       "foil": {
         "label": "Foil sweep",
@@ -657,6 +657,8 @@
       }
     },
     "colorLabel": "Color",
+    "whiteChannelLabel": "White channel (W)",
+    "whiteChannelValue": "{{value}}/255",
     "brightnessLabel": "Brightness",
     "brightnessValue": "{{percent}}%",
     "celebration": {

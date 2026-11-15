@@ -1,5 +1,4 @@
 #if LED_STRIP_SUPPORTED
-#include "lighting-state.h"
 constexpr uint16_t LED_COUNT = 5;
 constexpr uint8_t LED_FULL_MASK = (1 << LED_COUNT) - 1;
 constexpr uint8_t LED_MAIN_MASK = 0b01110;
@@ -7,11 +6,11 @@ constexpr unsigned long VALUE_CELEBRATION_DEFAULT_MS = 500;
 constexpr unsigned long VALUE_CELEBRATION_MIN_MS = 100;
 constexpr unsigned long VALUE_CELEBRATION_MAX_MS = 3000;
 
-CRGB stripLeds[LED_COUNT];
+Adafruit_NeoPixel stripPixels(LED_COUNT, LED_PIN, NEO_GRBW + NEO_KHZ800);
 uint8_t stripLedMask = LED_MAIN_MASK;
 uint8_t stripBrightness = 160;
 const char* stripMode = "off";
-CRGB stripColor = CRGB::Black;
+RgbwColor stripColor{0, 0, 0, 0};
 const char* stripAlert = "none";
 unsigned long stripAlertStartedAt = 0;
 unsigned long stripLastFrameAt = 0;
@@ -82,14 +81,27 @@ void printLightState(Print& reply) {
 
 void renderLedStrip() {
   for (uint16_t i = 0; i < LED_COUNT; i++) {
-    stripLeds[i] = (stripLedMask >> i) & 1 ? stripColor : CRGB::Black;
+    const RgbwColor color = (stripLedMask >> i) & 1 ? stripColor : RgbwColor{0, 0, 0, 0};
+    stripPixels.setPixelColor(i, scaleLightChannel(color.r, stripBrightness),
+      scaleLightChannel(color.g, stripBrightness), scaleLightChannel(color.b, stripBrightness),
+      scaleLightChannel(color.w, stripBrightness));
   }
-  FastLED.setBrightness(stripBrightness);
-  FastLED.show();
+  stripPixels.show();
+}
+
+void renderSolidLedStrip(RgbwColor color) {
+  for (uint16_t i = 0; i < LED_COUNT; i++) {
+    stripPixels.setPixelColor(i, scaleLightChannel(color.r, stripBrightness),
+      scaleLightChannel(color.g, stripBrightness), scaleLightChannel(color.b, stripBrightness),
+      scaleLightChannel(color.w, stripBrightness));
+  }
+  stripPixels.show();
 }
 
 void initLedStrip() {
-  FastLED.addLeds<WS2812B, LED_PIN, GRB>(stripLeds, LED_COUNT);
+  stripPixels.begin();
+  stripPixels.clear();
+  stripPixels.show();
   renderLedStrip();
 }
 
@@ -109,9 +121,8 @@ void updateLedStrip() {
       if (visibleWarning == LightWarning::None) {
         renderLedStrip();
       } else {
-        fill_solid(stripLeds, LED_COUNT, visibleWarning == LightWarning::Blocked ? CRGB::Red : CRGB(255, 160, 0));
-        FastLED.setBrightness(stripBrightness);
-        FastLED.show();
+        renderSolidLedStrip(visibleWarning == LightWarning::Blocked
+          ? RgbwColor{255, 0, 0, 0} : RgbwColor{255, 160, 0, 0});
       }
     }
     return;
@@ -130,14 +141,19 @@ void updateLedStrip() {
     } else {
       if (millis() - stripLastFrameAt < 5) return;
       stripLastFrameAt = millis();
-      const CRGB colors[] = {CRGB::Green, CRGB::Red, CRGB::Blue};
+      const RgbwColor colors[] = {
+        {0, 255, 0, 0}, {255, 0, 0, 0}, {0, 0, 255, 0},
+      };
       const uint8_t step = celebrationStep(elapsed, stripCelebrationDurationMs);
-      fill_solid(stripLeds, LED_COUNT, CRGB::Black);
+      renderSolidLedStrip({0, 0, 0, 0});
       if ((elapsed * 9 % stripCelebrationDurationMs) * 5 < stripCelebrationDurationMs * 4) {
-        stripLeds[celebrationLed(step)] = colors[step % 3];
+        const uint8_t led = celebrationLed(step);
+        const RgbwColor color = colors[step % 3];
+        stripPixels.setPixelColor(led, scaleLightChannel(color.r, stripBrightness),
+          scaleLightChannel(color.g, stripBrightness), scaleLightChannel(color.b, stripBrightness),
+          scaleLightChannel(color.w, stripBrightness));
+        stripPixels.show();
       }
-      FastLED.setBrightness(stripBrightness);
-      FastLED.show();
       return;
     }
   }
@@ -146,10 +162,14 @@ void updateLedStrip() {
   static uint8_t position = 0;
   if (strcmp(stripMode, "foil") != 0 || millis() - lastStep < 60) return;
   lastStep = millis();
-  fill_solid(stripLeds, LED_COUNT, CRGB::Black);
-  stripLeds[position == 0 ? 0 : LED_COUNT - 1] = CRGB::White;
+  renderSolidLedStrip({0, 0, 0, 0});
+  const uint8_t led = position == 0 ? 0 : LED_COUNT - 1;
+  const RgbwColor white = whiteLedColor(255);
+  stripPixels.setPixelColor(led, scaleLightChannel(white.r, stripBrightness),
+    scaleLightChannel(white.g, stripBrightness), scaleLightChannel(white.b, stripBrightness),
+    scaleLightChannel(white.w, stripBrightness));
   position = (position + 1) % 2;
-  FastLED.show();
+  stripPixels.show();
 #endif
 }
 
@@ -159,7 +179,7 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
   uint8_t brightness = stripBrightness;
   uint8_t ledMask = LED_MAIN_MASK;
   unsigned long durationMs = VALUE_CELEBRATION_DEFAULT_MS;
-  CRGB color = stripColor;
+  RgbwColor color = stripColor;
   LightWarningCycle nextWarnings = stripWarnings;
   bool suppressWarnings = false;
 
@@ -205,7 +225,7 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
       }
       durationMs = request["durationMs"].as<unsigned long>();
     }
-    const char* fields[] = {"brightness", "r", "g", "b"};
+    const char* fields[] = {"brightness", "r", "g", "b", "w"};
     for (const char* field : fields) {
       if (request[field].isNull()) continue;
       if (!request[field].is<int>() || request[field].as<int>() < 0 ||
@@ -228,8 +248,12 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
         reply.println(F("{\"error\":\"custom light requires r, g and b\"}"));
         return;
       }
-      color = CRGB(request["r"].as<uint8_t>(), request["g"].as<uint8_t>(),
-                   request["b"].as<uint8_t>());
+      color = {
+        request["r"].as<uint8_t>(),
+        request["g"].as<uint8_t>(),
+        request["b"].as<uint8_t>(),
+        request["w"] | static_cast<uint8_t>(0),
+      };
     }
   } else {
     reply.println(F("{\"error\":\"setLight must be a string or object\"}"));
@@ -249,16 +273,16 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
   }
   if (strcmp(mode, "white") == 0 || strcmp(mode, "auto") == 0) {
     nextMode = strcmp(mode, "auto") == 0 ? "auto" : "white";
-    color = CRGB::White;
+    color = whiteLedColor(255);
   } else if (strcmp(mode, "off") == 0) {
     nextMode = "off";
-    color = CRGB::Black;
+    color = {0, 0, 0, 0};
   } else if (strcmp(mode, "custom") == 0) {
     nextMode = "custom";
   } else if (strcmp(mode, "foil") == 0) {
 #if ENABLE_DYNAMIC_FOIL_DETECTION
     nextMode = "foil";
-    color = CRGB::White;
+    color = whiteLedColor(255);
 #else
     reply.println(F("{\"error\":\"dynamic foil lighting is disabled\"}"));
     return;

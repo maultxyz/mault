@@ -91,7 +91,7 @@ export function isLightBrightness(value: unknown): value is number {
 
 export function toSetLightCommand(
   settings: LightSettings & Partial<LightWarningSettings>,
-  options?: { clearAlert?: boolean; warningsSupported?: boolean },
+  options?: { clearAlert?: boolean; warningsSupported?: boolean; rgbwSupported?: boolean },
 ) {
   let warnings: { enabled: boolean; emptySeconds: number; blockedSeconds: number; normalSeconds: number } | undefined;
   if (options?.warningsSupported && "lightWarningsEnabled" in settings) {
@@ -113,6 +113,7 @@ export function toSetLightCommand(
           r: parseInt(hex.slice(0, 2), 16),
           g: parseInt(hex.slice(2, 4), 16),
           b: parseInt(hex.slice(4, 6), 16),
+          ...(options?.rgbwSupported && { w: settings.lightWhite ?? 0 }),
         }
       : {};
   return {

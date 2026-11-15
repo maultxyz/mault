@@ -52,6 +52,7 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       lightMode?: LightMode;
       lightColor?: string;
       lightBrightness?: number;
+      lightWhite?: number;
       valueCelebrationEnabled?: boolean;
       valueCelebrationThreshold?: number;
       valueCelebrationPriceSource?: PriceSource;
@@ -98,6 +99,15 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
         {
           success: false,
           message: `Light brightness must be an integer from 0 to ${LIGHT_BRIGHTNESS_MAX}.`,
+        },
+        400,
+      );
+    }
+    if ("lightWhite" in body && !isLightBrightness(body.lightWhite)) {
+      return c.json(
+        {
+          success: false,
+          message: `Light white channel must be an integer from 0 to ${LIGHT_BRIGHTNESS_MAX}.`,
         },
         400,
       );
@@ -200,6 +210,7 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
           lightMode: body.lightMode ?? device.lightMode,
           lightColor: body.lightColor?.toLowerCase() ?? device.lightColor,
           lightBrightness: body.lightBrightness ?? device.lightBrightness,
+          lightWhite: body.lightWhite ?? device.lightWhite,
           valueCelebrationEnabled: body.valueCelebrationEnabled ?? device.valueCelebrationEnabled,
           valueCelebrationThreshold: body.valueCelebrationThreshold ?? device.valueCelebrationThreshold,
           valueCelebrationPriceSource: body.valueCelebrationPriceSource ?? device.valueCelebrationPriceSource,

@@ -635,7 +635,7 @@
     "previewUnavailable": "Connecte le trieur et fais-lui passer l'autotest pour prévisualiser les changements sur le ruban. Tu peux quand même modifier et enregistrer.",
     "strip": {
       "heading": "Ruban lumineux",
-      "description": "Cinq LED : LED centrales diffuses 1 a 3 pour l'eclairage normal; LED exposees 0 et 4 pour la detection foil. Alertes et celebrations utilisent les cinq. Choisissez couleur et luminosite normales ici. Apercu immediat, conservation avec Enregistrer."
+      "description": "Cinq LED SK6812 RGBW : les LED centrales diffuses 1 à 3 assurent l'éclairage normal ; les LED exposées 0 et 4 servent à la détection foil. Les alertes et célébrations utilisent les cinq. Réglez ici la couleur RGB, le canal blanc et la luminosité."
     },
     "modeLabel": "Mode",
     "modes": {
@@ -645,11 +645,11 @@
       },
       "white": {
         "label": "Blanc",
-        "description": "Rouge, vert et bleu a intensite egale, sans le renforcement bleu precedent. La balance des blancs et la qualite des LED influencent encore la couleur; ce n'est pas un etalonnage."
+        "description": "Le firmware 2.13+ utilise le canal blanc neutre dédié de la bande. La balance des blancs et la qualité des LED influencent encore la couleur; ce n'est pas un étalonnage."
       },
       "custom": {
         "label": "Couleur personnalisée",
-        "description": "Une couleur unie de ton choix."
+        "description": "Choisissez une couleur RGB et réglez indépendamment le canal blanc neutre."
       },
       "foil": {
         "label": "Balayage foil",
@@ -657,6 +657,8 @@
       }
     },
     "colorLabel": "Couleur",
+    "whiteChannelLabel": "Canal blanc (W)",
+    "whiteChannelValue": "{{value}}/255",
     "brightnessLabel": "Luminosité",
     "brightnessValue": "{{percent}} %",
     "celebration": {

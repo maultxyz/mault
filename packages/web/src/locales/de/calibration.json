@@ -635,7 +635,7 @@
     "previewUnavailable": "Verbinde den Sortierer und lass ihn den Selbsttest bestehen, um Änderungen am Streifen zu sehen. Bearbeiten und Speichern geht trotzdem.",
     "strip": {
       "heading": "Lichtstreifen",
-      "description": "Fuenf LEDs: diffuse mittlere LEDs 1 bis 3 fuer normales Licht; offene LEDs 0 und 4 fuer Foil-Erkennung. Warnungen und Feiern nutzen alle fuenf. Normale Farbe und Helligkeit hier waehlen. Vorschau sofort, dauerhaft nach Speichern."
+      "description": "Fünf SK6812-RGBW-LEDs: diffuse mittlere LEDs 1 bis 3 für normales Licht; offene LEDs 0 und 4 für Foil-Erkennung. Warnungen und Feiern nutzen alle fünf. RGB-Farbe, Weißkanal und Helligkeit hier einstellen."
     },
     "modeLabel": "Modus",
     "modes": {
@@ -645,11 +645,11 @@
       },
       "white": {
         "label": "Weiß",
-        "description": "Gleiche Rot-, Gruen- und Blauausgabe ohne die bisherige Blauverstaerkung. Kamera-Weissabgleich und LED-Qualitaet beeinflussen weiterhin die Kartenfarbe; dies ist keine Farbkalibrierung."
+        "description": "Firmware 2.13+ verwendet den dedizierten Neutralweiß-Kanal des Streifens. Kamera-Weißabgleich und LED-Qualität beeinflussen weiterhin die Kartenfarbe; dies ist keine Farbkalibrierung."
       },
       "custom": {
         "label": "Eigene Farbe",
-        "description": "Eine beliebige einfarbige Farbe deiner Wahl."
+        "description": "RGB-Farbe wählen und den Neutralweiß-Kanal unabhängig einstellen."
       },
       "foil": {
         "label": "Foil-Lauflicht",
@@ -657,6 +657,8 @@
       }
     },
     "colorLabel": "Farbe",
+    "whiteChannelLabel": "Weißkanal (W)",
+    "whiteChannelValue": "{{value}}/255",
     "brightnessLabel": "Helligkeit",
     "brightnessValue": "{{percent}} %",
     "celebration": {

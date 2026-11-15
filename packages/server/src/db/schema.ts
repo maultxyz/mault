@@ -255,6 +255,7 @@ export const devices = pgTable(
     lightMode: text("light_mode").notNull().default("off"),
     lightColor: text("light_color").notNull().default("#ffffff"),
     lightBrightness: integer("light_brightness").notNull().default(160),
+    lightWhite: integer("light_white").notNull().default(0),
     valueCelebrationEnabled: boolean("value_celebration_enabled").notNull().default(false),
     valueCelebrationThreshold: doublePrecision("value_celebration_threshold").notNull().default(0),
     valueCelebrationPriceSource: text("value_celebration_price_source").notNull().default("tcgplayer"),

@@ -99,6 +99,7 @@ export function useFoilCalibration(options: FoilCalibrationOptions) {
       lightMode: device.lightMode,
       lightColor: device.lightColor,
       lightBrightness: device.lightBrightness,
+      lightWhite: device.lightWhite,
     };
     const deviceId = serial.deviceId;
     const source = camera.cameraSource;
@@ -112,7 +113,11 @@ export function useFoilCalibration(options: FoilCalibrationOptions) {
     };
     const setLight = async (settings: FoilLighting) => {
       assertConnection();
-      const { sent, line } = await current.current.serial.sendRequest(withFoilLedMask(toSetLightCommand(settings), settings.ledMask));
+      const rgbwSupported = isFirmwareFeatureSupported(current.current.serial.firmwareVersion, "rgbwLighting");
+      const { sent, line } = await current.current.serial.sendRequest(withFoilLedMask(
+        toSetLightCommand(settings, { rgbwSupported }),
+        settings.ledMask,
+      ));
       if (!sent || !line) throw new Error("Lighting acknowledgement missing");
       assertFoilLightingReply(line, settings);
     };

@@ -1,0 +1,1 @@
+ALTER TABLE "devices" ADD COLUMN "light_white" integer DEFAULT 0 NOT NULL;

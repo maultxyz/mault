@@ -2,6 +2,7 @@
 #include <EEPROM.h>
 #include <Wire.h>
 #include <ctype.h>
+#include "lighting-state.h"
 #include <Adafruit_PWMServoDriver.h>
 #if defined(ARDUINO_ARCH_ESP32)
 #include "esp_mac.h"
@@ -27,7 +28,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.12.0"
+#define FIRMWARE_VERSION "2.13.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -90,17 +91,15 @@
 #include <WiFi.h>
 #endif
 
-// WS2812B strip lighting the scan area (lighting.ino). Every board drives
-// it; FastLED.h has to be included here for the same prototype-hoisting
+// SK6812 RGBW strip lighting the scan area (lighting.ino). Every board drives
+// it; Adafruit_NeoPixel.h has to be included here for the same prototype-hoisting
 // reason as the BLE headers above.
 #define LED_STRIP_SUPPORTED 1
+#include <Adafruit_NeoPixel.h>
 #define ENABLE_DYNAMIC_FOIL_DETECTION 1
 // Diagnostic: isolate the external strip from the onboard RGB driver.
 #ifndef ENABLE_ONBOARD_RGB_STATUS
 #define ENABLE_ONBOARD_RGB_STATUS 0
-#endif
-#if LED_STRIP_SUPPORTED
-#include <FastLED.h>
 #endif
 
 #define SERVO_DRIVER_I2C_ADDR 0x40

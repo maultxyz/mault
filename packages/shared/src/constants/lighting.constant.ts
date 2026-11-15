@@ -2,6 +2,7 @@ export const LIGHT_MODES = ["off", "white", "custom", "foil"] as const;
 export const DEFAULT_LIGHT_MODE = "off";
 export const DEFAULT_LIGHT_COLOR = "#ffffff";
 export const DEFAULT_LIGHT_BRIGHTNESS = 160;
+export const DEFAULT_LIGHT_WHITE = 0;
 export const LIGHT_BRIGHTNESS_MAX = 255;
 export const LIGHT_MAIN_LED_MASK = 0b01110;
 export const DEFAULT_LIGHT_WARNING_SECONDS = 3;

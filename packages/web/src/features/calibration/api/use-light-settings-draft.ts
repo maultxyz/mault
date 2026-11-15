@@ -15,6 +15,7 @@ import {
   DEFAULT_LIGHT_BRIGHTNESS,
   DEFAULT_LIGHT_COLOR,
   DEFAULT_LIGHT_MODE,
+  DEFAULT_LIGHT_WHITE,
   DEFAULT_VALUE_CELEBRATION_DURATION_MS,
   DEFAULT_LIGHT_WARNING_SECONDS,
   DEFAULT_LIGHT_NORMAL_SECONDS,
@@ -46,6 +47,7 @@ export function useLightSettingsDraft() {
       lightMode: device?.lightMode ?? DEFAULT_LIGHT_MODE,
       lightColor: device?.lightColor ?? DEFAULT_LIGHT_COLOR,
       lightBrightness: device?.lightBrightness ?? DEFAULT_LIGHT_BRIGHTNESS,
+      lightWhite: device?.lightWhite ?? DEFAULT_LIGHT_WHITE,
       valueCelebrationEnabled: device?.valueCelebrationEnabled ?? false,
       valueCelebrationThreshold: device?.valueCelebrationThreshold ?? 0,
       valueCelebrationPriceSource: source,
@@ -55,7 +57,7 @@ export function useLightSettingsDraft() {
       lightBlockedWarningSeconds: device?.lightBlockedWarningSeconds ?? DEFAULT_LIGHT_WARNING_SECONDS,
       lightNormalSeconds: device?.lightNormalSeconds ?? DEFAULT_LIGHT_NORMAL_SECONDS,
     }),
-    [device?.lightMode, device?.lightColor, device?.lightBrightness,
+    [device?.lightMode, device?.lightColor, device?.lightBrightness, device?.lightWhite,
       device?.valueCelebrationEnabled, device?.valueCelebrationThreshold, device?.valueCelebrationDurationMs,
       device?.lightWarningsEnabled, device?.lightEmptyWarningSeconds, device?.lightBlockedWarningSeconds, device?.lightNormalSeconds, source],
   );
@@ -73,7 +75,8 @@ export function useLightSettingsDraft() {
     async (settings: LightingDraft, options?: { clearAlert?: boolean }) => {
       if (!canControl) return;
       const warningsSupported = isFirmwareFeatureSupported(firmwareVersion, "lightingWarnings");
-      const { sent, line } = await sendRequest(toSetLightCommand(settings, { ...options, warningsSupported }));
+      const rgbwSupported = isFirmwareFeatureSupported(firmwareVersion, "rgbwLighting");
+      const { sent, line } = await sendRequest(toSetLightCommand(settings, { ...options, warningsSupported, rgbwSupported }));
       if (!sent || !line) throw new Error("Lighting acknowledgement missing");
       if (warningsSupported) assertLightWarningReply(line, settings);
     },

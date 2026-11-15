@@ -883,6 +883,13 @@
       "when": 1793759332882,
       "tag": "0125_careless_spectrum",
       "breakpoints": true
+    },
+    {
+      "idx": 126,
+      "version": "7",
+      "when": 1794618241662,
+      "tag": "0126_quick_the_professor",
+      "breakpoints": true
     }
   ]
 }

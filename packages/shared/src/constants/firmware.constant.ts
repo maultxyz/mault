@@ -24,6 +24,7 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   wifiRemote: "2.10.0",
   lighting: "2.11.0",
   lightingWarnings: "2.12.0",
+  rgbwLighting: "2.13.0",
 };
 
 export function isFirmwareFeatureSupported(

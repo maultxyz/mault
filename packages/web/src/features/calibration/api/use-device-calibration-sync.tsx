@@ -327,7 +327,8 @@ export function DeviceCalibrationSyncProvider({
       if (!target) return;
       if (version && !isFirmwareFeatureSupported(version, "lighting")) return;
       const warningsSupported = isFirmwareFeatureSupported(version, "lightingWarnings");
-      const { line } = await request(toSetLightCommand(target, { warningsSupported }));
+      const rgbwSupported = isFirmwareFeatureSupported(version, "rgbwLighting");
+      const { line } = await request(toSetLightCommand(target, { warningsSupported, rgbwSupported }));
       if (warningsSupported) {
         if (!line) throw new Error("Lighting warning settings acknowledgement missing");
         assertLightWarningReply(line, target);

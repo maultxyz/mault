@@ -7,6 +7,7 @@ export interface LightSettings {
   lightMode: LightMode;
   lightColor: string;
   lightBrightness: number;
+  lightWhite?: number;
 }
 
 export interface ValueCelebrationSettings {
@@ -23,4 +24,6 @@ export interface LightWarningSettings {
   lightNormalSeconds: number;
 }
 
-export interface LightingDraft extends LightSettings, ValueCelebrationSettings, LightWarningSettings {}
+export interface LightingDraft extends LightSettings, ValueCelebrationSettings, LightWarningSettings {
+  lightWhite: number;
+}

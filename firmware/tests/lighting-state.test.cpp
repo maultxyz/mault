@@ -4,6 +4,11 @@
 #include <initializer_list>
 
 int main() {
+  assert(scaleLightChannel(255, 255) == 255);
+  assert(scaleLightChannel(255, 128) == 128);
+  assert(scaleLightChannel(128, 0) == 0);
+  const RgbwColor whiteOnly = whiteLedColor(255);
+  assert(whiteOnly.r == 0 && whiteOnly.g == 0 && whiteOnly.b == 0 && whiteOnly.w == 255);
   LightWarningCycle cycle;
   assert(cycle.update(0) == LightWarning::None);
   cycle.empty = true;
@@ -49,5 +54,5 @@ int main() {
     }
     for (bool reached : seen) assert(reached);
   }
-  puts("PASS: warning boundaries, priority, clearing, disable, rollover and 0-4-0 celebration");
+  puts("PASS: RGBW channel scaling, warning boundaries, priority, clearing, rollover and 0-4-0 celebration");
 }

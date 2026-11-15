@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <FastLED.h>
+#include <Adafruit_NeoPixel.h>
 
 #if !defined(CONFIG_IDF_TARGET_ESP32S3)
 #error "This diagnostic targets ESP32-S3 boards only."
@@ -10,24 +10,28 @@ constexpr uint16_t LED_COUNT = 5;
 constexpr uint8_t LED_BRIGHTNESS = 32;
 constexpr unsigned long COLOR_HOLD_MS = 2000;
 
-CRGB leds[LED_COUNT];
+Adafruit_NeoPixel leds(LED_COUNT, LED_DATA_PIN, NEO_GRBW + NEO_KHZ800);
 
 void setup() {
   Serial.begin(9600);
-  FastLED.addLeds<WS2812B, LED_DATA_PIN, GRB>(leds, LED_COUNT);
-  FastLED.setBrightness(LED_BRIGHTNESS);
-  fill_solid(leds, LED_COUNT, CRGB::Black);
-  FastLED.show();
+  leds.begin();
+  leds.setBrightness(LED_BRIGHTNESS);
+  leds.clear();
+  leds.show();
 }
 
 void loop() {
-  const CRGB colors[] = {CRGB::Red, CRGB::Green, CRGB::Blue, CRGB::Black};
-  const char* names[] = {"red", "green", "blue", "off"};
+  const uint8_t colors[][4] = {
+    {255, 0, 0, 0}, {0, 255, 0, 0}, {0, 0, 255, 0}, {0, 0, 0, 255}, {0, 0, 0, 0},
+  };
+  const char* names[] = {"red", "green", "blue", "white", "off"};
 
-  for (uint8_t i = 0; i < 4; ++i) {
-    fill_solid(leds, LED_COUNT, colors[i]);
-    FastLED.show();
-    Serial.print(F("MAULT-LED-TEST-1 GPIO=17 LEDs=5 brightness=32 color="));
+  for (uint8_t i = 0; i < 5; ++i) {
+    for (uint16_t pixel = 0; pixel < LED_COUNT; pixel++) {
+      leds.setPixelColor(pixel, colors[i][0], colors[i][1], colors[i][2], colors[i][3]);
+    }
+    leds.show();
+    Serial.print(F("MAULT-LED-TEST-2 GPIO=18 LEDs=5 brightness=32 color="));
     Serial.println(names[i]);
     delay(COLOR_HOLD_MS);
   }

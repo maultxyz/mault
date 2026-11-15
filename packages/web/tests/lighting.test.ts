@@ -7,12 +7,19 @@ import { withFoilLedMask } from "../src/features/calibration/lib/foil-capture-se
 
 test("normal lighting always selects the diffused middle LEDs", () => {
   for (const lightMode of ["white", "custom", "off"] as const) {
-    const command = toSetLightCommand({ lightMode, lightBrightness: 48, lightColor: "#123456" });
+    const command = toSetLightCommand({ lightMode, lightBrightness: 48, lightColor: "#123456", lightWhite: 72 });
     assert.equal(command.setLight.leds, 14);
     assert.equal(command.setLight.mode, lightMode);
     assert.equal(command.setLight.brightness, 48);
     if (lightMode === "custom") {
       assert.deepEqual(command.setLight, { mode: "custom", brightness: 48, leds: 14, r: 18, g: 52, b: 86 });
+      assert.deepEqual(
+        toSetLightCommand(
+          { lightMode, lightBrightness: 48, lightColor: "#123456", lightWhite: 72 },
+          { rgbwSupported: true },
+        ).setLight,
+        { mode: "custom", brightness: 48, leds: 14, r: 18, g: 52, b: 86, w: 72 },
+      );
     }
   }
 });
@@ -38,17 +45,22 @@ test("warning configuration validates seconds and checks the firmware echo", () 
   }
   assert.equal(isFirmwareFeatureSupported("2.11.0", "lightingWarnings"), false);
   assert.equal(isFirmwareFeatureSupported("2.12.0", "lightingWarnings"), true);
+  assert.equal(isFirmwareFeatureSupported("2.12.0", "rgbwLighting"), false);
+  assert.equal(isFirmwareFeatureSupported("2.13.0", "rgbwLighting"), true);
   assert.equal(confirmedValueCelebrationDuration('{"status":"ok","lightAlert":"none","warningActive":true}', 500), null);
 });
 
 test("shipping lighting draft requires valid warning timers and a celebration toggle", () => {
-  const draft = { lightMode: "white", lightColor: "#ffffff", lightBrightness: 160,
+  const draft = { lightMode: "white", lightColor: "#ffffff", lightBrightness: 160, lightWhite: 0,
     lightWarningsEnabled: true, lightEmptyWarningSeconds: 3, lightBlockedWarningSeconds: 3, lightNormalSeconds: 5,
     valueCelebrationEnabled: false, valueCelebrationThreshold: 0, valueCelebrationPriceSource: "tcgplayer",
     valueCelebrationDurationMs: 500 };
   assert.equal(lightSettingsSchema.safeParse(draft).success, true);
   for (const key of ["lightEmptyWarningSeconds", "lightBlockedWarningSeconds", "lightNormalSeconds"] as const) {
     for (const value of [0, 301, 1.5, NaN]) assert.equal(lightSettingsSchema.safeParse({ ...draft, [key]: value }).success, false);
+  }
+  for (const value of [-1, 256, 1.5, NaN]) {
+    assert.equal(lightSettingsSchema.safeParse({ ...draft, lightWhite: value }).success, false);
   }
 });
 

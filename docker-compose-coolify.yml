@@ -133,7 +133,7 @@ services:
       context: .
       dockerfile: Dockerfile.web
       args:
-        VITE_LATEST_FIRMWARE_VERSION: ${VITE_LATEST_FIRMWARE_VERSION:-1.0.1}
+        VITE_LATEST_FIRMWARE_VERSION: ${VITE_LATEST_FIRMWARE_VERSION:-2.13.0}
     environment:
       VITE_API_URL: ${VITE_API_URL:-}
       VITE_AUTH_PROVIDER: ${VITE_AUTH_PROVIDER:-local}
