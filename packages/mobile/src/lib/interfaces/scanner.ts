@@ -371,6 +371,7 @@ export interface PhoneCameraResponder {
 
 export type ScannerQrLink =
   | { kind: "share-link"; shareLink: ParsedShareLinkUrl }
+  | { kind: "short-link"; shortCode: string }
   | { kind: "desktop-camera"; collectionGuid: string };
 
 export interface ScannerQrWatcherOptions {

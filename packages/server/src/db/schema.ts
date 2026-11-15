@@ -916,9 +916,11 @@ export const shareLinks = pgTable(
     expiresAt: timestamp("expires_at").notNull(),
     createdByUserId: text("created_by_user_id").notNull(),
     revokedAt: timestamp("revoked_at"),
+    shortCode: text("short_code").notNull(),
   },
   (table) => [
     unique("share_links_guid_idx").on(table.guid),
+    unique("share_links_short_code_idx").on(table.shortCode),
     index("share_links_org_expires_idx").on(table.orgId, table.expiresAt),
     index("share_links_subject_idx").on(table.subjectGuid),
     crudPolicy({
@@ -944,12 +946,14 @@ export const shopCatalogs = pgTable(
     showsPrices: boolean("shows_prices").notNull().default(true),
     isPublic: boolean("is_public").notNull().default(false),
     shareLinkVersion: integer("share_link_version").notNull().default(0),
+    shortCode: text("short_code").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [
     unique("shop_catalogs_guid_idx").on(table.guid),
+    unique("shop_catalogs_short_code_idx").on(table.shortCode),
     index("shop_catalogs_org_idx").on(table.orgId),
     crudPolicy({
       role: authenticatedRole,

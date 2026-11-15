@@ -446,7 +446,9 @@
     "tradeOneHourNote": "Les liens d'échange durent 1 heure.",
     "monitorOneHourNote": "Avec votre offre, les liens de suivi durent 1 heure. Enthusiast et Business permettent jusqu'à 30 jours.",
     "checkFailedTitle": "Impossible d'ouvrir ce lien",
-    "checkFailedDescription": "Vérifie ta connexion et réessaie."
+    "checkFailedDescription": "Vérifie ta connexion et réessaie.",
+    "shortLinkInvalidTitle": "Ce lien ne fonctionne pas",
+    "shortLinkInvalidDescription": "Vérifie qu'il a été copié en entier, ou demande un nouveau lien à la personne qui l'a partagé."
   },
   "tradeOffers": {
     "declined": "Offre d'échange refusée",

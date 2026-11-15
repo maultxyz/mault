@@ -177,6 +177,8 @@ export default function ScanScreen() {
       if (session.isRunning) session.pause();
       if (qrLink.kind === "share-link") {
         router.push({ pathname: "/shared-link", params: { ...qrLink.shareLink } });
+      } else if (qrLink.kind === "short-link") {
+        router.push({ pathname: "/shared-link", params: { shortCode: qrLink.shortCode } });
       } else {
         router.push({ pathname: "/desktop-camera/[guid]", params: { guid: qrLink.collectionGuid } });
       }

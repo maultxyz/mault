@@ -1,8 +1,6 @@
 import {
   DEFAULT_SHARE_LINK_PURPOSE,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
-  SHARE_LINK_TOKEN_PARAM,
-  WATCH_PATH_PREFIX,
 } from "@magic-vault/shared";
 import { apiPost } from "@/lib/api/client";
 import type {
@@ -41,10 +39,3 @@ export async function verifyMonitorLink(
   return res.json();
 }
 
-export function buildMonitorLinkUrl(
-  collectionGuid: string,
-  token: string,
-): string {
-  const params = new URLSearchParams({ [SHARE_LINK_TOKEN_PARAM]: token });
-  return `${window.location.origin}${WATCH_PATH_PREFIX}/${collectionGuid}?${params}`;
-}

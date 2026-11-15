@@ -1,6 +1,6 @@
 import { ShareLinkDialog } from "@/components/share-link-dialog";
+import { shareLinkUrl } from "@/features/share-links/lib/share-link-paths";
 import {
-  buildStorageShareLinkUrl,
   createStorageShareLink,
   revokeStorageShareLinks,
 } from "@/features/storage/api/storage-share-links";
@@ -28,7 +28,7 @@ export function ShareStorageLinkDialog({
       if (!result.success || !result.data) throw new Error(result.message);
       return {
         guid: result.data.guid,
-        url: buildStorageShareLinkUrl(locationGuid, result.data.token),
+        url: shareLinkUrl(result.data),
         expiresAt: result.data.expiresAt,
       };
     },

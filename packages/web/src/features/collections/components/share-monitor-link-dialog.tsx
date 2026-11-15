@@ -1,10 +1,10 @@
 import { ShareLinkDialog } from "@/components/share-link-dialog";
 import { ShareLinkTriggerButton } from "@/components/share-link-trigger-button";
 import {
-  buildMonitorLinkUrl,
   createMonitorLink,
   revokeMonitorLinks,
 } from "@/features/collections/api/monitor-links";
+import { shareLinkUrl } from "@/features/share-links/lib/share-link-paths";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { ShareMonitorLinkDialogProps } from "@/lib/interfaces/collections";
 import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";
@@ -30,7 +30,7 @@ export function ShareMonitorLinkDialog({
       if (!result.success || !result.data) throw new Error(result.message);
       return {
         guid: result.data.guid,
-        url: buildMonitorLinkUrl(collectionGuid, result.data.token),
+        url: shareLinkUrl(result.data),
         expiresAt: result.data.expiresAt,
       };
     },

@@ -20,6 +20,7 @@ import {
   runScanWorkflow,
   runScanDisposition,
   parseShareLinkUrl,
+  parseShortLinkUrl,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   DEFAULT_SCAN_REGION,
@@ -1003,9 +1004,13 @@ export function useScanSession({
           captured.frame ? readScannerQrText(captured.frame) : null,
         applyOtherCode: (text) => {
           const shareLink = parseShareLinkUrl(text);
-          if (!shareLink) return false;
+          const shortCode = shareLink ? null : parseShortLinkUrl(text);
+          if (!shareLink && !shortCode) return false;
           pause("user");
-          router.push({ pathname: "/shared-link", params: { ...shareLink } });
+          router.push({
+            pathname: "/shared-link",
+            params: shareLink ? { ...shareLink } : { shortCode },
+          });
           return true;
         },
         applyControl: applyControlCode,

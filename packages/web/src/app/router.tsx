@@ -1,6 +1,7 @@
 import {
   SHARED_STORAGE_PATH_PREFIX,
   SHOP_CATALOG_PATH_PREFIX,
+  SHORT_LINK_PATH_PREFIX,
 } from "@magic-vault/shared";
 import {
   HOME_PATH,
@@ -76,6 +77,9 @@ const ShopCatalogPage = lazy(
     () => import("@/app/routes/shop-catalog"),
     ["common", "business", "cards"],
   ),
+);
+const ShortLinkPage = lazy(
+  withNamespaces(() => import("@/app/routes/short-link"), ["common"]),
 );
 const AuthPage = lazy(
   withNamespaces(() => import("@/app/routes/neon/auth"), ["common", "auth"]),
@@ -328,6 +332,10 @@ export const routes: RouteObject[] = [
       {
         path: `${SHOP_CATALOG_PATH_PREFIX}/:catalogGuid`,
         element: <ShopCatalogPage />,
+      },
+      {
+        path: `${SHORT_LINK_PATH_PREFIX}/:shortCode`,
+        element: <ShortLinkPage />,
       },
       {
         path: MARKETING_PAGE_PATHS.privacy,

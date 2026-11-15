@@ -446,7 +446,9 @@
     "tradeOneHourNote": "Trade links last 1 hour.",
     "monitorOneHourNote": "Your plan includes monitor links that last 1 hour. Enthusiast and Business can share them for up to 30 days.",
     "checkFailedTitle": "Couldn't open this link",
-    "checkFailedDescription": "Check your connection and try again."
+    "checkFailedDescription": "Check your connection and try again.",
+    "shortLinkInvalidTitle": "This link doesn't work",
+    "shortLinkInvalidDescription": "Check that it was copied in full, or ask whoever shared it for a new link."
   },
   "tradeOffers": {
     "declined": "Trade offer declined",

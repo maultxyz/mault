@@ -446,7 +446,9 @@
     "tradeOneHourNote": "Tausch-Links gelten 1 Stunde.",
     "monitorOneHourNote": "In deinem Tarif gelten Monitor-Links 1 Stunde. Mit Enthusiast und Business bis zu 30 Tage.",
     "checkFailedTitle": "Dieser Link konnte nicht geöffnet werden",
-    "checkFailedDescription": "Prüfe deine Verbindung und versuche es erneut."
+    "checkFailedDescription": "Prüfe deine Verbindung und versuche es erneut.",
+    "shortLinkInvalidTitle": "Dieser Link funktioniert nicht",
+    "shortLinkInvalidDescription": "Prüfe, ob er vollständig kopiert wurde, oder bitte die Person, die ihn geteilt hat, um einen neuen Link."
   },
   "tradeOffers": {
     "declined": "Tauschangebot abgelehnt",

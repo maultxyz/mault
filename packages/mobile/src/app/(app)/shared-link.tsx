@@ -1,5 +1,7 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { parseShareLinkUrl } from "@magic-vault/shared";
 import { router, useLocalSearchParams } from "expo-router";
+import { Linking } from "react-native";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
@@ -10,15 +12,23 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
+import { shortLinkQueryOptions } from "@/features/share-links/api/short-links";
 import { tradeLinkCardsQueryOptions, tradeLinkInfoQueryOptions } from "@/features/trade-offers/api/public-trade";
 import { TradeCardRow } from "@/features/trade-offers/components/trade-card-row";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
+import { WEB_URL } from "@/lib/constants/config";
 import type { TradeLinkRef } from "@/lib/interfaces/trade";
 
 export default function SharedLinkScreen() {
   const { t } = useTranslation();
-  const params = useLocalSearchParams<{ kind?: string; guid?: string; token?: string }>();
+  const params = useLocalSearchParams<{ kind?: string; guid?: string; token?: string; shortCode?: string }>();
+  const shortLink = useQuery(shortLinkQueryOptions(params.shortCode ?? ""));
+  const shortLinkTarget = shortLink.data;
+  const resolvedShareLink = useMemo(
+    () => (shortLinkTarget ? parseShareLinkUrl(`${WEB_URL}${shortLinkTarget.path}`) : null),
+    [shortLinkTarget],
+  );
   const link = useMemo<TradeLinkRef | null>(
     () =>
       (params.kind === "collection" || params.kind === "storage") && params.guid && params.token
@@ -42,6 +52,15 @@ export default function SharedLinkScreen() {
     if (link && info.data?.purpose === "trade") router.replace({ pathname: "/trade", params: { ...link } });
   }, [link, info.data?.purpose]);
 
+  useEffect(() => {
+    if (resolvedShareLink) {
+      router.replace({ pathname: "/shared-link", params: { ...resolvedShareLink } });
+    } else if (shortLinkTarget) {
+      void Linking.openURL(`${WEB_URL}${shortLinkTarget.path}`);
+      router.back();
+    }
+  }, [resolvedShareLink, shortLinkTarget]);
+
   const header = (
     <PageHeader
       title={info.data?.name ?? t("sharedLink.title")}
@@ -54,6 +73,13 @@ export default function SharedLinkScreen() {
     />
   );
 
+  if (params.shortCode && (shortLink.isLoading || shortLinkTarget)) {
+    return (
+      <Screen header={header}>
+        <PageSkeleton />
+      </Screen>
+    );
+  }
   if (!link || info.isError) {
     return (
       <Screen header={header}>
