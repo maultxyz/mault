@@ -226,6 +226,22 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       height: 0.039,
     },
   ],
+  digimon: [
+    {
+      field: "name",
+      x: 0.19,
+      y: 0.783,
+      width: 0.6,
+      height: 0.06,
+    },
+    {
+      field: "setLine",
+      x: 0.8,
+      y: 0.78,
+      width: 0.19,
+      height: 0.06,
+    },
+  ],
   gundam: [
     {
       field: "name",

@@ -23,17 +23,7 @@ import {
   TCGTRACKING_PRINTED_SET_PREFIX_PATTERN,
 } from "../constants/tcgtracking";
 import type { TcgtrackingPrimaryShapedFieldsInput } from "../interfaces/tcgtracking";
-import { extText, extValues } from "./fallback";
-
-function plainText(html: string | undefined): string | undefined {
-  return (
-    html
-      ?.replace(/\r/g, "")
-      .replace(/<br\s*\/?>\n?/gi, "\n")
-      .replace(/<[^>]+>/g, "")
-      .trim() || undefined
-  );
-}
+import { extText, extValues, htmlToPlainText } from "./fallback";
 
 function numberOrNull(value: string | undefined): number | null {
   if (value === undefined || value.trim() === "") return null;
@@ -78,7 +68,7 @@ export function gundamPrimaryShape(
   const setName = setNameOf(input);
   const trait = extText(ext, TCGTRACKING_EXT_KEYS.gundamTrait);
   const link = extText(ext, TCGTRACKING_EXT_KEYS.gundamLink);
-  const effect = plainText(extText(ext, TCGTRACKING_EXT_KEYS.text));
+  const effect = htmlToPlainText(extText(ext, TCGTRACKING_EXT_KEYS.text));
   const timingMarkers = matchesOf(effect, TCGTRACKING_BRACKETED_TAG_PATTERN);
   const attackPoints = extText(ext, TCGTRACKING_EXT_KEYS.gundamAttackPoints);
   const hitPoints = extText(ext, TCGTRACKING_EXT_KEYS.gundamHitPoints);
@@ -144,7 +134,7 @@ export function onePiecePrimaryShape(
     card_power: extText(ext, TCGTRACKING_EXT_KEYS.power) ?? null,
     counter_amount: counter ?? (cardType === ONE_PIECE_CHARACTER_TYPE ? 0 : null),
     life: extText(ext, TCGTRACKING_EXT_KEYS.onePieceLife) ?? null,
-    card_text: plainText(extText(ext, TCGTRACKING_EXT_KEYS.text)) ?? "",
+    card_text: htmlToPlainText(extText(ext, TCGTRACKING_EXT_KEYS.text)) ?? "",
     market_price: null,
     inventory_price: null,
   };
@@ -185,8 +175,8 @@ export function riftboundPrimaryShape(
     },
     tags: extValues(ext, TCGTRACKING_EXT_KEYS.riftboundTag),
     text: {
-      plain: plainText(extText(ext, TCGTRACKING_EXT_KEYS.text)) ?? "",
-      flavour: plainText(extText(ext, TCGTRACKING_EXT_KEYS.flavorText)) ?? null,
+      plain: htmlToPlainText(extText(ext, TCGTRACKING_EXT_KEYS.text)) ?? "",
+      flavour: htmlToPlainText(extText(ext, TCGTRACKING_EXT_KEYS.flavorText)) ?? null,
     },
     media: { artist: extText(ext, TCGTRACKING_EXT_KEYS.artist) ?? null },
     tcgplayer_id: String(input.product.id),
@@ -204,7 +194,7 @@ function pokemonAttackCost(cost: string): string[] {
 }
 
 function pokemonAttackOf(text: string | undefined): Record<string, unknown> | null {
-  const plain = plainText(text);
+  const plain = htmlToPlainText(text);
   if (!plain) return null;
   const [header, ...effectLines] = plain.split("\n");
   const match = POKEMON_ATTACK_HEADER_PATTERN.exec(header.trim());
@@ -264,7 +254,7 @@ export function pokemonPrimaryShape(
         ? POKEMON_CATEGORY.trainer
         : undefined;
   const stage = stagePart || extText(ext, TCGTRACKING_EXT_KEYS.pokemonStage);
-  const text = plainText(extText(ext, TCGTRACKING_EXT_KEYS.pokemonCardText));
+  const text = htmlToPlainText(extText(ext, TCGTRACKING_EXT_KEYS.pokemonCardText));
   const attacks = TCGTRACKING_EXT_KEYS.pokemonAttacks
     .map((keys) => pokemonAttackOf(extText(ext, keys)))
     .filter((attack) => attack !== null);

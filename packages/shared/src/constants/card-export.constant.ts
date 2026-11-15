@@ -73,6 +73,7 @@ export const TCGPLAYER_PRODUCT_LINES: Record<string, string> = {
   swu: "Star Wars: Unlimited",
   gundam: "Gundam Card Game",
   grandarchive: "Grand Archive TCG",
+  digimon: "Digimon Card Game",
 };
 
 export const SORTSWIFT_CONDITION_CODES: Record<CardCondition, string> = {

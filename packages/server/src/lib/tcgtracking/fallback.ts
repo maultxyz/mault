@@ -44,6 +44,16 @@ export function extValues(
   return [];
 }
 
+export function htmlToPlainText(html: string | undefined): string | undefined {
+  return (
+    html
+      ?.replace(/\r/g, "")
+      .replace(/<br\s*\/?>\n?/gi, "\n")
+      .replace(/<[^>]+>/g, "")
+      .trim() || undefined
+  );
+}
+
 export function extText(
   ext: Record<string, unknown>,
   keys: readonly string[],
