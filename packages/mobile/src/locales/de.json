@@ -674,6 +674,10 @@
       "control-card-switch-failed": {
         "title": "Steuerkarte nicht angewendet",
         "description": "Sammlung oder Regelvorlage konnte nicht gewechselt werden. Prüfe deine Verbindung und versuche es erneut."
+      },
+      "storage-unavailable": {
+        "title": "Karte konnte nicht eingelagert werden",
+        "description": "{{detail}} Wähle einen anderen Lagerort, um weiterzuscannen."
       }
     },
     "scanOnce": "Eine scannen",
@@ -858,6 +862,21 @@
       "scannedCount_other": "{{count}} gescannt",
       "lastCard": "Zuletzt: {{name}}",
       "noCardYet": "Noch keine Karten"
+    },
+    "destination": {
+      "title": "Wohin gescannte Karten kommen",
+      "description": "Gescannte Karten kommen direkt in den gewählten Lagerort. Sortierregeln und Fächer werden nicht verwendet.",
+      "descriptionNoLocations": "Du hast noch keine Lagerorte. Lege unter Bibliothek > Lager einen an oder füge Karten nur zur Sammlung hinzu. Sortierregeln und Fächer werden nur verwendet, wenn du Nach Regeln sortieren wählst.",
+      "descriptionLocked": "Lagerorte sind in deinem Tarif nicht enthalten. Karten werden nur zur Sammlung hinzugefügt, Sortierregeln und Fächer werden nur verwendet, wenn du Nach Regeln sortieren wählst.",
+      "noLocation": "Kein Lagerort",
+      "noLocationDescription": "Karten nur zur Sammlung hinzufügen, ohne Sortierung",
+      "sort": "Nach Regeln sortieren",
+      "sortDescription": "Dein Preset wählt für jede Karte ein Fach",
+      "sorterChip": "Sortierer sortiert nach deinen Regeln",
+      "sortChip": "Sortiert nach Regeln",
+      "storageChip": "In {{name}} · ohne Sortierung",
+      "noLocationChip": "Kein Lagerort · ohne Sortierung",
+      "collectionAndLocation": "{{collection}} · {{location}}"
     }
   },
   "home": {

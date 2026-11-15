@@ -674,6 +674,10 @@
       "control-card-switch-failed": {
         "title": "Control card not applied",
         "description": "Couldn't switch the collection or rule preset. Check your connection and try again."
+      },
+      "storage-unavailable": {
+        "title": "Couldn't put the card in storage",
+        "description": "{{detail}} Choose another storage location to keep scanning."
       }
     },
     "scanOnce": "Scan one",
@@ -858,6 +862,21 @@
       "scannedCount_other": "{{count}} scanned",
       "lastCard": "Last: {{name}}",
       "noCardYet": "No cards yet"
+    },
+    "destination": {
+      "title": "Where scanned cards go",
+      "description": "Scanned cards go straight into the storage location you pick. Sorting rules and bins are not used.",
+      "descriptionNoLocations": "You have no storage locations yet. Add one under Library > Storage, or add cards to the collection only. Sorting rules and bins are not used unless you choose Sort with rules.",
+      "descriptionLocked": "Storage locations are not included in your plan. Cards are added to the collection only, and sorting rules and bins are not used unless you choose Sort with rules.",
+      "noLocation": "No storage location",
+      "noLocationDescription": "Add cards to the collection only, without sorting",
+      "sort": "Sort with rules",
+      "sortDescription": "Use your rule preset to pick a bin for each card",
+      "sorterChip": "Sorter sorts with your rules",
+      "sortChip": "Sorting with rules",
+      "storageChip": "Into {{name}} · no sorting",
+      "noLocationChip": "No storage location · no sorting",
+      "collectionAndLocation": "{{collection}} · {{location}}"
     }
   },
   "home": {

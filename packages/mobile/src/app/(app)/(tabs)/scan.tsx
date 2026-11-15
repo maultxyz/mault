@@ -38,6 +38,7 @@ import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
 import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
 import { TorchToggle } from "@/features/scanner/components/torch-toggle";
 import { useScanSession } from "@/features/scanner/api/use-scan-session";
+import { useScanDestination } from "@/features/scanner/api/use-scan-destination";
 import { useScanResultAnnouncements } from "@/features/scanner/api/use-scan-result-announcements";
 import { useScanLiveActivity } from "@/features/scanner/api/use-scan-live-activity";
 import { useScanStatusAnnouncements } from "@/features/scanner/api/use-scan-status-announcements";
@@ -64,11 +65,13 @@ import {
   CAPTURE_TARGET_RESOLUTION,
   CARD_SET_PICKER_LIMIT,
   LIVE_DETECTION_PAUSED_PHASES,
+  NO_STORAGE_LOCATION_OPTION,
   NOT_FOIL_OPTION,
   PAUSE_TONES,
   RUNNING_PHASES,
   SCAN_REMOVAL_NOTICE_TONES,
   SCAN_SAVED_STATUS_MS,
+  SORT_DESTINATION_OPTION,
 } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { SHUTTER_SIZE } from "@/lib/constants/ui";
@@ -98,6 +101,33 @@ export default function ScanScreen() {
       ? `${presetPicker.label} · ${t(`rules.modes.${activePresetMode}.title`)}`
       : presetPicker.label;
   const [collectionPickerOpen, setCollectionPickerOpen] = useState(false);
+  const [destinationPickerOpen, setDestinationPickerOpen] = useState(false);
+  const scanDestination = useScanDestination();
+  const destinationLabel = sorter.isReady
+    ? t("scan.destination.sorterChip")
+    : scanDestination.sortsCards
+      ? t("scan.destination.sortChip")
+      : scanDestination.storageLocation
+        ? t("scan.destination.storageChip", { name: scanDestination.storageLocation.name })
+        : t("scan.destination.noLocationChip");
+  const destinationPickerDescription = !scanDestination.canStore
+    ? t("scan.destination.descriptionLocked")
+    : scanDestination.storageLocations.length === 0
+      ? t("scan.destination.descriptionNoLocations")
+      : t("scan.destination.description");
+  const selectedDestinationOption =
+    scanDestination.destination.kind === "sort"
+      ? SORT_DESTINATION_OPTION
+      : (scanDestination.destination.storageLocationGuid ?? NO_STORAGE_LOCATION_OPTION);
+  const chooseDestination = (value: string) => {
+    setDestinationPickerOpen(false);
+    if (value === SORT_DESTINATION_OPTION) scanDestination.setDestination({ kind: "sort" });
+    else
+      scanDestination.setDestination({
+        kind: "storage",
+        storageLocationGuid: value === NO_STORAGE_LOCATION_OPTION ? null : value,
+      });
+  };
   const [presetPickerOpen, setPresetPickerOpen] = useState(false);
   const [cameraPickerOpen, setCameraPickerOpen] = useState(false);
   const [foilTypePickerOpen, setFoilTypePickerOpen] = useState(false);
@@ -442,6 +472,15 @@ export default function ScanScreen() {
             onPress={() => setOptionsOpen(true)}
           />
         </View>
+        {collection && !session.removal.isEnabled ? (
+          <View pointerEvents="box-none" style={{ flexDirection: "row" }}>
+            <CameraChip
+              icon={scanDestination.sortsCards ? "rules" : "storage"}
+              label={destinationLabel}
+              onPress={session.isRunning || sorter.isReady ? undefined : () => setDestinationPickerOpen(true)}
+            />
+          </View>
+        ) : null}
         <TorchBrightness torch={torch} />
         <View pointerEvents="box-none" style={{ flexDirection: "row", gap: SPACING.sm }}>
           <View accessibilityLiveRegion="polite" style={{ flexShrink: 1, minWidth: 0 }}>
@@ -565,6 +604,7 @@ export default function ScanScreen() {
         handScanBins={session.handScanBins}
         onHandScanBinsChange={session.setHandScanBins}
         hasBinPreset={session.hasBinPreset}
+        sortsCards={session.sortsCards}
         removeMode={session.removal.isEnabled}
         onRemoveModeChange={changeRemoveMode}
         presetName={presetLabel}
@@ -627,6 +667,27 @@ export default function ScanScreen() {
           setScanTargetGuid(guid);
         }}
         onClose={() => setCollectionPickerOpen(false)}
+      />
+      <OptionSheet
+        visible={destinationPickerOpen}
+        title={t("scan.destination.title")}
+        description={destinationPickerDescription}
+        options={[
+          ...scanDestination.storageLocations.map((location) => ({ value: location.guid, label: location.name })),
+          {
+            value: NO_STORAGE_LOCATION_OPTION,
+            label: t("scan.destination.noLocation"),
+            description: t("scan.destination.noLocationDescription"),
+          },
+          {
+            value: SORT_DESTINATION_OPTION,
+            label: t("scan.destination.sort"),
+            description: t("scan.destination.sortDescription"),
+          },
+        ]}
+        selected={[selectedDestinationOption]}
+        onSelect={chooseDestination}
+        onClose={() => setDestinationPickerOpen(false)}
       />
       <OptionSheet
         visible={presetPickerOpen}

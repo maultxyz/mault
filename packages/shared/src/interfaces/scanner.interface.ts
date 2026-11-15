@@ -211,7 +211,12 @@ export interface ScanSaveRequestFields {
   pickListUpdate?: ScanSavePickListUpdate;
   deviceGuid?: string;
   isRetry?: boolean;
+  storageLocationGuid?: string;
 }
+
+export type ScanDestination =
+  | { kind: "storage"; storageLocationGuid: string | null }
+  | { kind: "sort" };
 
 export interface SortOnlyScanRequest {
   scanId: string;

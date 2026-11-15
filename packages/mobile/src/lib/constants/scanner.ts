@@ -14,6 +14,8 @@ export const SESSION_FEED_LIMIT = 500;
 export const SESSION_FEED_IMAGE_LIMIT = 30;
 export const RUNNING_PHASES: ScannerPhase[] = ["feeding", "capturing", "identifying", "routing"];
 export const CAMERA_ASPECT_RATIO = 3 / 4;
+export const NO_STORAGE_LOCATION_OPTION = "__no-storage-location__";
+export const SORT_DESTINATION_OPTION = "__sort-with-rules__";
 export const PAUSE_TONES = {
   user: "info",
   duplicate: "warning",
@@ -27,6 +29,7 @@ export const PAUSE_TONES = {
   "scan-limit": "warning",
   "sorter-limit": "warning",
   "collection-locked": "warning",
+  "storage-unavailable": "warning",
   "feed-failed": "destructive",
   "route-failed": "destructive",
   "emergency-stop": "destructive",

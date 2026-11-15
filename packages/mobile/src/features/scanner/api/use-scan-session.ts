@@ -75,6 +75,7 @@ import {
 import { sendSortOnlyScan } from "@/features/scanner/api/scan-saves";
 import { gamesQueryOptions } from "@/features/games/api/games";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
+import { useScanDestination } from "@/features/scanner/api/use-scan-destination";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { configsFromSet } from "@/features/scanner/lib/bin-routing";
 import { createHandScanTracker } from "@/features/scanner/lib/hand-scan";
@@ -153,16 +154,19 @@ export function useScanSession({
   const [handScanBins, setHandScanBinsState] = useState(
     () => readKv(HAND_SCAN_BINS_KEY) === "true",
   );
-  const routesIntoBins = sorter.isReady || handScanBins;
+  const scanDestination = useScanDestination();
+  const sortsCards = scanDestination.sortsCards;
+  const routesIntoBins = sorter.isReady || (sortsCards && handScanBins);
   const handScanActive = handScan && !sorter.isReady;
 
   const set = useMemo(() => {
+    if (!sortsCards) return undefined;
     const forGame = (binSets ?? []).filter(
       (s) =>
         (s.game?.guid ?? undefined) === (collection?.game?.guid ?? undefined),
     );
     return forGame.find((s) => s.isActive) ?? forGame[0];
-  }, [binSets, collection?.game?.guid]);
+  }, [binSets, collection?.game?.guid, sortsCards]);
   const moduleCount = sorter.device?.moduleCount ?? 0;
   const binCount = moduleCount
     ? computeBinCount(moduleCount)
@@ -234,6 +238,7 @@ export function useScanSession({
     handScanActive,
     removal,
     openStorageLabel,
+    storageLocationGuid: scanDestination.storageLocationGuid,
     feedRetryCount:
       feederConfig?.feedRetryCount ?? DEFAULT_FEEDER_CALIBRATION.feedRetryCount,
   };
@@ -658,6 +663,8 @@ export function useScanSession({
         pauseForFullBins(binNumber != null ? [binNumber] : []);
       else if (result.sorterLimitReached) pause("sorter-limit");
       else if (result.scanLimitReached) pause("scan-limit");
+      else if (result.storageLocationUnavailable)
+        pause("storage-unavailable", result.message);
       else pause("collection-locked", result.message);
     },
     [pause, pauseForFullBins],
@@ -792,6 +799,7 @@ export function useScanSession({
                   orgId: ctx.orgId,
                   collectionGuid,
                   deviceGuid: ctx.sorter.device?.guid,
+                  storageLocationGuid: ctx.storageLocationGuid,
                   record: plan.persistence.record,
                 });
           void saving
@@ -1354,6 +1362,7 @@ export function useScanSession({
     setHandScanBins,
     handScanActive,
     hasBinPreset: !!set,
+    sortsCards,
     trackLiveCorners,
     forcedFoilType,
     setForcedFoilType,
