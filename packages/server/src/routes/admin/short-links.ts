@@ -1,4 +1,5 @@
 import {
+  PLATFORM_STAFF_ROLES,
   buildShortenerUrl,
   customShortLinkFormSchema,
   customShortLinkUpdateSchema,
@@ -51,7 +52,7 @@ async function isUsedByAppLink(code: string): Promise<boolean> {
 }
 
 export const shortLinksRoute = new Hono<AppEnv>()
-  .get("/short-links", requireAuth, requireRole("admin"), async (c) => {
+  .get("/short-links", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const baseUrl = getShortLinkBaseUrl();
     const links = baseUrl ? await listCustomShortLinks() : [];
     const data: CustomShortLinksOverview = {
@@ -61,7 +62,7 @@ export const shortLinksRoute = new Hono<AppEnv>()
     };
     return c.json({ success: true, data });
   })
-  .post("/short-links", requireAuth, requireRole("admin"), async (c) => {
+  .post("/short-links", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const input = customShortLinkFormSchema.safeParse(await c.req.json().catch(() => null));
     if (!input.success) {
       return c.json({ success: false, message: "Invalid short link." }, 400);
@@ -77,7 +78,7 @@ export const shortLinksRoute = new Hono<AppEnv>()
     };
     return c.json(body);
   })
-  .put("/short-links/:code", requireAuth, requireRole("admin"), async (c) => {
+  .put("/short-links/:code", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     const input = customShortLinkUpdateSchema.safeParse(await c.req.json().catch(() => null));
     if (!input.success) {
       return c.json({ success: false, message: "Invalid short link." }, 400);
@@ -92,7 +93,7 @@ export const shortLinksRoute = new Hono<AppEnv>()
     };
     return c.json(body);
   })
-  .delete("/short-links/:code", requireAuth, requireRole("admin"), async (c) => {
+  .delete("/short-links/:code", requireAuth, requireRole(...PLATFORM_STAFF_ROLES), async (c) => {
     if (!getShortLinkBaseUrl()) return failure(c, "disabled");
     if (!(await deleteCustomShortLink(c.req.param("code")))) return failure(c, "notFound");
     return c.json({ success: true, data: null });

@@ -112,7 +112,7 @@ export const ADMIN_SECTIONS = [
     path: "short-links",
     icon: IconLink,
     labelKey: "sections.shortLinks",
-    adminOnly: true,
+    adminOnly: false,
   },
   {
     path: "hardware",

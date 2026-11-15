@@ -562,13 +562,8 @@ export const routes: RouteObject[] = [
                         element: <Navigate to="../deleted" replace />,
                       },
                       {
-                        element: <AdminGuard />,
-                        children: [
-                          {
-                            path: "short-links",
-                            element: <AdminShortLinksPage />,
-                          },
-                        ],
+                        path: "short-links",
+                        element: <AdminShortLinksPage />,
                       },
                       {
                         element: <AdminGuard />,
