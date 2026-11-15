@@ -137,7 +137,7 @@ export function PriceLabelOptionsForm({ form, orgId, loadedSourceName }: PriceLa
             </SelectContent>
           </Select>
         </Field>
-        <div className="grid gap-3 md:gap-2 sm:grid-cols-2">
+        <div className="flex flex-col gap-3 md:gap-2">
           <Field data-invalid={markupState.invalid || undefined}>
             <FieldLabel htmlFor="price-label-markup">{t("priceLabels.form.markup")}</FieldLabel>
             <Input
@@ -179,7 +179,7 @@ export function PriceLabelOptionsForm({ form, orgId, loadedSourceName }: PriceLa
             </Select>
           </Field>
         </div>
-        <div className="grid gap-3 md:gap-2 sm:grid-cols-2">
+        <div className="flex flex-col gap-3 md:gap-2">
           <LabelSheetOptionFields
             idPrefix="price-label"
             templateId={templateField.value}

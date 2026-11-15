@@ -81,10 +81,28 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
     </Button>
   );
 
-  return (
-    <div className={cn("min-h-0 flex-1 overflow-y-auto text-foreground", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
-      <style>{LABEL_SHEET_PRINT_PAGE_STYLE}</style>
-      {isMobile ? (
+  const sheetPreview =
+    selectedLocations.length > 0 ? (
+      sheet
+    ) : (
+      <EmptyState
+        icon={IconPrinter}
+        title={t("labels.sheet.emptyTitle")}
+        description={t("labels.sheet.emptyDescription")}
+      />
+    );
+  const emptyLocations = (
+    <EmptyState icon={IconBox} title={t("page.emptyTitle")} description={t("page.emptyDescription")} />
+  );
+  const printPortal = createPortal(
+    <div className="hidden bg-white print:block">{sheet}</div>,
+    document.body,
+  );
+
+  if (isMobile) {
+    return (
+      <div className={cn("min-h-0 flex-1 overflow-y-auto text-foreground", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
+        <style>{LABEL_SHEET_PRINT_PAGE_STYLE}</style>
         <MobilePageHeader
           title={t("labels.page.title")}
           subtitle={t("labels.page.description")}
@@ -92,41 +110,58 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
         >
           {printButton}
         </MobilePageHeader>
-      ) : (
-        <PageHeader
-          title={t("labels.page.title")}
-          description={t("labels.page.description")}
-          backTo={STORAGE_PATH}
-          backLabel={t("pickList.back")}
-          actions={printButton}
-        />
-      )}
-      <div
-        className={
-          isMobile ? MOBILE_PAGE_BODY_CLASS : "mx-auto flex w-full max-w-4xl flex-col gap-6 p-4 md:gap-2 md:px-3 md:py-2"
-        }
-      >
-        {isPending ? (
-          <ListSkeleton />
-        ) : locations.length === 0 ? (
-          <EmptyState icon={IconBox} title={t("page.emptyTitle")} description={t("page.emptyDescription")} />
-        ) : (
-          <>
-            <Callout icon={IconInfoCircle}>{tCommon("labelSheets.printTip")}</Callout>
-            <StorageLabelOptionsForm form={form} locations={locations} />
-            {selectedLocations.length > 0 ? (
-              sheet
-            ) : (
-              <EmptyState
-                icon={IconPrinter}
-                title={t("labels.sheet.emptyTitle")}
-                description={t("labels.sheet.emptyDescription")}
-              />
-            )}
-          </>
-        )}
+        <div className={MOBILE_PAGE_BODY_CLASS}>
+          {isPending ? (
+            <ListSkeleton />
+          ) : locations.length === 0 ? (
+            emptyLocations
+          ) : (
+            <>
+              <Callout icon={IconInfoCircle}>{tCommon("labelSheets.printTip")}</Callout>
+              <StorageLabelOptionsForm form={form} locations={locations} />
+              {sheetPreview}
+            </>
+          )}
+        </div>
+        {printPortal}
       </div>
-      {createPortal(<div className="hidden bg-white print:block">{sheet}</div>, document.body)}
+    );
+  }
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden text-foreground">
+      <style>{LABEL_SHEET_PRINT_PAGE_STYLE}</style>
+      <div className="grid min-h-0 flex-1 grid-cols-12 overflow-hidden">
+        <section className="col-span-4 flex h-full flex-col gap-2 overflow-y-auto border-r bg-sidebar/70 p-2 lg:col-span-3">
+          {isPending ? (
+            <ListSkeleton />
+          ) : (
+            locations.length > 0 && <StorageLabelOptionsForm form={form} locations={locations} />
+          )}
+        </section>
+        <section className="col-span-8 flex min-h-0 flex-col overflow-y-auto lg:col-span-9">
+          <PageHeader
+            title={t("labels.page.title")}
+            description={t("labels.page.description")}
+            backTo={STORAGE_PATH}
+            backLabel={t("pickList.back")}
+            actions={printButton}
+          />
+          <div className="flex flex-col gap-2 px-3 py-2">
+            {isPending ? (
+              <ListSkeleton />
+            ) : locations.length === 0 ? (
+              emptyLocations
+            ) : (
+              <>
+                <Callout icon={IconInfoCircle}>{tCommon("labelSheets.printTip")}</Callout>
+                {sheetPreview}
+              </>
+            )}
+          </div>
+        </section>
+      </div>
+      {printPortal}
     </div>
   );
 }

@@ -27,7 +27,7 @@ export function StorageLabelOptionsForm({ form, locations }: StorageLabelOptions
         <CardDescription>{t("labels.form.description")}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-4 md:gap-2">
-        <div className="grid gap-3 md:gap-2 sm:grid-cols-2">
+        <div className="flex flex-col gap-3 md:gap-2">
           <LabelSheetOptionFields
             idPrefix="storage-label"
             templateId={templateField.value}
@@ -62,7 +62,7 @@ export function StorageLabelOptionsForm({ form, locations }: StorageLabelOptions
                     {allSelected ? t("labels.form.selectNone") : t("labels.form.selectAll")}
                   </Button>
                 </div>
-                <div className="grid max-h-72 gap-1 overflow-y-auto rounded-lg bg-foreground/6 p-2 sm:grid-cols-2">
+                <div className="grid max-h-96 gap-1 overflow-y-auto rounded-lg bg-foreground/6 p-2">
                   {locations.map((location) => {
                     const checkboxId = `storage-label-location-${location.guid}`;
                     return (
