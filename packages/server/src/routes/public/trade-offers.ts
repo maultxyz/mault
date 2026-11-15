@@ -13,6 +13,7 @@ import {
   TRADE_OFFER_GUEST_LIMIT_MESSAGE,
   TRADE_OFFER_INVALID_MESSAGE,
   TRADE_OFFER_OFFERED_NOT_FOUND_MESSAGE,
+  TRADE_OFFER_OWN_ORG_MESSAGE,
   TRADE_OFFER_UNKNOWN_GAME_MESSAGE,
   TRADE_OFFER_WANTED_NOT_FOUND_MESSAGE,
   TRADE_OFFERS_NOT_ALLOWED_MESSAGE,
@@ -26,7 +27,11 @@ import {
   searchTradeOfferCards,
 } from "../../lib/trade-offers";
 import { optionalVerifiedUserId } from "../../lib/optional-auth";
-import { verifyHardwareClientToken, type AppEnv } from "../../middleware/auth";
+import {
+  findOrgMembership,
+  verifyHardwareClientToken,
+  type AppEnv,
+} from "../../middleware/auth";
 
 export function createPublicTradeOffersRoute(
   resolveLink: (c: Context<AppEnv>) => Promise<PublicTradeOfferLink | null>,
@@ -81,6 +86,9 @@ export function createPublicTradeOffersRoute(
         c.req.header("Authorization"),
         verifyHardwareClientToken,
       );
+      if (guestUserId && (await findOrgMembership(guestUserId, link.scope.orgId))) {
+        return c.json({ success: false, message: TRADE_OFFER_OWN_ORG_MESSAGE }, 409);
+      }
       const result = await db.transaction((tx) =>
         createTradeOffer(tx, { scope: link.scope, request: parsed.data, guestKeyHash, guestUserId }),
       );
