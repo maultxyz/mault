@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { CardGrid } from "@/features/cards/components/card-grid";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { ViewedCollectionContext } from "@/features/collections/api/use-viewed-collection";
+import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import {
   COLLECTIONS_PATH,
   monitorCollectionPath,
@@ -96,6 +97,7 @@ export default function CollectionViewPage() {
             </Link>
           }
         />
+        <ShareMonitorLinkDialog collectionGuid={collection.guid} />
         <Button
           variant="outline"
           render={
