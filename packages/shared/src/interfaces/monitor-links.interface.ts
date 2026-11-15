@@ -17,8 +17,17 @@ export interface ShortLinkTarget {
   path: string;
 }
 
-export interface ShortLinkReference {
-  shortCode: string;
+export interface ShareableLink {
+  kind: ShareLinkKind;
+  subjectGuid: string;
+  token: string;
+  shortUrl?: string | null;
+}
+
+export interface ShareableShopCatalog {
+  guid: string;
+  isPublic: boolean;
+  linkToken: string | null;
   shortUrl?: string | null;
 }
 

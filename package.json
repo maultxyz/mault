@@ -3,8 +3,9 @@
   "version": "1.0.206",
   "private": true,
   "scripts": {
-    "dev": "turbo dev --filter=!@magic-vault/bot",
+    "dev": "turbo dev --filter=!@magic-vault/bot --filter=!@magic-vault/shortener",
     "dev:bot": "turbo dev --filter=@magic-vault/bot",
+    "dev:shortener": "turbo dev --filter=@magic-vault/shortener",
     "build": "turbo build",
     "lint": "turbo lint",
     "version:patch": "node scripts/version-bump.mjs patch",

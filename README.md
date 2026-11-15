@@ -113,12 +113,12 @@ cp .env.docker.example .env    # local
    ```bash
    pnpm install
    pnpm --filter @magic-vault/server db:migrate
-   pnpm dev        # web :5173, API :3001, API docs :5174, shortener :3003
+   pnpm dev        # web :5173, API :3001, API docs :5174
    ```
 
 ### Local
 
-1. In `.env`, set `POSTGRES_PASSWORD`, `OWN_AUTH_TOKEN_PEPPER`, `IMPERSONATION_SECRET`, `MONITOR_LINK_SECRET` and `SHORTENER_API_SECRET` (`openssl rand -hex 32` each).
+1. In `.env`, set `POSTGRES_PASSWORD`, `OWN_AUTH_TOKEN_PEPPER`, `IMPERSONATION_SECRET`, and `MONITOR_LINK_SECRET` (`openssl rand -hex 32` each).
 2. `docker compose up -d`, then open `http://localhost:8080` and sign up. The first account becomes platform admin with a "Home" organization.
 3. In `/app/admin`, add a game in the Games Manager and sync it. Scans can't match until one has synced.
 
@@ -157,7 +157,6 @@ In direct mode the Pi itself is the sorter. The API sends commands to the local 
 | `mault-web`    | Web app on port 8080. Proxies `/api` to the API, including authenticated camera access at `/api/pi-camera` |
 | `mault-camera` | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam                           |
 | `mault-controller` | Direct mode only: local Python GPIO/I2C controller, started and stopped with the API |
-| `mault-shortener` | Link shortener on `127.0.0.1:3003`, reached through the web app's `/s/` proxy. Its API secret is generated into `~/.local/state/mault/shortener-secret` |
 
 Remote browsers use port 8080. The Linux API service binds only to localhost; HTTP and WebSocket requests reach it through the web app's proxy. Other deployments keep the existing API bind address unless `API_HOST` is configured.
 
@@ -260,7 +259,8 @@ The scanner downloads its ONNX weights from `huggingface.co` at runtime (pinned 
 ### Docker Compose
 
 ```bash
-docker compose up --build -d                 # postgres, server, web (:8080), api-docs (:8081), shortener (:8082)
+docker compose up --build -d                 # postgres, server, web (:8080), api-docs (:8081)
+docker compose --profile shortener up --build -d   # + link shortener (:8082)
 docker compose --profile bot up --build -d   # + Discord bot (internal :3002)
 ```
 
@@ -270,22 +270,25 @@ docker compose --profile bot up --build -d   # + Discord bot (internal :3002)
 
 ### Link shortener
 
-Short links are a standalone service (`packages/shortener`, image `mault-shortener`) with its own table in the database's `shortener` schema, created on start. The API registers each share link and shop catalog code with it (`SHORTENER_URL`, authenticated with `SHORTENER_API_SECRET`) and re-registers every live link when it starts, so a lost shortener table heals on the next API restart. The web container's nginx sends `/s/<code>` to it, and it answers with a 302 to the share page or `/link-not-found`.
+Short links are optional. Without them, share links and shop catalogs are shared as their full tokenized URLs. To share `https://<short domain>/<code>` instead, run the standalone shortener (`packages/shortener`, image `mault-shortener`) on its own domain:
 
-To give links their own short domain, route the domain to the shortener (port 3003), set `SHORT_LINK_TARGET_ORIGIN` on the shortener to the web origin and `SHORT_LINK_BASE_URL` on the API to the short domain. Links created before that keep working at `<web origin>/s/<code>`. Mobile builds need `MOBILE_SHORT_LINK_URL` set to the same domain to read those QR codes.
+1. Route the short domain to the shortener on port 3003 and set its `SHORT_LINK_TARGET_ORIGIN` to the web origin. It keeps its table in the database's `shortener` schema, created on start.
+2. On the API, set `SHORT_LINK_BASE_URL` (the short domain), `SHORTENER_URL` (how the API reaches the shortener internally) and `SHORTENER_API_SECRET` (also given to the shortener).
+
+The API then registers each link's code with the shortener and re-registers every live link when it starts, so links created while short links were off also get short URLs. Unknown codes redirect to the web app's `/link-not-found`. Mobile builds need `MOBILE_SHORT_LINK_URL` set to the same domain to read those QR codes.
 
 ### Coolify
 
-`docker-compose-coolify.yml` runs the published images (web, API, shortener, pgvector Postgres, optional bot), so nothing builds on your server. `MAULT_IMAGE_TAG` picks the tag (default `latest`; set e.g. `v1.2.3` to pin).
+`docker-compose-coolify.yml` runs the published images (web, API, pgvector Postgres, optional bot and link shortener), so nothing builds on your server. `MAULT_IMAGE_TAG` picks the tag (default `latest`; set e.g. `v1.2.3` to pin).
 
 1. **+ New** > **Public Repository** with `https://github.com/dishwasher-detergent/mault`, branch `master`, build pack **Docker Compose** and compose file `/docker-compose-coolify.yml`.
-2. Set `WEB_URL` (public origin, no trailing slash) and give `POSTGRES_PASSWORD`, `IMPERSONATION_SECRET`, `OWN_AUTH_TOKEN_PEPPER`, `MONITOR_LINK_SECRET` and `SHORTENER_API_SECRET` each its own `openssl rand -hex 32` value. Everything else is optional (see `.env.docker.example`).
+2. Set `WEB_URL` (public origin, no trailing slash) and give `POSTGRES_PASSWORD`, `IMPERSONATION_SECRET`, `OWN_AUTH_TOKEN_PEPPER`, and `MONITOR_LINK_SECRET` each its own `openssl rand -hex 32` value. Everything else is optional (see `.env.docker.example`).
 3. Route your domain to the **web** service on port 80 (e.g. `https://mault.example.com:80`).
 4. Deploy. The API migrates before starting. To update, redeploy: Coolify fetches the latest compose file and pulls the current images.
 5. Under **Scheduled Tasks**, add the price sync: command `node packages/server/dist/scripts/sync-prices.js`, container `server`, frequency `0 4 * * *`.
 
 - **Neon:** also set `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER` to `neon`, `DATABASE_SSL=true` and the Neon values, and run the migrations from a checkout before each deploy.
-- **Short domain:** route it to the **shortener** service on port 3003 and set `SHORT_LINK_BASE_URL` and `SHORT_LINK_TARGET_ORIGIN` (see [Link shortener](#link-shortener)).
+- **Short links:** route a short domain to the **shortener** service on port 3003 and set `SHORT_LINK_BASE_URL`, `SHORT_LINK_TARGET_ORIGIN` and `SHORTENER_API_SECRET` (see [Link shortener](#link-shortener)); without them the shortener idles.
 - **Discord:** set `DISCORD_BOT_TOKEN`, `DISCORD_CLIENT_ID` and `BOT_API_SECRET` and redeploy; without them the bot idles.
 - **Data:** Postgres lives in the `mault-postgres` volume; keep it and back it up. The default `DATABASE_URL` uses `POSTGRES_PASSWORD` unencoded, so keep it URL-safe (hex is). Changing `POSTGRES_PASSWORD` later doesn't change the database's password, and changing `OWN_AUTH_TOKEN_PEPPER` signs everyone out.
 

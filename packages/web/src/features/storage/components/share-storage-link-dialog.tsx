@@ -30,7 +30,11 @@ export function ShareStorageLinkDialog({
       if (!result.success || !result.data) throw new Error(result.message);
       return {
         guid: result.data.guid,
-        url: shareLinkUrl(result.data),
+        url: shareLinkUrl({
+          ...result.data,
+          kind: "storage",
+          subjectGuid: locationGuid,
+        }),
         expiresAt: result.data.expiresAt,
       };
     },

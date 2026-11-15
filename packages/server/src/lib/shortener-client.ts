@@ -15,6 +15,10 @@ import {
 } from "./constants/short-links";
 import { getShortLinkBaseUrl, getShortenerUrl } from "./constants/urls";
 
+export function shortLinksEnabled(): boolean {
+  return getShortLinkBaseUrl() !== null;
+}
+
 function shortenerSecret(): string {
   const secret = process.env.SHORTENER_API_SECRET?.trim();
   if (!secret) throw new Error(SHORTENER_SECRET_MISSING_MESSAGE);
@@ -45,6 +49,7 @@ function batchesOf<T>(items: T[]): T[][] {
 }
 
 export async function registerShortLinks(links: ShortenerLink[]): Promise<void> {
+  if (!shortLinksEnabled()) return;
   for (const batch of batchesOf(links)) {
     const body: ShortenerRegisterLinksRequest = { links: batch };
     await callShortener(SHORTENER_INTERNAL_LINKS_PATH, {
@@ -55,6 +60,7 @@ export async function registerShortLinks(links: ShortenerLink[]): Promise<void> 
 }
 
 export async function deleteShortLinks(codes: string[]): Promise<void> {
+  if (!shortLinksEnabled()) return;
   for (const batch of batchesOf(codes)) {
     const body: ShortenerDeleteLinksRequest = { codes: batch };
     await callShortener(SHORTENER_INTERNAL_DELETE_LINKS_PATH, {
@@ -65,6 +71,7 @@ export async function deleteShortLinks(codes: string[]): Promise<void> {
 }
 
 export async function findShortLinkTargetPath(code: string): Promise<string | null> {
+  if (!shortLinksEnabled()) return null;
   const response = await callShortener(
     `${SHORTENER_INTERNAL_LINKS_PATH}/${encodeURIComponent(code)}`,
   );

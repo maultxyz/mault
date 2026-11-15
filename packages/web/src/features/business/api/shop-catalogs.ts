@@ -5,7 +5,7 @@ import type { PublicCardsSource } from "@/lib/interfaces/public-cards";
 import {
   SHOP_CATALOG_GUID_PARAM,
   SHOP_PHOTO_UPLOAD_FIELD,
-  shortLinkUrlOf,
+  buildShopCatalogLinkUrl,
   type Result,
   type ShopCatalog,
   type ShopCatalogInfo,
@@ -57,8 +57,7 @@ export function deleteShopCatalog(guid: string): Promise<Result<null>> {
 }
 
 export function buildShopCatalogUrl(catalog: ShopCatalog): string | null {
-  if (!catalog.isPublic && !catalog.linkToken) return null;
-  return shortLinkUrlOf(catalog, window.location.origin);
+  return buildShopCatalogLinkUrl(window.location.origin, catalog);
 }
 
 export const publicShopCatalogQueryOptions = (source: PublicCardsSource) =>

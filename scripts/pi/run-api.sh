@@ -22,7 +22,4 @@ if [[ "$database_ready" -eq 0 ]]; then
 fi
 
 pnpm --filter @magic-vault/server db:migrate-local
-# shellcheck disable=SC1091
-source "$ROOT/scripts/pi/shortener-secret.sh"
-pi_export_shortener_secret "$LOG_DIR"
 exec node --env-file="$ROOT/.env" "$ROOT/packages/server/dist/index.js"

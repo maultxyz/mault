@@ -28,11 +28,11 @@ class UpdateTests(unittest.TestCase):
         shutil.copyfile(UPDATER.parent / "install-services.mjs", scripts / "install-services.mjs")
         shutil.copyfile(UPDATER.parent / "controller-ready.mjs", scripts / "controller-ready.mjs")
         (scripts / "session.sh").write_text("pi_require_user() { :; }\npi_ensure_user_bus() { :; }\n")
-        for name in ["api", "web", "camera", "controller", "shortener"]:
+        for name in ["api", "web", "camera", "controller"]:
             shutil.copyfile(UPDATER.parent / f"mault-{name}.service", scripts / f"mault-{name}.service")
         (self.source / ".gitignore").write_text(".env\n")
         (self.source / "package.json").write_text('{"version":"1.0.0","packageManager":"pnpm@9.1.3"}\n')
-        for name in ("server", "web", "bot", "api-docs", "shortener"):
+        for name in ("server", "web", "bot", "api-docs"):
             (self.source / f"Dockerfile.{name}").write_text("FROM node:26-slim\nRUN npm install -g pnpm@9.1.3\n")
         self.git(self.source, "add", ".")
         self.git(self.source, "commit", "-m", "Initial installation")
@@ -91,7 +91,6 @@ class UpdateTests(unittest.TestCase):
         calls = self.log.read_text()
         self.assertLess(calls.index("systemctl --user stop"), calls.index("pnpm install --frozen-lockfile"))
         self.assertLess(calls.index("@magic-vault/web build"), calls.index("systemctl --user start"))
-        self.assertLess(calls.index("@magic-vault/shortener build"), calls.index("systemctl --user start"))
         self.assertIn("heap=--max-old-space-size=4096 --filter @magic-vault/web build", calls)
         self.assertIn("systemctl --user daemon-reload", calls)
         self.assertIn("is-active --quiet mault-camera.service", calls)
@@ -101,15 +100,12 @@ class UpdateTests(unittest.TestCase):
         api = (units / "mault-api.service").read_text()
         web = (units / "mault-web.service").read_text()
         camera = (units / "mault-camera.service").read_text()
-        shortener = (units / "mault-shortener.service").read_text()
-        self.assertIn(f'ExecStart=/bin/bash "{self.repo}/scripts/pi/run-shortener.sh"', shortener)
         self.assertIn(f'WorkingDirectory={self.repo}/.', api)
         self.assertIn(f'ExecStart=/bin/bash "{self.repo}/scripts/pi/run-api.sh"', api)
         self.assertIn(f'WorkingDirectory={self.repo}/packages/web/.', web)
         self.assertIn(f'ExecStart=/usr/bin/python3 "{self.repo}/scripts/pi/camera-ctl.py"', camera)
         self.assertNotIn("%h/mault", api + web + camera)
-        self.assertIn("is-active --quiet mault-shortener.service", calls)
-        for unit in ["mault-web.service", "mault-api.service", "mault-camera.service", "mault-shortener.service"]:
+        for unit in ["mault-web.service", "mault-api.service", "mault-camera.service"]:
             self.assertIn(f"systemctl --user reset-failed {unit}", calls)
 
     def controller_socket(self, reply):
@@ -158,7 +154,7 @@ class UpdateTests(unittest.TestCase):
         calls = self.log.read_text()
         self.assertIn("is-active --quiet mault-controller.service", calls)
         probe = f'node {self.repo}/scripts/pi/controller-ready.mjs {self.repo}\n'
-        api_start = "systemctl --user start --no-block mault-camera.service mault-shortener.service mault-api.service mault-web.service"
+        api_start = "systemctl --user start --no-block mault-camera.service mault-api.service mault-web.service"
         self.assertLess(calls.index("systemctl --user start --no-block mault-controller.service"), calls.index(probe))
         self.assertLess(calls.index(probe), calls.index(api_start))
         self.assertEqual(calls.count(probe), 1)
