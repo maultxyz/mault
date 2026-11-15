@@ -13,6 +13,8 @@ export const INTAKE_PATH = `${ORDERS_PATH}/intake`;
 export const PICKS_PATH = `${ORDERS_PATH}/pick`;
 export const PICK_IMPORT_PATH = `${PICKS_PATH}/new`;
 export const PRICE_LABELS_PATH = `${ORDERS_PATH}/labels`;
+export const PICK_BATCH_PATH = `${PICKS_PATH}/batch`;
+export const PACKING_SLIPS_PATH = `${PICKS_PATH}/packing-slips`;
 export const LEGACY_INTAKE_PATH = "/app/intake";
 export const LEGACY_PICKS_VIEW_PARAM = "view";
 export const LEGACY_PICKS_VIEW = "picks";
@@ -34,6 +36,12 @@ export const BUSINESS_VIEW_PATHS = {
   [BUSINESS_PICKS_VIEW]: PICKS_PATH,
   [BUSINESS_LABELS_VIEW]: PRICE_LABELS_PATH,
 } as const;
+const ordersQuery = (orderGuids: string[]) =>
+  new URLSearchParams(orderGuids.map((orderGuid) => [ORDER_PARAM, orderGuid])).toString();
+export const pickBatchPath = (orderGuids: string[]) =>
+  `${PICK_BATCH_PATH}?${ordersQuery(orderGuids)}`;
+export const packingSlipsPath = (orderGuids: string[]) =>
+  `${PACKING_SLIPS_PATH}?${ordersQuery(orderGuids)}`;
 export const picksPath = (orderGuid?: string | null) =>
   `${PICKS_PATH}${orderGuid ? `?${ORDER_PARAM}=${orderGuid}` : ""}`;
 

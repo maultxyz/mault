@@ -23,6 +23,8 @@ import {
   ORDER_BULK_ACTIONS,
   type OrderBulkActionInput,
   type OrderBulkActionResult,
+  type OrderLineSubstitute,
+  type OrderLineSubstituteInput,
 } from "@magic-vault/shared";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { uuidArraySql } from "../../lib/sql-arrays";
@@ -41,6 +43,8 @@ import type { SoldCardRow } from "../../lib/interfaces/business";
 import {
   allocateOrderLines,
   carryOverOrderAllocations,
+  isOrderLineSubstituteAvailable,
+  loadOrderLineSubstitutes,
   loadPullSheet,
   normalizeOrderLines,
   orderCreatorName,
@@ -90,6 +94,9 @@ async function findOrder(tx: Transaction, orgId: string, guid: string) {
 type OrderRow = NonNullable<Awaited<ReturnType<typeof findOrder>>>;
 
 const PICK_CLOSED_MESSAGE = "This pick is closed.";
+const PICK_LINE_NOT_FOUND_MESSAGE = "This card isn't on the pick anymore.";
+const PICK_SUBSTITUTE_UNAVAILABLE_MESSAGE = "That copy is no longer available.";
+const PICK_LINE_FULL_MESSAGE = "This line already has every copy it needs.";
 const PICK_DELETE_OPEN_MESSAGE = "Complete or cancel the pick before deleting it.";
 
 async function allocateOrderRow(
@@ -573,6 +580,65 @@ export const ordersRoute = new Hono<AppEnv>()
       return failure ? { success: false, message: failure } : { success: true, data: null };
     }),
   )
+  .get("/orders/:guid/lines/:lineIndex/substitutes", requireAuth, requireOrg, (c) =>
+    businessQuery(c, async (tx, access) => {
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
+      const orgId = c.get("orgId");
+      const row = await findOrder(tx, orgId, c.req.param("guid"));
+      if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
+      if (row.status !== "open") return { success: false, message: PICK_CLOSED_MESSAGE };
+      const line = toOrderLines(row.lines)[Number(c.req.param("lineIndex"))];
+      if (!line) return notFound(PICK_LINE_NOT_FOUND_MESSAGE);
+      const data: OrderLineSubstitute[] = await loadOrderLineSubstitutes(tx, orgId, line);
+      return { success: true, data };
+    }),
+  )
+  .post("/orders/:guid/substitute", requireAuth, requireOrg, async (c) => {
+    const body = await readJson<OrderLineSubstituteInput>(c);
+    const scanId = typeof body.scanId === "string" ? body.scanId : "";
+    const lineIndex = Number(body.lineIndex);
+    if (!UUID_PATTERN.test(scanId) || !Number.isInteger(lineIndex) || lineIndex < 0) {
+      return c.json({ success: false, message: "Invalid substitute." }, 400);
+    }
+    return businessQuery(c, async (tx, access) => {
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
+      const orgId = c.get("orgId");
+      const row = await findOrder(tx, orgId, c.req.param("guid"));
+      if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
+      if (row.status !== "open") return { success: false, message: PICK_CLOSED_MESSAGE };
+      const lines = toOrderLines(row.lines);
+      const line = lines[lineIndex];
+      if (!line) return notFound(PICK_LINE_NOT_FOUND_MESSAGE);
+      if (!(await isOrderLineSubstituteAvailable(tx, orgId, line, scanId))) {
+        return { success: false, message: PICK_SUBSTITUTE_UNAVAILABLE_MESSAGE };
+      }
+      const allocated = await allocateOrderLines(
+        tx,
+        orgId,
+        row.id,
+        lines.map((candidate, index) =>
+          index === lineIndex
+            ? { ...candidate, allocations: [...candidate.allocations, scanId] }
+            : candidate,
+        ),
+      );
+      if (!allocated[lineIndex].allocations.includes(scanId)) {
+        return { success: false, message: PICK_LINE_FULL_MESSAGE };
+      }
+      await tx
+        .update(fulfilmentOrders)
+        .set({ lines: allocated, updatedAt: new Date() })
+        .where(eq(fulfilmentOrders.id, row.id));
+      await logActivity(tx, {
+        orgId,
+        userId: c.get("userId"),
+        action: "order.updated",
+        summary: row.name,
+        details: { orderGuid: row.guid, substitutedLine: line.name, scanId },
+      });
+      return { success: true, data: null };
+    });
+  })
   .post("/orders/bulk", requireAuth, requireOrg, async (c) => {
     const input = await readJson<OrderBulkActionInput>(c);
     return businessQuery(c, async (tx, access) => {

@@ -42,6 +42,8 @@ import type {
   OrderSortPresetResult,
   OrderBulkActionInput,
   OrderBulkActionResult,
+  OrderLineSubstitute,
+  OrderLineSubstituteInput,
   PagedList,
   PriceLabelCardsResponse,
   PriceLabelSource,
@@ -87,6 +89,8 @@ export const businessKeys = {
     [...businessKeys.ordersRoot(), "list", orgId, page] as const,
   order: (guid: string | undefined) =>
     [...businessKeys.ordersRoot(), "order", guid] as const,
+  orderSubstitutes: (guid: string, lineIndex: number | null) =>
+    [...businessKeys.ordersRoot(), "substitutes", guid, lineIndex] as const,
   reportsRoot: () => [...businessKeys.root(), "reports"] as const,
   staff: (orgId: string | undefined, range: StatsRange) =>
     [...businessKeys.reportsRoot(), "staff", orgId, range] as const,
@@ -300,6 +304,23 @@ export function createOrder(input: FulfilmentOrderInput) {
 
 export function updateOrder(guid: string, input: FulfilmentOrderUpdateInput) {
   return apiPut<Result<null>>(`/api/business/orders/${guid}`, input);
+}
+
+export const orderLineSubstitutesQueryOptions = (
+  orderGuid: string,
+  lineIndex: number | null,
+) =>
+  queryOptions({
+    queryKey: businessKeys.orderSubstitutes(orderGuid, lineIndex),
+    queryFn: () =>
+      apiGet<Result<OrderLineSubstitute[]>>(
+        `/api/business/orders/${orderGuid}/lines/${lineIndex}/substitutes`,
+      ).then(unwrap),
+    enabled: lineIndex !== null,
+  });
+
+export function substituteOrderLine(orderGuid: string, input: OrderLineSubstituteInput) {
+  return apiPost<Result<null>>(`/api/business/orders/${orderGuid}/substitute`, input);
 }
 
 export function runOrderBulkAction(input: OrderBulkActionInput) {

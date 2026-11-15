@@ -11,7 +11,15 @@ import {
 import type { OrderSelectionBarProps } from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
 import type { OrderBulkAction } from "@magic-vault/shared";
-import { IconBan, IconListCheck, IconTrash } from "@tabler/icons-react";
+import { packingSlipsPath, pickBatchPath } from "@/lib/constants/business";
+import {
+  IconBan,
+  IconListCheck,
+  IconPrinter,
+  IconRoute,
+  IconTrash,
+} from "@tabler/icons-react";
+import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -19,11 +27,13 @@ export function OrderSelectionBar({ checkedOrders, onClear, onOrdersDeleted }: O
   const { t } = useTranslation("business");
   const { access } = useBusinessAccess();
   const run = useBusinessAction();
+  const navigate = useNavigate();
   const [pendingAction, setPendingAction] = useState<OrderBulkAction | null>(null);
   const [confirmAction, setConfirmAction] = useState<OrderBulkAction | null>(null);
   if (checkedOrders.length === 0) return null;
   const openOrders = checkedOrders.filter((order) => order.status === "open");
   const closedOrders = checkedOrders.filter((order) => order.status !== "open");
+  const printableOrders = checkedOrders.filter((order) => order.status !== "cancelled");
   const canAct = access?.canFulfilOrders ?? false;
 
   const runBulkAction = async (action: OrderBulkAction) => {
@@ -46,6 +56,26 @@ export function OrderSelectionBar({ checkedOrders, onClear, onOrdersDeleted }: O
         selectionLabel={t("orders.bulk.selected", { count: checkedOrders.length })}
         onClear={onClear}
       >
+        <Button
+          variant="ghost"
+          className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+          disabled={openOrders.length === 0}
+          onClick={() => void navigate(pickBatchPath(openOrders.map((order) => order.guid)))}
+        >
+          <IconRoute />
+          {t("orders.bulk.pickTogether", { count: openOrders.length })}
+        </Button>
+        <Button
+          variant="ghost"
+          className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+          disabled={printableOrders.length === 0}
+          onClick={() =>
+            window.open(packingSlipsPath(printableOrders.map((order) => order.guid)), "_blank")
+          }
+        >
+          <IconPrinter />
+          {t("orders.bulk.packingSlips", { count: printableOrders.length })}
+        </Button>
         <Button
           variant="ghost"
           className={SELECTION_ACTION_BAR_BUTTON_CLASS}

@@ -43,6 +43,7 @@ import type {
 } from "./interfaces/public-cards";
 import { resolveBackScanImageUrl, resolveScanImageUrl } from "./scan-images";
 import { pricesForShareLink } from "./share-link-pricing";
+import { notReservedByOpenPicksSql } from "./order-reservations";
 import { integerArraySql, pgTextArray } from "./sql-arrays";
 
 function publicCardsWhere(scope: PublicCardBrowseScope, gameKey: string | null = null): SQL {
@@ -50,6 +51,7 @@ function publicCardsWhere(scope: PublicCardBrowseScope, gameKey: string | null =
     AND (cc.collection_id = ANY(${integerArraySql(scope.collectionIds)})
       OR cc.location_id = ANY(${integerArraySql(scope.storageLocationIds)}))
     ${scope.inventoryOnly ? sql`AND ${INVENTORY_CARD_FILTER}` : sql``}
+    ${scope.hidesCardsReservedByOpenPicks ? sql`AND ${notReservedByOpenPicksSql(scope.orgId, sql`cc.guid`)}` : sql``}
     ${gameKey ? sql`AND g.key = ${gameKey}` : sql``}`;
 }
 

@@ -37,3 +37,5 @@ export const BUSINESS_FORBIDDEN_RESULT: BusinessResult = {
   success: false,
   message: BUSINESS_FORBIDDEN_MESSAGE,
 };
+
+export const ORDER_SUBSTITUTE_CANDIDATES_SCANNED = 200;

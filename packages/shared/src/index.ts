@@ -246,3 +246,4 @@ export * from "./global-search";
 export * from "./price-labels";
 export * from "./interfaces/price-labels.interface";
 export * from "./constants/price-labels.constant";
+export * from "./order-substitutes";

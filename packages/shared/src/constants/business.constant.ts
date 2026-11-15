@@ -191,3 +191,13 @@ export const PAGED_LIST_MAX_SIZE = 100;
 export const ORDER_BULK_ACTIONS = ["allocate", "cancel", "delete"] as const;
 
 export const ORDER_BULK_ACTION_MAX = 200;
+
+export const ORDER_SUBSTITUTE_DIFFERENCES = ["printing", "condition", "finish"] as const;
+
+export const ORDER_SUBSTITUTES_LIMIT = 12;
+
+export const ORDER_SUBSTITUTE_PRINTING_DIFFERENCE_COST = 4;
+
+export const ORDER_SUBSTITUTE_FINISH_DIFFERENCE_COST = 3;
+
+export const ORDER_SUBSTITUTE_WORSE_CONDITION_EXTRA_COST = 0.5;

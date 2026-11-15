@@ -642,6 +642,7 @@ export interface OpenScanOptions {
 export interface CardThumbnailProps {
   image: PlayingCardImage | null | undefined;
   className?: string;
+  loading?: "lazy" | "eager";
 }
 
 export interface MobileCardDrawerProps {

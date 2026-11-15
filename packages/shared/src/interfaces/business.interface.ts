@@ -1,4 +1,7 @@
-import type { ORDER_BULK_ACTIONS } from "../constants/business.constant";
+import type {
+  ORDER_BULK_ACTIONS,
+  ORDER_SUBSTITUTE_DIFFERENCES,
+} from "../constants/business.constant";
 import type {
   ACTIVITY_ACTIONS,
   BUSINESS_PERMISSION_KEYS,
@@ -476,4 +479,24 @@ export interface OrderBulkActionInput {
 export interface OrderBulkActionResult {
   updated: number;
   skipped: number;
+}
+
+export type OrderSubstituteDifference = (typeof ORDER_SUBSTITUTE_DIFFERENCES)[number];
+
+export interface OrderLineSubstitute {
+  entry: PullSheetEntry;
+  differences: OrderSubstituteDifference[];
+}
+
+export interface OrderLineSubstituteInput {
+  lineIndex: number;
+  scanId: string;
+}
+
+export interface OrderSubstituteCandidate {
+  setCode: string | null;
+  setName: string | null;
+  collectorNumber: string | null;
+  condition: CardCondition;
+  isFoil: boolean;
 }

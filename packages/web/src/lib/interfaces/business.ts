@@ -24,9 +24,10 @@ import type {
   ComposedCsvOrder,
   CsvOrderImportResult,
   CsvImportComposition,
-  OrderBins,
+  CardCondition,
   OrderLineInput,
   OrderSource,
+  PlayingCardImage,
   PullSheetEntry,
   StatsRange,
 } from "@magic-vault/shared";
@@ -148,10 +149,59 @@ export interface OrderBinsDialogProps {
 
 export interface OrderPickByLocationProps {
   entries: PullSheetEntry[];
-  orderBins: OrderBins;
+  orderBinOf: (entry: PullSheetEntry) => number | null;
+  pickNameOf?: (entry: PullSheetEntry) => string;
   pickedScanIds: ReadonlySet<string>;
   canPick: boolean;
   onPickedChange: (scanIds: string[], isPicked: boolean) => void;
+}
+
+export interface OrderSubstituteDialogProps {
+  order: FulfilmentOrderDetail;
+  lineIndex: number | null;
+  onOpenChange: (open: boolean) => void;
+}
+
+export interface BatchPullSheetEntry extends PullSheetEntry {
+  orderGuid: string;
+  orderName: string;
+}
+
+export interface OrderBatchPickProps {
+  orderGuids: string[];
+}
+
+export interface PackingSlipRow {
+  key: string;
+  image: PlayingCardImage | null;
+  name: string;
+  setCode: string | null;
+  collectorNumber: string | null;
+  condition: CardCondition | null;
+  isFoil: boolean;
+  quantity: number;
+  unitPrice: number | null;
+}
+
+export interface PackingSlipUnavailableLine {
+  name: string;
+  quantity: number;
+}
+
+export interface PackingSlipData {
+  key: string;
+  orderGuid: string;
+  pickName: string;
+  orderRef: string | null;
+  date: string;
+  rows: PackingSlipRow[];
+  unavailable: PackingSlipUnavailableLine[];
+}
+
+export interface PackingSlipProps {
+  slip: PackingSlipData;
+  shopName: string;
+  showsPrices: boolean;
 }
 
 export interface OrderRefLabelProps {

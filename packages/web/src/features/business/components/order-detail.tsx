@@ -42,6 +42,7 @@ import { OrderBinsDialog } from "@/features/business/components/order-bins-dialo
 import { OrderEditDialog } from "@/features/business/components/order-edit-dialog";
 import { OrderPickByLocation } from "@/features/business/components/order-pick-by-location";
 import { OrderRefLabel } from "@/features/business/components/order-ref-label";
+import { OrderSubstituteDialog } from "@/features/business/components/order-substitute-dialog";
 import { StatusBadge } from "@/features/business/components/status-badge";
 import { buildPullSheetCsv } from "@/features/business/lib/pull-sheet";
 import {
@@ -51,7 +52,11 @@ import {
 import { usePriceSource } from "@/hooks/use-price-source";
 import { copyTextFromPromise } from "@/lib/clipboard";
 import { sortingRulesPresetPath } from "@/lib/constants/bins";
-import { EMPTY_PICKS, ORDER_DETAIL_VIEWS } from "@/lib/constants/business";
+import {
+  EMPTY_PICKS,
+  ORDER_DETAIL_VIEWS,
+  packingSlipsPath,
+} from "@/lib/constants/business";
 import type {
   OrderDetailProps,
   OrderDetailView,
@@ -82,7 +87,9 @@ import {
   IconPencil,
   IconArrowsSort,
   IconBox,
+  IconPrinter,
   IconRefresh,
+  IconReplace,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
@@ -116,6 +123,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const [removeLineIndex, setRemoveLineIndex] = useState<number | null>(null);
+  const [substituteLineIndex, setSubstituteLineIndex] = useState<number | null>(null);
   const [lastCopyName, setLastCopyName] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const form = useForm<OrderPicksFormValues>({
@@ -287,6 +295,14 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
               <IconClipboardList />
               {t("orders.copyDecklist")}
             </DropdownMenuItem>
+            {order.status !== "cancelled" && (
+              <DropdownMenuItem
+                onClick={() => window.open(packingSlipsPath([order.guid]), "_blank")}
+              >
+                <IconPrinter />
+                {t("orders.packingSlips.print")}
+              </DropdownMenuItem>
+            )}
             {order.pullSheet.length > 0 && (
               <DropdownMenuItem
                 onClick={() =>
@@ -427,7 +443,9 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
         {showPullSheet && view === "location" ? (
           <OrderPickByLocation
             entries={order.pullSheet}
-            orderBins={order.orderBins}
+            orderBinOf={(entry) =>
+              entry.orderRef == null ? null : (order.orderBins[entry.orderRef] ?? null)
+            }
             pickedScanIds={pickedSet}
             canPick={canAct}
             onPickedChange={changePicked}
@@ -613,6 +631,17 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                                       <IconDots />
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent align="end">
+                                      {line.allocations.length < line.quantity && (
+                                        <>
+                                          <DropdownMenuItem
+                                            onClick={() => setSubstituteLineIndex(index)}
+                                          >
+                                            <IconReplace />
+                                            {t("orders.substitutes.find")}
+                                          </DropdownMenuItem>
+                                          <DropdownMenuSeparator />
+                                        </>
+                                      )}
                                       <DropdownMenuItem
                                         variant="destructive"
                                         onClick={() =>
@@ -743,6 +772,13 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
             order={order}
             open={orderBinsOpen}
             onOpenChange={setOrderBinsOpen}
+          />
+          <OrderSubstituteDialog
+            order={order}
+            lineIndex={substituteLineIndex}
+            onOpenChange={(open) => {
+              if (!open) setSubstituteLineIndex(null);
+            }}
           />
           <ConfirmDialog
             open={sortPresetOpen}
