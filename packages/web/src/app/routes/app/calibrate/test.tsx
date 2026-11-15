@@ -2,6 +2,7 @@ import { useCalibrationOutletContext } from "@/app/routes/app/calibrate/layout";
 import { FeederTestPanel } from "@/features/calibration/components/feeder-test-panel";
 import { BinRoutingControls } from "@/features/calibration/components/bin-routing-controls";
 import { IrSensorPanel } from "@/features/calibration/components/ir-sensor-panel";
+import { LedStripPanel } from "@/features/calibration/components/led-strip-panel";
 
 export default function CalibrateTestPage() {
   const {
@@ -41,6 +42,7 @@ export default function CalibrateTestPage() {
         feederTest={feederTest}
         isBlockedByRoutingTest={isSampleRunning || activeBin !== null}
       />
+      <LedStripPanel />
     </>
   );
 }

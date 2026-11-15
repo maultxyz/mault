@@ -101,6 +101,21 @@
 
 #define SERVO_DRIVER_I2C_ADDR 0x40
 
+// LED bars: an RGBW NeoPixel (SK6812) strip on one data pin, ESP32 builds
+// only. Every pixel shows the same color, set with {"led": {...}} for
+// testing. LED_STRIP_PIXEL_COUNT only has to be at least the real strip
+// length: data for pixels past the end of the strip just goes nowhere.
+// If red and green come out swapped, change NEO_GRBW to NEO_RGBW.
+#if defined(ARDUINO_ARCH_ESP32)
+#define LED_STRIP_SUPPORTED 1
+#include <Adafruit_NeoPixel.h>
+#define LED_STRIP_PIN 14
+#define LED_STRIP_PIXEL_COUNT 144
+Adafruit_NeoPixel ledStrip(LED_STRIP_PIXEL_COUNT, LED_STRIP_PIN, NEO_GRBW + NEO_KHZ800);
+#else
+#define LED_STRIP_SUPPORTED 0
+#endif
+
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(SERVO_DRIVER_I2C_ADDR);
 
 // Short, human-distinguishable ID identifying this specific physical board -
@@ -1881,6 +1896,32 @@ void runCommand(JsonDocument& doc, Print& reply) {
     return;
   }
 
+  // {"led": {"r": 0-255, "g": 0-255, "b": 0-255, "w": 0-255}} — set every
+  // pixel of the LED bars to one color; missing channels are 0.
+  if (!doc["led"].isNull()) {
+#if LED_STRIP_SUPPORTED
+    JsonObjectConst led = doc["led"];
+    uint8_t red = constrain(led["r"] | 0, 0, 255);
+    uint8_t green = constrain(led["g"] | 0, 0, 255);
+    uint8_t blue = constrain(led["b"] | 0, 0, 255);
+    uint8_t white = constrain(led["w"] | 0, 0, 255);
+    ledStrip.fill(ledStrip.Color(red, green, blue, white));
+    ledStrip.show();
+    reply.print(F("{\"status\":\"ok\",\"led\":{\"r\":"));
+    reply.print(red);
+    reply.print(F(",\"g\":"));
+    reply.print(green);
+    reply.print(F(",\"b\":"));
+    reply.print(blue);
+    reply.print(F(",\"w\":"));
+    reply.print(white);
+    reply.println(F("}}"));
+#else
+    reply.println(F("{\"error\":\"led unsupported\"}"));
+#endif
+    return;
+  }
+
   // {"route": {"module": N, "direction": "left"|"right"|"bottom", "feedNext": bool}} — see routeCard()
   if (!doc["route"].isNull()) {
     JsonObjectConst route = doc["route"];
@@ -1956,6 +1997,10 @@ void setup() {
   pinMode(IR_PIN_HOPPER, INPUT_PULLUP);
 
   initServoDriver();
+#if LED_STRIP_SUPPORTED
+  ledStrip.begin();
+  ledStrip.show();
+#endif
   // The PCA9685 can keep driving a stalled servo through an MCU reset, so a
   // brownout loop cuts every signal rather than just skipping the move. The
   // next command that moves a servo powers it again.

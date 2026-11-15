@@ -431,7 +431,7 @@
             "note": "Cela télécharge quelques centaines de Mo (toute la chaîne d'outils Xtensa) et prend quelques minutes."
           },
           "installLibraries": {
-            "text": "Dans l'IDE Arduino, installe les bibliothèques ArduinoJson et Adafruit PWM Servo Driver.",
+            "text": "Dans l'IDE Arduino, installe les bibliothèques ArduinoJson, Adafruit PWM Servo Driver et Adafruit NeoPixel.",
             "note": "Gestionnaire de bibliothèques → recherche chacune par son nom."
           },
           "installLibrariesEsp32": {

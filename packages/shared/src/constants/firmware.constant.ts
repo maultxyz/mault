@@ -35,6 +35,11 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
 
 export const MODULE_DETECTION_BOARDS: readonly string[] = ["esp32"];
 
+export const LED_STRIP_BOARDS: readonly string[] = ["esp32"];
+export const LED_STRIP_CHANNEL_MAX = 255;
+export const SERIAL_LED_UNSUPPORTED_ERROR = "led unsupported";
+export const SERIAL_UNKNOWN_COMMAND_ERROR = "unknown command";
+
 export function isModuleDetectionSupported(
   version: string | null | undefined,
   board: string | null | undefined,

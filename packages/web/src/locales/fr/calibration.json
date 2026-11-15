@@ -598,5 +598,19 @@
       "feeder": "Fait entrer une carte du chargeur sur le module 1."
     },
     "xray": "Rayons X"
+  },
+  "ledStrip": {
+    "heading": "Barres LED",
+    "description": "Règle la couleur des barres LED sur le GPIO 14 pour les tests. Les changements sont envoyés au trieur pendant que tu fais glisser et ne sont pas enregistrés : les barres s'éteignent au redémarrage du trieur.",
+    "channels": {
+      "red": "Rouge",
+      "green": "Vert",
+      "blue": "Bleu",
+      "white": "Blanc"
+    },
+    "fullWhite": "Blanc maximal",
+    "allOff": "Tout éteindre",
+    "unsupported": "Le firmware de ce trieur ne prend pas en charge les barres LED. Mets-le à jour vers le dernier firmware.",
+    "failed": "Le trieur n'a pas confirmé la couleur des LED. Vérifie la connexion et réessaie."
   }
 }

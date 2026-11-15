@@ -680,6 +680,18 @@ Boards without an internal pull-down (Uno R4) reply
 `{"error":"module detection unsupported"}`, and the app keeps the module
 count the user picked.
 
+### `led` (LED bars, firmware 2.14.0+, ESP32 only)
+```json
+{"led": {"r": 255, "g": 120, "b": 0, "w": 40}}
+```
+→ `{"status":"ok","led":{"r":255,"g":120,"b":0,"w":40}}`
+
+Sets every pixel of the RGBW NeoPixel strip on GPIO 14 (GRBW byte order)
+to one color. Each channel is 0 to 255; a missing channel is 0 and values
+outside the range are clamped. Not a motion command, so it also runs while
+emergency stopped. The strip starts dark on boot. Uno R4 builds reply
+`{"error":"led unsupported"}`.
+
 ### `route` (the normal per-card sorting command)
 ```json
 {"route": {"module": 2, "direction": "left"}}

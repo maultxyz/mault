@@ -517,3 +517,23 @@ export type PendingConnectKind = "usb" | "bluetooth" | "cloud";
 export interface FetchSavedCalibrationOptions {
   bypassCache?: boolean;
 }
+
+export interface LedStripColor {
+  red: number;
+  green: number;
+  blue: number;
+  white: number;
+}
+
+export type LedStripChannel = keyof LedStripColor;
+
+export type LedStripCommandStatus = "idle" | "unsupported" | "failed";
+
+export interface LedStripControls {
+  color: LedStripColor;
+  status: LedStripCommandStatus;
+  isReady: boolean;
+  isSupportedBoard: boolean;
+  setChannel: (channel: LedStripChannel, value: number) => void;
+  setColor: (color: LedStripColor) => void;
+}

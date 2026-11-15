@@ -598,5 +598,19 @@
       "feeder": "Zieht eine Karte aus dem Magazin auf Modul 1."
     },
     "xray": "Röntgenblick"
+  },
+  "ledStrip": {
+    "heading": "LED-Leisten",
+    "description": "Stelle die Farbe der LED-Leisten an GPIO 14 zum Testen ein. Änderungen gehen beim Ziehen an den Sortierer und werden nicht gespeichert: Nach einem Neustart des Sortierers sind die Leisten aus.",
+    "channels": {
+      "red": "Rot",
+      "green": "Grün",
+      "blue": "Blau",
+      "white": "Weiß"
+    },
+    "fullWhite": "Voll weiß",
+    "allOff": "Alle aus",
+    "unsupported": "Die Firmware dieses Sortierers unterstützt keine LED-Leisten. Aktualisiere sie auf die neueste Firmware.",
+    "failed": "Der Sortierer hat die LED-Farbe nicht bestätigt. Prüfe die Verbindung und versuche es erneut."
   }
 }

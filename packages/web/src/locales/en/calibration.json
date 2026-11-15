@@ -598,5 +598,19 @@
       "feeder": "Feeds one card from the hopper onto module 1."
     },
     "xray": "X-ray"
+  },
+  "ledStrip": {
+    "heading": "LED bars",
+    "description": "Set the color of the LED bars on GPIO 14 for testing. Changes go to the sorter as you drag and are not saved: the bars turn off when the sorter restarts.",
+    "channels": {
+      "red": "Red",
+      "green": "Green",
+      "blue": "Blue",
+      "white": "White"
+    },
+    "fullWhite": "Full white",
+    "allOff": "All off",
+    "unsupported": "This sorter's firmware doesn't support LED bars. Update it to the latest firmware.",
+    "failed": "The sorter didn't confirm the LED color. Check the connection and try again."
   }
 }

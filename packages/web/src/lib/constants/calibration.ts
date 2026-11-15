@@ -6,6 +6,8 @@ import type {
   SetupIrSeen,
   SetupServoPosition,
   CalibrationSection,
+  LedStripChannel,
+  LedStripColor,
 } from "@/lib/interfaces/calibration";
 import {
   IconAdjustmentsHorizontal,
@@ -191,3 +193,26 @@ export const CALIBRATION_SECTIONS = [
 export const CALIBRATION_LIVE_DETECTION_INTERVAL_MS = 200;
 
 export const CALIBRATE_PATH = "/app/calibrate";
+
+export const LED_STRIP_CHANNELS: readonly LedStripChannel[] = [
+  "red",
+  "green",
+  "blue",
+  "white",
+];
+
+export const LED_STRIP_OFF_COLOR: LedStripColor = {
+  red: 0,
+  green: 0,
+  blue: 0,
+  white: 0,
+};
+
+export const LED_STRIP_FULL_WHITE_COLOR: LedStripColor = {
+  red: 0,
+  green: 0,
+  blue: 0,
+  white: 255,
+};
+
+export const LED_STRIP_RESPONSE_TIMEOUT_MS = 1000;
