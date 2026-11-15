@@ -250,6 +250,7 @@ code {
   --shadow-button-raised: inset 0 1px 0 rgb(255 255 255 / 0.14), 0 1px 2px -1px var(--shadow-color);
   --shadow-button-raised-pressed: inset 0 1px 1px rgb(0 0 0 / 0.12);
   --shadow-button-outline: 0 1px 1px -0.5px var(--shadow-color);
+  --shadow-input: inset 0 1px 1px rgb(16 24 40 / 0.05), 0 1px 1px -0.5px var(--shadow-color);
   --text-color-primary: var(--primary-text);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
