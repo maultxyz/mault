@@ -11,9 +11,10 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-primary font-semibold text-primary-foreground hover:bg-primary-hover",
+        default:
+          "border-[color-mix(in_oklch,var(--primary),black_8%)] bg-primary bg-linear-to-b from-white/8 to-white/0 font-semibold text-primary-foreground shadow-button-raised hover:bg-primary-hover active:not-aria-[haspopup]:shadow-button-raised-pressed",
         outline:
-          "border-border bg-card hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
+          "border-border bg-card shadow-button-outline hover:bg-muted hover:text-foreground aria-expanded:bg-muted aria-expanded:text-foreground dark:border-input dark:bg-input/30 dark:hover:bg-input/50",
         "outline-selected":
           "border-primary/40 bg-primary/10 text-primary hover:bg-primary/15 focus-visible:border-primary/40 focus-visible:ring-primary dark:bg-primary/20 dark:hover:bg-primary/30",
         "outline-destructive":
