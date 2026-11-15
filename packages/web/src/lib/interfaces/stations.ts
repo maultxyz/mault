@@ -4,7 +4,7 @@ import type { Device } from "@/lib/interfaces/calibration";
 
 export type StationPanelLayout = "horizontal" | "vertical";
 
-export type StationConnectKind = "usb" | "bluetooth";
+export type StationConnectKind = "usb" | "bluetooth" | `pi:${string}`;
 
 export type SorterLimitReason = "plan" | "hardCap" | "cpuInference";
 
@@ -52,7 +52,7 @@ export interface DevicePrefs {
 }
 
 export interface StationConnector {
-  connect: () => Promise<void>;
+  connect: (controllerId?: string) => Promise<void>;
   connectBluetooth: () => Promise<void>;
   connectCloud: (deviceGuid: string) => Promise<boolean>;
   connectPort: (port: SerialPort) => Promise<void>;
@@ -203,4 +203,9 @@ export interface StationPanelsProps {
   layout: StationPanelLayout;
   size: number;
   overlay?: ReactNode;
+}
+
+export interface PiSorterMenuItemsProps {
+  onSelect: (controllerId: string) => void;
+  disabled?: boolean;
 }

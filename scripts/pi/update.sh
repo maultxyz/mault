@@ -114,8 +114,13 @@ main() {
   git merge --ff-only '@{upstream}'
   pi_ensure_toolchain "$ROOT"
   pi_ensure_user_bus
-  services=(mault-web.service mault-api.service mault-camera.service)
   controller_mode="$(node "$ROOT/scripts/pi/controller-ready.mjs" "$ROOT" --mode)"
+  if [[ "$controller_mode" != builtin ]] && { ! /usr/bin/python3 -c 'import bleak' 2>/dev/null || ! command -v bluetoothctl >/dev/null 2>&1; }; then
+    sudo DEBIAN_FRONTEND=noninteractive apt-get update
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y bluez python3-bleak
+    sudo systemctl enable --now bluetooth
+  fi
+  services=(mault-web.service mault-api.service mault-camera.service)
   if [[ "$controller_mode" == builtin ]]; then
     services+=(mault-controller.service)
   fi

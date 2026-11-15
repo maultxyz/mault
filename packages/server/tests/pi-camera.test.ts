@@ -12,7 +12,9 @@ test("Pi camera requires authentication and org membership before forwarding", a
     else process.env.PI_HOST = previous;
   });
   let calls = 0;
-  t.mock.method(globalThis, "fetch", async () => {
+  const urls: string[] = [];
+  t.mock.method(globalThis, "fetch", async (url: string | URL) => {
+    urls.push(String(url));
     calls++;
     return new Response("frame", { headers: { "Content-Type": "image/jpeg" } });
   });
@@ -50,6 +52,14 @@ test("Pi camera requires authentication and org membership before forwarding", a
   assert.equal(await response.text(), "frame");
   assert.equal(calls, 1);
   assert.equal(response.headers.get("Cache-Control"), "no-store");
+  const selected = await piCameraRouter.request("/frame?cameraId=%2Fdev%2Fvideo-test-b&url=http://attacker", {
+    headers: { ...authorization, "X-Org-Id": "org-1" },
+  });
+  assert.equal(selected.status, 200);
+  const upstream = new URL(urls.at(-1)!);
+  assert.equal(upstream.origin, "http://127.0.0.1:8765");
+  assert.equal(upstream.searchParams.get("cameraId"), "/dev/video-test-b");
+  assert.equal(upstream.searchParams.has("url"), false);
 });
 
 test("Pi camera endpoints are disabled when PI_HOST=0", async (t) => {

@@ -309,3 +309,63 @@ class CameraZoomTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class CameraFocusPreviewTests(unittest.TestCase):
+    def test_focus_preview_leaves_saved_focus_unchanged(self):
+        with tempfile.TemporaryDirectory() as directory:
+            saved = Path(directory) / "focus.json"
+            original = b'{"mode":"manual","lensPosition":37}'
+            saved.write_bytes(original)
+            camera = CAMERA_HELPER.Camera()
+            camera.focus_state_path = saved
+            with patch.object(camera, "_apply_focus", return_value=45) as apply:
+                self.assertEqual(camera.set_focus("manual", 45, persist=False), 45)
+                apply.assert_called_once_with("manual", 45)
+            self.assertEqual(saved.read_bytes(), original)
+
+    def test_focus_preview_endpoint_passes_nonpersistent_mode(self):
+        import io
+        handler = CAMERA_HELPER.Handler.__new__(CAMERA_HELPER.Handler)
+        body = b'{"mode":"manual","lensPosition":45,"persist":false}'
+        handler.path = "/focus"
+        handler.headers = {"Host": "127.0.0.1:8765", "Content-Length": str(len(body))}
+        handler.rfile = io.BytesIO(body)
+        handler._send = lambda *reply: None
+        with patch.object(CAMERA_HELPER.CAMERA, "set_focus", return_value=45) as focus:
+            handler.do_POST()
+        focus.assert_called_once_with("manual", 45.0, persist=False)
+
+
+class CameraSelectedZoomTests(unittest.TestCase):
+    def test_zoom_endpoint_uses_selected_camera(self):
+        import io
+        from unittest.mock import Mock
+        handler = CAMERA_HELPER.Handler.__new__(CAMERA_HELPER.Handler)
+        body = b'{"zoomLevel":240}'
+        handler.path = "/zoom?cameraId=%2Fdev%2Fcamera-b"
+        handler.headers = {"Host": "127.0.0.1:8765", "Content-Length": str(len(body))}
+        handler.rfile = io.BytesIO(body)
+        handler._send = Mock()
+        selected = Mock()
+        selected.set_zoom.return_value = 240
+        with patch.object(CAMERA_HELPER, "selected_camera", return_value=selected) as choose, patch.object(CAMERA_HELPER.CAMERA, "set_zoom") as original:
+            handler.do_POST()
+        choose.assert_called_once_with("/dev/camera-b")
+        selected.set_zoom.assert_called_once_with(240.0)
+        original.assert_not_called()
+        self.assertEqual(handler._send.call_args.args[0], 200)
+
+    def test_secondary_camera_zoom_does_not_overwrite_default_camera(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            default = Path(temporary) / "camera-zoom.json"
+            default.write_text('{"zoomLevel":100}')
+            second = CAMERA_HELPER.Camera()
+            second.device = "/dev/camera-b"
+            second.zoom = {"min": 100, "max": 500, "step": 1}
+            second.zoom_state_path = Path(temporary) / "camera-zoom-b.json"
+            with patch.object(CAMERA_HELPER, "ZOOM_STATE_PATH", default), patch.object(second, "healthy", return_value=True), patch.object(second, "_set_control"):
+                second.set_zoom(240)
+            self.assertEqual(default.read_text(), '{"zoomLevel":100}')
+            import json
+            self.assertEqual(json.loads(second.zoom_state_path.read_text()), {"zoomLevel": 240})

@@ -13,3 +13,13 @@ export interface SorterReplyWaiter {
   reject: (error: Error) => void;
   timer: ReturnType<typeof setTimeout>;
 }
+
+export interface SorterPortClaim {
+  owner: SorterPortOwner;
+  port: SorterPort | null;
+}
+
+export interface SorterPortOptions {
+  hupcl?: boolean;
+  controllerId?: string;
+}

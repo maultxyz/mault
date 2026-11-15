@@ -15,7 +15,7 @@ export function UnsavedChangesGuard({
   onDiscard,
 }: {
   isDirty: boolean;
-  onDiscard?: () => void;
+  onDiscard?: () => void | Promise<void>;
 }) {
   const { t } = useTranslation("common");
   const blocker = useUnsavedChangesGuard(isDirty);
@@ -46,10 +46,14 @@ export function UnsavedChangesGuard({
           <Button
             type="button"
             variant="destructive"
-            onClick={() => {
+            onClick={async () => {
               if (blocker.state !== "blocked") return;
-              onDiscard?.();
-              blocker.proceed();
+              try {
+                await onDiscard?.();
+                blocker.proceed();
+              } catch {
+                return;
+              }
             }}
           >
             {t("unsavedChanges.discardAndLeave")}

@@ -1,4 +1,13 @@
 {
+  "scanner": {
+    "piHardware": {
+    "bluetoothOff": "Bluetooth is switched off on the host",
+      "bluetoothScanning": "Searching for Bluetooth sorters…",
+      "bluetoothFailed": "Could not search for Bluetooth sorters. Check that Bluetooth is enabled on the host.",
+      "bluetoothEmpty": "No Bluetooth sorters found. Turn on the sorter and keep it nearby.",
+      "bluetoothRescan": "Search again"
+    }
+  },
   "app": {
     "name": "Mault"
   },
@@ -1489,6 +1498,8 @@
       "resetToNeutral": "Reset to neutral",
       "binFailed": "Bin {{bin}} didn't route",
       "sampleRunStopped": "Sample run stopped at bin {{bin}}"
+    },
+    "scanRegionCalibrationPanel": {
     }
   },
   "storage": {

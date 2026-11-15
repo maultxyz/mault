@@ -82,6 +82,9 @@ export interface PiScanRunContext extends PiScanSorterConfiguration {
 
 export interface PiScanLive {
   emergencyStopMessage: string | null;
+  controllerId?: string;
+  cameraId?: string;
+  port?: import("./pi-serial").SorterPort;
   pendingSave: PiScanPendingSave | null;
   configurationVersion: number;
   allowDuplicates: boolean;

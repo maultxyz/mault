@@ -21,7 +21,8 @@ import {
   browserMustUsePiCamera,
   focusRangeForTrack,
   isPiRelayTrack,
-  piCameraDevice,
+  listPiCameras,
+  isPiCameraId,
   readPiCameraHealth,
   zoomRangeForTrack,
 } from "@/features/scanner/lib/pi-camera";
@@ -92,6 +93,7 @@ import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 const CameraContext = createContext<CameraContextValue | null>(null);
+const cameraPreviewClaims = new Map<string, string>();
 
 export function CameraProvider({ children }: { children: React.ReactNode }) {
   const { t } = useTranslation("scanner");
@@ -108,6 +110,8 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   const [zoomLevel, setZoomLevelState] = useState<number | null>(null);
   const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [selectedCameraId, setSelectedCameraId] = useState<string | null>(null);
+  const selectedCameraIdRef = useRef(selectedCameraId);
+  selectedCameraIdRef.current = selectedCameraId;
 
   useEffect(() => {
     const mediaDevices = navigator.mediaDevices;
@@ -120,7 +124,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
             (device) => device.kind === "videoinput" && device.deviceId,
           );
           setCameras((previous) =>
-            previous.some((camera) => camera.deviceId === PI_CAMERA_DEVICE_ID)
+            previous.some((camera) => isPiCameraId(camera.deviceId))
               ? previous
               : webcams,
           );
@@ -133,6 +137,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   const [cameraSource, setCameraSource] = useState<CameraSource>("local");
   const streamRef = useRef<MediaStream | null>(null);
   const cameraStartAttemptRef = useRef(0);
+  const previewingCameraRef = useRef(false);
   const queryClient = useQueryClient();
   const documentScannerBridge = useMemo(getDocumentScannerSessionBridge, []);
   const documentScannerSessionRef = useRef<DocumentScannerSessionState | null>(
@@ -192,12 +197,23 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   const stationsRef = useRef(stationsCtx);
   stationsRef.current = stationsCtx;
   const stationId = station.id;
+  useEffect(() => {
+    if (!piRemote || !isLive) return;
+    const refresh = () => void listPiCameras().then(setCameras).catch(() => {});
+    refresh();
+    const timer = window.setInterval(refresh, 5000);
+    return () => window.clearInterval(timer);
+  }, [piRemote, isLive]);
   const stationCameraIdRef = useRef(station.cameraId);
   stationCameraIdRef.current = station.cameraId;
 
   const otherStationCameraIds = useCallback(() => {
     const { stations, isStationLive } = stationsRef.current;
-    return camerasHeldByOtherStations(stations, isStationLive, stationId);
+    const held = camerasHeldByOtherStations(stations, isStationLive, stationId);
+    for (const [owner, cameraId] of cameraPreviewClaims) {
+      if (owner !== stationId) held.add(cameraId);
+    }
+    return held;
   }, [stationId]);
 
   const closeDocumentScannerSession = useCallback(() => {
@@ -388,7 +404,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const startCamera = useCallback(
-    async (deviceId?: string) => {
+    async (deviceId?: string, persist = true) => {
       console.warn("[camera] start", { deviceId, stationId });
       if (isDocumentScannerCameraId(deviceId)) {
         if (deviceId) await openDocumentScanner(deviceId);
@@ -400,7 +416,16 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       setErrorMessage("");
       try {
         await loadPiHost();
-        const health = await readPiCameraHealth();
+        const piDevices = browserMustUsePiCamera() ? await listPiCameras() : [];
+        const requested = deviceId ?? stationCameraIdRef.current ?? undefined;
+        const selected = requested && isPiCameraId(requested)
+          ? requested : piDevices.find((camera) => !otherStationCameraIds().has(camera.deviceId))?.deviceId;
+        if (piDevices.length && !selected) {
+          setErrorMessage(t("camera.allInUse"));
+          setStatus("error");
+          return;
+        }
+        const health = await readPiCameraHealth(selected);
         if (isSuperseded()) return;
         const usePi = health.status === "ready" || browserMustUsePiCamera();
         if (usePi) {
@@ -411,7 +436,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           }
           const mediaStream = isMobile && browserMustUsePiCamera()
             ? null
-            : await acquirePiRelayStream();
+            : await acquirePiRelayStream(selected);
           if (isSuperseded()) {
             stopMediaStream(mediaStream);
             return;
@@ -419,9 +444,9 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           streamRef.current = mediaStream;
           setStream(mediaStream);
           setStatus("ready");
-          setCameras([piCameraDevice(health.label)]);
-          setSelectedCameraId(PI_CAMERA_DEVICE_ID);
-          stationsRef.current.setStationCamera(stationId, PI_CAMERA_DEVICE_ID);
+          setCameras(piDevices);
+          setSelectedCameraId(selected ?? PI_CAMERA_DEVICE_ID);
+          if (persist && (deviceId || !stationCameraIdRef.current || stationCameraIdRef.current === selected)) stationsRef.current.setStationCamera(stationId, selected ?? PI_CAMERA_DEVICE_ID);
           const range = health.focus;
           setFocusRange(range);
           setFocusDistanceState(
@@ -429,7 +454,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           );
           setZoomRange(health.zoom);
           setZoomLevelState(health.zoom ? health.zoomLevel ?? health.zoom.min : null);
-          return;
+          return true;
         }
 
         const mediaStream = await acquireFreeStream(
@@ -454,7 +479,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         if (track) {
           const activeDeviceId = track.getSettings().deviceId ?? null;
           setSelectedCameraId(activeDeviceId);
-          stationsRef.current.setStationCamera(stationId, activeDeviceId);
+          if (persist) stationsRef.current.setStationCamera(stationId, activeDeviceId);
 
           const range = focusRangeForTrack(track);
           const savedFocus = range ? loadSavedFocus(activeDeviceId) : null;
@@ -479,6 +504,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
 
         const devices = await navigator.mediaDevices.enumerateDevices();
         setCameras(devices.filter((d) => d.kind === "videoinput"));
+        return true;
       } catch (err) {
         if (isSuperseded()) return;
         console.error("[camera] starting the camera failed:", err);
@@ -495,30 +521,29 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     [t, stationId, otherStationCameraIds, isMobile, openDocumentScanner],
   );
 
-  const setFocusDistance = useCallback((value: number | null) => {
+  const applyFocusDistance = useCallback(async (value: number | null, persist = true) => {
     const track = streamRef.current?.getVideoTracks()[0];
     if (browserMustUsePiCamera() || (track && isPiRelayTrack(track))) {
-      void applyPiFocus(value).then(() => {
-        setFocusDistanceState(value);
-      }).catch(() => toast.error(t("cameraAccessError")));
-      return;
+      await applyPiFocus(value, selectedCameraId, persist);
+    } else {
+      if (!track) throw new Error("Camera is unavailable");
+      if (selectedCameraId && track.getSettings().deviceId !== selectedCameraId)
+        throw new Error("Camera selection changed");
+      await applyTrackFocus(track, value);
+      if (persist) saveFocus(track.getSettings().deviceId ?? null, value);
     }
-    if (!track) return;
-    void applyTrackFocus(track, value).catch(() => {});
-    saveFocus(
-      isPiRelayTrack(track)
-        ? PI_CAMERA_DEVICE_ID
-        : (track.getSettings().deviceId ?? null),
-      value,
-    );
-    setFocusDistanceState(value);
-  }, [t]);
+    if (selectedCameraIdRef.current === selectedCameraId) setFocusDistanceState(value);
+  }, [selectedCameraId]);
+
+  const setFocusDistance = useCallback((value: number | null) => {
+    void applyFocusDistance(value).catch(() => toast.error(t("cameraAccessError")));
+  }, [applyFocusDistance, t]);
 
   const setZoomLevel = useCallback((value: number) => {
     const track = streamRef.current?.getVideoTracks()[0];
     setZoomLevelState(value);
     if (browserMustUsePiCamera() || (track && isPiRelayTrack(track))) {
-      void applyPiZoom(value).catch(() => toast.error(t("cameraAccessError")));
+      void applyPiZoom(value, selectedCameraId).catch(() => toast.error(t("cameraAccessError")));
       return;
     }
     if (!track) return;
@@ -529,7 +554,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         saveZoom(track.getSettings().deviceId ?? null, applied);
       })
       .catch(() => toast.error(t("cameraAccessError")));
-  }, [t]);
+  }, [t, selectedCameraId]);
 
   const {
     status: phonePairingStatus,
@@ -585,14 +610,18 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   }, [stopPhonePairingInternal]);
 
   const selectCamera = useCallback(
-    async (deviceId: string) => {
+    async (deviceId: string, persist = true) => {
       const heldByOtherStations = otherStationCameraIds();
       console.warn("[camera] select", { deviceId, heldByOtherStations: [...heldByOtherStations] });
-      if (heldByOtherStations.has(deviceId)) return;
+      if (heldByOtherStations.has(deviceId)) return false;
+      previewingCameraRef.current = !persist;
+      cameraPreviewClaims.set(stationId, deviceId);
       stopCamera();
-      await startCamera(deviceId);
+      const ready = (await startCamera(deviceId, persist)) === true;
+      if (persist || !ready) cameraPreviewClaims.delete(stationId);
+      return ready;
     },
-    [startCamera, stopCamera, otherStationCameraIds],
+    [startCamera, stopCamera, otherStationCameraIds, stationId],
   );
 
   useEffect(() => {
@@ -601,6 +630,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     void startCamera(stationCameraIdRef.current ?? undefined);
 
     return () => {
+      cameraPreviewClaims.delete(stationId);
       cameraStartAttemptRef.current += 1;
       closeDocumentScannerSession();
       releaseLocalStream();
@@ -608,6 +638,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
     };
   }, [
     startCamera,
+    stationId,
     isMobile,
     isLive,
     piRemote,
@@ -616,8 +647,8 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   ]);
 
   useEffect(() => {
-    if (selectedCameraId === PI_CAMERA_DEVICE_ID) return;
     if (
+      !previewingCameraRef.current &&
       status === "ready" &&
       cameraSource === "local" &&
       station.cameraId &&
@@ -656,6 +687,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         selectedCameraId,
         setFocusDistance,
         setZoomLevel,
+        applyFocusDistance,
         selectCamera,
         retryCamera,
         stopCamera,

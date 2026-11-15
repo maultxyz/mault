@@ -24,7 +24,7 @@ class UpdateTests(unittest.TestCase):
         self.git(self.source, "config", "user.email", "update@example.invalid")
         scripts = self.source / "scripts/pi"
         scripts.mkdir(parents=True)
-        shutil.copyfile(UPDATER, scripts / "update.sh")
+        (scripts / "update.sh").write_text(UPDATER.read_text().replace("/usr/bin/python3 -c 'import bleak'", "false"))
         shutil.copyfile(UPDATER.parent / "install-services.mjs", scripts / "install-services.mjs")
         shutil.copyfile(UPDATER.parent / "controller-ready.mjs", scripts / "controller-ready.mjs")
         (scripts / "session.sh").write_text("pi_require_user() { :; }\npi_ensure_user_bus() { :; }\n")
@@ -66,6 +66,9 @@ class UpdateTests(unittest.TestCase):
                 'if [[ "${0##*/}" == pnpm && "${FAIL_BUILD:-}" == 1 && "$*" == *build* ]]; then exit 1; fi\n'
                 'if [[ "${0##*/}" == node && "$*" == *process.versions.node* ]]; then echo "${UPDATE_TEST_NODE_MAJOR:-26}"; exit 0; fi\n'
                 'if [[ "${0##*/}" == pnpm && "$1" == --version ]]; then echo 9.1.3; exit 0; fi\n'
+                'if [[ "${0##*/}" == sudo && "$*" == *"apt-get"*"bluez python3-bleak"* && "${UPDATE_TEST_BLUETOOTH_FAILURE:-}" != 1 ]]; then exit 0; fi\n'
+                'if [[ "${0##*/}" == sudo && "$*" == *"apt-get update"* && "${UPDATE_TEST_BLUETOOTH_FAILURE:-}" != 1 ]]; then exit 0; fi\n'
+                'if [[ "${0##*/}" == sudo && "$*" == "systemctl enable --now bluetooth" && "${UPDATE_TEST_BLUETOOTH_FAILURE:-}" != 1 ]]; then exit 0; fi\n'
                 'if [[ "${0##*/}" == sudo ]]; then echo "sudo: a password is required" >&2; exit 1; fi\n'
                 'if [[ "${0##*/}" == node ]]; then echo 1.0.1; fi\n'
             )
@@ -181,6 +184,19 @@ class UpdateTests(unittest.TestCase):
         result = self.update()
         self.assertNotEqual(result.returncode, 0, result.stdout)
         self.assertIn("Controller did not become ready", result.stdout)
+
+    def test_bluetooth_dependencies_are_prepared_before_service_stop(self):
+        result = self.update()
+        self.assertEqual(result.returncode, 0, result.stdout)
+        calls = self.log.read_text()
+        self.assertLess(calls.index("apt-get install -y bluez python3-bleak"), calls.index("systemctl --user stop"))
+        self.assertLess(calls.index("systemctl enable --now bluetooth"), calls.index("systemctl --user stop"))
+
+    def test_bluetooth_dependency_failure_leaves_services_running(self):
+        self.env["UPDATE_TEST_BLUETOOTH_FAILURE"] = "1"
+        result = self.update()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertNotIn("systemctl --user stop", self.log.read_text())
 
     def test_usb_update_does_not_require_controller(self):
         self.env["UPDATE_TEST_CONTROLLER_INACTIVE"] = "1"

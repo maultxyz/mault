@@ -166,6 +166,7 @@ export function PiScanStatusBar() {
     <div className="flex items-center gap-2 border-b bg-card px-3 py-1.5 text-xs">
       {!onScanner && (
         <PiCameraPreview
+          cameraId={state.cameraId}
           alt={t("piScan.preview")}
           className={cn(
             "h-14 w-10 shrink-0 rounded-md bg-muted object-cover",

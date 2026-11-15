@@ -11,6 +11,8 @@ import {
   updatePiScanSettings,
 } from "@/features/scanner/api/pi-scan-session";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useStation } from "@/features/scanner/api/use-stations";
+import { PI_CAMERA_DEVICE_ID } from "@/lib/constants/scanner";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { usePiHostState } from "@/hooks/use-pi-host";
 import { readPiCameraHealth } from "@/features/scanner/lib/pi-camera";
@@ -36,8 +38,9 @@ export function usePiScanSession(getAllowDuplicates?: () => boolean) {
   const { activeCollection } = useCollections();
   const { autoFeed, forceFoilType, forceSetCodes, scanCondition } =
     useScannedCards();
-  const { disconnect } = useSerial();
-  const { piHost, piSorter } = usePiHostState();
+  const { disconnect, controllerId, transport } = useSerial();
+  const { station } = useStation();
+  const { piHost } = usePiHostState();
   const state = useSyncExternalStore(subscribePiScan, getPiScanState);
   const { isRemoveModeEnabled, removalBinNumber } = useScanRemoval();
   const [cameraReady, setCameraReady] = useState(false);
@@ -46,10 +49,11 @@ export function usePiScanSession(getAllowDuplicates?: () => boolean) {
 
   useEffect(() => {
     if (!piHost) return;
+    setCameraReady(false);
     let cancelled = false;
     let retry: ReturnType<typeof setTimeout> | undefined;
     async function checkCamera() {
-      const health = await readPiCameraHealth();
+      const health = await readPiCameraHealth(station.cameraId);
       if (cancelled) return;
       if (health.status === "ready") setCameraReady(true);
       else
@@ -60,7 +64,7 @@ export function usePiScanSession(getAllowDuplicates?: () => boolean) {
       cancelled = true;
       clearTimeout(retry);
     };
-  }, [piHost]);
+  }, [piHost, station.cameraId]);
 
   const start = useCallback(async () => {
     if (!collectionGuid) {
@@ -72,8 +76,11 @@ export function usePiScanSession(getAllowDuplicates?: () => boolean) {
     setStarting(true);
     setPiScanHoldOverride(true);
     try {
-      if (!piSorter) await disconnect();
+      if (transport !== "pi-sorter") await disconnect();
       let result = await startPiScanSession({
+        controllerId: controllerId ?? undefined,
+        cameraId: station.cameraId?.startsWith(`${PI_CAMERA_DEVICE_ID}:`)
+          ? station.cameraId.slice(PI_CAMERA_DEVICE_ID.length + 1) : undefined,
         collectionGuid,
         condition: scanCondition,
         foilType: forceFoilType,
@@ -86,7 +93,10 @@ export function usePiScanSession(getAllowDuplicates?: () => boolean) {
       if (!result.success && result.code === "busy") {
         await sleep(400);
         result = await startPiScanSession({
-          collectionGuid,
+          controllerId: controllerId ?? undefined,
+        cameraId: station.cameraId?.startsWith(`${PI_CAMERA_DEVICE_ID}:`)
+          ? station.cameraId.slice(PI_CAMERA_DEVICE_ID.length + 1) : undefined,
+        collectionGuid,
           condition: scanCondition,
           foilType: forceFoilType,
           preferredSetCodes: forceSetCodes,
@@ -112,7 +122,9 @@ export function usePiScanSession(getAllowDuplicates?: () => boolean) {
     getAllowDuplicates,
     collectionGuid,
     disconnect,
-    piSorter,
+    controllerId,
+    transport,
+    station.cameraId,
     forceFoilType,
     forceSetCodes,
     scanCondition,
@@ -162,13 +174,17 @@ export function usePiScanSession(getAllowDuplicates?: () => boolean) {
   }, [state, unreachableMessage]);
 
   const startOrResume = useCallback(() => {
+    if (piScanHoldsPort(state) && controllerId && state.controllerId && controllerId !== state.controllerId) {
+      toast.error(t("piHardware.stopBeforeSwitching"));
+      return;
+    }
     if (state.phase === "running") return;
     if (state.phase === "paused") {
       void resume();
       return;
     }
     void start();
-  }, [resume, start, state.phase]);
+  }, [resume, start, state, controllerId, t]);
 
   return {
     cameraReady,

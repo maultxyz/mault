@@ -665,7 +665,7 @@ refused the token (set it up again with a fresh token).
 max module count for the active channel offset), `true` meaning a card
 is present. `hopper` is `true` while cards remain in the feeder stack.
 
-### `detectModules` (firmware 2.12.0+, ESP32 only)
+### `detectModules` (ESP32 firmware 2.12.0+, Pi controller pi-0.2.0)
 ```json
 {"detectModules": true}
 ```
@@ -676,6 +676,15 @@ a pin reading LOW under the pull-up is a sensor seeing a card, otherwise
 the pin is switched to a pull-down for 2 ms and a sensor holds it HIGH
 while an empty pin drops LOW. `modules` counts wired sensors from module 1
 up to the first missing one; `sensors` lists every addressable module.
+The built-in Raspberry Pi and Orange Pi controller uses the same command
+and reply with its supported GPIO pull-up/pull-down probe. Both report
+`board:"raspberry_pi"`; `pi-0.1.0` does not support detection. The three-
+or five-module layout defines the maximum addressable sensor array length,
+not the number of connected modules. Changing channel offset still changes
+that addressable capacity; detection does not change channel allocation or
+feeder behavior. Raspberry Pi and Orange Pi API support does not establish
+physical validation on both boards.
+
 Boards without an internal pull-down (Uno R4) reply
 `{"error":"module detection unsupported"}`, and the app keeps the module
 count the user picked.

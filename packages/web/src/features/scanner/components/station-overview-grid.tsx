@@ -1,3 +1,4 @@
+import { usePiHostState } from "@/hooks/use-pi-host";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
@@ -35,6 +36,7 @@ export function StationOverviewGrid({
   overview,
   isSearching,
 }: StationOverviewGridProps) {
+  const { piSorter } = usePiHostState();
   const { t } = useTranslation("scanner");
   const { attachOverview, getOverviewTileElement } = useStations();
   const {
@@ -132,7 +134,7 @@ export function StationOverviewGrid({
         {matchingOfflineDevices.map((device) => (
           <OfflineDeviceTile key={device.guid} device={device} />
         ))}
-        {!isSearching && (
+        {!isSearching && !piSorter && (
           <DropdownMenu>
             <DropdownMenuTrigger
               render={

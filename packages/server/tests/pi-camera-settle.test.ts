@@ -30,3 +30,16 @@ test("scanner requests a fresh JPEG rather than the buffered preview", async (t)
   });
   assert.deepEqual(await grabCameraFrame(), jpeg);
 });
+
+test("headless capture sends the selected camera ID to the local helper", async (t) => {
+  const jpeg = Buffer.from([0xff, 0xd8, 0xff, 0xd9]);
+  let captured = "";
+  t.mock.method(globalThis, "fetch", async (url: string) => {
+    captured = url;
+    return new Response(jpeg, { headers: { "Content-Type": "image/jpeg" } });
+  });
+  await grabCameraFrame("/dev/v4l/by-id/camera-b");
+  const url = new URL(captured);
+  assert.equal(url.searchParams.get("cameraId"), "/dev/v4l/by-id/camera-b");
+  assert.equal(url.searchParams.get("fresh"), "1");
+});

@@ -132,6 +132,10 @@ fi
 python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env"
 sorter_mode="$(python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env" --print-mode)"
 sorter_board="$(python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env" --print-board)"
+if [[ "$sorter_mode" != gpio ]]; then
+  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y bluez python3-bleak
+  sudo systemctl enable --now bluetooth
+fi
 if [[ "$sorter_mode" == gpio && "$sorter_board" == raspberry-pi ]]; then
   sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3-lgpio python3-smbus raspi-config
   sudo raspi-config nonint do_i2c 0

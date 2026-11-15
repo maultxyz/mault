@@ -481,6 +481,7 @@ export interface ModuleCalibrationGridProps {
 }
 
 export interface ScanRegionCalibrationPanelProps {
+  cameraSettings: CameraSettingsDraft;
   scanRegion: ScanRegion;
   captureSettleDelayMs: number;
   matchesNeeded: number;
@@ -516,4 +517,20 @@ export type PendingConnectKind = "usb" | "bluetooth" | "cloud";
 
 export interface FetchSavedCalibrationOptions {
   bypassCache?: boolean;
+}
+
+export interface CameraSettingsValues {
+  cameraId: string;
+  focusDistance: number | null;
+}
+
+export interface CameraSettingsDraft {
+  cameraId: string;
+  isCameraChanged: boolean;
+  isDirty: boolean;
+  isSaving: boolean;
+  setCamera: (cameraId: string) => void;
+  previewFocus: (value: number | null) => void;
+  commit: () => Promise<void>;
+  discard: () => Promise<void>;
 }

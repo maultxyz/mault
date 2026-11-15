@@ -113,6 +113,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const [foilNudgeFirmwareLimits, setFoilNudgeFirmwareLimits] =
     useState<FoilNudgeFirmwareLimits | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
+  const requestedControllerRef = useRef<string | null>(null);
+  const [controllerId, setControllerId] = useState<string | null>(null);
   const [transport, setTransport] =
     useState<SerialContextValue["transport"]>(null);
   const [isFlashing, setIsFlashing] = useState(false);
@@ -137,6 +139,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   deviceRef.current = device;
   const { station } = useStation();
   const stationsCtx = useStations();
+  const isPrimaryStation = stationsCtx.stations[0]?.id === station.id;
   const stationsRef = useRef(stationsCtx);
   stationsRef.current = stationsCtx;
   const queryClient = useQueryClient();
@@ -899,14 +902,25 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   const connect = useCallback(
     async (options?: SerialConnectOptions) => {
+      if (piSorter && !isPrimaryStation) return;
       if (refuseWhileImpersonating(true)) return;
+      if (piHost && options?.controllerId && session.transport && options.controllerId !== requestedControllerRef.current) {
+        if (await refreshPiScanHold()) {
+          toast.error(t("piHardware.stopBeforeSwitching"));
+          return;
+        }
+        requestedControllerRef.current = options.controllerId;
+        await disconnect();
+      }
       if (piHost && !piSorter && (await refusePiScanPort())) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
       if (session.transport) return;
       if (piHost) {
-        const result = await PiSerialTransport.open(piSorter);
+        const target = piSorter ? "gpio" : options?.controllerId ?? requestedControllerRef.current ?? undefined;
+        requestedControllerRef.current = target ?? null;
+        const result = await PiSerialTransport.open(target === "gpio", target);
         if (!result.ok) {
           const description =
             result.reason === "missing"
@@ -928,7 +942,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
           }
           return;
         }
-        await openTransport(result.transport, options);
+        setControllerId(target ?? null);
+        await openTransport(result.transport, target === "gpio" ? { ...options, skipAutoTest: true } : options);
         return;
       }
       if (!navigator.serial) return;
@@ -953,25 +968,26 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [
       toast,
       openTransport,
+      disconnect,
       refusePiScanPort,
       refuseWhileImpersonating,
       t,
       session,
       piHost,
       piSorter,
+      isPrimaryStation,
     ],
   );
 
   const builtinConnectRef = useRef(connect);
   builtinConnectRef.current = connect;
   const builtinOpeningRef = useRef(false);
-  const isPrimaryStation = stationsCtx.stations[0]?.id === station.id;
 
   useEffect(() => {
     if (!piSorter || !activeOrg?.id || !isPrimaryStation || impersonationActive)
       return;
     const attach = async () => {
-      if (session.transport || builtinOpeningRef.current)
+      if (session.transport || builtinOpeningRef.current || (requestedControllerRef.current && requestedControllerRef.current !== "gpio"))
         return;
       builtinOpeningRef.current = true;
       try {
@@ -992,7 +1008,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   const connectPort = useCallback(
     async (port: SerialPort) => {
-      if (refuseWhileImpersonating(false)) return;
+      if (piSorter || refuseWhileImpersonating(false)) return;
       if (piHost && (await refusePiScanPort())) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
@@ -1005,12 +1021,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       });
       await identified;
     },
-    [openTransport, refusePiScanPort, refuseWhileImpersonating, session, piHost],
+    [openTransport, refusePiScanPort, refuseWhileImpersonating, session, piHost, piSorter],
   );
 
   const connectBluetoothDevice = useCallback(
     async (device: BluetoothDevice) => {
-      if (refuseWhileImpersonating(false)) return;
+      if (piSorter || refuseWhileImpersonating(false)) return;
       if (piHost && (await refusePiScanPort())) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
@@ -1024,7 +1040,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       }
       await openTransport(transport, { autoConnect: true });
     },
-    [openTransport, refusePiScanPort, refuseWhileImpersonating, session, piHost],
+    [openTransport, refusePiScanPort, refuseWhileImpersonating, session, piHost, piSorter],
   );
 
   const isAutoConnectDeviceRef = useRef<(guid: string) => boolean>(() => false);
@@ -1081,7 +1097,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   const connectBluetooth = useCallback(
     async (options?: { skipAutoTest?: boolean }) => {
-      if (refuseWhileImpersonating(true)) return;
+      if (piSorter || refuseWhileImpersonating(true)) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
@@ -1118,7 +1134,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       await openTransport(result.transport, options);
     },
-    [toast, openTransport, refuseWhileImpersonating, t, session],
+    [toast, openTransport, refuseWhileImpersonating, t, session, piSorter],
   );
 
   const connectCloud = useCallback(
@@ -1126,7 +1142,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       deviceGuid: string,
       options?: { skipAutoTest?: boolean },
     ): Promise<boolean> => {
-      if (refuseWhileImpersonating(true)) return false;
+      if (piSorter || refuseWhileImpersonating(true)) return false;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
@@ -1149,7 +1165,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       await openTransport(result.transport, options);
       return true;
     },
-    [toast, openTransport, refuseWhileImpersonating, t, session],
+    [toast, openTransport, refuseWhileImpersonating, t, session, piSorter],
   );
 
   useEffect(() => {
@@ -1167,7 +1183,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   useEffect(
     () =>
       stationsRef.current.registerConnector(station.id, {
-        connect: () => connect(),
+        connect: (controllerId?: string) => connect({ controllerId }),
         connectBluetooth: () => connectBluetooth(),
         connectCloud: (deviceGuid: string) => connectCloud(deviceGuid),
         connectPort,
@@ -1457,6 +1473,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         hasWifi,
         deviceId,
         transport,
+        controllerId,
         connect,
         connectBluetooth,
         connectCloud,

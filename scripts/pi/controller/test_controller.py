@@ -14,6 +14,8 @@ from .server import ControllerServer
 class FakeHardware:
     def __init__(self):
         self.sensors = [False] * 5
+        self.connected_sensors = [True] * 5
+        self.probes = []
         self.hopper_present = True
         self.driver_present = True
         self.writes = []
@@ -30,6 +32,10 @@ class FakeHardware:
 
     def present(self, module):
         return self.sensors[module - 1]
+
+    def sensor_connected(self, module):
+        self.probes.append(module)
+        return self.connected_sensors[module - 1]
 
     def hopper(self):
         return self.hopper_present
@@ -109,6 +115,44 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
 
     async def command(self, command):
         return await self.controller.command(command, self.emit)
+
+    async def test_detects_connected_ir_sensors_without_motion_or_config_changes(self):
+        for sensors, expected in (([True] * 5, 5),
+                                  ([True, True, True, False, False], 3),
+                                  ([True, False, True, True, False], 1),
+                                  ([False] * 5, 0)):
+            self.hardware.connected_sensors = sensors
+            self.assertEqual(await self.command(dict(detectModules=True)),
+                             dict(status="ok", modules=expected, sensors=sensors))
+        self.assertEqual(self.hardware.writes, [])
+        self.assertEqual(self.hardware.releases, 0)
+        self.assertEqual(self.controller.feeder_channel, 15)
+        self.assertFalse(self.controller.path.exists())
+
+    async def test_detection_respects_layout_capacity_without_changing_feeder_channel(self):
+        self.controller.config["channelOffset"] = 4
+        self.assertEqual(await self.command(dict(detectModules=True)),
+                         dict(status="ok", modules=3, sensors=[True, True, True]))
+        self.assertEqual(self.hardware.probes, [1, 2, 3])
+        self.assertEqual(self.controller.feeder_channel, 13)
+        self.assertEqual(self.hardware.writes, [])
+
+    async def test_detection_does_not_depend_on_servo_driver_or_accept_motion_fields(self):
+        self.hardware.driver_present = False
+        self.assertEqual((await self.command(dict(detectModules=True)))["modules"], 5)
+        for extra in (dict(feeder=True), dict(route=dict(module=1, direction="left")),
+                      dict(getStatus=True)):
+            with self.assertRaises(ValueError):
+                await self.command(dict(detectModules=True, **extra))
+        with self.assertRaises(ValueError):
+            await self.command(dict(detectModules=False))
+        self.assertEqual(self.hardware.writes, [])
+
+    async def test_detection_rejects_active_feeder_preview(self):
+        self.controller.preview_started = self.now
+        self.assertEqual((await self.command(dict(detectModules=True)))["error"], "busy")
+        self.assertEqual(self.hardware.probes, [])
+        self.assertEqual(self.hardware.writes, [])
 
     async def test_loaded_last_card_is_not_reported_empty(self):
         self.hardware.sensors[0] = True
@@ -320,7 +364,7 @@ class SocketTests(unittest.IsolatedAsyncioTestCase):
         writer.write(b'{"seq":7,"getStatus":true}\n')
         reply = json.loads(await asyncio.wait_for(reader.readline(), 1))
         self.assertEqual(reply["seq"], 7)
-        self.assertEqual(reply["version"], "pi-0.1.0")
+        self.assertEqual(reply["version"], "pi-0.2.0")
         other_reader, other_writer = await asyncio.open_unix_connection(self.path)
         self.assertEqual(json.loads(await other_reader.readline())["error"], "busy")
         other_writer.close()

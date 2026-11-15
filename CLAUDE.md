@@ -11,7 +11,7 @@ pnpm build                                     # tsup (server), tsc -b + vite bu
 pnpm --filter @magic-vault/web lint            # only package with a lint script
 pnpm --filter @magic-vault/server test         # node:test via tsx, tests/*.test.ts
 pnpm --filter @magic-vault/web test            # Vitest + jsdom + Testing Library
-python3 -m unittest scripts.pi.controller.test_controller # GPIO controller with mocked hardware
+python3 -m unittest scripts.pi.controller.test_controller scripts.pi.controller.test_detection_hardware # GPIO controller with mocked hardware
 python3 -m unittest discover -s scripts/pi/tests -p 'test_*.py' # Pi camera, installer and updater with mocked system commands
 pnpm --filter @magic-vault/server db:generate  # migration from schema.ts changes (db:migrate, db:push for local iteration)
 pnpm --filter @magic-vault/api-docs openapi    # regenerate packages/api-docs/public/openapi.json
@@ -179,6 +179,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 ### Firmware & serial
 
 - Protocol: `firmware/PROTOCOL.md`. Firmware has no bins; the app maps bin -> (module, direction).
+- Built-in Pi module detection requires `pi-0.2.0` and `board: "raspberry_pi"` (also used by Orange Pi); layout capacity (3/5) is not connected count, and detection counts consecutive wired sensors only up to the first gap.
 - One command at a time; every blocking wait goes through `waitMs()`; pusher moves through `setServoPosition()`.
 - `{"stop": true}` (firmware 2.14.0+, Pi controller) is the one command accepted mid-command: it cuts every output and latches until `neutral`. Send it through `SerialSession.sendEmergencyStop` (bypasses the busy guard and route queue; the Pi hub bypasses its queue too) and treat `{"error":"stopped"}` as a terminal stop, never a routing or feed failure.
 - `handleCommand` parses its line as `const char*` and prints replies directly. New `ModuleConfig`/`FeederConfig` fields go in `MODULE_FIELDS`/`FEEDER_FIELDS` too; changing `ModuleConfig` needs an EEPROM layout migration.
@@ -256,7 +257,9 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 - `PI_SORTER=1` selects the built-in GPIO/I2C controller over its private Unix socket and authenticated `/pi-sorter` bridge; USB stays on `/pi-serial` with exclusive ownership. Pi browser clients share one server-owned physical connection with remapped reply sequences. Scans reserve mutation access; competing motion/configuration commands get busy, not queued stale motion. Automatic browser attachment must never move servos or run the self-test; calibration is checkout-local under `.pi-controller/`.
 - The Linux API service sets `API_HOST=127.0.0.1`; Pi hosts also default to loopback when unset. Remote clients use port 8080 through the existing HTTP/WebSocket `/api` proxy. Keep the default `0.0.0.0` for non-Pi deployments unless explicitly configured.
 - Install and update service units through `scripts/pi/install-services.mjs`, which renders the actual checkout path and escapes systemd path specifiers and command arguments. Do not copy the `~/mault` unit templates directly; Linux installs can use a different directory.
-- The scanner camera is the USB webcam, served by `scripts/pi/camera-ctl.py` on `127.0.0.1:8765` and exposed through the authenticated API at `/api/pi-camera`. The web server must not proxy directly to the helper. Frames are re-encoded to JFIF before they go out.
+- `PI_SORTER=1` exposes only the built-in GPIO sorter and one station; additional USB/BLE/cloud connections are blocked in UI and host transports. USB-only Linux/Pi hosts (`PI_HOST=1`, `PI_SORTER=0`) discover multiple USB controllers at authenticated `/pi-serial/devices` and NUS BLE devices through explicit `/pi-serial/bluetooth/devices` scans; each physical port has its own lock, and missing selections never fall back to another device. Host sessions snapshot controller/camera IDs for reconnects and retain their selected pair until stopped; one host session per org remains supported.
+- The scanner camera is the USB webcam, served by `scripts/pi/camera-ctl.py` on `127.0.0.1:8765` and exposed through the authenticated API at `/api/pi-camera`. The helper lists USB cameras at `/devices`, uses stable by-id paths when available and routes frame/stream/focus by validated `cameraId`; each additional camera has its own process, buffer and focus file. The web server must not proxy directly to the helper. Frames are re-encoded to JFIF before they go out.
+- Camera calibration dropdowns preview immediately without persisting station assignments; Save persists and Discard/unmount restores the saved camera; focus previews send `persist: false`, snapshot the original focus and restore it on Discard/unmount. Keep preview readback out of the saved form baseline, and await restoration before leaving the page.
 - UVC focus readback can report the saved value while the lens is elsewhere: force manual writes through an adjacent value and reapply saved manual focus after a startup settling interval before opening the helper's HTTP listener.
 - Remote-browser Pi behavior (serial bridge, camera relay, hiding the connect prompt) turns on only when the API reports `piHost`. That is true when `PI_HOST=1` (set by `scripts/pi/install.sh`, which also installs Node 22, pnpm, Postgres with pgvector, ffmpeg, and v4l-utils) or when `/proc/device-tree/model` is a Raspberry Pi. `PI_HOST=0` forces it off.
 - A remote browser on a Pi host opens the sorter through `/pi-serial` (`lib/pi-serial-bridge.ts`). The port is claimed in `lib/pi-serial-port.ts`, so the Pi scan session and a browser cannot hold it at the same time. The node is `root:dialout` mode `660`. `install.sh` adds the desktop user to `dialout` and restarts the user manager when this login does not have the group yet. Raspberry Pi OS already puts its user in `dialout`; Other Linux Distros do not.
@@ -329,3 +332,5 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 - No code comments in app code (firmware sketches keep theirs); record non-obvious things here instead. No `eslint-disable`.
 - Types, interfaces and constants never live in component, hook or route files: `lib/interfaces/*` and `lib/constants/*` per package, shared ones in `shared`.
 - Never use em dashes anywhere (code, copy in every locale, commits, chat).
+
+- Host Bluetooth uses BlueZ/Bleak through the system Python helper, bounded on-demand scans, canonical `ble:MAC` IDs and the same exclusive port claims as USB; GPIO mode rejects BLE. Keep NUS UUIDs in shared, pass them into the helper, and preserve host/headless support independently of browser Web Bluetooth.
