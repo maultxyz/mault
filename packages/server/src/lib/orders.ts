@@ -1,6 +1,7 @@
 import {
   isCardCondition,
   orderLineIdentity,
+  orderRefsOf,
   ORDER_LINE_QUANTITY_MAX,
   ORDER_LINE_TEXT_MAX_LENGTH,
   ORDER_LINES_MAX,
@@ -8,6 +9,7 @@ import {
   type FulfilmentOrder,
   type FulfilmentOrderStatus,
   type OrderLine,
+  type OrderBins,
   type OrderLineInput,
   type OrderSource,
   type PlayingCard,
@@ -88,14 +90,27 @@ export function carryOverOrderAllocations(
   previousLines: OrderLine[],
   { keepPreviousUnitPrices }: { keepPreviousUnitPrices: boolean },
 ): (OrderLineInput & Pick<OrderLine, "allocations" | "picked">)[] {
-  const unusedPreviousLines = [...previousLines];
-  return editedLines.map((line) => {
-    const identity = orderLineIdentity(line);
-    const matchIndex = unusedPreviousLines.findIndex(
-      (previous) => orderLineIdentity(previous) === identity,
+  const unusedPreviousLines: (OrderLine | null)[] = [...previousLines];
+  const takeMatch = (identityOf: (line: OrderLineInput) => string, line: OrderLineInput) => {
+    const identity = identityOf(line);
+    const index = unusedPreviousLines.findIndex(
+      (previous) => previous != null && identityOf(previous) === identity,
     );
-    const [match] =
-      matchIndex === -1 ? [] : unusedPreviousLines.splice(matchIndex, 1);
+    if (index === -1) return undefined;
+    const match = unusedPreviousLines[index] ?? undefined;
+    unusedPreviousLines[index] = null;
+    return match;
+  };
+  const exactMatches = editedLines.map((line) =>
+    takeMatch(orderLineIdentity, line),
+  );
+  return editedLines.map((line, index) => {
+    const match =
+      exactMatches[index] ??
+      takeMatch(
+        (candidate) => orderLineIdentity({ ...candidate, orderRef: null }),
+        line,
+      );
     return {
       ...line,
       unitPrice: keepPreviousUnitPrices
@@ -275,7 +290,22 @@ export async function loadPullSheet(
     locationName: row.location_name,
     locationPosition: row.location_position,
     picked: picked.has(row.scan_id),
+    orderRef: lines[lineOf.get(row.scan_id) ?? 0]?.orderRef ?? null,
+    gameKey: row.game_key,
   }));
+}
+
+export function toOrderBins(value: unknown, lines: OrderLineInput[]): OrderBins {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const raw = value as Record<string, unknown>;
+  const bins: OrderBins = {};
+  for (const ref of orderRefsOf(lines)) {
+    const bin = raw[ref];
+    if (typeof bin === "number" && Number.isInteger(bin) && bin >= 1) {
+      bins[ref] = bin;
+    }
+  }
+  return bins;
 }
 
 export function summarizeOrder(

@@ -37,7 +37,9 @@ import type {
   IntakeReviewCardPage,
   IntakeTransferInput,
   IntakeTransferResult,
+  OrderBinsInput,
   OrderFulfilInput,
+  OrderSortPresetResult,
   PagedList,
   Result,
   StaffReport,
@@ -298,6 +300,16 @@ export function fulfilOrder(guid: string, input: OrderFulfilInput) {
   return apiPost<Result<{ sold: number }>>(
     `/api/business/orders/${guid}/fulfil`,
     input,
+  );
+}
+
+export function updateOrderBins(guid: string, input: OrderBinsInput) {
+  return apiPut<Result<null>>(`/api/business/orders/${guid}/order-bins`, input);
+}
+
+export function createOrderSortPreset(guid: string) {
+  return apiPost<Result<OrderSortPresetResult>>(
+    `/api/business/orders/${guid}/sort-preset`,
   );
 }
 

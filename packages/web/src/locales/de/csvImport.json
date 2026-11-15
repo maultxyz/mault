@@ -8,17 +8,9 @@
     "decklist_other": "Als Liste gelesen: {{count}} verschiedene Karten.",
     "unrecognized": "Keine Tabelle erkannt. Füge CSV-Text mit Kopfzeilen oder eine Deckliste ein."
   },
-  "composition": {
-    "label": "Zeilen bilden Bestellungen durch",
-    "reference": "Referenzspalte",
-    "masterdetail": "Kopfzeilen dann Positionszeilen",
-    "single": "Eine Bestellung"
-  },
   "column": {
     "assign": "Spalte {{column}} zuordnen",
     "ignore": "Ignorieren",
-    "orderFields": "Bestellfelder",
-    "itemFields": "Positionsfelder",
     "required": "erforderlich"
   },
   "fields": {
@@ -47,22 +39,18 @@
     "missingFields": "Pflichtfelder ohne Spalte: {{fields}}"
   },
   "orders": {
-    "title": "Bestellungen",
-    "empty": "Noch keine Bestellungen. Ordne zuerst die Kartenname-Spalte zu.",
-    "referencePlaceholder": "Bestellname",
-    "referenceLabel": "Name von Bestellung {{index}}",
     "lineCount_one": "{{count}} Position",
     "lineCount_other": "{{count}} Positionen",
     "quantity_one": "{{count}} Karte",
     "quantity_other": "{{count}} Karten",
-    "revenue": "Wert {{value}}",
     "skippedRows_one": "{{count}} Zeile übersprungen",
     "skippedRows_other": "{{count}} Zeilen übersprungen",
     "emptyOrders_one": "{{count}} Bestellung ohne Positionen verworfen",
     "emptyOrders_other": "{{count}} Bestellungen ohne Positionen verworfen",
     "conflicts_one": "{{count}} abweichender Wert, erster behalten",
     "conflicts_other": "{{count}} abweichende Werte, erster behalten",
-    "nameLabel": "Bestellname"
+    "pickNamePlaceholder_one": "{{count}} Bestellung",
+    "pickNamePlaceholder_other": "{{count}} Bestellungen"
   },
   "picks": {
     "entries_one": "{{count}} verschiedene Karte",
@@ -79,6 +67,111 @@
     "builtin": {
       "shopify": "Shopify (integriert)",
       "tcgplayer": "TCGplayer (integriert)"
+    }
+  },
+  "pickImport": {
+    "description": "Mach aus einem TCGplayer- oder Shopify-Export, einer beliebigen CSV mit Kartennamen oder einer einfachen Kartenliste einen Pick.",
+    "back": "Zurück zu den Picks",
+    "stepsLabel": "Importschritte",
+    "stepDone": "(erledigt)",
+    "steps": {
+      "source": "Karten hinzufügen",
+      "columns": "Spalten zuordnen",
+      "review": "Prüfen"
+    },
+    "stepHeading": "Schritt {{current}} von {{total}}: {{title}}",
+    "headings": {
+      "source": "Karten zum Ziehen hinzufügen",
+      "columns": "Spalten zuordnen",
+      "review": "Prüfen und erstellen"
+    },
+    "intros": {
+      "source": "Lade eine Datei hoch oder füge ihren Inhalt ein. Eine einfache Liste wie \"4 Lightning Bolt\" geht auch.",
+      "columns": "Wähle, welche Spalte welche Angabe enthält. Nur der Kartenname ist Pflicht; lass alles, was deine Datei nicht hat, auf \"Nicht in dieser Datei\".",
+      "review": "Prüfe, wie die Zeilen zu Bestellungen werden, und erstelle dann den Pick."
+    },
+    "noAccess": "Deine Rolle darf keine Picks erstellen. Bitte einen Inhaber oder Admin, das unter Einstellungen > Business zu erlauben.",
+    "source": {
+      "dropTitle": "CSV-Datei hier ablegen",
+      "dropHint": "oder klicken, um eine Datei auszuwählen",
+      "pasteLabel": "Oder Inhalt einfügen",
+      "pastePlaceholder": "Order #,Product Name,Quantity\n1001,Sol Ring,1\n\noder\n\n4 Lightning Bolt\n1 Sol Ring",
+      "formats": {
+        "tcgplayer": "TCGplayer-Export",
+        "shopify": "Shopify-Export",
+        "generic": "CSV-Datei"
+      },
+      "savedLayout": "Gespeichertes Layout \"{{name}}\" angewendet",
+      "rowCount_one": "{{count}} Zeile",
+      "rowCount_other": "{{count}} Zeilen",
+      "columnCount_one": "{{count}} Spalte",
+      "columnCount_other": "{{count}} Spalten"
+    },
+    "columns": {
+      "layout": "Spaltenlayout",
+      "layoutHint": "Ein gespeichertes Layout wird automatisch gewählt, wenn eine Datei dieselben Spalten hat.",
+      "automatic": "Automatisch",
+      "required": "Pflicht",
+      "notInFile": "Nicht in dieser Datei",
+      "columnNumber": "Spalte {{index}}",
+      "samples": "Zum Beispiel: {{values}}",
+      "noSamples": "Diese Spalte ist leer",
+      "saveLayout": "Layout speichern",
+      "saveLayoutHint": "Dateien mit denselben Spalten verwenden diese Zuordnung beim nächsten Mal automatisch.",
+      "layoutName": "Name des Layouts",
+      "layoutNamePlaceholder": "z. B. Cardmarket-Bestellungen",
+      "save": "Layout speichern",
+      "preview_one": "Dateivorschau (erste {{count}} Zeile)",
+      "preview_other": "Dateivorschau (erste {{count}} Zeilen)"
+    },
+    "fieldHints": {
+      "name": "Die zu ziehende Karte. Varianten wie \"- Foil\" werden mitgelesen.",
+      "quantity": "Wie viele Exemplare. Ohne diese Spalte zählt jede Zeile als 1.",
+      "orderRef": "Bestellnummer oder -name. Zeilen mit demselben Wert bilden eine Bestellung.",
+      "setCode": "Kurzer Set-Code wie MH3. Grenzt ein, welche Version gezogen wird.",
+      "setName": "Vollständiger Set-Name. Wird genutzt, wenn kein Set-Code da ist.",
+      "collectorNumber": "Sammlernummer der Version.",
+      "condition": "NM, LP, MP, HP oder DMG, oder Wörter wie Near Mint.",
+      "foil": "Foil oder nicht. Ja/Nein, Foil/Normal und Ähnliches funktioniert.",
+      "language": "Kartensprache, etwa Englisch oder EN.",
+      "unitPrice": "Verkaufspreis pro Karte, für den Umsatz."
+    },
+    "review": {
+      "split": {
+        "legend": "Wie werden die Zeilen in Bestellungen aufgeteilt?",
+        "reference": "Eine Bestellung pro Bestellreferenz",
+        "referenceWithColumn": "Eine Bestellung pro Wert in \"{{column}}\"",
+        "referenceHint": "Zeilen mit derselben Bestellnummer gehören zusammen.",
+        "referenceDisabled": "Ordne im vorigen Schritt die Spalte für die Bestellreferenz zu, um das zu nutzen.",
+        "masterdetail": "Kopfzeilen beginnen jede Bestellung",
+        "masterdetailHint": "Eine Zeile mit Bestelldaten, aber ohne Karte beginnt eine neue Bestellung, und die Kartenzeilen darunter gehören dazu.",
+        "single": "Die ganze Datei ist eine Bestellung",
+        "singleHint": "Alle Zeilen kommen in eine einzige Bestellung."
+      },
+      "create": {
+        "legend": "Was soll erstellt werden?",
+        "together": "Ein Pick für alle Bestellungen",
+        "togetherHint": "Empfohlen. Zieh jede Karte einmal nach Lagerort und sortiere sie dann in Bestellungen.",
+        "separate": "Ein Pick pro Bestellung",
+        "separateHint": "Jede Bestellung bekommt einen eigenen Pick und eine eigene Pickliste."
+      },
+      "pickName": "Name des Picks",
+      "orders_one": "{{count}} Bestellung",
+      "orders_other": "{{count}} Bestellungen",
+      "ordersHint": "Wenn du eine Bestellung umbenennst, ändert sich ihre Bestellreferenz im Pick.",
+      "orderName": "Name der Bestellung {{name}}",
+      "noOrder": "Keine Bestellung",
+      "showCards": "Karten anzeigen",
+      "cards_one": "{{count}} Karte",
+      "cards_other": "{{count}} Karten",
+      "created_one": "Pick erstellt",
+      "created_other": "{{count}} Picks erstellt"
+    },
+    "actions": {
+      "back": "Zurück",
+      "next": "Weiter",
+      "create_one": "Pick erstellen",
+      "create_other": "{{count}} Picks erstellen"
     }
   }
 }

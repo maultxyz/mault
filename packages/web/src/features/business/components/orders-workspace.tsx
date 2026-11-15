@@ -5,9 +5,8 @@ import { ordersQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { BusinessUpgradeCallout } from "@/features/business/components/business-upgrade-callout";
 import { OrderDetail } from "@/features/business/components/order-detail";
-import { OrderImportDialog } from "@/features/business/components/order-import-dialog";
 import { OrderList } from "@/features/business/components/order-list";
-import { ORDER_PARAM } from "@/lib/constants/business";
+import { ORDER_PARAM, PICK_IMPORT_PATH } from "@/lib/constants/business";
 import {
   MOBILE_CIRCLE_BUTTON_CLASS,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
@@ -17,9 +16,8 @@ import { cn } from "@/lib/utils";
 import type { OrdersWorkspaceProps } from "@/lib/interfaces/business";
 import { IconFileImport, IconTruckDelivery } from "@tabler/icons-react";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
   const { t } = useTranslation("business");
@@ -36,21 +34,12 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
     (request) => ordersQueryOptions(orgId, request),
     selectedParam,
   );
-  const [importOpen, setImportOpen] = useState(false);
   const selectedGuid = isMobile
     ? (selectedParam ?? undefined)
     : (selectedParam ?? orders[0]?.guid);
 
   const select = (guid: string | null) =>
     setSearchParams(guid ? { [ORDER_PARAM]: guid } : {}, { replace: true });
-
-  const importDialog = (
-    <OrderImportDialog
-      open={importOpen}
-      onOpenChange={setImportOpen}
-      onCreated={(guid) => select(guid)}
-    />
-  );
 
   if (isMobile) {
     if (selectedGuid) {
@@ -88,7 +77,8 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
               className={MOBILE_CIRCLE_BUTTON_CLASS}
               aria-label={t("orders.importButton")}
               disabled={access?.isLocked || !access?.canFulfilOrders}
-              onClick={() => setImportOpen(true)}
+              render={<Link to={PICK_IMPORT_PATH} />}
+              nativeButton={false}
             >
               <IconFileImport />
             </Button>
@@ -112,7 +102,6 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
             />
           </div>
         </div>
-        {importDialog}
       </div>
     );
   }
@@ -126,7 +115,8 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
             variant="outline"
             className="w-full"
             disabled={access?.isLocked || !access?.canFulfilOrders}
-            onClick={() => setImportOpen(true)}
+            render={<Link to={PICK_IMPORT_PATH} />}
+            nativeButton={false}
           >
             <IconFileImport />
             {t("orders.importButton")}
@@ -159,7 +149,6 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
           )}
         </section>
       </div>
-      {importDialog}
     </div>
   );
 }

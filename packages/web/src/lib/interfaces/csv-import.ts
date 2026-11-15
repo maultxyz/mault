@@ -1,24 +1,19 @@
 import type {
-  ComposedCsvOrder,
+  CsvImportField,
   CsvImportMapping,
-  OrderSource,
+  CsvImportTable,
   PickListEntryInput,
 } from "@magic-vault/shared";
 
 export type CsvImportDialogType = "orders" | "picks";
 
-export type CsvImportPayload =
-  | { type: "orders"; orders: ComposedCsvOrder[]; source: OrderSource }
-  | { type: "picks"; entries: PickListEntryInput[] };
-
 export interface CsvImportDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  type: CsvImportDialogType;
   title: string;
   description: string;
   importLabel: string;
-  onImport: (payload: CsvImportPayload) => Promise<boolean>;
+  onImport: (entries: PickListEntryInput[]) => Promise<boolean>;
 }
 
 export interface ImportTemplateRow {
@@ -28,4 +23,28 @@ export interface ImportTemplateRow {
   mapping: CsvImportMapping;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface UseCsvImportOptions {
+  type: CsvImportDialogType;
+  text: string;
+  enabled: boolean;
+}
+
+export interface UseCsvImportResult {
+  table: CsvImportTable;
+  isTabular: boolean;
+  mapping: CsvImportMapping | null;
+  setMapping: (mapping: CsvImportMapping) => void;
+  assignFieldToColumn: (field: CsvImportField, columnIndex: number | null) => void;
+  assignColumnToField: (columnIndex: number, field: CsvImportField | null) => void;
+  missingFields: CsvImportField[];
+  templates: ImportTemplateRow[];
+  templateGuid: string;
+  applyTemplate: (guid: string) => void;
+  templateName: string;
+  setTemplateName: (name: string) => void;
+  saveTemplate: () => void;
+  isSavingTemplate: boolean;
+  reset: () => void;
 }

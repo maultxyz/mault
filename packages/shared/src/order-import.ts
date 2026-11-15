@@ -265,6 +265,7 @@ export function orderLineIdentity(line: OrderLineInput): string {
     line.condition ?? null,
     line.isFoil ?? null,
     line.language ?? null,
+    line.orderRef?.toLowerCase() ?? null,
   ]);
 }
 

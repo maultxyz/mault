@@ -5,6 +5,7 @@ import {
   BUYLIST_PRICE_MAX,
   BUYLIST_TIERS_MAX,
   CARD_CONDITIONS,
+  CSV_IMPORT_NAME_MAX_LENGTH,
   DEVICE_MAINTENANCE_INTERVAL_MAX,
   DEVICE_MAINTENANCE_INTERVAL_MIN,
   formValidationMessage,
@@ -13,10 +14,14 @@ import {
   ORDER_LINE_QUANTITY_MAX,
   ORDER_LINES_MAX,
   ORDER_NAME_MAX_LENGTH,
+  orderSortCatchAllBin,
   ACCURACY_SAMPLE_SIZES,
   SET_NAME_MAX_LENGTH,
 } from "@magic-vault/shared";
-import { NEW_COLLECTION_OPTION } from "@/lib/constants/business";
+import {
+  NEW_COLLECTION_OPTION,
+  PICK_IMPORT_CREATE_MODES,
+} from "@/lib/constants/business";
 import { z } from "zod";
 
 const money = z
@@ -157,6 +162,54 @@ export const orderEditSchema = z.object({
 });
 
 export type OrderEditFormValues = z.infer<typeof orderEditSchema>;
+
+export const pickImportSchema = z.object({
+  text: z.string(),
+  createMode: z.enum(PICK_IMPORT_CREATE_MODES),
+  pickName: z
+    .string()
+    .max(ORDER_NAME_MAX_LENGTH, formValidationMessage("nameTooLong", { max: ORDER_NAME_MAX_LENGTH })),
+  orderNames: z.array(
+    z
+      .string()
+      .max(CSV_IMPORT_NAME_MAX_LENGTH, formValidationMessage("nameTooLong", { max: CSV_IMPORT_NAME_MAX_LENGTH }))
+      .optional(),
+  ),
+});
+
+export type PickImportFormValues = z.infer<typeof pickImportSchema>;
+
+export const orderBinsSchema = (binCount: number) =>
+  z.object({
+    bins: z
+      .array(
+        z.object({
+          orderRef: z.string(),
+          binNumber: z
+            .number(formValidationMessage("wholeNumber"))
+            .int(formValidationMessage("wholeNumber"))
+            .min(1, formValidationMessage("atLeast", { min: 1 }))
+            .max(binCount, formValidationMessage("atMost", { max: binCount }))
+            .refine(
+              (binNumber) => binNumber !== orderSortCatchAllBin(binCount),
+              formValidationMessage("orderBinCatchAll"),
+            ),
+        }),
+      )
+      .superRefine((bins, context) => {
+        bins.forEach((bin, index) => {
+          if (bins.findIndex((other) => other.binNumber === bin.binNumber) !== index) {
+            context.addIssue({
+              code: "custom",
+              path: [index, "binNumber"],
+              message: formValidationMessage("orderBinDuplicate"),
+            });
+          }
+        });
+      }),
+  });
+
+export type OrderBinsFormValues = z.infer<ReturnType<typeof orderBinsSchema>>;
 
 export const collectionCostSchema = z.object({
   total: money,

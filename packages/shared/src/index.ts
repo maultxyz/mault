@@ -205,6 +205,7 @@ export * from "./constants/scan-timeline.constant";
 export * from "./scan-timeline";
 export * from "./detail-prefetch";
 export * from "./order-import";
+export * from "./order-picking";
 export * from "./csv-import";
 export * from "./constants/csv-import.constant";
 export * from "./interfaces/csv-import.interface";

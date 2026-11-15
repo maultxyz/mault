@@ -255,17 +255,7 @@
     "subtitle": "{{source}} · created {{date}}",
     "importButton": "New pick",
     "importTitle": "New pick",
-    "importDescription": "Paste or upload the cards to pull: a TCGplayer pull sheet, a Shopify order export, any CSV with a card name column, or a plain list like \"4 Lightning Bolt\".",
     "name": "Name",
-    "namePlaceholder": "Monday's orders",
-    "contents": "Cards to pull",
-    "contentsPlaceholder": "Product Name,Set,Number,Condition,Quantity,Price",
-    "preview": "{{source}}: {{lines}} lines, {{quantity}} cards.",
-    "previewEmpty": "No cards found. Check that the first row has column names like Product Name and Quantity.",
-    "previewSkipped_one": "{{count}} row without a card name was skipped.",
-    "previewSkipped_other": "{{count}} rows without a card name were skipped.",
-    "import": "Create pick",
-    "created": "Pick created",
     "sources": {
       "tcgplayer": "TCGplayer",
       "shopify": "Shopify",
@@ -309,7 +299,39 @@
     "deleteDescription": "The pick's record is removed. Cards it already took out of inventory stay removed.",
     "pickFirst": "Tick every card you pulled first",
     "pickAll": "Pick all",
-    "importedName": "Imported order {{index}}"
+    "importedName": "Imported order {{index}}",
+    "noOrder": "No order",
+    "orderRefLabel": "Order {{order}}",
+    "orderBinLabel": "Bin {{bin}}",
+    "pickCopyForOrder": "Mark {{name}} for order {{order}} as picked",
+    "pickOrder": "Mark every card for order {{order}} as picked",
+    "pickNoOrder": "Mark every card without an order as picked",
+    "orderPickedCount": "{{picked}} of {{quantity}} picked",
+    "orderCardCount_one": "{{count}} card",
+    "orderCardCount_other": "{{count}} cards",
+    "locationColumn": "Location",
+    "viewsLabel": "Pick view",
+    "views": {
+      "location": "Pick by location",
+      "order": "Sort by order"
+    },
+    "orderRefPlaceholder": "Order",
+    "orderRefInputLabel": "Order for {{name}}",
+    "assignOrderBins": "Assign order bins",
+    "orderBinsTitle": "Order bins",
+    "orderBinsDescription": "Give each order its own bin or container. Pull the cards by location, then put each one in its order's bin. The same numbers are used when you sort with the sorter, where bin {{catchAll}} catches anything else.",
+    "autoAssignBins": "Auto-assign",
+    "tooManyOrders": "Your sorter has {{count}} bins for orders, so some orders are left without one.",
+    "saveOrderBins": "Save bins",
+    "orderBinsSaved": "Order bins saved",
+    "createSortPreset": "Create sort preset",
+    "sortPresetTitle": "Sort this pick by order?",
+    "sortPresetDescription": "Creates a sorting preset with one bin per order and makes it active. Feed the pulled cards through the sorter and each lands in its order's bin. Scans with this preset are not saved, so your inventory stays as it is.",
+    "sortPresetCreated_one": "Sort preset created and activated",
+    "sortPresetCreated_other": "{{count}} sort presets created, one per game",
+    "openSortPreset": "Open preset",
+    "batchName_one": "{{count}} order",
+    "batchName_other": "{{count}} orders"
   },
   "cost": {
     "title": "Set cost basis",
@@ -378,7 +400,8 @@
       "intakeTransferred": "Intake moved",
       "catalogCreated": "Shop catalog created",
       "catalogUpdated": "Shop catalog changed",
-      "catalogDeleted": "Shop catalog deleted"
+      "catalogDeleted": "Shop catalog deleted",
+      "orderSortPresetCreated": "Sort preset created"
     },
     "messages": {
       "cardCorrected": "Corrected {{from}} to {{to}}",
@@ -406,7 +429,8 @@
       "intakeTransferred": "Moved {{cards}} cards bought from {{summary}}",
       "catalogCreated": "Created the shop catalog {{summary}}",
       "catalogUpdated": "Changed the shop catalog {{summary}}",
-      "catalogDeleted": "Deleted the shop catalog {{summary}}"
+      "catalogDeleted": "Deleted the shop catalog {{summary}}",
+      "orderSortPresetCreated": "Created a sort preset for {{summary}}"
     }
   },
   "accuracy": {

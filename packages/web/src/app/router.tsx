@@ -55,6 +55,7 @@ import {
   LEGACY_PICKS_VIEW_PARAM,
   ORDER_PARAM,
   ORDERS_PATH,
+  PICK_IMPORT_PATH,
   PICKS_PATH,
   picksPath,
   LEGACY_REPORTS_PATH,
@@ -213,6 +214,12 @@ const StoragePickListPage = lazy(
 const StatsPage = lazy(() => import("@/app/routes/app/stats"));
 const IntakePage = lazy(() => import("@/app/routes/app/intake"));
 const PicksPage = lazy(() => import("@/app/routes/app/picks"));
+const PickImportPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/app/pick-import"),
+    ["common", "business", "csvImport"],
+  ),
+);
 const ControlCardsPage = lazy(
   withNamespaces(
     () => import("@/app/routes/app/control-cards"),
@@ -640,6 +647,10 @@ export const routes: RouteObject[] = [
               {
                 path: PICKS_PATH,
                 element: <PicksPage />,
+              },
+              {
+                path: PICK_IMPORT_PATH,
+                element: <PickImportPage />,
               },
               {
                 path: LEGACY_INTAKE_PATH,

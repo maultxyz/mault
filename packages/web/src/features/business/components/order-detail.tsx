@@ -21,9 +21,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ViewTabs } from "@/components/view-tabs";
+import { binsQueryOptions } from "@/features/bins/api/sort-bins";
 import {
   allocateOrder,
   cancelOrder,
+  createOrderSortPreset,
   deleteOrder,
   fulfilOrder,
   orderQueryOptions,
@@ -35,14 +38,24 @@ import {
 } from "@/features/business/api/use-business";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { OrderBinsDialog } from "@/features/business/components/order-bins-dialog";
 import { OrderEditDialog } from "@/features/business/components/order-edit-dialog";
+import { OrderPickByLocation } from "@/features/business/components/order-pick-by-location";
+import { OrderRefLabel } from "@/features/business/components/order-ref-label";
 import { StatusBadge } from "@/features/business/components/status-badge";
 import { buildPullSheetCsv } from "@/features/business/lib/pull-sheet";
-import { downloadTextFile, formatDateTime } from "@/features/business/lib/format";
+import {
+  downloadTextFile,
+  formatDateTime,
+} from "@/features/business/lib/format";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { copyTextFromPromise } from "@/lib/clipboard";
-import { EMPTY_PICKS } from "@/lib/constants/business";
-import type { OrderDetailProps } from "@/lib/interfaces/business";
+import { sortingRulesPresetPath } from "@/lib/constants/bins";
+import { EMPTY_PICKS, ORDER_DETAIL_VIEWS } from "@/lib/constants/business";
+import type {
+  OrderDetailProps,
+  OrderDetailView,
+} from "@/lib/interfaces/business";
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { toast } from "@/lib/toast";
 import {
@@ -52,7 +65,10 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   formatDecklist,
+  hasEveryOrderBin,
   orderLineLabel,
+  orderRefsOf,
+  pickOrderGroups,
   toOrderLineInput,
   type PullSheetEntry,
   type Result,
@@ -64,11 +80,14 @@ import {
   IconDownload,
   IconPackageExport,
   IconPencil,
+  IconArrowsSort,
+  IconBox,
   IconRefresh,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
 import { Fragment, useState } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -91,6 +110,11 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
   const [cancelOpen, setCancelOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const [orderBinsOpen, setOrderBinsOpen] = useState(false);
+  const [sortPresetOpen, setSortPresetOpen] = useState(false);
+  const [view, setView] = useState<OrderDetailView>("location");
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [removeLineIndex, setRemoveLineIndex] = useState<number | null>(null);
   const [lastCopyName, setLastCopyName] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
@@ -126,6 +150,11 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
     allScanIds.length > 0 && allScanIds.every((id) => pickedSet.has(id));
   const setPicked = (next: string[]) =>
     form.setValue("picked", next, { shouldDirty: true });
+  const changePicked = (scanIds: string[], isPicked: boolean) =>
+    setPicked([
+      ...picked.filter((id) => !scanIds.includes(id)),
+      ...(isPicked ? scanIds : []),
+    ]);
   const togglePick = (scanId: string, checked: boolean) =>
     setPicked(
       checked
@@ -147,6 +176,16 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
   const shortLines = order.lines.filter(
     (line) => line.allocations.length < line.quantity,
   );
+  const orderRefs = orderRefsOf(order.lines);
+  const orderGroups = pickOrderGroups(
+    order.lines,
+    order.pullSheet,
+    order.orderBins,
+  );
+  const showOrderGroups = orderRefs.length > 0;
+  const canCreateSortPreset =
+    showPullSheet && hasEveryOrderBin(orderRefs, order.orderBins);
+  const columnCount = (showPullSheet ? 1 : 0) + 5 + (canAct ? 1 : 0);
 
   const act = async <T,>(
     action: () => Promise<Result<T>>,
@@ -156,6 +195,26 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
     const result = await run(action, message);
     setPending(false);
     return result;
+  };
+
+  const createSortPreset = async () => {
+    const result = await act(() => createOrderSortPreset(order.guid));
+    if (!result?.data) return;
+    setSortPresetOpen(false);
+    void queryClient.invalidateQueries({ queryKey: binsQueryOptions.queryKey });
+    const [firstPreset] = result.data.presets;
+    toast.success(
+      t("orders.sortPresetCreated", { count: result.data.presets.length }),
+      firstPreset
+        ? {
+            action: {
+              label: t("orders.openSortPreset"),
+              onClick: () =>
+                void navigate(sortingRulesPresetPath(firstPreset.guid)),
+            },
+          }
+        : undefined,
+    );
   };
 
   const removeCopy = async (lineIndex: number, scanId: string) => {
@@ -233,7 +292,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                 onClick={() =>
                   downloadTextFile(
                     `${order.name}-pull-sheet.csv`,
-                    buildPullSheetCsv(order.pullSheet),
+                    buildPullSheetCsv(order.pullSheet, order.orderBins),
                   )
                 }
               >
@@ -260,6 +319,22 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                   <IconRefresh />
                   {t("orders.reallocate")}
                 </DropdownMenuItem>
+                {orderRefs.length > 0 && (
+                  <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => setOrderBinsOpen(true)}>
+                      <IconBox />
+                      {t("orders.assignOrderBins")}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      disabled={!canCreateSortPreset || pending}
+                      onClick={() => setSortPresetOpen(true)}
+                    >
+                      <IconArrowsSort />
+                      {t("orders.createSortPreset")}
+                    </DropdownMenuItem>
+                  </>
+                )}
               </>
             )}
           </DropdownMenuContent>
@@ -300,9 +375,21 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
         heading={t("orders.summary")}
         gridClassName="grid-cols-2 sm:grid-cols-5"
         tiles={[
-          { key: "lines", label: t("orders.stats.lines"), value: order.lineCount },
-          { key: "quantity", label: t("orders.stats.quantity"), value: order.quantity },
-          { key: "allocated", label: t("orders.stats.allocated"), value: order.allocated },
+          {
+            key: "lines",
+            label: t("orders.stats.lines"),
+            value: order.lineCount,
+          },
+          {
+            key: "quantity",
+            label: t("orders.stats.quantity"),
+            value: order.quantity,
+          },
+          {
+            key: "allocated",
+            label: t("orders.stats.allocated"),
+            value: order.allocated,
+          },
           {
             key: "picked",
             label: t("orders.stats.picked"),
@@ -323,220 +410,326 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
       )}
 
       <section className="flex flex-col gap-2">
-        <h2 className="font-heading text-sm font-semibold">{t("orders.lines")}</h2>
-        <div className="overflow-hidden rounded-card bg-card">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                {showPullSheet && (
-                  <TableHead className="w-8">
-                    <Checkbox
-                      checked={allPicked}
-                      indeterminate={livePicked.length > 0 && !allPicked}
-                      disabled={!canAct}
-                      aria-label={t("orders.pickAll")}
-                      onCheckedChange={(checked) =>
-                        setPicked(checked === true ? allScanIds : [])
-                      }
-                    />
+        <h2 className="font-heading text-sm font-semibold">
+          {t("orders.lines")}
+        </h2>
+        {showPullSheet && (
+          <ViewTabs
+            label={t("orders.viewsLabel")}
+            value={view}
+            onChange={setView}
+            items={ORDER_DETAIL_VIEWS.map((key) => ({
+              key,
+              label: t(`orders.views.${key}`),
+            }))}
+          />
+        )}
+        {showPullSheet && view === "location" ? (
+          <OrderPickByLocation
+            entries={order.pullSheet}
+            orderBins={order.orderBins}
+            pickedScanIds={pickedSet}
+            canPick={canAct}
+            onPickedChange={changePicked}
+          />
+        ) : (
+          <div className="overflow-hidden rounded-card bg-card">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  {showPullSheet && (
+                    <TableHead className="w-8">
+                      <Checkbox
+                        checked={allPicked}
+                        indeterminate={livePicked.length > 0 && !allPicked}
+                        disabled={!canAct}
+                        aria-label={t("orders.pickAll")}
+                        onCheckedChange={(checked) =>
+                          setPicked(checked === true ? allScanIds : [])
+                        }
+                      />
+                    </TableHead>
+                  )}
+                  <TableHead>{t("table.card")}</TableHead>
+                  <TableHead>{t("table.condition")}</TableHead>
+                  <TableHead className="text-right">
+                    {isOpen
+                      ? t("orders.pickedColumn")
+                      : t("orders.quantityColumn")}
                   </TableHead>
-                )}
-                <TableHead>{t("table.card")}</TableHead>
-                <TableHead>{t("table.condition")}</TableHead>
-                <TableHead className="text-right">
-                  {isOpen ? t("orders.pickedColumn") : t("orders.quantityColumn")}
-                </TableHead>
-                <TableHead className="text-right">{t("table.price")}</TableHead>
-                <TableHead>{t("table.orderRef")}</TableHead>
-                {canAct && (
-                  <TableHead className="w-10">
-                    <span className="sr-only">{t("table.actions")}</span>
+                  <TableHead className="text-right">
+                    {t("table.price")}
                   </TableHead>
-                )}
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {order.lines.map((line, index) => {
-                const copies = copiesByLine.get(index) ?? [];
-                const copyIds = copies.map((entry) => entry.scanId);
-                const pickedCopyCount = copyIds.filter((id) =>
-                  pickedSet.has(id),
-                ).length;
-                return (
-                  <Fragment key={index}>
-                    <TableRow>
-                      {showPullSheet && (
-                        <TableCell>
-                          <Checkbox
-                            checked={
-                              copyIds.length > 0 &&
-                              pickedCopyCount === copyIds.length
-                            }
-                            indeterminate={
-                              pickedCopyCount > 0 &&
-                              pickedCopyCount < copyIds.length
-                            }
-                            disabled={!canAct || copyIds.length === 0}
-                            aria-label={t("orders.pickLine", { name: line.name })}
-                            onCheckedChange={(checked) =>
-                              setPicked([
-                                ...picked.filter((id) => !copyIds.includes(id)),
-                                ...(checked === true ? copyIds : []),
-                              ])
-                            }
-                          />
-                        </TableCell>
-                      )}
-                      <TableCell className="max-w-72 truncate font-medium">
-                        {orderLineLabel(line)}
-                        {line.isFoil && (
-                          <span className="ml-1.5 text-xs text-foreground/70">
-                            {t("table.foil")}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>{line.condition ?? "-"}</TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {isOpen
-                          ? `${pickedCopyCount}/${line.quantity}`
-                          : line.quantity}
-                        {isOpen && line.allocations.length < line.quantity && (
-                          <span className="block text-xs text-warning-strong">
-                            {t("orders.inStockCount", {
-                              count: line.allocations.length,
-                            })}
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell className="text-right tabular-nums">
-                        {line.unitPrice == null ? "-" : format(line.unitPrice)}
-                      </TableCell>
-                      <TableCell className="text-foreground/70">
-                        {line.orderRef ?? "-"}
-                      </TableCell>
-                      {canAct && (
-                        <TableCell className="py-0 text-right">
-                          <DropdownMenu>
-                            <DropdownMenuTrigger
-                              render={
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  aria-label={t("orders.lineActions", {
-                                    name: line.name,
-                                  })}
-                                  title={t("orders.lineActions", {
-                                    name: line.name,
-                                  })}
-                                />
-                              }
-                            >
-                              <IconDots />
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                variant="destructive"
-                                onClick={() => setRemoveLineIndex(index)}
-                              >
-                                <IconTrash />
-                                {t("orders.removeFromPick")}
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </TableCell>
-                      )}
-                    </TableRow>
-                    {copies.map((entry) => (
-                      <TableRow key={entry.scanId} className="bg-muted/40">
-                        <TableCell>
-                          <Checkbox
-                            checked={pickedSet.has(entry.scanId)}
-                            disabled={!canAct}
-                            aria-label={t("orders.pickCopy", {
-                              name: entry.card.name,
-                            })}
-                            onCheckedChange={(checked) =>
-                              togglePick(entry.scanId, checked === true)
-                            }
-                          />
-                        </TableCell>
-                        <TableCell className="max-w-80 pl-6">
-                          <div className="flex items-center gap-2.5">
-                            <CardThumbnail
-                              image={entry.card.image}
-                              className="w-10"
+                  <TableHead>{t("table.orderRef")}</TableHead>
+                  {canAct && (
+                    <TableHead className="w-10">
+                      <span className="sr-only">{t("table.actions")}</span>
+                    </TableHead>
+                  )}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {orderGroups.map((group) => {
+                  const groupScanIds = group.entries.map(
+                    (entry) => entry.scanId,
+                  );
+                  const groupPickedCount = groupScanIds.filter((id) =>
+                    pickedSet.has(id),
+                  ).length;
+                  return (
+                    <Fragment key={group.orderRef ?? ""}>
+                      {showOrderGroups && (
+                        <TableRow className="bg-foreground/6 hover:bg-foreground/6">
+                          {showPullSheet && (
+                            <TableCell>
+                              <Checkbox
+                                checked={
+                                  groupScanIds.length > 0 &&
+                                  groupPickedCount === groupScanIds.length
+                                }
+                                indeterminate={
+                                  groupPickedCount > 0 &&
+                                  groupPickedCount < groupScanIds.length
+                                }
+                                disabled={!canAct || groupScanIds.length === 0}
+                                aria-label={
+                                  group.orderRef == null
+                                    ? t("orders.pickNoOrder")
+                                    : t("orders.pickOrder", {
+                                        order: group.orderRef,
+                                      })
+                                }
+                                onCheckedChange={(checked) =>
+                                  changePicked(groupScanIds, checked === true)
+                                }
+                              />
+                            </TableCell>
+                          )}
+                          <TableHead
+                            scope="rowgroup"
+                            colSpan={columnCount - (showPullSheet ? 1 : 0)}
+                            className="text-sm font-medium text-foreground"
+                          >
+                            <OrderRefLabel
+                              orderRef={group.orderRef}
+                              binNumber={group.binNumber}
                             />
-                            <div className="min-w-0">
-                              <p className="truncate text-sm">
-                                {t("orders.printing", {
-                                  setName: entry.card.setName,
-                                  set: entry.card.set.toUpperCase(),
-                                  number: entry.card.collectorNumber,
-                                })}
-                                {entry.isFoil && (
+                            <span className="ml-1.5 text-xs font-normal text-foreground/70 tabular-nums">
+                              {isOpen
+                                ? t("orders.orderPickedCount", {
+                                    picked: groupPickedCount,
+                                    quantity: group.quantity,
+                                  })
+                                : t("orders.orderCardCount", {
+                                    count: group.quantity,
+                                  })}
+                            </span>
+                          </TableHead>
+                        </TableRow>
+                      )}
+                      {group.lineIndexes.map((index) => {
+                        const line = order.lines[index];
+                        const copies = copiesByLine.get(index) ?? [];
+                        const copyIds = copies.map((entry) => entry.scanId);
+                        const pickedCopyCount = copyIds.filter((id) =>
+                          pickedSet.has(id),
+                        ).length;
+                        return (
+                          <Fragment key={index}>
+                            <TableRow>
+                              {showPullSheet && (
+                                <TableCell>
+                                  <Checkbox
+                                    checked={
+                                      copyIds.length > 0 &&
+                                      pickedCopyCount === copyIds.length
+                                    }
+                                    indeterminate={
+                                      pickedCopyCount > 0 &&
+                                      pickedCopyCount < copyIds.length
+                                    }
+                                    disabled={!canAct || copyIds.length === 0}
+                                    aria-label={t("orders.pickLine", {
+                                      name: line.name,
+                                    })}
+                                    onCheckedChange={(checked) =>
+                                      setPicked([
+                                        ...picked.filter(
+                                          (id) => !copyIds.includes(id),
+                                        ),
+                                        ...(checked === true ? copyIds : []),
+                                      ])
+                                    }
+                                  />
+                                </TableCell>
+                              )}
+                              <TableCell className="max-w-72 truncate font-medium">
+                                {orderLineLabel(line)}
+                                {line.isFoil && (
                                   <span className="ml-1.5 text-xs text-foreground/70">
                                     {t("table.foil")}
                                   </span>
                                 )}
-                              </p>
-                              <p className="truncate text-xs text-foreground/70">
-                                {entry.locationName
-                                  ? t("orders.locationAt", {
-                                      location: entry.locationName,
-                                      position: (entry.locationPosition ?? 0) + 1,
-                                    })
-                                  : t("orders.inCollection", {
-                                      collection: entry.collectionName,
-                                      bin: entry.binNumber ?? "-",
-                                    })}
-                              </p>
-                            </div>
-                          </div>
-                        </TableCell>
-                        <TableCell>{entry.condition}</TableCell>
-                        <TableCell colSpan={3} />
-                        {canAct && (
-                          <TableCell className="py-0 text-right">
-                            <DropdownMenu>
-                              <DropdownMenuTrigger
-                                render={
-                                  <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    aria-label={t("orders.copyActions", {
-                                      name: entry.card.name,
-                                    })}
-                                    title={t("orders.copyActions", {
-                                      name: entry.card.name,
-                                    })}
-                                  />
-                                }
+                              </TableCell>
+                              <TableCell>{line.condition ?? "-"}</TableCell>
+                              <TableCell className="text-right tabular-nums">
+                                {isOpen
+                                  ? `${pickedCopyCount}/${line.quantity}`
+                                  : line.quantity}
+                                {isOpen &&
+                                  line.allocations.length < line.quantity && (
+                                    <span className="block text-xs text-warning-strong">
+                                      {t("orders.inStockCount", {
+                                        count: line.allocations.length,
+                                      })}
+                                    </span>
+                                  )}
+                              </TableCell>
+                              <TableCell className="text-right tabular-nums">
+                                {line.unitPrice == null
+                                  ? "-"
+                                  : format(line.unitPrice)}
+                              </TableCell>
+                              <TableCell className="text-foreground/70">
+                                {line.orderRef ?? "-"}
+                              </TableCell>
+                              {canAct && (
+                                <TableCell className="py-0 text-right">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger
+                                      render={
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          aria-label={t("orders.lineActions", {
+                                            name: line.name,
+                                          })}
+                                          title={t("orders.lineActions", {
+                                            name: line.name,
+                                          })}
+                                        />
+                                      }
+                                    >
+                                      <IconDots />
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem
+                                        variant="destructive"
+                                        onClick={() =>
+                                          setRemoveLineIndex(index)
+                                        }
+                                      >
+                                        <IconTrash />
+                                        {t("orders.removeFromPick")}
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </TableCell>
+                              )}
+                            </TableRow>
+                            {copies.map((entry) => (
+                              <TableRow
+                                key={entry.scanId}
+                                className="bg-muted/40"
                               >
-                                <IconDots />
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end">
-                                <DropdownMenuItem
-                                  variant="destructive"
-                                  disabled={pending}
-                                  onClick={() =>
-                                    void removeCopy(index, entry.scanId)
-                                  }
-                                >
-                                  <IconTrash />
-                                  {t("orders.removeCopy")}
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </TableCell>
-                        )}
-                      </TableRow>
-                    ))}
-                  </Fragment>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                                <TableCell>
+                                  <Checkbox
+                                    checked={pickedSet.has(entry.scanId)}
+                                    disabled={!canAct}
+                                    aria-label={t("orders.pickCopy", {
+                                      name: entry.card.name,
+                                    })}
+                                    onCheckedChange={(checked) =>
+                                      togglePick(entry.scanId, checked === true)
+                                    }
+                                  />
+                                </TableCell>
+                                <TableCell className="max-w-80 pl-6">
+                                  <div className="flex items-center gap-2.5">
+                                    <CardThumbnail
+                                      image={entry.card.image}
+                                      className="w-10"
+                                    />
+                                    <div className="min-w-0">
+                                      <p className="truncate text-sm">
+                                        {t("orders.printing", {
+                                          setName: entry.card.setName,
+                                          set: entry.card.set.toUpperCase(),
+                                          number: entry.card.collectorNumber,
+                                        })}
+                                        {entry.isFoil && (
+                                          <span className="ml-1.5 text-xs text-foreground/70">
+                                            {t("table.foil")}
+                                          </span>
+                                        )}
+                                      </p>
+                                      <p className="truncate text-xs text-foreground/70">
+                                        {entry.locationName
+                                          ? t("orders.locationAt", {
+                                              location: entry.locationName,
+                                              position:
+                                                (entry.locationPosition ?? 0) +
+                                                1,
+                                            })
+                                          : t("orders.inCollection", {
+                                              collection: entry.collectionName,
+                                              bin: entry.binNumber ?? "-",
+                                            })}
+                                      </p>
+                                    </div>
+                                  </div>
+                                </TableCell>
+                                <TableCell>{entry.condition}</TableCell>
+                                <TableCell colSpan={3} />
+                                {canAct && (
+                                  <TableCell className="py-0 text-right">
+                                    <DropdownMenu>
+                                      <DropdownMenuTrigger
+                                        render={
+                                          <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            aria-label={t(
+                                              "orders.copyActions",
+                                              {
+                                                name: entry.card.name,
+                                              },
+                                            )}
+                                            title={t("orders.copyActions", {
+                                              name: entry.card.name,
+                                            })}
+                                          />
+                                        }
+                                      >
+                                        <IconDots />
+                                      </DropdownMenuTrigger>
+                                      <DropdownMenuContent align="end">
+                                        <DropdownMenuItem
+                                          variant="destructive"
+                                          disabled={pending}
+                                          onClick={() =>
+                                            void removeCopy(index, entry.scanId)
+                                          }
+                                        >
+                                          <IconTrash />
+                                          {t("orders.removeCopy")}
+                                        </DropdownMenuItem>
+                                      </DropdownMenuContent>
+                                    </DropdownMenu>
+                                  </TableCell>
+                                )}
+                              </TableRow>
+                            ))}
+                          </Fragment>
+                        );
+                      })}
+                    </Fragment>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        )}
       </section>
 
       {canAct && (
@@ -545,6 +738,21 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
             order={order}
             open={editOpen}
             onOpenChange={setEditOpen}
+          />
+          <OrderBinsDialog
+            order={order}
+            open={orderBinsOpen}
+            onOpenChange={setOrderBinsOpen}
+          />
+          <ConfirmDialog
+            open={sortPresetOpen}
+            onOpenChange={setSortPresetOpen}
+            title={t("orders.sortPresetTitle")}
+            description={t("orders.sortPresetDescription")}
+            confirmLabel={t("orders.createSortPreset")}
+            cancelLabel={t("actions.back")}
+            isPending={pending}
+            onConfirm={createSortPreset}
           />
           <ConfirmDialog
             open={lastCopyName != null}
@@ -560,7 +768,9 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
             destructive
             isPending={pending}
             onConfirm={async () => {
-              if (await act(() => cancelOrder(order.guid), t("orders.cancelled"))) {
+              if (
+                await act(() => cancelOrder(order.guid), t("orders.cancelled"))
+              ) {
                 setLastCopyName(null);
                 form.reset(EMPTY_PICKS);
               }
@@ -590,7 +800,10 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
             onConfirm={async () => {
               if (removeLineIndex == null) return;
               const result = isLastLine
-                ? await act(() => cancelOrder(order.guid), t("orders.cancelled"))
+                ? await act(
+                    () => cancelOrder(order.guid),
+                    t("orders.cancelled"),
+                  )
                 : await act(
                     () =>
                       updateOrder(order.guid, {

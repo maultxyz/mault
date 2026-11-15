@@ -2,11 +2,16 @@ import type {
   BusinessBadgeVariant,
   BusinessStatus,
 } from "@/lib/interfaces/business";
-import type { OrderPicksFormValues } from "@/schemas/business.schema";
+import type {
+  OrderPicksFormValues,
+  PickImportFormValues,
+} from "@/schemas/business.schema";
+import type { CsvImportField } from "@magic-vault/shared";
 
 export const ORDERS_PATH = "/app/orders";
 export const INTAKE_PATH = `${ORDERS_PATH}/intake`;
 export const PICKS_PATH = `${ORDERS_PATH}/pick`;
+export const PICK_IMPORT_PATH = `${PICKS_PATH}/new`;
 export const LEGACY_INTAKE_PATH = "/app/intake";
 export const LEGACY_PICKS_VIEW_PARAM = "view";
 export const LEGACY_PICKS_VIEW = "picks";
@@ -45,7 +50,38 @@ export const ORDER_PULL_SHEET_HEADERS = [
   "Number",
   "Condition",
   "Foil",
+  "Order",
+  "Order bin",
 ] as const;
+
+export const ORDER_DETAIL_VIEWS = ["location", "order"] as const;
+
+export const PICK_IMPORT_STEPS = ["source", "columns", "review"] as const;
+export const PICK_IMPORT_CREATE_MODES = ["together", "separate"] as const;
+export const PICK_IMPORT_COMPOSITIONS = [
+  "reference",
+  "master-detail",
+  "single",
+] as const;
+export const PICK_IMPORT_FIELDS = [
+  "name",
+  "quantity",
+  "orderRef",
+  "setCode",
+  "setName",
+  "collectorNumber",
+  "condition",
+  "foil",
+  "language",
+  "unitPrice",
+] as const satisfies readonly CsvImportField[];
+export const PICK_IMPORT_NO_COLUMN = "none";
+export const PICK_IMPORT_DEFAULT_VALUES: PickImportFormValues = {
+  text: "",
+  createMode: "together",
+  pickName: "",
+  orderNames: [],
+};
 
 export const SERVICE_INTERVAL_PRESETS = [2000, 5000, 10000] as const;
 export const BUYLIST_PREVIEW_PRICES = [0.25, 2, 10, 50] as const;

@@ -5,6 +5,7 @@ import {
   type BinConfig,
   type BinRuleGroup,
   type BinSet,
+  type DefaultBinInit,
   type FieldMeta,
   type RepackSlot,
   REPACK_UNIQUE_BY_PRINTING,
@@ -139,6 +140,34 @@ export function fromLegacyCatchAllRules(config: {
   return legacy == null
     ? { rules: config.rules, lowMatchPercent: null }
     : { rules: { ...config.rules, conditions: [] }, lowMatchPercent: legacy };
+}
+
+export function binInsertValues(
+  b: DefaultBinInit,
+  binSetId: number,
+  orgId: string,
+) {
+  const { rules, lowMatchPercent } = fromLegacyCatchAllRules(b);
+  const maxCopies = toMaxCopies(b.maxCopies, b.isCatchAll);
+  return {
+    binNumber: b.binNumber,
+    rules,
+    isCatchAll: b.isCatchAll,
+    isOverride: !b.isCatchAll && b.isOverride === true,
+    overridePriority: toOverridePriority(
+      b.overridePriority,
+      b.isCatchAll,
+      b.isOverride,
+    ),
+    lowMatchPercent: toLowMatchPercent(lowMatchPercent, b.isCatchAll),
+    maxCopies,
+    maxCopiesBy: toMaxCopiesBy(b.maxCopiesBy, b.isCatchAll, maxCopies),
+    maxCards: toMaxCards(b.maxCards),
+    overflowBin: toOverflowBin(b.overflowBin, b.binNumber),
+    isDisabled: toIsDisabled(b.isDisabled, b.isCatchAll),
+    binSet: binSetId,
+    orgId,
+  };
 }
 
 export function emptyRules(): BinRuleGroup {

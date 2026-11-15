@@ -8,20 +8,13 @@ import { bins, binSets } from "../../db/schema";
 import { deactivatePresetWorkflows } from "../../lib/preset-workflows";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
+  binInsertValues,
   binSetNameTaken,
   emptyRules,
   getModuleCount,
   loadSets,
   resolveGameId,
-  fromLegacyCatchAllRules,
-  toIsDisabled,
-  toLowMatchPercent,
-  toMaxCards,
-  toMaxCopies,
-  toMaxCopiesBy,
-  toOverflowBin,
   normalizeOverflowBins,
-  toOverridePriority,
   activeBinSetWhere,
 } from "./shared";
 
@@ -74,32 +67,7 @@ export const addBinSetRoute = new Hono<AppEnv>().post(
             }),
           );
       await tx.insert(bins).values(
-        binsToInsert.map((b) => {
-          const { rules, lowMatchPercent } = fromLegacyCatchAllRules(b);
-          return {
-            binNumber: b.binNumber,
-            rules,
-            isCatchAll: b.isCatchAll,
-            isOverride: !b.isCatchAll && b.isOverride === true,
-            overridePriority: toOverridePriority(
-              b.overridePriority,
-              b.isCatchAll,
-              b.isOverride,
-            ),
-            lowMatchPercent: toLowMatchPercent(lowMatchPercent, b.isCatchAll),
-            maxCopies: toMaxCopies(b.maxCopies, b.isCatchAll),
-            maxCopiesBy: toMaxCopiesBy(
-              b.maxCopiesBy,
-              b.isCatchAll,
-              toMaxCopies(b.maxCopies, b.isCatchAll),
-            ),
-            maxCards: toMaxCards(b.maxCards),
-            overflowBin: toOverflowBin(b.overflowBin, b.binNumber),
-            isDisabled: toIsDisabled(b.isDisabled, b.isCatchAll),
-            binSet: newBinSet.id,
-            orgId,
-          };
-        }),
+        binsToInsert.map((b) => binInsertValues(b, newBinSet.id, orgId)),
       );
       await normalizeOverflowBins(tx, newBinSet.id);
       return loadSets(tx, orgId);

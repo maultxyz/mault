@@ -8,17 +8,9 @@
     "decklist_other": "Read as a list: {{count}} unique cards.",
     "unrecognized": "No table detected. Paste CSV text with headers or a decklist."
   },
-  "composition": {
-    "label": "Rows form orders by",
-    "reference": "Reference column",
-    "masterdetail": "Master rows then item rows",
-    "single": "Single order"
-  },
   "column": {
     "assign": "Assign column {{column}}",
     "ignore": "Ignore",
-    "orderFields": "Order fields",
-    "itemFields": "Item fields",
     "required": "required"
   },
   "fields": {
@@ -47,22 +39,18 @@
     "missingFields": "Required fields without a column: {{fields}}"
   },
   "orders": {
-    "title": "Orders",
-    "empty": "No orders yet. Map the card name column first.",
-    "referencePlaceholder": "Order name",
-    "referenceLabel": "Name of order {{index}}",
     "lineCount_one": "{{count}} line",
     "lineCount_other": "{{count}} lines",
     "quantity_one": "{{count}} card",
     "quantity_other": "{{count}} cards",
-    "revenue": "Value {{value}}",
     "skippedRows_one": "{{count}} row skipped",
     "skippedRows_other": "{{count}} rows skipped",
     "emptyOrders_one": "{{count}} order without items dropped",
     "emptyOrders_other": "{{count}} orders without items dropped",
     "conflicts_one": "{{count}} conflicting value kept first",
     "conflicts_other": "{{count}} conflicting values kept first",
-    "nameLabel": "Order name"
+    "pickNamePlaceholder_one": "{{count}} order",
+    "pickNamePlaceholder_other": "{{count}} orders"
   },
   "picks": {
     "entries_one": "{{count}} unique card",
@@ -79,6 +67,111 @@
     "builtin": {
       "shopify": "Shopify (built-in)",
       "tcgplayer": "TCGplayer (built-in)"
+    }
+  },
+  "pickImport": {
+    "description": "Turn a TCGplayer or Shopify export, any CSV with a card name column, or a plain card list into a pick.",
+    "back": "Back to picks",
+    "stepsLabel": "Import steps",
+    "stepDone": "(done)",
+    "steps": {
+      "source": "Add cards",
+      "columns": "Match columns",
+      "review": "Review"
+    },
+    "stepHeading": "Step {{current}} of {{total}}: {{title}}",
+    "headings": {
+      "source": "Add the cards to pull",
+      "columns": "Match your columns",
+      "review": "Review and create"
+    },
+    "intros": {
+      "source": "Upload a file or paste its contents. A plain list like \"4 Lightning Bolt\" works too.",
+      "columns": "Choose which column holds each detail. Only the card name is required; leave anything your file doesn't have as \"Not in this file\".",
+      "review": "Check how the rows become orders, then create the pick."
+    },
+    "noAccess": "Your role can't create picks. Ask an owner or admin to allow it in Settings > Business.",
+    "source": {
+      "dropTitle": "Drop a CSV file here",
+      "dropHint": "or click to choose a file",
+      "pasteLabel": "Or paste the contents",
+      "pastePlaceholder": "Order #,Product Name,Quantity\n1001,Sol Ring,1\n\nor\n\n4 Lightning Bolt\n1 Sol Ring",
+      "formats": {
+        "tcgplayer": "TCGplayer export",
+        "shopify": "Shopify export",
+        "generic": "CSV file"
+      },
+      "savedLayout": "Saved layout \"{{name}}\" applied",
+      "rowCount_one": "{{count}} row",
+      "rowCount_other": "{{count}} rows",
+      "columnCount_one": "{{count}} column",
+      "columnCount_other": "{{count}} columns"
+    },
+    "columns": {
+      "layout": "Column layout",
+      "layoutHint": "A saved layout is picked automatically when a file has the same columns.",
+      "automatic": "Automatic",
+      "required": "Required",
+      "notInFile": "Not in this file",
+      "columnNumber": "Column {{index}}",
+      "samples": "For example: {{values}}",
+      "noSamples": "This column is empty",
+      "saveLayout": "Save this layout",
+      "saveLayoutHint": "Files with the same columns will use these choices automatically next time.",
+      "layoutName": "Layout name",
+      "layoutNamePlaceholder": "e.g. Cardmarket orders",
+      "save": "Save layout",
+      "preview_one": "File preview (first {{count}} row)",
+      "preview_other": "File preview (first {{count}} rows)"
+    },
+    "fieldHints": {
+      "name": "The card to pull. Variant text like \"- Foil\" is read too.",
+      "quantity": "How many copies. Each row counts as 1 without it.",
+      "orderRef": "Order number or name. Rows with the same value form one order.",
+      "setCode": "Short set code, such as MH3. Narrows which printing is pulled.",
+      "setName": "Full set name. Used when there is no set code.",
+      "collectorNumber": "Collector number of the printing.",
+      "condition": "NM, LP, MP, HP or DMG, or words like Near Mint.",
+      "foil": "Foil or non-foil. Yes/No, Foil/Normal and similar all work.",
+      "language": "Card language, such as English or EN.",
+      "unitPrice": "Sale price per card, used for revenue."
+    },
+    "review": {
+      "split": {
+        "legend": "How are the rows split into orders?",
+        "reference": "One order per order reference",
+        "referenceWithColumn": "One order per value in \"{{column}}\"",
+        "referenceHint": "Rows with the same order number go together.",
+        "referenceDisabled": "Match the order reference column in the previous step to use this.",
+        "masterdetail": "Header rows start each order",
+        "masterdetailHint": "A row with order details but no card starts a new order, and the card rows below it belong to it.",
+        "single": "The whole file is one order",
+        "singleHint": "Every row goes into a single order."
+      },
+      "create": {
+        "legend": "What should be created?",
+        "together": "One pick for all orders",
+        "togetherHint": "Recommended. Pull every card once by location, then sort them into orders.",
+        "separate": "One pick per order",
+        "separateHint": "Each order gets its own pick and pull sheet."
+      },
+      "pickName": "Pick name",
+      "orders_one": "{{count}} order",
+      "orders_other": "{{count}} orders",
+      "ordersHint": "Renaming an order changes its order reference on the pick.",
+      "orderName": "Name of order {{name}}",
+      "noOrder": "No order",
+      "showCards": "Show cards",
+      "cards_one": "{{count}} card",
+      "cards_other": "{{count}} cards",
+      "created_one": "Pick created",
+      "created_other": "{{count}} picks created"
+    },
+    "actions": {
+      "back": "Back",
+      "next": "Next",
+      "create_one": "Create pick",
+      "create_other": "Create {{count}} picks"
     }
   }
 }
