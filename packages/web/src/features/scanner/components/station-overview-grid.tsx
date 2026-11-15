@@ -206,7 +206,6 @@ export function StationOverviewGrid({
               </Button>
               <Button
                 variant="destructive"
-                className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
                 disabled={
                   selectedOffline.length === 0 || deleteDevices.isPending
                 }

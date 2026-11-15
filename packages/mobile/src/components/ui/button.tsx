@@ -27,7 +27,7 @@ export function Button({
   const appearance = {
     primary: { MaterialComponent: MaterialButton, container: colors.primary, content: colors.primaryForeground },
     secondary: { MaterialComponent: FilledTonalButton, container: colors.tonal, content: colors.foreground },
-    destructive: { MaterialComponent: FilledTonalButton, container: colors.destructiveTint, content: colors.destructiveForeground },
+    destructive: { MaterialComponent: MaterialButton, container: colors.destructive, content: colors.onDestructive },
     ghost: { MaterialComponent: TextButton, container: "transparent", content: colors.foreground },
   }[variant];
   const { MaterialComponent } = appearance;
