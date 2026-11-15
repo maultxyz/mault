@@ -247,6 +247,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 - `/business` routes go through `businessQuery`; permission failures return 200 with `success: false`, never 403.
 - Every path that inserts `collection_cards` stamps `intake_lot_id` via `findOpenIntakeLotId`. Cards in open or cancelled lots aren't inventory (count only `intake_lot_id IS NULL OR status = 'accepted'`, `inventoryCardSql`).
 - Write costs through `updateAcquisitionCosts`; sums only include the org's current currency. Fulfilling an order hard-deletes its cards and writes permanent `card_sales`.
+- Price labels (Buy & sell > Labels, web only; the Expo app has no Buy & sell) read `GET /business/price-labels/cards` (collection, location or intake lot, priced on the server through `cardPriceFor`, capped at `PRICE_LABEL_CARDS_MAX`) and apply markup and rounding through shared `priceLabelPrice`; custom prices live only in the print form, never saved. Avery templates and sheet layout (`components/label-sheet`, `lib/label-sheet.ts`) are shared with storage labels.
 - Sorter alerts go through `raiseDeviceAlert`. Audit-worthy mutations call `logActivity(tx, ...)` in the same transaction; a new action needs `ACTIVITY_ACTIONS`, `ACTIVITY_ACTION_KEYS` and translations.
 
 ### Pi scanning

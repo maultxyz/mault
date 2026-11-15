@@ -61,6 +61,7 @@ import {
   ORDERS_PATH,
   PICK_IMPORT_PATH,
   PICKS_PATH,
+  PRICE_LABELS_PATH,
   picksPath,
   LEGACY_REPORTS_PATH,
 } from "@/lib/constants/business";
@@ -221,6 +222,7 @@ const StorageLabelsPage = lazy(
 const StatsPage = lazy(() => import("@/app/routes/app/stats"));
 const IntakePage = lazy(() => import("@/app/routes/app/intake"));
 const PicksPage = lazy(() => import("@/app/routes/app/picks"));
+const PriceLabelsPage = lazy(() => import("@/app/routes/app/price-labels"));
 const PickImportPage = lazy(
   withNamespaces(
     () => import("@/app/routes/app/pick-import"),
@@ -662,6 +664,10 @@ export const routes: RouteObject[] = [
               {
                 path: PICK_IMPORT_PATH,
                 element: <PickImportPage />,
+              },
+              {
+                path: PRICE_LABELS_PATH,
+                element: <PriceLabelsPage />,
               },
               {
                 path: LEGACY_INTAKE_PATH,

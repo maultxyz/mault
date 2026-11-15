@@ -91,7 +91,8 @@
   "views": {
     "label": "Vue achat et vente",
     "intake": "Rachat",
-    "picks": "Préparations"
+    "picks": "Préparations",
+    "labels": "Étiquettes"
   },
   "offerEditor": {
     "title": "Offre pour {{name}}",
@@ -594,5 +595,64 @@
     "isPublicDescription": "Tout le monde peut ouvrir ce catalogue depuis son adresse simple, sans le lien privé. Désactivez pour exiger le lien privé.",
     "publicBadge": "Public",
     "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé."
+  },
+  "priceLabels": {
+    "title": "Étiquettes de prix",
+    "description": "Imprimez des étiquettes de prix pour les cartes d'une collection, d'un emplacement de rangement ou d'un rachat.",
+    "printForLot": "Imprimer les étiquettes de prix",
+    "form": {
+      "title": "Étiquettes",
+      "description": "Choisissez les cartes, leur prix et la planche Avery sur laquelle vous imprimez.",
+      "source": "Cartes de",
+      "markup": "Majoration (%)",
+      "markupHint": "Ajoutée au prix du marché. Utilisez un nombre négatif pour une remise.",
+      "rounding": "Arrondir les prix"
+    },
+    "sources": {
+      "collection": "Collection",
+      "location": "Emplacement de rangement",
+      "lot": "Rachat"
+    },
+    "sourceItems": {
+      "collection": "Collection",
+      "location": "Emplacement de rangement",
+      "lot": "Rachat"
+    },
+    "sourcePlaceholders": {
+      "collection": "Choisissez une collection",
+      "location": "Choisissez un emplacement",
+      "lot": "Choisissez un rachat"
+    },
+    "rounding": {
+      "none": "Ne pas arrondir",
+      "quarter": "Au 0,25 supérieur",
+      "ninetyNine": "Au ,99 supérieur",
+      "whole": "Au montant entier supérieur"
+    },
+    "cards": {
+      "selected_one": "{{count}} carte sur {{total}} sélectionnée",
+      "selected_other": "{{count}} cartes sur {{total}} sélectionnées",
+      "selectAll": "Tout sélectionner",
+      "selectNone": "Tout désélectionner",
+      "include": "Imprimer l'étiquette",
+      "card": "Carte",
+      "market": "Marché",
+      "customPrice": "Prix personnalisé",
+      "customPriceFor": "Prix personnalisé pour {{name}}",
+      "labelPrice": "Prix de l'étiquette",
+      "noPrice": "Aucun prix",
+      "truncated": "Affichage des {{shown}} premières cartes sur {{total}}. Imprimez les étiquettes des autres depuis un emplacement de rangement ou un rachat."
+    },
+    "empty": {
+      "pickSourceTitle": "Choisissez d'où viennent les cartes",
+      "pickSourceDescription": "Choisissez une collection, un emplacement de rangement ou un rachat pour lister ses cartes.",
+      "noCardsTitle": "Aucune carte ici",
+      "noCardsDescription": "Scannez ou ajoutez d'abord des cartes, puis imprimez leurs étiquettes.",
+      "noneSelectedTitle": "Aucune carte sélectionnée",
+      "noneSelectedDescription": "Sélectionnez au moins une carte pour prévisualiser son étiquette."
+    },
+    "sheet": {
+      "pageDescription": "Planche d'étiquettes de prix, page {{page}} : {{labels}}"
+    }
   }
 }

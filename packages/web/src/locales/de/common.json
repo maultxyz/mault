@@ -598,5 +598,17 @@
         "declined": "Abgelehnt"
       }
     }
+  },
+  "labelSheets": {
+    "template": "Bogen",
+    "startPosition": "Bei Etikett beginnen",
+    "startPositionHint": "Überspringe Etiketten, die auf einem angebrochenen Bogen schon verwendet wurden. Gezählt wird von links nach rechts, von oben nach unten.",
+    "print": "Drucken",
+    "printTip": "Drucke mit 100 % Skalierung (tatsächliche Größe) und ohne Ränder, damit die Etiketten auf den Etikettenbogen passen.",
+    "templates": {
+      "avery-5160": "Avery 5160 (30 pro Bogen, 2,625 x 1 Zoll)",
+      "avery-5163": "Avery 5163 (10 pro Bogen, 4 x 2 Zoll)",
+      "avery-5164": "Avery 5164 (6 pro Bogen, 4 x 3,33 Zoll)"
+    }
   }
 }

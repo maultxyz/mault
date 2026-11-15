@@ -18,10 +18,10 @@ import {
   STORAGE_PATH,
 } from "@/lib/constants/storage";
 import {
-  STORAGE_LABEL_DEFAULT_VALUES,
-  STORAGE_LABEL_PRINT_PAGE_STYLE,
-  STORAGE_LABEL_TEMPLATES,
-} from "@/lib/constants/storage-labels";
+  LABEL_SHEET_PRINT_PAGE_STYLE,
+  LABEL_SHEET_TEMPLATES,
+} from "@/lib/constants/label-sheets";
+import { STORAGE_LABEL_DEFAULT_VALUES } from "@/lib/constants/storage-labels";
 import type { StorageLabelsViewProps } from "@/lib/interfaces/storage-labels";
 import { cn } from "@/lib/utils";
 import {
@@ -39,6 +39,7 @@ import { useSearchParams } from "react-router-dom";
 
 function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
   const { t } = useTranslation("storage");
+  const { t: tCommon } = useTranslation("common");
   const isMobile = useIsMobile();
   const [searchParams] = useSearchParams();
   const { data: locations = [], isPending } = useQuery(storageLocationsQueryOptions(orgId));
@@ -63,7 +64,7 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
   });
   const selectedGuids = new Set(locationGuids);
   const selectedLocations = locations.filter((location) => selectedGuids.has(location.guid));
-  const template = STORAGE_LABEL_TEMPLATES[templateId];
+  const template = LABEL_SHEET_TEMPLATES[templateId];
   const canPrint = selectedLocations.length > 0 && form.formState.isValid;
   const sheet = (
     <StorageLabelSheet
@@ -76,13 +77,13 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
   const printButton = (
     <Button disabled={!canPrint} onClick={() => window.print()}>
       <IconPrinter />
-      {t("labels.page.print")}
+      {tCommon("labelSheets.print")}
     </Button>
   );
 
   return (
     <div className={cn("min-h-0 flex-1 overflow-y-auto text-foreground", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
-      <style>{STORAGE_LABEL_PRINT_PAGE_STYLE}</style>
+      <style>{LABEL_SHEET_PRINT_PAGE_STYLE}</style>
       {isMobile ? (
         <MobilePageHeader
           title={t("labels.page.title")}
@@ -111,7 +112,7 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
           <EmptyState icon={IconBox} title={t("page.emptyTitle")} description={t("page.emptyDescription")} />
         ) : (
           <>
-            <Callout icon={IconInfoCircle}>{t("labels.page.printTip")}</Callout>
+            <Callout icon={IconInfoCircle}>{tCommon("labelSheets.printTip")}</Callout>
             <StorageLabelOptionsForm form={form} locations={locations} />
             {selectedLocations.length > 0 ? (
               sheet

@@ -243,3 +243,6 @@ export * from "./owned-card-search";
 export * from "./constants/global-search.constant";
 export * from "./interfaces/global-search.interface";
 export * from "./global-search";
+export * from "./price-labels";
+export * from "./interfaces/price-labels.interface";
+export * from "./constants/price-labels.constant";

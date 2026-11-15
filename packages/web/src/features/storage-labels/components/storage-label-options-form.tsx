@@ -1,3 +1,4 @@
+import { LabelSheetOptionFields } from "@/components/label-sheet-option-fields";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -7,23 +8,18 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { STORAGE_LABEL_TEMPLATE_IDS } from "@/lib/constants/storage-labels";
+import { Field, FieldLabel } from "@/components/ui/field";
 import type { StorageLabelOptionsFormProps } from "@/lib/interfaces/storage-labels";
-import type { StorageLabelTemplateId } from "@/lib/interfaces/storage-labels";
-import { Controller } from "react-hook-form";
+import { Controller, useController } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 export function StorageLabelOptionsForm({ form, locations }: StorageLabelOptionsFormProps) {
   const { t } = useTranslation("storage");
+  const { field: templateField } = useController({ control: form.control, name: "templateId" });
+  const { field: startPositionField, fieldState: startPositionState } = useController({
+    control: form.control,
+    name: "startPosition",
+  });
   return (
     <Card>
       <CardHeader>
@@ -32,59 +28,12 @@ export function StorageLabelOptionsForm({ form, locations }: StorageLabelOptions
       </CardHeader>
       <CardContent className="flex flex-col gap-4 md:gap-2">
         <div className="grid gap-3 md:gap-2 sm:grid-cols-2">
-          <Controller
-            name="templateId"
-            control={form.control}
-            render={({ field }) => (
-              <Field>
-                <FieldLabel htmlFor="storage-label-template">{t("labels.form.template")}</FieldLabel>
-                <Select
-                  value={field.value}
-                  onValueChange={(value) => {
-                    if (value) field.onChange(value as StorageLabelTemplateId);
-                  }}
-                >
-                  <SelectTrigger id="storage-label-template" className="w-full">
-                    <SelectValue>{t(`labels.templates.${field.value}`)}</SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {STORAGE_LABEL_TEMPLATE_IDS.map((templateId) => (
-                      <SelectItem key={templateId} value={templateId}>
-                        {t(`labels.templates.${templateId}`)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </Field>
-            )}
-          />
-          <Controller
-            name="startPosition"
-            control={form.control}
-            render={({ field, fieldState }) => (
-              <Field data-invalid={fieldState.invalid || undefined}>
-                <FieldLabel htmlFor="storage-label-start-position">
-                  {t("labels.form.startPosition")}
-                </FieldLabel>
-                <Input
-                  id="storage-label-start-position"
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  name={field.name}
-                  ref={field.ref}
-                  onBlur={field.onBlur}
-                  value={Number.isNaN(field.value) ? "" : field.value}
-                  onChange={(event) => field.onChange(event.target.valueAsNumber)}
-                  aria-invalid={fieldState.invalid}
-                  aria-describedby="storage-label-start-position-hint"
-                />
-                <p id="storage-label-start-position-hint" className="text-xs text-foreground/70">
-                  {t("labels.form.startPositionHint")}
-                </p>
-                {fieldState.invalid && <FieldError errors={[fieldState.error]} />}
-              </Field>
-            )}
+          <LabelSheetOptionFields
+            idPrefix="storage-label"
+            templateId={templateField.value}
+            onTemplateIdChange={templateField.onChange}
+            startPositionField={startPositionField}
+            startPositionError={startPositionState.error}
           />
         </div>
         <Controller

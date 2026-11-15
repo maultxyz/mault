@@ -91,7 +91,8 @@
   "views": {
     "label": "Ankauf- und Verkaufsansicht",
     "intake": "Ankauf",
-    "picks": "Picks"
+    "picks": "Picks",
+    "labels": "Etiketten"
   },
   "offerEditor": {
     "title": "Angebot für {{name}}",
@@ -594,5 +595,64 @@
     "isPublicDescription": "Jeder kann diesen Katalog über seine normale Adresse öffnen, ohne den privaten Link. Ausschalten, um den privaten Link zu verlangen.",
     "publicBadge": "Öffentlich",
     "publicLinkNote": "Dieser Katalog ist öffentlich, daher funktioniert dieser Link für alle. Schalte Öffentlich aus, um einen privaten Link zu verlangen."
+  },
+  "priceLabels": {
+    "title": "Preisetiketten",
+    "description": "Drucke Preisaufkleber für Karten aus einer Sammlung, einem Lagerort oder einem Ankauf.",
+    "printForLot": "Preisetiketten drucken",
+    "form": {
+      "title": "Etiketten",
+      "description": "Wähle die Karten, ihre Preisgestaltung und den Avery-Bogen, auf den du druckst.",
+      "source": "Karten aus",
+      "markup": "Aufschlag (%)",
+      "markupHint": "Wird auf den Marktpreis aufgeschlagen. Eine negative Zahl gibt einen Rabatt.",
+      "rounding": "Preise runden"
+    },
+    "sources": {
+      "collection": "Sammlung",
+      "location": "Lagerort",
+      "lot": "Ankauf"
+    },
+    "sourceItems": {
+      "collection": "Sammlung",
+      "location": "Lagerort",
+      "lot": "Ankauf"
+    },
+    "sourcePlaceholders": {
+      "collection": "Sammlung wählen",
+      "location": "Lagerort wählen",
+      "lot": "Ankauf wählen"
+    },
+    "rounding": {
+      "none": "Nicht runden",
+      "quarter": "Auf die nächsten 0,25 aufrunden",
+      "ninetyNine": "Auf die nächsten ,99 aufrunden",
+      "whole": "Auf den nächsten ganzen Betrag aufrunden"
+    },
+    "cards": {
+      "selected_one": "{{count}} von {{total}} Karte ausgewählt",
+      "selected_other": "{{count}} von {{total}} Karten ausgewählt",
+      "selectAll": "Alle auswählen",
+      "selectNone": "Keine auswählen",
+      "include": "Etikett drucken",
+      "card": "Karte",
+      "market": "Markt",
+      "customPrice": "Eigener Preis",
+      "customPriceFor": "Eigener Preis für {{name}}",
+      "labelPrice": "Etikettenpreis",
+      "noPrice": "Kein Preis",
+      "truncated": "Die ersten {{shown}} von {{total}} Karten werden angezeigt. Drucke die Etiketten für die übrigen über einen Lagerort oder Ankauf."
+    },
+    "empty": {
+      "pickSourceTitle": "Wähle, woher die Karten kommen",
+      "pickSourceDescription": "Wähle eine Sammlung, einen Lagerort oder einen Ankauf, um seine Karten aufzulisten.",
+      "noCardsTitle": "Hier sind keine Karten",
+      "noCardsDescription": "Scanne oder füge zuerst Karten hinzu und drucke dann ihre Etiketten.",
+      "noneSelectedTitle": "Keine Karten ausgewählt",
+      "noneSelectedDescription": "Wähle mindestens eine Karte, um ihr Etikett in der Vorschau zu sehen."
+    },
+    "sheet": {
+      "pageDescription": "Preisetikettenbogen Seite {{page}}: {{labels}}"
+    }
   }
 }

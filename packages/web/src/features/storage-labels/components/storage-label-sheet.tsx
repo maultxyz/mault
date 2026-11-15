@@ -1,8 +1,5 @@
-import {
-  layoutStorageLabelPages,
-  qrCodeModules,
-  storageLabelNameFontSize,
-} from "@/features/storage-labels/lib/storage-label-sheet";
+import { LabelSheet } from "@/components/label-sheet";
+import { qrCodeModules } from "@/features/storage-labels/lib/storage-label-sheet";
 import {
   STORAGE_LABEL_DETAIL_FONT_RATIO,
   STORAGE_LABEL_NAME_LINE_HEIGHT,
@@ -15,11 +12,12 @@ import type {
   StorageLabelProps,
   StorageLabelSheetProps,
 } from "@/lib/interfaces/storage-labels";
+import { fittedLabelFontSize } from "@/lib/label-sheet";
 import { buildStorageLabelUrl } from "@magic-vault/shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-function StorageLabel({ template, location, orgId, placement }: StorageLabelProps) {
+function StorageLabel({ template, location, orgId }: StorageLabelProps) {
   const { t } = useTranslation("storage");
   const qrCode = useMemo(
     () =>
@@ -36,14 +34,14 @@ function StorageLabel({ template, location, orgId, placement }: StorageLabelProp
   const qrModuleSpan = qrCode.moduleCount + STORAGE_LABEL_QR_QUIET_ZONE_MODULES * 2;
   const textLeft = padding + qrSize + STORAGE_LABEL_TEXT_GAP;
   const textWidth = template.labelWidth - textLeft - padding;
-  const nameFontSize = storageLabelNameFontSize(
+  const nameFontSize = fittedLabelFontSize(
     location.name,
     textWidth,
     Math.min(STORAGE_LABEL_NAME_MAX_FONT_SIZE, qrSize / 3),
     STORAGE_LABEL_NAME_MAX_LINES,
   );
   return (
-    <g transform={`translate(${placement.x} ${placement.y})`}>
+    <>
       <g
         transform={`translate(${padding} ${(template.labelHeight - qrSize) / 2}) scale(${qrSize / qrModuleSpan}) translate(${STORAGE_LABEL_QR_QUIET_ZONE_MODULES} ${STORAGE_LABEL_QR_QUIET_ZONE_MODULES})`}
       >
@@ -78,7 +76,7 @@ function StorageLabel({ template, location, orgId, placement }: StorageLabelProp
           </div>
         </div>
       </foreignObject>
-    </g>
+    </>
   );
 }
 
@@ -89,54 +87,21 @@ export function StorageLabelSheet({
   startPosition,
 }: StorageLabelSheetProps) {
   const { t } = useTranslation("storage");
-  const pages = layoutStorageLabelPages(template, locations.length, startPosition);
-  const slots = Array.from({ length: template.columns * template.rows }, (_, slot) => ({
-    slot,
-    x: template.marginLeft + (slot % template.columns) * template.horizontalPitch,
-    y: template.marginTop + Math.floor(slot / template.columns) * template.verticalPitch,
-  }));
   return (
-    <div className="flex flex-col gap-6 md:gap-2 print:block">
-      {pages.map((page) => (
-        <svg
-          key={page.pageNumber}
-          role="img"
-          aria-label={t("labels.sheet.pageDescription", {
-            page: page.pageNumber,
-            names: page.placements
-              .map((placement) => locations[placement.itemIndex].name)
-              .join(", "),
-          })}
-          viewBox={`0 0 ${template.pageWidth} ${template.pageHeight}`}
-          className="mx-auto block w-full max-w-[215.9mm] bg-white ring-1 ring-border print:h-[279.4mm] print:w-[215.9mm] print:max-w-none print:break-after-page print:ring-0 print:last:break-after-auto"
-        >
-          <g className="print:hidden">
-            {slots.map((slot) => (
-              <rect
-                key={slot.slot}
-                x={slot.x}
-                y={slot.y}
-                width={template.labelWidth}
-                height={template.labelHeight}
-                rx={1.5}
-                fill="none"
-                stroke="#a1a1aa"
-                strokeWidth={0.25}
-                strokeDasharray="1 1"
-              />
-            ))}
-          </g>
-          {page.placements.map((placement) => (
-            <StorageLabel
-              key={locations[placement.itemIndex].guid}
-              template={template}
-              location={locations[placement.itemIndex]}
-              orgId={orgId}
-              placement={placement}
-            />
-          ))}
-        </svg>
-      ))}
-    </div>
+    <LabelSheet
+      template={template}
+      itemCount={locations.length}
+      startPosition={startPosition}
+      itemKey={(itemIndex) => locations[itemIndex].guid}
+      renderLabel={(itemIndex) => (
+        <StorageLabel template={template} location={locations[itemIndex]} orgId={orgId} />
+      )}
+      describePage={(itemIndexes, pageNumber) =>
+        t("labels.sheet.pageDescription", {
+          page: pageNumber,
+          names: itemIndexes.map((itemIndex) => locations[itemIndex].name).join(", "),
+        })
+      }
+    />
   );
 }

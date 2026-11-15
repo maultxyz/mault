@@ -41,6 +41,8 @@ import type {
   OrderFulfilInput,
   OrderSortPresetResult,
   PagedList,
+  PriceLabelCardsResponse,
+  PriceLabelSource,
   Result,
   StaffReport,
   StatsRange,
@@ -112,6 +114,12 @@ export const businessKeys = {
     [...businessKeys.accuracyRoot(), "check", guid] as const,
   fleet: (orgId: string | undefined) =>
     [...businessKeys.root(), "fleet", orgId] as const,
+  priceLabelCards: (
+    orgId: string | undefined,
+    source: PriceLabelSource | null,
+    sourceGuid: string | null,
+  ) =>
+    [...businessKeys.root(), "price-labels", orgId, source, sourceGuid] as const,
 };
 
 const unwrap = <T>(result: Result<T>) => result.data ?? null;
@@ -453,3 +461,20 @@ export function setDeviceMaintenance(
 export function markDeviceServiced(guid: string) {
   return apiPost<Result<null>>(`/api/business/fleet/${guid}/serviced`);
 }
+
+export const priceLabelCardsQueryOptions = (
+  orgId: string | undefined,
+  source: PriceLabelSource | null,
+  sourceGuid: string | null,
+) =>
+  queryOptions({
+    queryKey: businessKeys.priceLabelCards(orgId, source, sourceGuid),
+    queryFn: () =>
+      apiGet<Result<PriceLabelCardsResponse>>(
+        `/api/business/price-labels/cards?${new URLSearchParams({
+          source: source ?? "",
+          guid: sourceGuid ?? "",
+        })}`,
+      ).then(unwrap),
+    enabled: !!orgId && !!source && !!sourceGuid,
+  });

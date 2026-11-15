@@ -91,7 +91,8 @@
   "views": {
     "label": "Buy and sell view",
     "intake": "Intake",
-    "picks": "Picks"
+    "picks": "Picks",
+    "labels": "Labels"
   },
   "offerEditor": {
     "title": "Offer for {{name}}",
@@ -594,5 +595,64 @@
     "isPublicDescription": "Anyone can open this catalog from its plain address, without the private link. Turn off to require the private link.",
     "publicBadge": "Public",
     "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link."
+  },
+  "priceLabels": {
+    "title": "Price labels",
+    "description": "Print price stickers for cards from a collection, storage location or intake lot.",
+    "printForLot": "Print price labels",
+    "form": {
+      "title": "Labels",
+      "description": "Pick the cards, how to price them and the Avery sheet you are printing on.",
+      "source": "Cards from",
+      "markup": "Markup (%)",
+      "markupHint": "Added to the market price. Use a negative number for a discount.",
+      "rounding": "Round prices"
+    },
+    "sources": {
+      "collection": "Collection",
+      "location": "Storage location",
+      "lot": "Intake lot"
+    },
+    "sourceItems": {
+      "collection": "Collection",
+      "location": "Storage location",
+      "lot": "Intake lot"
+    },
+    "sourcePlaceholders": {
+      "collection": "Choose a collection",
+      "location": "Choose a location",
+      "lot": "Choose an intake lot"
+    },
+    "rounding": {
+      "none": "Don't round",
+      "quarter": "Up to the next 0.25",
+      "ninetyNine": "Up to the next .99",
+      "whole": "Up to the next whole amount"
+    },
+    "cards": {
+      "selected_one": "{{count}} of {{total}} card selected",
+      "selected_other": "{{count}} of {{total}} cards selected",
+      "selectAll": "Select all",
+      "selectNone": "Select none",
+      "include": "Print label",
+      "card": "Card",
+      "market": "Market",
+      "customPrice": "Custom price",
+      "customPriceFor": "Custom price for {{name}}",
+      "labelPrice": "Label price",
+      "noPrice": "No price",
+      "truncated": "Showing the first {{shown}} of {{total}} cards. Print labels from a storage location or intake lot to label the rest."
+    },
+    "empty": {
+      "pickSourceTitle": "Choose where the cards come from",
+      "pickSourceDescription": "Pick a collection, storage location or intake lot to list its cards.",
+      "noCardsTitle": "No cards here",
+      "noCardsDescription": "Scan or add cards first, then print their labels.",
+      "noneSelectedTitle": "No cards selected",
+      "noneSelectedDescription": "Select at least one card to preview its label."
+    },
+    "sheet": {
+      "pageDescription": "Price label sheet page {{page}}: {{labels}}"
+    }
   }
 }

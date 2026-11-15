@@ -12,6 +12,7 @@ export const ORDERS_PATH = "/app/orders";
 export const INTAKE_PATH = `${ORDERS_PATH}/intake`;
 export const PICKS_PATH = `${ORDERS_PATH}/pick`;
 export const PICK_IMPORT_PATH = `${PICKS_PATH}/new`;
+export const PRICE_LABELS_PATH = `${ORDERS_PATH}/labels`;
 export const LEGACY_INTAKE_PATH = "/app/intake";
 export const LEGACY_PICKS_VIEW_PARAM = "view";
 export const LEGACY_PICKS_VIEW = "picks";
@@ -22,10 +23,16 @@ export const intakeReceiptPath = (guid: string, autoPrint = false) =>
 
 export const BUSINESS_INTAKE_VIEW = "intake";
 export const BUSINESS_PICKS_VIEW = "picks";
-export const BUSINESS_VIEWS = [BUSINESS_INTAKE_VIEW, BUSINESS_PICKS_VIEW] as const;
+export const BUSINESS_LABELS_VIEW = "labels";
+export const BUSINESS_VIEWS = [
+  BUSINESS_INTAKE_VIEW,
+  BUSINESS_PICKS_VIEW,
+  BUSINESS_LABELS_VIEW,
+] as const;
 export const BUSINESS_VIEW_PATHS = {
   [BUSINESS_INTAKE_VIEW]: INTAKE_PATH,
   [BUSINESS_PICKS_VIEW]: PICKS_PATH,
+  [BUSINESS_LABELS_VIEW]: PRICE_LABELS_PATH,
 } as const;
 export const picksPath = (orderGuid?: string | null) =>
   `${PICKS_PATH}${orderGuid ? `?${ORDER_PARAM}=${orderGuid}` : ""}`;
