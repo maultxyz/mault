@@ -26,7 +26,11 @@ import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import { STORAGE_PATH, STORAGE_PICK_LIST_PATH } from "@/lib/constants/storage";
-import { TRADE_OFFER_PATH, TRADES_PATH } from "@/lib/constants/trade-offers";
+import {
+  SENT_TRADE_OFFER_PATH,
+  TRADE_OFFER_PATH,
+  TRADES_PATH,
+} from "@/lib/constants/trade-offers";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { CATALOG_CARD_ROUTE_PATH, SEARCH_PATH } from "@/lib/constants/search";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
@@ -198,6 +202,7 @@ const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(() => import("@/app/routes/app/storage"));
 const TradesPage = lazy(() => import("@/app/routes/app/trades"));
 const TradeOfferRoutePage = lazy(() => import("@/app/routes/app/trade-offer"));
+const SentTradeOfferRoutePage = lazy(() => import("@/app/routes/app/sent-trade-offer"));
 const StoragePickListPage = lazy(
   () => import("@/app/routes/app/storage-pick-list"),
 );
@@ -607,6 +612,10 @@ export const routes: RouteObject[] = [
               {
                 path: TRADE_OFFER_PATH,
                 element: <TradeOfferRoutePage />,
+              },
+              {
+                path: SENT_TRADE_OFFER_PATH,
+                element: <SentTradeOfferRoutePage />,
               },
               {
                 path: STORAGE_PICK_LIST_PATH,

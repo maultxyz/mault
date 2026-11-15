@@ -643,6 +643,12 @@
     "conditionFor": "Condition of {{name}}",
     "yourOffers_one": "Your sent offers ({{count}})",
     "yourOffers_other": "Your sent offers ({{count}})",
-    "noPrice": "No price"
+    "noPrice": "No price",
+    "account": {
+      "logIn": "Log in",
+      "logInHint": "Log in to keep track of the offers you send. They show up under Trades > Sent in your account.",
+      "signedInAs": "Signed in as {{name}}.",
+      "signedInHint": "Offers you send show up under Trades > Sent in your account."
+    }
   }
 }

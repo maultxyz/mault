@@ -1,5 +1,6 @@
 import type {
   CardCondition,
+  OutgoingTradeOffer,
   PriceSource,
   PublicCard,
   TradeOffer,
@@ -10,8 +11,9 @@ import type {
   TradeOfferWantedPlacement,
   TradeOfferOfferedCard,
   TradeOfferWantedCard,
+  TradeOfferFormValues,
 } from "@magic-vault/shared";
-import type { TRADE_OFFER_SIDES } from "@/lib/constants/trade-offers";
+import type { TRADE_OFFER_SIDES, TRADES_BOXES } from "@/lib/constants/trade-offers";
 import type { TFunction } from "i18next";
 import type { ReactNode } from "react";
 
@@ -33,10 +35,32 @@ export interface TradeOfferContextValue {
   toggleWanted: (entry: PublicCard) => void;
   removeWanted: (scanId: string) => void;
   clearWanted: () => void;
+  replaceWanted: (entries: PublicCard[]) => void;
   openComposer: () => void;
 }
 
+export interface TradeOfferDraftSnapshot {
+  wanted: PublicCard[];
+  offered: OfferedCardDraft[];
+  values: TradeOfferFormValues;
+}
+
+export interface TradeOfferAccountNoticeProps {
+  onBeforeSignIn: () => void;
+}
+
+export type TradesBox = (typeof TRADES_BOXES)[number];
+
+export interface OutgoingTradeOfferRowProps {
+  offer: OutgoingTradeOffer;
+}
+
+export interface OutgoingTradeOfferDetailProps {
+  offer: OutgoingTradeOffer;
+}
+
 export interface TradeOfferProviderProps {
+  draftLinkToken: string | null;
   onOpenComposer: () => void;
   children: ReactNode;
 }
@@ -129,6 +153,7 @@ export interface TradeOfferReviewSideProps {
   prices: (number | null)[];
   placements?: (TradeOfferWantedPlacement | null)[];
   priceSource: PriceSource;
+  showsPrices?: boolean;
   className?: string;
 }
 
@@ -136,6 +161,7 @@ export interface TradeOfferReviewRowProps {
   row: TradeOfferCardGroup;
   priceSource: PriceSource;
   showsPlacement: boolean;
+  showsPrice?: boolean;
 }
 
 export type TradeOfferSide = (typeof TRADE_OFFER_SIDES)[number];

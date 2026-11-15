@@ -10,3 +10,7 @@ export const TRADE_OFFER_NOT_FOUND_MESSAGE = "This trade offer no longer exists.
 export const TRADE_OFFER_NOTHING_TO_PICK_MESSAGE = "This trade offer has no cards left to pick.";
 export const TRADE_OFFER_INVALID_ACCEPT_MESSAGE = "Invalid trade offer answer.";
 export const TRADE_OFFER_INVALID_PICKED_MESSAGE = "Invalid list of picked cards.";
+export const TRADE_OFFER_CLAIM_RATE_LIMITED_MESSAGE = "Too many attempts to link trade offers. Try again in a minute.";
+export const TRADE_OFFER_CLAIM_RATE_LIMIT_REQUESTS = 10;
+export const TRADE_OFFER_CLAIM_RATE_LIMIT_WINDOW_MS = 60_000;
+export const TRADE_OFFER_CLAIM_RATE_LIMIT_SWEEP_SIZE = 10_000;

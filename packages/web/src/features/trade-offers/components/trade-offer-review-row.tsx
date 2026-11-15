@@ -7,7 +7,12 @@ import { formatPrice } from "@magic-vault/shared";
 import { IconAlertTriangle, IconMapPin } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
-export function TradeOfferReviewRow({ row, priceSource, showsPlacement }: TradeOfferReviewRowProps) {
+export function TradeOfferReviewRow({
+  row,
+  priceSource,
+  showsPlacement,
+  showsPrice = true,
+}: TradeOfferReviewRowProps) {
   const { t } = useTranslation("common");
   const { card } = row;
   const placementLines = showsPlacement ? tradeOfferPlacementLines(row.placements, t) : [];
@@ -50,13 +55,15 @@ export function TradeOfferReviewRow({ row, priceSource, showsPlacement }: TradeO
       <div className="flex shrink-0 flex-col items-end gap-0.5 text-right">
         <span className="flex items-center gap-1.5">
           {row.quantity > 1 && <Badge variant="secondary">×{row.quantity}</Badge>}
-          <span className="text-control font-medium tabular-nums">
-            {row.totalPrice == null
-              ? t("tradeOffers.cardList.noPrice")
-              : formatPrice(row.totalPrice, priceSource)}
-          </span>
+          {showsPrice && (
+            <span className="text-control font-medium tabular-nums">
+              {row.totalPrice == null
+                ? t("tradeOffers.cardList.noPrice")
+                : formatPrice(row.totalPrice, priceSource)}
+            </span>
+          )}
         </span>
-        {row.quantity > 1 && row.unitPrice != null && (
+        {showsPrice && row.quantity > 1 && row.unitPrice != null && (
           <span className="text-xs text-foreground/70 tabular-nums">
             {t("tradeOffers.cardList.unitPrice", { price: formatPrice(row.unitPrice, priceSource) })}
           </span>

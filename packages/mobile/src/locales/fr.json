@@ -3155,6 +3155,37 @@
       "finished_other": "Échange terminé. {{count}} cartes retirées de votre stock.",
       "pickFailed": "Impossible de retirer la carte préparée. Cochez-la à nouveau pour réessayer.",
       "finishFailed": "Impossible de terminer la liste de préparation."
+    },
+    "boxes": {
+      "received": "Reçues",
+      "sent": "Envoyées"
+    },
+    "sent": {
+      "title": "Offre d'échange envoyée",
+      "unknownRecipient": "Un lien partagé",
+      "rowDetails": "{{wanted}} demandées · {{offered}} proposées",
+      "loadFailed": "Impossible de charger vos offres envoyées.",
+      "emptyTitle": "Aucune offre envoyée",
+      "emptyDescription": "Les offres que vous envoyez depuis un lien d'échange apparaissent ici.",
+      "detailTitle": "Votre offre à {{name}}",
+      "detailDescription": "Envoyée le {{date}}",
+      "answeredOn": "Répondue le {{date}}",
+      "waitingHint": "En attente de réponse.",
+      "yourDetails": "Vos coordonnées",
+      "openHint": "Ouvre l'offre",
+      "youWant_one": "Vous avez demandé {{count}} carte",
+      "youWant_other": "Vous avez demandé {{count}} cartes",
+      "youOffer_one": "Vous avez proposé {{count}} carte",
+      "youOffer_other": "Vous avez proposé {{count}} cartes",
+      "sideTabs": {
+        "wanted": "Demandées ({{count}})",
+        "offered": "Proposées ({{count}})"
+      },
+      "status": {
+        "pending": "En attente",
+        "accepted": "Acceptée",
+        "declined": "Refusée"
+      }
     }
   },
   "trade": {

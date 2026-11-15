@@ -3,20 +3,26 @@ import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { ViewTabs } from "@/components/view-tabs";
 import { useTradeOffers } from "@/features/trade-offers/api/trade-offers";
+import { OutgoingTradeOfferList } from "@/features/trade-offers/components/outgoing-trade-offer-list";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   TRADE_OFFER_STATUS_BADGE_VARIANTS,
   TRADE_OFFERS_SKELETON_ROWS,
+  TRADES_BOX_PARAM,
+  TRADES_BOXES,
   tradeOfferPath,
 } from "@/lib/constants/trade-offers";
 import type {
   TradeOfferLibraryRowProps,
   TradeOfferLibrarySectionProps,
+  TradesBox,
 } from "@/lib/interfaces/trade-offers";
 import { formatPrice, isTradeOfferBeingPicked, type TradeOffer } from "@magic-vault/shared";
 import { IconArrowsExchange, IconChevronRight } from "@tabler/icons-react";
 import { useId } from "react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 function TradeOfferLibraryRow({ offer }: TradeOfferLibraryRowProps) {
@@ -88,7 +94,7 @@ function TradeOfferLibrarySection({ title, offers }: TradeOfferLibrarySectionPro
   );
 }
 
-export function TradeOfferLibrary() {
+function ReceivedTradeOfferList() {
   const { t } = useTranslation("common");
   const offers = useTradeOffers();
   const allOffers = offers.data ?? [];
@@ -126,6 +132,39 @@ export function TradeOfferLibrary() {
     <>
       <TradeOfferLibrarySection title={t("tradeOffers.library.open")} offers={openOffers} />
       <TradeOfferLibrarySection title={t("tradeOffers.library.answered")} offers={answeredOffers} />
+    </>
+  );
+}
+
+export function TradeOfferLibrary() {
+  const { t } = useTranslation("common");
+  const isMobile = useIsMobile();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedBox = searchParams.get(TRADES_BOX_PARAM);
+  const box: TradesBox = (TRADES_BOXES as readonly string[]).includes(requestedBox ?? "")
+    ? (requestedBox as TradesBox)
+    : "received";
+  const changeBox = (next: TradesBox) =>
+    setSearchParams(
+      (previous) => {
+        const updated = new URLSearchParams(previous);
+        if (next === "received") updated.delete(TRADES_BOX_PARAM);
+        else updated.set(TRADES_BOX_PARAM, next);
+        return updated;
+      },
+      { replace: true },
+    );
+
+  return (
+    <>
+      <ViewTabs
+        items={TRADES_BOXES.map((key) => ({ key, label: t(`tradeOffers.boxes.${key}`) }))}
+        value={box}
+        onChange={changeBox}
+        label={t("tradeOffers.boxes.label")}
+        fill={isMobile}
+      />
+      {box === "sent" ? <OutgoingTradeOfferList /> : <ReceivedTradeOfferList />}
     </>
   );
 }

@@ -8,6 +8,8 @@ import type { TradeOfferReviewSideProps } from "@/lib/interfaces/trade-offers";
 import { cn } from "@/lib/utils";
 import {
   DEFAULT_TRADE_OFFER_CARD_SORT,
+  PRICE_TRADE_OFFER_CARD_SORT,
+  UNPRICED_DEFAULT_TRADE_OFFER_CARD_SORT,
   TRADE_OFFER_CARD_SORTS,
   TRADE_OFFER_COLLAPSED_ROW_COUNT,
   TRADE_OFFER_FILTER_ROW_THRESHOLD,
@@ -32,13 +34,16 @@ export function TradeOfferReviewSide({
   prices,
   placements,
   priceSource,
+  showsPrices = true,
   className,
 }: TradeOfferReviewSideProps) {
   const { t } = useTranslation("common");
   const headingId = useId();
   const filterId = useId();
   const groupId = useId();
-  const [sort, setSort] = useState<TradeOfferCardSort>(DEFAULT_TRADE_OFFER_CARD_SORT);
+  const [sort, setSort] = useState<TradeOfferCardSort>(
+    showsPrices ? DEFAULT_TRADE_OFFER_CARD_SORT : UNPRICED_DEFAULT_TRADE_OFFER_CARD_SORT,
+  );
   const [query, setQuery] = useState("");
   const [groupsByLocation, setGroupsByLocation] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -67,7 +72,9 @@ export function TradeOfferReviewSide({
   const visibleRows = filteredRows.slice(0, visibleLimit);
   const hasFilter = rows.length > TRADE_OFFER_FILTER_ROW_THRESHOLD;
   const isFiltering = query.trim().length > 0;
-  const sortItems = TRADE_OFFER_CARD_SORTS.map((key) => ({
+  const sortItems = TRADE_OFFER_CARD_SORTS.filter(
+    (key) => showsPrices || key !== PRICE_TRADE_OFFER_CARD_SORT,
+  ).map((key) => ({
     key,
     label: t(`tradeOffers.cardList.sort.${key}`),
   }));
@@ -82,8 +89,10 @@ export function TradeOfferReviewSide({
           {[
             t("tradeOffers.cardList.cardCount", { count: totals.totalCards }),
             t("tradeOffers.cardList.uniqueCount", { count: totals.uniqueCards }),
-            formatPrice(totals.totalValue, priceSource),
-          ].join(" · ")}
+            showsPrices ? formatPrice(totals.totalValue, priceSource) : null,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
         </p>
       </div>
       {rows.length > 1 && (
@@ -154,6 +163,7 @@ export function TradeOfferReviewSide({
                     row={row}
                     priceSource={priceSource}
                     showsPlacement
+                    showsPrice={showsPrices}
                   />
                 ))}
               </ul>
@@ -168,6 +178,7 @@ export function TradeOfferReviewSide({
               row={row}
               priceSource={priceSource}
               showsPlacement={!!placements}
+              showsPrice={showsPrices}
             />
           ))}
         </ul>

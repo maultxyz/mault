@@ -1,22 +1,35 @@
 import {
+  SHARE_LINK_GUEST_KEY_HEADER,
   TRADE_OFFERS_CHANGED_EVENT,
   TRADE_OFFER_STATUSES,
   tradeOfferAcceptRequestSchema,
   tradeOfferPickedRequestSchema,
+  type ClaimOutgoingTradeOffersResult,
   type TradeOfferPickResult,
   type TradeOfferStatus,
   type TradeOffersChangedEvent,
 } from "@magic-vault/shared";
 import { Hono, type Context } from "hono";
-import { authQuery } from "../../db";
+import { authQuery, db } from "../../db";
 import {
+  TRADE_OFFER_CLAIM_RATE_LIMITED_MESSAGE,
+  TRADE_OFFER_CLAIM_RATE_LIMIT_REQUESTS,
+  TRADE_OFFER_CLAIM_RATE_LIMIT_SWEEP_SIZE,
+  TRADE_OFFER_CLAIM_RATE_LIMIT_WINDOW_MS,
+  TRADE_OFFER_GUEST_KEY_MESSAGE,
   TRADE_OFFER_INVALID_ACCEPT_MESSAGE,
   TRADE_OFFER_INVALID_PICKED_MESSAGE,
   TRADE_OFFER_NOTHING_TO_PICK_MESSAGE,
   TRADE_OFFER_NOT_FOUND_MESSAGE,
   TRADE_OFFER_NOT_PENDING_MESSAGE,
 } from "../../lib/constants/trade-offers";
+import { guestKeyHashFromHeader } from "../../lib/guest-keys";
+import {
+  claimGuestTradeOffers,
+  listOutgoingTradeOffers,
+} from "../../lib/guest-trade-offers";
 import type { TradeOfferResponse } from "../../lib/interfaces/trade-offers";
+import { createRateLimiter } from "../../lib/public-api/rate-limit";
 import { deleteScanImages } from "../../lib/scan-images";
 import {
   emitCollectionCardsChanged,
@@ -28,7 +41,18 @@ import {
   pickTradeOfferCards,
   respondToTradeOffer,
 } from "../../lib/trade-offers";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  rejectWhileImpersonating,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
+
+const consumeClaimRateLimit = createRateLimiter({
+  requests: TRADE_OFFER_CLAIM_RATE_LIMIT_REQUESTS,
+  windowMs: TRADE_OFFER_CLAIM_RATE_LIMIT_WINDOW_MS,
+  sweepSize: TRADE_OFFER_CLAIM_RATE_LIMIT_SWEEP_SIZE,
+});
 
 function publishTradeOfferChanges(orgId: string, response: TradeOfferResponse) {
   deleteScanImages(response.imageKeys);
@@ -98,6 +122,26 @@ async function pick(c: Context<AppEnv>, pickedScanIds: string[] | "all") {
 }
 
 export const tradeOffersRouter = new Hono<AppEnv>()
+  .get("/outgoing", requireAuth, async (c) => {
+    const data = await db.transaction((tx) => listOutgoingTradeOffers(tx, c.get("userId")));
+    return c.json({ success: true, data });
+  })
+  .post("/outgoing/claim", requireAuth, rejectWhileImpersonating, async (c) => {
+    const rate = consumeClaimRateLimit(c.get("userId"));
+    if (!rate.allowed) {
+      c.header("Retry-After", String(Math.max(Math.ceil((rate.resetAt - Date.now()) / 1000), 0)));
+      return c.json({ success: false, message: TRADE_OFFER_CLAIM_RATE_LIMITED_MESSAGE }, 429);
+    }
+    const guestKeyHash = guestKeyHashFromHeader(c.req.header(SHARE_LINK_GUEST_KEY_HEADER));
+    if (!guestKeyHash) {
+      return c.json({ success: false, message: TRADE_OFFER_GUEST_KEY_MESSAGE }, 400);
+    }
+    const claimedCount = await db.transaction((tx) =>
+      claimGuestTradeOffers(tx, { guestUserId: c.get("userId"), guestKeyHash }),
+    );
+    const data: ClaimOutgoingTradeOffersResult = { claimedCount };
+    return c.json({ success: true, data });
+  })
   .get("/", requireAuth, requireOrg, async (c) => {
     const requested = c.req.query("status");
     const status = (TRADE_OFFER_STATUSES as readonly string[]).includes(requested ?? "")

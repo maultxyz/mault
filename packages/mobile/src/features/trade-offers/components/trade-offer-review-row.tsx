@@ -5,7 +5,12 @@ import { ListRow } from "@/components/ui/list-row";
 import { tradeOfferPlacementLines } from "@/features/trade-offers/lib/placement-lines";
 import type { TradeOfferReviewRowProps } from "@/lib/interfaces/trade-offers";
 
-export function TradeOfferReviewRow({ row, priceSource, showsPlacement }: TradeOfferReviewRowProps) {
+export function TradeOfferReviewRow({
+  row,
+  priceSource,
+  showsPlacement,
+  showsPrice = true,
+}: TradeOfferReviewRowProps) {
   const { t } = useTranslation();
   const { card } = row;
   const detailLine = [
@@ -20,7 +25,7 @@ export function TradeOfferReviewRow({ row, priceSource, showsPlacement }: TradeO
     row.quantity > 1
       ? [
           `×${row.quantity}`,
-          row.unitPrice != null
+          showsPrice && row.unitPrice != null
             ? t("tradeOffers.cardList.unitPrice", { price: formatPrice(row.unitPrice, priceSource) })
             : null,
         ]
@@ -35,7 +40,13 @@ export function TradeOfferReviewRow({ row, priceSource, showsPlacement }: TradeO
       subtitle={subtitleLines.join("\n")}
       subtitleNumberOfLines={subtitleLines.length + 1}
       leading={<CardThumbnail imageUrl={card.imageUrl} />}
-      value={row.totalPrice == null ? t("tradeOffers.cardList.noPrice") : formatPrice(row.totalPrice, priceSource)}
+      value={
+        !showsPrice
+          ? undefined
+          : row.totalPrice == null
+            ? t("tradeOffers.cardList.noPrice")
+            : formatPrice(row.totalPrice, priceSource)
+      }
     />
   );
 }

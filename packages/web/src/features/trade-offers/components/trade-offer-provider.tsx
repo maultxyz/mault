@@ -1,10 +1,13 @@
 import type { TradeOfferContextValue, TradeOfferProviderProps } from "@/lib/interfaces/trade-offers";
+import { readTradeOfferDraft } from "@/features/trade-offers/lib/trade-offer-draft-storage";
 import { TradeOfferContext } from "@/lib/trade-offer-context";
 import { TRADE_OFFER_WANTED_CARDS_MAX, type PublicCard } from "@magic-vault/shared";
 import { useMemo, useState } from "react";
 
-export function TradeOfferProvider({ onOpenComposer, children }: TradeOfferProviderProps) {
-  const [wanted, setWanted] = useState<PublicCard[]>([]);
+export function TradeOfferProvider({ draftLinkToken, onOpenComposer, children }: TradeOfferProviderProps) {
+  const [wanted, setWanted] = useState<PublicCard[]>(() =>
+    draftLinkToken ? (readTradeOfferDraft(draftLinkToken)?.wanted ?? []) : [],
+  );
 
   const value = useMemo<TradeOfferContextValue>(
     () => ({
@@ -21,6 +24,7 @@ export function TradeOfferProvider({ onOpenComposer, children }: TradeOfferProvi
       removeWanted: (scanId) =>
         setWanted((current) => current.filter((entry) => entry.scanId !== scanId)),
       clearWanted: () => setWanted([]),
+      replaceWanted: (entries) => setWanted(entries.slice(0, TRADE_OFFER_WANTED_CARDS_MAX)),
       openComposer: onOpenComposer,
     }),
     [wanted, onOpenComposer],

@@ -7,3 +7,7 @@ export const NEON_SOCIAL_PROVIDERS = ["github", "google"] as const;
 
 export const HARDWARE_BLOCKED_WHILE_IMPERSONATING_ERROR =
   "Scanning and sorter hardware are disabled while impersonating.";
+
+export const SIGN_IN_PATH = "/auth/sign-in";
+export const SIGN_UP_PATH = "/auth/sign-up";
+export const AUTH_REDIRECT_PARAM = "redirectTo";

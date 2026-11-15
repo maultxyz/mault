@@ -1,4 +1,5 @@
 import type {
+  OutgoingTradeOffer,
   PriceSource,
   TradeOffer,
   TradeOfferCardGroup,
@@ -7,7 +8,7 @@ import type {
   TradeOfferStatus,
   TradeOfferWantedPlacement,
 } from "@magic-vault/shared";
-import type { TRADE_OFFER_SIDES } from "@/lib/constants/trade-offers";
+import type { TRADE_OFFER_SIDES, TRADES_BOXES } from "@/lib/constants/trade-offers";
 import type { StatusTone } from "@/lib/interfaces/theme";
 
 export interface TradeOfferLibrarySectionProps {
@@ -23,12 +24,14 @@ export interface TradeOfferReviewSideProps {
   prices: (number | null)[];
   placements?: (TradeOfferWantedPlacement | null)[];
   priceSource: PriceSource;
+  showsPrices?: boolean;
 }
 
 export interface TradeOfferReviewRowProps {
   row: TradeOfferCardGroup;
   priceSource: PriceSource;
   showsPlacement: boolean;
+  showsPrice?: boolean;
 }
 
 export type TradeOfferSide = (typeof TRADE_OFFER_SIDES)[number];
@@ -57,4 +60,10 @@ export interface TradeOfferPickListRowProps {
 
 export interface TradeOfferReviewProps {
   offer: TradeOffer;
+}
+
+export type TradesBox = (typeof TRADES_BOXES)[number];
+
+export interface OutgoingTradeOfferReviewProps {
+  offer: OutgoingTradeOffer;
 }

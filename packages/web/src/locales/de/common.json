@@ -550,6 +550,38 @@
       "finished_other": "Tausch abgeschlossen. {{count}} Karten aus deinem Bestand entfernt.",
       "pickFailed": "Die gepickte Karte konnte nicht entfernt werden. Hake sie erneut ab, um es noch einmal zu versuchen.",
       "finishFailed": "Die Pickliste konnte nicht abgeschlossen werden."
+    },
+    "boxes": {
+      "label": "Tauschangebote",
+      "received": "Erhalten",
+      "sent": "Gesendet"
+    },
+    "sent": {
+      "title": "Gesendetes Tauschangebot",
+      "unknownRecipient": "Ein geteilter Link",
+      "rowDetails": "{{wanted}} angefragt · {{offered}} angeboten",
+      "loadFailed": "Deine gesendeten Angebote konnten nicht geladen werden.",
+      "emptyTitle": "Noch keine gesendeten Angebote",
+      "emptyDescription": "Angebote, die du angemeldet über einen Tauschlink sendest, erscheinen hier.",
+      "detailTitle": "Dein Angebot an {{name}}",
+      "detailDescription": "Gesendet am {{date}}",
+      "answeredOn": "Beantwortet am {{date}}",
+      "waitingHint": "Wartet auf eine Antwort.",
+      "yourName": "Dein Name",
+      "youWant_one": "Du hast {{count}} Karte angefragt",
+      "youWant_other": "Du hast {{count}} Karten angefragt",
+      "youOffer_one": "Du hast {{count}} Karte angeboten",
+      "youOffer_other": "Du hast {{count}} Karten angeboten",
+      "sideTabs": {
+        "wanted": "Angefragt ({{count}})",
+        "offered": "Angeboten ({{count}})"
+      },
+      "backToSent": "Zurück zu gesendeten Angeboten",
+      "status": {
+        "pending": "Ausstehend",
+        "accepted": "Angenommen",
+        "declined": "Abgelehnt"
+      }
     }
   }
 }

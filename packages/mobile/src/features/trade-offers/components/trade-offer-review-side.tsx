@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, View } from "react-native";
 import {
   DEFAULT_TRADE_OFFER_CARD_SORT,
+  PRICE_TRADE_OFFER_CARD_SORT,
   TRADE_OFFER_CARD_SORTS,
   TRADE_OFFER_COLLAPSED_ROW_COUNT,
   TRADE_OFFER_FILTER_ROW_THRESHOLD,
@@ -14,6 +15,7 @@ import {
   limitTradeOfferLocationSections,
   sortTradeOfferCardGroups,
   tradeOfferSideTotals,
+  UNPRICED_DEFAULT_TRADE_OFFER_CARD_SORT,
   type TradeOfferCardSort,
   type TradeOfferLocationSection,
 } from "@magic-vault/shared";
@@ -29,9 +31,18 @@ import { TradeOfferReviewRow } from "@/features/trade-offers/components/trade-of
 import { SPACING } from "@/lib/constants/theme";
 import type { TradeOfferReviewSideProps } from "@/lib/interfaces/trade-offers";
 
-export function TradeOfferReviewSide({ title, cards, prices, placements, priceSource }: TradeOfferReviewSideProps) {
+export function TradeOfferReviewSide({
+  title,
+  cards,
+  prices,
+  placements,
+  priceSource,
+  showsPrices = true,
+}: TradeOfferReviewSideProps) {
   const { t } = useTranslation();
-  const [sort, setSort] = useState<TradeOfferCardSort>(DEFAULT_TRADE_OFFER_CARD_SORT);
+  const [sort, setSort] = useState<TradeOfferCardSort>(
+    showsPrices ? DEFAULT_TRADE_OFFER_CARD_SORT : UNPRICED_DEFAULT_TRADE_OFFER_CARD_SORT,
+  );
   const [query, setQuery] = useState("");
   const [groupsByLocation, setGroupsByLocation] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -80,8 +91,10 @@ export function TradeOfferReviewSide({ title, cards, prices, placements, priceSo
           {[
             t("tradeOffers.cardList.cardCount", { count: totals.totalCards }),
             t("tradeOffers.cardList.uniqueCount", { count: totals.uniqueCards }),
-            formatPrice(totals.totalValue, priceSource),
-          ].join(" · ")}
+            showsPrices ? formatPrice(totals.totalValue, priceSource) : null,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
         </AppText>
       </View>
       {rows.length > 1 ? (
@@ -90,7 +103,9 @@ export function TradeOfferReviewSide({ title, cards, prices, placements, priceSo
             {t("tradeOffers.cardList.sortLabel")}
           </AppText>
           <SegmentedControl
-            options={TRADE_OFFER_CARD_SORTS.map((value) => ({ value, label: t(`tradeOffers.cardList.sort.${value}`) }))}
+            options={TRADE_OFFER_CARD_SORTS.filter((value) => showsPrices || value !== PRICE_TRADE_OFFER_CARD_SORT).map(
+              (value) => ({ value, label: t(`tradeOffers.cardList.sort.${value}`) }),
+            )}
             value={sort}
             onChange={setSort}
           />
@@ -131,7 +146,13 @@ export function TradeOfferReviewSide({ title, cards, prices, placements, priceSo
             </AppText>
             <ListGroup>
               {section.rows.map((row) => (
-                <TradeOfferReviewRow key={row.key} row={row} priceSource={priceSource} showsPlacement />
+                <TradeOfferReviewRow
+                  key={row.key}
+                  row={row}
+                  priceSource={priceSource}
+                  showsPlacement
+                  showsPrice={showsPrices}
+                />
               ))}
             </ListGroup>
           </View>
@@ -139,7 +160,13 @@ export function TradeOfferReviewSide({ title, cards, prices, placements, priceSo
       ) : (
         <ListGroup>
           {visibleRows.map((row) => (
-            <TradeOfferReviewRow key={row.key} row={row} priceSource={priceSource} showsPlacement={!!placements} />
+            <TradeOfferReviewRow
+              key={row.key}
+              row={row}
+              priceSource={priceSource}
+              showsPlacement={!!placements}
+              showsPrice={showsPrices}
+            />
           ))}
         </ListGroup>
       )}

@@ -22,7 +22,17 @@ export const TRADES_PATH = "/app/trades";
 export const TRADE_OFFERS_SKELETON_ROWS = 4;
 export const TRADE_OFFER_PATH = `${TRADES_PATH}/:offerGuid`;
 export const TRADE_OFFER_SIDES = ["wanted", "offered"] as const;
+export const OUTGOING_TRADE_OFFERS_QUERY_KEY = "outgoing-trade-offers";
+export const TRADE_OFFER_DRAFT_STORAGE_KEY_PREFIX = "mault:trade-offer-draft:";
+export const TRADES_BOX_PARAM = "box";
+export const TRADES_BOXES = ["received", "sent"] as const;
+export const SENT_TRADES_PATH = `${TRADES_PATH}?${TRADES_BOX_PARAM}=sent`;
+export const SENT_TRADE_OFFER_PATH = `${TRADES_PATH}/sent/:offerGuid`;
 
 export function tradeOfferPath(offerGuid: string): string {
   return `${TRADES_PATH}/${offerGuid}`;
+}
+
+export function sentTradeOfferPath(offerGuid: string): string {
+  return `${TRADES_PATH}/sent/${offerGuid}`;
 }

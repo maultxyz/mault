@@ -329,7 +329,7 @@ export function PublicCardBrowser({
   );
 
   return tradeOfferLink ? (
-    <TradeOfferProvider onOpenComposer={openTradeOffer}>
+    <TradeOfferProvider draftLinkToken={tradeOfferLink.token} onOpenComposer={openTradeOffer}>
       {page}
     </TradeOfferProvider>
   ) : (

@@ -82,6 +82,7 @@ export default function AppLayout() {
           <Stack.Screen name="settings/change-email" options={sheetOptions} />
           <Stack.Screen name="settings/change-password" options={sheetOptions} />
           <Stack.Screen name="trade-offer/[guid]" options={sheetOptions} />
+          <Stack.Screen name="sent-trade-offer/[guid]" options={sheetOptions} />
           <Stack.Screen name="storage-pick-list" />
           <Stack.Screen name="batch-scan" options={{ contentStyle: { backgroundColor: colors.background } }} />
           <Stack.Screen

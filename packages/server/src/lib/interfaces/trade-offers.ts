@@ -7,6 +7,12 @@ export interface CreateTradeOfferInput {
   scope: TradeOfferScope;
   request: TradeOfferRequest;
   guestKeyHash: string;
+  guestUserId: string | null;
+}
+
+export interface ClaimGuestTradeOffersInput {
+  guestUserId: string;
+  guestKeyHash: string;
 }
 
 export type CreateTradeOfferResult =

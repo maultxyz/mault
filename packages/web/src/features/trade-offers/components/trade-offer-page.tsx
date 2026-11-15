@@ -11,6 +11,12 @@ import {
   submitTradeOffer,
 } from "@/features/trade-offers/api/public-trade-offers";
 import { GuestTradeOfferList } from "@/features/trade-offers/components/guest-trade-offer-list";
+import { TradeOfferAccountNotice } from "@/features/trade-offers/components/trade-offer-account-notice";
+import {
+  clearTradeOfferDraft,
+  readTradeOfferDraft,
+  saveTradeOfferDraft,
+} from "@/features/trade-offers/lib/trade-offer-draft-storage";
 import { TradeOfferCardSearch } from "@/features/trade-offers/components/trade-offer-card-search";
 import { TradeOfferOfferedRow } from "@/features/trade-offers/components/trade-offer-offered-row";
 import { TradeOfferPanel } from "@/features/trade-offers/components/trade-offer-panel";
@@ -58,11 +64,19 @@ export function TradeOfferPage({
   const nameId = useId();
   const contactId = useId();
   const noteId = useId();
-  const [offered, setOffered] = useState<OfferedCardDraft[]>([]);
+  const [restoredDraft] = useState(() => readTradeOfferDraft(link.token));
+  useEffect(() => clearTradeOfferDraft(link.token), [link.token]);
+  const [offered, setOffered] = useState<OfferedCardDraft[]>(restoredDraft?.offered ?? []);
   const form = useForm<TradeOfferFormValues>({
     resolver: zodResolver(tradeOfferFormSchema),
-    defaultValues: { guestName: rememberedGuestName(), guestContact: "", guestNote: "" },
+    defaultValues: restoredDraft?.values ?? {
+      guestName: rememberedGuestName(),
+      guestContact: "",
+      guestNote: "",
+    },
   });
+  const keepDraftForSignIn = () =>
+    saveTradeOfferDraft(link.token, { wanted, offered, values: form.getValues() });
   const { errors, isSubmitting } = form.formState;
   const offeredCount = offered.reduce((sum, draft) => sum + draft.quantity, 0);
   const isReady = wanted.length > 0 && offered.length > 0;
@@ -108,6 +122,8 @@ export function TradeOfferPage({
             {t("tradeOffers.pageDescription", { source: sourceName })}
           </p>
         </div>
+
+        <TradeOfferAccountNotice onBeforeSignIn={keepDraftForSignIn} />
 
         <TradeOfferPanel
           step={1}

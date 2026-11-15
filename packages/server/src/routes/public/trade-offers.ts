@@ -24,7 +24,8 @@ import {
   listGuestTradeOffers,
   searchTradeOfferCards,
 } from "../../lib/trade-offers";
-import type { AppEnv } from "../../middleware/auth";
+import { optionalVerifiedUserId } from "../../lib/optional-auth";
+import { verifyHardwareClientToken, type AppEnv } from "../../middleware/auth";
 
 export function createPublicTradeOffersRoute(
   resolveLink: (c: Context<AppEnv>) => Promise<PublicTradeOfferLink | null>,
@@ -75,8 +76,12 @@ export function createPublicTradeOffersRoute(
       if (!parsed.success) {
         return c.json({ success: false, message: TRADE_OFFER_INVALID_MESSAGE }, 400);
       }
+      const guestUserId = await optionalVerifiedUserId(
+        c.req.header("Authorization"),
+        verifyHardwareClientToken,
+      );
       const result = await db.transaction((tx) =>
-        createTradeOffer(tx, { scope: link.scope, request: parsed.data, guestKeyHash }),
+        createTradeOffer(tx, { scope: link.scope, request: parsed.data, guestKeyHash, guestUserId }),
       );
       switch (result.status) {
         case "guest-limit-reached":

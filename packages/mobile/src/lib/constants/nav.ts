@@ -7,7 +7,7 @@ export const TAB_ICONS: Record<string, IconName> = {
   account: "menu",
 };
 
-export const SHEET_ROUTE_PATTERN = /^\/(card\/|trade-offer\/|unmatched-card$|collection-new$|collection-edit$|storage-name$|preset-description$|share-link$|settings\/invite-member$|settings\/webhook-edit$|settings\/api-key-new$|settings\/shop-catalog-edit$|settings\/shop-catalog-link$|settings\/sound-clip-name$|settings\/sound-rule$|settings\/notification-rule$|settings\/change-email$|settings\/change-password$)/;
+export const SHEET_ROUTE_PATTERN = /^\/(card\/|trade-offer\/|sent-trade-offer\/|unmatched-card$|collection-new$|collection-edit$|storage-name$|preset-description$|share-link$|settings\/invite-member$|settings\/webhook-edit$|settings\/api-key-new$|settings\/shop-catalog-edit$|settings\/shop-catalog-link$|settings\/sound-clip-name$|settings\/sound-rule$|settings\/notification-rule$|settings\/change-email$|settings\/change-password$)/;
 export const UNFRAMED_STACK_ROUTE_NAMES = new Set([
   "(tabs)",
   "card/[scanId]",
@@ -28,6 +28,7 @@ export const UNFRAMED_STACK_ROUTE_NAMES = new Set([
   "settings/change-password",
   "share-link",
   "trade-offer/[guid]",
+  "sent-trade-offer/[guid]",
   "storage-card-scan",
   "trade/scan",
   "batch-scan",

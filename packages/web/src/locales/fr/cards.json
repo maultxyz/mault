@@ -643,6 +643,12 @@
     "conditionFor": "État de {{name}}",
     "yourOffers_one": "Vos offres envoyées ({{count}})",
     "yourOffers_other": "Vos offres envoyées ({{count}})",
-    "noPrice": "Sans prix"
+    "noPrice": "Sans prix",
+    "account": {
+      "logIn": "Se connecter",
+      "logInHint": "Connectez-vous pour suivre les offres que vous envoyez. Elles apparaissent dans votre compte sous Échanges > Envoyées.",
+      "signedInAs": "Connecté en tant que {{name}}.",
+      "signedInHint": "Les offres que vous envoyez apparaissent dans votre compte sous Échanges > Envoyées."
+    }
   }
 }

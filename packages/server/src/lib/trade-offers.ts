@@ -28,6 +28,7 @@ import {
   toStoredCards,
 } from "../routes/storage-locations/shared";
 import { logActivity } from "./activity-log";
+import { toPublicTradeOffer } from "./guest-trade-offers";
 import { loadOrgPricing } from "./price-source";
 import { resolveCardSearchForGame } from "./card-search/resolve";
 import { searchCards, searchCardsByIds } from "./card-search/stored-cards";
@@ -39,7 +40,6 @@ import type {
   RemoveTradeOfferWantedCardsInput,
   RespondToTradeOfferInput,
   TradeOfferResponse,
-  TradeOfferRow,
   TradeOfferScope,
 } from "./interfaces/trade-offers";
 import { uuidArraySql } from "./sql-arrays";
@@ -172,6 +172,7 @@ export async function createTradeOffer(
       guestContact: request.guestContact,
       guestNote: request.guestNote || null,
       guestKeyHash: input.guestKeyHash,
+      guestUserId: input.guestUserId,
       wantedCards: wanted,
       offeredCards: offered,
     })
@@ -186,17 +187,6 @@ export async function createTradeOffer(
         offeredCount: offered.reduce((sum, card) => sum + card.quantity, 0),
       },
     },
-  };
-}
-
-function toPublicTradeOffer(row: TradeOfferRow): PublicTradeOffer {
-  return {
-    guid: row.guid,
-    status: row.status as TradeOfferStatus,
-    wanted: row.wantedCards as TradeOfferWantedCard[],
-    offered: row.offeredCards as TradeOfferOfferedCard[],
-    createdAt: row.createdAt.toISOString(),
-    respondedAt: row.respondedAt ? row.respondedAt.toISOString() : null,
   };
 }
 

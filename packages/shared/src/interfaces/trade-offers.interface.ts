@@ -84,6 +84,18 @@ export interface TradeOffer extends PublicTradeOffer {
   sourceName: string | null;
 }
 
+export interface OutgoingTradeOffer extends PublicTradeOffer {
+  linkKind: TradeOfferLinkKind;
+  sentToName: string | null;
+  guestName: string;
+  guestContact: string;
+  guestNote: string | null;
+}
+
+export interface ClaimOutgoingTradeOffersResult {
+  claimedCount: number;
+}
+
 export interface TradeOffersChangedEvent {
   createdOffer: { guestName: string; wantedCount: number; offeredCount: number } | null;
 }

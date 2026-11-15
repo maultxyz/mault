@@ -101,19 +101,19 @@ export function TradeOfferDetail({ offer }: TradeOfferDetailProps) {
       onChange={setVisibleSide}
       label={t("tradeOffers.sideTabs.label")}
       fill={isMobile}
-      className="lg:hidden"
+      className="md:hidden"
     />
   );
 
   const sideClassName = (side: TradeOfferSide) =>
     cn(
       "rounded-card bg-card p-3 md:p-2.5",
-      visibleSide !== side && "max-lg:hidden",
+      visibleSide !== side && "max-md:hidden",
     );
 
   const body = (
     <>
-      <div className="grid gap-3 md:gap-2 lg:grid-cols-2">
+      <div className="flex flex-col gap-3 md:gap-2">
         <div className="flex flex-col gap-2 rounded-card bg-card p-3 md:p-2.5">
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-control">
             <dt className="text-foreground/70">{t("tradeOffers.contact")}</dt>
@@ -145,7 +145,7 @@ export function TradeOfferDetail({ offer }: TradeOfferDetailProps) {
         <TradeOfferValueSummary offer={offer} />
       </div>
       {sideTabs}
-      <div className="grid items-start gap-3 md:gap-2 lg:grid-cols-2">
+      <div className="grid items-start gap-3 md:grid-cols-2 md:gap-2">
         {isPicking ? (
           <TradeOfferPickList
             offer={offer}

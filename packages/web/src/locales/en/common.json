@@ -550,6 +550,38 @@
       "finished_other": "Trade finished. Removed {{count}} cards from your inventory.",
       "pickFailed": "Couldn't remove the picked card. Tick it again to retry.",
       "finishFailed": "Couldn't finish the pick list."
+    },
+    "boxes": {
+      "label": "Trade offers",
+      "received": "Received",
+      "sent": "Sent"
+    },
+    "sent": {
+      "title": "Sent trade offer",
+      "unknownRecipient": "A shared link",
+      "rowDetails": "{{wanted}} asked for · {{offered}} offered",
+      "loadFailed": "Couldn't load your sent offers.",
+      "emptyTitle": "No sent offers yet",
+      "emptyDescription": "Offers you send from someone's trade link while logged in show up here.",
+      "detailTitle": "Your offer to {{name}}",
+      "detailDescription": "Sent on {{date}}",
+      "answeredOn": "Answered on {{date}}",
+      "waitingHint": "Waiting for an answer.",
+      "yourName": "Your name",
+      "youWant_one": "You asked for {{count}} card",
+      "youWant_other": "You asked for {{count}} cards",
+      "youOffer_one": "You offered {{count}} card",
+      "youOffer_other": "You offered {{count}} cards",
+      "sideTabs": {
+        "wanted": "You asked for ({{count}})",
+        "offered": "You offered ({{count}})"
+      },
+      "backToSent": "Back to sent offers",
+      "status": {
+        "pending": "Waiting",
+        "accepted": "Accepted",
+        "declined": "Declined"
+      }
     }
   }
 }

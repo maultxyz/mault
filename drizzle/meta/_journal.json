@@ -1226,6 +1226,13 @@
       "when": 1794684530930,
       "tag": "0174_trade_offer_pick_list",
       "breakpoints": true
+    },
+    {
+      "idx": 175,
+      "version": "7",
+      "when": 1794685539417,
+      "tag": "0175_trade_offer_guest_user",
+      "breakpoints": true
     }
   ]
 }

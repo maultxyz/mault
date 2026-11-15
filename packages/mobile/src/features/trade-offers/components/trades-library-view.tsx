@@ -1,6 +1,7 @@
 import { formatPrice, isTradeOfferBeingPicked, type TradeOffer } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
@@ -14,12 +15,19 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
+import { TabStrip } from "@/components/ui/tab-strip";
+import { outgoingTradeOffersQueryOptions } from "@/features/trade-offers/api/outgoing-trade-offers";
 import { tradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { useActiveOrgId } from "@/hooks/use-org";
+import { useSession } from "@/lib/auth/session";
 import { SPACING } from "@/lib/constants/theme";
-import { TRADE_OFFER_STATUS_TONES, TRADE_OFFERS_SKELETON_ROWS } from "@/lib/constants/trade-offers";
+import {
+  TRADE_OFFER_STATUS_TONES,
+  TRADE_OFFERS_SKELETON_ROWS,
+  TRADES_BOXES,
+} from "@/lib/constants/trade-offers";
 import type { LibraryViewProps } from "@/lib/interfaces/library";
-import type { TradeOfferLibrarySectionProps } from "@/lib/interfaces/trade-offers";
+import type { TradeOfferLibrarySectionProps, TradesBox } from "@/lib/interfaces/trade-offers";
 
 function TradeOfferLibrarySection({ title, offers }: TradeOfferLibrarySectionProps) {
   const { t, i18n } = useTranslation();
@@ -62,7 +70,7 @@ function TradeOfferLibrarySection({ title, offers }: TradeOfferLibrarySectionPro
   );
 }
 
-export function TradesLibraryView({ title, viewSwitcher }: LibraryViewProps) {
+function ReceivedTradeOffers() {
   const { t } = useTranslation();
   const orgId = useActiveOrgId();
   const offers = useQuery(tradeOffersQueryOptions(orgId));
@@ -71,40 +79,103 @@ export function TradesLibraryView({ title, viewSwitcher }: LibraryViewProps) {
   const openOffers = newestFirst.filter(isOpen);
   const answeredOffers = newestFirst.filter((offer) => !isOpen(offer));
 
+  return offers.isPending ? (
+    <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} />
+  ) : offers.isError ? (
+    <Callout
+      tone="destructive"
+      title={t("tradeOffers.library.loadFailed")}
+      action={
+        <Button
+          size="sm"
+          variant="secondary"
+          label={t("recovery.retry")}
+          loading={offers.isRefetching}
+          onPress={() => void offers.refetch()}
+        />
+      }
+    />
+  ) : newestFirst.length === 0 ? (
+    <EmptyState icon="transfer" title={t("tradeOffers.library.emptyTitle")} description={t("tradeOffers.library.emptyDescription")} />
+  ) : (
+    <>
+      <TradeOfferLibrarySection title={t("tradeOffers.library.open")} offers={openOffers} />
+      <TradeOfferLibrarySection title={t("tradeOffers.library.answered")} offers={answeredOffers} />
+    </>
+  );
+}
+
+function SentTradeOffers() {
+  const { t, i18n } = useTranslation();
+  const userId = useSession().user?.id ?? null;
+  const offers = useQuery(outgoingTradeOffersQueryOptions(userId));
+
+  return offers.isPending ? (
+    <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} />
+  ) : offers.isError ? (
+    <Callout
+      tone="destructive"
+      title={t("tradeOffers.sent.loadFailed")}
+      action={
+        <Button
+          size="sm"
+          variant="secondary"
+          label={t("recovery.retry")}
+          loading={offers.isRefetching}
+          onPress={() => void offers.refetch()}
+        />
+      }
+    />
+  ) : offers.data.length === 0 ? (
+    <EmptyState icon="send" title={t("tradeOffers.sent.emptyTitle")} description={t("tradeOffers.sent.emptyDescription")} />
+  ) : (
+    <ListGroup>
+      {offers.data.map((offer) => (
+        <ListRow
+          key={offer.guid}
+          icon="send"
+          title={offer.sentToName ?? t("tradeOffers.sent.unknownRecipient")}
+          subtitle={`${t("tradeOffers.sent.rowDetails", {
+            wanted: offer.wanted.length,
+            offered: offer.offered.reduce((sum, card) => sum + card.quantity, 0),
+          })}\n${new Date(offer.createdAt).toLocaleDateString(i18n.language, { dateStyle: "medium" })}`}
+          right={
+            <Pill label={t(`tradeOffers.sent.status.${offer.status}`)} tone={TRADE_OFFER_STATUS_TONES[offer.status]} />
+          }
+          accessibilityHint={t("tradeOffers.sent.openHint")}
+          onPress={() => router.push({ pathname: "/sent-trade-offer/[guid]", params: { guid: offer.guid } })}
+        />
+      ))}
+    </ListGroup>
+  );
+}
+
+export function TradesLibraryView({ title, viewSwitcher }: LibraryViewProps) {
+  const { t } = useTranslation();
+  const orgId = useActiveOrgId();
+  const userId = useSession().user?.id ?? null;
+  const [box, setBox] = useState<TradesBox>("received");
+  const receivedOffers = useQuery(tradeOffersQueryOptions(orgId));
+  const sentOffers = useQuery(outgoingTradeOffersQueryOptions(userId));
+  const visibleOffers = box === "sent" ? sentOffers : receivedOffers;
+
   return (
     <Screen
-      refreshing={offers.isRefetching}
-      onRefresh={() => void offers.refetch()}
+      refreshing={visibleOffers.isRefetching}
+      onRefresh={() => void visibleOffers.refetch()}
       header={
         <PageHeader title={title} subtitle={t("tradeOffers.library.subtitle")}>
           {viewSwitcher}
         </PageHeader>
       }
     >
-      {offers.isPending ? (
-        <ListSkeleton rows={TRADE_OFFERS_SKELETON_ROWS} />
-      ) : offers.isError ? (
-        <Callout
-          tone="destructive"
-          title={t("tradeOffers.library.loadFailed")}
-          action={
-            <Button
-              size="sm"
-              variant="secondary"
-              label={t("recovery.retry")}
-              loading={offers.isRefetching}
-              onPress={() => void offers.refetch()}
-            />
-          }
-        />
-      ) : newestFirst.length === 0 ? (
-        <EmptyState icon="transfer" title={t("tradeOffers.library.emptyTitle")} description={t("tradeOffers.library.emptyDescription")} />
-      ) : (
-        <>
-          <TradeOfferLibrarySection title={t("tradeOffers.library.open")} offers={openOffers} />
-          <TradeOfferLibrarySection title={t("tradeOffers.library.answered")} offers={answeredOffers} />
-        </>
-      )}
+      <TabStrip
+        inline
+        items={TRADES_BOXES.map((value) => ({ value, label: t(`tradeOffers.boxes.${value}`) }))}
+        value={box}
+        onChange={setBox}
+      />
+      {box === "sent" ? <SentTradeOffers /> : <ReceivedTradeOffers />}
     </Screen>
   );
 }

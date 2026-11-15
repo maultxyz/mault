@@ -12,6 +12,7 @@ import { Hono } from "hono";
 import {
   PLAN_PREVIEW_HEADER,
   PUBLIC_API_KEY_HEADER,
+  SHARE_LINK_GUEST_KEY_HEADER,
   SYNC_API_PATH,
 } from "@magic-vault/shared";
 import { cors } from "hono/cors";
@@ -73,6 +74,7 @@ const appCors = cors({
     "Authorization",
     "X-Org-Id",
     PLAN_PREVIEW_HEADER,
+    SHARE_LINK_GUEST_KEY_HEADER,
   ],
 });
 const publicApiCors = cors({

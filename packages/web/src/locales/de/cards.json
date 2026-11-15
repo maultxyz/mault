@@ -643,6 +643,12 @@
     "conditionFor": "Zustand von {{name}}",
     "yourOffers_one": "Deine gesendeten Angebote ({{count}})",
     "yourOffers_other": "Deine gesendeten Angebote ({{count}})",
-    "noPrice": "Kein Preis"
+    "noPrice": "Kein Preis",
+    "account": {
+      "logIn": "Anmelden",
+      "logInHint": "Melde dich an, um deine gesendeten Angebote im Blick zu behalten. Sie erscheinen in deinem Konto unter Tausch > Gesendet.",
+      "signedInAs": "Angemeldet als {{name}}.",
+      "signedInHint": "Gesendete Angebote erscheinen in deinem Konto unter Tausch > Gesendet."
+    }
   }
 }

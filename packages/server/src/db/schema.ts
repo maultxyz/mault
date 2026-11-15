@@ -877,6 +877,7 @@ export const tradeOffers = pgTable(
     guestContact: text("guest_contact").notNull(),
     guestNote: text("guest_note"),
     guestKeyHash: text("guest_key_hash").notNull(),
+    guestUserId: text("guest_user_id"),
     wantedCards: jsonb("wanted_cards").notNull(),
     offeredCards: jsonb("offered_cards").notNull(),
     status: text("status").notNull().default("pending"),
@@ -889,6 +890,7 @@ export const tradeOffers = pgTable(
     unique("trade_offers_guid_idx").on(table.guid),
     index("trade_offers_org_status_idx").on(table.orgId, table.status),
     index("trade_offers_guest_idx").on(table.guestKeyHash),
+    index("trade_offers_guest_user_idx").on(table.guestUserId, table.createdAt),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),

@@ -13,12 +13,14 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { signInLocal, signUpLocal } from "@/lib/auth";
+import { authPathReturningTo, safeAuthRedirectPath } from "@/lib/auth-redirect";
+import { AUTH_REDIRECT_PARAM, SIGN_IN_PATH, SIGN_UP_PATH } from "@/lib/constants/auth";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { z } from "zod";
 
 const signInSchema = z.object({
@@ -36,6 +38,8 @@ export default function AuthLocalPage() {
   const { path } = useParams();
   const navigate = useNavigate();
   const isSignUp = path === "sign-up";
+  const [searchParams] = useSearchParams();
+  const redirectPath = safeAuthRedirectPath(searchParams.get(AUTH_REDIRECT_PARAM));
   const [serverError, setServerError] = useState<string | null>(null);
 
   const signInForm = useForm<z.infer<typeof signInSchema>>({
@@ -58,7 +62,7 @@ export default function AuthLocalPage() {
       setServerError(result.error);
       return;
     }
-    navigate(HOME_PATH, { replace: true });
+    navigate(redirectPath ?? HOME_PATH, { replace: true });
   }
 
   async function onSignUp(values: z.infer<typeof signUpSchema>) {
@@ -72,7 +76,7 @@ export default function AuthLocalPage() {
       setServerError(result.error);
       return;
     }
-    navigate(HOME_PATH, { replace: true });
+    navigate(redirectPath ?? HOME_PATH, { replace: true });
   }
 
   return (
@@ -208,7 +212,12 @@ export default function AuthLocalPage() {
               type="button"
               className="text-primary hover:underline"
               onClick={() =>
-                navigate(isSignUp ? "/auth/sign-in" : "/auth/sign-up")
+                navigate(
+                  authPathReturningTo(
+                    isSignUp ? SIGN_IN_PATH : SIGN_UP_PATH,
+                    redirectPath ?? "",
+                  ),
+                )
               }
             >
               {isSignUp ? t("local.signInLink") : t("local.signUpLink")}
