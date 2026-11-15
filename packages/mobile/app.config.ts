@@ -51,7 +51,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "mault",
   scheme: "mault",
   version: JSON.parse(readFileSync(resolve(__dirname, "package.json"), "utf-8")).version,
-  orientation: "default",
+  orientation: "portrait",
   userInterfaceStyle: "automatic",
   icon: "./assets/icon.png",
   ios: {
