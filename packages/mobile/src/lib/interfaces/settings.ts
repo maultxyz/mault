@@ -50,8 +50,7 @@ export interface SettingsPageProps {
   isSaving?: boolean;
   saveError?: boolean;
   isLoading?: boolean;
-  refreshing?: boolean;
-  onRefresh?: () => void;
+  onRefresh?: () => unknown;
   onSave?: () => void;
   onDiscard?: () => void;
   isSaveBarVisible?: boolean;
@@ -101,4 +100,11 @@ export interface NeonFullOrganization {
   name: string;
   members?: { id: string; userId: string; role: OrgRole; user?: { name?: string; email?: string } }[];
   invitations?: { id: string; email: string; role: OrgRole; status: string }[];
+}
+
+export interface RuleEnabledSwitchProps {
+  accessibilityLabel: string;
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+  disabled?: boolean;
 }

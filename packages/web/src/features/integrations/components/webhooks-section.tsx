@@ -1,5 +1,5 @@
 import { PlanNotice } from "@/components/plan-notice";
-import { Callout } from "@/components/callout";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { SettingsSection } from "@/components/settings-section";
@@ -43,6 +43,7 @@ export function WebhooksSection() {
     isLocked,
     isLoading,
     isError,
+    refetch,
     create,
     update,
     enable,
@@ -101,7 +102,10 @@ export function WebhooksSection() {
         />
       )}
       {isError && (
-        <Callout variant="error">{t("webhooks.loadFailed")}</Callout>
+        <LoadErrorCallout
+          message={t("webhooks.loadFailed")}
+          onRetry={() => void refetch()}
+        />
       )}
       {isLoading && <Skeleton className="h-14 w-full" />}
 
@@ -114,7 +118,7 @@ export function WebhooksSection() {
       )}
 
       {!isLoading && endpoints.length > 0 && (
-        <div className="flex flex-col divide-y rounded-lg border">
+        <div className="flex flex-col divide-y divide-border">
           {endpoints.map((endpoint) => (
             <div
               key={endpoint.guid}
@@ -238,7 +242,7 @@ export function WebhooksSection() {
           </Button>
         }
       >
-        <div className="flex items-center gap-2 rounded-lg border bg-muted p-2">
+        <div className="flex items-center gap-2 rounded-lg bg-foreground/6 p-2">
           <code className="flex-1 overflow-x-auto whitespace-nowrap text-sm">
             {newSecret}
           </code>

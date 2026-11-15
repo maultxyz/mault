@@ -1,7 +1,7 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, View } from "react-native";
 import type { PlayingCard } from "@magic-vault/shared";
@@ -39,6 +39,15 @@ export default function UnmatchedCardScreen() {
   const scan = index >= 0 ? cards[index] : undefined;
   const nextScanId = cards.find((card, cardIndex) => cardIndex > index && card.scanId !== scanId)?.scanId;
   const [showsBackSide, setShowsBackSide] = useState(false);
+  const [hasRefetchedForMissingScan, setHasRefetchedForMissingScan] = useState(false);
+  const scanIsMissing = !scan && unmatched.isSuccess;
+  const isConfirmingMissingScan = scanIsMissing && (!hasRefetchedForMissingScan || unmatched.isFetching);
+  const refetchUnmatched = unmatched.refetch;
+  useEffect(() => {
+    if (!scanIsMissing || hasRefetchedForMissingScan) return;
+    setHasRefetchedForMissingScan(true);
+    void refetchUnmatched();
+  }, [scanIsMissing, hasRefetchedForMissingScan, refetchUnmatched]);
   const frontUrl = absoluteUrl(scan?.capturedImageUrl);
   const backUrl = absoluteUrl(scan?.capturedBackImageUrl);
   const imageUrl = showsBackSide && backUrl ? backUrl : frontUrl;
@@ -92,8 +101,21 @@ export default function UnmatchedCardScreen() {
           ) : null
         }
       >
-        {!scan && !unmatched.isPending ? <Callout tone="warning" title={t("unmatchedCards.notFound")} /> : null}
-        {scan || unmatched.isPending ? (
+        {unmatched.isError ? (
+          <Callout
+            tone="destructive"
+            title={t("unmatchedCards.loadFailed")}
+            action={<Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={() => void unmatched.refetch()} />}
+          />
+        ) : null}
+        {scanIsMissing && !isConfirmingMissingScan ? (
+          <Callout
+            tone="warning"
+            title={t("unmatchedCards.notFound")}
+            action={<Button size="sm" variant="secondary" label={t("recovery.retry")} onPress={() => void unmatched.refetch()} />}
+          />
+        ) : null}
+        {scan || unmatched.isPending || isConfirmingMissingScan ? (
           <View style={{ alignItems: "center", gap: SPACING.xs }}>
             <View
               style={{
@@ -101,8 +123,6 @@ export default function UnmatchedCardScreen() {
                 aspectRatio: CARD_ASPECT_RATIO,
                 borderRadius: CARD_ART_RADIUS,
                 overflow: "hidden",
-                borderWidth: 1,
-                borderColor: colors.border,
                 backgroundColor: colors.muted,
               }}
             >

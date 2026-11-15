@@ -1,4 +1,4 @@
-import type { MonitorLinkInfo } from "@magic-vault/shared";
+import { EMPTY_CARD_FILTERS, type MonitorLinkInfo } from "@magic-vault/shared";
 import { Hono, type Context } from "hono";
 import { db } from "../../db";
 import { verifyMonitorLink } from "../../lib/monitor-links";
@@ -10,6 +10,7 @@ import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
 import { createPublicTradeOffersRoute } from "./trade-offers";
 import { createPublicCardBrowseRoute } from "./card-browse";
 import { readCardsSummary } from "../collections/cards-read";
+import { parseCardsQuery } from "../collections/cards-query";
 import { pricesForShareLink } from "../../lib/share-link-pricing";
 
 async function claimsFor(c: Context<AppEnv>): Promise<MonitorLinkClaims | null> {
@@ -80,11 +81,22 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
     if (!claims) {
       return c.json({ success: false, message: MONITOR_LINK_INVALID_MESSAGE }, 401);
     }
+    const requested = parseCardsQuery(c.req.query());
+    const publicQueryParams = {
+      search: requested.search,
+      filters: JSON.stringify({
+        ...EMPTY_CARD_FILTERS,
+        sets: requested.filters.sets,
+        rarities: requested.filters.rarities,
+        colors: requested.filters.colors,
+        foilTypes: requested.filters.foilTypes,
+      }),
+    };
     const data = await readCardsSummary(
       (fn) => db.transaction(fn),
       claims.collectionGuid,
       claims.orgId,
-      c.req.query(),
+      publicQueryParams,
     );
     if (!data) {
       return c.json({ success: false, message: "Collection not found." });

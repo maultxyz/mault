@@ -27,8 +27,6 @@ export function SaveBar({ visible, saving, onSave, onDiscard }: SaveBarProps) {
         paddingHorizontal: SCREEN_GUTTER,
         paddingTop: SPACING.md,
         paddingBottom: SPACING.md + insets.bottom,
-        borderTopWidth: 1,
-        borderTopColor: colors.border,
         backgroundColor: colors.background,
       }}
     >

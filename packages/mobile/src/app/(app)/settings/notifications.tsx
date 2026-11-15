@@ -4,9 +4,10 @@ import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Alert, Switch, View } from "react-native";
+import { Alert, View } from "react-native";
 import {
   changedDiscordPingRoles,
+  changedDiscordTradeNotificationTargets,
   DEFAULT_ORG_SETTINGS,
   discordSettingsDraftFormSchema,
   type DiscordSettingsDraftFormValues,
@@ -17,8 +18,8 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { SectionHeader } from "@/components/ui/section-header";
 import { SwitchRow } from "@/components/ui/switch-row";
+import { Surface } from "@/components/ui/surface";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import {
   discordIntegrationQueryOptions,
@@ -40,10 +41,12 @@ import {
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { orgSettingsQueryOptions, saveOrgSettings } from "@/features/org/api/org-settings";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
+import { RuleEnabledSwitch } from "@/features/settings/components/rule-enabled-switch";
 import { SettingsPage } from "@/features/settings/components/settings-page";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
-import { NOTIFICATION_TEST_TYPES } from "@/lib/constants/integrations";
+import { NOTIFICATION_TEST_TYPES, ROLE_PICKERS } from "@/lib/constants/integrations";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { DiscordChannelPicker, DiscordLinkCode, NotificationTestType } from "@/lib/interfaces/integrations";
 
@@ -83,6 +86,7 @@ export default function NotificationsSettingsScreen() {
   const overrides = form.watch("overrides");
   const scanChannelId = form.watch("scanChannelId");
   const errorChannelId = form.watch("errorChannelId");
+  const tradeChannelId = form.watch("tradeChannelId");
 
   const data = integration.data;
   const guild = data?.guild ?? null;
@@ -149,7 +153,10 @@ export default function NotificationsSettingsScreen() {
     const jobs: Promise<unknown>[] = [];
     const defaults = changedDiscordChannels(values, draft);
     const pingRoles = changedDiscordPingRoles(values, draft);
-    if (defaults || pingRoles) jobs.push(setDiscordChannel({ ...defaults, ...pingRoles }));
+    const tradeTargets = changedDiscordTradeNotificationTargets(values, draft);
+    if (defaults || pingRoles || tradeTargets) {
+      jobs.push(setDiscordChannel({ ...defaults, ...pingRoles, ...tradeTargets }));
+    }
     for (const [collectionGuid, next] of Object.entries(draft.overrides)) {
       const current = values.overrides[collectionGuid];
       if (!current) continue;
@@ -206,19 +213,24 @@ export default function NotificationsSettingsScreen() {
         selected: [] as string[],
       };
     }
-    if (picker.kind === "scan-role" || picker.kind === "error-role") {
+    if (picker.kind === "trade") {
       return {
-        title:
-          picker.kind === "scan-role"
-            ? t("settings.discord.channelSettings.scanRole")
-            : t("settings.discord.channelSettings.errorRole"),
+        title: t("settings.discord.channelSettings.trade"),
+        options: pickerChannelOptions(t("settings.discord.channelSettings.none")),
+        selected: [form.getValues("tradeChannelId") ?? ""],
+      };
+    }
+    if (picker.kind === "scan-role" || picker.kind === "error-role" || picker.kind === "trade-role") {
+      const rolePicker = ROLE_PICKERS[picker.kind];
+      return {
+        title: t(rolePicker.titleKey),
         options: [
           { value: "", label: t("settings.discord.roles.none") },
           ...roles
             .filter((role) => role.canPing)
             .map((role) => ({ value: role.id, label: `@${role.name}` })),
         ],
-        selected: [form.getValues(picker.kind === "scan-role" ? "scanRoleId" : "errorRoleId") ?? ""],
+        selected: [form.getValues(rolePicker.field) ?? ""],
       };
     }
     if (picker.kind === "add-channel") {
@@ -256,10 +268,12 @@ export default function NotificationsSettingsScreen() {
       addOverride.mutate({ collectionGuid: active.collectionGuid, scanChannelId: value });
       return;
     }
-    if (active.kind === "scan-role" || active.kind === "error-role") {
-      form.setValue(active.kind === "scan-role" ? "scanRoleId" : "errorRoleId", value === "" ? null : value, {
-        shouldDirty: true,
-      });
+    if (active.kind === "scan-role" || active.kind === "error-role" || active.kind === "trade-role") {
+      form.setValue(ROLE_PICKERS[active.kind].field, value === "" ? null : value, { shouldDirty: true });
+      return;
+    }
+    if (active.kind === "trade") {
+      form.setValue("tradeChannelId", value === "" ? null : value, { shouldDirty: true });
       return;
     }
     const key = active.kind === "scan" ? "scanChannelId" : "errorChannelId";
@@ -319,8 +333,7 @@ export default function NotificationsSettingsScreen() {
     <SettingsPage
       title={t("settings.sections.notifications.title")}
       isLoading={integration.isLoading || rules.isLoading || settings.isLoading}
-      refreshing={integration.isRefetching}
-      onRefresh={() => void integration.refetch()}
+      onRefresh={() => integration.refetch()}
       isDirty={form.formState.isDirty}
       isSaving={form.formState.isSubmitting}
       saveError={saveError}
@@ -333,8 +346,7 @@ export default function NotificationsSettingsScreen() {
       {integration.isError ? <Callout tone="destructive" title={t("settings.discord.channelSettings.saveFailed")} /> : null}
       {message ? <Callout tone={message.tone} title={message.text} /> : null}
 
-      <View style={{ gap: SPACING.sm }}>
-        <SectionHeader title={t("settings.discord.bot.heading")} />
+      <SettingsSection title={t("settings.discord.bot.heading")}>
         <ListGroup>
           <ListRow
             icon="discord"
@@ -364,7 +376,7 @@ export default function NotificationsSettingsScreen() {
         {linked && data && !data.botReachable ? <Callout tone="warning" title={t("settings.discord.discord.botUnreachable")} /> : null}
         {linked && data?.botReachable && !guild ? <Callout tone="warning" title={t("settings.discord.discord.botNotInServer")} /> : null}
         {linkCode ? (
-          <View style={{ gap: SPACING.sm }}>
+          <Surface style={{ gap: SPACING.sm }}>
             <AppText size="xs" tone="secondary">
               {t("settings.discord.bot.codeInstructions")}
             </AppText>
@@ -376,17 +388,13 @@ export default function NotificationsSettingsScreen() {
             <AppText size="xs" tone="secondary" accessibilityLiveRegion="polite">
               {t("settings.discord.bot.expiresIn", { seconds: secondsLeft })}
             </AppText>
-          </View>
+          </Surface>
         ) : null}
-      </View>
+      </SettingsSection>
 
       {ready ? (
         <>
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("settings.discord.channelSettings.heading")} />
-            <AppText size="xs" tone="secondary">
-              {t("settings.discord.channelSettings.description")}
-            </AppText>
+          <SettingsSection title={t("settings.discord.channelSettings.heading")} description={t("settings.discord.channelSettings.description")}>
             <ListGroup>
               <ListRow
                 title={t("settings.discord.channelSettings.scan")}
@@ -424,17 +432,31 @@ export default function NotificationsSettingsScreen() {
                   />
                 )}
               />
+              <ListRow
+                title={t("settings.discord.channelSettings.trade")}
+                value={channelLabel(channels, tradeChannelId, t, noChannelLabel)}
+                disabled={!canManage}
+                onPress={() => setPicker({ kind: "trade" })}
+              />
+              <Controller
+                control={form.control}
+                name="tradeRoleId"
+                render={({ field }) => (
+                  <ListRow
+                    title={t("settings.discord.channelSettings.tradeRole")}
+                    value={roleLabel(roles, field.value, t)}
+                    disabled={!canManage || !tradeChannelId}
+                    onPress={() => setPicker({ kind: "trade-role" })}
+                  />
+                )}
+              />
             </ListGroup>
             <AppText size="xs" tone="secondary">
               {t("settings.discord.channelSettings.roleHint")}
             </AppText>
-          </View>
+          </SettingsSection>
 
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("settings.discord.overrides.heading")} />
-            <AppText size="xs" tone="secondary">
-              {t("settings.discord.overrides.description")}
-            </AppText>
+          <SettingsSection title={t("settings.discord.overrides.heading")} description={t("settings.discord.overrides.description")}>
             {visibleOverrides.length === 0 ? <EmptyState icon="discord" title={t("settings.discord.overrides.empty")} /> : null}
             <ListGroup>
               {visibleOverrides.map(([collectionGuid, override]) => {
@@ -464,13 +486,9 @@ export default function NotificationsSettingsScreen() {
                 />
               ) : null}
             </ListGroup>
-          </View>
+          </SettingsSection>
 
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("settings.discord.rules.heading")} />
-            <AppText size="xs" tone="secondary">
-              {t("settings.discord.rules.description")}
-            </AppText>
+          <SettingsSection title={t("settings.discord.rules.heading")} description={t("settings.discord.rules.description")}>
             {atRuleLimit && ruleLimit !== null ? (
               <Callout tone="info" title={t("settings.discord.rules.limitReached", { count: ruleLimit })} />
             ) : null}
@@ -501,12 +519,11 @@ export default function NotificationsSettingsScreen() {
                             longPressLabel={canManage ? t("settings.discord.rules.edit", { name: rule.name }) : undefined}
                             rightIsInteractive
                             right={
-                              <Switch
+                              <RuleEnabledSwitch
                                 accessibilityLabel={`${t("settings.discord.rules.enabled")}, ${rule.name}`}
                                 value={field.value ?? rule.isEnabled}
                                 disabled={!canManage || !rule.channelId}
                                 onValueChange={field.onChange}
-                                trackColor={{ true: colors.primary, false: colors.muted }}
                               />
                             }
                           />
@@ -525,10 +542,9 @@ export default function NotificationsSettingsScreen() {
                 </ListGroup>
               </>
             )}
-          </View>
+          </SettingsSection>
 
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("settings.discord.notificationsHeading")} />
+          <SettingsSection title={t("settings.discord.notificationsHeading")}>
             <Controller
               control={form.control}
               name="discordNotifyOnScan"
@@ -555,15 +571,11 @@ export default function NotificationsSettingsScreen() {
                 />
               )}
             />
-          </View>
+          </SettingsSection>
         </>
       ) : null}
 
-      <View style={{ gap: SPACING.sm }}>
-        <SectionHeader title={t("settings.discord.notifications.heading")} />
-        <AppText size="xs" tone="secondary">
-          {ready ? t("settings.discord.notifications.testHintReady") : t("settings.discord.notifications.testHintNotLinked")}
-        </AppText>
+      <SettingsSection title={t("settings.discord.notifications.heading")} description={ready ? t("settings.discord.notifications.testHintReady") : t("settings.discord.notifications.testHintNotLinked")}>
         <ListGroup>
           {NOTIFICATION_TEST_TYPES.map((type: NotificationTestType) => (
             <ListRow
@@ -576,7 +588,7 @@ export default function NotificationsSettingsScreen() {
             />
           ))}
         </ListGroup>
-      </View>
+      </SettingsSection>
 
       <OptionSheet
         visible={!!pickerConfig}

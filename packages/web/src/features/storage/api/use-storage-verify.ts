@@ -36,7 +36,7 @@ export function useStorageVerify(locationGuid: string): StorageVerifyState {
     },
     [setStoredText],
   );
-  const { data, isPending, isError } = useQuery(
+  const { data, isPending, isError, refetch } = useQuery(
     storageVerifyCardsQueryOptions(locationGuid),
   );
   const cards = useMemo(() => data ?? [], [data]);
@@ -81,6 +81,7 @@ export function useStorageVerify(locationGuid: string): StorageVerifyState {
     notInLocation,
     isLoading: isPending,
     isError,
+    retry: () => void refetch(),
     isTruncated: cards.length >= STORAGE_VERIFY_CARDS_MAX,
     setVerified,
     addNotInLocation,

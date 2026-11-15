@@ -23,7 +23,7 @@ export function useCardActions(entry: GroupedScannedCard) {
     setCardsFoilType,
     setCardsCondition,
     setCardsTags,
-    removeCards,
+    removeCardsWithUndo,
   } = useScannedCards();
   const gameFoilOptions = useFoilOptions();
   const { collection: viewedCollection } = useViewedCollection();
@@ -62,7 +62,7 @@ export function useCardActions(entry: GroupedScannedCard) {
         t("cardContextMenu.copyFailed"),
       );
     },
-    remove: () => removeCards(entry.scanIds),
+    remove: () => removeCardsWithUndo(entry.scanIds),
     canMoveToLocation: !storageLocked,
     canMove: !storageLocked || targetCollections.length > 0,
     sourceCollectionGuid,

@@ -56,7 +56,7 @@ export function MobilePresetSelector() {
         type="button"
         disabled={isActivating}
         onClick={() => setSheetOpen(true)}
-        className="flex min-h-14 w-full items-center gap-3 rounded-lg bg-card px-3 py-2 text-left ring-1 ring-border transition-colors active:bg-muted disabled:opacity-50"
+        className="flex min-h-14 w-full items-center gap-3 rounded-card bg-card px-3 py-2 text-left transition-colors active:bg-muted disabled:opacity-50"
       >
         <MobileIconBadge tone="primary">
           {isActivating ? (

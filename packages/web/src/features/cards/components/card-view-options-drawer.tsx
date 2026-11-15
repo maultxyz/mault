@@ -65,7 +65,7 @@ export function CardViewOptionsDrawer({
         <DrawerHeader>
           <DrawerTitle>{label}</DrawerTitle>
         </DrawerHeader>
-        <div className="flex min-h-0 flex-1 flex-col gap-6 overflow-y-auto px-4 pb-2">
+        <div className="flex min-h-0 flex-1 flex-col gap-6 md:gap-2 overflow-y-auto px-4 pb-2">
           {hasDisplayOptions && (
             <section className="flex flex-col gap-2">
               <h3 className="font-heading text-sm font-semibold">

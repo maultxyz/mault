@@ -130,20 +130,20 @@ export default function CalibrateLayout() {
 
         <div
           className={cn(
-            "flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 flex flex-col gap-4",
+            "flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto @container p-4 pt-0 md:px-3 flex flex-col gap-4 md:gap-2",
             isMobile && piHost && MOBILE_NAV_SCROLL_PADDING_CLASS,
           )}
         >
           <div
             inert={isSessionActive}
             aria-disabled={isSessionActive}
-            className="sticky top-0 z-20 -mx-4 flex flex-wrap items-center justify-between gap-2 border-b bg-background/80 p-2 backdrop-blur-md"
+            className="sticky top-0 z-20 -mx-4 md:-mx-3 flex flex-wrap items-center justify-between gap-2 border-b bg-background/80 p-2 backdrop-blur-md"
           >
             {isImpersonating ? (
               <div />
             ) : (
               <div
-                className="flex flex-wrap items-center gap-2"
+                className="flex flex-wrap items-center gap-1.5"
                 data-tour="calibration-connect"
               >
                 {piSorter ? (
@@ -218,7 +218,7 @@ export default function CalibrateLayout() {
                   {t("binRoutingControls.retractCard")}
                 </Button>
                 {isUnconfigured ? (
-                  <span className="text-sm text-foreground/70">
+                  <span className="text-xs text-foreground/70">
                     {t("calibratePage.calibrateBeforeTest")}
                   </span>
                 ) : (
@@ -231,7 +231,7 @@ export default function CalibrateLayout() {
                 )}
               </div>
             )}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-1.5">
               <DropdownMenu>
                 <DropdownMenuTrigger render={<Button variant="outline" />}>
                   {isImporting ? (
@@ -295,11 +295,11 @@ export default function CalibrateLayout() {
               {t("common:impersonation.calibrationReadOnly")}
             </Callout>
           )}
-          <SettingsSectionLayoutContext value="flat">
+          <SettingsSectionLayoutContext value="card">
             <div
               inert={isSessionActive || isImpersonating}
               aria-disabled={isSessionActive || isImpersonating}
-              className="flex flex-1 flex-col gap-6 pb-4"
+              className="flex flex-1 flex-col gap-6 md:gap-2 pb-4"
             >
               <PageIntro
                 title={t(`sections.${section}`)}

@@ -589,10 +589,10 @@
     "findSet": "Set suchen",
     "openCard": "{{name}} ansehen ({{details}})",
     "cardNotFound": "Diese Karte ist nicht mehr verfügbar.",
+    "cardLoadFailed": "Diese Karte konnte nicht geladen werden.",
     "referenceImage": "Referenzbild",
     "backToCards": "Zurück zu den Karten",
-    "loading": "Karten werden geladen",
-    "tradeHint": "Öffne eine Karte, um sie zum Tauschangebot hinzuzufügen"
+    "tradeHint": "Tippe auf + bei einer Karte oder öffne sie, um sie zum Tauschangebot hinzuzufügen"
   },
   "tradeOffers": {
     "game": "Spiel",
@@ -623,7 +623,10 @@
     "headerButton_other": "Tauschangebot ({{count}})",
     "inTradeOffer": "Im Tauschangebot",
     "addToTradeOffer": "Zum Tauschangebot hinzufügen",
-    "pageDescription": "Wähle Karten aus {{source}}, füge Karten hinzu, die du dafür gibst, und sende das Angebot. Der Besitzer nimmt an oder lehnt ab.",
+    "quickAdd": "{{name}} zum Tauschangebot hinzufügen",
+    "quickRemove": "{{name}} aus dem Tauschangebot entfernen",
+    "wantedLimit": "Ein Tauschangebot kann bis zu {{max}} Karten anfragen.",
+    "pageDescription": "Wähle Karten aus {{source}}, füge Karten oder Bargeld hinzu, die du dafür gibst (oder nichts), und sende das Angebot. Der Besitzer nimmt an oder lehnt ab.",
     "detailsTitle": "Deine Angaben",
     "detailsDescription": "Damit der Besitzer weiß, wer du bist und wie er dich erreicht.",
     "getTitle_one": "Du bekommst ({{count}})",
@@ -634,15 +637,24 @@
     "addMoreCards": "Weitere Karten hinzufügen",
     "giveTitle_one": "Du gibst ({{count}})",
     "giveTitle_other": "Du gibst ({{count}})",
-    "giveDescription": "Deine Karten, aus beliebigen Spielen",
+    "giveDescription": "Deine Karten aus beliebigen Spielen, Bargeld oder beides",
+    "cashLabel": "Bargeld in {{currency}} (optional)",
+    "cashHint": "Biete Bargeld zusätzlich zu deinen Karten oder allein an. Lass beides leer, um nichts im Gegenzug anzubieten.",
     "giveEmpty": "Suche oben und füge die Karten hinzu, die du anbietest.",
     "summary": "Karten, die du bekommst: {{get}} · Karten, die du gibst: {{give}}",
+    "summaryWithCash": "Karten, die du bekommst: {{get}} · Karten, die du gibst: {{give}} · Bargeld: {{cash}}",
+    "summaryNothing": "Karten, die du bekommst: {{get}} · Nichts im Gegenzug",
     "needGet": "Füge eine gewünschte Karte hinzu, um fortzufahren.",
-    "needGive": "Füge eine Karte hinzu, die du gibst, um fortzufahren.",
     "quantityFor": "Anzahl von {{name}}",
     "conditionFor": "Zustand von {{name}}",
     "yourOffers_one": "Deine gesendeten Angebote ({{count}})",
     "yourOffers_other": "Deine gesendeten Angebote ({{count}})",
-    "noPrice": "Kein Preis"
+    "noPrice": "Kein Preis",
+    "account": {
+      "logIn": "Anmelden",
+      "logInHint": "Melde dich an, um deine gesendeten Angebote im Blick zu behalten. Sie erscheinen in deinem Konto unter Tausch > Gesendet.",
+      "signedInAs": "Angemeldet als {{name}}.",
+      "signedInHint": "Gesendete Angebote erscheinen in deinem Konto unter Tausch > Gesendet."
+    }
   }
 }

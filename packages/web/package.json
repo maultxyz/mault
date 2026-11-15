@@ -14,7 +14,6 @@
     "@base-ui/react": "^1.1.0",
     "@fontsource-variable/figtree": "^5.2.10",
     "@fontsource-variable/geist-mono": "^5.2.7",
-    "@fontsource-variable/jetbrains-mono": "^5.2.8",
     "@hookform/resolvers": "^5.2.2",
     "@magic-vault/shared": "workspace:*",
     "@neondatabase/neon-js": "0.6.2-beta",

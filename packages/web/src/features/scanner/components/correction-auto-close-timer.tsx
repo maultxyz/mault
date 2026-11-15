@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import {
   CORRECTION_AUTO_CLOSE_DONE_DELAY_MS,
   CORRECTION_AUTO_CLOSE_TICK_MS,
@@ -13,36 +14,45 @@ import { useTranslation } from "react-i18next";
 export function CorrectionAutoCloseTimer({
   seconds,
   willMove,
+  isPaused,
   onElapsed,
+  onKeepOpen,
 }: CorrectionAutoCloseTimerProps) {
   const { t } = useTranslation("scanner");
   const totalMs = seconds * 1000;
   const [elapsedMs, setElapsedMs] = useState(0);
   const isDone = elapsedMs >= totalMs;
   const onElapsedRef = useRef(onElapsed);
+  const elapsedMsRef = useRef(0);
 
   useEffect(() => {
     onElapsedRef.current = onElapsed;
   });
 
   useEffect(() => {
-    const startedAt = Date.now();
+    if (isPaused || elapsedMsRef.current >= totalMs) return;
+    const resumedAt = Date.now();
+    const elapsedBeforeResume = elapsedMsRef.current;
     const interval = setInterval(() => {
-      const next = Math.min(Date.now() - startedAt, totalMs);
+      const next = Math.min(
+        elapsedBeforeResume + Date.now() - resumedAt,
+        totalMs,
+      );
+      elapsedMsRef.current = next;
       setElapsedMs(next);
       if (next >= totalMs) clearInterval(interval);
     }, CORRECTION_AUTO_CLOSE_TICK_MS);
     return () => clearInterval(interval);
-  }, [totalMs]);
+  }, [isPaused, totalMs]);
 
   useEffect(() => {
-    if (!isDone) return;
+    if (!isDone || isPaused) return;
     const timeout = setTimeout(
       () => onElapsedRef.current(),
       CORRECTION_AUTO_CLOSE_DONE_DELAY_MS,
     );
     return () => clearTimeout(timeout);
-  }, [isDone]);
+  }, [isDone, isPaused]);
 
   const progress = elapsedMs / totalMs;
   const remaining = Math.ceil((totalMs - elapsedMs) / 1000);
@@ -52,12 +62,14 @@ export function CorrectionAutoCloseTimer({
           ? "binCorrection.autoClose.doneMoved"
           : "binCorrection.autoClose.done",
       )
-    : t(
-        willMove
-          ? "binCorrection.autoClose.countdownMoved"
-          : "binCorrection.autoClose.countdown",
-        { count: remaining },
-      );
+    : isPaused
+      ? t("binCorrection.autoClose.paused")
+      : t(
+          willMove
+            ? "binCorrection.autoClose.countdownMoved"
+            : "binCorrection.autoClose.countdown",
+          { count: remaining },
+        );
 
   return (
     <div className="flex flex-col items-center gap-1">
@@ -99,6 +111,11 @@ export function CorrectionAutoCloseTimer({
       >
         {label}
       </span>
+      {!isDone && (
+        <Button variant="outline" onClick={onKeepOpen}>
+          {t("binCorrection.autoClose.keepOpen")}
+        </Button>
+      )}
     </div>
   );
 }

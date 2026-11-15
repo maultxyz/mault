@@ -109,6 +109,7 @@ export interface SorterContextValue {
   sendRequest: (command: object, timeoutMs?: number) => Promise<SerialRequestResult>;
   sendRoute: (route: BinRoute, options?: RouteOptions) => Promise<unknown>;
   feed: () => Promise<SerialReply | null>;
+  readSensors: () => Promise<SerialReply | null>;
   sendNeutral: () => Promise<boolean>;
   clearDevice: () => Promise<void>;
   retractCard: () => Promise<RetractCardOutcome>;

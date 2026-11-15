@@ -87,8 +87,8 @@ export function AutoAssignPanel() {
   return (
     <Field
       className={cn(
-        "rounded-lg border p-2 gap-2",
-        isMobile && "gap-3 border-0 bg-card p-3 ring-1 ring-border",
+        "gap-2 rounded-card bg-card p-3 md:p-2.5",
+        isMobile && "gap-3",
       )}
       data-tour="auto-assign-panel"
     >
@@ -345,7 +345,7 @@ export function AutoAssignPanel() {
             min={1}
             max={CHAOS_BIN_SIZE_MAX}
             inputMode="numeric"
-            className="h-8 max-w-32"
+            className="max-w-32"
             placeholder={t("chaosPanel.binSizePlaceholder")}
             disabled={disableToggles}
             value={effectiveMode.chaosBinSize ?? ""}

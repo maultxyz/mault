@@ -41,7 +41,7 @@ export function ExportedCardsDialog({
         <form
           id="exported-cards-form"
           onSubmit={submit}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
         >
           <LocationMoveFields
             form={form}

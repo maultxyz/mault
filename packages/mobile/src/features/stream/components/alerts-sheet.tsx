@@ -1,17 +1,31 @@
+import {
+  TRADE_OFFER_TRAY_MESSAGE_KEYS,
+  tradeOfferMessageValues,
+  tradeOfferOfferKind,
+} from "@magic-vault/shared";
 import Constants from "expo-constants";
 import { useTranslation } from "react-i18next";
-import { Linking, Pressable, View } from "react-native";
+import { AccessibilityInfo, Linking, Pressable, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { AppText } from "@/components/ui/app-text";
+import { EmptyState } from "@/components/ui/empty-state";
+import { IconButton } from "@/components/ui/icon-button";
 import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
+import { useAlertsRefresh } from "@/features/stream/api/use-alerts-refresh";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import type { AlertsSheetProps } from "@/lib/interfaces/stream";
 
 export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, onClose }: AlertsSheetProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const toneColor = { info: colors.infoForeground, warning: colors.warningForeground, danger: colors.destructiveForeground };
+  const { refresh, isRefreshing } = useAlertsRefresh();
+  const refreshAlerts = async () => {
+    const succeeded = await refresh();
+    AccessibilityInfo.announceForAccessibility(succeeded ? t("alerts.refreshed") : t("alerts.refreshFailed"));
+  };
 
   return (
     <Sheet
@@ -20,6 +34,20 @@ export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, on
       title={t("alerts.title")}
       description={`v${Constants.expoConfig?.version ?? ""}`}
       contentContainerStyle={{ gap: SPACING.sm }}
+      headerAction={
+        <IconButton
+          icon="refresh"
+          variant="plain"
+          accessibilityLabel={t("alerts.refresh")}
+          disabled={isRefreshing}
+          onPress={() => void refreshAlerts()}
+        />
+      }
+      refreshControl={
+        <PullToRefreshControl
+          onRefresh={() => refreshAlerts()}
+        />
+      }
     >
       {tradeOffers.length > 0 ? (
         <View style={{ gap: SPACING.sm }}>
@@ -35,20 +63,18 @@ export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, on
               style={{
                 flexDirection: "row",
                 gap: SPACING.sm,
-                padding: SPACING.md,
-                borderRadius: RADIUS.md,
-                borderWidth: 1,
-                borderColor: colors.border,
+                padding: SPACING.lg,
+                borderRadius: SURFACE_RADIUS,
+                borderCurve: "continuous",
                 backgroundColor: colors.card,
               }}
             >
               <Icon name="transfer" size={18} color={colors.infoForeground} />
               <View style={{ flex: 1, gap: SPACING.xs }}>
                 <AppText size="sm">
-                  {t("tradeOffers.trayMessage", {
+                  {t(TRADE_OFFER_TRAY_MESSAGE_KEYS[tradeOfferOfferKind(offer)], {
                     name: offer.guestName,
-                    wanted: offer.wanted.length,
-                    offered: offer.offered.reduce((sum, card) => sum + card.quantity, 0),
+                    ...tradeOfferMessageValues(offer),
                   })}
                 </AppText>
                 <AppText size="xs" weight="semibold" tone="primary">
@@ -60,9 +86,7 @@ export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, on
         </View>
       ) : null}
       {alerts.length === 0 && tradeOffers.length === 0 ? (
-        <AppText size="sm" tone="secondary" style={{ textAlign: "center", paddingVertical: SPACING.xl }}>
-          {t("alerts.empty")}
-        </AppText>
+        <EmptyState icon="bell" title={t("alerts.empty")} />
       ) : (
         alerts.map((alert) => (
           <Pressable
@@ -73,10 +97,9 @@ export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, on
             style={{
               flexDirection: "row",
               gap: SPACING.sm,
-              padding: SPACING.md,
-              borderRadius: RADIUS.md,
-              borderWidth: 1,
-              borderColor: colors.border,
+              padding: SPACING.lg,
+              borderRadius: SURFACE_RADIUS,
+              borderCurve: "continuous",
               backgroundColor: colors.card,
             }}
           >

@@ -9,7 +9,7 @@
     "scanner": "Sort",
     "collections": "Collections",
     "scan": "Link camera",
-    "storage": "Locations",
+    "storage": "Storage",
     "calibrate": "Sorter setup",
     "settings": "Settings",
     "organization": "Org",
@@ -23,8 +23,8 @@
     "discord": "Discord",
     "discordAriaLabel": "Join the Discord",
     "collapse": "Collapse",
-    "collapseSidebar": "Collapse sidebar ([)",
-    "expandSidebar": "Expand sidebar ([)",
+    "collapseSidebar": "Collapse sidebar",
+    "expandSidebar": "Expand sidebar",
     "alerts": "Alerts",
     "sounds": "Scan sounds",
     "integrations": "API & webhooks",
@@ -33,14 +33,19 @@
     "sortingRules": "Sorting rules",
     "intake": "Buy & sell",
     "upgradeYourPlan": "Upgrade your plan",
-    "upgradeShort": "Upgrade"
+    "upgradeShort": "Upgrade",
+    "home": "Home",
+    "library": "Library"
   },
   "alerts": {
     "dismiss": "Dismiss",
     "tray": {
       "trigger": "Notifications",
       "title": "Notifications",
-      "empty": "You're all caught up."
+      "empty": "You're all caught up.",
+      "refresh": "Refresh notifications",
+      "refreshed": "Notifications refreshed",
+      "refreshFailed": "Couldn't refresh notifications"
     }
   },
   "breadcrumb": {
@@ -84,8 +89,8 @@
     "syncCompleted": "Card image vector sync completed",
     "syncFailed": "Card image vector sync failed",
     "sync": "Card image vector sync",
-    "cardTotal_one": "{{count}} card · ${{value}} USD",
-    "cardTotal_other": "{{count}} cards · ${{value}} USD",
+    "cardTotal_one": "{{count}} card · {{value}}",
+    "cardTotal_other": "{{count}} cards · {{value}}",
     "healthIssues_one": "{{count}} issue detected",
     "healthIssues_other": "{{count}} issues detected",
     "healthIssuesTooltip": "Having trouble: {{names}}. Click for details.",
@@ -231,7 +236,7 @@
       "clearSelection": "Clear the selection",
       "goScanner": "Go to sorting",
       "goCollections": "Go to collections",
-      "goStorage": "Go to storage boxes",
+      "goStorage": "Go to storage",
       "goCalibrate": "Go to sorter setup",
       "goSettings": "Go to settings",
       "goAdmin": "Go to admin",
@@ -285,9 +290,8 @@
   "mobileTabs": {
     "home": "Home",
     "scan": "Scan",
-    "rules": "Rules",
-    "storage": "Storage",
-    "account": "Account"
+    "library": "Library",
+    "more": "More"
   },
   "pagination": {
     "previous": "Previous",
@@ -338,6 +342,7 @@
     "percentAtLeast": "Must be at least {{min}}%.",
     "percentAtMost": "Must be at most {{max}}%.",
     "amountRequired": "Enter an amount.",
+    "amountInvalid": "Enter an amount like 12.50.",
     "percentageRequired": "Enter a percentage.",
     "tiersRequired": "Add at least one tier.",
     "tooManyTiers": "Add no more than {{max}} tiers.",
@@ -426,6 +431,8 @@
     "expiresAt": "Expires {{date}}",
     "createFailed": "Couldn't create a share link.",
     "revokeAll": "Revoke all links",
+    "revokeAllConfirmTitle": "Revoke all links?",
+    "revokeAllConfirmDescription": "Everyone with one of these links loses access right away. This can't be undone.",
     "revokeFailed": "Couldn't revoke the shared links.",
     "close": "Close",
     "qrAlt": "QR code for this link. Scan it with a phone camera to open the link.",
@@ -438,7 +445,11 @@
     "monitorTypeDescription": "A view of the cards, live while you scan. Visitors can't send offers.",
     "tradeTypeDescription": "Visitors can pick cards and send you trade offers, which show up in your notifications.",
     "tradeOneHourNote": "Trade links last 1 hour.",
-    "monitorOneHourNote": "Your plan includes monitor links that last 1 hour. Enthusiast and Business can share them for up to 30 days."
+    "monitorOneHourNote": "Your plan includes monitor links that last 1 hour. Enthusiast and Business can share them for up to 30 days.",
+    "checkFailedTitle": "Couldn't open this link",
+    "checkFailedDescription": "Check your connection and try again.",
+    "shortLinkInvalidTitle": "This link doesn't work",
+    "shortLinkInvalidDescription": "Check that it was copied in full, or ask whoever shared it for a new link."
   },
   "tradeOffers": {
     "declined": "Trade offer declined",
@@ -454,19 +465,135 @@
     "theyWant_other": "They want {{count}} cards",
     "theyOffer_one": "They offer {{count}} card",
     "theyOffer_other": "They offer {{count}} cards",
+    "theyOfferCash": "They offer cash",
+    "theyOfferNothing": "They offer nothing in return",
+    "cashAmount": "{{amount}} in cash",
+    "nothingOffered": "Nothing offered in return.",
     "trayHeading": "Trade offers",
     "trayMessage": "{{name}} wants {{wanted}} for {{offered}} of theirs",
+    "trayMessageCash": "{{name}} wants {{wanted}} for {{cash}}",
+    "trayMessageCardsAndCash": "{{name}} wants {{wanted}} for {{offered}} of theirs plus {{cash}}",
+    "trayMessageNothing": "{{name}} asks for {{wanted}} with nothing in return",
     "review": "Review",
     "newOfferToast": "New trade offer from {{name}}",
-    "acceptedRemoved_one": "Trade accepted. Removed {{count}} card from your inventory.",
-    "acceptedRemoved_other": "Trade accepted. Removed {{count}} cards from your inventory.",
-    "acceptRemovesCards_one": "Accepting removes the {{count}} card they want from your inventory.",
-    "acceptRemovesCards_other": "Accepting removes the {{count}} cards they want from your inventory.",
     "theyGetValue": "They get",
     "youGetValue": "You get",
     "youGainValue": "Their offer is worth {{amount}} more than what they're asking for.",
     "youLoseValue": "Their offer is worth {{amount}} less than what they're asking for.",
     "evenValue": "Both sides are worth the same.",
-    "missingPrices": "Some cards have no price, so the totals may be low."
+    "missingPrices": "Some cards have no price, so the totals may be low.",
+    "library": {
+      "subtitle": "Trade offers sent through your trade links",
+      "open": "Open",
+      "answered": "Answered",
+      "unnamedGuest": "Guest",
+      "rowDetails": "{{source}} · {{wanted}} wanted · {{offered}} offered",
+      "loadFailed": "Couldn't load trade offers.",
+      "emptyTitle": "No trade offers yet",
+      "emptyDescription": "Offers arrive when someone opens one of your trade links and picks cards. Create a trade link from the share menu of a collection or storage location.",
+      "status": {
+        "pending": "Pending",
+        "accepted": "Accepted",
+        "declined": "Declined"
+      },
+      "picking_one": "Picking, {{count}} left",
+      "picking_other": "Picking, {{count}} left"
+    },
+    "cardList": {
+      "cardCount_one": "{{count}} card",
+      "cardCount_other": "{{count}} cards",
+      "uniqueCount_one": "{{count}} unique",
+      "uniqueCount_other": "{{count}} unique",
+      "sortLabel": "Sort by",
+      "sort": {
+        "value": "Value",
+        "name": "Name",
+        "set": "Set"
+      },
+      "groupByLocation": "Group by location",
+      "groupByLocationHint": "Cards in storage are listed in box order, so you can pull them in one pass.",
+      "filterLabel": "Filter cards",
+      "filterPlaceholder": "Name or set",
+      "filterResults_one": "{{count}} card matches",
+      "filterResults_other": "{{count}} cards match",
+      "noFilterResults": "No cards match your filter.",
+      "showAll": "Show all {{count}}",
+      "showLess": "Show less",
+      "unitPrice": "{{price}} each",
+      "foil": "Foil",
+      "noPrice": "No price",
+      "placementStorage": "{{location}} · #{{positions}}",
+      "placementStorageNoPosition": "{{location}}",
+      "placementBin_one": "{{collection}}, bin {{bins}}",
+      "placementBin_other": "{{collection}}, bins {{bins}}",
+      "placementCollection": "In {{collection}}, not in storage",
+      "placementMissing_one": "{{count}} copy is no longer in your collection",
+      "placementMissing_other": "{{count}} copies are no longer in your collection",
+      "sectionBin": "{{collection}}, bin {{bin}}",
+      "sectionCollection": "{{collection}}, not in storage",
+      "sectionMissing": "No longer in your collection"
+    },
+    "title": "Trade offer",
+    "notFound": "This trade offer no longer exists.",
+    "backToTrades": "Back to trades",
+    "acceptTitle": "Accept this trade offer?",
+    "sideTabs": {
+      "label": "Trade sides",
+      "wanted": "They want ({{count}})",
+      "offered": "They offer ({{count}})"
+    },
+    "pickList": {
+      "started": "Trade accepted. Tick off the cards they want as you pick them.",
+      "acceptHint": "Accepting gives you a pick list. Each card they want is removed from your inventory when you tick it off.",
+      "acceptDescription_one": "You get a pick list for the {{count}} card they want. It's removed from your inventory when you tick it off, and a tick can't be undone.",
+      "acceptDescription_other": "You get a pick list for the {{count}} cards they want. Each one is removed from your inventory when you tick it off, and a tick can't be undone.",
+      "title": "Pick list",
+      "hint": "Tick each card as you pull it. Ticked cards are removed from your inventory right away.",
+      "progress": "{{picked}} of {{count}} picked",
+      "picked": "Picked and removed",
+      "pickedSection": "Picked",
+      "finish": "Finish",
+      "finishTitle": "Finish picking?",
+      "finishDescription_one": "This removes the {{count}} card you haven't ticked off from your inventory.",
+      "finishDescription_other": "This removes the {{count}} cards you haven't ticked off from your inventory.",
+      "finished_one": "Trade finished. Removed {{count}} card from your inventory.",
+      "finished_other": "Trade finished. Removed {{count}} cards from your inventory.",
+      "pickFailed": "Couldn't remove the picked card. Tick it again to retry.",
+      "finishFailed": "Couldn't finish the pick list."
+    },
+    "boxes": {
+      "label": "Trade offers",
+      "received": "Received",
+      "sent": "Sent"
+    },
+    "sent": {
+      "title": "Sent trade offer",
+      "unknownRecipient": "A shared link",
+      "rowDetails": "{{wanted}} asked for · {{offered}} offered",
+      "loadFailed": "Couldn't load your sent offers.",
+      "emptyTitle": "No sent offers yet",
+      "emptyDescription": "Offers you send from someone's trade link while logged in show up here.",
+      "detailTitle": "Your offer to {{name}}",
+      "detailDescription": "Sent on {{date}}",
+      "answeredOn": "Answered on {{date}}",
+      "waitingHint": "Waiting for an answer.",
+      "yourName": "Your name",
+      "youWant_one": "You asked for {{count}} card",
+      "youWant_other": "You asked for {{count}} cards",
+      "youOffer_one": "You offered {{count}} card",
+      "youOffer_other": "You offered {{count}} cards",
+      "youOfferCash": "You offered cash",
+      "youOfferNothing": "You offered nothing in return",
+      "sideTabs": {
+        "wanted": "You asked for ({{count}})",
+        "offered": "You offered ({{count}})"
+      },
+      "backToSent": "Back to sent offers",
+      "status": {
+        "pending": "Waiting",
+        "accepted": "Accepted",
+        "declined": "Declined"
+      }
+    }
   }
 }

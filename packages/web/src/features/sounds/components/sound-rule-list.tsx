@@ -1,4 +1,7 @@
 import { PlanNotice } from "@/components/plan-notice";
+import { DeleteDialog } from "@/components/delete-dialog";
+import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { EmptyState } from "@/components/empty-state";
 import { SaveBar } from "@/components/save-bar";
 import { SettingsSection } from "@/components/settings-section";
@@ -38,8 +41,15 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
   const rulesOpts = soundRulesQueryOptions(activeOrg?.id, gameGuid);
-  const { data: rules = [], isLoading } = useQuery(rulesOpts);
-  const { data: clips = [] } = useQuery(soundClipsQueryOptions(activeOrg?.id));
+  const {
+    data: rules = [],
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(rulesOpts);
+  const { data: clips = [], isLoading: isClipsLoading } = useQuery(
+    soundClipsQueryOptions(activeOrg?.id),
+  );
   const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
   const { data: totalRules = 0 } = useQuery(
     soundRuleCountQueryOptions(activeOrg?.id),
@@ -48,6 +58,7 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
   const atRuleLimit = ruleLimit !== null && totalRules >= ruleLimit;
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState<SoundRule | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<SoundRule | null>(null);
 
   const change = useMutation({
     mutationFn: (request: () => Promise<Result<SoundRule[]>>) => request(),
@@ -93,14 +104,21 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
           linkLabel={t("rules.upgrade")}
         />
       )}
-      {clips.length === 0 && (
+      {isError && (
+        <LoadErrorCallout
+          message={t("rules.loadFailed")}
+          onRetry={() => void refetch()}
+        />
+      )}
+      {(isLoading || isClipsLoading) && <ListSkeleton rows={3} />}
+      {!isClipsLoading && clips.length === 0 && (
         <EmptyState size="compact" icon={IconUpload} title={t("rules.needsClip")} />
       )}
-      {!isLoading && rules.length === 0 && clips.length > 0 && (
+      {!isLoading && !isError && rules.length === 0 && clips.length > 0 && (
         <EmptyState size="compact" icon={IconMusic} title={t("rules.empty")} />
       )}
 
-      <ol className="flex flex-col divide-y rounded-lg border empty:hidden">
+      <ol className="flex flex-col divide-y divide-border empty:hidden">
         {draft.orderedRules.map((rule, index) => {
           const clip = clips.find((c) => c.guid === rule.clipGuid);
           return (
@@ -114,7 +132,7 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
                   title={t("rules.moveUp")}
                   onClick={() => draft.move(index, -1)}
                 >
-                  <IconArrowUp size={14} />
+                  <IconArrowUp />
                 </Button>
                 <Button
                   size="icon"
@@ -124,7 +142,7 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
                   title={t("rules.moveDown")}
                   onClick={() => draft.move(index, 1)}
                 >
-                  <IconArrowDown size={14} />
+                  <IconArrowDown />
                 </Button>
               </ButtonGroup>
               <div className="min-w-0 flex-1">
@@ -152,7 +170,7 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
                   title={t("rules.edit", { name: rule.name })}
                   onClick={() => openDialog(rule)}
                 >
-                  <IconPencil size={14} />
+                  <IconPencil />
                 </Button>
                 <Button
                   size="icon"
@@ -160,11 +178,9 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
                   disabled={locked}
                   aria-label={t("rules.delete", { name: rule.name })}
                   title={t("rules.delete", { name: rule.name })}
-                  onClick={() =>
-                    change.mutate(() => deleteSoundRule(rule.guid))
-                  }
+                  onClick={() => setDeleteTarget(rule)}
                 >
-                  <IconTrash size={14} />
+                  <IconTrash />
                 </Button>
               </ButtonGroup>
             </li>
@@ -172,6 +188,21 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
         })}
       </ol>
 
+      <DeleteDialog
+        open={!!deleteTarget}
+        onOpenChange={(open) => {
+          if (!open) setDeleteTarget(null);
+        }}
+        title={t("rules.deleteConfirmTitle")}
+        description={t("rules.deleteConfirmDescription", {
+          name: deleteTarget?.name,
+        })}
+        onConfirm={() => {
+          if (!deleteTarget) return;
+          const ruleGuid = deleteTarget.guid;
+          change.mutate(() => deleteSoundRule(ruleGuid));
+        }}
+      />
       <SoundRuleDialog
         open={dialogOpen}
         onOpenChange={setDialogOpen}

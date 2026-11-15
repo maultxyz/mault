@@ -1,3 +1,4 @@
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -13,6 +14,7 @@ export function PublicCardResults({
   page: cardPage,
   isPending,
   isError,
+  onRetry,
   onPageChange,
   onOpenCard,
 }: PublicCardResultsProps) {
@@ -39,7 +41,7 @@ export function PublicCardResults({
       {info.cardCount === 0 ? (
         <EmptyState icon={IconCards} title={t("publicBrowse.empty")} />
       ) : isError ? (
-        <EmptyState icon={IconCards} title={t("publicBrowse.loadFailed")} />
+        <LoadErrorCallout message={t("publicBrowse.loadFailed")} onRetry={onRetry} />
       ) : isPending ? (
         <ListSkeleton />
       ) : cards.length === 0 ? (

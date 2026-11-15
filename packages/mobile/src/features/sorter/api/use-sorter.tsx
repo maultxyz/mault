@@ -511,6 +511,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
     [],
   );
   const feed = useCallback(() => link.feed(), []);
+  const readSensors = useCallback(() => link.readSensors(), []);
   const sendNeutral = useCallback(() => link.sendNeutral(), []);
   const clearDevice = useCallback(async () => {
     await link.sendCommand({ clearDevice: true });
@@ -600,6 +601,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       sendRequest,
       sendRoute,
       feed,
+      readSensors,
       sendNeutral,
       clearDevice,
       retractCard,
@@ -631,6 +633,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       sendRequest,
       sendRoute,
       feed,
+      readSensors,
       sendNeutral,
       clearDevice,
       retractCard,

@@ -206,7 +206,8 @@
     "active": "Aktiv",
     "entryLabel": "{{admin}} → {{target}}",
     "startedAndEnded": "{{started}} – {{ended}}",
-    "startedOnly": "Gestartet {{started}}"
+    "startedOnly": "Gestartet {{started}}",
+    "loadFailed": "Das Protokoll der Identitätsübernahmen konnte nicht geladen werden."
   },
   "metricsStats": {
     "heading": "Scan-Statistiken",
@@ -219,7 +220,8 @@
     "averageMatchPercentLabel": "Ø Trefferzuversicht",
     "correctedLabel": "Korrigiert",
     "multipleMatchesLabel": "Mehrere Treffer",
-    "percentValue": "{{percent}}%"
+    "percentValue": "{{percent}}%",
+    "loadFailed": "Einige Scan-Statistiken konnten nicht geladen werden."
   },
   "activeScanning": {
     "heading": "Aktives Scannen",
@@ -240,7 +242,8 @@
     "scans_other": "{{count}} Scans",
     "collectionWithGame": "{{collection}} · {{game}}",
     "unknownCollection": "Unbekannte Sammlung",
-    "timing": "Gestartet {{started}}, letzte Aktivität {{lastActivity}}"
+    "timing": "Gestartet {{started}}, letzte Aktivität {{lastActivity}}",
+    "loadFailed": "Aktive Scan-Sitzungen konnten nicht geladen werden."
   },
   "scanVectorizeStats": {
     "heading": "Vektorisierungsquelle beim Scannen",
@@ -359,7 +362,8 @@
         "confirmTitle": "Zu den alten Preisen zurückwechseln?",
         "confirmDescription": "Enthusiast und der neue Business-Tarif werden nicht mehr verkauft, und der Business-Checkout nutzt wieder die alten Preise. Wer bereits einen neuen Tarif abonniert hat, behält ihn."
       }
-    }
+    },
+    "loadFailed": "Tarifeinstellungen konnten nicht geladen werden."
   },
   "deletedItems": {
     "typeLabel": "Elementtyp",
@@ -467,7 +471,8 @@
       "role": "Rolle",
       "saved": "Rolle für verknüpfte Konten gespeichert.",
       "saveFailed": "Die Rolle für verknüpfte Konten konnte nicht gespeichert werden."
-    }
+    },
+    "loadFailed": "Discord-Einstellungen konnten nicht geladen werden."
   },
   "errorReportingTest": {
     "heading": "PostHog testen",
@@ -483,7 +488,8 @@
   "systemSoundClips": {
     "heading": "System-Soundclips",
     "description": "Clips, die jede Organisation in ihren Sound-Regeln verwenden kann. Organisationen können sie abspielen, aber nicht umbenennen oder löschen.",
-    "empty": "Noch keine System-Soundclips."
+    "empty": "Noch keine System-Soundclips.",
+    "loadFailed": "Systemsounds konnten nicht geladen werden."
   },
   "apiUsage": {
     "heading": "API-Nutzung",

@@ -56,8 +56,9 @@ export async function saveSet(
 export async function renameSet(
   guid: string,
   name: string,
+  description: string,
 ): Promise<Result<BinSet[]>> {
-  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}`, { name });
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}`, { name, description });
 }
 
 export async function deleteSet(guid: string): Promise<Result<BinSet[]>> {

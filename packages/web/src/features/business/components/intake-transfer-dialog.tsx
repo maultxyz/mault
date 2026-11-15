@@ -97,7 +97,7 @@ export function IntakeTransferDialog({
         </DialogHeader>
         <form
           id="intake-transfer-form"
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(submit)}
         >
           <Controller
@@ -175,7 +175,13 @@ export function IntakeTransferDialog({
                       {t("transfer.deleteSourceHint")}
                     </span>
                   </span>
-                  <Switch checked={field.value} onCheckedChange={field.onChange} />
+                  <Switch
+                    aria-label={t("transfer.deleteSource", {
+                      name: lot.collectionName,
+                    })}
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                  />
                 </label>
               )}
             />

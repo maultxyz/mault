@@ -8,7 +8,7 @@ export function KitTestBench() {
   const session = useKitTestSession();
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 md:gap-2">
       <KitBoardPanel />
       <KitServoBench session={session} disabled={!isConnected} />
     </div>

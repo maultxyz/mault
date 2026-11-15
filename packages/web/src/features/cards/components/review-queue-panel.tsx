@@ -1,3 +1,5 @@
+import { LoadErrorCallout } from "@/components/load-error-callout";
+import { CardImage } from "@/components/card-image";
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -63,12 +65,7 @@ function ReviewQueueRow({
       )}
       <div className="aspect-[2.5/3.5] w-7 shrink-0 overflow-hidden rounded-sm bg-muted">
         {entry.card.image?.small && (
-          <img
-            src={entry.card.image.small}
-            alt=""
-            loading="lazy"
-            className="size-full object-cover"
-          />
+          <CardImage src={entry.card.image.small} alt="" />
         )}
       </div>
       <div className="flex min-w-0 flex-1 flex-col">
@@ -94,6 +91,7 @@ export function ReviewQueueList({
   totalCards,
   isPending,
   isError,
+  onRetry,
   currentScanId,
   reviewedScanIds,
   removedScanIds,
@@ -111,7 +109,7 @@ export function ReviewQueueList({
     <div className="flex size-full flex-col bg-sidebar">
       <div className="flex shrink-0 items-start gap-2 border-b p-2">
         <div className="min-w-0 flex-1">
-          <h2 className="truncate text-sm font-semibold">
+          <h2 className="truncate font-heading text-sm font-semibold">
             {t("reviewQueue.title")}
           </h2>
           <p role="status" className="text-xs tabular-nums text-foreground/70">
@@ -134,7 +132,7 @@ export function ReviewQueueList({
         </Button>
       </div>
       {cards.length > 0 && (
-        <div className="h-1 w-full shrink-0 bg-muted">
+        <div className="h-1 w-full shrink-0 bg-foreground/6">
           <div
             className="h-full bg-success transition-[width] motion-reduce:transition-none"
             style={{ width: `${(checkedCount / cards.length) * 100}%` }}
@@ -143,7 +141,11 @@ export function ReviewQueueList({
       )}
       <div className="min-h-0 flex-1 overflow-y-auto p-1.5">
         {isError ? (
-          <Callout variant="error">{t("reviewQueue.loadFailed")}</Callout>
+          onRetry ? (
+            <LoadErrorCallout message={t("reviewQueue.loadFailed")} onRetry={onRetry} />
+          ) : (
+            <Callout variant="error">{t("reviewQueue.loadFailed")}</Callout>
+          )
         ) : isPending ? (
           <div className="flex flex-col gap-1.5">
             {Array.from({ length: 8 }).map((_, index) => (

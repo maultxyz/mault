@@ -8,8 +8,8 @@ import { useContext } from "react";
 
 export function SettingsSections({ children }: SettingsSectionsProps) {
   return (
-    <SettingsSectionLayoutContext value="flat">
-      <div className="flex flex-col gap-6">{children}</div>
+    <SettingsSectionLayoutContext value="card">
+      <div className="flex flex-col gap-4 md:gap-2">{children}</div>
     </SettingsSectionLayoutContext>
   );
 }
@@ -41,10 +41,10 @@ export function SettingsSection({
     <section
       data-tour={dataTour}
       className={cn(
-        "flex flex-col gap-4",
+        "flex flex-col gap-4 md:gap-2",
         layout === "flat"
           ? "border-t pt-6 first:border-t-0 first:pt-0"
-          : "rounded-lg border p-4",
+          : "rounded-card bg-card p-5 md:p-2.5",
         className,
       )}
     >

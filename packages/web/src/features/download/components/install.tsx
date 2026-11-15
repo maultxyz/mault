@@ -14,7 +14,7 @@ export function DownloadInstall() {
           subtitle={t("install.description")}
         />
 
-        <div className="mx-auto mt-12 flex max-w-3xl flex-col divide-y rounded-lg bg-card ring-1 ring-border">
+        <div className="mx-auto mt-12 flex max-w-3xl flex-col divide-y rounded-card bg-card">
           {DESKTOP_DOWNLOADS.map((download) => (
             <div key={download.platform} className="flex gap-4 p-5">
               <download.icon className="mt-0.5 size-4 shrink-0 text-primary" />

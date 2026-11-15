@@ -1,4 +1,6 @@
 import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
+import { CardImage } from "@/components/card-image";
+import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
 import { usePriceSource } from "@/hooks/use-price-source";
@@ -9,6 +11,7 @@ import {
 } from "@/lib/constants/nav";
 import { MONITOR_OPEN_CARD_PARAM } from "@/lib/constants/scanner";
 import type { MobileSessionScansSheetProps } from "@/lib/interfaces/scanner";
+import { IconScan } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -40,9 +43,11 @@ export function MobileSessionScansSheet({
             </p>
           </div>
           {count === 0 ? (
-            <p className="py-6 text-center text-sm text-foreground/70">
-              {t("mobileScan.session.empty")}
-            </p>
+            <EmptyState
+              size="compact"
+              icon={IconScan}
+              title={t("mobileScan.session.empty")}
+            />
           ) : isPending ? (
             <div className="flex flex-col gap-2">
               {Array.from({ length: 3 }).map((_, i) => (
@@ -64,14 +69,11 @@ export function MobileSessionScansSheet({
                     className={MOBILE_LIST_ROW_CLASS}
                   >
                     <span className="relative aspect-[2.5/3.5] w-10 shrink-0 overflow-hidden rounded-sm bg-muted">
-                      {entry.card.image?.small && (
-                        <img
-                          src={entry.card.image.small}
-                          alt=""
-                          loading="lazy"
-                          className="absolute inset-0 size-full object-cover"
-                        />
-                      )}
+                      <CardImage
+                        src={entry.card.image?.small}
+                        alt=""
+                        className="absolute inset-0"
+                      />
                     </span>
                     <span className="min-w-0 flex-1">
                       <span className="block truncate font-semibold">

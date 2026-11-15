@@ -16,7 +16,7 @@ import { useTranslation } from "react-i18next";
 export function usePlatformDiscordLinkedRoleDraft() {
   const { t } = useTranslation("admin");
   const queryClient = useQueryClient();
-  const { data, isPending } = useQuery(platformDiscordLinkedRoleQueryOptions);
+  const { data, isPending, isError, refetch } = useQuery(platformDiscordLinkedRoleQueryOptions);
 
   const form = useForm<PlatformDiscordLinkedRoleFormValues>({
     resolver: zodResolver(platformDiscordLinkedRoleSchema),
@@ -41,7 +41,9 @@ export function usePlatformDiscordLinkedRoleDraft() {
   return {
     form,
     data,
-    isLoading: isPending,
+    isLoading: isPending && !isError,
+    isError: isError && !data,
+    refetch,
     save: form.handleSubmit(save),
   };
 }

@@ -44,7 +44,7 @@ export function UpdateNameForm() {
       <form
         id="update-name-form"
         onSubmit={form.handleSubmit(onSubmit)}
-        className="flex max-w-sm flex-col gap-3"
+        className="flex max-w-sm flex-col gap-3 md:gap-2"
       >
         <Field data-invalid={!!form.formState.errors.name}>
           <FieldLabel htmlFor="name">{t("profile.nameLabel")}</FieldLabel>

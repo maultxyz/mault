@@ -115,7 +115,7 @@ export function EmptyCollectionDialog({
         <form
           id="empty-collection-form"
           onSubmit={form.handleSubmit(handleSubmit)}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
         >
           {isLocked && (
             <p className="text-xs text-foreground/70">

@@ -42,6 +42,7 @@ import {
   shopCatalogLinkToken,
   toShopCatalogSources,
 } from "../../lib/shop-catalogs";
+import { generateShortLinkCode } from "../../lib/short-link-codes";
 import { uuidArraySql } from "../../lib/sql-arrays";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { businessQuery, notFound, readJson } from "./shared";
@@ -70,6 +71,7 @@ async function toShopCatalog(
       row.orgId,
       row.shareLinkVersion,
     ),
+    shortCode: row.shortCode,
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -239,6 +241,7 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
           showsPrices: input.data.showsPrices,
           isPublic: input.data.isPublic,
           ...sourceIds,
+          shortCode: generateShortLinkCode(),
         })
         .returning();
       await logActivity(tx, {
@@ -301,6 +304,7 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
         .update(shopCatalogs)
         .set({
           shareLinkVersion: sql`${shopCatalogs.shareLinkVersion} + 1`,
+          shortCode: generateShortLinkCode(),
           updatedAt: new Date(),
         })
         .where(eq(shopCatalogs.id, existing.id))

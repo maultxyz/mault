@@ -1,4 +1,4 @@
-import { Callout } from "@/components/callout";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { EmptyState } from "@/components/empty-state";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useShareLinks } from "@/features/share-links/api/use-share-links";
@@ -18,9 +18,9 @@ export function ShareLinkList({
 }: ShareLinkListProps) {
   const { t } = useTranslation("share-links");
   const isMobile = useIsMobile();
-  const { links, isLoading, isError, revoke } = useShareLinks(subjectGuid);
+  const { links, isLoading, isError, retry, revoke } = useShareLinks(subjectGuid);
 
-  if (isError) return <Callout variant="error">{t("loadFailed")}</Callout>;
+  if (isError) return <LoadErrorCallout message={t("loadFailed")} onRetry={retry} />;
   if (isLoading) return <Skeleton className="h-14 w-full" />;
   if (links.length === 0) {
     return (
@@ -38,7 +38,7 @@ export function ShareLinkList({
       className={cn(
         isMobile
           ? MOBILE_LIST_CLASS
-          : "flex flex-col divide-y divide-border rounded-lg border",
+          : "flex flex-col divide-y divide-border rounded-lg bg-foreground/6",
         SHARE_LINK_LIST_MAX_HEIGHT_CLASS,
       )}
     >

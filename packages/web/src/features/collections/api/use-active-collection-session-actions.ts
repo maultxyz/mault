@@ -1,10 +1,8 @@
 import { releaseScanLock } from "@/features/collections/api/collections";
-import {
-  buildMonitorLinkUrl,
-  createMonitorLink,
-} from "@/features/collections/api/monitor-links";
+import { createMonitorLink } from "@/features/collections/api/monitor-links";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useCollectionLocks } from "@/lib/app-stream";
+import { shareLinkUrl } from "@/features/share-links/lib/share-link-paths";
 import { copyTextFromPromise } from "@/lib/clipboard";
 import type { ActiveCollectionSessionActions } from "@/lib/interfaces/collections";
 import { toast } from "@/lib/toast";
@@ -49,7 +47,7 @@ export function useActiveCollectionSessionActions(): ActiveCollectionSessionActi
       if (!result.success || !result.data) {
         throw new Error(result.message);
       }
-      created.url = buildMonitorLinkUrl(collectionGuid, result.data.token);
+      created.url = shareLinkUrl(result.data);
       return created.url;
     });
     setIsSharing(true);

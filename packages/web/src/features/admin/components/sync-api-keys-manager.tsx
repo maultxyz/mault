@@ -1,6 +1,6 @@
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
-import { Callout } from "@/components/callout";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -28,7 +28,7 @@ import { useTranslation } from "react-i18next";
 
 export function SyncApiKeysManager() {
   const { t } = useTranslation("admin");
-  const { keys, isLoading, isError, create, revoke } = useSyncApiKeys();
+  const { keys, isLoading, isError, refetch, create, revoke } = useSyncApiKeys();
   const [showCreate, setShowCreate] = useState(false);
   const [revokeTarget, setRevokeTarget] = useState<SyncApiKey | null>(null);
   const [newRawKey, setNewRawKey] = useState<string | null>(null);
@@ -65,7 +65,12 @@ export function SyncApiKeysManager() {
         </Button>
       }
     >
-      {isError && <Callout variant="error">{t("syncApiKeys.loadFailed")}</Callout>}
+      {isError && (
+        <LoadErrorCallout
+          message={t("syncApiKeys.loadFailed")}
+          onRetry={() => void refetch()}
+        />
+      )}
 
       {isLoading && <Skeleton className="h-14 w-full" />}
 
@@ -74,7 +79,7 @@ export function SyncApiKeysManager() {
       )}
 
       {!isLoading && keys.length > 0 && (
-        <div className="flex flex-col divide-y rounded-lg border">
+        <div className="flex flex-col divide-y divide-border">
           {keys.map((key) => (
             <div key={key.guid} className="flex items-center gap-3 px-3 py-2.5 text-sm">
               <IconKey className="size-4 shrink-0 text-foreground/70" />
@@ -137,7 +142,7 @@ export function SyncApiKeysManager() {
       >
         <form
           id="create-sync-api-key-form"
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(handleCreate)}
         >
           <Field data-invalid={!!form.formState.errors.name}>
@@ -158,7 +163,7 @@ export function SyncApiKeysManager() {
               control={form.control}
               name="permissions"
               render={({ field }) => (
-                <div className="divide-y rounded-lg border">
+                <div className="divide-y divide-border overflow-hidden rounded-lg bg-foreground/6">
                   {SYNC_API_KEY_PERMISSIONS.map((permission) => {
                     const id = `sync-api-key-permission-${permission}`;
                     return (
@@ -208,8 +213,8 @@ export function SyncApiKeysManager() {
           </Button>
         }
       >
-        <div className="flex flex-col gap-3">
-          <div className="flex items-center gap-2 rounded-lg border bg-muted p-2">
+        <div className="flex flex-col gap-3 md:gap-2">
+          <div className="flex items-center gap-2 rounded-lg bg-foreground/6 p-2">
             <code className="flex-1 overflow-x-auto whitespace-nowrap text-sm">
               {newRawKey}
             </code>
@@ -231,7 +236,7 @@ export function SyncApiKeysManager() {
             </Button>
           </div>
           <p className="text-xs text-foreground/70">{t("syncApiKeys.exampleLabel")}</p>
-          <pre className="overflow-x-auto rounded-lg border bg-muted p-2 text-xs">
+          <pre className="overflow-x-auto rounded-lg bg-foreground/6 px-3 py-2 text-xs">
             {exampleCommand}
           </pre>
         </div>

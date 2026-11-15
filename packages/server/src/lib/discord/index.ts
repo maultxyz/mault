@@ -19,4 +19,5 @@ export {
   sendPlatformDiscordNotification,
 } from "./notify";
 export { buildPriceSyncEmbed } from "./price-sync";
+export { sendTradeOfferCreatedDiscordNotification } from "./trade-offer";
 export { postDiscordWebhook } from "./webhook";

@@ -7,12 +7,12 @@ import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PickerCard } from "@/components/ui/picker-card";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
-import { Skeleton } from "@/components/ui/skeleton";
 import { usePresetPicker } from "@/features/rules/api/use-preset-picker";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { AlphabetPassCard } from "@/features/rules/components/alphabet-pass-card";
@@ -33,7 +33,6 @@ export default function RulesScreen() {
 
   return (
     <Screen
-      refreshing={data.isRefetching}
       onRefresh={data.refetch}
       header={<PageHeader title={t("rules.title")} subtitle={collection?.game?.name ?? collection?.name} onBack={() => router.back()} />}
     >
@@ -41,11 +40,7 @@ export default function RulesScreen() {
       {picker.isError ? <Callout tone="destructive" title={t("rules.activateFailed")} /> : null}
 
       {data.isPending ? (
-        <View style={{ gap: SPACING.sm }}>
-          <Skeleton height={48} />
-          <Skeleton height={48} />
-          <Skeleton height={48} />
-        </View>
+        <ListSkeleton />
       ) : !collection ? (
         <EmptyState
           icon="collections"
@@ -69,6 +64,18 @@ export default function RulesScreen() {
               onPress={() => setPickerOpen(true)}
             />
           )}
+
+          {activeSet ? (
+            <ListGroup>
+              <ListRow
+                icon="edit"
+                title={t("rules.description.title")}
+                subtitle={activeSet.description || t("rules.description.add")}
+                subtitleNumberOfLines={0}
+                onPress={() => router.push({ pathname: "/preset-description", params: { guid: activeSet.guid } })}
+              />
+            </ListGroup>
+          ) : null}
 
           {activeSet && !activeSet.isActive ? (
             <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} />

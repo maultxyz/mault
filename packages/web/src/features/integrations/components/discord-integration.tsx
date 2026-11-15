@@ -1,3 +1,6 @@
+import { Callout } from "@/components/callout";
+import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SaveBar } from "@/components/save-bar";
 import {
   SettingsSection,
@@ -27,9 +30,12 @@ export function DiscordIntegration() {
   const { isLinked } = useDiscordBotSettings();
   const { activeCollection } = useCollections();
   const game = activeCollection?.game;
-  const { data: integration } = useQuery(
-    discordIntegrationQueryOptions(activeOrg?.id, isLinked),
-  );
+  const {
+    data: integration,
+    isLoading: isIntegrationLoading,
+    isError: isIntegrationError,
+    refetch: refetchIntegration,
+  } = useQuery(discordIntegrationQueryOptions(activeOrg?.id, isLinked));
   const guild = integration?.guild ?? null;
   const draft = useDiscordSettingsDraft(integration, game?.guid);
 
@@ -42,21 +48,14 @@ export function DiscordIntegration() {
         : null;
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-6 md:gap-2">
       <div className="flex items-center gap-3">
-        <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-[#5865F2] text-white">
+        <span className="flex size-10 shrink-0 items-center justify-center rounded-full bg-[#5865F2] text-white">
           <IconBrandDiscord size={24} />
         </span>
-        <div className="min-w-0 flex-1">
-          <h2 className="font-heading text-base font-semibold">
-            {t("discord.heading")}
-          </h2>
-          <p className="truncate text-sm text-foreground/70">
-            {guild
-              ? t("discord.connectedTo", { server: guild.name })
-              : t("discord.description")}
-          </p>
-        </div>
+        <p className="min-w-0 flex-1 truncate text-sm text-foreground/70">
+          {guild ? t("discord.connectedTo", { server: guild.name }) : null}
+        </p>
         <Badge variant={isLinked ? "secondary" : "outline"}>
           {isLinked ? t("discord.statusLinked") : t("discord.statusNotLinked")}
         </Badge>
@@ -69,12 +68,21 @@ export function DiscordIntegration() {
         >
           <DiscordBotSettings />
           {warning && (
-            <p className="flex items-center gap-2 text-sm text-destructive">
-              <IconAlertTriangle size={16} className="shrink-0" />
+            <Callout variant="warning" icon={IconAlertTriangle}>
               {warning}
-            </p>
+            </Callout>
           )}
         </SettingsSection>
+
+        {isLinked && !integration && isIntegrationError && (
+          <LoadErrorCallout
+            message={t("discord.loadFailed")}
+            onRetry={() => void refetchIntegration()}
+          />
+        )}
+        {isLinked && !integration && isIntegrationLoading && (
+          <ListSkeleton rows={4} />
+        )}
 
         {isLinked && integration && (
           <FormProvider {...draft.form}>

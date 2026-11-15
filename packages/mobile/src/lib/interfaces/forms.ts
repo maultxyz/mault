@@ -9,4 +9,6 @@ export type BinFormValues = z.infer<typeof binSchema>;
 
 export type ModeFormValues = z.infer<typeof modeSchema>;
 
-export type RepackFormValues = z.infer<typeof repackSchema>;
+export type RepackFormInput = z.input<typeof repackSchema>;
+
+export type RepackFormValues = z.output<typeof repackSchema>;

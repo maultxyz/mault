@@ -1,3 +1,4 @@
+import { BrandMark } from "@/components/brand-mark";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { Button } from "@/components/ui/button";
 import {
@@ -83,8 +84,9 @@ export default function VerifyEmailPage() {
     <main
       id={MAIN_CONTENT_ID}
       tabIndex={-1}
-      className="flex min-h-dvh items-center justify-center p-4 outline-none"
+      className="flex min-h-dvh flex-col items-center justify-center gap-6 bg-background p-4 outline-none"
     >
+      <BrandMark />
       <Card className="w-full max-w-sm">
         <CardHeader>
           <div className="flex items-center gap-2 mb-1">
@@ -102,7 +104,7 @@ export default function VerifyEmailPage() {
         <CardContent>
           <form
             onSubmit={form.handleSubmit(handleVerify)}
-            className="flex flex-col gap-4"
+            className="flex flex-col gap-4 md:gap-2"
           >
             <Controller
               name="otp"
@@ -144,7 +146,7 @@ export default function VerifyEmailPage() {
               className="w-full"
             >
               {form.formState.isSubmitting && (
-                <IconLoader2 className="size-4 animate-spin" />
+                <IconLoader2 className="animate-spin" />
               )}
               {t("verifyEmail.submit")}
             </Button>
@@ -155,7 +157,7 @@ export default function VerifyEmailPage() {
               disabled={isResending}
               className="w-full"
             >
-              {isResending && <IconLoader2 className="size-4 animate-spin" />}
+              {isResending && <IconLoader2 className="animate-spin" />}
               {t("verifyEmail.resend")}
             </Button>
           </form>

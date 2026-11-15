@@ -5,8 +5,10 @@ import { scanIdsToRemove, selectableRemovalCopies, selectedRemovalCopy } from "@
 import { CardRow } from "@/components/cards/card-row";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/ui/empty-state";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { Sheet } from "@/components/ui/sheet";
+import { Surface } from "@/components/ui/surface";
 import { describeRemovalCopy } from "@/features/scanner/lib/scan-removal";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { ScanRemovalQueueSheetProps } from "@/lib/interfaces/scanner";
@@ -69,19 +71,15 @@ export function ScanRemovalQueueSheet({
           data={removal.entries}
           keyExtractor={(entry) => entry.entryId}
           style={{ flexShrink: 1 }}
-          contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER - SPACING.sm, paddingBottom: SPACING.md }}
-          ListEmptyComponent={
-            <AppText tone="secondary" style={{ textAlign: "center", paddingVertical: SPACING.xl }}>
-              {t("scan.removal.empty")}
-            </AppText>
-          }
+          contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.md, gap: SPACING.sm }}
+          ListEmptyComponent={<EmptyState icon="trash" title={t("scan.removal.empty")} />}
           renderItem={({ item: entry }) => {
             const queuedCopy = selectedRemovalCopy(entry);
             const canChangeCopy = selectableRemovalCopies(entry, removal.entries).some(
               (copy) => copy.scanId !== entry.selectedScanId,
             );
             return (
-              <View style={{ gap: SPACING.xs, paddingBottom: SPACING.sm }}>
+              <Surface padded={false} style={{ gap: SPACING.xs, paddingBottom: SPACING.md }}>
                 <CardRow
                   name={entry.matchedCard.name}
                   subtitle={entry.matchedCard.setName}
@@ -91,11 +89,11 @@ export function ScanRemovalQueueSheet({
                   size="xs"
                   tone={queuedCopy ? "secondary" : "warning"}
                   numberOfLines={2}
-                  style={{ paddingHorizontal: SPACING.sm }}
+                  style={{ paddingHorizontal: SCREEN_GUTTER }}
                 >
                   {queuedCopy ? describeRemovalCopy(queuedCopy, t) : t("scan.removal.noCopyLeft")}
                 </AppText>
-                <View style={{ flexDirection: "row", justifyContent: "flex-end", gap: SPACING.sm, paddingHorizontal: SPACING.sm }}>
+                <View style={{ flexDirection: "row", justifyContent: "flex-end", gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER }}>
                   <Button
                     label={t("scan.removal.changeCopy")}
                     variant="secondary"
@@ -112,7 +110,7 @@ export function ScanRemovalQueueSheet({
                     onPress={() => removal.dropEntry(entry.entryId)}
                   />
                 </View>
-              </View>
+              </Surface>
             );
           }}
         />

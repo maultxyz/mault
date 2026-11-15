@@ -6,6 +6,7 @@ import {
   HOTKEY_SEARCH_ATTRIBUTE,
 } from "@/lib/constants/hotkeys";
 import { focusHotkeySearch } from "@/lib/hotkeys";
+import { SEARCH_PATH } from "@/lib/constants/search";
 import { toast } from "@/lib/toast";
 import { useNavigate } from "react-router-dom";
 
@@ -16,7 +17,9 @@ export function AppHotkeys() {
   const { goToNextSorterNeedingAttention } = useNextSorterNeedingAttention();
 
   useHotkeys({
-    focusSearch: () => focusHotkeySearch(`[${HOTKEY_SEARCH_ATTRIBUTE}]`),
+    focusSearch: () => {
+      if (!focusHotkeySearch(`[${HOTKEY_SEARCH_ATTRIBUTE}]`)) navigate(SEARCH_PATH);
+    },
     dismissToasts: () => toast.dismiss(),
     goScanner: go(HOTKEY_ROUTES.goScanner),
     goCollections: go(HOTKEY_ROUTES.goCollections),

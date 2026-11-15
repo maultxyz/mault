@@ -7,6 +7,7 @@ import { searchByTextRoute } from "./search-by-text";
 import { printingScoreRoute } from "./printing-score";
 import { searchByVectorRoute } from "./search-by-vector";
 import { searchCardByIdRoute } from "./search-by-id";
+import { cardPrintingsRoute } from "./printings";
 import { searchCardRoute } from "./search";
 import { setPrintingsRoute } from "./set-printings";
 import { cardSetsRoute } from "./sets";
@@ -24,6 +25,7 @@ const router = new Hono<AppEnv>()
   .route("/", randomSampleCardsRoute)
   .route("/", searchCardRoute)
   .route("/", searchCardByIdRoute)
+  .route("/", cardPrintingsRoute)
   .route("/", imageProxyRoute)
   .route("/", netdeckImageRoute);
 

@@ -22,6 +22,7 @@ export const PAUSE_TONES = {
   "feeder-empty": "warning",
   "no-card": "warning",
   "card-missing": "warning",
+  "card-stuck-in-module-one": "warning",
   "bin-full": "warning",
   "scan-limit": "warning",
   "sorter-limit": "warning",

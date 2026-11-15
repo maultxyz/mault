@@ -82,8 +82,8 @@ export const setCollectionCardsFoilTypeRoute = new Hono<AppEnv>().post(
       }
       return swapped;
     });
-    emitToSession(guid, "cards_foil_changed", { scanIds, isFoil, foilType });
-    for (const scan of swappedScans) emitToSession(guid, "card_updated", scan);
+    emitToSession(orgId, guid, "cards_foil_changed", { scanIds, isFoil, foilType });
+    for (const scan of swappedScans) emitToSession(orgId, guid, "card_updated", scan);
     return c.json({ success: true, data: null });
   },
 );

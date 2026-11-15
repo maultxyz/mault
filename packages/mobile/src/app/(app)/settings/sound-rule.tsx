@@ -4,12 +4,13 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Alert } from "react-native";
-import { AppText } from "@/components/ui/app-text";
-import { ListGroup } from "@/components/ui/list-group";
-import { ListRow } from "@/components/ui/list-row";
+import { Alert, View } from "react-native";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { OptionSheet } from "@/components/ui/option-sheet";
+import { PageHeader } from "@/components/ui/page-header";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SelectField } from "@/components/ui/select-field";
 import { SwitchRow } from "@/components/ui/switch-row";
@@ -17,7 +18,6 @@ import { TextField } from "@/components/ui/text-field";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
 import { createGroup } from "@/features/rules/lib/rules";
-import { SettingsPage } from "@/features/settings/components/settings-page";
 import {
   addSoundRule,
   deleteSoundRule,
@@ -26,11 +26,14 @@ import {
   updateSoundRule,
 } from "@/features/sounds/api/sounds";
 import { useActiveOrg } from "@/hooks/use-org";
+import { useTheme } from "@/hooks/use-theme";
+import { SPACING } from "@/lib/constants/theme";
 import { soundRuleFormSchema, type SoundRuleFormValues } from "@magic-vault/shared";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function SoundRuleScreen() {
   const { t } = useTranslation();
+  const colors = useTheme();
   const queryClient = useQueryClient();
   const { guid } = useLocalSearchParams<{ guid?: string }>();
   const org = useActiveOrg();
@@ -54,7 +57,7 @@ export default function SoundRuleScreen() {
     values,
     resetOptions: { keepDirtyValues: true },
   });
-  const isDirty = form.formState.isDirty;
+  const isLoading = rules.isLoading || clips.isLoading;
   const rulesKey = soundRulesQueryOptions(orgId, gameGuid).queryKey;
 
   const finish = (latest: Awaited<ReturnType<typeof deleteSoundRule>>) => {
@@ -102,77 +105,92 @@ export default function SoundRuleScreen() {
     ]);
 
   return (
-    <SettingsPage
-      title={existing ? t("settings.sounds.ruleDialog.editTitle") : t("settings.sounds.ruleDialog.addTitle")}
-      isLoading={rules.isLoading || clips.isLoading}
-      isDirty={isDirty}
-      isSaving={save.isPending}
-      isLeavingWithoutGuard={remove.isPending}
-      isSaveBarVisible={isDirty || !existing}
-      onSave={() => void submit()}
-      onDiscard={() => form.reset(values)}
-      onSaveBarDiscard={() => (existing ? form.reset(values) : router.back())}
-    >
-      <AppText size="sm" tone="secondary">
-        {t("settings.sounds.ruleDialog.description")}
-      </AppText>
-      {error ? <Callout tone="destructive" title={error} /> : null}
-      <Controller
-        control={form.control}
-        name="name"
-        render={({ field }) => (
-          <TextField
-            label={t("settings.sounds.ruleDialog.name")}
-            value={field.value}
-            onBlur={field.onBlur}
-            onChangeText={field.onChange}
-            returnKeyType="done"
-          />
-        )}
+    <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
+      <PageHeader
+        title={existing ? t("settings.sounds.ruleDialog.editTitle") : t("settings.sounds.ruleDialog.addTitle")}
+        subtitle={t("settings.sounds.ruleDialog.description")}
       />
-      <Controller
-        control={form.control}
-        name="clipGuid"
-        render={({ field }) => (
-          <SelectField
-            label={t("settings.sounds.ruleDialog.clip")}
-            value={clips.data?.find((clip) => clip.guid === field.value)?.name ?? null}
-            placeholder={t("settings.sounds.ruleDialog.clipPlaceholder")}
-            onPress={() => setClipOpen(true)}
-          />
+      <PinnedActionsLayout
+        actionsDirection="row"
+        actions={
+          <>
+            {existing ? (
+              <Button
+                style={{ flex: 1 }}
+                variant="destructive"
+                icon="trash"
+                label={t("cardDetail.remove")}
+                loading={remove.isPending}
+                disabled={save.isPending}
+                onPress={confirmDelete}
+              />
+            ) : null}
+            <Button
+              style={{ flex: 1 }}
+              size={existing ? "md" : "lg"}
+              label={t("settings.sounds.ruleDialog.save")}
+              loading={save.isPending}
+              disabled={isLoading || remove.isPending}
+              onPress={() => void submit()}
+            />
+          </>
+        }
+      >
+        {error ? <Callout tone="destructive" title={error} /> : null}
+        {isLoading ? (
+          <PageSkeleton />
+        ) : (
+          <>
+            <Controller
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <TextField
+                  label={t("settings.sounds.ruleDialog.name")}
+                  value={field.value}
+                  onBlur={field.onBlur}
+                  onChangeText={field.onChange}
+                  returnKeyType="done"
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="clipGuid"
+              render={({ field }) => (
+                <SelectField
+                  label={t("settings.sounds.ruleDialog.clip")}
+                  value={clips.data?.find((clip) => clip.guid === field.value)?.name ?? null}
+                  placeholder={t("settings.sounds.ruleDialog.clipPlaceholder")}
+                  onPress={() => setClipOpen(true)}
+                />
+              )}
+            />
+            <Controller
+              control={form.control}
+              name="isEnabled"
+              render={({ field }) => (
+                <SwitchRow title={t("settings.sounds.ruleDialog.enabled")} value={field.value} onValueChange={field.onChange} />
+              )}
+            />
+            <View style={{ gap: SPACING.sm }}>
+              <SectionHeader title={t("settings.sounds.ruleDialog.conditions")} />
+              <Controller
+                control={form.control}
+                name="rules"
+                render={({ field }) => (
+                  <RuleGroupEditor
+                    group={field.value}
+                    onChange={field.onChange}
+                    fieldDefinitions={fieldDefinitions}
+                    freeformOptions={freeformOptions}
+                  />
+                )}
+              />
+            </View>
+          </>
         )}
-      />
-      <Controller
-        control={form.control}
-        name="isEnabled"
-        render={({ field }) => (
-          <SwitchRow title={t("settings.sounds.ruleDialog.enabled")} value={field.value} onValueChange={field.onChange} />
-        )}
-      />
-      <SectionHeader title={t("settings.sounds.ruleDialog.conditions")} />
-      <Controller
-        control={form.control}
-        name="rules"
-        render={({ field }) => (
-          <RuleGroupEditor
-            group={field.value}
-            onChange={field.onChange}
-            fieldDefinitions={fieldDefinitions}
-            freeformOptions={freeformOptions}
-          />
-        )}
-      />
-      {existing ? (
-        <ListGroup>
-          <ListRow
-            icon="trash"
-            tone="destructive"
-            title={t("settings.sounds.rules.delete", { name: existing.name })}
-            disabled={remove.isPending}
-            onPress={confirmDelete}
-          />
-        </ListGroup>
-      ) : null}
+      </PinnedActionsLayout>
       <OptionSheet
         visible={clipOpen}
         title={t("settings.sounds.ruleDialog.clip")}
@@ -184,6 +202,6 @@ export default function SoundRuleScreen() {
         }}
         onClose={() => setClipOpen(false)}
       />
-    </SettingsPage>
+    </View>
   );
 }

@@ -610,7 +610,7 @@ const router = new Hono<AppEnv>()
       return c.json({ success: false, message: "Storage location not found." });
     }
     for (const { collectionGuid, scanIds: markedIds } of markedByCollection) {
-      emitToSession(collectionGuid, "cards_downloaded", { scanIds: markedIds });
+      emitToSession(orgId, collectionGuid, "cards_downloaded", { scanIds: markedIds });
     }
     return c.json({ success: true, data: null });
   })

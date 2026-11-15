@@ -1,4 +1,5 @@
-import { RefreshControl, ScrollView, View } from "react-native";
+import { ScrollView, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
@@ -8,7 +9,6 @@ export function Screen({
   children,
   scroll = true,
   padded = true,
-  refreshing = false,
   onRefresh,
   edges = [],
   header,
@@ -31,17 +31,7 @@ export function Screen({
             paddingBottom: padding + SPACING.xxl,
             gap: SPACING.lg + SPACING.xs,
           }}
-          refreshControl={
-            onRefresh ? (
-              <RefreshControl
-                refreshing={refreshing}
-                onRefresh={onRefresh}
-                tintColor={colors.primaryText}
-                colors={[colors.primary]}
-                progressBackgroundColor={colors.card}
-              />
-            ) : undefined
-          }
+          refreshControl={onRefresh ? <PullToRefreshControl onRefresh={onRefresh} /> : undefined}
         >
           {children}
         </ScrollView>

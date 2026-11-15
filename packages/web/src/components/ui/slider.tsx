@@ -36,7 +36,7 @@ function Slider({
         </SliderPrimitive.Track>
         <SliderPrimitive.Thumb
           data-slot="slider-thumb"
-          className="block size-4 shrink-0 rounded-full border border-primary bg-background shadow transition-colors outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-1 has-[:focus-visible]:ring-offset-background disabled:pointer-events-none disabled:opacity-50"
+          className="block size-4 shrink-0 rounded-full border border-primary bg-card shadow transition-colors outline-none has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-ring has-[:focus-visible]:ring-offset-1 has-[:focus-visible]:ring-offset-transparent disabled:pointer-events-none disabled:opacity-50"
           aria-label={thumbAriaLabel}
           aria-labelledby={thumbAriaLabelledBy}
           getAriaValueText={getAriaValueText}

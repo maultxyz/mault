@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, View } from "react-native";
+import { Alert } from "react-native";
 import type { WebhookEndpoint } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
@@ -14,7 +14,6 @@ import { deleteWebhook, enableWebhook, testWebhook, webhooksQueryOptions } from 
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import { useActiveOrg } from "@/hooks/use-org";
-import { SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";
 import type { SettingsNotice } from "@/lib/interfaces/settings";
 
@@ -94,8 +93,7 @@ export default function WebhooksSettingsScreen() {
     <SettingsPage
       title={t("settings.webhooks.heading")}
       isLoading={list.isLoading}
-      refreshing={list.isRefetching}
-      onRefresh={() => void list.refetch()}
+      onRefresh={() => list.refetch()}
     >
       <AppText size="sm" tone="secondary">
         {t("settings.webhooks.description")}
@@ -108,25 +106,23 @@ export default function WebhooksSettingsScreen() {
       {list.data && endpoints.length === 0 ? <EmptyState icon="external" title={t("settings.webhooks.empty")} /> : null}
 
       {endpoints.length > 0 || canAdd ? (
-        <View style={{ gap: SPACING.sm }}>
-          <ListGroup>
-            {endpoints.map((endpoint) => (
-              <ListRow
-                key={endpoint.guid}
-                icon="external"
-                title={endpoint.description || endpoint.url}
-                subtitle={[endpoint.description ? endpoint.url : null, statusLine(endpoint)].filter(Boolean).join("\n")}
-                subtitleNumberOfLines={3}
-                tone={endpoint.isEnabled ? "default" : "destructive"}
-                disabled={!canManage}
-                onPress={canManage ? () => openEditor(endpoint) : undefined}
-                onLongPress={canManage ? () => setActionsFor(endpoint) : undefined}
-                longPressLabel={canManage ? t("settings.webhooks.actions") : undefined}
-              />
-            ))}
-            {canAdd ? <ListRow icon="plus" title={t("settings.webhooks.add")} onPress={() => openEditor()} /> : null}
-          </ListGroup>
-        </View>
+        <ListGroup>
+          {endpoints.map((endpoint) => (
+            <ListRow
+              key={endpoint.guid}
+              icon="external"
+              title={endpoint.description || endpoint.url}
+              subtitle={[endpoint.description ? endpoint.url : null, statusLine(endpoint)].filter(Boolean).join("\n")}
+              subtitleNumberOfLines={3}
+              tone={endpoint.isEnabled ? "default" : "destructive"}
+              disabled={!canManage}
+              onPress={canManage ? () => openEditor(endpoint) : undefined}
+              onLongPress={canManage ? () => setActionsFor(endpoint) : undefined}
+              longPressLabel={canManage ? t("settings.webhooks.actions") : undefined}
+            />
+          ))}
+          {canAdd ? <ListRow icon="plus" title={t("settings.webhooks.add")} onPress={() => openEditor()} /> : null}
+        </ListGroup>
       ) : null}
 
       <OptionSheet

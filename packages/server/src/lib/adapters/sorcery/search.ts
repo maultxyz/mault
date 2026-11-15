@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import type { PlayingCard } from "@magic-vault/shared";
 import {
   SORCERY_FOIL_TYPE_BY_FINISH,
@@ -64,6 +65,7 @@ function tcgtrackingFinishProductsOf(card: PlayingCard): TcgtrackingFinishProduc
 export const sorceryAdapter: CardSearchAdapter = {
   defaultUrl: SORCERY_DEFAULT_URL,
   normalizeStored: (raw) => normalizeSorceryCard(raw as SorceryCard),
+  releasedAtSql: sql`data->'printings'->0->>'printedAt'`,
   sourceListsNonFoilPrinting: (card) =>
     (card.raw as Partial<SorceryCard> | undefined)?.printings?.some(
       (printing) => printing.meta.finish === SORCERY_STANDARD_FINISH,

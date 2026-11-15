@@ -1,18 +1,18 @@
 import { printingMarkRegionsFor } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
-import { Image } from "expo-image";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
+import { CardArt } from "@/components/cards/card-art";
 import { AppText } from "@/components/ui/app-text";
 import { IconButton } from "@/components/ui/icon-button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { sampleCardQueryOptions } from "@/features/health/api/health";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
-import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { CARD_ART_RADIUS, SPACING } from "@/lib/constants/theme";
 import type { OcrRegionTileProps } from "@/lib/interfaces/health";
-import { absoluteUrl } from "@/lib/url";
+import { cardArtSources } from "@/lib/card-art";
 
 function percent(value: number) {
   return Math.round(value * 1000) / 10;
@@ -24,7 +24,7 @@ export function OcrRegionTile({ gameKey, name, lang, regions, width }: OcrRegion
   const [sampleIndex, setSampleIndex] = useState(0);
   const sample = useQuery(sampleCardQueryOptions(gameKey, lang, sampleIndex));
   const card = sample.data;
-  const imageUrl = absoluteUrl(card?.image?.normal ?? card?.image?.small);
+  const cardArt = cardArtSources(card?.image);
   const printingMarks = printingMarkRegionsFor(gameKey, card);
 
   return (
@@ -48,16 +48,14 @@ export function OcrRegionTile({ gameKey, name, lang, regions, width }: OcrRegion
         style={{
           width: "100%",
           aspectRatio: CARD_ASPECT_RATIO,
-          borderRadius: RADIUS.lg,
+          borderRadius: CARD_ART_RADIUS,
           overflow: "hidden",
           backgroundColor: colors.muted,
-          borderWidth: 1,
-          borderColor: colors.border,
         }}
       >
         {sample.isLoading ? <Skeleton height="100%" /> : null}
-        {imageUrl ? (
-          <Image accessible={false} source={{ uri: imageUrl }} contentFit="fill" style={{ position: "absolute", inset: 0 }} />
+        {cardArt.imageUrl ? (
+          <CardArt {...cardArt} accessible={false} contentFit="fill" style={{ position: "absolute", inset: 0 }} />
         ) : null}
         {regions.map((region, i) => (
           <View

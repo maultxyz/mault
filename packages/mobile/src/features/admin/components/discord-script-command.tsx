@@ -14,8 +14,6 @@ export function DiscordScriptCommand({ command, description }: DiscordScriptComm
       <View
         style={{
           borderRadius: RADIUS.md,
-          borderWidth: 1,
-          borderColor: colors.border,
           backgroundColor: colors.muted,
           paddingHorizontal: SPACING.md,
           paddingVertical: SPACING.sm,

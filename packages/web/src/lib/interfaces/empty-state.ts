@@ -6,5 +6,6 @@ export interface EmptyStateProps {
   description?: ReactNode;
   action?: ReactNode;
   size?: "default" | "compact";
+  titleAs?: "p" | "h1" | "h2" | "h3";
   className?: string;
 }

@@ -1,3 +1,4 @@
+import { sql } from "drizzle-orm";
 import type { PlayingCard } from "@magic-vault/shared";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
@@ -114,6 +115,7 @@ export const grandArchiveAdapter: CardSearchAdapter = {
     const edition = findGrandArchiveEdition(card, id);
     return edition ? normalizeGrandArchiveEdition(card, edition) : null;
   },
+  releasedAtSql: sql`(SELECT own_edition->'set'->>'release_date' FROM jsonb_array_elements(data->'editions') AS own_edition WHERE own_edition->>'slug' = card_id LIMIT 1)`,
   tcgplayer: {
     categoryId: 74,
     subTypes: () => ({ price: ["Normal", "Foil"], priceFoil: ["Foil"] }),

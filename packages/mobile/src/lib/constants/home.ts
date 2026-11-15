@@ -1,15 +1,18 @@
+import { WIDGET_SUMMARY_CARDS_OF_THE_DAY } from "@magic-vault/shared";
 export const HOME_HERO_SECONDARY_TEXT_COLOR = "rgba(255, 255, 255, 0.86)";
 export const HOME_HERO_CHIP_BACKGROUND = "rgba(255, 255, 255, 0.18)";
 export const HOME_HERO_DIVIDER_COLOR = "rgba(255, 255, 255, 0.24)";
 export const HOME_HERO_SPARKLINE = {
   color: "#ffffff",
-  topRatio: 0.42,
-  heightRatio: 0.36,
+  topRatio: 0.5,
+  heightRatio: 0.28,
   strokeWidth: 2,
   strokeOpacity: 0.55,
   fillOpacity: 0.22,
 } as const;
 export const HOME_CARD_RAIL_TILE_WIDTH = 112;
 export const HOME_CARD_OF_THE_DAY_TILE_WIDTH = 148;
-export const HOME_MORNING_END_HOUR = 12;
-export const HOME_AFTERNOON_END_HOUR = 18;
+export const HOME_CARD_RAIL_LOADING_TILE_COUNT = WIDGET_SUMMARY_CARDS_OF_THE_DAY;
+export const HOME_CARD_RAIL_SKELETON_LINE_HEIGHT = 12;
+export const HOME_SKELETON_HEIGHTS = { hero: 190, topCardRow: 52, activityChart: 120 } as const;
+export const HOME_TOP_CARDS_LIST_COUNT = 5;

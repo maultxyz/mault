@@ -10,8 +10,10 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
+import { FOIL_NONE_VALUE } from "@/lib/constants/scanner";
 import {
   MOBILE_LIST_CLASS,
   MOBILE_SCAN_PAIR_PATH,
@@ -26,10 +28,12 @@ import {
   IconCpu,
   IconDeviceDesktop,
   IconFocus2,
+  IconLayoutGrid,
   IconListDetails,
   IconPlayerTrackNext,
   IconQrcode,
   IconRosette,
+  IconSparkles,
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 
@@ -44,7 +48,9 @@ export function MobileScanOptionsSheet({
   const { t } = useTranslation("scanner");
   const { t: tCards } = useTranslation("cards");
   const { activeCollection } = useCollections();
-  const { scanCondition, setScanCondition } = useScannedCards();
+  const { scanCondition, setScanCondition, forceFoilType, setForceFoilType } =
+    useScannedCards();
+  const foilOptions = useFoilOptions();
   const { sets, selectedSet } = useBinConfigs();
   const selectedCameraIndex = chrome.cameras.findIndex(
     (camera) => camera.deviceId === chrome.selectedCameraId,
@@ -54,7 +60,7 @@ export function MobileScanOptionsSheet({
   return (
     <Drawer open={open} onOpenChange={onOpenChange}>
       <DrawerContent className="data-[vaul-drawer-direction=bottom]:max-h-[85dvh]">
-        <div className="flex min-h-0 flex-col gap-6 overflow-y-auto px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+        <div className="flex min-h-0 flex-col gap-3 overflow-y-auto px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <DrawerTitle className="font-heading text-base font-semibold text-foreground">
             {t("mobileScan.options")}
           </DrawerTitle>
@@ -74,18 +80,34 @@ export function MobileScanOptionsSheet({
                 }
               />
             )}
-            <MobileListRow
-              icon={<IconPlayerTrackNext />}
-              label={t("mobileScan.autoFeed")}
-              description={t("mobileScan.autoFeedDescription")}
-              trailing={
-                <Switch
-                  checked={chrome.autoFeed}
-                  onCheckedChange={chrome.onAutoFeedChange}
-                  aria-label={t("mobileScan.autoFeed")}
-                />
-              }
-            />
+            {!chrome.isConnected && chrome.handScan && (
+              <MobileListRow
+                icon={<IconLayoutGrid />}
+                label={t("mobileScan.handScanBins")}
+                description={t("mobileScan.handScanBinsDescription")}
+                trailing={
+                  <Switch
+                    checked={chrome.handScanBins}
+                    onCheckedChange={chrome.onHandScanBinsChange}
+                    aria-label={t("mobileScan.handScanBins")}
+                  />
+                }
+              />
+            )}
+            {chrome.isConnected && (
+              <MobileListRow
+                icon={<IconPlayerTrackNext />}
+                label={t("mobileScan.autoFeed")}
+                description={t("mobileScan.autoFeedDescription")}
+                trailing={
+                  <Switch
+                    checked={chrome.autoFeed}
+                    onCheckedChange={chrome.onAutoFeedChange}
+                    aria-label={t("mobileScan.autoFeed")}
+                  />
+                }
+              />
+            )}
             <MobileListRow
               icon={<IconCopy />}
               label={t("mobileScan.allowDuplicates")}
@@ -134,6 +156,34 @@ export function MobileScanOptionsSheet({
                     {CARD_CONDITIONS.map((condition) => (
                       <SelectItem key={condition} value={condition}>
                         {tCards(`condition.names.${condition}`)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              }
+            />
+            <MobileListRow
+              icon={<IconSparkles />}
+              label={t("mobileScan.foilType")}
+              trailing={
+                <Select
+                  value={forceFoilType ?? FOIL_NONE_VALUE}
+                  onValueChange={(value) =>
+                    setForceFoilType(
+                      value === FOIL_NONE_VALUE || value == null ? null : value,
+                    )
+                  }
+                >
+                  <SelectTrigger size="sm" aria-label={t("mobileScan.foilType")}>
+                    <SelectValue>{forceFoilType ?? tCards("foilNone")}</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={FOIL_NONE_VALUE}>
+                      {tCards("foilNone")}
+                    </SelectItem>
+                    {foilOptions.map((type) => (
+                      <SelectItem key={type} value={type}>
+                        {type}
                       </SelectItem>
                     ))}
                   </SelectContent>

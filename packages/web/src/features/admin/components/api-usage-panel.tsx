@@ -11,7 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Callout } from "@/components/callout";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { getApiUsageReport } from "@/lib/api/admin";
 import { API_USAGE_QUERY_KEY } from "@/lib/constants/admin";
 import {
@@ -26,7 +26,7 @@ import { useTranslation } from "react-i18next";
 export function ApiUsagePanel() {
   const { t, i18n } = useTranslation("admin");
   const [days, setDays] = useState(String(DEFAULT_API_USAGE_REPORT_DAYS));
-  const { data, isPending, isError } = useQuery({
+  const { data, isPending, isError, refetch } = useQuery({
     queryKey: [...API_USAGE_QUERY_KEY, days],
     queryFn: () => getApiUsageReport(Number(days)),
   });
@@ -42,7 +42,7 @@ export function ApiUsagePanel() {
       heading={t("apiUsage.heading")}
       description={t("apiUsage.description")}
     >
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 md:gap-2">
         <ResponsiveSegmented
           label={t("apiUsage.daysLabel")}
           items={API_USAGE_REPORT_DAYS.map((option) => ({
@@ -53,13 +53,16 @@ export function ApiUsagePanel() {
           onChange={setDays}
         />
         {isError ? (
-          <Callout variant="error">{t("apiUsage.loadError")}</Callout>
+          <LoadErrorCallout
+            message={t("apiUsage.loadError")}
+            onRetry={() => void refetch()}
+          />
         ) : isPending || !data ? (
           <ListSkeleton />
         ) : (
           <>
             <section className="flex flex-col gap-2">
-              <h3 className="text-sm font-semibold">
+              <h3 className="font-heading text-sm font-semibold">
                 {t("apiUsage.apiKeysHeading")}
               </h3>
               {data.apiKeys.length === 0 ? (
@@ -120,7 +123,7 @@ export function ApiUsagePanel() {
               )}
             </section>
             <section className="flex flex-col gap-2">
-              <h3 className="text-sm font-semibold">
+              <h3 className="font-heading text-sm font-semibold">
                 {t("apiUsage.publicRoutesHeading")}
               </h3>
               {data.publicRoutes.length === 0 ? (

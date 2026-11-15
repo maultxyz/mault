@@ -19,7 +19,6 @@ import type {
   FlatbedPlacement,
   FlatbedScanStep,
   OnnxExecutionProviderPreference,
-  ScannerConnectionState,
 } from "@/lib/interfaces/scanner";
 import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
 import {
@@ -194,14 +193,6 @@ export const PHONE_CAMERA_PATH_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
 export const QR_SCAN_INTERVAL_MS = 250;
 export const QR_SCAN_MAX_DIMENSION = 640;
 export const SCANNER_CONTROL_QR_MAX_DIMENSION = 1024;
-export const SCANNER_CONNECTION_DOT_CLASS: Record<
-  ScannerConnectionState,
-  string
-> = {
-  connected: "bg-success",
-  connecting: "bg-warning",
-  disconnected: "bg-foreground/30",
-};
 
 export const PENDING_SCAN_SAVES_DB_NAME = "magic-vault-pending-scan-saves";
 export const PENDING_SCAN_SAVES_STORE_NAME = "saves";
@@ -322,6 +313,7 @@ export const STATION_ATTENTION_FIXES: Record<
   hopperEmpty: "resume",
   feederError: "resume",
   noCardDetected: "resume",
+  cardStuckInModuleOne: "resume",
   sorterNotResponding: "resume",
   routingFailed: "resume",
   saveFailed: "resume",
@@ -352,3 +344,4 @@ export const PI_SORTER_RECONNECT_INTERVAL_MS = 5000;
 
 export const FOIL_NUDGE_DIAGNOSTIC_IMAGE_WIDTH = 224;
 export const FOIL_NUDGE_DIAGNOSTIC_JPEG_QUALITY = 0.8;
+export const FOIL_NONE_VALUE = "none";

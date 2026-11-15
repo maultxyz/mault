@@ -1,5 +1,7 @@
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -22,11 +24,24 @@ import { useTranslation } from "react-i18next";
 export function PricingModeSection() {
   const { t } = useTranslation("admin");
   const queryClient = useQueryClient();
-  const { data } = useQuery(planConfigQueryOptions);
+  const { data, isError, refetch } = useQuery(planConfigQueryOptions);
   const [isConfirmOpen, setIsConfirmOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <SettingsSection heading={t("plans.pricingMode.heading")}>
+        {isError ? (
+          <LoadErrorCallout
+            message={t("plans.loadFailed")}
+            onRetry={() => void refetch()}
+          />
+        ) : (
+          <Skeleton className="h-5 w-24" />
+        )}
+      </SettingsSection>
+    );
+  }
 
   const isLegacyPricingActive = data.isLegacyPricingActive;
   const modeKey = isLegacyPricingActive ? "legacy" : "tiered";

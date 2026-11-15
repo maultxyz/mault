@@ -70,6 +70,7 @@ export const scryfallAdapter: CardSearchAdapter = {
     sql`, `,
   )}))`,
   excludedFromMatchingSql: sql`(data->>'digital') = 'true'`,
+  releasedAtSql: sql`data->>'released_at'`,
   printingMarkGroups: scryfallPrintingMarkGroups,
   foilPrintingVariants: scryfallFoilPrintingVariants,
   sourceListsNonFoilPrinting: (card) =>

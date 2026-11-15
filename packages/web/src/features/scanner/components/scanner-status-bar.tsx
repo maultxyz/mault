@@ -17,6 +17,7 @@ import {
   IconDeviceUsb,
   IconDeviceUsbFilled,
   IconDownload,
+  IconLoader2,
   IconPlus,
   IconQrcode,
   IconRotate2,
@@ -30,10 +31,7 @@ import type {
   ScannerConnectionState,
   ScannerStatusBarProps,
 } from "@/lib/interfaces/scanner";
-import {
-  SCANNER_CONNECTION_DOT_CLASS,
-  SORTER_LIMIT_MESSAGE_KEYS,
-} from "@/lib/constants/scanner";
+import { SORTER_LIMIT_MESSAGE_KEYS } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
 import { CameraMenuItems } from "@/features/scanner/components/camera-menu-items";
@@ -56,12 +54,20 @@ function ConnectionStatusPill({
     >
       {icon}
       {label}
-      <span
-        className={cn(
-          "size-2 rounded-full",
-          SCANNER_CONNECTION_DOT_CLASS[state],
+      <span aria-hidden className="grid size-3 place-items-center">
+        {state === "connecting" ? (
+          <IconLoader2 className="size-3 animate-spin text-warning-foreground motion-reduce:animate-none" />
+        ) : (
+          <span
+            className={cn(
+              "size-2 rounded-full",
+              state === "connected"
+                ? "bg-success-foreground"
+                : "border-2 border-foreground/60",
+            )}
+          />
         )}
-      />
+      </span>
     </Button>
   );
 }
@@ -106,6 +112,8 @@ export function ScannerStatusBar({
   onUpgrade,
   handScan,
   onHandScanChange,
+  handScanBins,
+  onHandScanBinsChange,
 }: ScannerStatusBarProps) {
   const { t } = useTranslation("scanner");
   const { retractCard, isRetracting, retractLockedReason } = useRetractCard();
@@ -286,6 +294,14 @@ export function ScannerStatusBar({
                   onCheckedChange={onAllowDuplicatesChange}
                 >
                   {t("scannerMenu.allowDuplicates")}
+                </DropdownMenuCheckboxItem>
+              )}
+              {handScan && (
+                <DropdownMenuCheckboxItem
+                  checked={handScanBins}
+                  onCheckedChange={onHandScanBinsChange}
+                >
+                  {t("scannerMenu.sortIntoBins")}
                 </DropdownMenuCheckboxItem>
               )}
               {webSerialSupported && (

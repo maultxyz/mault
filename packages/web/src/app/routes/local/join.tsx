@@ -1,3 +1,5 @@
+import { BrandMark } from "@/components/brand-mark";
+import { HOME_PATH } from "@/lib/constants/nav";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import {
   Card,
@@ -38,7 +40,7 @@ export default function AuthJoinPage() {
           setAccepting(false);
           return;
         }
-        navigate("/app", { replace: true });
+        navigate(HOME_PATH, { replace: true });
       })
       .catch(() => {
         setError(t("local.joinUnreachable"));
@@ -55,8 +57,9 @@ export default function AuthJoinPage() {
     <main
       id={MAIN_CONTENT_ID}
       tabIndex={-1}
-      className="flex min-h-screen items-center justify-center bg-muted p-4 outline-none"
+      className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background p-4 outline-none"
     >
+      <BrandMark />
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
@@ -79,7 +82,7 @@ export default function AuthJoinPage() {
                 <IconLoader2 className="animate-spin text-foreground/70" />
               </div>
             ) : !data?.user ? (
-              <CardFooter className="flex flex-col gap-2 px-0">
+              <CardFooter className="flex flex-col gap-1.5 px-0">
                 <Button className="w-full" onClick={() => goToAuth("sign-in")}>
                   {t("local.signIn")}
                 </Button>

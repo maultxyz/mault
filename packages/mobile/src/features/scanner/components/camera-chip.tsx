@@ -16,10 +16,10 @@ export function CameraChip({ label, dotColor, icon, onPress }: CameraChipProps) 
       style={({ pressed }) => ({
         flexDirection: "row",
         alignItems: "center",
-        gap: 6,
+        gap: SPACING.xs,
         maxWidth: "100%",
         paddingHorizontal: SPACING.md,
-        paddingVertical: 6,
+        paddingVertical: SPACING.xs,
         borderRadius: CONTROL_RADIUS,
         backgroundColor: colors.cameraScrim,
         opacity: pressed ? 0.8 : 1,

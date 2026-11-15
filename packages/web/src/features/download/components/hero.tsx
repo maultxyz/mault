@@ -25,7 +25,7 @@ export function DownloadHero() {
       </p>
 
       {isDesktopApp ? (
-        <p className="mt-8 flex max-w-2xl items-start gap-3 rounded-lg bg-card p-4 text-left text-sm/relaxed ring-1 ring-border">
+        <p className="mt-8 flex max-w-2xl items-start gap-3 rounded-card bg-card p-4 text-left text-sm/relaxed">
           <IconDeviceDesktopCheck className="mt-0.5 size-4 shrink-0 text-primary" />
           {t("hero.alreadyInstalled")}
         </p>

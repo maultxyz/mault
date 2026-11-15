@@ -34,3 +34,5 @@ export interface ImpersonationPayload {
   sub: string;
   act?: { sub?: string };
 }
+
+export type RequestTokenVerifier = (token: string) => Promise<{ sub: string } | null>;

@@ -7,8 +7,10 @@ import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
+import { EmptyState } from "@/components/ui/empty-state";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { Pill } from "@/components/ui/pill";
 import { SelectField } from "@/components/ui/select-field";
@@ -21,7 +23,7 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
-import { SPACING } from "@/lib/constants/theme";
+import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { editCollectionFormSchema, type EditCollectionFormValues } from "@magic-vault/shared";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
@@ -31,7 +33,7 @@ export default function EditCollectionScreen() {
   const colors = useTheme();
   const queryClient = useQueryClient();
   const options = collectionsQueryOptions(useActiveOrgId());
-  const { data: collections } = useQuery(options);
+  const { data: collections, isPending: collectionsPending } = useQuery(options);
   const collection = collections?.find((c) => c.guid === guid);
   const [languageSheetOpen, setLanguageSheetOpen] = useState(false);
   const form = useForm<EditCollectionFormValues>({
@@ -59,11 +61,42 @@ export default function EditCollectionScreen() {
   });
   const save = useMutation({
     mutationFn: (values: EditCollectionFormValues) => updateCollection(guid, values),
+    onMutate: async (values) => {
+      await queryClient.cancelQueries({ queryKey: options.queryKey });
+      const previous = queryClient.getQueryData(options.queryKey);
+      queryClient.setQueryData(options.queryKey, (current) =>
+        current?.map((item) => (item.guid === guid ? { ...item, ...values } : item)),
+      );
+      return { previous };
+    },
     onSuccess: (next) => {
       queryClient.setQueryData(options.queryKey, next);
       router.back();
     },
+    onError: (_error, _values, context) => {
+      if (context) queryClient.setQueryData(options.queryKey, context.previous);
+    },
+    onSettled: () => void queryClient.invalidateQueries({ queryKey: options.queryKey }),
   });
+
+  if (!collection) {
+    return (
+      <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
+        <PageHeader title={t("collections.editTitle")} subtitle={t("collections.editDescription")} />
+        <View style={{ padding: SCREEN_GUTTER }}>
+          {collectionsPending ? (
+            <PageSkeleton sections={1} />
+          ) : (
+            <EmptyState
+              icon="collections"
+              title={t("collections.notFoundTitle")}
+              description={t("collections.notFoundDescription")}
+            />
+          )}
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>

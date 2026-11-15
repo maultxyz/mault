@@ -84,7 +84,9 @@ export async function applyCardKingdomPrices<T extends PlayingCard>(
       ]);
     }
     const key = printingKey(row.setCode, row.number);
-    byPrinting.set(key, [...(byPrinting.get(key) ?? []), row]);
+    const existingEntries = byPrinting.get(key);
+    if (existingEntries) existingEntries.push(row);
+    else byPrinting.set(key, [row]);
   }
 
   return cards.map((card, i) => {

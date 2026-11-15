@@ -42,7 +42,7 @@ export const setCollectionCardsConditionRoute = new Hono<AppEnv>().post(
       return { success: true, data: null };
     });
     if (result.success) {
-      emitToSession(guid, "cards_condition_changed", { scanIds, condition });
+      emitToSession(orgId, guid, "cards_condition_changed", { scanIds, condition });
     }
     return c.json(result);
   },

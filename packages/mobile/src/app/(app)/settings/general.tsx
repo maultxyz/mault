@@ -42,7 +42,7 @@ export default function GeneralSettingsScreen() {
                     <Pressable
                       key={color.name}
                       accessibilityRole="radio"
-                      accessibilityLabel={color.name}
+                      accessibilityLabel={t(`settings.appearance.colors.${color.name.toLowerCase()}`)}
                       accessibilityState={{ selected, disabled }}
                       disabled={disabled}
                       hitSlop={4}

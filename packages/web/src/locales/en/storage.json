@@ -9,6 +9,7 @@
     "cardCount_other": "{{count}} cards",
     "rename": "Rename location",
     "delete": "Delete location",
+    "actions": "Actions for {{name}}",
     "deleteTitle": "Delete {{name}}?",
     "deleteDescription": "The cards stay in your collections, but they lose this location and their position in it.",
     "summary_one": "{{count}} card · {{value}} total",
@@ -69,7 +70,7 @@
   "cardLocation": {
     "heading": "Storage",
     "value": "{{name}} · #{{position}}",
-    "remove": "Remove from box",
+    "remove": "Remove from location",
     "move": "Move"
   },
   "toasts": {

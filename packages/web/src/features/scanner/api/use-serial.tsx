@@ -395,7 +395,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       if (session.transport !== forTransport) return;
       const copyAction = {
         label: (
-          <IconCopy size={14} aria-label={t("serial.copyCommunication")} />
+          <IconCopy className="size-3.5" aria-label={t("serial.copyCommunication")} />
         ),
         onClick: () => copyCommLog(),
       };

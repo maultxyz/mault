@@ -9,7 +9,9 @@
   },
   "planFooterTooltip": {
     "free": "Free plan · {{used}} of {{limit}} cards scanned today. Click to upgrade.",
-    "paidLimited": "{{plan}} plan · {{used}} of {{limit}} cards scanned today. Click to manage billing."
+    "paidLimited": "{{plan}} plan · {{used}} of {{limit}} cards scanned today. Click to manage billing.",
+    "resetsInHours": "Limit resets in {{hours}} h {{minutes}} min.",
+    "resetsInMinutes": "Limit resets in {{minutes}} min."
   },
   "planTable": {
     "columns": {

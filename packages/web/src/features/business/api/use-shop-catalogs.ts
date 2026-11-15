@@ -27,7 +27,7 @@ export function useShopCatalogs() {
   const queryClient = useQueryClient();
   const canManage = !!access?.canManageSettings;
   const listOptions = shopCatalogsQueryOptions(canManage ? activeOrg?.id : undefined);
-  const { data, isLoading, isError } = useQuery(listOptions);
+  const { data, isLoading, isError, refetch } = useQuery(listOptions);
 
   const invalidate = () =>
     queryClient.invalidateQueries({ queryKey: listOptions.queryKey });
@@ -107,6 +107,7 @@ export function useShopCatalogs() {
     isLocked: !!access?.isLocked,
     isLoading: isAccessLoading || (canManage && isLoading),
     isError,
+    refetch,
     create,
     update,
     resetLink,

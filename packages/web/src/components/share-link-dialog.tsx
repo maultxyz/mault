@@ -23,6 +23,7 @@ import {
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   type OrgShareLink,
 } from "@magic-vault/shared";
+import { DeleteDialog } from "@/components/delete-dialog";
 import { IconLoader2, IconPlus } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useId, useRef, useState } from "react";
@@ -50,6 +51,8 @@ export function ShareLinkDialog({
   title,
   description,
   renderTrigger,
+  open: controlledOpen,
+  onOpenChange,
   revokedMessage,
   createLink,
   revokeLinks,
@@ -59,10 +62,12 @@ export function ShareLinkDialog({
   const formId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const viewChangedRef = useRef(false);
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
   const [view, setView] = useState<ShareLinkDialogView>("links");
   const [details, setDetails] = useState<ShareLinkDetailsData | null>(null);
   const [isRevokingAll, setIsRevokingAll] = useState(false);
+  const [isRevokeAllConfirmOpen, setIsRevokeAllConfirmOpen] = useState(false);
   const queryClient = useQueryClient();
   const { links, revoke } = useShareLinks(subjectGuid);
 
@@ -82,7 +87,8 @@ export function ShareLinkDialog({
   };
 
   const handleOpenChange = (isOpen: boolean) => {
-    setOpen(isOpen);
+    setUncontrolledOpen(isOpen);
+    onOpenChange?.(isOpen);
     if (!isOpen) {
       viewChangedRef.current = false;
       setView("links");
@@ -171,7 +177,7 @@ export function ShareLinkDialog({
           {tShareLinks("back")}
         </Button>
         <Button type="submit" form={formId} disabled={isSubmitting}>
-          {isSubmitting && <IconLoader2 className="animate-spin" />}
+          {isSubmitting && <IconLoader2 className="animate-spin motion-reduce:animate-none" />}
           {t("shareLink.create")}
         </Button>
       </>
@@ -179,12 +185,12 @@ export function ShareLinkDialog({
       <>
         {details?.guid && (
           <Button
-            variant="outline"
-            className="text-destructive md:mr-auto"
+            variant="outline-destructive"
+            className="md:mr-auto"
             onClick={handleRevokeShownLink}
             disabled={isRevokingShownLink}
           >
-            {isRevokingShownLink && <IconLoader2 className="animate-spin" />}
+            {isRevokingShownLink && <IconLoader2 className="animate-spin motion-reduce:animate-none" />}
             {tShareLinks("revoke")}
           </Button>
         )}
@@ -196,12 +202,12 @@ export function ShareLinkDialog({
       <>
         {links.length > 0 && (
           <Button
-            variant="outline"
-            className="text-destructive md:mr-auto"
-            onClick={handleRevokeAll}
+            variant="outline-destructive"
+            className="md:mr-auto"
+            onClick={() => setIsRevokeAllConfirmOpen(true)}
             disabled={isRevokingAll}
           >
-            {isRevokingAll && <IconLoader2 className="animate-spin" />}
+            {isRevokingAll && <IconLoader2 className="animate-spin motion-reduce:animate-none" />}
             {t("shareLink.revokeAll")}
           </Button>
         )}
@@ -213,17 +219,18 @@ export function ShareLinkDialog({
     );
 
   return (
+    <>
     <DynamicDialog
       open={open}
       onOpenChange={handleOpenChange}
       title={title}
       description={description}
-      trigger={renderTrigger(links.length)}
+      trigger={renderTrigger?.(links.length)}
       footer={footer}
       footerClassName="flex-col-reverse md:flex-row"
     >
       <div className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1">
-        <div className="flex flex-col gap-3 py-0.5">
+        <div className="flex flex-col gap-3 md:gap-2 py-0.5">
           <h3
             ref={headingRef}
             tabIndex={-1}
@@ -245,5 +252,17 @@ export function ShareLinkDialog({
         </div>
       </div>
     </DynamicDialog>
+    <DeleteDialog
+      open={isRevokeAllConfirmOpen}
+      onOpenChange={setIsRevokeAllConfirmOpen}
+      title={t("shareLink.revokeAllConfirmTitle")}
+      description={t("shareLink.revokeAllConfirmDescription")}
+      confirmLabel={t("shareLink.revokeAll")}
+      onConfirm={() => {
+        setIsRevokeAllConfirmOpen(false);
+        void handleRevokeAll();
+      }}
+    />
+    </>
   );
 }

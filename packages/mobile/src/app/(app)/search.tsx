@@ -1,9 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
-import { Image } from "expo-image";
+import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, View } from "react-native";
+import { CardThumbnail } from "@/components/cards/card-thumbnail";
+import { cardArtSources } from "@/lib/card-art";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
@@ -14,28 +15,37 @@ import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { SectionHeader } from "@/components/ui/section-header";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
+import { catalogCardSearchQueryOptions, rememberCatalogCard } from "@/features/search/api/catalog-card-search";
 import { ownedCardSearchQueryOptions } from "@/features/search/api/owned-card-search";
 import { searchLocally } from "@/features/search/lib/global-search";
 import { storageLocationsQueryOptions } from "@/features/storage/api/storage";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { usePricing } from "@/hooks/use-pricing";
 import { useActiveOrgId } from "@/hooks/use-org";
-import { useTheme } from "@/hooks/use-theme";
-import { CARD_ASPECT_RATIO, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
-import { GLOBAL_SEARCH_MIN_QUERY_LENGTH } from "@/lib/constants/search";
+import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SETTINGS_SECTION_LINKS } from "@/lib/constants/settings";
-import { CARD_THUMBNAIL_RADIUS, SPACING } from "@/lib/constants/theme";
-import { LIST_ROW_ICON_SIZE } from "@/lib/constants/ui";
+import { SPACING } from "@/lib/constants/theme";
+import type { CatalogCardResult } from "@/lib/interfaces/search";
 import { absoluteUrl } from "@/lib/url";
+import { catalogGamesOf, GLOBAL_SEARCH_MIN_QUERY_LENGTH } from "@magic-vault/shared";
 
 export default function GlobalSearchScreen() {
   const { t } = useTranslation();
-  const colors = useTheme();
   const orgId = useActiveOrgId();
   const [search, setSearch] = useState("");
   const query = search.trim();
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
   const searchesCards = debouncedQuery.length >= GLOBAL_SEARCH_MIN_QUERY_LENGTH;
-  const { collections } = useScanTarget();
+  const { collections, collection: scanTargetCollection } = useScanTarget();
+  const queryClient = useQueryClient();
+  const pricing = usePricing();
+  const catalogGames = useMemo(
+    () => catalogGamesOf(collections, scanTargetCollection?.guid),
+    [collections, scanTargetCollection?.guid],
+  );
+  const catalogQueries = useQueries({
+    queries: catalogGames.map((game) => catalogCardSearchQueryOptions(game, debouncedQuery, searchesCards)),
+  });
   const locations = useQuery(storageLocationsQueryOptions(orgId, true));
   const cards = useQuery(ownedCardSearchQueryOptions(orgId, debouncedQuery, searchesCards));
   const localResults = useMemo(
@@ -46,30 +56,36 @@ export default function GlobalSearchScreen() {
     [query, collections, locations.data, t],
   );
   const cardResults = searchesCards ? (cards.data ?? []) : [];
+  const catalogResults: CatalogCardResult[] = searchesCards
+    ? catalogQueries.flatMap((catalogQuery, index) =>
+        (catalogQuery.data ?? []).map(({ card, printingCount }) => ({ game: catalogGames[index], card, printingCount })),
+      )
+    : [];
+  const isSearchingCatalog = searchesCards && catalogQueries.some((catalogQuery) => catalogQuery.isLoading);
+  const catalogFailed = catalogQueries.some((catalogQuery) => catalogQuery.isError);
+  const showsGameName = catalogGames.length > 1;
   const isSearchingCards = searchesCards && cards.isLoading;
   const isWaitingForDebounce = query.length >= GLOBAL_SEARCH_MIN_QUERY_LENGTH && query !== debouncedQuery;
   const resultCount =
     cardResults.length +
+    catalogResults.length +
     localResults.collections.length +
     localResults.locations.length +
     localResults.settingsSections.length;
   useEffect(() => {
-    if (!searchesCards || !cards.isSuccess || debouncedQuery !== query) return;
+    if (!searchesCards || !cards.isSuccess || isSearchingCatalog || debouncedQuery !== query) return;
     AccessibilityInfo.announceForAccessibility(t("search.resultsCount", { count: resultCount }));
-  }, [searchesCards, cards.isSuccess, cards.dataUpdatedAt, debouncedQuery, query, resultCount, t]);
+  }, [searchesCards, cards.isSuccess, cards.dataUpdatedAt, isSearchingCatalog, debouncedQuery, query, resultCount, t]);
   const hasAnyResult =
     cardResults.length > 0 ||
+    catalogResults.length > 0 ||
     localResults.collections.length > 0 ||
     localResults.locations.length > 0 ||
     localResults.settingsSections.length > 0;
 
   return (
     <Screen
-      refreshing={cards.isRefetching}
-      onRefresh={() => {
-        void locations.refetch();
-        if (searchesCards) void cards.refetch();
-      }}
+      onRefresh={() => Promise.all([locations.refetch(), searchesCards ? cards.refetch() : null])}
       header={<PageHeader title={t("search.title")} onBack={() => router.back()} />}
     >
       <SearchInput
@@ -104,28 +120,14 @@ export default function GlobalSearchScreen() {
                         key={result.scanId}
                         title={result.cardName}
                         subtitle={[
+                          placement,
                           result.collectionName,
                           result.setName ?? result.setCode?.toUpperCase(),
                           result.isFoil ? t("search.foil") : null,
-                          placement,
                         ]
                           .filter(Boolean)
                           .join(" · ")}
-                        leading={
-                          <View
-                            style={{
-                              width: LIST_ROW_ICON_SIZE,
-                              aspectRatio: CARD_ASPECT_RATIO,
-                              borderRadius: CARD_THUMBNAIL_RADIUS,
-                              overflow: "hidden",
-                              backgroundColor: colors.muted,
-                            }}
-                          >
-                            {imageUrl ? (
-                              <Image source={{ uri: imageUrl }} accessible={false} style={{ flex: 1 }} contentFit="cover" />
-                            ) : null}
-                          </View>
-                        }
+                        leading={<CardThumbnail imageUrl={imageUrl} />}
                         onPress={() =>
                           router.push({
                             pathname: "/card/[scanId]",
@@ -139,6 +141,44 @@ export default function GlobalSearchScreen() {
               )}
             </View>
           ) : null}
+
+          {isSearchingCatalog || (isWaitingForDebounce && catalogGames.length > 0) || catalogResults.length > 0 ? (
+            <View style={{ gap: SPACING.sm }}>
+              <SectionHeader title={t("search.sections.catalog")} />
+              {isSearchingCatalog || isWaitingForDebounce ? (
+                <ListSkeleton rows={3} />
+              ) : (
+                <ListGroup>
+                  {catalogResults.map(({ game, card, printingCount }) => {
+                    const artSources = cardArtSources(card.image);
+                    const price = pricing.priceOf(card);
+                    return (
+                      <ListRow
+                        key={`${game.gameKey}-${card.id}`}
+                        title={card.name}
+                        subtitle={[
+                          card.setName || card.set.toUpperCase(),
+                          card.collectorNumber ? `#${card.collectorNumber}` : null,
+                          showsGameName ? game.gameName : null,
+                          price != null ? pricing.format(price) : null,
+                          printingCount > 1 ? t("search.printings.count", { count: printingCount }) : null,
+                        ]
+                          .filter(Boolean)
+                          .join(" · ")}
+                        leading={<CardThumbnail {...artSources} />}
+                        onPress={() => {
+                          rememberCatalogCard(queryClient, game.gameKey, card);
+                          router.push({ pathname: "/catalog-card", params: { id: card.id, gameKey: game.gameKey } });
+                        }}
+                      />
+                    );
+                  })}
+                </ListGroup>
+              )}
+            </View>
+          ) : null}
+
+          {catalogFailed ? <Callout tone="destructive" title={t("search.catalogLoadFailed")} /> : null}
 
           {localResults.collections.length > 0 ? (
             <View style={{ gap: SPACING.sm }}>
@@ -191,7 +231,7 @@ export default function GlobalSearchScreen() {
             </View>
           ) : null}
 
-          {!hasAnyResult && !isSearchingCards && !isWaitingForDebounce && !cards.isError ? (
+          {!hasAnyResult && !isSearchingCards && !isSearchingCatalog && !isWaitingForDebounce && !cards.isError ? (
             <EmptyState icon="search" title={t("search.emptyTitle")} description={t("search.emptyDescription")} />
           ) : null}
         </>

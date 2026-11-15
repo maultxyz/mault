@@ -1,4 +1,6 @@
 import { EmptyState } from "@/components/empty-state";
+import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { PlanNotice } from "@/components/plan-notice";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
@@ -23,7 +25,7 @@ export function SoundClipLibrary() {
   const { activeOrg } = useOrg();
   const inputRef = useRef<HTMLInputElement>(null);
   const clipsOpts = soundClipsQueryOptions(activeOrg?.id);
-  const { data: clips = [], isLoading } = useQuery(clipsOpts);
+  const { data: clips = [], isLoading, isError, refetch } = useQuery(clipsOpts);
   const { billing } = useBilling();
   const isUploadLocked = billing?.customSounds === false;
 
@@ -60,14 +62,21 @@ export function SoundClipLibrary() {
       }
     >
       {isUploadLocked && <PlanNotice message={t("library.notInPlan")} />}
-      {!isLoading && clips.length === 0 ? (
+      {isError ? (
+        <LoadErrorCallout
+          message={t("library.loadFailed")}
+          onRetry={() => void refetch()}
+        />
+      ) : isLoading ? (
+        <ListSkeleton rows={3} />
+      ) : clips.length === 0 ? (
         <EmptyState
           size="compact"
           icon={IconMusic}
           title={t("library.empty")}
         />
       ) : (
-        <ul className="flex flex-col divide-y rounded-lg border empty:hidden">
+        <ul className="flex flex-col divide-y divide-border empty:hidden">
           {clips.map((clip) => (
             <SoundClipRow
               key={clip.guid}

@@ -65,8 +65,10 @@
       "heading": "Aperçu"
     },
     "liveView": "Vue en direct",
+    "shareLink": "Partager le lien de la vue en direct",
     "printControlCard": "Imprimer une carte de contrôle",
-    "viewStats": "Statistiques"
+    "viewStats": "Statistiques",
+    "actions": "Actions pour {{name}}"
   },
   "editDialog": {
     "title": "Modifier la collection",
@@ -112,17 +114,29 @@
     "emptyDescription": "Retire définitivement toutes les cartes des collections sélectionnées, mais conserve les collections elles-mêmes. Cette action est irréversible.",
     "deleteTitle_one": "Supprimer {{count}} collection",
     "deleteTitle_other": "Supprimer {{count}} collections",
-    "deleteDescription": "Supprime les collections sélectionnées et masque toutes leurs cartes. Contacte le support si tu as besoin de les récupérer."
+    "deleteDescription": "Supprime les collections sélectionnées et masque toutes leurs cartes. Contacte le support si tu as besoin de les récupérer.",
+    "progress": {
+      "delete": "Suppression de {{current}} sur {{total}} collections",
+      "empty": "Vidage de {{current}} sur {{total}} collections",
+      "deleteDone_one": "{{count}} collection supprimée",
+      "deleteDone_other": "{{count}} collections supprimées",
+      "emptyDone_one": "{{count}} collection vidée",
+      "emptyDone_other": "{{count}} collections vidées",
+      "deleteFailed_one": "{{count}} collection sur {{total}} n'a pas pu être supprimée",
+      "deleteFailed_other": "{{count}} collections sur {{total}} n'ont pas pu être supprimées",
+      "emptyFailed_one": "{{count}} collection sur {{total}} n'a pas pu être vidée",
+      "emptyFailed_other": "{{count}} collections sur {{total}} n'ont pas pu être vidées"
+    }
   },
   "emptyChoice": {
     "title": "Vider {{name}}",
     "titleBulk": "Vider {{count}} collections",
-    "description": "Choisis une boîte de rangement où déplacer les cartes. Elles restent dans la collection et apparaissent dans la boîte. Les cartes déjà rangées dans une boîte y restent.",
-    "lockedDescription": "Les boîtes de rangement ne sont pas disponibles avec ton abonnement, donc vider supprime les cartes.",
+    "description": "Choisis un emplacement de rangement où déplacer les cartes. Elles restent dans la collection et apparaissent à cet emplacement. Les cartes déjà rangées à un emplacement y restent.",
+    "lockedDescription": "Le rangement n'est pas disponible avec ton abonnement, donc vider supprime les cartes.",
     "locationLabel": "Déplacer les cartes vers",
-    "placeholder": "Choisis une boîte de rangement",
-    "newBox": "Nouvelle boîte de rangement",
-    "newBoxName": "Nom de la boîte",
+    "placeholder": "Choisis un emplacement de rangement",
+    "newBox": "Nouvel emplacement de rangement",
+    "newBoxName": "Nom de l'emplacement",
     "delete": "Supprimer définitivement les cartes",
     "confirm": "Déplacer les cartes",
     "continue": "Continuer"

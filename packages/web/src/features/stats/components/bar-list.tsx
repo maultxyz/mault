@@ -38,7 +38,7 @@ function BarListRow({ item, max }: BarListRowProps) {
         <button
           type="button"
           onClick={item.onSelect}
-          className="-mx-2 flex w-[calc(100%+1rem)] flex-col gap-1.5 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-muted active:bg-muted"
+          className="-mx-2 flex w-[calc(100%+1rem)] flex-col gap-1.5 rounded-md px-2 py-1.5 text-left transition-colors hover:bg-foreground/6 active:bg-foreground/6"
         >
           {content}
         </button>

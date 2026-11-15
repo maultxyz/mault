@@ -1,5 +1,5 @@
 import { z } from "zod";
-import type { BinRuleGroup, RepackSlot } from "@magic-vault/shared";
+import { CONDITION_NUMERIC_MAX, formValidationMessage, type BinRuleGroup } from "@magic-vault/shared";
 
 const ruleGroup = z.custom<BinRuleGroup>((value) => !!value && typeof value === "object" && "conditions" in value);
 
@@ -20,7 +20,17 @@ export const repackSchema = z.object({
   repackUniqueBy: z.string(),
   repackSiftRules: ruleGroup.nullable(),
   repackSlots: z.array(
-    z.custom<RepackSlot>((value) => !!value && typeof value === "object" && "rule" in value && "targetCount" in value),
+    z.object({
+      id: z.string(),
+      rule: ruleGroup,
+      targetCount: z
+        .number()
+        .int(formValidationMessage("wholeNumber"))
+        .min(1, formValidationMessage("atLeast", { min: 1 }))
+        .max(CONDITION_NUMERIC_MAX, formValidationMessage("atMost", { max: CONDITION_NUMERIC_MAX }))
+        .nullable()
+        .refine((targetCount) => targetCount != null, formValidationMessage("valueRequired")),
+    }),
   ),
   repackMultiplePacks: z.boolean(),
 });

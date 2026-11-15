@@ -20,12 +20,9 @@ export function OrderList({
 
   if (isLoading) {
     return (
-      <div className="flex flex-col overflow-hidden rounded-lg border">
+      <div className="flex flex-col gap-2 max-md:gap-2">
         {Array.from({ length: BUSINESS_LIST_SKELETON_COUNT }).map((_, i) => (
-          <Skeleton
-            key={i}
-            className="h-13 rounded-none border-b last:border-b-0"
-          />
+          <Skeleton key={i} className="h-13 rounded-lg" />
         ))}
       </div>
     );
@@ -44,7 +41,7 @@ export function OrderList({
 
   return (
     <>
-      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto max-md:gap-3">
+      <div className="flex min-h-0 flex-1 flex-col gap-2 overflow-y-auto max-md:gap-2">
         {orders.map((order) => (
           <Button
             key={order.guid}
@@ -54,7 +51,7 @@ export function OrderList({
             onClick={() => onSelect(order.guid)}
           >
             <span className="flex w-full items-center gap-2">
-              <span className="min-w-0 flex-1 truncate font-heading text-sm font-medium">
+              <span className="min-w-0 flex-1 truncate text-sm font-medium">
                 {order.name}
               </span>
               <StatusBadge status={order.status} />

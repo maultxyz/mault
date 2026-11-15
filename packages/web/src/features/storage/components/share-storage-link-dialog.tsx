@@ -1,6 +1,6 @@
 import { ShareLinkDialog } from "@/components/share-link-dialog";
+import { shareLinkUrl } from "@/features/share-links/lib/share-link-paths";
 import {
-  buildStorageShareLinkUrl,
   createStorageShareLink,
   revokeStorageShareLinks,
 } from "@/features/storage/api/storage-share-links";
@@ -14,6 +14,8 @@ import { useTranslation } from "react-i18next";
 export function ShareStorageLinkDialog({
   locationGuid,
   renderTrigger,
+  open,
+  onOpenChange,
 }: ShareStorageLinkDialogProps) {
   const { t } = useTranslation("storage");
 
@@ -28,7 +30,7 @@ export function ShareStorageLinkDialog({
       if (!result.success || !result.data) throw new Error(result.message);
       return {
         guid: result.data.guid,
-        url: buildStorageShareLinkUrl(locationGuid, result.data.token),
+        url: shareLinkUrl(result.data),
         expiresAt: result.data.expiresAt,
       };
     },
@@ -49,6 +51,8 @@ export function ShareStorageLinkDialog({
       createLink={createLink}
       revokeLinks={revokeLinks}
       renderTrigger={renderTrigger}
+      open={open}
+      onOpenChange={onOpenChange}
     />
   );
 }

@@ -1,3 +1,4 @@
+import { CardImage } from "@/components/card-image";
 import { NEW_CARD_ANIMATION_WINDOW_MS } from "@/lib/constants/card-grid";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -56,14 +57,14 @@ export const ScannedCardItem = memo(function ScannedCardItem({
         onToggleSelect && ((shiftKey) => onToggleSelect({ shiftKey })),
       )}
       className={cn(
-        "relative rounded-lg p-1 bg-muted border transition-shadow",
+        "relative rounded-card bg-card p-1.5 transition-shadow",
         isNew &&
           "animate-in fade-in-0 zoom-in-90 slide-in-from-top-2 duration-500 motion-reduce:animate-none",
         isSelected && "ring-2 ring-primary ring-offset-1",
       )}
     >
       <button type="button" className="w-full cursor-pointer" onClick={onOpen}>
-        <div className="aspect-[2.5/3.5] rounded-md overflow-hidden relative">
+        <div className="aspect-[2.5/3.5] rounded-lg overflow-hidden relative">
           <ReviewStatusIcon
             hasAlternatives={hasAlternatives}
             lowConfidenceMatch={lowConfidenceMatch}
@@ -94,7 +95,7 @@ export const ScannedCardItem = memo(function ScannedCardItem({
                       className={
                         matchPercent >= 80
                           ? undefined
-                          : "bg-destructive text-white"
+                          : "bg-destructive-strong text-white"
                       }
                     >
                       {matchPercent.toFixed(2)}%
@@ -151,11 +152,11 @@ export const ScannedCardItem = memo(function ScannedCardItem({
               </Badge>
             )}
           </div>
-          <img
-            loading="lazy"
-            src={card.image?.normal || ""}
+          <CardImage
+            src={card.image?.normal || card.image?.small}
+            placeholderSrc={card.image?.small}
             alt={card.name}
-            className="w-full h-full object-cover"
+            className="bg-transparent"
           />
         </div>
       </button>

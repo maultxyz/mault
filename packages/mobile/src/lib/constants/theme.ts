@@ -144,8 +144,8 @@ export const FONT_FAMILY = {
   medium: "Figtree_500Medium",
   semibold: "Figtree_600SemiBold",
   bold: "Figtree_700Bold",
-  headingMedium: "JetBrainsMono_500Medium",
-  headingSemibold: "JetBrainsMono_600SemiBold",
+  headingMedium: "Figtree_600SemiBold",
+  headingSemibold: "Figtree_700Bold",
   mono: "JetBrainsMono_400Regular",
 } as const;
 

@@ -12,7 +12,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { SectionHeader } from "@/components/ui/section-header";
+import { Surface } from "@/components/ui/surface";
 import {
   deleteShopCatalog,
   removeShopPhoto,
@@ -23,6 +23,7 @@ import {
 } from "@/features/business/api/shop-catalogs";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
 import { SettingsPage } from "@/features/settings/components/settings-page";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { SHOP_PHOTO_PREVIEW_HEIGHT, SHOP_PHOTO_PREVIEW_WIDTH } from "@/lib/constants/shop-catalogs";
@@ -141,8 +142,7 @@ export default function ShopCatalogsSettingsScreen() {
     <SettingsPage
       title={t("settings.shopCatalogs.heading")}
       isLoading={access.isLoading || (canManage && list.isLoading)}
-      refreshing={list.isRefetching}
-      onRefresh={() => void list.refetch()}
+      onRefresh={() => list.refetch()}
     >
       <AppText size="sm" tone="secondary">
         {t("settings.shopCatalogs.description")}
@@ -153,9 +153,8 @@ export default function ShopCatalogsSettingsScreen() {
       {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
 
       {canManage ? (
-        <View style={{ gap: SPACING.sm }}>
-          <SectionHeader title={t("settings.shopCatalogs.photo.heading")} />
-          <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
+        <SettingsSection title={t("settings.shopCatalogs.photo.heading")}>
+          <Surface style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
             <View
               style={{
                 width: SHOP_PHOTO_PREVIEW_WIDTH,
@@ -177,7 +176,7 @@ export default function ShopCatalogsSettingsScreen() {
             <AppText size="xs" tone="secondary" style={{ flex: 1 }}>
               {t("settings.shopCatalogs.photo.description")}
             </AppText>
-          </View>
+          </Surface>
           {!locked ? (
             <ListGroup>
               <ListRow
@@ -197,12 +196,11 @@ export default function ShopCatalogsSettingsScreen() {
               ) : null}
             </ListGroup>
           ) : null}
-        </View>
+        </SettingsSection>
       ) : null}
 
       {canManage ? (
-        <View style={{ gap: SPACING.sm }}>
-          <SectionHeader title={t("settings.shopCatalogs.heading")} />
+        <SettingsSection title={t("settings.shopCatalogs.heading")}>
           {list.data && catalogs.length === 0 ? <EmptyState icon="store" title={t("settings.shopCatalogs.empty")} /> : null}
           {catalogs.length > 0 || !locked ? (
             <ListGroup>
@@ -227,7 +225,7 @@ export default function ShopCatalogsSettingsScreen() {
               {!locked ? <ListRow icon="plus" title={t("settings.shopCatalogs.add")} onPress={() => openEditor()} /> : null}
             </ListGroup>
           ) : null}
-        </View>
+        </SettingsSection>
       ) : null}
 
       <OptionSheet

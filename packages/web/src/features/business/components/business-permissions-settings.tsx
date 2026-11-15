@@ -10,7 +10,7 @@ export function BusinessPermissionsSettings({
 }: BusinessPermissionsSettingsProps) {
   const { t } = useTranslation("business");
   return (
-    <div className="divide-y rounded-lg border">
+    <div className="divide-y divide-border">
       {BUSINESS_PERMISSION_KEYS.map((key) => (
         <Controller
           key={key}
@@ -27,6 +27,7 @@ export function BusinessPermissionsSettings({
                 </span>
               </span>
               <Switch
+                aria-label={t(`settings.permissions.${key}.label`)}
                 checked={field.value}
                 disabled={disabled}
                 onCheckedChange={field.onChange}

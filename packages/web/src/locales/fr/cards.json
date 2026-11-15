@@ -589,10 +589,10 @@
     "findSet": "Trouver une extension",
     "openCard": "Voir {{name}} ({{details}})",
     "cardNotFound": "Cette carte n'est plus disponible.",
+    "cardLoadFailed": "Impossible de charger cette carte.",
     "referenceImage": "Image de référence",
     "backToCards": "Retour aux cartes",
-    "loading": "Chargement des cartes",
-    "tradeHint": "Ouvrez une carte pour l'ajouter à votre offre"
+    "tradeHint": "Touchez + sur une carte ou ouvrez-la pour l'ajouter à votre offre"
   },
   "tradeOffers": {
     "game": "Jeu",
@@ -623,7 +623,10 @@
     "headerButton_other": "Offre d'échange ({{count}})",
     "inTradeOffer": "Dans votre offre",
     "addToTradeOffer": "Ajouter à l'offre",
-    "pageDescription": "Choisissez des cartes dans {{source}}, ajoutez celles que vous donnez en échange, puis envoyez. Le propriétaire accepte ou refuse.",
+    "quickAdd": "Ajouter {{name}} à l'offre",
+    "quickRemove": "Retirer {{name}} de l'offre",
+    "wantedLimit": "Une offre peut demander jusqu'à {{max}} cartes.",
+    "pageDescription": "Choisissez des cartes dans {{source}}, ajoutez les cartes ou l'argent que vous donnez en échange (ou rien), puis envoyez. Le propriétaire accepte ou refuse.",
     "detailsTitle": "Vos coordonnées",
     "detailsDescription": "Pour que le propriétaire sache qui vous êtes et comment vous joindre.",
     "getTitle_one": "Vous recevez ({{count}})",
@@ -634,15 +637,24 @@
     "addMoreCards": "Ajouter d'autres cartes",
     "giveTitle_one": "Vous donnez ({{count}})",
     "giveTitle_other": "Vous donnez ({{count}})",
-    "giveDescription": "Vos cartes, de n'importe quel jeu",
+    "giveDescription": "Vos cartes de n'importe quel jeu, de l'argent, ou les deux",
+    "cashLabel": "Argent en {{currency}} (facultatif)",
+    "cashHint": "Proposez de l'argent avec vos cartes ou seul. Laissez les deux vides pour ne rien proposer en échange.",
     "giveEmpty": "Cherchez ci-dessus et ajoutez les cartes que vous proposez.",
     "summary": "Cartes reçues : {{get}} · Cartes données : {{give}}",
+    "summaryWithCash": "Cartes reçues : {{get}} · Cartes données : {{give}} · Argent : {{cash}}",
+    "summaryNothing": "Cartes reçues : {{get}} · Rien en échange",
     "needGet": "Ajoutez une carte voulue pour continuer.",
-    "needGive": "Ajoutez une carte à donner pour continuer.",
     "quantityFor": "Quantité de {{name}}",
     "conditionFor": "État de {{name}}",
     "yourOffers_one": "Vos offres envoyées ({{count}})",
     "yourOffers_other": "Vos offres envoyées ({{count}})",
-    "noPrice": "Sans prix"
+    "noPrice": "Sans prix",
+    "account": {
+      "logIn": "Se connecter",
+      "logInHint": "Connectez-vous pour suivre les offres que vous envoyez. Elles apparaissent dans votre compte sous Échanges > Envoyées.",
+      "signedInAs": "Connecté en tant que {{name}}.",
+      "signedInHint": "Les offres que vous envoyez apparaissent dans votre compte sous Échanges > Envoyées."
+    }
   }
 }

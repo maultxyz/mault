@@ -74,7 +74,7 @@ export function IntakeOfferEditor({ card }: IntakeOfferEditorProps) {
       />
       <PopoverContent align="end" className="gap-3 p-3">
         <form
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-3 md:gap-2"
           onSubmit={form.handleSubmit((values) => save(values.offer))}
         >
           <p className="truncate text-sm font-medium">

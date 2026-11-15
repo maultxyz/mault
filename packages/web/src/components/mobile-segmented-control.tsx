@@ -17,7 +17,7 @@ export function MobileSegmentedControl<T extends string>({
     <div
       role="tablist"
       aria-label={label}
-      className="flex w-full gap-1 rounded-lg p-1 ring-1 ring-border"
+      className="flex w-full gap-1 rounded-lg bg-foreground/6 p-1 dark:bg-foreground/8"
     >
       {items.map((item, index) => {
         const active = item.key === value;
@@ -33,8 +33,8 @@ export function MobileSegmentedControl<T extends string>({
             className={cn(
               "flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 truncate rounded-md px-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",
               active
-                ? "bg-primary/10 font-semibold text-primary dark:bg-primary/20"
-                : "text-foreground/70 active:bg-muted",
+                ? "bg-card font-semibold text-primary shadow-xs dark:text-sidebar-primary"
+                : "text-foreground/70 active:bg-foreground/6",
             )}
           >
             {item.label}

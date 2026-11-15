@@ -6,7 +6,8 @@
     "save": "Speichern"
   },
   "errors": {
-    "generic": "Etwas ist schiefgelaufen. Versuch es noch einmal."
+    "generic": "Etwas ist schiefgelaufen. Versuch es noch einmal.",
+    "loadFailed": "Das konnte nicht geladen werden. Prüf deine Verbindung und versuch es noch einmal."
   },
   "upgrade": {
     "locked": "Kaufen und Verkaufen (Ankauf, Picks, Einkaufspreise und Stichproben) ist nicht Teil deines Tarifs. Was du schon hast, kannst du weiterhin ansehen.",

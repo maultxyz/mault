@@ -14,7 +14,7 @@ export function DiscordBotCommands() {
           subtitle={t("commands.description")}
         />
 
-        <div className="mx-auto mt-12 max-w-4xl overflow-hidden rounded-lg bg-card ring-1 ring-border">
+        <div className="mx-auto mt-12 max-w-4xl overflow-hidden rounded-card bg-card">
           <div className="divide-y">
             {DISCORD_BOT_COMMANDS.map((key) => (
               <div

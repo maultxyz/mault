@@ -78,6 +78,8 @@ export interface CardSearchAdapter {
   rarePrintingSql?: SQL;
   promoPrintingSql?: SQL;
   printedSetTotalSql?: SQL;
+  releasedAtSql?: SQL;
+  releaseSequenceSql?: SQL;
   excludedFromMatchingSql?: SQL;
   ocrMatchesByPrintedSetAndNumber?: boolean;
   readPrintedPromoMarker?(setLine: string): boolean | null;
@@ -89,6 +91,41 @@ export interface CardSearchAdapter {
   cardmarket?: CardmarketPricing;
   cardkingdom?: CardKingdomPricing;
 }
+
+export interface GroupedCatalogSearchSqlParams {
+  adapter: CardSearchAdapter;
+  gameKey: string;
+  preferredLang: string;
+  searchFilter: SQL;
+  printingFilter: SQL;
+  printingMatch: SQL | undefined;
+  exactName: string;
+  offset: number;
+  limit: number;
+}
+
+export interface CardPrintingsSqlParams {
+  adapter: CardSearchAdapter;
+  gameKey: string;
+  lang: string;
+  cardName: string;
+  offset: number;
+  limit: number;
+}
+
+export type GroupedCatalogSearchRow = {
+  card_id: string;
+  lang: string;
+  data: unknown;
+  printing_count: number;
+};
+
+export type CardPrintingRow = {
+  card_id: string;
+  lang: string;
+  data: unknown;
+  total_count: number;
+};
 
 export interface ResolvedCardSearch {
   adapter: CardSearchAdapter;

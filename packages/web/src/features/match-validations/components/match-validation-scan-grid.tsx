@@ -46,7 +46,7 @@ export function MatchValidationScanGrid({ gameKey }: MatchValidationGameFilterPr
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 md:gap-2">
       {isMobile && (
         <MatchValidationSummary className="sticky top-0 z-10 bg-background py-2" />
       )}

@@ -1,4 +1,4 @@
-import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, queryOptions, type InfiniteData, type QueryClient } from "@tanstack/react-query";
 import type {
   CardStorageLocation,
   CollectionCardsQuery,
@@ -50,6 +50,19 @@ export const storageLocationQueryOptions = (guid: string) =>
     queryKey: ["storage-locations", "location", guid] as const,
     queryFn: () => unwrapOr(apiGet<Result<StorageLocation | null>>(`/api/storage-locations/${guid}`), null),
   });
+
+export function cachedStorageLocation(
+  queryClient: QueryClient,
+  orgId: string | null,
+  guid: string,
+): StorageLocation | undefined {
+  const pagedLocations =
+    queryClient
+      .getQueryData<InfiniteData<PagedList<StorageLocation>>>(storageLocationsPageQueryOptions(orgId).queryKey)
+      ?.pages.flatMap((page) => page.items) ?? [];
+  const allLocations = queryClient.getQueryData<StorageLocation[]>(storageLocationsQueryOptions(orgId, true).queryKey) ?? [];
+  return [...pagedLocations, ...allLocations].find((location) => location.guid === guid);
+}
 
 export const storageLocationCardsPageQueryOptions = (guid: string, query: CollectionCardsQuery) =>
   infiniteQueryOptions({

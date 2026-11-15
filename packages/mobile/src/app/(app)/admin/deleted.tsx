@@ -2,8 +2,10 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/react-q
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, FlatList, RefreshControl, View } from "react-native";
+import { AccessibilityInfo, FlatList, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import type { DeletedItem } from "@magic-vault/shared";
+import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
@@ -12,12 +14,12 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { SelectField } from "@/components/ui/select-field";
+import { ListGroupItem } from "@/components/ui/list-group-item";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import { deletedItemsQueryOptions, restoreDeletedItem } from "@/features/admin/api/deleted-items";
 import { AdminGate } from "@/features/admin/components/admin-gate";
 import { DeletedItemRow } from "@/features/admin/components/deleted-item-row";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { useTheme } from "@/hooks/use-theme";
 import { ALL_DELETED_ITEM_TYPES, DELETED_ITEM_TYPE_FILTERS } from "@/lib/constants/admin-deleted";
 import { LIST_END_THRESHOLD, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
@@ -25,7 +27,6 @@ import type { DeletedItemsNotice, DeletedItemTypeFilter } from "@/lib/interfaces
 
 function DeletedItemsScreen() {
   const { t } = useTranslation();
-  const colors = useTheme();
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState<DeletedItemTypeFilter>(ALL_DELETED_ITEM_TYPES);
@@ -87,17 +88,15 @@ function DeletedItemsScreen() {
           if (deletedItems.hasNextPage && !deletedItems.isFetchingNextPage) void deletedItems.fetchNextPage();
         }}
         refreshControl={
-          <RefreshControl
-            refreshing={deletedItems.isRefetching && !deletedItems.isFetchingNextPage}
-            onRefresh={() => void deletedItems.refetch()}
-            tintColor={colors.primaryText}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.card}
+          <PullToRefreshControl
+            onRefresh={() => deletedItems.refetch()}
           />
         }
         ListHeaderComponent={
           <View style={{ gap: SPACING.md, padding: SCREEN_GUTTER }}>
-            <Callout title={t("admin.deleted.description")} />
+            <AppText size="sm" tone="secondary">
+              {t("admin.deleted.description")}
+            </AppText>
             {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
             <SearchInput
               value={search}
@@ -136,15 +135,19 @@ function DeletedItemsScreen() {
             <ListLoadingFooter accessibilityLabel={t("admin.deleted.loadingMore")} />
           ) : undefined
         }
-        renderItem={({ item }) => (
-          <DeletedItemRow
-            item={item}
-            isRestoring={
-              restore.isPending && restore.variables?.guid === item.guid && restore.variables.type === item.type
-            }
-            isRestoreDisabled={restore.isPending}
-            onRestore={(restoredItem) => restore.mutate(restoredItem)}
-          />
+        renderItem={({ item, index }) => (
+          <View style={{ paddingHorizontal: SCREEN_GUTTER }}>
+            <ListGroupItem index={index} count={items.length}>
+              <DeletedItemRow
+                item={item}
+                isRestoring={
+                  restore.isPending && restore.variables?.guid === item.guid && restore.variables.type === item.type
+                }
+                isRestoreDisabled={restore.isPending}
+                onRestore={(restoredItem) => restore.mutate(restoredItem)}
+              />
+            </ListGroupItem>
+          </View>
         )}
       />
       <OptionSheet

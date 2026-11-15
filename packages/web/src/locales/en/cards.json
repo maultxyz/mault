@@ -589,10 +589,10 @@
     "findSet": "Find a set",
     "openCard": "View {{name}} ({{details}})",
     "cardNotFound": "This card is no longer available.",
+    "cardLoadFailed": "Couldn't load this card.",
     "referenceImage": "Reference image",
     "backToCards": "Back to cards",
-    "loading": "Loading cards",
-    "tradeHint": "Open a card to add it to your trade offer"
+    "tradeHint": "Tap + on a card or open it to add it to your trade offer"
   },
   "tradeOffers": {
     "game": "Game",
@@ -623,7 +623,10 @@
     "headerButton_other": "Trade offer ({{count}})",
     "inTradeOffer": "In your trade offer",
     "addToTradeOffer": "Add to trade offer",
-    "pageDescription": "Pick cards you want from {{source}}, add cards you'll give in return, and send it. The owner accepts or declines.",
+    "quickAdd": "Add {{name}} to trade offer",
+    "quickRemove": "Remove {{name}} from trade offer",
+    "wantedLimit": "A trade offer can ask for up to {{max}} cards.",
+    "pageDescription": "Pick cards you want from {{source}}, add cards or cash you'll give in return (or nothing), and send it. The owner accepts or declines.",
     "detailsTitle": "Your details",
     "detailsDescription": "So the owner knows who you are and how to reach you.",
     "getTitle_one": "You get ({{count}})",
@@ -634,15 +637,24 @@
     "addMoreCards": "Add more cards",
     "giveTitle_one": "You give ({{count}})",
     "giveTitle_other": "You give ({{count}})",
-    "giveDescription": "Your cards, from any game",
+    "giveDescription": "Your cards from any game, cash, or both",
+    "cashLabel": "Cash in {{currency}} (optional)",
+    "cashHint": "Offer cash with your cards or on its own. Leave both empty to offer nothing in return.",
     "giveEmpty": "Search above and add the cards you're offering.",
     "summary": "Cards you get: {{get}} · Cards you give: {{give}}",
+    "summaryWithCash": "Cards you get: {{get}} · Cards you give: {{give}} · Cash: {{cash}}",
+    "summaryNothing": "Cards you get: {{get}} · Nothing in return",
     "needGet": "Add a card you want to continue.",
-    "needGive": "Add a card you're giving to continue.",
     "quantityFor": "Quantity of {{name}}",
     "conditionFor": "Condition of {{name}}",
     "yourOffers_one": "Your sent offers ({{count}})",
     "yourOffers_other": "Your sent offers ({{count}})",
-    "noPrice": "No price"
+    "noPrice": "No price",
+    "account": {
+      "logIn": "Log in",
+      "logInHint": "Log in to keep track of the offers you send. They show up under Trades > Sent in your account.",
+      "signedInAs": "Signed in as {{name}}.",
+      "signedInHint": "Offers you send show up under Trades > Sent in your account."
+    }
   }
 }

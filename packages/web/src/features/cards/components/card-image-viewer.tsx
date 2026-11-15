@@ -45,7 +45,7 @@ export function CardImageViewer({
             </label>
           )}
         </DialogHeader>
-        <div className="flex flex-col gap-4 md:flex-row md:items-start">
+        <div className="flex flex-col gap-4 md:gap-2 md:flex-row md:items-start">
           <div className="relative mx-auto h-[min(75dvh,36rem)] max-w-full aspect-[2.5/3.5] shrink-0 rounded-lg overflow-hidden border">
             <CapturedImageThumb
               src={capturedImageUrl}

@@ -13,8 +13,6 @@ import {
   type CollectionCardsQuery,
   type MonitorLink,
   type ShareLinkPurpose,
-  SHARE_LINK_TOKEN_PARAM,
-  WATCH_PATH_PREFIX,
   type CollectionCardsPage,
   type CollectionCardsSummary,
   type Result,
@@ -23,7 +21,6 @@ import {
   type ScanTimelineGrouping,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
-import { WEB_URL } from "@/lib/constants/config";
 import { SCAN_IMAGE_STALE_MS, SCAN_SAVE_REFRESH_THROTTLE_MS } from "@/lib/constants/query";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
 import type { ScanImageResponse } from "@/lib/interfaces/collections";
@@ -205,6 +202,3 @@ export function revokeMonitorLinks(guid: string): Promise<unknown> {
   return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/monitor-link/revoke`));
 }
 
-export function buildMonitorLinkUrl(guid: string, token: string): string {
-  return `${WEB_URL}${WATCH_PATH_PREFIX}/${guid}?${SHARE_LINK_TOKEN_PARAM}=${encodeURIComponent(token)}`;
-}

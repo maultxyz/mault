@@ -4,9 +4,12 @@ import {
   type CardTag,
   type CollectionCardPosition,
   type CollectionCardsPage,
+  type ScannedCard,
+  type StorageLocationCard,
   type StorageLocationCardPage,
 } from "@magic-vault/shared";
-import type { CardCacheSnapshot } from "@/lib/interfaces/undo";
+import type { CardUpdateBody } from "@/lib/interfaces/cards";
+import type { CardCachePatch, CardCacheSnapshot, CardReviewKind } from "@/lib/interfaces/undo";
 
 const STORAGE_CARDS_PAGE_QUERY_KEY = ["storage-locations", "cards-page"] as const;
 
@@ -107,4 +110,78 @@ export function setCardTagsInCaches(
   queryClient.setQueriesData<CollectionCardPosition | null>({ queryKey: collectionCardQueryKey(collectionGuid) }, (data) =>
     data && taggedScanIds.has(data.entry.scanId) ? { ...data, entry: withCardTags(data.entry, tags, enabled) } : data,
   );
+}
+
+function definedPatchEntries(patch: CardCachePatch): Array<[string, unknown]> {
+  return Object.entries(patch).filter(([, value]) => value !== undefined);
+}
+
+function scannedCardWithPatch<T extends ScannedCard>(card: T, patch: CardCachePatch): T {
+  return {
+    ...card,
+    ...Object.fromEntries(definedPatchEntries(patch).map(([key, value]) => [key, value ?? undefined])),
+  };
+}
+
+function storageCardWithPatch(card: StorageLocationCard, patch: CardCachePatch): StorageLocationCard {
+  const { storageLocation: _storageLocation, ...storageFields } = patch;
+  return { ...card, ...Object.fromEntries(definedPatchEntries(storageFields)) };
+}
+
+export async function patchCardsInCaches(
+  queryClient: QueryClient,
+  collectionGuid: string,
+  scanIds: string[],
+  patch: CardCachePatch,
+): Promise<CardCacheSnapshot> {
+  await Promise.all([
+    queryClient.cancelQueries({ queryKey: collectionListQueryKey(collectionGuid) }),
+    queryClient.cancelQueries({ queryKey: collectionCardQueryKey(collectionGuid) }),
+    queryClient.cancelQueries({ queryKey: STORAGE_CARDS_PAGE_QUERY_KEY }),
+  ]);
+  const snapshot = snapshotCardCaches(queryClient, collectionGuid);
+  const patchedScanIds = new Set(scanIds);
+  queryClient.setQueriesData<InfiniteData<CollectionCardsPage>>(
+    { queryKey: collectionListQueryKey(collectionGuid) },
+    (data) =>
+      data && {
+        ...data,
+        pages: data.pages.map((page) => ({
+          ...page,
+          items: page.items.map((item) =>
+            patchedScanIds.has(item.scanId) || item.scanIds.some((itemScanId) => patchedScanIds.has(itemScanId))
+              ? scannedCardWithPatch(item, patch)
+              : item,
+          ),
+        })),
+      },
+  );
+  queryClient.setQueriesData<CollectionCardPosition | null>({ queryKey: collectionCardQueryKey(collectionGuid) }, (data) =>
+    data && patchedScanIds.has(data.entry.scanId) ? { ...data, entry: scannedCardWithPatch(data.entry, patch) } : data,
+  );
+  queryClient.setQueriesData<InfiniteData<StorageLocationCardPage>>({ queryKey: STORAGE_CARDS_PAGE_QUERY_KEY }, (data) =>
+    data && {
+      ...data,
+      pages: data.pages.map((page) => ({
+        ...page,
+        cards: page.cards.map((card) => (patchedScanIds.has(card.scanId) ? storageCardWithPatch(card, patch) : card)),
+      })),
+    },
+  );
+  return snapshot;
+}
+
+export function reviewedCardPatch(kind: CardReviewKind): CardCachePatch {
+  return { reviewed: true, lowConfidenceMatch: false, ...(kind === "confirm" ? { corrected: true } : {}) };
+}
+
+export function cardUpdatePatch(body: CardUpdateBody): CardCachePatch {
+  return {
+    ...(body.confirmed ? reviewedCardPatch("confirm") : body.reviewed ? reviewedCardPatch("review") : {}),
+    ...(body.isFoil !== undefined ? { isFoil: body.isFoil } : {}),
+    ...(body.foilType !== undefined ? { foilType: body.foilType } : {}),
+    ...(body.stamp !== undefined ? { stamp: body.stamp } : {}),
+    ...(body.condition !== undefined ? { condition: body.condition } : {}),
+    ...(body.language !== undefined ? { language: body.language } : {}),
+  };
 }

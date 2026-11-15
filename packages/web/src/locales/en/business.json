@@ -6,7 +6,8 @@
     "save": "Save"
   },
   "errors": {
-    "generic": "Something went wrong. Try again."
+    "generic": "Something went wrong. Try again.",
+    "loadFailed": "Couldn't load this. Check your connection and try again."
   },
   "upgrade": {
     "locked": "Buy and sell (intake, picks, cost tracking and spot checks) is not part of your plan. You can still view what you already have.",

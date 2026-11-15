@@ -1,7 +1,6 @@
 import { CardListFileButton } from "@/components/card-list-file-button";
 import { Callout } from "@/components/callout";
-import { Button } from "@/components/ui/button";
-import { ButtonGroup } from "@/components/ui/button-group";
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import {
   Field,
   FieldDescription,
@@ -47,21 +46,12 @@ export function BinPickListFields({
         render={({ field }) => (
           <Field className="mb-6 max-w-md gap-1.5">
             <FieldLabel>{t("pickList.modeLabel")}</FieldLabel>
-            <ButtonGroup aria-label={t("pickList.modeLabel")}>
-              {modeItems.map((item) => (
-                <Button
-                  key={item.key}
-                  type="button"
-                  variant={
-                    field.value === item.key ? "outline-selected" : "outline"
-                  }
-                  aria-pressed={field.value === item.key}
-                  onClick={() => field.onChange(item.key)}
-                >
-                  {item.label}
-                </Button>
-              ))}
-            </ButtonGroup>
+            <ResponsiveSegmented
+              items={modeItems}
+              value={field.value}
+              onChange={field.onChange}
+              label={t("pickList.modeLabel")}
+            />
             <FieldDescription>
               {field.value === "all"
                 ? t("pickList.modes.allDescription")

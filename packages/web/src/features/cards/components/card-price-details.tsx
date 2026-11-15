@@ -102,8 +102,8 @@ function PriceHeadline({
   const changeSinceScan = priceChangeSinceScan(headlineAtScan, headline);
 
   return (
-    <div className="flex min-w-36 flex-col gap-0.5 rounded-md bg-muted px-3 py-2">
-      <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
+    <div className="flex min-w-36 flex-col gap-0.5 rounded-lg bg-foreground/6 px-3 py-2">
+      <span className="text-xs font-medium text-foreground/70">
         {label}
       </span>
       <span className="font-heading text-sm font-semibold tabular-nums">
@@ -122,7 +122,7 @@ function PriceHeadline({
               "font-medium",
               changeSinceScan.direction === "up"
                 ? "text-success-foreground"
-                : "text-destructive",
+                : "text-destructive-strong dark:text-destructive",
             )}
           >
             {changeSinceScan.percentLabel}
@@ -309,7 +309,7 @@ export function CardPriceDetails({
         {t(tablesOpen ? "priceTable.hideDetails" : "priceTable.showDetails")}
       </button>
       {tablesOpen && (
-        <div className="flex max-w-full flex-col gap-3 rounded-md bg-muted px-4 py-2 w-fit">
+        <div className="flex max-w-full flex-col gap-3 rounded-lg bg-foreground/6 px-4 py-2 w-fit">
           {ordered.map(({ source: key, table }) => (
             <PriceTable key={key} {...table} />
           ))}

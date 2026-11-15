@@ -567,7 +567,7 @@ export const intakeRoute = new Hono<AppEnv>()
       const orgId = c.get("orgId");
       const fromGuid = sourceGuid as string | null;
       if (fromGuid && movedScanIds.length > 0) {
-        emitToSession(fromGuid, "cards_removed", { scanIds: movedScanIds });
+        emitToSession(orgId, fromGuid, "cards_removed", { scanIds: movedScanIds });
       }
       emitToOrg(orgId, "collections_changed", {});
     }
@@ -638,7 +638,7 @@ export const intakeRoute = new Hono<AppEnv>()
     }
     if (committed && response.status === 200 && done && done.scanIds.length > 0) {
       deleteScanImages(imageKeys);
-      emitToSession(done.collectionGuid, "cards_removed", {
+      emitToSession(c.get("orgId"), done.collectionGuid, "cards_removed", {
         scanIds: done.scanIds,
       });
       emitToOrg(c.get("orgId"), "collections_changed", {

@@ -128,7 +128,7 @@ export default function SortingModeScreen() {
       <PageHeader title={t("rules.mode.title")} subtitle={activeSet?.name} onBack={() => router.back()} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.lg + SPACING.xs }}
       >
         {isRulesDataPending ? (
           <PageSkeleton />
@@ -248,7 +248,7 @@ export default function SortingModeScreen() {
                 {matchGameKeys.length === 0 ? (
                   <Callout tone="warning" title={t("rules.mode.matchGamesEmpty")} />
                 ) : (
-                  <AppText size="sm" tone="secondary">
+                  <AppText size="xs" tone="secondary">
                     {t("rules.mode.matchGamesHint")}
                   </AppText>
                 )}

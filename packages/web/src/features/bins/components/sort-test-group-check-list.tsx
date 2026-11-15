@@ -18,7 +18,7 @@ export function SortTestGroupCheckList({ check }: SortTestGroupCheckListProps) {
   return (
     <div className="flex flex-col gap-1">
       {check.items.length > 1 && (
-        <span className="text-2xs uppercase tracking-wide text-foreground/70">
+        <span className="text-xs text-foreground/70">
           {check.group.combinator === "and"
             ? t("sortTest.allMustMatch")
             : t("sortTest.anyMustMatch")}

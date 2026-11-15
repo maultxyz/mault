@@ -17,7 +17,7 @@ import { useTranslation } from "react-i18next";
 export function usePlatformDiscordChannelsDraft() {
   const { t } = useTranslation("admin");
   const queryClient = useQueryClient();
-  const { data, isPending } = useQuery(platformDiscordChannelsQueryOptions);
+  const { data, isPending, isError, refetch } = useQuery(platformDiscordChannelsQueryOptions);
 
   const form = useForm<PlatformDiscordChannelsFormValues>({
     resolver: zodResolver(platformDiscordChannelsSchema),
@@ -45,7 +45,9 @@ export function usePlatformDiscordChannelsDraft() {
   return {
     form,
     data,
-    isLoading: isPending,
+    isLoading: isPending && !isError,
+    isError: isError && !data,
+    refetch,
     save: form.handleSubmit(save),
   };
 }

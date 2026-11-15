@@ -32,15 +32,15 @@ function BinSlot({
 }) {
   const { t } = useTranslation("calibration");
   return (
-    <div className="flex flex-col gap-1.5 p-2 bg-sidebar">
-      <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
+    <div className="flex flex-col gap-1.5 rounded-lg bg-foreground/6 p-2">
+      <span className="text-xs text-foreground/70">
         {label}
       </span>
       <Select
         value={binNumber != null ? String(binNumber) : ""}
         onValueChange={(value) => onBinChange(Number(value))}
       >
-        <SelectTrigger aria-label={label} className="h-8 w-full text-xs">
+        <SelectTrigger aria-label={label} className="w-full">
           <SelectValue>
             {binNumber != null ? t("binLabel", { bin: binNumber }) : ""}
           </SelectValue>
@@ -120,9 +120,9 @@ export function BinConfigurations() {
         </Button>
       }
     >
-      <div className="overflow-hidden rounded-lg border divide-y bg-border">
+      <div className="flex flex-col gap-1.5">
         {modules.map((module) => (
-          <div key={module} className="grid grid-cols-2 gap-px bg-border">
+          <div key={module} className="grid grid-cols-2 gap-1.5">
             {BIN_SLOTS_PHYSICAL_ORDER.map(({ direction, labelKey }) => {
               const route = routes.find(
                 (r) => r.module === module && r.direction === direction,
@@ -146,8 +146,8 @@ export function BinConfigurations() {
       </div>
 
       {bottomRoutes.length > 0 && (
-        <div className="flex flex-col gap-2 rounded-lg border p-2 bg-sidebar">
-          <span className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
+        <div className="flex flex-col gap-2 rounded-lg bg-foreground/6 p-2">
+          <span className="text-xs text-foreground/70">
             {t("binConfigurations.bottomSectionLabel")}
           </span>
           {bottomRoutes.map((route) => (
@@ -166,7 +166,7 @@ export function BinConfigurations() {
                   aria-label={t("binConfigurations.bottomModuleSelect", {
                     bin: route.binNumber,
                   })}
-                  className="h-8 w-32 text-xs"
+                  className="w-32"
                 >
                   <SelectValue>
                     {t("moduleLabel", {
@@ -192,7 +192,7 @@ export function BinConfigurations() {
                   aria-label={t("binConfigurations.bottomBinSelect", {
                     module: route.module,
                   })}
-                  className="h-8 flex-1 text-xs"
+                  className="flex-1"
                 >
                   <SelectValue>
                     {t("binLabel", {

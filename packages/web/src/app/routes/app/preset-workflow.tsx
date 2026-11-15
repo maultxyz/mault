@@ -80,7 +80,7 @@ function PresetWorkflowContent() {
 
   const body =
     workflow && draft.stages.fields.length > 0 ? (
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-3 md:gap-2">
         {draft.stages.fields.map((field, index) => (
           <PresetWorkflowStageCard
             key={field.fieldKey}
@@ -147,7 +147,7 @@ function PresetWorkflowContent() {
           className={
             isMobile
               ? MOBILE_PAGE_BODY_CLASS
-              : "mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:p-5"
+              : "mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:px-3 md:py-2"
           }
         >
           {isMobile && (

@@ -76,7 +76,7 @@ export function TradeOfferCardSearch({ link, defaultGameKey, onAdd }: TradeOffer
           : ""}
       </p>
       {results.length > 0 && (
-        <ul className="flex max-h-56 flex-col divide-y overflow-y-auto rounded-lg border">
+        <ul className="flex max-h-56 flex-col divide-y divide-border overflow-y-auto">
           {results.map((option) => (
             <li key={`${option.gameKey}-${option.lang}-${option.cardId}`} className="flex items-center gap-2 p-2">
               <img

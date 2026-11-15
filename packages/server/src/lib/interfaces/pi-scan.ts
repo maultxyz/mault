@@ -108,6 +108,7 @@ export interface PiScanLive {
   autoFeed: boolean;
   feedRequested: boolean;
   cardInFlight: boolean;
+  routedCardMustLeaveModuleOneBeforeFeed: boolean;
   startedAt: number;
   pausedMs: number;
   pauseStartedAt: number | null;

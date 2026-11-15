@@ -26,6 +26,7 @@ export function ListRow({
   selected,
   subtitleNumberOfLines = 2,
   swipeDestructiveAction,
+  accessibilityHint,
 }: ListRowProps) {
   const { t } = useTranslation();
   const colors = useTheme();
@@ -35,6 +36,7 @@ export function ListRow({
     <Pressable
       accessible={!rightIsInteractive}
       accessibilityRole={onPress ? "button" : undefined}
+      accessibilityHint={accessibilityHint}
       accessibilityState={{ disabled, selected: selected ?? undefined }}
       disabled={(!onPress && !onLongPress) || disabled}
       onPress={onPress}
@@ -46,13 +48,13 @@ export function ListRow({
         minHeight: LIST_ROW_MIN_HEIGHT,
         paddingHorizontal: SCREEN_GUTTER,
         paddingVertical: SPACING.sm,
-        backgroundColor: selected ? colors.primarySelected : pressed ? colors.muted : "transparent",
+        backgroundColor: selected ? colors.primarySelected : pressed ? colors.tonal : "transparent",
         opacity: disabled ? DISABLED_OPACITY : 1,
       })}
     >
       {leading ?? (icon ? <IconBadge name={icon} tone={destructive ? "destructive" : "neutral"} size={LIST_ROW_ICON_SIZE} /> : null)}
       <View style={{ flex: 1, minWidth: 0 }}>
-        <AppText weight="medium" numberOfLines={1} style={destructive ? { color: colors.destructive } : selected ? { color: colors.primaryText } : undefined}>
+        <AppText weight="medium" numberOfLines={1} style={destructive ? { color: colors.destructiveForeground } : selected ? { color: colors.primaryText } : undefined}>
           {title}
         </AppText>
         {subtitle ? (

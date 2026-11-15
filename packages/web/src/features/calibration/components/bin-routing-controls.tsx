@@ -54,7 +54,7 @@ export function BinRoutingControls({
             ? t("binRoutingControls.running")
             : ""}
       </p>
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5">
         <Button
           variant={isSampleRunning ? "outline-selected" : "outline"}
           disabled={!isReady || busy}

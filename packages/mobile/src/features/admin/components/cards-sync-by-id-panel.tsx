@@ -1,8 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, View } from "react-native";
-import { AppText } from "@/components/ui/app-text";
+import { AccessibilityInfo } from "react-native";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { Surface } from "@/components/ui/surface";
@@ -12,6 +11,7 @@ import { CardsSyncSourceFields } from "@/features/admin/components/cards-sync-so
 import { ADMIN_CARDS_QUERY_KEY, ADMIN_DEFAULT_SYNC_LANGUAGE } from "@/lib/constants/admin-cards";
 import { SPACING } from "@/lib/constants/theme";
 import type { CardsSyncByIdPanelProps, CardsSyncSourceSelection } from "@/lib/interfaces/admin-cards";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 
 export function CardsSyncByIdPanel({ sources }: CardsSyncByIdPanelProps) {
   const { t } = useTranslation();
@@ -33,41 +33,35 @@ export function CardsSyncByIdPanel({ sources }: CardsSyncByIdPanelProps) {
   });
 
   return (
-    <Surface style={{ gap: SPACING.md }}>
-      <View>
-        <AppText heading weight="semibold" accessibilityRole="header">
-          {t("admin.cards.syncCardById.heading")}
-        </AppText>
-        <AppText size="xs" tone="secondary">
-          {t("admin.cards.syncCardById.description")}
-        </AppText>
-      </View>
-      <CardsSyncSourceFields sources={sources} selection={selection} onChange={setSelection} />
-      <TextField
-        label={t("admin.cards.syncCardById.cardIdLabel")}
-        placeholder={t("admin.cards.syncCardById.cardIdPlaceholder")}
-        value={cardIdText}
-        onChangeText={setCardIdText}
-        autoCapitalize="none"
-        autoComplete="off"
-      />
-      {resultMessage ? <Callout tone="success" title={resultMessage} /> : null}
-      {syncCard.isError ? (
-        <Callout
-          tone="destructive"
-          title={t("admin.cards.syncCardById.failed", { id: syncCard.variables?.cardId ?? "" })}
-          description={syncCard.error.message}
+    <SettingsSection title={t("admin.cards.syncCardById.heading")} description={t("admin.cards.syncCardById.description")}>
+      <Surface style={{ gap: SPACING.md }}>
+        <CardsSyncSourceFields sources={sources} selection={selection} onChange={setSelection} />
+        <TextField
+          label={t("admin.cards.syncCardById.cardIdLabel")}
+          placeholder={t("admin.cards.syncCardById.cardIdPlaceholder")}
+          value={cardIdText}
+          onChangeText={setCardIdText}
+          autoCapitalize="none"
+          autoComplete="off"
         />
-      ) : null}
-      <Button
-        label={syncCard.isPending ? t("admin.cards.syncCardById.syncing") : t("admin.cards.syncCardById.syncButton")}
-        loading={syncCard.isPending}
-        disabled={!selection.gameKey || !trimmedCardId || syncCard.isPending}
-        onPress={() => {
-          if (!selection.gameKey || !trimmedCardId) return;
-          syncCard.mutate({ gameKey: selection.gameKey, cardId: trimmedCardId, lang: selection.lang });
-        }}
-      />
-    </Surface>
+        {resultMessage ? <Callout tone="success" title={resultMessage} /> : null}
+        {syncCard.isError ? (
+          <Callout
+            tone="destructive"
+            title={t("admin.cards.syncCardById.failed", { id: syncCard.variables?.cardId ?? "" })}
+            description={syncCard.error.message}
+          />
+        ) : null}
+        <Button
+          label={syncCard.isPending ? t("admin.cards.syncCardById.syncing") : t("admin.cards.syncCardById.syncButton")}
+          loading={syncCard.isPending}
+          disabled={!selection.gameKey || !trimmedCardId || syncCard.isPending}
+          onPress={() => {
+            if (!selection.gameKey || !trimmedCardId) return;
+            syncCard.mutate({ gameKey: selection.gameKey, cardId: trimmedCardId, lang: selection.lang });
+          }}
+        />
+      </Surface>
+    </SettingsSection>
   );
 }

@@ -79,7 +79,7 @@ export function CollectionOverrideDialog({
   return (
     <Dialog drawerOnMobile={false} open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg">
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4 md:gap-2">
           <DialogHeader>
             <DialogTitle>{t("overrideDialog.title")}</DialogTitle>
             <DialogDescription>
@@ -124,7 +124,7 @@ export function CollectionOverrideDialog({
             <FieldError errors={[errors.collectionGuid]} />
           </Field>
 
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-4 md:gap-2 sm:grid-cols-2">
             <Field>
               <Label>{t("channelSettings.scan")}</Label>
               <Controller

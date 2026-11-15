@@ -113,7 +113,7 @@ export function FlatbedPlacementDialog({
         </>
       }
     >
-      <div className="flex flex-col gap-3 text-control">
+      <div className="flex flex-col gap-3 md:gap-2 text-control">
         <Callout variant="info">{t("flatbed.calibration.instructions")}</Callout>
         {errorMessage && <Callout variant="error">{errorMessage}</Callout>}
         {preview ? (

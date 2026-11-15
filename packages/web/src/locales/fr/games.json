@@ -72,7 +72,8 @@
       "keyTaken": "Un jeu avec cette clé existe déjà",
       "urlFormat": "Saisis une URL valide",
       "minFields": "Ajoute au moins un champ"
-    }
+    },
+    "loadFailed": "Impossible de charger les jeux."
   },
   "fieldMapping": {
     "heading": "Association des champs",

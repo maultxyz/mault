@@ -1,3 +1,4 @@
+import { timingSafeEqual } from "node:crypto";
 import { serve } from "@hono/node-server";
 import {
   AttachmentBuilder,
@@ -70,12 +71,22 @@ async function compositeSideBySide(
     .toBuffer();
 }
 
+function botSecretMatches(providedSecret: string | undefined): boolean {
+  const expected = Buffer.from(BOT_API_SECRET ?? "");
+  const provided = Buffer.from(providedSecret ?? "");
+  return (
+    expected.length > 0 &&
+    provided.length === expected.length &&
+    timingSafeEqual(provided, expected)
+  );
+}
+
 export function startNotifyServer(client: Client) {
   const app = new Hono();
 
   app.get("/guilds", (c) => {
     const secret = c.req.header("X-Bot-Secret");
-    if (!secret || !BOT_API_SECRET || secret !== BOT_API_SECRET) {
+    if (!botSecretMatches(secret)) {
       return c.json({ success: false, message: "Unauthorized" }, 401);
     }
 
@@ -93,7 +104,7 @@ export function startNotifyServer(client: Client) {
 
   app.get("/guilds/:guildId", (c) => {
     const secret = c.req.header("X-Bot-Secret");
-    if (!secret || !BOT_API_SECRET || secret !== BOT_API_SECRET) {
+    if (!botSecretMatches(secret)) {
       return c.json({ success: false, message: "Unauthorized" }, 401);
     }
 
@@ -116,7 +127,7 @@ export function startNotifyServer(client: Client) {
 
   app.post("/notify", async (c) => {
     const secret = c.req.header("X-Bot-Secret");
-    if (!secret || !BOT_API_SECRET || secret !== BOT_API_SECRET) {
+    if (!botSecretMatches(secret)) {
       return c.json({ success: false, message: "Unauthorized" }, 401);
     }
 
@@ -214,7 +225,7 @@ export function startNotifyServer(client: Client) {
 
   app.post("/members/role", async (c) => {
     const secret = c.req.header("X-Bot-Secret");
-    if (!secret || !BOT_API_SECRET || secret !== BOT_API_SECRET) {
+    if (!botSecretMatches(secret)) {
       return c.json({ success: false, message: "Unauthorized" }, 401);
     }
 

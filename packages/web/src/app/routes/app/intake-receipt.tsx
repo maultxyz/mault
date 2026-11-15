@@ -1,6 +1,7 @@
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { BaseProviders } from "@/app/providers";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -28,7 +29,12 @@ function IntakeReceipt() {
   const { activeOrg } = useOrg();
   const { access } = useBusinessAccess();
   const { format } = usePriceSource();
-  const { data: lot, isLoading } = useQuery(intakeLotReceiptQueryOptions(guid));
+  const {
+    data: lot,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery(intakeLotReceiptQueryOptions(guid));
   const [searchParams] = useSearchParams();
   const autoPrint = searchParams.get(RECEIPT_PRINT_PARAM) === "1";
   const printedRef = useRef(false);
@@ -42,7 +48,14 @@ function IntakeReceipt() {
   if (isLoading || !lot) {
     return (
       <div className="mx-auto w-full max-w-3xl p-6">
-        <ListSkeleton rows={10} />
+        {isError ? (
+          <LoadErrorCallout
+            message={t("errors.loadFailed")}
+            onRetry={() => void refetch()}
+          />
+        ) : (
+          <ListSkeleton rows={10} />
+        )}
       </div>
     );
   }
@@ -55,12 +68,12 @@ function IntakeReceipt() {
     <main
       id={MAIN_CONTENT_ID}
       tabIndex={-1}
-      className="min-h-dvh bg-background text-foreground outline-none"
+      className="min-h-dvh bg-card text-foreground outline-none"
     >
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 p-6 print:p-0">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 md:gap-2 p-6 print:p-0">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="font-heading text-2xl font-semibold">
+            <h1 className="font-heading text-lg font-semibold">
               {activeOrg?.name ?? t("receipt.title")}
             </h1>
             <p className="text-sm text-foreground/70">

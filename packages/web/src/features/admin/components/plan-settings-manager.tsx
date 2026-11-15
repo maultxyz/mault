@@ -1,6 +1,7 @@
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { Callout } from "@/components/callout";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { SaveBar } from "@/components/save-bar";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
@@ -24,9 +25,20 @@ import { useTranslation } from "react-i18next";
 
 export function PlanSettingsManager() {
   const { t } = useTranslation("admin");
-  const { form, data, isLoading, save, restoreDefaults } =
+  const { form, data, isLoading, isError, refetch, save, restoreDefaults } =
     usePlanSettingsDraft();
   const { isDirty, isSubmitting, errors } = form.formState;
+
+  if (isError) {
+    return (
+      <SettingsSection heading={t("plans.featuresHeading")}>
+        <LoadErrorCallout
+          message={t("plans.loadFailed")}
+          onRetry={() => void refetch()}
+        />
+      </SettingsSection>
+    );
+  }
 
   if (isLoading || !data) {
     return (
@@ -40,7 +52,7 @@ export function PlanSettingsManager() {
     <div
       className={cn(
         PLAN_GRID_CLASS,
-        "px-3 py-2 text-xs font-medium uppercase tracking-wide text-foreground/70",
+        "px-3 py-2 text-xs font-medium text-foreground/70",
       )}
     >
       <span />
@@ -70,7 +82,7 @@ export function PlanSettingsManager() {
           </Button>
         }
       >
-        <div className="divide-y rounded-lg border">
+        <div className="divide-y divide-border">
           {planHeader}
           {PLAN_FEATURE_KEYS.map((feature) => (
             <div
@@ -108,7 +120,7 @@ export function PlanSettingsManager() {
         heading={t("plans.limitsHeading")}
         description={t("plans.limitsDescription")}
       >
-        <div className="divide-y rounded-lg border">
+        <div className="divide-y divide-border">
           {planHeader}
           {PLAN_LIMIT_KEYS.map((limit) => (
             <div

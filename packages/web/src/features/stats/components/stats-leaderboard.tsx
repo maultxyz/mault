@@ -25,16 +25,26 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 function StatsLeaderboardContent() {
-  const { t } = useTranslation("stats");
+  const { t, i18n } = useTranslation("stats");
   const { activeOrg } = useOrg();
+  const numberFormat = new Intl.NumberFormat(i18n.language);
   const {
     data: leaderboard,
     isLoading,
     isError,
+    refetch,
   } = useQuery(leaderboardQueryOptions(activeOrg?.id));
 
   return isError ? (
-    <Callout variant="error" icon={IconAlertTriangle}>
+    <Callout
+      variant="error"
+      icon={IconAlertTriangle}
+      action={
+        <Button variant="outline" onClick={() => void refetch()}>
+          {t("common:a11y.retry")}
+        </Button>
+      }
+    >
       {t("leaderboard.error")}
     </Callout>
   ) : isLoading || !leaderboard ? (
@@ -81,7 +91,7 @@ function StatsLeaderboardContent() {
           {buildLeaderboardRows(leaderboard).map(({ key, entry }) => (
             <TableRow
               key={key}
-              className={cn(entry.isOwnOrg && "bg-muted hover:bg-muted")}
+              className={cn(entry.isOwnOrg && "bg-foreground/6 hover:bg-foreground/6")}
             >
               <TableCell className="text-sm font-medium tabular-nums">
                 {t("leaderboard.rank", { rank: entry.rank })}
@@ -104,7 +114,7 @@ function StatsLeaderboardContent() {
                 </span>
               </TableCell>
               <TableCell className="text-right text-sm tabular-nums">
-                {entry.scanCount.toLocaleString()}
+                {numberFormat.format(entry.scanCount)}
               </TableCell>
             </TableRow>
           ))}
@@ -112,7 +122,6 @@ function StatsLeaderboardContent() {
       </Table>
     </div>
   );
-
 }
 
 export function StatsLeaderboardButton({

@@ -18,7 +18,6 @@ export function SettingsPage({
   isSaving = false,
   saveError = false,
   isLoading = false,
-  refreshing,
   onRefresh,
   onSave = noop,
   onDiscard = noop,
@@ -46,7 +45,6 @@ export function SettingsPage({
   return (
     <View style={{ flex: 1 }}>
       <Screen
-        refreshing={refreshing}
         onRefresh={onRefresh}
         header={<PageHeader title={title} subtitle={subtitle ?? org?.name} onBack={() => router.back()} />}
       >

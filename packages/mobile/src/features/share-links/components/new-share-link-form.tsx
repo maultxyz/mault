@@ -13,6 +13,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
+import { SectionHeader } from "@/components/ui/section-header";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { createMonitorLink } from "@/features/collections/api/collection-cards";
@@ -57,9 +58,7 @@ export function NewShareLinkForm({ kind, subjectGuid, onCreated, onBack }: NewSh
     >
       {create.isError ? <Callout tone="destructive" title={t("shareLink.createFailed")} /> : null}
       <View style={{ gap: SPACING.sm }}>
-        <AppText weight="semibold" accessibilityRole="header">
-          {t("shareLink.typeLabel")}
-        </AppText>
+        <SectionHeader title={t("shareLink.typeLabel")} />
         <SegmentedControl
           options={[
             { value: "view", label: t("shareLink.monitorType") },
@@ -79,9 +78,7 @@ export function NewShareLinkForm({ kind, subjectGuid, onCreated, onBack }: NewSh
         />
       ) : (
         <View style={{ gap: SPACING.sm }}>
-          <AppText weight="semibold" accessibilityRole="header">
-            {t("shareLink.expiryLabel")}
-          </AppText>
+          <SectionHeader title={t("shareLink.expiryLabel")} />
           <SegmentedControl
             options={MONITOR_LINK_EXPIRY_DAYS.map((days) => ({
               value: String(days),

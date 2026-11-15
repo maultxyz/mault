@@ -6,6 +6,9 @@ on:
       - "firmware/main/**"
   workflow_dispatch: {}
 
+permissions:
+  contents: read
+
 concurrency:
   group: firmware-pr-check-${{ github.ref }}
   cancel-in-progress: true

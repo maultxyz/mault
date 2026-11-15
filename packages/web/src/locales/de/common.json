@@ -9,7 +9,7 @@
     "scanner": "Sortieren",
     "collections": "Sammlungen",
     "scan": "Kamera koppeln",
-    "storage": "Lagerorte",
+    "storage": "Lager",
     "calibrate": "Sortierer einrichten",
     "settings": "Einstellungen",
     "organization": "Org",
@@ -23,8 +23,8 @@
     "discord": "Discord",
     "discordAriaLabel": "Discord beitreten",
     "collapse": "Einklappen",
-    "collapseSidebar": "Seitenleiste einklappen ([)",
-    "expandSidebar": "Seitenleiste ausklappen ([)",
+    "collapseSidebar": "Seitenleiste einklappen",
+    "expandSidebar": "Seitenleiste ausklappen",
     "alerts": "Meldungen",
     "sounds": "Scan-Sounds",
     "integrations": "API & Webhooks",
@@ -33,14 +33,19 @@
     "sortingRules": "Sortierregeln",
     "intake": "An- & Verkauf",
     "upgradeYourPlan": "Tarif upgraden",
-    "upgradeShort": "Upgrade"
+    "upgradeShort": "Upgrade",
+    "home": "Start",
+    "library": "Bibliothek"
   },
   "alerts": {
     "dismiss": "Verwerfen",
     "tray": {
       "trigger": "Benachrichtigungen",
       "title": "Benachrichtigungen",
-      "empty": "Du bist auf dem neuesten Stand."
+      "empty": "Du bist auf dem neuesten Stand.",
+      "refresh": "Benachrichtigungen aktualisieren",
+      "refreshed": "Benachrichtigungen aktualisiert",
+      "refreshFailed": "Benachrichtigungen konnten nicht aktualisiert werden"
     }
   },
   "breadcrumb": {
@@ -84,8 +89,8 @@
     "syncCompleted": "Kartenbild-Vektor-Sync abgeschlossen",
     "syncFailed": "Kartenbild-Vektor-Sync fehlgeschlagen",
     "sync": "Kartenbild-Vektor-Sync",
-    "cardTotal_one": "{{count}} Karte · ${{value}} USD",
-    "cardTotal_other": "{{count}} Karten · ${{value}} USD",
+    "cardTotal_one": "{{count}} Karte · {{value}}",
+    "cardTotal_other": "{{count}} Karten · {{value}}",
     "healthIssues_one": "{{count}} Problem erkannt",
     "healthIssues_other": "{{count}} Probleme erkannt",
     "healthIssuesTooltip": "Probleme bei: {{names}}. Für Details klicken.",
@@ -285,9 +290,8 @@
   "mobileTabs": {
     "home": "Start",
     "scan": "Scannen",
-    "rules": "Regeln",
-    "storage": "Lager",
-    "account": "Konto"
+    "library": "Bibliothek",
+    "more": "Mehr"
   },
   "pagination": {
     "previous": "Zurück",
@@ -338,6 +342,7 @@
     "percentAtLeast": "Muss mindestens {{min}} % sein.",
     "percentAtMost": "Darf höchstens {{max}} % sein.",
     "amountRequired": "Gib einen Betrag ein.",
+    "amountInvalid": "Gib einen Betrag wie 12,50 ein.",
     "percentageRequired": "Gib einen Prozentwert ein.",
     "tiersRequired": "Füge mindestens eine Stufe hinzu.",
     "tooManyTiers": "Höchstens {{max}} Stufen.",
@@ -426,6 +431,8 @@
     "expiresAt": "Läuft ab am {{date}}",
     "createFailed": "Der Freigabelink konnte nicht erstellt werden.",
     "revokeAll": "Alle Links widerrufen",
+    "revokeAllConfirmTitle": "Alle Links widerrufen?",
+    "revokeAllConfirmDescription": "Alle mit einem dieser Links verlieren sofort den Zugriff. Das kann nicht rückgängig gemacht werden.",
     "revokeFailed": "Die geteilten Links konnten nicht widerrufen werden.",
     "close": "Schließen",
     "qrAlt": "QR-Code für diesen Link. Scanne ihn mit einer Handykamera, um den Link zu öffnen.",
@@ -438,7 +445,11 @@
     "monitorTypeDescription": "Eine Ansicht der Karten, live während du scannst. Besucher können keine Angebote senden.",
     "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen.",
     "tradeOneHourNote": "Tausch-Links gelten 1 Stunde.",
-    "monitorOneHourNote": "In deinem Tarif gelten Monitor-Links 1 Stunde. Mit Enthusiast und Business bis zu 30 Tage."
+    "monitorOneHourNote": "In deinem Tarif gelten Monitor-Links 1 Stunde. Mit Enthusiast und Business bis zu 30 Tage.",
+    "checkFailedTitle": "Dieser Link konnte nicht geöffnet werden",
+    "checkFailedDescription": "Prüfe deine Verbindung und versuche es erneut.",
+    "shortLinkInvalidTitle": "Dieser Link funktioniert nicht",
+    "shortLinkInvalidDescription": "Prüfe, ob er vollständig kopiert wurde, oder bitte die Person, die ihn geteilt hat, um einen neuen Link."
   },
   "tradeOffers": {
     "declined": "Tauschangebot abgelehnt",
@@ -454,19 +465,135 @@
     "theyWant_other": "Möchte {{count}} Karten",
     "theyOffer_one": "Bietet {{count}} Karte",
     "theyOffer_other": "Bietet {{count}} Karten",
+    "theyOfferCash": "Bietet Bargeld",
+    "theyOfferNothing": "Bietet nichts im Gegenzug",
+    "cashAmount": "{{amount}} in bar",
+    "nothingOffered": "Im Gegenzug wird nichts angeboten.",
     "trayHeading": "Tauschangebote",
     "trayMessage": "{{name}} möchte {{wanted}} für {{offered}} eigene",
+    "trayMessageCash": "{{name}} möchte {{wanted}} für {{cash}}",
+    "trayMessageCardsAndCash": "{{name}} möchte {{wanted}} für {{offered}} eigene plus {{cash}}",
+    "trayMessageNothing": "{{name}} bittet um {{wanted}} ohne Gegenleistung",
     "review": "Ansehen",
     "newOfferToast": "Neues Tauschangebot von {{name}}",
-    "acceptedRemoved_one": "Tausch angenommen. {{count}} Karte aus deinem Bestand entfernt.",
-    "acceptedRemoved_other": "Tausch angenommen. {{count}} Karten aus deinem Bestand entfernt.",
-    "acceptRemovesCards_one": "Beim Annehmen wird die gewünschte Karte ({{count}}) aus deinem Bestand entfernt.",
-    "acceptRemovesCards_other": "Beim Annehmen werden die {{count}} gewünschten Karten aus deinem Bestand entfernt.",
     "theyGetValue": "Sie bekommen",
     "youGetValue": "Du bekommst",
     "youGainValue": "Das Angebot ist {{amount}} mehr wert als das, was angefragt wird.",
     "youLoseValue": "Das Angebot ist {{amount}} weniger wert als das, was angefragt wird.",
     "evenValue": "Beide Seiten sind gleich viel wert.",
-    "missingPrices": "Einige Karten haben keinen Preis, die Summen können daher zu niedrig sein."
+    "missingPrices": "Einige Karten haben keinen Preis, die Summen können daher zu niedrig sein.",
+    "library": {
+      "subtitle": "Tauschangebote über deine Tauschlinks",
+      "open": "Offen",
+      "answered": "Beantwortet",
+      "unnamedGuest": "Gast",
+      "rowDetails": "{{source}} · {{wanted}} gewünscht · {{offered}} angeboten",
+      "loadFailed": "Tauschangebote konnten nicht geladen werden.",
+      "emptyTitle": "Noch keine Tauschangebote",
+      "emptyDescription": "Angebote kommen an, wenn jemand einen deiner Tauschlinks öffnet und Karten auswählt. Erstelle einen Tauschlink über das Teilen-Menü einer Sammlung oder eines Lagerorts.",
+      "status": {
+        "pending": "Offen",
+        "accepted": "Angenommen",
+        "declined": "Abgelehnt"
+      },
+      "picking_one": "Wird gepickt, noch {{count}}",
+      "picking_other": "Wird gepickt, noch {{count}}"
+    },
+    "cardList": {
+      "cardCount_one": "{{count}} Karte",
+      "cardCount_other": "{{count}} Karten",
+      "uniqueCount_one": "{{count}} verschiedene",
+      "uniqueCount_other": "{{count}} verschiedene",
+      "sortLabel": "Sortieren nach",
+      "sort": {
+        "value": "Wert",
+        "name": "Name",
+        "set": "Set"
+      },
+      "groupByLocation": "Nach Lagerort gruppieren",
+      "groupByLocationHint": "Karten im Lager stehen in der Reihenfolge der Box, damit du sie in einem Durchgang heraussuchen kannst.",
+      "filterLabel": "Karten filtern",
+      "filterPlaceholder": "Name oder Set",
+      "filterResults_one": "{{count}} Karte passt",
+      "filterResults_other": "{{count}} Karten passen",
+      "noFilterResults": "Keine Karte passt zu deinem Filter.",
+      "showAll": "Alle {{count}} anzeigen",
+      "showLess": "Weniger anzeigen",
+      "unitPrice": "je {{price}}",
+      "foil": "Foil",
+      "noPrice": "Kein Preis",
+      "placementStorage": "{{location}} · #{{positions}}",
+      "placementStorageNoPosition": "{{location}}",
+      "placementBin_one": "{{collection}}, Fach {{bins}}",
+      "placementBin_other": "{{collection}}, Fächer {{bins}}",
+      "placementCollection": "In {{collection}}, nicht eingelagert",
+      "placementMissing_one": "{{count}} Exemplar ist nicht mehr in deiner Sammlung",
+      "placementMissing_other": "{{count}} Exemplare sind nicht mehr in deiner Sammlung",
+      "sectionBin": "{{collection}}, Fach {{bin}}",
+      "sectionCollection": "{{collection}}, nicht eingelagert",
+      "sectionMissing": "Nicht mehr in deiner Sammlung"
+    },
+    "title": "Tauschangebot",
+    "notFound": "Dieses Tauschangebot gibt es nicht mehr.",
+    "backToTrades": "Zurück zu den Tauschangeboten",
+    "acceptTitle": "Dieses Tauschangebot annehmen?",
+    "sideTabs": {
+      "label": "Seiten des Tauschs",
+      "wanted": "Möchte ({{count}})",
+      "offered": "Bietet ({{count}})"
+    },
+    "pickList": {
+      "started": "Tausch angenommen. Hake die gewünschten Karten ab, während du sie heraussuchst.",
+      "acceptHint": "Beim Annehmen bekommst du eine Pickliste. Jede gewünschte Karte wird aus deinem Bestand entfernt, sobald du sie abhakst.",
+      "acceptDescription_one": "Du bekommst eine Pickliste für die {{count}} gewünschte Karte. Sie wird aus deinem Bestand entfernt, sobald du sie abhakst, und ein Haken lässt sich nicht zurücknehmen.",
+      "acceptDescription_other": "Du bekommst eine Pickliste für die {{count}} gewünschten Karten. Jede wird aus deinem Bestand entfernt, sobald du sie abhakst, und ein Haken lässt sich nicht zurücknehmen.",
+      "title": "Pickliste",
+      "hint": "Hake jede Karte ab, wenn du sie herausziehst. Abgehakte Karten werden sofort aus deinem Bestand entfernt.",
+      "progress": "{{picked}} von {{count}} gepickt",
+      "picked": "Gepickt und entfernt",
+      "pickedSection": "Gepickt",
+      "finish": "Abschließen",
+      "finishTitle": "Picken abschließen?",
+      "finishDescription_one": "Dadurch wird die {{count}} nicht abgehakte Karte aus deinem Bestand entfernt.",
+      "finishDescription_other": "Dadurch werden die {{count}} nicht abgehakten Karten aus deinem Bestand entfernt.",
+      "finished_one": "Tausch abgeschlossen. {{count}} Karte aus deinem Bestand entfernt.",
+      "finished_other": "Tausch abgeschlossen. {{count}} Karten aus deinem Bestand entfernt.",
+      "pickFailed": "Die gepickte Karte konnte nicht entfernt werden. Hake sie erneut ab, um es noch einmal zu versuchen.",
+      "finishFailed": "Die Pickliste konnte nicht abgeschlossen werden."
+    },
+    "boxes": {
+      "label": "Tauschangebote",
+      "received": "Erhalten",
+      "sent": "Gesendet"
+    },
+    "sent": {
+      "title": "Gesendetes Tauschangebot",
+      "unknownRecipient": "Ein geteilter Link",
+      "rowDetails": "{{wanted}} angefragt · {{offered}} angeboten",
+      "loadFailed": "Deine gesendeten Angebote konnten nicht geladen werden.",
+      "emptyTitle": "Noch keine gesendeten Angebote",
+      "emptyDescription": "Angebote, die du angemeldet über einen Tauschlink sendest, erscheinen hier.",
+      "detailTitle": "Dein Angebot an {{name}}",
+      "detailDescription": "Gesendet am {{date}}",
+      "answeredOn": "Beantwortet am {{date}}",
+      "waitingHint": "Wartet auf eine Antwort.",
+      "yourName": "Dein Name",
+      "youWant_one": "Du hast {{count}} Karte angefragt",
+      "youWant_other": "Du hast {{count}} Karten angefragt",
+      "youOffer_one": "Du hast {{count}} Karte angeboten",
+      "youOffer_other": "Du hast {{count}} Karten angeboten",
+      "youOfferCash": "Du hast Bargeld angeboten",
+      "youOfferNothing": "Du hast nichts im Gegenzug angeboten",
+      "sideTabs": {
+        "wanted": "Angefragt ({{count}})",
+        "offered": "Angeboten ({{count}})"
+      },
+      "backToSent": "Zurück zu gesendeten Angeboten",
+      "status": {
+        "pending": "Ausstehend",
+        "accepted": "Angenommen",
+        "declined": "Abgelehnt"
+      }
+    }
   }
 }

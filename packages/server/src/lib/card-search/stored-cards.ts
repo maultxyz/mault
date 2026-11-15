@@ -1,8 +1,11 @@
-import type {
-  CardSearchPage,
-  CardSetOption,
-  PlayingCard,
-  Result,
+import {
+  CARD_PRINTINGS_PAGE_SIZE,
+  type CardPrintingsPage,
+  type CardSearchPage,
+  type CardSetOption,
+  type CatalogCardSearchPage,
+  type PlayingCard,
+  type Result,
 } from "@magic-vault/shared";
 import {
   and,
@@ -20,10 +23,19 @@ import { cardImageVectors } from "../../db/schema";
 import { STORED_SEARCH_LIMIT } from "../constants/card-search";
 import { applyCardPrices } from "./card-prices";
 import { listCardSets } from "./card-sets";
-import type { ResolvedCardSearch } from "../interfaces/card-search";
+import type {
+  CardPrintingRow,
+  GroupedCatalogSearchRow,
+  PrintingQuery,
+  ResolvedCardSearch,
+} from "../interfaces/card-search";
 import { validateQuery } from "./validate";
 import { parsePrintingQueries } from "./printing-query";
-import type { PrintingQuery } from "../interfaces/card-search";
+import {
+  cardPrintingsSql,
+  catalogPrintingIsListedSql,
+  groupedCatalogSearchSql,
+} from "./catalog-printing-order";
 
 async function findStoredCards(
   { adapter, gameKey, lang }: ResolvedCardSearch,
@@ -72,7 +84,9 @@ async function priceCardsByLanguage(
   const indexesByLang = new Map<string, number[]>();
   cards.forEach((card, index) => {
     const lang = card.lang ?? fallbackLang;
-    indexesByLang.set(lang, [...(indexesByLang.get(lang) ?? []), index]);
+    const existingEntries = indexesByLang.get(lang);
+    if (existingEntries) existingEntries.push(index);
+    else indexesByLang.set(lang, [index]);
   });
   const priced = [...cards];
   for (const [lang, indexes] of indexesByLang) {
@@ -268,4 +282,118 @@ export async function searchCardSets(
       cardCount,
     }))
     .sort((a, b) => a.name.localeCompare(b.name));
+}
+
+export async function searchCatalogCardsGroupedByName(
+  resolved: ResolvedCardSearch,
+  query: string,
+  offset = 0,
+  setCode?: string,
+): Promise<Result<CatalogCardSearchPage>> {
+  const invalid = validateQuery(query);
+  if (invalid) return invalid;
+  const { adapter, gameKey, lang } = resolved;
+  const trimmed = query.trim();
+  const { match, printingMatch } = storedSearchMatch(trimmed);
+  const printingFilter =
+    and(
+      isNotNull(cardImageVectors.data),
+      catalogPrintingIsListedSql(adapter),
+      setCode ? eq(cardImageVectors.setCode, setCode) : undefined,
+    ) ?? sql`true`;
+  const searchFilter =
+    and(
+      eq(cardImageVectors.gameKey, gameKey),
+      storedLanguageMatch(resolved),
+      match,
+      printingFilter,
+    ) ?? sql`true`;
+  const result = await db.execute<GroupedCatalogSearchRow>(
+    groupedCatalogSearchSql({
+      adapter,
+      gameKey,
+      preferredLang: lang,
+      searchFilter,
+      printingFilter,
+      printingMatch,
+      exactName: trimmed,
+      offset,
+      limit: STORED_SEARCH_LIMIT + 1,
+    }),
+  );
+  const hasMore = result.rows.length > STORED_SEARCH_LIMIT;
+  const normalized = result.rows.slice(0, STORED_SEARCH_LIMIT).flatMap((row) => {
+    const card = adapter.normalizeStored(row.data, row.card_id, row.lang);
+    return card
+      ? [{ card: { ...card, lang: row.lang }, printingCount: Number(row.printing_count) }]
+      : [];
+  });
+  const pricedCards = await priceCardsByLanguage(
+    adapter,
+    gameKey,
+    normalized.map(({ card }) => card),
+    lang,
+  );
+  return {
+    success: true,
+    message: "Cards successfully retrieved.",
+    data: {
+      results: normalized.map(({ printingCount }, index) => ({
+        card: pricedCards[index],
+        printingCount,
+      })),
+      nextOffset: hasMore ? offset + STORED_SEARCH_LIMIT : null,
+    },
+  };
+}
+
+async function findStoredCardName(
+  { gameKey, lang }: ResolvedCardSearch,
+  cardId: string,
+): Promise<string | null> {
+  const [row] = await db
+    .select({ name: cardImageVectors.name })
+    .from(cardImageVectors)
+    .where(
+      and(
+        eq(cardImageVectors.gameKey, gameKey),
+        eq(cardImageVectors.lang, lang),
+        eq(cardImageVectors.cardId, cardId),
+      ),
+    )
+    .limit(1);
+  return row?.name ?? null;
+}
+
+export async function listCardPrintings(
+  resolved: ResolvedCardSearch,
+  { cardId, cardName, offset }: { cardId?: string; cardName?: string; offset: number },
+): Promise<Result<CardPrintingsPage>> {
+  const { adapter, gameKey, lang } = resolved;
+  const name = cardName?.trim() || (cardId ? await findStoredCardName(resolved, cardId) : null);
+  if (!name) return { success: false, message: "Card not found." };
+  const result = await db.execute<CardPrintingRow>(
+    cardPrintingsSql({
+      adapter,
+      gameKey,
+      lang,
+      cardName: name,
+      offset,
+      limit: CARD_PRINTINGS_PAGE_SIZE,
+    }),
+  );
+  const cards = result.rows.flatMap((row) => {
+    const card = adapter.normalizeStored(row.data, row.card_id, row.lang);
+    return card ? [{ ...card, lang: row.lang }] : [];
+  });
+  const totalCount = result.rows.length > 0 ? Number(result.rows[0].total_count) : offset;
+  return {
+    success: true,
+    message: "Printings successfully retrieved.",
+    data: {
+      cards: await applyCardPrices(adapter, { gameKey, lang }, cards),
+      totalCount,
+      nextOffset: offset + CARD_PRINTINGS_PAGE_SIZE < totalCount ? offset + CARD_PRINTINGS_PAGE_SIZE : null,
+    },
+  };
 }

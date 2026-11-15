@@ -24,6 +24,7 @@ import type {
 import { cn } from "@/lib/utils";
 import {
   IconAlertTriangle,
+  IconAlertTriangleFilled,
   IconCheck,
   IconCpu,
   IconLayoutGrid,
@@ -64,7 +65,6 @@ function StationMenuItem({ station, index, isActive }: StationMenuItemProps) {
         )}
       </span>
       <IconCheck
-        size={14}
         className={isActive ? "shrink-0 text-primary" : "invisible shrink-0"}
       />
     </DropdownMenuItem>
@@ -87,7 +87,7 @@ function DisconnectActiveStationItem({
       variant="destructive"
       onClick={() => disconnectStation(station.id)}
     >
-      <IconPlugConnectedX size={14} />
+      <IconPlugConnectedX />
       {t("stations.disconnect", { name })}
     </DropdownMenuItem>
   );
@@ -124,16 +124,14 @@ export function StationMenu() {
           >
             <span className="relative grid size-4.5 shrink-0 place-items-center rounded-sm bg-foreground text-background">
               <IconCpu className="size-3" />
-              {hasConnectedStations && (
-                <span
-                  className={cn(
-                    "absolute -right-0.5 -bottom-0.5 size-2 rounded-full ring-2 ring-sidebar",
-                    stationIdsNeedingAttention.length > 0
-                      ? "bg-destructive"
-                      : "bg-success",
-                  )}
-                />
-              )}
+              {hasConnectedStations &&
+                (stationIdsNeedingAttention.length > 0 ? (
+                  <span className="absolute -right-1 -bottom-1 grid place-items-center rounded-full bg-sidebar">
+                    <IconAlertTriangleFilled className="size-3 text-destructive" />
+                  </span>
+                ) : (
+                  <span className="absolute -right-0.5 -bottom-0.5 size-2 rounded-full bg-success-foreground ring-2 ring-sidebar" />
+                ))}
             </span>
             {stationIdsNeedingAttention.length > 0 && (
               <span className="sr-only">
@@ -188,12 +186,12 @@ export function StationMenu() {
         <DropdownMenuSeparator />
         {goToNextSorterNeedingAttention && (
           <DropdownMenuItem onClick={goToNextSorterNeedingAttention}>
-            <IconAlertTriangle size={14} />
+            <IconAlertTriangle />
             {t("stations.attention.goToNext")}
           </DropdownMenuItem>
         )}
         <DropdownMenuItem onClick={() => navigate(SORTERS_OVERVIEW_PATH)}>
-          <IconLayoutGrid size={14} />
+          <IconLayoutGrid />
           {t("stations.overview.open")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />

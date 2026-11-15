@@ -21,7 +21,7 @@ export function ConditionRow({ condition, fieldDefinitions, disabled = false, on
         gap: SPACING.md,
         paddingHorizontal: SPACING.md,
         paddingVertical: SPACING.md - 2,
-        backgroundColor: pressed ? colors.border : "transparent",
+        backgroundColor: pressed ? colors.tonal : "transparent",
       })}
     >
       <View style={{ flex: 1, minWidth: 0 }}>

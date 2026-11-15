@@ -82,7 +82,9 @@ export async function resolveTcgplayerSkus(
   const rowsByProductLanguage = new Map<string, (typeof rows)[number][]>();
   for (const row of rows) {
     const key = `${row.productId}:${row.language}`;
-    rowsByProductLanguage.set(key, [...(rowsByProductLanguage.get(key) ?? []), row]);
+    const existingEntries = rowsByProductLanguage.get(key);
+    if (existingEntries) existingEntries.push(row);
+    else rowsByProductLanguage.set(key, [row]);
   }
 
   const products = await db

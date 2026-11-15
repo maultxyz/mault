@@ -1,5 +1,6 @@
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Button } from "@/components/ui/button";
 import { gamesQueryOptions } from "@/features/games/api/games";
 import { GameEditor } from "@/features/games/components/game-editor";
@@ -17,6 +18,15 @@ export default function AdminGameEditorPage() {
   if (!guid) return <GameEditor key="new" game={null} />;
 
   if (gamesQuery.isLoading) return <ListSkeleton rows={8} />;
+
+  if (gamesQuery.isError && !gamesQuery.data) {
+    return (
+      <LoadErrorCallout
+        message={t("gameForm.loadFailed")}
+        onRetry={() => void gamesQuery.refetch()}
+      />
+    );
+  }
 
   const game = gamesQuery.data?.find((g) => g.guid === guid);
   if (!game) {

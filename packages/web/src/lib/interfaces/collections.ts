@@ -1,3 +1,4 @@
+import type { CollectionChangeSummary, LibraryValueMode } from "@/lib/interfaces/library";
 import type {
   CreateCollectionFormValues,
   EditCollectionFormValues,
@@ -21,11 +22,14 @@ export interface SessionViewer {
 
 export interface ShareMonitorLinkDialogProps {
   collectionGuid: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export type WatchLinkState =
   | { status: "checking" }
   | { status: "invalid" }
+  | { status: "failed" }
   | { status: "valid"; info: MonitorLinkInfo };
 
 export interface CollectionsContextValue {
@@ -40,8 +44,8 @@ export interface CollectionsContextValue {
     values: EditCollectionFormValues,
   ) => Promise<void>;
   activateCollection: (guid: string) => Promise<void>;
-  deleteCollection: (guid: string) => Promise<void>;
-  emptyCollection: (guid: string) => Promise<void>;
+  deleteCollection: (guid: string) => Promise<boolean>;
+  emptyCollection: (guid: string) => Promise<boolean>;
 }
 
 export interface CreateCollectionDialogProps {
@@ -103,6 +107,8 @@ export interface CollectionTileProps {
   onEdit: () => void;
   onEmpty: () => void;
   onDelete: () => void;
+  valueMode: LibraryValueMode;
+  change: CollectionChangeSummary | null;
 }
 
 export interface ScanningPillProps {

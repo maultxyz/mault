@@ -38,7 +38,7 @@ export function ControlCardSheet({ entries, onRemove }: ControlCardSheetProps) {
   const gridBottom = geometry.gridTop + geometry.gridHeight;
   const gridRight = geometry.gridLeft + geometry.gridWidth;
   return (
-    <div className="flex flex-col gap-6 print:block">
+    <div className="flex flex-col gap-6 md:gap-2 print:block">
       {pages.map((pageEntries) => (
         <div
           key={pageEntries[0].id}

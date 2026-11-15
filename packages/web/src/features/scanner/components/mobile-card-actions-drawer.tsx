@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { CardImage } from "@/components/card-image";
 import {
   Drawer,
   DrawerContent,
@@ -64,16 +65,10 @@ function MobileCardActionsBody({
   };
 
   return (
-    <div className="flex flex-col gap-4 overflow-y-auto px-4 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+    <div className="flex flex-col gap-4 md:gap-2 overflow-y-auto px-4 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))]">
       <div className="flex items-center gap-3">
-        <div className="aspect-[2.5/3.5] w-12 shrink-0 overflow-hidden rounded-md border bg-muted">
-          {entry.card.image?.small && (
-            <img
-              src={entry.card.image.small}
-              alt=""
-              className="h-full w-full object-cover"
-            />
-          )}
+        <div className="aspect-[2.5/3.5] w-12 shrink-0 overflow-hidden rounded-md bg-muted">
+          <CardImage src={entry.card.image?.small} alt="" />
         </div>
         <div className="min-w-0">
           <DrawerTitle className="truncate text-base font-semibold">
@@ -125,10 +120,10 @@ function MobileCardActionsBody({
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-xs font-medium uppercase tracking-wide text-foreground/70">
+        <p className="text-xs font-medium text-foreground/70">
           {t("cardContextMenu.foil")}
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {[null, ...foilOptions].map((option) => (
             <Button
               key={option ?? "none"}
@@ -143,10 +138,10 @@ function MobileCardActionsBody({
       </div>
 
       <div className="flex flex-col gap-2">
-        <p className="text-xs font-medium uppercase tracking-wide text-foreground/70">
+        <p className="text-xs font-medium text-foreground/70">
           {t("condition.label")}
         </p>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-1.5">
           {CARD_CONDITIONS.map((option) => (
             <Button
               key={option}

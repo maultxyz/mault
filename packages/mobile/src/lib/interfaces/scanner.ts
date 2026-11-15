@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { CameraDevice, CameraFrameOutput, CameraOutput } from "react-native-vision-camera";
 import type {
   BinConfig,
@@ -86,6 +87,7 @@ export type ScannerPauseReason =
   | "feeder-empty"
   | "no-card"
   | "card-missing"
+  | "card-stuck-in-module-one"
   | "feed-failed"
   | "route-failed"
   | "jam"
@@ -203,7 +205,10 @@ export interface ScanSessionValue extends ScanSessionState {
   setAllowDuplicates: (value: boolean) => void;
   handScan: boolean;
   setHandScan: (value: boolean) => void;
+  handScanBins: boolean;
+  setHandScanBins: (value: boolean) => void;
   handScanActive: boolean;
+  hasBinPreset: boolean;
   trackLiveCorners: (corners: LiveCorners | null) => void;
   forcedFoilType: string | null;
   setForcedFoilType: (foilType: string | null) => void;
@@ -322,6 +327,9 @@ export interface ScanOptionsSheetProps {
   onAllowDuplicatesChange: (value: boolean) => void;
   handScan: boolean;
   onHandScanChange: (value: boolean) => void;
+  handScanBins: boolean;
+  onHandScanBinsChange: (value: boolean) => void;
+  hasBinPreset: boolean;
   removeMode: boolean;
   onRemoveModeChange: (value: boolean) => void;
   presetName: string | null;
@@ -340,7 +348,7 @@ export interface ScanOptionsSheetProps {
   onClose: () => void;
 }
 
-export type ScannerControlAction = "scan" | "feed" | "drop" | "retract" | "neutral";
+export type ScannerControlAction = "feed" | "drop" | "retract" | "neutral";
 
 export interface CameraChoice {
   devices: CameraDevice[];
@@ -363,6 +371,7 @@ export interface PhoneCameraResponder {
 
 export type ScannerQrLink =
   | { kind: "share-link"; shareLink: ParsedShareLinkUrl }
+  | { kind: "short-link"; shortCode: string }
   | { kind: "desktop-camera"; collectionGuid: string };
 
 export interface ScannerQrWatcherOptions {
@@ -450,4 +459,18 @@ export interface TorchControlProps {
 export interface LiveFrameSource {
   liveFrameOutput: CameraFrameOutput | null;
   grabLiveFrame: () => Promise<Image>;
+}
+
+export interface CameraPermissionEmptyStateProps {
+  canRequestPermission: boolean;
+  onRequestPermission: () => void;
+}
+
+export interface CameraNoticeActionProps {
+  label: string;
+  onPress: () => void;
+}
+
+export interface CameraEmptyStateFrameProps {
+  children: ReactNode;
 }

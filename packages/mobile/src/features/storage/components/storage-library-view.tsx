@@ -2,8 +2,10 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FlatList, RefreshControl, View } from "react-native";
+import { FlatList, View } from "react-native";
+import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { CardRow } from "@/components/cards/card-row";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListRow } from "@/components/ui/list-row";
@@ -12,7 +14,10 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { OptionSheet } from "@/components/ui/option-sheet";
-import { Skeleton } from "@/components/ui/skeleton";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
+import { ListGroupItem } from "@/components/ui/list-group-item";
+import { ListGroup } from "@/components/ui/list-group";
+import { AppText } from "@/components/ui/app-text";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { storageLocationsPageQueryOptions, storageSearchQueryOptions } from "@/features/storage/api/storage";
@@ -20,7 +25,6 @@ import { useStorageLocationActions } from "@/features/storage/api/use-storage-lo
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
-import { useTheme } from "@/hooks/use-theme";
 import { LIST_END_THRESHOLD, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { LibraryViewProps } from "@/lib/interfaces/library";
@@ -30,7 +34,6 @@ import { absoluteUrl } from "@/lib/url";
 export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
   const { t } = useTranslation();
   const pricing = usePricing();
-  const colors = useTheme();
   const orgId = useActiveOrgId();
   const [search, setSearch] = useState("");
   const query = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
@@ -82,24 +85,20 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
         style={{ marginHorizontal: -SCREEN_GUTTER }}
         data={query ? [] : list}
         keyExtractor={(location) => location.guid}
-        contentContainerStyle={{ paddingBottom: SPACING.xxl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl }}
         keyboardShouldPersistTaps="handled"
         onEndReachedThreshold={LIST_END_THRESHOLD}
         onEndReached={() => {
           if (!query && locations.hasNextPage && !locations.isFetchingNextPage) void locations.fetchNextPage();
         }}
         refreshControl={
-          <RefreshControl
-            refreshing={locations.isRefetching && !locations.isFetchingNextPage}
-            onRefresh={() => void locations.refetch()}
-            tintColor={colors.primaryText}
-            colors={[colors.primary]}
-            progressBackgroundColor={colors.card}
+          <PullToRefreshControl
+            onRefresh={() => locations.refetch()}
           />
         }
         ListHeaderComponent={
           locked || locations.isError || locationActions.remove.isError || query ? (
-            <View style={{ gap: SPACING.lg, paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.lg }}>
+            <View style={{ gap: SPACING.lg, paddingBottom: SPACING.lg }}>
               {locked ? (
                 <Callout
                   tone="info"
@@ -111,11 +110,27 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
                 <Callout tone="destructive" title={t("storage.actionFailed")} />
               ) : null}
               {query ? (
-                results.data && results.data.length === 0 ? (
+                results.isError ? (
+                  <Callout
+                    tone="destructive"
+                    title={t("storage.searchFailed")}
+                    action={
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        label={t("recovery.retry")}
+                        loading={results.isRefetching}
+                        onPress={() => void results.refetch()}
+                      />
+                    }
+                  />
+                ) : results.isPending ? (
+                  <ListSkeleton rows={3} />
+                ) : results.data.length === 0 ? (
                   <EmptyState icon="search" title={t("storage.noResultsTitle")} description={t("storage.noResultsDescription", { query })} />
                 ) : (
-                  <View style={{ marginHorizontal: -SPACING.sm }}>
-                    {(results.data ?? []).map((entry) => (
+                  <ListGroup>
+                    {results.data.map((entry) => (
                       <CardRow
                         key={entry.scanId}
                         name={entry.card.name}
@@ -124,7 +139,7 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
                         onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: entry.locationGuid } })}
                       />
                     ))}
-                  </View>
+                  </ListGroup>
                 )
               ) : null}
             </View>
@@ -132,28 +147,30 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
         }
         ListEmptyComponent={
           query ? undefined : locations.isPending ? (
-            <View style={{ gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER }}>
-              <Skeleton height={52} />
-              <Skeleton height={52} />
-            </View>
+            <ListSkeleton rows={3} />
           ) : (
-            <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER }}>
-              <EmptyState icon="storage" title={t("storage.emptyTitle")} description={t("storage.emptyDescription")} />
-            </View>
+            <EmptyState icon="storage" title={t("storage.emptyTitle")} description={t("storage.emptyDescription")} />
           )
         }
         ListFooterComponent={
           locations.isFetchingNextPage ? <ListLoadingFooter /> : undefined
         }
-        renderItem={({ item: location }) => (
-          <ListRow
-            icon="storage"
-            title={location.name}
-            subtitle={t("storage.summary", { count: location.cardCount, value: pricing.format(location.totalValue) })}
-            onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: location.guid } })}
-            onLongPress={locked ? undefined : () => setActionsLocation({ guid: location.guid, name: location.name })}
-            longPressLabel={t("storage.actions")}
-          />
+        renderItem={({ item: location, index }) => (
+          <ListGroupItem index={index} count={list.length}>
+            <ListRow
+              icon="storage"
+              title={location.name}
+              subtitle={t("collection.cardsCount", { count: location.cardCount })}
+              right={
+                <AppText weight="semibold" numberOfLines={1}>
+                  {pricing.format(location.totalValue)}
+                </AppText>
+              }
+              onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: location.guid } })}
+              onLongPress={locked ? undefined : () => setActionsLocation({ guid: location.guid, name: location.name })}
+              longPressLabel={t("storage.actions")}
+            />
+          </ListGroupItem>
         )}
       />
       <OptionSheet

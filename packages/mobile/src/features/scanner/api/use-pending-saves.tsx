@@ -11,6 +11,7 @@ import {
 } from "react";
 import { AppState } from "react-native";
 import { invalidateAfterScanSave } from "@/features/collections/api/collection-cards";
+import { unmatchedCardsQueryOptions } from "@/features/collections/api/unmatched-cards";
 import { isRetryableSaveError, sendScanSave } from "@/features/scanner/api/scan-saves";
 import {
   deletePendingSave,
@@ -86,11 +87,21 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
     [waitForRetry],
   );
 
+  const invalidateAfterSave = useCallback(
+    (save: PendingScanSave) => {
+      invalidateAfterScanSave(queryClient, save.collectionGuid);
+      if (save.kind === "unmatched") {
+        void queryClient.invalidateQueries({ queryKey: unmatchedCardsQueryOptions(save.collectionGuid).queryKey });
+      }
+    },
+    [queryClient],
+  );
+
   const submit = useCallback(
     async (save: PendingScanSave): Promise<CardSaveResult> => {
       try {
         const result = await sendScanSave(save, false);
-        invalidateAfterScanSave(queryClient, save.collectionGuid);
+        invalidateAfterSave(save);
         return result;
       } catch (err) {
         if (!isRetryableSaveError(err)) throw err;
@@ -98,7 +109,7 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
       putPendingSave(save);
       return retryUntilSettled(save, false);
     },
-    [queryClient, retryUntilSettled],
+    [invalidateAfterSave, retryUntilSettled],
   );
 
   const saveCard = useCallback<PendingSavesContextValue["saveCard"]>(
@@ -115,10 +126,10 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
     for (const save of listPendingSaves()) {
       if (inFlight.current.has(save.key)) continue;
       void retryUntilSettled(save, true)
-        .then(() => invalidateAfterScanSave(queryClient, save.collectionGuid))
+        .then(() => invalidateAfterSave(save))
         .catch(() => {});
     }
-  }, [queryClient, retryUntilSettled]);
+  }, [invalidateAfterSave, retryUntilSettled]);
 
   const value = useMemo(
     () => ({ pendingCount, saveCard, saveUnmatched }),

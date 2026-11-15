@@ -89,15 +89,15 @@ export function BinStatusMeter() {
   };
 
   return (
-    <div className="flex-none rounded-lg border border-input bg-input/20 dark:bg-input/30">
+    <div className="flex-none overflow-hidden rounded-card bg-card">
       <div className="flex items-center">
         <button
           type="button"
           onClick={toggleCollapsed}
           aria-expanded={!collapsed}
-          className="flex min-w-0 flex-1 items-center gap-2 p-2 text-left"
+          className="flex min-w-0 flex-1 items-center gap-2 p-3 text-left"
         >
-          <p className="text-2xs font-medium uppercase tracking-wide text-foreground/70">
+          <p className="text-xs font-medium text-foreground/70">
             {t("binStatusMeter.heading")}
           </p>
           {collapsed && (
@@ -161,7 +161,7 @@ export function BinStatusMeter() {
               renderCell(
                 binNumber,
                 `row-${rowIndex}-${slot}`,
-                cn("border-t border-input", slot === 0 && "border-r"),
+                cn("border-t border-border", slot === 0 && "border-r"),
               ),
             ),
           )}
@@ -169,7 +169,7 @@ export function BinStatusMeter() {
             renderCell(
               binNumber,
               `bottom-${binNumber}`,
-              "col-span-2 border-t border-input",
+              "col-span-2 border-t border-border",
             ),
           )}
         </div>

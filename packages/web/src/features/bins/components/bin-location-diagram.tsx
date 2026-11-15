@@ -33,7 +33,7 @@ function BinCell({
       {isCatchAll && (
         <span
           className={cn(
-            "text-2xs font-normal uppercase tracking-wide",
+            "text-2xs font-normal",
             active
               ? "text-primary-foreground/80"
               : inverted

@@ -1,12 +1,15 @@
 import { setImmediate as yieldToEventLoop } from "node:timers/promises";
-import type { PrintingMarkGroups } from "@magic-vault/shared";
 import { PRINTING_MARK_VERSION } from "./constants/printing-marks";
 import { invalidatePrintingMarkReferences } from "./printing-marks/references";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, sql, type SQL } from "drizzle-orm";
 import { db } from "../db";
 import { binSets, collections, games } from "../db/schema";
 import { matchScopeForGame } from "./card-search/match-games";
 import { resolveCardSearchForGame } from "./card-search/resolve";
+import {
+  createCardMatchEmbeddingDecoder,
+  supportsHalfvecTransfer,
+} from "./card-match-embedding-decoder";
 import {
   cardMatchSegmentBytes,
   createCardMatchSegmentBuilder,
@@ -17,11 +20,15 @@ import {
   CARD_MATCH_INDEX_EVICTION_MIN_IDLE_MS,
   CARD_MATCH_INDEX_PAGE_SIZE,
   CARD_MATCH_INDEX_PI_DEFAULT_MAX_MB,
+  CARD_MATCH_INDEX_PI_WARMUP_CONCURRENCY,
   CARD_MATCH_INDEX_REVALIDATE_MS,
   CARD_MATCH_INDEX_ROWS_PER_EVENT_LOOP_TURN,
+  CARD_MATCH_INDEX_WARMUP_CONCURRENCY,
   MILO_EMBEDDING_DIM,
 } from "./constants/card-search";
 import type {
+  CardMatchEmbeddingTransferFormat,
+  CardMatchIndexPageRow,
   CardMatchSegment,
   CardMatchSegmentEntry,
   CardMatchSegmentSignature,
@@ -45,18 +52,31 @@ const memoryBudgetBytes =
   1024 *
   1024;
 
-function decodeVector(base64: string | null): Float32Array | null {
-  if (!base64) return null;
-  const bytes = Buffer.from(base64, "base64");
-  const dimensions = bytes.readUInt16BE(0);
-  if (dimensions !== MILO_EMBEDDING_DIM) {
-    throw new Error(
-      `Stored embedding has ${dimensions} dimensions, expected ${MILO_EMBEDDING_DIM}.`,
-    );
-  }
-  const vector = new Float32Array(dimensions);
-  for (let i = 0; i < dimensions; i++) vector[i] = bytes.readFloatBE(4 + i * 4);
-  return vector;
+let embeddingTransferFormat: Promise<CardMatchEmbeddingTransferFormat> | null =
+  null;
+
+function cardMatchEmbeddingTransferFormat(): Promise<CardMatchEmbeddingTransferFormat> {
+  embeddingTransferFormat ??= db
+    .execute<{ extversion: string }>(
+      sql`SELECT extversion FROM pg_extension WHERE extname = 'vector'`,
+    )
+    .then(({ rows }) =>
+      supportsHalfvecTransfer(rows[0]?.extversion ?? null) ? "halfvec" : "vector",
+    )
+    .catch((err: unknown) => {
+      embeddingTransferFormat = null;
+      throw err;
+    });
+  return embeddingTransferFormat;
+}
+
+function sentEmbeddingSql(
+  column: SQL,
+  transferFormat: CardMatchEmbeddingTransferFormat,
+): SQL {
+  return transferFormat === "halfvec"
+    ? sql`halfvec_send(${column}::halfvec)`
+    : sql`vector_send(${column})`;
 }
 
 async function loadSegmentSignature(
@@ -110,34 +130,33 @@ async function loadSegment(
     expectedRows: signature.rowCount,
     expectedBackFaces: signature.backFaceCount,
   });
-  let afterCardId = "";
-  for (;;) {
-    const page = await db.execute<{
-      card_id: string;
-      name: string;
-      set_code: string;
-      collector_number: string | null;
-      rare_printing: boolean;
-      promo_printing: boolean;
-      printed_set_total: number | null;
-      printing_mark_groups: PrintingMarkGroups | null;
-      embedding: string;
-      back_embedding: string | null;
-    }>(sql`
+  const transferFormat = await cardMatchEmbeddingTransferFormat();
+  const decodeFrontEmbedding = createCardMatchEmbeddingDecoder(transferFormat);
+  const decodeBackEmbedding = createCardMatchEmbeddingDecoder(transferFormat);
+  const fetchPageAfter = (afterCardId: string): Promise<{ rows: CardMatchIndexPageRow[] }> =>
+    db.execute<CardMatchIndexPageRow>(sql`
       SELECT card_id, name, set_code, collector_number,
         coalesce(${rarePrintingSql}, false) AS rare_printing,
         coalesce(${promoPrintingSql}, false) AS promo_printing,
         (${printedSetTotalSql})::int AS printed_set_total,
         CASE WHEN printing_mark_version = ${PRINTING_MARK_VERSION}
           THEN printing_mark_groups END AS printing_mark_groups,
-        encode(vector_send(embedding), 'base64') AS embedding,
-        encode(vector_send(back_embedding), 'base64') AS back_embedding
+        ${sentEmbeddingSql(sql`embedding`, transferFormat)} AS embedding,
+        ${sentEmbeddingSql(sql`back_embedding`, transferFormat)} AS back_embedding
       FROM cards
       WHERE game_key = ${gameKey} AND lang = ${lang} AND card_id > ${afterCardId}
         ${exclusionFilter}
       ORDER BY card_id
       LIMIT ${CARD_MATCH_INDEX_PAGE_SIZE}
     `);
+
+  let nextPage: Promise<{ rows: CardMatchIndexPageRow[] }> | null = fetchPageAfter("");
+  while (nextPage) {
+    const page: { rows: CardMatchIndexPageRow[] } = await nextPage;
+    const isLastPage: boolean = page.rows.length < CARD_MATCH_INDEX_PAGE_SIZE;
+    nextPage = isLastPage
+      ? null
+      : fetchPageAfter(page.rows[page.rows.length - 1].card_id);
     for (const [index, row] of page.rows.entries()) {
       builder.add({
         cardId: row.card_id,
@@ -148,15 +167,13 @@ async function loadSegment(
         promoPrinting: row.promo_printing === true,
         printedSetTotal: row.printed_set_total,
         printingMarkGroups: row.printing_mark_groups,
-        embedding: decodeVector(row.embedding)!,
-        backEmbedding: decodeVector(row.back_embedding),
+        embedding: decodeFrontEmbedding(row.embedding)!,
+        backEmbedding: decodeBackEmbedding(row.back_embedding),
       });
       if ((index + 1) % CARD_MATCH_INDEX_ROWS_PER_EVENT_LOOP_TURN === 0) {
         await yieldToEventLoop();
       }
     }
-    if (page.rows.length < CARD_MATCH_INDEX_PAGE_SIZE) break;
-    afterCardId = page.rows[page.rows.length - 1].card_id;
   }
 
   const segment = builder.finish();
@@ -369,9 +386,17 @@ async function warmCardMatchIndex(): Promise<void> {
     .from(collections)
     .innerJoin(games, eq(games.id, collections.gameId))
     .where(and(eq(collections.isDeleted, false), eq(games.isDeleted, false)));
-  for (const scope of scopes) {
-    await segmentsForScope(scope, true);
-  }
+  const pendingScopes = [...scopes];
+  const warmupConcurrency = isPiHost()
+    ? CARD_MATCH_INDEX_PI_WARMUP_CONCURRENCY
+    : CARD_MATCH_INDEX_WARMUP_CONCURRENCY;
+  await Promise.all(
+    Array.from({ length: Math.min(warmupConcurrency, pendingScopes.length) }, async () => {
+      for (let scope = pendingScopes.shift(); scope; scope = pendingScopes.shift()) {
+        await segmentsForScope(scope, true);
+      }
+    }),
+  );
   const presetMatchGames = await db
     .selectDistinct({ gameKey: sql<string>`unnest(${binSets.matchGameKeys})` })
     .from(binSets)

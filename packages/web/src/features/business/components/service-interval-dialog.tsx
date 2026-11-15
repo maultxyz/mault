@@ -69,7 +69,7 @@ export function ServiceIntervalDialog({
         </DialogHeader>
         <form
           id="service-interval-form"
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(submit)}
         >
           <Controller
@@ -78,7 +78,11 @@ export function ServiceIntervalDialog({
             render={({ field }) => (
               <label className="flex items-center justify-between gap-3">
                 <span className="text-sm">{t("fleet.intervalEnabled")}</span>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch
+                  aria-label={t("fleet.intervalEnabled")}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </label>
             )}
           />

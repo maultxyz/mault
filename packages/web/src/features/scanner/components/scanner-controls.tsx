@@ -49,7 +49,7 @@ import {
   IconStackPop,
 } from "@tabler/icons-react";
 import { formatElapsed } from "@/lib/format";
-import { FLATBED_IDLE_STEPS } from "@/lib/constants/scanner";
+import { FLATBED_IDLE_STEPS, FOIL_NONE_VALUE } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
 import {
   CARD_CONDITIONS,
@@ -240,7 +240,7 @@ export function ScannerControls({
             </TooltipContent>
           </Tooltip>
         )}
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <ButtonGroup>
             <ScannerControlButton
               tooltip={
@@ -379,12 +379,12 @@ export function ScannerControls({
           </Tooltip>
           <DropdownMenuContent align="start">
             <DropdownMenuRadioGroup
-              value={forceFoilType ?? "none"}
+              value={forceFoilType ?? FOIL_NONE_VALUE}
               onValueChange={(value: string) =>
-                setForceFoilType(value === "none" ? null : value)
+                setForceFoilType(value === FOIL_NONE_VALUE ? null : value)
               }
             >
-              <DropdownMenuRadioItem value="none">
+              <DropdownMenuRadioItem value={FOIL_NONE_VALUE}>
                 {tCards("foilNone")}
               </DropdownMenuRadioItem>
               {foilOptions.map((type) => (

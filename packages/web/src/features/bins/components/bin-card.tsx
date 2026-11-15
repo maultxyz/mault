@@ -66,7 +66,7 @@ export function BinCard({
       onClick={onClick}
     >
       <div className="flex flex-row justify-between gap-2 items-center w-full">
-        <p className="font-medium text-sm font-heading max-md:text-base!">
+        <p className="font-medium text-sm max-md:text-base!">
           {t("binLabel", { number: config.binNumber })}
         </p>
         <div className="flex items-center gap-1">
@@ -74,6 +74,11 @@ export function BinCard({
             <>
               {isDisabled && (
                 <Badge variant="outline">{t("binCard.disabled")}</Badge>
+              )}
+              {!isDisabled && config.maxCards != null && (
+                <Badge variant="outline">
+                  {t("binCard.maxCards", { count: config.maxCards })}
+                </Badge>
               )}
               <Badge variant="default">{t("binCard.pickList")}</Badge>
             </>
@@ -91,6 +96,11 @@ export function BinCard({
                     {t("binCard.maxCopies", { count: config.maxCopies })}
                   </Badge>
                 )}
+              {!isDisabled && config.maxCards != null && (
+                <Badge variant="outline">
+                  {t("binCard.maxCards", { count: config.maxCards })}
+                </Badge>
+              )}
               {!isDisabled && repackPriority != null && (
                 <Badge variant="outline">
                   {t("binCard.priority", { priority: repackPriority })}

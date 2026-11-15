@@ -2,17 +2,14 @@ import { router, useNavigation, usePreventRemove } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Alert, View } from "react-native";
 import { FIRMWARE_FEATURE_MIN_VERSIONS, isFirmwareFeatureSupported } from "@magic-vault/shared";
-import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
-import { Pill } from "@/components/ui/pill";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Screen } from "@/components/ui/screen";
-import { Surface } from "@/components/ui/surface";
 import { SwitchRow } from "@/components/ui/switch-row";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 import { useDeviceTogglesDraft } from "@/features/calibration/api/use-device-toggles-draft";
 import { useSorter } from "@/features/sorter/api/use-sorter";
-import { SPACING } from "@/lib/constants/theme";
 
 export default function CalibrationConnectionScreen() {
   const { t } = useTranslation();
@@ -36,10 +33,7 @@ export default function CalibrationConnectionScreen() {
         }
       >
         {draft.saveError ? <Callout tone="destructive" title={t("calibration.saveFailed")} /> : null}
-        <Surface style={{ gap: SPACING.xl }}>
-          <AppText heading weight="semibold" accessibilityRole="header">
-            {t("calibration.connection.title")}
-          </AppText>
+        <SettingsSection title={t("calibration.connection.title")}>
           <SwitchRow
             title={t("calibration.connection.autoConnectLabel")}
             description={t("calibration.connection.autoConnectDescription")}
@@ -52,14 +46,11 @@ export default function CalibrationConnectionScreen() {
             value={draft.values.testOnConnect}
             onValueChange={(value) => draft.set("testOnConnect", value)}
           />
-        </Surface>
-        <Surface style={{ gap: SPACING.xl }}>
-          <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-            <AppText heading weight="semibold" accessibilityRole="header">
-              {t("calibration.connection.experimentalTitle")}
-            </AppText>
-            <Pill label={t("calibration.connection.experimentalBadge")} />
-          </View>
+        </SettingsSection>
+        <SettingsSection
+          title={t("calibration.connection.experimentalTitle")}
+          badge={t("calibration.connection.experimentalBadge")}
+        >
           <SwitchRow
             title={t("calibration.connection.pipelinedFeedLabel")}
             description={
@@ -71,7 +62,7 @@ export default function CalibrationConnectionScreen() {
             disabled={!pipelinedSupported}
             onValueChange={(value) => draft.set("pipelinedFeed", value)}
           />
-        </Surface>
+        </SettingsSection>
         <Callout
           tone="info"
           title={t("sorter.firmware", { version: sorter.firmwareVersion ?? "?", board: sorter.board ?? "?" })}

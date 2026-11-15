@@ -98,7 +98,7 @@ export function IntakeAcceptDialog({
         </DialogHeader>
         <form
           id="intake-accept-form"
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
           onSubmit={form.handleSubmit(submit)}
         >
           <Controller
@@ -125,7 +125,11 @@ export function IntakeAcceptDialog({
             render={({ field }) => (
               <label className="flex items-center justify-between gap-3">
                 <span className="text-sm">{t("intake.overrideLabel")}</span>
-                <Switch checked={field.value} onCheckedChange={field.onChange} />
+                <Switch
+                  aria-label={t("intake.overrideLabel")}
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
               </label>
             )}
           />
@@ -151,11 +155,11 @@ export function IntakeAcceptDialog({
               )}
             />
           )}
-          <div className="rounded-lg border p-3">
+          <div className="rounded-lg bg-foreground/6 p-3">
             <p className="text-xs text-foreground/70">
               {t(`intake.payoutTotal.${payoutMethod}`)}
             </p>
-            <p className="font-heading text-2xl font-semibold tabular-nums">
+            <p className="text-2xl font-bold tabular-nums">
               {format(payout)}
             </p>
             <p className="text-xs text-foreground/70">

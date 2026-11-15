@@ -13,18 +13,25 @@ import {
   TRADE_OFFER_GUEST_LIMIT_MESSAGE,
   TRADE_OFFER_INVALID_MESSAGE,
   TRADE_OFFER_OFFERED_NOT_FOUND_MESSAGE,
+  TRADE_OFFER_OWN_ORG_MESSAGE,
   TRADE_OFFER_UNKNOWN_GAME_MESSAGE,
   TRADE_OFFER_WANTED_NOT_FOUND_MESSAGE,
   TRADE_OFFERS_NOT_ALLOWED_MESSAGE,
 } from "../../lib/constants/trade-offers";
 import type { PublicTradeOfferLink } from "../../lib/interfaces/trade-offers";
+import { sendTradeOfferCreatedDiscordNotification } from "../../lib/discord";
 import { emitToOrg } from "../../lib/session-stream";
 import {
   createTradeOffer,
   listGuestTradeOffers,
   searchTradeOfferCards,
 } from "../../lib/trade-offers";
-import type { AppEnv } from "../../middleware/auth";
+import { optionalVerifiedUserId } from "../../lib/optional-auth";
+import {
+  findOrgMembership,
+  verifyHardwareClientToken,
+  type AppEnv,
+} from "../../middleware/auth";
 
 export function createPublicTradeOffersRoute(
   resolveLink: (c: Context<AppEnv>) => Promise<PublicTradeOfferLink | null>,
@@ -75,8 +82,15 @@ export function createPublicTradeOffersRoute(
       if (!parsed.success) {
         return c.json({ success: false, message: TRADE_OFFER_INVALID_MESSAGE }, 400);
       }
+      const guestUserId = await optionalVerifiedUserId(
+        c.req.header("Authorization"),
+        verifyHardwareClientToken,
+      );
+      if (guestUserId && (await findOrgMembership(guestUserId, link.scope.orgId))) {
+        return c.json({ success: false, message: TRADE_OFFER_OWN_ORG_MESSAGE }, 409);
+      }
       const result = await db.transaction((tx) =>
-        createTradeOffer(tx, { scope: link.scope, request: parsed.data, guestKeyHash }),
+        createTradeOffer(tx, { scope: link.scope, request: parsed.data, guestKeyHash, guestUserId }),
       );
       switch (result.status) {
         case "guest-limit-reached":
@@ -87,6 +101,14 @@ export function createPublicTradeOffersRoute(
           return c.json({ success: false, message: TRADE_OFFER_OFFERED_NOT_FOUND_MESSAGE }, 400);
         case "created":
           emitToOrg(link.scope.orgId, TRADE_OFFERS_CHANGED_EVENT, result.changed);
+          void sendTradeOfferCreatedDiscordNotification({
+            scope: link.scope,
+            offerGuid: result.guid,
+            guestName: parsed.data.guestName,
+            wantedCount: result.changed.createdOffer?.wantedCount ?? 0,
+            offeredCount: result.changed.createdOffer?.offeredCount ?? 0,
+            offeredCash: result.changed.createdOffer?.offeredCash ?? null,
+          });
           return c.json({ success: true, data: { guid: result.guid } });
       }
     });

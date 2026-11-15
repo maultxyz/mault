@@ -1,3 +1,4 @@
+import { AlertBanner } from "@/components/alert-banner";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { IconInfoCircle } from "@tabler/icons-react";
@@ -13,9 +14,13 @@ export function NonEnglishRulesBanner() {
     LANGUAGE_LABELS[activeCollection.lang] ?? activeCollection.lang;
 
   return (
-    <div className="flex items-start gap-2 border-b border-info-border bg-info-muted px-4 py-2 text-xs text-info-foreground">
-      <IconInfoCircle className="size-3.5 shrink-0 mt-0.5" />
-      <span>{t("nonEnglishRulesBanner.message", { language })}</span>
-    </div>
+    <AlertBanner
+      alert={{
+        id: "non-english-rules",
+        severity: "info",
+        icon: IconInfoCircle,
+        message: t("nonEnglishRulesBanner.message", { language }),
+      }}
+    />
   );
 }

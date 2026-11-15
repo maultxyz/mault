@@ -1,8 +1,9 @@
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, Platform, Pressable, View } from "react-native";
+import { AccessibilityInfo, Platform, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
+import { CameraNoticeAction } from "@/features/scanner/components/camera-notice-action";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { UnmatchedScanNoticeProps } from "@/lib/interfaces/scanner";
@@ -48,23 +49,7 @@ export function UnmatchedScanNotice({ canRetry, onRetry, onSearchByName, onSkip 
       </View>
       <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
         {actions.map((action) => (
-          <Pressable
-            key={action.key}
-            accessibilityRole="button"
-            onPress={action.onPress}
-            hitSlop={SPACING.xs}
-            style={({ pressed }) => ({
-              paddingHorizontal: SPACING.md,
-              paddingVertical: SPACING.sm,
-              borderRadius: RADIUS.md,
-              backgroundColor: colors.onBrandSurface,
-              opacity: pressed ? 0.8 : 1,
-            })}
-          >
-            <AppText size="xs" weight="medium" style={{ color: colors.onCamera }}>
-              {action.label}
-            </AppText>
-          </Pressable>
+          <CameraNoticeAction key={action.key} label={action.label} onPress={action.onPress} />
         ))}
       </View>
     </View>

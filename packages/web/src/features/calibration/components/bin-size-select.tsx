@@ -142,7 +142,7 @@ export function BinSizeSelect({
       >
         <SelectTrigger
           aria-label={t("binConfigurations.binSizeLabel", { bin: binNumber })}
-          className="h-8 w-full text-xs"
+          className="w-full"
         >
           <SelectValue>{t(`binConfigurations.presets.${option}`)}</SelectValue>
         </SelectTrigger>

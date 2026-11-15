@@ -81,7 +81,7 @@ export function MobileMonitorCards({
 
   return (
     <>
-      <div className="sticky top-0 z-10 flex flex-col gap-3 bg-background/85 px-4 pt-4 pb-3 backdrop-blur-xl">
+      <div className="sticky top-0 z-10 flex flex-col gap-3 md:gap-2 bg-background/85 px-4 pt-4 pb-3 backdrop-blur-xl">
         <div className="flex gap-1.5">
           <MobileSearchInput
             placeholder={t("mobileMonitor.searchPlaceholder")}

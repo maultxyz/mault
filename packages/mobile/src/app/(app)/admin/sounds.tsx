@@ -1,43 +1,33 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as DocumentPicker from "expo-document-picker";
 import type { AudioPlayer } from "expo-audio";
 import { router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Alert, View } from "react-native";
+import { Alert } from "react-native";
 import {
   SOUND_CLIP_MAX_BYTES,
   SOUND_CLIP_NAME_MAX_LENGTH,
   type SoundClip,
-  soundClipNameFormSchema,
-  type SoundClipNameFormValues,
 } from "@magic-vault/shared";
-import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
-import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
+import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
-import { SectionHeader } from "@/components/ui/section-header";
-import { Surface } from "@/components/ui/surface";
-import { TextField } from "@/components/ui/text-field";
 import {
   deleteSystemSoundClip,
-  renameSystemSoundClip,
   systemSoundClipsQueryOptions,
   uploadSystemSoundClip,
 } from "@/features/admin/api/sounds-system-clips";
 import { AdminGate } from "@/features/admin/components/admin-gate";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 import { createClipPlayer, isPlayerActive, playSoundExclusively, stopSound } from "@/features/sounds/lib/sound-playback";
 import { SOUND_CLIP_MIME_TYPES } from "@/lib/constants/sounds";
-import { SPACING } from "@/lib/constants/theme";
-import { translateFormErrorMessage } from "@/lib/form-validation";
 import type { StatusTone } from "@/lib/interfaces/theme";
 
 export default function AdminSoundsScreen() {
@@ -53,13 +43,9 @@ function AdminSoundsContent() {
   const queryClient = useQueryClient();
   const clips = useQuery(systemSoundClipsQueryOptions);
   const [message, setMessage] = useState<{ tone: StatusTone; text: string } | null>(null);
-  const [clipBeingRenamed, setClipBeingRenamed] = useState<SoundClip | null>(null);
+  const [clipActions, setClipActions] = useState<SoundClip | null>(null);
   const [playingClipGuid, setPlayingClipGuid] = useState<string | null>(null);
   const previewRef = useRef<{ guid: string; player: AudioPlayer } | null>(null);
-  const renameForm = useForm<SoundClipNameFormValues>({
-    resolver: zodResolver(soundClipNameFormSchema),
-    defaultValues: { name: "" },
-  });
 
   useEffect(
     () => () => {
@@ -70,25 +56,17 @@ function AdminSoundsContent() {
     [],
   );
 
-  const refreshClips = () => {
-    void queryClient.invalidateQueries({ queryKey: systemSoundClipsQueryOptions.queryKey });
-    void queryClient.invalidateQueries({ queryKey: ["sound-clips"] });
-  };
+  const refreshClips = () =>
+    Promise.all([
+      queryClient.invalidateQueries({ queryKey: systemSoundClipsQueryOptions.queryKey }),
+      queryClient.invalidateQueries({ queryKey: ["sound-clips"] }),
+    ]);
   const showFailure = (text: string) => setMessage({ tone: "destructive", text });
 
   const upload = useMutation({
     mutationFn: uploadSystemSoundClip,
     onSuccess: () => setMessage({ tone: "success", text: t("settings.sounds.library.uploaded") }),
     onError: (err: Error) => showFailure(err.message || t("settings.sounds.library.uploadFailed")),
-    onSettled: refreshClips,
-  });
-  const rename = useMutation({
-    mutationFn: ({ guid, name }: { guid: string; name: string }) => renameSystemSoundClip(guid, name),
-    onSuccess: () => {
-      setClipBeingRenamed(null);
-      setMessage({ tone: "success", text: t("settings.sounds.library.renamed") });
-    },
-    onError: (err: Error) => showFailure(err.message || t("settings.sounds.library.renameFailed")),
     onSettled: refreshClips,
   });
   const removeClip = useMutation({
@@ -144,20 +122,27 @@ function AdminSoundsContent() {
     playSoundExclusively(player);
   };
 
-  const startRename = (clip: SoundClip) => {
-    renameForm.reset({ name: clip.name });
-    setClipBeingRenamed(clip);
-  };
-
   const confirmDelete = (clip: SoundClip) =>
     Alert.alert(t("settings.sounds.library.delete", { name: clip.name }), t("admin.sounds.deleteConfirm"), [
       { text: t("common.cancel"), style: "cancel" },
       { text: t("admin.sounds.delete"), style: "destructive", onPress: () => removeClip.mutate(clip.guid) },
     ]);
 
+  const runClipAction = (action: string) => {
+    const clip = clipActions;
+    setClipActions(null);
+    if (!clip) return;
+    if (action === "preview") {
+      togglePreview(clip);
+    } else if (action === "rename") {
+      router.push({ pathname: "/settings/sound-clip-name", params: { guid: clip.guid, name: clip.name, scope: "system" } });
+    } else if (action === "delete") {
+      confirmDelete(clip);
+    }
+  };
+
   return (
     <Screen
-      refreshing={clips.isRefetching}
       onRefresh={refreshClips}
       header={
         <PageHeader
@@ -168,113 +153,72 @@ function AdminSoundsContent() {
       }
     >
       {message ? <Callout tone={message.tone} title={message.text} /> : null}
-      <SectionHeader title={t("admin.sounds.heading")} />
-      <AppText size="xs" tone="secondary">
-        {t("admin.sounds.description")}
-      </AppText>
-      {clipBeingRenamed ? (
-        <Surface style={{ gap: SPACING.md }}>
-          <Controller
-            control={renameForm.control}
-            name="name"
-            render={({ field, fieldState }) => (
-              <TextField
-                label={t("settings.sounds.library.nameLabel")}
-                value={field.value}
-                onBlur={field.onBlur}
-                onChangeText={field.onChange}
-                error={translateFormErrorMessage(t, fieldState.error?.message)}
-              />
-            )}
+      <SettingsSection title={t("admin.sounds.heading")} description={t("admin.sounds.description")}>
+        {clips.isPending ? (
+          <ListSkeleton />
+        ) : clips.isError ? (
+          <Callout
+            tone="destructive"
+            title={t("admin.sounds.loadFailed")}
+            action={<Button size="sm" variant="secondary" label={t("admin.sounds.retry")} onPress={refreshClips} />}
           />
-          <View style={{ flexDirection: "row", gap: SPACING.sm }}>
-            <Button
-              style={{ flex: 1 }}
-              variant="ghost"
-              label={t("settings.sounds.library.cancelRename")}
-              onPress={() => setClipBeingRenamed(null)}
-            />
-            <Button
-              style={{ flex: 1 }}
-              label={t("settings.sounds.library.saveName")}
-              loading={rename.isPending}
-              onPress={renameForm.handleSubmit((draft) => {
-                const name = draft.name.trim();
-                if (name === clipBeingRenamed.name) {
-                  setClipBeingRenamed(null);
-                  return;
-                }
-                rename.mutate({ guid: clipBeingRenamed.guid, name });
-              })}
-            />
-          </View>
-        </Surface>
-      ) : null}
-      {clips.isPending ? (
-        <ListSkeleton />
-      ) : clips.isError ? (
-        <Callout
-          tone="destructive"
-          title={t("admin.sounds.loadFailed")}
-          action={<Button variant="secondary" icon="refresh" label={t("admin.sounds.retry")} onPress={refreshClips} />}
-        />
-      ) : clips.data.length === 0 ? (
-        <EmptyState icon="music" title={t("admin.sounds.empty")} />
-      ) : (
-        <ListGroup>
-          {clips.data.map((clip) => (
-            <ListRow
-              key={clip.guid}
-              title={clip.name}
-              subtitle={t("settings.sounds.library.size", { kb: Math.max(1, Math.ceil(clip.sizeBytes / 1024)) })}
-              rightIsInteractive
-              right={
-                <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
-                  <IconButton
-                    icon="edit"
-                    size={32}
-                    variant="plain"
-                    accessibilityLabel={t("settings.sounds.library.rename", { name: clip.name })}
-                    disabled={rename.isPending}
-                    onPress={() => startRename(clip)}
-                  />
-                  <IconButton
-                    icon="trash"
-                    size={32}
-                    variant="plain"
-                    accessibilityLabel={t("settings.sounds.library.delete", { name: clip.name })}
+        ) : (
+          <>
+            {clips.data.length === 0 ? <EmptyState icon="music" title={t("admin.sounds.empty")} /> : null}
+            <ListGroup>
+              {clips.data.map((clip) => {
+                const isPlaying = playingClipGuid === clip.guid;
+                return (
+                  <ListRow
+                    key={clip.guid}
+                    icon={isPlaying ? "stop" : "play"}
+                    title={clip.name}
+                    subtitle={t("settings.sounds.library.size", { kb: Math.max(1, Math.ceil(clip.sizeBytes / 1024)) })}
                     disabled={removeClip.isPending}
-                    onPress={() => confirmDelete(clip)}
+                    onPress={() => setClipActions(clip)}
+                    onLongPress={() => setClipActions(clip)}
+                    longPressLabel={
+                      isPlaying
+                        ? t("settings.sounds.library.stop", { name: clip.name })
+                        : t("settings.sounds.library.play", { name: clip.name })
+                    }
                   />
-                </View>
-              }
-              leading={
-                <IconButton
-                  icon={playingClipGuid === clip.guid ? "stop" : "play"}
-                  size={36}
-                  accessibilityLabel={
-                    playingClipGuid === clip.guid
-                      ? t("settings.sounds.library.stop", { name: clip.name })
-                      : t("settings.sounds.library.play", { name: clip.name })
-                  }
-                  disabled={!clip.url}
-                  onPress={() => togglePreview(clip)}
-                />
-              }
-            />
-          ))}
-        </ListGroup>
-      )}
-      <Button
-        variant="secondary"
-        icon="upload"
-        label={upload.isPending ? t("settings.sounds.library.uploading") : t("settings.sounds.library.upload")}
-        loading={upload.isPending}
-        onPress={() => void pickClip()}
+                );
+              })}
+              <ListRow
+                icon="upload"
+                title={upload.isPending ? t("settings.sounds.library.uploading") : t("settings.sounds.library.upload")}
+                subtitle={t("admin.sounds.uploadHint")}
+                subtitleNumberOfLines={3}
+                disabled={upload.isPending}
+                onPress={() => void pickClip()}
+              />
+            </ListGroup>
+          </>
+        )}
+      </SettingsSection>
+      <OptionSheet
+        visible={!!clipActions}
+        title={clipActions?.name ?? ""}
+        options={[
+          ...(clipActions?.url
+            ? [
+                {
+                  value: "preview",
+                  label:
+                    playingClipGuid === clipActions.guid
+                      ? t("settings.sounds.library.stop", { name: clipActions.name })
+                      : t("settings.sounds.library.play", { name: clipActions.name }),
+                },
+              ]
+            : []),
+          { value: "rename", label: t("settings.sounds.library.rename", { name: clipActions?.name ?? "" }) },
+          { value: "delete", label: t("settings.sounds.library.delete", { name: clipActions?.name ?? "" }) },
+        ]}
+        selected={[]}
+        onSelect={runClipAction}
+        onClose={() => setClipActions(null)}
       />
-      <AppText size="xs" tone="secondary">
-        {t("admin.sounds.uploadHint")}
-      </AppText>
     </Screen>
   );
 }

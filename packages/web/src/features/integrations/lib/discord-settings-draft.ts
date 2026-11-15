@@ -17,6 +17,8 @@ export function toDiscordSettingsDraft(
     errorChannelId: integration?.errorChannelId ?? null,
     scanRoleId: integration?.scanRoleId ?? null,
     errorRoleId: integration?.errorRoleId ?? null,
+    tradeChannelId: integration?.tradeChannelId ?? null,
+    tradeRoleId: integration?.tradeRoleId ?? null,
     overrides: Object.fromEntries(
       (integration?.collections ?? []).map((override) => [
         override.guid,

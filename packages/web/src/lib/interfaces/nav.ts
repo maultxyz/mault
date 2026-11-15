@@ -10,8 +10,11 @@ export interface NavSubItemDef {
   onClick?: () => void;
 }
 
+export type NavSubItemProps = Omit<NavSubItemDef, "key">;
+
 export interface NavItemDef {
   to: string;
+  activePaths?: string[];
   icon: ReactNode;
   label: string;
   end?: boolean;
@@ -21,6 +24,10 @@ export interface NavItemDef {
   lockTag?: string;
   external?: boolean;
   subItems?: NavSubItemDef[];
+}
+
+export interface NavItemWithSubItemsProps extends NavItemDef {
+  subItems: NavSubItemDef[];
 }
 
 export interface SectionNavItem {
@@ -57,6 +64,7 @@ export interface MobileNavTabIconProps {
 
 export interface MobilePageHeaderProps {
   title: ReactNode;
+  titleVisuallyHidden?: boolean;
   subtitle?: string;
   subtitleLeading?: ReactNode;
   backTo?: string;
@@ -66,12 +74,6 @@ export interface MobilePageHeaderProps {
   collapsed?: boolean;
 }
 
-export interface MobileQuickActionProps extends ComponentProps<"button"> {
-  icon: ReactNode;
-  label: string;
-  hint?: ReactNode;
-  to?: string;
-}
 
 export interface MobileIconBadgeProps {
   children: ReactNode;

@@ -63,3 +63,16 @@ export const REVIEW_LAYOUT_WITHOUT_SCAN_COLUMNS_CLASS =
   "@5xl:grid-cols-[minmax(0,18rem)_minmax(20rem,1fr)]";
 export const SIMILAR_MATCHES_ACCORDION_VALUE = "similar-matches";
 export const MORE_DETAIL_OPTIONS_ACCORDION_VALUE = "more-detail-options";
+export const CARD_DETAIL_TOP_BAR_CLASS =
+  "sticky top-0 z-10 bg-background/80 backdrop-blur-2xl border-b p-2 flex items-center justify-between gap-2";
+export const CARD_DETAIL_SCROLL_CLASS =
+  "@container flex-1 min-h-0 overflow-y-auto p-4 md:px-3 md:py-2 flex flex-col gap-5 md:gap-2";
+export const CARD_DETAIL_BODY_COLUMNS_CLASS = "@3xl:grid-cols-[auto_minmax(0,1fr)]";
+export const CARD_DETAIL_IMAGES_CLASS =
+  "flex flex-wrap gap-3 items-start @3xl:flex-col @6xl:flex-row max-md:grid max-md:grid-cols-2";
+export const CARD_DETAIL_SECTIONS_CLASS = "flex flex-col gap-6 md:gap-2 min-w-0";
+export const CARD_DETAIL_IMAGE_WIDTH_CLASS = "w-56 max-md:w-full";
+export const CARD_DETAIL_ACTION_BAR_CLASS = "shrink-0 bg-background/80 backdrop-blur-2xl p-2 border-t";
+export const CARD_DETAIL_ACTION_ROW_CLASS =
+  "flex flex-wrap gap-2 items-center w-full max-md:gap-1.5 max-md:[&>*]:flex-1";
+export const CARD_DETAIL_SKELETON_SECTION_COUNT = 3;

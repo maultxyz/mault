@@ -34,7 +34,7 @@ export const debugErrorRoute = new Hono<AppEnv>().post(
     if (!collection) {
       return c.json({ success: false, message: "Collection not found." }, 404);
     }
-    emitToSession(guid, "scan_error", {
+    emitToSession(orgId, guid, "scan_error", {
       message: "Debug: forced error triggered.",
       timestamp: Date.now(),
     });

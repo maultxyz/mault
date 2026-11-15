@@ -100,12 +100,12 @@ export function ScannerPipPreview({
               />
             ) : (
               <div className="absolute inset-0 flex items-center justify-center text-white/60">
-                <IconCamera size={28} />
+                <IconCamera aria-hidden className="size-5" />
               </div>
             )}
           </div>
           <div className="absolute inset-0 flex items-center justify-center gap-1.5 bg-black/50 text-sm font-medium text-white opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
-            <IconArrowBackUp size={16} />
+            <IconArrowBackUp aria-hidden className="size-4" />
             {t("scannerPip.returnToScanner")}
           </div>
           <span className="absolute top-2 left-2 flex items-center gap-1.5 rounded-full bg-black/60 px-2 py-0.5 text-xs font-medium text-white">

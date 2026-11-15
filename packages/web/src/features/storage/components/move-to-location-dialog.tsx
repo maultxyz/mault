@@ -63,7 +63,7 @@ export function MoveToLocationDialog({
         <form
           id="move-to-location-form"
           onSubmit={submit}
-          className="flex flex-col gap-4"
+          className="flex flex-col gap-4 md:gap-2"
         >
           <LocationMoveFields
             form={form}

@@ -135,7 +135,7 @@ export function IntakeLotDialog({
         </DialogHeader>
         <form
           id="intake-lot-form"
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-3 md:gap-2"
           onSubmit={form.handleSubmit(submit)}
         >
           <Controller
@@ -194,7 +194,7 @@ export function IntakeLotDialog({
             )}
           />
           {collectionMode === "new" ? (
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 md:gap-2 sm:grid-cols-2">
               <Controller
                 name="gameGuid"
                 control={form.control}

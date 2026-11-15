@@ -10,14 +10,15 @@ export function binSaveInputWithRules(
     binNumber: bin.binNumber,
     gameGuid,
     rules,
-    isCatchAll: bin.isCatchAll,
-    isDisabled: bin.isDisabled,
+    isCatchAll: bin.isCatchAll ?? false,
+    isDisabled: bin.isDisabled ?? false,
     overflowBin: bin.overflowBin ?? null,
     isOverride: bin.isOverride,
     overridePriority: bin.overridePriority ?? null,
     lowMatchPercent: bin.lowMatchPercent ?? null,
     maxCopies: bin.maxCopies ?? null,
     maxCopiesBy: bin.maxCopiesBy ?? null,
+    maxCards: bin.maxCards ?? null,
     pickList: null,
   };
 }

@@ -3,7 +3,6 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, View } from "react-native";
 import { PLAN_KEYS, PLAN_LIMIT_KEYS, type PlanKey } from "@magic-vault/shared";
-import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -21,6 +20,7 @@ import { PlansPreviewSection } from "@/features/admin/components/plans-preview-s
 import { PlansPricingModeSection } from "@/features/admin/components/plans-pricing-mode-section";
 import { PLAN_LIMIT_FALLBACK } from "@/lib/constants/admin-plans";
 import { SPACING } from "@/lib/constants/theme";
+import { SettingsSection } from "@/features/settings/components/settings-section";
 
 function PlanSettingsEditor() {
   const { t } = useTranslation();
@@ -61,61 +61,43 @@ function PlanSettingsEditor() {
             <PlansPreviewSection />
             {!draft.data.billingEnabled ? <Callout tone="info" title={t("admin.plans.billingDisabled")} /> : null}
             {draft.saveError ? <Callout tone="destructive" title={t("admin.plans.saveFailed")} /> : null}
-            <Surface style={{ gap: SPACING.md }}>
-              <View style={{ gap: SPACING.xs }}>
-                <AppText heading weight="semibold" accessibilityRole="header">
-                  {t("admin.plans.editorHeading")}
-                </AppText>
-                <AppText size="xs" tone="secondary">
-                  {t("admin.plans.editorDescription")}
-                </AppText>
-              </View>
-              <SelectField
-                label={t("admin.plans.editedPlanLabel")}
-                value={planName(editedPlan)}
-                placeholder={planName(editedPlan)}
-                onPress={() => setIsPlanSheetOpen(true)}
-              />
-              <Button
-                variant="secondary"
-                icon="restore"
-                label={t("admin.plans.restoreDefaults")}
-                accessibilityHint={t("admin.plans.restoreDefaultsHint")}
-                disabled={draft.isSaving}
-                onPress={draft.restoreDefaults}
-              />
-            </Surface>
-            <Surface style={{ gap: SPACING.md }}>
-              <View style={{ gap: SPACING.xs }}>
-                <AppText heading weight="semibold" accessibilityRole="header">
-                  {t("admin.plans.featuresHeading", { plan: planName(editedPlan) })}
-                </AppText>
-                <AppText size="xs" tone="secondary">
-                  {t("admin.plans.featuresDescription")}
-                </AppText>
-              </View>
-              <PlansFeatureRows key={editedPlan} plan={editedPlan} control={draft.control} disabled={draft.isSaving} />
-            </Surface>
-            <Surface style={{ gap: SPACING.lg }}>
-              <View style={{ gap: SPACING.xs }}>
-                <AppText heading weight="semibold" accessibilityRole="header">
-                  {t("admin.plans.limitsHeading", { plan: planName(editedPlan) })}
-                </AppText>
-                <AppText size="xs" tone="secondary">
-                  {t("admin.plans.limitsDescription")}
-                </AppText>
-              </View>
-              {PLAN_LIMIT_KEYS.map((limit) => (
-                <PlansLimitRow
-                  key={`${editedPlan}-${limit}`}
-                  plan={editedPlan}
-                  limit={limit}
-                  control={draft.control}
-                  fallbackLimit={draft.data?.defaults[editedPlan].limits[limit] ?? PLAN_LIMIT_FALLBACK}
-                  disabled={draft.isSaving}
+            <SettingsSection title={t("admin.plans.editorHeading")} description={t("admin.plans.editorDescription")}>
+              <Surface style={{ gap: SPACING.md }}>
+                <SelectField
+                  label={t("admin.plans.editedPlanLabel")}
+                  value={planName(editedPlan)}
+                  placeholder={planName(editedPlan)}
+                  onPress={() => setIsPlanSheetOpen(true)}
                 />
-              ))}
-            </Surface>
+                <Button
+                  variant="secondary"
+                  icon="restore"
+                  label={t("admin.plans.restoreDefaults")}
+                  accessibilityHint={t("admin.plans.restoreDefaultsHint")}
+                  disabled={draft.isSaving}
+                  onPress={draft.restoreDefaults}
+                />
+              </Surface>
+            </SettingsSection>
+            <SettingsSection title={t("admin.plans.featuresHeading", { plan: planName(editedPlan) })} description={t("admin.plans.featuresDescription")}>
+              <Surface style={{ gap: SPACING.md }}>
+                <PlansFeatureRows key={editedPlan} plan={editedPlan} control={draft.control} disabled={draft.isSaving} />
+              </Surface>
+            </SettingsSection>
+            <SettingsSection title={t("admin.plans.limitsHeading", { plan: planName(editedPlan) })} description={t("admin.plans.limitsDescription")}>
+              <Surface style={{ gap: SPACING.lg }}>
+                {PLAN_LIMIT_KEYS.map((limit) => (
+                  <PlansLimitRow
+                    key={`${editedPlan}-${limit}`}
+                    plan={editedPlan}
+                    limit={limit}
+                    control={draft.control}
+                    fallbackLimit={draft.data?.defaults[editedPlan].limits[limit] ?? PLAN_LIMIT_FALLBACK}
+                    disabled={draft.isSaving}
+                  />
+                ))}
+              </Surface>
+            </SettingsSection>
             <OptionSheet
               visible={isPlanSheetOpen}
               title={t("admin.plans.editedPlanLabel")}
