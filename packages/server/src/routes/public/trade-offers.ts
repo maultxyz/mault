@@ -107,6 +107,7 @@ export function createPublicTradeOffersRoute(
             guestName: parsed.data.guestName,
             wantedCount: result.changed.createdOffer?.wantedCount ?? 0,
             offeredCount: result.changed.createdOffer?.offeredCount ?? 0,
+            offeredCash: result.changed.createdOffer?.offeredCash ?? null,
           });
           return c.json({ success: true, data: { guid: result.guid } });
       }

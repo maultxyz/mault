@@ -1,6 +1,7 @@
 import type {
   CardCondition,
   OutgoingTradeOffer,
+  PublicTradeOffer,
   PriceSource,
   PublicCard,
   TradeOffer,
@@ -69,6 +70,7 @@ export interface TradeOfferPageProps {
   link: TradeOfferLink;
   sourceName: string;
   defaultGameKey: string | null;
+  cashCurrency: string;
   isVisible: boolean;
   onBack: () => void;
 }
@@ -102,6 +104,10 @@ export interface TradeOfferCardListProps {
 
 export interface TradeOfferValueSummaryProps {
   offer: TradeOffer;
+}
+
+export interface TradeOfferOfferedCashProps {
+  offer: Pick<PublicTradeOffer, "offered" | "offeredCash">;
 }
 
 export interface GuestTradeOfferListProps {
@@ -155,6 +161,7 @@ export interface TradeOfferReviewSideProps {
   priceSource: PriceSource;
   showsPrices?: boolean;
   className?: string;
+  children?: ReactNode;
 }
 
 export interface TradeOfferReviewRowProps {

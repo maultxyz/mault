@@ -38,6 +38,7 @@ export function TradeOfferReviewSide({
   placements,
   priceSource,
   showsPrices = true,
+  children,
 }: TradeOfferReviewSideProps) {
   const { t } = useTranslation();
   const [sort, setSort] = useState<TradeOfferCardSort>(
@@ -87,16 +88,19 @@ export function TradeOfferReviewSide({
     <View style={{ gap: SPACING.sm }}>
       <View>
         <SectionHeader title={title} />
-        <AppText size="xs" tone="secondary">
-          {[
-            t("tradeOffers.cardList.cardCount", { count: totals.totalCards }),
-            t("tradeOffers.cardList.uniqueCount", { count: totals.uniqueCards }),
-            showsPrices ? formatPrice(totals.totalValue, priceSource) : null,
-          ]
-            .filter(Boolean)
-            .join(" · ")}
-        </AppText>
+        {cards.length > 0 ? (
+          <AppText size="xs" tone="secondary">
+            {[
+              t("tradeOffers.cardList.cardCount", { count: totals.totalCards }),
+              t("tradeOffers.cardList.uniqueCount", { count: totals.uniqueCards }),
+              showsPrices ? formatPrice(totals.totalValue, priceSource) : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </AppText>
+        ) : null}
       </View>
+      {children}
       {rows.length > 1 ? (
         <View style={{ gap: SPACING.xs }}>
           <AppText size="xs" tone="secondary">
@@ -134,7 +138,7 @@ export function TradeOfferReviewSide({
           {filterResults}
         </AppText>
       ) : null}
-      {matchingRowCount === 0 ? (
+      {cards.length === 0 ? null : matchingRowCount === 0 ? (
         <AppText size="sm" tone="secondary">
           {t("tradeOffers.cardList.noFilterResults")}
         </AppText>

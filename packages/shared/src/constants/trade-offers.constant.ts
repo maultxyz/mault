@@ -1,4 +1,7 @@
-import type { TradeOfferLocationSectionKind } from "../interfaces/trade-offers.interface";
+import type {
+  TradeOfferLocationSectionKind,
+  TradeOfferOfferKind,
+} from "../interfaces/trade-offers.interface";
 
 export const TRADE_OFFER_STATUSES = ["pending", "accepted", "declined"] as const;
 export const TRADE_OFFERS_CHANGED_EVENT = "trade_offers_changed";
@@ -13,6 +16,8 @@ export const TRADE_OFFER_GUEST_NOTE_MAX_LENGTH = 500;
 export const TRADE_OFFER_WANTED_CARDS_MAX = 20;
 export const TRADE_OFFER_OFFERED_CARDS_MAX = 50;
 export const TRADE_OFFER_CARD_QUANTITY_MAX = 99;
+export const TRADE_OFFER_CASH_AMOUNT_MAX = 100_000;
+export const TRADE_OFFER_CASH_INPUT_PATTERN = /^\d+([.,]\d{1,2})?$/;
 export const TRADE_OFFER_PENDING_PER_GUEST_MAX = 5;
 export const TRADE_OFFER_SEARCH_QUERY_MAX_LENGTH = 100;
 export const TRADE_OFFER_CARD_SORTS = ["value", "name", "set"] as const;
@@ -28,4 +33,25 @@ export const TRADE_OFFER_LOCATION_SECTION_ORDER: Record<TradeOfferLocationSectio
   bin: 1,
   collection: 2,
   missing: 3,
+};
+
+export const TRADE_OFFER_TRAY_MESSAGE_KEYS: Record<TradeOfferOfferKind, string> = {
+  cards: "tradeOffers.trayMessage",
+  cash: "tradeOffers.trayMessageCash",
+  cardsAndCash: "tradeOffers.trayMessageCardsAndCash",
+  nothing: "tradeOffers.trayMessageNothing",
+};
+
+export const TRADE_OFFER_THEY_OFFER_TITLE_KEYS: Record<TradeOfferOfferKind, string> = {
+  cards: "tradeOffers.theyOffer",
+  cash: "tradeOffers.theyOfferCash",
+  cardsAndCash: "tradeOffers.theyOffer",
+  nothing: "tradeOffers.theyOfferNothing",
+};
+
+export const TRADE_OFFER_YOU_OFFERED_TITLE_KEYS: Record<TradeOfferOfferKind, string> = {
+  cards: "tradeOffers.sent.youOffer",
+  cash: "tradeOffers.sent.youOfferCash",
+  cardsAndCash: "tradeOffers.sent.youOffer",
+  nothing: "tradeOffers.sent.youOfferNothing",
 };

@@ -8,7 +8,9 @@ import { AccessibilityInfo, View } from "react-native";
 import {
   CARD_CONDITIONS,
   TRADE_OFFER_CARD_QUANTITY_MAX,
+  formatPriceInCurrency,
   isCardCondition,
+  parseTradeOfferCashInput,
   tradeOfferFormSchema,
   type TradeOfferFormValues,
 } from "@magic-vault/shared";
@@ -63,18 +65,37 @@ export default function TradeScreen() {
   const { user } = useSession();
   const form = useForm<TradeOfferFormValues>({
     resolver: zodResolver(tradeOfferFormSchema),
-    defaultValues: { guestName: user?.name ?? "", guestContact: user?.email ?? "", guestNote: "" },
+    defaultValues: {
+      guestName: user?.name ?? "",
+      guestContact: user?.email ?? "",
+      guestNote: "",
+      offeredCash: "",
+    },
   });
   const [editingCard, setEditingCard] = useState<OfferedTradeCard | null>(null);
   const [sent, setSent] = useState(false);
   const offeredCount = draft.offered.reduce((sum, card) => sum + card.quantity, 0);
-  const isReady = draft.wanted.length > 0 && draft.offered.length > 0;
+  const offeredCash = parseTradeOfferCashInput(form.watch("offeredCash"));
+  const isReady = draft.wanted.length > 0;
+  const cashCurrency = info.data?.cashCurrency ?? "";
+  const summary =
+    draft.offered.length === 0 && offeredCash == null
+      ? t("trade.summaryNothing", { get: draft.wanted.length })
+      : offeredCash == null
+        ? t("trade.summary", { get: draft.wanted.length, give: offeredCount })
+        : t("trade.summaryWithCash", {
+            get: draft.wanted.length,
+            give: offeredCount,
+            cash: formatPriceInCurrency(offeredCash, cashCurrency),
+          });
 
   const send = useMutation({
-    mutationFn: (values: TradeOfferFormValues) => {
+    mutationFn: ({ offeredCash: offeredCashInput, ...values }: TradeOfferFormValues) => {
       if (!link) throw new Error(t("trade.invalidLink"));
+      const offeredCashAmount = parseTradeOfferCashInput(offeredCashInput);
       return submitTradeOffer(link, {
         ...values,
+        ...(offeredCashAmount != null ? { offeredCashAmount } : {}),
         wantedScanIds: draft.wanted.map((card) => card.scanId),
         offered: draft.offered.map((card) => ({
           gameKey: card.gameKey,
@@ -89,6 +110,7 @@ export default function TradeScreen() {
     onSuccess: () => {
       clearTradeCards();
       form.setValue("guestNote", "");
+      form.setValue("offeredCash", "");
       setSent(true);
       AccessibilityInfo.announceForAccessibility(t("trade.sent"));
     },
@@ -254,15 +276,31 @@ export default function TradeScreen() {
           <ListRow icon="camera" title={t("trade.scanCards")} onPress={() => router.push("/trade/scan")} />
           <ListRow icon="collections" title={t("trade.fromCollection")} onPress={() => router.push("/trade/collection")} />
         </ListGroup>
+        <Surface style={{ gap: SPACING.xs }}>
+          <Controller
+            control={form.control}
+            name="offeredCash"
+            render={({ field, fieldState }) => (
+              <TextField
+                label={t("trade.cashLabel", { currency: cashCurrency })}
+                value={field.value}
+                onBlur={field.onBlur}
+                onChangeText={field.onChange}
+                keyboardType="decimal-pad"
+                placeholder="0.00"
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
+              />
+            )}
+          />
+          <AppText size="xs" tone="secondary">
+            {t("trade.cashHint")}
+          </AppText>
+        </Surface>
       </View>
 
       <View style={{ gap: SPACING.sm }}>
         <AppText size="sm" accessibilityLiveRegion="polite">
-          {isReady
-            ? t("trade.summary", { get: draft.wanted.length, give: offeredCount })
-            : draft.wanted.length === 0
-              ? t("trade.needGet")
-              : t("trade.needGive")}
+          {isReady ? summary : t("trade.needGet")}
         </AppText>
         <Button
           size="lg"

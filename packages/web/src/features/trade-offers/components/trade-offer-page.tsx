@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -28,6 +28,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   DEFAULT_CARD_CONDITION,
   TRADE_OFFER_OFFERED_CARDS_MAX,
+  formatPriceInCurrency,
+  parseTradeOfferCashInput,
   tradeOfferFormSchema,
   type TradeOfferFormValues,
 } from "@magic-vault/shared";
@@ -48,6 +50,7 @@ export function TradeOfferPage({
   link,
   sourceName,
   defaultGameKey,
+  cashCurrency,
   isVisible,
   onBack,
 }: TradeOfferPageProps) {
@@ -64,28 +67,45 @@ export function TradeOfferPage({
   const nameId = useId();
   const contactId = useId();
   const noteId = useId();
+  const cashId = useId();
+  const cashHintId = useId();
   const [restoredDraft] = useState(() => readTradeOfferDraft(link.token));
   useEffect(() => clearTradeOfferDraft(link.token), [link.token]);
   const [offered, setOffered] = useState<OfferedCardDraft[]>(restoredDraft?.offered ?? []);
   const form = useForm<TradeOfferFormValues>({
     resolver: zodResolver(tradeOfferFormSchema),
-    defaultValues: restoredDraft?.values ?? {
+    defaultValues: {
       guestName: rememberedGuestName(),
       guestContact: "",
       guestNote: "",
+      offeredCash: "",
+      ...restoredDraft?.values,
     },
   });
   const keepDraftForSignIn = () =>
     saveTradeOfferDraft(link.token, { wanted, offered, values: form.getValues() });
   const { errors, isSubmitting } = form.formState;
   const offeredCount = offered.reduce((sum, draft) => sum + draft.quantity, 0);
-  const isReady = wanted.length > 0 && offered.length > 0;
+  const offeredCash = parseTradeOfferCashInput(form.watch("offeredCash") ?? "");
+  const isReady = wanted.length > 0;
+  const summary =
+    offered.length === 0 && offeredCash == null
+      ? t("tradeOffers.summaryNothing", { get: wanted.length })
+      : offeredCash == null
+        ? t("tradeOffers.summary", { get: wanted.length, give: offeredCount })
+        : t("tradeOffers.summaryWithCash", {
+            get: wanted.length,
+            give: offeredCount,
+            cash: formatPriceInCurrency(offeredCash, cashCurrency),
+          });
 
-  const submit = form.handleSubmit(async (values) => {
+  const submit = form.handleSubmit(async ({ offeredCash: offeredCashInput, ...values }) => {
     if (!isReady) return;
+    const offeredCashAmount = parseTradeOfferCashInput(offeredCashInput);
     try {
       await submitTradeOffer(link, {
         ...values,
+        ...(offeredCashAmount != null ? { offeredCashAmount } : {}),
         wantedScanIds: wanted.map((entry) => entry.scanId),
         offered: offered.map((draft) => ({
           gameKey: draft.option.gameKey,
@@ -98,7 +118,7 @@ export function TradeOfferPage({
       });
       rememberGuestName(values.guestName);
       setOffered([]);
-      form.reset({ ...values, guestNote: "" });
+      form.reset({ ...values, guestNote: "", offeredCash: "" });
       void queryClient.invalidateQueries({ queryKey: publicTradeOffersKeys.mine(link) });
       toast.success(t("tradeOffers.sent"));
       tradeOffer?.clearWanted();
@@ -229,6 +249,21 @@ export function TradeOfferPage({
                 )
               }
             />
+            <Field data-invalid={!!errors.offeredCash}>
+              <FieldLabel htmlFor={cashId}>
+                {t("tradeOffers.cashLabel", { currency: cashCurrency })}
+              </FieldLabel>
+              <Input
+                id={cashId}
+                inputMode="decimal"
+                autoComplete="off"
+                placeholder="0.00"
+                aria-describedby={cashHintId}
+                {...form.register("offeredCash")}
+              />
+              <FieldDescription id={cashHintId}>{t("tradeOffers.cashHint")}</FieldDescription>
+              <FieldError errors={[errors.offeredCash]} />
+            </Field>
             {offered.length === 0 ? (
               <p className="rounded-lg bg-foreground/6 p-4 text-center text-xs text-foreground/70">
                 {t("tradeOffers.giveEmpty")}
@@ -260,11 +295,7 @@ export function TradeOfferPage({
       <div className="sticky bottom-0 border-t bg-background/80 backdrop-blur-2xl">
         <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 md:px-3 md:py-2">
           <p role="status" className="text-control">
-            {isReady
-              ? t("tradeOffers.summary", { get: wanted.length, give: offeredCount })
-              : wanted.length === 0
-                ? t("tradeOffers.needGet")
-                : t("tradeOffers.needGive")}
+            {isReady ? summary : t("tradeOffers.needGet")}
           </p>
           <Button type="submit" disabled={!isReady || isSubmitting}>
             {isSubmitting ? <IconLoader2 className="animate-spin" /> : <IconSend />}

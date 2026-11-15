@@ -36,6 +36,7 @@ export function TradeOfferReviewSide({
   priceSource,
   showsPrices = true,
   className,
+  children,
 }: TradeOfferReviewSideProps) {
   const { t } = useTranslation("common");
   const headingId = useId();
@@ -85,16 +86,19 @@ export function TradeOfferReviewSide({
         <h2 id={headingId} className="font-heading text-sm font-semibold">
           {title}
         </h2>
-        <p className="text-xs text-foreground/70 tabular-nums">
-          {[
-            t("tradeOffers.cardList.cardCount", { count: totals.totalCards }),
-            t("tradeOffers.cardList.uniqueCount", { count: totals.uniqueCards }),
-            showsPrices ? formatPrice(totals.totalValue, priceSource) : null,
-          ]
-            .filter(Boolean)
-            .join(" · ")}
-        </p>
+        {cards.length > 0 && (
+          <p className="text-xs text-foreground/70 tabular-nums">
+            {[
+              t("tradeOffers.cardList.cardCount", { count: totals.totalCards }),
+              t("tradeOffers.cardList.uniqueCount", { count: totals.uniqueCards }),
+              showsPrices ? formatPrice(totals.totalValue, priceSource) : null,
+            ]
+              .filter(Boolean)
+              .join(" · ")}
+          </p>
+        )}
       </div>
+      {children}
       {rows.length > 1 && (
         <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
           <ResponsiveSegmented
@@ -135,7 +139,7 @@ export function TradeOfferReviewSide({
       {groupsByLocation && placements && (
         <p className="text-xs text-foreground/70">{t("tradeOffers.cardList.groupByLocationHint")}</p>
       )}
-      {matchingRowCount === 0 ? (
+      {cards.length === 0 ? null : matchingRowCount === 0 ? (
         <p className="text-control text-foreground/70">{t("tradeOffers.cardList.noFilterResults")}</p>
       ) : visibleSections ? (
         <div className="flex flex-col gap-3 md:gap-2">

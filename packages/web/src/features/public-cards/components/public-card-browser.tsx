@@ -31,6 +31,7 @@ import type { PublicCardBrowserProps } from "@/lib/interfaces/public-cards";
 import {
   DEFAULT_PUBLIC_CARD_SORT,
   EMPTY_PUBLIC_CARD_FILTERS,
+  PRICE_SOURCE_FIELDS,
   PUBLIC_CARDS_PAGE_SIZE,
   PUBLIC_CARD_PRICE_SORTS,
   PUBLIC_CARDS_SEARCH_MAX_LENGTH,
@@ -296,6 +297,7 @@ export function PublicCardBrowser({
             link={tradeOfferLink}
             sourceName={title}
             defaultGameKey={info.games[0]?.key ?? null}
+            cashCurrency={PRICE_SOURCE_FIELDS[info.priceSource].currency}
             isVisible={showsTradeOffer}
             onBack={closeTradeOffer}
           />

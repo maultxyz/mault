@@ -2,6 +2,7 @@ import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
 import { Badge } from "@/components/ui/badge";
 import { ViewTabs } from "@/components/view-tabs";
+import { TradeOfferOfferedCash } from "@/features/trade-offers/components/trade-offer-offered-cash";
 import { TradeOfferReviewSide } from "@/features/trade-offers/components/trade-offer-review-side";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { MOBILE_PAGE_BODY_CLASS } from "@/lib/constants/nav";
@@ -14,7 +15,12 @@ import type {
   TradeOfferSide,
 } from "@/lib/interfaces/trade-offers";
 import { cn } from "@/lib/utils";
-import { DEFAULT_PRICE_SOURCE } from "@magic-vault/shared";
+import {
+  DEFAULT_PRICE_SOURCE,
+  TRADE_OFFER_YOU_OFFERED_TITLE_KEYS,
+  tradeOfferOfferKind,
+  tradeOfferOfferedCardCount,
+} from "@magic-vault/shared";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -22,7 +28,7 @@ export function OutgoingTradeOfferDetail({ offer }: OutgoingTradeOfferDetailProp
   const { t, i18n } = useTranslation("common");
   const isMobile = useIsMobile();
   const [visibleSide, setVisibleSide] = useState<TradeOfferSide>("wanted");
-  const offeredCount = offer.offered.reduce((sum, card) => sum + card.quantity, 0);
+  const offeredCount = tradeOfferOfferedCardCount(offer);
   const wantedPrices = useMemo(() => offer.wanted.map(() => null), [offer.wanted]);
   const offeredPrices = useMemo(() => offer.offered.map(() => null), [offer.offered]);
   const formatDate = (value: string) =>
@@ -80,13 +86,15 @@ export function OutgoingTradeOfferDetail({ offer }: OutgoingTradeOfferDetailProp
           className={sideClassName("wanted")}
         />
         <TradeOfferReviewSide
-          title={t("tradeOffers.sent.youOffer", { count: offeredCount })}
+          title={t(TRADE_OFFER_YOU_OFFERED_TITLE_KEYS[tradeOfferOfferKind(offer)], { count: offeredCount })}
           cards={offer.offered}
           prices={offeredPrices}
           priceSource={DEFAULT_PRICE_SOURCE}
           showsPrices={false}
           className={sideClassName("offered")}
-        />
+        >
+          <TradeOfferOfferedCash offer={offer} />
+        </TradeOfferReviewSide>
       </div>
     </>
   );

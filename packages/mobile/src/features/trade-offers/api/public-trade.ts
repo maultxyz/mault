@@ -1,4 +1,5 @@
 import {
+  PRICE_SOURCE_FIELDS,
   SHARE_LINK_GUEST_KEY_HEADER,
   type MonitorLinkInfo,
   type PublicCardPage,
@@ -35,10 +36,18 @@ export const tradeLinkInfoQueryOptions = (link: TradeLinkRef) =>
     queryFn: async (): Promise<TradeLinkInfo> => {
       if (link.kind === "collection") {
         const info = await readResult<MonitorLinkInfo>(await fetch(publicUrl(link, "")));
-        return { name: info.collectionName, purpose: info.purpose };
+        return {
+          name: info.collectionName,
+          purpose: info.purpose,
+          cashCurrency: PRICE_SOURCE_FIELDS[info.priceSource].currency,
+        };
       }
       const info = await readResult<StorageShareLinkInfo>(await fetch(publicUrl(link, "")));
-      return { name: info.locationName, purpose: info.purpose };
+      return {
+        name: info.locationName,
+        purpose: info.purpose,
+        cashCurrency: PRICE_SOURCE_FIELDS[info.priceSource].currency,
+      };
     },
     retry: false,
   });

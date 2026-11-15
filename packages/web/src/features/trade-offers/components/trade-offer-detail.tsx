@@ -9,6 +9,7 @@ import {
   useRespondToTradeOffer,
   useTradeOfferPicking,
 } from "@/features/trade-offers/api/trade-offers";
+import { TradeOfferOfferedCash } from "@/features/trade-offers/components/trade-offer-offered-cash";
 import { TradeOfferPickList } from "@/features/trade-offers/components/trade-offer-pick-list";
 import { TradeOfferPickProgress } from "@/features/trade-offers/components/trade-offer-pick-progress";
 import { TradeOfferReviewSide } from "@/features/trade-offers/components/trade-offer-review-side";
@@ -25,7 +26,13 @@ import type {
   TradeOfferSide,
 } from "@/lib/interfaces/trade-offers";
 import { cn } from "@/lib/utils";
-import { isTradeOfferBeingPicked, tradeOfferPickProgress } from "@magic-vault/shared";
+import {
+  TRADE_OFFER_THEY_OFFER_TITLE_KEYS,
+  isTradeOfferBeingPicked,
+  tradeOfferOfferKind,
+  tradeOfferOfferedCardCount,
+  tradeOfferPickProgress,
+} from "@magic-vault/shared";
 import { IconCheck, IconChecks, IconLoader2, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -40,7 +47,7 @@ export function TradeOfferDetail({ offer }: TradeOfferDetailProps) {
   const isPending = offer.status === "pending";
   const isPicking = isTradeOfferBeingPicked(offer);
   const progress = tradeOfferPickProgress(offer.wanted, picking.remainingScanIds);
-  const offeredCount = offer.offered.reduce((sum, card) => sum + card.quantity, 0);
+  const offeredCount = tradeOfferOfferedCardCount(offer);
   const formatDate = (value: string) =>
     new Date(value).toLocaleString(i18n.language, { dateStyle: "medium", timeStyle: "short" });
   const title = t("tradeOffers.reviewTitle", {
@@ -165,12 +172,14 @@ export function TradeOfferDetail({ offer }: TradeOfferDetailProps) {
           />
         )}
         <TradeOfferReviewSide
-          title={t("tradeOffers.theyOffer", { count: offeredCount })}
+          title={t(TRADE_OFFER_THEY_OFFER_TITLE_KEYS[tradeOfferOfferKind(offer)], { count: offeredCount })}
           cards={offer.offered}
           prices={offer.offeredPrices}
           priceSource={offer.priceSource}
           className={sideClassName("offered")}
-        />
+        >
+          <TradeOfferOfferedCash offer={offer} />
+        </TradeOfferReviewSide>
       </div>
     </>
   );

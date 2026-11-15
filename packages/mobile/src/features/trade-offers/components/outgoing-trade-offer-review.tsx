@@ -1,4 +1,9 @@
-import { DEFAULT_PRICE_SOURCE } from "@magic-vault/shared";
+import {
+  DEFAULT_PRICE_SOURCE,
+  TRADE_OFFER_YOU_OFFERED_TITLE_KEYS,
+  tradeOfferOfferKind,
+  tradeOfferOfferedCardCount,
+} from "@magic-vault/shared";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useWindowDimensions, View } from "react-native";
@@ -8,6 +13,7 @@ import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Surface } from "@/components/ui/surface";
 import { TabStrip } from "@/components/ui/tab-strip";
+import { TradeOfferOfferedCash } from "@/features/trade-offers/components/trade-offer-offered-cash";
 import { TradeOfferReviewSide } from "@/features/trade-offers/components/trade-offer-review-side";
 import { SPACING } from "@/lib/constants/theme";
 import {
@@ -21,7 +27,7 @@ export function OutgoingTradeOfferReview({ offer }: OutgoingTradeOfferReviewProp
   const { width } = useWindowDimensions();
   const showsTwoColumns = width >= TRADE_OFFER_TWO_COLUMN_MIN_WINDOW_WIDTH;
   const [visibleSide, setVisibleSide] = useState<TradeOfferSide>("wanted");
-  const offeredCount = offer.offered.reduce((sum, card) => sum + card.quantity, 0);
+  const offeredCount = tradeOfferOfferedCardCount(offer);
   const wantedPrices = useMemo(() => offer.wanted.map(() => null), [offer.wanted]);
   const offeredPrices = useMemo(() => offer.offered.map(() => null), [offer.offered]);
   const formatDate = (value: string) => new Date(value).toLocaleString(i18n.language);
@@ -37,12 +43,14 @@ export function OutgoingTradeOfferReview({ offer }: OutgoingTradeOfferReviewProp
   );
   const offeredSide = (
     <TradeOfferReviewSide
-      title={t("tradeOffers.sent.youOffer", { count: offeredCount })}
+      title={t(TRADE_OFFER_YOU_OFFERED_TITLE_KEYS[tradeOfferOfferKind(offer)], { count: offeredCount })}
       cards={offer.offered}
       prices={offeredPrices}
       priceSource={DEFAULT_PRICE_SOURCE}
       showsPrices={false}
-    />
+    >
+      <TradeOfferOfferedCash offer={offer} />
+    </TradeOfferReviewSide>
   );
 
   return (

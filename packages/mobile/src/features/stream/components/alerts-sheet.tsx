@@ -1,3 +1,8 @@
+import {
+  TRADE_OFFER_TRAY_MESSAGE_KEYS,
+  tradeOfferMessageValues,
+  tradeOfferOfferKind,
+} from "@magic-vault/shared";
 import Constants from "expo-constants";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Linking, Pressable, View } from "react-native";
@@ -67,10 +72,9 @@ export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, on
               <Icon name="transfer" size={18} color={colors.infoForeground} />
               <View style={{ flex: 1, gap: SPACING.xs }}>
                 <AppText size="sm">
-                  {t("tradeOffers.trayMessage", {
+                  {t(TRADE_OFFER_TRAY_MESSAGE_KEYS[tradeOfferOfferKind(offer)], {
                     name: offer.guestName,
-                    wanted: offer.wanted.length,
-                    offered: offer.offered.reduce((sum, card) => sum + card.quantity, 0),
+                    ...tradeOfferMessageValues(offer),
                   })}
                 </AppText>
                 <AppText size="xs" weight="semibold" tone="primary">

@@ -18,6 +18,10 @@ export function toPublicTradeOffer(row: TradeOfferRow): PublicTradeOffer {
     status: row.status as TradeOfferStatus,
     wanted: row.wantedCards as TradeOfferWantedCard[],
     offered: row.offeredCards as TradeOfferOfferedCard[],
+    offeredCash:
+      row.offeredCashAmount != null && row.offeredCashCurrency
+        ? { amount: row.offeredCashAmount, currency: row.offeredCashCurrency }
+        : null,
     createdAt: row.createdAt.toISOString(),
     respondedAt: row.respondedAt ? row.respondedAt.toISOString() : null,
   };

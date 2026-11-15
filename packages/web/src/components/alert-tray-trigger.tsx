@@ -12,6 +12,11 @@ import type {
 } from "@/lib/interfaces/alerts";
 import { ALERT_SEVERITY_ICON_CLASS } from "@/lib/constants/colors";
 import { cn } from "@/lib/utils";
+import {
+  TRADE_OFFER_TRAY_MESSAGE_KEYS,
+  tradeOfferMessageValues,
+  tradeOfferOfferKind,
+} from "@magic-vault/shared";
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -117,10 +122,9 @@ export function AlertTrayTrigger({
               />
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
                 <span className="text-foreground">
-                  {t("tradeOffers.trayMessage", {
+                  {t(TRADE_OFFER_TRAY_MESSAGE_KEYS[tradeOfferOfferKind(offer)], {
                     name: offer.guestName,
-                    wanted: offer.wanted.length,
-                    offered: offer.offered.reduce((sum, card) => sum + card.quantity, 0),
+                    ...tradeOfferMessageValues(offer),
                   })}
                 </span>
                 <div className="flex flex-wrap gap-1">

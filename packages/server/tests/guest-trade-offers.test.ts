@@ -77,6 +77,8 @@ test("toOutgoingTradeOffer exposes only guest-visible fields", () => {
     guestUserId: "user-1",
     wantedCards: [],
     offeredCards: [],
+    offeredCashAmount: 25.5,
+    offeredCashCurrency: "USD",
     status: "accepted",
     respondedAt: new Date("2026-11-02T10:00:00Z"),
     respondedByUserId: "owner-1",
@@ -92,11 +94,13 @@ test("toOutgoingTradeOffer exposes only guest-visible fields", () => {
     "guid",
     "linkKind",
     "offered",
+    "offeredCash",
     "respondedAt",
     "sentToName",
     "status",
     "wanted",
   ]);
   assert.equal(offer.sentToName, "Binder A");
+  assert.deepEqual(offer.offeredCash, { amount: 25.5, currency: "USD" });
   assert.equal(offer.respondedAt, "2026-11-02T10:00:00.000Z");
 });

@@ -1,3 +1,8 @@
+import {
+  TRADE_OFFER_TRAY_MESSAGE_KEYS,
+  tradeOfferMessageValues,
+  tradeOfferOfferKind,
+} from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -183,10 +188,9 @@ export function useHomeWidgetSync(): void {
     ].filter((part): part is string => part !== null);
     const latestTradeOffer = tradeOffers[0];
     const latestMessage = latestTradeOffer
-      ? t("tradeOffers.trayMessage", {
+      ? t(TRADE_OFFER_TRAY_MESSAGE_KEYS[tradeOfferOfferKind(latestTradeOffer)], {
           name: latestTradeOffer.guestName,
-          wanted: latestTradeOffer.wanted.length,
-          offered: latestTradeOffer.offered.reduce((sum, card) => sum + card.quantity, 0),
+          ...tradeOfferMessageValues(latestTradeOffer),
         })
       : (alerts[0]?.message ?? "");
     const now = Date.now();

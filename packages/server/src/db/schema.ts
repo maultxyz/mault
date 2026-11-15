@@ -880,6 +880,8 @@ export const tradeOffers = pgTable(
     guestUserId: text("guest_user_id"),
     wantedCards: jsonb("wanted_cards").notNull(),
     offeredCards: jsonb("offered_cards").notNull(),
+    offeredCashAmount: doublePrecision("offered_cash_amount"),
+    offeredCashCurrency: text("offered_cash_currency"),
     status: text("status").notNull().default("pending"),
     respondedAt: timestamp("responded_at"),
     respondedByUserId: text("responded_by_user_id"),

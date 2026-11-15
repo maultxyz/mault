@@ -52,11 +52,19 @@ export interface TradeOfferCardOptionPage {
   nextOffset: number | null;
 }
 
+export interface TradeOfferCash {
+  amount: number;
+  currency: string;
+}
+
+export type TradeOfferOfferKind = "cards" | "cash" | "cardsAndCash" | "nothing";
+
 export interface PublicTradeOffer {
   guid: string;
   status: TradeOfferStatus;
   wanted: TradeOfferWantedCard[];
   offered: TradeOfferOfferedCard[];
+  offeredCash: TradeOfferCash | null;
   createdAt: string;
   respondedAt: string | null;
 }
@@ -97,7 +105,12 @@ export interface ClaimOutgoingTradeOffersResult {
 }
 
 export interface TradeOffersChangedEvent {
-  createdOffer: { guestName: string; wantedCount: number; offeredCount: number } | null;
+  createdOffer: {
+    guestName: string;
+    wantedCount: number;
+    offeredCount: number;
+    offeredCash?: TradeOfferCash | null;
+  } | null;
 }
 
 export type TradeOfferCardSort = (typeof TRADE_OFFER_CARD_SORTS)[number];

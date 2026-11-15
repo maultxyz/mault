@@ -1,6 +1,8 @@
 import {
+  PRICE_SOURCE_FIELDS,
   TRADE_OFFER_PENDING_PER_GUEST_MAX,
   cardPriceFor,
+  tradeOfferOfferedCash,
   initialTradeOfferPickScanIds,
   splitTradeOfferPickScanIds,
   type StorageLocationCard,
@@ -186,6 +188,12 @@ export async function createTradeOffer(
   if (!wanted) return { status: "wanted-not-found" };
   const offered = await loadOfferedCards(request.offered);
   if (!offered) return { status: "offered-not-found" };
+  const offeredCash = request.offeredCashAmount
+    ? {
+        amount: Math.round(request.offeredCashAmount * 100) / 100,
+        currency: PRICE_SOURCE_FIELDS[(await loadOrgPricing(tx, scope.orgId)).source].currency,
+      }
+    : null;
   const [created] = await tx
     .insert(tradeOffers)
     .values({
@@ -199,6 +207,8 @@ export async function createTradeOffer(
       guestUserId: input.guestUserId,
       wantedCards: wanted,
       offeredCards: offered,
+      offeredCashAmount: offeredCash?.amount ?? null,
+      offeredCashCurrency: offeredCash?.currency ?? null,
     })
     .returning({ guid: tradeOffers.guid });
   return {
@@ -209,6 +219,7 @@ export async function createTradeOffer(
         guestName: request.guestName,
         wantedCount: wanted.length,
         offeredCount: offered.reduce((sum, card) => sum + card.quantity, 0),
+        offeredCash,
       },
     },
   };
@@ -326,6 +337,11 @@ function sumPrices(prices: (number | null)[]): number {
   return Math.round(prices.reduce<number>((sum, price) => sum + (price ?? 0), 0) * 100) / 100;
 }
 
+function offeredCashInCurrency(offer: PublicTradeOffer, currency: string): number | null {
+  const cash = tradeOfferOfferedCash(offer);
+  return cash && cash.currency === currency ? cash.amount : null;
+}
+
 export async function listOwnerTradeOffers(
   tx: Transaction,
   orgId: string,
@@ -381,7 +397,10 @@ export async function listOwnerTradeOffers(
       wantedPlacements: publicOffer.wanted.map((card) => wantedPlacements.get(card.scanId) ?? null),
       offeredPrices,
       wantedValue: sumPrices(wantedPrices),
-      offeredValue: sumPrices(offeredPrices),
+      offeredValue: sumPrices([
+        ...offeredPrices,
+        offeredCashInCurrency(publicOffer, PRICE_SOURCE_FIELDS[pricing.source].currency),
+      ]),
       priceSource: pricing.source,
       guestName: offer.guestName,
       guestContact: offer.guestContact,

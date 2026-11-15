@@ -4,8 +4,11 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, useWindowDimensions, View } from "react-native";
 import {
+  TRADE_OFFER_THEY_OFFER_TITLE_KEYS,
   formatPrice,
   isTradeOfferBeingPicked,
+  tradeOfferOfferKind,
+  tradeOfferOfferedCardCount,
   tradeOfferPickProgress,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
@@ -22,6 +25,7 @@ import {
   declineTradeOffer,
 } from "@/features/trade-offers/api/trade-offers";
 import { useTradeOfferPicking } from "@/features/trade-offers/api/use-trade-offer-picking";
+import { TradeOfferOfferedCash } from "@/features/trade-offers/components/trade-offer-offered-cash";
 import { TradeOfferPickList } from "@/features/trade-offers/components/trade-offer-pick-list";
 import { TradeOfferReviewSide } from "@/features/trade-offers/components/trade-offer-review-side";
 import { useTheme } from "@/hooks/use-theme";
@@ -44,7 +48,7 @@ export function TradeOfferReview({ offer }: TradeOfferReviewProps) {
   const isPending = offer.status === "pending";
   const isPicking = isTradeOfferBeingPicked(offer);
   const progress = tradeOfferPickProgress(offer.wanted, picking.remainingScanIds);
-  const offeredCount = offer.offered.reduce((sum, card) => sum + card.quantity, 0);
+  const offeredCount = tradeOfferOfferedCardCount(offer);
   const valueDifference = Math.round((offer.offeredValue - offer.wantedValue) * 100) / 100;
   const respond = useMutation({
     mutationFn: (accepts: boolean) =>
@@ -98,11 +102,13 @@ export function TradeOfferReview({ offer }: TradeOfferReviewProps) {
   );
   const offeredSide = (
     <TradeOfferReviewSide
-      title={t("tradeOffers.theyOffer", { count: offeredCount })}
+      title={t(TRADE_OFFER_THEY_OFFER_TITLE_KEYS[tradeOfferOfferKind(offer)], { count: offeredCount })}
       cards={offer.offered}
       prices={offer.offeredPrices}
       priceSource={offer.priceSource}
-    />
+    >
+      <TradeOfferOfferedCash offer={offer} />
+    </TradeOfferReviewSide>
   );
 
   return (

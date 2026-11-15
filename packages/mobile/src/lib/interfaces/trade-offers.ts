@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import type {
   OutgoingTradeOffer,
   PriceSource,
+  PublicTradeOffer,
   TradeOffer,
   TradeOfferCardGroup,
   TradeOfferPickListItem,
@@ -25,6 +27,11 @@ export interface TradeOfferReviewSideProps {
   placements?: (TradeOfferWantedPlacement | null)[];
   priceSource: PriceSource;
   showsPrices?: boolean;
+  children?: ReactNode;
+}
+
+export interface TradeOfferOfferedCashProps {
+  offer: Pick<PublicTradeOffer, "offered" | "offeredCash">;
 }
 
 export interface TradeOfferReviewRowProps {

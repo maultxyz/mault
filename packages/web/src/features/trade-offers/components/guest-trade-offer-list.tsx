@@ -6,6 +6,7 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from "@/components/ui/badge";
 import { guestTradeOffersQueryOptions } from "@/features/trade-offers/api/public-trade-offers";
+import { TradeOfferOfferedCash } from "@/features/trade-offers/components/trade-offer-offered-cash";
 import { TradeOfferCardList } from "@/features/trade-offers/components/trade-offer-card-list";
 import {
   GUEST_TRADE_OFFERS_ACCORDION_VALUE,
@@ -48,7 +49,8 @@ export function GuestTradeOfferList({ link }: GuestTradeOfferListProps) {
                   </div>
                   <div className="flex min-w-0 flex-col gap-1.5">
                     <p className="text-xs text-foreground/70">{t("tradeOffers.youOffer")}</p>
-                    <TradeOfferCardList cards={offer.offered} />
+                    <TradeOfferOfferedCash offer={offer} />
+                    {offer.offered.length > 0 && <TradeOfferCardList cards={offer.offered} />}
                   </div>
                 </div>
               </li>

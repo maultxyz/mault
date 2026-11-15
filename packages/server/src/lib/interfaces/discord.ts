@@ -1,4 +1,4 @@
-import type { PriceSource } from "@magic-vault/shared";
+import type { PriceSource, TradeOfferCash } from "@magic-vault/shared";
 import type { TradeOfferScope } from "./trade-offers";
 
 export type DiscordEmbed = {
@@ -83,4 +83,5 @@ export interface TradeOfferCreatedNotification {
   guestName: string;
   wantedCount: number;
   offeredCount: number;
+  offeredCash: TradeOfferCash | null;
 }
