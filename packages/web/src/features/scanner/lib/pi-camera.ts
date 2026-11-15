@@ -10,6 +10,7 @@ import {
 import type { CameraRange, PiCameraHealth } from "@/lib/interfaces/scanner";
 import { isPiHost, loadPiHost } from "@/lib/pi-host";
 import { applyFocus, currentFocusDistance, manualFocusRange } from "./camera-focus";
+import { trackZoomRange } from "./camera-zoom";
 
 const piRelayTracks = new WeakSet<MediaStreamTrack>();
 const piRelayCanvases = new WeakMap<MediaStream, HTMLCanvasElement>();
@@ -55,6 +56,20 @@ export function browserMustUsePiCamera(): boolean {
   return isPiHost();
 }
 
+function parseCameraRange(
+  range: { min?: number; max?: number; step?: number } | null | undefined,
+): CameraRange | null {
+  return range &&
+    typeof range.min === "number" &&
+    typeof range.max === "number"
+    ? {
+        min: range.min,
+        max: range.max,
+        step: typeof range.step === "number" ? range.step : 1,
+      }
+    : null;
+}
+
 export async function readPiCameraHealth(): Promise<PiCameraHealth> {
   if (!(await loadPiHost())) return { status: "absent" };
   try {
@@ -72,17 +87,9 @@ export async function readPiCameraHealth(): Promise<PiCameraHealth> {
       width?: number;
       height?: number;
       focus?: { min?: number; max?: number; step?: number } | null;
+      zoom?: { min?: number; max?: number; step?: number } | null;
+      zoomLevel?: number;
     };
-    const focus =
-      body.focus &&
-      typeof body.focus.min === "number" &&
-      typeof body.focus.max === "number"
-        ? {
-            min: body.focus.min,
-            max: body.focus.max,
-            step: typeof body.focus.step === "number" ? body.focus.step : 1,
-          }
-        : null;
     return {
       status: "ready",
       focusMode: body.focusMode,
@@ -90,7 +97,9 @@ export async function readPiCameraHealth(): Promise<PiCameraHealth> {
       label: body.label || PI_CAMERA_LABEL,
       width: body.width || PI_CAMERA_WIDTH,
       height: body.height || PI_CAMERA_HEIGHT,
-      focus,
+      focus: parseCameraRange(body.focus),
+      zoom: parseCameraRange(body.zoom),
+      zoomLevel: typeof body.zoomLevel === "number" ? body.zoomLevel : undefined,
     };
   } catch {
     return { status: "absent" };
@@ -290,6 +299,27 @@ export async function applyPiFocus(value: number | null): Promise<void> {
       (await response.text()) || `focus helper ${response.status}`,
     );
   }
+}
+
+export async function applyPiZoom(value: number): Promise<void> {
+  const response = await fetch(`${API_BASE}${PI_CAMERA_BASE}/zoom`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(await getAuthHeaders()),
+    },
+    body: JSON.stringify({ zoomLevel: value }),
+  });
+  if (!response.ok) {
+    throw new Error(
+      (await response.text()) || `zoom helper ${response.status}`,
+    );
+  }
+}
+
+export function zoomRangeForTrack(track: MediaStreamTrack): CameraRange | null {
+  if (isPiRelayTrack(track)) return null;
+  return trackZoomRange(track);
 }
 
 export async function applyTrackFocus(

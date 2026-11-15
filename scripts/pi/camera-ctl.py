@@ -25,6 +25,7 @@ SIZES = ((1920, 1080), (1280, 720), (640, 480))
 FRAME_INTERVAL_S = 0.1
 FOCUS_STARTUP_SETTLE_S = 2
 FOCUS_STATE_PATH = Path.home() / ".local/state/mault/camera-focus.json"
+ZOOM_STATE_PATH = Path.home() / ".local/state/mault/camera-zoom.json"
 
 
 class JpegBuffer:
@@ -71,7 +72,7 @@ def find_webcam() -> str:
     return matches[0]
 
 
-def read_focus_range(device: str) -> dict[str, int] | None:
+def read_control_range(device: str, control: str) -> dict[str, int] | None:
     proc = subprocess.run(
         ["v4l2-ctl", "-d", device, "--list-ctrls"],
         capture_output=True,
@@ -79,7 +80,7 @@ def read_focus_range(device: str) -> dict[str, int] | None:
         check=False,
     )
     for line in proc.stdout.splitlines():
-        if "focus_absolute" not in line:
+        if not re.match(rf"\s*{control}\b", line):
             continue
 
         def grab(key: str) -> int | None:
@@ -89,8 +90,18 @@ def read_focus_range(device: str) -> dict[str, int] | None:
         minimum, maximum, step = grab("min"), grab("max"), grab("step")
         if minimum is None or maximum is None:
             return None
+        if maximum <= minimum:
+            return None
         return {"min": minimum, "max": maximum, "step": step or 1}
     return None
+
+
+def read_focus_range(device: str) -> dict[str, int] | None:
+    return read_control_range(device, "focus_absolute")
+
+
+def read_zoom_range(device: str) -> dict[str, int] | None:
+    return read_control_range(device, "zoom_absolute")
 
 
 class Camera:
@@ -102,6 +113,7 @@ class Camera:
         self.width = SIZES[0][0]
         self.height = SIZES[0][1]
         self.focus: dict[str, int] | None = None
+        self.zoom: dict[str, int] | None = None
         self.proc: subprocess.Popen[bytes] | None = None
         self.focus_lock = threading.RLock()
 
@@ -116,6 +128,7 @@ class Camera:
         self.device = find_webcam()
         self.label = device_label(self.device)
         self.focus = read_focus_range(self.device)
+        self.zoom = read_zoom_range(self.device)
         last_error = "webcam produced no frames"
         for width, height in SIZES:
             self._stop_proc()
@@ -162,6 +175,7 @@ class Camera:
                 if self.buffer.frame is None:
                     self.buffer.condition.wait(timeout=8)
             if self.buffer.frame is not None and self.proc.poll() is None:
+                self.restore_zoom()
                 self.restore_focus()
                 return
             last_error = self.error or f"no frames at {width}x{height}"
@@ -227,6 +241,44 @@ class Camera:
                 raise RuntimeError("could not read webcam focus settings")
             return {"focusMode": "auto" if auto.group(1) == "1" else "manual",
                     "lensPosition": int(position.group(1))}
+
+    def zoom_settings(self) -> dict:
+        with self.focus_lock:
+            proc = subprocess.run(
+                ["v4l2-ctl", "-d", self.device, "--get-ctrl=zoom_absolute"],
+                capture_output=True, text=True, check=False,
+            )
+            level = re.search(r"zoom_absolute:\s*(-?\d+)", proc.stdout)
+            if proc.returncode != 0 or level is None:
+                raise RuntimeError("could not read webcam zoom")
+            return {"zoomLevel": int(level.group(1))}
+
+    def restore_zoom(self) -> None:
+        if self.zoom is None or not ZOOM_STATE_PATH.exists():
+            return
+        saved = json.loads(ZOOM_STATE_PATH.read_text())
+        try:
+            self.set_zoom(saved.get("zoomLevel"))
+        except (ValueError, RuntimeError) as exc:
+            print("[camera-ctl] could not restore zoom:", exc)
+
+    def set_zoom(self, zoom_level: float | None) -> int:
+        with self.focus_lock:
+            if self.device is None or not self.healthy():
+                raise RuntimeError(self.error or "camera is not running")
+            if self.zoom is None:
+                raise ValueError("this webcam has no zoom control")
+            if zoom_level is None:
+                raise ValueError("zoomLevel is required")
+            if not self.zoom["min"] <= zoom_level <= self.zoom["max"]:
+                raise ValueError("zoomLevel is outside the webcam zoom range")
+            value = int(round(zoom_level))
+            self._set_control(f"zoom_absolute={value}")
+            ZOOM_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+            temporary = ZOOM_STATE_PATH.with_suffix(".tmp")
+            temporary.write_text(json.dumps({"zoomLevel": value}))
+            temporary.replace(ZOOM_STATE_PATH)
+            return value
 
     def restore_focus(self) -> None:
         if not FOCUS_STATE_PATH.exists():
@@ -304,7 +356,7 @@ class Camera:
         )
         if proc.returncode != 0:
             detail = (proc.stderr or proc.stdout).strip()
-            raise RuntimeError(detail or "could not set webcam focus")
+            raise RuntimeError(detail or f"could not set webcam control {control}")
 
 
 CAMERA = Camera()
@@ -345,6 +397,7 @@ class Handler(BaseHTTPRequestHandler):
                 return
             try:
                 focus_settings = CAMERA.focus_settings() if CAMERA.focus else {}
+                zoom_settings = CAMERA.zoom_settings() if CAMERA.zoom else {}
             except RuntimeError as exc:
                 self._send(503, str(exc).encode(), "text/plain")
                 return
@@ -355,7 +408,9 @@ class Handler(BaseHTTPRequestHandler):
                     "width": CAMERA.width,
                     "height": CAMERA.height,
                     "focus": CAMERA.focus,
+                    "zoom": CAMERA.zoom,
                     **focus_settings,
+                    **zoom_settings,
                 }
             ).encode()
             self._send(200, payload, "application/json")
@@ -428,7 +483,11 @@ class Handler(BaseHTTPRequestHandler):
     def do_POST(self) -> None:  # noqa: N802
         if not self._host_is_loopback():
             return
-        if self.path.split("?", 1)[0] != "/focus":
+        path = self.path.split("?", 1)[0]
+        if path == "/zoom":
+            self._post_zoom()
+            return
+        if path != "/focus":
             self._send(404, b"not found", "text/plain")
             return
         length = int(self.headers.get("Content-Length", "0") or "0")
@@ -446,6 +505,17 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, json.dumps({"lensPosition": position}).encode(), "application/json")
         else:
             self._send(204, b"", "text/plain")
+
+    def _post_zoom(self) -> None:
+        length = int(self.headers.get("Content-Length", "0") or "0")
+        try:
+            body = json.loads(self.rfile.read(length) or b"{}")
+            level = body.get("zoomLevel")
+            value = CAMERA.set_zoom(None if level is None else float(level))
+        except (ValueError, RuntimeError, OSError, json.JSONDecodeError) as exc:
+            self._send(400, str(exc).encode(), "text/plain")
+            return
+        self._send(200, json.dumps({"zoomLevel": value}).encode(), "application/json")
 
     def log_message(self, fmt: str, *args) -> None:
         print("[camera-ctl]", fmt % args)

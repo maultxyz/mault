@@ -619,7 +619,13 @@
   },
   "cameraFocus": {
     "label": "Focus",
-    "auto": "Auto"
+    "auto": "Auto",
+    "autoOnHelp": "Auto keeps refocusing, so a frame can blur while the lens hunts. On a sorter the card always sits at the same distance: turn Auto off and slide until the card text is sharp. Leave Auto on only when you hold cards by hand at changing distances.",
+    "autoOffHelp": "Manual focus stays where you set it, which is best for a sorter because every card sits at the same distance. Slide until the card text is sharp. Turn Auto on if you hold cards by hand."
+  },
+  "cameraZoom": {
+    "label": "Zoom",
+    "description": "Zoom in until the card fills most of the scan box. More pixels on the card means a better match; leave a small margin so the edges stay in view."
   },
   "stations": {
     "label": "Sorter {{number}}",

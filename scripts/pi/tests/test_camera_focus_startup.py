@@ -57,6 +57,7 @@ class CameraFocusStartupTests(unittest.TestCase):
                     patch.object(CAMERA_HELPER, "find_webcam", return_value="/dev/video-test"),
                     patch.object(CAMERA_HELPER, "device_label", return_value="Test webcam"),
                     patch.object(CAMERA_HELPER, "read_focus_range", return_value={"min": 1, "max": 831, "step": 1}),
+                    patch.object(CAMERA_HELPER, "read_zoom_range", return_value=None),
                     patch.object(CAMERA_HELPER.subprocess, "Popen", return_value=process),
                     patch.object(CAMERA_HELPER.subprocess, "run", side_effect=run_control),
                     patch.object(CAMERA_HELPER.time, "sleep", side_effect=finish_camera_startup) as settle,

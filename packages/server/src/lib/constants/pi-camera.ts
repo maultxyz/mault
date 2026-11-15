@@ -4,4 +4,5 @@ export const PI_CAMERA_ACTIONS = {
   frame: "GET",
   stream: "GET",
   focus: "POST",
+  zoom: "POST",
 } as const;

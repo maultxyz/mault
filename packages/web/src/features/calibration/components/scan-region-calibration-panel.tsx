@@ -19,6 +19,7 @@ import {
 } from "@/features/calibration/lib/scan-region-geometry";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { CameraFocusControl } from "@/features/scanner/components/camera-focus-control";
+import { CameraZoomControl } from "@/features/scanner/components/camera-zoom-control";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
 import { drawDetectionOverlay } from "@/features/scanner/lib/card-detection";
 import { getDefaultCardContour } from "@magic-vault/shared";
@@ -310,6 +311,7 @@ export function ScanRegionCalibrationPanel({
             region={region}
             checkBothOrientations={checkBothOrientations}
             canCapture={isCameraActive || !!phonePhotoUrl}
+            showCameraControls={isCameraActive}
           />
 
           {cameraSource === "local" && cameras.length > 0 && (
@@ -486,6 +488,8 @@ export function ScanRegionCalibrationPanel({
             value={captureSettleDelayMsValue}
             onValueChange={onCaptureSettleChange}
           />
+
+          {isCameraActive && <CameraZoomControl className="pt-2 border-t" />}
 
           {isCameraActive && <CameraFocusControl className="pt-2 border-t" />}
 

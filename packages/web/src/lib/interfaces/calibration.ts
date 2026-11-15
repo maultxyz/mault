@@ -500,6 +500,7 @@ export interface CameraPrintingScoreProps {
   region: ScanRegion;
   checkBothOrientations: boolean;
   canCapture: boolean;
+  showCameraControls: boolean;
   className?: string;
 }
 

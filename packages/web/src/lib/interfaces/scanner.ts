@@ -83,6 +83,8 @@ export interface PiCameraReady {
   width: number;
   height: number;
   focus: CameraRange | null;
+  zoom: CameraRange | null;
+  zoomLevel?: number;
 }
 
 export type PiCameraHealth = PiCameraReady | { status: "down" | "absent" };
@@ -91,8 +93,13 @@ export interface CameraFocusControlProps {
   className?: string;
 }
 
+export interface CameraZoomControlProps {
+  className?: string;
+}
+
 export type CameraTrackSettings = MediaTrackSettings & {
   focusDistance?: number;
+  zoom?: number;
 };
 
 export type CameraTrackCapabilities = MediaTrackCapabilities & {
@@ -107,10 +114,13 @@ export interface CameraContextValue {
   errorMessage: string;
   focusRange: CameraRange | null;
   focusDistance: number | null;
+  zoomRange: CameraRange | null;
+  zoomLevel: number | null;
   cameras: MediaDeviceInfo[];
   camerasInUseElsewhere: MediaDeviceInfo[];
   selectedCameraId: string | null;
   setFocusDistance: (value: number | null) => void;
+  setZoomLevel: (value: number) => void;
   selectCamera: (deviceId: string) => void;
   retryCamera: () => Promise<void>;
   stopCamera: () => void;

@@ -54,6 +54,9 @@ export function CameraFocusControl({ className }: CameraFocusControlProps) {
         disabled={isAuto}
         onValueChange={setFocusDistance}
       />
+      <p className="text-2xs text-foreground/70">
+        {isAuto ? t("cameraFocus.autoOnHelp") : t("cameraFocus.autoOffHelp")}
+      </p>
     </div>
   );
 }

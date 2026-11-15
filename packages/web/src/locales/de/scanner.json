@@ -619,7 +619,13 @@
   },
   "cameraFocus": {
     "label": "Fokus",
-    "auto": "Auto"
+    "auto": "Auto",
+    "autoOnHelp": "Auto stellt ständig neu scharf, daher kann ein Bild unscharf sein, während die Linse sucht. Im Sortierer liegt die Karte immer im selben Abstand: Schalte Auto aus und schiebe den Regler, bis der Kartentext scharf ist. Lass Auto nur an, wenn du Karten in wechselndem Abstand in der Hand hältst.",
+    "autoOffHelp": "Der manuelle Fokus bleibt, wo du ihn einstellst. Das ist für einen Sortierer am besten, weil jede Karte im selben Abstand liegt. Schiebe den Regler, bis der Kartentext scharf ist. Schalte Auto ein, wenn du Karten in der Hand hältst."
+  },
+  "cameraZoom": {
+    "label": "Zoom",
+    "description": "Zoome hinein, bis die Karte den Großteil des Scanbereichs füllt. Mehr Pixel auf der Karte ergeben eine bessere Übereinstimmung; lass einen kleinen Rand, damit die Kanten sichtbar bleiben."
   },
   "stations": {
     "label": "Sortierer {{number}}",

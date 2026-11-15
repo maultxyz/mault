@@ -16,12 +16,16 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { printingMatchScore } from "@/features/calibration/lib/printing-match-score";
 import { scorePrintingFrame } from "@/features/calibration/lib/score-printing-frame";
 import {
   cardSetsQueryOptions,
   setPrintingsQueryOptions,
 } from "@/features/cards/api/card-sets";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { useCameraContext } from "@/features/scanner/api/use-camera";
+import { CameraFocusControl } from "@/features/scanner/components/camera-focus-control";
+import { CameraZoomControl } from "@/features/scanner/components/camera-zoom-control";
 import type { CameraPrintingScoreProps } from "@/lib/interfaces/calibration";
 import {
   printingScoreSchema,
@@ -54,10 +58,13 @@ export function CameraPrintingScore({
   region,
   checkBothOrientations,
   canCapture,
+  showCameraControls,
   className,
 }: CameraPrintingScoreProps) {
   const { t } = useTranslation("calibration");
   const { activeCollection } = useCollections();
+  const { zoomRange, focusRange } = useCameraContext();
+  const hasCameraControls = showCameraControls && (!!zoomRange || !!focusRange);
   const previewRef = useRef<HTMLCanvasElement>(null);
   const [open, setOpen] = useState(false);
   const [isRating, setIsRating] = useState(false);
@@ -131,6 +138,9 @@ export function CameraPrintingScore({
   const nearest = result?.nearest ?? null;
   const showNearest = !!nearest && nearest.id !== card?.id;
   const accepted = result?.verdict === "accept";
+  const matchScore = card
+    ? printingMatchScore(card.distance, result?.distanceThreshold ?? DISTANCE_THRESHOLD)
+    : null;
 
   return (
     <>
@@ -144,16 +154,19 @@ export function CameraPrintingScore({
         {t("cameraPrintingScore.heading")}
       </Button>
       <Dialog drawerOnMobile={false} open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-4xl">
+        <DialogContent className="max-h-[calc(100dvh-2rem)] overflow-y-auto sm:max-w-[min(96vw,88rem)]">
           <DialogHeader>
             <DialogTitle>{t("cameraPrintingScore.heading")}</DialogTitle>
             {activeCollection?.game?.name && (
               <DialogDescription>{activeCollection.game.name}</DialogDescription>
             )}
           </DialogHeader>
-          <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_20rem] md:gap-2">
-            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted">
-              <canvas ref={previewRef} className="absolute inset-0 h-full w-full object-contain" />
+          <div className="grid items-start gap-4 md:grid-cols-[minmax(0,1fr)_20rem] md:gap-3">
+            <div className="relative flex min-h-64 items-center justify-center overflow-hidden rounded-lg bg-muted md:h-[calc(100dvh-9rem)]">
+              <canvas
+                ref={previewRef}
+                className="max-h-[70dvh] max-w-full md:h-full md:max-h-none"
+              />
               {!canCapture && (
                 <div className="absolute inset-0 flex items-center justify-center p-4 text-center">
                   <p className="text-xs text-foreground/70">
@@ -163,6 +176,12 @@ export function CameraPrintingScore({
               )}
             </div>
             <form className="flex flex-col gap-2" onSubmit={onSubmit}>
+              {hasCameraControls && (
+                <div className="flex flex-col gap-3 border-b pb-3">
+                  <CameraZoomControl />
+                  <CameraFocusControl />
+                </div>
+              )}
               <p className="text-xs text-foreground/70">
                 {t("cameraPrintingScore.description", { threshold })}
               </p>
@@ -303,9 +322,12 @@ export function CameraPrintingScore({
               )}
               <p role="status" className="sr-only">
                 {result && card
-                  ? t(`cameraPrintingScore.verdict.${result.verdict}`, {
+                  ? `${t("cameraPrintingScore.matchScoreLabel")} ${t(
+                      "cameraPrintingScore.matchScoreValue",
+                      { score: matchScore ?? 0 },
+                    )}. ${t(`cameraPrintingScore.verdict.${result.verdict}`, {
                       threshold,
-                    })
+                    })}`
                   : ""}
               </p>
               {result && card && (
@@ -325,7 +347,40 @@ export function CameraPrintingScore({
                         number: card.collectorNumber,
                       })}
                     </p>
-                    <p className="text-xs">
+                    {matchScore !== null && (
+                      <div className="flex flex-col gap-1">
+                        <p className="flex items-baseline gap-1.5">
+                          <span className="text-xs">
+                            {t("cameraPrintingScore.matchScoreLabel")}
+                          </span>
+                          <span className="text-base font-semibold">
+                            {t("cameraPrintingScore.matchScoreValue", {
+                              score: matchScore,
+                            })}
+                          </span>
+                        </p>
+                        <div
+                          role="meter"
+                          aria-label={t("cameraPrintingScore.matchScoreLabel")}
+                          aria-valuemin={0}
+                          aria-valuemax={100}
+                          aria-valuenow={matchScore}
+                          aria-valuetext={t("cameraPrintingScore.matchScoreValue", {
+                            score: matchScore,
+                          })}
+                          className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/6"
+                        >
+                          <div
+                            className="h-full rounded-full bg-primary"
+                            style={{ width: `${matchScore}%` }}
+                          />
+                        </div>
+                        <p className="text-2xs text-foreground/70">
+                          {t("cameraPrintingScore.matchScoreHelp")}
+                        </p>
+                      </div>
+                    )}
+                    <p className="text-2xs text-foreground/70">
                       {t("cameraPrintingScore.distanceLabel")}:{" "}
                       {formatDistance(card.distance)}
                     </p>
