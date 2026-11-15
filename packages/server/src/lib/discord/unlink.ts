@@ -23,6 +23,8 @@ export async function clearOrgDiscordReferences(
       discordErrorThreadId: null,
       discordScanRoleId: null,
       discordErrorRoleId: null,
+      discordTradeChannelId: null,
+      discordTradeRoleId: null,
       discordNotifyOnScan: false,
       updatedAt: now,
     })

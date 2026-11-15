@@ -1915,14 +1915,16 @@
       },
       "channelSettings": {
         "heading": "Channels",
-        "description": "Where every scan and every error or alert gets posted. Only owners and admins can change these.",
+        "description": "Where every scan, every error or alert and every new trade offer gets posted. Only owners and admins can change these.",
         "scan": "Every scan",
         "error": "Errors and alerts",
+        "trade": "Trade offers",
         "none": "Don't post",
         "sameScan": "Same as every scan",
         "sameError": "Same as errors",
         "scanRole": "Ping role for scans",
         "errorRole": "Ping role for errors",
+        "tradeRole": "Ping role for trade offers",
         "roleHint": "Pick a role to mention with each post, including posts to collection override channels. The role must be mentionable by the bot.",
         "saved": "Channel saved.",
         "saveFailed": "Couldn't save the channel."

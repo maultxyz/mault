@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next";
 import { Alert, View } from "react-native";
 import {
   changedDiscordPingRoles,
+  changedDiscordTradeNotificationTargets,
   DEFAULT_ORG_SETTINGS,
   discordSettingsDraftFormSchema,
   type DiscordSettingsDraftFormValues,
@@ -45,7 +46,7 @@ import { SettingsPage } from "@/features/settings/components/settings-page";
 import { SettingsSection } from "@/features/settings/components/settings-section";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
-import { NOTIFICATION_TEST_TYPES } from "@/lib/constants/integrations";
+import { NOTIFICATION_TEST_TYPES, ROLE_PICKERS } from "@/lib/constants/integrations";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { DiscordChannelPicker, DiscordLinkCode, NotificationTestType } from "@/lib/interfaces/integrations";
 
@@ -85,6 +86,7 @@ export default function NotificationsSettingsScreen() {
   const overrides = form.watch("overrides");
   const scanChannelId = form.watch("scanChannelId");
   const errorChannelId = form.watch("errorChannelId");
+  const tradeChannelId = form.watch("tradeChannelId");
 
   const data = integration.data;
   const guild = data?.guild ?? null;
@@ -151,7 +153,10 @@ export default function NotificationsSettingsScreen() {
     const jobs: Promise<unknown>[] = [];
     const defaults = changedDiscordChannels(values, draft);
     const pingRoles = changedDiscordPingRoles(values, draft);
-    if (defaults || pingRoles) jobs.push(setDiscordChannel({ ...defaults, ...pingRoles }));
+    const tradeTargets = changedDiscordTradeNotificationTargets(values, draft);
+    if (defaults || pingRoles || tradeTargets) {
+      jobs.push(setDiscordChannel({ ...defaults, ...pingRoles, ...tradeTargets }));
+    }
     for (const [collectionGuid, next] of Object.entries(draft.overrides)) {
       const current = values.overrides[collectionGuid];
       if (!current) continue;
@@ -208,19 +213,24 @@ export default function NotificationsSettingsScreen() {
         selected: [] as string[],
       };
     }
-    if (picker.kind === "scan-role" || picker.kind === "error-role") {
+    if (picker.kind === "trade") {
       return {
-        title:
-          picker.kind === "scan-role"
-            ? t("settings.discord.channelSettings.scanRole")
-            : t("settings.discord.channelSettings.errorRole"),
+        title: t("settings.discord.channelSettings.trade"),
+        options: pickerChannelOptions(t("settings.discord.channelSettings.none")),
+        selected: [form.getValues("tradeChannelId") ?? ""],
+      };
+    }
+    if (picker.kind === "scan-role" || picker.kind === "error-role" || picker.kind === "trade-role") {
+      const rolePicker = ROLE_PICKERS[picker.kind];
+      return {
+        title: t(rolePicker.titleKey),
         options: [
           { value: "", label: t("settings.discord.roles.none") },
           ...roles
             .filter((role) => role.canPing)
             .map((role) => ({ value: role.id, label: `@${role.name}` })),
         ],
-        selected: [form.getValues(picker.kind === "scan-role" ? "scanRoleId" : "errorRoleId") ?? ""],
+        selected: [form.getValues(rolePicker.field) ?? ""],
       };
     }
     if (picker.kind === "add-channel") {
@@ -258,10 +268,12 @@ export default function NotificationsSettingsScreen() {
       addOverride.mutate({ collectionGuid: active.collectionGuid, scanChannelId: value });
       return;
     }
-    if (active.kind === "scan-role" || active.kind === "error-role") {
-      form.setValue(active.kind === "scan-role" ? "scanRoleId" : "errorRoleId", value === "" ? null : value, {
-        shouldDirty: true,
-      });
+    if (active.kind === "scan-role" || active.kind === "error-role" || active.kind === "trade-role") {
+      form.setValue(ROLE_PICKERS[active.kind].field, value === "" ? null : value, { shouldDirty: true });
+      return;
+    }
+    if (active.kind === "trade") {
+      form.setValue("tradeChannelId", value === "" ? null : value, { shouldDirty: true });
       return;
     }
     const key = active.kind === "scan" ? "scanChannelId" : "errorChannelId";
@@ -418,6 +430,24 @@ export default function NotificationsSettingsScreen() {
                     value={roleLabel(roles, field.value, t)}
                     disabled={!canManage || !errorChannelId}
                     onPress={() => setPicker({ kind: "error-role" })}
+                  />
+                )}
+              />
+              <ListRow
+                title={t("settings.discord.channelSettings.trade")}
+                value={channelLabel(channels, tradeChannelId, t, noChannelLabel)}
+                disabled={!canManage}
+                onPress={() => setPicker({ kind: "trade" })}
+              />
+              <Controller
+                control={form.control}
+                name="tradeRoleId"
+                render={({ field }) => (
+                  <ListRow
+                    title={t("settings.discord.channelSettings.tradeRole")}
+                    value={roleLabel(roles, field.value, t)}
+                    disabled={!canManage || !tradeChannelId}
+                    onPress={() => setPicker({ kind: "trade-role" })}
                   />
                 )}
               />

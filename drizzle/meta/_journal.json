@@ -1233,6 +1233,13 @@
       "when": 1794685539417,
       "tag": "0175_trade_offer_guest_user",
       "breakpoints": true
+    },
+    {
+      "idx": 176,
+      "version": "7",
+      "when": 1794708935968,
+      "tag": "0176_discord_trade_channel",
+      "breakpoints": true
     }
   ]
 }

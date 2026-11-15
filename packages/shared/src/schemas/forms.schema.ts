@@ -158,6 +158,8 @@ export const discordSettingsDraftFormSchema = z.object({
   errorChannelId: discordChannelIdSchema,
   scanRoleId: discordChannelIdSchema,
   errorRoleId: discordChannelIdSchema,
+  tradeChannelId: discordChannelIdSchema,
+  tradeRoleId: discordChannelIdSchema,
   overrides: z.record(
     z.string(),
     z.object({

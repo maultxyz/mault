@@ -1329,6 +1329,8 @@ export const orgSettings = pgTable(
     discordErrorThreadId: text("discord_error_thread_id"),
     discordScanRoleId: text("discord_scan_role_id"),
     discordErrorRoleId: text("discord_error_role_id"),
+    discordTradeChannelId: text("discord_trade_channel_id"),
+    discordTradeRoleId: text("discord_trade_role_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

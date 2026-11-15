@@ -18,6 +18,7 @@ import {
   TRADE_OFFERS_NOT_ALLOWED_MESSAGE,
 } from "../../lib/constants/trade-offers";
 import type { PublicTradeOfferLink } from "../../lib/interfaces/trade-offers";
+import { sendTradeOfferCreatedDiscordNotification } from "../../lib/discord";
 import { emitToOrg } from "../../lib/session-stream";
 import {
   createTradeOffer,
@@ -92,6 +93,13 @@ export function createPublicTradeOffersRoute(
           return c.json({ success: false, message: TRADE_OFFER_OFFERED_NOT_FOUND_MESSAGE }, 400);
         case "created":
           emitToOrg(link.scope.orgId, TRADE_OFFERS_CHANGED_EVENT, result.changed);
+          void sendTradeOfferCreatedDiscordNotification({
+            scope: link.scope,
+            offerGuid: result.guid,
+            guestName: parsed.data.guestName,
+            wantedCount: result.changed.createdOffer?.wantedCount ?? 0,
+            offeredCount: result.changed.createdOffer?.offeredCount ?? 0,
+          });
           return c.json({ success: true, data: { guid: result.guid } });
       }
     });

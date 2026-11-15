@@ -12,14 +12,16 @@
   },
   "channelSettings": {
     "heading": "Salons",
-    "description": "Où publier chaque scan et chaque erreur ou alerte. Seuls les propriétaires et les admins peuvent les modifier.",
+    "description": "Où publier chaque scan, chaque erreur ou alerte et chaque nouvelle offre d'échange. Seuls les propriétaires et les admins peuvent les modifier.",
     "scan": "Chaque scan",
     "error": "Erreurs et alertes",
+    "trade": "Offres d'échange",
     "none": "Ne pas publier",
     "sameScan": "Comme chaque scan",
     "sameError": "Comme les erreurs",
     "scanRole": "Rôle à mentionner pour les scans",
     "errorRole": "Rôle à mentionner pour les erreurs",
+    "tradeRole": "Rôle à mentionner pour les offres d'échange",
     "roleHint": "Choisissez un rôle à mentionner dans chaque publication, y compris dans les salons des remplacements de collection. Le bot doit pouvoir mentionner ce rôle.",
     "saved": "Salon enregistré.",
     "saveFailed": "Impossible d'enregistrer le salon."

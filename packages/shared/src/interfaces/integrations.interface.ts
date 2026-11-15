@@ -42,6 +42,8 @@ export interface DiscordIntegration {
   errorChannelId: string | null;
   scanRoleId: string | null;
   errorRoleId: string | null;
+  tradeChannelId: string | null;
+  tradeRoleId: string | null;
   collections: DiscordCollectionChannels[];
 }
 
@@ -68,12 +70,19 @@ export interface DiscordChannelInput {
   errorChannelId?: string | null;
   scanRoleId?: string | null;
   errorRoleId?: string | null;
+  tradeChannelId?: string | null;
+  tradeRoleId?: string | null;
   collectionGuid?: string;
 }
 
 export interface DiscordPingRoles {
   scanRoleId: string | null;
   errorRoleId: string | null;
+}
+
+export interface DiscordTradeNotificationTargets {
+  tradeChannelId: string | null;
+  tradeRoleId: string | null;
 }
 
 export interface DiscordAccountLink {
