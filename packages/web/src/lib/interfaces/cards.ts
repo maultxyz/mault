@@ -226,6 +226,7 @@ export interface PendingScanCardItemProps {
 
 export interface CardToolbarProps {
   leading?: ReactNode;
+  extraActions?: ReactNode;
   onAddCard?: () => void;
   onImportScans?: () => void;
   searchQuery: string;

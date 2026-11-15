@@ -57,6 +57,7 @@ export function CardToolbar({
   scanTimeline,
   onScanTimelineChange,
   leading,
+  extraActions,
   onAddCard,
   onImportScans,
 }: CardToolbarProps) {
@@ -113,6 +114,7 @@ export function CardToolbar({
           scanTimeline={scanTimeline}
           onScanTimelineChange={onScanTimelineChange}
         />
+        {extraActions}
         {hasMoreActions && (
           <DropdownMenu>
             <DropdownMenuTrigger

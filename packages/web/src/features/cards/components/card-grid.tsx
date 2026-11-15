@@ -65,6 +65,7 @@ import { useStoredCardCount } from "@/features/collections/api/use-stored-card-c
 import { useCollectionCardActions } from "@/features/collections/api/use-collection-card-actions";
 import { useMarkCardsDownloaded } from "@/features/collections/api/use-mark-cards-downloaded";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
+import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
 import {
   loadCollectionPositionStep,
@@ -913,6 +914,11 @@ export function CardGrid() {
           onAddCard={() => setAddCardOpen(true)}
           onImportScans={() => setImportScansOpen(true)}
           collectionName={viewedCollection?.name}
+          extraActions={
+            collectionGuid && !readOnly ? (
+              <ShareMonitorLinkDialog collectionGuid={collectionGuid} />
+            ) : undefined
+          }
           onClearAll={readOnly ? undefined : handleClearSession}
           hasCards={totalCards > 0}
           activeFilters={filters}
