@@ -246,11 +246,11 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up pnpm
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && (steps.targets.outputs.docs == 'true' || steps.targets.outputs.web_server == 'true')
         uses: pnpm/action-setup@v4
 
       - name: Set up Node
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && (steps.targets.outputs.docs == 'true' || steps.targets.outputs.web_server == 'true')
         uses: actions/setup-node@v4
         with:
           node-version: 26
