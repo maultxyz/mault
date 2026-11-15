@@ -15,6 +15,8 @@ import { useTranslation } from "react-i18next";
 
 export function ShareMonitorLinkDialog({
   collectionGuid,
+  open,
+  onOpenChange,
 }: ShareMonitorLinkDialogProps) {
   const { t } = useTranslation("collections");
   const isMobile = useIsMobile();
@@ -50,7 +52,9 @@ export function ShareMonitorLinkDialog({
       revokedMessage={t("shareMonitorLink.revoked")}
       createLink={createLink}
       revokeLinks={revokeLinks}
-      renderTrigger={(activeLinkCount) => (
+      open={open}
+      onOpenChange={onOpenChange}
+      renderTrigger={open === undefined ? (activeLinkCount) => (
         <ShareLinkTriggerButton
           variant="outline"
           size="icon"
@@ -59,7 +63,7 @@ export function ShareMonitorLinkDialog({
           activeLinkCount={activeLinkCount}
           showsTitle
         />
-      )}
+      ) : undefined}
     />
   );
 }

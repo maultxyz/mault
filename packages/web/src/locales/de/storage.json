@@ -9,6 +9,7 @@
     "cardCount_other": "{{count}} Karten",
     "rename": "Lagerort umbenennen",
     "delete": "Lagerort löschen",
+    "actions": "Aktionen für {{name}}",
     "deleteTitle": "{{name}} löschen?",
     "deleteDescription": "Die Karten bleiben in deinen Sammlungen, verlieren aber diesen Lagerort und ihre Position darin.",
     "summary_one": "{{count}} Karte · {{value}} gesamt",

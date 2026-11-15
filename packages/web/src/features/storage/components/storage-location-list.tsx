@@ -10,6 +10,7 @@ export function StorageLocationList({
   selectedGuid,
   isLoading,
   onSelect,
+  actions,
 }: StorageLocationListProps) {
   if (isLoading) {
     return (
@@ -30,6 +31,7 @@ export function StorageLocationList({
             location={location}
             isSelected={location.guid === selectedGuid}
             onSelect={() => onSelect(location.guid)}
+            actions={actions}
           />
         ))}
       </div>

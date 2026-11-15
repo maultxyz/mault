@@ -13,6 +13,7 @@ import { WatcherStack } from "@/components/ui/watcher-stack";
 import { CollectionPreviewStack } from "@/features/collections/components/collection-preview-stack";
 import { ReleaseSessionButton } from "@/features/collections/components/release-session-button";
 import { ScanningPill } from "@/features/collections/components/scanning-pill";
+import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import { CollectionChangeTrend } from "@/features/library/components/collection-change-trend";
 import { useShiftClick } from "@/hooks/use-shift-click";
 import {
@@ -33,8 +34,10 @@ import {
   IconHeartRateMonitor,
   IconPlayerPlay,
   IconQrcode,
+  IconShare,
   IconTrash,
 } from "@tabler/icons-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -71,6 +74,7 @@ export function CollectionTile({
   const { format } = usePriceSource();
   const { data: overview } = useQuery(orgOverviewQueryOptions(activeOrg?.id));
   const value = overview?.collectionValues[collection.guid];
+  const [isShareLinkDialogOpen, setIsShareLinkDialogOpen] = useState(false);
 
   return (
     <article
@@ -161,6 +165,10 @@ export function CollectionTile({
                 <IconHeartRateMonitor />
                 {t("page.liveView")}
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setIsShareLinkDialogOpen(true)}>
+                <IconShare />
+                {t("page.shareLink")}
+              </DropdownMenuItem>
               {!isActive && (
                 <DropdownMenuItem disabled={isActivating} onClick={onActivate}>
                   <IconPlayerPlay />
@@ -212,6 +220,11 @@ export function CollectionTile({
           )}
         </div>
       </div>
+      <ShareMonitorLinkDialog
+        collectionGuid={collection.guid}
+        open={isShareLinkDialogOpen}
+        onOpenChange={setIsShareLinkDialogOpen}
+      />
     </article>
   );
 }

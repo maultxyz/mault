@@ -14,6 +14,8 @@ import { useTranslation } from "react-i18next";
 export function ShareStorageLinkDialog({
   locationGuid,
   renderTrigger,
+  open,
+  onOpenChange,
 }: ShareStorageLinkDialogProps) {
   const { t } = useTranslation("storage");
 
@@ -49,6 +51,8 @@ export function ShareStorageLinkDialog({
       createLink={createLink}
       revokeLinks={revokeLinks}
       renderTrigger={renderTrigger}
+      open={open}
+      onOpenChange={onOpenChange}
     />
   );
 }

@@ -63,6 +63,7 @@ import {
   IconTrash,
 } from "@tabler/icons-react";
 import { useCallback, useState, type CSSProperties } from "react";
+import type { StorageLocation } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
 
@@ -79,6 +80,8 @@ function DesktopStoragePage() {
   const [createOpen, setCreateOpen] = useState(false);
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
+  const [menuLocation, setMenuLocation] = useState<StorageLocation | null>(null);
   const [addCardOpen, setAddCardOpen] = useState(false);
   const { collections } = useCollections();
   const [searchQuery, setSearchQuery] = useState("");
@@ -108,6 +111,11 @@ function DesktopStoragePage() {
   const selected =
     locations.find((l) => l.guid === selectedGuid) ??
     (selectedLocation?.guid === selectedGuid ? selectedLocation : undefined);
+  const actionTarget = menuLocation ?? selected;
+  const openLocationAction = (location: StorageLocation, openDialog: (open: boolean) => void) => {
+    setMenuLocation(location);
+    openDialog(true);
+  };
   const cardQuery = useStorageLocationCardQuery(selected?.guid);
   const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
   const reviewParam = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM);
@@ -291,6 +299,16 @@ function DesktopStoragePage() {
               selectedGuid={isSearching ? undefined : selected?.guid}
               isLoading={isLoading}
               onSelect={openLocation}
+              actions={
+                isLocked
+                  ? undefined
+                  : {
+                      disabled: isMutating,
+                      onShare: (location) => openLocationAction(location, setShareOpen),
+                      onRename: (location) => openLocationAction(location, setRenameOpen),
+                      onDelete: (location) => openLocationAction(location, setDeleteOpen),
+                    }
+              }
             />
           </section>
         )}
@@ -394,7 +412,10 @@ function DesktopStoragePage() {
                       aria-label={t("page.rename")}
                       title={t("page.rename")}
                       disabled={isMutating}
-                      onClick={() => setRenameOpen(true)}
+                      onClick={() => {
+                        setMenuLocation(null);
+                        setRenameOpen(true);
+                      }}
                     >
                       <IconEdit />
                     </Button>
@@ -404,7 +425,10 @@ function DesktopStoragePage() {
                       aria-label={t("page.delete")}
                       title={t("page.delete")}
                       disabled={isMutating}
-                      onClick={() => setDeleteOpen(true)}
+                      onClick={() => {
+                        setMenuLocation(null);
+                        setDeleteOpen(true);
+                      }}
                     >
                       <IconTrash />
                     </Button>
@@ -480,26 +504,33 @@ function DesktopStoragePage() {
       <StorageLocationNameDialog
         open={renameOpen}
         onOpenChange={setRenameOpen}
-        initialName={selected?.name}
+        initialName={actionTarget?.name}
         title={t("page.rename")}
         submitLabel={t("nameDialog.save")}
         onSubmit={(name) =>
-          selected ? rename(selected.guid, name) : Promise.resolve(false)
+          actionTarget ? rename(actionTarget.guid, name) : Promise.resolve(false)
         }
       />
       <DeleteDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title={t("page.deleteTitle", { name: selected?.name ?? "" })}
+        title={t("page.deleteTitle", { name: actionTarget?.name ?? "" })}
         description={t("page.deleteDescription")}
-        confirm={{ type: "name", name: selected?.name ?? "" }}
+        confirm={{ type: "name", name: actionTarget?.name ?? "" }}
         onConfirm={async () => {
           setDeleteOpen(false);
-          if (selected && (await remove(selected.guid))) {
+          if (actionTarget && (await remove(actionTarget.guid)) && actionTarget.guid === selected?.guid) {
             setSearchParams({}, { replace: true });
           }
         }}
       />
+      {menuLocation && (
+        <ShareStorageLinkDialog
+          locationGuid={menuLocation.guid}
+          open={shareOpen}
+          onOpenChange={setShareOpen}
+        />
+      )}
     </div>
   );
 }

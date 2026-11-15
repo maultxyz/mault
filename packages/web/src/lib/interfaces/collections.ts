@@ -22,6 +22,8 @@ export interface SessionViewer {
 
 export interface ShareMonitorLinkDialogProps {
   collectionGuid: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export type WatchLinkState =

@@ -51,6 +51,8 @@ export function ShareLinkDialog({
   title,
   description,
   renderTrigger,
+  open: controlledOpen,
+  onOpenChange,
   revokedMessage,
   createLink,
   revokeLinks,
@@ -60,7 +62,8 @@ export function ShareLinkDialog({
   const formId = useId();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const viewChangedRef = useRef(false);
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
   const [view, setView] = useState<ShareLinkDialogView>("links");
   const [details, setDetails] = useState<ShareLinkDetailsData | null>(null);
   const [isRevokingAll, setIsRevokingAll] = useState(false);
@@ -84,7 +87,8 @@ export function ShareLinkDialog({
   };
 
   const handleOpenChange = (isOpen: boolean) => {
-    setOpen(isOpen);
+    setUncontrolledOpen(isOpen);
+    onOpenChange?.(isOpen);
     if (!isOpen) {
       viewChangedRef.current = false;
       setView("links");
@@ -221,7 +225,7 @@ export function ShareLinkDialog({
       onOpenChange={handleOpenChange}
       title={title}
       description={description}
-      trigger={renderTrigger(links.length)}
+      trigger={renderTrigger?.(links.length)}
       footer={footer}
       footerClassName="flex-col-reverse md:flex-row"
     >

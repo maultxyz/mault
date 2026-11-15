@@ -24,7 +24,9 @@ export interface ShareLinkDialogProps {
   subjectGuid: string;
   title: string;
   description: string;
-  renderTrigger: (activeLinkCount: number) => ReactElement;
+  renderTrigger?: (activeLinkCount: number) => ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   revokedMessage: string;
   createLink: (options: ShareLinkOptions) => Promise<CreatedShareLink>;
   revokeLinks: () => Promise<void>;
@@ -32,7 +34,9 @@ export interface ShareLinkDialogProps {
 
 export interface ShareStorageLinkDialogProps {
   locationGuid: string;
-  renderTrigger: (activeLinkCount: number) => ReactElement;
+  renderTrigger?: (activeLinkCount: number) => ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 export type ShareLinkTriggerButtonProps = ComponentProps<typeof Button> & {
