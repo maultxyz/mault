@@ -16,7 +16,7 @@ Each game is a pluggable adapter (`packages/server/src/lib/adapters/<game>/`) pl
 
 1. The feeder pushes a card from the hopper into the camera's calibrated scan region and waits for it to settle at the IR sensor.
 2. The client finds the card's four corners, dewarps it and embeds it with [CollectorVision](https://github.com/HanClinto/CollectorVision)'s corner detector and Milo embedder (ONNX, in the browser or on the phone). If the client can't run the models, the server embeds the image instead.
-3. The server finds the closest cards with a pgvector HNSW search. When printings look alike, OCR of the name, set and number breaks the tie; weak matches are flagged for review.
+3. The server finds the closest cards by comparing the embedding against its in-memory index of every card vector (stored in Postgres with pgvector). When printings look alike, OCR of the name, set and number breaks the tie; weak matches are flagged for review.
 4. The collection's active bin preset decides the bin (rules, auto-assign, repack, alphabetical, chaos, pick lists, overflow and copy limits), client-side.
 5. The client tells the sorter which module and direction to use, over USB serial, Bluetooth or Wi-Fi, and saves the scan in parallel.
 

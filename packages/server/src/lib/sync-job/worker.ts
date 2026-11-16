@@ -10,7 +10,6 @@ import type { SyncSource, SyncSourceCard } from "../interfaces/card-search";
 import {
   SYNC_DATA_REFRESH_BATCH_SIZE,
   SYNC_NEW_CARD_NAME_LIMIT,
-  SYNC_REINDEX_MIN_CHANGED_FRACTION,
 } from "../constants/sync";
 import { toPortraitCardImage } from "../card-image";
 import { vectorizeCardImage } from "../vectorize";
@@ -28,7 +27,6 @@ import {
 import { SYNC_SOURCES } from "./sources";
 import { storedCollectorNumber } from "../card-search/collector-number";
 import { catalogColumnsFor } from "../card-catalog";
-import { rebuildGameVectorIndex } from "../game-vector-index";
 import {
   addToPrintingMarkBatch,
   cardIdsWithCurrentPrintingMarks,
@@ -260,30 +258,6 @@ async function refreshStoredData(
 
   addLog(`Stored data refreshed (${updated} changed).`);
   return updated;
-}
-
-async function rebuildVectorIndexIfChurned(
-  source: SyncSource,
-  lang: string,
-  changed: number,
-  total: number,
-): Promise<void> {
-  if (total === 0 || changed < total * SYNC_REINDEX_MIN_CHANGED_FRACTION) {
-    return;
-  }
-  addLog(
-    `${changed} of ${total} cards changed, rebuilding the vector index...`,
-  );
-  try {
-    const indexName = await rebuildGameVectorIndex(source.gameKey, lang);
-    addLog(
-      indexName
-        ? `Rebuilt vector index ${indexName}.`
-        : "No vector index found for this game and language, skipped rebuild.",
-    );
-  } catch (err) {
-    addLog(`Vector index rebuild failed: ${errorMessage(err)}`);
-  }
 }
 
 let printingMarkWrites: Promise<unknown> = Promise.resolve();
@@ -798,13 +772,6 @@ async function runSync(
     emitCancelledDone();
     return;
   }
-
-  await rebuildVectorIndexIfChurned(
-    source,
-    lang,
-    refreshed + getState().processed,
-    existingSet.size,
-  );
 
   patchState({ status: "completed" });
   const syncState = getState();

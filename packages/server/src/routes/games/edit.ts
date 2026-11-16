@@ -5,7 +5,6 @@ import { Hono } from "hono";
 import { db } from "../../db";
 import { games } from "../../db/schema";
 import { applyFieldRenames, validFieldRenames } from "../../lib/field-renames";
-import { ensureGameVectorIndex } from "../../lib/game-vector-index";
 import { publicGamesCache } from "../../lib/public-games";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { keyIsTaken, toGame } from "./shared";
@@ -79,9 +78,6 @@ export const editGameRoute = new Hono<AppEnv>().put(
         return updated;
       });
       publicGamesCache.invalidate();
-      if (newKey !== undefined && newKey !== target.key) {
-        void ensureGameVectorIndex(newKey);
-      }
       return c.json({ success: true, data: toGame(row) });
     } catch (err) {
       if (err instanceof Error && /unique/i.test(err.message)) {
