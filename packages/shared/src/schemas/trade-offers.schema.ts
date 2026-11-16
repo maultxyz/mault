@@ -67,6 +67,3 @@ export const tradeOfferPickedRequestSchema = z.object({
 
 export type TradeOfferFormValues = z.infer<typeof tradeOfferFormSchema>;
 export type TradeOfferRequest = z.infer<typeof tradeOfferRequestSchema>;
-export type TradeOfferOfferedCardInput = z.infer<typeof tradeOfferOfferedCardInputSchema>;
-export type TradeOfferAcceptRequest = z.infer<typeof tradeOfferAcceptRequestSchema>;
-export type TradeOfferPickedRequest = z.infer<typeof tradeOfferPickedRequestSchema>;

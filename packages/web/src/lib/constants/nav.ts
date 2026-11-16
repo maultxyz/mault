@@ -54,7 +54,6 @@ export const MOBILE_SEARCH_INPUT_CLASS =
   "h-11 rounded-lg pl-10 text-base";
 export const MOBILE_ICON_BUTTON_CLASS =
   "size-10 shrink-0 rounded-lg border-border bg-card text-foreground hover:bg-foreground/6 active:bg-foreground/6 dark:bg-input/30 dark:hover:bg-input/30 aria-expanded:bg-foreground/6 [&_svg:not([class*='size-'])]:size-5";
-export const MOBILE_COUNT_BUTTON_CLASS = "h-10 w-auto px-2.5";
 export const MOBILE_CIRCLE_BUTTON_CLASS =
   "size-10 rounded-lg border-border bg-card text-foreground hover:bg-foreground/6 active:bg-foreground/6 dark:bg-input/30 dark:hover:bg-input/30 [&_svg:not([class*='size-'])]:size-5";
 export const MOBILE_PRIMARY_CIRCLE_BUTTON_CLASS =

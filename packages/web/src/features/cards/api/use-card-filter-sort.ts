@@ -1,75 +1,13 @@
 import { usePriceSource } from "@/hooks/use-price-source";
-import { matchPercent } from "@/lib/utils";
 import {
   cardSortableFields,
   DEFAULT_CARD_SORT,
   type FieldMeta,
-  type ScannedCard,
   EMPTY_CARD_FILTERS,
   type CardFilters,
 } from "@magic-vault/shared";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-export function applyCardFilters(
-  cards: ScannedCard[],
-  filters: CardFilters,
-): ScannedCard[] {
-  let result = cards;
-
-  if (filters.colors.length > 0) {
-    result = result.filter((entry) => {
-      const identity = entry.card.colorIdentity ?? [];
-      if (filters.colors.includes("C") && identity.length === 0) return true;
-      return filters.colors.some((c) => c !== "C" && identity.includes(c));
-    });
-  }
-
-  if (filters.rarities.length > 0) {
-    result = result.filter((entry) =>
-      filters.rarities.includes(entry.card.rarity),
-    );
-  }
-
-  if (filters.bins.length > 0) {
-    result = result.filter((entry) =>
-      filters.bins.includes(entry.binNumber ?? null),
-    );
-  }
-
-  if (filters.needsAttention) {
-    result = result.filter(
-      (entry) =>
-        ((entry.alternativeMatches?.length ?? 0) > 0 || !!entry.lowConfidenceMatch) &&
-        !entry.corrected,
-    );
-  }
-
-  if (filters.hideDownloaded) {
-    result = result.filter((entry) => !entry.isDownloaded);
-  }
-
-  if (filters.sets.length > 0) {
-    result = result.filter((entry) => filters.sets.includes(entry.card.set));
-  }
-
-  if (filters.foilTypes.length > 0) {
-    result = result.filter((entry) => {
-      const label = entry.foilType ?? (entry.isFoil ? "Foil" : null);
-      return label != null && filters.foilTypes.includes(label);
-    });
-  }
-
-  if (filters.minMatchPercent > 0) {
-    result = result.filter(
-      (entry) =>
-        matchPercent(entry.card) >= filters.minMatchPercent,
-    );
-  }
-
-  return result;
-}
-
 
 function splitSortKey(sortKey: string): { field: string; dir: "asc" | "desc" } {
   const i = sortKey.lastIndexOf("-");

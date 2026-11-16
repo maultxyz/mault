@@ -14,7 +14,6 @@ export const STATS_SKELETON_HIGHLIGHT_COUNT = 2;
 export const STATS_SKELETON_TAB_STRIP_HEIGHT = 40;
 export const STATS_SKELETON_BODY_LINE_HEIGHT = 22;
 export const STATS_LIST_COLLAPSED_COUNT = 5;
-export const STATS_INSIGHT_ICON_SIZE = 36;
 export const STATS_CHART_GRID_FRACTIONS = [0, 0.5, 1];
 export const STATS_COLUMN_VALUE_LABEL_HEIGHT = 18;
 export const STATS_AREA_CHART = { height: 184, topPadding: 34, strokeWidth: 2, fillOpacity: 0.28, dotRadius: 5, pillHeight: 24, pillGap: 10 };

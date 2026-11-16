@@ -7,10 +7,7 @@
     "dev:bot": "turbo dev --filter=@magic-vault/bot",
     "dev:shortener": "turbo dev --filter=@magic-vault/shortener",
     "build": "turbo build",
-    "lint": "turbo lint",
-    "version:patch": "node scripts/version-bump.mjs patch",
-    "version:minor": "node scripts/version-bump.mjs minor",
-    "version:major": "node scripts/version-bump.mjs major"
+    "lint": "turbo lint"
   },
   "devDependencies": {
     "turbo": "^2.5.4"

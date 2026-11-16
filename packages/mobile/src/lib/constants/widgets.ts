@@ -18,13 +18,6 @@ export const CARD_OF_THE_DAY_WIDGET_NAME = "CardOfTheDay";
 
 export const CARD_REVIEW_WIDGET_NAME = "CardReview";
 
-export const COLLECTION_WIDGET_NAMES = [
-  COLLECTION_VALUE_WIDGET_NAME,
-  TOTAL_CARDS_WIDGET_NAME,
-  TOP_CARDS_WIDGET_NAME,
-  CARD_OF_THE_DAY_WIDGET_NAME,
-] as const;
-
 export const WIDGET_COLLECTION_PARAMETER = "collection";
 
 export const WIDGET_ALL_COLLECTIONS_SCOPE = "all";

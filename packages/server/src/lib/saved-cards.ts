@@ -106,15 +106,6 @@ export async function hydrateSavedScans<T extends SavedScanFields>(
   }));
 }
 
-export async function hydrateSavedScan<T extends SavedScanFields>(
-  scope: SavedCardScope,
-  scan: T,
-  options: SavedCardHydrateOptions,
-): Promise<T> {
-  const [hydrated] = await hydrateSavedScans(scope, [scan], options);
-  return hydrated;
-}
-
 export function savedCardCatalogKeys(
   scope: SavedCardScope,
   card: PlayingCard,

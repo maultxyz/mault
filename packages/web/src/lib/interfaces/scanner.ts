@@ -15,7 +15,6 @@ import type {
   CornerDetection,
   CardScannerProps,
   CardSearchResult,
-  OcrDiagnostics,
   RouteOptions,
   ScanAttemptResult,
   SerialMessageListener,
@@ -864,11 +863,6 @@ export interface OrientedCandidate extends OrientedSearch {
 
 export interface OrientedSearchPick extends OrientedCandidate {
   alternate: OrientedCandidate | null;
-}
-
-export interface TextSearchOutcome {
-  pick: OrientedSearchPick | null;
-  ocr: OcrDiagnostics | null;
 }
 
 export interface ScanAttemptOutcome extends ScanAttemptResult {

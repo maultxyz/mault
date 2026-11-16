@@ -47,10 +47,6 @@ export function isEmergencyStopReply(message: unknown): boolean {
   return asFields(message)?.error === SERIAL_STOPPED_ERROR;
 }
 
-export function isEmergencyStopLatched(message: unknown): boolean {
-  return asFields(message)?.stopped === true;
-}
-
 export function isFedEvent(message: unknown): message is Record<string, unknown> {
   return asFields(message)?.event === SERIAL_FED_EVENT;
 }
