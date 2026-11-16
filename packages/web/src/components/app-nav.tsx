@@ -69,6 +69,7 @@ import { HotkeyHint } from "@/components/hotkey-hint";
 import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
 import { SEARCH_PATH } from "@/lib/constants/search";
+import { formatCompactNumber } from "@magic-vault/shared";
 
 function CollapsedNavItem({
   icon,
@@ -350,9 +351,7 @@ export function AppNav() {
   const { data: githubStars } = useQuery(githubStarsQueryOptions(true));
   const formattedStars =
     githubStars != null
-      ? new Intl.NumberFormat(i18n.language, { notation: "compact" }).format(
-          githubStars,
-        )
+      ? formatCompactNumber(githubStars, i18n.language)
       : null;
   const githubLabel =
     githubStars != null

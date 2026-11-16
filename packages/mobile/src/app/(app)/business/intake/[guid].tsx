@@ -29,6 +29,7 @@ import {
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
 import { useBusinessAction } from "@/features/business/api/use-business-action";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
+import { useCompactCount } from "@/hooks/use-compact-count";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { ApiResultError } from "@/lib/api/api-result-error";
@@ -65,6 +66,7 @@ function IntakeLotCardRow({ card, onPress }: IntakeLotCardRowProps) {
 export default function IntakeLotScreen() {
   const { guid } = useLocalSearchParams<{ guid: string }>();
   const { t, i18n } = useTranslation();
+  const compactCount = useCompactCount();
   const orgId = useActiveOrgId();
   const { format } = usePricing();
   const { run: runAction, refresh } = useBusinessAction();
@@ -167,7 +169,7 @@ export default function IntakeLotScreen() {
           </View>
           {lot.collectionDeleted ? <Callout tone="warning" title={t("business.intake.collectionDeleted")} /> : null}
           <StatGroup heading={isOpen ? t("business.intake.liveOffer") : t("business.intake.summary")}>
-            <StatTile label={t("business.intake.stats.cards")} value={String(lot.cardCount)} />
+            <StatTile label={t("business.intake.stats.cards")} {...compactCount(lot.cardCount)} />
             {showMoney && lot.marketTotal != null ? (
               <StatTile label={t("business.intake.stats.market")} value={format(lot.marketTotal)} />
             ) : null}

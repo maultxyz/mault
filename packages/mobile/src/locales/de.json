@@ -716,8 +716,8 @@
     "pauseAction": "Pause",
     "emergencyStop": "Stopp",
     "emergencyStopHint": "Not-Stopp: hält Einzug, Paddel und Schieber sofort an",
-    "sessionChip_one": "{{count}} gescannt",
-    "sessionChip_other": "{{count}} gescannt",
+    "sessionChip_one": "{{count, compact}} gescannt",
+    "sessionChip_other": "{{count, compact}} gescannt",
     "sessionScans": {
       "title": "Diese Sitzung",
       "empty": "In dieser Sitzung wurden noch keine Karten gescannt.",

@@ -208,7 +208,7 @@ export default function StorageLocationScreen() {
         <PageHeader
           title={location?.name ?? t("storage.title")}
           subtitle={
-            location ? t("storage.summary", { count: location.cardCount, value: pricing.format(location.totalValue) }) : null
+            location ? t("storage.summary", { count: location.cardCount, value: pricing.formatCompact(location.totalValue) }) : null
           }
           onBack={() => router.back()}
           actions={

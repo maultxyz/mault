@@ -165,26 +165,23 @@ export default function CollectionsPage() {
     {
       key: "collections",
       label: t("page.stats.collections"),
-      value: collections.length.toLocaleString(),
+      value: collections.length,
     },
     {
       key: "live",
       label: t("page.stats.live"),
-      value: liveCount.toLocaleString(),
+      value: liveCount,
     },
     {
       key: "cards",
       label: t("page.stats.cards"),
-      value: collections
-        .reduce((sum, c) => sum + c.cardCount, 0)
-        .toLocaleString(),
+      value: collections.reduce((sum, c) => sum + c.cardCount, 0),
     },
     {
       key: "games",
       label: t("page.stats.games"),
-      value: new Set(
-        collections.flatMap((c) => (c.game ? [c.game.guid] : [])),
-      ).size.toLocaleString(),
+      value: new Set(collections.flatMap((c) => (c.game ? [c.game.guid] : [])))
+        .size,
     },
   ];
 

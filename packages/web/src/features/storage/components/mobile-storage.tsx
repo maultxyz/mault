@@ -77,7 +77,7 @@ export function MobileStorage() {
     rename,
     remove,
   } = useStorageLocations();
-  const { format } = usePriceSource();
+  const { formatCompact } = usePriceSource();
   const { isLocked } = useStorageAccess();
   const [searchParams, setSearchParams] = useSearchParams();
   const dialogState = useStorageLocationDialogs();
@@ -190,7 +190,7 @@ export function MobileStorage() {
           title={selected.name}
           subtitle={t("page.summary", {
             count: selected.cardCount,
-            value: format(selected.totalValue),
+            value: formatCompact(selected.totalValue),
           })}
           onBack={() => select(null)}
           actions={
@@ -395,7 +395,7 @@ export function MobileStorage() {
                       label={location.name}
                       description={t("page.summary", {
                         count: location.cardCount,
-                        value: format(location.totalValue),
+                        value: formatCompact(location.totalValue),
                       })}
                       onClick={() => select(location.guid)}
                     />

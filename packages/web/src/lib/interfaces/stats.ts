@@ -1,4 +1,5 @@
 import type { Icon } from "@tabler/icons-react";
+import type { ReactNode } from "react";
 import type { HomeValueChange } from "@/lib/interfaces/home";
 import type {
   STATS_ACTIVITY_METRICS,
@@ -75,12 +76,12 @@ export interface DonutChartProps {
 
 export interface ValueHeroStat {
   label: string;
-  value: string;
+  value: ReactNode;
 }
 
 export interface ValueHeroProps {
   label: string;
-  value: string;
+  value: ReactNode;
   stats: ValueHeroStat[];
   sparklineValues: number[];
   change?: HomeValueChange | null;

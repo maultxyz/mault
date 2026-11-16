@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 import { GITHUB_STAR_PILL_CLASS } from "@/lib/constants/ui";
-import { DONATE_URL } from "@magic-vault/shared";
+import { DONATE_URL, formatCompactNumber } from "@magic-vault/shared";
 import { Button } from "@/components/ui/button";
 import { optOutOfSupportPrompt } from "@/features/billing/lib/support-prompt";
 import {
@@ -52,9 +52,7 @@ export function SupportPromptToast({
                 })}
               >
                 <IconStarFilled className="size-3 text-warning-foreground" />
-                {new Intl.NumberFormat(i18n.language, {
-                  notation: "compact",
-                }).format(githubStars)}
+                {formatCompactNumber(githubStars, i18n.language)}
               </span>
             )}
           </a>

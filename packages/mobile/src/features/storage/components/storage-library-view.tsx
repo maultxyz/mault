@@ -164,8 +164,8 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
               title={location.name}
               subtitle={t("collection.cardsCount", { count: location.cardCount })}
               right={
-                <AppText weight="semibold" numberOfLines={1}>
-                  {pricing.format(location.totalValue)}
+                <AppText weight="semibold" numberOfLines={1} accessibilityLabel={pricing.format(location.totalValue)}>
+                  {pricing.formatCompact(location.totalValue)}
                 </AppText>
               }
               onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: location.guid } })}

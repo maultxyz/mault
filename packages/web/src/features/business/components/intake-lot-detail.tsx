@@ -338,7 +338,7 @@ export function IntakeLotDetail({
           {
             key: "cards",
             label: t("intake.stats.cards"),
-            value: lot.cardCount.toLocaleString(),
+            value: lot.cardCount,
           },
           ...(showMoney
             ? [

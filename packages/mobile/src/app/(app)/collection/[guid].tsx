@@ -207,7 +207,7 @@ export default function CollectionScreen() {
   const headerSummary = [
     collection?.game?.name,
     totalCards != null ? t("collection.cardsCount", { count: totalCards }) : null,
-    hasPricing && stats ? pricing.format(stats.totalValue) : null,
+    hasPricing && stats ? pricing.formatCompact(stats.totalValue) : null,
   ]
     .filter(Boolean)
     .join(" · ");

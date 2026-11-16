@@ -54,27 +54,27 @@ export default function SortersPage() {
     {
       key: "sorters",
       label: t("stations.overview.stats.sorters"),
-      value: totalCount.toLocaleString(),
+      value: totalCount,
     },
     {
       key: "connected",
       label: t("stations.overview.stats.connected"),
-      value: connectedSorters.length.toLocaleString(),
+      value: connectedSorters.length,
     },
     {
       key: "sorting",
       label: t("stations.overview.stats.sorting"),
-      value: sortingCount.toLocaleString(),
+      value: sortingCount,
     },
     {
       key: "attention",
       label: t("stations.overview.stats.attention"),
-      value: attentionCount.toLocaleString(),
+      value: attentionCount,
     },
     {
       key: "offline",
       label: t("stations.overview.stats.offline"),
-      value: offlineDevices.length.toLocaleString(),
+      value: offlineDevices.length,
     },
   ];
 

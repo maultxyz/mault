@@ -4,6 +4,7 @@ import { router, useIsFocused } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Button } from "@/components/ui/button";
+import { useCompactCount } from "@/hooks/use-compact-count";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
@@ -41,7 +42,7 @@ export default function HomeScreen() {
   const collections = useQuery(collectionsQueryOptions(orgId));
   const pendingTradeOffers = useQuery(pendingTradeOffersQueryOptions(orgId));
   const locale = i18n.language;
-  const numberFormat = new Intl.NumberFormat(locale);
+  const compactCount = useCompactCount();
   const overviewData = overview.data;
   const summaryData = summary.data;
   const collectionNames = new Map((collections.data ?? []).map((collection) => [collection.guid, collection.name]));
@@ -122,11 +123,9 @@ export default function HomeScreen() {
             onPress={() => router.push("/stats")}
             accessibilityHint={t("home.hero.openStats")}
             stats={[
-              { label: t("home.hero.cards"), value: numberFormat.format(overviewData.cardCount) },
-              { label: t("home.hero.collections"), value: numberFormat.format(overviewData.collectionCount) },
-              ...(summaryData
-                ? [{ label: t("home.hero.scanned"), value: numberFormat.format(summaryData.scansAllTime) }]
-                : []),
+              { label: t("home.hero.cards"), ...compactCount(overviewData.cardCount) },
+              { label: t("home.hero.collections"), ...compactCount(overviewData.collectionCount) },
+              ...(summaryData ? [{ label: t("home.hero.scanned"), ...compactCount(summaryData.scansAllTime) }] : []),
             ]}
           />
 
@@ -228,9 +227,9 @@ export default function HomeScreen() {
               <SectionHeader title={t("home.activity.title")} />
               <Surface style={{ gap: SPACING.md }}>
                 <View style={{ flexDirection: "row", gap: SPACING.xl }}>
-                  <HomeActivityFigure value={numberFormat.format(overviewData.scansToday)} label={t("home.activity.today")} />
+                  <HomeActivityFigure {...compactCount(overviewData.scansToday)} label={t("home.activity.today")} />
                   <HomeActivityFigure
-                    value={numberFormat.format(overviewData.scansByDay.reduce((sum, day) => sum + day.count, 0))}
+                    {...compactCount(overviewData.scansByDay.reduce((sum, day) => sum + day.count, 0))}
                     label={t("home.activity.lastDays", { count: overviewData.scansByDay.length })}
                   />
                 </View>

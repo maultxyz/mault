@@ -607,8 +607,8 @@
   "usePhoneAsCamera": "Use Phone as Camera",
   "requestingCameraAccess": "Requesting camera access…",
   "cameraConnecting": "Connecting to camera…",
-  "cardCount_one": "{{count}} card",
-  "cardCount_other": "{{count}} cards",
+  "cardCount_one": "{{count, compact}} card",
+  "cardCount_other": "{{count, compact}} cards",
   "isScanningTooltip": "{{name}} is scanning",
   "cameraAccessError": "Could not access camera. Please check your device.",
   "staleDeviceDialog": {
@@ -691,8 +691,8 @@
       "pauseAll": "Pause all",
       "resumeAll": "Resume all",
       "resumeSelected": "Resume ({{count}})",
-      "sessionCount_one": "{{count}} this session",
-      "sessionCount_other": "{{count}} this session"
+      "sessionCount_one": "{{count, compact}} this session",
+      "sessionCount_other": "{{count, compact}} this session"
     },
     "cpuInferenceLimitReached": {
       "title": "WASM runs one sorter at a time",

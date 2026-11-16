@@ -1,3 +1,4 @@
+import { CompactCount } from "@/components/compact-value";
 import { IconBadge } from "@/components/icon-badge";
 import type { StatGroupProps, StatTileContentProps } from "@/lib/interfaces/stat-group";
 import { cn } from "@/lib/utils";
@@ -14,7 +15,11 @@ function StatTileContent({ tile }: StatTileContentProps) {
       )}
       <p className="text-xs text-foreground/70">{tile.label}</p>
       <p className="text-lg font-semibold tabular-nums text-foreground md:text-base">
-        {tile.value ?? "-"}
+        {typeof tile.value === "number" ? (
+          <CompactCount value={tile.value} />
+        ) : (
+          (tile.value ?? "-")
+        )}
       </p>
       {tile.detail !== undefined && (
         <p className="text-2xs text-foreground/70">{tile.detail ?? "-"}</p>

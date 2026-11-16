@@ -3,7 +3,9 @@ import { useMemo } from "react";
 import {
   cardPriceFor,
   DEFAULT_ORG_PRICING,
+  formatCompactPriceInCurrency,
   formatPrice,
+  PRICE_SOURCE_FIELDS,
   toConditionMultipliers,
   type CardCondition,
   type CardFinish,
@@ -26,6 +28,7 @@ export function usePricing(): PriceFormatter {
         condition?: CardCondition | null,
       ) => cardPriceFor(card, finish, source, condition, multipliers),
       format: (value: number) => formatPrice(value, source),
+      formatCompact: (value: number) => formatCompactPriceInCurrency(value, PRICE_SOURCE_FIELDS[source].currency),
     };
   }, [data?.priceSource, data?.conditionMultipliers]);
 }

@@ -55,6 +55,7 @@ export interface BarListItem {
   label: string;
   value: number;
   display: string;
+  exactDisplay?: string;
   secondary?: string;
   swatch?: string;
   onPress?: () => void;

@@ -716,8 +716,8 @@
     "pauseAction": "Pause",
     "emergencyStop": "Arrêt",
     "emergencyStopHint": "Arrêt d'urgence : arrête immédiatement le chargeur, les palettes et les poussoirs",
-    "sessionChip_one": "{{count}} scannée",
-    "sessionChip_other": "{{count}} scannée",
+    "sessionChip_one": "{{count, compact}} scannée",
+    "sessionChip_other": "{{count, compact}} scannée",
     "sessionScans": {
       "title": "Cette session",
       "empty": "Aucune carte scannée dans cette session pour l'instant.",

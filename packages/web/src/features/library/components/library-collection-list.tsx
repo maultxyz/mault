@@ -1,3 +1,4 @@
+import { CompactPrice } from "@/components/compact-value";
 import { getInitials } from "@magic-vault/shared";
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
@@ -10,7 +11,6 @@ import { CreateCollectionDialog } from "@/features/collections/components/create
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { usePriceSource } from "@/hooks/use-price-source";
 import { useCollectionLocks } from "@/lib/app-stream";
 import { useCollectionChanges } from "@/features/library/api/use-collection-changes";
 import { CollectionChangeTrend } from "@/features/library/components/collection-change-trend";
@@ -39,7 +39,6 @@ export function LibraryCollectionList() {
   const { data: overview } = useQuery(orgOverviewQueryOptions(activeOrg?.id));
   const { activeCollection } = useCollections();
   const { locks, currentUserId } = useCollectionLocks();
-  const { format } = usePriceSource();
   const [searchQuery, setSearchQuery] = useState("");
   const [valueMode, setValueMode] = useState<LibraryValueMode>("value");
   const changeOf = useCollectionChanges(valueMode === "change");
@@ -156,7 +155,11 @@ export function LibraryCollectionList() {
                     isLoading={change.isLoading}
                   />
                 ) : (
-                  value != null && <span className="shrink-0 font-semibold tabular-nums">{format(value)}</span>
+                  value != null && (
+                    <span className="shrink-0 font-semibold tabular-nums">
+                      <CompactPrice value={value} />
+                    </span>
+                  )
                 )}
               </Link>
             );

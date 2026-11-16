@@ -607,8 +607,8 @@
   "usePhoneAsCamera": "Utiliser le téléphone comme caméra",
   "requestingCameraAccess": "Demande d'accès à la caméra…",
   "cameraConnecting": "Connexion à la caméra…",
-  "cardCount_one": "{{count}} carte",
-  "cardCount_other": "{{count}} cartes",
+  "cardCount_one": "{{count, compact}} carte",
+  "cardCount_other": "{{count, compact}} cartes",
   "isScanningTooltip": "{{name}} est en train de scanner",
   "cameraAccessError": "Impossible d'accéder à la caméra. Vérifie ton appareil.",
   "staleDeviceDialog": {
@@ -691,8 +691,8 @@
       "pauseAll": "Tout mettre en pause",
       "resumeAll": "Tout reprendre",
       "resumeSelected": "Reprendre ({{count}})",
-      "sessionCount_one": "{{count}} dans cette session",
-      "sessionCount_other": "{{count}} dans cette session"
+      "sessionCount_one": "{{count, compact}} dans cette session",
+      "sessionCount_other": "{{count, compact}} dans cette session"
     },
     "cpuInferenceLimitReached": {
       "title": "WASM gère une seule trieuse à la fois",

@@ -1,6 +1,7 @@
 import {
   WIDGET_SUMMARY_TOP_CARDS_PER_COLLECTION,
   cardPriceChangeSinceScanOf,
+  formatCompactNumber,
   valueChangeOf,
   type OrgOverviewCard,
   type WidgetCollectionSummary,
@@ -126,9 +127,9 @@ function valueScope(
   history: WidgetValuePoint[],
   options: WidgetSummaryPropsOptions,
 ): CollectionValueWidgetScope {
-  const { t, locale, formatPrice } = options;
-  const numberFormat = new Intl.NumberFormat(locale);
-  const totalValue = formatPrice(trend.totalValue);
+  const { t, locale, formatPrice, formatCompactPrice } = options;
+  const totalValue = formatCompactPrice(trend.totalValue);
+  const exactTotalValue = formatPrice(trend.totalValue);
   const chartValues = chartValuesOf(history);
   if (trend.previousValue === null) {
     return {
@@ -141,17 +142,19 @@ function valueScope(
       changeDirection: "none",
       change: "",
       changePercent: "",
-      cardCount: numberFormat.format(trend.cardCount),
+      cardCount: formatCompactNumber(trend.cardCount, locale),
       previousCardCount: "",
-      accessibilityText: [title, totalValue].join(", "),
+      accessibilityText: [title, exactTotalValue].join(", "),
     };
   }
-  const { direction: changeDirection, change, percent: changePercent } = valueChangeOf(trend, formatPrice, locale) ?? {
+  const { direction: changeDirection, change, percent: changePercent } = valueChangeOf(trend, formatCompactPrice, locale) ?? {
     direction: "flat" as const,
     change: "",
     percent: "",
   };
-  const previousValue = previousLine(trend.previousDay, formatPrice(trend.previousValue), options);
+  const exactChange = valueChangeOf(trend, formatPrice, locale)?.change ?? "";
+  const previousValue = previousLine(trend.previousDay, formatCompactPrice(trend.previousValue), options);
+  const exactPreviousValue = previousLine(trend.previousDay, formatPrice(trend.previousValue), options);
   return {
     title,
     badge: "",
@@ -162,16 +165,16 @@ function valueScope(
     changeDirection,
     change,
     changePercent,
-    cardCount: numberFormat.format(trend.cardCount),
+    cardCount: formatCompactNumber(trend.cardCount, locale),
     previousCardCount:
       trend.previousCardCount === null
         ? ""
-        : previousLine(trend.previousDay, numberFormat.format(trend.previousCardCount), options),
+        : previousLine(trend.previousDay, formatCompactNumber(trend.previousCardCount, locale), options),
     accessibilityText: [
       title,
-      totalValue,
-      t(`widgets.value.direction.${changeDirection}`, { change, percent: changePercent }),
-      previousValue,
+      exactTotalValue,
+      t(`widgets.value.direction.${changeDirection}`, { change: exactChange, percent: changePercent }),
+      exactPreviousValue,
     ].join(", "),
   };
 }
@@ -218,7 +221,10 @@ export function buildTotalCardsWidgetProps(options: WidgetSummaryPropsOptions): 
   const scope = (title: string, url: string, cardCount: number) => ({
     title,
     url,
-    digits: String(cardCount).padStart(TOTAL_CARDS_WIDGET_MIN_DIGITS, "0"),
+    digits:
+      String(cardCount).length > TOTAL_CARDS_WIDGET_MIN_DIGITS
+        ? formatCompactNumber(cardCount, locale)
+        : String(cardCount).padStart(TOTAL_CARDS_WIDGET_MIN_DIGITS, "0"),
     accessibilityText: `${title}: ${t("collection.cardsCount", { count: cardCount })}`,
   });
   return {

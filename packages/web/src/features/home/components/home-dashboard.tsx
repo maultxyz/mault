@@ -1,4 +1,5 @@
 import { Callout } from "@/components/callout";
+import { CompactCount, CompactPrice } from "@/components/compact-value";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -52,7 +53,6 @@ export function HomeDashboard() {
   const summary = useQuery(widgetSummaryQueryOptions(activeOrg?.id));
   const pendingTradeOffers = usePendingTradeOffers();
   const locale = i18n.language;
-  const numberFormat = new Intl.NumberFormat(locale);
   const overviewData = overview.data;
   const summaryData = summary.data;
   const collectionPath = (guid: string) => (isMobile ? monitorCollectionPath(guid) : collectionViewPath(guid));
@@ -100,7 +100,12 @@ export function HomeDashboard() {
         <>
           <ValueHero
             label={t("hero.value")}
-            value={format(overviewData.totalValue)}
+            value={
+              <CompactPrice
+                value={overviewData.totalValue}
+                compactsOnlyBelowMd
+              />
+            }
             change={change ? { change, caption: changeCaption } : null}
             sparklineValues={
               summaryData && summaryData.all.valueHistory.length >= 2
@@ -108,9 +113,22 @@ export function HomeDashboard() {
                 : overviewData.scansByDay.map((day) => day.count)
             }
             stats={[
-              { label: t("hero.cards"), value: numberFormat.format(overviewData.cardCount) },
-              { label: t("hero.collections"), value: numberFormat.format(overviewData.collectionCount) },
-              ...(summaryData ? [{ label: t("hero.scanned"), value: numberFormat.format(summaryData.scansAllTime) }] : []),
+              {
+                label: t("hero.cards"),
+                value: <CompactCount value={overviewData.cardCount} />,
+              },
+              {
+                label: t("hero.collections"),
+                value: <CompactCount value={overviewData.collectionCount} />,
+              },
+              ...(summaryData
+                ? [
+                    {
+                      label: t("hero.scanned"),
+                      value: <CompactCount value={summaryData.scansAllTime} />,
+                    },
+                  ]
+                : []),
             ]}
           />
           {(liveCollections.length > 0 || reviewCount > 0 || pendingTradeOffers.length > 0) && (
@@ -202,12 +220,20 @@ export function HomeDashboard() {
               <div className="flex flex-col gap-4 md:gap-2 rounded-card bg-card p-5 md:p-2.5">
                 <dl className="flex gap-8">
                   <div className="flex flex-col-reverse">
-                    <dt className="text-xs text-foreground/70">{t("activity.today")}</dt>
-                    <dd className="text-2xl font-bold tabular-nums text-foreground">{numberFormat.format(overviewData.scansToday)}</dd>
+                    <dt className="text-xs text-foreground/70">
+                      {t("activity.today")}
+                    </dt>
+                    <dd className="text-2xl font-bold tabular-nums text-foreground">
+                      <CompactCount value={overviewData.scansToday} />
+                    </dd>
                   </div>
                   <div className="flex flex-col-reverse">
-                    <dt className="text-xs text-foreground/70">{t("activity.thisWeek")}</dt>
-                    <dd className="text-2xl font-bold tabular-nums text-foreground">{numberFormat.format(overviewData.scansThisWeek)}</dd>
+                    <dt className="text-xs text-foreground/70">
+                      {t("activity.thisWeek")}
+                    </dt>
+                    <dd className="text-2xl font-bold tabular-nums text-foreground">
+                      <CompactCount value={overviewData.scansThisWeek} />
+                    </dd>
                   </div>
                 </dl>
                 <ColumnChart

@@ -136,6 +136,8 @@ export * from "./rule-fields";
 export * from "./scan-rule-fields";
 export * from "./match-games";
 export * from "./price-source";
+export * from "./compact-number";
+export * from "./constants/compact-number.constant";
 export * from "./card-finishes";
 export * from "./foil-detection";
 export * from "./card-stamps";

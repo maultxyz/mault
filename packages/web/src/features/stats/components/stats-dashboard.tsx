@@ -1,4 +1,5 @@
 import { CardImage } from "@/components/card-image";
+import { CompactPrice } from "@/components/compact-value";
 import { StatGroup } from "@/components/stat-group";
 import { SettingsSection } from "@/components/settings-section";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
@@ -54,6 +55,7 @@ import { CollectionCostDialog } from "@/features/business/components/collection-
 import { cn } from "@/lib/utils";
 import {
   foldChartSegments,
+  formatCompactNumber,
   statsHeroSparklineValues,
   statsSharePercent,
   type StatsCollectionRow,
@@ -92,13 +94,9 @@ function formatShortDate(iso: string | null, locale: string): string | null {
 function StatsActivitySection({ report }: StatsActivitySectionProps) {
   const { t, i18n } = useTranslation("stats");
   const locale = i18n.language;
-  const { format } = usePriceSource();
+  const { format, formatCompact } = usePriceSource();
   const [metric, setMetric] = useState<StatsActivityMetric>("count");
   const isWeekly = report.bucket === "week";
-  const compactNumber = new Intl.NumberFormat(locale, {
-    notation: "compact",
-    maximumFractionDigits: 1,
-  });
 
   return (
     <SettingsSection
@@ -129,7 +127,9 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
           metric === "count" ? value.toLocaleString(locale) : format(value)
         }
         formatAxisValue={(value) =>
-          metric === "count" ? compactNumber.format(value) : format(value)
+          metric === "count"
+            ? formatCompactNumber(value, locale)
+            : formatCompact(value)
         }
         endLabel={isWeekly ? t("activity.thisWeek") : t("activity.today")}
       />
@@ -155,7 +155,7 @@ function StatsValueSection({ report }: StatsValueSectionProps) {
   const { t, i18n } = useTranslation("stats");
   const locale = i18n.language;
   const { t: tBusiness } = useTranslation("business");
-  const { format } = usePriceSource();
+  const { format, formatCompact } = usePriceSource();
   const history = report.valueHistory ?? [];
 
   return (
@@ -174,7 +174,7 @@ function StatsValueSection({ report }: StatsValueSectionProps) {
         <AreaChart
           ariaLabel={tBusiness("reports.inventory.history")}
           formatValue={format}
-          formatAxisValue={format}
+          formatAxisValue={formatCompact}
           data={history.map((point) => ({
             key: point.day,
             label: formatDay(point.day, locale),
@@ -476,7 +476,7 @@ export function StatsDashboard({
         STATS_SPLIT_MAX_SEGMENTS,
         { key: "other", label: t("other"), color: "var(--muted-foreground)" },
       )}
-      centerValue={totals.cardCount.toLocaleString(locale)}
+      centerValue={formatCompactNumber(totals.cardCount, locale)}
       centerLabel={t("tiles.cards")}
       formatShare={(value, total) =>
         t("compare.share", { percent: statsSharePercent(value, total) })
@@ -489,12 +489,15 @@ export function StatsDashboard({
       <div className="grid gap-4 md:gap-1.5 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
         <ValueHero
           label={t("tiles.totalValue")}
-          value={format(totals.totalValue)}
+          value={<CompactPrice value={totals.totalValue} compactsOnlyBelowMd />}
           sparklineValues={statsHeroSparklineValues(report)}
           stats={[
-            { label: t("tiles.cards"), value: totals.cardCount.toLocaleString(locale) },
-            { label: t("tiles.unique"), value: totals.uniqueCount.toLocaleString(locale) },
-            { label: t("tiles.avgValue"), value: format(totals.avgValue) },
+            { label: t("tiles.cards"), value: totals.cardCount },
+            { label: t("tiles.unique"), value: totals.uniqueCount },
+            {
+              label: t("tiles.avgValue"),
+              value: <CompactPrice value={totals.avgValue} />,
+            },
           ]}
         />
         <StatGroup
@@ -505,7 +508,7 @@ export function StatsDashboard({
               key: "scanned",
               icon: IconScan,
               label: t(`tiles.scanned.${report.range}`),
-              value: totals.scansInRange.toLocaleString(locale),
+              value: totals.scansInRange,
               detail: t("tiles.valueAddedHint", {
                 value: format(totals.valueAddedInRange),
               }),
@@ -514,7 +517,7 @@ export function StatsDashboard({
               key: "priced",
               icon: IconCoins,
               label: t("tiles.priced"),
-              value: totals.priceableCount.toLocaleString(locale),
+              value: totals.priceableCount,
               detail: t("tiles.shareHint", {
                 percent: statsSharePercent(totals.priceableCount, totals.cardCount),
               }),
@@ -523,7 +526,7 @@ export function StatsDashboard({
               key: "foils",
               icon: IconSparkles,
               label: t("tiles.foils"),
-              value: totals.foilCount.toLocaleString(locale),
+              value: totals.foilCount,
               detail: t("tiles.shareHint", {
                 percent: statsSharePercent(totals.foilCount, totals.cardCount),
               }),
@@ -532,8 +535,10 @@ export function StatsDashboard({
               key: "needsReview",
               icon: IconHelpCircle,
               label: t("tiles.needsReview"),
-              value: totals.needsReviewCount.toLocaleString(locale),
-              detail: t("tiles.correctedHint", { count: totals.correctedCount }),
+              value: totals.needsReviewCount,
+              detail: t("tiles.correctedHint", {
+                count: totals.correctedCount,
+              }),
             },
             ...(report.costsVisible
               ? [
@@ -541,7 +546,11 @@ export function StatsDashboard({
                     key: "costBasis",
                     icon: IconCoin,
                     label: tBusiness("reports.inventory.costBasis"),
-                    value: costed ? format(totals.costBasis ?? 0) : "-",
+                    value: costed ? (
+                      <CompactPrice value={totals.costBasis ?? 0} />
+                    ) : (
+                      "-"
+                    ),
                     detail: tBusiness("reports.inventory.costedCards", {
                       percent: `${statsSharePercent(totals.costedCount ?? 0, totals.cardCount)}%`,
                     }),
@@ -550,7 +559,7 @@ export function StatsDashboard({
                     key: "margin",
                     icon: IconChartLine,
                     label: tBusiness("reports.inventory.unrealized"),
-                    value: costed ? format(margin) : "-",
+                    value: costed ? <CompactPrice value={margin} /> : "-",
                     detail: costed
                       ? `${statsSharePercent(margin, totals.costBasis ?? 0)}%`
                       : null,
@@ -581,7 +590,7 @@ export function StatsDashboard({
             data={priceColumns}
             ariaLabel={t("prices.title")}
             formatValue={(value) => t("cardCount", { count: value })}
-            formatColumnValue={(value) => value.toLocaleString(locale)}
+            formatColumnValue={(value) => formatCompactNumber(value, locale)}
             labelEachColumn
           />
         </SettingsSection>

@@ -2,7 +2,13 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
-import { foldChartSegments, statsActivityAverage, statsHeroSparklineValues, statsSharePercent } from "@magic-vault/shared";
+import {
+  foldChartSegments,
+  formatCompactNumber,
+  statsActivityAverage,
+  statsHeroSparklineValues,
+  statsSharePercent,
+} from "@magic-vault/shared";
 import { CardArt } from "@/components/cards/card-art";
 import { AppText } from "@/components/ui/app-text";
 import { TabStrip } from "@/components/ui/tab-strip";
@@ -18,6 +24,7 @@ import { StatsHighlights } from "@/features/stats/components/stats-highlights";
 import { StatsSection } from "@/features/stats/components/stats-section";
 import { toStatsBreakdown } from "@/features/stats/lib/stats-breakdown";
 import { buildStatsInsights } from "@/features/stats/lib/stats-insights";
+import { useCompactCount } from "@/hooks/use-compact-count";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
@@ -49,8 +56,9 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
   const pricing = usePricing();
   const [metric, setMetric] = useState<StatsActivityMetric>("count");
   const isWeekly = report.bucket === "week";
-  const number = new Intl.NumberFormat(i18n.language, { maximumFractionDigits: 1 });
-  const compact = new Intl.NumberFormat(i18n.language, { notation: "compact", maximumFractionDigits: 1 });
+  const compactCount = useCompactCount();
+  const compactPrice = (value: number) => ({ value: pricing.formatCompact(value), exactValue: pricing.format(value) });
+  const averageValue = report.activity.length > 0 ? report.totals.valueAddedInRange / report.activity.length : 0;
 
   return (
     <StatsSection
@@ -68,16 +76,16 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
       <View style={{ flexDirection: "row", gap: SPACING.xl }}>
         {metric === "count" ? (
           <>
-            <HomeActivityFigure value={number.format(report.totals.scansInRange)} label={t("stats.activity.total")} />
-            <HomeActivityFigure value={number.format(statsActivityAverage(report))} label={t(`stats.activity.average.${report.bucket}`)} />
+            <HomeActivityFigure {...compactCount(report.totals.scansInRange)} label={t("stats.activity.total")} />
+            <HomeActivityFigure
+              {...compactCount(Math.round(statsActivityAverage(report) * 10) / 10)}
+              label={t(`stats.activity.average.${report.bucket}`)}
+            />
           </>
         ) : (
           <>
-            <HomeActivityFigure value={pricing.format(report.totals.valueAddedInRange)} label={t("stats.activity.metrics.value")} />
-            <HomeActivityFigure
-              value={pricing.format(report.activity.length > 0 ? report.totals.valueAddedInRange / report.activity.length : 0)}
-              label={t(`stats.activity.average.${report.bucket}`)}
-            />
+            <HomeActivityFigure {...compactPrice(report.totals.valueAddedInRange)} label={t("stats.activity.metrics.value")} />
+            <HomeActivityFigure {...compactPrice(averageValue)} label={t(`stats.activity.average.${report.bucket}`)} />
           </>
         )}
       </View>
@@ -92,7 +100,7 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
         }))}
         formatValue={(value) => (metric === "count" ? value.toLocaleString(i18n.language) : pricing.format(value))}
         formatAxisValue={(value) =>
-          metric === "count" ? compact.format(value) : pricing.format(value)
+          metric === "count" ? formatCompactNumber(value, i18n.language) : pricing.formatCompact(value)
         }
         endLabel={isWeekly ? t("stats.activity.thisWeek") : t("stats.activity.today")}
       />
@@ -125,7 +133,12 @@ function StatsCollectionsSection({ collections, onSelectCollection }: StatsColle
           key: row.guid,
           label: row.name,
           value: row[metric],
-          display: metric === "totalValue" ? pricing.format(row.totalValue) : row[metric].toLocaleString(i18n.language),
+          display:
+            metric === "totalValue"
+              ? pricing.formatCompact(row.totalValue)
+              : formatCompactNumber(row[metric], i18n.language),
+          exactDisplay:
+            metric === "totalValue" ? pricing.format(row.totalValue) : row[metric].toLocaleString(i18n.language),
           secondary: t("stats.compare.share", { percent: statsSharePercent(row[metric], total) }),
           onPress: () => onSelectCollection(row.guid),
         }))}
@@ -219,17 +232,19 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
   const { totals } = report;
   const breakdown = report.breakdown && report.breakdown.totalCount > 0 ? toStatsBreakdown(report.breakdown) : null;
   const isOrg = report.scope === "org";
-  const number = (value: number) => value.toLocaleString(i18n.language);
+  const compactCount = useCompactCount();
+  const compactNumber = (value: number) => formatCompactNumber(value, i18n.language);
+  const compactPrice = (value: number) => ({ value: pricing.formatCompact(value), exactValue: pricing.format(value) });
   const insights = buildStatsInsights(report, t, pricing.format, i18n.language);
 
   const priceColumns = report.priceBuckets.map((bucket) => ({
     key: bucket.key,
     label:
       bucket.max == null
-        ? t("stats.prices.atLeast", { min: pricing.format(bucket.min) })
+        ? t("stats.prices.atLeast", { min: pricing.formatCompact(bucket.min) })
         : bucket.min === 0
-          ? t("stats.prices.under", { max: pricing.format(bucket.max) })
-          : t("stats.prices.between", { min: pricing.format(bucket.min), max: pricing.format(bucket.max) }),
+          ? t("stats.prices.under", { max: pricing.formatCompact(bucket.max) })
+          : t("stats.prices.between", { min: pricing.formatCompact(bucket.min), max: pricing.formatCompact(bucket.max) }),
     value: bucket.count,
     detail: pricing.format(bucket.value),
   }));
@@ -246,7 +261,7 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
         STATS_SPLIT_MAX_SEGMENTS,
         { key: "other", label: t("stats.other"), color: colors.mutedForeground },
       )}
-      centerValue={number(totals.cardCount)}
+      centerValue={compactNumber(totals.cardCount)}
       centerLabel={t("stats.tiles.cards")}
       formatShare={(value, total) => t("stats.compare.share", { percent: statsSharePercent(value, total) })}
     />
@@ -261,9 +276,9 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
         changeCaption=""
         sparklineValues={statsHeroSparklineValues(report)}
         stats={[
-          { label: t("stats.tiles.cards"), value: number(totals.cardCount) },
-          { label: t("stats.tiles.unique"), value: number(totals.uniqueCount) },
-          { label: t("stats.tiles.avgValue"), value: pricing.format(totals.avgValue) },
+          { label: t("stats.tiles.cards"), ...compactCount(totals.cardCount) },
+          { label: t("stats.tiles.unique"), ...compactCount(totals.uniqueCount) },
+          { label: t("stats.tiles.avgValue"), ...compactPrice(totals.avgValue) },
         ]}
       />
 
@@ -273,25 +288,25 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
         <StatTile
           icon="scan"
           label={t(`stats.tiles.scanned.${report.range}`)}
-          value={number(totals.scansInRange)}
-          hint={t("stats.tiles.valueAddedHint", { value: pricing.format(totals.valueAddedInRange) })}
+          {...compactCount(totals.scansInRange)}
+          hint={t("stats.tiles.valueAddedHint", { value: pricing.formatCompact(totals.valueAddedInRange) })}
         />
         <StatTile
           icon="coins"
           label={t("stats.tiles.priced")}
-          value={number(totals.priceableCount)}
+          {...compactCount(totals.priceableCount)}
           hint={t("stats.tiles.shareHint", { percent: statsSharePercent(totals.priceableCount, totals.cardCount) })}
         />
         <StatTile
           icon="sparkles"
           label={t("stats.tiles.foils")}
-          value={number(totals.foilCount)}
+          {...compactCount(totals.foilCount)}
           hint={t("stats.tiles.shareHint", { percent: statsSharePercent(totals.foilCount, totals.cardCount) })}
         />
         <StatTile
           icon="help"
           label={t("stats.tiles.needsReview")}
-          value={number(totals.needsReviewCount)}
+          {...compactCount(totals.needsReviewCount)}
           hint={t("stats.tiles.correctedHint", { count: totals.correctedCount })}
         />
       </StatGroup>
@@ -308,7 +323,7 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
         <ColumnChart
           data={priceColumns}
           formatValue={(value) => t("stats.cardCount", { count: value })}
-          formatColumnValue={number}
+          formatColumnValue={compactNumber}
           accessibilityLabel={t("stats.prices.title")}
           columnGap={STATS_HISTOGRAM_COLUMN_GAP}
           labelEachColumn
@@ -334,7 +349,8 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
               key: game.key ?? "none",
               label: game.name ?? t("stats.games.none"),
               value: game.totalValue,
-              display: pricing.format(game.totalValue),
+              display: pricing.formatCompact(game.totalValue),
+              exactDisplay: pricing.format(game.totalValue),
               secondary: t("stats.cardCount", { count: game.cardCount }),
             }))}
             collapsedCount={STATS_LIST_COLLAPSED_COUNT}
@@ -349,7 +365,8 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
               key: set.code,
               label: set.name || set.code.toUpperCase(),
               value: set.value,
-              display: pricing.format(set.value),
+              display: pricing.formatCompact(set.value),
+              exactDisplay: pricing.format(set.value),
               secondary: t("stats.cardCount", { count: set.count }),
             }))}
             collapsedCount={STATS_LIST_COLLAPSED_COUNT}
@@ -364,7 +381,8 @@ export function StatsDashboard({ report, onSelectCollection }: StatsDashboardPro
               key: foil.key,
               label: foil.label,
               value: foil.count,
-              display: number(foil.count),
+              display: compactNumber(foil.count),
+              exactDisplay: foil.count.toLocaleString(i18n.language),
             }))}
             collapsedCount={STATS_LIST_COLLAPSED_COUNT}
           />

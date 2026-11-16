@@ -716,8 +716,8 @@
     "pauseAction": "Pause",
     "emergencyStop": "Stop",
     "emergencyStopHint": "Emergency stop: halts the feeder, paddles and pushers now",
-    "sessionChip_one": "{{count}} scanned",
-    "sessionChip_other": "{{count}} scanned",
+    "sessionChip_one": "{{count, compact}} scanned",
+    "sessionChip_other": "{{count, compact}} scanned",
     "sessionScans": {
       "title": "This session",
       "empty": "No cards scanned yet this session.",

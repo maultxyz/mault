@@ -5,13 +5,13 @@ import { useTheme } from "@/hooks/use-theme";
 import { SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import type { StatTileProps } from "@/lib/interfaces/ui";
 
-export function StatTile({ label, value, hint, icon }: StatTileProps) {
+export function StatTile({ label, value, exactValue, hint, icon }: StatTileProps) {
   const colors = useTheme();
   return (
     <View style={{ width: "50%", paddingHorizontal: SPACING.xs }}>
       <View
         accessible
-        accessibilityLabel={[`${label}: ${value}`, hint].filter(Boolean).join(", ")}
+        accessibilityLabel={[`${label}: ${exactValue ?? value}`, hint].filter(Boolean).join(", ")}
         style={{
           flex: 1,
           minWidth: 0,

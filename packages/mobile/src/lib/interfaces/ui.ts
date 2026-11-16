@@ -203,6 +203,7 @@ export interface StatGroupProps {
 export interface StatTileProps {
   label: string;
   value: string;
+  exactValue?: string;
   hint?: string;
   icon?: IconName;
 }
@@ -259,6 +260,7 @@ export interface HomeCollectionRowProps {
   name: string;
   subtitle: string;
   value?: string | null;
+  exactValue?: string | null;
   trailing?: ReactNode;
   trailingAccessibilityLabel?: string;
   isScanTarget: boolean;
