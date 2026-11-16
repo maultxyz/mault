@@ -6,7 +6,6 @@ export type HotkeyGroup =
   | "scanner"
   | "cardDetail"
   | "intake"
-  | "foilLabeling"
   | "matchValidation";
 
 export type HotkeyId =
@@ -52,10 +51,6 @@ export type HotkeyId =
   | "reviewCycleCondition"
   | "reviewCycleLanguage"
   | "intakeOpenScanner"
-  | "foilLabelFoil"
-  | "foilLabelNotFoil"
-  | "foilLabelSkip"
-  | "foilLabelBack"
   | "matchValidationCorrect"
   | "matchValidationIncorrect"
   | "matchValidationBadScan"

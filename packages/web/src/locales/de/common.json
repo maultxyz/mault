@@ -224,8 +224,7 @@
       "scanner": "Scanner",
       "cardDetail": "Kartendetails",
       "intake": "Ankauf",
-      "matchValidation": "Treffer prüfen",
-      "foilLabeling": "Foil-Kennzeichnung"
+      "matchValidation": "Treffer prüfen"
     },
     "actions": {
       "showShortcuts": "Tastenkürzel anzeigen",
@@ -269,15 +268,11 @@
       "reviewCycleLanguage": "Beim Prüfen: Sprachen durchschalten",
       "goSortingRules": "Zu den Sortierregeln",
       "intakeOpenScanner": "Scanner für diesen Ankauf öffnen",
-      "foilLabelFoil": "Beim Kennzeichnen: als Foil markieren",
-      "foilLabelNotFoil": "Beim Kennzeichnen: als Nicht-Foil markieren",
-      "foilLabelSkip": "Beim Kennzeichnen: diese Karte überspringen",
       "matchValidationCorrect": "Beim Prüfen von Treffern: Treffer als richtig markieren",
       "matchValidationIncorrect": "Beim Prüfen von Treffern: Treffer als falsch markieren",
       "matchValidationBadScan": "Beim Prüfen von Treffern: Foto als schlechten Scan markieren",
       "matchValidationSkip": "Beim Prüfen von Treffern: diesen Scan überspringen",
       "matchValidationBack": "Beim Prüfen von Treffern: zum vorherigen Scan zurück",
-      "foilLabelBack": "Beim Kennzeichnen: zurück zur vorherigen Karte",
       "scanFlatbedCard": "Karte auf dem Flachbett scannen"
     }
   },

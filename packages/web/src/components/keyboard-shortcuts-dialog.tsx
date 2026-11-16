@@ -9,7 +9,6 @@ import {
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useRole } from "@/hooks/use-role";
 import {
-  ADMIN_ONLY_HOTKEY_GROUPS,
   HOTKEY_GROUP_ORDER,
   HOTKEYS,
 } from "@/lib/constants/hotkeys";
@@ -20,15 +19,13 @@ import { useTranslation } from "react-i18next";
 
 export function KeyboardShortcutsButton() {
   const { t } = useTranslation("common");
-  const { isStaff, isAdmin } = useRole();
+  const { isStaff } = useRole();
   const [open, setOpen] = useState(false);
 
   useHotkeys({ showShortcuts: () => setOpen(true) });
 
   const ids = (Object.keys(HOTKEYS) as HotkeyId[]).filter(
-    (id) =>
-      (isStaff || id !== "goAdmin") &&
-      (isAdmin || !ADMIN_ONLY_HOTKEY_GROUPS.includes(HOTKEYS[id].group)),
+    (id) => isStaff || id !== "goAdmin",
   );
   const groups = HOTKEY_GROUP_ORDER.filter((group) =>
     ids.some((id) => HOTKEYS[id].group === group),
