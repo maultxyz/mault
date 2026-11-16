@@ -199,6 +199,18 @@ code {
   --toast-error-text: oklch(0.808 0.114 19.571);
 }
 
+:root.public-page {
+  --background: #ffffff;
+  --card: #ffffff;
+  --popover: #ffffff;
+}
+
+:root.public-page.dark {
+  --background: #000000;
+  --card: #000000;
+  --popover: #000000;
+}
+
 @theme {
   --text-2xs: 0.625rem;
   --text-2xs--line-height: 0.875rem;

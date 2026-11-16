@@ -1183,6 +1183,7 @@ export interface ScannerStatusBarProps {
 export interface SessionStatsPanelProps {
   stats: ScanStats | null;
   totalCards: number;
+  isBordered?: boolean;
 }
 
 export interface DebugCardSet {

@@ -174,3 +174,7 @@ export interface TradeOfferReviewRowProps {
 export type TradeOfferSide = (typeof TRADE_OFFER_SIDES)[number];
 
 export type TradeOfferConfirmation = "accept" | "decline" | "finish" | null;
+
+export interface TradeOfferHeaderButtonProps {
+  isIconOnly?: boolean;
+}

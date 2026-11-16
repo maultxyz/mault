@@ -60,6 +60,7 @@ export interface PublicCardDetailViewProps {
 
 export interface PoweredByMaultProps {
   className?: string;
+  isInverted?: boolean;
 }
 
 export interface SharedCardViewProps {

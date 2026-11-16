@@ -42,6 +42,7 @@ import { STATS_PATH } from "@/lib/constants/stats";
 import { CATALOG_CARD_ROUTE_PATH, SEARCH_PATH } from "@/lib/constants/search";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { MATCH_VALIDATIONS_PATH } from "@/lib/constants/match-validations";
+import { PublicPageLayout } from "@/components/public-page-layout";
 import { lazy, Suspense, useEffect } from "react";
 import { runTasksOneByOneWhenIdle } from "@/lib/idle-tasks";
 import {
@@ -384,24 +385,29 @@ export const routes: RouteObject[] = [
         element: <MarketingRoute path={MARKETING_PAGE_PATHS.download} />,
       },
       {
-        path: "/watch/:collectionGuid",
-        element: <WatchPage />,
-      },
-      {
-        path: `${SHARED_STORAGE_PATH_PREFIX}/:locationGuid`,
-        element: <SharedStoragePage />,
-      },
-      {
-        path: `${SHARED_CARD_PATH_PREFIX}/:scanGuid`,
-        element: <SharedCardPage />,
-      },
-      {
-        path: `${SHOP_CATALOG_PATH_PREFIX}/:catalogGuid`,
-        element: <ShopCatalogPage />,
-      },
-      {
-        path: SHORT_LINK_NOT_FOUND_PATH,
-        element: <LinkNotFoundPage />,
+        element: <PublicPageLayout />,
+        children: [
+          {
+            path: "/watch/:collectionGuid",
+            element: <WatchPage />,
+          },
+          {
+            path: `${SHARED_STORAGE_PATH_PREFIX}/:locationGuid`,
+            element: <SharedStoragePage />,
+          },
+          {
+            path: `${SHARED_CARD_PATH_PREFIX}/:scanGuid`,
+            element: <SharedCardPage />,
+          },
+          {
+            path: `${SHOP_CATALOG_PATH_PREFIX}/:catalogGuid`,
+            element: <ShopCatalogPage />,
+          },
+          {
+            path: SHORT_LINK_NOT_FOUND_PATH,
+            element: <LinkNotFoundPage />,
+          },
+        ],
       },
       {
         path: MARKETING_PAGE_PATHS.privacy,

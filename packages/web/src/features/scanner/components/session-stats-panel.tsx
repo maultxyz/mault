@@ -3,16 +3,18 @@ import { useTranslation } from "react-i18next";
 import type { SessionStatsPanelProps } from "@/lib/interfaces/scanner";
 import { StatCell } from "@/components/stat-cell";
 import { CompactCount, CompactPrice } from "@/components/compact-value";
+import { cn } from "@/lib/utils";
 
 export function SessionStatsPanel({
   stats,
   totalCards,
+  isBordered = false,
 }: SessionStatsPanelProps) {
   const { t } = useTranslation("scanner");
   const { format } = usePriceSource();
   return (
     <>
-      <div className="overflow-hidden rounded-card bg-card">
+      <div className={cn("overflow-hidden rounded-card bg-card", isBordered && "border")}>
         <div className="grid grid-cols-2 divide-x divide-y divide-border">
           <div className="col-span-2 divide-y divide-border">
             <StatCell
@@ -48,7 +50,7 @@ export function SessionStatsPanel({
       </div>
 
       {stats && stats.rarities.length > 0 && (
-        <div className="rounded-card bg-card p-3 md:p-2.5">
+        <div className={cn("rounded-card bg-card p-3 md:p-2.5", isBordered && "border")}>
           <p className="mb-1.5 text-xs text-foreground/70">
             {t("byRarity")}
           </p>

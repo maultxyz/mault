@@ -41,3 +41,5 @@ export const PUBLIC_CARD_VIEW_STATE_PARAM_NAMES: readonly string[] = [
 ];
 
 export const PUBLIC_CARDS_RATE_LIMITED_STATUS = 429;
+
+export const PUBLIC_PAGE_ROOT_CLASS = "public-page";

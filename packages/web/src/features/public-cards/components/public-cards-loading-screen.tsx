@@ -25,16 +25,18 @@ export function PublicCardsLoadingScreen() {
           <Skeleton className="h-5 w-40" />
           <Skeleton className="h-3 w-24" />
         </div>
-        <Skeleton className="h-10 w-full rounded-lg md:h-7" />
-        <div className="flex items-center gap-1.5 md:justify-end">
-          <Skeleton className="h-10 flex-1 rounded-lg md:hidden" />
-          <Skeleton className="h-10 w-28 rounded-lg md:h-7" />
+        <div className="flex w-full min-w-0 items-center gap-1.5">
+          <Skeleton className="h-10 min-w-0 flex-1 rounded-lg md:h-7" />
+          <Skeleton className="size-10 shrink-0 rounded-lg md:hidden" />
+        </div>
+        <div className="hidden items-center gap-1.5 md:flex md:justify-end">
+          <Skeleton className="h-7 w-28 rounded-lg" />
         </div>
       </header>
       <div className="flex min-h-0 flex-1">
         <aside
           aria-hidden
-          className="hidden w-64 shrink-0 border-r bg-sidebar/70 p-4 md:flex md:flex-col md:gap-5 lg:w-72"
+          className="hidden w-64 shrink-0 border-r bg-muted p-4 md:flex md:flex-col md:gap-5 lg:w-72"
         >
           {Array.from({ length: PUBLIC_CARDS_LOADING_FILTER_GROUP_COUNT }, (_, groupIndex) => (
             <div key={groupIndex} className="flex flex-col gap-2">
@@ -57,6 +59,12 @@ export function PublicCardsLoadingScreen() {
           </div>
         </div>
       </div>
+      <footer
+        aria-hidden
+        className="flex shrink-0 items-center justify-center bg-black px-4 py-1.5 dark:border-t md:justify-end md:px-3 md:py-1"
+      >
+        <span className="h-4 w-36 rounded-sm bg-white/20" />
+      </footer>
     </main>
   );
 }

@@ -1,4 +1,6 @@
+import { CountDot } from "@/components/count-dot";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import {
@@ -74,6 +76,7 @@ export function PublicCardBrowser({
   tradeOfferLink,
 }: PublicCardBrowserProps) {
   const { t } = useTranslation("cards");
+  const isMobile = useIsMobile();
   const resultsRef = useRef<HTMLDivElement>(null);
   const [searchParams, setSearchParams] = useSearchParams();
   const {
@@ -315,40 +318,53 @@ export function PublicCardBrowser({
             </p>
           </div>
         </div>
-        <div className="relative w-full min-w-0">
-          <IconSearch
-            className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70 max-md:left-3"
-            aria-hidden
-          />
-          <Input
-            type="search"
-            placeholder={t("publicBrowse.searchPlaceholder")}
-            aria-label={t("publicBrowse.searchPlaceholder")}
-            maxLength={PUBLIC_CARDS_SEARCH_MAX_LENGTH}
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              if (openScanId || showsTradeOffer) leaveCardForResults();
-            }}
-            className="pl-8 max-md:pl-10"
-          />
+        <div className="flex w-full min-w-0 items-center gap-1.5">
+          <div className="relative min-w-0 flex-1">
+            <IconSearch
+              className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70 max-md:left-3"
+              aria-hidden
+            />
+            <Input
+              type="search"
+              placeholder={t("publicBrowse.searchPlaceholder")}
+              aria-label={t("publicBrowse.searchPlaceholder")}
+              maxLength={PUBLIC_CARDS_SEARCH_MAX_LENGTH}
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                if (openScanId || showsTradeOffer) leaveCardForResults();
+              }}
+              className="pl-8 max-md:pl-10"
+            />
+          </div>
+          {isMobile && (
+            <>
+              <TradeOfferHeaderButton isIconOnly />
+              <Button
+                variant={activeFilterCount > 0 ? "selected" : "outline"}
+                size="icon"
+                className="relative shrink-0"
+                aria-label={
+                  activeFilterCount > 0
+                    ? t("publicBrowse.filtersWithCount", { count: activeFilterCount })
+                    : t("publicBrowse.filtersHeading")
+                }
+                onClick={() => setShowsFilterDrawer(true)}
+              >
+                <IconAdjustmentsHorizontal />
+                <CountDot count={activeFilterCount} />
+              </Button>
+            </>
+          )}
         </div>
-        <div className="flex items-center gap-1.5 md:justify-end">
-          <TradeOfferHeaderButton />
-          <Button
-            variant={activeFilterCount > 0 ? "selected" : "outline"}
-            className="flex-1 md:hidden"
-            onClick={() => setShowsFilterDrawer(true)}
-          >
-            <IconAdjustmentsHorizontal />
-            {activeFilterCount > 0
-              ? t("publicBrowse.filtersWithCount", { count: activeFilterCount })
-              : t("publicBrowse.filtersHeading")}
-          </Button>
-        </div>
+        {!isMobile && (
+          <div className="flex items-center gap-1.5 justify-end">
+            <TradeOfferHeaderButton />
+          </div>
+        )}
       </header>
       <div className={cn("flex min-h-0 flex-1", (openScanId || showsTradeOffer) && "hidden")}>
-        <aside className="hidden w-64 shrink-0 overflow-y-auto border-r bg-sidebar/70 p-4 md:flex md:flex-col md:gap-5 lg:w-72">
+        <aside className="hidden w-64 shrink-0 overflow-y-auto border-r bg-muted p-4 md:flex md:flex-col md:gap-5 lg:w-72">
           {sidebarTop}
           {filterPanel}
         </aside>
@@ -403,8 +419,8 @@ export function PublicCardBrowser({
         {sidebarTop}
         {filterPanel}
       </DynamicDialog>
-      <footer className="flex shrink-0 items-center justify-center border-t px-4 py-1.5 md:justify-end md:px-3 md:py-1">
-        <PoweredByMault />
+      <footer className="flex shrink-0 items-center justify-center bg-black px-4 py-1.5 dark:border-t md:justify-end md:px-3 md:py-1">
+        <PoweredByMault isInverted />
       </footer>
     </main>
   );
