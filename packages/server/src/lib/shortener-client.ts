@@ -32,7 +32,7 @@ function shortenerSecret(): string {
 async function callShortener(
   path: string,
   init: RequestInit = {},
-  expectedFailureStatuses: number[] = [404],
+  expectedFailureStatuses: number[] = [],
 ): Promise<Response> {
   const response = await fetch(`${getShortenerUrl()}${path}`, {
     ...init,
@@ -43,7 +43,9 @@ async function callShortener(
     signal: AbortSignal.timeout(SHORTENER_REQUEST_TIMEOUT_MS),
   });
   if (!response.ok && !expectedFailureStatuses.includes(response.status)) {
-    throw new Error(`Shortener ${init.method ?? "GET"} ${path} failed: ${response.status}`);
+    throw new Error(
+      `Shortener ${init.method ?? "GET"} ${getShortenerUrl()}${path} failed: ${response.status}`,
+    );
   }
   return response;
 }
@@ -82,6 +84,8 @@ export async function findShortLinkTargetPath(code: string): Promise<string | nu
   if (!shortLinksEnabled()) return null;
   const response = await callShortener(
     `${SHORTENER_INTERNAL_LINKS_PATH}/${encodeURIComponent(code)}`,
+    {},
+    [404],
   );
   if (response.status === 404) return null;
   const result = (await response.json()) as Result<{ targetPath: string }>;
@@ -119,6 +123,7 @@ export async function updateCustomShortLink(
   const response = await callShortener(
     `${SHORTENER_INTERNAL_CUSTOM_LINKS_PATH}/${encodeURIComponent(code)}`,
     { method: "PUT", body: JSON.stringify(input) },
+    [404],
   );
   if (response.status === 404) return null;
   const result = (await response.json()) as Result<ShortenerCustomLink>;
@@ -129,6 +134,7 @@ export async function deleteCustomShortLink(code: string): Promise<boolean> {
   const response = await callShortener(
     `${SHORTENER_INTERNAL_CUSTOM_LINKS_PATH}/${encodeURIComponent(code)}`,
     { method: "DELETE" },
+    [404],
   );
   return response.status !== 404;
 }
