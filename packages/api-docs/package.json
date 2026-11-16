@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/api-docs",
-  "version": "1.0.207",
+  "version": "1.0.208",
   "private": true,
   "scripts": {
     "openapi": "tsx scripts/generate-openapi.ts",
