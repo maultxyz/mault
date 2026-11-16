@@ -3,6 +3,9 @@ RUN npm install -g pnpm@9.1.3
 
 WORKDIR /app
 
+# Disable ONNX telemetry before any native runtime initialization.
+ENV ORT_DISABLE_TELEMETRY=1
+
 # Set HuggingFace and CollectorVision caches to known paths inside the image
 ENV HF_HOME=/app/.cache/huggingface
 ENV COLLECTORVISION_CACHE=/app/.cache/collectorvision

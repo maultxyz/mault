@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Disable ONNX telemetry for the API and its child processes.
+export ORT_DISABLE_TELEMETRY=1
+
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/mault"
 umask 077
