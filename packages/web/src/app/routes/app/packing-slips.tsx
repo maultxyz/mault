@@ -21,7 +21,7 @@ import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { ORDER_PARAM } from "@/lib/constants/business";
 import { IconPackage, IconPrinter } from "@tabler/icons-react";
 import { useQueries, useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
@@ -44,6 +44,26 @@ function PackingSlips() {
   const failedQuery = orderQueries.find((query) => query.isError);
   const slips = orderQueries.flatMap((query) => (query.data ? buildPackingSlips(query.data) : []));
   const shopName = activeOrg?.name ?? t("orders.packingSlips.title");
+
+  useEffect(() => {
+    const pageStyle = document.createElement("style");
+    pageStyle.textContent = "@media print { @page { margin: 0; } }";
+    document.head.appendChild(pageStyle);
+    return () => {
+      pageStyle.remove();
+    };
+  }, []);
+
+  const printTitle = slips.length > 0
+    ? `${t("orders.packingSlips.pageTitle")} ${[...new Set(slips.map((slip) => slip.pickName))].join(", ")}`
+    : t("orders.packingSlips.pageTitle");
+  useEffect(() => {
+    const previousTitle = document.title;
+    document.title = printTitle;
+    return () => {
+      document.title = previousTitle;
+    };
+  }, [printTitle]);
 
   const changeOption = (key: keyof PackingSlipPrintOptions, value: boolean) => {
     setOptions((current) => {

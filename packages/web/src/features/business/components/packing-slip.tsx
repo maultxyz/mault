@@ -30,7 +30,7 @@ export function PackingSlip({
   return (
     <section
       aria-label={t("orders.packingSlips.slipLabel", { order: slip.orderRef ?? slip.pickName })}
-      className="flex flex-col gap-4 rounded-card bg-card p-6 print:break-after-page print:rounded-none print:p-0 print:last:break-after-auto"
+      className="flex flex-col gap-4 rounded-card bg-card p-6 print:break-after-page print:rounded-none print:last:break-after-auto"
     >
       <div className="flex items-start justify-between gap-4">
         <div className="flex min-w-0 items-center gap-2.5">
@@ -41,10 +41,7 @@ export function PackingSlip({
               className="size-10 shrink-0 rounded-md object-cover"
             />
           ) : (
-            <span className="flex shrink-0 items-center gap-1.5">
-              <BrandIcon className="size-7 text-foreground" />
-              <span className="font-heading text-lg font-semibold">Mault</span>
-            </span>
+            <BrandIcon className="size-8 shrink-0 text-foreground" />
           )}
           <div className="min-w-0">
             <h2 className="truncate font-heading text-lg font-semibold">{shopName}</h2>
