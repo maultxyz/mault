@@ -111,7 +111,7 @@ export function GamesManager() {
               </Button>
               <Button
                 size="icon"
-                variant="outline-destructive"
+                variant="destructive"
                 onClick={() => setDeleteTarget(game)}
                 aria-label={t("gamesManager.deleteTitle")}
                 title={t("gamesManager.deleteTitle")}

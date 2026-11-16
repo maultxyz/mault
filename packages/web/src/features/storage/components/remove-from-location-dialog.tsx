@@ -53,7 +53,7 @@ export function RemoveFromLocationDialog({
           </Button>
           <Button
             ref={removeFromLocationRef}
-            variant="outline-destructive"
+            variant="destructive"
             onClick={() => confirm(false)}
           >
             {t("removeDialog.removeFromLocation")}

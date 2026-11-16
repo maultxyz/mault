@@ -159,7 +159,7 @@ export function NotificationRuleList({
                 </Button>
                 <Button
                   size="icon"
-                  variant="outline-destructive"
+                  variant="destructive"
                   disabled={change.isPending}
                   aria-label={t("rules.delete", { name: rule.name })}
                   title={t("rules.delete", { name: rule.name })}

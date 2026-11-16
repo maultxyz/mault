@@ -216,9 +216,7 @@ export function ScannerControls({
         ? t("scannerControls.start")
         : t("scannerControls.resume");
   const primaryVariant = !isPaused
-    ? isRemoveModeActive
-      ? "outline-destructive"
-      : "outline"
+    ? "outline"
     : isRemoveModeActive
       ? "destructive"
       : "default";

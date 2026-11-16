@@ -54,8 +54,7 @@ export function ShareLinkRow({
         </Button>
         <Button
           type="button"
-          variant="ghost"
-          className="text-destructive"
+          variant="destructive"
           aria-label={t("revokeLabel", { date: created })}
           disabled={isRevoking}
           onClick={() => onRevoke(link)}

@@ -117,7 +117,7 @@ export function SessionsList() {
         {otherCount > 0 && (
           <Button
             type="button"
-            variant="outline-destructive"
+            variant="destructive"
             disabled={isRevokingAll}
             onClick={() => setRevokeAllOpen(true)}
           >

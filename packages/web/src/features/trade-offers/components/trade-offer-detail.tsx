@@ -70,8 +70,8 @@ export function TradeOfferDetail({ offer }: TradeOfferDetailProps) {
   const actions = isPending ? (
     <>
       <Button
-        variant="outline"
-        className="text-destructive max-md:flex-1"
+        variant="destructive"
+        className="max-md:flex-1"
         disabled={isBusy}
         onClick={() => respond.mutate({ guid: offer.guid, accepts: false })}
       >

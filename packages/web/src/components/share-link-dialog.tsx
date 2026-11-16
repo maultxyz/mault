@@ -185,7 +185,7 @@ export function ShareLinkDialog({
       <>
         {details?.guid && (
           <Button
-            variant="outline-destructive"
+            variant="destructive"
             className="md:mr-auto"
             onClick={handleRevokeShownLink}
             disabled={isRevokingShownLink}
@@ -202,7 +202,7 @@ export function ShareLinkDialog({
       <>
         {links.length > 0 && (
           <Button
-            variant="outline-destructive"
+            variant="destructive"
             className="md:mr-auto"
             onClick={() => setIsRevokeAllConfirmOpen(true)}
             disabled={isRevokingAll}
