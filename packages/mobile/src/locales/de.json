@@ -30,7 +30,8 @@
     "trades": "Tausch",
     "more": "Mehr",
     "home": "Start",
-    "library": "Bibliothek"
+    "library": "Bibliothek",
+    "business": "An- & Verkauf"
   },
   "auth": {
     "tagline": "Scanne, sortiere und verwalte deine Karten vom Handy aus.",

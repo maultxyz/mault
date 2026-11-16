@@ -6,6 +6,7 @@ import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileSection } from "@/components/mobile-section";
 import { MobileSegmentedControl } from "@/components/mobile-segmented-control";
 import { useSignOut } from "@/features/account/api/use-sign-out";
+import { useHasBusinessTools } from "@/features/business/api/use-has-business-tools";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
@@ -54,6 +55,7 @@ export default function MePage() {
   const signOut = useSignOut();
   const { planLockFor } = usePlanLockedPath();
   const intakeLock = planLockFor(INTAKE_PATH);
+  const hasBusinessTools = useHasBusinessTools();
 
   if (!isMobile) return <Navigate to={SETTINGS_PATHS.root} replace />;
 
@@ -143,13 +145,15 @@ export default function MePage() {
               label={t("nav.stats")}
               to={STATS_PATH}
             />
-            <MobileListRow
-              icon={<IconCash />}
-              label={t("nav.intake")}
-              to={INTAKE_PATH}
-              disabled={intakeLock?.isDisabled}
-              trailing={intakeLock && <PlanLockTag label={intakeLock.tag} />}
-            />
+            {!hasBusinessTools && (
+              <MobileListRow
+                icon={<IconCash />}
+                label={t("nav.intake")}
+                to={INTAKE_PATH}
+                disabled={intakeLock?.isDisabled}
+                trailing={intakeLock && <PlanLockTag label={intakeLock.tag} />}
+              />
+            )}
             <MobileListRow
               icon={<IconActivityHeartbeat />}
               label={tHealth("title")}

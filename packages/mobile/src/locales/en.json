@@ -30,7 +30,8 @@
     "trades": "Trades",
     "more": "More",
     "home": "Home",
-    "library": "Library"
+    "library": "Library",
+    "business": "Buy & sell"
   },
   "auth": {
     "tagline": "Scan, sort and track your cards from your phone.",

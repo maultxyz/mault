@@ -4,6 +4,7 @@ export const TAB_ICONS: Record<string, IconName> = {
   index: "home",
   scan: "scan",
   collections: "collections",
+  "buy-and-sell": "store",
   account: "menu",
 };
 
@@ -46,5 +47,6 @@ export const ANDROID_TAB_SYMBOLS = {
   index: "home",
   scan: "document_scanner",
   collections: "collections_bookmark",
+  "buy-and-sell": "storefront",
   account: "menu",
 } as const;

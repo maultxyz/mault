@@ -30,7 +30,8 @@
     "trades": "Échanges",
     "more": "Plus",
     "home": "Accueil",
-    "library": "Bibliothèque"
+    "library": "Bibliothèque",
+    "business": "Achat & vente"
   },
   "auth": {
     "tagline": "Scanne, trie et suis tes cartes depuis ton téléphone.",

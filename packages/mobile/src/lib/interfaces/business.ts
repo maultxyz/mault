@@ -11,6 +11,10 @@ import type { BUSINESS_VIEWS } from "@/lib/constants/business";
 
 export type BusinessView = (typeof BUSINESS_VIEWS)[number];
 
+export interface BusinessHubProps {
+  onBack?: () => void;
+}
+
 export interface PickWalk {
   openOrders: FulfilmentOrderDetail[];
   closedOrderCount: number;

@@ -17,6 +17,7 @@ import { InitialBadge } from "@/components/ui/initial-badge";
 import { Surface } from "@/components/ui/surface";
 import { useRole } from "@/hooks/use-role";
 import { SegmentedControl } from "@/components/ui/segmented-control";
+import { useHasBusinessTools } from "@/features/business/api/use-has-business-tools";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { useLanguagePreference } from "@/hooks/use-language-preference";
 import { useSwitchOrg } from "@/hooks/use-org";
@@ -41,6 +42,7 @@ export default function AccountScreen() {
   const [languageOpen, setLanguageOpen] = useState(false);
 
   const switchOrg = useSwitchOrg();
+  const hasBusinessTools = useHasBusinessTools();
 
   return (
     <Screen header={<PageHeader title={t("tabs.more")} />}>
@@ -96,23 +98,25 @@ export default function AccountScreen() {
           <ListRow icon="stats" title={t("tabs.stats")} onPress={() => router.push("/stats")} />
         </ListGroup>
       </View>
-      <View style={{ gap: SPACING.sm }}>
-        <SectionHeader title={t("business.title")} />
-        <ListGroup>
-          <ListRow
-            icon="coins"
-            title={t("business.views.intake")}
-            subtitle={t("business.intake.entrySubtitle")}
-            onPress={() => router.push({ pathname: "/business", params: { view: "intake" } })}
-          />
-          <ListRow
-            icon="checkAll"
-            title={t("business.views.picks")}
-            subtitle={t("business.picks.entrySubtitle")}
-            onPress={() => router.push({ pathname: "/business", params: { view: "picks" } })}
-          />
-        </ListGroup>
-      </View>
+      {hasBusinessTools ? null : (
+        <View style={{ gap: SPACING.sm }}>
+          <SectionHeader title={t("business.title")} />
+          <ListGroup>
+            <ListRow
+              icon="coins"
+              title={t("business.views.intake")}
+              subtitle={t("business.intake.entrySubtitle")}
+              onPress={() => router.push({ pathname: "/business", params: { view: "intake" } })}
+            />
+            <ListRow
+              icon="checkAll"
+              title={t("business.views.picks")}
+              subtitle={t("business.picks.entrySubtitle")}
+              onPress={() => router.push({ pathname: "/business", params: { view: "picks" } })}
+            />
+          </ListGroup>
+        </View>
+      )}
       <View style={{ gap: SPACING.sm }}>
         <SectionHeader title={t("account.manageSection")} />
         <ListGroup>
