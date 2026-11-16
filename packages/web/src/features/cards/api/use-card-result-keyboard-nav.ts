@@ -6,6 +6,11 @@ import {
 import type { CardResultKeyboardNavOptions } from "@/lib/interfaces/cards";
 import { useCallback, useRef, type KeyboardEvent } from "react";
 
+function focusWithMinimalScroll(element: HTMLElement) {
+  element.focus({ preventScroll: true });
+  element.scrollIntoView({ block: "nearest", inline: "nearest" });
+}
+
 export function useCardResultKeyboardNav({
   onSelect,
   onCancel,
@@ -27,7 +32,7 @@ export function useCardResultKeyboardNav({
         const first = getResults()[0];
         if (!first) return;
         event.preventDefault();
-        first.focus();
+        focusWithMinimalScroll(first);
       } else if (event.key === "Enter") {
         event.preventDefault();
         onSelect(0, { stay: event.shiftKey });
@@ -63,7 +68,7 @@ export function useCardResultKeyboardNav({
         event.key,
       );
       if (next === null) inputRef.current?.focus();
-      else results[next].focus();
+      else focusWithMinimalScroll(results[next]);
     },
     [getResults, onSelect, onCancel],
   );
