@@ -14,10 +14,9 @@ import { BuildSelectionSummary } from "@/features/build/components/selection-sum
 import { BOM_ANCHOR_PREFIX } from "@/lib/constants/build";
 import { useLocation } from "react-router-dom";
 import { visibleBomGroups } from "@/features/build/lib/bom-parts";
-import { SHOP_URL } from "@/lib/constants/links";
-import { IconPackage, IconPlug, IconShoppingCart } from "@tabler/icons-react";
+import { IconPackage, IconPlug } from "@tabler/icons-react";
 import { useEffect, useMemo, useState } from "react";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 
 export function BuildBom() {
   const { t } = useTranslation("build");
@@ -64,24 +63,6 @@ export function BuildBom() {
         </p>
       </GuideSectionHeader>
       <BuildSelectionSummary />
-      <div className="mt-3 flex max-w-2xl items-start gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm/relaxed text-primary">
-        <IconShoppingCart className="mt-0.5 size-4 shrink-0" />
-        <span>
-          <Trans
-            t={t}
-            i18nKey="bom.shopNote"
-            components={[
-              <a
-                key="0"
-                href={SHOP_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="font-medium underline underline-offset-2 hover:opacity-80"
-              />,
-            ]}
-          />
-        </span>
-      </div>
 
       <div className="mt-4">
         <GuideProgress

@@ -44,6 +44,7 @@ export interface BuildStep {
   key: string;
   text: ReactNode;
   note?: ReactNode;
+  alert?: ReactNode;
   images?: string[];
   modelParts?: readonly SorterPrintPart[];
   reference?: ReactNode;

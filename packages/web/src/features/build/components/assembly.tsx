@@ -15,7 +15,8 @@ import {
 } from "@/lib/constants/build";
 import { DISCORD_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
-import { IconVideo } from "@tabler/icons-react";
+import { IconAlertTriangle, IconVideo } from "@tabler/icons-react";
+import { Callout } from "@/components/callout";
 import { useMemo } from "react";
 import { BUILD_STEP_IMAGE_ALT_KEYS } from "@/lib/constants/build";
 import { Trans, useTranslation } from "react-i18next";
@@ -134,6 +135,15 @@ export function BuildAssembly() {
                               <p className="mt-0.5 text-sm/relaxed text-foreground/70">
                                 {step.note}
                               </p>
+                            )}
+                            {step.alert && (
+                              <Callout
+                                variant="warning"
+                                icon={IconAlertTriangle}
+                                className="mt-1.5 max-w-2xl px-3 py-2 text-sm/relaxed"
+                              >
+                                {step.alert}
+                              </Callout>
                             )}
                             {step.modelParts && (
                               <PrintPartImages parts={step.modelParts} />
