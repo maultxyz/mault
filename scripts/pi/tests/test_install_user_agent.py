@@ -56,9 +56,11 @@ class InstallUserAgentTests(unittest.TestCase):
         self.assertEqual(self.path.read_bytes(), original)
 
     def test_shared_default_is_replaced_with_the_chosen_name(self):
-        self.path.write_text("CARD_API_USER_AGENT=Mault-SelfHosted/1.0\n")
-        AGENT.configure(self.path, choose=lambda _: "My unique install")
-        self.assertEqual(self.value(), "My unique install")
+        for default in ("Mault-SelfHosted/1.0", "Mault-NewSelfHosted/1.0"):
+            with self.subTest(default=default):
+                self.path.write_text(f"CARD_API_USER_AGENT={default}\n")
+                AGENT.configure(self.path, choose=lambda _: "My unique install")
+                self.assertEqual(self.value(), "My unique install")
 
     def test_environment_value_supports_unattended_install(self):
         with patch.dict(os.environ, {"CARD_API_USER_AGENT": "Unattended-Pi/1.0"}):

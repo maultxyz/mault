@@ -11,6 +11,7 @@ import tempfile
 
 
 DEFAULT_USER_AGENT = "Mault-NewSelfHosted/1.0"
+SHARED_USER_AGENTS = {DEFAULT_USER_AGENT, "Mault-SelfHosted/1.0"}
 SETTING = re.compile(r"\s*(?:export\s+)?CARD_API_USER_AGENT\s*=\s*(.*?)\s*$")
 
 
@@ -36,7 +37,7 @@ def configure(path, choose=input):
         match = SETTING.fullmatch(line)
         if match:
             saved = " ".join(shlex.split(match[1], comments=True))
-    if saved and saved != DEFAULT_USER_AGENT:
+    if saved and saved not in SHARED_USER_AGENTS:
         quote_user_agent(saved)
         print("[install] Keeping the saved CARD_API_USER_AGENT.")
         return saved
