@@ -57,7 +57,7 @@ a serial connection to the device can drive it by following this spec
   on a first must match the `busy` reply to the second one, not the first;
   with `seq` the rejection carries the rejected command's number. Nothing is
   queued: resend once the first response has arrived. `stop` (firmware
-  2.14.0+) is the only command that runs while another is in progress; see
+  2.13.2+) is the only command that runs while another is in progress; see
   `stop` below. One exception: on the
   Uno R4 WiFi (ArduinoBLE backend), BLE input can't be read while a
   BLE-originated command is running, so a BLE line sent during a BLE command
@@ -363,10 +363,10 @@ answer on I2C.
 {"neutral": true}
 ```
 Resets every module's bottom/paddle/pusher to closed/closed/neutral and
-stops the feeder. Firmware 2.14.0+ also clears an emergency stop (see
+stops the feeder. Firmware 2.13.2+ also clears an emergency stop (see
 `stop`). → `{"status":"ok"}`
 
-### `stop` (emergency stop, firmware 2.14.0+)
+### `stop` (emergency stop, firmware 2.13.2+)
 ```json
 {"stop": true}
 ```
@@ -696,7 +696,7 @@ count the user picked.
   below the one the card is caught in). Then it either opens the target
   module's paddle and drives its pusher in the requested direction
   (`"left"`/`"right"`), or opens just the target module's own bottom to
-  drop the card there (`"bottom"`). Before firmware 2.14.0 the card
+  drop the card there (`"bottom"`). Before firmware 2.13.1 the card
   stopped at each module on the way and the next bottom only opened once
   that module's sensor saw it.
 - For a `"left"`/`"right"` push, the target module's paddle opens first
@@ -758,6 +758,6 @@ response time for the feed (the web client waits 25s instead of 15s).
 | `{"error":"command too long"}` | line exceeded 255 characters |
 | `{"error":"push_blocked","reason":"lower the side paddle before pushing a card","module":N}` | firmware 2.2.x only: a `servo`/`channel` pusher move while a card is on module *N*'s platform and its side paddle isn't down (see Push safeguard) |
 | `{"error":"busy","reason":"another command is in progress"}` | a line arrived while another command (from any transport) was still executing; the line was not run |
-| `{"error":"stopped"}` | firmware 2.14.0+: the command was interrupted by `stop`, or is a motion command sent while an emergency stop is latched (see `stop`) |
+| `{"error":"stopped"}` | firmware 2.13.2+: the command was interrupted by `stop`, or is a motion command sent while an emergency stop is latched (see `stop`) |
 | `{"error":"unknown command"}` | valid JSON, but no recognized top-level key |
 | `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no servo activity (informational only - no paddle-flap is attempted since nothing is actively sorting) |

@@ -185,7 +185,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 
 - Protocol: `firmware/PROTOCOL.md`. Firmware has no bins; the app maps bin -> (module, direction).
 - One command at a time; every blocking wait goes through `waitMs()`; pusher moves through `setServoPosition()`.
-- `{"stop": true}` (firmware 2.14.0+, Pi controller) is the one command accepted mid-command: it cuts every output and latches until `neutral`. Send it through `SerialSession.sendEmergencyStop` (bypasses the busy guard and route queue; the Pi hub bypasses its queue too) and treat `{"error":"stopped"}` as a terminal stop, never a routing or feed failure.
+- `{"stop": true}` (firmware 2.13.2+, Pi controller) is the one command accepted mid-command: it cuts every output and latches until `neutral`. Send it through `SerialSession.sendEmergencyStop` (bypasses the busy guard and route queue; the Pi hub bypasses its queue too) and treat `{"error":"stopped"}` as a terminal stop, never a routing or feed failure.
 - `handleCommand` parses its line as `const char*` and prints replies directly. New `ModuleConfig`/`FeederConfig` fields go in `MODULE_FIELDS`/`FEEDER_FIELDS` too; changing `ModuleConfig` needs an EEPROM layout migration.
 - A function whose signature uses a sketch-defined struct needs a manual prototype right after the struct.
 - `FeederCalibration.feedRetryCount` is app-only: the firmware ignores it and it stays out of `FEEDER_CALIBRATION_FIELDS`. Web, mobile and Pi feeds go through `shared`'s `feedWithRetries`, which resends `{"feeder": true}` only on a timeout (`isFeedTimeoutReply`), never on an empty hopper or another error.
