@@ -215,10 +215,28 @@ export interface PackingSlipData {
   unavailable: PackingSlipUnavailableLine[];
 }
 
+export interface PickSortGroup {
+  key: string;
+  orderGuid: string;
+  orderName: string;
+  orderRef: string | null;
+  binNumber: number | null;
+  picked: PickWalkEntry[];
+  total: number;
+}
+
+export interface PickSortViewProps {
+  groups: PickSortGroup[];
+  canPick: boolean;
+  onUnpick: (scanId: string) => void;
+}
+
 export interface PackingSlipProps {
   slip: PackingSlipData;
   shopName: string;
   showsPrices: boolean;
+  showsImages: boolean;
+  logoUrl: string | null;
 }
 
 export interface OrderRefLabelProps {

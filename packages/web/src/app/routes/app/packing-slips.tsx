@@ -6,13 +6,21 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { orderQueryOptions } from "@/features/business/api/business";
+import {
+  shopPhotoQueryOptions,
+} from "@/features/business/api/shop-catalogs";
 import { PackingSlip } from "@/features/business/components/packing-slip";
-import { buildPackingSlips } from "@/features/business/lib/packing-slips";
+import {
+  buildPackingSlips,
+  readPackingSlipPrintOptions,
+  writePackingSlipPrintOptions,
+  type PackingSlipPrintOptions,
+} from "@/features/business/lib/packing-slips";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { ORDER_PARAM } from "@/lib/constants/business";
 import { IconPackage, IconPrinter } from "@tabler/icons-react";
-import { useQueries } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -21,7 +29,14 @@ function PackingSlips() {
   const { t } = useTranslation("business");
   const { activeOrg } = useOrg();
   const [searchParams] = useSearchParams();
-  const [showsPrices, setShowsPrices] = useState(true);
+  const [options, setOptions] = useState<PackingSlipPrintOptions>(
+    () => readPackingSlipPrintOptions(),
+  );
+  const shopPhoto = useQuery({
+    ...shopPhotoQueryOptions(activeOrg?.id),
+    staleTime: Infinity,
+  });
+  const logoUrl = shopPhoto.data?.url ?? null;
   const orderQueries = useQueries({
     queries: searchParams.getAll(ORDER_PARAM).map((orderGuid) => orderQueryOptions(orderGuid)),
   });
@@ -29,6 +44,14 @@ function PackingSlips() {
   const failedQuery = orderQueries.find((query) => query.isError);
   const slips = orderQueries.flatMap((query) => (query.data ? buildPackingSlips(query.data) : []));
   const shopName = activeOrg?.name ?? t("orders.packingSlips.title");
+
+  const changeOption = (key: keyof PackingSlipPrintOptions, value: boolean) => {
+    setOptions((current) => {
+      const next = { ...current, [key]: value };
+      writePackingSlipPrintOptions(next);
+      return next;
+    });
+  };
 
   return (
     <main
@@ -46,7 +69,17 @@ function PackingSlips() {
           </div>
           <div className="flex items-center gap-1.5">
             <Label className="flex items-center gap-2 text-sm font-normal">
-              <Switch checked={showsPrices} onCheckedChange={setShowsPrices} />
+              <Switch
+                checked={options.showsImages}
+                onCheckedChange={(checked) => changeOption("showsImages", checked)}
+              />
+              {t("orders.packingSlips.showImages")}
+            </Label>
+            <Label className="flex items-center gap-2 text-sm font-normal">
+              <Switch
+                checked={options.showsPrices}
+                onCheckedChange={(checked) => changeOption("showsPrices", checked)}
+              />
               {t("orders.packingSlips.showPrices")}
             </Label>
             <Button disabled={slips.length === 0} onClick={() => window.print()}>
@@ -70,7 +103,14 @@ function PackingSlips() {
           />
         ) : (
           slips.map((slip) => (
-            <PackingSlip key={slip.key} slip={slip} shopName={shopName} showsPrices={showsPrices} />
+            <PackingSlip
+              key={slip.key}
+              slip={slip}
+              shopName={shopName}
+              showsPrices={options.showsPrices}
+              showsImages={options.showsImages}
+              logoUrl={logoUrl}
+            />
           ))
         )}
       </div>

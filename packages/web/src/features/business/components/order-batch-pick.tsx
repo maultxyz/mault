@@ -17,6 +17,7 @@ import {
 } from "@/features/business/api/use-business";
 import { useOrderPickProgress } from "@/features/business/api/use-order-pick-progress";
 import { OrderPhonePickDialog } from "@/features/business/components/order-phone-pick-dialog";
+import { PickSortView } from "@/features/business/components/pick-sort-view";
 import { PickWalkNextUp } from "@/features/business/components/pick-walk-next-up";
 import { PickWalkStopList } from "@/features/business/components/pick-walk-stop-list";
 import {
@@ -24,13 +25,14 @@ import {
   writeActivePickBatch,
 } from "@/features/business/lib/active-pick-batch";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { ViewTabs } from "@/components/view-tabs";
 import {
   packingSlipsPath,
   PICKS_PATH,
   picksPath,
 } from "@/lib/constants/business";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
-import type { OrderBatchPickProps } from "@/lib/interfaces/business";
+import type { OrderBatchPickProps, PickSortGroup } from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import {
@@ -48,7 +50,7 @@ import {
   IconTruckDelivery,
 } from "@tabler/icons-react";
 import { useQueries } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -62,6 +64,7 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
   const [phonePickOpen, setPhonePickOpen] = useState(false);
   const [missingEntry, setMissingEntry] = useState<PickWalkEntry | null>(null);
   const [isReleasing, setIsReleasing] = useState(false);
+  const [view, setView] = useState<"walk" | "sort">("walk");
   const orderQueries = useQueries({
     queries: orderGuids.map((orderGuid) => orderQueryOptions(orderGuid)),
   });
@@ -180,6 +183,36 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
         })
       : null;
 
+  const sortGroups = useMemo<PickSortGroup[]>(() => {
+    const groups = new Map<string, PickSortGroup>();
+    for (const entry of entries) {
+      const key = `${entry.orderGuid}|${entry.orderRef ?? ""}`;
+      let group = groups.get(key);
+      if (!group) {
+        const order = openOrders.find(
+          (candidate) => candidate.guid === entry.orderGuid,
+        );
+        if (!order) continue;
+        group = {
+          key,
+          orderGuid: entry.orderGuid,
+          orderName: order.name,
+          orderRef: entry.orderRef,
+          binNumber:
+            entry.orderRef == null
+              ? null
+              : (order.orderBins[entry.orderRef] ?? null),
+          picked: [],
+          total: 0,
+        };
+        groups.set(key, group);
+      }
+      group.total += 1;
+      if (pickedSet.has(entry.scanId)) group.picked.push(entry);
+    }
+    return [...groups.values()];
+  }, [entries, openOrders, pickedSet]);
+
   return (
     <div className={cn("min-h-0 flex-1 overflow-y-auto", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
       {isMobile ? (
@@ -233,27 +266,49 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
 
             {progressText && (
               <div className="sticky top-0 z-10 -mx-4 border-b bg-background/80 px-4 py-2 backdrop-blur-2xl md:-mx-3 md:px-3">
-                <p
-                  className="text-sm font-medium tabular-nums"
-                  role="status"
-                  aria-live="polite"
-                >
-                  {progressText}
-                </p>
-                <div
-                  className="mt-1 h-1 overflow-hidden rounded-sm bg-muted"
-                  aria-hidden
-                >
-                  <div
-                    className="h-full rounded-sm bg-primary transition-[width] motion-reduce:transition-none"
-                    style={{
-                      width: `${(pickedCount / entries.length) * 100}%`,
-                    }}
+                <div className="flex items-center gap-4">
+                  <div className="min-w-0 flex-1">
+                    <p
+                      className="text-sm font-medium tabular-nums"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      {progressText}
+                    </p>
+                    <div
+                      className="mt-1 h-1 overflow-hidden rounded-sm bg-muted"
+                      aria-hidden
+                    >
+                      <div
+                        className="h-full rounded-sm bg-primary transition-[width] motion-reduce:transition-none"
+                        style={{
+                          width: `${(pickedCount / entries.length) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <ViewTabs<"walk" | "sort">
+                    label={t("orders.batch.viewLabel")}
+                    className="shrink-0 border-b-0"
+                    items={[
+                      { key: "walk", label: t("orders.batch.walkTab") },
+                      { key: "sort", label: t("orders.batch.sortTab") },
+                    ]}
+                    value={view}
+                    onChange={setView}
                   />
                 </div>
               </div>
             )}
 
+            {view === "sort" ? (
+              <PickSortView
+                groups={sortGroups}
+                canPick={canAct}
+                onUnpick={(scanId) => pickProgress.changePicked([scanId], false)}
+              />
+            ) : (
+              <>
             {nextEntry ? (
               <PickWalkNextUp
                 entry={nextEntry}
@@ -293,6 +348,8 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
                 <IconPackageExport />
                 {t("orders.batch.complete", { count: completedOrders.length })}
               </Button>
+            )}
+              </>
             )}
           </>
         )}

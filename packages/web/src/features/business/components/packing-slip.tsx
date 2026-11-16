@@ -1,3 +1,4 @@
+import { BrandIcon } from "@/components/brand-icon";
 import {
   Table,
   TableBody,
@@ -13,22 +14,42 @@ import { usePriceSource } from "@/hooks/use-price-source";
 import type { PackingSlipProps } from "@/lib/interfaces/business";
 import { useTranslation } from "react-i18next";
 
-export function PackingSlip({ slip, shopName, showsPrices }: PackingSlipProps) {
+export function PackingSlip({
+  slip,
+  shopName,
+  showsPrices,
+  showsImages,
+  logoUrl,
+}: PackingSlipProps) {
   const { t } = useTranslation("business");
   const { format } = usePriceSource();
   const subtotal = packingSlipSubtotal(slip);
   const showsPriceColumns = showsPrices && subtotal !== null;
+  const showsImageColumn = showsImages && slip.rows.some((row) => row.image !== null);
   const itemCount = slip.rows.reduce((sum, row) => sum + row.quantity, 0);
-  const showsImages = slip.rows.some((row) => row.image !== null);
   return (
     <section
       aria-label={t("orders.packingSlips.slipLabel", { order: slip.orderRef ?? slip.pickName })}
       className="flex flex-col gap-4 rounded-card bg-card p-6 print:break-after-page print:rounded-none print:p-0 print:last:break-after-auto"
     >
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h2 className="font-heading text-lg font-semibold">{shopName}</h2>
-          <p className="text-sm text-foreground/70">{t("orders.packingSlips.title")}</p>
+        <div className="flex min-w-0 items-center gap-2.5">
+          {logoUrl ? (
+            <img
+              src={logoUrl}
+              alt=""
+              className="size-10 shrink-0 rounded-md object-cover"
+            />
+          ) : (
+            <span className="flex shrink-0 items-center gap-1.5">
+              <BrandIcon className="size-7 text-foreground" />
+              <span className="font-heading text-lg font-semibold">Mault</span>
+            </span>
+          )}
+          <div className="min-w-0">
+            <h2 className="truncate font-heading text-lg font-semibold">{shopName}</h2>
+            <p className="text-sm text-foreground/70">{t("orders.packingSlips.title")}</p>
+          </div>
         </div>
         <div className="text-right text-sm">
           <p className="font-medium">
@@ -43,7 +64,7 @@ export function PackingSlip({ slip, shopName, showsPrices }: PackingSlipProps) {
         <TableHeader>
           <TableRow>
             <TableHead className="w-12 text-right">{t("orders.packingSlips.quantity")}</TableHead>
-            {showsImages && (
+            {showsImageColumn && (
               <TableHead className="w-14">
                 <span className="sr-only">{t("orders.packingSlips.image")}</span>
               </TableHead>
@@ -63,7 +84,7 @@ export function PackingSlip({ slip, shopName, showsPrices }: PackingSlipProps) {
           {slip.rows.map((row) => (
             <TableRow key={row.key}>
               <TableCell className="text-right tabular-nums">{row.quantity}</TableCell>
-              {showsImages && (
+              {showsImageColumn && (
                 <TableCell className="py-1">
                   {row.image && (
                     <CardThumbnail image={row.image} loading="eager" className="w-11" />

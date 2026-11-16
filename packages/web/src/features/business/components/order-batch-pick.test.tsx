@@ -270,6 +270,32 @@ describe("OrderBatchPick", () => {
     ).toBeGreaterThanOrEqual(1);
   });
 
+  it("groups picked cards per order in the sort to orders view and supports unpicking", async () => {
+    renderBatch();
+    const hero = await heroSection();
+    fireEvent.click(
+      within(hero).getByRole("button", { name: "orders.pickCopyForOrder" }),
+    );
+    await screen.findByText("Bravo");
+    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.sortTab" }));
+    const [group] = await screen.findAllByRole("region", {
+      name: "orders.batch.sortGroupLabel",
+    });
+    expect(within(group).getAllByText("Alpha").length).toBe(1);
+    expect(within(group).getByText("orders.orderRefLabel")).toBeTruthy();
+    expect(within(group).getByText("orders.pickWalk.slot")).toBeTruthy();
+    fireEvent.click(
+      within(group).getByRole("button", { name: "orders.batch.unpick" }),
+    );
+    await waitFor(() => {
+      expect(
+        screen.getAllByText("orders.batch.sortStillToPick").length,
+      ).toBe(3);
+    });
+    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.walkTab" }));
+    expect(screen.getByRole("tab", { name: "orders.batch.walkTab" }).getAttribute("aria-selected")).toBe("true");
+  });
+
   it("remembers the batch so the picks list can offer to return to it", async () => {
     renderBatch();
     await heroSection();
