@@ -209,6 +209,7 @@ export function useScanSession({
   const heldArrivalRef = useRef(false);
   const binCountsRef = useRef(new Map<number, number>());
   const binCountsLoadedRef = useRef(false);
+  const binCountsLoadRef = useRef(0);
   const binContentsLoadedRef = useRef(false);
   const [binDataReloadAttempt, setBinDataReloadAttempt] = useState(0);
   const lastCardIdRef = useRef<string | null>(null);
@@ -390,6 +391,7 @@ export function useScanSession({
         binCountsRef.current = new Map(
           counts.map((c) => [c.binNumber, c.count]),
         );
+        binCountsLoadRef.current += 1;
         binCountsLoadedRef.current = true;
       })
       .catch((error: unknown) => {
@@ -652,9 +654,27 @@ export function useScanSession({
     [handleRouteResponse, routeFor, setPhase],
   );
 
+  const forgetUnsavedBinCard = useCallback(
+    (scanId: string, binNumber: number | undefined, countsLoad: number) => {
+      binContentsRef.current = binContentsRef.current.filter(
+        (entry) => entry.scanId !== scanId,
+      );
+      if (binNumber == null || countsLoad !== binCountsLoadRef.current) return;
+      const count = binCountsRef.current.get(binNumber) ?? 0;
+      binCountsRef.current.set(binNumber, Math.max(0, count - 1));
+    },
+    [],
+  );
+
   const handleSaveResult = useCallback(
-    (result: CardSaveResult, binNumber: number | undefined) => {
+    (
+      result: CardSaveResult,
+      scanId: string,
+      binNumber: number | undefined,
+      countsLoad: number,
+    ) => {
       if (result.success) return;
+      forgetUnsavedBinCard(scanId, binNumber, countsLoad);
       if (result.binLimitReached)
         pauseForFullBins(binNumber != null ? [binNumber] : []);
       else if (result.sorterLimitReached) pause("sorter-limit");
@@ -663,7 +683,7 @@ export function useScanSession({
         pause("storage-unavailable", result.message);
       else pause("collection-locked", result.message);
     },
-    [pause, pauseForFullBins],
+    [forgetUnsavedBinCard, pause, pauseForFullBins],
   );
 
   const handleMatched = useCallback(
@@ -715,6 +735,7 @@ export function useScanSession({
       const { record, ruleCard } = plan;
       const collectionGuid = ctx.collection.guid;
       let filledPack = false;
+      const countsLoad = binCountsLoadRef.current;
       await runScanDisposition({
         prepare: () => plan,
         hold: async (plan) => {
@@ -799,7 +820,28 @@ export function useScanSession({
                   record: plan.persistence.record,
                 });
           void saving
-            .then((result) => handleSaveResult(result, record.binNumber))
+            .then((result) => {
+              if (!result.success)
+                queryClient.setQueryData(
+                  billingQueryOptions(ctx.orgId).queryKey,
+                  (old) =>
+                    old
+                      ? {
+                          ...old,
+                          cardsScannedToday: Math.max(
+                            0,
+                            old.cardsScannedToday - 1,
+                          ),
+                        }
+                      : old,
+                );
+              handleSaveResult(
+                result,
+                record.scanId,
+                record.binNumber,
+                countsLoad,
+              );
+            })
             .catch(() => pause("save-failed"))
             .finally(() => {
               if (plan.pickListUpdate)
@@ -833,6 +875,7 @@ export function useScanSession({
       const collectionGuid = ctx.collection.guid;
       const scanId = Crypto.randomUUID();
       const scannedAt = Date.now();
+      const countsLoad = binCountsLoadRef.current;
       await runScanDisposition({
         prepare: () =>
           prepareUnmatchedScanPlan(
@@ -884,7 +927,14 @@ export function useScanSession({
               deviceGuid: ctx.sorter.device?.guid,
               record: plan.persistence.record,
             })
-            .then((result) => handleSaveResult(result, plan.record.binNumber))
+            .then((result) =>
+              handleSaveResult(
+                result,
+                scanId,
+                plan.record.binNumber,
+                countsLoad,
+              ),
+            )
             .catch(() => pause("save-failed"));
         },
         complete: () => {},
@@ -1268,6 +1318,7 @@ export function useScanSession({
     }
     for (const binNumber of fullBinNumbers)
       binCountsRef.current.set(binNumber, 0);
+    binCountsLoadRef.current += 1;
     setFullBinNumbers([]);
     await queryClient.invalidateQueries({
       queryKey: binSetsQueryOptions(ctx.orgId).queryKey,
