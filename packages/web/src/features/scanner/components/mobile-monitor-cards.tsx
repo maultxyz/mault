@@ -1,3 +1,4 @@
+import { CompactCount } from "@/components/compact-value";
 import {
   type GroupedScannedCard,
   EMPTY_CARD_FILTERS,
@@ -160,7 +161,7 @@ export function MobileMonitorCards({
               <IconHelpCircle />
               {t("mobileMonitor.needsReview")}
               <span className="tabular-nums opacity-80">
-                {needsReviewCount}
+                <CompactCount value={needsReviewCount} />
               </span>
             </Button>
             )}

@@ -1,7 +1,7 @@
+import { CompactCount, CompactPrice } from "@/components/compact-value";
 import { openIntakeLotsQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { usePriceSource } from "@/hooks/use-price-source";
 import { INTAKE_LOT_PARAM, INTAKE_PATH } from "@/lib/constants/business";
 import { IconArrowRight } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -11,7 +11,6 @@ import { Link, useLocation } from "react-router-dom";
 export function IntakeBanner() {
   const { t } = useTranslation("business");
   const { pathname } = useLocation();
-  const { format } = usePriceSource();
   const { orgId, access } = useBusinessAccess();
   const { activeCollection } = useCollections();
   const { data: lots = [] } = useQuery(openIntakeLotsQueryOptions(orgId));
@@ -43,14 +42,14 @@ export function IntakeBanner() {
           <div className="text-right">
             <p className="text-2xs">{t("intake.stats.cards")}</p>
             <p className="text-sm font-semibold">
-              {lot.cardCount.toLocaleString()}
+              <CompactCount value={lot.cardCount} />
             </p>
           </div>
           {showMoney && (
             <div className="text-right">
               <p className="text-2xs">{t("intake.stats.cash")}</p>
               <p className="text-sm font-semibold">
-                {format(lot.cashOffer ?? 0)}
+                <CompactPrice value={lot.cashOffer ?? 0} />
               </p>
             </div>
           )}

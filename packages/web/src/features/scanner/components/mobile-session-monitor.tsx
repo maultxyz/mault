@@ -20,7 +20,8 @@ import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { toReviewGridCard } from "@magic-vault/shared";
+import { formatCompactNumber, toReviewGridCard } from "@magic-vault/shared";
+import { CompactCount, CompactPrice } from "@/components/compact-value";
 import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
 import { ReviewGrid } from "@/features/cards/components/review-grid";
 import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
@@ -44,8 +45,8 @@ export function MobileSessionMonitor({
   canEditCards,
   backHref,
 }: MobileSessionMonitorProps) {
-  const { t } = useTranslation("scanner");
-  const { format } = usePriceSource();
+  const { t, i18n } = useTranslation("scanner");
+  const { formatCompact } = usePriceSource();
   const { t: tCards } = useTranslation("cards");
   const queryClient = useQueryClient();
   const [unmatchedOpen, setUnmatchedOpen] = useState(false);
@@ -150,8 +151,8 @@ export function MobileSessionMonitor({
           collection?.game?.name,
           heroCollapsed &&
             (hasPricing && stats
-              ? format(stats.totalValue)
-              : `${cardCount} ${t("mobileMonitor.cards")}`),
+              ? formatCompact(stats.totalValue)
+              : `${formatCompactNumber(cardCount, i18n.language)} ${t("mobileMonitor.cards")}`),
         ]
           .filter(Boolean)
           .join(" · ")}
@@ -184,12 +185,18 @@ export function MobileSessionMonitor({
               : t("mobileMonitor.cards")}
           </p>
           <p className={MOBILE_HERO_VALUE_CLASS}>
-            {stats?.hasPricing ? format(stats.totalValue) : String(cardCount)}
+            {stats?.hasPricing ? (
+              <CompactPrice value={stats.totalValue} />
+            ) : (
+              <CompactCount value={cardCount} />
+            )}
           </p>
           <p className="text-sm text-foreground/70 tabular-nums">
             {[
-              hasPricing && `${cardCount} ${t("mobileMonitor.cards")}`,
-              stats && `${stats.uniqueCount} ${t("unique")}`,
+              hasPricing &&
+                `${formatCompactNumber(cardCount, i18n.language)} ${t("mobileMonitor.cards")}`,
+              stats &&
+                `${formatCompactNumber(stats.uniqueCount, i18n.language)} ${t("unique")}`,
             ]
               .filter(Boolean)
               .join(" · ") || " "}

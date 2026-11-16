@@ -25,6 +25,7 @@ import { useBusinessAction } from "@/features/business/api/use-business-action";
 import { usePickActions } from "@/features/business/api/use-pick-actions";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { ApiResultError } from "@/lib/api/api-result-error";
+import { useCompactCount } from "@/hooks/use-compact-count";
 import { usePricing } from "@/hooks/use-pricing";
 import { BUSINESS_STATUS_TONES } from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
@@ -63,6 +64,7 @@ function OrderLineRow({ line, pickedCount, isOpen, canAct, onFindSubstitute }: O
 export default function OrderScreen() {
   const { guid } = useLocalSearchParams<{ guid: string }>();
   const { t, i18n } = useTranslation();
+  const compactCount = useCompactCount();
   const orgId = useActiveOrgId();
   const { format } = usePricing();
   const order = useQuery(orderQueryOptions(guid));
@@ -153,9 +155,9 @@ export default function OrderScreen() {
             <Pill label={t(`business.status.${detail.status}`)} tone={BUSINESS_STATUS_TONES[detail.status]} />
           </View>
           <StatGroup>
-            <StatTile label={t("business.order.stats.quantity")} value={String(detail.quantity)} />
-            <StatTile label={t("business.order.stats.allocated")} value={String(detail.allocated)} />
-            <StatTile label={t("business.order.stats.picked")} value={String(detail.picked)} />
+            <StatTile label={t("business.order.stats.quantity")} {...compactCount(detail.quantity)} />
+            <StatTile label={t("business.order.stats.allocated")} {...compactCount(detail.allocated)} />
+            <StatTile label={t("business.order.stats.picked")} {...compactCount(detail.picked)} />
             {detail.revenue != null ? (
               <StatTile label={t("business.order.stats.revenue")} value={format(detail.revenue)} />
             ) : null}

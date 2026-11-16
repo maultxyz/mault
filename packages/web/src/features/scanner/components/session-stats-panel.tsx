@@ -2,6 +2,7 @@ import { usePriceSource } from "@/hooks/use-price-source";
 import { useTranslation } from "react-i18next";
 import type { SessionStatsPanelProps } from "@/lib/interfaces/scanner";
 import { StatCell } from "@/components/stat-cell";
+import { CompactCount, CompactPrice } from "@/components/compact-value";
 
 export function SessionStatsPanel({
   stats,
@@ -16,18 +17,18 @@ export function SessionStatsPanel({
           <div className="col-span-2 divide-y divide-border">
             <StatCell
               label={t("totalCards")}
-              value={String(totalCards)}
+              value={<CompactCount value={totalCards} />}
             />
           </div>
           <StatCell
             label={t("unique")}
-            value={stats ? String(stats.uniqueCount) : "-"}
+            value={stats ? <CompactCount value={stats.uniqueCount} /> : "-"}
             className={!stats?.hasPricing ? "col-span-2" : undefined}
           />
           {stats?.hasPricing && (
             <StatCell
               label={t("sessionStatsPanel.value")}
-              value={format(stats.totalValue)}
+              value={<CompactPrice value={stats.totalValue} />}
             />
           )}
         </div>

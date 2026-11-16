@@ -1,3 +1,4 @@
+import { CompactPrice } from "@/components/compact-value";
 import { Callout } from "@/components/callout";
 import { CardThumbnail } from "@/components/card-thumbnail";
 import { DeleteDialog } from "@/components/delete-dialog";
@@ -408,7 +409,10 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
           {
             key: "revenue",
             label: t("orders.stats.revenue"),
-            value: order.revenue == null ? null : format(order.revenue),
+            value:
+              order.revenue == null ? null : (
+                <CompactPrice value={order.revenue} />
+              ),
           },
         ]}
       />
