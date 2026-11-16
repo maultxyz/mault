@@ -83,10 +83,6 @@ export default defineConfig({
         ws: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
       },
-      "^/s/": {
-        target: "http://localhost:3003",
-        changeOrigin: true,
-      },
     },
   },
   preview: {
@@ -99,10 +95,6 @@ export default defineConfig({
         changeOrigin: true,
         ws: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
-      },
-      "^/s/": {
-        target: "http://127.0.0.1:3003",
-        changeOrigin: true,
       },
     },
   },

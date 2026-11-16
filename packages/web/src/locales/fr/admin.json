@@ -10,6 +10,7 @@
     "discord": "Discord",
     "sounds": "Sons",
     "deleted": "Supprimés et non reconnus",
+    "shortLinks": "Liens courts",
     "hardware": "Matériel",
     "developer": "Développeur"
   },
@@ -511,5 +512,40 @@
     "emptyApiKeys": "Aucune requête avec une clé d'API sur cette période.",
     "emptyPublicRoutes": "Aucune requête vers une route publique sur cette période.",
     "loadError": "Impossible de charger l'utilisation de l'API."
+  },
+  "shortLinks": {
+    "heading": "Liens courts personnalisés",
+    "description": "Des liens courts sur votre domaine de liens courts qui redirigent où vous voulez, comme une invitation Discord ou une page promotionnelle.",
+    "create": "Ajouter un lien court",
+    "createTitle": "Ajouter un lien court",
+    "editTitle": "Modifier le lien court",
+    "dialogDescription": "Les personnes qui ouvrent le lien court sont redirigées vers la destination.",
+    "codeLabel": "Code court",
+    "codePlaceholder": "discord",
+    "targetLabel": "URL de destination",
+    "targetPlaceholder": "https://example.com/page",
+    "save": "Enregistrer",
+    "saveFailed": "Impossible d'enregistrer le lien court. Réessayez.",
+    "created": "Lien court ajouté.",
+    "updated": "Lien court mis à jour.",
+    "loadFailed": "Impossible de charger les liens courts.",
+    "disabledTitle": "Les liens courts sont désactivés",
+    "disabledDescription": "Définissez SHORT_LINK_BASE_URL sur l'API et lancez le service de liens courts pour créer des liens personnalisés.",
+    "empty": "Aucun lien court personnalisé pour l'instant.",
+    "updatedOn": "Mis à jour le {{date}}",
+    "copyLink": "Copier {{url}}",
+    "copied": "Lien court copié.",
+    "copyFailed": "Impossible de copier le lien. Sélectionnez-le et copiez-le manuellement.",
+    "edit": "Modifier",
+    "delete": "Supprimer",
+    "deleteConfirmTitle": "Supprimer ce lien court ?",
+    "deleteConfirmDescription": "{{url}} ne fonctionnera plus pour personne. Cette action est irréversible.",
+    "deleted": "Lien court supprimé.",
+    "deleteFailed": "Impossible de supprimer le lien court. Réessayez.",
+    "failures": {
+      "disabled": "Les liens courts sont désactivés sur ce serveur.",
+      "codeTaken": "Ce code est déjà utilisé. Choisissez-en un autre.",
+      "notFound": "Ce lien court n'existe plus."
+    }
   }
 }

@@ -1,7 +1,5 @@
 import {
-  SHARED_STORAGE_PATH_PREFIX,
-  WATCH_PATH_PREFIX,
-  shareLinkPathWithToken,
+  shareLinkPath,
   type OrgShareLink,
   type ShareLinkKind,
   type ShareLinkPurpose,
@@ -53,10 +51,13 @@ export function signShareLinkRow(row: ShareLinkSigningRow): Promise<string> {
 export async function shareLinkShortTarget(
   row: ShareLinkSigningRow & { shortCode: string },
 ): Promise<ShortenerLink> {
-  const prefix = row.linkKind === "storage" ? SHARED_STORAGE_PATH_PREFIX : WATCH_PATH_PREFIX;
   return {
     code: row.shortCode,
-    targetPath: shareLinkPathWithToken(`${prefix}/${row.subjectGuid}`, await signShareLinkRow(row)),
+    targetPath: shareLinkPath(
+      row.linkKind as ShareLinkKind,
+      row.subjectGuid,
+      await signShareLinkRow(row),
+    ),
     expiresAt: row.expiresAt.toISOString(),
   };
 }

@@ -31,6 +31,8 @@ export async function sendScanSave(
         buildScanSaveRequest(save.record, {
           deviceGuid: save.deviceGuid,
           isRetry,
+          storageLocationGuid:
+            save.kind === "card" ? save.storageLocationGuid : undefined,
         }),
       ),
     },

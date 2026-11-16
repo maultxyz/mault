@@ -19,6 +19,7 @@ export function OptionSheet({
   searchPlaceholder,
   maxVisibleOptions,
   emptyMessage,
+  description,
 }: OptionSheetProps) {
   const [query, setQuery] = useState("");
   const visibleOptions = useMemo(() => {
@@ -55,6 +56,11 @@ export function OptionSheet({
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER }}
       >
+        {description ? (
+          <AppText tone="secondary" style={{ paddingBottom: SPACING.md }}>
+            {description}
+          </AppText>
+        ) : null}
         {options.length === 0 && emptyMessage ? (
           <AppText tone="secondary" style={{ paddingBottom: SPACING.md }}>
             {emptyMessage}
@@ -65,6 +71,8 @@ export function OptionSheet({
             <ListRow
               key={option.value}
               title={option.label}
+              subtitle={option.description}
+              subtitleNumberOfLines={0}
               right={option.badge ? <Pill label={option.badge} /> : undefined}
               selected={selected.includes(option.value)}
               onPress={() => select(option.value)}

@@ -410,7 +410,6 @@ export default function CollectionsPage() {
                 </Button>
                 <Button
                   variant="destructive"
-                  className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
                   disabled={isMutating || isBulkRunning}
                   onClick={() => setBulkAction("delete")}
                 >

@@ -22,6 +22,10 @@ import type {
   soundRuleFormSchema,
   soundClipNameFormSchema,
 } from "../schemas/forms.schema";
+import type {
+  customShortLinkFormSchema,
+  customShortLinkUpdateSchema,
+} from "../schemas/shortener.schema";
 
 export type UpdateNameFormValues = z.infer<typeof updateNameFormSchema>;
 export type ChangeEmailFormValues = z.infer<typeof changeEmailFormSchema>;
@@ -47,3 +51,5 @@ export type DiscordChannelsDraft =
   DiscordSettingsDraftFormValues["overrides"][string];
 export type StoragePickListFormValues = z.infer<typeof storagePickListFormSchema>;
 export type FeederTestFormValues = z.infer<typeof feederTestFormSchema>;
+export type CustomShortLinkFormValues = z.infer<typeof customShortLinkFormSchema>;
+export type CustomShortLinkUpdateValues = z.infer<typeof customShortLinkUpdateSchema>;

@@ -50,7 +50,7 @@ export function Button({
   const appearance = {
     primary: { tintColor: colors.primary, foregroundColor: colors.primaryForeground },
     secondary: { tintColor: colors.primaryText, foregroundColor: colors.foreground },
-    destructive: { tintColor: colors.destructiveForeground, foregroundColor: colors.destructiveForeground },
+    destructive: { tintColor: colors.destructive, foregroundColor: colors.onDestructive },
     ghost: { tintColor: colors.primaryText, foregroundColor: colors.foreground },
   }[variant];
   const inactive = disabled || loading;

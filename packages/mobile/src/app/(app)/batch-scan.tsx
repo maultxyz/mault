@@ -62,6 +62,13 @@ export default function BatchScanScreen() {
   const [correctingKey, setCorrectingKey] = useState<string | null>(null);
   const [removalReviewOpen, setRemovalReviewOpen] = useState(false);
   const isRemoveMode = batch.mode === "remove";
+  const destinationName =
+    batch.collection && batch.storageLocation
+      ? t("scan.destination.collectionAndLocation", {
+          collection: batch.collection.name,
+          location: batch.storageLocation.name,
+        })
+      : batch.collection?.name;
   const correcting = batch.cards.find((card) => card.key === correctingKey) ?? null;
   const isReviewing = !!batch.photo;
   const active = cameraMounted && appState === "active" && permission.hasPermission && !!device && !isReviewing;
@@ -142,7 +149,7 @@ export default function BatchScanScreen() {
         {focused ? <StatusBar style="auto" /> : null}
         <PageHeader
           title={t("batchScan.title")}
-          subtitle={batch.collection?.name}
+          subtitle={isRemoveMode ? batch.collection?.name : destinationName}
           onBack={() => router.back()}
         />
         <ScrollView contentContainerStyle={{ paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.lg + SPACING.xs }}>
@@ -277,7 +284,7 @@ export default function BatchScanScreen() {
               batch.collection
                 ? isRemoveMode
                   ? t("scan.removal.title", { collection: batch.collection.name })
-                  : batch.collection.name
+                  : destinationName
                 : t("batchScan.title")
             }
           />

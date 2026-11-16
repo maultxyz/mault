@@ -5,7 +5,7 @@ export const IOS_BUTTON_ICON_SIZE = 17;
 export const IOS_BUTTON_STYLES = {
   primary: "glassProminent",
   secondary: "glass",
-  destructive: "glass",
+  destructive: "glassProminent",
   ghost: "borderless",
 } as const;
 export const IOS_ICON_BUTTON_STYLES = {

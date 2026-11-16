@@ -1,4 +1,5 @@
 import type {
+  CustomShortLink,
   DeletedItemType,
   PlatformDiscordChannelKey,
   PlatformDiscordGuildSummary,
@@ -185,4 +186,12 @@ export interface DeletedItemsRequest {
   page: number;
   search: string;
   type: DeletedItemType | null;
+}
+
+export interface CustomShortLinkDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  shortLinkBaseUrl: string;
+  link: CustomShortLink | null;
+  onSaved: () => Promise<unknown>;
 }

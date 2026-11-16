@@ -1,8 +1,4 @@
-import {
-  SHOP_CATALOG_PATH_PREFIX,
-  shareLinkPathWithToken,
-  type ShortenerLink,
-} from "@magic-vault/shared";
+import { shopCatalogPath, type ShortenerLink } from "@magic-vault/shared";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { db } from "../db";
 import { shareLinks, shopCatalogs } from "../db/schema";
@@ -13,16 +9,19 @@ import {
 import type { ShopCatalogShortTargetRow } from "./interfaces/short-links";
 import { shareLinkShortTarget } from "./share-links";
 import { shopCatalogLinkToken } from "./shop-catalogs";
-import { findShortLinkTargetPath, registerShortLinks } from "./shortener-client";
+import {
+  findShortLinkTargetPath,
+  registerShortLinks,
+  shortLinksEnabled,
+} from "./shortener-client";
 
 export async function shopCatalogShortTarget(
   catalog: ShopCatalogShortTargetRow,
 ): Promise<ShortenerLink> {
-  const path = `${SHOP_CATALOG_PATH_PREFIX}/${catalog.guid}`;
   const token = catalog.isPublic
     ? null
     : await shopCatalogLinkToken(catalog.guid, catalog.orgId, catalog.shareLinkVersion);
-  return { code: catalog.shortCode, targetPath: shareLinkPathWithToken(path, token), expiresAt: null };
+  return { code: catalog.shortCode, targetPath: shopCatalogPath(catalog.guid, token), expiresAt: null };
 }
 
 export async function resolveShortLinkPath(shortCode: string): Promise<string | null> {
@@ -51,10 +50,7 @@ async function loadLiveShortTargets(): Promise<ShortenerLink[]> {
 }
 
 export function startShortLinkStartupSync(): void {
-  if (!process.env.SHORTENER_API_SECRET?.trim()) {
-    console.warn("[short-links] SHORTENER_API_SECRET is not set; short links are disabled.");
-    return;
-  }
+  if (!shortLinksEnabled()) return;
   void (async () => {
     const targets = await loadLiveShortTargets();
     for (let attempt = 1; attempt <= SHORT_LINK_STARTUP_SYNC_ATTEMPTS; attempt++) {

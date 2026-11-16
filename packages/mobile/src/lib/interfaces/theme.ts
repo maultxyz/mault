@@ -46,6 +46,7 @@ export interface ThemeColors {
   inputBackground: string;
   cardRing: string;
   destructiveTint: string;
+  onDestructive: string;
   onBrandSurface: string;
   onCamera: string;
   onStatusStrong: string;

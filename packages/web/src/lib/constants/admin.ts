@@ -2,6 +2,7 @@ import {
   BROWSER_SYNC_PARALLEL,
   DELETED_ITEM_TYPES,
   SYNC_VECTORIZE_CONCURRENCY_MAX,
+  type CustomShortLinkFormValues,
   type SyncState,
 } from "@magic-vault/shared";
 import type { DeletedItemTypeFilter } from "@/lib/interfaces/admin";
@@ -13,6 +14,7 @@ import {
   IconBug,
   IconCards,
   IconCreditCard,
+  IconLink,
   IconMusic,
   IconRestore,
   IconRotate360,
@@ -65,6 +67,9 @@ export const DELETED_ITEM_TYPE_FILTERS: DeletedItemTypeFilter[] = [
 
 export const ADMIN_PATH = "/app/admin";
 export const API_USAGE_QUERY_KEY = ["admin", "api-usage"] as const;
+export const CUSTOM_SHORT_LINKS_QUERY_KEY = ["admin", "short-links"] as const;
+export const CUSTOM_SHORT_LINK_FORM_ID = "custom-short-link-form";
+export const EMPTY_CUSTOM_SHORT_LINK_FORM: CustomShortLinkFormValues = { code: "", targetUrl: "" };
 
 export const ADMIN_SECTIONS = [
   {
@@ -101,6 +106,12 @@ export const ADMIN_SECTIONS = [
     path: "deleted",
     icon: IconRestore,
     labelKey: "sections.deleted",
+    adminOnly: false,
+  },
+  {
+    path: "short-links",
+    icon: IconLink,
+    labelKey: "sections.shortLinks",
     adminOnly: false,
   },
   {

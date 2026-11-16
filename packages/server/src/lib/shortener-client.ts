@@ -1,10 +1,14 @@
 import {
   SHORTENER_API_SECRET_HEADER,
+  SHORTENER_INTERNAL_CUSTOM_LINKS_PATH,
   SHORTENER_INTERNAL_DELETE_LINKS_PATH,
   SHORTENER_INTERNAL_LINKS_PATH,
   SHORTENER_MAX_LINKS_PER_REQUEST,
   buildShortenerUrl,
+  type CustomShortLinkFormValues,
+  type CustomShortLinkUpdateValues,
   type Result,
+  type ShortenerCustomLink,
   type ShortenerDeleteLinksRequest,
   type ShortenerLink,
   type ShortenerRegisterLinksRequest,
@@ -15,13 +19,21 @@ import {
 } from "./constants/short-links";
 import { getShortLinkBaseUrl, getShortenerUrl } from "./constants/urls";
 
+export function shortLinksEnabled(): boolean {
+  return getShortLinkBaseUrl() !== null;
+}
+
 function shortenerSecret(): string {
   const secret = process.env.SHORTENER_API_SECRET?.trim();
   if (!secret) throw new Error(SHORTENER_SECRET_MISSING_MESSAGE);
   return secret;
 }
 
-async function callShortener(path: string, init: RequestInit = {}): Promise<Response> {
+async function callShortener(
+  path: string,
+  init: RequestInit = {},
+  expectedFailureStatuses: number[] = [404],
+): Promise<Response> {
   const response = await fetch(`${getShortenerUrl()}${path}`, {
     ...init,
     headers: {
@@ -30,7 +42,7 @@ async function callShortener(path: string, init: RequestInit = {}): Promise<Resp
     },
     signal: AbortSignal.timeout(SHORTENER_REQUEST_TIMEOUT_MS),
   });
-  if (!response.ok && response.status !== 404) {
+  if (!response.ok && !expectedFailureStatuses.includes(response.status)) {
     throw new Error(`Shortener ${init.method ?? "GET"} ${path} failed: ${response.status}`);
   }
   return response;
@@ -45,6 +57,7 @@ function batchesOf<T>(items: T[]): T[][] {
 }
 
 export async function registerShortLinks(links: ShortenerLink[]): Promise<void> {
+  if (!shortLinksEnabled()) return;
   for (const batch of batchesOf(links)) {
     const body: ShortenerRegisterLinksRequest = { links: batch };
     await callShortener(SHORTENER_INTERNAL_LINKS_PATH, {
@@ -55,6 +68,7 @@ export async function registerShortLinks(links: ShortenerLink[]): Promise<void> 
 }
 
 export async function deleteShortLinks(codes: string[]): Promise<void> {
+  if (!shortLinksEnabled()) return;
   for (const batch of batchesOf(codes)) {
     const body: ShortenerDeleteLinksRequest = { codes: batch };
     await callShortener(SHORTENER_INTERNAL_DELETE_LINKS_PATH, {
@@ -65,6 +79,7 @@ export async function deleteShortLinks(codes: string[]): Promise<void> {
 }
 
 export async function findShortLinkTargetPath(code: string): Promise<string | null> {
+  if (!shortLinksEnabled()) return null;
   const response = await callShortener(
     `${SHORTENER_INTERNAL_LINKS_PATH}/${encodeURIComponent(code)}`,
   );
@@ -76,4 +91,44 @@ export async function findShortLinkTargetPath(code: string): Promise<string | nu
 export function shortLinkUrlFor(shortCode: string): string | null {
   const baseUrl = getShortLinkBaseUrl();
   return baseUrl ? buildShortenerUrl(baseUrl, shortCode) : null;
+}
+
+export async function listCustomShortLinks(): Promise<ShortenerCustomLink[]> {
+  const response = await callShortener(SHORTENER_INTERNAL_CUSTOM_LINKS_PATH);
+  const result = (await response.json()) as Result<ShortenerCustomLink[]>;
+  return result.data ?? [];
+}
+
+export async function createCustomShortLink(
+  input: CustomShortLinkFormValues,
+): Promise<ShortenerCustomLink | null> {
+  const response = await callShortener(
+    SHORTENER_INTERNAL_CUSTOM_LINKS_PATH,
+    { method: "POST", body: JSON.stringify(input) },
+    [409],
+  );
+  if (response.status === 409) return null;
+  const result = (await response.json()) as Result<ShortenerCustomLink>;
+  return result.data ?? null;
+}
+
+export async function updateCustomShortLink(
+  code: string,
+  input: CustomShortLinkUpdateValues,
+): Promise<ShortenerCustomLink | null> {
+  const response = await callShortener(
+    `${SHORTENER_INTERNAL_CUSTOM_LINKS_PATH}/${encodeURIComponent(code)}`,
+    { method: "PUT", body: JSON.stringify(input) },
+  );
+  if (response.status === 404) return null;
+  const result = (await response.json()) as Result<ShortenerCustomLink>;
+  return result.data ?? null;
+}
+
+export async function deleteCustomShortLink(code: string): Promise<boolean> {
+  const response = await callShortener(
+    `${SHORTENER_INTERNAL_CUSTOM_LINKS_PATH}/${encodeURIComponent(code)}`,
+    { method: "DELETE" },
+  );
+  return response.status !== 404;
 }

@@ -10,6 +10,7 @@
     "discord": "Discord",
     "sounds": "Sounds",
     "deleted": "Deleted and unmatched",
+    "shortLinks": "Short links",
     "hardware": "Hardware",
     "developer": "Developer"
   },
@@ -511,5 +512,40 @@
     "emptyApiKeys": "No API key requests in this period.",
     "emptyPublicRoutes": "No public route requests in this period.",
     "loadError": "Couldn't load API usage."
+  },
+  "shortLinks": {
+    "heading": "Custom short links",
+    "description": "Short links on your short link domain that redirect anywhere, such as a Discord invite or a promo page.",
+    "create": "Add short link",
+    "createTitle": "Add short link",
+    "editTitle": "Edit short link",
+    "dialogDescription": "People who open the short link are sent to the destination.",
+    "codeLabel": "Short code",
+    "codePlaceholder": "discord",
+    "targetLabel": "Destination URL",
+    "targetPlaceholder": "https://example.com/page",
+    "save": "Save",
+    "saveFailed": "Couldn't save the short link. Try again.",
+    "created": "Short link added.",
+    "updated": "Short link updated.",
+    "loadFailed": "Couldn't load short links.",
+    "disabledTitle": "Short links are off",
+    "disabledDescription": "Set SHORT_LINK_BASE_URL on the API and run the shortener service to create custom short links.",
+    "empty": "No custom short links yet.",
+    "updatedOn": "Updated {{date}}",
+    "copyLink": "Copy {{url}}",
+    "copied": "Short link copied.",
+    "copyFailed": "Couldn't copy the link. Select it and copy it manually.",
+    "edit": "Edit",
+    "delete": "Delete",
+    "deleteConfirmTitle": "Delete this short link?",
+    "deleteConfirmDescription": "{{url}} will stop working for everyone who has it. This can't be undone.",
+    "deleted": "Short link deleted.",
+    "deleteFailed": "Couldn't delete the short link. Try again.",
+    "failures": {
+      "disabled": "Short links are off on this server.",
+      "codeTaken": "That code is already in use. Pick another.",
+      "notFound": "That short link no longer exists."
+    }
   }
 }

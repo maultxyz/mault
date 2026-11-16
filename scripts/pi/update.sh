@@ -114,7 +114,7 @@ main() {
   git merge --ff-only '@{upstream}'
   pi_ensure_toolchain "$ROOT"
   pi_ensure_user_bus
-  services=(mault-web.service mault-api.service mault-camera.service mault-shortener.service)
+  services=(mault-web.service mault-api.service mault-camera.service)
   controller_mode="$(node "$ROOT/scripts/pi/controller-ready.mjs" "$ROOT" --mode)"
   if [[ "$controller_mode" == builtin ]]; then
     services+=(mault-controller.service)
@@ -128,7 +128,6 @@ main() {
   systemctl --user stop "${services[@]}"
   pnpm install --frozen-lockfile
   pnpm --filter @magic-vault/server build
-  pnpm --filter @magic-vault/shortener build
   NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--max-old-space-size=4096" pnpm --filter @magic-vault/web build
 
   node "$ROOT/scripts/pi/install-services.mjs" "$ROOT"
@@ -155,14 +154,12 @@ main() {
       exit 1
     fi
   fi
-  systemctl --user enable mault-shortener.service
-  systemctl --user start --no-block mault-camera.service mault-shortener.service mault-api.service mault-web.service
+  systemctl --user start --no-block mault-camera.service mault-api.service mault-web.service
 
   for _ in $(seq 1 60); do
     if systemctl --user is-active --quiet mault-api.service &&
       systemctl --user is-active --quiet mault-web.service &&
       systemctl --user is-active --quiet mault-camera.service &&
-      systemctl --user is-active --quiet mault-shortener.service &&
       { [[ "$controller_mode" != builtin ]] ||
         systemctl --user is-active --quiet mault-controller.service; } &&
       curl -fs --max-time 5 http://127.0.0.1:3001/public/version >/dev/null &&

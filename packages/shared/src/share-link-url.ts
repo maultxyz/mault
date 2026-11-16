@@ -4,9 +4,12 @@ import {
   SHORT_LINK_PATH_PREFIX,
   WATCH_PATH_PREFIX,
 } from "./constants/monitor-links.constant";
+import { SHOP_CATALOG_PATH_PREFIX } from "./constants/shop-catalogs.constant";
 import type {
   ParsedShareLinkUrl,
-  ShortLinkReference,
+  ShareableLink,
+  ShareableShopCatalog,
+  ShareLinkKind,
 } from "./interfaces/monitor-links.interface";
 
 const UUID_TEXT = "[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}";
@@ -44,12 +47,34 @@ export function shareLinkPathWithToken(path: string, token: string | null): stri
   return token ? `${path}?${new URLSearchParams({ [SHARE_LINK_TOKEN_PARAM]: token })}` : path;
 }
 
-export function buildShortLinkUrl(origin: string, shortCode: string): string {
-  return `${origin.replace(/\/$/, "")}${SHORT_LINK_PATH_PREFIX}/${shortCode}`;
+export function shareLinkPath(kind: ShareLinkKind, subjectGuid: string, token: string): string {
+  const prefix = kind === "storage" ? SHARED_STORAGE_PATH_PREFIX : WATCH_PATH_PREFIX;
+  return shareLinkPathWithToken(`${prefix}/${subjectGuid}`, token);
 }
 
-export function shortLinkUrlOf(link: ShortLinkReference, appOrigin: string): string {
-  return link.shortUrl ?? buildShortLinkUrl(appOrigin, link.shortCode);
+export function shopCatalogPath(catalogGuid: string, token: string | null): string {
+  return shareLinkPathWithToken(`${SHOP_CATALOG_PATH_PREFIX}/${catalogGuid}`, token);
+}
+
+function withoutTrailingSlash(origin: string): string {
+  return origin.replace(/\/$/, "");
+}
+
+export function buildShareLinkUrl(appOrigin: string, link: ShareableLink): string {
+  return (
+    link.shortUrl ??
+    `${withoutTrailingSlash(appOrigin)}${shareLinkPath(link.kind, link.subjectGuid, link.token)}`
+  );
+}
+
+export function buildShopCatalogLinkUrl(
+  appOrigin: string,
+  catalog: ShareableShopCatalog,
+): string | null {
+  if (!catalog.isPublic && !catalog.linkToken) return null;
+  if (catalog.shortUrl) return catalog.shortUrl;
+  const token = catalog.isPublic ? null : catalog.linkToken;
+  return `${withoutTrailingSlash(appOrigin)}${shopCatalogPath(catalog.guid, token)}`;
 }
 
 export function buildShortenerUrl(shortLinkBaseUrl: string, shortCode: string): string {

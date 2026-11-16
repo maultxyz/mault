@@ -194,7 +194,6 @@ sudo -u postgres psql -d mault -v ON_ERROR_STOP=1 -c "CREATE EXTENSION IF NOT EX
 
 pnpm install
 pnpm --filter @magic-vault/server build
-pnpm --filter @magic-vault/shortener build
 NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--max-old-space-size=4096" pnpm --filter @magic-vault/web build
 
 set -a
@@ -236,8 +235,8 @@ if [[ "$hardware_groups_active" -eq 0 ]]; then
   sudo systemctl restart "user@$(id -u).service"
   pi_ensure_user_bus
 fi
-if ! systemctl --user enable --now mault-camera.service mault-shortener.service mault-api.service mault-web.service; then
-  systemctl --user --no-pager --full status mault-api.service mault-web.service mault-camera.service mault-shortener.service || true
+if ! systemctl --user enable --now mault-camera.service mault-api.service mault-web.service; then
+  systemctl --user --no-pager --full status mault-api.service mault-web.service mault-camera.service || true
   exit 1
 fi
 

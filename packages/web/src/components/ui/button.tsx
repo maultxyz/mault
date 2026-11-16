@@ -26,7 +26,7 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-foreground/6 hover:text-foreground aria-expanded:bg-foreground/6 aria-expanded:text-foreground dark:hover:bg-foreground/8 dark:aria-expanded:bg-foreground/8",
         destructive:
-          "bg-destructive/10 text-destructive hover:bg-destructive/20 focus-visible:border-destructive/40 focus-visible:ring-destructive dark:bg-destructive/20 dark:hover:bg-destructive/30",
+          "border-[color-mix(in_oklch,var(--destructive),black_8%)] bg-destructive bg-linear-to-b from-white/8 to-white/0 font-semibold text-destructive-foreground shadow-button-raised hover:bg-[color-mix(in_oklch,var(--destructive),black_12%)] focus-visible:border-destructive focus-visible:ring-destructive active:not-aria-[haspopup]:shadow-button-raised-pressed",
         link: "text-primary underline-offset-4 hover:underline",
       },
       size: {

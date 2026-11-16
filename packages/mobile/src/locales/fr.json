@@ -674,6 +674,10 @@
       "control-card-switch-failed": {
         "title": "Carte de contrôle non appliquée",
         "description": "Impossible de changer de collection ou de préréglage. Vérifie ta connexion et réessaie."
+      },
+      "storage-unavailable": {
+        "title": "Impossible de ranger la carte",
+        "description": "{{detail}} Choisissez un autre emplacement de rangement pour continuer."
       }
     },
     "scanOnce": "Scanner une",
@@ -858,6 +862,21 @@
       "scannedCount_other": "{{count}} scannées",
       "lastCard": "Dernière : {{name}}",
       "noCardYet": "Aucune carte pour l'instant"
+    },
+    "destination": {
+      "title": "Destination des cartes scannées",
+      "description": "Les cartes scannées vont directement dans l'emplacement de rangement choisi. Les règles de tri et les bacs ne sont pas utilisés.",
+      "descriptionNoLocations": "Vous n'avez pas encore d'emplacement de rangement. Ajoutez-en un dans Bibliothèque > Rangement, ou ajoutez les cartes à la collection uniquement. Les règles de tri et les bacs ne sont utilisés que si vous choisissez Trier selon les règles.",
+      "descriptionLocked": "Les emplacements de rangement ne sont pas inclus dans votre formule. Les cartes sont ajoutées à la collection uniquement, et les règles de tri et les bacs ne sont utilisés que si vous choisissez Trier selon les règles.",
+      "noLocation": "Aucun emplacement",
+      "noLocationDescription": "Ajouter les cartes à la collection uniquement, sans tri",
+      "sort": "Trier selon les règles",
+      "sortDescription": "Votre préréglage de règles choisit un bac pour chaque carte",
+      "sorterChip": "Le trieur trie selon vos règles",
+      "sortChip": "Tri selon les règles",
+      "storageChip": "Dans {{name}} · sans tri",
+      "noLocationChip": "Aucun emplacement · sans tri",
+      "collectionAndLocation": "{{collection}} · {{location}}"
     }
   },
   "home": {
@@ -2346,6 +2365,9 @@
     "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
     "controlCardActionRequired": "Choisis au moins une chose que la carte modifie.",
     "orderBinDuplicate": "Chaque commande a besoin de son propre bac.",
+    "shortLinkCodeInvalid": "Utilisez jusqu'à {{max}} lettres minuscules, chiffres et tirets, en commençant et en finissant par une lettre ou un chiffre.",
+    "shortLinkCodeReserved": "Ce code est réservé. Choisissez-en un autre.",
+    "shortLinkTargetInvalid": "Saisissez une URL complète en http:// ou https://.",
     "orderBinCatchAll": "Le dernier bac reçoit toutes les autres cartes, choisis-en un autre.",
     "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
     "contactRequired": "Indique comment te joindre.",

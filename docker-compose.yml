@@ -50,7 +50,6 @@ services:
       # network the bot is reachable by its service name instead.
       BOT_URL: ${DOCKER_BOT_URL:-http://bot:3002}
       SHORTENER_URL: ${DOCKER_SHORTENER_URL:-http://shortener:3003}
-      SHORTENER_API_SECRET: ${SHORTENER_API_SECRET:?Set SHORTENER_API_SECRET in your .env - see .env.docker.example}
     # AUTH_PROVIDER=local only: point DATABASE_URL/DATABASE_SSL at this
     # compose stack's own Postgres (unless .env already overrides them) and
     # run the local migrate script - own-auth migrations, auth_is_org_member(),
@@ -97,14 +96,13 @@ services:
       VITE_API_DOCS_URL: ${VITE_API_DOCS_URL:-}
     depends_on:
       - server
-      - shortener
     ports:
       - "8080:80"
     restart: unless-stopped
 
-  # Standalone link shortener: answers /s/<code> (proxied by the web
-  # container's nginx) and, with SHORT_LINK_TARGET_ORIGIN set, /<code> on its
-  # own short domain. Keeps its table in the database's `shortener` schema.
+  # Optional link shortener (--profile shortener). Short links are only used
+  # when the server has SHORT_LINK_BASE_URL set; otherwise links stay long.
+  # Keeps its table in the database's `shortener` schema.
   shortener:
     build:
       context: .
@@ -116,7 +114,6 @@ services:
     environment:
       AUTH_PROVIDER: ${AUTH_PROVIDER:-neon}
       SHORTENER_PORT: 3003
-      SHORTENER_API_SECRET: ${SHORTENER_API_SECRET:?Set SHORTENER_API_SECRET in your .env - see .env.docker.example}
       SHORT_LINK_TARGET_ORIGIN: ${SHORT_LINK_TARGET_ORIGIN:-}
     command:
       - sh
@@ -132,6 +129,8 @@ services:
     ports:
       - "${SHORTENER_HOST_PORT:-8082}:3003"
     restart: unless-stopped
+    profiles:
+      - shortener
 
   api-docs:
     build:

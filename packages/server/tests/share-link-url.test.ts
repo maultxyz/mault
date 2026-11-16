@@ -1,12 +1,12 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
-  buildShortLinkUrl,
+  buildShareLinkUrl,
+  buildShopCatalogLinkUrl,
   buildShortenerUrl,
   parseShareLinkUrl,
   parseShortLinkUrl,
   shareLinkPathWithToken,
-  shortLinkUrlOf,
 } from "@magic-vault/shared";
 
 const GUID = "3f2b8c1e-9a4d-4e6f-8b2a-1c3d5e7f9a0b";
@@ -32,9 +32,8 @@ test("ignores other links, missing tokens and plain text", () => {
   assert.equal(parseShareLinkUrl("mault-control:v1:pause"), null);
 });
 
-test("builds and reads short links", () => {
-  const url = buildShortLinkUrl("https://mault.xyz/", "Ab3dE6gH9k");
-  assert.equal(url, "https://mault.xyz/s/Ab3dE6gH9k");
+test("reads legacy /s short links on any host", () => {
+  const url = "https://mault.xyz/s/Ab3dE6gH9k";
   assert.equal(parseShortLinkUrl(url), "Ab3dE6gH9k");
   assert.equal(parseShortLinkUrl(` ${url}/ `), "Ab3dE6gH9k");
   assert.equal(parseShortLinkUrl("http://192.168.1.20:8080/s/0a1b2c3d4e5f"), "0a1b2c3d4e5f");
@@ -59,14 +58,33 @@ test("reads short links on the shortener's own domain only when it is configured
   assert.equal(parseShortLinkUrl("https://mlt.example/Ab3dE6gH9k/extra", "https://mlt.example"), null);
 });
 
-test("prefers the server's short URL and falls back to the app origin", () => {
+test("shares the server's short URL, else the long tokenized link", () => {
+  const link = { kind: "storage" as const, subjectGuid: GUID, token: "a+b" };
   assert.equal(
-    shortLinkUrlOf({ shortCode: "Ab3dE6gH9k", shortUrl: "https://mlt.example/Ab3dE6gH9k" }, "https://mault.xyz"),
+    buildShareLinkUrl("https://mault.xyz", { ...link, shortUrl: "https://mlt.example/Ab3dE6gH9k" }),
     "https://mlt.example/Ab3dE6gH9k",
   );
   assert.equal(
-    shortLinkUrlOf({ shortCode: "Ab3dE6gH9k", shortUrl: null }, "http://192.168.1.20:8080"),
-    "http://192.168.1.20:8080/s/Ab3dE6gH9k",
+    buildShareLinkUrl("http://192.168.1.20:8080/", { ...link, shortUrl: null }),
+    `http://192.168.1.20:8080/shared/storage/${GUID}?t=a%2Bb`,
+  );
+  assert.equal(
+    buildShareLinkUrl("https://mault.xyz", { ...link, kind: "collection" }),
+    `https://mault.xyz/watch/${GUID}?t=a%2Bb`,
+  );
+});
+
+test("shop catalog links: public without a token, private with one, else none", () => {
+  const catalog = { guid: GUID, isPublic: false, linkToken: "tok", shortUrl: null };
+  assert.equal(buildShopCatalogLinkUrl("https://mault.xyz", catalog), `https://mault.xyz/shop/${GUID}?t=tok`);
+  assert.equal(
+    buildShopCatalogLinkUrl("https://mault.xyz", { ...catalog, isPublic: true }),
+    `https://mault.xyz/shop/${GUID}`,
+  );
+  assert.equal(buildShopCatalogLinkUrl("https://mault.xyz", { ...catalog, linkToken: null }), null);
+  assert.equal(
+    buildShopCatalogLinkUrl("https://mault.xyz", { ...catalog, shortUrl: "https://mlt.example/x0000000" }),
+    "https://mlt.example/x0000000",
   );
 });
 

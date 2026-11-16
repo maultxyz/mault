@@ -1,4 +1,8 @@
-import type { SHARE_LINK_KINDS, SHARE_LINK_PURPOSES } from "../constants/monitor-links.constant";
+import type {
+  CUSTOM_SHORT_LINK_FAILURE_REASONS,
+  SHARE_LINK_KINDS,
+  SHARE_LINK_PURPOSES,
+} from "../constants/monitor-links.constant";
 import type { ConditionMultipliers } from "./card-condition.interface";
 import type { PriceSource } from "./price-source.interface";
 
@@ -17,8 +21,17 @@ export interface ShortLinkTarget {
   path: string;
 }
 
-export interface ShortLinkReference {
-  shortCode: string;
+export interface ShareableLink {
+  kind: ShareLinkKind;
+  subjectGuid: string;
+  token: string;
+  shortUrl?: string | null;
+}
+
+export interface ShareableShopCatalog {
+  guid: string;
+  isPublic: boolean;
+  linkToken: string | null;
   shortUrl?: string | null;
 }
 
@@ -64,4 +77,30 @@ export interface OrgShareLink {
   token: string;
   shortCode: string;
   shortUrl?: string | null;
+}
+
+export interface ShortenerCustomLink {
+  code: string;
+  targetUrl: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CustomShortLink extends ShortenerCustomLink {
+  shortUrl: string;
+}
+
+export type CustomShortLinkFailureReason = (typeof CUSTOM_SHORT_LINK_FAILURE_REASONS)[number];
+
+export interface CustomShortLinkResult<T> {
+  success: boolean;
+  message?: string;
+  reason?: CustomShortLinkFailureReason;
+  data?: T;
+}
+
+export interface CustomShortLinksOverview {
+  enabled: boolean;
+  shortLinkBaseUrl: string | null;
+  links: CustomShortLink[];
 }

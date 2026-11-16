@@ -167,6 +167,9 @@ const AdminDiscordPage = lazy(() => import("@/app/routes/app/admin/discord"));
 const AdminSoundsPage = lazy(() => import("@/app/routes/app/admin/sounds"));
 const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
 const AdminHardwarePage = lazy(() => import("@/app/routes/app/admin/hardware"));
+const AdminShortLinksPage = lazy(
+  () => import("@/app/routes/app/admin/short-links"),
+);
 const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
 );
@@ -557,6 +560,10 @@ export const routes: RouteObject[] = [
                       {
                         path: "unmatched",
                         element: <Navigate to="../deleted" replace />,
+                      },
+                      {
+                        path: "short-links",
+                        element: <AdminShortLinksPage />,
                       },
                       {
                         element: <AdminGuard />,

@@ -16,7 +16,7 @@ class ControllerServiceTests(unittest.TestCase):
             scripts = root / "scripts/pi"
             scripts.mkdir(parents=True)
             for name in ("install-services.mjs", "mault-api.service", "mault-web.service",
-                         "mault-camera.service", "mault-controller.service", "mault-shortener.service"):
+                         "mault-camera.service", "mault-controller.service"):
                 shutil.copyfile(SCRIPTS / name, scripts / name)
             config = Path(directory) / "user-config"
             environment = dict(os.environ, XDG_CONFIG_HOME=str(config))

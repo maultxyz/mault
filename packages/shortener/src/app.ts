@@ -1,10 +1,14 @@
 import {
+  CUSTOM_SHORT_LINK_CODE_PATTERN,
   SHORTENER_API_SECRET_HEADER,
+  SHORTENER_INTERNAL_CUSTOM_LINKS_PATH,
   SHORTENER_INTERNAL_DELETE_LINKS_PATH,
   SHORTENER_INTERNAL_LINKS_PATH,
-  SHORT_LINK_CODE_PATTERN,
   SHORT_LINK_NOT_FOUND_PATH,
+  SHORT_LINK_PATH_CODE_PATTERN,
   SHORT_LINK_PATH_PREFIX,
+  customShortLinkFormSchema,
+  customShortLinkUpdateSchema,
   shortenerDeleteLinksSchema,
   shortenerRegisterLinksSchema,
 } from "@magic-vault/shared";
@@ -12,6 +16,7 @@ import { Hono, type Context, type MiddlewareHandler } from "hono";
 import {
   REDIRECT_CACHE_CONTROL,
   SHORTENER_HEALTH_PATH,
+  SHORTENER_CODE_TAKEN_MESSAGE,
   SHORTENER_INVALID_REQUEST_MESSAGE,
   SHORTENER_LINK_NOT_FOUND_MESSAGE,
   SHORTENER_SECRET_MISSING_MESSAGE,
@@ -20,6 +25,7 @@ import {
 } from "./lib/constants/shortener";
 import type { ShortenerConfig, ShortLinkStore } from "./lib/interfaces/shortener";
 import { secretsMatch } from "./lib/secret";
+import { isAbsoluteWebUrl } from "./lib/targets";
 
 async function readJsonBody(c: Context): Promise<unknown> {
   try {
@@ -45,10 +51,11 @@ export function createShortenerApp(store: ShortLinkStore, config: ShortenerConfi
     c.header("Cache-Control", REDIRECT_CACHE_CONTROL);
     c.header("Referrer-Policy", "no-referrer");
     const code = c.req.param("code") ?? "";
-    const targetPath = SHORT_LINK_CODE_PATTERN.test(code)
+    const target = SHORT_LINK_PATH_CODE_PATTERN.test(code)
       ? await store.findTargetPath(code)
       : null;
-    return c.redirect(`${origin}${targetPath ?? SHORT_LINK_NOT_FOUND_PATH}`, 302);
+    if (target && isAbsoluteWebUrl(target)) return c.redirect(target, 302);
+    return c.redirect(`${origin}${target ?? SHORT_LINK_NOT_FOUND_PATH}`, 302);
   }
 
   const app = new Hono();
@@ -74,11 +81,43 @@ export function createShortenerApp(store: ShortLinkStore, config: ShortenerConfi
     await store.saveLinks(request.data.links);
     return c.json({ success: true, data: null });
   });
+  app.get(SHORTENER_INTERNAL_CUSTOM_LINKS_PATH, requireApiSecret, async (c) =>
+    c.json({ success: true, data: await store.listCustomLinks() }),
+  );
+  app.post(SHORTENER_INTERNAL_CUSTOM_LINKS_PATH, requireApiSecret, async (c) => {
+    const request = customShortLinkFormSchema.safeParse(await readJsonBody(c));
+    if (!request.success) {
+      return c.json({ success: false, message: SHORTENER_INVALID_REQUEST_MESSAGE }, 400);
+    }
+    const created = await store.createCustomLink(request.data.code, request.data.targetUrl);
+    if (!created) return c.json({ success: false, message: SHORTENER_CODE_TAKEN_MESSAGE }, 409);
+    return c.json({ success: true, data: created }, 201);
+  });
+  app.put(`${SHORTENER_INTERNAL_CUSTOM_LINKS_PATH}/:code`, requireApiSecret, async (c) => {
+    const code = c.req.param("code");
+    const request = customShortLinkUpdateSchema.safeParse(await readJsonBody(c));
+    if (!request.success || !CUSTOM_SHORT_LINK_CODE_PATTERN.test(code)) {
+      return c.json({ success: false, message: SHORTENER_INVALID_REQUEST_MESSAGE }, 400);
+    }
+    const updated = await store.updateCustomLink(code, request.data.targetUrl);
+    if (!updated) {
+      return c.json({ success: false, message: SHORTENER_LINK_NOT_FOUND_MESSAGE }, 404);
+    }
+    return c.json({ success: true, data: updated });
+  });
+  app.delete(`${SHORTENER_INTERNAL_CUSTOM_LINKS_PATH}/:code`, requireApiSecret, async (c) => {
+    const deleted = await store.deleteCustomLink(c.req.param("code"));
+    if (!deleted) {
+      return c.json({ success: false, message: SHORTENER_LINK_NOT_FOUND_MESSAGE }, 404);
+    }
+    return c.json({ success: true, data: null });
+  });
   app.get(`${SHORTENER_INTERNAL_LINKS_PATH}/:code`, requireApiSecret, async (c) => {
     const code = c.req.param("code");
-    const targetPath = SHORT_LINK_CODE_PATTERN.test(code)
+    const target = SHORT_LINK_PATH_CODE_PATTERN.test(code)
       ? await store.findTargetPath(code)
       : null;
+    const targetPath = target && !isAbsoluteWebUrl(target) ? target : null;
     if (!targetPath) {
       return c.json({ success: false, message: SHORTENER_LINK_NOT_FOUND_MESSAGE }, 404);
     }

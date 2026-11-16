@@ -302,6 +302,7 @@ export interface ShutterButtonProps {
 export interface OptionItem {
   value: string;
   label: string;
+  description?: string;
   badge?: string;
 }
 
@@ -315,6 +316,7 @@ export interface OptionSheetProps {
   searchPlaceholder?: string;
   maxVisibleOptions?: number;
   emptyMessage?: string;
+  description?: string;
 }
 
 export interface SelectFieldProps {
