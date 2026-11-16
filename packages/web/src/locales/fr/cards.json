@@ -680,5 +680,9 @@
       "invalidTitle": "Ce lien ne fonctionne plus",
       "invalidDescription": "Il a peut-être été révoqué, ou la carte a été retirée. Demandez un nouveau lien à la personne qui l'a partagé."
     }
+  },
+  "downloadScanImage": {
+    "action": "Télécharger la photo",
+    "failed": "Impossible de télécharger la photo. Réessayez."
   }
 }

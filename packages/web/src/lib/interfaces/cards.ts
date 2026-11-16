@@ -154,10 +154,18 @@ export interface CardSearchState {
   loadMore: () => void;
 }
 
+export interface ScanImageDownloadRequest {
+  loadImage: () => Promise<Blob>;
+  fileName: string;
+}
+
+export type DownloadScanImageButtonProps = ScanImageDownloadRequest;
+
 export interface CardImageViewerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   capturedImageUrl: string;
+  download?: ScanImageDownloadRequest;
   showOcrRegions: boolean;
   onShowOcrRegionsChange?: (show: boolean) => void;
   ocrRegions?: OcrOverlayRegion[];

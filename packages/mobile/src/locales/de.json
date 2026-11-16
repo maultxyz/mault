@@ -1076,7 +1076,9 @@
     "reviewAcceptFailed": "Die vorherige Karte konnte nicht bestätigt werden",
     "share": "Freigabelink kopieren",
     "shareLinkCopied": "Freigabelink kopiert. Alle mit dem Link sehen diese Karte.",
-    "shareLinkCopyFailed": "Der Freigabelink für diese Karte konnte nicht kopiert werden."
+    "shareLinkCopyFailed": "Der Freigabelink für diese Karte konnte nicht kopiert werden.",
+    "downloadPhoto": "Foto herunterladen",
+    "downloadPhotoFailed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut."
   },
   "reviewGrid": {
     "title": "Karten prüfen",

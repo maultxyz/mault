@@ -267,3 +267,6 @@ export * from "./sound-rules-draft";
 export * from "./scan-region";
 export * from "./calibration-keys";
 export * from "./global-search-paging";
+export * from "./constants/scan-image-download.constant";
+export * from "./interfaces/scan-image-download.interface";
+export * from "./scan-image-download";

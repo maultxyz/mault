@@ -12,6 +12,7 @@ import type {
   PriceSource,
   ReviewGridAttributes,
   ReviewGridCard,
+  ScanImageSide,
   ScanDraftFormValues,
   ScannedCard,
 } from "@magic-vault/shared";
@@ -242,3 +243,10 @@ export interface ScanDraftSave {
 }
 
 export type { AddCatalogCardInput } from "@magic-vault/shared";
+
+export interface ScanImageShareRequest {
+  collectionGuid: string;
+  scanId: string;
+  side: ScanImageSide;
+  cardName: string | null | undefined;
+}

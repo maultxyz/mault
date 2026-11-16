@@ -51,6 +51,8 @@ import {
 } from "@/features/cards/components/card-detail-sections";
 import { CardDetailTitle } from "@/features/cards/components/card-detail-title";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
+import { DownloadScanImageButton } from "@/features/cards/components/download-scan-image-button";
+import { loadCollectionScanImageDownload } from "@/features/cards/api/scan-image-download";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
 import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
 import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
@@ -102,6 +104,8 @@ import {
   type PlayingCardWithDistance,
   cardStampOptionsFor,
   printingMarkRegionsFor,
+  scanImageDownloadFileName,
+  type ScanImageSide,
 } from "@magic-vault/shared";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { usePersistedFlag } from "@/hooks/use-persisted-state";
@@ -326,6 +330,25 @@ export function CardDetailPanel({
     ? capturedBackImageUrl
     : capturedImageUrl;
   const shownOcrRegionsVisible = ocrRegionsVisible && !showsCapturedBackSide;
+  const capturedImageSide: ScanImageSide = showsCapturedBackSide
+    ? "back"
+    : "front";
+  const collectionGuid = collection?.guid;
+  const capturedImageDownload =
+    collectionGuid && scanId && shownCapturedImageUrl
+      ? {
+          loadImage: () =>
+            loadCollectionScanImageDownload(
+              collectionGuid,
+              scanId,
+              capturedImageSide,
+            ),
+          fileName: scanImageDownloadFileName(
+            currentCard?.name,
+            capturedImageSide,
+          ),
+        }
+      : undefined;
   const toggleCapturedSideLabel = showsCapturedBackSide
     ? t("cardDetailPanel.showFrontSide")
     : t("cardDetailPanel.showBackSide");
@@ -577,28 +600,33 @@ export function CardDetailPanel({
                 ? t("cardDetailPanel.capturedBackSide")
                 : t("cardDetailPanel.capturedScan")}
             </figcaption>
-            {capturedBackImageUrl && (
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={toggleCapturedSideLabel}
-                      aria-pressed={showsCapturedBackSide}
-                      onClick={() =>
-                        setBackSideScanId(
-                          showsCapturedBackSide ? null : (scanId ?? null),
-                        )
-                      }
-                    >
-                      <IconSwitchHorizontal />
-                    </Button>
-                  }
-                />
-                <TooltipContent>{toggleCapturedSideLabel}</TooltipContent>
-              </Tooltip>
-            )}
+            <div className="flex items-center gap-1.5">
+              {capturedImageDownload && (
+                <DownloadScanImageButton {...capturedImageDownload} />
+              )}
+              {capturedBackImageUrl && (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={toggleCapturedSideLabel}
+                        aria-pressed={showsCapturedBackSide}
+                        onClick={() =>
+                          setBackSideScanId(
+                            showsCapturedBackSide ? null : (scanId ?? null),
+                          )
+                        }
+                      >
+                        <IconSwitchHorizontal />
+                      </Button>
+                    }
+                  />
+                  <TooltipContent>{toggleCapturedSideLabel}</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           </div>
           <button
             type="button"
@@ -926,6 +954,7 @@ export function CardDetailPanel({
           open={viewerOpen}
           onOpenChange={setViewerOpen}
           capturedImageUrl={shownCapturedImageUrl}
+          download={capturedImageDownload}
           showOcrRegions={shownOcrRegionsVisible}
           onShowOcrRegionsChange={reviewMode ? undefined : setShowOcrRegions}
           ocrRegions={readOcrRegions}

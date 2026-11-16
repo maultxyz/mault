@@ -1,8 +1,13 @@
-import type { PublicCardBrowseInfo } from "@magic-vault/shared";
+import {
+  SCAN_IMAGE_SIDE_QUERY_PARAM,
+  parseScanImageSide,
+  type PublicCardBrowseInfo,
+} from "@magic-vault/shared";
 import { Hono, type Context } from "hono";
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { orgSettings } from "../../db/schema";
+import { brandedScanImageResponse } from "../../lib/branded-scan-image";
 import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
 import { PUBLIC_CARD_NOT_FOUND_MESSAGE } from "../../lib/constants/public-cards";
 import type { PublicCardBrowseRouteOptions } from "../../lib/interfaces/public-cards";
@@ -12,6 +17,7 @@ import {
   loadPublicCardFacets,
   loadPublicCardGames,
   loadPublicCardPage,
+  loadPublicCardScanImage,
   parsePublicCardsRequest,
   publicCardReadsKey,
 } from "../../lib/public-card-browse";
@@ -92,6 +98,14 @@ export function createPublicCardBrowseRoute({
       );
       if (!data) return notFound();
       return c.json({ success: true, data });
+    })
+    .get("/cards/:scanId/scan-image/download", async (c) => {
+      const scope = await resolveScope(c);
+      if (!scope) return invalidLink(c);
+      const scanId = c.req.param("scanId");
+      if (!isUuid(scanId)) return brandedScanImageResponse(c, null);
+      const side = parseScanImageSide(c.req.query(SCAN_IMAGE_SIDE_QUERY_PARAM));
+      return brandedScanImageResponse(c, await loadPublicCardScanImage(scope, scanId, side));
     })
     .get("/cards", async (c) => {
       const scope = await resolveScope(c);

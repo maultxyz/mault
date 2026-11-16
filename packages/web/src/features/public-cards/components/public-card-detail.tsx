@@ -7,8 +7,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   isPublicCardsUnavailableError,
+  loadPublicScanImageDownload,
   publicCardDetailQueryOptions,
 } from "@/features/public-cards/api/public-cards";
+import { DownloadScanImageButton } from "@/features/cards/components/download-scan-image-button";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
@@ -20,7 +22,9 @@ import type { PublicCardDetailViewProps } from "@/lib/interfaces/public-cards";
 import {
   DEFAULT_CARD_LANGUAGE,
   isCardCondition,
+  scanImageDownloadFileName,
   scanLanguage,
+  type ScanImageSide,
 } from "@magic-vault/shared";
 import {
   IconArrowLeft,
@@ -112,6 +116,11 @@ export function PublicCardDetailView({
   const foilLabel = detail.isFoil ? (detail.foilType ?? tCards("foil")) : null;
   const showsBackSide = backSideScanId === scanId && !!detail.backScanImageUrl;
   const shownScanUrl = showsBackSide ? detail.backScanImageUrl : detail.scanImageUrl;
+  const shownScanSide: ScanImageSide = showsBackSide ? "back" : "front";
+  const scanImageDownload = {
+    loadImage: () => loadPublicScanImageDownload(source, scanId, shownScanSide),
+    fileName: scanImageDownloadFileName(card.name, shownScanSide),
+  };
   const toggleSideLabel = showsBackSide
     ? tCards("cardDetailPanel.showFrontSide")
     : tCards("cardDetailPanel.showBackSide");
@@ -132,24 +141,27 @@ export function PublicCardDetailView({
                 ? tCards("cardDetailPanel.capturedBackSide")
                 : tCards("cardDetailPanel.capturedScan")}
             </figcaption>
-            {detail.backScanImageUrl && (
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={toggleSideLabel}
-                      aria-pressed={showsBackSide}
-                      onClick={() => setBackSideScanId(showsBackSide ? null : scanId)}
-                    >
-                      <IconSwitchHorizontal />
-                    </Button>
-                  }
-                />
-                <TooltipContent>{toggleSideLabel}</TooltipContent>
-              </Tooltip>
-            )}
+            <div className="flex items-center gap-1.5">
+              <DownloadScanImageButton {...scanImageDownload} />
+              {detail.backScanImageUrl && (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={toggleSideLabel}
+                        aria-pressed={showsBackSide}
+                        onClick={() => setBackSideScanId(showsBackSide ? null : scanId)}
+                      >
+                        <IconSwitchHorizontal />
+                      </Button>
+                    }
+                  />
+                  <TooltipContent>{toggleSideLabel}</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           </div>
           <button
             type="button"
@@ -194,6 +206,7 @@ export function PublicCardDetailView({
           open={viewerOpen}
           onOpenChange={setViewerOpen}
           capturedImageUrl={shownScanUrl}
+          download={scanImageDownload}
           showOcrRegions={false}
         />
       )}

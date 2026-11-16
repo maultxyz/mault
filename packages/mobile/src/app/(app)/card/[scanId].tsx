@@ -80,6 +80,7 @@ import {
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
 import { useCopyCardShareLink } from "@/features/share-links/api/use-copy-card-share-link";
+import { useShareScanImage } from "@/features/cards/api/use-share-scan-image";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import {
   cardStorageLocationQueryOptions,
@@ -346,6 +347,7 @@ export default function CardDetailScreen() {
   });
 
   const copyShareLink = useCopyCardShareLink();
+  const shareScanImage = useShareScanImage();
   const actionMenuOptions = [
     ...(reviewMode ? [] : [{ value: CARD_DETAIL_SHARE_ACTION, label: t("cardDetail.share") }]),
     { value: "collection", label: t("storage.moveToCollection") },
@@ -500,6 +502,7 @@ export default function CardDetailScreen() {
       <PinnedActionsLayout actions={bottomActions} actionsDirection="row">
         {copyShareLink.isSuccess ? <Callout tone="success" title={t("cardDetail.shareLinkCopied")} /> : null}
         {copyShareLink.isError ? <Callout tone="destructive" title={t("cardDetail.shareLinkCopyFailed")} /> : null}
+        {shareScanImage.isError ? <Callout tone="destructive" title={t("cardDetail.downloadPhotoFailed")} /> : null}
         {position.isError ? (
           <Callout
             tone="destructive"
@@ -703,18 +706,37 @@ export default function CardDetailScreen() {
                     <AppText size="xs" tone="secondary">
                       {showsCapturedBackSide ? t("cardDetail.capturedBackSide") : t("cardDetail.capturedScan")}
                     </AppText>
-                    {capturedBackUrl ? (
-                      <IconButton
-                        icon="switchSides"
-                        variant="plain"
-                        size={32}
-                        selected={showsCapturedBackSide}
-                        accessibilityLabel={
-                          showsCapturedBackSide ? t("cardDetail.showFrontSide") : t("cardDetail.showBackSide")
-                        }
-                        onPress={() => setBackSideScanId(showsCapturedBackSide ? null : scanId)}
-                      />
-                    ) : null}
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                      {capturedUrl ? (
+                        <IconButton
+                          icon="download"
+                          variant="plain"
+                          size={32}
+                          disabled={shareScanImage.isPending}
+                          accessibilityLabel={t("cardDetail.downloadPhoto")}
+                          onPress={() =>
+                            shareScanImage.mutate({
+                              collectionGuid: guid,
+                              scanId,
+                              side: showsCapturedBackSide ? "back" : "front",
+                              cardName: card?.name,
+                            })
+                          }
+                        />
+                      ) : null}
+                      {capturedBackUrl ? (
+                        <IconButton
+                          icon="switchSides"
+                          variant="plain"
+                          size={32}
+                          selected={showsCapturedBackSide}
+                          accessibilityLabel={
+                            showsCapturedBackSide ? t("cardDetail.showFrontSide") : t("cardDetail.showBackSide")
+                          }
+                          onPress={() => setBackSideScanId(showsCapturedBackSide ? null : scanId)}
+                        />
+                      ) : null}
+                    </View>
                   </View>
                   <CardImageFrame>
                     {capturedUrl ? (

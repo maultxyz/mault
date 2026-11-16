@@ -5,6 +5,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
+import { DownloadScanImageButton } from "@/features/cards/components/download-scan-image-button";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
@@ -20,6 +21,7 @@ export function CardImageViewer({
   onShowOcrRegionsChange,
   ocrRegions,
   printingMarks,
+  download,
 }: CardImageViewerProps) {
   const { t } = useTranslation("cards");
 
@@ -33,17 +35,20 @@ export function CardImageViewer({
       >
         <DialogHeader className="flex-row items-center justify-between gap-4 pr-8">
           <DialogTitle>{t("cardDetailPanel.capturedScan")}</DialogTitle>
-          {onShowOcrRegionsChange && (
-            <label className="flex items-center gap-2 text-xs text-foreground/70 shrink-0">
-              {t("cardDetailPanel.showOcrRegions")}
-              <Switch
-                size="sm"
-                aria-label={t("cardDetailPanel.showOcrRegions")}
-                checked={showOcrRegions}
-                onCheckedChange={onShowOcrRegionsChange}
-              />
-            </label>
-          )}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {onShowOcrRegionsChange && (
+              <label className="flex items-center gap-2 text-xs text-foreground/70">
+                {t("cardDetailPanel.showOcrRegions")}
+                <Switch
+                  size="sm"
+                  aria-label={t("cardDetailPanel.showOcrRegions")}
+                  checked={showOcrRegions}
+                  onCheckedChange={onShowOcrRegionsChange}
+                />
+              </label>
+            )}
+            {download && <DownloadScanImageButton {...download} />}
+          </div>
         </DialogHeader>
         <div className="flex flex-col gap-4 md:gap-2 md:flex-row md:items-start">
           <div className="relative mx-auto h-[min(75dvh,36rem)] max-w-full aspect-[2.5/3.5] shrink-0 rounded-lg overflow-hidden border">

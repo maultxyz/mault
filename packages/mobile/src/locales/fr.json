@@ -1076,7 +1076,9 @@
     "reviewAcceptFailed": "Impossible de valider la carte précédente",
     "share": "Copier le lien de partage",
     "shareLinkCopied": "Lien de partage copié. Toute personne qui l’a peut voir cette carte.",
-    "shareLinkCopyFailed": "Impossible de copier un lien de partage pour cette carte."
+    "shareLinkCopyFailed": "Impossible de copier un lien de partage pour cette carte.",
+    "downloadPhoto": "Télécharger la photo",
+    "downloadPhotoFailed": "Impossible de télécharger la photo. Réessayez."
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",

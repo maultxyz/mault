@@ -680,5 +680,9 @@
       "invalidTitle": "This link doesn't work anymore",
       "invalidDescription": "It may have been revoked, or the card was removed. Ask the person who shared it for a new link."
     }
+  },
+  "downloadScanImage": {
+    "action": "Download photo",
+    "failed": "Couldn't download the photo. Try again."
   }
 }

@@ -680,5 +680,9 @@
       "invalidTitle": "Dieser Link funktioniert nicht mehr",
       "invalidDescription": "Er wurde vielleicht widerrufen, oder die Karte wurde entfernt. Bitte die Person, die ihn geteilt hat, um einen neuen Link."
     }
+  },
+  "downloadScanImage": {
+    "action": "Foto herunterladen",
+    "failed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut."
   }
 }

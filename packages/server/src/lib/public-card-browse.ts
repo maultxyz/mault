@@ -15,9 +15,10 @@ import {
   type PublicCardFilters,
   type PublicCardGame,
   type PublicCardSort,
+  type ScanImageSide,
 } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
-import type { Transaction } from "../db";
+import { db, type Transaction } from "../db";
 import { cardFilterSql, loadCardStatsForSource } from "../routes/collections/cards-query";
 import {
   loadStoredCardsByRowIds,
@@ -41,7 +42,7 @@ import type {
   PublicCardImageRow,
   PublicCardsRequest,
 } from "./interfaces/public-cards";
-import { resolveBackScanImageUrl, resolveScanImageUrl } from "./scan-images";
+import { loadScanImageSide, resolveBackScanImageUrl, resolveScanImageUrl } from "./scan-images";
 import { pricesForShareLink } from "./share-link-pricing";
 import { notReservedByOpenPicksSql } from "./order-reservations";
 import { loadRankedIdPage } from "./ranked-id-page";
@@ -219,6 +220,32 @@ export async function loadPublicCardDetail(
       })) ?? null,
   };
   return pricesForShareLink(detail, scope.showsPrices);
+}
+
+export async function loadPublicCardScanImage(
+  scope: PublicCardBrowseScope,
+  scanId: string,
+  side: ScanImageSide,
+): Promise<Buffer | null> {
+  const result = await db.execute(sql`
+    SELECT cc.captured_image_key, cc.captured_image_data_url,
+      cc.captured_back_image_key, cc.captured_back_image_data_url
+    FROM collection_cards cc
+    ${PUBLIC_CARD_JOINS}
+    WHERE cc.guid = ${scanId}::uuid AND ${publicCardsWhere(scope)}
+    LIMIT 1
+  `);
+  const row = result.rows[0] as unknown as PublicCardImageRow | undefined;
+  if (!row) return null;
+  return loadScanImageSide(
+    {
+      capturedImageKey: row.captured_image_key,
+      capturedImageDataUrl: row.captured_image_data_url,
+      capturedBackImageKey: row.captured_back_image_key,
+      capturedBackImageDataUrl: row.captured_back_image_data_url,
+    },
+    side,
+  );
 }
 
 export async function loadPublicCardFacets(

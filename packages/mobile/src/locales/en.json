@@ -1076,7 +1076,9 @@
     "reviewAcceptFailed": "Couldn't accept the previous card",
     "share": "Copy share link",
     "shareLinkCopied": "Share link copied. Anyone with it can see this card.",
-    "shareLinkCopyFailed": "Couldn't copy a share link for this card."
+    "shareLinkCopyFailed": "Couldn't copy a share link for this card.",
+    "downloadPhoto": "Download photo",
+    "downloadPhotoFailed": "Couldn't download the photo. Try again."
   },
   "reviewGrid": {
     "title": "Review cards",
