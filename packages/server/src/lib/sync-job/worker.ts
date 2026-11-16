@@ -233,22 +233,23 @@ async function refreshStoredData(
           data,
         );
         const catalog = catalogColumnsFor(source.gameKey, lang, c.id, data);
-        return `{"card_id":${JSON.stringify(c.id)},"collector_number":${JSON.stringify(collectorNumber)},"set_name":${JSON.stringify(catalog.setName)},"rarity":${JSON.stringify(catalog.rarity)},"color_identity":${JSON.stringify(catalog.colorIdentity)},"search_text":${JSON.stringify(catalog.searchText)},"image_small":${JSON.stringify(catalog.imageSmall)},"data":${c.data}}`;
+        return `{"card_id":${JSON.stringify(c.id)},"name":${JSON.stringify(c.name)},"collector_number":${JSON.stringify(collectorNumber)},"set_name":${JSON.stringify(catalog.setName)},"rarity":${JSON.stringify(catalog.rarity)},"color_identity":${JSON.stringify(catalog.colorIdentity)},"search_text":${JSON.stringify(catalog.searchText)},"image_small":${JSON.stringify(catalog.imageSmall)},"data":${c.data}}`;
       })
       .join(",")}]`;
     const result = await db.execute(sql`
       UPDATE cards AS c
-      SET data = x.data, collector_number = x.collector_number,
+      SET data = x.data, name = x.name, collector_number = x.collector_number,
         set_name = x.set_name, rarity = x.rarity, color_identity = x.color_identity,
         search_text = x.search_text, image_small = x.image_small
       FROM jsonb_to_recordset(${rows}::jsonb)
-        AS x(card_id text, collector_number text, set_name text, rarity text,
+        AS x(card_id text, name text, collector_number text, set_name text, rarity text,
           color_identity jsonb, search_text text, image_small text, data jsonb)
       WHERE c.game_key = ${source.gameKey}
         AND c.lang = ${lang}
         AND c.card_id = x.card_id
         AND (
           (c.data - ${volatileKeys}::text[]) IS DISTINCT FROM (x.data - ${volatileKeys}::text[])
+          OR c.name IS DISTINCT FROM x.name
           OR c.collector_number IS DISTINCT FROM x.collector_number
           OR (c.set_name, c.rarity, c.color_identity, c.search_text, c.image_small)
             IS DISTINCT FROM (x.set_name, x.rarity, x.color_identity, x.search_text, x.image_small)

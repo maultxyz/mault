@@ -3,6 +3,7 @@ import {
   type PrintingMarkGroups,
 } from "@magic-vault/shared";
 import {
+  PRINTED_LANGUAGE_CODE_UNKNOWN,
   PRINTING_MARK_GROUP_ABSENT,
   PRINTING_MARK_GROUP_UNKNOWN,
 } from "./constants/printing-marks";
@@ -139,6 +140,7 @@ export function createCardMatchSegmentBuilder(
   let collectorNumberIndexByRow = new Int32Array(expectedRows);
   let rarePrinting = new Uint8Array(expectedRows);
   let promoPrinting = new Uint8Array(expectedRows);
+  let printedLanguageCode = new Int8Array(expectedRows);
   let printedSetTotals = new Int32Array(expectedRows);
   const printingMarkRegionKeys = printingRegionsOf(gameKey).map(
     (region) => region.key,
@@ -189,6 +191,13 @@ export function createCardMatchSegmentBuilder(
       rarePrinting[rowIndex] = row.rarePrinting ? 1 : 0;
       promoPrinting = withCapacity(promoPrinting, rowCount);
       promoPrinting[rowIndex] = row.promoPrinting ? 1 : 0;
+      printedLanguageCode = withCapacity(printedLanguageCode, rowCount);
+      printedLanguageCode[rowIndex] =
+        row.printedLanguageCode == null
+          ? PRINTED_LANGUAGE_CODE_UNKNOWN
+          : row.printedLanguageCode
+            ? 1
+            : 0;
       printedSetTotals = withCapacity(printedSetTotals, rowCount);
       printedSetTotals[rowIndex] = row.printedSetTotal ?? 0;
       printingMarkGroupIds = withCapacity(
@@ -275,6 +284,7 @@ export function createCardMatchSegmentBuilder(
           estimatedStringBytes(printingMarkGroupKeys),
         rarePrinting: rarePrinting.slice(0, rowCount),
         promoPrinting: promoPrinting.slice(0, rowCount),
+        printedLanguageCode: printedLanguageCode.slice(0, rowCount),
         printedSetTotals: printedSetTotals.slice(0, rowCount),
         printingMarkRegionKeys,
         printingMarkGroupKeys,
@@ -327,6 +337,7 @@ export function cardMatchSegmentBytes(segment: CardMatchSegment): number {
     segment.backFaceIndexByRow.byteLength +
     segment.rarePrinting.byteLength +
     segment.promoPrinting.byteLength +
+    segment.printedLanguageCode.byteLength +
     segment.printedSetTotals.byteLength +
     segment.printingMarkGroupIds.byteLength
   );
@@ -345,6 +356,14 @@ export function cardIdOfRow(segment: CardMatchSegment, row: number): string {
     segment.cardIdTextOffsets[textIndex],
     segment.cardIdTextOffsets[textIndex + 1],
   );
+}
+
+export function printedLanguageCodeOfRow(
+  segment: CardMatchSegment,
+  row: number,
+): boolean | null {
+  const flag = segment.printedLanguageCode[row];
+  return flag === PRINTED_LANGUAGE_CODE_UNKNOWN ? null : flag === 1;
 }
 
 export function nameOfRow(segment: CardMatchSegment, row: number): string {
@@ -525,6 +544,51 @@ export function closestRegularPrinting(
     }
   }
   return closest;
+}
+
+export function closestPrintingWithLanguageCode(
+  segments: CardMatchSegment[],
+  name: string,
+  printedLanguageCode: boolean,
+  query: Float32Array,
+): CardFaceMatch | null {
+  let closest: CardFaceMatch | null = null;
+  let closestIsRare = true;
+  for (const segment of segments) {
+    for (let row = 0; row < segment.rowCount; row++) {
+      if (
+        printedLanguageCodeOfRow(segment, row) !== printedLanguageCode ||
+        nameOfRow(segment, row) !== name
+      ) {
+        continue;
+      }
+      const face = closestFaceOfRow(segment, row, query);
+      const isRare = segment.rarePrinting[row] === 1;
+      if (
+        !closest ||
+        (closestIsRare && !isRare) ||
+        (closestIsRare === isRare && face.distance < closest.distance)
+      ) {
+        closest = face;
+        closestIsRare = isRare;
+      }
+    }
+  }
+  return closest;
+}
+
+export function printedLanguageCodeOfCard(
+  segments: CardMatchSegment[],
+  cardId: string,
+): boolean | null {
+  for (const segment of segments) {
+    for (let row = 0; row < segment.rowCount; row++) {
+      if (cardIdOfRow(segment, row) === cardId) {
+        return printedLanguageCodeOfRow(segment, row);
+      }
+    }
+  }
+  return null;
 }
 
 export function printingMarkGroupsOfRow(

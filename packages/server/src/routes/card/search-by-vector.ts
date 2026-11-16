@@ -1,5 +1,7 @@
 import {
   decodePrintingMarkGrids,
+  parsePrintedLanguageCodeFormValue,
+  PRINTED_LANGUAGE_CODE_FORM_FIELD,
   type CardSearchEmbeddings,
 } from "@magic-vault/shared";
 import { Hono } from "hono";
@@ -56,6 +58,9 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
       typeof body["printingMarksGameKey"] === "string"
         ? body["printingMarksGameKey"]
         : null;
+    const printedLanguageCode = parsePrintedLanguageCodeFormValue(
+      body[PRINTED_LANGUAGE_CODE_FORM_FIELD],
+    );
 
     try {
       const { result, scope } = await findBestMatchAcrossGames(
@@ -72,6 +77,10 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
                     body["printingMarks"],
                     matchScope.gameKey,
                   )
+                : null,
+            printedLanguageCode:
+              matchScope.gameKey === printingMarksGameKey
+                ? printedLanguageCode
                 : null,
           }),
       );

@@ -354,6 +354,13 @@
       "noReferences": "Non vérifié : pas encore de références pour ce jeu",
       "singlePrinting": "Inutile : aucune impression similaire"
     },
+    "printedLanguageCode": "Code de langue (« EN »)",
+    "printedLanguageCodeValue": {
+      "presentChanged": "EN trouvé, impression changée",
+      "presentKept": "EN trouvé",
+      "absentChanged": "Pas de EN, impression changée",
+      "absentKept": "Pas de EN"
+    },
     "printedFoilMarker": "Étoile foil",
     "printedFoilMarkerValue": {
       "star": "Étoile trouvée (foil)",

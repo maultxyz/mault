@@ -354,6 +354,13 @@
       "noReferences": "Nicht geprüft: noch keine Referenzen für dieses Spiel",
       "singlePrinting": "Nicht nötig: keine ähnlichen Drucke"
     },
+    "printedLanguageCode": "Sprachcode (\"EN\")",
+    "printedLanguageCodeValue": {
+      "presentChanged": "EN gefunden, Druck geändert",
+      "presentKept": "EN gefunden",
+      "absentChanged": "Kein EN, Druck geändert",
+      "absentKept": "Kein EN"
+    },
     "printedFoilMarker": "Foil-Stern",
     "printedFoilMarkerValue": {
       "star": "Stern gefunden (Foil)",

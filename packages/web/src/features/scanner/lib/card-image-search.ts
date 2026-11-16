@@ -38,6 +38,8 @@ import {
   toScanMatchDetails,
   type CardContour,
   type CardTextSearchResult,
+  printedLanguageCodeFormValue,
+  PRINTED_LANGUAGE_CODE_FORM_FIELD,
   type PrintingMarksPayload,
   type ScanOcrMode,
   type ScanDetectionDiagnostics,
@@ -68,6 +70,12 @@ function buildSearchFormData(
   if (printingMarks) {
     formData.append("printingMarks", printingMarks.encoded);
     formData.append("printingMarksGameKey", printingMarks.gameKey);
+    const printedLanguageCode = printedLanguageCodeFormValue(
+      printingMarks.printedLanguageCode,
+    );
+    if (printedLanguageCode) {
+      formData.append(PRINTED_LANGUAGE_CODE_FORM_FIELD, printedLanguageCode);
+    }
   }
   return formData;
 }

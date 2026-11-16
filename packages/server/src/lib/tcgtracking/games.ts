@@ -9,6 +9,7 @@ import {
   sorceryPrimaryArtworkKey,
   sorceryProductArtworkKey,
 } from "../adapters/sorcery/tcgplayer-products";
+import { onePiecePrintedName } from "../adapters/onepiece/printed-id";
 import type { GundamCard } from "../interfaces/gundam";
 import type { SorceryCard } from "../interfaces/sorcery";
 import type { TcgtrackingGameConfig } from "../interfaces/tcgtracking";
@@ -39,6 +40,7 @@ export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
     numbering: "global",
     isBasePrinting: (card) => card.id === card.collectorNumber,
     primaryShapedFieldsOf: onePiecePrimaryShape,
+    storedNameOf: onePiecePrintedName,
     normalizesFallbackThroughPrimaryAdapter: true,
   },
   gundam: {

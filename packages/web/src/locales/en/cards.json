@@ -354,6 +354,13 @@
       "noReferences": "Not checked: no references for this game yet",
       "singlePrinting": "Not needed: no look-alike printings"
     },
+    "printedLanguageCode": "Language code (\"EN\")",
+    "printedLanguageCodeValue": {
+      "presentChanged": "EN found, printing changed",
+      "presentKept": "EN found",
+      "absentChanged": "No EN, printing changed",
+      "absentKept": "No EN"
+    },
     "printedFoilMarker": "Foil star",
     "printedFoilMarkerValue": {
       "star": "Star found (foil)",

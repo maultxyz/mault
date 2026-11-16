@@ -15,6 +15,7 @@ import {
   PRINTING_MARK_MAX_LEADER_DISTANCE_GAP,
   PRINTING_MARK_REORDER_MARGIN,
   readPrintedLanguage,
+  type PrintedLanguageCodeMatch,
   type PrintingMarkScanGrids,
 } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
@@ -54,6 +55,9 @@ import {
   nameOfRow,
   setCodeOfRow,
   closestRegularPrinting,
+  closestPrintingWithLanguageCode,
+  printedLanguageCodeOfCard,
+  printedLanguageCodeOfRow,
   printingMarkGroupsOfRow,
   faceDistance,
   nearestCardFaces,
@@ -73,7 +77,10 @@ import type {
   CollectionMatchScope,
 } from "../../lib/interfaces/card-search";
 import { ocrRegions } from "../../lib/ocr";
-import { scanGridsFromImageBuffer } from "../../lib/printing-marks/scan";
+import {
+  printedLanguageCodeFromImageBuffer,
+  scanGridsFromImageBuffer,
+} from "../../lib/printing-marks/scan";
 import { printingMarkReferencesFor } from "../../lib/printing-marks/references";
 import { rankByPrintingMarks } from "../../lib/printing-marks/ranking";
 import { stripLeadingZeros } from "../../lib/ocr-calibration/match";
@@ -237,17 +244,75 @@ function regularPrintingOf(
     : undefined;
 }
 
+function agreesWithPrintedLanguageCode(
+  printingHasLanguageCode: boolean | null,
+  detectedLanguageCode: boolean | null,
+): boolean {
+  return (
+    detectedLanguageCode === null ||
+    printingHasLanguageCode === null ||
+    printingHasLanguageCode === detectedLanguageCode
+  );
+}
+
+function printingMatchingLanguageCode(
+  leader: { cardId: string; name: string; distance: number },
+  printedLanguageCode: boolean | null,
+  segments: CardMatchSegment[],
+  query: Float32Array,
+  nearestDistance: number,
+): { match: PrintedLanguageCodeMatch; face: CardFaceMatch | null } | null {
+  if (printedLanguageCode === null) return null;
+  const leaderLanguageCode = printedLanguageCodeOfCard(segments, leader.cardId);
+  const unchanged = {
+    match: {
+      detected: printedLanguageCode,
+      cardId: null,
+      replacedCardId: null,
+    },
+    face: null,
+  };
+  if (
+    leaderLanguageCode === null ||
+    leaderLanguageCode === printedLanguageCode
+  ) {
+    return unchanged;
+  }
+  const face = closestPrintingWithLanguageCode(
+    segments,
+    leader.name,
+    printedLanguageCode,
+    query,
+  );
+  if (
+    !face ||
+    face.distance - nearestDistance > PRINTING_MARK_MAX_LEADER_DISTANCE_GAP
+  ) {
+    return unchanged;
+  }
+  return {
+    match: {
+      detected: printedLanguageCode,
+      cardId: cardIdOfRow(face.segment, face.row),
+      replacedCardId: leader.cardId,
+    },
+    face,
+  };
+}
+
 export async function findCardMatches({
   embeddings,
   preferredSetCodes = [],
   skipsUnloadedIndex = false,
   printingMarkGrids,
+  printedLanguageCode = null,
   ...scope
 }: CollectionMatchScope & {
   embeddings: CardSearchEmbeddings;
   preferredSetCodes?: string[];
   skipsUnloadedIndex?: boolean;
   printingMarkGrids?: PrintingMarkScanGrids | null;
+  printedLanguageCode?: boolean | null;
 }): Promise<CardMatchSearchResult> {
   const { gameKey, lang } = scope;
   const segments = skipsUnloadedIndex
@@ -348,7 +413,7 @@ export async function findCardMatches({
       -PRINTING_MARK_REORDER_MARGIN;
   const promoted =
     markWinner ?? (marksRejectRegular ? undefined : regularMatch);
-  const ranked = promoted
+  const promotedRows = promoted
     ? [
         {
           ...rows[0],
@@ -361,6 +426,33 @@ export async function findCardMatches({
         ...rows.filter((row) => row.cardId !== promoted.cardId),
       ]
     : rows;
+  const languageCodeChoice = markWinner
+    ? null
+    : printingMatchingLanguageCode(
+        promotedRows[0],
+        printedLanguageCode,
+        segments,
+        query,
+        nearest[0].distance,
+      );
+  const languageCodeFace = languageCodeChoice?.face;
+  const ranked = languageCodeFace
+    ? [
+        {
+          ...promotedRows[0],
+          id: cardIdOfRow(languageCodeFace.segment, languageCodeFace.row),
+          cardId: cardIdOfRow(languageCodeFace.segment, languageCodeFace.row),
+          lang: languageCodeFace.segment.lang,
+          setCode: setCodeOfRow(languageCodeFace.segment, languageCodeFace.row),
+          distance: languageCodeFace.distance,
+        },
+        ...promotedRows.filter(
+          (row) =>
+            row.cardId !==
+            cardIdOfRow(languageCodeFace.segment, languageCodeFace.row),
+        ),
+      ]
+    : promotedRows;
 
   const [leader] = ranked;
   const leaderSegment = segments.find(
@@ -402,7 +494,9 @@ export async function findCardMatches({
     success: true,
     data: matchList.length > 0 ? matchList : null,
     nearestDistance,
-    printingMarks: markRanking.diagnostics,
+    printingMarks: languageCodeChoice
+      ? { ...markRanking.diagnostics, languageCode: languageCodeChoice.match }
+      : markRanking.diagnostics,
   };
 }
 
@@ -518,6 +612,7 @@ export async function findCardMatchesByText({
   readout,
   preferredSetCodes,
   printedPromo = null,
+  printedLanguageCode = null,
   printingMarkGrids,
   ...scope
 }: CardTextMatchParams): Promise<CardTextMatchResult> {
@@ -594,6 +689,10 @@ export async function findCardMatchesByText({
       matchesPrintedPromo:
         printedPromo == null ||
         (segment.promoPrinting[row] === 1) === printedPromo,
+      matchesPrintedLanguageCode: agreesWithPrintedLanguageCode(
+        printedLanguageCodeOfRow(segment, row),
+        printedLanguageCode,
+      ),
       rarePrinting: segment.rarePrinting[row] === 1,
       printingMarkGroups: printingMarkGroupsOfRow(segment, row),
     }))
@@ -603,6 +702,8 @@ export async function findCardMatchesByText({
     (printing) =>
       printing.isPreferredSet === textLeader.isPreferredSet &&
       printing.matchesPrintedPromo === textLeader.matchesPrintedPromo &&
+      printing.matchesPrintedLanguageCode ===
+        textLeader.matchesPrintedLanguageCode &&
       printing.letteredNumberMatch === textLeader.letteredNumberMatch &&
       printing.numberMatch === textLeader.numberMatch &&
       printing.setTotalMatch === textLeader.setTotalMatch,
@@ -792,12 +893,17 @@ export async function findCardMatchesByOcr(
   params: Omit<CardTextMatchParams, "readout">,
   trace?: OcrRegionTrace[],
 ): Promise<CardTextMatchResult> {
-  const [{ primary, fallback, regions: readRegions }, printingMarkGrids] =
-    await Promise.all([
-      ocrRegions(buffer, regions, trace),
-      params.printingMarkGrids ??
-        scanGridsFromImageBuffer(params.gameKey, buffer),
-    ]);
+  const [
+    { primary, fallback, regions: readRegions },
+    printingMarkGrids,
+    printedLanguageCode,
+  ] = await Promise.all([
+    ocrRegions(buffer, regions, trace),
+    params.printingMarkGrids ??
+      scanGridsFromImageBuffer(params.gameKey, buffer),
+    params.printedLanguageCode ??
+      printedLanguageCodeFromImageBuffer(params.gameKey, buffer),
+  ]);
   const readout = mergeReadouts(primary, fallback);
   const scopedToPrintedLanguage = await printedLanguageScope(params, readout);
   const scopedParams = scopedToPrintedLanguage
@@ -822,6 +928,7 @@ export async function findCardMatchesByOcr(
     const imageMatchInPrintedLanguage = await findCardMatches({
       ...scopedParams,
       printingMarkGrids,
+      printedLanguageCode,
     });
     return imageMatchInPrintedLanguage.data
       ? { ...imageMatchInPrintedLanguage, ocr }
@@ -845,7 +952,12 @@ export async function findCardMatchesByOcr(
       candidate.name &&
       all.findIndex((other) => other.name === candidate.name) === index,
   );
-  const textParams = { ...scopedParams, printedPromo, printingMarkGrids };
+  const textParams = {
+    ...scopedParams,
+    printedPromo,
+    printedLanguageCode,
+    printingMarkGrids,
+  };
   if (nameCandidates.length === 0) {
     return withReadRegions(
       await findCardMatchesByText({ ...textParams, readout }),

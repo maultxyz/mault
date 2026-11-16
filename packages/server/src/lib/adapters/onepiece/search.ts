@@ -1,11 +1,25 @@
 import type { PlayingCard } from "@magic-vault/shared";
+import { sql } from "drizzle-orm";
 import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
 import { CARD_API_HEADERS } from "../../constants/card-search";
+import { TCGTRACKING_FALLBACK_SOURCE } from "../../constants/tcgtracking";
 import { ONE_PIECE_DEFAULT_URL } from "../../constants/urls";
 import type { OptcgCard } from "../../interfaces/onepiece";
+import {
+  ONE_PIECE_PRINTED_ID_PATTERN as PRINTED_ID_RE,
+  ONE_PIECE_PRODUCTS_WITHOUT_LANGUAGE_CODE,
+  ONE_PIECE_PROMO_PRODUCT_NAME,
+  ONE_PIECE_WHITESPACE_SQL_PATTERN,
+  ONE_PIECE_RARE_PRINTING_NAME_SQL_PATTERN,
+  ONE_PIECE_REPRINT_CARD_ID_SQL_PATTERN,
+} from "../../constants/onepiece";
+import { onePieceFoilPrintingVariants } from "./foil-printings";
+import { onePiecePrintedId } from "./printed-id";
 
-const PRINTED_ID_RE = /^(?:OP|ST|EB|PRB)\d{2}-\d{3}$|^P-\d{3}$/;
+export { onePiecePrintedId, onePiecePrintedName } from "./printed-id";
+
+const PRODUCT_NAME_SQL = sql`lower(trim(regexp_replace(coalesce(data->>'set_name', ''), ${ONE_PIECE_WHITESPACE_SQL_PATTERN}, ' ', 'g')))`;
 
 const ONE_PIECE_COLORS = new Set([
   "Red",
@@ -18,15 +32,6 @@ const ONE_PIECE_COLORS = new Set([
 
 function normalizeProductName(name: string): string {
   return name.toLowerCase().replace(/\s+/g, " ").trim();
-}
-
-export function onePiecePrintedId(id: string): string {
-  for (const segment of id.split("_")) {
-    const printed = segment.replace(/-(?:pr|r|p)\d+$/, "");
-    if (PRINTED_ID_RE.test(printed)) return printed;
-  }
-  const idx = id.indexOf("_");
-  return idx > 0 ? id.slice(0, idx) : id;
 }
 
 export function onePieceSetCode(
@@ -191,6 +196,17 @@ export async function findCardVersion(
 export const onePieceAdapter: CardSearchAdapter = {
   defaultUrl: ONE_PIECE_DEFAULT_URL,
   normalizeStored: (raw, id) => normalizeOnePieceCard(raw as OptcgCard, id),
+  rarePrintingSql: sql`(card_id ~ ${ONE_PIECE_REPRINT_CARD_ID_SQL_PATTERN} OR coalesce(data->>'card_name', '') ~* ${ONE_PIECE_RARE_PRINTING_NAME_SQL_PATTERN})`,
+  printedLanguageCodeSql: sql`CASE
+    WHEN (data->>'source') = ${TCGTRACKING_FALLBACK_SOURCE} THEN NULL
+    WHEN ${PRODUCT_NAME_SQL} IN ('', ${ONE_PIECE_PROMO_PRODUCT_NAME}) THEN NULL
+    WHEN ${PRODUCT_NAME_SQL} IN (${sql.join(
+      ONE_PIECE_PRODUCTS_WITHOUT_LANGUAGE_CODE.map((name) => sql`${name}`),
+      sql`, `,
+    )}) THEN false
+    ELSE true
+  END`,
+  foilPrintingVariants: onePieceFoilPrintingVariants,
   tcgplayer: {
     categoryId: 68,
     subTypes: () => ({ price: ["Normal", "Foil"], priceFoil: ["Foil"] }),
