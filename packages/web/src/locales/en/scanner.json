@@ -607,8 +607,8 @@
   "usePhoneAsCamera": "Use Phone as Camera",
   "requestingCameraAccess": "Requesting camera access…",
   "cameraConnecting": "Connecting to camera…",
-  "cardCount_one": "{{count}} card",
-  "cardCount_other": "{{count}} cards",
+  "cardCount_one": "{{count, compact}} card",
+  "cardCount_other": "{{count, compact}} cards",
   "isScanningTooltip": "{{name}} is scanning",
   "cameraAccessError": "Could not access camera. Please check your device.",
   "staleDeviceDialog": {
@@ -691,8 +691,8 @@
       "pauseAll": "Pause all",
       "resumeAll": "Resume all",
       "resumeSelected": "Resume ({{count}})",
-      "sessionCount_one": "{{count}} this session",
-      "sessionCount_other": "{{count}} this session"
+      "sessionCount_one": "{{count, compact}} this session",
+      "sessionCount_other": "{{count, compact}} this session"
     },
     "cpuInferenceLimitReached": {
       "title": "WASM runs one sorter at a time",
@@ -758,14 +758,11 @@
     "reload": "Reload"
   },
   "mobileMonitor": {
-    "tabCards": "Cards",
-    "tabActivity": "Activity",
     "cards": "Cards",
     "searchPlaceholder": "Search cards",
     "needsReview": "Needs review",
     "back": "Back to sessions",
     "bin": "Bin {{number}}",
-    "noActivity": "Nothing scanned yet. Scans show up here as they happen.",
     "status": {
       "connected": "Live",
       "connecting": "Connecting…",
@@ -901,9 +898,6 @@
     "cameraOffDescription": "Allow camera access to start scanning.",
     "startCamera": "Start camera",
     "retry": "Retry",
-    "noSorterTitle": "No sorter connected",
-    "noSorterDescription": "Connect your sorter to sort cards, or tap the shutter to scan one card.",
-    "connect": "Connect",
     "bin": "Bin {{number}}",
     "pause": "Pause scanning",
     "start": "Start scanning",
@@ -948,7 +942,6 @@
     },
     "connectHint": "Turn on your sorter, then connect to it.",
     "connectBluetooth": "Connect over Bluetooth",
-    "connectUsb": "Connect over USB",
     "connectPi": "Connect the sorter on this Pi",
     "unsupported": "This browser can't connect to a sorter directly. Connect to one over Wi-Fi below, or use Chrome on Android.",
     "actions": "Actions",
@@ -1057,7 +1050,6 @@
   },
   "controlCards": {
     "openPage": "Print control cards",
-    "openPageDescription": "QR cards that change scan settings when the sorter reads them",
     "applied": "Control card applied",
     "rejected": {
       "title": "Control card not applied"
@@ -1242,7 +1234,14 @@
       "scanning": "Scanning the glass...",
       "scanAgain": "Scan again",
       "dragHint": "Drag a box around the card if the detected box is off.",
-      "boxTooSmall": "The box is too small for a card. Drag a larger box around it.",
+      "boxTooSmall": "The box is too small for a card. Drag a larger box around it or enter a larger size.",
+      "fields": {
+        "leftMm": "Left (mm)",
+        "topMm": "Top (mm)",
+        "widthMm": "Width (mm)",
+        "heightMm": "Height (mm)"
+      },
+      "fieldsHint": "You can also type the box position and size, measured from the top left corner of the glass.",
       "save": "Save position",
       "cancel": "Cancel",
       "previewAlt": "Scan of the whole flatbed glass",

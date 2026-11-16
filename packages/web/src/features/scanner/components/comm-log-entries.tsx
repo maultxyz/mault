@@ -45,7 +45,7 @@ export function CommLogEntries({ entries }: CommLogEntriesProps) {
                 ? "bg-info-muted text-info-foreground"
                 : entry.direction === "restarted"
                   ? "bg-warning-muted text-warning-foreground"
-                  : "bg-muted text-foreground",
+                  : "bg-foreground/6 text-foreground",
             )}
           >
             <span className="shrink-0 font-mono font-normal tabular-nums">

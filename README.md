@@ -16,7 +16,7 @@ Each game is a pluggable adapter (`packages/server/src/lib/adapters/<game>/`) pl
 
 1. The feeder pushes a card from the hopper into the camera's calibrated scan region and waits for it to settle at the IR sensor.
 2. The client finds the card's four corners, dewarps it and embeds it with [CollectorVision](https://github.com/HanClinto/CollectorVision)'s corner detector and Milo embedder (ONNX, in the browser or on the phone). If the client can't run the models, the server embeds the image instead.
-3. The server finds the closest cards with a pgvector HNSW search. When printings look alike, OCR of the name, set and number breaks the tie; weak matches are flagged for review.
+3. The server finds the closest cards by comparing the embedding against its in-memory index of every card vector (stored in Postgres with pgvector). When printings look alike, OCR of the name, set and number breaks the tie; weak matches are flagged for review.
 4. The collection's active bin preset decides the bin (rules, auto-assign, repack, alphabetical, chaos, pick lists, overflow and copy limits), client-side.
 5. The client tells the sorter which module and direction to use, over USB serial, Bluetooth or Wi-Fi, and saves the scan in parallel.
 
@@ -243,7 +243,7 @@ Coolify: see step 5 under [Coolify](#coolify). Outside Docker: `pnpm --filter @m
 
 ## Deployment
 
-Four images, built from the repo root and published by CI (`.github/workflows/deploy.yml`) to `ghcr.io/dishwasher-detergent/mault-*`, tagged `vX.Y.Z`, `sha-*` and `:latest` (from `master`) or `:dev`:
+Five images, built from the repo root and published by CI (`.github/workflows/deploy.yml`) to `ghcr.io/maultxyz/mault-*`, tagged `vX.Y.Z`, `sha-*` and `:latest` (from `master`) or `:dev`:
 
 | Dockerfile            | Image            | Notes                                            |
 | --------------------- | ---------------- | ------------------------------------------------ |
@@ -251,6 +251,7 @@ Four images, built from the repo root and published by CI (`.github/workflows/de
 | `Dockerfile.web`      | `mault-web`      | Vite SPA on nginx, proxies `/api` to the server  |
 | `Dockerfile.api-docs` | `mault-api-docs` | Public API reference                             |
 | `Dockerfile.bot`      | `mault-bot`      | Optional Discord bot                             |
+| `Dockerfile.shortener` | `mault-shortener` | Optional link shortener                         |
 
 The images are public, so the web image reads its `VITE_*` settings at container start (`docker/web-env.sh` writes `env.js`). The server reports the bundled firmware's version from `FIRMWARE_VERSION` in `firmware/main/main.ino`, which the server image copies.
 
@@ -281,7 +282,7 @@ The API then registers each link's code with the shortener and re-registers ever
 
 `docker-compose-coolify.yml` runs the published images (web, API, pgvector Postgres, optional bot and link shortener), so nothing builds on your server. `MAULT_IMAGE_TAG` picks the tag (default `latest`; set e.g. `v1.2.3` to pin).
 
-1. **+ New** > **Public Repository** with `https://github.com/dishwasher-detergent/mault`, branch `master`, build pack **Docker Compose** and compose file `/docker-compose-coolify.yml`.
+1. **+ New** > **Public Repository** with `https://github.com/maultxyz/mault`, branch `master`, build pack **Docker Compose** and compose file `/docker-compose-coolify.yml`.
 2. Set `WEB_URL` (public origin, no trailing slash) and give `POSTGRES_PASSWORD`, `IMPERSONATION_SECRET`, `OWN_AUTH_TOKEN_PEPPER`, and `MONITOR_LINK_SECRET` each its own `openssl rand -hex 32` value. Everything else is optional (see `.env.docker.example`).
 3. Route your domain to the **web** service on port 80 (e.g. `https://mault.example.com:80`).
 4. Deploy. The API migrates before starting. To update, redeploy: Coolify fetches the latest compose file and pulls the current images.

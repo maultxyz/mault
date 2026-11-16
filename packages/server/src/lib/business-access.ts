@@ -10,36 +10,42 @@ import { eq } from "drizzle-orm";
 import type { db, Transaction } from "../db";
 import { orgSettings } from "../db/schema";
 import { BUSINESS_MANAGER_ROLES } from "./constants/business";
-import { orgHasFeature, planHasFeature } from "./plan-config";
+import {
+  ORG_BUSINESS_SETTINGS_CACHE_TTL_MS,
+  ORG_BUSINESS_SETTINGS_CACHE_VARIANT_KEY,
+  ORG_SETTINGS_READ_CACHE_MAX_ENTRIES,
+} from "./constants/org-settings-read-cache";
+import { createOrgReadCache } from "./org-read-cache";
+import { orgHasFeature } from "./plan-config";
 import { loadOrgPricing } from "./price-source";
 
-export function businessToolsAllowedForPlan(plan: string | undefined): boolean {
-  return planHasFeature(plan, "businessTools");
-}
-
-export function isBusinessToolsAllowed(
-  tx: Transaction,
-  orgId: string,
-): Promise<boolean> {
-  return orgHasFeature(tx, orgId, "businessTools");
-}
+const businessSettingsCache = createOrgReadCache<BusinessSettings>(
+  ORG_BUSINESS_SETTINGS_CACHE_TTL_MS,
+  ORG_SETTINGS_READ_CACHE_MAX_ENTRIES,
+);
 
 export function isBusinessManager(role: OrgRole): boolean {
   return BUSINESS_MANAGER_ROLES.includes(role);
 }
 
-export async function loadBusinessSettings(
+export function loadBusinessSettings(
   runner: Transaction | typeof db,
   orgId: string,
 ): Promise<BusinessSettings> {
-  const row = await runner.query.orgSettings.findFirst({
-    where: eq(orgSettings.orgId, orgId),
-    columns: { buylistConfig: true, businessPermissions: true },
-  });
-  return {
-    buylist: toBuylistConfig(row?.buylistConfig),
-    permissions: toBusinessPermissions(row?.businessPermissions),
-  };
+  return businessSettingsCache.get(
+    orgId,
+    ORG_BUSINESS_SETTINGS_CACHE_VARIANT_KEY,
+    async () => {
+      const row = await runner.query.orgSettings.findFirst({
+        where: eq(orgSettings.orgId, orgId),
+        columns: { buylistConfig: true, businessPermissions: true },
+      });
+      return {
+        buylist: toBuylistConfig(row?.buylistConfig),
+        permissions: toBusinessPermissions(row?.businessPermissions),
+      };
+    },
+  );
 }
 
 export async function loadBusinessAccess(
@@ -48,7 +54,7 @@ export async function loadBusinessAccess(
   role: OrgRole,
 ): Promise<BusinessAccess> {
   const settings = await loadBusinessSettings(tx, orgId);
-  const allowed = await isBusinessToolsAllowed(tx, orgId);
+  const allowed = await orgHasFeature(tx, orgId, "businessTools");
   const pricing = await loadOrgPricing(tx, orgId);
   const manager = isBusinessManager(role);
   const can = (key: BusinessPermissionKey) =>

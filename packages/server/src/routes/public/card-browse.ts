@@ -1,9 +1,13 @@
-import type { PublicCardBrowseInfo } from "@magic-vault/shared";
+import {
+  SCAN_IMAGE_SIDE_QUERY_PARAM,
+  parseScanImageSide,
+  type PublicCardBrowseInfo,
+} from "@magic-vault/shared";
 import { Hono, type Context } from "hono";
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { orgSettings } from "../../db/schema";
-import { isBusinessToolsAllowed } from "../../lib/business-access";
+import { brandedScanImageResponse } from "../../lib/branded-scan-image";
 import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
 import { PUBLIC_CARD_NOT_FOUND_MESSAGE } from "../../lib/constants/public-cards";
 import type { PublicCardBrowseRouteOptions } from "../../lib/interfaces/public-cards";
@@ -13,12 +17,14 @@ import {
   loadPublicCardFacets,
   loadPublicCardGames,
   loadPublicCardPage,
+  loadPublicCardScanImage,
   parsePublicCardsRequest,
   publicCardReadsKey,
 } from "../../lib/public-card-browse";
 import { loadShopPhotoRow, resolveShopPhotoUrl } from "../../lib/shop-photo";
 import type { AppEnv } from "../../middleware/auth";
 import { isUuid } from "../collections/cards-query";
+import { orgHasFeature } from "../../lib/plan-config";
 
 export function createPublicCardBrowseRoute({
   resolveScope,
@@ -47,7 +53,7 @@ export function createPublicCardBrowseRoute({
         db.transaction(async (tx) => {
           const pricing = await loadOrgPricing(tx, scope.orgId);
           const { cardCount, games } = await loadPublicCardGames(tx, scope);
-          const shopPhotoUrl = (await isBusinessToolsAllowed(tx, scope.orgId))
+          const shopPhotoUrl = (await orgHasFeature(tx, scope.orgId, "businessTools"))
             ? await resolveShopPhotoUrl(await loadShopPhotoRow(tx, scope.orgId))
             : null;
           const [settings] = await tx
@@ -92,6 +98,14 @@ export function createPublicCardBrowseRoute({
       );
       if (!data) return notFound();
       return c.json({ success: true, data });
+    })
+    .get("/cards/:scanId/scan-image/download", async (c) => {
+      const scope = await resolveScope(c);
+      if (!scope) return invalidLink(c);
+      const scanId = c.req.param("scanId");
+      if (!isUuid(scanId)) return brandedScanImageResponse(c, null);
+      const side = parseScanImageSide(c.req.query(SCAN_IMAGE_SIDE_QUERY_PARAM));
+      return brandedScanImageResponse(c, await loadPublicCardScanImage(scope, scanId, side));
     })
     .get("/cards", async (c) => {
       const scope = await resolveScope(c);

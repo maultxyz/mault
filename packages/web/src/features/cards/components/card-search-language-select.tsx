@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import {
   Select,
   SelectContent,
@@ -5,7 +6,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import type { CardSearchLanguageSelectProps } from "@/lib/interfaces/cards";
 import { CARD_LANGUAGES, CARD_SEARCH_ALL_LANGUAGES } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";

@@ -11,14 +11,13 @@ import {
   loadBinEmptiedTimes,
   markBinsEmptied,
 } from "../../lib/bin-emptying";
-import {
-  isStorageAllowed,
-  STORAGE_UPGRADE_MESSAGE,
-} from "../../lib/storage-access";
 import { assignBinToLocation } from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { resolveGameId, activeBinSetWhere } from "./shared";
+import { orgHasFeature } from "../../lib/plan-config";
+import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
+import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 export const emptyBinRoute = new Hono<AppEnv>().post(
   "/bins/:binNumber/empty",
@@ -51,7 +50,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
 
       let storedScanIds: string[] = [];
       if (locationGuid && collectionGuid) {
-        if (!(await isStorageAllowed(tx, orgId))) {
+        if (!(await orgHasFeature(tx, orgId, "storage"))) {
           return {
             message: STORAGE_UPGRADE_MESSAGE,
             success: false,
@@ -68,7 +67,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           columns: { id: true },
         });
         if (!location) {
-          return { message: "Storage location not found.", success: false };
+          return { message: STORAGE_LOCATION_NOT_FOUND_MESSAGE, success: false };
         }
         const collection = await tx.query.collections.findFirst({
           where: (t, { eq, and }) =>

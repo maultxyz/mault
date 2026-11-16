@@ -1,3 +1,4 @@
+import { STATUS_DOT_OFFLINE_CLASS } from "@/lib/constants/ui";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -63,7 +64,7 @@ function ConnectionStatusPill({
               "size-2 rounded-full",
               state === "connected"
                 ? "bg-success-foreground"
-                : "border-2 border-foreground/60",
+                : STATUS_DOT_OFFLINE_CLASS,
             )}
           />
         )}

@@ -52,7 +52,7 @@ export const GROUPS: BomGroup[] = [
             }
             values={{ path: "firmware/main/main.ino" }}
             components={{
-              code: <code className="font-mono text-xs" />,
+              code: <code className="font-mono text-sm" />,
             }}
           />
         ),
@@ -71,7 +71,7 @@ export const GROUPS: BomGroup[] = [
             i18nKey="bom.groups.electronics.items.esp32WithBreakout.notes"
             values={{ path: "firmware/main/main.ino" }}
             components={{
-              code: <code className="font-mono text-xs" />,
+              code: <code className="font-mono text-sm" />,
             }}
           />
         ),

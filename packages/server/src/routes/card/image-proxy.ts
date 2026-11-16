@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { CARD_IMAGE_PROXY_CACHE_CONTROL } from "../../lib/constants/card-search";
 import { ALLOWED_IMAGE_HOSTS } from "../../lib/constants/urls";
 import { fetchProxiedImage } from "../../lib/image-proxy-fetch";
 import type { AppEnv } from "../../middleware/auth";
@@ -31,7 +32,7 @@ export const imageProxyRoute = new Hono<AppEnv>().get("/image-proxy", async (c) 
   }
   return c.body(image.body, 200, {
     "Content-Type": image.contentType,
-    "Cache-Control": "public, max-age=86400",
+    "Cache-Control": CARD_IMAGE_PROXY_CACHE_CONTROL,
     "Cross-Origin-Resource-Policy": "cross-origin",
     "X-Content-Type-Options": "nosniff",
   });

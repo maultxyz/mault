@@ -1,3 +1,4 @@
+import { Progress } from "@/components/ui/progress";
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import {
@@ -359,22 +360,14 @@ export function CameraPrintingScore({
                             })}
                           </span>
                         </p>
-                        <div
+                        <Progress
                           role="meter"
                           aria-label={t("cameraPrintingScore.matchScoreLabel")}
-                          aria-valuemin={0}
-                          aria-valuemax={100}
-                          aria-valuenow={matchScore}
                           aria-valuetext={t("cameraPrintingScore.matchScoreValue", {
                             score: matchScore,
                           })}
-                          className="h-1.5 w-full overflow-hidden rounded-full bg-foreground/6"
-                        >
-                          <div
-                            className="h-full rounded-full bg-primary"
-                            style={{ width: `${matchScore}%` }}
-                          />
-                        </div>
+                          value={matchScore}
+                        />
                         <p className="text-2xs text-foreground/70">
                           {t("cameraPrintingScore.matchScoreHelp")}
                         </p>

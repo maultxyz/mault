@@ -110,7 +110,7 @@
     },
     "toggle": {
       "title": "Active-le ici",
-      "content": "Cet interrupteur active ou désactive Créer des repacks. Tant qu'il est activé, chaque bac sauf le fourre-tout constitue son propre pack à partir des créneaux ci-dessous, au lieu d'utiliser des règles individuelles."
+      "content": "Choisis Créer des repacks sous Mode de tri pour l'activer. Tant qu'il est sélectionné, chaque bac sauf le fourre-tout constitue son propre pack à partir des créneaux ci-dessous, au lieu d'utiliser des règles individuelles."
     },
     "duplicates": {
       "title": "Cartes en double",

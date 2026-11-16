@@ -8,15 +8,40 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { useUnsavedChangesGuard } from "@/hooks/use-unsaved-changes-guard";
+import type {
+  UnsavedChangesGuardGroupMemberProps,
+  UnsavedChangesGuardProps,
+} from "@/lib/interfaces/save-bar";
+import { SaveBarGroupContext } from "@/lib/save-bar-group";
+import { useContext, useEffect, useId } from "react";
 import { useTranslation } from "react-i18next";
 
-export function UnsavedChangesGuard({
+export function UnsavedChangesGuard(props: UnsavedChangesGuardProps) {
+  const group = useContext(SaveBarGroupContext);
+  return group ? (
+    <UnsavedChangesGuardGroupMember group={group} {...props} />
+  ) : (
+    <UnsavedChangesGuardView {...props} />
+  );
+}
+
+function UnsavedChangesGuardGroupMember({
+  group,
   isDirty,
   onDiscard,
-}: {
-  isDirty: boolean;
-  onDiscard?: () => void;
-}) {
+}: UnsavedChangesGuardGroupMemberProps) {
+  const guardId = useId();
+  useEffect(() => {
+    group.setGuard(guardId, { isDirty, discard: onDiscard });
+  });
+  useEffect(() => () => group.removeGuard(guardId), [group, guardId]);
+  return null;
+}
+
+export function UnsavedChangesGuardView({
+  isDirty,
+  onDiscard,
+}: UnsavedChangesGuardProps) {
   const { t } = useTranslation("common");
   const blocker = useUnsavedChangesGuard(isDirty);
   const open = blocker.state === "blocked";

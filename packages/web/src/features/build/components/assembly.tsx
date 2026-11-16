@@ -92,11 +92,11 @@ export function BuildAssembly() {
               )}
               <div
                 id={phaseAnchorId(phase.key)}
-                className="min-w-0 flex-1 scroll-mt-16 rounded-lg border bg-card"
+                className="min-w-0 flex-1 scroll-mt-16 rounded-card bg-card"
               >
-                <div className="group/anchor sticky top-14 z-10 flex items-center gap-3 rounded-t-lg border-b bg-card px-3 py-2 md:px-4">
+                <div className="group/anchor sticky top-14 z-10 flex items-center gap-3 rounded-t-card border-b bg-card px-3 py-2 md:px-4">
                   <div className="flex min-w-0 flex-col">
-                    <span className="font-heading text-2xs font-medium tracking-widest text-primary uppercase">
+                    <span className="font-heading text-sm font-medium tracking-widest text-primary uppercase">
                       {t("assembly.phaseLabel", {
                         n: String(i + 1).padStart(2, "0"),
                       })}

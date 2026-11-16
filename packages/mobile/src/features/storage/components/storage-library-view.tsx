@@ -21,6 +21,7 @@ import { AppText } from "@/components/ui/app-text";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { storageLocationsPageQueryOptions, storageSearchQueryOptions } from "@/features/storage/api/storage";
+import { usePrefetchStorageLocation } from "@/features/storage/api/use-prefetch-storage-location";
 import { useStorageLocationActions } from "@/features/storage/api/use-storage-location-actions";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -43,6 +44,7 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
   const locked = billing?.storage === false;
   const [actionsLocation, setActionsLocation] = useState<StorageLocationActionTarget | null>(null);
   const locationActions = useStorageLocationActions({ shareLinkCountGuid: actionsLocation?.guid });
+  const prefetchStorageLocation = usePrefetchStorageLocation();
   const list = useMemo(() => locations.data?.pages.flatMap((page) => page.items) ?? [], [locations.data]);
 
   return (
@@ -162,11 +164,12 @@ export function StorageLibraryView({ title, viewSwitcher }: LibraryViewProps) {
               title={location.name}
               subtitle={t("collection.cardsCount", { count: location.cardCount })}
               right={
-                <AppText weight="semibold" numberOfLines={1}>
-                  {pricing.format(location.totalValue)}
+                <AppText weight="semibold" numberOfLines={1} accessibilityLabel={pricing.format(location.totalValue)}>
+                  {pricing.formatCompact(location.totalValue)}
                 </AppText>
               }
               onPress={() => router.push({ pathname: "/storage/[guid]", params: { guid: location.guid } })}
+              onPressIn={() => prefetchStorageLocation(location.guid)}
               onLongPress={locked ? undefined : () => setActionsLocation({ guid: location.guid, name: location.name })}
               longPressLabel={t("storage.actions")}
             />

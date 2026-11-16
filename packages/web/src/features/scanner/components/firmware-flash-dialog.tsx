@@ -1,3 +1,4 @@
+import { Progress } from "@/components/ui/progress";
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
@@ -189,19 +190,7 @@ export function FirmwareFlashDialog({
             <IconLoader2 className="size-3.5 shrink-0 animate-spin" />
             <span>{t("serial.update.flashing")}</span>
           </div>
-          <div
-            role="progressbar"
-            aria-label={t("serial.update.flashing")}
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={pct}
-            className="h-1.5 overflow-hidden rounded-full bg-secondary/50"
-          >
-            <div
-              className="h-full rounded-full bg-primary transition-[width] duration-300 ease-out"
-              style={{ width: `${pct}%` }}
-            />
-          </div>
+          <Progress aria-label={t("serial.update.flashing")} value={pct} />
           {flashLog.length > 0 && (
             <ScrollArea
               viewportRef={flashLogRef}

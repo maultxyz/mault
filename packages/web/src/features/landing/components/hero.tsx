@@ -1,3 +1,4 @@
+import { MARKETING_HERO_TITLE_CLASS } from "@/lib/constants/marketing-pages";
 import { HeroSortingLine } from "@/features/landing/components/hero-sorting-line";
 import { LandingStats } from "@/features/landing/components/stats";
 import { buttonVariants } from "@/components/ui/button";
@@ -12,7 +13,7 @@ export function LandingHero() {
   return (
     <section className="relative mx-auto flex max-w-6xl flex-col items-center gap-14 px-4 pt-16 pb-16 md:gap-20 md:pt-24 md:pb-24">
       <div className="flex flex-col items-center gap-7 text-center">
-        <h1 className="max-w-4xl text-5xl leading-[1.02] font-heading font-semibold tracking-tight text-balance animate-in fade-in slide-in-from-bottom-3 duration-700 motion-reduce:animate-none md:text-6xl">
+        <h1 className={cn(MARKETING_HERO_TITLE_CLASS, "max-w-4xl animate-in fade-in slide-in-from-bottom-3 duration-700 motion-reduce:animate-none")}>
           <Trans
             t={t}
             i18nKey="hero.title"
@@ -40,7 +41,7 @@ export function LandingHero() {
             {t("hero.seeFeatures")}
           </a>
         </div>
-        <p className="font-heading text-2xs tracking-widest text-foreground/70 uppercase">
+        <p className="font-heading text-sm tracking-widest text-foreground/70 uppercase">
           {t("hero.eyebrow")}
           <span className="hidden sm:inline"> · {t("hero.tagline")}</span>
         </p>

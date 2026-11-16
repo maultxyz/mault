@@ -47,6 +47,8 @@ import {
   IconLayoutGrid,
   IconLoader2,
   IconPalette,
+  IconPlayerPauseFilled,
+  IconPlayerPlayFilled,
   IconSparkles,
   IconStack2,
   IconStars,
@@ -59,6 +61,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type FocusEvent,
   type ReactNode,
   type TouchEvent,
 } from "react";
@@ -430,6 +433,8 @@ export function SessionSummaryDialog({
   const [combineDuplicates, setCombineDuplicates] = useState(true);
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [pausedByViewer, setPausedByViewer] = useState(false);
+  const [pausedByKeyboardFocus, setPausedByKeyboardFocus] = useState(false);
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const { collection: activeCollection } = useViewedCollection();
@@ -532,6 +537,18 @@ export function SessionSummaryDialog({
       else goPrev();
     }
   }
+
+  const pauseWhileKeyboardFocused = {
+    onFocus: (event: FocusEvent<HTMLElement>) =>
+      setPausedByKeyboardFocus(event.currentTarget.matches(":focus-visible")),
+    onBlur: () => setPausedByKeyboardFocus(false),
+  };
+
+  useEffect(() => {
+    if (!document.activeElement?.matches(":focus-visible")) {
+      setPausedByKeyboardFocus(false);
+    }
+  }, [clampedIndex]);
 
   const slide = slides[clampedIndex];
   const isOutro = slide.type === "outro";
@@ -727,7 +744,7 @@ export function SessionSummaryDialog({
         <DialogOverlay />
         <DialogPrimitive.Popup
           className={cn(
-            "fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl shadow-2xl ring-1 ring-border outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl shadow-popover ring-1 ring-border outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             isOutro
               ? "bg-popover text-popover-foreground"
               : "text-white",
@@ -768,7 +785,10 @@ export function SessionSummaryDialog({
                     <div
                       className="h-full w-full bg-white origin-left animate-[wrapped-progress_5s_linear_forwards] motion-reduce:animate-none"
                       style={{
-                        animationPlayState: paused ? "paused" : "running",
+                        animationPlayState:
+                          paused || pausedByViewer || pausedByKeyboardFocus
+                            ? "paused"
+                            : "running",
                         animationDuration: `${WRAPPED_SLIDE_DURATION_MS}ms`,
                       }}
                       onAnimationEnd={goNext}
@@ -792,10 +812,30 @@ export function SessionSummaryDialog({
               {isOutro ? t("sessionSummaryDialog.title") : collectionName}
             </span>
             <div className="flex items-center gap-1 shrink-0">
+              {autoAdvance && (
+                <Button
+                  aria-label={
+                    pausedByViewer
+                      ? t("sessionWrapped.play")
+                      : t("sessionWrapped.pause")
+                  }
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setPausedByViewer((current) => !current)}
+                  className="text-white hover:bg-white/15 hover:text-white"
+                >
+                  {pausedByViewer ? (
+                    <IconPlayerPlayFilled />
+                  ) : (
+                    <IconPlayerPauseFilled />
+                  )}
+                </Button>
+              )}
               {!isOutro && (
                 <Button
                   variant="ghost"
                   onClick={skipAll}
+                  {...pauseWhileKeyboardFocused}
                   className="text-white/80 hover:bg-white/15 hover:text-white"
                 >
                   {t("sessionWrapped.skipAll")}
@@ -807,6 +847,7 @@ export function SessionSummaryDialog({
                     aria-label={t("common:a11y.close")}
                     variant="ghost"
                     size="icon"
+                    {...pauseWhileKeyboardFocused}
                     className={
                       isOutro ? undefined : "text-white hover:bg-white/15 hover:text-white"
                     }
@@ -841,6 +882,7 @@ export function SessionSummaryDialog({
             <button
               type="button"
               onClick={goPrev}
+              {...pauseWhileKeyboardFocused}
               className="absolute left-2 top-1/2 -translate-y-1/2 flex size-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
             >
               <IconChevronLeft className="size-5" />
@@ -851,6 +893,7 @@ export function SessionSummaryDialog({
             <button
               type="button"
               onClick={goNext}
+              {...pauseWhileKeyboardFocused}
               className="absolute right-2 top-1/2 -translate-y-1/2 flex size-9 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-colors"
             >
               <IconChevronRight className="size-5" />

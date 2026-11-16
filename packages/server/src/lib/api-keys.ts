@@ -10,7 +10,6 @@ import { and, desc, eq, isNull, lt, or } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { orgApiKeys } from "../db/schema";
 import { getUserDisplayName } from "../middleware/auth";
-import { isApiAccessAllowed } from "./api-access";
 import {
   API_KEY_LAST_USED_THROTTLE_MS,
   API_KEY_RANDOM_BYTES,
@@ -22,6 +21,7 @@ import type {
   OrgApiKeyRow,
   ResolvedApiKey,
 } from "./interfaces/api-keys";
+import { orgHasFeature } from "./plan-config";
 
 export function hashApiKey(rawKey: string): string {
   return createHash("sha256").update(rawKey).digest("hex");
@@ -111,7 +111,7 @@ export async function resolveApiKey(
       guid: key.guid,
       orgId: key.orgId,
       scope: toApiKeyScope(key.scope),
-      apiAccessAllowed: await isApiAccessAllowed(tx, key.orgId),
+      apiAccessAllowed: await orgHasFeature(tx, key.orgId, "apiAccess"),
     };
   });
 }

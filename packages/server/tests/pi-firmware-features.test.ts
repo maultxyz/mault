@@ -26,5 +26,5 @@ test("Pi only advertises implemented firmware commands", () => {
   assert.equal(isFirmwareFeatureSupported("pi-0.1.0", "retractCard"), false);
   assert.equal(isFirmwareFeatureSupported("2.11.0", "retractCard"), true);
   assert.equal(isFirmwareFeatureSupported("2.13.1", "emergencyStop"), false);
-  assert.equal(isFirmwareFeatureSupported("2.14.0", "emergencyStop"), true);
+  assert.equal(isFirmwareFeatureSupported("2.13.2", "emergencyStop"), true);
 });

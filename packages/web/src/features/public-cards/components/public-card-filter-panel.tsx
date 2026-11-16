@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { Button } from "@/components/ui/button";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -18,7 +19,6 @@ import {
   PUBLIC_CARD_FILTER_LEGEND_CLASS,
   PUBLIC_CARD_FILTER_SEARCHABLE_MIN_OPTIONS,
 } from "@/lib/constants/public-cards";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { countActivePublicCardFilters } from "@/features/public-cards/lib/public-card-filters";
 import type { PublicCardFilterPanelProps } from "@/lib/interfaces/public-cards";
 import {

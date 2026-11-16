@@ -9,10 +9,11 @@ import type {
   StationStatus,
 } from "@/lib/interfaces/stations";
 import { cn } from "@/lib/utils";
+import { formatCompactNumber } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
 function ScannerPipSorterRow({ station, index }: StationIdentityProps) {
-  const { t } = useTranslation("scanner");
+  const { t, i18n } = useTranslation("scanner");
   const { activeStationId, stationAttention, setActiveStation } = useStations();
   const summary = useStationSummaries().get(station.id);
   const name = useStationName(station, index);
@@ -52,7 +53,7 @@ function ScannerPipSorterRow({ station, index }: StationIdentityProps) {
         >
           {attention
             ? attentionLabel(attention)
-            : (summary?.totalCount ?? 0).toLocaleString()}
+            : formatCompactNumber(summary?.totalCount ?? 0, i18n.language)}
         </span>
       </Button>
     </li>

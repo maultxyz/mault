@@ -89,8 +89,8 @@
     "syncCompleted": "Synchronisation des vecteurs d'image terminée",
     "syncFailed": "Échec de la synchronisation des vecteurs d'image",
     "sync": "Synchronisation des vecteurs d'image des cartes",
-    "cardTotal_one": "{{count}} carte · {{value}}",
-    "cardTotal_other": "{{count}} cartes · {{value}}",
+    "cardTotal_one": "{{count, compact}} carte · {{value}}",
+    "cardTotal_other": "{{count, compact}} cartes · {{value}}",
     "healthIssues_one": "{{count}} problème détecté",
     "healthIssues_other": "{{count}} problèmes détectés",
     "healthIssuesTooltip": "Problème avec : {{names}}. Cliquez pour les détails.",
@@ -206,6 +206,11 @@
     "title": "Raccourcis clavier",
     "description": "Les raccourcis sont ignorés pendant la saisie dans un champ ou lorsqu'une boîte de dialogue est ouverte.",
     "then": "puis",
+    "off": "Désactivé",
+    "singleKey": {
+      "label": "Raccourcis à une seule touche",
+      "hint": "Désactivés, seuls les raccourcis avec Ctrl ou Cmd, Échap, Entrée, Suppr et les flèches fonctionnent. Enregistré dans ce navigateur."
+    },
     "keys": {
       "space": "Espace",
       "shift": "Maj",
@@ -224,13 +229,13 @@
       "scanner": "Scanner",
       "cardDetail": "Détails de la carte",
       "intake": "Rachat",
-      "matchValidation": "Validation des correspondances",
-      "foilLabeling": "Étiquetage des foils"
+      "matchValidation": "Validation des correspondances"
     },
     "actions": {
       "showShortcuts": "Afficher les raccourcis clavier",
       "toggleSidebar": "Déplier ou replier la barre latérale",
       "focusSearch": "Aller à la recherche",
+      "openGlobalSearch": "Ouvrir la recherche globale",
       "dismissToasts": "Fermer toutes les notifications",
       "save": "Enregistrer les modifications",
       "clearSelection": "Effacer la sélection",
@@ -269,15 +274,11 @@
       "reviewCycleLanguage": "Pendant la vérification : parcourir les langues",
       "goSortingRules": "Aller aux règles de tri",
       "intakeOpenScanner": "Ouvrir le scanner pour ce rachat",
-      "foilLabelFoil": "Pendant l'étiquetage : marquer comme foil",
-      "foilLabelNotFoil": "Pendant l'étiquetage : marquer comme non foil",
-      "foilLabelSkip": "Pendant l'étiquetage : passer cette carte",
       "matchValidationCorrect": "Pendant la validation : marquer la correspondance juste",
       "matchValidationIncorrect": "Pendant la validation : marquer la correspondance fausse",
       "matchValidationBadScan": "Pendant la validation : marquer la photo comme mauvais scan",
       "matchValidationSkip": "Pendant la validation : ignorer ce scan",
       "matchValidationBack": "Pendant la validation : revenir au scan précédent",
-      "foilLabelBack": "Pendant l'étiquetage : revenir à la carte précédente",
       "scanFlatbedCard": "Numériser la carte sur le scanner à plat"
     }
   },
@@ -292,7 +293,8 @@
     "home": "Accueil",
     "scan": "Scanner",
     "library": "Bibliothèque",
-    "more": "Plus"
+    "more": "Plus",
+    "business": "Achat & vente"
   },
   "pagination": {
     "previous": "Précédent",
@@ -364,7 +366,8 @@
     "orderBinCatchAll": "Le dernier bac reçoit toutes les autres cartes, choisis-en un autre.",
     "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
     "contactRequired": "Indique comment te joindre.",
-    "textTooLong": "Reste sous {{max}} caractères."
+    "textTooLong": "Reste sous {{max}} caractères.",
+    "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}."
   },
   "memberSeatLock": {
     "title": "Cette organisation dépasse sa limite de membres",
@@ -455,7 +458,9 @@
     "checkFailedTitle": "Impossible d'ouvrir ce lien",
     "checkFailedDescription": "Vérifie ta connexion et réessaie.",
     "shortLinkInvalidTitle": "Ce lien ne fonctionne pas",
-    "shortLinkInvalidDescription": "Vérifie qu'il a été copié en entier, ou demande un nouveau lien à la personne qui l'a partagé."
+    "shortLinkInvalidDescription": "Vérifie qu'il a été copié en entier, ou demande un nouveau lien à la personne qui l'a partagé.",
+    "poweredBy": "Propulsé par",
+    "poweredByLabel": "Propulsé par {{site}} (s'ouvre dans un nouvel onglet)"
   },
   "tradeOffers": {
     "declined": "Offre d'échange refusée",
@@ -543,6 +548,8 @@
     "notFound": "Cette offre d'échange n'existe plus.",
     "backToTrades": "Retour aux échanges",
     "acceptTitle": "Accepter cette offre d'échange ?",
+    "declineTitle": "Refuser cette offre d'échange ?",
+    "declineDescription": "La personne verra sur son lien que vous avez refusé. Cette action est irréversible.",
     "sideTabs": {
       "label": "Côtés de l'échange",
       "wanted": "Demande ({{count}})",

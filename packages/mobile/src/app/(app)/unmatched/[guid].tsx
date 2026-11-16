@@ -10,6 +10,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
+import { useToast } from "@/components/ui/toast-provider";
 import { CollectionGridSkeleton } from "@/features/collections/components/collection-grid-skeleton";
 import {
   clearUnmatchedCards,
@@ -35,6 +36,7 @@ export default function UnmatchedCardsScreen() {
   const { t, i18n } = useTranslation();
   const colors = useTheme();
   const queryClient = useQueryClient();
+  const { showToast } = useToast();
   const width = usePanelWidth();
   const tileWidth = (width - CARD_GRID_GUTTER * 2 - CARD_GRID_GAP_X * (CARD_GRID_COLUMNS - 1)) / CARD_GRID_COLUMNS;
   const unmatched = useInfiniteQuery(unmatchedCardsQueryOptions(guid));
@@ -44,7 +46,7 @@ export default function UnmatchedCardsScreen() {
   const clear = useMutation({
     mutationFn: () => clearUnmatchedCards(guid),
     onSettled: () => invalidateUnmatchedCards(queryClient, guid),
-    onError: (error) => Alert.alert(t("unmatchedCards.removeFailed"), error instanceof Error ? error.message : undefined),
+    onError: () => showToast({ message: t("unmatchedCards.removeFailed"), tone: "destructive" }),
   });
 
   const confirmClear = () =>

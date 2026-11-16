@@ -1,3 +1,4 @@
+import { getCalibrationKey } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -14,7 +15,6 @@ import {
   saveFeederConfig,
   saveModuleConfig,
 } from "@/features/calibration/api/calibration-configs";
-import { getCalibrationKey } from "@/features/calibration/lib/calibration-keys";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import {
   CALIBRATION_PREVIEW_DEBOUNCE_MS,

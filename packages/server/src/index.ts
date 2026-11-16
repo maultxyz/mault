@@ -24,6 +24,10 @@ import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
 import { getWebUrl } from "./lib/constants/urls";
 import type { AppEnv } from "./middleware/auth";
+import {
+  compressResponses,
+  shouldCompressResponses,
+} from "./middleware/compression";
 import { adminRouter } from "./routes/admin";
 import { announcementsRouter } from "./routes/announcements";
 import { apiKeysRouter } from "./routes/api-keys";
@@ -111,6 +115,8 @@ app.use((c, next) =>
     ? publicPayloadTooLarge(c, next)
     : payloadTooLarge(c, next),
 );
+
+if (shouldCompressResponses()) app.use(compressResponses);
 
 if (process.env.AUTH_PROVIDER === "local") {
   app.route("/local-auth", localAuthRouter);

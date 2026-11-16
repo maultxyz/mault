@@ -1,6 +1,7 @@
+import { formatCompactNumber } from "@magic-vault/shared";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import { APP_LANGUAGES, DEFAULT_LANGUAGE } from "@/lib/constants/i18n";
+import { APP_LANGUAGES, COMPACT_NUMBER_I18N_FORMAT, DEFAULT_LANGUAGE } from "@/lib/constants/i18n";
 import { LANGUAGE_PREFERENCE_KEY } from "@/lib/constants/storage-keys";
 import type { AppLanguage, LanguagePreference } from "@/lib/interfaces/i18n";
 import { readKv, writeKv } from "@/lib/storage/kv";
@@ -37,5 +38,7 @@ void i18n.use(initReactI18next).init({
   fallbackLng: DEFAULT_LANGUAGE,
   interpolation: { escapeValue: false },
 });
+
+i18n.services.formatter?.add(COMPACT_NUMBER_I18N_FORMAT, (value: number, lng?: string) => formatCompactNumber(value, lng));
 
 export default i18n;

@@ -1,3 +1,4 @@
+import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { Button } from "@/components/ui/button";
 import { usePageMeta } from "@/hooks/use-page-meta";
@@ -24,7 +25,7 @@ export default function NotFoundPage() {
     >
       <IconError404 className="size-16 text-foreground/70" />
       <div className="flex flex-col gap-1">
-        <h1 className="font-heading text-lg font-semibold">
+        <h1 className={PAGE_TITLE_CLASS}>
           {t("notFound.title")}
         </h1>
         <p className="text-xs text-foreground/70">

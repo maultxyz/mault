@@ -16,7 +16,7 @@ export function CardDetailArt({
       )}
       <div
         className={cn(
-          "relative aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm",
+          "relative aspect-[2.5/3.5] rounded-lg overflow-hidden border",
           widthClass,
         )}
       >

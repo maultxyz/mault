@@ -1,7 +1,5 @@
 import type {
   BinConfig,
-  BinHeight,
-  BinRoute,
   FeederCalibration,
   ServoCalibration,
 } from "@magic-vault/shared";
@@ -18,18 +16,6 @@ export interface BinSetAuditEntry {
   guid: string;
   binSetGuid: string;
   snapshot: BinConfig[];
-  createdAt: string;
-}
-
-export interface BinRouteAuditEntry {
-  guid: string;
-  route: BinRoute;
-  createdAt: string;
-}
-
-export interface BinHeightAuditEntry {
-  guid: string;
-  height: BinHeight;
   createdAt: string;
 }
 

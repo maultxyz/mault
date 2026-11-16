@@ -104,12 +104,16 @@ export default function OrganizationSettingsScreen() {
     ]);
 
   const invitations = details.data?.invitations ?? [];
+  const isLoadError = details.isError && !details.data;
   return (
     <SettingsPage
       title={t("settings.sections.organization.title")}
       isLoading={details.isLoading}
+      isLoadError={isLoadError}
+      isRetryingLoad={details.isFetching}
+      onRetryLoad={() => void details.refetch()}
       onRefresh={() => details.refetch()}
-      isDirty={canRename && renameForm.formState.isDirty}
+      isDirty={!isLoadError && canRename && renameForm.formState.isDirty}
       isSaving={mutate.isPending}
       onSave={() => void saveName()}
       onDiscard={() => renameForm.reset()}

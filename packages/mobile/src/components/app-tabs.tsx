@@ -1,22 +1,30 @@
+import { usePathname } from "expo-router";
 import { NativeTabs } from "expo-router/native-tabs";
 import { useTranslation } from "react-i18next";
 import { useColorScheme, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppTopBar } from "@/components/app-top-bar";
+import { OfflineBanner } from "@/components/ui/offline-banner";
+import { useHasBusinessTools } from "@/features/business/api/use-has-business-tools";
 import { useTheme } from "@/hooks/use-theme";
 import { IOS_SYMBOLS } from "@/lib/constants/ios-symbols";
-import { ANDROID_TAB_SYMBOLS, TAB_ICONS } from "@/lib/constants/nav";
+import { ANDROID_TAB_SYMBOLS, SCAN_TAB_PATHNAME, TAB_ICONS } from "@/lib/constants/nav";
+import { OfflineBannerHostContext } from "@/lib/offline-banner-host-context";
 
 export function AppTabs() {
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
+  const pathname = usePathname();
+  const hasBusinessTools = useHasBusinessTools();
   const contentStyle = { backgroundColor: colors.background };
 
   return (
     <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: colors.background }}>
       <AppTopBar opensNotificationsFromWidgetLink />
+      {pathname === SCAN_TAB_PATHNAME ? null : <OfflineBanner />}
+      <OfflineBannerHostContext.Provider value>
       <NativeTabs
         unstable_nativeProps={{ colorScheme: colorScheme === "dark" ? "dark" : "light" }}
         tintColor={colors.primaryText}
@@ -36,11 +44,16 @@ export function AppTabs() {
           <NativeTabs.Trigger.Icon sf={IOS_SYMBOLS[TAB_ICONS.collections]} md={ANDROID_TAB_SYMBOLS.collections} />
           <NativeTabs.Trigger.Label>{t("tabs.library")}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
+        <NativeTabs.Trigger name="buy-and-sell" contentStyle={contentStyle} hidden={!hasBusinessTools}>
+          <NativeTabs.Trigger.Icon sf={IOS_SYMBOLS[TAB_ICONS["buy-and-sell"]]} md={ANDROID_TAB_SYMBOLS["buy-and-sell"]} />
+          <NativeTabs.Trigger.Label>{t("tabs.business")}</NativeTabs.Trigger.Label>
+        </NativeTabs.Trigger>
         <NativeTabs.Trigger name="account" contentStyle={contentStyle}>
           <NativeTabs.Trigger.Icon sf={IOS_SYMBOLS[TAB_ICONS.account]} md={ANDROID_TAB_SYMBOLS.account} />
           <NativeTabs.Trigger.Label>{t("tabs.more")}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
       </NativeTabs>
+      </OfflineBannerHostContext.Provider>
     </View>
   );
 }

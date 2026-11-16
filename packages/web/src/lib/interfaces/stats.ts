@@ -1,4 +1,5 @@
 import type { Icon } from "@tabler/icons-react";
+import type { ReactNode } from "react";
 import type { HomeValueChange } from "@/lib/interfaces/home";
 import type {
   STATS_ACTIVITY_METRICS,
@@ -8,7 +9,6 @@ import type {
   STATS_VIEWS,
 } from "@/lib/constants/stats";
 import type {
-  LeaderboardEntry,
   OrgOverviewCard,
   StatsCollectionRow,
   StatsReport,
@@ -76,12 +76,12 @@ export interface DonutChartProps {
 
 export interface ValueHeroStat {
   label: string;
-  value: string;
+  value: ReactNode;
 }
 
 export interface ValueHeroProps {
   label: string;
-  value: string;
+  value: ReactNode;
   stats: ValueHeroStat[];
   sparklineValues: number[];
   change?: HomeValueChange | null;
@@ -153,10 +153,7 @@ export interface StatsControlsProps {
   onRangeChange: (range: StatsReport["range"]) => void;
 }
 
-export interface LeaderboardRow {
-  key: string;
-  entry: LeaderboardEntry;
-}
+export type { LeaderboardRow } from "@magic-vault/shared";
 
 export interface StatsLeaderboardButtonProps {
   iconOnly?: boolean;

@@ -5,7 +5,6 @@ import type {
 import type {
   apiCollectionSchema,
   apiErrorSchema,
-  apiListCardsQuerySchema,
   apiLocationRefSchema,
   apiLocationSchema,
   apiScannedCardListSchema,
@@ -52,4 +51,3 @@ export type ApiCollection = z.infer<typeof apiCollectionSchema>;
 export type ApiLocationRef = z.infer<typeof apiLocationRefSchema>;
 export type ApiLocation = z.infer<typeof apiLocationSchema>;
 export type ApiScannedCard = z.infer<typeof apiScannedCardSchema>;
-export type ApiListCardsQuery = z.infer<typeof apiListCardsQuerySchema>;

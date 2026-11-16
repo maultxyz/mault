@@ -1,8 +1,8 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { gameCoverageQueryOptions } from "@/features/games/api/games";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { IconCards } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";

@@ -1,3 +1,4 @@
+import { CompactPrice } from "@/components/compact-value";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -43,7 +44,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { usePriceSource } from "@/hooks/use-price-source";
 import { modifierClickSelectHandlers } from "@/lib/modifier-click-select";
 
 export function CollectionTile({
@@ -71,7 +71,6 @@ export function CollectionTile({
   const { onMouseDown: onSelectMouseDown, consumeShift } = useShiftClick();
   const navigate = useNavigate();
   const { activeOrg } = useOrg();
-  const { format } = usePriceSource();
   const { data: overview } = useQuery(orgOverviewQueryOptions(activeOrg?.id));
   const value = overview?.collectionValues[collection.guid];
   const [isShareLinkDialogOpen, setIsShareLinkDialogOpen] = useState(false);
@@ -214,7 +213,7 @@ export function CollectionTile({
           ) : (
             value != null && (
               <p className="shrink-0 text-sm font-semibold tabular-nums text-foreground">
-                {format(value)}
+                <CompactPrice value={value} />
               </p>
             )
           )}

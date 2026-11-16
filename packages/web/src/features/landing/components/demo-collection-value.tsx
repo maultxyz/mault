@@ -1,3 +1,4 @@
+import { PROGRESS_TRACK_CLASS } from "@/lib/constants/ui";
 import { DemoCountedPrice } from "@/features/landing/components/demo-counted-price";
 import {
   DEMO_CHART_HEIGHT,
@@ -88,7 +89,7 @@ export function DemoCollectionValue({ isRevealed }: FeatureSpotlightDemoProps) {
         {DEMO_COLLECTION_RARITY_VALUES.map(({ rarity, value }, index) => (
           <div key={rarity} className="flex items-center gap-3 text-sm">
             <span className="w-20 shrink-0">{rarityLabel(rarity)}</span>
-            <span className="h-2 flex-1 overflow-hidden rounded-full bg-muted">
+            <span className={cn(PROGRESS_TRACK_CLASS, "h-2 flex-1")}>
               <span
                 className="block h-full origin-left rounded-full transition-transform duration-1000 ease-out motion-reduce:transition-none"
                 style={{

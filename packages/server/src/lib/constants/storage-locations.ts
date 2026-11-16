@@ -17,3 +17,6 @@ export const INVENTORY_CARD_JOINS = sql`JOIN storage_locations sl ON sl.id = cc.
   LEFT JOIN intake_lots il ON il.id = cc.intake_lot_id`;
 
 export const INVENTORY_CARD_FILTER = sql`(il.id IS NULL OR il.status = 'accepted')`;
+export const STORAGE_LOCATION_NOT_FOUND_MESSAGE = "Storage location not found.";
+export const STORAGE_LOCATION_LIST_CACHE_TTL_MS = 30_000;
+export const STORAGE_LOCATION_LIST_CACHE_MAX_ENTRIES = 2_000;

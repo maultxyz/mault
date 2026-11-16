@@ -1,3 +1,4 @@
+import { MARKETING_INLINE_CODE_CLASS } from "@/lib/constants/marketing-pages";
 import { GuideChecklistItem } from "@/components/guide/guide-checklist-item";
 import { GuideCodeBlock } from "@/components/guide/guide-code-block";
 import { GuideSectionHeader } from "@/components/guide/guide-section-header";
@@ -51,13 +52,13 @@ export function SelfHostGuideSection({
                   <>
                     {s.code && <GuideCodeBlock code={s.code} />}
                     {s.hasNote && (
-                      <p className="mt-2 text-xs/relaxed text-foreground/70">
+                      <p className="mt-2 text-sm/relaxed text-foreground/70">
                         <Trans
                           t={t}
                           i18nKey={`sections.${section.key}.steps.${s.key}.note`}
                           components={{
                             code: (
-                              <code className="rounded-sm bg-muted px-1 py-0.5 font-heading text-xs text-foreground" />
+                              <code className={MARKETING_INLINE_CODE_CLASS} />
                             ),
                           }}
                         />
@@ -71,7 +72,7 @@ export function SelfHostGuideSection({
                   i18nKey={`sections.${section.key}.steps.${s.key}.text`}
                   components={{
                     code: (
-                      <code className="rounded-sm bg-muted px-1 py-0.5 font-heading text-xs text-foreground" />
+                      <code className={MARKETING_INLINE_CODE_CLASS} />
                     ),
                   }}
                 />

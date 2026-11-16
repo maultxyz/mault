@@ -56,6 +56,29 @@
     },
     "toasts": {
       "commandFailed": "Die Platine hat den Befehl nicht angenommen"
+    },
+    "rawCommands": {
+      "heading": "Rohbefehle",
+      "description": "Sende beliebige JSON-Befehle direkt an die Platine, jeweils eine Zeile. Rohe Pulse umgehen die Kalibrierung, also beginne nahe der Mitte und behalte die Mechanik im Blick. Alles stoppen schaltet jeden Servo stromlos; sende Neutral, um weiterzumachen.",
+      "presets": "Beispiele",
+      "preset": {
+        "servoPulse": "Servo-Puls",
+        "servoPosition": "Servo-Position",
+        "channelPulse": "Kanal-Puls",
+        "channelRelease": "Kanal freigeben",
+        "neutral": "Neutral",
+        "status": "Status"
+      },
+      "command": "Befehl (JSON)",
+      "commandHint": "Ein JSON-Objekt, zum Beispiel {\"servo\": \"pusher\", \"module\": 1, \"value\": 305}. Pulse reichen von 120 bis 490. Alle Befehle stehen in firmware/PROTOCOL.md.",
+      "send": "Senden",
+      "stopAll": "Alles stoppen",
+      "history": "Antworten",
+      "clear": "Leeren",
+      "empty": "Noch nichts gesendet.",
+      "sent": "Gesendet:",
+      "reply": "Antwort:",
+      "failed": "Fehlgeschlagen"
     }
   },
   "cardImageVectors": {
@@ -277,8 +300,8 @@
     },
     "features": {
       "chaosSort": {
-        "label": "Chaotisches Sortieren",
-        "description": "Fächer der Reihe nach füllen, ohne Regeln. Ausschalten verhindert nur, dass weitere Presets es einschalten."
+        "label": "Chaos-Sortierung",
+        "description": "Fächer der Reihe nach füllen, ohne Regeln. Ausschalten verhindert nur, dass weitere Vorlagen es einschalten."
       },
       "storage": {
         "label": "Lagerorte",
@@ -294,7 +317,7 @@
       },
       "repacks": {
         "label": "Repacks",
-        "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Presets es einschalten. Presets, die schon im Repack-Modus sind, funktionieren weiter."
+        "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Vorlagen es einschalten. Vorlagen, die schon Repacks erstellen, funktionieren weiter."
       },
       "customSounds": {
         "label": "Eigene Sounds",

@@ -222,7 +222,7 @@
   "pricing": {
     "eyebrow": "Tarifs",
     "heading": "Des tarifs simples et transparents",
-    "subtitle": "La même application dans chaque offre. L'offre gratuite suffit pour un tri occasionnel. Enthusiast relève les limites et ajoute le tri en vrac et le rangement pour les collectionneurs assidus. Business supprime les limites et ajoute l'accès API et des outils pour acheter et vendre des cartes.",
+    "subtitle": "La même application dans chaque offre. L'offre gratuite suffit pour un tri occasionnel. Enthusiast relève les limites et ajoute le tri chaos et le rangement pour les collectionneurs assidus. Business supprime les limites et ajoute l'accès API et des outils pour acheter et vendre des cartes.",
     "intervals": {
       "label": "Période de facturation",
       "month": "Mensuel",
@@ -291,8 +291,8 @@
       }
     },
     "features": {
-      "chaosSort": "Tri en vrac, le moyen le plus rapide de ranger une grosse pile",
-      "repacks": "Création de repacks : chaque bac remplit son propre pack à partir des créneaux que vous définissez",
+      "chaosSort": "Tri chaos, le moyen le plus rapide de ranger une grosse pile",
+      "repacks": "Créer des repacks : chaque bac remplit son propre pack à partir des créneaux que vous définissez",
       "customSounds": "Sons personnalisés : importez vos propres clips à jouer quand des cartes correspondantes sont triées",
       "fleetHealth": "Santé du parc : consultez l'état de chaque trieuse, les cartes depuis le dernier entretien et l'historique des alertes, et définissez les intervalles d'entretien",
       "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
@@ -326,7 +326,7 @@
       },
       "features": {
         "chaosSort": "Tri chaos",
-        "repacks": "Création de repacks",
+        "repacks": "Créer des repacks",
         "customSounds": "Sons personnalisés",
         "fleetHealth": "Santé du parc",
         "storage": "Emplacements de rangement",

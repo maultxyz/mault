@@ -32,6 +32,7 @@ import { collectionNameTaken } from "../collections/shared";
 import { locationNameTaken } from "../storage-locations/shared";
 import type {
   DeletedItemRestoreResult,
+  DeletedItemRow,
   DeletedItemSource,
 } from "../../lib/interfaces/deleted-items";
 import { findRestorableName } from "../../lib/restored-name";
@@ -48,28 +49,65 @@ const restored = (orgId: string | null): DeletedItemRestoreResult => ({
   orgId,
 });
 
+type FlagRestorableTable =
+  | typeof binRoutes
+  | typeof binHeights
+  | typeof moduleConfigs
+  | typeof soundClips
+  | typeof soundRules
+  | typeof notificationRules
+  | typeof fulfilmentOrders
+  | typeof accuracyChecks
+  | typeof importTemplates;
+
+async function deletedRows<
+  Row extends { guid: string | null; updatedAt: Date; orgId?: string | null },
+>(
+  type: DeletedItemType,
+  rows: PromiseLike<Row[]>,
+  nameOf: (row: Row) => string,
+  detailOf: (row: Row) => string | null = () => null,
+): Promise<DeletedItemRow[]> {
+  return (await rows).map((row) => ({
+    type,
+    guid: row.guid!,
+    name: nameOf(row),
+    detail: detailOf(row),
+    orgId: row.orgId ?? null,
+    updatedAt: row.updatedAt,
+  }));
+}
+
+function restoreByFlag(
+  table: FlagRestorableTable,
+): DeletedItemSource["restore"] {
+  return async (tx, guid) => {
+    const [row] = await tx
+      .update(table)
+      .set({ isDeleted: false })
+      .where(and(eq(table.guid, guid), eq(table.isDeleted, true)))
+      .returning({ orgId: table.orgId });
+    return row ? restored(row.orgId) : NOT_FOUND;
+  };
+}
+
 export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
   {
     collection: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: collections.guid,
-            name: collections.name,
-            orgId: collections.orgId,
-            updatedAt: collections.updatedAt,
-          })
-          .from(collections)
-          .where(eq(collections.isDeleted, true));
-        return rows.map((r) => ({
-          type: "collection",
-          guid: r.guid!,
-          name: r.name,
-          detail: null,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
+      list: () =>
+        deletedRows(
+          "collection",
+          db
+            .select({
+              guid: collections.guid,
+              name: collections.name,
+              orgId: collections.orgId,
+              updatedAt: collections.updatedAt,
+            })
+            .from(collections)
+            .where(eq(collections.isDeleted, true)),
+          (r) => r.name,
+        ),
       async restore(tx, guid) {
         const row = await tx.query.collections.findFirst({
           where: and(
@@ -91,27 +129,23 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
       },
     },
     binSet: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: binSets.guid,
-            name: binSets.name,
-            gameName: games.name,
-            orgId: binSets.orgId,
-            updatedAt: binSets.updatedAt,
-          })
-          .from(binSets)
-          .leftJoin(games, eq(games.id, binSets.gameId))
-          .where(eq(binSets.isDeleted, true));
-        return rows.map((r) => ({
-          type: "binSet",
-          guid: r.guid!,
-          name: r.name,
-          detail: r.gameName,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
+      list: () =>
+        deletedRows(
+          "binSet",
+          db
+            .select({
+              guid: binSets.guid,
+              name: binSets.name,
+              gameName: games.name,
+              orgId: binSets.orgId,
+              updatedAt: binSets.updatedAt,
+            })
+            .from(binSets)
+            .leftJoin(games, eq(games.id, binSets.gameId))
+            .where(eq(binSets.isDeleted, true)),
+          (r) => r.name,
+          (r) => r.gameName,
+        ),
       async restore(tx, guid) {
         const row = await tx.query.binSets.findFirst({
           where: and(eq(binSets.guid, guid), eq(binSets.isDeleted, true)),
@@ -130,27 +164,23 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
       },
     },
     presetWorkflow: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: presetWorkflows.guid,
-            name: presetWorkflows.name,
-            gameName: games.name,
-            orgId: presetWorkflows.orgId,
-            updatedAt: presetWorkflows.updatedAt,
-          })
-          .from(presetWorkflows)
-          .leftJoin(games, eq(games.id, presetWorkflows.gameId))
-          .where(eq(presetWorkflows.isDeleted, true));
-        return rows.map((r) => ({
-          type: "presetWorkflow",
-          guid: r.guid!,
-          name: r.name,
-          detail: r.gameName,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
+      list: () =>
+        deletedRows(
+          "presetWorkflow",
+          db
+            .select({
+              guid: presetWorkflows.guid,
+              name: presetWorkflows.name,
+              gameName: games.name,
+              orgId: presetWorkflows.orgId,
+              updatedAt: presetWorkflows.updatedAt,
+            })
+            .from(presetWorkflows)
+            .leftJoin(games, eq(games.id, presetWorkflows.gameId))
+            .where(eq(presetWorkflows.isDeleted, true)),
+          (r) => r.name,
+          (r) => r.gameName,
+        ),
       async restore(tx, guid) {
         const row = await tx.query.presetWorkflows.findFirst({
           where: and(
@@ -173,27 +203,23 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
       },
     },
     bin: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: bins.guid,
-            binNumber: bins.binNumber,
-            setName: binSets.name,
-            orgId: bins.orgId,
-            updatedAt: bins.updatedAt,
-          })
-          .from(bins)
-          .innerJoin(binSets, eq(binSets.id, bins.binSet))
-          .where(eq(bins.isDeleted, true));
-        return rows.map((r) => ({
-          type: "bin",
-          guid: r.guid!,
-          name: `Bin ${r.binNumber}`,
-          detail: r.setName,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
+      list: () =>
+        deletedRows(
+          "bin",
+          db
+            .select({
+              guid: bins.guid,
+              binNumber: bins.binNumber,
+              setName: binSets.name,
+              orgId: bins.orgId,
+              updatedAt: bins.updatedAt,
+            })
+            .from(bins)
+            .innerJoin(binSets, eq(binSets.id, bins.binSet))
+            .where(eq(bins.isDeleted, true)),
+          (r) => `Bin ${r.binNumber}`,
+          (r) => r.setName,
+        ),
       async restore(tx, guid) {
         const row = await tx.query.bins.findFirst({
           where: and(eq(bins.guid, guid), eq(bins.isDeleted, true)),
@@ -221,26 +247,22 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
       },
     },
     device: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: devices.guid,
-            name: devices.name,
-            hardwareId: devices.hardwareId,
-            orgId: devices.orgId,
-            updatedAt: devices.updatedAt,
-          })
-          .from(devices)
-          .where(eq(devices.isDeleted, true));
-        return rows.map((r) => ({
-          type: "device",
-          guid: r.guid!,
-          name: r.name,
-          detail: r.hardwareId,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
+      list: () =>
+        deletedRows(
+          "device",
+          db
+            .select({
+              guid: devices.guid,
+              name: devices.name,
+              hardwareId: devices.hardwareId,
+              orgId: devices.orgId,
+              updatedAt: devices.updatedAt,
+            })
+            .from(devices)
+            .where(eq(devices.isDeleted, true)),
+          (r) => r.name,
+          (r) => r.hardwareId,
+        ),
       async restore(tx, guid) {
         const row = await tx.query.devices.findFirst({
           where: and(eq(devices.guid, guid), eq(devices.isDeleted, true)),
@@ -272,123 +294,80 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
       },
     },
     binRoute: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: binRoutes.guid,
-            binNumber: binRoutes.binNumber,
-            deviceName: devices.name,
-            orgId: binRoutes.orgId,
-            updatedAt: binRoutes.updatedAt,
-          })
-          .from(binRoutes)
-          .innerJoin(devices, eq(devices.id, binRoutes.deviceId))
-          .where(eq(binRoutes.isDeleted, true));
-        return rows.map((r) => ({
-          type: "binRoute",
-          guid: r.guid!,
-          name: `Bin ${r.binNumber} route`,
-          detail: r.deviceName,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
-      async restore(tx, guid) {
-        const [row] = await tx
-          .update(binRoutes)
-          .set({ isDeleted: false })
-          .where(and(eq(binRoutes.guid, guid), eq(binRoutes.isDeleted, true)))
-          .returning({ orgId: binRoutes.orgId });
-        return row ? restored(row.orgId) : NOT_FOUND;
-      },
+      list: () =>
+        deletedRows(
+          "binRoute",
+          db
+            .select({
+              guid: binRoutes.guid,
+              binNumber: binRoutes.binNumber,
+              deviceName: devices.name,
+              orgId: binRoutes.orgId,
+              updatedAt: binRoutes.updatedAt,
+            })
+            .from(binRoutes)
+            .innerJoin(devices, eq(devices.id, binRoutes.deviceId))
+            .where(eq(binRoutes.isDeleted, true)),
+          (r) => `Bin ${r.binNumber} route`,
+          (r) => r.deviceName,
+        ),
+      restore: restoreByFlag(binRoutes),
     },
     binHeight: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: binHeights.guid,
-            binNumber: binHeights.binNumber,
-            deviceName: devices.name,
-            orgId: binHeights.orgId,
-            updatedAt: binHeights.updatedAt,
-          })
-          .from(binHeights)
-          .innerJoin(devices, eq(devices.id, binHeights.deviceId))
-          .where(eq(binHeights.isDeleted, true));
-        return rows.map((r) => ({
-          type: "binHeight",
-          guid: r.guid!,
-          name: `Bin ${r.binNumber} height`,
-          detail: r.deviceName,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
-      async restore(tx, guid) {
-        const [row] = await tx
-          .update(binHeights)
-          .set({ isDeleted: false })
-          .where(and(eq(binHeights.guid, guid), eq(binHeights.isDeleted, true)))
-          .returning({ orgId: binHeights.orgId });
-        return row ? restored(row.orgId) : NOT_FOUND;
-      },
+      list: () =>
+        deletedRows(
+          "binHeight",
+          db
+            .select({
+              guid: binHeights.guid,
+              binNumber: binHeights.binNumber,
+              deviceName: devices.name,
+              orgId: binHeights.orgId,
+              updatedAt: binHeights.updatedAt,
+            })
+            .from(binHeights)
+            .innerJoin(devices, eq(devices.id, binHeights.deviceId))
+            .where(eq(binHeights.isDeleted, true)),
+          (r) => `Bin ${r.binNumber} height`,
+          (r) => r.deviceName,
+        ),
+      restore: restoreByFlag(binHeights),
     },
     moduleConfig: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: moduleConfigs.guid,
-            moduleNumber: moduleConfigs.moduleNumber,
-            deviceName: devices.name,
-            orgId: moduleConfigs.orgId,
-            updatedAt: moduleConfigs.updatedAt,
-          })
-          .from(moduleConfigs)
-          .innerJoin(devices, eq(devices.id, moduleConfigs.deviceId))
-          .where(eq(moduleConfigs.isDeleted, true));
-        return rows.map((r) => ({
-          type: "moduleConfig",
-          guid: r.guid!,
-          name: `Module ${r.moduleNumber} calibration`,
-          detail: r.deviceName,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
-      async restore(tx, guid) {
-        const [row] = await tx
-          .update(moduleConfigs)
-          .set({ isDeleted: false })
-          .where(
-            and(
-              eq(moduleConfigs.guid, guid),
-              eq(moduleConfigs.isDeleted, true),
-            ),
-          )
-          .returning({ orgId: moduleConfigs.orgId });
-        return row ? restored(row.orgId) : NOT_FOUND;
-      },
+      list: () =>
+        deletedRows(
+          "moduleConfig",
+          db
+            .select({
+              guid: moduleConfigs.guid,
+              moduleNumber: moduleConfigs.moduleNumber,
+              deviceName: devices.name,
+              orgId: moduleConfigs.orgId,
+              updatedAt: moduleConfigs.updatedAt,
+            })
+            .from(moduleConfigs)
+            .innerJoin(devices, eq(devices.id, moduleConfigs.deviceId))
+            .where(eq(moduleConfigs.isDeleted, true)),
+          (r) => `Module ${r.moduleNumber} calibration`,
+          (r) => r.deviceName,
+        ),
+      restore: restoreByFlag(moduleConfigs),
     },
     storageLocation: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: storageLocations.guid,
-            name: storageLocations.name,
-            orgId: storageLocations.orgId,
-            updatedAt: storageLocations.updatedAt,
-          })
-          .from(storageLocations)
-          .where(eq(storageLocations.isDeleted, true));
-        return rows.map((r) => ({
-          type: "storageLocation",
-          guid: r.guid!,
-          name: r.name,
-          detail: null,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
+      list: () =>
+        deletedRows(
+          "storageLocation",
+          db
+            .select({
+              guid: storageLocations.guid,
+              name: storageLocations.name,
+              orgId: storageLocations.orgId,
+              updatedAt: storageLocations.updatedAt,
+            })
+            .from(storageLocations)
+            .where(eq(storageLocations.isDeleted, true)),
+          (r) => r.name,
+        ),
       async restore(tx, guid) {
         const row = await tx.query.storageLocations.findFirst({
           where: and(
@@ -410,121 +389,78 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
       },
     },
     soundClip: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: soundClips.guid,
-            name: soundClips.name,
-            orgId: soundClips.orgId,
-            updatedAt: soundClips.updatedAt,
-          })
-          .from(soundClips)
-          .where(eq(soundClips.isDeleted, true));
-        return rows.map((r) => ({
-          type: "soundClip",
-          guid: r.guid!,
-          name: r.name,
-          detail: null,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
-      async restore(tx, guid) {
-        const [row] = await tx
-          .update(soundClips)
-          .set({ isDeleted: false })
-          .where(and(eq(soundClips.guid, guid), eq(soundClips.isDeleted, true)))
-          .returning({ orgId: soundClips.orgId });
-        return row ? restored(row.orgId) : NOT_FOUND;
-      },
+      list: () =>
+        deletedRows(
+          "soundClip",
+          db
+            .select({
+              guid: soundClips.guid,
+              name: soundClips.name,
+              orgId: soundClips.orgId,
+              updatedAt: soundClips.updatedAt,
+            })
+            .from(soundClips)
+            .where(eq(soundClips.isDeleted, true)),
+          (r) => r.name,
+        ),
+      restore: restoreByFlag(soundClips),
     },
     soundRule: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: soundRules.guid,
-            name: soundRules.name,
-            gameName: games.name,
-            orgId: soundRules.orgId,
-            updatedAt: soundRules.updatedAt,
-          })
-          .from(soundRules)
-          .innerJoin(games, eq(games.id, soundRules.gameId))
-          .where(eq(soundRules.isDeleted, true));
-        return rows.map((r) => ({
-          type: "soundRule",
-          guid: r.guid!,
-          name: r.name,
-          detail: r.gameName,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
-      async restore(tx, guid) {
-        const [row] = await tx
-          .update(soundRules)
-          .set({ isDeleted: false })
-          .where(and(eq(soundRules.guid, guid), eq(soundRules.isDeleted, true)))
-          .returning({ orgId: soundRules.orgId });
-        return row ? restored(row.orgId) : NOT_FOUND;
-      },
+      list: () =>
+        deletedRows(
+          "soundRule",
+          db
+            .select({
+              guid: soundRules.guid,
+              name: soundRules.name,
+              gameName: games.name,
+              orgId: soundRules.orgId,
+              updatedAt: soundRules.updatedAt,
+            })
+            .from(soundRules)
+            .innerJoin(games, eq(games.id, soundRules.gameId))
+            .where(eq(soundRules.isDeleted, true)),
+          (r) => r.name,
+          (r) => r.gameName,
+        ),
+      restore: restoreByFlag(soundRules),
     },
     notificationRule: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: notificationRules.guid,
-            name: notificationRules.name,
-            gameName: games.name,
-            orgId: notificationRules.orgId,
-            updatedAt: notificationRules.updatedAt,
-          })
-          .from(notificationRules)
-          .innerJoin(games, eq(games.id, notificationRules.gameId))
-          .where(eq(notificationRules.isDeleted, true));
-        return rows.map((r) => ({
-          type: "notificationRule",
-          guid: r.guid!,
-          name: r.name,
-          detail: r.gameName,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
-      async restore(tx, guid) {
-        const [row] = await tx
-          .update(notificationRules)
-          .set({ isDeleted: false })
-          .where(
-            and(
-              eq(notificationRules.guid, guid),
-              eq(notificationRules.isDeleted, true),
-            ),
-          )
-          .returning({ orgId: notificationRules.orgId });
-        return row ? restored(row.orgId) : NOT_FOUND;
-      },
+      list: () =>
+        deletedRows(
+          "notificationRule",
+          db
+            .select({
+              guid: notificationRules.guid,
+              name: notificationRules.name,
+              gameName: games.name,
+              orgId: notificationRules.orgId,
+              updatedAt: notificationRules.updatedAt,
+            })
+            .from(notificationRules)
+            .innerJoin(games, eq(games.id, notificationRules.gameId))
+            .where(eq(notificationRules.isDeleted, true)),
+          (r) => r.name,
+          (r) => r.gameName,
+        ),
+      restore: restoreByFlag(notificationRules),
     },
     game: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: games.guid,
-            name: games.name,
-            key: games.key,
-            updatedAt: games.updatedAt,
-          })
-          .from(games)
-          .where(eq(games.isDeleted, true));
-        return rows.map((r) => ({
-          type: "game",
-          guid: r.guid!,
-          name: r.name,
-          detail: r.key,
-          orgId: null,
-          updatedAt: r.updatedAt,
-        }));
-      },
+      list: () =>
+        deletedRows(
+          "game",
+          db
+            .select({
+              guid: games.guid,
+              name: games.name,
+              key: games.key,
+              updatedAt: games.updatedAt,
+            })
+            .from(games)
+            .where(eq(games.isDeleted, true)),
+          (r) => r.name,
+          (r) => r.key,
+        ),
       async restore(tx, guid) {
         const row = await tx.query.games.findFirst({
           where: and(eq(games.guid, guid), eq(games.isDeleted, true)),
@@ -548,31 +484,27 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
       },
     },
     announcement: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: announcements.guid,
-            message: announcements.message,
-            isDeploy: announcements.isDeploy,
-            severity: announcements.severity,
-            updatedAt: announcements.updatedAt,
-          })
-          .from(announcements)
-          .where(
-            and(
-              eq(announcements.isDeleted, true),
-              eq(announcements.isDeploy, false),
+      list: () =>
+        deletedRows(
+          "announcement",
+          db
+            .select({
+              guid: announcements.guid,
+              message: announcements.message,
+              isDeploy: announcements.isDeploy,
+              severity: announcements.severity,
+              updatedAt: announcements.updatedAt,
+            })
+            .from(announcements)
+            .where(
+              and(
+                eq(announcements.isDeleted, true),
+                eq(announcements.isDeploy, false),
+              ),
             ),
-          );
-        return rows.map((r) => ({
-          type: "announcement",
-          guid: r.guid!,
-          name: r.message,
-          detail: r.severity,
-          orgId: null,
-          updatedAt: r.updatedAt,
-        }));
-      },
+          (r) => r.message,
+          (r) => r.severity,
+        ),
       async restore(tx, guid) {
         const [row] = await tx
           .update(announcements)
@@ -588,26 +520,22 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
       },
     },
     intakeLot: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: intakeLots.guid,
-            customerName: intakeLots.customerName,
-            status: intakeLots.status,
-            orgId: intakeLots.orgId,
-            updatedAt: intakeLots.updatedAt,
-          })
-          .from(intakeLots)
-          .where(eq(intakeLots.isDeleted, true));
-        return rows.map((r) => ({
-          type: "intakeLot",
-          guid: r.guid!,
-          name: r.customerName,
-          detail: r.status,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
+      list: () =>
+        deletedRows(
+          "intakeLot",
+          db
+            .select({
+              guid: intakeLots.guid,
+              customerName: intakeLots.customerName,
+              status: intakeLots.status,
+              orgId: intakeLots.orgId,
+              updatedAt: intakeLots.updatedAt,
+            })
+            .from(intakeLots)
+            .where(eq(intakeLots.isDeleted, true)),
+          (r) => r.customerName,
+          (r) => r.status,
+        ),
       async restore(tx, guid) {
         const row = await tx.query.intakeLots.findFirst({
           where: and(eq(intakeLots.guid, guid), eq(intakeLots.isDeleted, true)),
@@ -637,97 +565,63 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
       },
     },
     fulfilmentOrder: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: fulfilmentOrders.guid,
-            name: fulfilmentOrders.name,
-            status: fulfilmentOrders.status,
-            orgId: fulfilmentOrders.orgId,
-            updatedAt: fulfilmentOrders.updatedAt,
-          })
-          .from(fulfilmentOrders)
-          .where(eq(fulfilmentOrders.isDeleted, true));
-        return rows.map((r) => ({
-          type: "fulfilmentOrder",
-          guid: r.guid!,
-          name: r.name,
-          detail: r.status,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
-      async restore(tx, guid) {
-        const [row] = await tx
-          .update(fulfilmentOrders)
-          .set({ isDeleted: false })
-          .where(
-            and(
-              eq(fulfilmentOrders.guid, guid),
-              eq(fulfilmentOrders.isDeleted, true),
-            ),
-          )
-          .returning({ orgId: fulfilmentOrders.orgId });
-        return row ? restored(row.orgId) : NOT_FOUND;
-      },
+      list: () =>
+        deletedRows(
+          "fulfilmentOrder",
+          db
+            .select({
+              guid: fulfilmentOrders.guid,
+              name: fulfilmentOrders.name,
+              status: fulfilmentOrders.status,
+              orgId: fulfilmentOrders.orgId,
+              updatedAt: fulfilmentOrders.updatedAt,
+            })
+            .from(fulfilmentOrders)
+            .where(eq(fulfilmentOrders.isDeleted, true)),
+          (r) => r.name,
+          (r) => r.status,
+        ),
+      restore: restoreByFlag(fulfilmentOrders),
     },
     accuracyCheck: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: accuracyChecks.guid,
-            orgId: accuracyChecks.orgId,
-            sampleSize: accuracyChecks.sampleSize,
-            status: accuracyChecks.status,
-            updatedAt: accuracyChecks.updatedAt,
-            collectionName: collections.name,
-          })
-          .from(accuracyChecks)
-          .innerJoin(collections, eq(collections.id, accuracyChecks.collectionId))
-          .where(eq(accuracyChecks.isDeleted, true));
-        return rows.map((r) => ({
-          type: "accuracyCheck",
-          guid: r.guid!,
-          name: r.collectionName,
-          detail: `${r.sampleSize} cards, ${r.status}`,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
-      async restore(tx, guid) {
-        const [row] = await tx
-          .update(accuracyChecks)
-          .set({ isDeleted: false })
-          .where(
-            and(
-              eq(accuracyChecks.guid, guid),
-              eq(accuracyChecks.isDeleted, true),
-            ),
-          )
-          .returning({ orgId: accuracyChecks.orgId });
-        return row ? restored(row.orgId) : NOT_FOUND;
-      },
+      list: () =>
+        deletedRows(
+          "accuracyCheck",
+          db
+            .select({
+              guid: accuracyChecks.guid,
+              orgId: accuracyChecks.orgId,
+              sampleSize: accuracyChecks.sampleSize,
+              status: accuracyChecks.status,
+              updatedAt: accuracyChecks.updatedAt,
+              collectionName: collections.name,
+            })
+            .from(accuracyChecks)
+            .innerJoin(
+              collections,
+              eq(collections.id, accuracyChecks.collectionId),
+            )
+            .where(eq(accuracyChecks.isDeleted, true)),
+          (r) => r.collectionName,
+          (r) => `${r.sampleSize} cards, ${r.status}`,
+        ),
+      restore: restoreByFlag(accuracyChecks),
     },
     shopCatalog: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: shopCatalogs.guid,
-            name: shopCatalogs.name,
-            orgId: shopCatalogs.orgId,
-            updatedAt: shopCatalogs.updatedAt,
-          })
-          .from(shopCatalogs)
-          .where(eq(shopCatalogs.isDeleted, true));
-        return rows.map((r) => ({
-          type: "shopCatalog",
-          guid: r.guid,
-          name: r.name,
-          detail: null,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
+      list: () =>
+        deletedRows(
+          "shopCatalog",
+          db
+            .select({
+              guid: shopCatalogs.guid,
+              name: shopCatalogs.name,
+              orgId: shopCatalogs.orgId,
+              updatedAt: shopCatalogs.updatedAt,
+            })
+            .from(shopCatalogs)
+            .where(eq(shopCatalogs.isDeleted, true)),
+          (r) => r.name,
+        ),
       async restore(tx, guid) {
         const [row] = await tx
           .update(shopCatalogs)
@@ -742,37 +636,20 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
       },
     },
     importTemplate: {
-      async list() {
-        const rows = await db
-          .select({
-            guid: importTemplates.guid,
-            name: importTemplates.name,
-            orgId: importTemplates.orgId,
-            updatedAt: importTemplates.updatedAt,
-          })
-          .from(importTemplates)
-          .where(eq(importTemplates.isDeleted, true));
-        return rows.map((r) => ({
-          type: "importTemplate",
-          guid: r.guid,
-          name: r.name,
-          detail: null,
-          orgId: r.orgId,
-          updatedAt: r.updatedAt,
-        }));
-      },
-      async restore(tx, guid) {
-        const [row] = await tx
-          .update(importTemplates)
-          .set({ isDeleted: false })
-          .where(
-            and(
-              eq(importTemplates.guid, guid),
-              eq(importTemplates.isDeleted, true),
-            ),
-          )
-          .returning({ orgId: importTemplates.orgId });
-        return row ? restored(row.orgId) : NOT_FOUND;
-      },
+      list: () =>
+        deletedRows(
+          "importTemplate",
+          db
+            .select({
+              guid: importTemplates.guid,
+              name: importTemplates.name,
+              orgId: importTemplates.orgId,
+              updatedAt: importTemplates.updatedAt,
+            })
+            .from(importTemplates)
+            .where(eq(importTemplates.isDeleted, true)),
+          (r) => r.name,
+        ),
+      restore: restoreByFlag(importTemplates),
     },
   };

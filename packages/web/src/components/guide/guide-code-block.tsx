@@ -17,7 +17,7 @@ export function GuideCodeBlock({ code }: GuideCodeBlockProps) {
 
   return (
     <div className="relative mt-2 rounded-md border bg-background">
-      <pre className="overflow-x-auto py-2.5 pr-11 pl-3 font-heading text-xs/relaxed">
+      <pre className="overflow-x-auto py-2.5 pr-11 pl-3 font-mono text-sm/relaxed">
         <code>{code}</code>
       </pre>
       <Button

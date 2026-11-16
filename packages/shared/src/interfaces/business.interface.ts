@@ -360,13 +360,6 @@ export interface InventoryCollectionRow extends InventoryTotals {
   name: string;
 }
 
-export interface InventorySnapshotPoint {
-  day: string;
-  cardCount: number;
-  marketValue: number;
-  costBasis: number;
-}
-
 export interface CollectionCostInput {
   total: number;
   mode: "spread" | "each";

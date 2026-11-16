@@ -39,6 +39,12 @@
   "recentScans": "Scannées récemment",
   "seeAllStats": "Toutes les stats",
   "loadFailed": "Impossible de charger votre aperçu. Réessayez dans un instant.",
+  "firstRun": {
+    "title": "Commencez votre collection",
+    "description": "Créez une collection, puis scannez vos premières cartes pour voir ce qu'elles valent.",
+    "createCollection": "Nouvelle collection",
+    "startScanning": "Commencer à scanner"
+  },
   "library": {
     "title": "Bibliothèque",
     "collections": "Collections",

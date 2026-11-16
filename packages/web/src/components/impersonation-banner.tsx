@@ -17,7 +17,7 @@ export function ImpersonationBanner() {
   }
 
   return (
-    <div className="flex items-center justify-center gap-2 border-b border-violet-500/30 bg-violet-500/20 px-4 py-1.5 text-xs text-violet-900 dark:bg-violet-500/10 dark:text-violet-200">
+    <div className="flex items-center justify-center gap-2 border-b border-info-border bg-info-muted px-4 py-1.5 text-xs text-info-foreground">
       <IconUserScan className="size-3.5 shrink-0" />
       <span>
         {t("impersonation.banner", {
@@ -26,7 +26,7 @@ export function ImpersonationBanner() {
       </span>
       <Button
         variant="outline"
-        className="shrink-0 border-violet-500/40 bg-transparent text-violet-900 hover:bg-violet-500/20 dark:text-violet-200"
+        className="shrink-0 border-info-border bg-transparent text-info-foreground hover:bg-info-border/40"
         onClick={handleExit}
       >
         {t("impersonation.exitButton")}

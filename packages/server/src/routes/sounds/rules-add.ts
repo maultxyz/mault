@@ -2,10 +2,6 @@ import { and, count, eq, max } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { soundRules } from "../../db/schema";
-import {
-  getSoundRuleLimit,
-  soundRuleLimitMessage,
-} from "../../lib/sound-rule-limit";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   findClipId,
@@ -13,6 +9,8 @@ import {
   loadSoundRules,
   soundRuleInputSchema,
 } from "./shared";
+import { orgPlanLimit } from "../../lib/plan-config";
+import { soundRuleLimitMessage } from "../../lib/plan-limit-messages";
 
 export const addSoundRuleRoute = new Hono<AppEnv>().post(
   "/rules",
@@ -34,7 +32,7 @@ export const addSoundRuleRoute = new Hono<AppEnv>().post(
       if (clipId === undefined)
         return { success: false as const, message: "Clip not found." };
 
-      const limit = await getSoundRuleLimit(tx, orgId);
+      const limit = await orgPlanLimit(tx, orgId, "soundRules");
       if (limit !== null) {
         const [{ total }] = await tx
           .select({ total: count() })

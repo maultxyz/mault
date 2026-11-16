@@ -2,7 +2,6 @@ import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { games } from "../../db/schema";
-import { ensureGameVectorIndex } from "../../lib/game-vector-index";
 import { publicGamesCache } from "../../lib/public-games";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 import { keyIsTaken, toGame } from "./shared";
@@ -55,7 +54,6 @@ export const addGameRoute = new Hono<AppEnv>().post(
         })
         .returning();
 
-      void ensureGameVectorIndex(row.key);
       publicGamesCache.invalidate();
       return c.json({ success: true, data: toGame(row) });
     } catch (err) {

@@ -39,6 +39,12 @@
   "recentScans": "Recently scanned",
   "seeAllStats": "All stats",
   "loadFailed": "Couldn't load your overview. Try again in a moment.",
+  "firstRun": {
+    "title": "Start your collection",
+    "description": "Create a collection, then scan your first cards to see what they're worth.",
+    "createCollection": "New collection",
+    "startScanning": "Start scanning"
+  },
   "library": {
     "title": "Library",
     "collections": "Collections",

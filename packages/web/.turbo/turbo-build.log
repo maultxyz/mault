@@ -1,4 +1,0 @@
-
-> @magic-vault/web@1.0.200 build C:\Users\User\Documents\Coding\magic-vault\packages\web
-> tsc -b && vite build
-

@@ -1,4 +1,5 @@
 import {
+  SHARED_CARD_PATH_PREFIX,
   SHARED_STORAGE_PATH_PREFIX,
   SHOP_CATALOG_PATH_PREFIX,
   SHORT_LINK_NOT_FOUND_PATH,
@@ -11,6 +12,7 @@ import {
   MOBILE_SCAN_PATH,
   MOBILE_SORTER_PATH,
 } from "@/lib/constants/nav";
+import { COLLECTIONS_PATH } from "@/lib/constants/collections";
 import AuthGuard from "@/app/routes/auth-guard";
 import ErrorPage from "@/app/routes/error";
 import { MarketingRoute } from "@/app/marketing-route";
@@ -40,7 +42,13 @@ import { STATS_PATH } from "@/lib/constants/stats";
 import { CATALOG_CARD_ROUTE_PATH, SEARCH_PATH } from "@/lib/constants/search";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { MATCH_VALIDATIONS_PATH } from "@/lib/constants/match-validations";
+import { PublicPageLayout } from "@/components/public-page-layout";
 import { lazy, Suspense, useEffect } from "react";
+import { runTasksOneByOneWhenIdle } from "@/lib/idle-tasks";
+import {
+  IDLE_ROUTE_PRELOAD_DELAY_MS,
+  IDLE_ROUTE_PRELOAD_TIMEOUT_MS,
+} from "@/lib/constants/timing";
 import {
   type RouteObject,
   Navigate,
@@ -78,6 +86,12 @@ const SharedStoragePage = lazy(
   withNamespaces(
     () => import("@/app/routes/shared-storage"),
     ["common", "storage", "cards"],
+  ),
+);
+const SharedCardPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/shared-card"),
+    ["common", "cards"],
   ),
 );
 const ShopCatalogPage = lazy(
@@ -121,19 +135,20 @@ const loadAppLayout = withNamespaces(
   ALL_NAMESPACES,
 );
 const loadScannerPage = () => import("@/app/routes/app/index");
-const loadMonitorSessionsPage = () =>
-  import("@/app/routes/app/monitor-sessions");
 const loadHomePage = () => import("@/app/routes/app/home");
 const HomePage = lazy(loadHomePage);
-const LibraryPage = lazy(() => import("@/app/routes/app/library"));
-const SearchPage = lazy(() => import("@/app/routes/app/search"));
+const loadLibraryPage = () => import("@/app/routes/app/library");
+const loadCollectionsPage = () => import("@/app/routes/app/collections");
+const loadCollectionViewPage = () => import("@/app/routes/app/collection-view");
+const loadStoragePage = () => import("@/app/routes/app/storage");
+const loadStatsPage = () => import("@/app/routes/app/stats");
+const LibraryPage = lazy(loadLibraryPage);
+const GlobalSearchRedirect = lazy(() => import("@/app/routes/app/search"));
 const CatalogCardPage = lazy(() => import("@/app/routes/app/catalog-card"));
 const AppLayout = lazy(loadAppLayout);
 const ScannerPage = lazy(loadScannerPage);
-const CollectionsPage = lazy(() => import("@/app/routes/app/collections"));
-const CollectionViewPage = lazy(
-  () => import("@/app/routes/app/collection-view"),
-);
+const CollectionsPage = lazy(loadCollectionsPage);
+const CollectionViewPage = lazy(loadCollectionViewPage);
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));
 const ValidateMatchesPage = lazy(
   () => import("@/app/routes/app/validate-matches"),
@@ -173,7 +188,6 @@ const AdminShortLinksPage = lazy(
 const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
 );
-const MonitorSessionsPage = lazy(loadMonitorSessionsPage);
 const MonitorPage = lazy(() => import("@/app/routes/app/monitor"));
 const PhoneCameraPage = lazy(() => import("@/app/routes/app/phone-camera"));
 const ScanPage = lazy(() => import("@/app/routes/app/scan"));
@@ -214,7 +228,7 @@ const SettingsNotificationsPage = lazy(
 const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
-const StoragePage = lazy(() => import("@/app/routes/app/storage"));
+const StoragePage = lazy(loadStoragePage);
 const TradesPage = lazy(() => import("@/app/routes/app/trades"));
 const TradeOfferRoutePage = lazy(() => import("@/app/routes/app/trade-offer"));
 const SentTradeOfferRoutePage = lazy(() => import("@/app/routes/app/sent-trade-offer"));
@@ -224,7 +238,7 @@ const StoragePickListPage = lazy(
 const StorageLabelsPage = lazy(
   () => import("@/app/routes/app/storage-labels"),
 );
-const StatsPage = lazy(() => import("@/app/routes/app/stats"));
+const StatsPage = lazy(loadStatsPage);
 const IntakePage = lazy(() => import("@/app/routes/app/intake"));
 const PicksPage = lazy(() => import("@/app/routes/app/picks"));
 const PriceLabelsPage = lazy(() => import("@/app/routes/app/price-labels"));
@@ -252,12 +266,33 @@ const IntakeReceiptPage = lazy(
 function AppChunkPreloader() {
   const isMobile = useIsMobile();
   const piHost = usePiHost();
+  const isInApp = useLocation().pathname.startsWith("/app");
   useEffect(() => {
     const ignoreFailure = () => {};
     loadAppLayout().catch(ignoreFailure);
     loadHomePage().catch(ignoreFailure);
     if (!isMobile || piHost) loadScannerPage().catch(ignoreFailure);
   }, [isMobile, piHost]);
+  useEffect(() => {
+    if (!isInApp) return;
+    let cancelIdlePreload = () => {};
+    const delayHandle = setTimeout(() => {
+      cancelIdlePreload = runTasksOneByOneWhenIdle(
+        [
+          loadLibraryPage,
+          loadCollectionViewPage,
+          loadStatsPage,
+          loadStoragePage,
+          loadCollectionsPage,
+        ],
+        IDLE_ROUTE_PRELOAD_TIMEOUT_MS,
+      );
+    }, IDLE_ROUTE_PRELOAD_DELAY_MS);
+    return () => {
+      clearTimeout(delayHandle);
+      cancelIdlePreload();
+    };
+  }, [isInApp]);
   return null;
 }
 
@@ -281,7 +316,7 @@ function BlockedWhileImpersonatingGuard() {
   return <Outlet />;
 }
 
-function DesktopOnlyGuard() {
+function DesktopOrPiHostGuard() {
   const isMobile = useIsMobile();
   const { pathname } = useLocation();
   const { piHost, settled } = usePiHostState();
@@ -293,6 +328,11 @@ function DesktopOnlyGuard() {
   if (piPage && !settled) return null;
   if (piPage && piHost) return <Outlet />;
   return <Navigate to={HOME_PATH} replace />;
+}
+
+function MonitorIndexRedirect() {
+  const isMobile = useIsMobile();
+  return <Navigate to={isMobile ? LIBRARY_PATH : COLLECTIONS_PATH} replace />;
 }
 
 function LegacyIntakeRedirect() {
@@ -345,20 +385,29 @@ export const routes: RouteObject[] = [
         element: <MarketingRoute path={MARKETING_PAGE_PATHS.download} />,
       },
       {
-        path: "/watch/:collectionGuid",
-        element: <WatchPage />,
-      },
-      {
-        path: `${SHARED_STORAGE_PATH_PREFIX}/:locationGuid`,
-        element: <SharedStoragePage />,
-      },
-      {
-        path: `${SHOP_CATALOG_PATH_PREFIX}/:catalogGuid`,
-        element: <ShopCatalogPage />,
-      },
-      {
-        path: SHORT_LINK_NOT_FOUND_PATH,
-        element: <LinkNotFoundPage />,
+        element: <PublicPageLayout />,
+        children: [
+          {
+            path: "/watch/:collectionGuid",
+            element: <WatchPage />,
+          },
+          {
+            path: `${SHARED_STORAGE_PATH_PREFIX}/:locationGuid`,
+            element: <SharedStoragePage />,
+          },
+          {
+            path: `${SHARED_CARD_PATH_PREFIX}/:scanGuid`,
+            element: <SharedCardPage />,
+          },
+          {
+            path: `${SHOP_CATALOG_PATH_PREFIX}/:catalogGuid`,
+            element: <ShopCatalogPage />,
+          },
+          {
+            path: SHORT_LINK_NOT_FOUND_PATH,
+            element: <LinkNotFoundPage />,
+          },
+        ],
       },
       {
         path: MARKETING_PAGE_PATHS.privacy,
@@ -418,7 +467,7 @@ export const routes: RouteObject[] = [
             element: <AppLayout />,
             children: [
               {
-                element: <DesktopOnlyGuard />,
+                element: <DesktopOrPiHostGuard />,
                 children: [
                   {
                     element: <RequireCollectionGuard />,
@@ -566,13 +615,8 @@ export const routes: RouteObject[] = [
                         element: <AdminShortLinksPage />,
                       },
                       {
-                        element: <AdminGuard />,
-                        children: [
-                          {
-                            path: "hardware",
-                            element: <AdminHardwarePage />,
-                          },
-                        ],
+                        path: "hardware",
+                        element: <AdminHardwarePage />,
                       },
                       {
                         path: "servos",
@@ -605,7 +649,7 @@ export const routes: RouteObject[] = [
               },
               {
                 path: SEARCH_PATH,
-                element: <SearchPage />,
+                element: <GlobalSearchRedirect />,
               },
               {
                 path: CATALOG_CARD_ROUTE_PATH,
@@ -613,7 +657,7 @@ export const routes: RouteObject[] = [
               },
               {
                 path: "/app/monitor",
-                element: <MonitorSessionsPage />,
+                element: <MonitorIndexRedirect />,
               },
               {
                 path: "/app/monitor/:collectionGuid",

@@ -30,7 +30,8 @@
     "trades": "Tausch",
     "more": "Mehr",
     "home": "Start",
-    "library": "Bibliothek"
+    "library": "Bibliothek",
+    "business": "An- & Verkauf"
   },
   "auth": {
     "tagline": "Scanne, sortiere und verwalte deine Karten vom Handy aus.",
@@ -156,7 +157,16 @@
       "links": "Aktive Links werden angezeigt",
       "new": "Formular für einen neuen Link wird angezeigt",
       "link": "Link und QR-Code werden angezeigt"
-    }
+    },
+    "linksTab": "Links",
+    "sharedCards": "Geteilte Karten",
+    "sharedCardsDescription": "Karten aus dieser Sammlung, die du geteilt hast. Tippe auf eine, um ihren Link zu kopieren, oder halte sie gedrückt, um ihn zu widerrufen.",
+    "sharedCardsEmpty": "Noch keine geteilten Karten",
+    "sharedCardsEmptyDescription": "Nutze bei einer Karte „Freigabelink kopieren“, um sie zu teilen. Ihr Link erscheint hier, damit du ihn widerrufen kannst.",
+    "cardLinkCopied": "Link kopiert.",
+    "cardLinkCopyFailed": "Der Link konnte nicht kopiert werden.",
+    "cardLinkCopyHint": "Kopiert den Link",
+    "created": "Erstellt am {{date}}"
   },
   "cards": {
     "bin": "Fach {{number}}",
@@ -637,7 +647,7 @@
       },
       "repack-complete": {
         "title": "Packs vollständig",
-        "description": "Alle Pack-Behälter sind voll. Leere sie und tippe dann auf Fortsetzen, um die nächste Runde zu starten."
+        "description": "Alle Pack-Fächer sind voll. Leere sie und tippe dann auf Fortsetzen, um die nächste Runde zu starten."
       },
       "bin-data-unavailable": {
         "title": "Füllstände nicht verfügbar",
@@ -714,9 +724,9 @@
     "handScanBin": "Fach {{number}}",
     "pauseAction": "Pause",
     "emergencyStop": "Stopp",
-    "emergencyStopHint": "Not-Stopp: hält Einzug, Klappen und Schieber sofort an",
-    "sessionChip_one": "{{count}} gescannt",
-    "sessionChip_other": "{{count}} gescannt",
+    "emergencyStopHint": "Not-Stopp: hält Einzug, Paddel und Schieber sofort an",
+    "sessionChip_one": "{{count, compact}} gescannt",
+    "sessionChip_other": "{{count, compact}} gescannt",
     "sessionScans": {
       "title": "Diese Sitzung",
       "empty": "In dieser Sitzung wurden noch keine Karten gescannt.",
@@ -750,8 +760,8 @@
       "handScan": "Karten automatisch erkennen",
       "handScanDescription": "Ohne Sortierer scannen. Tippe auf Start und halte eine Karte ruhig ins Bild, dann wird sie automatisch gescannt.",
       "handScanBins": "In Fächer sortieren",
-      "handScanBinsDescription": "Zeigt mit deinem Preset, in welches Fach jede Karte gehört. Aus lassen, um Karten nur in der Sammlung zu speichern.",
-      "handScanBinsNoPreset": "Wähle ein Preset für dieses Spiel, um Karten in Fächer zu sortieren.",
+      "handScanBinsDescription": "Zeigt mit deiner Vorlage, in welches Fach jede Karte gehört. Aus lassen, um Karten nur in der Sammlung zu speichern.",
+      "handScanBinsNoPreset": "Wähle eine Vorlage für dieses Spiel, um Karten in Fächer zu sortieren.",
       "camera": "Kamera",
       "cameraFallback": "Kamera {{number}}",
       "cameraPosition": {
@@ -759,7 +769,7 @@
         "front": "Vorderseite",
         "external": "Extern"
       },
-      "preset": "Regel-Preset",
+      "preset": "Regelvorlage",
       "chooseCamera": "Kamera auswählen",
       "foilType": "Foil-Typ",
       "notFoil": "Kein Foil",
@@ -846,7 +856,8 @@
         "scanOnce": "Einzelscan",
         "removing": "Entfernen"
       },
-      "saved": "{{name}} gespeichert"
+      "saved": "{{name}} gespeichert",
+      "offline": "Offline"
     },
     "unmatchedRecovery": {
       "title": "Karte nicht erkannt",
@@ -871,7 +882,7 @@
       "noLocation": "Kein Lagerort",
       "noLocationDescription": "Karten nur zur Sammlung hinzufügen, ohne Sortierung",
       "sort": "Nach Regeln sortieren",
-      "sortDescription": "Dein Preset wählt für jede Karte ein Fach",
+      "sortDescription": "Deine Vorlage wählt für jede Karte ein Fach",
       "sorterChip": "Sortierer sortiert nach deinen Regeln",
       "sortChip": "Sortiert nach Regeln",
       "storageChip": "In {{name}} · ohne Sortierung",
@@ -895,6 +906,12 @@
       "open": "Öffnet die Sammlung"
     },
     "loadFailed": "Deine Übersicht konnte nicht geladen werden. Zum Aktualisieren nach unten ziehen.",
+    "firstRun": {
+      "title": "Starte deine Sammlung",
+      "description": "Lege eine Sammlung an und scanne dann deine ersten Karten, um zu sehen, was sie wert sind.",
+      "createCollection": "Neue Sammlung",
+      "startScanning": "Scannen starten"
+    },
     "hero": {
       "value": "Sammlungswert",
       "cards": "Karten",
@@ -1056,7 +1073,12 @@
     "actions": "Kartenaktionen",
     "similarMatchesCount_one": "{{count}} ähnliche Übereinstimmung",
     "similarMatchesCount_other": "{{count}} ähnliche Übereinstimmungen",
-    "reviewAcceptFailed": "Die vorherige Karte konnte nicht bestätigt werden"
+    "reviewAcceptFailed": "Die vorherige Karte konnte nicht bestätigt werden",
+    "share": "Freigabelink kopieren",
+    "shareLinkCopied": "Freigabelink kopiert. Alle mit dem Link sehen diese Karte.",
+    "shareLinkCopyFailed": "Der Freigabelink für diese Karte konnte nicht kopiert werden.",
+    "downloadPhoto": "Foto herunterladen",
+    "downloadPhotoFailed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut."
   },
   "reviewGrid": {
     "title": "Karten prüfen",
@@ -1081,17 +1103,17 @@
   "rules": {
     "title": "Sortierregeln",
     "noCollectionTitle": "Keine aktive Sammlung",
-    "noCollectionDescription": "Wähle die Sammlung, in die du sortierst, und bearbeite hier die Presets ihres Spiels.",
+    "noCollectionDescription": "Wähle die Sammlung, in die du sortierst, und bearbeite hier die Vorlagen ihres Spiels.",
     "noGameTitle": "Diese Sammlung hat kein Spiel",
     "noGameDescription": "Wähle im Web ein Spiel für die Sammlung, um Sortierregeln einzurichten.",
-    "presets": "Preset",
-    "choosePreset": "Preset wählen",
-    "noPresetsTitle": "Keine Presets für dieses Spiel",
-    "noPresetsDescription": "Erstelle ein Preset im Web und ziehe dann zum Aktualisieren nach unten.",
-    "activateFailed": "Preset konnte nicht gewechselt werden",
+    "presets": "Vorlage",
+    "choosePreset": "Vorlage wählen",
+    "noPresetsTitle": "Keine Vorlagen für dieses Spiel",
+    "noPresetsDescription": "Erstelle eine Vorlage im Web und ziehe dann zum Aktualisieren nach unten.",
+    "activateFailed": "Vorlage konnte nicht gewechselt werden",
     "binsWithRules_one": "{{count}} Fach mit Regeln",
     "binsWithRules_other": "{{count}} Fächer mit Regeln",
-    "bins": "Bins",
+    "bins": "Fächer",
     "bin": "Fach {{number}}",
     "catchAll": "Auffangfach",
     "disabled": "Deaktiviert",
@@ -1110,10 +1132,10 @@
     "overflowTargetNotice_one": "Dieses Fach ist der Überlauf für Fach {{bins}}. Karten landen hier, wenn dieses Fach voll ist, daher kann es keine eigenen Regeln haben.",
     "overflowTargetNotice_other": "Dieses Fach ist der Überlauf für die Fächer {{bins}}. Karten landen hier, wenn diese Fächer voll sind, daher kann es keine eigenen Regeln haben.",
     "pickListNotice": "Dieses Fach nutzt eine Pickliste. Bearbeite sie im Web.",
-    "noActiveTitle": "Kein aktives Preset",
-    "noActiveDescription": "Aktiviere oben ein Preset, um seine Fächer zu bearbeiten.",
+    "noActiveTitle": "Keine aktive Vorlage",
+    "noActiveDescription": "Aktiviere oben eine Vorlage, um ihre Fächer zu bearbeiten.",
     "saveFailed": "Dieses Fach konnte nicht gespeichert werden",
-    "loadFailed": "Deine Presets konnten nicht geladen werden",
+    "loadFailed": "Deine Vorlagen konnten nicht geladen werden",
     "matchPrefix": "Treffer",
     "matchSuffix": "davon",
     "combinatorAll": "alle",
@@ -1156,17 +1178,17 @@
       "matchedBinDescription": "Karten, die erkannt wurden",
       "unmatchedBin": "Nicht erkannte Karten",
       "unmatchedBinDescription": "Karten, die nicht zugeordnet werden konnten",
-      "autoAssignField": "Behälter zuweisen nach",
-      "reset": "Gelernte Behälter zurücksetzen",
-      "resetHint": "Löscht den gelernten Wert jedes Behälters, damit neue Scans sie neu füllen",
-      "resetTitle": "Automatisch erkannte Behälter zurücksetzen?",
-      "resetDescription": "Löscht den gelernten Wert jedes Behälters in diesem Preset. Neue Scans füllen sie von vorn.",
-      "resetFailed": "Die gelernten Behälter konnten nicht zurückgesetzt werden",
-      "chaosBinSize": "Karten pro Behälter",
-      "chaosBinSizeDescription": "Wechselt nach so vielen Karten zum nächsten Behälter. Leer lassen, um jeden Behälter bis zu seiner Größe zu füllen.",
-      "chaosBinSizePlaceholder": "Behältergröße",
+      "autoAssignField": "Fächer zuweisen nach",
+      "reset": "Gelernte Fächer zurücksetzen",
+      "resetHint": "Löscht den gelernten Wert jedes Fachs, damit neue Scans sie neu füllen",
+      "resetTitle": "Automatisch erkannte Fächer zurücksetzen?",
+      "resetDescription": "Löscht den gelernten Wert jedes Fachs in dieser Vorlage. Neue Scans füllen sie von vorn.",
+      "resetFailed": "Die gelernten Fächer konnten nicht zurückgesetzt werden",
+      "chaosBinSize": "Karten pro Fach",
+      "chaosBinSizeDescription": "Wechselt nach so vielen Karten zum nächsten Fach. Leer lassen, um jedes Fach bis zu seiner Größe zu füllen.",
+      "chaosBinSizePlaceholder": "Fachgröße",
       "repackSaveFirst": "Speichere, um zu Repacks zu wechseln, und richte dann die Pack-Plätze ein.",
-      "alphabetHint": "Nach dem Speichern zeigt der Regeln-Tab, welche Buchstaben jeder Behälter bekommt, und du kannst zum nächsten Durchgang wechseln.",
+      "alphabetHint": "Nach dem Speichern zeigt der Regeln-Tab, welche Buchstaben jedes Fach bekommt, und du kannst zum nächsten Durchgang wechseln.",
       "skipSaving": "Karten nicht speichern",
       "skipSavingDescription": "Karten werden wie gewohnt erkannt und sortiert, aber nichts wird zur Sammlung hinzugefügt. Scans zählen weiterhin zu deinem Tageslimit.",
       "resort": "Gespeicherte Karten neu sortieren",
@@ -1178,31 +1200,31 @@
     "modes": {
       "rules": {
         "title": "Sortierregeln",
-        "description": "Jeder Behälter nimmt die Karten, die seinen Regeln entsprechen"
+        "description": "Jedes Fach nimmt die Karten, die seinen Regeln entsprechen"
       },
       "scan-only": {
-        "title": "Nur scannen",
-        "description": "Regeln überspringen: Erkannte Karten kommen in einen Behälter, nicht erkannte in einen anderen"
+        "title": "Nur Scannen",
+        "description": "Regeln überspringen: Erkannte Karten kommen in ein Fach, nicht erkannte in ein anderes"
       },
       "auto-assign": {
-        "title": "Automatisch sortieren",
-        "description": "Jeder neue Wert eines Feldes belegt beim Scannen den nächsten freien Behälter"
+        "title": "Automatische Erkennung",
+        "description": "Jeder neue Wert eines Feldes belegt beim Scannen das nächste freie Fach"
       },
       "game-sort": {
         "title": "Nach Spiel sortieren",
         "description": "Jedes Spiel bekommt ein eigenes Fach. Die Karten werden sortiert, aber nicht gespeichert."
       },
       "repack": {
-        "title": "Repacks bauen",
-        "description": "Jeder Behälter baut aus den festgelegten Plätzen sein eigenes Pack. Was nicht passt, kommt in den Sammelbehälter."
+        "title": "Repacks erstellen",
+        "description": "Jedes Fach baut aus den festgelegten Plätzen sein eigenes Pack. Was nicht passt, kommt ins Auffangfach."
       },
       "alphabet": {
         "title": "Alphabetisch sortieren",
-        "description": "Ein Buchstabe pro Behälter, in Durchgängen, mit feinerer Sortierung für große Stapel"
+        "description": "Ein Buchstabe pro Fach, in Durchgängen, mit feinerer Sortierung für große Stapel"
       },
       "chaos": {
         "title": "Chaos-Sortierung",
-        "description": "Regeln ignorieren und die Behälter nacheinander füllen"
+        "description": "Regeln ignorieren und die Fächer nacheinander füllen"
       }
     },
     "repack": {
@@ -1217,9 +1239,9 @@
       "uniqueByName": "Keine doppelten Namen",
       "uniqueByField": "Keine doppelten {{field}}",
       "siftLabel": "Karten aussieben",
-      "siftDescription": "Karten, die diesen Regeln entsprechen, kommen in den ersten Behälter statt in ein Pack",
-      "siftHint": "Karten, die diesen Regeln entsprechen, kommen in Behälter {{bin}}. Alle anderen Behälter bauen Packs aus dem Rest.",
-      "siftNoBin": "Zum Aussieben braucht es mindestens einen aktiven Behälter neben dem Sammelbehälter.",
+      "siftDescription": "Karten, die diesen Regeln entsprechen, kommen in das erste Fach statt in ein Pack",
+      "siftHint": "Karten, die diesen Regeln entsprechen, kommen in Fach {{bin}}. Alle anderen Fächer bauen Packs aus dem Rest.",
+      "siftNoBin": "Zum Aussieben braucht es mindestens ein aktives Fach neben dem Auffangfach.",
       "slotsLabel": "Plätze",
       "slotCountLabel": "Anzahl",
       "removeSlot": "Platz entfernen",
@@ -1258,14 +1280,14 @@
       "lastStage": "Letzte Stufe"
     },
     "alphabet": {
-      "needBins": "Die alphabetische Sortierung braucht mindestens einen Behälter neben dem Sammelbehälter.",
+      "needBins": "Die alphabetische Sortierung braucht mindestens ein Fach neben dem Auffangfach.",
       "passHeading": "Durchgang {{current}} von {{total}}",
-      "passRange": "Sortiert Namen von {{from}} bis {{to}}. Alles andere kommt in den Sammelbehälter.",
-      "prefixRange": "Sortiert den Stapel {{prefix}} nach dem nächsten Buchstaben: {{from}} bis {{to}}. Alles andere kommt in den Sammelbehälter.",
+      "passRange": "Sortiert Namen von {{from}} bis {{to}}. Alles andere kommt ins Auffangfach.",
+      "prefixRange": "Sortiert den Stapel {{prefix}} nach dem nächsten Buchstaben: {{from}} bis {{to}}. Alles andere kommt ins Auffangfach.",
       "unusedBin": "Nicht verwendet",
-      "nextPassHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Behälter, lege die Karten aus dem Sammelbehälter zurück in den Zuführer und wechsle zu den nächsten Buchstaben.",
-      "lastPassHint": "Das ist der letzte Durchgang. Was danach im Sammelbehälter bleibt, hat einen Namen, der nicht mit einem Buchstaben beginnt.",
-      "nextPileHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Behälter und halte jeden Stapel in Reihenfolge. Als Nächstes: der Stapel {{prefix}}.",
+      "nextPassHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Fach, lege die Karten aus dem Auffangfach zurück in den Zuführer und wechsle zu den nächsten Buchstaben.",
+      "lastPassHint": "Das ist der letzte Durchgang. Was danach im Auffangfach bleibt, hat einen Namen, der nicht mit einem Buchstaben beginnt.",
+      "nextPileHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Fach und halte jeden Stapel in Reihenfolge. Als Nächstes: der Stapel {{prefix}}.",
       "pileDoneHint": "Das ist der letzte Durchgang für den Stapel {{prefix}}. Fange von vorn an, um zum ganzen Alphabet zurückzukehren.",
       "previous": "Zurück",
       "next": "Nächste Buchstaben",
@@ -1274,10 +1296,10 @@
       "sortDeeperItem": "Stapel {{label}} nach nächstem Buchstaben",
       "upLevel": "Eine Ebene höher",
       "confirmTitle": "Zu neuen Buchstaben wechseln?",
-      "confirmDescription": "Stelle sicher, dass jeder Behälter leer ist und die Karten aus dem Sammelbehälter wieder im Zuführer liegen. Alle Behälter werden als geleert markiert.",
+      "confirmDescription": "Stelle sicher, dass jedes Fach leer ist und die Karten aus dem Auffangfach wieder im Zuführer liegen. Alle Fächer werden als geleert markiert.",
       "confirmPileTitle": "Stapel {{prefix}} starten?",
-      "confirmPileDescription": "Leere jeden Behälter und halte jeden Stapel in Reihenfolge. Lege dann den Stapel {{prefix}} in den Zuführer. Alle Behälter werden als geleert markiert.",
-      "confirm": "Behälter sind leer"
+      "confirmPileDescription": "Leere jedes Fach und halte jeden Stapel in Reihenfolge. Lege dann den Stapel {{prefix}} in den Zuführer. Alle Fächer werden als geleert markiert.",
+      "confirm": "Fächer sind leer"
     },
     "binSummary": {
       "alphabetLetter": "Namen mit {{letter}}",
@@ -1291,9 +1313,9 @@
     "autoAssignLocked": "Die automatische Erkennung legt diese Regeln für dich fest. Ändere den Sortiermodus, um sie zu bearbeiten.",
     "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die im Sortiermodus gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren.",
     "description": {
-      "title": "Preset-Notizen",
+      "title": "Notizen zur Vorlage",
       "label": "Beschreibung",
-      "placeholder": "Notizen zu diesem Preset, was es sortiert, wann man es nutzt...",
+      "placeholder": "Notizen zu dieser Vorlage, was sie sortiert, wann man sie nutzt...",
       "add": "Beschreibung hinzufügen",
       "edit": "Bearbeiten",
       "save": "Speichern",
@@ -1316,7 +1338,7 @@
     "msValue": "{{value}} ms",
     "continuous": "Dauerbetrieb",
     "servos": {
-      "bottom": "Unteres Paddel",
+      "bottom": "Bodenklappe",
       "paddle": "Paddel",
       "pusher": "Schieber"
     },
@@ -1432,7 +1454,7 @@
       "value_other": "{{count}} Module",
       "description": "Wie viele physische Sortiermodule verbaut sind. Ändert die Anzahl der verfügbaren Fächer sowie die Abschnitte unten.",
       "reduceTitle": "Modulanzahl verringern?",
-      "reduceDescription": "Eine Reduzierung auf {{count}} Module entfernt die Sortierregeln und Kalibrierungsdaten für Module und Fächer über dieser Anzahl, in allen Fach-Voreinstellungen.",
+      "reduceDescription": "Eine Reduzierung auf {{count}} Module entfernt die Sortierregeln und Kalibrierungsdaten für Module und Fächer über dieser Anzahl, in allen Vorlagen.",
       "reduceConfirm": "Modulanzahl ändern",
       "detect": {
         "button": "Erkennen",
@@ -1640,6 +1662,7 @@
   "settings": {
     "title": "Einstellungen",
     "subtitle": "Organisationsweite Einstellungen für jeden Scanner",
+    "loadFailed": "Diese Einstellungen konnten nicht geladen werden",
     "entrySubtitle": "Preise, Scannen, Branding und Integrationen",
     "sections": {
       "general": {
@@ -1721,7 +1744,7 @@
     "ocr": {
       "heading": "Texterkennung (OCR)",
       "description": "Wenn ein Scan nicht sicher erkannt wird, werden Kartenname und Set-Zeile gelesen, um die Karte zu finden. Gilt für alle Scanner dieser Organisation, bei Spielen mit eingerichteten Textbereichen.",
-      "toggleLabel": "OCR-Texterkennung aktivieren",
+      "toggleLabel": "Texterkennung aktivieren",
       "highAccuracyToggleLabel": "Genauere Scans",
       "highAccuracyDescription": "Liest den Text auf jeder Karte, nicht nur bei unsicheren Treffern, damit Set und Nummer einen sicheren, aber falschen Treffer korrigieren können. Scans dauern etwas länger."
     },
@@ -2243,6 +2266,7 @@
   "health": {
     "title": "Systemstatus",
     "subtitle": "Live-Status der Datenbank.",
+    "loadFailed": "Der Systemstatus konnte nicht geladen werden",
     "refresh": "Aktualisieren",
     "allHealthy": "Alles funktioniert einwandfrei.",
     "someUnhealthy": "Einige Dienste haben Probleme.",
@@ -2377,7 +2401,8 @@
     "orderBinCatchAll": "Das letzte Fach nimmt alle übrigen Karten auf, wähle ein anderes.",
     "catalogSourcesRequired": "Wähle mindestens eine Sammlung oder einen Lagerort.",
     "contactRequired": "Gib an, wie man dich erreicht.",
-    "textTooLong": "Bleib unter {{max}} Zeichen."
+    "textTooLong": "Bleib unter {{max}} Zeichen.",
+    "jsonObjectInvalid": "Gib ein einzelnes JSON-Objekt ein, etwa {\"neutral\": true}."
   },
   "cardTags": {
     "title": "Markierungen",
@@ -2634,8 +2659,8 @@
       "unlimited": "Unbegrenzt",
       "features": {
         "chaosSort": {
-          "label": "Chaotisches Sortieren",
-          "description": "Fächer der Reihe nach füllen, ohne Regeln. Ausschalten verhindert nur, dass weitere Presets es einschalten."
+          "label": "Chaos-Sortierung",
+          "description": "Fächer der Reihe nach füllen, ohne Regeln. Ausschalten verhindert nur, dass weitere Vorlagen es einschalten."
         },
         "storage": {
           "label": "Lagerorte",
@@ -2651,7 +2676,7 @@
         },
         "repacks": {
           "label": "Repacks",
-          "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Presets es einschalten. Presets, die schon im Repack-Modus sind, funktionieren weiter."
+          "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Vorlagen es einschalten. Vorlagen, die schon Repacks erstellen, funktionieren weiter."
         },
         "customSounds": {
           "label": "Eigene Sounds",
@@ -3424,6 +3449,12 @@
       "catalog": "Alle Karten"
     },
     "catalogLoadFailed": "Der Kartenkatalog konnte nicht durchsucht werden. Zum Aktualisieren nach unten ziehen.",
+    "showMoreCards": "Mehr deiner Karten anzeigen",
+    "gameFilterLabel": "Suchen in",
+    "allGames": "Alle Spiele",
+    "showMoreCatalogCards": "Mehr Karten anzeigen",
+    "loadingMore": "Weitere Ergebnisse werden geladen",
+    "loadMoreFailed": "Weitere Ergebnisse konnten nicht geladen werden. Versuche es erneut.",
     "printings": {
       "title": "Drucke",
       "titleWithCount_one": "Drucke ({{count}})",
@@ -3435,7 +3466,14 @@
       "showMore": "Weitere Drucke anzeigen"
     }
   },
+  "offline": {
+    "title": "Du bist offline",
+    "description": "Scans werden gespeichert, sobald du wieder online bist. Andere Änderungen brauchen eine Verbindung.",
+    "backOnline": "Wieder online"
+  },
   "recovery": {
+    "loadFailed": "Das konnte nicht geladen werden",
+    "loadFailedDescription": "Prüfe deine Verbindung und versuche es erneut.",
     "undo": "Rückgängig",
     "retry": "Erneut versuchen",
     "restored": "Wiederhergestellt",

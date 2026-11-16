@@ -14,7 +14,6 @@ import {
   MOBILE_SCAN_CHIP_CLASS,
   SESSION_TIMER_RUNNING_STATUSES,
 } from "@/lib/constants/scanner";
-import { MOBILE_SORTER_PATH } from "@/lib/constants/nav";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { MobileScanChromeProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
@@ -169,25 +168,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
         />
       );
     }
-    if (!chrome.isConnected && !chrome.handScan && sessionScanCount === 0) {
-      return (
-        <MobileScanNotice
-          title={t("mobileScan.noSorterTitle")}
-          description={t("mobileScan.noSorterDescription")}
-          action={
-            chrome.bluetoothSupported ? (
-              <Button onClick={chrome.onConnectBluetooth}>
-                {t("mobileScan.connect")}
-              </Button>
-            ) : (
-              <Button render={<Link to={MOBILE_SORTER_PATH} />}>
-                {t("mobileScan.connect")}
-              </Button>
-            )
-          }
-        />
-      );
-    }
     return null;
   })();
 
@@ -265,7 +245,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           <div role="status" aria-live="polite">
             {notice}
           </div>
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center justify-end gap-1.5">
             {chrome.isConnected && !chrome.isEmergencyStopped && (
               <Button
                 variant="destructive"

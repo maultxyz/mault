@@ -1,6 +1,7 @@
 import type { CardViewMode, CollectionScanTimeline } from "@/lib/interfaces/collections";
 export const SEARCH_DEBOUNCE_MS = 300;
-export const LIST_END_THRESHOLD = 0.5;
+export const LIST_END_THRESHOLD = 1.5;
+export const CARD_GRID_LIST_WINDOW_SIZE = 11;
 export const CARD_GRID_COLUMNS = 3;
 export const CARD_ASPECT_RATIO = 2.5 / 3.5;
 export const CARD_GRID_GAP_X = 12;

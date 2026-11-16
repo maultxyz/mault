@@ -1,3 +1,4 @@
+import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-reporting";
@@ -35,7 +36,7 @@ export default function ErrorPage() {
     >
       <IconBug className="size-16 text-foreground/70" />
       <div className="flex flex-col gap-1">
-        <h1 className="font-heading text-lg font-semibold">
+        <h1 className={PAGE_TITLE_CLASS}>
           {t("errorPage.title")}
         </h1>
         <p className="text-xs text-foreground/70">
@@ -48,7 +49,7 @@ export default function ErrorPage() {
         )}
       </div>
       {detail && (
-        <pre className="max-w-lg overflow-auto rounded-lg border bg-muted p-3 text-left text-2xs text-foreground/70">
+        <pre className="max-w-lg overflow-auto rounded-lg bg-foreground/6 p-3 text-left text-2xs text-foreground/70">
           {detail}
         </pre>
       )}

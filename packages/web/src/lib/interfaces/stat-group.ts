@@ -1,9 +1,10 @@
 import type { Icon } from "@tabler/icons-react";
+import type { ReactNode } from "react";
 
 export interface StatGroupTile {
   key: string;
   label: string;
-  value: string | number | null | undefined;
+  value: ReactNode;
   detail?: string | null;
   icon?: Icon;
   onClick?: () => void;
@@ -22,6 +23,6 @@ export interface StatGroupProps {
 
 export interface StatCellProps {
   label: string;
-  value: string;
+  value: ReactNode;
   className?: string;
 }

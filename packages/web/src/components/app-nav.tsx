@@ -1,3 +1,4 @@
+import { GITHUB_STAR_PILL_CLASS } from "@/lib/constants/ui";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -68,6 +69,7 @@ import { HotkeyHint } from "@/components/hotkey-hint";
 import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
 import { SEARCH_PATH } from "@/lib/constants/search";
+import { formatCompactNumber } from "@magic-vault/shared";
 
 function CollapsedNavItem({
   icon,
@@ -349,9 +351,7 @@ export function AppNav() {
   const { data: githubStars } = useQuery(githubStarsQueryOptions(true));
   const formattedStars =
     githubStars != null
-      ? new Intl.NumberFormat(i18n.language, { notation: "compact" }).format(
-          githubStars,
-        )
+      ? formatCompactNumber(githubStars, i18n.language)
       : null;
   const githubLabel =
     githubStars != null
@@ -553,8 +553,8 @@ export function AppNav() {
           <>
             <span className="truncate">{t("nav.github")}</span>
             {githubStars != null && (
-              <span className="ml-auto inline-flex items-center gap-0.5 rounded-full border bg-muted px-1.5 text-2xs text-foreground/80">
-                <IconStarFilled className="size-3 text-warning" />
+              <span className={cn(GITHUB_STAR_PILL_CLASS, "ml-auto")}>
+                <IconStarFilled className="size-3 text-warning-foreground" />
                 {formattedStars}
               </span>
             )}

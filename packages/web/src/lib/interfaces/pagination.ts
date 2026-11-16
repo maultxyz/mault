@@ -23,6 +23,7 @@ export interface ListPaginationProps {
   alignsEnd?: boolean;
   pageSize?: number;
   onPageSizeChange?: (pageSize: number) => void;
+  onPageIntent?: (page: number) => void;
   className?: string;
 }
 
@@ -37,4 +38,6 @@ export interface ServerPagedList<T> {
   items: T[];
   pagination: ClientPagination<T>;
   isLoading: boolean;
+  isError: boolean;
+  refetch: () => void;
 }

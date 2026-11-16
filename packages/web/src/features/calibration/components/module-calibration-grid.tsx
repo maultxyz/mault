@@ -1,3 +1,4 @@
+import { getCalibrationKey } from "@magic-vault/shared";
 import { FirmwareFeatureGate } from "@/components/firmware-feature-gate";
 import { SliderField } from "@/components/slider-field";
 import { Callout } from "@/components/callout";
@@ -11,7 +12,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getCalibrationKey } from "@/features/calibration/lib/calibration-utils";
 import { cn } from "@/lib/utils";
 import {
   MODULE_DELAY_FIELDS,
@@ -161,14 +161,20 @@ export function ServoControl({
                 })
               : t("moduleCalibrationGrid.noPositionSelected")}
           </span>
-          <Tooltip>
-            <TooltipTrigger
-              render={<span className="text-sm font-bold">{percent}%</span>}
-            />
-            <TooltipContent>
-              {t("moduleCalibrationGrid.percentSliderTooltip")}
-            </TooltipContent>
-          </Tooltip>
+          <span className="flex items-center gap-1.5">
+            <span className="text-sm font-bold">{percent}%</span>
+            <Tooltip>
+              <TooltipTrigger
+                aria-label={t("moduleCalibrationGrid.percentSliderTooltip")}
+                className="rounded-sm text-foreground/70 hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <IconInfoCircle className="size-3.5" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                {t("moduleCalibrationGrid.percentSliderTooltip")}
+              </TooltipContent>
+            </Tooltip>
+          </span>
         </div>
         <Slider
           aria-labelledby={`${servoLabelId} ${editingPositionId}`}

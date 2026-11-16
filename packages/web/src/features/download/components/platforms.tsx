@@ -39,7 +39,7 @@ export function DownloadPlatforms() {
                 <div className="flex items-center justify-between gap-2">
                   <download.icon aria-hidden className="size-5 text-primary" />
                   {isDetected && (
-                    <span className="font-heading text-2xs font-medium tracking-widest text-primary uppercase">
+                    <span className="font-heading text-sm font-medium tracking-widest text-primary uppercase">
                       {t("platforms.yourSystem")}
                     </span>
                   )}

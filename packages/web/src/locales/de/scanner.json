@@ -289,7 +289,7 @@
     },
     "deviceCleared": {
       "title": "Gerät geleert",
-      "description": "Alle unteren Klappen wurden geöffnet, um festsitzende Karten zu lösen."
+      "description": "Alle Bodenklappen wurden geöffnet, um festsitzende Karten zu lösen."
     },
     "lastSearchImageAlt": "Letztes Suchbild",
     "pausedTabHidden": {
@@ -335,7 +335,7 @@
     "startTooltip": "Die erste Karte zuführen und den Scan starten",
     "autoFeedOnTooltip": "Auto-Zuführung an, die nächste Karte wird nach jedem Scan automatisch zugeführt",
     "autoFeedOffTooltip": "Auto-Zuführung aus, jede Karte manuell zuführen",
-    "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
+    "clearDeviceTooltip": "Gerät leeren (öffnet alle Bodenklappen)",
     "retractCardTooltip": "Karte zurückziehen (Zuführung läuft rückwärts)",
     "stopPiScan": "Sortierung stoppen und den Sorter freigeben",
     "resetToNeutralTooltip": "Grundstellung (schließt alle Klappen und Paddel, zentriert die Schieber)",
@@ -607,8 +607,8 @@
   "usePhoneAsCamera": "Telefon als Kamera verwenden",
   "requestingCameraAccess": "Kamerazugriff wird angefordert…",
   "cameraConnecting": "Verbindung zur Kamera wird hergestellt…",
-  "cardCount_one": "{{count}} Karte",
-  "cardCount_other": "{{count}} Karten",
+  "cardCount_one": "{{count, compact}} Karte",
+  "cardCount_other": "{{count, compact}} Karten",
   "isScanningTooltip": "{{name}} scannt gerade",
   "cameraAccessError": "Kamera konnte nicht aufgerufen werden. Bitte überprüfe dein Gerät.",
   "staleDeviceDialog": {
@@ -691,8 +691,8 @@
       "pauseAll": "Alle pausieren",
       "resumeAll": "Alle fortsetzen",
       "resumeSelected": "Fortsetzen ({{count}})",
-      "sessionCount_one": "{{count}} in dieser Sitzung",
-      "sessionCount_other": "{{count}} in dieser Sitzung"
+      "sessionCount_one": "{{count, compact}} in dieser Sitzung",
+      "sessionCount_other": "{{count, compact}} in dieser Sitzung"
     },
     "cpuInferenceLimitReached": {
       "title": "WASM betreibt jeweils einen Sortierer",
@@ -758,14 +758,11 @@
     "reload": "Neu laden"
   },
   "mobileMonitor": {
-    "tabCards": "Karten",
-    "tabActivity": "Aktivität",
     "cards": "Karten",
     "searchPlaceholder": "Karten suchen",
     "needsReview": "Zu prüfen",
     "back": "Zurück zu den Sitzungen",
     "bin": "Fach {{number}}",
-    "noActivity": "Noch nichts gescannt. Scans erscheinen hier, sobald sie passieren.",
     "status": {
       "connected": "Live",
       "connecting": "Verbinde…",
@@ -878,7 +875,7 @@
     "handScanBins": "In Fächer sortieren",
     "handScanBinsDescription": "Zeigt mit deiner Vorlage, in welches Fach jede Karte gehört. Aus lassen, um Karten nur in der Sammlung zu speichern.",
     "camera": "Kamera",
-    "preset": "Regel-Vorlage",
+    "preset": "Regelvorlage",
     "choosePreset": "Vorlage wählen",
     "chooseCamera": "Kamera wählen",
     "cameraFallback": "Kamera {{number}}",
@@ -901,9 +898,6 @@
     "cameraOffDescription": "Erlaube den Kamerazugriff, um zu scannen.",
     "startCamera": "Kamera starten",
     "retry": "Erneut",
-    "noSorterTitle": "Kein Sortierer verbunden",
-    "noSorterDescription": "Verbinde deinen Sortierer, oder tippe auf den Auslöser, um eine Karte zu scannen.",
-    "connect": "Verbinden",
     "bin": "Fach {{number}}",
     "pause": "Scannen pausieren",
     "start": "Scannen starten",
@@ -948,7 +942,6 @@
     },
     "connectHint": "Schalte den Sortierer ein und verbinde dich.",
     "connectBluetooth": "Über Bluetooth verbinden",
-    "connectUsb": "Über USB verbinden",
     "connectPi": "Sortierer an diesem Pi verbinden",
     "unsupported": "Dieser Browser kann sich nicht direkt mit einem Sortierer verbinden. Verbinde dich unten über WLAN oder nutze Chrome auf Android.",
     "actions": "Aktionen",
@@ -1057,7 +1050,6 @@
   },
   "controlCards": {
     "openPage": "Steuerkarten drucken",
-    "openPageDescription": "QR-Karten, die Scan-Einstellungen ändern, wenn der Sortierer sie liest",
     "applied": "Steuerkarte angewendet",
     "rejected": {
       "title": "Steuerkarte nicht angewendet"
@@ -1242,7 +1234,14 @@
       "scanning": "Glas wird gescannt...",
       "scanAgain": "Erneut scannen",
       "dragHint": "Ziehe einen Rahmen um die Karte, falls der erkannte Rahmen nicht passt.",
-      "boxTooSmall": "Der Rahmen ist zu klein für eine Karte. Ziehe einen größeren Rahmen um sie.",
+      "boxTooSmall": "Der Rahmen ist zu klein für eine Karte. Ziehe einen größeren Rahmen um sie oder gib eine größere Größe ein.",
+      "fields": {
+        "leftMm": "Links (mm)",
+        "topMm": "Oben (mm)",
+        "widthMm": "Breite (mm)",
+        "heightMm": "Höhe (mm)"
+      },
+      "fieldsHint": "Du kannst Position und Größe des Rahmens auch eintippen, gemessen von der oberen linken Ecke des Glases.",
       "save": "Position speichern",
       "cancel": "Abbrechen",
       "previewAlt": "Scan des gesamten Flachbettglases",

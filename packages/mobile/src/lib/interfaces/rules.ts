@@ -65,6 +65,9 @@ export interface ActivePresetWorkflowState {
   label: string;
   presetName: (presetGuid: string) => string;
   isPending: boolean;
+  isError: boolean;
+  isRefetching: boolean;
+  refetch: () => Promise<unknown>;
 }
 
 export interface AlphabetPassCardProps {

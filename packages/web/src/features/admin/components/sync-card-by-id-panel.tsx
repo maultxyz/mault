@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { listSyncSources, syncCardById } from "@/lib/api/admin";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

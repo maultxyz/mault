@@ -5,6 +5,8 @@ import {
   type PlayingCardWithDistance,
   pickBetterOrientation,
   resolveScanBin,
+  resolveCorrectedScanBin,
+  releasedPickListNameAfterCorrection,
   needsTextSearch,
   type BinConfig,
   type BinSet,
@@ -157,4 +159,51 @@ test("unmapped bins fall through the final module's bottom paddle", () => {
     module: 1,
     direction: "bottom",
   });
+});
+
+test("a corrected card goes to its pick list bin and releases the old entry", () => {
+  const pickList = (name: string) => ({
+    mode: "until_found" as const,
+    entries: [{ name, quantity: 1, found: 0 }],
+  });
+  const bins = [
+    bin(1, { pickList: pickList("Shock") }),
+    bin(2, { pickList: pickList("Bolt") }),
+    bin(3, { isCatchAll: true }),
+  ];
+  const ctx = context(bins);
+  const moved = resolveCorrectedScanBin({ name: "Bolt" }, 1, ctx);
+  assert.equal(moved.bin?.binNumber, 2);
+  assert.equal(moved.pickListName, "Bolt");
+  assert.equal(moved.autoAssignTarget, null);
+  assert.equal(releasedPickListNameAfterCorrection("Shock", 1, moved, bins), "Shock");
+
+  const stays = resolveCorrectedScanBin({ name: "Bolt" }, 2, ctx);
+  assert.equal(stays.bin?.binNumber, 2);
+  assert.equal(stays.pickListName, undefined);
+  assert.equal(releasedPickListNameAfterCorrection("Bolt", 2, stays, bins), undefined);
+});
+
+test("a corrected card stays in its chaos bin unless that bin is the catch-all", () => {
+  const bins = [bin(1), bin(2), bin(3, { isCatchAll: true })];
+  const ctx = context(bins, { isChaosMode: true });
+  assert.equal(resolveCorrectedScanBin({ name: "Card" }, 2, ctx).bin?.binNumber, 2);
+  assert.equal(resolveCorrectedScanBin({ name: "Card" }, 3, ctx).bin?.binNumber, 1);
+});
+
+test("a corrected card with a new auto-assign value claims the next open bin", () => {
+  const bins = [bin(1), bin(2), bin(3, { isCatchAll: true })];
+  const fieldDefinitions = [{ field: "name", label: "Name", type: "string" as const, path: "name", operators: [] }];
+  const ctx = { ...context(bins, { autoAssignField: "name" }), fieldDefinitions };
+  const target = resolveCorrectedScanBin({ name: "Bolt" }, 3, ctx);
+  assert.equal(target.autoAssignTarget?.binNumber, 1);
+  assert.equal(target.bin?.binNumber, 1);
+  assert.equal(target.bin?.rules.conditions.length, 1);
+  assert.equal(
+    resolveCorrectedScanBin({ name: "Bolt" }, 3, {
+      ...context(bins, { autoAssignField: "name", isRepackMode: true }),
+      fieldDefinitions,
+    }).autoAssignTarget,
+    null,
+  );
 });

@@ -1,6 +1,6 @@
+import { CompactPrice } from "@/components/compact-value";
 import { Button } from "@/components/ui/button";
 import { StorageLocationActionsMenu } from "@/features/storage/components/storage-location-actions-menu";
-import { usePriceSource } from "@/hooks/use-price-source";
 import type { StorageLocationRowProps } from "@/lib/interfaces/storage";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -12,7 +12,6 @@ export function StorageLocationRow({
   actions,
 }: StorageLocationRowProps) {
   const { t } = useTranslation("storage");
-  const { format } = usePriceSource();
 
   return (
     <div className="relative">
@@ -30,7 +29,7 @@ export function StorageLocationRow({
         </p>
         <div className="flex w-full items-center justify-between gap-2 text-xs tabular-nums text-foreground/70">
           <span>{t("page.cardCount", { count: location.cardCount })}</span>
-          <span>{format(location.totalValue)}</span>
+          <CompactPrice value={location.totalValue} />
         </div>
       </Button>
       {actions && (

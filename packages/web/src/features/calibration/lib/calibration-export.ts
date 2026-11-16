@@ -1,3 +1,4 @@
+import { downloadBlob } from "@/lib/download";
 import {
   calibrationExportSchema,
   type CalibrationExport,
@@ -40,12 +41,8 @@ export function downloadCalibrationExport(data: CalibrationExport): void {
   const blob = new Blob([JSON.stringify(data, null, 2)], {
     type: "application/json",
   });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `magic-vault-calibration-${new Date().toISOString().slice(0, 10)}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  downloadBlob(
+    blob,
+    `magic-vault-calibration-${new Date().toISOString().slice(0, 10)}.json`,
+  );
 }

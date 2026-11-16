@@ -15,21 +15,34 @@ import {
   desc,
   eq,
   gte,
-  isNotNull,
+  inArray,
   sql,
 } from "drizzle-orm";
-import type { Transaction } from "../db";
+import { authQuery, type Transaction } from "../db";
 import { cardPrices, collectionCards, collections, games } from "../db/schema";
 import {
   collectionCardPriceRiseSql,
   collectionCardPriceSql,
   collectionCardPricesJoinOn,
 } from "./card-price-sql";
+import {
+  HOME_READ_CACHE_MAX_ENTRIES,
+  ORG_OVERVIEW_CACHE_TTL_MS,
+} from "./constants/home-read-caches";
 import { ONE_DAY_MS } from "./constants/timing";
 import { inventoryCardSql } from "./inventory-sql";
+import { createOrgReadCache } from "./org-read-cache";
 import { loadOrgPricing } from "./price-source";
-import type { OrgOverviewCardsQuery } from "./interfaces/org-overview";
+import type {
+  OrgOverviewCardsQuery,
+  OrgOverviewValuesRow,
+} from "./interfaces/org-overview";
 import { hydrateSavedCards } from "./saved-cards";
+
+const orgOverviewCache = createOrgReadCache<OrgOverview>(
+  ORG_OVERVIEW_CACHE_TTL_MS,
+  HOME_READ_CACHE_MAX_ENTRIES,
+);
 
 function utcDayKey(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -107,21 +120,47 @@ export async function loadOrgOverview(
     eq(collections.isDeleted, false),
   );
 
-  const valueRows = await tx
-    .select({
-      guid: collections.guid,
-      cardCount: count(collectionCards.id),
-      value: sql<number | null>`sum(${cardPrice})`,
-    })
-    .from(collections)
-    .leftJoin(
-      collectionCards,
-      and(eq(collectionCards.collectionId, collections.id), inventoryCardSql()),
+  const valuesResult = await tx.execute(sql`
+    WITH base AS MATERIALIZED (
+      SELECT
+        ${collectionCards.guid}::text AS scan_id,
+        ${collectionCards.collectionId} AS collection_id,
+        (${cardPrice})::float8 AS price
+      FROM ${collectionCards}
+      JOIN ${collections} ON ${collections.id} = ${collectionCards.collectionId}
+      LEFT JOIN ${games} ON ${games.id} = ${collections.gameId}
+      LEFT JOIN ${cardPrices} ON ${collectionCardPricesJoinOn()}
+      WHERE ${collectionCards.orgId} = ${orgId}
+        AND ${liveCollections}
+        AND ${inventoryCardSql()}
     )
-    .leftJoin(games, eq(games.id, collections.gameId))
-    .leftJoin(cardPrices, collectionCardPricesJoinOn())
-    .where(liveCollections)
-    .groupBy(collections.id, collections.guid);
+    SELECT
+      (
+        SELECT COALESCE(json_agg(json_build_object(
+          'guid', live.guid::text,
+          'cardCount', COALESCE(totals.card_count, 0),
+          'value', totals.value
+        )), '[]'::json)
+        FROM collections live
+        LEFT JOIN (
+          SELECT collection_id, count(*)::int AS card_count, sum(price)::float8 AS value
+          FROM base
+          GROUP BY collection_id
+        ) totals ON totals.collection_id = live.id
+        WHERE live.org_id = ${orgId} AND live.is_deleted = false
+      ) AS collection_values,
+      (
+        SELECT COALESCE(json_agg(top.scan_id ORDER BY top.price DESC), '[]'::json)
+        FROM (
+          SELECT scan_id, price FROM base
+          WHERE price IS NOT NULL AND scan_id IS NOT NULL
+          ORDER BY price DESC
+          LIMIT ${ORG_OVERVIEW_TOP_CARDS_LIMIT}
+        ) top
+      ) AS top_card_scan_ids
+  `);
+  const { collection_values: valueRows, top_card_scan_ids: topCardScanIds } =
+    valuesResult.rows[0] as unknown as OrgOverviewValuesRow;
   const cardCount = valueRows.reduce(
     (sum, row) => sum + Number(row.cardCount),
     0,
@@ -149,11 +188,14 @@ export async function loadOrgOverview(
     )
     .groupBy(dayKey);
 
-  const topCards = await loadOrgOverviewCards(tx, orgId, pricing, {
-    where: and(isNotNull(cardPrice), inventoryCardSql()),
-    orderBy: desc(cardPrice),
-    limit: ORG_OVERVIEW_TOP_CARDS_LIMIT,
-  });
+  const topCards =
+    topCardScanIds.length > 0
+      ? await loadOrgOverviewCards(tx, orgId, pricing, {
+          where: inArray(collectionCards.guid, topCardScanIds),
+          orderBy: desc(cardPrice),
+          limit: topCardScanIds.length,
+        })
+      : [];
   const recentCards = await loadOrgOverviewCards(tx, orgId, pricing, {
     orderBy: desc(collectionCards.createdAt),
     limit: ORG_OVERVIEW_RECENT_CARDS_LIMIT,
@@ -177,4 +219,13 @@ export async function loadOrgOverview(
     topCards,
     recentCards,
   };
+}
+
+export function loadCachedOrgOverview(
+  jwtClaims: string,
+  orgId: string,
+): Promise<OrgOverview> {
+  return orgOverviewCache.get(orgId, utcDayKey(new Date()), () =>
+    authQuery(jwtClaims, (tx) => loadOrgOverview(tx, orgId)),
+  );
 }

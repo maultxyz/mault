@@ -3,11 +3,9 @@ import { authQuery } from "../../db";
 import { touchDeviceLastSeen } from "../../lib/device-alerts";
 import { acquireDeviceLease, releaseDeviceLease } from "../../lib/device-leases";
 import { getDeviceByGuid } from "../../lib/devices";
-import {
-  getConnectedSorterLimit,
-  sorterLimitMessage,
-} from "../../lib/sorter-limit";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { sorterLimitMessage } from "../../lib/plan-limit-messages";
+import { orgConnectedSorterLimit } from "../../lib/plan-config";
 
 export const acquireDeviceLeaseRoute = new Hono<AppEnv>().post(
   "/:guid/lease",
@@ -21,7 +19,7 @@ export const acquireDeviceLeaseRoute = new Hono<AppEnv>().post(
       if (!device) return { found: false as const, limit: null };
       return {
         found: true as const,
-        limit: await getConnectedSorterLimit(tx, orgId),
+        limit: await orgConnectedSorterLimit(tx, orgId),
       };
     });
     if (!result.found) {

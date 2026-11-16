@@ -46,7 +46,7 @@ export function PhaseVideo({ video }: PhaseVideoProps) {
                   ? "outline-selected"
                   : "outline"
               }
-              className="text-sm"
+              size="marketing"
               aria-pressed={chapter.key === activeChapter?.key}
               onClick={() => {
                 setActiveChapter(chapter);

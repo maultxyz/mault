@@ -3,14 +3,12 @@ import { and, count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { notificationRules } from "../../db/schema";
-import {
-  getNotificationRuleLimit,
-  notificationRuleLimitMessage,
-} from "../../lib/notification-rule-limit";
 import { loadNotificationRules } from "../../lib/notification-rules";
 import { findGameId } from "../../lib/rule-groups";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { checkRuleTargets, notificationRuleInputSchema } from "./shared";
+import { orgPlanLimit } from "../../lib/plan-config";
+import { notificationRuleLimitMessage } from "../../lib/plan-limit-messages";
 
 export const addNotificationRuleRoute = new Hono<AppEnv>().post(
   "/discord/rules",
@@ -48,7 +46,7 @@ export const addNotificationRuleRoute = new Hono<AppEnv>().post(
             eq(notificationRules.isDeleted, false),
           ),
         );
-      const planLimit = await getNotificationRuleLimit(tx, orgId);
+      const planLimit = await orgPlanLimit(tx, orgId, "notificationRules");
       if (planLimit !== null && total >= planLimit) {
         return {
           success: false as const,

@@ -1,3 +1,4 @@
+import { PROGRESS_TRACK_CLASS } from "@/lib/constants/ui";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -36,22 +37,22 @@ function GuideTocList({ entries, onNavigate }: GuideTocListProps) {
               )}
             >
               {entry.number !== undefined && (
-                <span className="w-6 shrink-0 font-heading text-xs font-semibold text-primary tabular-nums">
+                <span className="w-6 shrink-0 font-heading text-sm font-semibold text-primary tabular-nums">
                   {String(entry.number).padStart(2, "0")}
                 </span>
               )}
               <span className="min-w-0 flex-1 truncate">{entry.label}</span>
               {hasProgress && (
                 <span className="flex shrink-0 items-center gap-2">
-                  <span className="font-heading text-xs text-foreground/70 tabular-nums">
+                  <span className="font-heading text-sm text-foreground/70 tabular-nums">
                     {entry.done}/{entry.total}
                   </span>
                   {complete ? (
                     <IconCircleCheckFilled className="size-4 text-success-foreground" />
                   ) : (
-                    <span className="h-1.5 w-12 overflow-hidden rounded-full bg-secondary sm:w-16">
+                    <span className={cn(PROGRESS_TRACK_CLASS, "h-1.5 w-12 sm:w-16")}>
                       <span
-                        className="block h-full rounded-full bg-primary dark:bg-foreground/80"
+                        className="block h-full rounded-full bg-primary"
                         style={{ width: `${pct}%` }}
                       />
                     </span>
@@ -90,7 +91,7 @@ export function GuideTableOfContents({ entries }: GuideTableOfContentsProps) {
         aria-label={t("guide.contents")}
         className="mt-8 max-w-2xl rounded-card bg-card p-1.5"
       >
-        <p className="mb-1 border-b px-2 pt-1 pb-2 font-heading text-2xs font-medium tracking-widest text-foreground/70 uppercase">
+        <p className="mb-1 border-b px-2 pt-1 pb-2 font-heading text-sm font-medium tracking-widest text-foreground/70 uppercase">
           {t("guide.contents")}
         </p>
         <GuideTocList entries={entries} />
@@ -100,7 +101,7 @@ export function GuideTableOfContents({ entries }: GuideTableOfContentsProps) {
           <Popover open={open} onOpenChange={setOpen}>
             <PopoverTrigger
               render={
-                <Button size="lg" className="shadow-lg">
+                <Button size="lg" className="shadow-popover">
                   <IconListDetails />
                   {t("guide.contents")}
                 </Button>

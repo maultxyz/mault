@@ -20,6 +20,7 @@ import { defaultValueFor, isConditionComplete, isMultiValue, needsValue, sortFie
 import { useTheme } from "@/hooks/use-theme";
 import { CONDITION_SHEET_MAX_HEIGHT_RATIO, NUMERIC_INPUT_PATTERN } from "@/lib/constants/rules";
 import { CONTROL_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { BUTTON_HEIGHTS, MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import type { ConditionSheetProps, ConditionSheetStep } from "@/lib/interfaces/rules";
 
 export function ConditionSheet({
@@ -214,18 +215,27 @@ export function ConditionSheet({
                 <AppText size="sm" tone="secondary" weight="medium">
                   {t("rules.operator")}
                 </AppText>
-                <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}>
+                <View
+                  accessibilityRole="radiogroup"
+                  accessibilityLabel={t("rules.operator")}
+                  style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm }}
+                >
                   {meta.operators.map((op) => {
                     const active = op.value === draft.operator;
                     return (
                       <Pressable
                         key={op.value}
                         accessibilityRole="radio"
-                        accessibilityState={{ selected: active }}
+                        accessibilityState={{ checked: active }}
+                        hitSlop={{
+                          top: (MIN_TOUCH_TARGET - BUTTON_HEIGHTS.sm) / 2,
+                          bottom: (MIN_TOUCH_TARGET - BUTTON_HEIGHTS.sm) / 2,
+                        }}
                         onPress={() => chooseOperator(op.value)}
                         style={({ pressed }) => ({
                           paddingHorizontal: SPACING.md + 2,
-                          height: 34,
+                          paddingVertical: SPACING.xs,
+                          minHeight: BUTTON_HEIGHTS.sm,
                           justifyContent: "center",
                           borderRadius: CONTROL_RADIUS,
                           borderWidth: 1,

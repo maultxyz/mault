@@ -37,7 +37,8 @@ packages/
 ├── bot/      @magic-vault/bot    - Discord bot (slash commands)
 ├── mobile/   @magic-vault/mobile - Expo native app
 ├── desktop/  @magic-vault/desktop - Electron desktop shell
-└── api-docs/ @magic-vault/api-docs - Scalar API documentation
+├── api-docs/ @magic-vault/api-docs - Scalar API documentation
+└── shortener/ @magic-vault/shortener - Optional link shortener
 firmware/      Firmware sketch + wire protocol (firmware/PROTOCOL.md)
 scripts/pi/   Pi installer, user services, camera and GPIO controller
 drizzle/      Generated SQL migrations (see Database changes below)

@@ -1,13 +1,16 @@
+import { CompactPrice } from "@/components/compact-value";
+import { getInitials } from "@magic-vault/shared";
 import { EmptyState } from "@/components/empty-state";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobileIconBadge } from "@/components/mobile-icon-badge";
 import { MobileSearchInput } from "@/components/mobile-search-input";
-import { getInitials } from "@/components/ui/initials-avatar";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { usePriceSource } from "@/hooks/use-price-source";
 import { useCollectionLocks } from "@/lib/app-stream";
 import { useCollectionChanges } from "@/features/library/api/use-collection-changes";
 import { CollectionChangeTrend } from "@/features/library/components/collection-change-trend";
@@ -16,7 +19,7 @@ import type { LibraryValueMode } from "@/lib/interfaces/library";
 import { MOBILE_HOME_SEARCH_MIN_COLLECTIONS, monitorCollectionPath } from "@/lib/constants/collections";
 import { MOBILE_LIST_CLASS, MOBILE_LIST_ROW_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
-import { IconAlbum, IconScan } from "@tabler/icons-react";
+import { IconAlbum, IconPlus, IconScan } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -27,11 +30,15 @@ export function LibraryCollectionList() {
   const { t: tCollections } = useTranslation("collections");
   const { t: tScanner } = useTranslation("scanner");
   const { activeOrg } = useOrg();
-  const { data: collections, isLoading } = useQuery({ ...collectionsQueryOptions, enabled: !!activeOrg });
+  const {
+    data: collections,
+    isLoading,
+    isError,
+    refetch,
+  } = useQuery({ ...collectionsQueryOptions, enabled: !!activeOrg });
   const { data: overview } = useQuery(orgOverviewQueryOptions(activeOrg?.id));
   const { activeCollection } = useCollections();
   const { locks, currentUserId } = useCollectionLocks();
-  const { format } = usePriceSource();
   const [searchQuery, setSearchQuery] = useState("");
   const [valueMode, setValueMode] = useState<LibraryValueMode>("value");
   const changeOf = useCollectionChanges(valueMode === "change");
@@ -57,10 +64,32 @@ export function LibraryCollectionList() {
       </div>
     );
   }
+  if (isError && sorted.length === 0) {
+    return (
+      <LoadErrorCallout
+        message={tCollections("page.loadFailed")}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
   if (sorted.length === 0) {
     return (
       <div className="rounded-card bg-card">
-        <EmptyState icon={IconAlbum} title={tCollections("noCollectionsYet")} description={tCollections("page.emptyDescription")} />
+        <EmptyState
+          icon={IconAlbum}
+          title={tCollections("noCollectionsYet")}
+          description={tCollections("page.emptyDescription")}
+          action={
+            <CreateCollectionDialog
+              trigger={({ disabled }) => (
+                <Button disabled={disabled}>
+                  <IconPlus />
+                  {tCollections("newCollection")}
+                </Button>
+              )}
+            />
+          }
+        />
       </div>
     );
   }
@@ -126,7 +155,11 @@ export function LibraryCollectionList() {
                     isLoading={change.isLoading}
                   />
                 ) : (
-                  value != null && <span className="shrink-0 font-semibold tabular-nums">{format(value)}</span>
+                  value != null && (
+                    <span className="shrink-0 font-semibold tabular-nums">
+                      <CompactPrice value={value} />
+                    </span>
+                  )
                 )}
               </Link>
             );

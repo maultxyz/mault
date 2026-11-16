@@ -3,17 +3,13 @@ import sharp from "sharp";
 import {
   CORNER_DETECTOR_INPUT_SIZE,
   DEFAULT_MIN_SHARPNESS,
-  DEWARP_OUTPUT_SIZE,
   IMAGENET_MEAN,
   IMAGENET_STD,
-  dewarpRgba,
-  getDefaultCardContour,
   parseCornerDetection,
   rgbaToChw,
   warpRgba,
   type CornerDetection,
   type RgbaImage,
-  type ScanRegion,
 } from "@magic-vault/shared";
 import { resolveCardDetectorModelPath } from "./models/model-registry";
 
@@ -79,17 +75,4 @@ export function rgbaToJpeg(image: RgbaImage): Promise<Buffer> {
   })
     .jpeg()
     .toBuffer();
-}
-
-export async function straightenScan(
-  buffer: Buffer,
-  region?: ScanRegion,
-): Promise<Buffer> {
-  const image = await readScanImage(buffer);
-  const detection = await detectScanCorners(image);
-  const contour =
-    detection.contour ??
-    (region ? getDefaultCardContour(image.width, image.height, region) : null);
-  if (!contour) return buffer;
-  return rgbaToJpeg(dewarpRgba(image, contour, DEWARP_OUTPUT_SIZE));
 }

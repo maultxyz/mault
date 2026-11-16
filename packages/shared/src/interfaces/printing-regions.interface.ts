@@ -63,11 +63,6 @@ export type PrintingMarkCandidateReference =
   | null
   | undefined;
 
-export interface PrintingMarkPoint {
-  x: number;
-  y: number;
-}
-
 export type PrintingMarkSkipReason =
   | "noScanAreas"
   | "noReferences"

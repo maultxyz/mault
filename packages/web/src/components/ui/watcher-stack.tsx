@@ -1,4 +1,5 @@
-import { InitialsAvatar, getInitials } from "@/components/ui/initials-avatar";
+import { getInitials } from "@magic-vault/shared";
+import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { MAX_WATCHER_STACK as MAX_STACK } from "@/lib/constants/limits";
 import type { SessionViewer } from "@/lib/interfaces/collections";

@@ -8,13 +8,14 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { useActivePresetWorkflow } from "@/features/rules/api/use-active-preset-workflow";
 import { usePresetStageMoves } from "@/features/rules/api/use-preset-stage-moves";
 
 export default function PresetStagesScreen() {
   const { t } = useTranslation();
-  const { workflow, step: activeStep, presetName, isPending } = useActivePresetWorkflow();
+  const { workflow, step: activeStep, presetName, isPending, isError, isRefetching, refetch } = useActivePresetWorkflow();
   const moves = usePresetStageMoves();
 
   return (
@@ -23,7 +24,9 @@ export default function PresetStagesScreen() {
         {t("rules.stages.pageDescription")}
       </AppText>
       {moves.isError ? <Callout tone="destructive" title={t("rules.stages.switchFailed")} /> : null}
-      {isPending ? (
+      {isError && !workflow ? (
+        <QueryErrorState title={t("rules.loadFailed")} onRetry={() => void refetch()} isRetrying={isRefetching} />
+      ) : isPending ? (
         <ListSkeleton />
       ) : workflow ? (
         <ListGroup>

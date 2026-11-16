@@ -16,3 +16,9 @@ export interface Collection {
 export interface MoveCardsToCollectionResult {
   moved: number;
 }
+
+export interface ScanLockInfo {
+  userId: string;
+  displayName: string;
+  expiresAt: number;
+}

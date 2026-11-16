@@ -13,6 +13,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -23,6 +24,8 @@ import { businessAccessQueryOptions } from "@/features/business/api/business-acc
 import { useBusinessAction } from "@/features/business/api/use-business-action";
 import { usePickActions } from "@/features/business/api/use-pick-actions";
 import { useActiveOrgId } from "@/hooks/use-org";
+import { ApiResultError } from "@/lib/api/api-result-error";
+import { useCompactCount } from "@/hooks/use-compact-count";
 import { usePricing } from "@/hooks/use-pricing";
 import { BUSINESS_STATUS_TONES } from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
@@ -61,6 +64,7 @@ function OrderLineRow({ line, pickedCount, isOpen, canAct, onFindSubstitute }: O
 export default function OrderScreen() {
   const { guid } = useLocalSearchParams<{ guid: string }>();
   const { t, i18n } = useTranslation();
+  const compactCount = useCompactCount();
   const orgId = useActiveOrgId();
   const { format } = usePricing();
   const order = useQuery(orderQueryOptions(guid));
@@ -137,6 +141,8 @@ export default function OrderScreen() {
     >
       {order.isPending ? (
         <PageSkeleton />
+      ) : !detail && !(order.error instanceof ApiResultError) ? (
+        <QueryErrorState onRetry={() => void order.refetch()} isRetrying={order.isFetching} />
       ) : !detail ? (
         <EmptyState
           icon="checkAll"
@@ -149,9 +155,9 @@ export default function OrderScreen() {
             <Pill label={t(`business.status.${detail.status}`)} tone={BUSINESS_STATUS_TONES[detail.status]} />
           </View>
           <StatGroup>
-            <StatTile label={t("business.order.stats.quantity")} value={String(detail.quantity)} />
-            <StatTile label={t("business.order.stats.allocated")} value={String(detail.allocated)} />
-            <StatTile label={t("business.order.stats.picked")} value={String(detail.picked)} />
+            <StatTile label={t("business.order.stats.quantity")} {...compactCount(detail.quantity)} />
+            <StatTile label={t("business.order.stats.allocated")} {...compactCount(detail.allocated)} />
+            <StatTile label={t("business.order.stats.picked")} {...compactCount(detail.picked)} />
             {detail.revenue != null ? (
               <StatTile label={t("business.order.stats.revenue")} value={format(detail.revenue)} />
             ) : null}

@@ -1,3 +1,7 @@
+import {
+  TOGGLE_TILE_SELECTED_CLASS,
+  TOGGLE_TILE_UNSELECTED_CLASS,
+} from "@/lib/constants/ui";
 import type { ScannerLayoutToggleProps } from "@/lib/interfaces/settings";
 import { cn } from "@/lib/utils";
 import { IconLayoutColumns, IconLayoutRows } from "@tabler/icons-react";
@@ -33,10 +37,10 @@ export function ScannerLayoutToggle({ value, onChange }: ScannerLayoutToggleProp
             onClick={() => onChange(opt.value)}
             aria-pressed={isSelected}
             className={cn(
-              "flex flex-col items-center gap-1.5 rounded-lg border p-3 w-36 transition-all text-left",
+              "flex flex-col items-center gap-1.5 rounded-lg border p-3 w-36 transition-colors motion-reduce:transition-none text-left",
               isSelected
-                ? "border-primary bg-primary/5 text-foreground"
-                : "border-border text-foreground/70 hover:border-foreground/40 hover:text-foreground",
+                ? TOGGLE_TILE_SELECTED_CLASS
+                : TOGGLE_TILE_UNSELECTED_CLASS,
             )}
           >
             <Icon size={20} className={isSelected ? "text-primary" : ""} />

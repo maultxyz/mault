@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -14,7 +15,7 @@ import { Switch } from "@/components/ui/switch";
 import { checkCollectionName } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { gameLanguagesQueryOptions } from "@/features/games/api/games";
-import { EMPTY_LANGUAGES, LANGUAGE_LABELS } from "@/lib/constants/languages";
+import { EMPTY_LANGUAGES } from "@/lib/constants/languages";
 import type { EditCollectionDialogProps } from "@/lib/interfaces/collections";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
@@ -110,7 +111,7 @@ export function EditCollectionDialog({
               !form.formState.isValid || !form.formState.isDirty || isMutating
             }
           >
-            {isMutating && <IconLoader2 className="size-4 animate-spin" />}
+            {isMutating && <IconLoader2 className="animate-spin" />}
             {t("editDialog.submit")}
           </Button>
         </>

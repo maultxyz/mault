@@ -6,7 +6,6 @@ import {
 } from "@/lib/api/client";
 import { API_BASE } from "@/lib/constants/config";
 import {
-  isRetryableScanSaveError,
   buildScanSaveRequest,
   SCAN_SAVE_ACCEPTED_STATUSES,
   throwIfMemberSeatLimit,
@@ -45,8 +44,6 @@ export async function sendScanSave(
   }
   throw new ApiStatusError(res.status);
 }
-
-export const isRetryableSaveError = isRetryableScanSaveError;
 
 export async function sendSortOnlyScan(
   orgId: string | null,

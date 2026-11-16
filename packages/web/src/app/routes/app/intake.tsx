@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { Button } from "@/components/ui/button";
 import { DrawerTitle } from "@/components/ui/drawer";
@@ -49,6 +50,8 @@ export default function IntakePage() {
     items: lots,
     pagination,
     isLoading,
+    isError,
+    refetch,
   } = useServerPagedList(
     (request) => intakeLotsQueryOptions(orgId, request),
     selectedParam,
@@ -283,13 +286,19 @@ export default function IntakePage() {
                 onOpenReviewGrid={openReviewGrid}
               />
             ) : (
-              !isLoading && (
+              !isLoading &&
+              (isError && lots.length === 0 ? (
+                <LoadErrorCallout
+                  message={t("errors.loadFailed")}
+                  onRetry={refetch}
+                />
+              ) : (
                 <EmptyState
                   icon={IconCash}
                   title={t("intake.pickTitle")}
                   description={t("intake.pickDescription")}
                 />
-              )
+              ))
             )}
           </section>
         )}

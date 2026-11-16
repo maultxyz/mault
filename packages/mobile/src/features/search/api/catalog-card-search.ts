@@ -3,6 +3,11 @@ import {
   CATALOG_RESULTS_PER_GAME,
   CATALOG_SEARCH_GROUP_BY_NAME,
   CATALOG_SEARCH_GROUP_BY_PARAM,
+  CATALOG_SEARCH_LIMIT_PARAM,
+  catalogSearchGameKey,
+  initialCatalogOffsetsByGame,
+  nextCatalogOffsetsByGame,
+  type CatalogCardsSearchPage,
   type CardPrintingsPage,
   type CatalogCardSearchPage,
   type CatalogGame,
@@ -18,20 +23,41 @@ import {
   CATALOG_SEARCH_STALE_MS,
 } from "@/lib/constants/search";
 
-export const catalogCardSearchQueryOptions = (game: CatalogGame, query: string, enabled: boolean) =>
-  queryOptions({
-    queryKey: [CATALOG_SEARCH_QUERY_KEY, game.gameKey, game.lang, query] as const,
-    queryFn: async () => {
-      const params = new URLSearchParams({
-        q: query,
-        gameKey: game.gameKey,
-        lang: game.lang,
-        [CATALOG_SEARCH_GROUP_BY_PARAM]: CATALOG_SEARCH_GROUP_BY_NAME,
-      });
-      const page = await unwrap(apiGet<Result<CatalogCardSearchPage>>(`/api/cards/search?${params}`));
-      return page.results.slice(0, CATALOG_RESULTS_PER_GAME);
+async function loadCatalogCardSearchPage(game: CatalogGame, query: string, offset: number): Promise<CatalogCardSearchPage> {
+  const params = new URLSearchParams({
+    q: query,
+    gameKey: game.gameKey,
+    lang: game.lang,
+    [CATALOG_SEARCH_GROUP_BY_PARAM]: CATALOG_SEARCH_GROUP_BY_NAME,
+    [CATALOG_SEARCH_LIMIT_PARAM]: String(CATALOG_RESULTS_PER_GAME),
+  });
+  if (offset > 0) params.set("offset", String(offset));
+  return unwrap(apiGet<Result<CatalogCardSearchPage>>(`/api/cards/search?${params.toString()}`));
+}
+
+export const catalogCardsSearchQueryOptions = (games: CatalogGame[], query: string, enabled: boolean) =>
+  infiniteQueryOptions({
+    queryKey: [CATALOG_SEARCH_QUERY_KEY, games.map(catalogSearchGameKey), query] as const,
+    queryFn: async ({ pageParam }): Promise<CatalogCardsSearchPage> => {
+      const pages = await Promise.all(
+        games.map(async (game) => {
+          const offset = pageParam[catalogSearchGameKey(game)];
+          return offset === undefined ? null : { game, page: await loadCatalogCardSearchPage(game, query, offset) };
+        }),
+      );
+      const loadedPages = pages.filter((entry) => entry !== null);
+      return {
+        results: loadedPages.flatMap(({ game, page }) =>
+          page.results.map(({ card, printingCount }) => ({ game, card, printingCount })),
+        ),
+        nextOffsetsByGame: nextCatalogOffsetsByGame(
+          loadedPages.map(({ game, page }) => ({ gameKey: catalogSearchGameKey(game), nextOffset: page.nextOffset })),
+        ),
+      };
     },
-    enabled,
+    initialPageParam: initialCatalogOffsetsByGame(games),
+    getNextPageParam: (lastPage) => lastPage.nextOffsetsByGame ?? undefined,
+    enabled: enabled && games.length > 0,
     staleTime: CATALOG_SEARCH_STALE_MS,
   });
 

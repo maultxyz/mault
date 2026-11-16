@@ -191,20 +191,22 @@ export default function SettingsScanningPage() {
           )}
         </div>
       </SettingsSection>
-      <SettingsSection
-        heading={t("controlCards.heading")}
-        description={t("controlCards.description")}
-      >
-        <Button
-          variant="outline"
-          className="self-start"
-          nativeButton={false}
-          render={<Link to={CONTROL_CARDS_PATH} />}
+      {!isMobile && (
+        <SettingsSection
+          heading={t("controlCards.heading")}
+          description={t("controlCards.description")}
         >
-          <IconQrcode />
-          {t("controlCards.action")}
-        </Button>
-      </SettingsSection>
+          <Button
+            variant="outline"
+            className="self-start"
+            nativeButton={false}
+            render={<Link to={CONTROL_CARDS_PATH} />}
+          >
+            <IconQrcode />
+            {t("controlCards.action")}
+          </Button>
+        </SettingsSection>
+      )}
       <SettingsSection
         heading={t("deployPause.heading")}
         description={t("deployPause.description")}

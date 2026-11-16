@@ -5,7 +5,6 @@ import {
 import type {
   StampDetection,
   StampTemplate,
-  StampTemplateRegion,
 } from "./interfaces/card-stamps.interface";
 import type { PlayingCard } from "./interfaces/card.interface";
 import type { PrintingMarkRegion } from "./interfaces/printing-regions.interface";
@@ -65,21 +64,6 @@ export function sampleLuminanceGrid(
     }
   }
   return grid;
-}
-
-export function stampTemplateGrid(
-  image: RgbaImage,
-  region: StampTemplateRegion,
-): number[] {
-  return sampleLuminanceGrid(
-    image,
-    region.x,
-    region.y,
-    region.width / region.gridWidth,
-    region.height / region.gridHeight,
-    region.gridWidth,
-    region.gridHeight,
-  );
 }
 
 function correlationAt(

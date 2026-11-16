@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { CardImage } from "@/components/card-image";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
@@ -6,8 +7,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import {
   isPublicCardsUnavailableError,
+  loadPublicScanImageDownload,
   publicCardDetailQueryOptions,
 } from "@/features/public-cards/api/public-cards";
+import { DownloadScanImageButton } from "@/features/cards/components/download-scan-image-button";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
@@ -15,12 +18,13 @@ import { CardPriceDetails } from "@/features/cards/components/card-price-details
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useTradeOfferContext } from "@/lib/trade-offer-context";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import type { PublicCardDetailViewProps } from "@/lib/interfaces/public-cards";
 import {
   DEFAULT_CARD_LANGUAGE,
   isCardCondition,
+  scanImageDownloadFileName,
   scanLanguage,
+  type ScanImageSide,
 } from "@magic-vault/shared";
 import {
   IconArrowLeft,
@@ -52,7 +56,8 @@ export function PublicCardDetailView({
     if (detail) headingRef.current?.focus();
   }, [detail]);
 
-  const topBar = (
+  const CardHeading = onClose ? "h2" : "h1";
+  const topBar = onClose && (
     <div className="sticky top-0 z-10 bg-background/80 p-2 backdrop-blur-2xl">
       <Button variant="ghost" onClick={onClose}>
         <IconArrowLeft />
@@ -111,6 +116,11 @@ export function PublicCardDetailView({
   const foilLabel = detail.isFoil ? (detail.foilType ?? tCards("foil")) : null;
   const showsBackSide = backSideScanId === scanId && !!detail.backScanImageUrl;
   const shownScanUrl = showsBackSide ? detail.backScanImageUrl : detail.scanImageUrl;
+  const shownScanSide: ScanImageSide = showsBackSide ? "back" : "front";
+  const scanImageDownload = {
+    loadImage: () => loadPublicScanImageDownload(source, scanId, shownScanSide),
+    fileName: scanImageDownloadFileName(card.name, shownScanSide),
+  };
   const toggleSideLabel = showsBackSide
     ? tCards("cardDetailPanel.showFrontSide")
     : tCards("cardDetailPanel.showBackSide");
@@ -131,24 +141,27 @@ export function PublicCardDetailView({
                 ? tCards("cardDetailPanel.capturedBackSide")
                 : tCards("cardDetailPanel.capturedScan")}
             </figcaption>
-            {detail.backScanImageUrl && (
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={toggleSideLabel}
-                      aria-pressed={showsBackSide}
-                      onClick={() => setBackSideScanId(showsBackSide ? null : scanId)}
-                    >
-                      <IconSwitchHorizontal />
-                    </Button>
-                  }
-                />
-                <TooltipContent>{toggleSideLabel}</TooltipContent>
-              </Tooltip>
-            )}
+            <div className="flex items-center gap-1.5">
+              <DownloadScanImageButton {...scanImageDownload} />
+              {detail.backScanImageUrl && (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={toggleSideLabel}
+                        aria-pressed={showsBackSide}
+                        onClick={() => setBackSideScanId(showsBackSide ? null : scanId)}
+                      >
+                        <IconSwitchHorizontal />
+                      </Button>
+                    }
+                  />
+                  <TooltipContent>{toggleSideLabel}</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           </div>
           <button
             type="button"
@@ -193,6 +206,7 @@ export function PublicCardDetailView({
           open={viewerOpen}
           onOpenChange={setViewerOpen}
           capturedImageUrl={shownScanUrl}
+          download={scanImageDownload}
           showOcrRegions={false}
         />
       )}
@@ -200,13 +214,13 @@ export function PublicCardDetailView({
       <div className="@container flex flex-col gap-5 md:gap-2 p-4 md:px-3 md:py-2">
         <div className="min-w-0">
           <div className="flex items-baseline gap-2 max-md:flex-wrap max-md:gap-y-1">
-            <h2
+            <CardHeading
               ref={headingRef}
               tabIndex={-1}
               className="truncate text-base font-semibold outline-none max-md:line-clamp-2 max-md:whitespace-normal"
             >
               {card.name}
-            </h2>
+            </CardHeading>
             {price != null && (
               <span className="shrink-0 text-base font-semibold tabular-nums">
                 {format(price)}

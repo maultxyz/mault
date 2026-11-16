@@ -8,4 +8,5 @@ export interface PriceFormatter {
     condition?: CardCondition | null,
   ) => number | null;
   format: (value: number) => string;
+  formatCompact: (value: number) => string;
 }

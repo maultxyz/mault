@@ -28,7 +28,7 @@
       "content": "Scans werden in der hier angezeigten Sammlung gespeichert. Wechsle über dieses Menü die Sammlung, kopiere einen Freigabelink, öffne die vollständige Sammlungsverwaltung oder lege eine neue Sammlung an."
     },
     "pickRulePreset": {
-      "title": "Regel-Vorlage wählen",
+      "title": "Regelvorlage wählen",
       "content": "Die hier angezeigte Vorlage entscheidet, in welches Fach jeder Scan fällt. Öffne dieses Menü, um Vorlagen zu wechseln, eine zu erstellen oder umzubenennen, zu ihren Sortierregeln zu springen oder eine Steuerkarte zu drucken, die die Vorlage direkt am Sortierer wechselt."
     },
     "filterStats": {
@@ -63,7 +63,7 @@
       "content": "Schauen wir uns an, wie du Regeln erstellst, die entscheiden, in welches Fach jede gescannte Karte fällt. Du kannst jederzeit überspringen - über dieses Hilfe-Symbol kannst du die Tour später wiederholen."
     },
     "sets": {
-      "title": "Regel-Vorlagen",
+      "title": "Regelvorlagen",
       "content": "Sortierregeln sind pro Spiel in benannten Vorlagen gruppiert, damit du mehrere Sortierstrategien speichern und zwischen ihnen wechseln kannst. Öffne dieses Menü, um eine neue Vorlage zu erstellen."
     },
     "selectBin": {
@@ -110,7 +110,7 @@
     },
     "toggle": {
       "title": "Hier aktivieren",
-      "content": "Dieser Schalter aktiviert oder deaktiviert Repacks erstellen. Solange er aktiv ist, baut jedes Fach außer dem Auffangfach sein eigenes Pack aus den Slots unten, statt einzelner Regeln."
+      "content": "Wähle unter Sortiermodus Repacks erstellen, um es zu aktivieren. Solange es ausgewählt ist, baut jedes Fach außer dem Auffangfach sein eigenes Pack aus den Slots unten, statt einzelner Regeln."
     },
     "duplicates": {
       "title": "Doppelte Karten",

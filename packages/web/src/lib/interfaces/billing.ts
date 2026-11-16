@@ -34,10 +34,7 @@ export interface PlanUpgradeOptionProps {
   onCheckout: (request: CheckoutRequest) => void;
 }
 
-export interface MemberSeatLock {
-  orgId: string;
-  limit: number;
-}
+export type { MemberSeatLock } from "@magic-vault/shared";
 
 export interface PlanNoticeProps {
   message: string;

@@ -1,13 +1,6 @@
+import { clampRegion } from "@magic-vault/shared";
 import type { CameraSource } from "@/lib/interfaces/scanner";
 import type { CardContour, ScanRegion } from "@magic-vault/shared";
-
-export function clampRegion(region: ScanRegion): ScanRegion {
-  return {
-    coverage: Math.min(1, Math.max(0.1, region.coverage)),
-    offsetX: Math.min(0.45, Math.max(-0.45, region.offsetX)),
-    offsetY: Math.min(0.45, Math.max(-0.45, region.offsetY)),
-  };
-}
 
 export function nudgeRegionByKey(
   region: ScanRegion,

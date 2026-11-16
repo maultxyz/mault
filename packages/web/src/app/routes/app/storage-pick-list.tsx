@@ -60,10 +60,12 @@ function StoragePickListView() {
         {showScanPanel ? <IconCameraOff /> : <IconCamera />}
         {showScanPanel ? t("pickList.scan.stop") : t("pickList.scan.button")}
       </Button>
-      <Button variant="outline" onClick={() => setIsImportOpen(true)}>
-        <IconFileImport />
-        {t("pickList.import")}
-      </Button>
+      {!isMobile && (
+        <Button variant="outline" onClick={() => setIsImportOpen(true)}>
+          <IconFileImport />
+          {t("pickList.import")}
+        </Button>
+      )}
       <DropdownMenu>
         <DropdownMenuTrigger
           render={
@@ -112,7 +114,7 @@ function StoragePickListView() {
         setIsEditing(false);
       }}
       onCancel={hasList ? () => setIsEditing(false) : undefined}
-      onImportCsv={() => setIsImportOpen(true)}
+      onImportCsv={isMobile ? undefined : () => setIsImportOpen(true)}
     />
   ) : showScanPanel ? (
     <div className="flex flex-col gap-4 md:gap-2 md:grid md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] md:items-start">

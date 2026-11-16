@@ -49,7 +49,7 @@ export function AlertBanner({
           aria-label={t("alerts.dismiss")}
           className="shrink-0 text-current hover:bg-black/10 dark:hover:bg-white/10"
         >
-          <IconX className="size-3" />
+          <IconX />
         </Button>
       )}
     </div>

@@ -1,4 +1,4 @@
-import type { ConditionOperator } from "@magic-vault/shared";
+import type { BinSetMode } from "@magic-vault/shared";
 
 export const SORTING_RULES_PATH = "/app/rules";
 export const SORTING_RULES_PRESET_PARAM = "preset";
@@ -22,14 +22,6 @@ export const CONDITION_FIELD_CLASS = "max-md:basis-full";
 export const CONDITION_SELECT_TRIGGER_CLASS =
   "max-md:data-[size=default]:h-10 max-md:px-3 max-md:font-normal";
 
-export const MULTI_VALUE_OPERATORS: ConditionOperator[] = [
-  "in",
-  "not_in",
-  "contains_any",
-  "contains_all",
-  "contains_none",
-];
-
 export const DEFAULT_MAX_COPIES = 4;
 
 export const BIN_RULES_EXPORT_FORMAT_VERSION = 3;
@@ -49,3 +41,49 @@ export const BIN_SETTINGS_LIST_CLASS =
 
 export const MOBILE_BINS_SCREEN_PARAM = "screen";
 export const MOBILE_BINS_BIN_PARAM = "bin";
+
+export const SORTING_MODE_OPTIONS: BinSetMode[] = [
+  "rules",
+  "scan-only",
+  "auto-assign",
+  "game-sort",
+  "repack",
+  "alphabet",
+  "chaos",
+];
+
+export const SORTING_MODE_LABEL_KEYS: Record<BinSetMode, string> = {
+  rules: "sortingModePanel.rules.heading",
+  "scan-only": "scanOnlyPanel.heading",
+  "auto-assign": "autoAssignPanel.heading",
+  "game-sort": "gameSortPanel.heading",
+  repack: "repackPanel.heading",
+  alphabet: "alphabetPanel.heading",
+  chaos: "chaosPanel.heading",
+};
+
+export const SORTING_MODE_DESCRIPTION_KEYS: Record<BinSetMode, string> = {
+  rules: "sortingModePanel.rules.description",
+  "scan-only": "scanOnlyPanel.description",
+  "auto-assign": "autoAssignPanel.description",
+  "game-sort": "gameSortPanel.description",
+  repack: "repackPanel.description",
+  alphabet: "alphabetPanel.description",
+  chaos: "chaosPanel.description",
+};
+
+export const SORTING_MODE_SUMMARY_KEYS: Record<BinSetMode, string> = {
+  rules: "sortingModePanel.summaries.rules",
+  "scan-only": "sortingModePanel.summaries.scan-only",
+  "auto-assign": "sortingModePanel.summaries.auto-assign",
+  "game-sort": "sortingModePanel.summaries.game-sort",
+  repack: "sortingModePanel.summaries.repack",
+  alphabet: "sortingModePanel.summaries.alphabet",
+  chaos: "sortingModePanel.summaries.chaos",
+};
+
+export const SORTING_MODE_SELECT_ID = "sorting-mode";
+export const SORTING_MODE_DESCRIPTION_ID = "sorting-mode-description";
+export const SORTING_MODE_SUMMARY_ID = "sorting-mode-summary";
+export const AUTO_ASSIGN_FIELD_SELECT_ID = "auto-assign-field";
+export const RESET_AUTO_ASSIGN_HINT_ID = "reset-auto-assign-hint";

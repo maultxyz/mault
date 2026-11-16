@@ -63,7 +63,6 @@ export const ANY_SET_OPTION = "any";
 export const CARD_SET_PICKER_LIMIT = 100;
 
 export const SCAN_REMOVAL_NOTICE_DURATION_MS = 3000;
-export const QUIET_SCANNER_PHASES: readonly ScannerPhase[] = ["idle", "ready"];
 
 export const SCAN_REMOVAL_NOTICE_TONES = {
   "no-match": "info",

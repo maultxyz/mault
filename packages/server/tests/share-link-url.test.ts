@@ -6,6 +6,7 @@ import {
   buildShortenerUrl,
   parseShareLinkUrl,
   parseShortLinkUrl,
+  shareLinkPath,
   shareLinkPathWithToken,
 } from "@magic-vault/shared";
 
@@ -30,6 +31,25 @@ test("ignores other links, missing tokens and plain text", () => {
   assert.equal(parseShareLinkUrl(`https://mault.xyz/shop/${GUID}?t=abc`), null);
   assert.equal(parseShareLinkUrl(`https://mault.xyz/watch/${GUID}`), null);
   assert.equal(parseShareLinkUrl("mault-control:v1:pause"), null);
+});
+
+test("builds card links under /shared/card and keeps them out of in-app link parsing", () => {
+  const path = shareLinkPath("card", GUID, "abc.def");
+  assert.equal(path, `/shared/card/${GUID}?t=abc.def`);
+  assert.equal(parseShareLinkUrl(`https://mault.xyz${path}`), null);
+  assert.equal(
+    buildShareLinkUrl("https://mault.xyz/", { kind: "card", subjectGuid: GUID, token: "abc.def" }),
+    `https://mault.xyz/shared/card/${GUID}?t=abc.def`,
+  );
+  assert.equal(
+    buildShareLinkUrl("https://mault.xyz", {
+      kind: "card",
+      subjectGuid: GUID,
+      token: "abc.def",
+      shortUrl: "https://mlt.to/Ab3dE6gH9k",
+    }),
+    "https://mlt.to/Ab3dE6gH9k",
+  );
 });
 
 test("reads legacy /s short links on any host", () => {

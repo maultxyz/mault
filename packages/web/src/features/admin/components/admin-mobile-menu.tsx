@@ -19,7 +19,9 @@ export function AdminMobileMenu() {
       aria-label={tCommon("a11y.adminNavigation")}
       className={MOBILE_LIST_CLASS}
     >
-      {ADMIN_SECTIONS.filter((section) => isAdmin || !section.adminOnly).map(
+      {ADMIN_SECTIONS.filter(
+        (section) => section.showsOnMobile && (isAdmin || !section.adminOnly),
+      ).map(
         (section) => (
           <Link
             key={section.path}

@@ -4,9 +4,11 @@ import { router, useIsFocused } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Button } from "@/components/ui/button";
-import { Callout } from "@/components/ui/callout";
+import { useCompactCount } from "@/hooks/use-compact-count";
+import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,7 +42,7 @@ export default function HomeScreen() {
   const collections = useQuery(collectionsQueryOptions(orgId));
   const pendingTradeOffers = useQuery(pendingTradeOffersQueryOptions(orgId));
   const locale = i18n.language;
-  const numberFormat = new Intl.NumberFormat(locale);
+  const compactCount = useCompactCount();
   const overviewData = overview.data;
   const summaryData = summary.data;
   const collectionNames = new Map((collections.data ?? []).map((collection) => [collection.guid, collection.name]));
@@ -87,10 +89,10 @@ export default function HomeScreen() {
       }
     >
       {overview.isError && !overviewData ? (
-        <Callout
-          tone="destructive"
+        <QueryErrorState
           title={t("home.loadFailed")}
-          action={<Button label={t("recovery.retry")} onPress={() => void overview.refetch()} />}
+          onRetry={() => void overview.refetch()}
+          isRetrying={overview.isFetching}
         />
       ) : null}
 
@@ -121,13 +123,29 @@ export default function HomeScreen() {
             onPress={() => router.push("/stats")}
             accessibilityHint={t("home.hero.openStats")}
             stats={[
-              { label: t("home.hero.cards"), value: numberFormat.format(overviewData.cardCount) },
-              { label: t("home.hero.collections"), value: numberFormat.format(overviewData.collectionCount) },
-              ...(summaryData
-                ? [{ label: t("home.hero.scanned"), value: numberFormat.format(summaryData.scansAllTime) }]
-                : []),
+              { label: t("home.hero.cards"), ...compactCount(overviewData.cardCount) },
+              { label: t("home.hero.collections"), ...compactCount(overviewData.collectionCount) },
+              ...(summaryData ? [{ label: t("home.hero.scanned"), ...compactCount(summaryData.scansAllTime) }] : []),
             ]}
           />
+
+          {overviewData.collectionCount === 0 && collections.data?.length === 0 ? (
+            <EmptyState
+              icon="collections"
+              title={t("home.firstRun.title")}
+              description={t("home.firstRun.description")}
+              action={
+                <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: SPACING.sm }}>
+                  <Button icon="plus" label={t("home.firstRun.createCollection")} onPress={() => router.push("/collection-new")} />
+                  <Button
+                    variant="secondary"
+                    label={t("home.firstRun.startScanning")}
+                    onPress={() => router.navigate("/scan")}
+                  />
+                </View>
+              }
+            />
+          ) : null}
 
           {liveScanners.length > 0 || reviewCount > 0 || pendingTradeOfferList.length > 0 ? (
             <View style={{ gap: SPACING.sm }}>
@@ -209,9 +227,9 @@ export default function HomeScreen() {
               <SectionHeader title={t("home.activity.title")} />
               <Surface style={{ gap: SPACING.md }}>
                 <View style={{ flexDirection: "row", gap: SPACING.xl }}>
-                  <HomeActivityFigure value={numberFormat.format(overviewData.scansToday)} label={t("home.activity.today")} />
+                  <HomeActivityFigure {...compactCount(overviewData.scansToday)} label={t("home.activity.today")} />
                   <HomeActivityFigure
-                    value={numberFormat.format(overviewData.scansByDay.reduce((sum, day) => sum + day.count, 0))}
+                    {...compactCount(overviewData.scansByDay.reduce((sum, day) => sum + day.count, 0))}
                     label={t("home.activity.lastDays", { count: overviewData.scansByDay.length })}
                   />
                 </View>

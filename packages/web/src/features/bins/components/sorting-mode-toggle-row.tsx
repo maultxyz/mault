@@ -49,7 +49,7 @@ export function SortingModeToggleRow({
               aria-label={t("sortingModePanel.explain", { mode: label })}
               onClick={() => setIsDescriptionOpen((open) => !open)}
               className={cn(
-                "grid size-8 shrink-0 place-items-center rounded-md text-foreground/70 transition-colors active:bg-muted",
+                "grid size-8 shrink-0 place-items-center rounded-md text-foreground/70 transition-colors active:bg-foreground/6",
                 isDescriptionOpen && "text-primary",
               )}
             >

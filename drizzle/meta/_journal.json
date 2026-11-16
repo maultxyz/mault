@@ -1282,6 +1282,20 @@
       "when": 1794808136872,
       "tag": "0182_storage_label_short_links",
       "breakpoints": true
+    },
+    {
+      "idx": 183,
+      "version": "7",
+      "when": 1794860722390,
+      "tag": "0183_hot_read_indexes",
+      "breakpoints": true
+    },
+    {
+      "idx": 184,
+      "version": "7",
+      "when": 1794867663458,
+      "tag": "0184_card_share_links",
+      "breakpoints": true
     }
   ]
 }

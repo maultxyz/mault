@@ -16,7 +16,7 @@ export function useSwitchOrg(): (orgId: string) => void {
   const { activeOrgId } = useSession();
   return (orgId: string) => {
     if (orgId === activeOrgId) return;
-    setActiveOrg(orgId);
     queryClient.clear();
+    setActiveOrg(orgId);
   };
 }

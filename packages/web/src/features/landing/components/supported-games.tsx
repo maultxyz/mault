@@ -43,7 +43,7 @@ export function LandingSupportedGames() {
           <span className="font-heading text-base font-semibold whitespace-nowrap text-foreground/80 md:text-lg">
             {game.name}
           </span>
-          <span className="font-heading text-2xs whitespace-nowrap text-foreground/70 tabular-nums">
+          <span className="font-heading text-sm whitespace-nowrap text-foreground/70 tabular-nums">
             {t("supportedGames.cardsIndexed", {
               count: game.cardCount,
               formatted: game.cardCount.toLocaleString(i18n.language),
@@ -72,7 +72,7 @@ export function LandingSupportedGames() {
             {Array.from({ length: 4 }).map((_, i) => (
               <div
                 key={i}
-                className="h-5 w-40 animate-pulse rounded-sm bg-muted"
+                className="h-5 w-40 animate-pulse rounded-sm bg-foreground/8 motion-reduce:animate-none"
               />
             ))}
           </div>

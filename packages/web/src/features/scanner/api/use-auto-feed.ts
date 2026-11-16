@@ -3,9 +3,9 @@ import {
 } from "@/features/notifications/api/notification-settings";
 import { useSerialMessage } from "@/features/scanner/api/use-serial";
 import {
+  classifyFeedReply,
   feedNextCardAfterRoutedCard,
   feedWithRetries,
-  isEmergencyStopReply,
   isFedEvent,
   isFeedTimeoutReply,
   parseSerialReply,
@@ -159,53 +159,42 @@ export function useAutoFeed({
 
   const handleFeedResult = useCallback(
     (parsed: Record<string, unknown>) => {
-      if (emergencyStoppedRef.current || isEmergencyStopReply(parsed)) return;
-      if (parsed.empty && !serialRef.current.ignoreIrSensors) {
+      if (emergencyStoppedRef.current) return;
+      const outcome = classifyFeedReply(parsed, {
+        ignoreIrSensors: serialRef.current.ignoreIrSensors,
+      });
+      if (outcome.kind === "stopped") return;
+      if (outcome.kind === "cardArrived") {
+        cardArrivedHookRef.current?.();
+        return;
+      }
+      if (outcome.kind === "hopperEmpty") {
         pauseForAttention({ kind: "hopperEmpty" });
         toast.error(t("feederEmpty.title"), {
           description: t("feederEmpty.description"),
           duration: Infinity,
           dismissible: true,
         });
-        void reportSerialEvent({
-          command: "auto-feed",
-          sent: true,
-          response: parsed,
-          collectionGuid: activeCollectionRef.current?.guid,
-          deviceGuid: deviceGuidRef.current,
-        });
-      } else if (parsed.error) {
-        pauseForAttention({ kind: "feederError", detail: String(parsed.error) });
+      } else if (outcome.kind === "error") {
+        pauseForAttention({ kind: "feederError", detail: outcome.message });
         toast.error(t("feederError.title"), {
-          description: String(parsed.error),
+          description: outcome.message,
           duration: Infinity,
           dismissible: true,
         });
-        void reportSerialEvent({
-          command: "auto-feed",
-          sent: true,
-          response: parsed,
-          collectionGuid: activeCollectionRef.current?.guid,
-          deviceGuid: deviceGuidRef.current,
-        });
-      } else if (
-        parsed.detected === false &&
-        !serialRef.current.ignoreIrSensors
-      ) {
+      } else if (outcome.kind === "noCardDetected") {
         pauseForAttention({ kind: "noCardDetected" });
         toast.error(t("cardScanner.noCardDetected.title"), {
           description: t("cardScanner.noCardDetected.description"),
         });
-        void reportSerialEvent({
-          command: "auto-feed",
-          sent: true,
-          response: parsed,
-          collectionGuid: activeCollectionRef.current?.guid,
-          deviceGuid: deviceGuidRef.current,
-        });
-      } else {
-        cardArrivedHookRef.current?.();
       }
+      void reportSerialEvent({
+        command: "auto-feed",
+        sent: true,
+        response: parsed,
+        collectionGuid: activeCollectionRef.current?.guid,
+        deviceGuid: deviceGuidRef.current,
+      });
     },
     [toast, t, serialRef, activeCollectionRef, deviceGuidRef, pauseForAttention],
   );

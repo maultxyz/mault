@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
 import { useTranslation } from "react-i18next";
 import { CONTROL_RADIUS, SPACING } from "@/lib/constants/theme";
+import { COMPACT_CONTROL_MIN_HEIGHT } from "@/lib/constants/ui";
 import type { StepperRowProps } from "@/lib/interfaces/ui";
 
 export function StepperRow({ value, min, max, bigStep, smallStep, disabled = false, valueLabel, onChange }: StepperRowProps) {
@@ -21,7 +22,8 @@ export function StepperRow({ value, min, max, bigStep, smallStep, disabled = fal
         accessibilityLiveRegion="polite"
         style={{
           flex: 1,
-          height: 32,
+          minHeight: COMPACT_CONTROL_MIN_HEIGHT,
+          paddingVertical: SPACING.xs,
           alignItems: "center",
           justifyContent: "center",
           borderRadius: CONTROL_RADIUS,

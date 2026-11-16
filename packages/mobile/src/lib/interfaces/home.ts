@@ -5,6 +5,7 @@ import type { ValueChange } from "@magic-vault/shared";
 export interface HomeHeroStat {
   label: string;
   value: string;
+  exactValue?: string;
 }
 
 export interface HomeHeroProps {
@@ -42,6 +43,7 @@ export interface HomeHighlightRowProps {
 export interface HomeActivityFigureProps {
   value: string;
   label: string;
+  exactValue?: string;
 }
 
 export interface HomeTopCardsListProps {

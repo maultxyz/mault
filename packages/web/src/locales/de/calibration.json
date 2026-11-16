@@ -5,7 +5,7 @@
   },
   "servos": {
     "bottom": {
-      "label": "Unteres Paddel"
+      "label": "Bodenklappe"
     },
     "paddle": {
       "label": "Paddel"
@@ -21,7 +21,7 @@
     "description": "Wie viele physische Sortiermodule verbaut sind. Ändert die Anzahl der verfügbaren Fächer sowie die Abschnitte unten.",
     "reduceConfirm": {
       "title": "Modulanzahl verringern?",
-      "description": "Eine Reduzierung auf {{count}} Module entfernt die Sortierregeln und Kalibrierungsdaten für Module und Fächer über dieser Anzahl, in allen Fach-Voreinstellungen.",
+      "description": "Eine Reduzierung auf {{count}} Module entfernt die Sortierregeln und Kalibrierungsdaten für Module und Fächer über dieser Anzahl, in allen Vorlagen.",
       "confirm": "Modulanzahl ändern"
     },
     "detect": {
@@ -191,7 +191,8 @@
     "executionProviderLabel": "KI-Erkennungs-Backend",
     "executionProviderDescription": "Welches Backend das Modell für den Kartenabgleich in deinem Browser ausführt (die Kartenerkennung läuft immer auf WASM, weil sie dort schneller ist). WASM ist die Standardeinstellung und funktioniert überall, betreibt aber jeweils nur einen Sortierer. WebGPU kann auf manchen GPUs schneller sein, betreibt mehrere Sortierer gleichzeitig und fällt auf WASM zurück, wenn es nicht startet.",
     "executionProviderWebGpu": "WebGPU",
-    "regionKeyboardLabel": "Scanbereich. Verschiebe ihn mit den Pfeiltasten und ändere seine Größe mit Plus und Minus. Halte die Umschalttaste gedrückt für größere Schritte.",
+    "regionLabel": "Scanbereich",
+    "regionKeyboardHint": "Ziehe den gestrichelten Rahmen oder fokussiere ihn, verschiebe ihn mit den Pfeiltasten und ändere seine Größe mit Plus und Minus. Halte die Umschalttaste gedrückt für größere Schritte.",
     "executionProviderWasm": "WASM (Standard)",
     "usePhoneAsCamera": "Telefon als Kamera verwenden",
     "phoneCameraConnected": "Telefonkamera verbunden",
@@ -423,8 +424,8 @@
           "desc": "Die gestapelten Sortierstufen. Jedes fängt die Karte auf und schiebt sie in eines seiner zwei Fächer oder lässt sie ins Modul darunter fallen."
         },
         "bottom": {
-          "name": "Bodenpaddel",
-          "desc": "Die Falltür jedes Moduls. Geschlossen hält sie die Karte, offen lässt sie sie ins nächste Modul fallen."
+          "name": "Bodenklappe",
+          "desc": "Die Klappe am Boden jedes Moduls. Geschlossen hält sie die Karte, offen lässt sie sie ins nächste Modul fallen."
         },
         "paddle": {
           "name": "Paddel",
@@ -442,18 +443,18 @@
       "body": "Zähle die gestapelten Sortiermodule, ohne die Zuführung. Jedes Modul bringt zwei Fächer."
     },
     "servos": {
-      "bottom": "Das Bodenpaddel ist die Falltür des Moduls. Es hält die Karte, während das Modul entscheidet, wohin sie geht.",
+      "bottom": "Die Bodenklappe ist der Boden des Moduls. Sie hält die Karte, während das Modul entscheidet, wohin sie geht.",
       "paddle": "Die Paddel sind die seitlichen Tore. Sie halten die Karte, bis sie in ein Fach geschoben wird.",
       "pusher": "Der Schieber ist der Arm, der die Karte seitlich aus dem Modul in eines seiner zwei Fächer schiebt."
     },
     "positions": {
       "bottomClosed": {
-        "title": "Bodenpaddel: geschlossen",
-        "body": "Ziehe, bis die Falltür den Boden des Moduls verschließt, sodass eine aufliegende Karte nicht durchfallen kann. Sie muss nicht ganz waagerecht sein. Hör auf, sobald sie zu ist; weiter drücken belastet den Servo."
+        "title": "Bodenklappe: geschlossen",
+        "body": "Ziehe, bis die Bodenklappe den Boden des Moduls verschließt, sodass eine aufliegende Karte nicht durchfallen kann. Sie muss nicht ganz waagerecht sein. Hör auf, sobald sie zu ist; weiter drücken belastet den Servo."
       },
       "bottomOpen": {
-        "title": "Bodenpaddel: offen",
-        "body": "Ziehe, bis die Falltür ganz aufschwingt und eine Karte sauber ins Modul darunter fallen würde. Hör dort auf, wo sie sich nicht mehr bewegt."
+        "title": "Bodenklappe: offen",
+        "body": "Ziehe, bis die Bodenklappe ganz aufschwingt und eine Karte sauber ins Modul darunter fallen würde. Hör dort auf, wo sie sich nicht mehr bewegt."
       },
       "paddleClosed": {
         "title": "Paddel: geschlossen",
@@ -510,7 +511,7 @@
     },
     "test": {
       "heading": "Selbsttest ausführen",
-      "body": "Der Sortierer öffnet jede Falltür und jedes Paddel, schwenkt jeden Schieber in beide Richtungen und dreht kurz die Zuführung. Achte darauf, dass keine Karten in den Modulen sind, und starte ihn dann.",
+      "body": "Der Sortierer öffnet jede Bodenklappe und jedes Paddel, schwenkt jeden Schieber in beide Richtungen und dreht kurz die Zuführung. Achte darauf, dass keine Karten in den Modulen sind, und starte ihn dann.",
       "run": "Test ausführen",
       "running": "Test läuft…",
       "passed": "Test bestanden. Dieser Sortierer ist einsatzbereit.",
@@ -579,7 +580,7 @@
     "legend": "Farblegende",
     "moduleNumber": "Modul {{module}}",
     "parts": {
-      "paddle": "Seitenklappen",
+      "paddle": "Paddel",
       "bottom": "Bodenklappe",
       "pusher": "Schieber",
       "servo": "Servos",
@@ -592,7 +593,7 @@
     "hotspotLabel": "Modul {{module}}: {{part}}",
     "closeDrawer": "Schließen",
     "drawerDescriptions": {
-      "paddle": "Senkt die Seitenklappen, damit der Schieber eine Karte in ein seitliches Fach schieben kann.",
+      "paddle": "Senkt die Paddel, damit der Schieber eine Karte in ein seitliches Fach schieben kann.",
       "bottom": "Öffnet sich, damit eine Karte zum nächsten Modul weiterrutscht.",
       "pusher": "Schiebt die Karte nach links oder rechts von der Plattform.",
       "feeder": "Zieht eine Karte aus dem Magazin auf Modul 1."

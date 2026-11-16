@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,7 +16,6 @@ import { cardSearchQueryOptions } from "@/features/cards/api/card-search";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePricing } from "@/hooks/use-pricing";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { SPACING } from "@/lib/constants/theme";
 import type { CardCorrectionSearchProps } from "@/lib/interfaces/cards";
 import { absoluteUrl } from "@/lib/url";

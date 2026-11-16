@@ -8,8 +8,3 @@ export interface SorterPort extends EventEmitter {
   close(): unknown;
 }
 
-export interface SorterReplyWaiter {
-  resolve: (line: Record<string, unknown>) => void;
-  reject: (error: Error) => void;
-  timer: ReturnType<typeof setTimeout>;
-}

@@ -1,3 +1,4 @@
+import { MARKETING_HERO_TITLE_CLASS } from "@/lib/constants/marketing-pages";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { LandingFooter } from "@/features/landing/components/footer";
 import { PublicBackdrop } from "@/components/public-backdrop";
@@ -35,10 +36,10 @@ export function LegalPage({ page }: { page: "privacy" | "terms" }) {
       <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
         <div className="mx-auto max-w-6xl px-4 pt-16 pb-16 md:pt-24 md:pb-24">
           <div className="max-w-3xl">
-            <h1 className="font-heading text-5xl leading-[1.02] font-semibold tracking-tight text-balance md:text-6xl">
+            <h1 className={MARKETING_HERO_TITLE_CLASS}>
               {t(`${page}.title`)}
             </h1>
-            <p className="mt-4 font-heading text-2xs tracking-widest text-foreground/70 uppercase">
+            <p className="mt-4 font-heading text-sm tracking-widest text-foreground/70 uppercase">
               {t("effectiveDateLabel", { date: updatedDate })}
             </p>
             <div className="mt-8 flex flex-col gap-3 text-base/relaxed text-foreground/70">

@@ -11,6 +11,7 @@ import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SelectField } from "@/components/ui/select-field";
 import { SwitchRow } from "@/components/ui/switch-row";
@@ -58,6 +59,11 @@ export default function SoundRuleScreen() {
     resetOptions: { keepDirtyValues: true },
   });
   const isLoading = rules.isLoading || clips.isLoading;
+  const isLoadError = (rules.isError && !rules.data) || (clips.isError && !clips.data);
+  const retryLoad = () => {
+    void clips.refetch();
+    if (gameGuid) void rules.refetch();
+  };
   const rulesKey = soundRulesQueryOptions(orgId, gameGuid).queryKey;
 
   const finish = (latest: Awaited<ReturnType<typeof deleteSoundRule>>) => {
@@ -130,14 +136,16 @@ export default function SoundRuleScreen() {
               size={existing ? "md" : "lg"}
               label={t("settings.sounds.ruleDialog.save")}
               loading={save.isPending}
-              disabled={isLoading || remove.isPending}
+              disabled={isLoading || isLoadError || remove.isPending}
               onPress={() => void submit()}
             />
           </>
         }
       >
         {error ? <Callout tone="destructive" title={error} /> : null}
-        {isLoading ? (
+        {isLoadError ? (
+          <QueryErrorState onRetry={retryLoad} isRetrying={rules.isFetching || clips.isFetching} />
+        ) : isLoading ? (
           <PageSkeleton />
         ) : (
           <>

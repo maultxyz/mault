@@ -9,7 +9,6 @@ import {
   listPendingScanSaves,
   putPendingScanSave,
 } from "@/features/scanner/lib/pending-scan-store";
-import { isRetryableScanSaveError } from "@/features/scanner/lib/scan-save-errors";
 import {
   PENDING_SCAN_SAVES_TOAST_ID,
 } from "@/lib/constants/scanner";
@@ -35,7 +34,7 @@ import {
   type ReactNode,
 } from "react";
 import { useTranslation } from "react-i18next";
-import { pendingScanSaveRetryDelayMs } from "@magic-vault/shared";
+import { PendingSaveQueue } from "@magic-vault/shared";
 
 const PendingScanSavesContext =
   createContext<PendingScanSavesContextValue | null>(null);
@@ -58,86 +57,43 @@ export function PendingScanSavesProvider({
   const { t } = useTranslation("scanner");
   const queryClient = useQueryClient();
   const [pendingCount, setPendingCount] = useState(0);
-  const inFlightRef = useRef(new Set<string>());
-  const wakersRef = useRef(new Set<() => void>());
-  const stoppedRef = useRef(false);
   const orphansFlushedRef = useRef(false);
   const toastShownRef = useRef(false);
-
-  const waitForRetry = useCallback(
-    (attempt: number) =>
-      new Promise<void>((resolve) => {
-        const wake = () => {
-          clearTimeout(timer);
-          wakersRef.current.delete(wake);
-          resolve();
-        };
-        const timer = setTimeout(wake, pendingScanSaveRetryDelayMs(attempt));
-        wakersRef.current.add(wake);
-      }),
-    [],
+  const [queue] = useState(
+    () =>
+      new PendingSaveQueue<PendingScanSave, CardSaveResult | UnmatchedSaveResult>(
+        {
+          keyOf: (save) => save.scanId,
+          send: sendPendingSave,
+          put: putPendingScanSave,
+          remove: deletePendingScanSave,
+          onPendingCountChange: (delta) =>
+            setPendingCount((count) => count + delta),
+          onRetryableFailure: (save, error, wasQueued) =>
+            console.warn(
+              wasQueued
+                ? `Retrying save of scan ${save.scanId}:`
+                : `Saving scan ${save.scanId} failed, queued:`,
+              error,
+            ),
+        },
+      ),
   );
 
   useEffect(() => {
-    const wakeAll = () => {
-      for (const wake of [...wakersRef.current]) wake();
-    };
+    const wakeAll = () => queue.wakeAll();
     window.addEventListener("online", wakeAll);
     return () => window.removeEventListener("online", wakeAll);
-  }, []);
+  }, [queue]);
 
   useEffect(() => {
-    stoppedRef.current = false;
-    return () => {
-      stoppedRef.current = true;
-    };
-  }, []);
-
-  const retryUntilSettled = useCallback(
-    async (
-      save: PendingScanSave,
-      retryImmediately: boolean,
-    ): Promise<CardSaveResult | UnmatchedSaveResult> => {
-      inFlightRef.current.add(save.scanId);
-      setPendingCount((count) => count + 1);
-      try {
-        for (let attempt = retryImmediately ? -1 : 0; ; attempt++) {
-          if (attempt >= 0) await waitForRetry(attempt);
-          if (stoppedRef.current) return new Promise<never>(() => {});
-          try {
-            const result = await sendPendingSave(save, true);
-            await deletePendingScanSave(save.scanId);
-            return result;
-          } catch (err) {
-            if (!isRetryableScanSaveError(err)) {
-              await deletePendingScanSave(save.scanId);
-              throw err;
-            }
-            console.warn(`Retrying save of scan ${save.scanId}:`, err);
-          }
-        }
-      } finally {
-        inFlightRef.current.delete(save.scanId);
-        setPendingCount((count) => count - 1);
-      }
-    },
-    [waitForRetry],
-  );
+    queue.start();
+    return () => queue.stop();
+  }, [queue]);
 
   const submit = useCallback(
-    async (
-      save: PendingScanSave,
-    ): Promise<CardSaveResult | UnmatchedSaveResult> => {
-      try {
-        return await sendPendingSave(save, false);
-      } catch (err) {
-        if (!isRetryableScanSaveError(err)) throw err;
-        console.warn(`Saving scan ${save.scanId} failed, queued:`, err);
-      }
-      await putPendingScanSave(save);
-      return retryUntilSettled(save, false);
-    },
-    [retryUntilSettled],
+    (save: PendingScanSave) => queue.submit(save),
+    [queue],
   );
 
   const saveCard = useCallback(
@@ -177,17 +133,18 @@ export function PendingScanSavesProvider({
     [submit],
   );
 
-  const latestRef = useRef({ t, queryClient, retryUntilSettled });
-  latestRef.current = { t, queryClient, retryUntilSettled };
+  const latestRef = useRef({ t, queryClient });
+  latestRef.current = { t, queryClient };
 
   useEffect(() => {
     if (orphansFlushedRef.current) return;
     orphansFlushedRef.current = true;
     void listPendingScanSaves().then((saves) => {
       for (const save of saves) {
-        if (inFlightRef.current.has(save.scanId)) continue;
-        const { t, queryClient, retryUntilSettled } = latestRef.current;
-        retryUntilSettled(save, true)
+        if (queue.isInFlight(save.scanId)) continue;
+        const { t, queryClient } = latestRef.current;
+        queue
+          .retryUntilSettled(save, true)
           .then((result) => {
             if (result.success) {
               void invalidateCollectionCards(queryClient, save.collectionGuid);
@@ -205,7 +162,7 @@ export function PendingScanSavesProvider({
           });
       }
     });
-  }, []);
+  }, [queue]);
 
   useEffect(() => {
     if (pendingCount > 0) {

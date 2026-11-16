@@ -56,6 +56,29 @@
     },
     "toasts": {
       "commandFailed": "La carte n'a pas accepté la commande"
+    },
+    "rawCommands": {
+      "heading": "Commandes brutes",
+      "description": "Envoie n'importe quelle commande JSON directement à la carte, une ligne à la fois. Les impulsions brutes ignorent l'étalonnage : commence près du centre et surveille la mécanique. Tout arrêter coupe l'alimentation de chaque servo ; envoie Neutre pour reprendre.",
+      "presets": "Exemples",
+      "preset": {
+        "servoPulse": "Impulsion servo",
+        "servoPosition": "Position servo",
+        "channelPulse": "Impulsion canal",
+        "channelRelease": "Libérer le canal",
+        "neutral": "Neutre",
+        "status": "État"
+      },
+      "command": "Commande (JSON)",
+      "commandHint": "Un objet JSON, par exemple {\"servo\": \"pusher\", \"module\": 1, \"value\": 305}. Les impulsions vont de 120 à 490. Toutes les commandes sont dans firmware/PROTOCOL.md.",
+      "send": "Envoyer",
+      "stopAll": "Tout arrêter",
+      "history": "Réponses",
+      "clear": "Effacer",
+      "empty": "Rien n'a encore été envoyé.",
+      "sent": "Envoyé :",
+      "reply": "Réponse :",
+      "failed": "Échec"
     }
   },
   "cardImageVectors": {
@@ -277,7 +300,7 @@
     },
     "features": {
       "chaosSort": {
-        "label": "Tri en vrac",
+        "label": "Tri chaos",
         "description": "Remplir les bacs dans l'ordre, sans règles. Le désactiver empêche seulement d'autres préréglages de l'activer."
       },
       "storage": {
@@ -294,7 +317,7 @@
       },
       "repacks": {
         "label": "Repacks",
-        "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux déjà en mode repack continuent de fonctionner."
+        "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux qui créent déjà des repacks continuent de fonctionner."
       },
       "customSounds": {
         "label": "Sons personnalisés",

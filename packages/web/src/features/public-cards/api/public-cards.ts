@@ -9,12 +9,14 @@ import type {
   PublicCardsRequest,
   PublicCardsSource,
 } from "@/lib/interfaces/public-cards";
-import type {
-  PublicCardBrowseInfo,
-  PublicCardDetail,
-  PublicCardFacets,
-  PublicCardPage,
-  Result,
+import {
+  SCAN_IMAGE_SIDE_QUERY_PARAM,
+  type PublicCardBrowseInfo,
+  type PublicCardDetail,
+  type PublicCardFacets,
+  type PublicCardPage,
+  type Result,
+  type ScanImageSide,
 } from "@magic-vault/shared";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
@@ -75,6 +77,20 @@ export async function fetchPublicCards<T>(
     throw new PublicCardsError("notFound", result.message);
   }
   return result.data;
+}
+
+export async function loadPublicScanImageDownload(
+  source: PublicCardsSource,
+  scanId: string,
+  side: ScanImageSide,
+): Promise<Blob> {
+  const params = new URLSearchParams(source.linkParams);
+  params.set(SCAN_IMAGE_SIDE_QUERY_PARAM, side);
+  const response = await fetch(
+    `${API_BASE}/api/public/${source.basePath}/cards/${encodeURIComponent(scanId)}/scan-image/download?${params}`,
+  );
+  if (!response.ok) throw new PublicCardsError("unavailable", response.statusText);
+  return response.blob();
 }
 
 export const publicCardsInfoQueryOptions = (source: PublicCardsSource) =>

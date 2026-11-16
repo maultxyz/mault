@@ -15,6 +15,10 @@ import {
 } from "../lib/constants/timing";
 import { cachedDisplayName } from "../lib/display-name-cache";
 import { createKeyedCache } from "../lib/keyed-cache";
+import {
+  invalidateOrgReadCaches,
+  isMutatingRequestMethod,
+} from "../lib/org-read-cache";
 import { parsePreviewPlan, planPreviewStorage } from "../lib/plan-preview";
 import {
   findMemberSeatOverflow,
@@ -36,6 +40,7 @@ export type AppVariables = {
   orgId: string;
   orgRole: OrgRole;
   impersonatedBy: string | null;
+  skipsOrgReadCacheInvalidation: boolean;
 };
 export type AppEnv = { Variables: AppVariables; Bindings: ServerScanBindings };
 
@@ -231,8 +236,33 @@ export const requireOrg = createMiddleware<AppEnv>(async (c, next) => {
     "jwtClaims",
     JSON.stringify({ sub: userId, role: "authenticated", org_id: orgId }),
   );
-  await next();
+  try {
+    await next();
+  } finally {
+    if (
+      requestInvalidatesOrgReadCaches(
+        c.req.method,
+        c.get("skipsOrgReadCacheInvalidation") === true,
+      )
+    ) {
+      invalidateOrgReadCaches(orgId);
+    }
+  }
 });
+
+export function requestInvalidatesOrgReadCaches(
+  method: string,
+  skipsOrgReadCacheInvalidation: boolean,
+): boolean {
+  return isMutatingRequestMethod(method) && !skipsOrgReadCacheInvalidation;
+}
+
+export const markRequestAsReadOnly = createMiddleware<AppEnv>(
+  async (c, next) => {
+    c.set("skipsOrgReadCacheInvalidation", true);
+    await next();
+  },
+);
 
 export function requireRole(...roles: string[]) {
   return createMiddleware<AppEnv>(async (c, next) => {

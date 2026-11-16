@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -15,6 +16,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { SelectField } from "@/components/ui/select-field";
@@ -32,7 +34,6 @@ import { useTheme } from "@/hooks/use-theme";
 import { usePanelWidth } from "@/hooks/use-panel-width";
 import { CARD_GRID_COLUMNS, CARD_GRID_GAP_X, CARD_GRID_GAP_Y, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { OCR_TILE_COLUMNS } from "@/lib/constants/health";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { ANY_SET_OPTION, CARD_SET_PICKER_LIMIT } from "@/lib/constants/scanner";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";
@@ -112,7 +113,9 @@ export default function HealthScreen() {
           description={t("health.lastChecked", { time: new Date(data.checkedAt).toLocaleTimeString(i18n.language) })}
         />
       ) : null}
-      {health.isPending ? (
+      {health.isError && !data ? (
+        <QueryErrorState title={t("health.loadFailed")} onRetry={() => void health.refetch()} isRetrying={health.isFetching} />
+      ) : health.isPending ? (
         <ListSkeleton withIcon={false} />
       ) : (
         <ListGroup>
