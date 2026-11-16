@@ -18,6 +18,7 @@ import {
   type StorageLocationExportSummary,
 } from "@magic-vault/shared";
 import { and, asc, eq, inArray, sql, type SQL } from "drizzle-orm";
+import { shortLinkUrlFor } from "../../lib/shortener-client";
 import { uuidArraySql } from "../../lib/sql-arrays";
 import type { Transaction } from "../../db";
 import {
@@ -246,7 +247,7 @@ export async function loadLocations(
   if (guids && guids.length === 0) return [];
   const pricing = await loadOrgPricing(tx, orgId);
   const result = await tx.execute(sql`
-    SELECT sl.guid, sl.name, sl.created_at, sl.last_used_at,
+    SELECT sl.guid, sl.name, sl.created_at, sl.last_used_at, sl.label_short_code,
       count(cc.id)::int AS card_count,
       COALESCE(sum(${joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp")}) FILTER (WHERE cc.id IS NOT NULL), 0)::float8 AS total_value
     FROM ${storageLocations} sl
@@ -271,6 +272,7 @@ export async function loadLocations(
     lastUsedAt: r.last_used_at ? new Date(r.last_used_at) : null,
     cardCount: Number(r.card_count),
     totalValue: Number(r.total_value),
+    labelShortUrl: shortLinkUrlFor(r.label_short_code),
   }));
 }
 

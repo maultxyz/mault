@@ -5,6 +5,7 @@ export interface StorageLocationRow {
   last_used_at: Date | string | null;
   card_count: number;
   total_value: number;
+  label_short_code: string;
 }
 
 export interface MoveCardsToLocationInput {

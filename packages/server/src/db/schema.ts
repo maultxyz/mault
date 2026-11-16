@@ -575,6 +575,7 @@ export const storageLocations = pgTable(
     name: text("name").notNull(),
     orgId: text("org_id").notNull(),
     shareLinkVersion: integer("share_link_version").notNull().default(0),
+    labelShortCode: text("label_short_code").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
     lastUsedAt: timestamp("last_used_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -582,6 +583,7 @@ export const storageLocations = pgTable(
   },
   (table) => [
     unique("storage_locations_guid_idx").on(table.guid),
+    unique("storage_locations_label_short_code_idx").on(table.labelShortCode),
     uniqueIndex("storage_locations_org_name_idx")
       .on(table.orgId, table.name)
       .where(sql`${table.isDeleted} = false`),

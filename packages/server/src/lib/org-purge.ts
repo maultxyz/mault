@@ -93,15 +93,20 @@ export async function purgeOrgData(
     .delete(shopCatalogs)
     .where(eq(shopCatalogs.orgId, orgId))
     .returning({ shortCode: shopCatalogs.shortCode });
+  const purgedStorageLabels = await tx
+    .delete(storageLocations)
+    .where(eq(storageLocations.orgId, orgId))
+    .returning({ shortCode: storageLocations.labelShortCode });
   await deleteShortLinks(
-    [...purgedShareLinks, ...purgedCatalogs].map((row) => row.shortCode),
+    [...purgedShareLinks, ...purgedCatalogs, ...purgedStorageLabels].map(
+      (row) => row.shortCode,
+    ),
   );
   await tx.delete(orgActivityLog).where(eq(orgActivityLog.orgId, orgId));
   await tx.delete(apiKeyUsageDaily).where(eq(apiKeyUsageDaily.orgId, orgId));
   await tx.delete(orgApiKeys).where(eq(orgApiKeys.orgId, orgId));
   await tx.delete(webhookEndpoints).where(eq(webhookEndpoints.orgId, orgId));
   await tx.delete(unmatchedCards).where(eq(unmatchedCards.orgId, orgId));
-  await tx.delete(storageLocations).where(eq(storageLocations.orgId, orgId));
   await tx.delete(soundRules).where(eq(soundRules.orgId, orgId));
   await tx
     .delete(notificationRules)

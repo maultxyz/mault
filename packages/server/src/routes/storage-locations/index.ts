@@ -23,6 +23,9 @@ import {
   type StorageLocationSearchResult,
 } from "@magic-vault/shared";
 import { and, asc, eq, inArray, sql } from "drizzle-orm";
+import { generateShortLinkCode } from "../../lib/short-link-codes";
+import { storageLabelShortTarget } from "../../lib/short-links";
+import { registerShortLinks } from "../../lib/shortener-client";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import {
@@ -217,8 +220,18 @@ const router = new Hono<AppEnv>()
       }
       const [created] = await tx
         .insert(storageLocations)
-        .values({ name, orgId })
-        .returning({ guid: storageLocations.guid });
+        .values({ name, orgId, labelShortCode: generateShortLinkCode() })
+        .returning({
+          guid: storageLocations.guid,
+          labelShortCode: storageLocations.labelShortCode,
+        });
+      await registerShortLinks([
+        storageLabelShortTarget({
+          guid: created.guid!,
+          orgId,
+          labelShortCode: created.labelShortCode,
+        }),
+      ]);
       return {
         success: true,
         data: { guid: created.guid! },

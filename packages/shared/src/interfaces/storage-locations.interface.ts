@@ -13,6 +13,7 @@ export interface StorageLocation {
   totalValue: number;
   lastUsedAt: Date | null;
   createdAt: Date;
+  labelShortUrl?: string | null;
 }
 
 export interface CardStorageLocation {
