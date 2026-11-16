@@ -241,7 +241,9 @@ export function ScannerControls({
       {flatbedScan && (
         <FlatbedScanControls flow={flatbedScan} orientation={orientation} />
       )}
-      <div className={cn("flex gap-2", isVertical ? "flex-col" : "flex-row")}>
+      <div
+        className={cn("flex gap-2", isVertical ? "flex-col" : "flex-row flex-wrap")}
+      >
         {!sessionFeed && <ScanModeSwitch className="shrink-0" />}
         {flatbedScan ? (
           <FlatbedScanButton
