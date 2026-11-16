@@ -62,6 +62,7 @@ export function isFirmwareFeatureSupported(
 export const SERIAL_FED_EVENT = "fed";
 export const SERIAL_FEED_TIMEOUT_ERROR_PREFIX = "timeout";
 export const SERIAL_JAM_ERROR = "jam";
+export const ROUTE_TIMEOUT_MODULE_PATTERN = /no card detected at module (\d+)/;
 export const SERIAL_BUSY_ERROR = "busy";
 export const SERIAL_STOPPED_ERROR = "stopped";
 export const SERIAL_STOPPED_STATUS = "stopped";

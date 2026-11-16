@@ -33,6 +33,7 @@ import {
   isFeedTimeoutReply,
   isFirmwareFeatureSupported,
   OCR_REGIONS_BY_GAME_KEY,
+  ROUTE_TIMEOUT_MODULE_PATTERN,
   SERIAL_JAM_ERROR,
   type SerialReply,
   toRuleCard,
@@ -95,7 +96,6 @@ import {
 } from "@/lib/constants/scanner";
 import { HAND_SCAN_BINS_KEY, HAND_SCAN_KEY } from "@/lib/constants/storage-keys";
 import { readKv, writeKv } from "@/lib/storage/kv";
-import { ROUTE_TIMEOUT_MODULE_PATTERN } from "@/lib/constants/sorter";
 import { SHORT_LINK_BASE_URL } from "@/lib/constants/config";
 import type {
   CapturedFrame,

@@ -1,8 +1,10 @@
-import { isEmergencyStopReply } from "@magic-vault/shared";
+import {
+  isEmergencyStopReply,
+  ROUTE_TIMEOUT_MODULE_PATTERN,
+} from "@magic-vault/shared";
 import {
   reportSerialEvent,
 } from "@/features/notifications/api/notification-settings";
-import { ROUTE_TIMEOUT_MODULE_PATTERN } from "@/lib/constants/scanner";
 import type { RouteCardToBinParams } from "@/lib/interfaces/scanner";
 
 export async function routeCardToBin({

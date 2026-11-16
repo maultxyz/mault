@@ -114,7 +114,6 @@ export const MONITOR_NEEDS_REVIEW_CARDS_QUERY: CollectionCardsQuery = {
 };
 export const SENSOR_BLOCKED_TOAST_ID = "test-sensor-blocked";
 export const SESSION_LOCK_ALERT_ID = "session-lock";
-export const ROUTE_TIMEOUT_MODULE_PATTERN = /no card detected at module (\d+)/;
 
 export const PARKED_PANELS_ROOT_CLASS =
   "fixed top-0 left-0 -z-10 invisible pointer-events-none";
