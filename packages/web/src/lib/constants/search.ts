@@ -1,5 +1,6 @@
 export const SEARCH_PATH = "/app/search";
 export const SEARCH_QUERY_PARAM = "q";
+export const GLOBAL_SEARCH_ARIA_KEY_SHORTCUTS = "Control+/ Meta+/";
 export const CATALOG_CARD_ROUTE_PATH = `${SEARCH_PATH}/cards/:gameKey/:cardId`;
 export const OWNED_CARD_SEARCH_QUERY_KEY = "owned-card-search";
 export const CATALOG_SEARCH_QUERY_KEY = "catalog-card-search";
@@ -14,10 +15,6 @@ export const CARD_PRINTING_TILE_CLASS =
 export const CARD_PRINTING_TILE_ART_CLASS = "relative block aspect-[2.5/3.5] w-full overflow-hidden rounded-md";
 export const CATALOG_SEARCH_STALE_MS = 60_000;
 export const SEARCH_RESULT_SKELETON_ROWS = 3;
-export const SEARCH_RESULT_LIST_CLASS =
-  "flex shrink-0 flex-col divide-y divide-border overflow-hidden rounded-card bg-card px-4 md:px-2.5";
-export const SEARCH_RESULT_ROW_CLASS =
-  "flex min-h-12 w-full items-center gap-3 py-2 text-left text-foreground outline-none transition-colors hover:text-primary focus-visible:rounded-md focus-visible:ring-2 focus-visible:ring-ring active:bg-foreground/6 md:min-h-10 md:gap-2.5 md:py-1.5";
 export const SEARCH_RESULT_THUMBNAIL_CLASS =
   "block aspect-[2.5/3.5] w-8 shrink-0 overflow-hidden rounded-sm bg-muted md:w-7";
 export const SEARCH_RESULT_ICON_CLASS =

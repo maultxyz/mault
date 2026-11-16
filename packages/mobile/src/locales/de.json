@@ -3433,6 +3433,10 @@
       "catalog": "Alle Karten"
     },
     "catalogLoadFailed": "Der Kartenkatalog konnte nicht durchsucht werden. Zum Aktualisieren nach unten ziehen.",
+    "showMoreCards": "Mehr deiner Karten anzeigen",
+    "showMoreCatalogCards": "Mehr Karten anzeigen",
+    "loadingMore": "Weitere Ergebnisse werden geladen",
+    "loadMoreFailed": "Weitere Ergebnisse konnten nicht geladen werden. Versuche es erneut.",
     "printings": {
       "title": "Drucke",
       "titleWithCount_one": "Drucke ({{count}})",

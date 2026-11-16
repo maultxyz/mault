@@ -18,18 +18,28 @@ export interface CardPrintingTileProps {
 
 export type { AddCatalogCardInput } from "@magic-vault/shared";
 
-export interface SearchResultSectionProps {
-  title: string;
-  isLoading?: boolean;
-  children?: ReactNode;
+export interface GlobalSearchShowMoreItemProps {
+  value: string;
+  label: string;
+  isLoading: boolean;
+  onSelect: () => void;
 }
 
-export interface SearchResultRowProps {
-  to: string;
+export interface GlobalSearchState {
+  isOpen: boolean;
+  initialQuery: string;
+}
+
+export interface GlobalSearchResultItemProps {
+  value: string;
   title: string;
   subtitle?: string | null;
   leading: ReactNode;
-  onNavigate?: () => void;
+  onSelect: () => void;
+}
+
+export interface GlobalSearchLoadingGroupProps {
+  heading: string;
 }
 
 export interface SearchResultIconProps {

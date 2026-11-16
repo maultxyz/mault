@@ -340,6 +340,7 @@ async function searchCatalogCardsGroupedByNameUncached(
   query: string,
   offset = 0,
   setCode?: string,
+  pageLimit = STORED_SEARCH_LIMIT,
 ): Promise<Result<CatalogCardSearchPage>> {
   if (validateCatalogQuery(query)) {
     return {
@@ -375,11 +376,11 @@ async function searchCatalogCardsGroupedByNameUncached(
       printingMatch,
       exactName: trimmed,
       offset,
-      limit: STORED_SEARCH_LIMIT + 1,
+      limit: pageLimit + 1,
     }),
   );
-  const hasMore = result.rows.length > STORED_SEARCH_LIMIT;
-  const normalized = result.rows.slice(0, STORED_SEARCH_LIMIT).flatMap((row) => {
+  const hasMore = result.rows.length > pageLimit;
+  const normalized = result.rows.slice(0, pageLimit).flatMap((row) => {
     const card = adapter.normalizeStored(row.data, row.card_id, row.lang);
     return card
       ? [{ card: { ...card, lang: row.lang }, printingCount: Number(row.printing_count) }]
@@ -399,7 +400,7 @@ async function searchCatalogCardsGroupedByNameUncached(
         card: pricedCards[index],
         printingCount,
       })),
-      nextOffset: hasMore ? offset + STORED_SEARCH_LIMIT : null,
+      nextOffset: hasMore ? offset + pageLimit : null,
     },
   };
 }
@@ -482,10 +483,11 @@ export function searchCatalogCardsGroupedByName(
   query: string,
   offset = 0,
   setCode?: string,
+  pageLimit = STORED_SEARCH_LIMIT,
 ): Promise<Result<CatalogCardSearchPage>> {
   return groupedCatalogSearchCache.get(
-    catalogCacheKey([...resolvedSearchCacheKeyParts(resolved), query, offset, setCode]),
-    () => searchCatalogCardsGroupedByNameUncached(resolved, query, offset, setCode),
+    catalogCacheKey([...resolvedSearchCacheKeyParts(resolved), query, offset, setCode, pageLimit]),
+    () => searchCatalogCardsGroupedByNameUncached(resolved, query, offset, setCode, pageLimit),
   );
 }
 

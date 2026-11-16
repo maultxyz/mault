@@ -3,6 +3,9 @@ import { sql } from "drizzle-orm";
 import {
   normalizeOwnedCardSearchQuery,
   ownedCardSearchLimit,
+  ownedCardSearchOffset,
+  OWNED_CARD_SEARCH_LIMIT_PARAM,
+  OWNED_CARD_SEARCH_OFFSET_PARAM,
   type OwnedCardSearchResult,
 } from "@magic-vault/shared";
 import { authQuery } from "../../db";
@@ -31,10 +34,11 @@ export const searchOwnedCardsRoute = new Hono<AppEnv>().get(
     const orgId = c.get("orgId");
     const query = normalizeOwnedCardSearchQuery(c.req.query("q"));
     if (!query) return c.json({ success: true, data: [] as OwnedCardSearchResult[] });
-    const limit = ownedCardSearchLimit(c.req.query("limit"));
+    const limit = ownedCardSearchLimit(c.req.query(OWNED_CARD_SEARCH_LIMIT_PARAM));
+    const offset = ownedCardSearchOffset(c.req.query(OWNED_CARD_SEARCH_OFFSET_PARAM));
     const data = await ownedCardSearchCache.get(
       orgId,
-      JSON.stringify([query, limit]),
+      JSON.stringify([query, limit, offset]),
       async () => {
         const rows = await authQuery(c.get("jwtClaims"), async (tx) => {
           const result = await tx.execute(sql`
@@ -64,7 +68,9 @@ export const searchOwnedCardsRoute = new Hono<AppEnv>().get(
               CASE WHEN starts_with(lower(cc.card_name), ${query}) THEN 0 ELSE 1 END,
               cc.card_name,
               col.name,
-              cc.scanned_at DESC
+              cc.scanned_at DESC,
+              cc.id
+            OFFSET ${offset}
             LIMIT ${limit}
           `);
           return result.rows as unknown as OwnedCardSearchRow[];

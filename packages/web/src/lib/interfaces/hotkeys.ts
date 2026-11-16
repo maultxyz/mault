@@ -12,6 +12,7 @@ export type HotkeyId =
   | "showShortcuts"
   | "toggleSidebar"
   | "focusSearch"
+  | "openGlobalSearch"
   | "dismissToasts"
   | "clearSelection"
   | "save"

@@ -264,3 +264,4 @@ export * from "./leaderboard";
 export * from "./sound-rules-draft";
 export * from "./scan-region";
 export * from "./calibration-keys";
+export * from "./global-search-paging";

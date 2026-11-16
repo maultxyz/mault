@@ -235,6 +235,7 @@
       "showShortcuts": "Show keyboard shortcuts",
       "toggleSidebar": "Expand or collapse the sidebar",
       "focusSearch": "Focus search",
+      "openGlobalSearch": "Open global search",
       "dismissToasts": "Clear all notifications",
       "save": "Save changes",
       "clearSelection": "Clear the selection",

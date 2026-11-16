@@ -130,13 +130,12 @@ const loadScannerPage = () => import("@/app/routes/app/index");
 const loadHomePage = () => import("@/app/routes/app/home");
 const HomePage = lazy(loadHomePage);
 const loadLibraryPage = () => import("@/app/routes/app/library");
-const loadSearchPage = () => import("@/app/routes/app/search");
 const loadCollectionsPage = () => import("@/app/routes/app/collections");
 const loadCollectionViewPage = () => import("@/app/routes/app/collection-view");
 const loadStoragePage = () => import("@/app/routes/app/storage");
 const loadStatsPage = () => import("@/app/routes/app/stats");
 const LibraryPage = lazy(loadLibraryPage);
-const SearchPage = lazy(loadSearchPage);
+const GlobalSearchRedirect = lazy(() => import("@/app/routes/app/search"));
 const CatalogCardPage = lazy(() => import("@/app/routes/app/catalog-card"));
 const AppLayout = lazy(loadAppLayout);
 const ScannerPage = lazy(loadScannerPage);
@@ -274,7 +273,6 @@ function AppChunkPreloader() {
         [
           loadLibraryPage,
           loadCollectionViewPage,
-          loadSearchPage,
           loadStatsPage,
           loadStoragePage,
           loadCollectionsPage,
@@ -639,7 +637,7 @@ export const routes: RouteObject[] = [
               },
               {
                 path: SEARCH_PATH,
-                element: <SearchPage />,
+                element: <GlobalSearchRedirect />,
               },
               {
                 path: CATALOG_CARD_ROUTE_PATH,

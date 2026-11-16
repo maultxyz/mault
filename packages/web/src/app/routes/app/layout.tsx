@@ -9,6 +9,7 @@ import { SeasonalPumpkin, SpiderWeb } from "@/components/halloween-decor";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { PlanPreviewBanner } from "@/components/plan-preview-banner";
 import { IntakeBanner } from "@/features/business/components/intake-banner";
+import { GlobalSearchCommand } from "@/features/search/components/global-search-command";
 import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog";
 import { MobileNav } from "@/components/mobile-nav";
 import { MobileTopBar } from "@/components/mobile-top-bar";
@@ -54,6 +55,7 @@ export default function AppLayout() {
     <AppProviders>
       <SkipLink />
       <RouteAnnouncer />
+      <GlobalSearchCommand />
       {isMobile ? (
         <div
           className={cn(

@@ -1,4 +1,5 @@
 import type { PlayingCard } from "./card.interface";
+import type { OwnedCardSearchResult } from "./owned-card-search.interface";
 
 export interface CatalogGame {
   gameKey: string;
@@ -32,4 +33,16 @@ export interface CatalogCardResult {
 export interface AddCatalogCardInput {
   collectionGuid: string;
   card: PlayingCard;
+}
+
+export interface OwnedCardSearchPage {
+  results: OwnedCardSearchResult[];
+  nextOffset: number | null;
+}
+
+export type CatalogSearchOffsetsByGame = Record<string, number>;
+
+export interface CatalogCardsSearchPage {
+  results: CatalogCardResult[];
+  nextOffsetsByGame: CatalogSearchOffsetsByGame | null;
 }

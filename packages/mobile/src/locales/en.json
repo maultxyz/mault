@@ -3433,6 +3433,10 @@
       "catalog": "All cards"
     },
     "catalogLoadFailed": "Couldn't search the card catalog. Pull down to try again.",
+    "showMoreCards": "Show more of your cards",
+    "showMoreCatalogCards": "Show more cards",
+    "loadingMore": "Loading more results",
+    "loadMoreFailed": "Couldn't load more results. Try again.",
     "printings": {
       "title": "Printings",
       "titleWithCount_one": "Printings ({{count}})",

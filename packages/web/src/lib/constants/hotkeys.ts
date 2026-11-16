@@ -46,6 +46,7 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   showShortcuts: { group: "general", keys: [{ key: "?" }] },
   toggleSidebar: { group: "general", keys: [{ key: "[" }] },
   focusSearch: { group: "general", keys: [{ key: "/" }] },
+  openGlobalSearch: { group: "general", keys: [{ key: "/", mod: true }] },
   dismissToasts: { group: "general", keys: [{ key: "x", shift: true }] },
   clearSelection: { group: "general", keys: [{ key: "escape" }] },
   save: { group: "general", keys: [{ key: "s", mod: true }] },
