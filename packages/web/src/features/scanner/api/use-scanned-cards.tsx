@@ -18,6 +18,7 @@ import {
   applyAutoAssignTarget,
   findAutoAssignTarget,
   evaluatePickListBin,
+  routeForBin,
   applyPickListFound,
   isPickListComplete,
   isPickListBin,
@@ -628,15 +629,11 @@ export function ScannedCardsProvider({
     [],
   );
 
-  const resolveRoute = useCallback((binNumber: number): BinRoute => {
-    const found = binRoutesRef.current.find((r) => r.binNumber === binNumber);
-    if (found) return found;
-    const lastModule = Math.max(
-      1,
-      ...binRoutesRef.current.map((r) => r.module),
-    );
-    return { binNumber, module: lastModule, direction: "bottom" };
-  }, []);
+  const resolveRoute = useCallback(
+    (binNumber: number): BinRoute =>
+      routeForBin(binNumber, binRoutesRef.current),
+    [],
+  );
 
   const setForceFoilType = useCallback((foilType: string | null) => {
     forceFoilTypeRef.current = foilType;

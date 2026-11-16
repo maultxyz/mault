@@ -34,6 +34,7 @@ import {
   isFirmwareFeatureSupported,
   OCR_REGIONS_BY_GAME_KEY,
   ROUTE_TIMEOUT_MODULE_PATTERN,
+  routeForBin,
   SERIAL_JAM_ERROR,
   type SerialReply,
   toRuleCard,
@@ -444,16 +445,11 @@ export function useScanSession({
     };
   }, [collection, configs, needsBinContents, binDataReloadAttempt]);
 
-  const routeFor = useCallback((binNumber: number): BinRoute => {
-    const { binRoutes: routes, sorter: s } = latestRef.current;
-    return (
-      routes?.find((r) => r.binNumber === binNumber) ?? {
-        binNumber,
-        module: s.device?.moduleCount ?? 1,
-        direction: "bottom",
-      }
-    );
-  }, []);
+  const routeFor = useCallback(
+    (binNumber: number): BinRoute =>
+      routeForBin(binNumber, latestRef.current.binRoutes ?? []),
+    [],
+  );
 
   const countInBin = useCallback(
     (binNumber: number) => binCountsRef.current.get(binNumber) ?? 0,
