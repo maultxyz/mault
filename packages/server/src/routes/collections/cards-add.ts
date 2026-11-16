@@ -178,6 +178,13 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             gameId: null,
           };
 
+        const savedCardSnapshotsRequest = toSavedCardSnapshots(
+          { gameKey: collection.gameKey, lang: collection.lang },
+          card,
+          alternativeMatches,
+        );
+        savedCardSnapshotsRequest.catch(() => undefined);
+
         let storageLocationId: number | null = null;
         if (storageLocationGuid) {
           const storageAllowed = await orgHasFeature(tx, orgId, "storage");
@@ -329,11 +336,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         }
 
         const intakeLotId = await findOpenIntakeLotId(tx, collection.id);
-        const saved = await toSavedCardSnapshots(
-          { gameKey: collection.gameKey, lang: collection.lang },
-          card,
-          alternativeMatches,
-        );
+        const saved = await savedCardSnapshotsRequest;
         await insertScanWithPickList(
           tx,
           {

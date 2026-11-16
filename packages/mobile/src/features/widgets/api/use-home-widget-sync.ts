@@ -38,6 +38,7 @@ import {
   EMPTY_SCANNER_ACTIVITY_WIDGET_PROPS,
   EMPTY_TOTAL_CARDS_WIDGET_PROPS,
   EMPTY_WIDGET_LOGO,
+  HOME_WIDGETS_SUPPORTED,
   NOTIFICATIONS_WIDGET_URL,
   SCANNER_ACTIVITY_WIDGET_REFRESH_MS,
 } from "@/lib/constants/widgets";
@@ -49,15 +50,17 @@ export function useHomeWidgetSync(): void {
   const { status } = useSession();
   const orgId = useActiveOrgId();
   const pricing = usePricing();
-  const { data: overview } = useQuery(orgOverviewQueryOptions(orgId, false));
-  const { data: tradeOffers } = useQuery(pendingTradeOffersQueryOptions(orgId));
+  const isWidgetDataEnabled = HOME_WIDGETS_SUPPORTED && !!orgId;
+  const { data: overview } = useQuery({ ...orgOverviewQueryOptions(orgId, false), enabled: isWidgetDataEnabled });
+  const { data: tradeOffers } = useQuery({ ...pendingTradeOffersQueryOptions(orgId), enabled: isWidgetDataEnabled });
   const alerts = useAppAlerts();
   const { locks } = useAppStream();
-  const { data: collections } = useQuery(collectionsQueryOptions(orgId));
+  const { data: collections } = useQuery({ ...collectionsQueryOptions(orgId), enabled: isWidgetDataEnabled });
   const isAnyScannerRunning = Object.keys(locks).length > 0;
-  const { data: widgetSummary, dataUpdatedAt: widgetSummaryUpdatedAt } = useQuery(
-    widgetSummaryQueryOptions(orgId, isAnyScannerRunning),
-  );
+  const { data: widgetSummary, dataUpdatedAt: widgetSummaryUpdatedAt } = useQuery({
+    ...widgetSummaryQueryOptions(orgId, isAnyScannerRunning),
+    enabled: isWidgetDataEnabled,
+  });
   const [scannerRefreshTick, setScannerRefreshTick] = useState(0);
   const [cardReviewSyncTick, setCardReviewSyncTick] = useState(0);
   const [cardImageUris, setCardImageUris] = useState<Map<string, string>>(() => new Map());

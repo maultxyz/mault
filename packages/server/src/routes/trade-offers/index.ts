@@ -5,6 +5,7 @@ import {
   tradeOfferAcceptRequestSchema,
   tradeOfferPickedRequestSchema,
   type ClaimOutgoingTradeOffersResult,
+  type TradeOffer,
   type TradeOfferPickResult,
   type TradeOfferStatus,
   type TradeOffersChangedEvent,
@@ -22,7 +23,10 @@ import {
   TRADE_OFFER_NOTHING_TO_PICK_MESSAGE,
   TRADE_OFFER_NOT_FOUND_MESSAGE,
   TRADE_OFFER_NOT_PENDING_MESSAGE,
+  OWNER_TRADE_OFFERS_CACHE_MAX_ENTRIES,
+  OWNER_TRADE_OFFERS_CACHE_TTL_MS,
 } from "../../lib/constants/trade-offers";
+import { createOrgReadCache } from "../../lib/org-read-cache";
 import { guestKeyHashFromHeader } from "../../lib/guest-keys";
 import {
   claimGuestTradeOffers,
@@ -53,6 +57,11 @@ const consumeClaimRateLimit = createRateLimiter({
   windowMs: TRADE_OFFER_CLAIM_RATE_LIMIT_WINDOW_MS,
   sweepSize: TRADE_OFFER_CLAIM_RATE_LIMIT_SWEEP_SIZE,
 });
+
+const ownerTradeOffersCache = createOrgReadCache<TradeOffer[]>(
+  OWNER_TRADE_OFFERS_CACHE_TTL_MS,
+  OWNER_TRADE_OFFERS_CACHE_MAX_ENTRIES,
+);
 
 function publishTradeOfferChanges(orgId: string, response: TradeOfferResponse) {
   deleteScanImages(response.imageKeys);
@@ -147,8 +156,10 @@ export const tradeOffersRouter = new Hono<AppEnv>()
     const status = (TRADE_OFFER_STATUSES as readonly string[]).includes(requested ?? "")
       ? (requested as TradeOfferStatus)
       : null;
-    const data = await authQuery(c.get("jwtClaims"), (tx) =>
-      listOwnerTradeOffers(tx, c.get("orgId"), status),
+    const orgId = c.get("orgId");
+    const jwtClaims = c.get("jwtClaims");
+    const data = await ownerTradeOffersCache.get(orgId, status ?? "all", () =>
+      authQuery(jwtClaims, (tx) => listOwnerTradeOffers(tx, orgId, status)),
     );
     return c.json({ success: true, data });
   })

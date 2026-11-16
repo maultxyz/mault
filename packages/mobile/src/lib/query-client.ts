@@ -1,7 +1,7 @@
 import { focusManager, onlineManager, QueryClient } from "@tanstack/react-query";
 import { addNetworkStateListener, getNetworkStateAsync } from "expo-network";
 import { AppState } from "react-native";
-import { QUERY_RETRY_COUNT, QUERY_STALE_MS } from "@/lib/constants/query";
+import { QUERY_GC_MS, QUERY_RETRY_COUNT, QUERY_STALE_MS } from "@/lib/constants/query";
 import { isOnlineNetworkState } from "@/lib/network";
 
 focusManager.setEventListener((setFocused) => {
@@ -19,7 +19,7 @@ onlineManager.setEventListener((setOnline) => {
 
 export const queryClient = new QueryClient({
   defaultOptions: {
-    queries: { retry: QUERY_RETRY_COUNT, refetchOnWindowFocus: false, staleTime: QUERY_STALE_MS },
+    queries: { retry: QUERY_RETRY_COUNT, refetchOnWindowFocus: false, staleTime: QUERY_STALE_MS, gcTime: QUERY_GC_MS },
     mutations: { networkMode: "always" },
   },
 });

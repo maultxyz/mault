@@ -1,6 +1,7 @@
 import type {
   CardPriceSortCurrency,
   FieldMeta,
+  GroupedScannedCard,
   OrgPricing,
   PlayingCardWithDistance,
 } from "@magic-vault/shared";
@@ -56,6 +57,28 @@ export interface CollectionCardRow {
   location_guid?: string | null;
   location_name?: string | null;
   location_position?: number | null;
+}
+
+export interface CardsPageTotals {
+  total_entries: number;
+  total_cards: number;
+}
+
+export interface CardsPageRow extends CollectionCardRow, CardsPageTotals {
+  scan_ids: string[];
+  quantity: number;
+  stored_count: number;
+}
+
+export interface CardsPageRows {
+  rows: CardsPageRow[];
+  totals: CardsPageTotals | undefined;
+}
+
+export interface CollectionCardsPageEntries {
+  items: GroupedScannedCard[];
+  totalEntries: number;
+  totalCards: number;
 }
 
 export type TransactionRunner = <T>(fn: (tx: Transaction) => Promise<T>) => Promise<T>;

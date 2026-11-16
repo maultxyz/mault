@@ -26,6 +26,7 @@ export function ListPagination({
   alignsEnd = false,
   pageSize,
   onPageSizeChange,
+  onPageIntent,
   className,
 }: ListPaginationProps) {
   const { t } = useTranslation("common");
@@ -52,6 +53,13 @@ export function ListPagination({
   const goToPage = (nextPage: number) => {
     const clampedPage = clampPage(nextPage, pageCount);
     if (clampedPage !== page) setPage(clampedPage);
+  };
+
+  const pageIntentHandlers = (targetPage: number) => {
+    if (!onPageIntent || targetPage < 1 || targetPage > pageCount) return {};
+    if (targetPage === page) return {};
+    const announcePageIntent = () => onPageIntent(targetPage);
+    return { onPointerEnter: announcePageIntent, onFocus: announcePageIntent };
   };
 
   const submitPageJump = (event: FormEvent<HTMLFormElement>) => {
@@ -124,6 +132,7 @@ export function ListPagination({
               title={t("pagination.previous")}
               disabled={page <= 1}
               onClick={() => goToPage(page - 1)}
+              {...pageIntentHandlers(page - 1)}
             >
               <IconChevronLeft />
               {!isCondensed && t("pagination.previous")}
@@ -138,6 +147,7 @@ export function ListPagination({
                   aria-label={t("pagination.pageNumber", { page: item })}
                   aria-current={item === page ? "page" : undefined}
                   onClick={() => goToPage(item)}
+                  {...pageIntentHandlers(item)}
                 >
                   {item}
                 </Button>
@@ -158,6 +168,7 @@ export function ListPagination({
               title={t("pagination.next")}
               disabled={page >= pageCount}
               onClick={() => goToPage(page + 1)}
+              {...pageIntentHandlers(page + 1)}
             >
               {!isCondensed && t("pagination.next")}
               <IconChevronRight />

@@ -5,6 +5,7 @@ import {
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { getDeviceByGuid } from "../../lib/devices";
+import { readOrgResource } from "../../lib/org-resource-read-cache";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { rowToCalibration } from "./shared";
 
@@ -15,21 +16,23 @@ export const getFeederRoute = new Hono<AppEnv>().get(
   async (c) => {
     const orgId = c.get("orgId");
     const deviceGuid = c.req.param("guid") as string;
-    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      const device = await getDeviceByGuid(tx, orgId, deviceGuid);
-      if (!device) return { success: false, message: "Device not found." };
-      const row = await tx.query.feederConfigs.findFirst({
-        where: (t, { eq }) => eq(t.deviceId, device.id),
-      });
-      const calibration: FeederCalibration = row
-        ? rowToCalibration(row)
-        : { ...DEFAULT_FEEDER_CALIBRATION };
-      return {
-        success: true,
-        message: "Loaded feeder config.",
-        data: calibration,
-      };
-    });
+    const result = await readOrgResource(orgId, `devices:feeder:${deviceGuid}`, () =>
+      authQuery(c.get("jwtClaims"), async (tx) => {
+        const device = await getDeviceByGuid(tx, orgId, deviceGuid);
+        if (!device) return { success: false, message: "Device not found." };
+        const row = await tx.query.feederConfigs.findFirst({
+          where: (t, { eq }) => eq(t.deviceId, device.id),
+        });
+        const calibration: FeederCalibration = row
+          ? rowToCalibration(row)
+          : { ...DEFAULT_FEEDER_CALIBRATION };
+        return {
+          success: true,
+          message: "Loaded feeder config.",
+          data: calibration,
+        };
+      }),
+    );
     return c.json(result);
   },
 );

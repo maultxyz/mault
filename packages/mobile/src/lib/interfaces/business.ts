@@ -34,6 +34,7 @@ export interface BusinessListViewProps {
 export interface IntakeLotRowProps {
   lot: IntakeLot;
   onPress: () => void;
+  onPressIn: () => void;
 }
 
 export interface IntakeLotCardRowProps {
@@ -44,6 +45,7 @@ export interface IntakeLotCardRowProps {
 export interface OrderRowProps {
   order: FulfilmentOrder;
   onPress: () => void;
+  onPressIn: () => void;
 }
 
 export interface OrderLineRowProps {

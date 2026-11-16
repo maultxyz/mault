@@ -399,6 +399,20 @@ export function CardGrid() {
     ),
     enabled: !!collectionGuid && !scanTimelineGrouping,
   });
+  const prefetchCardPage = useCallback(
+    (oneBasedPage: number) => {
+      if (!collectionGuid || scanTimelineGrouping) return;
+      void queryClient.prefetchQuery(
+        collectionCardsPageQueryOptions(
+          collectionGuid,
+          cardsQuery,
+          oneBasedPage - 1,
+          pageSize,
+        ),
+      );
+    },
+    [collectionGuid, scanTimelineGrouping, queryClient, cardsQuery, pageSize],
+  );
   const scanTimelineTimeZone = useMemo(() => deviceTimeZone(), []);
   const scanTimelineCardsQuery = useInfiniteQuery({
     ...scanTimelineCardsQueryOptions(collectionGuid, cardsQuery),
@@ -1112,6 +1126,7 @@ export function CardGrid() {
               }}
               pageSize={pageSize}
               onPageSizeChange={changePageSize}
+              onPageIntent={prefetchCardPage}
             />
             {viewMode === "list" ? (
               renderCardList(pagedCards)
@@ -1137,6 +1152,7 @@ export function CardGrid() {
               }}
               pageSize={pageSize}
               onPageSizeChange={changePageSize}
+              onPageIntent={prefetchCardPage}
             />
           </>
         )}

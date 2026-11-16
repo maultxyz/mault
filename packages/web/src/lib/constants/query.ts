@@ -1,3 +1,15 @@
+import type { DefaultOptions } from "@tanstack/react-query";
+
+export const INACTIVE_QUERY_CACHE_MS = 15 * 60_000;
+
+export const APP_QUERY_DEFAULT_OPTIONS: DefaultOptions = {
+  queries: {
+    staleTime: Infinity,
+    gcTime: INACTIVE_QUERY_CACHE_MS,
+    retry: 1,
+  },
+};
+
 export const QUERY_INVALIDATION_EXCLUDED_KEYS = new Set([
   "games",
   "admin",

@@ -20,6 +20,11 @@ export interface SessionSnapshot {
   activeOrgId: string | null;
 }
 
+export interface CachedSessionProfile {
+  user: SessionUser;
+  organizations: UserOrganization[];
+}
+
 export interface SignInResult {
   error?: string;
 }

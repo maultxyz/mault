@@ -63,3 +63,16 @@ export interface SavedCardSnapshots<
   card: TCard;
   alternativeMatches: TAlternative[] | null;
 }
+
+export interface CatalogCardCacheOptions {
+  ttlMs: number;
+  maxEntries: number;
+  maxKeysPerCachedRead: number;
+  keyOf: (key: CatalogCardKey) => string;
+  load: (keys: CatalogCardKey[]) => Promise<Map<string, PlayingCard>>;
+}
+
+export interface CatalogCardCache {
+  load(keys: CatalogCardKey[]): Promise<Map<string, PlayingCard>>;
+  clear(): void;
+}

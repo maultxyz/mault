@@ -71,3 +71,5 @@ export const CC_ALIAS_SQL_COLUMNS: ScannedCardSqlColumns = {
   cardId: sql`cc.card_id`,
   collectionId: sql`cc.collection_id`,
 };
+
+export const STORED_SCANNED_PRICE_ALIAS = "stored_scanned_price";

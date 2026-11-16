@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -10,14 +10,14 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Pill } from "@/components/ui/pill";
-import { intakeLotsQueryOptions } from "@/features/business/api/business";
+import { intakeLotCardsQueryOptions, intakeLotQueryOptions, intakeLotsQueryOptions } from "@/features/business/api/business";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { BUSINESS_LIST_SKELETON_ROWS, BUSINESS_STATUS_TONES } from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
 import type { BusinessListViewProps, IntakeLotRowProps } from "@/lib/interfaces/business";
 
-function IntakeLotRow({ lot, onPress }: IntakeLotRowProps) {
+function IntakeLotRow({ lot, onPress, onPressIn }: IntakeLotRowProps) {
   const { t, i18n } = useTranslation();
   const { format } = usePricing();
   const offer = lot.status === "accepted" ? lot.paidTotal : lot.cashOffer;
@@ -41,6 +41,7 @@ function IntakeLotRow({ lot, onPress }: IntakeLotRowProps) {
       }
       accessibilityHint={t("business.intake.openHint")}
       onPress={onPress}
+      onPressIn={onPressIn}
     />
   );
 }
@@ -48,7 +49,12 @@ function IntakeLotRow({ lot, onPress }: IntakeLotRowProps) {
 export function IntakeLotsView({ canAct }: BusinessListViewProps) {
   const { t } = useTranslation();
   const orgId = useActiveOrgId();
+  const queryClient = useQueryClient();
   const lots = useInfiniteQuery(intakeLotsQueryOptions(orgId, true));
+  const prefetchIntakeLot = (guid: string) => {
+    void queryClient.prefetchQuery(intakeLotQueryOptions(guid));
+    void queryClient.prefetchInfiniteQuery(intakeLotCardsQueryOptions(guid, false));
+  };
   const items = lots.data?.pages.flatMap((page) => page.items) ?? [];
 
   if (lots.isPending) return <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} />;
@@ -91,6 +97,7 @@ export function IntakeLotsView({ canAct }: BusinessListViewProps) {
             key={lot.guid}
             lot={lot}
             onPress={() => router.push({ pathname: "/business/intake/[guid]", params: { guid: lot.guid } })}
+            onPressIn={() => prefetchIntakeLot(lot.guid)}
           />
         ))}
       </ListGroup>

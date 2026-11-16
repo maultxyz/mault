@@ -6,7 +6,6 @@ export type { ScanLockInfo };
 
 export interface AppStreamValue {
   locks: Record<string, ScanLockInfo>;
-  liveCounts: Record<string, number>;
   deployNotice: DeployNotice | null;
 }
 

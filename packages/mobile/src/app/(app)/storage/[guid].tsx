@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -55,6 +55,7 @@ import {
   CARD_GRID_COLUMNS,
   CARD_GRID_GAP_X,
   CARD_GRID_GAP_Y,
+  CARD_GRID_LIST_WINDOW_SIZE,
   LIST_END_THRESHOLD,
   SEARCH_DEBOUNCE_MS,
   STORAGE_CARD_VIEW_MODE_KEY,
@@ -104,7 +105,10 @@ export default function StorageLocationScreen() {
     () => ({ search: debouncedSearch, sort, filters, grouped: false }),
     [debouncedSearch, sort, filters],
   );
-  const cards = useInfiniteQuery(storageLocationCardsPageQueryOptions(guid, cardsQuery));
+  const cards = useInfiniteQuery({
+    ...storageLocationCardsPageQueryOptions(guid, cardsQuery),
+    placeholderData: keepPreviousData,
+  });
   const summary = useQuery(storageLocationCardsSummaryQueryOptions(guid));
   const breakdown = useMemo(
     () => (summary.data && summary.data.stats.totalCount > 0 ? toStatsBreakdown(summary.data.stats) : null),
@@ -247,6 +251,7 @@ export default function StorageLocationScreen() {
           columnWrapperStyle={isGrid ? { gap: CARD_GRID_GAP_X, paddingHorizontal: SPACING.sm } : undefined}
           contentContainerStyle={{ paddingBottom: SPACING.xxl, gap: isGrid ? CARD_GRID_GAP_Y : undefined }}
           onEndReachedThreshold={LIST_END_THRESHOLD}
+          windowSize={CARD_GRID_LIST_WINDOW_SIZE}
           onEndReached={() => {
             if (cards.hasNextPage && !cards.isFetchingNextPage) void cards.fetchNextPage();
           }}

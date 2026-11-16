@@ -8,16 +8,17 @@ import {
   SESSION_RESTORE_RETRY_MIN_MS,
 } from "@/lib/constants/auth";
 import { API_BASE, AUTH_PROVIDER } from "@/lib/constants/config";
-import { ACTIVE_ORG_KEY, SESSION_TOKEN_KEY } from "@/lib/constants/storage-keys";
+import { ACTIVE_ORG_KEY, SESSION_PROFILE_KEY, SESSION_TOKEN_KEY } from "@/lib/constants/storage-keys";
 import type {
   CachedJwt,
+  CachedSessionProfile,
   SessionSnapshot,
   SessionUser,
   SignInResult,
   UserOrganization,
 } from "@/lib/interfaces/auth";
 import type { Result } from "@magic-vault/shared";
-import { readKv, writeKv } from "@/lib/storage/kv";
+import { readKv, readKvJson, writeKv, writeKvJson } from "@/lib/storage/kv";
 import { delay } from "@/lib/delay";
 import { readSecure, writeSecure } from "@/lib/storage/secure";
 
@@ -44,6 +45,10 @@ function subscribe(listener: () => void): () => void {
   return () => {
     listeners.delete(listener);
   };
+}
+
+export function subscribeToSession(listener: () => void): () => void {
+  return subscribe(listener);
 }
 
 export function getSessionSnapshot(): SessionSnapshot {
@@ -101,23 +106,37 @@ function pickActiveOrg(orgs: UserOrganization[]): string | null {
 }
 
 async function loadProfile(): Promise<boolean> {
+  const sessionTokenAtStart = sessionToken;
   const token = await getAccessToken();
+  if (sessionToken !== sessionTokenAtStart) return true;
   if (!token) return false;
   const [user, organizations] = await Promise.all([
     fetchMe<SessionUser>("/api/me", token),
     fetchMe<UserOrganization[]>("/api/me/organizations", token),
   ]);
+  if (sessionToken !== sessionTokenAtStart) return true;
   if (!user) return false;
   const orgs = organizations ?? [];
-  const activeOrgId = pickActiveOrg(orgs);
-  writeKv(ACTIVE_ORG_KEY, activeOrgId);
-  setSnapshot({ status: "signed-in", user, organizations: orgs, activeOrgId });
+  writeKvJson(SESSION_PROFILE_KEY, { user, organizations: orgs } satisfies CachedSessionProfile);
+  applySignedInProfile({ user, organizations: orgs });
   return true;
+}
+
+function applySignedInProfile(profile: CachedSessionProfile): void {
+  const activeOrgId = pickActiveOrg(profile.organizations);
+  writeKv(ACTIVE_ORG_KEY, activeOrgId);
+  setSnapshot({ status: "signed-in", user: profile.user, organizations: profile.organizations, activeOrgId });
+}
+
+function readCachedSessionProfile(): CachedSessionProfile | null {
+  const profile = readKvJson<CachedSessionProfile | null>(SESSION_PROFILE_KEY, null);
+  return profile?.user?.id && Array.isArray(profile.organizations) ? profile : null;
 }
 
 function clearLocalSession(): void {
   sessionToken = null;
   cachedJwt = null;
+  writeKv(SESSION_PROFILE_KEY, null);
   void writeSecure(SESSION_TOKEN_KEY, null).catch((error: unknown) =>
     console.warn("Clearing the stored session failed", error),
   );
@@ -127,9 +146,12 @@ function clearLocalSession(): void {
 export async function restoreSession(): Promise<void> {
   sessionToken = await readSecure(SESSION_TOKEN_KEY);
   if (!sessionToken) {
+    writeKv(SESSION_PROFILE_KEY, null);
     setSnapshot({ status: "signed-out" });
     return;
   }
+  const cachedProfile = readCachedSessionProfile();
+  if (cachedProfile) applySignedInProfile(cachedProfile);
   for (let attempt = 0; ; attempt++) {
     try {
       if (!(await loadProfile())) clearLocalSession();

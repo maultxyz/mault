@@ -26,7 +26,10 @@ import { toScannedCard } from "./shared";
 import type {
   CardsCollection,
   CardSortScope,
+  CardsPageRow,
+  CardsPageRows,
   CardStatsSource,
+  CollectionCardsPageEntries,
   CollectionCardRow,
   ParsedCardSort,
 } from "../../lib/interfaces/collections";
@@ -434,17 +437,61 @@ function toCard(row: CollectionCardRow) {
   });
 }
 
-export async function loadCardsPage(
+function cardFilterUsesCatalog({ filters, search }: CollectionCardsQuery): boolean {
+  return filters.colors.length > 0 || filters.rarities.length > 0 || !!search;
+}
+
+async function loadUngroupedCardsPage(
   tx: Transaction,
   collection: CardsCollection,
   query: CollectionCardsQuery,
   page: number,
   pageSize: number,
-): Promise<{
-  items: GroupedScannedCard[];
-  totalEntries: number;
-  totalCards: number;
-}> {
+): Promise<CardsPageRows> {
+  const filter = cardFilterSql(query);
+  const result = await tx.execute(sql`
+    WITH totals AS (
+      SELECT count(*)::int AS total_entries
+      FROM collection_cards cc
+      ${cardFilterUsesCatalog(query) ? cardCatalogJoinSql(collection, CC_ALIAS_SQL_COLUMNS) : sql``}
+      WHERE cc.collection_id = ${collection.id} AND ${filter}
+    )
+    SELECT ${CARD_ROW_COLUMNS},
+      ARRAY[cc.guid::text] AS scan_ids,
+      1::int AS quantity,
+      (CASE WHEN sl.id IS NULL THEN 0 ELSE 1 END)::int AS stored_count,
+      totals.total_entries,
+      totals.total_entries AS total_cards
+    FROM collection_cards cc
+    ${STORAGE_LOCATION_JOIN}
+    ${cardQueryUsesCatalog(query, collection) ? cardCatalogJoinSql(collection, CC_ALIAS_SQL_COLUMNS) : sql``}
+    ${sortUsesStoredPrices(query.sort, collection) ? cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS) : sql``}
+    CROSS JOIN totals
+    WHERE cc.collection_id = ${collection.id} AND ${filter}
+    ORDER BY ${cardOrderSql(query.sort, collection)}
+    LIMIT ${pageSize}::int OFFSET ${page * pageSize}::int
+  `);
+  const rows = result.rows as unknown as CardsPageRow[];
+  if (rows[0] || page === 0) return { rows, totals: rows[0] };
+  const totalCount = await loadCardsCount(
+    tx,
+    collection,
+    filter,
+    cardFilterUsesCatalog(query),
+  );
+  return {
+    rows,
+    totals: { total_entries: totalCount, total_cards: totalCount },
+  };
+}
+
+async function loadGroupedCardsPage(
+  tx: Transaction,
+  collection: CardsCollection,
+  query: CollectionCardsQuery,
+  page: number,
+  pageSize: number,
+): Promise<CardsPageRows> {
   const cte = rankedCardsCte(collection, query);
   const result = await tx.execute(sql`
     WITH ${cte},
@@ -465,26 +512,29 @@ export async function loadCardsPage(
     ${STORAGE_LOCATION_JOIN}
     ORDER BY page.entry_rn
   `);
-  const rows = result.rows as unknown as (CollectionCardRow & {
-    scan_ids: string[];
-    quantity: number;
-    stored_count: number;
-    total_entries: number;
-    total_cards: number;
-  })[];
-  const totals =
-    rows[0] ?? (page > 0 ? await loadCardTotals(tx, cte) : undefined);
+  const rows = result.rows as unknown as CardsPageRow[];
   return {
-    items: await hydrateSavedScans(
-      collection,
-      rows.map((row) => ({
-        ...toCard(row),
-        scanIds: row.scan_ids,
-        quantity: row.quantity,
-        storedCount: row.stored_count,
-      })),
-      { includeRaw: true },
-    ),
+    rows,
+    totals: rows[0] ?? (page > 0 ? await loadCardTotals(tx, cte) : undefined),
+  };
+}
+
+export async function loadUnhydratedCardsPage(
+  tx: Transaction,
+  collection: CardsCollection,
+  query: CollectionCardsQuery,
+  page: number,
+  pageSize: number,
+): Promise<CollectionCardsPageEntries> {
+  const loadPage = query.grouped ? loadGroupedCardsPage : loadUngroupedCardsPage;
+  const { rows, totals } = await loadPage(tx, collection, query, page, pageSize);
+  return {
+    items: rows.map((row) => ({
+      ...toCard(row),
+      scanIds: row.scan_ids,
+      quantity: row.quantity,
+      storedCount: row.stored_count,
+    })),
     totalEntries: totals?.total_entries ?? 0,
     totalCards: totals?.total_cards ?? 0,
   };

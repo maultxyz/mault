@@ -1,0 +1,2 @@
+export const BIN_SET_LIST_CACHE_TTL_MS = 30_000;
+export const BIN_SET_LIST_CACHE_MAX_ENTRIES = 1_000;

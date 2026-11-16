@@ -5,7 +5,6 @@ import {
   tradeOfferOfferedCash,
   initialTradeOfferPickScanIds,
   splitTradeOfferPickScanIds,
-  type StorageLocationCard,
   type PlayingCard,
   type PublicTradeOffer,
   type TradeOffer,
@@ -15,7 +14,6 @@ import {
   type TradeOfferRequest,
   type TradeOfferStatus,
   type TradeOfferWantedCard,
-  type TradeOfferWantedPlacement,
 } from "@magic-vault/shared";
 import { and, count, desc, eq, gt, inArray, sql } from "drizzle-orm";
 import type { Transaction } from "../db";
@@ -27,6 +25,7 @@ import {
 } from "../db/schema";
 import {
   selectStoredCards,
+  selectStoredCardsWithPlacements,
   toStoredCards,
 } from "../routes/storage-locations/shared";
 import { logActivity } from "./activity-log";
@@ -36,6 +35,7 @@ import { resolveCardSearchForGame } from "./card-search/resolve";
 import { searchCards, searchCardsByIds } from "./card-search/stored-cards";
 import type {
   CreateTradeOfferInput,
+  CurrentTradeOfferWantedCards,
   CreateTradeOfferResult,
   PickTradeOfferCardsInput,
   PickTradeOfferCardsResult,
@@ -250,67 +250,39 @@ async function loadCurrentWantedCards(
   tx: Transaction,
   orgId: string,
   scanIds: string[],
-): Promise<Map<string, StorageLocationCard>> {
-  if (scanIds.length === 0) return new Map();
-  const rows = await selectStoredCards(tx).where(
+): Promise<CurrentTradeOfferWantedCards> {
+  if (scanIds.length === 0) {
+    return { cardsByScanId: new Map(), placementsByScanId: new Map() };
+  }
+  const rows = await selectStoredCardsWithPlacements(tx).where(
     and(
       sql`${collectionCards.guid} = ANY(${uuidArraySql([...new Set(scanIds)])})`,
       eq(collections.orgId, orgId),
+      eq(collectionCards.orgId, orgId),
     ),
   );
   const stored = await toStoredCards(rows, false);
-  return new Map(stored.map((entry) => [entry.scanId, entry]));
-}
-
-async function loadWantedPlacements(
-  tx: Transaction,
-  orgId: string,
-  scanIds: string[],
-): Promise<Map<string, TradeOfferWantedPlacement>> {
-  if (scanIds.length === 0) return new Map();
-  const rows = await tx
-    .select({
-      scanId: collectionCards.guid,
-      collectionName: collections.name,
-      storageLocationGuid: storageLocations.guid,
-      storageLocationName: storageLocations.name,
-      storagePosition: collectionCards.locationPosition,
-      binNumber: collectionCards.binNumber,
-      binEmptiedAt: collectionCards.binEmptiedAt,
-    })
-    .from(collectionCards)
-    .innerJoin(
-      collections,
-      and(eq(collections.id, collectionCards.collectionId), eq(collections.isDeleted, false)),
-    )
-    .leftJoin(
-      storageLocations,
-      and(eq(storageLocations.id, collectionCards.locationId), eq(storageLocations.isDeleted, false)),
-    )
-    .where(
-      and(
-        sql`${collectionCards.guid} = ANY(${uuidArraySql([...new Set(scanIds)])})`,
-        eq(collectionCards.orgId, orgId),
+  return {
+    cardsByScanId: new Map(stored.map((entry) => [entry.scanId, entry])),
+    placementsByScanId: new Map(
+      rows.flatMap((row) =>
+        row.scanId && !row.collectionIsDeleted
+          ? [
+              [
+                row.scanId,
+                {
+                  collectionName: row.collectionName,
+                  storageLocationGuid: row.storageLocationGuid ?? null,
+                  storageLocationName: row.storageLocationName ?? null,
+                  storagePosition: row.storageLocationName != null ? row.locationPosition : null,
+                  binNumber: row.storageLocationName == null && row.binEmptiedAt == null ? row.binNumber : null,
+                },
+              ] as const,
+            ]
+          : [],
       ),
-    );
-  return new Map(
-    rows.flatMap((row) =>
-      row.scanId
-        ? [
-            [
-              row.scanId,
-              {
-                collectionName: row.collectionName,
-                storageLocationGuid: row.storageLocationGuid ?? null,
-                storageLocationName: row.storageLocationName ?? null,
-                storagePosition: row.storageLocationName != null ? row.storagePosition : null,
-                binNumber: row.storageLocationName == null && row.binEmptiedAt == null ? row.binNumber : null,
-              },
-            ] as const,
-          ]
-        : [],
     ),
-  );
+  };
 }
 
 async function loadCurrentOfferedCards(
@@ -324,12 +296,18 @@ async function loadCurrentOfferedCards(
     else groups.set(key, [card]);
   }
   const result = new Map<string, PlayingCard>();
-  for (const entries of groups.values()) {
-    const resolved = resolveCardSearchForGame(entries[0].gameKey, entries[0].lang);
-    if (!resolved) continue;
-    const found = await searchCardsByIds(resolved, [...new Set(entries.map((entry) => entry.cardId))]);
-    for (const [cardId, card] of found) {
-      result.set(`${entries[0].gameKey}|${entries[0].lang}|${cardId}`, card);
+  const foundByGroup = await Promise.all(
+    [...groups.values()].map(async (entries) => {
+      const resolved = resolveCardSearchForGame(entries[0].gameKey, entries[0].lang);
+      if (!resolved) return null;
+      const found = await searchCardsByIds(resolved, [...new Set(entries.map((entry) => entry.cardId))]);
+      return { entries, found };
+    }),
+  );
+  for (const group of foundByGroup) {
+    if (!group) continue;
+    for (const [cardId, card] of group.found) {
+      result.set(`${group.entries[0].gameKey}|${group.entries[0].lang}|${cardId}`, card);
     }
   }
   return result;
@@ -368,11 +346,11 @@ export async function listOwnerTradeOffers(
   const offers = rows.map((row) => ({ ...row, public: toPublicTradeOffer(row.offer) }));
   const pricing = await loadOrgPricing(tx, orgId);
   const wantedScanIds = offers.flatMap((entry) => entry.public.wanted.map((card) => card.scanId));
-  const wantedCards = await loadCurrentWantedCards(tx, orgId, wantedScanIds);
-  const wantedPlacements = await loadWantedPlacements(tx, orgId, wantedScanIds);
-  const offeredCards = await loadCurrentOfferedCards(
-    offers.flatMap((entry) => entry.public.offered),
-  );
+  const [{ cardsByScanId: wantedCards, placementsByScanId: wantedPlacements }, offeredCards] =
+    await Promise.all([
+      loadCurrentWantedCards(tx, orgId, wantedScanIds),
+      loadCurrentOfferedCards(offers.flatMap((entry) => entry.public.offered)),
+    ]);
   return offers.map(({ offer, collectionName, locationName, public: publicOffer }) => {
     const wantedPrices = publicOffer.wanted.map((card) => {
       const current = wantedCards.get(card.scanId);

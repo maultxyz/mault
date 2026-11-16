@@ -30,7 +30,7 @@ export async function resolveLiveCardPrices<T extends PlayingCard>(
   );
 }
 
-async function loadStoredCardPrices(
+export async function loadStoredCardPrices(
   { gameKey, lang }: CardPriceScope,
   cardIds: string[],
 ): Promise<Map<string, StoredCardPrices>> {
@@ -98,6 +98,15 @@ export async function applyCardPrices<T extends PlayingCard>(
     scope,
     cards.map((card) => card.id),
   );
+  return applyLoadedCardPrices(adapter, cards, stored);
+}
+
+export async function applyLoadedCardPrices<T extends PlayingCard>(
+  adapter: CardSearchAdapter,
+  cards: T[],
+  stored: Map<string, StoredCardPrices>,
+): Promise<T[]> {
+  if (cards.length === 0) return cards;
   const needsLive = (card: T) => !stored.has(card.id) && card.raw != null;
   const live = cards.filter(needsLive);
   const priced =

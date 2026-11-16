@@ -1,3 +1,4 @@
+import { Platform } from "react-native";
 import type {
   CardReviewWidgetProps,
   CollectionValueWidgetProps,
@@ -7,6 +8,8 @@ import type {
   WidgetCardListProps,
   WidgetLogo,
 } from "@/lib/interfaces/widgets";
+
+export const HOME_WIDGETS_SUPPORTED = Platform.OS === "ios";
 
 export const COLLECTION_VALUE_WIDGET_NAME = "CollectionValue";
 

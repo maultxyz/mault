@@ -77,7 +77,7 @@ export function HomeDashboard() {
       ? (price ?? "")
       : [price, card.collectionName].filter(Boolean).join(" · ");
   };
-  const collectionNames = new Map((summaryData?.collections ?? []).map((collection) => [collection.guid, collection.name]));
+  const collectionNames = new Map(collections.map((collection) => [collection.guid, collection.name]));
 
   return (
     <div className="flex flex-col gap-6 md:gap-2">

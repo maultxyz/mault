@@ -113,6 +113,7 @@ export const cardImageVectors = pgTable(
       .using("hnsw", table.backEmbedding.op("vector_cosine_ops"))
       .where(sql`${table.backEmbedding} IS NOT NULL`),
     index("cards_name_trgm_idx").using("gin", table.name.op("gin_trgm_ops")),
+    index("cards_game_lang_name_idx").on(table.gameKey, table.lang, table.name),
     index("cards_collector_number_idx").on(
       table.gameKey,
       table.lang,
@@ -784,6 +785,9 @@ export const collectionCards = pgTable(
       table.binNumber,
       table.scannedAt,
     ),
+    index("collection_cards_collection_bin_unemptied_idx")
+      .on(table.collectionId, table.binNumber)
+      .where(sql`${table.binEmptiedAt} IS NULL`),
     index("collection_cards_org_bin_emptied_idx").on(
       table.orgId,
       table.binNumber,
@@ -1232,6 +1236,9 @@ export const unmatchedCards = pgTable(
       table.binNumber,
       table.binEmptiedAt,
     ),
+    index("unmatched_cards_collection_bin_unemptied_idx")
+      .on(table.collectionId, table.binNumber)
+      .where(sql`${table.binEmptiedAt} IS NULL AND ${table.isDeleted} = false`),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),

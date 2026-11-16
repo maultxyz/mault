@@ -42,6 +42,11 @@ import { CATALOG_CARD_ROUTE_PATH, SEARCH_PATH } from "@/lib/constants/search";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { MATCH_VALIDATIONS_PATH } from "@/lib/constants/match-validations";
 import { lazy, Suspense, useEffect } from "react";
+import { runTasksOneByOneWhenIdle } from "@/lib/idle-tasks";
+import {
+  IDLE_ROUTE_PRELOAD_DELAY_MS,
+  IDLE_ROUTE_PRELOAD_TIMEOUT_MS,
+} from "@/lib/constants/timing";
 import {
   type RouteObject,
   Navigate,
@@ -124,15 +129,19 @@ const loadAppLayout = withNamespaces(
 const loadScannerPage = () => import("@/app/routes/app/index");
 const loadHomePage = () => import("@/app/routes/app/home");
 const HomePage = lazy(loadHomePage);
-const LibraryPage = lazy(() => import("@/app/routes/app/library"));
-const SearchPage = lazy(() => import("@/app/routes/app/search"));
+const loadLibraryPage = () => import("@/app/routes/app/library");
+const loadSearchPage = () => import("@/app/routes/app/search");
+const loadCollectionsPage = () => import("@/app/routes/app/collections");
+const loadCollectionViewPage = () => import("@/app/routes/app/collection-view");
+const loadStoragePage = () => import("@/app/routes/app/storage");
+const loadStatsPage = () => import("@/app/routes/app/stats");
+const LibraryPage = lazy(loadLibraryPage);
+const SearchPage = lazy(loadSearchPage);
 const CatalogCardPage = lazy(() => import("@/app/routes/app/catalog-card"));
 const AppLayout = lazy(loadAppLayout);
 const ScannerPage = lazy(loadScannerPage);
-const CollectionsPage = lazy(() => import("@/app/routes/app/collections"));
-const CollectionViewPage = lazy(
-  () => import("@/app/routes/app/collection-view"),
-);
+const CollectionsPage = lazy(loadCollectionsPage);
+const CollectionViewPage = lazy(loadCollectionViewPage);
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));
 const ValidateMatchesPage = lazy(
   () => import("@/app/routes/app/validate-matches"),
@@ -212,7 +221,7 @@ const SettingsNotificationsPage = lazy(
 const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
-const StoragePage = lazy(() => import("@/app/routes/app/storage"));
+const StoragePage = lazy(loadStoragePage);
 const TradesPage = lazy(() => import("@/app/routes/app/trades"));
 const TradeOfferRoutePage = lazy(() => import("@/app/routes/app/trade-offer"));
 const SentTradeOfferRoutePage = lazy(() => import("@/app/routes/app/sent-trade-offer"));
@@ -222,7 +231,7 @@ const StoragePickListPage = lazy(
 const StorageLabelsPage = lazy(
   () => import("@/app/routes/app/storage-labels"),
 );
-const StatsPage = lazy(() => import("@/app/routes/app/stats"));
+const StatsPage = lazy(loadStatsPage);
 const IntakePage = lazy(() => import("@/app/routes/app/intake"));
 const PicksPage = lazy(() => import("@/app/routes/app/picks"));
 const PriceLabelsPage = lazy(() => import("@/app/routes/app/price-labels"));
@@ -250,12 +259,34 @@ const IntakeReceiptPage = lazy(
 function AppChunkPreloader() {
   const isMobile = useIsMobile();
   const piHost = usePiHost();
+  const isInApp = useLocation().pathname.startsWith("/app");
   useEffect(() => {
     const ignoreFailure = () => {};
     loadAppLayout().catch(ignoreFailure);
     loadHomePage().catch(ignoreFailure);
     if (!isMobile || piHost) loadScannerPage().catch(ignoreFailure);
   }, [isMobile, piHost]);
+  useEffect(() => {
+    if (!isInApp) return;
+    let cancelIdlePreload = () => {};
+    const delayHandle = setTimeout(() => {
+      cancelIdlePreload = runTasksOneByOneWhenIdle(
+        [
+          loadLibraryPage,
+          loadCollectionViewPage,
+          loadSearchPage,
+          loadStatsPage,
+          loadStoragePage,
+          loadCollectionsPage,
+        ],
+        IDLE_ROUTE_PRELOAD_TIMEOUT_MS,
+      );
+    }, IDLE_ROUTE_PRELOAD_DELAY_MS);
+    return () => {
+      clearTimeout(delayHandle);
+      cancelIdlePreload();
+    };
+  }, [isInApp]);
   return null;
 }
 

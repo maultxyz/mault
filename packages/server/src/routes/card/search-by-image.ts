@@ -8,7 +8,12 @@ import {
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { sendDiscordNotification } from "../../lib/discord";
 import { vectorizeCardImage } from "../../lib/vectorize";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  markRequestAsReadOnly,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import {
   attachMatchedCards,
   findCardMatches,
@@ -21,6 +26,7 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
   "/",
   requireAuth,
   requireOrg,
+  markRequestAsReadOnly,
   async (c) => {
     const body = await c.req.parseBody();
     const file = body["image"];

@@ -57,6 +57,7 @@ import {
 import { CC_ALIAS_SQL_COLUMNS } from "../../lib/constants/card-prices";
 import { loadOrgPricing } from "../../lib/price-source";
 import { hydrateSavedCards } from "../../lib/saved-cards";
+import { loadRankedIdPage } from "../../lib/ranked-id-page";
 
 export function parseLocationName(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -139,6 +140,29 @@ export function selectStoredCards(tx: Transaction) {
     .from(collectionCards)
     .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
     .leftJoin(games, eq(games.id, collections.gameId));
+}
+
+export function selectStoredCardsWithPlacements(tx: Transaction) {
+  return tx
+    .select({
+      ...storedCardColumns(),
+      collectionIsDeleted: collections.isDeleted,
+      locationPosition: collectionCards.locationPosition,
+      binNumber: collectionCards.binNumber,
+      binEmptiedAt: collectionCards.binEmptiedAt,
+      storageLocationGuid: storageLocations.guid,
+      storageLocationName: storageLocations.name,
+    })
+    .from(collectionCards)
+    .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .leftJoin(games, eq(games.id, collections.gameId))
+    .leftJoin(
+      storageLocations,
+      and(
+        eq(storageLocations.id, collectionCards.locationId),
+        eq(storageLocations.isDeleted, false),
+      ),
+    );
 }
 
 export function selectLocatedCards(tx: Transaction) {
@@ -419,26 +443,12 @@ export async function loadStoredCardIdsPage(
   pageSize: number,
   requestedPage: number,
 ): Promise<StoredCardIdsPage> {
-  const ranked = storedCardsRankedCte(locationId, query, sortScope);
-  const counted = await tx.execute(sql`
-    WITH ${ranked} SELECT count(*)::int AS total FROM ranked
-  `);
-  const total = Number(
-    (counted.rows[0] as unknown as { total: number } | undefined)?.total ?? 0,
+  return loadRankedIdPage(
+    tx,
+    storedCardsRankedCte(locationId, query, sortScope),
+    pageSize,
+    requestedPage,
   );
-  const page = Math.min(requestedPage, Math.max(Math.ceil(total / pageSize), 1));
-  const result = await tx.execute(sql`
-    WITH ${ranked}
-    SELECT id FROM ranked ORDER BY rn
-    LIMIT ${pageSize}::int OFFSET ${(page - 1) * pageSize}::int
-  `);
-  return {
-    rowIds: (result.rows as unknown as { id: number }[]).map((row) =>
-      Number(row.id),
-    ),
-    total,
-    page,
-  };
 }
 
 export async function loadStoredCardReferences(

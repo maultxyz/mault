@@ -38,3 +38,4 @@ export const BUSINESS_FORBIDDEN_RESULT: BusinessResult = {
 };
 
 export const ORDER_SUBSTITUTE_CANDIDATES_SCANNED = 200;
+export const ORDER_LINE_CARD_NAME_FACE_SEPARATOR = " // ";

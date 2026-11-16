@@ -5,8 +5,6 @@ import type {
   EditCollectionFormValues,
   MonitorLinkInfo,
   Collection,
-  DeployNotice,
-  SyncState,
 } from "@magic-vault/shared";
 import type { ReactElement } from "react";
 
@@ -66,15 +64,14 @@ export interface ActiveCollectionSessionActions {
   releaseScanSession: () => Promise<void>;
 }
 
-export interface AppStreamContextValue {
+export interface AppStreamSourceContextValue {
   eventSource: EventSource | null;
+  watchCollection: (guid: string) => () => void;
+}
+
+export interface CollectionLocksContextValue {
   locks: Record<string, ScanLockInfo>;
   currentUserId: string | undefined;
-  liveCounts: Record<string, number>;
-  viewersByGuid: Record<string, SessionViewer[]>;
-  syncState: SyncState;
-  deployNotice: DeployNotice | null;
-  watchCollection: (guid: string) => () => void;
 }
 
 export interface CollectionPreviewStackProps {

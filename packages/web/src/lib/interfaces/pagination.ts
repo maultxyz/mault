@@ -23,6 +23,7 @@ export interface ListPaginationProps {
   alignsEnd?: boolean;
   pageSize?: number;
   onPageSizeChange?: (pageSize: number) => void;
+  onPageIntent?: (page: number) => void;
   className?: string;
 }
 

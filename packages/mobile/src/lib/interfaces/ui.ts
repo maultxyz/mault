@@ -109,6 +109,7 @@ export interface ListRowProps {
   right?: ReactNode;
   rightIsInteractive?: boolean;
   onPress?: () => void;
+  onPressIn?: () => void;
   onLongPress?: () => void;
   longPressLabel?: string;
   disabled?: boolean;

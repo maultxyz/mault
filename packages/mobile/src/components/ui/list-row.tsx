@@ -20,6 +20,7 @@ export function ListRow({
   right,
   rightIsInteractive = false,
   onPress,
+  onPressIn,
   onLongPress,
   longPressLabel,
   disabled = false,
@@ -40,6 +41,7 @@ export function ListRow({
       accessibilityState={{ disabled, selected: selected ?? undefined }}
       disabled={(!onPress && !onLongPress) || disabled}
       onPress={onPress}
+      onPressIn={onPressIn}
       {...longPressHandlers}
       style={({ pressed }) => ({
         flexDirection: "row",

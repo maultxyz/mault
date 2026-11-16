@@ -1,3 +1,4 @@
+import { refreshBillingAfterScan } from "@/features/billing/lib/billing-scan-refresh";
 import { SCAN_RATE_WINDOW_MS } from "@/lib/constants/scanner";
 import {
   type BinConfig,
@@ -921,11 +922,7 @@ export function ScannedCardsProvider({
               )
               .finally(() => {
                 settlePendingBinCard(record.scanId);
-                if (billingQueryKey) {
-                  void queryClient.invalidateQueries({
-                    queryKey: billingQueryKey,
-                  });
-                }
+                if (orgId) refreshBillingAfterScan(queryClient, orgId);
               });
             return;
           }
@@ -997,11 +994,7 @@ export function ScannedCardsProvider({
                 void queryClient.invalidateQueries({
                   queryKey: binsQueryOptions.queryKey,
                 });
-              if (billingQueryKey) {
-                void queryClient.invalidateQueries({
-                  queryKey: billingQueryKey,
-                });
-              }
+              if (orgId) refreshBillingAfterScan(queryClient, orgId);
             });
         },
         complete: ({ ruleCard }) => {

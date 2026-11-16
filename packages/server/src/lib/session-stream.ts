@@ -1,4 +1,8 @@
 import { COLLECTION_CARDS_CHANGED_THROTTLE_MS } from "./constants/timing";
+import {
+  invalidateOrgReadCaches,
+  invalidateOrgReadCachesForEvent,
+} from "./org-read-cache";
 import type { SseWriter } from "./interfaces/sse";
 import type {
   SessionEntry,
@@ -15,6 +19,7 @@ const pendingCollectionCardsChanged = new Map<
 >();
 
 export function emitToOrg(orgId: string, event: string, data: unknown) {
+  invalidateOrgReadCachesForEvent(orgId, event);
   const writers = orgWriters.get(orgId);
   if (!writers) return;
   for (const writer of writers) {
@@ -25,6 +30,7 @@ export function emitToOrg(orgId: string, event: string, data: unknown) {
 }
 
 export function emitCollectionCardsChanged(orgId: string, guid: string) {
+  invalidateOrgReadCaches(orgId);
   if (pendingCollectionCardsChanged.has(orgId)) return;
   const sinceLastEmit =
     Date.now() - (lastCollectionCardsChangedAt.get(orgId) ?? 0);

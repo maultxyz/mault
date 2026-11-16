@@ -190,3 +190,12 @@ export const MATCH_GAME_KEYS_MAX = 12;
 export const CATALOG_RELEASE_DATE_PATTERN = "^[0-9]{4}-[0-9]{2}-[0-9]{2}";
 
 export const CATALOG_LEADING_COLLECTOR_NUMBER_PATTERN = "^[0-9]{1,9}";
+export const STORED_CARD_CACHE_TTL_MS = 60_000;
+export const STORED_CARD_CACHE_MAX_ENTRIES = 2_000;
+export const CATALOG_SEARCH_CACHE_TTL_MS = 60_000;
+export const CATALOG_SEARCH_CACHE_MAX_ENTRIES = 300;
+export const GAMES_LIST_CACHE_MAX_AGE_MS = 60_000;
+export const ORG_OCR_SETTING_CACHE_TTL_MS = 30_000;
+export const ORG_OCR_SETTING_CACHE_MAX_ENTRIES = 5_000;
+export const CARD_IMAGE_PROXY_CACHE_CONTROL =
+  "public, max-age=604800, stale-while-revalidate=86400";

@@ -4,6 +4,8 @@ import { invalidatePrintingMarkReferences } from "./printing-marks/references";
 import { and, eq, sql, type SQL } from "drizzle-orm";
 import { db } from "../db";
 import { binSets, collections, games } from "../db/schema";
+import { clearCatalogReadCaches } from "./card-search/catalog-read-cache";
+import { clearCachedCatalogCards } from "./saved-cards";
 import { matchScopeForGame } from "./card-search/match-games";
 import { resolveCardSearchForGame } from "./card-search/resolve";
 import {
@@ -262,9 +264,12 @@ function revalidateSegmentInBackground(entry: CardMatchSegmentEntry) {
   }
   entry.checkedAt = Date.now();
   loadSegmentSignature(entry.gameKey, entry.lang)
-    .then((signature) =>
-      signature.value === entry.signature ? undefined : reloadSegment(entry),
-    )
+    .then((signature) => {
+      if (signature.value === entry.signature) return undefined;
+      clearCatalogReadCaches();
+      clearCachedCatalogCards();
+      return reloadSegment(entry);
+    })
     .catch(logReloadFailure(entry));
 }
 
@@ -301,6 +306,10 @@ async function cardMatchSegment(
   }
   await reloadSegment(entry);
   return entry.segment!;
+}
+
+export async function languagesOfGame(gameKey: string): Promise<string[]> {
+  return [...(await langsOfGame(gameKey))].sort();
 }
 
 async function langsOfGame(gameKey: string): Promise<string[]> {
@@ -372,6 +381,8 @@ export function warmCardMatchSegments(scopes: CollectionMatchScope[]): void {
 
 export function invalidateCardMatchIndex(gameKey?: string): void {
   invalidatePrintingMarkReferences(gameKey);
+  clearCatalogReadCaches();
+  clearCachedCatalogCards();
   for (const entry of segmentEntries.values()) {
     if (gameKey === undefined || entry.gameKey === gameKey) {
       reloadSegment(entry).catch(logReloadFailure(entry));

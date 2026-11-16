@@ -2,7 +2,7 @@ import { valueChangeOf } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { widgetSummaryQueryOptions } from "@/features/home/api/widget-summary";
+import { widgetSummaryWithCollectionsQueryOptions } from "@/features/home/api/widget-summary";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { CollectionChangeSummary } from "@/lib/interfaces/library";
 
@@ -11,7 +11,7 @@ export function useCollectionChanges(enabled: boolean) {
   const { activeOrg } = useOrg();
   const { format } = usePriceSource();
   const { data, isLoading } = useQuery({
-    ...widgetSummaryQueryOptions(activeOrg?.id),
+    ...widgetSummaryWithCollectionsQueryOptions(activeOrg?.id),
     enabled: enabled && !!activeOrg?.id,
   });
   const trendsByGuid = new Map((data?.collections ?? []).map((trend) => [trend.guid, trend]));

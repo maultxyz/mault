@@ -11,7 +11,6 @@ import {
   type OrgPricing,
   type PublicCardDetail,
   type PublicCardPage,
-  type PublicCardFacetCount,
   type PublicCardFacets,
   type PublicCardFilters,
   type PublicCardGame,
@@ -38,12 +37,15 @@ import {
 } from "./constants/storage-locations";
 import type {
   PublicCardBrowseScope,
+  PublicCardFacetBreakdownRow,
   PublicCardImageRow,
   PublicCardsRequest,
 } from "./interfaces/public-cards";
 import { resolveBackScanImageUrl, resolveScanImageUrl } from "./scan-images";
 import { pricesForShareLink } from "./share-link-pricing";
 import { notReservedByOpenPicksSql } from "./order-reservations";
+import { loadRankedIdPage } from "./ranked-id-page";
+import { summarizePublicCardFacetRows } from "./public-card-facets";
 import { integerArraySql, pgTextArray } from "./sql-arrays";
 
 function publicCardsWhere(scope: PublicCardBrowseScope, gameKey: string | null = null): SQL {
@@ -172,26 +174,7 @@ export async function loadPublicCardIdsPage(
       WHERE ${publicCardsWhere(scope, request.gameKey)}
         AND ${publicFiltersSql(request, pricing)}
     )`;
-  const counted = await tx.execute(sql`
-    WITH ${ranked} SELECT count(*)::int AS total FROM ranked
-  `);
-  const total = Number(
-    (counted.rows[0] as unknown as { total: number } | undefined)?.total ?? 0,
-  );
-  const page = Math.min(
-    request.requestedPage,
-    Math.max(Math.ceil(total / request.pageSize), 1),
-  );
-  const result = await tx.execute(sql`
-    WITH ${ranked}
-    SELECT id FROM ranked ORDER BY rn
-    LIMIT ${request.pageSize}::int OFFSET ${(page - 1) * request.pageSize}::int
-  `);
-  return {
-    rowIds: (result.rows as unknown as { id: number }[]).map((row) => Number(row.id)),
-    total,
-    page,
-  };
+  return loadRankedIdPage(tx, ranked, request.pageSize, request.requestedPage);
 }
 
 export async function loadPublicCardDetail(
@@ -250,30 +233,15 @@ export async function loadPublicCardFacets(
     pricing,
   );
   const result = await tx.execute(sql`
-    SELECT
-      COALESCE((
-        SELECT jsonb_agg(jsonb_build_object('key', key, 'count', count) ORDER BY count DESC)
-        FROM (SELECT cc.condition AS key, count(*)::int AS count
-          FROM collection_cards cc ${PUBLIC_CARD_JOINS}
-          WHERE ${where} GROUP BY cc.condition) conditions
-      ), '[]'::jsonb) AS conditions,
-      COALESCE((
-        SELECT jsonb_agg(jsonb_build_object('key', key, 'count', count) ORDER BY count DESC)
-        FROM (SELECT ${PUBLIC_CARD_LANGUAGE} AS key, count(*)::int AS count
-          FROM collection_cards cc ${PUBLIC_CARD_JOINS}
-          WHERE ${where} GROUP BY 1) languages
-      ), '[]'::jsonb) AS languages,
-      (SELECT count(*)::int FROM collection_cards cc ${PUBLIC_CARD_JOINS}
-        WHERE ${where} AND cc.is_foil) AS foil_count,
-      (SELECT count(*)::int FROM collection_cards cc ${PUBLIC_CARD_JOINS}
-        WHERE ${where} AND NOT cc.is_foil) AS non_foil_count
+    SELECT cc.condition, ${PUBLIC_CARD_LANGUAGE} AS language, cc.is_foil,
+      count(*)::int AS count
+    FROM collection_cards cc ${PUBLIC_CARD_JOINS}
+    WHERE ${where}
+    GROUP BY 1, 2, 3
   `);
-  const row = result.rows[0] as unknown as {
-    conditions: PublicCardFacetCount[];
-    languages: PublicCardFacetCount[];
-    foil_count: number;
-    non_foil_count: number;
-  };
+  const breakdown = summarizePublicCardFacetRows(
+    result.rows as unknown as PublicCardFacetBreakdownRow[],
+  );
   return {
     sets: stats.sets
       .map(({ code, name, count }) => ({ code, name, count }))
@@ -281,10 +249,10 @@ export async function loadPublicCardFacets(
     rarities: stats.rarities,
     colors: stats.colors,
     foilTypes: stats.foilTypes,
-    conditions: row.conditions,
-    languages: row.languages,
-    foilCount: Number(row.foil_count),
-    nonFoilCount: Number(row.non_foil_count),
+    conditions: breakdown.conditions,
+    languages: breakdown.languages,
+    foilCount: breakdown.foilCount,
+    nonFoilCount: breakdown.nonFoilCount,
   };
 }
 

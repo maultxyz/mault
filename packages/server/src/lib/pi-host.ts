@@ -12,14 +12,22 @@ export function piControllerSocket(): string {
   return configured;
 }
 
+let isRaspberryPiDeviceTree: boolean | undefined;
+
+function readIsRaspberryPiDeviceTree(): boolean {
+  if (isRaspberryPiDeviceTree === undefined) {
+    try {
+      isRaspberryPiDeviceTree = readFileSync("/proc/device-tree/model", "utf8").includes("Raspberry Pi");
+    } catch {
+      isRaspberryPiDeviceTree = false;
+    }
+  }
+  return isRaspberryPiDeviceTree;
+}
+
 export function isPiHost(): boolean {
   const flag = process.env.PI_HOST?.trim().toLowerCase();
   if (flag === "0" || flag === "false" || flag === "off") return false;
   if (flag === "1" || flag === "true" || flag === "on") return true;
-  try {
-    const model = readFileSync("/proc/device-tree/model", "utf8");
-    return model.includes("Raspberry Pi");
-  } catch {
-    return false;
-  }
+  return readIsRaspberryPiDeviceTree();
 }

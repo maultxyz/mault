@@ -13,6 +13,7 @@ import {
   UNIDENTIFIED_SORTER_LEASE_KEY,
 } from "./device-leases";
 import { sendDiscordNotification } from "./discord";
+import { invalidateOrgReadCaches } from "./org-read-cache";
 import type { DeviceAlertInput } from "./interfaces/business";
 import { emitSorterAlertWebhook } from "./webhooks/events";
 
@@ -42,6 +43,7 @@ export async function raiseDeviceAlert(input: DeviceAlertInput): Promise<void> {
       title: input.title,
       description: input.description,
     });
+    invalidateOrgReadCaches(input.orgId);
     const description = device
       ? `**Sorter:** ${device.name}\n${input.description}`
       : input.description;
