@@ -382,7 +382,9 @@
       "completeDescription_one": "Les cartes préparées quittent le stock avec les commandes : {{names}}",
       "completeDescription_other": "Les cartes préparées quittent le stock avec les commandes : {{names}}",
       "completed_one": "{{count}} préparation terminée",
-      "completed_other": "{{count}} préparations terminées"
+      "completed_other": "{{count}} préparations terminées",
+      "resume_one": "Reprendre la préparation ({{count}} prélèvement)",
+      "resume_other": "Reprendre la préparation ({{count}} prélèvements)"
     },
     "substitutes": {
       "find": "Trouver un remplacement",

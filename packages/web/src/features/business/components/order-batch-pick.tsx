@@ -19,6 +19,10 @@ import { useOrderPickProgress } from "@/features/business/api/use-order-pick-pro
 import { OrderPhonePickDialog } from "@/features/business/components/order-phone-pick-dialog";
 import { PickWalkNextUp } from "@/features/business/components/pick-walk-next-up";
 import { PickWalkStopList } from "@/features/business/components/pick-walk-stop-list";
+import {
+  clearActivePickBatch,
+  writeActivePickBatch,
+} from "@/features/business/lib/active-pick-batch";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
   packingSlipsPath,
@@ -44,7 +48,7 @@ import {
   IconTruckDelivery,
 } from "@tabler/icons-react";
 import { useQueries } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -83,6 +87,14 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
     ? openOrders.find((order) => order.guid === missingEntry.orderGuid)
     : undefined;
 
+  useEffect(() => {
+    writeActivePickBatch(orderGuids);
+  }, [orderGuids]);
+
+  useEffect(() => {
+    if (orders.length > 0 && openOrders.length === 0) clearActivePickBatch();
+  }, [orders, openOrders.length]);
+
   const completePicks = async () => {
     setIsCompleting(true);
     const completedScanIds: string[] = [];
@@ -99,6 +111,7 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
     if (completedCount > 0) {
       toast.success(t("orders.batch.completed", { count: completedCount }));
     }
+    if (completedCount === openOrders.length) clearActivePickBatch();
   };
 
   const releaseMissing = async () => {

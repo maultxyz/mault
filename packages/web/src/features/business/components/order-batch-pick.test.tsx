@@ -269,4 +269,25 @@ describe("OrderBatchPick", () => {
       screen.getAllByRole("button", { name: "orders.batch.complete" }).length,
     ).toBeGreaterThanOrEqual(1);
   });
+
+  it("remembers the batch so the picks list can offer to return to it", async () => {
+    renderBatch();
+    await heroSection();
+    await waitFor(() => {
+      expect(sessionStorage.getItem("pick-batch:active")).toBe(
+        JSON.stringify(["o1", "o2"]),
+      );
+    });
+  });
+
+  it("forgets the batch once none of its orders is open any more", async () => {
+    sessionStorage.setItem("pick-batch:active", JSON.stringify(["o1", "o2"]));
+    for (const order of Object.values(mockOrders)) order.status = "fulfilled";
+    renderBatch();
+    await screen.findByText("orders.batch.emptyTitle");
+    await waitFor(() => {
+      expect(sessionStorage.getItem("pick-batch:active")).toBeNull();
+    });
+    for (const order of Object.values(mockOrders)) order.status = "open";
+  });
 });

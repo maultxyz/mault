@@ -382,7 +382,9 @@
       "completeDescription_one": "Their picked cards leave inventory with the orders: {{names}}",
       "completeDescription_other": "Their picked cards leave inventory with the orders: {{names}}",
       "completed_one": "{{count}} pick completed",
-      "completed_other": "{{count}} picks completed"
+      "completed_other": "{{count}} picks completed",
+      "resume_one": "Resume pick together ({{count}} pick)",
+      "resume_other": "Resume pick together ({{count}} picks)"
     },
     "substitutes": {
       "find": "Find substitutes",

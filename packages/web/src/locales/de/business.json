@@ -382,7 +382,9 @@
       "completeDescription_one": "Die gepickten Karten gehen mit den Bestellungen aus dem Bestand: {{names}}",
       "completeDescription_other": "Die gepickten Karten gehen mit den Bestellungen aus dem Bestand: {{names}}",
       "completed_one": "{{count}} Pick abgeschlossen",
-      "completed_other": "{{count}} Picks abgeschlossen"
+      "completed_other": "{{count}} Picks abgeschlossen",
+      "resume_one": "Zusammen picken fortsetzen ({{count}} Pick)",
+      "resume_other": "Zusammen picken fortsetzen ({{count}} Picks)"
     },
     "substitutes": {
       "find": "Ersatz finden",
