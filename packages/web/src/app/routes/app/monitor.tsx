@@ -1,4 +1,5 @@
 import { COLLECTIONS_PATH } from "@/lib/constants/collections";
+import { LIBRARY_PATH } from "@/lib/constants/nav";
 import { Button } from "@/components/ui/button";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -88,7 +89,7 @@ export default function MonitorPage() {
         }
         binCount={computeBinCount(moduleCount)}
         showBinLocation
-        backHref={isMobile ? "/app/monitor" : COLLECTIONS_PATH}
+        backHref={isMobile ? LIBRARY_PATH : COLLECTIONS_PATH}
         canEditCards={isActive}
       />
     </>

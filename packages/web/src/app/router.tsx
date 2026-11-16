@@ -11,6 +11,7 @@ import {
   MOBILE_SCAN_PATH,
   MOBILE_SORTER_PATH,
 } from "@/lib/constants/nav";
+import { COLLECTIONS_PATH } from "@/lib/constants/collections";
 import AuthGuard from "@/app/routes/auth-guard";
 import ErrorPage from "@/app/routes/error";
 import { MarketingRoute } from "@/app/marketing-route";
@@ -121,8 +122,6 @@ const loadAppLayout = withNamespaces(
   ALL_NAMESPACES,
 );
 const loadScannerPage = () => import("@/app/routes/app/index");
-const loadMonitorSessionsPage = () =>
-  import("@/app/routes/app/monitor-sessions");
 const loadHomePage = () => import("@/app/routes/app/home");
 const HomePage = lazy(loadHomePage);
 const LibraryPage = lazy(() => import("@/app/routes/app/library"));
@@ -173,7 +172,6 @@ const AdminShortLinksPage = lazy(
 const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
 );
-const MonitorSessionsPage = lazy(loadMonitorSessionsPage);
 const MonitorPage = lazy(() => import("@/app/routes/app/monitor"));
 const PhoneCameraPage = lazy(() => import("@/app/routes/app/phone-camera"));
 const ScanPage = lazy(() => import("@/app/routes/app/scan"));
@@ -281,7 +279,7 @@ function BlockedWhileImpersonatingGuard() {
   return <Outlet />;
 }
 
-function DesktopOnlyGuard() {
+function DesktopOrPiHostGuard() {
   const isMobile = useIsMobile();
   const { pathname } = useLocation();
   const { piHost, settled } = usePiHostState();
@@ -293,6 +291,11 @@ function DesktopOnlyGuard() {
   if (piPage && !settled) return null;
   if (piPage && piHost) return <Outlet />;
   return <Navigate to={HOME_PATH} replace />;
+}
+
+function MonitorIndexRedirect() {
+  const isMobile = useIsMobile();
+  return <Navigate to={isMobile ? LIBRARY_PATH : COLLECTIONS_PATH} replace />;
 }
 
 function LegacyIntakeRedirect() {
@@ -418,7 +421,7 @@ export const routes: RouteObject[] = [
             element: <AppLayout />,
             children: [
               {
-                element: <DesktopOnlyGuard />,
+                element: <DesktopOrPiHostGuard />,
                 children: [
                   {
                     element: <RequireCollectionGuard />,
@@ -613,7 +616,7 @@ export const routes: RouteObject[] = [
               },
               {
                 path: "/app/monitor",
-                element: <MonitorSessionsPage />,
+                element: <MonitorIndexRedirect />,
               },
               {
                 path: "/app/monitor/:collectionGuid",
