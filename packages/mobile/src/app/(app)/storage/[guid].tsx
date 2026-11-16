@@ -110,7 +110,7 @@ export default function StorageLocationScreen() {
     () => (summary.data && summary.data.stats.totalCount > 0 ? toStatsBreakdown(summary.data.stats) : null),
     [summary.data],
   );
-  const sortOptions = cardSortOptions(summary.data?.sortableFields ?? [], t("storage.positionOrder"), sort, t);
+  const sortOptions = cardSortOptions(summary.data?.sortableFields ?? [], t("storage.positionOrder"), sort, pricing.source, t);
   const activeSortAndFilterCount = countActiveCardFilters(filters) + (sort ? 1 : 0);
   const isQueryActive = !!debouncedSearch || activeSortAndFilterCount > 0 || filters.needsAttention;
   const items = useMemo(() => cards.data?.pages.flatMap((page) => page.cards) ?? [], [cards.data]);

@@ -57,6 +57,7 @@ import { loadOrgPricing } from "../../lib/price-source";
 import {
   findLocationId,
   loadLocationCardStats,
+  loadLocationCardSortScope,
   loadLocationFieldDefinitions,
   loadStoredCardIdsPage,
   loadStoredCardReferences,
@@ -347,7 +348,7 @@ const router = new Hono<AppEnv>()
         tx,
         locationId,
         query,
-        query.sort ? await loadLocationFieldDefinitions(tx, locationId) : [],
+        await loadLocationCardSortScope(tx, orgId, locationId, query.sort),
         pageSize,
         requestedPage,
       );
@@ -378,7 +379,7 @@ const router = new Hono<AppEnv>()
           tx,
           locationId,
           query,
-          query.sort ? await loadLocationFieldDefinitions(tx, locationId) : [],
+          await loadLocationCardSortScope(tx, orgId, locationId, query.sort),
         );
       return { success: true, data };
     });
@@ -429,7 +430,7 @@ const router = new Hono<AppEnv>()
         tx,
         locationId,
         query,
-        query.sort ? await loadLocationFieldDefinitions(tx, locationId) : [],
+        await loadLocationCardSortScope(tx, orgId, locationId, query.sort),
         scanId,
         query.unreviewed === true,
       );

@@ -165,6 +165,10 @@
     "sortDescString": "Z-A",
     "sortAscDefault": "Low-High",
     "sortDescDefault": "High-Low",
+    "priceSort": {
+      "usd": "Price (USD)",
+      "eur": "Price (EUR)"
+    },
     "deselectAll": "Deselect all",
     "selectAll": "Select all",
     "gridView": "Grid view",

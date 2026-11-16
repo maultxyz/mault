@@ -88,7 +88,7 @@ export async function readCardsCount(
         tx,
         collection,
         cardFilterSql(query),
-        cardQueryUsesCatalog(query, collection.fieldDefinitions),
+        cardQueryUsesCatalog(query, collection),
       ),
     };
   });
@@ -122,7 +122,7 @@ export async function readScanTimelineBuckets(
         tx,
         collection,
         cardFilterSql(query),
-        cardQueryUsesCatalog(query, collection.fieldDefinitions),
+        cardQueryUsesCatalog(query, collection),
         grouping,
         timeZone,
       ),

@@ -32,6 +32,7 @@ import type {
   StoredCardIdsPage,
   StoredCardNavigationRow,
 } from "../../lib/interfaces/storage-locations";
+import type { CardSortScope } from "../../lib/interfaces/collections";
 import {
   cardPricesJoinSql,
   cardWithStoredPricesSql,
@@ -374,13 +375,26 @@ export async function loadLocationFieldDefinitions(
   );
 }
 
+export async function loadLocationCardSortScope(
+  tx: Transaction,
+  orgId: string,
+  locationId: number,
+  sort: string | null,
+): Promise<CardSortScope> {
+  if (!sort) return { fieldDefinitions: [], pricing: null };
+  return {
+    fieldDefinitions: await loadLocationFieldDefinitions(tx, locationId),
+    pricing: await loadOrgPricing(tx, orgId),
+  };
+}
+
 function storedCardsRankedCte(
   locationId: number,
   query: CollectionCardsQuery,
-  fieldDefinitions: FieldMeta[],
+  sortScope: CardSortScope,
   keepScanId?: string,
 ): SQL {
-  const sortKey = cardSortKeySql(query.sort, fieldDefinitions);
+  const sortKey = cardSortKeySql(query.sort, sortScope);
   const keepCard = keepScanId ? sql` OR cc.guid = ${keepScanId}::uuid` : sql``;
   return sql`
     ranked AS (
@@ -390,8 +404,8 @@ function storedCardsRankedCte(
         ) AS rn
       FROM collection_cards cc
       ${STORED_CARD_COLLECTION_JOINS}
-      ${cardQueryUsesCatalog(query, fieldDefinitions) ? cardCatalogJoinSql(STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}
-      ${sortUsesStoredPrices(query.sort, fieldDefinitions) ? cardPricesJoinSql("cp", STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}
+      ${cardQueryUsesCatalog(query, sortScope) ? cardCatalogJoinSql(STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}
+      ${sortUsesStoredPrices(query.sort, sortScope) ? cardPricesJoinSql("cp", STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}
       WHERE cc.location_id = ${locationId}
         AND ((${cardFilterSql(query, keepScanId)})${keepCard})
     )`;
@@ -401,11 +415,11 @@ export async function loadStoredCardIdsPage(
   tx: Transaction,
   locationId: number,
   query: CollectionCardsQuery,
-  fieldDefinitions: FieldMeta[],
+  sortScope: CardSortScope,
   pageSize: number,
   requestedPage: number,
 ): Promise<StoredCardIdsPage> {
-  const ranked = storedCardsRankedCte(locationId, query, fieldDefinitions);
+  const ranked = storedCardsRankedCte(locationId, query, sortScope);
   const counted = await tx.execute(sql`
     WITH ${ranked} SELECT count(*)::int AS total FROM ranked
   `);
@@ -431,10 +445,10 @@ export async function loadStoredCardReferences(
   tx: Transaction,
   locationId: number,
   query: CollectionCardsQuery,
-  fieldDefinitions: FieldMeta[],
+  sortScope: CardSortScope,
 ): Promise<StorageLocationCardReference[]> {
   const result = await tx.execute(sql`
-    WITH ${storedCardsRankedCte(locationId, query, fieldDefinitions)}
+    WITH ${storedCardsRankedCte(locationId, query, sortScope)}
     SELECT guid::text AS scan_id, collection_guid::text AS collection_guid
     FROM ranked ORDER BY rn
   `);
@@ -461,13 +475,13 @@ export async function loadStoredCardNavigation(
   tx: Transaction,
   locationId: number,
   query: CollectionCardsQuery,
-  fieldDefinitions: FieldMeta[],
+  sortScope: CardSortScope,
   scanId: string,
   unreviewedOnly: boolean,
 ): Promise<Omit<StorageLocationCardContext, "card"> | null> {
   const neighborFilter = unreviewedOnly ? sql`AND NOT is_reviewed` : sql``;
   const result = await tx.execute(sql`
-    WITH ${storedCardsRankedCte(locationId, { ...query, unreviewed: false }, fieldDefinitions, scanId)},
+    WITH ${storedCardsRankedCte(locationId, { ...query, unreviewed: false }, sortScope, scanId)},
     target AS (SELECT rn FROM ranked WHERE guid = ${scanId}::uuid)
     SELECT
       (target.rn - 1)::int AS index,

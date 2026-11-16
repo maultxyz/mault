@@ -1,4 +1,9 @@
-import type { FieldMeta, PlayingCardWithDistance } from "@magic-vault/shared";
+import type {
+  CardPriceSortCurrency,
+  FieldMeta,
+  OrgPricing,
+  PlayingCardWithDistance,
+} from "@magic-vault/shared";
 import type { SQL } from "drizzle-orm";
 import type { Transaction } from "../../db";
 import type { CatalogJoinScope } from "./saved-cards";
@@ -9,13 +14,22 @@ export interface CardStatsSource {
   where: SQL;
 }
 
-export interface CardsCollection {
+export interface CardSortScope {
+  fieldDefinitions: FieldMeta[];
+  pricing: OrgPricing | null;
+}
+
+export type ParsedCardSort =
+  | { kind: "field"; meta: FieldMeta; dir: "asc" | "desc" }
+  | { kind: "price"; currency: CardPriceSortCurrency; pricing: OrgPricing; dir: "asc" | "desc" };
+
+export interface CardsCollection extends CardSortScope {
   id: number;
   name: string;
   gameKey: string | null;
   gameName: string | null;
   lang: string;
-  fieldDefinitions: FieldMeta[];
+  pricing: OrgPricing;
 }
 
 export interface BinLimitStatus {

@@ -165,6 +165,10 @@
     "sortDescString": "Z-A",
     "sortAscDefault": "Croissant",
     "sortDescDefault": "Décroissant",
+    "priceSort": {
+      "usd": "Prix (USD)",
+      "eur": "Prix (EUR)"
+    },
     "deselectAll": "Tout désélectionner",
     "selectAll": "Tout sélectionner",
     "gridView": "Vue grille",
