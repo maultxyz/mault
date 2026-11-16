@@ -2,7 +2,7 @@ import type { GlobalSearchState } from "@/lib/interfaces/search";
 import { useSyncExternalStore } from "react";
 
 const listeners = new Set<() => void>();
-const closedGlobalSearchState: GlobalSearchState = { isOpen: false, initialQuery: "" };
+const closedGlobalSearchState: GlobalSearchState = { isOpen: false, initialQuery: "", selectedGameKey: null };
 let globalSearchState: GlobalSearchState = closedGlobalSearchState;
 
 function setGlobalSearchState(nextState: GlobalSearchState): void {
@@ -11,7 +11,12 @@ function setGlobalSearchState(nextState: GlobalSearchState): void {
 }
 
 export function openGlobalSearch(initialQuery = ""): void {
-  setGlobalSearchState({ isOpen: true, initialQuery });
+  setGlobalSearchState({ ...globalSearchState, isOpen: true, initialQuery });
+}
+
+export function selectGlobalSearchGame(selectedGameKey: string | null): void {
+  if (globalSearchState.selectedGameKey === selectedGameKey) return;
+  setGlobalSearchState({ ...globalSearchState, selectedGameKey });
 }
 
 export function closeGlobalSearch(): void {

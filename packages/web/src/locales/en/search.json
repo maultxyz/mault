@@ -4,6 +4,8 @@
   "promptTitle": "Search everything",
   "promptDescription": "Find any card, in your collections or not, plus collections, storage locations and settings.",
   "paletteDescription": "Type to search cards, collections, storage locations and settings. Use the arrow keys to move and Enter to open.",
+  "gameFilterLabel": "Search in",
+  "allGames": "All games",
   "showMoreCards": "Show more of your cards",
   "showMoreCatalogCards": "Show more cards",
   "loadingMore": "Loading more results",

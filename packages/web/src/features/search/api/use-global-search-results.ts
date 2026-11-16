@@ -10,6 +10,9 @@ import { useSettingsSections } from "@/hooks/use-settings-sections";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import {
   catalogGamesOf,
+  globalSearchGamesFor,
+  isGlobalSearchGameSelected,
+  selectedGlobalSearchGameKey,
   CATALOG_SEARCH_MIN_QUERY_LENGTH,
   GLOBAL_SEARCH_MIN_QUERY_LENGTH,
   rankGlobalSearchMatches,
@@ -18,7 +21,7 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-export function useGlobalSearchResults(search: string, isSearchOpen: boolean) {
+export function useGlobalSearchResults(search: string, isSearchOpen: boolean, requestedGameKey: string | null) {
   const { t } = useTranslation("settings");
   const { activeOrg } = useOrg();
   const { collections, activeCollection } = useCollections();
@@ -29,15 +32,26 @@ export function useGlobalSearchResults(search: string, isSearchOpen: boolean) {
   const searchesCatalog = isSearchOpen && debouncedQuery.length >= CATALOG_SEARCH_MIN_QUERY_LENGTH;
   const isWaitingForDebounce = query.length >= GLOBAL_SEARCH_MIN_QUERY_LENGTH && query !== debouncedQuery;
 
-  const catalogGames = useMemo(
+  const availableGames = useMemo(
     () => catalogGamesOf(collections, activeCollection?.guid),
     [collections, activeCollection?.guid],
   );
+  const selectedGameKey = selectedGlobalSearchGameKey(availableGames, requestedGameKey);
+  const catalogGames = useMemo(
+    () => globalSearchGamesFor(availableGames, selectedGameKey),
+    [availableGames, selectedGameKey],
+  );
+  const searchableCollections = useMemo(
+    () => collections.filter((collection) => isGlobalSearchGameSelected(selectedGameKey, collection.game?.key)),
+    [collections, selectedGameKey],
+  );
   const catalog = useInfiniteQuery(catalogCardsSearchQueryOptions(catalogGames, debouncedQuery, searchesCatalog));
   const locations = useQuery({ ...storageLocationsQueryOptions(activeOrg?.id), enabled: !!activeOrg?.id && isSearchOpen });
-  const cards = useInfiniteQuery(ownedCardSearchQueryOptions(activeOrg?.id, debouncedQuery, searchesCards));
+  const cards = useInfiniteQuery(
+    ownedCardSearchQueryOptions(activeOrg?.id, debouncedQuery, selectedGameKey, searchesCards),
+  );
 
-  const matchedCollections = query ? rankGlobalSearchMatches(collections, (collection) => collection.name, query) : [];
+  const matchedCollections = query ? rankGlobalSearchMatches(searchableCollections, (collection) => collection.name, query) : [];
   const matchedLocations = query
     ? rankGlobalSearchMatches(locations.data ?? [], (location) => location.name, query)
     : [];
@@ -58,6 +72,8 @@ export function useGlobalSearchResults(search: string, isSearchOpen: boolean) {
 
   return {
     query,
+    availableGames,
+    selectedGameKey,
     cardResults,
     catalogResults,
     matchedCollections,

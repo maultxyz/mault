@@ -1,6 +1,10 @@
 export const SEARCH_PATH = "/app/search";
 export const SEARCH_QUERY_PARAM = "q";
 export const GLOBAL_SEARCH_ARIA_KEY_SHORTCUTS = "Control+/ Meta+/";
+export const GLOBAL_SEARCH_GAME_BADGE_CLASS =
+  "h-8 cursor-pointer rounded-md px-2.5 text-sm hover:bg-foreground/6 md:h-6 md:px-2 md:text-xs";
+export const GLOBAL_SEARCH_SELECTED_GAME_BADGE_CLASS =
+  "border-primary bg-primary/10 text-primary hover:bg-primary/15 dark:bg-primary/20";
 export const CATALOG_CARD_ROUTE_PATH = `${SEARCH_PATH}/cards/:gameKey/:cardId`;
 export const OWNED_CARD_SEARCH_QUERY_KEY = "owned-card-search";
 export const CATALOG_SEARCH_QUERY_KEY = "catalog-card-search";

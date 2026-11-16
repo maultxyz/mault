@@ -69,6 +69,7 @@ export interface MoveCardsToCollectionVariables {
 export interface FilterChipProps {
   label: string;
   selected: boolean;
+  selectionRole?: "checkbox" | "radio";
   swatch?: string;
   onPress: () => void;
 }

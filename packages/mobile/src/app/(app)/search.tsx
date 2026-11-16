@@ -2,7 +2,7 @@ import { useInfiniteQuery, useQuery, useQueryClient } from "@tanstack/react-quer
 import { router } from "expo-router";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { AccessibilityInfo, View } from "react-native";
+import { AccessibilityInfo, ScrollView, View } from "react-native";
 import { CardThumbnail } from "@/components/cards/card-thumbnail";
 import { cardArtSources } from "@/lib/card-art";
 import { Callout } from "@/components/ui/callout";
@@ -15,6 +15,7 @@ import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { SectionHeader } from "@/components/ui/section-header";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
+import { FilterChip } from "@/features/collections/components/filter-chip";
 import { catalogCardsSearchQueryOptions, rememberCatalogCard } from "@/features/search/api/catalog-card-search";
 import { ownedCardSearchQueryOptions } from "@/features/search/api/owned-card-search";
 import { searchLocally } from "@/features/search/lib/global-search";
@@ -26,7 +27,14 @@ import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SETTINGS_SECTION_LINKS } from "@/lib/constants/settings";
 import { SPACING } from "@/lib/constants/theme";
 import { absoluteUrl } from "@/lib/url";
-import { CATALOG_SEARCH_MIN_QUERY_LENGTH, catalogGamesOf, GLOBAL_SEARCH_MIN_QUERY_LENGTH } from "@magic-vault/shared";
+import {
+  CATALOG_SEARCH_MIN_QUERY_LENGTH,
+  catalogGamesOf,
+  GLOBAL_SEARCH_MIN_QUERY_LENGTH,
+  globalSearchGamesFor,
+  isGlobalSearchGameSelected,
+  selectedGlobalSearchGameKey,
+} from "@magic-vault/shared";
 
 export default function GlobalSearchScreen() {
   const { t } = useTranslation();
@@ -39,19 +47,29 @@ export default function GlobalSearchScreen() {
   const { collections, collection: scanTargetCollection } = useScanTarget();
   const queryClient = useQueryClient();
   const pricing = usePricing();
-  const catalogGames = useMemo(
+  const [requestedGameKey, setRequestedGameKey] = useState<string | null>(null);
+  const availableGames = useMemo(
     () => catalogGamesOf(collections, scanTargetCollection?.guid),
     [collections, scanTargetCollection?.guid],
   );
+  const selectedGameKey = selectedGlobalSearchGameKey(availableGames, requestedGameKey);
+  const catalogGames = useMemo(
+    () => globalSearchGamesFor(availableGames, selectedGameKey),
+    [availableGames, selectedGameKey],
+  );
+  const searchableCollections = useMemo(
+    () => collections.filter((collection) => isGlobalSearchGameSelected(selectedGameKey, collection.game?.key)),
+    [collections, selectedGameKey],
+  );
   const catalog = useInfiniteQuery(catalogCardsSearchQueryOptions(catalogGames, debouncedQuery, searchesCatalog));
   const locations = useQuery(storageLocationsQueryOptions(orgId, true));
-  const cards = useInfiniteQuery(ownedCardSearchQueryOptions(orgId, debouncedQuery, searchesCards));
+  const cards = useInfiniteQuery(ownedCardSearchQueryOptions(orgId, debouncedQuery, selectedGameKey, searchesCards));
   const localResults = useMemo(
     () =>
-      searchLocally(query, collections, locations.data ?? [], SETTINGS_SECTION_LINKS, (section) =>
+      searchLocally(query, searchableCollections, locations.data ?? [], SETTINGS_SECTION_LINKS, (section) =>
         t(`settings.sections.${section.key}.title`),
       ),
-    [query, collections, locations.data, t],
+    [query, searchableCollections, locations.data, t],
   );
   const cardResults = searchesCards ? (cards.data?.pages.flatMap((page) => page.results) ?? []) : [];
   const catalogResults = searchesCatalog ? (catalog.data?.pages.flatMap((page) => page.results) ?? []) : [];
@@ -89,6 +107,32 @@ export default function GlobalSearchScreen() {
         placeholder={t("search.placeholder")}
         accessibilityLabel={t("search.placeholder")}
       />
+
+      {availableGames.length > 1 ? (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          accessibilityRole="radiogroup"
+          accessibilityLabel={t("search.gameFilterLabel")}
+          contentContainerStyle={{ gap: SPACING.sm }}
+        >
+          <FilterChip
+            label={t("search.allGames")}
+            selected={selectedGameKey === null}
+            selectionRole="radio"
+            onPress={() => setRequestedGameKey(null)}
+          />
+          {availableGames.map((game) => (
+            <FilterChip
+              key={game.gameKey}
+              label={game.gameName}
+              selected={selectedGameKey === game.gameKey}
+              selectionRole="radio"
+              onPress={() => setRequestedGameKey(game.gameKey)}
+            />
+          ))}
+        </ScrollView>
+      ) : null}
 
       {!query ? (
         <EmptyState icon="search" title={t("search.promptTitle")} description={t("search.promptDescription")} />

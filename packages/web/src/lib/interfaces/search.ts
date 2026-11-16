@@ -18,6 +18,14 @@ export interface CardPrintingTileProps {
 
 export type { AddCatalogCardInput } from "@magic-vault/shared";
 
+export interface GlobalSearchGameBadgesProps {
+  label: string;
+  allGamesLabel: string;
+  games: CatalogGame[];
+  selectedGameKey: string | null;
+  onSelect: (gameKey: string | null) => void;
+}
+
 export interface GlobalSearchShowMoreItemProps {
   value: string;
   label: string;
@@ -28,6 +36,7 @@ export interface GlobalSearchShowMoreItemProps {
 export interface GlobalSearchState {
   isOpen: boolean;
   initialQuery: string;
+  selectedGameKey: string | null;
 }
 
 export interface GlobalSearchResultItemProps {

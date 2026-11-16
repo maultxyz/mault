@@ -3434,6 +3434,8 @@
     },
     "catalogLoadFailed": "Impossible de rechercher dans le catalogue de cartes. Tirez vers le bas pour réessayer.",
     "showMoreCards": "Afficher plus de vos cartes",
+    "gameFilterLabel": "Rechercher dans",
+    "allGames": "Tous les jeux",
     "showMoreCatalogCards": "Afficher plus de cartes",
     "loadingMore": "Chargement de résultats supplémentaires",
     "loadMoreFailed": "Impossible de charger plus de résultats. Réessayez.",

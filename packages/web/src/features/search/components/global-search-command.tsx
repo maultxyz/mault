@@ -3,6 +3,7 @@ import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Command, CommandDialog, CommandGroup, CommandInput, CommandList } from "@/components/ui/command";
 import { rememberCatalogCard } from "@/features/search/api/global-search";
 import { useGlobalSearchResults } from "@/features/search/api/use-global-search-results";
+import { GlobalSearchGameBadges } from "@/features/search/components/global-search-game-badges";
 import { GlobalSearchLoadingGroup } from "@/features/search/components/global-search-loading-group";
 import { GlobalSearchResultItem } from "@/features/search/components/global-search-result-item";
 import { GlobalSearchShowMoreItem } from "@/features/search/components/global-search-show-more-item";
@@ -14,7 +15,12 @@ import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/colle
 import { catalogCardPath, SEARCH_RESULT_THUMBNAIL_CLASS } from "@/lib/constants/search";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { STORAGE_CARD_SEARCH_PARAM, STORAGE_LOCATION_SEARCH_PARAM, STORAGE_PATH } from "@/lib/constants/storage";
-import { closeGlobalSearch, openGlobalSearch, useGlobalSearchState } from "@/lib/global-search-store";
+import {
+  closeGlobalSearch,
+  openGlobalSearch,
+  selectGlobalSearchGame,
+  useGlobalSearchState,
+} from "@/lib/global-search-store";
 import type { OwnedCardSearchResult } from "@magic-vault/shared";
 import { IconAlbum, IconArchive, IconSearch } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -28,14 +34,14 @@ export function GlobalSearchCommand() {
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
   const { priceOf, format } = usePriceSource();
-  const { isOpen, initialQuery } = useGlobalSearchState();
+  const { isOpen, initialQuery, selectedGameKey: requestedGameKey } = useGlobalSearchState();
   const [search, setSearch] = useState(initialQuery);
   const [wasOpen, setWasOpen] = useState(isOpen);
   if (isOpen !== wasOpen) {
     setWasOpen(isOpen);
     if (isOpen) setSearch(initialQuery);
   }
-  const results = useGlobalSearchResults(search, isOpen);
+  const results = useGlobalSearchResults(search, isOpen, requestedGameKey);
 
   useHotkeys({
     openGlobalSearch: () => (isOpen ? closeGlobalSearch() : openGlobalSearch()),
@@ -66,6 +72,15 @@ export function GlobalSearchCommand() {
     >
       <Command shouldFilter={false} loop label={t("title")}>
         <CommandInput autoFocus value={search} onValueChange={setSearch} placeholder={t("placeholder")} />
+        {results.availableGames.length > 1 && (
+          <GlobalSearchGameBadges
+            label={t("gameFilterLabel")}
+            allGamesLabel={t("allGames")}
+            games={results.availableGames}
+            selectedGameKey={results.selectedGameKey}
+            onSelect={selectGlobalSearchGame}
+          />
+        )}
         <p role="status" className="sr-only">
           {results.query && results.isSettled ? t("resultsCount", { count: results.resultCount }) : ""}
         </p>

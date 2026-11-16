@@ -1,6 +1,13 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { OWNED_CARD_SEARCH_MAX_OFFSET, ownedCardSearchOffset } from "@magic-vault/shared";
+import {
+  globalSearchGamesFor,
+  isGlobalSearchGameSelected,
+  OWNED_CARD_SEARCH_MAX_OFFSET,
+  ownedCardSearchGameKey,
+  ownedCardSearchOffset,
+  selectedGlobalSearchGameKey,
+} from "@magic-vault/shared";
 import { catalogSearchPageLimit } from "../src/lib/card-search/catalog-search-limit";
 import { STORED_SEARCH_LIMIT } from "../src/lib/constants/card-search";
 
@@ -17,4 +24,22 @@ test("catalog search page limit keeps the full page by default and never exceeds
   assert.equal(catalogSearchPageLimit("0"), STORED_SEARCH_LIMIT);
   assert.equal(catalogSearchPageLimit("8"), 8);
   assert.equal(catalogSearchPageLimit("5000"), STORED_SEARCH_LIMIT);
+});
+
+test("owned card search only accepts well-formed game keys", () => {
+  assert.equal(ownedCardSearchGameKey(undefined), null);
+  assert.equal(ownedCardSearchGameKey(""), null);
+  assert.equal(ownedCardSearchGameKey("mtg"), "mtg");
+  assert.equal(ownedCardSearchGameKey("Robert'); drop"), null);
+});
+
+test("global search narrows games and collections to the selected game", () => {
+  const magic = { gameKey: "mtg", gameName: "Magic", lang: "en", collectionGuid: "a" };
+  const pokemon = { gameKey: "pokemon", gameName: "Pokemon", lang: "en", collectionGuid: "b" };
+  assert.deepEqual(globalSearchGamesFor([magic, pokemon], null), [magic, pokemon]);
+  assert.deepEqual(globalSearchGamesFor([magic, pokemon], "pokemon"), [pokemon]);
+  assert.equal(selectedGlobalSearchGameKey([magic, pokemon], "pokemon"), "pokemon");
+  assert.equal(selectedGlobalSearchGameKey([magic], "pokemon"), null);
+  assert.equal(isGlobalSearchGameSelected(null, undefined), true);
+  assert.equal(isGlobalSearchGameSelected("mtg", "pokemon"), false);
 });

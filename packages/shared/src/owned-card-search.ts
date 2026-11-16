@@ -4,6 +4,7 @@ import {
   OWNED_CARD_SEARCH_MAX_OFFSET,
   OWNED_CARD_SEARCH_QUERY_MAX_LENGTH,
 } from "./constants/owned-card-search.constant";
+import { GAME_KEY_PATTERN } from "./constants/games.constant";
 
 export function normalizeOwnedCardSearchQuery(rawQuery: string | null | undefined): string {
   return (rawQuery ?? "").trim().slice(0, OWNED_CARD_SEARCH_QUERY_MAX_LENGTH).toLowerCase();
@@ -19,4 +20,9 @@ export function ownedCardSearchOffset(rawOffset: string | null | undefined): num
   const requestedOffset = Number.parseInt(rawOffset ?? "", 10);
   if (!Number.isFinite(requestedOffset) || requestedOffset < 0) return 0;
   return Math.min(requestedOffset, OWNED_CARD_SEARCH_MAX_OFFSET);
+}
+
+export function ownedCardSearchGameKey(rawGameKey: string | null | undefined): string | null {
+  const gameKey = (rawGameKey ?? "").trim();
+  return gameKey && GAME_KEY_PATTERN.test(gameKey) ? gameKey : null;
 }

@@ -4,6 +4,8 @@
   "promptTitle": "Tout rechercher",
   "promptDescription": "Trouvez n'importe quelle carte, dans vos collections ou non, ainsi que des collections, des emplacements de stockage et des réglages.",
   "paletteDescription": "Tapez pour rechercher des cartes, collections, emplacements de rangement et réglages. Utilisez les flèches pour vous déplacer et Entrée pour ouvrir.",
+  "gameFilterLabel": "Rechercher dans",
+  "allGames": "Tous les jeux",
   "showMoreCards": "Afficher plus de vos cartes",
   "showMoreCatalogCards": "Afficher plus de cartes",
   "loadingMore": "Chargement de résultats supplémentaires",

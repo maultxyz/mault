@@ -3,7 +3,9 @@ import { sql } from "drizzle-orm";
 import {
   normalizeOwnedCardSearchQuery,
   ownedCardSearchLimit,
+  ownedCardSearchGameKey,
   ownedCardSearchOffset,
+  OWNED_CARD_SEARCH_GAME_PARAM,
   OWNED_CARD_SEARCH_LIMIT_PARAM,
   OWNED_CARD_SEARCH_OFFSET_PARAM,
   type OwnedCardSearchResult,
@@ -36,9 +38,10 @@ export const searchOwnedCardsRoute = new Hono<AppEnv>().get(
     if (!query) return c.json({ success: true, data: [] as OwnedCardSearchResult[] });
     const limit = ownedCardSearchLimit(c.req.query(OWNED_CARD_SEARCH_LIMIT_PARAM));
     const offset = ownedCardSearchOffset(c.req.query(OWNED_CARD_SEARCH_OFFSET_PARAM));
+    const gameKey = ownedCardSearchGameKey(c.req.query(OWNED_CARD_SEARCH_GAME_PARAM));
     const data = await ownedCardSearchCache.get(
       orgId,
-      JSON.stringify([query, limit, offset]),
+      JSON.stringify([query, limit, offset, gameKey]),
       async () => {
         const rows = await authQuery(c.get("jwtClaims"), async (tx) => {
           const result = await tx.execute(sql`
@@ -64,6 +67,7 @@ export const searchOwnedCardsRoute = new Hono<AppEnv>().get(
             WHERE cc.org_id = ${orgId}
               AND ${INVENTORY_CARD_FILTER}
               AND lower(cc.card_name) LIKE ${containsLikePattern(query)}
+              ${gameKey ? sql`AND g.key = ${gameKey}` : sql``}
             ORDER BY
               CASE WHEN starts_with(lower(cc.card_name), ${query}) THEN 0 ELSE 1 END,
               cc.card_name,

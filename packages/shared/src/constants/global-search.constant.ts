@@ -6,6 +6,7 @@ export const GLOBAL_SEARCH_OWNED_CARDS_PAGE_SIZE = 8;
 export const CATALOG_SEARCH_LIMIT_PARAM = "limit";
 export const OWNED_CARD_SEARCH_OFFSET_PARAM = "offset";
 export const OWNED_CARD_SEARCH_LIMIT_PARAM = "limit";
+export const OWNED_CARD_SEARCH_GAME_PARAM = "gameKey";
 export const CATALOG_SEARCH_GROUP_BY_PARAM = "groupBy";
 export const CATALOG_SEARCH_GROUP_BY_NAME = "name";
 export const CARD_PRINTINGS_PAGE_SIZE = 60;

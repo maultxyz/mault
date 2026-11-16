@@ -4,6 +4,8 @@
   "promptTitle": "Alles durchsuchen",
   "promptDescription": "Finde jede Karte, ob in deinen Sammlungen oder nicht, sowie Sammlungen, Lagerorte und Einstellungen.",
   "paletteDescription": "Tippe, um Karten, Sammlungen, Lagerorte und Einstellungen zu durchsuchen. Mit den Pfeiltasten bewegen, mit Enter öffnen.",
+  "gameFilterLabel": "Suchen in",
+  "allGames": "Alle Spiele",
   "showMoreCards": "Mehr deiner Karten anzeigen",
   "showMoreCatalogCards": "Mehr Karten anzeigen",
   "loadingMore": "Weitere Ergebnisse werden geladen",

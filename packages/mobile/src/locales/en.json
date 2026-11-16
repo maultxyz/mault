@@ -3434,6 +3434,8 @@
     },
     "catalogLoadFailed": "Couldn't search the card catalog. Pull down to try again.",
     "showMoreCards": "Show more of your cards",
+    "gameFilterLabel": "Search in",
+    "allGames": "All games",
     "showMoreCatalogCards": "Show more cards",
     "loadingMore": "Loading more results",
     "loadMoreFailed": "Couldn't load more results. Try again.",

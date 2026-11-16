@@ -3434,6 +3434,8 @@
     },
     "catalogLoadFailed": "Der Kartenkatalog konnte nicht durchsucht werden. Zum Aktualisieren nach unten ziehen.",
     "showMoreCards": "Mehr deiner Karten anzeigen",
+    "gameFilterLabel": "Suchen in",
+    "allGames": "Alle Spiele",
     "showMoreCatalogCards": "Mehr Karten anzeigen",
     "loadingMore": "Weitere Ergebnisse werden geladen",
     "loadMoreFailed": "Weitere Ergebnisse konnten nicht geladen werden. Versuche es erneut.",
