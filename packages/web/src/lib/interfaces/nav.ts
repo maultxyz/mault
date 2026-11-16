@@ -154,6 +154,7 @@ export interface PageHeaderProps {
   actions?: ReactNode;
   tabs?: ReactNode;
   children?: ReactNode;
+  spansFullWidth?: boolean;
 }
 
 export interface ViewTabsProps<T extends string> {
