@@ -29,7 +29,7 @@ import type {
   PrintingQuery,
   ResolvedCardSearch,
 } from "../interfaces/card-search";
-import { validateQuery } from "./validate";
+import { validateCatalogQuery } from "./validate";
 import { parsePrintingQueries } from "./printing-query";
 import {
   cardPrintingsSql,
@@ -233,7 +233,7 @@ export async function searchCards(
   offset = 0,
   setCode?: string,
 ): Promise<Result<CardSearchPage>> {
-  const invalid = validateQuery(query);
+  const invalid = validateCatalogQuery(query);
   if (invalid) return invalid;
 
   const page = await searchStoredCards(resolved, query, offset, setCode);
@@ -254,7 +254,7 @@ export async function searchCardSets(
   resolved: ResolvedCardSearch,
   query: string,
 ): Promise<CardSetOption[]> {
-  if (validateQuery(query)) return [];
+  if (validateCatalogQuery(query)) return [];
   const { match } = storedSearchMatch(query.trim());
   const rows = await db
     .select({
@@ -290,8 +290,13 @@ export async function searchCatalogCardsGroupedByName(
   offset = 0,
   setCode?: string,
 ): Promise<Result<CatalogCardSearchPage>> {
-  const invalid = validateQuery(query);
-  if (invalid) return invalid;
+  if (validateCatalogQuery(query)) {
+    return {
+      success: true,
+      message: "Cards successfully retrieved.",
+      data: { results: [], nextOffset: null },
+    };
+  }
   const { adapter, gameKey, lang } = resolved;
   const trimmed = query.trim();
   const { match, printingMatch } = storedSearchMatch(trimmed);
@@ -301,19 +306,20 @@ export async function searchCatalogCardsGroupedByName(
       catalogPrintingIsListedSql(adapter),
       setCode ? eq(cardImageVectors.setCode, setCode) : undefined,
     ) ?? sql`true`;
-  const searchFilter =
+  const matchFilter =
     and(
       eq(cardImageVectors.gameKey, gameKey),
       storedLanguageMatch(resolved),
       match,
-      printingFilter,
+      isNotNull(cardImageVectors.data),
+      setCode ? eq(cardImageVectors.setCode, setCode) : undefined,
     ) ?? sql`true`;
   const result = await db.execute<GroupedCatalogSearchRow>(
     groupedCatalogSearchSql({
       adapter,
       gameKey,
       preferredLang: lang,
-      searchFilter,
+      matchFilter,
       printingFilter,
       printingMatch,
       exactName: trimmed,

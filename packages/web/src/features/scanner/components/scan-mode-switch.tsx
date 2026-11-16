@@ -36,7 +36,7 @@ export function ScanModeSwitch({ className }: ScanModeSwitchProps) {
         <TooltipTrigger
           render={
             <Button
-              variant={isRemoveModeEnabled ? "outline-destructive" : "outline"}
+              variant={isRemoveModeEnabled ? "destructive" : "outline"}
               size="icon"
               aria-label={t("scanRemoval.removeMode")}
               aria-pressed={isRemoveModeEnabled}

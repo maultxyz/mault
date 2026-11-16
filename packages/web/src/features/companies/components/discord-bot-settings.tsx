@@ -53,7 +53,7 @@ export function DiscordBotSettings() {
         <div className="flex items-center justify-between gap-3">
           <span className="text-sm">{t("discordBot.linked")}</span>
           <Button
-            variant="outline-destructive"
+            variant="destructive"
             onClick={handleUnlink}
             disabled={isUnlinking || isLoading}
           >

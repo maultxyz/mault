@@ -1,7 +1,7 @@
 import { gameCardSetsQueryOptions } from "@/features/cards/api/card-sets";
 import { searchGameCards } from "@/features/cards/api/card-search";
 import type { CardSearchState } from "@/lib/interfaces/cards";
-import { QUERY_MIN_LENGTH } from "@magic-vault/shared";
+import { CATALOG_SEARCH_MIN_QUERY_LENGTH } from "@magic-vault/shared";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 
@@ -11,7 +11,7 @@ export function useGameCardSearch(
   lang: string,
   setCode?: string,
 ): CardSearchState {
-  const enabled = !!gameKey && query.trim().length >= QUERY_MIN_LENGTH;
+  const enabled = !!gameKey && query.trim().length >= CATALOG_SEARCH_MIN_QUERY_LENGTH;
   const search = useInfiniteQuery({
     queryKey: ["game-card-search", query, gameKey, lang, setCode ?? null],
     queryFn: ({ pageParam }) =>

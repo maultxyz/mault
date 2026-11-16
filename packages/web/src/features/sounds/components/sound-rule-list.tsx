@@ -174,7 +174,7 @@ export function SoundRuleList({ gameGuid }: SoundRuleListProps) {
                 </Button>
                 <Button
                   size="icon"
-                  variant="outline-destructive"
+                  variant="destructive"
                   disabled={locked}
                   aria-label={t("rules.delete", { name: rule.name })}
                   title={t("rules.delete", { name: rule.name })}

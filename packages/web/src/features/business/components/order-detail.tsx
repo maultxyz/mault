@@ -342,7 +342,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
               {t("orders.phonePick.button")}
             </Button>
             <Button
-              variant="outline-destructive"
+              variant="destructive"
               onClick={() => setCancelOpen(true)}
             >
               <IconX />
@@ -360,7 +360,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
         )}
         {!isOpen && access?.canFulfilOrders && (
           <Button
-            variant="outline-destructive"
+            variant="destructive"
             size="icon"
             aria-label={t("actions.delete")}
             title={t("actions.delete")}

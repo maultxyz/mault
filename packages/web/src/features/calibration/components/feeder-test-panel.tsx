@@ -100,7 +100,7 @@ export function FeederTestPanel({
           {isRunning ? (
             <Button
               type="button"
-              variant="outline-destructive"
+              variant="destructive"
               disabled={isStopping}
               onClick={feederTest.stop}
             >

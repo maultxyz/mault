@@ -24,12 +24,24 @@ function readQueryParam(query: string, name: string): string | null {
   }
 }
 
-export function buildStorageLabelUrl(origin: string, target: StorageLabelTarget): string {
+export function storageLabelPath(target: StorageLabelTarget): string {
   const query = [
     `${STORAGE_LOCATION_SEARCH_PARAM}=${encodeURIComponent(target.locationGuid)}`,
     `${STORAGE_LABEL_ORG_SEARCH_PARAM}=${encodeURIComponent(target.orgId)}`,
   ].join("&");
-  return `${origin.replace(/\/$/, "")}${STORAGE_PATH}?${query}`;
+  return `${STORAGE_PATH}?${query}`;
+}
+
+export function buildStorageLabelUrl(origin: string, target: StorageLabelTarget): string {
+  return `${origin.replace(/\/$/, "")}${storageLabelPath(target)}`;
+}
+
+export function buildStorageLabelQrUrl(
+  origin: string,
+  target: StorageLabelTarget,
+  labelShortUrl: string | null | undefined,
+): string {
+  return labelShortUrl ?? buildStorageLabelUrl(origin, target);
 }
 
 export function parseStorageLabelUrl(text: string): StorageLabelTarget | null {

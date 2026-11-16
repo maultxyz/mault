@@ -28,6 +28,7 @@ import { BatchScanRow } from "@/features/scanner/components/batch-scan-row";
 import { CameraChip } from "@/features/scanner/components/camera-chip";
 import { CameraEmptyStateFrame } from "@/features/scanner/components/camera-empty-state-frame";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
+import { ScanDestinationSheet } from "@/features/scanner/components/scan-destination-sheet";
 import { ScanRemovalQueueSheet } from "@/features/scanner/components/scan-removal-queue-sheet";
 import { ShutterButton } from "@/features/scanner/components/shutter-button";
 import { captureFrame } from "@/features/scanner/lib/frame";
@@ -61,14 +62,26 @@ export default function BatchScanScreen() {
   const [isCapturing, setIsCapturing] = useState(false);
   const [correctingKey, setCorrectingKey] = useState<string | null>(null);
   const [removalReviewOpen, setRemovalReviewOpen] = useState(false);
+  const [destinationPickerOpen, setDestinationPickerOpen] = useState(false);
   const isRemoveMode = batch.mode === "remove";
   const destinationName =
-    batch.collection && batch.storageLocation
+    batch.collection && (batch.storageLocation || batch.scanDestination.canStore)
       ? t("scan.destination.collectionAndLocation", {
           collection: batch.collection.name,
-          location: batch.storageLocation.name,
+          location: batch.storageLocation?.name ?? t("scan.destination.noLocation"),
         })
       : batch.collection?.name;
+  const canChooseDestination =
+    !isRemoveMode && !!batch.collection && batch.scanDestination.canStore && !batch.isSaving;
+  const openDestinationPicker = canChooseDestination ? () => setDestinationPickerOpen(true) : undefined;
+  const destinationSheet = (
+    <ScanDestinationSheet
+      visible={destinationPickerOpen}
+      scanDestination={batch.scanDestination}
+      offersSortWithRules={false}
+      onClose={() => setDestinationPickerOpen(false)}
+    />
+  );
   const correcting = batch.cards.find((card) => card.key === correctingKey) ?? null;
   const isReviewing = !!batch.photo;
   const active = cameraMounted && appState === "active" && permission.hasPermission && !!device && !isReviewing;
@@ -155,6 +168,17 @@ export default function BatchScanScreen() {
         <ScrollView contentContainerStyle={{ paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.lg + SPACING.xs }}>
           <View style={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.sm }}>
             {modeControl}
+            {canChooseDestination && batch.collection ? (
+              <View style={{ flexDirection: "row" }}>
+                <Button
+                  variant="secondary"
+                  icon="storage"
+                  label={batch.storageLocation?.name ?? t("scan.destination.noLocation")}
+                  accessibilityLabel={`${t("scan.destination.title")}: ${batch.storageLocation?.name ?? t("scan.destination.noLocation")}`}
+                  onPress={() => setDestinationPickerOpen(true)}
+                />
+              </View>
+            ) : null}
             <BatchScanPhoto photo={batch.photo} cards={batch.cards} />
             {progressText ? (
               <AppText size="sm" tone="secondary" accessibilityLiveRegion="polite">
@@ -232,6 +256,7 @@ export default function BatchScanScreen() {
             onRemoved={finishRemoval}
           />
         ) : null}
+        {destinationSheet}
       </View>
     );
   }
@@ -284,9 +309,10 @@ export default function BatchScanScreen() {
               batch.collection
                 ? isRemoveMode
                   ? t("scan.removal.title", { collection: batch.collection.name })
-                  : destinationName
+                  : (destinationName ?? batch.collection.name)
                 : t("batchScan.title")
             }
+            onPress={openDestinationPicker}
           />
         </View>
         <TorchToggle torch={torch} />
@@ -334,6 +360,7 @@ export default function BatchScanScreen() {
           onPress={() => void takePhoto()}
         />
       </View>
+      {destinationSheet}
     </View>
   );
 }

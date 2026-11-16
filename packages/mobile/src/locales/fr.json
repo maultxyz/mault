@@ -876,7 +876,11 @@
       "sortChip": "Tri selon les règles",
       "storageChip": "Dans {{name}} · sans tri",
       "noLocationChip": "Aucun emplacement · sans tri",
-      "collectionAndLocation": "{{collection}} · {{location}}"
+      "collectionAndLocation": "{{collection}} · {{location}}",
+      "batchDescription": "Les cartes ajoutées depuis la photo vont directement dans l'emplacement de rangement choisi.",
+      "batchDescriptionNoLocations": "Vous n'avez pas encore d'emplacement de rangement. Ajoutez-en un dans Bibliothèque > Rangement, ou ajoutez les cartes à la collection uniquement.",
+      "batchDescriptionLocked": "Les emplacements de rangement ne sont pas inclus dans votre offre, les cartes sont donc ajoutées à la collection uniquement.",
+      "batchNoLocationDescription": "Ajouter les cartes à la collection uniquement"
     }
   },
   "home": {

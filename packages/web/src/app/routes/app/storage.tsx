@@ -445,7 +445,7 @@ function DesktopStoragePage() {
                       <IconEdit />
                     </Button>
                     <Button
-                      variant="outline-destructive"
+                      variant="destructive"
                       size="icon"
                       aria-label={t("page.delete")}
                       title={t("page.delete")}

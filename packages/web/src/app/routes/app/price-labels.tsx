@@ -193,6 +193,7 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
             title={t("priceLabels.title")}
             description={t("priceLabels.description")}
             actions={printButton}
+            spansFullWidth
           />
           <div className="flex flex-col gap-2 px-3 py-2">
             {access?.isLocked && <BusinessUpgradeCallout />}

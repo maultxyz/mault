@@ -41,11 +41,15 @@ export function BinCorrectionDialog({
     orgSettingsQueryOptions(activeOrg?.id),
   );
   const autoCloseSeconds = orgSettings?.correctionAutoCloseSeconds ?? null;
-  const currentBin = correction?.currentBin;
-  const targetBin = correction?.targetBin;
+  const [shownCorrection, setShownCorrection] = useState(correction);
+  if (correction && correction !== shownCorrection) {
+    setShownCorrection(correction);
+  }
+  const currentBin = shownCorrection?.currentBin;
+  const targetBin = shownCorrection?.targetBin;
   const needsMove = targetBin != null && currentBin !== targetBin;
-  const name = correction?.cardName ?? "";
-  const isAdded = !!correction?.addedCard;
+  const name = shownCorrection?.cardName ?? "";
+  const isAdded = !!shownCorrection?.addedCard;
 
   const title =
     targetBin == null
@@ -146,7 +150,7 @@ export function BinCorrectionDialog({
       onKeyDown={handleKeyDown}
       initialFocusRef={confirmButtonRef}
       footer={
-        needsMove && correction ? (
+        needsMove && shownCorrection ? (
           <>
             <Button variant="outline" onClick={onClose}>
               {currentBin != null

@@ -177,7 +177,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
           {isOpen && sample.card && (
             <div className="flex gap-1.5">
               <Button
-                variant={sample.result === "incorrect" ? "destructive" : "outline-destructive"}
+                variant={sample.result === "incorrect" ? "destructive" : "outline"}
                 className="flex-1"
                 aria-pressed={sample.result === "incorrect"}
                 disabled={pending}

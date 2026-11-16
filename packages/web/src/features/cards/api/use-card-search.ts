@@ -4,7 +4,7 @@ import type {
   CardSearchOptions,
   CardSearchState,
 } from "@/lib/interfaces/cards";
-import { QUERY_MIN_LENGTH } from "@magic-vault/shared";
+import { CATALOG_SEARCH_MIN_QUERY_LENGTH } from "@magic-vault/shared";
 import {
   infiniteQueryOptions,
   useInfiniteQuery,
@@ -42,7 +42,7 @@ export function useCardSearch(
   language?: string,
   { keepResultsWhileRefreshing = false }: CardSearchOptions = {},
 ): CardSearchState {
-  const enabled = query.trim().length >= QUERY_MIN_LENGTH;
+  const enabled = query.trim().length >= CATALOG_SEARCH_MIN_QUERY_LENGTH;
   const search = useInfiniteQuery({
     ...cardSearchQueryOptions(query, collectionGuid, setCode, language),
     enabled,

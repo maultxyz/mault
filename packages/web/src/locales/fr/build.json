@@ -68,13 +68,13 @@
       "bare": "Carte nue",
       "modules_one": "{{count}} module",
       "modules_other": "{{count}} modules"
-    }
+    },
+    "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même."
   },
   "bom": {
     "heading": "Nomenclature",
     "description": "Les quantités évoluent avec le nombre de modules que tu construis - {{modules}} modules × 3 servos, 1 chargeur, {{irSensors}} capteurs IR, {{channelsUsed}} des 16 canaux du PCA9685 utilisés. Les canaux restants sont libres pour des modules de tri supplémentaires (jusqu'à 5 modules sur un seul PCA9685). Coche chaque pièce au fur et à mesure que tu la récupères - les coches sont enregistrées dans ce navigateur.",
     "affiliateDisclaimer": "Certains liens « Acheter » sont des liens d'affiliation Amazon - nous pouvons toucher une petite commission sur les achats éligibles, sans coût supplémentaire pour toi.",
-    "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même.",
     "partsListLabel": "Liste complète des pièces",
     "kitPowerSupplyNote": "Les kits n'incluent pas d'alimentation. Il te faut ta propre alimentation régulée 6V d'au moins 3A pour les servos.",
     "kitCollapsedNote": "Tu construis à partir d'un kit, la liste des pièces est donc repliée. Ouvre-la si tu veux vérifier une pièce.",
@@ -110,7 +110,7 @@
           "sg90Positional": {
             "part": "Micro servo SG90, positionnel (180°)",
             "notes": "3 par module × {{count}} modules - trappe inférieure, porte à palette, poussoir",
-            "alert": "Achète des SG90 numériques. Les SG90 analogiques, et en particulier les servos Tower Pro, ne tiennent pas leurs positions calibrées de façon fiable dans ce trieur."
+            "alert": "Évite les SG90 Tower Pro. Ils ne tiennent pas leurs positions calibrées de façon fiable dans ce trieur."
           },
           "mg90sContinuous": {
             "part": "Servo MG90S, rotation continue 360°",
@@ -264,6 +264,10 @@
           "feederBearings": {
             "part": "Roulements à billes",
             "notes": "Pour la version de la base du chargeur avec roulements, afin que le rouleau tourne plus librement"
+          },
+          "neodymiumMagnets": {
+            "part": "Aimants en néodyme (5×2 mm)",
+            "notes": "Aimants en disque, 5 mm de diamètre et 2 mm d'épaisseur"
           }
         }
       }
@@ -406,7 +410,7 @@
           },
           "printModulePins": {
             "text": "Imprime {{count}} Module Pins pour {{modules}} modules de tri : {{top}} pour le dessus et {{front}} pour l'avant des pièces Base Support. Chaque pièce Base Support prend 4 pins sur le dessus, et chaque unité de hauteur en prend 2 à l'avant, sauf l'unité du haut de chaque colonne. Les pins assemblent les pièces Base Support entre elles et maintiennent les modules de tri sur la base. Change le nombre de modules dans la configuration ci-dessus pour mettre ce nombre à jour.",
-            "note": "Assemble d'abord à sec les pièces Base Support et les modules de tri avec les pins. Quand tout est bien aligné, colle chaque pin avec de la colle cyanoacrylate."
+            "glueAlert": "Colle les pins dans les supports. Assemble d'abord à sec les pièces Base Support et les modules de tri avec les pins. Quand tout est bien aligné, colle chaque pin avec de la colle cyanoacrylate."
           },
           "dryFit": {
             "text": "Fais un essai à sec de chaque logement de module avant d'insérer l'électronique - ponce ou ajuste dès maintenant les logements de servo trop serrés."

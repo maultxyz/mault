@@ -1,0 +1,2 @@
+CREATE INDEX "cards_collector_number_unpadded_idx" ON "cards" USING btree ("game_key","lang",ltrim(lower("collector_number"), '0'));--> statement-breakpoint
+CREATE INDEX "cards_set_code_lower_idx" ON "cards" USING btree ("game_key","lang",lower("set_code"));

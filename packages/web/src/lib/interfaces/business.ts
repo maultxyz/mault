@@ -126,6 +126,7 @@ export interface OrderSelectionBarProps {
   checkedOrders: FulfilmentOrder[];
   onClear: () => void;
   onOrdersDeleted: (orderGuids: string[]) => void;
+  className?: string;
 }
 
 export interface OrderEditDialogProps {

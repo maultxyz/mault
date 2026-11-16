@@ -79,7 +79,7 @@ export default function PhoneCameraPage() {
       description={t("phoneCamera.sessionEndedDescription")}
       footer={
         <Button
-          variant="outline-destructive"
+          variant="destructive"
           onClick={() => {
             setSessionEnded(false);
             disconnect();

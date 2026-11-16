@@ -1,8 +1,8 @@
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { parseShareLinkUrl } from "@magic-vault/shared";
+import { parseShareLinkUrl, parseStorageLabelUrl } from "@magic-vault/shared";
 import { router, useLocalSearchParams } from "expo-router";
 import { Linking } from "react-native";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -13,6 +13,7 @@ import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { shortLinkQueryOptions } from "@/features/share-links/api/short-links";
+import { useOpenStorageLabel } from "@/features/storage/api/use-open-storage-label";
 import { tradeLinkCardsQueryOptions, tradeLinkInfoQueryOptions } from "@/features/trade-offers/api/public-trade";
 import { TradeCardRow } from "@/features/trade-offers/components/trade-card-row";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -29,6 +30,12 @@ export default function SharedLinkScreen() {
     () => (shortLinkTarget ? parseShareLinkUrl(`${WEB_URL}${shortLinkTarget.path}`) : null),
     [shortLinkTarget],
   );
+  const resolvedStorageLabel = useMemo(
+    () => (shortLinkTarget ? parseStorageLabelUrl(`${WEB_URL}${shortLinkTarget.path}`) : null),
+    [shortLinkTarget],
+  );
+  const openStorageLabel = useOpenStorageLabel();
+  const hasOpenedResolvedTargetRef = useRef(false);
   const link = useMemo<TradeLinkRef | null>(
     () =>
       (params.kind === "collection" || params.kind === "storage") && params.guid && params.token
@@ -55,11 +62,15 @@ export default function SharedLinkScreen() {
   useEffect(() => {
     if (resolvedShareLink) {
       router.replace({ pathname: "/shared-link", params: { ...resolvedShareLink } });
+    } else if (resolvedStorageLabel) {
+      if (hasOpenedResolvedTargetRef.current) return;
+      hasOpenedResolvedTargetRef.current = true;
+      openStorageLabel(resolvedStorageLabel, { replacesCurrentScreen: true });
     } else if (shortLinkTarget) {
       void Linking.openURL(`${WEB_URL}${shortLinkTarget.path}`);
       router.back();
     }
-  }, [resolvedShareLink, shortLinkTarget]);
+  }, [resolvedShareLink, resolvedStorageLabel, openStorageLabel, shortLinkTarget]);
 
   const header = (
     <PageHeader

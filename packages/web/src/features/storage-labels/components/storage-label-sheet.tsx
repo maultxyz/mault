@@ -16,7 +16,7 @@ import type {
   StorageLabelSheetProps,
 } from "@/lib/interfaces/storage-labels";
 import { fittedLabelFontSize } from "@/lib/label-sheet";
-import { buildStorageLabelUrl } from "@magic-vault/shared";
+import { buildStorageLabelQrUrl } from "@magic-vault/shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -25,12 +25,13 @@ function StorageLabel({ template, location, orgId }: StorageLabelProps) {
   const qrCode = useMemo(
     () =>
       qrCodeModules(
-        buildStorageLabelUrl(window.location.origin, {
-          locationGuid: location.guid,
-          orgId,
-        }),
+        buildStorageLabelQrUrl(
+          window.location.origin,
+          { locationGuid: location.guid, orgId },
+          location.labelShortUrl,
+        ),
       ),
-    [location.guid, orgId],
+    [location.guid, location.labelShortUrl, orgId],
   );
   const padding = template.contentPadding;
   const qrSize = Math.min(template.labelHeight - padding * 2, template.labelWidth / 2);

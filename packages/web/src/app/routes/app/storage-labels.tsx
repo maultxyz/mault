@@ -146,6 +146,7 @@ function StorageLabelsView({ orgId }: StorageLabelsViewProps) {
             backTo={STORAGE_PATH}
             backLabel={t("pickList.back")}
             actions={printButton}
+            spansFullWidth
           />
           <div className="flex flex-col gap-2 px-3 py-2">
             {isPending ? (

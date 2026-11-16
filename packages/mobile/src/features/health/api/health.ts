@@ -1,7 +1,14 @@
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
-import type { CardSearchPage, CardSetOption, GameCoverage, HealthCheckResponse, PlayingCard, Result } from "@magic-vault/shared";
+import {
+  CATALOG_SEARCH_MIN_QUERY_LENGTH,
+  type CardSearchPage,
+  type CardSetOption,
+  type GameCoverage,
+  type HealthCheckResponse,
+  type PlayingCard,
+  type Result,
+} from "@magic-vault/shared";
 import { apiGet, unwrap, unwrapOr } from "@/lib/api/client";
-import { CARD_SEARCH_MIN_LENGTH } from "@/lib/constants/cards";
 import { HEALTH_REFETCH_MS } from "@/lib/constants/health";
 
 export const healthQueryOptions = queryOptions({
@@ -27,7 +34,7 @@ export const gameCardSearchQueryOptions = (query: string, gameKey: string | null
     },
     initialPageParam: 0,
     getNextPageParam: (last) => last.nextOffset ?? undefined,
-    enabled: !!gameKey && query.trim().length >= CARD_SEARCH_MIN_LENGTH,
+    enabled: !!gameKey && query.trim().length >= CATALOG_SEARCH_MIN_QUERY_LENGTH,
     staleTime: 60_000,
   });
 
@@ -38,7 +45,7 @@ export const gameCardSetsQueryOptions = (query: string, gameKey: string | null, 
       const params = new URLSearchParams({ q: query, gameKey: gameKey ?? "", lang });
       return unwrapOr(apiGet<Result<CardSetOption[]>>(`/api/cards/sets?${params}`), []);
     },
-    enabled: !!gameKey && query.trim().length >= CARD_SEARCH_MIN_LENGTH,
+    enabled: !!gameKey && query.trim().length >= CATALOG_SEARCH_MIN_QUERY_LENGTH,
     staleTime: 60_000,
   });
 

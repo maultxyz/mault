@@ -69,7 +69,7 @@ function PresetWorkflowContent() {
         <IconPencil /> {t("presetSelector.rename")}
       </Button>
       <Button
-        variant="outline-destructive"
+        variant="destructive"
         disabled={isSaving}
         onClick={() => setDeleteOpen(true)}
       >
