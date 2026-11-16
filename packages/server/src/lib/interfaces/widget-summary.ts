@@ -22,16 +22,6 @@ export interface WidgetCollectionCardPick {
   dayRank: number;
 }
 
-export interface WidgetCardPicksRow {
-  collection_values: { guid: string; name: string; cardCount: number; totalValue: number }[];
-  collection_picks: WidgetCollectionCardPick[];
-  org_biggest_price_rise_scan_id: string | null;
-  org_biggest_price_drop_scan_id: string | null;
-  org_daily_shuffle_scan_ids: string[];
-  needs_review_count: number;
-  review_scan_ids: string[];
-}
-
 export interface WidgetScanActivityRow {
   collection_guid: string;
   session_started_at: string;
