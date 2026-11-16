@@ -4,10 +4,12 @@ import { proxiedImageUrl } from "@magic-vault/shared";
 import { syncImageUrl } from "../../web/src/features/admin/lib/sync-image-url";
 import { imageProxyRoute } from "../src/routes/card/image-proxy";
 
-test("Yu-Gi-Oh browser sync uses the existing image proxy for both image faces", () => {
+test("Browser sync proxies image hosts without CORS support for both faces", () => {
   for (const imageUrl of [
     "https://images.ygoprodeck.com/images/cards/5479217.jpg",
     "https://images.ygoprodeck.com/images/cards/93170499.jpg",
+    "https://cdn.swu-db.com/images/cards/SOR/010.png",
+    "https://cdn.swu-db.com/images/cards/SOR/010-back.png",
   ]) {
     assert.equal(syncImageUrl(imageUrl, ""), proxiedImageUrl(imageUrl));
     assert.equal(
