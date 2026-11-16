@@ -3,12 +3,14 @@ import type { TFunction } from "i18next";
 import type { ReactNode } from "react";
 import type { SorterPrintPart } from "@/lib/interfaces/sorter-model";
 
-export type BoardType = "uno_r4" | "esp32";
+export type BoardType = "uno_r4" | "esp32" | "raspberry-pi" | "orange-pi-zero4";
 
 export interface BoardInfo {
   displayName: string;
   shortName: string;
   irPins: number[];
+  physicalIrPins?: number[];
+  physicalHopperPin?: number;
   hopperIrPin: number;
   logicVoltage: "5V" | "3.3V";
   usbCableName: string;

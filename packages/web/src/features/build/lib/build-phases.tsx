@@ -1,3 +1,4 @@
+import { isPiBoard } from "@/lib/constants/build";
 import { FlashInBrowserStep } from "@/features/build/components/flash-in-browser-step";
 import { PrintPartsModel } from "@/features/build/components/print-parts-model";
 import {
@@ -54,7 +55,8 @@ export function buildPhases(
   usingKit: boolean,
 ): BuildPhase[] {
   const board = BOARD_INFO[boardType];
-  const isEsp32Family = boardType !== "uno_r4";
+  const isEsp32Family = boardType === "esp32";
+  const isPi = isPiBoard(boardType);
   const isEsp32Breakout = boardType === "esp32" && mountType === "breakout";
   const sortingModules = moduleCount;
   const baseSupportPieces = countBaseSupportPieces(moduleCount);
@@ -69,7 +71,7 @@ export function buildPhases(
       key: "print",
       title: t("assembly.phases.print.title"),
       icon: IconCube,
-      intro: <PrintPartsModel />,
+      intro: isPi ? <p>{t("pi.mount")}</p> : <PrintPartsModel />,
       steps: [
         {
           key: "print-sorting-module",
@@ -116,7 +118,9 @@ export function buildPhases(
           modelParts: [
             "baseSupportTall",
             "baseSupportShort",
-            ...(breakoutSupportHeight ? (["baseSupportBreakout"] as const) : []),
+            ...(breakoutSupportHeight
+              ? (["baseSupportBreakout"] as const)
+              : []),
           ],
           text: breakoutSupportHeight
             ? t("assembly.phases.print.steps.printPlateBase.breakoutText", {
@@ -396,7 +400,7 @@ export function buildPhases(
       key: "wire-and-calibrate",
       title: t("assembly.phases.wireAndCalibrate.title"),
       icon: IconPlugConnected,
-      video: WIRE_AND_CALIBRATE_VIDEO,
+      video: isPi ? undefined : WIRE_AND_CALIBRATE_VIDEO,
       intro: <WiringOverview />,
       steps: [
         {
@@ -404,10 +408,12 @@ export function buildPhases(
           text: t("assembly.phases.wireAndCalibrate.steps.wireI2c.text", {
             board: board.shortName,
           }),
-          note: `${t(
-            "assembly.phases.wireAndCalibrate.steps.wireI2c.bendPinsNote",
-            { board: board.shortName },
-          )} ${t("assembly.phases.wireAndCalibrate.steps.wireI2c.note")}`,
+          note: isPi
+            ? t("pi.logic")
+            : `${t(
+                "assembly.phases.wireAndCalibrate.steps.wireI2c.bendPinsNote",
+                { board: board.shortName },
+              )} ${t("assembly.phases.wireAndCalibrate.steps.wireI2c.note")}`,
           reference: <I2cWiringReference />,
         },
         {
@@ -438,13 +444,15 @@ export function buildPhases(
           reference: <ServoPowerWiringReference />,
         },
         {
-          key: "connect-serial",
-          text: t(
-            isEsp32Family
-              ? "assembly.phases.wireAndCalibrate.steps.connectSerialEsp32.text"
-              : "assembly.phases.wireAndCalibrate.steps.connectSerial.text",
-            { board: board.shortName },
-          ),
+          key: isPi ? "connect-pi" : "connect-serial",
+          text: isPi
+            ? t("pi.connect")
+            : t(
+                isEsp32Family
+                  ? "assembly.phases.wireAndCalibrate.steps.connectSerialEsp32.text"
+                  : "assembly.phases.wireAndCalibrate.steps.connectSerial.text",
+                { board: board.shortName },
+              ),
         },
         {
           key: "install-horns",
@@ -507,5 +515,36 @@ export function buildPhases(
     },
   ];
 
-  return usingKit ? phases.filter((phase) => phase.key !== "firmware") : phases;
+  if (isPi) {
+    const print = phases.find((phase) => phase.key === "print");
+    if (print)
+      print.steps = print.steps.filter(
+        (step) => step.key !== "print-plate-base-bottom",
+      );
+    const wiring = phases.find((phase) => phase.key === "wire-and-calibrate");
+    if (wiring) {
+      wiring.steps.unshift({
+        key: "install-pi",
+        text: (
+          <a
+            className="text-primary underline"
+            href={`/self-host?host=pi&sorter=gpio&board=${boardType}`}
+          >
+            {t("pi.install")}
+          </a>
+        ),
+        note: t("pi.mount"),
+      });
+      for (const step of wiring.steps) {
+        if (step.key === "wire-sensors") step.note = t("pi.sensors");
+        if (step.key === "wire-power") {
+          step.text = t("pi.wirePower");
+          step.note = t("pi.power");
+        }
+      }
+    }
+  }
+  return usingKit || isPi
+    ? phases.filter((phase) => phase.key !== "firmware")
+    : phases;
 }

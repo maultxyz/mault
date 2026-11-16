@@ -1,3 +1,4 @@
+import { isPiBoard } from "@/lib/constants/build";
 import { BOARD_BUY_URLS, BOARD_INFO } from "@/lib/constants/build";
 import { Trans } from "react-i18next";
 import type {
@@ -38,6 +39,14 @@ export const GROUPS: BomGroup[] = [
     key: "electronics",
     rows: [
       {
+        key: "pi-essentials",
+        qty: () => "1",
+        name: "Pi",
+        part: (t) => t("pi.essentials"),
+        notes: (t) => t("pi.requirements"),
+        visible: (boardType) => isPiBoard(boardType),
+      },
+      {
         key: "board",
         qty: () => "1",
         name: (boardType) => BOARD_INFO[boardType].displayName,
@@ -46,9 +55,11 @@ export const GROUPS: BomGroup[] = [
           <Trans
             t={t}
             i18nKey={
-              boardType === "uno_r4"
-                ? "bom.groups.electronics.items.unoR4.notes"
-                : "bom.groups.electronics.items.esp32.notes"
+              isPiBoard(boardType)
+                ? "pi.boardNotes"
+                : boardType === "uno_r4"
+                  ? "bom.groups.electronics.items.unoR4.notes"
+                  : "bom.groups.electronics.items.esp32.notes"
             }
             values={{ path: "firmware/main/main.ino" }}
             components={{
@@ -84,7 +95,10 @@ export const GROUPS: BomGroup[] = [
         qty: () => "1",
         name: "Adafruit PCA9685",
         part: (t) => t("bom.groups.electronics.items.pca9685.part"),
-        notes: (t) => t("bom.groups.electronics.items.pca9685.notes"),
+        notes: (t, _, boardType) =>
+          isPiBoard(boardType)
+            ? t("pi.logic")
+            : t("bom.groups.electronics.items.pca9685.notes"),
         buyUrl: "https://amzn.to/4gPYpcG",
       },
       {
@@ -124,8 +138,10 @@ export const GROUPS: BomGroup[] = [
             </span>
           </>
         ),
-        notes: (t, n) =>
-          t("bom.groups.sensing.items.irSensor.notes", { count: n }),
+        notes: (t, n, boardType) =>
+          isPiBoard(boardType)
+            ? t("pi.sensors")
+            : t("bom.groups.sensing.items.irSensor.notes", { count: n }),
         buyUrl: "https://amzn.to/4qVNFOt",
       },
     ],
@@ -146,6 +162,7 @@ export const GROUPS: BomGroup[] = [
       },
       {
         key: "usb-cable",
+        visible: (boardType) => !isPiBoard(boardType),
         qty: () => "1",
         name: (boardType) => BOARD_INFO[boardType].usbCableName,
         part: (t, boardType) =>
