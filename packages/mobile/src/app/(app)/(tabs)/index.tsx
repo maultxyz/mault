@@ -4,9 +4,10 @@ import { router, useIsFocused } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { Button } from "@/components/ui/button";
-import { Callout } from "@/components/ui/callout";
+import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -87,10 +88,10 @@ export default function HomeScreen() {
       }
     >
       {overview.isError && !overviewData ? (
-        <Callout
-          tone="destructive"
+        <QueryErrorState
           title={t("home.loadFailed")}
-          action={<Button label={t("recovery.retry")} onPress={() => void overview.refetch()} />}
+          onRetry={() => void overview.refetch()}
+          isRetrying={overview.isFetching}
         />
       ) : null}
 
@@ -128,6 +129,24 @@ export default function HomeScreen() {
                 : []),
             ]}
           />
+
+          {overviewData.collectionCount === 0 && collections.data?.length === 0 ? (
+            <EmptyState
+              icon="collections"
+              title={t("home.firstRun.title")}
+              description={t("home.firstRun.description")}
+              action={
+                <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "center", gap: SPACING.sm }}>
+                  <Button icon="plus" label={t("home.firstRun.createCollection")} onPress={() => router.push("/collection-new")} />
+                  <Button
+                    variant="secondary"
+                    label={t("home.firstRun.startScanning")}
+                    onPress={() => router.navigate("/scan")}
+                  />
+                </View>
+              }
+            />
+          ) : null}
 
           {liveScanners.length > 0 || reviewCount > 0 || pendingTradeOfferList.length > 0 ? (
             <View style={{ gap: SPACING.sm }}>

@@ -277,7 +277,7 @@
     },
     "features": {
       "chaosSort": {
-        "label": "Tri en vrac",
+        "label": "Tri chaos",
         "description": "Remplir les bacs dans l'ordre, sans règles. Le désactiver empêche seulement d'autres préréglages de l'activer."
       },
       "storage": {
@@ -294,7 +294,7 @@
       },
       "repacks": {
         "label": "Repacks",
-        "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux déjà en mode repack continuent de fonctionner."
+        "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux qui créent déjà des repacks continuent de fonctionner."
       },
       "customSounds": {
         "label": "Sons personnalisés",

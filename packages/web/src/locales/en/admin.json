@@ -305,7 +305,7 @@
       },
       "repacks": {
         "label": "Repacks",
-        "description": "Build repacks from bin slots. Turning it off only stops presets from switching it on. Presets already in repack mode keep working."
+        "description": "Build repacks from bin slots. Turning it off only stops presets from switching it on. Presets that already build repacks keep working."
       },
       "customSounds": {
         "label": "Custom sounds",

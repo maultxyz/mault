@@ -158,7 +158,7 @@ export function CreateCollectionDialog({
               !form.formState.isValid || isMutating || atCollectionLimit
             }
           >
-            {isMutating && <IconLoader2 className="size-4 animate-spin" />}
+            {isMutating && <IconLoader2 className="animate-spin" />}
             {t("createDialog.create")}
           </Button>
         </>

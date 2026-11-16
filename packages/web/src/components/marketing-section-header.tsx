@@ -7,7 +7,7 @@ export function MarketingSectionHeader({
 }: MarketingSectionHeaderProps) {
   return (
     <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 text-center">
-      <p className="font-heading text-2xs font-medium tracking-widest text-primary uppercase">
+      <p className="font-heading text-sm font-medium tracking-widest text-primary uppercase">
         {eyebrow}
       </p>
       <h2 className="font-heading text-4xl leading-[1.05] font-semibold tracking-tight text-balance md:text-5xl">

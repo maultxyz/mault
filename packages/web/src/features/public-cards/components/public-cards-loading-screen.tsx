@@ -1,5 +1,11 @@
+import { Skeleton } from "@/components/ui/skeleton";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
-import { IconLoader2 } from "@tabler/icons-react";
+import { CARD_GRID_CLASS } from "@/lib/constants/card-grid";
+import {
+  PUBLIC_CARDS_LOADING_FILTER_GROUP_COUNT,
+  PUBLIC_CARDS_LOADING_FILTER_OPTION_COUNT,
+  PUBLIC_CARDS_LOADING_TILE_COUNT,
+} from "@/lib/constants/public-cards";
 import { useTranslation } from "react-i18next";
 
 export function PublicCardsLoadingScreen() {
@@ -9,14 +15,47 @@ export function PublicCardsLoadingScreen() {
     <main
       id={MAIN_CONTENT_ID}
       tabIndex={-1}
-      className="flex h-dvh items-center justify-center bg-background p-6 outline-none"
+      className="flex h-dvh flex-col bg-background outline-none"
     >
-      <div role="status">
-        <IconLoader2
-          className="size-6 animate-spin text-foreground/70 motion-reduce:animate-none"
+      <span role="status" className="sr-only">
+        {t("a11y.loading")}
+      </span>
+      <header className="grid shrink-0 grid-cols-1 items-center gap-3 border-b px-4 py-3 md:px-3 md:py-2 md:grid-cols-[minmax(0,1fr)_minmax(0,36rem)_minmax(0,1fr)]">
+        <div className="flex min-w-0 flex-col gap-1.5">
+          <Skeleton className="h-5 w-40" />
+          <Skeleton className="h-3 w-24" />
+        </div>
+        <Skeleton className="h-10 w-full rounded-lg md:h-7" />
+        <div className="flex items-center gap-1.5 md:justify-end">
+          <Skeleton className="h-10 flex-1 rounded-lg md:hidden" />
+          <Skeleton className="h-10 w-28 rounded-lg md:h-7" />
+        </div>
+      </header>
+      <div className="flex min-h-0 flex-1">
+        <aside
           aria-hidden
-        />
-        <span className="sr-only">{t("a11y.loading")}</span>
+          className="hidden w-64 shrink-0 border-r bg-sidebar/70 p-4 md:flex md:flex-col md:gap-5 lg:w-72"
+        >
+          {Array.from({ length: PUBLIC_CARDS_LOADING_FILTER_GROUP_COUNT }, (_, groupIndex) => (
+            <div key={groupIndex} className="flex flex-col gap-2">
+              <Skeleton className="h-3 w-20" />
+              {Array.from({ length: PUBLIC_CARDS_LOADING_FILTER_OPTION_COUNT }, (_, optionIndex) => (
+                <Skeleton key={optionIndex} className="h-4 w-full" />
+              ))}
+            </div>
+          ))}
+        </aside>
+        <div className="@container min-w-0 flex-1 overflow-hidden p-4 md:px-3 md:py-2">
+          <div className={CARD_GRID_CLASS}>
+            {Array.from({ length: PUBLIC_CARDS_LOADING_TILE_COUNT }, (_, tileIndex) => (
+              <div key={tileIndex} className="flex flex-col gap-1.5">
+                <Skeleton className="aspect-[2.5/3.5] w-full rounded-lg" />
+                <Skeleton className="h-3 w-3/4" />
+                <Skeleton className="h-3 w-1/3" />
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </main>
   );

@@ -110,7 +110,7 @@ export function RequireCollectionDialog() {
           }
           className="w-full"
         >
-          {isMutating && <IconLoader2 className="size-4 animate-spin" />}
+          {isMutating && <IconLoader2 className="animate-spin" />}
           {t("requireDialog.submit")}
         </Button>
       }

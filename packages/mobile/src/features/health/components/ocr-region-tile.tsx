@@ -69,7 +69,7 @@ export function OcrRegionTile({ gameKey, name, lang, regions, width }: OcrRegion
               height: `${region.height * 100}%`,
               borderWidth: 1,
               borderStyle: region.fallback ? "dashed" : "solid",
-              borderColor: region.fallback ? colors.warning : colors.primary,
+              borderColor: region.fallback ? colors.warningStrong : colors.primary,
               backgroundColor: region.fallback ? `${colors.warning}1a` : `${colors.primary}1a`,
             }}
           />

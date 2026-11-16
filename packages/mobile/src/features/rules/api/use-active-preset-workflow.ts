@@ -16,10 +16,21 @@ import type { ActivePresetWorkflowState } from "@/lib/interfaces/rules";
 export function useActivePresetWorkflow(): ActivePresetWorkflowState {
   const { t } = useTranslation();
   const orgId = useActiveOrgId();
-  const { sets, activeSet, gameGuid, isPending: isRulesDataPending } = useRulesData();
+  const {
+    sets,
+    activeSet,
+    gameGuid,
+    isPending: isRulesDataPending,
+    isError: isRulesDataError,
+    isRefetching: isRefetchingRulesData,
+    refetch: refetchRulesData,
+  } = useRulesData();
   const workflowsQuery = useQuery(presetWorkflowsQueryOptions(orgId));
   const allWorkflows = workflowsQuery.data ?? [];
   const isPending = isRulesDataPending || workflowsQuery.isLoading;
+  const isError = isRulesDataError || workflowsQuery.isError;
+  const isRefetching = isRefetchingRulesData || workflowsQuery.isRefetching;
+  const refetch = () => Promise.all([refetchRulesData(), workflowsQuery.refetch()]);
   const workflows = allWorkflows.filter((workflow) => workflow.gameGuid === (gameGuid ?? null));
   const candidate = activeWorkflowForGame(allWorkflows, gameGuid);
   const step = activeWorkflowStep(candidate);
@@ -39,6 +50,9 @@ export function useActivePresetWorkflow(): ActivePresetWorkflowState {
       label: "",
       presetName,
       isPending,
+      isError,
+      isRefetching,
+      refetch,
     };
   }
   return {
@@ -52,5 +66,8 @@ export function useActivePresetWorkflow(): ActivePresetWorkflowState {
     label: workflowStepLabel(workflow, step, presetName),
     presetName,
     isPending,
+    isError,
+    isRefetching,
+    refetch,
   };
 }

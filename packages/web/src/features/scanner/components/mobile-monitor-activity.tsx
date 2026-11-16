@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+import { FOIL_GRADIENT_CLASS } from "@/lib/constants/ui";
 import { CardImage } from "@/components/card-image";
 import {
   clearUnmatchedScans,
@@ -89,7 +91,7 @@ export function MobileMonitorActivity({
                       <span
                         role="img"
                         aria-label={t("scanRemoval.foil")}
-                        className="absolute top-0.5 left-0.5 rounded-full bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300 p-0.5"
+                        className={cn("absolute top-0.5 left-0.5 rounded-full p-0.5", FOIL_GRADIENT_CLASS)}
                       >
                         <IconSparkles className="size-2 text-white" />
                       </span>
@@ -132,7 +134,7 @@ export function MobileMonitorActivity({
                     <button
                       type="button"
                       onClick={() => onOpenCard(entry.scanId)}
-                      className="flex w-full items-center gap-3 py-2 text-left transition-colors active:bg-muted"
+                      className="flex w-full items-center gap-3 py-2 text-left transition-colors active:bg-foreground/6"
                     >
                       {content}
                     </button>

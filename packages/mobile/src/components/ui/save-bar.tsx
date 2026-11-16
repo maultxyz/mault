@@ -6,6 +6,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { playSuccessHaptic } from "@/lib/haptics";
 import type { SaveBarProps } from "@/lib/interfaces/ui";
 
 export function SaveBar({ visible, saving, onSave, onDiscard }: SaveBarProps) {
@@ -14,7 +15,10 @@ export function SaveBar({ visible, saving, onSave, onDiscard }: SaveBarProps) {
   const insets = useSafeAreaInsets();
   const wasSavingRef = useRef(saving);
   useEffect(() => {
-    if (wasSavingRef.current && !saving && !visible) AccessibilityInfo.announceForAccessibility(t("common.changesSaved"));
+    if (wasSavingRef.current && !saving && !visible) {
+      playSuccessHaptic();
+      AccessibilityInfo.announceForAccessibility(t("common.changesSaved"));
+    }
     wasSavingRef.current = saving;
   }, [saving, visible, t]);
   if (!visible) return null;

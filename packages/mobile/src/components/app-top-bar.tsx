@@ -16,6 +16,8 @@ import { useTheme } from "@/hooks/use-theme";
 import { ALERT_BADGE_MAX } from "@/lib/constants/stream";
 import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
 import {
+  COUNT_BADGE_LINE_HEIGHT,
+  COUNT_BADGE_MIN_SIZE,
   TOP_BAR_BRAND_ICON_SIZE,
   TOP_BAR_HEIGHT,
   MIN_TOUCH_TARGET,
@@ -85,10 +87,10 @@ export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBa
             pointerEvents="none"
             style={{
               position: "absolute",
-              top: 0,
-              right: 0,
-              minWidth: 16,
-              height: 16,
+              top: -2,
+              right: -2,
+              minWidth: COUNT_BADGE_MIN_SIZE,
+              minHeight: COUNT_BADGE_MIN_SIZE,
               paddingHorizontal: 3,
               borderRadius: RADIUS.full,
               alignItems: "center",
@@ -98,7 +100,7 @@ export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBa
               borderColor: colors.shell,
             }}
           >
-            <AppText size="2xs" weight="semibold" style={{ color: colors.onStatusStrong, fontSize: 10, lineHeight: 12 }}>
+            <AppText size="2xs" weight="semibold" style={{ color: colors.onStatusStrong, lineHeight: COUNT_BADGE_LINE_HEIGHT }}>
               {notificationCount > ALERT_BADGE_MAX ? `${ALERT_BADGE_MAX}+` : String(notificationCount)}
             </AppText>
           </View>

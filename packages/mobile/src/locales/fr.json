@@ -289,7 +289,7 @@
     "cardCount_other": "{{count}} cartes",
     "leaderboard": {
       "title": "Classement",
-      "description_one": "L'organisation qui a scanné le plus de cartes avec Mault.",
+      "description_one": "La {{count}} organisation qui a scanné le plus de cartes avec Mault.",
       "description_other": "Les {{count}} organisations qui ont scanné le plus de cartes avec Mault.",
       "error": "Impossible de charger le classement. Réessayez dans un instant.",
       "rank": "#{{rank}}",
@@ -714,7 +714,7 @@
     "handScanBin": "Bac {{number}}",
     "pauseAction": "Pause",
     "emergencyStop": "Arrêt",
-    "emergencyStopHint": "Arrêt d'urgence : arrête immédiatement le chargeur, les volets et les poussoirs",
+    "emergencyStopHint": "Arrêt d'urgence : arrête immédiatement le chargeur, les palettes et les poussoirs",
     "sessionChip_one": "{{count}} scannée",
     "sessionChip_other": "{{count}} scannée",
     "sessionScans": {
@@ -846,7 +846,8 @@
         "scanOnce": "Scan unique",
         "removing": "Retrait"
       },
-      "saved": "{{name}} enregistrée"
+      "saved": "{{name}} enregistrée",
+      "offline": "Hors ligne"
     },
     "unmatchedRecovery": {
       "title": "Carte non identifiée",
@@ -895,6 +896,12 @@
       "open": "Ouvre la collection"
     },
     "loadFailed": "Impossible de charger votre aperçu. Tirez vers le bas pour réessayer.",
+    "firstRun": {
+      "title": "Commencez votre collection",
+      "description": "Créez une collection, puis scannez vos premières cartes pour voir ce qu'elles valent.",
+      "createCollection": "Nouvelle collection",
+      "startScanning": "Commencer à scanner"
+    },
     "hero": {
       "value": "Valeur de la collection",
       "cards": "Cartes",
@@ -1185,7 +1192,7 @@
         "description": "Ignore les règles : les cartes identifiées vont dans un bac, les autres dans un autre"
       },
       "auto-assign": {
-        "title": "Tri automatique",
+        "title": "Détection automatique",
         "description": "Chaque nouvelle valeur d'un champ prend le prochain bac libre pendant le scan"
       },
       "game-sort": {
@@ -1331,7 +1338,7 @@
     "noPositionSelected": "Sélectionne une position ci-dessus pour la modifier",
     "rawPulseToggleLabel": "Valeurs brutes de l'impulsion",
     "rawPulseTooltip": "Position brute de l'impulsion du servo (120-490), la valeur exacte envoyée à l'appareil.",
-    "testServoGate": "Test : ouvre brièvement la trappe, puis la referme, pour que tu puisses observer le mouvement.",
+    "testServoGate": "Test : ouvre brièvement la palette, puis la referme, pour que tu puisses observer le mouvement.",
     "testServoPusher": "Test : pousse brièvement à gauche, puis à droite, puis revient en position neutre, pour que tu puisses observer le mouvement dans les deux sens.",
     "pusherOffsetWarning": "Plus de {{percent}} % par rapport au neutre. Le bras ne doit pas toucher la paroi intérieure, et plus vous poussez loin, plus le risque de sauter des dents d'engrenage ou de faire glisser le palonnier sur l'axe augmente.",
     "delays": {
@@ -1640,6 +1647,7 @@
   "settings": {
     "title": "Paramètres",
     "subtitle": "Paramètres de l'organisation pour chaque scanner",
+    "loadFailed": "Impossible de charger ces paramètres",
     "entrySubtitle": "Prix, scan, image de marque et intégrations",
     "sections": {
       "general": {
@@ -1721,7 +1729,7 @@
     "ocr": {
       "heading": "Reconnaissance de texte (OCR)",
       "description": "Quand un scan n'est pas une correspondance sûre, le nom et la ligne d'extension de la carte sont lus pour la trouver. S'applique à tous les scanners de cette organisation, pour les jeux dont les zones de texte sont configurées.",
-      "toggleLabel": "Activer la correspondance de texte OCR",
+      "toggleLabel": "Activer la reconnaissance de texte",
       "highAccuracyToggleLabel": "Scans plus précis",
       "highAccuracyDescription": "Lit le texte de chaque carte, pas seulement des correspondances incertaines, pour que l'extension et le numéro corrigent une correspondance sûre mais fausse. Les scans prennent un peu plus de temps."
     },
@@ -2243,6 +2251,7 @@
   "health": {
     "title": "État du système",
     "subtitle": "État en direct de la base de données.",
+    "loadFailed": "Impossible de charger l'état du système",
     "refresh": "Actualiser",
     "allHealthy": "Tout fonctionne normalement.",
     "someUnhealthy": "Certains services rencontrent des problèmes.",
@@ -2634,7 +2643,7 @@
       "unlimited": "Illimité",
       "features": {
         "chaosSort": {
-          "label": "Tri en vrac",
+          "label": "Tri chaos",
           "description": "Remplir les bacs dans l'ordre, sans règles. Le désactiver empêche seulement d'autres préréglages de l'activer."
         },
         "storage": {
@@ -2651,7 +2660,7 @@
         },
         "repacks": {
           "label": "Repacks",
-          "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux déjà en mode repack continuent de fonctionner."
+          "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux qui créent déjà des repacks continuent de fonctionner."
         },
         "customSounds": {
           "label": "Sons personnalisés",
@@ -3435,7 +3444,14 @@
       "showMore": "Afficher plus d'impressions"
     }
   },
+  "offline": {
+    "title": "Tu es hors ligne",
+    "description": "Les scans seront enregistrés dès que tu seras de nouveau en ligne. Les autres modifications nécessitent une connexion.",
+    "backOnline": "De nouveau en ligne"
+  },
   "recovery": {
+    "loadFailed": "Impossible de charger ce contenu",
+    "loadFailedDescription": "Vérifie ta connexion et réessaie.",
     "undo": "Annuler",
     "retry": "Réessayer",
     "restored": "Restauré",

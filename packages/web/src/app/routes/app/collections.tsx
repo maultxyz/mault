@@ -1,5 +1,7 @@
+import { IconBadge } from "@/components/icon-badge";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { PageHeader } from "@/components/page-header";
 import { LibraryViewTabs } from "@/features/library/components/library-view-tabs";
 import { LibraryValueModeTabs } from "@/features/library/components/library-value-mode-tabs";
@@ -55,10 +57,11 @@ export default function CollectionsPage() {
     emptyCollection,
   } = useCollections();
   const { activeOrg } = useOrg();
-  const { isLoading } = useQuery({
+  const { isLoading, isError, refetch } = useQuery({
     ...collectionsQueryOptions,
     enabled: !!activeOrg,
   });
+  const showsLoadError = isError && collections.length === 0;
 
   const { locks, currentUserId } = useCollectionLocks();
   const viewersByGuid = useSessionViewersByGuid();
@@ -288,7 +291,14 @@ export default function CollectionsPage() {
           </div>
         )}
 
-        {!isLoading && collections.length === 0 && (
+        {showsLoadError && (
+          <LoadErrorCallout
+            message={t("page.loadFailed")}
+            onRetry={() => void refetch()}
+          />
+        )}
+
+        {!isLoading && !showsLoadError && collections.length === 0 && (
           <EmptyState
             icon={IconAlbum}
             title={t("noCollectionsYet")}
@@ -350,9 +360,9 @@ export default function CollectionsPage() {
                     disabled={disabled}
                     className="flex min-h-56 flex-col items-center justify-center gap-2 rounded-card border-2 border-dashed border-border text-sm text-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none"
                   >
-                    <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-sidebar-primary">
+                    <IconBadge size="xl">
                       <IconPlus className="size-5" />
-                    </span>
+                    </IconBadge>
                     {t("newCollection")}
                   </button>
                 )}

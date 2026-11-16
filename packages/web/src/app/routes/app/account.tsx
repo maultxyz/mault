@@ -5,6 +5,7 @@ import {
 import { cn } from "@/lib/utils";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
+import { SaveBarGroup } from "@/components/save-bar-group";
 import {
   SettingsSection,
   SettingsSections,
@@ -77,7 +78,7 @@ export default function AccountPage() {
                 </SettingsSection>
               </>
             ) : (
-              <>
+              <SaveBarGroup>
                 <SettingsSection heading={t("profile.heading")}>
                   <UpdateNameForm />
                 </SettingsSection>
@@ -90,7 +91,7 @@ export default function AccountPage() {
                 <SettingsSection heading={t("sessions.heading")}>
                   <SessionsList />
                 </SettingsSection>
-              </>
+              </SaveBarGroup>
             )}
 
             <SettingsSection

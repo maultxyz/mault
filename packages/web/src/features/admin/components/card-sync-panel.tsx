@@ -1,3 +1,4 @@
+import { Progress } from "@/components/ui/progress";
 import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
@@ -30,7 +31,6 @@ export function CardSyncPanel() {
     isRunning,
     total,
     done,
-    progress,
     etaMs,
     cardsPerMinute,
     embeddingCount,
@@ -235,19 +235,12 @@ export function CardSyncPanel() {
 
         {total > 0 && (
           <div className="flex flex-col gap-1.5">
-            <div
-              role="progressbar"
+            <Progress
+              size="lg"
               aria-label={t("cardImageVectors.progressLabel")}
-              aria-valuemin={0}
-              aria-valuemax={total}
-              aria-valuenow={done}
-              className="h-2 rounded-full bg-muted overflow-hidden"
-            >
-              <div
-                className="h-full bg-foreground transition-all duration-300"
-                style={{ width: `${progress}%` }}
-              />
-            </div>
+              value={done}
+              max={total}
+            />
             <div className="flex gap-4 text-xs text-foreground/70 tabular-nums">
               <span>
                 {t("cardImageVectors.progressCount", { done, total })}
@@ -311,21 +304,12 @@ export function CardSyncPanel() {
 
         {!!syncState.printingMarksTotal && (
           <div className="flex flex-col gap-1.5">
-            <div
-              role="progressbar"
+            <Progress
+              size="lg"
               aria-label={t("cardImageVectors.printingMarksLabel")}
-              aria-valuemin={0}
-              aria-valuemax={syncState.printingMarksTotal}
-              aria-valuenow={syncState.printingMarksDone ?? 0}
-              className="h-2 rounded-full bg-muted overflow-hidden"
-            >
-              <div
-                className="h-full bg-foreground transition-all duration-300"
-                style={{
-                  width: `${Math.min(100, ((syncState.printingMarksDone ?? 0) / syncState.printingMarksTotal) * 100)}%`,
-                }}
-              />
-            </div>
+              value={syncState.printingMarksDone ?? 0}
+              max={syncState.printingMarksTotal}
+            />
             <div className="flex gap-4 text-xs text-foreground/70 tabular-nums">
               <span>
                 {t("cardImageVectors.printingMarksCount", {

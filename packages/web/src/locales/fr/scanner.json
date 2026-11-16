@@ -1242,7 +1242,14 @@
       "scanning": "Numérisation de la vitre...",
       "scanAgain": "Numériser à nouveau",
       "dragHint": "Tracez un cadre autour de la carte si le cadre détecté n'est pas juste.",
-      "boxTooSmall": "Le cadre est trop petit pour une carte. Tracez un cadre plus grand autour d'elle.",
+      "boxTooSmall": "Le cadre est trop petit pour une carte. Tracez un cadre plus grand autour d'elle ou saisissez une taille plus grande.",
+      "fields": {
+        "leftMm": "Gauche (mm)",
+        "topMm": "Haut (mm)",
+        "widthMm": "Largeur (mm)",
+        "heightMm": "Hauteur (mm)"
+      },
+      "fieldsHint": "Vous pouvez aussi saisir la position et la taille du cadre, mesurées depuis le coin supérieur gauche de la vitre.",
       "save": "Enregistrer la position",
       "cancel": "Annuler",
       "previewAlt": "Numérisation de toute la vitre du scanner à plat",

@@ -23,9 +23,9 @@ export function SectionNav({
       data-tour={dataTour}
     >
       <div className="px-1.5 shrink-0 lg:pt-1 lg:pb-2">
-        <h1 className={cn(PAGE_TITLE_CLASS, "whitespace-nowrap")}>
+        <p className={cn(PAGE_TITLE_CLASS, "whitespace-nowrap")}>
           {title}
-        </h1>
+        </p>
         <p className="hidden lg:block text-xs text-foreground/70">
           {subtitle}
         </p>

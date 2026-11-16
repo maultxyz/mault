@@ -48,6 +48,7 @@
     "title": "Sammlungen",
     "subtitle": "Jede Sammlung hat ihre eigenen Karten. Neue Scans landen in der aktiven Sammlung.",
     "emptyDescription": "Erstelle eine Sammlung, um mit dem Scannen von Karten zu beginnen",
+    "loadFailed": "Deine Sammlungen konnten nicht geladen werden.",
     "searchPlaceholder": "Sammlungen durchsuchen...",
     "noSearchResultsDescription": "Versuche einen anderen Suchbegriff",
     "cardCount_one": "{{count}} Karte",

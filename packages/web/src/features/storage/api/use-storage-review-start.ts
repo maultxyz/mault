@@ -1,10 +1,7 @@
 import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
 import { fetchNextUnreviewedStorageCard } from "@/features/storage/api/storage-locations";
 import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
-import {
-  STORAGE_LOCATION_SEARCH_PARAM,
-  STORAGE_REVIEW_SEARCH_PARAM,
-} from "@/lib/constants/storage";
+import { writeStorageSelectionSearchParams } from "@/features/storage/lib/storage-search-params";
 import { toast } from "@/lib/toast";
 import type { StorageLocation } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
@@ -22,9 +19,14 @@ export function useStorageReviewStart(
     if (!selected) return;
     setReviewLayout("grid");
     setSearchParams(
-      {
-        [STORAGE_LOCATION_SEARCH_PARAM]: selected.guid,
-        [STORAGE_REVIEW_SEARCH_PARAM]: CARD_REVIEW_GRID_PARAM_VALUE,
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        writeStorageSelectionSearchParams(next, {
+          locationGuid: selected.guid,
+          shownLocationGuid: selected.guid,
+          reviewParamValue: CARD_REVIEW_GRID_PARAM_VALUE,
+        });
+        return next;
       },
       { replace: true },
     );

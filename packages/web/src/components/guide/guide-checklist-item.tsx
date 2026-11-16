@@ -26,7 +26,7 @@ export function GuideChecklistItem({
           className="flex cursor-pointer items-baseline gap-2.5"
         >
           {number && (
-            <span className="font-heading text-2xs font-semibold text-primary tabular-nums">
+            <span className="font-heading text-sm font-semibold text-primary tabular-nums">
               {number}
             </span>
           )}

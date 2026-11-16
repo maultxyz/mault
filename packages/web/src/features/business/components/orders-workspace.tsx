@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { Button } from "@/components/ui/button";
 import { ordersQueryOptions } from "@/features/business/api/business";
@@ -35,6 +36,8 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
     items: orders,
     pagination,
     isLoading,
+    isError,
+    refetch,
   } = useServerPagedList(
     (request) => ordersQueryOptions(orgId, request),
     selectedParam,
@@ -189,7 +192,13 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
           ) : (
             <h1 className="sr-only">{t("views.picks")}</h1>
           )}
-          {!selectedGuid && !isLoading && (
+          {!selectedGuid && isError && (
+            <LoadErrorCallout
+              message={t("errors.loadFailed")}
+              onRetry={refetch}
+            />
+          )}
+          {!selectedGuid && !isLoading && !isError && (
             <EmptyState
               icon={IconTruckDelivery}
               title={t("orders.pickTitle")}

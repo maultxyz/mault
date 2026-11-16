@@ -16,6 +16,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { SelectField } from "@/components/ui/select-field";
@@ -112,7 +113,9 @@ export default function HealthScreen() {
           description={t("health.lastChecked", { time: new Date(data.checkedAt).toLocaleTimeString(i18n.language) })}
         />
       ) : null}
-      {health.isPending ? (
+      {health.isError && !data ? (
+        <QueryErrorState title={t("health.loadFailed")} onRetry={() => void health.refetch()} isRetrying={health.isFetching} />
+      ) : health.isPending ? (
         <ListSkeleton withIcon={false} />
       ) : (
         <ListGroup>

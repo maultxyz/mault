@@ -4,6 +4,7 @@ import {
   PLAN_PREVIEW_HEADER,
   type MemberSeatLimitErrorBody,
 } from "@magic-vault/shared";
+import { ApiResultError } from "@/lib/api/api-result-error";
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import { lockOrgForMemberSeatLimit } from "@/lib/api/member-seat-lock";
 import { UpgradeRequiredError } from "@/lib/api/upgrade-required-error";
@@ -109,7 +110,7 @@ export async function unwrap<T>(
     throw new UpgradeRequiredError(result.message ?? "Upgrade required.");
   }
   if (!result.success || result.data === undefined) {
-    throw new Error(result.message ?? "Request failed.");
+    throw new ApiResultError(result.message ?? "Request failed.");
   }
   return result.data;
 }

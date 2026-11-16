@@ -12,6 +12,7 @@ import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
 import { Surface } from "@/components/ui/surface";
@@ -32,6 +33,7 @@ export default function WebhookEditScreen() {
   const endpoint = guid ? (list.data?.endpoints.find((candidate) => candidate.guid === guid) ?? null) : null;
   const isNew = !guid;
   const isLoadingEndpoint = !isNew && list.isLoading;
+  const isLoadError = !isNew && list.isError && !list.data;
   const [secret, setSecret] = useState<string | null>(null);
   const form = useForm<WebhookFormValues>({
     resolver: zodResolver(webhookFormSchema),
@@ -100,7 +102,9 @@ export default function WebhookEditScreen() {
         }
       >
         {save.isError ? <Callout tone="destructive" title={save.error.message} /> : null}
-        {isLoadingEndpoint ? (
+        {isLoadError ? (
+          <QueryErrorState onRetry={() => void list.refetch()} isRetrying={list.isFetching} />
+        ) : isLoadingEndpoint ? (
           <PageSkeleton />
         ) : (
           <>

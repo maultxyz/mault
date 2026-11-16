@@ -53,6 +53,7 @@ export default function SoundsSettingsScreen() {
   const { data: billing } = useQuery(billingQueryOptions(orgId));
   const { data: totalRules = 0 } = useQuery(soundRuleCountQueryOptions(orgId));
   const rules = useMemo(() => rulesQuery.data ?? [], [rulesQuery.data]);
+  const isLoadError = (clips.isError && !clips.data) || (rulesQuery.isError && !rulesQuery.data);
   const ruleLimit = billing?.maxSoundRules ?? null;
   const atRuleLimit = ruleLimit !== null && totalRules >= ruleLimit;
   const isUploadLocked = billing?.customSounds === false;
@@ -230,7 +231,13 @@ export default function SoundsSettingsScreen() {
     <SettingsPage
       title={t("settings.sounds.title")}
       isLoading={clips.isLoading || rulesQuery.isLoading}
-      isDirty={form.formState.isDirty}
+      isLoadError={isLoadError}
+      isRetryingLoad={clips.isFetching || rulesQuery.isFetching}
+      onRetryLoad={() => {
+        void clips.refetch();
+        if (gameGuid) void rulesQuery.refetch();
+      }}
+      isDirty={!isLoadError && form.formState.isDirty}
       isSaving={form.formState.isSubmitting}
       saveError={saveError}
       onSave={() => void form.handleSubmit(submit)()}

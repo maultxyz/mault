@@ -1,3 +1,4 @@
+import { Progress } from "@/components/ui/progress";
 import { MobileStoragePickList } from "@/features/storage/components/mobile-storage-pick-list";
 import { StoragePickListTable } from "@/features/storage/components/storage-pick-list-table";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -15,8 +16,6 @@ export function StorageCheckList({
 }: StorageCheckListProps) {
   const isMobile = useIsMobile();
   const progressLabelId = useId();
-  const percentChecked =
-    total > 0 ? Math.round((checkedCount / total) * 100) : 0;
   const rowsProps = { rows, showLocation, checkLabel, onCheckedChange };
 
   return (
@@ -28,19 +27,12 @@ export function StorageCheckList({
         >
           {progressLabel}
         </span>
-        <div
-          role="progressbar"
+        <Progress
           aria-labelledby={progressLabelId}
-          aria-valuemin={0}
-          aria-valuemax={total}
-          aria-valuenow={checkedCount}
-          className="h-1.5 flex-1 overflow-hidden rounded-full bg-muted"
-        >
-          <div
-            className="h-full rounded-full bg-primary transition-[width] motion-reduce:transition-none"
-            style={{ width: `${percentChecked}%` }}
-          />
-        </div>
+          value={checkedCount}
+          max={total}
+          className="flex-1"
+        />
       </div>
       {isMobile ? (
         <MobileStoragePickList {...rowsProps} />

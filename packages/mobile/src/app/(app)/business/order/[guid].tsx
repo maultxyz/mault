@@ -13,6 +13,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -23,6 +24,7 @@ import { businessAccessQueryOptions } from "@/features/business/api/business-acc
 import { useBusinessAction } from "@/features/business/api/use-business-action";
 import { usePickActions } from "@/features/business/api/use-pick-actions";
 import { useActiveOrgId } from "@/hooks/use-org";
+import { ApiResultError } from "@/lib/api/api-result-error";
 import { usePricing } from "@/hooks/use-pricing";
 import { BUSINESS_STATUS_TONES } from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
@@ -137,6 +139,8 @@ export default function OrderScreen() {
     >
       {order.isPending ? (
         <PageSkeleton />
+      ) : !detail && !(order.error instanceof ApiResultError) ? (
+        <QueryErrorState onRetry={() => void order.refetch()} isRetrying={order.isFetching} />
       ) : !detail ? (
         <EmptyState
           icon="checkAll"

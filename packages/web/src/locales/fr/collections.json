@@ -48,6 +48,7 @@
     "title": "Collections",
     "subtitle": "Chaque collection garde ses propres cartes. Les nouveaux scans vont dans la collection active.",
     "emptyDescription": "Crée une collection pour commencer à scanner des cartes",
+    "loadFailed": "Impossible de charger tes collections.",
     "searchPlaceholder": "Rechercher des collections...",
     "noSearchResultsDescription": "Essaie un autre terme de recherche",
     "cardCount_one": "{{count}} carte",

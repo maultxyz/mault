@@ -7,6 +7,7 @@ import {
 } from "@/lib/constants/hotkeys";
 import type {
   HotkeyCombo,
+  HotkeyHandlers,
   HotkeyId,
   HotkeyRegistration,
 } from "@/lib/interfaces/hotkeys";
@@ -76,6 +77,31 @@ function startsAnySequence(combo: HotkeyCombo) {
     }
   }
   return false;
+}
+
+function isCharacterKeyCombo(combo: HotkeyCombo) {
+  return !combo.mod && combo.key.length === 1;
+}
+
+export function isCharacterKeyHotkey(id: HotkeyId) {
+  return HOTKEYS[id].keys.every(isCharacterKeyCombo);
+}
+
+export function isHotkeyActive(
+  id: HotkeyId,
+  singleKeyHotkeysEnabled: boolean,
+) {
+  return singleKeyHotkeysEnabled || !isCharacterKeyHotkey(id);
+}
+
+export function withoutCharacterKeyHotkeys(
+  handlers: HotkeyHandlers,
+): HotkeyHandlers {
+  return Object.fromEntries(
+    Object.entries(handlers).filter(
+      ([id]) => !isCharacterKeyHotkey(id as HotkeyId),
+    ),
+  );
 }
 
 function isIgnoredTarget(target: EventTarget | null) {

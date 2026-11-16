@@ -1,3 +1,4 @@
+import type { IconBadgeTone } from "@/lib/interfaces/icon-badge";
 import type { ComponentProps, ReactNode } from "react";
 import type { THEME_OPTIONS } from "@/lib/constants/nav";
 import type { PlanFeatureKey } from "@magic-vault/shared";
@@ -77,7 +78,7 @@ export interface MobilePageHeaderProps {
 
 export interface MobileIconBadgeProps {
   children: ReactNode;
-  tone?: "neutral" | "primary" | "destructive" | "warning" | "success";
+  tone?: IconBadgeTone;
   className?: string;
 }
 
@@ -168,7 +169,8 @@ export interface ViewTabsProps<T extends string> {
 
 export interface PageIntroProps {
   title: string;
-  description: string;
+  description?: string;
+  isPageHeading?: boolean;
   className?: string;
 }
 

@@ -1,8 +1,9 @@
 import { CardImage } from "@/components/card-image";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
+import { collectionViewPath } from "@/lib/constants/collections";
 import { HOME_CARD_RAIL_LOADING_TILE_COUNT, HOME_CARD_RAIL_TILE_CLASS } from "@/lib/constants/home";
+import { monitorCollectionCardPath } from "@/lib/constants/scanner";
 import type { HomeCardRailProps } from "@/lib/interfaces/home";
 import { cn } from "@/lib/utils";
 import { Link } from "react-router-dom";
@@ -27,7 +28,7 @@ export function HomeCardRail({
         {action && (
           <Link
             to={action.to}
-            className="text-sm font-semibold text-primary hover:underline dark:text-sidebar-primary"
+            className="text-sm font-semibold text-primary hover:underline"
           >
             {action.label}
           </Link>
@@ -54,7 +55,7 @@ export function HomeCardRail({
             <Link
               to={
                 isMobile
-                  ? monitorCollectionPath(card.collectionGuid)
+                  ? monitorCollectionCardPath(card.collectionGuid, card.scanId)
                   : `${collectionViewPath(card.collectionGuid)}/cards/${card.scanId}`
               }
               className="flex flex-col gap-1.5 rounded-lg transition-transform focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring active:scale-[0.97] motion-reduce:active:scale-100"

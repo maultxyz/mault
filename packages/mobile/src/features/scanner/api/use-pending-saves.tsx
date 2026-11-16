@@ -1,4 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { onlineManager, useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
   useCallback,
@@ -45,9 +45,13 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
     const subscription = AppState.addEventListener("change", (state) => {
       if (state === "active") queue.wakeAll();
     });
+    const unsubscribeFromOnlineState = onlineManager.subscribe((isOnline) => {
+      if (isOnline) queue.wakeAll();
+    });
     return () => {
       queue.stop();
       subscription.remove();
+      unsubscribeFromOnlineState();
     };
   }, [queue]);
 

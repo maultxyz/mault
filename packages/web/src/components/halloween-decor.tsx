@@ -15,7 +15,7 @@ export function SpiderWeb({ corner, className, withSpider }: SpiderWebProps) {
     <div
       aria-hidden
       className={cn(
-        "pointer-events-none select-none absolute z-999 size-20 text-foreground/25",
+        "pointer-events-none select-none absolute z-decor size-20 text-foreground/25",
         SPIDER_WEB_CORNER_CLASS[corner],
         className,
       )}

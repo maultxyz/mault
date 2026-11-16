@@ -1271,7 +1271,7 @@ export function CardDetailPanel({
               </Button>
               {reviewMode ? (
                 <Button className="flex-1" onClick={acceptInReview}>
-                  <IconCheck className="size-4" />
+                  <IconCheck />
                   {hasNext ? t("review.acceptNext") : t("review.acceptFinish")}
                 </Button>
               ) : (
@@ -1297,7 +1297,7 @@ export function CardDetailPanel({
             <div className={CARD_DETAIL_ACTION_ROW_CLASS}>
               {reviewMode && (
                 <Button onClick={acceptInReview}>
-                  <IconCheck className="size-4" />
+                  <IconCheck />
                   {hasNext ? t("review.acceptNext") : t("review.acceptFinish")}
                   <HotkeyHint id="reviewAccept" />
                 </Button>
@@ -1312,13 +1312,13 @@ export function CardDetailPanel({
                   }}
                   title={t("cardDetailPanel.markCorrectTitle")}
                 >
-                  <IconCheck className="size-4" />
+                  <IconCheck />
                   {t("cardDetailPanel.markCorrect")}
                 </Button>
               )}
               {!reviewMode && (
                 <Button variant="outline" onClick={startEditing}>
-                  <IconPencil className="size-4" />
+                  <IconPencil />
                   {t("cardPicker.correctCard")}
                   <HotkeyHint id="cardCorrect" />
                 </Button>

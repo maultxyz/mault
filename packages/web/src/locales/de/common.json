@@ -206,6 +206,11 @@
     "title": "Tastenkürzel",
     "description": "Tastenkürzel werden ignoriert, während du in ein Feld tippst oder ein Dialog geöffnet ist.",
     "then": "dann",
+    "off": "Aus",
+    "singleKey": {
+      "label": "Tastenkürzel mit nur einer Taste",
+      "hint": "Wenn aus, funktionieren nur Tastenkürzel mit Strg oder Cmd, Escape, Eingabe, Entf und die Pfeiltasten. In diesem Browser gespeichert."
+    },
     "keys": {
       "space": "Leertaste",
       "shift": "Umschalt",
@@ -538,6 +543,8 @@
     "notFound": "Dieses Tauschangebot gibt es nicht mehr.",
     "backToTrades": "Zurück zu den Tauschangeboten",
     "acceptTitle": "Dieses Tauschangebot annehmen?",
+    "declineTitle": "Dieses Tauschangebot ablehnen?",
+    "declineDescription": "Die Person sieht auf ihrem Link, dass du abgelehnt hast. Das lässt sich nicht rückgängig machen.",
     "sideTabs": {
       "label": "Seiten des Tauschs",
       "wanted": "Möchte ({{count}})",

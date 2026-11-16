@@ -1,4 +1,5 @@
 import { MobilePageHeader } from "@/components/mobile-page-header";
+import { PageIntro } from "@/components/page-intro";
 import { SectionNav } from "@/components/section-nav";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
@@ -18,10 +19,11 @@ export default function AdminLayout() {
   const { pathname } = useLocation();
   const isMobile = useIsMobile();
 
+  const current = ADMIN_SECTIONS.find((section) =>
+    pathname.startsWith(`${ADMIN_PATH}/${section.path}`),
+  );
+
   if (isMobile) {
-    const current = ADMIN_SECTIONS.find((section) =>
-      pathname.startsWith(`${ADMIN_PATH}/${section.path}`),
-    );
     return (
       <div className="flex min-h-0 flex-1 flex-col">
         {current ? (
@@ -66,6 +68,11 @@ export default function AdminLayout() {
 
       <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto">
         <div className="flex flex-col p-4 md:px-3 md:py-2 max-w-4xl mx-auto w-full gap-6 md:gap-2">
+          <PageIntro
+            isPageHeading
+            title={current ? t(current.labelKey) : t("page.title")}
+            description={current ? undefined : t("page.subtitle")}
+          />
           <SettingsSectionLayoutContext value="card">
             <Outlet />
           </SettingsSectionLayoutContext>

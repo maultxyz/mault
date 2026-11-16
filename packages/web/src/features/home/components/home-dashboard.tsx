@@ -1,7 +1,10 @@
 import { Callout } from "@/components/callout";
+import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
+import { useCollections } from "@/features/collections/api/use-collections";
+import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { PiSorterCalibrationLink } from "@/features/calibration/components/pi-sorter-calibration-link";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { widgetSummaryQueryOptions } from "@/features/home/api/widget-summary";
@@ -16,13 +19,24 @@ import { useCollectionLocks } from "@/lib/app-stream";
 import { CARD_REVIEW_SEARCH_PARAM } from "@/lib/constants/cards";
 import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
 import { HOME_CARD_OF_THE_DAY_TILE_CLASS } from "@/lib/constants/home";
+import { MOBILE_SCAN_PATH } from "@/lib/constants/nav";
+import { SCANNER_PATH, monitorCollectionReviewPath } from "@/lib/constants/scanner";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { TRADES_PATH, tradeOfferPath } from "@/lib/constants/trade-offers";
 import { ONE_DAY_MS } from "@/lib/constants/timing";
 import { cardPriceChangeSinceScanOf, valueChangeOf, type OrgOverviewCard } from "@magic-vault/shared";
-import { IconAlertTriangle, IconArrowsExchange, IconBroadcast, IconHelpCircle } from "@tabler/icons-react";
+import {
+  IconAlbum,
+  IconAlertTriangle,
+  IconArrowsExchange,
+  IconBroadcast,
+  IconHelpCircle,
+  IconPlus,
+  IconScan,
+} from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 function formatDay(date: string, locale: string): string {
   return new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, { month: "short", day: "numeric", timeZone: "UTC" });
@@ -34,7 +48,8 @@ export function HomeDashboard() {
   const { format } = usePriceSource();
   const isMobile = useIsMobile();
   const { locks } = useCollectionLocks();
-  const overview = useQuery(orgOverviewQueryOptions(activeOrg?.id));
+  const { collections } = useCollections();
+  const overview =useQuery(orgOverviewQueryOptions(activeOrg?.id));
   const summary = useQuery(widgetSummaryQueryOptions(activeOrg?.id));
   const pendingTradeOffers = usePendingTradeOffers();
   const locale = i18n.language;
@@ -42,6 +57,7 @@ export function HomeDashboard() {
   const overviewData = overview.data;
   const summaryData = summary.data;
   const collectionPath = (guid: string) => (isMobile ? monitorCollectionPath(guid) : collectionViewPath(guid));
+  const isFirstRun = !overview.isError && overviewData?.collectionCount === 0 && collections.length === 0;
 
   const change = summaryData ? valueChangeOf(summaryData.all, format, locale) : null;
   const previousDay = summaryData?.all.previousDay;
@@ -122,7 +138,7 @@ export function HomeDashboard() {
                   description={t("review.description")}
                   to={
                     isMobile
-                      ? monitorCollectionPath(firstReviewCard.collectionGuid)
+                      ? monitorCollectionReviewPath(firstReviewCard.collectionGuid)
                       : `${collectionViewPath(firstReviewCard.collectionGuid)}?${CARD_REVIEW_SEARCH_PARAM}=1`
                   }
                 />
@@ -136,6 +152,37 @@ export function HomeDashboard() {
                   to={pendingTradeOffers.length === 1 ? tradeOfferPath(pendingTradeOffers[0].guid) : TRADES_PATH}
                 />
               )}
+            </div>
+          )}
+
+          {isFirstRun && (
+            <div className="rounded-card bg-card px-4">
+              <EmptyState
+                icon={IconAlbum}
+                title={t("firstRun.title")}
+                titleAs="h2"
+                description={t("firstRun.description")}
+                action={
+                  <div className="flex flex-wrap justify-center gap-1.5">
+                    <CreateCollectionDialog
+                      trigger={({ disabled }) => (
+                        <Button disabled={disabled}>
+                          <IconPlus />
+                          {t("firstRun.createCollection")}
+                        </Button>
+                      )}
+                    />
+                    <Button
+                      variant="outline"
+                      nativeButton={false}
+                      render={<Link to={isMobile ? MOBILE_SCAN_PATH : SCANNER_PATH} />}
+                    >
+                      <IconScan />
+                      {t("firstRun.startScanning")}
+                    </Button>
+                  </div>
+                }
+              />
             </div>
           )}
 

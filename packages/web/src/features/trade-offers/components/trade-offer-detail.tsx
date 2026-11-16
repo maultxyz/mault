@@ -62,8 +62,11 @@ export function TradeOfferDetail({ offer }: TradeOfferDetailProps) {
   const confirm = () => {
     if (confirmation === "finish") {
       picking.finish.mutate(undefined, { onSettled: () => setConfirmation(null) });
-    } else if (confirmation === "accept") {
-      respond.mutate({ guid: offer.guid, accepts: true }, { onSettled: () => setConfirmation(null) });
+    } else if (confirmation === "accept" || confirmation === "decline") {
+      respond.mutate(
+        { guid: offer.guid, accepts: confirmation === "accept" },
+        { onSettled: () => setConfirmation(null) },
+      );
     }
   };
 
@@ -73,7 +76,7 @@ export function TradeOfferDetail({ offer }: TradeOfferDetailProps) {
         variant="destructive"
         className="max-md:flex-1"
         disabled={isBusy}
-        onClick={() => respond.mutate({ guid: offer.guid, accepts: false })}
+        onClick={() => setConfirmation("decline")}
       >
         {respond.isPending && respond.variables?.accepts === false ? (
           <IconLoader2 className="animate-spin motion-reduce:animate-none" />
@@ -193,18 +196,26 @@ export function TradeOfferDetail({ offer }: TradeOfferDetailProps) {
       title={
         confirmation === "finish"
           ? t("tradeOffers.pickList.finishTitle")
-          : t("tradeOffers.acceptTitle")
+          : confirmation === "decline"
+            ? t("tradeOffers.declineTitle")
+            : t("tradeOffers.acceptTitle")
       }
       description={
         confirmation === "finish"
           ? t("tradeOffers.pickList.finishDescription", { count: picking.remainingScanIds.length })
-          : t("tradeOffers.pickList.acceptDescription", { count: offer.wanted.length })
+          : confirmation === "decline"
+            ? t("tradeOffers.declineDescription")
+            : t("tradeOffers.pickList.acceptDescription", { count: offer.wanted.length })
       }
       confirmLabel={
-        confirmation === "finish" ? t("tradeOffers.pickList.finish") : t("tradeOffers.accept")
+        confirmation === "finish"
+          ? t("tradeOffers.pickList.finish")
+          : confirmation === "decline"
+            ? t("tradeOffers.decline")
+            : t("tradeOffers.accept")
       }
       cancelLabel={t("actions.cancel")}
-      destructive={confirmation === "finish"}
+      destructive={confirmation === "finish" || confirmation === "decline"}
       isPending={isBusy}
       onConfirm={confirm}
     />

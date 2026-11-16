@@ -104,7 +104,7 @@ export default function BatchScanScreen() {
       await batch.processPhoto(frame);
     } catch {
       setIsCapturing(false);
-      Alert.alert(t("batchScan.captureFailed"));
+      showToast({ message: t("batchScan.captureFailed"), tone: "destructive" });
     }
   };
 

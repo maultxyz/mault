@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { ListPagination } from "@/components/list-pagination";
 import { storageLocationCardPageQueryOptions } from "@/features/storage/api/storage-locations";
@@ -45,7 +46,7 @@ export function StorageLocationCards({
     1,
   );
   const preferredPageSize = usePageSize();
-  const { data, isPending, isPlaceholderData } = useQuery(
+  const { data, isPending, isPlaceholderData, isError, refetch } = useQuery(
     storageLocationCardPageQueryOptions(
       location.guid,
       cardQuery.cardsQuery,
@@ -170,6 +171,15 @@ export function StorageLocationCards({
     );
     topRef.current?.scrollIntoView({ block: "start" });
   };
+
+  if (isError && !data) {
+    return (
+      <LoadErrorCallout
+        message={t("cards.loadFailed")}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
 
   if (location.cardCount === 0 && !isPending && total === 0) {
     return (

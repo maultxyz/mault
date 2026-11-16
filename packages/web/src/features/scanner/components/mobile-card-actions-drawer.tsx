@@ -52,7 +52,7 @@ function MobileCardActionsBody({
     action();
     onClose();
   };
-  const actionClass = "h-11 w-full justify-start gap-3 text-sm";
+  const actionClass = "w-full justify-start gap-3";
   const [confirmingRemove, setConfirmingRemove] = useState(false);
   const storedCount = entry.storedCount ?? (entry.storageLocation ? 1 : 0);
   const requestRemove = () => {
@@ -83,38 +83,38 @@ function MobileCardActionsBody({
       <div className="flex flex-col">
         <Button
           variant="ghost"
-          className={actionClass}
+          size="lg" className={actionClass}
           onClick={run(onOpenDetails)}
         >
-          <IconExternalLink className="size-5" />
+          <IconExternalLink />
           {t("cardContextMenu.open")}
         </Button>
         {canConfirm && (
           <Button
             variant="ghost"
-            className={actionClass}
+            size="lg" className={actionClass}
             onClick={run(confirm)}
           >
-            <IconCheck className="size-5" />
+            <IconCheck />
             {t("cardContextMenu.markCorrect")}
           </Button>
         )}
         {canMove && (
           <Button
             variant="ghost"
-            className={actionClass}
+            size="lg" className={actionClass}
             onClick={() => setMoveToLocationOpen(true)}
           >
-            <IconBox className="size-5" />
+            <IconBox />
             {t("cardContextMenu.moveToLocation")}
           </Button>
         )}
         <Button
           variant="ghost"
-          className={actionClass}
+          size="lg" className={actionClass}
           onClick={run(() => void copyName())}
         >
-          <IconCopy className="size-5" />
+          <IconCopy />
           {t("cardContextMenu.copyName")}
         </Button>
       </div>
@@ -166,10 +166,11 @@ function MobileCardActionsBody({
       )}
       <Button
         variant="destructive"
-        className="h-11 w-full text-sm"
+        size="lg"
+        className="w-full"
         onClick={requestRemove}
       >
-        <IconTrash className="size-5" />
+        <IconTrash />
         {confirmingRemove
           ? t("storageDeleteWarning.deleteAnyway")
           : t("cardContextMenu.remove", { count: entry.scanIds.length })}

@@ -8,6 +8,7 @@ import { AppText } from "@/components/ui/app-text";
 import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Pill } from "@/components/ui/pill";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import { Surface } from "@/components/ui/surface";
 import {
@@ -105,7 +106,9 @@ export function MatchValidationScanList({ gameKey }: MatchValidationGameFilterPr
         />
       }
       ListEmptyComponent={
-        scans.isPending ? (
+        scans.isError ? (
+          <QueryErrorState onRetry={() => void scans.refetch()} isRetrying={scans.isFetching} />
+        ) : scans.isPending ? (
           <ListSkeleton rows={5} />
         ) : (
           <EmptyState

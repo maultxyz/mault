@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppTopBar } from "@/components/app-top-bar";
 import { GradientBurst } from "@/components/ui/gradient-burst";
 import { MemberSeatLocked } from "@/features/org/components/member-seat-locked";
+import { useConnectivityAnnouncements } from "@/hooks/use-connectivity-announcements";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useShellPanelStyle } from "@/hooks/use-shell-panel-style";
 import { useTheme } from "@/hooks/use-theme";
@@ -14,6 +15,7 @@ export default function AppLayout() {
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const seatLock = useMemberSeatLock(useActiveOrgId());
+  useConnectivityAnnouncements();
   const panelStyle = useShellPanelStyle(insets.bottom);
   const modalStyle = { backgroundColor: colors.background };
   const sheetOptions = {

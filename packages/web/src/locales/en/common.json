@@ -206,6 +206,11 @@
     "title": "Keyboard shortcuts",
     "description": "Shortcuts are ignored while you're typing in a field or a dialog is open.",
     "then": "then",
+    "off": "Off",
+    "singleKey": {
+      "label": "Single-key shortcuts",
+      "hint": "When off, only shortcuts with Ctrl or Cmd, Escape, Enter, Delete and the arrow keys work. Saved in this browser."
+    },
     "keys": {
       "space": "Space",
       "shift": "Shift",
@@ -538,6 +543,8 @@
     "notFound": "This trade offer no longer exists.",
     "backToTrades": "Back to trades",
     "acceptTitle": "Accept this trade offer?",
+    "declineTitle": "Decline this trade offer?",
+    "declineDescription": "They'll see that you declined on their link. This can't be undone.",
     "sideTabs": {
       "label": "Trade sides",
       "wanted": "They want ({{count}})",

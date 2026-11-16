@@ -111,7 +111,7 @@ export function EditCollectionDialog({
               !form.formState.isValid || !form.formState.isDirty || isMutating
             }
           >
-            {isMutating && <IconLoader2 className="size-4 animate-spin" />}
+            {isMutating && <IconLoader2 className="animate-spin" />}
             {t("editDialog.submit")}
           </Button>
         </>

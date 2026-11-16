@@ -79,6 +79,7 @@ export interface HotkeyRegistration {
 export interface HotkeyHintProps {
   id: HotkeyId;
   className?: string;
+  showWhenInactive?: boolean;
 }
 
 export interface KbdProps {

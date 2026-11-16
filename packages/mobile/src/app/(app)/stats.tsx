@@ -4,13 +4,12 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { STATS_DEFAULT_RANGE, STATS_RANGES, type StatsRange } from "@magic-vault/shared";
-import { Button } from "@/components/ui/button";
-import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PickerCard } from "@/components/ui/picker-card";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { TabStrip } from "@/components/ui/tab-strip";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
@@ -32,7 +31,7 @@ export default function StatsScreen() {
   const [collectionsOpen, setCollectionsOpen] = useState(false);
   const [leaderboardOpen, setLeaderboardOpen] = useState(false);
   const collections = useQuery(collectionsQueryOptions(orgId));
-  const { data: report, isPending, isError, isPlaceholderData, refetch } = useQuery(
+  const { data: report, isPending, isError, isFetching, isPlaceholderData, refetch } = useQuery(
     statsQueryOptions(orgId, range, collectionGuid),
   );
   const selected = collections.data?.find((c) => c.guid === collectionGuid);
@@ -71,11 +70,7 @@ export default function StatsScreen() {
       </View>
 
       {isError && !report ? (
-        <Callout
-          tone="destructive"
-          title={t("stats.error")}
-          action={<Button label={t("recovery.retry")} onPress={() => void refetch()} />}
-        />
+        <QueryErrorState title={t("stats.error")} onRetry={() => void refetch()} isRetrying={isFetching} />
       ) : isPending || isPlaceholderData || !report ? (
         <StatsDashboardSkeleton />
       ) : report.totals.cardCount === 0 ? (

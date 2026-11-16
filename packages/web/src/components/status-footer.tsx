@@ -232,7 +232,7 @@ function SorterStatusItem() {
         </div>
         <ScrollArea
           viewportRef={commLogRef}
-          className="h-56 rounded-md border bg-muted"
+          className="h-56 rounded-lg bg-foreground/6"
         >
           {entries.length === 0 ? (
             <p className="p-2 text-xs text-foreground/70">

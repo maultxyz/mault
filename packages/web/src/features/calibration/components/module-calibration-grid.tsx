@@ -161,14 +161,20 @@ export function ServoControl({
                 })
               : t("moduleCalibrationGrid.noPositionSelected")}
           </span>
-          <Tooltip>
-            <TooltipTrigger
-              render={<span className="text-sm font-bold">{percent}%</span>}
-            />
-            <TooltipContent>
-              {t("moduleCalibrationGrid.percentSliderTooltip")}
-            </TooltipContent>
-          </Tooltip>
+          <span className="flex items-center gap-1.5">
+            <span className="text-sm font-bold">{percent}%</span>
+            <Tooltip>
+              <TooltipTrigger
+                aria-label={t("moduleCalibrationGrid.percentSliderTooltip")}
+                className="rounded-sm text-foreground/70 hover:text-foreground transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <IconInfoCircle className="size-3.5" />
+              </TooltipTrigger>
+              <TooltipContent className="max-w-xs">
+                {t("moduleCalibrationGrid.percentSliderTooltip")}
+              </TooltipContent>
+            </Tooltip>
+          </span>
         </div>
         <Slider
           aria-labelledby={`${servoLabelId} ${editingPositionId}`}

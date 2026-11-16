@@ -37,4 +37,6 @@ export interface ServerPagedList<T> {
   items: T[];
   pagination: ClientPagination<T>;
   isLoading: boolean;
+  isError: boolean;
+  refetch: () => void;
 }

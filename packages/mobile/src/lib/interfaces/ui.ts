@@ -85,6 +85,13 @@ export interface EmptyStateProps {
   action?: ReactNode;
 }
 
+export interface QueryErrorStateProps {
+  title?: string;
+  description?: string;
+  onRetry: () => void;
+  isRetrying?: boolean;
+}
+
 export interface SkeletonProps {
   width?: number | `${number}%`;
   height: number | `${number}%`;

@@ -198,13 +198,13 @@ export function BuildSetup() {
                     key={i}
                     className="grid grid-cols-[96px_1fr_1fr] divide-x divide-border"
                   >
-                    <div className="flex items-center justify-center bg-secondary/40 px-2.5 py-1.5 font-mono text-sm font-medium">
+                    <div className="flex items-center justify-center bg-secondary/40 px-2.5 py-1.5 text-sm font-medium">
                       {t("hero.moduleLabel", { n: i + 1 })}
                     </div>
                     {bins.map((bin) => (
                       <div
                         key={bin}
-                        className="flex items-center justify-center bg-primary/5 px-2.5 py-1.5 font-mono text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground"
+                        className="flex items-center justify-center bg-primary/5 px-2.5 py-1.5 text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground"
                       >
                         {t("hero.binLabel", { n: bin })}
                       </div>
@@ -213,7 +213,7 @@ export function BuildSetup() {
                 ))}
                 <div className="grid grid-cols-[96px_1fr] divide-x divide-border">
                   <div className="bg-secondary/20" />
-                  <div className="flex flex-wrap items-center justify-center gap-x-2 bg-primary/5 px-2.5 py-1.5 font-mono text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground">
+                  <div className="flex flex-wrap items-center justify-center gap-x-2 bg-primary/5 px-2.5 py-1.5 text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground">
                     {t("hero.binLabel", { n: catchAllBin })}
                     <span className="font-sans text-sm font-normal text-primary/80 dark:text-primary-foreground/80">
                       {t("hero.catchAllBinNote", { modules: moduleCount })}

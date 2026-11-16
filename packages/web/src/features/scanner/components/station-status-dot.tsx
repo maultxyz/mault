@@ -1,3 +1,4 @@
+import { STATUS_DOT_OFFLINE_CLASS } from "@/lib/constants/ui";
 import type { StationStatusDotProps } from "@/lib/interfaces/stations";
 import { cn } from "@/lib/utils";
 import {
@@ -22,7 +23,7 @@ export function StationStatusDot({ status }: StationStatusDotProps) {
             "size-2 rounded-full",
             status === "sorting" &&
               "bg-success-foreground motion-safe:animate-pulse",
-            status === "offline" && "border-2 border-foreground/60",
+            status === "offline" && STATUS_DOT_OFFLINE_CLASS,
           )}
         />
       )}

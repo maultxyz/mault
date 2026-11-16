@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/ui/empty-state";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { AdminGate } from "@/features/admin/components/admin-gate";
 import { GamesEditor } from "@/features/admin/components/games-editor";
@@ -27,7 +28,13 @@ export default function AdminEditGameScreen() {
   return (
     <AdminGate>
       <Screen header={<PageHeader title={t("admin.sections.cards.title")} onBack={() => router.back()} />}>
-        {games.isLoading ? (
+        {games.isError && !games.data ? (
+          <QueryErrorState
+            title={t("admin.cards.games.loadFailed")}
+            onRetry={() => void games.refetch()}
+            isRetrying={games.isFetching}
+          />
+        ) : games.isLoading ? (
           <PageSkeleton />
         ) : (
           <EmptyState

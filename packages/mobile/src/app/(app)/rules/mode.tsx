@@ -20,6 +20,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SwitchRow } from "@/components/ui/switch-row";
@@ -45,7 +46,17 @@ export default function SortingModeScreen() {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
-  const { activeSet, bins, collection, fieldDefinitions, gameGuid, isPending: isRulesDataPending } = useRulesData();
+  const {
+    activeSet,
+    bins,
+    collection,
+    fieldDefinitions,
+    gameGuid,
+    isPending: isRulesDataPending,
+    isError: isRulesDataError,
+    refetch: refetchRulesData,
+    isRefetching: isRefetchingRulesData,
+  } = useRulesData();
   const { data: billing } = useQuery(billingQueryOptions(orgId));
   const { data: games = [] } = useQuery(gamesQueryOptions);
   const otherGames = games.filter((game) => game.isActive && game.key !== collection?.game?.key);
@@ -130,7 +141,13 @@ export default function SortingModeScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.lg + SPACING.xs }}
       >
-        {isRulesDataPending ? (
+        {isRulesDataError && !activeSet ? (
+          <QueryErrorState
+            title={t("rules.loadFailed")}
+            onRetry={() => void refetchRulesData()}
+            isRetrying={isRefetchingRulesData}
+          />
+        ) : isRulesDataPending ? (
           <PageSkeleton />
         ) : (
           <>

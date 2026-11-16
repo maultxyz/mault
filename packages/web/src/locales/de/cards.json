@@ -124,6 +124,8 @@
     "manageCollections": "Sammlungen verwalten",
     "noCardsScanned": "Noch keine Karten gescannt",
     "scanToGetStarted": "Scanne eine Karte, um loszulegen",
+    "loadFailed": "Die Karten dieser Sammlung konnten nicht geladen werden.",
+    "selectAllFailed": "Es konnten nicht alle Karten ausgewählt werden. Versuche es erneut.",
     "noCardsMatchFilters": "Keine Karten entsprechen den aktuellen Filtern",
     "tryAdjusting": "Passe deine Suche, Sortierung oder Filter an",
     "cardsSelected_one": "{{count}} Karte ausgewählt",
@@ -252,6 +254,8 @@
     "previous": "Zurück",
     "next": "Weiter",
     "skipAll": "Alles überspringen",
+    "pause": "Diashow anhalten",
+    "play": "Diashow abspielen",
     "intro": {
       "eyebrow": "Deine Sitzung",
       "title": "{{collectionName}} Rückblick",

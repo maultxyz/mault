@@ -1,22 +1,28 @@
+import { usePathname } from "expo-router";
 import { NativeTabs } from "expo-router/native-tabs";
 import { useTranslation } from "react-i18next";
 import { useColorScheme, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppTopBar } from "@/components/app-top-bar";
+import { OfflineBanner } from "@/components/ui/offline-banner";
 import { useTheme } from "@/hooks/use-theme";
 import { IOS_SYMBOLS } from "@/lib/constants/ios-symbols";
-import { ANDROID_TAB_SYMBOLS, TAB_ICONS } from "@/lib/constants/nav";
+import { ANDROID_TAB_SYMBOLS, SCAN_TAB_PATHNAME, TAB_ICONS } from "@/lib/constants/nav";
+import { OfflineBannerHostContext } from "@/lib/offline-banner-host-context";
 
 export function AppTabs() {
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const colorScheme = useColorScheme();
+  const pathname = usePathname();
   const contentStyle = { backgroundColor: colors.background };
 
   return (
     <View style={{ flex: 1, paddingTop: insets.top, backgroundColor: colors.background }}>
       <AppTopBar opensNotificationsFromWidgetLink />
+      {pathname === SCAN_TAB_PATHNAME ? null : <OfflineBanner />}
+      <OfflineBannerHostContext.Provider value>
       <NativeTabs
         unstable_nativeProps={{ colorScheme: colorScheme === "dark" ? "dark" : "light" }}
         tintColor={colors.primaryText}
@@ -41,6 +47,7 @@ export function AppTabs() {
           <NativeTabs.Trigger.Label>{t("tabs.more")}</NativeTabs.Trigger.Label>
         </NativeTabs.Trigger>
       </NativeTabs>
+      </OfflineBannerHostContext.Provider>
     </View>
   );
 }

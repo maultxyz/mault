@@ -106,7 +106,7 @@ export function ScanCardsPanel({ source, mode }: ScanCardsPanelProps) {
             className="size-full object-cover"
           />
           {!stream && (
-            <IconLoader2 className="absolute top-1/2 left-1/2 size-5 -translate-x-1/2 -translate-y-1/2 animate-spin text-white" />
+            <IconLoader2 className="absolute top-1/2 left-1/2 size-5 -translate-x-1/2 -translate-y-1/2 animate-spin text-white motion-reduce:animate-none" />
           )}
         </div>
       )}
@@ -115,7 +115,7 @@ export function ScanCardsPanel({ source, mode }: ScanCardsPanelProps) {
         disabled={!stream || !canScan || isScanning}
         onClick={scan}
       >
-        {isScanning ? <IconLoader2 className="animate-spin" /> : <IconCamera />}
+        {isScanning ? <IconLoader2 className="animate-spin motion-reduce:animate-none" /> : <IconCamera />}
         {t("pickList.scan.scanCard")}
       </Button>
       <div role="status">

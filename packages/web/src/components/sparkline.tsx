@@ -77,7 +77,7 @@ export function Sparkline({
       </svg>
       {hovered != null && active && (
         <div
-          className="pointer-events-none absolute bottom-full z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded-md border bg-popover px-2 py-1 text-xs text-popover-foreground shadow-md"
+          className="pointer-events-none absolute bottom-full z-10 mb-1 -translate-x-1/2 whitespace-nowrap rounded-md bg-popover px-2 py-1 text-xs text-popover-foreground shadow-popover ring-1 ring-border"
           style={{ left: `${(active.x / WIDTH) * 100}%` }}
         >
           {formatPoint(values[hovered], hovered)}

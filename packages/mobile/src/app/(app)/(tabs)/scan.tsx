@@ -76,6 +76,7 @@ import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { SHUTTER_SIZE } from "@/lib/constants/ui";
 import { SCANNER_QR_REPEAT_MS } from "@/lib/constants/phone-camera";
 import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
+import { useIsOnline } from "@/hooks/use-is-online";
 import { SCAN_TIPS_SEEN_KEY } from "@/lib/constants/storage-keys";
 import type { UnmatchedScanRecovery } from "@/lib/interfaces/scanner";
 import { readKv, writeKv } from "@/lib/storage/kv";
@@ -87,6 +88,7 @@ export default function ScanScreen() {
   const focused = useIsFocused();
   const cameraMounted = useCameraMountReady(focused);
   const appState = useAppState();
+  const isOnline = useIsOnline();
   const sorter = useSorter();
   const orgId = useActiveOrgId();
   const { collection, collections, setScanTargetGuid } = useScanTarget();
@@ -130,20 +132,18 @@ export default function ScanScreen() {
     ...cardSetsQueryOptions(collection?.guid ?? null),
     enabled: !!collection?.guid && (setPickerOpen || session.forcedSetCodes.length > 0),
   });
+  const [markFullBinsEmptyFailed, setMarkFullBinsEmptyFailed] = useState(false);
+  const markFullBinsEmpty = () => {
+    setMarkFullBinsEmptyFailed(false);
+    void session.markFullBinsEmpty().then((marked) => setMarkFullBinsEmptyFailed(!marked));
+  };
   const confirmMarkFullBinsEmpty = () =>
     Alert.alert(
       t("scan.emptyBin.confirmTitle", { bins: session.fullBinNumbers.join(", ") }),
       t("scan.emptyBin.confirmDescription"),
       [
         { text: t("common.cancel"), style: "cancel" },
-        {
-          text: t("scan.emptyBin.confirm"),
-          onPress: () => {
-            void session.markFullBinsEmpty().then((marked) => {
-              if (!marked) Alert.alert(t("scan.emptyBin.failed"));
-            });
-          },
-        },
+        { text: t("scan.emptyBin.confirm"), onPress: markFullBinsEmpty },
       ],
     );
   const forcedSetName =
@@ -244,6 +244,7 @@ export default function ScanScreen() {
   const statusText = [
     scanModeLabel,
     savedCardName ? t("scan.status.saved", { name: savedCardName }) : t(`scan.phase.${session.phase}`),
+    ...(isOnline ? [] : [t("scan.status.offline")]),
   ].join(" · ");
   useScanStatusAnnouncements(session.phase, statusText);
   useScanLiveActivity({
@@ -358,6 +359,13 @@ export default function ScanScreen() {
       description={t(`scan.pause.emergency-stop.${session.pauseDetail ?? "stopped"}`)}
       actionLabel={resettingSorter ? undefined : t("scan.pause.emergency-stop.reset")}
       onAction={() => void resetSorter()}
+    />
+  ) : pauseNotice && session.pauseReason === "bin-full" && markFullBinsEmptyFailed ? (
+    <CameraNotice
+      tone="destructive"
+      title={t("scan.emptyBin.failed")}
+      actionLabel={t("recovery.retry")}
+      onAction={markFullBinsEmpty}
     />
   ) : pauseNotice && session.pauseReason ? (
     <CameraNotice

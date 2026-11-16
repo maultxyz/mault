@@ -638,7 +638,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                             {copies.map((entry) => (
                               <TableRow
                                 key={entry.scanId}
-                                className="bg-muted/40"
+                                className="bg-foreground/6"
                               >
                                 <TableCell>
                                   <Checkbox

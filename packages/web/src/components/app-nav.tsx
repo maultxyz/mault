@@ -1,3 +1,4 @@
+import { GITHUB_STAR_PILL_CLASS } from "@/lib/constants/ui";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -553,8 +554,8 @@ export function AppNav() {
           <>
             <span className="truncate">{t("nav.github")}</span>
             {githubStars != null && (
-              <span className="ml-auto inline-flex items-center gap-0.5 rounded-full border bg-muted px-1.5 text-2xs text-foreground/80">
-                <IconStarFilled className="size-3 text-warning" />
+              <span className={cn(GITHUB_STAR_PILL_CLASS, "ml-auto")}>
+                <IconStarFilled className="size-3 text-warning-foreground" />
                 {formattedStars}
               </span>
             )}

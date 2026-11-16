@@ -15,18 +15,36 @@ import {
   countActivePublicCardFilters,
   parsePriceInput,
 } from "@/features/public-cards/lib/public-card-filters";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useDebouncedSearchParamText } from "@/hooks/use-debounced-search-param-text";
+import {
+  clearPublicCardPriceSearchParams,
+  readPageNumberSearchParam,
+  readPublicCardFiltersFromSearchParams,
+  readPublicCardGameKeyFromSearchParams,
+  readPublicCardSortFromSearchParams,
+  searchParamsSubsetKey,
+  writePageNumberSearchParam,
+  writePublicCardFiltersToSearchParams,
+  writeTextSearchParam,
+} from "@/lib/card-search-params";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import {
   ALL_PUBLIC_CARD_GAMES,
+  PUBLIC_CARD_GAME_PARAM,
+  PUBLIC_CARD_MAX_PRICE_PARAM,
+  PUBLIC_CARD_MIN_PRICE_PARAM,
+  PUBLIC_CARD_PAGE_PARAM,
   PUBLIC_CARD_PARAM,
+  PUBLIC_CARD_PARAM_NAMES_CLEARED_ON_TEXT_CHANGE,
+  PUBLIC_CARD_SEARCH_QUERY_PARAM,
+  PUBLIC_CARD_SORT_PARAM,
+  PUBLIC_CARD_VIEW_STATE_PARAM_NAMES,
   PUBLIC_TRADE_OFFER_PARAM,
   PUBLIC_TRADE_OFFER_PARAM_VALUE,
 } from "@/lib/constants/public-cards";
 import { applyPrimaryColorName } from "@/lib/primary-color";
 import { cn } from "@/lib/utils";
-import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import type { PublicCardBrowserProps } from "@/lib/interfaces/public-cards";
 import {
   DEFAULT_PUBLIC_CARD_SORT,
@@ -56,30 +74,61 @@ export function PublicCardBrowser({
 }: PublicCardBrowserProps) {
   const { t } = useTranslation("cards");
   const resultsRef = useRef<HTMLDivElement>(null);
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<PublicCardSort>(DEFAULT_PUBLIC_CARD_SORT);
-  const [gameKey, setGameKey] = useState<string>(ALL_PUBLIC_CARD_GAMES);
-  const [filters, setFilters] = useState<PublicCardFilters>(EMPTY_PUBLIC_CARD_FILTERS);
-  const [minPriceInput, setMinPriceInput] = useState("");
-  const [maxPriceInput, setMaxPriceInput] = useState("");
-  const [requestedPage, setRequestedPage] = useState(1);
-  const [showsFilterDrawer, setShowsFilterDrawer] = useState(false);
-  const debouncedSearch = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
-  useEffect(() => {
-    applyPrimaryColorName(info.primaryColor);
-    return () => applyPrimaryColorName(null);
-  }, [info.primaryColor]);
-  const debouncedMinPrice = useDebouncedValue(parsePriceInput(minPriceInput), SEARCH_DEBOUNCE_MS);
-  const debouncedMaxPrice = useDebouncedValue(parsePriceInput(maxPriceInput), SEARCH_DEBOUNCE_MS);
-  const selectedGameKey = gameKey === ALL_PUBLIC_CARD_GAMES ? null : gameKey;
-  const appliedFilters = useMemo<PublicCardFilters>(
-    () => ({ ...filters, minPrice: debouncedMinPrice, maxPrice: debouncedMaxPrice }),
-    [filters, debouncedMinPrice, debouncedMaxPrice],
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const {
+    text: search,
+    setText: setSearch,
+    debouncedText: debouncedSearchText,
+  } = useDebouncedSearchParamText(PUBLIC_CARD_SEARCH_QUERY_PARAM, {
+    paramNamesClearedOnChange: PUBLIC_CARD_PARAM_NAMES_CLEARED_ON_TEXT_CHANGE,
+  });
+  const {
+    text: minPriceInput,
+    setText: setMinPriceInput,
+    debouncedText: debouncedMinPriceInput,
+  } = useDebouncedSearchParamText(PUBLIC_CARD_MIN_PRICE_PARAM, {
+    paramNamesClearedOnChange: PUBLIC_CARD_PARAM_NAMES_CLEARED_ON_TEXT_CHANGE,
+  });
+  const {
+    text: maxPriceInput,
+    setText: setMaxPriceInput,
+    debouncedText: debouncedMaxPriceInput,
+  } = useDebouncedSearchParamText(PUBLIC_CARD_MAX_PRICE_PARAM, {
+    paramNamesClearedOnChange: PUBLIC_CARD_PARAM_NAMES_CLEARED_ON_TEXT_CHANGE,
+  });
   const sorts = PUBLIC_CARD_SORTS.filter(
     (option) =>
       info.showsPrices ||
       !(PUBLIC_CARD_PRICE_SORTS as readonly string[]).includes(option),
+  );
+  const sortInUrl = readPublicCardSortFromSearchParams(searchParams);
+  const sort = sorts.includes(sortInUrl) ? sortInUrl : DEFAULT_PUBLIC_CARD_SORT;
+  const gameKey = readPublicCardGameKeyFromSearchParams(searchParams);
+  const viewStateKey = searchParamsSubsetKey(
+    searchParams,
+    PUBLIC_CARD_VIEW_STATE_PARAM_NAMES,
+  );
+  const filters = useMemo(
+    () =>
+      readPublicCardFiltersFromSearchParams(new URLSearchParams(viewStateKey)),
+    [viewStateKey],
+  );
+  const requestedPage = readPageNumberSearchParam(
+    searchParams,
+    PUBLIC_CARD_PAGE_PARAM,
+  );
+  const [showsFilterDrawer, setShowsFilterDrawer] = useState(false);
+  const debouncedSearch = debouncedSearchText.trim();
+  useEffect(() => {
+    applyPrimaryColorName(info.primaryColor);
+    return () => applyPrimaryColorName(null);
+  }, [info.primaryColor]);
+  const debouncedMinPrice = parsePriceInput(debouncedMinPriceInput);
+  const debouncedMaxPrice = parsePriceInput(debouncedMaxPriceInput);
+  const selectedGameKey = gameKey === ALL_PUBLIC_CARD_GAMES ? null : gameKey;
+  const appliedFilters = useMemo<PublicCardFilters>(
+    () => ({ ...filters, minPrice: debouncedMinPrice, maxPrice: debouncedMaxPrice }),
+    [filters, debouncedMinPrice, debouncedMaxPrice],
   );
   const facets = useQuery(publicCardsFacetsQueryOptions(source, selectedGameKey));
   const cards = useQuery(
@@ -93,7 +142,6 @@ export function PublicCardBrowser({
     }),
   );
   const activeFilterCount = countActivePublicCardFilters(appliedFilters, gameKey);
-  const [searchParams, setSearchParams] = useSearchParams();
   const openScanId = searchParams.get(PUBLIC_CARD_PARAM);
   const showsTradeOffer =
     !!tradeOfferLink && searchParams.get(PUBLIC_TRADE_OFFER_PARAM) === PUBLIC_TRADE_OFFER_PARAM_VALUE;
@@ -162,28 +210,66 @@ export function PublicCardBrowser({
       ?.focus();
   }, [openScanId]);
 
-  const changeFilters = (next: PublicCardFilters) => {
-    setFilters(next);
-    setRequestedPage(1);
-    if (openScanId || showsTradeOffer) leaveCardForResults();
+  const changeResultsViewState = (
+    writeViewState: (nextSearchParams: URLSearchParams) => void,
+  ) => {
+    lastOpenedScanId.current = null;
+    setSearchParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        writeViewState(next);
+        next.delete(PUBLIC_CARD_PAGE_PARAM);
+        next.delete(PUBLIC_CARD_PARAM);
+        next.delete(PUBLIC_TRADE_OFFER_PARAM);
+        return next;
+      },
+      { replace: true },
+    );
   };
-  const changeGameKey = (next: string) => {
-    setGameKey(next);
-    setFilters({
-      ...EMPTY_PUBLIC_CARD_FILTERS,
-      finish: filters.finish,
+  const changeFilters = (nextFilters: PublicCardFilters) =>
+    changeResultsViewState((nextSearchParams) =>
+      writePublicCardFiltersToSearchParams(nextSearchParams, nextFilters),
+    );
+  const changeGameKey = (nextGameKey: string) =>
+    changeResultsViewState((nextSearchParams) => {
+      writeTextSearchParam(
+        nextSearchParams,
+        PUBLIC_CARD_GAME_PARAM,
+        nextGameKey,
+        ALL_PUBLIC_CARD_GAMES,
+      );
+      writePublicCardFiltersToSearchParams(nextSearchParams, {
+        ...EMPTY_PUBLIC_CARD_FILTERS,
+        finish: filters.finish,
+      });
     });
-    setRequestedPage(1);
-    if (openScanId || showsTradeOffer) leaveCardForResults();
-  };
+  const changeSort = (nextSort: PublicCardSort) =>
+    changeResultsViewState((nextSearchParams) =>
+      writeTextSearchParam(
+        nextSearchParams,
+        PUBLIC_CARD_SORT_PARAM,
+        nextSort,
+        DEFAULT_PUBLIC_CARD_SORT,
+      ),
+    );
   const clearFilters = () => {
-    setGameKey(ALL_PUBLIC_CARD_GAMES);
-    setFilters(EMPTY_PUBLIC_CARD_FILTERS);
     setMinPriceInput("");
     setMaxPriceInput("");
-    setRequestedPage(1);
-    if (openScanId || showsTradeOffer) leaveCardForResults();
+    changeResultsViewState((nextSearchParams) => {
+      nextSearchParams.delete(PUBLIC_CARD_GAME_PARAM);
+      writePublicCardFiltersToSearchParams(
+        nextSearchParams,
+        EMPTY_PUBLIC_CARD_FILTERS,
+      );
+      clearPublicCardPriceSearchParams(nextSearchParams);
+    });
   };
+  const changePage = (nextPage: number) =>
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      writePageNumberSearchParam(next, PUBLIC_CARD_PAGE_PARAM, nextPage);
+      return next;
+    }, { replace: true });
   const filterPanel = (
     <PublicCardFilterPanel
       info={info}
@@ -192,23 +278,13 @@ export function PublicCardBrowser({
       onGameKeyChange={changeGameKey}
       sort={sort}
       sorts={sorts}
-      onSortChange={(next) => {
-        setSort(next);
-        setRequestedPage(1);
-        if (openScanId || showsTradeOffer) leaveCardForResults();
-      }}
+      onSortChange={changeSort}
       filters={filters}
       onFiltersChange={changeFilters}
       minPriceInput={minPriceInput}
       maxPriceInput={maxPriceInput}
-      onMinPriceInputChange={(value) => {
-        setMinPriceInput(value);
-        setRequestedPage(1);
-      }}
-      onMaxPriceInputChange={(value) => {
-        setMaxPriceInput(value);
-        setRequestedPage(1);
-      }}
+      onMinPriceInputChange={setMinPriceInput}
+      onMaxPriceInputChange={setMaxPriceInput}
       onClear={clearFilters}
     />
   );
@@ -251,7 +327,6 @@ export function PublicCardBrowser({
             value={search}
             onChange={(event) => {
               setSearch(event.target.value);
-              setRequestedPage(1);
               if (openScanId || showsTradeOffer) leaveCardForResults();
             }}
             className="pl-8 max-md:pl-10"
@@ -284,7 +359,7 @@ export function PublicCardBrowser({
             isError={cards.isError}
             onRetry={() => void cards.refetch()}
             onPageChange={(next) => {
-              setRequestedPage(next);
+              changePage(next);
               resultsRef.current?.scrollTo({ top: 0 });
             }}
             onOpenCard={openCard}

@@ -265,7 +265,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           <div role="status" aria-live="polite">
             {notice}
           </div>
-          <div className="flex items-center justify-end gap-3">
+          <div className="flex items-center justify-end gap-1.5">
             {chrome.isConnected && !chrome.isEmergencyStopped && (
               <Button
                 variant="destructive"

@@ -48,6 +48,7 @@
     "title": "Collections",
     "subtitle": "Each collection keeps its own cards. New scans are saved to the active one.",
     "emptyDescription": "Create a collection to start scanning cards",
+    "loadFailed": "Couldn't load your collections.",
     "searchPlaceholder": "Search collections...",
     "noSearchResultsDescription": "Try a different search term",
     "cardCount_one": "{{count}} card",

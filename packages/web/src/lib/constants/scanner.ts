@@ -6,6 +6,7 @@ import type {
 } from "@/lib/interfaces/stations";
 import { PI_SCAN_SESSION_PATH } from "@magic-vault/shared";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
+import { monitorCollectionPath } from "@/lib/constants/collections";
 import {
   type CollectionCardsQuery,
   type PiScanSessionState,
@@ -105,6 +106,19 @@ export const JAM_VERIFY_SAMPLES = 3;
 export const JAM_VERIFY_INTERVAL_MS = 750;
 export const SCAN_POSITION_MODULE = 1;
 export const MONITOR_OPEN_CARD_PARAM = "card";
+export const MONITOR_REVIEW_PARAM = "review";
+export const MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE = "1";
+
+export function monitorCollectionCardPath(
+  collectionGuid: string,
+  scanId: string,
+): string {
+  return `${monitorCollectionPath(collectionGuid)}?${new URLSearchParams({ [MONITOR_OPEN_CARD_PARAM]: scanId })}`;
+}
+
+export function monitorCollectionReviewPath(collectionGuid: string): string {
+  return `${monitorCollectionPath(collectionGuid)}?${new URLSearchParams({ [MONITOR_REVIEW_PARAM]: MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE })}`;
+}
 export const CARD_SETS_STALE_MS = 15 * 60 * 1000;
 export const CARD_SET_PICKER_LIMIT = 100;
 export const MONITOR_NEEDS_REVIEW_CARDS_QUERY: CollectionCardsQuery = {
@@ -253,6 +267,19 @@ export const FLATBED_DEFAULT_PLACEMENT: FlatbedPlacement = {
   widthMm: 70,
   heightMm: 95,
 };
+export const FLATBED_EMPTY_PLACEMENT: FlatbedPlacement = {
+  leftMm: 0,
+  topMm: 0,
+  widthMm: 0,
+  heightMm: 0,
+};
+export const FLATBED_PLACEMENT_FIELD_NAMES = [
+  "leftMm",
+  "topMm",
+  "widthMm",
+  "heightMm",
+] as const satisfies readonly (keyof FlatbedPlacement)[];
+export const FLATBED_PLACEMENT_FIELD_STEP_MM = 0.1;
 export const FLATBED_SCAN_MARGIN_MM = 4;
 export const FLATBED_DEFAULT_GLASS_WIDTH_MM = 216;
 export const FLATBED_MIN_PLACEMENT_MM = 40;

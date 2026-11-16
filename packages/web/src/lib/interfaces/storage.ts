@@ -162,6 +162,13 @@ export interface StorageLocationNameDialogProps {
   onSubmit: (name: string) => Promise<boolean>;
 }
 
+export interface StorageSelectionSearchParams {
+  locationGuid: string | null;
+  shownLocationGuid: string | null | undefined;
+  scanId?: string | null;
+  reviewParamValue?: string | null;
+}
+
 export interface StorageLocationCardQueryState {
   searchQuery: string;
   setSearchQuery: (query: string) => void;

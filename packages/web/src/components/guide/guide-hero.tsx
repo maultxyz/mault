@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+import { MARKETING_HERO_TITLE_CLASS } from "@/lib/constants/marketing-pages";
 import type { GuideHeroProps } from "@/lib/interfaces/guide";
 
 export function GuideHero({
@@ -8,10 +10,10 @@ export function GuideHero({
 }: GuideHeroProps) {
   return (
     <section className="mx-auto max-w-6xl px-4 pt-16 pb-2 md:pt-24">
-      <p className="font-heading text-2xs font-medium tracking-widest text-primary uppercase">
+      <p className="font-heading text-sm font-medium tracking-widest text-primary uppercase">
         {eyebrow}
       </p>
-      <h1 className="mt-6 max-w-4xl font-heading text-5xl leading-[1.02] font-semibold tracking-tight text-balance md:text-6xl">
+      <h1 className={cn(MARKETING_HERO_TITLE_CLASS, "mt-6 max-w-4xl")}>
         {title}
       </h1>
       {description && (

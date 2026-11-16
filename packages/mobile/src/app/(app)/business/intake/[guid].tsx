@@ -14,6 +14,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Pill } from "@/components/ui/pill";
 import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -30,6 +31,7 @@ import { useBusinessAction } from "@/features/business/api/use-business-action";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
+import { ApiResultError } from "@/lib/api/api-result-error";
 import { cardArtSources } from "@/lib/card-art";
 import { BUSINESS_STATUS_TONES } from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
@@ -149,6 +151,8 @@ export default function IntakeLotScreen() {
     >
       {lotQuery.isPending ? (
         <PageSkeleton />
+      ) : !lot && !(lotQuery.error instanceof ApiResultError) ? (
+        <QueryErrorState onRetry={() => void lotQuery.refetch()} isRetrying={lotQuery.isFetching} />
       ) : !lot ? (
         <EmptyState
           icon="coins"
@@ -213,7 +217,13 @@ export default function IntakeLotScreen() {
           ) : null}
           <View style={{ gap: SPACING.sm }}>
             <SectionHeader title={t("business.intake.cardsSection", { count: lot.cardCount })} />
-            {cards.isPending ? null : cardItems.length === 0 ? (
+            {cards.isError && !cards.data ? (
+              <QueryErrorState
+                title={t("recovery.cardsLoadFailed")}
+                onRetry={() => void cards.refetch()}
+                isRetrying={cards.isFetching}
+              />
+            ) : cards.isPending ? null : cardItems.length === 0 ? (
               <AppText size="sm" tone="secondary">
                 {isOpen ? t("business.intake.noCardsOpen") : t("business.intake.noCardsClosed")}
               </AppText>

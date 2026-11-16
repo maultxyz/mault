@@ -52,7 +52,12 @@ export function useStorageLocations({ withList = true } = {}) {
   const queryClient = useQueryClient();
   const { activeOrg } = useOrg();
   const listOptions = storageLocationsQueryOptions(activeOrg?.id);
-  const { data: locations = [], isPending } = useQuery({
+  const {
+    data: locations = [],
+    isPending,
+    isError,
+    refetch,
+  } = useQuery({
     ...listOptions,
     enabled: listOptions.enabled !== false && !!activeOrg?.id && withList,
   });
@@ -115,6 +120,8 @@ export function useStorageLocations({ withList = true } = {}) {
   return {
     locations,
     isLoading: withList && !!activeOrg && isPending,
+    isError: withList && isError,
+    refetch: () => void refetch(),
     isMutating:
       createMutation.isPending ||
       renameMutation.isPending ||

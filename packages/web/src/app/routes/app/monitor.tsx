@@ -3,6 +3,7 @@ import { LIBRARY_PATH } from "@/lib/constants/nav";
 import { Button } from "@/components/ui/button";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { MobileCollectionActionsMenu } from "@/features/collections/components/mobile-collection-actions-menu";
 import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
 import { SessionMonitorView } from "@/features/scanner/components/session-monitor-view";
@@ -84,6 +85,9 @@ export default function MonitorPage() {
                 </Button>
               )}
               <ShareMonitorLinkDialog collectionGuid={collectionGuid} />
+              {isMobile && (
+                <MobileCollectionActionsMenu collectionGuid={collectionGuid} />
+              )}
             </>
           ) : undefined
         }

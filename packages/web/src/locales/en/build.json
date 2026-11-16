@@ -6,7 +6,7 @@
   "hero": {
     "eyebrow": "Hardware build guide",
     "title": "Build the card sorter",
-    "modulesIntro": "Each module has three servos, a <0>bottom</0> trapdoor, a <1>paddle</1> gate, and a left/right <2>pusher</2>, plus an IR sensor. Closing every trapdoor above the target bin and opening only the ones beneath it lets a card fall to the right module before the pusher ejects it.",
+    "modulesIntro": "Each module has three servos, a <0>bottom</0> paddle, a side <1>paddle</1> gate, and a left/right <2>pusher</2>, plus an IR sensor. Closing every bottom paddle above the target bin and opening only the ones beneath it lets a card fall to the right module before the pusher ejects it.",
     "moduleLabel": "Module {{n}}",
     "binLabel": "Bin {{n}}",
     "catchAllBinNote": "catch-all, all {{modules}} bottoms open",
@@ -109,7 +109,7 @@
           },
           "sg90Positional": {
             "part": "SG90 micro servo, positional (180°)",
-            "notes": "3 per module × {{count}} modules: bottom trapdoor, paddle gate, pusher",
+            "notes": "3 per module × {{count}} modules: bottom paddle, side paddle gate, pusher",
             "alert": "Avoid Tower Pro SG90s. They don't hold their calibrated positions reliably in this sorter."
           },
           "mg90sContinuous": {
@@ -471,7 +471,7 @@
           },
           "mountBottomFlapper": {
             "text": "Assemble the bottom paddle by screwing the paddle to the linkage, then the linkage to the horn. Screw the assembled bottom paddle into the module housing with 2 M2×6 screws. Remember not to install the horn to the servo yet.",
-            "note": "The linkage's TOP/BOTTOM labels describe how it's installed, not which way the module faces. Since you build with the platform upside down, TOP points away from the platform. This is the trapdoor a card falls through to reach the next module, or the current one on a match. The horn gets seated onto the servo once the module is calibrated from the app. See Calibrate from the app below."
+            "note": "The linkage's TOP/BOTTOM labels describe how it's installed, not which way the module faces. Since you build with the platform upside down, TOP points away from the platform. This is the paddle that opens to drop a card to the next module, or the current one on a match. The horn gets seated onto the servo once the module is calibrated from the app. See Calibrate from the app below."
           },
           "mountSideFlappers": {
             "text": "Assemble the side paddles by screwing the left and right flapper to the shared linkage, then the linkage to the horn (one pair per module). Screw the assembled side paddle into the module housing with 4 M2×6 screws. Remember not to install the horn to the servo yet.",

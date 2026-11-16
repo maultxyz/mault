@@ -124,6 +124,8 @@
     "manageCollections": "Gérer les collections",
     "noCardsScanned": "Aucune carte scannée pour le moment",
     "scanToGetStarted": "Scanne une carte pour commencer",
+    "loadFailed": "Impossible de charger les cartes de cette collection.",
+    "selectAllFailed": "Impossible de sélectionner toutes les cartes. Réessaie.",
     "noCardsMatchFilters": "Aucune carte ne correspond aux filtres actuels",
     "tryAdjusting": "Essaie d'ajuster ta recherche, ton tri ou tes filtres",
     "cardsSelected_one": "{{count}} carte sélectionnée",
@@ -252,6 +254,8 @@
     "previous": "Précédent",
     "next": "Suivant",
     "skipAll": "Tout passer",
+    "pause": "Mettre le diaporama en pause",
+    "play": "Lire le diaporama",
     "intro": {
       "eyebrow": "Ta session",
       "title": "Le récap de {{collectionName}}",

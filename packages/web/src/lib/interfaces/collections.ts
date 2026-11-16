@@ -33,6 +33,8 @@ export interface CollectionsContextValue {
   collections: Collection[];
   activeCollection: Collection | null;
   isLoading: boolean;
+  isError: boolean;
+  refetch: () => void;
   isActivating: boolean;
   isMutating: boolean;
   createCollection: (values: CreateCollectionFormValues) => Promise<boolean>;
@@ -82,6 +84,10 @@ export interface CollectionPreviewStackProps {
 export interface CollectionTarget {
   guid: string;
   name: string;
+}
+
+export interface MobileCollectionActionsMenuProps {
+  collectionGuid: string;
 }
 
 export interface EmptyCollectionDialogProps {

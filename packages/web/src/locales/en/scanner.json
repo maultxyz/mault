@@ -1242,7 +1242,14 @@
       "scanning": "Scanning the glass...",
       "scanAgain": "Scan again",
       "dragHint": "Drag a box around the card if the detected box is off.",
-      "boxTooSmall": "The box is too small for a card. Drag a larger box around it.",
+      "boxTooSmall": "The box is too small for a card. Drag a larger box around it or enter a larger size.",
+      "fields": {
+        "leftMm": "Left (mm)",
+        "topMm": "Top (mm)",
+        "widthMm": "Width (mm)",
+        "heightMm": "Height (mm)"
+      },
+      "fieldsHint": "You can also type the box position and size, measured from the top left corner of the glass.",
       "save": "Save position",
       "cancel": "Cancel",
       "previewAlt": "Scan of the whole flatbed glass",

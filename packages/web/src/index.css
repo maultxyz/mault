@@ -70,7 +70,7 @@ code {
   --destructive: oklch(0.55 0.235 27.325);
   --destructive-foreground: oklch(100% 0.00011 271.152);
   --border: #e3e5ea;
-  --input: var(--border);
+  --input: #80848d;
   --ring: #1447e6;
   --chart-1: oklch(0.871 0.006 286.286);
   --chart-2: oklch(0.552 0.016 285.938);
@@ -151,7 +151,7 @@ code {
   --destructive: oklch(0.704 0.191 22.216);
   --destructive-foreground: #111214;
   --border: rgb(255 255 255 / 10%);
-  --input: var(--border);
+  --input: #787c85;
   --ring: #155dfc;
   --chart-1: oklch(0.871 0.006 286.286);
   --chart-2: oklch(0.552 0.016 285.938);
@@ -210,6 +210,10 @@ code {
   --text-lg--line-height: 1.5rem;
   --text-control: 0.75rem;
   --text-control--line-height: 1rem;
+  --z-index-lock-screen: 60;
+  --z-index-decor: 999;
+  --z-index-skip-link: 1000;
+  --z-index-loading-gate: 9999;
 }
 
 :root {

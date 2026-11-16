@@ -48,6 +48,28 @@ export const WRAPPED_GRAIN_OVERLAY =
 
 export const CARD_REVIEW_SEARCH_PARAM = "review";
 export const CARD_REVIEW_GRID_PARAM_VALUE = "grid";
+export const CARD_GRID_SEARCH_QUERY_PARAM = "q";
+export const CARD_GRID_SORT_PARAM = "sort";
+export const CARD_GRID_PAGE_PARAM = "page";
+export const CARD_FILTER_LIST_SEARCH_PARAMS = {
+  colors: "colors",
+  rarities: "rarities",
+  sets: "sets",
+  foilTypes: "foils",
+} as const;
+export const CARD_FILTER_BINS_PARAM = "bins";
+export const CARD_FILTER_NO_BIN_PARAM_VALUE = "none";
+export const CARD_FILTER_NEEDS_ATTENTION_PARAM = "attention";
+export const CARD_FILTER_HIDE_DOWNLOADED_PARAM = "hideDownloaded";
+export const CARD_FILTER_MIN_MATCH_PERCENT_PARAM = "minMatch";
+export const CARD_FILTER_ENABLED_PARAM_VALUE = "1";
+export const CARD_FILTER_SEARCH_PARAM_NAMES: readonly string[] = [
+  ...Object.values(CARD_FILTER_LIST_SEARCH_PARAMS),
+  CARD_FILTER_BINS_PARAM,
+  CARD_FILTER_NEEDS_ATTENTION_PARAM,
+  CARD_FILTER_HIDE_DOWNLOADED_PARAM,
+  CARD_FILTER_MIN_MATCH_PERCENT_PARAM,
+];
 export const REVIEW_QUEUE_MAX_PAGES = 20;
 
 export const DETAIL_PREFETCH_COUNT = 3;

@@ -17,13 +17,20 @@ import type {
   MobileSessionMonitorProps,
 } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toReviewGridCard } from "@magic-vault/shared";
 import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
 import { ReviewGrid } from "@/features/cards/components/review-grid";
 import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
-import { MONITOR_NEEDS_REVIEW_CARDS_QUERY } from "@/lib/constants/scanner";
+import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
+import {
+  MONITOR_NEEDS_REVIEW_CARDS_QUERY,
+  MONITOR_OPEN_CARD_PARAM,
+  MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE,
+  MONITOR_REVIEW_PARAM,
+} from "@/lib/constants/scanner";
 import { toast } from "@/lib/toast";
 import { useTranslation } from "react-i18next";
 
@@ -42,8 +49,10 @@ export function MobileSessionMonitor({
   const { t: tCards } = useTranslation("cards");
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<MobileMonitorTab>("cards");
-  const [reviewing, setReviewing] = useState(false);
-  const [reviewingGrid, setReviewingGrid] = useState(false);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const reviewParam = searchParams.get(MONITOR_REVIEW_PARAM);
+  const reviewingGrid = reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
+  const reviewing = reviewParam !== null && !reviewingGrid;
   const [reviewLayout, setReviewLayout] = useReviewLayout();
   const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
   const heroCollapsed = useScrollCollapse(scrollRoot);
@@ -52,14 +61,31 @@ export function MobileSessionMonitor({
   const alertCount = unmatchedCount + errors.length;
   const hasPricing = !!stats?.hasPricing;
 
-  const handleOpenCard = useCallback(
-    (scanId: string) => setOpenScanId(scanId),
-    [setOpenScanId],
+  const showCardAndReview = useCallback(
+    (scanId: string | null, review: string | null) => {
+      setSearchParams(
+        (previous) => {
+          const next = new URLSearchParams(previous);
+          if (scanId) next.set(MONITOR_OPEN_CARD_PARAM, scanId);
+          else next.delete(MONITOR_OPEN_CARD_PARAM);
+          if (review) next.set(MONITOR_REVIEW_PARAM, review);
+          else next.delete(MONITOR_REVIEW_PARAM);
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
   );
-  const handleCloseCard = useCallback(() => {
-    setReviewing(false);
-    setOpenScanId(null);
-  }, [setOpenScanId]);
+
+  const handleOpenCard = useCallback(
+    (scanId: string) => showCardAndReview(scanId, null),
+    [showCardAndReview],
+  );
+  const handleCloseCard = useCallback(
+    () => showCardAndReview(null, null),
+    [showCardAndReview],
+  );
 
   const reviewGridPage = useQuery({
     ...collectionCardsPageQueryOptions(
@@ -80,10 +106,8 @@ export function MobileSessionMonitor({
 
   const openReviewGrid = useCallback(() => {
     setReviewLayout("grid");
-    setReviewing(false);
-    setOpenScanId(null);
-    setReviewingGrid(true);
-  }, [setReviewLayout, setOpenScanId]);
+    showCardAndReview(null, CARD_REVIEW_GRID_PARAM_VALUE);
+  }, [setReviewLayout, showCardAndReview]);
 
   const startOneByOneReview = useCallback(async () => {
     try {
@@ -96,20 +120,28 @@ export function MobileSessionMonitor({
       );
       const first = page.items[0];
       if (!first) {
+        showCardAndReview(null, null);
         toast.info(tCards("review.nothingLeft"));
         return;
       }
-      setReviewing(true);
-      setOpenScanId(first.scanId);
+      showCardAndReview(first.scanId, MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE);
     } catch {
+      showCardAndReview(null, null);
       toast.error(tCards("review.startFailed"));
     }
-  }, [collectionGuid, queryClient, setOpenScanId, tCards]);
+  }, [collectionGuid, queryClient, showCardAndReview, tCards]);
 
   const startReview = useCallback(() => {
     if (reviewLayout === "grid") openReviewGrid();
     else void startOneByOneReview();
   }, [reviewLayout, openReviewGrid, startOneByOneReview]);
+
+  const reviewAwaitsFirstCard = reviewing && !openScanId;
+  const startOneByOneReviewRef = useRef(startOneByOneReview);
+  startOneByOneReviewRef.current = startOneByOneReview;
+  useEffect(() => {
+    if (reviewAwaitsFirstCard) void startOneByOneReviewRef.current();
+  }, [reviewAwaitsFirstCard]);
 
   const tabs: MobileMonitorTabItem[] = [
     { key: "cards", label: t("mobileMonitor.tabCards") },
@@ -191,11 +223,12 @@ export function MobileSessionMonitor({
             isError={reviewGridPage.isError}
             onOpenOneByOne={(card) => {
               setReviewLayout("single");
-              setReviewingGrid(false);
-              setReviewing(true);
-              setOpenScanId(card.scanId);
+              showCardAndReview(
+                card.scanId,
+                MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE,
+              );
             }}
-            onClose={() => setReviewingGrid(false)}
+            onClose={handleCloseCard}
           />
         </div>
       ) : (

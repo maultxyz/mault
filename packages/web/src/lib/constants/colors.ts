@@ -46,7 +46,7 @@ export const ALERT_BANNER_ACTION_CLASS =
   "shrink-0 border-warning-border bg-transparent text-warning-foreground hover:bg-warning-border/40";
 
 export const CALLOUT_VARIANT_CLASS: Record<CalloutVariant, string> = {
-  neutral: "border-border bg-muted text-foreground/70",
+  neutral: "border-border bg-foreground/6 text-foreground/70",
   info: "border-info-border bg-info-muted text-info-foreground",
   success: "border-success-border bg-success-muted text-success-foreground",
   warning: "border-warning-border bg-warning-muted text-warning-foreground",

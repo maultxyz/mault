@@ -3,6 +3,7 @@ import { useStorageReviewStart } from "@/features/storage/api/use-storage-review
 import { StorageLocationDialogs } from "@/features/storage/components/storage-location-dialogs";
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { MobileListRow } from "@/components/mobile-list-row";
 import { MobilePageHeader } from "@/components/mobile-page-header";
@@ -46,6 +47,8 @@ import {
   storageLabelsPath,
 } from "@/lib/constants/storage";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
+import { writeStorageSelectionSearchParams } from "@/features/storage/lib/storage-search-params";
+import type { StorageSelectionSearchParams } from "@/lib/interfaces/storage";
 import { cn } from "@/lib/utils";
 import {
   IconBox,
@@ -64,8 +67,16 @@ export function MobileStorage() {
   const { t } = useTranslation("storage");
   const { t: tCards } = useTranslation("cards");
   const { t: tHome } = useTranslation("home");
-  const { locations, isLoading, isMutating, create, rename, remove } =
-    useStorageLocations();
+  const {
+    locations,
+    isLoading,
+    isError,
+    refetch,
+    isMutating,
+    create,
+    rename,
+    remove,
+  } = useStorageLocations();
   const { format } = usePriceSource();
   const { isLocked } = useStorageAccess();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -99,23 +110,35 @@ export function MobileStorage() {
     storageLocationUnreviewedCardsQueryOptions(selected?.guid, isGridReviewing),
   );
 
+  const showSelection = useCallback(
+    (
+      selection: Omit<StorageSelectionSearchParams, "shownLocationGuid">,
+    ) =>
+      setSearchParams(
+        (previous) => {
+          const next = new URLSearchParams(previous);
+          writeStorageSelectionSearchParams(next, {
+            ...selection,
+            shownLocationGuid: selectedGuid,
+          });
+          return next;
+        },
+        { replace: true },
+      ),
+    [selectedGuid, setSearchParams],
+  );
+
   const select = useCallback(
-    (guid: string | null) =>
-      setSearchParams(guid ? { [STORAGE_LOCATION_SEARCH_PARAM]: guid } : {}, {
-        replace: true,
-      }),
-    [setSearchParams],
+    (guid: string | null) => showSelection({ locationGuid: guid }),
+    [showSelection],
   );
 
   const openCard = (guid: string, scanId: string, review = isReviewing) =>
-    setSearchParams(
-      {
-        [STORAGE_LOCATION_SEARCH_PARAM]: guid,
-        [STORAGE_CARD_SEARCH_PARAM]: scanId,
-        ...(review ? { [STORAGE_REVIEW_SEARCH_PARAM]: "1" } : {}),
-      },
-      { replace: true },
-    );
+    showSelection({
+      locationGuid: guid,
+      scanId,
+      reviewParamValue: review ? "1" : null,
+    });
 
   const closeCard = useCallback(() => {
     if (selected) select(selected.guid);
@@ -346,6 +369,11 @@ export function MobileStorage() {
           )}
           {isLoading ? (
             <ListSkeleton />
+          ) : isError && locations.length === 0 ? (
+            <LoadErrorCallout
+              message={t("page.loadFailed")}
+              onRetry={refetch}
+            />
           ) : locations.length === 0 ? (
             <EmptyState
               icon={IconBox}

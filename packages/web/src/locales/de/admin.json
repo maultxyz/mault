@@ -277,8 +277,8 @@
     },
     "features": {
       "chaosSort": {
-        "label": "Chaotisches Sortieren",
-        "description": "Fächer der Reihe nach füllen, ohne Regeln. Ausschalten verhindert nur, dass weitere Presets es einschalten."
+        "label": "Chaos-Sortierung",
+        "description": "Fächer der Reihe nach füllen, ohne Regeln. Ausschalten verhindert nur, dass weitere Vorlagen es einschalten."
       },
       "storage": {
         "label": "Lagerorte",
@@ -294,7 +294,7 @@
       },
       "repacks": {
         "label": "Repacks",
-        "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Presets es einschalten. Presets, die schon im Repack-Modus sind, funktionieren weiter."
+        "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Vorlagen es einschalten. Vorlagen, die schon Repacks erstellen, funktionieren weiter."
       },
       "customSounds": {
         "label": "Eigene Sounds",

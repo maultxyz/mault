@@ -120,7 +120,7 @@
     "noRules": "keine Regeln",
     "conditionCount_one": "{{count}} Bedingung",
     "conditionCount_other": "{{count}} Bedingungen",
-    "sortingLogic": "Regel-Vorlage",
+    "sortingLogic": "Regelvorlage",
     "selectSetPlaceholder": "Vorlage auswählen...",
     "noMatchingSets": "Keine passenden Vorlagen",
     "duplicateName": "Eine Vorlage mit diesem Namen existiert bereits",
@@ -144,7 +144,7 @@
     "resetAutoAssign": "Automatisch erkannte Fächer zurücksetzen",
     "searchPlaceholder": "Vorlagen durchsuchen...",
     "modeBadges": {
-      "scan-only": "Nur scannen",
+      "scan-only": "Nur Scannen",
       "auto-assign": "Automatisch",
       "repack": "Repacks",
       "alphabet": "Alphabetisch",
@@ -170,7 +170,7 @@
       "emptyAllBinsFailed": "Fächer konnten nicht geleert werden",
       "repackFailed": "Repack-Einstellungen konnten nicht aktualisiert werden",
       "alphabetFailed": "Alphabetische Sortierung konnte nicht aktualisiert werden",
-      "chaosFailed": "Chaotisches Sortieren konnte nicht aktualisiert werden",
+      "chaosFailed": "Chaos-Sortierung konnte nicht aktualisiert werden",
       "skipSavingFailed": "Speichern konnte nicht aktualisiert werden",
       "resortModeFailed": "Neusortierung konnte nicht aktualisiert werden",
       "cardsStored_one": "{{count}} Karte eingelagert",
@@ -190,6 +190,9 @@
     "heading": "Automatische Erkennung",
     "description": "Lernt Fachzuweisungen beim Scannen: Sobald ein neuer Wert für das Feld unten auftaucht, belegt er das nächste freie Fach. Wiederholungen werden automatisch dorthin geleitet, und sobald alle Fächer belegt sind, gehen neue Werte ins Auffangfach.",
     "fieldPlaceholder": "Feld auswählen...",
+    "fieldLabel": "Feld, nach dem sortiert wird",
+    "resetNeedsSave": "Speichere oder verwirf zuerst deine Änderungen am Sortiermodus. Danach kannst du die gelernten Fächer zurücksetzen.",
+    "resetNothingLearned": "Noch hat kein Fach einen Wert gelernt, es gibt also nichts zurückzusetzen.",
     "reset": "Zurücksetzen",
     "resetConfirmTitle": "Automatisch erkannte Fächer zurücksetzen?",
     "resetConfirmDescription": "Löscht den gelernten Wert jedes Fachs in dieser Vorlage. Neue Scans füllen sie von Grund auf neu.",
@@ -232,12 +235,12 @@
     "description": "Jeder Scan verschiebt ein Exemplar, das schon in dieser Sammlung ist, in sein neues Fach, statt ein weiteres hinzuzufügen. Das Exemplar behält Foil und Zustand und verlässt seinen bisherigen Lagerort. Karten, die noch nicht in der Sammlung sind, werden wie gewohnt hinzugefügt."
   },
   "chaosPanel": {
-    "heading": "Chaotisches Sortieren",
+    "heading": "Chaos-Sortierung",
     "description": "Ignoriert die Regeln und füllt die Fächer nacheinander, das nächste, sobald eines voll ist. Wenn du ein Fach leerst, wählst du den Lagerort, und jede Karte wird dort der Reihe nach gespeichert.",
     "binSizeLabel": "Karten pro Fach",
     "binSizePlaceholder": "Bis zur Fachgröße füllen",
     "binSizeDescription": "Wechselt nach so vielen Karten zum nächsten Fach. Leer lassen, um jedes Fach bis zu seiner kalibrierten Größe zu füllen.",
-    "notInPlan": "Chaotisches Sortieren ist nicht Teil deines Tarifs."
+    "notInPlan": "Chaos-Sortierung ist nicht Teil deines Tarifs."
   },
   "alphabetPanel": {
     "heading": "Alphabetisch sortieren",
@@ -349,7 +352,7 @@
     "noValue": "nichts",
     "resultAnnouncement": "{{name}} kommt in {{bin}}",
     "scannedTo": "Beim Scannen kam diese Karte ebenfalls in {{bin}}.",
-    "scannedElsewhere": "Beim Scannen kam diese Karte in {{scanned}}, nicht in {{tested}}. Das Preset hat sich seitdem vielleicht geändert, oder ein volles Fach, ein Überlauf oder eine Suchliste hat sie umgeleitet. Dieser Test berücksichtigt nicht, wie voll die Fächer sind.",
+    "scannedElsewhere": "Beim Scannen kam diese Karte in {{scanned}}, nicht in {{tested}}. Die Vorlage hat sich seitdem vielleicht geändert, oder ein volles Fach, ein Überlauf oder eine Suchliste hat sie umgeleitet. Dieser Test berücksichtigt nicht, wie voll die Fächer sind.",
     "reasons": {
       "rules": "Die Regeln von Fach {{bin}} passen auf diese Karte, und es ist das erste Fach, das passt.",
       "override": "Fach {{bin}} hat Vorrang und seine Regeln passen, daher gewinnt es gegen andere passende Fächer.",
@@ -357,12 +360,12 @@
       "noRuleMatched": "Keine Fachregeln passen auf diese Karte, daher kommt sie ins Auffangfach.",
       "overflow": "Fach {{matched}} passt, und seine Karten laufen in Fach {{bin}} über.",
       "pickList": "{{name}} steht auf der Pickliste von Fach {{bin}}.",
-      "autoAssign": "Die automatische Zuordnung gibt dem Wert dieser Karte ein eigenes Fach: Fach {{bin}}.",
-      "scanOnly": "Im Nur-Scannen-Modus kommt jede erkannte Karte in Fach {{bin}}.",
-      "chaos": "Der Chaos-Modus füllt die Fächer der Reihe nach, daher kommt diese Karte in Fach {{bin}}.",
+      "autoAssign": "Die automatische Erkennung gibt dem Wert dieser Karte ein eigenes Fach: Fach {{bin}}.",
+      "scanOnly": "Bei „Nur Scannen“ kommt jede erkannte Karte in Fach {{bin}}.",
+      "chaos": "Die Chaos-Sortierung füllt die Fächer der Reihe nach, daher kommt diese Karte in Fach {{bin}}.",
       "alphabet": "Namen, die mit {{letter}} beginnen, kommen in diesem Durchgang in Fach {{bin}}.",
       "alphabetCatchAll": "Dieser Name gehört nicht zu den aktuellen Buchstaben, daher kommt er ins Auffangfach.",
-      "repack": "Der Repack-Modus legt diese Karte in ein Pack in Fach {{bin}}.",
+      "repack": "Repacks erstellen legt diese Karte in ein Pack in Fach {{bin}}.",
       "noBin": "Kein Fach nimmt diese Karte. Lege ein Auffangfach an, damit solche Karten einen Platz haben."
     }
   },
@@ -440,7 +443,20 @@
   },
   "sortingModePanel": {
     "title": "Sortiermodus",
-    "explain": "Was macht {{mode}}?"
+    "explain": "Was macht {{mode}}?",
+    "rules": {
+      "heading": "Sortierregeln",
+      "description": "Jedes Fach nimmt die Karten auf, die zu seinen Regeln passen. Eine Karte, die zu keinem Fach passt, kommt ins Auffangfach."
+    },
+    "summaries": {
+      "rules": "Jedes Fach nimmt die Karten auf, die zu seinen Regeln passen.",
+      "scan-only": "Erkannte Karten kommen in ein Fach, nicht erkannte in ein anderes.",
+      "auto-assign": "Jeder neue Wert eines Feldes belegt das nächste freie Fach.",
+      "game-sort": "Jedes Spiel bekommt ein eigenes Fach. Karten werden nicht gespeichert.",
+      "repack": "Jedes Fach baut ein Pack aus den Slots, die du festlegst.",
+      "alphabet": "Ein Buchstabe pro Fach, nach dem ersten Buchstaben des Kartennamens.",
+      "chaos": "Füllt die Fächer der Reihe nach und merkt sich, wo jede Karte liegt."
+    }
   },
   "mobileBins": {
     "rulesMode": "Regeln",

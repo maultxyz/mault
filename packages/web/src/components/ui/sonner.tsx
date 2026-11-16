@@ -2,13 +2,36 @@
 
 import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
-import { TOAST_DURATION_MS } from "@/lib/constants/toast"
+import { TOASTER_SELECTOR, TOAST_DURATION_MS } from "@/lib/constants/toast"
+import { useEffect } from "react"
 import { IconCircleCheck, IconInfoCircle, IconAlertTriangle, IconAlertOctagon, IconLoader } from "@tabler/icons-react"
 import { useTranslation } from "react-i18next"
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
   const { t } = useTranslation("common")
+
+  useEffect(() => {
+    const toasterOf = (target: EventTarget | null) =>
+      target instanceof Element ? target.closest(TOASTER_SELECTOR) : null
+    const pauseToastTimers = (event: FocusEvent) => {
+      toasterOf(event.target)?.dispatchEvent(
+        new MouseEvent("mouseover", { bubbles: true })
+      )
+    }
+    const resumeToastTimers = (event: FocusEvent) => {
+      const toaster = toasterOf(event.target)
+      if (!toaster) return
+      if (event.relatedTarget instanceof Node && toaster.contains(event.relatedTarget)) return
+      toaster.dispatchEvent(new MouseEvent("mouseout", { bubbles: true }))
+    }
+    document.addEventListener("focusin", pauseToastTimers)
+    document.addEventListener("focusout", resumeToastTimers)
+    return () => {
+      document.removeEventListener("focusin", pauseToastTimers)
+      document.removeEventListener("focusout", resumeToastTimers)
+    }
+  }, [])
 
   return (
     <Sonner

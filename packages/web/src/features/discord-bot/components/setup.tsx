@@ -29,7 +29,7 @@ export function DiscordBotSetup() {
               <li key={step.title} className={cn(MARKETING_CARD_CLASS, "gap-4")}>
                 <div className="flex items-center justify-between gap-2">
                   <Icon aria-hidden className="size-5 text-primary" />
-                  <span className="font-heading text-2xs font-medium tracking-widest text-foreground/70 tabular-nums">
+                  <span className="font-heading text-sm font-medium tracking-widest text-foreground/70 tabular-nums">
                     {String(i + 1).padStart(2, "0")}
                   </span>
                 </div>

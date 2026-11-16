@@ -5,11 +5,13 @@ import { AppText } from "@/components/ui/app-text";
 import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import {
+  MIN_TOUCH_TARGET,
   TOAST_BOTTOM_OFFSET,
   TOAST_DEFAULT_DURATION_MS,
   TOAST_FADE_MS,
   TOAST_SCREEN_READER_DURATION_MULTIPLIER,
 } from "@/lib/constants/ui";
+import { playErrorHaptic, playSuccessHaptic } from "@/lib/haptics";
 import type { ToastContextValue, ToastOptions, ToastProviderProps } from "@/lib/interfaces/ui";
 
 const ToastContext = createContext<ToastContextValue>({ showToast: () => {}, dismissToast: () => {} });
@@ -61,6 +63,8 @@ export function ToastProvider({ children }: ToastProviderProps) {
       const next: VisibleToast = { ...options, toastId: nextToastIdRef.current++ };
       toastRef.current = next;
       setToast(next);
+      if (options.tone === "success") playSuccessHaptic();
+      else if (options.tone === "destructive" && !options.action) playErrorHaptic();
       AccessibilityInfo.announceForAccessibility(
         options.action ? `${options.message}. ${options.action.label}` : options.message,
       );
@@ -112,10 +116,11 @@ export function ToastProvider({ children }: ToastProviderProps) {
           style={{ position: "absolute", left: SCREEN_GUTTER, right: SCREEN_GUTTER, bottom: insets.bottom + TOAST_BOTTOM_OFFSET }}
         >
           <Animated.View style={{ opacity }}>
-            <Pressable
-              accessibilityRole="alert"
-              onPressIn={pauseTimer}
-              onPressOut={resumeTimer}
+            <View
+              accessible={false}
+              onTouchStart={pauseTimer}
+              onTouchEnd={resumeTimer}
+              onTouchCancel={resumeTimer}
               style={{
                 flexDirection: "row",
                 alignItems: "center",
@@ -132,7 +137,7 @@ export function ToastProvider({ children }: ToastProviderProps) {
                 elevation: 6,
               }}
             >
-              <AppText size="sm" weight="medium" style={{ flex: 1, color: toneColor }}>
+              <AppText accessible size="sm" weight="medium" style={{ flex: 1, color: toneColor }}>
                 {toast.message}
               </AppText>
               {toast.action ? (
@@ -145,13 +150,20 @@ export function ToastProvider({ children }: ToastProviderProps) {
                     finish(true);
                     action?.onPress();
                   }}
+                  style={{
+                    minWidth: MIN_TOUCH_TARGET,
+                    minHeight: MIN_TOUCH_TARGET,
+                    marginVertical: -SPACING.sm,
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
                 >
                   <AppText size="sm" weight="bold" style={{ color: colors.primaryText }}>
                     {toast.action.label}
                   </AppText>
                 </Pressable>
               ) : null}
-            </Pressable>
+            </View>
           </Animated.View>
         </View>
       ) : null}

@@ -1,3 +1,5 @@
+import { cn } from "@/lib/utils";
+import { GITHUB_STAR_PILL_CLASS } from "@/lib/constants/ui";
 import { DONATE_URL } from "@magic-vault/shared";
 import { Button } from "@/components/ui/button";
 import { optOutOfSupportPrompt } from "@/features/billing/lib/support-prompt";
@@ -44,12 +46,12 @@ export function SupportPromptToast({
             {t("supportPrompt.starOnGithub")}
             {githubStars != null && (
               <span
-                className="ml-0.5 inline-flex items-center gap-0.5 rounded-full border bg-muted px-1.5 text-2xs text-foreground/80"
+                className={cn(GITHUB_STAR_PILL_CLASS, "ml-0.5")}
                 aria-label={t("supportPrompt.githubStars", {
                   count: githubStars,
                 })}
               >
-                <IconStarFilled className="size-3 text-warning" />
+                <IconStarFilled className="size-3 text-warning-foreground" />
                 {new Intl.NumberFormat(i18n.language, {
                   notation: "compact",
                 }).format(githubStars)}

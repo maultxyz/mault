@@ -435,6 +435,12 @@ export type WrappedSlide =
     }
   | { key: string; type: "outro" };
 
+export interface CardFiltersSearchParamsState {
+  filters: CardFilters;
+  setFilters: (filters: CardFilters) => void;
+  updateFilters: (update: (previous: CardFilters) => CardFilters) => void;
+}
+
 export interface CardFiltersContextValue {
   filters: CardFilters;
   setFilters: (filters: CardFilters) => void;
@@ -643,6 +649,19 @@ export interface ReviewSession {
 
 export interface OpenScanOptions {
   inReviewMode?: boolean;
+}
+
+export interface CardGridLocationState {
+  wasOpenedFromCardGrid?: boolean;
+}
+
+export interface CardQueryStateOptions {
+  persistsSearchAndSortInUrl?: boolean;
+}
+
+export interface DebouncedSearchParamTextOptions {
+  isPersistedInUrl?: boolean;
+  paramNamesClearedOnChange?: readonly string[];
 }
 
 export interface CardThumbnailProps {

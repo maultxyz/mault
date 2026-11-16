@@ -124,6 +124,8 @@
     "manageCollections": "Manage Collections",
     "noCardsScanned": "No cards scanned yet",
     "scanToGetStarted": "Scan a card to get started",
+    "loadFailed": "Couldn't load the cards in this collection.",
+    "selectAllFailed": "Couldn't select all cards. Try again.",
     "noCardsMatchFilters": "No cards match the current filters",
     "tryAdjusting": "Try adjusting your search, sort, or filter options",
     "cardsSelected_one": "{{count}} card selected",
@@ -252,6 +254,8 @@
     "previous": "Previous",
     "next": "Next",
     "skipAll": "Skip all",
+    "pause": "Pause slideshow",
+    "play": "Play slideshow",
     "intro": {
       "eyebrow": "Your session",
       "title": "{{collectionName}} Wrapped",

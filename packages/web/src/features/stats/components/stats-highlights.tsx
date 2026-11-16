@@ -1,3 +1,4 @@
+import { IconBadge } from "@/components/icon-badge";
 import type { StatsHighlightsProps } from "@/lib/interfaces/stats";
 import { useTranslation } from "react-i18next";
 
@@ -13,12 +14,9 @@ export function StatsHighlights({ insights }: StatsHighlightsProps) {
           const InsightIcon = insight.icon;
           return (
             <li key={insight.key} className="flex flex-col gap-3 rounded-card bg-card p-4 md:gap-1.5 md:p-2.5">
-              <span
-                aria-hidden
-                className="flex size-9 items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-sidebar-primary"
-              >
+              <IconBadge aria-hidden>
                 <InsightIcon className="size-4" />
-              </span>
+              </IconBadge>
               <div className="mt-auto flex flex-col gap-0.5">
                 <p className="text-sm font-semibold text-foreground">{insight.title}</p>
                 <p className="text-xs text-foreground/70">{insight.detail}</p>

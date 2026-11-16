@@ -206,6 +206,11 @@
     "title": "Raccourcis clavier",
     "description": "Les raccourcis sont ignorés pendant la saisie dans un champ ou lorsqu'une boîte de dialogue est ouverte.",
     "then": "puis",
+    "off": "Désactivé",
+    "singleKey": {
+      "label": "Raccourcis à une seule touche",
+      "hint": "Désactivés, seuls les raccourcis avec Ctrl ou Cmd, Échap, Entrée, Suppr et les flèches fonctionnent. Enregistré dans ce navigateur."
+    },
     "keys": {
       "space": "Espace",
       "shift": "Maj",
@@ -538,6 +543,8 @@
     "notFound": "Cette offre d'échange n'existe plus.",
     "backToTrades": "Retour aux échanges",
     "acceptTitle": "Accepter cette offre d'échange ?",
+    "declineTitle": "Refuser cette offre d'échange ?",
+    "declineDescription": "La personne verra sur son lien que vous avez refusé. Cette action est irréversible.",
     "sideTabs": {
       "label": "Côtés de l'échange",
       "wanted": "Demande ({{count}})",

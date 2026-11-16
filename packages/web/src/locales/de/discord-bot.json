@@ -63,7 +63,7 @@
       },
       "sharePreset": {
         "usage": "/share-preset",
-        "description": "Wähle eine deiner Regel-Vorlagen aus einer Liste und poste ihre Fächer und Regeln. Erfordert ein verknüpftes Konto."
+        "description": "Wähle eine deiner Regelvorlagen aus einer Liste und poste ihre Fächer und Regeln. Erfordert ein verknüpftes Konto."
       },
       "leaderboard": {
         "usage": "/leaderboard",

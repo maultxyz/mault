@@ -1524,6 +1524,13 @@ export interface FlatbedPlacementEditorProps {
   onPlacementChange: (placement: FlatbedPlacement) => void;
 }
 
+export interface FlatbedPlacementFieldsProps {
+  glassWidthMm: number;
+  glassHeightMm: number;
+  placement: FlatbedPlacement | null;
+  onPlacementChange: (placement: FlatbedPlacement) => void;
+}
+
 export interface FlatbedPreview {
   imageUrl: string;
   file: File;
