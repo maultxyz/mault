@@ -130,6 +130,7 @@ PY
 fi
 
 python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env"
+python3 "$ROOT/scripts/pi/install-user-agent.py" --env "$ROOT/.env"
 sorter_mode="$(python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env" --print-mode)"
 sorter_board="$(python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env" --print-board)"
 if [[ "$sorter_mode" != gpio ]]; then
