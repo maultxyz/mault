@@ -424,3 +424,25 @@ export function isOutlineSettled(
     maxCornerShift(state.contour, target) < OUTLINE_SETTLED_PX
   );
 }
+
+export function mapToSource(
+  homography: number[],
+  u: number,
+  v: number,
+): Point {
+  const h = homography;
+  const w = h[6] * u + h[7] * v + h[8];
+  return {
+    x: (h[0] * u + h[1] * v + h[2]) / w,
+    y: (h[3] * u + h[4] * v + h[5]) / w,
+  };
+}
+
+export function wholeImageHomography(image: RgbaImage): number[] {
+  return solveHomographyDstToSrc([
+    { x: 0, y: 0 },
+    { x: image.width - 1, y: 0 },
+    { x: image.width - 1, y: image.height - 1 },
+    { x: 0, y: image.height - 1 },
+  ]);
+}

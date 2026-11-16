@@ -76,16 +76,15 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
           },
         },
       });
-      if (!activeBinSet)
-        return { message: "No active set found.", success: false };
-
       const emptiedBinNumbers = [
         ...new Set([
-          ...activeBinSet.bins.map((b) => b.binNumber),
+          ...(activeBinSet?.bins.map((b) => b.binNumber) ?? []),
           ...binNumbers,
           ...locations.map((l) => l.binNumber),
         ]),
       ];
+      if (emptiedBinNumbers.length === 0)
+        return { message: "No bins to empty.", success: false };
 
       const stored = new Map<string, string[]>();
       if (locations.length > 0) {
@@ -151,7 +150,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
 
       await markBinsEmptied(tx, orgId, emptiedBinNumbers);
 
-      if (resetAutoAssignedRules && activeBinSet.autoAssignField) {
+      if (resetAutoAssignedRules && activeBinSet?.autoAssignField) {
         await snapshotBinSet(tx, activeBinSet.id, activeBinSet.guid!, orgId);
         await resetAutoAssignBins(tx, activeBinSet.id);
       }

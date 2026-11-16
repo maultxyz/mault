@@ -89,6 +89,7 @@ export interface TcgtrackingGameConfig {
   ): boolean;
   primaryCardIdOf?(product: TcgtrackingProduct): string | null;
   comparableProductName?(name: string): string;
+  storedNameOf?(productName: string): string;
   colorIdentityOf?(colors: string[]): string[];
   primaryShapedFieldsOf?(
     input: TcgtrackingPrimaryShapedFieldsInput,

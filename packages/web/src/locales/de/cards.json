@@ -165,6 +165,10 @@
     "sortDescString": "Z-A",
     "sortAscDefault": "Niedrig-Hoch",
     "sortDescDefault": "Hoch-Niedrig",
+    "priceSort": {
+      "usd": "Preis (USD)",
+      "eur": "Preis (EUR)"
+    },
     "deselectAll": "Alle abwählen",
     "selectAll": "Alle auswählen",
     "gridView": "Rasteransicht",
@@ -349,6 +353,13 @@
       "noScanAreas": "Nicht geprüft: keine Merkmalsbereiche aus dem Scan",
       "noReferences": "Nicht geprüft: noch keine Referenzen für dieses Spiel",
       "singlePrinting": "Nicht nötig: keine ähnlichen Drucke"
+    },
+    "printedLanguageCode": "Sprachcode (\"EN\")",
+    "printedLanguageCodeValue": {
+      "presentChanged": "EN gefunden, Druck geändert",
+      "presentKept": "EN gefunden",
+      "absentChanged": "Kein EN, Druck geändert",
+      "absentKept": "Kein EN"
     },
     "printedFoilMarker": "Foil-Stern",
     "printedFoilMarkerValue": {

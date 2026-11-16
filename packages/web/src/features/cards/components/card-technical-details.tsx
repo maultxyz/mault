@@ -108,6 +108,13 @@ export function CardTechnicalDetails({
                       )}
                 </Row>
               )}
+              {diagnostics.printingMarks?.languageCode && (
+                <Row label={t("technicalDetails.printedLanguageCode")}>
+                  {t(
+                    `technicalDetails.printedLanguageCodeValue.${diagnostics.printingMarks.languageCode.detected ? "present" : "absent"}${diagnostics.printingMarks.languageCode.cardId ? "Changed" : "Kept"}`,
+                  )}
+                </Row>
+              )}
               {diagnostics.printedFoilMarker && (
                 <Row label={t("technicalDetails.printedFoilMarker")}>
                   {t(

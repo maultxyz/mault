@@ -55,6 +55,7 @@ function evidence(overrides: Partial<TextRankedPrintingEvidence>): TextRankedPri
   return {
     isPreferredSet: false,
     matchesPrintedPromo: true,
+    matchesPrintedLanguageCode: true,
     setLineMatch: false,
     letteredNumberMatch: false,
     numberMatch: false,

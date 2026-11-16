@@ -14,6 +14,7 @@ import {
   findCardMatches,
   parsePreferredSetCodes,
 } from "./shared";
+import { printedLanguageCodeFromImageBuffer } from "../../lib/printing-marks/scan";
 import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const searchByImageRoute = new Hono<AppEnv>().post(
@@ -68,6 +69,11 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
       );
     }
 
+    const printedLanguageCode = await printedLanguageCodeFromImageBuffer(
+      resolved.gameKey,
+      buffer,
+    );
+
     try {
       const { result, scope } = await findBestMatchAcrossGames(
         scopes,
@@ -77,6 +83,10 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
             embeddings,
             preferredSetCodes,
             skipsUnloadedIndex: matchScope.gameKey !== resolved.gameKey,
+            printedLanguageCode:
+              matchScope.gameKey === resolved.gameKey
+                ? printedLanguageCode
+                : null,
           }),
       );
       const withEmbedding = result.diagnostics

@@ -194,7 +194,7 @@ export default function CollectionScreen() {
   const breakdown = useMemo(() => (stats && stats.totalCount > 0 ? toStatsBreakdown(stats) : null), [stats]);
   const binCount = computeBinCount(sorter.device?.moduleCount ?? DEFAULT_MODULE_COUNT);
   const foilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
-  const sortOptions = cardSortOptions(collection?.game?.fieldDefinitions ?? [], t("collection.sort.scanOrder"), sort, t);
+  const sortOptions = cardSortOptions(collection?.game?.fieldDefinitions ?? [], t("collection.sort.scanOrder"), sort, pricing.source, t);
   const activeSortAndFilterCount =
     countActiveCardFilters(filters) + (sort && !scanTimelineGrouping ? 1 : 0) + (scanTimelineGrouping ? 1 : 0);
 

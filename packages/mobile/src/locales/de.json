@@ -955,7 +955,9 @@
       "title": "Sortieren nach",
       "scanOrder": "Scanreihenfolge (neueste zuerst)",
       "ascending": "{{field}}, aufsteigend",
-      "descending": "{{field}}, absteigend"
+      "descending": "{{field}}, absteigend",
+      "priceUsd": "Preis (USD)",
+      "priceEur": "Preis (EUR)"
     },
     "actions": {
       "copies_one": "{{count}} Exemplar",

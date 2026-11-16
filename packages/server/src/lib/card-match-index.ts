@@ -121,6 +121,7 @@ async function loadSegment(
   const adapter = resolveCardSearchForGame(gameKey, lang)?.adapter;
   const rarePrintingSql = adapter?.rarePrintingSql ?? sql`false`;
   const promoPrintingSql = adapter?.promoPrintingSql ?? sql`false`;
+  const printedLanguageCodeSql = adapter?.printedLanguageCodeSql ?? sql`NULL`;
   const printedSetTotalSql = adapter?.printedSetTotalSql ?? sql`NULL`;
   const exclusionFilter = adapter?.excludedFromMatchingSql
     ? sql`AND NOT coalesce(${adapter.excludedFromMatchingSql}, false)`
@@ -138,6 +139,7 @@ async function loadSegment(
       SELECT card_id, name, set_code, collector_number,
         coalesce(${rarePrintingSql}, false) AS rare_printing,
         coalesce(${promoPrintingSql}, false) AS promo_printing,
+        (${printedLanguageCodeSql})::boolean AS printed_language_code,
         (${printedSetTotalSql})::int AS printed_set_total,
         CASE WHEN printing_mark_version = ${PRINTING_MARK_VERSION}
           THEN printing_mark_groups END AS printing_mark_groups,
@@ -165,6 +167,7 @@ async function loadSegment(
         collectorNumber: row.collector_number,
         rarePrinting: row.rare_printing === true,
         promoPrinting: row.promo_printing === true,
+        printedLanguageCode: row.printed_language_code,
         printedSetTotal: row.printed_set_total,
         printingMarkGroups: row.printing_mark_groups,
         embedding: decodeFrontEmbedding(row.embedding)!,

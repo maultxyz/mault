@@ -955,7 +955,9 @@
       "title": "Sort by",
       "scanOrder": "Scan order (newest first)",
       "ascending": "{{field}}, ascending",
-      "descending": "{{field}}, descending"
+      "descending": "{{field}}, descending",
+      "priceUsd": "Price (USD)",
+      "priceEur": "Price (EUR)"
     },
     "actions": {
       "copies_one": "{{count}} copy",

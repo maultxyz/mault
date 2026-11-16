@@ -1,3 +1,5 @@
+import type { PrintedLanguageCodeMatch } from "./printed-language-code.interface";
+
 export type PrintingMarkKey =
   | "setSymbol"
   | "listIcon"
@@ -91,9 +93,11 @@ export interface PrintingMarkMatch {
   candidates: PrintingMarkCandidateDiagnostic[];
   skipped?: PrintingMarkSkipReason;
   scanAreas?: string;
+  languageCode?: PrintedLanguageCodeMatch;
 }
 
 export interface PrintingMarksPayload {
   gameKey: string;
   encoded: string;
+  printedLanguageCode: boolean | null;
 }

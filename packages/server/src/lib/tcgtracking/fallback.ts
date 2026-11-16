@@ -167,7 +167,7 @@ export function toTcgtrackingFallbackSyncCard(
   const data = toTcgtrackingFallbackData(entry, primarySet, config);
   return {
     id: tcgtrackingFallbackId(entry.product.id),
-    name: entry.product.name,
+    name: config.storedNameOf?.(entry.product.name) ?? entry.product.name,
     setCode: fallbackSetCode(entry.set, primarySet?.code),
     imageUrl: tcgtrackingCardImage(entry.product.id).normal,
     data: JSON.stringify(data),

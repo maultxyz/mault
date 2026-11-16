@@ -1,13 +1,15 @@
+import { usePriceSource } from "@/hooks/use-price-source";
 import { matchPercent } from "@/lib/utils";
 import {
+  cardSortableFields,
   DEFAULT_CARD_SORT,
   type FieldMeta,
   type ScannedCard,
   EMPTY_CARD_FILTERS,
   type CardFilters,
-  SORTABLE_FIELD_TYPES,
 } from "@magic-vault/shared";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export function applyCardFilters(
   cards: ScannedCard[],
@@ -84,6 +86,8 @@ export function useCardQueryState(
     setFilters: (filters: CardFilters) => void;
   },
 ) {
+  const { t } = useTranslation("cards");
+  const { source: priceSource } = usePriceSource();
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<string | null>(DEFAULT_CARD_SORT);
   const [internalFilters, setInternalFilters] =
@@ -92,17 +96,21 @@ export function useCardQueryState(
   const setFilters = external?.setFilters ?? setInternalFilters;
 
   const sortableFields = useMemo(
-    () => fieldDefinitions.filter((f) => SORTABLE_FIELD_TYPES.includes(f.type)),
-    [fieldDefinitions],
+    () =>
+      cardSortableFields(fieldDefinitions, priceSource, {
+        USD: t("cardToolbar.priceSort.usd"),
+        EUR: t("cardToolbar.priceSort.eur"),
+      }),
+    [fieldDefinitions, priceSource, t],
   );
 
   useEffect(() => {
     if (!sortKey || sortKey === DEFAULT_CARD_SORT) return;
     const { field } = splitSortKey(sortKey);
-    if (!fieldDefinitions.some((f) => f.field === field)) {
+    if (!sortableFields.some((f) => f.field === field)) {
       setSortKey(DEFAULT_CARD_SORT);
     }
-  }, [fieldDefinitions, sortKey]);
+  }, [sortableFields, sortKey]);
 
   const activeFilterCount =
     filters.colors.length +
