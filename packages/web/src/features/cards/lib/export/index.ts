@@ -1,3 +1,4 @@
+import { downloadBlob } from "@/lib/download";
 import {
   exportFilename,
   type CollectionCsvExportRequest,
@@ -11,15 +12,6 @@ export {
   supportsGame,
   type ExportAdapter,
 } from "@magic-vault/shared";
-
-function downloadBlob(blob: Blob, filename: string) {
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = filename;
-  a.click();
-  URL.revokeObjectURL(url);
-}
 
 function exportSlug(exportName: string): string {
   return exportName.replace(/\s+/g, "-").toLowerCase();

@@ -1,3 +1,8 @@
+import type {
+  FetchQueryOptions,
+  QueryKey,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import type { HotkeyId } from "@/lib/interfaces/hotkeys";
 import type {
   CardCondition,
@@ -748,3 +753,22 @@ export interface CardScanTimelineProps {
     block: ScanTimelineBlock<GroupedScannedCard>,
   ) => ReactNode;
 }
+
+export interface NavigableCardNeighbor {
+  scanId: string;
+  collectionGuid: string;
+}
+
+export interface NavigableCardContext {
+  card: { collectionGuid: string };
+  previous: NavigableCardNeighbor | null;
+  next: NavigableCardNeighbor | null;
+  total: number;
+  index: number;
+}
+
+export type CardContextQueryOptions<
+  TContext,
+  TKey extends QueryKey,
+> = UseQueryOptions<TContext | null, Error, TContext | null, TKey> &
+  FetchQueryOptions<TContext | null, Error, TContext | null, TKey>;

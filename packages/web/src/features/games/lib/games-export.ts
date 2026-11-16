@@ -1,3 +1,4 @@
+import { downloadBlob } from "@/lib/download";
 import { DEFAULT_OPERATORS_BY_FIELD_TYPE } from "@magic-vault/shared";
 import { GAMES_EXPORT_FORMAT_VERSION } from "@/lib/constants/games";
 import type { GamesImportPlan } from "@/lib/interfaces/games";
@@ -68,12 +69,5 @@ export function downloadGamesExport(data: GamesExport, fileSlug: string): void {
   const blob = new Blob([JSON.stringify(data, null, 2)], {
     type: "application/json",
   });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = `magic-vault-games-${fileSlug}.json`;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  URL.revokeObjectURL(url);
+  downloadBlob(blob, `magic-vault-games-${fileSlug}.json`);
 }

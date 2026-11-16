@@ -1,14 +1,13 @@
+import type { StorageLocationCardContext } from "@magic-vault/shared";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
-import {
-  fetchPrefetchQueryData,
-  loadCollectionPositionStep,
-  usePrefetchDetailCards,
-} from "@/features/cards/api/use-prefetch-detail-cards";
-import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
+import { useCardContextNavigation } from "@/features/cards/api/use-card-context-navigation";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { storageLocationCardContextQueryOptions } from "@/features/storage/api/storage-locations";
+import {
+  storageLocationCardContextQueryOptions,
+  storageLocationKeys,
+} from "@/features/storage/api/storage-locations";
 import {
   useMoveCardsToLocation,
   useRemoveCardFromLocation,
@@ -17,13 +16,11 @@ import {
 import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import { RemoveFromLocationDialog } from "@/features/storage/components/remove-from-location-dialog";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
-import { useReviewSession } from "@/hooks/use-review-session";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import type { StorageCardDetailProps } from "@/lib/interfaces/storage";
 import { toast } from "@/lib/toast";
 import { IconBoxOff, IconTransfer } from "@tabler/icons-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function StorageCardDetail({
@@ -44,29 +41,35 @@ export function StorageCardDetail({
   const { moveCards, isMoving } = useMoveCardsToLocation();
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
-  const queryClient = useQueryClient();
   const { collections } = useCollections();
   const navigationQuery = reviewMode ? ALL_CARDS_QUERY : cardsQuery;
-  const { data: context, isPending } = useQuery(
-    storageLocationCardContextQueryOptions(
-      location.guid,
-      scanId,
-      reviewMode,
-      navigationQuery,
-    ),
+  const contextQueryOptionsFor = useCallback(
+    (contextScanId: string) =>
+      storageLocationCardContextQueryOptions(
+        location.guid,
+        contextScanId,
+        reviewMode,
+        navigationQuery,
+      ),
+    [location.guid, reviewMode, navigationQuery],
   );
-
-  const stored = context?.card;
-  const previous = context?.previous;
-  const next = context?.next;
-  const total = context?.total ?? 0;
-  const reviewSession = useReviewSession(scanId, reviewMode);
-  const prevScanId = reviewMode
-    ? reviewSession.previousScanId
-    : (previous?.scanId ?? null);
-  const nextScanId = reviewMode
-    ? reviewSession.resolveNext(next?.scanId)
-    : (next?.scanId ?? null);
+  const {
+    context,
+    stored,
+    scanned,
+    total,
+    prevScanId,
+    nextScanId,
+    reviewSession,
+  } = useCardContextNavigation<
+    StorageLocationCardContext,
+    ReturnType<typeof storageLocationKeys.cardContext>
+  >(
+    contextQueryOptionsFor,
+    scanId,
+    reviewMode,
+    onClose,
+  );
   const entry = useMemo(
     () =>
       stored
@@ -78,71 +81,9 @@ export function StorageCardDetail({
         : null,
     [stored, location.guid, location.name],
   );
-
-  const { data: position, isPending: isPositionPending } = useQuery(
-    collectionCardPositionQueryOptions(
-      stored?.collectionGuid,
-      scanId,
-      ALL_CARDS_QUERY,
-    ),
-  );
-  const scanned = position?.entry.scanId === scanId ? position.entry : null;
   const actions = useStoredCardActions(entry);
   const collection =
     collections.find((c) => c.guid === stored?.collectionGuid) ?? null;
-  const isMissing =
-    (!isPending && !stored) || (!!stored && !isPositionPending && !scanned);
-
-  useEffect(() => {
-    if (isMissing) onClose();
-  }, [isMissing, onClose]);
-
-  useEffect(() => {
-    for (const neighbor of [next, previous]) {
-      if (!neighbor) continue;
-      void queryClient.prefetchQuery(
-        storageLocationCardContextQueryOptions(
-          location.guid,
-          neighbor.scanId,
-          reviewMode,
-          navigationQuery,
-        ),
-      );
-      void queryClient.prefetchQuery(
-        collectionCardPositionQueryOptions(
-          neighbor.collectionGuid,
-          neighbor.scanId,
-          ALL_CARDS_QUERY,
-        ),
-      );
-    }
-  }, [next, previous, location.guid, reviewMode, navigationQuery, queryClient]);
-
-  const loadPrefetchStep = useCallback(
-    async (nextScanId: string) => {
-      const nextContext = await fetchPrefetchQueryData(
-        queryClient,
-        storageLocationCardContextQueryOptions(
-          location.guid,
-          nextScanId,
-          reviewMode,
-          navigationQuery,
-        ),
-        reviewMode,
-      );
-      if (!nextContext) return null;
-      const step = await loadCollectionPositionStep(
-        queryClient,
-        nextContext.card.collectionGuid,
-        nextScanId,
-        ALL_CARDS_QUERY,
-        reviewMode,
-      );
-      return step && { ...step, nextScanId: nextContext.next?.scanId ?? null };
-    },
-    [queryClient, location.guid, reviewMode, navigationQuery],
-  );
-  usePrefetchDetailCards(nextScanId, true, loadPrefetchStep, reviewMode);
 
   if (!context || !stored || !scanned) return <CardDetailPanelSkeleton />;
 

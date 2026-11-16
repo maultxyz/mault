@@ -239,14 +239,8 @@ export interface FeederCalibrationPanelProps {
   onSpeedChange: (value: number) => void;
   onStopPulseChange: (value: number) => void;
   onResetStopPulse: () => void;
-  onDurationChange: (value: number) => void;
-  onPulseDurationChange: (value: number) => void;
-  onPauseDurationChange: (value: number) => void;
-  onSettleDurationChange: (value: number) => void;
   onReverseSpeedChange: (value: number) => void;
-  onReverseDurationChange: (value: number) => void;
-  onFeedRetryCountChange: (value: number) => void;
-  onSelectContinuous: () => void;
+  onFieldChange: (field: FeederTimingField, value: number) => void;
   fullWidth?: boolean;
 }
 
@@ -500,3 +494,11 @@ export type PendingConnectKind = "usb" | "bluetooth" | "cloud";
 export interface FetchSavedCalibrationOptions {
   bypassCache?: boolean;
 }
+
+export type FeederTimingField =
+  | "duration"
+  | "pulseDuration"
+  | "pauseDuration"
+  | "settleDuration"
+  | "reverseDuration"
+  | "feedRetryCount";

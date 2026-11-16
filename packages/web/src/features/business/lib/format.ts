@@ -1,3 +1,4 @@
+import { downloadBlob } from "@/lib/download";
 import i18n from "i18next";
 
 export function formatDateTime(iso: string | null | undefined): string {
@@ -28,10 +29,5 @@ export function downloadTextFile(
   contents: string,
   type = "text/csv;charset=utf-8;",
 ): void {
-  const url = URL.createObjectURL(new Blob([contents], { type }));
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
+  downloadBlob(new Blob([contents], { type }), filename);
 }

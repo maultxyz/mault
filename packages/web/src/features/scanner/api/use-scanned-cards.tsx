@@ -11,6 +11,7 @@ import {
   type PlayingCardWithDistance,
   type ScanVectorizeSource,
   type ScannedCard,
+  type GroupedScannedCard,
   type UnmatchedCard,
   type UnmatchedScanDetails,
   type AutoAssignTarget,
@@ -1629,53 +1630,63 @@ export function ScannedCardsProvider({
 
   const dismissBinCorrection = useCallback(() => setBinCorrection(null), []);
 
-  const confirmCard = useCallback(
-    (scanId: string) => {
+  const editCards = useCallback(
+    (
+      scanIds: string[],
+      applyEdit: (entry: GroupedScannedCard) => GroupedScannedCard,
+      sendEdit: (collectionGuid: string) => Promise<unknown>,
+      failure: { logMessage: string; notifiesUser: boolean },
+    ) => {
       const collection = activeCollectionRef.current;
       if (!collection) return;
       updateInCardPages(
         queryClient,
         collection.guid,
-        new Set([scanId]),
+        new Set(scanIds),
+        applyEdit,
+      );
+      sendEdit(collection.guid)
+        .catch((err) => {
+          console.error(failure.logMessage, err);
+          if (failure.notifiesUser) notifyEditFailed();
+        })
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient, notifyEditFailed],
+  );
+
+  const confirmCard = useCallback(
+    (scanId: string) =>
+      editCards(
+        [scanId],
         (entry) => ({
           ...entry,
           corrected: true,
           reviewed: true,
           lowConfidenceMatch: false,
         }),
-      );
-      confirmCollectionCard(collection.guid, scanId)
-        .catch((err) => console.error("Failed to confirm card:", err))
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
-    },
-    [queryClient],
+        (collectionGuid) => confirmCollectionCard(collectionGuid, scanId),
+        { logMessage: "Failed to confirm card:", notifiesUser: false },
+      ),
+    [editCards],
   );
 
   const markCardReviewed = useCallback(
-    (scanId: string) => {
-      const collection = activeCollectionRef.current;
-      if (!collection) return;
-      updateInCardPages(
-        queryClient,
-        collection.guid,
-        new Set([scanId]),
+    (scanId: string) =>
+      editCards(
+        [scanId],
         (entry) => ({ ...entry, reviewed: true, lowConfidenceMatch: false }),
-      );
-      markCollectionCardReviewed(collection.guid, scanId)
-        .catch((err) => console.error("Failed to mark card reviewed:", err))
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
-    },
-    [queryClient],
+        (collectionGuid) => markCollectionCardReviewed(collectionGuid, scanId),
+        { logMessage: "Failed to mark card reviewed:", notifiesUser: false },
+      ),
+    [editCards],
   );
 
   const setCardsFoilType = useCallback(
     (scanIds: string[], foilType: string | null) => {
       if (scanIds.length === 0) return;
-      const collection = activeCollectionRef.current;
       const isFoil = foilType != null;
       const scanIdSet = new Set(scanIds);
       binContentsRef.current = binContentsRef.current.map((entry) =>
@@ -1688,22 +1699,15 @@ export function ScannedCardsProvider({
             }
           : entry,
       );
-      if (!collection) return;
-      updateInCardPages(queryClient, collection.guid, scanIdSet, (entry) => ({
-        ...entry,
-        isFoil,
-        foilType: foilType ?? undefined,
-      }));
-      setCollectionCardsFoilType(collection.guid, scanIds, foilType)
-        .catch((err) => {
-          console.error("Failed to update foil status:", err);
-          notifyEditFailed();
-        })
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
+      editCards(
+        scanIds,
+        (entry) => ({ ...entry, isFoil, foilType: foilType ?? undefined }),
+        (collectionGuid) =>
+          setCollectionCardsFoilType(collectionGuid, scanIds, foilType),
+        { logMessage: "Failed to update foil status:", notifiesUser: true },
+      );
     },
-    [queryClient, notifyEditFailed],
+    [editCards],
   );
 
   const setCardFoilType = useCallback(
@@ -1714,24 +1718,16 @@ export function ScannedCardsProvider({
 
   const setCardsCondition = useCallback(
     (scanIds: string[], condition: CardCondition) => {
-      const collection = activeCollectionRef.current;
-      if (!collection || scanIds.length === 0) return;
-      updateInCardPages(
-        queryClient,
-        collection.guid,
-        new Set(scanIds),
+      if (scanIds.length === 0) return;
+      editCards(
+        scanIds,
         (entry) => ({ ...entry, condition }),
+        (collectionGuid) =>
+          setCollectionCardsCondition(collectionGuid, scanIds, condition),
+        { logMessage: "Failed to update condition:", notifiesUser: true },
       );
-      setCollectionCardsCondition(collection.guid, scanIds, condition)
-        .catch((err) => {
-          console.error("Failed to update condition:", err);
-          notifyEditFailed();
-        })
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
     },
-    [queryClient, notifyEditFailed],
+    [editCards],
   );
 
   const setCardCondition = useCallback(
@@ -1741,69 +1737,40 @@ export function ScannedCardsProvider({
   );
 
   const setCardStamp = useCallback(
-    (scanId: string, stamp: string | null) => {
-      const collection = activeCollectionRef.current;
-      if (!collection) return;
-      updateInCardPages(
-        queryClient,
-        collection.guid,
-        new Set([scanId]),
+    (scanId: string, stamp: string | null) =>
+      editCards(
+        [scanId],
         (entry) => ({ ...entry, stamp: stamp ?? undefined }),
-      );
-      setCollectionCardStamp(collection.guid, scanId, stamp)
-        .catch((err) => {
-          console.error("Failed to update stamp:", err);
-          notifyEditFailed();
-        })
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
-    },
-    [queryClient, notifyEditFailed],
+        (collectionGuid) => setCollectionCardStamp(collectionGuid, scanId, stamp),
+        { logMessage: "Failed to update stamp:", notifiesUser: true },
+      ),
+    [editCards],
   );
 
   const setCardLanguage = useCallback(
-    (scanId: string, language: string) => {
-      const collection = activeCollectionRef.current;
-      if (!collection) return;
-      updateInCardPages(
-        queryClient,
-        collection.guid,
-        new Set([scanId]),
+    (scanId: string, language: string) =>
+      editCards(
+        [scanId],
         (entry) => ({ ...entry, language }),
-      );
-      setCollectionCardLanguage(collection.guid, scanId, language)
-        .catch((err) => {
-          console.error("Failed to update language:", err);
-          notifyEditFailed();
-        })
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
-    },
-    [queryClient, notifyEditFailed],
+        (collectionGuid) =>
+          setCollectionCardLanguage(collectionGuid, scanId, language),
+        { logMessage: "Failed to update language:", notifiesUser: true },
+      ),
+    [editCards],
   );
 
   const setCardsTags = useCallback(
     (scanIds: string[], tags: CardTag[], enabled: boolean) => {
-      const collection = activeCollectionRef.current;
-      if (!collection || scanIds.length === 0 || tags.length === 0) return;
-      updateInCardPages(
-        queryClient,
-        collection.guid,
-        new Set(scanIds),
+      if (scanIds.length === 0 || tags.length === 0) return;
+      editCards(
+        scanIds,
         (entry) => withCardTags(entry, tags, enabled),
+        (collectionGuid) =>
+          setCollectionCardTags(collectionGuid, { scanIds, tags, enabled }),
+        { logMessage: "Failed to update card tags:", notifiesUser: true },
       );
-      setCollectionCardTags(collection.guid, { scanIds, tags, enabled })
-        .catch((err) => {
-          console.error("Failed to update card tags:", err);
-          notifyEditFailed();
-        })
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
     },
-    [queryClient, notifyEditFailed],
+    [editCards],
   );
 
   const resetSessionStats = useCallback(() => {

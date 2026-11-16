@@ -1,3 +1,4 @@
+import type { IntakeCardContext } from "@magic-vault/shared";
 import { DeleteDialog } from "@/components/delete-dialog";
 import {
   businessKeys,
@@ -5,24 +6,17 @@ import {
 } from "@/features/business/api/business";
 import { useIntakeCardActions } from "@/features/business/api/use-intake-card-actions";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
-import {
-  fetchPrefetchQueryData,
-  loadCollectionPositionStep,
-  usePrefetchDetailCards,
-} from "@/features/cards/api/use-prefetch-detail-cards";
+import { useCardContextNavigation } from "@/features/cards/api/use-card-context-navigation";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
-import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import { removeCollectionCard } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { invalidateCollectionCards } from "@/features/collections/lib/card-page-cache";
-import { useReviewSession } from "@/hooks/use-review-session";
-import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import type { IntakeCardDetailProps } from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
 import { IconX } from "@tabler/icons-react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function IntakeCardDetail({
@@ -38,76 +32,31 @@ export function IntakeCardDetail({
   const queryClient = useQueryClient();
   const { collections } = useCollections();
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
-  const { data: context, isPending } = useQuery(
-    intakeCardContextQueryOptions(lot.guid, scanId, reviewMode),
+  const contextQueryOptionsFor = useCallback(
+    (contextScanId: string) =>
+      intakeCardContextQueryOptions(lot.guid, contextScanId, reviewMode),
+    [lot.guid, reviewMode],
   );
-
-  const stored = context?.card ?? null;
-  const previous = context?.previous;
-  const next = context?.next;
-  const total = context?.total ?? 0;
-  const reviewSession = useReviewSession(scanId, reviewMode);
-  const prevScanId = reviewMode
-    ? reviewSession.previousScanId
-    : (previous?.scanId ?? null);
-  const nextScanId = reviewMode
-    ? reviewSession.resolveNext(next?.scanId)
-    : (next?.scanId ?? null);
-
-  const { data: position, isPending: isPositionPending } = useQuery(
-    collectionCardPositionQueryOptions(
-      stored?.collectionGuid,
-      scanId,
-      ALL_CARDS_QUERY,
-    ),
+  const {
+    context,
+    stored,
+    scanned,
+    total,
+    prevScanId,
+    nextScanId,
+    reviewSession,
+  } = useCardContextNavigation<
+    IntakeCardContext,
+    ReturnType<typeof businessKeys.intakeCard>
+  >(
+    contextQueryOptionsFor,
+    scanId,
+    reviewMode,
+    onClose,
   );
-  const scanned = position?.entry.scanId === scanId ? position.entry : null;
   const actions = useIntakeCardActions(stored);
   const collection =
     collections.find((c) => c.guid === stored?.collectionGuid) ?? null;
-  const isMissing =
-    (!isPending && !stored) || (!!stored && !isPositionPending && !scanned);
-
-  useEffect(() => {
-    if (isMissing) onClose();
-  }, [isMissing, onClose]);
-
-  useEffect(() => {
-    for (const neighbor of [next, previous]) {
-      if (!neighbor) continue;
-      void queryClient.prefetchQuery(
-        intakeCardContextQueryOptions(lot.guid, neighbor.scanId, reviewMode),
-      );
-      void queryClient.prefetchQuery(
-        collectionCardPositionQueryOptions(
-          neighbor.collectionGuid,
-          neighbor.scanId,
-          ALL_CARDS_QUERY,
-        ),
-      );
-    }
-  }, [next, previous, lot.guid, reviewMode, queryClient]);
-
-  const loadPrefetchStep = useCallback(
-    async (upcomingScanId: string) => {
-      const nextContext = await fetchPrefetchQueryData(
-        queryClient,
-        intakeCardContextQueryOptions(lot.guid, upcomingScanId, reviewMode),
-        reviewMode,
-      );
-      if (!nextContext) return null;
-      const step = await loadCollectionPositionStep(
-        queryClient,
-        nextContext.card.collectionGuid,
-        upcomingScanId,
-        ALL_CARDS_QUERY,
-        reviewMode,
-      );
-      return step && { ...step, nextScanId: nextContext.next?.scanId ?? null };
-    },
-    [queryClient, lot.guid, reviewMode],
-  );
-  usePrefetchDetailCards(nextScanId, true, loadPrefetchStep, reviewMode);
 
   if (!context || !stored || !scanned) return <CardDetailPanelSkeleton />;
 

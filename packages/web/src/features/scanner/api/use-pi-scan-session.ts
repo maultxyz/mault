@@ -1,3 +1,4 @@
+import { delay } from "@/lib/delay";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
@@ -26,10 +27,6 @@ import { toast } from "@/lib/toast";
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { PI_CAMERA_HEALTH_RETRY_MS } from "@/lib/constants/scanner";
-
-function sleep(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
 
 export function usePiScanSession(getAllowDuplicates?: () => boolean) {
   const { t } = useTranslation("scanner");
@@ -84,7 +81,7 @@ export function usePiScanSession(getAllowDuplicates?: () => boolean) {
         allowDuplicates: getAllowDuplicates?.(),
       });
       if (!result.success && result.code === "busy") {
-        await sleep(400);
+        await delay(400);
         result = await startPiScanSession({
           collectionGuid,
           condition: scanCondition,
