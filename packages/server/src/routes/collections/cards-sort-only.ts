@@ -14,16 +14,14 @@ import {
   getScansToday,
 } from "../../lib/scan-usage";
 import {
-  sorterLimitForPlan,
-  sorterLimitMessage,
-} from "../../lib/sorter-limit";
-import {
   rejectWhileImpersonating,
   requireAuth,
   requireOrg,
   type AppEnv,
 } from "../../middleware/auth";
 import { loadOrgPlan } from "./scan-limit";
+import { sorterLimitMessage } from "../../lib/plan-limit-messages";
+import { connectedSorterLimitForPlan } from "../../lib/plan-config";
 
 export const sortOnlyScanRoute = new Hono<AppEnv>().post(
   "/:guid/cards/sorted",
@@ -54,7 +52,7 @@ export const sortOnlyScanRoute = new Hono<AppEnv>().post(
       ) {
         return scanLimitReached;
       }
-      const sorterLimit = sorterLimitForPlan(plan);
+      const sorterLimit = connectedSorterLimitForPlan(plan);
       if (
         !acquireDeviceLease(
           orgId,

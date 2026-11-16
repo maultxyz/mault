@@ -3,12 +3,10 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { binSets } from "../../db/schema";
-import {
-  isRepackAllowed,
-  REPACK_UPGRADE_MESSAGE,
-} from "../../lib/repack-access";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { clearAllBinRules, loadSets, snapshotBinSet } from "./shared";
+import { REPACK_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
+import { orgHasFeature } from "../../lib/plan-config";
 
 function toSiftRules(rules: BinRuleGroup | null): BinRuleGroup | null {
   return rules && rules.conditions.length > 0 ? rules : null;
@@ -49,7 +47,7 @@ export const setRepackRoute = new Hono<AppEnv>().put(
       if (
         isRepackMode &&
         !target.isRepackMode &&
-        !(await isRepackAllowed(tx, orgId))
+        !(await orgHasFeature(tx, orgId, "repacks"))
       ) {
         return {
           success: false,

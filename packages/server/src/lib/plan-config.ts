@@ -258,6 +258,21 @@ export async function loadPlanForOrg(
   return billing?.plan ?? "free";
 }
 
+export async function orgPlanLimit(
+  tx: Transaction,
+  orgId: string,
+  limit: PlanLimitKey,
+): Promise<number | null> {
+  return planLimit(await loadPlanForOrg(tx, orgId), limit);
+}
+
+export async function orgConnectedSorterLimit(
+  tx: Transaction,
+  orgId: string,
+): Promise<number> {
+  return connectedSorterLimitForPlan(await loadPlanForOrg(tx, orgId));
+}
+
 export async function orgHasFeature(
   tx: Transaction,
   orgId: string,

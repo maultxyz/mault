@@ -11,14 +11,12 @@ import {
   loadBinEmptiedTimes,
   markBinsEmptied,
 } from "../../lib/bin-emptying";
-import {
-  isStorageAllowed,
-  STORAGE_UPGRADE_MESSAGE,
-} from "../../lib/storage-access";
 import { assignBinToLocation } from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { resolveGameId, activeBinSetWhere } from "./shared";
+import { orgHasFeature } from "../../lib/plan-config";
+import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
 
 export const emptyBinRoute = new Hono<AppEnv>().post(
   "/bins/:binNumber/empty",
@@ -51,7 +49,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
 
       let storedScanIds: string[] = [];
       if (locationGuid && collectionGuid) {
-        if (!(await isStorageAllowed(tx, orgId))) {
+        if (!(await orgHasFeature(tx, orgId, "storage"))) {
           return {
             message: STORAGE_UPGRADE_MESSAGE,
             success: false,

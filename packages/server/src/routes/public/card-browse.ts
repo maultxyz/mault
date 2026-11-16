@@ -3,7 +3,6 @@ import { Hono, type Context } from "hono";
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { orgSettings } from "../../db/schema";
-import { isBusinessToolsAllowed } from "../../lib/business-access";
 import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
 import { PUBLIC_CARD_NOT_FOUND_MESSAGE } from "../../lib/constants/public-cards";
 import type { PublicCardBrowseRouteOptions } from "../../lib/interfaces/public-cards";
@@ -19,6 +18,7 @@ import {
 import { loadShopPhotoRow, resolveShopPhotoUrl } from "../../lib/shop-photo";
 import type { AppEnv } from "../../middleware/auth";
 import { isUuid } from "../collections/cards-query";
+import { orgHasFeature } from "../../lib/plan-config";
 
 export function createPublicCardBrowseRoute({
   resolveScope,
@@ -47,7 +47,7 @@ export function createPublicCardBrowseRoute({
         db.transaction(async (tx) => {
           const pricing = await loadOrgPricing(tx, scope.orgId);
           const { cardCount, games } = await loadPublicCardGames(tx, scope);
-          const shopPhotoUrl = (await isBusinessToolsAllowed(tx, scope.orgId))
+          const shopPhotoUrl = (await orgHasFeature(tx, scope.orgId, "businessTools"))
             ? await resolveShopPhotoUrl(await loadShopPhotoRow(tx, scope.orgId))
             : null;
           const [settings] = await tx

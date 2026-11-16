@@ -17,16 +17,14 @@ import {
 } from "../../db/schema";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import { emitCollectionCardsChanged, emitToSession } from "../../lib/session-stream";
-import {
-  isStorageAllowed,
-  STORAGE_UPGRADE_MESSAGE,
-} from "../../lib/storage-access";
 import { moveCardsToLocation } from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { findLocationId } from "../storage-locations/shared";
 import { toScannedCard } from "./shared";
 import { toSavedCardSnapshots } from "../../lib/saved-cards";
+import { orgHasFeature } from "../../lib/plan-config";
+import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
 
 export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards/manual",
@@ -72,7 +70,7 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
 
       let locationId: number | null = null;
       if (locationGuid) {
-        if (!(await isStorageAllowed(tx, orgId))) {
+        if (!(await orgHasFeature(tx, orgId, "storage"))) {
           return {
             status: 402 as const,
             message: STORAGE_UPGRADE_MESSAGE,

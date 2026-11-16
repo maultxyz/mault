@@ -5,10 +5,6 @@ import { authQuery } from "../../db";
 import { storageLocations } from "../../db/schema";
 import { markBinsEmptied } from "../../lib/bin-emptying";
 import { UUID_PATTERN } from "../../lib/constants/validation";
-import {
-  isStorageAllowed,
-  STORAGE_UPGRADE_MESSAGE,
-} from "../../lib/storage-access";
 import { assignBinToLocation } from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -19,6 +15,8 @@ import {
   resolveGameId,
   snapshotBinSet,
 } from "./shared";
+import { orgHasFeature } from "../../lib/plan-config";
+import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
 
 export const emptyAllBinsRoute = new Hono<AppEnv>().post(
   "/bins/empty-all",
@@ -88,7 +86,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
 
       const stored = new Map<string, string[]>();
       if (locations.length > 0) {
-        if (!(await isStorageAllowed(tx, orgId))) {
+        if (!(await orgHasFeature(tx, orgId, "storage"))) {
           return {
             message: STORAGE_UPGRADE_MESSAGE,
             success: false,

@@ -34,10 +34,6 @@ import {
   games,
   storageLocations,
 } from "../../db/schema";
-import {
-  isStorageAllowed,
-  STORAGE_UPGRADE_MESSAGE,
-} from "../../lib/storage-access";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import { parsePageParams, resolvePageWindow } from "../../lib/paging";
 import {
@@ -80,6 +76,8 @@ import {
   toStoredCards,
   visibleAcquisitionCost,
 } from "./shared";
+import { orgHasFeature } from "../../lib/plan-config";
+import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
 
 function parseStoredCardsQuery(params: Record<string, string | undefined>) {
   return {
@@ -173,7 +171,7 @@ const router = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid cards." }, 400);
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      if (!(await isStorageAllowed(tx, orgId))) {
+      if (!(await orgHasFeature(tx, orgId, "storage"))) {
         return {
           success: false,
           message: STORAGE_UPGRADE_MESSAGE,
@@ -209,7 +207,7 @@ const router = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid name." }, 400);
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      if (!(await isStorageAllowed(tx, orgId))) {
+      if (!(await orgHasFeature(tx, orgId, "storage"))) {
         return {
           success: false,
           message: STORAGE_UPGRADE_MESSAGE,
@@ -249,7 +247,7 @@ const router = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid name." }, 400);
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      if (!(await isStorageAllowed(tx, orgId))) {
+      if (!(await orgHasFeature(tx, orgId, "storage"))) {
         return {
           success: false,
           message: STORAGE_UPGRADE_MESSAGE,
@@ -281,7 +279,7 @@ const router = new Hono<AppEnv>()
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      if (!(await isStorageAllowed(tx, orgId))) {
+      if (!(await orgHasFeature(tx, orgId, "storage"))) {
         return {
           success: false,
           message: STORAGE_UPGRADE_MESSAGE,
@@ -643,7 +641,7 @@ const router = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid request." }, 400);
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      if (!(await isStorageAllowed(tx, orgId))) {
+      if (!(await orgHasFeature(tx, orgId, "storage"))) {
         return {
           success: false,
           message: STORAGE_UPGRADE_MESSAGE,
@@ -706,7 +704,7 @@ const router = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid cards." }, 400);
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      if (!(await isStorageAllowed(tx, orgId))) {
+      if (!(await orgHasFeature(tx, orgId, "storage"))) {
         return {
           success: false,
           message: STORAGE_UPGRADE_MESSAGE,
@@ -748,7 +746,7 @@ const router = new Hono<AppEnv>()
     const guid = c.req.param("guid");
     const scanId = c.req.param("scanId");
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      if (!(await isStorageAllowed(tx, orgId))) {
+      if (!(await orgHasFeature(tx, orgId, "storage"))) {
         return {
           success: false,
           message: STORAGE_UPGRADE_MESSAGE,

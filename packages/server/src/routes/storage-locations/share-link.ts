@@ -14,15 +14,13 @@ import {
   shareLinkExpiresInMinutes,
 } from "../../lib/share-link-policy";
 import { isShareTokenConfigured } from "../../lib/share-tokens";
-import {
-  isStorageAllowed,
-  STORAGE_UPGRADE_MESSAGE,
-} from "../../lib/storage-access";
 import { forgetSharedStorageReads } from "../../lib/shared-storage-reads-cache";
 import { issueShareLink, revokeShareLinksForSubject } from "../../lib/share-links";
 import { forgetVerifiedStorageShareLinks } from "../../lib/storage-share-links";
 import type { ShareLinkRequestBody } from "../../lib/interfaces/share-tokens";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { orgHasFeature } from "../../lib/plan-config";
+import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
 
 export const storageShareLinkRoute = new Hono<AppEnv>()
   .post("/:guid/share-link", requireAuth, requireOrg, async (c) => {
@@ -53,7 +51,7 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid link type." }, 400);
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      if (!(await isStorageAllowed(tx, orgId))) {
+      if (!(await orgHasFeature(tx, orgId, "storage"))) {
         return {
           success: false,
           message: STORAGE_UPGRADE_MESSAGE,

@@ -4,14 +4,12 @@ import { Hono } from "hono";
 import { randomUUID } from "node:crypto";
 import { authQuery } from "../../db";
 import { soundClips } from "../../db/schema";
-import {
-  CUSTOM_SOUNDS_UPGRADE_MESSAGE,
-  isCustomSoundsAllowed,
-} from "../../lib/custom-sounds-access";
 import { deleteObjects } from "../../lib/object-storage";
 import { storeSoundClip } from "../../lib/sound-clips";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { parseSoundClipUpload, parseWaveform, toSoundClip } from "./shared";
+import { orgHasFeature } from "../../lib/plan-config";
+import { CUSTOM_SOUNDS_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
 
 export const uploadSoundClipRoute = new Hono<AppEnv>().post(
   "/clips",
@@ -27,7 +25,7 @@ export const uploadSoundClipRoute = new Hono<AppEnv>().post(
     const { file, contentType, name } = upload;
 
     const allowed = await authQuery(c.get("jwtClaims"), (tx) =>
-      isCustomSoundsAllowed(tx, orgId),
+      orgHasFeature(tx, orgId, "customSounds"),
     );
     if (!allowed) {
       return c.json({

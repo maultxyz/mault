@@ -10,19 +10,8 @@ import { eq } from "drizzle-orm";
 import type { db, Transaction } from "../db";
 import { orgSettings } from "../db/schema";
 import { BUSINESS_MANAGER_ROLES } from "./constants/business";
-import { orgHasFeature, planHasFeature } from "./plan-config";
+import { orgHasFeature } from "./plan-config";
 import { loadOrgPricing } from "./price-source";
-
-export function businessToolsAllowedForPlan(plan: string | undefined): boolean {
-  return planHasFeature(plan, "businessTools");
-}
-
-export function isBusinessToolsAllowed(
-  tx: Transaction,
-  orgId: string,
-): Promise<boolean> {
-  return orgHasFeature(tx, orgId, "businessTools");
-}
 
 export function isBusinessManager(role: OrgRole): boolean {
   return BUSINESS_MANAGER_ROLES.includes(role);
@@ -48,7 +37,7 @@ export async function loadBusinessAccess(
   role: OrgRole,
 ): Promise<BusinessAccess> {
   const settings = await loadBusinessSettings(tx, orgId);
-  const allowed = await isBusinessToolsAllowed(tx, orgId);
+  const allowed = await orgHasFeature(tx, orgId, "businessTools");
   const pricing = await loadOrgPricing(tx, orgId);
   const manager = isBusinessManager(role);
   const can = (key: BusinessPermissionKey) =>
