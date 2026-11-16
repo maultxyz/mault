@@ -1,3 +1,4 @@
+import type { ScanLockInfo } from "@magic-vault/shared";
 import type { CollectionChangeSummary, LibraryValueMode } from "@/lib/interfaces/library";
 import type {
   CreateCollectionFormValues,
@@ -9,11 +10,7 @@ import type {
 } from "@magic-vault/shared";
 import type { ReactElement } from "react";
 
-export interface ScanLockInfo {
-  userId: string;
-  displayName: string;
-  expiresAt: number;
-}
+export type { ScanLockInfo };
 
 export interface SessionViewer {
   userId: string;

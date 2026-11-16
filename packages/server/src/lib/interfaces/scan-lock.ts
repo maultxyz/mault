@@ -1,8 +1,6 @@
-export interface ScanLock {
-  userId: string;
-  displayName: string;
-  expiresAt: number;
-}
+import type { ScanLockInfo } from "@magic-vault/shared";
+
+export type ScanLock = ScanLockInfo;
 
 export interface AcquireLockResult {
   ok: boolean;

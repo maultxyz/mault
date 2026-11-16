@@ -1,11 +1,7 @@
 import type { CatalogGame, PlayingCard } from "@magic-vault/shared";
 import type { ComponentType, ReactNode } from "react";
 
-export interface CatalogCardResult {
-  game: CatalogGame;
-  card: PlayingCard;
-  printingCount: number;
-}
+export type { CatalogCardResult } from "@magic-vault/shared";
 
 export interface CardPrintingsGridProps {
   game: CatalogGame | null;
@@ -20,10 +16,7 @@ export interface CardPrintingTileProps {
   onSelect: (printing: PlayingCard) => void;
 }
 
-export interface AddCatalogCardInput {
-  collectionGuid: string;
-  card: PlayingCard;
-}
+export type { AddCatalogCardInput } from "@magic-vault/shared";
 
 export interface SearchResultSectionProps {
   title: string;

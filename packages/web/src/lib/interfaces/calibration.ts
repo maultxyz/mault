@@ -315,25 +315,7 @@ export interface CalibrationConflictDialogProps {
   onChoose: (source: CalibrationSource) => void;
 }
 
-export interface Device {
-  guid: string;
-  name: string;
-  hardwareId: string | null;
-  scanRegion: ScanRegion;
-  captureSettleDelayMs: number;
-  matchesNeeded: number;
-  feederStopPulse: number | null;
-  checkBothOrientations: boolean;
-  flipCamera: boolean;
-  moduleCount: number;
-  channelLayout: ChannelLayout;
-  setupCompletedAt: string | null;
-  pipelinedFeed: boolean;
-  autoConnect: boolean;
-  testOnConnect: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+export type { Device } from "@magic-vault/shared";
 
 export interface CalibrationDebugParams {
   channelLayout: ChannelLayout;

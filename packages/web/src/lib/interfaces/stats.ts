@@ -8,7 +8,6 @@ import type {
   STATS_VIEWS,
 } from "@/lib/constants/stats";
 import type {
-  LeaderboardEntry,
   OrgOverviewCard,
   StatsCollectionRow,
   StatsReport,
@@ -153,10 +152,7 @@ export interface StatsControlsProps {
   onRangeChange: (range: StatsReport["range"]) => void;
 }
 
-export interface LeaderboardRow {
-  key: string;
-  entry: LeaderboardEntry;
-}
+export type { LeaderboardRow } from "@magic-vault/shared";
 
 export interface StatsLeaderboardButtonProps {
   iconOnly?: boolean;

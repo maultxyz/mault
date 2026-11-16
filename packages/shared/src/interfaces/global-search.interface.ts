@@ -22,3 +22,14 @@ export interface CardPrintingsPage {
   totalCount: number;
   nextOffset: number | null;
 }
+
+export interface CatalogCardResult {
+  game: CatalogGame;
+  card: PlayingCard;
+  printingCount: number;
+}
+
+export interface AddCatalogCardInput {
+  collectionGuid: string;
+  card: PlayingCard;
+}

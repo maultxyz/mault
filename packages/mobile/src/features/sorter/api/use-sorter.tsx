@@ -57,7 +57,7 @@ import {
   CLOUD_SORTER_ID_PREFIX,
 } from "@/lib/constants/sorter";
 import { LAST_SORTER_ID_KEY, SORTER_AUTO_CONNECT_KEY } from "@/lib/constants/storage-keys";
-import type { Device } from "@/lib/interfaces/devices";
+import type { Device } from "@magic-vault/shared";
 import type {
   ByteTransport,
   CloudOpenResult,

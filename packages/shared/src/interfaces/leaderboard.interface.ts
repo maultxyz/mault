@@ -11,3 +11,8 @@ export interface Leaderboard {
   ownEntry: LeaderboardEntry;
   optedIn: boolean;
 }
+
+export interface LeaderboardRow {
+  key: string;
+  entry: LeaderboardEntry;
+}

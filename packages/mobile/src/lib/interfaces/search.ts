@@ -19,11 +19,7 @@ export interface GlobalSearchLocalResults {
   settingsSections: SettingsSectionLink[];
 }
 
-export interface CatalogCardResult {
-  game: CatalogGame;
-  card: PlayingCard;
-  printingCount: number;
-}
+export type { CatalogCardResult } from "@magic-vault/shared";
 
 export interface CardPrintingsGridProps {
   game: CatalogGame | null;

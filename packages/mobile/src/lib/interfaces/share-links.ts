@@ -1,5 +1,6 @@
+import type { ShareLinkKind } from "@magic-vault/shared";
 import type { OrgShareLink } from "@magic-vault/shared";
-export type ShareLinkKind = "collection" | "storage";
+export type { ShareLinkKind };
 
 
 export interface ShareLinkQrProps {

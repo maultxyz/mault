@@ -241,7 +241,4 @@ export interface ScanDraftSave {
   dirtyFields: Partial<Record<keyof ScanDraftFormValues, boolean>>;
 }
 
-export interface AddCatalogCardInput {
-  collectionGuid: string;
-  card: PlayingCard;
-}
+export type { AddCatalogCardInput } from "@magic-vault/shared";

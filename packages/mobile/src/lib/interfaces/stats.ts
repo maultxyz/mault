@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import type {
   CardStatsAggregate,
-  LeaderboardEntry,
   OrgOverviewCard,
   StatsCollectionRow,
   StatsReport,
@@ -122,10 +121,7 @@ export interface StatsLeaderboardSheetProps {
   onClose: () => void;
 }
 
-export interface LeaderboardRow {
-  key: string;
-  entry: LeaderboardEntry;
-}
+export type { LeaderboardRow } from "@magic-vault/shared";
 
 export interface StatsTextLineSkeletonProps {
   width: number | `${number}%`;
