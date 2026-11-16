@@ -49,3 +49,9 @@ export type ScanRoutingDecision =
       pickListMatch: PickListMatch | null;
       autoAssignTarget: AutoAssignTarget | null;
     };
+
+export interface CorrectedScanBinTarget {
+  bin: BinConfig | undefined;
+  pickListName?: string;
+  autoAssignTarget: AutoAssignTarget | null;
+}

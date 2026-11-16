@@ -15,19 +15,17 @@ import {
   type UnmatchedScanDetails,
   type AutoAssignTarget,
   type ScanRoutingContext,
+  type CorrectedScanBinTarget,
+  resolveCorrectedScanBin,
+  releasedPickListNameAfterCorrection,
   applyAutoAssignTarget,
-  findAutoAssignTarget,
-  evaluatePickListBin,
   routeForBin,
   applyPickListFound,
   isPickListComplete,
   isPickListBin,
-  findPickListEntry,
   reservePickListBins,
-  findLowMatchCatchAll,
   isFirmwareFeatureSupported,
   isRulesMode,
-  matchScanBin,
   prepareMatchedScanPlan,
   prepareUnmatchedScanPlan,
   scanCompletionPauseReason,
@@ -103,7 +101,6 @@ import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast"
 import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
 import type {
   BinCorrection,
-  CorrectedBinTarget,
   LastRoutedBin,
   MoveCardsToCollectionInput,
   PendingBinCard,
@@ -312,7 +309,6 @@ export function ScannedCardsProvider({
   );
   const binRoutesRef = useRef(binRoutes);
   const fieldDefinitionsRef = useRef(fieldDefinitions);
-  const autoAssignFieldRef = useRef(selectedSet?.autoAssignField ?? null);
   const selectedSetRef = useRef(selectedSet);
   const binContentsRef = useRef<BinContentCard[]>([]);
   const [ignoreIrSensors] = useIgnoreIrSensors();
@@ -444,10 +440,6 @@ export function ScannedCardsProvider({
   }, [fieldDefinitions]);
 
   useEffect(() => {
-    autoAssignFieldRef.current = selectedSet?.autoAssignField ?? null;
-  }, [selectedSet?.autoAssignField]);
-
-  useEffect(() => {
     selectedSetRef.current = selectedSet;
   }, [selectedSet]);
 
@@ -516,15 +508,6 @@ export function ScannedCardsProvider({
     [saveBinConfig],
   );
 
-  const resolvePickListMatch = useCallback(
-    (card: PlayingCardWithDistance) =>
-      !isRulesMode(selectedSetRef.current) ||
-      findLowMatchCatchAll(card, rawBinConfigsRef.current)
-        ? null
-        : evaluatePickListBin(card.name, rawBinConfigsRef.current),
-    [],
-  );
-
   const markPickListFound = useCallback(
     (binNumber: number, name: string, delta: number, persist = true) => {
       const bin = rawBinConfigsRef.current.find(
@@ -549,67 +532,20 @@ export function ScannedCardsProvider({
     [toast, queryClient, t],
   );
 
-  const pickListNameInBin = useCallback(
-    (cardName: string | undefined, binNumber: number | undefined) => {
-      if (!cardName || binNumber == null) return undefined;
-      const bin = rawBinConfigsRef.current.find(
-        (c) => c.binNumber === binNumber && isPickListBin(c),
-      );
-      return bin?.pickList
-        ? findPickListEntry(cardName, bin.pickList)?.name
-        : undefined;
-    },
-    [],
-  );
-
-  const resolveCorrectedRuleBin = useCallback(
-    (
-      ruleCard: PlayingCardWithDistance,
-      currentBinNumber: number | undefined,
-    ): BinConfig | undefined => {
-      const configs = binConfigsRef.current;
-      if (selectedSetRef.current?.isChaosMode) {
-        const currentBin = configs.find(
-          (bin) => bin.binNumber === currentBinNumber,
-        );
-        if (currentBin && !currentBin.isCatchAll && !currentBin.isDisabled) {
-          return currentBin;
-        }
-      }
-      const autoTarget = selectedSetRef.current?.isRepackMode
-        ? null
-        : findAutoAssignTarget(
-            ruleCard,
-            configs,
-            fieldDefinitionsRef.current,
-            autoAssignFieldRef.current,
-            () => crypto.randomUUID(),
-          );
-      if (!autoTarget) {
-        return matchScanBin(ruleCard, {
-          ...scanRoutingContext(),
-          configs: rawBinConfigsRef.current,
-        });
-      }
-      return applyAutoAssign(autoTarget);
-    },
-    [scanRoutingContext, applyAutoAssign],
-  );
-
   const resolveCorrectedBin = useCallback(
     (
       ruleCard: PlayingCardWithDistance,
       currentBinNumber: number | undefined,
-    ): CorrectedBinTarget => {
-      const pickMatch = resolvePickListMatch(ruleCard);
-      if (pickMatch) {
-        return pickMatch.bin.binNumber === currentBinNumber
-          ? { bin: pickMatch.bin }
-          : { bin: pickMatch.bin, pickListName: pickMatch.entry.name };
-      }
-      return { bin: resolveCorrectedRuleBin(ruleCard, currentBinNumber) };
+    ): CorrectedScanBinTarget => {
+      const target = resolveCorrectedScanBin(ruleCard, currentBinNumber, {
+        ...scanRoutingContext(),
+        configs: rawBinConfigsRef.current,
+      });
+      return target.autoAssignTarget
+        ? { ...target, bin: applyAutoAssign(target.autoAssignTarget) }
+        : target;
     },
-    [resolvePickListMatch, resolveCorrectedRuleBin],
+    [scanRoutingContext, applyAutoAssign],
   );
 
   const pauseForCompletePacks = useCallback(() => {
@@ -1602,10 +1538,6 @@ export function ScannedCardsProvider({
       );
       if (correctionBinPromptRef.current) {
         const target = resolveCorrectedBin(ruleCard, currentBin);
-        const releasedPickListName = pickListNameInBin(
-          scan?.card.name,
-          currentBin,
-        );
         setBinCorrection({
           id: generateScanId(),
           scanId,
@@ -1613,11 +1545,12 @@ export function ScannedCardsProvider({
           currentBin,
           targetBin: target.bin?.binNumber,
           pickListName: target.pickListName,
-          releasedPickListName:
-            target.bin?.binNumber !== currentBin &&
-            releasedPickListName !== target.pickListName
-              ? releasedPickListName
-              : undefined,
+          releasedPickListName: releasedPickListNameAfterCorrection(
+            scan?.card.name,
+            currentBin,
+            target,
+            rawBinConfigsRef.current,
+          ),
         });
       }
       if (!collection) return;
@@ -1642,7 +1575,7 @@ export function ScannedCardsProvider({
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
     },
-    [resolveCorrectedBin, pickListNameInBin, queryClient, notifyEditFailed],
+    [resolveCorrectedBin, queryClient, notifyEditFailed],
   );
 
   const moveCorrectedCard = useCallback(

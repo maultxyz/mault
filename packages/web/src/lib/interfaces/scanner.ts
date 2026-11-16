@@ -979,11 +979,6 @@ export interface BinCorrection {
   addedCard?: ScannedCard;
 }
 
-export interface CorrectedBinTarget {
-  bin?: BinConfig;
-  pickListName?: string;
-}
-
 export interface BinCorrectionDialogProps {
   correction: BinCorrection | null;
   onMoved: (correction: BinCorrection) => void;
