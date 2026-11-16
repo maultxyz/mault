@@ -32,7 +32,11 @@ import type {
 export function useBatchScan(initialMode: BatchScanMode) {
   const orgId = useActiveOrgId();
   const { collection } = useScanTarget();
-  const { storageLocation, storageLocationGuid } = useScanDestination();
+  const scanDestination = useScanDestination();
+  const storageLocationGuid =
+    scanDestination.destination.kind === "storage"
+      ? (scanDestination.destination.storageLocationGuid ?? undefined)
+      : undefined;
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
   const { saveCard, saveUnmatched } = usePendingSaves();
   const [photo, setPhoto] = useState<BatchScanPhotoInfo | null>(null);
@@ -198,7 +202,8 @@ export function useBatchScan(initialMode: BatchScanMode) {
 
   return {
     collection,
-    storageLocation: storageLocationGuid ? storageLocation : null,
+    scanDestination,
+    storageLocation: storageLocationGuid ? scanDestination.storageLocation : null,
     photo,
     cards,
     progress,
