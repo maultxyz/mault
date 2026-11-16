@@ -68,13 +68,13 @@
       "bare": "Blanke Platine",
       "modules_one": "{{count}} Modul",
       "modules_other": "{{count}} Module"
-    }
+    },
+    "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken."
   },
   "bom": {
     "heading": "Stückliste",
     "description": "Die Mengen richten sich nach der Anzahl der Module, die du baust – {{modules}} Module × 3 Servos, 1 Zuführung, {{irSensors}} IR-Sensoren, {{channelsUsed}} der 16 Kanäle des PCA9685 in Gebrauch. Die restlichen Kanäle stehen für zusätzliche Sortiermodule zur Verfügung (bis zu 5 Module an einem einzelnen PCA9685). Hake jedes Teil ab, sobald du es besorgt hast – die Häkchen werden in diesem Browser gespeichert.",
     "affiliateDisclaimer": "Einige „Kaufen“-Links sind Amazon-Affiliate-Links – wir erhalten möglicherweise eine kleine Provision auf qualifizierte Käufe, ohne Mehrkosten für dich.",
-    "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken.",
     "partsListLabel": "Vollständige Teileliste",
     "kitPowerSupplyNote": "Kits enthalten kein Netzteil. Du brauchst ein eigenes geregeltes 6V-Netzteil mit mindestens 3A für die Servos.",
     "kitCollapsedNote": "Du baust mit einem Bausatz, deshalb ist die Teileliste eingeklappt. Öffne sie, wenn du ein Teil nachsehen möchtest.",
@@ -110,7 +110,7 @@
           "sg90Positional": {
             "part": "SG90 Mikroservo, positionierend (180°)",
             "notes": "3 pro Modul × {{count}} Module – Bodenklappe, Paddeltor, Schieber",
-            "alert": "Kaufe digitale SG90. Analoge SG90 und besonders Servos von Tower Pro halten ihre kalibrierten Positionen in diesem Sortierer nicht zuverlässig."
+            "alert": "Meide SG90 von Tower Pro. Sie halten ihre kalibrierten Positionen in diesem Sortierer nicht zuverlässig."
           },
           "mg90sContinuous": {
             "part": "MG90S-Servo, 360° Dauerdrehung",
@@ -264,6 +264,10 @@
           "feederBearings": {
             "part": "Kugellager",
             "notes": "Für die Variante des Einzugssockels mit Lager, damit sich die Rolle leichter dreht"
+          },
+          "neodymiumMagnets": {
+            "part": "Neodym-Magnete (5×2 mm)",
+            "notes": "Scheibenmagnete, 5 mm Durchmesser und 2 mm dick"
           }
         }
       }
@@ -406,7 +410,7 @@
           },
           "printModulePins": {
             "text": "Drucke {{count}} Module Pins für {{modules}} Sortiermodule: {{top}} für die Oberseiten und {{front}} für die Vorderseiten der Base-Support-Teile. Jedes Base-Support-Teil braucht 4 Pins oben, und jede Höheneinheit 2 vorne, außer der obersten Einheit jeder Säule. Die Pins verbinden die Base-Support-Teile miteinander und halten die Sortiermodule auf dem Sockel. Ändere die Modulanzahl in der Einrichtung oben, um dies zu aktualisieren.",
-            "note": "Stecke die Base-Support-Teile und Sortiermodule zuerst mit den Pins trocken zusammen. Wenn alles passt, klebe jeden Pin mit Sekundenkleber fest."
+            "glueAlert": "Klebe die Pins in die Stützen. Stecke die Base-Support-Teile und Sortiermodule zuerst mit den Pins trocken zusammen. Wenn alles passt, klebe jeden Pin mit Sekundenkleber fest."
           },
           "dryFit": {
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."

@@ -876,7 +876,11 @@
       "sortChip": "Sorting with rules",
       "storageChip": "Into {{name}} · no sorting",
       "noLocationChip": "No storage location · no sorting",
-      "collectionAndLocation": "{{collection}} · {{location}}"
+      "collectionAndLocation": "{{collection}} · {{location}}",
+      "batchDescription": "Cards you add from the photo go straight into the storage location you pick.",
+      "batchDescriptionNoLocations": "You have no storage locations yet. Add one under Library > Storage, or add cards to the collection only.",
+      "batchDescriptionLocked": "Storage locations are not included in your plan, so cards are added to the collection only.",
+      "batchNoLocationDescription": "Add cards to the collection only"
     }
   },
   "home": {

@@ -23,7 +23,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export function OrderSelectionBar({ checkedOrders, onClear, onOrdersDeleted }: OrderSelectionBarProps) {
+export function OrderSelectionBar({ checkedOrders, onClear, onOrdersDeleted, className }: OrderSelectionBarProps) {
   const { t } = useTranslation("business");
   const { access } = useBusinessAccess();
   const run = useBusinessAction();
@@ -55,6 +55,7 @@ export function OrderSelectionBar({ checkedOrders, onClear, onOrdersDeleted }: O
         selectedCount={checkedOrders.length}
         selectionLabel={t("orders.bulk.selected", { count: checkedOrders.length })}
         onClear={onClear}
+        className={className}
       >
         <Button
           variant="ghost"

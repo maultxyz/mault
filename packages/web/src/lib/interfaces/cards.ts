@@ -346,6 +346,7 @@ export interface SelectionActionBarProps {
   selectionLabel?: string;
   onClear: () => void;
   children: ReactNode;
+  className?: string;
 }
 
 export interface ScanSelectionOptions<Item> {

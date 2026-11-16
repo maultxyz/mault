@@ -1,12 +1,15 @@
-import { shopCatalogPath, type ShortenerLink } from "@magic-vault/shared";
+import { shopCatalogPath, storageLabelPath, type ShortenerLink } from "@magic-vault/shared";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { db } from "../db";
-import { shareLinks, shopCatalogs } from "../db/schema";
+import { shareLinks, shopCatalogs, storageLocations } from "../db/schema";
 import {
   SHORT_LINK_STARTUP_SYNC_ATTEMPTS,
   SHORT_LINK_STARTUP_SYNC_RETRY_MS,
 } from "./constants/short-links";
-import type { ShopCatalogShortTargetRow } from "./interfaces/short-links";
+import type {
+  ShopCatalogShortTargetRow,
+  StorageLabelShortTargetRow,
+} from "./interfaces/short-links";
 import { shareLinkShortTarget } from "./share-links";
 import { shopCatalogLinkToken } from "./shop-catalogs";
 import {
@@ -22,6 +25,14 @@ export async function shopCatalogShortTarget(
     ? null
     : await shopCatalogLinkToken(catalog.guid, catalog.orgId, catalog.shareLinkVersion);
   return { code: catalog.shortCode, targetPath: shopCatalogPath(catalog.guid, token), expiresAt: null };
+}
+
+export function storageLabelShortTarget(location: StorageLabelShortTargetRow): ShortenerLink {
+  return {
+    code: location.labelShortCode,
+    targetPath: storageLabelPath({ locationGuid: location.guid, orgId: location.orgId }),
+    expiresAt: null,
+  };
 }
 
 export async function resolveShortLinkPath(shortCode: string): Promise<string | null> {
@@ -43,9 +54,19 @@ async function loadLiveShortTargets(): Promise<ShortenerLink[]> {
     })
     .from(shopCatalogs)
     .where(eq(shopCatalogs.isDeleted, false));
+  const storageLabels = await db
+    .select({
+      guid: storageLocations.guid,
+      orgId: storageLocations.orgId,
+      labelShortCode: storageLocations.labelShortCode,
+    })
+    .from(storageLocations);
   return [
     ...(await Promise.all(liveShareLinks.map(shareLinkShortTarget))),
     ...(await Promise.all(liveCatalogs.map(shopCatalogShortTarget))),
+    ...storageLabels.map((location) =>
+      storageLabelShortTarget({ ...location, guid: location.guid! }),
+    ),
   ];
 }
 

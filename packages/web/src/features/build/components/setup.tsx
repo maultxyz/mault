@@ -16,11 +16,13 @@ import {
   MAX_MODULES,
   MIN_MODULES,
 } from "@/lib/constants/build";
+import { SHOP_URL } from "@/lib/constants/links";
 import {
   IconLock,
   IconMinus,
   IconPackage,
   IconPlus,
+  IconShoppingCart,
   IconTool,
 } from "@tabler/icons-react";
 import { Trans, useTranslation } from "react-i18next";
@@ -62,6 +64,25 @@ export function BuildSetup() {
           {t("setup.description")}
         </p>
       </GuideSectionHeader>
+
+      <div className="mt-6 flex max-w-2xl items-start gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm/relaxed text-primary">
+        <IconShoppingCart className="mt-0.5 size-4 shrink-0" />
+        <span>
+          <Trans
+            t={t}
+            i18nKey="setup.shopNote"
+            components={[
+              <a
+                key="0"
+                href={SHOP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium underline underline-offset-2 hover:opacity-80"
+              />,
+            ]}
+          />
+        </span>
+      </div>
 
       <div className="mt-6 flex flex-col">
         <GuideSetupStep step={1} label={t("setup.source.label")}>

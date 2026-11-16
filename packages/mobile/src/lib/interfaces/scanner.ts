@@ -498,3 +498,10 @@ export interface ScanDestinationState {
   storageLocationGuid: string | undefined;
   setDestination: (destination: ScanDestination) => void;
 }
+
+export interface ScanDestinationSheetProps {
+  visible: boolean;
+  scanDestination: ScanDestinationState;
+  offersSortWithRules: boolean;
+  onClose: () => void;
+}

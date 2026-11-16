@@ -83,3 +83,7 @@ export interface ScanCheckSource {
   setChecked: (scanId: string, checked: boolean) => void;
   onNotListed: ((cardName: string) => void) | undefined;
 }
+
+export interface OpenStorageLabelOptions {
+  replacesCurrentScreen?: boolean;
+}

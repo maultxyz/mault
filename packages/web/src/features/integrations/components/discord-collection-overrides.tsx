@@ -90,7 +90,7 @@ export function DiscordCollectionOverrides({
               />
               <Button
                 size="icon"
-                variant="outline-destructive"
+                variant="destructive"
                 disabled={disabled}
                 aria-label={t("overrides.remove", { name: override.name })}
                 title={t("overrides.remove", { name: override.name })}

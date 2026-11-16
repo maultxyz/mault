@@ -6,11 +6,11 @@ import {
   REVIEW_DETAIL_PREFETCH_COUNT,
   REVIEW_DETAIL_PREFETCH_MAX_AGE_MS,
   walkDetailPrefetchChain,
+  CATALOG_SEARCH_MIN_QUERY_LENGTH,
   type CollectionCardPosition,
 } from "@magic-vault/shared";
 import { cardSearchQueryOptions } from "@/features/cards/api/card-search";
 import { collectionCardQueryOptions, scanImageQueryOptions } from "@/features/collections/api/collection-cards";
-import { CARD_SEARCH_MIN_LENGTH } from "@/lib/constants/cards";
 import { storageLocationCardContextQueryOptions } from "@/features/storage/api/storage";
 import type { CardDetailPrefetchStep, CardDetailPrefetchTarget } from "@/lib/interfaces/cards";
 import { absoluteUrl } from "@/lib/url";
@@ -59,7 +59,7 @@ async function loadStep(
 
 function prefetchCorrectionSearch(queryClient: QueryClient, step: CardDetailPrefetchStep) {
   const name = step.position.entry.card.name.trim();
-  if (name.length < CARD_SEARCH_MIN_LENGTH) return;
+  if (name.length < CATALOG_SEARCH_MIN_QUERY_LENGTH) return;
   void queryClient.prefetchInfiniteQuery(cardSearchQueryOptions(name, step.collectionGuid, CARD_SEARCH_ALL_LANGUAGES));
 }
 

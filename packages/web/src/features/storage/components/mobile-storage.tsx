@@ -265,8 +265,8 @@ export function MobileStorage() {
                   <IconEdit />
                 </Button>
                 <Button
-                  variant="ghost"
-                  className={cn(MOBILE_CIRCLE_BUTTON_CLASS, "text-destructive")}
+                  variant="destructive"
+                  size="icon"
                   aria-label={t("page.delete")}
                   disabled={isMutating}
                   onClick={() => {

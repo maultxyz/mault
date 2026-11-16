@@ -29,6 +29,7 @@ export default function ControlCardsPage() {
       description={t("controlCards.page.description")}
       backTo={CONTROL_CARDS_BACK_PATH}
       backLabel={t("controlCards.page.back")}
+      spansFullWidth
       actions={
         <Button disabled={entries.length === 0} onClick={() => window.print()}>
           <IconPrinter />

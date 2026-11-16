@@ -68,13 +68,13 @@
       "bare": "Bare board",
       "modules_one": "{{count}} module",
       "modules_other": "{{count}} modules"
-    }
+    },
+    "shopNote": "Would rather not source every part yourself? The <0>Mault shop</0> sells kits with everything except the 3D-printed parts. You'll still need to print those yourself."
   },
   "bom": {
     "heading": "Bill of materials",
     "description": "Quantities scale with the number of modules you're building: {{modules}} modules × 3 servos, 1 feeder, {{irSensors}} IR sensors, {{channelsUsed}} of the PCA9685's 16 channels in use. The remaining channels are free for additional sorting modules (up to 5 modules on a single PCA9685). Check off each part as you gather it. Checkmarks are saved in this browser.",
     "affiliateDisclaimer": "Some \"Buy\" links are Amazon affiliate links. We may earn a small commission on qualifying purchases at no extra cost to you.",
-    "shopNote": "Would rather not source every part yourself? The <0>Mault shop</0> sells kits with everything except the 3D-printed parts. You'll still need to print those yourself.",
     "partsListLabel": "Full parts list",
     "kitPowerSupplyNote": "Kits don't include a power supply. You'll need your own regulated 6V supply rated for at least 3A to power the servos.",
     "kitCollapsedNote": "You're building from a kit, so the parts list is collapsed. Open it if you want to check any part.",
@@ -110,7 +110,7 @@
           "sg90Positional": {
             "part": "SG90 micro servo, positional (180°)",
             "notes": "3 per module × {{count}} modules: bottom trapdoor, paddle gate, pusher",
-            "alert": "Buy digital SG90s. Analog SG90s, and Tower Pro servos in particular, don't hold their calibrated positions reliably in this sorter."
+            "alert": "Avoid Tower Pro SG90s. They don't hold their calibrated positions reliably in this sorter."
           },
           "mg90sContinuous": {
             "part": "MG90S servo, 360° continuous rotation",
@@ -264,6 +264,10 @@
           "feederBearings": {
             "part": "Ball bearings",
             "notes": "For the bearing version of the feeder base, so the roller spins more smoothly"
+          },
+          "neodymiumMagnets": {
+            "part": "Neodymium magnets (5×2 mm)",
+            "notes": "Disc magnets, 5 mm across and 2 mm thick"
           }
         }
       }
@@ -406,7 +410,7 @@
           },
           "printModulePins": {
             "text": "Print {{count}} Module Pins for {{modules}} sorting modules: {{top}} for the tops and {{front}} for the fronts of the Base Support pieces. Each Base Support piece takes 4 pins on top, and each unit of height takes 2 on the front, except the top unit of each column. The pins join the Base Support pieces together and hold the sorting modules on the base. Change the module count in the setup above to update this.",
-            "note": "Dry-fit the Base Support pieces and sorting modules with the pins first. Once everything lines up, super glue each pin into place."
+            "glueAlert": "Glue the pins into the supports. Dry-fit the Base Support pieces and sorting modules with the pins first, then once everything lines up, super glue each pin into place."
           },
           "dryFit": {
             "text": "Dry-fit each module housing before inserting any electronics. Sand or adjust any tight servo pockets now."

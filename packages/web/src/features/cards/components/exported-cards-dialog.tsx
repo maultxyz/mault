@@ -51,7 +51,7 @@ export function ExportedCardsDialog({
         </form>
         <DialogFooter className="sm:justify-between">
           <Button
-            variant="outline-destructive"
+            variant="destructive"
             disabled={isBusy}
             onClick={onDelete}
           >

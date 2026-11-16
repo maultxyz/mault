@@ -584,7 +584,12 @@ export function ScannedCardsProvider({
             autoAssignFieldRef.current,
             () => crypto.randomUUID(),
           );
-      if (!autoTarget) return matchScanBin(ruleCard, scanRoutingContext());
+      if (!autoTarget) {
+        return matchScanBin(ruleCard, {
+          ...scanRoutingContext(),
+          configs: rawBinConfigsRef.current,
+        });
+      }
       return applyAutoAssign(autoTarget);
     },
     [scanRoutingContext, applyAutoAssign],

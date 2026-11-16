@@ -188,7 +188,7 @@ export function buildPhases(
             top: modulePins.top,
             front: modulePins.front,
           }),
-          note: t("assembly.phases.print.steps.printModulePins.note"),
+          alert: t("assembly.phases.print.steps.printModulePins.glueAlert"),
         },
         {
           key: "dry-fit",

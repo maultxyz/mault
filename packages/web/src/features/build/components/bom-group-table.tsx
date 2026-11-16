@@ -36,7 +36,7 @@ export function BomGroupTable({
         </h3>
         <AnchorLinkButton id={bomGroupAnchorId(group.key)} />
       </div>
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="overflow-x-auto rounded-lg border bg-card">
         <table className="w-full min-w-120 border-collapse text-sm/relaxed">
           <thead>
             <tr className="bg-secondary/40">

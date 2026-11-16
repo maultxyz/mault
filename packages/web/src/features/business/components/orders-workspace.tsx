@@ -74,8 +74,9 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
   const select = (guid: string | null) =>
     setSearchParams(guid ? { [ORDER_PARAM]: guid } : {}, { replace: true });
 
-  const selectionBar = (
+  const selectionBar = (className?: string) => (
     <OrderSelectionBar
+      className={className}
       checkedOrders={[...checkedOrders.values()]}
       onClear={clearCheckedOrders}
       onOrdersDeleted={(orderGuids) => {
@@ -145,7 +146,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
               checkedOrderGuids={checkedOrderGuids}
               onToggleOrderChecked={toggleOrderChecked}
             />
-            {selectionBar}
+            {selectionBar()}
           </div>
         </div>
       </div>
@@ -176,7 +177,6 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
             checkedOrderGuids={checkedOrderGuids}
             onToggleOrderChecked={toggleOrderChecked}
           />
-          {selectionBar}
         </section>
         <section className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 md:gap-2 md:px-3 md:py-2 lg:col-span-9">
           {access?.isLocked && <BusinessUpgradeCallout />}
@@ -196,6 +196,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
               description={t("orders.pickDescription")}
             />
           )}
+          {selectionBar("mt-auto mb-0")}
         </section>
       </div>
     </div>
