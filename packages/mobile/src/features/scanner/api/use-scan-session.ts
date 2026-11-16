@@ -28,12 +28,12 @@ import {
   getCatchAllBin,
   getChaosBins,
   hasMaxCopiesBins,
-  isEmergencyStopReply,
+  classifyFeedReply,
+  classifyRouteReply,
   isFedEvent,
   isFeedTimeoutReply,
   isFirmwareFeatureSupported,
   OCR_REGIONS_BY_GAME_KEY,
-  ROUTE_TIMEOUT_MODULE_PATTERN,
   routeForBin,
   SERIAL_JAM_ERROR,
   type SerialReply,
@@ -582,57 +582,30 @@ export function useScanSession({
 
   const handleRouteResponse = useCallback(
     (response: unknown, target: RoutedCardTarget) => {
-      const res = response as SerialReply | null;
-      if (emergencyStoppedRef.current || isEmergencyStopReply(res)) return;
-      if (!res) {
+      if (emergencyStoppedRef.current) return;
+      const outcome = classifyRouteReply(response);
+      if (outcome.kind === "stopped") return;
+      if (outcome.kind === "routed") {
+        if (outcome.fedNext) return;
+        if (runningRef.current && latestRef.current.autoFeed)
+          triggerFeedAfterRoutedCardRef.current();
+        else if (phaseRef.current === "routing") setPhase("ready");
+        return;
+      }
+      if (outcome.kind !== "skipped") {
         reportSorterEvent({
           command: "bin",
           sent: true,
-          response: null,
+          response:
+            outcome.kind === "noReply" ? null : (response as SerialReply),
           ...target,
         });
-        pause("route-failed");
-        return;
       }
-      if (res.skipped) {
-        pause("route-failed");
-        return;
-      }
-      if (res.noLoadedCard) {
-        reportSorterEvent({
-          command: "bin",
-          sent: true,
-          response: res,
-          ...target,
-        });
-        pause("card-missing");
-        return;
-      }
-      if (res.empty) {
-        reportSorterEvent({
-          command: "bin",
-          sent: true,
-          response: res,
-          ...target,
-        });
-        pause("feeder-empty");
-        return;
-      }
-      if (res.error) {
-        reportSorterEvent({
-          command: "bin",
-          sent: true,
-          response: res,
-          ...target,
-        });
-        const jam = String(res.error).match(ROUTE_TIMEOUT_MODULE_PATTERN);
-        pause(jam ? "jam" : "route-failed", jam ? jam[1] : String(res.error));
-        return;
-      }
-      if (res.fedNext) return;
-      if (runningRef.current && latestRef.current.autoFeed)
-        triggerFeedAfterRoutedCardRef.current();
-      else if (phaseRef.current === "routing") setPhase("ready");
+      if (outcome.kind === "noLoadedCard") pause("card-missing");
+      else if (outcome.kind === "hopperEmpty") pause("feeder-empty");
+      else if (outcome.kind === "jam") pause("jam", String(outcome.module));
+      else if (outcome.kind === "error") pause("route-failed", outcome.message);
+      else pause("route-failed");
     },
     [pause, setPhase, reportSorterEvent],
   );
@@ -1157,31 +1130,21 @@ export function useScanSession({
   const handleFeedResult = useCallback(
     (reply: SerialReply | null, command: FeedCommand = "auto-feed") => {
       if (emergencyStoppedRef.current) return;
-      if (isEmergencyStopReply(reply)) {
+      const outcome = classifyFeedReply(reply);
+      if (outcome.kind === "stopped") {
         emergencyStoppedRef.current = true;
         pause("emergency-stop", "stopped");
         return;
       }
-      if (!reply || reply.empty || reply.error || reply.detected === false) {
-        reportSorterEvent({ command, sent: true, response: reply });
-      }
-      if (!reply) {
-        pause("feed-failed");
+      if (outcome.kind === "cardArrived") {
+        onCardArrivedRef.current();
         return;
       }
-      if (reply.empty) {
-        pause("feeder-empty");
-        return;
-      }
-      if (reply.error) {
-        pause("feed-failed", String(reply.error));
-        return;
-      }
-      if (reply.detected === false) {
-        pause("no-card");
-        return;
-      }
-      onCardArrivedRef.current();
+      reportSorterEvent({ command, sent: true, response: reply });
+      if (outcome.kind === "hopperEmpty") pause("feeder-empty");
+      else if (outcome.kind === "error") pause("feed-failed", outcome.message);
+      else if (outcome.kind === "noCardDetected") pause("no-card");
+      else pause("feed-failed");
     },
     [pause, reportSorterEvent],
   );

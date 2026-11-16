@@ -1,10 +1,5 @@
-import {
-  isEmergencyStopReply,
-  ROUTE_TIMEOUT_MODULE_PATTERN,
-} from "@magic-vault/shared";
-import {
-  reportSerialEvent,
-} from "@/features/notifications/api/notification-settings";
+import { classifyRouteReply } from "@magic-vault/shared";
+import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
 import type { RouteCardToBinParams } from "@/lib/interfaces/scanner";
 
 export async function routeCardToBin({
@@ -27,34 +22,22 @@ export async function routeCardToBin({
     feedNext,
     requireLoadedCard: true,
   });
+  const outcome = classifyRouteReply(response);
 
-  if (!response) {
+  if (outcome.kind === "routed") {
+    if (!outcome.fedNext && isAutoFeedEnabled()) {
+      await triggerAutoFeedAfterRoutedCard();
+    }
+    return;
+  }
+
+  if (outcome.kind === "noReply") {
     toast.error(t(`${failedKey}.title`), {
       description: t(`${failedKey}.description`, {
         binNumber: route.binNumber,
       }),
     });
-    void reportSerialEvent({
-      command: "bin",
-      sent: true,
-      response: null,
-      cardName,
-      binNumber: route.binNumber,
-      collectionGuid,
-      deviceGuid: deviceGuid,
-    });
-    pause();
-    return;
-  }
-
-  const res = response as Record<string, unknown>;
-
-  if (res.skipped || isEmergencyStopReply(res)) {
-    pause();
-    return;
-  }
-
-  if (res.noLoadedCard) {
+  } else if (outcome.kind === "noLoadedCard") {
     toast.error(t("scannedCards.cardMissingBeforeRoute.title"), {
       description: t("scannedCards.cardMissingBeforeRoute.description", {
         binNumber: route.binNumber,
@@ -62,65 +45,35 @@ export async function routeCardToBin({
       duration: Infinity,
       dismissible: true,
     });
-    void reportSerialEvent({
-      command: "bin",
-      sent: true,
-      response: res,
-      cardName,
-      binNumber: route.binNumber,
-      collectionGuid,
-      deviceGuid: deviceGuid,
-    });
-    pause();
-    return;
-  }
-
-  if (res.empty) {
+  } else if (outcome.kind === "hopperEmpty") {
     toast.error(t("feederEmpty.title"), {
       description: t("feederEmpty.description"),
       duration: Infinity,
       dismissible: true,
     });
+  } else if (outcome.kind === "jam") {
+    onJam({ module: outcome.module, binNumber: route.binNumber });
+  } else if (outcome.kind === "error") {
+    toast.error(t("scannedCards.sorterError.title"), {
+      description: outcome.message,
+      duration: Infinity,
+      dismissible: true,
+    });
+  }
+
+  if (outcome.kind !== "skipped" && outcome.kind !== "stopped") {
     void reportSerialEvent({
       command: "bin",
       sent: true,
-      response: res,
+      response:
+        outcome.kind === "noReply"
+          ? null
+          : (response as Record<string, unknown>),
       cardName,
       binNumber: route.binNumber,
       collectionGuid,
-      deviceGuid: deviceGuid,
+      deviceGuid,
     });
-    pause();
-    return;
   }
-
-  if (res.error) {
-    const jamModule = String(res.error).match(ROUTE_TIMEOUT_MODULE_PATTERN);
-    if (jamModule) {
-      onJam({ module: Number(jamModule[1]), binNumber: route.binNumber });
-    } else {
-      toast.error(t("scannedCards.sorterError.title"), {
-        description: String(res.error),
-        duration: Infinity,
-        dismissible: true,
-      });
-    }
-    void reportSerialEvent({
-      command: "bin",
-      sent: true,
-      response: res,
-      cardName,
-      binNumber: route.binNumber,
-      collectionGuid,
-      deviceGuid: deviceGuid,
-    });
-    pause();
-    return;
-  }
-
-  if (res.fedNext) return;
-
-  if (isAutoFeedEnabled()) {
-    await triggerAutoFeedAfterRoutedCard();
-  }
+  pause();
 }
