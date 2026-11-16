@@ -27,7 +27,6 @@ import { Link, useSearchParams } from "react-router-dom";
 
 export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
   const { t } = useTranslation("business");
-  const { t: tCommon } = useTranslation("common");
   const isMobile = useIsMobile();
   const { orgId, access } = useBusinessAccess();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -117,7 +116,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
     return (
       <div className="relative flex min-h-0 flex-1 flex-col">
         <MobilePageHeader
-          title={tCommon("nav.intake")}
+          title={t("views.picks")}
           actions={
             <Button
               variant="ghost"

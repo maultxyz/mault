@@ -758,14 +758,11 @@
     "reload": "Neu laden"
   },
   "mobileMonitor": {
-    "tabCards": "Karten",
-    "tabActivity": "Aktivität",
     "cards": "Karten",
     "searchPlaceholder": "Karten suchen",
     "needsReview": "Zu prüfen",
     "back": "Zurück zu den Sitzungen",
     "bin": "Fach {{number}}",
-    "noActivity": "Noch nichts gescannt. Scans erscheinen hier, sobald sie passieren.",
     "status": {
       "connected": "Live",
       "connecting": "Verbinde…",
@@ -901,9 +898,6 @@
     "cameraOffDescription": "Erlaube den Kamerazugriff, um zu scannen.",
     "startCamera": "Kamera starten",
     "retry": "Erneut",
-    "noSorterTitle": "Kein Sortierer verbunden",
-    "noSorterDescription": "Verbinde deinen Sortierer, oder tippe auf den Auslöser, um eine Karte zu scannen.",
-    "connect": "Verbinden",
     "bin": "Fach {{number}}",
     "pause": "Scannen pausieren",
     "start": "Scannen starten",
@@ -948,7 +942,6 @@
     },
     "connectHint": "Schalte den Sortierer ein und verbinde dich.",
     "connectBluetooth": "Über Bluetooth verbinden",
-    "connectUsb": "Über USB verbinden",
     "connectPi": "Sortierer an diesem Pi verbinden",
     "unsupported": "Dieser Browser kann sich nicht direkt mit einem Sortierer verbinden. Verbinde dich unten über WLAN oder nutze Chrome auf Android.",
     "actions": "Aktionen",
@@ -1057,7 +1050,6 @@
   },
   "controlCards": {
     "openPage": "Steuerkarten drucken",
-    "openPageDescription": "QR-Karten, die Scan-Einstellungen ändern, wenn der Sortierer sie liest",
     "applied": "Steuerkarte angewendet",
     "rejected": {
       "title": "Steuerkarte nicht angewendet"

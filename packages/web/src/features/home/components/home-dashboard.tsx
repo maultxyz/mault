@@ -5,7 +5,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
-import { PiSorterCalibrationLink } from "@/features/calibration/components/pi-sorter-calibration-link";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { widgetSummaryQueryOptions } from "@/features/home/api/widget-summary";
 import { HomeCardRail } from "@/features/home/components/home-card-rail";
@@ -185,8 +184,6 @@ export function HomeDashboard() {
               />
             </div>
           )}
-
-          {isMobile && <PiSorterCalibrationLink />}
 
           {(summary.isPending || summaryData) && (
             <HomeCardRail

@@ -40,7 +40,7 @@ export default function MonitorPage() {
     (v) => v.userId !== lock?.userId && v.userId !== currentUserId,
   );
 
-  const header = (lock || otherViewers.length > 0) && (
+  const header = !isMobile && (lock || otherViewers.length > 0) && (
     <div className="flex items-center gap-1 px-1 flex-wrap">
       {lock && (
         <InitialsAvatar

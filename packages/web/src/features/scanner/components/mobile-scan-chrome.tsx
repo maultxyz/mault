@@ -14,7 +14,6 @@ import {
   MOBILE_SCAN_CHIP_CLASS,
   SESSION_TIMER_RUNNING_STATUSES,
 } from "@/lib/constants/scanner";
-import { MOBILE_SORTER_PATH } from "@/lib/constants/nav";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { MobileScanChromeProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
@@ -166,25 +165,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
         <MobileScanNotice
           tone="warning"
           title={t("scannerOverlay.noCatchAllBin")}
-        />
-      );
-    }
-    if (!chrome.isConnected && !chrome.handScan && sessionScanCount === 0) {
-      return (
-        <MobileScanNotice
-          title={t("mobileScan.noSorterTitle")}
-          description={t("mobileScan.noSorterDescription")}
-          action={
-            chrome.bluetoothSupported ? (
-              <Button onClick={chrome.onConnectBluetooth}>
-                {t("mobileScan.connect")}
-              </Button>
-            ) : (
-              <Button render={<Link to={MOBILE_SORTER_PATH} />}>
-                {t("mobileScan.connect")}
-              </Button>
-            )
-          }
         />
       );
     }

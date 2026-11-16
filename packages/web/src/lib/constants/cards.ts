@@ -84,7 +84,6 @@ export const REVIEW_LAYOUT_WITH_SCAN_COLUMNS_CLASS =
 export const REVIEW_LAYOUT_WITHOUT_SCAN_COLUMNS_CLASS =
   "@5xl:grid-cols-[minmax(0,18rem)_minmax(20rem,1fr)]";
 export const SIMILAR_MATCHES_ACCORDION_VALUE = "similar-matches";
-export const MORE_DETAIL_OPTIONS_ACCORDION_VALUE = "more-detail-options";
 export const CARD_DETAIL_TOP_BAR_CLASS =
   "sticky top-0 z-10 bg-background/80 backdrop-blur-2xl border-b p-2 flex items-center justify-between gap-2";
 export const CARD_DETAIL_SCROLL_CLASS =

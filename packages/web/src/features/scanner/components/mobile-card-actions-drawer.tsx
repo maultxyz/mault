@@ -16,8 +16,6 @@ import type {
 import {
   IconBox,
   IconCheck,
-  IconCopy,
-  IconExternalLink,
   IconTrash,
 } from "@tabler/icons-react";
 import { useState } from "react";
@@ -26,7 +24,6 @@ import { useTranslation } from "react-i18next";
 
 function MobileCardActionsBody({
   entry,
-  onOpenDetails,
   onClose,
 }: MobileCardActionsBodyProps) {
   const { t } = useTranslation("cards");
@@ -38,7 +35,6 @@ function MobileCardActionsBody({
     setCondition,
     confirm,
     setFoil,
-    copyName,
     remove,
     canMoveToLocation,
     canMove,
@@ -81,14 +77,6 @@ function MobileCardActionsBody({
       </div>
 
       <div className="flex flex-col">
-        <Button
-          variant="ghost"
-          size="lg" className={actionClass}
-          onClick={run(onOpenDetails)}
-        >
-          <IconExternalLink />
-          {t("cardContextMenu.open")}
-        </Button>
         {canConfirm && (
           <Button
             variant="ghost"
@@ -109,14 +97,6 @@ function MobileCardActionsBody({
             {t("cardContextMenu.moveToLocation")}
           </Button>
         )}
-        <Button
-          variant="ghost"
-          size="lg" className={actionClass}
-          onClick={run(() => void copyName())}
-        >
-          <IconCopy />
-          {t("cardContextMenu.copyName")}
-        </Button>
       </div>
 
       <div className="flex flex-col gap-2">
@@ -199,7 +179,6 @@ function MobileCardActionsBody({
 
 export function MobileCardActionsDrawer({
   entry,
-  onOpenDetails,
   onClose,
 }: MobileCardActionsDrawerProps) {
   const [shownEntry, setShownEntry] = useState(entry);
@@ -217,7 +196,6 @@ export function MobileCardActionsDrawer({
           <MobileCardActionsBody
             key={shownEntry.scanId}
             entry={shownEntry}
-            onOpenDetails={() => onOpenDetails(shownEntry.scanId)}
             onClose={onClose}
           />
         )}

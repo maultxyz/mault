@@ -28,7 +28,7 @@ Tests run in Build Check (`build-check.yml`): server and shortener `tests/*.test
 The product ships on three surfaces that must behave the same:
 
 - **Desktop:** the web app at `md` and up, also loaded unchanged by the Electron shell (`packages/desktop`).
-- **Mobile web:** the same web app below `md` (`useIsMobile`, `max-md:` styles, `Mobile*` components).
+- **Mobile web:** the same web app below `md` (`useIsMobile`, `max-md:` styles, `Mobile*` components). It mirrors the Expo app's exact layout and flow (tabs, screen structure, sheets, step order), built from the web's desktop components, never native-looking stand-ins. Anything added to the Expo app also lands on mobile web in the same task, and mobile web shows nothing the app lacks (web-only features stay at `md` and up).
 - **Mobile app:** the Expo app in `packages/mobile`, a separate React Native codebase.
 
 Scanning also has a **headless Pi host execution mode** (`piHost`): the API owns the camera and sorter and must continue scanning while browsers are closed. Include this mode in every feature assessment and per-surface summary; it uses the existing web UI rather than a separate UI surface.

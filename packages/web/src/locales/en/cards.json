@@ -98,7 +98,6 @@
       "language": "Language"
     },
     "copyOf": "Copy {{index}} of {{count}}",
-    "moreOptions": "More",
     "actions": "Card actions",
     "name": "Name",
     "moveToLocation": "Move to location",

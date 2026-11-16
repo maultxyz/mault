@@ -1,4 +1,3 @@
-import { MobileTabStrip } from "@/components/mobile-tab-strip";
 import {
   MOBILE_HERO_LABEL_CLASS,
   MOBILE_HERO_VALUE_CLASS,
@@ -7,15 +6,16 @@ import {
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MobileCardDetailDrawer } from "@/features/scanner/components/mobile-card-detail-drawer";
-import { MobileMonitorActivity } from "@/features/scanner/components/mobile-monitor-activity";
+import { SessionErrorsPanel } from "@/features/scanner/components/session-errors-panel";
+import { UnmatchedCardsGridDialog } from "@/features/scanner/components/unmatched-cards-grid-dialog";
+import {
+  clearUnmatchedScans,
+  removeUnmatchedScan,
+} from "@/features/collections/api/collections";
 import { MobileMonitorCards } from "@/features/scanner/components/mobile-monitor-cards";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useScrollCollapse } from "@/hooks/use-scroll-collapse";
-import type {
-  MobileMonitorTab,
-  MobileMonitorTabItem,
-  MobileSessionMonitorProps,
-} from "@/lib/interfaces/scanner";
+import type { MobileSessionMonitorProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "react-router-dom";
@@ -48,7 +48,10 @@ export function MobileSessionMonitor({
   const { format } = usePriceSource();
   const { t: tCards } = useTranslation("cards");
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<MobileMonitorTab>("cards");
+  const [unmatchedOpen, setUnmatchedOpen] = useState(false);
+  const [unmatchedOpenIndex, setUnmatchedOpenIndex] = useState<number | null>(
+    null,
+  );
   const [searchParams, setSearchParams] = useSearchParams();
   const reviewParam = searchParams.get(MONITOR_REVIEW_PARAM);
   const reviewingGrid = reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
@@ -58,7 +61,6 @@ export function MobileSessionMonitor({
   const heroCollapsed = useScrollCollapse(scrollRoot);
   const { collection, status, unmatchedCount, errors } = session;
   const { stats, cardCount, openScanId, setOpenScanId } = cards;
-  const alertCount = unmatchedCount + errors.length;
   const hasPricing = !!stats?.hasPricing;
 
   const showCardAndReview = useCallback(
@@ -78,10 +80,6 @@ export function MobileSessionMonitor({
     [setSearchParams],
   );
 
-  const handleOpenCard = useCallback(
-    (scanId: string) => showCardAndReview(scanId, null),
-    [showCardAndReview],
-  );
   const handleCloseCard = useCallback(
     () => showCardAndReview(null, null),
     [showCardAndReview],
@@ -142,15 +140,6 @@ export function MobileSessionMonitor({
   useEffect(() => {
     if (reviewAwaitsFirstCard) void startOneByOneReviewRef.current();
   }, [reviewAwaitsFirstCard]);
-
-  const tabs: MobileMonitorTabItem[] = [
-    { key: "cards", label: t("mobileMonitor.tabCards") },
-    {
-      key: "activity",
-      label: t("mobileMonitor.tabActivity"),
-      badge: alertCount,
-    },
-  ];
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -232,37 +221,50 @@ export function MobileSessionMonitor({
           />
         </div>
       ) : (
-        <>
-          <MobileTabStrip items={tabs} value={tab} onChange={setTab} />
-
-          <div
-            ref={setScrollRoot}
-            data-scroll-root
-            className={cn(
-              "min-h-0 flex-1 overflow-y-auto",
-              MOBILE_NAV_SCROLL_PADDING_CLASS,
-            )}
-          >
-            {tab === "cards" ? (
-              <MobileMonitorCards
-                cards={cards}
-                status={status}
-                binCount={binCount}
-                canEditCards={canEditCards}
-                onStartReview={startReview}
-              />
-            ) : (
-              <MobileMonitorActivity
-                session={session}
-                collectionGuid={collectionGuid}
-                stats={stats}
-                canEditCards={canEditCards}
-                onOpenCard={handleOpenCard}
-              />
-            )}
-          </div>
-        </>
+        <div
+          ref={setScrollRoot}
+          data-scroll-root
+          className={cn(
+            "min-h-0 flex-1 overflow-y-auto",
+            MOBILE_NAV_SCROLL_PADDING_CLASS,
+          )}
+        >
+          {errors.length > 0 && (
+            <div className="px-4 pt-4">
+              <SessionErrorsPanel errors={errors} />
+            </div>
+          )}
+          <MobileMonitorCards
+            cards={cards}
+            status={status}
+            binCount={binCount}
+            canEditCards={canEditCards}
+            onStartReview={startReview}
+            unmatchedCount={unmatchedCount}
+            onOpenUnmatched={() => {
+              setUnmatchedOpenIndex(null);
+              setUnmatchedOpen(true);
+            }}
+          />
+        </div>
       )}
+
+      <UnmatchedCardsGridDialog
+        open={unmatchedOpen}
+        onOpenChange={setUnmatchedOpen}
+        openIndex={unmatchedOpenIndex}
+        onOpenIndexChange={setUnmatchedOpenIndex}
+        collectionGuid={collectionGuid}
+        canIdentify={canEditCards}
+        onRemove={
+          canEditCards
+            ? (scanId) => removeUnmatchedScan(collectionGuid, scanId)
+            : undefined
+        }
+        onRemoveAll={
+          canEditCards ? () => clearUnmatchedScans(collectionGuid) : undefined
+        }
+      />
 
       <MobileCardDetailDrawer
         collectionGuid={collectionGuid}

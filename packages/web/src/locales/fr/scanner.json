@@ -758,14 +758,11 @@
     "reload": "Recharger"
   },
   "mobileMonitor": {
-    "tabCards": "Cartes",
-    "tabActivity": "Activité",
     "cards": "Cartes",
     "searchPlaceholder": "Rechercher des cartes",
     "needsReview": "À vérifier",
     "back": "Retour aux sessions",
     "bin": "Bac {{number}}",
-    "noActivity": "Rien n'a encore été scanné. Les scans apparaissent ici en direct.",
     "status": {
       "connected": "En direct",
       "connecting": "Connexion…",
@@ -901,9 +898,6 @@
     "cameraOffDescription": "Autorisez l'accès à la caméra pour scanner.",
     "startCamera": "Démarrer",
     "retry": "Réessayer",
-    "noSorterTitle": "Aucune trieuse connectée",
-    "noSorterDescription": "Connectez votre trieuse, ou appuyez sur le déclencheur pour scanner une carte.",
-    "connect": "Connecter",
     "bin": "Bac {{number}}",
     "pause": "Mettre en pause",
     "start": "Démarrer le scan",
@@ -948,7 +942,6 @@
     },
     "connectHint": "Allumez votre trieuse, puis connectez-vous.",
     "connectBluetooth": "Connecter en Bluetooth",
-    "connectUsb": "Connecter en USB",
     "connectPi": "Connecter la trieuse de ce Pi",
     "unsupported": "Ce navigateur ne peut pas se connecter directement à une trieuse. Connecte-toi en Wi-Fi ci-dessous, ou utilise Chrome sur Android.",
     "actions": "Actions",
@@ -1057,7 +1050,6 @@
   },
   "controlCards": {
     "openPage": "Imprimer des cartes de contrôle",
-    "openPageDescription": "Cartes QR qui modifient les réglages de scan quand le trieur les lit",
     "applied": "Carte de contrôle appliquée",
     "rejected": {
       "title": "Carte de contrôle non appliquée"

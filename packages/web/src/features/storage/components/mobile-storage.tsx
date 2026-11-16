@@ -316,17 +316,6 @@ export function MobileStorage() {
                 <IconListSearch />
               </Button>
             )}
-            {locations.length > 0 && !isLocked && (
-              <Button
-                variant="ghost"
-                className={MOBILE_CIRCLE_BUTTON_CLASS}
-                aria-label={t("labels.printLabels")}
-                nativeButton={false}
-                render={<Link to={storageLabelsPath()} />}
-              >
-                <IconPrinter />
-              </Button>
-            )}
             {!isLocked && (
               <Button
                 className={MOBILE_PRIMARY_CIRCLE_BUTTON_CLASS}

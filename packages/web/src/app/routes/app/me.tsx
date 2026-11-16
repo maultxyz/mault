@@ -10,7 +10,6 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useAuthSession } from "@/lib/auth";
-import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
 import { LANGUAGE_NATIVE_NAMES } from "@/lib/constants/languages";
 import {
   MOBILE_LIST_CLASS,
@@ -31,14 +30,11 @@ import {
   IconActivityHeartbeat,
   IconArrowsSplit2,
   IconDatabaseCog,
-  IconBrandDiscord,
-  IconBuilding,
   IconCash,
   IconChartBar,
   IconLanguage,
   IconLogout,
   IconSettings,
-  IconShoppingCart,
   IconUserCircle,
 } from "@tabler/icons-react";
 import { useTheme } from "next-themes";
@@ -116,11 +112,6 @@ export default function MePage() {
                     />
                   );
                 })}
-                <MobileListRow
-                  icon={<IconBuilding />}
-                  label={tCompanies("orgSwitcher.manageOrganizations")}
-                  to={SETTINGS_PATHS.organization}
-                />
               </div>
             </MobileSection>
           )}
@@ -184,19 +175,6 @@ export default function MePage() {
               onChange={setTheme}
             />
           </MobileSection>
-
-          <div className={MOBILE_LIST_CLASS}>
-            <MobileListRow
-              icon={<IconShoppingCart />}
-              label={t("nav.cart")}
-              href={SHOP_URL}
-            />
-            <MobileListRow
-              icon={<IconBrandDiscord />}
-              label={t("nav.discord")}
-              href={DISCORD_URL}
-            />
-          </div>
 
           <div className={MOBILE_LIST_CLASS}>
             <MobileListRow

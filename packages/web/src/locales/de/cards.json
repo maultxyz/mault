@@ -98,7 +98,6 @@
       "language": "Sprache"
     },
     "copyOf": "Exemplar {{index}} von {{count}}",
-    "moreOptions": "Mehr",
     "actions": "Kartenaktionen",
     "name": "Name",
     "moveToLocation": "In Lagerort verschieben",

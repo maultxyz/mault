@@ -98,7 +98,6 @@
       "language": "Langue"
     },
     "copyOf": "Exemplaire {{index}} sur {{count}}",
-    "moreOptions": "Plus",
     "actions": "Actions de la carte",
     "name": "Nom",
     "moveToLocation": "Déplacer vers un emplacement",

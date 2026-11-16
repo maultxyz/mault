@@ -8,7 +8,7 @@ import {
 } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { SettingsSectionLayoutContext } from "@/lib/settings-section-context";
-import { Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ADMIN_PATH, ADMIN_SECTIONS } from "@/lib/constants/admin";
 import { useRole } from "@/hooks/use-role";
@@ -24,6 +24,9 @@ export default function AdminLayout() {
   );
 
   if (isMobile) {
+    if (current && !current.showsOnMobile) {
+      return <Navigate to={ADMIN_PATH} replace />;
+    }
     return (
       <div className="flex min-h-0 flex-1 flex-col">
         {current ? (

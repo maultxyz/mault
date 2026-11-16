@@ -25,6 +25,7 @@ import {
   IconCards,
   IconHelpCircle,
   IconListCheck,
+  IconPhotoOff,
   IconSearch,
   IconWifiOff,
 } from "@tabler/icons-react";
@@ -36,6 +37,8 @@ export function MobileMonitorCards({
   binCount,
   canEditCards,
   onStartReview,
+  unmatchedCount,
+  onOpenUnmatched,
 }: MobileMonitorCardsProps) {
   const { t } = useTranslation("scanner");
   const {
@@ -66,6 +69,7 @@ export function MobileMonitorCards({
 
   const showReviewChip =
     canEditCards && (needsReviewCount > 0 || filters.needsAttention);
+  const showUnmatchedChip = unmatchedCount > 0 && !!onOpenUnmatched;
 
   const paginationRef = useRef<HTMLDivElement>(null);
   const goToPage = (next: number) => {
@@ -115,7 +119,7 @@ export function MobileMonitorCards({
             triggerClassName={MOBILE_ICON_BUTTON_CLASS}
           />
         </div>
-        {showReviewChip && (
+        {(showReviewChip || showUnmatchedChip) && (
           <div className="-mx-4 flex gap-1.5 overflow-x-auto px-4">
             {canEditCards && needsReviewCount > 0 && onStartReview && (
               <Button
@@ -126,6 +130,17 @@ export function MobileMonitorCards({
                 {t("mobileMonitor.review", { count: needsReviewCount })}
               </Button>
             )}
+            {showUnmatchedChip && (
+              <Button
+                variant="outline"
+                className={MOBILE_FILTER_CHIP_CLASS}
+                onClick={onOpenUnmatched}
+              >
+                <IconPhotoOff />
+                {t("unmatchedCardsPanel.heading", { count: unmatchedCount })}
+              </Button>
+            )}
+            {showReviewChip && (
             <Button
               variant="ghost"
               aria-pressed={filters.needsAttention}
@@ -148,6 +163,7 @@ export function MobileMonitorCards({
                 {needsReviewCount}
               </span>
             </Button>
+            )}
           </div>
         )}
       </div>
@@ -225,7 +241,6 @@ export function MobileMonitorCards({
       {canEditCards && (
         <MobileCardActionsDrawer
           entry={actionsEntry}
-          onOpenDetails={setOpenScanId}
           onClose={() => setActionsEntry(null)}
         />
       )}

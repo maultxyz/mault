@@ -73,7 +73,6 @@ import {
   CARD_DETAIL_SCROLL_CLASS,
   CARD_DETAIL_SECTIONS_CLASS,
   CARD_DETAIL_TOP_BAR_CLASS,
-  MORE_DETAIL_OPTIONS_ACCORDION_VALUE,
   REVIEW_LAYOUT_WITH_SCAN_COLUMNS_CLASS,
   REVIEW_LAYOUT_WITHOUT_SCAN_COLUMNS_CLASS,
   SIMILAR_MATCHES_ACCORDION_VALUE,
@@ -203,7 +202,7 @@ export function CardDetailPanel({
   const [showTechnicalDetails, handleTechnicalDetailsChange] = usePersistedFlag(
     CARD_TECHNICAL_DETAILS_STORAGE_KEY,
   );
-  const ocrRegionsVisible = reviewMode || showOcrRegions;
+  const ocrRegionsVisible = !isMobile && (reviewMode || showOcrRegions);
   const [viewerOpen, setViewerOpen] = useState(false);
 
   const [candidates, setCandidates] = useState<PlayingCardWithDistance[]>([]);
@@ -655,7 +654,6 @@ export function CardDetailPanel({
     </>
   );
 
-  const hasDisplayToggles = !reviewMode && (!!capturedImageUrl || !!scanId);
   const displayToggles = !reviewMode && (
     <>
       {capturedImageUrl && (
@@ -1221,23 +1219,7 @@ export function CardDetailPanel({
                 )}
               </div>
 
-              {isMobile && hasDisplayToggles && (
-                <Accordion>
-                  <AccordionItem
-                    value={MORE_DETAIL_OPTIONS_ACCORDION_VALUE}
-                    className="border-b-0"
-                  >
-                    <AccordionTrigger className="py-1 text-xs font-medium text-foreground/70">
-                      {t("cardDetailPanel.moreOptions")}
-                    </AccordionTrigger>
-                    <AccordionContent className="flex flex-col items-start gap-3 pb-0 text-xs text-foreground/70">
-                      {displayToggles}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              )}
-
-              {!reviewMode && showTechnicalDetails && scanId && (
+              {!isMobile && !reviewMode && showTechnicalDetails && scanId && (
                 <CardTechnicalDetails
                   scanId={scanId}
                   card={currentCard}

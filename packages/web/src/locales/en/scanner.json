@@ -758,14 +758,11 @@
     "reload": "Reload"
   },
   "mobileMonitor": {
-    "tabCards": "Cards",
-    "tabActivity": "Activity",
     "cards": "Cards",
     "searchPlaceholder": "Search cards",
     "needsReview": "Needs review",
     "back": "Back to sessions",
     "bin": "Bin {{number}}",
-    "noActivity": "Nothing scanned yet. Scans show up here as they happen.",
     "status": {
       "connected": "Live",
       "connecting": "Connecting…",
@@ -901,9 +898,6 @@
     "cameraOffDescription": "Allow camera access to start scanning.",
     "startCamera": "Start camera",
     "retry": "Retry",
-    "noSorterTitle": "No sorter connected",
-    "noSorterDescription": "Connect your sorter to sort cards, or tap the shutter to scan one card.",
-    "connect": "Connect",
     "bin": "Bin {{number}}",
     "pause": "Pause scanning",
     "start": "Start scanning",
@@ -948,7 +942,6 @@
     },
     "connectHint": "Turn on your sorter, then connect to it.",
     "connectBluetooth": "Connect over Bluetooth",
-    "connectUsb": "Connect over USB",
     "connectPi": "Connect the sorter on this Pi",
     "unsupported": "This browser can't connect to a sorter directly. Connect to one over Wi-Fi below, or use Chrome on Android.",
     "actions": "Actions",
@@ -1057,7 +1050,6 @@
   },
   "controlCards": {
     "openPage": "Print control cards",
-    "openPageDescription": "QR cards that change scan settings when the sorter reads them",
     "applied": "Control card applied",
     "rejected": {
       "title": "Control card not applied"
