@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import {
   useCardDetailActions,
@@ -6,7 +7,6 @@ import {
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { HOTKEY_PRIORITY_OVERRIDE } from "@/lib/constants/hotkeys";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Kbd } from "@/components/ui/kbd";

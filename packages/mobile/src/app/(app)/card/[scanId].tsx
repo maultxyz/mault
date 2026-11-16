@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useMutationState, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
@@ -96,7 +97,6 @@ import {
   CARD_REVIEW_ACCEPT_MUTATION_KEY,
 } from "@/lib/constants/cards";
 import { formatDateTime } from "@/lib/dates";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { PAGE_HEADER_ICON_BUTTON_SIZE, TOAST_UNDO_DURATION_MS } from "@/lib/constants/ui";
 import { saveReviewLayout } from "@/lib/review-layout";

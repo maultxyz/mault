@@ -1,25 +1,8 @@
 import type {
   SliderKey,
   CalibrationDebugParams,
-  ServoName,
 } from "@/lib/interfaces/calibration";
-import { CHANNEL_OFFSET, type ServoCalibration } from "@magic-vault/shared";
-
-export function getCalibrationKey(
-  servo: ServoName,
-  position: string,
-): keyof ServoCalibration | null {
-  if (servo === "bottom")
-    return position === "open" ? "bottomOpen" : "bottomClosed";
-  if (servo === "paddle")
-    return position === "open" ? "paddleOpen" : "paddleClosed";
-  if (servo === "pusher") {
-    if (position === "left") return "pusherLeft";
-    if (position === "right") return "pusherRight";
-    return "pusherNeutral";
-  }
-  return null;
-}
+import { CHANNEL_OFFSET } from "@magic-vault/shared";
 
 export function defaultSliderValues(modules: number[]): Record<SliderKey, number> {
   const vals = {} as Record<SliderKey, number>;

@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   INTAKE_COLLECTION_MODES,
@@ -26,7 +27,6 @@ import { gameLanguagesQueryOptions, gamesQueryOptions } from "@/features/games/a
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { BUSINESS_INTAKE_QUERY_KEY, INTAKE_LOT_DEFAULT_VALUES } from "@/lib/constants/business";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { SPACING } from "@/lib/constants/theme";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 

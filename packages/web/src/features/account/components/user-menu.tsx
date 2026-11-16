@@ -1,3 +1,4 @@
+import { getInitials } from "@magic-vault/shared";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -8,7 +9,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getInitials } from "@/components/ui/initials-avatar";
 import { useSignOut } from "@/features/account/api/use-sign-out";
 import { useAuthSession } from "@/lib/auth";
 import { IconLogout, IconUserCircle } from "@tabler/icons-react";

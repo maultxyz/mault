@@ -1,3 +1,5 @@
+import { orderSoundRules } from "@magic-vault/shared";
+import { toSoundRulesDraft } from "@magic-vault/shared";
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { useOrg } from "@/features/companies/api/use-organization";
 import {
@@ -5,10 +7,6 @@ import {
   soundRulesQueryOptions,
   updateSoundRule,
 } from "@/features/sounds/api/sounds";
-import {
-  orderSoundRules,
-  toSoundRulesDraft,
-} from "@/features/sounds/lib/sound-rules-draft";
 import { toast } from "@/lib/toast";
 import {
   type Result,

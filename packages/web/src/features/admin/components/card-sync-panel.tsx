@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { SettingsSection } from "@/components/settings-section";
 import { Button } from "@/components/ui/button";
 import {
@@ -13,7 +14,6 @@ import { usePiHost } from "@/hooks/use-pi-host";
 import { formatDuration } from "@/features/admin/lib/format-duration";
 import { browserSyncParallel } from "@/lib/constants/admin";
 import { SYNC_STATUS_COLORS } from "@/lib/constants/colors";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import {
   SYNC_VECTORIZE_CONCURRENCY_DEFAULT,
   SYNC_VECTORIZE_CONCURRENCY_OPTIONS,

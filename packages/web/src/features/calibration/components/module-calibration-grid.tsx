@@ -1,3 +1,4 @@
+import { getCalibrationKey } from "@magic-vault/shared";
 import { FirmwareFeatureGate } from "@/components/firmware-feature-gate";
 import { SliderField } from "@/components/slider-field";
 import { Callout } from "@/components/callout";
@@ -11,7 +12,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getCalibrationKey } from "@/features/calibration/lib/calibration-utils";
 import { cn } from "@/lib/utils";
 import {
   MODULE_DELAY_FIELDS,

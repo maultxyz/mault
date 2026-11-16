@@ -1,10 +1,10 @@
+import { getInitials } from "@magic-vault/shared";
 import { MobileIconBadge } from "@/components/mobile-icon-badge";
 import { MobileListRow } from "@/components/mobile-list-row";
 import { PlanLockTag } from "@/components/plan-lock-tag";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileSection } from "@/components/mobile-section";
 import { MobileSegmentedControl } from "@/components/mobile-segmented-control";
-import { getInitials } from "@/components/ui/initials-avatar";
 import { useSignOut } from "@/features/account/api/use-sign-out";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useIsMobile } from "@/hooks/use-is-mobile";

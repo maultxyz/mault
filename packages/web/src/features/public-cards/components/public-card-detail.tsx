@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { CardImage } from "@/components/card-image";
 import { EmptyState } from "@/components/empty-state";
 import { Badge } from "@/components/ui/badge";
@@ -15,7 +16,6 @@ import { CardPriceDetails } from "@/features/cards/components/card-price-details
 import { DetailSection } from "@/features/cards/components/detail-section";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useTradeOfferContext } from "@/lib/trade-offer-context";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import type { PublicCardDetailViewProps } from "@/lib/interfaces/public-cards";
 import {
   DEFAULT_CARD_LANGUAGE,

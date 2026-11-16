@@ -1,3 +1,4 @@
+import type { ServoName } from "@magic-vault/shared";
 import type { ReactNode, RefObject } from "react";
 import type {
   BinHeight,
@@ -96,7 +97,7 @@ export type ModuleDelayField =
   | "pusherHoldDuration"
   | "paddleCloseDelay";
 
-export type ServoName = "bottom" | "paddle" | "pusher";
+export type { ServoName };
 
 export interface SetupServoPosition {
   servo: ServoName;

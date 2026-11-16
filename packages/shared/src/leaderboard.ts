@@ -1,8 +1,5 @@
-import type { LeaderboardRow } from "@/lib/interfaces/stats";
-import {
-  LEADERBOARD_OWN_ORG_AFTER,
-  type Leaderboard,
-} from "@magic-vault/shared";
+import { LEADERBOARD_OWN_ORG_AFTER } from "./constants/leaderboard.constant";
+import type { Leaderboard, LeaderboardRow } from "./interfaces/leaderboard.interface";
 
 export function buildLeaderboardRows(leaderboard: Leaderboard): LeaderboardRow[] {
   const rows = leaderboard.entries.map((entry, index) => ({

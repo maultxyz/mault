@@ -1,3 +1,4 @@
+import { MULTI_VALUE_OPERATORS } from "@magic-vault/shared";
 import type { ConditionRowProps } from "@/lib/interfaces/bins";
 import {
   CONDITION_NUMERIC_MAX,
@@ -38,7 +39,6 @@ import {
   CONDITION_FIELD_CLASS,
   CONDITION_INPUT_CLASS,
   CONDITION_SELECT_TRIGGER_CLASS,
-  MULTI_VALUE_OPERATORS,
 } from "@/lib/constants/bins";
 import { cn, sortByLabel } from "@/lib/utils";
 import { IconChevronDown, IconX } from "@tabler/icons-react";

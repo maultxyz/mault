@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
@@ -34,7 +35,6 @@ import { useTheme } from "@/hooks/use-theme";
 import { usePanelWidth } from "@/hooks/use-panel-width";
 import { REVIEW_GRID_SKELETON_HEIGHT_RATIO, REVIEW_GRID_WIDE_MIN_WIDTH } from "@/lib/constants/cards";
 import { CARD_ART_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import type { ReviewGridAttributePicker, ReviewLayout } from "@/lib/interfaces/cards";
 import { saveReviewLayout } from "@/lib/review-layout";
 

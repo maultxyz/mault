@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -32,7 +33,6 @@ import { useTheme } from "@/hooks/use-theme";
 import { usePanelWidth } from "@/hooks/use-panel-width";
 import { CARD_GRID_COLUMNS, CARD_GRID_GAP_X, CARD_GRID_GAP_Y, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { OCR_TILE_COLUMNS } from "@/lib/constants/health";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { ANY_SET_OPTION, CARD_SET_PICKER_LIMIT } from "@/lib/constants/scanner";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";

@@ -1,15 +1,13 @@
 import {
   cardColorSwatch,
   fallbackSwatchHex,
-  LEADERBOARD_OWN_ORG_AFTER,
   RARITY_TIER_HEX_COLORS,
   rarityLabel,
   rarityTier,
   sortRarities,
   type CardStatsAggregate,
-  type Leaderboard,
 } from "@magic-vault/shared";
-import type { LeaderboardRow, StatsBreakdown } from "@/lib/interfaces/stats";
+import type { StatsBreakdown } from "@/lib/interfaces/stats";
 
 
 export function toStatsBreakdown(aggregate: CardStatsAggregate): StatsBreakdown {
@@ -42,9 +40,3 @@ export function toStatsBreakdown(aggregate: CardStatsAggregate): StatsBreakdown 
   };
 }
 
-export function buildLeaderboardRows(leaderboard: Leaderboard): LeaderboardRow[] {
-  const rows = leaderboard.entries.map((entry, index) => ({ key: `entry-${index}`, entry }));
-  if (leaderboard.entries.some((entry) => entry.isOwnOrg)) return rows;
-  const own = { key: "own", entry: leaderboard.ownEntry };
-  return [...rows.slice(0, LEADERBOARD_OWN_ORG_AFTER), own, ...rows.slice(LEADERBOARD_OWN_ORG_AFTER)];
-}

@@ -1,3 +1,4 @@
+import { getCalibrationKey } from "@magic-vault/shared";
 import {
   binRoutesQueryOptions,
   saveBinRoute,
@@ -21,7 +22,6 @@ import { useRetractCard } from "@/features/scanner/api/use-retract-card";
 import {
   buildCalibrationDebugText,
   defaultSliderValues,
-  getCalibrationKey,
 } from "@/features/calibration/lib/calibration-utils";
 import {
   buildCalibrationExport,

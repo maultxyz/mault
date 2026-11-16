@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -15,7 +16,7 @@ import {
   gameLanguagesQueryOptions,
   gamesQueryOptions,
 } from "@/features/games/api/games";
-import { EMPTY_LANGUAGES, LANGUAGE_LABELS } from "@/lib/constants/languages";
+import { EMPTY_LANGUAGES } from "@/lib/constants/languages";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconFolderPlus, IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";

@@ -1,7 +1,7 @@
+import { getInitials } from "@magic-vault/shared";
 import { EmptyState } from "@/components/empty-state";
 import { MobileIconBadge } from "@/components/mobile-icon-badge";
 import { MobileSearchInput } from "@/components/mobile-search-input";
-import { getInitials } from "@/components/ui/initials-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";

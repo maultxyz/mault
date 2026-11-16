@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import { Button } from "@/components/ui/button";
 import {
@@ -25,7 +26,7 @@ import {
   gameLanguagesQueryOptions,
   gamesQueryOptions,
 } from "@/features/games/api/games";
-import { EMPTY_LANGUAGES, LANGUAGE_LABELS } from "@/lib/constants/languages";
+import { EMPTY_LANGUAGES } from "@/lib/constants/languages";
 import type { IntakeLotDialogProps } from "@/lib/interfaces/business";
 import {
   INTAKE_COLLECTION_MODES,

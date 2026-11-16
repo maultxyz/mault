@@ -1,5 +1,3 @@
-import type { ConditionOperator } from "@magic-vault/shared";
-
 export const SORTING_RULES_PATH = "/app/rules";
 export const SORTING_RULES_PRESET_PARAM = "preset";
 export const sortingRulesPresetPath = (presetGuid: string) =>
@@ -21,14 +19,6 @@ export const CONDITION_FIELD_CLASS = "max-md:basis-full";
 
 export const CONDITION_SELECT_TRIGGER_CLASS =
   "max-md:data-[size=default]:h-10 max-md:px-3 max-md:font-normal";
-
-export const MULTI_VALUE_OPERATORS: ConditionOperator[] = [
-  "in",
-  "not_in",
-  "contains_any",
-  "contains_all",
-  "contains_none",
-];
 
 export const DEFAULT_MAX_COPIES = 4;
 

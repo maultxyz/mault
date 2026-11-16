@@ -1,3 +1,4 @@
+import { getCalibrationKey } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
@@ -5,7 +6,6 @@ import { Callout } from "@/components/ui/callout";
 import { Icon } from "@/components/ui/icon";
 import { Slider } from "@/components/ui/slider";
 import { StepperRow } from "@/components/ui/stepper-row";
-import { getCalibrationKey } from "@/features/calibration/lib/calibration-keys";
 import { useTheme } from "@/hooks/use-theme";
 import {
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD,

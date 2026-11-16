@@ -1,3 +1,4 @@
+import { getInitials } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import Constants from "expo-constants";
 import { router } from "expo-router";
@@ -28,7 +29,6 @@ import { THEME_PREFERENCES } from "@/lib/constants/ui";
 import type { LanguagePreference } from "@/lib/interfaces/i18n";
 import type { ThemePreference } from "@/lib/interfaces/theme";
 import { SPACING } from "@/lib/constants/theme";
-import { getInitials } from "@/lib/initials";
 
 export default function AccountScreen() {
   const { t } = useTranslation();

@@ -1,10 +1,10 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { SelectField } from "@/components/ui/select-field";
 import { ADMIN_DEFAULT_SYNC_LANGUAGE } from "@/lib/constants/admin-cards";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { SPACING } from "@/lib/constants/theme";
 import type { CardsSyncSourceFieldsProps } from "@/lib/interfaces/admin-cards";
 
