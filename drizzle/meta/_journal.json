@@ -1268,6 +1268,13 @@
       "when": 1794718043376,
       "tag": "0180_order_aware_picking",
       "breakpoints": true
+    },
+    {
+      "idx": 181,
+      "version": "7",
+      "when": 1794806014952,
+      "tag": "0181_card_search_indexes",
+      "breakpoints": true
     }
   ]
 }

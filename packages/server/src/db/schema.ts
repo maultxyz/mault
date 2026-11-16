@@ -118,6 +118,16 @@ export const cardImageVectors = pgTable(
       table.lang,
       sql`lower(${table.collectorNumber})`,
     ),
+    index("cards_collector_number_unpadded_idx").on(
+      table.gameKey,
+      table.lang,
+      sql`ltrim(lower(${table.collectorNumber}), '0')`,
+    ),
+    index("cards_set_code_lower_idx").on(
+      table.gameKey,
+      table.lang,
+      sql`lower(${table.setCode})`,
+    ),
     crudPolicy({
       role: authenticatedRole,
       read: true,

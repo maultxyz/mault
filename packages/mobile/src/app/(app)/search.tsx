@@ -27,7 +27,7 @@ import { SETTINGS_SECTION_LINKS } from "@/lib/constants/settings";
 import { SPACING } from "@/lib/constants/theme";
 import type { CatalogCardResult } from "@/lib/interfaces/search";
 import { absoluteUrl } from "@/lib/url";
-import { catalogGamesOf, GLOBAL_SEARCH_MIN_QUERY_LENGTH } from "@magic-vault/shared";
+import { CATALOG_SEARCH_MIN_QUERY_LENGTH, catalogGamesOf, GLOBAL_SEARCH_MIN_QUERY_LENGTH } from "@magic-vault/shared";
 
 export default function GlobalSearchScreen() {
   const { t } = useTranslation();
@@ -36,6 +36,7 @@ export default function GlobalSearchScreen() {
   const query = search.trim();
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
   const searchesCards = debouncedQuery.length >= GLOBAL_SEARCH_MIN_QUERY_LENGTH;
+  const searchesCatalog = debouncedQuery.length >= CATALOG_SEARCH_MIN_QUERY_LENGTH;
   const { collections, collection: scanTargetCollection } = useScanTarget();
   const queryClient = useQueryClient();
   const pricing = usePricing();
@@ -44,7 +45,7 @@ export default function GlobalSearchScreen() {
     [collections, scanTargetCollection?.guid],
   );
   const catalogQueries = useQueries({
-    queries: catalogGames.map((game) => catalogCardSearchQueryOptions(game, debouncedQuery, searchesCards)),
+    queries: catalogGames.map((game) => catalogCardSearchQueryOptions(game, debouncedQuery, searchesCatalog)),
   });
   const locations = useQuery(storageLocationsQueryOptions(orgId, true));
   const cards = useQuery(ownedCardSearchQueryOptions(orgId, debouncedQuery, searchesCards));
@@ -56,12 +57,12 @@ export default function GlobalSearchScreen() {
     [query, collections, locations.data, t],
   );
   const cardResults = searchesCards ? (cards.data ?? []) : [];
-  const catalogResults: CatalogCardResult[] = searchesCards
+  const catalogResults: CatalogCardResult[] = searchesCatalog
     ? catalogQueries.flatMap((catalogQuery, index) =>
         (catalogQuery.data ?? []).map(({ card, printingCount }) => ({ game: catalogGames[index], card, printingCount })),
       )
     : [];
-  const isSearchingCatalog = searchesCards && catalogQueries.some((catalogQuery) => catalogQuery.isLoading);
+  const isSearchingCatalog = searchesCatalog && catalogQueries.some((catalogQuery) => catalogQuery.isLoading);
   const catalogFailed = catalogQueries.some((catalogQuery) => catalogQuery.isError);
   const showsGameName = catalogGames.length > 1;
   const isSearchingCards = searchesCards && cards.isLoading;

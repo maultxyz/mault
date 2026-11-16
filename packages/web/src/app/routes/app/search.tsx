@@ -30,6 +30,7 @@ import type { CatalogCardResult } from "@/lib/interfaces/search";
 import { cn } from "@/lib/utils";
 import {
   catalogGamesOf,
+  CATALOG_SEARCH_MIN_QUERY_LENGTH,
   GLOBAL_SEARCH_MIN_QUERY_LENGTH,
   rankGlobalSearchMatches,
   type OwnedCardSearchResult,
@@ -53,6 +54,7 @@ export default function SearchPage() {
   const query = search.trim();
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
   const searchesCards = debouncedQuery.length >= GLOBAL_SEARCH_MIN_QUERY_LENGTH;
+  const searchesCatalog = debouncedQuery.length >= CATALOG_SEARCH_MIN_QUERY_LENGTH;
   const isWaitingForDebounce = query.length >= GLOBAL_SEARCH_MIN_QUERY_LENGTH && query !== debouncedQuery;
 
   const catalogGames = useMemo(
@@ -60,7 +62,7 @@ export default function SearchPage() {
     [collections, activeCollection?.guid],
   );
   const catalogQueries = useQueries({
-    queries: catalogGames.map((game) => catalogCardSearchQueryOptions(game, debouncedQuery, searchesCards)),
+    queries: catalogGames.map((game) => catalogCardSearchQueryOptions(game, debouncedQuery, searchesCatalog)),
   });
   const locations = useQuery(storageLocationsQueryOptions(activeOrg?.id));
   const cards = useQuery(ownedCardSearchQueryOptions(activeOrg?.id, debouncedQuery, searchesCards));
@@ -73,14 +75,14 @@ export default function SearchPage() {
     query,
   );
   const cardResults = searchesCards ? (cards.data ?? []) : [];
-  const catalogResults: CatalogCardResult[] = searchesCards
+  const catalogResults: CatalogCardResult[] = searchesCatalog
     ? catalogQueries.flatMap((catalogQuery, index) =>
         (catalogQuery.data ?? []).map(({ card, printingCount }) => ({ game: catalogGames[index], card, printingCount })),
       )
     : [];
   const isSearchingCards = searchesCards && cards.isPending;
-  const isSearchingCatalog = searchesCards && catalogQueries.some((catalogQuery) => catalogQuery.isPending);
-  const catalogFailed = searchesCards && catalogQueries.some((catalogQuery) => catalogQuery.isError);
+  const isSearchingCatalog = searchesCatalog && catalogQueries.some((catalogQuery) => catalogQuery.isPending);
+  const catalogFailed = searchesCatalog && catalogQueries.some((catalogQuery) => catalogQuery.isError);
   const showsGameName = catalogGames.length > 1;
   const resultCount =
     cardResults.length +

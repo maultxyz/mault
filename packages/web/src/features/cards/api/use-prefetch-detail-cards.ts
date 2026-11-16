@@ -13,7 +13,7 @@ import type {
 } from "@/lib/interfaces/cards";
 import {
   CARD_SEARCH_ALL_LANGUAGES,
-  QUERY_MIN_LENGTH,
+  CATALOG_SEARCH_MIN_QUERY_LENGTH,
   REVIEW_DETAIL_PREFETCH_COUNT,
   REVIEW_DETAIL_PREFETCH_MAX_AGE_MS,
   walkDetailPrefetchChain,
@@ -59,7 +59,7 @@ function prefetchReviewCorrectionSearch(
   step: DetailPrefetchStep,
 ) {
   const name = step.card.name;
-  if (name.trim().length < QUERY_MIN_LENGTH) return;
+  if (name.trim().length < CATALOG_SEARCH_MIN_QUERY_LENGTH) return;
   void queryClient.prefetchInfiniteQuery(
     cardSearchQueryOptions(
       name,
