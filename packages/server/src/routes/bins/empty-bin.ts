@@ -17,6 +17,7 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { resolveGameId, activeBinSetWhere } from "./shared";
 import { orgHasFeature } from "../../lib/plan-config";
 import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
+import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 export const emptyBinRoute = new Hono<AppEnv>().post(
   "/bins/:binNumber/empty",
@@ -66,7 +67,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           columns: { id: true },
         });
         if (!location) {
-          return { message: "Storage location not found.", success: false };
+          return { message: STORAGE_LOCATION_NOT_FOUND_MESSAGE, success: false };
         }
         const collection = await tx.query.collections.findFirst({
           where: (t, { eq, and }) =>

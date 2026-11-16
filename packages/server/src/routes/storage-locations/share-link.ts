@@ -20,7 +20,8 @@ import { forgetVerifiedStorageShareLinks } from "../../lib/storage-share-links";
 import type { ShareLinkRequestBody } from "../../lib/interfaces/share-tokens";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { orgHasFeature } from "../../lib/plan-config";
-import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
+import { STORAGE_LOCKED_RESULT } from "../../lib/constants/plan-access";
+import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 export const storageShareLinkRoute = new Hono<AppEnv>()
   .post("/:guid/share-link", requireAuth, requireOrg, async (c) => {
@@ -52,11 +53,7 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       if (!(await orgHasFeature(tx, orgId, "storage"))) {
-        return {
-          success: false,
-          message: STORAGE_UPGRADE_MESSAGE,
-          upgradeRequired: true,
-        };
+        return STORAGE_LOCKED_RESULT;
       }
       const location = await tx.query.storageLocations.findFirst({
         where: (t, { eq, and }) =>
@@ -64,7 +61,7 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
         columns: { id: true, shareLinkVersion: true },
       });
       if (!location) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       const allowsLongLinks = await allowsLongShareLinks(tx, orgId);
       const { guid: linkGuid, token, shortCode, shortUrl, expiresAt } = await issueShareLink(tx, {
@@ -109,7 +106,7 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
         .returning({ id: storageLocations.id });
     });
     if (updated.length === 0) {
-      return c.json({ success: false, message: "Storage location not found." });
+      return c.json({ success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE });
     }
     forgetVerifiedStorageShareLinks(guid);
     forgetSharedStorageReads(guid);

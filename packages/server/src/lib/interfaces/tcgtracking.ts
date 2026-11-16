@@ -170,3 +170,14 @@ export interface TcgplayerPriceSyncResult {
   products: number;
   failedSets: number;
 }
+
+export interface TcgtrackingCatalogSyncSourceOptions {
+  gameKey: string;
+  label: string;
+  gameName: string;
+  defaultUrl: string;
+  languages: string[];
+  categoryId: number;
+  cardName: (entry: TcgtrackingCatalogEntry) => string;
+  setCode: (entry: TcgtrackingCatalogEntry) => string;
+}

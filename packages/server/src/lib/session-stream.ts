@@ -7,7 +7,7 @@ import type {
 } from "./interfaces/session-stream";
 
 const sessions = new Map<string, SessionEntry>();
-const orgCountWriters = new Map<string, Set<SseWriter>>();
+const orgWriters = new Map<string, Set<SseWriter>>();
 const lastCollectionCardsChangedAt = new Map<string, number>();
 const pendingCollectionCardsChanged = new Map<
   string,
@@ -15,7 +15,7 @@ const pendingCollectionCardsChanged = new Map<
 >();
 
 export function emitToOrg(orgId: string, event: string, data: unknown) {
-  const writers = orgCountWriters.get(orgId);
+  const writers = orgWriters.get(orgId);
   if (!writers) return;
   for (const writer of writers) {
     try {
@@ -130,18 +130,18 @@ export function getSessionViewersForGuids(
   return result;
 }
 
-export function subscribeOrgLiveCounts(
+export function subscribeOrgEvents(
   orgId: string,
   writer: SseWriter,
 ): () => void {
-  let writers = orgCountWriters.get(orgId);
+  let writers = orgWriters.get(orgId);
   if (!writers) {
     writers = new Set();
-    orgCountWriters.set(orgId, writers);
+    orgWriters.set(orgId, writers);
   }
   writers.add(writer);
   return () => {
     writers!.delete(writer);
-    if (writers!.size === 0) orgCountWriters.delete(orgId);
+    if (writers!.size === 0) orgWriters.delete(orgId);
   };
 }

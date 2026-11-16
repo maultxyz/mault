@@ -16,3 +16,9 @@ export const FLEET_HEALTH_LOCKED_RESULT = {
     "Fleet health is not part of your plan. Upgrade your plan to use it.",
   upgradeRequired: true,
 } as const;
+
+export const STORAGE_LOCKED_RESULT = {
+  success: false,
+  message: STORAGE_UPGRADE_MESSAGE,
+  upgradeRequired: true,
+} as const;

@@ -77,7 +77,8 @@ import {
   visibleAcquisitionCost,
 } from "./shared";
 import { orgHasFeature } from "../../lib/plan-config";
-import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
+import { STORAGE_LOCKED_RESULT } from "../../lib/constants/plan-access";
+import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 function parseStoredCardsQuery(params: Record<string, string | undefined>) {
   return {
@@ -172,11 +173,7 @@ const router = new Hono<AppEnv>()
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       if (!(await orgHasFeature(tx, orgId, "storage"))) {
-        return {
-          success: false,
-          message: STORAGE_UPGRADE_MESSAGE,
-          upgradeRequired: true,
-        };
+        return STORAGE_LOCKED_RESULT;
       }
       const data: StorageRemoveCardsResult = {
         removed: await removeCardsFromLocations(tx, orgId, scanIds),
@@ -195,7 +192,7 @@ const router = new Hono<AppEnv>()
       loadLocations(tx, orgId, [guid]),
     );
     if (!data) {
-      return c.json({ success: false, message: "Storage location not found." });
+      return c.json({ success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE });
     }
     return c.json({ success: true, data });
   })
@@ -208,11 +205,7 @@ const router = new Hono<AppEnv>()
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       if (!(await orgHasFeature(tx, orgId, "storage"))) {
-        return {
-          success: false,
-          message: STORAGE_UPGRADE_MESSAGE,
-          upgradeRequired: true,
-        };
+        return STORAGE_LOCKED_RESULT;
       }
       if (await locationNameTaken(tx, orgId, name)) {
         return { success: false, message: "That name is already used." };
@@ -248,11 +241,7 @@ const router = new Hono<AppEnv>()
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       if (!(await orgHasFeature(tx, orgId, "storage"))) {
-        return {
-          success: false,
-          message: STORAGE_UPGRADE_MESSAGE,
-          upgradeRequired: true,
-        };
+        return STORAGE_LOCKED_RESULT;
       }
       if (await locationNameTaken(tx, orgId, name, guid)) {
         return { success: false, message: "That name is already used." };
@@ -269,7 +258,7 @@ const router = new Hono<AppEnv>()
         )
         .returning({ id: storageLocations.id });
       if (updated.length === 0) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       return { success: true, data: null };
     });
@@ -280,11 +269,7 @@ const router = new Hono<AppEnv>()
     const guid = c.req.param("guid");
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       if (!(await orgHasFeature(tx, orgId, "storage"))) {
-        return {
-          success: false,
-          message: STORAGE_UPGRADE_MESSAGE,
-          upgradeRequired: true,
-        };
+        return STORAGE_LOCKED_RESULT;
       }
       const location = await tx.query.storageLocations.findFirst({
         where: (t, { eq, and }) =>
@@ -292,7 +277,7 @@ const router = new Hono<AppEnv>()
         columns: { id: true },
       });
       if (!location) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       await tx
         .update(storageLocations)
@@ -308,7 +293,7 @@ const router = new Hono<AppEnv>()
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const locationId = await findLocationId(tx, orgId, guid);
       if (locationId === null) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       const rows = await selectStoredCards(tx)
         .where(storedCardsWhere(locationId))
@@ -340,7 +325,7 @@ const router = new Hono<AppEnv>()
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const locationId = await findLocationId(tx, orgId, guid);
       if (locationId === null) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       const { rowIds, total, page } = await loadStoredCardIdsPage(
         tx,
@@ -370,7 +355,7 @@ const router = new Hono<AppEnv>()
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const locationId = await findLocationId(tx, orgId, guid);
       if (locationId === null) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       const data: StorageLocationCardReference[] =
         await loadStoredCardReferences(
@@ -389,7 +374,7 @@ const router = new Hono<AppEnv>()
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const locationId = await findLocationId(tx, orgId, guid);
       if (locationId === null) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       const [row] = await tx
         .select({ scanId: collectionCards.guid })
@@ -418,7 +403,7 @@ const router = new Hono<AppEnv>()
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const locationId = await findLocationId(tx, orgId, guid);
       if (locationId === null) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       const [current] = await selectStoredCards(tx)
         .where(storedCardsWhere(locationId, eq(collectionCards.guid, scanId)))
@@ -452,7 +437,7 @@ const router = new Hono<AppEnv>()
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const locationId = await findLocationId(tx, orgId, guid);
       if (locationId === null) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       const data: StorageLocationSearchResult[] = await loadStorageVerifyCards(
         tx,
@@ -469,7 +454,7 @@ const router = new Hono<AppEnv>()
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const locationId = await findLocationId(tx, orgId, guid);
       if (locationId === null) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       const data: StorageLocationCardsSummary = {
         stats: await loadLocationCardStats(
@@ -491,7 +476,7 @@ const router = new Hono<AppEnv>()
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const locationId = await findLocationId(tx, orgId, guid);
       if (locationId === null) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       return {
         success: true,
@@ -506,7 +491,7 @@ const router = new Hono<AppEnv>()
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       const locationId = await findLocationId(tx, orgId, guid);
       if (locationId === null) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       return {
         success: true,
@@ -549,7 +534,7 @@ const router = new Hono<AppEnv>()
       return { location, cards, gameKeys, game };
     });
     if (!loaded) {
-      return c.json({ success: false, message: "Storage location not found." }, 404);
+      return c.json({ success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE }, 404);
     }
     const { location, cards, gameKeys, game } = loaded;
     const result = await buildCardExport({
@@ -619,7 +604,7 @@ const router = new Hono<AppEnv>()
       },
     );
     if (!markedByCollection) {
-      return c.json({ success: false, message: "Storage location not found." });
+      return c.json({ success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE });
     }
     for (const { collectionGuid, scanIds: markedIds } of markedByCollection) {
       emitToSession(orgId, collectionGuid, "cards_downloaded", { scanIds: markedIds });
@@ -642,15 +627,11 @@ const router = new Hono<AppEnv>()
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       if (!(await orgHasFeature(tx, orgId, "storage"))) {
-        return {
-          success: false,
-          message: STORAGE_UPGRADE_MESSAGE,
-          upgradeRequired: true,
-        };
+        return STORAGE_LOCKED_RESULT;
       }
       const locationId = await findLocationId(tx, orgId, guid);
       if (locationId === null) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       const collection = await tx.query.collections.findFirst({
         where: (t, { eq, and }) =>
@@ -705,11 +686,7 @@ const router = new Hono<AppEnv>()
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       if (!(await orgHasFeature(tx, orgId, "storage"))) {
-        return {
-          success: false,
-          message: STORAGE_UPGRADE_MESSAGE,
-          upgradeRequired: true,
-        };
+        return STORAGE_LOCKED_RESULT;
       }
       const location = await tx.query.storageLocations.findFirst({
         where: (t, { eq, and }) =>
@@ -717,7 +694,7 @@ const router = new Hono<AppEnv>()
         columns: { id: true },
       });
       if (!location) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       const movedScanIds = await moveCardsToLocation(tx, {
         orgId,
@@ -747,11 +724,7 @@ const router = new Hono<AppEnv>()
     const scanId = c.req.param("scanId");
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
       if (!(await orgHasFeature(tx, orgId, "storage"))) {
-        return {
-          success: false,
-          message: STORAGE_UPGRADE_MESSAGE,
-          upgradeRequired: true,
-        };
+        return STORAGE_LOCKED_RESULT;
       }
       const location = await tx.query.storageLocations.findFirst({
         where: (t, { eq, and }) =>
@@ -759,7 +732,7 @@ const router = new Hono<AppEnv>()
         columns: { id: true },
       });
       if (!location) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       const updated = await tx
         .update(collectionCards)

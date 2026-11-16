@@ -56,6 +56,7 @@ import {
 import { sorterLimitMessage } from "../../lib/plan-limit-messages";
 import { connectedSorterLimitForPlan, orgHasFeature } from "../../lib/plan-config";
 import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
+import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -188,7 +189,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
               result: {
                 success: false,
                 message: storageAllowed
-                  ? "Storage location not found."
+                  ? STORAGE_LOCATION_NOT_FOUND_MESSAGE
                   : STORAGE_UPGRADE_MESSAGE,
                 storageLocationUnavailable: true,
               },

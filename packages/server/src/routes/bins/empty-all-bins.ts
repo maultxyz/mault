@@ -17,6 +17,7 @@ import {
 } from "./shared";
 import { orgHasFeature } from "../../lib/plan-config";
 import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
+import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 export const emptyAllBinsRoute = new Hono<AppEnv>().post(
   "/bins/empty-all",
@@ -120,7 +121,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
             });
             if (!location) {
               return {
-                message: "Storage location not found.",
+                message: STORAGE_LOCATION_NOT_FOUND_MESSAGE,
                 success: false,
               };
             }

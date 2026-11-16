@@ -27,12 +27,12 @@ import {
   loadActiveDeployNotice,
   subscribeDeployNotice,
 } from "../lib/deploy-notice";
-import { getLocksForGuids, subscribeOrgLocks } from "../lib/scan-lock";
+import { getLocksForGuids } from "../lib/scan-lock";
 import {
   getLiveCountsForGuids,
   getSessionViewers,
   getSessionViewersForGuids,
-  subscribeOrgLiveCounts,
+  subscribeOrgEvents,
   subscribeSession,
 } from "../lib/session-stream";
 import { subscribeSSE } from "../lib/sync-job";
@@ -166,8 +166,7 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
       .catch((err) => console.error("[stream] Failed to load deploy notice:", err));
 
     if (orgId) {
-      unsubs.push(subscribeOrgLocks(orgId, write));
-      unsubs.push(subscribeOrgLiveCounts(orgId, write));
+      unsubs.push(subscribeOrgEvents(orgId, write));
 
       let orgGuids: string[] = [];
       try {

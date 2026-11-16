@@ -2,27 +2,16 @@ import { eq } from "drizzle-orm";
 import { db } from "../db";
 import { orgSettings } from "../db/schema";
 import { SCAN_LOCK_TTL_MS as LOCK_TTL_MS } from "./constants/timing";
-import type { SseWriter } from "./interfaces/sse";
 import type {
   AcquireLockResult,
   ActiveScanLock,
   LockEntry,
   ScanLock,
 } from "./interfaces/scan-lock";
+import { emitToOrg } from "./session-stream";
 
 const locks = new Map<string, LockEntry>();
 const hostHeldLocks = new Set<string>();
-const orgWriters = new Map<string, Set<SseWriter>>();
-
-function emitToOrg(orgId: string, event: string, data: unknown) {
-  const writers = orgWriters.get(orgId);
-  if (!writers) return;
-  for (const writer of writers) {
-    try {
-      writer(event, data);
-    } catch {}
-  }
-}
 
 async function clearScanThread(orgId: string) {
   try {
@@ -117,22 +106,6 @@ export function getLocksForGuids(guids: string[]): Record<string, ScanLock> {
       };
   }
   return result;
-}
-
-export function subscribeOrgLocks(
-  orgId: string,
-  writer: SseWriter,
-): () => void {
-  let writers = orgWriters.get(orgId);
-  if (!writers) {
-    writers = new Set();
-    orgWriters.set(orgId, writers);
-  }
-  writers.add(writer);
-  return () => {
-    writers!.delete(writer);
-    if (writers!.size === 0) orgWriters.delete(orgId);
-  };
 }
 
 export function getActiveScanLockStats(): {

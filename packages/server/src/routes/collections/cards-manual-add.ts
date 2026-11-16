@@ -25,6 +25,7 @@ import { toScannedCard } from "./shared";
 import { toSavedCardSnapshots } from "../../lib/saved-cards";
 import { orgHasFeature } from "../../lib/plan-config";
 import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
+import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards/manual",
@@ -81,7 +82,7 @@ export const addManualCollectionCardRoute = new Hono<AppEnv>().post(
         if (locationId === null) {
           return {
             status: 404 as const,
-            message: "Storage location not found.",
+            message: STORAGE_LOCATION_NOT_FOUND_MESSAGE,
           };
         }
       }
