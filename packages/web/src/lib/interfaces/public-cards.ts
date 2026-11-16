@@ -58,6 +58,10 @@ export interface PublicCardDetailViewProps {
   onClose?: () => void;
 }
 
+export interface PoweredByMaultProps {
+  className?: string;
+}
+
 export interface SharedCardViewProps {
   token: string;
   scanId: string;

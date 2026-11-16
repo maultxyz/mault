@@ -8,6 +8,7 @@ import {
 import { TradeOfferHeaderButton } from "@/features/trade-offers/components/trade-offer-header-button";
 import { TradeOfferPage } from "@/features/trade-offers/components/trade-offer-page";
 import { TradeOfferProvider } from "@/features/trade-offers/components/trade-offer-provider";
+import { PoweredByMault } from "@/features/public-cards/components/powered-by-mault";
 import { PublicCardDetailView } from "@/features/public-cards/components/public-card-detail";
 import { PublicCardFilterPanel } from "@/features/public-cards/components/public-card-filter-panel";
 import { PublicCardResults } from "@/features/public-cards/components/public-card-results";
@@ -402,6 +403,9 @@ export function PublicCardBrowser({
         {sidebarTop}
         {filterPanel}
       </DynamicDialog>
+      <footer className="flex shrink-0 items-center justify-center border-t px-4 py-1.5 md:justify-end md:px-3 md:py-1">
+        <PoweredByMault />
+      </footer>
     </main>
   );
 

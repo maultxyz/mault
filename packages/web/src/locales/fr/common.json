@@ -458,7 +458,9 @@
     "checkFailedTitle": "Impossible d'ouvrir ce lien",
     "checkFailedDescription": "Vérifie ta connexion et réessaie.",
     "shortLinkInvalidTitle": "Ce lien ne fonctionne pas",
-    "shortLinkInvalidDescription": "Vérifie qu'il a été copié en entier, ou demande un nouveau lien à la personne qui l'a partagé."
+    "shortLinkInvalidDescription": "Vérifie qu'il a été copié en entier, ou demande un nouveau lien à la personne qui l'a partagé.",
+    "poweredBy": "Propulsé par",
+    "poweredByLabel": "Propulsé par {{site}} (s'ouvre dans un nouvel onglet)"
   },
   "tradeOffers": {
     "declined": "Offre d'échange refusée",

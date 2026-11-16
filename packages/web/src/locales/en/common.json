@@ -458,7 +458,9 @@
     "checkFailedTitle": "Couldn't open this link",
     "checkFailedDescription": "Check your connection and try again.",
     "shortLinkInvalidTitle": "This link doesn't work",
-    "shortLinkInvalidDescription": "Check that it was copied in full, or ask whoever shared it for a new link."
+    "shortLinkInvalidDescription": "Check that it was copied in full, or ask whoever shared it for a new link.",
+    "poweredBy": "Powered by",
+    "poweredByLabel": "Powered by {{site}} (opens in a new tab)"
   },
   "tradeOffers": {
     "declined": "Trade offer declined",
