@@ -1111,6 +1111,11 @@ export function useScanSession({
   const handleFeedResult = useCallback(
     (reply: SerialReply | null, command: FeedCommand = "auto-feed") => {
       if (emergencyStoppedRef.current) return;
+      if (isEmergencyStopReply(reply)) {
+        emergencyStoppedRef.current = true;
+        pause("emergency-stop", "stopped");
+        return;
+      }
       if (!reply || reply.empty || reply.error || reply.detected === false) {
         reportSorterEvent({ command, sent: true, response: reply });
       }
