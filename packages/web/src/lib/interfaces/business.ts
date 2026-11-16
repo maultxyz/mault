@@ -28,7 +28,7 @@ import type {
   OrderLineInput,
   OrderSource,
   PlayingCardImage,
-  PullSheetEntry,
+  PickWalkEntry,
   StatsRange,
 } from "@magic-vault/shared";
 import type { ComponentProps, ReactNode } from "react";
@@ -148,13 +148,23 @@ export interface OrderBinsDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export interface OrderPickByLocationProps {
-  entries: PullSheetEntry[];
-  orderBinOf: (entry: PullSheetEntry) => number | null;
-  pickNameOf?: (entry: PullSheetEntry) => string;
+export interface PickWalkNextUpProps {
+  entry: PickWalkEntry;
+  showOrderName: boolean;
+  canPick: boolean;
+  isReleasing?: boolean;
+  onPicked: () => void;
+  onMissing: () => void;
+}
+
+export interface PickWalkStopListProps {
+  entries: PickWalkEntry[];
   pickedScanIds: ReadonlySet<string>;
   canPick: boolean;
-  onPickedChange: (scanIds: string[], isPicked: boolean) => void;
+  showOrderName: boolean;
+  headingLevel?: "h2" | "h3";
+  onToggle: (scanId: string, isPicked: boolean) => void;
+  onMissing?: (scanId: string) => void;
 }
 
 export interface OrderSubstituteDialogProps {

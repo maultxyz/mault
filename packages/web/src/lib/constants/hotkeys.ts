@@ -41,6 +41,7 @@ export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
   "intake",
   "foilLabeling",
   "matchValidation",
+  "pickWalk",
 ];
 
 export const ADMIN_ONLY_HOTKEY_GROUPS: HotkeyGroup[] = ["foilLabeling"];
@@ -106,6 +107,12 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
     group: "matchValidation",
     keys: [{ key: "arrowleft" }],
   },
+  pickNext: { group: "pickWalk", keys: [{ key: "j" }, { key: "arrowdown" }] },
+  pickPrevious: {
+    group: "pickWalk",
+    keys: [{ key: "k" }, { key: "arrowup" }],
+  },
+  pickToggle: { group: "pickWalk", keys: [{ key: " " }] },
 };
 
 export const HOTKEY_ROUTES = {

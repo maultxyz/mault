@@ -425,6 +425,23 @@
       "image": "Kartenbild"
     },
     "pickSaveFailed": "Der Pick konnte nicht gespeichert werden. Deine Häkchen wurden vom Server neu geladen.",
+    "pickWalk": {
+      "nextUp": "Als Nächstes",
+      "slot": "Platz {{position}}",
+      "bin": "Fach {{bin}}",
+      "collectionBin": "{{collection}} · Fach {{bin}}",
+      "stopProgress": "{{picked}} von {{total}}",
+      "listHeading": "Karten nach Lagerort",
+      "progress": "{{picked}} von {{total}} Karten gepickt",
+      "allPicked": "Jede Karte ist gepickt. Schließe die Picks ab, wenn du bereit bist.",
+      "cantFind": "Nicht gefunden",
+      "cantFindCard": "{{name}} nicht gefunden",
+      "missingTitle": "{{name}} nicht gefunden?",
+      "missingDescription": "Das Exemplar geht zurück in den Bestand und die Position wird fehlend. Du kannst danach ein anderes Exemplar oder Printing zuweisen.",
+      "missingConfirm": "Exemplar freigeben",
+      "missingReleased_one": "{{count}} Exemplar zurück in den Bestand freigegeben",
+      "missingReleased_other": "{{count}} Exemplare zurück in den Bestand freigegeben"
+    },
     "phonePick": {
       "button": "Auf dem Handy picken",
       "title": "Auf dem Handy picken",

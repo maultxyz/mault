@@ -425,6 +425,23 @@
       "image": "Image de la carte"
     },
     "pickSaveFailed": "Impossible d'enregistrer la préparation. Vos coches ont été rechargées depuis le serveur.",
+    "pickWalk": {
+      "nextUp": "Prochaine carte",
+      "slot": "Place {{position}}",
+      "bin": "Case {{bin}}",
+      "collectionBin": "{{collection}} · Case {{bin}}",
+      "stopProgress": "{{picked}} sur {{total}}",
+      "listHeading": "Cartes par emplacement",
+      "progress": "{{picked}} sur {{total}} cartes prélevées",
+      "allPicked": "Chaque carte est prélevée. Terminez les prélèvements quand vous êtes prêt.",
+      "cantFind": "Introuvable",
+      "cantFindCard": "{{name}} introuvable",
+      "missingTitle": "{{name}} introuvable ?",
+      "missingDescription": "L'exemplaire retourne en stock et la ligne devient manquante. Vous pourrez ensuite allouer un autre exemplaire ou une autre édition.",
+      "missingConfirm": "Libérer l'exemplaire",
+      "missingReleased_one": "{{count}} exemplaire remis en stock",
+      "missingReleased_other": "{{count}} exemplaires remis en stock"
+    },
     "phonePick": {
       "button": "Préparer sur le téléphone",
       "title": "Préparer sur votre téléphone",

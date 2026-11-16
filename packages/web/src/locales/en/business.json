@@ -425,6 +425,23 @@
       "image": "Card image"
     },
     "pickSaveFailed": "Couldn't save the pick. Your ticks were refreshed from the server.",
+    "pickWalk": {
+      "nextUp": "Next up",
+      "slot": "Slot {{position}}",
+      "bin": "Bin {{bin}}",
+      "collectionBin": "{{collection}} · Bin {{bin}}",
+      "stopProgress": "{{picked}} of {{total}}",
+      "listHeading": "Cards by location",
+      "progress": "{{picked}} of {{total}} cards picked",
+      "allPicked": "Every card is picked. Complete the picks when you are ready.",
+      "cantFind": "Can't find",
+      "cantFindCard": "Can't find {{name}}",
+      "missingTitle": "Can't find {{name}}?",
+      "missingDescription": "The copy goes back into stock and the line becomes short. You can allocate a different copy or printing afterwards.",
+      "missingConfirm": "Release copy",
+      "missingReleased_one": "{{count}} copy released back into stock",
+      "missingReleased_other": "{{count}} copies released back into stock"
+    },
     "phonePick": {
       "button": "Pick on phone",
       "title": "Pick on your phone",

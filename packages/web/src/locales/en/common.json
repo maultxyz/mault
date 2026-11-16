@@ -225,7 +225,8 @@
       "cardDetail": "Card details",
       "intake": "Intake",
       "matchValidation": "Validating matches",
-      "foilLabeling": "Foil labelling"
+      "foilLabeling": "Foil labelling",
+      "pickWalk": "Picking"
     },
     "actions": {
       "showShortcuts": "Show keyboard shortcuts",
@@ -278,7 +279,10 @@
       "matchValidationSkip": "While validating matches: skip this scan",
       "matchValidationBack": "While validating matches: go back to the previous scan",
       "foilLabelBack": "While labelling foils: go back to the previous card",
-      "scanFlatbedCard": "Scan the card on the flatbed"
+      "scanFlatbedCard": "Scan the card on the flatbed",
+      "pickNext": "While picking: next card",
+      "pickPrevious": "While picking: previous card",
+      "pickToggle": "While picking: mark the card as picked"
     }
   },
   "mobileMenu": {

@@ -225,7 +225,8 @@
       "cardDetail": "Détails de la carte",
       "intake": "Rachat",
       "matchValidation": "Validation des correspondances",
-      "foilLabeling": "Étiquetage des foils"
+      "foilLabeling": "Étiquetage des foils",
+      "pickWalk": "Prélèvement"
     },
     "actions": {
       "showShortcuts": "Afficher les raccourcis clavier",
@@ -278,7 +279,10 @@
       "matchValidationSkip": "Pendant la validation : ignorer ce scan",
       "matchValidationBack": "Pendant la validation : revenir au scan précédent",
       "foilLabelBack": "Pendant l'étiquetage : revenir à la carte précédente",
-      "scanFlatbedCard": "Numériser la carte sur le scanner à plat"
+      "scanFlatbedCard": "Numériser la carte sur le scanner à plat",
+      "pickNext": "Pendant le prélèvement : carte suivante",
+      "pickPrevious": "Pendant le prélèvement : carte précédente",
+      "pickToggle": "Pendant le prélèvement : marquer la carte comme prélevée"
     }
   },
   "mobileMenu": {

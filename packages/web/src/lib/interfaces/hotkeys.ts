@@ -7,7 +7,8 @@ export type HotkeyGroup =
   | "cardDetail"
   | "intake"
   | "foilLabeling"
-  | "matchValidation";
+  | "matchValidation"
+  | "pickWalk";
 
 export type HotkeyId =
   | "showShortcuts"
@@ -60,7 +61,10 @@ export type HotkeyId =
   | "matchValidationIncorrect"
   | "matchValidationBadScan"
   | "matchValidationSkip"
-  | "matchValidationBack";
+  | "matchValidationBack"
+  | "pickNext"
+  | "pickPrevious"
+  | "pickToggle";
 
 export interface HotkeyCombo {
   key: string;
