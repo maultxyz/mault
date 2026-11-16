@@ -161,6 +161,8 @@ export * from "./interfaces/sort-test.interface";
 export * from "./constants/sort-test.constant";
 export * from "./servo-pulse";
 export * from "./scan-save";
+export * from "./pending-save-queue";
+export * from "./interfaces/pending-save-queue.interface";
 export * from "./scan-destination";
 export * from "./scan-removal";
 export * from "./scanner-control-code";

@@ -5,14 +5,13 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type ReactNode,
 } from "react";
 import { AppState } from "react-native";
 import { invalidateAfterScanSave } from "@/features/collections/api/collection-cards";
 import { unmatchedCardsQueryOptions } from "@/features/collections/api/unmatched-cards";
-import { isRetryableSaveError, sendScanSave } from "@/features/scanner/api/scan-saves";
+import { sendScanSave } from "@/features/scanner/api/scan-saves";
 import {
   deletePendingSave,
   listPendingSaves,
@@ -23,69 +22,34 @@ import type {
   PendingSavesContextValue,
   PendingScanSave,
 } from "@/lib/interfaces/scanner";
-import { pendingScanSaveRetryDelayMs } from "@magic-vault/shared";
+import { PendingSaveQueue } from "@magic-vault/shared";
 
 const PendingSavesContext = createContext<PendingSavesContextValue | null>(null);
 
 export function PendingSavesProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const [pendingCount, setPendingCount] = useState(0);
-  const inFlight = useRef(new Set<string>());
-  const wakers = useRef(new Set<() => void>());
-  const stopped = useRef(false);
-
-  const waitForRetry = useCallback(
-    (attempt: number) =>
-      new Promise<void>((resolve) => {
-        const wake = () => {
-          clearTimeout(timer);
-          wakers.current.delete(wake);
-          resolve();
-        };
-        const timer = setTimeout(wake, pendingScanSaveRetryDelayMs(attempt));
-        wakers.current.add(wake);
+  const [queue] = useState(
+    () =>
+      new PendingSaveQueue<PendingScanSave, CardSaveResult>({
+        keyOf: (save) => save.key,
+        send: sendScanSave,
+        put: putPendingSave,
+        remove: deletePendingSave,
+        onPendingCountChange: (delta) => setPendingCount((count) => count + delta),
       }),
-    [],
   );
 
   useEffect(() => {
-    stopped.current = false;
+    queue.start();
     const subscription = AppState.addEventListener("change", (state) => {
-      if (state !== "active") return;
-      for (const wake of [...wakers.current]) wake();
+      if (state === "active") queue.wakeAll();
     });
     return () => {
-      stopped.current = true;
+      queue.stop();
       subscription.remove();
     };
-  }, []);
-
-  const retryUntilSettled = useCallback(
-    async (save: PendingScanSave, retryImmediately: boolean): Promise<CardSaveResult> => {
-      inFlight.current.add(save.key);
-      setPendingCount((count) => count + 1);
-      try {
-        for (let attempt = retryImmediately ? -1 : 0; ; attempt++) {
-          if (attempt >= 0) await waitForRetry(attempt);
-          if (stopped.current) return new Promise<never>(() => {});
-          try {
-            const result = await sendScanSave(save, true);
-            deletePendingSave(save.key);
-            return result;
-          } catch (err) {
-            if (!isRetryableSaveError(err)) {
-              deletePendingSave(save.key);
-              throw err;
-            }
-          }
-        }
-      } finally {
-        inFlight.current.delete(save.key);
-        setPendingCount((count) => count - 1);
-      }
-    },
-    [waitForRetry],
-  );
+  }, [queue]);
 
   const invalidateAfterSave = useCallback(
     (save: PendingScanSave) => {
@@ -99,17 +63,11 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
 
   const submit = useCallback(
     async (save: PendingScanSave): Promise<CardSaveResult> => {
-      try {
-        const result = await sendScanSave(save, false);
-        invalidateAfterSave(save);
-        return result;
-      } catch (err) {
-        if (!isRetryableSaveError(err)) throw err;
-      }
-      putPendingSave(save);
-      return retryUntilSettled(save, false);
+      const result = await queue.submit(save);
+      invalidateAfterSave(save);
+      return result;
     },
-    [invalidateAfterSave, retryUntilSettled],
+    [invalidateAfterSave, queue],
   );
 
   const saveCard = useCallback<PendingSavesContextValue["saveCard"]>(
@@ -124,12 +82,13 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     for (const save of listPendingSaves()) {
-      if (inFlight.current.has(save.key)) continue;
-      void retryUntilSettled(save, true)
+      if (queue.isInFlight(save.key)) continue;
+      void queue
+        .retryUntilSettled(save, true)
         .then(() => invalidateAfterSave(save))
         .catch(() => {});
     }
-  }, [invalidateAfterSave, retryUntilSettled]);
+  }, [invalidateAfterSave, queue]);
 
   const value = useMemo(
     () => ({ pendingCount, saveCard, saveUnmatched }),
