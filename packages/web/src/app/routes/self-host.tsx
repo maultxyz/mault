@@ -16,10 +16,10 @@ import { useTranslation } from "react-i18next";
 export default function SelfHostPage() {
   const { t } = useTranslation("selfhost");
   const { checked, toggle } = useSelfHostChecklist();
-  const { host, auth } = useSelfHostSetup();
+  const { host, auth, sorter, board } = useSelfHostSetup();
   const sections = useMemo(
-    () => visibleSelfHostSections({ host, auth }),
-    [host, auth],
+    () => visibleSelfHostSections({ host, auth, sorter, board }),
+    [host, auth, sorter, board],
   );
   const toc = useSelfHostToc(sections, checked);
   usePageMeta({
