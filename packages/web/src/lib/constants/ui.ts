@@ -18,6 +18,9 @@ export const MOBILE_COMBOBOX_POSITIONER_CLASS = "max-md:bottom-(--keyboard-inset
 export const MOBILE_COMBOBOX_POPUP_CLASS =
   "max-md:flex max-md:max-h-[calc((100dvh-var(--keyboard-inset))*0.75)]! max-md:flex-col max-md:gap-1 max-md:*:data-[slot=input-group]:h-11 max-md:*:data-[slot=input-group]:w-auto max-md:*:data-[slot=input-group]:shrink-0 max-md:*:data-[slot=combobox-list]:max-h-none max-md:*:data-[slot=combobox-list]:min-h-0 max-md:*:data-[slot=combobox-list]:flex-1 max-md:**:data-[slot=combobox-item]:min-h-12 max-md:**:data-[slot=combobox-item]:px-3 max-md:**:data-[slot=combobox-item]:text-base";
 
+export const SHELL_GRADIENT_CLASS =
+  "pointer-events-none absolute inset-0 -z-10 bg-linear-to-br from-primary/10 via-primary/4 via-35% to-transparent to-60% dark:from-primary/25 dark:via-primary/8";
+
 export const GRADIENT_BURST_CLASS =
   "pointer-events-none absolute top-8 left-8 size-60 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/50 blur-[60px]";
 
