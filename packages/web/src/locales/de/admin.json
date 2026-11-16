@@ -56,6 +56,29 @@
     },
     "toasts": {
       "commandFailed": "Die Platine hat den Befehl nicht angenommen"
+    },
+    "rawCommands": {
+      "heading": "Rohbefehle",
+      "description": "Sende beliebige JSON-Befehle direkt an die Platine, jeweils eine Zeile. Rohe Pulse umgehen die Kalibrierung, also beginne nahe der Mitte und behalte die Mechanik im Blick. Alles stoppen schaltet jeden Servo stromlos; sende Neutral, um weiterzumachen.",
+      "presets": "Beispiele",
+      "preset": {
+        "servoPulse": "Servo-Puls",
+        "servoPosition": "Servo-Position",
+        "channelPulse": "Kanal-Puls",
+        "channelRelease": "Kanal freigeben",
+        "neutral": "Neutral",
+        "status": "Status"
+      },
+      "command": "Befehl (JSON)",
+      "commandHint": "Ein JSON-Objekt, zum Beispiel {\"servo\": \"pusher\", \"module\": 1, \"value\": 305}. Pulse reichen von 120 bis 490. Alle Befehle stehen in firmware/PROTOCOL.md.",
+      "send": "Senden",
+      "stopAll": "Alles stoppen",
+      "history": "Antworten",
+      "clear": "Leeren",
+      "empty": "Noch nichts gesendet.",
+      "sent": "Gesendet:",
+      "reply": "Antwort:",
+      "failed": "Fehlgeschlagen"
     }
   },
   "cardImageVectors": {

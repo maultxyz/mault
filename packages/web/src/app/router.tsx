@@ -598,13 +598,8 @@ export const routes: RouteObject[] = [
                         element: <AdminShortLinksPage />,
                       },
                       {
-                        element: <AdminGuard />,
-                        children: [
-                          {
-                            path: "hardware",
-                            element: <AdminHardwarePage />,
-                          },
-                        ],
+                        path: "hardware",
+                        element: <AdminHardwarePage />,
                       },
                       {
                         path: "servos",

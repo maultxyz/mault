@@ -125,7 +125,7 @@ export const ADMIN_SECTIONS = [
     path: "hardware",
     icon: IconRotate360,
     labelKey: "sections.hardware",
-    adminOnly: true,
+    adminOnly: false,
     showsOnMobile: false,
   },
   {

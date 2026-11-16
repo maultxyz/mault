@@ -2387,7 +2387,8 @@
     "orderBinCatchAll": "The last bin catches every other card, so pick another one.",
     "catalogSourcesRequired": "Pick at least one collection or storage location.",
     "contactRequired": "Add a way to reach you.",
-    "textTooLong": "Keep this under {{max}} characters."
+    "textTooLong": "Keep this under {{max}} characters.",
+    "jsonObjectInvalid": "Enter a single JSON object, like {\"neutral\": true}."
   },
   "cardTags": {
     "title": "Tags",

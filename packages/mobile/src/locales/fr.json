@@ -2387,7 +2387,8 @@
     "orderBinCatchAll": "Le dernier bac reçoit toutes les autres cartes, choisis-en un autre.",
     "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
     "contactRequired": "Indique comment te joindre.",
-    "textTooLong": "Reste sous {{max}} caractères."
+    "textTooLong": "Reste sous {{max}} caractères.",
+    "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}."
   },
   "cardTags": {
     "title": "Étiquettes",

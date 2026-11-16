@@ -56,6 +56,29 @@
     },
     "toasts": {
       "commandFailed": "The board didn't accept the command"
+    },
+    "rawCommands": {
+      "heading": "Raw commands",
+      "description": "Send any JSON command straight to the board, one line at a time. Raw pulses skip calibration, so start near the center and watch the linkage. Stop all cuts power to every servo; send Neutral to recover.",
+      "presets": "Examples",
+      "preset": {
+        "servoPulse": "Servo pulse",
+        "servoPosition": "Servo position",
+        "channelPulse": "Channel pulse",
+        "channelRelease": "Release channel",
+        "neutral": "Neutral",
+        "status": "Status"
+      },
+      "command": "Command (JSON)",
+      "commandHint": "One JSON object, for example {\"servo\": \"pusher\", \"module\": 1, \"value\": 305}. Pulses run from 120 to 490. See firmware/PROTOCOL.md for every command.",
+      "send": "Send",
+      "stopAll": "Stop all",
+      "history": "Replies",
+      "clear": "Clear",
+      "empty": "Nothing sent yet.",
+      "sent": "Sent:",
+      "reply": "Reply:",
+      "failed": "Failed"
     }
   },
   "cardImageVectors": {
