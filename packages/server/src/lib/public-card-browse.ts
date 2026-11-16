@@ -52,6 +52,7 @@ function publicCardsWhere(scope: PublicCardBrowseScope, gameKey: string | null =
   return sql`cc.org_id = ${scope.orgId}
     AND (cc.collection_id = ANY(${integerArraySql(scope.collectionIds)})
       OR cc.location_id = ANY(${integerArraySql(scope.storageLocationIds)}))
+    ${scope.collectionCardIds ? sql`AND cc.id = ANY(${integerArraySql(scope.collectionCardIds)})` : sql``}
     ${scope.inventoryOnly ? sql`AND ${INVENTORY_CARD_FILTER}` : sql``}
     ${scope.hidesCardsReservedByOpenPicks ? sql`AND ${notReservedByOpenPicksSql(scope.orgId, sql`cc.guid`)}` : sql``}
     ${gameKey ? sql`AND g.key = ${gameKey}` : sql``}`;

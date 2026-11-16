@@ -670,5 +670,15 @@
       "signedInAs": "Signed in as {{name}}.",
       "signedInHint": "Offers you send show up under Trades > Sent in your account."
     }
+  },
+  "shareCardLink": {
+    "action": "Copy share link",
+    "copied": "Share link copied. Anyone with it can see this card.",
+    "copyFailed": "Couldn't copy a share link for this card.",
+    "sharedPage": {
+      "readOnly": "Shared card · Read-only view",
+      "invalidTitle": "This link doesn't work anymore",
+      "invalidDescription": "It may have been revoked, or the card was removed. Ask the person who shared it for a new link."
+    }
   }
 }

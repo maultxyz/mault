@@ -670,5 +670,15 @@
       "signedInAs": "Angemeldet als {{name}}.",
       "signedInHint": "Gesendete Angebote erscheinen in deinem Konto unter Tausch > Gesendet."
     }
+  },
+  "shareCardLink": {
+    "action": "Freigabelink kopieren",
+    "copied": "Freigabelink kopiert. Alle mit dem Link sehen diese Karte.",
+    "copyFailed": "Der Freigabelink für diese Karte konnte nicht kopiert werden.",
+    "sharedPage": {
+      "readOnly": "Geteilte Karte · Nur Ansicht",
+      "invalidTitle": "Dieser Link funktioniert nicht mehr",
+      "invalidDescription": "Er wurde vielleicht widerrufen, oder die Karte wurde entfernt. Bitte die Person, die ihn geteilt hat, um einen neuen Link."
+    }
   }
 }

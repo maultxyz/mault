@@ -108,6 +108,7 @@ import { usePersistedFlag } from "@/hooks/use-persisted-state";
 import { SaveBar } from "@/components/save-bar";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useScanDraft } from "@/features/cards/api/use-scan-draft";
+import { useCopyCardShareLink } from "@/features/cards/api/use-copy-card-share-link";
 import {
   IconBox,
   IconCheck,
@@ -121,6 +122,7 @@ import {
   IconLayoutGrid,
   IconPencil,
   IconRosette,
+  IconShare,
   IconSparkles,
   IconStar,
   IconSwitchHorizontal,
@@ -189,6 +191,7 @@ export function CardDetailPanel({
   const isMobile = useIsMobile();
   const inCardDrawer = useContext(CardDrawerContext);
   const [actionsOpen, setActionsOpen] = useState(false);
+  const { copyCardShareLink, isCopying: isCopyingShareLink } = useCopyCardShareLink();
   const [attributePicker, setAttributePicker] =
     useState<CardDetailAttributePicker | null>(null);
   const [moveTarget, setMoveTarget] = useState<CardDetailMoveTarget | null>(
@@ -965,6 +968,25 @@ export function CardDetailPanel({
                 {t("reviewGrid.layoutGrid")}
               </Button>
             )}
+            {scanId && !reviewMode && (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="shrink-0"
+                      onClick={() => void copyCardShareLink(scanId)}
+                      disabled={isCopyingShareLink}
+                      aria-label={t("shareCardLink.action")}
+                    >
+                      <IconShare />
+                    </Button>
+                  }
+                />
+                <TooltipContent>{t("shareCardLink.action")}</TooltipContent>
+              </Tooltip>
+            )}
             <Button
               size="icon"
               variant="ghost"
@@ -1401,6 +1423,17 @@ export function CardDetailPanel({
                     label: `${t("language")}: ${LANGUAGE_LABELS[currentLanguage] ?? currentLanguage}`,
                     icon: <IconLanguage />,
                     onSelect: () => setAttributePicker("language"),
+                  },
+                ]
+              : []),
+            ...(scanId && !reviewMode
+              ? [
+                  {
+                    key: "share",
+                    label: t("shareCardLink.action"),
+                    icon: <IconShare />,
+                    disabled: isCopyingShareLink,
+                    onSelect: () => void copyCardShareLink(scanId),
                   },
                 ]
               : []),

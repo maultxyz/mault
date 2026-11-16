@@ -1,4 +1,5 @@
 import {
+  SHARED_CARD_PATH_PREFIX,
   SHARED_STORAGE_PATH_PREFIX,
   SHARE_LINK_TOKEN_PARAM,
   SHORT_LINK_PATH_PREFIX,
@@ -47,8 +48,14 @@ export function shareLinkPathWithToken(path: string, token: string | null): stri
   return token ? `${path}?${new URLSearchParams({ [SHARE_LINK_TOKEN_PARAM]: token })}` : path;
 }
 
+const SHARE_LINK_PATH_PREFIX_BY_KIND: Record<ShareLinkKind, string> = {
+  collection: WATCH_PATH_PREFIX,
+  storage: SHARED_STORAGE_PATH_PREFIX,
+  card: SHARED_CARD_PATH_PREFIX,
+};
+
 export function shareLinkPath(kind: ShareLinkKind, subjectGuid: string, token: string): string {
-  const prefix = kind === "storage" ? SHARED_STORAGE_PATH_PREFIX : WATCH_PATH_PREFIX;
+  const prefix = SHARE_LINK_PATH_PREFIX_BY_KIND[kind];
   return shareLinkPathWithToken(`${prefix}/${subjectGuid}`, token);
 }
 

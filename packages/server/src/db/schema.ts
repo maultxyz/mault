@@ -953,6 +953,7 @@ export const shareLinks = pgTable(
     linkKind: text("link_kind").notNull(),
     collectionId: integer("collection_id"),
     storageLocationId: integer("storage_location_id"),
+    collectionCardId: integer("collection_card_id"),
     subjectGuid: uuid("subject_guid").notNull(),
     subjectVersion: integer("subject_version").notNull(),
     purpose: text("purpose").notNull(),

@@ -157,7 +157,16 @@
       "links": "Affichage des liens actifs",
       "new": "Affichage du formulaire de nouveau lien",
       "link": "Affichage du lien et du QR code"
-    }
+    },
+    "linksTab": "Liens",
+    "sharedCards": "Cartes partagées",
+    "sharedCardsDescription": "Les cartes de cette collection que vous avez partagées. Touchez-en une pour copier son lien, ou appuyez longuement pour le révoquer.",
+    "sharedCardsEmpty": "Aucune carte partagée",
+    "sharedCardsEmptyDescription": "Utilisez « Copier le lien de partage » sur une carte pour la partager. Son lien apparaît ici pour que vous puissiez le révoquer.",
+    "cardLinkCopied": "Lien copié.",
+    "cardLinkCopyFailed": "Impossible de copier le lien.",
+    "cardLinkCopyHint": "Copie le lien",
+    "created": "Créé le {{date}}"
   },
   "cards": {
     "bin": "Bac {{number}}",
@@ -1064,7 +1073,10 @@
     "actions": "Actions de la carte",
     "similarMatchesCount_one": "{{count}} correspondance similaire",
     "similarMatchesCount_other": "{{count}} correspondances similaires",
-    "reviewAcceptFailed": "Impossible de valider la carte précédente"
+    "reviewAcceptFailed": "Impossible de valider la carte précédente",
+    "share": "Copier le lien de partage",
+    "shareLinkCopied": "Lien de partage copié. Toute personne qui l’a peut voir cette carte.",
+    "shareLinkCopyFailed": "Impossible de copier un lien de partage pour cette carte."
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",

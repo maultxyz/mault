@@ -157,7 +157,16 @@
       "links": "Aktive Links werden angezeigt",
       "new": "Formular für einen neuen Link wird angezeigt",
       "link": "Link und QR-Code werden angezeigt"
-    }
+    },
+    "linksTab": "Links",
+    "sharedCards": "Geteilte Karten",
+    "sharedCardsDescription": "Karten aus dieser Sammlung, die du geteilt hast. Tippe auf eine, um ihren Link zu kopieren, oder halte sie gedrückt, um ihn zu widerrufen.",
+    "sharedCardsEmpty": "Noch keine geteilten Karten",
+    "sharedCardsEmptyDescription": "Nutze bei einer Karte „Freigabelink kopieren“, um sie zu teilen. Ihr Link erscheint hier, damit du ihn widerrufen kannst.",
+    "cardLinkCopied": "Link kopiert.",
+    "cardLinkCopyFailed": "Der Link konnte nicht kopiert werden.",
+    "cardLinkCopyHint": "Kopiert den Link",
+    "created": "Erstellt am {{date}}"
   },
   "cards": {
     "bin": "Fach {{number}}",
@@ -1064,7 +1073,10 @@
     "actions": "Kartenaktionen",
     "similarMatchesCount_one": "{{count}} ähnliche Übereinstimmung",
     "similarMatchesCount_other": "{{count}} ähnliche Übereinstimmungen",
-    "reviewAcceptFailed": "Die vorherige Karte konnte nicht bestätigt werden"
+    "reviewAcceptFailed": "Die vorherige Karte konnte nicht bestätigt werden",
+    "share": "Freigabelink kopieren",
+    "shareLinkCopied": "Freigabelink kopiert. Alle mit dem Link sehen diese Karte.",
+    "shareLinkCopyFailed": "Der Freigabelink für diese Karte konnte nicht kopiert werden."
   },
   "reviewGrid": {
     "title": "Karten prüfen",

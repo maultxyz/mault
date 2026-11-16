@@ -670,5 +670,15 @@
       "signedInAs": "Connecté en tant que {{name}}.",
       "signedInHint": "Les offres que vous envoyez apparaissent dans votre compte sous Échanges > Envoyées."
     }
+  },
+  "shareCardLink": {
+    "action": "Copier le lien de partage",
+    "copied": "Lien de partage copié. Toute personne qui l’a peut voir cette carte.",
+    "copyFailed": "Impossible de copier un lien de partage pour cette carte.",
+    "sharedPage": {
+      "readOnly": "Carte partagée · Lecture seule",
+      "invalidTitle": "Ce lien ne fonctionne plus",
+      "invalidDescription": "Il a peut-être été révoqué, ou la carte a été retirée. Demandez un nouveau lien à la personne qui l'a partagé."
+    }
   }
 }

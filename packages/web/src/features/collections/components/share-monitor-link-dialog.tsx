@@ -56,6 +56,7 @@ export function ShareMonitorLinkDialog({
       revokedMessage={t("shareMonitorLink.revoked")}
       createLink={createLink}
       revokeLinks={revokeLinks}
+      sharedCardsCollectionGuid={collectionGuid}
       open={open}
       onOpenChange={onOpenChange}
       renderTrigger={open === undefined ? (activeLinkCount) => (

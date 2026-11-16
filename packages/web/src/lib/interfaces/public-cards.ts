@@ -55,7 +55,12 @@ export interface PublicCardTileProps {
 export interface PublicCardDetailViewProps {
   source: PublicCardsSource;
   scanId: string;
-  onClose: () => void;
+  onClose?: () => void;
+}
+
+export interface SharedCardViewProps {
+  token: string;
+  scanId: string;
 }
 
 export interface PublicCardBadgesProps {

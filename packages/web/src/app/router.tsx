@@ -1,4 +1,5 @@
 import {
+  SHARED_CARD_PATH_PREFIX,
   SHARED_STORAGE_PATH_PREFIX,
   SHOP_CATALOG_PATH_PREFIX,
   SHORT_LINK_NOT_FOUND_PATH,
@@ -84,6 +85,12 @@ const SharedStoragePage = lazy(
   withNamespaces(
     () => import("@/app/routes/shared-storage"),
     ["common", "storage", "cards"],
+  ),
+);
+const SharedCardPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/shared-card"),
+    ["common", "cards"],
   ),
 );
 const ShopCatalogPage = lazy(
@@ -383,6 +390,10 @@ export const routes: RouteObject[] = [
       {
         path: `${SHARED_STORAGE_PATH_PREFIX}/:locationGuid`,
         element: <SharedStoragePage />,
+      },
+      {
+        path: `${SHARED_CARD_PATH_PREFIX}/:scanGuid`,
+        element: <SharedCardPage />,
       },
       {
         path: `${SHOP_CATALOG_PATH_PREFIX}/:catalogGuid`,

@@ -69,6 +69,16 @@ export interface StorageShareLinkClaims {
   purpose: ShareLinkPurpose;
 }
 
+export interface CardShareLinkClaims {
+  linkGuid: string;
+  collectionCardId: number;
+  scanId: string;
+  collectionId: number;
+  cardName: string;
+  orgId: string;
+  showsPrices: boolean;
+}
+
 export interface ShareLinkRequestBody {
   expiresInDays?: number;
   showPrices?: unknown;

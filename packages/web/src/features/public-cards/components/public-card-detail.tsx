@@ -52,7 +52,8 @@ export function PublicCardDetailView({
     if (detail) headingRef.current?.focus();
   }, [detail]);
 
-  const topBar = (
+  const CardHeading = onClose ? "h2" : "h1";
+  const topBar = onClose && (
     <div className="sticky top-0 z-10 bg-background/80 p-2 backdrop-blur-2xl">
       <Button variant="ghost" onClick={onClose}>
         <IconArrowLeft />
@@ -200,13 +201,13 @@ export function PublicCardDetailView({
       <div className="@container flex flex-col gap-5 md:gap-2 p-4 md:px-3 md:py-2">
         <div className="min-w-0">
           <div className="flex items-baseline gap-2 max-md:flex-wrap max-md:gap-y-1">
-            <h2
+            <CardHeading
               ref={headingRef}
               tabIndex={-1}
               className="truncate text-base font-semibold outline-none max-md:line-clamp-2 max-md:whitespace-normal"
             >
               {card.name}
-            </h2>
+            </CardHeading>
             {price != null && (
               <span className="shrink-0 text-base font-semibold tabular-nums">
                 {format(price)}

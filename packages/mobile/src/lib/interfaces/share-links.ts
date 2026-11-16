@@ -20,6 +20,12 @@ export interface ShareLinkListProps {
   onRevoke: (link: OrgShareLink) => void;
 }
 
+export interface SharedCardLinksProps {
+  collectionGuid: string;
+}
+
+export type ShareLinkSheetTab = "links" | "cards";
+
 export type ShareLinkSheetView = { name: "links" } | { name: "new" } | { name: "link"; linkGuid: string };
 
 export interface NewShareLinkFormProps {

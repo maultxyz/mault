@@ -79,6 +79,7 @@ import {
 } from "@/features/collections/api/collection-cards";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
+import { useCopyCardShareLink } from "@/features/share-links/api/use-copy-card-share-link";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import {
   cardStorageLocationQueryOptions,
@@ -94,6 +95,7 @@ import { useTheme } from "@/hooks/use-theme";
 import {
   CARD_DETAIL_HEADER_ACTION_COUNT,
   CARD_DETAIL_MENU_SHEETS,
+  CARD_DETAIL_SHARE_ACTION,
   CARD_REVIEW_ACCEPT_MUTATION_KEY,
 } from "@/lib/constants/cards";
 import { formatDateTime } from "@/lib/dates";
@@ -343,7 +345,9 @@ export default function CardDetailScreen() {
     onError: () => AccessibilityInfo.announceForAccessibility(t("storage.actionFailed")),
   });
 
+  const copyShareLink = useCopyCardShareLink();
   const actionMenuOptions = [
+    ...(reviewMode ? [] : [{ value: CARD_DETAIL_SHARE_ACTION, label: t("cardDetail.share") }]),
     { value: "collection", label: t("storage.moveToCollection") },
     ...(canMoveToLocation
       ? [{ value: "location", label: storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation") }]
@@ -494,6 +498,8 @@ export default function CardDetailScreen() {
         }
       />
       <PinnedActionsLayout actions={bottomActions} actionsDirection="row">
+        {copyShareLink.isSuccess ? <Callout tone="success" title={t("cardDetail.shareLinkCopied")} /> : null}
+        {copyShareLink.isError ? <Callout tone="destructive" title={t("cardDetail.shareLinkCopyFailed")} /> : null}
         {position.isError ? (
           <Callout
             tone="destructive"
@@ -816,7 +822,14 @@ export default function CardDetailScreen() {
         title={t("cardDetail.actions")}
         options={actionMenuOptions}
         selected={[]}
-        onSelect={(value) => setSheet(CARD_DETAIL_MENU_SHEETS.find((menuSheet) => menuSheet === value) ?? null)}
+        onSelect={(value) => {
+          if (value === CARD_DETAIL_SHARE_ACTION) {
+            setSheet(null);
+            copyShareLink.mutate(scanId);
+            return;
+          }
+          setSheet(CARD_DETAIL_MENU_SHEETS.find((menuSheet) => menuSheet === value) ?? null);
+        }}
         onClose={() => setSheet(null)}
       />
       <OptionSheet

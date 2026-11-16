@@ -1,0 +1,1 @@
+ALTER TABLE "share_links" ADD COLUMN "collection_card_id" integer;
