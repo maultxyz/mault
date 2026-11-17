@@ -1034,6 +1034,9 @@
     "loadingMoreCards": "Weitere Karten werden geladen"
   },
   "cardDetail": {
+    "catalogCardRemovedTitle": "Karte nicht mehr im Katalog",
+    "catalogCardRemovedDescription": "Die Karte, der dieses Exemplar zugeordnet war ({{name}}), wurde aus der Kartendatenbank entfernt, weil ihre Daten fehlerhaft waren. Suche die richtige Druckversion, damit Preis und Details aktuell bleiben.",
+    "catalogCardRemovedAction": "Richtige Karte suchen",
     "noCollectionsToMoveTo": "Es gibt keine andere Sammlung für dieses Spiel, in die die Karte verschoben werden kann.",
     "noLocationsToMoveTo": "Es gibt keinen anderen Lagerort, an den die Karte verschoben werden kann.",
     "pricePaid": "Kaufpreis ({{currency}})",

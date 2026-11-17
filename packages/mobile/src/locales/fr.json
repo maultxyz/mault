@@ -1034,6 +1034,9 @@
     "loadingMoreCards": "Chargement de cartes supplémentaires"
   },
   "cardDetail": {
+    "catalogCardRemovedTitle": "Carte retirée du catalogue",
+    "catalogCardRemovedDescription": "La carte associée à cet exemplaire, {{name}}, a été retirée de la base de cartes car ses données étaient incorrectes. Recherche la bonne impression pour que son prix et ses détails restent à jour.",
+    "catalogCardRemovedAction": "Trouver la bonne carte",
     "noCollectionsToMoveTo": "Aucune autre collection de ce jeu vers laquelle déplacer la carte.",
     "noLocationsToMoveTo": "Aucun autre emplacement de rangement vers lequel déplacer la carte.",
     "pricePaid": "Prix payé ({{currency}})",

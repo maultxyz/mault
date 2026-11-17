@@ -1034,6 +1034,9 @@
     "loadingMoreCards": "Loading more cards"
   },
   "cardDetail": {
+    "catalogCardRemovedTitle": "Card no longer in the catalog",
+    "catalogCardRemovedDescription": "The card this copy was matched to, {{name}}, was removed from the card database because its data was incorrect. Search for the correct printing so its price and details stay up to date.",
+    "catalogCardRemovedAction": "Find the correct card",
     "noCollectionsToMoveTo": "There's no other collection for this game to move the card to.",
     "noLocationsToMoveTo": "There's no other storage location to move the card to.",
     "pricePaid": "Price paid ({{currency}})",

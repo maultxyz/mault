@@ -65,10 +65,12 @@ export function withCatalogCard<T extends PlayingCard>(
   current: PlayingCard | undefined,
   { includeRaw }: SavedCardHydrateOptions,
 ): T {
-  if (!current) return includeRaw ? saved : withoutKeys(saved, ["raw"]);
+  if (!current) {
+    return withoutKeys(saved, includeRaw ? ["isMissingFromCatalog"] : ["raw", "isMissingFromCatalog"]);
+  }
   const merged = {
     ...withoutKeys(current, ["raw"]),
-    ...withoutKeys(saved, ["raw"]),
+    ...withoutKeys(saved, ["raw", "isMissingFromCatalog"]),
     ...withoutKeys(current, [...SAVED_CARD_SCAN_KEYS, "raw"]),
     image: current.image?.normal ? current.image : saved.image,
   };
@@ -92,8 +94,15 @@ export async function hydrateSavedCards<T extends PlayingCard>(
   const catalog = keys.length > 0 ? await catalogCardCache.load(keys) : new Map();
   return items.map((item) => {
     const key = lookupKey(item, item.card);
-    return withCatalogCard(item.card, key ? catalog.get(key) : undefined, options);
+    return withCatalogMissingFlag(
+      withCatalogCard(item.card, key ? catalog.get(key) : undefined, options),
+      !!key && !catalog.has(key),
+    );
   });
+}
+
+function withCatalogMissingFlag<T extends PlayingCard>(card: T, isMissingFromCatalog: boolean): T {
+  return isMissingFromCatalog ? { ...card, isMissingFromCatalog: true } : card;
 }
 
 export async function hydrateSavedScans<T extends SavedScanFields>(
@@ -115,9 +124,13 @@ export async function hydrateSavedScans<T extends SavedScanFields>(
       scope.lang,
     );
   };
+  const hydrateMainCard = <C extends PlayingCard>(card: C): C => {
+    const key = lookupKey(scope, card);
+    return withCatalogMissingFlag(hydrate(card), !!key && !catalog.has(key));
+  };
   return scans.map((scan) => ({
     ...scan,
-    card: scan.card ? hydrate(scan.card) : scan.card,
+    card: scan.card ? hydrateMainCard(scan.card) : scan.card,
     alternativeMatches: scan.alternativeMatches?.map(hydrate) ?? scan.alternativeMatches,
   }));
 }

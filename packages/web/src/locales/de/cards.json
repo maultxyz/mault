@@ -46,6 +46,9 @@
     "acrossPrintings": "Spanne über {{count}} Drucke"
   },
   "cardDetailPanel": {
+    "catalogCardRemovedTitle": "Karte nicht mehr im Katalog",
+    "catalogCardRemovedDescription": "Die Karte, der dieses Exemplar zugeordnet war ({{name}}), wurde aus der Kartendatenbank entfernt, weil ihre Daten fehlerhaft waren. Suche die richtige Druckversion, damit Preis und Details aktuell bleiben.",
+    "catalogCardRemovedAction": "Richtige Karte suchen",
     "pricePaid": "Kaufpreis ({{currency}})",
     "pricePaidEmpty": "Nicht festgelegt",
     "pricePaidSaveFailed": "Der Kaufpreis konnte nicht gespeichert werden.",

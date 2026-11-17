@@ -41,6 +41,7 @@ export const SAVED_CARD_SCAN_KEYS = [
 
 export const SAVED_CARD_READ_TIME_KEYS = [
   "raw",
+  "isMissingFromCatalog",
   "pricesAtScan",
   "purchaseLinks",
   "finishPrices",
