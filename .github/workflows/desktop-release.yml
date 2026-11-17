@@ -8,6 +8,10 @@ on:
         type: choice
         options: [patch, minor, major]
         default: patch
+      rollback_tag:
+        description: "Rollback: build this desktop tag (desktop-vX.Y.Z) instead of the branch, as the next version so installed apps update to it"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -21,6 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
+      source-sha: ${{ steps.source.outputs.sha }}
       channel: ${{ steps.channel.outputs.channel }}
       release-tag: ${{ steps.channel.outputs.release-tag }}
       artifact-prefix: ${{ steps.channel.outputs.artifact-prefix }}
@@ -49,6 +54,25 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # electron-updater never installs a lower version, so a rollback ships
+      # the tag's code under the next version from the branch.
+      - name: Resolve source
+        id: source
+        env:
+          ROLLBACK_TAG: ${{ inputs.rollback_tag }}
+        run: |
+          if [ -z "$ROLLBACK_TAG" ]; then
+            echo "sha=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! [[ "$ROLLBACK_TAG" =~ ^desktop-v[0-9]+\.[0-9]+\.[0-9]+$ ]] || ! git rev-parse -q --verify "refs/tags/$ROLLBACK_TAG" >/dev/null; then
+            echo "::error::$ROLLBACK_TAG is not a desktop release tag (desktop-vX.Y.Z)."
+            exit 1
+          fi
+          echo "sha=$(git rev-parse "$ROLLBACK_TAG^{commit}")" >> "$GITHUB_OUTPUT"
 
       - name: Compute app version
         id: version
@@ -77,6 +101,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.version.outputs.source-sha }}
 
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
@@ -144,6 +170,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       VERSION: ${{ needs.version.outputs.version }}
+      SOURCE_SHA: ${{ needs.version.outputs.source-sha }}
       CHANNEL: ${{ needs.version.outputs.channel }}
       RELEASE_TAG: ${{ needs.version.outputs.release-tag }}
       ARTIFACT_PREFIX: ${{ needs.version.outputs.artifact-prefix }}
@@ -169,13 +196,14 @@ jobs:
           gh release delete "$RELEASE_TAG" --cleanup-tag --yes || true
           if [ "$CHANNEL" = "development" ]; then
             gh release create "$RELEASE_TAG" installers/* \
-              --target "${{ github.sha }}" \
+              --target "$SOURCE_SHA" \
               --title "Mault Desktop Dev v$VERSION" \
               --notes "Development build of the Mault desktop app from ${{ github.sha }}. It installs as Mault Dev next to the production app and loads dev.mault.xyz." \
               --prerelease \
               --latest=false
           else
             gh release create "$RELEASE_TAG" installers/* \
+              --target "$SOURCE_SHA" \
               --title "Mault Desktop v$VERSION" \
               --notes "Mault desktop app v$VERSION." \
               --latest=false
@@ -189,7 +217,11 @@ jobs:
           npm pkg set version="$VERSION" --prefix packages/desktop
           git add packages/desktop/package.json
           git commit -m "chore(release): desktop v$VERSION [skip ci]"
-          git tag "desktop-v$VERSION"
+          if [ -n "${{ inputs.rollback_tag }}" ]; then
+            git tag "desktop-v$VERSION" "$SOURCE_SHA"
+          else
+            git tag "desktop-v$VERSION"
+          fi
           git pull --rebase origin "${{ github.ref_name }}"
           git push origin "HEAD:${{ github.ref_name }}"
           git push origin "desktop-v$VERSION"
@@ -199,5 +231,8 @@ jobs:
           {
             echo "## Desktop $CHANNEL release v$VERSION"
             echo ""
+            if [ -n "${{ inputs.rollback_tag }}" ]; then
+              echo "- Rollback: built from ${{ inputs.rollback_tag }} (\`${SOURCE_SHA::7}\`)"
+            fi
             echo "- Downloads: https://github.com/${{ github.repository }}/releases/tag/$RELEASE_TAG"
           } >> "$GITHUB_STEP_SUMMARY"

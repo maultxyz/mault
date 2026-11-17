@@ -154,10 +154,10 @@ test("a stale running result after a stopped updater becomes a persisted failure
 });
 
 for (const [version, available] of [
-  ["1.0.170", false],
-  ["1.0.99", false],
+  ["1.0.170", true],
+  ["1.0.99", true],
   [INSTALLED_VERSION, false],
-  [`${INSTALLED_VERSION}-dev.1`, false],
+  [`${INSTALLED_VERSION}-dev.1`, true],
   ["1.0.210-dev.1", true],
   ["99.0.0-dev.test", true],
   ["99.0.0", true],

@@ -8,6 +8,10 @@ on:
         type: choice
         options: [all, ios, android]
         default: all
+      rollback_tag:
+        description: "Rollback: build this tag's code (any release tag) instead of the branch, under the branch's store version. Stores only accept a version above the live one, so bump packages/mobile's version on the branch first."
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -47,6 +51,27 @@ jobs:
         with:
           fetch-depth: 0
 
+      # Read from the branch before a rollback switches the working tree to the
+      # tag, so the build carries the store version you set by hand.
+      - name: Read app version
+        id: version
+        working-directory: packages/mobile
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Switch to rollback tag
+        if: inputs.rollback_tag != ''
+        env:
+          ROLLBACK_TAG: ${{ inputs.rollback_tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          if ! git rev-parse -q --verify "refs/tags/$ROLLBACK_TAG" >/dev/null; then
+            echo "::error::$ROLLBACK_TAG is not a tag."
+            exit 1
+          fi
+          git checkout --detach "$ROLLBACK_TAG"
+          npm pkg set version="$VERSION" --prefix packages/mobile
+          echo "Building $ROLLBACK_TAG ($(git rev-parse --short HEAD)) as v$VERSION"
+
       - name: Set up pnpm
         uses: pnpm/action-setup@v4
 
@@ -65,14 +90,9 @@ jobs:
           eas-version: latest
           token: ${{ secrets.EXPO_TOKEN }}
 
-      # The store version is packages/mobile's package.json version, changed by hand
-      # (never bumped here). Build numbers are managed remotely by EAS
-      # (appVersionSource: remote, autoIncrement on production).
-      - name: Read app version
-        id: version
-        working-directory: packages/mobile
-        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
-
+      # The store version is packages/mobile's package.json version on the
+      # branch, changed by hand (never bumped here). Build numbers are managed
+      # remotely by EAS (appVersionSource: remote, autoIncrement on production).
       - name: Build
         working-directory: packages/mobile
         run: |
@@ -86,6 +106,9 @@ jobs:
             echo ""
             echo "- Platform: $PLATFORM"
             echo "- EAS profile: $PROFILE"
+            if [ -n "${{ inputs.rollback_tag }}" ]; then
+              echo "- Rollback: built from ${{ inputs.rollback_tag }} (\`$(git rev-parse --short HEAD)\`)"
+            fi
             echo ""
             jq -r '.[] | "- \(.platform): [build page](https://expo.dev/accounts/\(.project.ownerAccount.name)/projects/\(.project.slug)/builds/\(.id)), [download](\(.artifacts.buildUrl))"' "$RUNNER_TEMP/eas-builds.json"
             if [ "$IS_DEV" != "true" ]; then

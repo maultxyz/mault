@@ -27,6 +27,10 @@ on:
         description: Deploy every container in the target even when nothing changed since the last release
         type: boolean
         default: false
+      rollback_tag:
+        description: "Rollback: redeploy this release tag (vX.Y.Z) instead of the branch. Reuses its images, rebuilds any that are missing, and skips the bump, commit, tag and migrations."
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -36,15 +40,41 @@ concurrency:
   group: ${{ github.ref_name == 'dev' && 'dev-release-pipeline' || 'master-release-pipeline' }}
   cancel-in-progress: false
 
+env:
+  IS_DEV: ${{ github.ref_name == 'dev' }}
+  CHANNEL: ${{ github.ref_name == 'dev' && 'dev' || 'latest' }}
+
+# Stages: plan -> build (one job per image) -> release (commit and tag) ->
+# deploy apps -> migrate -> deploy server -> notify. A failed stage can be
+# re-run on its own ("Re-run failed jobs"): later stages only start once the
+# earlier ones succeeded or were skipped, and images are only moved onto the
+# channel tags Coolify pulls after every image built.
 jobs:
-  deploy:
+  plan:
     runs-on: ubuntu-latest
-    environment:
-      name: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
-      url: ${{ vars.APP_URL }}
-    env:
-      IS_DEV: ${{ github.ref_name == 'dev' }}
-      CHANNEL: ${{ github.ref_name == 'dev' && 'dev' || 'latest' }}
+    outputs:
+      should_deploy: ${{ steps.deploy.outputs.should_deploy }}
+      rollback: ${{ steps.rollback.outputs.active }}
+      version: ${{ steps.appversion.outputs.version }}
+      sha: ${{ steps.appversion.outputs.sha }}
+      partial: ${{ steps.targets.outputs.partial }}
+      web_server: ${{ steps.targets.outputs.web_server }}
+      docs: ${{ steps.targets.outputs.docs }}
+      bot: ${{ steps.targets.outputs.bot }}
+      shortener: ${{ steps.targets.outputs.shortener }}
+      labels: ${{ steps.targets.outputs.labels }}
+      build_matrix: ${{ steps.matrix.outputs.build_matrix }}
+      title: ${{ steps.pr.outputs.title }}
+      url: ${{ steps.pr.outputs.url }}
+      changed_web: ${{ steps.changes.outputs.web }}
+      changed_server: ${{ steps.changes.outputs.server }}
+      authors: ${{ steps.changes.outputs.authors }}
+      commits: ${{ steps.changes.outputs.commits }}
+      web_image: ${{ steps.images.outputs.web }}
+      server_image: ${{ steps.images.outputs.server }}
+      docs_image: ${{ steps.images.outputs.docs }}
+      bot_image: ${{ steps.images.outputs.bot }}
+      shortener_image: ${{ steps.images.outputs.shortener }}
     steps:
       # Dispatching from any other branch would deploy unreleased code to
       # production, so only master and dev are allowed.
@@ -59,6 +89,31 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: ${{ inputs.rollback_tag || github.ref }}
+
+      # A rollback deploys a release tag's code under that tag's version. The
+      # images were pushed as :v<version> when the tag was released, so they
+      # are reused; only the channel tags and Coolify move. Nothing is
+      # committed or tagged, so the next nightly run still sees nothing
+      # pending and the rollback stays until new work lands or you deploy.
+      - name: Resolve rollback
+        id: rollback
+        env:
+          ROLLBACK_TAG: ${{ inputs.rollback_tag }}
+        run: |
+          if [ -z "$ROLLBACK_TAG" ]; then
+            echo "active=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if ! [[ "$ROLLBACK_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]] || ! git rev-parse -q --verify "refs/tags/$ROLLBACK_TAG" >/dev/null; then
+            echo "::error::$ROLLBACK_TAG is not a release tag (vX.Y.Z)."
+            exit 1
+          fi
+          {
+            echo "active=true"
+            echo "version=${ROLLBACK_TAG#v}"
+          } >> "$GITHUB_OUTPUT"
+          echo "Rolling back to $ROLLBACK_TAG ($(git rev-parse --short HEAD))"
 
       # Every deploy tags its release commit (vX.Y.Z), so everything after the
       # latest tag is what's pending. A manually picked single target or the
@@ -110,17 +165,17 @@ jobs:
       # older version, and the two are expected to stay on the same release.
       # "everything" only deploys the containers with changes since the last
       # release tag, which still counts as a full release because the others
-      # already run that code. Force makes "everything" deploy every container,
-      # changed or not, and still counts as a full release. Picking a single
-      # target always deploys it, e.g. to retry after a failed Coolify webhook. A partial deploy is not a
-      # release: the version gets a -<target>.<sha> suffix and nothing is
-      # committed or tagged, since a tag would mark the parts that were left
-      # out as deployed.
+      # already run that code. Force (and a rollback) makes "everything"
+      # deploy every container, changed or not, and still counts as a full
+      # release. Picking a single target always deploys it, e.g. to retry
+      # after a failed Coolify webhook. A partial deploy is not a release: the
+      # version gets a -<target>.<sha> suffix and nothing is committed or
+      # tagged, since a tag would mark the parts that were left out as deployed.
       - name: Select deploy targets
         id: targets
         env:
           TARGET: ${{ inputs.target || 'everything' }}
-          FORCE: ${{ inputs.force && 'true' || 'false' }}
+          FORCE: ${{ (inputs.force || inputs.rollback_tag != '') && 'true' || 'false' }}
         run: |
           WEB_SERVER=false
           DOCS=false
@@ -184,7 +239,9 @@ jobs:
       - name: Describe release
         id: pr
         run: |
-          if [ "$IS_DEV" = "true" ]; then
+          if [ "${{ steps.rollback.outputs.active }}" = "true" ]; then
+            TITLE="Rollback to ${{ inputs.rollback_tag }}"
+          elif [ "$IS_DEV" = "true" ]; then
             TITLE="Dev deploy"
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             TITLE="Manual deploy"
@@ -210,15 +267,21 @@ jobs:
 
       # The version is bumped and the OpenAPI spec regenerated in the working
       # tree before the images are built, so the images carry the release
-      # version. Nothing is committed or tagged until every image is pushed,
-      # so a failed build never leaves a tag behind that makes the next
-      # nightly run think nothing is pending. Dev builds keep the current
-      # version with a -dev.<sha> suffix, so the web app's version check and
-      # the wait step below still see each dev deploy as a new version.
+      # version; the changed files travel to the later stages as the
+      # release-overlay artifact. Nothing is committed or tagged until every
+      # image is pushed, so a failed build never leaves a tag behind that makes
+      # the next nightly run think nothing is pending. Dev builds keep the
+      # current version with a -dev.<sha> suffix, so the web app's version
+      # check and the wait step below still see each dev deploy as a new version.
       - name: Compute app version
         id: appversion
         if: steps.deploy.outputs.should_deploy == 'true'
         run: |
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          if [ "${{ steps.rollback.outputs.active }}" = "true" ]; then
+            echo "version=${{ steps.rollback.outputs.version }}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           CURRENT=$(node -p "require('./package.json').version")
           if [ "$IS_DEV" = "true" ]; then
             VERSION="${CURRENT}-dev.${GITHUB_SHA::7}"
@@ -247,11 +310,11 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up pnpm
-        if: steps.deploy.outputs.should_deploy == 'true' && (steps.targets.outputs.docs == 'true' || steps.targets.outputs.web_server == 'true')
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.docs == 'true' && steps.rollback.outputs.active != 'true'
         uses: pnpm/action-setup@v4
 
       - name: Set up Node
-        if: steps.deploy.outputs.should_deploy == 'true' && (steps.targets.outputs.docs == 'true' || steps.targets.outputs.web_server == 'true')
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.docs == 'true' && steps.rollback.outputs.active != 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 26
@@ -261,10 +324,42 @@ jobs:
       # regenerated here (with the new version), baked into the API docs image
       # and committed with the release rather than generated at build time.
       - name: Generate OpenAPI spec
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.docs == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.docs == 'true' && steps.rollback.outputs.active != 'true'
         run: |
           pnpm install --frozen-lockfile --filter @magic-vault/api-docs...
           pnpm --filter @magic-vault/api-docs openapi
+
+      # Dev deploys flash the firmware-dev pre-release when one exists (see
+      # firmware-release.yml); the binary and the sketch's version are swapped
+      # in the working tree only and never committed. The server reports the
+      # version from the sketch copied into its image.
+      - name: Select firmware
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true' && steps.rollback.outputs.active != 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$IS_DEV" = "true" ] && gh release view firmware-dev --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            gh release download firmware-dev --repo "${{ github.repository }}" -p esp32-latest.bin -p version.txt -D "$RUNNER_TEMP/firmware" --clobber
+            cp "$RUNNER_TEMP/firmware/esp32-latest.bin" packages/web/public/firmware/esp32-latest.bin
+            VERSION=$(tr -d '[:space:]' < "$RUNNER_TEMP/firmware/version.txt")
+            sed -i "s/#define FIRMWARE_VERSION \"[^\"]*\"/#define FIRMWARE_VERSION \"$VERSION\"/" firmware/main/main.ino
+            echo "Using dev firmware v$VERSION"
+          fi
+
+      - name: Pack release overlay
+        if: steps.deploy.outputs.should_deploy == 'true'
+        run: |
+          git diff --name-only -z | tar --null -T - -czf "$RUNNER_TEMP/release-overlay.tgz"
+          echo "Overlay files:"
+          git diff --name-only
+
+      - name: Upload release overlay
+        if: steps.deploy.outputs.should_deploy == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-overlay
+          path: ${{ runner.temp }}/release-overlay.tgz
+          retention-days: 7
 
       - name: Compute image names
         id: images
@@ -279,135 +374,140 @@ jobs:
             echo "shortener=$PREFIX-shortener"
           } >> "$GITHUB_OUTPUT"
 
-      - name: Set up Docker Buildx
-        if: steps.deploy.outputs.should_deploy == 'true'
-        uses: docker/setup-buildx-action@v3
-
       - name: Log in to GHCR
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.rollback.outputs.active == 'true'
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Dev deploys flash the firmware-dev pre-release when one exists (see
-      # firmware-release.yml); the binary and the sketch's version are swapped
-      # in the working tree only and never committed. The server reports the
-      # version from the sketch copied into its image.
-      - name: Select firmware
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
-        env:
-          GH_TOKEN: ${{ github.token }}
+      # One build job per selected image. A rollback skips images that were
+      # already pushed under its version; containers that didn't change in
+      # the tag's release have none, so those are rebuilt from the tag.
+      - name: Plan image builds
+        id: matrix
+        if: steps.deploy.outputs.should_deploy == 'true'
         run: |
-          if [ "$IS_DEV" = "true" ] && gh release view firmware-dev --repo "${{ github.repository }}" >/dev/null 2>&1; then
-            gh release download firmware-dev --repo "${{ github.repository }}"               -p esp32-latest.bin -p version.txt -D "$RUNNER_TEMP/firmware" --clobber
-            cp "$RUNNER_TEMP/firmware/esp32-latest.bin" packages/web/public/firmware/esp32-latest.bin
-            VERSION=$(tr -d '[:space:]' < "$RUNNER_TEMP/firmware/version.txt")
-            sed -i "s/#define FIRMWARE_VERSION \"[^\"]*\"/#define FIRMWARE_VERSION \"$VERSION\"/" firmware/main/main.ino
-            echo "Using dev firmware v$VERSION"
-          fi
+          VERSION="${{ steps.appversion.outputs.version }}"
+          ENTRIES='[]'
+          add() {
+            local name="$1" selected="$2" dockerfile="$3" image="$4"
+            [ "$selected" = "true" ] || return 0
+            if [ "${{ steps.rollback.outputs.active }}" = "true" ] && docker buildx imagetools inspect "$image:v$VERSION" >/dev/null 2>&1; then
+              echo "Reusing $image:v$VERSION"
+              return 0
+            fi
+            ENTRIES=$(jq -c --arg name "$name" --arg dockerfile "$dockerfile" --arg image "$image" \
+              '. + [{name: $name, dockerfile: $dockerfile, image: $image}]' <<< "$ENTRIES")
+          }
+          add web "${{ steps.targets.outputs.web_server }}" Dockerfile.web "${{ steps.images.outputs.web }}"
+          add server "${{ steps.targets.outputs.web_server }}" Dockerfile.server "${{ steps.images.outputs.server }}"
+          add api-docs "${{ steps.targets.outputs.docs }}" Dockerfile.api-docs "${{ steps.images.outputs.docs }}"
+          add bot "${{ steps.targets.outputs.bot }}" Dockerfile.bot "${{ steps.images.outputs.bot }}"
+          add shortener "${{ steps.targets.outputs.shortener }}" Dockerfile.shortener "${{ steps.images.outputs.shortener }}"
+          echo "build_matrix=$(jq -c '{include: .}' <<< "$ENTRIES")" >> "$GITHUB_OUTPUT"
+          echo "Images to build: $(jq -r 'map(.name) | join(", ")' <<< "$ENTRIES")"
 
-      # Images are pushed under their version and commit tags only. Coolify
-      # pulls the channel tag (:latest for production, :dev for development),
-      # which is moved onto these images further down, once the release commit
-      # exists and (for the server) migrations have run.
-      - name: Build and push web image
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
+  # Images are pushed under their version and commit tags only. Coolify pulls
+  # the channel tag (:latest for production, :dev for development), which the
+  # deploy stages move onto these images once every image is built.
+  build:
+    needs: plan
+    if: needs.plan.outputs.should_deploy == 'true' && needs.plan.outputs.build_matrix != '{"include":[]}'
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
+    strategy:
+      fail-fast: true
+      matrix: ${{ fromJSON(needs.plan.outputs.build_matrix) }}
+    name: build (${{ matrix.name }})
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+
+      - name: Download release overlay
+        uses: actions/download-artifact@v4
+        with:
+          name: release-overlay
+          path: ${{ runner.temp }}
+
+      - name: Apply release overlay
+        run: tar -xzf "$RUNNER_TEMP/release-overlay.tgz"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Web, server, bot and shortener images are public and read their
+      # config (Neon URLs, tokens, secrets, Better Stack DSN) from the
+      # container's environment in Coolify at start-up. Only the API docs bake
+      # in the API URL.
+      - name: Build and push ${{ matrix.name }} image
         uses: docker/build-push-action@v6
         with:
           context: .
-          file: Dockerfile.web
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: |
-            ${{ steps.images.outputs.web }}:v${{ steps.appversion.outputs.version }}
-            ${{ steps.images.outputs.web }}:sha-${{ github.sha }}
-          # The image is public, so deployment config (Neon URLs, Better Stack
-          # DSN, app env) comes from the container's environment in Coolify
-          # at start-up instead.
-          cache-from: type=gha,scope=web
-          cache-to: type=gha,mode=max,scope=web
+            ${{ matrix.image }}:v${{ needs.plan.outputs.version }}
+            ${{ matrix.image }}:sha-${{ needs.plan.outputs.sha }}
+          build-args: ${{ matrix.name == 'api-docs' && format('VITE_API_URL={0}', vars.API_DOCS_VITE_API_URL) || '' }}
+          cache-from: type=gha,scope=${{ matrix.name }}
+          cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
-      - name: Build and push server image
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile.server
-          push: true
-          tags: |
-            ${{ steps.images.outputs.server }}:v${{ steps.appversion.outputs.version }}
-            ${{ steps.images.outputs.server }}:sha-${{ github.sha }}
-          cache-from: type=gha,scope=server
-          cache-to: type=gha,mode=max,scope=server
+  release:
+    needs: [plan, build]
+    if: ${{ !cancelled() && !failure() && needs.plan.outputs.should_deploy == 'true' && needs.plan.outputs.partial != 'true' && needs.plan.outputs.rollback != 'true' && github.ref_name != 'dev' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Build and push API docs image
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.docs == 'true'
-        uses: docker/build-push-action@v6
+      - name: Download release overlay
+        uses: actions/download-artifact@v4
         with:
-          context: .
-          file: Dockerfile.api-docs
-          push: true
-          tags: |
-            ${{ steps.images.outputs.docs }}:v${{ steps.appversion.outputs.version }}
-            ${{ steps.images.outputs.docs }}:sha-${{ github.sha }}
-          build-args: |
-            VITE_API_URL=${{ vars.API_DOCS_VITE_API_URL }}
-          cache-from: type=gha,scope=api-docs
-          cache-to: type=gha,mode=max,scope=api-docs
-
-      # Like the server, the bot reads all of its config (token, client id,
-      # server URL, secrets) from the container's environment at start-up.
-      - name: Build and push bot image
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.bot == 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile.bot
-          push: true
-          tags: |
-            ${{ steps.images.outputs.bot }}:v${{ steps.appversion.outputs.version }}
-            ${{ steps.images.outputs.bot }}:sha-${{ github.sha }}
-          cache-from: type=gha,scope=bot
-          cache-to: type=gha,mode=max,scope=bot
-
-      # The shortener reads its config (database, API secret, target origin)
-      # from the container's environment at start-up.
-      - name: Build and push shortener image
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.shortener == 'true'
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          file: Dockerfile.shortener
-          push: true
-          tags: |
-            ${{ steps.images.outputs.shortener }}:v${{ steps.appversion.outputs.version }}
-            ${{ steps.images.outputs.shortener }}:sha-${{ github.sha }}
-          cache-from: type=gha,scope=shortener
-          cache-to: type=gha,mode=max,scope=shortener
+          name: release-overlay
+          path: ${{ runner.temp }}
 
       - name: Commit and tag app version
-        id: appcommit
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.partial != 'true' && env.IS_DEV != 'true'
         run: |
+          tar -xzf "$RUNNER_TEMP/release-overlay.tgz"
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add package.json packages/web/package.json packages/server/package.json packages/shared/package.json packages/api-docs/package.json packages/bot/package.json packages/shortener/package.json packages/api-docs/public/openapi.json
           if git diff --cached --quiet; then
-            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "Nothing to commit"
           else
-            git commit -m "chore(release): v${{ steps.appversion.outputs.version }} [skip ci]"
-            git tag "v${{ steps.appversion.outputs.version }}"
+            git commit -m "chore(release): v${{ needs.plan.outputs.version }} [skip ci]"
+            git tag "v${{ needs.plan.outputs.version }}"
             git push
-            git push origin "v${{ steps.appversion.outputs.version }}"
-            echo "changed=true" >> "$GITHUB_OUTPUT"
+            git push origin "v${{ needs.plan.outputs.version }}"
           fi
 
+  deploy-apps:
+    needs: [plan, build, release]
+    if: ${{ !cancelled() && !failure() && needs.plan.outputs.should_deploy == 'true' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
+      url: ${{ vars.APP_URL }}
+    env:
+      VERSION: ${{ needs.plan.outputs.version }}
+    steps:
       # Shows an in-app banner while the deploy runs. Non-fatal: a failure
       # here must never block the deploy itself. The announcement expires on
-      # its own (durationMinutes) if the removal step below never runs.
+      # its own (durationMinutes) if the notify stage never removes it.
       - name: Announce deploy
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
+        if: needs.plan.outputs.web_server == 'true'
         continue-on-error: true
         env:
           API_URL: ${{ secrets.MAULT_API_URL }}
@@ -418,25 +518,34 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"durationMinutes": 60}'
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Promote web, API docs, bot and shortener images
-        if: steps.deploy.outputs.should_deploy == 'true'
         run: |
           promote() {
-            docker buildx imagetools create -t "$1:$CHANNEL" "$1:v${{ steps.appversion.outputs.version }}"
+            docker buildx imagetools create -t "$1:$CHANNEL" "$1:v$VERSION"
           }
-          if [ "${{ steps.targets.outputs.web_server }}" = "true" ]; then promote "${{ steps.images.outputs.web }}"; fi
-          if [ "${{ steps.targets.outputs.docs }}" = "true" ]; then promote "${{ steps.images.outputs.docs }}"; fi
-          if [ "${{ steps.targets.outputs.bot }}" = "true" ]; then promote "${{ steps.images.outputs.bot }}"; fi
-          if [ "${{ steps.targets.outputs.shortener }}" = "true" ]; then promote "${{ steps.images.outputs.shortener }}"; fi
+          if [ "${{ needs.plan.outputs.web_server }}" = "true" ]; then promote "${{ needs.plan.outputs.web_image }}"; fi
+          if [ "${{ needs.plan.outputs.docs }}" = "true" ]; then promote "${{ needs.plan.outputs.docs_image }}"; fi
+          if [ "${{ needs.plan.outputs.bot }}" = "true" ]; then promote "${{ needs.plan.outputs.bot_image }}"; fi
+          if [ "${{ needs.plan.outputs.shortener }}" = "true" ]; then promote "${{ needs.plan.outputs.shortener_image }}"; fi
 
       - name: Trigger Coolify deployment (web)
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
+        if: needs.plan.outputs.web_server == 'true'
         run: |
           curl -sf --request POST "${{ secrets.COOLIFY_WEBHOOK_WEB }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
       - name: Trigger Coolify deployment (API docs)
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.docs == 'true'
+        if: needs.plan.outputs.docs == 'true'
         env:
           WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK_API_DOCS }}
         run: |
@@ -448,7 +557,7 @@ jobs:
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
       - name: Trigger Coolify deployment (bot)
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.bot == 'true'
+        if: needs.plan.outputs.bot == 'true'
         env:
           WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK_BOT }}
         run: |
@@ -462,7 +571,7 @@ jobs:
       # Deployed before the server so new short links can be registered as
       # soon as the new API starts.
       - name: Trigger Coolify deployment (shortener)
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.shortener == 'true'
+        if: needs.plan.outputs.shortener == 'true'
         env:
           WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK_SHORTENER }}
         run: |
@@ -473,25 +582,62 @@ jobs:
           curl -sf --request POST "$WEBHOOK" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
+  # Migrations only move forward, so a rollback skips this stage and runs the
+  # older server against the newer schema.
+  migrate:
+    needs: [plan, deploy-apps]
+    if: ${{ !cancelled() && !failure() && needs.plan.outputs.should_deploy == 'true' && needs.plan.outputs.web_server == 'true' && needs.plan.outputs.rollback != 'true' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.plan.outputs.sha }}
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 26
+          cache: pnpm
+
       - name: Install server dependencies
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         run: pnpm install --frozen-lockfile --filter @magic-vault/server...
 
       - name: Run database migrations
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: pnpm --filter @magic-vault/server db:migrate
 
+  deploy-server:
+    needs: [plan, deploy-apps, migrate]
+    if: ${{ !cancelled() && !failure() && needs.plan.outputs.should_deploy == 'true' && needs.plan.outputs.web_server == 'true' }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
+      url: ${{ vars.APP_URL }}
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Promote server image
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         run: |
           docker buildx imagetools create \
-            -t "${{ steps.images.outputs.server }}:$CHANNEL" \
-            "${{ steps.images.outputs.server }}:v${{ steps.appversion.outputs.version }}"
+            -t "${{ needs.plan.outputs.server_image }}:$CHANNEL" \
+            "${{ needs.plan.outputs.server_image }}:v${{ needs.plan.outputs.version }}"
 
       - name: Trigger Coolify deployment (server)
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         run: |
           curl -sf --request POST "${{ secrets.COOLIFY_WEBHOOK_SERVER }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
@@ -500,12 +646,11 @@ jobs:
       # deploy only counts as finished once the server reports the new
       # version.
       - name: Wait for new server version
-        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
         continue-on-error: true
         timeout-minutes: 30
         env:
           API_URL: ${{ secrets.MAULT_API_URL }}
-          EXPECTED: ${{ steps.appversion.outputs.version }}
+          EXPECTED: ${{ needs.plan.outputs.version }}
         run: |
           until [ "$(curl -sf --max-time 10 "$API_URL/public/version" | jq -r '.data.version' 2>/dev/null)" = "$EXPECTED" ]; do
             echo "Waiting for server v$EXPECTED..."
@@ -513,8 +658,17 @@ jobs:
           done
           echo "Server is running v$EXPECTED"
 
+  notify:
+    needs: [plan, build, release, deploy-apps, migrate, deploy-server]
+    if: ${{ always() && (needs.plan.outputs.should_deploy == 'true' || contains(needs.*.result, 'failure')) }}
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
+    env:
+      FAILED: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+    steps:
       - name: Remove deploy announcement
-        if: always() && steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
+        if: needs.plan.outputs.should_deploy == 'true' && needs.plan.outputs.web_server == 'true'
         continue-on-error: true
         env:
           API_URL: ${{ secrets.MAULT_API_URL }}
@@ -530,23 +684,23 @@ jobs:
           exit 1
 
       - name: Notify Discord (success)
-        if: success() && steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true' && env.IS_DEV != 'true'
+        if: env.FAILED != 'true' && needs.plan.outputs.should_deploy == 'true' && needs.plan.outputs.web_server == 'true' && github.ref_name != 'dev'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
           DISCORD_ROLE_ID: ${{ secrets.DISCORD_DEPLOYMENTS_ROLE_ID }}
-          PR_TITLE: ${{ steps.pr.outputs.title }}
-          PR_URL: ${{ steps.pr.outputs.url }}
-          COMMITS: ${{ steps.changes.outputs.commits }}
-          AUTHORS: ${{ steps.changes.outputs.authors }}
+          PR_TITLE: ${{ needs.plan.outputs.title }}
+          PR_URL: ${{ needs.plan.outputs.url }}
+          COMMITS: ${{ needs.plan.outputs.commits }}
+          AUTHORS: ${{ needs.plan.outputs.authors }}
         run: |
-          REDEPLOYED="${{ steps.targets.outputs.labels }}"
+          REDEPLOYED="${{ needs.plan.outputs.labels }}"
 
           CHANGED="None"
-          if [ "${{ steps.changes.outputs.web }}" = "true" ] && [ "${{ steps.changes.outputs.server }}" = "true" ]; then
+          if [ "${{ needs.plan.outputs.changed_web }}" = "true" ] && [ "${{ needs.plan.outputs.changed_server }}" = "true" ]; then
             CHANGED="Web, Server"
-          elif [ "${{ steps.changes.outputs.web }}" = "true" ]; then
+          elif [ "${{ needs.plan.outputs.changed_web }}" = "true" ]; then
             CHANGED="Web"
-          elif [ "${{ steps.changes.outputs.server }}" = "true" ]; then
+          elif [ "${{ needs.plan.outputs.changed_server }}" = "true" ]; then
             CHANGED="Server"
           fi
 
@@ -567,7 +721,7 @@ jobs:
             --arg author "${AUTHORS:-${{ github.actor }}}" \
             --arg changed "$CHANGED" \
             --arg redeployed "$REDEPLOYED" \
-            --arg version "${{ steps.appversion.outputs.version }}" \
+            --arg version "${{ needs.plan.outputs.version }}" \
             --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
             --arg role_id "$DISCORD_ROLE_ID" \
             '{
@@ -594,10 +748,10 @@ jobs:
             -d "$PAYLOAD"
 
       - name: Notify Discord (failure)
-        if: failure() && steps.targets.outputs.web_server != 'false'
+        if: env.FAILED == 'true' && needs.plan.outputs.web_server != 'false'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
-          PR_TITLE: ${{ steps.pr.outputs.title }}
+          PR_TITLE: ${{ needs.plan.outputs.title }}
         run: |
           if [ -z "$DISCORD_WEBHOOK_URL" ]; then
             echo "DISCORD_DEPLOY_WEBHOOK_URL isn't set for this environment, skipping."
