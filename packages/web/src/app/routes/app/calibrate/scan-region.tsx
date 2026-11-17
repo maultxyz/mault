@@ -4,6 +4,8 @@ import { useCalibrationOutletContext } from "@/app/routes/app/calibrate/layout";
 import { ScanRegionCalibrationPanel } from "@/features/calibration/components/scan-region-calibration-panel";
 import { FoilCalibrationPanel } from "@/features/calibration/components/foil-calibration-panel";
 import { useFoilCalibration } from "@/features/calibration/api/use-foil-calibration";
+import { useCameraLightTest } from "@/features/calibration/api/use-camera-light-test";
+import { useState } from "react";
 
 export default function CalibrateScanRegionPage() {
   const {
@@ -11,23 +13,23 @@ export default function CalibrateScanRegionPage() {
     captureSettleDelayMs,
     matchesNeeded,
     checkBothOrientations,
-    flipCamera,
     isDeviceLoading,
     handleScanRegionChange,
     handleResetScanRegion,
     handleCaptureSettleChange,
     handleMatchesNeededChange,
     handleCheckBothOrientationsChange,
-    handleFlipCameraChange,
     isScanRegionSectionDirty,
     isSavingScanRegion,
     handleSaveScanRegion,
     handleDiscardScanRegion,
   } = useCalibrationOutletContext();
+  const lightingTest = useCameraLightTest();
+  const [discarding, setDiscarding] = useState(false);
   const foilCalibration = useFoilCalibration({
     scanRegion,
     captureSettleDelayMs,
-    disabled: isDeviceLoading || isScanRegionSectionDirty || isSavingScanRegion,
+    disabled: isDeviceLoading || isScanRegionSectionDirty || isSavingScanRegion || lightingTest.active || lightingTest.busy,
   });
 
   return (
@@ -38,14 +40,13 @@ export default function CalibrateScanRegionPage() {
         captureSettleDelayMs={captureSettleDelayMs}
         matchesNeeded={matchesNeeded}
         checkBothOrientations={checkBothOrientations}
-        flipCamera={flipCamera}
         isLoading={isDeviceLoading}
         onRegionChange={handleScanRegionChange}
         onResetRegion={handleResetScanRegion}
         onCaptureSettleChange={handleCaptureSettleChange}
         onMatchesNeededChange={handleMatchesNeededChange}
         onCheckBothOrientationsChange={handleCheckBothOrientationsChange}
-        onFlipCameraChange={handleFlipCameraChange}
+        lightingTest={lightingTest}
         />
       </fieldset>
       <FoilCalibrationPanel calibration={foilCalibration} />
@@ -57,10 +58,16 @@ export default function CalibrateScanRegionPage() {
         onDiscard={handleDiscardScanRegion}
       />
       <UnsavedChangesGuard
-        isDirty={isScanRegionSectionDirty || foilCalibration.busy}
-        onDiscard={() => {
-          foilCalibration.cancel();
-          handleDiscardScanRegion();
+        isDirty={isScanRegionSectionDirty || foilCalibration.busy || lightingTest.active || discarding}
+        onDiscard={async () => {
+          setDiscarding(true);
+          try {
+            foilCalibration.cancel();
+            await lightingTest.stop();
+            handleDiscardScanRegion();
+          } finally {
+            setDiscarding(false);
+          }
         }}
       />
     </>

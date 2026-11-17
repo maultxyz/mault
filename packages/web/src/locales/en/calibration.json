@@ -1,4 +1,13 @@
 {
+  "cameraLightTest": {
+    "heading": "Camera lighting test",
+    "description": "Choose a light and select Preview to see it through the camera. This does not save settings. Stop the test to restore the saved light; closing the page or losing the connection may prevent restoration. Warnings take priority. For a paired phone, take another photo after changing the light.",
+    "unavailable": "Connect and self-test a sorter with lighting support, and stop scanning before testing.",
+    "preview": "Preview light",
+    "restore": "Stop and restore light",
+    "previewFailed": "Lighting preview failed or a sorter warning is active. Check the sorter and try again.",
+    "restoreFailed": "Could not restore saved lighting. Reconnect the sorter or restore it in Lights."
+  },
   "foilCalibration": {
     "captureMode": "Capture experiment",
     "colorMode": "Color sequence (existing)",
@@ -125,13 +134,6 @@
       "title": "Reduce module count?",
       "description": "Dropping to {{count}} modules will remove the sorting rules and calibration data for modules and bins beyond that count, across every bin preset.",
       "confirm": "Change Module Count"
-    },
-    "detect": {
-      "button": "Detect",
-      "found": "Found {{count}} module from the wired IR sensors.",
-      "found_other": "Found {{count}} modules from the wired IR sensors.",
-      "noneFound": "No IR sensors found. Check that module 1's sensor is wired.",
-      "failed": "Couldn't read the IR sensors from the sorter."
     }
   },
   "channelLayoutUpgrade": {
@@ -169,24 +171,18 @@
       "small": "Small",
       "medium": "Medium",
       "large": "Large",
-      "xlarge": "Extra large",
-      "xxlarge": "Extra extra large",
       "unlimited": "Unlimited",
       "custom": "Custom"
     },
     "customHeightLabel": "Custom bin height for bin {{bin}}",
     "customHeightUnit": "mm",
     "customHeightHint": "About {{count}} cards at {{thickness}} mm each",
-    "customHeightInvalid": "Enter {{min}} to {{max}} mm",
-    "binSizeLabel": "Size of bin {{bin}}",
-    "bottomModuleSelect": "Module for bin {{bin}}",
-    "bottomBinSelect": "Bottom bin on module {{module}}"
+    "customHeightInvalid": "Enter {{min}} to {{max}} mm"
   },
   "binRoutingControls": {
     "label": "Bin Routing",
     "feed": "Feed",
     "dropCard": "Drop Card",
-    "retractCard": "Retract Card",
     "binActive": "Bin {{bin}}…",
     "running": "Running…",
     "sampleRun": "Sample Run",
@@ -205,8 +201,6 @@
     "forward": "Forward",
     "reverse": "Reverse",
     "timeoutLabel": "Timeout (ms)",
-    "feedRetryCountLabel": "Feed Retries",
-    "feedRetryCountDescription": "When a feed times out without delivering a card, send the feed command again up to this many times before pausing. 0 turns retries off.",
     "pulseDurationLabel": "Pulse Duration (ms)",
     "continuousFeedButton": "Continuous Feed",
     "pauseDurationLabel": "Pause Duration (ms)",
@@ -216,23 +210,6 @@
     "reverseDurationDescription": "Once a card reaches module 1, spin the roller backward this long so the next card in the hopper is pulled back instead of creeping forward into a double feed. 0 turns it off.",
     "reverseSpeedLabel": "Roll Back Speed",
     "off": "Off"
-  },
-  "feederTest": {
-    "heading": "Feeder test",
-    "description": "Feed cards straight to the bottom bin without scanning. Leave it running and adjust the feeder on the Servos & feeder page: changes apply from the next card and stay unsaved until you save.",
-    "runUntilStoppedLabel": "Feed until stopped",
-    "cardsToSendLabel": "Cards to send",
-    "start": "Start feeding",
-    "stop": "Stop",
-    "stopping": "Stopping after this card",
-    "progress": "Cards sent: {{count}}",
-    "progressOfTotal": "Cards sent: {{count}} of {{total}}",
-    "toasts": {
-      "completed": "Feeder test finished. Cards sent: {{count}}",
-      "stopped": "Feeder test stopped. Cards sent: {{count}}",
-      "hopperEmpty": "Hopper is empty. Cards sent: {{count}}",
-      "failed": "Feeder test stopped on an error. Cards sent: {{count}}"
-    }
   },
   "irSensorPanel": {
     "label": "IR Sensors",
@@ -287,14 +264,11 @@
     "captureSettleDescription": "How long to wait after the feeder confirms a card has arrived before capturing a frame, so the card is fully still and in focus.",
     "matchesNeededLabel": "Matches Needed",
     "matchesNeededDescription": "How many consecutive frames must agree on the same card before a scan is accepted. 1 is fastest; higher values are more reliable but slower.",
-    "flipCameraLabel": "Flip Camera 180°",
-    "flipCameraDescription": "Turn the camera picture upside down, for a camera mounted the other way round. Applies to scans and every preview of this sorter's connected camera, not to phone photos.",
     "checkBothOrientationsLabel": "Check Both Directions",
     "checkBothOrientationsDescription": "Also match the card rotated 180°, so cards fed upside down are still identified. Turn off if all your cards are fed the same way up to make each scan faster.",
     "executionProviderLabel": "AI Detection Backend",
-    "executionProviderDescription": "Which backend runs the card-matching model in your browser (card detection always runs on WASM, where it is faster). WASM is the default and works everywhere, but runs one sorter at a time. WebGPU can be faster on some GPUs, runs several sorters at once, and falls back to WASM if it fails to start.",
+    "executionProviderDescription": "Which backend runs the card-detection and matching models in your browser. WASM is the default and works everywhere. WebGPU can be faster on some GPUs, and falls back to WASM if it fails to start.",
     "executionProviderWebGpu": "WebGPU",
-    "regionKeyboardLabel": "Scan region. Use the arrow keys to move it and the plus and minus keys to resize it. Hold Shift for bigger steps.",
     "executionProviderWasm": "WASM (default)",
     "usePhoneAsCamera": "Use Phone as Camera",
     "phoneCameraConnected": "Phone Camera Connected",
@@ -308,35 +282,6 @@
     "cameraPlaceholder": "Select a camera",
     "cameraFallbackLabel": "Camera {{index}}",
     "heading": "Scan region"
-  },
-  "cameraPrintingScore": {
-    "heading": "Camera calibration aid",
-    "setLabel": "Set",
-    "cardLabel": "Card",
-    "setPlaceholder": "Choose a set",
-    "cardPlaceholder": "Choose a card",
-    "setsLoading": "Loading sets…",
-    "cardsLoading": "Loading cards…",
-    "noSets": "No matching sets.",
-    "noCards": "No matching cards.",
-    "rate": "Score",
-    "rating": "Scoring…",
-    "description": "Choose the set, then the card on the scanner, and score one frame from the camera. Lower is closer to the stored picture of that printing. A scan accepts the card only when it is the closest match, under {{threshold}}, and clearly closer than any other card. The number is not a percentage and not a condition grade, and it can change between presses. Scoring does not change the camera and does not save anything.",
-    "fieldsRequired": "Choose a set and a card.",
-    "noCollection": "Choose a collection before scoring. The score uses that collection's game.",
-    "noCamera": "Connect a camera, or take a phone photo, before scoring.",
-    "notSynced": "That printing is not in the synced catalog for this collection's game. Sync the set, then score again.",
-    "distanceLabel": "Distance",
-    "nearestDifferent": "The closest card in the catalog is {{name}} ({{set}} {{number}}) at {{distance}}.",
-    "cardLine": "{{name}}, {{set}} {{number}}",
-    "failed": "Could not score that frame.",
-    "verdict": {
-      "accept": "A scan would accept this card.",
-      "other_card": "A scan would match a different card.",
-      "too_far": "A scan would reject this frame. The closest card is at {{threshold}} or higher.",
-      "ambiguous": "A scan would reject this frame. Another card is almost as close.",
-      "empty_index": "A scan would reject this frame. No cards are synced for this game."
-    }
   },
   "useCalibrationPage": {
     "toasts": {
@@ -458,7 +403,6 @@
       "pulse": "Pulse",
       "pause": "Pause",
       "settle": "Final Detection Delay",
-      "feedRetries": "Retries",
       "rollback": "Roll Back"
     },
     "toasts": {
@@ -469,7 +413,6 @@
     "disconnect": "Disconnect",
     "connectDevice": "Connect Device",
     "connectUsb": "Connect via USB",
-    "connectPi": "Connect the sorter on this Pi",
     "connectBluetooth": "Connect via Bluetooth",
     "testing": "Testing…",
     "runTest": "Run Test",
@@ -499,7 +442,6 @@
     "forced": "Setup wizard required for this sorter",
     "forcedNextConnect": "It will open the next time {{name}} connects.",
     "forceFailed": "Couldn't require the setup wizard",
-    "completeFailed": "Couldn't save that setup is finished. Try again.",
     "title": "Set up your sorter",
     "stepCounter": "Step {{current}} of {{total}}",
     "skip": "Skip setup",
@@ -587,7 +529,7 @@
       "clear": "Clear",
       "verified": "Sensor verified",
       "waiting": "Waiting for the first reading from the sorter…",
-      "footnote": "A sensor that never lights up is usually unplugged, wired to the wrong pin, or pointed away from the card path. You can continue and fix it later. If a sensor lights up with nothing in front of it, or only sees a card pressed right against it, turn the screw on its blue box (the potentiometer) until it detects a card 1 inch (2.5 cm) away."
+      "footnote": "A sensor that never lights up is usually unplugged, wired to the wrong pin, or pointed away from the card path. You can continue and fix it later."
     },
     "feederStop": {
       "heading": "Feeder stop point",

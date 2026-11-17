@@ -8,7 +8,7 @@ An open-source trading card scanner and physical sorter. A camera identifies eac
 
 ## Supported games
 
-Magic: The Gathering, Pokemon, Yu-Gi-Oh, One Piece, Lorcana, Gundam, Flesh and Blood, Riftbound, Grand Archive, Star Wars: Unlimited, Cyberpunk, Sorcery: Contested Realm.
+Magic: The Gathering, Pokemon, Yu-Gi-Oh, One Piece, Lorcana, Gundam, Flesh and Blood, Riftbound, Grand Archive, Star Wars: Unlimited, Cyberpunk.
 
 Each game is a pluggable adapter (`packages/server/src/lib/adapters/<game>/`) plus a `Game` row in the admin Games Manager, whose field definitions drive rules, sorting, filters and notifications for that game.
 
@@ -23,7 +23,6 @@ Each game is a pluggable adapter (`packages/server/src/lib/adapters/<game>/`) pl
 ## Features
 
 **Scanning**
-
 - Webcam scanning in the browser, or a paired phone used as the camera (QR pairing)
 - Several sorters from one browser tab, each with its own camera and collection
 - Multi-language scanning, OCR tie-breaking, a review mode for low-confidence matches and one-click corrections
@@ -60,6 +59,7 @@ Version-3 foil analysis adds ambient-relative diagnostics without changing the c
 
 The foil lab also exports version-2 analysis with experimental spatial reflection measurements for each usable card crop. At the fixed 160x224 analysis size, a 3x3 center is compared with its surrounding 13x13 ring. The 99.9th percentile positive intensity contrast measures concentrated peaks; candidate pixels require center intensity of at least 0.55 and center-minus-ring contrast of at least 0.20. Four-connected components of at least 3 pixels provide spot counts and the largest component's area and bounding-box fill. Candidate area includes isolated pixels, whereas component counts exclude components smaller than 3 pixels. A 6% inset is used, with neighborhoods bounded inside the crop. These thresholds describe image features, not foil classes. Printed artwork can produce the same features; results overlap in the initial 18 captures and must not drive foil status, pricing or routing. Existing version-1 analyses remain readable; use **Analyze card area** to add the new measurements without recapturing. Original images and labels are preserved.
 
+- Sorter setup > Camera includes a temporary lighting test for off, white and custom RGBW lighting. Connect and self-test the sorter, stop scanning, select the light and choose Preview. Stop the test to restore the saved lighting; warnings retain priority. A paired phone needs a new photo after changing the light. Closing the page or losing the connection can prevent restoration, so check Lights afterwards.
 - Experimental foil capture lab in Sorter setup > Camera (lighting firmware 2.11.0+). With scanning stopped, connect and self-test the sorter, configure a webcam or paired phone, save camera settings, and hold one known foil or non-foil card still at the scan position. Enter its name/printing, known finish, sleeve status and setup notes, then capture six frames: strip off, white, red, green, blue and white again, at the selected capture brightness (default 48) with at least 1 second to settle each light. No motors move and no foil status is inferred or changed. Compare repeated white frames for movement/exposure drift; whole-frame clipping percentages are diagnostics, not foil confidence. Up to 20 labelled sequences persist locally in IndexedDB across this browser, scoped in the UI to the current organization and sorter. Export JSON files containing photos, labels, lighting, timing, scan-region and camera metadata before clearing browser data; samples are not uploaded. Normal completion, cancellation and capture failures attempt to restore the sorter's saved lighting without clearing alerts. Closing the tab or losing the connection can prevent restoration, so check Lights afterwards. Color-only illumination may not distinguish foil; use captures to evaluate whether another light angle is needed before implementing automatic classification or treatment recognition.
 - Optional valuable-card RGB celebration in Calibration > Lights, saved per sorter and disabled by default. Set a minimum value in the selected price source's currency; known prices at or above it qualify, including foil pricing. After changing price source, edit and save the lighting settings again. A qualifying route waits for the configured celebration before feeding the next card, even when pipelined feeding is enabled. Save retries and later card edits do not trigger celebrations. The 16-LED sweep requires updated firmware; older lighting-capable firmware keeps its existing animation.
 - Bin presets per collection with and/or rule trees over each game's own fields, plus override bins that win over ordinary ones
@@ -67,26 +67,22 @@ The foil lab also exports version-2 analysis with experimental spatial reflectio
 - Custom sounds played when matching cards are sorted
 
 **Collections and value**
-
 - Multiple organizations and collections, with roles, invites and an audit log
 - Storage locations: empty a bin into a box and Mault records each card's position, searchable and exportable as CSV
 - Prices from TCGplayer, Cardmarket and Card Kingdom, with per-org price source and condition multipliers
 - Stats, a leaderboard and live remote monitoring (or a shareable read-only monitor link)
 
 **Integrations**
-
 - Discord bot: `/link` a server to an org, `/stats` for collection stats; scan, alert and rule-based channels are configured in Settings > Integrations
 - Public REST API with org API keys and signed webhooks, following Scryfall's conventions ([docs/public-api.md](docs/public-api.md), reference site in `packages/api-docs`)
 
 **Hardware**
-
 - Calibration for servos, feeder, bin heights, routes and the camera's scan region, with a guided tour
 - In-browser firmware flashing, firmware feature gating, device self-test and session locks
 - Wi-Fi remote control for ESP32 boards, relayed through the server
 - Native iOS/Android app ([packages/mobile](packages/mobile/README.md)) that scans with the phone camera and drives a sorter over Bluetooth
 
 **Plans**
-
 - Free and Business tiers (Stripe), with features and limits editable in Admin > Plans
 
 ## Repository layout
@@ -104,7 +100,7 @@ firmware/      Sorter sketch (firmware/main/*.ino) and wire protocol (firmware/P
 drizzle/       Generated SQL migrations
 docs/          Public API guide
 docker/        Web container start-up script (runtime env.js)
-scripts/       Release and version helpers, plus scripts/pi for a Raspberry Pi host
+scripts/       Release and version helpers
 .github/       Build check, deploy, firmware PR check and firmware release workflows
 ```
 
@@ -113,7 +109,7 @@ scripts/       Release and version helpers, plus scripts/pi for a Raspberry Pi h
 ## Stack
 
 - **Web**: React 19, Vite, React Router v7, Tailwind CSS 4, TanStack Query, React Hook Form + Zod, onnxruntime-web
-- **Server**: Hono 4, Drizzle ORM, PostgreSQL with pgvector (Neon or self-hosted), onnxruntime-node (PaddleOCR text detection and recognition)
+- **Server**: Hono 4, Drizzle ORM, PostgreSQL with pgvector (Neon or self-hosted), onnxruntime-node, tesseract.js
 - **Mobile**: Expo, React Native, onnxruntime-react-native, BLE
 - **Auth**: `AUTH_PROVIDER=neon` ([Neon Auth](https://neon.com), JWT via JWKS) or `local` ([own-auth](https://own-auth.com), bearer sessions in your own Postgres)
 - **Hardware**: Arduino Uno R4 Minima / R4 WiFi or ESP32(-S3), PCA9685 servo driver, SG90 servos
@@ -121,101 +117,50 @@ scripts/       Release and version helpers, plus scripts/pi for a Raspberry Pi h
 
 ## Getting started
 
-For a production install, follow the step-by-step guide at [mault.xyz/self-host](https://mault.xyz/self-host). This section covers development.
+The app needs Postgres with pgvector and an identity provider. Pick one with `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER`:
 
-Mault needs Postgres with pgvector and an identity provider, picked with `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER`:
+- **`neon`** (default): a hosted [Neon](https://neon.com) project. The free tier is enough for a personal deployment.
+- **`local`**: fully self-hosted and offline-capable. `docker-compose.yml` runs Postgres, the API, the web app, price sync and the API docs.
 
-- **`neon`** (default): a hosted [Neon](https://neon.com) project. The free tier is enough.
-- **`local`**: fully self-hosted. `docker-compose.yml` runs Postgres, the API, the web app and the API docs. A Raspberry Pi can host the same local-auth app with `scripts/pi/install.sh` ([Raspberry Pi](#raspberry-pi)).
-
-Both read one `.env` in the repo root:
+Both read one root `.env` (Vite reads it from the repo root too):
 
 ```bash
-cp .env.neon.example .env      # Neon
-cp .env.docker.example .env    # local
+cp .env.neon.example .env      # Option A: Neon
+cp .env.docker.example .env    # Option B: self-hosted
 ```
 
-### Neon
+Each example lists only the variables that mode uses, with comments for the optional ones (email via Resend, S3 scan image storage, Stripe, Discord, Rollbar, sync tuning).
 
-1. Create a project at [console.neon.tech](https://console.neon.tech) and run `CREATE EXTENSION IF NOT EXISTS vector;`.
-2. Enable **Neon Auth** (Dashboard > Auth) **before** migrating: the RLS policies use its `authenticated` role and `auth.user_id()`.
-3. Set `DATABASE_URL` (pooled), `NEON_AUTH_URL` and `VITE_NEON_AUTH_URL` (same URL) and `VITE_NEON_DATA_API_URL`.
-4. Migrate and run:
+### Option A: Neon
+
+1. Create a project at [console.neon.tech](https://console.neon.tech) and run `CREATE EXTENSION IF NOT EXISTS vector;` in its SQL editor.
+2. Put the pooled connection string in `DATABASE_URL`.
+3. Enable **Neon Auth** (Dashboard > Auth) **before** migrating: the RLS policies reference its `authenticated` role and `auth.user_id()`.
+4. From the Auth page, set `NEON_AUTH_URL`, `VITE_NEON_AUTH_URL` (same base URL) and `VITE_NEON_DATA_API_URL`.
+5. Migrate and run:
    ```bash
    pnpm install
    pnpm --filter @magic-vault/server db:migrate
    pnpm dev        # web :5173, API :3001, API docs :5174
    ```
 
-### Local
+### Option B: Self-hosted
 
-1. In `.env`, set `POSTGRES_PASSWORD`, `OWN_AUTH_TOKEN_PEPPER`, `IMPERSONATION_SECRET` and `MONITOR_LINK_SECRET` (`openssl rand -hex 32` each).
-2. `docker compose up -d`, then open `http://localhost:8080` and sign up. The first account becomes platform admin with a "Home" organization.
-3. In `/app/admin`, add a game in the Games Manager and sync it. Scans can't match until one has synced.
+1. In `.env`, set `POSTGRES_PASSWORD`, `OWN_AUTH_TOKEN_PEPPER` (32+ random bytes) and `IMPERSONATION_SECRET`. Optional: `MONITOR_LINK_SECRET` (shareable monitor links), `API_URL` (public API base for `next_page` links), `SORTER_LINK_URL` (see [Wi-Fi remote](#wi-fi-remote)) and `WEBHOOK_ALLOW_INSECURE_URLS=true` (lets webhooks target `http://` and LAN addresses; keep it off on internet-facing servers).
+2. `docker compose up -d`
+3. Open `http://localhost:8080` and sign up. The first account becomes platform admin and gets a "Home" organization.
+4. In `/app/admin`, add at least one game in the Games Manager and run its sync. Until a game is synced there is nothing to match against.
 
-The `server` container runs every migration and `packages/server/src/db/bootstrap-local.sql` on start (`pnpm db:migrate-local`, idempotent). Postgres listens only on `127.0.0.1:5433`. Email verification, profile/password editing, multi-session management and social sign-in are Neon-only.
+On every start the `server` container runs Drizzle migrations, own-auth's migrations and `packages/server/src/db/bootstrap-local.sql` (`pnpm db:migrate-local`), all idempotent. Postgres is exposed only on `127.0.0.1:5433` for admin clients.
 
-Optional: `API_URL` (public API base for `next_page` links), `SORTER_LINK_URL` (see [Wi-Fi remote](#wi-fi-remote)), `WEBHOOK_ALLOW_INSECURE_URLS=true` (webhooks to `http://` and LAN addresses; keep it off on public servers).
-
-To make another user platform admin (no UI yet):
+To make another user a platform admin (there's no UI yet):
 
 ```sql
 INSERT INTO platform_user_roles (user_id, role) VALUES ('<own_auth_users.id>', 'admin')
 ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 ```
 
-### Raspberry Pi
-
-A Raspberry Pi can host the local-auth app and run the sorter. Postgres is the Pi's own server on port 5432, not Docker. The scanner camera is a USB webcam plugged into the Pi. Use Raspberry Pi OS with the desktop. The examples use `~/mault`, but you can install in another directory; the service paths are configured automatically.
-
-```bash
-git clone https://github.com/maultxyz/mault.git ~/mault
-cd ~/mault
-scripts/pi/install.sh
-```
-
-`install.sh` installs Node, pnpm, Postgres with pgvector, ffmpeg, and the webcam tools, then writes `.env` with `AUTH_PROVIDER=local`, `PI_HOST=1`, and a `mault` database on `127.0.0.1:5432`. Run it as the desktop user. It asks for your password when it needs root. If `git` is not installed yet, run `sudo apt install -y git` before the clone. If `.env` already exists and has no `PI_HOST` line, the script appends `PI_HOST=1`. It then creates the `mault` role and database, builds the server and the web app, runs migrations, and enables three user services. Linger is turned on so those services start at boot. It adds the desktop user to the `dialout` group so the API can open the sorter. When this login does not have that group yet, it restarts the user services so the new membership applies.
-
-| Service        | Role                                                                                                       |
-| -------------- | ---------------------------------------------------------------------------------------------------------- |
-| `mault-api`    | API on `127.0.0.1:3001`, accessible through the web app's `/api` proxy                                     |
-| `mault-web`    | Web app on port 8080. Proxies `/api` to the API, including authenticated camera access at `/api/pi-camera` |
-| `mault-camera` | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam                           |
-
-Remote browsers use port 8080. The Linux API service binds only to localhost; HTTP and WebSocket requests reach it through the web app's proxy. Other deployments keep the existing API bind address unless `API_HOST` is configured.
-
-Updates are installed manually. Finish any scan, then run these commands on the Pi:
-
-```bash
-cd ~/mault
-bash scripts/pi/update.sh
-```
-
-The updater downloads and builds the latest version of Mault, then restarts the app and camera services. Your settings, accounts, and saved cards stay in place. Any required database updates are applied automatically. When the update finishes, reload Mault in your browsers.
-
-On Pi installations, the update banner shows the terminal command instead of starting an update in the browser. Finish scanning, disconnect the sorter, and stop any database sync, then run `cd ~/mault && bash scripts/pi/update.sh` in a terminal on the Pi. Enter your sudo password if prompted and refresh the browser after the script completes. Dependency setup runs before services are stopped. Pi web builds use a 4 GiB Node heap allowance; runtime services keep their normal settings.
-
-If you have changed or added files in the installation folder, the updater stops before updating so it does not overwrite your work. If an update fails after stopping the app, resolve the reported error and run the same command again. Check the release instructions for any additional system requirements.
-
-The API service keeps its output in `${XDG_STATE_HOME:-$HOME/.local/state}/mault/api.log`, including scan failures and feed commands. To inspect the latest entries even when the user journal is unavailable:
-
-```bash
-tail -n 100 "${XDG_STATE_HOME:-$HOME/.local/state}/mault/api.log"
-```
-
-```bash
-scripts/pi/start.sh            # start the services and open Chromium on the Pi desktop
-scripts/pi/start.sh --kiosk
-scripts/pi/stop.sh
-```
-
-Open `http://<the-pi>:8080` from another computer to scan. That browser is not on localhost, so while `PI_HOST` is on it uses the Pi's webcam stream and the sorter plugged into the Pi. The scan loop runs in the API: feed, wait the capture settle delay once, take the photo, match, and route. `start.sh` also opens Chromium on the Pi at `http://127.0.0.1:8080`. The camera helper owns the webcam, and the API owns the sorter during a scan. Camera preview and focus control require signing in to an organization.
-
-The API reports a Pi host when `PI_HOST=1`, and also when `/proc/device-tree/model` contains `Raspberry Pi` and `PI_HOST` is unset. `PI_HOST=0` turns the remote-browser behavior off. `WEBCAM_DEVICE` selects a specific `/dev/video*` node when the helper should not pick one itself.
-
-Sign up on the Pi's page. The first account is the platform admin. Add a game in Admin and sync it before scanning. On a Pi host, **Start on this computer** uses the remote computer's browser to vectorize missing card images for the bulk database sync. Keep that admin page open while it works; the cards-at-a-time control sets its concurrency. Live scans still identify cards on the Pi.
-
-If a bin fills or all repack packs are complete, scanning pauses with the current card retained. Empty the relevant bins in the app, then resume. The API reloads rules, capacities, and bin contents before routing that card. Presets with **skip saving** use the existing sort-only path. Stopping a scan may leave a card in the sorter; remove it before starting another session.
+Local mode supports sign-up/sign-in, org switching and invites, API keys and the audit log. Email verification, profile/password editing, multi-session management and social sign-in are Neon-only.
 
 ### Running pieces individually
 
@@ -243,65 +188,62 @@ These target whatever `DATABASE_URL` points at. Read `CONTRIBUTING.md` before sh
 
 ## Prices
 
-`node packages/server/dist/scripts/sync-prices.js` pulls TCGplayer prices (via tcgcsv), TCGplayer SKU ids for the TCGplayer CSV export (via TCGTracking), Cardmarket and Card Kingdom, downloading only what changed. Nothing runs it automatically.
+`packages/server/scripts/sync-prices.ts` pulls TCGplayer (via tcgcsv), Cardmarket and Card Kingdom, downloading only what changed upstream. In the self-hosted stack the `prices` container runs it every `PRICE_SYNC_INTERVAL_HOURS` (default 6, `0` disables it, failures retry after `PRICE_SYNC_RETRY_MINUTES`). Hosted deployments run it from an external scheduler.
 
-- **Once a day, never more often.** tcgcsv blocks installs that poll it harder; the TCGplayer step also skips any run within 20 hours of its last pull.
-- **No automatic retries.** A failed run waits for the next daily run.
-- **First run:** after your first game sync, run it once by hand. Cards have no price until then. `--force` re-downloads everything; use it sparingly.
-- **Only some games:** `--games=mtg` (comma-separated game keys) limits every source and the price refresh to those games; Card Kingdom only runs when a listed game uses it.
-- Set `CARD_API_USER_AGENT` to a name unique to your install: a source that blocks a name blocks every install using it.
-
-Docker Compose, with `crontab -e` (replace `/opt/mault` with your `docker-compose.yml` folder):
-
-```cron
-0 4 * * * cd /opt/mault && docker compose exec -T server sh -c 'if [ "$AUTH_PROVIDER" = local ]; then export DATABASE_URL="${DATABASE_URL:-postgresql://mault:$POSTGRES_PASSWORD@postgres:5432/mault}" DATABASE_SSL="${DATABASE_SSL:-false}"; fi; exec node packages/server/dist/scripts/sync-prices.js' >> /var/log/mault-prices.log 2>&1
-```
-
-Coolify: see step 5 under [Coolify](#coolify). Outside Docker: `pnpm --filter @magic-vault/server build`, then schedule the command from the repo root with the `.env` values in its environment.
+Prices attach to synced cards, so cards show no price until their game has synced and the first pull has finished. Follow it with `docker compose logs -f prices`, or force a full pull with `docker compose exec prices node packages/server/dist/scripts/sync-prices.js --force`.
 
 ## Deployment
 
-Four images, built from the repo root and published by CI (`.github/workflows/deploy.yml`) to `ghcr.io/dishwasher-detergent/mault-*`, tagged `vX.Y.Z`, `sha-*` and `:latest` (from `master`) or `:dev`:
+Four images, built from the repo root:
 
-| Dockerfile            | Image            | Notes                                            |
-| --------------------- | ---------------- | ------------------------------------------------ |
-| `Dockerfile.server`   | `mault-server`   | Hono API; also contains the `sync-prices` script |
-| `Dockerfile.web`      | `mault-web`      | Vite SPA on nginx, proxies `/api` to the server  |
-| `Dockerfile.api-docs` | `mault-api-docs` | Public API reference                             |
-| `Dockerfile.bot`      | `mault-bot`      | Optional Discord bot                             |
+| Dockerfile | Image | Notes |
+| --- | --- | --- |
+| `Dockerfile.server` | `mault-server` | Hono API; also runs `sync-prices` |
+| `Dockerfile.web` | `mault-web` | Vite SPA on nginx, proxies `/api` to the server |
+| `Dockerfile.api-docs` | `mault-api-docs` | Public API reference |
+| `Dockerfile.bot` | `mault-bot` | Optional Discord bot |
 
-The images are public, so the web image reads its `VITE_*` settings at container start (`docker/web-env.sh` writes `env.js`). The server reports the bundled firmware's version from `FIRMWARE_VERSION` in `firmware/main/main.ino`, which the server image copies.
+CI (`.github/workflows/deploy.yml`) publishes them to GHCR as `ghcr.io/dishwasher-detergent/mault-*`, tagged `vX.Y.Z`, `sha-*` and `:latest` (from `master`) or `:dev`. Because the images are public, the web image's `VITE_*` settings are read at container start (`docker/web-env.sh` writes `env.js`), so one image works for any deployment. Only `VITE_LATEST_FIRMWARE_VERSION` is a build arg, since it describes the firmware baked into the image.
 
-The scanner downloads its ONNX weights from `huggingface.co` at runtime (pinned by revision and SHA-256). Allowlist it in DNS blockers such as Pi-hole.
+The scanner's ONNX weights are pinned by Hugging Face revision and SHA-256 and downloaded at runtime. DNS blockers such as Pi-hole may block `huggingface.co`; allowlist it if model downloads fail.
 
 ### Docker Compose
 
+`docker-compose.yml` works for both providers:
+
 ```bash
-docker compose up --build -d                 # postgres, server, web (:8080), api-docs (:8081)
+docker compose up --build -d                 # postgres, server, prices, web (:8080), api-docs (:8081)
 docker compose --profile bot up --build -d   # + Discord bot (:3002)
 ```
 
-- For production, set `WEB_URL` to your public origin and use real secrets.
-- With `AUTH_PROVIDER=neon`, `.env` must point at a migrated Neon project; the bundled `postgres` then sits unused.
-- Prices need the cron job from [Prices](#prices).
+For production, set `WEB_URL` to your public origin and use real secrets. With `AUTH_PROVIDER=neon`, `.env` must point at a migrated Neon project; the bundled `postgres` service then sits unused. Inside compose the server and bot reach each other by service name, so `.env`'s localhost `SERVER_URL`/`BOT_URL` are overridden. Set `PRICE_SYNC_INTERVAL_HOURS=0` if you already schedule `sync-prices` elsewhere.
 
 ### Coolify
 
-`docker-compose-coolify.yml` runs the published images (web, API, pgvector Postgres, optional bot), so nothing builds on your server. `MAULT_IMAGE_TAG` picks the tag (default `latest`; set e.g. `v1.2.3` to pin).
+`docker-compose-coolify.yml` is a self-contained local-auth stack (web, API, pgvector Postgres, price sync, optional bot).
 
-1. **+ New** > **Public Repository** with `https://github.com/dishwasher-detergent/mault`, branch `master`, build pack **Docker Compose** and compose file `/docker-compose-coolify.yml`.
-2. Set `WEB_URL` (public origin, no trailing slash) and give `POSTGRES_PASSWORD`, `IMPERSONATION_SECRET`, `OWN_AUTH_TOKEN_PEPPER` and `MONITOR_LINK_SECRET` each its own `openssl rand -hex 32` value. Everything else is optional (see `.env.docker.example`).
-3. Route your domain to the **web** service on port 80 (e.g. `https://mault.example.com:80`).
-4. Deploy. The API migrates before starting. To update, redeploy: Coolify fetches the latest compose file and pulls the current images.
-5. Under **Scheduled Tasks**, add the price sync: command `node packages/server/dist/scripts/sync-prices.js`, container `server`, frequency `0 4 * * *`.
+1. **+ New** > Public Repository (or a Git integration), build pack **Docker Compose**, base directory `/`, compose file `/docker-compose-coolify.yml`.
+2. Set the environment:
 
-- **Neon:** also set `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER` to `neon`, `DATABASE_SSL=true` and the Neon values, and run the migrations from a checkout before each deploy.
-- **Discord:** set `DISCORD_BOT_TOKEN`, `DISCORD_CLIENT_ID` and `BOT_API_SECRET` and redeploy; without them the bot idles.
-- **Data:** Postgres lives in the `mault-postgres` volume; keep it and back it up. The default `DATABASE_URL` uses `POSTGRES_PASSWORD` unencoded, so keep it URL-safe (hex is). Changing `POSTGRES_PASSWORD` later doesn't change the database's password, and changing `OWN_AUTH_TOKEN_PEPPER` signs everyone out.
+   | Variable | Value |
+   | --- | --- |
+   | `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER` | `local` |
+   | `VITE_APP_ENV` | `local` |
+   | `WEB_URL` | Public origin, e.g. `https://mault.example.com`, no trailing slash |
+   | `POSTGRES_PASSWORD` | Strong password |
+   | `IMPERSONATION_SECRET`, `OWN_AUTH_TOKEN_PEPPER` | Separate random secrets (`openssl rand -hex 32`) |
+
+   Leave `VITE_API_URL` and the Neon variables empty. Everything else is optional (see `.env.docker.example`).
+3. Route your domain to the **web** service on port 80 (e.g. `https://mault.example.com:80`; the suffix only picks the container port).
+4. Deploy. The API migrates before starting and the other services wait for it to be healthy.
+
+For Discord, set `DISCORD_BOT_TOKEN`, `DISCORD_CLIENT_ID` and `BOT_API_SECRET` and redeploy; without them the bot container idles.
+
+Postgres lives in the `mault-postgres` volume: keep it across updates and back it up. Changing `POSTGRES_PASSWORD` later doesn't change the existing role's password, and changing `OWN_AUTH_TOKEN_PEPPER` signs everyone out.
 
 ### Discord bot
 
-The bot only talks to the server over HTTP (`SERVER_URL`), and the server calls back into the bot's small HTTP server (`BOT_URL`/`BOT_PORT`) to post scan notifications, alerts and rule matches into the channels chosen in Settings > Integrations. Both directions share `BOT_API_SECRET`. Commands are registered globally; set `DISCORD_DEV_GUILD_ID` for faster iteration in development. To give people who link their account with `/link-account` a role in your own server, pick the server and role under Admin > Discord channels (the bot needs Manage Roles and a role above it). Linking and unlinking add and remove the role right away. Someone who links before joining that server gets the role by running `/link-account` again once they're in it. To DM new members of your own server instructions for `/link-account`, set `DISCORD_WELCOME_GUILD_IDS` to its server ID (comma-separate several) and enable the Server Members intent under Bot > Privileged Gateway Intents in the Discord Developer Portal; without the intent the bot can't log in.
+The bot only talks to the server over HTTP (`SERVER_URL`), and the server calls back into the bot's small HTTP server (`BOT_URL`/`BOT_PORT`) to post scan notifications, alerts and rule matches into the channels chosen in Settings > Integrations. Both directions share `BOT_API_SECRET`. Commands are registered globally; set `DISCORD_DEV_GUILD_ID` for faster iteration in development.
 
 ## Hardware
 
@@ -320,10 +262,6 @@ The lighting firmware (documentation release 2.??.0, runtime 2.14.0) requires Ad
 
 The firmware has no idea what a bin is: the app resolves each bin to a module and direction (`left`, `right` or `bottom`) and sends newline-delimited JSON at 9600 baud, such as `{"seq":42,"route":{"module":2,"direction":"left"}}`. Note that `"left"` lands on the physical right. `firmware/PROTOCOL.md` documents every command and the USB, BLE and Wi-Fi transports. The PCA9685 channel layout (Standard from channel 0, or Legacy from channel 4 for older wiring) is chosen in Calibration and sent at connect time.
 
-### Raspberry Pi
-
-See [Raspberry Pi](#raspberry-pi). The sorter stays plugged into the Pi, and a USB webcam on the Pi is the scanner camera.
-
 ### Wi-Fi remote
 
 ESP32 boards on firmware 2.10.0+ can be driven without a cable. Wi-Fi is configured over USB or Bluetooth, then the board holds a WebSocket to `/sorter-link/device` and the server relays it to one browser. The board dials `SORTER_LINK_URL`, else `API_URL`, else the web origin. In local development set it to a LAN address the board can reach, e.g. `ws://192.168.1.20:3001/sorter-link/device`. The relay is in process, so the board and its browser must reach the same server instance.
@@ -334,9 +272,9 @@ A Logitech C920 works well with: auto focus off, focus 50%, auto exposure on, lo
 
 ## Licensing
 
-| Component               | License         |
-| ----------------------- | --------------- |
-| Software source code    | GPL-3.0         |
+| Component | License |
+| --- | --- |
+| Software source code | MIT |
 | 3D models (`3d model/`) | CC BY-NC-SA 4.0 |
 
 See the `LICENSE` file in each directory for the full terms.
