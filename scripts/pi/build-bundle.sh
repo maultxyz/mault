@@ -32,7 +32,7 @@ OUT="$(cd "$OUT" && pwd)"
 echo "[bundle] Building the web app"
 cd "$REPO"
 pnpm install --frozen-lockfile --filter "@magic-vault/web..."
-pnpm --filter @magic-vault/web build
+NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--max-old-space-size=4096" pnpm --filter @magic-vault/web build
 
 echo "[bundle] Staging the API"
 cp "$REPO/package.json" "$REPO/pnpm-lock.yaml" "$REPO/pnpm-workspace.yaml" "$STAGE/"
