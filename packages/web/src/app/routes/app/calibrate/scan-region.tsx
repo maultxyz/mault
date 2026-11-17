@@ -4,8 +4,10 @@ import { useCalibrationOutletContext } from "@/app/routes/app/calibrate/layout";
 import { ScanRegionCalibrationPanel } from "@/features/calibration/components/scan-region-calibration-panel";
 import { FoilCalibrationPanel } from "@/features/calibration/components/foil-calibration-panel";
 import { useFoilCalibration } from "@/features/calibration/api/use-foil-calibration";
+import { useRole } from "@/hooks/use-role";
 
 export default function CalibrateScanRegionPage() {
+  const { isAdmin } = useRole();
   const {
     scanRegion,
     captureSettleDelayMs,
@@ -48,7 +50,7 @@ export default function CalibrateScanRegionPage() {
         onFlipCameraChange={handleFlipCameraChange}
         />
       </fieldset>
-      <FoilCalibrationPanel calibration={foilCalibration} />
+      {isAdmin && <FoilCalibrationPanel calibration={foilCalibration} />}
 
       <SaveBar
         show={isScanRegionSectionDirty}
