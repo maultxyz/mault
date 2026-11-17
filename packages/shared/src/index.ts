@@ -22,6 +22,7 @@ export * from "./interfaces/ocr-region.interface";
 export * from "./interfaces/result.interface";
 export * from "./interfaces/scanner.interface";
 export * from "./interfaces/desktop.interface";
+export * from "./interfaces/auth.interface";
 export * from "./interfaces/phone-camera.interface";
 export * from "./interfaces/pi-serial.interface";
 export * from "./interfaces/pi-scan.interface";
@@ -55,6 +56,7 @@ export * from "./interfaces/sorter-link.interface";
 
 export * from "./constants/bin-correction.constant";
 export * from "./constants/desktop.constant";
+export * from "./constants/auth.constant";
 export * from "./constants/brand.constant";
 export * from "./constants/collection-cards.constant";
 export * from "./page-size";

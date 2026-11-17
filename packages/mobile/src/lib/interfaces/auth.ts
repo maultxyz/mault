@@ -1,3 +1,5 @@
+import type { NeonSocialProvider } from "@magic-vault/shared";
+
 export interface SessionUser {
   id: string;
   name: string | null;
@@ -29,8 +31,11 @@ export interface SignInResult {
   error?: string;
 }
 
+export type AuthBackendSignInResult = { sessionToken: string } | { error: string };
+
 export interface AuthBackend {
-  signIn(email: string, password: string): Promise<{ sessionToken: string } | { error: string }>;
+  signIn(email: string, password: string): Promise<AuthBackendSignInResult>;
+  signInWithSocialProvider?(provider: NeonSocialProvider): Promise<AuthBackendSignInResult>;
   accessToken(sessionToken: string): Promise<string | null>;
   signOut(sessionToken: string): Promise<void>;
 }

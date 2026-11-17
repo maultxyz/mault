@@ -47,9 +47,12 @@
       "network": "Couldn't reach the server. Check your connection and try again.",
       "profile": "Signed in, but your account details couldn't be loaded. Try again.",
       "verify-email": "Verify your email address, then sign in.",
-      "storage": "Signed in, but the session couldn't be saved on this device. Try again."
+      "storage": "Signed in, but the session couldn't be saved on this device. Try again.",
+      "social": "Couldn't sign you in with that account. Try again."
     },
-    "createAccountOnWeb": "New to Mault? Create an account on the web"
+    "createAccountOnWeb": "New to Mault? Create an account on the web",
+    "orContinueWith": "Or continue with",
+    "continueWithProvider": "Continue with {{provider}}"
   },
   "collections": {
     "title": "Collection",

@@ -3,6 +3,7 @@ import {
   SHARED_STORAGE_PATH_PREFIX,
   SHOP_CATALOG_PATH_PREFIX,
   SHORT_LINK_NOT_FOUND_PATH,
+  MOBILE_SOCIAL_SIGN_IN_CALLBACK_PATH,
 } from "@magic-vault/shared";
 import {
   HOME_PATH,
@@ -105,6 +106,12 @@ const LinkNotFoundPage = lazy(
 );
 const AuthPage = lazy(
   withNamespaces(() => import("@/app/routes/neon/auth"), ["common", "auth"]),
+);
+const MobileAuthCallbackPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/neon/mobile-auth-callback"),
+    ["common", "auth"],
+  ),
 );
 const AuthLocalPage = lazy(
   withNamespaces(() => import("@/app/routes/local/auth"), ["common", "auth"]),
@@ -417,6 +424,14 @@ export const routes: RouteObject[] = [
         path: MARKETING_PAGE_PATHS.terms,
         element: <MarketingRoute path={MARKETING_PAGE_PATHS.terms} />,
       },
+      ...(AUTH_PROVIDER === "neon"
+        ? [
+            {
+              path: MOBILE_SOCIAL_SIGN_IN_CALLBACK_PATH,
+              element: <MobileAuthCallbackPage />,
+            },
+          ]
+        : []),
       {
         path: "/auth/:path",
         element: AUTH_PROVIDER === "local" ? <AuthLocalPage /> : <AuthPage />,
