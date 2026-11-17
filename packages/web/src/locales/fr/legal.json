@@ -13,77 +13,136 @@
   "privacy": {
     "title": "Politique de confidentialité",
     "intro": [
-      "Cette politique explique quelles informations Mault LLC (\"Mault\", \"nous\") collecte lorsque tu utilises le service Mault hébergé, et comment nous les utilisons.",
-      "Elle ne couvre que le service hébergé. Si tu utilises une instance auto-hébergée (AUTH_PROVIDER=local), tes données restent sur une infrastructure que tu contrôles, et c'est toi qui en es responsable - cette politique ne s'applique pas à ce déploiement."
+      "Cette politique explique quelles informations Mault LLC (\"Mault\", \"nous\") collecte lorsque tu utilises le service Mault hébergé : l'application web sur mault.xyz, les applications Mault pour iOS, Android et ordinateur, le bot Discord de Mault et les pages publiques que Mault propose pour les liens de partage et les catalogues de boutique. Elle explique aussi comment nous utilisons et partageons ces informations, et les choix dont tu disposes.",
+      "Elle ne couvre pas les installations auto-hébergées de Mault (y compris sur un Raspberry Pi). Leurs données restent sur une infrastructure contrôlée par l'exploitant, qui en est responsable.",
+      "Si tu utilises Mault pour une activité professionnelle et que tu y enregistres des informations sur d'autres personnes, comme les clients à qui tu achètes des cartes ou les personnes qui t'envoient des offres d'échange, c'est toi qui décides de ce qui est collecté, et nous traitons ces données pour ton compte. Tu es responsable d'avoir le droit de les collecter et de répondre aux demandes de ces personnes à leur sujet."
     ],
     "sections": [
       {
-        "heading": "Informations que nous collectons",
+        "heading": "Informations que tu nous fournis",
         "body": [
-          "Informations de compte : ton e-mail et ton nom, gérés par notre fournisseur d'authentification (Neon Auth) lors de ton inscription ou de ta connexion.",
-          "Données d'organisation : noms d'organisation, membres et rôles pour les équipes que tu crées ou rejoins.",
-          "Données de collection : les collections, bacs, règles de tri et fiches de cartes que tu crées en utilisant l'application.",
-          "Images de scan de cartes : lorsque tu scannes une carte physique, la photo est envoyée à notre serveur pour la comparer à la base de données de cartes. Nous conservons la photo avec la carte identifiée (ou avec le scan non reconnu) pour que tu puisses la consulter et corriger les erreurs d'identification, et pour que nous puissions améliorer la précision des scans.",
-          "Informations de paiement : si tu t'abonnes à l'offre Business, les informations de facturation sont collectées et traitées directement par Stripe. Nous ne voyons ni ne stockons jamais ton numéro de carte complet.",
-          "Données de webhook Discord : si tu connectes un webhook Discord, nous envoyons les notifications de scan et de collection que tu as configurées, qui peuvent inclure la photo du scan, vers l'URL de webhook que tu as fournie.",
-          "Journaux techniques de base (erreurs, métadonnées de requêtes) utilisés pour assurer la fiabilité du service. Nous n'utilisons pas d'outils d'analyse ou de traqueurs publicitaires tiers."
+          "Informations de compte : ton nom, ton adresse e-mail et ta photo de profil, gérés par notre fournisseur d'authentification (Neon Auth). Si tu te connectes avec Google, GitHub, Discord ou Apple, nous recevons de ce service ton nom, ton adresse e-mail et, s'il en fournit une, ta photo de profil. Si tu utilises « Se connecter avec Apple » et choisis de masquer ton adresse e-mail, nous recevons à la place une adresse de relais privée. Nous ne voyons jamais ton mot de passe pour ces services.",
+          "Organisations : les noms des organisations, leurs membres, leurs rôles et les invitations, y compris les adresses e-mail des personnes que tu invites.",
+          "Données de collection et d'inventaire : les collections, cartes, états, prix, coûts d'achat, emplacements de rangement, préréglages et règles de tri, notes, étiquettes et extraits sonores que tu crées ou importes.",
+          "Photos de scan de cartes : lorsque tu scannes une carte, nous recevons des photos de son recto (et de son verso, si ton installation le capture) avec des détails techniques du scan, comme le texte lu sur la carte et les scores de correspondance. Nous les enregistrons avec la fiche de la carte ou le scan non reconnu, en indiquant qui a scanné et avec quelle trieuse, pour que tu puisses vérifier et corriger les correspondances.",
+          "Outils d'achat et de vente : si tu les utilises, les noms et coordonnées que tu saisis pour les clients dans les lots de rachat, tes commandes et listes de préparation, l'historique des cartes vendues et la photo que tu importes pour ta boutique.",
+          "Offres d'échange : lorsqu'une personne envoie une offre d'échange via un lien d'échange, nous enregistrons le nom, les coordonnées (si le lien les demande) et le message qu'elle saisit, les cartes et montants concernés, ainsi qu'un identifiant aléatoire créé par son navigateur (nous n'en conservons qu'une forme hachée). Si elle est connectée, l'offre est aussi liée à son compte.",
+          "Discord : si tu lies ton compte Discord, nous enregistrons ton identifiant d'utilisateur et ton nom d'utilisateur Discord. Si tu lies un serveur Discord, nous enregistrons les identifiants de ce serveur, de ses salons et de ses rôles. Les notifications que tu configures, qui peuvent contenir des photos de scan, des noms de cartes et des prix, sont publiées dans les salons que tu choisis.",
+          "Paiements : les offres payantes sont facturées via Stripe, qui collecte et traite tes informations de paiement. Nous conservons uniquement tes identifiants client et d'abonnement Stripe, ton offre et son statut, et nous ne voyons jamais ton numéro de carte complet.",
+          "Fonctions pour les développeurs : les clés d'API que tu crées (nous ne conservons qu'une forme hachée de chaque clé) et les points de terminaison de webhook que tu ajoutes, ainsi que les événements que nous leur envoyons.",
+          "Support et dons : les messages que tu nous envoies. Si tu fais un don via Buy Me a Coffee, le montant et ton message (sauf si tu le masques) sont publiés sur notre serveur Discord. Buy Me a Coffee traite le paiement selon sa propre politique de confidentialité."
         ]
       },
       {
-        "heading": "Comment nous utilisons ces informations",
+        "heading": "Informations collectées automatiquement",
         "body": [
-          "Pour exploiter et fournir le service, y compris t'authentifier et limiter tes données à ton organisation.",
-          "Pour traiter les paiements des offres payantes et gérer ton abonnement.",
-          "Pour envoyer les notifications que tu as explicitement configurées (comme les messages de webhook Discord).",
-          "Pour assurer la sécurité et la fiabilité du service."
+          "Trieuses et appareils : le nom, l'identifiant matériel, l'étalonnage et les réglages de chaque trieuse que tu connectes, le nombre de cartes qu'elle a triées, sa dernière connexion et les alertes qu'elle déclenche.",
+          "Historique d'activité et d'utilisation : un journal des actions effectuées dans ton organisation et de leurs auteurs, des statistiques de scan (résultat, heure et auteur du scan) et le nombre quotidien de requêtes par clé d'API et par page publique. Ces décomptes ne contiennent pas d'adresses IP.",
+          "Rapports d'erreur : lorsque l'application web ou nos serveurs rencontrent une erreur, nous envoyons un rapport à notre fournisseur de suivi des erreurs, Better Stack. Il contient le message d'erreur et l'endroit du code où elle s'est produite, ton navigateur et ton système d'exploitation, l'adresse de la page sans ses paramètres, la version de l'application et, pour les erreurs du serveur, ton identifiant d'utilisateur. Nous l'avons configuré pour ne collecter ni adresses IP, ni cookies, ni en-têtes de requête, et il n'enregistre ni sessions ni pages vues.",
+          "Journaux des serveurs : comme la plupart des sites web, les serveurs que nous exploitons conservent brièvement des journaux de requêtes (comme les adresses IP et les pages demandées) pour assurer la sécurité et le bon fonctionnement du service.",
+          "Nous n'utilisons aucun traceur publicitaire ou d'analyse et ne créons pas de profils publicitaires. Notre surveillance de disponibilité vérifie seulement que nos services répondent et ne concerne pas tes données."
         ]
       },
       {
-        "heading": "Comment nous partageons les informations",
+        "heading": "Informations stockées sur ton appareil",
         "body": [
-          "Nous ne vendons pas tes informations personnelles. Nous ne les partageons qu'avec les prestataires nécessaires au fonctionnement de Mault :",
-          "Neon, pour l'hébergement de la base de données, le stockage des images de scan et l'authentification.",
-          "Stripe, pour le traitement des paiements des offres payantes.",
-          "Discord, uniquement si et quand tu configures un webhook pour y envoyer des notifications.",
-          "Des bases de données tierces de jeux de cartes à collectionner (par exemple Scryfall et sources similaires), que nous interrogeons pour identifier et enrichir les données de cartes. Ces requêtes ne contiennent pas tes informations personnelles."
+          "Application web : nous stockons ta session de connexion, ton organisation active, tes préférences, les scans en attente d'envoi et les modèles de reconnaissance téléchargés dans le stockage local de ton navigateur, et notre service worker met l'application en cache pour qu'elle se charge vite. Notre fournisseur d'authentification dépose des cookies de connexion via mault.xyz, et un cookie de courte durée est utilisé pendant que tu te connectes à l'application mobile avec Google, GitHub, Discord ou Apple. Nous n'utilisons pas de cookies publicitaires.",
+          "Application mobile : l'application utilise ta caméra pour scanner des cartes et lire des codes QR, et le Bluetooth pour se connecter à ta trieuse, uniquement lorsque tu utilises ces fonctions. La reconnaissance des cartes s'exécute sur ton téléphone, et les photos ne sont envoyées que lorsqu'un scan est enregistré. L'application garde un cache de tes données sur l'appareil pour s'ouvrir rapidement (effacé à la déconnexion ou au changement d'organisation) et, sur iOS, ses widgets et Activités en direct affichent des données de collection et de scan sur ton appareil. Elle n'utilise ni ta position, ni tes contacts, ni ta photothèque.",
+          "Application pour ordinateur : elle vérifie les mises à jour sur GitHub. Si tu choisis un dossier pour les copies du scanner de documents, les images sont enregistrées uniquement sur ton ordinateur."
         ]
       },
       {
-        "heading": "Conservation des données",
+        "heading": "Comment nous utilisons les informations",
         "body": [
-          "Nous conservons tes données de compte, d'organisation et de collection tant que ton compte est actif.",
-          "Les photos de scan de cartes sont conservées tant que la carte ou le scan non reconnu auquel elles appartiennent existe. Supprimer la carte, vider les scans non reconnus, supprimer la collection ou supprimer ton organisation supprime ses photos.",
-          "Tu peux demander la suppression de ton compte et des données associées à tout moment en nous contactant."
+          "Pour fournir le service : te connecter, garder les données de chaque organisation séparées, reconnaître, estimer et trier tes cartes, et afficher tes collections, tes échanges et ta boutique.",
+          "Pour améliorer la reconnaissance des cartes : l'équipe de Mault peut examiner les photos de scan et les correspondances pour trouver et corriger des erreurs. Les photos de scan non vérifiées de cartes scannées entre le 25 octobre et le 1er novembre 2026 ont aussi été montrées à d'autres utilisateurs de Mault connectés, afin qu'ils indiquent si chaque correspondance était juste ou fausse. Ces personnes voyaient la photo et la carte reconnue, mais ni ton nom ni celui de ton organisation.",
+          "Pour te facturer les offres payantes et gérer ton abonnement.",
+          "Pour envoyer les notifications et événements de webhook que tu as configurés.",
+          "Pour assurer la sécurité et la fiabilité du service : prévenir les abus, appliquer les limites de requêtes et d'offre, et trouver et corriger les erreurs.",
+          "Pour répondre à tes demandes de support.",
+          "Nous ne vendons pas tes informations personnelles, ne les utilisons pas pour de la publicité ciblée et n'envoyons pas tes photos de scan à des services d'IA tiers."
         ]
       },
       {
-        "heading": "Tes droits",
+        "heading": "Ce que d'autres personnes peuvent voir",
         "body": [
-          "Tu peux accéder à, corriger, exporter ou supprimer tes données personnelles en nous contactant à l'adresse ci-dessous, ou directement dans l'application lorsque c'est possible."
+          "Les membres de ton organisation peuvent voir ses données, selon leur rôle.",
+          "Liens de partage : toute personne disposant d'un lien de partage peut voir les cartes qu'il couvre, y compris leurs photos de scan sur la page de détail de la carte et leurs prix, sauf si tu les masques. Les catalogues de boutique que tu rends publics s'ouvrent sans lien et peuvent être indexés par les moteurs de recherche. Les liens n'affichent ni les noms de tes collections ni tes coûts d'achat, et tu peux les révoquer à tout moment.",
+          "Classements : les organisations sont classées selon le nombre de cartes scannées (et de correspondances vérifiées) dans le classement de l'application et du bot Discord. Le nom de ton organisation n'apparaît que si tu l'acceptes dans les Paramètres ; sinon, elle est affichée de façon anonyme.",
+          "Discord : les notifications que tu configures et les cartes que tu présentes avec les commandes du bot sont visibles par les membres de ces salons Discord.",
+          "Équipe de Mault : un petit nombre de membres de l'équipe de Mault peut accéder aux comptes et aux données des organisations pour fournir du support et faire fonctionner le service. Cela inclut la connexion en tant qu'utilisateur pour résoudre un problème ; chaque session de ce type est consignée."
+        ]
+      },
+      {
+        "heading": "Prestataires avec lesquels nous partageons des informations",
+        "body": [
+          "Nous ne partageons des informations qu'avec les prestataires dont nous avons besoin pour faire fonctionner Mault, et uniquement dans ce but :",
+          "Neon : hébergement de la base de données, stockage des photos de scan, extraits sonores et photos de boutique, et authentification, y compris les e-mails de connexion et d'invitation qu'il envoie.",
+          "Stripe : traitement des paiements et facturation des abonnements.",
+          "Better Stack : suivi des erreurs et surveillance de disponibilité.",
+          "Discord : envoi des notifications et des fonctions du bot que tu actives.",
+          "GitHub : hébergement de notre code et des mises à jour des applications, et exécution de nos tâches de maintenance planifiées (comme la mise à jour des catalogues de cartes et des prix), qui ont accès à notre base de données.",
+          "Google, GitHub, Discord et Apple : uniquement si tu choisis de te connecter avec eux.",
+          "Apple et Google : distribution de nos applications mobiles, selon leurs propres politiques de confidentialité.",
+          "Nous exploitons nous-mêmes, aux États-Unis, les serveurs qui hébergent l'application web, l'API et notre raccourcisseur de liens. Pour reconnaître et estimer les cartes, nous utilisons des bases de données de cartes et des sources de prix publiques comme Scryfall, TCGdex, les données TCGplayer (via TCGTracking), Cardmarket et Card Kingdom. Nous en téléchargeons uniquement des données de cartes et de prix et ne leur envoyons jamais tes informations personnelles.",
+          "Nous pouvons aussi divulguer des informations si la loi l'exige, pour protéger les droits et la sécurité de nos utilisateurs ou de Mault, ou dans le cadre d'une fusion, d'une acquisition ou d'une vente de notre activité, auquel cas cette politique continue de s'appliquer à ces informations."
+        ]
+      },
+      {
+        "heading": "Durée de conservation",
+        "body": [
+          "Nous conservons les données de ton compte, de ton organisation et de tes collections tant que ton compte est actif.",
+          "Supprimer une carte la supprime immédiatement avec ses photos de scan, et vider les scans non reconnus supprime leurs photos. Les autres éléments que tu supprimes, comme les collections, les emplacements de rangement et les préréglages, sont conservés à l'état supprimé afin de pouvoir être restaurés sur demande, jusqu'à la suppression des données de ton organisation.",
+          "Lorsqu'un propriétaire d'organisation supprime les données de l'organisation dans les Paramètres, nous supprimons ses collections, cartes, photos de scan, trieuses, échanges, commandes, historiques de vente, liens de partage, clés d'API et journal d'activité, et nous résilions son abonnement. Nous conservons des statistiques de scan anonymes et des décomptes quotidiens de scans, qui ne sont plus liés à l'organisation.",
+          "Les décomptes quotidiens d'utilisation de l'API sont conservés 90 jours. Les rapports d'erreur sont conservés pendant la durée limitée définie dans notre compte Better Stack. Les documents de facturation sont conservés aussi longtemps que l'exigent les règles fiscales et comptables. Les journaux des connexions de l'équipe en tant qu'utilisateur sont conservés pour des raisons de sécurité.",
+          "Pour supprimer ton compte lui-même, contacte-nous à l'adresse ci-dessous."
+        ]
+      },
+      {
+        "heading": "Tes choix",
+        "body": [
+          "Tu peux consulter et modifier tes données dans l'application, exporter tes collections en fichiers CSV, révoquer des liens de partage et des clés d'API, dissocier Discord, choisir si le nom de ton organisation apparaît dans les classements et supprimer les données de ton organisation dans les Paramètres. Pour tout le reste, y compris obtenir une copie de tes données ou supprimer ton compte, contacte-nous à {{email}}."
+        ]
+      },
+      {
+        "heading": "Si tu te trouves dans l'Espace économique européen, au Royaume-Uni ou en Suisse",
+        "body": [
+          "Mault LLC est responsable du traitement des informations personnelles décrites dans cette politique, à l'exception des informations qu'une organisation enregistre sur d'autres personnes, que nous traitons pour le compte de cette organisation.",
+          "Nous nous appuyons sur les bases légales suivantes : l'exécution de notre contrat avec toi (fourniture du service et facturation), nos intérêts légitimes (sécurité du service, correction des erreurs, amélioration de la reconnaissance des cartes et support, mis en balance avec tes droits), ton consentement lorsque nous le demandons (par exemple pour lier Discord ou apparaître dans les classements) et nos obligations légales (comme la conservation des documents de facturation).",
+          "Tu as le droit d'accéder à tes informations personnelles, de les rectifier, de les effacer ou d'en recevoir une copie portable, de limiter leur traitement ou de t'y opposer, et de retirer ton consentement à tout moment sans que cela remette en cause les traitements antérieurs. Tu peux aussi déposer une plainte auprès de l'autorité de protection des données de ton pays.",
+          "Nous et nos prestataires traitons les informations aux États-Unis. Lorsque la loi l'exige, ces transferts reposent sur des garanties comme les clauses contractuelles types de l'UE ou le cadre de protection des données UE-États-Unis (Data Privacy Framework)."
+        ]
+      },
+      {
+        "heading": "Si tu te trouves aux États-Unis",
+        "body": [
+          "Selon ton État (par exemple la Californie, le Colorado, le Connecticut, la Virginie ou le Texas), tu peux avoir le droit de savoir quelles informations personnelles nous collectons et comment nous les utilisons, d'en obtenir une copie, de les faire corriger et de les faire supprimer. Nous ne vendons pas d'informations personnelles, ne les partageons pas pour de la publicité comportementale intercontextuelle et n'utilisons pas d'informations personnelles sensibles pour déduire tes caractéristiques.",
+          "Au cours des 12 derniers mois, nous avons collecté les catégories décrites ci-dessus : identifiants (comme ton nom, ton adresse e-mail et tes identifiants de compte), informations commerciales (ton offre, tes commandes et tes historiques de vente), activité internet limitée aux rapports d'erreur et aux décomptes d'utilisation, et informations visuelles (photos de scan de cartes). Nous les collectons pour les finalités décrites dans cette politique et ne les partageons qu'avec les prestataires listés ci-dessus.",
+          "Pour exercer tes droits, contacte-nous à l'adresse ci-dessous. Nous vérifions ta demande en la confirmant depuis l'adresse e-mail de ton compte, et tu peux passer par un mandataire autorisé. Nous ne te traiterons pas différemment parce que tu exerces tes droits."
         ]
       },
       {
         "heading": "Sécurité",
         "body": [
-          "Le trafic vers le service hébergé est chiffré en transit (HTTPS). Les données sont cloisonnées par organisation grâce à la sécurité au niveau des lignes de la base de données, et l'accès à l'API utilise des jetons d'accès à courte durée de vie plutôt que des cookies."
+          "Le trafic vers le service hébergé est chiffré pendant le transit (HTTPS). Les données de chaque organisation sont séparées grâce à la sécurité au niveau des lignes de la base de données, les clés d'API et les identifiants d'invités ne sont conservés que sous forme hachée, et les liens de partage sont signés et révocables. Aucun système n'est parfaitement sûr, mais nous nous efforçons de protéger tes informations et te préviendrons en cas de violation de données lorsque la loi l'exige."
         ]
       },
       {
         "heading": "Confidentialité des mineurs",
         "body": [
-          "Mault ne s'adresse pas aux enfants de moins de 13 ans, et nous ne collectons pas sciemment d'informations personnelles les concernant."
+          "Mault ne s'adresse pas aux enfants de moins de 13 ans, ni à ceux de moins de 16 ans dans l'Espace économique européen et au Royaume-Uni, et nous ne collectons pas sciemment leurs informations personnelles. Si tu penses qu'un enfant nous a fourni des informations personnelles, contacte-nous et nous les supprimerons."
         ]
       },
       {
         "heading": "Modifications de cette politique",
         "body": [
-          "Nous pouvons mettre à jour cette politique de temps à autre. Nous mettrons alors à jour la date en haut de cette page."
+          "Nous pouvons mettre à jour cette politique au fil de l'évolution de Mault. Nous mettrons alors à jour la date en haut de cette page et, pour les changements importants, nous te préviendrons aussi dans l'application ou par e-mail."
         ]
       },
       {
         "heading": "Nous contacter",
         "body": [
-          "Des questions sur cette politique ? Contacte-nous à {{email}}."
+          "Des questions ou des demandes au sujet de cette politique ? Contacte Mault LLC à {{email}}."
         ]
       }
     ]
