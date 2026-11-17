@@ -7,4 +7,5 @@ export type RuntimeEnvKey =
   | "VITE_APP_ENV"
   | "VITE_BETTER_STACK_ERRORS_DSN"
   | "VITE_SHOW_SCAN_LOGS"
-  | "VITE_API_DOCS_URL";
+  | "VITE_API_DOCS_URL"
+  | "VITE_PI_HOST";

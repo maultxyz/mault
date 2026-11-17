@@ -61,6 +61,7 @@ import {
 import { PRESET_WORKFLOW_PATH, SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
+import { SERVED_FROM_PI_BUNDLE } from "@/lib/constants/pi-bundle";
 import {
   INTAKE_PATH,
   intakeReceiptPath,
@@ -91,10 +92,7 @@ const SharedStoragePage = lazy(
   ),
 );
 const SharedCardPage = lazy(
-  withNamespaces(
-    () => import("@/app/routes/shared-card"),
-    ["common", "cards"],
-  ),
+  withNamespaces(() => import("@/app/routes/shared-card"), ["common", "cards"]),
 );
 const ShopCatalogPage = lazy(
   withNamespaces(
@@ -238,15 +236,17 @@ const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(loadStoragePage);
 const TradesPage = lazy(() => import("@/app/routes/app/trades"));
-const InPersonTradePage = lazy(() => import("@/app/routes/app/in-person-trade"));
+const InPersonTradePage = lazy(
+  () => import("@/app/routes/app/in-person-trade"),
+);
 const TradeOfferRoutePage = lazy(() => import("@/app/routes/app/trade-offer"));
-const SentTradeOfferRoutePage = lazy(() => import("@/app/routes/app/sent-trade-offer"));
+const SentTradeOfferRoutePage = lazy(
+  () => import("@/app/routes/app/sent-trade-offer"),
+);
 const StoragePickListPage = lazy(
   () => import("@/app/routes/app/storage-pick-list"),
 );
-const StorageLabelsPage = lazy(
-  () => import("@/app/routes/app/storage-labels"),
-);
+const StorageLabelsPage = lazy(() => import("@/app/routes/app/storage-labels"));
 const StatsPage = lazy(loadStatsPage);
 const IntakePage = lazy(() => import("@/app/routes/app/intake"));
 const PicksPage = lazy(() => import("@/app/routes/app/picks"));
@@ -368,31 +368,53 @@ function RequireCollectionGuard() {
   );
 }
 
+const marketingPageRoutes: RouteObject[] = [
+  {
+    path: MARKETING_PAGE_PATHS.home,
+    element: <MarketingRoute path={MARKETING_PAGE_PATHS.home} />,
+  },
+  {
+    path: MARKETING_PAGE_PATHS.build,
+    element: <MarketingRoute path={MARKETING_PAGE_PATHS.build} />,
+  },
+  {
+    path: MARKETING_PAGE_PATHS.selfHost,
+    element: <MarketingRoute path={MARKETING_PAGE_PATHS.selfHost} />,
+  },
+  {
+    path: MARKETING_PAGE_PATHS.discordBot,
+    element: <MarketingRoute path={MARKETING_PAGE_PATHS.discordBot} />,
+  },
+  {
+    path: MARKETING_PAGE_PATHS.download,
+    element: <MarketingRoute path={MARKETING_PAGE_PATHS.download} />,
+  },
+];
+
+const legalPageRoutes: RouteObject[] = [
+  {
+    path: MARKETING_PAGE_PATHS.privacy,
+    element: <MarketingRoute path={MARKETING_PAGE_PATHS.privacy} />,
+  },
+  {
+    path: MARKETING_PAGE_PATHS.terms,
+    element: <MarketingRoute path={MARKETING_PAGE_PATHS.terms} />,
+  },
+];
+
+const piHostHomeRoutes: RouteObject[] = [
+  {
+    path: MARKETING_PAGE_PATHS.home,
+    element: <Navigate to={HOME_PATH} replace />,
+  },
+];
+
 export const routes: RouteObject[] = [
   {
     element: <Outlet />,
     errorElement: <ErrorPage />,
     children: [
-      {
-        path: MARKETING_PAGE_PATHS.home,
-        element: <MarketingRoute path={MARKETING_PAGE_PATHS.home} />,
-      },
-      {
-        path: MARKETING_PAGE_PATHS.build,
-        element: <MarketingRoute path={MARKETING_PAGE_PATHS.build} />,
-      },
-      {
-        path: MARKETING_PAGE_PATHS.selfHost,
-        element: <MarketingRoute path={MARKETING_PAGE_PATHS.selfHost} />,
-      },
-      {
-        path: MARKETING_PAGE_PATHS.discordBot,
-        element: <MarketingRoute path={MARKETING_PAGE_PATHS.discordBot} />,
-      },
-      {
-        path: MARKETING_PAGE_PATHS.download,
-        element: <MarketingRoute path={MARKETING_PAGE_PATHS.download} />,
-      },
+      ...(SERVED_FROM_PI_BUNDLE ? piHostHomeRoutes : marketingPageRoutes),
       {
         element: <PublicPageLayout />,
         children: [
@@ -418,14 +440,7 @@ export const routes: RouteObject[] = [
           },
         ],
       },
-      {
-        path: MARKETING_PAGE_PATHS.privacy,
-        element: <MarketingRoute path={MARKETING_PAGE_PATHS.privacy} />,
-      },
-      {
-        path: MARKETING_PAGE_PATHS.terms,
-        element: <MarketingRoute path={MARKETING_PAGE_PATHS.terms} />,
-      },
+      ...(SERVED_FROM_PI_BUNDLE ? [] : legalPageRoutes),
       ...(AUTH_PROVIDER === "neon"
         ? [
             {

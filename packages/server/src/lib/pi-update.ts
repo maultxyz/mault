@@ -6,7 +6,6 @@ import { dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { gt, valid } from "semver";
 import type { PiUpdateState, PiUpdateStatus } from "@magic-vault/shared";
-import pkg from "../../package.json";
 import {
   PI_UPDATE_CHECK_MS,
   PI_UPDATE_COMMAND_TIMEOUT_MS,
@@ -14,8 +13,9 @@ import {
   PI_UPDATE_STATE_FILE,
   PI_UPDATE_UNIT,
   PI_UPDATE_LAUNCH_GRACE_MS,
+  PI_RELEASE_FILE,
 } from "./constants/pi-update";
-import type { PiUpdateCheck } from "./interfaces/pi-update";
+import type { PiInstalledRelease, PiUpdateCheck } from "./interfaces/pi-update";
 import { getActiveScanLockStats } from "./scan-lock";
 import { sorterPortOwner } from "./pi-serial-port";
 import { getStatus as syncStatus } from "./sync-job/state";
@@ -37,6 +37,29 @@ export const piUpdateRuntime = {
       "mault",
     ),
   run: promisify(execFile),
+  async readInstalledRelease(root: string): Promise<PiInstalledRelease> {
+    let release: { version?: unknown; manifestUrl?: unknown };
+    try {
+      release = JSON.parse(await readFile(join(root, PI_RELEASE_FILE), "utf8"));
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code === "ENOENT")
+        throw new Error("This installation was not installed from a release.");
+      throw error;
+    }
+    if (typeof release.version !== "string" || !valid(release.version))
+      throw new Error("The installed release has no valid app version.");
+    if (typeof release.manifestUrl !== "string")
+      throw new Error("The installed release has no update address.");
+    return { version: release.version, manifestUrl: release.manifestUrl };
+  },
+  async fetchReleaseManifest(manifestUrl: string): Promise<unknown> {
+    const response = await fetch(manifestUrl, {
+      signal: AbortSignal.timeout(PI_UPDATE_COMMAND_TIMEOUT_MS),
+    });
+    if (!response.ok)
+      throw new Error(`The release check failed (${response.status}).`);
+    return response.json();
+  },
 };
 
 let cachedCheck: PiUpdateCheck | null = null;
@@ -49,7 +72,6 @@ async function command(program: string, args: string[]): Promise<string> {
     cwd: piUpdateRuntime.root(),
     timeout: PI_UPDATE_COMMAND_TIMEOUT_MS,
     maxBuffer: PI_UPDATE_MAX_BUFFER,
-    env: { ...process.env, GIT_TERMINAL_PROMPT: "0" },
   });
   return String(result.stdout).trim();
 }
@@ -80,27 +102,18 @@ export async function piUpdateRunning(): Promise<boolean> {
   return launching || (await readPiUpdateState()).phase === "running";
 }
 
-export async function checkPiUpdateVersion(
-  fetchRemote = true,
-): Promise<PiUpdateCheck> {
-  const branch = await command("git", ["branch", "--show-current"]);
-  if (!branch)
-    throw new Error("Check out the installed branch before updating.");
-  const remote = await command("git", [
-    "config",
-    "--get",
-    `branch.${branch}.remote`,
-  ]);
-  if (fetchRemote) await command("git", ["fetch", "--", remote]);
-  const installedVersion = pkg.version;
-  const latestPackage = JSON.parse(
-    await command("git", ["show", "@{upstream}:packages/server/package.json"]),
+export async function checkPiUpdateVersion(): Promise<PiUpdateCheck> {
+  const installed = await piUpdateRuntime.readInstalledRelease(
+    piUpdateRuntime.root(),
   );
-  const latestVersion = latestPackage.version;
+  const manifest = await piUpdateRuntime.fetchReleaseManifest(
+    installed.manifestUrl,
+  );
+  const latestVersion = (manifest as { version?: unknown } | null)?.version;
   if (typeof latestVersion !== "string" || !valid(latestVersion)) {
-    throw new Error("The tracking branch has no valid app version.");
+    throw new Error("The latest release has no valid app version.");
   }
-  await command("git", ["merge-base", "--is-ancestor", "HEAD", "@{upstream}"]);
+  const installedVersion = installed.version;
   return {
     installedVersion,
     latestVersion,
@@ -126,7 +139,7 @@ export async function getPiUpdateStatus(): Promise<PiUpdateStatus> {
         ...state,
         phase: "failed",
         message:
-          "The updater stopped before completion. Check the Linux update log.",
+          "The updater stopped before completion. Check the update log with: sudo mault logs update",
       };
       await writeState(state);
     }
@@ -136,9 +149,7 @@ export async function getPiUpdateStatus(): Promise<PiUpdateStatus> {
     (!cachedCheck || Date.now() - checkedAt > PI_UPDATE_CHECK_MS)
   ) {
     if (!checking) {
-      checking = checkPiUpdateVersion(
-        cachedCheck !== null || state.phase === "idle",
-      )
+      checking = checkPiUpdateVersion()
         .then((value) => {
           cachedCheck = value;
           checkedAt = Date.now();
@@ -181,13 +192,6 @@ export async function startPiUpdate(): Promise<PiUpdateState> {
     ) {
       throw new Error(
         "Finish scanning, disconnect the sorter, and stop database syncing before updating.",
-      );
-    }
-    if (
-      await command("git", ["status", "--porcelain", "--untracked-files=all"])
-    ) {
-      throw new Error(
-        "Local files have changed. Update from the Linux terminal after saving your work.",
       );
     }
     const state: PiUpdateState = {

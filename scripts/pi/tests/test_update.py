@@ -1,324 +1,147 @@
-import os
+import getpass
 import json
+import os
 from pathlib import Path
 import shutil
-import socket
 import subprocess
+import tarfile
 import tempfile
-import threading
 import unittest
 
 
-UPDATER = Path(__file__).resolve().parents[1] / "update.sh"
+SCRIPTS = Path(__file__).resolve().parents[1]
+RELEASE_FILES = ("update.sh", "install.sh", "run-update.sh", "install-services.mjs", "controller-ready.mjs",
+                 "mault-api.service", "mault-camera.service", "mault-controller.service",
+                 "mault-prices.service", "mault-prices.timer")
+FAKE_SYSTEMCTL = """#!/bin/bash
+echo "systemctl $*" >> "$CALL_LOG"
+"""
+FAKE_CURL = """#!/bin/bash
+echo "curl $* current=$(readlink -f "$MAULT_HOME/current")" >> "$CALL_LOG"
+for argument in "$@"; do
+  case "$argument" in
+    *manifest.json) printf '{"version":"%s","bundle":"bundle.tar.gz","sha256":"unused"}' "$LATEST_VERSION"; exit 0 ;;
+  esac
+done
+if [[ -n "${BROKEN_VERSION:-}" && "$(readlink -f "$MAULT_HOME/current")" == */"$BROKEN_VERSION" ]]; then
+  exit 7
+fi
+exit 0
+"""
 
 
 class UpdateTests(unittest.TestCase):
     def setUp(self):
-        self.temp = tempfile.TemporaryDirectory()
-        self.addCleanup(self.temp.cleanup)
-        self.root = Path(self.temp.name)
-        self.source = self.root / "source"
-        self.source.mkdir()
-        self.git(self.source, "init", "--initial-branch=pi-host")
-        self.git(self.source, "config", "user.name", "Update test")
-        self.git(self.source, "config", "user.email", "update@example.invalid")
-        scripts = self.source / "scripts/pi"
-        scripts.mkdir(parents=True)
-        (scripts / "update.sh").write_text(UPDATER.read_text().replace("/usr/bin/python3 -c 'import bleak'", "false"))
-        shutil.copyfile(UPDATER.parent / "install-services.mjs", scripts / "install-services.mjs")
-        shutil.copyfile(UPDATER.parent / "controller-ready.mjs", scripts / "controller-ready.mjs")
-        (scripts / "session.sh").write_text("pi_require_user() { :; }\npi_ensure_user_bus() { :; }\n")
-        for name in ["api", "web", "camera", "controller"]:
-            shutil.copyfile(UPDATER.parent / f"mault-{name}.service", scripts / f"mault-{name}.service")
-        (self.source / ".gitignore").write_text(".env\n")
-        (self.source / "package.json").write_text('{"version":"1.0.0","packageManager":"pnpm@9.1.3"}\n')
-        for name in ("server", "web", "bot", "api-docs"):
-            (self.source / f"Dockerfile.{name}").write_text("FROM node:26-slim\nRUN npm install -g pnpm@9.1.3\n")
-        self.git(self.source, "add", ".")
-        self.git(self.source, "commit", "-m", "Initial installation")
-        self.repo = self.root / "projects/mault-pi-host"
-        self.repo.parent.mkdir()
-        self.git(self.root, "clone", str(self.source), str(self.repo))
-        (self.repo / ".env").write_text("PI_HOST=1\n")
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        self.root = Path(self.directory.name)
+        self.home = self.root / "opt"
+        self.data = self.root / "data"
+        self.data.mkdir()
+        (self.data / ".env").write_text("PI_HOST=1\nPI_SORTER=0\n")
+        (self.data / ".pi-controller").mkdir()
         self.bin = self.root / "bin"
         self.bin.mkdir()
-        self.log = self.root / "commands.log"
-        self.env = dict(os.environ, PATH=f"{self.bin}:{os.environ['PATH']}",
-                        XDG_CONFIG_HOME=str(self.root / "config"), UPDATE_TEST_LOG=str(self.log),
-                        UPDATE_TEST_NODE=shutil.which("node"))
-        for name in ["pnpm", "systemctl", "curl", "node", "sleep", "sudo"]:
-            script = self.bin / name
-            script.write_text(
-                '#!/bin/bash\nif [[ "${0##*/}" == pnpm && "$*" == *build* ]]; then echo "heap=$NODE_OPTIONS $*" >> "$UPDATE_TEST_LOG"; fi\nprintf "%s %s\\n" "${0##*/}" "$*" >> "$UPDATE_TEST_LOG"\n'
-                'if [[ "${0##*/}" == curl && "${UPDATE_TEST_CURL_FAILURE:-}" != "" ]]; then\n'
-                '  if [[ "$*" == *S* ]]; then echo "curl: (7) Failed to connect" >&2; fi\n'
-                '  if [[ "$UPDATE_TEST_CURL_FAILURE" == always || ! -f "$UPDATE_TEST_LOG.retry" ]]; then\n'
-                '    touch "$UPDATE_TEST_LOG.retry"; exit 7\n'
-                '  fi\n'
-                'fi\n'
-                'if [[ "${0##*/}" == systemctl && "$*" == *is-active*mault-controller.service* && "${UPDATE_TEST_CONTROLLER_INACTIVE:-}" == 1 ]]; then exit 3; fi\n'
-                'if [[ "${0##*/}" == systemctl && "${UPDATE_TEST_UNLOADED:-}" == 1 ]]; then\n'
-                '  if [[ "$*" == *is-failed* ]]; then exit 3; fi\n'
-                '  if [[ "$*" == *reset-failed* ]]; then echo "Unit not loaded" >&2; exit 1; fi\n'
-                'fi\n'
-                'if [[ "${0##*/}" == node && "$1" == */install-services.mjs ]]; then exec "$UPDATE_TEST_NODE" "$@"; fi\n'
-                'if [[ "${0##*/}" == node && "$1" == */controller-ready.mjs ]]; then exec "$UPDATE_TEST_NODE" "$@"; fi\n'
-                'if [[ "${0##*/}" == pnpm && "${FAIL_BUILD:-}" == 1 && "$*" == *build* ]]; then exit 1; fi\n'
-                'if [[ "${0##*/}" == node && "$*" == *process.versions.node* ]]; then echo "${UPDATE_TEST_NODE_MAJOR:-26}"; exit 0; fi\n'
-                'if [[ "${0##*/}" == pnpm && "$1" == --version ]]; then echo 9.1.3; exit 0; fi\n'
-                'if [[ "${0##*/}" == sudo && "$*" == *"apt-get"*"bluez python3-bleak"* && "${UPDATE_TEST_BLUETOOTH_FAILURE:-}" != 1 ]]; then exit 0; fi\n'
-                'if [[ "${0##*/}" == sudo && "$*" == *"apt-get update"* && "${UPDATE_TEST_BLUETOOTH_FAILURE:-}" != 1 ]]; then exit 0; fi\n'
-                'if [[ "${0##*/}" == sudo && "$*" == "systemctl enable --now bluetooth" && "${UPDATE_TEST_BLUETOOTH_FAILURE:-}" != 1 ]]; then exit 0; fi\n'
-                'if [[ "${0##*/}" == sudo ]]; then echo "sudo: a password is required" >&2; exit 1; fi\n'
-                'if [[ "${0##*/}" == node ]]; then echo 1.0.1; fi\n'
-            )
-            script.chmod(0o755)
+        for name, script in (("systemctl", FAKE_SYSTEMCTL), ("curl", FAKE_CURL)):
+            (self.bin / name).write_text(script)
+            (self.bin / name).chmod(0o755)
+        self.log = self.root / "calls.log"
+        self.log.touch()
+        installed = self.release("1.0.0")
+        (self.home / "releases").mkdir(parents=True)
+        shutil.move(str(installed), self.home / "releases/1.0.0")
+        (self.home / "releases/1.0.0/.env").symlink_to(self.data / ".env")
+        (self.home / "current").symlink_to(self.home / "releases/1.0.0")
+        self.env = dict(
+            os.environ,
+            PATH=f"{self.bin}:{os.environ['PATH']}",
+            MAULT_HOME=str(self.home),
+            MAULT_DATA=str(self.data),
+            MAULT_USER=getpass.getuser(),
+            XDG_STATE_HOME=str(self.root / "state"),
+            XDG_CONFIG_HOME=str(self.root / "config"),
+            CALL_LOG=str(self.log),
+            MAULT_UPDATE_HEALTH_ATTEMPTS="2",
+            LATEST_VERSION="1.0.1",
+        )
 
-    def git(self, directory, *args):
-        return subprocess.run(["git", "-C", str(directory), *args], check=True,
-                              text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.strip()
+    def release(self, version):
+        release = self.root / f"build-{version}"
+        scripts = release / "scripts/pi"
+        scripts.mkdir(parents=True)
+        for name in RELEASE_FILES:
+            shutil.copyfile(SCRIPTS / name, scripts / name)
+        (release / "node/bin").mkdir(parents=True)
+        (release / "node/bin/node").symlink_to(shutil.which("node"))
+        (release / "release.json").write_text(json.dumps({
+            "version": version,
+            "manifestUrl": "https://example.test/pi-latest/manifest.json",
+        }))
+        return release
 
-    def publish(self):
-        (self.source / "package.json").write_text('{"version":"1.0.1","packageManager":"pnpm@9.1.3"}\n')
-        self.git(self.source, "commit", "-am", "Release update")
+    def bundle(self, version):
+        release = self.release(version)
+        path = self.root / f"mault-{version}.tar.gz"
+        with tarfile.open(path, "w:gz") as archive:
+            for child in release.iterdir():
+                archive.add(child, arcname=child.name)
+        return path
 
-    def update(self):
-        return subprocess.run(["bash", "scripts/pi/update.sh"], cwd=self.repo, env=self.env,
-                              text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    def update(self, *arguments):
+        return subprocess.run(["bash", str(self.home / "current/scripts/pi/update.sh"), *arguments],
+                              env=self.env, text=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-    def test_update_builds_before_starting_and_refreshes_units(self):
-        self.publish()
+    def current(self):
+        return (self.home / "current").resolve().name
+
+    def test_update_switches_release_and_renders_units_after_stopping(self):
+        (self.home / "releases/0.9.0").mkdir()
+        result = self.update("--bundle", str(self.bundle("1.0.1")))
+        self.assertEqual(result.returncode, 0, result.stdout)
+        self.assertEqual(self.current(), "1.0.1")
+        self.assertTrue((self.home / "releases/1.0.0").exists())
+        self.assertFalse((self.home / "releases/0.9.0").exists())
+        self.assertEqual((self.home / "current/.env").resolve(), (self.data / ".env").resolve())
+        calls = self.log.read_text()
+        self.assertLess(calls.index("systemctl --user stop"), calls.index("systemctl --user daemon-reload"))
+        self.assertLess(calls.index("systemctl --user daemon-reload"), calls.index("systemctl --user start"))
+        api = (self.root / "config/systemd/user/mault-api.service").read_text()
+        self.assertIn("releases/1.0.1/scripts/pi/run-api.sh", api)
+        self.assertNotIn("%h/mault", api)
+        self.assertTrue((self.root / "config/systemd/user/mault-prices.timer").exists())
+
+    def test_release_that_does_not_start_rolls_back(self):
+        self.env["BROKEN_VERSION"] = "1.0.1"
+        result = self.update("--bundle", str(self.bundle("1.0.1")))
+        self.assertEqual(result.returncode, 1, result.stdout)
+        self.assertIn("Going back to 1.0.0", result.stdout)
+        self.assertEqual(self.current(), "1.0.0")
+        api = (self.root / "config/systemd/user/mault-api.service").read_text()
+        self.assertIn("releases/1.0.0/scripts/pi/run-api.sh", api)
+
+    def test_latest_version_already_installed_leaves_services_running(self):
+        self.env["LATEST_VERSION"] = "1.0.0"
         result = self.update()
         self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertEqual(self.git(self.repo, "rev-parse", "HEAD"), self.git(self.source, "rev-parse", "HEAD"))
-        calls = self.log.read_text()
-        self.assertLess(calls.index("systemctl --user stop"), calls.index("pnpm install --frozen-lockfile"))
-        self.assertLess(calls.index("@magic-vault/web build"), calls.index("systemctl --user start"))
-        self.assertIn("heap=--max-old-space-size=4096 --filter @magic-vault/web build", calls)
-        self.assertIn("systemctl --user daemon-reload", calls)
-        self.assertIn("is-active --quiet mault-camera.service", calls)
-        self.assertTrue((self.root / "config/systemd/user/mault-api.service").exists())
-        self.assertEqual((self.repo / ".env").read_text(), "PI_HOST=1\n")
-        units = self.root / "config/systemd/user"
-        api = (units / "mault-api.service").read_text()
-        web = (units / "mault-web.service").read_text()
-        camera = (units / "mault-camera.service").read_text()
-        self.assertIn(f'WorkingDirectory={self.repo}/.', api)
-        self.assertIn(f'ExecStart=/bin/bash "{self.repo}/scripts/pi/run-api.sh"', api)
-        self.assertIn(f'WorkingDirectory={self.repo}/packages/web/.', web)
-        self.assertIn(f'ExecStart=/usr/bin/python3 "{self.repo}/scripts/pi/camera-ctl.py"', camera)
-        self.assertNotIn("%h/mault", api + web + camera)
-        for unit in ["mault-web.service", "mault-api.service", "mault-camera.service"]:
-            self.assertIn(f"systemctl --user reset-failed {unit}", calls)
-
-    def controller_socket(self, reply):
-        path = self.root / "controller.sock"
-        server = socket.socket(socket.AF_UNIX)
-        server.bind(str(path))
-        server.listen()
-        server.settimeout(0.1)
-        stopped = threading.Event()
-        commands = []
-
-        def respond():
-            while not stopped.is_set():
-                try:
-                    connection, _ = server.accept()
-                except socket.timeout:
-                    continue
-                with connection:
-                    connection.settimeout(2)
-                    data = b""
-                    while not data.endswith(b"\n"):
-                        chunk = connection.recv(4096)
-                        if not chunk:
-                            break
-                        data += chunk
-                    commands.append(json.loads(data))
-                    connection.sendall((json.dumps(reply) + "\n").encode())
-
-        thread = threading.Thread(target=respond)
-        thread.start()
-
-        def close():
-            stopped.set()
-            thread.join(timeout=3)
-            server.close()
-
-        self.addCleanup(close)
-        (self.repo / ".env").write_text(f'PI_HOST=1\nPI_SORTER=1\nPI_CONTROLLER_SOCKET="{path}"\n')
-        return commands
-
-    def test_gpio_update_checks_status_without_motion(self):
-        commands = self.controller_socket(dict(seq=1, status="ready", version="1.0", servoDriver="ok"))
-        result = self.update()
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertEqual(commands, [dict(getStatus=True, seq=1)])
-        calls = self.log.read_text()
-        self.assertIn("is-active --quiet mault-controller.service", calls)
-        probe = f'node {self.repo}/scripts/pi/controller-ready.mjs {self.repo}\n'
-        api_start = "systemctl --user start --no-block mault-camera.service mault-api.service mault-web.service"
-        self.assertLess(calls.index("systemctl --user start --no-block mault-controller.service"), calls.index(probe))
-        self.assertLess(calls.index(probe), calls.index(api_start))
-        self.assertEqual(calls.count(probe), 1)
-
-    def test_gpio_update_rejects_missing_servo_driver(self):
-        commands = self.controller_socket(dict(seq=1, status="ready", version="1.0", servoDriver="missing"))
-        result = self.update()
-        self.assertNotEqual(result.returncode, 0, result.stdout)
-        self.assertIn("Controller did not become ready", result.stdout)
-        self.assertNotIn("start --no-block mault-camera.service", self.log.read_text())
-        self.assertEqual(len(commands), 60)
-        self.assertTrue(all(command == dict(getStatus=True, seq=1) for command in commands))
-
-    def test_gpio_update_requires_active_service_before_socket_probe(self):
-        commands = self.controller_socket(dict(seq=1, status="ready", version="1.0", servoDriver="ok"))
-        self.env["UPDATE_TEST_CONTROLLER_INACTIVE"] = "1"
-        result = self.update()
-        self.assertNotEqual(result.returncode, 0, result.stdout)
-        self.assertEqual(commands, [])
-        self.assertNotIn("start --no-block mault-camera.service", self.log.read_text())
-
-    def test_gpio_update_rejects_missing_socket(self):
-        (self.repo / ".env").write_text(f'PI_SORTER=1\nPI_CONTROLLER_SOCKET="{self.root / "missing.sock"}"\n')
-        result = self.update()
-        self.assertNotEqual(result.returncode, 0, result.stdout)
-        self.assertIn("Controller did not become ready", result.stdout)
-
-    def test_bluetooth_dependencies_are_prepared_before_service_stop(self):
-        result = self.update()
-        self.assertEqual(result.returncode, 0, result.stdout)
-        calls = self.log.read_text()
-        self.assertLess(calls.index("apt-get install -y bluez python3-bleak"), calls.index("systemctl --user stop"))
-        self.assertLess(calls.index("systemctl enable --now bluetooth"), calls.index("systemctl --user stop"))
-
-    def test_bluetooth_dependency_failure_leaves_services_running(self):
-        self.env["UPDATE_TEST_BLUETOOTH_FAILURE"] = "1"
-        result = self.update()
-        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("already the latest version", result.stdout)
         self.assertNotIn("systemctl --user stop", self.log.read_text())
 
-    def test_usb_update_does_not_require_controller(self):
-        self.env["UPDATE_TEST_CONTROLLER_INACTIVE"] = "1"
-        result = self.update()
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertNotIn("is-active --quiet mault-controller.service", self.log.read_text())
+    def test_other_users_cannot_update(self):
+        self.env["MAULT_USER"] = "someone-else"
+        result = self.update("--bundle", str(self.bundle("1.0.1")))
+        self.assertEqual(result.returncode, 1)
+        self.assertIn("sudo mault update", result.stdout)
+        self.assertEqual(self.current(), "1.0.0")
 
-    def test_dependency_permission_failure_leaves_services_running(self):
-        self.env["UPDATE_TEST_NODE_MAJOR"] = "22"
-        result = self.update()
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("sudo: a password is required", result.stdout)
-        self.assertNotIn("systemctl --user stop", self.log.read_text())
-
-    def test_unloaded_units_do_not_prevent_service_start(self):
-        self.publish()
-        self.env["UPDATE_TEST_UNLOADED"] = "1"
-        result = self.update()
-        self.assertEqual(result.returncode, 0, result.stdout)
-        calls = self.log.read_text()
-        self.assertNotIn("reset-failed", calls)
-        self.assertIn("systemctl --user start --no-block", calls)
-
-    def test_startup_connection_failure_is_quiet_and_retried(self):
-        self.env["UPDATE_TEST_CURL_FAILURE"] = "once"
-        result = self.update()
-        self.assertEqual(result.returncode, 0, result.stdout)
-        self.assertNotIn("curl: (7)", result.stdout)
-        self.assertIn("is running. Reload your browsers.", result.stdout)
-        self.assertEqual(self.log.read_text().count("http://127.0.0.1:3001/public/version"), 2)
-
-    def test_startup_timeout_still_reports_failure_and_service_status(self):
-        self.env["UPDATE_TEST_CURL_FAILURE"] = "always"
-        result = self.update()
-        self.assertNotEqual(result.returncode, 0)
-        self.assertNotIn("curl: (7)", result.stdout)
-        self.assertIn("Services did not become ready", result.stdout)
-        self.assertNotIn("is running. Reload your browsers.", result.stdout)
-        self.assertIn("systemctl --user --no-pager --full status", self.log.read_text())
-
-    def test_service_paths_escape_spaces_and_systemd_expansions(self):
-        destination = self.root / 'Mault beta % $HOME "test"'
-        self.repo.rename(destination)
-        self.repo = destination
-        self.publish()
-        result = self.update()
-        self.assertEqual(result.returncode, 0, result.stdout)
-        units = self.root / "config/systemd/user"
-        working = str(self.repo).replace('%', '%%')
-        executable = working.replace('"', '\\"').replace('$', '$$')
-        api = (units / "mault-api.service").read_text()
-        self.assertIn(f'WorkingDirectory={working}/.', api)
-        self.assertIn(f'ExecStart=/bin/bash "{executable}/scripts/pi/run-api.sh"', api)
-        self.assertEqual((self.repo / ".env").read_text(), "PI_HOST=1\n")
-
-    def test_dirty_checkout_does_not_stop_services(self):
-        (self.repo / "local-work.txt").write_text("Keep this work")
-        result = self.update()
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("Local changes found", result.stdout)
-        self.assertFalse(self.log.exists())
-
-    def test_detached_checkout_does_not_stop_services(self):
-        self.git(self.repo, "checkout", "--detach")
-        result = self.update()
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("Check out the installed branch", result.stdout)
-        self.assertFalse(self.log.exists())
-
-    def test_tracked_changes_are_preserved(self):
-        changed = '{"version":"local"}\n'
-        (self.repo / "package.json").write_text(changed)
-        result = self.update()
-        self.assertNotEqual(result.returncode, 0)
-        self.assertEqual((self.repo / "package.json").read_text(), changed)
-        self.assertFalse(self.log.exists())
-
-    def test_missing_upstream_does_not_stop_services(self):
-        self.git(self.repo, "branch", "--unset-upstream")
-        result = self.update()
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("no tracking branch", result.stdout)
-        self.assertFalse(self.log.exists())
-
-    def test_local_commits_do_not_get_overwritten(self):
-        self.publish()
-        self.git(self.repo, "-c", "user.name=Test", "-c", "user.email=test@example.invalid",
-                 "commit", "--allow-empty", "-m", "Local work")
-        before = self.git(self.repo, "rev-parse", "HEAD")
-        result = self.update()
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("Local commits differ", result.stdout)
-        self.assertEqual(self.git(self.repo, "rev-parse", "HEAD"), before)
-        self.assertFalse(self.log.exists())
-
-    def test_failed_build_never_starts_services(self):
-        self.publish()
-        self.env["FAIL_BUILD"] = "1"
-        result = self.update()
-        self.assertNotEqual(result.returncode, 0)
-        self.assertIn("Update failed", result.stdout)
-        self.assertNotIn("systemctl --user start", self.log.read_text())
-
-    def test_background_runner_persists_success_and_failure(self):
-        self.bin.joinpath("node").unlink()
-        runner = self.repo / "scripts/pi/run-update.sh"
-        shutil.copyfile(UPDATER.parent / "run-update.sh", runner)
-        state_home = self.root / "state"
-        directory = state_home / "mault"
-        directory.mkdir(parents=True)
-        state = directory / "update.json"
-        self.env["XDG_STATE_HOME"] = str(state_home)
-        for code, expected in [(0, "succeeded"), (1, "failed")]:
-            with self.subTest(code=code):
-                state.write_text(json.dumps({"phase": "running", "startedAt": 123, "message": None}))
-                (self.repo / "scripts/pi/update.sh").write_text(f"#!/bin/bash\nexit {code}\n")
-                result = subprocess.run(["bash", str(runner)], cwd=self.repo, env=self.env)
-                self.assertEqual(result.returncode, code)
-                saved = json.loads(state.read_text())
-                self.assertEqual(saved["phase"], expected)
-                self.assertEqual(saved["startedAt"], 123)
-                self.assertEqual(state.stat().st_mode & 0o777, 0o600)
+    def test_background_runner_persists_failure(self):
+        state = self.root / "state/mault"
+        state.mkdir(parents=True)
+        (state / "update.json").write_text('{"phase":"running","startedAt":1,"message":null}')
+        self.env["MAULT_USER"] = "someone-else"
+        subprocess.run(["bash", str(self.home / "current/scripts/pi/run-update.sh")], env=self.env)
+        saved = json.loads((state / "update.json").read_text())
+        self.assertEqual(saved["phase"], "failed")
+        self.assertIn("sudo mault logs update", saved["message"])
 
 
 if __name__ == "__main__":

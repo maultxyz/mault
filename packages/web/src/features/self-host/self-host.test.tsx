@@ -74,10 +74,12 @@ describe("Pi/Linux self-host guide", () => {
       "piPrices",
       "piMaintain",
     ]);
-    expect(container.textContent).toContain("bash scripts/pi/install.sh");
-    expect(container.textContent).toContain("bash scripts/pi/update.sh");
-    expect(container.textContent).toContain("http://HOST_IP:8080");
-    expect(container.textContent).toContain("The installer prepares BlueZ");
+    expect(container.textContent).toContain("mault-pi.img.xz");
+    expect(container.textContent).toContain("install.sh | sudo bash");
+    expect(container.textContent).toContain("sudo mault update");
+    expect(container.textContent).toContain("http://mault.local");
+    expect(container.textContent).toContain("Mault includes BlueZ");
+    expect(container.textContent).not.toContain("git clone");
     expect(container.textContent).toContain("Open Connect Bluetooth");
     expect(container.textContent).not.toContain("docker compose up");
     expect(container.textContent).not.toContain("db:migrate");
@@ -135,8 +137,11 @@ describe("Pi/Linux self-host guide", () => {
     expect(new URLSearchParams(window.location.search).get("board")).toBe(
       "orange-pi-zero4",
     );
+    expect(container.querySelector("#piInstall")?.textContent).not.toContain(
+      "mault-pi.img.xz",
+    );
     expect(container.querySelector("#piInstall")?.textContent).toContain(
-      "Choose direct GPIO/I2C control, then Orange Pi Zero 4",
+      "install.sh | sudo bash",
     );
     fireEvent.click(radio("ESP32 / Arduino"));
     expect(
@@ -150,7 +155,7 @@ describe("Pi/Linux self-host guide", () => {
     );
     expect(window.location.hash).toBe("#setup");
     expect(container.querySelector("#piInstall")?.textContent).toContain(
-      "bash scripts/pi/install.sh",
+      "mault-pi.img.xz",
     );
     fireEvent.click(radio("Docker Compose"));
     expect(
@@ -178,25 +183,19 @@ describe("Pi/Linux self-host guide", () => {
       expect(hardware.textContent).toContain(title);
       expect(hardware.textContent).not.toContain(otherBoard);
       expect(hardware.textContent).not.toContain("Host Bluetooth");
-      expect(hardware.textContent).not.toContain(
-        "If the installer asks for a reboot",
-      );
+      const install = container.querySelector("#piInstall")!;
       if (board === "raspberry-pi") {
-        expect(container.querySelector("#piInstall")?.textContent).toContain(
-          "If the installer asks for a reboot to enable I2C",
+        expect(install.textContent).toContain(
+          "flash it to the microSD card with Raspberry Pi Imager",
         );
+      } else {
+        expect(install.textContent).not.toContain("mault-pi.img.xz");
       }
-      expect(container.querySelector("#piInstall")?.textContent).not.toContain(
-        "PI_SORTER=",
-      );
-      expect(container.querySelector("#piInstall")?.textContent).toContain(
-        "bash scripts/pi/install.sh",
-      );
+      expect(install.textContent).not.toContain("PI_SORTER=");
+      expect(install.textContent).toContain("install.sh | sudo bash");
       expect(
-        within(
-          container.querySelector("#piInstall")! as HTMLElement,
-        ).getAllByRole("checkbox"),
-      ).toHaveLength(4);
+        within(install as HTMLElement).getAllByRole("checkbox"),
+      ).toHaveLength(board === "raspberry-pi" ? 5 : 3);
     },
   );
   it("uses the external controller default for invalid hardware URL choices", () => {
@@ -209,10 +208,7 @@ describe("Pi/Linux self-host guide", () => {
   it("explains user-agent configuration, daily scheduling and automatic startup", () => {
     const { container } = renderGuide("/self-host?host=pi");
     expect(container.querySelector("#piInstall")?.textContent).toContain(
-      "The installer saves your hardware choice",
-    );
-    expect(container.querySelector("#piInstall")?.textContent).toContain(
-      "type a unique name for the card and price API user agent",
+      "including a generated CARD_API_USER_AGENT",
     );
     expect(
       screen.getByText(
@@ -220,20 +216,12 @@ describe("Pi/Linux self-host guide", () => {
       ),
     ).toBeInTheDocument();
     const prices = container.querySelector("#piPrices")!;
-    expect(prices.textContent).toContain(
-      "installer does not schedule price sync",
-    );
-    expect(prices.textContent).toContain(
-      "node --env-file=.env packages/server/dist/scripts/sync-prices.js",
-    );
-    expect(prices.textContent).toContain("OnCalendar=*-*-* 04:00:00");
-    expect(prices.textContent).toContain("Persistent=false");
-    expect(prices.textContent).toContain(
-      "systemctl --user enable --now mault-prices.timer",
-    );
+    expect(prices.textContent).toContain("Prices sync automatically every day");
+    expect(prices.textContent).toContain("sudo mault prices");
+    expect(prices.textContent).toContain("mault-prices.timer");
     const maintenance = container.querySelector("#piMaintain")!;
     expect(maintenance.textContent).toContain(
-      "start automatically when the host powers on or reboots",
+      "starts automatically when the board powers on or reboots",
     );
     expect(
       maintenance.textContent!.indexOf(

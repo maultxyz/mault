@@ -1,0 +1,14 @@
+[Unit]
+Description=Mault first boot setup
+After=network.target postgresql.service systemd-logind.service
+Wants=network.target
+ConditionPathExists=!/var/lib/mault/.setup-complete
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/mault/current/scripts/pi/setup.sh --first-boot
+RemainAfterExit=yes
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target

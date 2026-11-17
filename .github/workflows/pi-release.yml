@@ -1,0 +1,251 @@
+name: Pi Release
+
+# Dispatched by hand, like the firmware and mobile releases. Builds the
+# prebuilt Pi bundle (arm64, Node included) and a flashable Raspberry Pi OS
+# image from the dispatched branch, using the app version as-is.
+#
+# master publishes pi-v<version> and points the small pi-latest release (its
+# manifest.json and install.sh) at it; production installs check that manifest
+# for updates. dev publishes <version>-dev.<run> to the moving pi-dev
+# pre-release, which dev installs follow; the next dev build replaces it.
+on:
+  workflow_dispatch:
+    inputs:
+      image:
+        description: Also build the SD card image
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+# The image build takes a while, so it gets its own group instead of holding
+# up web deploys and firmware releases.
+concurrency:
+  group: pi-release-${{ github.ref_name }}
+  cancel-in-progress: false
+
+env:
+  IS_DEV: ${{ github.ref_name == 'dev' }}
+  LATEST_TAG: pi-latest
+  DEV_TAG: pi-dev
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+      tag: ${{ steps.version.outputs.tag }}
+      manifest-url: ${{ steps.version.outputs.manifest-url }}
+      node: ${{ steps.toolchain.outputs.node }}
+      pnpm: ${{ steps.toolchain.outputs.pnpm }}
+    steps:
+      # Anything but master or dev would ship unreleased code, so it's refused.
+      - name: Check branch
+        run: |
+          if [ "${{ github.ref_name }}" != "master" ] && [ "${{ github.ref_name }}" != "dev" ]; then
+            echo "::error::Pi releases run from master (production) or dev (development), not ${{ github.ref_name }}."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # The Pi version is the app version from packages/server/package.json
+      # (the Release workflow bumps it), never bumped here: the API compares
+      # it with the release manifest to offer updates.
+      - name: Read app version
+        id: version
+        run: |
+          VERSION=$(jq -r .version packages/server/package.json)
+          REPO_RELEASES="https://github.com/${{ github.repository }}/releases/download"
+          if [ "$IS_DEV" = "true" ]; then
+            VERSION="${VERSION}-dev.${GITHUB_RUN_NUMBER}"
+            TAG="$DEV_TAG"
+            MANIFEST_URL="$REPO_RELEASES/$DEV_TAG/manifest.json"
+          else
+            TAG="pi-v${VERSION}"
+            MANIFEST_URL="$REPO_RELEASES/$LATEST_TAG/manifest.json"
+            if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+              echo "::error::$TAG is already released. Release a new app version first."
+              exit 1
+            fi
+          fi
+          {
+            echo "version=$VERSION"
+            echo "tag=$TAG"
+            echo "manifest-url=$MANIFEST_URL"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Read toolchain pins
+        id: toolchain
+        run: |
+          NODE=$(sed -nE 's/^FROM node:([0-9]+).*/\1/p' Dockerfile.server | head -1)
+          PNPM=$(sed -nE 's/^RUN npm install -g pnpm@([0-9.]+).*/\1/p' Dockerfile.server | head -1)
+          if [ -z "$NODE" ] || [ -z "$PNPM" ]; then
+            echo "::error::Cannot read the Node and pnpm pins from Dockerfile.server."
+            exit 1
+          fi
+          echo "node=$NODE" >> "$GITHUB_OUTPUT"
+          echo "pnpm=$PNPM" >> "$GITHUB_OUTPUT"
+
+  bundle:
+    needs: prepare
+    runs-on: ubuntu-24.04-arm
+    container: node:${{ needs.prepare.outputs.node }}-bookworm
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        run: npm install -g pnpm@${{ needs.prepare.outputs.pnpm }}
+
+      - name: Build bundle
+        run: |
+          bash scripts/pi/build-bundle.sh \
+            --version "${{ needs.prepare.outputs.version }}" \
+            --manifest-url "${{ needs.prepare.outputs.manifest-url }}" \
+            --out dist-pi
+
+      - name: Upload bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: pi-bundle
+          path: dist-pi/
+          retention-days: 7
+
+  image:
+    needs: [prepare, bundle]
+    if: inputs.image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download bundle
+        uses: actions/download-artifact@v4
+        with:
+          name: pi-bundle
+          path: dist-pi
+
+      - name: Stage bundle for the image
+        run: |
+          mkdir -p scripts/pi/image/stage-mault/00-mault/files
+          cp dist-pi/mault-pi-arm64.tar.gz scripts/pi/image/stage-mault/00-mault/files/
+          chmod +x scripts/pi/image/stage-mault/prerun.sh scripts/pi/image/stage-mault/00-mault/00-run.sh
+
+      # Nobody can sign in to the image's default account: Raspberry Pi
+      # Imager's OS customisation sets the real user, Wi-Fi and SSH. Mault
+      # itself needs no login on the board.
+      - name: Generate a locked default password
+        id: password
+        run: |
+          PASSWORD=$(openssl rand -hex 32)
+          echo "::add-mask::$PASSWORD"
+          echo "value=$PASSWORD" >> "$GITHUB_OUTPUT"
+
+      - name: Build image
+        id: build
+        uses: usimd/pi-gen-action@v1
+        with:
+          image-name: mault-pi
+          release: trixie
+          pi-gen-version: arm64
+          stage-list: stage0 stage1 stage2 ./scripts/pi/image/stage-mault
+          hostname: mault
+          username: mault-admin
+          password: ${{ steps.password.outputs.value }}
+          disable-first-boot-user-rename: 1
+          enable-ssh: 0
+          locale: en_US.UTF-8
+          timezone: Etc/UTC
+          wpa-country: US
+          compression: xz
+          compression-level: 6
+          increase-runner-disk-size: true
+
+      - name: Name image
+        run: cp "${{ steps.build.outputs.image-path }}" mault-pi.img.xz
+
+      - name: Upload image
+        uses: actions/upload-artifact@v4
+        with:
+          name: pi-image
+          path: mault-pi.img.xz
+          compression-level: 0
+          retention-days: 7
+
+  publish:
+    needs: [prepare, bundle, image]
+    if: always() && needs.bundle.result == 'success' && (needs.image.result == 'success' || needs.image.result == 'skipped')
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      VERSION: ${{ needs.prepare.outputs.version }}
+      TAG: ${{ needs.prepare.outputs.tag }}
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: List release assets
+        run: |
+          ASSETS="artifacts/mault-pi-arm64.tar.gz artifacts/install.sh"
+          if [ -f artifacts/mault-pi.img.xz ]; then
+            ASSETS="$ASSETS artifacts/mault-pi.img.xz"
+          fi
+          echo "ASSETS=$ASSETS" >> "$GITHUB_ENV"
+
+      - name: Publish dev release
+        if: env.IS_DEV == 'true'
+        run: |
+          gh release delete "$DEV_TAG" --cleanup-tag -y 2>/dev/null || true
+          # shellcheck disable=SC2086
+          gh release create "$DEV_TAG" $ASSETS artifacts/manifest.json \
+            --target "${{ github.sha }}" \
+            --prerelease \
+            --title "Mault for Raspberry Pi v${VERSION} (dev)" \
+            --notes "Dev build from ${{ github.sha }}. Dev installs update from this release; the next dev build replaces it."
+
+      # The versioned release holds the bundle and image. pi-latest only holds
+      # the manifest (pointing at this release's bundle) and the installer, so
+      # production update checks and the install command keep one address.
+      - name: Publish release
+        if: env.IS_DEV != 'true'
+        run: |
+          BUNDLE_URL="https://github.com/${GH_REPO}/releases/download/${TAG}/mault-pi-arm64.tar.gz"
+          jq --arg bundle "$BUNDLE_URL" '.bundle = $bundle' artifacts/manifest.json > manifest.json
+          NOTES="Mault v${VERSION} for Raspberry Pi and other arm64 Linux boards, built from ${{ github.sha }}.
+
+          - **mault-pi.img.xz** - flash with Raspberry Pi Imager, boot, then open http://mault.local
+          - **install.sh** - other arm64 boards: \`curl -fsSL https://github.com/${GH_REPO}/releases/download/${LATEST_TAG}/install.sh | sudo bash\`
+          - **Update** - \`sudo mault update\`, or Update Mault in the app"
+          # shellcheck disable=SC2086
+          gh release create "$TAG" $ASSETS manifest.json \
+            --target "${{ github.sha }}" \
+            --latest=false \
+            --title "Mault for Raspberry Pi v${VERSION}" \
+            --notes "$NOTES"
+          if ! gh release view "$LATEST_TAG" >/dev/null 2>&1; then
+            gh release create "$LATEST_TAG" --latest=false --title "Mault for Raspberry Pi (latest)" \
+              --notes "Points Pi installs at the newest production release. Download the image from the versioned pi-v* releases."
+          fi
+          gh release upload "$LATEST_TAG" artifacts/install.sh --clobber
+          gh release upload "$LATEST_TAG" manifest.json --clobber
+          gh release edit "$LATEST_TAG" --notes "Points Pi installs at [${TAG}](https://github.com/${GH_REPO}/releases/tag/${TAG}). Download the image from there."
+
+      - name: Summary
+        run: |
+          {
+            echo "## Mault for Raspberry Pi ${{ env.IS_DEV == 'true' && 'dev build' || 'release' }} v${VERSION}"
+            echo ""
+            echo "- Release: [${TAG}](https://github.com/${GH_REPO}/releases/tag/${TAG})"
+            echo "- Image: ${{ needs.image.result == 'success' && 'built' || 'skipped' }}"
+          } >> "$GITHUB_STEP_SUMMARY"

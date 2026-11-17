@@ -118,13 +118,12 @@ class InstallUserAgentTests(unittest.TestCase):
         self.assertIn("CARD_API_USER_AGENT [", result.stdout)
         self.assertEqual(self.value(), "CLI-Pi/1.0")
 
-    def test_installer_configures_name_before_hardware_reboot_or_build(self):
-        installer = SCRIPT.with_name("install.sh").read_text()
-        call = 'python3 "$ROOT/scripts/pi/install-user-agent.py" --env "$ROOT/.env"'
-        self.assertIn(call, installer)
-        self.assertLess(installer.index(call), installer.index('sudo raspi-config nonint do_i2c 0'))
-        self.assertLess(installer.index(call), installer.index('pnpm --filter @magic-vault/server build'))
-
+    def test_setup_saves_a_generated_name_before_starting_services(self):
+        setup = SCRIPT.with_name("setup.sh").read_text()
+        call = 'as_service_user python3 "$SCRIPTS/install-user-agent.py" --env "$ENV_FILE"'
+        self.assertIn(call, setup)
+        self.assertLess(setup.index('CARD_API_USER_AGENT="Mault-'), setup.index(call))
+        self.assertLess(setup.index(call), setup.index('install-services.mjs'))
 
 if __name__ == "__main__":
     unittest.main()
