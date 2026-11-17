@@ -30,6 +30,8 @@ export type CreateTradeOfferResult =
 export interface PublicTradeOfferLink {
   scope: TradeOfferScope;
   allowsTradeOffers: boolean;
+  showsPrices: boolean;
+  requiresGuestContact: boolean;
 }
 
 export type TradeOfferScope =

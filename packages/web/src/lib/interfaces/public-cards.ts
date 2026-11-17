@@ -117,6 +117,7 @@ export interface WatchCardBrowserProps {
   collectionGuid: string;
   collectionName: string;
   purpose: ShareLinkPurpose;
+  requiresGuestContact: boolean;
   session: SessionMonitorState;
 }
 
@@ -130,4 +131,5 @@ export interface StorageCardBrowserProps {
   token: string;
   locationName: string;
   purpose: ShareLinkPurpose;
+  requiresGuestContact: boolean;
 }

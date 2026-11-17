@@ -4,6 +4,7 @@ import {
   TRADE_OFFER_OFFERED_CARDS_MAX,
   TRADE_OFFER_WANTED_CARDS_MAX,
   type PublicCard,
+  type TradeOfferRequest,
 } from "@magic-vault/shared";
 import type { NewOfferedTradeCard, OfferedTradeCard, TradeDraft, TradeLinkRef } from "@/lib/interfaces/trade";
 
@@ -72,4 +73,15 @@ export function removeOfferedCard(key: string): void {
 
 export function clearTradeCards(): void {
   update({ ...draft, wanted: [], offered: [] });
+}
+
+export function toOfferedCardInput(card: OfferedTradeCard): TradeOfferRequest["offered"][number] {
+  return {
+    gameKey: card.gameKey,
+    lang: card.lang,
+    cardId: card.cardId,
+    quantity: card.quantity,
+    condition: card.condition,
+    isFoil: card.isFoil,
+  };
 }

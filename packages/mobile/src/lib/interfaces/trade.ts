@@ -1,5 +1,12 @@
 import type { ReactNode } from "react";
-import type { CardCondition, ParsedShareLinkUrl, PublicCard, ShareLinkPurpose } from "@magic-vault/shared";
+import type {
+  CardCondition,
+  ParsedShareLinkUrl,
+  PriceSource,
+  PublicCard,
+  ShareLinkPurpose,
+  TradeOfferBalance,
+} from "@magic-vault/shared";
 
 export type TradeLinkRef = ParsedShareLinkUrl;
 
@@ -30,6 +37,15 @@ export interface TradeLinkInfo {
   name: string;
   purpose: ShareLinkPurpose;
   cashCurrency: string;
+  priceSource: PriceSource;
+  showsPrices: boolean;
+  requiresGuestContact: boolean;
+}
+
+export interface TradeGuestBalanceProps {
+  balance: TradeOfferBalance;
+  priceSource: PriceSource;
+  isUpdating: boolean;
 }
 
 export interface TradeCardRowProps {
@@ -39,6 +55,7 @@ export interface TradeCardRowProps {
   onPress?: () => void;
   accessibilityHint?: string;
   selected?: boolean;
+  value?: string;
   right?: ReactNode;
 }
 

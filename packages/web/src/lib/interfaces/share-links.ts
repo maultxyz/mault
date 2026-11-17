@@ -20,6 +20,7 @@ export interface ShareLinkOptions {
   purpose: ShareLinkPurpose;
   expiresInDays: number;
   showPrices: boolean;
+  requireGuestContact: boolean;
 }
 
 export interface ShareLinkDialogProps {
@@ -33,6 +34,7 @@ export interface ShareLinkDialogProps {
   createLink: (options: ShareLinkOptions) => Promise<CreatedShareLink>;
   revokeLinks: () => Promise<void>;
   sharedCardsCollectionGuid?: string;
+  startsWithNewTradeLink?: boolean;
 }
 
 export interface ShareStorageLinkDialogProps {
@@ -40,6 +42,7 @@ export interface ShareStorageLinkDialogProps {
   renderTrigger?: (activeLinkCount: number) => ReactElement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  startsWithNewTradeLink?: boolean;
 }
 
 export interface SharedCardLinkListProps {

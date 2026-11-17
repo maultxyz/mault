@@ -214,3 +214,24 @@ test("links created before individual revocation have no link id", async () => {
   const verified = await verifyShareToken(MONITOR_LINK_ISSUER, token);
   assert.equal(verified?.linkGuid, null);
 });
+
+test("a trade token without the contact claim requires guest contact, and one signed optional does not", async () => {
+  const base = {
+    issuer: MONITOR_LINK_ISSUER,
+    subjectGuid: "collection-guid",
+    orgId: "org-1",
+    version: 0,
+    linkGuid: "link-guid",
+    issuedAt: new Date(),
+    expiresAt: new Date(Date.now() + 60 * 60_000),
+    showsPrices: true,
+    purpose: "trade" as const,
+  };
+  const required = await verifyShareToken(MONITOR_LINK_ISSUER, await signShareToken(base));
+  assert.equal(required?.requiresGuestContact, true);
+  const optional = await verifyShareToken(
+    MONITOR_LINK_ISSUER,
+    await signShareToken({ ...base, requiresGuestContact: false }),
+  );
+  assert.equal(optional?.requiresGuestContact, false);
+});

@@ -5,6 +5,7 @@ import type {
   PriceSource,
   PublicCard,
   TradeOffer,
+  TradeOfferBalance,
   TradeOfferCardGroup,
   TradeOfferCardOption,
   TradeOfferPickListItem,
@@ -21,6 +22,7 @@ import type { ReactNode } from "react";
 export interface TradeOfferLink {
   basePath: string;
   token: string;
+  requiresGuestContact: boolean;
 }
 
 export interface OfferedCardDraft {
@@ -71,6 +73,8 @@ export interface TradeOfferPageProps {
   sourceName: string;
   defaultGameKey: string | null;
   cashCurrency: string;
+  priceSource: PriceSource;
+  showsPrices: boolean;
   isVisible: boolean;
   onBack: () => void;
 }
@@ -92,8 +96,44 @@ export interface TradeOfferCardSearchProps {
 
 export interface TradeOfferOfferedRowProps {
   draft: OfferedCardDraft;
+  priceLabel: string | null;
   onChange: (draft: OfferedCardDraft) => void;
   onRemove: () => void;
+}
+
+export interface TradeLinkSource {
+  kind: "collection" | "storage";
+  guid: string;
+  name: string;
+}
+
+export interface TradeLinkSourceDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export interface InPersonGivenCardDraft {
+  scanId: string;
+  name: string;
+  subtitle: string;
+  imageUrl: string | null;
+}
+
+export interface InPersonGivenCardSearchProps {
+  selectedScanIds: string[];
+  onAdd: (card: InPersonGivenCardDraft) => void;
+}
+
+export interface InPersonReceivedCardSearchProps {
+  collectionGuid: string;
+  gameKey: string;
+  onAdd: (option: TradeOfferCardOption) => void;
+}
+
+export interface TradeOfferGuestBalanceProps {
+  balance: TradeOfferBalance;
+  priceSource: PriceSource;
+  isUpdating: boolean;
 }
 
 export interface TradeOfferCardListProps {

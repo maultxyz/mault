@@ -16,6 +16,7 @@ export function WatchCardBrowser({
   collectionGuid,
   collectionName,
   purpose,
+  requiresGuestContact,
   session,
 }: WatchCardBrowserProps) {
   const { t } = useTranslation("scanner");
@@ -39,7 +40,7 @@ export function WatchCardBrowser({
         purpose === "trade" ? tCards("publicBrowse.tradeHint") : t("watchPage.readOnly")
       }
       tradeOfferLink={
-        purpose === "trade" ? { basePath: TRADE_OFFER_LINK_PATHS.collection, token } : undefined
+        purpose === "trade" ? { basePath: TRADE_OFFER_LINK_PATHS.collection, token, requiresGuestContact } : undefined
       }
       sidebarTop={
         <WatchLiveSidebar session={session} stats={live.stats} cardCount={live.cardCount} />

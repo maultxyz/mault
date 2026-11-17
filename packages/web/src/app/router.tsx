@@ -35,6 +35,7 @@ import {
   STORAGE_PICK_LIST_PATH,
 } from "@/lib/constants/storage";
 import {
+  IN_PERSON_TRADE_PATH,
   SENT_TRADE_OFFER_PATH,
   TRADE_OFFER_PATH,
   TRADES_PATH,
@@ -237,6 +238,7 @@ const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(loadStoragePage);
 const TradesPage = lazy(() => import("@/app/routes/app/trades"));
+const InPersonTradePage = lazy(() => import("@/app/routes/app/in-person-trade"));
 const TradeOfferRoutePage = lazy(() => import("@/app/routes/app/trade-offer"));
 const SentTradeOfferRoutePage = lazy(() => import("@/app/routes/app/sent-trade-offer"));
 const StoragePickListPage = lazy(
@@ -706,6 +708,10 @@ export const routes: RouteObject[] = [
               {
                 path: TRADES_PATH,
                 element: <TradesPage />,
+              },
+              {
+                path: IN_PERSON_TRADE_PATH,
+                element: <InPersonTradePage />,
               },
               {
                 path: TRADE_OFFER_PATH,

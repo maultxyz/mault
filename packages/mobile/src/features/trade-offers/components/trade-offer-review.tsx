@@ -6,6 +6,7 @@ import { AccessibilityInfo, Alert, useWindowDimensions, View } from "react-nativ
 import {
   TRADE_OFFER_THEY_OFFER_TITLE_KEYS,
   formatPrice,
+  formatTradeOfferCash,
   isTradeOfferBeingPicked,
   tradeOfferOfferKind,
   tradeOfferOfferedCardCount,
@@ -15,6 +16,8 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { Pill } from "@/components/ui/pill";
+import { ListGroup } from "@/components/ui/list-group";
+import { ListRow } from "@/components/ui/list-row";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { SectionHeader } from "@/components/ui/section-header";
@@ -49,6 +52,7 @@ export function TradeOfferReview({ offer }: TradeOfferReviewProps) {
   const isPicking = isTradeOfferBeingPicked(offer);
   const progress = tradeOfferPickProgress(offer.wanted, picking.remainingScanIds);
   const offeredCount = tradeOfferOfferedCardCount(offer);
+  const isInPerson = offer.linkKind === "inPerson";
   const valueDifference = Math.round((offer.offeredValue - offer.wantedValue) * 100) / 100;
   const respond = useMutation({
     mutationFn: (accepts: boolean) =>
@@ -93,16 +97,30 @@ export function TradeOfferReview({ offer }: TradeOfferReviewProps) {
     />
   ) : (
     <TradeOfferReviewSide
-      title={t("tradeOffers.theyWant", { count: offer.wanted.length })}
+      title={
+        isInPerson
+          ? t("tradeOffers.inPerson.youGave", { count: offer.wanted.length })
+          : t("tradeOffers.theyWant", { count: offer.wanted.length })
+      }
       cards={offer.wanted}
       prices={offer.wantedPrices}
       placements={offer.wantedPlacements}
       priceSource={offer.priceSource}
-    />
+    >
+      {offer.givenCash ? (
+        <ListGroup>
+          <ListRow icon="coins" title={t("tradeOffers.cashAmount", { amount: formatTradeOfferCash(offer.givenCash) })} />
+        </ListGroup>
+      ) : null}
+    </TradeOfferReviewSide>
   );
   const offeredSide = (
     <TradeOfferReviewSide
-      title={t(TRADE_OFFER_THEY_OFFER_TITLE_KEYS[tradeOfferOfferKind(offer)], { count: offeredCount })}
+      title={
+        isInPerson
+          ? t("tradeOffers.inPerson.youGot", { count: offeredCount })
+          : t(TRADE_OFFER_THEY_OFFER_TITLE_KEYS[tradeOfferOfferKind(offer)], { count: offeredCount })
+      }
       cards={offer.offered}
       prices={offer.offeredPrices}
       priceSource={offer.priceSource}
@@ -150,10 +168,12 @@ export function TradeOfferReview({ offer }: TradeOfferReviewProps) {
         <Pill label={t(`tradeOffers.library.status.${offer.status}`)} tone={TRADE_OFFER_STATUS_TONES[offer.status]} />
       ) : null}
       <AppText size="sm" tone="secondary">
-        {t("tradeOffers.reviewDescription", {
-          source: offer.sourceName ?? t("tradeOffers.unknownSource"),
-          date: new Date(offer.createdAt).toLocaleString(i18n.language),
-        })}
+        {isInPerson
+          ? t("tradeOffers.inPerson.recordedOn", { date: new Date(offer.createdAt).toLocaleString(i18n.language) })
+          : t("tradeOffers.reviewDescription", {
+              source: offer.sourceName ?? t("tradeOffers.unknownSource"),
+              date: new Date(offer.createdAt).toLocaleString(i18n.language),
+            })}
       </AppText>
       {isPending ? (
         <AppText size="sm" tone="secondary">
@@ -218,7 +238,11 @@ export function TradeOfferReview({ offer }: TradeOfferReviewProps) {
       <View style={{ gap: SPACING.sm }}>
         <SectionHeader title={t("tradeOffers.contact")} />
         <Surface style={{ gap: SPACING.xs }}>
-          <AppText selectable>{offer.guestContact}</AppText>
+          {offer.guestContact ? (
+            <AppText selectable>{offer.guestContact}</AppText>
+          ) : (
+            <AppText tone="secondary">{t("tradeOffers.noContact")}</AppText>
+          )}
           {offer.guestNote ? (
             <AppText size="sm" tone="secondary" selectable>
               {offer.guestNote}

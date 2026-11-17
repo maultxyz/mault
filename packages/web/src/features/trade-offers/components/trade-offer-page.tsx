@@ -9,6 +9,7 @@ import {
 import {
   publicTradeOffersKeys,
   submitTradeOffer,
+  tradeOfferQuoteQueryOptions,
 } from "@/features/trade-offers/api/public-trade-offers";
 import { GuestTradeOfferList } from "@/features/trade-offers/components/guest-trade-offer-list";
 import { TradeOfferAccountNotice } from "@/features/trade-offers/components/trade-offer-account-notice";
@@ -19,8 +20,9 @@ import {
 } from "@/features/trade-offers/lib/trade-offer-draft-storage";
 import { TradeOfferCardSearch } from "@/features/trade-offers/components/trade-offer-card-search";
 import { TradeOfferOfferedRow } from "@/features/trade-offers/components/trade-offer-offered-row";
+import { TradeOfferGuestBalance } from "@/features/trade-offers/components/trade-offer-guest-balance";
 import { TradeOfferPanel } from "@/features/trade-offers/components/trade-offer-panel";
-import { DEFAULT_TRADE_OFFER_LANGUAGE } from "@/lib/constants/trade-offers";
+import { toOfferedCardInput } from "@/features/trade-offers/lib/offered-card-input";
 import type { OfferedCardDraft, TradeOfferPageProps } from "@/lib/interfaces/trade-offers";
 import { toast } from "@/lib/toast";
 import { useTradeOfferContext } from "@/lib/trade-offer-context";
@@ -28,10 +30,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   DEFAULT_CARD_CONDITION,
   TRADE_OFFER_OFFERED_CARDS_MAX,
+  formatPrice,
   formatPriceInCurrency,
   parseTradeOfferCashInput,
-  tradeOfferFormSchema,
+  tradeOfferFormSchemaFor,
+  tradeOfferGuestBalance,
   type TradeOfferFormValues,
+  type TradeOfferQuoteRequest,
 } from "@magic-vault/shared";
 import {
   IconArrowLeft,
@@ -41,8 +46,8 @@ import {
   IconSend,
   IconTrash,
 } from "@tabler/icons-react";
-import { useQueryClient } from "@tanstack/react-query";
-import { useEffect, useId, useRef, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -51,6 +56,8 @@ export function TradeOfferPage({
   sourceName,
   defaultGameKey,
   cashCurrency,
+  priceSource,
+  showsPrices,
   isVisible,
   onBack,
 }: TradeOfferPageProps) {
@@ -62,7 +69,7 @@ export function TradeOfferPage({
   useEffect(() => {
     if (isVisible) headingRef.current?.focus();
   }, [isVisible]);
-  const wanted = tradeOffer?.wanted ?? [];
+  const wanted = useMemo(() => tradeOffer?.wanted ?? [], [tradeOffer?.wanted]);
   const formId = useId();
   const nameId = useId();
   const contactId = useId();
@@ -73,7 +80,7 @@ export function TradeOfferPage({
   useEffect(() => clearTradeOfferDraft(link.token), [link.token]);
   const [offered, setOffered] = useState<OfferedCardDraft[]>(restoredDraft?.offered ?? []);
   const form = useForm<TradeOfferFormValues>({
-    resolver: zodResolver(tradeOfferFormSchema),
+    resolver: zodResolver(tradeOfferFormSchemaFor(link.requiresGuestContact)),
     defaultValues: {
       guestName: rememberedGuestName(),
       guestContact: "",
@@ -88,6 +95,21 @@ export function TradeOfferPage({
   const offeredCount = offered.reduce((sum, draft) => sum + draft.quantity, 0);
   const offeredCash = parseTradeOfferCashInput(form.watch("offeredCash") ?? "");
   const isReady = wanted.length > 0;
+  const quoteRequest = useMemo<TradeOfferQuoteRequest>(
+    () => ({
+      wantedScanIds: wanted.map((entry) => entry.scanId),
+      offered: offered.map(toOfferedCardInput),
+    }),
+    [wanted, offered],
+  );
+  const quote = useQuery(tradeOfferQuoteQueryOptions(link, quoteRequest, showsPrices));
+  const currentQuote = quote.isPlaceholderData ? undefined : quote.data;
+  const balance =
+    showsPrices && quote.data && (wanted.length > 0 || offered.length > 0)
+      ? tradeOfferGuestBalance(quote.data, offeredCash)
+      : null;
+  const rowPriceLabel = (price: number | null | undefined) =>
+    price === undefined ? null : price == null ? t("tradeOffers.noPrice") : formatPrice(price, priceSource);
   const summary =
     offered.length === 0 && offeredCash == null
       ? t("tradeOffers.summaryNothing", { get: wanted.length })
@@ -106,15 +128,7 @@ export function TradeOfferPage({
       await submitTradeOffer(link, {
         ...values,
         ...(offeredCashAmount != null ? { offeredCashAmount } : {}),
-        wantedScanIds: wanted.map((entry) => entry.scanId),
-        offered: offered.map((draft) => ({
-          gameKey: draft.option.gameKey,
-          lang: draft.option.lang || DEFAULT_TRADE_OFFER_LANGUAGE,
-          cardId: draft.option.cardId,
-          quantity: draft.quantity,
-          condition: draft.condition,
-          isFoil: draft.isFoil,
-        })),
+        ...quoteRequest,
       });
       rememberGuestName(values.guestName);
       setOffered([]);
@@ -158,7 +172,11 @@ export function TradeOfferPage({
               <FieldError errors={[errors.guestName]} />
             </Field>
             <Field data-invalid={!!errors.guestContact}>
-              <FieldLabel htmlFor={contactId}>{t("tradeOffers.contactLabel")}</FieldLabel>
+              <FieldLabel htmlFor={contactId}>
+                {link.requiresGuestContact
+                  ? t("tradeOffers.contactLabel")
+                  : t("tradeOffers.contactLabelOptional")}
+              </FieldLabel>
               <Input
                 id={contactId}
                 placeholder={t("tradeOffers.contactPlaceholder")}
@@ -192,7 +210,7 @@ export function TradeOfferPage({
             ) : (
               <>
                 <ul className="flex flex-col divide-y divide-border">
-                  {wanted.map((entry) => (
+                  {wanted.map((entry, index) => (
                     <li key={entry.scanId} className="flex items-center gap-2.5 p-2">
                       <img
                         src={entry.card.image?.small || entry.card.image?.normal || ""}
@@ -207,6 +225,11 @@ export function TradeOfferPage({
                             .join(" · ")}
                         </span>
                       </div>
+                      {rowPriceLabel(currentQuote?.wantedPrices[index]) != null && (
+                        <span className="shrink-0 text-control font-medium tabular-nums">
+                          {rowPriceLabel(currentQuote?.wantedPrices[index])}
+                        </span>
+                      )}
                       <Button
                         type="button"
                         variant="ghost"
@@ -274,6 +297,7 @@ export function TradeOfferPage({
                   <TradeOfferOfferedRow
                     key={`${draft.option.gameKey}-${draft.option.cardId}-${index}`}
                     draft={draft}
+                    priceLabel={rowPriceLabel(currentQuote?.offeredPrices[index])}
                     onChange={(next) =>
                       setOffered((current) =>
                         current.map((item, itemIndex) => (itemIndex === index ? next : item)),
@@ -293,6 +317,15 @@ export function TradeOfferPage({
       </div>
 
       <div className="sticky bottom-0 border-t bg-background/80 backdrop-blur-2xl">
+        {balance && (
+          <div className="mx-auto w-full max-w-5xl px-4 pt-3 md:px-3 md:pt-2">
+            <TradeOfferGuestBalance
+              balance={balance}
+              priceSource={priceSource}
+              isUpdating={quote.isPlaceholderData || quote.isFetching}
+            />
+          </div>
+        )}
         <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 md:px-3 md:py-2">
           <p role="status" className="text-control">
             {isReady ? summary : t("tradeOffers.needGet")}

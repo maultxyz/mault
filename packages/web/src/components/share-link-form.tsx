@@ -28,6 +28,8 @@ export function ShareLinkForm({ formId, form, onSubmit }: ShareLinkFormProps) {
   const expirySelectId = useId();
   const showPricesId = useId();
   const showPricesDescriptionId = useId();
+  const requireGuestContactId = useId();
+  const requireGuestContactDescriptionId = useId();
   const purpose = useWatch({ control: form.control, name: "purpose" });
   const { activeOrg } = useOrg();
   const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
@@ -120,6 +122,30 @@ export function ShareLinkForm({ formId, form, onSubmit }: ShareLinkFormProps) {
           </Field>
         )}
       />
+      {purpose === "trade" && (
+        <Controller
+          name="requireGuestContact"
+          control={form.control}
+          render={({ field }) => (
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor={requireGuestContactId}>
+                  {t("shareLink.requireGuestContact")}
+                </FieldLabel>
+                <FieldDescription id={requireGuestContactDescriptionId}>
+                  {t("shareLink.requireGuestContactDescription")}
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id={requireGuestContactId}
+                aria-describedby={requireGuestContactDescriptionId}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </Field>
+          )}
+        />
+      )}
     </form>
   );
 }

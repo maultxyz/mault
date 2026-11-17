@@ -653,6 +653,16 @@
     "sendFailed": "Couldn't send the trade offer. Try again.",
     "nameLabel": "Your name",
     "contactLabel": "Email, phone or username",
+    "contactLabelOptional": "Email, phone or username (optional)",
+    "balance": {
+      "youGet": "You get",
+      "youGive": "You give",
+      "difference": "Difference",
+      "youGiveMore": "You give {{amount}} more",
+      "youGetMore": "You get {{amount}} more",
+      "even": "Even trade",
+      "missingPrices": "Some cards have no price, so the totals may be off."
+    },
     "contactPlaceholder": "name@example.com",
     "noteLabel": "Note (optional)",
     "headerButton_zero": "Trade offer",

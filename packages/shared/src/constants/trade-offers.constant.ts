@@ -4,6 +4,10 @@ import type {
 } from "../interfaces/trade-offers.interface";
 
 export const TRADE_OFFER_STATUSES = ["pending", "accepted", "declined"] as const;
+export const TRADE_OFFER_LINK_KINDS = ["collection", "storage", "inPerson"] as const;
+export const IN_PERSON_TRADE_CASH_DIRECTIONS = ["received", "given"] as const;
+export const IN_PERSON_TRADE_GIVEN_CARDS_MAX = 200;
+export const IN_PERSON_TRADE_RECEIVED_CARDS_MAX = 200;
 export const TRADE_OFFERS_CHANGED_EVENT = "trade_offers_changed";
 export const SHARE_LINK_GUEST_KEY_HEADER = "X-Guest-Key";
 export const OUTGOING_TRADE_OFFERS_API_PATH = "/api/trade-offers/outgoing";

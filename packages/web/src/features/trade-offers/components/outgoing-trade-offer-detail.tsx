@@ -55,8 +55,12 @@ export function OutgoingTradeOfferDetail({ offer }: OutgoingTradeOfferDetailProp
         <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-control">
           <dt className="text-foreground/70">{t("tradeOffers.sent.yourName")}</dt>
           <dd className="break-words">{offer.guestName}</dd>
-          <dt className="text-foreground/70">{t("tradeOffers.contact")}</dt>
-          <dd className="break-words">{offer.guestContact}</dd>
+          {offer.guestContact && (
+            <>
+              <dt className="text-foreground/70">{t("tradeOffers.contact")}</dt>
+              <dd className="break-words">{offer.guestContact}</dd>
+            </>
+          )}
           {offer.guestNote && (
             <>
               <dt className="text-foreground/70">{t("tradeOffers.note")}</dt>

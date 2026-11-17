@@ -653,6 +653,16 @@
     "sendFailed": "Impossible d'envoyer l'offre. Réessayez.",
     "nameLabel": "Votre nom",
     "contactLabel": "E-mail, téléphone ou pseudo",
+    "contactLabelOptional": "E-mail, téléphone ou pseudo (facultatif)",
+    "balance": {
+      "youGet": "Vous recevez",
+      "youGive": "Vous donnez",
+      "difference": "Différence",
+      "youGiveMore": "Vous donnez {{amount}} de plus",
+      "youGetMore": "Vous recevez {{amount}} de plus",
+      "even": "Échange équilibré",
+      "missingPrices": "Certaines cartes n'ont pas de prix, les totaux peuvent donc être faussés."
+    },
     "contactPlaceholder": "name@example.com",
     "noteLabel": "Note (facultatif)",
     "headerButton_zero": "Offre d'échange",

@@ -2,7 +2,10 @@ import {
   SHARE_LINK_GUEST_KEY_HEADER,
   TRADE_OFFERS_CHANGED_EVENT,
   TRADE_OFFER_STATUSES,
+  inPersonTradeQuoteRequestSchema,
+  inPersonTradeRequestSchema,
   tradeOfferAcceptRequestSchema,
+  type CreatedInPersonTrade,
   tradeOfferPickedRequestSchema,
   type ClaimOutgoingTradeOffersResult,
   type TradeOffer,
@@ -12,7 +15,12 @@ import {
 } from "@magic-vault/shared";
 import { Hono, type Context } from "hono";
 import { authQuery, db } from "../../db";
+import { quoteInPersonTrade, recordInPersonTrade } from "../../lib/in-person-trades";
 import {
+  IN_PERSON_TRADE_COLLECTION_NOT_FOUND_MESSAGE,
+  IN_PERSON_TRADE_GIVEN_NOT_FOUND_MESSAGE,
+  IN_PERSON_TRADE_INVALID_MESSAGE,
+  IN_PERSON_TRADE_RECEIVED_NOT_FOUND_MESSAGE,
   TRADE_OFFER_CLAIM_RATE_LIMITED_MESSAGE,
   TRADE_OFFER_CLAIM_RATE_LIMIT_REQUESTS,
   TRADE_OFFER_CLAIM_RATE_LIMIT_SWEEP_SIZE,
@@ -46,6 +54,7 @@ import {
   respondToTradeOffer,
 } from "../../lib/trade-offers";
 import {
+  markRequestAsReadOnly,
   rejectWhileImpersonating,
   requireAuth,
   requireOrg,
@@ -162,6 +171,41 @@ export const tradeOffersRouter = new Hono<AppEnv>()
       authQuery(jwtClaims, (tx) => listOwnerTradeOffers(tx, orgId, status)),
     );
     return c.json({ success: true, data });
+  })
+  .post("/in-person/quote", requireAuth, requireOrg, markRequestAsReadOnly, async (c) => {
+    const input = inPersonTradeQuoteRequestSchema.safeParse(await c.req.json().catch(() => null));
+    if (!input.success) {
+      return c.json({ success: false, message: IN_PERSON_TRADE_INVALID_MESSAGE }, 400);
+    }
+    const orgId = c.get("orgId");
+    const data = await authQuery(c.get("jwtClaims"), (tx) => quoteInPersonTrade(tx, orgId, input.data));
+    return c.json({ success: true, data });
+  })
+  .post("/in-person", requireAuth, requireOrg, async (c) => {
+    const input = inPersonTradeRequestSchema.safeParse(await c.req.json().catch(() => null));
+    if (!input.success) {
+      return c.json({ success: false, message: IN_PERSON_TRADE_INVALID_MESSAGE }, 400);
+    }
+    const orgId = c.get("orgId");
+    const result = await authQuery(c.get("jwtClaims"), (tx) =>
+      recordInPersonTrade(tx, { orgId, userId: c.get("userId"), request: input.data }),
+    );
+    switch (result.status) {
+      case "collection-not-found":
+        return c.json({ success: false, message: IN_PERSON_TRADE_COLLECTION_NOT_FOUND_MESSAGE }, 404);
+      case "given-not-found":
+        return c.json({ success: false, message: IN_PERSON_TRADE_GIVEN_NOT_FOUND_MESSAGE }, 409);
+      case "received-not-found":
+        return c.json({ success: false, message: IN_PERSON_TRADE_RECEIVED_NOT_FOUND_MESSAGE }, 400);
+      case "recorded": {
+        publishTradeOfferChanges(orgId, result.removal);
+        if (result.receiveCollectionGuid && result.addedCount > 0) {
+          emitCollectionCardsChanged(orgId, result.receiveCollectionGuid);
+        }
+        const data: CreatedInPersonTrade = { guid: result.guid };
+        return c.json({ success: true, data });
+      }
+    }
   })
   .post("/:guid/accept", requireAuth, requireOrg, (c) => respond(c, "accepted"))
   .post("/:guid/decline", requireAuth, requireOrg, (c) => respond(c, "declined"))

@@ -243,6 +243,8 @@ export * from "./interfaces/trade-offers.interface";
 export * from "./constants/trade-offers.constant";
 export * from "./trade-offer-review";
 export * from "./trade-offer-cash";
+export * from "./trade-offer-balance";
+export * from "./trade-offer-card-option";
 export * from "./trade-offer-pick-list";
 export * from "./card-tags";
 

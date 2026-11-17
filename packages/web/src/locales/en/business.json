@@ -506,7 +506,8 @@
       "catalogCreated": "Shop catalog created",
       "catalogUpdated": "Shop catalog changed",
       "catalogDeleted": "Shop catalog deleted",
-      "orderSortPresetCreated": "Sort preset created"
+      "orderSortPresetCreated": "Sort preset created",
+      "tradeRecorded": "Trade recorded"
     },
     "messages": {
       "cardCorrected": "Corrected {{from}} to {{to}}",
@@ -535,7 +536,8 @@
       "catalogCreated": "Created the shop catalog {{summary}}",
       "catalogUpdated": "Changed the shop catalog {{summary}}",
       "catalogDeleted": "Deleted the shop catalog {{summary}}",
-      "orderSortPresetCreated": "Created a sort preset for {{summary}}"
+      "orderSortPresetCreated": "Created a sort preset for {{summary}}",
+      "tradeRecorded": "Recorded an in-person trade with {{summary}}"
     }
   },
   "accuracy": {

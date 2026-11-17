@@ -506,7 +506,8 @@
       "catalogCreated": "Catalogue boutique créé",
       "catalogUpdated": "Catalogue boutique modifié",
       "catalogDeleted": "Catalogue boutique supprimé",
-      "orderSortPresetCreated": "Préréglage de tri créé"
+      "orderSortPresetCreated": "Préréglage de tri créé",
+      "tradeRecorded": "Échange enregistré"
     },
     "messages": {
       "cardCorrected": "{{from}} corrigée en {{to}}",
@@ -535,7 +536,8 @@
       "catalogCreated": "A créé le catalogue boutique {{summary}}",
       "catalogUpdated": "A modifié le catalogue boutique {{summary}}",
       "catalogDeleted": "A supprimé le catalogue boutique {{summary}}",
-      "orderSortPresetCreated": "Préréglage de tri créé pour {{summary}}"
+      "orderSortPresetCreated": "Préréglage de tri créé pour {{summary}}",
+      "tradeRecorded": "A enregistré un échange en personne avec {{summary}}"
     }
   },
   "accuracy": {

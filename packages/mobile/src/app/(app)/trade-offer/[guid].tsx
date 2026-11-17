@@ -28,7 +28,15 @@ export default function TradeOfferScreen() {
   return (
     <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
-        title={offer ? t("tradeOffers.reviewTitle", { name: offer.guestName }) : t("tradeOffers.title")}
+        title={
+          !offer
+            ? t("tradeOffers.title")
+            : offer.linkKind === "inPerson"
+              ? offer.guestName
+                ? t("tradeOffers.inPerson.reviewTitle", { name: offer.guestName })
+                : t("tradeOffers.inPerson.title")
+              : t("tradeOffers.reviewTitle", { name: offer.guestName })
+        }
       />
       {offer ? (
         <TradeOfferReview key={offer.guid} offer={offer} />

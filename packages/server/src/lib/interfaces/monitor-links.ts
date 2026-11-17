@@ -6,5 +6,6 @@ export interface MonitorLinkClaims {
   collectionName: string;
   expiresAt: Date;
   showsPrices: boolean;
+  requiresGuestContact: boolean;
   purpose: ShareLinkPurpose;
 }

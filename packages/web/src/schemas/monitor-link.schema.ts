@@ -9,6 +9,7 @@ export const monitorLinkSchema = z.object({
       (MONITOR_LINK_EXPIRY_DAYS as readonly number[]).includes(Number(value)),
     ),
   showPrices: z.boolean(),
+  requireGuestContact: z.boolean(),
 });
 
 export type MonitorLinkFormValues = z.infer<typeof monitorLinkSchema>;

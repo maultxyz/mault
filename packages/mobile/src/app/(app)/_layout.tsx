@@ -103,6 +103,7 @@ export default function AppLayout() {
           />
           <Stack.Screen name="shared-link" />
           <Stack.Screen name="search" />
+          <Stack.Screen name="in-person-trade" />
           <Stack.Screen name="trade/index" />
           <Stack.Screen name="trade/browse" />
           <Stack.Screen name="trade/collection" />

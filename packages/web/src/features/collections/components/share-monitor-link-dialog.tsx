@@ -17,17 +17,19 @@ export function ShareMonitorLinkDialog({
   collectionGuid,
   open,
   onOpenChange,
+  startsWithNewTradeLink,
 }: ShareMonitorLinkDialogProps) {
   const { t } = useTranslation("collections");
   const isMobile = useIsMobile();
 
   const createLink = useCallback(
-    async ({ purpose, expiresInDays, showPrices }: ShareLinkOptions) => {
+    async ({ purpose, expiresInDays, showPrices, requireGuestContact }: ShareLinkOptions) => {
       const result = await createMonitorLink(
         collectionGuid,
         expiresInDays,
         showPrices,
         purpose,
+        requireGuestContact,
       );
       if (!result.success || !result.data) throw new Error(result.message);
       return {
@@ -59,6 +61,7 @@ export function ShareMonitorLinkDialog({
       sharedCardsCollectionGuid={collectionGuid}
       open={open}
       onOpenChange={onOpenChange}
+      startsWithNewTradeLink={startsWithNewTradeLink}
       renderTrigger={open === undefined ? (activeLinkCount) => (
         <ShareLinkTriggerButton
           variant="outline"

@@ -653,6 +653,16 @@
     "sendFailed": "Tauschangebot konnte nicht gesendet werden. Versuch es noch einmal.",
     "nameLabel": "Dein Name",
     "contactLabel": "E-Mail, Telefon oder Benutzername",
+    "contactLabelOptional": "E-Mail, Telefon oder Benutzername (optional)",
+    "balance": {
+      "youGet": "Du bekommst",
+      "youGive": "Du gibst",
+      "difference": "Differenz",
+      "youGiveMore": "Du gibst {{amount}} mehr",
+      "youGetMore": "Du bekommst {{amount}} mehr",
+      "even": "Ausgeglichener Tausch",
+      "missingPrices": "Einige Karten haben keinen Preis, die Summen können daher abweichen."
+    },
     "contactPlaceholder": "name@example.com",
     "noteLabel": "Notiz (optional)",
     "headerButton_zero": "Tauschangebot",
