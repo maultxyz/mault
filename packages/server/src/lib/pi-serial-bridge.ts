@@ -1,13 +1,11 @@
 import type { RawData, WebSocket } from "ws";
 import type { PiSerialControlMessage } from "@magic-vault/shared";
-import { isPiSorter } from "./pi-host";
 import {
   claimSorterPort,
   releaseSorterPort,
   SorterPortError,
 } from "./pi-serial-port";
 
-let activeSocket: WebSocket | null = null;
 
 function sendControl(socket: WebSocket, message: PiSerialControlMessage) {
   if (socket.readyState === socket.OPEN) {
@@ -21,10 +19,10 @@ function toBuffer(data: RawData): Buffer {
   return Buffer.from(data);
 }
 
-async function runSession(socket: WebSocket) {
+async function runSession(socket: WebSocket, controllerId?: string) {
   let port;
   try {
-    port = await claimSorterPort("bridge");
+    port = await claimSorterPort("bridge", { controllerId });
   } catch (error) {
     const reason =
       error instanceof SorterPortError ? error.reason : "open-failed";
@@ -73,25 +71,8 @@ async function runSession(socket: WebSocket) {
   }
 }
 
-export function openPiSerialSocket(socket: WebSocket) {
-  if (isPiSorter()) {
-    void runSession(socket).catch(() => {
-      sendControl(socket, { type: "error", reason: "open-failed" });
-      socket.close();
-    });
-    return;
-  }
-  if (activeSocket) {
-    sendControl(socket, { type: "error", reason: "busy" });
-    socket.close();
-    return;
-  }
-  activeSocket = socket;
-  const clear = () => {
-    if (activeSocket === socket) activeSocket = null;
-  };
-  socket.on("close", clear);
-  void runSession(socket).catch(() => {
+export function openPiSerialSocket(socket: WebSocket, controllerId?: string) {
+  void runSession(socket, controllerId).catch(() => {
     sendControl(socket, { type: "error", reason: "open-failed" });
     socket.close();
   });

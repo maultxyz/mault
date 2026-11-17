@@ -80,10 +80,12 @@ export function createSaveBarGroupStore(): SaveBarGroupStore {
         if (draft.isDirty) draft.discard();
       }
     },
-    discardDirtyGuards: () => {
-      for (const guard of [...guards.values()]) {
-        if (guard.isDirty) guard.discard?.();
-      }
+    discardDirtyGuards: async () => {
+      await Promise.all(
+        [...guards.values()]
+          .filter((guard) => guard.isDirty)
+          .map((guard) => guard.discard?.()),
+      );
     },
   };
 }

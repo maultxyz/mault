@@ -40,7 +40,13 @@
       "esp32": {
         "description": "Logique 3,3V. Se connecte à l'app en USB ou en Bluetooth."
       },
-      "kitLocked": "Imposé par le kit. Choisis \"Je les achète moi-même\" pour le changer."
+      "kitLocked": "Imposé par le kit. Choisis \"Je les achète moi-même\" pour le changer.",
+      "raspberry-pi": {
+        "description": "Connecteur GPIO à 40 broches · hôte Linux et contrôleur"
+      },
+      "orange-pi-zero4": {
+        "description": "Connecteur GPIO · hôte Linux et contrôleur"
+      }
     },
     "mount": {
       "label": "Montage de l'ESP32",
@@ -306,8 +312,8 @@
       "colTo": "Vers",
       "psuPlus": "Alimentation externe 6V, +",
       "psuMinus": "Alimentation externe 6V, −",
-      "toPositive": "Bornier <pin>V+</pin> du PCA9685",
-      "toNegative": "Bornier <pin>GND</pin> du PCA9685 <em>et</em> <pin>GND</pin> du {{board}}"
+      "toPositive": "PCA9685 <pin>V+</pin> via le + de l’adaptateur",
+      "toNegative": "PCA9685 <pin>GND</pin> via le − de l’adaptateur"
     },
     "irSensors": {
       "description": "Les {{count}} capteurs sont actifs à l'état <strong>BAS</strong> (la broche passe à l'état bas quand une carte est présente) en utilisant la résistance de tirage interne du {{board}} - câble la sortie numérique <pin>OUT</pin> du capteur directement à la broche, aucune résistance de tirage externe n'est nécessaire.",
@@ -646,5 +652,21 @@
       "sorterIrSensorMounted": "Une carte de capteur IR fixée à la verticale dans son support sur la plaque de module rose, à côté des servos et des tringleries.",
       "feederIrSensorMounted": "Dans le boîtier d'alimentation noir, une carte de capteur IR bleue se trouve juste sous le rouleau à joints toriques, orientée vers les cartes."
     }
+  },
+  "pi": {
+    "pin": "Broche physique",
+    "logic": "Utilisez une carte PCA9685 compatible avec une alimentation logique et des signaux de 3,3 V. Reliez VCC à la broche physique 1 (3,3 V), jamais au 5 V. Les entrées SDA, SCL et GPIO du Pi ne doivent pas recevoir de 5 V. Débranchez toutes les alimentations avant le câblage.",
+    "sensors": "La sortie OUT des capteurs IR doit être compatible avec le 3,3 V. Alimentez les capteurs compatibles en 3,3 V ou utilisez un convertisseur de niveau adapté aux sorties 5 V. Reliez leurs masses au GND du Pi. Ce tableau indique les broches physiques du connecteur, pas les numéros de lignes GPIO.",
+    "power": "Alimentez le Pi avec une alimentation dédiée adaptée au modèle. Branchez l’alimentation séparée de 6 V des servos sur l’adaptateur à prise cylindrique et reliez ses fils + et − à V+ et GND du PCA9685. Conservez la liaison de masse logique entre le Pi et le PCA9685. Ne branchez jamais le 6 V sur l’alimentation du Pi ou le VCC logique.",
+    "connect": "Ouvrez votre propre installation Mault et sélectionnez le trieur GPIO intégré. Le Pi commande directement le trieur ; aucune connexion série USB n’est nécessaire.",
+    "install": "Avant le calibrage, installez Mault sur ce Pi en suivant le guide Pi/Linux avec GPIO.",
+    "mount": "Fixez le Pi avec des entretoises isolantes ou un boîtier adapté. Le support imprimé Arduino/ESP32 ne convient pas à ces cartes.",
+    "essentials": "Alimentation Pi, support de démarrage, fils GPIO et caméra USB",
+    "requirements": "Utilisez une installation Linux prise en charge, un stockage et une alimentation adaptés au modèle de Pi, des fils GPIO et une caméra USB compatible. Les modèles Raspberry Pi nécessitent le connecteur GPIO à 40 broches. Le Pi héberge Mault et commande directement le trieur.",
+    "diagramAlt": "Schéma de câblage {{board}} avec broches physiques, logique 3,3 V et alimentation séparée des servos.",
+    "boardNotes": "Le Pi héberge Mault et commande directement le trieur. Les modèles Raspberry Pi nécessitent le connecteur GPIO à 40 broches.",
+    "overview": "Un bus I²C relie le PCA9685 et {{count}} entrées numériques reçoivent les capteurs IR. Le {{board}} fournit l’alimentation logique du PCA9685 et se relie à sa masse logique GND. L’alimentation séparée des servos se branche sur l’adaptateur à prise cylindrique ; les fils positif et négatif de cet adaptateur se relient à <pin>V+</pin> et <pin>GND</pin> du PCA9685. L’alimentation des servos ne vient pas du Pi.",
+    "wirePower": "Reliez l’alimentation séparée de 6 V des servos à V+ et GND du PCA9685 via l’adaptateur à prise cylindrique.",
+    "diagramPending": "L’image de câblage de cette carte n’est pas encore disponible. Utilisez les tableaux de connexion ci-dessous."
   }
 }

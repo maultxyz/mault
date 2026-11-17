@@ -1,7 +1,6 @@
 import { getAuthHeaders } from "@/lib/api/client";
-import { API_BASE } from "@/lib/constants/api";
+import { piCameraUrl } from "@/features/scanner/lib/pi-camera";
 import {
-  PI_CAMERA_BASE,
   PI_CAMERA_PREVIEW_INTERVAL_MS,
 } from "@/lib/constants/scanner";
 import { useEffect, useRef, useState } from "react";
@@ -11,6 +10,7 @@ import { fitCanvasesToContainer, observeContainerResize } from "@/features/scann
 
 export function PiCameraPreview({
   alt,
+  cameraId,
   className,
   rotated = false,
   flipped = false,
@@ -38,7 +38,7 @@ export function PiCameraPreview({
     let timer: ReturnType<typeof setTimeout>;
     const pull = async () => {
       try {
-        const response = await fetch(`${API_BASE}${PI_CAMERA_BASE}/frame`, {
+        const response = await fetch(piCameraUrl("frame", cameraId), {
           headers: await getAuthHeaders(),
           signal: controller.signal,
           cache: "no-store",
@@ -60,7 +60,7 @@ export function PiCameraPreview({
       clearTimeout(timer);
       if (url) URL.revokeObjectURL(url);
     };
-  }, []);
+  }, [cameraId]);
   return (
     <img
       ref={imageRef}

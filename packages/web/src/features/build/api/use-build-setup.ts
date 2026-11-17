@@ -1,5 +1,8 @@
 import {
   BOARD_TYPES,
+  KIT_BOARD_TYPE,
+  KIT_MODULE_COUNT,
+  DEFAULT_ESP32_MOUNT_TYPE,
   BUILD_SETUP_PARAMS,
   DEFAULT_BUILD_SETUP,
   ESP32_MOUNT_TYPES,
@@ -24,6 +27,13 @@ function parseBuildSetup(search: string): BuildSetupState {
   const board = params.get(BUILD_SETUP_PARAMS.boardType);
   const mount = params.get(BUILD_SETUP_PARAMS.mountType);
   const modules = Number(params.get(BUILD_SETUP_PARAMS.moduleCount));
+  if (params.get(BUILD_SETUP_PARAMS.usingKit) === "1")
+    return {
+      boardType: KIT_BOARD_TYPE,
+      mountType: DEFAULT_ESP32_MOUNT_TYPE,
+      moduleCount: KIT_MODULE_COUNT,
+      usingKit: true,
+    };
   return {
     boardType: BOARD_TYPES.includes(board as BoardType)
       ? (board as BoardType)

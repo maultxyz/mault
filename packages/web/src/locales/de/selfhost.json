@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Anleitung zum Selbsthosten | Mault",
-    "description": "Betreibe Mault mit Docker Compose auf deinem eigenen Server: Postgres, die API, die Web-App und die API-Dokumentation, Schritt für Schritt."
+    "description": "Betreibe Mault mit Docker Compose, Coolify oder direkt auf einem Pi/Linux-Host. Voraussetzungen, Installation und Updates Schritt für Schritt."
   },
   "hero": {
     "eyebrow": "Anleitung zum Selbsthosten",
@@ -21,6 +21,10 @@
       "coolify": {
         "title": "Coolify",
         "description": "Nutzt die fertigen Images aus der GitHub Container Registry."
+      },
+      "pi": {
+        "title": "Pi/Linux",
+        "description": "Direkte Installation mit lokalem Postgres, USB-Webcam und GPIO- oder externem Controller."
       }
     },
     "auth": {
@@ -32,6 +36,29 @@
       "neon": {
         "title": "Neon",
         "description": "Gehostetes Postgres und Neon Auth. Bringt E-Mail-Bestätigung, Passwortbearbeitung und Anmeldung über soziale Konten mit."
+      },
+      "piNote": "Der Pi/Linux-Installer richtet integrierte Konten und lokales Postgres ein. Neon ist mit Docker Compose oder Coolify verfügbar."
+    },
+    "sorter": {
+      "label": "Wie wird der Sorter gesteuert?",
+      "gpio": {
+        "title": "Pi-Steuerung über GPIO-Pins",
+        "description": "Der Pi steuert PCA9685 und Sensoren direkt über GPIO/I2C."
+      },
+      "usb": {
+        "title": "ESP32 / Arduino",
+        "description": "Ein externer Controller, der per USB oder Bluetooth mit dem Host verbunden ist."
+      }
+    },
+    "board": {
+      "label": "Welches Pi-Board?",
+      "raspberry-pi": {
+        "title": "Raspberry Pi",
+        "description": "Direkte GPIO/I2C-Steuerung auf einem Raspberry Pi."
+      },
+      "orange-pi-zero4": {
+        "title": "Orange Pi Zero 4",
+        "description": "Direkte Steuerung über die GPIO/I2C-Hardware des Zero 4."
       }
     }
   },
@@ -61,6 +88,15 @@
         },
         "domain": {
           "text": "Optional: eine Domain und ein HTTPS-Reverse-Proxy für den Zugriff von außerhalb deines Netzwerks."
+        },
+        "piSystem": {
+          "text": "Nutze ein Debian-/Ubuntu-basiertes Linux mit <code>apt</code>, <code>systemd</code>-Benutzerdiensten und verfügbaren Postgres-/pgvector-Paketen, etwa Raspberry Pi OS (64 Bit). Installiere per SSH als normaler Benutzer mit <code>sudo</code>-Rechten."
+        },
+        "piHardware": {
+          "text": "Schließe eine USB-Webcam an den Host an und bereite den Sorter vor: GPIO/I2C-Verkabelung zur direkten Steuerung oder Arduino/ESP32 mit passender Mault-Firmware für USB oder Bluetooth. Für Bluetooth braucht der Host außerdem einen BLE-Adapter. Plane Speicherplatz für Abhängigkeiten, Builds und Kartendaten sowie Internetzugang für Downloads ein."
+        },
+        "piTools": {
+          "text": "Installiere vor dem Klonen Git und Python 3. Der Installer richtet die übrigen Abhängigkeiten ein."
         }
       }
     },
@@ -134,7 +170,7 @@
           "text": "Mach dich im SQL-Editor von Neon zum Plattform-Admin."
         },
         "game": {
-          "text": "Füge unter <code>/app/admin</code> im Spiele-Manager ein Spiel hinzu und starte die Synchronisierung. Bis dahin können Scans nichts abgleichen."
+          "text": "Öffne <code>/app/admin</code> und synchronisiere zuerst den Kartenkatalog deines Spiels. Warte, bis die Vektorisierung abgeschlossen ist. Füge dann das Spiel im Games Manager hinzu und wähle seine Felder anhand einer synchronisierten Beispielkarte aus. Schließe diese Schritte vor dem Scannen ab."
         },
         "admins": {
           "text": "Optional: Mach jemand anderen zum Plattform-Admin. Eine Oberfläche dafür gibt es noch nicht."
@@ -262,6 +298,126 @@
         "migrate": {
           "text": "Führe die Migrationen aus.",
           "note": "Wiederhole das vor jedem Update."
+        }
+      }
+    },
+    "piHardware": {
+      "label": "Hardware",
+      "title": "Wähle die Verbindung zum Sorter",
+      "description": "Wähle oben deinen Controller und bei GPIO dein Board. Die Anleitung erklärt, welche Optionen du im Installer auswählen sollst. Beide Modi nutzen PI_HOST=1 und die USB-Webcam des Hosts.",
+      "steps": {
+        "gpio": {
+          "text": "Die direkte GPIO/I2C-Steuerung nutzt <code>PI_SORTER=1</code>. Der Host steuert PCA9685 und Sensoren über den lokalen Python-Controller. Arduino-/ESP32-Firmware muss in diesem Modus nicht geflasht werden."
+        },
+        "raspberry": {
+          "text": "Du hast Raspberry Pi gewählt (<code>PI_SORTER_BOARD=raspberry-pi</code>). Der Installer installiert die GPIO/I2C-Abhängigkeiten und aktiviert I2C."
+        },
+        "orange": {
+          "text": "Du hast Orange Pi Zero 4 gewählt (<code>PI_SORTER_BOARD=orange-pi-zero4</code>). Nutze ein unterstütztes Zero-4-Systemabbild mit der libgpiod-v2-Python-API.",
+          "note": "Aktiviere das i2c0-Boot-Overlay des Systemabbilds separat und starte neu, damit der I2C-Anschluss verfügbar ist. Der Direktmodus nutzt einen integrierten Sorter."
+        },
+        "usb": {
+          "text": "Dein gewählter ESP32 / Arduino nutzt <code>PI_SORTER=0</code>. Verbinde einen Controller mit kompatibler Mault-Firmware per USB oder Host-Bluetooth. Externe Controller benötigen weder GPIO noch I2C."
+        },
+        "bluetooth": {
+          "text": "Nutze für Host-Bluetooth einen BLE-fähigen Sorter und einen Host mit BLE-Adapter. Der Installer richtet BlueZ und das Python-Systempaket Bleak ein. Öffne im Sorter-Menü die Bluetooth-Verbindung, suche nach deinem Sorter und wähle ihn aus.",
+          "note": "Die API verwaltet die Bluetooth-Verbindung; sie funktioniert daher auch von entfernten Browsern und bei Scans ohne Desktop. Halte den Sorter in der Nähe und im erkennbaren Zustand und trenne andere Clients vor dem Verbinden. Web Bluetooth nutzt dagegen den Adapter des Browser-Computers."
+        }
+      }
+    },
+    "piInstall": {
+      "label": "Installation",
+      "title": "Installiere Mault auf dem Host",
+      "description": "Führe diese Befehle auf dem Pi oder Linux-Host aus. Die Beispiele nutzen ~/mault; wähle für eine Neuinstallation ein neues Verzeichnis.",
+      "steps": {
+        "clone": {
+          "text": "Klone das Upstream-Repository."
+        },
+        "services": {
+          "text": "Der Installer installiert die im Repository festgelegten Node- und pnpm-Versionen, Postgres mit pgvector, ffmpeg und Webcam-Werkzeuge. Er erstellt die lokale Datenbank, baut Mault, führt Migrationen aus und aktiviert Benutzerdienste beim Booten.",
+          "note": "Die Web-App nutzt Port 8080. API, Kamerahelfer und Link-Kürzer lauschen auf localhost und sind über den Web-Proxy erreichbar. Im GPIO-Modus kommt ein Controller-Dienst hinzu."
+        },
+        "settings": {
+          "text": "Der Installer speichert deine Hardwareauswahl und <code>CARD_API_USER_AGENT</code> zusammen mit lokalen Konten, Datenbankzugang und Geheimnissen in <code>.env</code>. Der gewählte User-Agent-Name kennzeichnet die Karten- und Preis-API-Anfragen dieser Installation. Erneute Aufrufe behalten ihn bei.",
+          "note": "Preisquellen erkennen Anfragen an diesem Namen. Wird der gemeinsame Standardname gesperrt, kann das andere Installationen mit diesem Namen betreffen. Ein eindeutiger Name hebt Anfragelimits nicht auf: Synchronisiere Preise nur einmal täglich."
+        },
+        "installUsb": {
+          "text": "Führe diesen Befehl als normaler Benutzer aus, ohne sudo davor. Wähle bei der Abfrage den externen ESP32 / Arduino. Gib dein sudo-Passwort ein, wenn du dazu aufgefordert wirst, und einen eindeutigen Namen für den User-Agent der Karten- und Preis-APIs. Mit Enter übernimmst du den erzeugten Namen.",
+          "note": "Die Installation läuft standardmäßig ohne Desktop. Erneute Aufrufe behalten die in .env gespeicherte Hardwareauswahl und den User-Agent-Namen bei."
+        },
+        "installRaspberry": {
+          "text": "Führe diesen Befehl als normaler Benutzer aus, ohne sudo davor. Wähle bei der Abfrage die direkte GPIO/I2C-Steuerung und danach Raspberry Pi. Gib dein sudo-Passwort ein, wenn du dazu aufgefordert wirst, und einen eindeutigen Namen für den User-Agent der Karten- und Preis-APIs. Mit Enter übernimmst du den erzeugten Namen.",
+          "note": "Die Installation läuft standardmäßig ohne Desktop. Erneute Aufrufe behalten die in .env gespeicherte Hardwareauswahl und den User-Agent-Namen bei. Wenn der Installer zum Neustart auffordert, um I2C zu aktivieren, starte neu und führe denselben Befehl erneut aus. Der Direktmodus nutzt einen integrierten Sorter."
+        },
+        "installOrange": {
+          "text": "Führe diesen Befehl als normaler Benutzer aus, ohne sudo davor. Wähle bei der Abfrage die direkte GPIO/I2C-Steuerung und danach Orange Pi Zero 4. Gib dein sudo-Passwort ein, wenn du dazu aufgefordert wirst, und einen eindeutigen Namen für den User-Agent der Karten- und Preis-APIs. Mit Enter übernimmst du den erzeugten Namen.",
+          "note": "Die Installation läuft standardmäßig ohne Desktop. Erneute Aufrufe behalten die in .env gespeicherte Hardwareauswahl und den User-Agent-Namen bei."
+        }
+      }
+    },
+    "piOpen": {
+      "label": "Erster Start",
+      "title": "Öffne die App und bereite das Scannen vor",
+      "description": "Nutze ein Handy oder einen Computer im selben Netzwerk. Kamera und Sorterverbindung stellt der Host bereit.",
+      "steps": {
+        "address": {
+          "text": "Ermittle die LAN-Adresse des Hosts und öffne <code>http://HOST_IP:8080</code> im Browser. Ersetze HOST_IP durch diese Adresse. Auf dem Host selbst nutze <code>http://localhost:8080</code>.",
+          "note": "Gib bei Bedarf Port 8080 in deiner LAN-Firewall frei. Entfernte Browser erreichen die API über die Web-App und brauchen keinen direkten Zugriff auf Port 3001 oder 8765."
+        },
+        "account": {
+          "text": "Registriere dich auf deiner eigenen Installation. Das erste Konto wird Plattformadministrator mit einer Home-Organisation."
+        },
+        "game": {
+          "text": "Öffne <code>/app/admin</code> und synchronisiere zuerst den Kartenkatalog deines Spiels. Warte, bis die Vektorisierung abgeschlossen ist. Füge dann das Spiel im Games Manager hinzu und wähle seine Felder anhand einer synchronisierten Beispielkarte aus. Schließe diese Schritte vor dem Scannen ab.",
+          "note": "Auf einem Pi-Host vektorisiert „Start on this computer“ fehlende Kartenbilder auf deinem Browser-Computer. Lass die Admin-Seite bis zum Abschluss offen. Live-Scans erkennen Karten auf dem Host."
+        },
+        "scan": {
+          "text": "Öffne den Scanner und kalibriere deinen Sorter. Der GPIO-Modus verbindet den integrierten Sorter automatisch; bei externen Controllern kannst du den Sorter per USB oder Host-Bluetooth verbinden. Der Kamerahelfer verwaltet die USB-Webcam, daher benötigen entfernte Browser dafür keine Kameraberechtigung."
+        }
+      }
+    },
+    "piPrices": {
+      "label": "Preise",
+      "title": "Plane die tägliche Preissynchronisierung",
+      "description": "Der Installer plant keine Preissynchronisierung. Lade nach der ersten Spielsynchronisierung einmal Preise und richte einen täglichen Benutzer-Timer für TCGplayer, Cardmarket und Card Kingdom ein.",
+      "steps": {
+        "firstPull": {
+          "text": "Starte die Preissynchronisierung einmal nach der ersten Spielsynchronisierung. Dabei werden die Datenbankverbindung und CARD_API_USER_AGENT aus deiner .env-Datei geladen.",
+          "note": "Karten haben bis zum ersten Abruf keinen Preis. Vermeide wiederholte manuelle Aufrufe und nutze --force sparsam; Preisquellen können übermäßige Anfragen sperren."
+        },
+        "schedule": {
+          "text": "Führe dies einmal als der Benutzer aus, der Mault installiert hat. Es erstellt einen Benutzerdienst und plant die Preissynchronisierung täglich um 04:00 Uhr in der Zeitzone des Hosts.",
+          "note": "Die Pfade gehen von ~/mault aus; passe WorkingDirectory bei einem anderen Installationsordner an. Der Host muss um 04:00 Uhr eingeschaltet sein. Verpasste oder fehlgeschlagene Läufe warten bis zum nächsten Tag; es gibt keine automatischen Wiederholungen."
+        },
+        "check": {
+          "text": "Prüfe den nächsten geplanten Lauf und das Protokoll. Dank der vom Installer aktivierten Linger-Einstellung läuft der Timer auch nach dem Trennen der SSH-Verbindung."
+        }
+      }
+    },
+    "piMaintain": {
+      "label": "Wartung",
+      "title": "Aktualisiere und pflege den Host",
+      "description": "Führe Wartungsarbeiten im Terminal auf dem Host mit demselben Benutzer wie bei der Installation aus.",
+      "steps": {
+        "update": {
+          "text": "Beende Scans, trenne den Sorter und stoppe Datenbanksynchronisierungen. Starte dann den Updater. Er lädt den verfolgten Branch des installierten Branches, baut neu, migriert die Datenbank und startet die Dienste neu. Lade danach die Browser neu.",
+          "note": "Bei geänderten oder hinzugefügten Dateien oder abweichenden Commits stoppt der Updater. Sichere deine Arbeit vor einem neuen Versuch. Scheitert er nach dem Stoppen der Dienste, behebe den gemeldeten Fehler und starte ihn erneut."
+        },
+        "backup": {
+          "text": "Sichere Postgres regelmäßig. Gib bei Aufforderung <code>POSTGRES_PASSWORD</code> aus <code>.env</code> ein. Das Backup liegt außerhalb des Checkouts und blockiert dadurch keine Updates.",
+          "note": "Sichere auch .env und im Direktmodus .pi-controller/calibration.json an einem sicheren Ort. Ändere Datenbankpasswörter oder Kontogeheimnisse nicht leichtfertig."
+        },
+        "logs": {
+          "text": "Prüfe bei Start- oder Scanfehlern das API-Protokoll."
+        },
+        "automatic": {
+          "text": "Die Mault-App-Dienste starten automatisch, wenn der Host eingeschaltet oder neu gestartet wird. Der Installer aktiviert sie beim Booten; normalerweise brauchst du die folgenden manuellen Start- und Stoppbefehle nicht."
+        },
+        "start": {
+          "text": "Starte Mault bei Bedarf manuell. Per SSH werden die Dienste gestartet; in einer grafischen Sitzung kann zusätzlich Chromium geöffnet werden, wenn es installiert ist."
+        },
+        "stop": {
+          "text": "Wenn du Mault stoppen möchtest, beende zuerst alle Scans und führe diesen Befehl aus."
         }
       }
     }

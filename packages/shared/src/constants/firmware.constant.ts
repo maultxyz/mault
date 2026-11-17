@@ -33,7 +33,7 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   emergencyStop: "2.13.2",
 };
 
-export const MODULE_DETECTION_BOARDS: readonly string[] = ["esp32"];
+export const MODULE_DETECTION_BOARDS: readonly string[] = ["esp32", "raspberry_pi"];
 
 export function isModuleDetectionSupported(
   version: string | null | undefined,
@@ -42,6 +42,9 @@ export function isModuleDetectionSupported(
   return (
     !!board &&
     MODULE_DETECTION_BOARDS.includes(board) &&
+    (board === "raspberry_pi"
+      ? !!version?.startsWith("pi-")
+      : !version?.startsWith("pi-")) &&
     isFirmwareFeatureSupported(version, "moduleDetection")
   );
 }
@@ -50,8 +53,16 @@ export function isFirmwareFeatureSupported(
   version: string | null | undefined,
   feature: FirmwareFeature,
 ): boolean {
-  if (version === "pi-0.1.0") {
-    return feature !== "wifiRemote" && feature !== "retractCard";
+  if (version?.startsWith("pi-")) {
+    if (version !== "pi-0.1.0" && version !== "pi-0.2.0") return false;
+    return (
+      feature !== "wifiRemote" &&
+      feature !== "retractCard" &&
+      !isFirmwareVersionOutdated(
+        version,
+        feature === "moduleDetection" ? "pi-0.2.0" : "pi-0.1.0",
+      )
+    );
   }
   return (
     !!version &&

@@ -49,6 +49,7 @@ import type {
 } from "@/lib/interfaces/calibration";
 
 export function ScanRegionCalibrationPanel({
+  cameraSettings,
   scanRegion: region,
   captureSettleDelayMs: captureSettleDelayMsValue,
   matchesNeeded,
@@ -76,8 +77,6 @@ export function ScanRegionCalibrationPanel({
     retryCamera,
     cameraSource,
     cameras,
-    selectedCameraId,
-    selectCamera,
     phonePairingStatus,
     phonePairingUrl,
     startPhonePairing,
@@ -325,13 +324,13 @@ export function ScanRegionCalibrationPanel({
                 {t("scanRegionCalibrationPanel.cameraLabel")}
               </label>
               <Select
-                value={selectedCameraId ?? ""}
+                value={cameraSettings.cameraId}
                 onValueChange={(deviceId) => {
-                  if (deviceId && deviceId !== selectedCameraId) {
-                    void selectCamera(deviceId);
+                  if (deviceId && deviceId !== cameraSettings.cameraId) {
+                    cameraSettings.setCamera(deviceId);
                   }
                 }}
-                disabled={cameras.length < 2 || isConnecting}
+                disabled={isLoading || cameras.length < 2 || isConnecting || cameraSettings.isSaving}
               >
                 <SelectTrigger id="calibration-camera" className="w-full">
                   <SelectValue
@@ -341,7 +340,7 @@ export function ScanRegionCalibrationPanel({
                   >
                     {(() => {
                       const index = cameras.findIndex(
-                        (cam) => cam.deviceId === selectedCameraId,
+                        (cam) => cam.deviceId === cameraSettings.cameraId,
                       );
                       if (index < 0) return null;
                       return (
@@ -500,7 +499,7 @@ export function ScanRegionCalibrationPanel({
 
           {isCameraActive && <CameraZoomControl className="pt-2 border-t" />}
 
-          {isCameraActive && <CameraFocusControl className="pt-2 border-t" />}
+          {isCameraActive && <CameraFocusControl className="pt-2 border-t" previewOnly onFocusChange={cameraSettings.previewFocus} disabled={isLoading || cameraSettings.isCameraChanged || cameraSettings.isSaving} />}
 
           <SliderField
             className="pt-2 border-t"

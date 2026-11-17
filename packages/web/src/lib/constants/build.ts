@@ -55,6 +55,32 @@ export const BOARD_INFO: Record<BoardType, BoardInfo> = {
     i2cScl: "GPIO9",
     wiringDiagramSrc: "/instructions/wiring_diagram_esp32.png",
   },
+  "raspberry-pi": {
+    displayName: "Raspberry Pi",
+    shortName: "Raspberry Pi",
+    irPins: [17, 27, 22, 24, 25],
+    hopperIrPin: 23,
+    physicalIrPins: [11, 13, 15, 18, 22],
+    physicalHopperPin: 16,
+    logicVoltage: "3.3V",
+    usbCableName: "USB power cable",
+    i2cSda: "SDA · 3",
+    i2cScl: "SCL · 5",
+    wiringDiagramSrc: "/instructions/wiring_diagram_raspberry.png",
+  },
+  "orange-pi-zero4": {
+    displayName: "Orange Pi Zero 4",
+    shortName: "Orange Pi Zero 4",
+    irPins: [32, 33, 139, 131, 129],
+    hopperIrPin: 130,
+    physicalIrPins: [11, 13, 15, 21, 23],
+    physicalHopperPin: 19,
+    logicVoltage: "3.3V",
+    usbCableName: "USB power cable",
+    i2cSda: "SDA · 3",
+    i2cScl: "SCL · 5",
+    wiringDiagramSrc: "/instructions/wiring_diagram_orange.png",
+  },
 };
 
 export const BOARD_BUY_URLS: Partial<Record<BoardType, string>> = {
@@ -136,6 +162,24 @@ export const BOARD_WIRE_COLORS: Record<
     psuNegative: "black",
     irSignal: "white",
   },
+  "raspberry-pi": {
+    sda: "yellow",
+    scl: "green",
+    vcc: "red",
+    gnd: "black",
+    psuPositive: "red",
+    psuNegative: "black",
+    irSignal: "blue",
+  },
+  "orange-pi-zero4": {
+    sda: "yellow",
+    scl: "green",
+    vcc: "red",
+    gnd: "black",
+    psuPositive: "red",
+    psuNegative: "black",
+    irSignal: "blue",
+  },
 };
 
 export const WIRING_VIEW_MODES: WiringViewMode[] = ["table", "diagram"];
@@ -147,13 +191,20 @@ export const WIRING_VIEW_MODE_ICONS: Record<WiringViewMode, Icon> = {
 
 export const PCA9685_FEEDER_CHANNEL = 15;
 
-export const BOARD_TYPES: BoardType[] = ["uno_r4", "esp32"];
+export const BOARD_TYPES: BoardType[] = [
+  "uno_r4",
+  "esp32",
+  "raspberry-pi",
+  "orange-pi-zero4",
+];
 
 export const ESP32_MOUNT_TYPES: Esp32MountType[] = ["breakout", "bare"];
 
 export const BOARD_ICONS: Record<BoardType, Icon> = {
   uno_r4: IconUsb,
   esp32: IconBluetooth,
+  "raspberry-pi": IconCpu,
+  "orange-pi-zero4": IconCpu,
 };
 
 export const ESP32_MOUNT_ICONS: Record<Esp32MountType, Icon> = {
@@ -204,21 +255,34 @@ export const DEFAULT_BUILD_SETUP: BuildSetupState = {
 
 export const BUILD_STEP_IMAGE_ALT_KEYS: Record<string, string> = {
   "/instructions/base_module.jpg": "imageAlt.photos.baseModule",
-  "/instructions/base_module_assembled.jpg": "imageAlt.photos.baseModuleAssembled",
+  "/instructions/base_module_assembled.jpg":
+    "imageAlt.photos.baseModuleAssembled",
   "/instructions/v5.jpg": "imageAlt.photos.finishedSorter",
-  "/instructions/bottom_paddle_disassembled.jpg": "imageAlt.photos.bottomPaddleDisassembled",
-  "/instructions/bottom_paddle_assembled.jpg": "imageAlt.photos.bottomPaddleAssembled",
-  "/instructions/bottom_paddle_attached.jpg": "imageAlt.photos.bottomPaddleAttached",
-  "/instructions/side_paddles_disassembled.jpg": "imageAlt.photos.sidePaddlesDisassembled",
-  "/instructions/side_paddles_assembled.jpg": "imageAlt.photos.sidePaddlesAssembled",
-  "/instructions/side_paddles_attached.jpg": "imageAlt.photos.sidePaddlesAttached",
+  "/instructions/bottom_paddle_disassembled.jpg":
+    "imageAlt.photos.bottomPaddleDisassembled",
+  "/instructions/bottom_paddle_assembled.jpg":
+    "imageAlt.photos.bottomPaddleAssembled",
+  "/instructions/bottom_paddle_attached.jpg":
+    "imageAlt.photos.bottomPaddleAttached",
+  "/instructions/side_paddles_disassembled.jpg":
+    "imageAlt.photos.sidePaddlesDisassembled",
+  "/instructions/side_paddles_assembled.jpg":
+    "imageAlt.photos.sidePaddlesAssembled",
+  "/instructions/side_paddles_attached.jpg":
+    "imageAlt.photos.sidePaddlesAttached",
   "/instructions/pusher_disassembled.jpg": "imageAlt.photos.pusherDisassembled",
   "/instructions/pusher_assembled.jpg": "imageAlt.photos.pusherAssembled",
   "/instructions/pusher_attached.jpg": "imageAlt.photos.pusherAttached",
   "/instructions/roller_o_rings_mounted.jpg": "imageAlt.photos.rollerORings",
-  "/instructions/feeder_servo_mounted.jpg": "imageAlt.photos.feederServoMounted",
+  "/instructions/feeder_servo_mounted.jpg":
+    "imageAlt.photos.feederServoMounted",
   "/instructions/new_hopper.JPG": "imageAlt.photos.newHopper",
   "/instructions/feeder_riser.JPG": "imageAlt.photos.feederRiser",
-  "/instructions/sorter_ir_sensor_mounted.jpg": "imageAlt.photos.sorterIrSensorMounted",
-  "/instructions/feeder_ir_sensor_mounted.jpg": "imageAlt.photos.feederIrSensorMounted",
+  "/instructions/sorter_ir_sensor_mounted.jpg":
+    "imageAlt.photos.sorterIrSensorMounted",
+  "/instructions/feeder_ir_sensor_mounted.jpg":
+    "imageAlt.photos.feederIrSensorMounted",
 };
+
+export const isPiBoard = (board: BoardType): boolean =>
+  board === "raspberry-pi" || board === "orange-pi-zero4";

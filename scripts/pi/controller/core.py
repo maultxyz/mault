@@ -6,7 +6,7 @@ import time
 from pathlib import Path
 
 
-VERSION = "pi-0.1.0"
+VERSION = "pi-0.2.0"
 PUSHER_NUDGE_MAX_PULSE = 20
 PUSHER_NUDGE_MAX_TRAVEL_PERCENT = 50
 MODULE_DEFAULTS = dict(bottomClosed=300, bottomOpen=310, paddleClosed=300,
@@ -313,6 +313,16 @@ class Controller:
     async def command(self, data, emit):
         if not isinstance(data, dict):
             raise ValueError("command must be an object")
+        if "detectModules" in data:
+            if data["detectModules"] is not True or set(data) - {"detectModules", "seq"}:
+                raise ValueError("detectModules requires a standalone true command")
+            if self.preview_started is not None:
+                return dict(error="busy", reason="stop the feeder preview before detection")
+            sensors = [self.hardware.sensor_connected(module)
+                       for module in range(1, self.count + 1)]
+            detected = next((index for index, connected in enumerate(sensors)
+                             if not connected), len(sensors))
+            return dict(status="ok", modules=detected, sensors=sensors)
         if data.get("getStatus") is True:
             return dict(status="ready", version=VERSION, board="raspberry_pi",
                         id=self.device_id, ble="none", resetReason="software",

@@ -29,12 +29,12 @@ def configure(path, choose=input):
     if prompted_for_mode:
         print("How will this sorter be controlled?")
         print("  1) This board directly, using GPIO and I2C")
-        print("  2) A USB-connected Arduino or ESP32")
+        print("  2) An Arduino or ESP32 over USB or Bluetooth")
         while True:
             try:
                 choice = choose("Select 1 or 2 [2]: ").strip()
             except EOFError as error:
-                raise ValueError("No install choice available. Set PI_SORTER=1 for GPIO or PI_SORTER=0 for USB.") from error
+                raise ValueError("No install choice available. Set PI_SORTER=1 for GPIO or PI_SORTER=0 for USB/Bluetooth.") from error
             if choice in ("", "1", "2"):
                 selection = "1" if choice == "1" else "0"
                 break

@@ -8,3 +8,12 @@ export interface SorterPort extends EventEmitter {
   close(): unknown;
 }
 
+export interface SorterPortClaim {
+  owner: SorterPortOwner;
+  port: SorterPort | null;
+}
+
+export interface SorterPortOptions {
+  hupcl?: boolean;
+  controllerId?: string;
+}

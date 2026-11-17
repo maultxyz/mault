@@ -1,3 +1,5 @@
+import "../disable-onnx-telemetry";
+
 import type {
   SyncState,
   SyncStatus,

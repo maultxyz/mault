@@ -37,7 +37,7 @@ test("desktop and phone WebSockets both stay ready and receive only their own re
   process.env.PI_SORTER = "1";
   process.env.PI_CONTROLLER_SOCKET = path;
   const server = new WebSocketServer({ port: 0, host: "127.0.0.1" });
-  server.on("connection", openPiSerialSocket);
+  server.on("connection", (socket) => openPiSerialSocket(socket));
   const clients: WebSocket[] = [];
   context.after(async () => {
     for (const client of clients) client.terminate();

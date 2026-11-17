@@ -1,5 +1,5 @@
 import { readFile } from "node:fs/promises";
-import { InferenceSession, Tensor } from "onnxruntime-node";
+import { InferenceSession, Tensor } from "./onnx-runtime";
 import sharp from "sharp";
 import {
   PADDLE_OCR_BOX_THRESHOLD,

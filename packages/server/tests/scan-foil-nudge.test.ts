@@ -38,10 +38,10 @@ test("nudge compares both directions and confirms neutral restoration", async ()
 });
 
 test("unknown firmware and legacy native controller without limits cannot nudge", async () => {
-  for (const version of [null, "pi-0.1.0"]) {
+  for (const version of [null, "pi-0.1.0", "pi-0.2.0"]) {
     const { input, commands } = fixture();
     input.firmwareVersion = version;
-    if (version === "pi-0.1.0") input.firmwareLimits = null;
+    if (version?.startsWith("pi-")) input.firmwareLimits = null;
     assert.equal(await executeScanFoilNudge(input), null);
     assert.equal(commands.length, 0);
   }
@@ -73,10 +73,12 @@ test("capture failure always restores and unconfirmed restore rejects", async ()
 });
 
 test("native controller with explicit safety limits supports nudges", async () => {
-  const { input, commands } = fixture();
-  input.firmwareVersion = "pi-0.1.0";
-  assert.equal((await executeScanFoilNudge(input))?.method, "nudge");
-  assert.equal(commands.length, 3);
+  for (const version of ["pi-0.1.0", "pi-0.2.0"]) {
+    const { input, commands } = fixture();
+    input.firmwareVersion = version;
+    assert.equal((await executeScanFoilNudge(input))?.method, "nudge");
+    assert.equal(commands.length, 3);
+  }
 });
 
 test("missing games, forced finishes, missing calibration and invalid limits never move", async () => {

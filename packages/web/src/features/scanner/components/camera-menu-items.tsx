@@ -1,3 +1,4 @@
+import { usePiHost } from "@/hooks/use-pi-host";
 import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenuCheckboxItem,
@@ -36,6 +37,7 @@ export function CameraMenuItems({
   onOpenPhonePairing,
 }: CameraMenuItemsProps) {
   const { t } = useTranslation("scanner");
+  const piHost = usePiHost();
   const { camerasInUseElsewhere } = useCameraContext();
   const { isArchiveSupported, archiveFolder, chooseArchiveFolder, clearArchiveFolder } =
     useDocumentScanArchiveFolder();
@@ -51,6 +53,18 @@ export function CameraMenuItems({
       (cameras.length > 1 || !isCameraActive || !isWebcamSelected));
   const webcamLabel = (camera: MediaDeviceInfo, index: number) =>
     camera.label || t("scannerMenu.cameraFallbackLabel", { index: index + 1 });
+
+  if (piHost) return <>
+    {cameras.map((camera, index) => <DropdownMenuCheckboxItem key={camera.deviceId}
+      checked={camera.deviceId === selectedCameraId} disabled={scanningBlocked}
+      onCheckedChange={() => onCameraSelect(camera.deviceId)}>
+      {webcamLabel(camera, index)}
+    </DropdownMenuCheckboxItem>)}
+    {camerasInUseElsewhere.map((camera, index) => <DropdownMenuCheckboxItem key={camera.deviceId} disabled checked={false}>
+      {webcamLabel(camera, index)} <Badge variant="outline">{t("scannerMenu.cameraInUseElsewhere")}</Badge>
+    </DropdownMenuCheckboxItem>)}
+    {!cameras.length && <DropdownMenuItem disabled>{t("camera.piUnavailable")}</DropdownMenuItem>}
+  </>;
 
   return (
     <>

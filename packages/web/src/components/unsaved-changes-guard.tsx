@@ -71,10 +71,14 @@ export function UnsavedChangesGuardView({
           <Button
             type="button"
             variant="destructive"
-            onClick={() => {
+            onClick={async () => {
               if (blocker.state !== "blocked") return;
-              onDiscard?.();
-              blocker.proceed();
+              try {
+                await onDiscard?.();
+                blocker.proceed();
+              } catch {
+                return;
+              }
             }}
           >
             {t("unsavedChanges.discardAndLeave")}

@@ -83,3 +83,21 @@ describe("Pi hardware endpoint selection", () => {
     expect(FakeSocket.instances).toEqual([]);
   });
 });
+
+it("carries a selected USB sorter through the Pi bridge without sending commands", async () => {
+  FakeSocket.instances = [];
+  vi.stubGlobal("WebSocket", FakeSocket);
+  vi.mocked(getRequestAuth).mockResolvedValue({ token: "test-token", orgId: "test-org" });
+  try {
+    const target = "/dev/serial/by-id/usb-Sorter_A";
+    const result = await PiSerialTransport.open(false, target);
+    expect(result.ok).toBe(true);
+    if (!result.ok) throw new Error("Expected a connected transport");
+    const socket = FakeSocket.instances[0];
+    expect(new URL(socket.url).searchParams.get("controllerId")).toBe(target);
+    expect(socket.sent).toEqual([]);
+    await result.transport.close();
+  } finally {
+    vi.unstubAllGlobals();
+  }
+});

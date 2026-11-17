@@ -1,3 +1,4 @@
+import { usePiHostState } from "@/hooks/use-pi-host";
 import { PageHeader } from "@/components/page-header";
 import { StatGroup } from "@/components/stat-group";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function SortersPage() {
+  const { piSorter } = usePiHostState();
   const { t } = useTranslation("scanner");
   const [searchQuery, setSearchQuery] = useState("");
   const overview = useSorterOverview(searchQuery);
@@ -110,7 +112,7 @@ export default function SortersPage() {
                 </Button>
               </>
             )}
-            <DropdownMenu>
+            {!piSorter && <DropdownMenu>
               <DropdownMenuTrigger render={<Button />}>
                 <IconPlus />
                 {t("stations.connect")}
@@ -118,7 +120,7 @@ export default function SortersPage() {
               <DropdownMenuContent align="end">
                 <ConnectSorterMenuOptions />
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu>}
           </div>
         }
       >

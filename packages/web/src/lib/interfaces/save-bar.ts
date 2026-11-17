@@ -25,7 +25,7 @@ export interface SaveBarGroupDraft {
 
 export interface SaveBarGroupGuard {
   isDirty: boolean;
-  discard?: () => void;
+  discard?: () => void | Promise<void>;
 }
 
 export interface SaveBarGroupSummary {
@@ -44,7 +44,7 @@ export interface SaveBarGroupStore {
   getSummary: () => SaveBarGroupSummary;
   saveDirtyDrafts: () => void;
   discardDirtyDrafts: () => void;
-  discardDirtyGuards: () => void;
+  discardDirtyGuards: () => Promise<void>;
 }
 
 export type SaveBarGroupMemberProps = SaveBarProps & {
@@ -58,5 +58,5 @@ export interface UnsavedChangesGuardGroupMemberProps
 
 export interface UnsavedChangesGuardProps {
   isDirty: boolean;
-  onDiscard?: () => void;
+  onDiscard?: () => void | Promise<void>;
 }

@@ -1,4 +1,4 @@
-import { InferenceSession, Tensor } from "onnxruntime-node";
+import { InferenceSession, Tensor } from "./onnx-runtime";
 import sharp from "sharp";
 import {
   CORNER_DETECTOR_INPUT_SIZE,

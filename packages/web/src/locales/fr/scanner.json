@@ -1268,5 +1268,15 @@
       "title": "Impossible de réinitialiser la trieuse",
       "description": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez la connexion et réessayez."
     }
+  },
+  "piHardware": {
+    "bluetoothOff": "Le Bluetooth est désactivé sur l’hôte",
+    "bluetoothScanning": "Recherche de trieurs Bluetooth…",
+    "bluetoothFailed": "Impossible de rechercher des trieurs Bluetooth. Vérifiez que le Bluetooth est activé sur l’hôte.",
+    "bluetoothEmpty": "Aucun trieur Bluetooth trouvé. Allumez le trieur et gardez-le à proximité.",
+    "bluetoothRescan": "Rechercher à nouveau",
+    "loading": "Chargement des trieurs connectés…",
+    "unavailable": "Impossible de lister les trieurs connectés",
+    "stopBeforeSwitching": "Arrêtez la numérisation du Pi avant de changer de trieur ou de caméra."
   }
 }

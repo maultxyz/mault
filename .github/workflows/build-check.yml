@@ -29,7 +29,7 @@ jobs:
           node-version: 26
 
       - name: Test Pi controller without hardware
-        run: python3 -m unittest scripts.pi.controller.test_controller
+        run: python3 -m unittest scripts.pi.controller.test_controller scripts.pi.controller.test_detection_hardware
 
       - name: Test Pi installation, updater and camera without hardware
         run: python3 -m unittest discover -s scripts/pi/tests -p 'test_*.py'

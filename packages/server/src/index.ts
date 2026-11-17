@@ -1,3 +1,4 @@
+import "./lib/disable-onnx-telemetry";
 import "./lib/console-timestamps";
 
 import { serve } from "@hono/node-server";

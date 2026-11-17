@@ -89,6 +89,9 @@ export interface PiCameraReady {
 export type PiCameraHealth = PiCameraReady | { status: "down" | "absent" };
 
 export interface CameraFocusControlProps {
+  onFocusChange?: (value: number | null) => void;
+  previewOnly?: boolean;
+  disabled?: boolean;
   className?: string;
 }
 
@@ -120,7 +123,8 @@ export interface CameraContextValue {
   selectedCameraId: string | null;
   setFocusDistance: (value: number | null) => void;
   setZoomLevel: (value: number) => void;
-  selectCamera: (deviceId: string) => void;
+  selectCamera: (deviceId: string, persist?: boolean) => Promise<boolean>;
+  applyFocusDistance: (value: number | null, persist?: boolean) => Promise<void>;
   retryCamera: () => Promise<void>;
   stopCamera: () => void;
   cameraSource: CameraSource;
@@ -277,6 +281,7 @@ export type SerialTransportType =
   | "pi-sorter";
 
 export interface SerialConnectOptions {
+  controllerId?: string;
   skipAutoTest?: boolean;
   background?: boolean;
 }
@@ -342,6 +347,7 @@ export interface PushTest {
 }
 
 export interface SerialContextValue {
+  controllerId: string | null;
   isConnected: boolean;
   isReady: boolean;
   sensorBlockedModule: number | null;
@@ -352,7 +358,7 @@ export interface SerialContextValue {
   hasWifi: boolean;
   deviceId: string | null;
   transport: SerialTransportType | null;
-  connect: (options?: { skipAutoTest?: boolean }) => Promise<void>;
+  connect: (options?: SerialConnectOptions) => Promise<void>;
   connectBluetooth: (options?: { skipAutoTest?: boolean }) => Promise<void>;
   connectCloud: (
     deviceGuid: string,
@@ -1302,6 +1308,7 @@ export interface OutlineAnimator {
 export type PiScanListener = () => void;
 
 export interface PiCameraPreviewProps {
+  cameraId?: string | null;
   alt: string;
   className?: string;
   rotated?: boolean;

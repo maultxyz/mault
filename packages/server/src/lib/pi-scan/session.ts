@@ -1,3 +1,5 @@
+import { claimPiCamera, releasePiCamera } from "../pi-camera-ownership";
+import { isPiSorter } from "../pi-host";
 import { updatePiScanRemovalQueue } from "./removal";
 import { runPiScanCardWorkflow } from "./workflow";
 import { readPiScannerControlCode } from "./control-code";
@@ -193,6 +195,8 @@ function publicState(session: PiScanLive | undefined): PiScanSessionState {
     };
   }
   return {
+    controllerId: session.controllerId,
+    cameraId: session.cameraId,
     phase: session.phase,
     collectionGuid: session.collectionGuid,
     message: session.message,
@@ -827,7 +831,7 @@ async function matchUntilConsensus(
   let initial = firstFrame;
   const outcome = await identifyScanWithConsensus(
     async () => {
-      const frame = initial ?? (await grabSettledCameraFrame());
+      const frame = initial ?? (await grabSettledCameraFrame(undefined, undefined, session.cameraId));
       initial = undefined;
       return matchFrame(session, context, frame);
     },
@@ -1436,7 +1440,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
     ) {
       return null;
     }
-    return grabSettledCameraFrame();
+    return grabSettledCameraFrame(undefined, undefined, session.cameraId);
   });
   const pipeline = {
     enabled: () =>
@@ -1530,7 +1534,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       }
 
       await runPiScanCardWorkflow(session, {
-        capture: async () => prefetched?.identified ?? grabSettledCameraFrame(),
+        capture: async () => prefetched?.identified ?? grabSettledCameraFrame(undefined, undefined, session.cameraId),
         readControl: readPiScannerControlCode,
         applyControl: (command) =>
           applyControlCard(session, context, link, command),
@@ -1576,6 +1580,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
     }
   } finally {
     await prefetch.discard();
+    releasePiCamera(session.cameraId ?? "default", session);
     if (session.phase === "error") {
       try {
         const stopped = await link.command(
@@ -1591,7 +1596,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
     }
     link.close();
     if (session.portHeld) {
-      releaseSorterPort("session");
+      releaseSorterPort("session", session.port);
       session.portHeld = false;
     }
     if (session.locked) {
@@ -1613,6 +1618,20 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
 }
 
 async function arm(session: PiScanLive) {
+  if ((session.controllerId !== undefined && typeof session.controllerId !== "string") ||
+      (session.cameraId !== undefined && typeof session.cameraId !== "string"))
+    throw new PiScanStartError("Invalid hardware selection.", "invalid");
+  session.controllerId ??= isPiSorter() ? "gpio" : "usb";
+  if (isPiSorter() && session.controllerId !== "gpio")
+    throw new PiScanStartError("GPIO mode supports only the built-in sorter.", "invalid");
+  const health = new URL("http://127.0.0.1:8765/health");
+  if (session.cameraId) health.searchParams.set("cameraId", session.cameraId);
+  const camera = await fetch(health, { signal: AbortSignal.timeout(10_000) });
+  if (!camera.ok) throw new PiScanStartError("The selected Pi camera is unavailable.", "invalid");
+  const cameraState = await camera.json() as { id?: string };
+  session.cameraId = cameraState.id ?? session.cameraId;
+  if (!claimPiCamera(session.cameraId ?? "default", session))
+    throw new PiScanStartError("The selected camera is in use by another scan.", "busy");
   const recovered = await recoverSessionScanSaves(
     session.orgId,
     saveOptions(session),
@@ -1638,7 +1657,7 @@ async function arm(session: PiScanLive) {
 
   let port;
   try {
-    port = await claimSorterPort("session");
+    port = await claimSorterPort("session", { controllerId: session.controllerId });
   } catch (err) {
     if (err instanceof SorterPortError && err.reason === "missing") {
       throw new PiScanStartError(
@@ -1654,6 +1673,7 @@ async function arm(session: PiScanLive) {
     }
     throw new PiScanStartError("The sorter port could not be opened.", "busy");
   }
+  session.port = port;
   session.portHeld = true;
   const link = new SorterLink(port);
   session.link = link;
@@ -1697,7 +1717,7 @@ async function arm(session: PiScanLive) {
       : null;
   } catch (err) {
     link.close();
-    releaseSorterPort("session");
+    releaseSorterPort("session", session.port);
     session.portHeld = false;
     session.link = null;
     throw err;
@@ -1719,6 +1739,8 @@ function createSession(
     resolveDone = resolve;
   });
   return {
+    controllerId: body.controllerId,
+    cameraId: body.cameraId,
     pendingSave: null,
     configurationVersion: 0,
     allowDuplicates: body.allowDuplicates !== false,
@@ -1814,6 +1836,7 @@ export async function startPiScanSession(
       err instanceof Error ? err.message : "The scan could not be started.";
     const code = err instanceof PiScanStartError ? err.code : "invalid";
     const status = err instanceof PiScanStartError ? err.status : 409;
+    releasePiCamera(session.cameraId ?? "default", session);
     session.phase = "error";
     session.message = message;
     if (session.locked) {

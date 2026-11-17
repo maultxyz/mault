@@ -3,6 +3,9 @@ RUN npm install -g pnpm@9.1.3
 
 WORKDIR /app
 
+# Disable ONNX telemetry before any native runtime initialization.
+ENV ORT_DISABLE_TELEMETRY=1
+
 # Set the CollectorVision cache to a known path inside the image
 ENV COLLECTORVISION_CACHE=/app/.cache/collectorvision
 

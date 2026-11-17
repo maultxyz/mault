@@ -32,6 +32,8 @@ export interface PiScanPendingSave {
 
 export interface PiScanSessionState {
   emergencyStopped?: boolean;
+  controllerId?: string;
+  cameraId?: string;
   pendingSave?: PiScanPendingSave | null;
   allowDuplicates?: boolean;
   removalEnabled?: boolean;
@@ -57,6 +59,8 @@ export interface PiScanSessionState {
 }
 
 export interface PiScanSessionStartBody {
+  controllerId?: string;
+  cameraId?: string;
   allowDuplicates?: boolean;
   removalEnabled?: boolean;
   removalBinNumber?: number | null;

@@ -337,6 +337,13 @@ export function CardScanner({
     if (!open && phonePairingStatus !== "connected") stopPhonePairing();
   };
   const scanningBlocked = isAtScanLimit;
+  const selectStationCamera = useCallback((cameraId: string) => {
+    if (piRemote && piScanLive) {
+      toast.error(t("piHardware.stopBeforeSwitching"));
+      return;
+    }
+    void selectCamera(cameraId);
+  }, [piRemote, piScanLive, selectCamera, t, toast]);
 
   const verifyJam = useVerifyJam();
   const [ignoreIrSensors] = useIgnoreIrSensors();
@@ -947,6 +954,7 @@ export function CardScanner({
         <video ref={videoRef} className="hidden" playsInline muted />
         {piRemote && isCameraActive && (
           <PiCameraPreview
+            cameraId={selectedCameraId}
             alt={t("piScan.preview")}
             rotated
             flipped={device?.flipCamera}
@@ -986,7 +994,7 @@ export function CardScanner({
           onScanOnce: () => void handleForceScanClick(),
           onRetry: handleRetryError,
           onResolveSensorBlocked: reopenSensorBlockedToast,
-          onSelectCamera: selectCamera,
+          onSelectCamera: selectStationCamera,
           onAutoFeedChange: setAutoFeed,
           onAllowDuplicatesChange: setAllowDuplicates,
           isFeeding,
@@ -1040,7 +1048,7 @@ export function CardScanner({
       scanningBlocked,
       onCameraConnect: handleRetryError,
       onCameraDisconnect: handleStopCamera,
-      onCameraSelect: selectCamera,
+      onCameraSelect: selectStationCamera,
       onCalibrateFlatbed: () => setFlatbedPlacementOpen(true),
       isFeederSelected: isFeederMode,
       onSetUpFeederCard: () => setFeederCardSetupOpen(true),
@@ -1095,6 +1103,7 @@ export function CardScanner({
           <video ref={videoRef} className="hidden" playsInline muted />
           {piRemote && isCameraActive && (
             <PiCameraPreview
+            cameraId={selectedCameraId}
               alt={t("piScan.preview")}
               rotated
               flipped={device?.flipCamera}
@@ -1158,9 +1167,9 @@ export function CardScanner({
             selectedCameraId={selectedCameraId}
             phonePairingStatus={phonePairingStatus}
             scanningBlocked={scanningBlocked}
-            onCameraConnect={piRemote ? undefined : handleRetryError}
+            onCameraConnect={handleRetryError}
             onCameraDisconnect={handleStopCamera}
-            onCameraSelect={selectCamera}
+            onCameraSelect={selectStationCamera}
             onOpenPhonePairing={handleOpenPhonePairing}
             onScannerConnect={connect}
             onScannerConnectBluetooth={connectBluetooth}

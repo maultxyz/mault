@@ -1,3 +1,4 @@
+import { usePiHostState } from "@/hooks/use-pi-host";
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useEffectiveExecutionProvider } from "@/features/scanner/lib/onnx-runtime";
@@ -61,16 +62,17 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
   const { activeOrg } = useOrg();
   const orgId = activeOrg?.id;
   const { data: billing } = useQuery(billingQueryOptions(orgId));
+  const { piHost, piSorter } = usePiHostState();
   const executionProvider = useEffectiveExecutionProvider();
   const planSorterLimit = Math.min(
     billing?.maxConnectedSorters ?? MAX_CONNECTED_SORTERS,
     MAX_CONNECTED_SORTERS,
   );
   const inferenceSorterLimit =
-    executionProvider === "wasm"
+    executionProvider === "wasm" && !piHost
       ? CPU_INFERENCE_MAX_CONNECTED_SORTERS
       : MAX_CONNECTED_SORTERS;
-  const maxConnectedSorters = Math.min(planSorterLimit, inferenceSorterLimit);
+  const maxConnectedSorters = piSorter ? 1 : Math.min(planSorterLimit, inferenceSorterLimit);
   const sorterLimitReason: SorterLimitReason =
     inferenceSorterLimit < planSorterLimit
       ? "cpuInference"
@@ -78,7 +80,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
         ? "hardCap"
         : "plan";
   const maxConnectedSortersRef = useRef(maxConnectedSorters);
-  maxConnectedSortersRef.current = maxConnectedSorters;
+  maxConnectedSortersRef.current = piSorter ? 0 : maxConnectedSorters;
   const [stations, setStationsState] = useState<StationState[]>(() => [
     initialStation(),
   ]);
@@ -350,7 +352,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     );
     const connector = standby && connectorsRef.current.get(standby.id);
     if (!connector) return;
-    void (kind === "usb" ? connector.connect() : connector.connectBluetooth());
+    void (kind.startsWith("pi:") ? connector.connect(kind.slice(3)) : kind === "usb" ? connector.connect() : connector.connectBluetooth());
   }, []);
 
   const connectAnotherSorterCloud = useCallback((deviceGuid: string) => {
@@ -529,7 +531,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       panelsDocked,
       maxConnectedSorters,
       sorterLimitReason,
-      canConnectAnotherSorter: connectedStationIds.size < maxConnectedSorters,
+      canConnectAnotherSorter: !piSorter && connectedStationIds.size < maxConnectedSorters,
       stationAttention,
       stationIdsNeedingAttention,
       nextStationIdNeedingAttention,
@@ -564,6 +566,7 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       panelLayout,
       panelsDocked,
       maxConnectedSorters,
+      piSorter,
       sorterLimitReason,
       stationAttention,
       stationIdsNeedingAttention,

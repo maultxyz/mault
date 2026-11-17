@@ -40,7 +40,13 @@
       "esp32": {
         "description": "3,3V-Logik. Verbindet sich per USB oder Bluetooth mit der App."
       },
-      "kitLocked": "Vom Kit vorgegeben. Wähle \"Ich besorge sie selbst\", um es zu ändern."
+      "kitLocked": "Vom Kit vorgegeben. Wähle \"Ich besorge sie selbst\", um es zu ändern.",
+      "raspberry-pi": {
+        "description": "40-poliger GPIO-Header · Linux-Host und Steuerung"
+      },
+      "orange-pi-zero4": {
+        "description": "GPIO-Header · Linux-Host und Steuerung"
+      }
     },
     "mount": {
       "label": "ESP32-Montage",
@@ -306,8 +312,8 @@
       "colTo": "Zu",
       "psuPlus": "Externes 6V-Netzteil, +",
       "psuMinus": "Externes 6V-Netzteil, −",
-      "toPositive": "PCA9685-<pin>V+</pin>-Klemmenblock",
-      "toNegative": "PCA9685-<pin>GND</pin>-Klemmenblock <em>und</em> {{board}}-<pin>GND</pin>"
+      "toPositive": "PCA9685 <pin>V+</pin> über Adapter +",
+      "toNegative": "PCA9685 <pin>GND</pin> über Adapter −"
     },
     "irSensors": {
       "description": "Alle {{count}} lesen aktiv-<strong>LOW</strong> (der Pin wird LOW, wenn eine Karte vorhanden ist) über den internen Pull-up des {{board}} – verbinde den digitalen <pin>OUT</pin>-Ausgang des Sensors direkt mit dem Pin, ein externer Pull-up-Widerstand ist nicht nötig.",
@@ -646,5 +652,21 @@
       "sorterIrSensorMounted": "Eine IR-Sensorplatine steht aufrecht in ihrer Halterung auf der pinken Modulplatte, neben den Servos und Gestängen.",
       "feederIrSensorMounted": "Im schwarzen Zuführgehäuse sitzt eine blaue IR-Sensorplatine direkt unter der O-Ring-Rolle und zeigt nach oben zu den Karten."
     }
+  },
+  "pi": {
+    "pin": "Physischer Pin",
+    "logic": "Verwende eine PCA9685-Platine, die 3,3 V Logikversorgung und Signale unterstützt. Verbinde VCC mit dem physischen Pin 1 (3,3 V), niemals mit 5 V. SDA, SCL und GPIO-Eingänge des Pi dürfen keine 5 V erhalten. Vor dem Verkabeln alle Stromquellen trennen.",
+    "sensors": "Der OUT-Ausgang der IR-Sensoren muss mit 3,3 V kompatibel sein. Geeignete Sensoren mit 3,3 V versorgen oder einen passenden Pegelwandler für 5-V-Ausgänge verwenden. Sensormasse mit Pi-GND verbinden. Die Tabelle zeigt physische Header-Pins, keine GPIO-Leitungsnummern.",
+    "power": "Versorge den Pi über ein eigenes, zum Modell passendes Netzteil. Stecke das separate 6-V-Servonetzteil in den Hohlsteckeradapter und verbinde dessen + und − mit PCA9685 V+ und GND. Die Logik-GND-Verbindung zwischen Pi und PCA9685 bleibt bestehen. Niemals 6 V an Pi-Stromversorgung oder Logik-VCC anschließen.",
+    "connect": "Öffne deine eigene Mault-Installation und wähle den integrierten GPIO-Sortierer. Der Pi steuert den Sortierer direkt; eine USB-Seriell-Verbindung ist nicht erforderlich.",
+    "install": "Installiere Mault vor der Kalibrierung über die Pi/Linux-Installationsanleitung für GPIO auf diesem Pi.",
+    "mount": "Befestige den Pi sicher mit isolierenden Abstandshaltern oder einem passenden Gehäuse. Die gedruckte Arduino/ESP32-Halterung passt nicht zu diesen Platinen.",
+    "essentials": "Pi-Netzteil, Boot-Speicher, GPIO-Verbindungskabel und USB-Kamera",
+    "requirements": "Verwende eine unterstützte Linux-Installation, zum Pi-Modell passende Speichermedien und Stromversorgung, GPIO-Verbindungskabel und eine unterstützte USB-Kamera. Raspberry-Pi-Modelle benötigen den 40-poligen GPIO-Header. Der Pi hostet Mault und steuert den Sortierer direkt.",
+    "diagramAlt": "Schaltplan für {{board}} mit physischen Header-Pins, 3,3-V-Logik und separater Servoversorgung.",
+    "boardNotes": "Der Pi hostet Mault und steuert den Sortierer direkt. Raspberry-Pi-Modelle benötigen den 40-poligen GPIO-Header.",
+    "overview": "Ein I²C-Bus verbindet den PCA9685; {{count}} digitale Eingänge dienen den IR-Sensoren. Der {{board}} versorgt die PCA9685-Logik und ist mit deren Logik-GND verbunden. Das separate Servonetzteil wird in den Hohlsteckeradapter gesteckt; dessen Plus- und Minusleitungen führen zu PCA9685 <pin>V+</pin> und <pin>GND</pin>. Die Servoversorgung kommt nicht vom Pi.",
+    "wirePower": "Verbinde das separate 6-V-Servonetzteil über den Hohlsteckeradapter mit PCA9685 V+ und GND.",
+    "diagramPending": "Das Schaltbild für diese Platine ist noch nicht verfügbar. Verwende die Anschlusstabellen unten."
   }
 }

@@ -105,6 +105,26 @@ describe("createSaveBarGroupStore", () => {
     expect(store.getSummary().isGuardDirty).toBe(false);
   });
 
+  it("waits for asynchronous guard restoration and propagates failures", async () => {
+    const store = createSaveBarGroupStore();
+    let restore = () => {};
+    const pending = new Promise<void>((resolve) => { restore = resolve; });
+    store.setGuard("camera", { isDirty: true, discard: () => pending });
+    const completed = vi.fn();
+    const result = store.discardDirtyGuards().then(completed);
+    await Promise.resolve();
+    expect(completed).not.toHaveBeenCalled();
+    restore();
+    await result;
+    expect(completed).toHaveBeenCalledOnce();
+
+    store.setGuard("camera", {
+      isDirty: true,
+      discard: async () => { throw new Error("Camera disconnected"); },
+    });
+    await expect(store.discardDirtyGuards()).rejects.toThrow("Camera disconnected");
+  });
+
   it("notifies subscribers only when the summary changes", () => {
     const store = createSaveBarGroupStore();
     const listener = vi.fn();

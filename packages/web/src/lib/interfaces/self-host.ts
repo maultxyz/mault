@@ -1,12 +1,18 @@
 import type { Icon } from "@tabler/icons-react";
 
-export type SelfHostHost = "compose" | "coolify";
+export type SelfHostHost = "compose" | "coolify" | "pi";
 
 export type SelfHostAuth = "local" | "neon";
+
+export type SelfHostSorter = "usb" | "gpio";
+
+export type SelfHostBoard = "raspberry-pi" | "orange-pi-zero4";
 
 export interface SelfHostSetupState {
   host: SelfHostHost;
   auth: SelfHostAuth;
+  sorter: SelfHostSorter;
+  board: SelfHostBoard;
 }
 
 export interface SelfHostSetupValue extends SelfHostSetupState {
@@ -14,8 +20,10 @@ export interface SelfHostSetupValue extends SelfHostSetupState {
 }
 
 export interface SelfHostCondition {
-  host?: SelfHostHost;
+  host?: SelfHostHost | readonly SelfHostHost[];
   auth?: SelfHostAuth;
+  sorter?: SelfHostSorter;
+  board?: SelfHostBoard;
 }
 
 export interface SelfHostStep {
@@ -42,4 +50,3 @@ export interface SelfHostSectionProps {
   checked: Record<string, boolean>;
   toggle: (key: string) => void;
 }
-

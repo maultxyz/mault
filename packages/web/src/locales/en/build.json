@@ -40,7 +40,13 @@
       "esp32": {
         "description": "3.3V logic. Connects to the app over USB or Bluetooth."
       },
-      "kitLocked": "Set by the kit. Choose \"Sourcing my own\" to change it."
+      "kitLocked": "Set by the kit. Choose \"Sourcing my own\" to change it.",
+      "raspberry-pi": {
+        "description": "40-pin GPIO header · Linux host and controller"
+      },
+      "orange-pi-zero4": {
+        "description": "GPIO header · Linux host and controller"
+      }
     },
     "mount": {
       "label": "ESP32 mounting",
@@ -306,8 +312,8 @@
       "colTo": "To",
       "psuPlus": "External 6V PSU, +",
       "psuMinus": "External 6V PSU, −",
-      "toPositive": "PCA9685 <pin>V+</pin> terminal block",
-      "toNegative": "PCA9685 <pin>GND</pin> terminal block <em>and</em> {{board}} <pin>GND</pin>"
+      "toPositive": "PCA9685 <pin>V+</pin> via barrel adapter +",
+      "toNegative": "PCA9685 <pin>GND</pin> via barrel adapter −"
     },
     "irSensors": {
       "description": "All {{count}} read active-<strong>LOW</strong> (pin goes low when a card is present) using the {{board}}'s internal pull-up. Wire the sensor's digital <pin>OUT</pin> straight to the pin, no external pull-up resistor needed.",
@@ -646,5 +652,21 @@
       "sorterIrSensorMounted": "An IR sensor board clipped upright into its holder on the pink module plate, next to the servos and linkages.",
       "feederIrSensorMounted": "Inside the black feeder housing, a blue IR sensor board sits just below the O-ring roller, facing up toward the cards."
     }
+  },
+  "pi": {
+    "pin": "Physical pin",
+    "logic": "Use a PCA9685 board that supports 3.3V logic power and signals. Connect VCC to physical pin 1 (3.3V), never 5V. Pi SDA, SCL and GPIO inputs must not receive 5V. Disconnect all power before wiring.",
+    "sensors": "IR sensor OUT must be 3.3V safe. Power compatible sensors from 3.3V, or use a suitable level shifter for 5V outputs. Connect sensor grounds to Pi GND. Numbers in this table are physical header pins, not GPIO line numbers.",
+    "power": "Power the Pi with its own model-appropriate supply. Plug the separate 6V servo supply into the barrel adapter and connect the adapter’s + and − leads to PCA9685 V+ and GND. Keep the Pi-to-PCA9685 logic GND connection. Never connect servo 6V to Pi power or logic VCC.",
+    "connect": "Open your own Mault installation and select the built-in GPIO sorter. The Pi controls the sorter directly; no USB serial connection is needed.",
+    "install": "Install Mault on this Pi using the Pi/Linux GPIO installation guide before calibrating.",
+    "mount": "Mount the Pi securely with insulated standoffs or a suitable case. The Arduino/ESP32 printed controller plate does not fit these boards.",
+    "essentials": "Pi power supply, boot storage, GPIO jumper wires and USB camera",
+    "requirements": "Use a supported Linux installation, storage and power supply appropriate for your Pi model, GPIO jumper wires, and a supported USB camera. Raspberry Pi models need the 40-pin GPIO header. The Pi hosts Mault and controls the sorter directly.",
+    "diagramAlt": "{{board}} wiring diagram with physical header pins, 3.3V logic and separate servo power.",
+    "boardNotes": "The Pi hosts Mault and controls the sorter directly. Raspberry Pi models require the 40-pin GPIO header.",
+    "overview": "Use one I²C bus for the PCA9685 and {{count}} digital inputs for the IR sensors. The {{board}} supplies the PCA9685 logic power and connects to its logic GND. The separate servo power supply plugs into the barrel adapter; the adapter’s positive and negative leads connect to PCA9685 <pin>V+</pin> and <pin>GND</pin>. The servo supply does not come from the Pi.",
+    "wirePower": "Connect the separate 6V servo power supply through the barrel adapter to PCA9685 V+ and GND.",
+    "diagramPending": "The wiring image for this board is not available yet. Use the connection tables below."
   }
 }

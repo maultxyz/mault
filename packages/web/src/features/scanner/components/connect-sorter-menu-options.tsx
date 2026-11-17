@@ -1,3 +1,5 @@
+import { PiSorterMenuItems } from "./pi-sorter-menu-items";
+import { usePiHostState } from "@/hooks/use-pi-host";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useStations } from "@/features/scanner/api/use-stations";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
@@ -10,12 +12,17 @@ import { useNavigate } from "react-router-dom";
 export function ConnectSorterMenuOptions() {
   const { t } = useTranslation("scanner");
   const navigate = useNavigate();
+  const { piHost, piSorter } = usePiHostState();
   const {
     connectAnotherSorter,
     connectAnotherSorterCloud,
     canConnectAnotherSorter,
     sorterLimitReason,
   } = useStations();
+
+  if (piSorter) return null;
+
+  if (canConnectAnotherSorter && piHost) return <PiSorterMenuItems onSelect={(id) => connectAnotherSorter(`pi:${id}`)} />;
 
   if (canConnectAnotherSorter) {
     return (

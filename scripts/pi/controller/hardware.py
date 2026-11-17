@@ -65,22 +65,39 @@ class Hardware:
     def open_raspberry_pi_gpio(self, chip):
         import lgpio
 
+        def gpio_call(function, *args):
+            try:
+                return function(*args)
+            except lgpio.error as error:
+                raise OSError(str(error)) from error
+
         if chip is None:
             for path in sorted(glob.glob("/dev/gpiochip*")):
-                candidate = lgpio.gpiochip_open(int(path.split("gpiochip")[-1]))
-                if lgpio.gpio_get_chip_info(candidate)[3] == "pinctrl-rp1":
+                candidate = gpio_call(lgpio.gpiochip_open, int(path.split("gpiochip")[-1]))
+                if gpio_call(lgpio.gpio_get_chip_info, candidate)[3] == "pinctrl-rp1":
                     handle = candidate
                     break
-                lgpio.gpiochip_close(candidate)
+                gpio_call(lgpio.gpiochip_close, candidate)
             else:
                 raise RuntimeError("Pi 5 RP1 GPIO chip not found; use --gpio-chip after checking gpioinfo")
         else:
-            handle = lgpio.gpiochip_open(chip)
-        self.close_gpio = lambda: lgpio.gpiochip_close(handle)
+            handle = gpio_call(lgpio.gpiochip_open, chip)
+        self.close_gpio = lambda: gpio_call(lgpio.gpiochip_close, handle)
         self.ir_pins, self.hopper_pin = IR_PINS, HOPPER_PIN
+        claimed_pins = set()
+
+        def set_bias(pin, pull_up):
+            if pin in claimed_pins:
+                gpio_call(lgpio.gpio_free, handle, pin)
+                claimed_pins.remove(pin)
+            gpio_call(lgpio.gpio_claim_input, handle, pin,
+                      lgpio.SET_PULL_UP if pull_up else lgpio.SET_PULL_DOWN)
+            claimed_pins.add(pin)
+
         for pin in (*self.ir_pins, self.hopper_pin):
-            lgpio.gpio_claim_input(handle, pin, lgpio.SET_PULL_UP)
-        self.active = lambda pin: lgpio.gpio_read(handle, pin) == 0
+            set_bias(pin, True)
+        self.set_input_bias = set_bias
+        self.active = lambda pin: gpio_call(lgpio.gpio_read, handle, pin) == 0
 
     def open_zero4_gpio(self, chip):
         import gpiod
@@ -97,6 +114,17 @@ class Hardware:
         self.close_gpio = request.release
         self.active = lambda pin: request.get_value(pin) == Value.ACTIVE
 
+        def set_bias(pin, pull_up):
+            request.reconfigure_lines(config={
+                input_pin: gpiod.LineSettings(
+                    direction=Direction.INPUT, active_low=True,
+                    bias=Bias.PULL_DOWN if input_pin == pin and not pull_up else Bias.PULL_UP,
+                )
+                for input_pin in (*self.ir_pins, self.hopper_pin)
+            })
+
+        self.set_input_bias = set_bias
+
     def pwm(self, channel, pulse):
         self.bus.write_i2c_block_data(self.address, 0x06 + channel * 4,
                                      [0, 0, pulse & 255, pulse >> 8 if pulse else 0x10])
@@ -107,6 +135,18 @@ class Hardware:
 
     def present(self, module):
         return self.active(self.ir_pins[module - 1])
+
+    def sensor_connected(self, module):
+        pin = self.ir_pins[module - 1]
+        if self.active(pin):
+            return True
+        try:
+            self.set_input_bias(pin, False)
+            time.sleep(0.002)
+            return not self.active(pin)
+        finally:
+            self.set_input_bias(pin, True)
+            time.sleep(0.002)
 
     def hopper(self):
         return self.active(self.hopper_pin)

@@ -1,4 +1,4 @@
-import { InferenceSession, Tensor } from "onnxruntime-node";
+import { InferenceSession, Tensor } from "./onnx-runtime";
 import sharp from "sharp";
 import { IMAGENET_MEAN, IMAGENET_STD, MILO_INPUT_SIZE } from "@magic-vault/shared";
 import { resolveMiloModelPath } from "./models/model-registry";

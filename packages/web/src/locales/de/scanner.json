@@ -1268,5 +1268,15 @@
       "title": "Sortierer konnte nicht zurückgesetzt werden",
       "description": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe die Verbindung und versuche es erneut."
     }
+  },
+  "piHardware": {
+    "bluetoothOff": "Bluetooth ist auf dem Host ausgeschaltet",
+    "bluetoothScanning": "Bluetooth-Sortierer werden gesucht…",
+    "bluetoothFailed": "Bluetooth-Sortierer konnten nicht gesucht werden. Prüfe, ob Bluetooth auf dem Host aktiviert ist.",
+    "bluetoothEmpty": "Keine Bluetooth-Sortierer gefunden. Schalte den Sortierer ein und halte ihn in der Nähe.",
+    "bluetoothRescan": "Erneut suchen",
+    "loading": "Verbundene Sortierer werden geladen…",
+    "unavailable": "Verbundene Sortierer konnten nicht geladen werden",
+    "stopBeforeSwitching": "Stoppe den Pi-Scan, bevor du den Sortierer oder die Kamera wechselst."
   }
 }

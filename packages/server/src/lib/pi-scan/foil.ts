@@ -38,7 +38,7 @@ export async function checkPiScanFoil(
     sendCommand: async (command, timeoutMs) => ({ sent: true, line: JSON.stringify(await link.command(command, timeoutMs)) }),
     prepareMotion: calibration ? () => applyPiScanNudgeCalibration((command, timeoutMs) => link.command(command, timeoutMs), calibration) : undefined,
     capture: async () => {
-      const read = await readScanImage(await grabSettledCameraFrame());
+      const read = await readScanImage(await grabSettledCameraFrame(undefined, undefined, session.cameraId));
       const source = context.flipCamera ? rotateRgba180(read) : read;
       const corners = await detectScanCorners(source);
       const contour = corners.contour ?? getDefaultCardContour(source.width, source.height, context.region);
