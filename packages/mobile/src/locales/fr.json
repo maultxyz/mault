@@ -57,7 +57,8 @@
       "profile": "Connecté, mais les détails de ton compte n'ont pas pu être chargés. Réessaie.",
       "verify-email": "Vérifie ton adresse e-mail, puis connecte-toi.",
       "storage": "Connecté, mais la session n'a pas pu être enregistrée sur cet appareil. Réessaie.",
-      "social": "Impossible de vous connecter avec ce compte. Réessayez."
+      "social": "Impossible de vous connecter avec ce compte. Réessayez.",
+      "socialWithCode": "Impossible de vous connecter avec ce compte ({{code}}). Réessayez."
     },
     "createAccountOnWeb": "Nouveau sur Mault ? Crée un compte sur le web",
     "orContinueWith": "Ou continuer avec",

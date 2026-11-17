@@ -48,6 +48,15 @@ async function sessionFrom(
   return sessionToken ? { sessionToken } : { error: missingTokenError };
 }
 
+async function readNeonErrorCode(res: Response, fallback: string): Promise<string> {
+  try {
+    const body = (await res.json()) as { code?: string; message?: string };
+    return body.code ?? body.message ?? `${fallback}-${res.status}`;
+  } catch {
+    return `${fallback}-${res.status}`;
+  }
+}
+
 function sessionChallengeCookieFrom(res: Response): string | null {
   const cookies = res.headers.get("set-cookie")?.match(NEON_AUTH_SESSION_CHALLENGE_COOKIE_PATTERN);
   return cookies?.length ? cookies.join("; ") : null;
@@ -68,6 +77,7 @@ function mobileSignInStartUrl(providerSignInUrl: string): string {
 async function signInWithSocialProvider(provider: NeonSocialProvider): Promise<AuthBackendSignInResult> {
   const startResponse = await fetch(`${NEON_AUTH_URL}/sign-in/social`, {
     method: "POST",
+    credentials: "omit",
     headers: neonHeaders(),
     body: JSON.stringify({
       provider,
@@ -75,8 +85,9 @@ async function signInWithSocialProvider(provider: NeonSocialProvider): Promise<A
       disableRedirect: true,
     }),
   });
-  if (!startResponse.ok) return { error: await readError(startResponse, "social") };
+  if (!startResponse.ok) return { error: await readNeonErrorCode(startResponse, "social-start") };
   const sessionChallengeCookie = sessionChallengeCookieFrom(startResponse);
+  if (!sessionChallengeCookie) return { error: "social-no-challenge-cookie" };
   const { url: providerSignInUrl } = (await startResponse.json()) as { url?: string };
   if (!providerSignInUrl) return { error: "social" };
 
@@ -87,19 +98,22 @@ async function signInWithSocialProvider(provider: NeonSocialProvider): Promise<A
   if (browserResult.type !== "success") return { error: SOCIAL_SIGN_IN_CANCELLED_ERROR };
   const sessionVerifier = readQueryParam(browserResult.url, NEON_AUTH_SESSION_VERIFIER_PARAM);
   if (!sessionVerifier) {
-    return { error: readQueryParam(browserResult.url, MOBILE_SOCIAL_SIGN_IN_ERROR_PARAM) ?? "social" };
+    return {
+      error: readQueryParam(browserResult.url, MOBILE_SOCIAL_SIGN_IN_ERROR_PARAM) ?? "social-no-verifier",
+    };
   }
 
   const sessionResponse = await fetch(
     `${NEON_AUTH_URL}/get-session?${NEON_AUTH_SESSION_VERIFIER_PARAM}=${encodeURIComponent(sessionVerifier)}`,
     {
-      headers: {
-        ...neonHeaders(),
-        ...(sessionChallengeCookie ? { Cookie: sessionChallengeCookie } : {}),
-      },
+      credentials: "omit",
+      headers: { ...neonHeaders(), Cookie: sessionChallengeCookie },
     },
   );
-  return sessionFrom(sessionResponse, "social", "social");
+  if (!sessionResponse.ok) {
+    return { error: await readNeonErrorCode(sessionResponse, "social-session") };
+  }
+  return sessionFrom(sessionResponse, "social", "social-no-session");
 }
 
 export const neonBackend: AuthBackend = {

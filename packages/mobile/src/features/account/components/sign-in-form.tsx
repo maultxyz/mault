@@ -35,7 +35,11 @@ export function SignInForm() {
     const result = await signInWithSocialProvider(provider);
     setPendingSocialProvider(null);
     if (result.error && result.error !== SOCIAL_SIGN_IN_CANCELLED_ERROR) {
-      setError(t(`auth.errors.${result.error}`, { defaultValue: t("auth.errors.social") }));
+      setError(
+        t(`auth.errors.${result.error}`, {
+          defaultValue: t("auth.errors.socialWithCode", { code: result.error }),
+        }),
+      );
     }
   };
   const isBusy = formState.isSubmitting || pendingSocialProvider !== null;
