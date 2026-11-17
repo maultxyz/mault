@@ -16,6 +16,33 @@ import { MemoryRouter } from "react-router-dom";
 
 const updateOrderMock = vi.fn().mockResolvedValue({ success: true });
 
+vi.mock("@/features/storage/api/storage-locations", () => ({
+  storageLocationCardPageQueryOptions: (guid: string, _q: unknown, page: number) => ({
+    queryKey: ["storage-cards", guid, page],
+    queryFn: async () => ({
+      cards: [
+        {
+          scanId: "a",
+          position: 1,
+          card: { name: "Alpha", set: "a", setName: "Set A", collectorNumber: "1", image: null },
+          isFoil: false,
+          condition: "NM",
+        },
+        {
+          scanId: "zz",
+          position: 2,
+          card: { name: "Zulu", set: "z", setName: "Set Z", collectorNumber: "9", image: null },
+          isFoil: false,
+          condition: "LP",
+        },
+      ],
+      total: 2,
+      page: 1,
+      pageSize: 500,
+    }),
+  }),
+}));
+
 vi.mock("@/features/business/api/business", () => ({
   businessKeys: {
     root: () => ["business"],
@@ -96,6 +123,7 @@ const mockOrders: Record<string, FulfilmentOrderDetail> = {
           image: null,
         } as PullSheetEntry["card"],
         locationName: "Box A",
+        locationGuid: "loc-1",
         locationPosition: 0,
         orderRef: "REF-1",
       }),
@@ -110,6 +138,7 @@ const mockOrders: Record<string, FulfilmentOrderDetail> = {
           image: null,
         } as PullSheetEntry["card"],
         locationName: "Box B",
+        locationGuid: "loc-2",
         locationPosition: 2,
       }),
     ],
@@ -142,6 +171,7 @@ const mockOrders: Record<string, FulfilmentOrderDetail> = {
           image: null,
         } as PullSheetEntry["card"],
         locationName: "Box A",
+        locationGuid: "loc-1",
         locationPosition: 5,
       }),
       entry({
@@ -294,6 +324,78 @@ describe("OrderBatchPick", () => {
     });
     fireEvent.click(screen.getByRole("tab", { name: "orders.batch.walkTab" }));
     expect(screen.getByRole("tab", { name: "orders.batch.walkTab" }).getAttribute("aria-selected")).toBe("true");
+  });
+
+  it("offers a list only view without the next up hero", async () => {
+    renderBatch();
+    await heroSection();
+    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.listTab" }));
+    await waitFor(() => {
+      expect(screen.queryByText("orders.pickWalk.nextUp")).toBeNull();
+    });
+    expect(screen.getByRole("button", { name: "orders.pickCopyForOrder" })).toBeTruthy();
+  });
+
+  it("picks and skips in the fullscreen focus view and returns to picking", async () => {
+    renderBatch();
+    await heroSection();
+    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.focusTab" }));
+    await waitFor(() => {
+      expect(screen.getByText("Alpha")).toBeTruthy();
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "orders.pickCopyForOrder" }),
+    );
+    await waitFor(() => {
+      expect(screen.getByText("Charlie")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByRole("button", { name: "orders.batch.focusSkip" }));
+    await waitFor(() => {
+      expect(screen.getByText("Bravo")).toBeTruthy();
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "orders.batch.focusBack" }),
+    );
+    await waitFor(() => {
+      expect(screen.getByRole("tab", { name: "orders.batch.focusTab" })).toBeTruthy();
+    });
+  });
+
+  it("picks by swiping right in the focus view", async () => {
+    renderBatch();
+    await heroSection();
+    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.focusTab" }));
+    const stage = await screen.findByText("Alpha");
+    const swipeArea = stage.closest("div")!.parentElement!;
+    fireEvent.touchStart(swipeArea, {
+      touches: [{ clientX: 100 }],
+    });
+    fireEvent.touchMove(swipeArea, {
+      touches: [{ clientX: 220 }],
+    });
+    fireEvent.touchEnd(swipeArea);
+    await waitFor(() => {
+      expect(screen.getByText("Charlie")).toBeTruthy();
+    });
+  });
+
+  it("shows every card of the current container with picks highlighted", async () => {
+    renderBatch();
+    await heroSection();
+    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.boxTab" }));
+    expect(
+      await screen.findByText("Zulu"),
+    ).toBeTruthy();
+    const alphaRow = screen
+      .getByRole("button", { name: "orders.pickCopy" })
+      .closest("button")!;
+    expect(alphaRow.getAttribute("aria-pressed")).toBe("false");
+    const zuluRow = screen.getByText("Zulu").closest("button")!;
+    expect(zuluRow.getAttribute("disabled")).not.toBeNull();
+    fireEvent.click(alphaRow);
+    await waitFor(() => {
+      expect(alphaRow.getAttribute("aria-pressed")).toBe("true");
+    });
   });
 
   it("remembers the batch so the picks list can offer to return to it", async () => {

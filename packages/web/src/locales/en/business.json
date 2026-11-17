@@ -391,7 +391,22 @@
       "completed_one": "{{count}} pick completed",
       "completed_other": "{{count}} picks completed",
       "resume_one": "Resume pick together ({{count}} pick)",
-      "resume_other": "Resume pick together ({{count}} picks)"
+      "resume_other": "Resume pick together ({{count}} picks)",
+      "listTab": "List",
+      "focusTab": "Focus",
+      "boxTab": "Box",
+      "focusBack": "Back to picking",
+      "focusBackCard": "Previous card",
+      "focusSkip": "Skip",
+      "focusSwipeHint": "Swipe right to pick, left to skip",
+      "focusPickedNote": "This card is already marked as picked.",
+      "boxPrevious": "Previous container",
+      "boxNext": "Next container",
+      "boxStopOf": "Container {{index}} of {{total}}",
+      "boxPickSummary": "{{picked}} of {{pickTotal}} picks handled",
+      "boxPickBadge": "Pick",
+      "boxLoadMore": "Load more cards",
+      "boxCollectionNote": "Cards in a collection bin, not a storage box."
     },
     "substitutes": {
       "find": "Find substitutes",

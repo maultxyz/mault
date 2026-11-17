@@ -239,6 +239,7 @@ export interface PullSheetEntry {
   binNumber: number | null;
   locationName: string | null;
   locationPosition: number | null;
+  locationGuid: string | null;
   picked: boolean;
   orderRef: string | null;
   gameKey: string | null;
@@ -263,6 +264,7 @@ export interface PickWalkEntry extends PullSheetEntry {
 export interface PickWalkStop {
   stopKey: string;
   locationName: string | null;
+  locationGuid: string | null;
   collectionName: string;
   binNumber: number | null;
   entries: PickWalkEntry[];

@@ -29,6 +29,7 @@ import type {
   OrderSource,
   PlayingCardImage,
   PickWalkEntry,
+  PickWalkStop,
   StatsRange,
 } from "@magic-vault/shared";
 import type { ComponentProps, ReactNode } from "react";
@@ -213,6 +214,32 @@ export interface PackingSlipData {
   date: string;
   rows: PackingSlipRow[];
   unavailable: PackingSlipUnavailableLine[];
+}
+
+export type BatchPickView = "list" | "pick" | "focus" | "box" | "sort";
+
+export interface PickFocusViewProps {
+  entries: PickWalkEntry[];
+  pickedScanIds: ReadonlySet<string>;
+  total: number;
+  pickedCount: number;
+  complete: boolean;
+  showOrderName: boolean;
+  canPick: boolean;
+  isReleasing: boolean;
+  onPick: (scanId: string) => void;
+  onUnpick: (scanId: string) => void;
+  onMissing: (entry: PickWalkEntry) => void;
+  onComplete: () => void;
+  completedCount: number;
+  onBack: () => void;
+}
+
+export interface PickContainerViewProps {
+  stops: PickWalkStop[];
+  pickedScanIds: ReadonlySet<string>;
+  canPick: boolean;
+  onToggle: (scanId: string, isPicked: boolean) => void;
 }
 
 export interface PickSortGroup {

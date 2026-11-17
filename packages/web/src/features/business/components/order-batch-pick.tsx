@@ -17,6 +17,8 @@ import {
 } from "@/features/business/api/use-business";
 import { useOrderPickProgress } from "@/features/business/api/use-order-pick-progress";
 import { OrderPhonePickDialog } from "@/features/business/components/order-phone-pick-dialog";
+import { PickContainerView } from "@/features/business/components/pick-container-view";
+import { PickFocusView } from "@/features/business/components/pick-focus-view";
 import { PickSortView } from "@/features/business/components/pick-sort-view";
 import { PickWalkNextUp } from "@/features/business/components/pick-walk-next-up";
 import { PickWalkStopList } from "@/features/business/components/pick-walk-stop-list";
@@ -32,12 +34,17 @@ import {
   picksPath,
 } from "@/lib/constants/business";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
-import type { OrderBatchPickProps, PickSortGroup } from "@/lib/interfaces/business";
+import type {
+  BatchPickView,
+  OrderBatchPickProps,
+  PickSortGroup,
+} from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import {
   buildPickWalk,
   fullyPickedOrders,
+  pickWalkStops,
   toOrderLineInput,
   type PickWalkEntry,
 } from "@magic-vault/shared";
@@ -64,7 +71,7 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
   const [phonePickOpen, setPhonePickOpen] = useState(false);
   const [missingEntry, setMissingEntry] = useState<PickWalkEntry | null>(null);
   const [isReleasing, setIsReleasing] = useState(false);
-  const [view, setView] = useState<"walk" | "sort">("walk");
+  const [view, setView] = useState<BatchPickView>("pick");
   const orderQueries = useQueries({
     queries: orderGuids.map((orderGuid) => orderQueryOptions(orderGuid)),
   });
@@ -213,6 +220,8 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
     return [...groups.values()];
   }, [entries, openOrders, pickedSet]);
 
+  const walkStops = useMemo(() => pickWalkStops(entries), [entries]);
+
   return (
     <div className={cn("min-h-0 flex-1 overflow-y-auto", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
       {isMobile ? (
@@ -287,11 +296,14 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
                       />
                     </div>
                   </div>
-                  <ViewTabs<"walk" | "sort">
+                  <ViewTabs<BatchPickView>
                     label={t("orders.batch.viewLabel")}
                     className="shrink-0 border-b-0"
                     items={[
-                      { key: "walk", label: t("orders.batch.walkTab") },
+                      { key: "list", label: t("orders.batch.listTab") },
+                      { key: "pick", label: t("orders.batch.walkTab") },
+                      { key: "focus", label: t("orders.batch.focusTab") },
+                      { key: "box", label: t("orders.batch.boxTab") },
                       { key: "sort", label: t("orders.batch.sortTab") },
                     ]}
                     value={view}
@@ -301,15 +313,41 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
               </div>
             )}
 
-            {view === "sort" ? (
+            {view === "focus" && entries.length > 0 ? (
+              <PickFocusView
+                entries={entries}
+                pickedScanIds={pickedSet}
+                total={entries.length}
+                pickedCount={pickedCount}
+                complete={pickedCount === entries.length}
+                showOrderName={showOrderName}
+                canPick={canAct}
+                isReleasing={isReleasing}
+                onPick={(scanId) => pickProgress.changePicked([scanId], true)}
+                onUnpick={(scanId) => pickProgress.changePicked([scanId], false)}
+                onMissing={(entry) => setMissingEntry(entry)}
+                onComplete={() => setCompleteOpen(true)}
+                completedCount={completedOrders.length}
+                onBack={() => setView("pick")}
+              />
+            ) : view === "sort" ? (
               <PickSortView
                 groups={sortGroups}
                 canPick={canAct}
                 onUnpick={(scanId) => pickProgress.changePicked([scanId], false)}
               />
+            ) : view === "box" ? (
+              <PickContainerView
+                stops={walkStops}
+                pickedScanIds={pickedSet}
+                canPick={canAct}
+                onToggle={(scanId, isPicked) =>
+                  pickProgress.changePicked([scanId], isPicked)
+                }
+              />
             ) : (
               <>
-            {nextEntry ? (
+            {view === "pick" && nextEntry ? (
               <PickWalkNextUp
                 entry={nextEntry}
                 showOrderName={showOrderName}
@@ -318,11 +356,11 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
                 onPicked={() => pickProgress.changePicked([nextEntry.scanId], true)}
                 onMissing={() => setMissingEntry(nextEntry)}
               />
-            ) : (
+            ) : view === "pick" ? (
               <Callout variant="success">
                 {t("orders.pickWalk.allPicked")}
               </Callout>
-            )}
+            ) : null}
 
             <PickWalkStopList
               entries={entries}

@@ -60,6 +60,7 @@ export interface PullSheetRow {
   collection_lang: string;
   game_key: string | null;
   location_name: string | null;
+  location_guid: string | null;
 }
 
 export interface SoldCardRow {

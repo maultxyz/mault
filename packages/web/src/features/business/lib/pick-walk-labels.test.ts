@@ -32,6 +32,7 @@ function entry(
     binNumber: null,
     locationName: null,
     locationPosition: null,
+    locationGuid: null,
     picked: false,
     orderRef: null,
     gameKey: "mtg",

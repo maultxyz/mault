@@ -196,6 +196,7 @@ export function pickWalkStops(entries: PickWalkEntry[]): PickWalkStop[] {
     stops.push({
       stopKey,
       locationName: entry.locationName,
+      locationGuid: entry.locationGuid ?? null,
       collectionName: entry.collectionName,
       binNumber: entry.locationName != null ? null : entry.binNumber,
       entries: [entry],

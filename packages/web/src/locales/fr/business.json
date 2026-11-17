@@ -391,7 +391,22 @@
       "completed_one": "{{count}} préparation terminée",
       "completed_other": "{{count}} préparations terminées",
       "resume_one": "Reprendre la préparation ({{count}} prélèvement)",
-      "resume_other": "Reprendre la préparation ({{count}} prélèvements)"
+      "resume_other": "Reprendre la préparation ({{count}} prélèvements)",
+      "listTab": "Liste",
+      "focusTab": "Focus",
+      "boxTab": "Boîte",
+      "focusBack": "Retour au prélèvement",
+      "focusBackCard": "Carte précédente",
+      "focusSkip": "Passer",
+      "focusSwipeHint": "Balayez à droite pour prélever, à gauche pour passer",
+      "focusPickedNote": "Cette carte est déjà marquée comme prélevée.",
+      "boxPrevious": "Conteneur précédent",
+      "boxNext": "Conteneur suivant",
+      "boxStopOf": "Conteneur {{index}} sur {{total}}",
+      "boxPickSummary": "{{picked}} prélèvements sur {{pickTotal}} traités",
+      "boxPickBadge": "Pick",
+      "boxLoadMore": "Charger plus de cartes",
+      "boxCollectionNote": "Cartes dans un bac de collection, pas un emplacement."
     },
     "substitutes": {
       "find": "Trouver un remplacement",

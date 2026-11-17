@@ -391,7 +391,22 @@
       "completed_one": "{{count}} Pick abgeschlossen",
       "completed_other": "{{count}} Picks abgeschlossen",
       "resume_one": "Zusammen picken fortsetzen ({{count}} Pick)",
-      "resume_other": "Zusammen picken fortsetzen ({{count}} Picks)"
+      "resume_other": "Zusammen picken fortsetzen ({{count}} Picks)",
+      "listTab": "Liste",
+      "focusTab": "Fokus",
+      "boxTab": "Box",
+      "focusBack": "Zurück zum Picken",
+      "focusBackCard": "Vorherige Karte",
+      "focusSkip": "Überspringen",
+      "focusSwipeHint": "Nach rechts wischen zum Picken, nach links zum Überspringen",
+      "focusPickedNote": "Diese Karte ist schon als gepickt markiert.",
+      "boxPrevious": "Vorheriger Behälter",
+      "boxNext": "Nächster Behälter",
+      "boxStopOf": "Behälter {{index}} von {{total}}",
+      "boxPickSummary": "{{picked}} von {{pickTotal}} Picks erledigt",
+      "boxPickBadge": "Pick",
+      "boxLoadMore": "Weitere Karten laden",
+      "boxCollectionNote": "Karten in einem Sammlungs-Fach, kein Lagerort."
     },
     "substitutes": {
       "find": "Ersatz finden",
