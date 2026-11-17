@@ -15,3 +15,18 @@ for name in VITE_API_URL VITE_AUTH_PROVIDER VITE_NEON_AUTH_URL VITE_NEON_DATA_AP
   fi
 done
 printf 'window.__ENV__ = {%s};\n' "$json" > "$out"
+
+# Upstream for share link previews (nginx.conf's /__share_preview). Same
+# origin deployments reach the API container directly; an absolute
+# VITE_API_URL is called the way the browser calls it. A value nginx can't
+# quote safely falls back to the API container.
+api_url=$(printenv VITE_API_URL || true)
+upstream=http://server:3001/public/share-preview
+case "$api_url" in
+  http://*|https://*)
+    if ! printf '%s' "$api_url" | grep -q '[[:space:]";{}$\\]'; then
+      upstream="${api_url%/}/api/public/share-preview"
+    fi
+    ;;
+esac
+printf 'set $share_preview_upstream "%s";\n' "$upstream" > /etc/nginx/share-preview.conf

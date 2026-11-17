@@ -6,6 +6,7 @@ import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
 import type { CardShareLinkClaims } from "../../lib/interfaces/share-tokens";
 import { loadOrgPricing } from "../../lib/price-source";
 import { shareLinkRateLimit } from "../../lib/share-link-rate-limit";
+import { cardShareLinkScope } from "../../lib/share-link-scopes";
 import type { AppEnv } from "../../middleware/auth";
 import { createPublicCardBrowseRoute } from "./card-browse";
 
@@ -23,18 +24,7 @@ export const publicCardShareLinkRoute = new Hono<AppEnv>()
       readsCache: null,
       resolveScope: async (c) => {
         const claims = await claimsFor(c);
-        return claims
-          ? {
-              orgId: claims.orgId,
-              collectionIds: [claims.collectionId],
-              storageLocationIds: [],
-              collectionCardIds: [claims.collectionCardId],
-              inventoryOnly: false,
-              hidesCardsReservedByOpenPicks: false,
-              showsPrices: claims.showsPrices,
-              readsCacheKey: null,
-            }
-          : null;
+        return claims ? cardShareLinkScope(claims) : null;
       },
     }),
   )

@@ -54,7 +54,7 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html}"],
         // Runtime config written by the container at start-up; a precached
         // copy would pin the build's empty placeholder.
-        globIgnores: ["env.js"],
+        globIgnores: ["env.js", "share.html"],
         skipWaiting: true,
         clientsClaim: true,
         navigateFallback: "/index.html",
