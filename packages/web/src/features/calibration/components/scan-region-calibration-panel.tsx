@@ -11,7 +11,6 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useCameraFrameCanvas } from "@/features/calibration/api/use-camera-frame-canvas";
-import { CameraPrintingScore } from "@/features/calibration/components/camera-printing-score";
 import { useRegionDrag } from "@/features/calibration/api/use-region-drag";
 import {
   contourToBox,
@@ -19,6 +18,7 @@ import {
 } from "@/features/calibration/lib/scan-region-geometry";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { CameraFocusControl } from "@/features/scanner/components/camera-focus-control";
+import { CameraLightTest } from "@/features/calibration/components/camera-light-test";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
 import { drawDetectionOverlay } from "@/features/scanner/lib/card-detection";
 import { getDefaultCardContour } from "@magic-vault/shared";
@@ -52,14 +52,13 @@ export function ScanRegionCalibrationPanel({
   captureSettleDelayMs: captureSettleDelayMsValue,
   matchesNeeded,
   checkBothOrientations,
-  flipCamera,
   isLoading,
   onRegionChange,
   onResetRegion,
   onCaptureSettleChange,
   onMatchesNeededChange,
   onCheckBothOrientationsChange,
-  onFlipCameraChange,
+  lightingTest,
 }: ScanRegionCalibrationPanelProps) {
   const { t } = useTranslation("calibration");
   const regionRef = useRef(region);
@@ -144,7 +143,7 @@ export function ScanRegionCalibrationPanel({
   };
 
   const { videoRef, frameRef, canvasRef, videoSize, phonePhotoSize } =
-    useCameraFrameCanvas({ stream, phonePhotoUrl, flipCamera });
+    useCameraFrameCanvas({ stream, phonePhotoUrl });
   const overlayCanvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -178,7 +177,6 @@ export function ScanRegionCalibrationPanel({
         : null;
 
   const {
-    handleBoxKeyDown,
     handleBoxPointerDown,
     handleResizePointerDown,
     handlePointerMove,
@@ -279,7 +277,7 @@ export function ScanRegionCalibrationPanel({
             onDisconnect={handleDisconnectPhone}
           />
 
-          <div className="flex gap-1.5">
+          <div className="flex gap-2">
             <Button
               variant="outline"
               onClick={handleConnectCamera}
@@ -304,13 +302,6 @@ export function ScanRegionCalibrationPanel({
                 : t("scanRegionCalibrationPanel.usePhoneAsCamera")}
             </Button>
           </div>
-
-          <CameraPrintingScore
-            canvasRef={canvasRef}
-            region={region}
-            checkBothOrientations={checkBothOrientations}
-            canCapture={isCameraActive || !!phonePhotoUrl}
-          />
 
           {cameraSource === "local" && cameras.length > 0 && (
             <div className="flex flex-col gap-1.5">
@@ -394,17 +385,14 @@ export function ScanRegionCalibrationPanel({
                 className="absolute inset-0 w-full h-full pointer-events-none"
               />
               {box && (
-                <button
-                  type="button"
-                  aria-label={t("scanRegionCalibrationPanel.regionKeyboardLabel")}
-                  className="absolute rounded-xl border-[6px] border-dashed border-muted-foreground/70 cursor-move touch-none select-none outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                <div
+                  className="absolute rounded-xl border-[6px] border-dashed border-muted-foreground/70 cursor-move touch-none select-none"
                   style={{
                     left: `${box.left * 100}%`,
                     top: `${box.top * 100}%`,
                     width: `${box.width * 100}%`,
                     height: `${box.height * 100}%`,
                   }}
-                  onKeyDown={handleBoxKeyDown}
                   onPointerDown={handleBoxPointerDown}
                   onPointerMove={handlePointerMove}
                   onPointerUp={handlePointerUp}
@@ -414,7 +402,7 @@ export function ScanRegionCalibrationPanel({
                     className="absolute -right-2.5 -bottom-2.5 size-5 rounded-full bg-muted-foreground border-2 border-background cursor-nwse-resize touch-none"
                     onPointerDown={handleResizePointerDown}
                   />
-                </button>
+                </div>
               )}
             </div>
             {cameraSource === "phone"
@@ -464,6 +452,7 @@ export function ScanRegionCalibrationPanel({
         </div>
 
         <div className="flex flex-col gap-2 w-full max-w-sm mx-auto md:mx-0">
+          <CameraLightTest test={lightingTest} />
           <SliderField
             className="pt-2 border-t md:pt-0 md:border-t-0"
             label={t("scanRegionCalibrationPanel.captureSettleLabel")}
@@ -511,35 +500,12 @@ export function ScanRegionCalibrationPanel({
           <div className="flex flex-col gap-2 pt-2 border-t">
             <label className="flex items-center justify-between gap-2">
               <span className="text-xs font-medium">
-                {t("scanRegionCalibrationPanel.flipCameraLabel")}
-              </span>
-              {isLoading ? (
-                <Skeleton className="h-4 w-7 rounded-full" />
-              ) : (
-                <Switch
-                  aria-label={t("scanRegionCalibrationPanel.flipCameraLabel")}
-                  checked={flipCamera}
-                  onCheckedChange={onFlipCameraChange}
-                />
-              )}
-            </label>
-            <p className="text-2xs text-foreground/70">
-              {t("scanRegionCalibrationPanel.flipCameraDescription")}
-            </p>
-          </div>
-
-          <div className="flex flex-col gap-2 pt-2 border-t">
-            <label className="flex items-center justify-between gap-2">
-              <span className="text-xs font-medium">
                 {t("scanRegionCalibrationPanel.checkBothOrientationsLabel")}
               </span>
               {isLoading ? (
                 <Skeleton className="h-4 w-7 rounded-full" />
               ) : (
                 <Switch
-                  aria-label={t(
-                    "scanRegionCalibrationPanel.checkBothOrientationsLabel",
-                  )}
                   checked={checkBothOrientations}
                   onCheckedChange={onCheckBothOrientationsChange}
                 />
@@ -563,10 +529,7 @@ export function ScanRegionCalibrationPanel({
                 setExecutionProvider(value as OnnxExecutionProviderPreference)
               }
             >
-              <SelectTrigger
-                className="w-full"
-                aria-label={t("scanRegionCalibrationPanel.executionProviderLabel")}
-              >
+              <SelectTrigger className="w-full">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>

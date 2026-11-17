@@ -1,5 +1,5 @@
 import type { Control } from "react-hook-form";
-import type { ReactNode, RefObject } from "react";
+import type { ReactNode } from "react";
 import type {
   BinHeight,
   BinRoute,
@@ -9,10 +9,9 @@ import type {
   ChannelLayout,
   LightingDraft,
   ScanRegion,
-  FeederTestFormValues,
 } from "@magic-vault/shared";
 import type { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
-import type { PrintingScoreFormValues } from "@/schemas/printing-score.schema";
+import type { useCameraLightTest } from "@/features/calibration/api/use-camera-light-test";
 
 export type CalibrationSection =
   | "connection"
@@ -75,13 +74,6 @@ export interface ModuleCountConfigContextValue {
   stage: (count: number) => void;
   commit: () => Promise<void>;
   discard: () => void;
-}
-
-export interface DetectModuleCountState {
-  isSupported: boolean;
-  isDetecting: boolean;
-  canDetect: boolean;
-  detect: () => Promise<void>;
 }
 
 export interface ServoConfig {
@@ -234,7 +226,6 @@ export interface FeederCalibrationPanelProps {
   settleDurationValue: number;
   reverseSpeedValue: number;
   reverseDurationValue: number;
-  feedRetryCountValue: number;
   stopPulse: number | null;
   canEditTimings: boolean;
   canCalibrate: boolean;
@@ -247,30 +238,8 @@ export interface FeederCalibrationPanelProps {
   onSettleDurationChange: (value: number) => void;
   onReverseSpeedChange: (value: number) => void;
   onReverseDurationChange: (value: number) => void;
-  onFeedRetryCountChange: (value: number) => void;
   onSelectContinuous: () => void;
   fullWidth?: boolean;
-}
-
-export interface UseFeederTestOptions {
-  moduleCount: number;
-  feedRetryCount: number;
-  applyDraftsToDevice: () => Promise<void>;
-}
-
-export interface FeederTestControls {
-  isRunning: boolean;
-  isStopping: boolean;
-  cardsSent: number;
-  cardsToSend: number | null;
-  canStart: boolean;
-  start: (values: FeederTestFormValues) => Promise<void>;
-  stop: () => void;
-}
-
-export interface FeederTestPanelProps {
-  feederTest: FeederTestControls;
-  isBlockedByRoutingTest: boolean;
 }
 
 export interface StoredCalibration {
@@ -327,7 +296,6 @@ export interface Device extends LightingDraft {
   matchesNeeded: number;
   feederStopPulse: number | null;
   checkBothOrientations: boolean;
-  flipCamera: boolean;
   moduleCount: number;
   channelLayout: ChannelLayout;
   setupCompletedAt: string | null;
@@ -357,16 +325,15 @@ export interface StaleDeviceDialogProps {
   onCalibrateFirst: () => void;
 }
 
+export interface DirectionalSpeed {
+  direction: "forward" | "reverse";
+  magnitude: number;
+}
+
 export interface CalibrationTourProps {
   section: CalibrationSection;
   setSection: (section: CalibrationSection) => void;
   className?: string;
-}
-
-export interface UseCameraFrameCanvasOptions {
-  stream: MediaStream | null;
-  phonePhotoUrl: string | null;
-  flipCamera: boolean;
 }
 
 export interface FrameSize {
@@ -488,30 +455,24 @@ export interface ScanRegionCalibrationPanelProps {
   captureSettleDelayMs: number;
   matchesNeeded: number;
   checkBothOrientations: boolean;
-  flipCamera: boolean;
   isLoading: boolean;
   onRegionChange: (region: ScanRegion) => void;
   onResetRegion: () => void;
   onCaptureSettleChange: (value: number) => void;
   onMatchesNeededChange: (value: number) => void;
   onCheckBothOrientationsChange: (value: boolean) => void;
-  onFlipCameraChange: (value: boolean) => void;
+  lightingTest: ReturnType<typeof useCameraLightTest>;
 }
 
-export interface CameraPrintingScoreProps {
-  canvasRef: RefObject<HTMLCanvasElement | null>;
-  region: ScanRegion;
-  checkBothOrientations: boolean;
-  canCapture: boolean;
-  className?: string;
+export interface CameraLightTestValues {
+  lightMode: "off" | "white" | "custom";
+  lightColor: string;
+  lightBrightness: number;
+  lightWhite: number;
 }
 
-export interface ScorePrintingFrameInput {
-  canvas: HTMLCanvasElement;
-  region: ScanRegion;
-  checkBothOrientations: boolean;
-  collectionGuid: string;
-  values: PrintingScoreFormValues;
+export interface CameraLightTestProps {
+  test: ReturnType<typeof useCameraLightTest>;
 }
 
 export type PendingConnectKind = "usb" | "bluetooth" | "cloud";
@@ -523,8 +484,4 @@ export interface LightingPanelProps {
   onPreview: () => void;
   onTestCelebration: () => void;
   onClearAlert: () => void;
-}
-
-export interface FetchSavedCalibrationOptions {
-  bypassCache?: boolean;
 }

@@ -1,3 +1,4 @@
+
 import { SaveBar } from "@/components/save-bar";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useCalibrationOutletContext } from "@/app/routes/app/calibrate/layout";
@@ -68,3 +69,80 @@ export default function CalibrateScanRegionPage() {
     </>
   );
 }
+=======
+import { SaveBar } from "@/components/save-bar";
+import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
+import { useCalibrationOutletContext } from "@/app/routes/app/calibrate/layout";
+import { ScanRegionCalibrationPanel } from "@/features/calibration/components/scan-region-calibration-panel";
+import { FoilCalibrationPanel } from "@/features/calibration/components/foil-calibration-panel";
+import { useFoilCalibration } from "@/features/calibration/api/use-foil-calibration";
+import { useCameraLightTest } from "@/features/calibration/api/use-camera-light-test";
+import { useState } from "react";
+
+export default function CalibrateScanRegionPage() {
+  const {
+    scanRegion,
+    captureSettleDelayMs,
+    matchesNeeded,
+    checkBothOrientations,
+    isDeviceLoading,
+    handleScanRegionChange,
+    handleResetScanRegion,
+    handleCaptureSettleChange,
+    handleMatchesNeededChange,
+    handleCheckBothOrientationsChange,
+    isScanRegionSectionDirty,
+    isSavingScanRegion,
+    handleSaveScanRegion,
+    handleDiscardScanRegion,
+  } = useCalibrationOutletContext();
+  const lightingTest = useCameraLightTest();
+  const [discarding, setDiscarding] = useState(false);
+  const foilCalibration = useFoilCalibration({
+    scanRegion,
+    captureSettleDelayMs,
+    disabled: isDeviceLoading || isScanRegionSectionDirty || isSavingScanRegion || lightingTest.active || lightingTest.busy,
+  });
+
+  return (
+    <>
+      <fieldset disabled={foilCalibration.busy} inert={foilCalibration.busy} className="contents">
+        <ScanRegionCalibrationPanel
+        scanRegion={scanRegion}
+        captureSettleDelayMs={captureSettleDelayMs}
+        matchesNeeded={matchesNeeded}
+        checkBothOrientations={checkBothOrientations}
+        isLoading={isDeviceLoading}
+        onRegionChange={handleScanRegionChange}
+        onResetRegion={handleResetScanRegion}
+        onCaptureSettleChange={handleCaptureSettleChange}
+        onMatchesNeededChange={handleMatchesNeededChange}
+        onCheckBothOrientationsChange={handleCheckBothOrientationsChange}
+        lightingTest={lightingTest}
+        />
+      </fieldset>
+      <FoilCalibrationPanel calibration={foilCalibration} />
+
+      <SaveBar
+        show={isScanRegionSectionDirty}
+        onSave={handleSaveScanRegion}
+        isSaving={isSavingScanRegion}
+        onDiscard={handleDiscardScanRegion}
+      />
+      <UnsavedChangesGuard
+        isDirty={isScanRegionSectionDirty || foilCalibration.busy || lightingTest.active || discarding}
+        onDiscard={async () => {
+          setDiscarding(true);
+          try {
+            foilCalibration.cancel();
+            await lightingTest.stop();
+            handleDiscardScanRegion();
+          } finally {
+            setDiscarding(false);
+          }
+        }}
+      />
+    </>
+  );
+}
+
