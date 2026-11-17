@@ -49,6 +49,7 @@ export function signShareLinkRow(row: ShareLinkSigningRow): Promise<string> {
     issuedAt: row.issuedAt,
     expiresAt: row.expiresAt,
     showsPrices: row.showsPrices,
+    requiresGuestContact: row.requiresGuestContact,
     purpose: row.purpose as ShareLinkPurpose,
   });
 }
@@ -85,6 +86,7 @@ export async function issueShareLink(
       subjectVersion: input.subjectVersion,
       purpose: input.purpose,
       showsPrices: input.showsPrices,
+      requiresGuestContact: input.requiresGuestContact,
       issuedAt,
       expiresAt,
       createdByUserId: input.createdByUserId,

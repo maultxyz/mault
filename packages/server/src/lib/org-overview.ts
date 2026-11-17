@@ -1,7 +1,6 @@
 import {
   ORG_OVERVIEW_ACTIVITY_DAYS,
   ORG_OVERVIEW_RECENT_CARDS_LIMIT,
-  ORG_OVERVIEW_TOP_CARDS_LIMIT,
   ORG_OVERVIEW_WEEK_DAYS,
   type OrgOverview,
   type OrgOverviewCard,
@@ -30,23 +29,16 @@ import {
   ORG_OVERVIEW_CACHE_TTL_MS,
 } from "./constants/home-read-caches";
 import { ONE_DAY_MS } from "./constants/timing";
-import { inventoryCardSql } from "./inventory-sql";
+import type { OrgCardValueSummary } from "./interfaces/org-card-value-summary";
+import type { OrgOverviewCardsQuery } from "./interfaces/org-overview";
+import { loadCachedOrgCardValueSummary, utcDayKey } from "./org-card-value-summary";
 import { createOrgReadCache } from "./org-read-cache";
-import { loadOrgPricing } from "./price-source";
-import type {
-  OrgOverviewCardsQuery,
-  OrgOverviewValuesRow,
-} from "./interfaces/org-overview";
 import { hydrateSavedCards } from "./saved-cards";
 
 const orgOverviewCache = createOrgReadCache<OrgOverview>(
   ORG_OVERVIEW_CACHE_TTL_MS,
   HOME_READ_CACHE_MAX_ENTRIES,
 );
-
-function utcDayKey(date: Date): string {
-  return date.toISOString().slice(0, 10);
-}
 
 function fillDays(rows: { day: string; count: number }[]): OrgOverviewDay[] {
   const counts = new Map(rows.map((row) => [row.day, Number(row.count)]));
@@ -112,55 +104,16 @@ export async function loadOrgOverviewCards(
 export async function loadOrgOverview(
   tx: Transaction,
   orgId: string,
+  valueSummary: OrgCardValueSummary,
 ): Promise<OrgOverview> {
-  const pricing = await loadOrgPricing(tx, orgId);
+  const { pricing } = valueSummary;
   const cardPrice = collectionCardPriceSql(pricing);
   const liveCollections = and(
     eq(collections.orgId, orgId),
     eq(collections.isDeleted, false),
   );
-
-  const valuesResult = await tx.execute(sql`
-    WITH base AS MATERIALIZED (
-      SELECT
-        ${collectionCards.guid}::text AS scan_id,
-        ${collectionCards.collectionId} AS collection_id,
-        (${cardPrice})::float8 AS price
-      FROM ${collectionCards}
-      JOIN ${collections} ON ${collections.id} = ${collectionCards.collectionId}
-      LEFT JOIN ${games} ON ${games.id} = ${collections.gameId}
-      LEFT JOIN ${cardPrices} ON ${collectionCardPricesJoinOn()}
-      WHERE ${collectionCards.orgId} = ${orgId}
-        AND ${liveCollections}
-        AND ${inventoryCardSql()}
-    )
-    SELECT
-      (
-        SELECT COALESCE(json_agg(json_build_object(
-          'guid', live.guid::text,
-          'cardCount', COALESCE(totals.card_count, 0),
-          'value', totals.value
-        )), '[]'::json)
-        FROM collections live
-        LEFT JOIN (
-          SELECT collection_id, count(*)::int AS card_count, sum(price)::float8 AS value
-          FROM base
-          GROUP BY collection_id
-        ) totals ON totals.collection_id = live.id
-        WHERE live.org_id = ${orgId} AND live.is_deleted = false
-      ) AS collection_values,
-      (
-        SELECT COALESCE(json_agg(top.scan_id ORDER BY top.price DESC), '[]'::json)
-        FROM (
-          SELECT scan_id, price FROM base
-          WHERE price IS NOT NULL AND scan_id IS NOT NULL
-          ORDER BY price DESC
-          LIMIT ${ORG_OVERVIEW_TOP_CARDS_LIMIT}
-        ) top
-      ) AS top_card_scan_ids
-  `);
-  const { collection_values: valueRows, top_card_scan_ids: topCardScanIds } =
-    valuesResult.rows[0] as unknown as OrgOverviewValuesRow;
+  const valueRows = valueSummary.collection_values;
+  const topCardScanIds = valueSummary.top_card_scan_ids;
   const cardCount = valueRows.reduce(
     (sum, row) => sum + Number(row.cardCount),
     0,
@@ -225,7 +178,8 @@ export function loadCachedOrgOverview(
   jwtClaims: string,
   orgId: string,
 ): Promise<OrgOverview> {
-  return orgOverviewCache.get(orgId, utcDayKey(new Date()), () =>
-    authQuery(jwtClaims, (tx) => loadOrgOverview(tx, orgId)),
-  );
+  return orgOverviewCache.get(orgId, utcDayKey(), async () => {
+    const valueSummary = await loadCachedOrgCardValueSummary(jwtClaims, orgId);
+    return authQuery(jwtClaims, (tx) => loadOrgOverview(tx, orgId, valueSummary));
+  });
 }

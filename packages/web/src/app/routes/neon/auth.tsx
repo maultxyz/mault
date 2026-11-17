@@ -2,7 +2,7 @@ import { HOME_PATH } from "@/lib/constants/nav";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { BrandMark } from "@/components/brand-mark";
 import { neon } from "@/lib/auth/client";
-import { NEON_SOCIAL_PROVIDERS } from "@/lib/constants/auth";
+import { NEON_SOCIAL_PROVIDERS } from "@magic-vault/shared";
 import {
   AuthView,
   NeonAuthUIProvider,

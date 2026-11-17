@@ -75,6 +75,7 @@ export interface MonitorLinkInfo {
   priceSource: PriceSource;
   conditionMultipliers: ConditionMultipliers;
   showsPrices: boolean;
+  requiresGuestContact?: boolean;
   purpose: ShareLinkPurpose;
 }
 

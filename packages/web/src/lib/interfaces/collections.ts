@@ -19,6 +19,7 @@ export interface ShareMonitorLinkDialogProps {
   collectionGuid: string;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  startsWithNewTradeLink?: boolean;
 }
 
 export type WatchLinkState =

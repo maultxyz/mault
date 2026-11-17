@@ -1,4 +1,4 @@
-import type { ShareLinkKind } from "@magic-vault/shared";
+import type { ShareLinkKind, ShareLinkPurpose } from "@magic-vault/shared";
 import type { OrgShareLink } from "@magic-vault/shared";
 export type { ShareLinkKind };
 
@@ -31,6 +31,7 @@ export type ShareLinkSheetView = { name: "links" } | { name: "new" } | { name: "
 export interface NewShareLinkFormProps {
   kind: ShareLinkKind;
   subjectGuid: string;
+  initialPurpose?: ShareLinkPurpose;
   onCreated: (createdLinkGuid: string | null) => void;
   onBack: () => void;
 }

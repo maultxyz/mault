@@ -26,14 +26,16 @@ import type {
   TradeOfferSide,
 } from "@/lib/interfaces/trade-offers";
 import { cn } from "@/lib/utils";
+import { tradeOfferSourceLabel } from "@/features/trade-offers/lib/trade-offer-source-label";
 import {
   TRADE_OFFER_THEY_OFFER_TITLE_KEYS,
   isTradeOfferBeingPicked,
   tradeOfferOfferKind,
   tradeOfferOfferedCardCount,
   tradeOfferPickProgress,
+  formatTradeOfferCash,
 } from "@magic-vault/shared";
-import { IconCheck, IconChecks, IconLoader2, IconX } from "@tabler/icons-react";
+import { IconCash, IconCheck, IconChecks, IconLoader2, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -50,13 +52,20 @@ export function TradeOfferDetail({ offer }: TradeOfferDetailProps) {
   const offeredCount = tradeOfferOfferedCardCount(offer);
   const formatDate = (value: string) =>
     new Date(value).toLocaleString(i18n.language, { dateStyle: "medium", timeStyle: "short" });
-  const title = t("tradeOffers.reviewTitle", {
-    name: offer.guestName || t("tradeOffers.library.unnamedGuest"),
-  });
-  const description = t("tradeOffers.reviewDescription", {
-    source: offer.sourceName ?? t("tradeOffers.unknownSource"),
-    date: formatDate(offer.createdAt),
-  });
+  const isInPerson = offer.linkKind === "inPerson";
+  const title = isInPerson
+    ? offer.guestName
+      ? t("tradeOffers.inPerson.reviewTitle", { name: offer.guestName })
+      : t("tradeOffers.inPerson.title")
+    : t("tradeOffers.reviewTitle", {
+        name: offer.guestName || t("tradeOffers.library.unnamedGuest"),
+      });
+  const description = isInPerson
+    ? t("tradeOffers.inPerson.recordedOn", { date: formatDate(offer.createdAt) })
+    : t("tradeOffers.reviewDescription", {
+        source: tradeOfferSourceLabel(offer, t),
+        date: formatDate(offer.createdAt),
+      });
   const isBusy = respond.isPending || picking.finish.isPending;
 
   const confirm = () => {
@@ -127,7 +136,9 @@ export function TradeOfferDetail({ offer }: TradeOfferDetailProps) {
         <div className="flex flex-col gap-2 rounded-card bg-card p-3 md:p-2.5">
           <dl className="grid grid-cols-[auto_minmax(0,1fr)] gap-x-3 gap-y-1 text-control">
             <dt className="text-foreground/70">{t("tradeOffers.contact")}</dt>
-            <dd className="break-words select-all">{offer.guestContact}</dd>
+            <dd className={offer.guestContact ? "break-words select-all" : "text-foreground/70"}>
+              {offer.guestContact || t("tradeOffers.noContact")}
+            </dd>
             {offer.guestNote && (
               <>
                 <dt className="text-foreground/70">{t("tradeOffers.note")}</dt>
@@ -166,16 +177,31 @@ export function TradeOfferDetail({ offer }: TradeOfferDetailProps) {
           />
         ) : (
           <TradeOfferReviewSide
-            title={t("tradeOffers.theyWant", { count: offer.wanted.length })}
+            title={
+              isInPerson
+                ? t("tradeOffers.inPerson.youGave", { count: offer.wanted.length })
+                : t("tradeOffers.theyWant", { count: offer.wanted.length })
+            }
             cards={offer.wanted}
             prices={offer.wantedPrices}
             placements={offer.wantedPlacements}
             priceSource={offer.priceSource}
             className={sideClassName("wanted")}
-          />
+          >
+            {offer.givenCash && (
+              <p className="flex items-center gap-2 rounded-lg bg-foreground/6 p-2 text-control font-medium">
+                <IconCash aria-hidden className="size-4 shrink-0 text-foreground/70" />
+                {t("tradeOffers.cashAmount", { amount: formatTradeOfferCash(offer.givenCash) })}
+              </p>
+            )}
+          </TradeOfferReviewSide>
         )}
         <TradeOfferReviewSide
-          title={t(TRADE_OFFER_THEY_OFFER_TITLE_KEYS[tradeOfferOfferKind(offer)], { count: offeredCount })}
+          title={
+            isInPerson
+              ? t("tradeOffers.inPerson.youGot", { count: offeredCount })
+              : t(TRADE_OFFER_THEY_OFFER_TITLE_KEYS[tradeOfferOfferKind(offer)], { count: offeredCount })
+          }
           cards={offer.offered}
           prices={offer.offeredPrices}
           priceSource={offer.priceSource}

@@ -23,6 +23,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
   DEFAULT_SHARE_LINK_PURPOSE,
+  DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   type OrgShareLink,
 } from "@magic-vault/shared";
@@ -37,6 +38,7 @@ const FORM_DEFAULT_VALUES: MonitorLinkFormValues = {
   purpose: DEFAULT_SHARE_LINK_PURPOSE,
   expiresInDays: String(DEFAULT_MONITOR_LINK_EXPIRY_DAYS),
   showPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
+  requireGuestContact: DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
 };
 
 function detailsOf(link: OrgShareLink): ShareLinkDetailsData {
@@ -60,6 +62,7 @@ export function ShareLinkDialog({
   createLink,
   revokeLinks,
   sharedCardsCollectionGuid,
+  startsWithNewTradeLink = false,
 }: ShareLinkDialogProps) {
   const { t } = useTranslation("common");
   const { t: tShareLinks } = useTranslation("share-links");
@@ -81,6 +84,12 @@ export function ShareLinkDialog({
     resolver: zodResolver(monitorLinkSchema),
     defaultValues: FORM_DEFAULT_VALUES,
   });
+
+  useEffect(() => {
+    if (!open || !startsWithNewTradeLink) return;
+    form.reset({ ...FORM_DEFAULT_VALUES, purpose: "trade" });
+    setView("new");
+  }, [open, startsWithNewTradeLink, form]);
 
   useEffect(() => {
     if (!viewChangedRef.current) return;
@@ -120,6 +129,7 @@ export function ShareLinkDialog({
         purpose: values.purpose,
         expiresInDays: Number(values.expiresInDays),
         showPrices: values.showPrices,
+        requireGuestContact: values.requireGuestContact,
       });
       void queryClient.invalidateQueries({ queryKey: SHARE_LINKS_QUERY_KEY });
       setDetails({

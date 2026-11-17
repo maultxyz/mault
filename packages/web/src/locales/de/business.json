@@ -506,7 +506,8 @@
       "catalogCreated": "Shop-Katalog erstellt",
       "catalogUpdated": "Shop-Katalog geändert",
       "catalogDeleted": "Shop-Katalog gelöscht",
-      "orderSortPresetCreated": "Sortiervorlage erstellt"
+      "orderSortPresetCreated": "Sortiervorlage erstellt",
+      "tradeRecorded": "Tausch erfasst"
     },
     "messages": {
       "cardCorrected": "{{from}} zu {{to}} korrigiert",
@@ -535,7 +536,8 @@
       "catalogCreated": "Hat den Shop-Katalog {{summary}} erstellt",
       "catalogUpdated": "Hat den Shop-Katalog {{summary}} geändert",
       "catalogDeleted": "Hat den Shop-Katalog {{summary}} gelöscht",
-      "orderSortPresetCreated": "Sortiervorlage für {{summary}} erstellt"
+      "orderSortPresetCreated": "Sortiervorlage für {{summary}} erstellt",
+      "tradeRecorded": "Hat einen Tausch vor Ort mit {{summary}} erfasst"
     }
   },
   "accuracy": {

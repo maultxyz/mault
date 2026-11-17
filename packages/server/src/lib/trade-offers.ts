@@ -2,15 +2,21 @@ import {
   PRICE_SOURCE_FIELDS,
   TRADE_OFFER_PENDING_PER_GUEST_MAX,
   cardPriceFor,
+  toTradeOfferCardOption,
+  tradeOfferCardImageUrl,
   tradeOfferOfferedCash,
   initialTradeOfferPickScanIds,
   splitTradeOfferPickScanIds,
   type PlayingCard,
+  type OrgPricing,
   type PublicTradeOffer,
+  type StorageLocationCard,
   type TradeOffer,
   type TradeOfferCardOption,
   type TradeOfferCardOptionPage,
   type TradeOfferOfferedCard,
+  type TradeOfferQuote,
+  type TradeOfferQuoteRequest,
   type TradeOfferRequest,
   type TradeOfferStatus,
   type TradeOfferWantedCard,
@@ -63,29 +69,12 @@ function scopeTradeOffersSql(scope: TradeOfferScope) {
     : eq(tradeOffers.storageLocationId, scope.locationId);
 }
 
-function cardImageUrl(card: Pick<PlayingCard, "image">): string | null {
-  return card.image?.small || card.image?.normal || null;
-}
 
-export function toTradeOfferCardOption(card: PlayingCard, gameKey: string): TradeOfferCardOption {
-  return {
-    gameKey,
-    lang: card.lang ?? "en",
-    cardId: card.id,
-    name: card.name,
-    setCode: card.set,
-    setName: card.setName,
-    collectorNumber: card.collectorNumber,
-    imageUrl: cardImageUrl(card),
-  };
-}
-
-async function loadWantedCards(
+async function loadScopedWantedStoredCards(
   tx: Transaction,
   scope: TradeOfferScope,
-  scanIds: string[],
-): Promise<TradeOfferWantedCard[] | null> {
-  const uniqueScanIds = [...new Set(scanIds)];
+  uniqueScanIds: string[],
+) {
   const rows = await selectStoredCards(tx).where(
     and(
       sql`${collectionCards.guid} = ANY(${uuidArraySql(uniqueScanIds)})`,
@@ -97,8 +86,17 @@ async function loadWantedCards(
       notReservedByOpenPicksSql(scope.orgId, sql`${collectionCards.guid}`),
     ),
   );
+  return { rows, stored: await toStoredCards(rows, false) };
+}
+
+async function loadWantedCards(
+  tx: Transaction,
+  scope: TradeOfferScope,
+  scanIds: string[],
+): Promise<TradeOfferWantedCard[] | null> {
+  const uniqueScanIds = [...new Set(scanIds)];
+  const { rows, stored } = await loadScopedWantedStoredCards(tx, scope, uniqueScanIds);
   if (rows.length !== uniqueScanIds.length) return null;
-  const stored = await toStoredCards(rows, false);
   return stored.map((entry, index) => ({
     scanId: entry.scanId,
     gameKey: rows[index].gameKey,
@@ -106,14 +104,14 @@ async function loadWantedCards(
     setCode: entry.card.set,
     setName: entry.card.setName,
     collectorNumber: entry.card.collectorNumber,
-    imageUrl: cardImageUrl(entry.card),
+    imageUrl: tradeOfferCardImageUrl(entry.card),
     condition: entry.condition,
     isFoil: entry.isFoil,
     foilType: entry.foilType,
   }));
 }
 
-async function loadOfferedCards(
+export async function loadOfferedCards(
   offered: TradeOfferRequest["offered"],
 ): Promise<TradeOfferOfferedCard[] | null> {
   const groups = new Map<string, TradeOfferRequest["offered"]>();
@@ -285,10 +283,10 @@ async function loadCurrentWantedCards(
   };
 }
 
-async function loadCurrentOfferedCards(
-  offered: TradeOfferOfferedCard[],
+export async function loadCurrentOfferedCards(
+  offered: Pick<TradeOfferOfferedCard, "gameKey" | "lang" | "cardId">[],
 ): Promise<Map<string, PlayingCard>> {
-  const groups = new Map<string, TradeOfferOfferedCard[]>();
+  const groups = new Map<string, Pick<TradeOfferOfferedCard, "gameKey" | "lang" | "cardId">[]>();
   for (const card of offered) {
     const key = `${card.gameKey}|${card.lang}`;
     const existingEntries = groups.get(key);
@@ -313,7 +311,31 @@ async function loadCurrentOfferedCards(
   return result;
 }
 
-function sumPrices(prices: (number | null)[]): number {
+export function storedCardPrice(entry: StorageLocationCard, pricing: OrgPricing): number | null {
+  return cardPriceFor(
+    entry.card,
+    { isFoil: entry.isFoil, foilType: entry.foilType ?? undefined, stamp: entry.stamp ?? undefined },
+    pricing.source,
+    entry.condition,
+    pricing.conditionMultipliers,
+  );
+}
+
+export function offeredCardPrices(
+  offered: Pick<TradeOfferOfferedCard, "gameKey" | "lang" | "cardId" | "quantity" | "condition" | "isFoil">[],
+  currentCards: Map<string, PlayingCard>,
+  pricing: OrgPricing,
+): (number | null)[] {
+  return offered.map((card) => {
+    const current = currentCards.get(`${card.gameKey}|${card.lang}|${card.cardId}`);
+    const unitPrice = current
+      ? cardPriceFor(current, card.isFoil, pricing.source, card.condition, pricing.conditionMultipliers)
+      : null;
+    return unitPrice == null ? null : Math.round(unitPrice * card.quantity * 100) / 100;
+  });
+}
+
+export function sumPrices(prices: (number | null)[]): number {
   return Math.round(prices.reduce<number>((sum, price) => sum + (price ?? 0), 0) * 100) / 100;
 }
 
@@ -354,33 +376,25 @@ export async function listOwnerTradeOffers(
   return offers.map(({ offer, collectionName, locationName, public: publicOffer }) => {
     const wantedPrices = publicOffer.wanted.map((card) => {
       const current = wantedCards.get(card.scanId);
-      return current
-        ? cardPriceFor(
-            current.card,
-            { isFoil: current.isFoil, foilType: current.foilType ?? undefined, stamp: current.stamp ?? undefined },
-            pricing.source,
-            current.condition,
-            pricing.conditionMultipliers,
-          )
-        : null;
+      return current ? storedCardPrice(current, pricing) : (card.priceAtTrade ?? null);
     });
-    const offeredPrices = publicOffer.offered.map((card) => {
-      const current = offeredCards.get(`${card.gameKey}|${card.lang}|${card.cardId}`);
-      const unitPrice = current
-        ? cardPriceFor(current, card.isFoil, pricing.source, card.condition, pricing.conditionMultipliers)
+    const currency = PRICE_SOURCE_FIELDS[pricing.source].currency;
+    const givenCash =
+      offer.givenCashAmount && offer.givenCashCurrency
+        ? { amount: offer.givenCashAmount, currency: offer.givenCashCurrency }
         : null;
-      return unitPrice == null ? null : Math.round(unitPrice * card.quantity * 100) / 100;
-    });
+    const offeredPrices = offeredCardPrices(publicOffer.offered, offeredCards, pricing);
     return {
       ...publicOffer,
       wantedPrices,
       wantedPlacements: publicOffer.wanted.map((card) => wantedPlacements.get(card.scanId) ?? null),
       offeredPrices,
-      wantedValue: sumPrices(wantedPrices),
-      offeredValue: sumPrices([
-        ...offeredPrices,
-        offeredCashInCurrency(publicOffer, PRICE_SOURCE_FIELDS[pricing.source].currency),
+      wantedValue: sumPrices([
+        ...wantedPrices,
+        givenCash && givenCash.currency === currency ? givenCash.amount : null,
       ]),
+      offeredValue: sumPrices([...offeredPrices, offeredCashInCurrency(publicOffer, currency)]),
+      givenCash,
       priceSource: pricing.source,
       guestName: offer.guestName,
       guestContact: offer.guestContact,
@@ -390,6 +404,31 @@ export async function listOwnerTradeOffers(
       remainingPickScanIds: offer.remainingPickScanIds ?? null,
     };
   });
+}
+
+export async function quoteTradeOffer(
+  tx: Transaction,
+  scope: TradeOfferScope,
+  request: TradeOfferQuoteRequest,
+): Promise<TradeOfferQuote> {
+  const pricing = await loadOrgPricing(tx, scope.orgId);
+  const [{ stored }, offeredCards] = await Promise.all([
+    loadScopedWantedStoredCards(tx, scope, [...new Set(request.wantedScanIds)]),
+    loadCurrentOfferedCards(request.offered),
+  ]);
+  const storedByScanId = new Map(stored.map((entry) => [entry.scanId, entry]));
+  const wantedPrices = request.wantedScanIds.map((scanId) => {
+    const entry = storedByScanId.get(scanId);
+    return entry ? storedCardPrice(entry, pricing) : null;
+  });
+  const offeredPrices = offeredCardPrices(request.offered, offeredCards, pricing);
+  return {
+    priceSource: pricing.source,
+    wantedPrices,
+    offeredPrices,
+    wantedValue: sumPrices(wantedPrices),
+    offeredCardsValue: sumPrices(offeredPrices),
+  };
 }
 
 export async function removeTradeOfferWantedCards(

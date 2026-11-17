@@ -133,6 +133,7 @@ export const ACTIVITY_ACTIONS = [
   "catalog.created",
   "catalog.updated",
   "catalog.deleted",
+  "trade.recorded",
 ] as const;
 
 export const ACTIVITY_PAGE_SIZE = 50;
@@ -184,6 +185,7 @@ export const ACTIVITY_ACTION_KEYS: Record<ActivityAction, string> = {
   "catalog.created": "catalogCreated",
   "catalog.updated": "catalogUpdated",
   "catalog.deleted": "catalogDeleted",
+  "trade.recorded": "tradeRecorded",
 };
 export const PAGED_LIST_DEFAULT_SIZE = 20;
 export const PAGED_LIST_MAX_SIZE = 100;

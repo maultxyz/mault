@@ -42,6 +42,7 @@ export function useCollectionActions({ includesScanInto = false, onDeleted, shar
         : t("collections.shareLink"),
     },
     { value: "edit", label: t("collections.edit") },
+    { value: "importCsv", label: t("collections.importCsv.button") },
     { value: "empty", label: t("collections.empty") },
     { value: "delete", label: t("collections.delete") },
   ];
@@ -52,6 +53,8 @@ export function useCollectionActions({ includesScanInto = false, onDeleted, shar
       router.navigate("/scan");
     } else if (action === "edit") {
       router.push({ pathname: "/collection-edit", params: { guid: collection.guid } });
+    } else if (action === "importCsv") {
+      router.push({ pathname: "/collection-csv-import", params: { guid: collection.guid } });
     } else if (action === "share") {
       router.push({ pathname: "/share-link", params: { kind: "collection", guid: collection.guid } });
     } else if (action === "empty") {

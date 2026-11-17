@@ -70,6 +70,7 @@ export default function AppLayout() {
           <Stack.Screen name="validate-matches" />
           <Stack.Screen name="collection-new" options={sheetOptions} />
           <Stack.Screen name="collection-edit" options={sheetOptions} />
+          <Stack.Screen name="collection-csv-import" options={sheetOptions} />
           <Stack.Screen name="storage-name" options={sheetOptions} />
           <Stack.Screen name="preset-description" options={sheetOptions} />
           <Stack.Screen name="share-link" options={sheetOptions} />
@@ -102,6 +103,7 @@ export default function AppLayout() {
           />
           <Stack.Screen name="shared-link" />
           <Stack.Screen name="search" />
+          <Stack.Screen name="in-person-trade" />
           <Stack.Screen name="trade/index" />
           <Stack.Screen name="trade/browse" />
           <Stack.Screen name="trade/collection" />

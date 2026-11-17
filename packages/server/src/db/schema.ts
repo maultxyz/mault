@@ -42,8 +42,12 @@ const vector = customType<{ data: number[]; driverData: string }>({
   },
 });
 
+const claimedOrgIdSql = sql.raw(
+  `(SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')`,
+);
+
 const orgRls = (orgId: any) =>
-  sql`(${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND auth_is_org_member(${orgId})`;
+  sql`(${orgId} = ${claimedOrgIdSql}) AND (SELECT auth_is_org_member(current_setting('request.jwt.claims', true)::json ->> 'org_id'))`;
 
 export const apiServiceRole = pgRole("api_service").existing();
 
@@ -57,11 +61,11 @@ const apiServiceRead = (using: ReturnType<typeof sql>) =>
 
 const apiServiceOrgRead = (orgId: any) =>
   apiServiceRead(
-    sql`${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')`,
+    sql`${orgId} = ${claimedOrgIdSql}`,
   );
 
 const apiServiceOrgWrite = (orgId: any) => {
-  const ownOrg = sql`${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')`;
+  const ownOrg = sql`${orgId} = ${claimedOrgIdSql}`;
   return [
     pgPolicy("api-service-policy-update", {
       as: "permissive",
@@ -925,6 +929,8 @@ export const tradeOffers = pgTable(
     offeredCards: jsonb("offered_cards").notNull(),
     offeredCashAmount: doublePrecision("offered_cash_amount"),
     offeredCashCurrency: text("offered_cash_currency"),
+    givenCashAmount: doublePrecision("given_cash_amount"),
+    givenCashCurrency: text("given_cash_currency"),
     status: text("status").notNull().default("pending"),
     respondedAt: timestamp("responded_at"),
     respondedByUserId: text("responded_by_user_id"),
@@ -958,6 +964,7 @@ export const shareLinks = pgTable(
     subjectVersion: integer("subject_version").notNull(),
     purpose: text("purpose").notNull(),
     showsPrices: boolean("shows_prices").notNull(),
+    requiresGuestContact: boolean("requires_guest_contact").notNull().default(true),
     issuedAt: timestamp("issued_at").notNull(),
     expiresAt: timestamp("expires_at").notNull(),
     createdByUserId: text("created_by_user_id").notNull(),

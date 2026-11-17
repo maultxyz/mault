@@ -8,6 +8,7 @@ export const TRADE_LINK_BASE_PATHS = {
 export const TRADE_LINK_CARDS_PAGE_SIZE = 48;
 export const TRADE_LINK_INFO_QUERY_KEY = "trade-link-info";
 export const TRADE_LINK_CARDS_QUERY_KEY = "trade-link-cards";
+export const TRADE_OFFER_QUOTE_QUERY_KEY = "trade-offer-quote";
 export const TRADE_SCAN_NOTICE_TONES: Record<TradeScanNotice["kind"], StatusTone> = {
   added: "success",
   "no-match": "warning",

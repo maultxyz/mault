@@ -10,13 +10,14 @@ export const TAB_ICONS: Record<string, IconName> = {
 
 export const SCAN_TAB_PATHNAME = "/scan";
 
-export const SHEET_ROUTE_PATTERN = /^\/(card\/|trade-offer\/|sent-trade-offer\/|unmatched-card$|collection-new$|collection-edit$|storage-name$|preset-description$|share-link$|settings\/invite-member$|settings\/webhook-edit$|settings\/api-key-new$|settings\/shop-catalog-edit$|settings\/shop-catalog-link$|settings\/sound-clip-name$|settings\/sound-rule$|settings\/notification-rule$|settings\/change-email$|settings\/change-password$|business\/intake-new$|business\/intake-accept$|business\/intake-transfer$|business\/pick-new$|business\/substitute$)/;
+export const SHEET_ROUTE_PATTERN = /^\/(card\/|trade-offer\/|sent-trade-offer\/|unmatched-card$|collection-new$|collection-edit$|collection-csv-import$|storage-name$|preset-description$|share-link$|settings\/invite-member$|settings\/webhook-edit$|settings\/api-key-new$|settings\/shop-catalog-edit$|settings\/shop-catalog-link$|settings\/sound-clip-name$|settings\/sound-rule$|settings\/notification-rule$|settings\/change-email$|settings\/change-password$|business\/intake-new$|business\/intake-accept$|business\/intake-transfer$|business\/pick-new$|business\/substitute$)/;
 export const UNFRAMED_STACK_ROUTE_NAMES = new Set([
   "(tabs)",
   "card/[scanId]",
   "unmatched-card",
   "collection-new",
   "collection-edit",
+  "collection-csv-import",
   "storage-name",
   "preset-description",
   "settings/invite-member",

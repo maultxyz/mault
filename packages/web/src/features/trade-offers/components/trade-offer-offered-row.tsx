@@ -18,7 +18,7 @@ import { IconTrash } from "@tabler/icons-react";
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
 
-export function TradeOfferOfferedRow({ draft, onChange, onRemove }: TradeOfferOfferedRowProps) {
+export function TradeOfferOfferedRow({ draft, priceLabel, onChange, onRemove }: TradeOfferOfferedRowProps) {
   const { t } = useTranslation("cards");
   const { t: tCommon } = useTranslation("common");
   const foilId = useId();
@@ -40,6 +40,9 @@ export function TradeOfferOfferedRow({ draft, onChange, onRemove }: TradeOfferOf
               .join(" · ")}
           </span>
         </div>
+        {priceLabel != null && (
+          <span className="shrink-0 text-control font-medium tabular-nums">{priceLabel}</span>
+        )}
         <Button
           type="button"
           variant="ghost"

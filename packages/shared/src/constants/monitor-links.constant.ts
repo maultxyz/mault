@@ -5,6 +5,7 @@ export const WATCH_PATH_PREFIX = "/watch";
 export const SHARED_STORAGE_PATH_PREFIX = "/shared/storage";
 export const SHARED_CARD_PATH_PREFIX = "/shared/card";
 export const DEFAULT_SHARE_LINK_SHOWS_PRICES = true;
+export const DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT = true;
 export const SHARE_LINK_PURPOSES = ["view", "trade"] as const;
 export const DEFAULT_SHARE_LINK_PURPOSE = "view";
 export const SHARE_LINK_GUEST_KEY_MIN_LENGTH = 16;

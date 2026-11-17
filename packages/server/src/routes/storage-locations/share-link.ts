@@ -1,5 +1,6 @@
 import {
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
+  DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   MONITOR_LINK_EXPIRY_DAYS,
   type StorageShareLink,
@@ -47,6 +48,11 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid price visibility." }, 400);
     }
     const showsPrices = body.showPrices ?? DEFAULT_SHARE_LINK_SHOWS_PRICES;
+    if (body.requireGuestContact !== undefined && typeof body.requireGuestContact !== "boolean") {
+      return c.json({ success: false, message: "Invalid contact requirement." }, 400);
+    }
+    const requiresGuestContact =
+      body.requireGuestContact ?? DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT;
     const purpose = parseShareLinkPurpose(body.purpose);
     if (!purpose) {
       return c.json({ success: false, message: "Invalid link type." }, 400);
@@ -72,6 +78,7 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
         subjectVersion: location.shareLinkVersion,
         purpose,
         showsPrices,
+        requiresGuestContact,
         expiresInMinutes: shareLinkExpiresInMinutes(purpose, allowsLongLinks, expiresInDays),
         createdByUserId: c.get("userId"),
       });

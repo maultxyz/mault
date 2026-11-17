@@ -9,14 +9,16 @@ import { NewShareLinkForm } from "@/features/share-links/components/new-share-li
 import { SharedCardLinks } from "@/features/share-links/components/shared-card-links";
 import { SubjectShareLinks } from "@/features/share-links/components/subject-share-links";
 import { useTheme } from "@/hooks/use-theme";
+import { NEW_TRADE_LINK_PARAM_VALUE } from "@/lib/constants/trade-offers";
 import { SCREEN_GUTTER } from "@/lib/constants/theme";
 import type { ShareLinkKind, ShareLinkSheetTab, ShareLinkSheetView } from "@/lib/interfaces/share-links";
 
 export default function ShareLinkScreen() {
-  const { kind, guid } = useLocalSearchParams<{ kind: ShareLinkKind; guid: string }>();
+  const { kind, guid, newTradeLink } = useLocalSearchParams<{ kind: ShareLinkKind; guid: string; newTradeLink?: string }>();
+  const startsWithNewTradeLink = newTradeLink === NEW_TRADE_LINK_PARAM_VALUE;
   const { t } = useTranslation();
   const colors = useTheme();
-  const [view, setView] = useState<ShareLinkSheetView>({ name: "links" });
+  const [view, setView] = useState<ShareLinkSheetView>({ name: startsWithNewTradeLink ? "new" : "links" });
   const [createdWithoutLink, setCreatedWithoutLink] = useState(false);
   const isStorage = kind === "storage";
   const [tab, setTab] = useState<ShareLinkSheetTab>("links");
@@ -60,6 +62,7 @@ export default function ShareLinkScreen() {
         <NewShareLinkForm
           kind={kind}
           subjectGuid={guid}
+          initialPurpose={startsWithNewTradeLink ? "trade" : undefined}
           onBack={showLinks}
           onCreated={(createdLinkGuid) => {
             if (createdLinkGuid) {

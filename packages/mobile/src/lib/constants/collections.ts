@@ -17,3 +17,4 @@ export const COLLECTION_SCAN_TIMELINE_OPTIONS: readonly CollectionScanTimeline[]
 export const STORAGE_CARD_VIEW_MODE_KEY = "mault:storage-card-view-mode";
 export const COLLECTION_SEARCH_MIN_COUNT = 5;
 export const UNMATCHED_LIST_PAGE_SIZE = 30;
+export const COLLECTION_CSV_IMPORT_MIME_TYPES = ["text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/plain", "application/csv", "application/vnd.ms-excel"];

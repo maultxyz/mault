@@ -8,6 +8,7 @@ export interface ShareTokenSignInput {
   issuedAt: Date;
   expiresAt: Date;
   showsPrices: boolean;
+  requiresGuestContact?: boolean;
   purpose: ShareLinkPurpose;
 }
 
@@ -19,6 +20,7 @@ export interface IssueShareLinkInput {
   subjectVersion: number;
   purpose: ShareLinkPurpose;
   showsPrices: boolean;
+  requiresGuestContact: boolean;
   expiresInMinutes: number;
   createdByUserId: string;
 }
@@ -39,6 +41,7 @@ export interface ShareLinkSigningRow {
   subjectVersion: number;
   purpose: string;
   showsPrices: boolean;
+  requiresGuestContact: boolean;
   issuedAt: Date;
   expiresAt: Date;
 }
@@ -55,6 +58,7 @@ export interface VerifiedShareToken {
   expiresAt: Date;
   issuedAt: Date;
   showsPrices: boolean;
+  requiresGuestContact: boolean;
   purpose: ShareLinkPurpose;
   linkGuid: string | null;
 }
@@ -66,6 +70,7 @@ export interface StorageShareLinkClaims {
   locationName: string;
   expiresAt: Date;
   showsPrices: boolean;
+  requiresGuestContact: boolean;
   purpose: ShareLinkPurpose;
 }
 
@@ -82,6 +87,7 @@ export interface CardShareLinkClaims {
 export interface ShareLinkRequestBody {
   expiresInDays?: number;
   showPrices?: unknown;
+  requireGuestContact?: unknown;
   purpose?: unknown;
 }
 

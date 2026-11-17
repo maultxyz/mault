@@ -1,0 +1,1 @@
+ALTER TABLE "share_links" ADD COLUMN "requires_guest_contact" boolean DEFAULT true NOT NULL;

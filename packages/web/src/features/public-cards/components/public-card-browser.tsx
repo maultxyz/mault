@@ -390,6 +390,8 @@ export function PublicCardBrowser({
             sourceName={title}
             defaultGameKey={info.games[0]?.key ?? null}
             cashCurrency={PRICE_SOURCE_FIELDS[info.priceSource].currency}
+            priceSource={info.priceSource}
+            showsPrices={info.showsPrices}
             isVisible={showsTradeOffer}
             onBack={closeTradeOffer}
           />

@@ -11,6 +11,8 @@ import {
   type AddManualCardRequest,
   type CardCondition,
   type CardScanOrigin,
+  type CollectionCsvImportRequest,
+  type CollectionCsvImportResult,
   type Collection,
   type CreateCollectionFormValues,
   type EditCollectionFormValues,
@@ -462,6 +464,26 @@ export async function addManualCollectionCard(
 ): Promise<Result<ScannedCard>> {
   return apiPost<Result<ScannedCard>>(
     `/api/collections/${guid}/cards/manual`,
+    request,
+  );
+}
+
+export function previewCollectionCsvImport(
+  guid: string,
+  request: CollectionCsvImportRequest,
+): Promise<Result<CollectionCsvImportResult>> {
+  return apiPost<Result<CollectionCsvImportResult>>(
+    `/api/collections/${guid}/cards/csv-import/preview`,
+    request,
+  );
+}
+
+export function importCollectionCsv(
+  guid: string,
+  request: CollectionCsvImportRequest,
+): Promise<Result<CollectionCsvImportResult>> {
+  return apiPost<Result<CollectionCsvImportResult>>(
+    `/api/collections/${guid}/cards/csv-import`,
     request,
   );
 }

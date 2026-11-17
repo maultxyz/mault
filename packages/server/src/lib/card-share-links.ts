@@ -1,4 +1,8 @@
-import type { CardShareLink, SharedCardLink } from "@magic-vault/shared";
+import {
+  DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
+  type CardShareLink,
+  type SharedCardLink,
+} from "@magic-vault/shared";
 import { and, desc, eq, gt, isNull, sql } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { collectionCards, collections, shareLinks } from "../db/schema";
@@ -117,6 +121,7 @@ export async function findOrIssueCardShareLink(
     subjectVersion: CARD_SHARE_LINK_SUBJECT_VERSION,
     purpose: "view",
     showsPrices: CARD_SHARE_LINK_SHOWS_PRICES,
+    requiresGuestContact: DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
     expiresInMinutes: CARD_SHARE_LINK_LIFETIME_DAYS * MINUTES_PER_DAY,
     createdByUserId,
   });

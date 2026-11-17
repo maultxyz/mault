@@ -28,6 +28,8 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
       return claims
         ? {
             allowsTradeOffers: claims.purpose === "trade",
+            showsPrices: claims.showsPrices,
+            requiresGuestContact: claims.requiresGuestContact,
             scope: {
               kind: "collection",
               orgId: claims.orgId,
@@ -73,6 +75,7 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
         priceSource: pricing.source,
         conditionMultipliers: pricing.conditionMultipliers,
         showsPrices: claims.showsPrices,
+        requiresGuestContact: claims.requiresGuestContact,
         purpose: claims.purpose,
       } satisfies MonitorLinkInfo,
     });

@@ -63,6 +63,7 @@ async function loadStorageShareLinkClaims(
     locationName: location.name,
     expiresAt: lifetime.expiresAt,
     showsPrices: verified.showsPrices,
+    requiresGuestContact: verified.requiresGuestContact,
     purpose: verified.purpose,
   };
 }

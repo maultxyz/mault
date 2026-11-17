@@ -8,11 +8,14 @@ import { AccessibilityInfo, View } from "react-native";
 import {
   CARD_CONDITIONS,
   TRADE_OFFER_CARD_QUANTITY_MAX,
+  formatPrice,
   formatPriceInCurrency,
   isCardCondition,
   parseTradeOfferCashInput,
-  tradeOfferFormSchema,
+  tradeOfferFormSchemaFor,
+  tradeOfferGuestBalance,
   type TradeOfferFormValues,
+  type TradeOfferQuoteRequest,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -28,13 +31,19 @@ import { Screen } from "@/components/ui/screen";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Surface } from "@/components/ui/surface";
 import { TextField } from "@/components/ui/text-field";
-import { submitTradeOffer, tradeLinkInfoQueryOptions } from "@/features/trade-offers/api/public-trade";
+import {
+  submitTradeOffer,
+  tradeLinkInfoQueryOptions,
+  tradeOfferQuoteQueryOptions,
+} from "@/features/trade-offers/api/public-trade";
 import { useTradeDraft } from "@/features/trade-offers/api/use-trade-draft";
 import { TradeCardRow } from "@/features/trade-offers/components/trade-card-row";
+import { TradeGuestBalance } from "@/features/trade-offers/components/trade-guest-balance";
 import {
   clearTradeCards,
   removeOfferedCard,
   startTradeDraft,
+  toOfferedCardInput,
   toggleWantedCard,
   updateOfferedCard,
 } from "@/features/trade-offers/lib/trade-draft";
@@ -64,7 +73,7 @@ export default function TradeScreen() {
   });
   const { user } = useSession();
   const form = useForm<TradeOfferFormValues>({
-    resolver: zodResolver(tradeOfferFormSchema),
+    resolver: zodResolver(tradeOfferFormSchemaFor(info.data?.requiresGuestContact !== false)),
     defaultValues: {
       guestName: user?.name ?? "",
       guestContact: user?.email ?? "",
@@ -78,6 +87,29 @@ export default function TradeScreen() {
   const offeredCash = parseTradeOfferCashInput(form.watch("offeredCash"));
   const isReady = draft.wanted.length > 0;
   const cashCurrency = info.data?.cashCurrency ?? "";
+  const showsPrices = info.data?.showsPrices === true;
+  const quoteRequest = useMemo<TradeOfferQuoteRequest>(
+    () => ({
+      wantedScanIds: draft.wanted.map((card) => card.scanId),
+      offered: draft.offered.map(toOfferedCardInput),
+    }),
+    [draft.wanted, draft.offered],
+  );
+  const quote = useQuery({
+    ...tradeOfferQuoteQueryOptions(link ?? { kind: "collection", guid: "", token: "" }, quoteRequest, showsPrices),
+    enabled: !!link && showsPrices && (quoteRequest.wantedScanIds.length > 0 || quoteRequest.offered.length > 0),
+  });
+  const currentQuote = quote.isPlaceholderData ? undefined : quote.data;
+  const balance =
+    showsPrices && quote.data && (draft.wanted.length > 0 || draft.offered.length > 0)
+      ? tradeOfferGuestBalance(quote.data, offeredCash)
+      : null;
+  const rowPriceLabel = (price: number | null | undefined) =>
+    price === undefined || !info.data
+      ? undefined
+      : price == null
+        ? t("trade.noPrice")
+        : formatPrice(price, info.data.priceSource);
   const summary =
     draft.offered.length === 0 && offeredCash == null
       ? t("trade.summaryNothing", { get: draft.wanted.length })
@@ -96,15 +128,7 @@ export default function TradeScreen() {
       return submitTradeOffer(link, {
         ...values,
         ...(offeredCashAmount != null ? { offeredCashAmount } : {}),
-        wantedScanIds: draft.wanted.map((card) => card.scanId),
-        offered: draft.offered.map((card) => ({
-          gameKey: card.gameKey,
-          lang: card.lang,
-          cardId: card.cardId,
-          quantity: card.quantity,
-          condition: card.condition,
-          isFoil: card.isFoil,
-        })),
+        ...quoteRequest,
       });
     },
     onSuccess: () => {
@@ -197,7 +221,11 @@ export default function TradeScreen() {
             name="guestContact"
             render={({ field, fieldState }) => (
               <TextField
-                label={t("trade.contactLabel")}
+                label={
+                  info.data?.requiresGuestContact === false
+                    ? t("trade.contactLabelOptional")
+                    : t("trade.contactLabel")
+                }
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
@@ -229,9 +257,10 @@ export default function TradeScreen() {
           {t("trade.getDescription", { source: info.data.name })}
         </AppText>
         <ListGroup>
-          {draft.wanted.map((card) => (
+          {draft.wanted.map((card, index) => (
             <TradeCardRow
               key={card.scanId}
+              value={rowPriceLabel(currentQuote?.wantedPrices[index])}
               name={card.card.name}
               subtitle={[card.card.setName, t(`trade.conditions.${card.condition}`), card.isFoil ? (card.foilType ?? t("trade.foil")) : null]
                 .filter(Boolean)
@@ -261,9 +290,10 @@ export default function TradeScreen() {
           {t("trade.giveDescription")}
         </AppText>
         <ListGroup>
-          {draft.offered.map((card) => (
+          {draft.offered.map((card, index) => (
             <TradeCardRow
               key={card.key}
+              value={rowPriceLabel(currentQuote?.offeredPrices[index])}
               name={card.name}
               subtitle={[`×${card.quantity}`, t(`trade.conditions.${card.condition}`), card.isFoil ? t("trade.foil") : null, card.setName]
                 .filter(Boolean)
@@ -297,6 +327,14 @@ export default function TradeScreen() {
           </AppText>
         </Surface>
       </View>
+
+      {balance && info.data ? (
+        <TradeGuestBalance
+          balance={balance}
+          priceSource={info.data.priceSource}
+          isUpdating={quote.isPlaceholderData || quote.isFetching}
+        />
+      ) : null}
 
       <View style={{ gap: SPACING.sm }}>
         <AppText size="sm" accessibilityLiveRegion="polite">

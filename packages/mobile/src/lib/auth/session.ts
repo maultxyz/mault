@@ -17,12 +17,16 @@ import type {
   SignInResult,
   UserOrganization,
 } from "@/lib/interfaces/auth";
-import type { Result } from "@magic-vault/shared";
+import { NEON_SOCIAL_PROVIDERS, type NeonSocialProvider, type Result } from "@magic-vault/shared";
 import { readKv, readKvJson, writeKv, writeKvJson } from "@/lib/storage/kv";
 import { delay } from "@/lib/delay";
 import { readSecure, writeSecure } from "@/lib/storage/secure";
 
 const backend = AUTH_PROVIDER === "local" ? localBackend : neonBackend;
+
+export const SOCIAL_SIGN_IN_PROVIDERS: readonly NeonSocialProvider[] = backend.signInWithSocialProvider
+  ? NEON_SOCIAL_PROVIDERS
+  : [];
 
 let snapshot: SessionSnapshot = {
   status: "loading",
@@ -193,6 +197,11 @@ async function startSession(
 
 export async function signIn(email: string, password: string): Promise<SignInResult> {
   return startSession(await backend.signIn(email.trim(), password));
+}
+
+export async function signInWithSocialProvider(provider: NeonSocialProvider): Promise<SignInResult> {
+  if (!backend.signInWithSocialProvider) return { error: "social" };
+  return startSession(await backend.signInWithSocialProvider(provider));
 }
 
 export async function signOut(): Promise<void> {

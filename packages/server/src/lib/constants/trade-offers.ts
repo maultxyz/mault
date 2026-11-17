@@ -1,5 +1,11 @@
 export const TRADE_OFFER_NOT_PENDING_MESSAGE = "This trade offer was already answered or no longer exists.";
 export const TRADE_OFFER_INVALID_MESSAGE = "Invalid trade offer.";
+export const IN_PERSON_TRADE_INVALID_MESSAGE = "Add at least one card or cash amount, and pick a collection for the cards you get.";
+export const IN_PERSON_TRADE_COLLECTION_NOT_FOUND_MESSAGE = "The collection for the cards you get no longer exists.";
+export const IN_PERSON_TRADE_GIVEN_NOT_FOUND_MESSAGE = "A card you're giving is no longer in your inventory or is reserved for a pick.";
+export const IN_PERSON_TRADE_RECEIVED_NOT_FOUND_MESSAGE = "A card you're getting couldn't be found in that collection's game.";
+export const TRADE_OFFER_CONTACT_REQUIRED_MESSAGE = "Add how the owner can reach you.";
+export const TRADE_OFFER_PRICES_HIDDEN_MESSAGE = "This link doesn't show prices.";
 export const TRADE_OFFER_GUEST_KEY_MESSAGE = "Missing or invalid guest key.";
 export const TRADE_OFFER_GUEST_LIMIT_MESSAGE = "You have too many open trade offers on this link.";
 export const TRADE_OFFER_WANTED_NOT_FOUND_MESSAGE = "A card you asked for is no longer available.";

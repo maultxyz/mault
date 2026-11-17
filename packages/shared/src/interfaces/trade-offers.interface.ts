@@ -1,5 +1,7 @@
 import type {
+  IN_PERSON_TRADE_CASH_DIRECTIONS,
   TRADE_OFFER_CARD_SORTS,
+  TRADE_OFFER_LINK_KINDS,
   TRADE_OFFER_STATUSES,
 } from "../constants/trade-offers.constant";
 import type { CardCondition } from "./card-condition.interface";
@@ -7,7 +9,18 @@ import type { PriceSource } from "./price-source.interface";
 
 export type TradeOfferStatus = (typeof TRADE_OFFER_STATUSES)[number];
 
-export type TradeOfferLinkKind = "collection" | "storage";
+export type TradeOfferLinkKind = (typeof TRADE_OFFER_LINK_KINDS)[number];
+
+export type InPersonTradeCashDirection = (typeof IN_PERSON_TRADE_CASH_DIRECTIONS)[number];
+
+export interface InPersonTradeCash {
+  amount: number;
+  direction: InPersonTradeCashDirection;
+}
+
+export interface CreatedInPersonTrade {
+  guid: string;
+}
 
 export interface TradeOfferWantedCard {
   scanId: string;
@@ -20,6 +33,7 @@ export interface TradeOfferWantedCard {
   condition: CardCondition;
   isFoil: boolean;
   foilType: string | null;
+  priceAtTrade?: number | null;
 }
 
 export interface TradeOfferOfferedCard {
@@ -84,6 +98,7 @@ export interface TradeOffer extends PublicTradeOffer {
   offeredPrices: (number | null)[];
   wantedValue: number;
   offeredValue: number;
+  givenCash?: TradeOfferCash | null;
   priceSource: PriceSource;
   guestName: string;
   guestContact: string;
@@ -174,6 +189,21 @@ export interface TradeOfferPickSplit {
 export interface TradeOfferPickResult {
   removedCount: number;
   remainingScanIds: string[];
+}
+
+export interface TradeOfferQuote {
+  priceSource: PriceSource;
+  wantedPrices: (number | null)[];
+  offeredPrices: (number | null)[];
+  wantedValue: number;
+  offeredCardsValue: number;
+}
+
+export interface TradeOfferBalance {
+  getValue: number;
+  giveValue: number;
+  difference: number;
+  hasMissingPrices: boolean;
 }
 
 export interface TradeOfferSideTotals {
