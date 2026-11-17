@@ -77,7 +77,10 @@ export function KitLedBench({ disabled }: KitLedBenchProps) {
       <div className="flex flex-col gap-3 rounded-lg bg-foreground/6 p-2">
         <div className="flex items-center justify-between gap-2">
           <h3 className="text-sm font-medium">
-            {t("kitTest.leds.selected", selection)}
+            {t("kitTest.leds.selected", {
+              strip: selection.strip,
+              led: selection.led,
+            })}
           </h3>
           <div className="flex items-center gap-2">
             <Label htmlFor={ledSwitchId} className="text-xs">
