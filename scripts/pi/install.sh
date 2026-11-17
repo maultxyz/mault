@@ -114,7 +114,7 @@ if [[ "$MODE" == image || "$board_model" == *"Raspberry Pi"* ]]; then
 fi
 
 echo "[install] Installing system packages"
-packages=(curl ca-certificates python3 python3-smbus v4l-utils ffmpeg postgresql nginx
+packages=(curl ca-certificates libatomic1 python3 python3-smbus v4l-utils ffmpeg postgresql nginx
   bluez python3-bleak dbus-user-session avahi-daemon)
 if [[ "$is_raspberry_pi" -eq 1 ]]; then
   packages+=(python3-lgpio)
