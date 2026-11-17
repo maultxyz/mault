@@ -5,7 +5,12 @@ async function loadBetterStackErrorTracking(dsn: string) {
   Sentry.init({
     dsn,
     environment: process.env.NODE_ENV ?? "development",
-    sendDefaultPii: false,
+    dataCollection: {
+      userInfo: false,
+      cookies: false,
+      httpHeaders: false,
+      urlQueryParams: false,
+    },
     enableRuntimeChannelInjection: false,
     defaultIntegrations: false,
     integrations: [

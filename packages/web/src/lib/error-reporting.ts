@@ -8,7 +8,12 @@ async function loadBetterStackErrorTracking(dsn: string) {
     dsn,
     environment: runtimeEnv("VITE_APP_ENV"),
     release: __APP_VERSION__,
-    sendDefaultPii: false,
+    dataCollection: {
+      userInfo: false,
+      cookies: false,
+      httpHeaders: false,
+      urlQueryParams: false,
+    },
     integrations: (defaultIntegrations) =>
       defaultIntegrations.filter(
         (integration) => integration.name !== "BrowserSession",
