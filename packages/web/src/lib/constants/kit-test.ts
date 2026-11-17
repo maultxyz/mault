@@ -29,3 +29,8 @@ export const RAW_COMMAND_PRESETS = [
   { key: "neutral", command: { neutral: true } },
   { key: "status", command: { getStatus: true } },
 ] as const;
+
+export const KIT_LED_DEFAULT_SELECTION = { strip: 1, led: 1 } as const;
+export const KIT_LED_HUE_GRADIENT =
+  "linear-gradient(to right, hsl(0 100% 50%), hsl(60 100% 50%), hsl(120 100% 50%), hsl(180 100% 50%), hsl(240 100% 50%), hsl(300 100% 50%), hsl(360 100% 50%))";
+export const KIT_LED_SWATCH_MIN_OPACITY = 0.25;

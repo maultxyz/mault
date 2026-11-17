@@ -5,6 +5,7 @@
 #include <Wire.h>
 #include <ctype.h>
 #include <Adafruit_PWMServoDriver.h>
+#include <Adafruit_NeoPixel.h>
 #if defined(ARDUINO_ARCH_ESP32)
 #include "esp_mac.h"
 #include "esp_system.h"
@@ -1613,6 +1614,8 @@ void runCommand(JsonDocument& doc, Print& reply) {
   if (handleCloudCommand(doc, reply)) return;
 #endif
 
+  if (handleLedCommand(doc, reply)) return;
+
   // {"setChannelOffset": N} — see channel layout comment near the top.
   if (doc["setChannelOffset"].is<int>()) {
     moduleChannelOffset = doc["setChannelOffset"].as<int>();
@@ -1954,6 +1957,7 @@ void setup() {
   // count - harmless, and the app hasn't told us the offset yet.
   for (int m = 0; m < MAX_MODULES; m++) pinMode(IR_PINS[m], INPUT_PULLUP);
   pinMode(IR_PIN_HOPPER, INPUT_PULLUP);
+  ledsInit();
 
   initServoDriver();
   // The PCA9685 can keep driving a stalled servo through an MCU reset, so a

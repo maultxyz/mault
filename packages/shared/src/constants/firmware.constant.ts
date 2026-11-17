@@ -31,6 +31,7 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   moduleDetection: "2.12.0",
   pusherNudge: "2.13.0",
   emergencyStop: "2.13.2",
+  ledStrips: "2.14.0",
 };
 
 export const MODULE_DETECTION_BOARDS: readonly string[] = ["esp32", "raspberry_pi"];
@@ -58,6 +59,7 @@ export function isFirmwareFeatureSupported(
     return (
       feature !== "wifiRemote" &&
       feature !== "retractCard" &&
+      feature !== "ledStrips" &&
       !isFirmwareVersionOutdated(
         version,
         feature === "moduleDetection" ? "pi-0.2.0" : "pi-0.1.0",
@@ -80,6 +82,13 @@ export const SERIAL_STOPPED_STATUS = "stopped";
 export const SERIAL_PUSH_BLOCKED_ERROR = "push_blocked";
 export const SERIAL_ROLLBACK_OFF_ERROR = "rollback_off";
 export const SERIAL_RETRACTED_STATUS = "retracted";
+export const LED_STRIP_COUNT = 2;
+export const LEDS_PER_STRIP = 8;
+export const LED_HUE_MAX = 359;
+export const LED_BRIGHTNESS_MAX = 255;
+export const LED_DEFAULT_HUE = 0;
+export const LED_DEFAULT_BRIGHTNESS = 128;
+export const GET_LEDS_COMMAND = { getLeds: true } as const;
 export const DETECT_MODULES_COMMAND = { detectModules: true } as const;
 export const DETECT_MODULES_TIMEOUT_MS = 5_000;
 export const RETRACT_CARD_TIMEOUT_MS = 10_000;
