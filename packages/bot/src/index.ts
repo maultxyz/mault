@@ -19,6 +19,7 @@ import * as showoff from "./commands/showoff";
 import * as stats from "./commands/stats";
 import { startNotifyServer } from "./notify-server";
 import { startPresenceCycle } from "./presence";
+import { startUptimeHeartbeat } from "./uptime-heartbeat";
 import { sendWelcomeDm } from "./welcome-dm";
 import { BOT_API_SECRET, WELCOME_GUILD_IDS } from "./lib/constants";
 import type { BotCommand } from "./lib/interfaces";
@@ -80,6 +81,7 @@ client.once(Events.ClientReady, (readyClient) => {
     `[bot] Logged in as ${readyClient.user.tag} in ${readyClient.guilds.cache.size} servers`,
   );
   startPresenceCycle(readyClient);
+  startUptimeHeartbeat(readyClient);
 });
 
 client.on(Events.GuildCreate, (guild) => {

@@ -499,14 +499,14 @@
     "loadFailed": "Discord-Einstellungen konnten nicht geladen werden."
   },
   "errorReportingTest": {
-    "heading": "PostHog testen",
-    "description": "Sende einen Testfehler vom Client und/oder vom Server an PostHog, um zu prüfen, ob die Fehlermeldung funktioniert",
+    "heading": "Better Stack testen",
+    "description": "Sende einen Testfehler vom Client und/oder vom Server an Better Stack, um zu prüfen, ob die Fehlermeldung funktioniert",
     "testClientButton": "Client testen",
     "testServerButton": "Server testen",
     "testingButton": "Wird gesendet...",
     "toasts": {
-      "clientSent": "Testfehler an PostHog gesendet (Client).",
-      "serverError": "Testfehler konnte nicht an PostHog gesendet werden (Server)"
+      "clientSent": "Testfehler an Better Stack gesendet (Client).",
+      "serverError": "Testfehler konnte nicht an Better Stack gesendet werden (Server)"
     }
   },
   "systemSoundClips": {

@@ -20,7 +20,7 @@ printf 'set $neon_auth_url "%s";\n' "${neon_auth_url%/}" > /etc/nginx/neon-auth.
 
 out=/usr/share/nginx/html/env.js
 json=""
-for name in VITE_API_URL VITE_AUTH_PROVIDER VITE_NEON_AUTH_URL VITE_NEON_DATA_API_URL VITE_APP_ENV VITE_POSTHOG_PROJECT_API_KEY VITE_POSTHOG_HOST VITE_SHOW_SCAN_LOGS VITE_API_DOCS_URL; do
+for name in VITE_API_URL VITE_AUTH_PROVIDER VITE_NEON_AUTH_URL VITE_NEON_DATA_API_URL VITE_APP_ENV VITE_BETTER_STACK_ERRORS_DSN VITE_SHOW_SCAN_LOGS VITE_API_DOCS_URL; do
   value=$(printenv "$name" || true)
   value=$(printf '%s' "$value" | tr -d '\r\n')
   if [ -n "$value" ]; then

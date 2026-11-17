@@ -183,3 +183,19 @@ jobs:
           if [ -n "$LANGUAGES" ] && [ "$LANGUAGES" != "all" ]; then ARGS+=("--languages=$LANGUAGES"); fi
           if [ "$FORCE_RESYNC" = "true" ]; then ARGS+=("--force"); fi
           pnpm --filter @magic-vault/server exec tsx scripts/sync-card-catalogs.ts "${ARGS[@]}"
+
+      - name: Report to Better Stack
+        if: always() && github.event_name == 'schedule'
+        env:
+          HEARTBEAT_URL: ${{ secrets.BETTER_STACK_CATALOG_SYNC_HEARTBEAT_URL }}
+          RUN_SUCCEEDED: ${{ job.status == 'success' && needs.sync.result == 'success' }}
+        run: |
+          if [ -z "$HEARTBEAT_URL" ]; then
+            echo "BETTER_STACK_CATALOG_SYNC_HEARTBEAT_URL is unset; skipping the uptime heartbeat."
+            exit 0
+          fi
+          if [ "$RUN_SUCCEEDED" = "true" ]; then
+            curl -fsS -m 10 --retry 3 "$HEARTBEAT_URL" > /dev/null
+          else
+            curl -fsS -m 10 --retry 3 "$HEARTBEAT_URL/fail" > /dev/null
+          fi

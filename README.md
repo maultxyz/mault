@@ -303,6 +303,23 @@ The API then registers each link's code with the shortener and re-registers ever
 - **Discord:** set `DISCORD_BOT_TOKEN`, `DISCORD_CLIENT_ID` and `BOT_API_SECRET` and redeploy; without them the bot idles.
 - **Data:** Postgres lives in the `mault-postgres` volume; keep it and back it up. The default `DATABASE_URL` uses `POSTGRES_PASSWORD` unencoded, so keep it URL-safe (hex is). Changing `POSTGRES_PASSWORD` later doesn't change the database's password, and changing `OWN_AUTH_TOKEN_PEPPER` signs everyone out.
 
+### Monitoring (Better Stack)
+
+Error tracking and uptime monitoring are optional and use [Better Stack](https://betterstack.com).
+
+- **Errors:** set `BETTER_STACK_ERRORS_DSN` (API) and `VITE_BETTER_STACK_ERRORS_DSN` (web) to the Sentry-compatible DSN of a Better Stack Errors application. Only exceptions are sent.
+- **Uptime:** create an Uptime API token, then run `pnpm uptime:sync` with the public URLs of the deployment (it refuses `localhost`). It creates or updates, by name, HTTP monitors for the web app, the API's `/api/public/version`, and the link shortener and API docs when `SHORT_LINK_BASE_URL` and `VITE_API_DOCS_URL` are set. It also creates heartbeats for services Better Stack can't reach from outside and prints each heartbeat URL:
+  - **Discord bot:** set `BETTER_STACK_BOT_HEARTBEAT_URL` on the bot; it pings every minute while connected to Discord.
+  - **Price sync and card catalog sync** (production only): set `BETTER_STACK_PRICE_SYNC_HEARTBEAT_URL` and `BETTER_STACK_CATALOG_SYNC_HEARTBEAT_URL` as secrets in the GitHub `production` environment. Scheduled runs ping on success and report `/fail` on failure.
+
+```bash
+BETTER_STACK_UPTIME_API_TOKEN=... WEB_URL=https://mault.example.com \
+  SHORT_LINK_BASE_URL=https://mlt.example VITE_API_DOCS_URL=https://docs.mault.example.com \
+  pnpm uptime:sync                       # add -- --environment=dev for a dev deployment
+```
+
+Rerun it whenever a URL changes. Values in your shell take precedence over `.env`. No monitor or heartbeat touches the database, so none of them keeps Neon awake: the API monitor checks only that the process answers, and database failures surface through error tracking when real requests hit them.
+
 ### Discord bot
 
 The bot only talks to the server over HTTP (`SERVER_URL`), and the server calls back into the bot's small HTTP server (`BOT_URL`/`BOT_PORT`) to post scan notifications, alerts and rule matches into the channels chosen in Settings > Integrations. Both directions share `BOT_API_SECRET`. Commands are registered globally; set `DISCORD_DEV_GUILD_ID` for faster iteration in development. To give people who link their account with `/link-account` a role in your own server, pick the server and role under Admin > Discord channels (the bot needs Manage Roles and a role above it). Linking and unlinking add and remove the role right away. Someone who links before joining that server gets the role by running `/link-account` again once they're in it. To DM new members of your own server instructions for `/link-account`, set `DISCORD_WELCOME_GUILD_IDS` to its server ID (comma-separate several) and enable the Server Members intent under Bot > Privileged Gateway Intents in the Discord Developer Portal; without the intent the bot can't log in.

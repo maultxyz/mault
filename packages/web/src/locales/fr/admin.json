@@ -499,14 +499,14 @@
     "loadFailed": "Impossible de charger les paramètres Discord."
   },
   "errorReportingTest": {
-    "heading": "Tester PostHog",
-    "description": "Envoie une erreur de test à PostHog depuis le client et/ou le serveur pour vérifier que le signalement des erreurs fonctionne",
+    "heading": "Tester Better Stack",
+    "description": "Envoie une erreur de test à Better Stack depuis le client et/ou le serveur pour vérifier que le signalement des erreurs fonctionne",
     "testClientButton": "Tester le client",
     "testServerButton": "Tester le serveur",
     "testingButton": "Envoi...",
     "toasts": {
-      "clientSent": "Erreur de test envoyée à PostHog (client).",
-      "serverError": "Impossible d'envoyer l'erreur de test à PostHog (serveur)"
+      "clientSent": "Erreur de test envoyée à Better Stack (client).",
+      "serverError": "Impossible d'envoyer l'erreur de test à Better Stack (serveur)"
     }
   },
   "systemSoundClips": {

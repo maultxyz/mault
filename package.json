@@ -7,7 +7,8 @@
     "dev:bot": "turbo dev --filter=@magic-vault/bot",
     "dev:shortener": "turbo dev --filter=@magic-vault/shortener",
     "build": "turbo build",
-    "lint": "turbo lint"
+    "lint": "turbo lint",
+    "uptime:sync": "node --env-file-if-exists=.env scripts/better-stack-uptime.mjs"
   },
   "devDependencies": {
     "turbo": "^2.5.4"
