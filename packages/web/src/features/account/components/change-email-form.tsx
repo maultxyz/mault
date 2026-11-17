@@ -4,14 +4,14 @@ import { Input } from "@/components/ui/input";
 import { SaveBar } from "@/components/save-bar";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { neon } from "@/lib/auth/client";
-import {
-  changeEmailSchema,
-  type ChangeEmailFormValues,
-} from "@/schemas/account.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
+import {
+  changeEmailFormSchema,
+  type ChangeEmailFormValues,
+} from "@magic-vault/shared";
 
 export function ChangeEmailForm() {
   const { t } = useTranslation("account");
@@ -20,7 +20,7 @@ export function ChangeEmailForm() {
   const isVerified = !!data?.user?.emailVerified;
 
   const form = useForm<ChangeEmailFormValues>({
-    resolver: zodResolver(changeEmailSchema),
+    resolver: zodResolver(changeEmailFormSchema),
     defaultValues: { newEmail: "" },
   });
 

@@ -17,7 +17,7 @@ export function UnmatchedRateToast({
   return (
     <div className="flex w-[356px] max-w-full flex-col gap-3 rounded-lg border bg-popover p-4 text-popover-foreground shadow-lg">
       <div className="flex items-start gap-2.5">
-        <IconAlertTriangle className="mt-0.5 size-4 shrink-0 text-warning" />
+        <IconAlertTriangle className="mt-0.5 size-4 shrink-0 text-warning-foreground" />
         <div className="flex flex-col gap-1">
           {stationName && (
             <p className="text-xs font-medium text-foreground/70">
@@ -33,7 +33,7 @@ export function UnmatchedRateToast({
         </div>
       </div>
       <div className="flex flex-col gap-2 pl-6.5">
-        <div className="flex flex-wrap justify-end gap-2">
+        <div className="flex flex-wrap justify-end gap-1.5">
           <Button
             variant="outline"
             onClick={() => {
@@ -58,7 +58,6 @@ export function UnmatchedRateToast({
         </div>
         <div className="flex justify-end">
           <Button
-            size="sm"
             variant="ghost"
             className="text-foreground/70"
             onClick={close}

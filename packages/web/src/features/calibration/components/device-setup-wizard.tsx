@@ -10,10 +10,11 @@ import {
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import {
-  devicesQueryOptions,
   saveDevice,
+  writeDeviceToCache,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
+import { DetectModulesButton } from "@/features/calibration/components/detect-modules-button";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { useModuleConfigs } from "@/features/calibration/api/use-module-configs";
 import { useModuleCountConfig } from "@/features/calibration/api/use-module-count-config";
@@ -31,15 +32,8 @@ import {
   FEEDER_STOP_PULSE_SLIDER_RANGE,
   MODULE_DELAY_FIELDS,
   PUSHER_SUGGESTED_OFFSET_PERCENT,
-  pulseToPercent,
-  pulseToSignedPercent,
-  recenterSpeedPulse,
-  SERVO_PULSE_CENTER,
-  SERVO_PULSE_MAX,
-  SERVO_PULSE_MIN,
   SETUP_INTRO_PARTS,
   SETUP_SERVO_POSITIONS,
-  signedPercentToPulse,
 } from "@/lib/constants/calibration";
 import {
   CALIBRATION_PREVIEW_DEBOUNCE_MS,
@@ -58,7 +52,6 @@ import type {
   SetupStepHeadingProps,
   SetupTestState,
   SetupWizardStep,
-  Device,
   ModuleDelayField,
 } from "@/lib/interfaces/calibration";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
@@ -67,7 +60,14 @@ import {
   CHANNEL_OFFSET,
   DEFAULT_CALIBRATION,
   DEFAULT_CHANNEL_LAYOUT,
+  pulseToPercent,
+  pulseToSignedPercent,
+  recenterSpeedPulse,
+  SERVO_PULSE_CENTER,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
   type ServoCalibration,
+  signedPercentToPulse,
 } from "@magic-vault/shared";
 import {
   IconAlertTriangle,
@@ -79,7 +79,14 @@ import {
   IconPlus,
 } from "@tabler/icons-react";
 import { useQueryClient } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 
 function buildSteps(
@@ -106,6 +113,8 @@ function buildSteps(
 
 export function DeviceSetupWizard() {
   const { t } = useTranslation("calibration");
+  const feederStopSliderLabelId = useId();
+  const feederSpeedSliderLabelId = useId();
   const toast = useStationToast();
   const { isOpen, isOffline, close } = useSetupWizard();
   const device = useDevice();
@@ -335,11 +344,7 @@ export function DeviceSetupWizard() {
       return;
     }
     const saved = result.data;
-    queryClient.setQueryData(
-      devicesQueryOptions(activeOrg?.id).queryKey,
-      (old: Device[] | undefined) =>
-        old?.map((d) => (d.guid === saved.guid ? saved : d)),
-    );
+    writeDeviceToCache(queryClient, activeOrg?.id, saved);
   };
 
   const handleFeederChange = (signedPercent: number) => {
@@ -400,29 +405,27 @@ export function DeviceSetupWizard() {
     setTestError(ok ? null : error);
   };
 
-  const markSetupComplete = async () => {
-    if (!device?.guid) return;
+  const markSetupComplete = async (): Promise<boolean> => {
+    if (!device?.guid) return true;
     const result = await saveDevice(device.guid, {
       setupCompleted: true,
     }).catch(() => null);
-    if (!result?.success || !result.data) return;
+    if (!result?.success || !result.data) {
+      toast.error(t("setupWizard.completeFailed"));
+      return false;
+    }
     const saved = result.data;
-    queryClient.setQueryData(
-      devicesQueryOptions(activeOrg?.id).queryKey,
-      (old: Device[] | undefined) =>
-        old?.map((d) => (d.guid === saved.guid ? saved : d)),
-    );
+    writeDeviceToCache(queryClient, activeOrg?.id, saved);
+    return true;
   };
 
   const handleFinish = async () => {
-    await markSetupComplete();
-    close();
+    if (await markSetupComplete()) close();
   };
 
   const handleSkip = async () => {
     void sendCommand(JSON.stringify({ feederStop: true }));
-    await markSetupComplete();
-    close();
+    if (await markSetupComplete()) close();
     if (!isReady && !isOffline) void runTest();
   };
 
@@ -548,25 +551,31 @@ export function DeviceSetupWizard() {
               body={t("setupWizard.moduleCount.body")}
             />
             <ControlPanel>
-              <Select
-                value={String(moduleCount.displayCount)}
-                onValueChange={(value) => moduleCount.stage(Number(value))}
-              >
-                <SelectTrigger className="w-40">
-                  <SelectValue>
-                    {t("moduleCountStepper.value", {
-                      count: moduleCount.displayCount,
-                    })}
-                  </SelectValue>
-                </SelectTrigger>
-                <SelectContent>
-                  {moduleCount.options.map((n) => (
-                    <SelectItem key={n} value={String(n)}>
-                      {t("moduleCountStepper.value", { count: n })}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-1.5">
+                <Select
+                  value={String(moduleCount.displayCount)}
+                  onValueChange={(value) => moduleCount.stage(Number(value))}
+                >
+                  <SelectTrigger
+                    className="w-40"
+                    aria-label={t("moduleCountStepper.label")}
+                  >
+                    <SelectValue>
+                      {t("moduleCountStepper.value", {
+                        count: moduleCount.displayCount,
+                      })}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {moduleCount.options.map((n) => (
+                      <SelectItem key={n} value={String(n)}>
+                        {t("moduleCountStepper.value", { count: n })}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <DetectModulesButton />
+              </div>
             </ControlPanel>
           </>
         )}
@@ -672,13 +681,17 @@ export function DeviceSetupWizard() {
               <div className="flex items-center gap-3">
                 <Button
                   variant="outline"
-                  size="icon-sm"
+                  size="icon"
                   aria-label={t("setupWizard.nudgeDown")}
                   onClick={() => handleFeederStopChange(feederStopPulse - 1)}
                 >
                   <IconMinus />
                 </Button>
+                <span id={feederStopSliderLabelId} className="sr-only">
+                  {t("setupWizard.feederStop.pulseLabel")}
+                </span>
                 <Slider
+                  aria-labelledby={feederStopSliderLabelId}
                   min={SERVO_PULSE_CENTER - FEEDER_STOP_PULSE_SLIDER_RANGE}
                   max={SERVO_PULSE_CENTER + FEEDER_STOP_PULSE_SLIDER_RANGE}
                   step={1}
@@ -687,7 +700,7 @@ export function DeviceSetupWizard() {
                 />
                 <Button
                   variant="outline"
-                  size="icon-sm"
+                  size="icon"
                   aria-label={t("setupWizard.nudgeUp")}
                   onClick={() => handleFeederStopChange(feederStopPulse + 1)}
                 >
@@ -711,7 +724,11 @@ export function DeviceSetupWizard() {
               })}
               hint={t("setupWizard.feeder.hint")}
             >
+              <span id={feederSpeedSliderLabelId} className="sr-only">
+                {t("setupWizard.feeder.speedLabel")}
+              </span>
               <Slider
+                aria-labelledby={feederSpeedSliderLabelId}
                 min={-100}
                 max={100}
                 step={1}
@@ -789,7 +806,7 @@ function IrSensorRow({ label, hint, present, seen }: SetupIrSensorRowProps) {
         <span className="font-medium">{label}</span>
         <span className="text-xs text-foreground/70">{hint}</span>
       </span>
-      <span className="text-xs text-foreground/70">
+      <span aria-live="polite" className="text-xs text-foreground/70">
         {present
           ? t("setupWizard.irSensors.present")
           : t("setupWizard.irSensors.clear")}
@@ -797,6 +814,7 @@ function IrSensorRow({ label, hint, present, seen }: SetupIrSensorRowProps) {
       {seen ? (
         <IconCircleCheck size={18}
           className="shrink-0 text-primary"
+          role="img"
           aria-label={t("setupWizard.irSensors.verified")}
         />
       ) : (
@@ -837,6 +855,7 @@ function ServoStep({
   onChange,
 }: SetupServoStepProps) {
   const { t } = useTranslation("calibration");
+  const positionSliderLabelId = useId();
   const positions = SETUP_SERVO_POSITIONS.filter((p) => p.servo === servo);
   const currentIndex = positions.findIndex((p) => p.calKey === currentKey);
   const nudge = (delta: number) =>
@@ -893,13 +912,17 @@ function ServoStep({
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
-            size="icon-sm"
+            size="icon"
             aria-label={t("setupWizard.nudgeDown")}
             onClick={() => nudge(-1)}
           >
             <IconMinus />
           </Button>
+          <span id={positionSliderLabelId} className="sr-only">
+            {t("setupWizard.positionLabel")}
+          </span>
           <Slider
+            aria-labelledby={positionSliderLabelId}
             min={SERVO_PULSE_MIN}
             max={SERVO_PULSE_MAX}
             step={1}
@@ -908,7 +931,7 @@ function ServoStep({
           />
           <Button
             variant="outline"
-            size="icon-sm"
+            size="icon"
             aria-label={t("setupWizard.nudgeUp")}
             onClick={() => nudge(1)}
           >

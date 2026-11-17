@@ -9,15 +9,15 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import type { StorageLocationNameDialogProps } from "@/lib/interfaces/storage";
-import {
-  storageLocationNameSchema,
-  type StorageLocationNameFormValues,
-} from "@/schemas/storage.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import {
+  storageLocationNameFormSchema,
+  type StorageLocationNameFormValues,
+} from "@magic-vault/shared";
 
 export function StorageLocationNameDialog({
   open,
@@ -29,7 +29,7 @@ export function StorageLocationNameDialog({
 }: StorageLocationNameDialogProps) {
   const { t } = useTranslation("storage");
   const form = useForm<StorageLocationNameFormValues>({
-    resolver: zodResolver(storageLocationNameSchema),
+    resolver: zodResolver(storageLocationNameFormSchema),
     defaultValues: { name: initialName },
     mode: "onChange",
   });

@@ -3,8 +3,6 @@ import { eq, sql } from "drizzle-orm";
 import type { Transaction } from "../db";
 import { devices } from "../db/schema";
 
-// devices has no per-org unique constraint to conflict on (an org can own
-// several), so concurrent first-connects are serialized per org instead.
 async function lockOrgDevices(tx: Transaction, orgId: string) {
   await tx.execute(
     sql`SELECT pg_advisory_xact_lock(hashtext(${`devices:${orgId}`}))`,
@@ -41,10 +39,6 @@ export async function listOrgDevices(tx: Transaction, orgId: string) {
   });
 }
 
-// Binds a physical board (its firmware-reported id) to a device record: an
-// exact match wins, then the oldest record no board has claimed yet (an
-// org's pre-multi-device record, or one created by hand), and only then a
-// brand new record with default calibration.
 export async function resolveDeviceByHardwareId(
   tx: Transaction,
   orgId: string,

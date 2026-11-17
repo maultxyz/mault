@@ -4,7 +4,7 @@ import { router, useIsFocused, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Alert, StyleSheet, View } from "react-native";
+import { AccessibilityInfo, Alert, StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Camera, useCameraPermission, usePhotoOutput } from "react-native-vision-camera";
 import { DEFAULT_SCAN_REGION } from "@magic-vault/shared";
@@ -78,6 +78,12 @@ export default function DesktopCameraScreen() {
   };
 
   const status = responder.connected ? t("phoneCamera.ready") : t("phoneCamera.connecting");
+  const announcedStatusRef = useRef(status);
+  useEffect(() => {
+    if (announcedStatusRef.current === status) return;
+    announcedStatusRef.current = status;
+    AccessibilityInfo.announceForAccessibility(status);
+  }, [status]);
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.camera }}>

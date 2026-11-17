@@ -1,6 +1,6 @@
 {
   "title": "Intégrations",
-  "subtitle": "Connecte Magic Vault à d'autres applications et choisis ce qui est publié et où.",
+  "subtitle": "Connecte Mault à d'autres applications et choisis ce qui est publié et où.",
   "discord": {
     "heading": "Discord",
     "description": "Publie les scans et les alertes sur ton serveur Discord.",
@@ -19,6 +19,9 @@
     "none": "Ne pas publier",
     "sameScan": "Comme chaque scan",
     "sameError": "Comme les erreurs",
+    "scanRole": "Rôle à mentionner pour les scans",
+    "errorRole": "Rôle à mentionner pour les erreurs",
+    "roleHint": "Choisissez un rôle à mentionner dans chaque publication, y compris dans les salons des remplacements de collection. Le bot doit pouvoir mentionner ce rôle.",
     "saved": "Salon enregistré.",
     "saveFailed": "Impossible d'enregistrer le salon."
   },
@@ -66,8 +69,8 @@
     "edit": "Modifier {{name}}",
     "delete": "Supprimer {{name}}",
     "saveFailed": "Impossible d'enregistrer les règles de notification.",
-    "limitReached_one": "L'offre gratuite inclut {{count}} règle de notification Discord. Passe à Business pour des règles illimitées.",
-    "limitReached_other": "L'offre gratuite inclut {{count}} règles de notification Discord. Passe à Business pour des règles illimitées.",
+    "limitReached_one": "Ton offre inclut {{count}} règle de notification Discord. Passe à une offre supérieure pour plus de règles.",
+    "limitReached_other": "Ton offre inclut {{count}} règles de notification Discord. Passe à une offre supérieure pour plus de règles.",
     "upgrade": "Mettre à niveau",
     "andPings": "et mentionne"
   },
@@ -84,12 +87,7 @@
     "conditions": "Conditions",
     "cancel": "Annuler",
     "save": "Enregistrer",
-    "saveFailed": "Impossible d'enregistrer la règle de notification.",
-    "validation": {
-      "nameRequired": "Donne un nom à la règle.",
-      "channelRequired": "Choisis un salon.",
-      "conditionsRequired": "Ajoute au moins une condition."
-    }
+    "saveFailed": "Impossible d'enregistrer la règle de notification."
   },
   "draft": {
     "saved": "Paramètres Discord enregistrés.",
@@ -125,8 +123,8 @@
     "copyFailed": "Impossible de copier la clé API.",
     "managersOnly": "Seuls les propriétaires et administrateurs de l'organisation peuvent créer ou révoquer des clés API.",
     "loadFailed": "Impossible de charger les clés API.",
-    "upgrade": "Les clés API font partie de l'offre Business.",
-    "upgradeLink": "Passer à Business",
+    "upgrade": "Les clés API ne font pas partie de votre offre.",
+    "upgradeLink": "Voir les offres",
     "copy": "Copier la clé",
     "reference": "Référence de l'API",
     "tryIt": "L'essayer dans la référence de l'API"
@@ -146,17 +144,18 @@
     "saved": "Webhook enregistré.",
     "saveFailed": "Impossible d'enregistrer le webhook.",
     "urlLabel": "URL",
-    "invalidUrl": "Saisissez une URL https:// publique.",
     "descriptionLabel": "Nom (facultatif)",
     "descriptionPlaceholder": "Boutique en ligne",
     "eventsLabel": "Événements",
-    "eventsRequired": "Choisissez au moins un événement.",
     "events": {
       "card": {
         "scanned": "Une carte a été scannée et enregistrée dans une collection."
       },
       "cards": {
         "stored": "Un bac a été rangé dans un emplacement. Inclut la boîte et la position de chaque carte."
+      },
+      "sorter": {
+        "alert": "Une trieuse a eu un bourrage ou une erreur, a redémarré, a perdu sa connexion ou doit être entretenue."
       }
     },
     "empty": "Aucun webhook pour l'instant.",
@@ -184,7 +183,7 @@
     "copySecret": "Copier le secret",
     "secretCopied": "Secret de signature copié.",
     "copyFailed": "Impossible de copier le secret.",
-    "upgrade": "Les webhooks font partie de l'offre Business.",
+    "upgrade": "Les webhooks ne font pas partie de votre offre.",
     "loadFailed": "Impossible de charger les webhooks."
   }
 }

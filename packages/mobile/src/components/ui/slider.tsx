@@ -10,7 +10,16 @@ function clampToStep(value: number, min: number, max: number, step: number): num
   return Math.min(max, Math.max(min, Number(stepped.toFixed(6))));
 }
 
-export function Slider({ value, min, max, step = 1, disabled = false, accessibilityLabel, onValueChange }: SliderProps) {
+export function Slider({
+  value,
+  min,
+  max,
+  step = 1,
+  disabled = false,
+  accessibilityLabel,
+  accessibilityValueText,
+  onValueChange,
+}: SliderProps) {
   const colors = useTheme();
   const [width, setWidth] = useState(0);
   const startXRef = useRef(0);
@@ -54,7 +63,7 @@ export function Slider({ value, min, max, step = 1, disabled = false, accessibil
       accessible
       accessibilityRole="adjustable"
       accessibilityLabel={accessibilityLabel}
-      accessibilityValue={{ min, max, now: value }}
+      accessibilityValue={{ min, max, now: value, text: accessibilityValueText }}
       accessibilityState={{ disabled }}
       accessibilityActions={[{ name: "increment" }, { name: "decrement" }]}
       onAccessibilityAction={(event) => {

@@ -2,6 +2,7 @@ import { AppLoadingGate, InitialLoadProvider } from "@/app/app-loading-gate";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { OrgPickerModal } from "@/features/companies/components/org-picker-modal";
+import { MemberSeatLockScreen } from "@/components/member-seat-lock-screen";
 import { OnboardingProvider } from "@/features/onboarding/components/onboarding-provider";
 import { SorterSelectionProvider } from "@/features/scanner/api/use-sorter-selection";
 import {
@@ -11,6 +12,7 @@ import {
 import { DeployPauseProvider } from "@/features/scanner/api/use-deploy-pause";
 import { PendingScanSavesProvider } from "@/features/scanner/api/use-pending-scan-saves";
 import { DocumentTitleUpdater } from "@/features/scanner/components/document-title-updater";
+import { DesktopPipWindowHost } from "@/features/scanner/components/desktop-pip-window-host";
 import { StationScope } from "@/features/scanner/components/station-scope";
 import { AppAlertsProvider } from "@/hooks/alerts/use-app-alerts";
 import { OrgPriceSourceProvider } from "@/hooks/use-price-source";
@@ -58,34 +60,42 @@ function StationScopes({ children }: { children: React.ReactNode }) {
   ));
 }
 
-export function AppProviders({ children }: { children: React.ReactNode }) {
+export function BaseProviders({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       <OrgThemeApplier />
-      <OrgPriceSourceProvider>
-        <AppStreamProvider>
-          <StationsProvider>
-            <InitialLoadProvider>
-              <PendingScanSavesProvider>
-                <DeployPauseProvider>
-                  <SorterSelectionProvider>
-                    <StationScopes>
-                      <OnboardingProvider>
-                        <AppAlertsProvider>
-                          <AppLoadingGate>{children}</AppLoadingGate>
-                        </AppAlertsProvider>
-                        <OrgPickerModal />
-                        <DocumentTitleUpdater />
-                      </OnboardingProvider>
-                    </StationScopes>
-                  </SorterSelectionProvider>
-                </DeployPauseProvider>
-              </PendingScanSavesProvider>
-              <SerialAutoConnect />
-            </InitialLoadProvider>
-          </StationsProvider>
-        </AppStreamProvider>
-      </OrgPriceSourceProvider>
+      <OrgPriceSourceProvider>{children}</OrgPriceSourceProvider>
     </QueryClientProvider>
+  );
+}
+
+export function AppProviders({ children }: { children: React.ReactNode }) {
+  return (
+    <BaseProviders>
+      <AppStreamProvider>
+        <StationsProvider>
+          <InitialLoadProvider>
+            <PendingScanSavesProvider>
+              <DeployPauseProvider>
+                <SorterSelectionProvider>
+                  <StationScopes>
+                    <OnboardingProvider>
+                      <AppAlertsProvider>
+                        <AppLoadingGate>{children}</AppLoadingGate>
+                      </AppAlertsProvider>
+                      <OrgPickerModal />
+                      <MemberSeatLockScreen />
+                      <DocumentTitleUpdater />
+                    </OnboardingProvider>
+                  </StationScopes>
+                  <DesktopPipWindowHost />
+                </SorterSelectionProvider>
+              </DeployPauseProvider>
+            </PendingScanSavesProvider>
+            <SerialAutoConnect />
+          </InitialLoadProvider>
+        </StationsProvider>
+      </AppStreamProvider>
+    </BaseProviders>
   );
 }

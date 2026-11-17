@@ -8,6 +8,10 @@ import { STORAGE_PATH } from "@/lib/constants/storage";
 
 export const HOTKEY_SEQUENCE_TIMEOUT_MS = 1000;
 
+export const HOTKEY_APPLE_PLATFORM_PATTERN = /Mac|iPhone|iPad|iPod/;
+
+export const HOTKEY_APPLE_MOD_LABEL = "⌘";
+
 export const HOTKEY_PRIORITY_OVERRIDE = 1;
 
 export const HOTKEY_SEARCH_ATTRIBUTE = "data-hotkey-search";
@@ -23,6 +27,8 @@ export const HOTKEY_KEY_LABEL_KEYS: Record<string, string> = {
   enter: "hotkeys.keys.enter",
   arrowleft: "hotkeys.keys.left",
   arrowright: "hotkeys.keys.right",
+  arrowup: "hotkeys.keys.up",
+  arrowdown: "hotkeys.keys.down",
   escape: "hotkeys.keys.escape",
   delete: "hotkeys.keys.delete",
 };
@@ -32,13 +38,19 @@ export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
   "navigation",
   "scanner",
   "cardDetail",
+  "intake",
+  "foilLabeling",
 ];
+
+export const ADMIN_ONLY_HOTKEY_GROUPS: HotkeyGroup[] = ["foilLabeling"];
 
 export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   showShortcuts: { group: "general", keys: [{ key: "?" }] },
   toggleSidebar: { group: "general", keys: [{ key: "[" }] },
   focusSearch: { group: "general", keys: [{ key: "/" }] },
   dismissToasts: { group: "general", keys: [{ key: "x", shift: true }] },
+  clearSelection: { group: "general", keys: [{ key: "escape" }] },
+  save: { group: "general", keys: [{ key: "s", mod: true }] },
   goScanner: { group: "navigation", keys: [{ key: "g" }, { key: "s" }] },
   goCollections: { group: "navigation", keys: [{ key: "g" }, { key: "c" }] },
   goSortingRules: {
@@ -49,6 +61,10 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   goCalibrate: { group: "navigation", keys: [{ key: "g" }, { key: "d" }] },
   goSettings: { group: "navigation", keys: [{ key: "g" }, { key: "," }] },
   goAdmin: { group: "navigation", keys: [{ key: "g" }, { key: "a" }] },
+  goNextSorterNeedingAttention: {
+    group: "navigation",
+    keys: [{ key: "g" }, { key: "n" }],
+  },
   scanPauseResume: { group: "scanner", keys: [{ key: " " }] },
   scanNow: { group: "scanner", keys: [{ key: "s" }] },
   scanFeed: { group: "scanner", keys: [{ key: "f" }] },
@@ -69,6 +85,16 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
   cardRemove: { group: "cardDetail", keys: [{ key: "delete" }] },
   reviewStart: { group: "cardDetail", keys: [{ key: "r" }] },
   reviewAccept: { group: "cardDetail", keys: [{ key: "enter" }] },
+  reviewPreviousMatch: { group: "cardDetail", keys: [{ key: "arrowup" }] },
+  reviewNextMatch: { group: "cardDetail", keys: [{ key: "arrowdown" }] },
+  reviewCycleFoil: { group: "cardDetail", keys: [{ key: "f" }] },
+  reviewCycleCondition: { group: "cardDetail", keys: [{ key: "d" }] },
+  reviewCycleLanguage: { group: "cardDetail", keys: [{ key: "l" }] },
+  intakeOpenScanner: { group: "intake", keys: [{ key: "o" }] },
+  foilLabelFoil: { group: "foilLabeling", keys: [{ key: "f" }] },
+  foilLabelNotFoil: { group: "foilLabeling", keys: [{ key: "n" }] },
+  foilLabelSkip: { group: "foilLabeling", keys: [{ key: "s" }] },
+  foilLabelBack: { group: "foilLabeling", keys: [{ key: "arrowleft" }] },
 };
 
 export const HOTKEY_ROUTES = {

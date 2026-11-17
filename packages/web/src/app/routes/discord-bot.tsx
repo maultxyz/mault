@@ -1,11 +1,12 @@
 import { DiscordBotCommands } from "@/features/discord-bot/components/commands";
 import { DiscordBotFeatures } from "@/features/discord-bot/components/features";
-import { DiscordBotFooter } from "@/features/discord-bot/components/footer";
+import { GuideFooter } from "@/components/guide-footer";
 import { DiscordBotHero } from "@/features/discord-bot/components/hero";
 import { DiscordBotSetup } from "@/features/discord-bot/components/setup";
-import { PublicGlow } from "@/components/public-glow";
+import { BlueprintBackdrop } from "@/components/blueprint-backdrop";
 import { PublicNav } from "@/components/public-nav";
 import { usePageMeta } from "@/hooks/use-page-meta";
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { useTranslation } from "react-i18next";
 
 export default function DiscordBotPage() {
@@ -17,16 +18,16 @@ export default function DiscordBotPage() {
   });
 
   return (
-    <div className="relative flex min-h-screen flex-col overflow-x-hidden bg-background text-foreground">
-      <PublicGlow />
+    <div className="relative flex min-h-screen flex-col overflow-x-clip bg-background text-foreground">
+      <BlueprintBackdrop />
       <PublicNav containerClassName="max-w-4xl" />
-      <main className="flex-1">
+      <main id={MAIN_CONTENT_ID} tabIndex={-1} className="flex-1 outline-none">
         <DiscordBotHero />
-        <DiscordBotSetup />
-        <DiscordBotCommands />
-        <DiscordBotFeatures />
+        <DiscordBotSetup step="01" />
+        <DiscordBotCommands step="02" />
+        <DiscordBotFeatures step="03" />
       </main>
-      <DiscordBotFooter />
+      <GuideFooter showSignInLink />
     </div>
   );
 }

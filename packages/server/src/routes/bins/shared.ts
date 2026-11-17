@@ -16,6 +16,7 @@ import {
   type PickListInput,
 } from "@magic-vault/shared";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
+import { loadBinEmptiedTimes } from "../../lib/bin-emptying";
 import { listOrgDevices } from "../../lib/devices";
 import type { Transaction } from "../../db";
 import { bins, binSetAudit, binSets } from "../../db/schema";
@@ -36,6 +37,14 @@ export function toIsDisabled(
 }
 
 export function toMaxCopies(
+  value: number | null | undefined,
+  isCatchAll: boolean | undefined,
+): number | null {
+  if (isCatchAll || value == null) return null;
+  return Number.isInteger(value) && value >= 1 ? value : null;
+}
+
+export function toRepackPriority(
   value: number | null | undefined,
   isCatchAll: boolean | undefined,
 ): number | null {
@@ -146,12 +155,14 @@ function toBinSet(row: {
   repackSlots: unknown;
   repackUniqueBy: string | null;
   repackSiftRules: unknown;
+  repackMultiplePacks: boolean;
   isAlphabetMode: boolean;
   alphabetPass: number;
   alphabetPrefix: string;
   isChaosMode: boolean;
   chaosBinSize: number | null;
   skipSaving: boolean;
+  isResortMode: boolean;
   createdAt: Date;
   updatedAt: Date;
   bins: {
@@ -162,13 +173,12 @@ function toBinSet(row: {
     isOverride: boolean;
     overridePriority: number | null;
     lowMatchPercent: number | null;
-    cardLimit: number | null;
     maxCopies: number | null;
     maxCopiesBy: string | null;
     overflowBin: number | null;
     isDisabled: boolean;
     pickList: unknown;
-    lastEmptiedAt: Date | null;
+    repackPriority: number | null;
   }[];
   game: {
     guid: string | null;
@@ -182,7 +192,7 @@ function toBinSet(row: {
     createdAt: Date;
     updatedAt: Date;
   } | null;
-}): BinSet {
+}, emptiedTimes: Map<number, number>): BinSet {
   return {
     guid: row.guid!,
     name: row.name,
@@ -194,12 +204,14 @@ function toBinSet(row: {
     repackSlots: (row.repackSlots as RepackSlot[] | null) ?? [],
     repackUniqueBy: row.repackUniqueBy,
     repackSiftRules: (row.repackSiftRules as BinRuleGroup | null) ?? null,
+    repackMultiplePacks: row.repackMultiplePacks,
     isAlphabetMode: row.isAlphabetMode,
     alphabetPass: row.alphabetPass,
     alphabetPrefix: row.alphabetPrefix,
     isChaosMode: row.isChaosMode,
     chaosBinSize: row.chaosBinSize,
     skipSaving: row.skipSaving,
+    isResortMode: row.isResortMode,
     bins: row.bins.map((bin) => ({
       guid: bin.guid!,
       binNumber: bin.binNumber,
@@ -208,13 +220,13 @@ function toBinSet(row: {
       isOverride: bin.isOverride,
       overridePriority: bin.overridePriority,
       lowMatchPercent: bin.lowMatchPercent,
-      cardLimit: bin.cardLimit,
       maxCopies: bin.maxCopies,
       maxCopiesBy: bin.maxCopiesBy,
       overflowBin: bin.overflowBin,
       isDisabled: bin.isDisabled,
       pickList: bin.isCatchAll ? null : toPickList(bin.pickList),
-      lastEmptiedAt: bin.lastEmptiedAt ? bin.lastEmptiedAt.getTime() : null,
+      repackPriority: bin.repackPriority,
+      lastEmptiedAt: emptiedTimes.get(bin.binNumber) ?? null,
     })),
     game: row.game
       ? {
@@ -247,12 +259,14 @@ const binSetQuery = {
     repackSlots: true,
     repackUniqueBy: true,
     repackSiftRules: true,
+    repackMultiplePacks: true,
     isAlphabetMode: true,
     alphabetPass: true,
     alphabetPrefix: true,
     isChaosMode: true,
     chaosBinSize: true,
     skipSaving: true,
+    isResortMode: true,
     createdAt: true,
     updatedAt: true,
   },
@@ -267,13 +281,12 @@ const binSetQuery = {
         isOverride: true,
         overridePriority: true,
         lowMatchPercent: true,
-        cardLimit: true,
         maxCopies: true,
         maxCopiesBy: true,
         overflowBin: true,
         isDisabled: true,
         pickList: true,
-        lastEmptiedAt: true,
+        repackPriority: true,
       },
     },
     game: true,
@@ -287,7 +300,12 @@ export async function loadSets(tx: Transaction, orgId: string) {
       and(eq(binSets.orgId, orgId), eq(binSets.isDeleted, false)),
     orderBy: (binSets, { desc }) => [desc(binSets.updatedAt)],
   });
-  return { message: "Loaded sets.", success: true, data: rows.map(toBinSet) };
+  const emptiedTimes = await loadBinEmptiedTimes(tx, orgId);
+  return {
+    message: "Loaded sets.",
+    success: true,
+    data: rows.map((row) => toBinSet(row, emptiedTimes)),
+  };
 }
 
 export async function snapshotBinSet(
@@ -307,12 +325,12 @@ export async function snapshotBinSet(
       isOverride: true,
       overridePriority: true,
       lowMatchPercent: true,
-      cardLimit: true,
       maxCopies: true,
       maxCopiesBy: true,
       overflowBin: true,
       isDisabled: true,
       pickList: true,
+      repackPriority: true,
     },
   });
   const snapshot: BinConfig[] = rows.map((r) => ({
@@ -323,18 +341,16 @@ export async function snapshotBinSet(
     isOverride: r.isOverride,
     overridePriority: r.overridePriority,
     lowMatchPercent: r.lowMatchPercent,
-    cardLimit: r.cardLimit,
     maxCopies: r.maxCopies,
     maxCopiesBy: r.maxCopiesBy,
     overflowBin: r.overflowBin,
     isDisabled: r.isDisabled,
     pickList: r.isCatchAll ? null : toPickList(r.pickList),
+    repackPriority: r.repackPriority,
   }));
   await tx.insert(binSetAudit).values({ binSetGuid, snapshot, orgId });
 }
 
-// Resolves a game guid (from the client) to its internal id, or null if
-// omitted - bin sets with no game are legacy/game-agnostic sets.
 export async function resolveGameId(
   tx: Transaction,
   gameGuid: string | undefined,
@@ -359,6 +375,17 @@ export function activeBinSetWhere(
     eq(t.orgId, orgId),
     eq(t.isDeleted, false),
   );
+}
+
+export function editableBinSetWhere(
+  t: (typeof binSets)["_"]["columns"],
+  orgId: string,
+  gameId: number | null,
+  presetGuid: string | undefined,
+) {
+  return presetGuid
+    ? and(eq(t.guid, presetGuid), eq(t.orgId, orgId), eq(t.isDeleted, false))
+    : activeBinSetWhere(t, orgId, gameId);
 }
 
 export async function binSetNameTaken(

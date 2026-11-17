@@ -145,9 +145,9 @@ export default function PhoneCameraPage() {
                     {errorMessage}
                   </p>
                 )}
-                <div className="flex items-center gap-2 rounded-full bg-black/70 px-3.5 py-2 text-sm text-white shadow-lg backdrop-blur-sm">
+                <div className="flex items-center gap-2 rounded-lg bg-black/70 px-3.5 py-2 text-sm text-white shadow-lg backdrop-blur-sm">
                   {status === "ready" ? (
-                    <IconCameraSpark className="size-4 shrink-0 text-success" />
+                    <IconCameraSpark className="size-4 shrink-0 text-success-foreground" />
                   ) : status === "camera-error" ? (
                     <IconVideoOff className="size-4 shrink-0 text-destructive" />
                   ) : (
@@ -160,7 +160,7 @@ export default function PhoneCameraPage() {
           )}
         </div>
         {status !== "disconnected" && (
-          <div className="flex items-stretch gap-2">
+          <div className="flex items-stretch gap-1.5">
             {cameras.length > 1 && (
               <Button
                 size="lg"

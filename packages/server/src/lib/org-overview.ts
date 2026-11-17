@@ -19,10 +19,14 @@ import {
   type SQL,
 } from "drizzle-orm";
 import type { Transaction } from "../db";
-import { collectionCards, collections } from "../db/schema";
-import { scannedCardPriceSql } from "./card-price-sql";
+import { cardPrices, collectionCards, collections, games } from "../db/schema";
+import {
+  collectionCardPriceSql,
+  collectionCardPricesJoinOn,
+} from "./card-price-sql";
 import { ONE_DAY_MS } from "./constants/timing";
 import { loadOrgPricing } from "./price-source";
+import { hydrateSavedCards } from "./saved-cards";
 
 function utcDayKey(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -44,34 +48,32 @@ export async function loadOrgOverview(
   orgId: string,
 ): Promise<OrgOverview> {
   const pricing = await loadOrgPricing(tx, orgId);
-  const cardPrice = scannedCardPriceSql(pricing);
+  const cardPrice = collectionCardPriceSql(pricing);
   const liveCollections = and(
     eq(collections.orgId, orgId),
     eq(collections.isDeleted, false),
   );
 
-  const [totals] = await tx
-    .select({
-      collectionCount: sql<number>`count(distinct ${collections.id})`,
-      cardCount: count(collectionCards.id),
-      totalValue: sql<number | null>`sum(${cardPrice})`,
-    })
-    .from(collections)
-    .leftJoin(collectionCards, eq(collectionCards.collectionId, collections.id))
-    .where(liveCollections);
-
   const valueRows = await tx
     .select({
       guid: collections.guid,
+      cardCount: count(collectionCards.id),
       value: sql<number | null>`sum(${cardPrice})`,
     })
     .from(collections)
-    .innerJoin(
-      collectionCards,
-      eq(collectionCards.collectionId, collections.id),
-    )
+    .leftJoin(collectionCards, eq(collectionCards.collectionId, collections.id))
+    .leftJoin(games, eq(games.id, collections.gameId))
+    .leftJoin(cardPrices, collectionCardPricesJoinOn())
     .where(liveCollections)
-    .groupBy(collections.guid);
+    .groupBy(collections.id, collections.guid);
+  const cardCount = valueRows.reduce(
+    (sum, row) => sum + Number(row.cardCount),
+    0,
+  );
+  const totalValue = valueRows.reduce(
+    (sum, row) => sum + (row.value == null ? 0 : Number(row.value)),
+    0,
+  );
 
   const since = new Date(
     Date.now() - (ORG_OVERVIEW_ACTIVITY_DAYS - 1) * ONE_DAY_MS,
@@ -82,7 +84,13 @@ export async function loadOrgOverview(
     .select({ day: dayKey, count: count(collectionCards.id) })
     .from(collectionCards)
     .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
-    .where(and(liveCollections, gte(collectionCards.createdAt, since)))
+    .where(
+      and(
+        eq(collectionCards.orgId, orgId),
+        liveCollections,
+        gte(collectionCards.createdAt, since),
+      ),
+    )
     .groupBy(dayKey);
 
   const loadCards = async (
@@ -95,25 +103,35 @@ export async function loadOrgOverview(
         scanId: collectionCards.guid,
         collectionGuid: collections.guid,
         collectionName: collections.name,
-        card: collectionCards.card,
+        card: sql<PlayingCard>`${collectionCards.card} - 'raw'`,
         isFoil: collectionCards.isFoil,
         scannedAt: collectionCards.scannedAt,
         price: cardPrice,
+        collectionLang: collections.lang,
+        gameKey: games.key,
       })
       .from(collectionCards)
       .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+      .leftJoin(games, eq(games.id, collections.gameId))
+      .leftJoin(cardPrices, collectionCardPricesJoinOn())
       .where(
-        onlyPriced
-          ? and(liveCollections, isNotNull(cardPrice))
-          : liveCollections,
+        and(
+          eq(collectionCards.orgId, orgId),
+          liveCollections,
+          onlyPriced ? isNotNull(cardPrice) : undefined,
+        ),
       )
       .orderBy(orderBy)
       .limit(limit);
-    return rows.map((row) => ({
+    const cards = await hydrateSavedCards(
+      rows.map((row) => ({ gameKey: row.gameKey, lang: row.collectionLang, card: row.card })),
+      { includeRaw: false },
+    );
+    return rows.map((row, i) => ({
       scanId: row.scanId!,
       collectionGuid: row.collectionGuid!,
       collectionName: row.collectionName,
-      card: row.card as PlayingCard,
+      card: cards[i],
       isFoil: row.isFoil,
       price: row.price == null ? null : Number(row.price),
       scannedAt: row.scannedAt.toISOString(),
@@ -133,9 +151,9 @@ export async function loadOrgOverview(
 
   const scansByDay = fillDays(dayRows);
   return {
-    collectionCount: Number(totals?.collectionCount ?? 0),
-    cardCount: Number(totals?.cardCount ?? 0),
-    totalValue: totals?.totalValue ? Number(totals.totalValue) : 0,
+    collectionCount: valueRows.length,
+    cardCount,
+    totalValue,
     scansToday: scansByDay[scansByDay.length - 1]?.count ?? 0,
     scansThisWeek: scansByDay
       .slice(-ORG_OVERVIEW_WEEK_DAYS)

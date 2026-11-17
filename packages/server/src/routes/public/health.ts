@@ -1,7 +1,7 @@
 import type { HealthCheck, HealthCheckResponse } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { Hono } from "hono";
-import { db } from "../../db";
+import { db, pool } from "../../db";
 import { HEALTH_CACHE_TTL_MS } from "../../lib/constants/timing";
 import type { AppEnv } from "../../middleware/auth";
 
@@ -23,8 +23,15 @@ async function checkDatabase(): Promise<HealthCheck> {
 let cachedHealth: { data: HealthCheckResponse; expiresAt: number } | null =
   null;
 
+function databaseIsIdle(): boolean {
+  return pool.totalCount === 0;
+}
+
 export const healthRoute = new Hono<AppEnv>().get("/health", async (c) => {
   if (cachedHealth && cachedHealth.expiresAt > Date.now()) {
+    return c.json({ success: true, data: cachedHealth.data });
+  }
+  if (cachedHealth?.data.healthy && databaseIsIdle()) {
     return c.json({ success: true, data: cachedHealth.data });
   }
 

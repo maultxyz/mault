@@ -6,7 +6,7 @@ export interface CardFilters {
   rarities: string[];
   bins: Array<number | null>;
   needsAttention: boolean;
-  showDownloaded: boolean;
+  hideDownloaded: boolean;
   sets: string[];
   minMatchPercent: number;
   foilTypes: string[];
@@ -61,6 +61,10 @@ export interface CollectionCardsSummary {
   filtered: CardStatsAggregate;
 }
 
+export interface CollectionCardsCount {
+  totalCount: number;
+}
+
 export interface BinWindow {
   binNumber: number;
   lastEmptiedAt: number | null;
@@ -84,4 +88,9 @@ export interface IdentifyUnmatchedCardRequest {
   card: PlayingCard;
   isFoil?: boolean;
   foilType?: string | null;
+}
+
+export interface AddManualCardRequest {
+  card: PlayingCard;
+  locationGuid?: string;
 }

@@ -10,19 +10,14 @@ export const countSoundRulesRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      const [{ total }] = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx
-          .select({ total: count() })
-          .from(soundRules)
-          .where(
-            and(eq(soundRules.orgId, orgId), eq(soundRules.isDeleted, false)),
-          ),
-      );
-      return c.json({ success: true, data: total });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const [{ total }] = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx
+        .select({ total: count() })
+        .from(soundRules)
+        .where(
+          and(eq(soundRules.orgId, orgId), eq(soundRules.isDeleted, false)),
+        ),
+    );
+    return c.json({ success: true, data: total });
   },
 );

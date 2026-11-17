@@ -1,3 +1,4 @@
+import { SeasonalPumpkin } from "@/components/halloween-decor";
 import type { EmptyStateProps } from "@/lib/interfaces/empty-state";
 import { cn } from "@/lib/utils";
 
@@ -21,11 +22,17 @@ export function EmptyState({
       {Icon && (
         <div
           className={cn(
-            "flex items-center justify-center rounded-full bg-muted text-foreground/70",
+            "relative flex items-center justify-center rounded-full bg-muted text-foreground/70",
             compact ? "size-10" : "size-14",
           )}
         >
           <Icon className={compact ? "size-5" : "size-7"} />
+          <SeasonalPumpkin
+            className={cn(
+              "absolute -right-1 -bottom-1",
+              compact ? "size-3.5" : "size-4",
+            )}
+          />
         </div>
       )}
       <div className="flex max-w-sm flex-col gap-1">

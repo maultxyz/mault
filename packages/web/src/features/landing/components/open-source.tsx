@@ -9,63 +9,54 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { LandingSectionHeader } from "@/features/landing/components/section-header";
+import { MarketingRule } from "@/components/marketing-rule";
+import { MarketingSectionHeader } from "@/components/marketing-section-header";
+import type { MarketingStepProps } from "@/lib/interfaces/marketing-rule";
 
-export function LandingOpenSource() {
+export function LandingOpenSource({ step }: MarketingStepProps) {
   const { t } = useTranslation("landing");
 
   return (
-    <section id="open-source" className="mx-auto max-w-6xl px-4 py-16 md:py-24">
-      <div className="relative overflow-hidden rounded-3xl border bg-card p-6 md:p-10">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-primary/15 blur-3xl"
-        />
-        <LandingSectionHeader
+    <section id="open-source" className="border-t">
+      <div className="mx-auto max-w-6xl px-4 py-16 md:py-24">
+        <MarketingSectionHeader
+          step={step}
           eyebrow={t("openSource.eyebrow")}
           heading={t("openSource.heading")}
           subtitle={t("openSource.subtitle")}
         />
 
-        <div className="relative mt-10 grid divide-y divide-border border-t border-border md:grid-cols-3 md:divide-x md:divide-y-0 md:border-t-0">
-          <div className="flex flex-col gap-3 py-6 md:px-6 md:py-0 md:pl-0">
-            <div className="flex items-start gap-3">
-              <IconBrandGithub size={20}
-                className="mt-0.5 shrink-0 text-primary"
-              />
-              <div>
-                <p className="font-heading text-sm font-semibold">
-                  {t("openSource.sourceCode.title")}
-                </p>
-                <p className="mt-1 text-sm/relaxed text-foreground/70">
-                  {t("openSource.sourceCode.description")}
-                </p>
-              </div>
-            </div>
+        <div className="mt-10 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border md:grid-cols-3">
+          <div className="flex flex-col gap-4 bg-card p-6">
+            <MarketingRule
+              lead={`${step}.01`}
+              label={t("openSource.sourceCode.title")}
+              aside={<IconBrandGithub className="size-4" />}
+            />
+            <p className="text-sm/relaxed text-foreground/70">
+              {t("openSource.sourceCode.description")}
+            </p>
             <a
               href={REPO_URL}
               target="_blank"
               rel="noreferrer"
-              className={cn(buttonVariants({ variant: "outline" }))}
+              className={cn(buttonVariants({ variant: "outline" }), "mt-auto")}
             >
               <IconBrandGithub size={16} />
               {t("openSource.sourceCode.cta")}
             </a>
           </div>
 
-          <div className="flex flex-col gap-3 py-6 md:px-6 md:py-0">
-            <div className="flex items-start gap-3">
-              <IconCube size={20} className="mt-0.5 shrink-0 text-primary" />
-              <div>
-                <p className="font-heading text-sm font-semibold">
-                  {t("openSource.printableSorter.title")}
-                </p>
-                <p className="mt-1 text-sm/relaxed text-foreground/70">
-                  {t("openSource.printableSorter.description")}
-                </p>
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2">
+          <div className="flex flex-col gap-4 bg-card p-6">
+            <MarketingRule
+              lead={`${step}.02`}
+              label={t("openSource.printableSorter.title")}
+              aside={<IconCube className="size-4" />}
+            />
+            <p className="text-sm/relaxed text-foreground/70">
+              {t("openSource.printableSorter.description")}
+            </p>
+            <div className="mt-auto flex flex-wrap gap-2">
               <a
                 href={MODEL_URL}
                 target="_blank"
@@ -84,25 +75,20 @@ export function LandingOpenSource() {
             </div>
           </div>
 
-          <div className="flex flex-col gap-3 py-6 md:px-6 md:py-0 md:pr-0">
-            <div className="flex items-start gap-3">
-              <IconBrandDiscord size={20}
-                className="mt-0.5 shrink-0 text-primary"
-              />
-              <div>
-                <p className="font-heading text-sm font-semibold">
-                  {t("openSource.community.title")}
-                </p>
-                <p className="mt-1 text-sm/relaxed text-foreground/70">
-                  {t("openSource.community.description")}
-                </p>
-              </div>
-            </div>
+          <div className="flex flex-col gap-4 bg-card p-6">
+            <MarketingRule
+              lead={`${step}.03`}
+              label={t("openSource.community.title")}
+              aside={<IconBrandDiscord className="size-4" />}
+            />
+            <p className="text-sm/relaxed text-foreground/70">
+              {t("openSource.community.description")}
+            </p>
             <a
               href={DISCORD_URL}
               target="_blank"
               rel="noreferrer"
-              className={cn(buttonVariants({ variant: "outline" }))}
+              className={cn(buttonVariants({ variant: "outline" }), "mt-auto")}
             >
               <IconBrandDiscord size={16} />
               {t("openSource.community.cta")}

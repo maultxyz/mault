@@ -6,7 +6,9 @@ import {
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { HOTKEY_PRIORITY_OVERRIDE } from "@/lib/constants/hotkeys";
+import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
+import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { FoilOverlay } from "@/components/foil-overlay";
 import { Badge } from "@/components/ui/badge";
@@ -14,6 +16,9 @@ import { Kbd } from "@/components/ui/kbd";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Label } from "@/components/ui/label";
+import { Field, FieldError, FieldLabel } from "@/components/ui/field";
+import { useCardAcquisitionCost } from "@/features/business/api/use-business";
+import { NumberInput } from "@/features/business/components/number-input";
 import {
   Select,
   SelectContent,
@@ -27,15 +32,32 @@ import { BinLocationDiagram } from "@/features/bins/components/bin-location-diag
 import { useScanImage } from "@/features/cards/api/use-scan-image";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
+import { CardSearchResultTile } from "@/features/cards/components/card-search-result-tile";
 import { CardStorageLocationSection } from "@/features/storage/components/card-storage-location-section";
-import { CardScanOriginSection } from "@/features/cards/components/card-scan-origin-section";
+import { CardScanOriginList } from "@/features/cards/components/card-scan-origin-list";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
 import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
 import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
 import { OcrRegionOverlay } from "@/features/cards/components/ocr-region-overlay";
+import { CardDetailActionsSheet } from "@/features/cards/components/card-detail-actions-sheet";
 import { DetailSection } from "@/features/cards/components/detail-section";
+import { CardTagsMenu } from "@/features/cards/components/card-tags-menu";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
+  MORE_DETAIL_OPTIONS_ACCORDION_VALUE,
+  REVIEW_LAYOUT_WITH_SCAN_COLUMNS_CLASS,
+  REVIEW_LAYOUT_WITHOUT_SCAN_COLUMNS_CLASS,
+  SIMILAR_MATCHES_ACCORDION_VALUE,
+} from "@/lib/constants/cards";
+import { useIsMobile } from "@/hooks/use-is-mobile";
+import { CardDrawerContext } from "@/lib/card-drawer-context";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import {
   CARD_OCR_REGIONS_STORAGE_KEY,
@@ -44,26 +66,54 @@ import {
 import { cn } from "@/lib/utils";
 import {
   CARD_CONDITIONS,
+  CARD_LANGUAGES,
+  cardFoilTypeOptions,
   DEFAULT_CARD_CONDITION,
+  isCardLanguage,
+  OCR_REGIONS_BY_GAME_KEY,
+  scanLanguage,
   isCardCondition,
+  tcgplayerConditionPriceFor,
   toCardCondition,
   type CardCondition,
   type PlayingCard,
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
 import { usePriceSource } from "@/hooks/use-price-source";
+import { usePersistedFlag } from "@/hooks/use-persisted-state";
 import { SaveBar } from "@/components/save-bar";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useScanDraft } from "@/features/cards/api/use-scan-draft";
 import {
   IconCheck,
+  IconChevronLeft,
+  IconChevronRight,
   IconChevronUp,
   IconChevronDown,
+  IconDots,
+  IconLayoutGrid,
   IconPencil,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  cardDiagnosticsQueryOptions,
+  cardScanOriginQueryOptions,
+} from "@/features/collections/api/collections";
+import {
+  padFixedOcrRegions,
+  toOcrOverlayRegions,
+} from "@/features/cards/lib/ocr-read-regions";
+import { nextCycledOption } from "@/features/cards/lib/cycle-option";
+import { useQuery } from "@tanstack/react-query";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import { useTranslation } from "react-i18next";
 import type {
   CardCorrectionOptions,
@@ -79,10 +129,12 @@ export function CardDetailPanel({
   lowConfidenceMatch = false,
   wasCorrected = false,
   isReviewed = false,
+  isDownloaded = false,
   storageLocation,
   isFoil = false,
   foilType,
   condition,
+  language,
   binNumber,
   onPrev,
   onNext,
@@ -94,45 +146,32 @@ export function CardDetailPanel({
   copyCount,
   reviewMode = false,
   onReviewComplete,
-  footerActions,
+  onShowReviewGrid,
+  onReviewed,
+  extraActions,
   onRemoveShortcut,
 }: CardDetailPanelProps) {
   const { t } = useTranslation("cards");
+  const isMobile = useIsMobile();
+  const inCardDrawer = useContext(CardDrawerContext);
+  const [actionsOpen, setActionsOpen] = useState(false);
   const [editing, setEditing] = useState(false);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
-  const [showOcrRegions, setShowOcrRegionsState] = useState(() => {
-    try {
-      return localStorage.getItem(CARD_OCR_REGIONS_STORAGE_KEY) === "true";
-    } catch {
-      return false;
-    }
-  });
-  const setShowOcrRegions = (checked: boolean) => {
-    setShowOcrRegionsState(checked);
-    try {
-      localStorage.setItem(CARD_OCR_REGIONS_STORAGE_KEY, String(checked));
-    } catch {}
-  };
-  const [showTechnicalDetails, setShowTechnicalDetails] = useState(() => {
-    try {
-      return (
-        localStorage.getItem(CARD_TECHNICAL_DETAILS_STORAGE_KEY) === "true"
-      );
-    } catch {
-      return false;
-    }
-  });
-  const handleTechnicalDetailsChange = (checked: boolean) => {
-    setShowTechnicalDetails(checked);
-    try {
-      localStorage.setItem(CARD_TECHNICAL_DETAILS_STORAGE_KEY, String(checked));
-    } catch {}
-  };
+  const [showOcrRegions, setShowOcrRegions] = usePersistedFlag(
+    CARD_OCR_REGIONS_STORAGE_KEY,
+  );
+  const [showTechnicalDetails, handleTechnicalDetailsChange] = usePersistedFlag(
+    CARD_TECHNICAL_DETAILS_STORAGE_KEY,
+  );
+  const ocrRegionsVisible = reviewMode || showOcrRegions;
   const [viewerOpen, setViewerOpen] = useState(false);
 
   const [candidates, setCandidates] = useState<PlayingCardWithDistance[]>([]);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
+  const [areMatchesOpen, setAreMatchesOpen] = useState(false);
   const prevScanIdRef = useRef<string | undefined>(undefined);
+  const prevCardIdRef = useRef<string | undefined>(undefined);
+  const candidateStripRef = useRef<HTMLDivElement>(null);
 
   const { addCard } = useScannedCards();
   const {
@@ -141,21 +180,42 @@ export function CardDetailPanel({
     markCardReviewed,
     setCardFoilType,
     setCardCondition,
+    setCardLanguage,
   } = useCardDetailActions();
-  const { priceOf, format, conditionMultipliers } = usePriceSource();
+  const { priceOf, format, conditionMultipliers, source } = usePriceSource();
   const canConfirm =
-    !!scanId && (lowConfidenceMatch || !!alternativeMatches?.length) && !wasCorrected;
+    !!scanId &&
+    (lowConfidenceMatch || !!alternativeMatches?.length) &&
+    !wasCorrected;
   const collection = useCardDetailCollection();
   const foilOptions = useFoilOptions();
+  const { data: scanOrigin } = useQuery({
+    ...cardScanOriginQueryOptions(collection?.guid, scanId ?? ""),
+    enabled: !!collection?.guid && !!scanId,
+  });
+  const hasScanOrigin =
+    !!scanId &&
+    !!scanOrigin &&
+    (!!scanOrigin.scannedAt || !!scanOrigin.scannedBy || !!scanOrigin.device);
+  const { acquisitionCost, saveCardAcquisitionCost } =
+    useCardAcquisitionCost(scanId);
   const scanDraft = useScanDraft({
     scanId,
     savedFoilType: foilType ?? (isFoil ? t("foil") : null),
     savedCondition: toCardCondition(condition),
+    savedLanguage: scanLanguage({ language, card: currentCard ?? {} }),
+    savedAcquisitionCost: acquisitionCost?.cost ?? null,
     setCardFoilType,
     setCardCondition,
+    setCardLanguage,
+    setCardAcquisitionCost: saveCardAcquisitionCost,
   });
   const currentFoilType = scanDraft.foilType;
   const currentCondition = scanDraft.condition;
+  const currentLanguage = scanDraft.language;
+  const languageOptions: string[] = isCardLanguage(currentLanguage)
+    ? [...CARD_LANGUAGES]
+    : [currentLanguage, ...CARD_LANGUAGES];
   const draftIsFoil = currentFoilType != null;
   const { runAfterCommit } = scanDraft;
 
@@ -173,16 +233,61 @@ export function CardDetailPanel({
       }
       setCandidates(all);
       setSelectedId(currentCard.id);
+      setAreMatchesOpen(!isMobile && !isReviewed && !wasCorrected);
       setEditing(false);
+    } else if (currentCard.id !== prevCardIdRef.current) {
+      setCandidates((prev) =>
+        prev.some((c) => c.id === currentCard.id)
+          ? prev
+          : [...prev, currentCard],
+      );
+      setSelectedId(currentCard.id);
     }
-  }, [scanId, currentCard, alternativeMatches]);
+    prevCardIdRef.current = currentCard.id;
+  }, [
+    scanId,
+    currentCard,
+    alternativeMatches,
+    isReviewed,
+    wasCorrected,
+    isMobile,
+  ]);
 
   const { data: capturedImageUrl, isLoading: isCapturedImageLoading } =
     useScanImage(collection?.guid, scanId);
   const showCapturedImageSlot =
     !!scanId && (isCapturedImageLoading || !!capturedImageUrl);
+  const { data: scanDiagnostics } = useQuery({
+    ...cardDiagnosticsQueryOptions(collection?.guid, scanId),
+    enabled:
+      !!collection?.guid && !!scanId && !!capturedImageUrl && ocrRegionsVisible,
+  });
+  const gameOcrRegions =
+    OCR_REGIONS_BY_GAME_KEY[collection?.game?.key ?? ""] ?? [];
+  const fixedOcrRegions = padFixedOcrRegions(gameOcrRegions);
+  const readOcrRegions = scanDiagnostics?.ocr?.regions?.length
+    ? toOcrOverlayRegions(scanDiagnostics.ocr.regions, gameOcrRegions)
+    : fixedOcrRegions;
 
   const stopEditing = useCallback(() => setEditing(false), []);
+
+  const correctionSearchRef = useRef<HTMLDivElement>(null);
+  const focusCorrectionSearch = () => {
+    const input = correctionSearchRef.current?.querySelector("input");
+    if (!input) return;
+    input.scrollIntoView({ block: "center" });
+    input.focus({ preventScroll: true });
+    input.select();
+  };
+  const leaveCorrectionSearch = () => {
+    const active = document.activeElement;
+    if (
+      active instanceof HTMLElement &&
+      correctionSearchRef.current?.contains(active)
+    ) {
+      active.blur();
+    }
+  };
 
   const goToNextInReview = useCallback(() => {
     if (hasNext) onNext?.();
@@ -197,6 +302,7 @@ export function CardDetailPanel({
         return;
       }
       correctCard(scanId, card);
+      if (reviewMode) onReviewed?.(scanId);
       if (reviewMode && !stay) {
         runAfterCommit(goToNextInReview);
         return;
@@ -216,6 +322,7 @@ export function CardDetailPanel({
       onClose,
       stopEditing,
       reviewMode,
+      onReviewed,
       goToNextInReview,
       runAfterCommit,
     ],
@@ -224,6 +331,7 @@ export function CardDetailPanel({
   const handleSelectCandidate = useCallback(
     (card: PlayingCardWithDistance) => {
       setSelectedId(card.id);
+      setAreMatchesOpen(false);
       if (scanId) correctCard(scanId, card);
     },
     [scanId, correctCard],
@@ -232,40 +340,114 @@ export function CardDetailPanel({
   const selectedCard =
     candidates.find((c) => c.id === selectedId) ?? currentCard;
   const hasMultipleCandidates = candidates.length > 1;
+  const isMatchChosen = isReviewed || wasCorrected;
   const isViewing = !!currentCard && !editing;
 
   const startEditing = () => setEditing(true);
+  const openCorrection = reviewMode ? focusCorrectionSearch : startEditing;
 
   const foilTriggerRef = useRef<HTMLButtonElement>(null);
   const conditionTriggerRef = useRef<HTMLButtonElement>(null);
+  const languageTriggerRef = useRef<HTMLButtonElement>(null);
+  const foilSelectId = useId();
+  const conditionSelectId = useId();
+  const languageSelectId = useId();
   const conditionPrice = selectedCard
-    ? priceOf(selectedCard, draftIsFoil, currentCondition)
+    ? priceOf(
+        selectedCard,
+        { isFoil: draftIsFoil, foilType: currentFoilType },
+        currentCondition,
+      )
     : null;
+  const isTcgplayerConditionPrice =
+    source === "tcgplayer" &&
+    !!selectedCard &&
+    tcgplayerConditionPriceFor(
+      selectedCard,
+      { isFoil: draftIsFoil, foilType: currentFoilType },
+      currentCondition,
+    ) != null;
+  const cardFoilOptions = cardFoilTypeOptions(
+    foilOptions,
+    selectedCard,
+    currentFoilType,
+  );
   const conditionHandler = (value: CardCondition) =>
     isViewing && scanId ? () => scanDraft.setCondition(value) : undefined;
 
   const toggleFoil = () => {
     if (!scanId) return;
-    scanDraft.setFoilType(currentFoilType ? null : foilOptions[0]);
+    scanDraft.setFoilType(currentFoilType ? null : cardFoilOptions[0]);
   };
 
-  const acceptInReview = () => {
+  const acceptMatchInReview = (chosenCard: PlayingCard | undefined) => {
+    if (
+      scanId &&
+      chosenCard &&
+      currentCard &&
+      chosenCard.id !== currentCard.id
+    ) {
+      handleSelect(chosenCard);
+      return;
+    }
     if (scanId) {
       if (canConfirm) confirmCard(scanId);
       else markCardReviewed(scanId);
+      onReviewed?.(scanId);
     }
     runAfterCommit(goToNextInReview);
   };
 
+  const acceptInReview = () => acceptMatchInReview(selectedCard);
+
+  const highlightCandidate = (offset: number) => {
+    const selectedIndex = candidates.findIndex((c) => c.id === selectedId);
+    const highlighted =
+      candidates[
+        (selectedIndex + offset + candidates.length) % candidates.length
+      ];
+    if (!highlighted) return;
+    setSelectedId(highlighted.id);
+    setAreMatchesOpen(true);
+    requestAnimationFrame(() =>
+      candidateStripRef.current
+        ?.querySelector('[aria-pressed="true"]')
+        ?.scrollIntoView({ block: "nearest", inline: "nearest" }),
+    );
+  };
+  const canCycleScanAttributes = reviewMode && isViewing && !!scanId;
+  const canHighlightCandidates =
+    reviewMode && isViewing && hasMultipleCandidates;
+
   const requestRemove =
-    onRemoveShortcut ?? (onRemove ? () => setConfirmRemoveOpen(true) : undefined);
+    onRemoveShortcut ??
+    (onRemove ? () => setConfirmRemoveOpen(true) : undefined);
 
   useHotkeys(
     {
       cardPrevious: isViewing && hasPrev ? onPrev : undefined,
       cardNext: isViewing && hasNext ? onNext : undefined,
-      cardCorrect: isViewing ? startEditing : undefined,
-      cardToggleFoil: isViewing && scanId ? toggleFoil : undefined,
+      cardCorrect: isViewing ? openCorrection : undefined,
+      cardToggleFoil:
+        !reviewMode && isViewing && scanId ? toggleFoil : undefined,
+      reviewCycleFoil: canCycleScanAttributes
+        ? () =>
+            scanDraft.setFoilType(
+              nextCycledOption([null, ...cardFoilOptions], currentFoilType),
+            )
+        : undefined,
+      reviewCycleCondition: canCycleScanAttributes
+        ? () =>
+            scanDraft.setCondition(
+              nextCycledOption(CARD_CONDITIONS, currentCondition),
+            )
+        : undefined,
+      reviewCycleLanguage: canCycleScanAttributes
+        ? () =>
+            scanDraft.setLanguage(
+              nextCycledOption(languageOptions, currentLanguage),
+            )
+        : undefined,
       cardConditionNM: conditionHandler("NM"),
       cardConditionLP: conditionHandler("LP"),
       cardConditionMP: conditionHandler("MP"),
@@ -273,6 +455,12 @@ export function CardDetailPanel({
       cardConditionDMG: conditionHandler("DMG"),
       cardClose: editing ? stopEditing : onClose,
       reviewAccept: reviewMode && isViewing ? acceptInReview : undefined,
+      reviewPreviousMatch: canHighlightCandidates
+        ? () => highlightCandidate(-1)
+        : undefined,
+      reviewNextMatch: canHighlightCandidates
+        ? () => highlightCandidate(1)
+        : undefined,
       cardRemove: isViewing ? requestRemove : undefined,
     },
     true,
@@ -288,6 +476,305 @@ export function CardDetailPanel({
     <Skeleton className="h-full w-full rounded-none" />
   );
 
+  const imageWidthClass = reviewMode ? "w-full" : "w-56 max-md:w-full";
+
+  const cardImages = (
+    <>
+      {showCapturedImageSlot && (
+        <figure className="flex min-w-0 flex-col gap-1.5">
+          <figcaption className="text-xs text-foreground/70">
+            {t("cardDetailPanel.capturedScan")}
+          </figcaption>
+          <button
+            type="button"
+            onClick={() => setViewerOpen(true)}
+            disabled={!capturedImageUrl}
+            aria-label={t("cardDetailPanel.enlargeImage")}
+            title={t("cardDetailPanel.enlargeImage")}
+            className={cn(
+              "relative aspect-[2.5/3.5] rounded-lg overflow-hidden border cursor-zoom-in disabled:cursor-default hover:border-primary/60 transition-colors",
+              imageWidthClass,
+            )}
+          >
+            {capturedImage}
+            {ocrRegionsVisible && capturedImageUrl && (
+              <OcrRegionOverlay regions={readOcrRegions} />
+            )}
+          </button>
+          {ocrRegionsVisible && capturedImageUrl && (
+            <OcrRegionCrops
+              src={capturedImageUrl}
+              regions={readOcrRegions}
+              className={cn(imageWidthClass, "mt-1.5")}
+            />
+          )}
+        </figure>
+      )}
+      <figure className="flex min-w-0 flex-col gap-1.5">
+        {showCapturedImageSlot && (
+          <figcaption className="text-xs text-foreground/70">
+            {t("cardDetailPanel.matchedCard")}
+          </figcaption>
+        )}
+        <div
+          className={cn(
+            "relative aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm",
+            imageWidthClass,
+          )}
+        >
+          <img
+            src={selectedCard?.image?.normal || ""}
+            alt={selectedCard?.name}
+            className="w-full h-full object-cover"
+          />
+          {draftIsFoil && <FoilOverlay />}
+          {ocrRegionsVisible && selectedCard?.image?.normal && (
+            <OcrRegionOverlay regions={fixedOcrRegions} />
+          )}
+        </div>
+        {ocrRegionsVisible && selectedCard?.image?.normal && (
+          <OcrRegionCrops
+            regions={fixedOcrRegions}
+            src={selectedCard.image.normal}
+            className={cn(imageWidthClass, "mt-1.5")}
+          />
+        )}
+      </figure>
+    </>
+  );
+
+  const hasDisplayToggles = !reviewMode && (!!capturedImageUrl || !!scanId);
+  const displayToggles = !reviewMode && (
+    <>
+      {capturedImageUrl && (
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <span>{t("cardDetailPanel.showOcrRegions")}</span>
+          <Switch
+            size="sm"
+            aria-label={t("cardDetailPanel.showOcrRegions")}
+            checked={showOcrRegions}
+            onCheckedChange={setShowOcrRegions}
+          />
+        </div>
+      )}
+      {scanId && (
+        <div className="flex items-center gap-2 whitespace-nowrap">
+          <span>{t("technicalDetails.toggle")}</span>
+          <Switch
+            size="sm"
+            aria-label={t("technicalDetails.toggle")}
+            checked={showTechnicalDetails}
+            onCheckedChange={handleTechnicalDetailsChange}
+          />
+        </div>
+      )}
+    </>
+  );
+
+  const similarMatches = hasMultipleCandidates && (
+    <Accordion
+      value={areMatchesOpen ? [SIMILAR_MATCHES_ACCORDION_VALUE] : []}
+      onValueChange={(value) =>
+        setAreMatchesOpen(value.includes(SIMILAR_MATCHES_ACCORDION_VALUE))
+      }
+    >
+      <AccordionItem
+        value={SIMILAR_MATCHES_ACCORDION_VALUE}
+        className="border-b-0"
+      >
+        <AccordionTrigger className="py-1 text-xs font-medium tracking-wide text-foreground/70 uppercase">
+          <span className="flex items-center gap-1.5">
+            {t("cardDetailPanel.similarMatches")}
+            <Badge variant="outline">{candidates.length}</Badge>
+          </span>
+        </AccordionTrigger>
+        <AccordionContent className="gap-2 pb-0">
+          {!isMatchChosen && (
+            <p className="text-sm text-foreground/70">
+              {t("cardPicker.multipleMatches")}
+            </p>
+          )}
+          {reviewMode && !isMobile && (
+            <p className="flex items-center gap-1 text-xs text-foreground/70">
+              <HotkeyHint id="reviewPreviousMatch" />
+              <HotkeyHint id="reviewNextMatch" />
+              {t("review.pickMatch")}
+            </p>
+          )}
+          <div
+            ref={candidateStripRef}
+            className="flex gap-2 overflow-x-auto p-1"
+          >
+            {candidates.map((c) => (
+              <CardSearchResultTile
+                key={c.id}
+                card={c}
+                isSelected={c.id === selectedId}
+                reviewLayout={reviewMode}
+                onClick={() =>
+                  reviewMode ? acceptMatchInReview(c) : handleSelectCandidate(c)
+                }
+                className="w-56 shrink-0 max-md:w-36"
+              />
+            ))}
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
+  );
+
+  const correctionSection = reviewMode && scanId && currentCard && (
+    <DetailSection title={t("cardPicker.correctCard")}>
+      <div ref={correctionSearchRef} className="flex flex-col gap-2">
+        <CardCorrectionSearch
+          key={`${scanId}:${currentCard.id}`}
+          inline
+          initialQuery={currentCard.name}
+          collectionGuid={collection?.guid}
+          onSelect={handleSelect}
+          onCancel={leaveCorrectionSearch}
+        />
+        {!isMobile && (
+          <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/70">
+            <span className="inline-flex items-center gap-1">
+              <HotkeyHint id="cardCorrect" />
+              {t("review.jumpToSearch")}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Kbd>{t("review.keys.enter")}</Kbd>
+              {hasNext ? t("review.correctNext") : t("review.correctFinish")}
+            </span>
+            <span className="inline-flex items-center gap-1">
+              <Kbd>{t("review.keys.shiftEnter")}</Kbd>
+              {t("review.correctStay")}
+            </span>
+          </p>
+        )}
+      </div>
+    </DetailSection>
+  );
+
+  const scanAttributeControls = (
+    <div className="flex flex-wrap gap-6 items-start max-md:grid max-md:grid-cols-2 max-md:gap-3">
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor={foilSelectId}>
+          {t("foil")}
+          {reviewMode && !isMobile && <HotkeyHint id="reviewCycleFoil" />}
+        </Label>
+        <Select
+          value={currentFoilType ?? "none"}
+          onValueChange={(value) => {
+            if (scanId) {
+              scanDraft.setFoilType(value === "none" ? null : value);
+            }
+          }}
+          disabled={!scanId}
+          onOpenChangeComplete={(open) => {
+            if (!open) foilTriggerRef.current?.blur();
+          }}
+        >
+          <SelectTrigger
+            id={foilSelectId}
+            ref={foilTriggerRef}
+            className="w-40 max-md:w-full"
+          >
+            <SelectValue placeholder={t("foilNone")} />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="none">{t("foilNone")}</SelectItem>
+            {cardFoilOptions.map((type) => (
+              <SelectItem key={type} value={type}>
+                {type}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor={conditionSelectId}>
+          {t("condition.label")}
+          {reviewMode && !isMobile && <HotkeyHint id="reviewCycleCondition" />}
+        </Label>
+        <Select
+          value={currentCondition}
+          onValueChange={(value) => {
+            if (scanId && isCardCondition(value)) {
+              scanDraft.setCondition(value);
+            }
+          }}
+          disabled={!scanId}
+          onOpenChangeComplete={(open) => {
+            if (!open) conditionTriggerRef.current?.blur();
+          }}
+        >
+          <SelectTrigger
+            id={conditionSelectId}
+            ref={conditionTriggerRef}
+            className="w-40 max-md:w-full"
+          >
+            <SelectValue>
+              {t(`condition.names.${currentCondition}`)}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {CARD_CONDITIONS.map((option) => (
+              <SelectItem key={option} value={option}>
+                {t(`condition.names.${option}`)}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        {conditionPrice != null &&
+          currentCondition !== DEFAULT_CARD_CONDITION && (
+            <p className="text-2xs text-foreground/70">
+              {isTcgplayerConditionPrice
+                ? t("condition.marketPriceHint", {
+                    price: format(conditionPrice),
+                    condition: currentCondition,
+                  })
+                : t("condition.priceHint", {
+                    price: format(conditionPrice),
+                    percent: conditionMultipliers[currentCondition],
+                  })}
+            </p>
+          )}
+      </div>
+      <div className="flex flex-col gap-1.5">
+        <Label htmlFor={languageSelectId}>
+          {t("language")}
+          {reviewMode && !isMobile && <HotkeyHint id="reviewCycleLanguage" />}
+        </Label>
+        <Select
+          value={currentLanguage}
+          onValueChange={(value) => {
+            if (scanId && value) scanDraft.setLanguage(value);
+          }}
+          disabled={!scanId}
+          onOpenChangeComplete={(open) => {
+            if (!open) languageTriggerRef.current?.blur();
+          }}
+        >
+          <SelectTrigger
+            id={languageSelectId}
+            ref={languageTriggerRef}
+            className="w-40 max-md:w-full"
+          >
+            <SelectValue>
+              {LANGUAGE_LABELS[currentLanguage] ?? currentLanguage}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {languageOptions.map((option) => (
+              <SelectItem key={option} value={option}>
+                {LANGUAGE_LABELS[option] ?? option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+    </div>
+  );
+
   const cardName =
     selectedCard?.name ?? t("cardDetailPanel.cardDetailsFallback");
   const typeLine = selectedCard?.typeLine ?? "";
@@ -299,337 +786,271 @@ export function CardDetailPanel({
           open={viewerOpen}
           onOpenChange={setViewerOpen}
           capturedImageUrl={capturedImageUrl}
-          showOcrRegions={showOcrRegions}
-          onShowOcrRegionsChange={setShowOcrRegions}
+          showOcrRegions={ocrRegionsVisible}
+          onShowOcrRegionsChange={reviewMode ? undefined : setShowOcrRegions}
+          ocrRegions={readOcrRegions}
         />
       )}
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
-        <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-2xl border-b p-2 flex items-center justify-between gap-2">
-          <ButtonGroup className="shrink-0">
+        {!inCardDrawer && (
+          <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-2xl border-b p-2 flex items-center justify-between gap-2">
+            <ButtonGroup className="shrink-0">
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={onPrev}
+                disabled={!hasPrev}
+                aria-label={t("cardDetailPanel.previousCard")}
+              >
+                <IconChevronUp />
+              </Button>
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={onNext}
+                disabled={!hasNext}
+                aria-label={t("cardDetailPanel.nextCard")}
+              >
+                <IconChevronDown />
+              </Button>
+            </ButtonGroup>
+            <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-1 text-xs text-foreground/70">
+              {!isMobile && displayToggles}
+            </div>
+            {reviewMode && onShowReviewGrid && (
+              <Button
+                variant="outline"
+                className="shrink-0"
+                onClick={onShowReviewGrid}
+              >
+                <IconLayoutGrid />
+                {t("reviewGrid.layoutGrid")}
+              </Button>
+            )}
             <Button
               size="icon"
-              variant="outline"
-              onClick={onPrev}
-              disabled={!hasPrev}
-              aria-label={t("cardDetailPanel.previousCard")}
+              variant="ghost"
+              className="shrink-0"
+              onClick={onClose}
+              aria-label={t("cardDetailPanel.backToList")}
             >
-              <IconChevronUp />
+              <IconX />
             </Button>
-            <Button
-              size="icon"
-              variant="outline"
-              onClick={onNext}
-              disabled={!hasNext}
-              aria-label={t("cardDetailPanel.nextCard")}
-            >
-              <IconChevronDown />
-            </Button>
-          </ButtonGroup>
-          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-end gap-x-4 gap-y-1 text-xs text-foreground/70">
-            {capturedImageUrl && (
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                <span>{t("cardDetailPanel.showOcrRegions")}</span>
-                <Switch
-                  size="sm"
-                  aria-label={t("cardDetailPanel.showOcrRegions")}
-                  checked={showOcrRegions}
-                  onCheckedChange={setShowOcrRegions}
-                />
-              </div>
-            )}
-            {scanId && (
-              <div className="flex items-center gap-2 whitespace-nowrap">
-                <span>{t("technicalDetails.toggle")}</span>
-                <Switch
-                  size="sm"
-                  aria-label={t("technicalDetails.toggle")}
-                  checked={showTechnicalDetails}
-                  onCheckedChange={handleTechnicalDetailsChange}
-                />
-              </div>
-            )}
           </div>
-          <Button
-            size="icon"
-            variant="ghost"
-            className="shrink-0"
-            onClick={onClose}
-            aria-label={t("cardDetailPanel.backToList")}
-          >
-            <IconX />
-          </Button>
-        </div>
-        <div className="@container flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6">
-          <div className="min-w-0">
-            <div className="flex items-baseline gap-2">
-              <h2 className="font-semibold text-base truncate">{cardName}</h2>
-              {total != null && currentIndex != null && (
-                <span className="text-xs text-foreground/70 shrink-0">
-                  {currentIndex + 1} / {total}
-                </span>
-              )}
-              {reviewMode && (
-                <Badge variant="outline" className="shrink-0">
-                  {t("review.badge")}
-                </Badge>
-              )}
-              {(isReviewed || wasCorrected) && (
-                <Badge variant="success" className="shrink-0">
-                  <IconCheck />
-                  {t("technicalDetails.reviewed")}
-                </Badge>
-              )}
-              {copyCount != null && copyCount > 1 && (
-                <Badge variant="secondary" className="shrink-0">
-                  {t("cardDetailPanel.copyOf", {
-                    index: (copyIndex ?? 0) + 1,
-                    count: copyCount,
-                  })}
-                </Badge>
+        )}
+        <div className="@container flex-1 min-h-0 overflow-y-auto p-6 flex flex-col gap-6 max-md:p-4 max-md:gap-5">
+          <div className="flex items-start gap-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-baseline gap-2 max-md:flex-wrap max-md:gap-y-1">
+                <h2 className="font-semibold text-base truncate max-md:basis-full max-md:whitespace-normal max-md:line-clamp-2">
+                  {cardName}
+                </h2>
+                {!(reviewMode && !isMobile) &&
+                  total != null &&
+                  currentIndex != null && (
+                    <span className="text-xs text-foreground/70 shrink-0">
+                      {currentIndex + 1} / {total}
+                    </span>
+                  )}
+                {reviewMode && (
+                  <Badge variant="outline" className="shrink-0">
+                    {t("review.badge")}
+                  </Badge>
+                )}
+                {scanId ? (
+                  <CardTagsMenu
+                    scanId={scanId}
+                    isDownloaded={isDownloaded}
+                    isReviewed={isReviewed}
+                    wasCorrected={wasCorrected}
+                    useSheet={inCardDrawer}
+                  />
+                ) : (
+                  (isReviewed || wasCorrected) && (
+                    <Badge variant="success" className="shrink-0">
+                      <IconCheck />
+                      {t("technicalDetails.reviewed")}
+                    </Badge>
+                  )
+                )}
+                {copyCount != null && copyCount > 1 && (
+                  <Badge variant="secondary" className="shrink-0">
+                    {t("cardDetailPanel.copyOf", {
+                      index: (copyIndex ?? 0) + 1,
+                      count: copyCount,
+                    })}
+                  </Badge>
+                )}
+              </div>
+              {typeLine && (
+                <p className="text-sm text-foreground/70 truncate">
+                  {typeLine}
+                </p>
               )}
             </div>
-            {typeLine && (
-              <p className="text-sm text-foreground/70 truncate">{typeLine}</p>
+            {inCardDrawer && currentCard && !editing && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="-mt-1 -mr-2 shrink-0"
+                aria-label={t("cardDetailPanel.actions")}
+                onClick={() => setActionsOpen(true)}
+              >
+                <IconDots />
+              </Button>
             )}
           </div>
           {currentCard && !editing ? (
             <>
-              {hasMultipleCandidates && (
-                <DetailSection title={t("cardDetailPanel.similarMatches")}>
-                  <p className="text-sm text-foreground/70">
-                    {t("cardPicker.multipleMatches")}
-                  </p>
-                  <div className="flex gap-2 overflow-x-auto pb-1">
-                    {candidates.map((c) => {
-                      const isSelected = c.id === selectedId;
-                      return (
-                        <button
-                          key={c.id}
-                          type="button"
-                          onClick={() => handleSelectCandidate(c)}
-                          className="shrink-0 flex flex-col gap-1 items-center cursor-pointer group"
-                        >
-                          <div
-                            className={cn(
-                              "w-24 aspect-[2.5/3.5] rounded-md overflow-hidden border-2 transition-all",
-                              isSelected
-                                ? "border-primary shadow-md"
-                                : "border-border group-hover:border-primary/60",
-                            )}
-                          >
-                            <img
-                              src={c.image?.small || c.image?.normal || ""}
-                              alt={c.name}
-                              className="w-full h-full object-cover"
-                            />
-                          </div>
-                          <div className="flex items-center gap-1">
-                            {isSelected && (
-                              <IconCheck className="size-3 text-primary shrink-0" />
-                            )}
-                            <p
-                              className={cn(
-                                "text-xs font-medium",
-                                isSelected
-                                  ? "text-primary"
-                                  : "text-foreground/70",
-                              )}
-                            >
-                              {c.set.toUpperCase()} #{c.collectorNumber}
-                            </p>
-                          </div>
-                        </button>
-                      );
-                    })}
+              {reviewMode ? (
+                <div
+                  className={cn(
+                    "grid items-start gap-6",
+                    scanId &&
+                      (showCapturedImageSlot
+                        ? REVIEW_LAYOUT_WITH_SCAN_COLUMNS_CLASS
+                        : REVIEW_LAYOUT_WITHOUT_SCAN_COLUMNS_CLASS),
+                  )}
+                >
+                  <div className="flex min-w-0 flex-col gap-6">
+                    <div
+                      className={cn(
+                        "grid gap-4",
+                        showCapturedImageSlot
+                          ? "grid-cols-2 max-w-3xl"
+                          : "max-w-sm",
+                      )}
+                    >
+                      {cardImages}
+                    </div>
+                    {similarMatches}
                   </div>
-                </DetailSection>
+                  <div className="flex min-w-0 flex-col gap-6">
+                    {correctionSection}
+                    {scanId && scanAttributeControls}
+                  </div>
+                </div>
+              ) : (
+                similarMatches
               )}
 
-              <div className="grid gap-6 @3xl:grid-cols-[auto_minmax(0,1fr)]">
-                <div className="flex flex-wrap gap-3 items-start @3xl:flex-col @6xl:flex-row">
-                  {showCapturedImageSlot && (
-                    <figure className="flex flex-col gap-1.5">
-                      <figcaption className="text-xs text-foreground/70">
-                        {t("cardDetailPanel.capturedScan")}
-                      </figcaption>
-                      <button
-                        type="button"
-                        onClick={() => setViewerOpen(true)}
-                        disabled={!capturedImageUrl}
-                        aria-label={t("cardDetailPanel.enlargeImage")}
-                        title={t("cardDetailPanel.enlargeImage")}
-                        className="relative w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border cursor-zoom-in disabled:cursor-default hover:border-primary/60 transition-colors"
-                      >
-                        {capturedImage}
-                        {showOcrRegions && capturedImageUrl && (
-                          <OcrRegionOverlay />
-                        )}
-                      </button>
-                      {showOcrRegions && capturedImageUrl && (
-                        <OcrRegionCrops
-                          src={capturedImageUrl}
-                          className="w-56 mt-1.5"
-                        />
-                      )}
-                    </figure>
-                  )}
-                  <figure className="flex flex-col gap-1.5">
-                    {showCapturedImageSlot && (
-                      <figcaption className="text-xs text-foreground/70">
-                        {t("cardDetailPanel.matchedCard")}
-                      </figcaption>
-                    )}
-                    <div className="relative w-56 aspect-[2.5/3.5] rounded-lg overflow-hidden border shadow-sm">
-                      <img
-                        src={selectedCard?.image?.normal || ""}
-                        alt={selectedCard?.name}
-                        className="w-full h-full object-cover"
-                      />
-                      {draftIsFoil && <FoilOverlay />}
-                      {showOcrRegions && selectedCard?.image?.normal && (
-                        <OcrRegionOverlay />
-                      )}
-                    </div>
-                    {showOcrRegions && selectedCard?.image?.normal && (
-                      <OcrRegionCrops
-                        src={selectedCard.image.normal}
-                        className="w-56 mt-1.5"
-                      />
-                    )}
-                  </figure>
-                </div>
+              <div
+                className={cn(
+                  "grid gap-6",
+                  !reviewMode && "@3xl:grid-cols-[auto_minmax(0,1fr)]",
+                )}
+              >
+                {!reviewMode && (
+                  <div className="flex flex-wrap gap-3 items-start @3xl:flex-col @6xl:flex-row max-md:grid max-md:grid-cols-2">
+                    {cardImages}
+                  </div>
+                )}
 
                 {selectedCard && (
                   <div className="flex flex-col gap-6 min-w-0">
                     <DetailSection title={t("cardDetailPanel.prices")}>
-                      <CardPriceDetails
-                        card={selectedCard}
-                        isFoil={draftIsFoil}
-                      />
+                      <div className="flex flex-col gap-4">
+                        <CardPriceDetails
+                          card={selectedCard}
+                          isFoil={draftIsFoil}
+                          foilType={currentFoilType}
+                          condition={currentCondition}
+                        />
+                        <CardPurchaseLinks card={selectedCard} />
+                        {scanId && acquisitionCost && (
+                          <Field
+                            className="w-40"
+                            data-invalid={
+                              !!scanDraft.acquisitionCostError || undefined
+                            }
+                          >
+                            <FieldLabel htmlFor="card-price-paid">
+                              {t("cardDetailPanel.pricePaid", {
+                                currency: acquisitionCost.currency,
+                              })}
+                            </FieldLabel>
+                            <NumberInput
+                              id="card-price-paid"
+                              min={0}
+                              step={0.01}
+                              placeholder={t("cardDetailPanel.pricePaidEmpty")}
+                              value={scanDraft.acquisitionCost}
+                              onChange={scanDraft.setAcquisitionCost}
+                              aria-invalid={!!scanDraft.acquisitionCostError}
+                            />
+                            {scanDraft.acquisitionCostError && (
+                              <FieldError
+                                errors={[
+                                  { message: scanDraft.acquisitionCostError },
+                                ]}
+                              />
+                            )}
+                          </Field>
+                        )}
+                      </div>
                     </DetailSection>
 
                     <DetailSection title={t("cardDetailPanel.details")}>
-                      <CardDetailsList card={selectedCard} />
+                      <div className="flex flex-col gap-4">
+                        <CardDetailsList card={selectedCard} />
+                        {selectedCard.text && (
+                          <p className="rounded-md bg-muted p-3 text-sm whitespace-pre-line leading-relaxed">
+                            {selectedCard.text}
+                          </p>
+                        )}
+                        {!reviewMode && scanAttributeControls}
+                      </div>
                     </DetailSection>
 
                     {scanId && (
                       <CardStorageLocationSection
                         scanId={scanId}
                         collectionGuid={collection?.guid}
-                        canRemove={!footerActions}
+                        canEdit={!extraActions}
                       />
                     )}
 
-                    {scanId && (
-                      <CardScanOriginSection
-                        scanId={scanId}
-                        collectionGuid={collection?.guid}
-                      />
-                    )}
-
-                    {selectedCard.text && (
-                      <DetailSection title={t("cardDetailPanel.cardText")}>
-                        <p className="rounded-md bg-muted p-3 text-sm whitespace-pre-line leading-relaxed">
-                          {selectedCard.text}
-                        </p>
+                    {(hasScanOrigin || binNumber != null) && (
+                      <DetailSection title={t("cardDetailPanel.thisScan")}>
+                        <div className="flex flex-col gap-4">
+                          {scanOrigin && hasScanOrigin && (
+                            <CardScanOriginList origin={scanOrigin} />
+                          )}
+                          {binNumber != null && (
+                            <div className="flex flex-col gap-1.5">
+                              <Label>{t("cardDetailPanel.binLocation")}</Label>
+                              <div className="w-48 rounded-lg border">
+                                <BinLocationDiagram
+                                  binNumber={binNumber}
+                                  inverted={false}
+                                />
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </DetailSection>
                     )}
-
-                    <DetailSection title={t("cardDetailPanel.thisScan")}>
-                      <div className="flex flex-wrap gap-6 items-start">
-                        <div className="flex flex-col gap-1.5">
-                          <Label>{t("foil")}</Label>
-                          <Select
-                            value={currentFoilType ?? "none"}
-                            onValueChange={(value) => {
-                              if (scanId) {
-                                scanDraft.setFoilType(
-                                  value === "none" ? null : value,
-                                );
-                              }
-                            }}
-                            disabled={!scanId}
-                            onOpenChangeComplete={(open) => {
-                              if (!open) foilTriggerRef.current?.blur();
-                            }}
-                          >
-                            <SelectTrigger
-                              ref={foilTriggerRef}
-                              className="w-40"
-                            >
-                              <SelectValue placeholder={t("foilNone")} />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="none">
-                                {t("foilNone")}
-                              </SelectItem>
-                              {foilOptions.map((type) => (
-                                <SelectItem key={type} value={type}>
-                                  {type}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-                        <div className="flex flex-col gap-1.5">
-                          <Label>{t("condition.label")}</Label>
-                          <Select
-                            value={currentCondition}
-                            onValueChange={(value) => {
-                              if (scanId && isCardCondition(value)) {
-                                scanDraft.setCondition(value);
-                              }
-                            }}
-                            disabled={!scanId}
-                            onOpenChangeComplete={(open) => {
-                              if (!open) conditionTriggerRef.current?.blur();
-                            }}
-                          >
-                            <SelectTrigger
-                              ref={conditionTriggerRef}
-                              className="w-40"
-                            >
-                              <SelectValue>
-                                {t(`condition.names.${currentCondition}`)}
-                              </SelectValue>
-                            </SelectTrigger>
-                            <SelectContent>
-                              {CARD_CONDITIONS.map((option) => (
-                                <SelectItem key={option} value={option}>
-                                  {t(`condition.names.${option}`)}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                          {conditionPrice != null &&
-                            currentCondition !== DEFAULT_CARD_CONDITION && (
-                              <p className="text-2xs text-foreground/70">
-                                {t("condition.priceHint", {
-                                  price: format(conditionPrice),
-                                  percent:
-                                    conditionMultipliers[currentCondition],
-                                })}
-                              </p>
-                            )}
-                        </div>
-                        {binNumber != null && (
-                          <div className="flex flex-col gap-1.5">
-                            <Label>{t("cardDetailPanel.binLocation")}</Label>
-                            <div className="w-48 rounded-lg border">
-                              <BinLocationDiagram
-                                binNumber={binNumber}
-                                inverted={false}
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </DetailSection>
                   </div>
                 )}
               </div>
 
-              {showTechnicalDetails && scanId && (
+              {isMobile && hasDisplayToggles && (
+                <Accordion>
+                  <AccordionItem
+                    value={MORE_DETAIL_OPTIONS_ACCORDION_VALUE}
+                    className="border-b-0"
+                  >
+                    <AccordionTrigger className="py-1 text-xs font-medium tracking-wide text-foreground/70 uppercase">
+                      {t("cardDetailPanel.moreOptions")}
+                    </AccordionTrigger>
+                    <AccordionContent className="flex flex-col items-start gap-3 pb-0 text-xs text-foreground/70">
+                      {displayToggles}
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              )}
+
+              {!reviewMode && showTechnicalDetails && scanId && (
                 <CardTechnicalDetails
                   scanId={scanId}
                   card={currentCard}
@@ -649,9 +1070,44 @@ export function CardDetailPanel({
             />
           )}
         </div>
-        {currentCard && !editing ? (
+        {currentCard && !editing && inCardDrawer ? (
+          <div className="shrink-0 border-t bg-background/80 p-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] backdrop-blur-2xl">
+            <div className="flex items-center gap-1.5">
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={onPrev}
+                disabled={!hasPrev}
+                aria-label={t("cardDetailPanel.previousCard")}
+              >
+                <IconChevronLeft />
+              </Button>
+              {reviewMode ? (
+                <Button className="flex-1" onClick={acceptInReview}>
+                  <IconCheck className="size-4" />
+                  {hasNext ? t("review.acceptNext") : t("review.acceptFinish")}
+                </Button>
+              ) : (
+                <span className="flex-1 text-center text-xs text-foreground/70 tabular-nums">
+                  {total != null && currentIndex != null
+                    ? `${currentIndex + 1} / ${total}`
+                    : null}
+                </span>
+              )}
+              <Button
+                size="icon"
+                variant="outline"
+                onClick={onNext}
+                disabled={!hasNext}
+                aria-label={t("cardDetailPanel.nextCard")}
+              >
+                <IconChevronRight />
+              </Button>
+            </div>
+          </div>
+        ) : currentCard && !editing ? (
           <div className="shrink-0 bg-background/80 backdrop-blur-2xl p-2 border-t">
-            <div className="flex flex-wrap gap-2 items-center w-full">
+            <div className="flex flex-wrap gap-2 items-center w-full max-md:gap-1.5 max-md:[&>*]:flex-1">
               {reviewMode && (
                 <Button onClick={acceptInReview}>
                   <IconCheck className="size-4" />
@@ -662,24 +1118,43 @@ export function CardDetailPanel({
               {canConfirm && !reviewMode && (
                 <Button
                   variant="outline"
-                  onClick={() => scanId && confirmCard(scanId)}
+                  onClick={() => {
+                    if (!scanId) return;
+                    setAreMatchesOpen(false);
+                    confirmCard(scanId);
+                  }}
                   title={t("cardDetailPanel.markCorrectTitle")}
                 >
                   <IconCheck className="size-4" />
                   {t("cardDetailPanel.markCorrect")}
                 </Button>
               )}
-              <Button variant="outline" onClick={startEditing}>
-                <IconPencil className="size-4" />
-                {t("cardPicker.correctCard")}
-                <HotkeyHint id="cardCorrect" />
-              </Button>
-              {footerActions}
+              {!reviewMode && (
+                <Button variant="outline" onClick={startEditing}>
+                  <IconPencil className="size-4" />
+                  {t("cardPicker.correctCard")}
+                  <HotkeyHint id="cardCorrect" />
+                </Button>
+              )}
+              {extraActions?.map((action) => (
+                <Button
+                  key={action.key}
+                  variant={action.destructive ? "destructive" : "outline"}
+                  disabled={action.disabled}
+                  onClick={action.onSelect}
+                >
+                  {action.icon}
+                  {action.label}
+                  {action.hotkeyId && <HotkeyHint id={action.hotkeyId} />}
+                </Button>
+              ))}
               {onRemove && (
                 <Button
                   variant="destructive"
                   onClick={
-                    storageLocation ? () => setConfirmRemoveOpen(true) : onRemove
+                    storageLocation
+                      ? () => setConfirmRemoveOpen(true)
+                      : onRemove
                   }
                 >
                   <IconTrash className="size-4" />
@@ -696,24 +1171,65 @@ export function CardDetailPanel({
                 {t("cardDetailPanel.cancel")}
                 <HotkeyHint id="cardClose" />
               </Button>
-              {reviewMode && scanId && (
-                <p className="ml-auto flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-foreground/70">
-                  <span className="inline-flex items-center gap-1">
-                    <Kbd>{t("review.keys.enter")}</Kbd>
-                    {hasNext
-                      ? t("review.correctNext")
-                      : t("review.correctFinish")}
-                  </span>
-                  <span className="inline-flex items-center gap-1">
-                    <Kbd>{t("review.keys.shiftEnter")}</Kbd>
-                    {t("review.correctStay")}
-                  </span>
-                </p>
-              )}
             </div>
           </div>
         )}
       </div>
+      {inCardDrawer && (
+        <CardDetailActionsSheet
+          open={actionsOpen}
+          onOpenChange={setActionsOpen}
+          title={cardName}
+          actions={[
+            ...(canConfirm && !reviewMode
+              ? [
+                  {
+                    key: "mark-correct",
+                    label: t("cardDetailPanel.markCorrect"),
+                    icon: <IconCheck />,
+                    onSelect: () => {
+                      if (!scanId) return;
+                      setAreMatchesOpen(false);
+                      confirmCard(scanId);
+                    },
+                  },
+                ]
+              : []),
+            {
+              key: "correct",
+              label: t("cardPicker.correctCard"),
+              icon: <IconPencil />,
+              onSelect: reviewMode
+                ? () => requestAnimationFrame(focusCorrectionSearch)
+                : startEditing,
+            },
+            ...(reviewMode && onShowReviewGrid
+              ? [
+                  {
+                    key: "review-grid",
+                    label: t("reviewGrid.layoutGrid"),
+                    icon: <IconLayoutGrid />,
+                    onSelect: onShowReviewGrid,
+                  },
+                ]
+              : []),
+            ...(extraActions ?? []),
+            ...(onRemove
+              ? [
+                  {
+                    key: "remove",
+                    label: t("cardPicker.remove"),
+                    icon: <IconTrash />,
+                    destructive: true,
+                    onSelect: storageLocation
+                      ? () => setConfirmRemoveOpen(true)
+                      : onRemove,
+                  },
+                ]
+              : []),
+          ]}
+        />
+      )}
       {onRemove && (
         <DeleteDialog
           open={confirmRemoveOpen}

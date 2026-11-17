@@ -5,6 +5,7 @@ import { DiscordChannelSelect } from "@/features/integrations/components/discord
 import type { PlatformDiscordChannelFieldsProps } from "@/lib/interfaces/admin";
 import { useQuery } from "@tanstack/react-query";
 import { Controller, useWatch } from "react-hook-form";
+import { useId } from "react";
 import { useTranslation } from "react-i18next";
 
 export function PlatformDiscordChannelFields({
@@ -14,6 +15,7 @@ export function PlatformDiscordChannelFields({
   botReachable,
 }: PlatformDiscordChannelFieldsProps) {
   const { t } = useTranslation("admin");
+  const guildSelectId = useId();
   const guildId = useWatch({
     control: form.control,
     name: `${channelKey}.guildId`,
@@ -25,12 +27,13 @@ export function PlatformDiscordChannelFields({
   return (
     <div className="grid gap-3 sm:grid-cols-2">
       <div className="flex flex-col gap-1.5">
-        <Label>{t("discordChannels.server")}</Label>
+        <Label htmlFor={guildSelectId}>{t("discordChannels.server")}</Label>
         <Controller
           control={form.control}
           name={`${channelKey}.guildId`}
           render={({ field }) => (
             <DiscordGuildSelect
+              id={guildSelectId}
               value={field.value}
               guilds={guilds}
               emptyLabel={t("discordChannels.noServer")}
@@ -52,6 +55,7 @@ export function PlatformDiscordChannelFields({
           name={`${channelKey}.channelId`}
           render={({ field }) => (
             <DiscordChannelSelect
+              aria-label={t("discordChannels.channel")}
               value={field.value}
               channels={guild?.channels ?? []}
               emptyLabel={

@@ -21,6 +21,7 @@ import { setChaosRoute } from "./set-chaos";
 import { setRepackRoute } from "./set-repack";
 import { setScanOnlyRoute } from "./set-scan-only";
 import { setSkipSavingRoute } from "./set-skip-saving";
+import { setResortModeRoute } from "./set-resort-mode";
 
 const router = new Hono<AppEnv>()
   .route("/", checkBinSetNameRoute)
@@ -40,6 +41,7 @@ const router = new Hono<AppEnv>()
   .route("/", setAlphabetRoute)
   .route("/", setChaosRoute)
   .route("/", setSkipSavingRoute)
+  .route("/", setResortModeRoute)
   .route("/", pickListFoundRoute)
   .route("/", deleteBinSetRoute)
   .route("/", binSetHistoryRoute)

@@ -57,14 +57,25 @@ export const GROUPS: BomGroup[] = [
           />
         ),
         buyUrl: (boardType) => BOARD_BUY_URLS[boardType],
+        visible: (boardType, mountType) =>
+          boardType !== "esp32" || mountType !== "breakout",
       },
       {
-        key: "esp32-breakout",
+        key: "esp32-with-breakout",
         qty: () => "1",
-        name: "ESP32-S3 breakout board",
-        part: (t) => t("bom.groups.electronics.items.esp32Breakout.part"),
-        notes: (t) => t("bom.groups.electronics.items.esp32Breakout.notes"),
-        buyUrl: "https://amzn.to/3VRVQQn",
+        name: "ESP32-S3-WROOM-1 with expansion adapter",
+        part: (t) => t("bom.groups.electronics.items.esp32WithBreakout.part"),
+        notes: (t) => (
+          <Trans
+            t={t}
+            i18nKey="bom.groups.electronics.items.esp32WithBreakout.notes"
+            values={{ path: "firmware/main/main.ino" }}
+            components={{
+              code: <code className="font-mono text-xs" />,
+            }}
+          />
+        ),
+        buyUrl: "https://link.amazon/B0dau0eZ4",
         visible: (boardType, mountType) =>
           boardType === "esp32" && mountType === "breakout",
       },
@@ -85,6 +96,7 @@ export const GROUPS: BomGroup[] = [
           t("bom.groups.electronics.items.sg90Positional.notes", {
             count: n,
           }),
+        alert: (t) => t("bom.groups.electronics.items.sg90Positional.alert"),
         buyUrl: "https://amzn.to/3VKQne1",
       },
       {
@@ -342,6 +354,14 @@ export const GROUPS: BomGroup[] = [
         part: (t) => t("bom.groups.optional.items.webcam.part"),
         notes: (t) => t("bom.groups.optional.items.webcam.notes"),
         buyUrl: "https://amzn.to/4h8B6Mp",
+      },
+      {
+        key: "anker-c200",
+        qty: () => "1",
+        name: "Anker PowerConf C200",
+        part: (t) => t("bom.groups.optional.items.ankerC200.part"),
+        notes: (t) => t("bom.groups.optional.items.ankerC200.notes"),
+        buyUrl: "https://link.amazon/B0fFpK2hb",
       },
       {
         key: "camera-mount-screw",

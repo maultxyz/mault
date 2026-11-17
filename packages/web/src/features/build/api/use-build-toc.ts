@@ -9,11 +9,11 @@ import {
   BUILD_PARTS_ANCHOR,
   BUILD_SETUP_ANCHOR,
 } from "@/lib/constants/build";
-import type { BuildTocEntry } from "@/lib/interfaces/build";
+import type { GuideTocEntry } from "@/lib/interfaces/guide";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-export function useBuildToc(): BuildTocEntry[] {
+export function useBuildToc(): GuideTocEntry[] {
   const { t } = useTranslation("build");
   const phases = useBuildPhases();
   const { checked: stepsChecked } = useBuildChecklist();
@@ -24,7 +24,7 @@ export function useBuildToc(): BuildTocEntry[] {
     const partRows = visibleBomGroups(boardType, mountType).flatMap(
       (group) => group.rows,
     );
-    const phaseEntries: BuildTocEntry[] = phases.map((phase) => ({
+    const phaseEntries: GuideTocEntry[] = phases.map((phase) => ({
       id: phaseAnchorId(phase.key),
       label: phase.title,
       done: phase.steps.filter((step) => stepsChecked[step.key]).length,
@@ -32,7 +32,7 @@ export function useBuildToc(): BuildTocEntry[] {
       depth: 1,
     }));
 
-    const entries: BuildTocEntry[] = [
+    const entries: GuideTocEntry[] = [
       { id: BUILD_SETUP_ANCHOR, label: t("hero.nav.setup"), depth: 0 },
       {
         id: BUILD_PARTS_ANCHOR,

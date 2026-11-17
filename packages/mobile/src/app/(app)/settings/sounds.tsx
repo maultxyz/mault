@@ -7,7 +7,15 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, Switch, View } from "react-native";
-import { SOUND_CLIP_MAX_BYTES, SOUND_CLIP_NAME_MAX_LENGTH, type SoundClip } from "@magic-vault/shared";
+import {
+  SOUND_CLIP_MAX_BYTES,
+  SOUND_CLIP_NAME_MAX_LENGTH,
+  type SoundClip,
+  soundClipNameFormSchema,
+  type SoundClipNameFormValues,
+  soundRulesDraftFormSchema,
+  type SoundRulesDraftFormValues,
+} from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -34,12 +42,11 @@ import {
 } from "@/features/sounds/api/sounds";
 import { createClipPlayer, isPlayerActive, playSoundExclusively, stopSound } from "@/features/sounds/lib/sound-playback";
 import { orderSoundRules, toSoundRulesDraft } from "@/features/sounds/lib/sound-rules-draft";
-import { soundClipNameSchema, soundRulesDraftSchema } from "@/features/sounds/lib/sound-schema";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { SOUND_CLIP_MIME_TYPES } from "@/lib/constants/sounds";
 import { SPACING } from "@/lib/constants/theme";
-import type { SoundClipNameValues, SoundRulesDraftValues } from "@/lib/interfaces/forms";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function SoundsSettingsScreen() {
   const { t } = useTranslation();
@@ -55,6 +62,7 @@ export default function SoundsSettingsScreen() {
   const rules = useMemo(() => rulesQuery.data ?? [], [rulesQuery.data]);
   const ruleLimit = billing?.maxSoundRules ?? null;
   const atRuleLimit = ruleLimit !== null && totalRules >= ruleLimit;
+  const isUploadLocked = billing?.customSounds === false;
   const [message, setMessage] = useState<{ tone: "success" | "destructive"; text: string } | null>(null);
   const [saveError, setSaveError] = useState(false);
   const [clipActions, setClipActions] = useState<SoundClip | null>(null);
@@ -63,16 +71,16 @@ export default function SoundsSettingsScreen() {
   const previewRef = useRef<{ guid: string; player: AudioPlayer } | null>(null);
 
   const values = useMemo(() => toSoundRulesDraft(rules), [rules]);
-  const form = useForm<SoundRulesDraftValues>({
-    resolver: zodResolver(soundRulesDraftSchema),
+  const form = useForm<SoundRulesDraftFormValues>({
+    resolver: zodResolver(soundRulesDraftFormSchema),
     values,
     resetOptions: { keepDirtyValues: true },
   });
   const order = useWatch({ control: form.control, name: "order" });
   const enabled = useWatch({ control: form.control, name: "enabled" });
   const orderedRules = useMemo(() => orderSoundRules(rules, order ?? []), [rules, order]);
-  const renameForm = useForm<SoundClipNameValues>({
-    resolver: zodResolver(soundClipNameSchema),
+  const renameForm = useForm<SoundClipNameFormValues>({
+    resolver: zodResolver(soundClipNameFormSchema),
     defaultValues: { name: "" },
   });
 
@@ -174,7 +182,7 @@ export default function SoundsSettingsScreen() {
     form.setValue("order", next, { shouldDirty: true });
   };
 
-  const submit = async (draft: SoundRulesDraftValues) => {
+  const submit = async (draft: SoundRulesDraftFormValues) => {
     if (!gameGuid) return;
     setSaveError(false);
     try {
@@ -237,13 +245,7 @@ export default function SoundsSettingsScreen() {
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
-                error={
-                  fieldState.error
-                    ? field.value.trim()
-                      ? t("settings.sounds.library.nameTooLong")
-                      : t("settings.sounds.library.nameRequired")
-                    : undefined
-                }
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
               />
             )}
           />
@@ -266,8 +268,13 @@ export default function SoundsSettingsScreen() {
             <ListRow
               key={clip.guid}
               title={clip.name}
-              subtitle={t("settings.sounds.library.size", { kb: Math.max(1, Math.round(clip.sizeBytes / 1024)) })}
-              onPress={() => setClipActions(clip)}
+              subtitle={[
+                clip.isSystem ? t("settings.sounds.library.builtIn") : null,
+                t("settings.sounds.library.size", { kb: Math.max(1, Math.round(clip.sizeBytes / 1024)) }),
+              ]
+                .filter(Boolean)
+                .join(" · ")}
+              onPress={clip.isSystem ? undefined : () => setClipActions(clip)}
               leading={
                 <IconButton
                   icon={playingGuid === clip.guid ? "stop" : "play"}
@@ -290,8 +297,12 @@ export default function SoundsSettingsScreen() {
         icon="upload"
         label={upload.isPending ? t("settings.sounds.library.uploading") : t("settings.sounds.library.upload")}
         loading={upload.isPending}
+        disabled={isUploadLocked}
         onPress={() => void pickClip()}
       />
+      {isUploadLocked ? (
+        <Callout tone="info" title={t("settings.sounds.library.notInPlan")} />
+      ) : null}
 
       {gameGuid ? (
         <>
@@ -317,13 +328,14 @@ export default function SoundsSettingsScreen() {
                     title={rule.name}
                     subtitle={clip ? t("settings.sounds.rules.plays", { clip }) : t("settings.sounds.rules.noClip")}
                     onPress={() => router.push({ pathname: "/settings/sound-rule", params: { guid: rule.guid } })}
+                    rightIsInteractive
                     right={
                       <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
                         <IconButton
                           icon="arrowUp"
                           size={32}
                           variant="plain"
-                          accessibilityLabel={t("settings.sounds.rules.moveUp")}
+                          accessibilityLabel={`${t("settings.sounds.rules.moveUp")}, ${rule.name}`}
                           disabled={index === 0}
                           onPress={() => move(index, -1)}
                         />
@@ -331,12 +343,12 @@ export default function SoundsSettingsScreen() {
                           icon="arrowDown"
                           size={32}
                           variant="plain"
-                          accessibilityLabel={t("settings.sounds.rules.moveDown")}
+                          accessibilityLabel={`${t("settings.sounds.rules.moveDown")}, ${rule.name}`}
                           disabled={index === orderedRules.length - 1}
                           onPress={() => move(index, 1)}
                         />
                         <Switch
-                          accessibilityLabel={t("settings.sounds.rules.enabled")}
+                          accessibilityLabel={`${t("settings.sounds.rules.enabled")}, ${rule.name}`}
                           value={enabled?.[rule.guid] ?? rule.isEnabled}
                           onValueChange={(value) => form.setValue(`enabled.${rule.guid}`, value, { shouldDirty: true })}
                           trackColor={{ true: colors.primary, false: colors.muted }}

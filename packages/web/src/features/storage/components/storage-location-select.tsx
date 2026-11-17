@@ -18,7 +18,6 @@ export function StorageLocationSelect({
   onChange,
   id,
   invalid,
-  includeNone = true,
 }: StorageLocationSelectProps) {
   const { t } = useTranslation("storage");
   const { locations } = useStorageLocations();
@@ -48,11 +47,9 @@ export function StorageLocationSelect({
         <SelectItem value={EMPTY_BIN_NEW_LOCATION}>
           {t("emptyDialog.newLocation")}
         </SelectItem>
-        {includeNone && (
-          <SelectItem value={EMPTY_BIN_NO_LOCATION}>
-            {t("emptyDialog.noLocation")}
-          </SelectItem>
-        )}
+        <SelectItem value={EMPTY_BIN_NO_LOCATION}>
+          {t("emptyDialog.noLocation")}
+        </SelectItem>
       </SelectContent>
     </Select>
   );

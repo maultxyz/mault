@@ -26,12 +26,17 @@ import {
   renameOrganization,
   updateMemberRole,
 } from "@/features/org/api/organization";
-import { inviteMemberSchema, renameOrgSchema } from "@/features/org/lib/org-schemas";
 import { useActiveOrg } from "@/hooks/use-org";
 import { refreshOrganizations, useSession } from "@/lib/auth/session";
 import { SPACING } from "@/lib/constants/theme";
-import type { InviteMemberValues, RenameOrgValues } from "@/lib/interfaces/forms";
 import type { OrgMember, OrgRole } from "@/lib/interfaces/settings";
+import {
+  organizationInviteFormSchema,
+  type OrganizationInviteFormValues,
+  organizationNameFormSchema,
+  type OrganizationNameFormValues,
+} from "@magic-vault/shared";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function OrganizationSettingsScreen() {
   const { t } = useTranslation();
@@ -46,21 +51,24 @@ export default function OrganizationSettingsScreen() {
   const [roleSheet, setRoleSheet] = useState<OrgMember | null>(null);
   const [inviteRoleOpen, setInviteRoleOpen] = useState(false);
   const [error, setError] = useState(false);
-  const subscriptionBlocksDelete = billing?.plan === "business" && !billing.cancelAtPeriodEnd;
+  const subscriptionBlocksDelete = !!billing && billing.plan !== "free" && !billing.cancelAtPeriodEnd;
+  const memberLimit = billing?.maxMembersPerOrg ?? null;
+  const memberLimitReached = memberLimit != null && (billing?.memberCount ?? 0) >= memberLimit;
 
-  const renameForm = useForm<RenameOrgValues>({
-    resolver: zodResolver(renameOrgSchema),
+  const renameForm = useForm<OrganizationNameFormValues>({
+    resolver: zodResolver(organizationNameFormSchema),
     values: { name: details.data?.name ?? org?.name ?? "" },
     resetOptions: { keepDirtyValues: true },
   });
-  const inviteForm = useForm<InviteMemberValues>({
-    resolver: zodResolver(inviteMemberSchema),
+  const inviteForm = useForm<OrganizationInviteFormValues>({
+    resolver: zodResolver(organizationInviteFormSchema),
     defaultValues: { email: "", role: "member" },
   });
   const inviteRole = inviteForm.watch("role");
 
   const refresh = async () => {
     await queryClient.invalidateQueries({ queryKey: ["organization", orgId] });
+    await queryClient.invalidateQueries({ queryKey: billingQueryOptions(orgId).queryKey });
   };
   const mutate = useMutation({
     mutationFn: async (task: () => Promise<void>) => task(),
@@ -103,7 +111,7 @@ export default function OrganizationSettingsScreen() {
 
       {canManage && details.data?.canRename ? (
         <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.org.renameHeading", { name: org?.name ?? "" })}
           </AppText>
           <Controller
@@ -115,7 +123,7 @@ export default function OrganizationSettingsScreen() {
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
-                error={fieldState.error ? t("collections.validation.name") : undefined}
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
               />
             )}
           />
@@ -135,7 +143,7 @@ export default function OrganizationSettingsScreen() {
       ) : null}
 
       <Surface style={{ gap: SPACING.sm }}>
-        <AppText heading weight="semibold">
+        <AppText heading weight="semibold" accessibilityRole="header">
           {t("settings.org.membersHeading")}
         </AppText>
         {details.data && !details.data.canManageMembers ? (
@@ -164,9 +172,12 @@ export default function OrganizationSettingsScreen() {
 
       {canManage ? (
         <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.org.inviteMemberHeading")}
           </AppText>
+          {memberLimitReached ? (
+            <Callout tone="info" title={t("settings.org.memberLimitReached", { count: memberLimit })} />
+          ) : null}
           <Controller
             control={inviteForm.control}
             name="email"
@@ -180,7 +191,8 @@ export default function OrganizationSettingsScreen() {
                 autoCapitalize="none"
                 keyboardType="email-address"
                 autoComplete="email"
-                error={fieldState.error ? t("settings.org.invalidEmail") : undefined}
+                textContentType="emailAddress"
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
               />
             )}
           />
@@ -194,6 +206,7 @@ export default function OrganizationSettingsScreen() {
             icon="plus"
             label={t("settings.org.invite")}
             loading={mutate.isPending}
+            disabled={memberLimitReached}
             onPress={inviteForm.handleSubmit((values) =>
               run(async () => {
                 await inviteMember(orgId ?? "", values.email.trim(), values.role);
@@ -216,11 +229,13 @@ export default function OrganizationSettingsScreen() {
                     key={invitation.id}
                     title={invitation.email}
                     subtitle={t(`settings.org.roles.${invitation.role}`)}
+                    rightIsInteractive
                     right={
                       <Button
                         size="sm"
                         variant="ghost"
                         label={t("settings.org.cancelInvite")}
+                        accessibilityLabel={`${t("settings.org.cancelInvite")}, ${invitation.email}`}
                         onPress={() => void run(() => cancelInvitation(invitation.id))}
                       />
                     }
@@ -234,7 +249,7 @@ export default function OrganizationSettingsScreen() {
 
       {role === "owner" ? (
         <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.org.dangerZoneHeading")}
           </AppText>
           <AppText size="xs" tone="secondary">
@@ -280,7 +295,7 @@ export default function OrganizationSettingsScreen() {
         selected={[inviteRole]}
         onSelect={(value) => {
           setInviteRoleOpen(false);
-          inviteForm.setValue("role", value as InviteMemberValues["role"]);
+          inviteForm.setValue("role", value as OrganizationInviteFormValues["role"]);
         }}
         onClose={() => setInviteRoleOpen(false)}
       />

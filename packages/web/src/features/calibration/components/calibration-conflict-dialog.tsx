@@ -28,7 +28,7 @@ export function CalibrationConflictDialog({
   const groups = conflict ? groupDifferences(conflict.differences) : [];
 
   return (
-    <Dialog open={!!conflict} disablePointerDismissal>
+    <Dialog open={!!conflict}>
       <DialogContent showCloseButton={false} className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{t("storedCalibration.dialog.title")}</DialogTitle>

@@ -73,9 +73,6 @@ export function drawDetectionOverlay(
     .trim();
   const color = primaryRaw ? `${primaryRaw}` : "#6d28d9";
 
-  // Scaled off canvas short side, not a fixed pixel count: source resolution
-  // varies widely (webcam vs. phone camera), and a width tuned for 1080p
-  // looks huge once a smaller canvas gets CSS-scaled up to the same box.
   const shortSide = Math.min(ctx.canvas.width, ctx.canvas.height);
   const lineWidth = Math.max(3, Math.round(shortSide * 0.011));
   const radius = Math.max(4, Math.round(shortSide * 0.0148));

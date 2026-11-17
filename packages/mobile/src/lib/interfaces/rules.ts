@@ -6,6 +6,8 @@ import type {
   BinSet,
   Collection,
   FieldMeta,
+  PresetWorkflow,
+  PresetWorkflowStep,
   RepackSlot,
 } from "@magic-vault/shared";
 
@@ -15,16 +17,15 @@ export interface BinSaveInput {
   rules: BinRuleGroup;
   isCatchAll: boolean;
   isDisabled: boolean;
-  cardLimit: number | null;
   overflowBin: number | null;
   isOverride?: boolean;
   overridePriority?: number | null;
   lowMatchPercent?: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
+  pickList?: null;
 }
 
-export type BinSetMode = "rules" | "repack" | "auto-assign" | "alphabet" | "chaos" | "scan-only";
 
 export type ModePicker = "matched" | "unmatched" | "field";
 
@@ -33,6 +34,7 @@ export interface RepackConfigInput {
   repackSlots: RepackSlot[];
   repackUniqueBy: string | null;
   repackSiftRules: BinRuleGroup | null;
+  repackMultiplePacks?: boolean;
 }
 
 export interface AlphabetConfigInput extends AlphabetStep {
@@ -42,6 +44,25 @@ export interface AlphabetConfigInput extends AlphabetStep {
 export interface ChaosConfigInput {
   isChaosMode: boolean;
   chaosBinSize: number | null;
+}
+
+export interface PresetStageMoves {
+  moveTo: (workflow: PresetWorkflow, step: PresetWorkflowStep, name: string) => void;
+  start: (workflow: PresetWorkflow, step: PresetWorkflowStep) => void;
+  isPending: boolean;
+  isError: boolean;
+}
+
+export interface ActivePresetWorkflowState {
+  workflows: PresetWorkflow[];
+  workflow: PresetWorkflow | null;
+  step: PresetWorkflowStep | null;
+  stageNumber: number;
+  stageCount: number;
+  previousStep: PresetWorkflowStep | null;
+  nextStep: PresetWorkflowStep | null;
+  label: string;
+  presetName: (presetGuid: string) => string;
 }
 
 export interface AlphabetPassCardProps {
@@ -103,5 +124,6 @@ export interface BinRowProps {
   bin: BinConfig;
   bins: BinConfig[];
   fieldDefinitions: FieldMeta[];
+  summary?: string;
   onPress: () => void;
 }

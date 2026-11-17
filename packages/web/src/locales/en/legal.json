@@ -23,9 +23,9 @@
           "Account information: your email and name, handled by our authentication provider (Neon Auth) when you sign up or sign in.",
           "Organization data: organization names, membership, and roles for the teams you create or join.",
           "Collection data: the collections, bins, sorting rules, and card records you create while using the app.",
-          "Card scan images: when you scan a physical card, the photo is sent to our server only to generate a match against the card database. It's processed in memory and discarded. We don't store the photo itself, only the resulting card match.",
+          "Card scan images: when you scan a physical card, the photo is sent to our server to match it against the card database. We store the photo with the resulting card record (or with the unmatched scan) so you can review it, correct mismatches, and so we can improve scan accuracy.",
           "Payment information: if you subscribe to the Business plan, billing details are collected and processed directly by Stripe. We never see or store your full card number.",
-          "Discord webhook data: if you connect a Discord webhook, we send the scan and collection notifications you've configured to the webhook URL you provided.",
+          "Discord webhook data: if you connect a Discord webhook, we send the scan and collection notifications you've configured, which can include the scan photo, to the webhook URL you provided.",
           "Basic operational logs (errors, request metadata) used to keep the service reliable. We don't use third-party analytics or advertising trackers."
         ]
       },
@@ -42,7 +42,7 @@
         "heading": "How we share information",
         "body": [
           "We don't sell your personal information. We share it only with the service providers needed to run Mault:",
-          "Neon, for database hosting and authentication.",
+          "Neon, for database hosting, scan image storage, and authentication.",
           "Stripe, for payment processing on paid plans.",
           "Discord, only if and when you configure a webhook to send notifications there.",
           "Third-party trading card game databases (e.g. Scryfall and similar sources), which we query to identify and enrich card data. These queries don't include your personal information."
@@ -52,7 +52,7 @@
         "heading": "Data retention",
         "body": [
           "We keep your account, organization, and collection data for as long as your account is active.",
-          "Card scan photos are never retained. They're discarded immediately after a match is generated.",
+          "Card scan photos are kept as long as the card or unmatched scan they belong to. Deleting the card, clearing unmatched scans, deleting the collection, or deleting your organization deletes its photos.",
           "You can request deletion of your account and associated data at any time by contacting us."
         ]
       },

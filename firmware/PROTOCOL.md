@@ -171,9 +171,9 @@ protocol standpoint.
   so multiple physical units show up as distinct entries in a phone/OS
   Bluetooth picker before a client ever connects to one.
 
-## Wi-Fi transport (firmware 2.10.0+, ESP32 only)
+## Wi-Fi transport (ESP32 firmware 2.10.0+, Uno R4 WiFi from the first firmware release after 2.10.1)
 
-Every ESP32 build can also join the user's Wi-Fi network and hold an
+ESP32 and Uno R4 WiFi builds can also join the user's Wi-Fi network and hold an
 outbound WebSocket to the app's server, which relays it to a browser
 anywhere. The sorter never accepts inbound connections, so it works behind
 any home router without port forwarding. It carries the **exact same**
@@ -183,15 +183,16 @@ command arrived on.
 
 - **Setup:** over Serial or BLE, send `setWifi` (network) and `setCloud`
   (server URL plus a per-device token issued by the server), see Commands
-  below. Both persist in NVS and survive reboots and reflashes;
-  `clearWifi` forgets them.
+  below. Both persist (NVS on ESP32, EEPROM on the Uno R4 WiFi) and survive
+  reboots and reflashes; `clearWifi` forgets them.
 - **Handshake:** the sorter opens `ws://` or `wss://` to the `setCloud` URL
   (`/sorter-link/device` on the API) with these headers:
   - `Authorization: Bearer <token>`
   - `X-Sorter-Id: <id>` (the same `id` as `getStatus`)
   - `X-Sorter-Firmware: <version>`
 
-  `wss://` verifies the server against the ESP-IDF root CA bundle. A `401`,
+  `wss://` verifies the server against the ESP-IDF root CA bundle (on the
+  Uno R4 WiFi, its co-processor's built-in root bundle). A `401`,
   `403` or `404` reply marks the link `rejected` and the sorter retries only
   every 5 minutes; any other failure retries with backoff from 1 s up to
   30 s.
@@ -206,15 +207,33 @@ command arrived on.
   socket with code `4404` when the sorter is offline or drops, and `4409`
   when another browser already holds the sorter. Rotating or revoking the
   token closes the sorter's socket with `4401`.
-- **Concurrency:** all networking runs in its own FreeRTOS task on the core
-  the Arduino loop doesn't use, so TLS handshakes never stretch servo
-  timings.
+- **Concurrency:** on ESP32 all networking runs in its own FreeRTOS task on
+  the core the Arduino loop doesn't use, so TLS handshakes never stretch
+  servo timings. The Uno R4 WiFi has one core, so networking runs from the
+  loop: while a command runs it only services an already-open socket, and
+  joins and TLS handshakes wait until the sorter is idle.
+- **Uno R4 WiFi radio sharing:** Wi-Fi and BLE share the board's ESP32-S3
+  co-processor, so each boot uses one of them: a board with a saved network
+  joins Wi-Fi and reports `"ble":"off"`, any other board advertises over
+  BLE. A `setWifi` on a board without a saved network, and a `clearWifi` on
+  one with a network, reply `{"status":"ok","restarting":true}` and restart
+  the board about 300 ms later to switch modes. Over BLE that ends the
+  connection.
 - **Power safety:** joining Wi-Fi draws 300 to 500 mA spikes. The radio
   waits 2 s after boot so it doesn't start alongside the boot-time servo
   moves and BLE, transmits at 15 dBm, and after 2 brownout resets in a row
   stays off (`"wifi":"paused"`) so Serial and BLE remain usable. It resumes
   after a power cycle or the next `setWifi`/`setCloud`/`clearWifi`. 60 s of
-  uptime clears the brownout count.
+  uptime clears the brownout count. The Uno R4 WiFi also waits 2 s after boot
+  but has no brownout pause.
+- **Brownout boot guard (ESP32):** after the same 2 brownout resets in a row,
+  boot cuts every servo signal and stops the feeder instead of driving the
+  servos to neutral, so a stalled servo or weak supply can't hold the board in
+  a reset loop. The PCA9685 can keep driving a servo through an MCU reset,
+  which is why the signals are cut rather than the move skipped. The next
+  command that moves a servo (such as `neutral`) powers it again. `clearDevice`
+  opens the bottom trapdoors one at a time, `SERVO_STAGGER_MS` apart, instead of
+  all at once.
 
 ## Hardware model
 
@@ -276,7 +295,8 @@ connected, so the device isn't advertising, since ArduinoBLE and this
 firmware's Bluedroid backend accept one connection at a time),
 `"unavailable"` (the BLE stack failed to start, e.g. the Uno R4 WiFi's
 co-processor didn't answer `BLE.begin()` after 5 attempts; the device keeps
-working over Serial), or `"none"` (a board with no BLE hardware, such as the
+working over Serial), `"off"` (an Uno R4 WiFi whose radio is on Wi-Fi this
+boot, see the Wi-Fi transport), or `"none"` (a board with no BLE hardware, such as the
 Uno R4 Minima).
 
 Firmware 2.7.0+ on the ESP32-S3 also adds `"bleMtu": N` to the `getStatus`
@@ -300,10 +320,11 @@ Firmware 2.9.0+ adds `"servoDriver"` to both the boot banner and the
 unpowered logic side, or miswired SDA/SCL). It only checks the logic side: a
 driver whose V+ servo supply is missing still reports `"ok"`.
 
-Firmware 2.10.0+ on ESP32 adds `"wifi"` (`"unconfigured"`, `"connecting"`,
+Firmware 2.10.0+ on ESP32 (and the first firmware release after 2.10.1 on the Uno R4 WiFi) adds `"wifi"` (`"unconfigured"`, `"connecting"`,
 `"connected"` or `"paused"`) and `"cloud"` (`"unconfigured"`, `"offline"`,
 `"connecting"`, `"connected"` or `"rejected"`) to the `getStatus` reply. See
-`getWifi` for details.
+`getWifi` for details. The app treats the presence of `"wifi"` as the board
+supporting Wi-Fi remote access.
 
 ### `setChannelOffset`
 ```json
@@ -346,8 +367,20 @@ stops the feeder. → `{"status":"ok"}`
 ```json
 {"clearDevice": true}
 ```
-Opens **every** module's bottom trapdoor at once (useful for flushing a
-physically stuck card), then resets to neutral. → `{"status":"cleared"}`
+Opens **every** module's bottom trapdoor, `SERVO_STAGGER_MS` apart (useful
+for flushing a physically stuck card), then resets to neutral.
+→ `{"status":"cleared"}`
+
+### `retractCard` (2.11.0+)
+```json
+{"retractCard": true}
+```
+Runs the feeder backward with the rollback settings (`reverseSpeed` for
+`reverseDuration` ms, see `setFeederConfig`) to pull a partly fed card back
+into the hopper. Unlike the automatic rollback it runs whether or not the
+hopper sensor sees cards. → `{"status":"retracted"}`, or
+`{"error":"rollback_off"}` when `reverseDuration` is `0`. Older firmware
+replies `{"error":"unknown command"}`.
 
 ### `servo` (manual single-servo move)
 ```json
@@ -382,6 +415,15 @@ paddle not known to be down lowers the paddle itself, waits out the rest of
 `paddleOpenDelay`, then moves the pusher, so the command just takes up to
 `paddleOpenDelay` ms longer and the paddle is left lowered. Returning a pusher to neutral
 never touches the paddle.
+
+Since 2.13.0 a pusher move that stays within 20 pulse units of `pusherNeutral`
+and within 50% of the calibrated travel towards that side (`pusherLeft` or
+`pusherRight`) is a nudge and doesn't lower the paddle. The boot banner and
+`getStatus` report both limits as `"pusherNudgeMaxPulse"` and
+`"pusherNudgeMaxTravelPercent"`; the app sizes its nudge from them and doesn't
+nudge on firmware that leaves them out. The app uses it to shift a card slightly for its
+foil check; a move that small can't reach the paddle. Any larger move still
+lowers the paddle first.
 
 2.2.x only applied the check while the module's IR sensor read a card, and
 refused the move with
@@ -542,9 +584,13 @@ as `setConfig`.
 Both section forms answer `{"error":"no stored config"}` before the first
 `storeConfig`. Older firmware answers `{"error":"unknown command"}`.
 
-### Wi-Fi commands (firmware 2.10.0+, ESP32 only)
+### Wi-Fi commands (ESP32 firmware 2.10.0+, Uno R4 WiFi from the first firmware release after 2.10.1)
 
-Older firmware and non-ESP32 boards answer `{"error":"unknown command"}`.
+Older firmware and boards without Wi-Fi (the Uno R4 Minima) answer
+`{"error":"unknown command"}`. On the Uno R4 WiFi, a `setWifi` or
+`clearWifi` that switches the radio between BLE and Wi-Fi answers
+`{"status":"ok","restarting":true}` and restarts the board (see Uno R4
+WiFi radio sharing above).
 
 ```json
 {"setWifi": {"ssid": "Home", "password": "hunter22"}}
@@ -678,6 +724,21 @@ Native state tests: `g++ -std=c++11 -Wall -Wextra -Werror firmware/tests/lightin
 `ir` is one boolean per addressable module (array length = the current
 max module count for the active channel offset), `true` meaning a card
 is present. `hopper` is `true` while cards remain in the feeder stack.
+
+### `detectModules` (firmware 2.12.0+, ESP32 only)
+```json
+{"detectModules": true}
+```
+→ `{"status":"ok","modules":2,"sensors":[true,true,false,false,false]}`
+
+Probes each addressable module's IR pin to see whether a sensor is wired:
+a pin reading LOW under the pull-up is a sensor seeing a card, otherwise
+the pin is switched to a pull-down for 2 ms and a sensor holds it HIGH
+while an empty pin drops LOW. `modules` counts wired sensors from module 1
+up to the first missing one; `sensors` lists every addressable module.
+Boards without an internal pull-down (Uno R4) reply
+`{"error":"module detection unsupported"}`, and the app keeps the module
+count the user picked.
 
 ### `route` (the normal per-card sorting command)
 ```json

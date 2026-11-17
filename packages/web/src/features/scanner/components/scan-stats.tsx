@@ -1,30 +1,83 @@
 import { Sparkline } from "@/components/sparkline";
+import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
+import {
+  piScanHoldsPort,
+  resetPiScanSessionStats,
+} from "@/features/scanner/api/pi-scan-session";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { bucketScanTimes } from "@/features/scanner/lib/scan-rate";
+import { piScanElapsedMs } from "@/features/scanner/lib/pi-scan-status";
+import {
+  applyPiScanState,
+  getPiScanState,
+  subscribePiScan,
+} from "@/features/scanner/lib/pi-scan-store";
 import { useNow } from "@/hooks/use-now";
 import {
   SCAN_RATE_BUCKET_COUNT,
   SCAN_RATE_BUCKET_MS,
   SCAN_RATE_REFRESH_MS,
+  SCAN_STATS_SUMMARY_SEPARATOR,
 } from "@/lib/constants/scanner";
+import { SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS } from "@/lib/constants/storage-keys";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { formatElapsed } from "@/lib/format";
 import type { ScanStatsProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
-import { useMemo, useState } from "react";
+import { CollapsibleStatPanel } from "@/features/scanner/components/collapsible-stat-panel";
+import { IconRestore } from "@tabler/icons-react";
+import { useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 
 export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   const Container = scrollable ? ScrollArea : "div";
   const { t } = useTranslation("scanner");
   const [expandedSets, setExpandedSets] = useState(false);
-  const { elapsedMs, isTimerActive, recentScanTimes, sessionScanCount } =
-    useScannedCards();
+  const {
+    elapsedMs,
+    isTimerActive,
+    recentScanTimes,
+    sessionScanCount,
+    resetSessionStats,
+  } = useScannedCards();
+  const piScan = useSyncExternalStore(subscribePiScan, getPiScanState);
+  const piLive =
+    piScanHoldsPort(piScan) ||
+    (piScan.phase === "stopped" && !isTimerActive && piScan.startedAt != null);
+  const clock = useNow(1000);
   const now = useNow(SCAN_RATE_REFRESH_MS);
+  const piTimes = useRef<number[]>([]);
+  const piSeen = useRef(0);
+  if (!piLive) {
+    piTimes.current = [];
+    piSeen.current = 0;
+  } else if (piScan.cardsScanned < piSeen.current) {
+    piTimes.current = [];
+    piSeen.current = piScan.cardsScanned;
+  } else if (piScan.cardsScanned !== piSeen.current) {
+    const added = piScan.cardsScanned - piSeen.current;
+    if (added > 0) {
+      for (let i = 0; i < added; i++) piTimes.current.push(clock);
+    }
+    piSeen.current = piScan.cardsScanned;
+  }
+  const shownElapsed = piLive ? piScanElapsedMs(piScan, clock) : elapsedMs;
+  const shownCount = piLive ? piScan.cardsScanned : sessionScanCount;
+  const shownRunning = piLive ? piScan.phase === "running" : isTimerActive;
+  const shownTimes = piLive ? piTimes.current : recentScanTimes;
+  const resetShownSession = () => {
+    if (!piLive) {
+      resetSessionStats();
+      return;
+    }
+    void resetPiScanSessionStats().then((result) => {
+      if (result.data) applyPiScanState(result.data);
+    });
+  };
   const { filters, toggleRarity, toggleColor, toggleSet } = useCardFilters();
   const query = useMemo(() => ({ ...ALL_CARDS_QUERY, filters }), [filters]);
   const { displayStats: stats } = useCollectionCardsSummary(query);
@@ -42,12 +95,30 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   }
 
   const visibleSets = expandedSets ? stats.sets : stats.sets.slice(0, 5);
+  const cardsPerHour =
+    shownElapsed > 0
+      ? Math.round((shownCount / shownElapsed) * 3_600_000)
+      : null;
+  const overviewSummary = [
+    t("scanStats.summaryCards", { count: stats.totalCount }),
+    stats.hasPricing ? format(stats.totalValue) : null,
+    cardsPerHour !== null
+      ? t("scanStats.summaryRate", { rate: cardsPerHour })
+      : null,
+  ]
+    .filter(Boolean)
+    .join(SCAN_STATS_SUMMARY_SEPARATOR);
+  const countsSummary = (entries: { label: string; count: number }[]) =>
+    entries
+      .map((entry) => `${entry.label} ${entry.count}`)
+      .join(SCAN_STATS_SUMMARY_SEPARATOR);
 
   const statCards: {
     label: string;
     value: string;
     indicator?: boolean;
     trend?: number[];
+    action?: React.ReactNode;
   }[] = [
     { label: t("totalCards"), value: String(stats.totalCount) },
     { label: t("unique"), value: String(stats.uniqueCount) },
@@ -61,19 +132,29 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   statCards.push(
     {
       label: t("scanStats.sessionTime"),
-      value: formatElapsed(elapsedMs),
-      indicator: isTimerActive,
+      value: formatElapsed(shownElapsed),
+      indicator: shownRunning,
+      action: (
+        <Button
+          size="icon"
+          variant="ghost"
+          className="-my-1.5 ml-auto"
+          aria-label={t("scanStats.resetSession")}
+          title={t("scanStats.resetSession")}
+          disabled={shownElapsed === 0 && shownCount === 0}
+          onClick={resetShownSession}
+        >
+          <IconRestore />
+        </Button>
+      ),
     },
     {
       label: t("scanStats.cardsPerHour"),
-      value:
-        elapsedMs > 0
-          ? String(Math.round((sessionScanCount / elapsedMs) * 3_600_000))
-          : "-",
+      value: cardsPerHour !== null ? String(cardsPerHour) : "-",
       trend:
-        recentScanTimes.length > 0
+        shownTimes.length > 0
           ? bucketScanTimes(
-              recentScanTimes,
+              shownTimes,
               now,
               SCAN_RATE_BUCKET_MS,
               SCAN_RATE_BUCKET_COUNT,
@@ -97,7 +178,12 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
           scrollable && "pr-3",
         )}
       >
-        <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input">
+        <CollapsibleStatPanel
+          heading={t("scanStats.heading")}
+          collapsedSummary={overviewSummary}
+          showLiveIndicator={shownRunning}
+          expandedStorageKey={SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS.overview}
+        >
           <div className="grid grid-cols-2">
             {statCards.map((card, i) => (
               <StatCard
@@ -105,6 +191,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                 label={card.label}
                 value={card.value}
                 indicator={card.indicator}
+                action={card.action}
                 className={cn(
                   i % 2 === 0 && "border-r",
                   i < statCards.length - 2 && "border-b",
@@ -144,19 +231,21 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
               </div>
             </div>
           )}
-        </div>
+        </CollapsibleStatPanel>
         {stats.rarities.length > 0 && (
-          <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input p-2">
-            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
-              {t("byRarity")}
-            </p>
-            <div className="flex flex-col gap-1">
+          <CollapsibleStatPanel
+            heading={t("byRarity")}
+            collapsedSummary={countsSummary(stats.rarities)}
+            expandedStorageKey={SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS.rarity}
+          >
+            <div className="flex flex-col gap-1 p-2">
               {stats.rarities.map((r) => {
                 const active = filters.rarities.includes(r.key);
                 return (
                   <button
                     key={r.key}
                     type="button"
+                    aria-pressed={active}
                     onClick={() => toggleRarity(r.key)}
                     className={cn(
                       "flex items-center justify-between text-xs rounded-sm px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
@@ -177,20 +266,22 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                 );
               })}
             </div>
-          </div>
+          </CollapsibleStatPanel>
         )}
         {stats.colors.length > 0 && (
-          <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input p-2">
-            <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
-              {t("scanStats.byColor")}
-            </p>
-            <div className="flex flex-col gap-1">
+          <CollapsibleStatPanel
+            heading={t("scanStats.byColor")}
+            collapsedSummary={countsSummary(stats.colors)}
+            expandedStorageKey={SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS.color}
+          >
+            <div className="flex flex-col gap-1 p-2">
               {stats.colors.map((c) => {
                 const active = filters.colors.includes(c.key);
                 return (
                   <button
                     key={c.key}
                     type="button"
+                    aria-pressed={active}
                     onClick={() => toggleColor(c.key)}
                     className={cn(
                       "flex items-center justify-between text-xs rounded-sm px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
@@ -211,19 +302,23 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                 );
               })}
             </div>
-          </div>
+          </CollapsibleStatPanel>
         )}
-        <div className="rounded-lg bg-input/20 dark:bg-input/30 border border-input p-2">
-          <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-1.5">
-            {t("scanStats.bySet")}
-          </p>
-          <div className="flex flex-col gap-1">
+        <CollapsibleStatPanel
+          heading={t("scanStats.bySet")}
+          collapsedSummary={countsSummary(
+            stats.sets.map((set) => ({ label: set.name, count: set.count })),
+          )}
+          expandedStorageKey={SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS.set}
+        >
+          <div className="flex flex-col gap-1 p-2">
             {visibleSets.map((s) => {
               const active = filters.sets.includes(s.code);
               return (
                 <button
                   key={s.code}
                   type="button"
+                  aria-pressed={active}
                   onClick={() => toggleSet(s.code)}
                   className={cn(
                     "flex items-center justify-between text-xs gap-2 rounded-sm px-1 -mx-1 py-0.5 cursor-pointer transition-colors",
@@ -249,7 +344,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
           {stats.sets.length > 5 && (
             <button
               type="button"
-              className="text-xs text-primary hover:underline mt-1"
+              className="text-xs text-primary hover:underline mx-2 mb-2"
               onClick={() => setExpandedSets((prev) => !prev)}
             >
               {expandedSets
@@ -257,7 +352,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
                 : t("scanStats.showAllSets", { count: stats.sets.length })}
             </button>
           )}
-        </div>
+        </CollapsibleStatPanel>
       </div>
     </Container>
   );
@@ -268,14 +363,17 @@ function StatCard({
   value,
   className,
   indicator,
+  action,
   children,
 }: {
   label: string;
   value: string;
   className?: string;
   indicator?: boolean;
+  action?: React.ReactNode;
   children?: React.ReactNode;
 }) {
+  const { t } = useTranslation("scanner");
   return (
     <div className={`p-2 ${className ?? ""}`}>
       <div className="flex items-center gap-1.5">
@@ -284,9 +382,14 @@ function StatCard({
         </p>
         {indicator !== undefined && (
           <span
+            role="img"
+            aria-label={
+              indicator ? t("scannerPip.sorting") : t("scannerPip.paused")
+            }
             className={`size-1.5 rounded-full shrink-0 ${indicator ? "bg-success animate-pulse" : "bg-muted-foreground/40"}`}
           />
         )}
+        {action}
       </div>
       <p className="text-sm font-semibold">{value}</p>
       {children}

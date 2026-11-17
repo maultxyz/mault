@@ -12,6 +12,7 @@ import {
 import { BLE_PREFERRED_MTU, BLE_STATE_SETTLE_TIMEOUT_MS } from "@/lib/constants/sorter";
 import type { ByteTransport } from "@/lib/interfaces/sorter";
 import { base64ToBytes, bytesToBase64 } from "./bytes";
+import { delay } from "@/lib/delay";
 
 let manager: BleManager | null = null;
 
@@ -40,10 +41,6 @@ export function settledBleState(): Promise<State> {
     }, true);
     if (settled) subscription.remove();
   });
-}
-
-function delay(ms: number): Promise<void> {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 function chunkSizeForMtu(mtu: number): number {

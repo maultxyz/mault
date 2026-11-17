@@ -1,22 +1,9 @@
 import { useStations } from "@/features/scanner/api/use-stations";
-import type { StationPanelLayout } from "@/lib/interfaces/stations";
+import type { StationPanelsProps } from "@/lib/interfaces/stations";
 import { cn } from "@/lib/utils";
 import { useLayoutEffect } from "react";
 
-// Hosts each station's scanner column. The column itself is portaled from the
-// station's own StationScope into a DOM node the stations store owns, and
-// this only moves that node into place, so switching tabs (which remounts
-// this page under another station) never remounts a running scanner.
-// Background stations stay laid out at full size but invisible, rather than
-// display:none, since the scanner sizes its preview from its container and
-// keeps sorting while its tab isn't selected.
-export function StationPanels({
-  layout,
-  size,
-}: {
-  layout: StationPanelLayout;
-  size: number;
-}) {
+export function StationPanels({ layout, size, overlay }: StationPanelsProps) {
   const { stations, activeStationId, getPanelElement, attachPanels } =
     useStations();
 
@@ -39,18 +26,20 @@ export function StationPanels({
               const el = getPanelElement(station.id);
               if (node && el.parentNode !== node) node.appendChild(el);
             }}
-            inert={!isActive}
+            inert={!isActive || !!overlay}
+            data-active-station={isActive || undefined}
             aria-hidden={!isActive}
             className={cn(
-              "absolute inset-0 p-2 gap-2 bg-sidebar/70",
+              "absolute inset-0 isolate p-2 gap-2 bg-sidebar/70",
               layout === "horizontal"
-                ? "flex flex-col overflow-y-auto overflow-x-hidden pt-0"
+                ? "flex flex-col overflow-y-auto overflow-x-hidden"
                 : "flex items-stretch overflow-hidden",
               !isActive && "invisible pointer-events-none",
             )}
           />
         );
       })}
+      {overlay && <div className="absolute inset-0 z-10">{overlay}</div>}
     </div>
   );
 }

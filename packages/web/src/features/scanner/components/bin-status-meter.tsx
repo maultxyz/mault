@@ -8,12 +8,12 @@ import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { BinLevelCell } from "@/features/scanner/components/bin-level-cell";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { EmptyAllBinsDialog } from "@/features/storage/components/empty-all-bins-dialog";
+import { ResetAutoAssignToggle } from "@/features/storage/components/reset-auto-assign-toggle";
 import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
-import {
-  buildBinLevelLayout,
-  summarizeBinLevels,
-} from "@/features/scanner/lib/bin-levels";
-import { BIN_LEVELS_COLLAPSED_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import { summarizeBinLevels } from "@/features/scanner/lib/bin-levels";
+import { buildBinLevelLayout } from "@/lib/bin-machine-layout";
+import { usePersistedFlag } from "@/hooks/use-persisted-state";
+import { BIN_LEVELS_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { cn } from "@/lib/utils";
 import {
   IconAlertTriangle,
@@ -23,24 +23,21 @@ import {
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-function readCollapsed(): boolean {
-  try {
-    return localStorage.getItem(BIN_LEVELS_COLLAPSED_STORAGE_KEY) === "1";
-  } catch {
-    return false;
-  }
-}
-
 export function BinStatusMeter() {
   const { t } = useTranslation("scanner");
   const levels = useBinFillLevels();
-  const { configs, emptyBin, emptyAllBins, selectedSet } = useBinConfigs();
+  const { configs, emptyBin, emptyAllBins, selectedSet, sets } =
+    useBinConfigs();
   const { activeCollection } = useCollections();
   const { routes } = useBinRoutes();
   const { lastRoutedBin } = useScannedCards();
   const [confirmBin, setConfirmBin] = useState<number | null>(null);
   const [confirmAll, setConfirmAll] = useState(false);
-  const [collapsed, setCollapsed] = useState(readCollapsed);
+  const [resetAutoAssignedRules, setResetAutoAssignedRules] = useState(true);
+  const [expanded, setExpanded] = usePersistedFlag(
+    BIN_LEVELS_EXPANDED_STORAGE_KEY,
+  );
+  const collapsed = !expanded;
   const { isLocked: storageLocked } = useStorageAccess();
   const catchAllBin = configs.find((c) => c.isCatchAll)?.binNumber;
   const disabledBins = new Set(
@@ -62,16 +59,12 @@ export function BinStatusMeter() {
     [levels],
   );
   const summary = useMemo(() => summarizeBinLevels(levels), [levels]);
+  const canResetAutoAssignedRules = !!sets.find((set) => set.isActive)
+    ?.autoAssignField;
 
   if (levels.length === 0) return null;
 
-  const toggleCollapsed = () => {
-    const next = !collapsed;
-    setCollapsed(next);
-    try {
-      localStorage.setItem(BIN_LEVELS_COLLAPSED_STORAGE_KEY, next ? "1" : "0");
-    } catch {}
-  };
+  const toggleCollapsed = () => setExpanded(!expanded);
 
   const renderCell = (
     binNumber: number | undefined,
@@ -122,7 +115,11 @@ export function BinStatusMeter() {
               </span>
               {summary.needsEmptying > 0 && (
                 <span className="flex shrink-0 items-center gap-0.5 font-medium text-warning-foreground">
-                  <IconAlertTriangle className="size-3.5" />
+                  <IconAlertTriangle
+                    className="size-3.5"
+                    role="img"
+                    aria-label={t("a11y.binsNeedingEmptying")}
+                  />
                   {summary.needsEmptying}
                 </span>
               )}
@@ -144,10 +141,12 @@ export function BinStatusMeter() {
           <Button
             type="button"
             variant="ghost"
-            size="xs"
             className="mr-1.5"
             disabled={summary.totalCards === 0}
-            onClick={() => setConfirmAll(true)}
+            onClick={() => {
+              setResetAutoAssignedRules(true);
+              setConfirmAll(true);
+            }}
           >
             <IconTrash />
             {t("binStatusMeter.emptyAll")}
@@ -181,6 +180,7 @@ export function BinStatusMeter() {
         bins={levels.filter((level) => level.count > 0)}
         preferLocation={!!selectedSet?.isChaosMode}
         collectionGuid={activeCollection?.guid}
+        canResetAutoAssignedRules={canResetAutoAssignedRules}
         onOpenChange={setConfirmAll}
         onConfirm={(options) =>
           emptyAllBins(
@@ -200,9 +200,19 @@ export function BinStatusMeter() {
         confirmLabel={t("binStatusMeter.emptyAllConfirm")}
         focusConfirm
         onConfirm={() => {
-          void emptyAllBins(levels.map((level) => level.binNumber));
+          void emptyAllBins(levels.map((level) => level.binNumber), {
+            resetAutoAssignedRules:
+              canResetAutoAssignedRules && resetAutoAssignedRules,
+          });
         }}
-      />
+      >
+        {canResetAutoAssignedRules && (
+          <ResetAutoAssignToggle
+            checked={resetAutoAssignedRules}
+            onCheckedChange={setResetAutoAssignedRules}
+          />
+        )}
+      </DeleteDialog>
 
       <EmptyBinToLocationDialog
         binNumber={confirmBin}

@@ -1,15 +1,14 @@
-import { AlertTrayTrigger } from "@/components/alert-tray-trigger";
 import { EmptyState } from "@/components/empty-state";
 import { MobileIconBadge } from "@/components/mobile-icon-badge";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileQuickAction } from "@/components/mobile-quick-action";
 import { MobileSearchInput } from "@/components/mobile-search-input";
 import { MobileSection } from "@/components/mobile-section";
-import { Button } from "@/components/ui/button";
 import { getInitials } from "@/components/ui/initials-avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
+import { openIntakeLotsQueryOptions } from "@/features/business/api/business";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import {
@@ -18,30 +17,32 @@ import {
 } from "@/features/collections/components/mobile-home-overview";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { usePriceSource } from "@/hooks/use-price-source";
+import { useScrollCollapse } from "@/hooks/use-scroll-collapse";
 import { useAuthSession } from "@/lib/auth";
 import { useCollectionLocks } from "@/lib/app-stream";
 import {
-  MOBILE_CIRCLE_BUTTON_CLASS,
   MOBILE_LIST_CLASS,
   MOBILE_LIST_ROW_CLASS,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
   MOBILE_PAGE_BODY_CLASS,
   MOBILE_SCAN_PATH,
-  MOBILE_SORTER_PATH,
 } from "@/lib/constants/nav";
 import { MOBILE_HOME_SEARCH_MIN_COLLECTIONS } from "@/lib/constants/collections";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { INTAKE_PATH } from "@/lib/constants/business";
 import { cn } from "@/lib/utils";
 import {
   IconAlbum,
-  IconBell,
+  IconArrowRight,
+  IconCash,
   IconChartBar,
-  IconCpu,
   IconPlus,
   IconScan,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
+import { usePiHost } from "@/hooks/use-pi-host";
+import { isRemoteBrowser } from "@/lib/host";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -57,10 +58,19 @@ export function MobileHome() {
     enabled: !!activeOrg,
   });
   const { activeCollection } = useCollections();
+  const { data: openIntakeLots = [] } = useQuery(
+    openIntakeLotsQueryOptions(activeOrg?.id),
+  );
+  const openIntakeCount = openIntakeLots.filter(
+    (lot) => lot.status === "open",
+  ).length;
   const { locks, currentUserId } = useCollectionLocks();
   const { format } = usePriceSource();
   const { data: session } = useAuthSession();
   const [searchQuery, setSearchQuery] = useState("");
+  const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
+  const heroCollapsed = useScrollCollapse(scrollRoot);
+  const scanPath = usePiHost() && isRemoteBrowser() ? "/app" : MOBILE_SCAN_PATH;
   const firstName = session?.user?.name?.trim().split(/\s+/)[0];
   const query = searchQuery.trim().toLowerCase();
 
@@ -85,62 +95,78 @@ export function MobileHome() {
             ? t("home.greeting", { name: firstName })
             : t("home.greetingNoName")
         }
-        subtitle={activeOrg?.name}
+        collapsed={heroCollapsed}
         actions={
-          <AlertTrayTrigger
-            side="bottom"
-            align="end"
-            trigger={(count) => (
-              <Button
-                variant="ghost"
-                className={cn(MOBILE_CIRCLE_BUTTON_CLASS, "relative")}
-                aria-label={t("home.alerts")}
-              >
-                <IconBell />
-                {count > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 min-w-4 rounded-full bg-destructive-strong px-1 text-2xs leading-4 font-semibold text-white ring-2 ring-background">
-                    {count > 9 ? "9+" : count}
-                  </span>
-                )}
-              </Button>
-            )}
-          />
+          heroCollapsed &&
+          overview && (
+            <span className="font-heading text-lg font-semibold tabular-nums animate-in fade-in-0 duration-200 motion-reduce:animate-none">
+              {format(overview.totalValue)}
+            </span>
+          )
         }
-      />
+      >
+        <MobileHomeHero orgId={activeOrg?.id} />
+      </MobilePageHeader>
       <div
+        ref={setScrollRoot}
         className={cn(
           "min-h-0 flex-1 overflow-y-auto",
           MOBILE_NAV_SCROLL_PADDING_CLASS,
         )}
       >
         <div className={MOBILE_PAGE_BODY_CLASS}>
-          <MobileHomeHero orgId={activeOrg?.id} />
-
-          <div className="flex justify-between gap-2">
-            <MobileQuickAction
-              icon={<IconScan />}
-              label={t("home.actions.scan")}
-              to={MOBILE_SCAN_PATH}
-            />
-            <CreateCollectionDialog
-              trigger={({ disabled }) => (
-                <MobileQuickAction
-                  icon={<IconPlus />}
-                  label={t("home.actions.newCollection")}
-                  disabled={disabled}
-                />
-              )}
-            />
-            <MobileQuickAction
-              icon={<IconCpu />}
-              label={t("home.actions.sorter")}
-              to={MOBILE_SORTER_PATH}
-            />
-            <MobileQuickAction
-              icon={<IconChartBar />}
-              label={t("home.actions.stats")}
-              to={STATS_PATH}
-            />
+          <div className="flex flex-col gap-2">
+            <Link
+              to={scanPath}
+              className="flex items-center gap-3 rounded-lg bg-primary p-4 text-primary-foreground transition-colors active:bg-primary-hover"
+            >
+              <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/15 [&_svg]:size-5">
+                <IconScan />
+              </span>
+              <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                <span className="truncate font-heading text-base font-semibold">
+                  {t("home.scanHero.title")}
+                </span>
+                <span className="truncate text-xs text-primary-foreground/80">
+                  {activeCollection
+                    ? t("home.scanHero.sortInto", {
+                        collection: activeCollection.name,
+                      })
+                    : t("home.scanHero.noCollection")}
+                </span>
+              </span>
+              <IconArrowRight className="size-5 shrink-0" />
+            </Link>
+            <div className="grid grid-cols-3 overflow-hidden rounded-lg border border-input bg-input/20 dark:bg-input/30">
+              <CreateCollectionDialog
+                trigger={({ disabled }) => (
+                  <MobileQuickAction
+                    icon={<IconPlus />}
+                    label={t("home.actions.newCollection")}
+                    hint={t("home.actionHints.newCollection")}
+                    disabled={disabled}
+                  />
+                )}
+              />
+              <MobileQuickAction
+                icon={<IconCash />}
+                label={t("home.actions.buySell")}
+                hint={
+                  openIntakeCount > 0
+                    ? t("home.actionHints.buySellOpen", {
+                        count: openIntakeCount,
+                      })
+                    : t("home.actionHints.buySell")
+                }
+                to={INTAKE_PATH}
+              />
+              <MobileQuickAction
+                icon={<IconChartBar />}
+                label={t("home.actions.stats")}
+                hint={t("home.actionHints.stats")}
+                to={STATS_PATH}
+              />
+            </div>
           </div>
 
           {!query && <MobileHomeOverview orgId={activeOrg?.id} />}
@@ -149,6 +175,7 @@ export function MobileHome() {
             {sorted.length >= MOBILE_HOME_SEARCH_MIN_COLLECTIONS && (
               <MobileSearchInput
                 placeholder={t("monitorSessions.searchPlaceholder")}
+                aria-label={t("monitorSessions.searchPlaceholder")}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -189,7 +216,9 @@ export function MobileHome() {
                           {getInitials(lock.displayName)}
                         </MobileIconBadge>
                       ) : (
-                        <MobileIconBadge tone={isActive ? "primary" : "neutral"}>
+                        <MobileIconBadge
+                          tone={isActive ? "primary" : "neutral"}
+                        >
                           {isActive ? <IconScan /> : <IconAlbum />}
                         </MobileIconBadge>
                       )}

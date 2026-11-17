@@ -38,7 +38,7 @@ export function AppText({
           color,
           fontSize: FONT_SIZE[size],
           lineHeight: Math.round(FONT_SIZE[size] * (heading ? 1.2 : 1.45)),
-          letterSpacing: heading ? (FONT_SIZE[size] >= FONT_SIZE.xl ? -0.6 : -0.2) : 0,
+          letterSpacing: heading && FONT_SIZE[size] >= FONT_SIZE["2xl"] ? -0.5 : 0,
           fontFamily,
         },
         style,

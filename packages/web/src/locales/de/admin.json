@@ -8,14 +8,16 @@
     "users": "Benutzer",
     "plans": "Tarife",
     "discord": "Discord",
+    "sounds": "Sounds",
     "deleted": "Gelöscht und nicht erkannt",
     "hardware": "Hardware",
-    "developer": "Entwickler"
+    "developer": "Entwickler",
+    "foilLabels": "Foil-Kennzeichnung"
   },
   "kitTest": {
     "board": {
       "heading": "Platine",
-      "description": "Verbinde eine Bausatz-Platine, flashe bei einer neuen die Firmware und führe den Selbsttest aus. Beim Verbinden hier wird der automatische Selbsttest übersprungen, damit auch eine nackte Platine ohne Anschlüsse funktioniert.",
+      "description": "Verbinde eine Bausatz-Platine und flashe bei einer neuen die Firmware. Beim Verbinden hier wird der automatische Selbsttest übersprungen, damit auch eine nackte Platine ohne Anschlüsse funktioniert.",
       "connect": "Verbinden",
       "connectUsb": "USB",
       "connectBluetooth": "Bluetooth",
@@ -23,11 +25,7 @@
       "flash": "Firmware flashen",
       "notConnected": "Keine Platine verbunden.",
       "firmware": "Firmware {{version}}",
-      "firmwareUnknown": "Firmware unbekannt",
-      "runSelfTest": "Selbsttest ausführen",
-      "testing": "Wird getestet…",
-      "selfTestPassed": "Selbsttest bestanden",
-      "selfTestFailed": "Selbsttest fehlgeschlagen"
+      "firmwareUnknown": "Firmware unbekannt"
     },
     "servos": {
       "heading": "Servo-Prüfstand",
@@ -50,45 +48,6 @@
       "failedCount_other": "{{count}} durchgefallen",
       "historyItem": "#{{number}} K {{channel}}"
     },
-    "continuous": {
-      "heading": "Dauerlauf-Servo",
-      "description": "Dreht ein Dauerlauf-Servo, etwa den Zuführmotor, in beide Richtungen. Es dreht weiter, bis du es stoppst.",
-      "forward": "Vorwärts drehen",
-      "reverse": "Rückwärts drehen",
-      "stop": "Stopp"
-    },
-    "sensors": {
-      "heading": "Sensoren",
-      "description": "Liest die IR-Sensoren fortlaufend. Halte eine Karte vor jeden Sensor: Er gilt als geprüft, sobald er einmal eine Karte und einmal keine gesehen hat.",
-      "start": "Lesen starten",
-      "stop": "Lesen stoppen",
-      "reset": "Zurücksetzen",
-      "empty": "Starte das Lesen, um die Sensoren zu sehen.",
-      "module": "Modul {{module}}",
-      "hopper": "Magazin",
-      "card": "Karte",
-      "clear": "Frei",
-      "verified": "Geprüft"
-    },
-    "report": {
-      "heading": "Bausatz-Bericht",
-      "description": "Eine Zusammenfassung dieser Sitzung, die du beim Bausatz aufbewahren kannst.",
-      "copy": "Bericht kopieren",
-      "copied": "Bericht kopiert.",
-      "copyFailed": "Der Bericht konnte nicht kopiert werden.",
-      "title": "Bausatz-Testbericht",
-      "date": "Datum: {{date}}",
-      "board": "Platine: {{board}}, Firmware {{version}}, ID {{id}}",
-      "selfTest": {
-        "notRun": "Selbsttest: nicht ausgeführt",
-        "passed": "Selbsttest: bestanden",
-        "failed": "Selbsttest: fehlgeschlagen {{error}}"
-      },
-      "servos": "Servos: {{passed}} bestanden, {{failed}} durchgefallen",
-      "failedChannels": "Durchgefallen an Kanälen: {{channels}}",
-      "sensorVerified": "{{name}}: geprüft",
-      "sensorUnverified": "{{name}}: nicht geprüft"
-    },
     "status": {
       "ok": "OK",
       "busy": "Die Platine ist mit einem anderen Befehl beschäftigt.",
@@ -100,6 +59,9 @@
     }
   },
   "cardImageVectors": {
+    "gameLabel": "Spiel",
+    "languageLabel": "Sprache",
+    "progressLabel": "Synchronisierungsfortschritt",
     "heading": "Kartenbild-Vektoren",
     "syncStatus": {
       "idle": "Inaktiv",
@@ -115,7 +77,15 @@
     "concurrencyDescription": "Vektorisiert so viele Kartenbilder gleichzeitig. Downloads starten weiterhin mit kurzem Abstand.",
     "cancellingButton": "Wird abgebrochen...",
     "startSyncButton": "Sync starten",
+    "startOnComputerButton": "Auf diesem Computer starten",
+    "browserStopped": "Browser-Vektorisierung gestoppt",
+    "browserStoppedHint": "Der Browser konnte das Bildmodell nicht ausführen. Laden Sie diese Seite vor einem erneuten Versuch neu. Gespeicherte Karten bleiben erhalten.",
+    "browserWorking": "Dieser Computer vektorisiert bis zu {{count}} Karten gleichzeitig. Lassen Sie diese Seite offen.",
+    "ratePerMinute": "{{count}}/min",
+    "embeddingCount": "{{count}} Embedding",
     "progressCount": "{{done}} / {{total}}",
+    "savedCount": "{{count}} gespeichert",
+    "activeCount": "{{count}} aktiv",
     "vectorizedCount": "{{count}} vektorisiert",
     "queuedCount": "{{count}} in Warteschlange",
     "skippedCount": "{{count}} übersprungen",
@@ -127,23 +97,71 @@
     "empty": "Keine Einträge"
   },
   "cardDatabase": {
+    "searchLabel": "Karten suchen",
     "heading": "Kartendatenbank",
     "cardCount_one": "{{count}} Karte",
     "cardCount_other": "{{count}} Karten",
     "searchPlaceholder": "Nach Name suchen...",
     "loadError": "Karten konnten nicht geladen werden",
     "revectorizeTitle": "Neu vektorisieren",
-    "empty": "Keine Karten gefunden",
-    "pageOf": "Seite {{page}} von {{total}}"
+    "empty": "Keine Karten gefunden"
   },
   "syncCardById": {
+    "cardIdLabel": "Karten-ID",
     "heading": "Karte per ID synchronisieren",
     "description": "Ruft eine einzelne Karte ab und vektorisiert sie, fügt sie bei Bedarf neu zur Datenbank hinzu",
     "cardIdPlaceholder": "Karten-ID...",
     "syncButton": "Synchronisieren",
     "syncingButton": "Wird synchronisiert..."
   },
+  "syncApiKeys": {
+    "heading": "Sync-API-Schlüssel",
+    "description": "Schlüssel, mit denen Skripte und Zeitpläne Kartendatenbank-Syncs ohne Anmeldung starten können. Jeder Schlüssel darf nur, was seine Berechtigungen erlauben.",
+    "create": "Schlüssel erstellen",
+    "createTitle": "Sync-API-Schlüssel erstellen",
+    "createDescription": "Wähle, was dieser Schlüssel darf. Berechtigungen lassen sich später nicht ändern, widerrufe den Schlüssel stattdessen und erstelle ihn neu.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Nächtlicher Sync",
+    "permissionsLabel": "Berechtigungen",
+    "permissions": {
+      "sync_start": {
+        "label": "Sync starten",
+        "description": "Startet einen normalen Sync eines Spiels. Unveränderte Karten werden übersprungen."
+      },
+      "sync_force": {
+        "label": "Erzwungener Neu-Sync",
+        "description": "Startet einen Sync, der jede Karte neu herunterlädt und vektorisiert, auch unveränderte."
+      },
+      "sync_card": {
+        "label": "Einzelne Karten synchronisieren",
+        "description": "Lädt und vektorisiert eine Karte anhand ihrer ID."
+      },
+      "sync_cancel": {
+        "label": "Sync abbrechen",
+        "description": "Stoppt den laufenden Sync."
+      }
+    },
+    "empty": "Noch keine Sync-API-Schlüssel",
+    "loadFailed": "Sync-API-Schlüssel konnten nicht geladen werden.",
+    "createFailed": "Der Sync-API-Schlüssel konnte nicht erstellt werden.",
+    "revoke": "Widerrufen",
+    "revoked": "Sync-API-Schlüssel widerrufen",
+    "revokeFailed": "Der Sync-API-Schlüssel konnte nicht widerrufen werden.",
+    "revokeConfirmTitle": "Diesen Sync-API-Schlüssel widerrufen?",
+    "revokeConfirmDescription": "Alles, was diesen Schlüssel nutzt, funktioniert sofort nicht mehr. Das lässt sich nicht rückgängig machen.",
+    "revealTitle": "Kopiere deinen Sync-API-Schlüssel",
+    "revealDescription": "Der Schlüssel wird nur dieses eine Mal angezeigt. Bewahre ihn sicher auf.",
+    "revealDone": "Fertig",
+    "copy": "Schlüssel kopieren",
+    "copied": "Schlüssel kopiert",
+    "copyFailed": "Schlüssel konnte nicht kopiert werden",
+    "exampleLabel": "Damit einen Sync starten:",
+    "createdBy": "Erstellt von {{name}} am {{date}}",
+    "lastUsed": "Zuletzt verwendet {{date}}",
+    "neverUsed": "Nie verwendet"
+  },
   "dumpDatabase": {
+    "scopeLabel": "Bereich",
     "heading": "Kartendatenbank leeren",
     "description": "Löscht Kartenbild-Vektoren dauerhaft, für ein Spiel oder alle",
     "scopePlaceholder": "Bereich auswählen...",
@@ -168,6 +186,8 @@
     "noOrgs": "Keine Organisationen",
     "adminBadge": "Admin",
     "cannotImpersonateAdmin": "Ein anderer Admin kann nicht imitiert werden",
+    "moderatorBadge": "Moderator",
+    "cannotImpersonateModerator": "Ein anderer Moderator kann nicht imitiert werden",
     "impersonateButton": "Anmelden als",
     "viewAuditLog": "Imitations-Protokoll anzeigen",
     "confirmDialog": {
@@ -207,6 +227,19 @@
     "orgs": "Organisationen",
     "connectedSorters": "Verbundene Sortierer",
     "recentScans": "Scans, letzte {{minutes}} Min."
+  },
+  "activeScanSessions": {
+    "title": "Aktive Scan-Sitzungen",
+    "close": "Schließen",
+    "empty": "Gerade scannt niemand",
+    "emptyDescription": "Sitzungen erscheinen hier, solange eine Sammlung zum Scannen gesperrt ist.",
+    "sessionCount_one": "{{count}} Sitzung",
+    "sessionCount_other": "{{count}} Sitzungen",
+    "scans_one": "{{count}} Scan",
+    "scans_other": "{{count}} Scans",
+    "collectionWithGame": "{{collection}} · {{game}}",
+    "unknownCollection": "Unbekannte Sammlung",
+    "timing": "Gestartet {{started}}, letzte Aktivität {{lastActivity}}"
   },
   "scanVectorizeStats": {
     "heading": "Vektorisierungsquelle beim Scannen",
@@ -293,7 +326,9 @@
   "plans": {
     "planNames": {
       "free": "Free",
-      "business": "Business"
+      "business": "Business",
+      "enthusiast": "Enthusiast",
+      "legacyBusiness": "Business (Legacy)"
     },
     "featuresHeading": "Funktionen",
     "featuresDescription": "Welche Tarife jede Funktion nutzen können. Funktionen sind im Code definiert, eine neue erscheint hier, sobald sie gebaut ist.",
@@ -320,6 +355,22 @@
       "apiAccess": {
         "label": "API-Zugriff",
         "description": "Organisations-API-Schlüssel anlegen und Karten und Lagerorte über die öffentliche API lesen. Bestehende Schlüssel lassen sich immer widerrufen."
+      },
+      "businessTools": {
+        "label": "Kaufen und Verkaufen",
+        "description": "Ankäufe mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
+      },
+      "repacks": {
+        "label": "Repacks",
+        "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Presets es einschalten. Presets, die schon im Repack-Modus sind, funktionieren weiter."
+      },
+      "customSounds": {
+        "label": "Eigene Sounds",
+        "description": "Eigene Soundclips für Soundregeln hochladen. Ausschalten verhindert nur neue Uploads. Bereits hochgeladene Clips werden weiter abgespielt."
+      },
+      "fleetHealth": {
+        "label": "Flottenzustand",
+        "description": "Das Zustandspanel auf der Sortierer-Seite: Status, Karten seit der letzten Wartung, Alarmverlauf und Wartungsintervalle. Stau- und Offline-Alarme werden in jedem Fall weiter erfasst und gesendet."
       }
     },
     "limits": {
@@ -338,10 +389,48 @@
       "notificationRules": {
         "label": "Benachrichtigungsregeln",
         "description": "Discord-Benachrichtigungsregeln über alle Spiele. Wird nur beim Hinzufügen geprüft."
+      },
+      "organizations": {
+        "label": "Eigene Organisationen",
+        "description": "Organisationen, die ein Nutzer besitzen darf. Die App prüft beim Anlegen einer neuen Organisation gegen den Tarif der gerade geöffneten Organisation."
+      },
+      "membersPerOrg": {
+        "label": "Mitglieder pro Organisation",
+        "description": "Mitglieder pro Organisation, Inhaber zuerst, dann nach Beitrittsdatum gezählt. Mitglieder über dem Limit sind gesperrt, bis der Tarif erhöht oder Mitglieder entfernt werden."
+      },
+      "collections": {
+        "label": "Sammlungen",
+        "description": "Sammlungen pro Organisation. Wird nur beim Anlegen einer Sammlung geprüft."
+      }
+    },
+    "preview": {
+      "heading": "Tarif in der Vorschau ansehen",
+      "description": "Sieh die App so, wie eine Organisation mit einem anderen Tarif sie sieht: Limits, gesperrte Funktionen und die Abrechnungsseite folgen dem gewählten Tarif. Betrifft nur deine eigenen Anfragen in diesem Browser.",
+      "off": "Aus"
+    },
+    "pricingMode": {
+      "heading": "Preismodell",
+      "cancel": "Abbrechen",
+      "saved": "Preismodell aktualisiert.",
+      "saveFailed": "Das Preismodell konnte nicht aktualisiert werden.",
+      "legacy": {
+        "badge": "Alte Preise",
+        "description": "Nur Free und der ursprüngliche Business-Tarif werden zu den alten Business-Preisen verkauft. Neue Business-Abonnenten erhalten den Legacy-Business-Tarif.",
+        "switch": "Zu neuen Preisen wechseln",
+        "confirmTitle": "Zu den neuen Preisen wechseln?",
+        "confirmDescription": "Enthusiast und der neue Business-Tarif sind sofort erhältlich, mit den Preisen aus STRIPE_PRICE_ID_ENTHUSIAST und STRIPE_PRICE_ID_BUSINESS. Bestehende Business-Abonnenten behalten ihren Tarif und sehen ihn künftig als Legacy gekennzeichnet."
+      },
+      "tiered": {
+        "badge": "Neue Preise",
+        "description": "Free, Enthusiast und Business sind erhältlich. Bestehende Abonnenten des ursprünglichen Business-Tarifs behalten ihn als Legacy-Tarif.",
+        "switch": "Zu alten Preisen zurückwechseln",
+        "confirmTitle": "Zu den alten Preisen zurückwechseln?",
+        "confirmDescription": "Enthusiast und der neue Business-Tarif werden nicht mehr verkauft, und der Business-Checkout nutzt wieder die alten Preise. Wer bereits einen neuen Tarif abonniert hat, behält ihn."
       }
     }
   },
   "deletedItems": {
+    "typeLabel": "Elementtyp",
     "heading": "Gelöschte Elemente",
     "description": "Alles, was in einer Organisation gelöscht wurde, außer gescannten Karten. Beim Wiederherstellen wird ein Element genau so zurückgesetzt, wie es war.",
     "searchPlaceholder": "Nach Name oder Organisation suchen",
@@ -353,6 +442,7 @@
     "types": {
       "collection": "Sammlung",
       "binSet": "Fach-Vorlage",
+      "presetWorkflow": "Mehrstufige Vorlage",
       "bin": "Fach",
       "device": "Sortierer",
       "binRoute": "Fach-Route",
@@ -363,7 +453,10 @@
       "soundRule": "Sound-Regel",
       "notificationRule": "Benachrichtigungsregel",
       "game": "Spiel",
-      "announcement": "Ankündigung"
+      "announcement": "Ankündigung",
+      "intakeLot": "Ankauf",
+      "fulfilmentOrder": "Bestellung",
+      "accuracyCheck": "Stichprobe"
     },
     "toasts": {
       "restored": "{{name}} wiederhergestellt",
@@ -371,6 +464,7 @@
     }
   },
   "unmatchedRetry": {
+    "photoFilterLabel": "Fotofilter",
     "heading": "Nicht erkannte Scans",
     "description": "Die neuesten nicht erkannten Scans aus allen Organisationen. Ein erneuter Versuch führt den aktuellen Kartenabgleich mit den gespeicherten Daten jedes Scans aus und zeigt, was jetzt erkannt würde. Es wird nichts gespeichert oder geändert. Ein einzelner Scan wird wie beim Live-Scannen geprüft: Ist der Bildabgleich unsicher, läuft zusätzlich OCR auf dem gespeicherten Foto. Alle erneut versuchen wiederholt nur den Bildabgleich, damit die OCR für Live-Scans nicht ausgebremst wird.",
     "searchPlaceholder": "Nach Organisation, Sammlung oder Karte suchen",
@@ -444,7 +538,7 @@
       "nothingRead": "Nichts gelesen",
       "closestName": "Nächster Kartenname: {{name}} (Ähnlichkeit {{score}})",
       "noName": "Kein Kartenname war nah genug am gelesenen Text.",
-      "usedFallback": "Die Ausweichbereiche wurden ebenfalls gelesen.",
+      "usedFallback": "Über den Ausweich-Namensbereich erkannt.",
       "noMatch": "Kein Treffer per Text",
       "anchoredTo": "Bereich auf die Zeile gesetzt, die als \"{{text}}\" gelesen wurde"
     },
@@ -516,6 +610,64 @@
     "priceSyncCommand": "Preise werden abgerufen, wenn dieser Befehl läuft. Lege ihn in Coolify als geplante Aufgabe in der Server-App an, alle paar Stunden. Er lädt nur herunter, was sich geändert hat.",
     "donationsLink": "Buy Me a Coffee-Seite öffnen",
     "saved": "Discord-Kanäle gespeichert.",
-    "saveFailed": "Die Discord-Kanäle konnten nicht gespeichert werden."
+    "saveFailed": "Die Discord-Kanäle konnten nicht gespeichert werden.",
+    "linkedRole": {
+      "heading": "Rolle für verknüpfte Konten",
+      "description": "Mitglieder dieses Servers, die ihr Mault-Konto mit /link-account verknüpfen, erhalten diese Rolle und verlieren sie beim Trennen wieder. Der Bot braucht die Berechtigung „Rollen verwalten“, und seine eigene Rolle muss über dieser stehen.",
+      "role": "Rolle",
+      "saved": "Rolle für verknüpfte Konten gespeichert.",
+      "saveFailed": "Die Rolle für verknüpfte Konten konnte nicht gespeichert werden."
+    }
+  },
+  "rollbarTest": {
+    "heading": "Rollbar testen",
+    "description": "Sende einen Testfehler vom Client und/oder vom Server an Rollbar, um zu prüfen, ob die Fehlermeldung funktioniert",
+    "testClientButton": "Client testen",
+    "testServerButton": "Server testen",
+    "testingButton": "Wird gesendet...",
+    "toasts": {
+      "clientSent": "Testfehler an Rollbar gesendet (Client).",
+      "serverError": "Testfehler konnte nicht an Rollbar gesendet werden (Server)"
+    }
+  },
+  "systemSoundClips": {
+    "heading": "System-Soundclips",
+    "description": "Clips, die jede Organisation in ihren Sound-Regeln verwenden kann. Organisationen können sie abspielen, aber nicht umbenennen oder löschen.",
+    "empty": "Noch keine System-Soundclips."
+  },
+  "foilLabels": {
+    "heading": "Foil-Kennzeichnung",
+    "description": "Prüfe als Foil gespeicherte Magic-Scans und markiere, ob die Karte wirklich Foil ist. Die Kennzeichnungen trainieren die Foil-Erkennung und ändern nie die Sammlung des Kunden.",
+    "counts": "Noch {{remaining}} zu kennzeichnen · bisher {{foil}} Foil und {{notFoil}} Nicht-Foil",
+    "sessionCounts": "Diese Sitzung: {{foil}} Foil, {{notFoil}} Nicht-Foil",
+    "scanPhoto": "Scan-Foto",
+    "scanPhotoAlt": "Scan-Foto von {{name}}",
+    "catalogImage": "Katalogbild",
+    "catalogImageAlt": "Katalogbild von {{name}}",
+    "unknownCard": "Unbekannte Karte",
+    "savedAs": "Gespeichert als {{foilType}}",
+    "foil": "Foil",
+    "detectionScore": "Regenbogenwert {{score}}",
+    "noDetection": "Keine Foil-Erkennung bei diesem Scan",
+    "decisions": {
+      "foil": "Als Foil gekennzeichnet",
+      "notFoil": "Als Nicht-Foil gekennzeichnet",
+      "skipped": "Übersprungen"
+    },
+    "actions": {
+      "foil": "Foil",
+      "notFoil": "Kein Foil",
+      "skip": "Überspringen",
+      "back": "Zurück",
+      "refresh": "Aktualisieren"
+    },
+    "empty": {
+      "title": "Nichts mehr zu kennzeichnen",
+      "description": "Jeder als Foil gespeicherte Magic-Scan mit Foto ist gekennzeichnet, oder du hast den Rest übersprungen. Aktualisiere, um übersprungene Scans erneut zu laden."
+    },
+    "toasts": {
+      "saveError": "Die Kennzeichnung konnte nicht gespeichert werden. Versuche diese Karte erneut."
+    },
+    "nudgeScore": "Änderung beim Anstoßen {{score}}"
   }
 }

@@ -1,15 +1,21 @@
 import { AppProviders } from "@/app/providers";
 import { AppHotkeys } from "@/components/app-hotkeys";
 import { AppNav } from "@/components/app-nav";
+import { AppTopBar } from "@/components/app-top-bar";
 import { AlertStack } from "@/components/alert-stack";
 import { EnvBanner } from "@/components/env-banner";
+import { SeasonalPumpkin, SpiderWeb } from "@/components/halloween-decor";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
+import { PlanPreviewBanner } from "@/components/plan-preview-banner";
+import { IntakeBanner } from "@/features/business/components/intake-banner";
 import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog";
 import { MobileNav } from "@/components/mobile-nav";
+import { MobileTopBar } from "@/components/mobile-top-bar";
 import { PageTransition } from "@/components/page-transition";
 import { PlanBadge } from "@/components/plan-badge";
+import { PiScanStatusBar } from "@/features/scanner/components/pi-scan-status-bar";
+import { DesktopScannerPip } from "@/features/scanner/components/desktop-scanner-pip";
 import { ScannerPip } from "@/features/scanner/components/scanner-pip";
-import { StationTabs } from "@/features/scanner/components/station-tabs";
 import { FooterDivider, StatusFooter } from "@/components/status-footer";
 import {
   Tooltip,
@@ -19,6 +25,9 @@ import {
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { DONATE_URL } from "@/lib/constants/links";
 import {
+  MOBILE_FRAMED_PANEL_CLASS,
+  MOBILE_FRAMED_SHELL_CLASS,
+  MOBILE_IMMERSIVE_PANEL_CLASS,
   MOBILE_IMMERSIVE_PATTERN,
   MOBILE_NAV_HIDDEN_PATTERN,
   MOBILE_NAV_SPACE_CLASS,
@@ -29,29 +38,50 @@ import { IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useLocation } from "react-router-dom";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
+import { RouteAnnouncer } from "@/components/route-announcer";
+import { SkipLink } from "@/components/skip-link";
 
 export default function AppLayout() {
   const { t } = useTranslation("common");
   const isMobile = useIsMobile();
   const { pathname } = useLocation();
   const hideMobileNav = MOBILE_NAV_HIDDEN_PATTERN.test(pathname);
+  const isImmersive = MOBILE_IMMERSIVE_PATTERN.test(pathname);
+  const isFramed = !hideMobileNav;
 
   return (
     <AppProviders>
+      <SkipLink />
+      <RouteAnnouncer />
       {isMobile ? (
         <div
           className={cn(
             "relative h-dvh w-dvw overflow-hidden flex flex-col pt-[env(safe-area-inset-top)]",
-            MOBILE_IMMERSIVE_PATTERN.test(pathname)
-              ? "bg-black"
-              : "bg-background",
+            isFramed ? "bg-sidebar" : "bg-background",
             !hideMobileNav && MOBILE_NAV_SPACE_CLASS,
+            isFramed && MOBILE_FRAMED_SHELL_CLASS,
           )}
         >
           <div aria-hidden className={GRADIENT_BURST_CLASS} />
-          <ImpersonationBanner />
+          <SpiderWeb
+            corner="top-left"
+            className="top-[env(safe-area-inset-top)] size-14"
+          />
+          {isFramed && <MobileTopBar />}
+          <ImpersonationBanner />
+          <PlanPreviewBanner />
           <AlertStack />
-          <main className="relative flex-1 min-h-0 overflow-hidden flex flex-col">
+          <PiScanStatusBar />
+          <main
+            id={MAIN_CONTENT_ID}
+            tabIndex={-1}
+            className={cn(
+              "relative flex-1 min-h-0 overflow-hidden flex flex-col outline-none",
+              isFramed && MOBILE_FRAMED_PANEL_CLASS,
+              isImmersive && MOBILE_IMMERSIVE_PANEL_CLASS,
+            )}
+          >
             <PageTransition>
               <Outlet />
             </PageTransition>
@@ -59,24 +89,31 @@ export default function AppLayout() {
           {!hideMobileNav && <MobileNav />}
         </div>
       ) : (
-        <div className="h-dvh w-dvw overflow-hidden p-2 pb-6 bg-muted dark:bg-black relative text-foreground/70">
+        <div className="h-dvh w-dvw overflow-hidden pb-6 flex flex-col bg-sidebar relative text-foreground/70">
           <div aria-hidden className={GRADIENT_BURST_CLASS} />
-          <div className="flex flex-col border rounded-lg size-full overflow-hidden relative">
-            <ImpersonationBanner />
-            <AlertStack />
-            <div className="flex flex-row flex-1 min-h-0 overflow-hidden">
-              <AppNav />
-              <main className="flex-1 min-w-0 overflow-hidden flex flex-col bg-background/70 dark:bg-background/60">
-                <StationTabs />
-                <PageTransition>
-                  <Outlet />
-                </PageTransition>
-              </main>
-            </div>
+          <SpiderWeb corner="top-left" withSpider className="z-0" />
+          <AppTopBar />
+          <div className="relative flex flex-row flex-1 min-h-0 overflow-hidden pr-1.5">
+            <AppNav />
+            <main
+              id={MAIN_CONTENT_ID}
+              tabIndex={-1}
+              className="relative flex-1 min-w-0 overflow-hidden flex flex-col rounded-lg border bg-background/70 shadow-xs outline-none dark:bg-background/60"
+            >
+              <ImpersonationBanner />
+              <PlanPreviewBanner />
+              <AlertStack />
+              <PiScanStatusBar />
+              <IntakeBanner />
+              <PageTransition>
+                <Outlet />
+              </PageTransition>
+            </main>
           </div>
           <ScannerPip />
+          <DesktopScannerPip />
           <AppHotkeys />
-          <div className="absolute bottom-0 left-0 px-4 h-6 flex items-center w-full gap-3 text-xs">
+          <footer className="absolute bottom-0 left-0 px-4 h-6 flex items-center w-full gap-3 text-xs">
             <StatusFooter />
             <div className="ml-auto flex items-center gap-3 shrink-0">
               <KeyboardShortcutsButton />
@@ -103,11 +140,12 @@ export default function AppLayout() {
               </Tooltip>
               <FooterDivider />
               <div className="flex items-center gap-2">
+                <SeasonalPumpkin className="size-3.5" />
                 <span className="text-foreground/70">v{__APP_VERSION__}</span>
                 <EnvBanner />
               </div>
             </div>
-          </div>
+          </footer>
         </div>
       )}
     </AppProviders>

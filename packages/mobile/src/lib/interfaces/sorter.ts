@@ -1,4 +1,13 @@
-import type { BinRoute, SerialResetReason } from "@magic-vault/shared";
+import type {
+  BinRoute,
+  CommLogEntry,
+  RetractCardOutcome,
+  RouteOptions,
+  SerialMessageListener,
+  SerialReply,
+  SerialRequestResult,
+  SerialResetReason,
+} from "@magic-vault/shared";
 import type { Device } from "@/lib/interfaces/devices";
 
 export interface ByteTransport {
@@ -10,35 +19,6 @@ export interface ByteTransport {
   onDisconnect(cb: () => void): void;
   setMtu(mtu: number): void;
   close(): Promise<void>;
-}
-
-export interface PendingReply {
-  seq: number | null;
-  resolve: (line: string) => void;
-}
-
-export interface SerialRequestResult {
-  sent: boolean;
-  line: string;
-}
-
-export type SorterMessage = Record<string, unknown>;
-
-export type SorterMessageListener = (message: unknown) => void;
-
-export interface CommLogEntry {
-  direction: "sent" | "received";
-  text: string;
-  timestamp: number;
-}
-
-export interface RouteOptions {
-  feedNext?: boolean;
-}
-
-export interface RouteQueue {
-  tail: Promise<unknown>;
-  pending: number;
 }
 
 export interface DiscoveredSorter {
@@ -128,13 +108,14 @@ export interface SorterContextValue {
   runSelfTest: () => Promise<boolean>;
   sendRequest: (command: object, timeoutMs?: number) => Promise<SerialRequestResult>;
   sendRoute: (route: BinRoute, options?: RouteOptions) => Promise<unknown>;
-  feed: () => Promise<SorterMessage | null>;
+  feed: () => Promise<SerialReply | null>;
   sendNeutral: () => Promise<boolean>;
   clearDevice: () => Promise<void>;
+  retractCard: () => Promise<RetractCardOutcome>;
   sendCommand: (command: object) => void;
   applySavedCalibration: () => Promise<void>;
   updateDevice: (device: Device) => void;
-  subscribe: (listener: SorterMessageListener) => () => void;
+  subscribe: (listener: SerialMessageListener) => () => void;
 }
 
 export interface TestOutcome {

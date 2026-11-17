@@ -1,4 +1,5 @@
-import { View } from "react-native";
+import { useEffect } from "react";
+import { AccessibilityInfo, Platform, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { useTheme } from "@/hooks/use-theme";
@@ -14,10 +15,16 @@ export function Callout({ tone = "info", title, description, action }: CalloutPr
     destructive: { bg: colors.destructiveMuted, border: colors.destructiveBorder, fg: colors.destructive, icon: "error" },
   } as const;
   const { bg, border, fg, icon } = palette[tone];
+  const announcesChanges = tone === "destructive";
+  const announcement = [title, description].filter(Boolean).join(". ");
+  useEffect(() => {
+    if (announcesChanges && Platform.OS === "ios") AccessibilityInfo.announceForAccessibility(announcement);
+  }, [announcesChanges, announcement]);
 
   return (
     <View
       accessibilityRole={tone === "destructive" || tone === "warning" ? "alert" : undefined}
+      accessibilityLiveRegion={announcesChanges ? "polite" : "none"}
       style={{
         flexDirection: "row",
         alignItems: "flex-start",

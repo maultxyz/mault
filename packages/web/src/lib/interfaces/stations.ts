@@ -6,6 +6,37 @@ export type StationPanelLayout = "horizontal" | "vertical";
 
 export type StationConnectKind = "usb" | "bluetooth";
 
+export type SorterLimitReason = "plan" | "hardCap" | "cpuInference";
+
+export type StationAttentionKind =
+  | "jam"
+  | "hopperEmpty"
+  | "feederError"
+  | "noCardDetected"
+  | "sorterNotResponding"
+  | "routingFailed"
+  | "binLimit"
+  | "binsFull"
+  | "packsComplete"
+  | "saveFailed"
+  | "scanLimit"
+  | "sorterLimit"
+  | "collectionLocked"
+  | "scannerError";
+
+export type StationAttentionFix = "resume" | "emptyBin" | "openSorter";
+
+export interface StationAttentionDetails {
+  kind: StationAttentionKind;
+  module?: number;
+  binNumbers?: number[];
+  detail?: string;
+}
+
+export interface StationAttention extends StationAttentionDetails {
+  raisedAt: number;
+}
+
 export interface StationState {
   id: string;
   deviceGuid: string | null;
@@ -34,8 +65,12 @@ export interface StationsContextValue {
   panelLayout: StationPanelLayout | null;
   panelsDocked: boolean;
   maxConnectedSorters: number;
-  sorterLimitIsHardCap: boolean;
+  sorterLimitReason: SorterLimitReason;
   canConnectAnotherSorter: boolean;
+  stationAttention: ReadonlyMap<string, StationAttention>;
+  stationIdsNeedingAttention: string[];
+  nextStationIdNeedingAttention: string | null;
+  reportStationAttention: (id: string, attention: StationAttention | null) => void;
   isStationLive: (id: string) => boolean;
   setActiveStation: (id: string) => void;
   bindStationDevice: (id: string, deviceGuid: string) => void;
@@ -62,16 +97,42 @@ export interface StationsContextValue {
   getOverviewTileElement: (id: string) => HTMLElement;
 }
 
-export interface StationTabProps {
+export interface StationIdentityProps {
   station: StationState;
   index: number;
+}
+
+export interface StationMenuItemProps extends StationIdentityProps {
   isActive: boolean;
 }
 
-export type StationStatus = "sorting" | "paused" | "offline";
+export type StationStatus = "sorting" | "paused" | "attention" | "offline";
 
 export interface StationStatusDotProps {
   status: StationStatus;
+}
+
+export interface ConnectedSorterSummary {
+  station: StationState;
+  index: number;
+  name: string;
+  selectionKey: string;
+}
+
+export interface SorterOverview {
+  isLoading: boolean;
+  connectedSorters: ConnectedSorterSummary[];
+  offlineDevices: Device[];
+  matchingConnectedSorters: ConnectedSorterSummary[];
+  matchingOfflineDevices: Device[];
+  sortingCount: number;
+  attentionCount: number;
+  totalCount: number;
+}
+
+export interface StationOverviewGridProps {
+  overview: SorterOverview;
+  isSearching: boolean;
 }
 
 export interface StationOverviewCardProps {
@@ -81,6 +142,8 @@ export interface StationOverviewCardProps {
   latestCard: PlayingCard | undefined;
   collectionName: string | undefined;
   totalCount: number;
+  sessionScanCount?: number;
+  attentionLabel?: string;
   onOpen?: () => void;
   openLabel?: string;
   action?: ReactNode;
@@ -88,19 +151,29 @@ export interface StationOverviewCardProps {
   onToggleSelect?: () => void;
 }
 
+export interface StationSummary {
+  isRunning: boolean;
+  totalCount: number;
+  collectionName: string | null;
+}
+
 export interface SorterControl {
   isRunning: boolean;
+  canResume: boolean;
   pause: () => void;
+  resume: () => void;
 }
 
 export interface SorterSelectionContextValue {
   selectedKeys: ReadonlySet<string>;
   runningKeys: ReadonlySet<string>;
+  resumableKeys: ReadonlySet<string>;
   toggleSelected: (key: string) => void;
   setSelected: (keys: Iterable<string>) => void;
   clearSelected: () => void;
   registerSorterControl: (key: string, control: SorterControl) => () => void;
   pauseSorters: (keys: Iterable<string>) => void;
+  resumeSorters: (keys: Iterable<string>) => void;
 }
 
 export interface OfflineDeviceTileProps {
@@ -122,4 +195,10 @@ export type PreTestHook = (device: Device | undefined) => Promise<void>;
 
 export interface BleReconnectState {
   cancel: (() => void) | null;
+}
+
+export interface StationPanelsProps {
+  layout: StationPanelLayout;
+  size: number;
+  overlay?: ReactNode;
 }

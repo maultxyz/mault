@@ -6,6 +6,10 @@ import type {
 import { useSyncExternalStore } from "react";
 import { getLocalToken } from "./local-token";
 
+const SIGNED_OUT_SNAPSHOT: LocalSessionSnapshot = {
+  data: null,
+  isPending: false,
+};
 
 let snapshot: LocalSessionSnapshot = {
   data: null,
@@ -39,9 +43,6 @@ async function load() {
 
 if (getLocalToken()) load();
 
-// Called after sign-in/sign-up stores a new token, and after sign-out clears
-// one - re-fetches /local-auth/session so every useLocalAuthSession()
-// subscriber (see below) re-renders with the new state.
 export function notifyLocalSessionChanged(): void {
   set({ data: null, isPending: !!getLocalToken() });
   load();
@@ -54,5 +55,6 @@ export function useLocalAuthSession(): LocalSessionSnapshot {
       return () => listeners.delete(listener);
     },
     () => snapshot,
+    () => SIGNED_OUT_SNAPSHOT,
   );
 }

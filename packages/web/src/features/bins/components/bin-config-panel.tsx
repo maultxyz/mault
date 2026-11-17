@@ -38,6 +38,7 @@ import {
   DEFAULT_MAX_COPIES,
   NO_OVERFLOW_VALUE,
   REPACK_ALLOW_DUPLICATES_VALUE,
+  REPACK_PRIORITY_AUTO_VALUE,
 } from "@/lib/constants/bins";
 import { emptyRuleGroup } from "@/lib/rule-groups";
 import {
@@ -48,19 +49,25 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import {
   BinConfig,
   BinRuleGroup,
-  DEFAULT_BIN_CAPACITY,
   formatDecklist,
   getOverflowSources,
+  getRepackPackBins,
   isOverflowTarget,
   OVERRIDE_PRIORITY_MAX,
   parseDecklist,
   REPACK_UNIQUE_BY_NAME,
   REPACK_UNIQUE_BY_PRINTING,
   sortOverrideBins,
+  sortRepackPackBins,
 } from "@magic-vault/shared";
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { IconArrowsExchange } from "@tabler/icons-react";
+import { BinRuleTransferDialog } from "@/features/bins/components/bin-rule-transfer-dialog";
 import { Controller, useForm, type Resolver } from "react-hook-form";
-import type { BinSortSource } from "@/lib/interfaces/bins";
+import type {
+  BinConfigPanelProps,
+  BinSortSource,
+} from "@/lib/interfaces/bins";
 import { useTranslation } from "react-i18next";
 
 function groupOverridesByPriority(order: BinConfig[]): BinConfig[][] {
@@ -79,7 +86,7 @@ function groupOverridesByPriority(order: BinConfig[]): BinConfig[][] {
   }, []);
 }
 
-export function BinConfigPanel() {
+export function BinConfigPanel({ showTitle = true }: BinConfigPanelProps) {
   const { t } = useTranslation("bins");
   const {
     selectedConfig: config,
@@ -91,6 +98,7 @@ export function BinConfigPanel() {
     setBinFormDirty,
     effectiveMode,
     isModeDirty,
+    selectedSet,
   } = useBinConfigs();
 
   const autoAssignField = effectiveMode.autoAssignField;
@@ -104,6 +112,7 @@ export function BinConfigPanel() {
       isCatchAll: false,
       isOverride: false,
       overridePriority: null,
+      repackPriority: null,
       isDisabled: false,
       rules: emptyRuleGroup(),
       maxCopies: null,
@@ -119,6 +128,7 @@ export function BinConfigPanel() {
       isCatchAll: config.isCatchAll ?? false,
       isOverride: config.isOverride ?? false,
       overridePriority: config.overridePriority ?? null,
+      repackPriority: config.isCatchAll ? null : (config.repackPriority ?? null),
       isDisabled: !config.isCatchAll && !!config.isDisabled,
       rules:
         config.rules.conditions.length > 0 ? config.rules : emptyRuleGroup(),
@@ -153,6 +163,9 @@ export function BinConfigPanel() {
     effectiveMode.isRepackMode ||
     effectiveMode.isAlphabetMode ||
     effectiveMode.isChaosMode;
+  const [isTransferOpen, setIsTransferOpen] = useState(false);
+  const canTransferRules =
+    !rulesLocked && !autoAssignField && config.rules.conditions.length > 0;
 
   const overflowSources = useMemo(
     () => getOverflowSources(configs, config.binNumber).map((c) => c.binNumber),
@@ -167,17 +180,12 @@ export function BinConfigPanel() {
         });
         return;
       }
-      const cardLimit =
-        config.cardLimit === undefined
-          ? DEFAULT_BIN_CAPACITY
-          : config.cardLimit;
       const keepsRole = !!config.isCatchAll === values.isCatchAll;
       if (rulesLocked) {
         save({
           binNumber: config.binNumber,
           rules: keepsRole ? config.rules : emptyRuleGroup(),
           isCatchAll: values.isCatchAll,
-          cardLimit,
           isOverride: !values.isCatchAll && config.isOverride,
           overridePriority: keepsRole
             ? (config.overridePriority ?? null)
@@ -186,6 +194,7 @@ export function BinConfigPanel() {
           maxCopies: values.isCatchAll ? null : (config.maxCopies ?? null),
           maxCopiesBy: values.isCatchAll ? null : (config.maxCopiesBy ?? null),
           isDisabled: !values.isCatchAll && values.isDisabled,
+          repackPriority: values.isCatchAll ? null : values.repackPriority,
         });
         return;
       }
@@ -194,7 +203,6 @@ export function BinConfigPanel() {
           binNumber: config.binNumber,
           rules: emptyRuleGroup(),
           isCatchAll: false,
-          cardLimit,
           isOverride: false,
           overridePriority: null,
           lowMatchPercent: null,
@@ -215,7 +223,6 @@ export function BinConfigPanel() {
         binNumber: config.binNumber,
         rules: claimed ? emptyRuleGroup() : (values.rules as BinRuleGroup),
         isCatchAll: values.isCatchAll,
-        cardLimit,
         isOverride,
         overridePriority:
           values.isCatchAll || isOverride ? values.overridePriority : null,
@@ -255,6 +262,7 @@ export function BinConfigPanel() {
         isCatchAll: false,
         isOverride: false,
         overridePriority: null,
+        repackPriority: form.getValues("repackPriority"),
         isDisabled: form.getValues("isDisabled"),
         rules: emptyRuleGroup(),
         maxCopies: null,
@@ -306,7 +314,6 @@ export function BinConfigPanel() {
             <Button
               key={item.key}
               type="button"
-              size="sm"
               variant={active ? "outline-selected" : "outline"}
               aria-pressed={active}
               onClick={() => {
@@ -444,7 +451,7 @@ export function BinConfigPanel() {
       }
     >
       {priorityOrderText && (
-        <p className="text-2xs text-foreground/70">{priorityOrderText}</p>
+        <p className="text-xs text-foreground/70">{priorityOrderText}</p>
       )}
       <FieldError errors={[form.formState.errors.overridePriority]} />
     </BinSettingRow>
@@ -463,6 +470,7 @@ export function BinConfigPanel() {
           render={({ field }) => (
             <Switch
               id="bin-disabled"
+              aria-label={t("binConfigPanel.disabledLabel")}
               checked={field.value}
               onCheckedChange={field.onChange}
             />
@@ -470,6 +478,97 @@ export function BinConfigPanel() {
         />
       }
     />
+  );
+
+  const repackPackBins = useMemo(
+    () =>
+      effectiveMode.isRepackMode && selectedSet
+        ? getRepackPackBins(configs, selectedSet)
+        : [],
+    [effectiveMode.isRepackMode, selectedSet, configs],
+  );
+  const isRepackPackBin =
+    !isCatchAll &&
+    !isDisabled &&
+    repackPackBins.some((c) => c.binNumber === config.binNumber);
+  const draftRepackPriority = form.watch("repackPriority");
+  const repackPriorityOptions = Array.from(
+    {
+      length: Math.max(repackPackBins.length, draftRepackPriority ?? 0),
+    },
+    (_, i) => i + 1,
+  );
+  const repackFillOrder = useMemo(
+    () =>
+      sortRepackPackBins(
+        repackPackBins.map((c) =>
+          c.binNumber === config.binNumber
+            ? { ...c, repackPriority: draftRepackPriority }
+            : c,
+        ),
+      ),
+    [repackPackBins, config.binNumber, draftRepackPriority],
+  );
+
+  const repackPriorityRow = isRepackPackBin && (
+    <BinSettingRow
+      key="repack-priority"
+      id="bin-repack-priority"
+      label={t("binConfigPanel.repackPriorityLabel")}
+      description={t("binConfigPanel.repackPriorityDescription")}
+      control={
+        <Select
+          value={
+            draftRepackPriority == null
+              ? REPACK_PRIORITY_AUTO_VALUE
+              : String(draftRepackPriority)
+          }
+          onValueChange={(value) =>
+            form.setValue(
+              "repackPriority",
+              !value || value === REPACK_PRIORITY_AUTO_VALUE
+                ? null
+                : Number(value),
+              { shouldDirty: true },
+            )
+          }
+        >
+          <SelectTrigger
+            id="bin-repack-priority"
+            className="w-40"
+            aria-label={t("binConfigPanel.repackPriorityLabel")}
+          >
+            <SelectValue>
+              {draftRepackPriority == null
+                ? t("binConfigPanel.repackPriorityAuto")
+                : t("binCard.priority", { priority: draftRepackPriority })}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent align="end">
+            <SelectGroup>
+              <SelectItem value={REPACK_PRIORITY_AUTO_VALUE}>
+                {t("binConfigPanel.repackPriorityAuto")}
+              </SelectItem>
+              {repackPriorityOptions.map((priority) => (
+                <SelectItem key={priority} value={String(priority)}>
+                  {t("binCard.priority", { priority })}
+                </SelectItem>
+              ))}
+            </SelectGroup>
+          </SelectContent>
+        </Select>
+      }
+    >
+      {repackFillOrder.length > 1 && (
+        <p className="text-xs text-foreground/70">
+          {t("binConfigPanel.repackPriorityOrder", {
+            order: repackFillOrder
+              .map((c) => t("binLabel", { number: c.binNumber }))
+              .join(", "),
+          })}
+        </p>
+      )}
+    </BinSettingRow>
   );
 
   const overflowRow = !isDisabled && (
@@ -534,6 +633,7 @@ export function BinConfigPanel() {
           render={({ field }) => (
             <Switch
               id="bin-override"
+              aria-label={t("binConfigPanel.overrideLabel")}
               checked={field.value}
               onCheckedChange={field.onChange}
             />
@@ -650,6 +750,7 @@ export function BinConfigPanel() {
           control={
             <Switch
               id="bin-low-match"
+              aria-label={t("binConfigPanel.lowMatchLabel")}
               checked={field.value != null}
               onCheckedChange={(checked) =>
                 field.onChange(checked ? DEFAULT_CATCH_ALL_MATCH_PERCENT : null)
@@ -692,38 +793,37 @@ export function BinConfigPanel() {
       name="isCatchAll"
       control={form.control}
       render={({ field }) => (
-        <div className="flex items-center gap-2">
-          <Button
-            type="button"
-            variant={field.value ? "outline-selected" : "outline"}
-            size="sm"
-            data-tour="catch-all-toggle"
-            onClick={() => {
-              form.setValue("rules", emptyRuleGroup(), {
-                shouldDirty: true,
-              });
-              form.setValue("lowMatchPercent", null, {
-                shouldDirty: true,
-              });
-              form.setValue("isOverride", false, { shouldDirty: true });
-              form.setValue("overridePriority", null, { shouldDirty: true });
-              form.setValue("isDisabled", false, { shouldDirty: true });
-              form.setValue("pickList", null, { shouldDirty: true });
-              field.onChange(!field.value);
-            }}
-          >
-            {field.value
-              ? t("binConfigPanel.catchAllEnabled")
-              : t("binConfigPanel.setCatchAll")}
-          </Button>
-          {field.value && (
-            <p className="text-xs text-foreground/70">
-              {t("binConfigPanel.catchAllDescription")}
-            </p>
-          )}
-        </div>
+        <Button
+          type="button"
+          variant={field.value ? "outline-selected" : "outline"}
+          data-tour="catch-all-toggle"
+          onClick={() => {
+            form.setValue("rules", emptyRuleGroup(), {
+              shouldDirty: true,
+            });
+            form.setValue("lowMatchPercent", null, {
+              shouldDirty: true,
+            });
+            form.setValue("isOverride", false, { shouldDirty: true });
+            form.setValue("overridePriority", null, { shouldDirty: true });
+            form.setValue("repackPriority", null, { shouldDirty: true });
+            form.setValue("isDisabled", false, { shouldDirty: true });
+            form.setValue("pickList", null, { shouldDirty: true });
+            field.onChange(!field.value);
+          }}
+        >
+          {field.value
+            ? t("binConfigPanel.catchAllEnabled")
+            : t("binConfigPanel.setCatchAll")}
+        </Button>
       )}
     />
+  );
+
+  const catchAllNotice = isCatchAll && (
+    <p className="-mt-2 mb-4 text-xs text-foreground/70">
+      {t("binConfigPanel.catchAllDescription")}
+    </p>
   );
 
   const catchAllError = form.formState.errors.isCatchAll && (
@@ -755,14 +855,17 @@ export function BinConfigPanel() {
           onSubmit={form.handleSubmit(handleSave)}
           className="flex flex-col"
         >
-          <div className="mb-4 flex items-center gap-4">
-            <h2 className="text-sm font-semibold font-heading">
-              {t("binLabel", { number: config.binNumber })}
-            </h2>
+          <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+            {showTitle && (
+              <h2 className="text-sm font-semibold font-heading">
+                {t("binLabel", { number: config.binNumber })}
+              </h2>
+            )}
             {catchAllToggle}
           </div>
+          {catchAllNotice}
           <div className={BIN_SETTINGS_LIST_CLASS}>
-            {isCatchAll ? lowMatchRow : disableRow}
+            {isCatchAll ? lowMatchRow : [disableRow, repackPriorityRow]}
           </div>
           {catchAllError}
         </form>
@@ -775,11 +878,13 @@ export function BinConfigPanel() {
     return (
       <div className="flex flex-col gap-3">
         <div className="flex items-center gap-4">
-          <h2 className="text-sm font-semibold font-heading">
-            {t("binLabel", { number: config.binNumber })}
-          </h2>
+          {showTitle && (
+            <h2 className="text-sm font-semibold font-heading">
+              {t("binLabel", { number: config.binNumber })}
+            </h2>
+          )}
           {config.isCatchAll && (
-            <Button type="button" variant="outline-selected" size="sm" disabled>
+            <Button type="button" variant="outline-selected" disabled>
               {t("binConfigPanel.catchAllEnabled")}
             </Button>
           )}
@@ -804,16 +909,34 @@ export function BinConfigPanel() {
               : t("binConfigPanel.rulesSectionDescription")}
           </p>
         </div>
-        {apiDocsUrl && (
-          <a
-            href={apiDocsUrl}
-            target="_blank"
-            rel="noreferrer"
-            className="shrink-0 text-xs text-foreground/70 transition-colors hover:text-foreground"
-          >
-            {t("binConfigPanel.apiDocsLink")}
-          </a>
-        )}
+        <div className="flex shrink-0 items-center gap-1.5">
+          {canTransferRules && (
+            <Button
+              type="button"
+              variant="outline"
+              disabled={form.formState.isDirty}
+              title={
+                form.formState.isDirty
+                  ? t("binRuleTransfer.saveFirst")
+                  : undefined
+              }
+              onClick={() => setIsTransferOpen(true)}
+            >
+              <IconArrowsExchange />
+              {t("binRuleTransfer.button")}
+            </Button>
+          )}
+          {apiDocsUrl && (
+            <a
+              href={apiDocsUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="shrink-0 text-xs text-foreground/70 transition-colors hover:text-foreground"
+            >
+              {t("binConfigPanel.apiDocsLink")}
+            </a>
+          )}
+        </div>
       </div>
       {!isCatchAll && autoAssignField ? (
         config.rules.conditions.length > 0 ? (
@@ -858,12 +981,15 @@ export function BinConfigPanel() {
         onSubmit={form.handleSubmit(handleSave)}
         className="flex flex-col"
       >
-        <div className="mb-4 flex items-center gap-4">
-          <h2 className="font-heading text-sm font-semibold">
-            {t("binLabel", { number: config.binNumber })}
-          </h2>
+        <div className="mb-4 flex flex-wrap items-center gap-x-4 gap-y-2">
+          {showTitle && (
+            <h2 className="font-heading text-sm font-semibold">
+              {t("binLabel", { number: config.binNumber })}
+            </h2>
+          )}
           {catchAllToggle}
         </div>
+        {catchAllNotice}
         <ScrollArea>
           <div className="flex flex-col gap-6 pb-2">
             {isDisabled && (
@@ -929,6 +1055,11 @@ export function BinConfigPanel() {
         </div>
       </form>
       {saveControls}
+      <BinRuleTransferDialog
+        source={config}
+        open={isTransferOpen}
+        onOpenChange={setIsTransferOpen}
+      />
     </>
   );
 }

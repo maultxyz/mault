@@ -4,10 +4,12 @@ import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { currentFocusDistance } from "@/features/scanner/lib/camera-focus";
 import type { CameraFocusControlProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
+import { useId } from "react";
 import { useTranslation } from "react-i18next";
 
 export function CameraFocusControl({ className }: CameraFocusControlProps) {
   const { t } = useTranslation("scanner");
+  const focusLabelId = useId();
   const { stream, focusRange, focusDistance, setFocusDistance } =
     useCameraContext();
   if (!focusRange) return null;
@@ -27,7 +29,7 @@ export function CameraFocusControl({ className }: CameraFocusControlProps) {
   return (
     <div className={cn("flex flex-col gap-2", className)}>
       <label className="flex items-center justify-between gap-2">
-        <span className="text-xs font-medium">
+        <span id={focusLabelId} className="text-xs font-medium">
           {t("cameraFocus.label")}
         </span>
         <span className="flex items-center gap-1.5 text-xs text-foreground/70">
@@ -36,6 +38,7 @@ export function CameraFocusControl({ className }: CameraFocusControlProps) {
         </span>
       </label>
       <Slider
+        aria-labelledby={focusLabelId}
         min={focusRange.min}
         max={focusRange.max}
         step={focusRange.step || (focusRange.max - focusRange.min) / 100}

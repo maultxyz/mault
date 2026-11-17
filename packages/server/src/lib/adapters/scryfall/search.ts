@@ -1,12 +1,13 @@
-import type { PlayingCard, Result } from "@magic-vault/shared";
-import { fetchCardApi } from "../../card-search/fetch";
+import type { PlayingCard } from "@magic-vault/shared";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
-import { validateQuery } from "../../card-search/validate";
-import { CARD_API_HEADERS } from "../../constants/card-search";
+import {
+  SCRYFALL_FOIL_TYPES_BY_TCGPLAYER_VARIANT,
+  SCRYFALL_LIST_SET_CODES,
+} from "../../constants/card-search";
+import { sql } from "drizzle-orm";
 import { SCRYFALL_DEFAULT_URL } from "../../constants/urls";
+import { scryfallFoilPrintingVariants } from "./foil-printings";
 import type {
-  ScryfallImageUris,
-  ScryfallCardFace,
   ScryfallApiCard,
 } from "../../interfaces/scryfall";
 
@@ -22,6 +23,10 @@ function withPrintedFields(raw: ScryfallApiCard): ScryfallApiCard {
       raw.oracle_text ??
       face?.oracle_text,
   };
+}
+
+function parsePrice(value: string | null | undefined): number | null {
+  return value != null ? Number.parseFloat(value) : null;
 }
 
 function normalizeScryfallCard(rawInput: ScryfallApiCard): PlayingCard {
@@ -46,11 +51,8 @@ function normalizeScryfallCard(rawInput: ScryfallApiCard): PlayingCard {
     toughness: raw.toughness ?? face?.toughness,
     colorIdentity: raw.color_identity,
     artist: raw.artist ?? face?.artist,
-    price: raw.prices.usd != null ? Number.parseFloat(raw.prices.usd) : null,
-    priceFoil:
-      raw.prices.usd_foil != null
-        ? Number.parseFloat(raw.prices.usd_foil)
-        : null,
+    price: parsePrice(raw.prices.usd),
+    priceFoil: parsePrice(raw.prices.usd_foil ?? raw.prices.usd_etched),
     sourceUrl: raw.scryfall_uri,
     tcgplayerId:
       raw.tcgplayer_id != null ? String(raw.tcgplayer_id) : undefined,
@@ -59,80 +61,27 @@ function normalizeScryfallCard(rawInput: ScryfallApiCard): PlayingCard {
   };
 }
 
-export async function Search(
-  query: string,
-  baseUrl: string = SCRYFALL_DEFAULT_URL,
-  lang?: string,
-): Promise<Result<PlayingCard[]>> {
-  const invalid = validateQuery(query);
-  if (invalid) return invalid;
-
-  const scopedQuery = lang ? `${query} lang:${lang}` : query;
-  const scryfallUrl = `${baseUrl}/search?q=${encodeURIComponent(scopedQuery)}&unique=prints&order=released&dir=desc`;
-
-  const response = await fetchCardApi(scryfallUrl, {
-    headers: CARD_API_HEADERS,
-  });
-
-  if (response.status === 404) {
-    return {
-      message: `No cards were found with the query: ${query}`,
-      success: false,
-    };
-  }
-
-  if (!response.ok) {
-    return {
-      message: "Failed to fetch from Scryfall.",
-      success: false,
-    };
-  }
-
-  const data = (await response.json()) as { data: ScryfallApiCard[] };
-
-  return {
-    message: "Cards successfully retrieved.",
-    data: data.data.map(normalizeScryfallCard),
-    success: true,
-  };
-}
-
-export async function SearchById(
-  id: string,
-  baseUrl: string = SCRYFALL_DEFAULT_URL,
-): Promise<Result<PlayingCard>> {
-  const response = await fetchCardApi(`${baseUrl}/${id}`, {
-    headers: CARD_API_HEADERS,
-  });
-
-  if (!response.ok) {
-    return {
-      success: false,
-      message: `Scryfall API error: ${response.status} for card ${id}`,
-    };
-  }
-
-  const raw = (await response.json()) as ScryfallApiCard;
-
-  return {
-    success: true,
-    message: "Successfully fetched card by id.",
-    data: normalizeScryfallCard(raw),
-  };
-}
-
 export const scryfallAdapter: CardSearchAdapter = {
   defaultUrl: SCRYFALL_DEFAULT_URL,
-  search: Search,
-  searchById: SearchById,
   normalizeStored: (raw) => normalizeScryfallCard(raw as ScryfallApiCard),
+  rarePrintingSql: sql`((data->>'promo') = 'true' OR lower(set_code) IN (${sql.join(
+    SCRYFALL_LIST_SET_CODES.map((code) => sql`${code}`),
+    sql`, `,
+  )}))`,
+  excludedFromMatchingSql: sql`(data->>'digital') = 'true'`,
+  foilPrintingVariants: scryfallFoilPrintingVariants,
+  sourceListsNonFoilPrinting: (card) =>
+    (card.raw as ScryfallApiCard | undefined)?.finishes?.includes("nonfoil") ?? false,
   tcgplayer: {
     categoryId: 1,
+    foilTypeOfVariant: (variant) =>
+      SCRYFALL_FOIL_TYPES_BY_TCGPLAYER_VARIANT[variant] ?? variant,
     subTypes: () => ({ price: ["Normal"], priceFoil: ["Foil"] }),
     productIdFromRaw: (card) => (card.raw as ScryfallApiCard).tcgplayer_id,
   },
   cardmarket: {
     gameId: 1,
+    siteGamePath: "Magic",
     productIdFromRaw: (card) => (card.raw as ScryfallApiCard).cardmarket_id,
   },
   cardkingdom: {

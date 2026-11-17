@@ -1,4 +1,5 @@
 import type {
+  AdminFoilLabelQueueItem,
   AdminUnmatchedOcrResult,
   AdminUnmatchedRetryResult,
   AdminUnmatchedScan,
@@ -6,8 +7,10 @@ import type {
   PlatformDiscordChannelKey,
   PlatformDiscordGuildSummary,
   SyncState,
+  SyncVectorizeOn,
 } from "@magic-vault/shared";
 import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-discord-channels.schema";
+import type { PlatformDiscordLinkedRoleFormValues } from "@/schemas/platform-discord-linked-role.schema";
 import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
 import type { UseFormReturn } from "react-hook-form";
 
@@ -52,6 +55,11 @@ export interface PlanLimitInputProps {
   onChange: (value: number | null) => void;
 }
 
+export interface BrowserSyncPace {
+  vectorized: number;
+  embeddingCount: number;
+}
+
 export interface CardSyncContextValue {
   syncState: SyncState;
   sources: SyncSourceInfo[];
@@ -61,15 +69,23 @@ export interface CardSyncContextValue {
   progress: number;
   elapsedMs: number;
   etaMs: number | null;
+  cardsPerMinute: number | null;
+  embeddingCount: number;
   start: (
     gameKey: string,
     lang: string,
     forceResync?: boolean,
     concurrency?: number,
+    vectorizeOn?: SyncVectorizeOn,
   ) => void;
   isStarting: boolean;
   cancel: () => void;
   isCancelling: boolean;
+}
+
+export interface ActiveScanSessionsDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 export interface ImpersonationAuditDrawerProps {
@@ -84,6 +100,12 @@ export interface PlatformDiscordChannelFieldsProps {
   botReachable: boolean;
 }
 
+export interface PlatformDiscordLinkedRoleFieldsProps {
+  form: UseFormReturn<PlatformDiscordLinkedRoleFormValues>;
+  guilds: PlatformDiscordGuildSummary[];
+  botReachable: boolean;
+}
+
 export interface PlatformStatsFieldsProps {
   form: UseFormReturn<PlatformStatsFormValues>;
 }
@@ -94,6 +116,7 @@ export interface AdminScriptCommandProps {
 }
 
 export interface DiscordGuildSelectProps {
+  id?: string;
   value: string | null;
   guilds: PlatformDiscordGuildSummary[];
   emptyLabel: string;
@@ -134,4 +157,80 @@ export interface UnmatchedOcrPanelProps {
 
 export interface UnmatchedOcrOverlayProps {
   result: AdminUnmatchedOcrResult | undefined;
+}
+
+export interface LoadedSyncCanvas {
+  cardId: string;
+  canvas: HTMLCanvasElement;
+}
+
+export interface FailedSyncImage {
+  cardId: string;
+  message: string;
+}
+
+export interface SyncWorkerScope {
+  onmessage: ((event: MessageEvent) => void) | null;
+  postMessage(message: unknown): void;
+}
+
+export interface ReadyMessage {
+  type: "ready";
+}
+
+export interface InitErrorMessage {
+  type: "init-error";
+  message: string;
+}
+
+export interface EmbeddingMessage {
+  type: "embedding";
+  id: number;
+  embedding: number[];
+}
+
+export interface ErrorMessage {
+  type: "error";
+  id: number;
+  message: string;
+}
+
+export type WorkerMessage =
+  | ReadyMessage
+  | InitErrorMessage
+  | EmbeddingMessage
+  | ErrorMessage;
+
+export interface PendingEmbed {
+  resolve: (embedding: number[]) => void;
+  reject: (err: Error) => void;
+}
+
+export interface PendingSyncWorker {
+  resolve: (worker: SyncEmbedWorker) => void;
+  reject: (error: Error) => void;
+}
+
+export interface SyncEmbedWorker {
+  embed: (pixels: ArrayBuffer) => Promise<number[]>;
+}
+
+export interface SyncWorkerRequest {
+  type?: string;
+  id?: number;
+  buffer?: ArrayBuffer;
+  pixels?: ArrayBuffer;
+}
+
+export interface DeletedItemsRequest {
+  page: number;
+  search: string;
+  type: DeletedItemType | null;
+}
+
+export type FoilLabelDecision = "foil" | "notFoil" | "skipped";
+
+export interface FoilLabelHistoryEntry {
+  item: AdminFoilLabelQueueItem;
+  decision: FoilLabelDecision;
 }

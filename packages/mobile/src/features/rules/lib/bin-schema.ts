@@ -5,6 +5,5 @@ export const binSchema = z.object({
   rules: z.custom<BinRuleGroup>((value) => !!value && typeof value === "object" && "conditions" in value),
   isCatchAll: z.boolean(),
   isDisabled: z.boolean(),
-  cardLimit: z.string().regex(/^\d*$/),
   overflowBin: z.number().int().nullable(),
 });

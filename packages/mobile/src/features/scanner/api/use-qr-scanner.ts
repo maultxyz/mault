@@ -1,8 +1,8 @@
-import jsQR from "jsqr";
 import { useCallback, useEffect, useRef } from "react";
 import { Platform } from "react-native";
 import { isScannedCode, useObjectOutput, usePhotoOutput, type ScannedObject } from "react-native-vision-camera";
-import { captureFrame, resizedPixels } from "@/features/scanner/lib/frame";
+import { captureFrame } from "@/features/scanner/lib/frame";
+import { decodeQrCode } from "@/features/scanner/lib/qr-code";
 import { QR_DECODE_LONG_SIDE, QR_OBJECT_TYPES, QR_SCAN_INTERVAL_MS } from "@/lib/constants/phone-camera";
 import { CAPTURE_TARGET_RESOLUTION } from "@/lib/constants/scanner";
 import type { QrScanner } from "@/lib/interfaces/scanner";
@@ -37,13 +37,8 @@ function useFrameQrScanner(onCode: (value: string) => void, active: boolean): Qr
       void (async () => {
         try {
           const frame = await captureFrame(output);
-          const scale = Math.min(1, QR_DECODE_LONG_SIDE / Math.max(frame.image.width, frame.image.height));
-          const width = Math.round(frame.image.width * scale);
-          const height = Math.round(frame.image.height * scale);
-          const pixels = await resizedPixels(frame.image, width, height);
-          const data = new Uint8ClampedArray(pixels.data.buffer, pixels.data.byteOffset, pixels.data.length);
-          const code = jsQR(data, pixels.width, pixels.height, { inversionAttempts: "dontInvert" });
-          if (code?.data && !cancelled) onCodeRef.current(code.data);
+          const code = await decodeQrCode(frame.image, QR_DECODE_LONG_SIDE);
+          if (code && !cancelled) onCodeRef.current(code);
         } catch {
         } finally {
           busy = false;

@@ -10,6 +10,7 @@ export interface DevicePatch extends Partial<LightingDraft> {
   matchesNeeded?: number | null;
   feederStopPulse?: number | null;
   checkBothOrientations?: boolean | null;
+  flipCamera?: boolean;
   moduleCount?: number;
   channelLayout?: ChannelLayout;
   setupCompleted?: boolean;

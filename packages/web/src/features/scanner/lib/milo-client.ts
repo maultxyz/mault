@@ -1,12 +1,5 @@
-import {
-  IMAGENET_MEAN,
-  IMAGENET_STD,
-  MILO_INPUT_SIZE,
-  MILO_MODEL,
-  l2Normalize,
-  rgbaToChw,
-} from "@magic-vault/shared";
-import { ort, runOnnxModel } from "./onnx-runtime";
+import { MILO_MODEL, l2Normalize } from "@magic-vault/shared";
+import { runVisionModel } from "./onnx-runtime";
 
 let scratchCanvas: HTMLCanvasElement | null = null;
 
@@ -34,17 +27,12 @@ export function rotateCanvas180(canvas: HTMLCanvasElement): HTMLCanvasElement {
   return out;
 }
 
-function toChwTensor(canvas: HTMLCanvasElement): Float32Array {
-  return rgbaToChw(toImageData(canvas), IMAGENET_MEAN, IMAGENET_STD);
-}
-
 export async function embedCanvas(canvas: HTMLCanvasElement): Promise<number[]> {
-  const chw = toChwTensor(canvas);
-  const tensor = new ort.Tensor("float32", chw, [1, 3, MILO_INPUT_SIZE, MILO_INPUT_SIZE]);
-  const { session, outputs } = await runOnnxModel("milo", MILO_MODEL, (s) => ({
-    [s.inputNames[0]]: tensor,
-  }));
-  const raw = outputs[session.outputNames[0]].data as Float32Array;
+  const { outputs, outputNames } = await runVisionModel(
+    "milo",
+    MILO_MODEL,
+    toImageData(canvas),
+  );
 
-  return l2Normalize(raw);
+  return l2Normalize(outputs[outputNames[0]]);
 }

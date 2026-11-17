@@ -1,7 +1,18 @@
 {
+  "a11y": {
+    "cameraPreview": "Kameravorschau des Scanners",
+    "showLastSearchImage": "Letztes Suchbild anzeigen",
+    "qrCameraPreview": "Kameraansicht zum Scannen des QR-Codes",
+    "binsNeedingEmptying": "Zu leerende Fächer",
+    "corrected": "Korrigiert",
+    "sent": "Gesendet",
+    "received": "Empfangen",
+    "scanRoutedToBin": "{{name}}, Fach {{binNumber}}"
+  },
   "camera": {
     "permissionDenied": "Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff und versuche es erneut.",
-    "allInUse": "Alle angeschlossenen Kameras werden bereits von einem anderen Sortierer verwendet. Schließe eine weitere Kamera für diesen Sortierer an."
+    "allInUse": "Alle angeschlossenen Kameras werden bereits von einem anderen Sortierer verwendet. Schließe eine weitere Kamera für diesen Sortierer an.",
+    "piUnavailable": "Die Webcam am Raspberry Pi ist nicht verfügbar."
   },
   "scanEngine": {
     "searchFailed": "Kartensuche fehlgeschlagen",
@@ -19,13 +30,36 @@
     "paused": "Pausiert",
     "noCollection": "Keine Sammlung",
     "minimize": "An den Rand minimieren",
-    "expand": "Scanner-Vorschau anzeigen"
+    "expand": "Scanner-Vorschau anzeigen",
+    "hide": "Bis zur Rückkehr zu MAULT ausblenden",
+    "showSorter": "{{name}} anzeigen"
+  },
+  "piScan": {
+    "preview": "Live-Bild des Sortierers",
+    "starting": "Scan wird auf dem Pi gestartet",
+    "feeding": "Karte wird eingezogen",
+    "matching": "Karte wird erkannt",
+    "routing": "{{name}} geht in Fach {{bin}}",
+    "routingUnmatched": "Nicht erkannte Karte geht in Fach {{bin}}",
+    "scanning": "Scannt",
+    "paused": "Pausiert",
+    "stopping": "Stoppt nach dieser Karte",
+    "lastCard": "{{name}} in Fach {{bin}}",
+    "lastUnmatched": "Nicht erkannte Karte in Fach {{bin}}",
+    "count": "{{count}} Karten in diesem Lauf",
+    "pause": "Pause",
+    "resume": "Weiter",
+    "stop": "Stopp",
+    "openScanner": "Scanner öffnen"
   },
   "serial": {
     "connectionFailed": {
       "title": "Verbindung fehlgeschlagen",
       "description": "Verbindung fehlgeschlagen. Stelle sicher, dass kein anderes Programm das Gerät verwendet."
     },
+    "piMissing": "Am Raspberry Pi ist kein Sortierer angeschlossen.",
+    "piBusy": "Der USB-Anschluss am Pi wird schon verwendet. Trenne ihn im anderen Browser oder stoppe den Scan auf dem Pi und versuche es erneut.",
+    "piScanBusy": "Auf dem Pi läuft ein Scan, deshalb kann dieser Browser den Sorter nicht übernehmen. Stoppe zuerst den Scan.",
     "bluetoothPermissionBlocked": "Die Bluetooth-Berechtigung ist für diesen Browser blockiert. Überprüfe die Website-Einstellungen deines Browsers (oder chrome://settings/content/bluetoothDevices), um Bluetooth zuzulassen, und versuche es erneut.",
     "connectionLost": {
       "title": "Verbindung getrennt",
@@ -53,6 +87,11 @@
     "commLogCopied": "Kommunikationsprotokoll in die Zwischenablage kopiert",
     "commLogCopyFailed": "Kopieren des Kommunikationsprotokolls fehlgeschlagen",
     "commLogEmpty": "Noch keine Kommunikation aufgezeichnet",
+    "commLogMarker": {
+      "connected": "Neue Verbindung ({{transport}})",
+      "disconnected": "Getrennt ({{transport}})",
+      "restarted": "Sortierer neu gestartet ({{reason}})"
+    },
     "firmwareOutdatedBanner": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Lade firmware/main/main.ino erneut hoch, um zu aktualisieren.",
     "firmwareOutdatedBannerBluetooth": "Dein Sortierer läuft mit Firmware v{{version}}, älter als die aktuelle v{{latest}}. Um ihn im Browser zu aktualisieren, schließe den ESP32-S3 per USB an (linker Anschluss, mit USB beschriftet) und verbinde dich über USB statt Bluetooth.",
     "firmwareVersionMissingBanner": "Die Firmware deines Sortierers meldet keine Version und kann nicht zum Scannen verwendet werden. Lade die neueste firmware/main/main.ino erneut hoch, um das Scannen zu aktivieren.",
@@ -64,7 +103,7 @@
       "dialogDescription": "Spielt die neueste Firmware über diesen Browser-Tab auf deinen verbundenen ESP32. Trenne das Gerät nicht und schließe diesen Tab nicht, während der Vorgang läuft.",
       "startButton": "Update starten",
       "flashing": "Wird installiert, Gerät nicht trennen…",
-      "success": "Firmware wurde installiert. Trenne den Sortierer von deinem Computer und schließe ihn dann wieder an, um den Vorgang abzuschließen.",
+      "success": "Firmware wurde installiert. Zieh das USB-Kabel des ESP32 ab und steck es wieder ein, um die neue Firmware zu starten.",
       "errorTitle": "Update fehlgeschlagen",
       "close": "Schließen",
       "tryAgain": "Erneut versuchen"
@@ -83,7 +122,9 @@
       "errors": {
         "wrongChip": "Diese Platine ist ein {{chip}}. Die Sortierer-Firmware läuft nur auf dem ESP32-S3, daher wurde nichts geschrieben.",
         "noBootloader": "Der Bootloader der Platine war nicht erreichbar. Halte BOOT gedrückt, tippe RESET, lass BOOT los und versuche es erneut.",
+        "portUnavailable": "Der Anschluss der Platine konnte nicht geöffnet werden. Schließe alles, was ihn gerade nutzt (seriellen Monitor der Arduino IDE, einen anderen Browser-Tab), prüfe das Kabel und versuche es erneut.",
         "downloadFailed": "Die Firmware konnte nicht heruntergeladen werden. Prüfe deine Verbindung und versuche es erneut.",
+        "invalidImage": "Die heruntergeladene Firmware-Datei ist kein gültiges ESP32-Image, daher wurde nichts geschrieben. Lade die Seite neu und versuche es erneut.",
         "verifyFailed": "Die Firmware wurde geschrieben, aber der Flash-Speicher der Platine stimmt nicht damit überein. Zieh die Platine ab, steck sie wieder ein und flashe erneut."
       },
       "newBoard": {
@@ -92,8 +133,15 @@
         "hintPort": "Schließe die Platine über ihren linken USB-C-Anschluss an (mit USB beschriftet, nicht UART oder COM) und wähle sie in der Port-Abfrage des Browsers aus.",
         "hintBootMode": "Wenn das Flashen nicht startet, halte BOOT gedrückt, tippe RESET, lass BOOT los und versuche es erneut.",
         "startButton": "Platine wählen und flashen",
-        "success": "Firmware installiert. Die Platine wurde neu gestartet und kann verbunden werden.",
+        "success": "Firmware installiert. Zieh das USB-Kabel des ESP32 ab und steck es wieder ein, um die neue Firmware zu starten.",
         "connectButton": "Sortierer verbinden"
+      },
+      "version": {
+        "label": "Firmware-Version",
+        "recommended": "v{{version}} (empfohlen)",
+        "recommendedUnknownVersion": "Neueste (empfohlen)",
+        "option": "v{{version}}",
+        "otherVersionWarning": "Die empfohlene Version ist die, für die diese App gebaut ist. Andere Versionen können Funktionen vermissen lassen oder sich anders verhalten."
       }
     },
     "pushBlocked": {
@@ -103,7 +151,7 @@
     "deviceReadyNoTest": "Gerät bereit (Selbsttest übersprungen)",
     "unexpectedReset": {
       "title": "Sortierer neu gestartet",
-      "description": "Der Sortierer hat sich selbst neu gestartet: {{reason}} Eine Karte in Bewegung wurde nicht einsortiert, prüfe also die Module, bevor du fortfährst. Der Sortierer wird jetzt erneut geprüft."
+      "description": "Der Sortierer hat sich selbst neu gestartet: {{reason}} Eine Karte in Bewegung wurde nicht einsortiert, prüfe also die Module, bevor du fortfährst. Der Selbsttest wird übersprungen, damit noch enthaltene Karten nicht bewegt werden."
     },
     "abnormalBoot": {
       "title": "Sortierer vor dem Verbinden neu gestartet",
@@ -154,11 +202,15 @@
     },
     "scanLimitReached": {
       "title": "Tägliches Scan-Limit erreicht",
-      "description": "Upgrade auf Business für unbegrenztes Scannen."
+      "description": "Upgrade deinen Tarif für mehr Scans pro Tag."
     },
     "routingFailed": {
       "title": "Weiterleitung fehlgeschlagen",
       "description": "Keine Antwort vom Sortierer für Fach {{binNumber}}."
+    },
+    "cardMissingBeforeRoute": {
+      "title": "Karte fehlt vor dem Sortieren",
+      "description": "Modul 1 erkennt die gescannte Karte nicht mehr, daher wurde nichts an Fach {{binNumber}} gesendet. Prüfe Modul 1 und setze dann fort."
     },
     "sorterError": {
       "title": "Sortiererfehler"
@@ -240,13 +292,18 @@
     "avgValue": "Durchschnittswert",
     "sessionTime": "Sitzungsdauer",
     "cardsPerHour": "Karten/Std",
+    "resetSession": "Sitzungszeit und Karten pro Stunde zurücksetzen",
     "byColor": "Nach Farbe",
     "bySet": "Nach Set",
     "showLess": "Weniger anzeigen",
     "showAllSets": "Alle {{count}} Sets anzeigen",
     "scanRateTrend": "Scans pro Minute in den letzten 12 Minuten",
     "scanRateNow": "{{count}} Scans in dieser Minute",
-    "scanRatePoint": "{{count}} Scans, vor {{minutes}} Min."
+    "scanRatePoint": "{{count}} Scans, vor {{minutes}} Min.",
+    "heading": "Statistiken",
+    "summaryCards_one": "{{count}} Karte",
+    "summaryCards_other": "{{count}} Karten",
+    "summaryRate": "{{rate}}/Std"
   },
   "scannerControls": {
     "scanAgain": "Erneut scannen",
@@ -261,13 +318,22 @@
     "autoFeedOnTooltip": "Auto-Zuführung an, die nächste Karte wird nach jedem Scan automatisch zugeführt",
     "autoFeedOffTooltip": "Auto-Zuführung aus, jede Karte manuell zuführen",
     "clearDeviceTooltip": "Gerät leeren (öffnet alle unteren Klappen)",
+    "retractCardTooltip": "Karte zurückziehen (Zuführung läuft rückwärts)",
+    "stopPiScan": "Sortierung stoppen und den Sorter freigeben",
     "resetToNeutralTooltip": "Grundstellung (schließt alle Klappen und Paddel, zentriert die Schieber)",
     "foilTooltip": "Foil-Typ für gescannte Karten: {{type}}",
     "setTooltip": "Set für gescannte Karten: {{set}}",
     "anySet": "Beliebiges Set",
+    "setCount_one": "{{count}} Set",
+    "setCount_other": "{{count}} Sets",
     "setSearchPlaceholder": "Sets suchen",
     "noSets": "Keine Sets gefunden",
-    "setHint": "Gescannte Karten verwenden ihren Druck aus diesem Set, wenn es einen gibt."
+    "setHint": "Gescannte Karten verwenden ihren Druck aus einem dieser Sets, wenn es einen gibt. Wähle so viele wie nötig.",
+    "conditionTooltip": "Zustand für gescannte Karten: {{condition}}",
+    "start": "Scan starten",
+    "sessionSummary_one": "{{count}} Karte gescannt · {{time}}",
+    "sessionSummary_other": "{{count}} Karten gescannt · {{time}}",
+    "startRemoving": "Entfernen starten"
   },
   "scannerDebug": {
     "heading": "Debug",
@@ -284,7 +350,6 @@
     "cameraFallbackLabel": "Kamera {{index}}",
     "connectUsb": "Über USB verbinden",
     "connectBluetooth": "Über Bluetooth verbinden",
-    "scanner": "Scanner",
     "autoFeed": "Automatische Zufuhr",
     "allowDuplicates": "Duplikate zulassen",
     "scanWithoutSorter": "Ohne Sortierer scannen",
@@ -294,13 +359,16 @@
     "connectAnotherUsb": "Weiteren Sortierer verbinden (USB)",
     "connectAnotherBluetooth": "Weiteren Sortierer verbinden (Bluetooth)",
     "flashNewBoard": "Neue Platine flashen",
-    "connectAnotherUpgrade": "Mehr Sortierer mit Business verbinden"
-  },
-  "ocrBetaDialog": {
-    "title": "OCR-Texterkennung (Beta)",
-    "description": "Wenn ein Scan nicht sicher erkannt wird, liest diese Funktion den Kartennamen und die Set-Zeile, um die Karte zu finden oder die richtige Druckversion zu wählen. Sichere Treffer überspringen das, die Scangeschwindigkeit bleibt also gleich. Die Funktion ist noch in der Beta und kann Text falsch lesen. Schalte sie wieder aus, wenn die Treffer schlechter werden.",
-    "confirm": "OCR aktivieren",
-    "cancel": "Abbrechen"
+    "connectAnotherUpgrade": "Mehr Sortierer mit einem größeren Tarif verbinden",
+    "clearDevice": "Gerät leeren",
+    "retractCard": "Karte zurückziehen",
+    "resetToNeutral": "In Neutralstellung bringen",
+    "sorter": "Sortierer",
+    "connectionStates": {
+      "connected": "Verbunden",
+      "connecting": "Verbindet",
+      "disconnected": "Nicht verbunden"
+    }
   },
   "phoneCamera": {
     "scanDescription": "Scanne diesen QR-Code mit deinem Telefon oder öffne den Link, damit es als Kamera dieses Scanners verwendet werden kann.",
@@ -321,7 +389,7 @@
     "sessionEndedDescription": "Der Scanner hat diese Kamera getrennt. Du kannst die Kamera ausschalten oder einen neuen QR-Code scannen, um dich wieder zu verbinden."
   },
   "scannerOverlay": {
-    "dailyLimitReached": "Tägliches Scan-Limit erreicht. Upgrade auf Business für unbegrenztes Scannen.",
+    "dailyLimitReached": "Tägliches Scan-Limit erreicht. Upgrade deinen Tarif für mehr Scans pro Tag.",
     "upgradeButton": "Plan upgraden",
     "connectCamera": "Verbinde die Webcam über dem Sortierer oder kopple dein Telefon als Kamera.",
     "waitingForPhone": "Scanne den QR-Code mit deinem Telefon, um es als Kamera zu koppeln.",
@@ -338,7 +406,7 @@
     "initializing": "Scanner wird initialisiert…",
     "identifyingCard": "Karte wird identifiziert…",
     "settling": "Warten, bis die Karte zur Ruhe kommt…",
-    "paused": "Scanner pausiert - drücke Fortsetzen, um weiterzumachen.",
+    "paused": "Scanner pausiert.",
     "duplicate": "Gleiche Karte erneut gescannt - verwende Erneut hinzufügen, um sie trotzdem hinzuzufügen.",
     "noMatch": "Karte nicht erkannt - versuche Erneut scannen oder passe die Beleuchtung an.",
     "faceUpHint": "Karten sollten mit der Vorderseite nach oben liegen",
@@ -388,12 +456,39 @@
     "ocrMatchedName": "Ähnlichster Kartenname: {{name}} (Ähnlichkeit {{score}}), aber keine Druckversion war nah genug.",
     "ocrNoName": "Kein Kartenname war dem gelesenen Text ähnlich genug.",
     "identify": "Karte bestimmen",
-    "identifyTitle": "Diese Karte bestimmen",
-    "identifyDescription": "Wähle die Karte aus diesem Scan. Sie wird mit diesem Foto der Sammlung hinzugefügt, im Fach, in das sie sortiert wurde.",
     "identified": "{{name}} wurde der Sammlung hinzugefügt.",
     "identifyFailed": "Die Karte konnte nicht hinzugefügt werden. Versuche es erneut.",
     "remove": "Karte entfernen",
-    "removeFailed": "Die Karte konnte nicht entfernt werden. Versuche es erneut."
+    "removeFailed": "Die Karte konnte nicht entfernt werden. Versuche es erneut.",
+    "removeAll": "Alle entfernen",
+    "removeAllTitle_one": "{{count}} nicht erkannte Karte entfernen?",
+    "removeAllTitle_other": "Alle {{count}} nicht erkannten Karten entfernen?",
+    "removeAllDescription": "Für Fehlscans gedacht. Die Fotos werden gelöscht und die Karten verlassen die Prüfliste. Der Sammlung wird nichts hinzugefügt.",
+    "removedAll_one": "{{count}} nicht erkannte Karte entfernt.",
+    "removedAll_other": "{{count}} nicht erkannte Karten entfernt.",
+    "removeAllFailed": "Die nicht erkannten Karten konnten nicht entfernt werden. Versuche es erneut.",
+    "gridTitle": "Nicht erkannte Karten",
+    "gridDescription": "Alle nicht erkannten Scans, die neuesten zuerst. Öffne einen, um zu sehen, warum er nicht erkannt wurde, und korrigiere ihn.",
+    "gridNearest": "Am nächsten: {{name}}",
+    "showingRecent": "Neueste {{count}}",
+    "viewAll_one": "Nicht erkannte Karte ansehen",
+    "viewAll_other": "Alle {{count}} nicht erkannten Karten ansehen",
+    "startReview": "Einzeln durchgehen",
+    "previous": "Vorherige Karte",
+    "next": "Nächste Karte",
+    "skip": "Überspringen",
+    "reviewIdentifyHint": "Suche die Karte auf diesem Foto und wähle sie aus, um sie zur Sammlung hinzuzufügen.",
+    "reviewReadOnlyHint": "Du kannst diese Karten ansehen, aber nicht bestimmen.",
+    "reviewDone": "Alles erledigt",
+    "reviewDoneDescription": "Es gibt keine weiteren nicht erkannten Karten.",
+    "emptyTitle": "Keine nicht erkannten Karten",
+    "emptyDescription": "Jeder Scan in dieser Sammlung wurde erkannt.",
+    "backToCards": "Zurück zu den Karten",
+    "backToGrid": "Zurück zu den nicht erkannten Karten",
+    "openCard": "Nicht erkannte Karte öffnen",
+    "expand": "Nicht erkannte Karten anzeigen",
+    "collapse": "Nicht erkannte Karten ausblenden",
+    "viewAllShort": "Alle ansehen"
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",
@@ -415,6 +510,10 @@
     "expand": "Füllstände anzeigen",
     "collapse": "Füllstände ausblenden",
     "cellTitle": "Fach {{bin}} ist zu {{percent}} % voll"
+  },
+  "autoAssignControl": {
+    "summary": "{{claimed}} von {{total}} Fächern nach {{field}} belegt",
+    "stopFirst": "Stoppe den Scanner, bevor du die automatisch erkannten Fächer zurücksetzt."
   },
   "alphabetPassControl": {
     "range": "Sortiert {{from}} bis {{to}}",
@@ -494,6 +593,7 @@
   "stations": {
     "label": "Sortierer {{number}}",
     "tabsLabel": "Sortierer",
+    "noneConnected": "Kein Sortierer verbunden",
     "connect": "Sortierer verbinden",
     "disconnect": "{{name}} trennen",
     "overview": {
@@ -505,7 +605,18 @@
       "noCamera": "Keine Kamera",
       "noCards": "Noch keine Karten gescannt",
       "emptyTitle": "Noch keine Sortierer",
-      "emptyDescription": "Verbinde einen Sortierer im Scanner, um ihn hier zu sehen.",
+      "emptyDescription": "Verbinde einen Sortierer, um ihn hier zu sehen.",
+      "stats": {
+        "heading": "Übersicht",
+        "sorters": "Sortierer",
+        "connected": "Verbunden",
+        "sorting": "Sortiert gerade",
+        "offline": "Offline",
+        "attention": "Braucht Hilfe"
+      },
+      "searchPlaceholder": "Sortierer durchsuchen...",
+      "noSearchResultsTitle": "Keine passenden Sortierer",
+      "noSearchResultsDescription": "Versuche einen anderen Suchbegriff",
       "delete": "{{name}} löschen",
       "deleted": "{{name}} gelöscht",
       "deleteFailed": "{{name}} konnte nicht gelöscht werden",
@@ -538,15 +649,54 @@
       "deleteConfirm": {
         "title": "{{name}} löschen?",
         "description": "Dadurch werden der Sortierer und alles, was für ihn gespeichert ist, entfernt: Kalibrierung, Fachzuordnungen, Fachhöhen, Feeder-Einstellungen und deren Änderungsverlauf. Gescannte Karten und Sammlungen bleiben erhalten. Wenn du ihn wieder anschließt, erscheint er als neuer, nicht kalibrierter Sortierer."
-      }
+      },
+      "start": "Starten",
+      "pauseAll": "Alle pausieren",
+      "resumeAll": "Alle fortsetzen",
+      "resumeSelected": "Fortsetzen ({{count}})",
+      "sessionCount_one": "{{count}} in dieser Sitzung",
+      "sessionCount_other": "{{count}} in dieser Sitzung"
+    },
+    "cpuInferenceLimitReached": {
+      "title": "WASM betreibt jeweils einen Sortierer",
+      "description": "Die Kartenerkennung auf der CPU (WASM) reicht für einen Sortierer. Stelle das KI-Erkennungs-Backend auf der Kalibrierungsseite Kamera auf WebGPU um, damit mehrere Sortierer gleichzeitig laufen."
     },
     "hardCapReached": {
       "title": "Höchstens {{max}} Sortierer gleichzeitig",
       "description": "Trenne einen Sortierer, bevor du einen weiteren verbindest."
     },
     "limitReached": {
-      "title": "Weitere Sortierer erfordern den Business-Tarif",
-      "description": "Der kostenlose Tarif betreibt jeweils nur einen Sortierer. Trenne den anderen Sortierer oder wechsle in den Einstellungen zu Business, um mehrere gleichzeitig zu betreiben."
+      "title": "Das Sortiererlimit deines Tarifs ist erreicht",
+      "description": "Dein Tarif betreibt nur eine begrenzte Zahl von Sortierern gleichzeitig. Trenne einen anderen Sortierer oder upgrade deinen Tarif in den Einstellungen, um mehr gleichzeitig zu betreiben."
+    },
+    "attention": {
+      "needsAttention": "Braucht Hilfe",
+      "count_one": "{{count}} braucht Hilfe",
+      "count_other": "{{count}} brauchen Hilfe",
+      "goToNext": "Zum nächsten Sortierer, der Hilfe braucht",
+      "reasons": {
+        "jam": "Stau an Modul {{module}}",
+        "hopperEmpty": "Der Kartenschacht ist leer",
+        "feederError": "Fehler im Einzug",
+        "noCardDetected": "Keine Karte ist beim Scanner angekommen",
+        "sorterNotResponding": "Der Sortierer antwortet nicht",
+        "routingFailed": "Eine Karte konnte nicht einsortiert werden",
+        "binLimit": "Fach {{bins}} ist voll",
+        "binLimitUnknown": "Ein Fach ist voll",
+        "binsFull_one": "Fach {{bins}} ist voll",
+        "binsFull_other": "Fächer {{bins}} sind voll",
+        "packsComplete": "Alle Packs sind fertig",
+        "saveFailed": "Ein Scan konnte nicht gespeichert werden",
+        "scanLimit": "Tägliches Scanlimit erreicht",
+        "sorterLimit": "Sortiererlimit erreicht",
+        "collectionLocked": "Die Sammlung ist gesperrt",
+        "scannerError": "Kamerafehler"
+      },
+      "fixes": {
+        "resume": "Fortsetzen",
+        "emptyBin": "Fach leeren",
+        "openSorter": "Sortierer öffnen"
+      }
     }
   },
   "watchPage": {
@@ -574,10 +724,7 @@
     "cards": "Karten",
     "searchPlaceholder": "Karten suchen",
     "needsReview": "Zu prüfen",
-    "groupDuplicates": "Kopien gruppieren",
     "back": "Zurück zu den Sitzungen",
-    "previousPage": "Vorherige Seite",
-    "nextPage": "Nächste Seite",
     "bin": "Fach {{number}}",
     "noActivity": "Noch nichts gescannt. Scans erscheinen hier, sobald sie passieren.",
     "status": {
@@ -621,6 +768,11 @@
     "keys": {
       "enter": "Enter",
       "escape": "Esc"
+    },
+    "added": {
+      "title": "{{name}} in Fach {{to}} legen",
+      "description": "Laut deinen Sortierregeln gehört sie in Fach {{to}}. Lege sie dort hinein und bestätige, damit die Fachzählung stimmt.",
+      "noBinDescription": "Keines deiner Fächer nimmt diese Karte auf, lege sie also beiseite."
     }
   },
   "deployPause": {
@@ -658,19 +810,41 @@
     "recentlyScanned": "Zuletzt gescannt",
     "seeAllStats": "Alle Statistiken",
     "actions": {
-      "scan": "Scannen",
       "newCollection": "Neu",
-      "sorter": "Sortierer",
-      "stats": "Statistik"
+      "stats": "Statistik",
+      "buySell": "Handel"
     },
-    "alerts": "Hinweise",
-    "activeCollection": "Aktiv"
+    "activeCollection": "Aktiv",
+    "scanHero": {
+      "title": "Scannen starten",
+      "sortInto": "In {{collection}} sortieren",
+      "noCollection": "Wähle eine Sammlung zum Sortieren"
+    },
+    "actionHints": {
+      "newCollection": "Sammlung anlegen",
+      "buySell": "Ankauf und Picks",
+      "buySellOpen_one": "{{count}} offener Ankauf",
+      "buySellOpen_other": "{{count}} offene Ankäufe",
+      "stats": "Diagramme und Verlauf"
+    },
+    "statsHeading": "Übersicht"
   },
   "resetToNeutral": {
     "done": "Sortierer in Grundstellung",
     "failed": {
       "title": "Sortierer konnte nicht zurückgesetzt werden",
       "description": "Der Sortierer hat das Zurücksetzen nicht bestätigt. Prüfe die Verbindung und versuche es erneut."
+    }
+  },
+  "retractCard": {
+    "done": "Karte zurück in den Kartenschacht gezogen",
+    "failed": {
+      "title": "Karte konnte nicht zurückgezogen werden",
+      "description": "Der Sortierer hat das Zurückziehen nicht bestätigt. Prüfe die Verbindung und versuche es erneut."
+    },
+    "rollbackOff": {
+      "title": "Zurückrollen ist aus",
+      "description": "Stelle \"Nach dem Einzug zurückrollen\" in der Kalibrierung der Zuführung ein, um Karten zurückzuziehen."
     }
   },
   "pendingScanSaves": {
@@ -746,10 +920,13 @@
       "feedDescription": "Eine Karte einziehen, dann scannen und sortieren",
       "drop": "Karten fallen lassen",
       "dropDescription": "Alle Module öffnen, damit festsitzende Karten durchfallen",
+      "retract": "Karte zurückziehen",
+      "retractDescription": "Die Zuführung rückwärts laufen lassen, um eine Karte zurück in den Kartenschacht zu ziehen",
       "neutral": "Auf neutral zurücksetzen",
       "neutralDescription": "Alle Servos in ihre Ruheposition bringen",
       "sorterDescription": "Verbindung, Selbsttest und Status"
-    }
+    },
+    "condition": "Zustand"
   },
   "mobileSorter": {
     "title": "Sortierer",
@@ -758,17 +935,21 @@
     "transport": {
       "serial": "USB",
       "bluetooth": "Bluetooth",
-      "cloud": "WLAN"
+      "cloud": "WLAN",
+      "pi": "Dieser Pi"
     },
     "connectHint": "Schalte den Sortierer ein und verbinde dich.",
     "connectBluetooth": "Über Bluetooth verbinden",
     "connectUsb": "Über USB verbinden",
+    "connectPi": "Sortierer an diesem Pi verbinden",
     "unsupported": "Dieser Browser kann sich nicht direkt mit einem Sortierer verbinden. Verbinde dich unten über WLAN oder nutze Chrome auf Android.",
     "actions": "Aktionen",
     "selfTest": "Selbsttest ausführen",
     "selfTestDescription": "Prüft die Sensoren und bewegt alle Servos",
     "disconnect": "Trennen",
     "calibrateOnDesktop": "Kalibrierung und Sortierregeln richtest du am Computer ein.",
+    "calibrate": "Kalibrieren",
+    "calibrateOnPi": "Stelle den Sortierer ein, der an diesem Pi steckt.",
     "remote": {
       "title": "Über WLAN",
       "unnamed": "Kartensortierer",
@@ -781,7 +962,8 @@
     "title": "WLAN-Fernzugriff",
     "description": "Verbinde den Sortierer mit deinem WLAN, um ihn von überall zu steuern, auch von einem Handy ohne Bluetooth.",
     "connectFirst": "Verbinde deinen Sortierer per USB oder Bluetooth, um WLAN einzurichten.",
-    "needsEsp32": "WLAN-Fernzugriff benötigt ein ESP32-Board.",
+    "needsWifiBoard": "WLAN-Fernzugriff benötigt ein ESP32- oder Arduino-Uno-R4-WiFi-Board. Spiele auf einem Uno R4 WiFi die neueste Firmware auf.",
+    "sharesRadio": "Beim Uno R4 WiFi teilen sich WLAN und Bluetooth ein Funkmodul, daher ist Bluetooth aus, solange WLAN eingerichtet ist. Der Sortierer startet neu, wenn du WLAN einrichtest oder ausschaltest.",
     "needsFirmware": "WLAN-Fernzugriff benötigt Firmware {{version}} oder neuer. Aktualisiere die Firmware deines Sortierers, um ihn zu nutzen.",
     "changeOverLocal": "Du bist über WLAN verbunden. Um das WLAN-Netz zu ändern, verbinde dich per USB oder Bluetooth.",
     "setUp": "WLAN einrichten",
@@ -790,8 +972,11 @@
     "notSetUp": "Nicht eingerichtet",
     "unknown": "Wird geprüft…",
     "forgotten": "WLAN ausgeschaltet.",
+    "forgottenLinkKept": "WLAN ausgeschaltet. Der Server konnte die alte Verbindung nicht entfernen, sie wird beim nächsten Einrichten des WLANs ersetzt.",
+    "forgottenRestarting": "WLAN ausgeschaltet. Der Sortierer startet neu und Bluetooth ist wieder an.",
     "forgetFailed": "WLAN konnte nicht ausgeschaltet werden.",
     "saved": "WLAN gespeichert. Der Sortierer verbindet sich mit dem Netz.",
+    "savedRestarting": "WLAN gespeichert. Der Sortierer startet neu, um sich mit dem Netz zu verbinden, und Bluetooth geht aus.",
     "saveFailed": "WLAN konnte nicht gespeichert werden",
     "saveFailedDescription": "Der Sortierer hat die Einstellungen nicht übernommen. Prüfe, ob er noch verbunden ist, und versuche es erneut.",
     "dialogTitle": "Sortierer mit WLAN verbinden",
@@ -827,5 +1012,148 @@
     "offline": "Offline",
     "inUse": "In Benutzung",
     "connectedHere": "Verbunden"
+  },
+  "scanRemoval": {
+    "title": "Zum Entfernen scannen",
+    "description": "Scanne Karten, um sie zum Entfernen aus {{collection}} vorzumerken. Erst nach deiner Bestätigung wird etwas entfernt.",
+    "exit": "Entfernen beenden",
+    "queuedCount_one": "{{count}} vorgemerkt",
+    "queuedCount_other": "{{count}} vorgemerkt",
+    "noCopyLeft": "Kein Exemplar mehr in dieser Sammlung",
+    "noMatch": "Kein Treffer, versuche es erneut",
+    "lookupFailed": "Exemplare von {{name}} konnten nicht gesucht werden. Scanne die Karte erneut.",
+    "emptyTitle": "Noch nichts vorgemerkt",
+    "emptyDescription": "Scanne eine Karte, um ein Exemplar zum Entfernen vorzumerken.",
+    "changeCopy": "Exemplar ändern",
+    "drop": "Verwerfen",
+    "clear": "Leeren",
+    "removeButton_one": "{{count}} Karte entfernen",
+    "removeButton_other": "{{count}} Karten entfernen",
+    "confirmTitle_one": "{{count}} Karte entfernen?",
+    "confirmTitle_other": "{{count}} Karten entfernen?",
+    "confirmDescription": "Diese Exemplare werden samt Fotos aus {{collection}} gelöscht. Das kann nicht rückgängig gemacht werden.",
+    "removed_one": "{{count}} Karte entfernt",
+    "removed_other": "{{count}} Karten entfernt",
+    "removeFailed": "Die Karten konnten nicht entfernt werden. Versuche es erneut.",
+    "foil": "Foil",
+    "nonFoil": "Nicht-Foil",
+    "storage": "{{name}} #{{position}}",
+    "bin": "Fach {{number}}",
+    "unsorted": "Nicht einsortiert",
+    "modeLabel": "Scanmodus",
+    "addMode": "Karten hinzufügen",
+    "removeMode": "Karten entfernen",
+    "binLabel": "Entfernte Karten kommen in",
+    "binPlaceholder": "Fach wählen",
+    "catchAllBinOption": "Fach {{number}} (Auffangfach)"
+  },
+  "controlCards": {
+    "openPage": "Steuerkarten drucken",
+    "openPageDescription": "QR-Karten, die Scan-Einstellungen ändern, wenn der Sortierer sie liest",
+    "applied": "Steuerkarte angewendet",
+    "rejected": {
+      "title": "Steuerkarte nicht angewendet"
+    },
+    "problems": {
+      "unreadable": "Dieser QR-Code ist keine Steuerkarte, die diese Mault-Version versteht. Der Scan ist pausiert.",
+      "collection-not-found": "Die Sammlung auf dieser Karte existiert nicht mehr. Der Scan ist pausiert.",
+      "preset-not-found": "Die Regelvorlage auf dieser Karte existiert nicht mehr. Der Scan ist pausiert.",
+      "preset-wrong-game": "Die Regelvorlage auf dieser Karte gehört zu einem anderen Spiel als die Sammlung. Der Scan ist pausiert.",
+      "no-collection": "Wähle eine Sammlung, bevor du eine Karte mit Regelvorlage verwendest. Der Scan ist pausiert."
+    },
+    "actions": {
+      "collection": "Sammlung: {{name}}",
+      "preset": "Regelvorlage: {{name}}",
+      "foil": "Foil: {{type}}",
+      "notFoil": "Kein Foil",
+      "set": "Set: {{name}}",
+      "anySet": "Beliebiges Set",
+      "condition": "Zustand: {{condition}}",
+      "autoFeedOn": "Automatischer Einzug an",
+      "autoFeedOff": "Automatischer Einzug aus",
+      "duplicatesOn": "Duplikate erlauben",
+      "duplicatesOff": "Duplikate überspringen",
+      "pause": "Scan pausieren"
+    },
+    "form": {
+      "style": "Kartenstil",
+      "styles": {
+        "illustrated": "Illustriert",
+        "plain": "Schlicht"
+      },
+      "title": "Neue Steuerkarte",
+      "description": "Wähle, was die Karte ändert. Alles auf Keine Änderung bleibt, wie es ist.",
+      "cardTitle": "Beschriftung",
+      "cardTitlePlaceholder": "Zum Beispiel: Tauschordner, LP",
+      "collection": "Sammlung",
+      "preset": "Regelvorlage",
+      "foil": "Foil-Art",
+      "set": "Set",
+      "condition": "Zustand",
+      "autoFeed": "Automatischer Einzug",
+      "allowDuplicates": "Duplikate erlauben",
+      "pauseScanner": "Scan nach dieser Karte pausieren",
+      "add": "Zum Bogen hinzufügen",
+      "unchanged": "Keine Änderung",
+      "toggle": {
+        "unchanged": "Keine Änderung",
+        "on": "An",
+        "off": "Aus"
+      }
+    },
+    "sheet": {
+      "emptyTitle": "Noch keine Steuerkarten",
+      "emptyDescription": "Hinzugefügte Karten erscheinen hier in echter Kartengröße und sind bereit zum Drucken."
+    },
+    "tile": {
+      "defaultTitle": "Steuerkarte",
+      "qrAlt": "QR-Code der Steuerkarte",
+      "remove": "Karte entfernen",
+      "illustratedAlt": "Illustrierte Steuerkarte"
+    },
+    "page": {
+      "back": "Zurück zum Scanner",
+      "title": "Steuerkarten",
+      "description": "Lass eine dieser Karten durch den Sortierer laufen, um Einstellungen während des Laufs zu ändern. Sie landet dort, wo nicht erkannte Karten landen, und wird nie in einer Sammlung gespeichert.",
+      "print": "Drucken",
+      "printTip": "Drucke auf Karton im Format Letter mit 100 % Skalierung (Tatsächliche Größe) und Rändern auf Keine. Auf jede Seite passen 9 Karten. Schneide entlang der Eckmarken und halte den QR-Code flach und frei von Spiegelungen."
+    },
+    "illustrated": {
+      "typeLines": {
+        "sorcery": "Hexerei",
+        "instant": "Spontanzauber",
+        "enchantment": "Verzauberung",
+        "artifact": "Artefakt",
+        "creature": "Kreatur"
+      },
+      "names": {
+        "collection": "Portal nach {{name}}",
+        "preset": "Ritus von {{name}}",
+        "foil": "{{type}}-Schimmer",
+        "notFoil": "Kein Foil",
+        "set": "Sucher von {{name}}",
+        "anySet": "Wanderer aller Sets",
+        "condition": "Gutachter für {{condition}}",
+        "autoFeedOn": "Füttere den Schwarm",
+        "autoFeedOff": "Einzugsblocker",
+        "duplicatesOn": "Engelhafte Duplikate",
+        "duplicatesOff": "Duplikatblocker",
+        "pause": "Rast des Sortierers"
+      },
+      "rules": {
+        "collection": "Die Ziel-Mault-Instanz sortiert ab jetzt in die Sammlung {{name}}.",
+        "preset": "Die Ziel-Mault-Instanz folgt ab jetzt der Regelvorlage {{name}}.",
+        "foil": "Ändere die Foil-Einstellung der Ziel-Mault-Instanz auf „{{type}}“.",
+        "notFoil": "Ändere die Foil-Einstellung der Ziel-Mault-Instanz auf „Kein Foil“.",
+        "set": "Die Ziel-Mault-Instanz sucht Treffer nur in {{name}}.",
+        "anySet": "Die Ziel-Mault-Instanz sucht Treffer in allen Sets.",
+        "condition": "Setze den Zustand der Ziel-Mault-Instanz auf {{condition}}.",
+        "autoFeedOn": "Schalte deinen automatischen Einzug an.",
+        "autoFeedOff": "Schalte den automatischen Einzug der Ziel-Mault-Instanz aus.",
+        "duplicatesOn": "Die Ziel-Mault-Instanz erlaubt Duplikate.",
+        "duplicatesOff": "Die Ziel-Mault-Instanz verliert die Fähigkeit, Duplikate zu scannen.",
+        "pause": "Tappe die Ziel-Mault-Instanz. Sie enttappt erst, wenn du das Scannen fortsetzt."
+      }
+    }
   }
 }

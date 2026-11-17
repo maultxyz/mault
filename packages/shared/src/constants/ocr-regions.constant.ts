@@ -3,6 +3,19 @@ import type {
   OcrRegion,
 } from "../interfaces/ocr-region.interface";
 
+const POKEMON_CARD_TYPE_HEADER_TEXTS = [
+  "Trainer",
+  "Item",
+  "Supporter",
+  "Stadium",
+  "Pokémon Tool",
+  "Pokémon Tool F",
+  "Technical Machine",
+  "Energy",
+  "Basic Energy",
+  "Special Energy",
+];
+
 export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
   mtg: [
     {
@@ -35,6 +48,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       y: 0.027,
       width: 0.514,
       height: 0.07,
+      ignoredLineTexts: POKEMON_CARD_TYPE_HEADER_TEXTS,
     },
     {
       field: "name",
@@ -43,6 +57,7 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       width: 0.607,
       height: 0.082,
       fallback: true,
+      ignoredLineTexts: POKEMON_CARD_TYPE_HEADER_TEXTS,
     },
     {
       field: "number",
@@ -50,6 +65,23 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
       y: 0.949,
       width: 0.188,
       height: 0.017,
+    },
+    {
+      field: "number",
+      x: 0.782,
+      y: 0.947,
+      width: 0.174,
+      height: 0.033,
+      fallback: true,
+    },
+  ],
+  pokemonjp: [
+    {
+      field: "number",
+      x: 0.03,
+      y: 0.935,
+      width: 0.28,
+      height: 0.035,
     },
     {
       field: "number",
@@ -231,7 +263,13 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
 };
 
 export const COLOR_BAR_REGIONS_BY_GAME_KEY: Record<string, ColorBarRegion> = {
-  fab: { x: 0.2, y: 0.03, width: 0.6, height: 0.04 },
+  fab: {
+    x: 0.25,
+    y: 0.025,
+    width: 0.5,
+    height: 0.045,
+    whiteReference: { x: 0.3, y: 0.088, width: 0.4, height: 0.014 },
+  },
 };
 
 export const DISTANCE_THRESHOLD = 0.4;

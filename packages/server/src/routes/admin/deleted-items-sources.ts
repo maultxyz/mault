@@ -1,7 +1,12 @@
-import type { DeletedItemType } from "@magic-vault/shared";
+import {
+  SET_NAME_MAX_LENGTH,
+  STORAGE_LOCATION_NAME_MAX_LENGTH,
+  type DeletedItemType,
+} from "@magic-vault/shared";
 import { and, eq, ne } from "drizzle-orm";
 import { db, type Transaction } from "../../db";
 import {
+  accuracyChecks,
   announcements,
   binHeights,
   binRoutes,
@@ -9,20 +14,25 @@ import {
   bins,
   collections,
   devices,
+  fulfilmentOrders,
   games,
+  intakeLots,
   moduleConfigs,
   notificationRules,
+  presetWorkflows,
   soundClips,
   soundRules,
   storageLocations,
 } from "../../db/schema";
 import { binSetNameTaken } from "../bins/shared";
+import { presetWorkflowNameTaken } from "../../lib/preset-workflows";
 import { collectionNameTaken } from "../collections/shared";
 import { locationNameTaken } from "../storage-locations/shared";
 import type {
   DeletedItemRestoreResult,
   DeletedItemSource,
 } from "../../lib/interfaces/deleted-items";
+import { findRestorableName } from "../../lib/restored-name";
 
 const NOT_FOUND: DeletedItemRestoreResult = {
   success: false,
@@ -39,7 +49,12 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
     collection: {
       async list() {
         const rows = await db
-          .select()
+          .select({
+            guid: collections.guid,
+            name: collections.name,
+            orgId: collections.orgId,
+            updatedAt: collections.updatedAt,
+          })
           .from(collections)
           .where(eq(collections.isDeleted, true));
         return rows.map((r) => ({
@@ -59,15 +74,14 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
           ),
         });
         if (!row) return NOT_FOUND;
-        if (await collectionNameTaken(tx, row.orgId, row.name)) {
-          return {
-            success: false,
-            message: `The organization already has a collection named "${row.name}".`,
-          };
-        }
+        const name = await findRestorableName(
+          row.name,
+          SET_NAME_MAX_LENGTH,
+          (candidate) => collectionNameTaken(tx, row.orgId, candidate),
+        );
         await tx
           .update(collections)
-          .set({ isDeleted: false })
+          .set({ isDeleted: false, name })
           .where(eq(collections.id, row.id));
         return restored(row.orgId);
       },
@@ -99,16 +113,58 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
           where: and(eq(binSets.guid, guid), eq(binSets.isDeleted, true)),
         });
         if (!row) return NOT_FOUND;
-        if (await binSetNameTaken(tx, row.orgId, row.gameId, row.name)) {
-          return {
-            success: false,
-            message: `The organization already has a bin preset named "${row.name}".`,
-          };
-        }
+        const name = await findRestorableName(
+          row.name,
+          SET_NAME_MAX_LENGTH,
+          (candidate) => binSetNameTaken(tx, row.orgId, row.gameId, candidate),
+        );
         await tx
           .update(binSets)
-          .set({ isDeleted: false })
+          .set({ isDeleted: false, name })
           .where(eq(binSets.id, row.id));
+        return restored(row.orgId);
+      },
+    },
+    presetWorkflow: {
+      async list() {
+        const rows = await db
+          .select({
+            guid: presetWorkflows.guid,
+            name: presetWorkflows.name,
+            gameName: games.name,
+            orgId: presetWorkflows.orgId,
+            updatedAt: presetWorkflows.updatedAt,
+          })
+          .from(presetWorkflows)
+          .leftJoin(games, eq(games.id, presetWorkflows.gameId))
+          .where(eq(presetWorkflows.isDeleted, true));
+        return rows.map((r) => ({
+          type: "presetWorkflow",
+          guid: r.guid!,
+          name: r.name,
+          detail: r.gameName,
+          orgId: r.orgId,
+          updatedAt: r.updatedAt,
+        }));
+      },
+      async restore(tx, guid) {
+        const row = await tx.query.presetWorkflows.findFirst({
+          where: and(
+            eq(presetWorkflows.guid, guid),
+            eq(presetWorkflows.isDeleted, true),
+          ),
+        });
+        if (!row) return NOT_FOUND;
+        const name = await findRestorableName(
+          row.name,
+          SET_NAME_MAX_LENGTH,
+          (candidate) =>
+            presetWorkflowNameTaken(tx, row.orgId, row.gameId, candidate),
+        );
+        await tx
+          .update(presetWorkflows)
+          .set({ isDeleted: false, name })
+          .where(eq(presetWorkflows.id, row.id));
         return restored(row.orgId);
       },
     },
@@ -163,7 +219,13 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
     device: {
       async list() {
         const rows = await db
-          .select()
+          .select({
+            guid: devices.guid,
+            name: devices.name,
+            hardwareId: devices.hardwareId,
+            orgId: devices.orgId,
+            updatedAt: devices.updatedAt,
+          })
           .from(devices)
           .where(eq(devices.isDeleted, true));
         return rows.map((r) => ({
@@ -306,7 +368,12 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
     storageLocation: {
       async list() {
         const rows = await db
-          .select()
+          .select({
+            guid: storageLocations.guid,
+            name: storageLocations.name,
+            orgId: storageLocations.orgId,
+            updatedAt: storageLocations.updatedAt,
+          })
           .from(storageLocations)
           .where(eq(storageLocations.isDeleted, true));
         return rows.map((r) => ({
@@ -326,15 +393,14 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
           ),
         });
         if (!row) return NOT_FOUND;
-        if (await locationNameTaken(tx, row.orgId, row.name)) {
-          return {
-            success: false,
-            message: `The organization already has a storage location named "${row.name}".`,
-          };
-        }
+        const name = await findRestorableName(
+          row.name,
+          STORAGE_LOCATION_NAME_MAX_LENGTH,
+          (candidate) => locationNameTaken(tx, row.orgId, candidate),
+        );
         await tx
           .update(storageLocations)
-          .set({ isDeleted: false })
+          .set({ isDeleted: false, name })
           .where(eq(storageLocations.id, row.id));
         return restored(row.orgId);
       },
@@ -438,7 +504,12 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
     game: {
       async list() {
         const rows = await db
-          .select()
+          .select({
+            guid: games.guid,
+            name: games.name,
+            key: games.key,
+            updatedAt: games.updatedAt,
+          })
           .from(games)
           .where(eq(games.isDeleted, true));
         return rows.map((r) => ({
@@ -510,6 +581,127 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
           )
           .returning({ id: announcements.id });
         return row ? restored(null) : NOT_FOUND;
+      },
+    },
+    intakeLot: {
+      async list() {
+        const rows = await db
+          .select({
+            guid: intakeLots.guid,
+            customerName: intakeLots.customerName,
+            status: intakeLots.status,
+            orgId: intakeLots.orgId,
+            updatedAt: intakeLots.updatedAt,
+          })
+          .from(intakeLots)
+          .where(eq(intakeLots.isDeleted, true));
+        return rows.map((r) => ({
+          type: "intakeLot",
+          guid: r.guid!,
+          name: r.customerName,
+          detail: r.status,
+          orgId: r.orgId,
+          updatedAt: r.updatedAt,
+        }));
+      },
+      async restore(tx, guid) {
+        const row = await tx.query.intakeLots.findFirst({
+          where: and(eq(intakeLots.guid, guid), eq(intakeLots.isDeleted, true)),
+        });
+        if (!row) return NOT_FOUND;
+        if (row.status === "open") {
+          const openLot = await tx.query.intakeLots.findFirst({
+            where: and(
+              eq(intakeLots.collectionId, row.collectionId),
+              eq(intakeLots.status, "open"),
+              eq(intakeLots.isDeleted, false),
+            ),
+            columns: { id: true },
+          });
+          if (openLot) {
+            return {
+              success: false,
+              message: "That collection already has an open intake lot.",
+            };
+          }
+        }
+        await tx
+          .update(intakeLots)
+          .set({ isDeleted: false })
+          .where(eq(intakeLots.id, row.id));
+        return restored(row.orgId);
+      },
+    },
+    fulfilmentOrder: {
+      async list() {
+        const rows = await db
+          .select({
+            guid: fulfilmentOrders.guid,
+            name: fulfilmentOrders.name,
+            status: fulfilmentOrders.status,
+            orgId: fulfilmentOrders.orgId,
+            updatedAt: fulfilmentOrders.updatedAt,
+          })
+          .from(fulfilmentOrders)
+          .where(eq(fulfilmentOrders.isDeleted, true));
+        return rows.map((r) => ({
+          type: "fulfilmentOrder",
+          guid: r.guid!,
+          name: r.name,
+          detail: r.status,
+          orgId: r.orgId,
+          updatedAt: r.updatedAt,
+        }));
+      },
+      async restore(tx, guid) {
+        const [row] = await tx
+          .update(fulfilmentOrders)
+          .set({ isDeleted: false })
+          .where(
+            and(
+              eq(fulfilmentOrders.guid, guid),
+              eq(fulfilmentOrders.isDeleted, true),
+            ),
+          )
+          .returning({ orgId: fulfilmentOrders.orgId });
+        return row ? restored(row.orgId) : NOT_FOUND;
+      },
+    },
+    accuracyCheck: {
+      async list() {
+        const rows = await db
+          .select({
+            guid: accuracyChecks.guid,
+            orgId: accuracyChecks.orgId,
+            sampleSize: accuracyChecks.sampleSize,
+            status: accuracyChecks.status,
+            updatedAt: accuracyChecks.updatedAt,
+            collectionName: collections.name,
+          })
+          .from(accuracyChecks)
+          .innerJoin(collections, eq(collections.id, accuracyChecks.collectionId))
+          .where(eq(accuracyChecks.isDeleted, true));
+        return rows.map((r) => ({
+          type: "accuracyCheck",
+          guid: r.guid!,
+          name: r.collectionName,
+          detail: `${r.sampleSize} cards, ${r.status}`,
+          orgId: r.orgId,
+          updatedAt: r.updatedAt,
+        }));
+      },
+      async restore(tx, guid) {
+        const [row] = await tx
+          .update(accuracyChecks)
+          .set({ isDeleted: false })
+          .where(
+            and(
+              eq(accuracyChecks.guid, guid),
+              eq(accuracyChecks.isDeleted, true),
+            ),
+          )
+          .returning({ orgId: accuracyChecks.orgId });
+        return row ? restored(row.orgId) : NOT_FOUND;
       },
     },
   };

@@ -3,11 +3,6 @@
     "title": "Baue deine eigene Sortiermaschine für Sammelkarten | MAULT",
     "description": "Schritt-für-Schritt-Anleitung für den MAULT-Kartensortierer: Stückliste, Schaltpläne, 3D-gedruckte Teile, Firmware und Montageanleitung."
   },
-  "anchorLink": {
-    "copy": "Link zu diesem Abschnitt kopieren",
-    "copied": "Link kopiert",
-    "copyFailed": "Link konnte nicht kopiert werden"
-  },
   "hero": {
     "eyebrow": "Bauanleitung für die Hardware",
     "title": "Den Kartensortierer bauen",
@@ -21,9 +16,6 @@
       "parts": "Teile",
       "assembly": "Zusammenbau"
     }
-  },
-  "toc": {
-    "label": "Inhalt"
   },
   "setup": {
     "heading": "Richte deinen Bau ein",
@@ -78,14 +70,6 @@
       "modules_other": "{{count}} Module"
     }
   },
-  "footer": {
-    "openSource": "Open Source",
-    "reportIssue": "Problem melden",
-    "signIn": "Anmelden",
-    "privacy": "Datenschutz",
-    "terms": "AGB",
-    "copyright": "© {{year}} Mault LLC"
-  },
   "bom": {
     "heading": "Stückliste",
     "description": "Die Mengen richten sich nach der Anzahl der Module, die du baust – {{modules}} Module × 3 Servos, 1 Zuführung, {{irSensors}} IR-Sensoren, {{channelsUsed}} der 16 Kanäle des PCA9685 in Gebrauch. Die restlichen Kanäle stehen für zusätzliche Sortiermodule zur Verfügung (bis zu 5 Module an einem einzelnen PCA9685). Hake jedes Teil ab, sobald du es besorgt hast – die Häkchen werden in diesem Browser gespeichert.",
@@ -115,9 +99,9 @@
           "esp32": {
             "notes": "Führt <code>{{path}}</code> aus; USB-Verbindung zum Host-Computer für Web Serial - kann später auch direkt aus der App aktualisiert werden, siehe /app nach der Einrichtung"
           },
-          "esp32Breakout": {
-            "part": "ESP32-S3-Breakout-Board (GPIO-Schraubklemmen-Erweiterung)",
-            "notes": "Das ESP32-S3 wird darauf gesteckt, für die Verdrahtung über Schraubklemmen. Nur bei der Montage auf einem Breakout-Board nötig."
+          "esp32WithBreakout": {
+            "part": "ESP32-S3-WROOM-1 N16R8 Board mit GPIO-Schraubklemmen-Erweiterungsadapter",
+            "notes": "Führt <code>{{path}}</code> aus; USB-Verbindung zum Host-Computer für Web Serial. Das Board wird für die Verdrahtung über Schraubklemmen auf den Adapter gesteckt. Wird im 2er-Pack verkauft, du hast also ein Ersatzboard."
           },
           "pca9685": {
             "part": "Adafruit PCA9685 16-Kanal-12-Bit-PWM-/Servotreiber",
@@ -125,7 +109,8 @@
           },
           "sg90Positional": {
             "part": "SG90 Mikroservo, positionierend (180°)",
-            "notes": "3 pro Modul × {{count}} Module – Bodenklappe, Paddeltor, Schieber"
+            "notes": "3 pro Modul × {{count}} Module – Bodenklappe, Paddeltor, Schieber",
+            "alert": "Kaufe digitale SG90. Analoge SG90 und besonders Servos von Tower Pro halten ihre kalibrierten Positionen in diesem Sortierer nicht zuverlässig."
           },
           "mg90sContinuous": {
             "part": "MG90S-Servo, 360° Dauerdrehung",
@@ -257,8 +242,12 @@
         "title": "Optional",
         "items": {
           "webcam": {
-            "part": "USB-Webcam",
+            "part": "Logitech C920 Webcam",
             "notes": "Das ist die, die ich verwende - jede Webcam funktioniert, solange sich Fokus, Helligkeit usw. manuell einstellen lassen (automatische Anpassung kann Scans verfälschen)"
+          },
+          "ankerC200": {
+            "part": "Anker PowerConf C200 Webcam",
+            "notes": "Empfohlene Alternative zur C920. Fokus, Helligkeit usw. lassen sich ebenfalls manuell einstellen."
           },
           "cameraMountScrew": {
             "part": "1/4\"-20 Kamera-Befestigungsschraube",
@@ -378,8 +367,7 @@
         "title": "Die Strukturteile drucken",
         "steps": {
           "printSortingModule": {
-            "text": "Slice und drucke {{count}} Sorting-Module-Platten – eine pro Sortiermodul – aus dem <mesh>MakerWorld-Modell</mesh> (oder exportiere sie erneut aus <source>Card Sorter.f3d</source>).",
-            "note": "„Platte“ bezeichnet in dieser Anleitung stets die Druckplatte des Slicers (die Teileanordnung eines Druckauftrags) – nicht ein im Modell so benanntes Teil."
+            "text": "Slice und drucke {{count}} Sorting-Module-Platten – eine pro Sortiermodul – aus dem <mesh>MakerWorld-Modell</mesh> (oder exportiere sie erneut aus <source>Card Sorter.f3d</source>)."
           },
           "printFeederModule": {
             "text": "Drucke 1 Feeder Module aus derselben Datei – unabhängig von der Modulanzahl wird nur eine benötigt. Beherbergt die Zuführrolle und den Trichterhals.",
@@ -560,9 +548,13 @@
           "calibrateFeeder": {
             "text": "Zuführungs-Kalibrierungsfeld – stimme Zuführgeschwindigkeit, Impuls-/Pausenzeiten und Setzzeit auf deinen tatsächlichen Trichter ab."
           },
+          "adjustIr": {
+            "text": "Stelle die Erkennungsdistanz aller {{count}} IR-Sensoren so ein, dass jeder eine Karte 2,5 cm (1 Zoll) vor sich erkennt. Drehe bei eingeschaltetem Board mit einem kleinen Schraubendreher an der Schraube im blauen Gehäuse (dem Potentiometer) jedes Sensors: Drehe sie zuerst so weit, bis die Anzeige-LED des Sensors ausgeht, solange nichts vor ihm ist. Halte dann eine Karte 2,5 cm vor den Sensor und drehe die Schraube langsam in die andere Richtung, bis die LED gerade angeht.",
+            "note": "Zur Kontrolle ziehst du die Karte auf etwa 5 cm zurück: Die LED sollte wieder ausgehen. Bleibt sie an, drehe die Schraube ein kleines Stück zurück. Ein zu weit eingestellter Sensor reicht über den Kartenweg hinaus und meldet Karten, die nicht da sind."
+          },
           "checkIr": {
             "text": "IR-Sensorfeld – prüfe, ob alle {{count}} Sensoren mit einer Karte in der Hand korrekt „vorhanden“/„nicht vorhanden“ melden.",
-            "note": "Wenn ein Sensor nicht auslöst oder auslöst, obwohl nichts vor ihm ist, kalibriere seine Erkennungsdistanz manuell: Auf der Rückseite des Sensors befindet sich ein kleines blaues Gehäuse mit einem grauen Potentiometer-Rädchen. Drehe es ganz in eine Richtung, sodass er nichts mehr erkennt, und drehe es dann langsam zurück, bis er eine Karte gerade so aus zwei bis fünf Zentimetern Entfernung erkennt."
+            "note": "Wenn ein Sensor nicht auslöst oder auslöst, obwohl nichts vor ihm ist, wiederhole den vorherigen Schritt für diesen Sensor."
           },
           "testBins": {
             "text": "Fachsteuerung: Sende der Reihe nach eine Testkarte an jedes der {{count}} Fächer und bestätige, dass sie korrekt landet."
@@ -622,5 +614,29 @@
       "optionalPlate": "Back- und Front-Platte (optional)"
     },
     "xray": "Röntgenblick"
+  },
+  "imageAlt": {
+    "printPart": "3D-Modellansicht: {{part}}",
+    "breakoutBaseSupport": "Breakout-Basisstütze",
+    "photos": {
+      "baseModule": "Ein einzelner lila 3D-gedruckter Sortiermodulrahmen: ein offener Kasten mit vier Zapfen oben und Laschen an den Seiten zum Verbinden der Module.",
+      "baseModuleAssembled": "Ein flacher gelber Modulrahmen neben einem hohen gelben Modul, das auf einer lila Basisstütze steht. Zu sehen ist, wie die gedruckten Rahmen zusammenpassen.",
+      "finishedSorter": "Der fertige Sortierer: ein schwarzer Turm aus gestapelten Sortiermodulen mit dem Kartenmagazin oben, umgeben von weißen Fächern mit sortierten Karten.",
+      "bottomPaddleDisassembled": "Die Teile der unteren Klappe auf einer Schneidematte: eine lange pinke Klappenplatte, ein Servohorn-Adapter, ein kurzer Verbindungsarm und zwei Schrauben.",
+      "bottomPaddleAssembled": "Die zusammengebaute untere Klappe: Der Verbindungsarm ist zwischen den Scharnierhalter der Klappe und den Servohorn-Adapter geschraubt.",
+      "bottomPaddleAttached": "Die untere Klappe auf einer pinken Modulplatte montiert. Ihr Verbindungsarm ist mit einem blauen SG90-Mikroservo verbunden, die Servokabel führen zur Seite.",
+      "sidePaddlesDisassembled": "Die Teile der Seitenklappen: zwei lange pinke Klappenplatten, zwei Verbindungsarme, ein beidseitiger Servohorn-Adapter und vier Schrauben.",
+      "sidePaddlesAssembled": "Beide Seitenklappen sind über ihre Verbindungsarme mit dem mittleren Servohorn-Adapter zu einem Gestänge verbunden.",
+      "sidePaddlesAttached": "Das Seitenklappen-Gestänge auf der Modulplatte montiert und von einem blauen Mikroservo angetrieben. Die Kabel sind oben in einer Schlaufe verlegt.",
+      "pusherDisassembled": "Die Teile des Schiebers: zwei L-förmige Schieberarme, zwei gerade Verbindungsarme, ein dreieckiger Servohorn-Adapter und fünf Schrauben.",
+      "pusherAssembled": "Der zusammengebaute Schieber: Beide L-förmigen Arme sind über die geraden Arme mit dem dreieckigen Servohorn-Adapter verbunden.",
+      "pusherAttached": "Eine Modulplatte mit allen drei Mechaniken: Schieberarme, Seitenklappen-Gestänge und untere Klappe, jeweils mit einem blauen Mikroservo verbunden.",
+      "rollerORings": "Die schwarze 3D-gedruckte Zuführrolle mit sechs Gummi-O-Ringen in ihren Rillen, je drei nahe jedem Ende.",
+      "feederServoMounted": "Der weiße Rahmen des Zuführmoduls mit einem oben montierten blauen Servo, der die O-Ring-Rolle im Rahmen antreibt.",
+      "newHopper": "Das schwarze Kartenmagazin: ein offener rechteckiger Rahmen mit einer gefederten Schraube oben und der O-Ring-Rolle an der Unterkante.",
+      "feederRiser": "Der schwarze Zuführsockel von oben, mit der O-Ring-Rolle in der Mitte, einem IR-Sensor daneben und dem Servo an einer Seite.",
+      "sorterIrSensorMounted": "Eine IR-Sensorplatine steht aufrecht in ihrer Halterung auf der pinken Modulplatte, neben den Servos und Gestängen.",
+      "feederIrSensorMounted": "Im schwarzen Zuführgehäuse sitzt eine blaue IR-Sensorplatine direkt unter der O-Ring-Rolle und zeigt nach oben zu den Karten."
+    }
   }
 }

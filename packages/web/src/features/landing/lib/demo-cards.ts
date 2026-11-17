@@ -1,21 +1,5 @@
-import type { ScannedCard } from "@magic-vault/shared";
 import type { DemoScannedCard } from "@/lib/interfaces/landing";
 
-// Adapts the demo data to the real ScannedCard shape so it can be fed
-// straight into features/scanner/lib/compute-stats.ts - a pure function,
-// safe to reuse outside the app's data-fetching providers.
-export function toScannedCards(entries: DemoScannedCard[]): ScannedCard[] {
-  return entries.map((d, i) => ({
-    scanId: d.card.id,
-    card: d.card,
-    scannedAt: Date.now() - i * 60_000,
-    binNumber: d.binNumber,
-    isFoil: d.isFoil,
-  }));
-}
-
-// Real Scryfall data for a handful of well-known cards, captured ahead of
-// time so the hero mockup doesn't depend on a live API call at page load.
 export const DEMO_SCANNED_CARDS: DemoScannedCard[] = [
   {
     binNumber: 2,

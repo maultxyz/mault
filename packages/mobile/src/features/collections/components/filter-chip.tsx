@@ -10,6 +10,7 @@ export function FilterChip({ label, selected, swatch, onPress }: FilterChipProps
     <Pressable
       accessibilityRole="checkbox"
       accessibilityState={{ checked: selected }}
+      hitSlop={{ top: 4, bottom: 4 }}
       onPress={onPress}
       style={({ pressed }) => ({
         flexDirection: "row",
@@ -17,8 +18,10 @@ export function FilterChip({ label, selected, swatch, onPress }: FilterChipProps
         gap: 6,
         height: 36,
         paddingHorizontal: SPACING.md + 2,
-        borderRadius: RADIUS.full,
-        backgroundColor: selected ? colors.foreground : pressed ? colors.border : colors.muted,
+        borderRadius: RADIUS.md,
+        borderWidth: 1,
+        borderColor: selected ? colors.primarySelected : colors.border,
+        backgroundColor: selected ? colors.primarySelected : pressed ? colors.muted : colors.background,
       })}
     >
       {swatch ? (
@@ -26,7 +29,7 @@ export function FilterChip({ label, selected, swatch, onPress }: FilterChipProps
           style={{ width: 10, height: 10, borderRadius: RADIUS.full, borderWidth: 1, borderColor: colors.border, backgroundColor: swatch }}
         />
       ) : null}
-      <AppText size="sm" weight="semibold" style={{ color: selected ? colors.background : colors.foreground }}>
+      <AppText size="sm" weight="semibold" style={{ color: selected ? colors.primaryText : colors.foreground }}>
         {label}
       </AppText>
     </Pressable>

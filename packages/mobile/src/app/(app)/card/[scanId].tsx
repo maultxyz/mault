@@ -9,9 +9,18 @@ import { Alert, Pressable, ScrollView, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   CARD_CONDITIONS,
+  CARD_LANGUAGES,
+  CARD_TAGS,
+  cardTagsSetOn,
+  type CardTag,
+  cardFoilTypeOptions,
   DEFAULT_CARD_CONDITION,
+  isCardLanguage,
+  scanLanguage,
   type CardCondition,
   type PlayingCard,
+  scanDraftFormSchema,
+  type ScanDraftFormValues,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -27,14 +36,19 @@ import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCardCorrection } from "@/features/cards/api/use-card-correction";
+import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-details";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
+import type { MatchesOpenState } from "@/lib/interfaces/cards";
 import { CardPriceDetails } from "@/features/cards/components/card-price-details";
+import { CardPurchaseLinks } from "@/features/cards/components/card-purchase-links";
 import { CardCorrectionSearch } from "@/features/cards/components/card-correction-search";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
-import { cardScanSchema } from "@/features/cards/lib/card-scan-schema";
+import { PricePaidField } from "@/features/cards/components/price-paid-field";
+import { cardAcquisitionCostQueryOptions, setCardAcquisitionCost } from "@/features/business/api/card-cost";
 import {
   cardScanOriginQueryOptions,
+  setCollectionCardTags,
   collectionCardQueryOptions,
   invalidateCollectionCards,
   removeCollectionCard,
@@ -42,14 +56,25 @@ import {
   updateCollectionCard,
 } from "@/features/collections/api/collection-cards";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
-import { cardStorageLocationQueryOptions, storageLocationCardsQueryOptions } from "@/features/storage/api/storage";
+import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
+import { billingQueryOptions } from "@/features/org/api/billing";
+import {
+  cardStorageLocationQueryOptions,
+  fetchFirstUnreviewedStorageCard,
+  moveCardsToStorageLocation,
+  storageLocationCardContextQueryOptions,
+  storageLocationsQueryOptions,
+} from "@/features/storage/api/storage";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
+import { formatDateTime } from "@/lib/dates";
+import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import type { CardScanDraftValues } from "@/lib/interfaces/forms";
+import { saveReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function CardDetailScreen() {
   const { scanId, guid, review, storage: storageGuid } = useLocalSearchParams<{
@@ -60,31 +85,54 @@ export default function CardDetailScreen() {
   }>();
   const reviewMode = review === "1";
   const storageReview = reviewMode && !!storageGuid;
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const colors = useTheme();
   const pricing = usePricing();
   const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const position = useQuery(collectionCardQueryOptions(guid, scanId, reviewMode && !storageReview));
-  const storageCards = useQuery({ ...storageLocationCardsQueryOptions(storageGuid ?? ""), enabled: storageReview });
+  const storageContext = useQuery(storageLocationCardContextQueryOptions(storageGuid ?? "", scanId, storageReview));
   const image = useQuery(scanImageQueryOptions(guid, scanId));
   const origin = useQuery(cardScanOriginQueryOptions(guid, scanId));
+  const hasScanOrigin =
+    !!origin.data && (!!origin.data.scannedAt || !!origin.data.scannedBy || !!origin.data.device);
   const storage = useQuery(cardStorageLocationQueryOptions(guid, scanId));
-  const collections = useQuery(collectionsQueryOptions(useActiveOrgId()));
+  const activeOrgId = useActiveOrgId();
+  const collections = useQuery(collectionsQueryOptions(activeOrgId));
+  const acquisitionCost = useQuery(cardAcquisitionCostQueryOptions(activeOrgId, scanId));
   const correction = useCardCorrection(guid);
   const [editing, setEditing] = useState(false);
-  const [sheet, setSheet] = useState<"foil" | "condition" | null>(null);
+  const [matchesOpenState, setMatchesOpenState] = useState<MatchesOpenState | null>(null);
+  const [sheet, setSheet] = useState<"foil" | "condition" | "language" | "location" | "collection" | "tags" | null>(null);
+  const billing = useQuery(billingQueryOptions(activeOrgId));
+  const canMoveToLocation = !!billing.data && billing.data.storage !== false;
+  const locations = useQuery(storageLocationsQueryOptions(activeOrgId, canMoveToLocation));
+  const moveTargets = (locations.data ?? []).filter((location) => location.guid !== storage.data?.guid);
 
   const entry = position.data?.entry.scanId === scanId ? position.data.entry : null;
   const nextScanId = position.data?.nextScanId ?? null;
+  const reviewPrefetchStartScanId = !reviewMode
+    ? null
+    : storageReview
+      ? storageContext.data?.next?.scanId
+      : entry
+        ? nextScanId
+        : null;
+  usePrefetchCardDetails(reviewPrefetchStartScanId, {
+    collectionGuid: guid,
+    reviewMode: reviewMode && !storageReview,
+    storageGuid: storageReview ? storageGuid : undefined,
+  });
   const collection = collections.data?.find((c) => c.guid === guid);
-  const foilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
+  const gameFoilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
   const card = entry?.card;
   const capturedUrl = absoluteUrl(image.data);
   const showCaptured = image.isPending || !!capturedUrl;
   const canConfirm = !!entry && (!!entry.lowConfidenceMatch || !!entry.alternativeMatches?.length) && !entry.corrected;
   const isReviewed = !!entry?.reviewed || !!entry?.corrected;
+  const tagsSet = entry ? cardTagsSetOn(entry) : [];
+  const areMatchesOpen = matchesOpenState?.scanId === scanId ? matchesOpenState.isOpen : !isReviewed;
 
   const candidates = useMemo(() => {
     if (!entry) return [];
@@ -96,41 +144,74 @@ export default function CardDetailScreen() {
     });
   }, [entry]);
 
-  const serverValues = useMemo<CardScanDraftValues | undefined>(
+  const serverValues = useMemo<ScanDraftFormValues | undefined>(
     () =>
       entry
         ? {
-            foilType: entry.foilType ?? (entry.isFoil ? foilOptions[0] : null),
+            foilType: entry.foilType ?? (entry.isFoil ? gameFoilOptions[0] : null),
             condition: entry.condition ?? DEFAULT_CARD_CONDITION,
+            language: scanLanguage(entry),
+            acquisitionCost: acquisitionCost.data?.cost ?? null,
           }
         : undefined,
-    [entry, foilOptions],
+    [entry, gameFoilOptions, acquisitionCost.data],
   );
-  const form = useForm<CardScanDraftValues>({
-    resolver: zodResolver(cardScanSchema),
+  const form = useForm<ScanDraftFormValues>({
+    resolver: zodResolver(scanDraftFormSchema),
     values: serverValues,
     resetOptions: { keepDirtyValues: true },
   });
-  const { isDirty } = form.formState;
+  const { isDirty, errors } = form.formState;
   const draftFoil = form.watch("foilType");
   const draftCondition = form.watch("condition") as CardCondition;
-  const price = card ? pricing.priceOf(card, draftFoil != null, draftCondition) : null;
+  const draftLanguage = form.watch("language");
+  const languageOptions: string[] =
+    !draftLanguage || isCardLanguage(draftLanguage) ? [...CARD_LANGUAGES] : [draftLanguage, ...CARD_LANGUAGES];
+  const price = card
+    ? pricing.priceOf(card, { isFoil: draftFoil != null, foilType: draftFoil }, draftCondition)
+    : null;
+  const foilOptions = cardFoilTypeOptions(gameFoilOptions, card, draftFoil);
 
   const saveDraft = useMutation({
-    mutationFn: (values: CardScanDraftValues) =>
-      updateCollectionCard(guid, scanId, {
-        isFoil: values.foilType != null,
-        foilType: values.foilType,
-        condition: values.condition as CardCondition,
-      }),
+    mutationFn: async (values: ScanDraftFormValues) => {
+      const { dirtyFields } = form.formState;
+      if (dirtyFields.foilType || dirtyFields.condition || dirtyFields.language) {
+        await updateCollectionCard(guid, scanId, {
+          isFoil: values.foilType != null,
+          foilType: values.foilType,
+          condition: values.condition as CardCondition,
+          ...(dirtyFields.language ? { language: values.language } : {}),
+        });
+      }
+      if (dirtyFields.acquisitionCost) {
+        await setCardAcquisitionCost(scanId, values.acquisitionCost);
+      }
+    },
     onSuccess: (_, values) => form.reset(values),
-    onSettled: () => invalidateCollectionCards(queryClient, guid),
+    onSettled: () => {
+      invalidateCollectionCards(queryClient, guid);
+      void queryClient.invalidateQueries({ queryKey: cardAcquisitionCostQueryOptions(activeOrgId, scanId).queryKey });
+    },
   });
 
   const markCorrect = useMutation({
     mutationFn: (kind: "confirm" | "review") =>
       updateCollectionCard(guid, scanId, kind === "confirm" ? { confirmed: true } : { reviewed: true }),
     onSettled: () => invalidateCollectionCards(queryClient, guid),
+  });
+
+  const acceptInBackground = useMutation({
+    mutationFn: ({ kind, acceptedScanId }: { kind: "confirm" | "review"; acceptedScanId: string }) =>
+      updateCollectionCard(guid, acceptedScanId, kind === "confirm" ? { confirmed: true } : { reviewed: true }),
+    onSettled: () => invalidateCollectionCards(queryClient, guid),
+    onError: (error) => Alert.alert(t("cardDetail.saveFailed"), error instanceof Error ? error.message : undefined),
+  });
+
+  const toggleTag = useMutation({
+    mutationFn: (tag: CardTag) =>
+      setCollectionCardTags(guid, { scanIds: [scanId], tags: [tag], enabled: !tagsSet.includes(tag) }),
+    onSettled: () => invalidateCollectionCards(queryClient, guid),
+    onError: (error) => Alert.alert(t("cardTags.saveFailed"), error instanceof Error ? error.message : undefined),
   });
 
   const remove = useMutation({
@@ -142,6 +223,20 @@ export default function CardDetailScreen() {
     },
   });
 
+  const { targetCollections, moveToCollection } = useMoveCardsToCollection({
+    sourceCollectionGuid: guid,
+    onMoved: () => router.back(),
+  });
+
+  const moveToLocation = useMutation({
+    mutationFn: (locationGuid: string) => moveCardsToStorageLocation(locationGuid, [scanId]),
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
+      invalidateCollectionCards(queryClient, guid);
+    },
+    onError: (error) => Alert.alert(t("storage.actionFailed"), error instanceof Error ? error.message : undefined),
+  });
+
   usePreventRemove(isDirty && !saveDraft.isPending, ({ data }) => {
     Alert.alert(t("common.discardTitle"), t("cardDetail.discardDescription"), [
       { text: t("common.keepEditing"), style: "cancel" },
@@ -151,13 +246,11 @@ export default function CardDetailScreen() {
 
   const goToNextInReview = async () => {
     if (storageReview && storageGuid) {
-      const list = await queryClient
-        .fetchQuery({ ...storageLocationCardsQueryOptions(storageGuid), staleTime: 0 })
-        .catch(() => storageCards.data ?? []);
-      const index = list.findIndex((c) => c.scanId === scanId);
-      const pending = (c: (typeof list)[number]) => !c.reviewed && c.scanId !== scanId;
-      const next = list.slice(index + 1).find(pending) ?? list.find(pending);
-      if (next) {
+      const context = await queryClient
+        .fetchQuery({ ...storageLocationCardContextQueryOptions(storageGuid, scanId, true), staleTime: 0 })
+        .catch(() => storageContext.data ?? null);
+      const next = context?.next ?? (await fetchFirstUnreviewedStorageCard(storageGuid).catch(() => null));
+      if (next && next.scanId !== scanId) {
         router.replace({
           pathname: "/card/[scanId]",
           params: { scanId: next.scanId, guid: next.collectionGuid, review: "1", storage: storageGuid },
@@ -178,14 +271,26 @@ export default function CardDetailScreen() {
 
   const applyCorrection = async (selected: PlayingCard) => {
     if (!entry) return;
+    setMatchesOpenState({ scanId, isOpen: false });
     await correction.correct(entry, selected);
     setEditing(false);
     if (reviewMode) await goToNextInReview();
   };
 
   const acceptInReview = async () => {
-    await markCorrect.mutateAsync(canConfirm ? "confirm" : "review");
+    const kind = canConfirm ? "confirm" : "review";
+    if (storageReview) {
+      await markCorrect.mutateAsync(kind);
+      await goToNextInReview();
+      return;
+    }
+    acceptInBackground.mutate({ kind, acceptedScanId: scanId });
     await goToNextInReview();
+  };
+
+  const showReviewGrid = () => {
+    saveReviewLayout("grid");
+    router.replace({ pathname: "/review-grid", params: storageReview ? { storage: storageGuid } : { guid } });
   };
 
   const confirmRemove = () =>
@@ -193,6 +298,29 @@ export default function CardDetailScreen() {
       { text: t("cardDetail.cancel"), style: "cancel" },
       { text: t("cardDetail.remove"), style: "destructive", onPress: () => remove.mutate() },
     ]);
+
+  const scanAttributeRows = (
+    <ListGroup>
+      <ListRow
+        icon="sparkles"
+        title={t("cardDetail.foil")}
+        value={draftFoil ?? t("cardDetail.foilNone")}
+        onPress={() => setSheet("foil")}
+      />
+      <ListRow
+        icon="condition"
+        title={t("cardDetail.condition")}
+        value={t(`cardDetail.conditions.${draftCondition}`)}
+        onPress={() => setSheet("condition")}
+      />
+      <ListRow
+        icon="language"
+        title={t("cardDetail.language")}
+        value={LANGUAGE_LABELS[draftLanguage] ?? draftLanguage}
+        onPress={() => setSheet("language")}
+      />
+    </ListGroup>
+  );
 
   const imageFrame = {
     aspectRatio: CARD_ASPECT_RATIO,
@@ -210,10 +338,10 @@ export default function CardDetailScreen() {
         subtitle={
           editing
             ? card?.name
-            : storageReview && storageCards.data
+            : storageReview && storageContext.data
               ? t("cardDetail.reviewProgress", {
-                  index: storageCards.data.findIndex((c) => c.scanId === scanId) + 1,
-                  total: storageCards.data.length,
+                  index: storageContext.data.index + 1,
+                  total: storageContext.data.total,
                 })
               : reviewMode && position.data
               ? t("cardDetail.reviewProgress", { index: position.data.index + 1, total: position.data.total })
@@ -222,13 +350,18 @@ export default function CardDetailScreen() {
         onBack={editing ? () => setEditing(false) : () => router.back()}
         actions={
           !editing && entry ? (
-            <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
+            <View style={{ flexDirection: "row", gap: SPACING.sm }}>
+              {reviewMode ? (
+                <IconButton icon="layout" accessibilityLabel={t("reviewGrid.layoutGrid")} onPress={showReviewGrid} />
+              ) : null}
+              <IconButton icon="trash" accessibilityLabel={t("cardDetail.remove")} onPress={confirmRemove} />
+            </View>
           ) : null
         }
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.xl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xl, gap: SPACING.xl }}
       >
         {position.isError ? <Callout tone="destructive" title={t("cardDetail.loadFailed")} /> : null}
         {remove.isError ? <Callout tone="destructive" title={t("cardDetail.removeFailed")} /> : null}
@@ -253,28 +386,64 @@ export default function CardDetailScreen() {
                   </AppText>
                 ) : null}
                 {draftFoil ? <Pill tone="info" label={draftFoil} /> : null}
-                {isReviewed ? (
-                  <Pill tone="success" icon="check" label={t("cardDetail.reviewed")} />
-                ) : canConfirm ? (
-                  <Pill tone="warning" label={t("cards.needsReview")} />
-                ) : null}
+                {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={t("cardTags.edit")}
+                  disabled={toggleTag.isPending}
+                  onPress={() => setSheet("tags")}
+                  style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "center", gap: SPACING.xs }}
+                >
+                  {tagsSet.length === 0 ? (
+                    <Pill tone="neutral" label={t("cardTags.title")} />
+                  ) : (
+                    tagsSet.map((tag) =>
+                      tag === "reviewed" ? (
+                        <Pill key={tag} tone="success" icon="check" label={t(`cardTags.names.${tag}`)} />
+                      ) : (
+                        <Pill key={tag} tone="neutral" label={t(`cardTags.names.${tag}`)} />
+                      ),
+                    )
+                  )}
+                  <Icon name="expand" size={16} color={colors.foregroundSecondary} />
+                </Pressable>
               </View>
             ) : null}
 
             {candidates.length > 1 ? (
               <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.similarMatches")} />
-                <AppText size="sm" tone="secondary">
-                  {t("cardDetail.similarMatchesHint")}
-                </AppText>
-                <CandidateStrip
-                  candidates={candidates}
-                  selectedId={card?.id}
-                  disabled={correction.isPending}
-                  onSelect={(selected) => {
-                    if (selected.id !== card?.id) void applyCorrection(selected);
-                  }}
-                />
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{ expanded: areMatchesOpen }}
+                  onPress={() => setMatchesOpenState({ scanId, isOpen: !areMatchesOpen })}
+                >
+                  <SectionHeader
+                    title={t("cardDetail.similarMatches")}
+                    action={
+                      <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.xs }}>
+                        <Pill label={String(candidates.length)} />
+                        <Icon name={areMatchesOpen ? "collapse" : "expand"} size={16} color={colors.foregroundSecondary} />
+                      </View>
+                    }
+                  />
+                </Pressable>
+                {areMatchesOpen ? (
+                  <>
+                    {!isReviewed ? (
+                      <AppText size="sm" tone="secondary">
+                        {t("cardDetail.similarMatchesHint")}
+                      </AppText>
+                    ) : null}
+                    <CandidateStrip
+                      candidates={candidates}
+                      selectedId={card?.id}
+                      disabled={correction.isPending}
+                      onSelect={(selected) => {
+                        if (selected.id !== card?.id) void applyCorrection(selected);
+                      }}
+                    />
+                  </>
+                ) : null}
               </View>
             ) : null}
 
@@ -286,7 +455,7 @@ export default function CardDetailScreen() {
                   </AppText>
                   <View style={imageFrame}>
                     {capturedUrl ? (
-                      <Image source={{ uri: capturedUrl }} style={{ flex: 1 }} contentFit="fill" />
+                      <Image source={{ uri: capturedUrl }} style={{ flex: 1 }} contentFit="fill" accessibilityLabel={t("cardDetail.capturedScan")} />
                     ) : (
                       <Skeleton height="100%" radius={0} />
                     )}
@@ -302,6 +471,7 @@ export default function CardDetailScreen() {
                 <View style={imageFrame}>
                   {card ? (
                     <Image
+                      accessibilityLabel={card.name}
                       source={{ uri: absoluteUrl(card.image?.normal ?? card.image?.small) ?? undefined }}
                       style={{ flex: 1 }}
                       contentFit="cover"
@@ -312,60 +482,42 @@ export default function CardDetailScreen() {
               </View>
             </View>
 
+            {reviewMode && entry ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("cardDetail.correctCard")} />
+                <CardCorrectionSearch
+                  key={`${scanId}:${entry.card.id}`}
+                  inline
+                  collectionGuid={guid}
+                  initialQuery={entry.card.name}
+                  disabled={correction.isPending}
+                  onSelect={(selected) => void applyCorrection(selected)}
+                />
+                {scanAttributeRows}
+              </View>
+            ) : null}
+
             {card ? (
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.prices")} />
-                <CardPriceDetails card={card} isFoil={draftFoil != null} />
-              </View>
-            ) : null}
-
-            {entry ? (
-              <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.thisScan")} />
-                <ListGroup>
-                  <ListRow
-                    icon="sparkles"
-                    title={t("cardDetail.foil")}
-                    value={draftFoil ?? t("cardDetail.foilNone")}
-                    onPress={() => setSheet("foil")}
+                <CardPriceDetails
+                  card={card}
+                  isFoil={draftFoil != null}
+                  foilType={draftFoil}
+                  condition={draftCondition}
+                />
+                <CardPurchaseLinks card={card} />
+                {entry && acquisitionCost.data ? (
+                  <PricePaidField
+                    label={t("cardDetail.pricePaid", { currency: acquisitionCost.data.currency })}
+                    placeholder={t("cardDetail.pricePaidEmpty")}
+                    value={form.watch("acquisitionCost")}
+                    onChange={(cost) => form.setValue("acquisitionCost", cost, { shouldDirty: true })}
+                    error={
+                      errors.acquisitionCost ? translateFormErrorMessage(t, errors.acquisitionCost.message) : undefined
+                    }
                   />
-                  <ListRow
-                    icon="condition"
-                    title={t("cardDetail.condition")}
-                    value={t(`cardDetail.conditions.${draftCondition}`)}
-                    onPress={() => setSheet("condition")}
-                  />
-                </ListGroup>
-                {entry.binNumber != null ? (
-                  <View style={{ gap: SPACING.sm, marginTop: SPACING.sm }}>
-                    <AppText size="sm" weight="medium" tone="secondary">
-                      {t("cardDetail.binLocation")}
-                    </AppText>
-                    <BinLocationDiagram binNumber={entry.binNumber} />
-                  </View>
                 ) : null}
-              </View>
-            ) : null}
-
-            {origin.data && (origin.data.scannedBy || origin.data.device) ? (
-              <View style={{ gap: SPACING.sm }}>
-                <SectionHeader title={t("cardDetail.scanOrigin.heading")} />
-                <ListGroup>
-                  {origin.data.scannedBy ? (
-                    <ListRow icon="account" title={t("cardDetail.scanOrigin.scannedBy")} value={origin.data.scannedBy.name} />
-                  ) : null}
-                  {origin.data.device ? (
-                    <ListRow
-                      icon="sorter"
-                      title={t("cardDetail.scanOrigin.sorter")}
-                      value={
-                        origin.data.device.isDeleted
-                          ? t("cardDetail.scanOrigin.deletedSorter", { name: origin.data.device.name })
-                          : origin.data.device.name
-                      }
-                    />
-                  ) : null}
-                </ListGroup>
               </View>
             ) : null}
 
@@ -373,6 +525,7 @@ export default function CardDetailScreen() {
               <View style={{ gap: SPACING.sm }}>
                 <SectionHeader title={t("cardDetail.details")} />
                 <CardDetailsList card={card} binNumber={entry?.binNumber} />
+                {entry && !reviewMode ? scanAttributeRows : null}
                 {storage.data ? (
                   <Pressable
                     accessibilityRole="link"
@@ -385,6 +538,26 @@ export default function CardDetailScreen() {
                     </AppText>
                   </Pressable>
                 ) : null}
+                {entry && ((canMoveToLocation && moveTargets.length > 0) || targetCollections.length > 0) ? (
+                  <ListGroup>
+                    {canMoveToLocation && moveTargets.length > 0 ? (
+                      <ListRow
+                        icon="transfer"
+                        title={storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation")}
+                        disabled={moveToLocation.isPending}
+                        onPress={() => setSheet("location")}
+                      />
+                    ) : null}
+                    {targetCollections.length > 0 ? (
+                      <ListRow
+                        icon="collections"
+                        title={t("storage.moveToCollection")}
+                        disabled={moveToCollection.isPending}
+                        onPress={() => setSheet("collection")}
+                      />
+                    ) : null}
+                  </ListGroup>
+                ) : null}
               </View>
             ) : position.isPending ? (
               <View style={{ gap: SPACING.sm }}>
@@ -393,6 +566,46 @@ export default function CardDetailScreen() {
                 <Skeleton height={16} width="55%" />
               </View>
             ) : null}
+
+            {hasScanOrigin || entry?.binNumber != null ? (
+              <View style={{ gap: SPACING.sm }}>
+                <SectionHeader title={t("cardDetail.thisScan")} />
+                {origin.data && hasScanOrigin ? (
+                  <ListGroup>
+                    {origin.data.scannedAt ? (
+                      <ListRow
+                        icon="clock"
+                        title={t("cardDetail.scanOrigin.scannedAt")}
+                        value={formatDateTime(origin.data.scannedAt, i18n.language)}
+                      />
+                    ) : null}
+                    {origin.data.scannedBy ? (
+                      <ListRow icon="account" title={t("cardDetail.scanOrigin.scannedBy")} value={origin.data.scannedBy.name} />
+                    ) : null}
+                    {origin.data.device ? (
+                      <ListRow
+                        icon="sorter"
+                        title={t("cardDetail.scanOrigin.sorter")}
+                        value={
+                          origin.data.device.isDeleted
+                            ? t("cardDetail.scanOrigin.deletedSorter", { name: origin.data.device.name })
+                            : origin.data.device.name
+                        }
+                      />
+                    ) : null}
+                  </ListGroup>
+                ) : null}
+                {entry?.binNumber != null ? (
+                  <View style={{ gap: SPACING.sm, marginTop: SPACING.sm }}>
+                    <AppText size="sm" weight="medium" tone="secondary">
+                      {t("cardDetail.binLocation")}
+                    </AppText>
+                    <BinLocationDiagram binNumber={entry.binNumber} />
+                  </View>
+                ) : null}
+              </View>
+            ) : null}
+
           </>
         )}
       </ScrollView>
@@ -413,13 +626,6 @@ export default function CardDetailScreen() {
             <>
               <Button
                 style={{ flex: 1 }}
-                variant="secondary"
-                icon="edit"
-                label={t("cardDetail.correctCard")}
-                onPress={() => setEditing(true)}
-              />
-              <Button
-                style={{ flex: 1 }}
                 icon="check"
                 label={nextScanId ? t("cardDetail.acceptNext") : t("cardDetail.acceptFinish")}
                 loading={markCorrect.isPending}
@@ -435,7 +641,10 @@ export default function CardDetailScreen() {
                   icon="check"
                   label={t("cardDetail.markCorrect")}
                   loading={markCorrect.isPending}
-                  onPress={() => markCorrect.mutate("confirm")}
+                  onPress={() => {
+                    setMatchesOpenState({ scanId, isOpen: false });
+                    markCorrect.mutate("confirm");
+                  }}
                 />
               ) : null}
               <Button
@@ -478,6 +687,53 @@ export default function CardDetailScreen() {
         onSelect={(value) => {
           form.setValue("condition", value as CardCondition, { shouldDirty: true });
           setSheet(null);
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "language"}
+        title={t("cardDetail.language")}
+        options={languageOptions.map((value) => ({ value, label: LANGUAGE_LABELS[value] ?? value }))}
+        selected={[draftLanguage]}
+        onSelect={(value) => {
+          form.setValue("language", value, { shouldDirty: true });
+          setSheet(null);
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "tags"}
+        title={t("cardTags.title")}
+        options={CARD_TAGS.map((tag) => ({ value: tag, label: t(`cardTags.names.${tag}`) }))}
+        selected={tagsSet}
+        onSelect={(value) => {
+          setSheet(null);
+          const tag = CARD_TAGS.find((candidate) => candidate === value);
+          if (tag) toggleTag.mutate(tag);
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "collection"}
+        title={t("storage.moveToCollection")}
+        options={targetCollections.map((target) => ({ value: target.guid, label: target.name }))}
+        selected={[]}
+        searchPlaceholder={t("storage.searchCollections")}
+        onSelect={(targetCollectionGuid) => {
+          setSheet(null);
+          moveToCollection.mutate({ scanIds: [scanId], targetCollectionGuid });
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "location"}
+        title={t("storage.moveToLocation")}
+        options={moveTargets.map((location) => ({ value: location.guid, label: location.name }))}
+        selected={[]}
+        searchPlaceholder={t("storage.searchLocations")}
+        onSelect={(locationGuid) => {
+          setSheet(null);
+          moveToLocation.mutate(locationGuid);
         }}
         onClose={() => setSheet(null)}
       />

@@ -1,4 +1,5 @@
 import { FoilOverlay } from "@/components/foil-overlay";
+import { StatGroup } from "@/components/stat-group";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
 import { usePriceSource } from "@/hooks/use-price-source";
@@ -9,7 +10,6 @@ import {
 } from "@/lib/constants/nav";
 import type {
   HomeCardStripProps,
-  HomeStatTileProps,
   MobileHomeHeroProps,
   MobileHomeOverviewProps,
   ScanActivityChartProps,
@@ -27,17 +27,6 @@ function formatDay(date: string): string {
     day: "numeric",
     timeZone: "UTC",
   });
-}
-
-function HomeStatTile({ label, value }: HomeStatTileProps) {
-  return (
-    <div className="min-w-0 rounded-lg bg-muted px-3.5 py-3">
-      <p className="truncate font-heading text-xl leading-tight font-bold text-foreground tabular-nums">
-        {value}
-      </p>
-      <p className="truncate text-xs text-foreground/70">{label}</p>
-    </div>
-  );
 }
 
 function ScanActivityChart({ days }: ScanActivityChartProps) {
@@ -98,14 +87,14 @@ function HomeCardStrip({ title, cards }: HomeCardStripProps) {
 
   return (
     <MobileSection title={title}>
-      <div className="-mx-5 flex snap-x scroll-px-5 gap-3 overflow-x-auto px-5 pt-1 pb-1">
+      <div className="-mx-4 flex snap-x scroll-px-4 gap-3 overflow-x-auto px-4 pt-1 pb-1">
         {cards.map((entry) => (
           <Link
             key={entry.scanId}
             to={`/app/monitor/${entry.collectionGuid}`}
             className="flex w-28 shrink-0 snap-start flex-col gap-1.5 transition-transform active:scale-[0.97] motion-reduce:active:scale-100"
           >
-            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-foreground/10">
+            <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted ring-1 ring-border">
               <img
                 src={entry.card.image?.normal || entry.card.image?.small || ""}
                 alt={entry.card.name}
@@ -164,11 +153,7 @@ export function MobileHomeOverview({ orgId }: MobileHomeOverviewProps) {
   if (isLoading) {
     return (
       <div className="flex flex-col gap-5">
-        <div className="grid grid-cols-3 gap-2">
-          {Array.from({ length: 3 }).map((_, i) => (
-            <Skeleton key={i} className="h-16 rounded-lg" />
-          ))}
-        </div>
+        <Skeleton className="h-20 rounded-lg" />
         <Skeleton className="h-32 rounded-lg" />
       </div>
     );
@@ -177,20 +162,27 @@ export function MobileHomeOverview({ orgId }: MobileHomeOverviewProps) {
 
   return (
     <div className="flex flex-col gap-7">
-      <div className="grid grid-cols-3 gap-2">
-        <HomeStatTile
-          label={t("home.scannedToday")}
-          value={data.scansToday.toLocaleString()}
-        />
-        <HomeStatTile
-          label={t("home.thisWeek")}
-          value={data.scansThisWeek.toLocaleString()}
-        />
-        <HomeStatTile
-          label={t("home.collections")}
-          value={data.collectionCount.toLocaleString()}
-        />
-      </div>
+      <StatGroup
+        heading={t("home.statsHeading")}
+        gridClassName="grid-cols-3"
+        tiles={[
+          {
+            key: "scanned-today",
+            label: t("home.scannedToday"),
+            value: data.scansToday.toLocaleString(),
+          },
+          {
+            key: "this-week",
+            label: t("home.thisWeek"),
+            value: data.scansThisWeek.toLocaleString(),
+          },
+          {
+            key: "collections",
+            label: t("home.collections"),
+            value: data.collectionCount.toLocaleString(),
+          },
+        ]}
+      />
 
       {data.scansByDay.length > 1 && (
         <MobileSection

@@ -15,26 +15,21 @@ export const getFeederRoute = new Hono<AppEnv>().get(
   async (c) => {
     const orgId = c.get("orgId");
     const deviceGuid = c.req.param("guid") as string;
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const device = await getDeviceByGuid(tx, orgId, deviceGuid);
-        if (!device) return { success: false, message: "Device not found." };
-        const row = await tx.query.feederConfigs.findFirst({
-          where: (t, { eq }) => eq(t.deviceId, device.id),
-        });
-        const calibration: FeederCalibration = row
-          ? rowToCalibration(row)
-          : { ...DEFAULT_FEEDER_CALIBRATION };
-        return {
-          success: true,
-          message: "Loaded feeder config.",
-          data: calibration,
-        };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const device = await getDeviceByGuid(tx, orgId, deviceGuid);
+      if (!device) return { success: false, message: "Device not found." };
+      const row = await tx.query.feederConfigs.findFirst({
+        where: (t, { eq }) => eq(t.deviceId, device.id),
       });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      const calibration: FeederCalibration = row
+        ? rowToCalibration(row)
+        : { ...DEFAULT_FEEDER_CALIBRATION };
+      return {
+        success: true,
+        message: "Loaded feeder config.",
+        data: calibration,
+      };
+    });
+    return c.json(result);
   },
 );

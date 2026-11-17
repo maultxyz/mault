@@ -18,7 +18,6 @@ export function UnmatchedOcrPanel({
       <div className="flex items-center justify-between gap-2">
         <h3 className="text-sm font-medium">{t("unmatchedRetry.ocr.heading")}</h3>
         <Button
-          size="sm"
           variant="outline"
           onClick={onRun}
           disabled={isRunning || !canRun}

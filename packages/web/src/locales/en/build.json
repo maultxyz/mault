@@ -3,11 +3,6 @@
     "title": "Build Your Own Trading Card Sorting Machine | MAULT",
     "description": "Step-by-step guide to building the MAULT card sorter: bill of materials, wiring diagrams, 3D printed parts, firmware and assembly instructions."
   },
-  "anchorLink": {
-    "copy": "Copy link to this section",
-    "copied": "Link copied",
-    "copyFailed": "Couldn't copy the link"
-  },
   "hero": {
     "eyebrow": "Hardware build guide",
     "title": "Build the card sorter",
@@ -21,9 +16,6 @@
       "parts": "Parts",
       "assembly": "Assembly"
     }
-  },
-  "toc": {
-    "label": "Contents"
   },
   "setup": {
     "heading": "Set up your build",
@@ -78,14 +70,6 @@
       "modules_other": "{{count}} modules"
     }
   },
-  "footer": {
-    "openSource": "Open source",
-    "reportIssue": "Report an issue",
-    "signIn": "Sign in",
-    "privacy": "Privacy",
-    "terms": "Terms",
-    "copyright": "© {{year}} Mault LLC"
-  },
   "bom": {
     "heading": "Bill of materials",
     "description": "Quantities scale with the number of modules you're building: {{modules}} modules × 3 servos, 1 feeder, {{irSensors}} IR sensors, {{channelsUsed}} of the PCA9685's 16 channels in use. The remaining channels are free for additional sorting modules (up to 5 modules on a single PCA9685). Check off each part as you gather it. Checkmarks are saved in this browser.",
@@ -115,9 +99,9 @@
           "esp32": {
             "notes": "Runs <code>{{path}}</code>; USB connection to the host computer for Web Serial. Also flashable straight from the app afterward, see /app once it's set up"
           },
-          "esp32Breakout": {
-            "part": "ESP32-S3 breakout board (GPIO screw-terminal expansion)",
-            "notes": "The ESP32-S3 plugs into this for screw-terminal wiring. Only needed with the breakout mounting option."
+          "esp32WithBreakout": {
+            "part": "ESP32-S3-WROOM-1 N16R8 board with GPIO screw-terminal expansion adapter",
+            "notes": "Runs <code>{{path}}</code>; USB connection to the host computer for Web Serial. The board plugs into the adapter for screw-terminal wiring. Sold as a 2-pack, so you get a spare."
           },
           "pca9685": {
             "part": "Adafruit PCA9685 16-channel 12-bit PWM/servo driver",
@@ -125,7 +109,8 @@
           },
           "sg90Positional": {
             "part": "SG90 micro servo, positional (180°)",
-            "notes": "3 per module × {{count}} modules: bottom trapdoor, paddle gate, pusher"
+            "notes": "3 per module × {{count}} modules: bottom trapdoor, paddle gate, pusher",
+            "alert": "Buy digital SG90s. Analog SG90s, and Tower Pro servos in particular, don't hold their calibrated positions reliably in this sorter."
           },
           "mg90sContinuous": {
             "part": "MG90S servo, 360° continuous rotation",
@@ -257,8 +242,12 @@
         "title": "Optional",
         "items": {
           "webcam": {
-            "part": "USB webcam",
+            "part": "Logitech C920 webcam",
             "notes": "This is the one I use. Any webcam works as long as you can manually adjust focus, brightness, etc. (auto-adjusting can throw off scans)"
+          },
+          "ankerC200": {
+            "part": "Anker PowerConf C200 webcam",
+            "notes": "Recommended alternative to the C920. Also lets you manually adjust focus, brightness, etc."
           },
           "cameraMountScrew": {
             "part": "1/4\"-20 camera mount screw",
@@ -559,9 +548,13 @@
           "calibrateFeeder": {
             "text": "Feeder Calibration Panel, tune feed speed, pulse/pause timing, and settle duration against your actual hopper."
           },
+          "adjustIr": {
+            "text": "Set the detection distance of all {{count}} IR sensors so each one sees a card 1 inch (2.5 cm) in front of it. With the board powered, use a small screwdriver on the screw of the blue box (the potentiometer) on each sensor: first turn it until the sensor's indicator LED goes off with nothing in front of it, then hold a card 1 inch in front of the sensor and turn the screw slowly back the other way until the LED just comes on.",
+            "note": "Check it by pulling the card back to about 2 inches (5 cm): the LED should go off again. If it stays on, back the screw off a little. A sensor set too far reaches past the card path and reports cards that aren't there."
+          },
           "checkIr": {
             "text": "IR Sensor Panel, verify all {{count}} sensors report present/absent correctly with a card in hand.",
-            "note": "If a sensor doesn't trigger, or triggers with nothing in front of it, calibrate its detection distance manually: on the back of the sensor is a small blue box with a gray potentiometer dial. Turn it all the way one way so it detects nothing, then turn it slowly back until it just detects a card an inch or two in front of it."
+            "note": "If a sensor doesn't trigger, or triggers with nothing in front of it, repeat the previous step for that sensor."
           },
           "testBins": {
             "text": "Bin Routing Controls, send a test card to each of the {{count}} bins in turn and confirm it lands correctly."
@@ -621,5 +614,29 @@
       "optionalPlate": "Back and Front Plates (optional)"
     },
     "xray": "X-ray"
+  },
+  "imageAlt": {
+    "printPart": "3D model render of the {{part}}",
+    "breakoutBaseSupport": "Breakout Base Support",
+    "photos": {
+      "baseModule": "A single purple 3D-printed sorting module frame: an open box with four pegs on top and tabs on its sides for joining modules.",
+      "baseModuleAssembled": "A short yellow module frame next to a tall yellow module stacked on a purple base support, showing how the printed frames fit together.",
+      "finishedSorter": "The finished sorter: a black tower of stacked sorting modules with the card hopper on top, surrounded by white bins holding sorted cards.",
+      "bottomPaddleDisassembled": "Bottom paddle parts laid out on a cutting mat: a long pink paddle plate, a servo horn adapter, a short link arm and two screws.",
+      "bottomPaddleAssembled": "The bottom paddle assembled: the link arm is screwed between the paddle's hinge bracket and the servo horn adapter.",
+      "bottomPaddleAttached": "The bottom paddle mounted on a pink module plate, its link arm connected to a blue SG90 micro servo, with the servo cables running off to the side.",
+      "sidePaddlesDisassembled": "Side paddle parts laid out: two long pink paddle plates, two link arms, a double-ended servo horn adapter and four screws.",
+      "sidePaddlesAssembled": "Both side paddles joined by their link arms to the central servo horn adapter, forming one linkage.",
+      "sidePaddlesAttached": "The side paddle linkage mounted on the module plate and driven by a blue micro servo, with its cables looped at the top.",
+      "pusherDisassembled": "Pusher parts laid out: two L-shaped pusher arms, two straight link arms, a triangular servo horn adapter and five screws.",
+      "pusherAssembled": "The pusher assembled: both L-shaped arms are linked through the straight arms to the triangular servo horn adapter.",
+      "pusherAttached": "A module plate with all three mechanisms fitted: the pusher arms, the side paddle linkage and the bottom paddle, each connected to a blue micro servo.",
+      "rollerORings": "The black 3D-printed feeder roller with six rubber O-rings seated in its grooves, three near each end.",
+      "feederServoMounted": "The white feeder module frame with a blue servo mounted on top, driving the O-ring roller inside the frame.",
+      "newHopper": "The black card hopper: an open rectangular frame with a spring-loaded screw at the top and the O-ring roller along its bottom edge.",
+      "feederRiser": "The black feeder riser seen from above, with the O-ring roller across the middle, an IR sensor beside it and the servo at one side.",
+      "sorterIrSensorMounted": "An IR sensor board clipped upright into its holder on the pink module plate, next to the servos and linkages.",
+      "feederIrSensorMounted": "Inside the black feeder housing, a blue IR sensor board sits just below the O-ring roller, facing up toward the cards."
+    }
   }
 }

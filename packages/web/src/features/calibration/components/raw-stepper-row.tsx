@@ -20,7 +20,7 @@ export function RawStepperRow({
         variant="outline"
         disabled={disabled || value <= min}
         onClick={() => onChange(clamp(value - bigStep))}
-        className="px-2 text-xs"
+        className="px-2"
       >
         -{bigStep}
       </Button>
@@ -28,18 +28,18 @@ export function RawStepperRow({
         variant="outline"
         disabled={disabled || value <= min}
         onClick={() => onChange(clamp(value - smallStep))}
-        className="px-2 text-xs"
+        className="px-2"
       >
         -{smallStep}
       </Button>
-      <div className="flex flex-1 items-center justify-center border-y bg-background px-2 text-sm font-semibold tabular-nums">
+      <div className="flex flex-1 items-center justify-center border-y bg-background px-2 text-control font-semibold tabular-nums">
         {valueLabel}
       </div>
       <Button
         variant="outline"
         disabled={disabled || (max != null && value >= max)}
         onClick={() => onChange(clamp(value + smallStep))}
-        className="px-2 text-xs"
+        className="px-2"
       >
         +{smallStep}
       </Button>
@@ -47,7 +47,7 @@ export function RawStepperRow({
         variant="outline"
         disabled={disabled || (max != null && value >= max)}
         onClick={() => onChange(clamp(value + bigStep))}
-        className="px-2 text-xs"
+        className="px-2"
       >
         +{bigStep}
       </Button>

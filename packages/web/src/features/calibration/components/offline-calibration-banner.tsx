@@ -22,7 +22,7 @@ export function OfflineCalibrationBanner({
           icon={IconAlertTriangle}
           title={t("offlineCalibration.activeTitle")}
           action={
-            <Button variant="outline" size="sm" onClick={onStop}>
+            <Button variant="outline" onClick={onStop}>
               {t("offlineCalibration.stop")}
             </Button>
           }
@@ -37,7 +37,6 @@ export function OfflineCalibrationBanner({
           action={
             <Button
               variant="outline"
-              size="sm"
               onClick={() => setWarningOpen(true)}
             >
               {t("offlineCalibration.start")}

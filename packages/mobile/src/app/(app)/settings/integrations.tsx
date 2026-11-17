@@ -16,13 +16,13 @@ import { Surface } from "@/components/ui/surface";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
 import { apiKeysQueryOptions, createApiKey, revokeApiKey } from "@/features/integrations/api/api-keys";
-import { apiKeySchema } from "@/features/integrations/lib/api-key-schema";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";
-import type { ApiKeyValues } from "@/lib/interfaces/forms";
+import { orgApiKeyFormSchema, type OrgApiKeyFormValues } from "@magic-vault/shared";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function ApiKeysSettingsScreen() {
   const { t, i18n } = useTranslation();
@@ -36,10 +36,10 @@ export default function ApiKeysSettingsScreen() {
   const canManage = keys.data?.canManage ?? false;
   const [creating, setCreating] = useState(false);
   const [rawKey, setRawKey] = useState<string | null>(null);
-  const form = useForm<ApiKeyValues>({ resolver: zodResolver(apiKeySchema), defaultValues: { name: "", allowWrite: false } });
+  const form = useForm<OrgApiKeyFormValues>({ resolver: zodResolver(orgApiKeyFormSchema), defaultValues: { name: "", allowWrite: false } });
 
   const create = useMutation({
-    mutationFn: (values: ApiKeyValues) =>
+    mutationFn: (values: OrgApiKeyFormValues) =>
       createApiKey({ name: values.name.trim(), scope: values.allowWrite ? "read_write" : "read" }),
     onSuccess: (created) => {
       setRawKey(created.rawKey);
@@ -70,7 +70,7 @@ export default function ApiKeysSettingsScreen() {
 
       {rawKey ? (
         <Surface style={{ gap: SPACING.md }}>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("settings.apiKeys.revealTitle")}
           </AppText>
           <AppText size="xs" tone="secondary">
@@ -91,7 +91,7 @@ export default function ApiKeysSettingsScreen() {
       {creating ? (
         <Surface style={{ gap: SPACING.md }}>
           <View>
-            <AppText heading weight="semibold">
+            <AppText heading weight="semibold" accessibilityRole="header">
               {t("settings.apiKeys.createTitle")}
             </AppText>
             <AppText size="xs" tone="secondary">
@@ -108,7 +108,7 @@ export default function ApiKeysSettingsScreen() {
                 value={field.value}
                 onBlur={field.onBlur}
                 onChangeText={field.onChange}
-                error={fieldState.error ? t("collections.validation.name") : undefined}
+                error={translateFormErrorMessage(t, fieldState.error?.message)}
               />
             )}
           />
@@ -154,12 +154,14 @@ export default function ApiKeysSettingsScreen() {
                   ? t("settings.apiKeys.lastUsed", { date: formatShortDate(key.lastUsedAt, i18n.language) })
                   : t("settings.apiKeys.neverUsed"),
               ].join(" · ")}
+              rightIsInteractive
               right={
                 canManage ? (
                   <Button
                     size="sm"
                     variant="destructive"
                     label={t("settings.apiKeys.revoke")}
+                    accessibilityLabel={`${t("settings.apiKeys.revoke")}, ${key.name}`}
                     loading={revoke.isPending && revoke.variables === key.guid}
                     onPress={() =>
                       Alert.alert(t("settings.apiKeys.revokeConfirmTitle"), t("settings.apiKeys.revokeConfirmDescription"), [

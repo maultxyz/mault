@@ -4,18 +4,23 @@ import {
   SettingsSections,
 } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { CorrectionAutoCloseSetting } from "@/features/scanner/components/correction-auto-close-setting";
-import { OcrToggle } from "@/features/scanner/components/ocr-toggle";
+import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
+import { IconQrcode } from "@tabler/icons-react";
 import { Controller, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 export default function SettingsScanningPage() {
   const { t } = useTranslation("settings");
   const draft = useOrgSettingsDraft();
   const disabled = draft.isLoading || draft.isSaving;
+  const isMobile = useIsMobile();
   const correctionBinPrompt = useWatch({
     control: draft.control,
     name: "correctionBinPrompt",
@@ -34,6 +39,7 @@ export default function SettingsScanningPage() {
             name="sessionWrappedEnabled"
             render={({ field }) => (
               <Switch
+                aria-label={t("sessionWrapped.toggleLabel")}
                 checked={field.value}
                 disabled={disabled}
                 onCheckedChange={field.onChange}
@@ -44,7 +50,6 @@ export default function SettingsScanningPage() {
       </SettingsSection>
       <SettingsSection
         heading={t("ocr.heading")}
-        badge={<Badge variant="outline">{t("ocr.badge")}</Badge>}
         description={t("ocr.description")}
       >
         <label className="flex items-center justify-between gap-3">
@@ -53,7 +58,8 @@ export default function SettingsScanningPage() {
             control={draft.control}
             name="ocrEnabled"
             render={({ field }) => (
-              <OcrToggle
+              <Switch
+                aria-label={t("ocr.toggleLabel")}
                 checked={field.value}
                 disabled={disabled}
                 onCheckedChange={field.onChange}
@@ -62,6 +68,29 @@ export default function SettingsScanningPage() {
           />
         </label>
       </SettingsSection>
+      {!isMobile && (
+        <SettingsSection
+          heading={t("foilDetection.heading")}
+          badge={<Badge variant="outline">{t("foilDetection.badge")}</Badge>}
+          description={t("foilDetection.description")}
+        >
+          <label className="flex items-center justify-between gap-3">
+            <span className="text-sm">{t("foilDetection.toggleLabel")}</span>
+            <Controller
+              control={draft.control}
+              name="foilDetectionEnabled"
+              render={({ field }) => (
+                <Switch
+                  aria-label={t("foilDetection.toggleLabel")}
+                  checked={field.value}
+                  disabled={disabled}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+          </label>
+        </SettingsSection>
+      )}
       <SettingsSection
         heading={t("correctionAutoClose.heading")}
         description={t("correctionAutoClose.description")}
@@ -81,6 +110,7 @@ export default function SettingsScanningPage() {
               name="correctionBinPrompt"
               render={({ field }) => (
                 <Switch
+                  aria-label={t("correctionAutoClose.promptToggleLabel")}
                   checked={field.value}
                   disabled={disabled}
                   onCheckedChange={field.onChange}
@@ -104,6 +134,20 @@ export default function SettingsScanningPage() {
         </div>
       </SettingsSection>
       <SettingsSection
+        heading={t("controlCards.heading")}
+        description={t("controlCards.description")}
+      >
+        <Button
+          variant="outline"
+          className="self-start"
+          nativeButton={false}
+          render={<Link to={CONTROL_CARDS_PATH} />}
+        >
+          <IconQrcode />
+          {t("controlCards.action")}
+        </Button>
+      </SettingsSection>
+      <SettingsSection
         heading={t("deployPause.heading")}
         description={t("deployPause.description")}
       >
@@ -114,6 +158,7 @@ export default function SettingsScanningPage() {
             name="pauseScanningOnDeploy"
             render={({ field }) => (
               <Switch
+                aria-label={t("deployPause.toggleLabel")}
                 checked={field.value}
                 disabled={disabled}
                 onCheckedChange={field.onChange}

@@ -8,10 +8,14 @@ import type {
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import {
   type CardCondition,
+  type CardsReviewedEvent,
+  type CardTagsChangedEvent,
+  withCardTags,
   type Collection,
   type ScannedCard,
   type UnmatchedCard,
   RECENT_SCANNED_CARDS_COUNT,
+  UNMATCHED_PREVIEW_COUNT,
 } from "@magic-vault/shared";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -34,6 +38,7 @@ export function useSessionEvents(
   const [cardsVersion, setCardsVersion] = useState(0);
   const initializedRef = useRef(false);
   const [unmatchedCards, setUnmatchedCards] = useState<UnmatchedCard[]>([]);
+  const [unmatchedCount, setUnmatchedCount] = useState(0);
   const [viewers, setViewers] = useState<SessionViewer[]>([]);
   const [errors, setErrors] = useState<SessionError[]>([]);
   const [status, setStatus] = useState<ConnectionStatus>("connecting");
@@ -50,6 +55,7 @@ export function useSessionEvents(
     initializedRef.current = false;
     setRecentCards([]);
     setUnmatchedCards([]);
+    setUnmatchedCount(0);
     setCollection(null);
     setViewers([]);
     setErrors([]);
@@ -73,11 +79,13 @@ export function useSessionEvents(
         collection,
         recentCards: initRecent,
         unmatchedCards: initUnmatched,
+        unmatchedCount: initUnmatchedCount,
         viewers: initViewers,
       } = JSON.parse(data) as {
         collection: Collection;
         recentCards?: ScannedCard[];
         unmatchedCards?: UnmatchedCard[];
+        unmatchedCount?: number;
         viewers?: SessionViewer[];
       };
       setCollection(collection);
@@ -85,6 +93,7 @@ export function useSessionEvents(
       if (initializedRef.current) cardsChanged();
       initializedRef.current = true;
       setUnmatchedCards(initUnmatched ?? []);
+      setUnmatchedCount(initUnmatchedCount ?? initUnmatched?.length ?? 0);
       if (initViewers) setViewers(initViewers);
       setStatus("connected");
     };
@@ -143,6 +152,19 @@ export function useSessionEvents(
       cardsChanged();
     });
 
+    on(scoped("cards_tags_changed"), (e) => {
+      const { scanIds, tags, enabled } = JSON.parse(
+        (e as MessageEvent).data,
+      ) as CardTagsChangedEvent;
+      const ids = new Set(scanIds);
+      setRecentCards((prev) =>
+        prev.map((c) =>
+          ids.has(c.scanId) ? withCardTags(c, tags, enabled) : c,
+        ),
+      );
+      cardsChanged();
+    });
+
     on(scoped("cards_condition_changed"), (e) => {
       const { scanIds, condition } = JSON.parse(
         (e as MessageEvent).data,
@@ -154,6 +176,42 @@ export function useSessionEvents(
       cardsChanged();
     });
 
+    on(scoped("cards_reviewed"), (e) => {
+      const { confirmedScanIds, reviewedScanIds } = JSON.parse(
+        (e as MessageEvent).data,
+      ) as CardsReviewedEvent;
+      const confirmedIds = new Set(confirmedScanIds);
+      const acceptedIds = new Set([...confirmedScanIds, ...reviewedScanIds]);
+      setRecentCards((prev) =>
+        prev.map((c) =>
+          acceptedIds.has(c.scanId)
+            ? {
+                ...c,
+                reviewed: true,
+                lowConfidenceMatch: false,
+                corrected: confirmedIds.has(c.scanId) || c.corrected,
+              }
+            : c,
+        ),
+      );
+      cardsChanged();
+    });
+
+    on(scoped("cards_foil_changed"), (e) => {
+      const { scanIds, isFoil, foilType } = JSON.parse(
+        (e as MessageEvent).data,
+      ) as { scanIds: string[]; isFoil: boolean; foilType: string | null };
+      const ids = new Set(scanIds);
+      setRecentCards((prev) =>
+        prev.map((c) =>
+          ids.has(c.scanId)
+            ? { ...c, isFoil, foilType: foilType ?? undefined }
+            : c,
+        ),
+      );
+      cardsChanged();
+    });
+
     on(scoped("cards_cleared"), () => {
       setRecentCards([]);
       cardsChanged();
@@ -161,7 +219,10 @@ export function useSessionEvents(
 
     on(scoped("unmatched_added"), (e) => {
       const card = JSON.parse((e as MessageEvent).data) as UnmatchedCard;
-      setUnmatchedCards((prev) => [card, ...prev]);
+      setUnmatchedCards((prev) =>
+        [card, ...prev].slice(0, UNMATCHED_PREVIEW_COUNT),
+      );
+      setUnmatchedCount((count) => count + 1);
     });
 
     on(scoped("unmatched_removed"), (e) => {
@@ -169,10 +230,12 @@ export function useSessionEvents(
         scanId: string;
       };
       setUnmatchedCards((prev) => prev.filter((c) => c.scanId !== scanId));
+      setUnmatchedCount((count) => Math.max(0, count - 1));
     });
 
     on(scoped("unmatched_cleared"), () => {
       setUnmatchedCards([]);
+      setUnmatchedCount(0);
     });
 
     on(scoped("scan_error"), (e) => {
@@ -182,9 +245,6 @@ export function useSessionEvents(
       pushError(message);
     });
 
-    // Connection-level, not guid-scoped - the EventSource is shared, so use
-    // addEventListener rather than onerror/onopen (which would clobber every
-    // other consumer's handler on this same connection).
     on("error", () => {
       setStatus("error");
       pushError(t("sessionMonitor.connectionLost"));
@@ -193,8 +253,6 @@ export function useSessionEvents(
     on("open", () => {
       setStatus("connected");
     });
-    // readyState is already OPEN when a second consumer attaches to the
-    // already-connected shared EventSource - "open" won't fire again for it.
     if (es.readyState === EventSource.OPEN) setStatus("connected");
     const missedInit = latestSessionInit(es, guid);
     if (missedInit) applySessionInit(missedInit);
@@ -211,6 +269,7 @@ export function useSessionEvents(
     recentCards,
     cardsVersion,
     unmatchedCards,
+    unmatchedCount,
     viewers,
     errors,
     status,

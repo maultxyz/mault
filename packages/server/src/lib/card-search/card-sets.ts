@@ -1,4 +1,4 @@
-import type { CardSetOption } from "@magic-vault/shared";
+import type { CardSetOption, SetPrintingOption } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
 import { db } from "../../db";
 import { CARD_SETS_CACHE_TTL_MS } from "../constants/card-search";
@@ -11,16 +11,24 @@ async function loadCardSets({
   adapter,
   gameKey,
   lang,
+  searchAllLanguages,
+  onlyLanguage,
 }: ResolvedCardSearch): Promise<CardSetOption[]> {
+  const languageMatch = onlyLanguage
+    ? sql`AND lang = ${onlyLanguage}`
+    : searchAllLanguages
+      ? sql``
+      : sql`AND lang = ${lang}`;
   const result = await db.execute(sql`
     SELECT DISTINCT ON (set_code)
       set_code,
       card_id,
+      lang,
       data,
       count(*) OVER (PARTITION BY set_code) AS card_count
     FROM cards
-    WHERE game_key = ${gameKey} AND lang = ${lang} AND data IS NOT NULL
-    ORDER BY set_code, card_id
+    WHERE game_key = ${gameKey} ${languageMatch} AND data IS NOT NULL
+    ORDER BY set_code, (lang = ${lang}) DESC, card_id
   `);
   return result.rows
     .map((row) => {
@@ -28,7 +36,7 @@ async function loadCardSets({
       const card = adapter.normalizeStored(
         row.data,
         row.card_id as string,
-        lang,
+        row.lang as string,
       );
       return {
         code,
@@ -39,10 +47,37 @@ async function loadCardSets({
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
+export async function listSetPrintings(
+  { gameKey, lang }: ResolvedCardSearch,
+  setCode: string,
+): Promise<SetPrintingOption[]> {
+  const result = await db.execute(sql`
+    SELECT card_id, name, collector_number
+    FROM cards
+    WHERE game_key = ${gameKey}
+      AND lang = ${lang}
+      AND lower(set_code) = ${setCode.toLowerCase()}
+    ORDER BY name, collector_number
+  `);
+  return result.rows.flatMap((row) => {
+    if (typeof row.card_id !== "string" || typeof row.name !== "string") return [];
+    return [
+      {
+        id: row.card_id,
+        name: row.name,
+        collectorNumber:
+          typeof row.collector_number === "string" ? row.collector_number : "",
+      },
+    ];
+  });
+}
+
 export async function listCardSets(
   resolved: ResolvedCardSearch,
 ): Promise<CardSetOption[]> {
-  const key = `${resolved.gameKey}:${resolved.lang}`;
+  const languageKey =
+    resolved.onlyLanguage ?? (resolved.searchAllLanguages ? "*" : resolved.lang);
+  const key = `${resolved.gameKey}:${languageKey}`;
   const cached = cache.get(key);
   if (cached && cached.expiresAt > Date.now()) return cached.sets;
 

@@ -1,3 +1,4 @@
+import { PlanNotice } from "@/components/plan-notice";
 import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
@@ -21,13 +22,11 @@ import { Switch } from "@/components/ui/switch";
 import { useOrgApiKeys } from "@/features/integrations/api/use-org-api-keys";
 import { WebhooksSection } from "@/features/integrations/components/webhooks-section";
 import { API_REFERENCE_URL, PUBLIC_API_DOCS_URL } from "@/lib/constants/links";
-import { SETTINGS_PATHS } from "@/lib/constants/settings";
-import { toast } from "@/lib/toast";
 import {
-  orgApiKeySchema,
+  type OrgApiKey,
+  orgApiKeyFormSchema,
   type OrgApiKeyFormValues,
-} from "@/schemas/org-api-key.schema";
-import type { OrgApiKey } from "@magic-vault/shared";
+} from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconApi,
@@ -41,15 +40,8 @@ import {
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
-
-function formatDate(value: string): string {
-  return new Date(value).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import { copyWithToast } from "@/lib/clipboard";
+import { formatShortDate } from "@/lib/format";
 
 export function ApiKeysIntegration() {
   const { t } = useTranslation("integrations");
@@ -60,7 +52,7 @@ export function ApiKeysIntegration() {
   const [newRawKey, setNewRawKey] = useState<string | null>(null);
 
   const form = useForm<OrgApiKeyFormValues>({
-    resolver: zodResolver(orgApiKeySchema),
+    resolver: zodResolver(orgApiKeyFormSchema),
     defaultValues: { name: "", allowWrite: false },
   });
 
@@ -79,10 +71,7 @@ export function ApiKeysIntegration() {
 
   function copyNewKey() {
     if (!newRawKey) return;
-    navigator.clipboard
-      .writeText(newRawKey)
-      .then(() => toast.success(t("apiKeys.copied")))
-      .catch(() => toast.error(t("apiKeys.copyFailed")));
+    void copyWithToast(newRawKey, t("apiKeys.copied"), t("apiKeys.copyFailed"));
   }
 
   return (
@@ -102,7 +91,6 @@ export function ApiKeysIntegration() {
         {API_REFERENCE_URL && (
           <Button
             variant="outline"
-            size="sm"
             nativeButton={false}
             render={
               <a
@@ -118,7 +106,6 @@ export function ApiKeysIntegration() {
         )}
         <Button
           variant="outline"
-          size="sm"
           nativeButton={false}
           render={
             <a
@@ -143,7 +130,6 @@ export function ApiKeysIntegration() {
               <Button
                 type="button"
                 variant="outline"
-                size="sm"
                 onClick={() => setShowCreate(true)}
               >
                 <IconPlus />
@@ -153,15 +139,10 @@ export function ApiKeysIntegration() {
           }
         >
           {isLocked && (
-            <Callout variant="info">
-              {t("apiKeys.upgrade")}{" "}
-              <Link
-                to={SETTINGS_PATHS.billing}
-                className="font-medium text-foreground underline-offset-4 hover:underline"
-              >
-                {t("apiKeys.upgradeLink")}
-              </Link>
-            </Callout>
+            <PlanNotice
+              message={t("apiKeys.upgrade")}
+              linkLabel={t("apiKeys.upgradeLink")}
+            />
           )}
           {!canManage && !isLoading && !isError && (
             <Callout variant="neutral">{t("apiKeys.managersOnly")}</Callout>
@@ -202,12 +183,12 @@ export function ApiKeysIntegration() {
                       {" · "}
                       {t("apiKeys.createdBy", {
                         name: key.createdBy,
-                        date: formatDate(key.createdAt),
+                        date: formatShortDate(key.createdAt),
                       })}
                       {" · "}
                       {key.lastUsedAt
                         ? t("apiKeys.lastUsed", {
-                            date: formatDate(key.lastUsedAt),
+                            date: formatShortDate(key.lastUsedAt),
                           })
                         : t("apiKeys.neverUsed")}
                     </p>
@@ -216,7 +197,6 @@ export function ApiKeysIntegration() {
                     <Button
                       type="button"
                       variant="ghost"
-                      size="sm"
                       disabled={
                         revoke.isPending && revoke.variables === key.guid
                       }
@@ -305,7 +285,7 @@ export function ApiKeysIntegration() {
         title={t("apiKeys.revealTitle")}
         description={t("apiKeys.revealDescription")}
         footer={
-          <div className="flex w-full flex-col gap-2">
+          <div className="flex w-full flex-col gap-1.5">
             {API_REFERENCE_URL && (
               <Button
                 variant="outline"

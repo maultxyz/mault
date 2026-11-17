@@ -32,7 +32,7 @@ export const testNotificationRoute = new Hono<AppEnv>().post(
           success: false,
           reason: outcome,
           message:
-            "No error channel is set. Run /notification in your Discord server to choose one.",
+            "No error channel is set. Choose one in Settings > Discord.",
         },
         409,
       );

@@ -11,6 +11,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SelectField } from "@/components/ui/select-field";
 import { Surface } from "@/components/ui/surface";
+import { useDetectModuleCount } from "@/features/calibration/api/use-detect-module-count";
 import { useLayoutDraft } from "@/features/calibration/api/use-layout-draft";
 import { BinSlot } from "@/features/calibration/components/bin-slot";
 import { useSorter } from "@/features/sorter/api/use-sorter";
@@ -24,6 +25,7 @@ export default function CalibrationLayoutScreen() {
   const navigation = useNavigation();
   const sorter = useSorter();
   const draft = useLayoutDraft();
+  const detection = useDetectModuleCount(draft.moduleOptions, draft.setModuleCount);
   const [countOpen, setCountOpen] = useState(false);
   const [bottomPicker, setBottomPicker] = useState<number | null>(null);
   const binCount = computeBinCount(draft.moduleCount);
@@ -61,27 +63,52 @@ export default function CalibrationLayoutScreen() {
       <PageHeader title={t("calibration.sections.layout.title")} subtitle={sorter.device?.name} onBack={() => router.back()} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg }}
       >
         {draft.saveError ? <Callout tone="destructive" title={t("calibration.layoutSaveFailed")} /> : null}
 
         <Surface style={{ gap: SPACING.sm }}>
-          <AppText heading weight="semibold">
+          <AppText heading weight="semibold" accessibilityRole="header">
             {t("calibration.moduleCount.label")}
           </AppText>
-          <SelectField
-            value={t("calibration.moduleCount.value", { count: draft.moduleCount })}
-            placeholder={t("calibration.moduleCount.label")}
-            onPress={() => setCountOpen(true)}
-          />
+          <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
+            <View style={{ flex: 1 }}>
+              <SelectField
+                value={t("calibration.moduleCount.value", { count: draft.moduleCount })}
+                placeholder={t("calibration.moduleCount.label")}
+                onPress={() => setCountOpen(true)}
+              />
+            </View>
+            {detection.isSupported ? (
+              <Button
+                variant="secondary"
+                label={t("calibration.moduleCount.detect.button")}
+                loading={detection.isDetecting}
+                disabled={!detection.canDetect || draft.isSaving}
+                onPress={() => void detection.detect()}
+              />
+            ) : null}
+          </View>
           <AppText size="xs" tone="secondary">
             {t("calibration.moduleCount.description")}
           </AppText>
+          {detection.outcome?.kind === "found" ? (
+            <Callout
+              tone="success"
+              title={t("calibration.moduleCount.detect.found", { count: detection.outcome.count })}
+            />
+          ) : null}
+          {detection.outcome?.kind === "noneFound" ? (
+            <Callout tone="warning" title={t("calibration.moduleCount.detect.noneFound")} />
+          ) : null}
+          {detection.outcome?.kind === "failed" ? (
+            <Callout tone="destructive" title={t("calibration.moduleCount.detect.failed")} />
+          ) : null}
         </Surface>
 
         <View style={{ gap: SPACING.sm }}>
           <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-            <AppText heading weight="semibold">
+            <AppText heading weight="semibold" accessibilityRole="header">
               {t("calibration.bins.label")}
             </AppText>
             <Button

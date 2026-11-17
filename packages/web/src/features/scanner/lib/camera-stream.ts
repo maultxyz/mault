@@ -1,24 +1,51 @@
+import { assertHardwareAllowedWhileImpersonating } from "@/lib/auth/impersonation";
 import {
+  CAMERA_BUSY_ERROR_NAMES,
+  CAMERA_BUSY_RETRY_DELAYS_MS,
   CAMERA_IDEAL_HEIGHT,
   CAMERA_IDEAL_WIDTH,
+  SCANNER_CAMERA_FRAME_RATE,
 } from "@/lib/constants/scanner";
 import type { CameraTrackCapabilities } from "@/lib/interfaces/scanner";
 import type { StationState } from "@/lib/interfaces/stations";
+
+export function stopMediaStream(stream: MediaStream | null | undefined) {
+  if (!stream) return;
+  for (const track of stream.getTracks()) track.stop();
+}
+
+export async function getUserMediaWhenCameraIsReleased(
+  constraints: MediaStreamConstraints,
+): Promise<MediaStream> {
+  for (const delayMs of CAMERA_BUSY_RETRY_DELAYS_MS) {
+    try {
+      return await navigator.mediaDevices.getUserMedia(constraints);
+    } catch (err) {
+      if (!(err instanceof DOMException) || !CAMERA_BUSY_ERROR_NAMES.has(err.name)) {
+        throw err;
+      }
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  return navigator.mediaDevices.getUserMedia(constraints);
+}
 
 export async function acquireStream(
   deviceId?: string,
   preferRear = false,
 ): Promise<MediaStream> {
+  assertHardwareAllowedWhileImpersonating();
   const source: MediaTrackConstraints = deviceId
     ? { deviceId: { exact: deviceId } }
     : preferRear
       ? { facingMode: { ideal: "environment" } }
       : {};
-  const stream = await navigator.mediaDevices.getUserMedia({
+  const stream = await getUserMediaWhenCameraIsReleased({
     video: {
       ...source,
       width: { ideal: CAMERA_IDEAL_WIDTH },
       height: { ideal: CAMERA_IDEAL_HEIGHT },
+      frameRate: { ideal: SCANNER_CAMERA_FRAME_RATE },
       zoom: true,
     } as MediaTrackConstraints,
   });

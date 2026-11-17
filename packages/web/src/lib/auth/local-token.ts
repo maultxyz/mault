@@ -1,7 +1,12 @@
 import { LOCAL_AUTH_TOKEN_STORAGE_KEY } from "@/lib/constants/storage-keys";
 
 export function getLocalToken(): string | null {
-  return localStorage.getItem(LOCAL_AUTH_TOKEN_STORAGE_KEY);
+  if (typeof window === "undefined") return null;
+  try {
+    return localStorage.getItem(LOCAL_AUTH_TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
 }
 
 export function setLocalToken(token: string | null): void {

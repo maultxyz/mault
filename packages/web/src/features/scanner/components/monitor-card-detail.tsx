@@ -1,10 +1,14 @@
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
+import {
+  loadCollectionPositionStep,
+  usePrefetchDetailCards,
+} from "@/features/cards/api/use-prefetch-detail-cards";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import type { MonitorCardDetailProps } from "@/lib/interfaces/scanner";
-import { useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useCallback, useEffect } from "react";
 
 export function MonitorCardDetail({
   collectionGuid,
@@ -14,11 +18,29 @@ export function MonitorCardDetail({
   onClose,
 }: MonitorCardDetailProps) {
   const { removeCard } = useScannedCards();
+  const queryClient = useQueryClient();
   const { data: position, isPending } = useQuery(
     collectionCardPositionQueryOptions(collectionGuid, scanId, cardsQuery),
   );
   const entry = position?.entry.scanId === scanId ? position.entry : null;
   const isMissing = !isPending && !entry;
+  const loadPrefetchStep = useCallback(
+    (nextScanId: string) =>
+      loadCollectionPositionStep(
+        queryClient,
+        collectionGuid,
+        nextScanId,
+        cardsQuery,
+        false,
+      ),
+    [queryClient, collectionGuid, cardsQuery],
+  );
+  usePrefetchDetailCards(
+    entry ? position?.nextScanId : null,
+    true,
+    loadPrefetchStep,
+    false,
+  );
 
   useEffect(() => {
     if (isMissing) onClose();
@@ -36,10 +58,12 @@ export function MonitorCardDetail({
       lowConfidenceMatch={entry.lowConfidenceMatch}
       wasCorrected={entry.corrected}
       isReviewed={entry.reviewed}
+      isDownloaded={entry.isDownloaded}
       storageLocation={entry.storageLocation}
       isFoil={entry.isFoil}
       foilType={entry.foilType}
       condition={entry.condition}
+      language={entry.language}
       binNumber={entry.binNumber}
       onClose={onClose}
       onRemove={() => {

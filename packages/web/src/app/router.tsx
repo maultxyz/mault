@@ -6,47 +6,51 @@ import {
 } from "@/lib/constants/nav";
 import AuthGuard from "@/app/routes/auth-guard";
 import ErrorPage from "@/app/routes/error";
+import { MarketingRoute } from "@/app/marketing-route";
+import { MARKETING_PAGE_PATHS } from "@/lib/constants/marketing-pages";
 import NotFoundPage from "@/app/routes/not-found";
 import { RequireCollectionDialog } from "@/components/require-collection-dialog";
 import { RouteLoadingFallback } from "@/components/route-loading-fallback";
+import { CALIBRATE_PATH } from "@/lib/constants/calibration";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePiHost, usePiHostState } from "@/hooks/use-pi-host";
 import { useRole } from "@/hooks/use-role";
+import { useImpersonation } from "@/hooks/use-impersonation";
+import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked-while-impersonating";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
-import { STORAGE_PATH } from "@/lib/constants/storage";
+import { STORAGE_PATH, STORAGE_PICK_LIST_PATH } from "@/lib/constants/storage";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { lazy, Suspense, useEffect } from "react";
-import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
-import { SORTING_RULES_PATH } from "@/lib/constants/bins";
+import {
+  type RouteObject,
+  Navigate,
+  Outlet,
+  useLocation,
+  useParams,
+} from "react-router-dom";
+import { PRESET_WORKFLOW_PATH, SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
+import {
+  INTAKE_PATH,
+  intakeReceiptPath,
+  LEGACY_INTAKE_PATH,
+  LEGACY_PICKS_VIEW,
+  LEGACY_PICKS_VIEW_PARAM,
+  ORDER_PARAM,
+  ORDERS_PATH,
+  PICKS_PATH,
+  picksPath,
+  LEGACY_REPORTS_PATH,
+} from "@/lib/constants/business";
 
-const LandingPage = lazy(
-  withNamespaces(
-    () => import("@/app/routes/index"),
-    ["common", "landing", "scanner", "cards", "bins", "collections"],
-  ),
-);
-const BuildGuidePage = lazy(
-  withNamespaces(() => import("@/app/routes/build"), ["common", "build"]),
-);
-const DiscordBotPage = lazy(
-  withNamespaces(
-    () => import("@/app/routes/discord-bot"),
-    ["common", "discordBot"],
-  ),
-);
 const WatchPage = lazy(
   withNamespaces(
     () => import("@/app/routes/watch"),
     ["common", "scanner", "cards", "collections"],
   ),
-);
-const PrivacyPolicyPage = lazy(
-  withNamespaces(() => import("@/app/routes/privacy"), ["common", "legal"]),
-);
-const TermsOfServicePage = lazy(
-  withNamespaces(() => import("@/app/routes/terms"), ["common", "legal"]),
 );
 const AuthPage = lazy(
   withNamespaces(() => import("@/app/routes/neon/auth"), ["common", "auth"]),
@@ -89,6 +93,9 @@ const CollectionViewPage = lazy(
   () => import("@/app/routes/app/collection-view"),
 );
 const BinsPage = lazy(() => import("@/app/routes/app/bins"));
+const PresetWorkflowPage = lazy(
+  () => import("@/app/routes/app/preset-workflow"),
+);
 const CalibrateLayout = lazy(() => import("@/app/routes/app/calibrate/layout"));
 const CalibrateConnectionPage = lazy(
   () => import("@/app/routes/app/calibrate/connection"),
@@ -96,9 +103,7 @@ const CalibrateConnectionPage = lazy(
 const CalibrateSorterLayoutPage = lazy(
   () => import("@/app/routes/app/calibrate/sorter-layout"),
 );
-const CalibrateTestPage = lazy(
-  () => import("@/app/routes/app/calibrate/test"),
-);
+const CalibrateTestPage = lazy(() => import("@/app/routes/app/calibrate/test"));
 const CalibrateScanRegionPage = lazy(
   () => import("@/app/routes/app/calibrate/scan-region"),
 );
@@ -116,9 +121,11 @@ const AdminGameEditorPage = lazy(
 const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
 const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
 const AdminDiscordPage = lazy(() => import("@/app/routes/app/admin/discord"));
+const AdminSoundsPage = lazy(() => import("@/app/routes/app/admin/sounds"));
 const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
-const AdminHardwarePage = lazy(
-  () => import("@/app/routes/app/admin/hardware"),
+const AdminHardwarePage = lazy(() => import("@/app/routes/app/admin/hardware"));
+const AdminFoilLabelsPage = lazy(
+  () => import("@/app/routes/app/admin/foil-labels"),
 );
 const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
@@ -149,6 +156,9 @@ const SettingsScanningPage = lazy(
 const SettingsPricingPage = lazy(
   () => import("@/app/routes/app/settings/pricing"),
 );
+const SettingsBusinessPage = lazy(
+  () => import("@/app/routes/app/settings/business"),
+);
 const SettingsSoundsPage = lazy(
   () => import("@/app/routes/app/settings/sounds"),
 );
@@ -162,34 +172,85 @@ const AccountPage = lazy(() => import("@/app/routes/app/account"));
 const HealthPage = lazy(() => import("@/app/routes/app/health"));
 const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
 const StoragePage = lazy(() => import("@/app/routes/app/storage"));
+const StoragePickListPage = lazy(
+  () => import("@/app/routes/app/storage-pick-list"),
+);
 const StatsPage = lazy(() => import("@/app/routes/app/stats"));
+const IntakePage = lazy(() => import("@/app/routes/app/intake"));
+const PicksPage = lazy(() => import("@/app/routes/app/picks"));
+const ControlCardsPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/app/control-cards"),
+    ["common", "scanner", "cards"],
+  ),
+);
+const IntakeReceiptPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/app/intake-receipt"),
+    ["common", "business"],
+  ),
+);
 
-// Otherwise the app shell's chunks only start downloading once the auth
-// session resolves, then the landing route's once the loading gate lifts.
-// A failed preload is ignored here, the lazy() route surfaces it instead.
 function AppChunkPreloader() {
   const isMobile = useIsMobile();
+  const piHost = usePiHost();
   useEffect(() => {
     const ignoreFailure = () => {};
     loadAppLayout().catch(ignoreFailure);
-    (isMobile ? loadMonitorSessionsPage() : loadScannerPage()).catch(
+    (isMobile && !piHost ? loadMonitorSessionsPage() : loadScannerPage()).catch(
       ignoreFailure,
     );
-  }, [isMobile]);
+  }, [isMobile, piHost]);
   return null;
+}
+
+function StaffGuard() {
+  const { isStaff, isPending } = useRole();
+  if (isPending) return null;
+  if (!isStaff) return <Navigate to="/app" replace />;
+  return <Outlet />;
 }
 
 function AdminGuard() {
   const { isAdmin, isPending } = useRole();
   if (isPending) return null;
-  if (!isAdmin) return <Navigate to="/app" replace />;
+  if (!isAdmin) return <Navigate to="/app/admin" replace />;
+  return <Outlet />;
+}
+
+function BlockedWhileImpersonatingGuard() {
+  const { isImpersonating } = useImpersonation();
+  if (isImpersonating) return <ScanningBlockedWhileImpersonating />;
   return <Outlet />;
 }
 
 function DesktopOnlyGuard() {
   const isMobile = useIsMobile();
-  if (isMobile) return <Navigate to="/app/monitor" replace />;
-  return <Outlet />;
+  const { pathname } = useLocation();
+  const { piHost, settled } = usePiHostState();
+  const onCalibrate =
+    pathname === CALIBRATE_PATH || pathname.startsWith(`${CALIBRATE_PATH}/`);
+  const onScanner = pathname === "/app" || pathname.startsWith("/app/cards/");
+  const piPage = onCalibrate || onScanner;
+  if (!isMobile) return <Outlet />;
+  if (piPage && !settled) return null;
+  if (piPage && piHost) return <Outlet />;
+  return <Navigate to="/app/monitor" replace />;
+}
+
+function LegacyIntakeRedirect() {
+  const { search } = useLocation();
+  const params = new URLSearchParams(search);
+  if (params.get(LEGACY_PICKS_VIEW_PARAM) === LEGACY_PICKS_VIEW) {
+    return <Navigate to={picksPath(params.get(ORDER_PARAM))} replace />;
+  }
+  return <Navigate to={`${INTAKE_PATH}${search}`} replace />;
+}
+
+function LegacyIntakeReceiptRedirect() {
+  const { guid } = useParams();
+  const { search } = useLocation();
+  return <Navigate to={`${intakeReceiptPath(guid ?? "")}${search}`} replace />;
 }
 
 function RequireCollectionGuard() {
@@ -201,43 +262,47 @@ function RequireCollectionGuard() {
   );
 }
 
-export const router = createBrowserRouter([
+export const routes: RouteObject[] = [
   {
     element: <Outlet />,
     errorElement: <ErrorPage />,
     children: [
       {
-        path: "/",
-        element: <LandingPage />,
+        path: MARKETING_PAGE_PATHS.home,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.home} />,
       },
       {
-        path: "/build",
-        element: <BuildGuidePage />,
+        path: MARKETING_PAGE_PATHS.build,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.build} />,
       },
       {
-        path: "/discord-bot",
-        element: <DiscordBotPage />,
+        path: MARKETING_PAGE_PATHS.selfHost,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.selfHost} />,
+      },
+      {
+        path: MARKETING_PAGE_PATHS.discordBot,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.discordBot} />,
+      },
+      {
+        path: MARKETING_PAGE_PATHS.download,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.download} />,
       },
       {
         path: "/watch/:collectionGuid",
         element: <WatchPage />,
       },
       {
-        path: "/privacy",
-        element: <PrivacyPolicyPage />,
+        path: MARKETING_PAGE_PATHS.privacy,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.privacy} />,
       },
       {
-        path: "/terms",
-        element: <TermsOfServicePage />,
+        path: MARKETING_PAGE_PATHS.terms,
+        element: <MarketingRoute path={MARKETING_PAGE_PATHS.terms} />,
       },
       {
         path: "/auth/:path",
         element: AUTH_PROVIDER === "local" ? <AuthLocalPage /> : <AuthPage />,
       },
-      // Local-mode only - Neon's prebuilt <AuthView> already covers
-      // invites/password reset. React Router ranks static segments above
-      // dynamic ones regardless of array order, so these still take
-      // priority over /auth/:path above.
       ...(AUTH_PROVIDER === "local"
         ? [
             { path: "/auth/join", element: <AuthJoinPage /> },
@@ -252,10 +317,6 @@ export const router = createBrowserRouter([
           ]
         : []),
       {
-        // Scopes the branded "Loading your vault" screen to the /app/*
-        // portion only - the outer Suspense in main.tsx has no fallback so
-        // the public marketing pages don't flash it while their own chunk
-        // loads.
         element: (
           <Suspense fallback={<RouteLoadingFallback />}>
             <AppChunkPreloader />
@@ -263,6 +324,14 @@ export const router = createBrowserRouter([
           </Suspense>
         ),
         children: [
+          {
+            path: `${INTAKE_PATH}/:guid/receipt`,
+            element: <IntakeReceiptPage />,
+          },
+          {
+            path: `${LEGACY_INTAKE_PATH}/:guid/receipt`,
+            element: <LegacyIntakeReceiptRedirect />,
+          },
           {
             path: "/app/verify-email",
             element:
@@ -307,39 +376,43 @@ export const router = createBrowserRouter([
                       },
                       {
                         path: "/app/calibrate",
-                        element: <CalibrateLayout />,
                         children: [
                           {
-                            index: true,
-                            element: <Navigate to="connection" replace />,
-                          },
-                          {
-                            path: "modules",
-                            element: <Navigate to="../layout" replace />,
-                          },
-                          {
-                            path: "connection",
-                            element: <CalibrateConnectionPage />,
-                          },
-                          {
-                            path: "layout",
-                            element: <CalibrateSorterLayoutPage />,
-                          },
-                          {
-                            path: "scan-region",
-                            element: <CalibrateScanRegionPage />,
-                          },
-                          {
-                            path: "calibration",
-                            element: <CalibrateCalibrationPage />,
-                          },
-                          {
-                            path: "lights",
-                            element: <CalibrateLightsPage />,
-                          },
-                          {
-                            path: "test",
-                            element: <CalibrateTestPage />,
+                            element: <CalibrateLayout />,
+                            children: [
+                              {
+                                index: true,
+                                element: <Navigate to="connection" replace />,
+                              },
+                              {
+                                path: "modules",
+                                element: <Navigate to="../layout" replace />,
+                              },
+                              {
+                                path: "connection",
+                                element: <CalibrateConnectionPage />,
+                              },
+                              {
+                                path: "layout",
+                                element: <CalibrateSorterLayoutPage />,
+                              },
+                              {
+                                path: "scan-region",
+                                element: <CalibrateScanRegionPage />,
+                              },
+                              {
+                                path: "calibration",
+                                element: <CalibrateCalibrationPage />,
+                              },
+                              {
+                                path: "lights",
+                                element: <CalibrateLightsPage />,
+                              },
+                              {
+                                path: "test",
+                                element: <CalibrateTestPage />,
+                              },
+                            ],
                           },
                         ],
                       },
@@ -350,7 +423,11 @@ export const router = createBrowserRouter([
                     element: <SortersPage />,
                   },
                   {
-                    element: <AdminGuard />,
+                    path: LEGACY_REPORTS_PATH,
+                    element: <Navigate to={STATS_PATH} replace />,
+                  },
+                  {
+                    element: <StaffGuard />,
                     children: [
                       {
                         path: "/app/admin",
@@ -381,12 +458,25 @@ export const router = createBrowserRouter([
                             element: <AdminUsersPage />,
                           },
                           {
-                            path: "plans",
-                            element: <AdminPlansPage />,
+                            element: <AdminGuard />,
+                            children: [
+                              {
+                                path: "plans",
+                                element: <AdminPlansPage />,
+                              },
+                              {
+                                path: "foil-labels",
+                                element: <AdminFoilLabelsPage />,
+                              },
+                            ],
                           },
                           {
                             path: "discord",
                             element: <AdminDiscordPage />,
+                          },
+                          {
+                            path: "sounds",
+                            element: <AdminSoundsPage />,
                           },
                           {
                             path: "discord-channels",
@@ -405,8 +495,13 @@ export const router = createBrowserRouter([
                             element: <Navigate to="../deleted" replace />,
                           },
                           {
-                            path: "hardware",
-                            element: <AdminHardwarePage />,
+                            element: <AdminGuard />,
+                            children: [
+                              {
+                                path: "hardware",
+                                element: <AdminHardwarePage />,
+                              },
+                            ],
                           },
                           {
                             path: "servos",
@@ -417,8 +512,13 @@ export const router = createBrowserRouter([
                             element: <Navigate to="../hardware" replace />,
                           },
                           {
-                            path: "developer",
-                            element: <AdminDeveloperPage />,
+                            element: <AdminGuard />,
+                            children: [
+                              {
+                                path: "developer",
+                                element: <AdminDeveloperPage />,
+                              },
+                            ],
                           },
                         ],
                       },
@@ -435,24 +535,49 @@ export const router = createBrowserRouter([
                 element: <MonitorPage />,
               },
               {
-                path: "/app/monitor/:collectionGuid/camera",
-                element: <PhoneCameraPage />,
-              },
-              {
-                path: MOBILE_SCAN_PATH,
-                element: <ScanPage />,
+                element: <BlockedWhileImpersonatingGuard />,
+                children: [
+                  {
+                    path: "/app/monitor/:collectionGuid/camera",
+                    element: <PhoneCameraPage />,
+                  },
+                  {
+                    path: MOBILE_SCAN_PATH,
+                    element: <ScanPage />,
+                  },
+                  {
+                    path: MOBILE_SCAN_PAIR_PATH,
+                    element: <ScanPairPage />,
+                  },
+                  {
+                    path: MOBILE_SORTER_PATH,
+                    element: <SorterPage />,
+                  },
+                ],
               },
               {
                 path: STORAGE_PATH,
                 element: <StoragePage />,
               },
               {
-                path: MOBILE_SCAN_PAIR_PATH,
-                element: <ScanPairPage />,
+                path: STORAGE_PICK_LIST_PATH,
+                element: <StoragePickListPage />,
               },
               {
-                path: MOBILE_SORTER_PATH,
-                element: <SorterPage />,
+                path: ORDERS_PATH,
+                element: <Navigate to={INTAKE_PATH} replace />,
+              },
+              {
+                path: INTAKE_PATH,
+                element: <IntakePage />,
+              },
+              {
+                path: PICKS_PATH,
+                element: <PicksPage />,
+              },
+              {
+                path: LEGACY_INTAKE_PATH,
+                element: <LegacyIntakeRedirect />,
               },
               {
                 element: <RequireCollectionGuard />,
@@ -460,6 +585,10 @@ export const router = createBrowserRouter([
                   {
                     path: SORTING_RULES_PATH,
                     element: <BinsPage />,
+                  },
+                  {
+                    path: PRESET_WORKFLOW_PATH,
+                    element: <PresetWorkflowPage />,
                   },
                 ],
               },
@@ -480,6 +609,7 @@ export const router = createBrowserRouter([
                   { path: "billing", element: <SettingsBillingPage /> },
                   { path: "scanning", element: <SettingsScanningPage /> },
                   { path: "pricing", element: <SettingsPricingPage /> },
+                  { path: "business", element: <SettingsBusinessPage /> },
                   { path: "sounds", element: <SettingsSoundsPage /> },
                   {
                     path: "notifications",
@@ -504,6 +634,10 @@ export const router = createBrowserRouter([
                 element: <HealthPage />,
               },
               {
+                path: CONTROL_CARDS_PATH,
+                element: <ControlCardsPage />,
+              },
+              {
                 path: STATS_PATH,
                 element: <StatsPage />,
               },
@@ -521,4 +655,4 @@ export const router = createBrowserRouter([
       },
     ],
   },
-]);
+];

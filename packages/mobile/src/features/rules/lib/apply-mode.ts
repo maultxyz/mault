@@ -6,11 +6,12 @@ import {
   setChaosMode,
   setRepackConfig,
   setScanOnly,
+  setResortMode,
   setSkipSaving,
 } from "@/features/rules/api/bin-sets";
 import { emptyRules } from "@/features/rules/lib/rules";
 import type { ModeFormValues } from "@/lib/interfaces/forms";
-import type { BinSetMode } from "@/lib/interfaces/rules";
+import type { BinSetMode } from "@magic-vault/shared";
 
 function chaosSize(values: ModeFormValues): number | null {
   return values.chaosBinSize === "" ? null : Number(values.chaosBinSize);
@@ -45,7 +46,6 @@ async function saveCatchAll(bin: BinConfig, gameGuid: string | undefined): Promi
     rules: emptyRules(),
     isCatchAll: true,
     isDisabled: false,
-    cardLimit: bin.cardLimit ?? null,
     overflowBin: null,
   });
 }
@@ -111,6 +111,9 @@ export async function applyMode(
 
   if (values.skipSaving !== baseline.skipSaving) {
     latest = await setSkipSaving(set.guid, values.skipSaving);
+  }
+  if (values.isResortMode !== baseline.isResortMode) {
+    latest = await setResortMode(set.guid, values.isResortMode);
   }
   return latest;
 }

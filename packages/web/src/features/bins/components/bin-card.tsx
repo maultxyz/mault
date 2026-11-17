@@ -9,6 +9,7 @@ import {
   isRuleGroup,
 } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
+import { cn } from "@/lib/utils";
 
 function countConditions(config: BinConfig): number {
   function count(items: BinConfig["rules"]["conditions"]): number {
@@ -31,10 +32,12 @@ export function BinCard({
   isScanOnlyTarget,
   isChaosMode,
   alphabetLetter,
+  repackPriority,
   showOverflow,
   overflowSources = [],
   disabled,
   onClick,
+  className,
 }: BinCardProps) {
   const { t } = useTranslation("bins");
   const isEmpty = config.rules.conditions.length === 0;
@@ -53,13 +56,17 @@ export function BinCard({
 
   return (
     <Button
-      variant={active ? "secondary" : "ghost"}
-      className="h-auto p-2 flex flex-col justify-start text-start w-full"
+      variant={active ? "selected" : "ghost"}
+      aria-pressed={active}
+      className={cn(
+        "h-auto p-2 flex flex-col justify-start text-start w-full whitespace-normal max-md:h-auto max-md:gap-1 max-md:p-3 max-md:[&_p]:text-sm",
+        className,
+      )}
       disabled={disabled}
       onClick={onClick}
     >
       <div className="flex flex-row justify-between gap-2 items-center w-full">
-        <p className="font-medium text-sm font-heading">
+        <p className="font-medium text-sm font-heading max-md:text-base!">
           {t("binLabel", { number: config.binNumber })}
         </p>
         <div className="flex items-center gap-1">
@@ -84,6 +91,11 @@ export function BinCard({
                     {t("binCard.maxCopies", { count: config.maxCopies })}
                   </Badge>
                 )}
+              {!isDisabled && repackPriority != null && (
+                <Badge variant="outline">
+                  {t("binCard.priority", { priority: repackPriority })}
+                </Badge>
+              )}
               {(config.isCatchAll || config.isOverride) &&
                 !isDisabled &&
                 !isChaosMode &&
@@ -115,7 +127,7 @@ export function BinCard({
           )}
         </div>
       </div>
-      <div className="w-full text-xs">
+      <div className="w-full min-w-0 text-xs">
         {isPickListBin ? (
           <p className="text-xs">
             {pickList?.mode !== "all"

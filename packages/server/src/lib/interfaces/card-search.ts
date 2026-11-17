@@ -4,9 +4,9 @@ import type {
   OcrDiagnostics,
   OcrReadout,
   PlayingCard,
-  Result,
   SearchCardMatch,
 } from "@magic-vault/shared";
+import type { SQL } from "drizzle-orm";
 
 export interface PrintingQuery {
   setCode: string | null;
@@ -29,15 +29,24 @@ export interface TcgplayerProductMatch {
   accepts(product: TcgplayerProductCandidate): boolean;
 }
 
+export interface TcgplayerFinishProduct {
+  foilType: string;
+  productId: number;
+  subTypes: string[];
+}
+
 export interface TcgplayerPricing {
   categoryId: number;
+  foilTypeOfVariant?(variantWithoutEdition: string): string;
   subTypes(card: PlayingCard): TcgplayerSubTypes;
+  finishProducts?(card: PlayingCard): TcgplayerFinishProduct[];
   productIdFromRaw?(card: PlayingCard): string | number | null | undefined;
   productMatch?(card: PlayingCard): TcgplayerProductMatch | null;
 }
 
 export interface CardmarketPricing {
   gameId: number;
+  siteGamePath?: string;
   productIdFromRaw?(card: PlayingCard): string | number | null | undefined;
   productNames?(card: PlayingCard): string[];
 }
@@ -46,16 +55,20 @@ export interface CardKingdomPricing {
   scryfallIdFromRaw(card: PlayingCard): string | null | undefined;
 }
 
+export interface FoilPrintingVariants {
+  isSameArtwork(card: PlayingCard, other: PlayingCard): boolean;
+  matchesFoilType(card: PlayingCard, foilType: string | null): boolean;
+}
+
 export interface CardSearchAdapter {
   defaultUrl: string;
   urlForLang?(lang: string): string;
-  search(
-    query: string,
-    baseUrl: string,
-    lang: string,
-  ): Promise<Result<PlayingCard[]>>;
-  searchById(id: string, baseUrl: string): Promise<Result<PlayingCard>>;
   normalizeStored(raw: unknown, id: string, lang: string): PlayingCard | null;
+  rarePrintingSql?: SQL;
+  excludedFromMatchingSql?: SQL;
+  ocrMatchesByPrintedSetAndNumber?: boolean;
+  foilPrintingVariants?: FoilPrintingVariants;
+  sourceListsNonFoilPrinting?(card: PlayingCard): boolean;
   tcgplayer?: TcgplayerPricing;
   cardmarket?: CardmarketPricing;
   cardkingdom?: CardKingdomPricing;
@@ -66,6 +79,8 @@ export interface ResolvedCardSearch {
   gameKey: string;
   baseUrl: string;
   lang: string;
+  searchAllLanguages?: boolean;
+  onlyLanguage?: string;
 }
 
 export interface CollectionMatchScope {
@@ -79,17 +94,13 @@ export interface SyncSourceCard {
   name: string;
   setCode: string;
   imageUrl: string | undefined;
+  fallbackImageUrl?: string;
   backImageUrl?: string;
   data: string;
 }
 
 export type SyncSourceCardDetail = Omit<SyncSourceCard, "id">;
 
-// `urls` is every request fetchOne actually made while looking for the card
-// - one entry for a direct by-id lookup, several for an adapter (onepiece)
-// that has to page through a listing since the source has no direct
-// by-id endpoint at this granularity. Populated whether or not `card` was
-// found, so a caller can report exactly what was queried on a miss.
 export interface FetchOneResult {
   card: SyncSourceCardDetail | null;
   urls: string[];
@@ -111,6 +122,16 @@ export interface SyncSource {
   fetchOne(id: string, baseUrl: string, lang?: string): Promise<FetchOneResult>;
 }
 
+export interface CardMatchCandidate {
+  cardId: string;
+  lang: string;
+  name: string;
+  setCode: string;
+  rarePrinting: boolean;
+  distance: number;
+  leaderDistance: number;
+}
+
 export interface CardMatchSearchResult {
   message: string;
   success: true;
@@ -125,9 +146,14 @@ export interface CardTextMatchParams {
   matchAllLanguages: boolean;
   embeddings: CardSearchEmbeddings;
   readout: OcrReadout;
-  preferredSetCode?: string;
+  preferredSetCodes?: string[];
 }
 
 export interface CardTextMatchResult extends CardMatchSearchResult {
   ocr: OcrDiagnostics;
+}
+
+export interface OrientedCardMatch {
+  embedding: number[];
+  result: CardMatchSearchResult;
 }

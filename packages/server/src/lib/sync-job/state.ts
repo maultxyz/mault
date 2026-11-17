@@ -12,6 +12,8 @@ const INITIAL_STATE: SyncState = {
   queued: 0,
   startedAt: null,
   logs: [],
+  vectorizeOn: "server",
+  acceptingWork: false,
 };
 
 let state: SyncState = INITIAL_STATE;
@@ -25,14 +27,10 @@ function emit(event: string, data: unknown): void {
   }
 }
 
-// A snapshot safe to hand to an SSE client or API response - cloned so the
-// caller can't accidentally mutate the job's own state.
 export function getStatus(): SyncState {
   return { ...state, logs: [...state.logs] };
 }
 
-// Fast internal read for the sync loop's own hot path (no cloning) - never
-// mutate the object this returns.
 export function getState(): Readonly<SyncState> {
   return state;
 }

@@ -2,13 +2,16 @@ import { max, sql } from "drizzle-orm";
 import { db } from "../db";
 import { tcgplayerPrices, tcgplayerProducts } from "../db/schema";
 import { fetchCardApi } from "./card-search/fetch";
-import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
+import { adapterEntriesForGameKeys } from "./card-search/resolve";
 import { CARD_API_HEADERS } from "./constants/card-search";
 import {
   TCGPLAYER_PRICE_UPSERT_BATCH_SIZE,
+  TCGPLAYER_PROGRESS_LOG_EVERY_GROUPS,
   TCGPLAYER_PRODUCT_UPSERT_BATCH_SIZE,
 } from "./constants/sync";
 import {
+  PRICE_SYNC_SLOW_STEP_MS,
+  TCGCSV_MIN_PULL_INTERVAL_MS,
   TCGCSV_REQUEST_DELAY_MS,
   TCGPLAYER_PRODUCTS_MAX_AGE_MS,
 } from "./constants/timing";
@@ -83,6 +86,7 @@ function extendedValue(product: TcgcsvProduct, name: string): string | null {
 
 async function upsertProducts(
   categoryId: number,
+  group: TcgcsvGroup,
   products: TcgcsvProduct[],
 ): Promise<void> {
   for (
@@ -98,6 +102,7 @@ async function upsertProducts(
           productId: p.productId,
           categoryId,
           groupId: p.groupId,
+          groupName: group.name,
           name: p.name,
           number: extendedValue(p, "Number"),
           rarity: extendedValue(p, "Rarity"),
@@ -108,6 +113,7 @@ async function upsertProducts(
         set: {
           categoryId: sql`excluded.category_id`,
           groupId: sql`excluded.group_id`,
+          groupName: sql`excluded.group_name`,
           name: sql`excluded.name`,
           number: sql`excluded.number`,
           rarity: sql`excluded.rarity`,
@@ -131,34 +137,50 @@ async function lastSyncedByCategory(
 
 export async function syncTcgplayerPrices({
   force = false,
+  gameKeys,
   log,
 }: {
   force?: boolean;
+  gameKeys?: string[];
   log: (msg: string) => void;
 }): Promise<PriceSyncResult> {
-  const lastUpdated = new Date(
-    (await (await tcgcsvGet("/last-updated.txt")).text()).trim(),
-  );
   const pricesSyncedAt = await lastSyncedByCategory(tcgplayerPrices);
   const productsSyncedAt = await lastSyncedByCategory(tcgplayerProducts);
   const productsCutoff = new Date(Date.now() - TCGPLAYER_PRODUCTS_MAX_AGE_MS);
+  const recentCutoff = new Date(Date.now() - TCGCSV_MIN_PULL_INTERVAL_MS);
 
-  const needsProducts = new Map<number, boolean>();
-  for (const adapter of Object.values(ADAPTERS_BY_GAME_KEY)) {
-    if (!adapter.tcgplayer) continue;
-    const { categoryId, productMatch } = adapter.tcgplayer;
-    needsProducts.set(
-      categoryId,
-      (needsProducts.get(categoryId) ?? false) || !!productMatch,
+  const categoryIds = [
+    ...new Set(
+      adapterEntriesForGameKeys(gameKeys).flatMap(([, adapter]) =>
+        adapter.tcgplayer ? [adapter.tcgplayer.categoryId] : [],
+      ),
+    ),
+  ];
+
+  const pulledRecently = categoryIds.every((categoryId) => {
+    const pricedAt = pricesSyncedAt.get(categoryId);
+    const productsAt = productsSyncedAt.get(categoryId);
+    return (
+      !!pricedAt &&
+      pricedAt > recentCutoff &&
+      !!productsAt &&
+      productsAt > productsCutoff
     );
+  });
+  if (!force && pulledRecently) {
+    log("tcgcsv pulled within the last day for every category; skipping.");
+    return { skipped: true, prices: 0, products: 0, failedGroups: 0 };
   }
 
-  const plans = [...needsProducts].flatMap(([categoryId, matchesProducts]) => {
+  const lastUpdated = new Date(
+    (await (await tcgcsvGet("/last-updated.txt")).text()).trim(),
+  );
+
+  const plans = categoryIds.flatMap((categoryId) => {
     const pricedAt = pricesSyncedAt.get(categoryId);
     const productsAt = productsSyncedAt.get(categoryId);
     const prices = force || !pricedAt || pricedAt < lastUpdated;
-    const products =
-      matchesProducts && (force || !productsAt || productsAt < productsCutoff);
+    const products = force || !productsAt || productsAt < productsCutoff;
     return prices || products ? [{ categoryId, prices, products }] : [];
   });
 
@@ -182,20 +204,24 @@ export async function syncTcgplayerPrices({
   let totalProducts = 0;
   let failedGroups = 0;
   for (const plan of plans) {
+    const categoryStartedAt = Date.now();
+    log(`Category ${plan.categoryId}: fetching groups...`);
     const groups = await tcgcsvResults<TcgcsvGroup>(
       `/tcgplayer/${plan.categoryId}/groups`,
     );
+    log(`Category ${plan.categoryId}: ${groups.length} groups.`);
 
     let categoryPrices = 0;
     let categoryProducts = 0;
-    for (const group of groups) {
+    for (const [index, group] of groups.entries()) {
       const groupPath = `/tcgplayer/${plan.categoryId}/${group.groupId}`;
+      const groupStartedAt = Date.now();
       try {
         if (plan.products) {
           const products = await tcgcsvResults<TcgcsvProduct>(
             `${groupPath}/products`,
           );
-          await upsertProducts(plan.categoryId, products);
+          await upsertProducts(plan.categoryId, group, products);
           categoryProducts += products.length;
         }
         if (plan.prices) {
@@ -208,6 +234,17 @@ export async function syncTcgplayerPrices({
       } catch (err) {
         failedGroups++;
         log(`Category ${plan.categoryId}, group ${group.name}: ${String(err)}`);
+      }
+      const groupMs = Date.now() - groupStartedAt;
+      if (groupMs > PRICE_SYNC_SLOW_STEP_MS) {
+        log(
+          `Category ${plan.categoryId}, group ${group.name} (${group.groupId}) took ${(groupMs / 1000).toFixed(1)}s.`,
+        );
+      }
+      if ((index + 1) % TCGPLAYER_PROGRESS_LOG_EVERY_GROUPS === 0) {
+        log(
+          `Category ${plan.categoryId}: ${index + 1}/${groups.length} groups, ${categoryPrices} prices so far (${((Date.now() - categoryStartedAt) / 1000).toFixed(0)}s).`,
+        );
       }
     }
 

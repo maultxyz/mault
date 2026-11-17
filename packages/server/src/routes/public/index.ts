@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import type { AppEnv } from "../../middleware/auth";
+import { firmwareReleasesRoute } from "./firmware-releases";
 import { publicGamesRoute } from "./games";
 import { healthRoute } from "./health";
 import { publicMetricsRoute } from "./metrics";
@@ -12,6 +13,7 @@ import { webhookStripeRoute } from "./webhook-stripe";
 const router = new Hono<AppEnv>()
   .route("/", versionRoute)
   .route("/", publicGamesRoute)
+  .route("/", firmwareReleasesRoute)
   .route("/", publicMetricsRoute)
   .route("/", publicMonitorLinkRoute)
   .route("/", pricingRoute)

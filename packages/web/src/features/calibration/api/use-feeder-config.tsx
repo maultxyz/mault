@@ -62,7 +62,7 @@ export function FeederConfigProvider({
     onSuccess: (result) => {
       if (result.success && result.data) {
         queryClient.setQueryData(queryOpts.queryKey, result.data);
-        void applyToDevice({ feeder: result.data });
+        return applyToDevice({ feeder: result.data });
       }
     },
   });

@@ -5,15 +5,21 @@ import type { MobileCardTileProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
 import { IconCheck, IconHelpCircle } from "@tabler/icons-react";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 
 export const MobileCardTile = memo(function MobileCardTile({
   entry,
   onOpen,
   onLongPress,
 }: MobileCardTileProps) {
+  const { t } = useTranslation("scanner");
   const { handlers, consumeLongPress } = useLongPress(onLongPress);
   const { priceOf, format } = usePriceSource();
-  const price = priceOf(entry.card, entry.isFoil, entry.condition);
+  const price = priceOf(
+    entry.card,
+    { isFoil: entry.isFoil, foilType: entry.foilType },
+    entry.condition,
+  );
   const flagged = entry.lowConfidenceMatch || !!entry.alternativeMatches?.length;
   const awaitingReview = flagged && !entry.corrected;
 
@@ -30,14 +36,14 @@ export const MobileCardTile = memo(function MobileCardTile({
     >
       <div
         className={cn(
-          "relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted shadow-sm shadow-black/10 ring-1 ring-foreground/10",
+          "relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted ring-1 ring-border",
           awaitingReview &&
             "ring-2 ring-warning ring-offset-2 ring-offset-background",
         )}
       >
         <img
           src={entry.card.image?.normal || entry.card.image?.small || ""}
-          alt={entry.card.name}
+          alt=""
           loading="lazy"
           draggable={false}
           className="h-full w-full object-cover"
@@ -45,8 +51,14 @@ export const MobileCardTile = memo(function MobileCardTile({
         {entry.isFoil && <FoilOverlay />}
         {flagged && (
           <span
+            role="img"
+            aria-label={
+              entry.corrected
+                ? t("a11y.corrected")
+                : t("mobileMonitor.needsReview")
+            }
             className={cn(
-              "absolute top-1 left-1 rounded-full p-0.5 shadow-md",
+              "absolute top-1 left-1 rounded-sm p-0.5",
               entry.corrected ? "bg-success-strong" : "bg-warning-strong",
             )}
           >

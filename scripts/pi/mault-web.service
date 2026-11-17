@@ -1,0 +1,15 @@
+[Unit]
+Description=Mault web app
+After=mault-api.service
+Requires=mault-api.service
+
+[Service]
+Type=simple
+WorkingDirectory=%h/mault/packages/web
+ExecStartPre=/bin/bash -c 'for i in $(seq 1 50); do curl -sf http://127.0.0.1:3001/public/version >/dev/null && exit 0; sleep 0.2; done; exit 1'
+ExecStart=/usr/bin/pnpm exec vite preview --host 0.0.0.0 --port 8080 --strictPort
+Restart=on-failure
+RestartSec=2
+
+[Install]
+WantedBy=default.target

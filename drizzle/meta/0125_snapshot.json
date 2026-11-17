@@ -1,6 +1,6 @@
 {
-  "id": "0f4a7f64-6bdd-40e3-a168-06827c53a550",
-  "prevId": "b8e65c64-b721-47b2-a1cb-84eee1b6c804",
+  "id": "f5254d13-df41-4d41-890a-b8c647c89191",
+  "prevId": "3225ed1d-b577-4f7e-b8b2-511f88071125",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -1065,6 +1065,12 @@
         "pick_list": {
           "name": "pick_list",
           "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "repack_priority": {
+          "name": "repack_priority",
+          "type": "integer",
           "primaryKey": false,
           "notNull": false
         },
@@ -2520,6 +2526,13 @@
           "primaryKey": false,
           "notNull": false
         },
+        "flip_camera": {
+          "name": "flip_camera",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "module_count": {
           "name": "module_count",
           "type": "integer",
@@ -2559,83 +2572,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": true
-        },
-        "light_mode": {
-          "name": "light_mode",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'off'"
-        },
-        "light_color": {
-          "name": "light_color",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'#ffffff'"
-        },
-        "light_brightness": {
-          "name": "light_brightness",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 160
-        },
-        "value_celebration_enabled": {
-          "name": "value_celebration_enabled",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
-        "value_celebration_threshold": {
-          "name": "value_celebration_threshold",
-          "type": "double precision",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "value_celebration_price_source": {
-          "name": "value_celebration_price_source",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'tcgplayer'"
-        },
-        "value_celebration_duration_ms": {
-          "name": "value_celebration_duration_ms",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 500
-        },
-        "light_warnings_enabled": {
-          "name": "light_warnings_enabled",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
-        },
-        "light_empty_warning_seconds": {
-          "name": "light_empty_warning_seconds",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 3
-        },
-        "light_blocked_warning_seconds": {
-          "name": "light_blocked_warning_seconds",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 3
-        },
-        "light_normal_seconds": {
-          "name": "light_normal_seconds",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 5
         },
         "sorter_link_token_hash": {
           "name": "sorter_link_token_hash",
@@ -2747,6 +2683,100 @@
           "using": "(\"devices\".\"org_id\" = (current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND auth_is_org_member(\"devices\".\"org_id\")"
         }
       },
+      "checkConstraints": {},
+      "isRLSEnabled": true
+    },
+    "public.discord_user_links": {
+      "name": "discord_user_links",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "discord_user_id": {
+          "name": "discord_user_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "discord_username": {
+          "name": "discord_username",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "link_code": {
+          "name": "link_code",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "link_code_expires_at": {
+          "name": "link_code_expires_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "linked_at": {
+          "name": "linked_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "discord_user_links_discord_user_idx": {
+          "name": "discord_user_links_discord_user_idx",
+          "columns": [
+            {
+              "expression": "discord_user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "discord_user_links_code_idx": {
+          "name": "discord_user_links_code_idx",
+          "columns": [
+            {
+              "expression": "link_code",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": true
     },
@@ -4537,6 +4567,51 @@
         },
         "channel_id": {
           "name": "channel_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.platform_discord_roles": {
+      "name": "platform_discord_roles",
+      "schema": "",
+      "columns": {
+        "key": {
+          "name": "key",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "guild_id": {
+          "name": "guild_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "role_id": {
+          "name": "role_id",
           "type": "text",
           "primaryKey": false,
           "notNull": false

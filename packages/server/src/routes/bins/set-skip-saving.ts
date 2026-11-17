@@ -16,24 +16,19 @@ export const setSkipSavingRoute = new Hono<AppEnv>().put(
     if (typeof skipSaving !== "boolean") {
       return c.json({ success: false, message: "Invalid mode." }, 400);
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const target = await tx.query.binSets.findFirst({
-          where: (t, { eq, and }) =>
-            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-          columns: { id: true },
-        });
-        if (!target) return { message: "Set not found.", success: false };
-        await tx
-          .update(binSets)
-          .set({ skipSaving, updatedAt: new Date() })
-          .where(eq(binSets.id, target.id));
-        return loadSets(tx, orgId);
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const target = await tx.query.binSets.findFirst({
+        where: (t, { eq, and }) =>
+          and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
+        columns: { id: true },
       });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      if (!target) return { message: "Set not found.", success: false };
+      await tx
+        .update(binSets)
+        .set({ skipSaving, updatedAt: new Date() })
+        .where(eq(binSets.id, target.id));
+      return loadSets(tx, orgId);
+    });
+    return c.json(result);
   },
 );

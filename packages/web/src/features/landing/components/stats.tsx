@@ -6,22 +6,17 @@ export function LandingStats() {
   const stats = useLandingStats();
 
   return (
-    <section className="border-b bg-muted dark:bg-black/30">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-8 divide-foreground/10 px-4 py-6 md:grid-cols-4 md:divide-x md:py-8">
-        {stats.map((stat) => (
-          <div
-            key={stat.key}
-            className="flex flex-col gap-1 md:px-6 md:first:pl-0 md:last:pr-0"
-          >
-            <span className="font-heading text-4xl font-bold tracking-tight text-primary tabular-nums md:text-5xl">
-              {stat.value}
-            </span>
-            <span className="text-sm/relaxed text-foreground/70">
-              {t(`stats.items.${stat.key}`)}
-            </span>
-          </div>
-        ))}
-      </div>
-    </section>
+    <div className="grid grid-cols-2 gap-px border-t bg-border md:grid-cols-4">
+      {stats.map((stat) => (
+        <div key={stat.key} className="flex flex-col gap-3 bg-card p-5">
+          <span className="font-heading text-2xs font-medium tracking-widest text-foreground/70 uppercase">
+            {t(`stats.items.${stat.key}`)}
+          </span>
+          <span className="font-heading text-3xl font-bold tracking-tight text-primary tabular-nums md:text-4xl">
+            {stat.value}
+          </span>
+        </div>
+      ))}
+    </div>
   );
 }

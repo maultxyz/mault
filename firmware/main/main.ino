@@ -1,3 +1,5 @@
+#define ARDUINOJSON_USE_LONG_LONG 0
+#define ARDUINOJSON_USE_DOUBLE 0
 #include <ArduinoJson.h>
 #include <EEPROM.h>
 #include <Wire.h>
@@ -58,12 +60,17 @@
 #define BLE_SUPPORTED 0
 #endif
 
-// Every ESP32 has a Wi-Fi radio, so every ESP32 build can join the user's
-// network and hold a WebSocket to the server (cloud_esp32.ino), letting the
-// app drive the sorter from anywhere. The Uno R4 WiFi's radio is the same
-// co-processor ArduinoBLE already owns, so it stays BLE-only.
+// Boards with a Wi-Fi radio can join the user's network and hold a WebSocket
+// to the server (cloud_common.ino), letting the app drive the sorter from
+// anywhere. Every ESP32 runs it alongside BLE (cloud_esp32.ino). The Uno R4
+// WiFi's radio is the ESP32-S3 co-processor ArduinoBLE also uses, so there
+// Wi-Fi and BLE take turns, one per boot (cloud_wifis3.ino).
 #if defined(ARDUINO_ARCH_ESP32)
 #define WIFI_SUPPORTED 1
+#define WIFI_BACKEND_ESP32 1
+#elif defined(ARDUINO_UNOWIFIR4)
+#define WIFI_SUPPORTED 1
+#define WIFI_BACKEND_WIFIS3 1
 #else
 #define WIFI_SUPPORTED 0
 #endif
@@ -84,11 +91,13 @@
 #include <BLEServer.h>
 #include <BLEUtils.h>
 #endif
-#if WIFI_SUPPORTED
+#if WIFI_BACKEND_ESP32
 #include <NetworkClient.h>
 #include <NetworkClientSecure.h>
 #include <Preferences.h>
 #include <WiFi.h>
+#elif WIFI_BACKEND_WIFIS3
+#include <WiFiS3.h>
 #endif
 
 // SK6812 RGBW strip lighting the scan area (lighting.ino). Every board drives
@@ -113,12 +122,14 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(SERVO_DRIVER_I2C_ADDR);
 // distinct entries in a phone/OS Bluetooth picker before ever connecting.
 // Populated once from setup(), before the boot banner is printed, via the
 // best source available on the board:
-//   - ESP32 (any variant): the factory Wi-Fi/BT MAC (setDeviceIdFromMac()
+//   - ESP32 (any variant): the factory Wi-Fi/BT MAC (initDeviceIdFromEspMac()
 //     below), read unconditionally - present on the silicon regardless of
 //     whether this build even compiles in a BLE backend (see BLE_SUPPORTED).
 //   - Uno R4 WiFi: also MAC-derived, but only readable after BLE.begin()
 //     talks to the onboard co-processor, so it's set from inside bleInit()
-//     (see ble_arduinoble.ino) instead of here.
+//     (see ble_arduinoble.ino) instead of here. A boot where Wi-Fi owns the
+//     radio never starts BLE, so it reuses the ID cached by the last BLE boot
+//     (see cacheRadioDeviceId() below).
 //   - Uno R4 Minima (no radio of any kind): falls back to
 //     loadOrCreateDeviceId() below, which persists a random one-time-
 //     generated ID to EEPROM/data flash - the only board with nothing
@@ -128,6 +139,7 @@ char deviceId[7] = "";
 // Formats a colon-separated MAC string ("aa:bb:cc:dd:ee:ff") into deviceId as
 // its last 6 hex characters, uppercased and with colons stripped - plenty of
 // entropy to tell boards apart on a bench without needing the full address.
+#if BLE_BACKEND_ARDUINOBLE
 void setDeviceIdFromMac(const char* mac) {
   char stripped[13];
   int len = 0;
@@ -139,6 +151,7 @@ void setDeviceIdFromMac(const char* mac) {
   strncpy(deviceId, stripped + start, 6);
   deviceId[6] = '\0';
 }
+#endif
 
 #if defined(ARDUINO_ARCH_ESP32)
 // Every ESP32 (classic or S3) has a factory-programmed Wi-Fi/BT MAC
@@ -149,10 +162,7 @@ void setDeviceIdFromMac(const char* mac) {
 void initDeviceIdFromEspMac() {
   uint8_t mac[6];
   esp_read_mac(mac, ESP_MAC_WIFI_STA);
-  char macStr[18];
-  snprintf(macStr, sizeof(macStr), "%02X:%02X:%02X:%02X:%02X:%02X", mac[0],
-           mac[1], mac[2], mac[3], mac[4], mac[5]);
-  setDeviceIdFromMac(macStr);
+  snprintf(deviceId, sizeof(deviceId), "%02X%02X%02X", mac[3], mac[4], mac[5]);
 }
 #endif
 
@@ -193,6 +203,33 @@ void loadOrCreateDeviceId() {
   EEPROM.commit();
 #endif
 }
+
+#if defined(ARDUINO_UNOWIFIR4)
+#define RADIO_ID_EEPROM_ADDR 8
+#define RADIO_ID_EEPROM_MAGIC 0xB7
+
+void cacheRadioDeviceId() {
+  if (deviceId[0] == '\0') return;
+  bool cached = EEPROM.read(RADIO_ID_EEPROM_ADDR) == RADIO_ID_EEPROM_MAGIC;
+  for (int i = 0; cached && i < 6; i++) {
+    cached = EEPROM.read(RADIO_ID_EEPROM_ADDR + 1 + i) == (uint8_t)deviceId[i];
+  }
+  if (cached) return;
+  EEPROM.write(RADIO_ID_EEPROM_ADDR, 0);
+  for (int i = 0; i < 6; i++) {
+    EEPROM.write(RADIO_ID_EEPROM_ADDR + 1 + i, deviceId[i]);
+  }
+  EEPROM.write(RADIO_ID_EEPROM_ADDR, RADIO_ID_EEPROM_MAGIC);
+}
+
+void loadCachedRadioDeviceId() {
+  if (EEPROM.read(RADIO_ID_EEPROM_ADDR) != RADIO_ID_EEPROM_MAGIC) return;
+  for (int i = 0; i < 6; i++) {
+    deviceId[i] = (char)EEPROM.read(RADIO_ID_EEPROM_ADDR + 1 + i);
+  }
+  deviceId[6] = '\0';
+}
+#endif
 
 // PCA9685 channels: each module uses 3 consecutive channels (bottom, paddle,
 // pusher) starting at moduleChannelOffset; the feeder gets the next channel
@@ -244,6 +281,19 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 // Gap between consecutive servo moves in setAllNeutral(), so a full reset
 // doesn't start every servo at once and pull the supply down.
 #define SERVO_STAGGER_MS 25
+
+#if defined(ARDUINO_ARCH_ESP32)
+// Brownout resets in a row, kept in RTC memory (survives a reset, not a power
+// cycle). After BROWNOUT_SAFE_BOOTS of them setup() leaves the servos
+// unpowered instead of driving them to neutral, and Wi-Fi stays paused, so a
+// stalled servo or weak supply can't hold the board in a reset loop. 60 s of
+// uptime clears the count.
+#define BROWNOUT_SAFE_BOOTS 2
+#define BROWNOUT_STABLE_UPTIME_MS 60000
+#define BROWNOUT_COUNTER_MAGIC 0x4D564254
+RTC_NOINIT_ATTR uint32_t brownoutCounterMagic;
+RTC_NOINIT_ATTR uint32_t consecutiveBrownoutBoots;
+#endif
 #define SELF_TEST_MODULE_SETTLE_MS 250
 
 // If a card sits at a module this long with no route in progress, something's
@@ -283,6 +333,30 @@ bool hopperHasCards() {
   return digitalRead(IR_PIN_HOPPER) == LOW;
 }
 
+// Module detection probes which IR sensors are wired. A plugged-in sensor
+// drives its output (its own pull-up holds it HIGH, a card pulls it LOW), so
+// it reads LOW under our pull-up or HIGH under a pull-down. An empty pin
+// floats and follows whichever internal resistor is on. The Uno R4's RA4M1
+// has no internal pull-down, so only ESP32 builds can tell them apart.
+#if defined(ARDUINO_ARCH_ESP32)
+#define MODULE_DETECTION_SUPPORTED 1
+#define IR_PROBE_SETTLE_MS 2
+#else
+#define MODULE_DETECTION_SUPPORTED 0
+#endif
+
+#if MODULE_DETECTION_SUPPORTED
+bool irSensorConnected(int module) {
+  int pin = irPin(module);
+  if (digitalRead(pin) == LOW) return true;
+  pinMode(pin, INPUT_PULLDOWN);
+  waitMs(IR_PROBE_SETTLE_MS);
+  bool drivenHigh = digitalRead(pin) == HIGH;
+  pinMode(pin, INPUT_PULLUP);
+  return drivenHigh;
+}
+#endif
+
 bool watchdogStarted = false;
 
 void feedWatchdog() {
@@ -294,6 +368,34 @@ void feedWatchdog() {
 }
 
 const char* resetReason = "unknown";
+
+#if defined(ARDUINO_ARCH_ESP32)
+void trackBrownoutBoots() {
+  if (brownoutCounterMagic != BROWNOUT_COUNTER_MAGIC) {
+    brownoutCounterMagic = BROWNOUT_COUNTER_MAGIC;
+    consecutiveBrownoutBoots = 0;
+  }
+  if (esp_reset_reason() == ESP_RST_BROWNOUT) {
+    consecutiveBrownoutBoots++;
+  } else {
+    consecutiveBrownoutBoots = 0;
+  }
+}
+
+void clearBrownoutBootsWhenStable() {
+  if (consecutiveBrownoutBoots != 0 && millis() > BROWNOUT_STABLE_UPTIME_MS) {
+    consecutiveBrownoutBoots = 0;
+  }
+}
+#endif
+
+bool bootingAfterRepeatedBrownouts() {
+#if defined(ARDUINO_ARCH_ESP32)
+  return consecutiveBrownoutBoots >= BROWNOUT_SAFE_BOOTS;
+#else
+  return false;
+#endif
+}
 
 void captureResetReason() {
 #if defined(ARDUINO_ARCH_ESP32)
@@ -390,6 +492,13 @@ int findBlockedModule() {
 }
 
 #define DELAY_PADDLE 300  // default paddleOpenDelay: time for paddle to engage
+// A pusher move this close to neutral is a nudge: it shifts the card a little
+// for the app's foil check and can't reach the side paddle, so it doesn't
+// lower the paddle first. It must stay within both limits: a few pulse units
+// (about the 5% calibration slider step) and a share of the travel to that
+// side, so pushers with short travel still keep clear of the paddle.
+#define PUSHER_NUDGE_MAX_PULSE 20
+#define PUSHER_NUDGE_MAX_TRAVEL_PERCENT 50
 
 struct ModuleConfig {
   int bottomClosed, bottomOpen;
@@ -418,6 +527,37 @@ struct FeederConfig {
 };
 
 FeederConfig feederConfig = {315, 1000, 40, 100, 100, 295, 0};
+
+const char* const MODULE_FIELDS[] = {
+    "bottomClosed",     "bottomOpen",     "paddleClosed",
+    "paddleOpen",       "pusherLeft",     "pusherNeutral",
+    "pusherRight",      "pusherHoldDuration", "paddleCloseDelay",
+    "paddleOpenDelay"};
+const char* const FEEDER_FIELDS[] = {
+    "speed",          "duration",     "pulseDuration",  "pauseDuration",
+    "settleDuration", "reverseSpeed", "reverseDuration"};
+#define MODULE_FIELD_COUNT (sizeof(MODULE_FIELDS) / sizeof(MODULE_FIELDS[0]))
+#define FEEDER_FIELD_COUNT (sizeof(FEEDER_FIELDS) / sizeof(FEEDER_FIELDS[0]))
+static_assert(sizeof(ModuleConfig) == MODULE_FIELD_COUNT * sizeof(int),
+              "MODULE_FIELDS must list every ModuleConfig field");
+static_assert(sizeof(FeederConfig) == FEEDER_FIELD_COUNT * sizeof(int),
+              "FEEDER_FIELDS must list every FeederConfig field");
+
+void printIntFields(const char* const* names, const int* values, size_t count,
+                    bool first, Print& reply) {
+  for (size_t i = 0; i < count; i++) {
+    if (i > 0 || !first) reply.write(',');
+    reply.write('"');
+    reply.print(names[i]);
+    reply.print(F("\":"));
+    reply.print(values[i]);
+  }
+}
+
+void readIntFields(JsonObjectConst cfg, const char* const* names, int* values,
+                   size_t count) {
+  for (size_t i = 0; i < count; i++) values[i] = cfg[names[i]] | values[i];
+}
 
 #define CONFIG_EEPROM_ADDR 16
 #define CONFIG_EEPROM_MAGIC 0xC7
@@ -533,38 +673,18 @@ bool persistConfig() {
 }
 
 void printStoredModule(int module, Print& reply) {
-  const ModuleConfig& c = storedConfig.modules[module - 1];
-  JsonDocument out;
-  out["status"] = "ok";
-  out["module"] = module;
-  out["bottomClosed"] = c.bottomClosed;
-  out["bottomOpen"] = c.bottomOpen;
-  out["paddleClosed"] = c.paddleClosed;
-  out["paddleOpen"] = c.paddleOpen;
-  out["pusherLeft"] = c.pusherLeft;
-  out["pusherNeutral"] = c.pusherNeutral;
-  out["pusherRight"] = c.pusherRight;
-  out["pusherHoldDuration"] = c.pusherHoldDuration;
-  out["paddleCloseDelay"] = c.paddleCloseDelay;
-  out["paddleOpenDelay"] = c.paddleOpenDelay;
-  serializeJson(out, reply);
-  reply.println();
+  reply.print(F("{\"status\":\"ok\",\"module\":"));
+  reply.print(module);
+  printIntFields(MODULE_FIELDS, (const int*)&storedConfig.modules[module - 1],
+                 MODULE_FIELD_COUNT, false, reply);
+  reply.println(F("}"));
 }
 
 void printStoredFeeder(Print& reply) {
-  const FeederConfig& f = storedConfig.feeder;
-  JsonDocument out;
-  out["status"] = "ok";
-  JsonObject feeder = out["feeder"].to<JsonObject>();
-  feeder["speed"] = f.speed;
-  feeder["duration"] = f.duration;
-  feeder["pulseDuration"] = f.pulseDuration;
-  feeder["pauseDuration"] = f.pauseDuration;
-  feeder["settleDuration"] = f.settleDuration;
-  feeder["reverseSpeed"] = f.reverseSpeed;
-  feeder["reverseDuration"] = f.reverseDuration;
-  serializeJson(out, reply);
-  reply.println();
+  reply.print(F("{\"status\":\"ok\",\"feeder\":{"));
+  printIntFields(FEEDER_FIELDS, (const int*)&storedConfig.feeder,
+                 FEEDER_FIELD_COUNT, true, reply);
+  reply.println(F("}}"));
 }
 
 // Routing delays (ms) — tune to match your hardware timing
@@ -609,6 +729,56 @@ InputState cloudInput;
 // eventual definition further down - stops the builder from generating its
 // own broken one for it.
 void feedByte(InputState& s, char c, Print& reply);
+
+size_t copyLine(char* out, const char* s) {
+  size_t len = strnlen(s, MAX_REPLY_LEN);
+  memcpy(out, s, len);
+  out[len++] = '\n';
+  return len;
+}
+
+#if defined(ARDUINO_ARCH_ESP32)
+template <size_t N>
+struct ByteRing {
+  char data[N];
+  volatile size_t head = 0;
+  volatile size_t tail = 0;
+  portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
+
+  void push(const uint8_t* bytes, size_t len) {
+    portENTER_CRITICAL(&mux);
+    for (size_t i = 0; i < len; i++) {
+      size_t next = (head + 1) % N;
+      if (next == tail) break;
+      data[head] = (char)bytes[i];
+      head = next;
+    }
+    portEXIT_CRITICAL(&mux);
+  }
+
+  void clear() {
+    portENTER_CRITICAL(&mux);
+    head = tail = 0;
+    portEXIT_CRITICAL(&mux);
+  }
+
+  void drainTo(InputState& s, Print& reply) {
+    for (;;) {
+      char c;
+      bool available = false;
+      portENTER_CRITICAL(&mux);
+      if (tail != head) {
+        c = data[tail];
+        tail = (tail + 1) % N;
+        available = true;
+      }
+      portEXIT_CRITICAL(&mux);
+      if (!available) return;
+      feedByte(s, c, reply);
+    }
+  }
+};
+#endif
 
 unsigned long modulePresentSince[MAX_MODULES] = {0};
 unsigned long moduleJamAlertedFor[MAX_MODULES] = {0};
@@ -681,16 +851,27 @@ int moduleForChannel(int channel) {
   return module <= maxModuleForOffset() ? module : 0;
 }
 
-int servoSlotForChannel(int channel) {
-  return moduleForChannel(channel) ? (channel - moduleChannelOffset) % 3 : -1;
+// True when a pusher pulse stays within PUSHER_NUDGE_MAX_PULSE of neutral and
+// within PUSHER_NUDGE_MAX_TRAVEL_PERCENT of the calibrated travel towards the
+// side it moves to.
+bool isPusherNudge(int module, int value) {
+  int neutral = servoPulse(moduleConfig[module - 1].pusherNeutral);
+  int left = servoPulse(moduleConfig[module - 1].pusherLeft);
+  int right = servoPulse(moduleConfig[module - 1].pusherRight);
+  int side = (long)(value - neutral) * (left - neutral) > 0 ? left : right;
+  long offset = abs(value - neutral);
+  long travel = abs(side - neutral);
+  return offset <= PUSHER_NUDGE_MAX_PULSE &&
+         offset * 100 <= travel * PUSHER_NUDGE_MAX_TRAVEL_PERCENT;
 }
 
 void setServoPosition(int channel, int pulse) {
   int value = servoPulse(pulse);
-  int pushModule = moduleForChannel(channel);
-  if (pushModule && servoSlotForChannel(channel) == 2 &&
-      value != servoPulse(moduleConfig[pushModule - 1].pusherNeutral)) {
-    lowerPaddleForPush(pushModule);
+  int module = moduleForChannel(channel);
+  int slot = module ? (channel - moduleChannelOffset) % 3 : -1;
+  if (slot == 2 && value != servoPulse(moduleConfig[module - 1].pusherNeutral) &&
+      !isPusherNudge(module, value)) {
+    lowerPaddleForPush(module);
   }
   if (pwm.setPWM(channel, 0, value) != 0) {
     recoverServoDriver();
@@ -699,8 +880,7 @@ void setServoPosition(int channel, int pulse) {
   lastServoMoveAt = millis();
   servosReleased = false;
 
-  int module = moduleForChannel(channel);
-  if (module && servoSlotForChannel(channel) == 1) {
+  if (slot == 1) {
     bool open = value == servoPulse(moduleConfig[module - 1].paddleOpen);
     paddleOpenedAt[module - 1] = open ? (millis() | 1) : 0;
   }
@@ -720,35 +900,56 @@ void lowerPaddleForPush(int module) {
 // twitches, so idle positional servos get no signal at all. Gear friction
 // holds them in place. The feeder is left alone: stopFeeder() already
 // releases it, and a calibration preview keeps it running on purpose.
-void releaseIdleServos() {
-  if (servosReleased || millis() - lastServoMoveAt < SERVO_IDLE_RELEASE_MS) {
-    return;
+// Adafruit's setPin() discards the I2C result, so a write dropped by a
+// supply dip (servo inrush under load) left the feeder spinning at its last
+// speed with nothing noticing. Write full-off directly and retry after a
+// driver recovery, like setServoPosition() does for moves.
+void cutServoSignal(int channel) {
+  if (pwm.setPWM(channel, 0, 4096) != 0) {
+    recoverServoDriver();
+    pwm.setPWM(channel, 0, 4096);
   }
+}
+
+void releaseAllServos() {
   for (int m = 1; m <= maxModuleForOffset(); m++) {
-    for (int s = 0; s < 3; s++) pwm.setPin(getChannel(m, s), 0);
+    for (int s = 0; s < 3; s++) cutServoSignal(getChannel(m, s));
     paddleOpenedAt[m - 1] = 0;
   }
   servosReleased = true;
 }
 
-void setModuleNeutral(int module) {
+void releaseIdleServos() {
+  if (servosReleased || millis() - lastServoMoveAt < SERVO_IDLE_RELEASE_MS) {
+    return;
+  }
+  releaseAllServos();
+}
+
+void setModuleNeutral(int module, unsigned long staggerMs) {
   ModuleConfig& c = moduleConfig[module - 1];
-  setServoPosition(getChannel(module, 0), c.bottomClosed);
-  setServoPosition(getChannel(module, 1), c.paddleClosed);
-  setServoPosition(getChannel(module, 2), c.pusherNeutral);
+  const int pulses[3] = {c.bottomClosed, c.paddleClosed, c.pusherNeutral};
+  for (int s = 0; s < 3; s++) {
+    setServoPosition(getChannel(module, s), pulses[s]);
+    if (staggerMs) waitMs(staggerMs);
+  }
 }
 
 void stopFeeder() {
-  pwm.setPin(getFeederChannel(), 0);  // cut PWM signal entirely to stop 360° servo
+  cutServoSignal(getFeederChannel());  // cut PWM signal entirely to stop 360° servo
 }
 
 // The last card in the hopper has nothing behind it to push it fully in, so
 // once the hopper's empty, keep the motor running settleDuration ms longer.
-void rollBackFeeder() {
-  if (feederConfig.reverseDuration <= 0 || !hopperHasCards()) return;
+void runFeederReverse() {
   setServoPosition(getFeederChannel(), feederConfig.reverseSpeed);
   waitMs(feederConfig.reverseDuration);
   stopFeeder();
+}
+
+void rollBackFeeder() {
+  if (feederConfig.reverseDuration <= 0 || !hopperHasCards()) return;
+  runFeederReverse();
 }
 
 void settleAndStopFeeder() {
@@ -926,14 +1127,14 @@ void updateStatusLed() {
 void setAllNeutral() {
   stopFeeder();
   for (int m = 1; m <= maxModuleForOffset(); m++) {
-    ModuleConfig& c = moduleConfig[m - 1];
-    setServoPosition(getChannel(m, 0), c.bottomClosed);
-    waitMs(SERVO_STAGGER_MS);
-    setServoPosition(getChannel(m, 1), c.paddleClosed);
-    waitMs(SERVO_STAGGER_MS);
-    setServoPosition(getChannel(m, 2), c.pusherNeutral);
-    waitMs(SERVO_STAGGER_MS);
+    setModuleNeutral(m, SERVO_STAGGER_MS);
   }
+  waitMs(200);
+}
+
+void finishDrop() {
+  waitMs(DELAY_PUSH);
+  setAllNeutral();
   waitMs(200);
 }
 
@@ -988,10 +1189,35 @@ const char* bleStatus() {
 #endif
 }
 
-void printModuleRangeError(Print& reply) {
+bool moduleInRange(int module, int max, Print& reply) {
+  if (module >= 1 && module <= max) return true;
   reply.print(F("{\"error\":\"module must be 1 to "));
-  reply.print(maxModuleForOffset());
+  reply.print(max);
   reply.println(F("\"}"));
+  return false;
+}
+
+bool channelInRange(int channel, Print& reply) {
+  if (channel >= 0 && channel <= 15) return true;
+  reply.println(F("{\"error\":\"channel must be 0 to 15\"}"));
+  return false;
+}
+
+void printModuleStatus(const __FlashStringHelper* status, int module,
+                       const char* direction, Print& reply) {
+  reply.print(F("{\"status\":\""));
+  reply.print(status);
+  reply.print(F("\",\"module\":"));
+  reply.print(module);
+  if (direction) {
+    reply.print(F(",\"direction\":\""));
+    reply.print(direction);
+    reply.write('"');
+  }
+}
+
+bool isTrue(JsonVariantConst value) {
+  return value.is<bool>() && value.as<bool>();
 }
 
 void printFeedFailureFields(FeedResult feedResult, Print& reply) {
@@ -1037,11 +1263,7 @@ void feedAndReportEvent(Print& reply) {
 }
 
 void printRoutedResponse(int module, const char* direction, bool feedNext, Print& reply) {
-  reply.print(F("{\"status\":\"routed\",\"module\":"));
-  reply.print(module);
-  reply.print(F(",\"direction\":\""));
-  reply.print(direction);
-  reply.print(F("\""));
+  printModuleStatus(F("routed"), module, direction, reply);
   if (feedNext) reply.print(F(",\"fedNext\":true"));
   reply.println(F("}"));
 }
@@ -1054,11 +1276,6 @@ void printRoutedResponse(int module, const char* direction, bool feedNext, Print
 // which would drop the card through the first (nearest) open module instead
 // of the one actually targeted.
 void routeCard(int targetModule, const char* direction, bool feedNext, Print& reply) {
-  if (targetModule < 1 || targetModule > maxModuleForOffset()) {
-    printModuleRangeError(reply);
-    return;
-  }
-
   ensureServoDriver();
   if (!feedNextCard(reply)) return;
 
@@ -1083,7 +1300,7 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
     }
     if (m == 1 && feedNext && waitForClear(1)) {
       waitMs(DELAY_CARD_ENTER);
-      setModuleNeutral(1);
+      setModuleNeutral(1, 0);
       waitMs(200);
       feedAndReportEvent(reply);
       nextFed = true;
@@ -1093,9 +1310,7 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
 
   if (dropBottom) {
     setServoPosition(getChannel(targetModule, 0), moduleConfig[targetModule - 1].bottomOpen);
-    waitMs(DELAY_PUSH);
-    setAllNeutral();
-    waitMs(200);
+    finishDrop();
   } else {
     ModuleConfig& c = moduleConfig[targetModule - 1];
     pushCard(targetModule, pushLeft, c.paddleOpenDelay, c.pusherHoldDuration,
@@ -1122,7 +1337,7 @@ void pushCard(int module, bool pushLeft, int paddleOpenDelayMs, int holdMs,
   waitMs(holdMs);
   setServoPosition(getChannel(module, 2), c.pusherNeutral);
   if (resetPrecedingModules) {
-    for (int m = 1; m < module; m++) setModuleNeutral(m);
+    for (int m = 1; m < module; m++) setModuleNeutral(m, 0);
   }
 
   long paddleWait = (long)paddleCloseDelayMs - (long)(millis() - pusherFiredAt);
@@ -1146,59 +1361,37 @@ void broadcastLine(const char* s) {
 #endif
 }
 
+// A Print target that buffers a whole line and hands it to `send` once the
+// line's terminating '\n' arrives. BLE chunks each line to the connection's
+// MTU and Wi-Fi sends one WebSocket message per line, so handing either a
+// still-in-progress line would let it interleave with the next one.
+class LinePrint : public Print {
+ public:
+  explicit LinePrint(void (*send)(const char*)) : send(send) {}
+
+  size_t write(uint8_t c) override {
+    if (c == '\n') {
+      if (len > 0 && buf[len - 1] == '\r') len--;
+      buf[len] = '\0';
+      send(buf);
+      len = 0;
+      return 1;
+    }
+    if (len < sizeof(buf) - 1) buf[len++] = c;
+    return 1;
+  }
+  using Print::write;
+
+ private:
+  void (*send)(const char*);
+  char buf[MAX_REPLY_LEN + 1];
+  uint16_t len = 0;
+};
 #if BLE_SUPPORTED
-// Wraps the BLE TX (notify) characteristic as a Print target so handleCommand
-// et al. can write a BLE-originated response the same way they'd write to
-// Serial. Buffers a whole line and only hands it to bleSendLine() (which
-// chunks it to the connection's MTU) once it sees the line's terminating
-// '\n' - chunking a still-in-progress line would let its notify packets
-// interleave with the next line's and corrupt both.
-class BlePrint : public Print {
- public:
-  size_t write(uint8_t c) override {
-    if (c == '\n') {
-      if (len > 0 && buf[len - 1] == '\r') len--;
-      buf[len] = '\0';
-      bleSendLine(buf);
-      len = 0;
-      return 1;
-    }
-    if (len < sizeof(buf) - 1) buf[len++] = c;
-    return 1;
-  }
-  using Print::write;
-
- private:
-  char buf[MAX_REPLY_LEN + 1];
-  uint16_t len = 0;
-};
-BlePrint bleReply;
+LinePrint bleReply(bleSendLine);
 #endif
-
 #if WIFI_SUPPORTED
-// Same whole-line buffering as BlePrint: cloudSendLine() hands each line to
-// the network task as one WebSocket message, so a line must be complete
-// before it's queued.
-class CloudPrint : public Print {
- public:
-  size_t write(uint8_t c) override {
-    if (c == '\n') {
-      if (len > 0 && buf[len - 1] == '\r') len--;
-      buf[len] = '\0';
-      cloudSendLine(buf);
-      len = 0;
-      return 1;
-    }
-    if (len < sizeof(buf) - 1) buf[len++] = c;
-    return 1;
-  }
-  using Print::write;
-
- private:
-  char buf[MAX_REPLY_LEN + 1];
-  uint16_t len = 0;
-};
-CloudPrint cloudReply;
+LinePrint cloudReply(cloudSendLine);
 #endif
 
 // Feeds one byte into a transport's line buffer, dispatching to
@@ -1273,34 +1466,73 @@ class SeqPrint : public Print {
   bool atLineStart = true;
 };
 
-bool readCommandSeq(const char* json, uint32_t& seq) {
-  JsonDocument filter;
-  filter["seq"] = true;
-  JsonDocument doc;
-  if (deserializeJson(doc, json, DeserializationOption::Filter(filter))) return false;
-  if (!doc["seq"].is<uint32_t>()) return false;
-  seq = doc["seq"].as<uint32_t>();
-  return true;
-}
-
 bool commandInProgress = false;
-char activeCommand[MAX_CMD_LEN + 1];
 
-void runCommand(char* json, Print& reply);
+void runCommand(JsonDocument& doc, Print& reply);
 
-void handleCommand(char* json, Print& reply) {
-  uint32_t seq = 0;
-  bool hasSeq = readCommandSeq((const char*)json, seq);
-  SeqPrint tagged(reply, hasSeq, seq);
+void handleCommand(const char* json, Print& reply) {
+  JsonDocument doc;
+  DeserializationError err = deserializeJson(doc, json);
+  bool hasSeq = !err && doc["seq"].is<uint32_t>();
+  SeqPrint tagged(reply, hasSeq, hasSeq ? doc["seq"].as<uint32_t>() : 0);
   if (commandInProgress) {
     tagged.println(F("{\"error\":\"busy\",\"reason\":\"another command is in progress\"}"));
     return;
   }
+  if (err) {
+    reply.print(F("{\"error\":\"invalid JSON\",\"reason\":\""));
+    reply.print(err.c_str());
+    reply.print(F("\",\"length\":"));
+    reply.print(strlen(json));
+    reply.print(F(",\"received\":\""));
+    printJsonEscaped(json, reply);
+    reply.println(F("\"}"));
+    return;
+  }
   commandInProgress = true;
-  strncpy(activeCommand, json, MAX_CMD_LEN);
-  activeCommand[MAX_CMD_LEN] = '\0';
-  runCommand(activeCommand, tagged);
+  runCommand(doc, tagged);
   commandInProgress = false;
+}
+
+void printStatus(Print& reply, bool live) {
+  reply.print(F("{\"status\":\"ready\",\"version\":\"" FIRMWARE_VERSION
+                "\",\"board\":\"" BOARD_TYPE "\",\"id\":\""));
+  reply.print(deviceId);
+  reply.print(F("\",\"ble\":\""));
+  reply.print(bleStatus());
+  reply.print(F("\",\"resetReason\":\""));
+  reply.print(resetReason);
+  reply.print(F("\",\"servoDriver\":\""));
+  reply.print(servoDriverStatus());
+  reply.write('"');
+  // The app sizes its foil nudge from these and won't nudge without them, so
+  // a nudge never lowers the side paddle on firmware with tighter limits.
+  reply.print(F(",\"pusherNudgeMaxPulse\":"));
+  reply.print(PUSHER_NUDGE_MAX_PULSE);
+  reply.print(F(",\"pusherNudgeMaxTravelPercent\":"));
+  reply.print(PUSHER_NUDGE_MAX_TRAVEL_PERCENT);
+  if (live) {
+    reply.print(F(",\"uptimeMs\":"));
+    reply.print(millis());
+#if BLE_SUPPORTED
+    if (bleMtu() > 0) {
+      reply.print(F(",\"bleMtu\":"));
+      reply.print(bleMtu());
+    }
+#endif
+#if WIFI_SUPPORTED
+    reply.print(F(",\"wifi\":\""));
+    reply.print(wifiStateName());
+    reply.print(F("\",\"cloud\":\""));
+    reply.print(cloudStateName());
+    reply.write('"');
+#endif
+  }
+  reply.println(F("}"));
+}
+
+void printBool(bool value, Print& reply) {
+  reply.print(value ? F("true") : F("false"));
 }
 
 void pumpInput() {
@@ -1315,51 +1547,11 @@ void pumpInput() {
 #endif
 }
 
-void runCommand(char* json, Print& reply) {
-  JsonDocument doc;
-  DeserializationError err = deserializeJson(doc, json);
-  if (err) {
-    reply.print(F("{\"error\":\"invalid JSON\",\"reason\":\""));
-    reply.print(err.c_str());
-    reply.print(F("\",\"length\":"));
-    reply.print(strlen(json));
-    reply.print(F(",\"received\":\""));
-    printJsonEscaped(json, reply);
-    reply.println(F("\"}"));
-    return;
-  }
-
+void runCommand(JsonDocument& doc, Print& reply) {
   // {"getStatus": true} — report readiness/version on demand; see
   // PROTOCOL.md for why the app sends this on every connection.
-  if (doc["getStatus"].is<bool>() && doc["getStatus"].as<bool>()) {
-    reply.print(F("{\"status\":\"ready\",\"version\":\""));
-    reply.print(FIRMWARE_VERSION);
-    reply.print(F("\",\"board\":\""));
-    reply.print(BOARD_TYPE);
-    reply.print(F("\",\"id\":\""));
-    reply.print(deviceId);
-    reply.print(F("\",\"ble\":\""));
-    reply.print(bleStatus());
-    reply.print(F("\",\"resetReason\":\""));
-    reply.print(resetReason);
-    reply.print(F("\",\"servoDriver\":\""));
-    reply.print(servoDriverStatus());
-    reply.print(F("\",\"uptimeMs\":"));
-    reply.print(millis());
-#if BLE_SUPPORTED
-    if (bleMtu() > 0) {
-      reply.print(F(",\"bleMtu\":"));
-      reply.print(bleMtu());
-    }
-#endif
-#if WIFI_SUPPORTED
-    reply.print(F(",\"wifi\":\""));
-    reply.print(wifiStateName());
-    reply.print(F("\",\"cloud\":\""));
-    reply.print(cloudStateName());
-    reply.print(F("\""));
-#endif
-    reply.println(F("}"));
+  if (isTrue(doc["getStatus"])) {
+    printStatus(reply, true);
     return;
   }
 
@@ -1376,7 +1568,7 @@ void runCommand(char* json, Print& reply) {
   }
 
   // {"test": true} — run a full mechanical test sequence then confirm connection
-  if (doc["test"].is<bool>() && doc["test"].as<bool>()) {
+  if (isTrue(doc["test"])) {
     if (!servoDriverPresent()) {
       reply.println(F("{\"error\":\"servo driver not detected - check the PCA9685 I2C wiring and power\",\"servoDriver\":\"missing\"}"));
       return;
@@ -1409,7 +1601,7 @@ void runCommand(char* json, Print& reply) {
   }
 
   // {"neutral": true} — reset all servos
-  if (doc["neutral"].is<bool>() && doc["neutral"].as<bool>()) {
+  if (isTrue(doc["neutral"])) {
     setAllNeutral();
     reply.println(F("{\"status\":\"ok\"}"));
     return;
@@ -1418,15 +1610,27 @@ void runCommand(char* json, Print& reply) {
   // {"clearDevice": true} — flushes any physically stuck card out the
   // bottom regardless of feeder/hopper state; unlike catch-all routing,
   // doesn't call runFeeder() first.
-  if (doc["clearDevice"].is<bool>() && doc["clearDevice"].as<bool>()) {
+  if (isTrue(doc["clearDevice"])) {
     for (int m = 1; m <= maxModuleForOffset(); m++) {
       setServoPosition(getChannel(m, 0), moduleConfig[m - 1].bottomOpen);
+      waitMs(SERVO_STAGGER_MS);
     }
-    waitMs(DELAY_PUSH);
-    setAllNeutral();
-    waitMs(200);
+    finishDrop();
     clearStripAlert("jam");
     reply.println(F("{\"status\":\"cleared\"}"));
+    return;
+  }
+
+  // {"retractCard": true} - runs the feeder backward with the rollback
+  // settings (reverseSpeed for reverseDuration ms) to pull a partly fed card
+  // back into the hopper, whether or not the hopper sensor sees cards.
+  if (isTrue(doc["retractCard"])) {
+    if (feederConfig.reverseDuration <= 0) {
+      reply.println(F("{\"error\":\"rollback_off\"}"));
+      return;
+    }
+    runFeederReverse();
+    reply.println(F("{\"status\":\"retracted\"}"));
     return;
   }
 
@@ -1435,10 +1639,7 @@ void runCommand(char* json, Print& reply) {
   if (!doc["servo"].isNull()) {
     const char* servo = doc["servo"];
     int module = doc["module"] | 0;
-    if (module < 1 || module > maxModuleForOffset()) {
-      printModuleRangeError(reply);
-      return;
-    }
+    if (!moduleInRange(module, maxModuleForOffset(), reply)) return;
     int offset = getServoOffset(servo);
     if (offset < 0) {
       reply.println(F("{\"error\":\"servo must be bottom, paddle, or pusher\"}"));
@@ -1473,10 +1674,7 @@ void runCommand(char* json, Print& reply) {
   // through getChannel()/module validation like {"servo": ...} does.
   if (doc["channel"].is<int>() && doc["value"].is<int>()) {
     int channel = doc["channel"].as<int>();
-    if (channel < 0 || channel > 15) {
-      reply.println(F("{\"error\":\"channel must be 0 to 15\"}"));
-      return;
-    }
+    if (!channelInRange(channel, reply)) return;
     int value = doc["value"].as<int>();
     setServoPosition(channel, value);
     reply.print(F("{\"status\":\"ok\",\"channel\":"));
@@ -1491,11 +1689,8 @@ void runCommand(char* json, Print& reply) {
   // does)
   if (doc["channelStop"].is<int>()) {
     int channel = doc["channelStop"].as<int>();
-    if (channel < 0 || channel > 15) {
-      reply.println(F("{\"error\":\"channel must be 0 to 15\"}"));
-      return;
-    }
-    pwm.setPin(channel, 0);
+    if (!channelInRange(channel, reply)) return;
+    cutServoSignal(channel);
     reply.print(F("{\"status\":\"ok\",\"channel\":"));
     reply.print(channel);
     reply.println(F("}"));
@@ -1504,38 +1699,26 @@ void runCommand(char* json, Print& reply) {
 
   // {"setConfig": {"module": 1, "bottomClosed": 150, ...}}
   if (!doc["setConfig"].isNull()) {
-    JsonObject cfg = doc["setConfig"];
+    JsonObjectConst cfg = doc["setConfig"];
     int module = cfg["module"] | 0;
-    if (module < 1 || module > maxModuleForOffset()) {
-      printModuleRangeError(reply);
-      return;
-    }
+    if (!moduleInRange(module, maxModuleForOffset(), reply)) return;
     ModuleConfig& c = moduleConfig[module - 1];
-    c.bottomClosed  = cfg["bottomClosed"]  | c.bottomClosed;
-    c.bottomOpen    = cfg["bottomOpen"]    | c.bottomOpen;
-    c.paddleClosed  = cfg["paddleClosed"]  | c.paddleClosed;
-    c.paddleOpen    = cfg["paddleOpen"]    | c.paddleOpen;
-    c.pusherLeft    = cfg["pusherLeft"]    | c.pusherLeft;
-    c.pusherNeutral = cfg["pusherNeutral"] | c.pusherNeutral;
-    c.pusherRight   = cfg["pusherRight"]   | c.pusherRight;
-    c.paddleCloseDelay = cfg["paddleCloseDelay"] | c.paddleCloseDelay;
-    c.pusherHoldDuration = cfg["pusherHoldDuration"] | c.pusherHoldDuration;
-    c.paddleOpenDelay = constrain((int)(cfg["paddleOpenDelay"] | c.paddleOpenDelay), 0, 5000);
+    readIntFields(cfg, MODULE_FIELDS, (int*)&c, MODULE_FIELD_COUNT);
+    c.paddleOpenDelay = constrain(c.paddleOpenDelay, 0, 5000);
 
-    reply.print(F("{\"status\":\"ok\",\"module\":"));
-    reply.print(module);
+    printModuleStatus(F("ok"), module, nullptr, reply);
     reply.println(F("}"));
     return;
   }
 
   // {"feeder": true} — run feeder until module 1 IR detects a card (or timeout/empty hopper)
-  if (doc["feeder"].is<bool>() && doc["feeder"].as<bool>()) {
+  if (isTrue(doc["feeder"])) {
     FeedResult result = runFeeder();
     showFeedResult(result);
     reply.print(F("{\"status\":\"ok\",\"detected\":"));
-    reply.print(result == FEED_DETECTED ? F("true") : F("false"));
+    printBool(result == FEED_DETECTED, reply);
     reply.print(F(",\"empty\":"));
-    reply.print(result == FEED_EMPTY ? F("true") : F("false"));
+    printBool(result == FEED_EMPTY, reply);
     reply.println(F("}"));
     return;
   }
@@ -1548,7 +1731,7 @@ void runCommand(char* json, Print& reply) {
   }
 
   // {"feederStop": true} — stop feeder immediately
-  if (doc["feederStop"].is<bool>() && doc["feederStop"].as<bool>()) {
+  if (isTrue(doc["feederStop"])) {
     stopFeeder();
     reply.println(F("{\"status\":\"ok\"}"));
     return;
@@ -1556,24 +1739,18 @@ void runCommand(char* json, Print& reply) {
 
   // {"setFeederConfig": {"speed": N, "duration": N, "pulseDuration": N, "pauseDuration": N, "settleDuration": N, "reverseSpeed": N, "reverseDuration": N}}
   if (!doc["setFeederConfig"].isNull()) {
-    JsonObject cfg = doc["setFeederConfig"];
-    feederConfig.speed          = cfg["speed"]          | feederConfig.speed;
-    feederConfig.duration       = cfg["duration"]       | feederConfig.duration;
-    feederConfig.pulseDuration  = cfg["pulseDuration"]  | feederConfig.pulseDuration;
-    feederConfig.pauseDuration  = cfg["pauseDuration"]  | feederConfig.pauseDuration;
-    feederConfig.settleDuration = cfg["settleDuration"] | feederConfig.settleDuration;
-    feederConfig.reverseSpeed    = cfg["reverseSpeed"]    | feederConfig.reverseSpeed;
-    feederConfig.reverseDuration = cfg["reverseDuration"] | feederConfig.reverseDuration;
+    readIntFields(doc["setFeederConfig"], FEEDER_FIELDS, (int*)&feederConfig,
+                  FEEDER_FIELD_COUNT);
     stopFeeder();
     reply.println(F("{\"status\":\"ok\"}"));
     return;
   }
 
-  if (doc["getStoredConfig"].is<bool>() && doc["getStoredConfig"].as<bool>()) {
+  if (isTrue(doc["getStoredConfig"])) {
     reply.print(F("{\"status\":\"ok\",\"stored\":"));
-    reply.print(hasStoredConfig ? F("true") : F("false"));
+    printBool(hasStoredConfig, reply);
     reply.print(F(",\"dirty\":"));
-    reply.print(configMatchesStored() ? F("false") : F("true"));
+    printBool(!configMatchesStored(), reply);
     if (hasStoredConfig) {
       reply.print(F(",\"channelOffset\":"));
       reply.print(storedConfig.channelOffset);
@@ -1590,12 +1767,7 @@ void runCommand(char* json, Print& reply) {
     }
     if (doc["getStoredConfig"].is<int>()) {
       int module = doc["getStoredConfig"].as<int>();
-      if (module < 1 || module > MAX_MODULES) {
-        reply.print(F("{\"error\":\"module must be 1 to "));
-        reply.print(MAX_MODULES);
-        reply.println(F("\"}"));
-        return;
-      }
+      if (!moduleInRange(module, MAX_MODULES, reply)) return;
       printStoredModule(module, reply);
       return;
     }
@@ -1608,36 +1780,60 @@ void runCommand(char* json, Print& reply) {
     return;
   }
 
-  if (doc["storeConfig"].is<bool>() && doc["storeConfig"].as<bool>()) {
+  if (isTrue(doc["storeConfig"])) {
     bool written = persistConfig();
     reply.print(F("{\"status\":\"ok\",\"written\":"));
-    reply.print(written ? F("true") : F("false"));
+    printBool(written, reply);
     reply.println(F("}"));
     return;
   }
 
   // {"readIR": true} — read current IR sensor state for all modules + hopper
-  if (doc["readIR"].is<bool>() && doc["readIR"].as<bool>()) {
+  if (isTrue(doc["readIR"])) {
     reply.print(F("{\"status\":\"ok\",\"ir\":["));
     for (int m = 1; m <= maxModuleForOffset(); m++) {
       if (m > 1) reply.print(',');
-      reply.print(digitalRead(irPin(m)) == LOW ? F("true") : F("false"));  // true = card present
+      printBool(digitalRead(irPin(m)) == LOW, reply);  // true = card present
     }
     reply.print(F("],\"hopper\":"));
-    reply.print(hopperHasCards() ? F("true") : F("false"));  // true = cards remain in feeder stack
+    printBool(hopperHasCards(), reply);  // true = cards remain in feeder stack
     reply.println(F("}"));
+    return;
+  }
+
+  // {"detectModules": true} - count modules from the IR sensors that are
+  // wired, from module 1 up to the first missing one. "sensors" lists every
+  // addressable module so the app can show gaps.
+  if (isTrue(doc["detectModules"])) {
+#if MODULE_DETECTION_SUPPORTED
+    bool connected[MAX_MODULES] = {false};
+    int detected = 0;
+    bool contiguous = true;
+    for (int m = 1; m <= maxModuleForOffset(); m++) {
+      connected[m - 1] = irSensorConnected(m);
+      if (!connected[m - 1]) contiguous = false;
+      if (contiguous) detected = m;
+    }
+    reply.print(F("{\"status\":\"ok\",\"modules\":"));
+    reply.print(detected);
+    reply.print(F(",\"sensors\":["));
+    for (int m = 1; m <= maxModuleForOffset(); m++) {
+      if (m > 1) reply.print(',');
+      printBool(connected[m - 1], reply);
+    }
+    reply.println(F("]}"));
+#else
+    reply.println(F("{\"error\":\"module detection unsupported\"}"));
+#endif
     return;
   }
 
   // {"route": {"module": N, "direction": "left"|"right"|"bottom", "feedNext": bool}} — see routeCard()
   if (!doc["route"].isNull()) {
-    JsonObject route = doc["route"];
+    JsonObjectConst route = doc["route"];
     int module = route["module"] | 0;
     const char* direction = route["direction"] | "";
-    if (module < 1 || module > maxModuleForOffset()) {
-      printModuleRangeError(reply);
-      return;
-    }
+    if (!moduleInRange(module, maxModuleForOffset(), reply)) return;
     if (strcmp(direction, "left") != 0 && strcmp(direction, "right") != 0 &&
         strcmp(direction, "bottom") != 0) {
       reply.println(F("{\"error\":\"direction must be left, right, or bottom\"}"));
@@ -1652,13 +1848,10 @@ void runCommand(char* json, Print& reply) {
   //   - timings optional,
   // default to the module's stored config
   if (!doc["pushTest"].isNull()) {
-    JsonObject test = doc["pushTest"];
+    JsonObjectConst test = doc["pushTest"];
     int module = test["module"] | 0;
     const char* direction = test["direction"] | "";
-    if (module < 1 || module > maxModuleForOffset()) {
-      printModuleRangeError(reply);
-      return;
-    }
+    if (!moduleInRange(module, maxModuleForOffset(), reply)) return;
     if (strcmp(direction, "left") != 0 && strcmp(direction, "right") != 0) {
       reply.println(F("{\"error\":\"direction must be left or right\"}"));
       return;
@@ -1670,11 +1863,8 @@ void runCommand(char* json, Print& reply) {
     ensureServoDriver();
     pushCard(module, strcmp(direction, "left") == 0, openMs, holdMs, paddleMs, false);
 
-    reply.print(F("{\"status\":\"pushed\",\"module\":"));
-    reply.print(module);
-    reply.print(F(",\"direction\":\""));
-    reply.print(direction);
-    reply.println(F("\"}"));
+    printModuleStatus(F("pushed"), module, direction, reply);
+    reply.println(F("}"));
     return;
   }
 
@@ -1694,6 +1884,9 @@ void runCommand(char* json, Print& reply) {
 
 void setup() {
   captureResetReason();
+#if defined(ARDUINO_ARCH_ESP32)
+  trackBrownoutBoots();
+#endif
 #if defined(RGB_BUILTIN) && ENABLE_ONBOARD_RGB_STATUS
   rgbLedWrite(RGB_BUILTIN, 0, 0, RGB_BRIGHTNESS);  // blue - powered, not yet connected
 #endif
@@ -1721,7 +1914,15 @@ void setup() {
   pinMode(IR_PIN_HOPPER, INPUT_PULLUP);
 
   initServoDriver();
-  setAllNeutral();
+  // The PCA9685 can keep driving a stalled servo through an MCU reset, so a
+  // brownout loop cuts every signal rather than just skipping the move. The
+  // next command that moves a servo powers it again.
+  if (bootingAfterRepeatedBrownouts()) {
+    stopFeeder();
+    releaseAllServos();
+  } else {
+    setAllNeutral();
+  }
 #if LED_STRIP_SUPPORTED
   initLedStrip();
 #endif
@@ -1730,8 +1931,19 @@ void setup() {
   initDeviceIdFromEspMac();
 #endif
 
-#if BLE_SUPPORTED
-  bleInit();  // Uno R4 WiFi sets deviceId here, from BLE.address()
+#if BLE_SUPPORTED && WIFI_SUPPORTED
+  if (!cloudOwnsRadio()) bleInit();
+#elif BLE_SUPPORTED
+  bleInit();
+#endif
+#if defined(ARDUINO_UNOWIFIR4)
+  // Uno R4 WiFi: bleInit() set deviceId from BLE.address(), unless Wi-Fi
+  // owns the radio this boot.
+  if (deviceId[0] == '\0') {
+    loadCachedRadioDeviceId();
+  } else {
+    cacheRadioDeviceId();
+  }
 #endif
 #if WIFI_SUPPORTED
   cloudInit();
@@ -1744,17 +1956,17 @@ void setup() {
     loadOrCreateDeviceId();
   }
 
-  char bootLine[220];
-  snprintf(bootLine, sizeof(bootLine),
-           "{\"status\":\"ready\",\"version\":\"%s\",\"board\":\"%s\",\"id\":\"%s\",\"ble\":\"%s\",\"resetReason\":\"%s\",\"servoDriver\":\"%s\"}",
-           FIRMWARE_VERSION, BOARD_TYPE, deviceId, bleStatus(), resetReason, servoDriverStatus());
-  broadcastLine(bootLine);
+  LinePrint banner(broadcastLine);
+  printStatus(banner, false);
 
   startWatchdog();
 }
 
 void loop() {
   feedWatchdog();
+#if defined(ARDUINO_ARCH_ESP32)
+  clearBrownoutBootsWhenStable();
+#endif
   pumpInput();
   checkModuleJams();
   releaseIdleServos();

@@ -11,12 +11,14 @@ export default function CalibrateScanRegionPage() {
     captureSettleDelayMs,
     matchesNeeded,
     checkBothOrientations,
+    flipCamera,
     isDeviceLoading,
     handleScanRegionChange,
     handleResetScanRegion,
     handleCaptureSettleChange,
     handleMatchesNeededChange,
     handleCheckBothOrientationsChange,
+    handleFlipCameraChange,
     isScanRegionSectionDirty,
     isSavingScanRegion,
     handleSaveScanRegion,
@@ -36,12 +38,14 @@ export default function CalibrateScanRegionPage() {
         captureSettleDelayMs={captureSettleDelayMs}
         matchesNeeded={matchesNeeded}
         checkBothOrientations={checkBothOrientations}
+        flipCamera={flipCamera}
         isLoading={isDeviceLoading}
         onRegionChange={handleScanRegionChange}
         onResetRegion={handleResetScanRegion}
         onCaptureSettleChange={handleCaptureSettleChange}
         onMatchesNeededChange={handleMatchesNeededChange}
         onCheckBothOrientationsChange={handleCheckBothOrientationsChange}
+        onFlipCameraChange={handleFlipCameraChange}
         />
       </fieldset>
       <FoilCalibrationPanel calibration={foilCalibration} />

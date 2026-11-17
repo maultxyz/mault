@@ -1,10 +1,12 @@
 import { MarketingFooter } from "@/components/marketing-footer";
 import { DISCORD_URL, DONATE_URL } from "@/lib/constants/links";
 import { IconBrandDiscord, IconCoffee } from "@tabler/icons-react";
+import { useCurrentYear } from "@/hooks/use-current-year";
 import { useTranslation } from "react-i18next";
 
 export function LandingFooter() {
   const { t } = useTranslation("landing");
+  const year = useCurrentYear();
   const { t: tCommon } = useTranslation("common");
 
   return (
@@ -42,7 +44,7 @@ export function LandingFooter() {
           </a>
           <p className="text-sm text-foreground/70">
             {t("footer.copyright", {
-              year: new Date().getFullYear(),
+              year,
               version: __APP_VERSION__,
             })}
           </p>

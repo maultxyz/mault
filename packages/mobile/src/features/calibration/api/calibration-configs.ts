@@ -44,8 +44,7 @@ export function saveFeederConfig(deviceGuid: string, calibration: FeederCalibrat
 export const binHeightsQueryOptions = (deviceGuid: string | null) =>
   queryOptions({
     queryKey: ["bin-heights", deviceGuid] as const,
-    queryFn: () =>
-      apiGet<Result<BinHeight[]>>(`/api/devices/${deviceGuid}/bin-heights`).then((result) => result.data ?? []),
+    queryFn: () => unwrap(apiGet<Result<BinHeight[]>>(`/api/devices/${deviceGuid}/bin-heights`)),
     enabled: !!deviceGuid,
   });
 

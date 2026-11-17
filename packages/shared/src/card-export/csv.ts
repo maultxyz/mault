@@ -1,5 +1,5 @@
 import { getCardValue } from "../evaluate-bin";
-import { conditionLabel, csvEscape } from "./base";
+import { conditionLabel, csvEscape, finishLabel } from "./base";
 import type { ExportAdapter } from "../interfaces/card-export.interface";
 
 export const csvAdapter: ExportAdapter = {
@@ -12,6 +12,7 @@ export const csvAdapter: ExportAdapter = {
     "Quantity",
     "Foil",
     "Foil Type",
+    "Finish",
     "Condition",
     "Set",
     "Card Number",
@@ -21,6 +22,7 @@ export const csvAdapter: ExportAdapter = {
     String(quantity),
     isFoil ? "True" : "False",
     foilType ? csvEscape(foilType) : "",
+    csvEscape(finishLabel(isFoil, foilType)),
     conditionLabel(condition),
     card.set.toUpperCase(),
     card.collectorNumber,

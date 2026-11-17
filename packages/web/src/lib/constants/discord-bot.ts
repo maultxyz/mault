@@ -9,7 +9,15 @@ import {
   IconSettingsBolt,
 } from "@tabler/icons-react";
 
-export const DISCORD_BOT_COMMANDS = ["link", "stats"] as const;
+export const DISCORD_BOT_COMMANDS = [
+  "link",
+  "stats",
+  "linkAccount",
+  "showoff",
+  "shareCalibration",
+  "sharePreset",
+  "leaderboard",
+] as const;
 
 export const DISCORD_BOT_FEATURE_ICONS = [
   IconPhotoCog,

@@ -1,3 +1,4 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authProvider } from "../../auth";
 import { validateQuery } from "../../lib/card-search/validate";
@@ -6,7 +7,7 @@ import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 export const searchUsersRoute = new Hono<AppEnv>().get(
   "/users",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const search = (c.req.query("search") ?? "").trim();
     const invalid = validateQuery(search);

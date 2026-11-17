@@ -56,7 +56,6 @@ export default function CollectionViewPage() {
         action={
           <Button
             variant="outline"
-            size="sm"
             render={<Link to={COLLECTIONS_PATH}>{t("view.back")}</Link>}
           />
         }
@@ -78,7 +77,7 @@ export default function CollectionViewPage() {
           }
         />
         <div className="min-w-0 flex-1">
-          <p className="truncate text-sm font-medium">{collection.name}</p>
+          <h1 className="truncate text-sm font-medium">{collection.name}</h1>
           <p className="text-xs text-foreground/70">{t("view.subtitle")}</p>
         </div>
         <Button

@@ -7,6 +7,7 @@ export interface SoundClip {
   sizeBytes: number;
   url: string | null;
   waveform: number[] | null;
+  isSystem: boolean;
   createdAt: string;
 }
 

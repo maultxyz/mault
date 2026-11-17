@@ -1,5 +1,10 @@
 import { toCardCondition } from "../card-condition";
-import { CONDITION_EXPORT_LABELS } from "../constants/card-export.constant";
+import { scanLanguage } from "../card-language";
+import {
+  CONDITION_EXPORT_LABELS,
+  FOIL_FINISH_LABEL,
+  NONFOIL_FINISH_LABEL,
+} from "../constants/card-export.constant";
 import type {
   ExportableCard,
   ExportAdapter,
@@ -28,12 +33,28 @@ export function conditionLabel(condition: CardCondition): string {
   return CONDITION_EXPORT_LABELS[condition];
 }
 
+export function finishLabel(
+  isFoil: boolean,
+  foilType: string | null | undefined,
+): string {
+  if (!isFoil) return NONFOIL_FINISH_LABEL;
+  return foilType?.trim() || FOIL_FINISH_LABEL;
+}
+
 export function purchasePrice(card: PlayingCardWithDistance, isFoil: boolean) {
   const price = (isFoil ? card.priceFoil : card.price) ?? card.price;
   return price != null ? price.toFixed(2) : "";
 }
 
-function groupCards(
+export function exportEntryKey(
+  entry: Pick<GroupedEntry, "isFoil" | "foilType" | "condition" | "language"> & {
+    card: Pick<PlayingCardWithDistance, "id">;
+  },
+): string {
+  return `${entry.card.id}:${entry.isFoil}:${entry.foilType ?? ""}:${entry.condition}:${entry.language}`;
+}
+
+export function groupExportCards(
   cards: ExportableCard[],
   groupBy: GroupBy,
   combineDuplicates: boolean,
@@ -45,15 +66,17 @@ function groupCards(
       isFoil: !!entry.isFoil,
       foilType: entry.foilType,
       condition: toCardCondition(entry.condition),
+      language: scanLanguage(entry),
     }));
   const grouped = new Map<string, GroupedEntry>();
   for (const entry of cards) {
     const isFoil = !!entry.isFoil;
     const condition = toCardCondition(entry.condition);
+    const language = scanLanguage(entry);
     const key =
       groupBy === "card-foil"
-        ? `${entry.card.id}:${isFoil}:${entry.foilType ?? ""}:${condition}`
-        : `${entry.card.id}:${condition}`;
+        ? exportEntryKey({ card: entry.card, isFoil, foilType: entry.foilType, condition, language })
+        : `${entry.card.id}:${condition}:${language}`;
     const existing = grouped.get(key);
     if (existing) existing.quantity++;
     else
@@ -63,9 +86,27 @@ function groupCards(
         isFoil,
         foilType: entry.foilType,
         condition,
+        language,
       });
   }
   return Array.from(grouped.values());
+}
+
+function mergeEntriesByRowKey(
+  adapter: ExportAdapter,
+  entries: GroupedEntry[],
+  ctx: ExportContext,
+): GroupedEntry[] {
+  const rowKey = adapter.rowKey;
+  if (!rowKey) return entries;
+  const merged = new Map<string, GroupedEntry>();
+  for (const entry of entries) {
+    const key = rowKey(entry, ctx);
+    const existing = merged.get(key);
+    if (existing) existing.quantity += entry.quantity;
+    else merged.set(key, { ...entry });
+  }
+  return Array.from(merged.values());
 }
 
 const dateSuffix = () => new Date().toISOString().slice(0, 10);
@@ -76,7 +117,11 @@ export function buildExportCsv(
   ctx: ExportContext,
   combineDuplicates: boolean,
 ): string {
-  const entries = groupCards(cards, adapter.groupBy, combineDuplicates);
+  const entries = mergeEntriesByRowKey(
+    adapter,
+    groupExportCards(cards, adapter.groupBy, combineDuplicates),
+    ctx,
+  );
   return [
     adapter.headers(ctx).join(","),
     ...entries.map((entry) => adapter.row(entry, ctx).join(",")),

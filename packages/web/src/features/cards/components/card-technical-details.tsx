@@ -1,16 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { DetailSection } from "@/features/cards/components/detail-section";
-import { loadCardDiagnostics } from "@/features/collections/api/collections";
+import { cardDiagnosticsQueryOptions } from "@/features/collections/api/collections";
 import { useCardDetailCollection } from "@/features/cards/api/use-card-detail-scope";
 import type {
   CardTechnicalDetailsProps,
   TechnicalDetailRowProps,
 } from "@/lib/interfaces/cards";
-import { toast } from "@/lib/toast";
 import { matchPercent } from "@/lib/utils";
 import { IconCopy } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { copyWithToast } from "@/lib/clipboard";
 
 function formatNumber(value: number | null | undefined, digits = 3): string {
   return value == null ? "n/a" : value.toFixed(digits);
@@ -36,25 +36,20 @@ export function CardTechnicalDetails({
   const collection = useCardDetailCollection();
   const guid = collection?.guid;
 
-  const { data: diagnostics, isLoading } = useQuery({
-    queryKey: ["collection-card-diagnostics", guid, scanId],
-    queryFn: () =>
-      loadCardDiagnostics(guid!, scanId).then((r) => r.data ?? null),
-    enabled: !!guid,
-    staleTime: Infinity,
-  });
+  const { data: diagnostics, isLoading } = useQuery(
+    cardDiagnosticsQueryOptions(guid, scanId),
+  );
 
   const cardJson = JSON.stringify(card, null, 2);
   const yesNo = (value: boolean) =>
     value ? t("technicalDetails.yes") : t("technicalDetails.no");
 
   const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(cardJson);
-      toast.success(t("technicalDetails.copied"));
-    } catch {
-      toast.error(t("technicalDetails.copyFailed"));
-    }
+    await copyWithToast(
+      cardJson,
+      t("technicalDetails.copied"),
+      t("technicalDetails.copyFailed"),
+    );
   };
 
   return (
@@ -97,6 +92,21 @@ export function CardTechnicalDetails({
               {diagnostics.detectedColor !== undefined && (
                 <Row label={t("technicalDetails.detectedColor")}>
                   {diagnostics.detectedColor ?? t("technicalDetails.noColor")}
+                </Row>
+              )}
+              {typeof diagnostics.foilDetection?.foilScore === "number" && (
+                <Row label={t("technicalDetails.foilDetection")}>
+                  {t(
+                    diagnostics.foilDetection.isFoilDetected
+                      ? "technicalDetails.foilDetected"
+                      : "technicalDetails.foilNotDetected",
+                    {
+                      method: t(
+                        `technicalDetails.foilMethod.${diagnostics.foilDetection.method ?? "rainbow"}`,
+                      ),
+                      score: diagnostics.foilDetection.foilScore.toFixed(2),
+                    },
+                  )}
                 </Row>
               )}
             </>
@@ -211,7 +221,7 @@ export function CardTechnicalDetails({
 
       <DetailSection title={t("technicalDetails.cardJson")}>
         <div className="flex justify-end">
-          <Button variant="outline" size="sm" onClick={handleCopy}>
+          <Button variant="outline" onClick={handleCopy}>
             <IconCopy />
             {t("technicalDetails.copyJson")}
           </Button>

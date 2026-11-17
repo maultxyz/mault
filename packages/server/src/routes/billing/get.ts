@@ -1,18 +1,43 @@
-import { eq } from "drizzle-orm";
-import { Hono } from "hono";
-import { authQuery } from "../../db";
-import { orgBilling } from "../../db/schema";
-import { apiAccessAllowedForPlan } from "../../lib/api-access";
-import { chaosSortAllowedForPlan } from "../../lib/chaos-sort-access";
-import { dailyScanLimitForPlan, getScansToday } from "../../lib/scan-usage";
 import {
-  businessIntervalForPriceId,
-  getBusinessPrices,
-} from "../../lib/stripe";
-import { sorterLimitForPlan } from "../../lib/sorter-limit";
+  LEGACY_BUSINESS_PLAN,
+  LEGACY_BUSINESS_REPORTED_PLAN,
+} from "@magic-vault/shared";
+import { and, count, eq } from "drizzle-orm";
+import { Hono } from "hono";
+import { authProvider } from "../../auth";
+import { authQuery } from "../../db";
+import { notificationRules, orgBilling, soundRules } from "../../db/schema";
+import { apiAccessAllowedForPlan } from "../../lib/api-access";
+import { businessToolsAllowedForPlan } from "../../lib/business-access";
+import { chaosSortAllowedForPlan } from "../../lib/chaos-sort-access";
+import {
+  collectionLimitForPlan,
+  countLiveCollections,
+} from "../../lib/collection-limit";
+import { fleetHealthAllowedForPlan } from "../../lib/fleet-health-access";
+import { memberLimitForPlan } from "../../lib/member-seat-limit";
 import { notificationRuleLimitForPlan } from "../../lib/notification-rule-limit";
+import {
+  countOwnedOrganizations,
+  organizationLimitForPlan,
+} from "../../lib/organization-limit";
+import { toPlanKey } from "../../lib/plan-config";
+import { currentPreviewPlan } from "../../lib/plan-preview";
+import { isLegacyPricingActive } from "../../lib/pricing-mode";
+import { repacksAllowedForPlan } from "../../lib/repack-access";
+import { customSoundsAllowedForPlan } from "../../lib/custom-sounds-access";
+import {
+  dailyScanLimitForPlan,
+  getScansThisMonth,
+  getScansToday,
+} from "../../lib/scan-usage";
+import { sorterLimitForPlan } from "../../lib/sorter-limit";
 import { soundRuleLimitForPlan } from "../../lib/sound-rule-limit";
-import { storageAllowedForPlan } from "../../lib/storage-access";
+import {
+  countLiveStorageLocations,
+  storageAllowedForPlan,
+} from "../../lib/storage-access";
+import { findPlanForPriceId, getPaidPlanPrices } from "../../lib/stripe";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const getBillingRoute = new Hono<AppEnv>().get(
@@ -21,43 +46,82 @@ export const getBillingRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      const prices = await getBusinessPrices();
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const billing = await tx.query.orgBilling.findFirst({
-          where: eq(orgBilling.orgId, orgId),
-        });
-        const count = await getScansToday(tx, orgId);
-
-        const plan = (billing?.plan as "free" | "business") ?? "free";
-        return {
-          success: true,
-          message: "Loaded.",
-          data: {
-            plan,
-            status: billing?.status ?? null,
-            cancelAtPeriodEnd: billing?.cancelAtPeriodEnd ?? false,
-            currentPeriodEnd: billing?.currentPeriodEnd ?? null,
-            interval:
-              plan === "business"
-                ? businessIntervalForPriceId(billing?.stripePriceId)
-                : null,
-            prices,
-            cardsScannedToday: count,
-            dailyLimit: dailyScanLimitForPlan(plan),
-            maxConnectedSorters: sorterLimitForPlan(plan),
-            maxSoundRules: soundRuleLimitForPlan(plan),
-            maxNotificationRules: notificationRuleLimitForPlan(plan),
-            chaosSort: chaosSortAllowedForPlan(plan),
-            storage: storageAllowedForPlan(plan),
-            apiAccess: apiAccessAllowedForPlan(plan),
-          },
-        };
+    const [planPrices, ownedOrganizations, memberUserIds] = await Promise.all([
+      getPaidPlanPrices(),
+      countOwnedOrganizations(c.get("userId")),
+      authProvider.listOrgMemberUserIdsBySeat(orgId),
+    ]);
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const billing = await tx.query.orgBilling.findFirst({
+        where: eq(orgBilling.orgId, orgId),
       });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      const scansToday = await getScansToday(tx, orgId);
+      const scansThisMonth = await getScansThisMonth(tx, orgId);
+      const collectionCount = await countLiveCollections(tx, orgId);
+      const storageLocationCount = await countLiveStorageLocations(tx, orgId);
+      const [{ soundRuleCount }] = await tx
+        .select({ soundRuleCount: count() })
+        .from(soundRules)
+        .where(
+          and(eq(soundRules.orgId, orgId), eq(soundRules.isDeleted, false)),
+        );
+      const [{ notificationRuleCount }] = await tx
+        .select({ notificationRuleCount: count() })
+        .from(notificationRules)
+        .where(
+          and(
+            eq(notificationRules.orgId, orgId),
+            eq(notificationRules.isDeleted, false),
+          ),
+        );
+
+      const previewPlan = currentPreviewPlan();
+      const plan = previewPlan ?? toPlanKey(billing?.plan);
+      return {
+        success: true,
+        message: "Loaded.",
+        data: {
+          plan:
+            plan === LEGACY_BUSINESS_PLAN
+              ? LEGACY_BUSINESS_REPORTED_PLAN
+              : plan,
+          isLegacyPlan:
+            plan === LEGACY_BUSINESS_PLAN && !isLegacyPricingActive(),
+          isPlanPreview: !!previewPlan,
+          status: billing?.status ?? null,
+          cancelAtPeriodEnd: billing?.cancelAtPeriodEnd ?? false,
+          currentPeriodEnd: billing?.currentPeriodEnd ?? null,
+          interval:
+            plan === "free"
+              ? null
+              : (findPlanForPriceId(billing?.stripePriceId)?.interval ?? null),
+          prices: planPrices.business,
+          planPrices,
+          cardsScannedToday: scansToday,
+          cardsScannedThisMonth: scansThisMonth,
+          dailyLimit: dailyScanLimitForPlan(plan),
+          maxOrganizations: organizationLimitForPlan(plan),
+          ownedOrganizations,
+          maxMembersPerOrg: memberLimitForPlan(plan),
+          memberCount: memberUserIds.length,
+          maxConnectedSorters: sorterLimitForPlan(plan),
+          maxSoundRules: soundRuleLimitForPlan(plan),
+          soundRuleCount,
+          maxNotificationRules: notificationRuleLimitForPlan(plan),
+          notificationRuleCount,
+          maxCollections: collectionLimitForPlan(plan),
+          collectionCount,
+          chaosSort: chaosSortAllowedForPlan(plan),
+          repacks: repacksAllowedForPlan(plan),
+          customSounds: customSoundsAllowedForPlan(plan),
+          fleetHealth: fleetHealthAllowedForPlan(plan),
+          storage: storageAllowedForPlan(plan),
+          storageLocationCount,
+          apiAccess: apiAccessAllowedForPlan(plan),
+          businessTools: businessToolsAllowedForPlan(plan),
+        },
+      };
+    });
+    return c.json(result);
   },
 );

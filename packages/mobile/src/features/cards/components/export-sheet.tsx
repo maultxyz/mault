@@ -8,7 +8,7 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { ExportSheetProps } from "@/lib/interfaces/cards";
 
 export function ExportSheet({
@@ -29,12 +29,17 @@ export function ExportSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
         style={{
           backgroundColor: colors.background,
           borderTopLeftRadius: RADIUS.xl,
           borderTopRightRadius: RADIUS.xl,
+          borderWidth: 1,
+          borderBottomWidth: 0,
+          borderColor: colors.border,
+          ...SHEET_SHADOW,
+          shadowColor: colors.popoverShadow,
           paddingBottom: insets.bottom + SPACING.md,
           gap: SPACING.md,
         }}
@@ -43,7 +48,7 @@ export function ExportSheet({
           <View style={{ width: 36, height: 4, borderRadius: RADIUS.full, backgroundColor: colors.border }} />
         </View>
         <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER }}>
-          <AppText size="lg" heading weight="bold" numberOfLines={1} style={{ flex: 1 }}>
+          <AppText size="lg" heading weight="bold" accessibilityRole="header" numberOfLines={1} style={{ flex: 1 }}>
             {title}
           </AppText>
           <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />
@@ -55,11 +60,11 @@ export function ExportSheet({
             value={combineDuplicates}
             onValueChange={onCombineDuplicatesChange}
           />
-          {loading ? (
+          {loading || exporting ? (
             <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm, paddingVertical: SPACING.md }}>
               <ActivityIndicator color={colors.foreground} />
               <AppText size="sm" tone="secondary">
-                {t("export.loading")}
+                {exporting ? t("export.exporting") : t("export.loading")}
               </AppText>
             </View>
           ) : (

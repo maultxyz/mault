@@ -1,3 +1,4 @@
+import { hash } from "fast-sha256";
 import type { PinnedModel } from "@magic-vault/shared";
 
 const DB_NAME = "magic-vault-vision-models";
@@ -44,8 +45,14 @@ async function writeCached(key: string, buffer: ArrayBuffer): Promise<void> {
 }
 
 async function sha256Hex(buffer: ArrayBuffer): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", buffer);
-  return Array.from(new Uint8Array(digest))
+  const subtle = globalThis.crypto?.subtle;
+  if (subtle) {
+    const digest = await subtle.digest("SHA-256", buffer);
+    return Array.from(new Uint8Array(digest))
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+  }
+  return Array.from(hash(new Uint8Array(buffer)))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
 }

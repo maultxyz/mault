@@ -1,3 +1,8 @@
+import {
+  PLATFORM_ADMIN_ROLE,
+  PLATFORM_MODERATOR_ROLE,
+  PLATFORM_STAFF_ROLES,
+} from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authProvider } from "../../auth";
 import { db } from "../../db";
@@ -14,7 +19,7 @@ import {
 export const startImpersonationRoute = new Hono<AppEnv>().post(
   "/impersonate/:userId",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const targetUserId = c.req.param("userId");
     const adminUserId = c.get("userId");
@@ -31,9 +36,18 @@ export const startImpersonationRoute = new Hono<AppEnv>().post(
     if (!target.email) {
       return c.json({ success: false, message: "User not found." }, 404);
     }
-    if (targetRole === "admin") {
+    if (targetRole === PLATFORM_ADMIN_ROLE) {
       return c.json(
         { success: false, message: "Can't impersonate another admin." },
+        403,
+      );
+    }
+    if (
+      targetRole === PLATFORM_MODERATOR_ROLE &&
+      c.get("userRole") !== PLATFORM_ADMIN_ROLE
+    ) {
+      return c.json(
+        { success: false, message: "Can't impersonate another moderator." },
         403,
       );
     }

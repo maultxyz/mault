@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -79,12 +80,18 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="flex min-h-dvh items-center justify-center p-4">
+    <main
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
+      className="flex min-h-dvh items-center justify-center p-4 outline-none"
+    >
       <Card className="w-full max-w-sm">
         <CardHeader>
           <div className="flex items-center gap-2 mb-1">
             <IconMailCheck className="size-5 text-primary" />
-            <CardTitle>{t("verifyEmail.title")}</CardTitle>
+            <CardTitle>
+              <h1>{t("verifyEmail.title")}</h1>
+            </CardTitle>
           </div>
           <CardDescription>
             {t("verifyEmail.description", {
@@ -154,6 +161,6 @@ export default function VerifyEmailPage() {
           </form>
         </CardContent>
       </Card>
-    </div>
+    </main>
   );
 }

@@ -8,7 +8,6 @@ import {
   type BinRulesExport,
 } from "@/schemas/bin-rules-export.schema";
 import {
-  DEFAULT_BIN_CAPACITY,
   parseLegacyCatchAllThreshold,
   SET_NAME_MAX_LENGTH,
   type BinConfig,
@@ -32,7 +31,6 @@ export function buildBinRulesExport(
       overridePriority:
         c.isCatchAll || c.isOverride ? (c.overridePriority ?? null) : null,
       lowMatchPercent: c.isCatchAll ? (c.lowMatchPercent ?? null) : null,
-      cardLimit: c.cardLimit === undefined ? DEFAULT_BIN_CAPACITY : c.cardLimit,
       maxCopies: c.isCatchAll ? null : (c.maxCopies ?? null),
       maxCopiesBy:
         c.isCatchAll || c.maxCopies == null ? null : (c.maxCopiesBy ?? null),

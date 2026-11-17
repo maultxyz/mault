@@ -1,5 +1,6 @@
 import type { AdminUserSummary, OrgRole } from "@magic-vault/shared";
 import { eq, sql } from "drizzle-orm";
+import { isAuthError } from "own-auth";
 import { db } from "../db";
 import { platformUserRoles } from "../db/schema";
 import { getOwnAuth } from "./own-auth-instance";
@@ -7,11 +8,6 @@ import type { AuthProvider } from "../lib/interfaces/auth";
 
 export const localAuthProvider: AuthProvider = {
   async verifyToken(token) {
-    // API keys are personal-only here (see routes/local-auth.ts) - always
-    // created without an organisationId, so VerifiedApiKey.user is always
-    // populated and this maps onto the same {sub} shape a session does, no
-    // special-casing needed downstream (requireOrg's normal membership
-    // check still applies for whatever X-Org-Id the request sends).
     if (token.startsWith("oa_")) {
       try {
         const verified = await getOwnAuth().verifyApiKey(token);
@@ -42,8 +38,9 @@ export const localAuthProvider: AuthProvider = {
       });
       if (member.status !== "active") return null;
       return { role: member.role as OrgRole };
-    } catch {
-      return null;
+    } catch (error) {
+      if (isAuthError(error)) return null;
+      throw error;
     }
   },
 
@@ -138,6 +135,18 @@ export const localAuthProvider: AuthProvider = {
       `,
     );
     return rows.rows;
+  },
+
+  async listOrgMemberUserIdsBySeat(orgId) {
+    const rows = await db.execute<{ user_id: string }>(
+      sql`
+        SELECT user_id::text AS user_id
+        FROM own_auth_organisation_members
+        WHERE organisation_id::text = ${orgId} AND status = 'active'
+        ORDER BY (role = 'owner') DESC, created_at, id
+      `,
+    );
+    return rows.rows.map((row) => row.user_id);
   },
 
   async getOrganisationName(orgId) {

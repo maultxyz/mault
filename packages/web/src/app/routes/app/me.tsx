@@ -1,5 +1,6 @@
 import { MobileIconBadge } from "@/components/mobile-icon-badge";
 import { MobileListRow } from "@/components/mobile-list-row";
+import { PlanLockTag } from "@/components/plan-lock-tag";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileSection } from "@/components/mobile-section";
 import { MobileSegmentedControl } from "@/components/mobile-segmented-control";
@@ -7,6 +8,7 @@ import { getInitials } from "@/components/ui/initials-avatar";
 import { useSignOut } from "@/features/account/api/use-sign-out";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useAuthSession } from "@/lib/auth";
 import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
 import { LANGUAGE_NATIVE_NAMES } from "@/lib/constants/languages";
@@ -18,6 +20,7 @@ import {
 } from "@/lib/constants/nav";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { INTAKE_PATH } from "@/lib/constants/business";
 import type { SupportedLanguage } from "@/lib/interfaces/languages";
 import type { ThemeOption } from "@/lib/interfaces/nav";
 import { cn } from "@/lib/utils";
@@ -25,6 +28,7 @@ import {
   IconActivityHeartbeat,
   IconBrandDiscord,
   IconBuilding,
+  IconCash,
   IconChartBar,
   IconLanguage,
   IconLogout,
@@ -46,6 +50,8 @@ export default function MePage() {
   const { orgs, activeOrg, setActiveOrg } = useOrg();
   const { theme, setTheme } = useTheme();
   const signOut = useSignOut();
+  const { planLockFor } = usePlanLockedPath();
+  const intakeLock = planLockFor(INTAKE_PATH);
 
   if (!isMobile) return <Navigate to={SETTINGS_PATHS.root} replace />;
 
@@ -63,16 +69,16 @@ export default function MePage() {
         )}
       >
         <div className={MOBILE_PAGE_BODY_CLASS}>
-          <div className="flex items-center gap-4">
-            <span className="grid size-14 shrink-0 place-items-center rounded-full bg-primary font-heading text-lg font-bold text-primary-foreground">
+          <div className="flex items-center gap-3 rounded-lg bg-card p-3 ring-1 ring-border">
+            <span className="grid size-10 shrink-0 place-items-center rounded-full bg-primary text-sm font-semibold text-primary-foreground">
               {getInitials(name)}
             </span>
             <div className="min-w-0 flex-1">
-              <p className="truncate font-heading text-lg font-bold text-foreground">
+              <p className="truncate font-heading text-sm font-semibold text-foreground">
                 {name || email}
               </p>
               {name && email && (
-                <p className="truncate text-sm text-foreground/70">{email}</p>
+                <p className="truncate text-xs text-foreground/70">{email}</p>
               )}
             </div>
           </div>
@@ -134,6 +140,13 @@ export default function MePage() {
               icon={<IconChartBar />}
               label={t("nav.stats")}
               to={STATS_PATH}
+            />
+            <MobileListRow
+              icon={<IconCash />}
+              label={t("nav.intake")}
+              to={INTAKE_PATH}
+              disabled={intakeLock?.isDisabled}
+              trailing={intakeLock && <PlanLockTag label={intakeLock.tag} />}
             />
             <MobileListRow
               icon={<IconActivityHeartbeat />}

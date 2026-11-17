@@ -6,6 +6,7 @@ import {
   PUBLIC_API_CARD_ID_FILTER_MAX,
   PUBLIC_API_PAGE_SIZE_MAX,
 } from "../constants/api-keys.constant";
+import { DEVICE_ALERT_TYPES } from "../constants/business.constant";
 
 const timestamp = z.iso.datetime().describe("UTC ISO 8601 timestamp.");
 const price = z
@@ -89,6 +90,23 @@ export const apiPricesSchema = z
   })
   .meta({ id: "Prices" });
 
+const purchaseUri = z
+  .url()
+  .nullable()
+  .describe("A link to buy this printing, or null when the store doesn't carry the game.");
+
+export const apiPurchaseUrisSchema = z
+  .object({
+    tcgplayer: purchaseUri.describe(
+      "The TCGplayer product page, or a TCGplayer search when the product id isn't known.",
+    ),
+    cardmarket: purchaseUri.describe("A Cardmarket search for this card."),
+    cardkingdom: purchaseUri.describe(
+      "The Card Kingdom product page for this copy's finish, or a Card Kingdom search when the product isn't known.",
+    ),
+  })
+  .meta({ id: "PurchaseUris" });
+
 export const apiScannedCardSchema = z
   .object({
     object: z.literal("scanned_card"),
@@ -110,6 +128,20 @@ export const apiScannedCardSchema = z
       .describe(
         "The printing's TCGplayer product id, or null when its card database doesn't list one.",
       ),
+    cardmarket_product_id: z
+      .number()
+      .int()
+      .nullable()
+      .describe(
+        "The printing's Cardmarket product id, or null when its card database doesn't list one.",
+      ),
+    cardkingdom_product_id: z
+      .number()
+      .int()
+      .nullable()
+      .describe(
+        "The Card Kingdom product id for this copy's finish (falling back to the other finish), or null when Card Kingdom doesn't list the printing.",
+      ),
     lang: z.string(),
     game: z.string().nullable().describe("Game key, e.g. mtg."),
     finish: z.enum(API_FINISHES),
@@ -123,6 +155,7 @@ export const apiScannedCardSchema = z
         "The copy's condition: NM, LP, MP, HP or DMG. NM until someone sets it. The prices block is always the NM market price.",
       ),
     prices: apiPricesSchema,
+    purchase_uris: apiPurchaseUrisSchema,
     location: apiCardLocationSchema
       .nullable()
       .describe("Where this copy is stored, or null."),
@@ -191,6 +224,27 @@ export const apiWebhookTestSchema = z
   })
   .meta({ id: "WebhookTest" });
 
+export const apiSorterAlertSchema = z
+  .object({
+    object: z.literal("sorter_alert"),
+    type: z
+      .enum(DEVICE_ALERT_TYPES)
+      .describe(
+        "jam, error, timeout, restart, feeder_empty, offline (lost its connection without disconnecting) or maintenance (service interval reached).",
+      ),
+    title: z.string(),
+    description: z.string(),
+    sorter: z
+      .object({
+        object: z.literal("sorter"),
+        id: z.guid(),
+        name: z.string(),
+      })
+      .nullable()
+      .describe("Null when the app couldn't tell which sorter it was."),
+  })
+  .meta({ id: "SorterAlert" });
+
 function eventSchema<T extends z.ZodType>(type: string, data: T) {
   return z.object({
     object: z.literal("event"),
@@ -210,6 +264,11 @@ export const apiCardsStoredEventSchema = eventSchema(
   "cards.stored",
   apiStoredCardsSchema,
 ).meta({ id: "CardsStoredEvent" });
+
+export const apiSorterAlertEventSchema = eventSchema(
+  "sorter.alert",
+  apiSorterAlertSchema,
+).meta({ id: "SorterAlertEvent" });
 
 export const apiWebhookTestEventSchema = eventSchema(
   "webhook.test",

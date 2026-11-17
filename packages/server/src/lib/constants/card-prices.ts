@@ -18,21 +18,44 @@ export const CARD_PRICE_DETAIL_KEYS = [
   "cardmarketPriceFoil",
   "cardKingdomPrice",
   "cardKingdomPriceFoil",
+  "finishPrices",
+  "priceByCondition",
+  "priceFoilByCondition",
+  "foilOnlyFoilType",
 ] as const;
 
 export const CARD_PRICE_REFRESH_BATCH_SIZE = 1000;
+export const CARD_PRICE_REFRESH_PROGRESS_LOG_EVERY_BATCHES = 20;
 
 export const COLLECTION_CARD_SQL_COLUMNS: ScannedCardSqlColumns = {
-  card: collectionCards.card,
+  savedPrices: {
+    price: collectionCards.cardSavedPrice,
+    priceFoil: collectionCards.cardSavedPriceFoil,
+    priceEur: collectionCards.cardSavedPriceEur,
+    priceEurFoil: collectionCards.cardSavedPriceEurFoil,
+    priceCardKingdom: collectionCards.cardSavedPriceCardKingdom,
+    priceCardKingdomFoil: collectionCards.cardSavedPriceCardKingdomFoil,
+  },
+  cardLang: collectionCards.cardLang,
   isFoil: collectionCards.isFoil,
+  foilType: collectionCards.foilType,
   condition: collectionCards.condition,
   cardId: collectionCards.cardId,
   collectionId: collectionCards.collectionId,
 };
 
 export const CC_ALIAS_SQL_COLUMNS: ScannedCardSqlColumns = {
-  card: sql`cc.card`,
+  savedPrices: {
+    price: sql`cc.card_saved_price`,
+    priceFoil: sql`cc.card_saved_price_foil`,
+    priceEur: sql`cc.card_saved_price_eur`,
+    priceEurFoil: sql`cc.card_saved_price_eur_foil`,
+    priceCardKingdom: sql`cc.card_saved_price_card_kingdom`,
+    priceCardKingdomFoil: sql`cc.card_saved_price_card_kingdom_foil`,
+  },
+  cardLang: sql`cc.card_lang`,
   isFoil: sql`cc.is_foil`,
+  foilType: sql`cc.foil_type`,
   condition: sql`cc.condition`,
   cardId: sql`cc.card_id`,
   collectionId: sql`cc.collection_id`,

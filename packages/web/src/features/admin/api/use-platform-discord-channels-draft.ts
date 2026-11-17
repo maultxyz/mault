@@ -4,7 +4,7 @@ import {
 } from "@/features/admin/api/platform-discord-channels";
 import { platformStatsQueryOptions } from "@/features/admin/api/platform-stats";
 import { EMPTY_PLATFORM_DISCORD_CHANNELS_FORM } from "@/lib/constants/admin";
-import { toast } from "@/lib/toast";
+import { requestWithToasts } from "@/lib/request-with-toasts";
 import {
   platformDiscordChannelsSchema,
   type PlatformDiscordChannelsFormValues,
@@ -26,26 +26,21 @@ export function usePlatformDiscordChannelsDraft() {
     resetOptions: { keepDirtyValues: true },
   });
 
-  const save = async (values: PlatformDiscordChannelsFormValues) => {
-    try {
-      const result = await savePlatformDiscordChannels(values);
-      if (!result.success || !result.data) {
-        toast.error(result.message ?? t("discordChannels.saveFailed"));
-        return;
-      }
-      queryClient.setQueryData(
-        platformDiscordChannelsQueryOptions.queryKey,
-        result.data,
-      );
-      form.reset(result.data.settings);
-      void queryClient.invalidateQueries({
-        queryKey: platformStatsQueryOptions.queryKey,
-      });
-      toast.success(t("discordChannels.saved"));
-    } catch {
-      toast.error(t("discordChannels.saveFailed"));
-    }
-  };
+  const save = (values: PlatformDiscordChannelsFormValues) =>
+    requestWithToasts(() => savePlatformDiscordChannels(values), {
+      successMessage: t("discordChannels.saved"),
+      failureMessage: t("discordChannels.saveFailed"),
+      onSuccess: (saved) => {
+        queryClient.setQueryData(
+          platformDiscordChannelsQueryOptions.queryKey,
+          saved,
+        );
+        form.reset(saved.settings);
+        void queryClient.invalidateQueries({
+          queryKey: platformStatsQueryOptions.queryKey,
+        });
+      },
+    });
 
   return {
     form,

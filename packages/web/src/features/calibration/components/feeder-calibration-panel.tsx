@@ -9,12 +9,6 @@ import {
   FEEDER_REVERSE_DURATION_SLIDER_MAX,
   FEEDER_SETTLE_DURATION_SLIDER_MAX,
   FEEDER_STOP_PULSE_SLIDER_RANGE,
-  pulseToDirectionalSpeed,
-  pulseToSignedPercent,
-  SERVO_PULSE_CENTER,
-  SERVO_PULSE_MAX,
-  SERVO_PULSE_MIN,
-  signedPercentToPulse,
   sliderMax,
 } from "@/lib/constants/calibration";
 import type { FeederCalibrationPanelProps } from "@/lib/interfaces/calibration";
@@ -22,6 +16,16 @@ import { cn } from "@/lib/utils";
 import { IconChevronDown, IconRestore } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import {
+  pulseToDirectionalSpeed,
+  pulseToSignedPercent,
+  SERVO_PULSE_CENTER,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
+  signedPercentToPulse,
+  FEED_RETRY_COUNT_MAX,
+  FEED_RETRY_COUNT_MIN,
+} from "@magic-vault/shared";
 
 export function FeederCalibrationPanel({
   speedValue,
@@ -31,6 +35,7 @@ export function FeederCalibrationPanel({
   settleDurationValue,
   reverseSpeedValue,
   reverseDurationValue,
+  feedRetryCountValue,
   stopPulse,
   canEditTimings,
   canCalibrate,
@@ -43,6 +48,7 @@ export function FeederCalibrationPanel({
   onSettleDurationChange,
   onReverseSpeedChange,
   onReverseDurationChange,
+  onFeedRetryCountChange,
   onSelectContinuous,
   fullWidth = false,
 }: FeederCalibrationPanelProps) {
@@ -75,6 +81,7 @@ export function FeederCalibrationPanel({
         <div className="flex items-center justify-end">
           <button
             type="button"
+            aria-expanded={showAdvanced}
             onClick={() => setShowAdvanced((v) => !v)}
             className="flex items-center gap-1 text-xs text-foreground/70 hover:text-foreground transition-colors"
           >
@@ -174,6 +181,21 @@ export function FeederCalibrationPanel({
             />
           )}
         </SliderField>
+
+        <SliderField
+          label={t("feederCalibrationPanel.feedRetryCountLabel")}
+          description={t("feederCalibrationPanel.feedRetryCountDescription")}
+          valueLabel={
+            feedRetryCountValue === 0
+              ? t("feederCalibrationPanel.off")
+              : String(feedRetryCountValue)
+          }
+          min={FEED_RETRY_COUNT_MIN}
+          max={FEED_RETRY_COUNT_MAX}
+          step={1}
+          value={feedRetryCountValue}
+          onValueChange={onFeedRetryCountChange}
+        />
 
         <SliderField
           label={t("feederCalibrationPanel.pulseDurationLabel")}

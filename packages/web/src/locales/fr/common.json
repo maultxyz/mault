@@ -3,7 +3,7 @@
     "scanner": "Trier",
     "collections": "Collections",
     "scan": "Lier la caméra",
-    "storage": "Boîtes de rangement",
+    "storage": "Emplacements",
     "calibrate": "Réglage du trieur",
     "settings": "Paramètres",
     "organization": "Org",
@@ -24,7 +24,10 @@
     "integrations": "API et webhooks",
     "more": "Plus",
     "stats": "Statistiques",
-    "sortingRules": "Règles de tri"
+    "sortingRules": "Règles de tri",
+    "intake": "Achat & vente",
+    "upgradeYourPlan": "Changez d'offre",
+    "upgradeShort": "Changer"
   },
   "alerts": {
     "dismiss": "Ignorer",
@@ -86,12 +89,22 @@
     "healthChecking": "Vérification de l’état des services…"
   },
   "appVersion": {
-    "outdatedBanner": "Une nouvelle version de Magic Vault est disponible.",
-    "refreshButton": "Actualiser"
+    "outdatedBanner": "Une nouvelle version de Mault est disponible.",
+    "refreshButton": "Actualiser",
+    "terminalUpdate": "Terminez les scans et les synchronisations, puis exécutez cette commande dans un terminal sur le Pi. Saisissez votre mot de passe sudo si demandé. Actualisez ensuite cette page :",
+    "updateButton": "Mettre à jour Mault",
+    "updating": "Mise à jour de Mault. Gardez cette page ouverte pendant le redémarrage des services.",
+    "updateSucceeded": "Mault a été mis à jour. Actualisez la page pour utiliser la nouvelle version.",
+    "updateFailed": "La mise à jour de Mault a échoué.",
+    "updateUnconfirmed": "Impossible de se reconnecter après la mise à jour. Consultez le journal de mise à jour sur Linux."
   },
   "impersonation": {
     "banner": "Tu vois l'application comme {{name}}.",
-    "exitButton": "Quitter l'emprunt d'identité"
+    "exitButton": "Quitter l'emprunt d'identité",
+    "hardwareBlocked": "Impossible de connecter des trieurs ou des caméras pendant l'emprunt d'identité d'un utilisateur.",
+    "scanningBlockedTitle": "La numérisation est désactivée pendant l'emprunt d'identité",
+    "scanningBlockedDescription": "Quitte l'emprunt d'identité pour numériser des cartes, connecter un trieur ou utiliser une caméra.",
+    "calibrationReadOnly": "La calibration est en lecture seule pendant l'emprunt d'identité. Quitte l'emprunt d'identité pour la modifier ou connecter un trieur."
   },
   "theme": {
     "toggle": "Changer de thème",
@@ -109,7 +122,9 @@
     "cancel": "Annuler",
     "delete": "Supprimer",
     "save": "Enregistrer",
-    "create": "Créer"
+    "create": "Créer",
+    "search": "Rechercher",
+    "chooseFile": "Choisir un fichier"
   },
   "unsavedChanges": {
     "message": "Vous avez des modifications non enregistrées",
@@ -128,7 +143,15 @@
     "revert": "Rétablir"
   },
   "loadingGate": {
-    "loadingVault": "Chargement de ton coffre…"
+    "loadingVault": "Chargement de ton coffre…",
+    "quips": {
+      "shuffling": "On mélange le paquet…",
+      "feeding": "On nourrit la trieuse…",
+      "polishing": "On fait briller les foils…",
+      "counting": "On compte tes cartes…",
+      "pricing": "On vérifie les prix du jour…",
+      "sorting": "On met tout en ordre…"
+    }
   },
   "notFound": {
     "title": "Page introuvable",
@@ -141,14 +164,22 @@
   },
   "footer": {
     "donate": "Faire un don",
-    "donateAriaLabel": "Soutenir Mault sur Buy Me a Coffee"
+    "donateAriaLabel": "Soutenir Mault sur Buy Me a Coffee",
+    "openSource": "Open source",
+    "reportIssue": "Signaler un problème",
+    "signIn": "Se connecter",
+    "privacy": "Confidentialité",
+    "terms": "Conditions",
+    "copyright": "© {{year}} Mault LLC"
   },
   "publicNav": {
     "pagesAria": "Pages du site",
     "pages": {
       "home": "Accueil",
       "build": "Construire",
+      "selfHost": "Auto-hébergement",
       "discordBot": "Bot Discord",
+      "download": "Télécharger",
       "shop": "Boutique"
     },
     "discordAriaLabel": "Rejoindre le Discord",
@@ -166,8 +197,11 @@
     "keys": {
       "space": "Espace",
       "shift": "Maj",
+      "ctrl": "Ctrl",
       "left": "←",
       "right": "→",
+      "up": "↑",
+      "down": "↓",
       "escape": "Échap",
       "enter": "Entrée",
       "delete": "Suppr"
@@ -176,19 +210,24 @@
       "general": "Général",
       "navigation": "Navigation",
       "scanner": "Scanner",
-      "cardDetail": "Détails de la carte"
+      "cardDetail": "Détails de la carte",
+      "intake": "Rachat",
+      "foilLabeling": "Étiquetage des foils"
     },
     "actions": {
       "showShortcuts": "Afficher les raccourcis clavier",
       "toggleSidebar": "Déplier ou replier la barre latérale",
       "focusSearch": "Aller à la recherche",
       "dismissToasts": "Fermer toutes les notifications",
+      "save": "Enregistrer les modifications",
+      "clearSelection": "Effacer la sélection",
       "goScanner": "Aller au tri",
       "goCollections": "Aller aux collections",
       "goStorage": "Aller aux boîtes de rangement",
       "goCalibrate": "Aller au réglage du trieur",
       "goSettings": "Aller aux paramètres",
       "goAdmin": "Aller à l'administration",
+      "goNextSorterNeedingAttention": "Aller à la prochaine trieuse à vérifier",
       "scanPauseResume": "Mettre en pause ou reprendre le scan",
       "scanNow": "Scanner maintenant",
       "scanFeed": "Charger la carte suivante",
@@ -208,8 +247,18 @@
       "cardClose": "Fermer la carte ou annuler la correction",
       "cardRemove": "Retirer la carte (de sa boîte si ouverte depuis le Rangement)",
       "reviewStart": "Vérifier les cartes une par une",
-      "reviewAccept": "Pendant la vérification : la carte est bonne, suivante",
-      "goSortingRules": "Aller aux règles de tri"
+      "reviewAccept": "Pendant la vérification : accepter la correspondance surlignée, suivante",
+      "reviewPreviousMatch": "Pendant la vérification : surligner la correspondance similaire précédente",
+      "reviewNextMatch": "Pendant la vérification : surligner la correspondance similaire suivante",
+      "reviewCycleFoil": "Pendant la vérification : parcourir les types de foil",
+      "reviewCycleCondition": "Pendant la vérification : parcourir les états",
+      "reviewCycleLanguage": "Pendant la vérification : parcourir les langues",
+      "goSortingRules": "Aller aux règles de tri",
+      "intakeOpenScanner": "Ouvrir le scanner pour ce rachat",
+      "foilLabelFoil": "Pendant l'étiquetage : marquer comme foil",
+      "foilLabelNotFoil": "Pendant l'étiquetage : marquer comme non foil",
+      "foilLabelSkip": "Pendant l'étiquetage : passer cette carte",
+      "foilLabelBack": "Pendant l'étiquetage : revenir à la carte précédente"
     }
   },
   "mobileMenu": {
@@ -225,5 +274,122 @@
     "rules": "Règles",
     "storage": "Rangement",
     "account": "Compte"
+  },
+  "pagination": {
+    "previous": "Précédent",
+    "next": "Suivant",
+    "label": "Pagination",
+    "pageNumber": "Page {{page}}",
+    "goToPage": "Aller à la page",
+    "range": "{{from}}-{{to}} sur {{total}}"
+  },
+  "guide": {
+    "contents": "Sommaire",
+    "anchorLink": {
+      "copy": "Copier le lien vers cette section",
+      "copied": "Lien copié",
+      "copyFailed": "Impossible de copier le lien"
+    },
+    "code": {
+      "copy": "Copier",
+      "copied": "Copié dans le presse-papiers",
+      "copyFailed": "Impossible de copier dans le presse-papiers"
+    }
+  },
+  "validation": {
+    "nameRequired": "Saisis un nom.",
+    "nameTooLong": "{{max}} caractères au maximum.",
+    "ruleNameRequired": "Donne un nom à la règle.",
+    "clipNameRequired": "Donne un nom au clip.",
+    "gameRequired": "Choisis un jeu.",
+    "languageRequired": "Choisis une langue.",
+    "collectionRequired": "Choisis une collection.",
+    "channelRequired": "Choisis un salon.",
+    "clipRequired": "Choisis un clip sonore.",
+    "conditionsRequired": "Ajoute au moins une condition.",
+    "emailInvalid": "Saisis une adresse e-mail valide.",
+    "currentPasswordRequired": "Saisis ton mot de passe actuel.",
+    "passwordTooShort": "Doit contenir au moins {{min}} caractères.",
+    "passwordMismatch": "Les mots de passe ne correspondent pas.",
+    "webhookUrlInvalid": "Saisis une URL https:// publique.",
+    "eventsRequired": "Choisis au moins un événement.",
+    "permissionsRequired": "Choisis au moins une autorisation.",
+    "conditionMultipliersInvalid": "Chaque état doit avoir un pourcentage de 0 à 100.",
+    "valueRequired": "Saisis une valeur.",
+    "wholeNumber": "Doit être un nombre entier.",
+    "atLeast": "Doit être au moins {{min}}.",
+    "atMost": "Doit être au plus {{max}}.",
+    "percentAtLeast": "Doit être au moins {{min}} %.",
+    "percentAtMost": "Doit être au plus {{max}} %.",
+    "amountRequired": "Saisis un montant.",
+    "percentageRequired": "Saisis un pourcentage.",
+    "tiersRequired": "Ajoute au moins un palier.",
+    "tooManyTiers": "{{max}} paliers au maximum.",
+    "customerNameRequired": "Saisis le nom du client.",
+    "orderTextRequired": "Colle une commande ou choisis un fichier.",
+    "orderLinesRequired": "Garde au moins une carte dans la liste.",
+    "decklistRequired": "Saisissez au moins une carte, une par ligne.",
+    "cardCountRequired": "Saisis un nombre de cartes.",
+    "storageLocationRequired": "Choisis où sont allées les cartes.",
+    "commandRequired": "Saisis une commande.",
+    "verificationCodeLength": "Saisis le code à {{length}} chiffres.",
+    "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
+    "controlCardActionRequired": "Choisis au moins une chose que la carte modifie."
+  },
+  "memberSeatLock": {
+    "title": "Cette organisation dépasse sa limite de membres",
+    "description_one": "L'offre de {{name}} inclut {{count}} membre, et ta place dépasse cette limite. Demande à un propriétaire de passer à une offre supérieure ou de retirer des membres.",
+    "description_other": "L'offre de {{name}} inclut {{count}} membres, et ta place dépasse cette limite. Demande à un propriétaire de passer à une offre supérieure ou de retirer des membres.",
+    "switchOrganization": "Passer à une autre organisation",
+    "tryAgain": "Réessayer",
+    "signOut": "Se déconnecter"
+  },
+  "planLock": {
+    "link": "Voir les offres"
+  },
+  "planPreview": {
+    "banner": "Aperçu de l'offre {{plan}}. Les limites et les fonctions verrouillées suivent cette offre.",
+    "stop": "Arrêter l'aperçu",
+    "planNames": {
+      "free": "Gratuit",
+      "enthusiast": "Passionné",
+      "business": "Entreprise",
+      "legacyBusiness": "Business (ancienne offre)"
+    }
+  },
+  "a11y": {
+    "skipToContent": "Aller au contenu principal",
+    "close": "Fermer",
+    "clear": "Effacer",
+    "openOptions": "Afficher les options",
+    "remove": "Retirer",
+    "copy": "Copier dans le presse-papiers",
+    "retry": "Réessayer",
+    "removeCondition": "Retirer la condition",
+    "removeGroup": "Retirer le groupe",
+    "removeMember": "Retirer {{name}}",
+    "cancelInvite": "Annuler l'invitation de {{email}}",
+    "removeItem": "Retirer {{name}}",
+    "resizePanel": "Redimensionner le panneau",
+    "notifications": "Notifications",
+    "closeNotification": "Fermer la notification",
+    "notificationsWithCount_one": "Notifications, {{count}} non lue",
+    "notificationsWithCount_other": "Notifications, {{count}} non lues",
+    "watching": "Spectateurs",
+    "watchersCount_one": "{{count}} personne regarde",
+    "watchersCount_other": "{{count}} personnes regardent",
+    "details": "Détails",
+    "liveSession": "Scan en direct",
+    "mainNavigation": "Principale",
+    "settingsNavigation": "Paramètres",
+    "selected": "Sélectionné",
+    "loading": "Chargement",
+    "live": "En direct",
+    "notLive": "Hors ligne",
+    "severity": {
+      "info": "Info :",
+      "warning": "Avertissement :",
+      "danger": "Erreur :"
+    }
   }
 }

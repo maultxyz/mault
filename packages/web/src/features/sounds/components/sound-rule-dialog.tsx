@@ -26,14 +26,14 @@ import {
 import type { SoundRuleDialogProps } from "@/lib/interfaces/sounds";
 import { emptyRuleGroup } from "@/lib/rule-groups";
 import { toast } from "@/lib/toast";
-import {
-  createSoundRuleFormSchema,
-  type SoundRuleFormValues,
-} from "@/schemas/sound-rule.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { SoundRuleInput } from "@magic-vault/shared";
+import {
+  soundRuleFormSchema,
+  type SoundRuleFormValues,
+  type SoundRuleInput,
+} from "@magic-vault/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -56,7 +56,6 @@ export function SoundRuleDialog({
   const { t } = useTranslation("sounds");
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
-  const schema = useMemo(() => createSoundRuleFormSchema(t), [t]);
   const {
     control,
     register,
@@ -64,7 +63,7 @@ export function SoundRuleDialog({
     reset,
     formState: { errors },
   } = useForm<SoundRuleFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(soundRuleFormSchema),
     defaultValues: emptyValues(rule),
   });
 
@@ -101,7 +100,7 @@ export function SoundRuleDialog({
     });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog drawerOnMobile={false} open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <DialogHeader>
@@ -124,7 +123,7 @@ export function SoundRuleDialog({
                 name="clipGuid"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
+                    <SelectTrigger aria-label={t("ruleDialog.clip")}>
                       <SelectValue
                         placeholder={t("ruleDialog.clipPlaceholder")}
                       >

@@ -1,6 +1,6 @@
 {
   "name": "@magic-vault/server",
-  "version": "1.0.165",
+  "version": "1.0.197",
   "private": true,
   "scripts": {
     "dev": "tsx watch --env-file ../../.env src/index.ts",
@@ -16,6 +16,8 @@
     "post:platform-stats": "tsx --env-file ../../.env scripts/post-platform-stats.ts",
     "migrate:scan-images": "tsx --env-file ../../.env scripts/migrate-scan-images.ts",
     "backfill:collector-numbers": "tsx --env-file ../../.env scripts/backfill-collector-numbers.ts",
+    "backfill:card-catalog": "tsx --env-file ../../.env scripts/backfill-card-catalog.ts",
+    "backfill:slim-collection-cards": "tsx --env-file ../../.env scripts/slim-collection-cards.ts",
     "backfill:card-shape": "tsx --env-file ../../.env scripts/backfill-card-shape.ts",
     "backfill:game-vector-indexes": "tsx --env-file ../../.env scripts/backfill-game-vector-indexes.ts",
     "backfill:devices": "tsx --env-file ../../.env scripts/backfill-devices.ts",
@@ -38,15 +40,17 @@
     "pg": "^8.16.3",
     "resend": "^6.24.0",
     "rollbar": "^3.1.0",
+    "semver": "^7.8.5",
+    "serialport": "12",
     "sharp": "^0.34.1",
     "stripe": "^22.6.1",
-    "tesseract.js": "^7.0.0",
     "ws": "^8.21.3",
-    "zod": "^4.3.6"
+    "zod": "^4.6.5"
   },
   "devDependencies": {
-    "@types/node": "^20",
+    "@types/node": "^26",
     "@types/pg": "^8.15.6",
+    "@types/semver": "^7.8.0",
     "@types/ws": "^8.18.1",
     "drizzle-kit": "^0.31.9",
     "tsup": "^8.4.0",

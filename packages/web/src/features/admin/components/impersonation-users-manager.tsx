@@ -10,9 +10,15 @@ import {
 } from "@/components/ui/tooltip";
 import { ImpersonationAuditDrawer } from "@/features/admin/components/impersonation-audit-drawer";
 import { useImpersonation } from "@/hooks/use-impersonation";
+import { useRole } from "@/hooks/use-role";
 import { searchAdminUsers } from "@/lib/api/admin";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
-import { QUERY_MIN_LENGTH, type AdminUserSummary } from "@magic-vault/shared";
+import {
+  PLATFORM_ADMIN_ROLE,
+  PLATFORM_MODERATOR_ROLE,
+  QUERY_MIN_LENGTH,
+  type AdminUserSummary,
+} from "@magic-vault/shared";
 import { IconClockHour3, IconUserScan } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useRef, useState } from "react";
@@ -24,6 +30,13 @@ export function ImpersonationUsersManager() {
   const { t } = useTranslation("admin");
   const navigate = useNavigate();
   const { start, isImpersonating } = useImpersonation();
+  const { isAdmin } = useRole();
+  const blockedReason = (user: AdminUserSummary) =>
+    user.role === PLATFORM_ADMIN_ROLE
+      ? t("impersonationUsersManager.cannotImpersonateAdmin")
+      : user.role === PLATFORM_MODERATOR_ROLE && !isAdmin
+        ? t("impersonationUsersManager.cannotImpersonateModerator")
+        : null;
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
   const [target, setTarget] = useState<AdminUserSummary | null>(null);
@@ -75,6 +88,7 @@ export function ImpersonationUsersManager() {
         <>
           <Input
             placeholder={t("impersonationUsersManager.searchPlaceholder")}
+            aria-label={t("impersonationUsersManager.searchPlaceholder")}
             value={searchInput}
             onChange={(e) => handleSearchInput(e.target.value)}
             className="h-7 text-xs max-w-56"
@@ -83,6 +97,7 @@ export function ImpersonationUsersManager() {
             <TooltipTrigger
               render={
                 <Button
+                  aria-label={t("impersonationUsersManager.viewAuditLog")}
                   variant="outline"
                   size="icon"
                   className="size-7"
@@ -118,9 +133,14 @@ export function ImpersonationUsersManager() {
                   <p className="text-sm font-medium truncate">
                     {user.name || user.email}
                   </p>
-                  {user.role === "admin" && (
+                  {user.role === PLATFORM_ADMIN_ROLE && (
                     <Badge variant="outline">
                       {t("impersonationUsersManager.adminBadge")}
+                    </Badge>
+                  )}
+                  {user.role === PLATFORM_MODERATOR_ROLE && (
+                    <Badge variant="outline">
+                      {t("impersonationUsersManager.moderatorBadge")}
                     </Badge>
                   )}
                 </div>
@@ -132,19 +152,17 @@ export function ImpersonationUsersManager() {
                 </p>
               </div>
               <Button
-                size="sm"
                 variant="outline"
                 disabled={
-                  user.role === "admin" ||
+                  blockedReason(user) !== null ||
                   isImpersonating ||
                   user.orgs.length === 0
                 }
                 title={
-                  user.role === "admin"
-                    ? t("impersonationUsersManager.cannotImpersonateAdmin")
-                    : user.orgs.length === 0
-                      ? t("impersonationUsersManager.noOrgs")
-                      : undefined
+                  blockedReason(user) ??
+                  (user.orgs.length === 0
+                    ? t("impersonationUsersManager.noOrgs")
+                    : undefined)
                 }
                 onClick={() => setTarget(user)}
               >

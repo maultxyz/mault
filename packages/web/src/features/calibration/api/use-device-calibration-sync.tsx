@@ -15,7 +15,6 @@ import {
   parseStoredModule,
 } from "@/features/calibration/lib/stored-calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
-import { STORE_CONFIG_TIMEOUT_MS } from "@/lib/constants/timing";
 import type {
   CalibrationConflict,
   CalibrationDifference,
@@ -31,11 +30,16 @@ import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import {
   CHANNEL_OFFSET,
   DEFAULT_CHANNEL_LAYOUT,
+  isBusyResponse,
   isFirmwareFeatureSupported,
   toSetLightCommand,
   assertLightLedCountReply,
   assertLightWarningReply,
   type ModuleConfig,
+  parseSerialReply,
+  SERIAL_BUSY_RETRY_ATTEMPTS,
+  SERIAL_BUSY_RETRY_DELAY_MS,
+  STORE_CONFIG_TIMEOUT_MS,
 } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -47,6 +51,7 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import type { FetchSavedCalibrationOptions } from "@/lib/interfaces/calibration";
 
 const DeviceCalibrationSyncContext =
   createContext<DeviceCalibrationSyncContextValue | null>(null);
@@ -74,15 +79,16 @@ export function DeviceCalibrationSyncProvider({
 
   const request = useCallback(
     async (command: object, timeoutMs?: number) => {
-      const { line } = await sendRequest(command, timeoutMs);
-      let parsed: Record<string, unknown> | null = null;
-      try {
-        const value: unknown = line ? JSON.parse(line) : null;
-        if (value && typeof value === "object") {
-          parsed = value as Record<string, unknown>;
+      for (let attempt = 1; ; attempt++) {
+        const { line } = await sendRequest(command, timeoutMs);
+        const parsed = parseSerialReply(line);
+        if (!isBusyResponse(parsed) || attempt >= SERIAL_BUSY_RETRY_ATTEMPTS) {
+          return { line, parsed };
         }
-      } catch {}
-      return { line, parsed };
+        await new Promise((resolve) =>
+          setTimeout(resolve, SERIAL_BUSY_RETRY_DELAY_MS),
+        );
+      }
     },
     [sendRequest],
   );
@@ -191,8 +197,11 @@ export function DeviceCalibrationSyncProvider({
   }, [isConnected]);
 
   const fetchSavedCalibration = useCallback(
-    async (deviceGuid: string, fresh = false): Promise<DeviceCalibration> => {
-      const overrides = fresh ? { staleTime: 0 } : {};
+    async (
+      deviceGuid: string,
+      { bypassCache = false }: FetchSavedCalibrationOptions = {},
+    ): Promise<DeviceCalibration> => {
+      const overrides = bypassCache ? { staleTime: 0 } : {};
       const [modules, feeder] = await Promise.all([
         queryClient.fetchQuery({
           ...modulesQueryOptions(deviceGuid),
@@ -225,7 +234,7 @@ export function DeviceCalibrationSyncProvider({
       const feederChanged = differences.some((d) => d.moduleNumber === null);
       const adopted: DeviceCalibration = {
         modules: adoptStoredModules(app.modules, stored, moduleNumbers),
-        feeder: feederChanged ? stored.feeder : app.feeder,
+        feeder: feederChanged ? { ...app.feeder, ...stored.feeder } : app.feeder,
       };
       try {
         for (const config of adopted.modules) {
@@ -238,12 +247,15 @@ export function DeviceCalibrationSyncProvider({
           if (!result.success) throw new Error(result.message);
         }
         if (feederChanged) {
-          const result = await saveFeederConfig(target.guid, stored.feeder);
+          const result = await saveFeederConfig(target.guid, {
+            ...app.feeder,
+            ...stored.feeder,
+          });
           if (!result.success) throw new Error(result.message);
         }
       } catch {
         toast.error(t("storedCalibration.toasts.adoptFailed"));
-        return fetchSavedCalibration(target.guid, true);
+        return fetchSavedCalibration(target.guid, { bypassCache: true });
       }
       queryClient.setQueryData(
         modulesQueryOptions(target.guid).queryKey,

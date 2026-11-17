@@ -11,18 +11,13 @@ export const listApiKeysRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    try {
-      const keys = await authQuery(c.get("jwtClaims"), (tx) =>
-        loadOrgApiKeys(tx, orgId),
-      );
-      const data: OrgApiKeyList = {
-        keys,
-        canManage: API_KEY_MANAGER_ROLES.includes(c.get("orgRole")),
-      };
-      return c.json({ success: true, data });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const keys = await authQuery(c.get("jwtClaims"), (tx) =>
+      loadOrgApiKeys(tx, orgId),
+    );
+    const data: OrgApiKeyList = {
+      keys,
+      canManage: API_KEY_MANAGER_ROLES.includes(c.get("orgRole")),
+    };
+    return c.json({ success: true, data });
   },
 );

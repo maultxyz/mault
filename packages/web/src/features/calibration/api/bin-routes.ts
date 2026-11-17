@@ -1,5 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
-import type { BinRouteAuditEntry } from "@/lib/interfaces/audit";
+import { apiGet, apiPut } from "@/lib/api/client";
 import {
   createDefaultBinRoutes,
   DEFAULT_MODULE_COUNT,
@@ -35,31 +34,5 @@ export async function saveBinRoute(
   return apiPut<Result<BinRoute[]>>(
     `/api/devices/${deviceGuid}/bin-routes/${route.binNumber}`,
     route,
-  );
-}
-
-export async function deleteBinRoute(
-  deviceGuid: string,
-  binNumber: number,
-): Promise<Result<BinRoute[]>> {
-  return apiDelete<Result<BinRoute[]>>(
-    `/api/devices/${deviceGuid}/bin-routes/${binNumber}`,
-  );
-}
-
-export async function getBinRouteHistory(
-  deviceGuid: string,
-): Promise<Result<BinRouteAuditEntry[]>> {
-  return apiGet<Result<BinRouteAuditEntry[]>>(
-    `/api/devices/${deviceGuid}/bin-routes/history`,
-  );
-}
-
-export async function revertBinRoute(
-  deviceGuid: string,
-  guid: string,
-): Promise<Result<BinRoute[]>> {
-  return apiPost<Result<BinRoute[]>>(
-    `/api/devices/${deviceGuid}/bin-routes/history/${guid}/revert`,
   );
 }

@@ -17,6 +17,19 @@ export const NOTIFY_CHANNEL_PERMISSIONS = {
 
 export const SERVER_URL = process.env.SERVER_URL ?? "http://localhost:3001";
 
+export const WEB_URL = process.env.WEB_URL ?? "https://mault.xyz";
+
+export const ACCOUNT_SETTINGS_PATH = "/app/account/settings";
+
+export const WELCOME_GUILD_IDS = new Set(
+  (process.env.DISCORD_WELCOME_GUILD_IDS ?? "")
+    .split(",")
+    .map((guildId) => guildId.trim())
+    .filter(Boolean),
+);
+
+export const DISCORD_LINK_CODE_TTL_MINUTES = 10;
+
 export const BOT_API_SECRET = process.env.BOT_API_SECRET ?? "";
 
 export const NOTIFY_SERVER_PORT = parseInt(process.env.BOT_PORT ?? "3002");
@@ -32,12 +45,21 @@ export const LINK_CONFIRM_TIMEOUT_MS = 30_000;
 export const DISCORD_BLURPLE = 0x5865f2;
 
 export const NOT_LINKED_MESSAGE =
-  "This server isn't linked yet - run `/link <code>` first (generate a code in Magic Vault's Settings > Notifications).";
+  "This server isn't linked yet - run `/link <code>` first (generate a code in Mault's Settings > Discord).";
+
+export const ACCOUNT_NOT_LINKED_MESSAGE =
+  "Your Discord account isn't linked to Mault yet. Generate a code in Mault's Account > Discord account, then run `/link-account <code>`.";
 
 export const PRESENCE_CYCLE_MS = 20_000;
 
-export const PRESENCE_REFRESH_MS = 10 * 60 * 1000;
+export const PRESENCE_REFRESH_MS = 24 * 60 * 60 * 1000;
 
 export const PRESENCE_RETRY_MS = 15_000;
 
 export const PRESENCE_FALLBACK_STATUS = "for cards to sort";
+
+export const SHARE_PICK_TIMEOUT_MS = 60_000;
+
+export const DISCORD_SELECT_LABEL_MAX_LENGTH = 100;
+
+export const DISCORD_EMBED_DESCRIPTION_MAX_LENGTH = 4096;

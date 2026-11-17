@@ -1,7 +1,6 @@
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { OnboardingContext } from "@/features/onboarding/api/use-onboarding";
-import { useTour } from "@/features/onboarding/api/use-tour";
 import {
   ONBOARDING_TOUR_STEPS,
   resolvePagePath,
@@ -10,15 +9,29 @@ import {
   toTourStep,
   waitForTourNavigation,
 } from "@/features/onboarding/lib/tour-steps";
+import { isTourCompleted } from "@/features/onboarding/lib/tour-storage";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { ONBOARDING_COMPLETED_KEY } from "@/lib/constants/storage-keys";
-import { ONBOARDING_TOUR_TARGET_WAIT_TIMEOUT_MS } from "@/lib/constants/tours";
 import type { TourPage } from "@/lib/interfaces/tours";
-import { useEffect, useMemo, useRef, type ReactNode } from "react";
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { useTranslation } from "react-i18next";
 import type { Step } from "react-joyride";
 import type { NavigateFunction } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
+
+const OnboardingTour = lazy(() =>
+  import("@/features/onboarding/components/onboarding-tour").then(
+    (module) => ({ default: module.OnboardingTour }),
+  ),
+);
 
 function createBeforeHook(
   page: TourPage,
@@ -54,27 +67,31 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     [t, navigate],
   );
 
-  const { controls, Tour } = useTour({
-    steps,
-    completedKey: ONBOARDING_COMPLETED_KEY,
-    targetWaitTimeout: ONBOARDING_TOUR_TARGET_WAIT_TIMEOUT_MS,
-    autoStart:
-      !isMobile &&
-      !orgLoading &&
-      !collectionsLoading &&
-      !!activeOrg &&
-      !!activeCollection,
-  });
+  const [manualTourRun, setManualTourRun] = useState(0);
+  const shouldAutoStart =
+    !orgLoading &&
+    !collectionsLoading &&
+    !!activeOrg &&
+    !!activeCollection &&
+    !isTourCompleted(ONBOARDING_COMPLETED_KEY);
 
   const contextValue = useMemo(
-    () => ({ startTour: () => controls.start(0) }),
-    [controls],
+    () => ({ startTour: () => setManualTourRun((run) => run + 1) }),
+    [],
   );
 
   return (
     <OnboardingContext.Provider value={contextValue}>
       {children}
-      {!isMobile && Tour}
+      {!isMobile && (manualTourRun > 0 || shouldAutoStart) && (
+        <Suspense fallback={null}>
+          <OnboardingTour
+            key={manualTourRun}
+            steps={steps}
+            restartCompleted={manualTourRun > 0}
+          />
+        </Suspense>
+      )}
     </OnboardingContext.Provider>
   );
 }

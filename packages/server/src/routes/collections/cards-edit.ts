@@ -1,18 +1,24 @@
 import {
   isCardCondition,
+  isCardLanguage,
+  pickedCardLanguage,
   type CardCondition,
   type PlayingCardWithDistance,
 } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { logActivity } from "../../lib/activity-log";
 import { collectionCards } from "../../db/schema";
 import { markScanCorrected } from "../../lib/scan-stats";
 import { emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toScannedCard } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
+import { findFoilPrinting } from "../../lib/card-search/foil-printing";
+import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
+import { hydrateSavedCards, toSavedCardSnapshots } from "../../lib/saved-cards";
 
-// PUT /collections/:guid/cards/:scanId — update card (correction, bin and/or foil status)
 export const editCollectionCardRoute = new Hono<AppEnv>().put(
   "/:guid/cards/:scanId",
   requireAuth,
@@ -20,19 +26,34 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
   async (c) => {
     const orgId = c.get("orgId");
     const { guid, scanId } = c.req.param();
-    const { card, binNumber, isFoil, foilType, condition, confirmed, reviewed } =
-      await c.req.json<{
-        confirmed?: boolean;
-        reviewed?: boolean;
-        card?: PlayingCardWithDistance;
-        binNumber?: number;
-        isFoil?: boolean;
-        foilType?: string | null;
-        condition?: CardCondition;
-      }>();
+    const {
+      card,
+      binNumber,
+      isFoil,
+      foilType,
+      condition,
+      language,
+      confirmed,
+      reviewed,
+    } = await c.req.json<{
+      confirmed?: boolean;
+      reviewed?: boolean;
+      card?: PlayingCardWithDistance;
+      binNumber?: number;
+      isFoil?: boolean;
+      foilType?: string | null;
+      condition?: CardCondition;
+      language?: string;
+    }>();
     if (condition !== undefined && !isCardCondition(condition)) {
       return c.json({ success: false, message: "Invalid condition." }, 400);
     }
+    if (language !== undefined && !isCardLanguage(language)) {
+      return c.json({ success: false, message: "Invalid language." }, 400);
+    }
+    const savedCardScope = await resolveGameKeyAndLang(c.get("jwtClaims"), guid);
+    const foilPrintingScope =
+      card === undefined && foilType !== undefined ? savedCardScope : null;
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
         const existing = await tx.query.collectionCards.findFirst({
@@ -45,6 +66,7 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
             isFoil: true,
             foilType: true,
             condition: true,
+            language: true,
             isCorrected: true,
             lowConfidenceMatch: true,
             isReviewed: true,
@@ -52,9 +74,30 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
         });
         if (!existing) return { success: false, message: "Card not found." };
 
+        const scope = {
+          gameKey: savedCardScope?.gameKey ?? null,
+          lang: savedCardScope?.lang ?? "en",
+        };
+        const [existingCard] = await hydrateSavedCards(
+          [{ ...scope, card: existing.card as PlayingCardWithDistance }],
+          { includeRaw: true },
+        );
+        const foilPrinting =
+          foilPrintingScope && foilType !== undefined
+            ? await findFoilPrinting(
+                foilPrintingScope.gameKey,
+                existingCard,
+                foilType,
+              )
+            : null;
+
         const updates: Partial<typeof collectionCards.$inferInsert> = {};
+        if (foilPrinting) {
+          updates.card = (await toSavedCardSnapshots(scope, foilPrinting, null)).card;
+          updates.cardId = foilPrinting.id;
+        }
         if (card !== undefined) {
-          updates.card = card;
+          updates.card = (await toSavedCardSnapshots(scope, card, null)).card;
           updates.cardId = card.id;
           if (binNumber !== undefined) updates.binNumber = binNumber;
           updates.isCorrected = true;
@@ -70,22 +113,41 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
         if (isFoil !== undefined) updates.isFoil = isFoil;
         if (foilType !== undefined) updates.foilType = foilType;
         if (condition !== undefined) updates.condition = condition;
+        if (language !== undefined) updates.language = language;
+        else if (card !== undefined) updates.language = pickedCardLanguage(card);
 
         await tx
           .update(collectionCards)
           .set(updates)
           .where(eq(collectionCards.id, existing.id));
+        if (card !== undefined) {
+          await logActivity(tx, {
+            orgId,
+            userId: c.get("userId"),
+            action: "card.corrected",
+            summary: card.name,
+            details: {
+              scanId,
+              collectionGuid: guid,
+              from: (existing.card as PlayingCardWithDistance).name,
+              to: card.name,
+            },
+          });
+        }
 
         return {
           success: true,
           data: toScannedCard({
             guid: scanId,
-            card: (card ?? existing.card) as PlayingCardWithDistance,
+            card: card ?? foilPrinting ?? existingCard,
             scannedAt: existing.scannedAt,
             binNumber: binNumber !== undefined ? binNumber : existing.binNumber,
             isFoil: isFoil !== undefined ? isFoil : existing.isFoil,
             foilType: foilType !== undefined ? foilType : existing.foilType,
             condition: condition ?? existing.condition,
+            language:
+              language ??
+              (card !== undefined ? pickedCardLanguage(card) : existing.language),
             isCorrected:
               card !== undefined || confirmed ? true : existing.isCorrected,
             lowConfidenceMatch: resolvesReview ? false : existing.lowConfidenceMatch,
@@ -99,12 +161,11 @@ export const editCollectionCardRoute = new Hono<AppEnv>().put(
       }
       return c.json(result);
     } catch (err) {
-      console.error(err);
       emitToSession(guid, "scan_error", {
         message: "Failed to update card.",
         timestamp: Date.now(),
       });
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

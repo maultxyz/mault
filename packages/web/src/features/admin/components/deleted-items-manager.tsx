@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { SettingsSection } from "@/components/settings-section";
 import { Badge } from "@/components/ui/badge";
@@ -15,26 +16,40 @@ import {
   deletedItemsQueryOptions,
   restoreDeletedItem,
 } from "@/features/admin/api/deleted-items";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   ALL_DELETED_ITEM_TYPES,
   DELETED_ITEM_TYPE_FILTERS,
 } from "@/lib/constants/admin";
 import type { DeletedItemTypeFilter } from "@/lib/interfaces/admin";
+import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
+import { toServerPagination } from "@/lib/pagination";
 import { toast } from "@/lib/toast";
 import type { DeletedItem } from "@magic-vault/shared";
 import { IconLoader2, IconRestore, IconTrashOff } from "@tabler/icons-react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function DeletedItemsManager() {
   const { t, i18n } = useTranslation("admin");
   const queryClient = useQueryClient();
-  const itemsQuery = useQuery(deletedItemsQueryOptions);
   const [typeFilter, setTypeFilter] = useState<DeletedItemTypeFilter>(
     ALL_DELETED_ITEM_TYPES,
   );
   const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const debouncedSearch = useDebouncedValue(
+    search.trim().toLowerCase(),
+    SEARCH_DEBOUNCE_MS,
+  );
+  const itemsQuery = useQuery(
+    deletedItemsQueryOptions({
+      page,
+      search: debouncedSearch,
+      type: typeFilter === ALL_DELETED_ITEM_TYPES ? null : typeFilter,
+    }),
+  );
 
   const restoreMutation = useMutation({
     mutationFn: (item: DeletedItem) => restoreDeletedItem(item.type, item.guid),
@@ -49,17 +64,8 @@ export function DeletedItemsManager() {
     onError: () => toast.error(t("deletedItems.toasts.restoreError")),
   });
 
-  const items = useMemo(() => {
-    const query = search.trim().toLowerCase();
-    return (itemsQuery.data ?? []).filter(
-      (item) =>
-        (typeFilter === ALL_DELETED_ITEM_TYPES || item.type === typeFilter) &&
-        (!query ||
-          [item.name, item.detail, item.orgName]
-            .filter(Boolean)
-            .some((value) => value!.toLowerCase().includes(query))),
-    );
-  }, [itemsQuery.data, typeFilter, search]);
+  const items = itemsQuery.data?.items ?? [];
+  const pagination = toServerPagination(itemsQuery.data, setPage);
 
   const typeLabel = (type: DeletedItemTypeFilter) =>
     type === ALL_DELETED_ITEM_TYPES
@@ -74,17 +80,25 @@ export function DeletedItemsManager() {
       <div className="flex flex-col gap-2 sm:flex-row">
         <Input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            pagination.setPage(1);
+          }}
           placeholder={t("deletedItems.searchPlaceholder")}
+          aria-label={t("deletedItems.searchPlaceholder")}
           data-hotkey-search
         />
         <Select
           value={typeFilter}
-          onValueChange={(value) =>
-            setTypeFilter(value as DeletedItemTypeFilter)
-          }
+          onValueChange={(value) => {
+            setTypeFilter(value as DeletedItemTypeFilter);
+            pagination.setPage(1);
+          }}
         >
-          <SelectTrigger className="w-full sm:w-48">
+          <SelectTrigger
+            className="w-full sm:w-48"
+            aria-label={t("deletedItems.typeLabel")}
+          >
             <SelectValue>{typeLabel(typeFilter)}</SelectValue>
           </SelectTrigger>
           <SelectContent>
@@ -106,54 +120,59 @@ export function DeletedItemsManager() {
           title={t("deletedItems.empty")}
         />
       ) : (
-        <div className="divide-y rounded-lg border">
-          {items.map((item) => {
-            const restoring =
-              restoreMutation.isPending &&
-              restoreMutation.variables?.guid === item.guid;
-            return (
-              <div
-                key={`${item.type}-${item.guid}`}
-                className="flex items-center gap-3 px-4 py-2.5"
-              >
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2">
-                    <p className="truncate text-sm font-medium">{item.name}</p>
-                    <Badge variant="outline" className="shrink-0">
-                      {typeLabel(item.type)}
-                    </Badge>
-                  </div>
-                  <p className="truncate text-xs text-foreground/70">
-                    {[
-                      item.detail,
-                      item.orgName ?? t("deletedItems.global"),
-                      t("deletedItems.lastUpdated", {
-                        date: new Date(item.updatedAt).toLocaleString(
-                          i18n.language,
-                          { dateStyle: "medium", timeStyle: "short" },
-                        ),
-                      }),
-                    ]
-                      .filter(Boolean)
-                      .join(" · ")}
-                  </p>
-                </div>
-                <Button
-                  variant="outline"
-                  onClick={() => restoreMutation.mutate(item)}
-                  disabled={restoreMutation.isPending}
+        <>
+          <div className="divide-y rounded-lg border">
+            {pagination.pageItems.map((item) => {
+              const restoring =
+                restoreMutation.isPending &&
+                restoreMutation.variables?.guid === item.guid;
+              return (
+                <div
+                  key={`${item.type}-${item.guid}`}
+                  className="flex items-center gap-3 px-4 py-2.5"
                 >
-                  {restoring ? (
-                    <IconLoader2 className="animate-spin" />
-                  ) : (
-                    <IconRestore />
-                  )}
-                  {t("deletedItems.restore")}
-                </Button>
-              </div>
-            );
-          })}
-        </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2">
+                      <p className="truncate text-sm font-medium">
+                        {item.name}
+                      </p>
+                      <Badge variant="outline" className="shrink-0">
+                        {typeLabel(item.type)}
+                      </Badge>
+                    </div>
+                    <p className="truncate text-xs text-foreground/70">
+                      {[
+                        item.detail,
+                        item.orgName ?? t("deletedItems.global"),
+                        t("deletedItems.lastUpdated", {
+                          date: new Date(item.updatedAt).toLocaleString(
+                            i18n.language,
+                            { dateStyle: "medium", timeStyle: "short" },
+                          ),
+                        }),
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                    </p>
+                  </div>
+                  <Button
+                    variant="outline"
+                    onClick={() => restoreMutation.mutate(item)}
+                    disabled={restoreMutation.isPending}
+                  >
+                    {restoring ? (
+                      <IconLoader2 className="animate-spin" />
+                    ) : (
+                      <IconRestore />
+                    )}
+                    {t("deletedItems.restore")}
+                  </Button>
+                </div>
+              );
+            })}
+          </div>
+          <ListPagination pagination={pagination} />
+        </>
       )}
     </SettingsSection>
   );

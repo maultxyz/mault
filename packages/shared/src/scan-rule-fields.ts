@@ -140,12 +140,12 @@ export function toRuleCard<T extends object>(card: T, scan: ScanRuleState): T {
       matchPercent: cardMatchPercent(card),
       marketValueUsd: cardPriceFor(
         card as PlayingCard,
-        scan.isFoil,
+        { isFoil: scan.isFoil, foilType: scan.foilType },
         "tcgplayer",
       ),
       marketValueEur: cardPriceFor(
         card as PlayingCard,
-        scan.isFoil,
+        { isFoil: scan.isFoil, foilType: scan.foilType },
         "cardmarket",
       ),
       collectorNumber: cardCollectorNumber(card),

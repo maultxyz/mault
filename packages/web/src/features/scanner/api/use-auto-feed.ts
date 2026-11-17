@@ -2,19 +2,32 @@ import {
   reportSerialEvent,
 } from "@/features/notifications/api/notification-settings";
 import { useSerialMessage } from "@/features/scanner/api/use-serial";
-import { isFedEvent } from "@magic-vault/shared";
+import {
+  feedWithRetries,
+  isFedEvent,
+  isFeedTimeoutReply,
+  parseSerialReply,
+} from "@magic-vault/shared";
 import type { Collection } from "@magic-vault/shared";
 import { useCallback, useRef, useState, type RefObject } from "react";
 import { useTranslation } from "react-i18next";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
 import type { AutoFeedSerial } from "@/lib/interfaces/scanner";
+import type {
+  StationAttention,
+  StationAttentionDetails,
+} from "@/lib/interfaces/stations";
 
 export function useAutoFeed({
   serialRef,
   activeCollectionRef,
+  deviceGuidRef,
+  feedRetryCountRef,
 }: {
   serialRef: RefObject<AutoFeedSerial>;
   activeCollectionRef: RefObject<Collection | null | undefined>;
+  deviceGuidRef: RefObject<string | undefined>;
+  feedRetryCountRef: RefObject<number>;
 }) {
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
@@ -30,6 +43,7 @@ export function useAutoFeed({
   }, []);
 
   const haltedRef = useRef(false);
+  const [attention, setAttention] = useState<StationAttention | null>(null);
 
   const isAutoFeedEnabled = useCallback(
     () => autoFeedRef.current && !haltedRef.current,
@@ -38,6 +52,7 @@ export function useAutoFeed({
   const isFeedHalted = useCallback(() => haltedRef.current, []);
   const clearFeedHalt = useCallback(() => {
     haltedRef.current = false;
+    setAttention(null);
   }, []);
 
   const pause = useCallback(() => {
@@ -45,8 +60,17 @@ export function useAutoFeed({
     pauseHookRef.current?.();
   }, []);
 
+  const pauseForAttention = useCallback(
+    (details: StationAttentionDetails) => {
+      setAttention({ ...details, raisedAt: Date.now() });
+      pause();
+    },
+    [pause],
+  );
+
   const resume = useCallback(() => {
     haltedRef.current = false;
+    setAttention(null);
     resumeHookRef.current?.();
   }, []);
 
@@ -74,7 +98,7 @@ export function useAutoFeed({
   const handleFeedResult = useCallback(
     (parsed: Record<string, unknown>) => {
       if (parsed.empty && !serialRef.current.ignoreIrSensors) {
-        pause();
+        pauseForAttention({ kind: "hopperEmpty" });
         toast.error(t("feederEmpty.title"), {
           description: t("feederEmpty.description"),
           duration: Infinity,
@@ -85,9 +109,10 @@ export function useAutoFeed({
           sent: true,
           response: parsed,
           collectionGuid: activeCollectionRef.current?.guid,
+          deviceGuid: deviceGuidRef.current,
         });
       } else if (parsed.error) {
-        pause();
+        pauseForAttention({ kind: "feederError", detail: String(parsed.error) });
         toast.error(t("feederError.title"), {
           description: String(parsed.error),
           duration: Infinity,
@@ -98,12 +123,13 @@ export function useAutoFeed({
           sent: true,
           response: parsed,
           collectionGuid: activeCollectionRef.current?.guid,
+          deviceGuid: deviceGuidRef.current,
         });
       } else if (
         parsed.detected === false &&
         !serialRef.current.ignoreIrSensors
       ) {
-        pause();
+        pauseForAttention({ kind: "noCardDetected" });
         toast.error(t("cardScanner.noCardDetected.title"), {
           description: t("cardScanner.noCardDetected.description"),
         });
@@ -112,26 +138,28 @@ export function useAutoFeed({
           sent: true,
           response: parsed,
           collectionGuid: activeCollectionRef.current?.guid,
+          deviceGuid: deviceGuidRef.current,
         });
       } else {
         cardArrivedHookRef.current?.();
       }
     },
-    [toast, t, serialRef, activeCollectionRef, pause],
+    [toast, t, serialRef, activeCollectionRef, deviceGuidRef, pauseForAttention],
   );
 
-  useSerialMessage((message) => {
-    if (!isFedEvent(message) || !autoFeedRef.current) return;
-    handleFeedResult(message);
-  });
+  const feedRetryCount = useCallback(
+    () => (serialRef.current.ignoreIrSensors ? 0 : feedRetryCountRef.current),
+    [serialRef, feedRetryCountRef],
+  );
 
-  const triggerAutoFeed = useCallback(async () => {
-    const { sent, line: response } = await serialRef.current.sendRequest(
-      { feeder: true },
-      10000,
+  const sendAutoFeed = useCallback(async (retryCount: number) => {
+    const { sent, line: response } = await feedWithRetries(
+      () => serialRef.current.sendRequest({ feeder: true }, 10000),
+      (result) => (result.sent ? parseSerialReply(result.line) : null),
+      retryCount,
     );
     if (!sent) {
-      pause();
+      pauseForAttention({ kind: "sorterNotResponding" });
       toast.error(t("scannedCards.autoFeedFailed.title"), {
         description: t("feederCommandFailedDescription"),
       });
@@ -140,11 +168,12 @@ export function useAutoFeed({
         sent: false,
         response: null,
         collectionGuid: activeCollectionRef.current?.guid,
+        deviceGuid: deviceGuidRef.current,
       });
       return;
     }
     if (!response) {
-      pause();
+      pauseForAttention({ kind: "sorterNotResponding" });
       toast.error(t("scannedCards.autoFeedTimeout.title"), {
         description: t("feederTimeoutDescription"),
       });
@@ -153,13 +182,14 @@ export function useAutoFeed({
         sent: true,
         response: null,
         collectionGuid: activeCollectionRef.current?.guid,
+        deviceGuid: deviceGuidRef.current,
       });
       return;
     }
     try {
       handleFeedResult(JSON.parse(response) as Record<string, unknown>);
     } catch {
-      pause();
+      pauseForAttention({ kind: "sorterNotResponding" });
       toast.error(t("scannedCards.autoFeedError.title"), {
         description: t("feederUnexpectedResponseDescription"),
       });
@@ -168,9 +198,33 @@ export function useAutoFeed({
         sent: true,
         response,
         collectionGuid: activeCollectionRef.current?.guid,
+        deviceGuid: deviceGuidRef.current,
       });
     }
-  }, [toast, t, serialRef, activeCollectionRef, pause, handleFeedResult]);
+  }, [
+    toast,
+    t,
+    serialRef,
+    activeCollectionRef,
+    deviceGuidRef,
+    pauseForAttention,
+    handleFeedResult,
+  ]);
+
+  const triggerAutoFeed = useCallback(
+    () => sendAutoFeed(feedRetryCount()),
+    [sendAutoFeed, feedRetryCount],
+  );
+
+  useSerialMessage((message) => {
+    if (!isFedEvent(message) || !autoFeedRef.current) return;
+    const retryCount = feedRetryCount();
+    if (retryCount > 0 && isFeedTimeoutReply(message)) {
+      void sendAutoFeed(retryCount - 1);
+      return;
+    }
+    handleFeedResult(message);
+  });
 
   return {
     autoFeed,
@@ -179,6 +233,8 @@ export function useAutoFeed({
     isFeedHalted,
     clearFeedHalt,
     pause,
+    pauseForAttention,
+    attention,
     triggerAutoFeed,
     registerCardArrivedHook,
     registerPauseHook,

@@ -18,11 +18,36 @@
   },
   "hero": {
     "title": "Jede Karte,<br></br><highlight>schön dort, wo sie hingehört.</highlight>",
-    "subtitle": "Lade deine Karten in den Trichter, und Mault übernimmt den Rest - die Zuführung schiebt jede Karte an der Kamera vorbei zur Erkennung und sortiert sie danach in Fächer, ganz nach den Regeln, die du selbst festlegst: Seltenheit, Farbe, Set, Typ oder was du sonst magst. Keine Tabellen, kein Rätselraten.",
     "seeFeatures": "Funktionen ansehen",
-    "currentSession": "Aktuelle Sitzung",
-    "cardCount_one": "{{count}} Karte",
-    "cardCount_other": "{{count}} Karten"
+    "liveSort": "Live-Sortierung",
+    "pauseDemo": "Demo pausieren",
+    "playDemo": "Demo abspielen",
+    "sortedCount_one": "{{count}} Karte sortiert",
+    "sortedCount_other": "{{count}} Karten sortiert",
+    "nextUp": "Als Nächstes",
+    "foil": "Foil",
+    "stations": {
+      "hopper": "Trichter",
+      "camera": "Kamera",
+      "bins": "Fächer"
+    },
+    "binRules": {
+      "1": "Blaue Commons",
+      "2": "Rot unter 5 $",
+      "3": "Blaue Uncommons",
+      "4": "Grün",
+      "5": "Farblos",
+      "6": "Über 20 $"
+    },
+    "eyebrow": "Open-Source-Kartensortierer",
+    "tagline": "Scannen / Sortieren / Erfassen",
+    "recent": "Zuletzt",
+    "readout": {
+      "match": "Treffer",
+      "set": "Set",
+      "price": "Preis",
+      "route": "Ziel"
+    }
   },
   "stats": {
     "items": {
@@ -35,69 +60,47 @@
   "supportedGames": {
     "heading": "Sortiert jedes Sammelkartenspiel, das du liebst",
     "cardsIndexed_one": "{{formatted}} Karte indexiert",
-    "cardsIndexed_other": "{{formatted}} Karten indexiert"
+    "cardsIndexed_other": "{{formatted}} Karten indexiert",
+    "pauseHint": "Drücke die Leertaste, um die laufende Liste anzuhalten.",
+    "pausedHint": "Angehalten. Drücke die Leertaste, um die laufende Liste fortzusetzen."
   },
   "features": {
     "eyebrow": "Funktionen",
     "heading": "Alles, was du brauchst, um dich organisiert zu fühlen",
     "subtitle": "Lass Mault das Sortieren übernehmen, damit du mehr Zeit zum Spielen hast und weniger Zeit mit dem Durchsuchen von Kisten verbringst.",
     "items": {
-      "recognition": {
-        "title": "Sofortige Erkennung",
-        "description": "Kein Eintippen von Kartennamen, keine Barcodes - die Zuführung hält jede Karte vor die Kamera, und Mault weiß genau, welche es ist."
-      },
       "rules": {
         "title": "Regeln, die du kontrollierst",
         "description": "Kombiniere Bedingungen - Seltenheit, Farbe, Set, Typ und mehr -, um jede Karte genau dorthin zu schicken, wo du sie haben möchtest."
       },
-      "autoAssign": {
-        "title": "Automatische Fachzuweisung",
-        "description": "Kein Regeln-Schreiben nötig. Wähle ein Feld wie Seltenheit oder Set, und die erste Karte mit einem neuen Wert belegt das nächste freie Fach. Wiederholungen werden automatisch zurückgeleitet."
-      },
-      "repack": {
-        "title": "Repacks erstellen",
-        "description": "Lege pro Fach Pack-Slots fest, etwa 3 Commons und 1 Rare, und jedes Fach füllt gleichzeitig sein eigenes Pack. Leere es, um das nächste zu starten."
-      },
-      "alphabet": {
-        "title": "Alphabetische Sortierung",
-        "description": "Sortiere einen Stapel von A bis Z, ein Buchstabe pro Fach. Dann gehst du in jeden Stapel tiefer, A in AA, AB, AC, bis jede Karte in der richtigen Reihenfolge liegt."
-      },
-      "sounds": {
-        "title": "Eigene Sounds",
-        "description": "Lade deine eigenen Clips hoch und spiele sie ab, wenn eine passende Karte sortiert wird, etwa eine Fanfare für jede Mythic oder ein Kassenklingeln für alles über 20 $."
-      },
       "insights": {
         "title": "Wisse, was du besitzt",
-        "description": "Sieh Anzahlen, Seltenheiten und Sets über deine gesamte Sammlung hinweg, damit du nie wieder raten musst, was in der Kiste steckt."
-      },
-      "hardware": {
-        "title": "Gebaut für den Tisch",
-        "description": "Funktioniert mit einem physischen Sortierer, damit deine Karten in echten Fächern landen - nicht nur in einer weiteren Tabelle. Füg jederzeit weitere Sortiermodule hinzu und wachse auf bis zu 11 Fächer."
+        "description": "Sieh Anzahl, Wert, Einkaufspreise und Margen deiner ganzen Sammlung, mit täglichem Wertverlauf, damit du nie raten musst, was die Box wert ist."
       },
       "storage": {
         "title": "Wisse, in welcher Box jede Karte liegt",
         "description": "Ist ein Fach voll, leerst du es in eine Aufbewahrungsbox, und Mault merkt sich die genaue Position jeder Karte im Stapel. Durchsuche alle Boxen nach Namen, sieh ihren Wert und exportiere eine Box als CSV."
       },
-      "pickList": {
-        "title": "Karten aus einer Deckliste ziehen",
-        "description": "Füge eine Deckliste in ein beliebiges Fach ein, und Mault zieht diese Karten beim Scannen aus dem Stapel und hakt jede ab, bis die Liste vollständig ist. Alles andere wird wie gewohnt sortiert."
-      },
-      "pricing": {
-        "title": "Preise von drei Märkten",
-        "description": "Bewerte deine Sammlung mit Preisen von TCGplayer, Cardmarket oder Card Kingdom, täglich aktualisiert. Lege den Zustand jeder Karte fest, und ihr Preis passt sich an."
+      "intake": {
+        "title": "Sammlungen an der Theke ankaufen",
+        "description": "Scanne die Karten eines Kunden in einen eigenen Ankauf und sieh zu, wie aus deinen Preisstufen ein Bar- und Guthabenangebot entsteht. Karten unter deinem Mindestwert werden durchgestrichen, und beim Annehmen werden die Einkaufspreise erfasst und ein Beleg gedruckt."
       }
     },
     "new": "Neu",
-    "priceSources": {
-      "tcgplayer": "TCGplayer",
-      "cardmarket": "Cardmarket",
-      "cardkingdom": "Card Kingdom"
-    },
+    "stageTryIt": "Probier es aus",
+    "stageExample": "Beispiel",
     "demo": {
-      "cardCount_one": "{{count}} Karte",
-      "cardCount_other": "{{count}} Karten",
-      "pickListBin": "Pickliste Fach {{number}}",
-      "found": "{{found}}/{{wanted}} gefunden"
+      "intakeLot": "Karten von {{name}}",
+      "liveOffer": "Aktuelles Angebot",
+      "cash": "Bar",
+      "credit": "Guthaben",
+      "ruleMatches_one": "{{count}} Karte kommt in Fach {{bin}}",
+      "ruleMatches_other": "{{count}} Karten kommen in Fach {{bin}}",
+      "collectionValue": "Sammlungswert",
+      "valueHistory": "Wert in den letzten 30 Tagen",
+      "ruleField": "Feld",
+      "ruleOperator": "Operator",
+      "ruleValue": "Wert"
     },
     "more": {
       "heading": "Und noch viel mehr",
@@ -133,8 +136,65 @@
         "api": {
           "title": "API und Webhooks",
           "description": "Verbinde deinen Shop: Finde heraus, wo eine Karte liegt, und werde benachrichtigt, wenn Karten gescannt werden."
+        },
+        "accuracy": {
+          "title": "Stichproben",
+          "description": "Prüfe eine zufällige Stichprobe einer Charge und erhalte eine Genauigkeitsschätzung mit 95%-Bereich, bevor du sie einstellst."
+        },
+        "staff": {
+          "title": "Team-Aktivität",
+          "description": "Sieh Scans und Korrekturen pro Person und ein Protokoll, wer was geändert hat."
+        },
+        "fleet": {
+          "title": "Sortierer-Warnungen",
+          "description": "Erfahre per Discord oder Webhook, wenn ein Sortierer klemmt, offline geht oder eine Wartung braucht."
+        },
+        "permissions": {
+          "title": "Ankaufspreise bleiben privat",
+          "description": "Lass dein Team Ankäufe scannen, ohne Angebote, Kosten oder Margen zu sehen."
+        },
+        "recognition": {
+          "title": "Sofortige Erkennung",
+          "description": "Kein Eintippen von Kartennamen, keine Barcodes - die Zuführung hält jede Karte vor die Kamera, und Mault weiß genau, welche es ist."
+        },
+        "autoAssign": {
+          "title": "Automatische Fachzuweisung",
+          "description": "Kein Regeln-Schreiben nötig. Wähle ein Feld wie Seltenheit oder Set, und die erste Karte mit einem neuen Wert belegt das nächste freie Fach. Wiederholungen werden automatisch zurückgeleitet."
+        },
+        "repack": {
+          "title": "Repacks erstellen",
+          "description": "Lege pro Fach Pack-Slots fest, etwa 3 Commons und 1 Rare, und jedes Fach füllt gleichzeitig sein eigenes Pack. Leere es, um das nächste zu starten."
+        },
+        "alphabet": {
+          "title": "Alphabetische Sortierung",
+          "description": "Sortiere einen Stapel von A bis Z, ein Buchstabe pro Fach. Dann gehst du in jeden Stapel tiefer, A in AA, AB, AC, bis jede Karte in der richtigen Reihenfolge liegt."
+        },
+        "sounds": {
+          "title": "Eigene Sounds",
+          "description": "Lade deine eigenen Clips hoch und spiele sie ab, wenn eine passende Karte sortiert wird, etwa eine Fanfare für jede Mythic oder ein Kassenklingeln für alles über 20 $."
+        },
+        "hardware": {
+          "title": "Gebaut für den Tisch",
+          "description": "Funktioniert mit einem physischen Sortierer, damit deine Karten in echten Fächern landen - nicht nur in einer weiteren Tabelle. Füg jederzeit weitere Sortiermodule hinzu und wachse auf bis zu 11 Fächer."
+        },
+        "picks": {
+          "title": "Online-Bestellungen aus deinen Boxen picken",
+          "description": "Füge eine TCGplayer-Pickliste, einen Shopify-Export oder eine einfache Liste ein. Mault findet jede Karte, zeigt dir Box und Position und nimmt die gepickten Karten aus deinem Bestand."
+        },
+        "pickList": {
+          "title": "Karten aus einer Deckliste ziehen",
+          "description": "Füge eine Deckliste in ein beliebiges Fach ein, und Mault zieht diese Karten beim Scannen aus dem Stapel und hakt jede ab, bis die Liste vollständig ist. Alles andere wird wie gewohnt sortiert."
+        },
+        "pricing": {
+          "title": "Preise von drei Märkten",
+          "description": "Bewerte deine Sammlung mit Preisen von TCGplayer, Cardmarket oder Card Kingdom, täglich aktualisiert. Lege den Zustand jeder Karte fest, und ihr Preis passt sich an."
         }
       }
+    },
+    "groups": {
+      "sorting": "Sortiere, wie du willst",
+      "stores": "Gemacht für Kartenläden",
+      "setup": "Wächst mit deinem Setup"
     }
   },
   "openSource": {
@@ -161,49 +221,122 @@
   "pricing": {
     "eyebrow": "Preise",
     "heading": "Einfache, transparente Preise",
-    "subtitle": "Dieselbe App in beiden Fällen. Free reicht für gelegentliches Sortieren. Business hebt das tägliche Scanlimit auf, betreibt mehrere Sortierer gleichzeitig und schaltet unbegrenzte eigene Sounds und Discord-Benachrichtigungsregeln frei.",
+    "subtitle": "Dieselbe App in jedem Tarif. Free reicht für gelegentliches Sortieren. Enthusiast hebt die Limits an und bringt chaotisches Sortieren und Lagerorte für ambitionierte Sammler. Business hebt die Limits auf und bringt API-Zugriff und Werkzeuge zum Kaufen und Verkaufen von Karten.",
     "intervals": {
       "label": "Abrechnungszeitraum",
       "month": "Monatlich",
       "year": "Jährlich"
     },
     "shared": {
-      "collections": "Unbegrenzte Sammlungen",
       "games": "Jedes unterstützte Sammelkartenspiel",
       "notifications": "Discord-Scan-Benachrichtigungen"
     },
-    "free": {
-      "name": "Free",
-      "price": "0 $",
-      "description": "Für gelegentliche Sammler, die gerade erst anfangen.",
-      "scanLimit": "Bis zu {{limit}} Kartenscans pro Tag",
-      "sorters_one": "{{count}} verbundener Sortierer gleichzeitig",
-      "sorters_other": "{{count}} verbundene Sortierer gleichzeitig",
-      "soundRules_one": "{{count}} eigene Soundregel",
-      "soundRules_other": "{{count}} eigene Soundregeln",
-      "notificationRules_one": "{{count}} Discord-Benachrichtigungsregel",
-      "notificationRules_other": "{{count}} Discord-Benachrichtigungsregeln"
+    "perMonth": "/Monat",
+    "perYear": "/Jahr",
+    "yearlySavings": "Spare {{percent}} % mit jährlicher Abrechnung",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "price": "0 $",
+        "description": "Für gelegentliche Sammler, die gerade erst anfangen.",
+        "cta": "Kostenlos starten"
+      },
+      "enthusiast": {
+        "name": "Enthusiast",
+        "description": "Für ambitionierte Sammler, die zu Hause sortieren.",
+        "cta": "Enthusiast-Plan starten"
+      },
+      "business": {
+        "name": "Business",
+        "description": "Für Läden und Teams, die Karten kaufen und verkaufen.",
+        "cta": "Business-Plan starten"
+      }
     },
-    "business": {
-      "name": "Business",
-      "perMonth": "/Monat",
-      "perYear": "/Jahr",
-      "yearlySavings": "Spare {{percent}} % mit jährlicher Abrechnung",
-      "description": "Für Shops und ambitionierte Sammler.",
-      "unlimitedScans": "Unbegrenzte Kartenscans",
-      "cta": "Business-Plan starten",
-      "sorters_one": "Bis zu {{count}} Sortierer gleichzeitig, aus einem Browser",
-      "sorters_other": "Bis zu {{count}} Sortierer gleichzeitig, aus einem Browser",
-      "soundRules": "Unbegrenzte Soundregeln mit deinen eigenen hochgeladenen Clips",
-      "notificationRules": "Unbegrenzte Discord-Benachrichtigungsregeln, die passende Karten jeweils in ihren eigenen Kanal posten",
+    "limits": {
+      "dailyScans": {
+        "limited_one": "Bis zu {{count}} Kartenscan pro Tag",
+        "limited_other": "Bis zu {{count}} Kartenscans pro Tag",
+        "unlimited": "Unbegrenzte Kartenscans"
+      },
+      "organizations": {
+        "limited_one": "{{count}} eigene Organisation",
+        "limited_other": "Bis zu {{count}} eigene Organisationen",
+        "unlimited": "So viele eigene Organisationen, wie du brauchst"
+      },
+      "membersPerOrg": {
+        "limited_one": "{{count}} Mitglied pro Organisation",
+        "limited_other": "Bis zu {{count}} Mitglieder pro Organisation",
+        "unlimited": "Unbegrenzt viele Mitglieder in jeder Organisation"
+      },
+      "connectedSorters": {
+        "limited_one": "{{count}} verbundener Sortierer gleichzeitig",
+        "limited_other": "Bis zu {{count}} Sortierer gleichzeitig, aus einem Browser",
+        "unlimited": "Unbegrenzt viele Sortierer gleichzeitig"
+      },
+      "soundRules": {
+        "limited_one": "{{count}} eigene Soundregel",
+        "limited_other": "{{count}} eigene Soundregeln",
+        "unlimited": "Unbegrenzte Soundregeln"
+      },
+      "notificationRules": {
+        "limited_one": "{{count}} Discord-Benachrichtigungsregel",
+        "limited_other": "{{count}} Discord-Benachrichtigungsregeln",
+        "unlimited": "Unbegrenzte Discord-Benachrichtigungsregeln, die passende Karten jeweils in ihren eigenen Kanal posten"
+      },
+      "collections": {
+        "limited_one": "{{count}} Sammlung",
+        "limited_other": "Bis zu {{count}} Sammlungen",
+        "unlimited": "Unbegrenzte Sammlungen"
+      }
+    },
+    "features": {
       "chaosSort": "Chaotisches Sortieren, der schnellste Weg, einen großen Stapel wegzuräumen",
+      "repacks": "Repacks erstellen: jedes Fach füllt sein eigenes Pack aus den Slots, die du festlegst",
+      "customSounds": "Eigene Sounds: lade deine eigenen Clips hoch, die beim Sortieren passender Karten abgespielt werden",
+      "fleetHealth": "Flottenzustand: sieh Status, Karten seit der letzten Wartung und Alarmverlauf jedes Sortierers und lege Wartungsintervalle fest",
       "storage": "Lagerorte: halte fest, in welcher Box jede Karte an welcher Stelle liegt, und durchsuche sie alle",
-      "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt"
+      "apiAccess": "API-Zugriff: dein Onlineshop schlägt beim Kommissionieren nach, in welcher Box und an welcher Stelle jede Karte liegt",
+      "businessTools": "Kaufen und Verkaufen: Sammlungen mit Live-Angeboten und Beleg ankaufen, Online-Bestellungen aus deinen Boxen picken und Einkaufspreise sowie Margen verfolgen"
+    },
+    "compare": {
+      "heading": "Alle Funktionen im Vergleich",
+      "subtitle": "Alles, was jeder Tarif enthält, nebeneinander.",
+      "feature": "Funktion",
+      "seeAll": "Alle Funktionen vergleichen",
+      "groups": {
+        "limits": "Limits",
+        "features": "Funktionen",
+        "included": "In jedem Tarif enthalten"
+      },
+      "cells": {
+        "unlimited": "Unbegrenzt",
+        "included": "Enthalten",
+        "notIncluded": "Nicht enthalten"
+      },
+      "limits": {
+        "dailyScans": "Kartenscans pro Tag",
+        "organizations": "Eigene Organisationen",
+        "membersPerOrg": "Mitglieder pro Organisation",
+        "connectedSorters": "Gleichzeitig verbundene Sortierer",
+        "soundRules": "Soundregeln",
+        "notificationRules": "Discord-Benachrichtigungsregeln",
+        "collections": "Sammlungen"
+      },
+      "features": {
+        "chaosSort": "Chaos-Sortierung",
+        "repacks": "Repacks erstellen",
+        "customSounds": "Eigene Sounds",
+        "fleetHealth": "Flottenzustand",
+        "storage": "Lagerorte",
+        "apiAccess": "API-Zugriff",
+        "businessTools": "An- und Verkauf"
+      }
     }
   },
   "cta": {
     "heading": "Lass uns deine Karten sortieren.",
-    "subtitle": "Richte deine erste Sammlung in ein paar Minuten ein und lass Mault ab da für Ordnung sorgen."
+    "subtitle": "Richte deine erste Sammlung in ein paar Minuten ein und lass Mault ab da für Ordnung sorgen.",
+    "eyebrow": "Bereit, wenn du es bist"
   },
   "getStartedFree": "Kostenlos starten"
 }

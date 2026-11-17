@@ -10,7 +10,7 @@ import { SwitchRow } from "@/components/ui/switch-row";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useTheme } from "@/hooks/use-theme";
 import { LIVE_CORNERS_SUPPORTED } from "@/lib/constants/scanner";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { ScanOptionsSheetProps } from "@/lib/interfaces/scanner";
 
 export function ScanOptionsSheet({
@@ -27,9 +27,16 @@ export function ScanOptionsSheet({
   showPreset,
   cameraName,
   showCamera,
+  foilTypeName,
+  showFoilType,
+  setName,
+  conditionName,
   onChooseCollection,
   onChoosePreset,
   onChooseCamera,
+  onChooseFoilType,
+  onChooseSet,
+  onChooseCondition,
   onClose,
 }: ScanOptionsSheetProps) {
   const { t } = useTranslation();
@@ -39,13 +46,18 @@ export function ScanOptionsSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
         style={{
           maxHeight: "85%",
           backgroundColor: colors.background,
           borderTopLeftRadius: RADIUS.xl,
           borderTopRightRadius: RADIUS.xl,
+          borderWidth: 1,
+          borderBottomWidth: 0,
+          borderColor: colors.border,
+          ...SHEET_SHADOW,
+          shadowColor: colors.popoverShadow,
           paddingBottom: insets.bottom + SPACING.md,
         }}
       >
@@ -61,7 +73,7 @@ export function ScanOptionsSheet({
             paddingVertical: SPACING.md,
           }}
         >
-          <AppText size="lg" heading weight="bold" style={{ flex: 1 }}>
+          <AppText size="lg" heading weight="bold" accessibilityRole="header" style={{ flex: 1 }}>
             {t("scan.options.title")}
           </AppText>
           <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />
@@ -115,6 +127,18 @@ export function ScanOptionsSheet({
                 onPress={onChooseCamera}
               />
             ) : null}
+          </ListGroup>
+          <ListGroup>
+            {showFoilType ? (
+              <ListRow icon="sparkles" title={t("scan.options.foilType")} value={foilTypeName} onPress={onChooseFoilType} />
+            ) : null}
+            <ListRow icon="filter" title={t("scan.options.set")} value={setName} onPress={onChooseSet} />
+            <ListRow
+              icon="condition"
+              title={t("scan.options.condition")}
+              value={conditionName}
+              onPress={onChooseCondition}
+            />
           </ListGroup>
           <ListGroup>
             <ListRow

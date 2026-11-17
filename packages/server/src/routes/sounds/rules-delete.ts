@@ -12,25 +12,20 @@ export const deleteSoundRuleRoute = new Hono<AppEnv>().delete(
   async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
-    try {
-      const rules = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const [deleted] = await tx
-          .update(soundRules)
-          .set({ isDeleted: true })
-          .where(
-            and(
-              eq(soundRules.guid, guid),
-              eq(soundRules.orgId, orgId),
-              eq(soundRules.isDeleted, false),
-            ),
-          )
-          .returning({ gameId: soundRules.gameId });
-        return deleted ? loadSoundRules(tx, orgId, deleted.gameId) : [];
-      });
-      return c.json({ success: true, data: rules });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const rules = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const [deleted] = await tx
+        .update(soundRules)
+        .set({ isDeleted: true })
+        .where(
+          and(
+            eq(soundRules.guid, guid),
+            eq(soundRules.orgId, orgId),
+            eq(soundRules.isDeleted, false),
+          ),
+        )
+        .returning({ gameId: soundRules.gameId });
+      return deleted ? loadSoundRules(tx, orgId, deleted.gameId) : [];
+    });
+    return c.json({ success: true, data: rules });
   },
 );

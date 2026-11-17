@@ -76,7 +76,7 @@ export function ModuleConfigsProvider({
     onSuccess: (result, { moduleNumber, calibration }) => {
       if (result.success && result.data) {
         queryClient.setQueryData(queryOpts.queryKey, result.data);
-        void applyToDevice({ modules: [{ moduleNumber, calibration }] });
+        return applyToDevice({ modules: [{ moduleNumber, calibration }] });
       }
     },
   });

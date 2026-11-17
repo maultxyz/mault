@@ -59,12 +59,16 @@
     "apiDocsLink": "Référence des champs",
     "clear": "Effacer",
     "autoAssignWaiting": "En attente d'une nouvelle valeur pour {{field}}",
-    "scanOnlyLocked": "Scan uniquement est activé. Les cartes scannées et non identifiées vont dans les bacs choisis ci-dessus. Désactive-le pour configurer les bacs.",
+    "scanOnlyLocked": "Scan uniquement est activé. Les cartes scannées et non identifiées vont dans les bacs choisis dans Mode de tri. Désactive-le pour configurer les bacs.",
     "modeChangePending": "Enregistre ou ignore le changement de mode en attente ci-dessus avant de modifier les bacs.",
     "priorityLabel": "Niveau de priorité",
     "priorityPlaceholder": "Aucun",
     "priorityDescription": "1 est la priorité la plus haute. Si plusieurs bacs prioritaires correspondent à une carte, le plus petit nombre l'emporte, et à niveau égal la carte va dans le plus vide de ces bacs. Les bacs sans niveau passent en dernier, dans l'ordre des bacs.",
     "priorityOrder": "Les bacs prioritaires sont vérifiés dans cet ordre : {{order}}",
+    "repackPriorityLabel": "Priorité de repack",
+    "repackPriorityDescription": "Les cartes vont d'abord dans le paquet ouvert avec la priorité la plus basse, donc un bac de priorité 1 se remplit avant un bac de priorité 2. Les bacs sur Auto se remplissent après tous les bacs avec une priorité, dans l'ordre des bacs.",
+    "repackPriorityAuto": "Auto",
+    "repackPriorityOrder": "Les paquets se remplissent dans cet ordre : {{order}}",
     "priorityOrderCatchAll": "Bac {{number}} (fourre-tout)",
     "catchAllRulesLabel": "Règles prioritaires",
     "catchAllRulesDescription": "Les cartes qui correspondent à ces règles viennent ici même si les règles d'un autre bac correspondent, par exemple une carte de couleur glissée dans une pile incolore. Laissez vide pour ne recevoir que les cartes qu'aucun autre bac ne prend.",
@@ -93,7 +97,10 @@
     "noFields": "Aucun champ correspondant",
     "selectPlaceholder": "Sélectionner...",
     "valuePlaceholder": "Valeur...",
-    "freeformMultiPlaceholder": "Valeurs séparées par des virgules..."
+    "freeformMultiPlaceholder": "Valeurs séparées par des virgules...",
+    "fieldLabel": "Champ",
+    "operatorLabel": "Opérateur",
+    "valueLabel": "Valeur"
   },
   "ruleGroupEditor": {
     "emptyState": "Aucune condition. Ajoute une condition ou un groupe pour commencer.",
@@ -127,7 +134,17 @@
     "newSetDescription": "Crée un nouveau préréglage avec 7 bacs vides.",
     "create": "Créer",
     "viewHistory": "Voir l'historique",
-    "historyTitle": "Historique du préréglage"
+    "historyTitle": "Historique du préréglage",
+    "printControlCard": "Imprimer une carte de contrôle",
+    "resetAutoAssign": "Réinitialiser les bacs détectés automatiquement",
+    "searchPlaceholder": "Rechercher des préréglages...",
+    "modeBadges": {
+      "scan-only": "Scan uniquement",
+      "auto-assign": "Tri automatique",
+      "repack": "Repacks",
+      "alphabet": "Tri alphabétique",
+      "chaos": "Tri chaos"
+    }
   },
   "useBinConfigs": {
     "toasts": {
@@ -146,6 +163,7 @@
       "alphabetFailed": "Échec de la mise à jour du tri alphabétique",
       "chaosFailed": "Impossible de mettre à jour le tri en vrac",
       "skipSavingFailed": "Impossible de mettre à jour l'enregistrement",
+      "resortModeFailed": "Impossible de mettre à jour le retri",
       "cardsStored_one": "{{count}} carte rangée",
       "cardsStored_other": "{{count}} cartes rangées"
     }
@@ -180,24 +198,29 @@
     "slotsLabel": "Créneaux du pack",
     "slotCountLabel": "Nombre",
     "addSlot": "Ajouter un créneau",
+    "multiplePacksLabel": "Plusieurs paquets par bac",
+    "multiplePacksDescription": "Quand un bac termine un paquet, il en commence un nouveau par-dessus et continue jusqu'à ce que le bac soit plein. Un bac ne commence un nouveau paquet que s'il a la place pour le paquet entier, donc aucun paquet n'est coupé.",
     "siftLabel": "Mettre des cartes de côté",
     "siftDescription": "Les cartes qui correspondent aux règles ci-dessous vont dans le premier bac au lieu d'un paquet. Vous pouvez ainsi mettre de côté les cartes à garder (par valeur, rareté, édition ou autre) pendant que les autres bacs forment des paquets avec le reste.",
     "siftHint": "Les cartes qui correspondent à ces règles vont dans le bac {{bin}}. Les autres bacs forment des paquets avec le reste.",
-    "siftNoBin": "Ce tri nécessite au moins un bac activé en plus du bac fourre-tout."
+    "siftNoBin": "Ce tri nécessite au moins un bac activé en plus du bac fourre-tout.",
+    "notInPlan": "La création de repacks ne fait pas partie de ton offre."
   },
   "skipSavingPanel": {
     "heading": "Ne pas enregistrer les cartes",
     "description": "Les cartes sont identifiées et triées dans les bacs comme d'habitude, mais rien n'est ajouté à la collection. Les scans comptent toujours dans ta limite quotidienne."
   },
+  "resortPanel": {
+    "heading": "Retrier les cartes enregistrées",
+    "description": "Chaque scan déplace un exemplaire déjà présent dans cette collection vers son nouveau bac au lieu d'en ajouter un autre. L'exemplaire garde sa finition foil et son état, et quitte son ancien emplacement. Les cartes absentes de la collection sont ajoutées comme d'habitude."
+  },
   "chaosPanel": {
     "heading": "Tri en vrac",
-    "businessBadge": "Business",
-    "businessOnly": "Le tri en vrac fait partie de l'offre Business.",
-    "upgrade": "Passer à Business",
     "description": "Ignore les règles et remplit les bacs l'un après l'autre, en passant au suivant quand un bac est plein. Quand tu vides un bac, choisis l'emplacement où tu le ranges, et chaque carte y est enregistrée dans l'ordre.",
     "binSizeLabel": "Cartes par bac",
     "binSizePlaceholder": "Remplir jusqu'à la taille du bac",
-    "binSizeDescription": "Passe au bac suivant après ce nombre de cartes. Laisse vide pour remplir chaque bac jusqu'à sa taille étalonnée."
+    "binSizeDescription": "Passe au bac suivant après ce nombre de cartes. Laisse vide pour remplir chaque bac jusqu'à sa taille étalonnée.",
+    "notInPlan": "Le tri en vrac ne fait pas partie de ton offre."
   },
   "alphabetPanel": {
     "heading": "Trier par ordre alphabétique",
@@ -224,6 +247,103 @@
     "sortDeeper": "Trier plus finement",
     "sortDeeperItem": "Pile {{label}} selon la lettre suivante",
     "pileDoneHint": "C'est le dernier passage pour la pile {{prefix}}. Recommencez pour revenir à l'alphabet complet."
+  },
+  "presetWorkflows": {
+    "toasts": {
+      "saveFailed": "Impossible d'enregistrer le préréglage en plusieurs étapes",
+      "switchFailed": "Impossible de changer d'étape"
+    },
+    "badge": "Plusieurs étapes",
+    "missingPreset": "Préréglage supprimé",
+    "missingPresetDescription": "Le préréglage de cette étape a été supprimé. Choisissez-en un autre ci-dessus.",
+    "newDescription": "Exécutez des préréglages existants l'un après l'autre. Choisissez la première étape maintenant et ajoutez les autres depuis la page du préréglage.",
+    "kindLabel": "Type de préréglage",
+    "kindRules": "Règles",
+    "kindMultiStage": "Plusieurs étapes",
+    "firstStageLabel": "Première étape",
+    "choosePreset": "Choisir un préréglage",
+    "firstStageDescription": "Le préréglage qui trie la pile en premier. Vous ajoutez les étapes suivantes sur la page du préréglage.",
+    "pageDescription": "Exécute vos préréglages l'un après l'autre. Triez toute la pile avec l'étape 1, remettez les cartes dans le chargeur, puis passez à l'étape suivante. Les étapes après la première retrient les cartes déjà enregistrées, sauf si vous le désactivez.",
+    "start": "Démarrer",
+    "delete": "Supprimer",
+    "deleteTitle": "Supprimer le préréglage en plusieurs étapes",
+    "deleteDescription": "Supprimer « {{name}} » ? Les préréglages qu'il utilise sont conservés.",
+    "renameTitle": "Renommer le préréglage en plusieurs étapes",
+    "renameDescription": "Saisissez un nouveau nom pour ce préréglage en plusieurs étapes.",
+    "notFoundTitle": "Préréglage en plusieurs étapes introuvable",
+    "notFoundDescription": "Il a peut-être été supprimé, ou il appartient à un autre jeu.",
+    "stageHeading": "Étape {{number}}",
+    "current": "Actuelle",
+    "resort": "Retri",
+    "editRules": "Modifier les règles",
+    "editingInactiveTitle": "Modification de {{name}}",
+    "editingInactiveDescription": "Ce n'est pas le préréglage utilisé par la trieuse. Les modifications s'appliquent partout où ce préréglage est utilisé, y compris dans ses préréglages en plusieurs étapes.",
+    "switchHere": "Passer à cette étape",
+    "saveFirst": "Enregistrez vos modifications avant de changer d'étape.",
+    "addStage": "Ajouter une étape",
+    "removeStage": "Retirer l'étape",
+    "confirmMoveTitle": "Passer à {{name}} ?",
+    "confirmMoveDescription": "Videz d'abord tous les bacs et définissez des emplacements si vous le souhaitez. Mettez ensuite les cartes pour {{name}} dans le chargeur. Les bacs qui contiennent encore des cartes sont marqués comme vidés.",
+    "binsAreEmpty": "Les bacs sont vides",
+    "editStages": "Modifier les étapes",
+    "stopFirst": "Arrêtez le scanner avant de changer d'étape.",
+    "previousStage": "Étape précédente",
+    "nextStage": "Étape suivante",
+    "lastStage": "Dernière étape",
+    "stageOf": "Étape {{number}} sur {{count}}",
+    "moveUp": "Monter l'étape",
+    "moveDown": "Descendre l'étape"
+  },
+  "binRuleTransfer": {
+    "button": "Copier ou déplacer",
+    "title": "Copier ou déplacer les règles de {{bin}}",
+    "description": "Applique les règles de tri de ce bac à un autre bac. Le déplacement les retire aussi de ce bac.",
+    "modeLabel": "Action",
+    "copy": "Copier",
+    "move": "Déplacer",
+    "targetLabel": "Vers le bac",
+    "chooseBin": "Choisir un bac",
+    "catchAllBin": "Bac {{number}} (fourre-tout)",
+    "replaceWarning": "{{bin}} a déjà des règles. Elles seront remplacées.",
+    "saveFirst": "Enregistrez ou annulez d'abord vos modifications."
+  },
+  "sortTest": {
+    "button": "Tester avec une carte aléatoire",
+    "title": "Tester le tri",
+    "description": "Une carte aléatoire de la base passe par {{name}}, comme le scanner la trierait. Rien n'est enregistré et la trieuse ne bouge pas.",
+    "nextCard": "Carte suivante",
+    "close": "Fermer",
+    "noBin": "Aucun bac",
+    "catchAllBin": "Bac {{number}} (fourre-tout)",
+    "loadFailed": "Impossible de charger une carte aléatoire",
+    "noGameTitle": "Aucun jeu sélectionné",
+    "noGameDescription": "Choisissez une collection avec un jeu pour tester ses règles.",
+    "noCardsTitle": "Aucune carte synchronisée",
+    "noCardsDescription": "Ce jeu n'a pas encore de cartes dans la base.",
+    "rulesChecked": "Règles vérifiées",
+    "matched": "Correspond",
+    "notMatched": "Ne correspond pas",
+    "override": "Prioritaire",
+    "allMustMatch": "Toutes ces conditions",
+    "anyMustMatch": "Une de ces conditions",
+    "cardValue": "Cette carte : {{value}}",
+    "noValue": "rien",
+    "resultAnnouncement": "{{name}} va dans {{bin}}",
+    "reasons": {
+      "rules": "Les règles du bac {{bin}} correspondent à cette carte, et c'est le premier bac qui correspond.",
+      "override": "Le bac {{bin}} est prioritaire et ses règles correspondent, il l'emporte donc sur les autres bacs.",
+      "catchAllRules": "Les règles propres au bac fourre-tout correspondent à cette carte.",
+      "noRuleMatched": "Aucune règle de bac ne correspond à cette carte, elle va donc dans le bac fourre-tout.",
+      "overflow": "Le bac {{matched}} correspond, et ses cartes débordent dans le bac {{bin}}.",
+      "pickList": "{{name}} est sur la liste de prélèvement du bac {{bin}}.",
+      "autoAssign": "L'attribution automatique donne à la valeur de cette carte son propre bac : le bac {{bin}}.",
+      "scanOnly": "Le mode scan seul envoie chaque carte identifiée dans le bac {{bin}}.",
+      "chaos": "Le mode chaos remplit les bacs à tour de rôle, cette carte va donc dans le bac {{bin}}.",
+      "alphabet": "Les noms commençant par {{letter}} vont dans le bac {{bin}} pour ce passage.",
+      "alphabetCatchAll": "Ce nom ne fait pas partie des lettres en cours, il va donc dans le bac fourre-tout.",
+      "repack": "Le mode repack place cette carte dans un paquet du bac {{bin}}.",
+      "noBin": "Aucun bac ne prend cette carte. Ajoutez un bac fourre-tout pour que ces cartes aient une place."
+    }
   },
   "binLabel": "Bac {{number}}",
   "catchAll": "Fourre-tout",
@@ -285,11 +405,25 @@
       "saved": "Liste de tri enregistrée",
       "saveFailed": "Impossible d'enregistrer la liste de tri",
       "resetFailed": "Impossible de réinitialiser la liste de tri"
-    }
+    },
+    "importEmpty": "Aucune carte trouvée dans ce fichier. Vérifiez que la première ligne contient des noms de colonnes comme Product Name et Quantity.",
+    "importSkipped_one": "{{count}} ligne sans nom de carte a été ignorée.",
+    "importSkipped_other": "{{count}} lignes sans nom de carte ont été ignorées."
   },
   "page": {
     "title": "Règles de tri",
     "description": "Décide dans quel bac va chaque carte. Ces règles s'appliquent à chaque collection {{game}}.",
     "descriptionNoGame": "Décide dans quel bac va chaque carte. Choisis une collection pour sélectionner le jeu dont tu modifies les règles."
+  },
+  "sortingModePanel": {
+    "title": "Mode de tri",
+    "explain": "À quoi sert {{mode}} ?"
+  },
+  "mobileBins": {
+    "rulesMode": "Règles",
+    "binsTitle": "Bacs"
+  },
+  "planLock": {
+    "badge": "Mise à niveau"
   }
 }

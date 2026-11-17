@@ -1,17 +1,16 @@
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import type { DiscordSettingsDraftValues } from "@/schemas/discord-settings-draft.schema";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useNotificationSettings } from "../api/use-notification-settings";
 import { NOTIFICATION_TEST_TYPES } from "@/lib/constants/notifications";
+import { type DiscordSettingsDraftFormValues } from "@magic-vault/shared";
 
 export function DiscordNotificationSettings() {
   const { t } = useTranslation("notifications");
   const { isLoading, isLinked, sendTest, isTesting, testingType } =
     useNotificationSettings();
-  const { control, formState } = useFormContext<DiscordSettingsDraftValues>();
+  const { control, formState } = useFormContext<DiscordSettingsDraftFormValues>();
   const notifyOnScan = useWatch({ control, name: "discordNotifyOnScan" });
   const disabled = isLoading || formState.isSubmitting;
 
@@ -33,6 +32,7 @@ export function DiscordNotificationSettings() {
           name="discordNotifyOnScan"
           render={({ field }) => (
             <Switch
+              aria-label={t("discordNotifications.notifyToggleLabel")}
               checked={field.value}
               disabled={disabled}
               onCheckedChange={field.onChange}
@@ -54,6 +54,7 @@ export function DiscordNotificationSettings() {
           name="discordScanUseThreads"
           render={({ field }) => (
             <Switch
+              aria-label={t("discordNotifications.threadToggleLabel")}
               checked={field.value}
               disabled={disabled || !notifyOnScan}
               onCheckedChange={field.onChange}
@@ -62,17 +63,16 @@ export function DiscordNotificationSettings() {
         />
       </label>
       <div className="flex flex-col gap-1.5">
-        <Label className="text-sm text-foreground/70">
+        <p className="flex items-center gap-2 text-sm font-medium text-foreground/70 select-none">
           {isLinked
             ? t("discordNotifications.testHintReady")
             : t("discordNotifications.testHintNotLinked")}
-        </Label>
+        </p>
         <div className="flex flex-wrap gap-2">
           {NOTIFICATION_TEST_TYPES.map((type) => (
             <Button
               key={type}
               variant="outline"
-              size="sm"
               onClick={() => sendTest(type)}
               disabled={!canTest}
             >

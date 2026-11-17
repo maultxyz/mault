@@ -3,12 +3,14 @@ import {
   MOBILE_ACCOUNT_TAB_PATHS,
   MOBILE_HOME_PATH,
   MOBILE_NAV_TAB_ACTIVE_CLASS,
+  MOBILE_NAV_TAB_ICON_ACTIVE_CLASS,
   MOBILE_NAV_TAB_CLASS,
   MOBILE_SCAN_PATH,
   MOBILE_SORTER_PATH,
 } from "@/lib/constants/nav";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STORAGE_PATH } from "@/lib/constants/storage";
+import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import type {
   MobileNavTabIconProps,
   MobileNavTabProps,
@@ -21,33 +23,55 @@ import {
   IconScan,
   IconUserCircle,
 } from "@tabler/icons-react";
+import { usePiHost } from "@/hooks/use-pi-host";
+import { isRemoteBrowser } from "@/lib/host";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router-dom";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
 
-function TabIcon({ icon, dot }: MobileNavTabIconProps) {
+function TabIcon({ icon, dot, active }: MobileNavTabIconProps) {
   return (
-    <span className="relative flex h-6 w-8 items-center justify-center">
+    <span
+      className={cn(
+        "relative flex h-7 w-12 items-center justify-center rounded-lg transition-colors",
+        active && MOBILE_NAV_TAB_ICON_ACTIVE_CLASS,
+      )}
+    >
       {icon}
       {dot && (
-        <span className="absolute top-0 right-1.5 size-2.5 rounded-full bg-success ring-2 ring-background" />
+        <span className="absolute top-0 right-1.5 size-2.5 rounded-full bg-success ring-2 ring-sidebar" />
       )}
     </span>
   );
 }
 
-function MobileNavTab({ to, icon, label, active, badge }: MobileNavTabProps) {
+function MobileNavTab({
+  to,
+  icon,
+  label,
+  active,
+  badge,
+  lockTag,
+  disabled,
+}: MobileNavTabProps) {
+  const { t } = useTranslation("common");
   return (
     <Link
       to={to}
+      onClick={disabled ? (event) => event.preventDefault() : undefined}
       aria-current={active ? "page" : undefined}
+      aria-disabled={disabled ? true : undefined}
+      aria-label={lockTag ? `${label}, ${lockTag}` : undefined}
       className={cn(
         MOBILE_NAV_TAB_CLASS,
         active ? MOBILE_NAV_TAB_ACTIVE_CLASS : "text-foreground/70",
+        disabled && "pointer-events-none text-foreground/40",
       )}
     >
-      <TabIcon icon={icon} dot={badge} />
+      <TabIcon icon={icon} dot={badge} active={active} />
       {label}
+      {badge && <span className="sr-only">{t("a11y.liveSession")}</span>}
+      {lockTag && <span className="text-2xs leading-none">{lockTag}</span>}
     </Link>
   );
 }
@@ -55,8 +79,12 @@ function MobileNavTab({ to, icon, label, active, badge }: MobileNavTabProps) {
 export function MobileNav() {
   const { t } = useTranslation("common");
   const { pathname } = useLocation();
+  const piRemote = usePiHost() && isRemoteBrowser();
+  const scanPath = piRemote ? "/app" : MOBILE_SCAN_PATH;
   const { locks, currentUserId } = useCollectionLocks();
   const liveCounts = useLiveSessionCounts();
+  const { planLockFor } = usePlanLockedPath();
+  const storageLock = planLockFor(STORAGE_PATH);
 
   const hasLiveSessions = !!(
     currentUserId &&
@@ -66,7 +94,10 @@ export function MobileNav() {
   );
 
   return (
-    <nav className="absolute inset-x-0 bottom-0 z-40 grid grid-cols-5 border-t bg-background pb-[env(safe-area-inset-bottom)]">
+    <nav
+      aria-label={t("a11y.mainNavigation")}
+      className="absolute inset-x-0 bottom-0 z-40 grid grid-cols-5 bg-sidebar pb-[env(safe-area-inset-bottom)]"
+    >
       <MobileNavTab
         to={MOBILE_HOME_PATH}
         icon={<IconHome size={22} />}
@@ -75,12 +106,14 @@ export function MobileNav() {
         badge={hasLiveSessions}
       />
       <MobileNavTab
-        to={MOBILE_SCAN_PATH}
+        to={scanPath}
         icon={<IconScan size={22} />}
         label={t("mobileTabs.scan")}
         active={
           pathname.startsWith(MOBILE_SCAN_PATH) ||
-          pathname.startsWith(MOBILE_SORTER_PATH)
+          pathname.startsWith(MOBILE_SORTER_PATH) ||
+          (piRemote &&
+            (pathname === "/app" || pathname.startsWith("/app/cards/")))
         }
       />
       <MobileNavTab
@@ -94,6 +127,8 @@ export function MobileNav() {
         icon={<IconBox size={22} />}
         label={t("mobileTabs.storage")}
         active={pathname.startsWith(STORAGE_PATH)}
+        lockTag={storageLock && t("nav.upgradeShort")}
+        disabled={storageLock?.isDisabled}
       />
       <MobileNavTab
         to={MOBILE_ACCOUNT_PATH}

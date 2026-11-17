@@ -1,1 +1,0 @@
-ALTER TABLE "devices" ADD COLUMN "value_celebration_duration_ms" integer DEFAULT 500 NOT NULL;

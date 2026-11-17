@@ -1,36 +1,25 @@
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useDevice } from "@/features/calibration/api/use-device";
-import {
-  searchByImage,
-  searchByText,
-  searchByVector,
-} from "@/features/cards/api/card";
-import { getCardById } from "@/features/cards/api/card-search";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useStation } from "@/features/scanner/api/use-stations";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
+import { drawDetectionOverlay } from "@/features/scanner/lib/card-detection";
 import {
-  canvasToBlob,
-  drawDetectionOverlay,
-  extractCardImage,
-} from "@/features/scanner/lib/card-detection";
-import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
+  captureDewarpedCardImage,
+  searchCardImageWithConsensus,
+} from "@/features/scanner/lib/card-image-search";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
-import { detectColorBar } from "@/features/scanner/lib/color-bar";
 import { getOnnxRuntimeFailure } from "@/features/scanner/lib/onnx-runtime";
 import { createOutlineAnimator } from "@/features/scanner/lib/outline-animator";
+import { startVideoPreviewLoop } from "@/features/scanner/lib/video-preview-loop";
 import {
   contourFingerprint,
   fingerprintDistance,
 } from "@/features/scanner/lib/hand-scan";
-import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
-import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
-import {
-  embedCanvas,
-  rotateCanvas180,
-} from "@/features/scanner/lib/milo-client";
+import { readScannerControlCode } from "@/features/scanner/lib/scanner-control-code";
 import {
   HAND_SCAN_REARM_FINGERPRINT_DIFF,
   HAND_SCAN_TRACKING_STATUSES,
@@ -38,27 +27,15 @@ import {
   SCANNER_LIVE_DETECTION_INTERVAL_MS,
   LIVE_DETECTION_STATUSES,
 } from "@/lib/constants/scanner";
-import type {
-  MatchScope,
-  OrientedCandidate,
-  OrientedSearch,
-  OrientedSearchPick,
-  ResolvedSearchMatches,
-  ScanAttemptOutcome,
-  ScanOutcome,
-  TextSearchOutcome,
-} from "@/lib/interfaces/scanner";
 import {
+  drawVideoFrame,
   fitCanvasesToContainer,
   observeContainerResize,
 } from "@/features/scanner/lib/canvas-fit";
 import { scanLog } from "@/lib/scan-log";
+import type { VideoPreviewLoop } from "@/lib/interfaces/scanner";
 import {
-  CLOSE_MATCH_DELTA,
   COLOR_BAR_REGIONS_BY_GAME_KEY,
-  CONSENSUS_RETRY_BUDGET,
-  OCR_CROP_HEIGHT,
-  OCR_CROP_WIDTH,
   type ColorBarRegion,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
@@ -74,22 +51,16 @@ import {
   HAND_SCAN_REMOVAL_TICKS,
   HAND_SCAN_STABLE_TICKS,
   maxCornerShift,
-  type CardSearchResult,
-  type OcrDiagnostics,
+  parseScannerControlCode,
   type PlayingCardWithDistance,
-  type ScanAttemptDiagnostic,
-  type ScanDetectionDiagnostics,
   type ScanRegion,
   type ScannerStatus,
   type ScanVectorizeSource,
-  type UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
-// Singleton AudioContext - browsers cap concurrent contexts (~6).
-// Creating one per scan exhausts the limit quickly.
 let sharedAudioCtx: AudioContext | null = null;
 function getAudioContext(): AudioContext {
   if (!sharedAudioCtx || sharedAudioCtx.state === "closed") {
@@ -119,506 +90,21 @@ function playDingSound() {
   oscillator.stop(ctx.currentTime + 0.3);
 }
 
-async function resolveSearchMatches(
-  result: CardSearchResult,
-  collectionGuid: string | undefined,
-): Promise<ResolvedSearchMatches> {
-  const data = result.data;
-  if (!data || data.length === 0)
-    return {
-      card: null,
-      alternativeMatches: [],
-      noMatchReason: result.diagnostics?.reason ?? "too_far",
-      candidates: [],
-    };
-
-  const candidates = data.map((m) => ({
-    cardId: m.cardId,
-    name: m.card?.name ?? null,
-    distance: m.distance,
-    confidence: m.confidence,
-  }));
-
-  const closeMatches = data.filter(
-    (m) => m.distance - data[0].distance <= CLOSE_MATCH_DELTA,
-  );
-  const resolved = await Promise.all(
-    closeMatches.map(async (m) => {
-      const card =
-        m.card ?? (await getCardById(m.cardId, collectionGuid, m.lang)).data;
-      return card
-        ? { ...card, distance: m.distance, confidence: m.confidence }
-        : null;
-    }),
-  );
-
-  const cards = resolved.filter(Boolean) as PlayingCardWithDistance[];
-  if (cards.length === 0)
-    return {
-      card: null,
-      alternativeMatches: [],
-      noMatchReason: "lookup_failed",
-      lookupFailedCardIds: closeMatches.map((m) => m.cardId),
-      candidates,
-    };
-
-  const [card, ...alternativeMatches] = cards;
-  return { card, alternativeMatches, noMatchReason: null, candidates };
-}
-
-function appendMatchScope(formData: FormData, scope: MatchScope): void {
-  if (scope.collectionGuid)
-    formData.append("collectionGuid", scope.collectionGuid);
-  if (scope.preferredSetCode)
-    formData.append("preferredSetCode", scope.preferredSetCode);
-}
-
-function buildSearchFormData(
-  embedding: number[],
-  scope: MatchScope,
-  image?: Blob,
-): FormData {
-  const formData = new FormData();
-  if (image) formData.append("image", image, "card.jpg");
-  appendMatchScope(formData, scope);
-  formData.append("embedding", JSON.stringify(embedding));
-  return formData;
-}
-
-function hasMatch(result: CardSearchResult): boolean {
-  return (result.data?.length ?? 0) > 0;
-}
-
-async function searchBothOrientations(
-  canvas: HTMLCanvasElement,
-  checkBothOrientations: boolean,
-  search: (canvas: HTMLCanvasElement) => Promise<OrientedSearch>,
-): Promise<OrientedSearchPick> {
-  if (!checkBothOrientations)
-    return {
-      ...(await search(canvas)),
-      canvas,
-      orientation: "upright",
-      alternate: null,
-    };
-
-  const rotatedCanvas = rotateCanvas180(canvas);
-  const [upright, rotated] = await Promise.all([
-    search(canvas).then(
-      (found): OrientedCandidate => ({
-        ...found,
-        canvas,
-        orientation: "upright",
-      }),
-    ),
-    search(rotatedCanvas).then(
-      (found): OrientedCandidate => ({
-        ...found,
-        canvas: rotatedCanvas,
-        orientation: "rotated",
-      }),
-    ),
-  ]);
-
-  const rotatedWins =
-    hasMatch(upright.result) !== hasMatch(rotated.result)
-      ? hasMatch(rotated.result)
-      : (rotated.result.nearestDistance ?? Number.POSITIVE_INFINITY) <
-        (upright.result.nearestDistance ?? Number.POSITIVE_INFINITY);
-  return rotatedWins
-    ? { ...rotated, alternate: upright }
-    : { ...upright, alternate: rotated };
-}
-
-function needsTextSearch(result: CardSearchResult): boolean {
-  const reason = result.diagnostics?.reason;
-  if (reason === "too_far" || reason === "ambiguous") return true;
-  const [leader, runnerUp] = result.data ?? [];
-  return (
-    leader != null &&
-    runnerUp != null &&
-    runnerUp.distance - leader.distance <= CLOSE_MATCH_DELTA
-  );
-}
-
-async function searchByCardText(
-  frame: HTMLCanvasElement,
-  contour: CardContour,
-  best: OrientedSearchPick,
-  scope: MatchScope,
-): Promise<TextSearchOutcome> {
-  const uprightCrop = dewarpCard(
-    frame,
-    contour,
-    OCR_CROP_WIDTH,
-    OCR_CROP_HEIGHT,
-  );
-  const crops = [uprightCrop];
-  let ocr: OcrDiagnostics | null = null;
-  try {
-    for (const option of [best, best.alternate]) {
-      if (!option?.embedding) continue;
-      const crop =
-        option.orientation === "rotated"
-          ? rotateCanvas180(uprightCrop)
-          : uprightCrop;
-      crops.push(crop);
-      try {
-        const result = await searchByText(
-          buildSearchFormData(option.embedding, scope, await canvasToBlob(crop)),
-        );
-        ocr = result.ocr ?? ocr;
-        scanLog(
-          `[scanner] OCR (${option.orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
-        );
-        if (hasMatch(result)) {
-          return { pick: { ...option, result, alternate: null }, ocr };
-        }
-      } catch (err) {
-        console.error("[scanner] text search failed:", err);
-      }
-    }
-    return { pick: null, ocr };
-  } finally {
-    releaseCanvases(crops);
-  }
-}
-
-function buildImageSearchFormData(blob: Blob, scope: MatchScope): FormData {
-  const formData = new FormData();
-  formData.append("image", blob, "card.jpg");
-  appendMatchScope(formData, scope);
-  return formData;
-}
-
-function preferDetectedColor(
-  resolved: ResolvedSearchMatches,
-  color: string | null,
-): ResolvedSearchMatches {
-  if (!color || !resolved.card) return resolved;
-  const all = [resolved.card, ...resolved.alternativeMatches];
-  const preferred = all.find((c) => c.colorIdentity?.includes(color));
-  if (!preferred || preferred === resolved.card) return resolved;
-  return {
-    ...resolved,
-    card: preferred,
-    alternativeMatches: all.filter((c) => c !== preferred),
-  };
-}
-
-async function toAttemptOutcome(
-  best: OrientedSearchPick,
-  collectionGuid: string | undefined,
-  colorBarRegion: ColorBarRegion | undefined,
-  context: Pick<
-    ScanAttemptOutcome,
-    | "detectedContour"
-    | "vectorizedOn"
-    | "detection"
-    | "ocr"
-    | "lowConfidenceMatch"
-    | "matchedBy"
-  >,
-): Promise<ScanAttemptOutcome> {
-  const detectedColor = colorBarRegion
-    ? detectColorBar(best.canvas, colorBarRegion)
-    : null;
-  return {
-    ...preferDetectedColor(
-      await resolveSearchMatches(best.result, collectionGuid),
-      detectedColor,
-    ),
-    ...context,
-    detectedColor,
-    debugImageUrl: best.canvas.toDataURL("image/jpeg", 0.8),
-    search: best.result.diagnostics ?? null,
-    orientation: best.orientation,
-    embedding: best.embedding,
-    topDistance:
-      best.result.data?.[0]?.distance ?? best.result.nearestDistance ?? null,
-  };
-}
-
-async function searchCardImage(
-  canvas: HTMLCanvasElement,
-  refreshFrame: () => void,
-  contour: CardContour | null | undefined,
-  scope: MatchScope,
-  ocrEnabled: boolean | undefined,
-  checkBothOrientations: boolean,
-  colorBarRegion: ColorBarRegion | undefined,
-): Promise<ScanAttemptOutcome> {
-  const created: HTMLCanvasElement[] = [];
-  try {
-    return await runCardImageSearch(
-      created,
-      canvas,
-      refreshFrame,
-      contour,
-      scope,
-      ocrEnabled,
-      checkBothOrientations,
-      colorBarRegion,
-    );
-  } finally {
-    releaseCanvases(created, [canvas]);
-  }
-}
-
-async function runCardImageSearch(
-  created: HTMLCanvasElement[],
-  canvas: HTMLCanvasElement,
-  refreshFrame: () => void,
-  contour: CardContour | null | undefined,
-  scope: MatchScope,
-  ocrEnabled: boolean | undefined,
-  checkBothOrientations: boolean,
-  colorBarRegion: ColorBarRegion | undefined,
-): Promise<ScanAttemptOutcome> {
-  const { collectionGuid } = scope;
-  let fallbackReason = "card not detected";
-  let detection: ScanDetectionDiagnostics = {
-    cardDetected: false,
-    sharpness: null,
-    confidence: null,
-    fallbackReason: null,
-  };
-  try {
-    const {
-      dewarpedCanvas,
-      detection: corners,
-      frame,
-    } = await detectAndDewarpCard(canvas, refreshFrame);
-    detection = {
-      cardDetected: corners.cardPresent,
-      sharpness: corners.sharpness,
-      confidence: corners.confidence,
-      fallbackReason: null,
-    };
-    if (dewarpedCanvas) {
-      created.push(dewarpedCanvas);
-      const best = await searchBothOrientations(
-        dewarpedCanvas,
-        checkBothOrientations,
-        async (oriented) => {
-          const embedding = await embedCanvas(oriented);
-          const result = await searchByVector(
-            buildSearchFormData(embedding, scope),
-          );
-          return { result, embedding };
-        },
-      );
-      created.push(best.canvas);
-      if (best.alternate) created.push(best.alternate.canvas);
-
-      scanLog(
-        `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
-      );
-      const runOcr =
-        !!ocrEnabled && !!corners.contour && needsTextSearch(best.result);
-      if (ocrEnabled) {
-        scanLog(
-          runOcr
-            ? `[scanner] OCR running (embedding unsure: ${best.result.diagnostics?.reason ?? "close alternatives"})`
-            : "[scanner] OCR skipped (confident embedding match)",
-        );
-      }
-      const text =
-        runOcr && corners.contour
-          ? await searchByCardText(frame, corners.contour, best, scope)
-          : null;
-      return toAttemptOutcome(
-        text?.pick ?? best,
-        collectionGuid,
-        colorBarRegion,
-        {
-          detectedContour: corners.contour,
-          vectorizedOn: "web",
-          detection,
-          ocr: text?.ocr ?? null,
-          lowConfidenceMatch: !!text?.pick && !hasMatch(best.result),
-          matchedBy: text?.pick ? "ocr" : "embedding",
-        },
-      );
-    }
-    fallbackReason = `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`;
-  } catch (err) {
-    fallbackReason = `client-side vectorization threw: ${err instanceof Error ? err.message : String(err)}`;
-    console.error(
-      "[scanner] client-side vectorization failed, falling back to server:",
-      err,
-    );
-  }
-
-  scanLog(`[scanner] using fallback scan region (${fallbackReason})`);
-  const warpedCanvas = contour ? extractCardImage(canvas, contour) : canvas;
-  created.push(warpedCanvas);
-  const best = await searchBothOrientations(
-    warpedCanvas,
-    checkBothOrientations,
-    async (oriented) => {
-      const result = await searchByImage(
-        buildImageSearchFormData(await canvasToBlob(oriented), scope),
-      );
-      return { result, embedding: result.diagnostics?.embedding ?? null };
-    },
-  );
-  created.push(best.canvas);
-  if (best.alternate) created.push(best.alternate.canvas);
-
-  return toAttemptOutcome(best, collectionGuid, undefined, {
-    detectedContour: null,
-    vectorizedOn: "server",
-    detection: { ...detection, fallbackReason },
-    ocr: null,
-    lowConfidenceMatch: false,
-    matchedBy: "embedding",
-  });
-}
-
-function toAttemptDiagnostics(
-  attempts: ScanAttemptOutcome[],
-): ScanAttemptDiagnostic[] {
-  return attempts.map((a) => ({
-    reason: a.noMatchReason,
-    cardId: a.card?.id ?? null,
-    cardName: a.card?.name ?? null,
-    distance: a.topDistance,
-  }));
-}
-
-function toScanOutcome(
-  outcome: ScanAttemptOutcome,
-  attempts: ScanAttemptOutcome[],
-  matchesNeeded: number,
-): ScanOutcome {
-  const {
-    card,
-    alternativeMatches,
-    debugImageUrl,
-    detectedContour,
-    vectorizedOn,
-    lowConfidenceMatch,
-  } = outcome;
-  if (card) {
-    return {
-      card,
-      alternativeMatches,
-      debugImageUrl,
-      detectedContour,
-      vectorizedOn,
-      matched: {
-        lowConfidenceMatch,
-        diagnostics: {
-          matchedBy: outcome.matchedBy,
-          vectorizedOn,
-          detection: outcome.detection,
-          orientation: outcome.orientation,
-          matchesNeeded,
-          attempts: toAttemptDiagnostics(attempts),
-          candidates: outcome.candidates,
-          ocr: outcome.ocr,
-          detectedColor: outcome.detectedColor,
-        },
-      },
-      noMatch: null,
-    };
-  }
-
-  const searchWithoutEmbedding = outcome.search
-    ? (({ embedding: _embedding, ...rest }) => rest)(outcome.search)
-    : null;
-  const diagnostics: UnmatchedScanDiagnostics = {
-    reason: attempts.some((a) => a.card)
-      ? "no_consensus"
-      : (outcome.noMatchReason ?? "too_far"),
-    search: searchWithoutEmbedding,
-    detection: outcome.detection,
-    orientation: outcome.orientation,
-    matchesNeeded,
-    attempts: toAttemptDiagnostics(attempts),
-    lookupFailedCardIds: outcome.lookupFailedCardIds,
-    ocr: outcome.ocr,
-  };
-
-  return {
-    card: null,
-    alternativeMatches: [],
-    debugImageUrl,
-    detectedContour,
-    vectorizedOn,
-    matched: null,
-    noMatch: { diagnostics, embedding: outcome.embedding },
-  };
-}
-
-async function searchCardImageWithConsensus(
-  canvas: HTMLCanvasElement,
-  refreshFrame: () => void,
-  contour: CardContour | null | undefined,
-  scope: MatchScope,
-  ocrEnabled: boolean | undefined,
-  matchesNeeded: number,
-  checkBothOrientations: boolean,
-  colorBarRegion: ColorBarRegion | undefined,
-): Promise<ScanOutcome> {
-  const attempts: ScanAttemptOutcome[] = [];
-  const attempt = async () => {
-    const outcome = await searchCardImage(
-      canvas,
-      refreshFrame,
-      contour,
-      scope,
-      ocrEnabled,
-      checkBothOrientations,
-      colorBarRegion,
-    );
-    attempts.push(outcome);
-    return outcome;
-  };
-
-  if (matchesNeeded <= 1)
-    return toScanOutcome(await attempt(), attempts, matchesNeeded);
-
-  const maxAttempts = matchesNeeded + CONSENSUS_RETRY_BUDGET;
-
-  let streakId: string | null = null;
-  let streakCount = 0;
-  let streakResult: ScanAttemptOutcome | null = null;
-  let lastResult: ScanAttemptOutcome | null = null;
-
-  for (let i = 0; i < maxAttempts; i++) {
-    const result = await attempt();
-    lastResult = result;
-    const topId = result.card?.id ?? null;
-
-    if (topId != null && topId === streakId) {
-      streakCount++;
-      streakResult = result;
-    } else {
-      streakId = topId;
-      streakCount = topId != null ? 1 : 0;
-      streakResult = topId != null ? result : null;
-    }
-
-    if (streakCount >= matchesNeeded)
-      return toScanOutcome(streakResult!, attempts, matchesNeeded);
-  }
-
-  return toScanOutcome({ ...lastResult!, card: null }, attempts, matchesNeeded);
-}
-
 export function useCardScanner({
   onSearchResults,
   onNoMatch,
+  onControlCode,
+  checkFoilByNudge,
   onError,
   rotated = true,
   scanRegion: scanRegionProp,
   autoCapture = false,
+  skipDuplicateCheck = false,
 }: Omit<CardScannerProps, "className"> & {
   rotated?: boolean;
   scanRegion?: ScanRegion;
   autoCapture?: boolean;
+  skipDuplicateCheck?: boolean;
 } = {}) {
   const { t } = useTranslation("scanner");
   const {
@@ -638,13 +124,15 @@ export function useCardScanner({
     requestPhoneCapture,
   } = useCameraContext();
   const { activeCollection } = useCollections();
-  const { forceSetCode: preferredSetCode } = useScannedCards();
+  const { forceSetCodes: preferredSetCodes } = useScannedCards();
   const { activeOrg } = useOrg();
   const device = useDevice();
+  const { isActive: isActiveStation } = useStation();
+  const isActiveStationRef = useRef(isActiveStation);
+  isActiveStationRef.current = isActiveStation;
   const { data: billingData } = useQuery(billingQueryOptions(activeOrg?.id));
 
   const isAtScanLimit =
-    billingData?.plan === "free" &&
     billingData?.dailyLimit != null &&
     billingData.cardsScannedToday >= billingData.dailyLimit;
   const isAtScanLimitRef = useRef(isAtScanLimit);
@@ -655,6 +143,8 @@ export function useCardScanner({
 
   const autoCaptureRef = useRef(autoCapture);
   autoCaptureRef.current = autoCapture;
+  const skipDuplicateCheckRef = useRef(skipDuplicateCheck);
+  skipDuplicateCheckRef.current = skipDuplicateCheck;
   const handScanArmedRef = useRef(true);
   const handScanStableTicksRef = useRef(0);
   const handScanAbsentTicksRef = useRef(0);
@@ -682,10 +172,13 @@ export function useCardScanner({
   const checkBothOrientationsRef = useRef(checkBothOrientations);
   checkBothOrientationsRef.current = checkBothOrientations;
 
+  const flipCameraRef = useRef(device?.flipCamera ?? false);
+  flipCameraRef.current = device?.flipCamera ?? false;
+
   const activeCollectionGuidRef = useRef(activeCollection?.guid);
   activeCollectionGuidRef.current = activeCollection?.guid;
-  const preferredSetCodeRef = useRef(preferredSetCode);
-  preferredSetCodeRef.current = preferredSetCode;
+  const preferredSetCodesRef = useRef(preferredSetCodes);
+  preferredSetCodesRef.current = preferredSetCodes;
 
   const colorBarRegionRef = useRef<ColorBarRegion | undefined>(undefined);
   colorBarRegionRef.current =
@@ -697,7 +190,8 @@ export function useCardScanner({
   const [outlineAnimator] = useState(() =>
     createOutlineAnimator(() => overlayCanvasRef.current),
   );
-  const rafRef = useRef<number>(0);
+  const previewLoopRef = useRef<VideoPreviewLoop | null>(null);
+  const liveOutlineShownRef = useRef(false);
 
   const statusRef = useRef<ScannerStatus>("initializing");
   const lastScannedCardIdRef = useRef<string | null>(null);
@@ -705,6 +199,9 @@ export function useCardScanner({
   const settleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const onSearchResultsRef = useRef(onSearchResults);
   const onNoMatchRef = useRef(onNoMatch);
+  const onControlCodeRef = useRef(onControlCode);
+  const checkFoilByNudgeRef = useRef(checkFoilByNudge);
+  checkFoilByNudgeRef.current = checkFoilByNudge;
   const handleErrorRef = useRef<(msg: string) => void>(() => {});
 
   const [status, setStatus] = useState<ScannerStatus>("initializing");
@@ -755,11 +252,15 @@ export function useCardScanner({
   }, [onNoMatch]);
 
   useEffect(() => {
+    onControlCodeRef.current = onControlCode;
+  }, [onControlCode]);
+
+  useEffect(() => {
     handleErrorRef.current = handleError;
   }, [handleError]);
 
   useEffect(() => {
-    if (cameraSource === "phone") return; // handled by the phone-status effect below
+    if (cameraSource === "phone") return;
     if (cameraStatus === "requesting") {
       updateStatus("requesting-camera");
     } else if (cameraStatus === "error") {
@@ -783,7 +284,8 @@ export function useCardScanner({
     if (!video || !canvas || video.readyState < video.HAVE_CURRENT_DATA) {
       return;
     }
-    canvas.getContext("2d")?.drawImage(video, 0, 0);
+    const ctx = canvas.getContext("2d");
+    if (ctx) drawVideoFrame(ctx, video, flipCameraRef.current);
   }, []);
 
   const performCapture = useCallback(
@@ -800,12 +302,22 @@ export function useCardScanner({
       }
 
       try {
+        if (fromLiveVideo) drawLatestVideoFrame();
+        const controlCode = readScannerControlCode(canvas);
+        if (controlCode) {
+          lastScannedCardIdRef.current = null;
+          scanLog(`[scanner] control card read: ${controlCode}`);
+          onControlCodeRef.current?.(parseScannerControlCode(controlCode));
+          if (statusRef.current !== "paused") updateStatus("scanning");
+          return;
+        }
         const {
           card,
           alternativeMatches,
           debugImageUrl,
           detectedContour,
           vectorizedOn,
+          dewarpedCardImage,
           matched,
           noMatch,
         } = await searchCardImageWithConsensus(
@@ -814,7 +326,7 @@ export function useCardScanner({
           contour,
           {
             collectionGuid: activeCollectionGuidRef.current,
-            preferredSetCode: preferredSetCodeRef.current,
+            preferredSetCodes: preferredSetCodesRef.current,
           },
           ocrEnabledRef.current,
           matchesNeededRef.current,
@@ -843,6 +355,7 @@ export function useCardScanner({
           if (
             checkDuplicate &&
             !allowDuplicates &&
+            !skipDuplicateCheckRef.current &&
             lastScannedCardIdRef.current === card.id
           ) {
             setDuplicateCard(card);
@@ -854,11 +367,25 @@ export function useCardScanner({
                 `[scanner] OCR name match used without an embedding match, flagged for review: ${card.name} (${card.id})`,
               );
             }
+            const foilDetection =
+              fromLiveVideo && matched && dewarpedCardImage
+                ? await checkFoilByNudgeRef.current?.(
+                    card,
+                    () =>
+                      captureDewarpedCardImage(canvas, drawLatestVideoFrame),
+                    dewarpedCardImage,
+                  )
+                : null;
             onSearchResultsRef.current?.(
               [card, ...alternativeMatches],
               debugImageUrl,
               vectorizedOn,
-              matched ?? undefined,
+              matched && foilDetection
+                ? {
+                    ...matched,
+                    diagnostics: { ...matched.diagnostics, foilDetection },
+                  }
+                : (matched ?? undefined),
             );
             if (!pausedMidSearch) updateStatus("scanning");
           }
@@ -879,37 +406,17 @@ export function useCardScanner({
         isCapturingRef.current = false;
       }
     },
-    [
-      updateStatus,
-      allowDuplicates,
-      drawLatestVideoFrame,
-      outlineAnimator,
-      t,
-    ],
+    [updateStatus, allowDuplicates, drawLatestVideoFrame, outlineAnimator, t],
   );
 
-  const detectionLoop = useCallback(() => {
-    const video = videoRef.current;
-    const displayCanvas = displayCanvasRef.current;
+  useEffect(() => {
+    const redrawForVisibility = () => previewLoopRef.current?.drawNow();
+    redrawForVisibility();
+    document.addEventListener("visibilitychange", redrawForVisibility);
+    return () =>
+      document.removeEventListener("visibilitychange", redrawForVisibility);
+  }, [isActiveStation]);
 
-    if (!video || !displayCanvas) return;
-    if (video.readyState < video.HAVE_ENOUGH_DATA) {
-      rafRef.current = requestAnimationFrame(detectionLoop);
-      return;
-    }
-
-    const displayCtx = displayCanvas.getContext("2d");
-    if (!displayCtx) return;
-
-    displayCtx.drawImage(video, 0, 0);
-
-    rafRef.current = requestAnimationFrame(detectionLoop);
-  }, []);
-
-  // Attach stream to video/canvases and start the detection loop.
-  // Re-runs if the stream is replaced (e.g. after retryCamera).
-  // On unmount: cancels the RAF loop but does NOT stop the stream tracks -
-  // the CameraProvider owns the stream lifetime.
   useEffect(() => {
     if (!stream) return;
 
@@ -948,7 +455,18 @@ export function useCardScanner({
         );
 
         updateStatus("paused");
-        rafRef.current = requestAnimationFrame(detectionLoop);
+        previewLoopRef.current = startVideoPreviewLoop({
+          video,
+          drawFrame: () => {
+            const displayCtx = displayCanvasRef.current?.getContext("2d");
+            if (!displayCtx) return false;
+            drawVideoFrame(displayCtx, video, flipCameraRef.current);
+            return true;
+          },
+          isForeground: () =>
+            isActiveStationRef.current &&
+            document.visibilityState === "visible",
+        });
       } catch (err) {
         if (!cancelled) {
           handleErrorRef.current(
@@ -964,8 +482,8 @@ export function useCardScanner({
       cancelled = true;
       stopObservingResize();
       outlineAnimator.cancel();
-      cancelAnimationFrame(rafRef.current);
-      rafRef.current = 0;
+      previewLoopRef.current?.stop();
+      previewLoopRef.current = null;
       if (settleTimeoutRef.current) {
         clearTimeout(settleTimeoutRef.current);
         settleTimeoutRef.current = null;
@@ -973,32 +491,41 @@ export function useCardScanner({
       }
       video.srcObject = null;
     };
-  }, [stream, updateStatus, detectionLoop, outlineAnimator]);
+  }, [stream, updateStatus, outlineAnimator]);
 
-  // Continuous live-preview overlay showing what would be captured - purely
-  // visual feedback, decoupled from when an actual capture/match fires
-  // (that stays gated on the settle-delayed captureCard flow).
   const liveDetectingRef = useRef(false);
   useEffect(() => {
     if (!stream) return;
 
     const intervalId = setInterval(() => {
       if (liveDetectingRef.current || getOnnxRuntimeFailure()) return;
+      const outlineVisible = stationIsVisible();
+      if (!outlineVisible || statusRef.current === "paused") {
+        clearLiveOutline();
+      }
       if (!isTrackedStatus()) return;
+      if (!outlineVisible && !autoCaptureRef.current) return;
 
       const canvas = displayCanvasRef.current;
       const overlayCanvas = overlayCanvasRef.current;
       if (!canvas || !overlayCanvas || !canvas.width || !canvas.height) return;
+      if (!outlineVisible) drawLatestVideoFrame();
 
       liveDetectingRef.current = true;
       detectCardCorners(canvas)
         .then((detection) => {
           if (!isTrackedStatus()) return;
           if (autoCaptureRef.current) trackHandScan(detection, canvas);
-          if (!LIVE_DETECTION_STATUSES.includes(statusRef.current)) return;
+          if (
+            !LIVE_DETECTION_STATUSES.includes(statusRef.current) ||
+            !stationIsVisible()
+          ) {
+            return;
+          }
           outlineAnimator.setTarget(
             detection.cardPresent ? detection.contour : null,
           );
+          liveOutlineShownRef.current = detection.cardPresent;
         })
         .catch((err) => {
           if (!getOnnxRuntimeFailure()) {
@@ -1009,6 +536,18 @@ export function useCardScanner({
           liveDetectingRef.current = false;
         });
     }, SCANNER_LIVE_DETECTION_INTERVAL_MS);
+
+    function stationIsVisible() {
+      return (
+        isActiveStationRef.current && document.visibilityState === "visible"
+      );
+    }
+
+    function clearLiveOutline() {
+      if (!liveOutlineShownRef.current) return;
+      liveOutlineShownRef.current = false;
+      outlineAnimator.setTarget(null);
+    }
 
     function isTrackedStatus() {
       return autoCaptureRef.current
@@ -1085,7 +624,7 @@ export function useCardScanner({
     }
 
     return () => clearInterval(intervalId);
-  }, [stream, outlineAnimator]);
+  }, [stream, outlineAnimator, drawLatestVideoFrame]);
 
   const handleForceAddDuplicate = useCallback(() => {
     if (duplicateCard) {
@@ -1266,8 +805,6 @@ export function useCardScanner({
   const handleRetryError = useCallback(async () => {
     setErrorMessage("");
     if (cameraSource === "phone") {
-      // Don't fall back to the local webcam here - just clear the error and
-      // let the phone-status effect above re-evaluate current presence.
       updateStatus(
         phonePairingStatus === "connected" ? "paused" : "initializing",
       );

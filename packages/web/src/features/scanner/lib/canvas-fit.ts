@@ -1,5 +1,5 @@
 export function fitCanvasesToContainer(
-  canvases: (HTMLCanvasElement | null)[],
+  canvases: (HTMLCanvasElement | HTMLImageElement | null)[],
   videoWidth: number,
   videoHeight: number,
   rotated: boolean,
@@ -23,7 +23,7 @@ export function fitCanvasesToContainer(
 }
 
 export function observeContainerResize(
-  canvas: HTMLCanvasElement | null,
+  canvas: HTMLCanvasElement | HTMLImageElement | null,
   onResize: () => void,
 ): () => void {
   const container = canvas?.parentElement;
@@ -31,4 +31,20 @@ export function observeContainerResize(
   const observer = new ResizeObserver(onResize);
   observer.observe(container);
   return () => observer.disconnect();
+}
+
+export function drawVideoFrame(
+  ctx: CanvasRenderingContext2D,
+  video: HTMLVideoElement,
+  flipped: boolean,
+) {
+  if (!flipped) {
+    ctx.drawImage(video, 0, 0);
+    return;
+  }
+  ctx.save();
+  ctx.translate(ctx.canvas.width, ctx.canvas.height);
+  ctx.rotate(Math.PI);
+  ctx.drawImage(video, 0, 0);
+  ctx.restore();
 }

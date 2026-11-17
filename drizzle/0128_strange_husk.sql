@@ -1,1 +1,0 @@
-ALTER TABLE "devices" ADD COLUMN "light_led_count" integer DEFAULT 16 NOT NULL;

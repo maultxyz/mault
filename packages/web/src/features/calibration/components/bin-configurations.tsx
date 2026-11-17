@@ -40,7 +40,7 @@ function BinSlot({
         value={binNumber != null ? String(binNumber) : ""}
         onValueChange={(value) => onBinChange(Number(value))}
       >
-        <SelectTrigger className="h-8 w-full text-xs">
+        <SelectTrigger aria-label={label} className="h-8 w-full text-xs">
           <SelectValue>
             {binNumber != null ? t("binLabel", { bin: binNumber }) : ""}
           </SelectValue>
@@ -113,7 +113,6 @@ export function BinConfigurations() {
       action={
         <Button
           variant="outline"
-          size="sm"
           disabled={isSaving}
           onClick={resetToDefaults}
         >
@@ -163,7 +162,12 @@ export function BinConfigurations() {
                   })
                 }
               >
-                <SelectTrigger className="h-8 w-32 text-xs">
+                <SelectTrigger
+                  aria-label={t("binConfigurations.bottomModuleSelect", {
+                    bin: route.binNumber,
+                  })}
+                  className="h-8 w-32 text-xs"
+                >
                   <SelectValue>
                     {t("moduleLabel", {
                       module: route.module,
@@ -184,7 +188,12 @@ export function BinConfigurations() {
                   handleSlotChange(route.module, "bottom", Number(value))
                 }
               >
-                <SelectTrigger className="h-8 flex-1 text-xs">
+                <SelectTrigger
+                  aria-label={t("binConfigurations.bottomBinSelect", {
+                    module: route.module,
+                  })}
+                  className="h-8 flex-1 text-xs"
+                >
                   <SelectValue>
                     {t("binLabel", {
                       bin: route.binNumber,

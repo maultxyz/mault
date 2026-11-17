@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { BrandMark } from "@/components/brand-mark";
 import { Button } from "@/components/ui/button";
 import {
@@ -74,12 +75,18 @@ export default function AuthLocalPage() {
   }
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-6 bg-muted p-4">
+    <main
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
+      className="flex min-h-screen flex-col items-center justify-center gap-6 bg-muted p-4 outline-none"
+    >
       <BrandMark />
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
-            {isSignUp ? t("local.signUpTitle") : t("local.signInTitle")}
+            <h1>
+              {isSignUp ? t("local.signUpTitle") : t("local.signInTitle")}
+            </h1>
           </CardTitle>
           <CardDescription>
             {isSignUp
@@ -126,7 +133,9 @@ export default function AuthLocalPage() {
                 <FieldError errors={[signUpForm.formState.errors.password]} />
               </Field>
               {serverError && (
-                <p className="text-sm text-destructive">{serverError}</p>
+                <p role="alert" className="text-sm text-destructive">
+                  {serverError}
+                </p>
               )}
             </form>
           ) : (
@@ -167,7 +176,9 @@ export default function AuthLocalPage() {
                 <FieldError errors={[signInForm.formState.errors.password]} />
               </Field>
               {serverError && (
-                <p className="text-sm text-destructive">{serverError}</p>
+                <p role="alert" className="text-sm text-destructive">
+                  {serverError}
+                </p>
               )}
             </form>
           )}
@@ -204,6 +215,6 @@ export default function AuthLocalPage() {
           </p>
         </CardFooter>
       </Card>
-    </div>
+    </main>
   );
 }

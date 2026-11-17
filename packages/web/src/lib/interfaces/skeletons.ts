@@ -3,10 +3,6 @@ export interface CardTileSkeletonGridProps {
   className?: string;
 }
 
-export interface CardDetailSkeletonProps {
-  className?: string;
-}
-
 export interface ListSkeletonProps {
   rows?: number;
   className?: string;

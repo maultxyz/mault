@@ -20,8 +20,6 @@ export function useConnectWithStaleCheck() {
     return Date.now() - updatedAt > thresholdMs;
   }, [device?.updatedAt]);
 
-  // Always connects immediately either way - staleness only decides whether
-  // the connect self-test runs automatically or waits on the dialog choice.
   const guardedConnect = useCallback(
     (kind: PendingConnectKind, deviceGuid?: string) => {
       const connectFn = (options?: { skipAutoTest?: boolean }) =>

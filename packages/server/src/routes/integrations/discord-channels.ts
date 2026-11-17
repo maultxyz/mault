@@ -7,7 +7,7 @@ import { DISCORD_CHANNEL_EDITOR_ROLES } from "../../lib/constants/discord";
 import {
   channelInputSchema,
   channelUpdate,
-  checkDiscordChannel,
+  checkDiscordTargets,
 } from "./shared";
 
 export const setDiscordChannelRoute = new Hono<AppEnv>().put(
@@ -26,45 +26,46 @@ export const setDiscordChannelRoute = new Hono<AppEnv>().put(
     if (!input.success) {
       return c.json({ success: false, message: "Invalid channel." }, 400);
     }
-    const { scanChannelId, errorChannelId, collectionGuid } = input.data;
-    try {
-      for (const channelId of new Set([scanChannelId, errorChannelId])) {
-        if (!channelId) continue;
-        const channelError = await checkDiscordChannel(orgId, channelId);
-        if (channelError) {
-          return c.json({ success: false, message: channelError });
-        }
+    const { scanChannelId, errorChannelId, scanRoleId, errorRoleId, collectionGuid } =
+      input.data;
+    const targetError = await checkDiscordTargets(
+      orgId,
+      [...new Set([scanChannelId, errorChannelId])].filter(
+        (channelId): channelId is string => !!channelId,
+      ),
+      [...new Set([scanRoleId, errorRoleId])].filter(
+        (roleId): roleId is string => !!roleId,
+      ),
+    );
+    if (targetError) {
+      return c.json({ success: false, message: targetError });
+    }
+
+    const update = channelUpdate(input.data, new Date());
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (collectionGuid) {
+        const [updated] = await tx
+          .update(collections)
+          .set(update)
+          .where(
+            and(
+              eq(collections.guid, collectionGuid),
+              eq(collections.orgId, orgId),
+              eq(collections.isDeleted, false),
+            ),
+          )
+          .returning({ id: collections.id });
+        return updated
+          ? { success: true as const }
+          : { success: false as const, message: "Collection not found." };
       }
 
-      const update = channelUpdate(input.data, new Date());
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        if (collectionGuid) {
-          const [updated] = await tx
-            .update(collections)
-            .set(update)
-            .where(
-              and(
-                eq(collections.guid, collectionGuid),
-                eq(collections.orgId, orgId),
-                eq(collections.isDeleted, false),
-              ),
-            )
-            .returning({ id: collections.id });
-          return updated
-            ? { success: true as const }
-            : { success: false as const, message: "Collection not found." };
-        }
-
-        await tx
-          .update(orgSettings)
-          .set(update)
-          .where(eq(orgSettings.orgId, orgId));
-        return { success: true as const };
-      });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      await tx
+        .update(orgSettings)
+        .set(update)
+        .where(eq(orgSettings.orgId, orgId));
+      return { success: true as const };
+    });
+    return c.json(result);
   },
 );

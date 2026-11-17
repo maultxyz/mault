@@ -14,7 +14,7 @@ import { leaderboardQueryOptions } from "@/features/stats/api/stats";
 import { buildLeaderboardRows } from "@/features/stats/lib/stats-breakdown";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { StatsLeaderboardSheetProps } from "@/lib/interfaces/stats";
 
 export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardSheetProps) {
@@ -29,13 +29,18 @@ export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardShee
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
         style={{
           maxHeight: "85%",
           backgroundColor: colors.background,
           borderTopLeftRadius: RADIUS.xl,
           borderTopRightRadius: RADIUS.xl,
+          borderWidth: 1,
+          borderBottomWidth: 0,
+          borderColor: colors.border,
+          ...SHEET_SHADOW,
+          shadowColor: colors.popoverShadow,
           paddingBottom: insets.bottom + SPACING.md,
         }}
       >
@@ -44,7 +49,7 @@ export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardShee
         </View>
         <View style={{ flexDirection: "row", alignItems: "flex-start", gap: SPACING.sm, paddingHorizontal: SCREEN_GUTTER, paddingVertical: SPACING.md }}>
           <View style={{ flex: 1, gap: 2 }}>
-            <AppText size="lg" heading weight="bold">
+            <AppText size="lg" heading weight="bold" accessibilityRole="header">
               {t("stats.leaderboard.title")}
             </AppText>
             <AppText size="sm" tone="secondary">
@@ -94,7 +99,7 @@ export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardShee
                       paddingHorizontal: SPACING.sm,
                       marginHorizontal: -SPACING.sm,
                       borderRadius: RADIUS.md,
-                      backgroundColor: entry.isOwnOrg ? colors.muted : "transparent",
+                      backgroundColor: entry.isOwnOrg ? colors.primarySelected : "transparent",
                     }}
                   >
                     <AppText weight="bold" style={{ width: 40, fontVariant: ["tabular-nums"] }}>

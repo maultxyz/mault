@@ -2,8 +2,10 @@ import { InitialsAvatar, getInitials } from "@/components/ui/initials-avatar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { MAX_WATCHER_STACK as MAX_STACK } from "@/lib/constants/limits";
 import type { SessionViewer } from "@/lib/interfaces/collections";
+import { useTranslation } from "react-i18next";
 
 export function WatcherStack({ watchers }: { watchers: SessionViewer[] }) {
+  const { t } = useTranslation("common");
   if (watchers.length === 0) return null;
 
   const visible = watchers.slice(0, MAX_STACK);
@@ -11,7 +13,10 @@ export function WatcherStack({ watchers }: { watchers: SessionViewer[] }) {
 
   return (
     <Popover>
-      <PopoverTrigger className="flex items-center shrink-0 cursor-pointer hover:opacity-80 transition-opacity">
+      <PopoverTrigger
+        aria-label={t("a11y.watchersCount", { count: watchers.length })}
+        className="flex items-center shrink-0 cursor-pointer hover:opacity-80 transition-opacity"
+      >
         {visible.map((w, i) => (
           <span
             key={w.userId}
@@ -32,7 +37,7 @@ export function WatcherStack({ watchers }: { watchers: SessionViewer[] }) {
       </PopoverTrigger>
       <PopoverContent side="bottom" align="start" className="w-48 p-1.5">
         <p className="text-2xs font-medium text-muted-foreground uppercase tracking-wide px-1.5 pb-1.5">
-          Watching
+          {t("a11y.watching")}
         </p>
         {watchers.map((w) => (
           <div key={w.userId} className="flex items-center gap-2 px-1.5 py-1 rounded-sm hover:bg-accent">

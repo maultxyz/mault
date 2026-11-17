@@ -6,7 +6,26 @@ import {
   getAuthHeaders,
   handleForbidden,
 } from "@/lib/api/client";
-import type { CardCondition, CardScanOrigin, Collection, IdentifyUnmatchedCardRequest, MatchedScanDiagnostics, Result, ScannedCard, SortOnlyScanRequest, UnmatchedCard } from "@magic-vault/shared";
+import {
+  type AddManualCardRequest,
+  type CardCondition,
+  type CardScanOrigin,
+  type Collection,
+  type CreateCollectionFormValues,
+  type IdentifyUnmatchedCardRequest,
+  type MatchedScanDiagnostics,
+  type MoveCardsToCollectionResult,
+  type Result,
+  type SetCardTagsRequest,
+  type ReviewAcceptRequest,
+  type ReviewAcceptResult,
+  SCAN_SAVE_ACCEPTED_STATUSES,
+  throwIfMemberSeatLimit,
+  type ScannedCard,
+  type SortOnlyScanRequest,
+  type UnmatchedCard,
+  type UnmatchedCardsPage,
+} from "@magic-vault/shared";
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import type {
   CardSaveResult,
@@ -15,7 +34,6 @@ import type {
 } from "@/lib/interfaces/scanner";
 import { queryOptions } from "@tanstack/react-query";
 import { API_BASE } from "@/lib/constants/api";
-import type { CreateCollectionFormValues } from "@/schemas/collections.schema";
 
 export async function loadCollections(): Promise<Result<Collection[]>> {
   return apiGet<Result<Collection[]>>("/api/collections");
@@ -77,6 +95,18 @@ export async function loadCardDiagnostics(
   );
 }
 
+export const cardDiagnosticsQueryOptions = (
+  collectionGuid: string | undefined,
+  scanId: string | undefined,
+) =>
+  queryOptions({
+    queryKey: ["collection-card-diagnostics", collectionGuid, scanId],
+    queryFn: () =>
+      loadCardDiagnostics(collectionGuid!, scanId!).then((r) => r.data ?? null),
+    enabled: !!collectionGuid && !!scanId,
+    staleTime: Infinity,
+  });
+
 export const cardScanOriginQueryOptions = (
   collectionGuid: string | undefined,
   scanId: string,
@@ -110,8 +140,8 @@ export async function addCollectionCard(
     body: JSON.stringify({ ...record, deviceGuid, isRetry }),
   });
   await handleForbidden(res);
-  // Return body for success, 423 (locked), 402 (free-plan scan or connected-sorter limit reached), and 409 (bin full)
-  if (res.ok || res.status === 423 || res.status === 402 || res.status === 409)
+  await throwIfMemberSeatLimit(res);
+  if (res.ok || SCAN_SAVE_ACCEPTED_STATUSES.includes(res.status))
     return res.json();
   throw new ApiStatusError(res.status);
 }
@@ -127,6 +157,7 @@ export async function recordSortOnlyScan(
     body: JSON.stringify(request),
   });
   await handleForbidden(res);
+  await throwIfMemberSeatLimit(res);
   if (res.ok || res.status === 402) return res.json();
   throw new ApiStatusError(res.status);
 }
@@ -193,6 +224,30 @@ export async function setCollectionCardCondition(
   });
 }
 
+export async function setCollectionCardLanguage(
+  guid: string,
+  scanId: string,
+  language: string,
+): Promise<Result<ScannedCard>> {
+  return apiPut<Result<ScannedCard>>(`/api/collections/${guid}/cards/${scanId}`, {
+    language,
+  });
+}
+
+export async function fetchCollectionCardCopies(
+  guid: string,
+  cardIds: string[],
+): Promise<ScannedCard[]> {
+  const params = new URLSearchParams({ cardIds: cardIds.join(",") });
+  const result = await apiGet<Result<ScannedCard[]>>(
+    `/api/collections/${guid}/cards/copies?${params}`,
+  );
+  if (!result.success || result.data === undefined) {
+    throw new Error(result.message ?? "Failed to load card copies.");
+  }
+  return result.data;
+}
+
 export async function removeCollectionCard(
   guid: string,
   scanId: string,
@@ -200,11 +255,42 @@ export async function removeCollectionCard(
   return apiDelete<Result<null>>(`/api/collections/${guid}/cards/${scanId}`);
 }
 
+export async function acceptCollectionCardReviews(
+  guid: string,
+  request: ReviewAcceptRequest,
+): Promise<Result<ReviewAcceptResult>> {
+  return apiPost<Result<ReviewAcceptResult>>(
+    `/api/collections/${guid}/cards/accept-review`,
+    request,
+  );
+}
+
+export async function setCollectionCardTags(
+  guid: string,
+  request: SetCardTagsRequest,
+): Promise<Result<{ changedScanIds: string[] }>> {
+  return apiPost<Result<{ changedScanIds: string[] }>>(
+    `/api/collections/${guid}/cards/tags`,
+    request,
+  );
+}
+
 export async function removeCollectionCards(
   guid: string,
   scanIds: string[],
 ): Promise<Result<null>> {
   return apiPost<Result<null>>(`/api/collections/${guid}/cards/remove-bulk`, { scanIds });
+}
+
+export async function moveCollectionCardsToCollection(
+  guid: string,
+  scanIds: string[],
+  targetCollectionGuid: string,
+): Promise<Result<MoveCardsToCollectionResult>> {
+  return apiPost<Result<MoveCardsToCollectionResult>>(
+    `/api/collections/${guid}/cards/move-to-collection`,
+    { scanIds, targetCollectionGuid },
+  );
 }
 
 export async function markCollectionCardsDownloaded(
@@ -225,6 +311,17 @@ export async function setCollectionCardsCondition(
   });
 }
 
+export async function setCollectionCardsFoilType(
+  guid: string,
+  scanIds: string[],
+  foilType: string | null,
+): Promise<Result<null>> {
+  return apiPost<Result<null>>(`/api/collections/${guid}/cards/foil`, {
+    scanIds,
+    foilType,
+  });
+}
+
 export async function clearCollectionCards(guid: string): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/collections/${guid}/cards`);
 }
@@ -233,8 +330,18 @@ export async function releaseScanLock(guid: string): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/collections/${guid}/scan-lock`);
 }
 
-export async function loadUnmatchedCards(guid: string): Promise<Result<UnmatchedCard[]>> {
-  return apiGet<Result<UnmatchedCard[]>>(`/api/collections/${guid}/unmatched`);
+export async function loadUnmatchedCards(
+  guid: string,
+  limit: number,
+  offset = 0,
+): Promise<Result<UnmatchedCardsPage>> {
+  const params = new URLSearchParams({
+    limit: String(limit),
+    offset: String(offset),
+  });
+  return apiGet<Result<UnmatchedCardsPage>>(
+    `/api/collections/${guid}/unmatched?${params}`,
+  );
 }
 
 export async function addUnmatchedCard(
@@ -248,6 +355,7 @@ export async function addUnmatchedCard(
     body: JSON.stringify({ ...record, deviceGuid, isRetry }),
   });
   await handleForbidden(res);
+  await throwIfMemberSeatLimit(res);
   if (res.ok || res.status === 409) return res.json();
   throw new ApiStatusError(res.status);
 }
@@ -257,6 +365,25 @@ export async function removeUnmatchedCard(
   scanId: string,
 ): Promise<Result<null>> {
   return apiDelete<Result<null>>(`/api/collections/${guid}/unmatched/${scanId}`);
+}
+
+export function removeUnmatchedScan(
+  guid: string,
+  scanId: string,
+): Promise<boolean> {
+  return removeUnmatchedCard(guid, scanId)
+    .then((result) => result.success)
+    .catch(() => false);
+}
+
+export async function clearUnmatchedCards(guid: string): Promise<Result<null>> {
+  return apiDelete<Result<null>>(`/api/collections/${guid}/unmatched`);
+}
+
+export function clearUnmatchedScans(guid: string): Promise<boolean> {
+  return clearUnmatchedCards(guid)
+    .then((result) => result.success)
+    .catch(() => false);
 }
 
 export async function identifyUnmatchedCard(
@@ -270,6 +397,12 @@ export async function identifyUnmatchedCard(
   );
 }
 
-export async function clearUnmatchedCards(guid: string): Promise<Result<null>> {
-  return apiDelete<Result<null>>(`/api/collections/${guid}/unmatched`);
+export async function addManualCollectionCard(
+  guid: string,
+  request: AddManualCardRequest,
+): Promise<Result<ScannedCard>> {
+  return apiPost<Result<ScannedCard>>(
+    `/api/collections/${guid}/cards/manual`,
+    request,
+  );
 }

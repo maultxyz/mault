@@ -1,6 +1,6 @@
 {
   "title": "Integrations",
-  "subtitle": "Connect Magic Vault to other apps and choose what gets posted where.",
+  "subtitle": "Connect Mault to other apps and choose what gets posted where.",
   "discord": {
     "heading": "Discord",
     "description": "Post scans and alerts to your Discord server.",
@@ -19,6 +19,9 @@
     "none": "Don't post",
     "sameScan": "Same as every scan",
     "sameError": "Same as errors",
+    "scanRole": "Ping role for scans",
+    "errorRole": "Ping role for errors",
+    "roleHint": "Pick a role to mention with each post, including posts to collection override channels. The role must be mentionable by the bot.",
     "saved": "Channel saved.",
     "saveFailed": "Couldn't save the channel."
   },
@@ -66,8 +69,8 @@
     "edit": "Edit {{name}}",
     "delete": "Delete {{name}}",
     "saveFailed": "Couldn't save the notification rules.",
-    "limitReached_one": "The free plan includes {{count}} Discord notification rule. Upgrade to Business for unlimited rules.",
-    "limitReached_other": "The free plan includes {{count}} Discord notification rules. Upgrade to Business for unlimited rules.",
+    "limitReached_one": "Your plan includes {{count}} Discord notification rule. Upgrade your plan for more rules.",
+    "limitReached_other": "Your plan includes {{count}} Discord notification rules. Upgrade your plan for more rules.",
     "upgrade": "Upgrade",
     "andPings": "and pings"
   },
@@ -84,12 +87,7 @@
     "conditions": "Conditions",
     "cancel": "Cancel",
     "save": "Save",
-    "saveFailed": "Couldn't save the notification rule.",
-    "validation": {
-      "nameRequired": "Give the rule a name.",
-      "channelRequired": "Choose a channel.",
-      "conditionsRequired": "Add at least one condition."
-    }
+    "saveFailed": "Couldn't save the notification rule."
   },
   "draft": {
     "saved": "Discord settings saved.",
@@ -125,7 +123,7 @@
     "copyFailed": "Couldn't copy the API key.",
     "managersOnly": "Only organization owners and admins can create or revoke API keys.",
     "loadFailed": "Couldn't load API keys.",
-    "upgrade": "API keys are part of the Business plan.",
+    "upgrade": "API keys are not part of your plan.",
     "upgradeLink": "Upgrade",
     "copy": "Copy key",
     "reference": "API reference",
@@ -146,17 +144,18 @@
     "saved": "Webhook saved.",
     "saveFailed": "Couldn't save the webhook.",
     "urlLabel": "URL",
-    "invalidUrl": "Enter a public https:// URL.",
     "descriptionLabel": "Name (optional)",
     "descriptionPlaceholder": "Online shop",
     "eventsLabel": "Events",
-    "eventsRequired": "Pick at least one event.",
     "events": {
       "card": {
         "scanned": "A card was scanned and saved to a collection."
       },
       "cards": {
         "stored": "A bin was put away into a storage location. Includes each card's box and position."
+      },
+      "sorter": {
+        "alert": "A sorter jammed, errored, restarted, lost its connection or is due for service."
       }
     },
     "empty": "No webhooks yet.",
@@ -184,7 +183,7 @@
     "copySecret": "Copy secret",
     "secretCopied": "Signing secret copied.",
     "copyFailed": "Couldn't copy the secret.",
-    "upgrade": "Webhooks are part of the Business plan.",
+    "upgrade": "Webhooks are not part of your plan.",
     "loadFailed": "Couldn't load webhooks."
   }
 }

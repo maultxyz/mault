@@ -17,7 +17,7 @@ export function BinBadge({ binNumber }: BinBadgeProps) {
         alignItems: "center",
         paddingHorizontal: SPACING.lg,
         paddingVertical: SPACING.sm,
-        borderRadius: RADIUS.lg,
+        borderRadius: RADIUS.md,
         backgroundColor: colors.primary,
       }}
     >

@@ -8,9 +8,10 @@ import { Callout } from "@/components/ui/callout";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
+import { useRetractCard } from "@/features/sorter/api/use-retract-card";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { ScannerControlAction, ScannerControlsSheetProps } from "@/lib/interfaces/scanner";
 
 export function ScannerControlsSheet({
@@ -26,6 +27,7 @@ export function ScannerControlsSheet({
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const sorter = useSorter();
+  const retract = useRetractCard();
   const [busy, setBusy] = useState<ScannerControlAction | null>(null);
   const [failed, setFailed] = useState(false);
   const sorterActionsDisabled = running || !sorter.isReady || busy !== null;
@@ -49,12 +51,17 @@ export function ScannerControlsSheet({
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
         style={{
           backgroundColor: colors.background,
           borderTopLeftRadius: RADIUS.xl,
           borderTopRightRadius: RADIUS.xl,
+          borderWidth: 1,
+          borderBottomWidth: 0,
+          borderColor: colors.border,
+          ...SHEET_SHADOW,
+          shadowColor: colors.popoverShadow,
           paddingBottom: insets.bottom + SPACING.md,
         }}
       >
@@ -70,7 +77,7 @@ export function ScannerControlsSheet({
             paddingVertical: SPACING.md,
           }}
         >
-          <AppText size="lg" heading weight="bold" style={{ flex: 1 }}>
+          <AppText size="lg" heading weight="bold" accessibilityRole="header" style={{ flex: 1 }}>
             {t("scan.controls.title")}
           </AppText>
           <IconButton icon="dismiss" size={36} accessibilityLabel={t("common.dismiss")} onPress={onClose} />
@@ -105,6 +112,14 @@ export function ScannerControlsSheet({
               disabled={sorterActionsDisabled}
               right={spinner("drop")}
               onPress={() => void run("drop", sorter.clearDevice)}
+            />
+            <ListRow
+              icon="arrowUp"
+              title={t("scan.controls.retract")}
+              subtitle={retract.retractLockedReason ?? t("scan.controls.retractDescription")}
+              disabled={sorterActionsDisabled || retract.retractLockedReason !== null}
+              right={spinner("retract")}
+              onPress={() => void run("retract", () => retract.retractCard())}
             />
             <ListRow
               icon="refresh"

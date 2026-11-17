@@ -8,7 +8,7 @@ function BarListRow({ item, max }: BarListRowProps) {
           {item.swatch && (
             <span
               aria-hidden
-              className="size-2.5 shrink-0 rounded-full border border-border/50"
+              className="size-2.5 shrink-0 rounded-full border border-border"
               style={{ backgroundColor: item.swatch }}
             />
           )}

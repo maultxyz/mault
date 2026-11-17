@@ -263,6 +263,65 @@ export class SorterScene {
     this.needsRender = true;
   }
 
+  capturePartImages(
+    parts: readonly SorterPrintPart[],
+    size: number,
+  ): Partial<Record<SorterPrintPart, string>> {
+    const images: Partial<Record<SorterPrintPart, string>> = {};
+    if (!this.home || !this.isPrint) return images;
+
+    this.root.updateMatrixWorld(true);
+    const meshes: Mesh[] = [];
+    this.root.traverse((child) => {
+      if (child instanceof Mesh) meshes.push(child);
+    });
+    const visibility = new Map(meshes.map((mesh) => [mesh, mesh.visible]));
+    const coverVisible = this.cover?.visible ?? false;
+    const isolated = this.isolatedPart;
+    const xray = this.xray;
+    if (this.cover) this.cover.visible = true;
+    this.isolatedPart = null;
+    this.xray = false;
+    this.applyOpacity();
+
+    const camera = new PerspectiveCamera(SORTER_MODEL_CAMERA_FOV, 1, 1, 10000);
+    const halfFov = (SORTER_MODEL_CAMERA_FOV * Math.PI) / 360;
+    this.renderer.setSize(size, size, false);
+    for (const part of parts) {
+      const picked = this.partInstanceMeshes(part, meshes);
+      if (picked.length === 0) continue;
+      for (const mesh of meshes) mesh.visible = false;
+      const box = new Box3();
+      for (const mesh of picked) {
+        mesh.visible = true;
+        box.expandByObject(mesh);
+      }
+      const sphere = box.getBoundingSphere(new Sphere());
+      const distance =
+        (sphere.radius / Math.sin(halfFov)) * SORTER_MODEL_FIT_PADDING;
+      camera.position
+        .copy(toVector(SORTER_MODEL_VIEW_DIRECTION).normalize())
+        .multiplyScalar(distance)
+        .add(sphere.center);
+      camera.near = distance / 100;
+      camera.far = distance * 10;
+      camera.updateProjectionMatrix();
+      camera.lookAt(sphere.center);
+      this.renderer.render(this.scene, camera);
+      images[part] = this.renderer.domElement.toDataURL("image/png");
+    }
+
+    for (const [mesh, visible] of visibility) mesh.visible = visible;
+    if (this.cover) this.cover.visible = coverVisible;
+    this.isolatedPart = isolated;
+    this.xray = xray;
+    this.applyOpacity();
+    this.resize();
+    this.renderer.render(this.scene, this.camera);
+    this.needsRender = true;
+    return images;
+  }
+
   resetView() {
     if (!this.home) return;
     this.focusTarget = null;
@@ -483,6 +542,63 @@ export class SorterScene {
     }
 
     return { group, parts, materials };
+  }
+
+  private meshPart(mesh: Mesh) {
+    const material = Array.isArray(mesh.material)
+      ? mesh.material[0]
+      : mesh.material;
+    return material ? this.printMaterialParts.get(material) : undefined;
+  }
+
+  private instanceOf(object: Object3D) {
+    let node = object;
+    while (node.parent && node.parent !== this.root && node.parent !== this.base) {
+      node = node.parent;
+    }
+    return node;
+  }
+
+  private firstMesh(object: Object3D) {
+    let found: Mesh | null = null;
+    object.traverse((child) => {
+      if (!found && child instanceof Mesh) found = child;
+    });
+    return found as Mesh | null;
+  }
+
+  private partInstanceMeshes(part: SorterPrintPart, meshes: Mesh[]) {
+    const matching = meshes.filter((mesh) => this.meshPart(mesh) === part);
+    if (matching.length === 0) return [];
+    const first = this.instanceOf(matching[0]);
+    const instances = new Set<Object3D>([first]);
+
+    if (first.parent === this.base) {
+      const material = matching[0].material;
+      const column = this.base.children
+        .filter(
+          (child) =>
+            Math.abs(child.position.x - first.position.x) < 0.001 &&
+            this.firstMesh(child)?.material === material,
+        )
+        .sort((a, b) => a.position.z - b.position.z);
+      const index = column.indexOf(first);
+      const step = Math.abs(BASE_LEVEL_STEP);
+      const adjacent = (a: Object3D, b: Object3D) =>
+        Math.abs(Math.abs(a.position.z - b.position.z) - step) < 0.001;
+      for (let i = index; i > 0 && adjacent(column[i], column[i - 1]); i--) {
+        instances.add(column[i - 1]);
+      }
+      for (
+        let i = index;
+        i < column.length - 1 && adjacent(column[i], column[i + 1]);
+        i++
+      ) {
+        instances.add(column[i + 1]);
+      }
+    }
+
+    return matching.filter((mesh) => instances.has(this.instanceOf(mesh)));
   }
 
   private frameModel() {

@@ -23,19 +23,9 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
+import { copyWithToast } from "@/lib/clipboard";
+import { formatShortDate } from "@/lib/format";
 
-function formatDate(value: string | null): string | null {
-  if (!value) return null;
-  return new Date(value).toLocaleDateString(undefined, {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
-
-// Local mode only - see routes/local-auth.ts. Personal API keys (like a
-// GitHub personal access token), scriptable access to Mault's own API using
-// the same Authorization: Bearer transport a browser session uses.
 export function ApiKeysManager() {
   const { t } = useTranslation("account");
   const [keys, setKeys] = useState<ApiKey[] | null>(null);
@@ -108,10 +98,7 @@ export function ApiKeysManager() {
 
   function copyNewKey() {
     if (!newRawKey) return;
-    navigator.clipboard
-      .writeText(newRawKey)
-      .then(() => toast.success(t("apiKeys.copied")))
-      .catch(() => toast.error(t("apiKeys.copyFailed")));
+    void copyWithToast(newRawKey, t("apiKeys.copied"), t("apiKeys.copyFailed"));
   }
 
   const activeKeys = (keys ?? []).filter((k) => k.status === "active");
@@ -125,7 +112,6 @@ export function ApiKeysManager() {
         <Button
           type="button"
           variant="outline"
-          size="sm"
           onClick={() => setShowCreate(true)}
         >
           <IconPlus size={14} />
@@ -147,7 +133,7 @@ export function ApiKeysManager() {
         <div className="flex flex-col divide-y divide-border rounded-lg border">
           {activeKeys.map((key) => {
             const isRevoking = revokingPrefix === key.keyPrefix;
-            const expires = formatDate(key.expiresAt);
+            const expires = key.expiresAt ? formatShortDate(key.expiresAt) : null;
             return (
               <div
                 key={key.id}
@@ -166,7 +152,6 @@ export function ApiKeysManager() {
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
                   disabled={isRevoking}
                   onClick={() => setRevokeTarget(key)}
                 >
@@ -240,6 +225,7 @@ export function ApiKeysManager() {
             {newRawKey}
           </code>
           <Button
+            aria-label={t("common:a11y.copy")}
             type="button"
             variant="outline"
             size="icon"

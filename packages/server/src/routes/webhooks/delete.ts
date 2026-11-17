@@ -17,26 +17,21 @@ export const deleteWebhookRoute = new Hono<AppEnv>().delete(
         message: "Only organization owners and admins can delete webhooks.",
       });
     }
-    try {
-      const deleted = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx
-          .delete(webhookEndpoints)
-          .where(
-            and(
-              eq(webhookEndpoints.guid, c.req.param("guid")),
-              eq(webhookEndpoints.orgId, orgId),
-            ),
-          )
-          .returning({ id: webhookEndpoints.id }),
-      );
-      return c.json(
-        deleted.length === 0
-          ? { success: false, message: "Webhook not found." }
-          : { success: true, message: "Webhook deleted." },
-      );
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const deleted = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx
+        .delete(webhookEndpoints)
+        .where(
+          and(
+            eq(webhookEndpoints.guid, c.req.param("guid")),
+            eq(webhookEndpoints.orgId, orgId),
+          ),
+        )
+        .returning({ id: webhookEndpoints.id }),
+    );
+    return c.json(
+      deleted.length === 0
+        ? { success: false, message: "Webhook not found." }
+        : { success: true, message: "Webhook deleted." },
+    );
   },
 );

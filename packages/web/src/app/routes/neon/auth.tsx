@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { BrandMark } from "@/components/brand-mark";
 import { neon } from "@/lib/auth/client";
 import { NEON_SOCIAL_PROVIDERS } from "@/lib/constants/auth";
@@ -5,10 +6,20 @@ import {
   AuthView,
   NeonAuthUIProvider,
 } from "@neondatabase/neon-js/auth/react/ui";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 export default function AuthPage() {
+  const { t } = useTranslation("auth");
   const { path } = useParams();
+  const headingKey =
+    path === "sign-up"
+      ? "local.signUpTitle"
+      : path === "forgot-password"
+        ? "local.forgotPasswordTitle"
+        : path === "reset-password"
+          ? "local.resetPasswordTitle"
+          : "local.signInTitle";
 
   return (
     <NeonAuthUIProvider
@@ -21,12 +32,17 @@ export default function AuthPage() {
       }}
       social={{ providers: [...NEON_SOCIAL_PROVIDERS] }}
     >
-      <div className="bg-muted flex min-h-screen flex-col items-center justify-center gap-6 p-4">
+      <main
+        id={MAIN_CONTENT_ID}
+        tabIndex={-1}
+        className="bg-muted flex min-h-screen flex-col items-center justify-center gap-6 p-4 outline-none"
+      >
+        <h1 className="sr-only">{t(headingKey)}</h1>
         <BrandMark />
         <AuthView
           path={path}
           classNames={{
-            base: "shadow-none border-none ring-foreground/10 bg-card text-card-foreground gap-4 overflow-hidden rounded-lg py-4 text-xs/relaxed ring-1 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 *:[img:first-child]:rounded-t-lg *:[img:last-child]:rounded-b-lg group/card flex flex-col",
+            base: "shadow-none border-none ring-border bg-card text-card-foreground gap-4 overflow-hidden rounded-lg py-4 text-xs/relaxed ring-1 has-[>img:first-child]:pt-0 data-[size=sm]:gap-3 data-[size=sm]:py-3 *:[img:first-child]:rounded-t-lg *:[img:last-child]:rounded-b-lg group/card flex flex-col",
             content: "px-4 group-data-[size=sm]/card:px-3",
             header:
               "gap-1 rounded-t-lg px-4 group-data-[size=sm]/card:px-3 [.border-b]:pb-4 group-data-[size=sm]/card:[.border-b]:pb-3 group/card-header @container/card-header grid auto-rows-min items-start has-data-[slot=card-action]:grid-cols-[1fr_auto] has-data-[slot=card-description]:grid-rows-[auto_auto]",
@@ -46,7 +62,7 @@ export default function AuthPage() {
             },
           }}
         />
-      </div>
+      </main>
     </NeonAuthUIProvider>
   );
 }

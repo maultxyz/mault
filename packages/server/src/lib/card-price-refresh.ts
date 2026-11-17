@@ -3,10 +3,11 @@ import { and, asc, eq, gt, isNotNull, sql } from "drizzle-orm";
 import { db } from "../db";
 import { cardImageVectors, cardPrices } from "../db/schema";
 import { resolveLiveCardPrices } from "./card-search/card-prices";
-import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
+import { adapterEntriesForGameKeys } from "./card-search/resolve";
 import {
   CARD_PRICE_DETAIL_KEYS,
   CARD_PRICE_REFRESH_BATCH_SIZE,
+  CARD_PRICE_REFRESH_PROGRESS_LOG_EVERY_BATCHES,
 } from "./constants/card-prices";
 import type {
   CardPriceDetails,
@@ -40,15 +41,18 @@ const PRICES_CHANGED = sql`(
 export async function refreshCardPrices({
   log,
   onlyMissing,
+  gameKeys,
 }: CardPriceRefreshOptions): Promise<number> {
   let total = 0;
-  for (const [gameKey, adapter] of Object.entries(ADAPTERS_BY_GAME_KEY)) {
+  for (const [gameKey, adapter] of adapterEntriesForGameKeys(gameKeys)) {
     if (!adapter.tcgplayer && !adapter.cardmarket && !adapter.cardkingdom) {
       continue;
     }
 
     let written = 0;
     let lastId = 0;
+    let batches = 0;
+    log(`${gameKey}: refreshing card prices...`);
     for (;;) {
       const rows = await db
         .select({
@@ -113,6 +117,12 @@ export async function refreshCardPrices({
         })
         .returning({ cardId: cardPrices.cardId });
       written += changed.length;
+      batches++;
+      if (batches % CARD_PRICE_REFRESH_PROGRESS_LOG_EVERY_BATCHES === 0) {
+        log(
+          `${gameKey}: ${batches * CARD_PRICE_REFRESH_BATCH_SIZE} cards checked, ${written} prices written so far.`,
+        );
+      }
     }
 
     total += written;

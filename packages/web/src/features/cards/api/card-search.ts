@@ -10,11 +10,13 @@ export async function searchCards(
   collectionGuid?: string,
   offset = 0,
   setCode?: string,
+  language?: string,
 ): Promise<Result<CardSearchPage>> {
   const params = new URLSearchParams({ q: query });
   if (collectionGuid) params.set("collectionGuid", collectionGuid);
   if (offset > 0) params.set("offset", String(offset));
   if (setCode) params.set("set", setCode);
+  if (language) params.set("lang", language);
   return apiGet<Result<CardSearchPage>>(`/api/cards/search?${params}`);
 }
 
@@ -23,10 +25,21 @@ export async function searchGameCards(
   gameKey: string,
   lang: string,
   offset = 0,
+  setCode?: string,
 ): Promise<Result<CardSearchPage>> {
   const params = new URLSearchParams({ q: query, gameKey, lang });
   if (offset > 0) params.set("offset", String(offset));
+  if (setCode) params.set("set", setCode);
   return apiGet<Result<CardSearchPage>>(`/api/cards/search?${params}`);
+}
+
+export async function getRandomSampleCards(
+  gameKey: string,
+  lang: string,
+  count: number,
+): Promise<Result<PlayingCard[]>> {
+  const params = new URLSearchParams({ gameKey, lang, count: String(count) });
+  return apiGet<Result<PlayingCard[]>>(`/api/cards/random-sample?${params}`);
 }
 
 export async function getSampleCard(

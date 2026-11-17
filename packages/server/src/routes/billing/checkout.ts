@@ -2,10 +2,8 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery, db } from "../../db";
 import { orgBilling } from "../../db/schema";
-import {
-  findBusinessPriceId,
-  getStripe,
-} from "../../lib/stripe";
+import { hasActiveSubscription } from "../../lib/billing-status";
+import { findPlanPriceId, getStripe } from "../../lib/stripe";
 import {
   getUserContact,
   requireAuth,
@@ -29,10 +27,13 @@ export const checkoutBillingRoute = new Hono<AppEnv>().post(
     if (!input.success) {
       return c.json({ success: false, message: "Invalid input." }, 400);
     }
-    const priceId = findBusinessPriceId(input.data.interval);
+    const priceId = findPlanPriceId(input.data.plan, input.data.interval);
     if (!priceId) {
       return c.json(
-        { success: false, message: "This billing interval is not available." },
+        {
+          success: false,
+          message: "This plan or billing interval is not available.",
+        },
         400,
       );
     }
@@ -40,9 +41,19 @@ export const checkoutBillingRoute = new Hono<AppEnv>().post(
       const existing = await authQuery(c.get("jwtClaims"), (tx) =>
         tx.query.orgBilling.findFirst({
           where: eq(orgBilling.orgId, orgId),
-          columns: { stripeCustomerId: true },
+          columns: { stripeCustomerId: true, status: true },
         }),
       );
+      if (hasActiveSubscription(existing?.status)) {
+        return c.json(
+          {
+            success: false,
+            message:
+              "This organization already has a subscription. Change plans from Manage billing.",
+          },
+          409,
+        );
+      }
       let stripeCustomerId = existing?.stripeCustomerId;
       if (!stripeCustomerId) {
         const { email } = await getUserContact(userId);

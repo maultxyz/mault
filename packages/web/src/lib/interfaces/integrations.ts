@@ -31,6 +31,9 @@ export interface DiscordRoleSelectProps {
   value: string | null;
   roles: DiscordRole[];
   onChange: (roleId: string | null) => void;
+  isSelectable?: (role: DiscordRole) => boolean;
+  disabled?: boolean;
+  "aria-label"?: string;
 }
 
 export interface DiscordChannelLabelProps {
@@ -44,6 +47,7 @@ export interface DiscordChannelSelectProps {
   emptyLabel: string;
   disabled?: boolean;
   onChange: (channelId: string | null) => void;
+  "aria-label"?: string;
 }
 
 export interface DiscordChannelSettingsProps {

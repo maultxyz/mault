@@ -1,6 +1,6 @@
 {
   "title": "Integrationen",
-  "subtitle": "Verbinde Magic Vault mit anderen Apps und lege fest, was wo gepostet wird.",
+  "subtitle": "Verbinde Mault mit anderen Apps und lege fest, was wo gepostet wird.",
   "discord": {
     "heading": "Discord",
     "description": "Poste Scans und Warnungen auf deinem Discord-Server.",
@@ -19,6 +19,9 @@
     "none": "Nicht posten",
     "sameScan": "Wie jeder Scan",
     "sameError": "Wie Fehler",
+    "scanRole": "Rolle bei Scans pingen",
+    "errorRole": "Rolle bei Fehlern pingen",
+    "roleHint": "Wähle eine Rolle, die bei jedem Beitrag erwähnt wird, auch in Kanälen von Sammlungsüberschreibungen. Der Bot muss die Rolle erwähnen können.",
     "saved": "Kanal gespeichert.",
     "saveFailed": "Der Kanal konnte nicht gespeichert werden."
   },
@@ -66,8 +69,8 @@
     "edit": "{{name}} bearbeiten",
     "delete": "{{name}} löschen",
     "saveFailed": "Die Benachrichtigungsregeln konnten nicht gespeichert werden.",
-    "limitReached_one": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregel. Upgrade auf Business für unbegrenzte Regeln.",
-    "limitReached_other": "Der Free-Plan enthält {{count}} Discord-Benachrichtigungsregeln. Upgrade auf Business für unbegrenzte Regeln.",
+    "limitReached_one": "Dein Tarif enthält {{count}} Discord-Benachrichtigungsregel. Upgrade deinen Tarif für mehr Regeln.",
+    "limitReached_other": "Dein Tarif enthält {{count}} Discord-Benachrichtigungsregeln. Upgrade deinen Tarif für mehr Regeln.",
     "upgrade": "Upgrade",
     "andPings": "und pingt"
   },
@@ -84,12 +87,7 @@
     "conditions": "Bedingungen",
     "cancel": "Abbrechen",
     "save": "Speichern",
-    "saveFailed": "Die Benachrichtigungsregel konnte nicht gespeichert werden.",
-    "validation": {
-      "nameRequired": "Gib der Regel einen Namen.",
-      "channelRequired": "Wähle einen Kanal.",
-      "conditionsRequired": "Füge mindestens eine Bedingung hinzu."
-    }
+    "saveFailed": "Die Benachrichtigungsregel konnte nicht gespeichert werden."
   },
   "draft": {
     "saved": "Discord-Einstellungen gespeichert.",
@@ -125,7 +123,7 @@
     "copyFailed": "Der API-Schlüssel konnte nicht kopiert werden.",
     "managersOnly": "Nur Inhaber und Admins der Organisation können API-Schlüssel erstellen oder widerrufen.",
     "loadFailed": "API-Schlüssel konnten nicht geladen werden.",
-    "upgrade": "API-Schlüssel sind Teil des Business-Plans.",
+    "upgrade": "API-Schlüssel sind nicht Teil deines Tarifs.",
     "upgradeLink": "Upgraden",
     "copy": "Schlüssel kopieren",
     "reference": "API-Referenz",
@@ -146,17 +144,18 @@
     "saved": "Webhook gespeichert.",
     "saveFailed": "Der Webhook konnte nicht gespeichert werden.",
     "urlLabel": "URL",
-    "invalidUrl": "Gib eine öffentliche https://-URL ein.",
     "descriptionLabel": "Name (optional)",
     "descriptionPlaceholder": "Onlineshop",
     "eventsLabel": "Ereignisse",
-    "eventsRequired": "Wähle mindestens ein Ereignis.",
     "events": {
       "card": {
         "scanned": "Eine Karte wurde gescannt und in einer Sammlung gespeichert."
       },
       "cards": {
         "stored": "Ein Fach wurde in einen Lagerort einsortiert. Enthält Box und Position jeder Karte."
+      },
+      "sorter": {
+        "alert": "Ein Sortierer hatte einen Stau oder Fehler, wurde neu gestartet, hat die Verbindung verloren oder braucht eine Wartung."
       }
     },
     "empty": "Noch keine Webhooks.",
@@ -184,7 +183,7 @@
     "copySecret": "Geheimnis kopieren",
     "secretCopied": "Signaturgeheimnis kopiert.",
     "copyFailed": "Das Geheimnis konnte nicht kopiert werden.",
-    "upgrade": "Webhooks sind Teil des Business-Plans.",
+    "upgrade": "Webhooks sind nicht Teil deines Tarifs.",
     "loadFailed": "Webhooks konnten nicht geladen werden."
   }
 }

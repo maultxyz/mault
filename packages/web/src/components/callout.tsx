@@ -15,7 +15,13 @@ export function Callout({
 }: CalloutProps) {
   return (
     <div
-      role={variant === "error" || variant === "warning" ? "alert" : undefined}
+      role={
+        variant === "error"
+          ? "alert"
+          : variant === "warning"
+            ? "status"
+            : undefined
+      }
       className={cn(
         "flex items-start gap-2 rounded-lg border px-3 py-2 text-xs",
         CALLOUT_VARIANT_CLASS[variant],

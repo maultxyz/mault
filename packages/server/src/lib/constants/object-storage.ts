@@ -6,4 +6,5 @@ export const OBJECT_STORAGE_ENABLED =
   !!process.env.AWS_SECRET_ACCESS_KEY;
 export const SCAN_IMAGE_URL_EXPIRY_SECONDS = 60 * 60;
 export const S3_DELETE_BATCH_SIZE = 1000;
+export const SYSTEM_SOUND_CLIP_PREFIX = "system/sounds/";
 export const SCAN_IMAGE_BACKFILL_BATCH_SIZE = 50;

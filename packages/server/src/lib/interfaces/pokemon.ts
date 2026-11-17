@@ -5,6 +5,11 @@ export interface PokemonCardBrief {
   image?: string;
 }
 
+export interface PokemonSeries {
+  id: string;
+  sets: { id: string }[];
+}
+
 export interface PokemonAttack {
   name: string;
   cost?: string[];
@@ -28,10 +33,28 @@ export interface PokemonPricing {
     normal?: PokemonTcgplayerVariant;
     holofoil?: PokemonTcgplayerVariant;
     "reverse-holofoil"?: PokemonTcgplayerVariant;
+    [subType: string]: PokemonTcgplayerVariant | string | undefined;
   };
   cardmarket?: {
     idProduct?: number;
   };
+}
+
+export interface PokemonCardVariant {
+  type?: string;
+  foil?: string;
+  size?: string;
+  stamp?: string[];
+  thirdParty?: {
+    tcgplayer?: number;
+    cardmarket?: number;
+  };
+}
+
+export interface PokemonFinish {
+  foilType: string;
+  variantType: string;
+  tcgplayerProductId: number | null;
 }
 
 export interface PokemonCardDetail extends PokemonCardBrief {
@@ -50,6 +73,7 @@ export interface PokemonCardDetail extends PokemonCardBrief {
   abilities?: PokemonAbility[];
   retreat?: number;
   pricing?: PokemonPricing;
+  variants_detailed?: PokemonCardVariant[];
   set?: {
     id: string;
     name: string;

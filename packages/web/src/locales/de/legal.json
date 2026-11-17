@@ -23,9 +23,9 @@
           "Kontoinformationen: deine E-Mail-Adresse und dein Name, verwaltet von unserem Authentifizierungsanbieter (Neon Auth) bei Registrierung oder Anmeldung.",
           "Organisationsdaten: Organisationsnamen, Mitgliedschaften und Rollen für die Teams, die du erstellst oder denen du beitrittst.",
           "Sammlungsdaten: die Sammlungen, Fächer, Sortierregeln und Kartendatensätze, die du in der App anlegst.",
-          "Karten-Scan-Bilder: Wenn du eine physische Karte scannst, wird das Foto nur zur Erzeugung eines Treffers in der Kartendatenbank an unseren Server gesendet. Es wird im Arbeitsspeicher verarbeitet und danach verworfen - wir speichern nicht das Foto selbst, sondern nur die erkannte Karte.",
+          "Karten-Scan-Bilder: Wenn du eine physische Karte scannst, wird das Foto an unseren Server gesendet, um es mit der Kartendatenbank abzugleichen. Wir speichern das Foto zusammen mit dem erkannten Karteneintrag (oder dem nicht erkannten Scan), damit du es prüfen und Fehlzuordnungen korrigieren kannst und wir die Scan-Genauigkeit verbessern können.",
           "Zahlungsinformationen: Wenn du den Business-Plan abonnierst, werden die Zahlungsdaten direkt von Stripe erhoben und verarbeitet. Wir sehen oder speichern niemals deine vollständige Kartennummer.",
-          "Discord-Webhook-Daten: Wenn du einen Discord-Webhook verbindest, senden wir die von dir konfigurierten Scan- und Sammlungsbenachrichtigungen an die von dir angegebene Webhook-URL.",
+          "Discord-Webhook-Daten: Wenn du einen Discord-Webhook verbindest, senden wir die von dir konfigurierten Scan- und Sammlungsbenachrichtigungen, die das Scan-Foto enthalten können, an die von dir angegebene Webhook-URL.",
           "Grundlegende Betriebsprotokolle (Fehler, Anfrage-Metadaten), die zur Aufrechterhaltung der Zuverlässigkeit des Dienstes verwendet werden. Wir setzen keine Analyse- oder Werbe-Tracker Dritter ein."
         ]
       },
@@ -42,7 +42,7 @@
         "heading": "Wie wir Informationen weitergeben",
         "body": [
           "Wir verkaufen deine personenbezogenen Daten nicht. Wir geben sie nur an die Dienstleister weiter, die für den Betrieb von Mault erforderlich sind:",
-          "Neon, für Datenbank-Hosting und Authentifizierung.",
+          "Neon, für Datenbank-Hosting, die Speicherung von Scan-Bildern und Authentifizierung.",
           "Stripe, für die Zahlungsabwicklung bei kostenpflichtigen Plänen.",
           "Discord, nur wenn und sobald du einen Webhook zum Versenden von Benachrichtigungen konfigurierst.",
           "Drittanbieter-Datenbanken für Sammelkartenspiele (z. B. Scryfall und ähnliche Quellen), die wir zur Identifizierung und Anreicherung von Kartendaten abfragen. Diese Abfragen enthalten keine personenbezogenen Daten von dir."
@@ -52,7 +52,7 @@
         "heading": "Datenspeicherung",
         "body": [
           "Wir speichern deine Konto-, Organisations- und Sammlungsdaten, solange dein Konto aktiv ist.",
-          "Karten-Scan-Fotos werden niemals gespeichert - sie werden unmittelbar nach der Treffererkennung verworfen.",
+          "Karten-Scan-Fotos werden so lange aufbewahrt wie die Karte oder der nicht erkannte Scan, zu dem sie gehören. Wenn du die Karte löschst, nicht erkannte Scans leerst, die Sammlung löschst oder deine Organisation löschst, werden die zugehörigen Fotos gelöscht.",
           "Du kannst jederzeit die Löschung deines Kontos und der zugehörigen Daten beantragen, indem du uns kontaktierst."
         ]
       },

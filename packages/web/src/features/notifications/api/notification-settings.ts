@@ -7,9 +7,6 @@ import type { SerialEventReport } from "@magic-vault/shared";
 import { API_BASE } from "@/lib/constants/api";
 
 
-// 409 means the org has no Discord error channel set and 502 that the bot
-// couldn't post; both carry a `reason` worth telling the user apart from a
-// plain request failure.
 export async function sendTestNotification(
   type: NotificationTestType,
 ): Promise<NotificationTestOutcome> {

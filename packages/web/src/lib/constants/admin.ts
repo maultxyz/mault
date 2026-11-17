@@ -1,17 +1,25 @@
-import { DELETED_ITEM_TYPES, type SyncState } from "@magic-vault/shared";
+import {
+  BROWSER_SYNC_PARALLEL,
+  DELETED_ITEM_TYPES,
+  SYNC_VECTORIZE_CONCURRENCY_MAX,
+  type SyncState,
+} from "@magic-vault/shared";
 import type {
   DeletedItemTypeFilter,
   UnmatchedPhotoFilter,
 } from "@/lib/interfaces/admin";
 import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-discord-channels.schema";
+import type { PlatformDiscordLinkedRoleFormValues } from "@/schemas/platform-discord-linked-role.schema";
 import type { PlatformStatsFormValues } from "@/schemas/platform-stats.schema";
 import {
   IconBrandDiscord,
   IconBug,
   IconCards,
   IconCreditCard,
+  IconMusic,
   IconRestore,
   IconRotate360,
+  IconSparkles,
   IconUserScan,
 } from "@tabler/icons-react";
 
@@ -26,7 +34,27 @@ export const DEFAULT_SYNC_STATE: SyncState = {
   queued: 0,
   startedAt: null,
   logs: [],
+  vectorizeOn: "server",
+  acceptingWork: false,
 };
+
+export const BROWSER_SYNC_POLL_MS = 400;
+
+export function isBrowserSaveLog(line: string): boolean {
+  return /\] saved \d+ cards from a browser$/.test(line);
+}
+
+export function browserSyncParallel(value: number | undefined): number {
+  if (
+    typeof value === "number" &&
+    Number.isInteger(value) &&
+    value >= 1 &&
+    value <= SYNC_VECTORIZE_CONCURRENCY_MAX
+  ) {
+    return value;
+  }
+  return BROWSER_SYNC_PARALLEL;
+}
 
 export const ACTIVE_SCANNING_REFRESH_MS = 15_000;
 export const SCAN_METRICS_REFRESH_MS = 60_000;
@@ -48,13 +76,60 @@ export const UNMATCHED_PHOTO_FILTERS: UnmatchedPhotoFilter[] = [
 export const BAD_PHOTO_MARKS_STORAGE_KEY = "admin-unmatched-bad-photos";
 
 export const ADMIN_SECTIONS = [
-  { path: "cards", icon: IconCards, labelKey: "sections.cards" },
-  { path: "users", icon: IconUserScan, labelKey: "sections.users" },
-  { path: "plans", icon: IconCreditCard, labelKey: "sections.plans" },
-  { path: "discord", icon: IconBrandDiscord, labelKey: "sections.discord" },
-  { path: "deleted", icon: IconRestore, labelKey: "sections.deleted" },
-  { path: "hardware", icon: IconRotate360, labelKey: "sections.hardware" },
-  { path: "developer", icon: IconBug, labelKey: "sections.developer" },
+  {
+    path: "cards",
+    icon: IconCards,
+    labelKey: "sections.cards",
+    adminOnly: false,
+  },
+  {
+    path: "users",
+    icon: IconUserScan,
+    labelKey: "sections.users",
+    adminOnly: false,
+  },
+  {
+    path: "plans",
+    icon: IconCreditCard,
+    labelKey: "sections.plans",
+    adminOnly: true,
+  },
+  {
+    path: "discord",
+    icon: IconBrandDiscord,
+    labelKey: "sections.discord",
+    adminOnly: false,
+  },
+  {
+    path: "sounds",
+    icon: IconMusic,
+    labelKey: "sections.sounds",
+    adminOnly: false,
+  },
+  {
+    path: "deleted",
+    icon: IconRestore,
+    labelKey: "sections.deleted",
+    adminOnly: false,
+  },
+  {
+    path: "foil-labels",
+    icon: IconSparkles,
+    labelKey: "sections.foilLabels",
+    adminOnly: true,
+  },
+  {
+    path: "hardware",
+    icon: IconRotate360,
+    labelKey: "sections.hardware",
+    adminOnly: true,
+  },
+  {
+    path: "developer",
+    icon: IconBug,
+    labelKey: "sections.developer",
+    adminOnly: true,
+  },
 ] as const;
 
 export const NO_DISCORD_GUILD = "none";
@@ -69,9 +144,19 @@ export const EMPTY_PLATFORM_STATS_FORM: PlatformStatsFormValues = {
   stats: [],
 };
 
+export const EMPTY_PLATFORM_DISCORD_LINKED_ROLE_FORM: PlatformDiscordLinkedRoleFormValues =
+  { guildId: null, roleId: null };
+
 export const EMPTY_PLATFORM_DISCORD_CHANNELS_FORM: PlatformDiscordChannelsFormValues =
   {
     stats: { guildId: null, channelId: null },
     donations: { guildId: null, channelId: null },
     pricing: { guildId: null, channelId: null },
   };
+
+export const BROWSER_EMBED_TIMEOUT_MS = 60_000;
+export const BROWSER_EMBED_WORKER_MAX = 2;
+
+export const FOIL_LABELS_PATH = "/app/admin/foil-labels";
+export const FOIL_LABEL_QUEUE_REFILL_THRESHOLD = 10;
+export const FOIL_LABEL_PREFETCH_COUNT = 3;

@@ -1,15 +1,14 @@
+import { PLATFORM_STAFF_ROLES } from "@magic-vault/shared";
 import { desc } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { impersonationAudit } from "../../db/schema";
 import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
 
-// GET /admin/impersonation-audit — admin-only. Read-only history of past
-// (and currently open) impersonation sessions, most recent first.
 export const impersonationAuditRoute = new Hono<AppEnv>().get(
   "/impersonation-audit",
   requireAuth,
-  requireRole("admin"),
+  requireRole(...PLATFORM_STAFF_ROLES),
   async (c) => {
     const rows = await db
       .select({

@@ -7,7 +7,7 @@ import { AppText } from "@/components/ui/app-text";
 import { IconButton } from "@/components/ui/icon-button";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { RADIUS, SCREEN_GUTTER, SHEET_SHADOW, SPACING } from "@/lib/constants/theme";
 import type { SessionScansSheetProps } from "@/lib/interfaces/scanner";
 import { absoluteUrl } from "@/lib/url";
 
@@ -19,13 +19,18 @@ export function SessionScansSheet({ visible, entries, collectionGuid, onClose }:
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose} statusBarTranslucent>
-      <Pressable accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
-      <View
+      <Pressable accessibilityRole="button" accessibilityLabel={t("common.dismiss")} onPress={onClose} style={{ flex: 1, backgroundColor: colors.overlay }} />
+      <View accessibilityViewIsModal onAccessibilityEscape={onClose}
         style={{
           maxHeight: "80%",
           backgroundColor: colors.background,
           borderTopLeftRadius: RADIUS.xl,
           borderTopRightRadius: RADIUS.xl,
+          borderWidth: 1,
+          borderBottomWidth: 0,
+          borderColor: colors.border,
+          ...SHEET_SHADOW,
+          shadowColor: colors.popoverShadow,
           paddingBottom: insets.bottom + SPACING.sm,
         }}
       >
@@ -42,7 +47,7 @@ export function SessionScansSheet({ visible, entries, collectionGuid, onClose }:
           }}
         >
           <View style={{ flex: 1 }}>
-            <AppText size="lg" heading weight="bold">
+            <AppText size="lg" heading weight="bold" accessibilityRole="header">
               {t("scan.sessionScans.title")}
             </AppText>
             <AppText size="sm" tone="secondary">

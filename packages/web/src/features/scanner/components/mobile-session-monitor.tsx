@@ -17,8 +17,11 @@ import type {
   MobileSessionMonitorProps,
 } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
-import { useCallback, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useCallback, useMemo, useState } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toReviewGridCard } from "@magic-vault/shared";
+import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
+import { ReviewGrid } from "@/features/cards/components/review-grid";
 import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
 import { MONITOR_NEEDS_REVIEW_CARDS_QUERY } from "@/lib/constants/scanner";
 import { toast } from "@/lib/toast";
@@ -40,11 +43,13 @@ export function MobileSessionMonitor({
   const queryClient = useQueryClient();
   const [tab, setTab] = useState<MobileMonitorTab>("cards");
   const [reviewing, setReviewing] = useState(false);
+  const [reviewingGrid, setReviewingGrid] = useState(false);
+  const [reviewLayout, setReviewLayout] = useReviewLayout();
   const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
   const heroCollapsed = useScrollCollapse(scrollRoot);
-  const { collection, status, unmatchedCards, errors } = session;
+  const { collection, status, unmatchedCount, errors } = session;
   const { stats, cardCount, openScanId, setOpenScanId } = cards;
-  const alertCount = unmatchedCards.length + errors.length;
+  const alertCount = unmatchedCount + errors.length;
   const hasPricing = !!stats?.hasPricing;
 
   const handleOpenCard = useCallback(
@@ -56,7 +61,31 @@ export function MobileSessionMonitor({
     setOpenScanId(null);
   }, [setOpenScanId]);
 
-  const startReview = useCallback(async () => {
+  const reviewGridPage = useQuery({
+    ...collectionCardsPageQueryOptions(
+      collectionGuid,
+      MONITOR_NEEDS_REVIEW_CARDS_QUERY,
+      0,
+    ),
+    enabled: reviewingGrid,
+    placeholderData: undefined,
+  });
+  const reviewGridCards = useMemo(
+    () =>
+      (reviewGridPage.data?.items ?? []).map((entry) =>
+        toReviewGridCard(collectionGuid, entry),
+      ),
+    [collectionGuid, reviewGridPage.data],
+  );
+
+  const openReviewGrid = useCallback(() => {
+    setReviewLayout("grid");
+    setReviewing(false);
+    setOpenScanId(null);
+    setReviewingGrid(true);
+  }, [setReviewLayout, setOpenScanId]);
+
+  const startOneByOneReview = useCallback(async () => {
     try {
       const page = await queryClient.fetchQuery(
         collectionCardsPageQueryOptions(
@@ -77,6 +106,11 @@ export function MobileSessionMonitor({
     }
   }, [collectionGuid, queryClient, setOpenScanId, tCards]);
 
+  const startReview = useCallback(() => {
+    if (reviewLayout === "grid") openReviewGrid();
+    else void startOneByOneReview();
+  }, [reviewLayout, openReviewGrid, startOneByOneReview]);
+
   const tabs: MobileMonitorTabItem[] = [
     { key: "cards", label: t("mobileMonitor.tabCards") },
     {
@@ -89,13 +123,7 @@ export function MobileSessionMonitor({
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <MobilePageHeader
-        title={
-          collection ? (
-            collection.name
-          ) : (
-            <Skeleton className="h-7 w-40" />
-          )
-        }
+        title={collection ? collection.name : <Skeleton className="h-7 w-40" />}
         subtitle={[
           t(`mobileMonitor.status.${status}`),
           collection?.game?.name,
@@ -130,7 +158,9 @@ export function MobileSessionMonitor({
       >
         <div className="flex flex-col gap-0.5">
           <p className={MOBILE_HERO_LABEL_CLASS}>
-            {hasPricing ? t("sessionStatsPanel.value") : t("mobileMonitor.cards")}
+            {hasPricing
+              ? t("sessionStatsPanel.value")
+              : t("mobileMonitor.cards")}
           </p>
           <p className={MOBILE_HERO_VALUE_CLASS}>
             {stats?.hasPricing ? format(stats.totalValue) : String(cardCount)}
@@ -146,51 +176,78 @@ export function MobileSessionMonitor({
         </div>
       </MobilePageHeader>
 
-      <MobileTabStrip items={tabs} value={tab} onChange={setTab} />
-
-      <div
-        ref={setScrollRoot}
-        data-scroll-root
-        className={cn(
-          "min-h-0 flex-1 overflow-y-auto",
-          MOBILE_NAV_SCROLL_PADDING_CLASS,
-        )}
-      >
-        {tab === "cards" ? (
-          <MobileMonitorCards
-            cards={cards}
-            status={status}
-            binCount={binCount}
-            canEditCards={canEditCards}
-            onStartReview={() => void startReview()}
+      {reviewingGrid && canEditCards ? (
+        <div
+          data-scroll-root
+          className={cn(
+            "flex min-h-0 flex-1 flex-col overflow-y-auto",
+            MOBILE_NAV_SCROLL_PADDING_CLASS,
+          )}
+        >
+          <ReviewGrid
+            cards={reviewGridCards}
+            total={reviewGridPage.data?.totalCards ?? 0}
+            isLoading={reviewGridPage.isPending}
+            isError={reviewGridPage.isError}
+            onOpenOneByOne={(card) => {
+              setReviewLayout("single");
+              setReviewingGrid(false);
+              setReviewing(true);
+              setOpenScanId(card.scanId);
+            }}
+            onClose={() => setReviewingGrid(false)}
           />
-        ) : (
-          <MobileMonitorActivity
-            session={session}
-            collectionGuid={collectionGuid}
-            stats={stats}
-            canEditCards={canEditCards}
-            onOpenCard={canEditCards ? handleOpenCard : undefined}
-          />
-        )}
-      </div>
+        </div>
+      ) : (
+        <>
+          <MobileTabStrip items={tabs} value={tab} onChange={setTab} />
 
-      {canEditCards && (
-        <MobileCardDetailDrawer
-          collectionGuid={collectionGuid}
-          scanId={openScanId}
-          reviewMode={reviewing}
-          onNavigate={(next) => {
-            if (next) setOpenScanId(next);
-            else handleCloseCard();
-          }}
-          onReviewComplete={(count) => {
-            handleCloseCard();
-            toast.success(tCards("review.complete", { count }));
-          }}
-          onClose={handleCloseCard}
-        />
+          <div
+            ref={setScrollRoot}
+            data-scroll-root
+            className={cn(
+              "min-h-0 flex-1 overflow-y-auto",
+              MOBILE_NAV_SCROLL_PADDING_CLASS,
+            )}
+          >
+            {tab === "cards" ? (
+              <MobileMonitorCards
+                cards={cards}
+                status={status}
+                binCount={binCount}
+                canEditCards={canEditCards}
+                onStartReview={startReview}
+              />
+            ) : (
+              <MobileMonitorActivity
+                session={session}
+                collectionGuid={collectionGuid}
+                stats={stats}
+                canEditCards={canEditCards}
+                onOpenCard={handleOpenCard}
+              />
+            )}
+          </div>
+        </>
       )}
+
+      <MobileCardDetailDrawer
+        collectionGuid={collectionGuid}
+        collection={collection}
+        canEditCards={canEditCards}
+        scanId={openScanId}
+        reviewMode={reviewing}
+        onShowReviewGrid={openReviewGrid}
+        onNavigate={(next) => {
+          if (next) setOpenScanId(next);
+          else handleCloseCard();
+        }}
+        onReviewComplete={(count) => {
+          handleCloseCard();
+          toast.success(tCards("review.complete", { count }));
+        }}
+        onClose={handleCloseCard}
+      />
     </div>
   );
 }

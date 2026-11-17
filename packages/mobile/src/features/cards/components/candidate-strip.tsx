@@ -1,15 +1,13 @@
-import { Image } from "expo-image";
-import { Pressable, ScrollView, View } from "react-native";
-import { AppText } from "@/components/ui/app-text";
-import { useTheme } from "@/hooks/use-theme";
+import { ScrollView, View } from "react-native";
+import { CardTile } from "@/components/cards/card-tile";
+import { usePricing } from "@/hooks/use-pricing";
 import { CANDIDATE_THUMB_WIDTH } from "@/lib/constants/cards";
-import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
-import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
+import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { CandidateStripProps } from "@/lib/interfaces/cards";
 import { absoluteUrl } from "@/lib/url";
 
 export function CandidateStrip({ candidates, selectedId, onSelect, disabled = false }: CandidateStripProps) {
-  const colors = useTheme();
+  const pricing = usePricing();
   return (
     <ScrollView
       horizontal
@@ -18,43 +16,19 @@ export function CandidateStrip({ candidates, selectedId, onSelect, disabled = fa
       contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.md }}
     >
       {candidates.map((candidate) => {
-        const selected = candidate.id === selectedId;
+        const price = pricing.priceOf(candidate, false);
+        const printing = `${candidate.set.toUpperCase()} #${candidate.collectorNumber}`;
         return (
-          <Pressable
-            key={candidate.id}
-            accessibilityRole="radio"
-            accessibilityState={{ selected, disabled }}
-            accessibilityLabel={`${candidate.name}, ${candidate.set.toUpperCase()} #${candidate.collectorNumber}`}
-            disabled={disabled}
-            onPress={() => onSelect(candidate)}
-            style={({ pressed }) => ({ width: CANDIDATE_THUMB_WIDTH, gap: 6, transform: [{ scale: pressed ? 0.97 : 1 }] })}
-          >
-            <View
-              style={{
-                width: "100%",
-                aspectRatio: CARD_ASPECT_RATIO,
-                borderRadius: RADIUS.md,
-                overflow: "hidden",
-                borderWidth: 2,
-                borderColor: selected ? colors.primary : colors.border,
-                backgroundColor: colors.muted,
-              }}
-            >
-              <Image
-                source={absoluteUrl(candidate.image?.small ?? candidate.image?.normal)}
-                style={{ width: "100%", height: "100%" }}
-                contentFit="cover"
-              />
-            </View>
-            <AppText
-              size="xs"
-              weight={selected ? "semibold" : "medium"}
-              numberOfLines={1}
-              style={{ textAlign: "center", color: selected ? colors.primaryText : colors.foregroundSecondary }}
-            >
-              {`${candidate.set.toUpperCase()} #${candidate.collectorNumber}`}
-            </AppText>
-          </Pressable>
+          <View key={candidate.id} style={{ width: CANDIDATE_THUMB_WIDTH, flexDirection: "row" }}>
+            <CardTile
+              name={candidate.name}
+              caption={price != null ? `${printing} · ${pricing.format(price)}` : printing}
+              imageUrl={absoluteUrl(candidate.image?.normal ?? candidate.image?.small)}
+              selected={candidate.id === selectedId}
+              disabled={disabled}
+              onPress={() => onSelect(candidate)}
+            />
+          </View>
         );
       })}
     </ScrollView>

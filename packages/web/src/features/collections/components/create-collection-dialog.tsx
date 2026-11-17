@@ -1,3 +1,4 @@
+import { PlanNotice } from "@/components/plan-notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -11,34 +12,49 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { billingQueryOptions } from "@/features/billing/api/billing";
 import { checkCollectionName } from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { useOrg } from "@/features/companies/api/use-organization";
 import {
   gameLanguagesQueryOptions,
   gamesQueryOptions,
 } from "@/features/games/api/games";
 import { EMPTY_LANGUAGES, LANGUAGE_LABELS } from "@/lib/constants/languages";
-import {
-  createCollectionSchema,
-  type CreateCollectionFormValues,
-} from "@/schemas/collections.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { CreateCollectionDialogProps } from "@/lib/interfaces/collections";
+import {
+  createCollectionFormSchema,
+  type CreateCollectionFormValues,
+} from "@magic-vault/shared";
 
-export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps) {
+export function CreateCollectionDialog({
+  trigger,
+  open: controlledOpen,
+  onOpenChange,
+}: CreateCollectionDialogProps) {
   const { t } = useTranslation("collections");
   const { isMutating, createCollection } = useCollections();
+  const { activeOrg } = useOrg();
+  const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
+  const collectionLimit = billing?.maxCollections ?? null;
+  const atCollectionLimit =
+    collectionLimit != null &&
+    (billing?.collectionCount ?? 0) >= collectionLimit;
   const { data: games = [] } = useQuery(gamesQueryOptions);
   const activeGames = games.filter((g) => g.isActive);
-  const [open, setOpen] = useState(false);
+  const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
+  const open = controlledOpen ?? uncontrolledOpen;
+  const setOpen = onOpenChange ?? setUncontrolledOpen;
+  const wasOpenRef = useRef(open);
 
   const form = useForm({
-    resolver: zodResolver(createCollectionSchema),
+    resolver: zodResolver(createCollectionFormSchema),
     defaultValues: {
       name: "",
       gameGuid: "",
@@ -85,32 +101,38 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
     }
   }, [open, nameValue, nameCheck, form, t]);
 
+  const resetForNewCollection = useCallback(() => {
+    const firstGame = activeGames[0];
+    form.reset({
+      name: firstGame?.name ?? "",
+      gameGuid: firstGame?.guid ?? "",
+      lang: "",
+      matchAllLanguages: false,
+    });
+    setNameEdited(false);
+  }, [form, activeGames]);
+
+  useEffect(() => {
+    if (open && !wasOpenRef.current) resetForNewCollection();
+    wasOpenRef.current = open;
+  }, [open, resetForNewCollection]);
+
   const handleOpenChange = useCallback(
     (isOpen: boolean) => {
       setOpen(isOpen);
-      if (isOpen) {
-        const firstGame = activeGames[0];
-        form.reset({
-          name: firstGame?.name ?? "",
-          gameGuid: firstGame?.guid ?? "",
-          lang: "",
-          matchAllLanguages: false,
-        });
-        setNameEdited(false);
-      } else {
-        form.reset();
-      }
+      if (!isOpen) form.reset();
     },
-    [form, activeGames],
+    [form, setOpen],
   );
 
   const handleCreate = useCallback(
     async (values: CreateCollectionFormValues) => {
-      await createCollection(values);
+      const created = await createCollection(values);
+      if (!created) return;
       form.reset();
       setOpen(false);
     },
-    [createCollection, form],
+    [createCollection, form, setOpen],
   );
 
   return (
@@ -119,7 +141,7 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
       onOpenChange={handleOpenChange}
       title={t("newCollection")}
       description={t("createDialog.description")}
-      trigger={trigger({
+      trigger={trigger?.({
         disabled: isMutating || activeGames.length === 0,
         noGames: activeGames.length === 0,
       })}
@@ -131,7 +153,9 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
           <Button
             type="submit"
             form="create-collection-form"
-            disabled={!form.formState.isValid || isMutating}
+            disabled={
+              !form.formState.isValid || isMutating || atCollectionLimit
+            }
           >
             {isMutating && <IconLoader2 className="size-4 animate-spin" />}
             {t("createDialog.create")}
@@ -145,6 +169,15 @@ export function CreateCollectionDialog({ trigger }: CreateCollectionDialogProps)
         onSubmit={form.handleSubmit(handleCreate)}
         className="flex flex-col gap-4"
       >
+        {atCollectionLimit && (
+          <PlanNotice
+            message={t("createDialog.limitReached", {
+              count: collectionLimit ?? 0,
+            })}
+            linkLabel={t("createDialog.upgrade")}
+            onLinkClick={() => handleOpenChange(false)}
+          />
+        )}
         <Controller
           name="gameGuid"
           control={form.control}

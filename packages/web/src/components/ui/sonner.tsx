@@ -4,9 +4,11 @@ import { useTheme } from "next-themes"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 import { TOAST_DURATION_MS } from "@/lib/constants/toast"
 import { IconCircleCheck, IconInfoCircle, IconAlertTriangle, IconAlertOctagon, IconLoader } from "@tabler/icons-react"
+import { useTranslation } from "react-i18next"
 
 const Toaster = ({ ...props }: ToasterProps) => {
   const { theme = "system" } = useTheme()
+  const { t } = useTranslation("common")
 
   return (
     <Sonner
@@ -14,6 +16,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       className="toaster app-toaster group"
       richColors
       closeButton
+      containerAriaLabel={t("a11y.notifications")}
       duration={TOAST_DURATION_MS}
       icons={{
         success: (
@@ -56,6 +59,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
         classNames: {
           toast: "cn-toast",
         },
+        closeButtonAriaLabel: t("a11y.closeNotification"),
       }}
       {...props}
     />

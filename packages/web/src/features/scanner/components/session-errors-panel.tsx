@@ -10,7 +10,10 @@ export function SessionErrorsPanel({ errors }: { errors: SessionError[] }) {
       <p className="text-2xs font-medium text-destructive uppercase tracking-wide px-2 pt-2 pb-1.5">
         {t("sessionErrorsPanel.heading")}
       </p>
-      <div className="flex flex-col divide-y divide-destructive/10 max-h-48 overflow-y-auto">
+      <div
+        role="log"
+        className="flex flex-col divide-y divide-destructive/10 max-h-48 overflow-y-auto"
+      >
         {errors.map((err) => (
           <div key={err.id} className="px-2 py-1.5">
             <p className="text-xs text-destructive leading-snug">{err.message}</p>

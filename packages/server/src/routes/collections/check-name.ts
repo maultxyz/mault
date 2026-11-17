@@ -14,19 +14,14 @@ export const checkCollectionNameRoute = new Hono<AppEnv>().get(
     if (!name) {
       return c.json({ success: false, message: "name is required." }, 400);
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const taken = await collectionNameTaken(tx, orgId, name, excludeGuid);
-        return {
-          success: true,
-          message: "Checked.",
-          data: { available: !taken },
-        };
-      });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const taken = await collectionNameTaken(tx, orgId, name, excludeGuid);
+      return {
+        success: true,
+        message: "Checked.",
+        data: { available: !taken },
+      };
+    });
+    return c.json(result);
   },
 );

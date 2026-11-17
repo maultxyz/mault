@@ -59,6 +59,7 @@ export default function RepackEditorScreen() {
             repackUniqueBy: activeSet.repackUniqueBy ?? REPACK_ALLOW_DUPLICATES_VALUE,
             repackSiftRules: activeSet.repackSiftRules,
             repackSlots: activeSet.repackSlots.length > 0 ? activeSet.repackSlots : [createSlot()],
+            repackMultiplePacks: activeSet.repackMultiplePacks,
           }
         : undefined,
     [activeSet],
@@ -78,6 +79,7 @@ export default function RepackEditorScreen() {
             repackSlots: values.repackSlots,
             repackUniqueBy: values.repackUniqueBy === REPACK_ALLOW_DUPLICATES_VALUE ? null : values.repackUniqueBy,
             repackSiftRules: values.repackSiftRules,
+            repackMultiplePacks: values.repackMultiplePacks,
           })
         : Promise.resolve(null),
     onSuccess: (next, values) => {
@@ -108,7 +110,7 @@ export default function RepackEditorScreen() {
       <PageHeader title={t("rules.repack.title")} subtitle={activeSet?.name} onBack={() => router.back()} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xxl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xl }}
       >
         <AppText size="sm" tone="secondary">
           {t("rules.modes.repack.description")}
@@ -126,6 +128,20 @@ export default function RepackEditorScreen() {
             />
           </ListGroup>
         </View>
+
+        <Controller
+          control={form.control}
+          name="repackMultiplePacks"
+          render={({ field }) => (
+            <SwitchRow
+              title={t("rules.repack.multiplePacksLabel")}
+              description={t("rules.repack.multiplePacksDescription")}
+              value={field.value}
+              disabled={!editable}
+              onValueChange={field.onChange}
+            />
+          )}
+        />
 
         <Controller
           control={form.control}

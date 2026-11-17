@@ -22,7 +22,6 @@ export function ActivityChart({ days }: ActivityChartProps) {
         {t("home.activityPoint", { date: formatDay(current.date, i18n.language), count: current.count })}
       </AppText>
       <View
-        accessibilityRole="adjustable"
         accessibilityLabel={t("home.activityTitle")}
         style={{
           flexDirection: "row",

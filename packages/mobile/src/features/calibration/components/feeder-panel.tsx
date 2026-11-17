@@ -1,7 +1,17 @@
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import { FIRMWARE_FEATURE_MIN_VERSIONS, isFirmwareFeatureSupported } from "@magic-vault/shared";
+import {
+  FEED_RETRY_COUNT_MAX,
+  FEED_RETRY_COUNT_MIN,
+  FIRMWARE_FEATURE_MIN_VERSIONS,
+  isFirmwareFeatureSupported,
+  pulseToDirectionalSpeed,
+  pulseToSignedPercent,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
+  signedPercentToPulse,
+} from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { SliderField } from "@/components/ui/slider-field";
@@ -13,11 +23,6 @@ import {
   FEEDER_PULSE_DURATION_SLIDER_MAX,
   FEEDER_REVERSE_DURATION_SLIDER_MAX,
   FEEDER_SETTLE_DURATION_SLIDER_MAX,
-  pulseToDirectionalSpeed,
-  pulseToSignedPercent,
-  SERVO_PULSE_MAX,
-  SERVO_PULSE_MIN,
-  signedPercentToPulse,
   sliderMax,
 } from "@/lib/constants/calibration";
 import { SPACING } from "@/lib/constants/theme";
@@ -99,7 +104,7 @@ export function FeederPanel({ state, firmwareVersion }: FeederPanelProps) {
   return (
     <Surface style={{ gap: SPACING.xl }}>
       <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-        <AppText heading weight="semibold">
+        <AppText heading weight="semibold" accessibilityRole="header">
           {t("calibration.feeder.heading")}
         </AppText>
         <Button
@@ -111,6 +116,17 @@ export function FeederPanel({ state, firmwareVersion }: FeederPanelProps) {
       </View>
       {speed("speed", "calibration.feeder.speedLabel", t("calibration.feeder.speedTooltip"))}
       {timing("duration", "calibration.feeder.timeoutLabel", 10, FEEDER_DURATION_SLIDER_MAX, ms(values.duration))}
+      <SliderField
+        label={t("calibration.feeder.feedRetryCountLabel")}
+        description={t("calibration.feeder.feedRetryCountDescription")}
+        valueLabel={values.feedRetryCount === 0 ? t("calibration.feeder.off") : String(values.feedRetryCount)}
+        accessibilityLabel={t("calibration.feeder.feedRetryCountLabel")}
+        min={FEED_RETRY_COUNT_MIN}
+        max={FEED_RETRY_COUNT_MAX}
+        step={1}
+        value={values.feedRetryCount}
+        onValueChange={(value) => state.handleFeederChange("feedRetryCount", value)}
+      />
       <View style={{ gap: SPACING.sm }}>
         {timing(
           "pulseDuration",

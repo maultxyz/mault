@@ -17,5 +17,8 @@ export const CARD_GRID_DENSITY_CLASS: Record<CardGridDensity, string> = {
 
 export const CARD_GRID_CLASS = CARD_GRID_DENSITY_CLASS.comfortable;
 
+export const REVIEW_GRID_CLASS =
+  "grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-3";
+
 
 export const NEW_CARD_ANIMATION_WINDOW_MS = 5_000;

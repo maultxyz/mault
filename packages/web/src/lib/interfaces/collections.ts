@@ -1,11 +1,11 @@
 import type {
+  CreateCollectionFormValues,
   MonitorLinkInfo,
   Collection,
   DeployNotice,
   SyncState,
 } from "@magic-vault/shared";
 import type { ReactElement } from "react";
-import type { CreateCollectionFormValues } from "@/schemas/collections.schema";
 
 export interface ScanLockInfo {
   userId: string;
@@ -13,9 +13,6 @@ export interface ScanLockInfo {
   expiresAt: number;
 }
 
-// A person currently viewing/watching a live scan session — the same shape
-// was previously duplicated across the live-count, session-monitor, and
-// watcher-stack UI.
 export interface SessionViewer {
   userId: string;
   displayName: string;
@@ -41,7 +38,7 @@ export interface CollectionsContextValue {
   isLoading: boolean;
   isActivating: boolean;
   isMutating: boolean;
-  createCollection: (values: CreateCollectionFormValues) => Promise<void>;
+  createCollection: (values: CreateCollectionFormValues) => Promise<boolean>;
   updateCollection: (guid: string, name: string) => Promise<void>;
   activateCollection: (guid: string) => Promise<void>;
   deleteCollection: (guid: string) => Promise<void>;
@@ -49,7 +46,17 @@ export interface CollectionsContextValue {
 }
 
 export interface CreateCollectionDialogProps {
-  trigger: (ctx: { disabled: boolean; noGames: boolean }) => ReactElement;
+  trigger?: (ctx: { disabled: boolean; noGames: boolean }) => ReactElement;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export interface ActiveCollectionSessionActions {
+  isLockedByMe: boolean;
+  isSharing: boolean;
+  isReleasing: boolean;
+  copyMonitorLink: () => Promise<void>;
+  releaseScanSession: () => Promise<void>;
 }
 
 export interface AppStreamContextValue {
@@ -100,4 +107,8 @@ export interface ScanningPillProps {
 
 export interface ReleaseSessionButtonProps {
   guid: string;
+}
+
+export interface CollectionGameBadgeProps {
+  collection: Pick<Collection, "game" | "lang">;
 }

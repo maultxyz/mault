@@ -1,0 +1,171 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'none'; style-src 'unsafe-inline'; script-src 'unsafe-inline'"
+    />
+    <title>MAULT</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #ffffff;
+        --fg: #09090b;
+        --muted: rgba(9, 9, 11, 0.7);
+        --border: #e4e4e7;
+        --hover: #f4f4f5;
+        --selected: #eff4ff;
+        --primary: #1447e6;
+        --primary-fg: #ffffff;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #09090b;
+          --fg: #fafafa;
+          --muted: rgba(250, 250, 250, 0.7);
+          --border: #27272a;
+          --hover: #18181b;
+          --selected: #172554;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+        background: var(--bg);
+        color: var(--fg);
+        font: 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        user-select: none;
+      }
+      h1 {
+        margin: 0;
+        font-size: 16px;
+        font-weight: 600;
+      }
+      ul {
+        flex: 1;
+        margin: 0;
+        padding: 4px;
+        overflow-y: auto;
+        list-style: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+      li {
+        display: flex;
+        flex-direction: column;
+        padding: 8px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      li:hover {
+        background: var(--hover);
+      }
+      li[aria-selected="true"] {
+        background: var(--selected);
+      }
+      li small,
+      .empty {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .empty {
+        padding: 8px 10px;
+        cursor: default;
+      }
+      footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: 8px;
+      }
+      button {
+        padding: 6px 14px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: transparent;
+        color: var(--fg);
+        font: inherit;
+        cursor: pointer;
+      }
+      button.primary {
+        border-color: var(--primary);
+        background: var(--primary);
+        color: var(--primary-fg);
+      }
+      button:disabled {
+        opacity: 0.5;
+        cursor: default;
+      }
+    </style>
+  </head>
+  <body>
+    <h1 id="title"></h1>
+    <ul id="list" role="listbox"></ul>
+    <footer>
+      <button id="cancel" type="button"></button>
+      <button id="connect" class="primary" type="button" disabled></button>
+    </footer>
+    <script>
+      const title = document.getElementById("title");
+      const list = document.getElementById("list");
+      const cancel = document.getElementById("cancel");
+      const connect = document.getElementById("connect");
+      let selected = null;
+
+      function render(state) {
+        document.title = state.strings.title;
+        title.textContent = state.strings.title;
+        cancel.textContent = state.strings.cancel;
+        connect.textContent = state.strings.connect;
+        if (!state.devices.some((device) => device.id === selected)) selected = null;
+        connect.disabled = selected === null;
+        list.replaceChildren();
+        if (state.devices.length === 0) {
+          const empty = document.createElement("li");
+          empty.className = "empty";
+          empty.textContent = state.strings.searching;
+          list.append(empty);
+          return;
+        }
+        for (const device of state.devices) {
+          const item = document.createElement("li");
+          item.setAttribute("role", "option");
+          item.setAttribute("aria-selected", String(device.id === selected));
+          item.textContent = device.label;
+          if (device.detail) {
+            const detail = document.createElement("small");
+            detail.textContent = device.detail;
+            item.append(detail);
+          }
+          item.addEventListener("click", () => {
+            selected = device.id;
+            render(state);
+          });
+          item.addEventListener("dblclick", () => window.picker.choose(device.id));
+          list.append(item);
+        }
+      }
+
+      cancel.addEventListener("click", () => window.picker.choose(""));
+      connect.addEventListener("click", () => {
+        if (selected !== null) window.picker.choose(selected);
+      });
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") window.picker.choose("");
+        if (event.key === "Enter" && selected !== null) window.picker.choose(selected);
+      });
+      window.picker.onState(render);
+      window.picker.ready();
+    </script>
+  </body>
+</html>

@@ -18,27 +18,22 @@ export const editSoundClipRoute = new Hono<AppEnv>().put(
     if (!name.success) {
       return c.json({ success: false, message: "Give the clip a name." });
     }
-    try {
-      const [row] = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx
-          .update(soundClips)
-          .set({ name: name.data, updatedAt: new Date() })
-          .where(
-            and(
-              eq(soundClips.guid, guid),
-              eq(soundClips.orgId, orgId),
-              eq(soundClips.isDeleted, false),
-            ),
-          )
-          .returning(),
-      );
-      if (!row) {
-        return c.json({ success: false, message: "Clip not found." }, 404);
-      }
-      return c.json({ success: true, data: await toSoundClip(row) });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+    const [row] = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx
+        .update(soundClips)
+        .set({ name: name.data, updatedAt: new Date() })
+        .where(
+          and(
+            eq(soundClips.guid, guid),
+            eq(soundClips.orgId, orgId),
+            eq(soundClips.isDeleted, false),
+          ),
+        )
+        .returning(),
+    );
+    if (!row) {
+      return c.json({ success: false, message: "Clip not found." }, 404);
     }
+    return c.json({ success: true, data: await toSoundClip(row) });
   },
 );

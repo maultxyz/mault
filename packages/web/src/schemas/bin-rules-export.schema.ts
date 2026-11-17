@@ -24,7 +24,6 @@ const exportedBinSchema = z.object({
     .max(LOW_MATCH_PERCENT_MAX)
     .nullable()
     .default(null),
-  cardLimit: z.number().int().min(1).max(CONDITION_NUMERIC_MAX).nullable(),
   maxCopies: z
     .number()
     .int()

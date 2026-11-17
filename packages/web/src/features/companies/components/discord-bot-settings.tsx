@@ -54,7 +54,6 @@ export function DiscordBotSettings() {
           <span className="text-sm">{t("discordBot.linked")}</span>
           <Button
             variant="outline-destructive"
-            size="sm"
             onClick={handleUnlink}
             disabled={isUnlinking || isLoading}
           >

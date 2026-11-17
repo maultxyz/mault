@@ -5,13 +5,18 @@ import type {
   SyncSourceInfo,
 } from "@/lib/interfaces/admin";
 import type {
+  ActiveScanSession,
   ActiveScanningStats,
   AdminUserSummary,
   ImpersonationAuditEntry,
   ImpersonationSession,
+  BrowserSyncWorkCard,
+  BrowserSyncWorkFailure,
+  BrowserSyncWorkResult,
   PublicMetrics,
   Result,
   SyncState,
+  SyncVectorizeOn,
 } from "@magic-vault/shared";
 
 
@@ -29,6 +34,7 @@ export async function startSync(
   lang: string = "en",
   forceResync: boolean = false,
   concurrency?: number,
+  vectorizeOn: SyncVectorizeOn = "server",
 ): Promise<{
   success: boolean;
   data: SyncState;
@@ -38,7 +44,25 @@ export async function startSync(
     lang,
     forceResync,
     concurrency,
+    vectorizeOn,
   });
+}
+
+export async function claimBrowserSyncWork(
+  limit: number,
+): Promise<BrowserSyncWorkCard[]> {
+  const response = await apiPost<{
+    success: boolean;
+    data?: BrowserSyncWorkCard[];
+  }>("/api/admin/sync/work/claim", { limit });
+  return response.data ?? [];
+}
+
+export async function submitBrowserSyncWork(
+  results: BrowserSyncWorkResult[],
+  failures: BrowserSyncWorkFailure[],
+): Promise<void> {
+  await apiPost("/api/admin/sync/work", { results, failures });
 }
 
 export async function cancelSync(): Promise<{
@@ -46,13 +70,6 @@ export async function cancelSync(): Promise<{
   data: SyncState;
 }> {
   return apiDelete<{ success: boolean; data: SyncState }>("/api/admin/sync");
-}
-
-export async function getSyncStatus(): Promise<{
-  success: boolean;
-  data: SyncState;
-}> {
-  return apiGet<{ success: boolean; data: SyncState }>("/api/admin/sync");
 }
 
 export async function listCardGameKeys(): Promise<{
@@ -165,4 +182,12 @@ export async function getActiveScanning(): Promise<
   Result<ActiveScanningStats>
 > {
   return apiGet<Result<ActiveScanningStats>>("/api/admin/active-scanning");
+}
+
+export async function getActiveScanSessions(): Promise<
+  Result<ActiveScanSession[]>
+> {
+  return apiGet<Result<ActiveScanSession[]>>(
+    "/api/admin/active-scanning/sessions",
+  );
 }

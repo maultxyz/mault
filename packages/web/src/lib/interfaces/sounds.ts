@@ -1,4 +1,5 @@
-import type { SoundClip, SoundRule } from "@magic-vault/shared";
+import type { Result, SoundClip, SoundRule } from "@magic-vault/shared";
+import type { QueryKey } from "@tanstack/react-query";
 
 export interface SoundRuleDialogProps {
   open: boolean;
@@ -14,6 +15,18 @@ export interface SoundRuleListProps {
 
 export interface SoundClipRowProps {
   clip: SoundClip;
+  clipsQueryKey: QueryKey;
+  renameClip?: (guid: string, name: string) => Promise<Result<SoundClip>>;
+  deleteClip?: (guid: string) => Promise<Result<null>>;
+}
+
+export interface SoundClipUploadOptions {
+  uploadClip: (
+    file: File,
+    name: string,
+    waveform: number[] | null,
+  ) => Promise<Result<SoundClip>>;
+  clipsQueryKey: QueryKey;
 }
 
 export interface SoundWaveformProps {

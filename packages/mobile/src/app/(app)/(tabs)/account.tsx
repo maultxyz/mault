@@ -15,9 +15,10 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { useLanguagePreference } from "@/hooks/use-language-preference";
+import { useSwitchOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { useThemePreference } from "@/hooks/use-theme-preference";
-import { setActiveOrg, signOut, useSession } from "@/lib/auth/session";
+import { signOut, useSession } from "@/lib/auth/session";
 import { API_BASE, AUTH_PROVIDER } from "@/lib/constants/config";
 import { APP_LANGUAGES, LANGUAGE_NAMES } from "@/lib/constants/i18n";
 import { ICON_BADGE_SIZE, THEME_PREFERENCES } from "@/lib/constants/ui";
@@ -36,11 +37,7 @@ export default function AccountScreen() {
   const [languagePreference, setLanguagePreference] = useLanguagePreference();
   const [languageOpen, setLanguageOpen] = useState(false);
 
-  const switchOrg = (orgId: string) => {
-    if (orgId === activeOrgId) return;
-    setActiveOrg(orgId);
-    queryClient.clear();
-  };
+  const switchOrg = useSwitchOrg();
 
   return (
     <Screen header={<PageHeader title={t("tabs.account")} />}>
@@ -60,7 +57,7 @@ export default function AccountScreen() {
           </AppText>
         </View>
         <View style={{ flex: 1, minWidth: 0 }}>
-          <AppText size="lg" heading weight="bold" numberOfLines={1}>
+          <AppText size="lg" heading weight="bold" numberOfLines={1} accessibilityRole="header">
             {user?.name || user?.email}
           </AppText>
           {user?.name && user.email ? (
@@ -97,7 +94,7 @@ export default function AccountScreen() {
                       style={{
                         width: ICON_BADGE_SIZE,
                         height: ICON_BADGE_SIZE,
-                        borderRadius: RADIUS.full,
+                        borderRadius: RADIUS.md,
                         alignItems: "center",
                         justifyContent: "center",
                         backgroundColor: active ? colors.primary : colors.muted,

@@ -1,9 +1,15 @@
+import { LEGACY_BUSINESS_PLAN } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import type Stripe from "stripe";
 import { db } from "../../db";
 import { orgBilling } from "../../db/schema";
-import { getStripe, isBillingEnabled } from "../../lib/stripe";
+import {
+  findPlanForPriceId,
+  getStripe,
+  isBillingEnabled,
+} from "../../lib/stripe";
+import { invalidateMemberSeats } from "../../lib/member-seat-limit";
 import type { AppEnv } from "../../middleware/auth";
 
 async function upsertOrgBillingFromSubscription(
@@ -12,6 +18,10 @@ async function upsertOrgBillingFromSubscription(
   subscription: Stripe.Subscription,
 ) {
   const item = subscription.items.data[0];
+  const plan =
+    subscription.status === "canceled"
+      ? "free"
+      : (findPlanForPriceId(item?.price.id)?.plan ?? LEGACY_BUSINESS_PLAN);
   const cancelAtPeriodEnd =
     subscription.cancel_at_period_end || subscription.cancel_at != null;
   await db
@@ -21,7 +31,7 @@ async function upsertOrgBillingFromSubscription(
       stripeCustomerId: customerId,
       stripeSubscriptionId: subscription.id,
       stripePriceId: item?.price.id ?? null,
-      plan: subscription.status === "canceled" ? "free" : "business",
+      plan,
       status: subscription.status,
       currentPeriodEnd: item?.current_period_end
         ? new Date(item.current_period_end * 1000)
@@ -34,7 +44,7 @@ async function upsertOrgBillingFromSubscription(
         stripeCustomerId: customerId,
         stripeSubscriptionId: subscription.id,
         stripePriceId: item?.price.id ?? null,
-        plan: subscription.status === "canceled" ? "free" : "business",
+        plan,
         status: subscription.status,
         currentPeriodEnd: item?.current_period_end
           ? new Date(item.current_period_end * 1000)
@@ -43,11 +53,9 @@ async function upsertOrgBillingFromSubscription(
         updatedAt: new Date(),
       },
     });
+  invalidateMemberSeats(orgId);
 }
 
-// POST /public/webhooks/stripe — unauthenticated (Stripe has no session to
-// present; the signature below is what proves the request came from Stripe).
-// Set this route's full URL as the endpoint in the Stripe dashboard.
 export const webhookStripeRoute = new Hono<AppEnv>().post(
   "/webhooks/stripe",
   async (c) => {

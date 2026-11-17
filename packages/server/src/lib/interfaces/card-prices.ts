@@ -27,8 +27,10 @@ export interface CardPriceScope {
 }
 
 export interface ScannedCardSqlColumns {
-  card: SQL | AnyColumn;
+  savedPrices: Record<CardPriceKey, SQL | AnyColumn>;
+  cardLang: SQL | AnyColumn;
   isFoil: SQL | AnyColumn;
+  foilType: SQL | AnyColumn;
   condition: SQL | AnyColumn;
   cardId: SQL | AnyColumn;
   collectionId: SQL | AnyColumn;
@@ -37,4 +39,5 @@ export interface ScannedCardSqlColumns {
 export interface CardPriceRefreshOptions {
   log: (msg: string) => void;
   onlyMissing: boolean;
+  gameKeys?: string[];
 }

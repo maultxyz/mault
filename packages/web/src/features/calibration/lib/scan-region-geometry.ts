@@ -1,3 +1,4 @@
+import type { CameraSource } from "@/lib/interfaces/scanner";
 import type { CardContour, ScanRegion } from "@magic-vault/shared";
 
 export function clampRegion(region: ScanRegion): ScanRegion {
@@ -6,6 +7,35 @@ export function clampRegion(region: ScanRegion): ScanRegion {
     offsetX: Math.min(0.45, Math.max(-0.45, region.offsetX)),
     offsetY: Math.min(0.45, Math.max(-0.45, region.offsetY)),
   };
+}
+
+export function nudgeRegionByKey(
+  region: ScanRegion,
+  key: string,
+  isLargeStep: boolean,
+  cameraSource: CameraSource,
+): ScanRegion | null {
+  const step = isLargeStep ? 0.05 : 0.01;
+  if (key === "+" || key === "=") {
+    return clampRegion({ ...region, coverage: region.coverage + step });
+  }
+  if (key === "-" || key === "_") {
+    return clampRegion({ ...region, coverage: region.coverage - step });
+  }
+  const screenDelta: Record<string, [number, number]> = {
+    ArrowLeft: [-step, 0],
+    ArrowRight: [step, 0],
+    ArrowUp: [0, -step],
+    ArrowDown: [0, step],
+  };
+  const delta = screenDelta[key];
+  if (!delta) return null;
+  const [dx, dy] = delta;
+  const offsets =
+    cameraSource === "phone"
+      ? { offsetX: region.offsetX + dx, offsetY: region.offsetY + dy }
+      : { offsetX: region.offsetX + dy, offsetY: region.offsetY - dx };
+  return clampRegion({ ...region, ...offsets });
 }
 
 export function rawContourToPortraitBox(

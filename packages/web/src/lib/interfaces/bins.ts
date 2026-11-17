@@ -1,3 +1,5 @@
+import type { Control } from "react-hook-form";
+import type { PresetWorkflowStagesFormValues } from "@/schemas/sort-bins.schema";
 import type {
   AlphabetStep,
   BinCondition,
@@ -10,10 +12,12 @@ import type {
   FieldMeta,
   PickList,
   PickListInput,
-  RepackSlot,
+  SortTestGroupCheck,
+  PresetWorkflow,
+  PresetWorkflowStep,
+  RepackConfigPatch,
   ScanOnlyConfig,
 } from "@magic-vault/shared";
-import type { Control } from "react-hook-form";
 import type { ReactNode } from "react";
 import type { BinConfigFormValues } from "@/schemas/sort-bins.schema";
 
@@ -21,7 +25,6 @@ export interface BinConfigSaveInput {
   binNumber: number;
   rules: BinRuleGroup;
   isCatchAll?: boolean;
-  cardLimit?: number | null;
   isOverride?: boolean;
   overridePriority?: number | null;
   lowMatchPercent?: number | null;
@@ -30,6 +33,7 @@ export interface BinConfigSaveInput {
   overflowBin?: number | null;
   isDisabled?: boolean;
   pickList?: PickListInput | null;
+  repackPriority?: number | null;
 }
 
 export interface BinModeDraft {
@@ -42,6 +46,7 @@ export interface BinModeDraft {
   isChaosMode: boolean;
   chaosBinSize: number | null;
   skipSaving: boolean;
+  isResortMode: boolean;
 }
 
 export interface ChaosConfig {
@@ -66,6 +71,75 @@ export interface AlphabetPassState {
   from: string | undefined;
   to: string | undefined;
   isLastPass: boolean;
+}
+
+export interface PresetWorkflowStepMove {
+  workflow: PresetWorkflow;
+  step: PresetWorkflowStep;
+}
+
+export interface PresetStageMoveDialogProps {
+  move: PresetWorkflowStepMove | null;
+  onClose: () => void;
+}
+
+export interface ActivePresetWorkflowState {
+  workflow: PresetWorkflow | null;
+  step: PresetWorkflowStep | null;
+  stageNumber: number;
+  stageCount: number;
+  previousStep: PresetWorkflowStep | null;
+  nextStep: PresetWorkflowStep | null;
+  label: string;
+}
+
+export type PresetPickerItem =
+  | {
+      kind: "preset";
+      guid: string;
+      name: string;
+      preset: BinSet;
+    }
+  | {
+      kind: "workflow";
+      guid: string;
+      name: string;
+      workflow: PresetWorkflow;
+    };
+
+export interface PresetWorkflowStageCardProps {
+  workflow: PresetWorkflow;
+  control: Control<PresetWorkflowStagesFormValues>;
+  index: number;
+  stageCount: number;
+  isDirty: boolean;
+  onSwitch: (move: PresetWorkflowStepMove) => void;
+  onMove: (from: number, to: number) => void;
+  onRemove: (index: number) => void;
+}
+
+export interface PresetWorkflowRenameDialogProps {
+  workflow: PresetWorkflow;
+  open: boolean;
+  onClose: () => void;
+}
+
+export interface BinRuleTransferDialogProps {
+  source: BinConfig;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export interface SortTestButtonProps {
+  disabled: boolean;
+}
+
+export interface SortTestGroupCheckListProps {
+  check: SortTestGroupCheck;
+}
+
+export interface MobilePresetListProps {
+  onPresetChosen: () => void;
 }
 
 export interface AlphabetPassDialogProps {
@@ -97,7 +171,7 @@ export interface BinConfigsContextValue {
     binNumbers: number[],
     options?: EmptyAllBinsOptions,
   ) => Promise<boolean>;
-  activateSet: (guid: string) => Promise<void>;
+  activateSet: (guid: string) => Promise<boolean>;
   createSet: (name: string) => Promise<void>;
   importSet: (name: string, bins: DefaultBinInit[]) => Promise<boolean>;
   saveSet: (name: string) => Promise<void>;
@@ -106,12 +180,7 @@ export interface BinConfigsContextValue {
   setAutoAssignField: (field: string | null) => Promise<void>;
   resetAutoAssign: () => Promise<void>;
   setScanOnly: (config: ScanOnlyConfig) => Promise<void>;
-  setRepackConfig: (config: {
-    isRepackMode: boolean;
-    repackSlots: RepackSlot[];
-    repackUniqueBy: string | null;
-    repackSiftRules: BinRuleGroup | null;
-  }) => Promise<boolean>;
+  setRepackConfig: (config: RepackConfigPatch) => Promise<boolean>;
   setAlphabetPass: (step: AlphabetStep) => Promise<void>;
   effectiveMode: BinModeDraft;
   isModeDirty: boolean;
@@ -140,10 +209,12 @@ export interface BinCardProps {
   isScanOnlyTarget?: boolean;
   isChaosMode?: boolean;
   alphabetLetter?: string | null;
+  repackPriority?: number | null;
   showOverflow?: boolean;
   overflowSources?: number[];
   disabled?: boolean;
   onClick: () => void;
+  className?: string;
 }
 
 export interface ConditionRowProps {
@@ -152,8 +223,16 @@ export interface ConditionRowProps {
   onRemove: () => void;
 }
 
-export interface PresetSelectorProps {
-  readOnly?: boolean;
+export type PresetDialog =
+  | "create"
+  | "rename"
+  | "delete"
+  | "history"
+  | "resetAutoAssign";
+
+export interface PresetActionDialogsProps {
+  openDialog: PresetDialog | null;
+  onOpenDialogChange: (dialog: PresetDialog | null) => void;
 }
 
 export interface RuleGroupEditorProps {
@@ -169,6 +248,12 @@ export interface BinPickListFieldsProps {
   control: Control<BinConfigFormValues>;
   binGuid?: string;
   savedPickList?: PickList | null;
+}
+
+export interface PickListImport {
+  decklist: string;
+  entryCount: number;
+  skippedRows: number;
 }
 
 export interface PickListProgressProps {
@@ -196,4 +281,30 @@ export interface BinSettingRowProps {
   description?: string;
   control?: ReactNode;
   children?: ReactNode;
+}
+
+export interface PresetsMutationOptions {
+  showServerMessage?: boolean;
+  onApplied?: () => void;
+}
+
+export interface SortingModeToggleRowProps {
+  label: string;
+  description: string;
+  checked: boolean;
+  disabled?: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  badge?: ReactNode;
+  className?: string;
+  dataTour?: string;
+}
+
+export type MobileBinsScreen = "overview" | "bin" | "mode" | "repack";
+
+export interface BinListProps {
+  onOpenBin?: (binNumber: number) => void;
+}
+
+export interface BinConfigPanelProps {
+  showTitle?: boolean;
 }

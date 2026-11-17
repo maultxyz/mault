@@ -16,16 +16,16 @@ import {
   gamesQueryOptions,
 } from "@/features/games/api/games";
 import { EMPTY_LANGUAGES, LANGUAGE_LABELS } from "@/lib/constants/languages";
-import {
-  createCollectionSchema,
-  type CreateCollectionFormValues,
-} from "@/schemas/collections.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconFolderPlus, IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import {
+  createCollectionFormSchema,
+  type CreateCollectionFormValues,
+} from "@magic-vault/shared";
 
 export function RequireCollectionDialog() {
   const { t } = useTranslation("collections");
@@ -36,7 +36,7 @@ export function RequireCollectionDialog() {
   const activeGames = games.filter((g) => g.isActive);
 
   const form = useForm({
-    resolver: zodResolver(createCollectionSchema),
+    resolver: zodResolver(createCollectionFormSchema),
     defaultValues: {
       name: "",
       gameGuid: "",
@@ -75,13 +75,9 @@ export function RequireCollectionDialog() {
     [createCollection, form],
   );
 
-  // Dismissible only when there are no active games - otherwise its own game
-  // picker is empty and submit is disabled, leaving no way out.
   const dismissible = activeGames.length === 0;
   const [dismissed, setDismissed] = useState(false);
 
-  // Re-arm once a game becomes available mid-session, so the dialog goes
-  // back to nagging (now-completable) rather than staying dismissed forever.
   useEffect(() => {
     if (activeGames.length > 0) setDismissed(false);
   }, [activeGames.length]);
@@ -93,9 +89,6 @@ export function RequireCollectionDialog() {
     <DynamicDialog
       open={open}
       onOpenChange={(next) => {
-        // The underlying Dialog only uses `dismissible` to hide the close
-        // button - outside-click/Escape still fire onOpenChange(false)
-        // regardless, so re-check it here to actually block dismissal.
         if (!next && dismissible) setDismissed(true);
       }}
       dismissible={dismissible}

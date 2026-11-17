@@ -1,6 +1,6 @@
 import {
-  devicesQueryOptions,
   saveDevice,
+  writeDeviceToCache,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOfflineCalibration } from "@/features/calibration/api/use-offline-calibration";
@@ -8,7 +8,6 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import type {
   SetupWizardContextValue,
-  Device,
 } from "@/lib/interfaces/calibration";
 import { useQueryClient } from "@tanstack/react-query";
 import { createContext, useCallback, useContext, useState } from "react";
@@ -54,11 +53,7 @@ export function SetupWizardProvider({
       return;
     }
     const saved = result.data;
-    queryClient.setQueryData(
-      devicesQueryOptions(activeOrg?.id).queryKey,
-      (old: Device[] | undefined) =>
-        old?.map((d) => (d.guid === saved.guid ? saved : d)),
-    );
+    writeDeviceToCache(queryClient, activeOrg?.id, saved);
     setClosedForGuid(null);
     toast.success(t("setupWizard.forced"), {
       description: isConnected

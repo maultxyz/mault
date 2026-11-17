@@ -7,7 +7,6 @@ import type {
   SetupServoPosition,
   Device,
   CalibrationSection,
-  DirectionalSpeed,
 } from "@/lib/interfaces/calibration";
 import {
   IconAdjustmentsHorizontal,
@@ -26,6 +25,8 @@ import {
 import {
   type FeederCalibration,
   type FirmwareFeature,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
   type ServoCalibration,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
   DEFAULT_CHANNEL_LAYOUT,
@@ -69,23 +70,6 @@ export const FEEDER_CALIBRATION_FIELDS: (keyof FeederCalibration)[] = [
   "reverseDuration",
 ];
 
-export const SERVO_PULSE_MIN = 120;
-export const SERVO_PULSE_MAX = 490;
-
-export function pulseToPercent(pulse: number): number {
-  return Math.round(
-    ((pulse - SERVO_PULSE_MIN) / (SERVO_PULSE_MAX - SERVO_PULSE_MIN)) * 100,
-  );
-}
-
-export function percentToPulse(percent: number): number {
-  return Math.round(
-    SERVO_PULSE_MIN + (percent / 100) * (SERVO_PULSE_MAX - SERVO_PULSE_MIN),
-  );
-}
-
-export const SERVO_PULSE_CENTER = (SERVO_PULSE_MIN + SERVO_PULSE_MAX) / 2;
-
 export const FEEDER_STOP_PULSE_SLIDER_RANGE = 50;
 
 export const FEEDER_STOP_GUIDE_STEPS = [
@@ -94,73 +78,6 @@ export const FEEDER_STOP_GUIDE_STEPS = [
   "starts",
   "middle",
 ] as const;
-
-export function pulseToDirectionalSpeed(
-  pulse: number,
-  center: number = SERVO_PULSE_CENTER,
-): DirectionalSpeed {
-  if (pulse <= center) {
-    return {
-      direction: "forward",
-      magnitude: Math.round(
-        ((center - pulse) / (center - SERVO_PULSE_MIN)) * 100,
-      ),
-    };
-  }
-  return {
-    direction: "reverse",
-    magnitude: Math.round(
-      ((pulse - center) / (SERVO_PULSE_MAX - center)) * 100,
-    ),
-  };
-}
-
-export function recenterSpeedPulse(
-  pulse: number,
-  fromCenter: number,
-  toCenter: number,
-): number {
-  if (pulse <= fromCenter) {
-    const ratio = (fromCenter - pulse) / (fromCenter - SERVO_PULSE_MIN);
-    return Math.round(toCenter - ratio * (toCenter - SERVO_PULSE_MIN));
-  }
-  const ratio = (pulse - fromCenter) / (SERVO_PULSE_MAX - fromCenter);
-  return Math.round(toCenter + ratio * (SERVO_PULSE_MAX - toCenter));
-}
-
-export function directionalSpeedToPulse(
-  speed: DirectionalSpeed,
-  center: number = SERVO_PULSE_CENTER,
-): number {
-  if (speed.direction === "forward") {
-    return Math.round(
-      center - (speed.magnitude / 100) * (center - SERVO_PULSE_MIN),
-    );
-  }
-  return Math.round(
-    center + (speed.magnitude / 100) * (SERVO_PULSE_MAX - center),
-  );
-}
-
-export function pulseToSignedPercent(
-  pulse: number,
-  center: number = SERVO_PULSE_CENTER,
-): number {
-  const { direction, magnitude } = pulseToDirectionalSpeed(pulse, center);
-  return direction === "forward" ? magnitude : -magnitude;
-}
-
-export function signedPercentToPulse(
-  signedPercent: number,
-  center: number = SERVO_PULSE_CENTER,
-): number {
-  return directionalSpeedToPulse(
-    signedPercent >= 0
-      ? { direction: "forward", magnitude: signedPercent }
-      : { direction: "reverse", magnitude: -signedPercent },
-    center,
-  );
-}
 
 export const FEEDER_DURATION_SLIDER_MAX = 10_000;
 export const FEEDER_PULSE_DURATION_SLIDER_MAX = 500;
@@ -267,6 +184,7 @@ export const DEFAULT_DEVICE: Device = {
   matchesNeeded: DEFAULT_MATCHES_NEEDED,
   feederStopPulse: null,
   checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
+  flipCamera: false,
   moduleCount: DEFAULT_MODULE_COUNT,
   channelLayout: DEFAULT_CHANNEL_LAYOUT,
   setupCompletedAt: null,
@@ -323,3 +241,5 @@ export const CALIBRATION_SECTIONS = [
 }[];
 
 export const CALIBRATION_LIVE_DETECTION_INTERVAL_MS = 200;
+
+export const CALIBRATE_PATH = "/app/calibrate";

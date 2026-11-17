@@ -11,33 +11,24 @@ import {
 import { toLocationCardFilters } from "../../lib/public-api/query";
 import {
   apiError,
-  apiErrorFrom,
   toApiList,
   toCompleteApiList,
 } from "../../lib/public-api/responses";
 
 export const listCollectionsHandler: Handler<ApiKeyEnv> = async (c) => {
   const orgId = c.get("orgId");
-  try {
-    const collections = await apiKeyQuery(orgId, (tx) =>
-      loadPublicApiCollections(tx, orgId),
-    );
-    return c.json(toCompleteApiList(collections));
-  } catch (err) {
-    return apiErrorFrom(c, err);
-  }
+  const collections = await apiKeyQuery(orgId, (tx) =>
+    loadPublicApiCollections(tx, orgId),
+  );
+  return c.json(toCompleteApiList(collections));
 };
 
 export const listLocationsHandler: Handler<ApiKeyEnv> = async (c) => {
   const orgId = c.get("orgId");
-  try {
-    const locations = await apiKeyQuery(orgId, (tx) =>
-      loadPublicApiLocations(tx, orgId),
-    );
-    return c.json(toCompleteApiList(locations));
-  } catch (err) {
-    return apiErrorFrom(c, err);
-  }
+  const locations = await apiKeyQuery(orgId, (tx) =>
+    loadPublicApiLocations(tx, orgId),
+  );
+  return c.json(toCompleteApiList(locations));
 };
 
 export const listLocationCardsHandler: Handler<ApiKeyEnv> = async (c) => {
@@ -46,15 +37,11 @@ export const listLocationCardsHandler: Handler<ApiKeyEnv> = async (c) => {
   if (!params.success) {
     return apiError(c, 404, "not_found", PUBLIC_API_LOCATION_NOT_FOUND);
   }
-  try {
-    const filters = toLocationCardFilters(c.req.query());
-    const page = await apiKeyQuery(orgId, (tx) =>
-      loadPublicApiLocationCards(tx, orgId, params.data.id, filters),
-    );
-    return page
-      ? c.json(toApiList(c, page))
-      : apiError(c, 404, "not_found", PUBLIC_API_LOCATION_NOT_FOUND);
-  } catch (err) {
-    return apiErrorFrom(c, err);
-  }
+  const filters = toLocationCardFilters(c.req.query());
+  const page = await apiKeyQuery(orgId, (tx) =>
+    loadPublicApiLocationCards(tx, orgId, params.data.id, filters),
+  );
+  return page
+    ? c.json(toApiList(c, page))
+    : apiError(c, 404, "not_found", PUBLIC_API_LOCATION_NOT_FOUND);
 };

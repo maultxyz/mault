@@ -1,3 +1,4 @@
+import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import {
   Card,
   CardContent,
@@ -20,10 +21,6 @@ import { z } from "zod";
 
 const schema = z.object({ email: z.string().email() });
 
-// Local-mode only. Always shows the same "if that email exists..." success
-// message regardless of what actually happened server-side - matches
-// routes/local-auth.ts's /forgot-password, which is deliberately generic so
-// this page can't be used to check which emails have accounts.
 export default function AuthForgotPasswordPage() {
   const { t } = useTranslation("auth");
   const navigate = useNavigate();
@@ -39,11 +36,17 @@ export default function AuthForgotPasswordPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-muted p-4">
+    <main
+      id={MAIN_CONTENT_ID}
+      tabIndex={-1}
+      className="flex min-h-screen items-center justify-center bg-muted p-4 outline-none"
+    >
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>{t("local.forgotPasswordTitle")}</CardTitle>
-          <CardDescription>
+          <CardTitle>
+            <h1>{t("local.forgotPasswordTitle")}</h1>
+          </CardTitle>
+          <CardDescription role="status">
             {sent
               ? t("local.forgotPasswordSent")
               : t("local.forgotPasswordDescription")}
@@ -89,6 +92,6 @@ export default function AuthForgotPasswordPage() {
           </button>
         </CardFooter>
       </Card>
-    </div>
+    </main>
   );
 }

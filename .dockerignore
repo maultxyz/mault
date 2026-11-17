@@ -5,6 +5,7 @@
 .github
 3d model
 firmware
+!firmware/main/main.ino
 *.md
 .env
 .env.*.example

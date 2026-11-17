@@ -125,6 +125,13 @@
       "title": "Modulanzahl verringern?",
       "description": "Eine Reduzierung auf {{count}} Module entfernt die Sortierregeln und Kalibrierungsdaten für Module und Fächer über dieser Anzahl, in allen Fach-Voreinstellungen.",
       "confirm": "Modulanzahl ändern"
+    },
+    "detect": {
+      "button": "Erkennen",
+      "found": "{{count}} Modul anhand der angeschlossenen IR-Sensoren erkannt.",
+      "found_other": "{{count}} Module anhand der angeschlossenen IR-Sensoren erkannt.",
+      "noneFound": "Keine IR-Sensoren gefunden. Prüfe, ob der Sensor von Modul 1 angeschlossen ist.",
+      "failed": "Die IR-Sensoren konnten nicht vom Sortierer gelesen werden."
     }
   },
   "channelLayoutUpgrade": {
@@ -162,18 +169,24 @@
       "small": "Klein",
       "medium": "Mittel",
       "large": "Groß",
+      "xlarge": "Extra groß",
+      "xxlarge": "Extra extra groß",
       "unlimited": "Unbegrenzt",
       "custom": "Benutzerdefiniert"
     },
     "customHeightLabel": "Benutzerdefinierte Fachhöhe für Fach {{bin}}",
     "customHeightUnit": "mm",
     "customHeightHint": "Etwa {{count}} Karten bei {{thickness}} mm pro Karte",
-    "customHeightInvalid": "{{min}} bis {{max}} mm eingeben"
+    "customHeightInvalid": "{{min}} bis {{max}} mm eingeben",
+    "binSizeLabel": "Größe von Fach {{bin}}",
+    "bottomModuleSelect": "Modul für Fach {{bin}}",
+    "bottomBinSelect": "Unteres Fach an Modul {{module}}"
   },
   "binRoutingControls": {
     "label": "Fach-Routing",
     "feed": "Zuführen",
     "dropCard": "Karte abwerfen",
+    "retractCard": "Karte zurückziehen",
     "binActive": "Fach {{bin}}…",
     "running": "Läuft…",
     "sampleRun": "Testlauf",
@@ -192,6 +205,8 @@
     "forward": "Vorwärts",
     "reverse": "Rückwärts",
     "timeoutLabel": "Timeout (ms)",
+    "feedRetryCountLabel": "Einzugswiederholungen",
+    "feedRetryCountDescription": "Wenn ein Einzug ohne Karte abläuft, wird der Einzugsbefehl bis zu so oft erneut gesendet, bevor pausiert wird. 0 schaltet Wiederholungen aus.",
     "pulseDurationLabel": "Impulsdauer (ms)",
     "continuousFeedButton": "Dauerhafte Zuführung",
     "pauseDurationLabel": "Pausendauer (ms)",
@@ -201,6 +216,23 @@
     "reverseDurationDescription": "Sobald eine Karte Modul 1 erreicht, dreht die Rolle so lange rückwärts, damit die nächste Karte im Magazin zurückgezogen wird, statt nachzurutschen und doppelt eingezogen zu werden. 0 schaltet es aus.",
     "reverseSpeedLabel": "Rückrollgeschwindigkeit",
     "off": "Aus"
+  },
+  "feederTest": {
+    "heading": "Zuführungstest",
+    "description": "Karten ohne Scan direkt ins untere Fach zuführen. Lass den Test laufen und passe die Zuführung auf der Seite „Servos & Zuführung“ an: Änderungen gelten ab der nächsten Karte und bleiben ungespeichert, bis du speicherst.",
+    "runUntilStoppedLabel": "Zuführen bis zum Stopp",
+    "cardsToSendLabel": "Anzahl Karten",
+    "start": "Zuführung starten",
+    "stop": "Stopp",
+    "stopping": "Stoppt nach dieser Karte",
+    "progress": "Gesendete Karten: {{count}}",
+    "progressOfTotal": "Gesendete Karten: {{count}} von {{total}}",
+    "toasts": {
+      "completed": "Zuführungstest abgeschlossen. Gesendete Karten: {{count}}",
+      "stopped": "Zuführungstest gestoppt. Gesendete Karten: {{count}}",
+      "hopperEmpty": "Zuführbehälter ist leer. Gesendete Karten: {{count}}",
+      "failed": "Zuführungstest wegen eines Fehlers gestoppt. Gesendete Karten: {{count}}"
+    }
   },
   "irSensorPanel": {
     "label": "IR-Sensoren",
@@ -255,11 +287,14 @@
     "captureSettleDescription": "Wie lange nach der Bestätigung der Zuführung gewartet wird, bevor ein Bild aufgenommen wird, damit die Karte vollständig still liegt und scharf ist.",
     "matchesNeededLabel": "Benötigte Übereinstimmungen",
     "matchesNeededDescription": "Wie viele aufeinanderfolgende Bilder dieselbe Karte bestätigen müssen, bevor ein Scan akzeptiert wird. 1 ist am schnellsten; höhere Werte sind zuverlässiger, aber langsamer.",
+    "flipCameraLabel": "Kamera um 180° drehen",
+    "flipCameraDescription": "Dreht das Kamerabild auf den Kopf, für eine Kamera, die andersherum montiert ist. Gilt für Scans und jede Vorschau der angeschlossenen Kamera dieses Sortierers, nicht für Telefonfotos.",
     "checkBothOrientationsLabel": "Beide Richtungen prüfen",
     "checkBothOrientationsDescription": "Gleicht die Karte zusätzlich um 180° gedreht ab, damit auch verkehrt herum eingezogene Karten erkannt werden. Deaktivieren, wenn alle Karten gleich ausgerichtet eingezogen werden, um jeden Scan zu beschleunigen.",
     "executionProviderLabel": "KI-Erkennungs-Backend",
-    "executionProviderDescription": "Welches Backend die Modelle für Kartenerkennung und Abgleich in deinem Browser ausführt. WASM ist die Standardeinstellung und funktioniert überall. WebGPU kann auf manchen GPUs schneller sein und fällt auf WASM zurück, wenn es nicht startet.",
+    "executionProviderDescription": "Welches Backend das Modell für den Kartenabgleich in deinem Browser ausführt (die Kartenerkennung läuft immer auf WASM, weil sie dort schneller ist). WASM ist die Standardeinstellung und funktioniert überall, betreibt aber jeweils nur einen Sortierer. WebGPU kann auf manchen GPUs schneller sein, betreibt mehrere Sortierer gleichzeitig und fällt auf WASM zurück, wenn es nicht startet.",
     "executionProviderWebGpu": "WebGPU",
+    "regionKeyboardLabel": "Scanbereich. Verschiebe ihn mit den Pfeiltasten und ändere seine Größe mit Plus und Minus. Halte die Umschalttaste gedrückt für größere Schritte.",
     "executionProviderWasm": "WASM (Standard)",
     "usePhoneAsCamera": "Telefon als Kamera verwenden",
     "phoneCameraConnected": "Telefonkamera verbunden",
@@ -273,6 +308,35 @@
     "cameraPlaceholder": "Kamera auswählen",
     "cameraFallbackLabel": "Kamera {{index}}",
     "heading": "Scanbereich"
+  },
+  "cameraPrintingScore": {
+    "heading": "Hilfe zur Kamerakalibrierung",
+    "setLabel": "Set",
+    "cardLabel": "Karte",
+    "setPlaceholder": "Set wählen",
+    "cardPlaceholder": "Karte wählen",
+    "setsLoading": "Sets werden geladen…",
+    "cardsLoading": "Karten werden geladen…",
+    "noSets": "Keine passenden Sets.",
+    "noCards": "Keine passenden Karten.",
+    "rate": "Bewerten",
+    "rating": "Bewerte…",
+    "description": "Wähle das Set und dann die Karte auf dem Scanner, und bewerte ein Bild der Kamera. Niedriger liegt näher am gespeicherten Bild dieser Ausgabe. Ein Scan akzeptiert die Karte nur, wenn sie der nächste Treffer ist, unter {{threshold}} liegt und deutlich näher ist als jede andere Karte. Die Zahl ist kein Prozentsatz und keine Zustandsnote, und sie kann sich zwischen den Versuchen ändern. Bewerten ändert die Kamera nicht und speichert nichts.",
+    "fieldsRequired": "Wähle ein Set und eine Karte.",
+    "noCollection": "Wähle zuerst eine Sammlung. Die Bewertung nutzt das Spiel dieser Sammlung.",
+    "noCamera": "Verbinde eine Kamera oder nimm ein Telefonfoto auf, bevor du bewertest.",
+    "notSynced": "Diese Ausgabe ist im synchronisierten Katalog für das Spiel dieser Sammlung nicht vorhanden. Synchronisiere das Set und bewerte danach erneut.",
+    "distanceLabel": "Abstand",
+    "nearestDifferent": "Die nächste Karte im Katalog ist {{name}} ({{set}} {{number}}) mit {{distance}}.",
+    "cardLine": "{{name}}, {{set}} {{number}}",
+    "failed": "Dieses Bild konnte nicht bewertet werden.",
+    "verdict": {
+      "accept": "Ein Scan würde diese Karte akzeptieren.",
+      "other_card": "Ein Scan würde eine andere Karte erkennen.",
+      "too_far": "Ein Scan würde dieses Bild ablehnen. Die nächste Karte liegt bei {{threshold}} oder höher.",
+      "ambiguous": "Ein Scan würde dieses Bild ablehnen. Eine andere Karte ist fast genauso nah.",
+      "empty_index": "Ein Scan würde dieses Bild ablehnen. Für dieses Spiel sind keine Karten synchronisiert."
+    }
   },
   "useCalibrationPage": {
     "toasts": {
@@ -394,6 +458,7 @@
       "pulse": "Impuls",
       "pause": "Pause",
       "settle": "Verzögerung (letzte Karte)",
+      "feedRetries": "Wiederholungen",
       "rollback": "Zurückrollen"
     },
     "toasts": {
@@ -404,6 +469,7 @@
     "disconnect": "Trennen",
     "connectDevice": "Gerät verbinden",
     "connectUsb": "Über USB verbinden",
+    "connectPi": "Sortierer an diesem Pi verbinden",
     "connectBluetooth": "Über Bluetooth verbinden",
     "testing": "Wird getestet…",
     "runTest": "Test ausführen",
@@ -433,6 +499,7 @@
     "forced": "Einrichtungsassistent für diesen Sortierer erforderlich",
     "forcedNextConnect": "Er öffnet sich, wenn {{name}} das nächste Mal verbunden wird.",
     "forceFailed": "Einrichtungsassistent konnte nicht erzwungen werden",
+    "completeFailed": "Der Abschluss der Einrichtung konnte nicht gespeichert werden. Versuche es noch einmal.",
     "title": "Sortierer einrichten",
     "stepCounter": "Schritt {{current}} von {{total}}",
     "skip": "Einrichtung überspringen",
@@ -520,7 +587,7 @@
       "clear": "Frei",
       "verified": "Sensor geprüft",
       "waiting": "Warte auf den ersten Messwert vom Sortierer…",
-      "footnote": "Ein Sensor, der nie aufleuchtet, ist meist nicht eingesteckt, am falschen Pin angeschlossen oder zeigt nicht auf den Kartenweg. Du kannst weitermachen und das später beheben."
+      "footnote": "Ein Sensor, der nie aufleuchtet, ist meist nicht eingesteckt, am falschen Pin angeschlossen oder zeigt nicht auf den Kartenweg. Du kannst weitermachen und das später beheben. Leuchtet ein Sensor auf, obwohl nichts vor ihm ist, oder erkennt er eine Karte nur direkt davor, drehe an der Schraube in seinem blauen Gehäuse (dem Potentiometer), bis er eine Karte in 2,5 cm Entfernung erkennt."
     },
     "feederStop": {
       "heading": "Haltepunkt der Zuführung",

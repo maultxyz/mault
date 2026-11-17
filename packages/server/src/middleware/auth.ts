@@ -5,11 +5,27 @@ import { authProvider } from "../auth";
 import {
   IMPERSONATION_ISSUER,
   IMPERSONATION_TTL_SECONDS,
+  SCANNING_BLOCKED_WHILE_IMPERSONATING_MESSAGE,
 } from "../lib/constants/auth";
+import {
+  AUTH_LOOKUP_CACHE_MAX_ENTRIES,
+  AUTH_LOOKUP_CACHE_TTL_MS,
+} from "../lib/constants/timing";
 import { cachedDisplayName } from "../lib/display-name-cache";
-import type { OrgRole } from "@magic-vault/shared";
+import { createKeyedCache } from "../lib/keyed-cache";
+import { parsePreviewPlan, planPreviewStorage } from "../lib/plan-preview";
+import {
+  findMemberSeatOverflow,
+  memberSeatLimitMessage,
+} from "../lib/member-seat-limit";
+import {
+  MEMBER_SEAT_LIMIT_ERROR_CODE,
+  MEMBER_SEAT_LIMIT_HTTP_STATUS,
+  PLAN_PREVIEW_HEADER,
+  PLAN_PREVIEW_ROLE,
+  type OrgRole,
+} from "@magic-vault/shared";
 import type { ImpersonationPayload } from "../lib/interfaces/auth";
-
 
 export type AppVariables = {
   jwtClaims: string;
@@ -21,11 +37,15 @@ export type AppVariables = {
 };
 export type AppEnv = { Variables: AppVariables };
 
-// Delegates to whichever AuthProvider is active (see ../auth/index.ts) - the
-// active provider owns verifying a raw bearer token into a user id, but the
-// jwtClaims shape Postgres RLS policies read via request.jwt.claims is the
-// same regardless of provider, so it's synthesized here rather than by each
-// provider.
+const userRoleCache = createKeyedCache<string>(
+  AUTH_LOOKUP_CACHE_TTL_MS,
+  AUTH_LOOKUP_CACHE_MAX_ENTRIES,
+);
+const orgMembershipCache = createKeyedCache<{ role: OrgRole } | null>(
+  AUTH_LOOKUP_CACHE_TTL_MS,
+  AUTH_LOOKUP_CACHE_MAX_ENTRIES,
+);
+
 export async function verifyToken(
   token: string,
 ): Promise<{ sub: string } | null> {
@@ -40,8 +60,6 @@ function impersonationSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-// Impersonation is the app's own HS256 token scheme, independent of
-// AUTH_PROVIDER - it works identically against either identity backend.
 export async function signImpersonationToken(
   adminUserId: string,
   targetUserId: string,
@@ -72,7 +90,7 @@ async function verifyImpersonationToken(
 }
 
 export async function getUserRole(userId: string): Promise<string> {
-  return authProvider.getUserRole(userId);
+  return userRoleCache.get(userId, () => authProvider.getUserRole(userId));
 }
 
 export async function getUserContact(
@@ -88,6 +106,28 @@ export async function verifyRequestToken(
   if (impersonation) return { sub: impersonation.sub };
   return verifyToken(token);
 }
+
+export async function verifyHardwareClientToken(
+  token: string,
+): Promise<{ sub: string } | null> {
+  if (await verifyImpersonationToken(token)) return null;
+  return verifyToken(token);
+}
+
+export const rejectWhileImpersonating = createMiddleware<AppEnv>(
+  async (c, next) => {
+    if (c.get("impersonatedBy") !== null) {
+      return c.json(
+        {
+          success: false,
+          message: SCANNING_BLOCKED_WHILE_IMPERSONATING_MESSAGE,
+        },
+        409,
+      );
+    }
+    await next();
+  },
+);
 
 export async function getUserDisplayName(userId: string): Promise<string> {
   return cachedDisplayName(userId, (id) => authProvider.getUserDisplayName(id));
@@ -125,6 +165,14 @@ export const requireAuth = createMiddleware<AppEnv>(async (c, next) => {
   c.set("userId", payload.sub);
   c.set("userRole", role);
   c.set("impersonatedBy", null);
+  const previewPlan =
+    role === PLAN_PREVIEW_ROLE
+      ? parsePreviewPlan(c.req.header(PLAN_PREVIEW_HEADER))
+      : null;
+  if (previewPlan) {
+    await planPreviewStorage.run(previewPlan, () => next());
+    return;
+  }
   await next();
 });
 
@@ -138,12 +186,27 @@ export const requireOrg = createMiddleware<AppEnv>(async (c, next) => {
   }
 
   const userId = c.get("userId");
-  const member = await authProvider.resolveOrgMembership(userId, orgId);
+  const member = await orgMembershipCache.get(`${userId}:${orgId}`, () =>
+    authProvider.resolveOrgMembership(userId, orgId),
+  );
 
   if (!member) {
     return c.json(
       { success: false, message: "Organization not found or access denied." },
       403,
+    );
+  }
+
+  const seatLimit = await findMemberSeatOverflow(orgId, userId, member.role);
+  if (seatLimit != null) {
+    return c.json(
+      {
+        success: false,
+        code: MEMBER_SEAT_LIMIT_ERROR_CODE,
+        message: memberSeatLimitMessage(seatLimit),
+        limit: seatLimit,
+      },
+      MEMBER_SEAT_LIMIT_HTTP_STATUS,
     );
   }
 

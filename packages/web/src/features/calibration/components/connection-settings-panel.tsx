@@ -20,6 +20,7 @@ export function ConnectionSettingsPanel({
           </span>
           {isLoaded ? (
             <Switch
+              aria-label={t("connectionSettings.autoConnectLabel")}
               checked={values.autoConnect}
               onCheckedChange={(checked) => onChange("autoConnect", checked)}
             />
@@ -38,6 +39,7 @@ export function ConnectionSettingsPanel({
           </span>
           {isLoaded ? (
             <Switch
+              aria-label={t("connectionSettings.testOnConnectLabel")}
               checked={values.testOnConnect}
               onCheckedChange={(checked) => onChange("testOnConnect", checked)}
             />

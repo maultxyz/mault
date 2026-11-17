@@ -25,7 +25,6 @@ export function ImpersonationBanner() {
         })}
       </span>
       <Button
-        size="xs"
         variant="outline"
         className="shrink-0 border-violet-500/40 bg-transparent text-violet-900 hover:bg-violet-500/20 dark:text-violet-200"
         onClick={handleExit}

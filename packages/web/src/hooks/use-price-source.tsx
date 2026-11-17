@@ -5,6 +5,7 @@ import type {
   PriceSourceProviderProps,
 } from "@/lib/interfaces/pricing";
 import {
+  cardPriceAtScanFor,
   cardPriceFor,
   DEFAULT_ORG_PRICING,
   formatPrice,
@@ -46,8 +47,16 @@ export function usePriceSource(): PriceFormatter {
     () => ({
       source,
       conditionMultipliers,
-      priceOf: (card, isFoil, condition) =>
-        cardPriceFor(card, isFoil, source, condition, conditionMultipliers),
+      priceOf: (card, finish, condition) =>
+        cardPriceFor(card, finish, source, condition, conditionMultipliers),
+      priceAtScanOf: (card, finish, condition) =>
+        cardPriceAtScanFor(
+          card,
+          finish,
+          source,
+          condition,
+          conditionMultipliers,
+        ),
       format: (value) => formatPrice(value, source),
     }),
     [source, conditionMultipliers],

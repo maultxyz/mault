@@ -19,3 +19,9 @@ export function savePlanConfig(
 ): Promise<Result<AdminPlanConfigResponse>> {
   return apiPut("/api/admin/plans", config);
 }
+
+export function savePricingMode(
+  isLegacyPricingActive: boolean,
+): Promise<Result<AdminPlanConfigResponse>> {
+  return apiPut("/api/admin/plans/pricing-mode", { isLegacyPricingActive });
+}

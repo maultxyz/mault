@@ -69,7 +69,9 @@
       "totalValue": "Wert",
       "avgValue": "Ø Karte",
       "scansInRange": "Gescannt",
-      "lastScanAt": "Letzter Scan"
+      "lastScanAt": "Letzter Scan",
+      "costBasis": "Einkauf",
+      "margin": "Marge"
     }
   },
   "prices": {
@@ -107,17 +109,26 @@
     "error": "Die Bestenliste konnte nicht geladen werden. Versuch es gleich noch einmal.",
     "rank": "#{{rank}}",
     "you": "Du",
-    "hidden": "Nicht gelistet",
+    "hidden": "Name verborgen",
     "unknownOrg": "Unbekannte Organisation",
+    "anonymousOrg": "Anonyme Organisation",
     "columns": {
       "rank": "Rang",
       "organization": "Organisation",
       "scans": "Gescannte Karten"
     },
     "optIn": {
-      "title": "Deine Organisation ist nicht in der Bestenliste",
-      "description": "Andere Organisationen sehen dich nicht. Deine Zeile zeigt, auf welchem Rang du wärst. Tritt in den Einstellungen bei, um in der Liste zu erscheinen.",
-      "action": "Bestenliste beitreten"
+      "title": "Deine Organisation erscheint anonym",
+      "description": "Andere Organisationen sehen deine Scan-Anzahl und deinen Rang, aber nicht deinen Namen. Zeige deinen Namen in den Einstellungen.",
+      "action": "Meinen Namen zeigen"
     }
+  },
+  "views": {
+    "overview": "Übersicht",
+    "staff": "Team",
+    "accuracy": "Genauigkeit"
+  },
+  "value": {
+    "description": "Täglicher Marktwert von allem, was dir gehört, ohne Karten aus offenen Ankäufen."
   }
 }

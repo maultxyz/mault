@@ -1,3 +1,4 @@
+import { isPiHost } from "@/lib/pi-host";
 import {
   apiDelete,
   apiGet,
@@ -8,23 +9,37 @@ import {
 } from "@/lib/api/client";
 import type { Device } from "@/lib/interfaces/calibration";
 import type { DevicePatch, Result } from "@magic-vault/shared";
-import { queryOptions } from "@tanstack/react-query";
+import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import { API_BASE } from "@/lib/constants/api";
 
 export const devicesQueryOptions = (orgId: string | undefined) =>
   queryOptions({
     queryKey: ["devices", orgId] as const,
-    queryFn: () => getDevices().then((r) => r.data ?? []),
+    queryFn: async () => {
+      const result = await getDevices();
+      if (isPiHost() && (!result.success || !result.data)) {
+        throw new Error(result.message || "Could not load sorter settings.");
+      }
+      return result.data ?? [];
+    },
     staleTime: Infinity,
     enabled: !!orgId,
   });
 
-export async function getDevices(): Promise<Result<Device[]>> {
-  return apiGet<Result<Device[]>>("/api/devices");
+export function writeDeviceToCache(
+  queryClient: QueryClient,
+  orgId: string | undefined,
+  device: Device,
+): void {
+  queryClient.setQueryData(devicesQueryOptions(orgId).queryKey, (cached) =>
+    cached?.some((d) => d.guid === device.guid)
+      ? cached.map((d) => (d.guid === device.guid ? device : d))
+      : cached && [...cached, device],
+  );
 }
 
-export async function createDevice(name?: string): Promise<Result<Device>> {
-  return apiPost<Result<Device>>("/api/devices", name ? { name } : undefined);
+export async function getDevices(): Promise<Result<Device[]>> {
+  return apiGet<Result<Device[]>>("/api/devices");
 }
 
 export async function resolveDevice(
@@ -33,10 +48,6 @@ export async function resolveDevice(
   return apiPost<Result<Device>>("/api/devices/resolve", { hardwareId });
 }
 
-// Resolves false only when the server refused because the org is already at
-// its plan's connected-sorter cap. Any other failure resolves true: the
-// server re-checks on every scanned card, so a flaky lease call shouldn't
-// block a sorter the plan allows.
 export async function acquireDeviceLease(guid: string): Promise<boolean> {
   try {
     const res = await fetch(`${API_BASE}/api/devices/${guid}/lease`, {

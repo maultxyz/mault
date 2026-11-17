@@ -3,9 +3,11 @@ import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { SYNC_SOURCES } from "../../lib/sync-job";
 import { toPortraitCardImage } from "../../lib/card-image";
+import { invalidateCardMatchIndex } from "../../lib/card-match-index";
 import { publicGamesCache } from "../../lib/public-games";
 import { vectorizeCardImage } from "../../lib/vectorize";
 import { storedCollectorNumber } from "../../lib/card-search/collector-number";
+import { catalogColumnsFor } from "../../lib/card-catalog";
 
 async function embedImageUrl(
   url: string,
@@ -55,7 +57,11 @@ export async function syncOneCard(
     };
   }
 
-  const embedding = await embedImageUrl(card.imageUrl, source.fetchHeaders);
+  const embedding =
+    (await embedImageUrl(card.imageUrl, source.fetchHeaders)) ??
+    (card.fallbackImageUrl && card.fallbackImageUrl !== card.imageUrl
+      ? await embedImageUrl(card.fallbackImageUrl, source.fetchHeaders)
+      : null);
   if (!embedding) {
     return {
       success: false,
@@ -66,12 +72,9 @@ export async function syncOneCard(
   const backEmbedding = card.backImageUrl
     ? await embedImageUrl(card.backImageUrl, source.fetchHeaders)
     : null;
-  const collectorNumber = storedCollectorNumber(
-    gameKey,
-    lang,
-    cardId,
-    JSON.parse(card.data),
-  );
+  const data: unknown = JSON.parse(card.data);
+  const collectorNumber = storedCollectorNumber(gameKey, lang, cardId, data);
+  const catalog = catalogColumnsFor(gameKey, lang, cardId, data);
 
   await db
     .insert(cardImageVectors)
@@ -85,6 +88,7 @@ export async function syncOneCard(
       embedding,
       backEmbedding,
       data: sql`${card.data}::jsonb`,
+      ...catalog,
     })
     .onConflictDoUpdate({
       target: [
@@ -99,10 +103,12 @@ export async function syncOneCard(
         embedding,
         backEmbedding,
         data: sql`${card.data}::jsonb`,
+        ...catalog,
         updatedAt: new Date(),
       },
     });
   publicGamesCache.invalidate();
+  invalidateCardMatchIndex(gameKey);
 
   return { success: true, message: `Synced: ${card.name}` };
 }

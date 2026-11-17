@@ -2,6 +2,11 @@ import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PrintPartsKey } from "@/features/build/components/print-parts-key";
+import { printPartImagesStore } from "@/features/build/lib/print-part-images-store";
+import {
+  PRINT_PART_IMAGE_PARTS,
+  PRINT_PART_IMAGE_SIZE,
+} from "@/lib/constants/build";
 import type { PrintPartsViewerProps } from "@/lib/interfaces/build";
 import type {
   SorterModelStatus,
@@ -45,7 +50,10 @@ export default function PrintPartsViewer({
       reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)")
         .matches,
       onLoad: () => setStatus("ready"),
-      onError: () => setStatus("error"),
+      onError: () => {
+        setStatus("error");
+        printPartImagesStore.setError();
+      },
     });
     scene.setModuleCount(setupRef.current.moduleCount);
     scene.setBreakoutHeight(setupRef.current.breakoutHeight);
@@ -76,6 +84,14 @@ export default function PrintPartsViewer({
     sceneRef.current?.setXray(xray);
   }, [xray, status]);
 
+  useEffect(() => {
+    const scene = sceneRef.current;
+    if (status !== "ready" || !scene) return;
+    printPartImagesStore.setImages(
+      scene.capturePartImages(PRINT_PART_IMAGE_PARTS, PRINT_PART_IMAGE_SIZE),
+    );
+  }, [status, moduleCount, breakoutHeight]);
+
   return (
     <div className="flex flex-col gap-3">
       <div className="relative h-80 overflow-hidden rounded-lg border bg-muted/40 sm:h-[28rem]">
@@ -96,10 +112,9 @@ export default function PrintPartsViewer({
           </div>
         )}
         {status === "ready" && (
-          <div className="absolute top-2 right-2 flex gap-2">
+          <div className="absolute top-2 right-2 flex gap-1.5">
             <Button
               variant={xray ? "default" : "outline"}
-              size="sm"
               aria-pressed={xray}
               onClick={() => setXray((value) => !value)}
               className={xray ? undefined : "bg-background/80"}
@@ -109,7 +124,6 @@ export default function PrintPartsViewer({
             </Button>
             <Button
               variant="outline"
-              size="sm"
               onClick={() => sceneRef.current?.resetView()}
               className="bg-background/80"
             >

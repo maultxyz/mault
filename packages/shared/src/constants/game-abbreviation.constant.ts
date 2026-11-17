@@ -1,0 +1,17 @@
+export const GAME_ABBREVIATIONS: Record<string, string> = {
+  mtg: "MTG",
+  pokemon: "PTCG",
+  pokemonjp: "PTCGJ",
+  yugioh: "YGO",
+  lorcana: "LOR",
+  onepiece: "OPCG",
+  gundam: "GCG",
+  fab: "FAB",
+  riftbound: "RB",
+  swu: "SWU",
+  grandarchive: "GA",
+  cyberpunk: "CP",
+  sorcery: "SCR",
+};
+
+export const GAME_ABBREVIATION_FALLBACK_LENGTH = 4;
