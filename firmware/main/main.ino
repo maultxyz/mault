@@ -105,7 +105,7 @@
 // reason as the BLE headers above.
 #define LED_STRIP_SUPPORTED 1
 #include <Adafruit_NeoPixel.h>
-#define ENABLE_DYNAMIC_FOIL_DETECTION 1
+#define ENABLE_DYNAMIC_FOIL_DETECTION 0
 // Diagnostic: isolate the external strip from the onboard RGB driver.
 #ifndef ENABLE_ONBOARD_RGB_STATUS
 #define ENABLE_ONBOARD_RGB_STATUS 0
