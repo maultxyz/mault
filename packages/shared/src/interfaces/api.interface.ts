@@ -74,6 +74,7 @@ export interface SyncState {
   printingMarksFailed?: number;
   newCards?: number;
   updatedCards?: number;
+  removedCards?: number;
   newCardNames?: string[];
   fatalError?: string;
 }

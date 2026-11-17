@@ -3,13 +3,16 @@ import type {
   SyncStatus,
   SyncVectorizeOn,
 } from "@magic-vault/shared";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import type { SyncSource, SyncSourceCard } from "../interfaces/card-search";
 import {
   SYNC_DATA_REFRESH_BATCH_SIZE,
   SYNC_NEW_CARD_NAME_LIMIT,
+  SYNC_PRUNE_DELETE_BATCH_SIZE,
+  SYNC_PRUNE_LOGGED_NAME_LIMIT,
+  SYNC_PRUNE_MAX_SHARE_OF_STORED_CARDS,
 } from "../constants/sync";
 import { toPortraitCardImage } from "../card-image";
 import { vectorizeCardImage } from "../vectorize";
@@ -25,6 +28,11 @@ import {
   submitBrowserWork,
 } from "./browser-queue";
 import { SYNC_SOURCES } from "./sources";
+import {
+  resetSyncFetchCompleteness,
+  syncFetchIncompleteReasons,
+} from "./fetch-completeness";
+import { planSyncPrune } from "./prune";
 import { storedCollectorNumber } from "../card-search/collector-number";
 import { catalogColumnsFor } from "../card-catalog";
 import {
@@ -409,6 +417,54 @@ function emitCancelledDone(): void {
   });
 }
 
+async function pruneCardsDroppedFromSource(
+  source: SyncSource,
+  lang: string,
+  storedCards: { id: string; name: string; setCode: string | null }[],
+  fetchedCards: SyncSourceCard[],
+): Promise<Set<string>> {
+  const plan = planSyncPrune({
+    storedCardIds: storedCards.map((card) => card.id),
+    fetchedCardIds: new Set(fetchedCards.map((card) => card.id)),
+    incompleteFetchReasons: syncFetchIncompleteReasons(),
+    maxShareOfStoredCards: SYNC_PRUNE_MAX_SHARE_OF_STORED_CARDS,
+  });
+  if (plan.kind === "skip") {
+    addLog(
+      `Not removing ${plan.staleCardCount} stored ${source.label} cards missing from the source because ${plan.reason}.`,
+    );
+    return new Set();
+  }
+  if (plan.cardIdsToDelete.length === 0) return new Set();
+
+  const cardIdsToDelete = new Set(plan.cardIdsToDelete);
+  const removedNames = storedCards
+    .filter((card) => cardIdsToDelete.has(card.id))
+    .slice(0, SYNC_PRUNE_LOGGED_NAME_LIMIT)
+    .map((card) => (card.setCode ? `${card.name} (${card.setCode})` : card.name));
+  addLog(
+    `Removing ${cardIdsToDelete.size} stored ${source.label} cards the source no longer lists: ${removedNames.join(", ")}${cardIdsToDelete.size > removedNames.length ? ", ..." : ""}`,
+  );
+
+  let removedCount = 0;
+  for (let start = 0; start < plan.cardIdsToDelete.length; start += SYNC_PRUNE_DELETE_BATCH_SIZE) {
+    const batch = plan.cardIdsToDelete.slice(start, start + SYNC_PRUNE_DELETE_BATCH_SIZE);
+    const deleted = await db
+      .delete(cardImageVectors)
+      .where(
+        and(
+          eq(cardImageVectors.gameKey, source.gameKey),
+          eq(cardImageVectors.lang, lang),
+          inArray(cardImageVectors.cardId, batch),
+        ),
+      )
+      .returning({ id: cardImageVectors.cardId });
+    removedCount += deleted.length;
+  }
+  patchState({ removedCards: removedCount });
+  return cardIdsToDelete;
+}
+
 async function runSync(
   source: SyncSource,
   lang: string,
@@ -418,6 +474,7 @@ async function runSync(
 ): Promise<void> {
   const baseUrl = source.defaultUrl;
   addLog(`Using data source: ${baseUrl}`);
+  resetSyncFetchCompleteness();
   await dropOutdatedPrintingMarkReferences(source.gameKey);
   if (vectorizeOn === "browser" && forceResync) {
     addLog(
@@ -457,9 +514,11 @@ async function runSync(
 
   addLog(`Loading existing ${source.label} cards from DB...`);
 
-  const existing = await db
+  let existing = await db
     .select({
       id: cardImageVectors.cardId,
+      name: cardImageVectors.name,
+      setCode: cardImageVectors.setCode,
       updatedAt: cardImageVectors.updatedAt,
       hasBack: sql<boolean>`${cardImageVectors.backEmbedding} IS NOT NULL`,
     })
@@ -470,6 +529,20 @@ async function runSync(
         eq(cardImageVectors.lang, lang),
       ),
     );
+  if (isCancelled()) {
+    emitCancelledDone();
+    return;
+  }
+  const prunedCardIds = await pruneCardsDroppedFromSource(
+    source,
+    lang,
+    existing,
+    cards,
+  );
+  if (prunedCardIds.size > 0) {
+    existing = existing.filter((row) => !prunedCardIds.has(row.id));
+  }
+
   const existingSet = new Set(existing.map((r) => r.id));
   const vectorizedBacks = new Set(
     existing.filter((r) => r.hasBack).map((r) => r.id),

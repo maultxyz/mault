@@ -54,6 +54,7 @@ async function resolveProductIds(
             number: tcgplayerProducts.number,
             name: tcgplayerProducts.name,
             rarity: tcgplayerProducts.rarity,
+            groupName: tcgplayerProducts.groupName,
           })
           .from(tcgplayerProducts)
           .where(
@@ -75,12 +76,28 @@ async function resolveProductIds(
     if (id !== null) return [id];
     const match = matches[i];
     if (!match) return [];
-    const ids = match.numbers
+    const accepted = match.numbers
       .flatMap((number) => byNumber.get(number) ?? [])
-      .filter((product) => match.accepts(product))
-      .map((product) => product.productId);
+      .filter((product) => match.accepts(product));
+    const ids = productsInPreferredGroups(accepted, match.preferredGroupNames).map(
+      (product) => product.productId,
+    );
     return [...new Set(ids)];
   });
+}
+
+function productsInPreferredGroups<T extends { groupName: string | null }>(
+  products: T[],
+  preferredGroupNames: string[] | undefined,
+): T[] {
+  const preferred = new Set(
+    (preferredGroupNames ?? []).map((name) => name.trim().toLowerCase()).filter(Boolean),
+  );
+  if (preferred.size === 0) return products;
+  const inPreferredGroup = products.filter((product) =>
+    preferred.has((product.groupName ?? "").trim().toLowerCase()),
+  );
+  return inPreferredGroup.length > 0 ? inPreferredGroup : products;
 }
 
 function combineRanges(
