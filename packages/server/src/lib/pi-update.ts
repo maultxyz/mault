@@ -4,7 +4,7 @@ import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
 import { homedir } from "node:os";
 import { dirname, join } from "node:path";
 import { promisify } from "node:util";
-import { gt, valid } from "semver";
+import { valid } from "semver";
 import type { PiUpdateState, PiUpdateStatus } from "@magic-vault/shared";
 import {
   PI_UPDATE_CHECK_MS,
@@ -117,7 +117,7 @@ export async function checkPiUpdateVersion(): Promise<PiUpdateCheck> {
   return {
     installedVersion,
     latestVersion,
-    available: gt(latestVersion, installedVersion),
+    available: latestVersion !== installedVersion,
   };
 }
 

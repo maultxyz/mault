@@ -8,6 +8,10 @@ name: Pi Release
 # manifest.json and install.sh) at it; production installs check that manifest
 # for updates. dev publishes <version>-dev.<run> to the moving pi-dev
 # pre-release, which dev installs follow; the next dev build replaces it.
+#
+# A rollback (master only) builds nothing: it copies an earlier pi-v* release's
+# manifest into pi-latest, and boards offer any manifest version that differs
+# from the installed one, so they move back to that release's bundle.
 on:
   workflow_dispatch:
     inputs:
@@ -15,6 +19,10 @@ on:
         description: Also build the SD card image
         type: boolean
         default: true
+      rollback_tag:
+        description: "Rollback (master only): point pi-latest back at this release tag (pi-vX.Y.Z) instead of building"
+        type: string
+        default: ""
 
 permissions:
   contents: write
@@ -31,7 +39,42 @@ env:
   DEV_TAG: pi-dev
 
 jobs:
+  rollback:
+    if: inputs.rollback_tag != ''
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      ROLLBACK_TAG: ${{ inputs.rollback_tag }}
+    steps:
+      - name: Point pi-latest at the rollback release
+        run: |
+          if [ "${{ github.ref_name }}" != "master" ]; then
+            echo "::error::Pi rollbacks run from master. Dev installs follow pi-dev; dispatch a dev build instead."
+            exit 1
+          fi
+          if ! [[ "$ROLLBACK_TAG" =~ ^pi-v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::$ROLLBACK_TAG is not a Pi release tag (pi-vX.Y.Z)."
+            exit 1
+          fi
+          mkdir rollback
+          if ! gh release download "$ROLLBACK_TAG" -p manifest.json -p install.sh -D rollback; then
+            echo "::error::$ROLLBACK_TAG has no manifest.json and install.sh to roll back to."
+            exit 1
+          fi
+          gh release upload "$LATEST_TAG" rollback/install.sh --clobber
+          gh release upload "$LATEST_TAG" rollback/manifest.json --clobber
+          gh release edit "$LATEST_TAG" --notes "Points Pi installs at [${ROLLBACK_TAG}](https://github.com/${GH_REPO}/releases/tag/${ROLLBACK_TAG}) (rollback). Download the image from there."
+          {
+            echo "## Pi rollback to ${ROLLBACK_TAG}"
+            echo ""
+            echo "Production boards offer $(jq -r .version rollback/manifest.json) as their update; installs run its bundle and image."
+          } >> "$GITHUB_STEP_SUMMARY"
+
   prepare:
+    if: inputs.rollback_tag == ''
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.version.outputs.version }}
@@ -146,6 +189,17 @@ jobs:
           echo "::add-mask::$PASSWORD"
           echo "value=$PASSWORD" >> "$GITHUB_OUTPUT"
 
+      # pi-gen needs about 20 GB. The action's own increase-runner-disk-size
+      # removes a fixed apt package list that breaks whenever the runner image
+      # changes (apt exit 100), so free the space by deleting toolchains this
+      # job never uses instead.
+      - name: Free disk space
+        run: |
+          df -h /
+          sudo rm -rf /usr/share/dotnet /usr/local/lib/android /opt/ghc /usr/local/.ghcup             /opt/hostedtoolcache/CodeQL /usr/local/share/boost /usr/share/swift /opt/microsoft
+          sudo docker image prune --all --force >/dev/null || true
+          df -h /
+
       - name: Build image
         id: build
         uses: usimd/pi-gen-action@v1
@@ -160,11 +214,13 @@ jobs:
           disable-first-boot-user-rename: 1
           enable-ssh: 0
           locale: en_US.UTF-8
+          keyboard-keymap: us
+          keyboard-layout: English (US)
           timezone: Etc/UTC
           wpa-country: US
           compression: xz
           compression-level: 6
-          increase-runner-disk-size: true
+          increase-runner-disk-size: false
 
       - name: Name image
         run: cp "${{ steps.build.outputs.image-path }}" mault-pi.img.xz
