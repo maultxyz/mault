@@ -14,6 +14,7 @@ import type {
   CardSetOption,
   Collection,
   CollectionCardsQuery,
+  CollectionCsvParseResult,
   FieldMeta,
   GroupedScannedCard,
   OcrOverlayRegion,
@@ -242,6 +243,7 @@ export interface CardToolbarProps {
   extraActions?: ReactNode;
   onAddCard?: () => void;
   onImportScans?: () => void;
+  onImportCsv?: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   sortKey: string | null;
@@ -799,3 +801,14 @@ export type CardContextQueryOptions<
   TKey extends QueryKey,
 > = UseQueryOptions<TContext | null, Error, TContext | null, TKey> &
   FetchQueryOptions<TContext | null, Error, TContext | null, TKey>;
+
+export interface CollectionCsvImportDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  collectionGuid: string;
+}
+
+export interface CollectionCsvImportFile {
+  fileName: string;
+  parsed: CollectionCsvParseResult;
+}

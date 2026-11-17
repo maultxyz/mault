@@ -100,7 +100,32 @@
     "scanInto": "Scan into this collection",
     "scan": "Scan",
     "notFoundTitle": "Collection not found",
-    "notFoundDescription": "It may have been deleted, or you no longer have access to it."
+    "notFoundDescription": "It may have been deleted, or you no longer have access to it.",
+    "importCsv": {
+      "button": "Import CSV",
+      "title": "Import cards from a CSV",
+      "description": "Upload a collection export from Moxfield, Archidekt, ManaBox, Deckbox, Dragon Shield, TCGplayer or any CSV with a card name column.",
+      "detectedFormat": "Format: {{format}}.",
+      "genericFormat": "generic CSV",
+      "skipped_one": "{{count, compact}} row without a card name or quantity was skipped.",
+      "skipped_other": "{{count, compact}} rows without a card name or quantity were skipped.",
+      "matched_one": "{{count, compact}} card is ready to import.",
+      "matched_other": "{{count, compact}} cards are ready to import.",
+      "unmatchedTitle_one": "{{count, compact}} row didn't match a card",
+      "unmatchedTitle_other": "{{count, compact}} rows didn't match a card",
+      "unmatchedLine": "Line {{line}}: {{quantity}}x {{name}}",
+      "noNameColumn": "This file has no card name column.",
+      "emptyFile": "This file has no cards.",
+      "import_one": "Import {{count, compact}} card",
+      "import_other": "Import {{count, compact}} cards",
+      "imported_one": "Imported {{count, compact}} card",
+      "imported_other": "Imported {{count, compact}} cards",
+      "previewFailed": "Couldn't check the file.",
+      "failed": "Couldn't import the cards.",
+      "chooseFile": "Choose file",
+      "chooseAnother": "Choose another file",
+      "readFailed": "Couldn't read that file."
+    }
   },
   "shareLink": {
     "collectionTitle": "Share live view",

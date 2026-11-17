@@ -100,7 +100,32 @@
     "scanInto": "Scanner dans cette collection",
     "scan": "Scanner",
     "notFoundTitle": "Collection introuvable",
-    "notFoundDescription": "Elle a peut-être été supprimée, ou tu n'y as plus accès."
+    "notFoundDescription": "Elle a peut-être été supprimée, ou tu n'y as plus accès.",
+    "importCsv": {
+      "button": "Importer un CSV",
+      "title": "Importer des cartes depuis un CSV",
+      "description": "Importez un export de collection Moxfield, Archidekt, ManaBox, Deckbox, Dragon Shield, TCGplayer ou tout CSV avec une colonne de nom de carte.",
+      "detectedFormat": "Format : {{format}}.",
+      "genericFormat": "CSV générique",
+      "skipped_one": "{{count, compact}} ligne sans nom de carte ni quantité a été ignorée.",
+      "skipped_other": "{{count, compact}} lignes sans nom de carte ni quantité ont été ignorées.",
+      "matched_one": "{{count, compact}} carte est prête à être importée.",
+      "matched_other": "{{count, compact}} cartes sont prêtes à être importées.",
+      "unmatchedTitle_one": "{{count, compact}} ligne ne correspond à aucune carte",
+      "unmatchedTitle_other": "{{count, compact}} lignes ne correspondent à aucune carte",
+      "unmatchedLine": "Ligne {{line}} : {{quantity}}x {{name}}",
+      "noNameColumn": "Ce fichier n'a pas de colonne de nom de carte.",
+      "emptyFile": "Ce fichier ne contient aucune carte.",
+      "import_one": "Importer {{count, compact}} carte",
+      "import_other": "Importer {{count, compact}} cartes",
+      "imported_one": "{{count, compact}} carte importée",
+      "imported_other": "{{count, compact}} cartes importées",
+      "previewFailed": "Impossible de vérifier le fichier.",
+      "failed": "Impossible d'importer les cartes.",
+      "chooseFile": "Choisir un fichier",
+      "chooseAnother": "Choisir un autre fichier",
+      "readFailed": "Impossible de lire ce fichier."
+    }
   },
   "shareLink": {
     "collectionTitle": "Partager la vue en direct",

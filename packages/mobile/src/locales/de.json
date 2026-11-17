@@ -100,7 +100,32 @@
     "scanInto": "In diese Sammlung scannen",
     "scan": "Scannen",
     "notFoundTitle": "Sammlung nicht gefunden",
-    "notFoundDescription": "Sie wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf."
+    "notFoundDescription": "Sie wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf.",
+    "importCsv": {
+      "button": "CSV importieren",
+      "title": "Karten aus einer CSV importieren",
+      "description": "Lade einen Sammlungsexport von Moxfield, Archidekt, ManaBox, Deckbox, Dragon Shield, TCGplayer oder eine beliebige CSV mit einer Spalte für den Kartennamen hoch.",
+      "detectedFormat": "Format: {{format}}.",
+      "genericFormat": "allgemeine CSV",
+      "skipped_one": "{{count, compact}} Zeile ohne Kartennamen oder Anzahl wurde übersprungen.",
+      "skipped_other": "{{count, compact}} Zeilen ohne Kartennamen oder Anzahl wurden übersprungen.",
+      "matched_one": "{{count, compact}} Karte ist bereit zum Import.",
+      "matched_other": "{{count, compact}} Karten sind bereit zum Import.",
+      "unmatchedTitle_one": "{{count, compact}} Zeile passt zu keiner Karte",
+      "unmatchedTitle_other": "{{count, compact}} Zeilen passen zu keiner Karte",
+      "unmatchedLine": "Zeile {{line}}: {{quantity}}x {{name}}",
+      "noNameColumn": "Diese Datei hat keine Spalte für den Kartennamen.",
+      "emptyFile": "Diese Datei enthält keine Karten.",
+      "import_one": "{{count, compact}} Karte importieren",
+      "import_other": "{{count, compact}} Karten importieren",
+      "imported_one": "{{count, compact}} Karte importiert",
+      "imported_other": "{{count, compact}} Karten importiert",
+      "previewFailed": "Die Datei konnte nicht geprüft werden.",
+      "failed": "Die Karten konnten nicht importiert werden.",
+      "chooseFile": "Datei auswählen",
+      "chooseAnother": "Andere Datei auswählen",
+      "readFailed": "Die Datei konnte nicht gelesen werden."
+    }
   },
   "shareLink": {
     "collectionTitle": "Live-Ansicht teilen",

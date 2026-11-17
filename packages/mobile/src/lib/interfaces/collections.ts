@@ -2,6 +2,7 @@ import type { UseQueryResult } from "@tanstack/react-query";
 import type {
   CardFilters,
   Collection,
+  CollectionCsvParseResult,
   GroupedScannedCard,
   ScanTimelineGrouping,
 } from "@magic-vault/shared";
@@ -119,4 +120,9 @@ export interface CardActionsLocationMove {
   locationGuid: string;
   previousLocationGuid: string | null;
   canUndo: boolean;
+}
+
+export interface CollectionCsvImportFile {
+  fileName: string;
+  parsed: CollectionCsvParseResult;
 }

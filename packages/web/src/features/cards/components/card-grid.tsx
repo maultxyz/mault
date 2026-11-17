@@ -29,6 +29,7 @@ import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
+import { CollectionCsvImportDialog } from "@/features/cards/components/collection-csv-import-dialog";
 import { PendingScanCardItem } from "@/features/cards/components/pending-scan-card-item";
 import { usePendingScanCards } from "@/features/cards/api/use-pending-scan-cards";
 import { useDocumentScan } from "@/features/scanner/api/use-document-scan";
@@ -98,6 +99,7 @@ import {
   IconBox,
   IconChevronDown,
   IconDownload,
+  IconFileImport,
   IconLoader2,
   IconPhotoUp,
   IconPlus,
@@ -171,6 +173,7 @@ export function CardGrid() {
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [addCardOpen, setAddCardOpen] = useState(false);
   const [importScansOpen, setImportScansOpen] = useState(false);
+  const [importCsvOpen, setImportCsvOpen] = useState(false);
   const scanImageImport = useScanImageImport(collectionGuid);
   const documentScan = useDocumentScan(
     scanImageImport,
@@ -804,6 +807,11 @@ export function CardGrid() {
         onOpenChange={setAddCardOpen}
         collectionGuid={viewedCollection.guid}
       />
+      <CollectionCsvImportDialog
+        open={importCsvOpen}
+        onOpenChange={setImportCsvOpen}
+        collectionGuid={viewedCollection.guid}
+      />
       <ScanImageImportDialog
         open={importScansOpen}
         onOpenChange={setImportScansOpen}
@@ -836,6 +844,13 @@ export function CardGrid() {
               >
                 <IconPhotoUp />
                 {t("importScans.button")}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setImportCsvOpen(true)}
+              >
+                <IconFileImport />
+                {t("importCsv.button")}
               </Button>
             </div>
           }
@@ -1037,6 +1052,7 @@ export function CardGrid() {
           needsReviewCount={reviewCount?.totalCount ?? 0}
           onAddCard={() => setAddCardOpen(true)}
           onImportScans={() => setImportScansOpen(true)}
+          onImportCsv={readOnly ? undefined : () => setImportCsvOpen(true)}
           collectionName={viewedCollection?.name}
           extraActions={
             collectionGuid && !readOnly ? (

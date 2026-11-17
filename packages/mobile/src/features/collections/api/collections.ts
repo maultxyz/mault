@@ -1,5 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { Collection, CreateCollectionFormValues, EditCollectionFormValues, Result } from "@magic-vault/shared";
+import type {
+  Collection,
+  CollectionCsvImportRequest,
+  CollectionCsvImportResult,
+  CreateCollectionFormValues,
+  EditCollectionFormValues,
+  Result,
+} from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut, unwrap } from "@/lib/api/client";
 import { QUERY_STALE_MS } from "@/lib/constants/query";
 
@@ -41,3 +48,9 @@ export function checkCollectionName(name: string, excludeGuid?: string): Promise
     (result) => result.data?.available ?? true,
   );
 }
+
+export const previewCollectionCsvImport = (guid: string, request: CollectionCsvImportRequest) =>
+  unwrap(apiPost<Result<CollectionCsvImportResult>>(`/api/collections/${guid}/cards/csv-import/preview`, request));
+
+export const importCollectionCsv = (guid: string, request: CollectionCsvImportRequest) =>
+  unwrap(apiPost<Result<CollectionCsvImportResult>>(`/api/collections/${guid}/cards/csv-import`, request));
