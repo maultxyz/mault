@@ -9,10 +9,10 @@ export const errorReportingTestRoute = new Hono<AppEnv>().post(
   (c) => {
     const userId = c.get("userId");
     reportServerError(
-      new Error("PostHog test error triggered from admin page (server)"),
+      new Error("Better Stack test error triggered from admin page (server)"),
       { triggeredBy: userId },
       userId,
     );
-    return c.json({ success: true, message: "Sent test error to PostHog (server)." });
+    return c.json({ success: true, message: "Sent test error to Better Stack (server)." });
   },
 );

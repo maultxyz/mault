@@ -267,14 +267,14 @@
     "percentOfTotal": "{{percent}}% of scans"
   },
   "errorReportingTest": {
-    "heading": "Test PostHog",
-    "description": "Send a test error to PostHog from the client and/or the server to confirm error reporting is wired up",
+    "heading": "Test Better Stack",
+    "description": "Send a test error to Better Stack from the client and/or the server to confirm error reporting is wired up",
     "testClientButton": "Test Client",
     "testServerButton": "Test Server",
     "testingButton": "Sending...",
     "toasts": {
-      "clientSent": "Sent test error to PostHog (client).",
-      "serverError": "Failed to send test error to PostHog (server)"
+      "clientSent": "Sent test error to Better Stack (client).",
+      "serverError": "Failed to send test error to Better Stack (server)"
     }
   },
   "impersonationAuditDrawer": {
