@@ -11,16 +11,21 @@ main() {
   finish_update() {
     result=$?
     trap - EXIT
-    node - "$STATE_DIR/update.json" "$result" <<'JS'
-const fs = require("node:fs");
-const file = process.argv[2];
-const succeeded = process.argv[3] === "0";
-const state = JSON.parse(fs.readFileSync(file, "utf8"));
-state.phase = succeeded ? "succeeded" : "failed";
-state.message = succeeded ? null : "Update failed. Check the Linux update log.";
-fs.writeFileSync(`${file}.tmp`, JSON.stringify(state), { mode: 0o600 });
-fs.renameSync(`${file}.tmp`, file);
-JS
+    python3 - "$STATE_DIR/update.json" "$result" <<'PY'
+import json
+import os
+import sys
+
+path, result = sys.argv[1], sys.argv[2]
+with open(path) as file:
+    state = json.load(file)
+state["phase"] = "succeeded" if result == "0" else "failed"
+state["message"] = None if result == "0" else "Update failed. Check the update log with: sudo mault logs update"
+with open(f"{path}.tmp", "w") as file:
+    json.dump(state, file)
+os.chmod(f"{path}.tmp", 0o600)
+os.replace(f"{path}.tmp", path)
+PY
     exit "$result"
   }
   trap finish_update EXIT

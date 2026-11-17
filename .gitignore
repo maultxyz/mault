@@ -55,3 +55,6 @@ firmware/**/build/**
 __pycache__/
 *.py[cod]
 /.pi-controller/
+
+# Pi image build input (CI copies the release bundle here)
+/scripts/pi/image/stage-mault/00-mault/files/

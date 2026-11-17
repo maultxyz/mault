@@ -102,12 +102,12 @@
   "appVersion": {
     "outdatedBanner": "Une nouvelle version de Mault est disponible.",
     "refreshButton": "Actualiser",
-    "terminalUpdate": "Terminez les scans et les synchronisations, puis exécutez cette commande dans un terminal sur le Pi. Saisissez votre mot de passe sudo si demandé. Actualisez ensuite cette page :",
+    "terminalUpdate": "Terminez d'abord les scans et les synchronisations. Vous pouvez aussi exécuter cette commande dans un terminal sur le Pi, puis actualiser cette page :",
     "updateButton": "Mettre à jour Mault",
     "updating": "Mise à jour de Mault. Gardez cette page ouverte pendant le redémarrage des services.",
     "updateSucceeded": "Mault a été mis à jour. Actualisez la page pour utiliser la nouvelle version.",
     "updateFailed": "La mise à jour de Mault a échoué.",
-    "updateUnconfirmed": "Impossible de se reconnecter après la mise à jour. Consultez le journal de mise à jour sur Linux."
+    "updateUnconfirmed": "Impossible de se reconnecter après la mise à jour. Exécutez sudo mault logs update sur le Pi avant de réessayer."
   },
   "impersonation": {
     "banner": "Tu vois l'application comme {{name}}.",

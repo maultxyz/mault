@@ -1,0 +1,9 @@
+[Unit]
+Description=Mault price sync
+After=mault-api.service
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/mault
+Environment=NODE_ENV=production
+ExecStart=/bin/bash %h/mault/scripts/pi/run-prices.sh

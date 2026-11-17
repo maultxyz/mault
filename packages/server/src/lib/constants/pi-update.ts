@@ -4,3 +4,4 @@ export const PI_UPDATE_UNIT = "mault-update";
 export const PI_UPDATE_STATE_FILE = "update.json";
 export const PI_UPDATE_MAX_BUFFER = 1_048_576;
 export const PI_UPDATE_LAUNCH_GRACE_MS = 30_000;
+export const PI_RELEASE_FILE = "release.json";

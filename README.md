@@ -95,7 +95,7 @@ For a production install, follow the step-by-step guide at [mault.xyz/self-host]
 Mault needs Postgres with pgvector and an identity provider, picked with `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER`:
 
 - **`neon`** (default): a hosted [Neon](https://neon.com) project. The free tier is enough.
-- **`local`**: fully self-hosted. `docker-compose.yml` runs Postgres, the API, the web app and the API docs. A Raspberry Pi can host the same local-auth app with `scripts/pi/install.sh` ([Raspberry Pi](#Raspberry-Pi-and-Orange-Pi-Zero-4)).
+- **`local`**: fully self-hosted. `docker-compose.yml` runs Postgres, the API, the web app and the API docs. A Raspberry Pi can host the same local-auth app from a prebuilt SD image or release bundle ([Raspberry Pi](#Raspberry-Pi-and-Orange-Pi-Zero-4)).
 
 Both read one `.env` in the repo root:
 
@@ -135,63 +135,56 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 
 ### Raspberry Pi and Orange Pi Zero 4
 
-A Raspberry Pi or Orange Pi Zero 4 can host the local-auth app and run the sorter headlessly. Install from an SSH session as a normal user with sudo access; a desktop and Chromium are optional. Postgres runs locally on port 5432. The scanner camera is a USB webcam plugged into the board, owned by `mault-camera.service`. Phone and computer browsers use the authenticated camera relay; they do not need browser permission to access that webcam. The examples use `~/mault`, but service paths are configured for your checkout directory.
+A Raspberry Pi or Orange Pi Zero 4 can host the local-auth app and run the sorter headlessly. Nothing is cloned or built on the board: it runs a prebuilt release built by `.github/workflows/pi-release.yml`. Like the firmware and mobile releases, it is dispatched by hand: from master it publishes `pi-v<app version>` (bundle, SD image and installer) and points the `pi-latest` release's `manifest.json` and `install.sh` at it; from dev it publishes `<version>-dev.<run>` to the moving `pi-dev` pre-release, which dev installs update from. The bundle holds its own Node, the built API with its runtime dependencies, the Pi-mode web build and the Pi helpers. The scanner camera is a USB webcam plugged into the board, owned by `mault-camera.service`. Phone and computer browsers use the authenticated camera relay; they do not need browser permission to access that webcam.
+
+**Raspberry Pi 4 or 5:** download `mault-pi.img.xz` from the newest `pi-v*` release and flash it with Raspberry Pi Imager. Set a username (anything except `mault-service`), password, Wi-Fi and SSH in Imager's OS customisation; Ethernet works without it. On first boot, `mault-setup.service` writes secrets, creates the database and starts Mault. Then open `http://mault.local` (or the board's IP address) from any browser on the network.
+
+**Other arm64 boards, or an existing Raspberry Pi OS install:**
 
 ```bash
-git clone https://github.com/maultxyz/mault.git ~/mault
-cd ~/mault
-scripts/pi/install.sh
+curl -fsSL https://github.com/<owner>/<repo>/releases/download/pi-latest/install.sh | sudo bash
 ```
 
-`install.sh` installs Node, pnpm, Postgres with pgvector, ffmpeg, and the webcam tools, then writes `.env` with `AUTH_PROVIDER=local` and a `mault` database on `127.0.0.1:5432`. Run it as your normal service user, not root. It asks for your password when it needs root. If `git` is not installed yet, run `sudo apt install -y git` before the clone. The installer always sets `PI_HOST=1`. On the first install without a saved hardware choice, it asks whether this Pi directly controls the sorter (`PI_SORTER=1`) or an Arduino/ESP32 is connected over USB or Bluetooth (`PI_SORTER=0`, the default). Reruns preserve that choice and calibration. For a noninteractive install, supply `PI_SORTER=1` or `PI_SORTER=0` in the environment. It then creates the `mault` role and database, builds the app, runs migrations, and enables user services. Linger starts them at boot. Both modes grant `video` access; USB mode grants `dialout` access. Direct mode grants `gpio` and `i2c` access and installs the selected board's GPIO/I2C dependencies. Raspberry Pi direct mode enables I2C through `raspi-config`. The user services restart if group membership needs refreshing. If I2C requires a reboot, reboot and rerun the installer.
+`install.sh` installs Postgres with pgvector, nginx, ffmpeg, the webcam tools, BlueZ and Bleak, creates the `mault-service` account, unpacks the release into `/opt/mault/releases/<version>` (`/opt/mault/current` points at the running one), and runs `scripts/pi/setup.sh`. Setup writes `/var/lib/mault/.env` with `AUTH_PROVIDER=local`, `PI_HOST=1`, a generated `CARD_API_USER_AGENT` and new secrets, creates the `mault` role and database, and enables the user services under `mault-service` with linger so they start at boot. Reruns keep the saved settings. `sudo bash install.sh --bundle mault-pi-arm64.tar.gz` installs a downloaded bundle offline.
 
-The installer also asks for a unique `CARD_API_USER_AGENT` name for this installation’s card and price API requests. Type your own name or press Enter to accept a generated name. It saves the value in `.env` and keeps it on reruns. For an unattended install, set `CARD_API_USER_AGENT` in the environment along with the hardware choice. Price sync still needs the daily schedule described under [Prices](#prices).
+The hardware choice is `PI_SORTER=1` (the board drives the sorter through GPIO/I2C) or `PI_SORTER=0` (an Arduino/ESP32 over USB or Bluetooth). The SD image picks it on first boot: `PI_SORTER=1` when a PCA9685 answers on I2C bus 1 (the image enables I2C), else `PI_SORTER=0`. The curl installer asks, or reads `PI_SORTER` and `PI_SORTER_BOARD` from the environment (`PI_SORTER=1 PI_SORTER_BOARD=orange-pi-zero4`). Change it later with `sudo mault sorter usb` or `sudo mault sorter builtin [raspberry-pi|orange-pi-zero4]`.
 
-For a new direct-mode install, select Raspberry Pi or Orange Pi Zero 4 when prompted. The installer saves `PI_SORTER_BOARD=raspberry-pi` or `PI_SORTER_BOARD=orange-pi-zero4`; existing direct installs default to Raspberry Pi. For an unattended Orange Pi hardware selection, run `PI_SORTER=1 PI_SORTER_BOARD=orange-pi-zero4 scripts/pi/install.sh`. Installation is headless by default and skips desktop shortcuts even when display variables are present. Use `scripts/pi/install.sh --desktop` from a graphical session to create the optional shortcuts. The `--headless` flag remains accepted.
+A board that still has a `~/mault` checkout from the old git-based installer is migrated when the installer runs with `sudo` from that user: `.env`, calibration, pending scan saves and downloaded models are copied into `/var/lib/mault`, the database is reused, and the old user services are disabled. Delete the old checkout once Mault is running.
 
-Orange Pi Zero 4 direct mode requires a supported Zero 4 system image and the libgpiod v2 Python API (`python3-libgpiod`); the installer checks that API. Enable the image's `i2c0` boot overlay separately and reboot so the header TWI0 adapter is available. GPIO and I2C devices are discovered by their hardware paths.
+Orange Pi Zero 4 direct mode requires a supported Zero 4 system image and the libgpiod v2 Python API (`python3-libgpiod`); setup installs and checks that API. Enable the image's `i2c0` boot overlay separately and reboot so the header TWI0 adapter is available. GPIO and I2C devices are discovered by their hardware paths.
 
-In direct mode the Pi itself is the sorter. The API sends commands to the local controller process, which operates the PCA9685 and sensors through GPIO/I2C. Direct mode uses a single built-in sorter; additional USB, Bluetooth and Wi-Fi sorter stations are unavailable in this mode. The web app automatically attaches its built-in sorter controls through authenticated `/pi-sorter` access without an automatic mechanical test. Multiple browsers share the server's controller connection; commands and replies are coordinated centrally. A scan reserves hardware-changing commands, and competing motion or configuration commands return busy. Viewing the app from another device does not take control away. Calibration is stored in `.pi-controller/calibration.json` under the checkout; the installer writes absolute `PI_CONTROLLER_CONFIG` and `PI_CONTROLLER_SOCKET` paths into `.env`. The Python controller uses the existing serial command protocol and updates with the app; it does not require firmware flashing. Native mobile connections remain BLE or Wi-Fi relay connections.
+In direct mode the Pi itself is the sorter. The API sends commands to the local controller process, which operates the PCA9685 and sensors through GPIO/I2C. Direct mode uses a single built-in sorter; additional USB, Bluetooth and Wi-Fi sorter stations are unavailable in this mode. The web app automatically attaches its built-in sorter controls through authenticated `/pi-sorter` access without an automatic mechanical test. Multiple browsers share the server's controller connection; commands and replies are coordinated centrally. A scan reserves hardware-changing commands, and competing motion or configuration commands return busy. Viewing the app from another device does not take control away. Calibration is stored in `/var/lib/mault/.pi-controller/calibration.json`; setup writes absolute `PI_CONTROLLER_CONFIG` and `PI_CONTROLLER_SOCKET` paths into `.env`. The Python controller uses the existing serial command protocol and updates with the app; it does not require firmware flashing. Native mobile connections remain BLE or Wi-Fi relay connections.
 
 Linux and Pi installations with external sorters use `PI_HOST=1` with `PI_SORTER=0`; USB and host Bluetooth connections do not require GPIO control. Use the sorter menu to connect an attached USB sorter as another station, then choose its camera from the camera menu. Each station keeps its own device calibration, collection and camera preference, just as it does with browser-connected hardware. USB sorters can stay connected while you switch station tabs. Identical cameras are distinguished by their Linux device IDs; stable USB by-id paths are used when available. The helper keeps each camera's stream, frame buffer and focus settings separate.
 
 Headless scanning runs one session per organization. Stop that session before switching its hardware pair; starting the next scan passes the station's selected controller and camera to the API, which continues using that pair if the browser closes. A missing selected device produces an error instead of selecting another sorter or camera. Native mobile sorter connections remain BLE and Wi-Fi; Pi hardware selection is available in desktop and mobile browsers.
 
-| Service        | Role                                                                                                       |
-| -------------- | ---------------------------------------------------------------------------------------------------------- |
-| `mault-api`    | API on `127.0.0.1:3001`, accessible through the web app's `/api` proxy                                     |
-| `mault-web`    | Web app on port 8080. Proxies `/api` to the API, including authenticated camera access at `/api/pi-camera` |
-| `mault-camera` | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam                           |
-| `mault-controller` | Direct mode only: local Python GPIO/I2C controller, started and stopped with the API |
+| Service            | Role                                                                                                  |
+| ------------------ | ----------------------------------------------------------------------------------------------------- |
+| `nginx` (system)   | Serves the web app on ports 80 and 8080 and proxies `/api` to the API, including `/api/pi-camera`      |
+| `mault-api`        | API on `127.0.0.1:3001`; runs migrations on start                                                     |
+| `mault-camera`     | `scripts/pi/camera-ctl.py` on `127.0.0.1:8765`. This process owns the USB webcam                       |
+| `mault-controller` | Direct mode only: local Python GPIO/I2C controller, started and stopped with the API                   |
+| `mault-prices`     | Daily price sync at 04:00 (timer)                                                                      |
 
-Remote browsers use port 8080. The Linux API service binds only to localhost; HTTP and WebSocket requests reach it through the web app's proxy. Other deployments keep the existing API bind address unless `API_HOST` is configured.
+The `mault-*` units are systemd user services of `mault-service`. The API binds only to localhost; HTTP and WebSocket requests reach it through nginx. Other deployments keep the existing API bind address unless `API_HOST` is configured. The web app in the bundle runs in Pi mode (`VITE_PI_HOST=true` in its `env.js`): `/` goes straight to sign-in and the marketing and legal pages are left out.
 
-Updates are installed manually. Finish any scan, then run these commands on the Pi:
-
-```bash
-cd ~/mault
-bash scripts/pi/update.sh
-```
-
-The updater downloads and builds the latest version of Mault, then restarts the app and camera services. Your settings, accounts, and saved cards stay in place. Any required database updates are applied automatically. When the update finishes, reload Mault in your browsers.
-
-On Pi installations, the update banner shows the terminal command instead of starting an update in the browser. Finish scanning, disconnect the sorter, and stop any database sync, then run `cd ~/mault && bash scripts/pi/update.sh` in a terminal on the Pi. Enter your sudo password if prompted and refresh the browser after the script completes. Dependency setup runs before services are stopped. Pi web builds use a 4 GiB Node heap allowance; runtime services keep their normal settings.
-
-If you have changed or added files in the installation folder, the updater stops before updating so it does not overwrite your work. If an update fails after stopping the app, resolve the reported error and run the same command again. Check the release instructions for any additional system requirements.
-
-The API service keeps its output in `${XDG_STATE_HOME:-$HOME/.local/state}/mault/api.log`, including scan failures and feed commands. To inspect the latest entries even when the user journal is unavailable:
+Everything on the board goes through the `mault` command:
 
 ```bash
-tail -n 100 "${XDG_STATE_HOME:-$HOME/.local/state}/mault/api.log"
+sudo mault status            # version and service state
+sudo mault update            # install the latest release
+sudo mault logs [api|camera|controller|update|setup]
+sudo mault start | stop | restart
+sudo mault prices            # pull prices now
+sudo mault urls              # addresses to open
 ```
 
-```bash
-scripts/pi/start.sh --headless # start services without opening a local browser
-scripts/pi/start.sh --kiosk
-scripts/pi/stop.sh
-```
+Admins can also update from the app's update banner (**Update Mault**), which runs `scripts/pi/run-update.sh` as a separate user job. The updater runs as `mault-service` and needs no sudo password: it downloads the bundle named in the manifest its `release.json` points at (`pi-latest` or `pi-dev`), checks its SHA-256, unpacks it next to the running release, stops the services, switches `/opt/mault/current`, re-renders the units and starts them. If the new version does not answer, it switches back to the previous release. It keeps the running and previous releases. Finish scanning, disconnect the sorter and stop any database sync first; the API refuses browser updates otherwise. Settings, accounts and saved cards stay in place, and database migrations run when the API starts.
 
-Open `http://<the-pi>:8080` from another computer to scan. That browser is not on localhost, so while `PI_HOST` is on it uses the Pi's webcam stream and the sorter plugged into the Pi. The scan loop runs in the API: feed, wait the capture settle delay once, take the photo, match, and route. `start.sh --headless` starts only the services. Without that flag, `start.sh` can also open Chromium when run in a graphical session. No Chromium camera-permission setup is required. The camera helper owns the webcam, and the API owns the sorter during a scan. Camera preview and focus control require signing in to an organization.
+The API log is at `/var/lib/mault/.local/state/mault/api.log` (`sudo mault logs`), including scan failures and feed commands.
+
+Open `http://mault.local` (or port 8080) from another computer to scan. That browser is not on localhost, so while `PI_HOST` is on it uses the Pi's webcam stream and the sorter plugged into the Pi. The scan loop runs in the API: feed, wait the capture settle delay once, take the photo, match, and route. The camera helper owns the webcam, and the API owns the sorter during a scan. Camera preview and focus control require signing in to an organization.
 
 The API reports a Pi host when `PI_HOST=1`, and also when `/proc/device-tree/model` contains `Raspberry Pi` and `PI_HOST` is unset. `PI_HOST=0` turns the remote-browser behavior off. `WEBCAM_DEVICE` selects a specific `/dev/video*` node when the helper should not pick one itself.
 
@@ -199,9 +192,11 @@ Sign up on the Pi's page. The first account is the platform admin. Add a game in
 
 If a bin fills or all repack packs are complete, scanning pauses with the current card retained. Empty the relevant bins in the app, then resume. The API reloads rules, capacities, and bin contents before routing that card. Presets with **skip saving** use the existing sort-only path. Stopping a scan may leave a card in the sorter; remove it before starting another session.
 
-On Linux/Pi hosts with `PI_SORTER=0`, the connection menu offers Bluetooth when BlueZ and the system Python Bleak package are installed and an adapter is present. A powered-off adapter shows a disabled status; enable it with the host’s Bluetooth settings. Open Connect Bluetooth to search for nearby sorters advertising the Nordic UART BLE service, then select the sorter. Discovery is on demand, never continuous. The API owns the Bluetooth connection, so this works from remote browsers (including Firefox) and headless scans. USB and Bluetooth connections use the same per-device ownership checks; a missing or disconnected Bluetooth sorter never falls back to another device. Keep the ESP32 nearby and advertising, and disconnect other clients before connecting. Available simultaneous connections depend on the adapter. GPIO mode remains a single built-in sorter and does not expose Bluetooth.
+On Linux/Pi hosts with `PI_SORTER=0`, the connection menu offers Bluetooth when BlueZ and the system Python Bleak package are installed and an adapter is present. A powered-off adapter shows a disabled status; enable it with the host's Bluetooth settings. Open Connect Bluetooth to search for nearby sorters advertising the Nordic UART BLE service, then select the sorter. Discovery is on demand, never continuous. The API owns the Bluetooth connection, so this works from remote browsers (including Firefox) and headless scans. USB and Bluetooth connections use the same per-device ownership checks; a missing or disconnected Bluetooth sorter never falls back to another device. Keep the ESP32 nearby and advertising, and disconnect other clients before connecting. Available simultaneous connections depend on the adapter. GPIO mode remains a single built-in sorter and does not expose Bluetooth.
 
-New external-sorter installs prepare `bluez` and `python3-bleak` and enable the Bluetooth service. The updater installs missing packages before stopping the app. For an existing manually managed installation, install those packages through your distribution and ensure the Bluetooth service is running; the helper uses `/usr/bin/python3`. The default BlueZ adapter must support BLE. Ordinary non-host browser Bluetooth still uses Web Bluetooth and the browser computer’s adapter, with its browser/platform requirements; native mobile BLE remains unchanged.
+The installer always installs `bluez` and `python3-bleak` and enables the Bluetooth service; the helper uses `/usr/bin/python3`. The default BlueZ adapter must support BLE. Ordinary non-host browser Bluetooth still uses Web Bluetooth and the browser computer's adapter, with its browser/platform requirements; native mobile BLE remains unchanged.
+
+To build a bundle yourself, run `scripts/pi/build-bundle.sh --version <x.y.z> --manifest-url <url> --out <dir>` on linux-arm64 with the Dockerfiles' Node and pnpm.
 
 ### Running pieces individually
 

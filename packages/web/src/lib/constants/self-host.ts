@@ -59,32 +59,9 @@ export const SELF_HOST_AUTH_OPTIONS: SelfHostOption<SelfHostAuth>[] = [
 
 export const SELF_HOST_PRICE_CRON = `0 4 * * * cd /opt/mault && docker compose exec -T server sh -c 'if [ "$AUTH_PROVIDER" = local ]; then export DATABASE_URL="\${DATABASE_URL:-postgresql://mault:$POSTGRES_PASSWORD@postgres:5432/mault}" DATABASE_SSL="\${DATABASE_SSL:-false}"; fi; exec node packages/server/dist/scripts/sync-prices.js' >> /var/log/mault-prices.log 2>&1`;
 
-export const SELF_HOST_PI_PRICE_SYNC =
-  "node --env-file=.env packages/server/dist/scripts/sync-prices.js";
+export const SELF_HOST_PI_RELEASE_URL = `${REPO_URL}/releases?q=pi-v&expanded=true`;
 
-export const SELF_HOST_PI_PRICE_TIMER = `mkdir -p ~/.config/systemd/user
-cat > ~/.config/systemd/user/mault-prices.service <<EOF
-[Unit]
-Description=Mault price sync
-
-[Service]
-Type=oneshot
-WorkingDirectory=$HOME/mault
-ExecStart="$(command -v node)" --env-file=.env packages/server/dist/scripts/sync-prices.js
-EOF
-cat > ~/.config/systemd/user/mault-prices.timer <<'EOF'
-[Unit]
-Description=Mault daily price sync
-
-[Timer]
-OnCalendar=*-*-* 04:00:00
-Persistent=false
-
-[Install]
-WantedBy=timers.target
-EOF
-systemctl --user daemon-reload
-systemctl --user enable --now mault-prices.timer`;
+export const SELF_HOST_PI_INSTALL_COMMAND = `curl -fsSL ${REPO_URL}/releases/download/pi-latest/install.sh | sudo bash`;
 
 const NEON_MIGRATE = "pnpm --filter @magic-vault/server db:migrate";
 
@@ -103,11 +80,6 @@ export const SELF_HOST_SECTIONS: SelfHostSection[] = [
       { key: "node", code: "corepack enable", when: { auth: "neon" } },
       { key: "piSystem", when: { host: "pi" } },
       { key: "piHardware", when: { host: "pi" } },
-      {
-        key: "piTools",
-        code: "sudo apt update\nsudo apt install -y git python3",
-        when: { host: "pi" },
-      },
       { key: "huggingface" },
       { key: "domain", when: { host: "compose" } },
     ],
@@ -227,39 +199,26 @@ export const SELF_HOST_SECTIONS: SelfHostSection[] = [
     when: { host: "pi" },
     steps: [
       {
-        key: "clone",
-        code: "git clone https://github.com/maultxyz/mault.git ~/mault\ncd ~/mault",
-      },
-      {
-        key: "installUsb",
-        code: "bash scripts/pi/install.sh",
+        key: "flash",
+        code: SELF_HOST_PI_RELEASE_URL,
         hasNote: true,
-        when: { sorter: "usb" },
+        when: { board: "raspberry-pi" },
       },
+      { key: "boot", hasNote: true, when: { board: "raspberry-pi" } },
       {
-        key: "installRaspberry",
-        code: "bash scripts/pi/install.sh",
+        key: "installOther",
+        code: SELF_HOST_PI_INSTALL_COMMAND,
         hasNote: true,
-        when: { sorter: "gpio", board: "raspberry-pi" },
-      },
-      {
-        key: "installOrange",
-        code: "bash scripts/pi/install.sh",
-        hasNote: true,
-        when: { sorter: "gpio", board: "orange-pi-zero4" },
       },
       { key: "services", hasNote: true },
-      {
-        key: "settings",
-        hasNote: true,
-      },
+      { key: "settings", hasNote: true },
     ],
   },
   {
     key: "piOpen",
     when: { host: "pi" },
     steps: [
-      { key: "address", code: "hostname -I", hasNote: true },
+      { key: "address", code: "sudo mault urls", hasNote: true },
       { key: "account" },
       { key: "game", hasNote: true },
       { key: "scan" },
@@ -269,15 +228,10 @@ export const SELF_HOST_SECTIONS: SelfHostSection[] = [
     key: "piPrices",
     when: { host: "pi" },
     steps: [
-      {
-        key: "firstPull",
-        code: `cd ~/mault\n${SELF_HOST_PI_PRICE_SYNC}`,
-        hasNote: true,
-      },
-      { key: "schedule", code: SELF_HOST_PI_PRICE_TIMER, hasNote: true },
+      { key: "firstPull", code: "sudo mault prices", hasNote: true },
       {
         key: "check",
-        code: "systemctl --user list-timers mault-prices.timer\njournalctl --user -u mault-prices.service -n 50 --no-pager",
+        code: "sudo systemctl --user -M mault-service@ list-timers mault-prices.timer",
       },
     ],
   },
@@ -285,23 +239,16 @@ export const SELF_HOST_SECTIONS: SelfHostSection[] = [
     key: "piMaintain",
     when: { host: "pi" },
     steps: [
-      {
-        key: "update",
-        code: "cd ~/mault\nbash scripts/pi/update.sh",
-        hasNote: true,
-      },
+      { key: "update", code: "sudo mault update", hasNote: true },
       {
         key: "backup",
-        code: "pg_dump -h 127.0.0.1 -U mault -W mault > ~/mault-backup.sql",
+        code: "sudo -u postgres pg_dump mault > mault-backup.sql",
         hasNote: true,
       },
-      {
-        key: "logs",
-        code: 'tail -n 100 "${XDG_STATE_HOME:-$HOME/.local/state}/mault/api.log"',
-      },
+      { key: "logs", code: "sudo mault logs" },
       { key: "automatic" },
-      { key: "start", code: "cd ~/mault\nbash scripts/pi/start.sh" },
-      { key: "stop", code: "cd ~/mault\nbash scripts/pi/stop.sh" },
+      { key: "start", code: "sudo mault start" },
+      { key: "stop", code: "sudo mault stop" },
     ],
   },
   {
