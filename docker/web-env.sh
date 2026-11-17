@@ -30,3 +30,16 @@ case "$api_url" in
     ;;
 esac
 printf 'set $share_preview_upstream "%s";\n' "$upstream" > /etc/nginx/share-preview.conf
+
+# Neon Auth base URL for nginx.conf's /auth/mobile-start (Expo social
+# sign-in); empty turns that route off.
+neon_auth_url=$(printenv VITE_NEON_AUTH_URL || true)
+case "$neon_auth_url" in
+  https://*)
+    if printf '%s' "$neon_auth_url" | grep -q '[[:space:]";{}$\\]'; then
+      neon_auth_url=""
+    fi
+    ;;
+  *) neon_auth_url="" ;;
+esac
+printf 'set $neon_auth_url "%s";\n' "${neon_auth_url%/}" > /etc/nginx/mobile-social-sign-in.conf
