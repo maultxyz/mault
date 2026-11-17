@@ -9,6 +9,9 @@ import type {
   LinkResult,
   RulePresetResult,
   RulePresetSummary,
+  ShowcaseKind,
+  ShowcaseResult,
+  ShowcaseTarget,
   ShowoffResult,
   StatsResult,
 } from "./lib/interfaces";
@@ -64,6 +67,26 @@ export function getShowoff(discordUserId: string, guildId: string | null) {
   const query = new URLSearchParams({ discordUserId });
   if (guildId) query.set("guildId", guildId);
   return botFetch<ShowoffResult>(`/bot/showoff?${query.toString()}`);
+}
+
+export function getShowcaseTargets(
+  discordUserId: string,
+  guildId: string | null,
+  kind: ShowcaseKind,
+  nameQuery: string,
+) {
+  const query = new URLSearchParams({ discordUserId, kind, query: nameQuery });
+  if (guildId) query.set("guildId", guildId);
+  return botFetch<ShowcaseTarget[]>(`/bot/showcase-targets?${query.toString()}`);
+}
+
+export function getShowcase(
+  discordUserId: string,
+  kind: ShowcaseKind,
+  guid: string,
+) {
+  const query = new URLSearchParams({ discordUserId, kind, guid });
+  return botFetch<ShowcaseResult>(`/bot/showcase?${query.toString()}`);
 }
 
 export function getLeaderboard(guildId: string | null) {

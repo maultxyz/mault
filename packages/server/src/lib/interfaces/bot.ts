@@ -1,4 +1,23 @@
 import type { FeederCalibration, ModuleConfig } from "@magic-vault/shared";
+import type { BOT_SHOWCASE_KINDS } from "../constants/discord";
+
+export type BotShowcaseKind = (typeof BOT_SHOWCASE_KINDS)[number];
+
+export interface BotShowcaseTarget {
+  guid: string;
+  name: string;
+  orgName: string;
+}
+
+export interface BotShowcase {
+  kind: BotShowcaseKind;
+  name: string;
+  orgName: string;
+  gameNames: string[];
+  cardCount: number;
+  totalValueDisplay: string;
+  topCards: BotTopCard[];
+}
 
 export interface BotTopCard {
   name: string;

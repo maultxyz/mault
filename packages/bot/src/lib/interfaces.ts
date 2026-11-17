@@ -80,6 +80,24 @@ export interface ShowoffResult extends StatsResult {
   orgName: string;
 }
 
+export type ShowcaseKind = "collection" | "storage";
+
+export interface ShowcaseTarget {
+  guid: string;
+  name: string;
+  orgName: string;
+}
+
+export interface ShowcaseResult {
+  kind: ShowcaseKind;
+  name: string;
+  orgName: string;
+  gameNames: string[];
+  cardCount: number;
+  totalValueDisplay: string;
+  topCards: TopCardSummary[];
+}
+
 export interface CollectionSummary {
   guid: string | null;
   name: string;
