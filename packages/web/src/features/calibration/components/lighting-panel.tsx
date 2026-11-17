@@ -103,7 +103,7 @@ export function LightingPanel({
                       <SelectValue>{t(`lights.modes.${field.value}.label`)}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                      {LIGHT_MODES.map((option) => (
+                      {LIGHT_MODES.filter((option) => option !== "foil").map((option) => (
                         <SelectItem key={option} value={option}>
                           {t(`lights.modes.${option}.label`)}
                         </SelectItem>
