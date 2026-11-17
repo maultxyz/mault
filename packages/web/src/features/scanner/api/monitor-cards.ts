@@ -6,6 +6,7 @@ import { apiGet } from "@/lib/api/client";
 import { MONITOR_LINK_CARDS_QUERY_KEY } from "@/lib/constants/query";
 import type { MonitorCardsSource } from "@/lib/interfaces/scanner";
 import type {
+  CollectionCardsCount,
   CollectionCardsPage,
   CollectionCardsQuery,
   CollectionCardsSummary,
@@ -68,6 +69,28 @@ export function monitorCardsSummaryQueryOptions(
         source,
         "/cards/summary",
         cardsQueryParams(query),
+      ),
+    enabled: !!source.collectionGuid,
+    placeholderData: keepPreviousData,
+  });
+}
+
+export function monitorCardsCountQueryOptions(
+  source: MonitorCardsSource,
+  query: CollectionCardsQuery,
+) {
+  const countQuery: CollectionCardsQuery = {
+    ...query,
+    sort: null,
+    grouped: false,
+  };
+  return queryOptions({
+    queryKey: [...monitorCardsKey(source), "count", countQuery],
+    queryFn: () =>
+      loadMonitorCards<CollectionCardsCount>(
+        source,
+        "/cards/count",
+        cardsQueryParams(countQuery),
       ),
     enabled: !!source.collectionGuid,
     placeholderData: keepPreviousData,

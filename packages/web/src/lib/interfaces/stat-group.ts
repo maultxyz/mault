@@ -3,6 +3,7 @@ export interface StatGroupTile {
   label: string;
   value: string | number | null | undefined;
   detail?: string | null;
+  onClick?: () => void;
 }
 
 export interface StatGroupProps {
@@ -10,4 +11,10 @@ export interface StatGroupProps {
   tiles: StatGroupTile[];
   live?: boolean;
   gridClassName?: string;
+}
+
+export interface StatCellProps {
+  label: string;
+  value: string;
+  className?: string;
 }

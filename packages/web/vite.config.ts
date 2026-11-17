@@ -4,6 +4,7 @@ import { readFileSync } from "fs";
 import path from "path";
 import { defineConfig } from "vite";
 import { VitePWA } from "vite-plugin-pwa";
+import { marketingPageHtml } from "./scripts/marketing-page-html";
 
 const { version } = JSON.parse(
   readFileSync(path.resolve(__dirname, "../../package.json"), "utf-8"),
@@ -11,10 +12,16 @@ const { version } = JSON.parse(
 
 const BRAND_BLUE = "#1447e6";
 
+const CROSS_ORIGIN_ISOLATION_HEADERS = {
+  "Cross-Origin-Opener-Policy": "same-origin",
+  "Cross-Origin-Embedder-Policy": "credentialless",
+};
+
 export default defineConfig({
   plugins: [
     react(),
     tailwindcss(),
+    marketingPageHtml(),
     VitePWA({
       // "prompt" so nothing reloads on its own: a scan session can be running.
       // The existing outdated-version banner is what triggers the reload.
@@ -58,6 +65,7 @@ export default defineConfig({
   ],
   define: {
     __APP_VERSION__: JSON.stringify(`${version}`),
+    __BUILD_YEAR__: JSON.stringify(new Date().getFullYear()),
   },
   envDir: path.resolve(__dirname, "../../"),
   resolve: {
@@ -67,9 +75,23 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    headers: CROSS_ORIGIN_ISOLATION_HEADERS,
     proxy: {
       "/api": {
         target: "http://localhost:3001",
+        changeOrigin: true,
+        ws: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
+  },
+  preview: {
+    host: "0.0.0.0",
+    port: 8080,
+    headers: CROSS_ORIGIN_ISOLATION_HEADERS,
+    proxy: {
+      "/api": {
+        target: "http://127.0.0.1:3001",
         changeOrigin: true,
         ws: true,
         rewrite: (path) => path.replace(/^\/api/, ""),

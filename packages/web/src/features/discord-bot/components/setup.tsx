@@ -1,10 +1,12 @@
-import { SectionHeading } from "@/components/section-heading";
+import { MarketingRule } from "@/components/marketing-rule";
+import { MarketingSectionHeader } from "@/components/marketing-section-header";
 import { DISCORD_BOT_INSTALL_URL } from "@/lib/constants/links";
 import { IconKey } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { DISCORD_BOT_SETUP_STEP_ICONS } from "@/lib/constants/discord-bot";
+import type { MarketingStepProps } from "@/lib/interfaces/marketing-rule";
 
-export function DiscordBotSetup() {
+export function DiscordBotSetup({ step: section }: MarketingStepProps) {
   const { t } = useTranslation("discordBot");
   const steps = t("setup.steps", { returnObjects: true }) as {
     title: string;
@@ -12,27 +14,28 @@ export function DiscordBotSetup() {
   }[];
 
   return (
-    <section id="setup" className="border-t bg-secondary/20">
+    <section id="setup" className="border-t">
       <div className="mx-auto max-w-4xl px-4 py-16">
-        <SectionHeading
-          align="left"
+        <MarketingSectionHeader
+          step={section}
+          eyebrow={t("setup.eyebrow")}
           heading={t("setup.title")}
           subtitle={t("setup.description")}
         />
 
-        <ol className="mt-8 grid gap-8 md:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-10 grid gap-px overflow-hidden rounded-lg bg-border ring-1 ring-border md:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, i) => {
             const Icon = DISCORD_BOT_SETUP_STEP_ICONS[i] ?? IconKey;
             return (
-              <li key={step.title} className="flex items-start gap-3">
-                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-primary/10 text-sm font-semibold text-primary">
-                  {i + 1}
-                </span>
+              <li key={step.title} className="flex flex-col gap-4 bg-card p-5">
+                <MarketingRule
+                  lead={`${section}.${String(i + 1).padStart(2, "0")}`}
+                  aside={<Icon className="size-4" />}
+                />
                 <div className="flex flex-col items-start gap-1">
-                  <div className="flex items-center gap-2">
-                    <Icon className="size-4 text-foreground/70" />
-                    <p className="text-sm font-medium">{step.title}</p>
-                  </div>
+                  <p className="font-heading text-sm font-semibold">
+                    {step.title}
+                  </p>
                   <p className="text-sm/relaxed text-foreground/70">
                     {step.description}
                   </p>

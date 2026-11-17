@@ -1,6 +1,5 @@
 import type {
   BinConfig,
-  BinRuleGroup,
   BinSet,
   DefaultBinInit,
   EmptyAllBinsInput,
@@ -8,7 +7,7 @@ import type {
   EmptyBinOptions,
   PickListFoundInput,
   PickListFoundResult,
-  RepackSlot,
+  RepackConfigPatch,
   Result,
   ScanOnlyConfig,
 } from "@magic-vault/shared";
@@ -81,9 +80,17 @@ export async function checkSetName(
 export async function saveBinConfig({
   binNumber,
   gameGuid,
+  presetGuid,
   ...body
-}: BinConfigSaveInput & { gameGuid?: string }): Promise<Result<BinConfig[]>> {
-  const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
+}: BinConfigSaveInput & {
+  gameGuid?: string;
+  presetGuid?: string;
+}): Promise<Result<BinConfig[]>> {
+  const query = new URLSearchParams({
+    ...(gameGuid ? { gameGuid } : {}),
+    ...(presetGuid ? { presetGuid } : {}),
+  }).toString();
+  const params = query ? `?${query}` : "";
   return apiPut<Result<BinConfig[]>>(
     `/api/bins/bins/${binNumber}${params}`,
     body,
@@ -131,6 +138,15 @@ export async function setSkipSaving(
   });
 }
 
+export async function setResortMode(
+  guid: string,
+  isResortMode: boolean,
+): Promise<Result<BinSet[]>> {
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/resort-mode`, {
+    isResortMode,
+  });
+}
+
 export async function setAutoAssignField(
   guid: string,
   field: string | null,
@@ -151,12 +167,7 @@ export async function setScanOnly(
 
 export async function setRepackConfig(
   guid: string,
-  config: {
-    isRepackMode: boolean;
-    repackSlots: RepackSlot[];
-    repackUniqueBy: string | null;
-    repackSiftRules: BinRuleGroup | null;
-  },
+  config: RepackConfigPatch,
 ): Promise<Result<BinSet[]>> {
   return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/repack`, config);
 }

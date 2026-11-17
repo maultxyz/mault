@@ -18,6 +18,7 @@ import {
   apiCardScannedEventSchema,
   apiCardsStoredEventSchema,
   apiErrorSchema,
+  apiSorterAlertEventSchema,
   apiWebhookTestEventSchema,
 } from "./schemas/public-api.schema";
 
@@ -222,6 +223,11 @@ export function buildPublicApiOpenApiDocument({
         apiCardsStoredEventSchema,
         "Cards stored",
         "A bin was put away into a storage location. At most 200 cards per event.",
+      ),
+      "sorter.alert": webhook(
+        apiSorterAlertEventSchema,
+        "Sorter alert",
+        "A sorter jammed, errored, restarted, ran out of cards, lost its connection or reached its service interval.",
       ),
       "webhook.test": webhook(
         apiWebhookTestEventSchema,

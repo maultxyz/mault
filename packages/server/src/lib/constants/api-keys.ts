@@ -2,7 +2,7 @@ import type { OrgRole } from "@magic-vault/shared";
 import { orgApiKeys } from "../../db/schema";
 
 export const API_ACCESS_UPGRADE_MESSAGE =
-  "API access is part of the Business plan. Upgrade to Business to create API keys.";
+  "API access is not part of your plan. Upgrade your plan to create API keys.";
 export const API_KEY_MANAGER_ROLES: OrgRole[] = ["owner", "admin"];
 export const API_KEY_RANDOM_BYTES = 32;
 export const API_KEY_VISIBLE_PREFIX_LENGTH = 8;

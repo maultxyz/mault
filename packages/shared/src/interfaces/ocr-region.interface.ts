@@ -8,16 +8,20 @@ export interface OcrRegion {
   height: number;
   multiline?: boolean;
   fallback?: boolean;
+  ignoredLineTexts?: string[];
 }
 
 export type OcrReadout = Record<OcrField, string>;
 
-export interface OcrRegionTrace {
+export interface OcrReadRegion {
   field: OcrField;
   fallback: boolean;
   anchored: boolean;
-  anchorText: string | null;
   box: { x0: number; y0: number; x1: number; y1: number };
+}
+
+export interface OcrRegionTrace extends OcrReadRegion {
+  anchorText: string | null;
   imageDataUrl: string;
   text: string;
 }
@@ -28,11 +32,16 @@ export interface OcrDiagnostics {
   nameScore: number | null;
   printingConfirmed?: boolean;
   usedFallback?: boolean;
+  regions?: OcrReadRegion[];
 }
 
-export interface ColorBarRegion {
+export interface ColorBarBox {
   x: number;
   y: number;
   width: number;
   height: number;
+}
+
+export interface ColorBarRegion extends ColorBarBox {
+  whiteReference: ColorBarBox;
 }

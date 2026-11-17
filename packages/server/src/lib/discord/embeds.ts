@@ -3,7 +3,6 @@ import {
   formatPrice,
   PRICE_SOURCE_FIELDS,
   type PlayingCard,
-  type PriceSource,
 } from "@magic-vault/shared";
 import { getWebUrl } from "../constants/urls";
 import type {
@@ -12,7 +11,7 @@ import type {
   CardScannedEmbedResult,
 } from "../interfaces/discord";
 
-const CARD_SCANNED_COLOR = 0x5865f2; // Discord blurple
+const CARD_SCANNED_COLOR = 0x5865f2;
 export const SCAN_ATTACHMENT_NAME = "scan.jpg";
 
 export function resolveImageUrl(url: string): string {
@@ -20,9 +19,7 @@ export function resolveImageUrl(url: string): string {
   if (proxied) {
     try {
       return decodeURIComponent(proxied[1]);
-    } catch {
-      // malformed encoding - fall through to the raw url below
-    }
+    } catch {}
   }
   if (/^https?:\/\//i.test(url)) return url;
   const base = getWebUrl();
@@ -92,7 +89,7 @@ export function buildScanSessionStartEmbed(
   sortingLogicSummary: string,
 ): DiscordEmbed {
   return {
-    title: `New scan session — ${collectionName}`,
+    title: `New scan session: ${collectionName}`,
     description: sortingLogicSummary,
     color: CARD_SCANNED_COLOR,
     timestamp: new Date().toISOString(),

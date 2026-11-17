@@ -194,6 +194,7 @@ export function AnnouncementsManager() {
                   size="icon"
                   variant="outline"
                   onClick={() => setFormTarget(announcement)}
+                  aria-label={t("editTitle")}
                   title={t("editTitle")}
                 >
                   <IconPencil size={14} />
@@ -202,6 +203,7 @@ export function AnnouncementsManager() {
                   size="icon"
                   variant="outline-destructive"
                   onClick={() => setDeleteTarget(announcement)}
+                  aria-label={t("deleteTitle")}
                   title={t("deleteTitle")}
                 >
                   <IconTrash size={14} />

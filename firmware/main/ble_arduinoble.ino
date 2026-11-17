@@ -34,6 +34,9 @@ BLECharacteristic txChar("6E400003-B5A3-F393-E0A9-E50E24DCCA9E", BLERead | BLENo
 #define BLE_BEGIN_RETRY_MS 500
 
 bool bleAvailable = false;
+// False when Wi-Fi owns the co-processor this boot (see cloud_wifis3.ino), so
+// bleInit() never ran.
+bool bleStarted = false;
 
 // Manual prototype, belt-and-suspenders alongside main.ino's early
 // #include <ArduinoBLE.h> - see that file's comment on why the Arduino
@@ -54,6 +57,7 @@ void bleInit() {
   // channel to report that today beyond Serial staying available regardless,
   // matching how a missing/broken Serial connection is also silently
   // tolerated elsewhere in this firmware.
+  bleStarted = true;
   for (int attempt = 0; attempt < BLE_BEGIN_ATTEMPTS && !bleAvailable; attempt++) {
     if (BLE.begin()) {
       bleAvailable = true;
@@ -97,6 +101,7 @@ void blePoll() {
 bool bleIsConnected() { return bleAvailable && BLE.connected(); }
 
 const char* bleState() {
+  if (!bleStarted) return "off";
   if (!bleAvailable) return "unavailable";
   return BLE.connected() ? "connected" : "advertising";
 }
@@ -106,9 +111,7 @@ uint16_t bleMtu() { return 0; }
 void bleSendLine(const char* s) {
   if (!bleIsConnected()) return;
   static char line[MAX_REPLY_LEN + 2];
-  size_t len = strnlen(s, MAX_REPLY_LEN);
-  memcpy(line, s, len);
-  line[len++] = '\n';
+  size_t len = copyLine(line, s);
   for (size_t offset = 0; offset < len; offset += BLE_CHUNK_SIZE) {
     if (offset > 0) delay(10);
     size_t chunkLen = len - offset < BLE_CHUNK_SIZE ? len - offset : BLE_CHUNK_SIZE;

@@ -3,6 +3,7 @@ export interface LeaderboardEntry {
   name: string | null;
   scanCount: number;
   isOwnOrg: boolean;
+  isAnonymous: boolean;
 }
 
 export interface Leaderboard {

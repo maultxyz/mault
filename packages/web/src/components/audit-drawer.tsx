@@ -11,16 +11,8 @@ import type { AuditDrawerProps } from "@/lib/interfaces/audit";
 import { IconClockHour3, IconRotateClockwise2, IconX } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { formatShortDateTime } from "@/lib/format";
 
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 export function AuditDrawer({
   open,
@@ -50,6 +42,7 @@ export function AuditDrawer({
           <DrawerClose asChild>
             <button
               type="button"
+              aria-label={t("a11y.close")}
               className="text-foreground/70 hover:text-foreground transition-colors"
             >
               <IconX size={14} />
@@ -82,7 +75,7 @@ export function AuditDrawer({
                         <p className="text-xs font-medium">{entry.label}</p>
                       )}
                       <p className="text-xs text-foreground/70">
-                        {formatDate(entry.createdAt)}
+                        {formatShortDateTime(entry.createdAt)}
                       </p>
                       {i === 0 && (
                         <span className="text-xs text-foreground/70 italic">
@@ -95,18 +88,14 @@ export function AuditDrawer({
                         {confirmGuid === entry.guid ? (
                           <>
                             <Button
-                              size="sm"
                               variant="destructive"
-                              className="h-6 px-2 text-xs"
                               disabled={isReverting}
                               onClick={() => handleRevert(entry.guid)}
                             >
                               {t("auditDrawer.confirm")}
                             </Button>
                             <Button
-                              size="sm"
                               variant="outline"
-                              className="h-6 px-2 text-xs"
                               disabled={isReverting}
                               onClick={() => setConfirmGuid(null)}
                             >
@@ -115,9 +104,7 @@ export function AuditDrawer({
                           </>
                         ) : (
                           <Button
-                            size="sm"
                             variant="outline"
-                            className="h-6 px-2 text-xs"
                             onClick={() => setConfirmGuid(entry.guid)}
                           >
                             <IconRotateClockwise2 size={10} />

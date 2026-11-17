@@ -5,22 +5,28 @@ import { Link } from "react-router-dom";
 export function MobileQuickAction({
   icon,
   label,
+  hint,
   to,
   className: extraClassName,
   ...props
 }: MobileQuickActionProps) {
   const content = (
     <>
-      <span className="flex size-14 items-center justify-center rounded-full bg-primary text-primary-foreground [&_svg]:size-6">
+      <span className="flex size-8 items-center justify-center rounded-md bg-primary/10 text-primary dark:bg-primary/20 [&_svg]:size-4">
         {icon}
       </span>
-      <span className="truncate text-xs font-semibold text-foreground">
-        {label}
+      <span className="flex w-full min-w-0 flex-col gap-0.5">
+        <span className="truncate text-sm font-medium text-foreground">
+          {label}
+        </span>
+        {hint && (
+          <span className="truncate text-xs text-foreground/70">{hint}</span>
+        )}
       </span>
     </>
   );
   const className = cn(
-    "flex min-w-0 flex-1 flex-col items-center gap-2 transition-transform active:scale-95 motion-reduce:active:scale-100 disabled:opacity-50",
+    "flex min-w-0 flex-col items-start gap-2.5 border-r border-input p-3 text-left transition-colors last:border-r-0 active:bg-input/40 disabled:opacity-50",
     extraClassName,
   );
 

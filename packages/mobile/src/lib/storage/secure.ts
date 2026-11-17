@@ -9,8 +9,6 @@ export async function readSecure(key: string): Promise<string | null> {
 }
 
 export async function writeSecure(key: string, value: string | null): Promise<void> {
-  try {
-    if (value == null) await SecureStore.deleteItemAsync(key);
-    else await SecureStore.setItemAsync(key, value);
-  } catch {}
+  if (value == null) await SecureStore.deleteItemAsync(key);
+  else await SecureStore.setItemAsync(key, value);
 }

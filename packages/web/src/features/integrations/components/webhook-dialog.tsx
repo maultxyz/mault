@@ -4,12 +4,12 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import type { WebhookDialogProps } from "@/lib/interfaces/integrations";
-import {
-  webhookSchema,
-  type WebhookFormValues,
-} from "@/schemas/webhook.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { WEBHOOK_EVENTS } from "@magic-vault/shared";
+import {
+  WEBHOOK_EVENTS,
+  webhookFormSchema,
+  type WebhookFormValues,
+} from "@magic-vault/shared";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
@@ -24,7 +24,7 @@ export function WebhookDialog({
 }: WebhookDialogProps) {
   const { t } = useTranslation("integrations");
   const form = useForm<WebhookFormValues>({
-    resolver: zodResolver(webhookSchema),
+    resolver: zodResolver(webhookFormSchema),
     defaultValues: { url: "", description: "", events: [...WEBHOOK_EVENTS] },
   });
   const { errors } = form.formState;
@@ -77,7 +77,7 @@ export function WebhookDialog({
             {...form.register("url")}
           />
           <FieldError
-            errors={[errors.url && { message: t("webhooks.invalidUrl") }]}
+            errors={[errors.url]}
           />
         </Field>
         <Field data-invalid={!!errors.description}>
@@ -130,9 +130,7 @@ export function WebhookDialog({
             )}
           />
           <FieldError
-            errors={[
-              errors.events && { message: t("webhooks.eventsRequired") },
-            ]}
+            errors={[errors.events]}
           />
         </Field>
       </form>

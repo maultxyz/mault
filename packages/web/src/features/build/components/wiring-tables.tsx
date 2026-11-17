@@ -6,7 +6,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useBuildSetup } from "@/features/build/api/use-build-setup";
-import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
+import { AnchorLinkButton } from "@/components/guide/anchor-link-button";
 import {
   Pin,
   WireSwatch,

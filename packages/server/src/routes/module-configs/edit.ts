@@ -3,49 +3,50 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { moduleConfigAudit, moduleConfigs } from "../../db/schema";
 import { getDeviceByGuid } from "../../lib/devices";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  rejectWhileImpersonating,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import { buildConfigs } from "./shared";
 
 export const editModuleConfigRoute = new Hono<AppEnv>().put(
   "/:moduleNumber",
   requireAuth,
   requireOrg,
+  rejectWhileImpersonating,
   async (c) => {
     const orgId = c.get("orgId");
     const deviceGuid = c.req.param("guid") as string;
     const moduleNumber = parseInt(c.req.param("moduleNumber"));
     const calibration = await c.req.json<ServoCalibration>();
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const device = await getDeviceByGuid(tx, orgId, deviceGuid);
-        if (!device) return { success: false, message: "Device not found." };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const device = await getDeviceByGuid(tx, orgId, deviceGuid);
+      if (!device) return { success: false, message: "Device not found." };
 
-        await tx
-          .insert(moduleConfigs)
-          .values({ moduleNumber, ...calibration, orgId, deviceId: device.id })
-          .onConflictDoUpdate({
-            target: [moduleConfigs.deviceId, moduleConfigs.moduleNumber],
-            set: { ...calibration, isDeleted: false, updatedAt: new Date() },
-          });
-
-        await tx
-          .insert(moduleConfigAudit)
-          .values({ moduleNumber, ...calibration, orgId, deviceId: device.id });
-
-        const rows = await tx.query.moduleConfigs.findMany({
-          where: (t, { eq, and }) =>
-            and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
+      await tx
+        .insert(moduleConfigs)
+        .values({ moduleNumber, ...calibration, orgId, deviceId: device.id })
+        .onConflictDoUpdate({
+          target: [moduleConfigs.deviceId, moduleConfigs.moduleNumber],
+          set: { ...calibration, isDeleted: false, updatedAt: new Date() },
         });
-        return {
-          success: true,
-          message: "Saved module config.",
-          data: buildConfigs(rows, device.moduleCount),
-        };
+
+      await tx
+        .insert(moduleConfigAudit)
+        .values({ moduleNumber, ...calibration, orgId, deviceId: device.id });
+
+      const rows = await tx.query.moduleConfigs.findMany({
+        where: (t, { eq, and }) =>
+          and(eq(t.deviceId, device.id), eq(t.isDeleted, false)),
       });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      return {
+        success: true,
+        message: "Saved module config.",
+        data: buildConfigs(rows, device.moduleCount),
+      };
+    });
+    return c.json(result);
   },
 );

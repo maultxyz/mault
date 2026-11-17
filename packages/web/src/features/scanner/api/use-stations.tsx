@@ -1,12 +1,18 @@
 import { billingQueryOptions } from "@/features/billing/api/billing";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { PARKED_PANELS_ROOT_CLASS } from "@/lib/constants/scanner";
+import { useEffectiveExecutionProvider } from "@/features/scanner/lib/onnx-runtime";
+import {
+  CPU_INFERENCE_MAX_CONNECTED_SORTERS,
+  PARKED_PANELS_ROOT_CLASS,
+} from "@/lib/constants/scanner";
 import {
   ACTIVE_COLLECTION_STORAGE_KEY,
   DEVICE_PREFS_STORAGE_KEY_PREFIX,
 } from "@/lib/constants/storage-keys";
 import type {
   DevicePrefs,
+  SorterLimitReason,
+  StationAttention,
   StationConnectKind,
   StationConnector,
   StationContextValue,
@@ -51,19 +57,26 @@ function loadDevicePrefs(orgId: string): Record<string, DevicePrefs> {
   return {};
 }
 
-// Stations track physical connections rather than anything the user manages:
-// every connected sorter is a station (shown as a tab), plus exactly one idle
-// standby station that the next "connect" goes through. Connecting the
-// standby promotes it and spawns a new standby; a sorter disconnecting becomes
-// the standby and any other idle station is dropped.
 export function StationsProvider({ children }: { children: React.ReactNode }) {
   const { activeOrg } = useOrg();
   const orgId = activeOrg?.id;
   const { data: billing } = useQuery(billingQueryOptions(orgId));
-  const maxConnectedSorters = Math.min(
+  const executionProvider = useEffectiveExecutionProvider();
+  const planSorterLimit = Math.min(
     billing?.maxConnectedSorters ?? MAX_CONNECTED_SORTERS,
     MAX_CONNECTED_SORTERS,
   );
+  const inferenceSorterLimit =
+    executionProvider === "wasm"
+      ? CPU_INFERENCE_MAX_CONNECTED_SORTERS
+      : MAX_CONNECTED_SORTERS;
+  const maxConnectedSorters = Math.min(planSorterLimit, inferenceSorterLimit);
+  const sorterLimitReason: SorterLimitReason =
+    inferenceSorterLimit < planSorterLimit
+      ? "cpuInference"
+      : planSorterLimit >= MAX_CONNECTED_SORTERS
+        ? "hardCap"
+        : "plan";
   const maxConnectedSortersRef = useRef(maxConnectedSorters);
   maxConnectedSortersRef.current = maxConnectedSorters;
   const [stations, setStationsState] = useState<StationState[]>(() => [
@@ -78,8 +91,21 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
   const [panelLayout, setPanelLayout] = useState<StationPanelLayout | null>(
     null,
   );
-  // Mutators read and write these synchronously so two stations acting within
-  // one commit (e.g. both claiming a collection) always see each other.
+  const [stationAttention, setStationAttention] = useState<
+    ReadonlyMap<string, StationAttention>
+  >(() => new Map());
+  const reportStationAttention = useCallback(
+    (id: string, attention: StationAttention | null) => {
+      setStationAttention((previous) => {
+        if ((previous.get(id) ?? null) === attention) return previous;
+        const next = new Map(previous);
+        if (attention) next.set(id, attention);
+        else next.delete(id);
+        return next;
+      });
+    },
+    [],
+  );
   const stationsRef = useRef(stations);
   const activeStationIdRef = useRef(activeStationId);
   const connectedRef = useRef(connectedStationIds);
@@ -271,8 +297,6 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
 
       if (connected) {
         setActive(id);
-        // A sorter that was already scanning keeps its collection; the one
-        // just connecting falls back to a free one instead.
         const self = stationsRef.current.find((s) => s.id === id);
         if (
           self?.collectionGuid &&
@@ -319,8 +343,6 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
-  // Must stay synchronous up to the connector call: the browser only shows
-  // the port/device picker from within the originating user gesture.
   const connectAnotherSorter = useCallback((kind: StationConnectKind) => {
     if (connectedRef.current.size >= maxConnectedSortersRef.current) return;
     const standby = stationsRef.current.find(
@@ -475,6 +497,29 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     [parkPanels],
   );
 
+  const stationIdsNeedingAttention = useMemo(
+    () =>
+      stations
+        .filter(
+          (station) =>
+            connectedStationIds.has(station.id) &&
+            stationAttention.has(station.id),
+        )
+        .map((station) => station.id),
+    [stations, connectedStationIds, stationAttention],
+  );
+  const nextStationIdNeedingAttention = useMemo(() => {
+    const others = stationIdsNeedingAttention.filter(
+      (id) => id !== activeStationId,
+    );
+    if (others.length === 0) return null;
+    const order = stations.map((station) => station.id);
+    const activePosition = order.indexOf(activeStationId);
+    return (
+      others.find((id) => order.indexOf(id) > activePosition) ?? others[0]
+    );
+  }, [stationIdsNeedingAttention, activeStationId, stations]);
+
   const value = useMemo<StationsContextValue>(
     () => ({
       stations,
@@ -483,8 +528,12 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       panelLayout,
       panelsDocked,
       maxConnectedSorters,
-      sorterLimitIsHardCap: maxConnectedSorters >= MAX_CONNECTED_SORTERS,
+      sorterLimitReason,
       canConnectAnotherSorter: connectedStationIds.size < maxConnectedSorters,
+      stationAttention,
+      stationIdsNeedingAttention,
+      nextStationIdNeedingAttention,
+      reportStationAttention,
       isStationLive: (id) =>
         connectedStationIds.has(id) || activeStationId === id,
       setActiveStation,
@@ -515,6 +564,11 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
       panelLayout,
       panelsDocked,
       maxConnectedSorters,
+      sorterLimitReason,
+      stationAttention,
+      stationIdsNeedingAttention,
+      nextStationIdNeedingAttention,
+      reportStationAttention,
       setActiveStation,
       bindStationDevice,
       claimStationCollection,

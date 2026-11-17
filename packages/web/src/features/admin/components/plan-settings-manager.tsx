@@ -63,7 +63,6 @@ export function PlanSettingsManager() {
           <Button
             type="button"
             variant="outline"
-            size="sm"
             onClick={restoreDefaults}
           >
             <IconRestore />
@@ -145,7 +144,9 @@ export function PlanSettingsManager() {
                           onChange={field.onChange}
                         />
                         {error && (
-                          <p className="text-2xs text-destructive">{error}</p>
+                          <p role="alert" className="text-2xs text-destructive">
+                            {error}
+                          </p>
                         )}
                       </div>
                     )}

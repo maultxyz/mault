@@ -23,6 +23,7 @@ export function BinSlot({ label, binNumber, binCount, height, onBinChange, onHei
         {label}
       </AppText>
       <SelectField
+        accessibilityLabel={label}
         value={binNumber != null ? t("calibration.binLabel", { bin: binNumber }) : null}
         placeholder={t("rules.selectPlaceholder")}
         onPress={() => setOpen(true)}

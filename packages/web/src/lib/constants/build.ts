@@ -18,6 +18,7 @@ import type {
   WireKey,
   WiringViewMode,
 } from "@/lib/interfaces/build";
+import type { SorterPrintPart } from "@/lib/interfaces/sorter-model";
 
 export const DEFAULT_BOARD_TYPE: BoardType = "uno_r4";
 
@@ -61,33 +62,48 @@ export const BOARD_BUY_URLS: Partial<Record<BoardType, string>> = {
   esp32: "https://amzn.to/4gmsm51",
 };
 
-export const BUILD_ANCHOR_SCROLL_MAX_FRAMES = 120;
-export const BUILD_ANCHOR_HIGHLIGHT_MS = 2500;
-export const BUILD_ANCHOR_HIGHLIGHT_CLASSES = [
-  "ring-2",
-  "ring-primary",
-  "ring-offset-4",
-  "ring-offset-background",
-  "rounded-md",
-];
 export const BOM_ANCHOR_PREFIX = "parts-";
 
 export const BUILD_SETUP_ANCHOR = "setup";
 
 export const BUILD_SELECTION_BADGE_CLASS =
-  "h-6 rounded-md border-foreground/15 bg-foreground/10 px-2 text-sm font-medium text-foreground";
+  "h-6 rounded-md border-border bg-foreground/10 px-2 text-sm font-medium tracking-normal text-foreground normal-case";
 
 export const BUILD_PIN_BADGE_CLASS =
-  "inline-flex h-6 items-center rounded-md border border-foreground/15 bg-foreground/10 px-2 align-middle font-mono text-sm font-medium text-foreground";
+  "inline-flex h-6 items-center rounded-md border border-border bg-foreground/10 px-2 align-middle font-mono text-sm font-medium text-foreground";
 
 export const BUILD_OPTIONAL_BADGE_CLASS =
-  "ml-2 h-6 rounded-md border-foreground/15 bg-foreground/10 px-2 align-middle text-sm font-medium text-foreground no-underline";
+  "ml-2 h-6 rounded-md border-border bg-foreground/10 px-2 align-middle text-sm font-medium tracking-normal text-foreground normal-case no-underline";
 
 export const BUILD_PARTS_ANCHOR = "parts";
 export const BUILD_ASSEMBLY_ANCHOR = "assembly";
 export const BUILD_WIRING_ANCHOR = "wiring";
 
-export const EMPTY_CHECKLIST: Record<string, boolean> = {};
+export const PRINT_PART_IMAGE_SIZE = 320;
+
+export const PRINT_PART_IMAGE_PARTS = [
+  "sortingModule",
+  "feederModule",
+  "shroud",
+  "baseSupportTall",
+  "baseSupportShort",
+  "baseSupportBreakout",
+  "circuitBoardPlate",
+  "servoControllerPlate",
+  "endPlate",
+  "genericPlate",
+  "binsPlate",
+  "endBinPlate",
+] as const satisfies readonly SorterPrintPart[];
+
+export const FLASH_IN_BROWSER_STEP_KEYS = [
+  "flash-in-browser",
+  "download-code",
+  "install-esp32-core",
+  "install-libraries",
+  "upload-sketch",
+  "confirm-ready",
+] as const;
 
 export const WIRE_COLOR_CLASSES: Record<WireColor, string> = {
   yellow: "bg-yellow-400",
@@ -184,4 +200,25 @@ export const DEFAULT_BUILD_SETUP: BuildSetupState = {
   mountType: DEFAULT_ESP32_MOUNT_TYPE,
   moduleCount: DEFAULT_MODULES,
   usingKit: false,
+};
+
+export const BUILD_STEP_IMAGE_ALT_KEYS: Record<string, string> = {
+  "/instructions/base_module.jpg": "imageAlt.photos.baseModule",
+  "/instructions/base_module_assembled.jpg": "imageAlt.photos.baseModuleAssembled",
+  "/instructions/v5.jpg": "imageAlt.photos.finishedSorter",
+  "/instructions/bottom_paddle_disassembled.jpg": "imageAlt.photos.bottomPaddleDisassembled",
+  "/instructions/bottom_paddle_assembled.jpg": "imageAlt.photos.bottomPaddleAssembled",
+  "/instructions/bottom_paddle_attached.jpg": "imageAlt.photos.bottomPaddleAttached",
+  "/instructions/side_paddles_disassembled.jpg": "imageAlt.photos.sidePaddlesDisassembled",
+  "/instructions/side_paddles_assembled.jpg": "imageAlt.photos.sidePaddlesAssembled",
+  "/instructions/side_paddles_attached.jpg": "imageAlt.photos.sidePaddlesAttached",
+  "/instructions/pusher_disassembled.jpg": "imageAlt.photos.pusherDisassembled",
+  "/instructions/pusher_assembled.jpg": "imageAlt.photos.pusherAssembled",
+  "/instructions/pusher_attached.jpg": "imageAlt.photos.pusherAttached",
+  "/instructions/roller_o_rings_mounted.jpg": "imageAlt.photos.rollerORings",
+  "/instructions/feeder_servo_mounted.jpg": "imageAlt.photos.feederServoMounted",
+  "/instructions/new_hopper.JPG": "imageAlt.photos.newHopper",
+  "/instructions/feeder_riser.JPG": "imageAlt.photos.feederRiser",
+  "/instructions/sorter_ir_sensor_mounted.jpg": "imageAlt.photos.sorterIrSensorMounted",
+  "/instructions/feeder_ir_sensor_mounted.jpg": "imageAlt.photos.feederIrSensorMounted",
 };

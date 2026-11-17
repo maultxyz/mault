@@ -13,15 +13,10 @@ export const listSoundRulesRoute = new Hono<AppEnv>().get(
     if (!gameGuid) {
       return c.json({ success: false, message: "Missing gameGuid." }, 400);
     }
-    try {
-      const rules = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const gameId = await findGameId(tx, gameGuid);
-        return gameId === null ? [] : loadSoundRules(tx, orgId, gameId);
-      });
-      return c.json({ success: true, data: rules });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const rules = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const gameId = await findGameId(tx, gameGuid);
+      return gameId === null ? [] : loadSoundRules(tx, orgId, gameId);
+    });
+    return c.json({ success: true, data: rules });
   },
 );

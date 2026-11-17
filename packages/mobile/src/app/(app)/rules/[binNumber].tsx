@@ -6,8 +6,8 @@ import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, Switch, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
-import { Input } from "@/components/ui/input";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -18,7 +18,9 @@ import { saveBinConfig } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { RuleGroupEditor } from "@/features/rules/components/rule-group-editor";
 import { binSchema } from "@/features/rules/lib/bin-schema";
-import { emptyRules, overflowSourcesFor, overflowTargetsFor } from "@/features/rules/lib/rules";
+import { emptyRules, modeLocksBinRules, overflowSourcesFor, overflowTargetsFor } from "@/features/rules/lib/rules";
+import { binSetMode, type BinConfig } from "@magic-vault/shared";
+import { binSaveInputWithRules } from "@/features/rules/lib/bin-rule-transfer";
 import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { BinFormValues } from "@/lib/interfaces/forms";
@@ -33,6 +35,7 @@ export default function BinEditorScreen() {
   const { gameGuid, activeSet, bins, fieldDefinitions, freeformOptions } = useRulesData();
   const bin = bins.find((b) => b.binNumber === binNumber);
   const [overflowOpen, setOverflowOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
   const [catchAllError, setCatchAllError] = useState(false);
 
   const serverValues = useMemo<BinFormValues | undefined>(
@@ -42,7 +45,6 @@ export default function BinEditorScreen() {
             rules: bin.rules ?? emptyRules(),
             isCatchAll: !!bin.isCatchAll,
             isDisabled: !!bin.isDisabled,
-            cardLimit: bin.cardLimit != null ? String(bin.cardLimit) : "",
             overflowBin: bin.overflowBin ?? null,
           }
         : undefined,
@@ -61,8 +63,11 @@ export default function BinEditorScreen() {
   const sources = overflowSourcesFor(binNumber, bins);
   const targets = overflowTargetsFor(binNumber, bins);
   const pickList = !!bin?.pickList;
-  const readOnly = !editableSet || pickList;
-  const rulesLocked = readOnly || sources.length > 0;
+  const mode = binSetMode(activeSet);
+  const isScanOnly = mode === "scan-only";
+  const modeLocksRules = modeLocksBinRules(mode);
+  const readOnly = !editableSet || pickList || isScanOnly;
+  const rulesLocked = readOnly || sources.length > 0 || modeLocksRules;
   const otherCatchAll = bins.some((b) => b.binNumber !== binNumber && b.isCatchAll);
 
   const save = useMutation({
@@ -73,7 +78,6 @@ export default function BinEditorScreen() {
         rules: values.rules,
         isCatchAll: values.isCatchAll,
         isDisabled: values.isCatchAll ? false : values.isDisabled,
-        cardLimit: values.cardLimit === "" ? null : Number(values.cardLimit),
         overflowBin: values.isCatchAll ? null : values.overflowBin,
         isOverride: bin?.isOverride,
         overridePriority: bin?.overridePriority,
@@ -86,6 +90,35 @@ export default function BinEditorScreen() {
       await queryClient.invalidateQueries({ queryKey: ["bin-sets"] });
     },
   });
+
+  const transfer = useMutation({
+    mutationFn: async ({ target, move }: { target: BinConfig; move: boolean }) => {
+      if (!bin) return;
+      await saveBinConfig(binSaveInputWithRules(target, bin.rules, gameGuid));
+      if (move) await saveBinConfig(binSaveInputWithRules(bin, emptyRules(), gameGuid));
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: ["bin-sets"] }),
+  });
+  const canTransferRules = !!bin && !rulesLocked && mode !== "auto-assign" && bin.rules.conditions.length > 0;
+  const binName = (target: BinConfig) =>
+    target.isCatchAll
+      ? t("rules.transfer.catchAllBin", { number: target.binNumber })
+      : t("rules.bin", { number: target.binNumber });
+  const chooseTransferTarget = (value: string) => {
+    setTransferOpen(false);
+    const target = bins.find((candidate) => candidate.binNumber === Number(value));
+    if (!target) return;
+    const hasRules = target.rules.conditions.length > 0 || !!target.pickList;
+    Alert.alert(
+      t("rules.transfer.confirmTitle", { bin: binName(target) }),
+      hasRules ? t("rules.transfer.replaceWarning", { bin: binName(target) }) : t("rules.transfer.confirmDescription"),
+      [
+        { text: t("common.cancel"), style: "cancel" },
+        { text: t("rules.transfer.copy"), onPress: () => transfer.mutate({ target, move: false }) },
+        { text: t("rules.transfer.move"), onPress: () => transfer.mutate({ target, move: true }) },
+      ],
+    );
+  };
 
   usePreventRemove(isDirty && !save.isPending, ({ data }) => {
     Alert.alert(t("common.discardTitle"), t("common.discardDescription"), [
@@ -108,48 +141,17 @@ export default function BinEditorScreen() {
       />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xxl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xl }}
       >
         {activeSet && !activeSet.isActive ? (
           <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} />
         ) : null}
         {pickList ? <Callout tone="info" title={t("rules.pickListNotice")} /> : null}
-        {save.isError ? <Callout tone="destructive" title={t("rules.saveFailed")} /> : null}
+        {save.isError || transfer.isError ? <Callout tone="destructive" title={t("rules.saveFailed")} /> : null}
 
-        <View style={{ gap: SPACING.md }}>
-          <View style={{ gap: 2 }}>
-            <SectionHeader title={isCatchAll ? t("rules.overrideLabel") : t("rules.rulesLabel")} />
-            <AppText size="sm" tone="secondary">
-              {isCatchAll ? t("rules.overrideDescription") : t("rules.rulesDescription")}
-            </AppText>
-          </View>
-          {sources.length > 0 ? (
-            <Callout
-              tone="info"
-              title={t("rules.overflowTargetNotice", { count: sources.length, bins: sources.join(", ") })}
-            />
-          ) : null}
-          <Controller
-            control={form.control}
-            name="rules"
-            render={({ field }) =>
-              field.value ? (
-                <RuleGroupEditor
-                  group={field.value}
-                  onChange={field.onChange}
-                  fieldDefinitions={fieldDefinitions}
-                  freeformOptions={freeformOptions}
-                  disabled={rulesLocked}
-                />
-              ) : (
-                <View />
-              )
-            }
-          />
-        </View>
+        {isScanOnly ? <Callout tone="info" title={t("rules.scanOnlyLocked")} /> : null}
 
         <View style={{ gap: SPACING.sm }}>
-          <SectionHeader title={t("rules.settingsTitle")} />
           {catchAllError ? <Callout tone="warning" title={t("rules.needCatchAll")} /> : null}
           <ListGroup>
             <Controller
@@ -160,6 +162,7 @@ export default function BinEditorScreen() {
                   title={t("rules.catchAllLabel")}
                   subtitle={t("rules.catchAllDescription")}
                   disabled={readOnly}
+                  rightIsInteractive
                   right={
                     <Switch
                       accessibilityLabel={t("rules.catchAllLabel")}
@@ -181,7 +184,65 @@ export default function BinEditorScreen() {
                 />
               )}
             />
-            {!isCatchAll ? (
+          </ListGroup>
+        </View>
+
+        {!isScanOnly ? (
+          <View style={{ gap: SPACING.md }}>
+            <View style={{ gap: 2 }}>
+              <SectionHeader
+                title={isCatchAll ? t("rules.overrideLabel") : t("rules.rulesLabel")}
+                action={
+                  canTransferRules ? (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      label={t("rules.transfer.button")}
+                      disabled={isDirty || transfer.isPending}
+                      onPress={() => setTransferOpen(true)}
+                    />
+                  ) : null
+                }
+              />
+              <AppText size="sm" tone="secondary">
+                {isCatchAll ? t("rules.overrideDescription") : t("rules.rulesDescription")}
+              </AppText>
+            </View>
+            {sources.length > 0 ? (
+              <Callout
+                tone="info"
+                title={t("rules.overflowTargetNotice", { count: sources.length, bins: sources.join(", ") })}
+              />
+            ) : null}
+            {mode === "auto-assign" ? <Callout tone="info" title={t("rules.autoAssignLocked")} /> : null}
+            {modeLocksRules && mode !== "auto-assign" ? (
+              <Callout tone="info" title={t("rules.modeLocked", { mode: t(`rules.modes.${mode}.title`) })} />
+            ) : (
+              <Controller
+                control={form.control}
+                name="rules"
+                render={({ field }) =>
+                  field.value ? (
+                    <RuleGroupEditor
+                      group={field.value}
+                      onChange={field.onChange}
+                      fieldDefinitions={fieldDefinitions}
+                      freeformOptions={freeformOptions}
+                      disabled={rulesLocked}
+                    />
+                  ) : (
+                    <View />
+                  )
+                }
+              />
+            )}
+          </View>
+        ) : null}
+
+        {!isCatchAll ? (
+          <View style={{ gap: SPACING.sm }}>
+            <SectionHeader title={t("rules.settingsTitle")} />
+            <ListGroup>
               <Controller
                 control={form.control}
                 name="isDisabled"
@@ -190,6 +251,7 @@ export default function BinEditorScreen() {
                     title={t("rules.disabledLabel")}
                     subtitle={t("rules.disabledDescription")}
                     disabled={readOnly}
+                    rightIsInteractive
                     right={
                       <Switch
                         accessibilityLabel={t("rules.disabledLabel")}
@@ -204,51 +266,40 @@ export default function BinEditorScreen() {
                   />
                 )}
               />
-            ) : null}
-            <Controller
-              control={form.control}
-              name="cardLimit"
-              render={({ field, fieldState }) => (
+              {!modeLocksRules && !isScanOnly ? (
                 <ListRow
-                  title={t("rules.cardLimitLabel")}
-                  subtitle={fieldState.error?.message ?? t("rules.cardLimitDescription")}
-                  right={
-                    <Input
-                      compact
-                      accessibilityLabel={t("rules.cardLimitLabel")}
-                      keyboardType="number-pad"
-                      placeholder={t("rules.noLimit")}
-                      editable={!readOnly}
-                      value={field.value}
-                      onChangeText={(text) => field.onChange(text.replace(/\D/g, ""))}
-                    />
-                  }
+                  title={t("rules.overflowLabel")}
+                  subtitle={targets.length === 0 && overflowBin == null ? t("rules.overflowNoOptions") : undefined}
+                  value={overflowBin != null ? t("rules.bin", { number: overflowBin }) : t("rules.overflowNone")}
+                  disabled={readOnly || (targets.length === 0 && overflowBin == null)}
+                  onPress={() => setOverflowOpen(true)}
                 />
-              )}
-            />
-            {!isCatchAll ? (
-              <ListRow
-                title={t("rules.overflowLabel")}
-                subtitle={targets.length === 0 && overflowBin == null ? t("rules.overflowNoOptions") : undefined}
-                value={overflowBin != null ? t("rules.bin", { number: overflowBin }) : t("rules.overflowNone")}
-                disabled={readOnly || (targets.length === 0 && overflowBin == null)}
-                onPress={() => setOverflowOpen(true)}
-              />
-            ) : null}
-          </ListGroup>
-          <OptionSheet
-            visible={overflowOpen}
-            title={t("rules.overflowLabel")}
-            options={overflowOptions}
-            selected={[overflowBin != null ? String(overflowBin) : ""]}
-            onSelect={(value) => {
-              form.setValue("overflowBin", value === "" ? null : Number(value), { shouldDirty: true });
-              setOverflowOpen(false);
-            }}
-            onClose={() => setOverflowOpen(false)}
-          />
-        </View>
+              ) : null}
+            </ListGroup>
+          </View>
+        ) : null}
       </ScrollView>
+      <OptionSheet
+        visible={overflowOpen}
+        title={t("rules.overflowLabel")}
+        options={overflowOptions}
+        selected={[overflowBin != null ? String(overflowBin) : ""]}
+        onSelect={(value) => {
+          form.setValue("overflowBin", value === "" ? null : Number(value), { shouldDirty: true });
+          setOverflowOpen(false);
+        }}
+        onClose={() => setOverflowOpen(false)}
+      />
+      <OptionSheet
+        visible={transferOpen}
+        title={t("rules.transfer.title")}
+        options={bins
+          .filter((target) => target.binNumber !== binNumber)
+          .map((target) => ({ value: String(target.binNumber), label: binName(target) }))}
+        selected={[]}
+        onSelect={chooseTransferTarget}
+        onClose={() => setTransferOpen(false)}
+      />
       <SaveBar
         visible={isDirty && !readOnly}
         saving={save.isPending}

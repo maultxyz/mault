@@ -1,0 +1,79 @@
+{
+  "meta": {
+    "title": "Télécharger l'application de bureau | MAULT",
+    "description": "Télécharge l'application de bureau MAULT pour Windows et Linux. Le scan continue en arrière-plan, avec un aperçu flottant, des contrôles dans la barre des tâches et des notifications de bureau."
+  },
+  "hero": {
+    "eyebrow": "Application de bureau",
+    "title": "Continue à trier pendant que tu fais autre chose",
+    "description": "L'application de bureau MAULT, c'est l'application web complète dans sa propre fenêtre. Le scan continue quand elle est réduite ou cachée par d'autres applications, et un aperçu flottant garde la trieuse en vue.",
+    "downloadFor": "Télécharger pour {{platform}}",
+    "otherPlatforms": "Autres plateformes",
+    "choosePlatform": "Choisis ta plateforme",
+    "alreadyInstalled": "Tu utilises déjà l'application de bureau. Elle se met à jour toute seule, il n'y a donc rien à télécharger.",
+    "note": "Gratuite, se connecte avec ton compte MAULT existant et installe ses mises à jour toute seule."
+  },
+  "platforms": {
+    "eyebrow": "Téléchargement",
+    "title": "Choisis ta plateforme",
+    "description": "Chaque lien mène à la dernière version. Une fois installée, l'application se met à jour toute seule.",
+    "download": "Télécharger",
+    "yourSystem": "Ton système",
+    "allReleases": "Tous les fichiers de version sur GitHub",
+    "macosSoon": "Une version macOS arrivera plus tard.",
+    "items": {
+      "windows": {
+        "name": "Windows",
+        "requirements": "Windows 10 ou plus récent, 64 bits",
+        "file": "Programme d'installation (.exe)"
+      },
+      "linux": {
+        "name": "Linux",
+        "requirements": "x86 64 bits",
+        "file": "AppImage"
+      }
+    }
+  },
+  "features": {
+    "eyebrow": "Pourquoi l'application",
+    "title": "Faite pour les longues sessions de tri",
+    "description": "Un navigateur met en pause les onglets qu'il ne voit pas. L'application de bureau garde la trieuse en marche et te permet de la surveiller depuis n'importe où sur ton écran.",
+    "items": [
+      {
+        "title": "Scanne en arrière-plan",
+        "description": "Réduis la fenêtre ou couvre-la avec d'autres applications : la trieuse continue de scanner et de trier les cartes."
+      },
+      {
+        "title": "Aperçu flottant",
+        "description": "Quand MAULT passe en arrière-plan, une petite fenêtre toujours au premier plan affiche la caméra, l'état, le nombre de cartes et le chrono, avec lecture, pause, alimentation auto et tout éjecter."
+      },
+      {
+        "title": "Contrôles dans la barre des tâches",
+        "description": "Sous Windows, survole l'icône de la barre des tâches pour mettre en pause, reprendre, activer l'alimentation auto ou tout éjecter sans ouvrir l'application."
+      },
+      {
+        "title": "Notifications de bureau",
+        "description": "Les erreurs et avertissements s'affichent comme notifications système pendant que tu travailles dans une autre application."
+      },
+      {
+        "title": "Toujours à jour",
+        "description": "L'application charge toujours la dernière version de MAULT et installe les mises à jour de bureau en arrière-plan."
+      }
+    ]
+  },
+  "install": {
+    "eyebrow": "Installation",
+    "title": "Installer l'application",
+    "description": "Certaines plateformes demandent un clic de plus à la première ouverture.",
+    "items": {
+      "windows": {
+        "title": "Windows",
+        "body": "Lance MAULT-windows.exe. Si Windows SmartScreen indique qu'il a protégé ton PC, choisis Informations complémentaires, puis Exécuter quand même. MAULT s'ouvre une fois l'installation terminée et ajoute un raccourci au menu Démarrer."
+      },
+      "linux": {
+        "title": "Linux",
+        "body": "Rends le fichier exécutable avec chmod +x MAULT-linux.AppImage, puis lance-le. Pour connecter une trieuse en USB, ton utilisateur doit peut-être faire partie du groupe dialout."
+      }
+    }
+  }
+}

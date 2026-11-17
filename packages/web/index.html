@@ -6,6 +6,29 @@
          start-up from its environment so one image serves every deployment.
          A classic script, so it runs before the module bundle reads it. -->
     <script src="/env.js"></script>
+    <script>
+      if (typeof crypto.randomUUID !== "function") {
+        crypto.randomUUID = function () {
+          var bytes = crypto.getRandomValues(new Uint8Array(16));
+          bytes[6] = (bytes[6] & 15) | 64;
+          bytes[8] = (bytes[8] & 63) | 128;
+          var hex = Array.from(bytes, function (b) {
+            return b.toString(16).padStart(2, "0");
+          }).join("");
+          return (
+            hex.slice(0, 8) +
+            "-" +
+            hex.slice(8, 12) +
+            "-" +
+            hex.slice(12, 16) +
+            "-" +
+            hex.slice(16, 20) +
+            "-" +
+            hex.slice(20)
+          );
+        };
+      }
+    </script>
     <link rel="icon" type="image/png" href="/icon/Icon.png" />
     <link rel="apple-touch-icon" href="/icon/apple-touch-icon.png" />
     <meta name="theme-color" content="#1447e6" />
@@ -26,17 +49,19 @@
       property="og:description"
       content="Scan and sort Magic: The Gathering and other trading cards automatically. Build an open-source card sorter, set bin rules, and track your collection's value."
     />
-    <meta property="og:image" content="https://mault.xyz/icon/Icon.png" />
-    <meta property="og:image:width" content="1024" />
-    <meta property="og:image:height" content="1024" />
-    <meta property="og:image:alt" content="MAULT logo" />
-    <meta name="twitter:card" content="summary" />
+    <meta property="og:image" content="https://mault.xyz/og/mault-og.jpg" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="The MAULT logo next to two MAULT trading card sorters, one black and one pink" />
+    <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="MAULT: Automated Trading Card Sorter and Scanner" />
     <meta
       name="twitter:description"
       content="Scan and sort Magic: The Gathering and other trading cards automatically. Build an open-source card sorter, set bin rules, and track your collection's value."
     />
-    <meta name="twitter:image" content="https://mault.xyz/icon/Icon.png" />
+    <meta name="twitter:image" content="https://mault.xyz/og/mault-og.jpg" />
+    <meta name="twitter:image:alt" content="The MAULT logo next to two MAULT trading card sorters, one black and one pink" />
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -62,16 +87,6 @@
             "name": "MAULT",
             "publisher": { "@id": "https://mault.xyz/#organization" },
             "inLanguage": ["en", "de", "fr"]
-          },
-          {
-            "@type": "SoftwareApplication",
-            "name": "MAULT",
-            "url": "https://mault.xyz/",
-            "applicationCategory": "UtilitiesApplication",
-            "operatingSystem": "Web",
-            "description": "Automated trading card scanning, sorting and inventory for Magic: The Gathering and other trading card games, paired with an open-source card sorting machine.",
-            "publisher": { "@id": "https://mault.xyz/#organization" },
-            "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" }
           }
         ]
       }
@@ -127,58 +142,37 @@
         font: 500 14px/1.4 -apple-system, BlinkMacSystemFont, "Segoe UI",
           Roboto, "Helvetica Neue", sans-serif;
       }
-      #root:not(:empty) + .boot-shell {
+      #root:not(:empty) ~ .boot-shell {
         display: none;
       }
       .boot-shell-icon {
         display: grid;
         place-items: center;
-        color: oklch(0.141 0.005 285.823);
+        color: #292d34;
       }
       .boot-shell-icon svg {
         width: 56px;
         height: 56px;
       }
-      .boot-shell-card-space {
-        display: none;
-      }
       .dark .boot-shell {
-        background: #09090b;
+        background: #1e1f21;
         color: #a1a1aa;
       }
       .dark .boot-shell-icon {
         color: oklch(0.985 0 0);
       }
       [data-boot="app"] .boot-shell {
-        gap: 8px;
-        background: oklch(0.967 0.001 286.375);
+        background: #f7f8f9;
       }
       [data-boot="app"].dark .boot-shell {
         background: #000;
       }
-      [data-boot="app"] .boot-shell-icon {
-        box-sizing: border-box;
-        width: 36px;
-        height: 36px;
-        margin-bottom: 4px;
-        border: 1px solid oklch(0.92 0.004 286.32);
-        border-radius: 0.625rem;
-        background: oklch(0.141 0.005 285.823 / 4%);
-      }
-      [data-boot="app"].dark .boot-shell-icon {
-        border-color: oklch(1 0 0 / 10%);
-        background: oklch(0.985 0 0 / 4%);
-      }
       [data-boot="app"] .boot-shell-icon svg {
-        width: 28px;
-        height: 28px;
+        width: 48px;
+        height: 48px;
       }
       [data-boot="app"] .boot-shell-tagline {
         display: none;
-      }
-      [data-boot="app"] .boot-shell-card-space {
-        display: block;
-        height: 144px;
       }
     </style>
     <script>
@@ -233,7 +227,6 @@
         </svg>
       </span>
       <span class="boot-shell-tagline">MAULT · Automated trading card sorting</span>
-      <span class="boot-shell-card-space"></span>
     </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

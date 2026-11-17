@@ -5,10 +5,17 @@ import {
   isLightBrightness,
   isLightColor,
   isLightMode,
+  isLightLedCount,
+  isPriceSource,
+  isValueCelebrationDuration,
+  isLightTimerSeconds,
+  LIGHT_TIMER_MIN_SECONDS,
+  LIGHT_TIMER_MAX_SECONDS,
   LIGHT_BRIGHTNESS_MAX,
   maxModulesForLayout,
   type ChannelLayout,
   type LightMode,
+  type PriceSource,
 } from "@magic-vault/shared";
 import { and, eq, gt } from "drizzle-orm";
 import { Hono } from "hono";
@@ -37,6 +44,7 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       matchesNeeded?: number | null;
       feederStopPulse?: number | null;
       checkBothOrientations?: boolean | null;
+      flipCamera?: boolean;
       moduleCount?: number;
       channelLayout?: ChannelLayout;
       setupCompleted?: boolean;
@@ -46,9 +54,45 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       lightMode?: LightMode;
       lightColor?: string;
       lightBrightness?: number;
+      lightWhite?: number;
+      lightLedCount?: number;
+      valueCelebrationEnabled?: boolean;
+      valueCelebrationThreshold?: number;
+      valueCelebrationPriceSource?: PriceSource;
+      valueCelebrationDurationMs?: number;
+      lightWarningsEnabled?: boolean;
+      lightEmptyWarningSeconds?: number;
+      lightBlockedWarningSeconds?: number;
+      lightNormalSeconds?: number;
     }>();
+    if ("lightWarningsEnabled" in body && typeof body.lightWarningsEnabled !== "boolean") {
+      return c.json({ success: false, message: "Lighting warnings enabled must be a boolean." }, 400);
+    }
+    for (const key of ["lightEmptyWarningSeconds", "lightBlockedWarningSeconds", "lightNormalSeconds"] as const) {
+      if (key in body && !isLightTimerSeconds(body[key])) {
+        return c.json({ success: false, message: `${key} must be an integer from ${LIGHT_TIMER_MIN_SECONDS} to ${LIGHT_TIMER_MAX_SECONDS} seconds.` }, 400);
+      }
+    }
+    if ("valueCelebrationEnabled" in body && typeof body.valueCelebrationEnabled !== "boolean") {
+      return c.json({ success: false, message: "Celebration enabled must be a boolean." }, 400);
+    }
+    if ("valueCelebrationThreshold" in body &&
+      (typeof body.valueCelebrationThreshold !== "number" ||
+        !Number.isFinite(body.valueCelebrationThreshold) ||
+        body.valueCelebrationThreshold < 0)) {
+      return c.json({ success: false, message: "Celebration threshold must be a finite non-negative number." }, 400);
+    }
+    if ("valueCelebrationPriceSource" in body && !isPriceSource(body.valueCelebrationPriceSource)) {
+      return c.json({ success: false, message: "Unknown celebration price source." }, 400);
+    }
+    if ("valueCelebrationDurationMs" in body && !isValueCelebrationDuration(body.valueCelebrationDurationMs)) {
+      return c.json({ success: false, message: "Celebration duration must be an integer from 500 to 3000 ms." }, 400);
+    }
     if ("lightMode" in body && !isLightMode(body.lightMode)) {
       return c.json({ success: false, message: "Unknown light mode." }, 400);
+    }
+    if ("lightLedCount" in body && !isLightLedCount(body.lightLedCount)) {
+      return c.json({ success: false, message: "LED count must be 8 or 16." }, 400);
     }
     if ("lightColor" in body && !isLightColor(body.lightColor)) {
       return c.json(
@@ -61,6 +105,15 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
         {
           success: false,
           message: `Light brightness must be an integer from 0 to ${LIGHT_BRIGHTNESS_MAX}.`,
+        },
+        400,
+      );
+    }
+    if ("lightWhite" in body && !isLightBrightness(body.lightWhite)) {
+      return c.json(
+        {
+          success: false,
+          message: `Light white channel must be an integer from 0 to ${LIGHT_BRIGHTNESS_MAX}.`,
         },
         400,
       );
@@ -141,6 +194,10 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
             "checkBothOrientations" in body
               ? (body.checkBothOrientations ?? null)
               : device.checkBothOrientations,
+          flipCamera:
+            typeof body.flipCamera === "boolean"
+              ? body.flipCamera
+              : device.flipCamera,
           channelLayout,
           setupCompletedAt:
             "setupCompleted" in body
@@ -163,6 +220,16 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
           lightMode: body.lightMode ?? device.lightMode,
           lightColor: body.lightColor?.toLowerCase() ?? device.lightColor,
           lightBrightness: body.lightBrightness ?? device.lightBrightness,
+          lightWhite: body.lightWhite ?? device.lightWhite,
+          lightLedCount: body.lightLedCount ?? device.lightLedCount,
+          valueCelebrationEnabled: body.valueCelebrationEnabled ?? device.valueCelebrationEnabled,
+          valueCelebrationThreshold: body.valueCelebrationThreshold ?? device.valueCelebrationThreshold,
+          valueCelebrationPriceSource: body.valueCelebrationPriceSource ?? device.valueCelebrationPriceSource,
+          valueCelebrationDurationMs: body.valueCelebrationDurationMs ?? device.valueCelebrationDurationMs,
+          lightWarningsEnabled: body.lightWarningsEnabled ?? device.lightWarningsEnabled,
+          lightEmptyWarningSeconds: body.lightEmptyWarningSeconds ?? device.lightEmptyWarningSeconds,
+          lightBlockedWarningSeconds: body.lightBlockedWarningSeconds ?? device.lightBlockedWarningSeconds,
+          lightNormalSeconds: body.lightNormalSeconds ?? device.lightNormalSeconds,
           moduleCount:
             "moduleCount" in body && body.moduleCount != null
               ? Math.min(

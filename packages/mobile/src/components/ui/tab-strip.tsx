@@ -23,19 +23,20 @@ export function TabStrip<T extends string>({ items, value, onChange }: TabStripP
             key={item.value}
             accessibilityRole="tab"
             accessibilityState={{ selected: active }}
+            hitSlop={{ top: 2, bottom: 2 }}
             onPress={() => onChange(item.value)}
             style={{
               flexDirection: "row",
               alignItems: "center",
               gap: 6,
-              height: 40,
+              minHeight: 40,
               paddingHorizontal: SPACING.sm,
               marginBottom: -1,
               borderBottomWidth: 2,
               borderBottomColor: active ? colors.primaryText : "transparent",
             }}
           >
-            <AppText weight="medium" tone={active ? "default" : "secondary"}>
+            <AppText weight={active ? "semibold" : "medium"} tone={active ? "primary" : "secondary"}>
               {item.label}
             </AppText>
             {item.badge ? (
@@ -48,7 +49,7 @@ export function TabStrip<T extends string>({ items, value, onChange }: TabStripP
                   alignItems: "center",
                 }}
               >
-                <AppText size="2xs" weight="semibold" style={{ color: "#ffffff", lineHeight: 16 }}>
+                <AppText size="2xs" weight="semibold" style={{ color: colors.onStatusStrong, lineHeight: 16 }}>
                   {item.badge > 99 ? "99+" : String(item.badge)}
                 </AppText>
               </View>

@@ -6,6 +6,8 @@ import type {
   ModuleConfig,
   ScanRegion,
   ServoCalibration,
+  FeederTestFormValues,
+  FeederTestResult,
 } from "@magic-vault/shared";
 import type { IconName } from "@/lib/interfaces/ui";
 
@@ -16,11 +18,6 @@ export type SliderKey = `${number}:${ServoName}`;
 export type ActivePositions = Partial<Record<SliderKey, string | null>>;
 
 export type ModuleDelayField = "paddleOpenDelay" | "pusherHoldDuration" | "paddleCloseDelay";
-
-export interface DirectionalSpeed {
-  direction: "forward" | "reverse";
-  magnitude: number;
-}
 
 export interface ServoConfig {
   name: ServoName;
@@ -60,6 +57,7 @@ export interface CalibrationState {
   handleTest: () => Promise<void>;
   handleFeed: () => Promise<void>;
   handleDropCard: () => void;
+  applyDraftsToDevice: () => Promise<void>;
   handleResetServosToDefaults: () => void;
   save: () => Promise<void>;
   discard: () => void;
@@ -83,6 +81,27 @@ export interface ModuleCardProps {
   module: number;
   state: CalibrationState;
   firmwareVersion: string | null;
+}
+
+export interface UseFeederTestOptions {
+  moduleCount: number;
+  feedRetryCount: number;
+}
+
+export interface FeederTestControls {
+  isRunning: boolean;
+  isStopping: boolean;
+  cardsSent: number;
+  cardsToSend: number | null;
+  lastResult: FeederTestResult | null;
+  canStart: boolean;
+  start: (values: FeederTestFormValues) => Promise<void>;
+  stop: () => void;
+}
+
+export interface FeederTestPanelProps {
+  feederTest: FeederTestControls;
+  isBlockedByRoutingTest: boolean;
 }
 
 export interface FeederPanelProps {
@@ -128,6 +147,19 @@ export interface BinSizePickerProps {
 export interface ScanRegionEditorProps {
   region: ScanRegion;
   onChange: (region: ScanRegion) => void;
+}
+
+export type DetectModuleCountOutcome =
+  | { kind: "found"; count: number }
+  | { kind: "noneFound" }
+  | { kind: "failed" };
+
+export interface DetectModuleCountState {
+  isSupported: boolean;
+  isDetecting: boolean;
+  canDetect: boolean;
+  outcome: DetectModuleCountOutcome | null;
+  detect: () => Promise<void>;
 }
 
 export interface LayoutDraft {
@@ -193,6 +225,7 @@ export interface TestControls {
   testBin: (bin: number) => Promise<void>;
   sampleRun: () => Promise<void>;
   resetToNeutral: () => Promise<void>;
+  feederTest: FeederTestControls;
 }
 
 export interface IrReading {

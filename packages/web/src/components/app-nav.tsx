@@ -1,6 +1,3 @@
-import { AlertTrayTrigger } from "@/components/alert-tray-trigger";
-import { LanguageSwitcherIcon } from "@/components/language-switcher";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button, buttonVariants } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -10,13 +7,11 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { UserMenu } from "@/features/account/components/user-menu";
 import { githubStarsQueryOptions } from "@/features/billing/api/github-stars";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
@@ -24,16 +19,21 @@ import {
   COLLECTIONS_PATH,
   monitorCollectionPath,
 } from "@/lib/constants/collections";
-import { OrgSwitcher } from "@/features/companies/components/org-switcher";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useRole } from "@/hooks/use-role";
 import { DISCORD_URL, REPO_URL, SHOP_URL } from "@/lib/constants/links";
-import { NAV_SUBITEMS_LIMIT } from "@/lib/constants/nav";
+import {
+  NAV_SUBITEMS_LIMIT,
+  SIDEBAR_EXPANDED_ITEM_CLASS,
+  SIDEBAR_IDLE_ITEM_CLASS,
+} from "@/lib/constants/nav";
+import { sidebarItemClassName } from "@/lib/sidebar-item";
 import { SIDEBAR_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import type { NavItemDef, NavSubItemDef } from "@/lib/interfaces/nav";
 import { STORAGE_PATH } from "@/lib/constants/storage";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { ORDERS_PATH } from "@/lib/constants/business";
 import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
@@ -44,6 +44,7 @@ import {
   IconBrandDiscord,
   IconBrandGithub,
   IconCameraSpark,
+  IconCash,
   IconDatabaseCog,
   IconLayoutSidebarLeftCollapse,
   IconLayoutSidebarLeftExpand,
@@ -51,10 +52,11 @@ import {
   IconStarFilled,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useState } from "react";
+import { useCallback, useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink, useNavigate } from "react-router-dom";
-import { BrandIcon } from "./brand-icon";
+import { PlanLockTag } from "@/components/plan-lock-tag";
+import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useCollectionLocks, useLiveSessionCounts } from "@/lib/app-stream";
 
 function CollapsedNavItem({
@@ -65,14 +67,24 @@ function CollapsedNavItem({
   badge,
   disabled,
   tooltip,
+  lockTag,
   external,
 }: NavItemDef) {
+  const { t } = useTranslation("common");
+  const descriptionId = useId();
+  const accessibleLabel = [label, lockTag, badge && t("a11y.liveSession")]
+    .filter(Boolean)
+    .join(", ");
   return (
     <Tooltip>
       <TooltipTrigger
+        aria-label={accessibleLabel}
+        aria-describedby={disabled && tooltip ? descriptionId : undefined}
         render={
           disabled ? (
             <span
+              role="link"
+              tabIndex={0}
               aria-disabled="true"
               className={cn(
                 buttonVariants({ variant: "ghost", size: "icon-lg" }),
@@ -84,17 +96,17 @@ function CollapsedNavItem({
               href={to}
               target="_blank"
               rel="noreferrer"
-              className={buttonVariants({ variant: "ghost", size: "icon-lg" })}
+              className={cn(
+                buttonVariants({ variant: "ghost", size: "icon-lg" }),
+                SIDEBAR_IDLE_ITEM_CLASS,
+              )}
             />
           ) : (
             <NavLink
               to={to}
               end={end}
               className={({ isActive }) =>
-                buttonVariants({
-                  variant: isActive ? "secondary" : "ghost",
-                  size: "icon-lg",
-                })
+                sidebarItemClassName({ isActive, size: "icon-lg" })
               }
             />
           )
@@ -103,11 +115,27 @@ function CollapsedNavItem({
         <span className="relative">
           {icon}
           {badge && (
-            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-success ring-1 ring-background" />
+            <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-success ring-1 ring-sidebar" />
           )}
         </span>
       </TooltipTrigger>
-      <TooltipContent side="right">{disabled ? tooltip : label}</TooltipContent>
+      {disabled && tooltip && (
+        <span id={descriptionId} hidden>
+          {tooltip}
+        </span>
+      )}
+      <TooltipContent side="right">
+        {lockTag ? (
+          <span className="flex items-center gap-1.5">
+            {label}
+            <PlanLockTag label={lockTag} />
+          </span>
+        ) : disabled ? (
+          tooltip
+        ) : (
+          label
+        )}
+      </TooltipContent>
     </Tooltip>
   );
 }
@@ -120,11 +148,13 @@ function CollapsedNavItemWithSubItems({
   subItems,
 }: NavItemDef & { subItems: NavSubItemDef[] }) {
   const { t } = useTranslation("collections");
+  const { t: tCommon } = useTranslation("common");
   const navigate = useNavigate();
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
+        aria-label={label}
         openOnHover
         delay={150}
         closeDelay={100}
@@ -133,10 +163,7 @@ function CollapsedNavItemWithSubItems({
             to={to}
             end={end}
             className={({ isActive }) =>
-              buttonVariants({
-                variant: isActive ? "secondary" : "ghost",
-                size: "icon-lg",
-              })
+              sidebarItemClassName({ isActive, size: "icon-lg" })
             }
           />
         }
@@ -162,7 +189,10 @@ function CollapsedNavItemWithSubItems({
               >
                 <span className="flex-1 truncate">{sub.label}</span>
                 {sub.badge && (
-                  <span className="shrink-0 size-1.5 rounded-full bg-success" />
+                  <>
+                    <span className="shrink-0 size-1.5 rounded-full bg-success" />
+                    <span className="sr-only">{tCommon("a11y.liveSession")}</span>
+                  </>
                 )}
               </DropdownMenuItem>
             ))
@@ -185,17 +215,22 @@ function ExpandedNavItem({
   badge,
   disabled,
   tooltip,
+  lockTag,
   external,
 }: NavItemDef) {
+  const { t } = useTranslation("common");
+  const descriptionId = useId();
   const inner = (
     <>
       <span className="relative shrink-0">
         {icon}
         {badge && (
-          <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-success ring-1 ring-background" />
+          <span className="absolute -top-0.5 -right-0.5 size-2 rounded-full bg-success ring-1 ring-sidebar" />
         )}
       </span>
-      <span className="truncate text-sm">{label}</span>
+      <span className="truncate">{label}</span>
+      {badge && <span className="sr-only">{t("a11y.liveSession")}</span>}
+      {lockTag && <PlanLockTag label={lockTag} className="ml-auto" />}
     </>
   );
 
@@ -203,18 +238,27 @@ function ExpandedNavItem({
     return (
       <Tooltip>
         <TooltipTrigger
+          aria-describedby={tooltip ? descriptionId : undefined}
           render={
             <span
+              role="link"
+              tabIndex={0}
               aria-disabled="true"
               className={cn(
                 buttonVariants({ variant: "ghost" }),
-                "w-full justify-start gap-2.5 px-2.5 border-0 cursor-not-allowed text-foreground/40 hover:bg-transparent hover:text-foreground/40",
+                SIDEBAR_EXPANDED_ITEM_CLASS,
+                "cursor-not-allowed text-foreground/40 hover:bg-transparent hover:text-foreground/40",
               )}
             />
           }
         >
           {inner}
         </TooltipTrigger>
+        {tooltip && (
+          <span id={descriptionId} hidden>
+            {tooltip}
+          </span>
+        )}
         <TooltipContent side="right">{tooltip}</TooltipContent>
       </Tooltip>
     );
@@ -228,7 +272,8 @@ function ExpandedNavItem({
         rel="noreferrer"
         className={cn(
           buttonVariants({ variant: "ghost" }),
-          "w-full justify-start gap-2.5 px-2.5 border-0",
+          SIDEBAR_IDLE_ITEM_CLASS,
+          SIDEBAR_EXPANDED_ITEM_CLASS,
         )}
       >
         {inner}
@@ -241,10 +286,7 @@ function ExpandedNavItem({
       to={to}
       end={end}
       className={({ isActive }) =>
-        cn(
-          buttonVariants({ variant: isActive ? "secondary" : "ghost" }),
-          "w-full justify-start gap-2.5 px-2.5 border-0",
-        )
+        cn(sidebarItemClassName({ isActive }), SIDEBAR_EXPANDED_ITEM_CLASS)
       }
     >
       {inner}
@@ -263,21 +305,27 @@ function SubItem({
   badge?: boolean;
   onClick?: () => void;
 }) {
+  const { t } = useTranslation("common");
   return (
     <NavLink
       to={to}
       onClick={onClick}
       className={({ isActive }) =>
         cn(
-          "flex items-center gap-2 pl-9 pr-2 py-1 rounded-md text-xs transition-colors",
+          "flex items-center gap-2 pl-9 pr-2 py-1 rounded-lg text-xs transition-colors",
           isActive
-            ? "text-foreground bg-secondary"
-            : "text-foreground/70 hover:text-foreground",
+            ? "bg-sidebar-selected font-medium text-primary"
+            : "text-sidebar-foreground hover:bg-sidebar-accent",
         )
       }
     >
       <span className="truncate flex-1">{label}</span>
-      {badge && <span className="shrink-0 size-1.5 rounded-full bg-success" />}
+      {badge && (
+        <>
+          <span className="shrink-0 size-1.5 rounded-full bg-success" />
+          <span className="sr-only">{t("a11y.liveSession")}</span>
+        </>
+      )}
     </NavLink>
   );
 }
@@ -295,7 +343,14 @@ export function AppNav() {
     githubStars != null
       ? `${t("nav.githubAriaLabel")} (${t("nav.githubStars", { count: githubStars })})`
       : t("nav.githubAriaLabel");
-  const { isAdmin } = useRole();
+  const { isStaff } = useRole();
+  const { planLockFor } = usePlanLockedPath();
+  const planGated = (path: string) => {
+    const lock = planLockFor(path);
+    return lock
+      ? { disabled: lock.isDisabled, lockTag: lock.tag, tooltip: lock.tag }
+      : {};
+  };
   const { collections, activeCollection } = useCollections();
   const { locks, currentUserId } = useCollectionLocks();
 
@@ -332,13 +387,13 @@ export function AppNav() {
   const navItems: NavItemDef[] = [
     {
       to: "/app",
-      icon: <IconCameraSpark size={20} />,
+      icon: <IconCameraSpark size={16} />,
       label: t("nav.scanner"),
       end: true,
     },
     {
       to: COLLECTIONS_PATH,
-      icon: <IconAlbum size={20} />,
+      icon: <IconAlbum size={16} />,
       label: t("nav.collections"),
       badge: hasLiveSessions,
       subItems: monitorCollections.map((c) => ({
@@ -354,35 +409,38 @@ export function AppNav() {
     },
     {
       to: SORTING_RULES_PATH,
-      icon: <IconArrowsSplit2 size={20} />,
+      icon: <IconArrowsSplit2 size={16} />,
       label: t("nav.sortingRules"),
     },
     {
       to: STATS_PATH,
-      icon: <IconChartBar size={20} />,
+      icon: <IconChartBar size={16} />,
       label: t("nav.stats"),
     },
     {
       to: STORAGE_PATH,
-      icon: <IconBox size={20} />,
+      icon: <IconBox size={16} />,
       label: t("nav.storage"),
+      ...planGated(STORAGE_PATH),
     },
+    {
+      to: ORDERS_PATH,
+      icon: <IconCash size={16} />,
+      label: t("nav.intake"),
+      ...planGated(ORDERS_PATH),
+    },
+
+
     {
       to: "/app/calibrate",
-      icon: <IconAdjustments size={20} />,
+      icon: <IconAdjustments size={16} />,
       label: t("nav.calibrate"),
     },
-    {
-      to: SHOP_URL,
-      icon: <IconShoppingCart size={20} />,
-      label: t("nav.cart"),
-      external: true,
-    },
-    ...(isAdmin
+    ...(isStaff
       ? [
           {
             to: "/app/admin",
-            icon: <IconDatabaseCog size={20} />,
+            icon: <IconDatabaseCog size={16} />,
             label: t("nav.admin"),
           },
         ]
@@ -392,40 +450,14 @@ export function AppNav() {
   return (
     <aside
       className={cn(
-        "py-2 flex-none flex flex-col bg-secondary/70 dark:bg-secondary/50 h-full border-r gap-2 overflow-hidden transition-[width] duration-200",
-        expanded ? "w-55 items-stretch" : "w-12 items-center",
+        "pt-8 pb-2 flex-none flex flex-col h-full gap-0.5 overflow-hidden transition-[width] duration-200",
+        expanded ? "w-52 items-stretch" : "w-10 items-center",
       )}
     >
-      <AlertTrayTrigger
-        side="right"
-        align="start"
-        trigger={(count) => (
-          <button
-            type="button"
-            aria-label={t("alerts.tray.trigger")}
-            className={cn(
-              "flex items-center gap-2 shrink-0 outline-none",
-              expanded ? "h-8 mx-2" : "size-8 justify-center",
-            )}
-          >
-            <span className="relative bg-primary grid size-8 shrink-0 place-items-center rounded-lg text-primary-foreground">
-              <BrandIcon className="size-7" />
-              {count > 0 && (
-                <span className="absolute -top-1 -right-1 min-w-3.5 h-3.5 rounded-full bg-destructive px-0.5 text-2xs font-semibold leading-3.5 text-destructive-foreground ring-2 ring-sidebar">
-                  {count > 9 ? "9+" : count}
-                </span>
-              )}
-            </span>
-            {expanded && (
-              <span className="font-bold font-heading text-sm">Mault</span>
-            )}
-          </button>
-        )}
-      />
-      <Separator />
       <nav
+        aria-label={t("a11y.mainNavigation")}
         className={cn(
-          "flex flex-col flex-1 gap-1 min-h-0 overflow-y-auto",
+          "flex flex-col flex-1 gap-0.5 min-h-0 overflow-y-auto",
           expanded ? "items-stretch" : "items-center",
         )}
       >
@@ -464,6 +496,26 @@ export function AppNav() {
         })}
       </nav>
       <a
+        href={SHOP_URL}
+        target="_blank"
+        rel="noreferrer"
+        title={t("nav.cart")}
+        aria-label={t("nav.cart")}
+        className={cn(
+          buttonVariants({
+            variant: "ghost",
+            size: `${expanded ? "default" : "icon-lg"}`,
+          }),
+          SIDEBAR_IDLE_ITEM_CLASS,
+          expanded && "mx-2 justify-start gap-2.5 px-2.5 border-0",
+        )}
+      >
+        <IconShoppingCart size={16} />
+        {expanded && (
+          <span className="truncate">{t("nav.cart")}</span>
+        )}
+      </a>
+      <a
         href={REPO_URL}
         target="_blank"
         rel="noreferrer"
@@ -474,13 +526,14 @@ export function AppNav() {
             variant: "ghost",
             size: `${expanded ? "default" : "icon-lg"}`,
           }),
+          SIDEBAR_IDLE_ITEM_CLASS,
           expanded && "mx-2 justify-start gap-2.5 px-2.5 border-0",
         )}
       >
         <IconBrandGithub size={16} />
         {expanded && (
           <>
-            <span className="truncate text-sm">{t("nav.github")}</span>
+            <span className="truncate">{t("nav.github")}</span>
             {githubStars != null && (
               <span className="ml-auto inline-flex items-center gap-0.5 rounded-full border bg-muted px-1.5 text-2xs text-foreground/80">
                 <IconStarFilled className="size-3 text-warning" />
@@ -501,23 +554,24 @@ export function AppNav() {
             variant: "ghost",
             size: `${expanded ? "default" : "icon-lg"}`,
           }),
+          SIDEBAR_IDLE_ITEM_CLASS,
           expanded && "mx-2 justify-start gap-2.5 px-2.5 border-0",
         )}
       >
         <IconBrandDiscord size={16} />
         {expanded && (
-          <span className="truncate text-sm">{t("nav.discord")}</span>
+          <span className="truncate">{t("nav.discord")}</span>
         )}
       </a>
       <Button
         onClick={toggle}
         className={cn(
-          expanded
-            ? "mx-2 w-full justify-start gap-2.5 px-2.5 border-0 text-sm"
-            : "",
+          SIDEBAR_IDLE_ITEM_CLASS,
+          expanded && "mx-2 justify-start gap-2.5 px-2.5 border-0",
         )}
         size={expanded ? "default" : "icon-lg"}
         variant="ghost"
+        aria-expanded={expanded}
         title={expanded ? t("nav.collapseSidebar") : t("nav.expandSidebar")}
       >
         {expanded ? (
@@ -529,18 +583,6 @@ export function AppNav() {
           <IconLayoutSidebarLeftExpand size={16} />
         )}
       </Button>
-      <Separator />
-      <div
-        className={cn(
-          "flex gap-2",
-          expanded ? "flex-row items-center px-2" : "flex-col items-center",
-        )}
-      >
-        <OrgSwitcher side="right" />
-        <LanguageSwitcherIcon side="right" />
-        <ThemeToggle />
-        <UserMenu side="right" />
-      </div>
     </aside>
   );
 }

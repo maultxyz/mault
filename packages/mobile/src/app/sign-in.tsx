@@ -15,7 +15,7 @@ export default function SignInScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <Screen edges={["top", "bottom"]}>
         <View style={{ gap: SPACING.sm, marginTop: SPACING.xxl, marginBottom: SPACING.lg }}>
-          <AppText size="3xl" heading weight="semibold">
+          <AppText size="3xl" heading weight="semibold" accessibilityRole="header">
             {t("app.name")}
           </AppText>
           <AppText tone="secondary">{t("auth.tagline")}</AppText>

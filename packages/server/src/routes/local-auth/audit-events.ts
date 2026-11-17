@@ -1,6 +1,7 @@
 import { Hono } from "hono";
 import { authProvider } from "../../auth";
 import { getOwnAuth } from "../../auth/own-auth-instance";
+import { LOCAL_AUDIT_EVENTS_LIMIT } from "../../lib/constants/auth";
 import {
   requireAuth,
   requireOrg,
@@ -9,9 +10,6 @@ import {
 } from "../../middleware/auth";
 import { authErrorResponse } from "./shared";
 
-// Org activity log - owner/admin only (own-auth grants both roles
-// view_audit_events by default, checked internally by listAuditEvents
-// itself as defense in depth on top of requireOrgRole here).
 export const auditEventsRoute = new Hono<AppEnv>().get(
   "/audit-events",
   requireAuth,
@@ -19,10 +17,14 @@ export const auditEventsRoute = new Hono<AppEnv>().get(
   requireOrgRole("owner", "admin"),
   async (c) => {
     try {
-      const events = await getOwnAuth().listAuditEvents({
-        actorUserId: c.get("userId"),
-        organisationId: c.get("orgId"),
-      });
+      const events = (
+        await getOwnAuth().listAuditEvents({
+          actorUserId: c.get("userId"),
+          organisationId: c.get("orgId"),
+        })
+      )
+        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
+        .slice(0, LOCAL_AUDIT_EVENTS_LIMIT);
 
       const userIds = [
         ...new Set(
@@ -39,19 +41,17 @@ export const auditEventsRoute = new Hono<AppEnv>().get(
         ),
       );
 
-      const data = events
-        .sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime())
-        .map((e) => ({
-          id: e.id,
-          eventType: e.eventType,
-          actor: e.actorUserId
-            ? (contacts.get(e.actorUserId)?.email ?? e.actorUserId)
-            : null,
-          target: e.targetUserId
-            ? (contacts.get(e.targetUserId)?.email ?? e.targetUserId)
-            : null,
-          createdAt: e.createdAt,
-        }));
+      const data = events.map((e) => ({
+        id: e.id,
+        eventType: e.eventType,
+        actor: e.actorUserId
+          ? (contacts.get(e.actorUserId)?.email ?? e.actorUserId)
+          : null,
+        target: e.targetUserId
+          ? (contacts.get(e.targetUserId)?.email ?? e.targetUserId)
+          : null,
+        createdAt: e.createdAt,
+      }));
 
       return c.json({ success: true, data });
     } catch (err) {

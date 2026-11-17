@@ -38,8 +38,6 @@ export function LocalOrgSettings() {
     }
   }
 
-  // Deleting is the only org-level setting local mode has, and own-auth
-  // restricts it to the owner, so the whole section is owner-only.
   if (activeOrg?.role !== "owner") return null;
 
   return (
@@ -53,7 +51,6 @@ export function LocalOrgSettings() {
         </p>
         <Button
           variant="secondary"
-          size="sm"
           onClick={() => setDeleteOrgOpen(true)}
         >
           {t("orgSettings.deleteOrganization")}

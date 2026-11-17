@@ -1,20 +1,24 @@
 import type { HotkeyId } from "@/lib/interfaces/hotkeys";
 import type { AppToast } from "@/lib/interfaces/toast";
-import type { CardViewMode } from "@/lib/interfaces/cards";
+import type { CardViewMode, ReviewSession } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
   CardCondition,
+  FoilNudgeFirmwareLimits,
+  CardTag,
   CardFilters,
+  CommLogEntry,
   EmptyBinOptions,
   CardContour,
   CornerDetection,
   CardScannerProps,
-  CardSearchDiagnostics,
   CardSearchResult,
   OcrDiagnostics,
-  ScanDetectionDiagnostics,
-  UnmatchedReason,
+  RouteOptions,
+  ScanAttemptResult,
+  SerialMessageListener,
+  SerialRequestResult,
   UnmatchedScanDetails,
   UnmatchedScanDiagnostics,
   BinRoute,
@@ -25,17 +29,20 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   ScanRegion,
-  MatchCandidateDiagnostic,
   MatchedScanDetails,
-  ScanMatchSource,
   ScannedCard,
   ScannerStatus,
   ScanVectorizeSource,
   Result,
   UnmatchedCard,
 } from "@magic-vault/shared";
-import type { ReactNode } from "react";
-import type { PreTestHook } from "@/lib/interfaces/stations";
+import type { ComponentProps, ReactNode } from "react";
+import type {
+  PreTestHook,
+  SorterLimitReason,
+  StationAttention,
+  StationAttentionDetails,
+} from "@/lib/interfaces/stations";
 import type { Device } from "@/lib/interfaces/calibration";
 import type { TFunction } from "i18next";
 
@@ -59,6 +66,16 @@ export interface CameraRange {
   max: number;
   step: number;
 }
+
+export interface PiCameraReady {
+  status: "ready";
+  label: string;
+  width: number;
+  height: number;
+  focus: CameraRange | null;
+}
+
+export type PiCameraHealth = PiCameraReady | { status: "down" | "absent" };
 
 export interface CameraFocusControlProps {
   className?: string;
@@ -97,24 +114,29 @@ export interface CameraContextValue {
 
 export interface MatchScope {
   collectionGuid?: string;
-  preferredSetCode?: string | null;
+  preferredSetCodes?: string[];
 }
 
 export interface ScannedCardsContextValue {
   unmatchedCards: UnmatchedCard[];
+  unmatchedCount: number;
   isLoading: boolean;
   autoFeed: boolean;
   forceFoilType: string | null;
-  forceSetCode: string | null;
+  forceSetCodes: string[];
+  scanCondition: CardCondition;
   elapsedMs: number;
   isTimerActive: boolean;
   recentScanTimes: number[];
   sessionScanCount: number;
   lastRoutedBin: LastRoutedBin | null;
   setScannerRunning: (running: boolean) => void;
+  resetSessionStats: () => void;
   setAutoFeed: (enabled: boolean) => void;
   setForceFoilType: (foilType: string | null) => void;
-  setForceSetCode: (setCode: string | null) => void;
+  setForceSetCodes: (setCodes: string[]) => void;
+  setForceSetCodesAfterCollectionSwitch: (setCodes: string[]) => void;
+  setScanCondition: (condition: CardCondition) => void;
   addCard: (
     card: PlayingCardWithDistance,
     capturedImageUrl?: string,
@@ -127,12 +149,15 @@ export interface ScannedCardsContextValue {
     vectorizedOn?: ScanVectorizeSource,
     details?: UnmatchedScanDetails,
   ) => void;
-  removeUnmatchedCard: (scanId: string) => void;
+  removeUnmatchedCard: (scanId: string) => Promise<boolean>;
+  removeAllUnmatchedCards: () => Promise<boolean>;
   identifyUnmatchedCard: (
     scanId: string,
     card: PlayingCard,
   ) => Promise<boolean>;
+  promptAddedCardBin: (collectionGuid: string, added: ScannedCard) => boolean;
   sendCatchAllBin: () => void;
+  sendCardToBin: (binNumber: number, cardName: string) => void;
   binLimitReached: BinConfig | null;
   resolveBinLimit: (options: EmptyBinOptions) => Promise<boolean>;
   dismissBinLimit: () => void;
@@ -144,31 +169,41 @@ export interface ScannedCardsContextValue {
   registerPauseHook: (fn: () => void) => () => void;
   registerResumeHook: (fn: () => void) => () => void;
   pause: () => void;
+  pauseForAttention: (attention: StationAttentionDetails) => void;
+  resume: () => void;
+  attention: StationAttention | null;
+  reopenAttention: () => void;
+  reportScannerError: (message: string | null) => void;
   isFeedHalted: () => boolean;
   clearFeedHalt: () => void;
   showJamToast: (options: JamToastOptions) => void;
   removeCard: (scanId: string) => void;
-  removeCards: (scanIds: string[]) => void;
+  removeCards: (scanIds: string[]) => Promise<boolean>;
+  moveCardsToCollection: (
+    input: MoveCardsToCollectionInput,
+  ) => Promise<number | null>;
   correctCard: (scanId: string, card: PlayingCard) => void;
   confirmCard: (scanId: string) => void;
   markCardReviewed: (scanId: string) => void;
   setCardFoilType: (scanId: string, foilType: string | null) => void;
+  setCardsFoilType: (scanIds: string[], foilType: string | null) => void;
   setCardCondition: (scanId: string, condition: CardCondition) => void;
   setCardsCondition: (scanIds: string[], condition: CardCondition) => void;
-  markDownloaded: (scanIds: string[]) => void;
+  setCardLanguage: (scanId: string, language: string) => void;
+  setCardsTags: (scanIds: string[], tags: CardTag[], enabled: boolean) => void;
   clearCards: () => void;
 }
 
-export type SerialMessageListener = (message: unknown) => void;
-
 export type SerialBoardType = "esp32" | "uno_r4";
 
-export type SerialTransportType = "serial" | "bluetooth" | "cloud";
+export type SerialTransportType = "serial" | "bluetooth" | "cloud" | "pi";
 
 export type FlashFailureReason =
   | "wrong-chip"
   | "no-bootloader"
+  | "port-unavailable"
   | "download-failed"
+  | "invalid-image"
   | "flash-failed"
   | "verify-failed";
 
@@ -180,6 +215,18 @@ export interface FlashEsp32Result {
 }
 
 export type FirmwareFlashState = "idle" | "flashing" | "success" | "error";
+
+export interface FirmwareOption {
+  key: string;
+  version: string | null;
+  firmwareUrl: string;
+  isBundled: boolean;
+}
+
+export interface FlashImagePart {
+  data: Uint8Array;
+  address: number;
+}
 
 export interface FlashProgressCallbacks {
   onLog: (line: string) => void;
@@ -203,14 +250,6 @@ export type FirmwareCheckResult =
   | { status: "ok"; version: string }
   | { status: "noVersion" | "noResponse" | "busy" | "disconnected" };
 
-export interface RouteOptions {
-  feedNext?: boolean;
-}
-
-export interface SkippedRouteResponse {
-  skipped: true;
-}
-
 export interface PushTest {
   module: number;
   direction: "left" | "right";
@@ -225,7 +264,9 @@ export interface SerialContextValue {
   sensorBlockedModule: number | null;
   reopenSensorBlockedToast: () => void;
   firmwareVersion: string | null;
+  foilNudgeFirmwareLimits: FoilNudgeFirmwareLimits | null;
   board: SerialBoardType | null;
+  hasWifi: boolean;
   deviceId: string | null;
   transport: SerialTransportType | null;
   connect: (options?: { skipAutoTest?: boolean }) => Promise<void>;
@@ -255,6 +296,7 @@ export interface SerialContextValue {
     command: object,
     timeoutMs?: number,
   ) => Promise<SerialRequestResult>;
+  runWhenIdle: <T>(task: () => Promise<T>) => Promise<T | null>;
   subscribe: (listener: SerialMessageListener) => () => void;
   registerPreTestHook: (fn: PreTestHook) => () => void;
   getCommLog: () => CommLogEntry[];
@@ -272,13 +314,15 @@ export interface ScannerControlsProps {
   isReady: boolean;
   isFeeding: boolean;
   isClearingDevice: boolean;
-  isResettingDevice: boolean;
   onForceScan: () => void;
   onPause: () => void;
   onResume: () => void;
   onFeed: () => void;
   onClearDevice: () => void;
-  onResetDevice: () => void;
+  sessionFeed?: boolean;
+  sessionLive?: boolean;
+  onStop?: () => void;
+  onAutoFeedChange?: (enabled: boolean) => void;
 }
 
 export interface ScannerControlButtonProps {
@@ -315,7 +359,14 @@ export interface ScannerOverlayProps {
   handScanActive: boolean;
   lastRoutedBin: LastRoutedBin | null;
   onEnableHandScan: () => void;
+  sessionLive?: boolean;
+  sessionDetail?: string | null;
+  piReady?: boolean;
+  region?: ScannerOverlayRegion;
+  statusStripTouchesPanelEdges?: boolean;
 }
+
+export type ScannerOverlayRegion = "all" | "viewer" | "status-strip";
 
 export interface SetStats {
   code: string;
@@ -356,6 +407,21 @@ export interface BinFillLevel {
   percent: number;
 }
 
+export interface BinCardCounts {
+  counts: Map<number, number>;
+  updatedAt: number;
+}
+
+export interface ComputedBinFillLevels {
+  levels: BinFillLevel[];
+  countsUpdatedAt: number;
+}
+
+export interface PendingBinCard {
+  binNumber: number;
+  savedAt: number | null;
+}
+
 export type BinLevelStatus = "normal" | "warning" | "full";
 
 export interface LastRoutedBin {
@@ -383,25 +449,14 @@ export interface BinLevelSummary {
   needsEmptying: number;
 }
 
-export interface SerialRequestResult {
-  sent: boolean;
-  line: string;
-}
-
-export interface PendingSerialReply {
-  seq: number | null;
-  resolve: (line: string) => void;
+export interface SerialRecoveryMark {
+  hardwareId: string;
+  until: number;
 }
 
 export interface RawCommandResult {
   status: "ok" | "disconnected" | "busy" | "noResponse";
   line: string | null;
-}
-
-export interface CommLogEntry {
-  direction: "sent" | "received";
-  text: string;
-  timestamp: number;
 }
 
 export interface CommLogEntriesProps {
@@ -421,6 +476,7 @@ export interface SessionMonitorState {
   recentCards: ScannedCard[];
   cardsVersion: number;
   unmatchedCards: UnmatchedCard[];
+  unmatchedCount: number;
   viewers: SessionViewer[];
   errors: SessionError[];
   status: ConnectionStatus;
@@ -479,7 +535,6 @@ export interface MonitorCardsState {
   stats: ScanStats | null;
   cardCount: number;
   matchingCount: number;
-  filteredCount: number;
   needsReviewCount: number;
   openScanId: string | undefined;
   setOpenScanId: (scanId: string | null) => void;
@@ -540,19 +595,26 @@ export interface MobileCardActionsBodyProps {
 
 export interface MobileCardDetailDrawerProps {
   collectionGuid: string;
+  collection: Collection | null;
+  canEditCards: boolean;
   scanId: string | undefined;
   reviewMode?: boolean;
   onNavigate: (scanId: string | null) => void;
   onReviewComplete: (count: number) => void;
+  onShowReviewGrid?: () => void;
   onClose: () => void;
 }
 
 export interface MobileCardDetailBodyProps {
   collectionGuid: string;
+  collection: Collection | null;
+  canEditCards: boolean;
   scanId: string;
   reviewMode: boolean;
+  reviewSession: ReviewSession;
   onNavigate: (scanId: string | null) => void;
   onReviewComplete: (count: number) => void;
+  onShowReviewGrid?: () => void;
   onClose: () => void;
 }
 
@@ -562,6 +624,10 @@ export interface MonitorCardDetailProps {
   cardsQuery: CollectionCardsQuery;
   onNavigate: (scanId: string | null) => void;
   onClose: () => void;
+}
+
+export interface SessionLockBannerProps {
+  className?: string;
 }
 
 export interface SessionLockProps {
@@ -588,9 +654,18 @@ export interface ScanStatsProps {
   scrollable?: boolean;
 }
 
+export interface CollapsibleStatPanelProps {
+  heading: string;
+  collapsedSummary: string;
+  showLiveIndicator?: boolean;
+  expandedStorageKey: string;
+  children: ReactNode;
+}
+
 export interface CardScannerComponentProps extends CardScannerProps {
   controlsContainer?: HTMLElement | null;
   renderChrome?: (chrome: ScannerChromeContext) => ReactNode;
+  viewerTouchesPanelEdges?: boolean;
 }
 
 export interface ScannerChromeContext {
@@ -629,6 +704,8 @@ export interface ScannerChromeContext {
   onHandScanChange: (value: boolean) => void;
 }
 
+export type MobileScanEntryMode = "add" | "remove";
+
 export interface MobileScanControlsSheetProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -666,27 +743,11 @@ export interface TextSearchOutcome {
   ocr: OcrDiagnostics | null;
 }
 
-export interface ResolvedSearchMatches {
-  card: PlayingCardWithDistance | null;
-  alternativeMatches: PlayingCardWithDistance[];
-  noMatchReason: UnmatchedReason | null;
-  lookupFailedCardIds?: string[];
-  candidates: MatchCandidateDiagnostic[];
-}
-
-export interface ScanAttemptOutcome extends ResolvedSearchMatches {
+export interface ScanAttemptOutcome extends ScanAttemptResult {
   debugImageUrl: string;
   detectedContour: CardContour | null;
   vectorizedOn: ScanVectorizeSource;
-  detection: ScanDetectionDiagnostics;
-  search: CardSearchDiagnostics | null;
-  orientation: "upright" | "rotated";
-  embedding: number[] | null;
-  topDistance: number | null;
-  ocr: OcrDiagnostics | null;
-  lowConfidenceMatch: boolean;
-  matchedBy: ScanMatchSource;
-  detectedColor: string | null;
+  dewarpedCardImage: ImageData | null;
 }
 
 export interface ScanOutcome {
@@ -695,6 +756,7 @@ export interface ScanOutcome {
   debugImageUrl: string;
   detectedContour: CardContour | null;
   vectorizedOn: ScanVectorizeSource;
+  dewarpedCardImage: ImageData | null;
   matched: MatchedScanDetails | null;
   noMatch: UnmatchedScanDetails | null;
 }
@@ -709,27 +771,60 @@ export interface UnmatchedRateToastProps {
 
 export interface UnmatchedCardsPanelProps {
   cards: UnmatchedCard[];
-  onRemove?: (scanId: string) => void;
-  onIdentify?: (card: UnmatchedCard) => void;
-  onOpen?: (card: UnmatchedCard) => void;
+  total: number;
+  collectionGuid?: string;
+  canIdentify?: boolean;
+  onRemove?: (scanId: string) => Promise<boolean>;
+  onRemoveAll?: () => Promise<boolean>;
 }
 
-export interface MobileUnmatchedCardDrawerProps {
-  entry: UnmatchedCard | null;
+export interface UnmatchedCardsGridDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  openIndex: number | null;
+  onOpenIndexChange: (index: number | null) => void;
   collectionGuid: string;
-  onIdentify: (card: UnmatchedCard) => void;
-  onClose: () => void;
+  canIdentify: boolean;
+  onRemove?: (scanId: string) => Promise<boolean>;
+  onRemoveAll?: () => Promise<boolean>;
 }
 
-export interface IdentifiableUnmatchedCardsPanelProps {
-  cards: UnmatchedCard[];
-  onRemove?: (scanId: string) => void;
+export interface UnmatchedCardsBrowserProps {
+  collectionGuid: string;
+  openIndex: number | null;
+  onOpenIndexChange: (index: number | null) => void;
+  canIdentify: boolean;
+  onRemove?: (scanId: string) => Promise<boolean>;
+  onRemoveAll?: () => Promise<boolean>;
+  onClose?: () => void;
+  className?: string;
 }
 
-export interface IdentifyUnmatchedDialogProps {
-  entry: UnmatchedCard | null;
-  collectionGuid: string | undefined;
+export interface UnmatchedViewState {
+  isOpen: boolean;
+  openIndex: number | null;
+  open: (index?: number | null) => void;
+  setOpenIndex: (index: number | null) => void;
+  close: () => void;
+}
+
+export interface UnmatchedCardDetailProps {
+  collectionGuid: string;
+  index: number;
+  onIndexChange: (index: number) => void;
   onClose: () => void;
+  canIdentify: boolean;
+  onRemove?: (scanId: string) => Promise<boolean>;
+}
+
+export interface UnmatchedCardTileProps {
+  entry: UnmatchedCard;
+  onOpen: () => void;
+}
+
+export interface UnmatchedCardImageProps {
+  entry: UnmatchedCard;
+  className?: string;
 }
 
 export interface ForcedSetPickerProps {
@@ -752,6 +847,7 @@ export interface BinCorrection {
   targetBin?: number;
   pickListName?: string;
   releasedPickListName?: string;
+  addedCard?: ScannedCard;
 }
 
 export interface CorrectedBinTarget {
@@ -794,6 +890,7 @@ export interface ClientDewarpResult {
 }
 
 export interface RouteCardToBinParams {
+  onRouted?: () => Promise<boolean>;
   route: BinRoute;
   sendRoute: (
     route: BinRoute,
@@ -804,6 +901,7 @@ export interface RouteCardToBinParams {
   failedKey: string;
   cardName?: string;
   collectionGuid: string | undefined;
+  deviceGuid?: string;
   isAutoFeedEnabled: () => boolean;
   isPipelinedFeedEnabled: () => boolean;
   pause: () => void;
@@ -812,6 +910,91 @@ export interface RouteCardToBinParams {
 }
 
 export type OnnxExecutionProviderPreference = "webgpu" | "wasm";
+
+export interface VisionModelRunOptions {
+  alwaysRunOnCpu?: boolean;
+}
+
+export interface VisionModelOutputs {
+  outputs: Record<string, Float32Array>;
+  outputNames: string[];
+}
+
+export interface InferenceWorkerInitRequest {
+  type: "init";
+  modelBuffer: ArrayBuffer;
+  executionProvider: OnnxExecutionProviderPreference;
+}
+
+export interface InferenceWorkerRunRequest {
+  type: "run";
+  runId: number;
+  pixels: ArrayBuffer;
+  width: number;
+  height: number;
+}
+
+export type InferenceWorkerRequest =
+  | InferenceWorkerInitRequest
+  | InferenceWorkerRunRequest;
+
+export interface InferenceWorkerReadyMessage {
+  type: "ready";
+  executionProvider: OnnxExecutionProviderPreference;
+  webgpuFailureMessage: string | null;
+}
+
+export interface InferenceWorkerInitErrorMessage {
+  type: "init-error";
+  message: string;
+  isWasmRuntimeError: boolean;
+}
+
+export interface InferenceWorkerResultMessage {
+  type: "result";
+  runId: number;
+  outputs: Record<string, Float32Array>;
+  outputNames: string[];
+}
+
+export interface InferenceWorkerRunErrorMessage {
+  type: "run-error";
+  runId: number;
+  message: string;
+  isWasmRuntimeError: boolean;
+}
+
+export type InferenceWorkerMessage =
+  | InferenceWorkerReadyMessage
+  | InferenceWorkerInitErrorMessage
+  | InferenceWorkerResultMessage
+  | InferenceWorkerRunErrorMessage;
+
+export interface InferenceWorkerScope {
+  onmessage: ((event: MessageEvent<InferenceWorkerRequest>) => void) | null;
+  postMessage(message: InferenceWorkerMessage, transfer?: Transferable[]): void;
+}
+
+export interface PendingInferenceRun {
+  resolve: (outputs: VisionModelOutputs) => void;
+  reject: (error: Error) => void;
+}
+
+export interface InferenceWorkerWaiter<TWorker> {
+  resolve: (worker: TWorker) => void;
+  reject: (error: Error) => void;
+}
+
+export interface VideoPreviewLoopOptions {
+  video: HTMLVideoElement;
+  drawFrame: () => boolean;
+  isForeground: () => boolean;
+}
+
+export interface VideoPreviewLoop {
+  drawNow: () => void;
+  stop: () => void;
+}
 
 export interface AutoFeedSerial {
   sendRequest: (
@@ -827,12 +1010,6 @@ export interface PendingCapture {
   timeout: ReturnType<typeof setTimeout>;
 }
 
-export interface OcrBetaDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
-}
-
 export interface PhoneCameraPairingDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -842,7 +1019,18 @@ export interface PhoneCameraPairingDialogProps {
   onDisconnect: () => void;
 }
 
-export interface ScannerMenuProps {
+export type ScannerConnectionState = "connected" | "connecting" | "disconnected";
+
+export interface ConnectionStatusPillProps
+  extends ComponentProps<"button"> {
+  label: string;
+  stateLabel: string;
+  state: ScannerConnectionState;
+  icon: ReactNode;
+  "data-tour"?: string;
+}
+
+export interface ScannerStatusBarProps {
   isCameraActive: boolean;
   isConnected: boolean;
   autoFeed: boolean;
@@ -862,13 +1050,18 @@ export interface ScannerMenuProps {
   onScannerDisconnect: () => void;
   onScannerRetry: () => void;
   onCalibrate: () => void;
+  isReady: boolean;
+  isClearingDevice: boolean;
+  isResettingDevice: boolean;
+  onClearDevice: () => void;
+  onResetDevice: () => void;
   onAutoFeedChange: (enabled: boolean) => void;
   onAllowDuplicatesChange: (enabled: boolean) => void;
   onConnectAnotherUsb: () => void;
   onConnectAnotherBluetooth: () => void;
   onConnectAnotherCloud: (deviceGuid: string) => void;
   canConnectAnotherSorter: boolean;
-  sorterLimitIsHardCap: boolean;
+  sorterLimitReason: SorterLimitReason;
   onUpgrade: () => void;
   handScan: boolean;
   onHandScanChange: (enabled: boolean) => void;
@@ -988,9 +1181,105 @@ export interface MobilePresetSheetProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export type CloudTransportFailure = "offline" | "inUse" | "failed";
-
 export interface OutlineAnimator {
   setTarget: (contour: CardContour | null) => void;
   cancel: () => void;
+}
+
+export type PiScanListener = () => void;
+
+export interface PiCameraPreviewProps {
+  alt: string;
+  className?: string;
+  rotated?: boolean;
+  flipped?: boolean;
+}
+
+export type PiScanTranslate = (
+  key: string,
+  options?: Record<string, unknown>,
+) => string;
+export interface DesktopScannerControlsOptions {
+  status: ScannerStatus;
+  enabled: boolean;
+  isConnected: boolean;
+  isReady: boolean;
+  autoFeed: boolean;
+  isClearingDevice: boolean;
+  onPause: () => void;
+  onResume: () => void;
+  onToggleAutoFeed: () => void;
+  onClearDevice: () => void;
+}
+
+export interface ScannerPipPreviewAction {
+  label: string;
+  icon: ReactNode;
+  onClick: () => void;
+}
+
+export interface DesktopPipHostSnapshot {
+  container: HTMLElement | null;
+  hasContent: boolean;
+}
+
+export interface ScannerPipPreviewProps {
+  variant: "overlay" | "window";
+  className?: string;
+  onOpen: () => void;
+  action: ScannerPipPreviewAction;
+  controls?: ReactNode;
+}
+
+export interface DesktopPipDragState {
+  pointerId: number;
+  startX: number;
+  startY: number;
+  lastX: number;
+  lastY: number;
+  moved: boolean;
+}
+
+export type ScanImageImportStatus =
+  | "queued"
+  | "identifying"
+  | "matched"
+  | "unmatched"
+  | "failed";
+
+export interface ScanImageImportItem {
+  id: string;
+  fileName: string;
+  status: ScanImageImportStatus;
+  matchedCardName?: string;
+  failureMessage?: string;
+}
+
+export interface ScanImageImport {
+  items: ScanImageImportItem[];
+  isRunning: boolean;
+  importFiles: (files: File[]) => void;
+  stop: () => void;
+}
+
+export interface ScanImageImportDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  scanImageImport: ScanImageImport;
+}
+
+export interface ScanImageImportRowProps {
+  item: ScanImageImportItem;
+  isRunning: boolean;
+}
+
+export interface ScanImageCanvas {
+  canvas: HTMLCanvasElement;
+  imageContour: CardContour;
+}
+
+export interface MoveCardsToCollectionInput {
+  sourceCollectionGuid: string;
+  targetCollectionGuid: string;
+  scanIds: string[];
 }

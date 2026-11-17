@@ -1,17 +1,15 @@
-import { BuildTableOfContents } from "@/features/build/components/table-of-contents";
+import { GuideHero } from "@/components/guide/guide-hero";
+import { GuideTableOfContents } from "@/components/guide/guide-table-of-contents";
+import { useBuildToc } from "@/features/build/api/use-build-toc";
 import { useTranslation } from "react-i18next";
 
 export function BuildHero() {
   const { t } = useTranslation("build");
+  const entries = useBuildToc();
 
   return (
-    <section className="mx-auto max-w-4xl px-4 pt-8 pb-2">
-      <p className="text-sm font-semibold text-primary">{t("hero.eyebrow")}</p>
-      <h1 className="mt-2 font-heading text-2xl font-semibold tracking-tight text-balance md:text-3xl lg:text-4xl">
-        {t("hero.title")}
-      </h1>
-
-      <BuildTableOfContents />
-    </section>
+    <GuideHero eyebrow={t("hero.eyebrow")} title={t("hero.title")}>
+      <GuideTableOfContents entries={entries} />
+    </GuideHero>
   );
 }

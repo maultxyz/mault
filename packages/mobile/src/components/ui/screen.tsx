@@ -24,9 +24,9 @@ export function Screen({
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             paddingHorizontal: padding,
-            paddingTop: header ? SPACING.xs : padding,
+            paddingTop: padding,
             paddingBottom: padding + SPACING.xxl,
-            gap: SPACING.lg,
+            gap: SPACING.lg + SPACING.xs,
           }}
           refreshControl={
             onRefresh ? (
@@ -43,7 +43,7 @@ export function Screen({
           {children}
         </ScrollView>
       ) : (
-        <View style={{ flex: 1, paddingHorizontal: padding, paddingTop: header ? SPACING.xs : padding }}>
+        <View style={{ flex: 1, paddingHorizontal: padding, paddingTop: padding }}>
           {children}
         </View>
       )}

@@ -4,10 +4,6 @@ import { db } from "../../db";
 import { getOrCreateDevice } from "../../lib/devices";
 import { requireAuth, type AppEnv } from "../../middleware/auth";
 
-// Called once right after sign-up: a brand-new user has no organisations
-// yet, so create one default "Home" org rather than requiring them to
-// manually create one before the app is usable. No-op if they already have
-// at least one (e.g. this fires again after a later sign-in).
 export const bootstrapRoute = new Hono<AppEnv>().post("/bootstrap", requireAuth, async (c) => {
   const userId = c.get("userId");
   const ownAuth = getOwnAuth();

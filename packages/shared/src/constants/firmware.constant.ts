@@ -2,9 +2,9 @@ import type { FirmwareFeature } from "../interfaces/firmware.interface";
 
 export function isFirmwareVersionOutdated(
   version: string | null | undefined,
-  latestVersion: string,
+  latestVersion: string | null | undefined,
 ): boolean {
-  if (!version) return false;
+  if (!version || !latestVersion) return false;
   const current = version.split(".").map((n) => parseInt(n, 10) || 0);
   const latest = latestVersion.split(".").map((n) => parseInt(n, 10) || 0);
   for (let i = 0; i < Math.max(current.length, latest.length); i++) {
@@ -23,7 +23,26 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   paddleOpenDelay: "2.6.0",
   wifiRemote: "2.10.0",
   lighting: "2.11.0",
+  lightingWarnings: "2.12.0",
+  rgbwLighting: "2.13.0",
+  configurableLighting: "2.14.0",
+  retractCard: "2.11.0",
+  moduleDetection: "2.12.0",
+  pusherNudge: "2.13.0",
 };
+
+export const MODULE_DETECTION_BOARDS: readonly string[] = ["esp32"];
+
+export function isModuleDetectionSupported(
+  version: string | null | undefined,
+  board: string | null | undefined,
+): boolean {
+  return (
+    !!board &&
+    MODULE_DETECTION_BOARDS.includes(board) &&
+    isFirmwareFeatureSupported(version, "moduleDetection")
+  );
+}
 
 export function isFirmwareFeatureSupported(
   version: string | null | undefined,
@@ -36,9 +55,15 @@ export function isFirmwareFeatureSupported(
 }
 
 export const SERIAL_FED_EVENT = "fed";
+export const SERIAL_FEED_TIMEOUT_ERROR_PREFIX = "timeout";
 export const SERIAL_JAM_ERROR = "jam";
 export const SERIAL_BUSY_ERROR = "busy";
 export const SERIAL_PUSH_BLOCKED_ERROR = "push_blocked";
+export const SERIAL_ROLLBACK_OFF_ERROR = "rollback_off";
+export const SERIAL_RETRACTED_STATUS = "retracted";
+export const DETECT_MODULES_COMMAND = { detectModules: true } as const;
+export const DETECT_MODULES_TIMEOUT_MS = 5_000;
+export const RETRACT_CARD_TIMEOUT_MS = 10_000;
 export const SERIAL_SEQ_MAX = 2_000_000_000;
 export const SERIAL_IDENTIFY_ATTEMPTS = 5;
 export const SERIAL_READY_STATUS = "ready";

@@ -13,7 +13,7 @@ export function EmptyState({ icon, title, description, action }: EmptyStateProps
         style={{
           width: 56,
           height: 56,
-          borderRadius: RADIUS.full,
+          borderRadius: RADIUS.md,
           backgroundColor: colors.muted,
           alignItems: "center",
           justifyContent: "center",

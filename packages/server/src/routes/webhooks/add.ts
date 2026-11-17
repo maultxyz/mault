@@ -36,43 +36,38 @@ export const addWebhookRoute = new Hono<AppEnv>().post(
         400,
       );
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        if (!(await isApiAccessAllowed(tx, orgId))) {
-          return { success: false, message: WEBHOOK_UPGRADE_MESSAGE };
-        }
-        const [{ value: existing }] = await tx
-          .select({ value: count() })
-          .from(webhookEndpoints)
-          .where(eq(webhookEndpoints.orgId, orgId));
-        if (existing >= WEBHOOK_ENDPOINTS_PER_ORG_LIMIT) {
-          return {
-            success: false,
-            message: `An organization can have at most ${WEBHOOK_ENDPOINTS_PER_ORG_LIMIT} webhooks. Delete one first.`,
-          };
-        }
-        const secret = generateWebhookSecret();
-        const [row] = await tx
-          .insert(webhookEndpoints)
-          .values({
-            orgId,
-            url: input.data.url,
-            description: input.data.description,
-            events: input.data.events,
-            secret,
-            createdBy: c.get("userId"),
-          })
-          .returning(WEBHOOK_ENDPOINT_COLUMNS);
-        const data: CreatedWebhookEndpoint = {
-          endpoint: await toWebhookEndpoint(row),
-          secret,
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (!(await isApiAccessAllowed(tx, orgId))) {
+        return { success: false, message: WEBHOOK_UPGRADE_MESSAGE };
+      }
+      const [{ value: existing }] = await tx
+        .select({ value: count() })
+        .from(webhookEndpoints)
+        .where(eq(webhookEndpoints.orgId, orgId));
+      if (existing >= WEBHOOK_ENDPOINTS_PER_ORG_LIMIT) {
+        return {
+          success: false,
+          message: `An organization can have at most ${WEBHOOK_ENDPOINTS_PER_ORG_LIMIT} webhooks. Delete one first.`,
         };
-        return { success: true, data };
-      });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      }
+      const secret = generateWebhookSecret();
+      const [row] = await tx
+        .insert(webhookEndpoints)
+        .values({
+          orgId,
+          url: input.data.url,
+          description: input.data.description,
+          events: input.data.events,
+          secret,
+          createdBy: c.get("userId"),
+        })
+        .returning(WEBHOOK_ENDPOINT_COLUMNS);
+      const data: CreatedWebhookEndpoint = {
+        endpoint: await toWebhookEndpoint(row),
+        secret,
+      };
+      return { success: true, data };
+    });
+    return c.json(result);
   },
 );

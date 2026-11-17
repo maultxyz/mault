@@ -6,8 +6,9 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   attachMatchedCards,
   findCardMatches,
-  parsePreferredSetCode,
+  parsePreferredSetCodes,
 } from "./shared";
+import { databaseErrorResponse } from "../../lib/database-error-response";
 
 export const searchByImageRoute = new Hono<AppEnv>().post(
   "/",
@@ -58,10 +59,10 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
     }
 
     try {
-      const result = await findCardMatches(c.get("jwtClaims"), {
+      const result = await findCardMatches({
         ...resolved,
         embeddings,
-        preferredSetCode: parsePreferredSetCode(body["preferredSetCode"]),
+        preferredSetCodes: parsePreferredSetCodes(body),
       });
       const withEmbedding = result.diagnostics
         ? {
@@ -74,13 +75,12 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
         : result;
       return c.json(await attachMatchedCards(withEmbedding, gameKey, lang));
     } catch (err) {
-      console.error(err);
       const orgId = c.req.header("X-Org-Id");
       if (orgId) {
         void sendDiscordNotification(
           orgId,
           {
-            title: "Magic Vault — Card Search Error",
+            title: "Mault: Card Search Error",
             description:
               "A database error occurred while searching for a card.",
             color: 0xed4245,
@@ -89,7 +89,7 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
           "error",
         );
       }
-      return c.json({ success: false, message: "Database error." }, 500);
+      return databaseErrorResponse(c, err);
     }
   },
 );

@@ -1,12 +1,20 @@
 import type { ReactNode } from "react";
 
-export type HotkeyGroup = "general" | "navigation" | "scanner" | "cardDetail";
+export type HotkeyGroup =
+  | "general"
+  | "navigation"
+  | "scanner"
+  | "cardDetail"
+  | "intake"
+  | "foilLabeling";
 
 export type HotkeyId =
   | "showShortcuts"
   | "toggleSidebar"
   | "focusSearch"
   | "dismissToasts"
+  | "clearSelection"
+  | "save"
   | "goScanner"
   | "goCollections"
   | "goSortingRules"
@@ -14,6 +22,7 @@ export type HotkeyId =
   | "goCalibrate"
   | "goSettings"
   | "goAdmin"
+  | "goNextSorterNeedingAttention"
   | "scanPauseResume"
   | "scanNow"
   | "scanFeed"
@@ -33,11 +42,22 @@ export type HotkeyId =
   | "cardClose"
   | "cardRemove"
   | "reviewStart"
-  | "reviewAccept";
+  | "reviewAccept"
+  | "reviewPreviousMatch"
+  | "reviewNextMatch"
+  | "reviewCycleFoil"
+  | "reviewCycleCondition"
+  | "reviewCycleLanguage"
+  | "intakeOpenScanner"
+  | "foilLabelFoil"
+  | "foilLabelNotFoil"
+  | "foilLabelSkip"
+  | "foilLabelBack";
 
 export interface HotkeyCombo {
   key: string;
   shift?: boolean;
+  mod?: boolean;
 }
 
 export interface HotkeyDefinition {

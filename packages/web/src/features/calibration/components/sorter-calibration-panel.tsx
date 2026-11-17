@@ -6,14 +6,14 @@ import {
   PushTestControl,
   ServoControl,
 } from "@/features/calibration/components/module-calibration-grid";
-import { SERVO_PULSE_CENTER, SERVOS } from "@/lib/constants/calibration";
+import { SERVOS } from "@/lib/constants/calibration";
 import {
   SORTER_DRAWER_DELAY_FIELDS,
   SORTER_MODEL_PART_COLORS,
 } from "@/lib/constants/sorter-model";
 import type { SliderKey } from "@/lib/interfaces/calibration";
 import type { SorterCalibrationPanelProps } from "@/lib/interfaces/sorter-model";
-import { DEFAULT_CALIBRATION } from "@magic-vault/shared";
+import { DEFAULT_CALIBRATION, SERVO_PULSE_CENTER } from "@magic-vault/shared";
 import { IconX } from "@tabler/icons-react";
 import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -63,6 +63,7 @@ export function SorterCalibrationPanel({
           </Label>
           <Switch
             id="sorter-drawer-raw"
+            aria-label={t("moduleCalibrationGrid.rawPulseToggleLabel")}
             checked={showRaw}
             onCheckedChange={setShowRaw}
           />
@@ -151,6 +152,7 @@ export function SorterCalibrationPanel({
             settleDurationValue={state.feederSettleDurationValue}
             reverseSpeedValue={state.feederReverseSpeedValue}
             reverseDurationValue={state.feederReverseDurationValue}
+            feedRetryCountValue={state.feederFeedRetryCountValue}
             stopPulse={state.feederStopPulse}
             canEditTimings={canEditTimings}
             canCalibrate={state.canCalibrate}
@@ -163,6 +165,7 @@ export function SorterCalibrationPanel({
             onSettleDurationChange={state.handleFeederSettleDurationChange}
             onReverseSpeedChange={state.handleFeederReverseSpeedChange}
             onReverseDurationChange={state.handleFeederReverseDurationChange}
+            onFeedRetryCountChange={state.handleFeederFeedRetryCountChange}
             onSelectContinuous={state.handleFeederSelectContinuous}
             fullWidth
           />

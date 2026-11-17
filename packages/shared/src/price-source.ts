@@ -1,15 +1,25 @@
+import { DEFAULT_CARD_CONDITION } from "./constants/card-condition.constant";
 import {
+  CARD_PRICE_AT_SCAN_KEYS,
   DEFAULT_PRICE_SOURCE,
   PRICE_SOURCE_FIELDS,
   PRICE_SOURCES,
 } from "./constants/price-source.constant";
 import { conditionFactor } from "./card-condition";
-import type { PlayingCard } from "./interfaces/card.interface";
+import type {
+  CardFinish,
+  CardPricesAtScan,
+  PlayingCard,
+} from "./interfaces/card.interface";
 import type {
   CardCondition,
   ConditionMultipliers,
 } from "./interfaces/card-condition.interface";
-import type { PriceSource } from "./interfaces/price-source.interface";
+import type {
+  PriceChangeSinceScan,
+  PriceSource,
+  TcgplayerHeadlinePrices,
+} from "./interfaces/price-source.interface";
 
 export function isPriceSource(value: unknown): value is PriceSource {
   return PRICE_SOURCES.includes(value as PriceSource);
@@ -19,20 +29,118 @@ export function toPriceSource(value: unknown): PriceSource {
   return isPriceSource(value) ? value : DEFAULT_PRICE_SOURCE;
 }
 
-export function cardPriceFor(
+export function toCardFinish(finish: boolean | CardFinish | null | undefined): CardFinish {
+  return typeof finish === "object" && finish !== null ? finish : { isFoil: !!finish };
+}
+
+export function tcgplayerConditionPriceFor(
+  card: Partial<Pick<PlayingCard, "priceByCondition" | "priceFoilByCondition" | "finishPrices">>,
+  finish: boolean | CardFinish | null | undefined,
+  condition: CardCondition | null | undefined,
+): number | null {
+  if (!condition || condition === DEFAULT_CARD_CONDITION) return null;
+  const { isFoil, foilType } = toCardFinish(finish);
+  if (!isFoil) return card.priceByCondition?.[condition] ?? null;
+  const finishPrices = foilType ? card.finishPrices?.[foilType] : undefined;
+  const conditionPrices = finishPrices
+    ? finishPrices.priceFoilByCondition
+    : card.priceFoilByCondition;
+  return conditionPrices?.[condition] ?? null;
+}
+
+export function tcgplayerHeadlinePrices(
   card: PlayingCard,
-  isFoil: boolean | undefined,
+  foilType: string | null | undefined,
+  condition: CardCondition | null | undefined,
+): TcgplayerHeadlinePrices {
+  const conditionPrice = tcgplayerConditionPriceFor(card, false, condition);
+  const conditionFoilPrice = tcgplayerConditionPriceFor(
+    card,
+    { isFoil: true, foilType },
+    condition,
+  );
+  return {
+    price: conditionPrice ?? card.price,
+    foilPrice:
+      conditionFoilPrice ??
+      (foilType ? card.finishPrices?.[foilType]?.priceFoil : null) ??
+      card.priceFoil,
+    priceAtScan: conditionPrice == null ? (card.pricesAtScan?.price ?? null) : null,
+    foilPriceAtScan:
+      conditionFoilPrice == null ? (card.pricesAtScan?.priceFoil ?? null) : null,
+    isConditionPrice: conditionPrice != null || conditionFoilPrice != null,
+  };
+}
+
+export function cardPriceFor(
+  card: CardPricesAtScan &
+    Partial<Pick<PlayingCard, "finishPrices" | "priceByCondition" | "priceFoilByCondition">>,
+  finish: boolean | CardFinish | null | undefined,
   source: PriceSource,
   condition?: CardCondition | null,
   multipliers?: ConditionMultipliers,
 ): number | null {
+  if (source === "tcgplayer") {
+    const conditionPrice = tcgplayerConditionPriceFor(card, finish, condition);
+    if (conditionPrice != null) return conditionPrice;
+  }
+  const { isFoil, foilType } = toCardFinish(finish);
   const fields = PRICE_SOURCE_FIELDS[source];
   const regular = card[fields.price] ?? null;
-  const price = (isFoil ? card[fields.priceFoil] : regular) ?? regular;
+  const finishPrice =
+    isFoil && foilType ? card.finishPrices?.[foilType]?.[fields.priceFoil] : null;
+  const price = (isFoil ? (finishPrice ?? card[fields.priceFoil]) : regular) ?? regular;
   return price == null ? null : price * conditionFactor(condition, multipliers);
 }
 
+export function cardPriceAtScanFor(
+  card: PlayingCard,
+  finish: boolean | CardFinish | null | undefined,
+  source: PriceSource,
+  condition?: CardCondition | null,
+  multipliers?: ConditionMultipliers,
+): number | null {
+  return card.pricesAtScan
+    ? cardPriceFor(card.pricesAtScan, finish, source, condition, multipliers)
+    : null;
+}
+
 export function formatPrice(value: number, source: PriceSource): string {
-  const { symbol, currency } = PRICE_SOURCE_FIELDS[source];
+  return formatPriceInCurrency(value, PRICE_SOURCE_FIELDS[source].currency);
+}
+
+export function formatPriceInCurrency(value: number, currency: string): string {
+  const symbol =
+    Object.values(PRICE_SOURCE_FIELDS).find((fields) => fields.currency === currency)
+      ?.symbol ?? "";
   return `${symbol}${value.toFixed(2)} ${currency}`;
+}
+
+export function cardPricesAtScan(savedCard: PlayingCard): CardPricesAtScan {
+  const pricesAtScan: CardPricesAtScan = {};
+  for (const key of CARD_PRICE_AT_SCAN_KEYS) {
+    const value = savedCard[key];
+    if (typeof value === "number") pricesAtScan[key] = value;
+  }
+  return pricesAtScan;
+}
+
+export function priceChangeSinceScan(
+  priceAtScan: number | null | undefined,
+  currentPrice: number | null | undefined,
+): PriceChangeSinceScan | null {
+  if (priceAtScan == null || currentPrice == null || priceAtScan <= 0) {
+    return null;
+  }
+  const differenceInCents =
+    Math.round(currentPrice * 100) - Math.round(priceAtScan * 100);
+  if (differenceInCents === 0) return null;
+  const direction = differenceInCents > 0 ? "up" : "down";
+  const percent = Math.round(
+    (Math.abs(currentPrice - priceAtScan) / priceAtScan) * 100,
+  );
+  return {
+    percentLabel: `${direction === "up" ? "+" : "-"}${percent}%`,
+    direction,
+  };
 }

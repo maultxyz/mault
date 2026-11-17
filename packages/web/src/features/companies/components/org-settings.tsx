@@ -1,3 +1,4 @@
+import { PlanNotice } from "@/components/plan-notice";
 import { DISCARD_RESET_OPTIONS } from "@/lib/constants/forms";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { SaveBar } from "@/components/save-bar";
@@ -17,11 +18,7 @@ import { apiDelete } from "@/lib/api/client";
 import { neon } from "@/lib/auth/client";
 import {
   memberRolesSchema,
-  orgInviteSchema,
-  organizationNameSchema,
   type MemberRolesFormValues,
-  type OrgInviteFormValues,
-  type OrganizationNameFormValues,
 } from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconTrash } from "@tabler/icons-react";
@@ -29,7 +26,13 @@ import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
-import type { OrgRole } from "@magic-vault/shared";
+import {
+  organizationInviteFormSchema,
+  type OrganizationInviteFormValues,
+  organizationNameFormSchema,
+  type OrganizationNameFormValues,
+  type OrgRole,
+} from "@magic-vault/shared";
 
 
 export function OrgSettings() {
@@ -58,7 +61,7 @@ export function OrgSettings() {
   } | null>(null);
 
   const renameForm = useForm<OrganizationNameFormValues>({
-    resolver: zodResolver(organizationNameSchema),
+    resolver: zodResolver(organizationNameFormSchema),
     defaultValues: { name: "" },
   });
 
@@ -80,8 +83,8 @@ export function OrgSettings() {
   const isSaving =
     renameForm.formState.isSubmitting || rolesForm.formState.isSubmitting;
 
-  const inviteForm = useForm<OrgInviteFormValues>({
-    resolver: zodResolver(orgInviteSchema),
+  const inviteForm = useForm<OrganizationInviteFormValues>({
+    resolver: zodResolver(organizationInviteFormSchema),
     defaultValues: { email: "", role: "member" },
   });
 
@@ -103,7 +106,7 @@ export function OrgSettings() {
     }
   }
 
-  async function handleInvite({ email, role }: OrgInviteFormValues) {
+  async function handleInvite({ email, role }: OrganizationInviteFormValues) {
     if (!activeOrg) return;
     try {
       const { error } = await neon.auth.organization.inviteMember({
@@ -213,6 +216,9 @@ export function OrgSettings() {
 
   const pendingInvites =
     activeOrg?.invitations?.filter((i) => i.status === "pending") ?? [];
+  const memberLimit = billing?.maxMembersPerOrg ?? null;
+  const seatsInUse = (activeOrg?.members.length ?? 0) + pendingInvites.length;
+  const atMemberLimit = memberLimit != null && seatsInUse >= memberLimit;
 
   return (
     <>
@@ -232,10 +238,14 @@ export function OrgSettings() {
                   onSubmit={renameForm.handleSubmit(handleRename)}
                   className="flex flex-col gap-2"
                 >
-                  <h3 className="text-sm font-semibold font-heading">
+                  <h3
+                    id="org-rename-heading"
+                    className="text-sm font-semibold font-heading"
+                  >
                     {t("orgSettings.renameHeading", { name: activeOrg.name })}
                   </h3>
                   <Input
+                    aria-labelledby="org-rename-heading"
                     placeholder={activeOrg.name}
                     {...renameForm.register("name")}
                   />
@@ -285,7 +295,12 @@ export function OrgSettings() {
                               role && field.onChange(role as OrgRole)
                             }
                           >
-                            <SelectTrigger className="w-28 shrink-0">
+                            <SelectTrigger
+                              className="w-28 shrink-0"
+                              aria-label={t("orgSettings.memberRoleLabel", {
+                                name: m.user.name || m.user.email,
+                              })}
+                            >
                               <SelectValue>
                                 {ROLE_LABELS[(field.value ?? m.role) as OrgRole]}
                               </SelectValue>
@@ -308,6 +323,7 @@ export function OrgSettings() {
                     )}
                     {isOwner && m.role !== "owner" && (
                       <Button
+                        aria-label={t("common:a11y.removeMember", { name: m.user.name || m.user.email })}
                         variant="ghost"
                         size="icon"
                         onClick={() =>
@@ -330,12 +346,21 @@ export function OrgSettings() {
                 <h3 className="text-sm font-semibold font-heading">
                   {t("orgSettings.inviteMemberHeading")}
                 </h3>
+                {atMemberLimit && (
+                  <PlanNotice
+                    message={t("orgSettings.memberLimitReached", {
+                      count: memberLimit ?? 0,
+                    })}
+                    linkLabel={t("orgSettings.memberLimitUpgrade")}
+                  />
+                )}
                 <form
                   onSubmit={inviteForm.handleSubmit(handleInvite)}
                   className="flex gap-2"
                 >
                   <Input
                     type="email"
+                    aria-label={t("orgSettings.emailPlaceholder")}
                     placeholder={t("orgSettings.emailPlaceholder")}
                     {...inviteForm.register("email")}
                     className="flex-1"
@@ -348,7 +373,10 @@ export function OrgSettings() {
                         value={field.value}
                         onValueChange={field.onChange}
                       >
-                        <SelectTrigger className="w-28 shrink-0">
+                        <SelectTrigger
+                          className="w-28 shrink-0"
+                          aria-label={t("invites.roleLabel")}
+                        >
                           <SelectValue>
                             {ROLE_LABELS[field.value as OrgRole]}
                           </SelectValue>
@@ -366,7 +394,9 @@ export function OrgSettings() {
                   />
                   <Button
                     type="submit"
-                    disabled={inviteForm.formState.isSubmitting}
+                    disabled={
+                      inviteForm.formState.isSubmitting || atMemberLimit
+                    }
                   >
                     {inviteForm.formState.isSubmitting
                       ? t("orgSettings.sending")
@@ -392,6 +422,7 @@ export function OrgSettings() {
                             {inv.role}
                           </span>
                           <Button
+                            aria-label={t("common:a11y.cancelInvite", { email: inv.email })}
                             variant="ghost"
                             size="icon"
                             onClick={() => handleCancelInvite(inv.id)}
@@ -419,11 +450,10 @@ export function OrgSettings() {
                     {t("orgSettings.cancelSubscriptionFirst")}
                   </p>
                 )}
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-1.5">
                   {blockedBySubscription && (
                     <Button
                       variant="secondary"
-                      size="sm"
                       onClick={openPortal}
                       disabled={isOpeningPortal}
                     >
@@ -432,7 +462,6 @@ export function OrgSettings() {
                   )}
                   <Button
                     variant="secondary"
-                    size="sm"
                     onClick={() => setDeleteOrgOpen(true)}
                     disabled={blockedBySubscription}
                   >

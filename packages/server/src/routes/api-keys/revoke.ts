@@ -18,27 +18,22 @@ export const revokeApiKeyRoute = new Hono<AppEnv>().delete(
       });
     }
     const guid = c.req.param("guid");
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const revoked = await tx
-          .update(orgApiKeys)
-          .set({ revokedAt: new Date() })
-          .where(
-            and(
-              eq(orgApiKeys.guid, guid),
-              eq(orgApiKeys.orgId, orgId),
-              isNull(orgApiKeys.revokedAt),
-            ),
-          )
-          .returning({ id: orgApiKeys.id });
-        return revoked.length === 0
-          ? { success: false, message: "API key not found." }
-          : { success: true, message: "API key revoked." };
-      });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const revoked = await tx
+        .update(orgApiKeys)
+        .set({ revokedAt: new Date() })
+        .where(
+          and(
+            eq(orgApiKeys.guid, guid),
+            eq(orgApiKeys.orgId, orgId),
+            isNull(orgApiKeys.revokedAt),
+          ),
+        )
+        .returning({ id: orgApiKeys.id });
+      return revoked.length === 0
+        ? { success: false, message: "API key not found." }
+        : { success: true, message: "API key revoked." };
+    });
+    return c.json(result);
   },
 );

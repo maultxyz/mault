@@ -1,7 +1,9 @@
 import {
+  setCollectionCardTags,
   confirmCollectionCard,
   markCollectionCardReviewed,
   setCollectionCardCondition,
+  setCollectionCardLanguage,
   setCollectionCardFoilType,
   updateCollectionCard,
 } from "@/features/collections/api/collections";
@@ -10,7 +12,11 @@ import {
   updateInCardPages,
 } from "@/features/collections/lib/card-page-cache";
 import type { CardDetailActions } from "@/lib/interfaces/cards";
-import type { GroupedScannedCard, Result } from "@magic-vault/shared";
+import {
+  withCardTags,
+  type GroupedScannedCard,
+  type Result,
+} from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
 
@@ -86,6 +92,21 @@ export function useCollectionCardActions(
           (item) => ({ ...item, condition }),
           (guid) => setCollectionCardCondition(guid, scanId, condition),
           "update card condition",
+        ),
+      setCardLanguage: (scanId, language) =>
+        apply(
+          scanId,
+          (item) => ({ ...item, language }),
+          (guid) => setCollectionCardLanguage(guid, scanId, language),
+          "update card language",
+        ),
+      setCardTags: (scanId, tags, enabled) =>
+        apply(
+          scanId,
+          (item) => withCardTags(item, tags, enabled),
+          (guid) =>
+            setCollectionCardTags(guid, { scanIds: [scanId], tags, enabled }),
+          "update card tags",
         ),
     };
   }, [guid, queryClient]);

@@ -27,3 +27,14 @@ export interface SorterWifiStatus {
   cloud: CloudLinkState;
   host: string | null;
 }
+
+export type SorterLinkOpenFailure = "offline" | "inUse" | "failed";
+
+export type SorterLinkSocketOpenResult =
+  | { ok: true; socket: WebSocket }
+  | { ok: false; reason: SorterLinkOpenFailure };
+
+export interface SorterLinkTextCodec {
+  encodeText: (text: string) => Uint8Array;
+  decodeBytes: (bytes: Uint8Array) => string;
+}

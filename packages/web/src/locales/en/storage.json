@@ -12,7 +12,8 @@
     "deleteTitle": "Delete {{name}}?",
     "deleteDescription": "The cards stay in your collections, but they lose this location and their position in it.",
     "summary_one": "{{count}} card · {{value}} total",
-    "summary_other": "{{count}} cards · {{value}} total"
+    "summary_other": "{{count}} cards · {{value}} total",
+    "addCard": "Add card"
   },
   "nameDialog": {
     "label": "Name",
@@ -55,27 +56,43 @@
       "number": "Number",
       "finish": "Finish",
       "collection": "Collection",
-      "price": "Price",
+      "priceAtScan": "Price at scan",
+      "priceNow": "Price now",
+      "purchasePrice": "Purchase price",
       "actions": "Actions"
-    }
+    },
+    "searchPlaceholder": "Search cards in this location",
+    "positionOrder": "Position in the box",
+    "noMatchesTitle": "No cards match",
+    "noMatchesDescription": "Try a different search or clear the filters."
   },
   "cardLocation": {
     "heading": "Storage",
     "value": "{{name}} · #{{position}}",
-    "remove": "Remove from box"
+    "remove": "Remove from box",
+    "move": "Move",
+    "store": "Move to location",
+    "notStored": "Not in a storage location"
   },
   "toasts": {
     "failed": "Couldn't update storage locations",
     "cardRemoved": "Card removed from its location",
+    "cardRemovedFromCollection": "Card removed from its location and collection",
     "correctFailed": "Couldn't correct the card",
     "cardsMoved_one": "1 card moved to storage",
-    "cardsMoved_other": "{{count}} cards moved to storage"
+    "cardsMoved_other": "{{count}} cards moved to storage",
+    "cardsMovedToCollection_one": "1 card moved to {{name}}",
+    "cardsMovedToCollection_other": "{{count}} cards moved to {{name}}",
+    "moveToCollectionFailed": "Couldn't move the cards"
   },
   "removeDialog": {
     "title": "Remove {{name}} from {{location}}?",
     "thisCard": "this card",
-    "description": "Use this when you've taken the card out, for example because you sold it or put it in a deck. It stays in your collection, and its position in the box is left empty.",
-    "confirm": "Remove"
+    "description": "Use this when you've taken the card out of the box. Its position in the box is left empty.",
+    "confirm": "Remove",
+    "choiceDescription": "Remove it from the location only if you moved it, for example into a deck. Remove it from {{collection}} too if it's gone for good, for example because you sold it. Its position in the box is left empty either way.",
+    "removeFromLocation": "Remove from location",
+    "removeFromLocationAndCollection": "Remove from location and collection"
   },
   "search": {
     "placeholder": "Search cards in every location",
@@ -87,10 +104,10 @@
     "limited": "Showing the first {{count}} cards. Search for more of the name to narrow it down."
   },
   "upgrade": {
-    "businessOnly": "Storage locations are part of the Business plan.",
+    "businessOnly": "Storage locations are not part of your plan.",
     "link": "Upgrade",
     "locked": "Record which box every card goes into, and where in it, when you empty a bin.",
-    "lockedWithLocations": "You can still browse, search and edit your locations, but recording new cards into them needs Business."
+    "lockedWithLocations": "You can still view, search and export your locations and the cards in them. Changing anything needs a plan that includes storage."
   },
   "review": {
     "start": "Review cards",
@@ -100,21 +117,102 @@
   "export": {
     "button": "Export",
     "loading": "Loading cards",
-    "combineDuplicates": "Combine duplicates"
+    "combineDuplicates": "Combine duplicates",
+    "failed": "Couldn't export the cards.",
+    "exporting": "Exporting"
   },
   "emptyAllDialog": {
     "title": "Empty all bins",
     "description_one": "Mark every bin as emptied. Pick where the {{count}} card went so you can find it later.",
     "description_other": "Mark every bin as emptied. Pick where the {{count}} cards went so you can find them later.",
+    "resetAutoAssign": "Clear auto-detected sorting rules",
+    "resetAutoAssignDescription": "Bins learn new values from the next scans.",
     "perBin": "Choose a location for each bin",
     "binLabel_one": "Bin {{bin}} · {{count}} card",
     "binLabel_other": "Bin {{bin}} · {{count}} cards",
     "confirm": "Empty all bins"
   },
-  "pagination": {
-    "previous": "Previous",
-    "next": "Next",
-    "page": "Page {{page}} of {{count}}",
-    "range": "{{from}}-{{to}} of {{total}} cards"
+  "moveDialog": {
+    "title_one": "Move card to a location",
+    "title_other": "Move {{count}} cards to a location",
+    "titleAnyTarget_one": "Move card",
+    "titleAnyTarget_other": "Move {{count}} cards",
+    "description_one": "The card is added to the end of the location you pick. If it was stored somewhere else, it leaves that location.",
+    "description_other": "The cards are added to the end of the location you pick, in the order you selected them. Cards stored somewhere else leave their old location.",
+    "collectionDescription_one": "The card leaves this collection and joins the one you pick. It keeps its storage location and leaves its bin.",
+    "collectionDescription_other": "The cards leave this collection and join the one you pick. They keep their storage locations and leave their bins.",
+    "targetLabel": "Move to",
+    "locationsGroup": "Storage locations",
+    "collectionsGroup": "Collections",
+    "cancel": "Cancel",
+    "confirm": "Move"
+  },
+  "pickList": {
+    "open": "Pick list",
+    "title": "Pick list",
+    "description": "Paste a decklist to see where each card is stored, then tick cards off as you pull them.",
+    "decklistLabel": "Cards to pull",
+    "decklistPlaceholder": "4 Lightning Bolt\n2 Counterspell",
+    "decklistHint": "One card per line. Quantities, set codes and section headers are fine.",
+    "findCards": "Find cards",
+    "editList": "Edit list",
+    "clear": "Clear list",
+    "progress": "{{picked}} of {{total}} picked",
+    "emptyTitle": "None of these cards are stored",
+    "emptyDescription": "Only cards in a storage location show up on a pick list.",
+    "loadFailed": "The pick list couldn't be loaded.",
+    "finish": "Remove picked from locations",
+    "finishTitle_one": "Remove {{count}} picked card from its location?",
+    "finishTitle_other": "Remove {{count}} picked cards from their locations?",
+    "finishDescription": "They stay in your collection. The pick list is cleared afterwards.",
+    "finishConfirm": "Remove",
+    "scan": {
+      "button": "Scan to pick",
+      "noMatch": "No card recognized. Try again with the whole card in view.",
+      "notOnList": "{{name}} isn't left on your pick list.",
+      "picked": "Picked {{name}} from {{location}}, position {{position}}",
+      "failed": "Scanning failed. Try again.",
+      "hint": "Hold one card in front of the camera and press Scan card.",
+      "scanCard": "Scan card",
+      "cameraFailed": "The camera couldn't be started. Check that this browser is allowed to use it.",
+      "stop": "Stop scanning",
+      "alreadyPicked": "Every copy of {{name}} on your pick list is already picked."
+    },
+    "toasts": {
+      "removed_one": "Removed {{count}} card from its location",
+      "removed_other": "Removed {{count}} cards from their locations"
+    },
+    "notStored": "Not stored",
+    "missingCount_one": "{{count}} copy not stored",
+    "missingCount_other": "{{count}} copies not stored",
+    "moreActions": "More actions",
+    "picked": "Picked",
+    "back": "Back to locations"
+  },
+  "verify": {
+    "tabs": {
+      "label": "Location view",
+      "cards": "Cards",
+      "verify": "Verify"
+    },
+    "description": "Scan the cards in this location to check everything that should be here is.",
+    "progress": "{{verified}} of {{total}} verified",
+    "verified": "Verified",
+    "startOver": "Start over",
+    "emptyTitle": "Nothing to verify",
+    "emptyDescription": "This location has no cards stored in it yet.",
+    "loadFailed": "This location's cards couldn't be loaded.",
+    "truncated": "Only the first {{max}} cards in this location can be verified.",
+    "complete": "Every card in this location is verified.",
+    "notInLocationTitle": "Scanned but not stored here",
+    "notInLocationDescription": "These cards aren't recorded in this location. Put them where they belong, or move them here.",
+    "scan": {
+      "button": "Scan to verify",
+      "stop": "Stop scanning",
+      "verified": "Verified {{name}}, position {{position}}",
+      "alreadyVerified": "Every copy of {{name}} in this location is already verified.",
+      "notInLocation": "{{name}} isn't stored in this location.",
+      "hint": "Hold one card from this location in front of the camera and press Scan card."
+    }
   }
 }

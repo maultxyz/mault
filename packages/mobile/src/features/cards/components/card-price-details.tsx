@@ -1,3 +1,4 @@
+import { priceChangeSinceScan, tcgplayerHeadlinePrices } from "@magic-vault/shared";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, View } from "react-native";
@@ -10,16 +11,23 @@ import { PRICE_TABLE_COLUMN_WIDTH } from "@/lib/constants/cards";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CardPriceDetailsProps, PriceSourceSection } from "@/lib/interfaces/cards";
 
-export function CardPriceDetails({ card, isFoil }: CardPriceDetailsProps) {
+export function CardPriceDetails({ card, isFoil, foilType, condition }: CardPriceDetailsProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const { source } = usePricing();
   const [open, setOpen] = useState(false);
+  const { isConditionPrice, ...tcgplayerHeadline } = tcgplayerHeadlinePrices(card, foilType, condition);
 
   const sections: PriceSourceSection[] = [
     {
       source: "tcgplayer",
-      headline: { label: t("priceTable.tcgplayerMarket"), price: card.price, foilPrice: card.priceFoil, format: formatUsd },
+      headline: {
+        label: isConditionPrice
+          ? t("priceTable.tcgplayerMarketCondition", { condition })
+          : t("priceTable.tcgplayerMarket"),
+        ...tcgplayerHeadline,
+        format: formatUsd,
+      },
       table: {
         heading: t("priceTable.heading"),
         columns: [t("priceTable.low"), t("priceTable.mid"), t("priceTable.market"), t("priceTable.high")],
@@ -54,6 +62,8 @@ export function CardPriceDetails({ card, isFoil }: CardPriceDetailsProps) {
         label: t("priceTable.cardmarketAvg"),
         price: card.priceEur ?? null,
         foilPrice: card.priceEurFoil ?? null,
+        priceAtScan: card.pricesAtScan?.priceEur,
+        foilPriceAtScan: card.pricesAtScan?.priceEurFoil,
         format: formatEur,
       },
       table: {
@@ -92,6 +102,8 @@ export function CardPriceDetails({ card, isFoil }: CardPriceDetailsProps) {
         label: t("priceTable.cardKingdomRetail"),
         price: card.priceCardKingdom ?? null,
         foilPrice: card.priceCardKingdomFoil ?? null,
+        priceAtScan: card.pricesAtScan?.priceCardKingdom,
+        foilPriceAtScan: card.pricesAtScan?.priceCardKingdomFoil,
         format: formatUsd,
       },
       table: {
@@ -129,6 +141,8 @@ export function CardPriceDetails({ card, isFoil }: CardPriceDetailsProps) {
           const showFoil = isFoil && headline.foilPrice != null;
           const main = showFoil ? headline.foilPrice : headline.price;
           const secondary = showFoil ? headline.price : headline.foilPrice;
+          const mainAtScan = showFoil ? headline.foilPriceAtScan : headline.priceAtScan;
+          const changeSinceScan = priceChangeSinceScan(mainAtScan, main);
           return (
             <View
               key={key}
@@ -138,8 +152,10 @@ export function CardPriceDetails({ card, isFoil }: CardPriceDetailsProps) {
                 gap: 2,
                 paddingHorizontal: SPACING.md,
                 paddingVertical: SPACING.sm + 2,
-                borderRadius: RADIUS.lg,
-                backgroundColor: colors.muted,
+                borderRadius: RADIUS.md,
+                borderWidth: 1,
+                borderColor: colors.border,
+                backgroundColor: colors.card,
               }}
             >
               <AppText size="xs" tone="secondary" numberOfLines={1}>
@@ -153,6 +169,18 @@ export function CardPriceDetails({ card, isFoil }: CardPriceDetailsProps) {
                   {t(showFoil ? "priceTable.nonFoilPrice" : "priceTable.foilPrice", {
                     price: headline.format(secondary),
                   })}
+                </AppText>
+              ) : null}
+              {mainAtScan != null && changeSinceScan ? (
+                <AppText size="xs" tone="secondary" style={{ fontVariant: ["tabular-nums"] }}>
+                  {t("priceTable.priceAtScan", { price: headline.format(mainAtScan) })}{" "}
+                  <AppText
+                    size="xs"
+                    weight="medium"
+                    tone={changeSinceScan.direction === "up" ? "success" : "destructive"}
+                  >
+                    {changeSinceScan.percentLabel}
+                  </AppText>
                 </AppText>
               ) : null}
             </View>
@@ -174,7 +202,7 @@ export function CardPriceDetails({ card, isFoil }: CardPriceDetailsProps) {
       </Pressable>
 
       {open ? (
-        <View style={{ gap: SPACING.md, padding: SPACING.md, borderRadius: RADIUS.lg, backgroundColor: colors.muted }}>
+        <View style={{ gap: SPACING.md, padding: SPACING.md, borderRadius: RADIUS.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card }}>
           {ordered.map(({ source: key, table }) => {
             const rows = table.rows.filter((row) => row.values.some((value) => value != null));
             if (rows.length === 0) return null;

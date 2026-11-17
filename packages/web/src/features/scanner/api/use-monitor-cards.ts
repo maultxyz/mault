@@ -1,24 +1,23 @@
 import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
+import { useCardViewPreferences } from "@/features/cards/api/use-card-view-preferences";
 import {
+  monitorCardsCountQueryOptions,
   monitorCardsKey,
   monitorCardsPageQueryOptions,
   monitorCardsSummaryQueryOptions,
 } from "@/features/scanner/api/monitor-cards";
-import { toDisplayStats } from "@/features/scanner/lib/compute-stats";
+import { toScanStats } from "@/features/scanner/lib/compute-stats";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   MONITOR_NEEDS_REVIEW_CARDS_QUERY,
   MONITOR_OPEN_CARD_PARAM,
 } from "@/lib/constants/scanner";
 import {
-  CARD_GROUP_DUPLICATES_STORAGE_KEY,
-  CARD_VIEW_MODE_STORAGE_KEY,
-} from "@/lib/constants/storage-keys";
-import {
+  CARDS_SUMMARY_REFRESH_THROTTLE_MS,
   MONITOR_REFRESH_THROTTLE_MS,
   SEARCH_DEBOUNCE_MS,
 } from "@/lib/constants/timing";
-import type { CardViewMode } from "@/lib/interfaces/cards";
 import type {
   MonitorCardsSource,
   MonitorCardsState,
@@ -32,6 +31,7 @@ export function useMonitorCards(
   session: SessionMonitorState,
   cardsSource: MonitorCardsSource,
   canEditCards: boolean,
+  canOpenCards: boolean,
 ): MonitorCardsState {
   const queryClient = useQueryClient();
   const { collection, cardsVersion } = session;
@@ -42,40 +42,12 @@ export function useMonitorCards(
   );
   const queryState = useCardQueryState(fieldDefinitions);
 
-  const [viewMode, setViewMode] = useState<CardViewMode>(() => {
-    try {
-      return localStorage.getItem(CARD_VIEW_MODE_STORAGE_KEY) === "list"
-        ? "list"
-        : "grid";
-    } catch {
-      return "grid";
-    }
-  });
-
-  const handleViewModeChange = useCallback((mode: CardViewMode) => {
-    setViewMode(mode);
-    try {
-      localStorage.setItem(CARD_VIEW_MODE_STORAGE_KEY, mode);
-    } catch {}
-  }, []);
-
-  const [groupDuplicates, setGroupDuplicates] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(CARD_GROUP_DUPLICATES_STORAGE_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
-
-  const handleGroupDuplicatesChange = useCallback((grouped: boolean) => {
-    setGroupDuplicates(grouped);
-    try {
-      localStorage.setItem(
-        CARD_GROUP_DUPLICATES_STORAGE_KEY,
-        grouped ? "1" : "0",
-      );
-    } catch {}
-  }, []);
+  const {
+    viewMode,
+    handleViewModeChange,
+    groupDuplicates,
+    handleGroupDuplicatesChange,
+  } = useCardViewPreferences();
 
   const debouncedSearch = useDebouncedValue(
     queryState.searchQuery,
@@ -100,11 +72,11 @@ export function useMonitorCards(
     monitorCardsPageQueryOptions(cardsSource, cardsQuery, page),
   );
   const { data: summary } = useQuery(
-    monitorCardsSummaryQueryOptions(cardsSource, cardsQuery),
+    monitorCardsSummaryQueryOptions(cardsSource, ALL_CARDS_QUERY),
   );
 
-  const { data: reviewSummary } = useQuery({
-    ...monitorCardsSummaryQueryOptions(
+  const { data: reviewCount } = useQuery({
+    ...monitorCardsCountQueryOptions(
       cardsSource,
       MONITOR_NEEDS_REVIEW_CARDS_QUERY,
     ),
@@ -112,18 +84,35 @@ export function useMonitorCards(
   });
 
   const lastRefreshRef = useRef(0);
+  const lastSummaryRefreshRef = useRef(0);
   const cardsKey = useMemo(() => monitorCardsKey(cardsSource), [cardsSource]);
   useEffect(() => {
     if (cardsVersion === 0) return;
-    const wait = Math.max(
-      0,
-      MONITOR_REFRESH_THROTTLE_MS - (Date.now() - lastRefreshRef.current),
-    );
-    const id = setTimeout(() => {
-      lastRefreshRef.current = Date.now();
-      void queryClient.invalidateQueries({ queryKey: cardsKey });
-    }, wait);
-    return () => clearTimeout(id);
+    const scheduleRefresh = (
+      lastRefreshAt: { current: number },
+      throttleMs: number,
+      refreshSummary: boolean,
+    ) =>
+      setTimeout(
+        () => {
+          lastRefreshAt.current = Date.now();
+          void queryClient.invalidateQueries({
+            queryKey: cardsKey,
+            predicate: (query) =>
+              (query.queryKey[2] === "summary") === refreshSummary,
+          });
+        },
+        Math.max(0, throttleMs - (Date.now() - lastRefreshAt.current)),
+      );
+    const timers = [
+      scheduleRefresh(lastRefreshRef, MONITOR_REFRESH_THROTTLE_MS, false),
+      scheduleRefresh(
+        lastSummaryRefreshRef,
+        CARDS_SUMMARY_REFRESH_THROTTLE_MS,
+        true,
+      ),
+    ];
+    return () => timers.forEach(clearTimeout);
   }, [cardsVersion, cardsKey, queryClient]);
 
   const pageCount = pageData
@@ -135,12 +124,12 @@ export function useMonitorCards(
   }, [page, clampedPage]);
 
   const stats = useMemo(
-    () => (summary ? toDisplayStats(summary.all, summary.filtered) : null),
+    () => (summary ? toScanStats(summary.all) : null),
     [summary],
   );
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const openScanId = canEditCards
+  const openScanId = canOpenCards
     ? (searchParams.get(MONITOR_OPEN_CARD_PARAM) ?? undefined)
     : undefined;
 
@@ -174,8 +163,7 @@ export function useMonitorCards(
     stats,
     cardCount: summary?.all.totalCount ?? collection?.cardCount ?? 0,
     matchingCount: pageData?.totalEntries ?? 0,
-    filteredCount: summary?.filtered.totalCount ?? 0,
-    needsReviewCount: reviewSummary?.filtered.totalCount ?? 0,
+    needsReviewCount: reviewCount?.totalCount ?? 0,
     openScanId,
     setOpenScanId,
   };

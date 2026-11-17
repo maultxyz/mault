@@ -74,20 +74,20 @@ export function RuleGroupEditor({
     <div
       className={`flex flex-col gap-2 ${depth > 0 ? "rounded-lg border border-dashed p-2.5" : ""}`}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-1.5">
         <ButtonGroup data-tour={depth === 0 ? "rule-combinator" : undefined}>
           <Button
             type="button"
-            size="sm"
             variant={group.combinator === "and" ? "outline-selected" : "outline"}
+            aria-pressed={group.combinator === "and"}
             onClick={() => toggleCombinator("and")}
           >
             {t("and")}
           </Button>
           <Button
             type="button"
-            size="sm"
             variant={group.combinator === "or" ? "outline-selected" : "outline"}
+            aria-pressed={group.combinator === "or"}
             onClick={() => toggleCombinator("or")}
           >
             {t("or")}
@@ -95,13 +95,13 @@ export function RuleGroupEditor({
         </ButtonGroup>
 
         {onRemove && (
-          <Button type="button" variant="ghost" size="icon" onClick={onRemove}>
+          <Button aria-label={t("common:a11y.removeGroup")} type="button" variant="ghost" size="icon" onClick={onRemove}>
             <IconTrash />
           </Button>
         )}
       </div>
 
-      <div className="flex flex-col gap-2 pl-4">
+      <div className="flex flex-col gap-2 pl-4 max-md:pl-0">
         {group.conditions.map((item, index) =>
           isRuleGroup(item) ? (
             <RuleGroupEditor
@@ -127,9 +127,8 @@ export function RuleGroupEditor({
         )}
       </div>
 
-      <ButtonGroup className="ml-4">
+      <ButtonGroup className="ml-4 max-md:ml-0">
         <Button
-          size="sm"
           type="button"
           variant="outline"
           onClick={addCondition}
@@ -139,7 +138,6 @@ export function RuleGroupEditor({
         </Button>
         {depth < 2 && (
           <Button
-            size="sm"
             type="button"
             variant="outline"
             onClick={addGroup}

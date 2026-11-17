@@ -3,22 +3,22 @@ import { Input } from "@/components/ui/input";
 import { SaveBar } from "@/components/save-bar";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { neon } from "@/lib/auth/client";
-import {
-  updateNameSchema,
-  type UpdateNameFormValues,
-} from "@/schemas/account.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
+import {
+  updateNameFormSchema,
+  type UpdateNameFormValues,
+} from "@magic-vault/shared";
 
 export function UpdateNameForm() {
   const { t } = useTranslation("account");
   const { data, refetch } = neon.auth.useSession();
 
   const form = useForm<UpdateNameFormValues>({
-    resolver: zodResolver(updateNameSchema),
+    resolver: zodResolver(updateNameFormSchema),
     defaultValues: { name: "" },
   });
 

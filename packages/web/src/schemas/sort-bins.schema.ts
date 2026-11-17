@@ -1,26 +1,76 @@
 import {
   CONDITION_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,
+  formValidationMessage,
   LOW_MATCH_PERCENT_MAX,
   OVERRIDE_PRIORITY_MAX,
   SET_NAME_MAX_LENGTH,
   type BinRuleGroup,
 } from "@magic-vault/shared";
 import { z } from "zod";
-import { PICK_LIST_DECKLIST_MAX_LENGTH } from "@/lib/constants/bins";
+import {
+  BIN_RULE_TRANSFER_MODES,
+  PICK_LIST_DECKLIST_MAX_LENGTH,
+  PRESET_KINDS,
+} from "@/lib/constants/bins";
 
 export const createSetSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "Name is required")
+    .min(1, formValidationMessage("nameRequired"))
     .max(
       SET_NAME_MAX_LENGTH,
-      `Name must be ${SET_NAME_MAX_LENGTH} characters or less`,
+      formValidationMessage("nameTooLong", { max: SET_NAME_MAX_LENGTH }),
     ),
 });
 
 export type CreateSetFormValues = z.infer<typeof createSetSchema>;
+
+export const createPresetSchema = createSetSchema
+  .extend({
+    kind: z.enum(PRESET_KINDS),
+    firstPresetGuid: z.string(),
+  })
+  .refine(
+    (values) => values.kind !== "multiStage" || !!values.firstPresetGuid,
+    {
+      path: ["firstPresetGuid"],
+      message: formValidationMessage("valueRequired"),
+    },
+  );
+
+export type CreatePresetFormValues = z.infer<typeof createPresetSchema>;
+
+export const presetWorkflowRenameSchema = createSetSchema;
+
+export const binRuleTransferSchema = z.object({
+  mode: z.enum(BIN_RULE_TRANSFER_MODES),
+  targetBinNumber: z.number().int().positive().nullable(),
+}).refine((values) => values.targetBinNumber != null, {
+  path: ["targetBinNumber"],
+  message: formValidationMessage("valueRequired"),
+});
+
+export type BinRuleTransferFormValues = z.infer<typeof binRuleTransferSchema>;
+
+export const presetWorkflowStagesSchema = z.object({
+  stages: z
+    .array(
+      z.object({
+        stepGuid: z.string().nullable(),
+        presetGuid: z.string().min(1),
+        isResortMode: z.boolean(),
+      }),
+    )
+    .min(1),
+});
+
+export type PresetWorkflowStagesFormValues = z.infer<
+  typeof presetWorkflowStagesSchema
+>;
+
+export type PresetWorkflowRenameFormValues = CreateSetFormValues;
 
 const conditionOperatorValues = [
   "equals",
@@ -70,24 +120,25 @@ export const binConfigSchema = z.object({
   isOverride: z.boolean(),
   overridePriority: z
     .number()
-    .int("Must be a whole number")
-    .min(1, "Must be at least 1")
-    .max(OVERRIDE_PRIORITY_MAX, `Must be at most ${OVERRIDE_PRIORITY_MAX}`)
+    .int(formValidationMessage("wholeNumber"))
+    .min(1, formValidationMessage("atLeast", { min: 1 }))
+    .max(OVERRIDE_PRIORITY_MAX, formValidationMessage("atMost", { max: OVERRIDE_PRIORITY_MAX }))
     .nullable(),
+  repackPriority: z.number().int().min(1).nullable(),
   isDisabled: z.boolean(),
   rules: binRuleGroupSchema,
   maxCopies: z
     .number()
     .int()
-    .min(1, "Must allow at least 1 copy")
+    .min(1, formValidationMessage("atLeast", { min: 1 }))
     .max(CONDITION_NUMERIC_MAX)
     .nullable(),
   maxCopiesBy: z.string(),
   overflowBin: z.number().int().positive().nullable(),
   lowMatchPercent: z
     .number()
-    .min(1, "Must be at least 1%")
-    .max(LOW_MATCH_PERCENT_MAX, `Must be at most ${LOW_MATCH_PERCENT_MAX}%`)
+    .min(1, formValidationMessage("percentAtLeast", { min: 1 }))
+    .max(LOW_MATCH_PERCENT_MAX, formValidationMessage("percentAtMost", { max: LOW_MATCH_PERCENT_MAX }))
     .nullable(),
   pickList: z
     .object({
@@ -105,16 +156,15 @@ export const repackSlotSchema = z.object({
   targetCount: z
     .number()
     .int()
-    .min(1, "Must be at least 1 card")
+    .min(1, formValidationMessage("atLeast", { min: 1 }))
     .max(CONDITION_NUMERIC_MAX),
 });
-
-export type RepackSlotFormValues = z.infer<typeof repackSlotSchema>;
 
 export const repackConfigSchema = z.object({
   repackUniqueBy: z.string().min(1),
   repackSiftRules: binRuleGroupSchema.nullable(),
   repackSlots: z.array(repackSlotSchema),
+  repackMultiplePacks: z.boolean(),
 });
 
 export type RepackConfigFormValues = z.infer<typeof repackConfigSchema>;

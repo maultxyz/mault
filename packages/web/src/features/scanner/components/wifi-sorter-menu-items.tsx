@@ -1,7 +1,4 @@
-import {
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { useWifiSorters } from "@/features/scanner/api/use-wifi-sorters";
 import type { WifiSorterMenuItemsProps } from "@/lib/interfaces/sorter-wifi";
 import { IconWifi, IconWifiOff } from "@tabler/icons-react";
@@ -10,7 +7,6 @@ import { useTranslation } from "react-i18next";
 export function WifiSorterMenuItems({
   onSelect,
   disabled,
-  showSeparator,
 }: WifiSorterMenuItemsProps) {
   const { t } = useTranslation("scanner");
   const sorters = useWifiSorters(true);
@@ -18,7 +14,6 @@ export function WifiSorterMenuItems({
 
   return (
     <>
-      {showSeparator && <DropdownMenuSeparator />}
       {sorters.map((sorter) => {
         const available =
           sorter.online && !sorter.inUse && !sorter.connectedHere;

@@ -15,15 +15,17 @@ import { SelectField } from "@/components/ui/select-field";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
 import { checkCollectionName, collectionsQueryOptions, createCollection } from "@/features/collections/api/collections";
-import { createCollectionSchema } from "@/features/collections/lib/collection-schemas";
 import { gameLanguagesQueryOptions, gamesQueryOptions } from "@/features/games/api/games";
+import { billingQueryOptions } from "@/features/org/api/billing";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
+import { upgradeRequiredMessage } from "@/lib/api/upgrade-required-error";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import type { CreateCollectionValues } from "@/lib/interfaces/forms";
+import { createCollectionFormSchema, type CreateCollectionFormValues } from "@magic-vault/shared";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function NewCollectionScreen() {
   const { t } = useTranslation();
@@ -33,9 +35,12 @@ export default function NewCollectionScreen() {
   const [sheet, setSheet] = useState<"game" | "lang" | null>(null);
   const [nameEdited, setNameEdited] = useState(false);
   const { data: games = [] } = useQuery(gamesQueryOptions);
+  const { data: billing } = useQuery(billingQueryOptions(orgId));
+  const collectionLimit = billing?.maxCollections ?? null;
+  const collectionLimitReached = collectionLimit != null && (billing?.collectionCount ?? 0) >= collectionLimit;
   const activeGames = useMemo(() => games.filter((g) => g.isActive), [games]);
-  const form = useForm<CreateCollectionValues>({
-    resolver: zodResolver(createCollectionSchema),
+  const form = useForm<CreateCollectionFormValues>({
+    resolver: zodResolver(createCollectionFormSchema),
     defaultValues: { name: "", gameGuid: "", lang: "", matchAllLanguages: false },
   });
   const gameGuid = form.watch("gameGuid");
@@ -65,12 +70,13 @@ export default function NewCollectionScreen() {
     onSuccess: (next) => {
       queryClient.setQueryData(collectionsQueryOptions(orgId).queryKey, next);
       void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
+      void queryClient.invalidateQueries({ queryKey: billingQueryOptions(orgId).queryKey });
       router.back();
     },
   });
 
   const onSubmit = form.handleSubmit((values) => {
-    if (!nameAvailable) return;
+    if (!nameAvailable || collectionLimitReached) return;
     create.mutate({ ...values, name: values.name.trim() });
   });
 
@@ -78,8 +84,13 @@ export default function NewCollectionScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <PageHeader title={t("collections.new")} subtitle={t("collections.createDescription")} onBack={() => router.back()} />
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.xl }}>
-        {create.isError ? <Callout tone="destructive" title={t("collections.createFailed")} /> : null}
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.xl }}>
+        {collectionLimitReached ? (
+          <Callout tone="info" title={t("collections.limitReached", { count: collectionLimit })} />
+        ) : null}
+        {create.isError ? (
+          <Callout tone="destructive" title={t("collections.createFailed")} description={upgradeRequiredMessage(create.error)} />
+        ) : null}
         <View style={{ gap: SPACING.xs }}>
           <SelectField
             label={t("collections.gameLabel")}
@@ -89,7 +100,7 @@ export default function NewCollectionScreen() {
           />
           {errors.gameGuid ? (
             <AppText size="xs" style={{ color: colors.destructive }}>
-              {t("collections.validation.game")}
+              {translateFormErrorMessage(t, errors.gameGuid.message)}
             </AppText>
           ) : null}
         </View>
@@ -108,7 +119,7 @@ export default function NewCollectionScreen() {
               }}
               error={
                 fieldState.error
-                  ? t("collections.validation.name")
+                  ? translateFormErrorMessage(t, fieldState.error.message)
                   : !nameAvailable && debouncedName === name.trim()
                     ? t("collections.duplicateName")
                     : undefined
@@ -126,7 +137,7 @@ export default function NewCollectionScreen() {
           />
           {errors.lang ? (
             <AppText size="xs" style={{ color: colors.destructive }}>
-              {t("collections.validation.lang")}
+              {translateFormErrorMessage(t, errors.lang.message)}
             </AppText>
           ) : null}
         </View>
@@ -146,7 +157,13 @@ export default function NewCollectionScreen() {
             </View>
           )}
         />
-        <Button size="lg" label={t("collections.create")} loading={create.isPending} onPress={onSubmit} />
+        <Button
+          size="lg"
+          label={t("collections.create")}
+          loading={create.isPending}
+          disabled={collectionLimitReached}
+          onPress={onSubmit}
+        />
       </ScrollView>
       <OptionSheet
         visible={sheet === "game"}

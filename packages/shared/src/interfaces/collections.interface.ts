@@ -1,5 +1,4 @@
 import type { Game } from "./games.interface";
-import type { ScannedCard } from "./scanner.interface";
 
 export interface Collection {
   guid: string;
@@ -14,6 +13,6 @@ export interface Collection {
   updatedAt: Date;
 }
 
-export interface CollectionWithCards extends Collection {
-  cards: ScannedCard[];
+export interface MoveCardsToCollectionResult {
+  moved: number;
 }

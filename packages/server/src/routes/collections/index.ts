@@ -2,6 +2,7 @@ import { Hono } from "hono";
 import type { AppEnv } from "../../middleware/auth";
 import { addCollectionRoute } from "./add";
 import { addCollectionCardRoute } from "./cards-add";
+import { addManualCollectionCardRoute } from "./cards-manual-add";
 import { sortOnlyScanRoute } from "./cards-sort-only";
 import { collectionCardBinsRoute } from "./cards-bins";
 import { clearCollectionCardsRoute } from "./cards-clear";
@@ -11,13 +12,19 @@ import { collectionCardOriginRoute } from "./cards-origin";
 import { collectionCardDiagnosticsRoute } from "./cards-diagnostics";
 import { collectionCardImageRoute } from "./cards-image";
 import { editCollectionCardRoute } from "./cards-edit";
+import { acceptReviewCollectionCardsRoute } from "./cards-accept-review";
+import { setCollectionCardTagsRoute } from "./cards-tags";
 import { exportCollectionCardsRoute } from "./cards-export";
 import { collectionCardIdsRoute } from "./cards-ids";
+import { collectionCardCopiesRoute } from "./cards-copies";
 import { listCollectionCardsRoute } from "./cards-list";
 import { markCollectionCardsDownloadedRoute } from "./cards-mark-downloaded";
 import { setCollectionCardsConditionRoute } from "./cards-set-condition";
+import { setCollectionCardsFoilTypeRoute } from "./cards-set-foil";
 import { collectionCardPositionRoute } from "./cards-position";
 import { removeBulkCollectionCardsRoute } from "./cards-remove-bulk";
+import { moveCollectionCardsToCollectionRoute } from "./cards-move-to-collection";
+import { collectionCardsCountRoute } from "./cards-count";
 import { collectionCardsSummaryRoute } from "./cards-summary";
 import { checkCollectionNameRoute } from "./check-name";
 import { debugErrorRoute } from "./debug-error";
@@ -45,21 +52,28 @@ const router = new Hono<AppEnv>()
   .route("/", deleteCollectionRoute)
   .route("/", listCollectionCardsRoute)
   .route("/", collectionCardsSummaryRoute)
+  .route("/", collectionCardsCountRoute)
   .route("/", collectionCardIdsRoute)
+  .route("/", collectionCardCopiesRoute)
   .route("/", exportCollectionCardsRoute)
   .route("/", collectionCardBinsRoute)
   .route("/", collectionCardPositionRoute)
   .route("/", addCollectionCardRoute)
+  .route("/", addManualCollectionCardRoute)
   .route("/", sortOnlyScanRoute)
   .route("/", collectionCardImageRoute)
   .route("/", collectionCardDiagnosticsRoute)
   .route("/", collectionCardLocationRoute)
   .route("/", collectionCardOriginRoute)
   .route("/", editCollectionCardRoute)
+  .route("/", acceptReviewCollectionCardsRoute)
+  .route("/", setCollectionCardTagsRoute)
   .route("/", clearCollectionCardsRoute)
   .route("/", removeBulkCollectionCardsRoute)
+  .route("/", moveCollectionCardsToCollectionRoute)
   .route("/", markCollectionCardsDownloadedRoute)
   .route("/", setCollectionCardsConditionRoute)
+  .route("/", setCollectionCardsFoilTypeRoute)
   .route("/", deleteCollectionCardRoute)
   .route("/", listUnmatchedCardsRoute)
   .route("/", addUnmatchedCardRoute)

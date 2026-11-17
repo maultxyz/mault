@@ -80,7 +80,7 @@ export function PhoneCameraPairingDialog({
           {status === "connected" && (
             <IconDeviceMobile className="size-3.5 text-primary" />
           )}
-          <span>
+          <span role="status" aria-live="polite">
             {(status === "waiting" || status === "idle") &&
               t("phoneCamera.statusWaiting")}
             {status === "connected" && t("phoneCamera.statusConnected")}
@@ -89,7 +89,7 @@ export function PhoneCameraPairingDialog({
         </div>
 
         {status === "connected" && (
-          <div className="flex gap-2">
+          <div className="flex gap-1.5">
             <Button
               variant="outline-destructive"
               onClick={onDisconnect}

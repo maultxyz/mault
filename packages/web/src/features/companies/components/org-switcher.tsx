@@ -1,3 +1,4 @@
+import { PlanNotice } from "@/components/plan-notice";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,14 +13,11 @@ import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { createOrganization } from "@/lib/auth";
-import {
-  organizationNameSchema,
-  type OrganizationNameFormValues,
-} from "@/schemas/companies.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconBuilding,
   IconCheck,
+  IconSelector,
   IconPlus,
   IconSettings,
 } from "@tabler/icons-react";
@@ -29,7 +27,12 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@/lib/toast";
 import { useOrg } from "../api/use-organization";
+import { useOrganizationLimit } from "../api/use-organization-limit";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import {
+  organizationNameFormSchema,
+  type OrganizationNameFormValues,
+} from "@magic-vault/shared";
 
 function OrgBadge({
   initial,
@@ -41,19 +44,22 @@ function OrgBadge({
   return <span className={className}>{initial}</span>;
 }
 
-export function OrgSwitcher({ side = "right" }: { side?: "right" }) {
+export function OrgSwitcher() {
   const { t } = useTranslation("companies");
   const { orgs, activeOrg, setActiveOrg } = useOrg();
   const { isImpersonating } = useImpersonation();
   const navigate = useNavigate();
   const [createOpen, setCreateOpen] = useState(false);
+  const { organizationLimit, atOrganizationLimit, activeOrgName } =
+    useOrganizationLimit();
 
   const form = useForm<OrganizationNameFormValues>({
-    resolver: zodResolver(organizationNameSchema),
+    resolver: zodResolver(organizationNameFormSchema),
     defaultValues: { name: "" },
   });
 
   async function handleCreate({ name }: OrganizationNameFormValues) {
+    if (atOrganizationLimit) return;
     const result = await createOrganization(name.trim());
     if ("error" in result) {
       toast.error(result.error || t("failedToCreateOrganization"));
@@ -68,24 +74,30 @@ export function OrgSwitcher({ side = "right" }: { side?: "right" }) {
   return (
     <>
       <DropdownMenu>
-        <div className="relative">
-          <DropdownMenuTrigger
-            render={
-              <Button size="icon-lg" variant="ghost">
+        <DropdownMenuTrigger
+          render={
+            <Button
+              variant="ghost"
+              className="max-w-56 min-w-0 shrink gap-1.5 px-1 hover:bg-sidebar-accent aria-expanded:bg-sidebar-accent"
+            >
+              {activeOrg ? (
+                <OrgBadge
+                  initial={activeOrg.name[0].toUpperCase()}
+                  className="grid size-4.5 shrink-0 place-items-center rounded-sm bg-primary text-2xs font-bold text-primary-foreground"
+                />
+              ) : (
                 <IconBuilding />
-              </Button>
-            }
-          />
-          {activeOrg && (
-            <OrgBadge
-              initial={activeOrg.name[0].toUpperCase()}
-              className="pointer-events-none absolute -right-1 -top-1 grid size-4 place-items-center rounded-full bg-primary text-2xs font-bold leading-none text-primary-foreground"
-            />
-          )}
-        </div>
+              )}
+              <span className="truncate font-semibold text-foreground">
+                {activeOrg?.name ?? t("orgSwitcher.organizations")}
+              </span>
+              <IconSelector className="size-3.5 text-foreground/70" />
+            </Button>
+          }
+        />
         <DropdownMenuContent
-          side={side}
-          align="end"
+          side="bottom"
+          align="start"
           sideOffset={8}
           className="w-64"
         >
@@ -139,7 +151,7 @@ export function OrgSwitcher({ side = "right" }: { side?: "right" }) {
             <Button
               type="submit"
               form="create-org-form"
-              disabled={form.formState.isSubmitting}
+              disabled={form.formState.isSubmitting || atOrganizationLimit}
             >
               {form.formState.isSubmitting
                 ? t("creatingOrganization")
@@ -149,8 +161,23 @@ export function OrgSwitcher({ side = "right" }: { side?: "right" }) {
         }
         footerClassName="flex-col-reverse md:flex-row"
       >
-        <form id="create-org-form" onSubmit={form.handleSubmit(handleCreate)}>
+        <form
+          id="create-org-form"
+          onSubmit={form.handleSubmit(handleCreate)}
+          className="flex flex-col gap-3"
+        >
+          {atOrganizationLimit && (
+            <PlanNotice
+              message={t("orgSwitcher.organizationLimitReached", {
+                count: organizationLimit ?? 0,
+                name: activeOrgName,
+              })}
+              linkLabel={t("orgSwitcher.organizationLimitUpgrade")}
+              onLinkClick={() => setCreateOpen(false)}
+            />
+          )}
           <Input
+            aria-label={t("organizationNamePlaceholder")}
             placeholder={t("organizationNamePlaceholder")}
             {...form.register("name")}
             autoFocus

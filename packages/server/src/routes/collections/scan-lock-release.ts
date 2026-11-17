@@ -9,7 +9,7 @@ export const releaseScanLockRoute = new Hono<AppEnv>().delete(
   async (c) => {
     const guid = c.req.param("guid");
     const userId = c.get("userId");
-    releaseLock(guid, userId); // emits lock_released to org subscribers internally
+    releaseLock(guid, userId);
     return c.json({ success: true, data: null });
   },
 );

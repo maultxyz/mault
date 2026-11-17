@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  RESIZE_HANDLE_KEYBOARD_LARGE_STEP_PX,
+  RESIZE_HANDLE_KEYBOARD_STEP_PX,
+} from "@/lib/constants/resize-handle";
 import type { UseResizablePanelOptions } from "@/lib/interfaces/layout";
 
 export function useResizablePanel({
@@ -35,6 +39,30 @@ export function useResizablePanel({
     [axis, size],
   );
 
+  const onKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      const decreaseKey = axis === "width" ? "ArrowLeft" : "ArrowUp";
+      const increaseKey = axis === "width" ? "ArrowRight" : "ArrowDown";
+      const step = e.shiftKey
+        ? RESIZE_HANDLE_KEYBOARD_LARGE_STEP_PX
+        : RESIZE_HANDLE_KEYBOARD_STEP_PX;
+      const direction = invert ? -1 : 1;
+      if (e.key === increaseKey) {
+        setSize((current) => clamp(current + step * direction));
+      } else if (e.key === decreaseKey) {
+        setSize((current) => clamp(current - step * direction));
+      } else if (e.key === "Home") {
+        setSize(min);
+      } else if (e.key === "End") {
+        setSize(max);
+      } else {
+        return;
+      }
+      e.preventDefault();
+    },
+    [axis, invert, clamp, min, max],
+  );
+
   useEffect(() => {
     if (!isDragging) return;
 
@@ -59,5 +87,12 @@ export function useResizablePanel({
     localStorage.setItem(storageKey, String(size));
   }, [size, storageKey]);
 
-  return { size, isDragging, onPointerDown };
+  return {
+    size,
+    isDragging,
+    onPointerDown,
+    onKeyDown,
+    valueMin: min,
+    valueMax: max,
+  };
 }

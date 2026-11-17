@@ -18,6 +18,7 @@
     "deleteWarning": "Löscht \"{{name}}\" und alle zugehörigen Daten dauerhaft.",
     "deleteOrganization": "Organisation löschen",
     "roleOwner": "Inhaber",
+    "memberRoleLabel": "Rolle von {{name}}",
     "removeMemberTitle": "Mitglied entfernen",
     "removeMemberDescription": "\"{{name}}\" aus dieser Organisation entfernen? Der Zugriff geht sofort verloren.",
     "deleteOrgDescription": "Löscht \"{{name}}\" und alle zugehörigen Daten dauerhaft. Dies kann nicht rückgängig gemacht werden.",
@@ -33,7 +34,10 @@
     "organizationDeleted": "Organisation gelöscht.",
     "failedToDelete": "Löschen fehlgeschlagen.",
     "cancelSubscriptionFirst": "Kündige das Abonnement dieser Organisation, bevor du sie löschst. Sobald es zum Ende des Abrechnungszeitraums gekündigt ist, kannst du die Organisation löschen.",
-    "manageBilling": "Abrechnung verwalten"
+    "manageBilling": "Abrechnung verwalten",
+    "memberLimitReached_one": "Dein Tarif enthält {{count}} Mitglied pro Organisation, offene Einladungen mitgezählt. Upgrade deinen Tarif, um mehr einzuladen.",
+    "memberLimitReached_other": "Dein Tarif enthält {{count}} Mitglieder pro Organisation, offene Einladungen mitgezählt. Upgrade deinen Tarif, um mehr einzuladen.",
+    "memberLimitUpgrade": "Tarife ansehen"
   },
   "orgSwitcher": {
     "organizations": "Organisationen",
@@ -41,7 +45,10 @@
     "newOrganizationTitle": "Neue Organisation",
     "newOrganizationDescription": "Erstelle eine neue Organisation, um deine Fächer, Sammlungen und Kalibrierung zu verwalten.",
     "cancel": "Abbrechen",
-    "organizationCreated": "Organisation \"{{name}}\" erstellt."
+    "organizationCreated": "Organisation \"{{name}}\" erstellt.",
+    "organizationLimitReached_one": "Mit dem Tarif von {{name}} kannst du {{count}} Organisation besitzen. Upgrade diesen Tarif, um weitere anzulegen.",
+    "organizationLimitReached_other": "Mit dem Tarif von {{name}} kannst du {{count}} Organisationen besitzen. Upgrade diesen Tarif, um weitere anzulegen.",
+    "organizationLimitUpgrade": "Tarife ansehen"
   },
   "discordBot": {
     "heading": "Discord-Bot",
@@ -63,5 +70,34 @@
   "failedToCreateOrganization": "Organisation konnte nicht erstellt werden.",
   "invite": "Einladen",
   "roleAdmin": "Admin",
-  "roleMember": "Mitglied"
+  "roleMember": "Mitglied",
+  "auditLog": {
+    "description": "Letzte Aktivitäten in dieser Organisation: Anmeldungen, Mitgliederänderungen, Nutzung von API-Schlüsseln.",
+    "membersOnly": "Nur Inhaber und Admins der Organisation können die Aktivitäten sehen.",
+    "empty": "Noch keine Aktivität."
+  },
+  "invites": {
+    "description": "Lade Leute per Link in diese Organisation ein. Keine E-Mail-Einrichtung nötig.",
+    "membersOnly": "Nur Inhaber und Admins der Organisation können Einladungen verwalten.",
+    "inviteTitle": "Jemanden einladen",
+    "inviteDescription": "Du bekommst einen Link, den du selbst weitergibst.",
+    "createFailed": "Einladung konnte nicht erstellt werden",
+    "emailLabel": "E-Mail",
+    "emailPlaceholder": "jemand@beispiel.de",
+    "roleLabel": "Rolle",
+    "revealTitle": "Teile diesen Einladungslink",
+    "revealDescription": "Er wurde nicht automatisch per E-Mail verschickt. Schick ihn selbst weiter. Nach dem Schließen siehst du ihn nicht mehr.",
+    "revealDescriptionEmailed": "Wir haben ihn auch per E-Mail verschickt, aber hier ist der Link zur Sicherheit. Nach dem Schließen siehst du ihn nicht mehr.",
+    "revealDone": "Fertig",
+    "copied": "In die Zwischenablage kopiert",
+    "copyFailed": "Konnte nicht in die Zwischenablage kopiert werden",
+    "revoke": "Widerrufen",
+    "revokeConfirmTitle": "Diese Einladung widerrufen?",
+    "revokeConfirmDescription": "Der Link funktioniert sofort nicht mehr.",
+    "revoked": "Einladung widerrufen",
+    "revokeFailed": "Einladung konnte nicht widerrufen werden",
+    "loadFailed": "Einladungen konnten nicht geladen werden",
+    "empty": "Keine offenen Einladungen",
+    "expires": "läuft am {{date}} ab"
+  }
 }

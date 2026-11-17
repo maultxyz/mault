@@ -1,4 +1,106 @@
 {
+  "foilCalibration": {
+    "captureMode": "Capture experiment",
+    "colorMode": "Color sequence (existing)",
+    "brightnessMode": "Ambient / dim / brighter white",
+    "brightnessSequence": "Keep the card still: LEDs off > white 4/255 > white 12/255 > white 4/255 > white 12/255 > LEDs off. Each state waits at least 1 second after acknowledgement. Ambient, dim and brighter white are each captured twice, with separate stability checks. Off means ambient light, not darkness. No automatic foil decision is made.",
+    "brightComparison": "Repeated brighter white (12/255): intensity shift {{shift}} points; normalized difference {{difference}}%; corner shift {{movement}}% of frame diagonal.",
+    "ambientComparison": "Repeated ambient: intensity shift {{shift}} points; normalized difference {{difference}}%; corner shift {{movement}}% of frame diagonal.",
+    "ambientHelp": "Ambient comparison estimates a separate median lighting gain per RGB channel, then measures remaining positive and negative changes on aligned card pixels. Dark, saturated and predicted-saturated pixels are excluded. At least 25% usable pixels and corner shifts no greater than 1% of the frame diagonal are required. This reduces simple artwork/exposure effects but cannot remove all of them. Values are experimental, not foil confidence; check capture warnings.",
+    "ambientMetrics": "Ambient residual ({{eligible}}% usable): positive mean {{mean}} points, 99th percentile {{peak}} points, negative mean {{negative}} points.",
+    "ambientUnavailable": "Ambient comparison unavailable: missing crop, excessive corner shift, or too few usable channel/pixel values. No foil inference.",
+    "reflectionHelp": "Spot measurements compare a 3x3 center to a surrounding 13x13 ring. Candidates need at least 55% intensity and 20 points of local contrast. Components need 3 pixels; box fill describes shape. Printed artwork also creates spots. Initial foil and non-foil results overlap: more spots or stronger contrast does not mean foil.",
+    "reflections": "Local contrast (99.9th percentile): {{contrast}} points; {{count}} spots, {{area}}% candidate area; largest {{largest}}%, box fill {{compactness}}%. Experimental, not a foil score.",
+    "brightness": "Capture brightness",
+    "brightnessHelp": "Applied only when capturing, not saved as a sorter setting. Start at 48 for the next test (previous captures used 96).",
+    "analyze": "Analyze card area",
+    "analyzing": "Analyzing card area...",
+    "analysisFailed": "Card analysis failed. Your captured photos remain saved. Check model availability and browser storage, then retry Analyze card area.",
+    "analysisHelp": "Detected card crops exclude a 6% edge margin from measurements. Highlights are pixels above both 60% intensity and the card median plus 25 percentage points. Quality limits are experimental diagnostics, not a foil classifier or an accuracy guarantee. Inspect the crops for incorrect corner detection.",
+    "cardCrop": "Detected and aligned card crop",
+    "cardMetrics": "Card: {{clipping}}% clipped, {{highlights}}% highlights",
+    "whiteComparison": "Repeated white: intensity shift {{shift}} percentage points; brightness-normalized difference {{difference}}%; corner shift {{movement}}% of frame diagonal.",
+    "quality": {
+      "brightUnstable": "Repeated brighter-white comparison is unavailable or exceeds an existing exposure, alignment or image-difference limit. Check phone exposure, movement and card crops before interpreting the brightness experiment.",
+      "ambientUnstable": "Repeated ambient comparison is unavailable or exceeds an existing exposure, alignment or image-difference limit. Check ambient light, phone exposure and movement before interpreting the brightness experiment.",
+      "missingCard": "Card detection was unavailable or its corners shifted more than 3% of the frame diagonal from the reference. Inconsistent crops are not measured. No complete quality assessment is possible.",
+      "clipping": "More than 2% of a card crop reaches intensity 250/255 in at least one channel. Try lower capture brightness.",
+      "exposure": "Repeated white intensity changes by more than 5 percentage points. Exposure or lighting may not have settled.",
+      "movement": "Repeated white corners shift by more than 1% of the frame diagonal. Movement or inconsistent corner detection may affect comparison.",
+      "unstable": "Repeated white crops differ by more than 4% after brightness normalization. Check movement, exposure and detection.",
+      "directionUnstable": "A repeated single-LED comparison is unavailable or exceeds an existing exposure, alignment or image-difference limit. Check phone exposure, movement and card crops before interpreting the direction experiment."
+    },
+    "heading": "Foil detection capture lab",
+    "description": "Experimental data collection only. Does not classify cards, change foil status, feed cards or route them.",
+    "instructions": "Connect and self-test the sorter, configure a webcam or paired phone above, and save camera settings. Place one known foil or non-foil card at the scanning position and keep it still. Capture ambient, white, red, green, blue and repeated white illumination. The saved lighting settings are restored afterwards.",
+    "limitations": "Color changes are not proof of foil. Automatic exposure, movement, sleeves and ambient light can affect results. Compare both white frames for stability. Whole-frame clipping is diagnostic only, not a foil score. Closing this tab or losing the connection can prevent lighting restoration; check the Lights page afterwards.",
+    "card": "Card name and printing (set / collector number)",
+    "cardRequired": "Enter the card name and printing (up to 200 characters).",
+    "finish": "Known physical finish",
+    "foil": "Foil",
+    "nonfoil": "Non-foil",
+    "sleeved": "Card is sleeved",
+    "notes": "Setup notes (light position, camera, sleeve, ambient light)",
+    "capture": "Capture labelled sample",
+    "capturing": "Capturing...",
+    "cancel": "Cancel capture",
+    "progress": "Capturing: {{step}}",
+    "unavailable": "Requires a connected, self-tested sorter with lighting support, a ready camera, saved camera settings, available local storage and no active scan session.",
+    "failed": "Capture failed. No complete sample was saved. Check the camera, sorter connection and lighting alerts, then retry.",
+    "cancelled": "Capture cancelled. No complete sample was saved.",
+    "checkLighting": "Capture did not complete. Check that the previous lighting was restored.",
+    "storageFailed": "Local sample storage failed. Check browser storage permissions and free space.",
+    "storageFull": "The browser sample limit has been reached. Export and remove samples to capture more. Samples belonging to other sorters or organizations must be removed from their capture lab.",
+    "saved": "Labelled capture saved on this browser.",
+    "storage": "{{count}} samples for this sorter. Up to {{limit}} total samples across this browser. Export before removing samples or clearing browser data. Photos are not uploaded or shared across browsers.",
+    "export": "Export JSON",
+    "remove": "Remove sample",
+    "frameAlt": "{{card}}, {{step}} illumination",
+    "clipped": "{{percent}}% clipped",
+    "steps": {
+      "whiteBrightRepeat": "Brighter white repeat",
+      "whiteBright": "Main white reference",
+      "whiteHigh": "Bright main light",
+      "ambientRepeat": "Ambient repeat (strip off)",
+      "ambient": "Ambient (strip off)",
+      "white": "White",
+      "red": "Red",
+      "green": "Green",
+      "blue": "Blue",
+      "whiteRepeat": "White repeat",
+      "led0": "LED 0 only",
+      "led3": "LED 3 only",
+      "led0Repeat": "LED 0 only repeat",
+      "led3Repeat": "LED 3 only repeat",
+      "diffuse": "Configured diffused LEDs",
+      "led7": "LED 7 only",
+      "led7Repeat": "LED 7 only repeat",
+      "led4": "LED 4 only",
+      "led4Repeat": "LED 4 only repeat"
+    },
+    "directionMode": "LED direction (LED 0 / LED 7)",
+    "stagedMode": "Main-light bracket + foil verification",
+    "stagedSequence": "Stage 1 uses configured diffused LEDs: LEDs off > normal white 32/255 > dim white 8/255 > bright white 96/255 > normal white 32/255 again. Stage 2 verifies every card: LED 0 > LED 7 > LED 0 > LED 7, each at 32/255 with the diffused LEDs off. Keep the card still and block room light. This changes LED brightness, not camera exposure; automatic exposure can compensate. The first stage does not yet classify cards or skip verification. The final experimental reading comes from the directional captures. Normal-light repeats check capture stability. Live sorting is unchanged.",
+    "directionSequence": "Main lighting uses configured diffused LEDs. Exposed LEDs 0 and 7 are reserved for foil detection. Keep the card still: LEDs off > diffused LEDs white 12/255 > diffused LEDs white 32/255 > LED 0 only > LED 7 only > LED 0 only > LED 7 only (single LEDs at 32/255). Requires sorter firmware with LED direction support: reflash from the website first, otherwise capture stops when the LED mask cannot be confirmed. Block room light. The foil reading is experimental.",
+    "directionHelp": "Direction response divides the LED {{far}} crop by the LED 0 crop pixel by pixel, so printed artwork largely cancels, then removes the smooth falloff along the strip with a 17x17 local average. Remaining sharp changes are highlights that move with the light. Repeat noise is the same measurement for LED 0 against its repeat; a useful foil signal must sit well above it. Experimental, not a foil score.",
+    "directionResponse": "LED 0 vs LED {{far}} ({{eligible}}% usable): 99th percentile residual {{peak}}, moving highlights {{glints}}% of card.",
+    "directionNoise": "Repeat noise, LED 0 vs LED 0 ({{eligible}}% usable): 99th percentile residual {{peak}}, moving highlights {{glints}}% of card.",
+    "directionUnavailable": "Direction comparison unavailable: missing crop or too few lit pixels.",
+    "directionStability": "Repeated {{led}}: intensity shift {{shift}} points; normalized difference {{difference}}%; corner shift {{movement}}% of frame diagonal.",
+    "verdict": {
+      "foil": "Foil (experimental)",
+      "nonFoil": "Non-foil (experimental)",
+      "uncertain": "Uncertain"
+    },
+    "verdictToast": "{{card}}: {{verdict}}",
+    "verdictMismatch": "The experimental reading disagrees with the finish you selected. Check the label; if it is right, export this sample so the limits can be tuned.",
+    "rainbowScore": "Directional colour-change score, LED 0 vs LED {{far}}: {{first}}, repeat {{repeat}}. Broad coloured glare can also raise this score; it is not sufficient evidence of foil.",
+    "localRainbowScore": "Legacy local colour-change score: {{first}}, repeat {{repeat}}. Retained for comparison only; printed artwork can raise this score.",
+    "analysisVersion": "Detector analysis version {{version}}",
+    "normalizedScore": "Artwork-normalized directional score: {{first}}, repeat {{repeat}}. Same-light noise: {{noise0}} / {{noiseFar}}. Foil requires both directional scores at or above {{foil}}; non-foil requires both at or below {{nonFoil}}. Stable, usable captures and low repeat noise are required; otherwise uncertain. Experimental, not validated accuracy or treatment recognition.",
+    "normalizedCoverage": "Usable directional pixels: {{eligible}}%, repeat {{eligibleRepeat}}%. Pixels responding to the light change: {{changed}}%, repeat {{changedRepeat}}%. Both require at least 25% coverage. Sleeved samples remain uncertain.",
+    "reanalyzeGlare": "This sample uses an older detector without artwork-normalized colour ratios. Press Analyze to update it; the old finish prediction is hidden."
+  },
   "page": {
     "title": "Sorter setup",
     "subtitle": "Work through these steps in order to get a sorter ready to sort."
@@ -23,6 +125,13 @@
       "title": "Reduce module count?",
       "description": "Dropping to {{count}} modules will remove the sorting rules and calibration data for modules and bins beyond that count, across every bin preset.",
       "confirm": "Change Module Count"
+    },
+    "detect": {
+      "button": "Detect",
+      "found": "Found {{count}} module from the wired IR sensors.",
+      "found_other": "Found {{count}} modules from the wired IR sensors.",
+      "noneFound": "No IR sensors found. Check that module 1's sensor is wired.",
+      "failed": "Couldn't read the IR sensors from the sorter."
     }
   },
   "channelLayoutUpgrade": {
@@ -60,18 +169,24 @@
       "small": "Small",
       "medium": "Medium",
       "large": "Large",
+      "xlarge": "Extra large",
+      "xxlarge": "Extra extra large",
       "unlimited": "Unlimited",
       "custom": "Custom"
     },
     "customHeightLabel": "Custom bin height for bin {{bin}}",
     "customHeightUnit": "mm",
     "customHeightHint": "About {{count}} cards at {{thickness}} mm each",
-    "customHeightInvalid": "Enter {{min}} to {{max}} mm"
+    "customHeightInvalid": "Enter {{min}} to {{max}} mm",
+    "binSizeLabel": "Size of bin {{bin}}",
+    "bottomModuleSelect": "Module for bin {{bin}}",
+    "bottomBinSelect": "Bottom bin on module {{module}}"
   },
   "binRoutingControls": {
     "label": "Bin Routing",
     "feed": "Feed",
     "dropCard": "Drop Card",
+    "retractCard": "Retract Card",
     "binActive": "Bin {{bin}}…",
     "running": "Running…",
     "sampleRun": "Sample Run",
@@ -90,6 +205,8 @@
     "forward": "Forward",
     "reverse": "Reverse",
     "timeoutLabel": "Timeout (ms)",
+    "feedRetryCountLabel": "Feed Retries",
+    "feedRetryCountDescription": "When a feed times out without delivering a card, send the feed command again up to this many times before pausing. 0 turns retries off.",
     "pulseDurationLabel": "Pulse Duration (ms)",
     "continuousFeedButton": "Continuous Feed",
     "pauseDurationLabel": "Pause Duration (ms)",
@@ -99,6 +216,23 @@
     "reverseDurationDescription": "Once a card reaches module 1, spin the roller backward this long so the next card in the hopper is pulled back instead of creeping forward into a double feed. 0 turns it off.",
     "reverseSpeedLabel": "Roll Back Speed",
     "off": "Off"
+  },
+  "feederTest": {
+    "heading": "Feeder test",
+    "description": "Feed cards straight to the bottom bin without scanning. Leave it running and adjust the feeder on the Servos & feeder page: changes apply from the next card and stay unsaved until you save.",
+    "runUntilStoppedLabel": "Feed until stopped",
+    "cardsToSendLabel": "Cards to send",
+    "start": "Start feeding",
+    "stop": "Stop",
+    "stopping": "Stopping after this card",
+    "progress": "Cards sent: {{count}}",
+    "progressOfTotal": "Cards sent: {{count}} of {{total}}",
+    "toasts": {
+      "completed": "Feeder test finished. Cards sent: {{count}}",
+      "stopped": "Feeder test stopped. Cards sent: {{count}}",
+      "hopperEmpty": "Hopper is empty. Cards sent: {{count}}",
+      "failed": "Feeder test stopped on an error. Cards sent: {{count}}"
+    }
   },
   "irSensorPanel": {
     "label": "IR Sensors",
@@ -153,11 +287,14 @@
     "captureSettleDescription": "How long to wait after the feeder confirms a card has arrived before capturing a frame, so the card is fully still and in focus.",
     "matchesNeededLabel": "Matches Needed",
     "matchesNeededDescription": "How many consecutive frames must agree on the same card before a scan is accepted. 1 is fastest; higher values are more reliable but slower.",
+    "flipCameraLabel": "Flip Camera 180°",
+    "flipCameraDescription": "Turn the camera picture upside down, for a camera mounted the other way round. Applies to scans and every preview of this sorter's connected camera, not to phone photos.",
     "checkBothOrientationsLabel": "Check Both Directions",
     "checkBothOrientationsDescription": "Also match the card rotated 180°, so cards fed upside down are still identified. Turn off if all your cards are fed the same way up to make each scan faster.",
     "executionProviderLabel": "AI Detection Backend",
-    "executionProviderDescription": "Which backend runs the card-detection and matching models in your browser. WASM is the default and works everywhere. WebGPU can be faster on some GPUs, and falls back to WASM if it fails to start.",
+    "executionProviderDescription": "Which backend runs the card-matching model in your browser (card detection always runs on WASM, where it is faster). WASM is the default and works everywhere, but runs one sorter at a time. WebGPU can be faster on some GPUs, runs several sorters at once, and falls back to WASM if it fails to start.",
     "executionProviderWebGpu": "WebGPU",
+    "regionKeyboardLabel": "Scan region. Use the arrow keys to move it and the plus and minus keys to resize it. Hold Shift for bigger steps.",
     "executionProviderWasm": "WASM (default)",
     "usePhoneAsCamera": "Use Phone as Camera",
     "phoneCameraConnected": "Phone Camera Connected",
@@ -171,6 +308,35 @@
     "cameraPlaceholder": "Select a camera",
     "cameraFallbackLabel": "Camera {{index}}",
     "heading": "Scan region"
+  },
+  "cameraPrintingScore": {
+    "heading": "Camera calibration aid",
+    "setLabel": "Set",
+    "cardLabel": "Card",
+    "setPlaceholder": "Choose a set",
+    "cardPlaceholder": "Choose a card",
+    "setsLoading": "Loading sets…",
+    "cardsLoading": "Loading cards…",
+    "noSets": "No matching sets.",
+    "noCards": "No matching cards.",
+    "rate": "Score",
+    "rating": "Scoring…",
+    "description": "Choose the set, then the card on the scanner, and score one frame from the camera. Lower is closer to the stored picture of that printing. A scan accepts the card only when it is the closest match, under {{threshold}}, and clearly closer than any other card. The number is not a percentage and not a condition grade, and it can change between presses. Scoring does not change the camera and does not save anything.",
+    "fieldsRequired": "Choose a set and a card.",
+    "noCollection": "Choose a collection before scoring. The score uses that collection's game.",
+    "noCamera": "Connect a camera, or take a phone photo, before scoring.",
+    "notSynced": "That printing is not in the synced catalog for this collection's game. Sync the set, then score again.",
+    "distanceLabel": "Distance",
+    "nearestDifferent": "The closest card in the catalog is {{name}} ({{set}} {{number}}) at {{distance}}.",
+    "cardLine": "{{name}}, {{set}} {{number}}",
+    "failed": "Could not score that frame.",
+    "verdict": {
+      "accept": "A scan would accept this card.",
+      "other_card": "A scan would match a different card.",
+      "too_far": "A scan would reject this frame. The closest card is at {{threshold}} or higher.",
+      "ambiguous": "A scan would reject this frame. Another card is almost as close.",
+      "empty_index": "A scan would reject this frame. No cards are synced for this game."
+    }
   },
   "useCalibrationPage": {
     "toasts": {
@@ -292,6 +458,7 @@
       "pulse": "Pulse",
       "pause": "Pause",
       "settle": "Final Detection Delay",
+      "feedRetries": "Retries",
       "rollback": "Roll Back"
     },
     "toasts": {
@@ -302,6 +469,7 @@
     "disconnect": "Disconnect",
     "connectDevice": "Connect Device",
     "connectUsb": "Connect via USB",
+    "connectPi": "Connect the sorter on this Pi",
     "connectBluetooth": "Connect via Bluetooth",
     "testing": "Testing…",
     "runTest": "Run Test",
@@ -331,6 +499,7 @@
     "forced": "Setup wizard required for this sorter",
     "forcedNextConnect": "It will open the next time {{name}} connects.",
     "forceFailed": "Couldn't require the setup wizard",
+    "completeFailed": "Couldn't save that setup is finished. Try again.",
     "title": "Set up your sorter",
     "stepCounter": "Step {{current}} of {{total}}",
     "skip": "Skip setup",
@@ -418,7 +587,7 @@
       "clear": "Clear",
       "verified": "Sensor verified",
       "waiting": "Waiting for the first reading from the sorter…",
-      "footnote": "A sensor that never lights up is usually unplugged, wired to the wrong pin, or pointed away from the card path. You can continue and fix it later."
+      "footnote": "A sensor that never lights up is usually unplugged, wired to the wrong pin, or pointed away from the card path. You can continue and fix it later. If a sensor lights up with nothing in front of it, or only sees a card pressed right against it, turn the screw on its blue box (the potentiometer) until it detects a card 1 inch (2.5 cm) away."
     },
     "feederStop": {
       "heading": "Feeder stop point",
@@ -535,21 +704,24 @@
     "previewUnavailable": "Connect the sorter and pass its self-test to preview changes on the strip. You can still edit and save.",
     "strip": {
       "heading": "Light strip",
-      "description": "Lights the card while it's scanned. Changes show on the strip right away and are kept once you save."
+      "description": "SK6812 RGBW LEDs: diffused LEDs 1 to 6, plus 8 to 15 on a 16-LED strip, provide normal lighting. Exposed LEDs 0 and 7 are for foil detection. Warnings use all configured LEDs."
     },
+    "ledCountLabel": "LED strip length",
+    "ledCountValue": "{{count}} LEDs",
+    "ledCountHelp": "Choose 8 for the first board only, or 16 for both boards connected in sequence. Save to keep the setting.",
     "modeLabel": "Mode",
     "modes": {
       "off": {
         "label": "Off",
-        "description": "The strip stays dark, except for alerts."
+        "description": "Normal lighting stays dark. Enabled warnings and celebrations can still light the strip."
       },
       "white": {
         "label": "White",
-        "description": "A bright neutral white, best for most cameras."
+        "description": "Firmware 2.13+ uses the strip's dedicated neutral-white channel. Camera white balance and LED quality can still affect card colour; this is not calibrated colour."
       },
       "custom": {
         "label": "Custom color",
-        "description": "Any solid color you pick."
+        "description": "Choose an RGB color and independently set the neutral-white channel."
       },
       "foil": {
         "label": "Foil sweep",
@@ -557,20 +729,40 @@
       }
     },
     "colorLabel": "Color",
+    "whiteChannelLabel": "White channel (W)",
+    "whiteChannelValue": "{{value}}/255",
     "brightnessLabel": "Brightness",
     "brightnessValue": "{{percent}}%",
+    "celebration": {
+      "heading": "Valuable-card celebration",
+      "description": "One LED flashes at a time from 0 to the last configured LED and back, alternating green, red and blue. Runs when a newly scanned card meets the minimum value. Disable automatic celebrations with the switch. Normal lighting returns before the next feed. Configurable strip length requires updated firmware.",
+      "duration": "Celebration duration (seconds)",
+      "invalidDuration": "Enter 0.5 to 3 seconds.",
+      "previewFailed": "Celebration test failed. Clear sorter alerts and update firmware for adjustable timing.",
+      "enabled": "Enable automatic celebration",
+      "threshold": "Minimum card value ({{currency}})",
+      "invalidThreshold": "Enter a non-negative amount.",
+      "source": "Uses {{source}} pricing, including foil and condition. After changing price source, save these settings again to enable celebrations for that source.",
+      "failed": "The sorter did not confirm the celebration. Scanning was paused."
+    },
     "alerts": {
       "heading": "Alerts",
-      "description": "The strip flashes on its own when the sorter needs attention. Alerts override the mode until they clear.",
-      "jam": "Flashing red: a card is stuck. Clears after the next successful sort or Drop Card.",
-      "empty": "Flashing yellow: the hopper is empty. Clears once a card feeds again.",
-      "value": "Red, green and blue flash: a celebration for a valuable card. Lasts 3 seconds.",
+      "description": "Warnings alternate with your normal center-LED lighting while a reported fault persists, stopping when its sensor clears. All times are seconds and saved per sorter. Defaults: 3 seconds warning, 5 seconds normal. Blockages take priority over an empty hopper and celebrations. Safety checks remain active when lighting warnings are disabled. Requires firmware 2.12.0.",
+      "enabled": "Enable warning lights",
+      "lightEmptyWarningSeconds": "Hopper-empty amber warning (seconds)",
+      "lightBlockedWarningSeconds": "Blocked-module red warning (seconds)",
+      "lightNormalSeconds": "Normal diffused lighting between warnings (seconds)",
+      "invalidSeconds": "Enter a whole number from 1 to 300 seconds.",
+      "jam": "Blocked module: all configured LEDs turn red for the configured warning time.",
+      "empty": "Empty hopper: all configured LEDs turn amber for the configured warning time.",
+      "value": "Celebrations sweep from LED 0 to the last configured LED and back with green, red and blue flashes.",
       "testCelebration": "Test celebration",
       "clear": "Clear alert"
     },
     "toasts": {
       "saved": "Light settings saved.",
-      "saveFailed": "Couldn't save the light settings."
+      "saveFailed": "Couldn't save the light settings.",
+      "previewFailed": "Lighting settings could not be confirmed. Check the sorter connection, valid timer values and firmware."
     }
   }
 }

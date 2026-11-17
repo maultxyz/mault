@@ -1,3 +1,4 @@
+import type { CardViewMode } from "@/lib/interfaces/collections";
 export const CARD_THUMB_WIDTH = 44;
 export const CARD_THUMB_HEIGHT = Math.round((CARD_THUMB_WIDTH * 3.5) / 2.5);
 export const SEARCH_DEBOUNCE_MS = 300;
@@ -9,3 +10,6 @@ export const ACTIVITY_CHART_HEIGHT = 96;
 export const CARD_GRID_GAP_X = 12;
 export const CARD_GRID_GAP_Y = 20;
 export const CARD_GRID_GUTTER = 16;
+
+export const CARD_VIEW_MODES: readonly CardViewMode[] = ["list", "grid"];
+export const STORAGE_CARD_VIEW_MODE_KEY = "mault:storage-card-view-mode";

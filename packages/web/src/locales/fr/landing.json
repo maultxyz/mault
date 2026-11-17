@@ -18,11 +18,36 @@
   },
   "hero": {
     "title": "Chaque carte,<br></br><highlight>juste à sa place.</highlight>",
-    "subtitle": "Charge tes cartes dans la trémie, et Mault s'occupe du reste - le chargeur fait passer chaque carte devant la caméra pour la reconnaître, puis la trie dans un bac selon les règles que tu définis : rareté, couleur, set, type, ou ce que tu préfères. Plus de tableurs, plus de suppositions.",
     "seeFeatures": "Découvrir les fonctionnalités",
-    "currentSession": "Session en cours",
-    "cardCount_one": "{{count}} carte",
-    "cardCount_other": "{{count}} cartes"
+    "liveSort": "Tri en direct",
+    "pauseDemo": "Mettre la démo en pause",
+    "playDemo": "Lancer la démo",
+    "sortedCount_one": "{{count}} carte triée",
+    "sortedCount_other": "{{count}} cartes triées",
+    "nextUp": "Suivante",
+    "foil": "Foil",
+    "stations": {
+      "hopper": "Trémie",
+      "camera": "Caméra",
+      "bins": "Bacs"
+    },
+    "binRules": {
+      "1": "Communes bleues",
+      "2": "Rouges sous 5 $",
+      "3": "Peu communes bleues",
+      "4": "Vertes",
+      "5": "Incolores",
+      "6": "Plus de 20 $"
+    },
+    "eyebrow": "Trieuse de cartes open source",
+    "tagline": "Scanner / Trier / Suivre",
+    "recent": "Récents",
+    "readout": {
+      "match": "Correspondance",
+      "set": "Édition",
+      "price": "Prix",
+      "route": "Destination"
+    }
   },
   "stats": {
     "items": {
@@ -35,69 +60,47 @@
   "supportedGames": {
     "heading": "Trie facilement n'importe quel JCC que tu aimes",
     "cardsIndexed_one": "{{formatted}} carte indexée",
-    "cardsIndexed_other": "{{formatted}} cartes indexées"
+    "cardsIndexed_other": "{{formatted}} cartes indexées",
+    "pauseHint": "Appuyez sur Espace pour mettre en pause la liste défilante.",
+    "pausedHint": "En pause. Appuyez sur Espace pour reprendre la liste défilante."
   },
   "features": {
     "eyebrow": "Fonctionnalités",
     "heading": "Tout ce qu'il faut pour te sentir organisé",
     "subtitle": "Laisse Mault s'occuper du tri, pour que tu passes plus de temps à jouer et moins de temps à fouiller dans des boîtes.",
     "items": {
-      "recognition": {
-        "title": "Reconnaissance instantanée",
-        "description": "Pas besoin de taper les noms de cartes, pas de codes-barres - le chargeur place chaque carte devant la caméra, et Mault sait exactement de quoi il s'agit."
-      },
       "rules": {
         "title": "Des règles que tu contrôles",
         "description": "Combine des conditions - rareté, couleur, set, type et plus encore - pour envoyer chaque carte exactement là où tu le souhaites."
       },
-      "autoAssign": {
-        "title": "Attribution automatique des bacs",
-        "description": "Pas besoin d'écrire de règles. Choisis un champ comme la rareté ou le set, et la première carte avec une nouvelle valeur occupe le prochain bac libre. Les répétitions y retournent automatiquement."
-      },
-      "repack": {
-        "title": "Créer des repacks",
-        "description": "Définis des emplacements de pack par bac, par exemple 3 communes et 1 rare, et chaque bac remplit son propre pack en même temps. Vide-le pour en démarrer un nouveau."
-      },
-      "alphabet": {
-        "title": "Tri alphabétique",
-        "description": "Trie une pile de A à Z, une lettre par bac. Puis descends dans n'importe quelle pile, A en AA, AB, AC, jusqu'à ce que chaque carte soit dans l'ordre."
-      },
-      "sounds": {
-        "title": "Sons personnalisés",
-        "description": "Importe tes propres clips et joue-les quand une carte correspondante est triée, comme une fanfare pour chaque mythique ou un bruit de caisse pour tout ce qui dépasse 20 $."
-      },
       "insights": {
         "title": "Sache ce que tu possèdes",
-        "description": "Consulte les quantités, raretés et sets de toute ta collection, pour ne plus jamais avoir à deviner ce qu'il y a dans la boîte."
-      },
-      "hardware": {
-        "title": "Conçu pour la table",
-        "description": "S'associe à une trieuse physique, pour que tes cartes atterrissent dans de vrais bacs - pas seulement dans un autre tableur. Ajoute des modules de tri quand tu veux pour grandir jusqu'à 11 bacs."
+        "description": "Voyez quantités, valeur, coûts d'achat et marges de toute votre collection, avec l'historique quotidien de la valeur, pour ne plus jamais deviner ce que vaut la boîte."
       },
       "storage": {
         "title": "Sache dans quelle boîte est chaque carte",
         "description": "Quand un bac est plein, vide-le dans une boîte de rangement et Mault note la position exacte de chaque carte dans la pile. Cherche dans toutes tes boîtes par nom, vois ce que chacune vaut et exporte une boîte en CSV."
       },
-      "pickList": {
-        "title": "Sors les cartes d'une decklist",
-        "description": "Colle une decklist dans n'importe quel bac et Mault sort ces cartes de la pile au fil du scan, en cochant chacune jusqu'à ce que la liste soit complète. Le reste est trié comme d'habitude."
-      },
-      "pricing": {
-        "title": "Les prix de trois marchés",
-        "description": "Évalue ta collection avec les prix de TCGplayer, Cardmarket ou Card Kingdom, mis à jour chaque jour. Indique l'état de chaque carte et son prix s'ajuste."
+      "intake": {
+        "title": "Racheter des collections au comptoir",
+        "description": "Scannez les cartes d'un client dans son propre rachat et voyez une offre en espèces et en avoir se construire à partir de vos paliers. Les cartes sous votre minimum sont barrées, et l'acceptation enregistre ce que vous avez payé et imprime un reçu."
       }
     },
     "new": "Nouveau",
-    "priceSources": {
-      "tcgplayer": "TCGplayer",
-      "cardmarket": "Cardmarket",
-      "cardkingdom": "Card Kingdom"
-    },
+    "stageTryIt": "Essayez",
+    "stageExample": "Exemple",
     "demo": {
-      "cardCount_one": "{{count}} carte",
-      "cardCount_other": "{{count}} cartes",
-      "pickListBin": "Liste du bac {{number}}",
-      "found": "{{found}}/{{wanted}} trouvées"
+      "intakeLot": "Cartes de {{name}}",
+      "liveOffer": "Offre en direct",
+      "cash": "Espèces",
+      "credit": "Avoir",
+      "ruleMatches_one": "{{count}} carte va dans le bac {{bin}}",
+      "ruleMatches_other": "{{count}} cartes vont dans le bac {{bin}}",
+      "collectionValue": "Valeur de la collection",
+      "valueHistory": "Valeur sur les 30 derniers jours",
+      "ruleField": "Champ",
+      "ruleOperator": "Opérateur",
+      "ruleValue": "Valeur"
     },
     "more": {
       "heading": "Et bien plus encore",
@@ -133,8 +136,65 @@
         "api": {
           "title": "API et webhooks",
           "description": "Connecte ta boutique : retrouve où est rangée une carte et sois notifié à chaque scan."
+        },
+        "accuracy": {
+          "title": "Contrôles par échantillon",
+          "description": "Contrôlez un échantillon aléatoire d'un lot et obtenez une estimation de précision avec un intervalle à 95 % avant de le mettre en vente."
+        },
+        "staff": {
+          "title": "Activité de l'équipe",
+          "description": "Voyez les scans et corrections par personne, et un journal de qui a modifié quoi."
+        },
+        "fleet": {
+          "title": "Alertes des trieuses",
+          "description": "Soyez prévenu sur Discord ou par webhook quand une trieuse se bloque, passe hors ligne ou doit être entretenue."
+        },
+        "permissions": {
+          "title": "Prix de rachat privés",
+          "description": "Laissez l'équipe scanner les rachats sans voir les offres, coûts ou marges."
+        },
+        "recognition": {
+          "title": "Reconnaissance instantanée",
+          "description": "Pas besoin de taper les noms de cartes, pas de codes-barres - le chargeur place chaque carte devant la caméra, et Mault sait exactement de quoi il s'agit."
+        },
+        "autoAssign": {
+          "title": "Attribution automatique des bacs",
+          "description": "Pas besoin d'écrire de règles. Choisis un champ comme la rareté ou le set, et la première carte avec une nouvelle valeur occupe le prochain bac libre. Les répétitions y retournent automatiquement."
+        },
+        "repack": {
+          "title": "Créer des repacks",
+          "description": "Définis des emplacements de pack par bac, par exemple 3 communes et 1 rare, et chaque bac remplit son propre pack en même temps. Vide-le pour en démarrer un nouveau."
+        },
+        "alphabet": {
+          "title": "Tri alphabétique",
+          "description": "Trie une pile de A à Z, une lettre par bac. Puis descends dans n'importe quelle pile, A en AA, AB, AC, jusqu'à ce que chaque carte soit dans l'ordre."
+        },
+        "sounds": {
+          "title": "Sons personnalisés",
+          "description": "Importe tes propres clips et joue-les quand une carte correspondante est triée, comme une fanfare pour chaque mythique ou un bruit de caisse pour tout ce qui dépasse 20 $."
+        },
+        "hardware": {
+          "title": "Conçu pour la table",
+          "description": "S'associe à une trieuse physique, pour que tes cartes atterrissent dans de vrais bacs - pas seulement dans un autre tableur. Ajoute des modules de tri quand tu veux pour grandir jusqu'à 11 bacs."
+        },
+        "picks": {
+          "title": "Préparer les commandes depuis vos boîtes",
+          "description": "Collez une liste de préparation TCGplayer, un export Shopify ou une simple liste. Mault trouve chaque carte, vous indique sa boîte et sa position, puis retire les cartes prélevées de votre stock."
+        },
+        "pickList": {
+          "title": "Sors les cartes d'une decklist",
+          "description": "Colle une decklist dans n'importe quel bac et Mault sort ces cartes de la pile au fil du scan, en cochant chacune jusqu'à ce que la liste soit complète. Le reste est trié comme d'habitude."
+        },
+        "pricing": {
+          "title": "Les prix de trois marchés",
+          "description": "Évalue ta collection avec les prix de TCGplayer, Cardmarket ou Card Kingdom, mis à jour chaque jour. Indique l'état de chaque carte et son prix s'ajuste."
         }
       }
+    },
+    "groups": {
+      "sorting": "Triez comme vous voulez",
+      "stores": "Conçu pour les boutiques de cartes",
+      "setup": "Évolue avec votre installation"
     }
   },
   "openSource": {
@@ -161,49 +221,122 @@
   "pricing": {
     "eyebrow": "Tarifs",
     "heading": "Des tarifs simples et transparents",
-    "subtitle": "La même application dans les deux cas. L'offre gratuite suffit pour un tri occasionnel. Business supprime la limite de scans quotidienne, fait tourner plusieurs trieurs à la fois et débloque les sons personnalisés et les règles de notification Discord illimités.",
+    "subtitle": "La même application dans chaque offre. L'offre gratuite suffit pour un tri occasionnel. Enthusiast relève les limites et ajoute le tri en vrac et le rangement pour les collectionneurs assidus. Business supprime les limites et ajoute l'accès API et des outils pour acheter et vendre des cartes.",
     "intervals": {
       "label": "Période de facturation",
       "month": "Mensuel",
       "year": "Annuel"
     },
     "shared": {
-      "collections": "Collections illimitées",
       "games": "Tous les jeux de cartes pris en charge",
       "notifications": "Notifications Discord de scan"
     },
-    "free": {
-      "name": "Free",
-      "price": "0 $",
-      "description": "Pour les collectionneurs occasionnels qui débutent.",
-      "scanLimit": "Jusqu'à {{limit}} scans de cartes par jour",
-      "sorters_one": "{{count}} trieur connecté à la fois",
-      "sorters_other": "{{count}} trieurs connectés à la fois",
-      "soundRules_one": "{{count}} règle sonore personnalisée",
-      "soundRules_other": "{{count}} règles sonores personnalisées",
-      "notificationRules_one": "{{count}} règle de notification Discord",
-      "notificationRules_other": "{{count}} règles de notification Discord"
+    "perMonth": "/mois",
+    "perYear": "/an",
+    "yearlySavings": "Économise {{percent}} % avec la facturation annuelle",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "price": "0 $",
+        "description": "Pour les collectionneurs occasionnels qui débutent.",
+        "cta": "Commencer gratuitement"
+      },
+      "enthusiast": {
+        "name": "Enthusiast",
+        "description": "Pour les collectionneurs assidus qui trient chez eux.",
+        "cta": "Passer au plan Enthusiast"
+      },
+      "business": {
+        "name": "Business",
+        "description": "Pour les boutiques et les équipes qui achètent et vendent des cartes.",
+        "cta": "Passer au plan Business"
+      }
     },
-    "business": {
-      "name": "Business",
-      "perMonth": "/mois",
-      "perYear": "/an",
-      "yearlySavings": "Économise {{percent}} % avec la facturation annuelle",
-      "description": "Pour les boutiques et les collectionneurs assidus.",
-      "unlimitedScans": "Scans de cartes illimités",
-      "cta": "Passer au plan Business",
-      "sorters_one": "Jusqu'à {{count}} trieur à la fois, depuis un seul navigateur",
-      "sorters_other": "Jusqu'à {{count}} trieurs à la fois, depuis un seul navigateur",
-      "soundRules": "Règles sonores illimitées avec tes propres clips importés",
-      "notificationRules": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon",
+    "limits": {
+      "dailyScans": {
+        "limited_one": "Jusqu'à {{count}} scan de carte par jour",
+        "limited_other": "Jusqu'à {{count}} scans de cartes par jour",
+        "unlimited": "Scans de cartes illimités"
+      },
+      "organizations": {
+        "limited_one": "{{count}} organisation à vous",
+        "limited_other": "Jusqu'à {{count}} organisations à vous",
+        "unlimited": "Autant d'organisations que nécessaire"
+      },
+      "membersPerOrg": {
+        "limited_one": "{{count}} membre par organisation",
+        "limited_other": "Jusqu'à {{count}} membres par organisation",
+        "unlimited": "Membres illimités dans chaque organisation"
+      },
+      "connectedSorters": {
+        "limited_one": "{{count}} trieur connecté à la fois",
+        "limited_other": "Jusqu'à {{count}} trieurs à la fois, depuis un seul navigateur",
+        "unlimited": "Trieurs illimités à la fois"
+      },
+      "soundRules": {
+        "limited_one": "{{count}} règle sonore personnalisée",
+        "limited_other": "{{count}} règles sonores personnalisées",
+        "unlimited": "Règles sonores illimitées"
+      },
+      "notificationRules": {
+        "limited_one": "{{count}} règle de notification Discord",
+        "limited_other": "{{count}} règles de notification Discord",
+        "unlimited": "Règles de notification Discord illimitées, chacune publiant les cartes correspondantes dans son propre salon"
+      },
+      "collections": {
+        "limited_one": "{{count}} collection",
+        "limited_other": "Jusqu'à {{count}} collections",
+        "unlimited": "Collections illimitées"
+      }
+    },
+    "features": {
       "chaosSort": "Tri en vrac, le moyen le plus rapide de ranger une grosse pile",
+      "repacks": "Création de repacks : chaque bac remplit son propre pack à partir des créneaux que vous définissez",
+      "customSounds": "Sons personnalisés : importez vos propres clips à jouer quand des cartes correspondantes sont triées",
+      "fleetHealth": "Santé du parc : consultez l'état de chaque trieuse, les cartes depuis le dernier entretien et l'historique des alertes, et définissez les intervalles d'entretien",
       "storage": "Emplacements de rangement : notez dans quelle boîte et à quelle place se trouve chaque carte, puis cherchez dans toutes",
-      "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes"
+      "apiAccess": "Accès API : votre boutique en ligne retrouve la boîte et la position de chaque carte au moment de préparer les commandes",
+      "businessTools": "Achat et vente : racheter des collections avec des offres en direct et un reçu, préparer les commandes depuis vos boîtes, et suivre coûts d'achat et marges"
+    },
+    "compare": {
+      "heading": "Comparer toutes les fonctionnalités",
+      "subtitle": "Tout ce que chaque offre inclut, côte à côte.",
+      "feature": "Fonctionnalité",
+      "seeAll": "Comparer toutes les fonctionnalités",
+      "groups": {
+        "limits": "Limites",
+        "features": "Fonctionnalités",
+        "included": "Inclus dans toutes les offres"
+      },
+      "cells": {
+        "unlimited": "Illimité",
+        "included": "Inclus",
+        "notIncluded": "Non inclus"
+      },
+      "limits": {
+        "dailyScans": "Scans de cartes par jour",
+        "organizations": "Organisations possédées",
+        "membersPerOrg": "Membres par organisation",
+        "connectedSorters": "Trieuses connectées simultanément",
+        "soundRules": "Règles sonores",
+        "notificationRules": "Règles de notification Discord",
+        "collections": "Collections"
+      },
+      "features": {
+        "chaosSort": "Tri chaos",
+        "repacks": "Création de repacks",
+        "customSounds": "Sons personnalisés",
+        "fleetHealth": "Santé du parc",
+        "storage": "Emplacements de rangement",
+        "apiAccess": "Accès API",
+        "businessTools": "Achat et vente"
+      }
     }
   },
   "cta": {
     "heading": "Trions tes cartes ensemble.",
-    "subtitle": "Configure ta première collection en quelques minutes à peine, et laisse Mault garder tout ça bien organisé à partir de maintenant."
+    "subtitle": "Configure ta première collection en quelques minutes à peine, et laisse Mault garder tout ça bien organisé à partir de maintenant.",
+    "eyebrow": "Prêt quand tu l'es"
   },
   "getStartedFree": "Commencer gratuitement"
 }

@@ -18,11 +18,36 @@
   },
   "hero": {
     "title": "Every card,<br></br><highlight>right where it belongs.</highlight>",
-    "subtitle": "Load your cards into the hopper and Mault takes it from there. The feeder pushes each one past the camera to be recognized, then sorts it into bins using rules you set: rarity, color, set, type, or anything else. No spreadsheets, no guesswork.",
     "seeFeatures": "Explore features",
-    "currentSession": "Current session",
-    "cardCount_one": "{{count}} card",
-    "cardCount_other": "{{count}} cards"
+    "liveSort": "Live sort",
+    "pauseDemo": "Pause demo",
+    "playDemo": "Play demo",
+    "sortedCount_one": "{{count}} card sorted",
+    "sortedCount_other": "{{count}} cards sorted",
+    "nextUp": "Next up",
+    "foil": "Foil",
+    "stations": {
+      "hopper": "Hopper",
+      "camera": "Camera",
+      "bins": "Bins"
+    },
+    "binRules": {
+      "1": "Blue commons",
+      "2": "Red under $5",
+      "3": "Blue uncommons",
+      "4": "Green",
+      "5": "Colorless",
+      "6": "Over $20"
+    },
+    "eyebrow": "Open-source card sorter",
+    "tagline": "Scan / Sort / Track",
+    "recent": "Recent",
+    "readout": {
+      "match": "Match",
+      "set": "Set",
+      "price": "Price",
+      "route": "Route"
+    }
   },
   "stats": {
     "items": {
@@ -35,69 +60,47 @@
   "supportedGames": {
     "heading": "Easily sorts any TCG you love",
     "cardsIndexed_one": "{{formatted}} card indexed",
-    "cardsIndexed_other": "{{formatted}} cards indexed"
+    "cardsIndexed_other": "{{formatted}} cards indexed",
+    "pauseHint": "Press Space to pause the scrolling list.",
+    "pausedHint": "Paused. Press Space to resume the scrolling list."
   },
   "features": {
     "eyebrow": "Features",
     "heading": "Everything you need to feel organized",
     "subtitle": "Let Mault handle the sorting, so you can spend more time playing and less time digging through boxes.",
     "items": {
-      "recognition": {
-        "title": "Instant recognition",
-        "description": "No typing card names, no barcodes. The feeder puts each card in front of the camera, and Mault knows exactly what it is."
-      },
       "rules": {
         "title": "Rules you control",
         "description": "Mix and match conditions, rarity, color, set, type, and more, to send every card exactly where you'd like."
       },
-      "autoAssign": {
-        "title": "Auto bin assignment",
-        "description": "Skip the rule-writing. Pick a field like rarity or set, and the first card with a new value claims the next open bin. Repeats route back automatically."
-      },
-      "repack": {
-        "title": "Build repacks",
-        "description": "Define pack slots per bin, like 3 commons and 1 rare, and every bin fills its own pack at the same time. Empty it to start the next one."
-      },
-      "alphabet": {
-        "title": "Alphabetical sorting",
-        "description": "Sort a pile A to Z, one letter per bin. Then drill into any pile, A into AA, AB, AC, until every card is in order."
-      },
-      "sounds": {
-        "title": "Custom sounds",
-        "description": "Upload your own clips and play them when a matching card is sorted, like a fanfare for every mythic or a cha-ching for anything over $20."
-      },
       "insights": {
         "title": "Know what you own",
-        "description": "See counts, rarities, and sets across your whole library, so you never have to guess what's in the box."
-      },
-      "hardware": {
-        "title": "Built for the table",
-        "description": "Pairs with a physical sorter, so your cards land in real bins, not just another spreadsheet. Add more sorting modules any time to grow up to 11 bins."
+        "description": "See counts, value, cost basis and margins across your whole library, with daily value history, so you never have to guess what the box is worth."
       },
       "storage": {
         "title": "Know which box every card is in",
         "description": "When a bin is full, empty it into a storage box and Mault records each card's exact position in the stack. Search every box by name, see what each one is worth, and export a box as CSV."
       },
-      "pickList": {
-        "title": "Pull cards from a decklist",
-        "description": "Paste a decklist into any bin and Mault pulls those cards out of the pile as they're scanned, crossing each one off until the list is complete. Everything else sorts as usual."
-      },
-      "pricing": {
-        "title": "Prices from three markets",
-        "description": "Value your collection with TCGplayer, Cardmarket or Card Kingdom prices, refreshed daily. Set each card's condition and its price adjusts to match."
+      "intake": {
+        "title": "Buy collections over the counter",
+        "description": "Scan a customer's cards into their own intake and watch a cash and store credit offer build from your buylist tiers. Cards below your minimum are struck out, and accepting records what you paid and prints a receipt."
       }
     },
     "new": "New",
-    "priceSources": {
-      "tcgplayer": "TCGplayer",
-      "cardmarket": "Cardmarket",
-      "cardkingdom": "Card Kingdom"
-    },
+    "stageTryIt": "Try it",
+    "stageExample": "Example",
     "demo": {
-      "cardCount_one": "{{count}} card",
-      "cardCount_other": "{{count}} cards",
-      "pickListBin": "Bin {{number}} pick list",
-      "found": "{{found}}/{{wanted}} found"
+      "intakeLot": "{{name}}'s cards",
+      "liveOffer": "Live offer",
+      "cash": "Cash",
+      "credit": "Store credit",
+      "ruleMatches_one": "{{count}} card goes to Bin {{bin}}",
+      "ruleMatches_other": "{{count}} cards go to Bin {{bin}}",
+      "collectionValue": "Collection value",
+      "valueHistory": "Value over the last 30 days",
+      "ruleField": "Field",
+      "ruleOperator": "Operator",
+      "ruleValue": "Value"
     },
     "more": {
       "heading": "And a whole lot more",
@@ -133,8 +136,65 @@
         "api": {
           "title": "API and webhooks",
           "description": "Connect your shop: look up where any card is stored and get notified as cards are scanned."
+        },
+        "accuracy": {
+          "title": "Spot checks",
+          "description": "Check a random sample of a batch and get an accuracy estimate with a 95% range before you list it."
+        },
+        "staff": {
+          "title": "Staff activity",
+          "description": "See scans and corrections per person, and a log of who changed what."
+        },
+        "fleet": {
+          "title": "Sorter alerts",
+          "description": "Get told on Discord or by webhook when a sorter jams, goes offline or is due for service."
+        },
+        "permissions": {
+          "title": "Buy prices stay private",
+          "description": "Let staff scan intakes without seeing offers, costs or margins."
+        },
+        "recognition": {
+          "title": "Instant recognition",
+          "description": "No typing card names, no barcodes. The feeder puts each card in front of the camera, and Mault knows exactly what it is."
+        },
+        "autoAssign": {
+          "title": "Auto bin assignment",
+          "description": "Skip the rule-writing. Pick a field like rarity or set, and the first card with a new value claims the next open bin. Repeats route back automatically."
+        },
+        "repack": {
+          "title": "Build repacks",
+          "description": "Define pack slots per bin, like 3 commons and 1 rare, and every bin fills its own pack at the same time. Empty it to start the next one."
+        },
+        "alphabet": {
+          "title": "Alphabetical sorting",
+          "description": "Sort a pile A to Z, one letter per bin. Then drill into any pile, A into AA, AB, AC, until every card is in order."
+        },
+        "sounds": {
+          "title": "Custom sounds",
+          "description": "Upload your own clips and play them when a matching card is sorted, like a fanfare for every mythic or a cha-ching for anything over $20."
+        },
+        "hardware": {
+          "title": "Built for the table",
+          "description": "Pairs with a physical sorter, so your cards land in real bins, not just another spreadsheet. Add more sorting modules any time to grow up to 11 bins."
+        },
+        "picks": {
+          "title": "Pick online orders from your boxes",
+          "description": "Paste a TCGplayer pull sheet, a Shopify export or a plain list. Mault finds each card and tells you which box and position it is in, then takes the picked cards out of your inventory."
+        },
+        "pickList": {
+          "title": "Pull cards from a decklist",
+          "description": "Paste a decklist into any bin and Mault pulls those cards out of the pile as they're scanned, crossing each one off until the list is complete. Everything else sorts as usual."
+        },
+        "pricing": {
+          "title": "Prices from three markets",
+          "description": "Value your collection with TCGplayer, Cardmarket or Card Kingdom prices, refreshed daily. Set each card's condition and its price adjusts to match."
         }
       }
+    },
+    "groups": {
+      "sorting": "Sort any way you like",
+      "stores": "Built for card shops",
+      "setup": "Grows with your setup"
     }
   },
   "openSource": {
@@ -161,49 +221,122 @@
   "pricing": {
     "eyebrow": "Pricing",
     "heading": "Simple, transparent pricing",
-    "subtitle": "The same app either way. Free covers casual sorting. Business removes the daily scan cap, runs several sorters at once, and unlocks unlimited custom sounds and Discord notification rules.",
+    "subtitle": "The same app on every plan. Free covers casual sorting. Enthusiast raises the limits and adds chaos sort and storage locations for serious collectors. Business removes the limits and adds API access and tools to buy and sell cards.",
     "intervals": {
       "label": "Billing period",
       "month": "Monthly",
       "year": "Yearly"
     },
     "shared": {
-      "collections": "Unlimited collections",
       "games": "Every supported card game",
       "notifications": "Discord scan notifications"
     },
-    "free": {
-      "name": "Free",
-      "price": "$0",
-      "description": "For casual collectors getting started.",
-      "scanLimit": "Up to {{limit}} card scans per day",
-      "sorters_one": "{{count}} sorter connected at a time",
-      "sorters_other": "{{count}} sorters connected at a time",
-      "soundRules_one": "{{count}} custom sound rule",
-      "soundRules_other": "{{count}} custom sound rules",
-      "notificationRules_one": "{{count}} Discord notification rule",
-      "notificationRules_other": "{{count}} Discord notification rules"
+    "perMonth": "/month",
+    "perYear": "/year",
+    "yearlySavings": "Save {{percent}}% with yearly billing",
+    "plans": {
+      "free": {
+        "name": "Free",
+        "price": "$0",
+        "description": "For casual collectors getting started.",
+        "cta": "Get started free"
+      },
+      "enthusiast": {
+        "name": "Enthusiast",
+        "description": "For serious collectors sorting at home.",
+        "cta": "Start Enthusiast plan"
+      },
+      "business": {
+        "name": "Business",
+        "description": "For shops and teams that buy and sell cards.",
+        "cta": "Start Business plan"
+      }
     },
-    "business": {
-      "name": "Business",
-      "perMonth": "/month",
-      "perYear": "/year",
-      "yearlySavings": "Save {{percent}}% with yearly billing",
-      "description": "For shops and serious collectors.",
-      "unlimitedScans": "Unlimited card scans",
-      "cta": "Start Business plan",
-      "sorters_one": "Up to {{count}} sorter at once, from one browser",
-      "sorters_other": "Up to {{count}} sorters at once, from one browser",
-      "soundRules": "Unlimited sound rules with your own uploaded clips",
-      "notificationRules": "Unlimited Discord notification rules, each posting matching cards to its own channel",
+    "limits": {
+      "dailyScans": {
+        "limited_one": "Up to {{count}} card scan per day",
+        "limited_other": "Up to {{count}} card scans per day",
+        "unlimited": "Unlimited card scans"
+      },
+      "organizations": {
+        "limited_one": "Own {{count}} organization",
+        "limited_other": "Own up to {{count}} organizations",
+        "unlimited": "Own as many organizations as you need"
+      },
+      "membersPerOrg": {
+        "limited_one": "{{count}} member per organization",
+        "limited_other": "Up to {{count}} members per organization",
+        "unlimited": "Unlimited members in each organization"
+      },
+      "connectedSorters": {
+        "limited_one": "{{count}} sorter connected at a time",
+        "limited_other": "Up to {{count}} sorters at once, from one browser",
+        "unlimited": "Unlimited sorters at once"
+      },
+      "soundRules": {
+        "limited_one": "{{count}} custom sound rule",
+        "limited_other": "{{count}} custom sound rules",
+        "unlimited": "Unlimited sound rules"
+      },
+      "notificationRules": {
+        "limited_one": "{{count}} Discord notification rule",
+        "limited_other": "{{count}} Discord notification rules",
+        "unlimited": "Unlimited Discord notification rules, each posting matching cards to its own channel"
+      },
+      "collections": {
+        "limited_one": "{{count}} collection",
+        "limited_other": "Up to {{count}} collections",
+        "unlimited": "Unlimited collections"
+      }
+    },
+    "features": {
       "chaosSort": "Chaos sort, the fastest way to put away a big pile",
+      "repacks": "Repack building: every bin fills its own pack from the slots you define",
+      "customSounds": "Custom sounds: upload your own clips to play when matching cards are sorted",
+      "fleetHealth": "Fleet health: see every sorter's status, cards since service and alert history, and set service intervals",
       "storage": "Storage locations: record which box every card is in and where, then search across them",
-      "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders"
+      "apiAccess": "API access: let your online shop look up which box and position every card is in when picking orders",
+      "businessTools": "Buy and sell: buy collections with live buylist offers and receipts, pick online orders from your boxes, and track cost basis and margins"
+    },
+    "compare": {
+      "heading": "Compare every feature",
+      "subtitle": "Everything each plan includes, side by side.",
+      "feature": "Feature",
+      "seeAll": "Compare all features",
+      "groups": {
+        "limits": "Limits",
+        "features": "Features",
+        "included": "Included in every plan"
+      },
+      "cells": {
+        "unlimited": "Unlimited",
+        "included": "Included",
+        "notIncluded": "Not included"
+      },
+      "limits": {
+        "dailyScans": "Card scans per day",
+        "organizations": "Organizations you can own",
+        "membersPerOrg": "Members per organization",
+        "connectedSorters": "Sorters connected at once",
+        "soundRules": "Sound rules",
+        "notificationRules": "Discord notification rules",
+        "collections": "Collections"
+      },
+      "features": {
+        "chaosSort": "Chaos sort",
+        "repacks": "Repack building",
+        "customSounds": "Custom sounds",
+        "fleetHealth": "Fleet health",
+        "storage": "Storage locations",
+        "apiAccess": "API access",
+        "businessTools": "Buy and sell"
+      }
     }
   },
   "cta": {
     "heading": "Let's get your cards sorted.",
-    "subtitle": "Set up your first collection in just a few minutes, and let Mault keep everything organized from here on out."
+    "subtitle": "Set up your first collection in just a few minutes, and let Mault keep everything organized from here on out.",
+    "eyebrow": "Ready when you are"
   },
   "getStartedFree": "Get started free"
 }

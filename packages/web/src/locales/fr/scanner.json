@@ -1,7 +1,18 @@
 {
+  "a11y": {
+    "cameraPreview": "Aperçu de la caméra du scanner",
+    "showLastSearchImage": "Afficher la dernière image de recherche",
+    "qrCameraPreview": "Vue de la caméra pour scanner le code QR",
+    "binsNeedingEmptying": "Bacs à vider",
+    "corrected": "Corrigée",
+    "sent": "Envoyé",
+    "received": "Reçu",
+    "scanRoutedToBin": "{{name}}, bac {{binNumber}}"
+  },
   "camera": {
     "permissionDenied": "Accès à la caméra refusé. Merci d'autoriser l'accès à la caméra et de réessayer.",
-    "allInUse": "Toutes les caméras branchées sont déjà utilisées par une autre trieuse. Branchez une autre caméra pour cette trieuse."
+    "allInUse": "Toutes les caméras branchées sont déjà utilisées par une autre trieuse. Branchez une autre caméra pour cette trieuse.",
+    "piUnavailable": "La webcam du Raspberry Pi n'est pas disponible."
   },
   "scanEngine": {
     "searchFailed": "Échec de la recherche de la carte",
@@ -19,13 +30,36 @@
     "paused": "En pause",
     "noCollection": "Aucune collection",
     "minimize": "Réduire sur le côté",
-    "expand": "Afficher l'aperçu du scanner"
+    "expand": "Afficher l'aperçu du scanner",
+    "hide": "Masquer jusqu'à votre retour dans MAULT",
+    "showSorter": "Afficher {{name}}"
+  },
+  "piScan": {
+    "preview": "Vue en direct de la trieuse",
+    "starting": "Démarrage du scan sur le Pi",
+    "feeding": "Alimentation d'une carte",
+    "matching": "Identification d'une carte",
+    "routing": "Envoi de {{name}} vers le bac {{bin}}",
+    "routingUnmatched": "Envoi d'une carte non reconnue vers le bac {{bin}}",
+    "scanning": "Scan en cours",
+    "paused": "En pause",
+    "stopping": "Arrêt après cette carte",
+    "lastCard": "{{name}} vers le bac {{bin}}",
+    "lastUnmatched": "Carte non reconnue vers le bac {{bin}}",
+    "count": "{{count}} cartes pour cette session",
+    "pause": "Pause",
+    "resume": "Reprendre",
+    "stop": "Arrêter",
+    "openScanner": "Ouvrir le scanner"
   },
   "serial": {
     "connectionFailed": {
       "title": "Échec de la connexion",
       "description": "Impossible de se connecter. Vérifie qu'aucune autre application n'utilise l'appareil."
     },
+    "piMissing": "Aucun trieur n'est branché sur le Raspberry Pi.",
+    "piBusy": "Le port USB du Pi est déjà utilisé. Déconnecte-le dans l'autre navigateur, ou arrête le scan sur le Pi, puis réessaie.",
+    "piScanBusy": "Un scan tourne sur le Pi, donc ce navigateur ne peut pas prendre le trieur. Arrête d'abord le scan.",
     "bluetoothPermissionBlocked": "L'autorisation Bluetooth est bloquée pour ce navigateur. Vérifie les paramètres du site dans ton navigateur (ou chrome://settings/content/bluetoothDevices) pour autoriser le Bluetooth, puis réessaie.",
     "connectionLost": {
       "title": "Connexion perdue",
@@ -53,6 +87,11 @@
     "commLogCopied": "Journal de communication copié dans le presse-papiers",
     "commLogCopyFailed": "Échec de la copie du journal de communication",
     "commLogEmpty": "Aucune communication enregistrée pour le moment",
+    "commLogMarker": {
+      "connected": "Nouvelle connexion ({{transport}})",
+      "disconnected": "Déconnecté ({{transport}})",
+      "restarted": "Trieuse redémarrée ({{reason}})"
+    },
     "firmwareOutdatedBanner": "Ta trieuse utilise le firmware v{{version}}, plus ancien que la dernière version v{{latest}}. Réimporte firmware/main/main.ino pour la mettre à jour.",
     "firmwareOutdatedBannerBluetooth": "Ta trieuse utilise le firmware v{{version}}, plus ancien que la dernière version v{{latest}}. Pour la mettre à jour depuis le navigateur, branche l'ESP32-S3 en USB (port de gauche, marqué USB) et connecte-toi en USB plutôt qu'en Bluetooth.",
     "firmwareVersionMissingBanner": "Le firmware de ta trieuse ne signale aucune version et ne peut pas être utilisé pour scanner. Réimporte la dernière version de firmware/main/main.ino pour activer le scan.",
@@ -64,7 +103,7 @@
       "dialogDescription": "Installe le dernier firmware sur ton ESP32 connecté via cet onglet. Ne déconnecte pas l'appareil et ne ferme pas cet onglet pendant l'opération.",
       "startButton": "Démarrer la mise à jour",
       "flashing": "Installation en cours, ne déconnecte pas l'appareil…",
-      "success": "Firmware installé. Débranche la trieuse de ton ordinateur, puis rebranche-la pour terminer.",
+      "success": "Firmware installé. Débranchez le câble USB de l'ESP32, puis rebranchez-le pour démarrer le nouveau firmware.",
       "errorTitle": "Échec de la mise à jour",
       "close": "Fermer",
       "tryAgain": "Réessayer"
@@ -83,7 +122,9 @@
       "errors": {
         "wrongChip": "Cette carte est un {{chip}}. Le firmware de la trieuse ne fonctionne que sur l'ESP32-S3, rien n'a donc été écrit.",
         "noBootloader": "Impossible d'atteindre le bootloader de la carte. Maintenez BOOT, appuyez sur RESET, relâchez BOOT, puis réessayez.",
+        "portUnavailable": "Impossible d'ouvrir le port de la carte. Fermez tout ce qui l'utilise (moniteur série de l'IDE Arduino, un autre onglet du navigateur), vérifiez le câble, puis réessayez.",
         "downloadFailed": "Impossible de télécharger le firmware. Vérifiez votre connexion et réessayez.",
+        "invalidImage": "Le fichier de firmware téléchargé n'est pas une image ESP32 valide, rien n'a donc été écrit. Rechargez la page et réessayez.",
         "verifyFailed": "Le firmware a été écrit, mais la mémoire flash de la carte ne correspond pas. Débranchez la carte, rebranchez-la et relancez le flash."
       },
       "newBoard": {
@@ -92,8 +133,15 @@
         "hintPort": "Branchez la carte par son port USB-C gauche (marqué USB, pas UART ou COM), puis sélectionnez-la dans la fenêtre de choix du port du navigateur.",
         "hintBootMode": "Si le flashage ne démarre pas, maintenez BOOT, appuyez sur RESET, relâchez BOOT et réessayez.",
         "startButton": "Choisir la carte et flasher",
-        "success": "Firmware installé. La carte a redémarré et est prête à être connectée.",
+        "success": "Firmware installé. Débranchez le câble USB de l'ESP32, puis rebranchez-le pour démarrer le nouveau firmware.",
         "connectButton": "Connecter la trieuse"
+      },
+      "version": {
+        "label": "Version du firmware",
+        "recommended": "v{{version}} (recommandée)",
+        "recommendedUnknownVersion": "Dernière (recommandée)",
+        "option": "v{{version}}",
+        "otherVersionWarning": "La version recommandée est celle pour laquelle cette application est conçue. Les autres versions peuvent manquer de fonctionnalités ou se comporter différemment."
       }
     },
     "pushBlocked": {
@@ -103,7 +151,7 @@
     "deviceReadyNoTest": "Appareil prêt (autotest ignoré)",
     "unexpectedReset": {
       "title": "Trieuse redémarrée",
-      "description": "La trieuse a redémarré d'elle-même : {{reason}} Une carte en mouvement n'a pas été triée, vérifiez donc les modules avant de reprendre. La trieuse est en cours de revérification."
+      "description": "La trieuse a redémarré d'elle-même : {{reason}} Une carte en mouvement n'a pas été triée, vérifiez donc les modules avant de reprendre. L'autotest est ignoré pour ne pas déplacer les cartes encore à l'intérieur."
     },
     "abnormalBoot": {
       "title": "Trieuse redémarrée avant la connexion",
@@ -154,11 +202,15 @@
     },
     "scanLimitReached": {
       "title": "Limite de scans quotidienne atteinte",
-      "description": "Passe à Entreprise pour un scan illimité."
+      "description": "Passe à une offre supérieure pour plus de scans par jour."
     },
     "routingFailed": {
       "title": "Échec du routage",
       "description": "Aucune réponse de la trieuse pour le bac {{binNumber}}."
+    },
+    "cardMissingBeforeRoute": {
+      "title": "Carte absente avant le tri",
+      "description": "Le module 1 ne détecte plus la carte scannée, donc rien n'a été envoyé au bac {{binNumber}}. Vérifie le module 1, puis reprends."
     },
     "sorterError": {
       "title": "Erreur de la trieuse"
@@ -240,13 +292,18 @@
     "avgValue": "Valeur moyenne",
     "sessionTime": "Durée de la session",
     "cardsPerHour": "Cartes / h",
+    "resetSession": "Réinitialiser la durée de session et les cartes par heure",
     "byColor": "Par couleur",
     "bySet": "Par set",
     "showLess": "Afficher moins",
     "showAllSets": "Afficher les {{count}} sets",
     "scanRateTrend": "Scans par minute sur les 12 dernières minutes",
     "scanRateNow": "{{count}} scans cette minute",
-    "scanRatePoint": "{{count}} scans, il y a {{minutes}} min"
+    "scanRatePoint": "{{count}} scans, il y a {{minutes}} min",
+    "heading": "Statistiques",
+    "summaryCards_one": "{{count}} carte",
+    "summaryCards_other": "{{count}} cartes",
+    "summaryRate": "{{rate}}/h"
   },
   "scannerControls": {
     "scanAgain": "Scanner à nouveau",
@@ -261,13 +318,22 @@
     "autoFeedOnTooltip": "Alimentation auto activée, la prochaine carte est alimentée automatiquement après chaque scan",
     "autoFeedOffTooltip": "Alimentation auto désactivée, alimenter chaque carte manuellement",
     "clearDeviceTooltip": "Vider l'appareil (ouvre toutes les trappes inférieures)",
+    "retractCardTooltip": "Retirer la carte (fait tourner l'alimentation à l'envers)",
+    "stopPiScan": "Arrêter le tri et libérer le trieur",
     "resetToNeutralTooltip": "Position neutre (ferme toutes les trappes et palettes, centre les poussoirs)",
     "foilTooltip": "Type de foil des cartes scannées : {{type}}",
     "setTooltip": "Extension des cartes scannées : {{set}}",
     "anySet": "N'importe quelle extension",
+    "setCount_one": "{{count}} extension",
+    "setCount_other": "{{count}} extensions",
     "setSearchPlaceholder": "Rechercher une extension",
     "noSets": "Aucune extension trouvée",
-    "setHint": "Les cartes scannées utilisent leur impression de cette extension lorsqu'elle existe."
+    "setHint": "Les cartes scannées utilisent leur impression de l'une de ces extensions lorsqu'elle existe. Choisissez-en autant que nécessaire.",
+    "conditionTooltip": "État des cartes scannées : {{condition}}",
+    "start": "Démarrer le scan",
+    "sessionSummary_one": "{{count}} carte scannée · {{time}}",
+    "sessionSummary_other": "{{count}} cartes scannées · {{time}}",
+    "startRemoving": "Démarrer le retrait"
   },
   "scannerDebug": {
     "heading": "Débogage",
@@ -284,7 +350,6 @@
     "cameraFallbackLabel": "Caméra {{index}}",
     "connectUsb": "Connecter via USB",
     "connectBluetooth": "Connecter via Bluetooth",
-    "scanner": "Scanner",
     "autoFeed": "Alimentation auto",
     "allowDuplicates": "Autoriser les doublons",
     "scanWithoutSorter": "Scanner sans trieuse",
@@ -294,13 +359,16 @@
     "connectAnotherUsb": "Connecter une autre trieuse (USB)",
     "connectAnotherBluetooth": "Connecter une autre trieuse (Bluetooth)",
     "flashNewBoard": "Flasher une nouvelle carte",
-    "connectAnotherUpgrade": "Connecter plus de trieuses avec Business"
-  },
-  "ocrBetaDialog": {
-    "title": "Correspondance de texte OCR (bêta)",
-    "description": "Quand un scan n'est pas une correspondance sûre, cette option lit le nom de la carte et sa ligne d'extension pour trouver la carte ou choisir la bonne impression. Les correspondances sûres l'ignorent, la vitesse de scan reste donc la même. Elle est encore en bêta et peut mal lire le texte. Désactive-la si elle semble dégrader les correspondances.",
-    "confirm": "Activer l'OCR",
-    "cancel": "Annuler"
+    "connectAnotherUpgrade": "Connecter plus de trieuses avec une offre supérieure",
+    "clearDevice": "Vider l'appareil",
+    "retractCard": "Retirer la carte",
+    "resetToNeutral": "Remettre au neutre",
+    "sorter": "Trieur",
+    "connectionStates": {
+      "connected": "Connecté",
+      "connecting": "Connexion",
+      "disconnected": "Non connecté"
+    }
   },
   "phoneCamera": {
     "scanDescription": "Scanne ce code QR avec ton téléphone, ou ouvre le lien, pour qu'il puisse être utilisé comme caméra de ce scanner.",
@@ -321,7 +389,7 @@
     "sessionEndedDescription": "Le scanner a déconnecté cette caméra. Tu peux éteindre la caméra ou scanner un nouveau code QR pour te reconnecter."
   },
   "scannerOverlay": {
-    "dailyLimitReached": "Limite de scans quotidienne atteinte. Passe à Entreprise pour un scan illimité.",
+    "dailyLimitReached": "Limite de scans quotidienne atteinte. Passe à une offre supérieure pour plus de scans par jour.",
     "upgradeButton": "Mettre à niveau",
     "connectCamera": "Connecte la webcam installée au-dessus du trieur, ou associe ton téléphone comme caméra.",
     "waitingForPhone": "Scanne le code QR avec ton téléphone pour l'associer comme caméra.",
@@ -338,7 +406,7 @@
     "initializing": "Initialisation du scanner…",
     "identifyingCard": "Identification de la carte…",
     "settling": "En attente que la carte se stabilise…",
-    "paused": "Scanner en pause - appuie sur Reprendre pour continuer.",
+    "paused": "Scanner en pause.",
     "duplicate": "Même carte scannée - utilise Ajouter à nouveau pour l'ajouter quand même.",
     "noMatch": "Carte non reconnue - essaie Scanner à nouveau ou ajuste l'éclairage.",
     "faceUpHint": "Les cartes doivent être posées face visible",
@@ -388,12 +456,39 @@
     "ocrMatchedName": "Nom de carte le plus proche : {{name}} (similarité {{score}}), mais aucune impression n'était assez proche.",
     "ocrNoName": "Aucun nom de carte n'était assez proche du texte lu.",
     "identify": "Identifier la carte",
-    "identifyTitle": "Identifier cette carte",
-    "identifyDescription": "Choisis la carte de ce scan. Elle est ajoutée à la collection avec cette photo, dans le bac où elle a été triée.",
     "identified": "{{name}} a été ajoutée à la collection.",
     "identifyFailed": "Impossible d'ajouter la carte. Réessaie.",
     "remove": "Retirer la carte",
-    "removeFailed": "Impossible de retirer la carte. Réessaie."
+    "removeFailed": "Impossible de retirer la carte. Réessaie.",
+    "removeAll": "Tout retirer",
+    "removeAllTitle_one": "Retirer {{count}} carte non reconnue ?",
+    "removeAllTitle_other": "Retirer les {{count}} cartes non reconnues ?",
+    "removeAllDescription": "À utiliser pour les scans ratés. Les photos sont supprimées et les cartes quittent la file de vérification. Rien n'est ajouté à la collection.",
+    "removedAll_one": "{{count}} carte non reconnue retirée.",
+    "removedAll_other": "{{count}} cartes non reconnues retirées.",
+    "removeAllFailed": "Impossible de retirer les cartes non reconnues. Réessaie.",
+    "gridTitle": "Cartes non reconnues",
+    "gridDescription": "Tous les scans non reconnus, du plus récent au plus ancien. Ouvrez-en un pour voir pourquoi il n'a pas été reconnu et le corriger.",
+    "gridNearest": "La plus proche : {{name}}",
+    "showingRecent": "{{count}} plus récentes",
+    "viewAll_one": "Voir la carte non reconnue",
+    "viewAll_other": "Voir les {{count}} cartes non reconnues",
+    "startReview": "Passer en revue une par une",
+    "previous": "Carte précédente",
+    "next": "Carte suivante",
+    "skip": "Passer",
+    "reviewIdentifyHint": "Recherchez la carte de cette photo et choisissez-la pour l'ajouter à la collection.",
+    "reviewReadOnlyHint": "Vous pouvez consulter ces cartes, mais pas les identifier.",
+    "reviewDone": "Tout est à jour",
+    "reviewDoneDescription": "Il n'y a plus de cartes non reconnues à passer en revue.",
+    "emptyTitle": "Aucune carte non reconnue",
+    "emptyDescription": "Chaque scan de cette collection a été reconnu.",
+    "backToCards": "Retour aux cartes",
+    "backToGrid": "Retour aux cartes non reconnues",
+    "openCard": "Ouvrir la carte non reconnue",
+    "expand": "Afficher les cartes non reconnues",
+    "collapse": "Masquer les cartes non reconnues",
+    "viewAllShort": "Tout voir"
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",
@@ -415,6 +510,10 @@
     "expand": "Afficher les niveaux",
     "collapse": "Masquer les niveaux",
     "cellTitle": "Le bac {{bin}} est plein à {{percent}} %"
+  },
+  "autoAssignControl": {
+    "summary": "{{claimed}} bacs sur {{total}} attribués par {{field}}",
+    "stopFirst": "Arrêtez le scanner avant de réinitialiser les bacs détectés automatiquement."
   },
   "alphabetPassControl": {
     "range": "Tri de {{from}} à {{to}}",
@@ -494,6 +593,7 @@
   "stations": {
     "label": "Trieuse {{number}}",
     "tabsLabel": "Trieuses",
+    "noneConnected": "Aucune trieuse connectée",
     "connect": "Connecter une trieuse",
     "disconnect": "Déconnecter {{name}}",
     "overview": {
@@ -505,7 +605,18 @@
       "noCamera": "Aucune caméra",
       "noCards": "Aucune carte scannée pour l'instant",
       "emptyTitle": "Aucun trieur pour l'instant",
-      "emptyDescription": "Connectez un trieur depuis le scanner pour le voir ici.",
+      "emptyDescription": "Connectez un trieur pour le voir ici.",
+      "stats": {
+        "heading": "Aperçu",
+        "sorters": "Trieuses",
+        "connected": "Connectées",
+        "sorting": "En tri",
+        "offline": "Hors ligne",
+        "attention": "À vérifier"
+      },
+      "searchPlaceholder": "Rechercher des trieuses...",
+      "noSearchResultsTitle": "Aucune trieuse correspondante",
+      "noSearchResultsDescription": "Essaie un autre terme de recherche",
       "delete": "Supprimer {{name}}",
       "deleted": "{{name}} supprimé",
       "deleteFailed": "Impossible de supprimer {{name}}",
@@ -538,15 +649,54 @@
       "deleteConfirm": {
         "title": "Supprimer {{name}} ?",
         "description": "Cela supprime le trieur et tout ce qui est enregistré pour lui : son étalonnage, ses routes de bacs, ses hauteurs de bacs, ses réglages du chargeur et leur historique. Les cartes scannées et les collections sont conservées. Si vous le rebranchez, il apparaîtra comme un nouveau trieur non étalonné."
-      }
+      },
+      "start": "Démarrer",
+      "pauseAll": "Tout mettre en pause",
+      "resumeAll": "Tout reprendre",
+      "resumeSelected": "Reprendre ({{count}})",
+      "sessionCount_one": "{{count}} dans cette session",
+      "sessionCount_other": "{{count}} dans cette session"
+    },
+    "cpuInferenceLimitReached": {
+      "title": "WASM gère une seule trieuse à la fois",
+      "description": "La reconnaissance des cartes sur le processeur (WASM) suffit pour une seule trieuse. Passe le moteur de détection IA sur WebGPU sur la page d'étalonnage Caméra pour utiliser plusieurs trieuses à la fois."
     },
     "hardCapReached": {
       "title": "{{max}} trieuses maximum à la fois",
       "description": "Déconnectez une trieuse avant d'en connecter une autre."
     },
     "limitReached": {
-      "title": "Plus de trieuses nécessitent l'offre Business",
-      "description": "L'offre gratuite ne gère qu'une trieuse à la fois. Déconnectez l'autre trieuse, ou passez à Business dans les paramètres pour en utiliser plusieurs à la fois."
+      "title": "La limite de trieuses de votre offre est atteinte",
+      "description": "Votre offre ne gère qu'un nombre limité de trieuses à la fois. Déconnectez une autre trieuse, ou passez à une offre supérieure dans les paramètres pour en utiliser plus à la fois."
+    },
+    "attention": {
+      "needsAttention": "À vérifier",
+      "count_one": "{{count}} à vérifier",
+      "count_other": "{{count}} à vérifier",
+      "goToNext": "Aller à la prochaine trieuse à vérifier",
+      "reasons": {
+        "jam": "Bourrage au module {{module}}",
+        "hopperEmpty": "Le bac d'alimentation est vide",
+        "feederError": "Erreur du chargeur",
+        "noCardDetected": "Aucune carte n'est arrivée au scanner",
+        "sorterNotResponding": "La trieuse ne répond pas",
+        "routingFailed": "Une carte n'a pas pu être triée",
+        "binLimit": "Le bac {{bins}} est plein",
+        "binLimitUnknown": "Un bac est plein",
+        "binsFull_one": "Le bac {{bins}} est plein",
+        "binsFull_other": "Les bacs {{bins}} sont pleins",
+        "packsComplete": "Tous les paquets sont terminés",
+        "saveFailed": "Un scan n'a pas pu être enregistré",
+        "scanLimit": "Limite quotidienne de scans atteinte",
+        "sorterLimit": "Limite de trieuses atteinte",
+        "collectionLocked": "La collection est verrouillée",
+        "scannerError": "Erreur de caméra"
+      },
+      "fixes": {
+        "resume": "Reprendre",
+        "emptyBin": "Vider le bac",
+        "openSorter": "Ouvrir la trieuse"
+      }
     }
   },
   "watchPage": {
@@ -574,10 +724,7 @@
     "cards": "Cartes",
     "searchPlaceholder": "Rechercher des cartes",
     "needsReview": "À vérifier",
-    "groupDuplicates": "Regrouper les copies",
     "back": "Retour aux sessions",
-    "previousPage": "Page précédente",
-    "nextPage": "Page suivante",
     "bin": "Bac {{number}}",
     "noActivity": "Rien n'a encore été scanné. Les scans apparaissent ici en direct.",
     "status": {
@@ -621,12 +768,17 @@
     "keys": {
       "enter": "Entrée",
       "escape": "Échap"
+    },
+    "added": {
+      "title": "Placez {{name}} dans le bac {{to}}",
+      "description": "D'après vos règles de tri, elle va dans le bac {{to}}. Placez-la, puis confirmez pour que le décompte des bacs reste juste.",
+      "noBinDescription": "Aucun de vos bacs n'accepte cette carte, mettez-la de côté."
     }
   },
   "deployPause": {
     "title": "Mise à jour en cours",
-    "description_one": "Mault est en cours de mise à jour, le scan a donc été mis en pause pour qu'aucune carte ne soit perdue. Vous pouvez reprendre maintenant, mais les scans peuvent échouer jusqu'à la fin de la mise à jour.",
-    "description_other": "Mault est en cours de mise à jour, le scan a donc été mis en pause sur {{count}} trieuses pour qu'aucune carte ne soit perdue. Vous pouvez reprendre maintenant, mais les scans peuvent échouer jusqu'à la fin de la mise à jour.",
+    "description_one": "Mault est en cours de mise à jour, le scan a donc été mis en pause pour qu'aucune carte ne soit perdue. Tu peux reprendre maintenant, mais les scans peuvent échouer jusqu'à la fin de la mise à jour.",
+    "description_other": "Mault est en cours de mise à jour, le scan a donc été mis en pause sur {{count}} trieuses pour qu'aucune carte ne soit perdue. Tu peux reprendre maintenant, mais les scans peuvent échouer jusqu'à la fin de la mise à jour.",
     "stayPaused": "Rester en pause",
     "resume_one": "Reprendre le scan",
     "resume_other": "Tout reprendre ({{count}})"
@@ -658,19 +810,41 @@
     "recentlyScanned": "Scannées récemment",
     "seeAllStats": "Toutes les statistiques",
     "actions": {
-      "scan": "Scanner",
       "newCollection": "Nouvelle",
-      "sorter": "Trieuse",
-      "stats": "Stats"
+      "stats": "Stats",
+      "buySell": "Achat-vente"
     },
-    "alerts": "Alertes",
-    "activeCollection": "Active"
+    "activeCollection": "Active",
+    "scanHero": {
+      "title": "Commencer le scan",
+      "sortInto": "Trier dans {{collection}}",
+      "noCollection": "Choisis une collection où trier"
+    },
+    "actionHints": {
+      "newCollection": "Ajouter une collection",
+      "buySell": "Rachats et préparations",
+      "buySellOpen_one": "{{count}} rachat ouvert",
+      "buySellOpen_other": "{{count}} rachats ouverts",
+      "stats": "Graphiques et historique"
+    },
+    "statsHeading": "Aperçu"
   },
   "resetToNeutral": {
     "done": "Trieuse remise en position neutre",
     "failed": {
       "title": "Impossible de réinitialiser la trieuse",
       "description": "La trieuse n'a pas confirmé la réinitialisation. Vérifiez la connexion et réessayez."
+    }
+  },
+  "retractCard": {
+    "done": "Carte ramenée dans le bac",
+    "failed": {
+      "title": "Impossible de retirer la carte",
+      "description": "Le trieur n'a pas confirmé le retrait. Vérifiez la connexion et réessayez."
+    },
+    "rollbackOff": {
+      "title": "Le recul est désactivé",
+      "description": "Définissez « Recul après l'alimentation » dans l'étalonnage de l'alimentation pour retirer des cartes."
     }
   },
   "pendingScanSaves": {
@@ -746,10 +920,13 @@
       "feedDescription": "Charger une carte, puis la scanner et la trier",
       "drop": "Faire tomber les cartes",
       "dropDescription": "Ouvrir chaque module pour libérer les cartes coincées",
+      "retract": "Retirer la carte",
+      "retractDescription": "Faire tourner l'alimentation à l'envers pour ramener une carte dans le bac",
       "neutral": "Remettre au neutre",
       "neutralDescription": "Ramener chaque servo à sa position de repos",
       "sorterDescription": "Connexion, autotest et état"
-    }
+    },
+    "condition": "État"
   },
   "mobileSorter": {
     "title": "Trieuse",
@@ -758,17 +935,21 @@
     "transport": {
       "serial": "USB",
       "bluetooth": "Bluetooth",
-      "cloud": "Wi-Fi"
+      "cloud": "Wi-Fi",
+      "pi": "Ce Pi"
     },
     "connectHint": "Allumez votre trieuse, puis connectez-vous.",
     "connectBluetooth": "Connecter en Bluetooth",
     "connectUsb": "Connecter en USB",
+    "connectPi": "Connecter la trieuse de ce Pi",
     "unsupported": "Ce navigateur ne peut pas se connecter directement à une trieuse. Connecte-toi en Wi-Fi ci-dessous, ou utilise Chrome sur Android.",
     "actions": "Actions",
     "selfTest": "Lancer l'autotest",
     "selfTestDescription": "Vérifie les capteurs et déplace chaque servo",
     "disconnect": "Déconnecter",
     "calibrateOnDesktop": "Le calibrage et les règles de tri se configurent sur un ordinateur.",
+    "calibrate": "Calibrer",
+    "calibrateOnPi": "Réglez la trieuse branchée sur ce Pi.",
     "remote": {
       "title": "En Wi-Fi",
       "unnamed": "Trieuse de cartes",
@@ -781,7 +962,8 @@
     "title": "Accès à distance en Wi-Fi",
     "description": "Connecte la trieuse à ton Wi-Fi pour la contrôler de n'importe où, même depuis un téléphone sans Bluetooth.",
     "connectFirst": "Connecte ta trieuse en USB ou en Bluetooth pour configurer le Wi-Fi.",
-    "needsEsp32": "L'accès à distance en Wi-Fi nécessite une carte ESP32.",
+    "needsWifiBoard": "L'accès à distance en Wi-Fi nécessite une carte ESP32 ou Arduino Uno R4 WiFi. Sur une Uno R4 WiFi, installe le dernier firmware.",
+    "sharesRadio": "Sur l'Uno R4 WiFi, le Wi-Fi et le Bluetooth partagent une seule radio : le Bluetooth est donc désactivé tant que le Wi-Fi est configuré. La trieuse redémarre quand tu configures ou désactives le Wi-Fi.",
     "needsFirmware": "L'accès à distance en Wi-Fi nécessite le firmware {{version}} ou plus récent. Mets à jour le firmware de ta trieuse pour l'utiliser.",
     "changeOverLocal": "Tu es connecté en Wi-Fi. Pour changer de réseau Wi-Fi, connecte-toi en USB ou en Bluetooth.",
     "setUp": "Configurer le Wi-Fi",
@@ -790,8 +972,11 @@
     "notSetUp": "Non configuré",
     "unknown": "Vérification…",
     "forgotten": "Wi-Fi désactivé.",
+    "forgottenLinkKept": "Wi-Fi désactivé. Le serveur n'a pas pu supprimer l'ancien lien : il sera remplacé la prochaine fois que tu configureras le Wi-Fi.",
+    "forgottenRestarting": "Wi-Fi désactivé. La trieuse redémarre avec le Bluetooth réactivé.",
     "forgetFailed": "Impossible de désactiver le Wi-Fi.",
     "saved": "Wi-Fi enregistré. La trieuse rejoint le réseau.",
+    "savedRestarting": "Wi-Fi enregistré. La trieuse redémarre pour rejoindre le réseau et le Bluetooth se désactive.",
     "saveFailed": "Impossible d'enregistrer le Wi-Fi",
     "saveFailedDescription": "La trieuse n'a pas accepté les réglages. Vérifie qu'elle est toujours connectée et réessaie.",
     "dialogTitle": "Connecter la trieuse au Wi-Fi",
@@ -827,5 +1012,148 @@
     "offline": "Hors ligne",
     "inUse": "Utilisée",
     "connectedHere": "Connectée"
+  },
+  "scanRemoval": {
+    "title": "Scanner pour retirer",
+    "description": "Scannez des cartes pour les mettre en file de retrait de {{collection}}. Rien n'est retiré avant votre confirmation.",
+    "exit": "Arrêter le retrait",
+    "queuedCount_one": "{{count}} en file",
+    "queuedCount_other": "{{count}} en file",
+    "noCopyLeft": "Plus aucun exemplaire dans cette collection",
+    "noMatch": "Aucune correspondance, réessayez",
+    "lookupFailed": "Impossible de rechercher les exemplaires de {{name}}. Scannez-la à nouveau.",
+    "emptyTitle": "Rien en file pour l'instant",
+    "emptyDescription": "Scannez une carte pour mettre un exemplaire en file de retrait.",
+    "changeCopy": "Changer d'exemplaire",
+    "drop": "Écarter",
+    "clear": "Vider",
+    "removeButton_one": "Retirer {{count}} carte",
+    "removeButton_other": "Retirer {{count}} cartes",
+    "confirmTitle_one": "Retirer {{count}} carte ?",
+    "confirmTitle_other": "Retirer {{count}} cartes ?",
+    "confirmDescription": "Ces exemplaires sont supprimés de {{collection}}, photos comprises. Cette action est irréversible.",
+    "removed_one": "{{count}} carte retirée",
+    "removed_other": "{{count}} cartes retirées",
+    "removeFailed": "Impossible de retirer les cartes. Réessayez.",
+    "foil": "Foil",
+    "nonFoil": "Non foil",
+    "storage": "{{name}} n°{{position}}",
+    "bin": "Bac {{number}}",
+    "unsorted": "Non rangée",
+    "modeLabel": "Mode de scan",
+    "addMode": "Ajouter des cartes",
+    "removeMode": "Retirer des cartes",
+    "binLabel": "Les cartes retirées vont dans",
+    "binPlaceholder": "Choisir un bac",
+    "catchAllBinOption": "Bac {{number}} (bac fourre-tout)"
+  },
+  "controlCards": {
+    "openPage": "Imprimer des cartes de contrôle",
+    "openPageDescription": "Cartes QR qui modifient les réglages de scan quand le trieur les lit",
+    "applied": "Carte de contrôle appliquée",
+    "rejected": {
+      "title": "Carte de contrôle non appliquée"
+    },
+    "problems": {
+      "unreadable": "Ce QR code n'est pas une carte de contrôle que cette version de Mault comprend. Le scan est en pause.",
+      "collection-not-found": "La collection de cette carte n'existe plus. Le scan est en pause.",
+      "preset-not-found": "Le préréglage de règles de cette carte n'existe plus. Le scan est en pause.",
+      "preset-wrong-game": "Le préréglage de règles de cette carte concerne un autre jeu que la collection. Le scan est en pause.",
+      "no-collection": "Choisis une collection avant d'utiliser une carte de préréglage. Le scan est en pause."
+    },
+    "actions": {
+      "collection": "Collection : {{name}}",
+      "preset": "Préréglage de règles : {{name}}",
+      "foil": "Foil : {{type}}",
+      "notFoil": "Non foil",
+      "set": "Extension : {{name}}",
+      "anySet": "N'importe quelle extension",
+      "condition": "État : {{condition}}",
+      "autoFeedOn": "Alimentation auto activée",
+      "autoFeedOff": "Alimentation auto désactivée",
+      "duplicatesOn": "Autoriser les doublons",
+      "duplicatesOff": "Ignorer les doublons",
+      "pause": "Mettre le scan en pause"
+    },
+    "form": {
+      "style": "Style de carte",
+      "styles": {
+        "illustrated": "Illustrée",
+        "plain": "Sobre"
+      },
+      "title": "Nouvelle carte de contrôle",
+      "description": "Choisis ce que la carte modifie. Tout ce qui reste sur Aucun changement ne bouge pas.",
+      "cardTitle": "Libellé",
+      "cardTitlePlaceholder": "Par exemple : Classeur d'échange, LP",
+      "collection": "Collection",
+      "preset": "Préréglage de règles",
+      "foil": "Type de foil",
+      "set": "Extension",
+      "condition": "État",
+      "autoFeed": "Alimentation auto",
+      "allowDuplicates": "Autoriser les doublons",
+      "pauseScanner": "Mettre le scan en pause après cette carte",
+      "add": "Ajouter à la planche",
+      "unchanged": "Aucun changement",
+      "toggle": {
+        "unchanged": "Aucun changement",
+        "on": "Activé",
+        "off": "Désactivé"
+      }
+    },
+    "sheet": {
+      "emptyTitle": "Aucune carte de contrôle",
+      "emptyDescription": "Les cartes ajoutées apparaissent ici à taille réelle, prêtes à imprimer."
+    },
+    "tile": {
+      "defaultTitle": "Carte de contrôle",
+      "qrAlt": "QR code de la carte de contrôle",
+      "remove": "Retirer la carte",
+      "illustratedAlt": "Carte de contrôle illustrée"
+    },
+    "page": {
+      "back": "Retour au scanner",
+      "title": "Cartes de contrôle",
+      "description": "Fais passer l'une de ces cartes dans le trieur pour changer de réglages en cours de session. Elle va là où vont les cartes non reconnues et n'est jamais enregistrée dans une collection.",
+      "print": "Imprimer",
+      "printTip": "Imprime sur du papier cartonné au format Letter à l'échelle 100 % (Taille réelle) avec les marges sur Aucune. Chaque page contient 9 cartes. Découpe le long des repères de coupe et garde le QR code bien à plat et sans reflets."
+    },
+    "illustrated": {
+      "typeLines": {
+        "sorcery": "Rituel",
+        "instant": "Éphémère",
+        "enchantment": "Enchantement",
+        "artifact": "Artefact",
+        "creature": "Créature"
+      },
+      "names": {
+        "collection": "Portail vers {{name}}",
+        "preset": "Rite de {{name}}",
+        "foil": "Miroitement {{type}}",
+        "notFoil": "Non foil",
+        "set": "Chercheur de {{name}}",
+        "anySet": "Vagabond de toutes les extensions",
+        "condition": "Expert en {{condition}}",
+        "autoFeedOn": "Nourrir l'essaim",
+        "autoFeedOff": "Bloqueur d'alimentation",
+        "duplicatesOn": "Doublons angéliques",
+        "duplicatesOff": "Bloqueur de doublons",
+        "pause": "Répit du trieur"
+      },
+      "rules": {
+        "collection": "L'instance Mault ciblée trie désormais dans la collection {{name}}.",
+        "preset": "L'instance Mault ciblée suit désormais le préréglage de règles {{name}}.",
+        "foil": "Règle le paramètre foil de l'instance Mault ciblée sur « {{type}} ».",
+        "notFoil": "Règle le paramètre foil de l'instance Mault ciblée sur « Non foil ».",
+        "set": "L'instance Mault ciblée cherche uniquement dans {{name}}.",
+        "anySet": "L'instance Mault ciblée cherche dans toutes les extensions.",
+        "condition": "Règle l'état de l'instance Mault ciblée sur {{condition}}.",
+        "autoFeedOn": "Active ton alimentation auto.",
+        "autoFeedOff": "Désactive l'alimentation auto de l'instance Mault ciblée.",
+        "duplicatesOn": "L'instance Mault ciblée autorise les doublons.",
+        "duplicatesOff": "L'instance Mault ciblée perd la capacité de scanner les doublons.",
+        "pause": "Engage l'instance Mault ciblée. Elle ne se dégage pas tant que tu ne reprends pas le scan."
+      }
+    }
   }
 }

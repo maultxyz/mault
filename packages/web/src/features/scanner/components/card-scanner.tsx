@@ -1,3 +1,4 @@
+import { useDevice } from "@/features/calibration/api/use-device";
 import { StaleDeviceDialog } from "@/components/stale-device-dialog";
 import {
   Tooltip,
@@ -6,29 +7,45 @@ import {
 } from "@/components/ui/tooltip";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
-import {
-  reportSerialEvent,
-} from "@/features/notifications/api/notification-settings";
+import { reportSerialEvent } from "@/features/notifications/api/notification-settings";
 import { useCardScanner } from "@/features/scanner/api/use-card-scanner";
+import { usePiScanSession } from "@/features/scanner/api/use-pi-scan-session";
+import { piScanStatusText } from "@/features/scanner/lib/pi-scan-status";
+import { useDesktopScannerControls } from "@/features/scanner/api/use-desktop-scanner-controls";
+import { useFoilNudgeCheck } from "@/features/scanner/api/use-foil-nudge-check";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
 import { useSerial, useSerialMessage } from "@/features/scanner/api/use-serial";
 import { useVerifyJam } from "@/features/scanner/api/use-verify-jam";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { PhoneCameraPairingDialog } from "@/features/scanner/components/phone-camera-pairing-dialog";
 import { ScannerControls } from "@/features/scanner/components/scanner-controls";
-import { ScannerMenu } from "@/features/scanner/components/scanner-menu";
+import { ScannerStatusBar } from "@/features/scanner/components/scanner-status-bar";
 import { ScannerOverlay } from "@/features/scanner/components/scanner-overlay";
+import { PiCameraPreview } from "@/features/scanner/components/pi-camera-preview";
 import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
 import { useConnectWithStaleCheck } from "@/hooks/use-connect-with-stale-check";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { usePiHost } from "@/hooks/use-pi-host";
+import { isRemoteBrowser } from "@/lib/host";
 import { useRole } from "@/hooks/use-role";
 import {
   PAUSE_WHEN_HIDDEN_STATUSES,
   SESSION_TIMER_RUNNING_STATUSES,
+  STATION_ATTENTION_FIXES,
 } from "@/lib/constants/scanner";
 import { cn } from "@/lib/utils";
-import type { CardScannerComponentProps } from "@/lib/interfaces/scanner";
+import type {
+  CardScannerComponentProps,
+  ScannerOverlayProps,
+} from "@/lib/interfaces/scanner";
+import {
+  feedWithRetries,
+  parseSerialReply,
+  type ScannerStatus,
+} from "@magic-vault/shared";
+import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
 import { IconEye } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
@@ -36,6 +53,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { useOnnxRuntimeFailureToast } from "@/features/scanner/api/use-onnx-runtime-failure-toast";
 import { useUnmatchedRateToast } from "@/features/scanner/api/use-unmatched-rate-toast";
+import { useApplyScannerControlCode } from "@/features/scanner/api/use-apply-scanner-control-code";
 import { useSupportPrompt } from "@/features/billing/api/use-support-prompt";
 import { useNavigate } from "react-router-dom";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
@@ -43,6 +61,7 @@ import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { EmptyBinOptions } from "@magic-vault/shared";
 import { useIgnoreIrSensors } from "@/features/scanner/lib/ignore-ir-sensors";
 import { useHandScan } from "@/features/scanner/lib/hand-scan";
+import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
 
 export function CardScanner({
   className,
@@ -50,12 +69,16 @@ export function CardScanner({
   controlsPosition = "bottom",
   controlsContainer,
   renderChrome,
+  viewerTouchesPanelEdges = false,
 }: CardScannerComponentProps) {
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
   const navigate = useNavigate();
   const { isAdmin } = useRole();
   const isMobile = useIsMobile();
+  const piHost = usePiHost();
+  const piRemote = piHost && isRemoteBrowser();
+  const previewRotated = !isMobile || (piHost && isRemoteBrowser());
   const {
     addCard,
     addUnmatchedCard,
@@ -65,6 +88,10 @@ export function CardScanner({
     registerPauseHook,
     registerResumeHook,
     pause,
+    pauseForAttention,
+    reportScannerError,
+    attention,
+    reopenAttention,
     isFeedHalted,
     clearFeedHalt,
     showJamToast,
@@ -80,15 +107,16 @@ export function CardScanner({
   } = useScannedCards();
   const binFillLevels = useBinFillLevels();
   const binLimitCapacity =
-    binFillLevels.find((level) => level.binNumber === binLimitReached?.binNumber)
-      ?.capacity ?? null;
-  const { station } = useStation();
+    binFillLevels.find(
+      (level) => level.binNumber === binLimitReached?.binNumber,
+    )?.capacity ?? null;
+  const { station, isActive } = useStation();
   const {
     setActiveStation,
     connectAnotherSorter,
     connectAnotherSorterCloud,
     canConnectAnotherSorter,
-    sorterLimitIsHardCap,
+    sorterLimitReason,
   } = useStations();
   const {
     isConnected,
@@ -100,6 +128,8 @@ export function CardScanner({
     sendTest,
     sendRequest,
   } = useSerial();
+  const { feederConfig } = useFeederConfig();
+  const device = useDevice();
   const {
     connect,
     connectBluetooth,
@@ -109,8 +139,7 @@ export function CardScanner({
     onRunTest,
     onCalibrateFirst,
   } = useConnectWithStaleCheck();
-  const bluetoothSupported =
-    typeof navigator !== "undefined" && !!navigator.bluetooth;
+  const bluetoothSupported = isWebBluetoothSupported();
   const [isFeeding, setIsFeeding] = useState(false);
   const [isClearingDevice, setIsClearingDevice] = useState(false);
   const {
@@ -121,10 +150,37 @@ export function CardScanner({
   const [phoneDialogOpen, setPhoneDialogOpen] = useState(false);
   const [handScan, setHandScan] = useHandScan();
   const handScanActive = handScan && !isConnected;
+  const { isRemoveModeActive, queueScannedCard, handleRemovalNoMatch } =
+    useScanRemoval();
+  const visibleLastRoutedBin = isRemoveModeActive ? null : lastRoutedBin;
   const { hasCatchAll, selectedSet } = useBinConfigs();
   const { activeCollection } = useCollections();
+  const piScan = usePiScanSession();
+  const setPiAutoFeed = piScan.setAutoFeed;
+  const changeAutoFeed = useCallback(
+    (enabled: boolean) => {
+      setAutoFeed(enabled);
+      setPiAutoFeed(enabled);
+    },
+    [setPiAutoFeed, setAutoFeed],
+  );
+  const piWaitingForFeed =
+    piScan.state.phase === "running" &&
+    !piScan.state.autoFeed &&
+    piScan.state.activity == null;
   const { recordScanOutcome } = useUnmatchedRateToast();
   useOnnxRuntimeFailureToast();
+  const setAllowDuplicatesRef = useRef<(allowDuplicates: boolean) => void>(
+    () => {},
+  );
+  const applyControlCode = useApplyScannerControlCode(
+    useCallback(
+      (allowDuplicates: boolean) =>
+        setAllowDuplicatesRef.current(allowDuplicates),
+      [],
+    ),
+  );
+  const checkFoilByNudge = useFoilNudgeCheck();
   const {
     status,
     errorMessage,
@@ -153,6 +209,11 @@ export function CardScanner({
     isAtScanLimit,
   } = useCardScanner({
     onSearchResults: (cards, capturedImageUrl, vectorizedOn, details) => {
+      if (isRemoveModeActive) {
+        if (cards.length > 0) queueScannedCard(cards[0], cards.slice(1));
+        else handleRemovalNoMatch();
+        return;
+      }
       if (cards.length > 0) {
         recordScanOutcome(true);
         addCard(
@@ -165,12 +226,29 @@ export function CardScanner({
       }
     },
     onNoMatch: (capturedImageUrl, vectorizedOn, details) => {
+      if (isRemoveModeActive) {
+        handleRemovalNoMatch();
+        return;
+      }
       recordScanOutcome(false);
       addUnmatchedCard(capturedImageUrl, vectorizedOn, details);
     },
-    rotated: !isMobile,
+    rotated: previewRotated,
+    onControlCode: (command) => void applyControlCode(command),
+    checkFoilByNudge: isRemoveModeActive ? undefined : checkFoilByNudge,
     autoCapture: handScanActive,
+    skipDuplicateCheck: isRemoveModeActive,
   });
+  const piScanLive =
+    piScan.state.phase === "running" || piScan.state.phase === "paused";
+  const displayStatus: ScannerStatus = piScanLive
+    ? piScan.state.phase === "running"
+      ? "scanning"
+      : "paused"
+    : piRemote && piScan.cameraReady
+      ? "paused"
+      : status;
+  setAllowDuplicatesRef.current = setAllowDuplicates;
   const isSideControls = controlsPosition === "side";
 
   const handleOpenPhonePairing = () => {
@@ -213,12 +291,12 @@ export function CardScanner({
           sent: true,
           response: raw,
           collectionGuid: activeCollection?.guid,
+          deviceGuid: device?.guid,
         });
       });
     }
   });
 
-  // A card fed just before the tab was hidden still arrives; hold it until resume.
   const heldCardArrivalRef = useRef(false);
 
   const handleCardArrived = useCallback(() => {
@@ -246,11 +324,32 @@ export function CardScanner({
 
   useSupportPrompt(status);
 
+  useEffect(() => {
+    reportScannerError(status === "error" ? errorMessage : null);
+  }, [status, errorMessage, reportScannerError]);
+  useEffect(() => () => reportScannerError(null), [reportScannerError]);
+
+  const wasActiveStationRef = useRef(isActive);
+  useEffect(() => {
+    const becameActive = isActive && !wasActiveStationRef.current;
+    wasActiveStationRef.current = isActive;
+    if (
+      becameActive &&
+      attention &&
+      STATION_ATTENTION_FIXES[attention.kind] === "emptyBin" &&
+      !binLimitReached &&
+      !fullBins
+    ) {
+      reopenAttention();
+    }
+  }, [isActive, attention, binLimitReached, fullBins, reopenAttention]);
+
   const statusRef = useRef(status);
   statusRef.current = status;
 
   useEffect(() => {
     const onVisibilityChange = () => {
+      if (piScan.cameraReady) return;
       if (!document.hidden) return;
       if (!PAUSE_WHEN_HIDDEN_STATUSES.includes(statusRef.current)) return;
       pause();
@@ -262,7 +361,7 @@ export function CardScanner({
     document.addEventListener("visibilitychange", onVisibilityChange);
     return () =>
       document.removeEventListener("visibilitychange", onVisibilityChange);
-  }, [toast, pause, t]);
+  }, [toast, pause, piScan.cameraReady, t]);
 
   const deviceNeutralRef = useRef(false);
 
@@ -281,9 +380,10 @@ export function CardScanner({
     setIsFeeding(true);
     try {
       if (!(await prepareDevice())) return;
-      const { sent, line: response } = await sendRequest(
-        { feeder: true },
-        10000,
+      const { sent, line: response } = await feedWithRetries(
+        () => sendRequest({ feeder: true }, 10000),
+        (result) => (result.sent ? parseSerialReply(result.line) : null),
+        ignoreIrSensors ? 0 : feederConfig.feedRetryCount,
       );
       if (!sent) {
         toast.error(t("cardScanner.feedFailed.title"), {
@@ -294,6 +394,7 @@ export function CardScanner({
           sent: false,
           response: null,
           collectionGuid: activeCollection?.guid,
+          deviceGuid: device?.guid,
         });
         return;
       }
@@ -306,13 +407,14 @@ export function CardScanner({
           sent: true,
           response: null,
           collectionGuid: activeCollection?.guid,
+          deviceGuid: device?.guid,
         });
         return;
       }
       try {
         const parsed = JSON.parse(response) as Record<string, unknown>;
         if (parsed.empty && !ignoreIrSensors) {
-          pause();
+          pauseForAttention({ kind: "hopperEmpty" });
           toast.error(t("feederEmpty.title"), {
             description: t("feederEmpty.description"),
             duration: Infinity,
@@ -323,6 +425,7 @@ export function CardScanner({
             sent: true,
             response: parsed,
             collectionGuid: activeCollection?.guid,
+            deviceGuid: device?.guid,
           });
         } else if (parsed.error) {
           toast.error(t("feederError.title"), {
@@ -335,9 +438,10 @@ export function CardScanner({
             sent: true,
             response: parsed,
             collectionGuid: activeCollection?.guid,
+            deviceGuid: device?.guid,
           });
         } else if (parsed.detected === false && !ignoreIrSensors) {
-          pause();
+          pauseForAttention({ kind: "noCardDetected" });
           toast.error(t("cardScanner.noCardDetected.title"), {
             description: t("cardScanner.noCardDetected.description"),
           });
@@ -346,6 +450,7 @@ export function CardScanner({
             sent: true,
             response: parsed,
             collectionGuid: activeCollection?.guid,
+            deviceGuid: device?.guid,
           });
         } else {
           handleCardArrived();
@@ -359,6 +464,7 @@ export function CardScanner({
           sent: true,
           response,
           collectionGuid: activeCollection?.guid,
+          deviceGuid: device?.guid,
         });
       }
     } finally {
@@ -368,13 +474,14 @@ export function CardScanner({
     toast,
     isReady,
     ignoreIrSensors,
+    feederConfig.feedRetryCount,
     prepareDevice,
     sendRequest,
     handleCardArrived,
-    handlePause,
-    pause,
+    pauseForAttention,
     t,
     activeCollection?.guid,
+    device?.guid,
   ]);
 
   const handleClearDevice = useCallback(async () => {
@@ -409,9 +516,8 @@ export function CardScanner({
     if (!isReady || ignoreIrSensors) return false;
     try {
       const { line: response } = await sendRequest({ readIR: true }, 2000);
-      if (!response) return false;
-      const parsed = JSON.parse(response) as Record<string, unknown>;
-      return Array.isArray(parsed.ir) && !parsed.ir[0];
+      const parsed = parseSerialReply(response);
+      return Array.isArray(parsed?.ir) && !parsed.ir[0];
     } catch {
       return false;
     }
@@ -457,6 +563,19 @@ export function CardScanner({
     autoFeed,
   ]);
 
+  useDesktopScannerControls({
+    status,
+    enabled: isActive && !piScan.cameraReady,
+    isConnected,
+    isReady,
+    autoFeed,
+    isClearingDevice,
+    onPause: pause,
+    onResume: () => void handleResumeScanning(),
+    onToggleAutoFeed: () => setAutoFeed(!autoFeed),
+    onClearDevice: () => void handleClearDevice(),
+  });
+
   useEffect(() => {
     return registerResumeHook(handleResumeScanning);
   }, [registerResumeHook, handleResumeScanning]);
@@ -478,6 +597,10 @@ export function CardScanner({
   const canScan = isCameraActive;
   const wasReadyRef = useRef(canScan);
   useEffect(() => {
+    if (piScan.cameraReady) {
+      wasReadyRef.current = canScan;
+      return;
+    }
     if (!canScan && wasReadyRef.current) {
       handlePause();
     }
@@ -485,23 +608,46 @@ export function CardScanner({
       handleResume();
     }
     wasReadyRef.current = canScan;
-  }, [canScan, handlePause, handleResume, status]);
+  }, [canScan, handlePause, handleResume, piScan.cameraReady, status]);
 
   const scannerControls = (
     <ScannerControls
       orientation={isSideControls ? "vertical" : "horizontal"}
-      status={status}
+      status={displayStatus}
       isConnected={isConnected}
       isReady={isReady}
-      isFeeding={isFeeding}
+      isFeeding={
+        isFeeding ||
+        piScan.starting ||
+        (piScan.state.phase === "running" && !piWaitingForFeed)
+      }
       isClearingDevice={isClearingDevice}
       onForceScan={handleForceScanClick}
-      onPause={pause}
-      onResume={handleResumeScanning}
-      onFeed={handleFeed}
+      onPause={piScan.cameraReady ? () => void piScan.pause() : pause}
+      onResume={
+        piScan.cameraReady
+          ? () => void piScan.startOrResume()
+          : handleResumeScanning
+      }
+      onFeed={
+        piScan.cameraReady
+          ? () => {
+              if (
+                piScan.state.phase === "running" ||
+                piScan.state.phase === "paused"
+              ) {
+                piScan.feed();
+                return;
+              }
+              void piScan.startOrResume();
+            }
+          : handleFeed
+      }
       onClearDevice={handleClearDevice}
-      isResettingDevice={isResettingDevice}
-      onResetDevice={handleResetToNeutral}
+      sessionFeed={piScan.cameraReady}
+      sessionLive={piScanLive}
+      onStop={() => void piScan.stop()}
+      onAutoFeedChange={changeAutoFeed}
     />
   );
 
@@ -569,11 +715,18 @@ export function CardScanner({
 
   if (renderChrome) {
     return (
-      <div className={cn("relative isolate overflow-hidden bg-black", className)}>
+      <div
+        className={cn("relative isolate overflow-hidden bg-black", className)}
+      >
         <video ref={videoRef} className="hidden" playsInline muted />
-        <canvas ref={displayCanvasRef} className="absolute" />
+        <canvas
+          ref={displayCanvasRef}
+          aria-label={t("a11y.cameraPreview")}
+          className="absolute"
+        />
         <canvas
           ref={overlayCanvasRef}
+          aria-hidden
           className="absolute z-20 pointer-events-none"
         />
         {renderChrome({
@@ -608,13 +761,47 @@ export function CardScanner({
           onResetDevice: () => void handleResetToNeutral(),
           handScan,
           handScanActive,
-          lastRoutedBin,
+          lastRoutedBin: visibleLastRoutedBin,
           onHandScanChange: setHandScan,
         })}
         {dialogs}
       </div>
     );
   }
+
+  const showStatusStrip = !isSideControls;
+  const overlayProps: ScannerOverlayProps = {
+    status: displayStatus,
+    errorMessage,
+    isCameraActive,
+    isConnected,
+    isReady,
+    sensorBlockedModule,
+    onResolveSensorBlocked: reopenSensorBlockedToast,
+    firmwareVersion,
+    hasCatchAll,
+    autoFeed,
+    cameraSource,
+    phonePairingStatus,
+    hasPhonePhoto,
+    dailyLimitReached: isAtScanLimit,
+    onRetryError: handleRetryError,
+    onConnectCamera: handleRetryError,
+    onOpenPhonePairing: handleOpenPhonePairing,
+    onConnectScanner: connect,
+    onConnectScannerBluetooth: connectBluetooth,
+    onConnectScannerCloud: connectCloud,
+    bluetoothSupported,
+    handScanActive,
+    lastRoutedBin: visibleLastRoutedBin,
+    onEnableHandScan: () => setHandScan(true),
+    sessionLive: piScanLive || piScan.starting,
+    piReady: piScan.cameraReady,
+    sessionDetail:
+      piScan.starting && !piScanLive
+        ? t("piScan.starting")
+        : piScanStatusText(t, piScan.state),
+  };
 
   return (
     <div
@@ -624,107 +811,116 @@ export function CardScanner({
         className,
       )}
     >
-      <div
-        className={cn(
-          "relative isolate overflow-hidden bg-background rounded-lg border",
-          isSideControls
-            ? "h-full aspect-[2.5/3.5] shrink-0"
-            : "w-full h-full max-w-full",
-          !compact && !isSideControls && "md:aspect-[2.5/3.5]",
-        )}
-      >
-        <video ref={videoRef} className="hidden" playsInline muted />
-        <canvas
-          ref={displayCanvasRef}
+      <div className={showStatusStrip ? "flex flex-col" : "contents"}>
+        <div
           className={cn(
-            "absolute",
-            !isMobile && cameraSource === "local" && "rotate-90",
+            "relative isolate overflow-hidden bg-background rounded-lg border",
+            viewerTouchesPanelEdges && "rounded-none border-x-0 border-t-0",
+            isSideControls
+              ? "h-full aspect-[2.5/3.5] shrink-0"
+              : "w-full h-full max-w-full",
+            !compact && !isSideControls && "md:aspect-[2.5/3.5]",
+            isRemoveModeActive &&
+              "border-destructive ring-2 ring-destructive/40",
           )}
-        />
-        <canvas
-          ref={overlayCanvasRef}
-          className={cn(
-            "absolute z-20 pointer-events-none",
-            !isMobile && cameraSource === "local" && "rotate-90",
+        >
+          <video ref={videoRef} className="hidden" playsInline muted />
+          {piRemote && isCameraActive && (
+            <PiCameraPreview
+              alt={t("piScan.preview")}
+              rotated
+              flipped={device?.flipCamera}
+              className="absolute max-w-none"
+            />
           )}
-        />
-        {isAdmin && debugImageUrl && (
-          <Tooltip>
-            <TooltipTrigger className="absolute top-2 left-2 z-30 flex items-center justify-center size-7 rounded-lg bg-background/70 text-foreground backdrop-blur-sm hover:bg-background/90 transition-colors">
-              <IconEye size={16} />
-            </TooltipTrigger>
-            <TooltipContent
-              side="right"
-              className="bg-background text-foreground border border-border p-0 shadow-lg max-w-none"
-            >
-              <img
-                src={debugImageUrl}
-                alt={t("cardScanner.lastSearchImageAlt")}
-                className="w-48 aspect-[2.5/3.5] object-fill"
-              />
-            </TooltipContent>
-          </Tooltip>
+          <canvas
+            ref={displayCanvasRef}
+            aria-label={t("a11y.cameraPreview")}
+            className={cn(
+              "absolute",
+              piRemote && "hidden",
+              previewRotated && cameraSource === "local" && "rotate-90",
+            )}
+          />
+          <canvas
+            ref={overlayCanvasRef}
+            aria-hidden
+            className={cn(
+              "absolute z-20 pointer-events-none",
+              piRemote && "hidden",
+              previewRotated && cameraSource === "local" && "rotate-90",
+            )}
+          />
+          {isAdmin && debugImageUrl && (
+            <Tooltip>
+              <TooltipTrigger
+                aria-label={t("a11y.showLastSearchImage")}
+                className="absolute bottom-2 left-2 z-30 flex items-center justify-center size-7 rounded-lg bg-background/70 text-foreground backdrop-blur-sm hover:bg-background/90 transition-colors">
+                <IconEye size={16} />
+              </TooltipTrigger>
+              <TooltipContent
+                side="right"
+                className="bg-background text-foreground border border-border p-0 shadow-lg max-w-none"
+              >
+                <img
+                  src={debugImageUrl}
+                  alt={t("cardScanner.lastSearchImageAlt")}
+                  className="w-48 aspect-[2.5/3.5] object-fill"
+                />
+              </TooltipContent>
+            </Tooltip>
+          )}
+          <ScannerOverlay
+            {...overlayProps}
+            region={showStatusStrip ? "viewer" : "all"}
+          />
+          <ScannerStatusBar
+            isCameraActive={isCameraActive}
+            isConnected={isConnected}
+            autoFeed={autoFeed}
+            allowDuplicates={allowDuplicates}
+            cameras={cameras}
+            selectedCameraId={selectedCameraId}
+            phonePairingStatus={phonePairingStatus}
+            scanningBlocked={scanningBlocked}
+            onCameraConnect={handleRetryError}
+            onCameraDisconnect={handleStopCamera}
+            onCameraSelect={selectCamera}
+            onOpenPhonePairing={handleOpenPhonePairing}
+            onScannerConnect={connect}
+            onScannerConnectBluetooth={connectBluetooth}
+            onScannerConnectCloud={connectCloud}
+            bluetoothSupported={bluetoothSupported}
+            onScannerDisconnect={disconnect}
+            onScannerRetry={sendTest}
+            onCalibrate={() => {
+              setActiveStation(station.id);
+              navigate("/app/calibrate");
+            }}
+            onConnectAnotherUsb={() => connectAnotherSorter("usb")}
+            onConnectAnotherBluetooth={() => connectAnotherSorter("bluetooth")}
+            onConnectAnotherCloud={connectAnotherSorterCloud}
+            canConnectAnotherSorter={canConnectAnotherSorter}
+            sorterLimitReason={sorterLimitReason}
+            onUpgrade={() => navigate(SETTINGS_PATHS.billing)}
+            isReady={isReady}
+            isClearingDevice={isClearingDevice}
+            isResettingDevice={isResettingDevice}
+            onClearDevice={() => void handleClearDevice()}
+            onResetDevice={() => void handleResetToNeutral()}
+            onAutoFeedChange={changeAutoFeed}
+            onAllowDuplicatesChange={setAllowDuplicates}
+            handScan={handScan}
+            onHandScanChange={setHandScan}
+          />
+        </div>
+        {showStatusStrip && (
+          <ScannerOverlay
+            {...overlayProps}
+            region="status-strip"
+            statusStripTouchesPanelEdges={viewerTouchesPanelEdges}
+          />
         )}
-        <ScannerOverlay
-          status={status}
-          errorMessage={errorMessage}
-          isCameraActive={isCameraActive}
-          isConnected={isConnected}
-          isReady={isReady}
-          sensorBlockedModule={sensorBlockedModule}
-          onResolveSensorBlocked={reopenSensorBlockedToast}
-          firmwareVersion={firmwareVersion}
-          hasCatchAll={hasCatchAll}
-          autoFeed={autoFeed}
-          cameraSource={cameraSource}
-          phonePairingStatus={phonePairingStatus}
-          hasPhonePhoto={hasPhonePhoto}
-          dailyLimitReached={isAtScanLimit}
-          onRetryError={handleRetryError}
-          onConnectCamera={handleRetryError}
-          onOpenPhonePairing={handleOpenPhonePairing}
-          onConnectScanner={connect}
-          onConnectScannerBluetooth={connectBluetooth}
-          onConnectScannerCloud={connectCloud}
-          bluetoothSupported={bluetoothSupported}
-          handScanActive={handScanActive}
-          lastRoutedBin={lastRoutedBin}
-          onEnableHandScan={() => setHandScan(true)}
-        />
-        <ScannerMenu
-          isCameraActive={isCameraActive}
-          isConnected={isConnected}
-          autoFeed={autoFeed}
-          allowDuplicates={allowDuplicates}
-          cameras={cameras}
-          selectedCameraId={selectedCameraId}
-          phonePairingStatus={phonePairingStatus}
-          scanningBlocked={scanningBlocked}
-          onCameraConnect={handleRetryError}
-          onCameraDisconnect={handleStopCamera}
-          onCameraSelect={selectCamera}
-          onOpenPhonePairing={handleOpenPhonePairing}
-          onScannerConnect={connect}
-          onScannerConnectBluetooth={connectBluetooth}
-          onScannerConnectCloud={connectCloud}
-          bluetoothSupported={bluetoothSupported}
-          onScannerDisconnect={disconnect}
-          onScannerRetry={sendTest}
-          onCalibrate={() => {
-            setActiveStation(station.id);
-            navigate("/app/calibrate");
-          }}
-          onConnectAnotherUsb={() => connectAnotherSorter("usb")}
-          onConnectAnotherBluetooth={() => connectAnotherSorter("bluetooth")}
-          onConnectAnotherCloud={connectAnotherSorterCloud}
-          canConnectAnotherSorter={canConnectAnotherSorter}
-          sorterLimitIsHardCap={sorterLimitIsHardCap}
-          onUpgrade={() => navigate(SETTINGS_PATHS.billing)}
-          onAutoFeedChange={setAutoFeed}
-          onAllowDuplicatesChange={setAllowDuplicates}
-          handScan={handScan}
-          onHandScanChange={setHandScan}
-        />
       </div>
       {isCameraActive && !controlsContainer && scannerControls}
       {isCameraActive &&

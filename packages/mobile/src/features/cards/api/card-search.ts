@@ -3,11 +3,11 @@ import type { CardSearchPage, Result } from "@magic-vault/shared";
 import { apiGet, unwrap } from "@/lib/api/client";
 import { CARD_SEARCH_MIN_LENGTH } from "@/lib/constants/cards";
 
-export const cardSearchQueryOptions = (query: string, collectionGuid: string) =>
+export const cardSearchQueryOptions = (query: string, collectionGuid: string, language: string) =>
   infiniteQueryOptions({
-    queryKey: ["card-search", query, collectionGuid] as const,
+    queryKey: ["card-search", query, collectionGuid, language] as const,
     queryFn: ({ pageParam }) => {
-      const params = new URLSearchParams({ q: query, collectionGuid });
+      const params = new URLSearchParams({ q: query, collectionGuid, lang: language });
       if (pageParam > 0) params.set("offset", String(pageParam));
       return unwrap(apiGet<Result<CardSearchPage>>(`/api/cards/search?${params}`));
     },

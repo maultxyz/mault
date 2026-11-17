@@ -31,9 +31,6 @@ export function defaultSliderValues(modules: number[]): Record<SliderKey, number
   return vals;
 }
 
-// Plain-text dump of every calibration value, meant to be pasted into a
-// support/Discord message - not consumed programmatically, so formatting
-// favors readability over machine parsing.
 export function buildCalibrationDebugText({
   channelLayout,
   moduleCount,
@@ -44,7 +41,7 @@ export function buildCalibrationDebugText({
   board,
 }: CalibrationDebugParams): string {
   const lines: string[] = [
-    "Magic Vault Calibration Debug",
+    "Mault Calibration Debug",
     `Generated: ${new Date().toISOString()}`,
     `Firmware: ${firmwareVersion ? `${firmwareVersion}${board ? ` (${board})` : ""}` : "not connected"}`,
     `Channel layout: ${channelLayout} (offset ${CHANNEL_OFFSET[channelLayout]})`,
@@ -58,6 +55,7 @@ export function buildCalibrationDebugText({
     `  settleDuration: ${feederConfig.settleDuration}ms`,
     `  reverseSpeed: ${feederConfig.reverseSpeed}`,
     `  reverseDuration: ${feederConfig.reverseDuration > 0 ? `${feederConfig.reverseDuration}ms` : "off"}`,
+    `  feedRetryCount: ${feederConfig.feedRetryCount}`,
     "",
   ];
 

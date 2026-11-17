@@ -11,6 +11,7 @@ import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
+import { ResetAutoAssignToggle } from "@/features/storage/components/reset-auto-assign-toggle";
 import { StorageLocationSelect } from "@/features/storage/components/storage-location-select";
 import { lastUsedLocationGuid } from "@/features/storage/lib/last-used-location";
 import {
@@ -34,6 +35,7 @@ export function EmptyAllBinsDialog({
   bins,
   preferLocation,
   collectionGuid,
+  canResetAutoAssignedRules,
   onOpenChange,
   onConfirm,
 }: EmptyAllBinsDialogProps) {
@@ -50,6 +52,7 @@ export function EmptyAllBinsDialog({
     resolver: zodResolver(emptyAllBinsSchema),
     defaultValues: {
       perBin: false,
+      resetAutoAssignedRules: true,
       all: { locationGuid: "", newName: "" },
       bins: [],
     },
@@ -68,6 +71,7 @@ export function EmptyAllBinsDialog({
       : EMPTY_BIN_NO_LOCATION;
     form.reset({
       perBin: false,
+      resetAutoAssignedRules: true,
       all: { locationGuid: initial, newName: "" },
       bins: bins.map((bin) => ({
         binNumber: bin.binNumber,
@@ -105,11 +109,13 @@ export function EmptyAllBinsDialog({
         }
         assignments.push({ binNumber: choice.binNumber, locationGuid });
       }
-      const ok = await onConfirm(
-        assignments.length > 0
+      const ok = await onConfirm({
+        ...(assignments.length > 0
           ? { collectionGuid, locations: assignments }
-          : {},
-      );
+          : {}),
+        resetAutoAssignedRules:
+          canResetAutoAssignedRules && values.resetAutoAssignedRules,
+      });
       if (ok) onOpenChange(false);
     } finally {
       setIsSubmitting(false);
@@ -130,6 +136,18 @@ export function EmptyAllBinsDialog({
           onSubmit={form.handleSubmit(handleSubmit)}
           className="flex min-h-0 flex-col gap-4"
         >
+          {canResetAutoAssignedRules && (
+            <Controller
+              control={form.control}
+              name="resetAutoAssignedRules"
+              render={({ field }) => (
+                <ResetAutoAssignToggle
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+          )}
           <Controller
             control={form.control}
             name="perBin"

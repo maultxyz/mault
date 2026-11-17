@@ -22,32 +22,27 @@ export const orderSoundRulesRoute = new Hono<AppEnv>().put(
     ) {
       return c.json({ success: false, message: "Invalid order." }, 400);
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const gameId = await findGameId(tx, gameGuid);
-        if (gameId === null)
-          return { success: false as const, message: "Game not found." };
-        for (const [position, guid] of (guids as string[]).entries()) {
-          await tx
-            .update(soundRules)
-            .set({ position })
-            .where(
-              and(
-                eq(soundRules.guid, guid),
-                eq(soundRules.orgId, orgId),
-                eq(soundRules.gameId, gameId),
-              ),
-            );
-        }
-        return {
-          success: true as const,
-          data: await loadSoundRules(tx, orgId, gameId),
-        };
-      });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const gameId = await findGameId(tx, gameGuid);
+      if (gameId === null)
+        return { success: false as const, message: "Game not found." };
+      for (const [position, guid] of (guids as string[]).entries()) {
+        await tx
+          .update(soundRules)
+          .set({ position })
+          .where(
+            and(
+              eq(soundRules.guid, guid),
+              eq(soundRules.orgId, orgId),
+              eq(soundRules.gameId, gameId),
+            ),
+          );
+      }
+      return {
+        success: true as const,
+        data: await loadSoundRules(tx, orgId, gameId),
+      };
+    });
+    return c.json(result);
   },
 );

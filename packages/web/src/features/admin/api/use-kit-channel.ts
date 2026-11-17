@@ -7,10 +7,7 @@ import {
 import { toast } from "@/lib/toast";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-
-function delay(ms: number) {
-  return new Promise<void>((resolve) => setTimeout(resolve, ms));
-}
+import { delay } from "@/lib/delay";
 
 export function useKitChannel() {
   const { t } = useTranslation("admin");

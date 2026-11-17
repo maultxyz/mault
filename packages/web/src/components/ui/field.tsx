@@ -1,11 +1,14 @@
 "use client";
 
 import { cva, type VariantProps } from "class-variance-authority";
-import { useMemo } from "react";
+import { useContext, useId, useMemo } from "react";
 
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
+import { FieldControlContext } from "@/lib/field-control-context";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 import { cn } from "@/lib/utils";
+import { useTranslation } from "react-i18next";
 
 function FieldSet({ className, ...props }: React.ComponentProps<"fieldset">) {
   return (
@@ -74,14 +77,23 @@ function Field({
   orientation = "vertical",
   ...props
 }: React.ComponentProps<"div"> & VariantProps<typeof fieldVariants>) {
+  const errorId = useId();
+  const dataInvalid = (props as { "data-invalid"?: unknown })["data-invalid"];
+  const isInvalid = dataInvalid === true || dataInvalid === "true";
+  const fieldControl = useMemo(
+    () => ({ isInvalid, errorId }),
+    [isInvalid, errorId],
+  );
   return (
-    <div
-      role="group"
-      data-slot="field"
-      data-orientation={orientation}
-      className={cn(fieldVariants({ orientation }), className)}
-      {...props}
-    />
+    <FieldControlContext.Provider value={fieldControl}>
+      <div
+        role="group"
+        data-slot="field"
+        data-orientation={orientation}
+        className={cn(fieldVariants({ orientation }), className)}
+        {...props}
+      />
+    </FieldControlContext.Provider>
   );
 }
 
@@ -181,6 +193,8 @@ function FieldError({
 }: React.ComponentProps<"div"> & {
   errors?: Array<{ message?: string } | undefined>;
 }) {
+  const { t } = useTranslation("common");
+  const fieldControl = useContext(FieldControlContext);
   const content = useMemo(() => {
     if (children) {
       return children;
@@ -190,23 +204,27 @@ function FieldError({
       return null;
     }
 
-    const uniqueErrors = [
-      ...new Map(errors.map((error) => [error?.message, error])).values(),
+    const uniqueMessages = [
+      ...new Set(
+        errors
+          .map((error) => error?.message)
+          .filter((message): message is string => !!message)
+          .map((message) => translateFormErrorMessage(t, message)),
+      ),
     ];
 
-    if (uniqueErrors?.length == 1) {
-      return uniqueErrors[0]?.message;
+    if (uniqueMessages.length <= 1) {
+      return uniqueMessages[0];
     }
 
     return (
       <ul className="ml-4 flex list-disc flex-col gap-1">
-        {uniqueErrors.map(
-          (error, index) =>
-            error?.message && <li key={index}>{error.message}</li>,
-        )}
+        {uniqueMessages.map((message) => (
+          <li key={message}>{message}</li>
+        ))}
       </ul>
     );
-  }, [children, errors]);
+  }, [children, errors, t]);
 
   if (!content) {
     return null;
@@ -215,6 +233,7 @@ function FieldError({
   return (
     <div
       role="alert"
+      id={fieldControl?.errorId}
       data-slot="field-error"
       className={cn("text-xs/relaxed font-normal text-destructive", className)}
       {...props}

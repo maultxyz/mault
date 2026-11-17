@@ -1,5 +1,4 @@
-import { DeleteDialog } from "@/components/delete-dialog";
-import { FoilOverlay } from "@/components/foil-overlay";
+import { CardThumbnail } from "@/components/card-thumbnail";
 import { Button } from "@/components/ui/button";
 import {
   Table,
@@ -12,10 +11,14 @@ import {
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
 import { useRemoveCardFromLocation } from "@/features/storage/api/use-storage-locations";
 import { MobileStorageCardList } from "@/features/storage/components/mobile-storage-card-list";
+import { RemoveFromLocationDialog } from "@/features/storage/components/remove-from-location-dialog";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { StorageCardListProps } from "@/lib/interfaces/storage";
-import type { StorageLocationSearchResult } from "@magic-vault/shared";
+import {
+  formatPriceInCurrency,
+  type StorageLocationSearchResult,
+} from "@magic-vault/shared";
 import { IconBox, IconBoxOff } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -26,7 +29,7 @@ export function StorageCardList({
   onOpenCard,
 }: StorageCardListProps) {
   const { t } = useTranslation("storage");
-  const { priceOf, format } = usePriceSource();
+  const { priceOf, priceAtScanOf, format } = usePriceSource();
   const { removeCard, isRemoving } = useRemoveCardFromLocation();
   const [pendingRemoval, setPendingRemoval] =
     useState<StorageLocationSearchResult | null>(null);
@@ -72,7 +75,13 @@ export function StorageCardList({
                 {t("cards.columns.collection")}
               </TableHead>
               <TableHead className="text-right">
-                {t("cards.columns.price")}
+                {t("cards.columns.priceAtScan")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("cards.columns.priceNow")}
+              </TableHead>
+              <TableHead className="text-right">
+                {t("cards.columns.purchasePrice")}
               </TableHead>
               <TableHead className="w-10">
                 <span className="sr-only">{t("cards.columns.actions")}</span>
@@ -81,7 +90,13 @@ export function StorageCardList({
           </TableHeader>
           <TableBody>
             {entries.map((entry) => {
-              const price = priceOf(entry.card, entry.isFoil, entry.condition);
+              const finish = { isFoil: entry.isFoil, foilType: entry.foilType };
+              const price = priceOf(entry.card, finish, entry.condition);
+              const priceAtScan = priceAtScanOf(
+                entry.card,
+                finish,
+                entry.condition,
+              );
               return (
                 <TableRow
                   key={entry.scanId}
@@ -92,7 +107,6 @@ export function StorageCardList({
                     <TableCell>
                       <Button
                         variant="outline"
-                        size="sm"
                         className="max-w-40"
                         title={t("search.openLocation")}
                         onClick={(e) => {
@@ -115,16 +129,10 @@ export function StorageCardList({
                     </TableCell>
                   )}
                   <TableCell>
-                    <div className="relative aspect-[2.5/3.5] w-8 overflow-hidden rounded-md bg-muted">
-                      {entry.card.image?.small && (
-                        <img
-                          src={entry.card.image.small}
-                          alt=""
-                          className="absolute inset-0 size-full object-cover"
-                        />
-                      )}
-                      {entry.isFoil && <FoilOverlay />}
-                    </div>
+                    <CardThumbnail
+                      image={entry.card.image}
+                      isFoil={entry.isFoil}
+                    />
                   </TableCell>
                   <TableCell className="max-w-48 font-medium">
                     <div className="flex min-w-0 items-center gap-1.5">
@@ -160,13 +168,24 @@ export function StorageCardList({
                   <TableCell className="hidden max-w-36 truncate text-xs text-foreground/70 lg:table-cell">
                     {entry.collectionName}
                   </TableCell>
+                  <TableCell className="text-right text-xs tabular-nums text-foreground/70">
+                    {priceAtScan != null ? format(priceAtScan) : "-"}
+                  </TableCell>
                   <TableCell className="text-right text-xs tabular-nums">
                     {price != null ? format(price) : "-"}
+                  </TableCell>
+                  <TableCell className="text-right text-xs tabular-nums text-foreground/70">
+                    {entry.acquisitionCost != null && entry.acquisitionCurrency
+                      ? formatPriceInCurrency(
+                          entry.acquisitionCost,
+                          entry.acquisitionCurrency,
+                        )
+                      : "-"}
                   </TableCell>
                   <TableCell>
                     <Button
                       variant="destructive"
-                      size="icon-sm"
+                      size="icon"
                       aria-label={t("cards.remove")}
                       title={t("cards.remove")}
                       disabled={isRemoving}
@@ -184,19 +203,22 @@ export function StorageCardList({
           </TableBody>
         </Table>
       </div>
-      <DeleteDialog
+      <RemoveFromLocationDialog
         open={!!pendingRemoval}
         onOpenChange={(open) => !open && setPendingRemoval(null)}
-        title={t("removeDialog.title", {
-          name: pendingRemoval?.card.name ?? "",
-          location: pendingRemoval?.locationName ?? "",
-        })}
-        description={t("removeDialog.description")}
-        confirmLabel={t("removeDialog.confirm")}
-        onConfirm={() => {
+        cardName={pendingRemoval?.card.name ?? ""}
+        locationName={pendingRemoval?.locationName ?? ""}
+        collectionName={pendingRemoval?.collectionName ?? ""}
+        onConfirm={(alsoRemoveFromCollection) => {
           const entry = pendingRemoval;
           setPendingRemoval(null);
-          if (entry) void removeCard(entry.locationGuid, entry.scanId);
+          if (!entry) return;
+          void removeCard({
+            locationGuid: entry.locationGuid,
+            scanId: entry.scanId,
+            collectionGuid: entry.collectionGuid,
+            alsoRemoveFromCollection,
+          });
         }}
       />
     </>

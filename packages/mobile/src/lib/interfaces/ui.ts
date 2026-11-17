@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 import type { StyleProp, TextProps, ViewStyle } from "react-native";
-import type { OrgOverviewCard, OrgOverviewDay, PlayingCard, ScanRegion } from "@magic-vault/shared";
+import type { CommLogEntry, OrgOverviewCard, OrgOverviewDay, PlayingCard, ScanRegion } from "@magic-vault/shared";
 import type { ICONS } from "@/lib/constants/icons";
 import type { LiveCorners, MonitorState } from "@/lib/interfaces/scanner";
 import type { FontSize, StatusTone } from "@/lib/interfaces/theme";
@@ -34,6 +34,7 @@ export interface ButtonProps {
   disabled?: boolean;
   size?: "sm" | "md" | "lg";
   style?: StyleProp<ViewStyle>;
+  accessibilityLabel?: string;
   accessibilityHint?: string;
 }
 
@@ -46,10 +47,13 @@ export interface TextFieldProps {
   placeholder?: string;
   secureTextEntry?: boolean;
   autoComplete?: "email" | "password" | "name" | "off" | "new-password";
-  keyboardType?: "default" | "email-address";
+  textContentType?: "emailAddress" | "password" | "newPassword" | "name" | "none";
+  keyboardType?: "default" | "email-address" | "decimal-pad" | "number-pad";
+  editable?: boolean;
   autoCapitalize?: "none" | "sentences" | "words";
   returnKeyType?: "next" | "done" | "go" | "search";
   onSubmitEditing?: () => void;
+  multiline?: boolean;
 }
 
 export interface SearchInputProps {
@@ -94,9 +98,11 @@ export interface ListRowProps {
   value?: string;
   tone?: "default" | "destructive";
   right?: ReactNode;
+  rightIsInteractive?: boolean;
   onPress?: () => void;
   disabled?: boolean;
   selected?: boolean;
+  subtitleNumberOfLines?: number;
 }
 
 export interface ScreenProps {
@@ -124,7 +130,7 @@ export interface ListGroupProps {
 
 export interface PillProps {
   label: string;
-  tone?: StatusTone | "neutral";
+  tone?: StatusTone | "neutral" | "primary";
   icon?: IconName;
 }
 
@@ -154,11 +160,12 @@ export interface CardRowProps {
   price?: string | null;
   binNumber?: number;
   lowConfidence?: boolean;
+  checked?: boolean;
   onPress?: () => void;
 }
 
 export interface CommLogProps {
-  entries: { direction: "sent" | "received"; text: string; timestamp: number }[];
+  entries: CommLogEntry[];
 }
 
 
@@ -170,6 +177,8 @@ export interface CardTileProps {
   quantity?: number;
   flagged?: boolean;
   corrected?: boolean;
+  selected?: boolean;
+  disabled?: boolean;
   onPress?: () => void;
   onLongPress?: () => void;
 }
@@ -260,6 +269,7 @@ export interface ShutterButtonProps {
 export interface OptionItem {
   value: string;
   label: string;
+  badge?: string;
 }
 
 export interface OptionSheetProps {
@@ -267,15 +277,17 @@ export interface OptionSheetProps {
   title: string;
   options: OptionItem[];
   selected: string[];
-  multiple?: boolean;
   onSelect: (value: string) => void;
   onClose: () => void;
+  searchPlaceholder?: string;
+  maxVisibleOptions?: number;
 }
 
 export interface SelectFieldProps {
   label?: string;
   value: string | null;
   placeholder: string;
+  accessibilityLabel?: string;
   onPress: () => void;
   disabled?: boolean;
 }
@@ -324,6 +336,7 @@ export interface SliderProps {
   step?: number;
   disabled?: boolean;
   accessibilityLabel: string;
+  accessibilityValueText?: string;
   onValueChange: (value: number) => void;
 }
 
@@ -366,6 +379,16 @@ export interface QuickActionProps {
   onPress: () => void;
   disabled?: boolean;
 }
+
+export interface TopBarSwitcherProps {
+  initial: string;
+  label: string;
+  badge?: string;
+  accessibilityLabel: string;
+  onPress: () => void;
+}
+
+export type AppTopBarSheet = "alerts" | "organizations" | "collections";
 
 export interface PickerCardProps {
   icon: IconName;

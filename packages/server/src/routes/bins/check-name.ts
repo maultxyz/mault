@@ -15,26 +15,21 @@ export const checkBinSetNameRoute = new Hono<AppEnv>().get(
     if (!name) {
       return c.json({ success: false, message: "name is required." }, 400);
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const gameId = await resolveGameId(tx, gameGuid);
-        const taken = await binSetNameTaken(
-          tx,
-          orgId,
-          gameId,
-          name,
-          excludeGuid,
-        );
-        return {
-          success: true,
-          message: "Checked.",
-          data: { available: !taken },
-        };
-      });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const gameId = await resolveGameId(tx, gameGuid);
+      const taken = await binSetNameTaken(
+        tx,
+        orgId,
+        gameId,
+        name,
+        excludeGuid,
+      );
+      return {
+        success: true,
+        message: "Checked.",
+        data: { available: !taken },
+      };
+    });
+    return c.json(result);
   },
 );

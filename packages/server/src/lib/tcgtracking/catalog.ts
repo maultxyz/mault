@@ -1,0 +1,194 @@
+import type { PlayingCardImage } from "@magic-vault/shared";
+import { fetchCardApi } from "../card-search/fetch";
+import { CARD_API_HEADERS } from "../constants/card-search";
+import {
+  TCGTRACKING_CATALOG_TTL_MS,
+  TCGTRACKING_FALLBACK_ID_PREFIX,
+  TCGTRACKING_IMAGE_WIDTH_NORMAL,
+  TCGTRACKING_IMAGE_WIDTH_SMALL,
+  TCGTRACKING_REQUEST_DELAY_MS,
+} from "../constants/tcgtracking";
+import {
+  TCGTRACKING_API_ROOT,
+  TCGTRACKING_IMAGE_ROOT,
+} from "../constants/urls";
+import type {
+  TcgtrackingCatalogEntry,
+  TcgtrackingProduct,
+  TcgtrackingProductLookup,
+  TcgtrackingSet,
+  TcgtrackingSetSkusResponse,
+  TcgtrackingSku,
+} from "../interfaces/tcgtracking";
+
+const catalogs = new Map<
+  number,
+  { loadedAt: number; entries: Promise<TcgtrackingCatalogEntry[]> }
+>();
+
+function pause(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function getJson<T>(path: string, signal?: AbortSignal): Promise<T> {
+  const response = await fetchCardApi(`${TCGTRACKING_API_ROOT}${path}`, {
+    headers: CARD_API_HEADERS,
+    signal,
+  });
+  await pause(TCGTRACKING_REQUEST_DELAY_MS);
+  if (!response.ok) {
+    throw new Error(`TCGTracking ${path} failed: HTTP ${response.status}`);
+  }
+  return (await response.json()) as T;
+}
+
+function slimProduct(product: TcgtrackingProduct): TcgtrackingProduct {
+  return {
+    id: product.id,
+    name: product.name,
+    number: product.number?.trim() || null,
+    rarity: product.rarity ?? null,
+    ext_data: product.ext_data ?? null,
+    image_url: product.image_url ?? null,
+    ...(product.scryfall_id ? { scryfall_id: product.scryfall_id } : {}),
+    ...(product.cardmarket_id ? { cardmarket_id: product.cardmarket_id } : {}),
+  };
+}
+
+export async function fetchTcgtrackingSets(
+  categoryId: number,
+  signal?: AbortSignal,
+): Promise<TcgtrackingSet[]> {
+  const { sets } = await getJson<{ sets: TcgtrackingSet[] }>(
+    `/${categoryId}/sets`,
+    signal,
+  );
+  return sets.filter((set) => set.product_count > 0);
+}
+
+export async function fetchTcgtrackingSetEntries(
+  categoryId: number,
+  set: TcgtrackingSet,
+  signal?: AbortSignal,
+): Promise<TcgtrackingCatalogEntry[]> {
+  const { products } = await getJson<{ products: TcgtrackingProduct[] }>(
+    `/${categoryId}/sets/${set.id}/cards`,
+    signal,
+  );
+  return products.map((product) => ({
+    product: slimProduct(product),
+    set: {
+      id: set.id,
+      name: set.name,
+      abbreviation: set.abbreviation,
+      published_on: set.published_on ?? null,
+    },
+  }));
+}
+
+export async function fetchTcgtrackingSetSkus(
+  categoryId: number,
+  setId: number,
+): Promise<Map<number, TcgtrackingSku[]>> {
+  const { products } = await getJson<TcgtrackingSetSkusResponse>(
+    `/${categoryId}/sets/${setId}/skus`,
+  );
+  return new Map(
+    Object.entries(products ?? {}).map(([productId, skus]) => [
+      Number(productId),
+      Object.entries(skus).map(([skuId, sku]) => ({
+        skuId,
+        condition: sku.cnd,
+        variant: sku.var,
+        language: sku.lng,
+        marketPrice: sku.mkt ?? sku.low ?? null,
+      })),
+    ]),
+  );
+}
+
+export async function fetchTcgtrackingProductEntry(
+  categoryId: number,
+  productId: number,
+): Promise<TcgtrackingCatalogEntry | null> {
+  const lookup = await getJson<TcgtrackingProductLookup>(
+    `/products/${productId}`,
+  ).catch(() => null);
+  if (!lookup?.success || lookup.product.category_id !== categoryId) {
+    return null;
+  }
+  const { product } = lookup;
+  const entries = await fetchTcgtrackingSetEntries(categoryId, {
+    id: product.group_id,
+    name: product.set_name,
+    abbreviation: product.set_abbr,
+    product_count: 1,
+    published_on: product.set_released,
+  });
+  return entries.find((entry) => entry.product.id === productId) ?? null;
+}
+
+async function fetchCatalog(
+  categoryId: number,
+  addLog: (msg: string) => void,
+  signal?: AbortSignal,
+): Promise<TcgtrackingCatalogEntry[]> {
+  addLog(`Fetching TCGTracking sets for category ${categoryId}...`);
+  const sets = await fetchTcgtrackingSets(categoryId, signal);
+  const entries: TcgtrackingCatalogEntry[] = [];
+  for (const set of sets) {
+    if (signal?.aborted) break;
+    try {
+      entries.push(...(await fetchTcgtrackingSetEntries(categoryId, set, signal)));
+    } catch (err) {
+      addLog(
+        `TCGTracking set ${set.name} skipped: ${err instanceof Error ? err.message : String(err)}`,
+      );
+    }
+  }
+  addLog(
+    `Fetched ${entries.length} TCGTracking cards across ${sets.length} sets.`,
+  );
+  return entries;
+}
+
+export function loadTcgtrackingCatalog(
+  categoryId: number,
+  addLog: (msg: string) => void = () => {},
+  signal?: AbortSignal,
+): Promise<TcgtrackingCatalogEntry[]> {
+  const cached = catalogs.get(categoryId);
+  if (cached && Date.now() - cached.loadedAt < TCGTRACKING_CATALOG_TTL_MS) {
+    return cached.entries;
+  }
+  const entries = fetchCatalog(categoryId, addLog, signal);
+  catalogs.clear();
+  catalogs.set(categoryId, { loadedAt: Date.now(), entries });
+  entries
+    .then(() => {
+      if (signal?.aborted) catalogs.delete(categoryId);
+    })
+    .catch(() => catalogs.delete(categoryId));
+  return entries;
+}
+
+export function tcgtrackingImageUrl(productId: number, width: string): string {
+  return `${TCGTRACKING_IMAGE_ROOT}/${productId}_${width}.jpg`;
+}
+
+export function tcgtrackingCardImage(productId: number): PlayingCardImage {
+  return {
+    small: tcgtrackingImageUrl(productId, TCGTRACKING_IMAGE_WIDTH_SMALL),
+    normal: tcgtrackingImageUrl(productId, TCGTRACKING_IMAGE_WIDTH_NORMAL),
+  };
+}
+
+export function tcgtrackingFallbackId(productId: number): string {
+  return `${TCGTRACKING_FALLBACK_ID_PREFIX}${productId}`;
+}
+
+export function tcgtrackingProductIdOf(fallbackId: string): number | null {
+  if (!fallbackId.startsWith(TCGTRACKING_FALLBACK_ID_PREFIX)) return null;
+  const id = Number(fallbackId.slice(TCGTRACKING_FALLBACK_ID_PREFIX.length));
+  return Number.isInteger(id) && id > 0 ? id : null;
+}

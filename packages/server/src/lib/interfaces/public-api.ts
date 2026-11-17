@@ -1,3 +1,4 @@
+import type { CardPriceDetails } from "./card-prices";
 import type { ApiScannedCard } from "@magic-vault/shared";
 
 export interface PublicApiCardCursor {
@@ -68,6 +69,8 @@ export interface PublicApiCardRow {
   price_usd_foil: number | string | null;
   price_eur: number | string | null;
   price_eur_foil: number | string | null;
+  stored_price_details: CardPriceDetails | null;
+  saved_price_details: CardPriceDetails;
   collection_guid: string;
   collection_name: string;
   lang: string;
@@ -104,4 +107,10 @@ export type PublicApiCardWriteResult =
 export interface PublicApiDeletedCard {
   imageKey: string | null;
   collectionGuid: string;
+}
+
+export interface MarketplaceProducts {
+  cardmarketProductId: number | null;
+  cardkingdomProductId: number | null;
+  cardKingdomUrl: string | null;
 }

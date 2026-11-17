@@ -18,24 +18,19 @@ export const testWebhookRoute = new Hono<AppEnv>().post(
         message: "Only organization owners and admins can test webhooks.",
       });
     }
-    try {
-      const target = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx.query.webhookEndpoints.findFirst({
-          where: and(
-            eq(webhookEndpoints.guid, c.req.param("guid")),
-            eq(webhookEndpoints.orgId, orgId),
-          ),
-          columns: { id: true, url: true, secret: true },
-        }),
-      );
-      if (!target) {
-        return c.json({ success: false, message: "Webhook not found." });
-      }
-      const data = await sendTestWebhook(target);
-      return c.json({ success: true, data });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+    const target = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx.query.webhookEndpoints.findFirst({
+        where: and(
+          eq(webhookEndpoints.guid, c.req.param("guid")),
+          eq(webhookEndpoints.orgId, orgId),
+        ),
+        columns: { id: true, url: true, secret: true },
+      }),
+    );
+    if (!target) {
+      return c.json({ success: false, message: "Webhook not found." });
     }
+    const data = await sendTestWebhook(target);
+    return c.json({ success: true, data });
   },
 );

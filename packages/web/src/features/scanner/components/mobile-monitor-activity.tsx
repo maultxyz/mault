@@ -1,5 +1,7 @@
-import { IdentifyUnmatchedDialog } from "@/features/scanner/components/identify-unmatched-dialog";
-import { MobileUnmatchedCardDrawer } from "@/features/scanner/components/mobile-unmatched-card-drawer";
+import {
+  clearUnmatchedScans,
+  removeUnmatchedScan,
+} from "@/features/collections/api/collections";
 import { SessionErrorsPanel } from "@/features/scanner/components/session-errors-panel";
 import { UnmatchedCardsPanel } from "@/features/scanner/components/unmatched-cards-panel";
 import { usePriceSource } from "@/hooks/use-price-source";
@@ -15,12 +17,8 @@ import {
   IconChevronRight,
   IconSparkles,
 } from "@tabler/icons-react";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  RECENT_SCANNED_CARDS_COUNT,
-  type UnmatchedCard,
-} from "@magic-vault/shared";
+import { RECENT_SCANNED_CARDS_COUNT } from "@magic-vault/shared";
 
 export function MobileMonitorActivity({
   session,
@@ -30,16 +28,13 @@ export function MobileMonitorActivity({
   onOpenCard,
 }: MobileMonitorActivityProps) {
   const { t } = useTranslation("scanner");
-  const [openUnmatched, setOpenUnmatched] = useState<UnmatchedCard | null>(
-    null,
-  );
-  const [identifying, setIdentifying] = useState<UnmatchedCard | null>(null);
   const { priceOf, format } = usePriceSource();
-  const { recentCards, unmatchedCards, errors } = session;
+  const { recentCards, unmatchedCards, unmatchedCount, errors } = session;
   const recent = recentCards.slice(0, RECENT_SCANNED_CARDS_COUNT);
   const hasRarities = !!stats && stats.rarities.length > 0;
   const isEmpty =
     recent.length === 0 &&
+    unmatchedCount === 0 &&
     unmatchedCards.length === 0 &&
     errors.length === 0 &&
     !hasRarities;
@@ -55,26 +50,18 @@ export function MobileMonitorActivity({
       <SessionErrorsPanel errors={errors} />
       <UnmatchedCardsPanel
         cards={unmatchedCards}
-        onOpen={canEditCards ? setOpenUnmatched : undefined}
+        total={unmatchedCount}
+        collectionGuid={canEditCards ? collectionGuid : undefined}
+        canIdentify={canEditCards}
+        onRemove={
+          canEditCards
+            ? (scanId) => removeUnmatchedScan(collectionGuid, scanId)
+            : undefined
+        }
+        onRemoveAll={
+          canEditCards ? () => clearUnmatchedScans(collectionGuid) : undefined
+        }
       />
-      {canEditCards && (
-        <>
-          <MobileUnmatchedCardDrawer
-            entry={openUnmatched}
-            collectionGuid={collectionGuid}
-            onIdentify={(entry) => {
-              setOpenUnmatched(null);
-              setIdentifying(entry);
-            }}
-            onClose={() => setOpenUnmatched(null)}
-          />
-          <IdentifyUnmatchedDialog
-            entry={identifying}
-            collectionGuid={collectionGuid}
-            onClose={() => setIdentifying(null)}
-          />
-        </>
-      )}
 
       {recent.length > 0 && (
         <section className={MOBILE_SECTION_CLASS}>
@@ -83,7 +70,11 @@ export function MobileMonitorActivity({
           </h3>
           <ul className={MOBILE_LIST_CLASS}>
             {recent.map((entry) => {
-              const price = priceOf(entry.card, entry.isFoil, entry.condition);
+              const price = priceOf(
+                entry.card,
+                { isFoil: entry.isFoil, foilType: entry.foilType },
+                entry.condition,
+              );
               const content = (
                 <>
                   <div className="relative aspect-[2.5/3.5] w-10 shrink-0 overflow-hidden rounded-md border bg-muted">
@@ -93,12 +84,16 @@ export function MobileMonitorActivity({
                         entry.card.image?.normal ||
                         ""
                       }
-                      alt={entry.card.name}
+                      alt=""
                       loading="lazy"
                       className="h-full w-full object-cover"
                     />
                     {entry.isFoil && (
-                      <span className="absolute top-0.5 left-0.5 rounded-full bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300 p-0.5">
+                      <span
+                        role="img"
+                        aria-label={t("scanRemoval.foil")}
+                        className="absolute top-0.5 left-0.5 rounded-full bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300 p-0.5"
+                      >
                         <IconSparkles className="size-2 text-white" />
                       </span>
                     )}
@@ -140,12 +135,12 @@ export function MobileMonitorActivity({
                     <button
                       type="button"
                       onClick={() => onOpenCard(entry.scanId)}
-                      className="flex w-full items-center gap-3 rounded-md px-2 py-2 text-left transition-colors active:bg-muted"
+                      className="flex w-full items-center gap-3 py-2 text-left transition-colors active:bg-muted"
                     >
                       {content}
                     </button>
                   ) : (
-                    <div className="flex items-center gap-3 px-2 py-2">
+                    <div className="flex items-center gap-3 py-2">
                       {content}
                     </div>
                   )}

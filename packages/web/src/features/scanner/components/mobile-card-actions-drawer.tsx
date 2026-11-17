@@ -7,11 +7,13 @@ import {
 } from "@/components/ui/drawer";
 import { useCardActions } from "@/features/cards/api/use-card-actions";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
+import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import type {
   MobileCardActionsBodyProps,
   MobileCardActionsDrawerProps,
 } from "@/lib/interfaces/scanner";
 import {
+  IconBox,
   IconCheck,
   IconCopy,
   IconExternalLink,
@@ -37,7 +39,14 @@ function MobileCardActionsBody({
     setFoil,
     copyName,
     remove,
+    canMoveToLocation,
+    canMove,
+    sourceCollectionGuid,
+    isMovingToLocation,
+    moveToLocation,
+    moveToCollection,
   } = useCardActions(entry);
+  const [moveToLocationOpen, setMoveToLocationOpen] = useState(false);
   const run = (action: () => void) => () => {
     action();
     onClose();
@@ -55,9 +64,7 @@ function MobileCardActionsBody({
   };
 
   return (
-    <div
-      className="flex flex-col gap-4 overflow-y-auto px-4 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))]"
-    >
+    <div className="flex flex-col gap-4 overflow-y-auto px-4 pt-2 pb-[calc(1rem+env(safe-area-inset-bottom))]">
       <div className="flex items-center gap-3">
         <div className="aspect-[2.5/3.5] w-12 shrink-0 overflow-hidden rounded-md border bg-muted">
           {entry.card.image?.small && (
@@ -97,6 +104,16 @@ function MobileCardActionsBody({
             {t("cardContextMenu.markCorrect")}
           </Button>
         )}
+        {canMove && (
+          <Button
+            variant="ghost"
+            className={actionClass}
+            onClick={() => setMoveToLocationOpen(true)}
+          >
+            <IconBox className="size-5" />
+            {t("cardContextMenu.moveToLocation")}
+          </Button>
+        )}
         <Button
           variant="ghost"
           className={actionClass}
@@ -116,6 +133,7 @@ function MobileCardActionsBody({
             <Button
               key={option ?? "none"}
               variant={currentFoil === option ? "outline-selected" : "outline"}
+              aria-pressed={currentFoil === option}
               onClick={run(() => setFoil(option))}
             >
               {option ?? t("cardContextMenu.nonFoil")}
@@ -135,6 +153,7 @@ function MobileCardActionsBody({
               variant={
                 currentCondition === option ? "outline-selected" : "outline"
               }
+              aria-pressed={currentCondition === option}
               onClick={run(() => setCondition(option))}
             >
               {option}
@@ -160,6 +179,24 @@ function MobileCardActionsBody({
           ? t("storageDeleteWarning.deleteAnyway")
           : t("cardContextMenu.remove", { count: entry.scanIds.length })}
       </Button>
+      <MoveToLocationDialog
+        open={moveToLocationOpen}
+        count={entry.scanIds.length}
+        isMoving={isMovingToLocation}
+        onOpenChange={setMoveToLocationOpen}
+        showLocations={canMoveToLocation}
+        sourceCollectionGuid={sourceCollectionGuid}
+        onMove={async (locationGuid) => {
+          const moved = await moveToLocation(locationGuid);
+          if (moved) onClose();
+          return moved;
+        }}
+        onMoveToCollection={async (collectionGuid) => {
+          const moved = await moveToCollection(collectionGuid);
+          if (moved) onClose();
+          return moved;
+        }}
+      />
     </div>
   );
 }

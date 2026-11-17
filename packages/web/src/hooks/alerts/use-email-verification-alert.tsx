@@ -48,7 +48,6 @@ function useEmailVerificationAlertNeon(): AppAlert | null {
       <>
         <Button
           variant="outline"
-          size="xs"
           onClick={handleVerify}
           disabled={isSending}
           className={ALERT_BANNER_ACTION_CLASS}
@@ -58,7 +57,6 @@ function useEmailVerificationAlertNeon(): AppAlert | null {
         </Button>
         <Button
           variant="ghost"
-          size="xs"
           onClick={() => navigate("/app/verify-email")}
           className="text-warning-foreground hover:bg-warning-border/40"
         >

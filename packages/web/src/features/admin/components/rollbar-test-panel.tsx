@@ -15,8 +15,7 @@ export function RollbarTestPanel() {
   });
 
   function handleTestClient() {
-    var a = null;
-    a!.hello();
+    (null as unknown as { hello: () => void }).hello();
     toast.success(t("rollbarTest.toasts.clientSent"));
   }
 
@@ -25,7 +24,7 @@ export function RollbarTestPanel() {
       heading={t("rollbarTest.heading")}
       description={t("rollbarTest.description")}
     >
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5">
         <Button variant="outline" onClick={handleTestClient}>
           {t("rollbarTest.testClientButton")}
         </Button>

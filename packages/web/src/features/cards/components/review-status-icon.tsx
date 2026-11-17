@@ -15,6 +15,9 @@ export function ReviewStatusIcon({
   const flagged = hasAlternatives || lowConfidenceMatch;
   const resolved = wasCorrected || isReviewed;
   if (!flagged && !isReviewed) return null;
+  const statusLabel = flagged
+    ? reviewTooltip(t, lowConfidenceMatch, resolved)
+    : t("scannedCardItem.reviewedTooltip");
 
   return (
     <span
@@ -25,11 +28,9 @@ export function ReviewStatusIcon({
           : "bg-warning-strong",
         className,
       )}
-      title={
-        flagged
-          ? reviewTooltip(t, lowConfidenceMatch, resolved)
-          : t("scannedCardItem.reviewedTooltip")
-      }
+      title={statusLabel}
+      role="img"
+      aria-label={statusLabel}
     >
       {flagged ? (
         <IconHelpCircle className="size-3 text-white" />

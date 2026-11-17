@@ -14,11 +14,9 @@ RUN pnpm install --frozen-lockfile
 COPY packages/shared/ packages/shared/
 COPY packages/web/ packages/web/
 
-# Only the firmware version is baked in, since it describes the binary in
-# public/firmware. Every other VITE_* value is read at container start-up
-# (docker/web-env.sh writes env.js), so the image holds no deployment config.
-ARG VITE_LATEST_FIRMWARE_VERSION
-ENV VITE_LATEST_FIRMWARE_VERSION=$VITE_LATEST_FIRMWARE_VERSION
+# Every VITE_* value is read at container start-up (docker/web-env.sh writes
+# env.js), so the image holds no deployment config. The bundled firmware's
+# version is reported by the server (LATEST_FIRMWARE_VERSION).
 
 RUN pnpm --filter @magic-vault/web build
 

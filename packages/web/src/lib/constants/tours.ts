@@ -1,5 +1,6 @@
 export const TOUR_TARGET_WAIT_TIMEOUT_MS = 4000;
 export const ONBOARDING_TOUR_TARGET_WAIT_TIMEOUT_MS = 6000;
+export const ACTIVE_STATION_SCOPE = "[data-active-station]";
 
 export const TOUR_JOYRIDE_OPTIONS = {
   showProgress: true,

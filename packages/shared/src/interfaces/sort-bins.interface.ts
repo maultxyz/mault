@@ -65,16 +65,22 @@ export interface BinConfig {
   isOverride?: boolean;
   overridePriority?: number | null;
   lowMatchPercent?: number | null;
-  cardLimit?: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
   overflowBin?: number | null;
   isDisabled?: boolean;
   pickList?: PickList | null;
+  repackPriority?: number | null;
   lastEmptiedAt?: number | null;
 }
 
-export type BinSizePreset = "small" | "medium" | "large" | "unlimited";
+export type BinSizePreset =
+  | "small"
+  | "medium"
+  | "large"
+  | "xlarge"
+  | "xxlarge"
+  | "unlimited";
 
 export type BinSizeOption = BinSizePreset | "custom";
 
@@ -87,6 +93,49 @@ export interface RepackSlot {
   id: string;
   rule: BinRuleGroup;
   targetCount: number;
+}
+
+export interface RepackConfigPatch {
+  isRepackMode: boolean;
+  repackSlots: RepackSlot[];
+  repackUniqueBy: string | null;
+  repackSiftRules: BinRuleGroup | null;
+  repackMultiplePacks?: boolean;
+}
+
+export type BinSetMode =
+  | "rules"
+  | "repack"
+  | "auto-assign"
+  | "alphabet"
+  | "chaos"
+  | "scan-only";
+
+export interface PresetWorkflowStep {
+  guid: string;
+  position: number;
+  presetGuid: string;
+  isResortMode: boolean;
+}
+
+export interface PresetWorkflowStageInput {
+  stepGuid: string | null;
+  presetGuid: string;
+  isResortMode: boolean;
+}
+
+export interface PresetWorkflow {
+  guid: string;
+  name: string;
+  gameGuid: string | null;
+  isActive: boolean;
+  activeStepGuid: string | null;
+  steps: PresetWorkflowStep[];
+}
+
+export interface PresetWorkflowsAndPresets {
+  workflows: PresetWorkflow[];
+  presets: BinSet[];
 }
 
 export interface BinSet {
@@ -102,12 +151,14 @@ export interface BinSet {
   repackSlots: RepackSlot[];
   repackUniqueBy: string | null;
   repackSiftRules: BinRuleGroup | null;
+  repackMultiplePacks: boolean;
   isAlphabetMode: boolean;
   alphabetPass: number;
   alphabetPrefix: string;
   isChaosMode: boolean;
   chaosBinSize: number | null;
   skipSaving: boolean;
+  isResortMode: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -124,7 +175,6 @@ export type DefaultBinInit = {
   isOverride?: boolean;
   overridePriority?: number | null;
   lowMatchPercent?: number | null;
-  cardLimit: number | null;
   maxCopies?: number | null;
   maxCopiesBy?: string | null;
   overflowBin?: number | null;
@@ -146,6 +196,7 @@ export interface EmptyAllBinLocation {
 export interface EmptyAllBinsOptions {
   collectionGuid?: string;
   locations?: EmptyAllBinLocation[];
+  resetAutoAssignedRules?: boolean;
 }
 
 export interface EmptyAllBinsInput extends EmptyAllBinsOptions {

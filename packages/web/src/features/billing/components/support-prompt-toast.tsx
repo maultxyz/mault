@@ -56,7 +56,7 @@ export function SupportPromptToast({
         </div>
       </div>
       <div className="flex flex-col gap-2 pl-6.5">
-        <div className="flex flex-wrap justify-end gap-2">
+        <div className="flex flex-wrap justify-end gap-1.5">
           <Button
             nativeButton={false}
             render={
@@ -82,7 +82,6 @@ export function SupportPromptToast({
         </div>
         <div className="flex justify-end gap-1">
           <Button
-            size="sm"
             variant="ghost"
             className="text-foreground/70"
             onClick={close}
@@ -90,7 +89,6 @@ export function SupportPromptToast({
             {t("supportPrompt.later")}
           </Button>
           <Button
-            size="sm"
             variant="ghost"
             className="text-foreground/70"
             onClick={() => {

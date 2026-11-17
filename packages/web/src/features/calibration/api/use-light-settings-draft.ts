@@ -3,6 +3,7 @@ import {
   saveDevice,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
+import { usePriceSource } from "@/hooks/use-price-source";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
@@ -14,10 +15,18 @@ import {
   DEFAULT_LIGHT_BRIGHTNESS,
   DEFAULT_LIGHT_COLOR,
   DEFAULT_LIGHT_MODE,
+  DEFAULT_LIGHT_WHITE,
+  DEFAULT_LIGHT_LED_COUNT,
+  DEFAULT_VALUE_CELEBRATION_DURATION_MS,
+  DEFAULT_LIGHT_WARNING_SECONDS,
+  DEFAULT_LIGHT_NORMAL_SECONDS,
+  assertLightWarningReply,
+  assertLightLedCountReply,
+  confirmedValueCelebrationDuration,
   isFirmwareFeatureSupported,
-  LIGHT_VALUE_COMMAND,
+  toValueCelebrationCommand,
   toSetLightCommand,
-  type LightSettings,
+  type LightingDraft,
 } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -30,20 +39,33 @@ export function useLightSettingsDraft() {
   const toast = useStationToast();
   const { activeOrg } = useOrg();
   const device = useDevice();
+  const { source } = usePriceSource();
   const queryClient = useQueryClient();
   const { isReady, firmwareVersion, sendRequest } = useSerial();
   const previewTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const values = useMemo<LightSettings>(
+  const values = useMemo<LightingDraft>(
     () => ({
       lightMode: device?.lightMode ?? DEFAULT_LIGHT_MODE,
       lightColor: device?.lightColor ?? DEFAULT_LIGHT_COLOR,
       lightBrightness: device?.lightBrightness ?? DEFAULT_LIGHT_BRIGHTNESS,
+      lightWhite: device?.lightWhite ?? DEFAULT_LIGHT_WHITE,
+      lightLedCount: device?.lightLedCount ?? DEFAULT_LIGHT_LED_COUNT,
+      valueCelebrationEnabled: device?.valueCelebrationEnabled ?? false,
+      valueCelebrationThreshold: device?.valueCelebrationThreshold ?? 0,
+      valueCelebrationPriceSource: source,
+      valueCelebrationDurationMs: device?.valueCelebrationDurationMs ?? DEFAULT_VALUE_CELEBRATION_DURATION_MS,
+      lightWarningsEnabled: device?.lightWarningsEnabled ?? true,
+      lightEmptyWarningSeconds: device?.lightEmptyWarningSeconds ?? DEFAULT_LIGHT_WARNING_SECONDS,
+      lightBlockedWarningSeconds: device?.lightBlockedWarningSeconds ?? DEFAULT_LIGHT_WARNING_SECONDS,
+      lightNormalSeconds: device?.lightNormalSeconds ?? DEFAULT_LIGHT_NORMAL_SECONDS,
     }),
-    [device?.lightMode, device?.lightColor, device?.lightBrightness],
+    [device?.lightMode, device?.lightColor, device?.lightBrightness, device?.lightWhite, device?.lightLedCount,
+      device?.valueCelebrationEnabled, device?.valueCelebrationThreshold, device?.valueCelebrationDurationMs,
+      device?.lightWarningsEnabled, device?.lightEmptyWarningSeconds, device?.lightBlockedWarningSeconds, device?.lightNormalSeconds, source],
   );
 
-  const form = useForm<LightSettings>({
+  const form = useForm<LightingDraft>({
     resolver: zodResolver(lightSettingsSchema),
     values,
     resetOptions: { keepDirtyValues: true },
@@ -53,20 +75,36 @@ export function useLightSettingsDraft() {
     isReady && isFirmwareFeatureSupported(firmwareVersion, "lighting");
 
   const sendLights = useCallback(
-    (settings: LightSettings, options?: { clearAlert?: boolean }) => {
+    async (settings: LightingDraft, options?: { clearAlert?: boolean }) => {
       if (!canControl) return;
-      void sendRequest(toSetLightCommand(settings, options));
+      const warningsSupported = isFirmwareFeatureSupported(firmwareVersion, "lightingWarnings");
+      const rgbwSupported = isFirmwareFeatureSupported(firmwareVersion, "rgbwLighting");
+      const configurableLightingSupported = isFirmwareFeatureSupported(firmwareVersion, "configurableLighting");
+      const { sent, line } = await sendRequest(toSetLightCommand(settings, { ...options, warningsSupported, rgbwSupported, configurableLightingSupported }));
+      if (!sent || !line) throw new Error("Lighting acknowledgement missing");
+      if (warningsSupported) assertLightWarningReply(line, settings);
+      if (configurableLightingSupported) assertLightLedCountReply(line, settings.lightLedCount);
     },
-    [canControl, sendRequest],
+    [canControl, sendRequest, firmwareVersion],
   );
+
+  const previewLights = useCallback((settings: LightingDraft, options?: { clearAlert?: boolean }) => {
+    void sendLights(settings, options).catch((cause: unknown) => {
+      console.error("Lighting preview failed:", cause);
+      toast.error(t("lights.toasts.previewFailed"));
+    });
+  }, [sendLights, toast, t]);
 
   const schedulePreview = useCallback(() => {
     if (previewTimerRef.current) clearTimeout(previewTimerRef.current);
     previewTimerRef.current = setTimeout(
-      () => sendLights(form.getValues()),
+      () => {
+        const draft = lightSettingsSchema.safeParse(form.getValues());
+        if (draft.success) previewLights(draft.data);
+      },
       CALIBRATION_PREVIEW_DEBOUNCE_MS,
     );
-  }, [sendLights, form]);
+  }, [previewLights, form]);
 
   useEffect(
     () => () => {
@@ -75,7 +113,7 @@ export function useLightSettingsDraft() {
     [],
   );
 
-  const save = async (draft: LightSettings) => {
+  const save = async (draft: LightingDraft) => {
     if (!device?.guid) return;
     try {
       const result = await saveDevice(device.guid, draft);
@@ -87,7 +125,7 @@ export function useLightSettingsDraft() {
           old?.map((d) => (d.guid === savedDevice.guid ? savedDevice : d)),
       );
       form.reset(draft);
-      sendLights(draft);
+      previewLights(draft);
       toast.success(t("lights.toasts.saved"));
     } catch {
       toast.error(t("lights.toasts.saveFailed"));
@@ -96,7 +134,7 @@ export function useLightSettingsDraft() {
 
   const discard = () => {
     form.reset(values, DISCARD_RESET_OPTIONS);
-    sendLights(values);
+    previewLights(values);
   };
 
   return {
@@ -106,10 +144,29 @@ export function useLightSettingsDraft() {
     isDirty: form.formState.isDirty,
     isSaving: form.formState.isSubmitting,
     schedulePreview,
-    testCelebration: () => {
-      if (canControl) void sendRequest(LIGHT_VALUE_COMMAND);
+    testCelebration: async () => {
+      if (!canControl) return;
+      try {
+        const durationMs = form.getValues("valueCelebrationDurationMs");
+        const ledCount = isFirmwareFeatureSupported(firmwareVersion, "configurableLighting")
+          ? form.getValues("lightLedCount") : undefined;
+        const { sent, line } = await sendRequest(toValueCelebrationCommand(durationMs, ledCount));
+        if (!sent || !line || confirmedValueCelebrationDuration(line, durationMs, ledCount) === null) {
+          throw new Error("Celebration preview blocked or unconfirmed");
+        }
+      } catch (error) {
+        console.error("Celebration preview failed:", error);
+        toast.error(t("lights.celebration.previewFailed"));
+      }
     },
-    clearAlert: () => sendLights(form.getValues(), { clearAlert: true }),
+    clearAlert: () => {
+      const draft = lightSettingsSchema.safeParse(form.getValues());
+      if (!draft.success) {
+        toast.error(t("lights.toasts.previewFailed"));
+        return;
+      }
+      previewLights(draft.data, { clearAlert: true });
+    },
     save: () => void form.handleSubmit(save)(),
     discard,
   };

@@ -1,6 +1,8 @@
 import {
   DEFAULT_CALIBRATION,
   DEFAULT_FEEDER_CALIBRATION,
+  FEED_RETRY_COUNT_MAX,
+  FEED_RETRY_COUNT_MIN,
 } from "@magic-vault/shared";
 import { z } from "zod";
 
@@ -32,6 +34,12 @@ const feederCalibrationSchema = z.object({
   reverseDuration: z
     .number()
     .default(DEFAULT_FEEDER_CALIBRATION.reverseDuration),
+  feedRetryCount: z
+    .number()
+    .int()
+    .min(FEED_RETRY_COUNT_MIN)
+    .max(FEED_RETRY_COUNT_MAX)
+    .default(DEFAULT_FEEDER_CALIBRATION.feedRetryCount),
 });
 
 const binRouteSchema = z.object({

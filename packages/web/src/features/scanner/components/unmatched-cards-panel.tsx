@@ -1,25 +1,52 @@
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { UnmatchedCardsPanelProps } from "@/lib/interfaces/scanner";
-import { UnmatchedDiagnosticsDetails } from "@/features/scanner/components/unmatched-diagnostics-details";
+import { useUnmatchedView } from "@/features/scanner/api/use-unmatched-view";
+import { UnmatchedCardsGridDialog } from "@/features/scanner/components/unmatched-cards-grid-dialog";
 import type { UnmatchedCard } from "@magic-vault/shared";
-import { IconPhotoOff, IconSearch, IconX } from "@tabler/icons-react";
+import { usePersistedFlag } from "@/hooks/use-persisted-state";
+import { UNMATCHED_PANEL_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import { cn } from "@/lib/utils";
+import {
+  IconChevronDown,
+  IconLayoutGrid,
+  IconPhotoOff,
+  IconX,
+} from "@tabler/icons-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function UnmatchedCardsPanel({
   cards,
+  total,
+  collectionGuid,
+  canIdentify = false,
   onRemove,
-  onIdentify,
-  onOpen,
+  onRemoveAll,
 }: UnmatchedCardsPanelProps) {
   const { t } = useTranslation("scanner");
   const isMobile = useIsMobile();
-  if (cards.length === 0) return null;
+  const [gridOpen, setGridOpen] = useState(false);
+  const [dialogIndex, setDialogIndex] = useState<number | null>(null);
+  const unmatchedView = useUnmatchedView();
+  const [storedExpanded, setStoredExpanded] = usePersistedFlag(
+    UNMATCHED_PANEL_EXPANDED_STORAGE_KEY,
+  );
+  const isCollapsible = !isMobile;
+  const expanded = !isCollapsible || storedExpanded;
+  if (total === 0 && cards.length === 0) {
+    if (gridOpen) setGridOpen(false);
+    return null;
+  }
+
+  const openBrowser = (index: number | null) => {
+    if (isMobile) {
+      setDialogIndex(index);
+      setGridOpen(true);
+    } else {
+      unmatchedView.open(index);
+    }
+  };
 
   const tileContent = (entry: UnmatchedCard) => (
     <>
@@ -42,79 +69,110 @@ export function UnmatchedCardsPanel({
     </>
   );
   const tileClass =
-    "relative shrink-0 rounded-md overflow-hidden border bg-muted w-20 aspect-[2.5/3.5] group cursor-pointer";
+    "relative shrink-0 rounded-md overflow-hidden border bg-muted w-20 aspect-[2.5/3.5] group";
 
   return (
     <div className="rounded-lg border border-warning-border bg-warning-muted overflow-hidden flex-none">
-      <p className="text-2xs font-medium text-warning-foreground uppercase tracking-wide px-2 pt-2 pb-1.5">
-        {t("unmatchedCardsPanel.heading", { count: cards.length })}
-      </p>
-      <div className="flex gap-1.5 p-1.5 overflow-x-auto">
-        {cards.map((entry) =>
-          onOpen ? (
-            <button
-              key={entry.scanId}
-              type="button"
-              className={tileClass}
-              onClick={() => onOpen(entry)}
-            >
-              {tileContent(entry)}
-            </button>
-          ) : (
-            <Popover key={entry.scanId}>
-              <PopoverTrigger
-                render={
-                  <div className={tileClass}>
-                    {tileContent(entry)}
-                    {onRemove && (
-                      <Button
-                        size="icon-xs"
-                        variant="destructive"
-                        className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onRemove(entry.scanId);
-                        }}
-                      >
-                        <IconX className="size-2.5" />
-                      </Button>
-                    )}
-                  </div>
-                }
-              />
-              <PopoverContent
-                side={isMobile ? "bottom" : "right"}
-                className="w-auto p-1 gap-1"
-              >
-                {entry.capturedImageUrl ? (
-                  <img
-                    src={entry.capturedImageUrl}
-                    alt={t("unmatchedCardsPanel.imageAlt")}
-                    className="w-48 aspect-[2.5/3.5] rounded-md object-fill"
-                  />
-                ) : (
-                  <p className="px-1.5 py-1 text-foreground/70">
-                    {t("unmatchedCardsPanel.noImage")}
-                  </p>
-                )}
-                {entry.diagnostics && (
-                  <UnmatchedDiagnosticsDetails diagnostics={entry.diagnostics} />
-                )}
-                {onIdentify && (
-                  <Button
-                    size="sm"
-                    className="w-full"
-                    onClick={() => onIdentify(entry)}
-                  >
-                    <IconSearch />
-                    {t("unmatchedCardsPanel.identify")}
-                  </Button>
-                )}
-              </PopoverContent>
-            </Popover>
-          ),
+      <div
+        className={cn(
+          "flex items-center gap-2 px-2",
+          expanded ? "pt-2" : "py-1.5",
+        )}
+      >
+        <button
+          type="button"
+          disabled={!isCollapsible}
+          aria-expanded={expanded}
+          onClick={() => setStoredExpanded(!storedExpanded)}
+          className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left disabled:cursor-default"
+        >
+          <span className="text-2xs font-medium text-warning-foreground uppercase tracking-wide">
+            {t("unmatchedCardsPanel.heading", {
+              count: Math.max(total, cards.length),
+            })}
+          </span>
+          {expanded && total > cards.length && (
+            <span className="text-2xs text-warning-foreground">
+              {t("unmatchedCardsPanel.showingRecent", { count: cards.length })}
+            </span>
+          )}
+          {isCollapsible && (
+            <IconChevronDown
+              className={cn(
+                "ml-auto size-4 shrink-0 text-warning-foreground transition-transform",
+                expanded && "rotate-180",
+              )}
+              aria-label={
+                expanded
+                  ? t("unmatchedCardsPanel.collapse")
+                  : t("unmatchedCardsPanel.expand")
+              }
+            />
+          )}
+        </button>
+        {!expanded && collectionGuid && (
+          <Button onClick={() => openBrowser(null)}>
+            {t("unmatchedCardsPanel.viewAllShort")}
+          </Button>
         )}
       </div>
+      {expanded && (
+        <div className="flex gap-1.5 p-1.5 overflow-x-auto">
+          {cards.map((entry, index) =>
+            collectionGuid ? (
+              <div key={entry.scanId} className={tileClass}>
+                <button
+                  type="button"
+                  className="absolute inset-0 cursor-pointer"
+                  aria-label={t("unmatchedCardsPanel.openCard")}
+                  onClick={() => openBrowser(index)}
+                >
+                  {tileContent(entry)}
+                </button>
+                {onRemove && !isMobile && (
+                  <Button
+                    size="icon"
+                    variant="destructive"
+                    aria-label={t("unmatchedCardsPanel.remove")}
+                    className="absolute top-0.5 right-0.5 opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity"
+                    onClick={() => void onRemove(entry.scanId)}
+                  >
+                    <IconX />
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <div key={entry.scanId} className={tileClass}>
+                {tileContent(entry)}
+              </div>
+            ),
+          )}
+        </div>
+      )}
+      {collectionGuid && (
+        <>
+          {expanded && (
+            <div className="px-1.5 pb-1.5">
+              <Button className="w-full" onClick={() => openBrowser(null)}>
+                <IconLayoutGrid />
+                {t("unmatchedCardsPanel.viewAll", {
+                  count: Math.max(total, cards.length),
+                })}
+              </Button>
+            </div>
+          )}
+          <UnmatchedCardsGridDialog
+            open={isMobile && gridOpen}
+            onOpenChange={setGridOpen}
+            openIndex={dialogIndex}
+            onOpenIndexChange={setDialogIndex}
+            collectionGuid={collectionGuid}
+            canIdentify={canIdentify}
+            onRemove={onRemove}
+            onRemoveAll={onRemoveAll}
+          />
+        </>
+      )}
     </div>
   );
 }

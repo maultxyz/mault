@@ -8,14 +8,16 @@
     "users": "Users",
     "plans": "Plans",
     "discord": "Discord",
+    "sounds": "Sounds",
     "deleted": "Deleted and unmatched",
     "hardware": "Hardware",
-    "developer": "Developer"
+    "developer": "Developer",
+    "foilLabels": "Foil labels"
   },
   "kitTest": {
     "board": {
       "heading": "Board",
-      "description": "Connect a kit board, flash firmware if it's new, and run the self-test. Connecting here skips the automatic self-test, so a bare board with nothing plugged in still works.",
+      "description": "Connect a kit board and flash firmware if it's new. Connecting here skips the automatic self-test, so a bare board with nothing plugged in still works.",
       "connect": "Connect",
       "connectUsb": "USB",
       "connectBluetooth": "Bluetooth",
@@ -23,11 +25,7 @@
       "flash": "Flash firmware",
       "notConnected": "No board connected.",
       "firmware": "Firmware {{version}}",
-      "firmwareUnknown": "Firmware unknown",
-      "runSelfTest": "Run self-test",
-      "testing": "Testing…",
-      "selfTestPassed": "Self-test passed",
-      "selfTestFailed": "Self-test failed"
+      "firmwareUnknown": "Firmware unknown"
     },
     "servos": {
       "heading": "Servo bench",
@@ -50,45 +48,6 @@
       "failedCount_other": "{{count}} failed",
       "historyItem": "#{{number}} ch {{channel}}"
     },
-    "continuous": {
-      "heading": "Continuous servo",
-      "description": "Spin a continuous-rotation servo, like the feeder motor, in either direction. It keeps spinning until you stop it.",
-      "forward": "Spin forward",
-      "reverse": "Spin reverse",
-      "stop": "Stop"
-    },
-    "sensors": {
-      "heading": "Sensors",
-      "description": "Reads the IR sensors continuously. Pass a card in front of each one: a sensor is verified once it has seen both a card and no card.",
-      "start": "Start reading",
-      "stop": "Stop reading",
-      "reset": "Reset",
-      "empty": "Start reading to see the sensors.",
-      "module": "Module {{module}}",
-      "hopper": "Hopper",
-      "card": "Card",
-      "clear": "Clear",
-      "verified": "Verified"
-    },
-    "report": {
-      "heading": "Kit report",
-      "description": "A summary of this session to keep with the kit.",
-      "copy": "Copy report",
-      "copied": "Report copied.",
-      "copyFailed": "Couldn't copy the report.",
-      "title": "Kit test report",
-      "date": "Date: {{date}}",
-      "board": "Board: {{board}}, firmware {{version}}, id {{id}}",
-      "selfTest": {
-        "notRun": "Self-test: not run",
-        "passed": "Self-test: passed",
-        "failed": "Self-test: failed {{error}}"
-      },
-      "servos": "Servos: {{passed}} passed, {{failed}} failed",
-      "failedChannels": "Failed on channels: {{channels}}",
-      "sensorVerified": "{{name}}: verified",
-      "sensorUnverified": "{{name}}: not verified"
-    },
     "status": {
       "ok": "OK",
       "busy": "The board is busy with another command.",
@@ -100,6 +59,9 @@
     }
   },
   "cardImageVectors": {
+    "gameLabel": "Game",
+    "languageLabel": "Language",
+    "progressLabel": "Sync progress",
     "heading": "Card Image Vectors",
     "syncStatus": {
       "idle": "Idle",
@@ -115,7 +77,15 @@
     "concurrencyDescription": "Vectorizes this many card images at once. Downloads still start a short time apart.",
     "cancellingButton": "Cancelling...",
     "startSyncButton": "Start Sync",
+    "startOnComputerButton": "Start on this computer",
+    "browserStopped": "Browser vectorization stopped",
+    "browserStoppedHint": "The browser could not run the image model. Reload this page before trying again. Saved cards are kept.",
+    "browserWorking": "This computer is vectorizing up to {{count}} cards at a time. Keep this page open.",
+    "ratePerMinute": "{{count}}/min",
+    "embeddingCount": "{{count}} embedding",
     "progressCount": "{{done}} / {{total}}",
+    "savedCount": "{{count}} saved",
+    "activeCount": "{{count}} active",
     "vectorizedCount": "{{count}} vectorized",
     "queuedCount": "{{count}} queued",
     "skippedCount": "{{count}} skipped",
@@ -127,23 +97,71 @@
     "empty": "No Logs"
   },
   "cardDatabase": {
+    "searchLabel": "Search cards",
     "heading": "Card Database",
     "cardCount_one": "{{count}} card",
     "cardCount_other": "{{count}} cards",
     "searchPlaceholder": "Search by name...",
     "loadError": "Failed to load cards",
     "revectorizeTitle": "Re-vectorize",
-    "empty": "No cards found",
-    "pageOf": "Page {{page}} of {{total}}"
+    "empty": "No cards found"
   },
   "syncCardById": {
+    "cardIdLabel": "Card ID",
     "heading": "Sync Card by ID",
     "description": "Fetch and vectorize a single card, adding it if it isn't in the database yet",
     "cardIdPlaceholder": "Card ID...",
     "syncButton": "Sync",
     "syncingButton": "Syncing..."
   },
+  "syncApiKeys": {
+    "heading": "Sync API keys",
+    "description": "Keys that let scripts and schedulers start card database syncs without signing in. Each key only does what its permissions allow.",
+    "create": "Create key",
+    "createTitle": "Create sync API key",
+    "createDescription": "Pick what this key may do. You can't change permissions later, so revoke and recreate the key instead.",
+    "nameLabel": "Name",
+    "namePlaceholder": "Nightly sync",
+    "permissionsLabel": "Permissions",
+    "permissions": {
+      "sync_start": {
+        "label": "Start sync",
+        "description": "Start a regular sync of a game. Unchanged cards are skipped."
+      },
+      "sync_force": {
+        "label": "Force resync",
+        "description": "Start a sync that downloads and re-vectorizes every card, even unchanged ones."
+      },
+      "sync_card": {
+        "label": "Sync single cards",
+        "description": "Fetch and vectorize one card by its ID."
+      },
+      "sync_cancel": {
+        "label": "Cancel sync",
+        "description": "Stop the sync that is running."
+      }
+    },
+    "empty": "No sync API keys yet",
+    "loadFailed": "Couldn't load sync API keys.",
+    "createFailed": "Couldn't create the sync API key.",
+    "revoke": "Revoke",
+    "revoked": "Sync API key revoked",
+    "revokeFailed": "Couldn't revoke the sync API key.",
+    "revokeConfirmTitle": "Revoke this sync API key?",
+    "revokeConfirmDescription": "Anything using this key stops working right away. This can't be undone.",
+    "revealTitle": "Copy your sync API key",
+    "revealDescription": "This is the only time the key is shown. Store it somewhere safe.",
+    "revealDone": "Done",
+    "copy": "Copy key",
+    "copied": "Key copied",
+    "copyFailed": "Couldn't copy the key",
+    "exampleLabel": "Start a sync with it:",
+    "createdBy": "Created by {{name}} on {{date}}",
+    "lastUsed": "Last used {{date}}",
+    "neverUsed": "Never used"
+  },
   "dumpDatabase": {
+    "scopeLabel": "Scope",
     "heading": "Dump Card Database",
     "description": "Permanently delete card image vectors, for one game or all of them",
     "scopePlaceholder": "Select scope...",
@@ -168,6 +186,8 @@
     "noOrgs": "No organizations",
     "adminBadge": "Admin",
     "cannotImpersonateAdmin": "Can't impersonate another admin",
+    "moderatorBadge": "Moderator",
+    "cannotImpersonateModerator": "Can't impersonate another moderator",
     "impersonateButton": "Impersonate",
     "viewAuditLog": "View impersonation audit log",
     "confirmDialog": {
@@ -199,6 +219,19 @@
     "orgs": "Organizations",
     "connectedSorters": "Connected sorters",
     "recentScans": "Scans, last {{minutes}} min"
+  },
+  "activeScanSessions": {
+    "title": "Active scan sessions",
+    "close": "Close",
+    "empty": "Nobody is scanning right now",
+    "emptyDescription": "Sessions appear here while a collection is locked for scanning.",
+    "sessionCount_one": "{{count}} session",
+    "sessionCount_other": "{{count}} sessions",
+    "scans_one": "{{count}} scan",
+    "scans_other": "{{count}} scans",
+    "collectionWithGame": "{{collection}} · {{game}}",
+    "unknownCollection": "Unknown collection",
+    "timing": "Started {{started}}, last activity {{lastActivity}}"
   },
   "scanVectorizeStats": {
     "heading": "Scan vectorization source",
@@ -304,7 +337,9 @@
   "plans": {
     "planNames": {
       "free": "Free",
-      "business": "Business"
+      "business": "Business",
+      "enthusiast": "Enthusiast",
+      "legacyBusiness": "Business (legacy)"
     },
     "featuresHeading": "Features",
     "featuresDescription": "Which plans can use each feature. Features are defined in code, so a new one shows up here once it's built.",
@@ -331,6 +366,22 @@
       "apiAccess": {
         "label": "API access",
         "description": "Create organization API keys and read cards and storage locations through the public API. Revoking existing keys always works."
+      },
+      "businessTools": {
+        "label": "Buy and sell",
+        "description": "Intake lots with buylist offers, order import and fulfilment, cost and margin reports, and spot checks. Existing records stay viewable either way."
+      },
+      "repacks": {
+        "label": "Repacks",
+        "description": "Build repacks from bin slots. Turning it off only stops presets from switching it on. Presets already in repack mode keep working."
+      },
+      "customSounds": {
+        "label": "Custom sounds",
+        "description": "Upload custom sound clips for sound rules. Turning it off only stops new uploads. Clips already uploaded keep playing."
+      },
+      "fleetHealth": {
+        "label": "Fleet health",
+        "description": "The sorter health panel on the Sorters page: status, cards since service, alert history and service intervals. Jam and offline alerts are still recorded and sent either way."
       }
     },
     "limits": {
@@ -349,10 +400,48 @@
       "notificationRules": {
         "label": "Notification rules",
         "description": "Discord notification rules across all games. Only checked when adding a rule."
+      },
+      "organizations": {
+        "label": "Owned organizations",
+        "description": "Organizations a user may own. Checked in the app against the plan of the organization the user has open when creating a new one."
+      },
+      "membersPerOrg": {
+        "label": "Members per organization",
+        "description": "Members per organization, counted owners first, then by join date. Members past the limit are locked out until the plan is upgraded or members are removed."
+      },
+      "collections": {
+        "label": "Collections",
+        "description": "Collections per organization. Only checked when creating a collection."
+      }
+    },
+    "preview": {
+      "heading": "Preview a plan",
+      "description": "See the app as an organization on another plan would: limits, locked features and the billing page all follow the plan you pick. Only affects your own requests on this browser.",
+      "off": "Off"
+    },
+    "pricingMode": {
+      "heading": "Pricing mode",
+      "cancel": "Cancel",
+      "saved": "Pricing mode updated.",
+      "saveFailed": "Couldn't update the pricing mode.",
+      "legacy": {
+        "badge": "Old pricing",
+        "description": "Only Free and the original Business plan are on sale, at the legacy Business prices. New Business subscribers get the legacy Business tier.",
+        "switch": "Switch to new pricing",
+        "confirmTitle": "Switch to the new pricing?",
+        "confirmDescription": "Enthusiast and the new Business plan go on sale right away, using the STRIPE_PRICE_ID_ENTHUSIAST and STRIPE_PRICE_ID_BUSINESS prices. Current Business subscribers keep their plan and start seeing it labelled as legacy."
+      },
+      "tiered": {
+        "badge": "New pricing",
+        "description": "Free, Enthusiast and Business are on sale. Existing subscribers to the original Business plan keep it as the legacy tier.",
+        "switch": "Switch back to old pricing",
+        "confirmTitle": "Switch back to the old pricing?",
+        "confirmDescription": "Enthusiast and the new Business plan stop being sold, and Business checkout goes back to the legacy prices. People who already subscribed to a new plan keep it."
       }
     }
   },
   "deletedItems": {
+    "typeLabel": "Item type",
     "heading": "Deleted items",
     "description": "Everything deleted in any organization, except scanned cards. Restoring puts an item back exactly as it was.",
     "searchPlaceholder": "Search by name or organization",
@@ -364,6 +453,7 @@
     "types": {
       "collection": "Collection",
       "binSet": "Bin preset",
+      "presetWorkflow": "Multi-stage preset",
       "bin": "Bin",
       "device": "Sorter",
       "binRoute": "Bin route",
@@ -374,7 +464,10 @@
       "soundRule": "Sound rule",
       "notificationRule": "Notification rule",
       "game": "Game",
-      "announcement": "Announcement"
+      "announcement": "Announcement",
+      "intakeLot": "Intake lot",
+      "fulfilmentOrder": "Order",
+      "accuracyCheck": "Spot check"
     },
     "toasts": {
       "restored": "Restored {{name}}",
@@ -382,6 +475,7 @@
     }
   },
   "unmatchedRetry": {
+    "photoFilterLabel": "Photo filter",
     "heading": "Unmatched scans",
     "description": "The most recent unmatched scans across all organizations. Retry runs today's card matching on each scan's saved data and shows what it would match now. Nothing is saved or changed. Retrying a single scan follows live scanning: if the image match is unsure, it also runs OCR on the saved photo. Retry all only re-runs the image match, so it doesn't hold up OCR for live scans.",
     "searchPlaceholder": "Search by organization, collection or card",
@@ -455,7 +549,7 @@
       "nothingRead": "Nothing read",
       "closestName": "Closest card name: {{name}} (similarity {{score}})",
       "noName": "No card name was close enough to the text read.",
-      "usedFallback": "The fallback regions were also read.",
+      "usedFallback": "Matched using the fallback name region.",
       "noMatch": "No match from text",
       "anchoredTo": "Box placed on the line read as \"{{text}}\""
     },
@@ -527,6 +621,53 @@
     "priceSyncCommand": "Prices are pulled when this command runs. Add it as a scheduled task in Coolify on the server app, every few hours. It only downloads what changed upstream.",
     "donationsLink": "Open the Buy Me a Coffee page",
     "saved": "Discord channels saved.",
-    "saveFailed": "Couldn't save the Discord channels."
+    "saveFailed": "Couldn't save the Discord channels.",
+    "linkedRole": {
+      "heading": "Linked account role",
+      "description": "Members of this server who link their Mault account with /link-account get this role, and lose it when they unlink. The bot needs Manage Roles, and its own role must sit above this one.",
+      "role": "Role",
+      "saved": "Linked account role saved.",
+      "saveFailed": "Couldn't save the linked account role."
+    }
+  },
+  "systemSoundClips": {
+    "heading": "System sound clips",
+    "description": "Clips every organization can use in its sound rules. Organizations can play them but can't rename or delete them.",
+    "empty": "No system sound clips yet."
+  },
+  "foilLabels": {
+    "heading": "Foil labels",
+    "description": "Check Magic scans saved as foil and mark whether each card really is foil. The labels train foil detection and never change the customer's collection.",
+    "counts": "{{remaining}} left to label · {{foil}} foil and {{notFoil}} not foil labelled so far",
+    "sessionCounts": "This session: {{foil}} foil, {{notFoil}} not foil",
+    "scanPhoto": "Scan photo",
+    "scanPhotoAlt": "Scan photo of {{name}}",
+    "catalogImage": "Catalog image",
+    "catalogImageAlt": "Catalog image of {{name}}",
+    "unknownCard": "Unknown card",
+    "savedAs": "Saved as {{foilType}}",
+    "foil": "foil",
+    "detectionScore": "Rainbow score {{score}}",
+    "noDetection": "No foil detection on this scan",
+    "decisions": {
+      "foil": "Labelled foil",
+      "notFoil": "Labelled not foil",
+      "skipped": "Skipped"
+    },
+    "actions": {
+      "foil": "Foil",
+      "notFoil": "Not foil",
+      "skip": "Skip",
+      "back": "Back",
+      "refresh": "Refresh"
+    },
+    "empty": {
+      "title": "Nothing left to label",
+      "description": "Every Magic scan saved as foil with a photo has a label, or you skipped the rest. Refresh to load skipped scans again."
+    },
+    "toasts": {
+      "saveError": "Couldn't save the label. Try that card again."
+    },
+    "nudgeScore": "Nudge change {{score}}"
   }
 }

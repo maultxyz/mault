@@ -26,7 +26,7 @@ export function TourTooltip({
   return (
     <div
       {...tooltipProps}
-      className="flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-lg bg-popover p-3 text-popover-foreground shadow-md ring-1 ring-foreground/10"
+      className="flex w-80 max-w-[calc(100vw-2rem)] flex-col gap-3 rounded-lg bg-popover p-3 text-popover-foreground shadow-popover ring-1 ring-border"
     >
       {step.title && (
         <h3 className="font-heading text-sm font-medium">{step.title}</h3>
@@ -37,18 +37,18 @@ export function TourTooltip({
       <div className="flex items-center justify-between gap-2">
         <div>
           {!isLastStep && (
-            <Button variant="ghost" size="sm" {...skipProps}>
+            <Button variant="ghost" {...skipProps}>
               {locale.skip}
             </Button>
           )}
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           {index > 0 && (
-            <Button variant="outline" size="sm" {...backProps}>
+            <Button variant="outline" {...backProps}>
               {locale.back}
             </Button>
           )}
-          <Button size="sm" {...primaryProps}>
+          <Button {...primaryProps}>
             {primaryLabel}
           </Button>
         </div>

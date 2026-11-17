@@ -9,10 +9,10 @@ import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
 import { TextField } from "@/components/ui/text-field";
 import { createStorageLocation, renameStorageLocation } from "@/features/storage/api/storage";
-import { storageNameSchema } from "@/features/storage/lib/storage-schemas";
 import { useTheme } from "@/hooks/use-theme";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import type { StorageNameValues } from "@/lib/interfaces/forms";
+import { storageLocationNameFormSchema, type StorageLocationNameFormValues } from "@magic-vault/shared";
+import { translateFormErrorMessage } from "@/lib/form-validation";
 
 export default function StorageNameScreen() {
   const { guid, name } = useLocalSearchParams<{ guid?: string; name?: string }>();
@@ -20,12 +20,12 @@ export default function StorageNameScreen() {
   const colors = useTheme();
   const queryClient = useQueryClient();
   const editing = !!guid;
-  const form = useForm<StorageNameValues>({
-    resolver: zodResolver(storageNameSchema),
+  const form = useForm<StorageLocationNameFormValues>({
+    resolver: zodResolver(storageLocationNameFormSchema),
     defaultValues: { name: name ?? "" },
   });
   const save = useMutation({
-    mutationFn: (values: StorageNameValues) =>
+    mutationFn: (values: StorageLocationNameFormValues) =>
       editing ? renameStorageLocation(guid, values.name.trim()) : createStorageLocation(values.name.trim()),
     onSuccess: () => {
       void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
@@ -36,7 +36,7 @@ export default function StorageNameScreen() {
   return (
     <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.background }} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <PageHeader title={editing ? t("storage.rename") : t("storage.newLocation")} onBack={() => router.back()} />
-      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, gap: SPACING.xl }}>
+      <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, gap: SPACING.xl }}>
         {save.isError ? <Callout tone="destructive" title={t("storage.actionFailed")} /> : null}
         <Controller
           control={form.control}
@@ -49,7 +49,7 @@ export default function StorageNameScreen() {
               onBlur={field.onBlur}
               onChangeText={field.onChange}
               returnKeyType="done"
-              error={fieldState.error ? t("collections.validation.name") : undefined}
+              error={translateFormErrorMessage(t, fieldState.error?.message)}
             />
           )}
         />

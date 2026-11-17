@@ -200,7 +200,7 @@ export function findNameObservation(
   return winner.observation;
 }
 
-function stripLeadingZeros(digits: string): string {
+export function stripLeadingZeros(digits: string): string {
   return digits.replace(/^0+(?=\d)/, "");
 }
 

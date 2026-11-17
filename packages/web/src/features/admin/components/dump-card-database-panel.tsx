@@ -33,8 +33,6 @@ export function DumpCardDatabasePanel() {
     onSuccess: (result) => {
       setDumpOpen(false);
       toast.success(result.message);
-      // Refreshes the card database list too (features/admin/components/
-      // card-database-manager.tsx owns that query key).
       queryClient.invalidateQueries({ queryKey: ["admin", "cards"] });
     },
     onError: (err) => {
@@ -57,7 +55,10 @@ export function DumpCardDatabasePanel() {
             value={dumpGameKey}
             onValueChange={(value) => setDumpGameKey(value ?? "__all__")}
           >
-            <SelectTrigger className="w-48">
+            <SelectTrigger
+              className="w-48"
+              aria-label={t("dumpDatabase.scopeLabel")}
+            >
               <SelectValue placeholder={t("dumpDatabase.scopePlaceholder")}>
                 {dumpGameKey === "__all__"
                   ? t("dumpDatabase.allGames")

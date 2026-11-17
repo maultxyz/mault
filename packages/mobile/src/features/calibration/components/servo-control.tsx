@@ -8,16 +8,18 @@ import { StepperRow } from "@/components/ui/stepper-row";
 import { getCalibrationKey } from "@/features/calibration/lib/calibration-keys";
 import { useTheme } from "@/hooks/use-theme";
 import {
-  percentToPulse,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT,
-  pulseToPercent,
-  SERVO_PULSE_MAX,
-  SERVO_PULSE_MIN,
 } from "@/lib/constants/calibration";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { DISABLED_OPACITY } from "@/lib/constants/ui";
 import type { ServoControlProps } from "@/lib/interfaces/calibration";
+import {
+  percentToPulse,
+  pulseToPercent,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
+} from "@magic-vault/shared";
 
 export function ServoControl({
   module,
@@ -50,6 +52,7 @@ export function ServoControl({
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={t(servo.name === "pusher" ? "calibration.testServoPusher" : "calibration.testServoGate")}
+          accessibilityState={{ disabled: !canCalibrate || !calibration, busy: isTesting }}
           disabled={!canCalibrate || !calibration}
           onPress={() => onTest(module, servo.name)}
           hitSlop={SPACING.sm}
@@ -106,10 +109,10 @@ export function ServoControl({
                 justifyContent: "center",
                 borderLeftWidth: index > 0 ? 1 : 0,
                 borderLeftColor: colors.border,
-                backgroundColor: selected ? colors.infoMuted : pressed ? colors.muted : "transparent",
+                backgroundColor: selected ? colors.primarySelected : pressed ? colors.muted : "transparent",
               })}
             >
-              <AppText size="xs" weight="semibold" style={{ color: selected ? colors.infoForeground : colors.foreground }}>
+              <AppText size="xs" weight="semibold" style={{ color: selected ? colors.primaryText : colors.foreground }}>
                 {positionLabel(position)}
               </AppText>
             </Pressable>

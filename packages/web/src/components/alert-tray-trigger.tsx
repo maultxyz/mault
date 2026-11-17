@@ -7,6 +7,7 @@ import type { ReactElement } from "react";
 import { useTranslation } from "react-i18next";
 
 function TrayItem({ alert }: { alert: AppAlert }) {
+  const { t } = useTranslation("common");
   const Icon = alert.icon;
 
   return (
@@ -18,7 +19,10 @@ function TrayItem({ alert }: { alert: AppAlert }) {
         )}
       />
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <span className="text-foreground">{alert.message}</span>
+        <span className="text-foreground">
+          <span className="sr-only">{t(`a11y.severity.${alert.severity}`)} </span>
+          {alert.message}
+        </span>
         {alert.actions && (
           <div className="flex flex-wrap gap-1">{alert.actions}</div>
         )}

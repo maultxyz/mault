@@ -20,10 +20,6 @@ function drawRegion(
   );
 }
 
-// Standalone version of use-card-scanner.ts's stream-attach + overlay logic:
-// no capture or identification, just showing where the scan region is so a
-// camera can be aimed. Always drawn unrotated - unlike the desktop's
-// sideways-mounted webcam, a phone's own camera already reports right-side up.
 export function useVideoCanvasPreview(
   stream: MediaStream | null,
   scanRegion: ScanRegion,
@@ -98,7 +94,6 @@ export function useVideoCanvasPreview(
     };
   }, [stream]);
 
-  // Redraw the box if the calibrated region changes while streaming.
   const { coverage, offsetX, offsetY } = scanRegion;
   useEffect(() => {
     drawRegion(overlayCanvasRef.current, { coverage, offsetX, offsetY });

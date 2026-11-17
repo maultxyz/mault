@@ -171,9 +171,9 @@ protocol standpoint.
   so multiple physical units show up as distinct entries in a phone/OS
   Bluetooth picker before a client ever connects to one.
 
-## Wi-Fi transport (firmware 2.10.0+, ESP32 only)
+## Wi-Fi transport (ESP32 firmware 2.10.0+, Uno R4 WiFi from the first firmware release after 2.10.1)
 
-Every ESP32 build can also join the user's Wi-Fi network and hold an
+ESP32 and Uno R4 WiFi builds can also join the user's Wi-Fi network and hold an
 outbound WebSocket to the app's server, which relays it to a browser
 anywhere. The sorter never accepts inbound connections, so it works behind
 any home router without port forwarding. It carries the **exact same**
@@ -183,15 +183,16 @@ command arrived on.
 
 - **Setup:** over Serial or BLE, send `setWifi` (network) and `setCloud`
   (server URL plus a per-device token issued by the server), see Commands
-  below. Both persist in NVS and survive reboots and reflashes;
-  `clearWifi` forgets them.
+  below. Both persist (NVS on ESP32, EEPROM on the Uno R4 WiFi) and survive
+  reboots and reflashes; `clearWifi` forgets them.
 - **Handshake:** the sorter opens `ws://` or `wss://` to the `setCloud` URL
   (`/sorter-link/device` on the API) with these headers:
   - `Authorization: Bearer <token>`
   - `X-Sorter-Id: <id>` (the same `id` as `getStatus`)
   - `X-Sorter-Firmware: <version>`
 
-  `wss://` verifies the server against the ESP-IDF root CA bundle. A `401`,
+  `wss://` verifies the server against the ESP-IDF root CA bundle (on the
+  Uno R4 WiFi, its co-processor's built-in root bundle). A `401`,
   `403` or `404` reply marks the link `rejected` and the sorter retries only
   every 5 minutes; any other failure retries with backoff from 1 s up to
   30 s.
@@ -206,15 +207,33 @@ command arrived on.
   socket with code `4404` when the sorter is offline or drops, and `4409`
   when another browser already holds the sorter. Rotating or revoking the
   token closes the sorter's socket with `4401`.
-- **Concurrency:** all networking runs in its own FreeRTOS task on the core
-  the Arduino loop doesn't use, so TLS handshakes never stretch servo
-  timings.
+- **Concurrency:** on ESP32 all networking runs in its own FreeRTOS task on
+  the core the Arduino loop doesn't use, so TLS handshakes never stretch
+  servo timings. The Uno R4 WiFi has one core, so networking runs from the
+  loop: while a command runs it only services an already-open socket, and
+  joins and TLS handshakes wait until the sorter is idle.
+- **Uno R4 WiFi radio sharing:** Wi-Fi and BLE share the board's ESP32-S3
+  co-processor, so each boot uses one of them: a board with a saved network
+  joins Wi-Fi and reports `"ble":"off"`, any other board advertises over
+  BLE. A `setWifi` on a board without a saved network, and a `clearWifi` on
+  one with a network, reply `{"status":"ok","restarting":true}` and restart
+  the board about 300 ms later to switch modes. Over BLE that ends the
+  connection.
 - **Power safety:** joining Wi-Fi draws 300 to 500 mA spikes. The radio
   waits 2 s after boot so it doesn't start alongside the boot-time servo
   moves and BLE, transmits at 15 dBm, and after 2 brownout resets in a row
   stays off (`"wifi":"paused"`) so Serial and BLE remain usable. It resumes
   after a power cycle or the next `setWifi`/`setCloud`/`clearWifi`. 60 s of
-  uptime clears the brownout count.
+  uptime clears the brownout count. The Uno R4 WiFi also waits 2 s after boot
+  but has no brownout pause.
+- **Brownout boot guard (ESP32):** after the same 2 brownout resets in a row,
+  boot cuts every servo signal and stops the feeder instead of driving the
+  servos to neutral, so a stalled servo or weak supply can't hold the board in
+  a reset loop. The PCA9685 can keep driving a servo through an MCU reset,
+  which is why the signals are cut rather than the move skipped. The next
+  command that moves a servo (such as `neutral`) powers it again. `clearDevice`
+  opens the bottom trapdoors one at a time, `SERVO_STAGGER_MS` apart, instead of
+  all at once.
 
 ## Hardware model
 
@@ -276,7 +295,8 @@ connected, so the device isn't advertising, since ArduinoBLE and this
 firmware's Bluedroid backend accept one connection at a time),
 `"unavailable"` (the BLE stack failed to start, e.g. the Uno R4 WiFi's
 co-processor didn't answer `BLE.begin()` after 5 attempts; the device keeps
-working over Serial), or `"none"` (a board with no BLE hardware, such as the
+working over Serial), `"off"` (an Uno R4 WiFi whose radio is on Wi-Fi this
+boot, see the Wi-Fi transport), or `"none"` (a board with no BLE hardware, such as the
 Uno R4 Minima).
 
 Firmware 2.7.0+ on the ESP32-S3 also adds `"bleMtu": N` to the `getStatus`
@@ -300,10 +320,11 @@ Firmware 2.9.0+ adds `"servoDriver"` to both the boot banner and the
 unpowered logic side, or miswired SDA/SCL). It only checks the logic side: a
 driver whose V+ servo supply is missing still reports `"ok"`.
 
-Firmware 2.10.0+ on ESP32 adds `"wifi"` (`"unconfigured"`, `"connecting"`,
+Firmware 2.10.0+ on ESP32 (and the first firmware release after 2.10.1 on the Uno R4 WiFi) adds `"wifi"` (`"unconfigured"`, `"connecting"`,
 `"connected"` or `"paused"`) and `"cloud"` (`"unconfigured"`, `"offline"`,
 `"connecting"`, `"connected"` or `"rejected"`) to the `getStatus` reply. See
-`getWifi` for details.
+`getWifi` for details. The app treats the presence of `"wifi"` as the board
+supporting Wi-Fi remote access.
 
 ### `setChannelOffset`
 ```json
@@ -346,8 +367,20 @@ stops the feeder. → `{"status":"ok"}`
 ```json
 {"clearDevice": true}
 ```
-Opens **every** module's bottom trapdoor at once (useful for flushing a
-physically stuck card), then resets to neutral. → `{"status":"cleared"}`
+Opens **every** module's bottom trapdoor, `SERVO_STAGGER_MS` apart (useful
+for flushing a physically stuck card), then resets to neutral.
+→ `{"status":"cleared"}`
+
+### `retractCard` (2.11.0+)
+```json
+{"retractCard": true}
+```
+Runs the feeder backward with the rollback settings (`reverseSpeed` for
+`reverseDuration` ms, see `setFeederConfig`) to pull a partly fed card back
+into the hopper. Unlike the automatic rollback it runs whether or not the
+hopper sensor sees cards. → `{"status":"retracted"}`, or
+`{"error":"rollback_off"}` when `reverseDuration` is `0`. Older firmware
+replies `{"error":"unknown command"}`.
 
 ### `servo` (manual single-servo move)
 ```json
@@ -382,6 +415,15 @@ paddle not known to be down lowers the paddle itself, waits out the rest of
 `paddleOpenDelay`, then moves the pusher, so the command just takes up to
 `paddleOpenDelay` ms longer and the paddle is left lowered. Returning a pusher to neutral
 never touches the paddle.
+
+Since 2.13.0 a pusher move that stays within 20 pulse units of `pusherNeutral`
+and within 50% of the calibrated travel towards that side (`pusherLeft` or
+`pusherRight`) is a nudge and doesn't lower the paddle. The boot banner and
+`getStatus` report both limits as `"pusherNudgeMaxPulse"` and
+`"pusherNudgeMaxTravelPercent"`; the app sizes its nudge from them and doesn't
+nudge on firmware that leaves them out. The app uses it to shift a card slightly for its
+foil check; a move that small can't reach the paddle. Any larger move still
+lowers the paddle first.
 
 2.2.x only applied the check while the module's IR sensor read a card, and
 refused the move with
@@ -542,9 +584,13 @@ as `setConfig`.
 Both section forms answer `{"error":"no stored config"}` before the first
 `storeConfig`. Older firmware answers `{"error":"unknown command"}`.
 
-### Wi-Fi commands (firmware 2.10.0+, ESP32 only)
+### Wi-Fi commands (ESP32 firmware 2.10.0+, Uno R4 WiFi from the first firmware release after 2.10.1)
 
-Older firmware and non-ESP32 boards answer `{"error":"unknown command"}`.
+Older firmware and boards without Wi-Fi (the Uno R4 Minima) answer
+`{"error":"unknown command"}`. On the Uno R4 WiFi, a `setWifi` or
+`clearWifi` that switches the radio between BLE and Wi-Fi answers
+`{"status":"ok","restarting":true}` and restarts the board (see Uno R4
+WiFi radio sharing above).
 
 ```json
 {"setWifi": {"ssid": "Home", "password": "hunter22"}}
@@ -579,27 +625,95 @@ refused the token (set it up again with a fresh token).
 
 ### `setLight` (firmware 2.11.0+)
 
-Drives the WS2812B strip (10 LEDs) on `LED_PIN`: GPIO 17 on the ESP32-S3,
+The strip starts off on power-up, with brightness initialized to 160/255.
+The app applies saved lighting settings when it connects.
+
+For the current lighting diagnostic, `ENABLE_ONBOARD_RGB_STATUS` defaults to
+`0` in `main/main.ino`: onboard RGB status writes are disabled to isolate potential
+interaction with the external strip driver. Set it to `1` (or build with
+`-DENABLE_ONBOARD_RGB_STATUS=1`) to restore them.
+
+Drives an SK6812 RGBW strip (8 or 16 LEDs, GRBW byte order, neutral-white LEDs)
+on `LED_PIN`: GPIO 14 on the ESP32-S3,
 13 on classic ESP32, D8 on the Uno R4. Older firmware answers
 `{"error":"unknown command"}`.
+Firmware 2.13.0+ drives SK6812 RGBW pixels and is not compatible with RGB-only
+WS2812B strips.
 
 ```json
 {"setLight": "white"}
-{"setLight": {"mode": "custom", "r": 255, "g": 120, "b": 0, "brightness": 160}, "clearAlert": true}
+{"setLight": {"mode": "custom", "r": 255, "g": 120, "b": 0, "w": 64, "brightness": 160}, "clearAlert": true}
 ```
 `mode` is `white`, `auto` (same color as white), `off`, `custom` (needs
-`r`, `g` and `b`), `foil` (a white light chasing around the strip) or
-`value` (a 3 s red/green/blue celebration flash that leaves the mode
-alone). `brightness` and the color channels are integers from 0 to 255;
-`brightness` defaults to the current one (160 at boot). `clearAlert`
-drops an active `jam` or `empty` alert.
-→ `{"status":"ok","lightMode":"white","lightAlert":"none","brightness":160}`
+`r`, `g` and `b`; RGBW firmware also accepts `w` from 0 to 255), `foil`
+(alternating white light on LEDs 0 and 7 when dynamic foil lighting is enabled) or
+`value` (one LED at a time sweeps from 0 to the last configured LED and back to 0, cycling green/red/blue
+with a dark gap between flashes, leaving the mode alone). Firmware 2.13.0+
+uses the strip's dedicated neutral-white diode for white and auto modes.
+For `value`, an object request can set `durationMs` to an integer from 500 to
+3000 (default 500). For example:
+`{"setLight":{"mode":"value","durationMs":500}}`.
+The reply includes `"durationMs":500` while the value animation is active.
+The scanner requires this acknowledgement, waits for that duration plus a
+150 ms margin, and confirms restoration of main lighting before feeding again.
+Older firmware without the duration echo pauses scanning rather than assuming
+the shorter animation completed. `brightness` and the RGBW color channels are integers from 0 to 255;
+`brightness` defaults to the current one (160 at boot).
 
-Alerts override the mode until they clear. `jam` (flashing red) starts with
-an unsolicited `jam` or a `timeout: no card detected at module N` and clears
-after a successful `route` or `clearDevice`. `empty` (flashing yellow)
-starts when a feed finds the hopper empty and clears on the next delivered
-card. A jam outranks an empty hopper, and both outrank `value`.
+Firmware 2.14.0+ accepts `"ledCount": 8` or `"ledCount": 16` in a `setLight`
+object and includes the active count in its reply. The count defaults to 16 at
+boot and is restored from the sorter's saved Calibration settings on connect.
+Warnings and celebrations use the configured number of LEDs.
+
+An object request may also set `leds`, a bitmask of the LEDs to light
+(bit 0 is LED 0, 65535 is all sixteen), for directional foil experiments. For
+example `{"setLight": {"mode": "white", "brightness": 32, "leds": 128}}` lights
+only LED 7, and `"leds": 65406` lights LEDs 1 to 6 and 8 to 15. A request
+without `leds` defaults to that diffused-light mask in the updated firmware.
+The web app selects `126` for 8 LEDs or `65406` for 16; for older firmware it
+keeps the previous five-LED mask `14`. Value celebrations sweep the configured
+LEDs and then restore the previous lighting.
+LEDs 0 and 7 are reserved for directional foil detection; the optional
+`foil` animation alternates those two LEDs with the other LEDs off. Firmware
+without this field ignores it and replies without `leds`.
+→ `{"status":"ok","lightMode":"white","lightAlert":"none","brightness":160,"leds":65406}`
+
+#### Timed warnings (lighting release 2.??.0)
+
+The placeholder above names the shipping lighting release; the compiled version
+and warning feature minimum are numeric `2.12.0`. Older versions retain their existing
+lighting behavior; clients omit warning configuration unless this feature is supported.
+
+RGBW output requires firmware `2.13.0+`; clients send `w` only to firmware with
+the `rgbwLighting` feature. The custom mode's `w` value directly controls the
+SK6812's neutral-white channel. Older RGB-only firmware ignores this extra
+setting, but firmware 2.13.0+ requires RGBW-compatible hardware.
+
+```json
+{"setLight":{"mode":"white","brightness":160,"warnings":{"enabled":true,"emptySeconds":3,"blockedSeconds":3,"normalSeconds":5}}}
+```
+
+All three timers are required integers from 1 to 300 **seconds**. Defaults are
+3 seconds for each warning and 5 seconds for normal lighting. A reported empty
+hopper lights all LEDs amber; a reported blocked module lights them red. Warning
+and normal-light intervals repeat until the relevant sensor clears. Blockage
+takes priority over empty and over celebrations, including during normal-light
+intervals. Disabling warnings changes lighting only, never fault reports or safety.
+The normal interval uses the configured mode, color, brightness and main LED mask.
+
+Replies echo the full `warnings` object, `warningsSuppressed` and `warningActive`.
+`lightAlert` is `empty`/`jam` during the colored interval and `none` during normal
+lighting. A value request is not started while a warning is active; clients check
+`warningActive` even when `lightAlert` is `none`.
+
+The Capture Lab sends `"suppressWarnings":true` inside `setLight` for diagnostic
+frames. This hides warning lighting without losing fault state; the ordinary
+restoration command resumes warnings. Every non-value request defaults suppression
+to false. `clearAlert:true` clears latched warning indications, not physical faults;
+an existing or new sensor fault can be reported again. Settings live in the device
+record and are re-sent on connect, not stored in EEPROM.
+
+Native state tests: `g++ -std=c++11 -Wall -Wextra -Werror firmware/tests/lighting-state.test.cpp -o lighting-test`, then run `lighting-test`.
 
 ### `readIR`
 ```json
@@ -610,6 +724,21 @@ card. A jam outranks an empty hopper, and both outrank `value`.
 `ir` is one boolean per addressable module (array length = the current
 max module count for the active channel offset), `true` meaning a card
 is present. `hopper` is `true` while cards remain in the feeder stack.
+
+### `detectModules` (firmware 2.12.0+, ESP32 only)
+```json
+{"detectModules": true}
+```
+→ `{"status":"ok","modules":2,"sensors":[true,true,false,false,false]}`
+
+Probes each addressable module's IR pin to see whether a sensor is wired:
+a pin reading LOW under the pull-up is a sensor seeing a card, otherwise
+the pin is switched to a pull-down for 2 ms and a sensor holds it HIGH
+while an empty pin drops LOW. `modules` counts wired sensors from module 1
+up to the first missing one; `sensors` lists every addressable module.
+Boards without an internal pull-down (Uno R4) reply
+`{"error":"module detection unsupported"}`, and the app keeps the module
+count the user picked.
 
 ### `route` (the normal per-card sorting command)
 ```json

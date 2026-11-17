@@ -27,14 +27,10 @@ export const neonAuthProvider: AuthProvider = {
   },
 
   async getUserRole(userId) {
-    try {
-      const result = await db.execute(
-        sql`SELECT role FROM neon_auth.user WHERE id = ${userId} LIMIT 1`,
-      );
-      return (result.rows[0]?.role as string) ?? "user";
-    } catch {
-      return "user";
-    }
+    const result = await db.execute(
+      sql`SELECT role FROM neon_auth.user WHERE id = ${userId} LIMIT 1`,
+    );
+    return (result.rows[0]?.role as string) ?? "user";
   },
 
   async resolveOrgMembership(userId, orgId) {
@@ -134,6 +130,18 @@ export const neonAuthProvider: AuthProvider = {
       `,
     );
     return rows.rows;
+  },
+
+  async listOrgMemberUserIdsBySeat(orgId) {
+    const rows = await db.execute<{ userId: string }>(
+      sql`
+        SELECT "userId"
+        FROM neon_auth.member
+        WHERE "organizationId" = ${orgId}
+        ORDER BY (role = 'owner') DESC, "createdAt", id
+      `,
+    );
+    return rows.rows.map((row) => row.userId);
   },
 
   async getOrganisationName(orgId) {

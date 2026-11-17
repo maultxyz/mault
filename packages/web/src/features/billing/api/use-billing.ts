@@ -2,7 +2,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { neon } from "@/lib/auth/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
-import type { BillingInterval } from "@magic-vault/shared";
+import type { CheckoutRequest } from "@/lib/interfaces/billing";
 import { toast } from "@/lib/toast";
 import {
   billingQueryOptions,
@@ -25,7 +25,7 @@ export function useBilling() {
       if (result.data?.url) {
         window.location.href = result.data.url;
       } else {
-        toast.error(t("checkoutError"));
+        toast.error(result.message || t("checkoutError"));
       }
     },
     onError: () => toast.error(t("checkoutError")),
@@ -47,8 +47,8 @@ export function useBilling() {
     billing: data ?? null,
     isLoading,
     canManage,
-    startCheckout: (interval: BillingInterval) =>
-      checkoutMutation.mutate(interval),
+    startCheckout: (request: CheckoutRequest) =>
+      checkoutMutation.mutate(request),
     isStartingCheckout: checkoutMutation.isPending,
     openPortal: () => portalMutation.mutate(),
     isOpeningPortal: portalMutation.isPending,

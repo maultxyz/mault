@@ -62,6 +62,7 @@ export function RepackPanel() {
       repackUniqueBy: REPACK_UNIQUE_BY_PRINTING,
       repackSiftRules: null,
       repackSlots: [createSlot()],
+      repackMultiplePacks: false,
     },
   });
 
@@ -76,6 +77,7 @@ export function RepackPanel() {
       repackSiftRules: set.repackSiftRules,
       repackSlots:
         set.repackSlots.length > 0 ? set.repackSlots : [createSlot()],
+      repackMultiplePacks: set.repackMultiplePacks,
     });
   }, [selectedSetGuid, form]);
 
@@ -90,6 +92,7 @@ export function RepackPanel() {
               ? null
               : values.repackUniqueBy,
           repackSiftRules: values.repackSiftRules,
+          repackMultiplePacks: values.repackMultiplePacks,
         });
         if (saved) form.reset(values);
       } catch {}
@@ -134,7 +137,10 @@ export function RepackPanel() {
               <span className="flex items-center gap-1.5">
                 <FieldLabel>{t("repackPanel.uniqueByLabel")}</FieldLabel>
                 <Tooltip>
-                  <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+                  <TooltipTrigger
+                    aria-label={t("repackPanel.uniqueByDescription")}
+                    className="text-foreground/70 hover:text-foreground transition-colors"
+                  >
                     <IconInfoCircle className="size-3.5" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
@@ -187,6 +193,37 @@ export function RepackPanel() {
         />
 
         <Controller
+          name="repackMultiplePacks"
+          control={form.control}
+          render={({ field }) => (
+            <div
+              className="flex items-center gap-2"
+              data-tour="repack-multiple-packs"
+            >
+              <Switch
+                aria-label={t("repackPanel.multiplePacksLabel")}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+              <span className="flex items-center gap-1.5">
+                <FieldLabel>{t("repackPanel.multiplePacksLabel")}</FieldLabel>
+                <Tooltip>
+                  <TooltipTrigger
+                    aria-label={t("repackPanel.multiplePacksDescription")}
+                    className="text-foreground/70 hover:text-foreground transition-colors"
+                  >
+                    <IconInfoCircle className="size-3.5" />
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-xs">
+                    {t("repackPanel.multiplePacksDescription")}
+                  </TooltipContent>
+                </Tooltip>
+              </span>
+            </div>
+          )}
+        />
+
+        <Controller
           name="repackSiftRules"
           control={form.control}
           render={({ field }) => (
@@ -202,7 +239,10 @@ export function RepackPanel() {
                 <span className="flex items-center gap-1.5">
                   <FieldLabel>{t("repackPanel.siftLabel")}</FieldLabel>
                   <Tooltip>
-                    <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+                    <TooltipTrigger
+                      aria-label={t("repackPanel.siftDescription")}
+                      className="text-foreground/70 hover:text-foreground transition-colors"
+                    >
                       <IconInfoCircle className="size-3.5" />
                     </TooltipTrigger>
                     <TooltipContent className="max-w-xs">
@@ -213,7 +253,7 @@ export function RepackPanel() {
               </div>
               {field.value != null && (
                 <div className="rounded-lg border p-2.5 flex flex-col gap-2">
-                  <p className="text-2xs text-foreground/70">
+                  <p className="text-xs text-foreground/70">
                     {siftBin
                       ? t("repackPanel.siftHint", { bin: siftBin.binNumber })
                       : t("repackPanel.siftNoBin")}
@@ -266,6 +306,7 @@ export function RepackPanel() {
                           />
                         </Field>
                         <Button
+                          aria-label={t("common:a11y.remove")}
                           type="button"
                           variant="ghost"
                           size="icon"
@@ -294,7 +335,6 @@ export function RepackPanel() {
                 <Button
                   type="button"
                   variant="outline"
-                  size="sm"
                   data-tour="repack-add-slot"
                   onClick={() => field.onChange([...field.value, createSlot()])}
                 >

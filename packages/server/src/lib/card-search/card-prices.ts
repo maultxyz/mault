@@ -1,4 +1,8 @@
-import type { PlayingCard, ScannedCard } from "@magic-vault/shared";
+import {
+  cardPricesAtScan,
+  type PlayingCard,
+  type ScannedCard,
+} from "@magic-vault/shared";
 import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { cardPrices } from "../../db/schema";
@@ -9,6 +13,7 @@ import type {
 import type { CardSearchAdapter } from "../interfaces/card-search";
 import { applyCardKingdomPrices } from "./cardkingdom-prices";
 import { applyCardmarketPrices } from "./cardmarket-prices";
+import { purchaseLinksFor } from "./purchase-links";
 import { ADAPTERS_BY_GAME_KEY } from "./resolve";
 import { applyTcgplayerPrices } from "./tcgplayer-prices";
 
@@ -75,6 +80,11 @@ function withStoredPrices<T extends PlayingCard>(
     cardKingdomPrice: details.cardKingdomPrice ?? card.cardKingdomPrice,
     cardKingdomPriceFoil:
       details.cardKingdomPriceFoil ?? card.cardKingdomPriceFoil,
+    finishPrices: details.finishPrices ?? card.finishPrices,
+    priceByCondition: details.priceByCondition ?? card.priceByCondition,
+    priceFoilByCondition:
+      details.priceFoilByCondition ?? card.priceFoilByCondition,
+    foilOnlyFoilType: card.foilOnlyFoilType ?? details.foilOnlyFoilType,
   };
 }
 
@@ -96,8 +106,18 @@ export async function applyCardPrices<T extends PlayingCard>(
   let next = 0;
   return cards.map((card) => {
     const prices = stored.get(card.id);
-    if (prices) return withStoredPrices(card, prices);
-    return needsLive(card) ? priced[next++] : card;
+    const pricedCard = prices
+      ? withStoredPrices(card, prices)
+      : needsLive(card)
+        ? priced[next++]
+        : card;
+    return {
+      ...pricedCard,
+      foilOnlyFoilType: adapter.sourceListsNonFoilPrinting?.(pricedCard)
+        ? undefined
+        : pricedCard.foilOnlyFoilType,
+      purchaseLinks: purchaseLinksFor(adapter, pricedCard),
+    };
   });
 }
 
@@ -111,7 +131,10 @@ export async function applyCardPricesToScans<T extends ScannedCard>(
   const cards = await applyCardPrices(
     adapter,
     { gameKey, lang },
-    scans.map((scan) => scan.card),
+    scans.map((scan) => ({
+      ...scan.card,
+      pricesAtScan: cardPricesAtScan(scan.card),
+    })),
   );
   return scans.map((scan, i) => ({ ...scan, card: cards[i] }));
 }

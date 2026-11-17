@@ -3,6 +3,7 @@ import {
   DEFAULT_CHECK_BOTH_ORIENTATIONS,
   DEFAULT_MATCHES_NEEDED,
   toLightMode,
+  toPriceSource,
 } from "@magic-vault/shared";
 import { toScanRegion } from "../org-settings/shared";
 
@@ -17,6 +18,7 @@ export function toDevice(row: {
   matchesNeeded: number | null;
   feederStopPulse: number | null;
   checkBothOrientations: boolean | null;
+  flipCamera: boolean;
   moduleCount: number;
   channelLayout: string | null;
   setupCompletedAt: Date | null;
@@ -26,6 +28,16 @@ export function toDevice(row: {
   lightMode: string;
   lightColor: string;
   lightBrightness: number;
+  lightWhite: number;
+  lightLedCount: number;
+  valueCelebrationEnabled: boolean;
+  valueCelebrationThreshold: number;
+  valueCelebrationPriceSource: string;
+  valueCelebrationDurationMs: number;
+  lightWarningsEnabled: boolean;
+  lightEmptyWarningSeconds: number;
+  lightBlockedWarningSeconds: number;
+  lightNormalSeconds: number;
   createdAt: Date;
   updatedAt: Date;
 }) {
@@ -40,6 +52,7 @@ export function toDevice(row: {
     feederStopPulse: row.feederStopPulse,
     checkBothOrientations:
       row.checkBothOrientations ?? DEFAULT_CHECK_BOTH_ORIENTATIONS,
+    flipCamera: row.flipCamera,
     moduleCount: row.moduleCount,
     channelLayout: row.channelLayout,
     setupCompletedAt: row.setupCompletedAt?.toISOString() ?? null,
@@ -49,6 +62,16 @@ export function toDevice(row: {
     lightMode: toLightMode(row.lightMode),
     lightColor: row.lightColor,
     lightBrightness: row.lightBrightness,
+    lightWhite: row.lightWhite,
+    lightLedCount: row.lightLedCount,
+    valueCelebrationEnabled: row.valueCelebrationEnabled,
+    valueCelebrationThreshold: row.valueCelebrationThreshold,
+    valueCelebrationPriceSource: toPriceSource(row.valueCelebrationPriceSource),
+    valueCelebrationDurationMs: row.valueCelebrationDurationMs,
+    lightWarningsEnabled: row.lightWarningsEnabled,
+    lightEmptyWarningSeconds: row.lightEmptyWarningSeconds,
+    lightBlockedWarningSeconds: row.lightBlockedWarningSeconds,
+    lightNormalSeconds: row.lightNormalSeconds,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),
   };

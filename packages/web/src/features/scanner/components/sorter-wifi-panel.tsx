@@ -25,18 +25,26 @@ export function SorterWifiPanel() {
     setIsForgetting(true);
     try {
       const result = await wifi.forget();
-      if (result.ok) toast.success(t("sorterWifi.forgotten"));
-      else toast.error(result.error ?? t("sorterWifi.forgetFailed"));
+      if (result.ok && result.serverLinkRemovalFailed) {
+        toast.warning(t("sorterWifi.forgottenLinkKept"));
+      } else if (result.ok) {
+        toast.success(
+          result.restarting
+            ? t("sorterWifi.forgottenRestarting")
+            : t("sorterWifi.forgotten"),
+        );
+      } else {
+        toast.error(result.error ?? t("sorterWifi.forgetFailed"));
+      }
     } finally {
       setIsForgetting(false);
     }
   }
 
   const action = wifi.canConfigure ? (
-    <div className="flex gap-2">
+    <div className="flex gap-1.5">
       {isConfigured && (
         <Button
-          size="sm"
           variant="outline"
           disabled={isForgetting}
           onClick={() => void handleForget()}
@@ -45,7 +53,7 @@ export function SorterWifiPanel() {
           {t("sorterWifi.forget")}
         </Button>
       )}
-      <Button size="sm" onClick={() => setDialogOpen(true)}>
+      <Button onClick={() => setDialogOpen(true)}>
         <IconWifi />
         {isConfigured ? t("sorterWifi.change") : t("sorterWifi.setUp")}
       </Button>
@@ -61,8 +69,8 @@ export function SorterWifiPanel() {
       {!isReady && (
         <Callout variant="info">{t("sorterWifi.connectFirst")}</Callout>
       )}
-      {wifi.needsEsp32 && (
-        <Callout variant="info">{t("sorterWifi.needsEsp32")}</Callout>
+      {wifi.needsWifiBoard && (
+        <Callout variant="info">{t("sorterWifi.needsWifiBoard")}</Callout>
       )}
       {wifi.needsFirmware && (
         <Callout variant="warning">
@@ -72,6 +80,9 @@ export function SorterWifiPanel() {
         </Callout>
       )}
       {wifi.isSupported && <SorterWifiStatusList status={wifi.status} />}
+      {wifi.sharesRadioWithBluetooth && (
+        <Callout variant="info">{t("sorterWifi.sharesRadio")}</Callout>
+      )}
       {wifi.status?.wifi === "paused" && (
         <Callout variant="warning">{t("sorterWifi.pausedForPower")}</Callout>
       )}

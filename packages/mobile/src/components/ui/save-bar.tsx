@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
-import { View } from "react-native";
+import { useEffect, useRef } from "react";
+import { AccessibilityInfo, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,11 @@ export function SaveBar({ visible, saving, onSave, onDiscard }: SaveBarProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const insets = useSafeAreaInsets();
+  const wasSavingRef = useRef(saving);
+  useEffect(() => {
+    if (wasSavingRef.current && !saving && !visible) AccessibilityInfo.announceForAccessibility(t("common.changesSaved"));
+    wasSavingRef.current = saving;
+  }, [saving, visible, t]);
   if (!visible) return null;
   return (
     <View

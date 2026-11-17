@@ -1,13 +1,13 @@
 import { queryOptions } from "@tanstack/react-query";
 import type { Result, SoundClip, SoundRule, SoundRuleInput } from "@magic-vault/shared";
-import { apiDelete, apiGet, apiPost, apiPostForm, apiPut, unwrap } from "@/lib/api/client";
+import { apiDelete, apiGet, apiPost, apiPostForm, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
 import { SOUND_CLIP_URL_STALE_MS } from "@/lib/constants/sounds";
 import type { SoundClipUpload } from "@/lib/interfaces/sounds";
 
 export const soundClipsQueryOptions = (orgId: string | null) =>
   queryOptions({
     queryKey: ["sound-clips", orgId] as const,
-    queryFn: () => apiGet<Result<SoundClip[]>>("/api/sounds/clips").then((r) => r.data ?? []),
+    queryFn: () => unwrapOr(apiGet<Result<SoundClip[]>>("/api/sounds/clips"), []),
     enabled: !!orgId,
     staleTime: SOUND_CLIP_URL_STALE_MS,
     refetchInterval: SOUND_CLIP_URL_STALE_MS,
@@ -17,9 +17,7 @@ export const soundRulesQueryOptions = (orgId: string | null, gameGuid: string | 
   queryOptions({
     queryKey: ["sound-rules", orgId, gameGuid] as const,
     queryFn: () =>
-      apiGet<Result<SoundRule[]>>(`/api/sounds/rules?gameGuid=${encodeURIComponent(gameGuid ?? "")}`).then(
-        (r) => r.data ?? [],
-      ),
+      unwrapOr(apiGet<Result<SoundRule[]>>(`/api/sounds/rules?gameGuid=${encodeURIComponent(gameGuid ?? "")}`), []),
     enabled: !!orgId && !!gameGuid,
     staleTime: Infinity,
   });

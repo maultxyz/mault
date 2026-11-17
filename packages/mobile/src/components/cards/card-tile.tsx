@@ -1,5 +1,6 @@
 import { Image } from "expo-image";
 import { memo } from "react";
+import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
@@ -15,16 +16,32 @@ export const CardTile = memo(function CardTile({
   quantity,
   flagged = false,
   corrected = false,
+  selected = false,
+  disabled = false,
   onPress,
   onLongPress,
 }: CardTileProps) {
+  const { t } = useTranslation();
   const colors = useTheme();
   const awaitingReview = flagged && !corrected;
+  const accessibilityLabel = [
+    name,
+    caption,
+    quantity && quantity > 1 ? t("cards.quantity", { count: quantity }) : null,
+    flagged ? (corrected ? t("cards.reviewed") : t("cards.needsReview")) : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
   return (
     <Pressable
       accessibilityRole={onPress ? "button" : undefined}
-      accessibilityLabel={`${name}, ${caption}`}
-      disabled={!onPress}
+      accessibilityLabel={accessibilityLabel}
+      accessibilityState={{ selected, disabled }}
+      accessibilityActions={onLongPress ? [{ name: "longpress", label: t("cards.cardActions") }] : undefined}
+      onAccessibilityAction={(event) => {
+        if (event.nativeEvent.actionName === "longpress") onLongPress?.();
+      }}
+      disabled={disabled || !onPress}
       onPress={onPress}
       onLongPress={onLongPress}
       style={({ pressed }) => ({ flex: 1, minWidth: 0, gap: 6, transform: [{ scale: pressed ? 0.97 : 1 }] })}
@@ -36,8 +53,9 @@ export const CardTile = memo(function CardTile({
           borderRadius: RADIUS.lg,
           overflow: "hidden",
           backgroundColor: colors.muted,
-          borderWidth: awaitingReview ? 2 : 1,
-          borderColor: awaitingReview ? colors.warning : colors.cardRing,
+          borderWidth: selected || awaitingReview ? 2 : 1,
+          borderColor: selected ? colors.primary : awaitingReview ? colors.warning : colors.border,
+          opacity: disabled ? 0.5 : 1,
         }}
       >
         {imageUrl ? (
@@ -54,7 +72,7 @@ export const CardTile = memo(function CardTile({
               backgroundColor: corrected ? colors.successStrong : colors.warningStrong,
             }}
           >
-            <Icon name={corrected ? "check" : "help"} size={12} color="#ffffff" />
+            <Icon name={corrected ? "check" : "help"} size={12} color={colors.onStatusStrong} />
           </View>
         ) : null}
         {quantity && quantity > 1 ? (

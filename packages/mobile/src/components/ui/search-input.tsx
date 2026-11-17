@@ -24,8 +24,10 @@ export function SearchInput({ value, onChangeText, placeholder, accessibilityLab
         clearButtonMode="while-editing"
         style={{
           height: SEARCH_INPUT_HEIGHT,
-          borderRadius: RADIUS.full,
-          backgroundColor: colors.muted,
+          borderRadius: RADIUS.md,
+          borderWidth: 1,
+          borderColor: colors.input,
+          backgroundColor: colors.inputBackground,
           color: colors.foreground,
           paddingLeft: 40,
           paddingRight: SPACING.md,

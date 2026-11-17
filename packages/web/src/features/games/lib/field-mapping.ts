@@ -34,8 +34,6 @@ export function isObjectArray(value: unknown): value is unknown[] {
   );
 }
 
-// Avoids clobbering an existing row when the same leaf gets picked twice, or
-// two different leaves humanize to the same field key.
 export function uniqueFieldKey(base: string, existing: string[]): string {
   if (!existing.includes(base)) return base;
   let n = 2;

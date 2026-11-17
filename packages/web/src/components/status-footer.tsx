@@ -20,7 +20,7 @@ import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { useRole } from "@/hooks/use-role";
 import { useStickToBottom } from "@/hooks/use-stick-to-bottom";
 import { useSyncState } from "@/lib/app-stream";
-import { LATEST_FIRMWARE_VERSION } from "@/lib/constants/firmware";
+import { useLatestFirmwareVersion } from "@/hooks/use-latest-firmware-version";
 import { isFirmwareVersionOutdated } from "@magic-vault/shared";
 import { IconCopy } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -28,7 +28,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
 
 export function FooterDivider() {
-  return <span className="h-3 w-px bg-border shrink-0" />;
+  return <span aria-hidden className="h-3 w-px bg-border shrink-0" />;
 }
 
 function StatusDot({
@@ -68,6 +68,7 @@ function StatusItem({
       >
         <StatusDot variant={dot} />
         <span className="text-xs text-foreground/70">{label}</span>
+        <span className="sr-only">{tooltip}</span>
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>
@@ -79,10 +80,13 @@ function SyncStatusItem() {
   const syncState = useSyncState();
   const navigate = useNavigate();
   const { pathname } = useLocation();
-  const { isAdmin } = useRole();
+  const { isStaff } = useRole();
 
-  const { status, total, processed, skipped } = syncState;
-  const done = processed + skipped;
+  const { status, total, processed, skipped, errors, vectorizeOn } = syncState;
+  const done =
+    vectorizeOn === "browser" ? processed + errors : processed + skipped;
+  const progressTotal =
+    vectorizeOn === "browser" ? Math.max(0, total - skipped) : total;
 
   const visible =
     status !== "idle" &&
@@ -100,10 +104,10 @@ function SyncStatusItem() {
           : "muted";
 
   const countLabel =
-    status === "running" && total > 0
+    status === "running" && progressTotal > 0
       ? t("statusFooter.syncProgress", {
           done: done.toLocaleString(),
-          total: total.toLocaleString(),
+          total: progressTotal.toLocaleString(),
         })
       : t("statusFooter.syncStatus", { status });
 
@@ -119,15 +123,16 @@ function SyncStatusItem() {
   return (
     <Tooltip>
       <TooltipTrigger
-        onClick={isAdmin ? () => navigate("/app/admin/cards") : undefined}
+        onClick={isStaff ? () => navigate("/app/admin/cards") : undefined}
         className={`flex items-center gap-1.5 transition-colors min-w-0 ${
-          isAdmin ? "cursor-pointer hover:text-foreground" : "cursor-default"
+          isStaff ? "cursor-pointer hover:text-foreground" : "cursor-default"
         }`}
       >
         <StatusDot variant={dot} />
         <span className="text-xs text-foreground/70 tabular-nums shrink-0">
           {countLabel}
         </span>
+        <span className="sr-only">{tooltip}</span>
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>
@@ -140,6 +145,7 @@ function SorterStatusItem() {
   const toast = useStationToast();
   const { isConnected, isReady, firmwareVersion, checkFirmwareVersion } =
     useSerial();
+  const latestFirmwareVersion = useLatestFirmwareVersion();
   const entries = useCommLog();
   const commLogRef = useStickToBottom(entries);
 
@@ -160,11 +166,11 @@ function SorterStatusItem() {
     const toastId = toast.loading(t("statusFooter.firmwareChecking"));
     const result = await checkFirmwareVersion();
     if (result.status === "ok") {
-      if (isFirmwareVersionOutdated(result.version, LATEST_FIRMWARE_VERSION)) {
+      if (isFirmwareVersionOutdated(result.version, latestFirmwareVersion)) {
         toast.warning(
           t("statusFooter.firmwareOutdated", {
             version: result.version,
-            latest: LATEST_FIRMWARE_VERSION,
+            latest: latestFirmwareVersion,
           }),
           { id: toastId },
         );
@@ -203,19 +209,20 @@ function SorterStatusItem() {
       <PopoverTrigger className="flex items-center gap-1.5 cursor-pointer hover:text-foreground transition-colors">
         <StatusDot variant={dot} />
         <span className="text-xs text-foreground/70">{label}</span>
+        <span className="sr-only">{statusText}</span>
       </PopoverTrigger>
       <PopoverContent align="start" className="w-96 gap-2">
         <div className="flex items-center justify-between gap-2">
           <PopoverTitle className="truncate">{statusText}</PopoverTitle>
           <div className="flex items-center gap-1 shrink-0">
             {isConnected && (
-              <Button variant="outline" size="sm" onClick={handleCheckFirmware}>
+              <Button variant="outline" onClick={handleCheckFirmware}>
                 {t("statusFooter.checkFirmware")}
               </Button>
             )}
             <Button
               variant="outline"
-              size="icon-sm"
+              size="icon"
               onClick={handleCopy}
               title={tScanner("serial.copyCommunication")}
             >
@@ -275,6 +282,7 @@ function HealthStatusItem() {
       >
         <StatusDot variant={dot} />
         <span className="text-xs text-foreground/70">{label}</span>
+        <span className="sr-only">{tooltip}</span>
       </TooltipTrigger>
       <TooltipContent side="top">{tooltip}</TooltipContent>
     </Tooltip>

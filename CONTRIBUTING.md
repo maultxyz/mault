@@ -1,4 +1,4 @@
-# Contributing to Magic Vault
+# Contributing to Mault
 
 Thanks for taking a look at contributing. This covers the dev workflow
 for the four workspace packages (`shared`, `server`, `web`, `bot`) and, in

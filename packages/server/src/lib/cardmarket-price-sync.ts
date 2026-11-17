@@ -2,7 +2,7 @@ import { max, sql } from "drizzle-orm";
 import { db } from "../db";
 import { cardmarketPrices, cardmarketProducts } from "../db/schema";
 import { cardmarketMatchName } from "./card-search/cardmarket-prices";
-import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
+import { adapterEntriesForGameKeys } from "./card-search/resolve";
 import { CARD_API_HEADERS } from "./constants/card-search";
 import {
   CARDMARKET_PRICE_UPSERT_BATCH_SIZE,
@@ -144,13 +144,15 @@ async function lastSyncedByGame(): Promise<Map<number, Date>> {
 
 export async function syncCardmarketPrices({
   force = false,
+  gameKeys,
   log,
 }: {
   force?: boolean;
+  gameKeys?: string[];
   log: (msg: string) => void;
 }): Promise<CardmarketSyncResult> {
   const needsProducts = new Map<number, boolean>();
-  for (const adapter of Object.values(ADAPTERS_BY_GAME_KEY)) {
+  for (const [, adapter] of adapterEntriesForGameKeys(gameKeys)) {
     if (!adapter.cardmarket) continue;
     const { gameId, productNames } = adapter.cardmarket;
     needsProducts.set(
@@ -170,6 +172,7 @@ export async function syncCardmarketPrices({
   for (const [gameId, matchesProducts] of needsProducts) {
     try {
       const guideUrl = priceGuideUrl(gameId);
+      log(`Game ${gameId}: checking price guide...`);
       const modifiedAt = await lastModified(guideUrl);
       const pulledAt = syncedAt.get(gameId);
       if (!force && modifiedAt && pulledAt && pulledAt >= modifiedAt) {
@@ -180,6 +183,7 @@ export async function syncCardmarketPrices({
 
       let products = 0;
       if (matchesProducts) {
+        log(`Game ${gameId}: downloading product list...`);
         const list = (await (
           await download(productListUrl(gameId))
         ).json()) as CardmarketProductsFile;
@@ -187,6 +191,7 @@ export async function syncCardmarketPrices({
         products = list.products.length;
       }
 
+      log(`Game ${gameId}: downloading price guide...`);
       const guide = (await (
         await download(guideUrl)
       ).json()) as CardmarketPriceGuideFile;

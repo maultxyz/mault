@@ -5,16 +5,20 @@ import { gundamSyncSource } from "../adapters/gundam/sync";
 import { lorcanaSyncSource } from "../adapters/lorcana/sync";
 import { onePieceSyncSource } from "../adapters/onepiece/sync";
 import { pokemonSyncSource } from "../adapters/pokemon/sync";
+import { pokemonJapanSyncSource } from "../adapters/pokemon-japan/sync";
 import { riftboundSyncSource } from "../adapters/riftbound/sync";
 import { scryfallSyncSource } from "../adapters/scryfall/sync";
+import { sorcerySyncSource } from "../adapters/sorcery/sync";
 import { swuSyncSource } from "../adapters/swu/sync";
 import { yugiohSyncSource } from "../adapters/yugioh/sync";
 import type { SyncSource } from "../interfaces/card-search";
+import { withTcgtrackingSync } from "../tcgtracking/sync-source";
 
-export const SYNC_SOURCES: Record<string, SyncSource> = {
+const BASE_SYNC_SOURCES: Record<string, SyncSource> = {
   mtg: scryfallSyncSource,
   gundam: gundamSyncSource,
   pokemon: pokemonSyncSource,
+  pokemonjp: pokemonJapanSyncSource,
   lorcana: lorcanaSyncSource,
   onepiece: onePieceSyncSource,
   fab: fabSyncSource,
@@ -23,4 +27,12 @@ export const SYNC_SOURCES: Record<string, SyncSource> = {
   swu: swuSyncSource,
   grandarchive: grandArchiveSyncSource,
   cyberpunk: cyberpunkSyncSource,
+  sorcery: sorcerySyncSource,
 };
+
+export const SYNC_SOURCES: Record<string, SyncSource> = Object.fromEntries(
+  Object.entries(BASE_SYNC_SOURCES).map(([gameKey, source]) => [
+    gameKey,
+    withTcgtrackingSync(source),
+  ]),
+);

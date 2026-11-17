@@ -1,5 +1,8 @@
 import { SOUND_CLIP_EXTENSIONS } from "@magic-vault/shared";
-import { OBJECT_STORAGE_ENABLED } from "./constants/object-storage";
+import {
+  OBJECT_STORAGE_ENABLED,
+  SYSTEM_SOUND_CLIP_PREFIX,
+} from "./constants/object-storage";
 import type { StoredObject } from "./interfaces/object-storage";
 import {
   orgObjectPrefix,
@@ -9,16 +12,20 @@ import {
 } from "./object-storage";
 
 function soundClipKey(
-  orgId: string,
+  orgId: string | null,
   clipGuid: string,
   contentType: string,
 ): string {
   const extension = SOUND_CLIP_EXTENSIONS[contentType] ?? "bin";
-  return `${orgObjectPrefix(orgId)}sounds/${clipGuid}.${extension}`;
+  const prefix =
+    orgId === null
+      ? SYSTEM_SOUND_CLIP_PREFIX
+      : `${orgObjectPrefix(orgId)}sounds/`;
+  return `${prefix}${clipGuid}.${extension}`;
 }
 
 export async function storeSoundClip(
-  orgId: string,
+  orgId: string | null,
   clipGuid: string,
   body: Buffer,
   contentType: string,

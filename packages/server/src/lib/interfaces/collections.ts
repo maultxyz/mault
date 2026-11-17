@@ -1,9 +1,26 @@
-import type { PlayingCardWithDistance } from "@magic-vault/shared";
+import type { FieldMeta, PlayingCardWithDistance } from "@magic-vault/shared";
+import type { SQL } from "drizzle-orm";
 import type { Transaction } from "../../db";
+import type { CatalogJoinScope } from "./saved-cards";
+
+export interface CardStatsSource {
+  scope: CatalogJoinScope;
+  joins: SQL;
+  where: SQL;
+}
+
+export interface CardsCollection {
+  id: number;
+  name: string;
+  gameKey: string | null;
+  gameName: string | null;
+  lang: string;
+  fieldDefinitions: FieldMeta[];
+}
 
 export interface BinLimitStatus {
   binNumber: number;
-  cardLimit: number;
+  capacity: number;
   count: number;
 }
 
@@ -15,6 +32,7 @@ export interface CollectionCardRow {
   is_foil: boolean;
   foil_type: string | null;
   condition: string;
+  language: string | null;
   is_downloaded: boolean;
   alternative_matches: unknown;
   is_corrected: boolean;

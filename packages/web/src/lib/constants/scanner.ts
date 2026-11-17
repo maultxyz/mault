@@ -1,10 +1,31 @@
+import type {
+  SorterLimitReason,
+  StationAttentionFix,
+  StationAttentionKind,
+  StationStatus,
+} from "@/lib/interfaces/stations";
+import { PI_SCAN_SESSION_PATH } from "@magic-vault/shared";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
   type CollectionCardsQuery,
+  type PiScanSessionState,
   type ScannerStatus,
   EMPTY_CARD_FILTERS,
 } from "@magic-vault/shared";
 import { runtimeEnv } from "@/lib/runtime-env";
+import type { CommLogEntry, DesktopScannerIcon } from "@magic-vault/shared";
+import type {
+  OnnxExecutionProviderPreference,
+  ScannerConnectionState,
+} from "@/lib/interfaces/scanner";
+import { MAX_CONNECTED_SORTERS } from "@magic-vault/shared";
+import {
+  IconArrowBarToDown,
+  IconBolt,
+  IconPlayerPause,
+  IconPlayerPlay,
+  type Icon,
+} from "@tabler/icons-react";
 
 export const SCANNABLE_STATUSES: ScannerStatus[] = [
   "scanning",
@@ -31,18 +52,49 @@ export const PAUSE_WHEN_HIDDEN_STATUSES: ScannerStatus[] = [
 ];
 
 export const MTG_ASPECT_RATIO = 2.5 / 3.5;
+export const UNMATCHED_VIEW_PARAM = "unmatched";
+export const UNMATCHED_CARD_PARAM = "unmatchedCard";
 export const PHONE_CAMERA_JPEG_QUALITY = 0.85;
 export const CATCH_ALL_BIN = 7;
+
+export const PI_SCAN_CARD_EVENTS = [
+  "card_added",
+  "unmatched_added",
+  "card_removed",
+  "cards_removed",
+  "unmatched_removed",
+] as const;
 
 export const STALE_DEVICE_THRESHOLD_DAYS = 30;
 
 export const CAMERA_IDEAL_WIDTH = 1920;
 export const CAMERA_IDEAL_HEIGHT = 1080;
+export const CAMERA_BUSY_RETRY_DELAYS_MS = [150, 400, 800];
+export const CAMERA_BUSY_ERROR_NAMES = new Set(["NotReadableError", "AbortError"]);
+export const PI_CAMERA_BASE = "/api/pi-camera";
+export const PI_CAMERA_DEVICE_ID = "pi-webcam";
+export const PI_CAMERA_WIDTH = CAMERA_IDEAL_WIDTH;
+export const PI_CAMERA_HEIGHT = CAMERA_IDEAL_HEIGHT;
+export const PI_CAMERA_LABEL = "USB Live camera";
+export const PI_SERIAL_OPEN_TIMEOUT_MS = 8000;
+
+export const IDLE_PI_SCAN_SESSION: PiScanSessionState = {
+  phase: "idle",
+  collectionGuid: null,
+  message: null,
+  cardsScanned: 0,
+  stopping: false,
+  activity: null,
+  current: null,
+  lastCard: null,
+  startedAt: null,
+  pausedMs: 0,
+  pausedAt: null,
+  autoFeed: true,
+};
 export const PHONE_CAMERA_DEVICE_STORAGE_KEY = "mault:phone-camera-device-id";
 
 export const JAM_TOAST_ID_PREFIX = "jam-module-";
-export const JAM_COMMAND_TIMEOUT_MS = 3000;
-export const JAM_CLEAR_DEVICE_TIMEOUT_MS = 10000;
 export const JAM_VERIFY_SAMPLES = 3;
 export const JAM_VERIFY_INTERVAL_MS = 750;
 export const SCAN_POSITION_MODULE = 1;
@@ -52,6 +104,7 @@ export const CARD_SET_PICKER_LIMIT = 100;
 export const MONITOR_NEEDS_REVIEW_CARDS_QUERY: CollectionCardsQuery = {
   ...ALL_CARDS_QUERY,
   filters: { ...EMPTY_CARD_FILTERS, needsAttention: true },
+  unreviewed: true,
 };
 export const SENSOR_BLOCKED_TOAST_ID = "test-sensor-blocked";
 export const SESSION_LOCK_ALERT_ID = "session-lock";
@@ -59,7 +112,6 @@ export const ROUTE_TIMEOUT_MODULE_PATTERN = /no card detected at module (\d+)/;
 
 export const PARKED_PANELS_ROOT_CLASS =
   "fixed top-0 left-0 -z-10 invisible pointer-events-none";
-
 
 export const UNMATCHED_RATE_WINDOW = 20;
 export const UNMATCHED_RATE_MIN_SCANS = 10;
@@ -84,6 +136,7 @@ export const SCAN_RATE_REFRESH_MS = 5_000;
 export const BIN_LEVEL_WARNING_PERCENT = 70;
 export const BIN_LEVEL_FULL_PERCENT = 90;
 
+export const SCANNER_PATH = "/app";
 export const SORTERS_OVERVIEW_PATH = "/app/sorters";
 
 export const CORRECTION_AUTO_CLOSE_TICK_MS = 100;
@@ -93,6 +146,23 @@ export const CORRECTION_TIMER_CIRCUMFERENCE =
   2 * Math.PI * CORRECTION_TIMER_RADIUS;
 
 export const SCANNER_LIVE_DETECTION_INTERVAL_MS = 300;
+export const SCANNER_CAMERA_FRAME_RATE = 15;
+export const SCANNER_BACKGROUND_PREVIEW_INTERVAL_MS = 1000;
+export const SCANNER_PREVIEW_FRAME_TOLERANCE_MS = 8;
+export const CPU_INFERENCE_MAX_CONNECTED_SORTERS = 1;
+export const INFERENCE_WASM_MAX_THREADS = 4;
+export const INFERENCE_WORKERS_PER_MODEL: Record<
+  OnnxExecutionProviderPreference,
+  number
+> = {
+  webgpu: MAX_CONNECTED_SORTERS,
+  wasm: 1,
+};
+export const SORTER_LIMIT_MESSAGE_KEYS: Record<SorterLimitReason, string> = {
+  plan: "stations.limitReached",
+  hardCap: "stations.hardCapReached",
+  cpuInference: "stations.cpuInferenceLimitReached",
+};
 
 export const HAND_SCAN_REARM_FINGERPRINT_DIFF = 0.08;
 export const HAND_SCAN_FINGERPRINT_SIZE = 16;
@@ -106,10 +176,8 @@ export const HAND_SCAN_TRACKING_STATUSES: ScannerStatus[] = [
 
 export const LIVE_DETECTION_STATUSES: ScannerStatus[] = [
   "scanning",
-  "paused",
   "settling",
 ];
-
 
 export const DOCUMENT_TITLE_BASE = "MAULT";
 
@@ -118,20 +186,94 @@ export const BIN_CORRECTION_CONFIRM_KEYS = ["Enter", " "];
 export const PHONE_CAMERA_PATH_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
 export const QR_SCAN_INTERVAL_MS = 250;
 export const QR_SCAN_MAX_DIMENSION = 640;
+export const SCANNER_CONTROL_QR_MAX_DIMENSION = 1024;
+export const SCANNER_CONNECTION_DOT_CLASS: Record<
+  ScannerConnectionState,
+  string
+> = {
+  connected: "bg-success",
+  connecting: "bg-warning",
+  disconnected: "bg-foreground/30",
+};
 
 export const PENDING_SCAN_SAVES_DB_NAME = "magic-vault-pending-scan-saves";
 export const PENDING_SCAN_SAVES_STORE_NAME = "saves";
 export const PENDING_SCAN_SAVES_DB_VERSION = 1;
-export const PENDING_SCAN_SAVE_RETRY_DELAYS_MS = [
-  2000, 5000, 10_000, 30_000, 60_000,
-];
-export const PENDING_SCAN_SAVE_RETRYABLE_STATUSES = [401, 408, 429];
 export const PENDING_SCAN_SAVES_TOAST_ID = "pending-scan-saves";
 
 export const SCAN_REGION_MASK_FILL = "rgb(0 0 0 / 0.4)";
 export const SCAN_REGION_MASK_STROKE = "rgb(255 255 255 / 0.9)";
 
 export const MOBILE_SCAN_CHIP_CLASS =
-  "pointer-events-auto inline-flex h-9 min-w-0 items-center gap-1.5 rounded-full bg-black/55 px-3 text-sm font-medium text-white backdrop-blur-md active:bg-black/70";
+  "pointer-events-auto inline-flex h-9 min-w-0 items-center gap-1.5 rounded-lg bg-black/55 px-3 text-sm font-medium text-white backdrop-blur-md active:bg-black/70";
 export const MOBILE_SCAN_PANEL_CLASS =
   "pointer-events-auto rounded-xl bg-black/60 p-3 text-white backdrop-blur-md";
+
+export const PI_CAMERA_PREVIEW_INTERVAL_MS = 250;
+
+export const PI_SCAN_SESSION_API = `/api${PI_SCAN_SESSION_PATH}`;
+export const COMM_LOG_MARKER_LABELS: Partial<
+  Record<CommLogEntry["direction"], string>
+> = {
+  connected: "New connection",
+  disconnected: "Disconnected",
+  restarted: "Sorter restarted",
+};
+
+export const DESKTOP_PIP_OPEN_DELAY_MS = 400;
+export const DESKTOP_PIP_DRAG_THRESHOLD_PX = 4;
+export const DESKTOP_PIP_CONTROL_ICONS: Record<DesktopScannerIcon, Icon> = {
+  play: IconPlayerPlay,
+  pause: IconPlayerPause,
+  "auto-feed-on": IconBolt,
+  "auto-feed-off": IconBolt,
+  "clear-device": IconArrowBarToDown,
+};
+
+export const SCAN_IMAGE_IMPORT_ACCEPT = "image/jpeg,image/png,image/webp";
+export const SCAN_IMAGE_IMPORT_MAX_DIMENSION_PX = 1600;
+export const SCAN_IMAGE_IMPORT_PADDING_RATIO = 0.08;
+export const SCAN_IMAGE_IMPORT_PADDING_COLOR = "#808080";
+export const SCAN_IMAGE_IMPORT_MATCHES_NEEDED = 1;
+export const SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS = true;
+
+export const STATION_STATUS_BADGE_VARIANTS: Record<
+  StationStatus,
+  "success" | "warning" | "destructive" | "outline"
+> = {
+  sorting: "success",
+  paused: "warning",
+  attention: "destructive",
+  offline: "outline",
+};
+
+export const STATION_ATTENTION_FIXES: Record<
+  StationAttentionKind,
+  StationAttentionFix
+> = {
+  jam: "resume",
+  hopperEmpty: "resume",
+  feederError: "resume",
+  noCardDetected: "resume",
+  sorterNotResponding: "resume",
+  routingFailed: "resume",
+  saveFailed: "resume",
+  binLimit: "emptyBin",
+  binsFull: "emptyBin",
+  packsComplete: "emptyBin",
+  scanLimit: "openSorter",
+  sorterLimit: "openSorter",
+  collectionLocked: "openSorter",
+  scannerError: "openSorter",
+};
+
+export const STATION_TILE_ATTENTION_CLASS =
+  "border-destructive ring-1 ring-destructive";
+
+export const SORTERS_GRID_CLASS =
+  "grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4";
+
+export const SCAN_STATS_SUMMARY_SEPARATOR = " · ";
+
+export const FOIL_NUDGE_DIAGNOSTIC_IMAGE_WIDTH = 224;
+export const FOIL_NUDGE_DIAGNOSTIC_JPEG_QUALITY = 0.8;

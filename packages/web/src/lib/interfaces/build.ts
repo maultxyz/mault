@@ -3,11 +3,6 @@ import type { TFunction } from "i18next";
 import type { ReactNode } from "react";
 import type { SorterPrintPart } from "@/lib/interfaces/sorter-model";
 
-export interface AnchorLinkButtonProps {
-  id: string;
-  className?: string;
-}
-
 export type BoardType = "uno_r4" | "esp32";
 
 export interface BoardInfo {
@@ -35,6 +30,7 @@ export interface BomRow {
     boardType: BoardType,
   ) => ReactNode;
   buyUrl?: string | ((boardType: BoardType) => string | undefined);
+  alert?: (t: BuildTFunction) => ReactNode;
   optional?: true;
   visible?: (boardType: BoardType, mountType: Esp32MountType) => boolean;
 }
@@ -49,6 +45,7 @@ export interface BuildStep {
   text: ReactNode;
   note?: ReactNode;
   images?: string[];
+  modelParts?: readonly SorterPrintPart[];
   reference?: ReactNode;
   optional?: true;
 }
@@ -95,22 +92,6 @@ export interface BuildSetupValue extends BuildSetupState {
   updateSetup: (patch: Partial<BuildSetupState>) => void;
 }
 
-export interface BuildOptionCardProps {
-  icon: Icon;
-  title: string;
-  description: string;
-  selected: boolean;
-  disabled?: boolean;
-  onSelect: () => void;
-}
-
-export interface BuildSetupStepProps {
-  step: number;
-  label: string;
-  hint?: ReactNode;
-  children: ReactNode;
-}
-
 export type WireColor = "yellow" | "green" | "blue" | "red" | "black" | "white";
 
 export type WireKey =
@@ -145,24 +126,15 @@ export interface WiringReferenceProps {
   children: ReactNode;
 }
 
-export interface ChecklistStore {
-  subscribe: (listener: () => void) => () => void;
-  getSnapshot: () => Record<string, boolean>;
-  toggle: (key: string) => void;
+export type PrintPartImagesStatus = "loading" | "ready" | "error";
+
+export interface PrintPartImagesState {
+  status: PrintPartImagesStatus;
+  images: Partial<Record<SorterPrintPart, string>>;
 }
 
-export interface BuildTocEntry {
-  id: string;
-  label: string;
-  done?: number;
-  total?: number;
-  depth: 0 | 1;
-  number?: number;
-}
-
-export interface BuildTocListProps {
-  entries: BuildTocEntry[];
-  onNavigate?: () => void;
+export interface PrintPartImagesProps {
+  parts: readonly SorterPrintPart[];
 }
 
 export interface PrintPartEntry {

@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { useKitChannel } from "@/features/admin/api/use-kit-channel";
-import { SERVO_PULSE_MAX, SERVO_PULSE_MIN } from "@/lib/constants/calibration";
 import { KIT_CENTER_PULSE, KIT_CHANNELS } from "@/lib/constants/kit-test";
 import type { KitPanelProps } from "@/lib/interfaces/kit-test";
 import {
@@ -14,14 +13,17 @@ import {
   IconPlayerStop,
   IconX,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { SERVO_PULSE_MAX, SERVO_PULSE_MIN } from "@magic-vault/shared";
 
 export function KitServoBench({ session, disabled }: KitPanelProps) {
   const { t } = useTranslation("admin");
   const { drive, stop, sweep, isBusy } = useKitChannel();
   const [channel, setChannel] = useState(0);
   const [pulse, setPulse] = useState(KIT_CENTER_PULSE);
+  const channelLabelId = useId();
+  const pulseLabelId = useId();
   const locked = disabled || isBusy;
   const passed = session.servoResults.filter((r) => r.verdict === "pass");
   const failed = session.servoResults.filter((r) => r.verdict === "fail");
@@ -38,7 +40,6 @@ export function KitServoBench({ session, disabled }: KitPanelProps) {
       action={
         <Button
           variant="outline"
-          size="sm"
           disabled={session.servoResults.length === 0}
           onClick={session.resetServos}
         >
@@ -47,12 +48,17 @@ export function KitServoBench({ session, disabled }: KitPanelProps) {
       }
     >
       <div className="flex flex-col gap-2">
-        <Label>{t("kitTest.servos.channel")}</Label>
-        <div className="grid grid-cols-8 gap-2">
+        <Label id={channelLabelId}>{t("kitTest.servos.channel")}</Label>
+        <div
+          role="group"
+          aria-labelledby={channelLabelId}
+          className="grid grid-cols-8 gap-2"
+        >
           {KIT_CHANNELS.map((ch) => (
             <Button
               key={ch}
               variant={channel === ch ? "outline-selected" : "outline"}
+              aria-pressed={channel === ch}
               className="px-0"
               disabled={locked}
               onClick={() => setChannel(ch)}
@@ -63,7 +69,7 @@ export function KitServoBench({ session, disabled }: KitPanelProps) {
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="flex flex-wrap gap-1.5">
         <Button disabled={locked} onClick={() => void sweep(channel)}>
           <IconArrowsHorizontal />
           {t("kitTest.servos.sweep")}
@@ -102,10 +108,11 @@ export function KitServoBench({ session, disabled }: KitPanelProps) {
 
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between">
-          <Label>{t("kitTest.servos.pulse")}</Label>
+          <Label id={pulseLabelId}>{t("kitTest.servos.pulse")}</Label>
           <span className="font-mono text-sm font-semibold">{pulse}</span>
         </div>
         <Slider
+          aria-labelledby={pulseLabelId}
           min={SERVO_PULSE_MIN}
           max={SERVO_PULSE_MAX}
           step={1}
@@ -162,6 +169,9 @@ export function KitServoBench({ session, disabled }: KitPanelProps) {
                   number: session.servoResults.length - index,
                   channel: result.channel,
                 })}
+                <span className="sr-only">
+                  {`, ${t(`kitTest.servos.${result.verdict}`)}`}
+                </span>
               </Badge>
             </li>
           ))}

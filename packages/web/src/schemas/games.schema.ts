@@ -24,7 +24,6 @@ export function createGameFormSchema(t: TFunction<"games">) {
       .url(t("gameForm.validation.urlFormat"))
       .optional()
       .or(z.literal("")),
-    foilTypesText: z.string().optional(),
     cardThickness: z.number().positive().nullable(),
     isActive: z.boolean(),
     fieldDefinitions: z

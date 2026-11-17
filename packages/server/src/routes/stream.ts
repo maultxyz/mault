@@ -3,6 +3,10 @@ import { and, eq } from "drizzle-orm";
 import { Hono, type Context } from "hono";
 import { streamSSE } from "hono/streaming";
 import { authProvider } from "../auth";
+import {
+  findMemberSeatOverflow,
+  memberSeatLimitMessage,
+} from "../lib/member-seat-limit";
 import { authQuery, db } from "../db";
 import { collections } from "../db/schema";
 import {
@@ -13,16 +17,20 @@ import {
   trackMonitorLinkStream,
   verifyMonitorLink,
 } from "../lib/monitor-links";
-import { DEPLOY_STATUS_EVENT } from "@magic-vault/shared";
+import {
+  DEPLOY_STATUS_EVENT,
+  MEMBER_SEAT_LIMIT_ERROR_CODE,
+  MEMBER_SEAT_LIMIT_HTTP_STATUS,
+} from "@magic-vault/shared";
 import {
   loadActiveDeployNotice,
   subscribeDeployNotice,
 } from "../lib/deploy-notice";
 import { getLocksForGuids, subscribeOrgLocks } from "../lib/scan-lock";
 import {
-  getAllSessionViewers,
   getLiveCountsForGuids,
   getSessionViewers,
+  getSessionViewersForGuids,
   subscribeOrgLiveCounts,
   subscribeSession,
 } from "../lib/session-stream";
@@ -89,11 +97,6 @@ async function streamMonitorLink(c: Context<AppEnv>, shareToken: string) {
   });
 }
 
-// GET /stream — single SSE connection multiplexing everything the app used to
-// open separate connections for: org-wide scan locks, org-wide live viewer
-// counts, the global admin sync job, and (via ?guids=) per-collection scan
-// session events. Session-scoped events are namespaced "session:<guid>:<event>"
-// so one connection can safely watch several collections at once.
 export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
   const shareToken = c.req.query("share");
   if (shareToken) return streamMonitorLink(c, shareToken);
@@ -113,6 +116,18 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
   if (orgId) {
     const member = await authProvider.resolveOrgMembership(userId, orgId);
     if (!member) return c.json({ success: false, message: "Forbidden" }, 403);
+    const seatLimit = await findMemberSeatOverflow(orgId, userId, member.role);
+    if (seatLimit != null) {
+      return c.json(
+        {
+          success: false,
+          code: MEMBER_SEAT_LIMIT_ERROR_CODE,
+          message: memberSeatLimitMessage(seatLimit),
+          limit: seatLimit,
+        },
+        MEMBER_SEAT_LIMIT_HTTP_STATUS,
+      );
+    }
   }
 
   const jwtClaims = orgId
@@ -157,11 +172,9 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
         write("lock_init", { locks: getLocksForGuids(orgGuids) });
         write("live_init", {
           counts: getLiveCountsForGuids(orgGuids),
-          viewers: getAllSessionViewers(),
+          viewers: getSessionViewersForGuids(orgGuids),
         });
-      } catch {
-        // non-fatal — subscribers still receive live lock/count events
-      }
+      } catch {}
 
       for (const guid of watchGuids) {
         const sessionWrite = (event: string, data: unknown) =>

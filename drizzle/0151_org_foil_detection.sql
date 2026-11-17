@@ -1,0 +1,1 @@
+ALTER TABLE "org_settings" ADD COLUMN "foil_detection_enabled" boolean DEFAULT false NOT NULL;

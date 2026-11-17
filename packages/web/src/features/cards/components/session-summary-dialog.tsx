@@ -12,21 +12,27 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Switch } from "@/components/ui/switch";
 import { SessionWrappedToggle } from "@/components/session-wrapped-toggle";
-import { applyCardFilters } from "@/features/cards/api/use-card-filter-sort";
 import {
   allExportAdapters,
-  runExport,
+  downloadCollectionCsv,
   supportsGame,
   type ExportAdapter,
 } from "@/features/cards/lib/export";
 import { buildWrappedSlides } from "@/features/cards/lib/wrapped-slides";
+import {
+  collectionCardsCountQueryOptions,
+  loadCollectionCardIds,
+} from "@/features/collections/api/collection-cards";
+import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
-import { computeStats } from "@/features/scanner/lib/compute-stats";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { formatElapsed } from "@/lib/format";
+import { ALL_CARDS_QUERY, NEW_CARDS_QUERY } from "@/lib/constants/card-filters";
+import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
+import { EMPTY_CARD_FILTERS } from "@magic-vault/shared";
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -39,6 +45,7 @@ import {
   IconDownload,
   IconFlame,
   IconLayoutGrid,
+  IconLoader2,
   IconPalette,
   IconSparkles,
   IconStack2,
@@ -66,6 +73,7 @@ import {
   WRAPPED_SLIDE_DURATION_MS,
   WRAPPED_SLIDE_MESH,
 } from "@/lib/constants/cards";
+import { StatCell } from "@/components/stat-cell";
 
 function meshBackground(colors: string[]): string {
   return colors
@@ -77,8 +85,6 @@ function meshBackground(colors: string[]): string {
 }
 
 function MeshBackground({ base, colors }: { base: string; colors: string[] }) {
-  // Random each mount (a fresh mount per slide, via `key`) so the spin
-  // never feels mechanically identical slide to slide, dialog to dialog.
   const { durationS, direction } = useMemo(
     () => ({
       durationS: 16 + Math.random() * 18, // ~16-34s per rotation - slow
@@ -93,7 +99,7 @@ function MeshBackground({ base, colors }: { base: string; colors: string[] }) {
       style={{ backgroundColor: base }}
     >
       <div
-        className="absolute -inset-1/2 animate-[wrapped-mesh-spin_1s_linear_infinite]"
+        className="absolute -inset-1/2 animate-[wrapped-mesh-spin_1s_linear_infinite] motion-reduce:animate-none"
         style={{
           backgroundImage: meshBackground(colors),
           animationDuration: `${durationS}s`,
@@ -163,7 +169,7 @@ function SlideIcon({ children }: { children: ReactNode }) {
 
 function SlideBody({ children }: { children: ReactNode }) {
   return (
-    <div className="flex flex-col items-center gap-4 text-center animate-[wrapped-pop-in_0.5s_ease-out]">
+    <div className="flex flex-col items-center gap-4 text-center animate-[wrapped-pop-in_0.5s_ease-out] motion-reduce:animate-none">
       {children}
     </div>
   );
@@ -196,8 +202,6 @@ function WrappedSlideContent({
   const { t } = useTranslation("cards");
   const { format } = usePriceSource();
   const iconClass = "size-7 text-white";
-  // Hoisted above the switch: hooks can't be called conditionally, so this
-  // single call covers every slide type that needs a count-up number.
   const countUpValue = useCountUp(countUpTarget(slide), active);
 
   switch (slide.type) {
@@ -408,29 +412,10 @@ function WrappedSlideContent({
   }
 }
 
-function StatCell({
-  label,
-  value,
-  className,
-}: {
-  label: string;
-  value: string;
-  className?: string;
-}) {
-  return (
-    <div className={cn("p-2.5", className)}>
-      <p className="text-2xs font-medium text-foreground/70 uppercase tracking-wide mb-0.5">
-        {label}
-      </p>
-      <p className="text-sm font-semibold">{value}</p>
-    </div>
-  );
-}
-
 export function SessionSummaryDialog({
   open,
   onOpenChange,
-  cards,
+  collectionGuid,
   elapsedMs,
   sessionScanCount,
   collectionName,
@@ -439,8 +424,7 @@ export function SessionSummaryDialog({
   gridFilterCount,
 }: SessionSummaryDialogProps) {
   const { t } = useTranslation("cards");
-  const { source: priceSource, conditionMultipliers, format } =
-    usePriceSource();
+  const { format } = usePriceSource();
   const [includeDownloaded, setIncludeDownloaded] = useState(false);
   const [applyGridFilters, setApplyGridFilters] = useState(false);
   const [combineDuplicates, setCombineDuplicates] = useState(true);
@@ -450,34 +434,28 @@ export function SessionSummaryDialog({
 
   const { collection: activeCollection } = useViewedCollection();
 
-  const previouslyDownloadedCount = useMemo(
-    () => cards.filter((c) => c.isDownloaded).length,
-    [cards],
-  );
-  const exportCards = useMemo(() => {
-    const byDownloaded = includeDownloaded
-      ? cards
-      : cards.filter((c) => !c.isDownloaded);
-    // showDownloaded is already handled above by its own dedicated toggle,
-    // so it's forced true here to avoid the grid filter re-excluding cards
-    // this dialog just chose to include.
-    return applyGridFilters
-      ? applyCardFilters(byDownloaded, { ...gridFilters, showDownloaded: true })
-      : byDownloaded;
-  }, [cards, includeDownloaded, applyGridFilters, gridFilters]);
-  const stats = useMemo(
-    () => computeStats(cards, priceSource, conditionMultipliers),
-    [cards, priceSource, conditionMultipliers],
-  );
-  const slug = collectionName.replace(/\s+/g, "-").toLowerCase();
-  const fieldDefinitions = activeCollection?.game?.fieldDefinitions ?? [];
+  const { summary, allStats: stats, totalCount } = useCollectionCardsSummary(NEW_CARDS_QUERY);
+  const previouslyDownloadedCount = summary
+    ? summary.all.totalCount - summary.filtered.totalCount
+    : 0;
+  const [downloading, setDownloading] = useState(false);
+  const exportQuery = {
+    ...ALL_CARDS_QUERY,
+    filters: {
+      ...(applyGridFilters ? gridFilters : EMPTY_CARD_FILTERS),
+      hideDownloaded: !includeDownloaded,
+    },
+  };
+  const { data: exportCount } = useQuery({
+    ...collectionCardsCountQueryOptions(collectionGuid, exportQuery),
+    enabled: open && !!collectionGuid,
+  });
+  const exportCardCount = exportCount?.totalCount ?? 0;
   const { activeOrg } = useOrg();
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(activeOrg?.id));
   const wrappedEnabled = orgSettings?.sessionWrappedEnabled ?? true;
 
   const gameKey = activeCollection?.game?.key;
-  const isMtg = gameKey === "mtg";
-  const exportContext = { isMtg, fieldDefinitions };
   const exportAdapters: ExportAdapter[] = allExportAdapters.filter((adapter) =>
     supportsGame(adapter, gameKey),
   );
@@ -518,10 +496,23 @@ export function SessionSummaryDialog({
     return () => document.removeEventListener("keydown", handler);
   }, [open, goPrev, goNext]);
 
-  function handleDownload(adapter: ExportAdapter) {
-    runExport(adapter, exportCards, slug, exportContext, combineDuplicates);
-    onOpenChange(false);
-    onExported(exportCards.map((c) => c.scanId));
+  async function handleDownload(adapter: ExportAdapter) {
+    if (!collectionGuid) return;
+    setDownloading(true);
+    try {
+      const scanIds = await loadCollectionCardIds(collectionGuid, exportQuery);
+      await downloadCollectionCsv(collectionGuid, adapter, collectionName, {
+        scanIds,
+        combineDuplicates,
+      });
+      onOpenChange(false);
+      onExported(scanIds);
+    } catch (err) {
+      console.error("Failed to download export:", err);
+      toast.error(t("sessionSummaryDialog.downloadFailed"));
+    } finally {
+      setDownloading(false);
+    }
   }
 
   function handleTouchStart(e: TouchEvent) {
@@ -552,7 +543,7 @@ export function SessionSummaryDialog({
       : null;
 
   const summaryCells: { label: string; value: string }[] = [
-    { label: t("sessionSummaryDialog.totalCards"), value: String(cards.length) },
+    { label: t("sessionSummaryDialog.totalCards"), value: String(totalCount) },
     { label: t("sessionSummaryDialog.unique"), value: stats ? String(stats.uniqueCount) : "-" },
   ];
   if (stats?.hasPricing) {
@@ -568,8 +559,6 @@ export function SessionSummaryDialog({
       value: cardsPerHour != null ? String(cardsPerHour) : "-",
     },
   );
-  // summaryCells is always 4 (no pricing) or 6 (with pricing) items - pick
-  // whichever column count fills every row completely.
   const summaryCellCols = summaryCells.length % 3 === 0 ? 3 : 2;
 
   const statsRecap = (
@@ -586,10 +575,8 @@ export function SessionSummaryDialog({
               key={cell.label}
               label={cell.label}
               value={cell.value}
-              // divide-x/divide-y add borders by sibling order, not actual
-              // grid position, so they misplace borders around wrapped
-              // rows - position math avoids that.
               className={cn(
+                "p-2.5",
                 i % summaryCellCols !== 0 && "border-l",
                 i >= summaryCellCols && "border-t",
               )}
@@ -672,6 +659,7 @@ export function SessionSummaryDialog({
           {t("sessionSummaryDialog.includePreviouslyDownloaded")}
           <Switch
             size="sm"
+            aria-label={t("sessionSummaryDialog.includePreviouslyDownloaded")}
             checked={includeDownloaded}
             onCheckedChange={setIncludeDownloaded}
           />
@@ -682,6 +670,9 @@ export function SessionSummaryDialog({
           {t("sessionSummaryDialog.applyGridFilters", { count: gridFilterCount })}
           <Switch
             size="sm"
+            aria-label={t("sessionSummaryDialog.applyGridFilters", {
+              count: gridFilterCount,
+            })}
             checked={applyGridFilters}
             onCheckedChange={setApplyGridFilters}
           />
@@ -691,6 +682,7 @@ export function SessionSummaryDialog({
         {t("sessionSummaryDialog.combineDuplicates")}
         <Switch
           size="sm"
+          aria-label={t("sessionSummaryDialog.combineDuplicates")}
           checked={combineDuplicates}
           onCheckedChange={setCombineDuplicates}
         />
@@ -703,17 +695,23 @@ export function SessionSummaryDialog({
       )}
       <DropdownMenu>
         <DropdownMenuTrigger
-          render={<Button disabled={exportCards.length === 0} className="w-full" />}
+          render={<Button disabled={exportCardCount === 0 || downloading} className="w-full" />}
         >
-          <IconDownload className="size-4" />
-          {t("sessionSummaryDialog.download", { count: exportCards.length })}
+          {downloading ? (
+            <IconLoader2 className="size-4 animate-spin motion-reduce:animate-none" />
+          ) : (
+            <IconDownload className="size-4" />
+          )}
+          {downloading
+            ? t("sessionSummaryDialog.exporting")
+            : t("sessionSummaryDialog.download", { count: exportCardCount })}
           <IconChevronDown className="size-4" />
         </DropdownMenuTrigger>
         <DropdownMenuContent align="center">
           {exportAdapters.map((adapter) => (
             <DropdownMenuItem
               key={adapter.key}
-              onClick={() => handleDownload(adapter)}
+              onClick={() => void handleDownload(adapter)}
             >
               {adapter.label}
             </DropdownMenuItem>
@@ -729,7 +727,7 @@ export function SessionSummaryDialog({
         <DialogOverlay />
         <DialogPrimitive.Popup
           className={cn(
-            "fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl shadow-2xl ring-1 ring-foreground/10 outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+            "fixed top-1/2 left-1/2 z-50 flex max-h-[85vh] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 flex-col overflow-hidden rounded-xl shadow-2xl ring-1 ring-border outline-none duration-100 data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
             isOutro
               ? "bg-popover text-popover-foreground"
               : "text-white",
@@ -768,7 +766,7 @@ export function SessionSummaryDialog({
                   {i < clampedIndex && <div className="h-full w-full bg-white" />}
                   {i === clampedIndex && autoAdvance && (
                     <div
-                      className="h-full w-full bg-white origin-left animate-[wrapped-progress_5s_linear_forwards]"
+                      className="h-full w-full bg-white origin-left animate-[wrapped-progress_5s_linear_forwards] motion-reduce:animate-none"
                       style={{
                         animationPlayState: paused ? "paused" : "running",
                         animationDuration: `${WRAPPED_SLIDE_DURATION_MS}ms`,
@@ -797,9 +795,8 @@ export function SessionSummaryDialog({
               {!isOutro && (
                 <Button
                   variant="ghost"
-                  size="sm"
                   onClick={skipAll}
-                  className="h-7 px-2 text-xs text-white/80 hover:bg-white/15 hover:text-white"
+                  className="text-white/80 hover:bg-white/15 hover:text-white"
                 >
                   {t("sessionWrapped.skipAll")}
                 </Button>
@@ -807,8 +804,9 @@ export function SessionSummaryDialog({
               <DialogPrimitive.Close
                 render={
                   <Button
+                    aria-label={t("common:a11y.close")}
                     variant="ghost"
-                    size="icon-sm"
+                    size="icon"
                     className={
                       isOutro ? undefined : "text-white hover:bg-white/15 hover:text-white"
                     }

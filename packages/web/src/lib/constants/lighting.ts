@@ -1,0 +1,1 @@
+export const VALUE_CELEBRATION_SETTLE_MS = 150;

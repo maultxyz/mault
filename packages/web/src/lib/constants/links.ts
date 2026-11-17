@@ -8,6 +8,7 @@ export const DISCORD_URL = "https://discord.gg/fYvw5PcvGg";
 export const REPORT_ISSUE_URL = `${REPO_URL}/issues/new`;
 export const FIRMWARE_RELEASES_URL = `${REPO_URL}/releases`;
 export const ESP32_FIRMWARE_URL = "/firmware/esp32-latest.bin";
+export const FIRMWARE_RELEASES_API_PATH = "/api/public/firmware-releases";
 export const DONATE_URL = "https://buymeacoffee.com/mault";
 export const SHOP_URL = "https://shop.mault.xyz/";
 export const CONTACT_EMAIL = "support@mault.xyz";

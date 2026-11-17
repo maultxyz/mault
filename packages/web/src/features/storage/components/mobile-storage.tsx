@@ -6,12 +6,22 @@ import { MobileListRow } from "@/components/mobile-list-row";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileSearchInput } from "@/components/mobile-search-input";
 import { Button } from "@/components/ui/button";
-import { fetchNextUnreviewedStorageCard } from "@/features/storage/api/storage-locations";
+import { DrawerTitle } from "@/components/ui/drawer";
+import {
+  fetchNextUnreviewedStorageCard,
+  storageLocationUnreviewedCardsQueryOptions,
+} from "@/features/storage/api/storage-locations";
+import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
+import { MobileCardDrawer } from "@/features/cards/components/mobile-card-drawer";
+import { ReviewGrid } from "@/features/cards/components/review-grid";
+import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
+import { useQuery } from "@tanstack/react-query";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
+import { useStorageLocationCardQuery } from "@/features/storage/api/use-storage-location-card-query";
 import { StorageCardDetail } from "@/features/storage/components/storage-card-detail";
 import { StorageExportMenu } from "@/features/storage/components/storage-export-menu";
-import { StorageLocationCards } from "@/features/storage/components/storage-location-cards";
+import { StorageLocationContent } from "@/features/storage/components/storage-location-content";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
 import { StorageSearchResults } from "@/features/storage/components/storage-search-results";
 import { StorageUpgradeNote } from "@/features/storage/components/storage-upgrade-note";
@@ -28,6 +38,7 @@ import {
 import {
   STORAGE_CARD_SEARCH_PARAM,
   STORAGE_LOCATION_SEARCH_PARAM,
+  STORAGE_PICK_LIST_PATH,
   STORAGE_REVIEW_SEARCH_PARAM,
 } from "@/lib/constants/storage";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
@@ -37,15 +48,17 @@ import {
   IconBox,
   IconEdit,
   IconListCheck,
+  IconListSearch,
   IconPlus,
   IconTrash,
 } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 
 export function MobileStorage() {
   const { t } = useTranslation("storage");
+  const { t: tCards } = useTranslation("cards");
   const { locations, isLoading, isMutating, create, rename, remove } =
     useStorageLocations();
   const { format } = usePriceSource();
@@ -63,8 +76,18 @@ export function MobileStorage() {
 
   const selectedGuid = searchParams.get(STORAGE_LOCATION_SEARCH_PARAM);
   const selected = locations.find((l) => l.guid === selectedGuid);
+  const cardQuery = useStorageLocationCardQuery(selected?.guid);
   const openScanId = searchParams.get(STORAGE_CARD_SEARCH_PARAM);
-  const isReviewing = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM) === "1";
+  const [shownScanId, setShownScanId] = useState(openScanId);
+  if (openScanId && openScanId !== shownScanId) setShownScanId(openScanId);
+  const reviewParam = searchParams.get(STORAGE_REVIEW_SEARCH_PARAM);
+  const isReviewing = reviewParam === "1";
+  const isGridReviewing =
+    !!selected && !openScanId && reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
+  const [reviewLayout, setReviewLayout] = useReviewLayout();
+  const reviewGridPage = useQuery(
+    storageLocationUnreviewedCardsQueryOptions(selected?.guid, isGridReviewing),
+  );
 
   const select = useCallback(
     (guid: string | null) =>
@@ -88,8 +111,24 @@ export function MobileStorage() {
     if (selected) select(selected.guid);
   }, [selected, select]);
 
+  const openReviewGrid = () => {
+    if (!selected) return;
+    setReviewLayout("grid");
+    setSearchParams(
+      {
+        [STORAGE_LOCATION_SEARCH_PARAM]: selected.guid,
+        [STORAGE_REVIEW_SEARCH_PARAM]: CARD_REVIEW_GRID_PARAM_VALUE,
+      },
+      { replace: true },
+    );
+  };
+
   const startReview = async () => {
     if (!selected) return;
+    if (reviewLayout === "grid") {
+      openReviewGrid();
+      return;
+    }
     const first = await fetchNextUnreviewedStorageCard(selected.guid).catch(
       () => null,
     );
@@ -133,19 +172,24 @@ export function MobileStorage() {
     </>
   );
 
-  if (selected && openScanId) {
+  if (selected && isGridReviewing) {
     return (
       <div
+        data-scroll-root
         className={cn(
-          "flex min-h-0 flex-1 flex-col overflow-hidden",
+          "flex min-h-0 flex-1 flex-col overflow-y-auto",
           MOBILE_NAV_SCROLL_PADDING_CLASS,
         )}
       >
-        <StorageCardDetail
-          location={selected}
-          scanId={openScanId}
-          reviewMode={isReviewing}
-          onNavigate={(scanId) => openCard(selected.guid, scanId)}
+        <ReviewGrid
+          cards={reviewGridPage.data?.cards ?? []}
+          total={reviewGridPage.data?.total ?? 0}
+          isLoading={reviewGridPage.isPending}
+          isError={reviewGridPage.isError}
+          onOpenOneByOne={(card) => {
+            setReviewLayout("single");
+            openCard(selected.guid, card.scanId, true);
+          }}
           onClose={closeCard}
         />
       </div>
@@ -163,37 +207,41 @@ export function MobileStorage() {
           })}
           onBack={() => select(null)}
           actions={
-            <>
-              <Button
-                variant="ghost"
-                className={MOBILE_CIRCLE_BUTTON_CLASS}
-                aria-label={t("page.rename")}
-                disabled={isMutating}
-                onClick={() => setRenameOpen(true)}
-              >
-                <IconEdit />
-              </Button>
-              <Button
-                variant="ghost"
-                className={cn(MOBILE_CIRCLE_BUTTON_CLASS, "text-destructive")}
-                aria-label={t("page.delete")}
-                disabled={isMutating}
-                onClick={() => setDeleteOpen(true)}
-              >
-                <IconTrash />
-              </Button>
-            </>
+            !isLocked && (
+              <>
+                <Button
+                  variant="ghost"
+                  className={MOBILE_CIRCLE_BUTTON_CLASS}
+                  aria-label={t("page.rename")}
+                  disabled={isMutating}
+                  onClick={() => setRenameOpen(true)}
+                >
+                  <IconEdit />
+                </Button>
+                <Button
+                  variant="ghost"
+                  className={cn(MOBILE_CIRCLE_BUTTON_CLASS, "text-destructive")}
+                  aria-label={t("page.delete")}
+                  disabled={isMutating}
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <IconTrash />
+                </Button>
+              </>
+            )
           }
         >
           {selected.cardCount > 0 && (
-            <div className="flex gap-2">
-              <Button
-                className={MOBILE_PILL_BUTTON_SM_CLASS}
-                onClick={() => void startReview()}
-              >
-                <IconListCheck />
-                {t("review.start")}
-              </Button>
+            <div className="flex gap-1.5">
+              {!isLocked && (
+                <Button
+                  className={MOBILE_PILL_BUTTON_SM_CLASS}
+                  onClick={() => void startReview()}
+                >
+                  <IconListCheck />
+                  {t("review.start")}
+                </Button>
+              )}
               <StorageExportMenu location={selected} />
             </div>
           )}
@@ -205,8 +253,9 @@ export function MobileStorage() {
           )}
         >
           <div className={MOBILE_PAGE_BODY_CLASS}>
-            <StorageLocationCards
+            <StorageLocationContent
               location={selected}
+              cardQuery={cardQuery}
               onOpenCard={(entry) =>
                 openCard(entry.locationGuid, entry.scanId, false)
               }
@@ -214,6 +263,25 @@ export function MobileStorage() {
           </div>
         </div>
         {dialogs}
+        <MobileCardDrawer open={!!openScanId} onClose={closeCard}>
+          <DrawerTitle className="sr-only">
+            {tCards("cardDetailPanel.cardDetailsFallback")}
+          </DrawerTitle>
+          {shownScanId && (
+            <div data-vaul-no-drag className="flex min-h-0 flex-1 flex-col">
+              <StorageCardDetail
+                key={shownScanId}
+                location={selected}
+                cardsQuery={cardQuery.cardsQuery}
+                scanId={shownScanId}
+                reviewMode={isReviewing}
+                onNavigate={(scanId) => openCard(selected.guid, scanId)}
+                onShowReviewGrid={openReviewGrid}
+                onClose={closeCard}
+              />
+            </div>
+          )}
+        </MobileCardDrawer>
       </div>
     );
   }
@@ -223,16 +291,29 @@ export function MobileStorage() {
       <MobilePageHeader
         title={t("page.title")}
         actions={
-          !isLocked && (
-            <Button
-              className={MOBILE_PRIMARY_CIRCLE_BUTTON_CLASS}
-              aria-label={t("page.newLocation")}
-              disabled={isMutating}
-              onClick={() => setCreateOpen(true)}
-            >
-              <IconPlus />
-            </Button>
-          )
+          <>
+            {locations.length > 0 && (
+              <Button
+                variant="ghost"
+                className={MOBILE_CIRCLE_BUTTON_CLASS}
+                aria-label={t("pickList.open")}
+                nativeButton={false}
+                render={<Link to={STORAGE_PICK_LIST_PATH} />}
+              >
+                <IconListSearch />
+              </Button>
+            )}
+            {!isLocked && (
+              <Button
+                className={MOBILE_PRIMARY_CIRCLE_BUTTON_CLASS}
+                aria-label={t("page.newLocation")}
+                disabled={isMutating}
+                onClick={() => setCreateOpen(true)}
+              >
+                <IconPlus />
+              </Button>
+            )}
+          </>
         }
       >
         {!isLoading && locations.length > 0 && (

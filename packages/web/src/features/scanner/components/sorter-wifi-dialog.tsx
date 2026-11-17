@@ -34,7 +34,11 @@ export function SorterWifiDialog({
   async function submit(values: SorterWifiFormValues) {
     const result = await onSubmit(values);
     if (result.ok) {
-      toast.success(t("sorterWifi.saved"));
+      toast.success(
+        result.restarting
+          ? t("sorterWifi.savedRestarting")
+          : t("sorterWifi.saved"),
+      );
       onOpenChange(false);
       return;
     }
@@ -69,6 +73,7 @@ export function SorterWifiDialog({
           </FieldLabel>
           <Input
             id="sorter-wifi-ssid"
+            aria-invalid={!!errors.ssid}
             autoComplete="off"
             autoCapitalize="none"
             spellCheck={false}
@@ -82,6 +87,7 @@ export function SorterWifiDialog({
           </FieldLabel>
           <Input
             id="sorter-wifi-password"
+            aria-invalid={!!errors.password}
             type="password"
             autoComplete="off"
             {...form.register("password")}

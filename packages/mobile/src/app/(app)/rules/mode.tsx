@@ -22,9 +22,10 @@ import { resetAutoAssign } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { applyMode } from "@/features/rules/lib/apply-mode";
 import { modeSchema } from "@/features/rules/lib/mode-schema";
-import { binSetMode } from "@/features/rules/lib/rules";
+import { binSetMode } from "@magic-vault/shared";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
+import { upgradeRequiredMessage } from "@/lib/api/upgrade-required-error";
 import { SORTING_MODES } from "@/lib/constants/rules";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { ModeFormValues } from "@/lib/interfaces/forms";
@@ -51,6 +52,7 @@ export default function SortingModeScreen() {
             scanOnlyUnmatchedBin: catchAll ?? SCAN_ONLY_DEFAULT_BIN,
             chaosBinSize: activeSet.chaosBinSize != null ? String(activeSet.chaosBinSize) : "",
             skipSaving: !!activeSet.skipSaving,
+            isResortMode: !!activeSet.isResortMode,
           }
         : undefined,
     [activeSet, catchAll],
@@ -66,6 +68,7 @@ export default function SortingModeScreen() {
   const savedMode = binSetMode(activeSet);
   const eligibleFields = fieldDefinitions.filter((f) => f.type !== "numeric");
   const chaosLocked = billing?.chaosSort === false && !activeSet?.isChaosMode;
+  const repackLocked = billing?.repacks === false && !activeSet?.isRepackMode;
   const editable = !!activeSet?.isActive;
 
   const save = useMutation({
@@ -107,10 +110,10 @@ export default function SortingModeScreen() {
       <PageHeader title={t("rules.mode.title")} subtitle={activeSet?.name} onBack={() => router.back()} />
       <ScrollView
         keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xxl }}
+        contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.xl }}
       >
         {!editable ? <Callout tone="info" title={t("rules.noActiveTitle")} description={t("rules.noActiveDescription")} /> : null}
-        {save.isError ? <Callout tone="destructive" title={t("rules.mode.saveFailed")} /> : null}
+        {save.isError ? <Callout tone="destructive" title={t("rules.mode.saveFailed")} description={upgradeRequiredMessage(save.error)} /> : null}
         {reset.isError ? <Callout tone="destructive" title={t("rules.mode.resetFailed")} /> : null}
 
         <Controller
@@ -119,13 +122,14 @@ export default function SortingModeScreen() {
           render={({ field }) => (
             <ListGroup>
               {SORTING_MODES.map((option) => {
-                const locked = option === "chaos" && chaosLocked;
+                const locked = (option === "chaos" && chaosLocked) || (option === "repack" && repackLocked);
                 return (
                   <ListRow
                     key={option}
                     title={t(`rules.modes.${option}.title`)}
-                    subtitle={locked ? t("rules.mode.chaosLocked") : t(`rules.modes.${option}.description`)}
+                    subtitle={locked ? t("rules.mode.featureLocked") : t(`rules.modes.${option}.description`)}
                     selected={field.value === option}
+                    subtitleNumberOfLines={0}
                     disabled={!editable || locked}
                     onPress={() => {
                       field.onChange(option);
@@ -197,6 +201,7 @@ export default function SortingModeScreen() {
                   <ListRow
                     title={t("rules.mode.chaosBinSize")}
                     subtitle={t("rules.mode.chaosBinSizeDescription")}
+                    rightIsInteractive
                     right={
                       <Input
                         compact
@@ -244,7 +249,26 @@ export default function SortingModeScreen() {
               description={t("rules.mode.skipSavingDescription")}
               value={field.value}
               disabled={!editable}
-              onValueChange={field.onChange}
+              onValueChange={(checked) => {
+                field.onChange(checked);
+                if (checked) form.setValue("isResortMode", false, { shouldDirty: true });
+              }}
+            />
+          )}
+        />
+        <Controller
+          control={form.control}
+          name="isResortMode"
+          render={({ field }) => (
+            <SwitchRow
+              title={t("rules.mode.resort")}
+              description={t("rules.mode.resortDescription")}
+              value={field.value}
+              disabled={!editable}
+              onValueChange={(checked) => {
+                field.onChange(checked);
+                if (checked) form.setValue("skipSaving", false, { shouldDirty: true });
+              }}
             />
           )}
         />

@@ -13,9 +13,11 @@ import { useDevice } from "@/features/calibration/api/use-device";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useFeederConfig } from "@/features/calibration/api/use-feeder-config";
+import { useFeederTest } from "@/features/calibration/api/use-feeder-test";
 import { useModuleConfigs } from "@/features/calibration/api/use-module-configs";
 import { useOfflineCalibration } from "@/features/calibration/api/use-offline-calibration";
 import { useResetToNeutral } from "@/features/scanner/api/use-reset-to-neutral";
+import { useRetractCard } from "@/features/scanner/api/use-retract-card";
 import {
   buildCalibrationDebugText,
   defaultSliderValues,
@@ -36,8 +38,6 @@ import type {
 } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import {
-  recenterSpeedPulse,
-  SERVO_PULSE_CENTER,
   SETUP_SERVO_POSITIONS,
 } from "@/lib/constants/calibration";
 import {
@@ -55,7 +55,10 @@ import {
   DEFAULT_SCAN_REGION,
   type BinRoute,
   type FeederCalibration,
+  parseSerialReply,
+  recenterSpeedPulse,
   type ScanRegion,
+  SERVO_PULSE_CENTER,
   type ServoCalibration,
 } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -177,6 +180,8 @@ export function useCalibrationPage() {
   >(null);
   const isMatchesNeededDirty = matchesNeededDraft !== null;
   const isCheckBothOrientationsDirty = checkBothOrientationsDraft !== null;
+  const [flipCameraDraft, setFlipCameraDraft] = useState<boolean | null>(null);
+  const isFlipCameraDirty = flipCameraDraft !== null;
   const scanRegion = scanRegionDraft ?? device?.scanRegion ?? DEFAULT_SCAN_REGION;
   const captureSettleDelayMs =
     captureSettleDraft ??
@@ -188,6 +193,7 @@ export function useCalibrationPage() {
     checkBothOrientationsDraft ??
     device?.checkBothOrientations ??
     DEFAULT_CHECK_BOTH_ORIENTATIONS;
+  const flipCamera = flipCameraDraft ?? device?.flipCamera ?? false;
 
   const handleScanRegionChange = useCallback((next: ScanRegion) => {
     setScanRegionDraft(next);
@@ -207,6 +213,10 @@ export function useCalibrationPage() {
 
   const handleCheckBothOrientationsChange = useCallback((value: boolean) => {
     setCheckBothOrientationsDraft(value);
+  }, []);
+
+  const handleFlipCameraChange = useCallback((value: boolean) => {
+    setFlipCameraDraft(value);
   }, []);
 
   const servoDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -252,6 +262,7 @@ export function useCalibrationPage() {
   const feederSettleDurationValue = feederValues.settleDuration;
   const feederReverseSpeedValue = feederValues.reverseSpeed;
   const feederReverseDurationValue = feederValues.reverseDuration;
+  const feederFeedRetryCountValue = feederValues.feedRetryCount;
   const setFeederDraftField = useCallback(
     (field: keyof FeederCalibration, value: number) => {
       feederSpeedAnchorRef.current = null;
@@ -306,6 +317,13 @@ export function useCalibrationPage() {
       onDevice.feeder = true;
     }
   }, [sendAndAwaitReply]);
+
+  const feederTest = useFeederTest({
+    moduleCount,
+    feedRetryCount: feederFeedRetryCountValue,
+    applyDraftsToDevice,
+  });
+  const isFeederTestRunning = feederTest.isRunning;
 
   const restoreSavedOnDevice = useCallback(async () => {
     const onDevice = draftsOnDeviceRef.current;
@@ -538,7 +556,6 @@ export function useCalibrationPage() {
           });
           return;
         }
-        // Brief pause between cards so the mechanism fully resets
         await new Promise<void>((r) => setTimeout(r, CALIBRATION_STEP_SETTLE_MS));
       }
       toast.success(t("useCalibrationPage.toasts.sampleRunComplete"));
@@ -616,13 +633,14 @@ export function useCalibrationPage() {
     (value: number) => {
       if (!canCalibrate) return;
       setFeederDraftField("speed", value);
+      if (isFeederTestRunning) return;
       if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
       feederDebounceRef.current = setTimeout(
         () => previewSpeed(value),
         CALIBRATION_PREVIEW_DEBOUNCE_MS,
       );
     },
-    [canCalibrate, previewSpeed, setFeederDraftField],
+    [canCalibrate, isFeederTestRunning, previewSpeed, setFeederDraftField],
   );
 
   const moveFeederStopPulse = useCallback(
@@ -654,13 +672,14 @@ export function useCalibrationPage() {
     (value: number) => {
       if (!canCalibrate) return;
       moveFeederStopPulse(value);
+      if (isFeederTestRunning) return;
       if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
       feederDebounceRef.current = setTimeout(
         () => previewSpeed(value),
         CALIBRATION_PREVIEW_DEBOUNCE_MS,
       );
     },
-    [canCalibrate, previewSpeed, moveFeederStopPulse],
+    [canCalibrate, isFeederTestRunning, previewSpeed, moveFeederStopPulse],
   );
 
   const handleResetFeederStopPulse = useCallback(
@@ -692,17 +711,23 @@ export function useCalibrationPage() {
     (value: number) => {
       if (!canCalibrate) return;
       setFeederDraftField("reverseSpeed", value);
+      if (isFeederTestRunning) return;
       if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
       feederDebounceRef.current = setTimeout(
         () => previewSpeed(value),
         CALIBRATION_PREVIEW_DEBOUNCE_MS,
       );
     },
-    [canCalibrate, previewSpeed, setFeederDraftField],
+    [canCalibrate, isFeederTestRunning, previewSpeed, setFeederDraftField],
   );
 
   const handleFeederReverseDurationChange = useCallback(
     (value: number) => setFeederDraftField("reverseDuration", value),
+    [setFeederDraftField],
+  );
+
+  const handleFeederFeedRetryCountChange = useCallback(
+    (value: number) => setFeederDraftField("feedRetryCount", value),
     [setFeederDraftField],
   );
 
@@ -731,7 +756,8 @@ export function useCalibrationPage() {
     isScanRegionDirty ||
     isCaptureSettleDirty ||
     isMatchesNeededDirty ||
-    isCheckBothOrientationsDirty;
+    isCheckBothOrientationsDirty ||
+    isFlipCameraDirty;
 
   const [isSavingFeederModule, setIsSavingFeederModule] = useState(false);
 
@@ -767,8 +793,7 @@ export function useCalibrationPage() {
         });
       }
       toast.success(t("useCalibrationPage.toasts.calibrationSaved"));
-    } catch {
-    } finally {
+    } catch {} finally {
       setIsSavingFeederModule(false);
     }
   }, [
@@ -837,6 +862,7 @@ export function useCalibrationPage() {
         ...(isCaptureSettleDirty ? { captureSettleDelayMs } : {}),
         ...(isMatchesNeededDirty ? { matchesNeeded } : {}),
         ...(isCheckBothOrientationsDirty ? { checkBothOrientations } : {}),
+        ...(isFlipCameraDirty ? { flipCamera } : {}),
       });
       await queryClient.invalidateQueries({
         queryKey: devicesQueryOptions(activeOrg?.id).queryKey,
@@ -845,6 +871,7 @@ export function useCalibrationPage() {
       setCaptureSettleDraft(null);
       setMatchesNeededDraft(null);
       setCheckBothOrientationsDraft(null);
+      setFlipCameraDraft(null);
       toast.success(t("useCalibrationPage.toasts.calibrationSaved"));
     } catch {
       toast.error(t("useCalibrationPage.toasts.saveCalibrationFailed"));
@@ -858,10 +885,12 @@ export function useCalibrationPage() {
     isCaptureSettleDirty,
     isMatchesNeededDirty,
     isCheckBothOrientationsDirty,
+    isFlipCameraDirty,
     scanRegion,
     captureSettleDelayMs,
     matchesNeeded,
     checkBothOrientations,
+    flipCamera,
     queryClient,
     activeOrg?.id,
     t,
@@ -872,6 +901,7 @@ export function useCalibrationPage() {
     setCaptureSettleDraft(null);
     setMatchesNeededDraft(null);
     setCheckBothOrientationsDraft(null);
+    setFlipCameraDraft(null);
   }, []);
 
   const handleFeed = useCallback(async () => {
@@ -885,17 +915,23 @@ export function useCalibrationPage() {
     sendCommand(JSON.stringify({ clearDevice: true }));
   }, [isReady, sendCommand]);
 
+  const { retractCard, isRetracting, retractLockedReason } = useRetractCard();
+  const handleRetractCard = useCallback(async () => {
+    if (!isReady) return;
+    await applyDraftsToDevice();
+    await retractCard();
+  }, [isReady, applyDraftsToDevice, retractCard]);
+
   const readIR = useCallback(async () => {
     if (!isReady || irBusyRef.current || activeBinRef.current !== null) return;
     irBusyRef.current = true;
     try {
       const { line: response } = await sendRequest({ readIR: true }, 2000);
-      if (!response) return;
-      const parsed = JSON.parse(response);
+      const parsed = parseSerialReply(response);
+      if (!parsed) return;
       if (Array.isArray(parsed.ir)) setIrStates(parsed.ir as boolean[]);
       if (typeof parsed.hopper === "boolean") setHopperHasCards(parsed.hopper);
-    } catch {
-    } finally {
+    } catch {} finally {
       irBusyRef.current = false;
     }
   }, [isReady, sendRequest]);
@@ -1041,6 +1077,7 @@ export function useCalibrationPage() {
     feederSettleDurationValue,
     feederReverseSpeedValue,
     feederReverseDurationValue,
+    feederFeedRetryCountValue,
     feederStopPulse,
     handleFeederSpeedChange,
     handleFeederStopPulseChange,
@@ -1051,17 +1088,21 @@ export function useCalibrationPage() {
     handleFeederSettleDurationChange,
     handleFeederReverseSpeedChange,
     handleFeederReverseDurationChange,
+    handleFeederFeedRetryCountChange,
     handleFeederSelectContinuous,
+    feederTest,
     scanRegion,
     captureSettleDelayMs,
     matchesNeeded,
     checkBothOrientations,
+    flipCamera,
     isDeviceLoading,
     handleScanRegionChange,
     handleResetScanRegion,
     handleCaptureSettleChange,
     handleMatchesNeededChange,
     handleCheckBothOrientationsChange,
+    handleFlipCameraChange,
     isFeederModuleDirty,
     isSavingFeederModule,
     handleSaveFeederModuleCalibration,
@@ -1073,6 +1114,9 @@ export function useCalibrationPage() {
     handleDiscardScanRegion,
     handleFeed,
     handleDropCard,
+    handleRetractCard,
+    isRetracting,
+    retractLockedReason,
     isSampleRunning,
     handleSampleRun,
     irStates,

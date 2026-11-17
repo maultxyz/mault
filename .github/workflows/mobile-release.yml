@@ -32,6 +32,7 @@ jobs:
       IS_DEV: ${{ github.ref_name == 'dev' }}
       PROFILE: ${{ github.ref_name == 'dev' && 'preview' || 'production' }}
       PLATFORM: ${{ inputs.platform }}
+      EAS_PROJECT_ID: ${{ vars.EAS_PROJECT_ID }}
     steps:
       # master builds go to the stores, dev builds are internal install links.
       # Anything else would ship unreleased code, so it's refused.
@@ -39,6 +40,10 @@ jobs:
         run: |
           if [ "${{ github.ref_name }}" != "master" ] && [ "${{ github.ref_name }}" != "dev" ]; then
             echo "::error::Mobile releases run from master (stores) or dev (internal), not ${{ github.ref_name }}."
+            exit 1
+          fi
+          if [ -z "$EAS_PROJECT_ID" ]; then
+            echo "::error::Set the EAS_PROJECT_ID variable in this GitHub environment (expo.dev > project > Project ID)."
             exit 1
           fi
 
@@ -53,7 +58,7 @@ jobs:
       - name: Set up Node
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 26
           cache: pnpm
 
       - name: Install dependencies
@@ -103,8 +108,10 @@ jobs:
             echo "::error::Set the MOBILE_ASC_APP_ID variable (App Store Connect > App Information > Apple ID) to submit iOS builds."
             exit 1
           fi
-          jq --arg id "$ASC_APP_ID" '.submit.production.ios.ascAppId = $id' eas.json > eas.json.tmp
-          mv eas.json.tmp eas.json
+          if [ -n "$ASC_APP_ID" ]; then
+            jq --arg id "$ASC_APP_ID" '.submit.production.ios.ascAppId = $id' eas.json > eas.json.tmp
+            mv eas.json.tmp eas.json
+          fi
 
       - name: Build${{ github.ref_name != 'dev' && ' and submit' || '' }}
         working-directory: packages/mobile

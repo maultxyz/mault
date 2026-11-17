@@ -8,9 +8,3 @@ export const wiringAnchorId = (sectionKey: string) => `wiring-${sectionKey}`;
 export const phaseAnchorId = (phaseKey: string) => `assembly-${phaseKey}`;
 
 export const stepAnchorId = (stepKey: string) => `step-${stepKey}`;
-
-export function anchorUrl(id: string) {
-  const url = new URL(window.location.href);
-  url.hash = id;
-  return url.toString();
-}

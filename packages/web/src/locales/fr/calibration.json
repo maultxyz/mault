@@ -1,4 +1,106 @@
 {
+  "foilCalibration": {
+    "captureMode": "Experience de capture",
+    "colorMode": "Sequence de couleurs (existante)",
+    "brightnessMode": "Ambiante / blanc faible / blanc plus fort",
+    "brightnessSequence": "Gardez la carte immobile : LEDs eteintes > blanc 4/255 > blanc 12/255 > blanc 4/255 > blanc 12/255 > LEDs eteintes. Chaque etat attend au moins 1 seconde apres confirmation. Ambiante, blanc faible et blanc plus fort sont captures deux fois avec des controles de stabilite separes. Eteint signifie lumiere ambiante, pas obscurite. Aucune decision foil automatique.",
+    "brightComparison": "Blanc plus fort repete (12/255) : variation d'intensite {{shift}} points; difference normalisee {{difference}}%; deplacement des coins {{movement}}% de la diagonale.",
+    "ambientComparison": "Ambiante repetee : variation d'intensite {{shift}} points; difference normalisee {{difference}}%; deplacement des coins {{movement}}% de la diagonale.",
+    "ambientHelp": "La comparaison ambiante estime un gain median par canal RVB, puis mesure les variations positives et negatives restantes sur les cartes alignees. Les pixels sombres, satures ou predits satures sont exclus. Il faut 25% de pixels utilisables et un deplacement des coins inferieur ou egal a 1% de la diagonale. Cela reduit certains effets du dessin et de l'exposition sans tous les supprimer. Diagnostic experimental, pas une confiance foil; verifiez les avertissements.",
+    "ambientMetrics": "Residu ambiant ({{eligible}}% utilisable) : moyenne positive {{mean}} points, 99e percentile {{peak}} points, moyenne negative {{negative}} points.",
+    "ambientUnavailable": "Comparaison ambiante indisponible : cadrage absent, deplacement excessif ou trop peu de valeurs utilisables. Aucune inference foil.",
+    "reflectionHelp": "Les mesures comparent un centre 3x3 a un anneau 13x13. Les candidats exigent 55% d'intensite et 20 points de contraste local. Les composants exigent 3 pixels; le remplissage decrit la forme. Les motifs imprimes creent aussi des taches. Les premiers resultats foil et non-foil se chevauchent : davantage de taches ou de contraste ne signifie pas foil.",
+    "reflections": "Contraste local (99,9e percentile) : {{contrast}} points; {{count}} taches, {{area}}% de surface candidate; maximum {{largest}}%, remplissage {{compactness}}%. Experimental, pas un score foil.",
+    "brightness": "Luminosite de capture",
+    "brightnessHelp": "Appliquee uniquement a la capture, sans enregistrer de reglage du trieur. Commencez a 48 pour le prochain test (captures precedentes : 96).",
+    "analyze": "Analyser la zone de la carte",
+    "analyzing": "Analyse de la carte...",
+    "analysisFailed": "Echec de l'analyse. Les photos restent enregistrees. Verifiez la disponibilite du modele et le stockage du navigateur, puis relancez l'analyse.",
+    "analysisHelp": "Les mesures excluent une marge de 6% des cartes detectees. Les reflets depassent 60% d'intensite et la mediane de la carte plus 25 points. Ces limites sont des diagnostics experimentaux, pas un classificateur foil ni une garantie de precision. Verifiez les cadrages pour reperer les erreurs de detection.",
+    "cardCrop": "Carte detectee et alignee",
+    "cardMetrics": "Carte : {{clipping}}% sature, {{highlights}}% reflets",
+    "whiteComparison": "Blanc repete : variation d'intensite de {{shift}} points; difference normalisee de {{difference}}%; deplacement des coins de {{movement}}% de la diagonale.",
+    "quality": {
+      "brightUnstable": "La comparaison du blanc plus fort repete est indisponible ou depasse une limite existante d'exposition, d'alignement ou de difference. Verifiez exposition du telephone, mouvement et cadrages avant interpretation.",
+      "ambientUnstable": "La comparaison ambiante repetee est indisponible ou depasse une limite existante d'exposition, d'alignement ou de difference. Verifiez lumiere ambiante, exposition du telephone et mouvement avant interpretation.",
+      "missingCard": "Detection indisponible ou coins decales de plus de 3% de la diagonale par rapport a la reference. Les cadrages incoherents ne sont pas mesures. Impossible de fournir une evaluation complete.",
+      "clipping": "Plus de 2% d'une carte atteint 250/255 dans au moins un canal. Essayez une luminosite plus faible.",
+      "exposure": "L'intensite du blanc repete varie de plus de 5 points. L'exposition ou l'eclairage peut ne pas etre stabilise.",
+      "movement": "Les coins se deplacent de plus de 1% de la diagonale. Mouvement ou detection imprecise peuvent affecter la comparaison.",
+      "unstable": "Les cartes sous lumiere blanche different de plus de 4% apres normalisation. Verifiez mouvement, exposition et detection.",
+      "directionUnstable": "Une comparaison repetee a LED seule est indisponible ou depasse une limite existante d'exposition, d'alignement ou de difference d'image. Verifiez l'exposition, le mouvement et les recadrages avant d'interpreter l'experience directionnelle."
+    },
+    "heading": "Laboratoire de capture pour la detection foil",
+    "description": "Collecte experimentale uniquement. Ne classe pas les cartes, ne modifie pas leur statut foil et ne deplace ni ne trie les cartes.",
+    "instructions": "Connectez le trieur et lancez son autotest, configurez une webcam ou un telephone associe ci-dessus, puis enregistrez les reglages de la camera. Placez une carte foil ou non-foil connue a la position de scan et gardez-la immobile. Capturez sous lumiere ambiante, blanche, rouge, verte, bleue, puis blanche a nouveau. Les reglages lumineux enregistres sont ensuite restaures.",
+    "limitations": "Les changements de couleur ne prouvent pas un effet foil. L'exposition automatique, les mouvements, les pochettes et la lumiere ambiante peuvent affecter les resultats. Comparez les deux images blanches pour verifier la stabilite. La saturation de l'image entiere est un diagnostic, pas un score foil. Fermer cet onglet ou perdre la connexion peut empecher la restauration; verifiez ensuite la page Eclairage.",
+    "card": "Nom et impression de la carte (extension / numero)",
+    "cardRequired": "Saisissez le nom et l'impression de la carte (200 caracteres maximum).",
+    "finish": "Finition physique connue",
+    "foil": "Foil",
+    "nonfoil": "Non-foil",
+    "sleeved": "Carte sous pochette",
+    "notes": "Notes (position de la lumiere, camera, pochette, lumiere ambiante)",
+    "capture": "Capturer un echantillon etiquete",
+    "capturing": "Capture...",
+    "cancel": "Annuler la capture",
+    "progress": "Capture : {{step}}",
+    "unavailable": "Necessite un trieur connecte avec autotest reussi et eclairage compatible, une camera prete, des reglages camera enregistres, du stockage local et aucune session de scan active.",
+    "failed": "Echec de la capture. Aucun echantillon complet enregistre. Verifiez la camera, la connexion du trieur et les alertes lumineuses, puis reessayez.",
+    "cancelled": "Capture annulee. Aucun echantillon complet enregistre.",
+    "checkLighting": "Capture incomplete. Verifiez que l'eclairage precedent a ete restaure.",
+    "storageFailed": "Echec du stockage local. Verifiez les autorisations du navigateur et l'espace disponible.",
+    "storageFull": "La limite d'echantillons de ce navigateur est atteinte. Exportez et supprimez des echantillons pour continuer. Les echantillons d'autres trieurs ou organisations doivent etre supprimes depuis leur laboratoire.",
+    "saved": "Capture etiquetee enregistree dans ce navigateur.",
+    "storage": "{{count}} echantillons pour ce trieur. Maximum {{limit}} echantillons au total dans ce navigateur. Exportez avant de supprimer les echantillons ou les donnees du navigateur. Les photos ne sont ni envoyees ni partagees entre navigateurs.",
+    "export": "Exporter JSON",
+    "remove": "Supprimer",
+    "frameAlt": "{{card}}, eclairage {{step}}",
+    "clipped": "{{percent}}% sature",
+    "steps": {
+      "whiteBrightRepeat": "Blanc plus fort repete",
+      "whiteBright": "Reference blanche principale",
+      "whiteHigh": "Eclairage principal fort",
+      "ambientRepeat": "Ambiante repetee (ruban eteint)",
+      "ambient": "Ambiante (ruban eteint)",
+      "white": "Blanc",
+      "red": "Rouge",
+      "green": "Vert",
+      "blue": "Bleu",
+      "whiteRepeat": "Blanc repete",
+      "led0": "LED 0 seule",
+      "led3": "LED 3 seule",
+      "led0Repeat": "LED 0 seule repetee",
+      "led3Repeat": "LED 3 seule repetee",
+      "diffuse": "LED diffuses configurees",
+      "led4": "LED 4 seule",
+      "led4Repeat": "LED 4 seule repetee",
+      "led7": "LED 7 seule",
+      "led7Repeat": "LED 7 seule repetee"
+    },
+    "directionMode": "Direction des LED (LED 0 / LED 7)",
+    "stagedMode": "Serie d'eclairage principal + verification foil",
+    "stagedSequence": "Etape 1 utilise les LED diffuses configurees : LED eteintes > blanc normal 32/255 > blanc faible 8/255 > blanc fort 96/255 > blanc normal 32/255 a nouveau. Etape 2, verification de chaque carte : LED 0 > LED 7 > LED 0 > LED 7, chacune a 32/255 avec les LED diffuses eteintes. Gardez la carte immobile et bloquez la lumiere ambiante. Cela change la luminosite des LED, pas l'exposition de la camera; l'exposition automatique peut compenser. L'etape 1 ne classe pas encore les cartes et ne saute aucune verification. La lecture experimentale utilise les captures directionnelles. Les repetitions de l'eclairage normal verifient la stabilite. Le tri en direct reste inchange.",
+    "directionSequence": "L'eclairage principal utilise les LED diffuses configurees. Les LED 0 et 7 exposees sont reservees a la detection foil. Gardez la carte immobile : LED eteintes > LED diffuses blanches 12/255 > LED diffuses blanches 32/255 > LED 0 seule > LED 7 seule > LED 0 seule > LED 7 seule (LED seules a 32/255). Necessite un firmware de trieuse avec la direction des LED : reflashez d'abord depuis le site, sinon la capture s'arrete si le masque LED n'est pas confirme. Bloquez la lumiere de la piece. La lecture foil est experimentale.",
+    "directionHelp": "La reponse directionnelle divise le recadrage LED {{far}} par le recadrage LED 0 pixel par pixel, ce qui annule en grande partie l'illustration imprimee, puis retire la variation douce le long de la bande avec une moyenne locale 17x17. Les changements nets restants sont des reflets qui se deplacent avec la lumiere. Le bruit de repetition est la meme mesure entre LED 0 et sa repetition; un signal foil utile doit etre nettement au-dessus. Experimental, pas un score de foil.",
+    "directionResponse": "LED 0 contre LED {{far}} ({{eligible}}% utilisable) : residu au 99e percentile {{peak}}, reflets mobiles {{glints}}% de la carte.",
+    "directionNoise": "Bruit de repetition, LED 0 contre LED 0 ({{eligible}}% utilisable) : residu au 99e percentile {{peak}}, reflets mobiles {{glints}}% de la carte.",
+    "directionUnavailable": "Comparaison directionnelle indisponible : recadrage manquant ou trop peu de pixels eclaires.",
+    "directionStability": "{{led}} repetee : variation d'intensite {{shift}} points; difference normalisee {{difference}}%; deplacement des coins {{movement}}% de la diagonale.",
+    "verdict": {
+      "foil": "Foil (experimental)",
+      "nonFoil": "Non foil (experimental)",
+      "uncertain": "Incertain"
+    },
+    "verdictToast": "{{card}} : {{verdict}}",
+    "verdictMismatch": "La lecture experimentale contredit la finition choisie. Verifiez l'etiquette; si elle est correcte, exportez cet echantillon pour ajuster les seuils.",
+    "rainbowScore": "Variation de couleur directionnelle, LED 0 contre LED {{far}} : {{first}}, repetition {{repeat}}. De larges reflets colores peuvent aussi augmenter ce score; il ne suffit pas a prouver une finition foil.",
+    "localRainbowScore": "Ancien score local de variation de couleur : {{first}}, repetition {{repeat}}. Conserve uniquement pour comparaison; les couleurs imprimees peuvent augmenter ce score.",
+    "analysisVersion": "Version d'analyse du detecteur : {{version}}",
+    "normalizedScore": "Score directionnel normalise par rapport aux couleurs imprimees : {{first}}, repetition {{repeat}}. Bruit sous le meme eclairage : {{noise0}} / {{noiseFar}}. Foil exige les deux scores directionnels a {{foil}} ou plus; non foil exige les deux a {{nonFoil}} ou moins. Captures stables et exploitables et faible bruit de repetition requis; sinon incertain. Experimental, sans precision validee ni reconnaissance des finitions speciales.",
+    "normalizedCoverage": "Pixels directionnels exploitables : {{eligible}}%, repetition {{eligibleRepeat}}%. Pixels reagissant au changement de lumiere : {{changed}}%, repetition {{changedRepeat}}%. Chaque mesure exige au moins 25% de couverture. Les echantillons sous pochette restent incertains.",
+    "reanalyzeGlare": "Cet echantillon utilise un ancien detecteur sans rapports de couleur normalises par rapport aux couleurs imprimees. Appuyez sur Analyser pour le mettre a jour; l'ancienne prediction de finition est masquee."
+  },
   "page": {
     "title": "Réglage du trieur",
     "subtitle": "Suis ces étapes dans l'ordre pour préparer un trieur."
@@ -23,6 +125,13 @@
       "title": "Réduire le nombre de modules ?",
       "description": "Passer à {{count}} modules retirera les règles de tri et les données de calibration pour les modules et bacs au-delà de ce nombre, dans tous les préréglages de bacs.",
       "confirm": "Modifier le nombre de modules"
+    },
+    "detect": {
+      "button": "Détecter",
+      "found": "{{count}} module détecté grâce aux capteurs IR branchés.",
+      "found_other": "{{count}} modules détectés grâce aux capteurs IR branchés.",
+      "noneFound": "Aucun capteur IR trouvé. Vérifiez que le capteur du module 1 est branché.",
+      "failed": "Impossible de lire les capteurs IR du trieur."
     }
   },
   "channelLayoutUpgrade": {
@@ -60,18 +169,24 @@
       "small": "Petit",
       "medium": "Moyen",
       "large": "Grand",
+      "xlarge": "Très grand",
+      "xxlarge": "Très très grand",
       "unlimited": "Illimité",
       "custom": "Personnalisé"
     },
     "customHeightLabel": "Hauteur personnalisée du bac {{bin}}",
     "customHeightUnit": "mm",
     "customHeightHint": "Environ {{count}} cartes à {{thickness}} mm chacune",
-    "customHeightInvalid": "Saisissez entre {{min}} et {{max}} mm"
+    "customHeightInvalid": "Saisissez entre {{min}} et {{max}} mm",
+    "binSizeLabel": "Taille du bac {{bin}}",
+    "bottomModuleSelect": "Module du bac {{bin}}",
+    "bottomBinSelect": "Bac inférieur du module {{module}}"
   },
   "binRoutingControls": {
     "label": "Routage des bacs",
     "feed": "Alimenter",
     "dropCard": "Lâcher la carte",
+    "retractCard": "Retirer la carte",
     "binActive": "Bac {{bin}}…",
     "running": "En cours…",
     "sampleRun": "Test d'exécution",
@@ -90,6 +205,8 @@
     "forward": "Avant",
     "reverse": "Inverse",
     "timeoutLabel": "Délai d'expiration (ms)",
+    "feedRetryCountLabel": "Nouvelles tentatives d'alimentation",
+    "feedRetryCountDescription": "Quand une alimentation expire sans livrer de carte, renvoyer la commande d'alimentation jusqu'à ce nombre de fois avant la pause. 0 désactive les nouvelles tentatives.",
     "pulseDurationLabel": "Durée de l'impulsion (ms)",
     "continuousFeedButton": "Alimentation continue",
     "pauseDurationLabel": "Durée de la pause (ms)",
@@ -99,6 +216,23 @@
     "reverseDurationDescription": "Quand une carte atteint le module 1, le rouleau tourne en arrière pendant cette durée pour retirer la carte suivante du chargeur au lieu de la laisser avancer et provoquer une double alimentation. 0 le désactive.",
     "reverseSpeedLabel": "Vitesse de recul",
     "off": "Désactivé"
+  },
+  "feederTest": {
+    "heading": "Test du chargeur",
+    "description": "Envoyez des cartes directement dans le bac du bas sans les scanner. Laissez le test tourner et réglez le chargeur sur la page « Servos et chargeur » : les changements s'appliquent dès la carte suivante et restent non enregistrés tant que vous n'enregistrez pas.",
+    "runUntilStoppedLabel": "Alimenter jusqu'à l'arrêt",
+    "cardsToSendLabel": "Cartes à envoyer",
+    "start": "Démarrer l'alimentation",
+    "stop": "Arrêter",
+    "stopping": "Arrêt après cette carte",
+    "progress": "Cartes envoyées : {{count}}",
+    "progressOfTotal": "Cartes envoyées : {{count}} sur {{total}}",
+    "toasts": {
+      "completed": "Test du chargeur terminé. Cartes envoyées : {{count}}",
+      "stopped": "Test du chargeur arrêté. Cartes envoyées : {{count}}",
+      "hopperEmpty": "La trémie est vide. Cartes envoyées : {{count}}",
+      "failed": "Test du chargeur arrêté sur une erreur. Cartes envoyées : {{count}}"
+    }
   },
   "irSensorPanel": {
     "label": "Capteurs IR",
@@ -153,11 +287,14 @@
     "captureSettleDescription": "Temps d'attente après que le chargeur confirme l'arrivée d'une carte avant de capturer une image, pour qu'elle soit parfaitement immobile et nette.",
     "matchesNeededLabel": "Correspondances requises",
     "matchesNeededDescription": "Nombre d'images consécutives devant s'accorder sur la même carte avant qu'un scan soit accepté. 1 est le plus rapide ; des valeurs plus élevées sont plus fiables mais plus lentes.",
+    "flipCameraLabel": "Retourner la caméra à 180°",
+    "flipCameraDescription": "Retourne l'image de la caméra, pour une caméra montée à l'envers. S'applique aux scans et à chaque aperçu de la caméra connectée à ce trieur, pas aux photos du téléphone.",
     "checkBothOrientationsLabel": "Vérifier les deux sens",
     "checkBothOrientationsDescription": "Compare aussi la carte tournée de 180°, afin que les cartes insérées à l'envers soient quand même identifiées. Désactivez cette option si toutes vos cartes sont insérées dans le même sens pour accélérer chaque scan.",
     "executionProviderLabel": "Moteur de détection IA",
-    "executionProviderDescription": "Le moteur qui exécute les modèles de détection et de correspondance des cartes dans ton navigateur. WASM est l'option par défaut et fonctionne partout. WebGPU peut être plus rapide sur certains GPU, et bascule sur WASM s'il ne démarre pas.",
+    "executionProviderDescription": "Le moteur qui exécute le modèle de correspondance des cartes dans ton navigateur (la détection des cartes tourne toujours sur WASM, où elle est plus rapide). WASM est l'option par défaut et fonctionne partout, mais ne gère qu'une trieuse à la fois. WebGPU peut être plus rapide sur certains GPU, gère plusieurs trieuses à la fois, et bascule sur WASM s'il ne démarre pas.",
     "executionProviderWebGpu": "WebGPU",
+    "regionKeyboardLabel": "Zone de scan. Déplace-la avec les touches fléchées et redimensionne-la avec les touches plus et moins. Maintiens Maj pour des pas plus grands.",
     "executionProviderWasm": "WASM (par défaut)",
     "usePhoneAsCamera": "Utiliser le téléphone comme caméra",
     "phoneCameraConnected": "Caméra du téléphone connectée",
@@ -171,6 +308,35 @@
     "cameraPlaceholder": "Choisir une caméra",
     "cameraFallbackLabel": "Caméra {{index}}",
     "heading": "Zone de scan"
+  },
+  "cameraPrintingScore": {
+    "heading": "Aide au calibrage de la caméra",
+    "setLabel": "Set",
+    "cardLabel": "Carte",
+    "setPlaceholder": "Choisir un set",
+    "cardPlaceholder": "Choisir une carte",
+    "setsLoading": "Chargement des sets…",
+    "cardsLoading": "Chargement des cartes…",
+    "noSets": "Aucun set correspondant.",
+    "noCards": "Aucune carte correspondante.",
+    "rate": "Noter",
+    "rating": "Notation…",
+    "description": "Choisis le set, puis la carte posée sur le scanner, et note une image de la caméra. Plus le nombre est bas, plus l'image est proche de la photo enregistrée de ce tirage. Un scan accepte la carte seulement si elle est la plus proche, sous {{threshold}}, et nettement plus proche que toute autre carte. Ce nombre n'est pas un pourcentage et n'est pas une note d'état, et il peut changer d'une pression à l'autre. Noter ne change pas la caméra et n'enregistre rien.",
+    "fieldsRequired": "Choisis un set et une carte.",
+    "noCollection": "Choisis une collection avant de noter. La note utilise le jeu de cette collection.",
+    "noCamera": "Connecte une caméra, ou prends une photo avec le téléphone, avant de noter.",
+    "notSynced": "Ce tirage n'est pas dans le catalogue synchronisé pour le jeu de cette collection. Synchronise le set, puis note à nouveau.",
+    "distanceLabel": "Distance",
+    "nearestDifferent": "La carte la plus proche du catalogue est {{name}} ({{set}} {{number}}) à {{distance}}.",
+    "cardLine": "{{name}}, {{set}} {{number}}",
+    "failed": "Impossible de noter cette image.",
+    "verdict": {
+      "accept": "Un scan accepterait cette carte.",
+      "other_card": "Un scan reconnaîtrait une autre carte.",
+      "too_far": "Un scan refuserait cette image. La carte la plus proche est à {{threshold}} ou plus.",
+      "ambiguous": "Un scan refuserait cette image. Une autre carte est presque aussi proche.",
+      "empty_index": "Un scan refuserait cette image. Aucune carte n'est synchronisée pour ce jeu."
+    }
   },
   "useCalibrationPage": {
     "toasts": {
@@ -292,6 +458,7 @@
       "pulse": "Impulsion",
       "pause": "Pause",
       "settle": "Délai de détection finale",
+      "feedRetries": "Tentatives",
       "rollback": "Recul"
     },
     "toasts": {
@@ -302,6 +469,7 @@
     "disconnect": "Déconnecter",
     "connectDevice": "Connecter l'appareil",
     "connectUsb": "Connecter via USB",
+    "connectPi": "Connecter la trieuse de ce Pi",
     "connectBluetooth": "Connecter via Bluetooth",
     "testing": "Test en cours…",
     "runTest": "Lancer le test",
@@ -331,6 +499,7 @@
     "forced": "Assistant de configuration requis pour ce trieur",
     "forcedNextConnect": "Il s'ouvrira à la prochaine connexion de {{name}}.",
     "forceFailed": "Impossible d'imposer l'assistant de configuration",
+    "completeFailed": "Impossible d'enregistrer la fin de la configuration. Réessaie.",
     "title": "Configurer ton trieur",
     "stepCounter": "Étape {{current}} sur {{total}}",
     "skip": "Passer la configuration",
@@ -418,7 +587,7 @@
       "clear": "Libre",
       "verified": "Capteur vérifié",
       "waiting": "En attente de la première lecture du trieur…",
-      "footnote": "Un capteur qui ne s'allume jamais est souvent débranché, câblé sur la mauvaise broche ou mal orienté par rapport au trajet des cartes. Tu peux continuer et corriger ça plus tard."
+      "footnote": "Un capteur qui ne s'allume jamais est souvent débranché, câblé sur la mauvaise broche ou mal orienté par rapport au trajet des cartes. Tu peux continuer et corriger ça plus tard. Si un capteur s'allume sans rien devant lui, ou ne voit une carte que collée contre lui, tourne la vis de son boîtier bleu (le potentiomètre) jusqu'à ce qu'il détecte une carte à 2,5 cm."
     },
     "feederStop": {
       "heading": "Point d'arrêt du chargeur",
@@ -535,21 +704,24 @@
     "previewUnavailable": "Connecte le trieur et fais-lui passer l'autotest pour prévisualiser les changements sur le ruban. Tu peux quand même modifier et enregistrer.",
     "strip": {
       "heading": "Ruban lumineux",
-      "description": "Éclaire la carte pendant le scan. Les changements s'affichent tout de suite sur le ruban et sont conservés une fois enregistrés."
+      "description": "LED SK6812 RGBW : les LED diffuses 1 à 6 et, sur un ruban de 16 LED, 8 à 15 assurent l'éclairage normal. Les LED exposées 0 et 7 servent à la détection foil. Les alertes utilisent toutes les LED configurées."
     },
+    "ledCountLabel": "Longueur du ruban LED",
+    "ledCountValue": "{{count}} LED",
+    "ledCountHelp": "Choisissez 8 pour la première carte seule ou 16 pour les deux cartes connectées en série. Enregistrez pour conserver le réglage.",
     "modeLabel": "Mode",
     "modes": {
       "off": {
         "label": "Éteint",
-        "description": "Le ruban reste éteint, sauf pour les alertes."
+        "description": "L'eclairage normal reste eteint. Les alertes et celebrations activees peuvent toujours allumer le ruban."
       },
       "white": {
         "label": "Blanc",
-        "description": "Un blanc neutre et lumineux, idéal pour la plupart des caméras."
+        "description": "Le firmware 2.13+ utilise le canal blanc neutre dédié de la bande. La balance des blancs et la qualité des LED influencent encore la couleur; ce n'est pas un étalonnage."
       },
       "custom": {
         "label": "Couleur personnalisée",
-        "description": "Une couleur unie de ton choix."
+        "description": "Choisissez une couleur RGB et réglez indépendamment le canal blanc neutre."
       },
       "foil": {
         "label": "Balayage foil",
@@ -557,20 +729,40 @@
       }
     },
     "colorLabel": "Couleur",
+    "whiteChannelLabel": "Canal blanc (W)",
+    "whiteChannelValue": "{{value}}/255",
     "brightnessLabel": "Luminosité",
     "brightnessValue": "{{percent}} %",
+    "celebration": {
+      "heading": "Célébration des cartes de valeur",
+      "description": "Une LED clignote a la fois, de 0 a la derniere LED configuree puis en sens inverse, alternant vert, rouge et bleu. Pour les nouvelles cartes atteignant la valeur minimale. Desactivez les celebrations automatiques avec l'interrupteur. Retour a l'eclairage normal avant la carte suivante. La longueur configurable necessite un firmware mis a jour.",
+      "duration": "Duree de celebration (secondes)",
+      "invalidDuration": "Saisissez de 0,5 a 3 secondes.",
+      "previewFailed": "Echec du test. Effacez les alertes et mettez a jour le firmware pour la duree reglable.",
+      "enabled": "Activer la célébration automatique",
+      "threshold": "Valeur minimale ({{currency}})",
+      "invalidThreshold": "Saisis un montant positif ou nul.",
+      "source": "Utilise les prix {{source}}, avec finition brillante et état. Après un changement de source, enregistre à nouveau ces réglages.",
+      "failed": "Le trieur n'a pas confirmé la célébration. Le scan a été mis en pause."
+    },
     "alerts": {
       "heading": "Alertes",
-      "description": "Le ruban clignote tout seul quand le trieur a besoin d'attention. Les alertes remplacent le mode jusqu'à leur fin.",
-      "jam": "Rouge clignotant : une carte est coincée. S'arrête après le prochain tri réussi ou « Lâcher la carte ».",
-      "empty": "Jaune clignotant : le chargeur est vide. S'arrête dès qu'une carte est de nouveau chargée.",
-      "value": "Clignotement rouge, vert et bleu : une célébration pour une carte de valeur. Dure 3 secondes.",
+      "description": "Les alertes alternent avec l'eclairage central normal tant qu'un defaut signale persiste, puis cessent lorsque le capteur se libere. Durees en secondes, enregistrees par trieur. Par defaut : 3 secondes d'alerte, 5 secondes normales. Blocages prioritaires sur chargeur vide et celebrations. La securite reste active sans alertes lumineuses. Firmware 2.12.0 requis.",
+      "enabled": "Activer les alertes lumineuses",
+      "lightEmptyWarningSeconds": "Alerte ambree de chargeur vide (secondes)",
+      "lightBlockedWarningSeconds": "Alerte rouge de module bloque (secondes)",
+      "lightNormalSeconds": "Eclairage diffus normal entre alertes (secondes)",
+      "invalidSeconds": "Saisissez un entier de 1 a 300 secondes.",
+      "jam": "Module bloque : toutes les LED configurees deviennent rouges pendant la duree configuree.",
+      "empty": "Chargeur vide : toutes les LED configurees deviennent ambrees pendant la duree configuree.",
+      "value": "Les celebrations vont de la LED 0 a la derniere LED configuree puis en sens inverse, avec des flashs verts, rouges et bleus.",
       "testCelebration": "Tester la célébration",
       "clear": "Arrêter l'alerte"
     },
     "toasts": {
       "saved": "Réglages d'éclairage enregistrés.",
-      "saveFailed": "Impossible d'enregistrer les réglages d'éclairage."
+      "saveFailed": "Impossible d'enregistrer les réglages d'éclairage.",
+      "previewFailed": "Reglages lumineux non confirmes. Verifiez la connexion, les durees et le firmware."
     }
   }
 }

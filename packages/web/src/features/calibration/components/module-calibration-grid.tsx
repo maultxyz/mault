@@ -18,12 +18,8 @@ import {
   MODULE_DELAY_FIRMWARE_FEATURES,
   MODULE_DELAY_SLIDER_MAX,
   PUSH_TEST_DIRECTIONS,
-  percentToPulse,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT,
-  pulseToPercent,
-  SERVO_PULSE_MAX,
-  SERVO_PULSE_MIN,
   SERVOS,
   sliderMax,
 } from "@/lib/constants/calibration";
@@ -34,13 +30,19 @@ import type {
   PushTestControlProps,
   ModuleCalibrationGridProps,
 } from "@/lib/interfaces/calibration";
-import { DEFAULT_CALIBRATION } from "@magic-vault/shared";
+import {
+  DEFAULT_CALIBRATION,
+  percentToPulse,
+  pulseToPercent,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
+} from "@magic-vault/shared";
 import {
   IconAlertTriangle,
   IconInfoCircle,
   IconPlayerPlay,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function ServoControl({
@@ -70,17 +72,22 @@ export function ServoControl({
 
   const percent = pulseToPercent(sliderValue);
   const sliderDisabled = !canCalibrate || !activePosition;
+  const servoLabelId = useId();
+  const editingPositionId = useId();
 
   return (
     <div className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-2">
-        <p className="text-xs text-foreground/70">{t(servo.labelKey)}</p>
+        <p id={servoLabelId} className="text-xs text-foreground/70">
+          {t(servo.labelKey)}
+        </p>
         <Tooltip>
           <TooltipTrigger
             render={
               <Button
+                aria-label={t(servo.name === "pusher" ? "moduleCalibrationGrid.testServoTooltipPusher" : "moduleCalibrationGrid.testServoTooltipGate")}
                 variant="ghost"
-                size="icon-xs"
+                size="icon"
                 disabled={!canTest || !calibration}
                 onClick={() => onTest(module, servo.name)}
                 className={cn(isTesting && "text-primary")}
@@ -127,6 +134,7 @@ export function ServoControl({
             variant={
               activePosition === position ? "outline-selected" : "outline"
             }
+            aria-pressed={activePosition === position}
             disabled={!canCalibrate}
             onClick={() => onControl(module, servo.name, position)}
             className="flex-1"
@@ -146,7 +154,7 @@ export function ServoControl({
 
       <div className="flex flex-col gap-1.5">
         <div className="flex items-center justify-between">
-          <span className="text-xs text-foreground/70">
+          <span id={editingPositionId} className="text-xs text-foreground/70">
             {activePosition
               ? t("moduleCalibrationGrid.editingPosition", {
                   position: positionLabel(activePosition),
@@ -163,6 +171,7 @@ export function ServoControl({
           </Tooltip>
         </div>
         <Slider
+          aria-labelledby={`${servoLabelId} ${editingPositionId}`}
           min={0}
           max={100}
           step={1}
@@ -195,6 +204,7 @@ export function ServoControl({
             disabled={sliderDisabled || sliderValue <= SERVO_PULSE_MIN}
             onClick={() => onSliderChange(module, servo.name, sliderValue - 1)}
             className="px-2"
+            aria-label={t("setupWizard.nudgeDown")}
           >
             -
           </Button>
@@ -221,6 +231,7 @@ export function ServoControl({
             disabled={sliderDisabled || sliderValue >= SERVO_PULSE_MAX}
             onClick={() => onSliderChange(module, servo.name, sliderValue + 1)}
             className="px-2"
+            aria-label={t("setupWizard.nudgeUp")}
           >
             +
           </Button>
@@ -284,7 +295,10 @@ export function PushTestControl({
           {t("moduleCalibrationGrid.pushTestLabel")}
         </p>
         <Tooltip>
-          <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+          <TooltipTrigger
+            aria-label={t("moduleCalibrationGrid.pushTestTooltip")}
+            className="text-foreground/70 hover:text-foreground transition-colors"
+          >
             <IconInfoCircle className="size-3.5" />
           </TooltipTrigger>
           <TooltipContent className="max-w-xs">
@@ -357,7 +371,10 @@ export function ModuleCalibrationGrid({
                   {t("moduleCalibrationGrid.rawPulseToggleLabel")}
                 </span>
                 <Tooltip>
-                  <TooltipTrigger className="text-foreground/70 hover:text-foreground transition-colors">
+                  <TooltipTrigger
+                    aria-label={t("moduleCalibrationGrid.rawPulseTooltip")}
+                    className="text-foreground/70 hover:text-foreground transition-colors"
+                  >
                     <IconInfoCircle className="size-3.5" />
                   </TooltipTrigger>
                   <TooltipContent className="max-w-xs">
@@ -365,6 +382,7 @@ export function ModuleCalibrationGrid({
                   </TooltipContent>
                 </Tooltip>
                 <Switch
+                  aria-label={t("moduleCalibrationGrid.rawPulseToggleLabel")}
                   checked={showRaw}
                   onCheckedChange={(checked) =>
                     setRawModeByModule((prev) => ({

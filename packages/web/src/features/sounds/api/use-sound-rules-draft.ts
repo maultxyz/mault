@@ -11,10 +11,11 @@ import {
 } from "@/features/sounds/lib/sound-rules-draft";
 import { toast } from "@/lib/toast";
 import {
-  soundRulesDraftSchema,
-  type SoundRulesDraftValues,
-} from "@/schemas/sound-rules-draft.schema";
-import type { Result, SoundRule } from "@magic-vault/shared";
+  type Result,
+  type SoundRule,
+  soundRulesDraftFormSchema,
+  type SoundRulesDraftFormValues,
+} from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useMemo } from "react";
@@ -28,8 +29,8 @@ export function useSoundRulesDraft(gameGuid: string, rules: SoundRule[]) {
   const rulesOpts = soundRulesQueryOptions(activeOrg?.id, gameGuid);
   const values = useMemo(() => toSoundRulesDraft(rules), [rules]);
 
-  const form = useForm<SoundRulesDraftValues>({
-    resolver: zodResolver(soundRulesDraftSchema),
+  const form = useForm<SoundRulesDraftFormValues>({
+    resolver: zodResolver(soundRulesDraftFormSchema),
     values,
     resetOptions: { keepDirtyValues: true },
   });
@@ -40,7 +41,7 @@ export function useSoundRulesDraft(gameGuid: string, rules: SoundRule[]) {
     [rules, order],
   );
 
-  const save = async (draft: SoundRulesDraftValues) => {
+  const save = async (draft: SoundRulesDraftFormValues) => {
     const requests: (() => Promise<Result<SoundRule[]>>)[] = rules
       .filter(
         (rule) =>

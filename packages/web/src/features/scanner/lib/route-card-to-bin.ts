@@ -12,14 +12,19 @@ export async function routeCardToBin({
   failedKey,
   cardName,
   collectionGuid,
+  deviceGuid,
   isAutoFeedEnabled,
   isPipelinedFeedEnabled,
   pause,
   triggerAutoFeed,
   onJam,
+  onRouted,
 }: RouteCardToBinParams): Promise<void> {
-  const feedNext = isAutoFeedEnabled() && isPipelinedFeedEnabled();
-  const response = await sendRoute(route, { feedNext });
+  const feedNext = !onRouted && isAutoFeedEnabled() && isPipelinedFeedEnabled();
+  const response = await sendRoute(route, {
+    feedNext,
+    requireLoadedCard: true,
+  });
 
   if (!response) {
     toast.error(t(`${failedKey}.title`), {
@@ -34,6 +39,7 @@ export async function routeCardToBin({
       cardName,
       binNumber: route.binNumber,
       collectionGuid,
+      deviceGuid: deviceGuid,
     });
     pause();
     return;
@@ -42,6 +48,27 @@ export async function routeCardToBin({
   const res = response as Record<string, unknown>;
 
   if (res.skipped) {
+    pause();
+    return;
+  }
+
+  if (res.noLoadedCard) {
+    toast.error(t("scannedCards.cardMissingBeforeRoute.title"), {
+      description: t("scannedCards.cardMissingBeforeRoute.description", {
+        binNumber: route.binNumber,
+      }),
+      duration: Infinity,
+      dismissible: true,
+    });
+    void reportSerialEvent({
+      command: "bin",
+      sent: true,
+      response: res,
+      cardName,
+      binNumber: route.binNumber,
+      collectionGuid,
+      deviceGuid: deviceGuid,
+    });
     pause();
     return;
   }
@@ -59,6 +86,7 @@ export async function routeCardToBin({
       cardName,
       binNumber: route.binNumber,
       collectionGuid,
+      deviceGuid: deviceGuid,
     });
     pause();
     return;
@@ -82,7 +110,13 @@ export async function routeCardToBin({
       cardName,
       binNumber: route.binNumber,
       collectionGuid,
+      deviceGuid: deviceGuid,
     });
+    pause();
+    return;
+  }
+
+  if (onRouted && !(await onRouted())) {
     pause();
     return;
   }

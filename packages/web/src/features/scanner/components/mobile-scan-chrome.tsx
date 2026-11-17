@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
+import { MobileScanRemovalSheet } from "@/features/scanner/components/mobile-scan-removal-sheet";
 import { MobileCameraSheet } from "@/features/scanner/components/mobile-camera-sheet";
 import { MobileCollectionSheet } from "@/features/scanner/components/mobile-collection-sheet";
 import { MobilePresetSheet } from "@/features/scanner/components/mobile-preset-sheet";
@@ -23,6 +25,7 @@ import {
   IconDots,
   IconPlayerPauseFilled,
   IconPlayerPlayFilled,
+  IconTrash,
 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -38,6 +41,11 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
   const [camerasOpen, setCamerasOpen] = useState(false);
   const [controlsOpen, setControlsOpen] = useState(false);
   const [sessionOpen, setSessionOpen] = useState(false);
+  const [removalQueueOpen, setRemovalQueueOpen] = useState(false);
+  const {
+    queuedCount: removalQueuedCount,
+    isRemoveModeActive,
+  } = useScanRemoval();
 
   const running = SESSION_TIMER_RUNNING_STATUSES.includes(chrome.status);
   const sorterDriven = chrome.isReady || chrome.handScanActive;
@@ -76,9 +84,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           title={t("scannerOverlay.dailyLimitReached")}
           action={
             <Button
-              size="sm"
               variant="secondary"
-              className="rounded-full"
               render={<Link to={SETTINGS_PATHS.billing} />}
             >
               {t("scannerOverlay.upgradeButton")}
@@ -91,9 +97,11 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
       return (
         <MobileScanNotice
           title={t("mobileScan.cameraOff")}
-          description={chrome.errorMessage || t("mobileScan.cameraOffDescription")}
+          description={
+            chrome.errorMessage || t("mobileScan.cameraOffDescription")
+          }
           action={
-            <Button size="sm" className="rounded-full" onClick={chrome.onRetry}>
+            <Button onClick={chrome.onRetry}>
               {t("mobileScan.startCamera")}
             </Button>
           }
@@ -107,9 +115,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           title={chrome.errorMessage || t("mobileScan.phase.error")}
           action={
             <Button
-              size="sm"
               variant="secondary"
-              className="rounded-full"
               onClick={chrome.onRetry}
             >
               {t("mobileScan.retry")}
@@ -127,9 +133,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           })}
           action={
             <Button
-              size="sm"
               variant="secondary"
-              className="rounded-full"
               onClick={chrome.onResolveSensorBlocked}
             >
               {t("scannerOverlay.resolveSensorBlocked")}
@@ -140,7 +144,10 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
     }
     if (chrome.isReady && !chrome.hasCatchAll) {
       return (
-        <MobileScanNotice tone="warning" title={t("scannerOverlay.noCatchAllBin")} />
+        <MobileScanNotice
+          tone="warning"
+          title={t("scannerOverlay.noCatchAllBin")}
+        />
       );
     }
     if (!chrome.isConnected && !chrome.handScan && sessionScanCount === 0) {
@@ -151,8 +158,6 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           action={
             chrome.bluetoothSupported ? (
               <Button
-                size="sm"
-                className="rounded-full"
                 onClick={chrome.onConnectBluetooth}
               >
                 {t("mobileScan.connect")}
@@ -173,17 +178,34 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             {running && (
               <span className="size-2 shrink-0 rounded-full bg-success animate-pulse motion-reduce:animate-none" />
             )}
-            <span className="truncate">{phaseLabel}</span>
+            <span role="status" aria-live="polite" className="truncate">
+              {phaseLabel}
+            </span>
           </span>
-          <button
-            type="button"
-            onClick={() => setSessionOpen(true)}
-            className={cn(MOBILE_SCAN_CHIP_CLASS, "shrink-0")}
-          >
-            <IconCards className="size-4 shrink-0" />
-            {t("mobileScan.session.chip", { count: sessionScanCount })}
-            <IconChevronRight className="size-4 shrink-0" />
-          </button>
+          {isRemoveModeActive ? (
+            <button
+              type="button"
+              onClick={() => setRemovalQueueOpen(true)}
+              className={cn(
+                MOBILE_SCAN_CHIP_CLASS,
+                "shrink-0 text-destructive",
+              )}
+            >
+              <IconTrash className="size-4 shrink-0" />
+              {t("scanRemoval.queuedCount", { count: removalQueuedCount })}
+              <IconChevronRight className="size-4 shrink-0" />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setSessionOpen(true)}
+              className={cn(MOBILE_SCAN_CHIP_CLASS, "shrink-0")}
+            >
+              <IconCards className="size-4 shrink-0" />
+              {t("mobileScan.session.chip", { count: sessionScanCount })}
+              <IconChevronRight className="size-4 shrink-0" />
+            </button>
+          )}
           <button
             type="button"
             aria-label={t("mobileScan.options")}
@@ -196,11 +218,15 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             <IconDots className="size-5" />
           </button>
         </div>
-        {chrome.handScanActive && chrome.lastRoutedBin && (
-          <div className="flex justify-center px-4 pt-3">
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex justify-center px-4 pt-3"
+        >
+          {chrome.handScanActive && chrome.lastRoutedBin && (
             <div
               key={chrome.lastRoutedBin.at}
-              className="flex flex-col items-center rounded-lg border border-primary bg-primary px-5 py-2 text-primary-foreground shadow-lg animate-in fade-in zoom-in-95 motion-reduce:animate-none"
+              className="flex flex-col items-center rounded-lg border border-primary bg-primary px-5 py-2 text-primary-foreground shadow-popover animate-in fade-in zoom-in-95 motion-reduce:animate-none"
             >
               <span className="text-xs font-medium">
                 {t("scannerOverlay.handScanBinLabel")}
@@ -211,17 +237,22 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
                 })}
               </span>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         <div className="flex flex-col gap-3 px-4 pb-[calc(var(--mobile-nav-space,0px)+1rem)]">
-          {notice}
+          <div role="status" aria-live="polite">
+            {notice}
+          </div>
           <div className="flex items-center justify-end gap-3">
             <button
               type="button"
               aria-label={t("mobileScan.controls.open")}
               onClick={() => setControlsOpen(true)}
-              className={cn(MOBILE_SCAN_CHIP_CLASS, "size-11 justify-center px-0")}
+              className={cn(
+                MOBILE_SCAN_CHIP_CLASS,
+                "size-11 justify-center px-0",
+              )}
             >
               <IconAdjustments className="size-5" />
             </button>
@@ -291,6 +322,10 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
         open={controlsOpen}
         onOpenChange={setControlsOpen}
         chrome={chrome}
+      />
+      <MobileScanRemovalSheet
+        open={removalQueueOpen}
+        onOpenChange={setRemovalQueueOpen}
       />
       <MobileSessionScansSheet
         open={sessionOpen}

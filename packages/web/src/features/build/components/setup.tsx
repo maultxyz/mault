@@ -1,7 +1,8 @@
 import { useBuildSetup } from "@/features/build/api/use-build-setup";
 import { Button } from "@/components/ui/button";
-import { AnchorLinkButton } from "@/features/build/components/anchor-link-button";
-import { BuildOptionCard } from "@/features/build/components/option-card";
+import { OptionCard } from "@/components/option-card";
+import { GuideSectionHeader } from "@/components/guide/guide-section-header";
+import { GuideSetupStep } from "@/components/guide/guide-setup-step";
 import {
   BOARD_ICONS,
   BOARD_INFO,
@@ -15,7 +16,6 @@ import {
   MAX_MODULES,
   MIN_MODULES,
 } from "@/lib/constants/build";
-import type { BuildSetupStepProps } from "@/lib/interfaces/build";
 import {
   IconLock,
   IconMinus,
@@ -24,31 +24,6 @@ import {
   IconTool,
 } from "@tabler/icons-react";
 import { Trans, useTranslation } from "react-i18next";
-
-function SetupStep({ step, label, hint, children }: BuildSetupStepProps) {
-  return (
-    <div className="group/step flex gap-3">
-      <div className="flex flex-col items-center">
-        <span className="grid size-6 shrink-0 place-items-center rounded-md bg-primary font-mono text-sm font-semibold text-primary-foreground">
-          {step}
-        </span>
-        <span
-          aria-hidden
-          className="my-1.5 w-0.5 flex-1 bg-primary/25 group-last/step:hidden"
-        />
-      </div>
-      <div className="min-w-0 flex-1 pb-5 group-last/step:pb-0">
-        <h3 className="font-heading text-sm font-semibold">{label}</h3>
-        {hint && (
-          <div className="mt-0.5 text-sm/relaxed text-foreground/70">
-            {hint}
-          </div>
-        )}
-        <div className="mt-2">{children}</div>
-      </div>
-    </div>
-  );
-}
 
 export function BuildSetup() {
   const { t } = useTranslation("build");
@@ -75,33 +50,34 @@ export function BuildSetup() {
   return (
     <section
       id={BUILD_SETUP_ANCHOR}
-      className="mx-auto max-w-4xl scroll-mt-14 px-4 py-8"
+      className="mx-auto max-w-4xl scroll-mt-14 px-4 py-10"
     >
-      <div className="group/anchor flex items-center gap-1">
-        <h2 className="font-heading text-xl font-semibold tracking-tight md:text-2xl">
-          {t("setup.heading")}
-        </h2>
-        <AnchorLinkButton id={BUILD_SETUP_ANCHOR} />
-      </div>
-      <p className="mt-1.5 max-w-2xl text-sm/relaxed text-foreground/70">
-        {t("setup.description")}
-      </p>
+      <GuideSectionHeader
+        id={BUILD_SETUP_ANCHOR}
+        step="01"
+        eyebrow={t("hero.nav.setup")}
+        heading={t("setup.heading")}
+      >
+        <p className="text-sm/relaxed text-foreground/70">
+          {t("setup.description")}
+        </p>
+      </GuideSectionHeader>
 
-      <div className="mt-5 flex flex-col">
-        <SetupStep step={1} label={t("setup.source.label")}>
+      <div className="mt-6 flex flex-col">
+        <GuideSetupStep step={1} label={t("setup.source.label")}>
           <div
             role="radiogroup"
             aria-label={t("setup.source.label")}
             className="grid gap-2 sm:grid-cols-2"
           >
-            <BuildOptionCard
+            <OptionCard
               icon={IconPackage}
               title={t("setup.source.kit.title")}
               description={t("setup.source.kit.description")}
               selected={usingKit}
               onSelect={chooseKit}
             />
-            <BuildOptionCard
+            <OptionCard
               icon={IconTool}
               title={t("setup.source.diy.title")}
               description={t("setup.source.diy.description")}
@@ -109,9 +85,9 @@ export function BuildSetup() {
               onSelect={() => updateSetup({ usingKit: false })}
             />
           </div>
-        </SetupStep>
+        </GuideSetupStep>
 
-        <SetupStep
+        <GuideSetupStep
           step={2}
           label={t("setup.board.label")}
           hint={
@@ -129,7 +105,7 @@ export function BuildSetup() {
             className="grid gap-2 sm:grid-cols-2"
           >
             {BOARD_TYPES.map((type) => (
-              <BuildOptionCard
+              <OptionCard
                 key={type}
                 icon={BOARD_ICONS[type]}
                 title={BOARD_INFO[type].displayName}
@@ -140,17 +116,17 @@ export function BuildSetup() {
               />
             ))}
           </div>
-        </SetupStep>
+        </GuideSetupStep>
 
         {isEsp32 && (
-          <SetupStep step={3} label={t("setup.mount.label")}>
+          <GuideSetupStep step={3} label={t("setup.mount.label")}>
             <div
               role="radiogroup"
               aria-label={t("setup.mount.label")}
               className="grid gap-2 sm:grid-cols-2"
             >
               {ESP32_MOUNT_TYPES.map((type) => (
-                <BuildOptionCard
+                <OptionCard
                   key={type}
                   icon={ESP32_MOUNT_ICONS[type]}
                   title={t(`setup.mount.${type}.title`)}
@@ -161,10 +137,10 @@ export function BuildSetup() {
                 />
               ))}
             </div>
-          </SetupStep>
+          </GuideSetupStep>
         )}
 
-        <SetupStep
+        <GuideSetupStep
           step={moduleStep}
           label={t("setup.modules.label")}
           hint={t("setup.modules.description", { bins: catchAllBin })}
@@ -238,7 +214,7 @@ export function BuildSetup() {
               />
             </p>
           </div>
-        </SetupStep>
+        </GuideSetupStep>
       </div>
     </section>
   );

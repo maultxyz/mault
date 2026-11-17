@@ -1,17 +1,18 @@
 import {
   RECENT_SCANNED_CARDS_COUNT,
+  UNMATCHED_PREVIEW_COUNT,
   type Collection,
   type FieldMeta,
   type PlayingCardWithDistance,
-  type ScannedCard,
 } from "@magic-vault/shared";
-import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../db";
 import { collectionCards, unmatchedCards } from "../db/schema";
 import { cardWithStoredPricesSql } from "../lib/card-price-sql";
-import { SESSION_INIT_UNMATCHED_IMAGE_LIMIT } from "../lib/constants/session-stream";
-import type { ViewerInfo } from "../lib/session-stream";
+import type { ViewerInfo } from "../lib/interfaces/session-stream";
 import { resolveScanImageUrl } from "../lib/scan-images";
+import { isPiHost } from "../lib/pi-host";
+import { hydrateSavedScans } from "../lib/saved-cards";
 import { toScannedCard, toUnmatchedCard } from "./collections/shared";
 
 async function querySessionInit(
@@ -52,6 +53,7 @@ async function querySessionInit(
       isFoil: collectionCards.isFoil,
       foilType: collectionCards.foilType,
       condition: collectionCards.condition,
+      language: collectionCards.language,
       isDownloaded: collectionCards.isDownloaded,
       alternativeMatches: collectionCards.alternativeMatches,
       lowConfidenceMatch: collectionCards.lowConfidenceMatch,
@@ -66,43 +68,27 @@ async function querySessionInit(
     .from(collectionCards)
     .where(eq(collectionCards.collectionId, collection.id));
 
+  const liveUnmatched = and(
+    eq(unmatchedCards.collectionId, collection.id),
+    eq(unmatchedCards.isDeleted, false),
+  );
+  const [{ unmatchedCount }] = await tx
+    .select({ unmatchedCount: count(unmatchedCards.id) })
+    .from(unmatchedCards)
+    .where(liveUnmatched);
   const unmatchedRows = await tx
     .select({
       guid: unmatchedCards.guid,
       scannedAt: unmatchedCards.scannedAt,
       binNumber: unmatchedCards.binNumber,
+      ...(isPiHost() ? { diagnostics: unmatchedCards.diagnostics } : {}),
+      capturedImageDataUrl: unmatchedCards.capturedImageDataUrl,
+      capturedImageKey: unmatchedCards.capturedImageKey,
     })
     .from(unmatchedCards)
-    .where(
-      and(
-        eq(unmatchedCards.collectionId, collection.id),
-        eq(unmatchedCards.isDeleted, false),
-      ),
-    )
-    .orderBy(desc(unmatchedCards.scannedAt));
-
-  const recentUnmatchedGuids = unmatchedRows
-    .slice(0, SESSION_INIT_UNMATCHED_IMAGE_LIMIT)
-    .map((row) => row.guid)
-    .filter((guid): guid is string => !!guid);
-  const recentImages =
-    recentUnmatchedGuids.length > 0
-      ? await tx
-          .select({
-            guid: unmatchedCards.guid,
-            capturedImageDataUrl: unmatchedCards.capturedImageDataUrl,
-            capturedImageKey: unmatchedCards.capturedImageKey,
-          })
-          .from(unmatchedCards)
-          .where(inArray(unmatchedCards.guid, recentUnmatchedGuids))
-      : [];
-  const imageByGuid = new Map(
-    await Promise.all(
-      recentImages.map(
-        async (row) => [row.guid, await resolveScanImageUrl(row)] as const,
-      ),
-    ),
-  );
+    .where(liveUnmatched)
+    .orderBy(desc(unmatchedCards.scannedAt), desc(unmatchedCards.id))
+    .limit(UNMATCHED_PREVIEW_COUNT);
 
   return {
     collection: {
@@ -130,27 +116,21 @@ async function querySessionInit(
       createdAt: collection.createdAt,
       updatedAt: collection.updatedAt,
     } satisfies Collection,
-    recentCards: cardRows.map(toScannedCard).map(slimScan),
-    unmatchedCards: unmatchedRows.map((row) =>
-      toUnmatchedCard({
-        ...row,
-        capturedImageUrl: imageByGuid.get(row.guid),
-      }),
+    recentCards: await hydrateSavedScans(
+      { gameKey: game?.key ?? null, lang: collection.lang },
+      cardRows.map(toScannedCard),
+      { includeRaw: false },
     ),
+    unmatchedCards: await Promise.all(
+      unmatchedRows.map(async (row) =>
+        toUnmatchedCard({
+          ...row,
+          capturedImageUrl: await resolveScanImageUrl(row),
+        }),
+      ),
+    ),
+    unmatchedCount,
     viewers,
-  };
-}
-
-function withoutRaw(card: PlayingCardWithDistance): PlayingCardWithDistance {
-  const { raw: _raw, ...rest } = card;
-  return rest;
-}
-
-function slimScan(scan: ScannedCard): ScannedCard {
-  return {
-    ...scan,
-    card: withoutRaw(scan.card),
-    alternativeMatches: scan.alternativeMatches?.map(withoutRaw),
   };
 }
 

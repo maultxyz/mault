@@ -8,6 +8,7 @@ export function StationStatusDot({ status }: StationStatusDotProps) {
         "size-2 shrink-0 rounded-full",
         status === "sorting" && "bg-success motion-safe:animate-pulse",
         status === "paused" && "bg-warning",
+        status === "attention" && "bg-destructive",
         status === "offline" && "bg-foreground/30",
       )}
     />

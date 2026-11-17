@@ -9,18 +9,21 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { useCardSync } from "@/features/admin/api/use-card-sync";
+import { usePiHost } from "@/hooks/use-pi-host";
 import { formatDuration } from "@/features/admin/lib/format-duration";
+import { browserSyncParallel } from "@/lib/constants/admin";
 import { SYNC_STATUS_COLORS } from "@/lib/constants/colors";
 import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import {
   SYNC_VECTORIZE_CONCURRENCY_DEFAULT,
   SYNC_VECTORIZE_CONCURRENCY_OPTIONS,
 } from "@magic-vault/shared";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function CardSyncPanel() {
   const { t } = useTranslation("admin");
+  const piHost = usePiHost();
   const {
     syncState,
     sources,
@@ -29,12 +32,15 @@ export function CardSyncPanel() {
     done,
     progress,
     etaMs,
+    cardsPerMinute,
+    embeddingCount,
     start,
     isStarting,
     cancel,
     isCancelling,
   } = useCardSync();
   const logRef = useRef<HTMLDivElement>(null);
+  const concurrencySelectId = useId();
   const [syncGameKey, setSyncGameKey] = useState<string | null>(null);
   const [syncLang, setSyncLang] = useState<string>("en");
   const [forceResync, setForceResync] = useState(false);
@@ -55,12 +61,13 @@ export function CardSyncPanel() {
       heading={t("cardImageVectors.heading")}
       badge={
         <p
+          role="status"
           className="text-xs font-medium"
           style={{ color: SYNC_STATUS_COLORS[syncState.status] }}
         >
           {t(`cardImageVectors.syncStatus.${syncState.status}`)}
           {isRunning &&
-            ` — ${
+            `: ${
               sources.find((s) => s.gameKey === syncState.gameKey)?.label ??
               syncState.gameKey
             }${
@@ -83,7 +90,10 @@ export function CardSyncPanel() {
                   setSyncLang(source?.languages[0] ?? "en");
                 }}
               >
-                <SelectTrigger className="w-56">
+                <SelectTrigger
+                  className="w-56"
+                  aria-label={t("cardImageVectors.gameLabel")}
+                >
                   <SelectValue
                     placeholder={t("cardImageVectors.selectGamePlaceholder")}
                   >
@@ -104,7 +114,10 @@ export function CardSyncPanel() {
                 value={syncLang}
                 onValueChange={(value) => setSyncLang(value ?? "en")}
               >
-                <SelectTrigger className="w-32">
+                <SelectTrigger
+                  className="w-32"
+                  aria-label={t("cardImageVectors.languageLabel")}
+                >
                   <SelectValue
                     placeholder={t("cardImageVectors.languagePlaceholder")}
                   >
@@ -130,9 +143,31 @@ export function CardSyncPanel() {
                   ? t("cardImageVectors.cancellingButton")
                   : t("cancel")}
               </Button>
+            ) : piHost ? (
+              <>
+                <Button
+                  disabled={isStarting || !syncGameKey}
+                  onClick={() =>
+                    start(syncGameKey!, syncLang, false, concurrency, "browser")
+                  }
+                >
+                  {isStarting
+                    ? t("starting")
+                    : t("cardImageVectors.startOnComputerButton")}
+                </Button>
+                <Button
+                  variant="outline"
+                  disabled={isStarting || !syncGameKey}
+                  onClick={() =>
+                    start(syncGameKey!, syncLang, forceResync, concurrency)
+                  }
+                >
+                  {t("cardImageVectors.startSyncButton")}
+                </Button>
+              </>
             ) : (
               <Button
-                disabled={isRunning || isStarting || !syncGameKey}
+                disabled={isStarting || !syncGameKey}
                 onClick={() =>
                   start(syncGameKey!, syncLang, forceResync, concurrency)
                 }
@@ -144,6 +179,14 @@ export function CardSyncPanel() {
             )}
           </div>
         </div>
+
+        {isRunning && syncState.vectorizeOn === "browser" && (
+          <p className="text-sm text-foreground/70">
+            {t("cardImageVectors.browserWorking", {
+              count: browserSyncParallel(syncState.concurrency),
+            })}
+          </p>
+        )}
 
         {!isRunning && (
           <div className="flex flex-col gap-3">
@@ -157,9 +200,9 @@ export function CardSyncPanel() {
             </label>
             <div className="flex flex-col gap-1">
               <div className="flex items-center gap-2">
-                <span className="text-sm">
+                <label htmlFor={concurrencySelectId} className="text-sm">
                   {t("cardImageVectors.concurrencyLabel")}
-                </span>
+                </label>
                 <Select
                   value={String(concurrency)}
                   onValueChange={(value) => {
@@ -169,7 +212,7 @@ export function CardSyncPanel() {
                     if (next !== undefined) setConcurrency(next);
                   }}
                 >
-                  <SelectTrigger className="w-24">
+                  <SelectTrigger id={concurrencySelectId} className="w-24">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -190,7 +233,14 @@ export function CardSyncPanel() {
 
         {total > 0 && (
           <div className="flex flex-col gap-1.5">
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
+            <div
+              role="progressbar"
+              aria-label={t("cardImageVectors.progressLabel")}
+              aria-valuemin={0}
+              aria-valuemax={total}
+              aria-valuenow={done}
+              className="h-2 rounded-full bg-muted overflow-hidden"
+            >
               <div
                 className="h-full bg-foreground transition-all duration-300"
                 style={{ width: `${progress}%` }}
@@ -201,10 +251,27 @@ export function CardSyncPanel() {
                 {t("cardImageVectors.progressCount", { done, total })}
               </span>
               <span>
-                {t("cardImageVectors.vectorizedCount", {
-                  count: syncState.processed,
+                {t(syncState.vectorizeOn === "browser" ? "cardImageVectors.savedCount" : "cardImageVectors.vectorizedCount", {
+                  count:
+                    syncState.vectorizeOn === "browser"
+                      ? done - syncState.errors
+                      : syncState.processed,
                 })}
               </span>
+              {embeddingCount > 0 && (
+                <span>
+                  {t("cardImageVectors.activeCount", {
+                    count: embeddingCount,
+                  })}
+                </span>
+              )}
+              {cardsPerMinute !== null && (
+                <span>
+                  {t("cardImageVectors.ratePerMinute", {
+                    count: cardsPerMinute,
+                  })}
+                </span>
+              )}
               {syncState.queued > 0 && (
                 <span>
                   {t("cardImageVectors.queuedCount", {

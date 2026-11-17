@@ -1,4 +1,4 @@
-import type { SyncState, SyncStatus } from "@magic-vault/shared";
+import type { SyncState, SyncStatus, SyncVectorizeOn } from "@magic-vault/shared";
 import { and, eq, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
@@ -10,18 +10,34 @@ import {
 import { toPortraitCardImage } from "../card-image";
 import { vectorizeCardImage } from "../vectorize";
 import type { ParentToWorkerMessage, WorkerToParentMessage } from "../interfaces/sync-job";
+import {
+  cancelBrowserQueue,
+  claimBrowserWork,
+  finishBrowserQueue,
+  serveBrowserQueue,
+  submitBrowserWork,
+} from "./browser-queue";
 import { SYNC_SOURCES } from "./sources";
 import { storedCollectorNumber } from "../card-search/collector-number";
+import { catalogColumnsFor } from "../card-catalog";
 import { rebuildGameVectorIndex } from "../game-vector-index";
 
 function errorMessage(err: unknown): string {
   if (!(err instanceof Error)) return String(err);
   const cause = err.cause instanceof Error ? err.cause.message : null;
-  return cause ? `${err.message} — ${cause}` : err.message;
+  return cause ? `${err.message}: ${cause}` : err.message;
 }
 
-function send(msg: WorkerToParentMessage): void {
-  process.send?.(msg);
+function send(msg: WorkerToParentMessage, then?: () => void): void {
+  if (!process.send) {
+    then?.();
+    return;
+  }
+  if (!then) {
+    process.send(msg);
+    return;
+  }
+  process.send(msg, undefined, undefined, () => then());
 }
 
 function exitAfterFlush(code: number): void {
@@ -48,12 +64,12 @@ function incrementCounters(delta: {
   skipped?: number;
   errors?: number;
 }): void {
-  const s = getState();
+  const syncState = getState();
   state = {
-    ...s,
-    processed: s.processed + (delta.processed ?? 0),
-    skipped: s.skipped + (delta.skipped ?? 0),
-    errors: s.errors + (delta.errors ?? 0),
+    ...syncState,
+    processed: syncState.processed + (delta.processed ?? 0),
+    skipped: syncState.skipped + (delta.skipped ?? 0),
+    errors: syncState.errors + (delta.errors ?? 0),
   };
   send({ type: "incrementCounters", delta });
 }
@@ -121,6 +137,22 @@ async function embedCardImageUrl(
   return embedding;
 }
 
+async function embedFrontFace(
+  source: SyncSource,
+  card: SyncSourceCard,
+  imageUrl: string,
+): Promise<number[]> {
+  try {
+    return await embedCardImageUrl(source, imageUrl);
+  } catch (err) {
+    if (!card.fallbackImageUrl || card.fallbackImageUrl === imageUrl) throw err;
+    addLog(
+      `Image failed for ${card.name} (${errorMessage(err)}), using the TCGTracking image.`,
+    );
+    return embedCardImageUrl(source, card.fallbackImageUrl);
+  }
+}
+
 async function embedBackFace(
   source: SyncSource,
   card: SyncSourceCard,
@@ -149,26 +181,33 @@ async function refreshStoredData(
     const batch = cards.slice(i, i + SYNC_DATA_REFRESH_BATCH_SIZE);
     const rows = `[${batch
       .map((c) => {
+        const data: unknown = JSON.parse(c.data);
         const collectorNumber = storedCollectorNumber(
           source.gameKey,
           lang,
           c.id,
-          JSON.parse(c.data),
+          data,
         );
-        return `{"card_id":${JSON.stringify(c.id)},"collector_number":${JSON.stringify(collectorNumber)},"data":${c.data}}`;
+        const catalog = catalogColumnsFor(source.gameKey, lang, c.id, data);
+        return `{"card_id":${JSON.stringify(c.id)},"collector_number":${JSON.stringify(collectorNumber)},"set_name":${JSON.stringify(catalog.setName)},"rarity":${JSON.stringify(catalog.rarity)},"color_identity":${JSON.stringify(catalog.colorIdentity)},"search_text":${JSON.stringify(catalog.searchText)},"image_small":${JSON.stringify(catalog.imageSmall)},"data":${c.data}}`;
       })
       .join(",")}]`;
     const result = await db.execute(sql`
       UPDATE cards AS c
-      SET data = x.data, collector_number = x.collector_number
+      SET data = x.data, collector_number = x.collector_number,
+        set_name = x.set_name, rarity = x.rarity, color_identity = x.color_identity,
+        search_text = x.search_text, image_small = x.image_small
       FROM jsonb_to_recordset(${rows}::jsonb)
-        AS x(card_id text, collector_number text, data jsonb)
+        AS x(card_id text, collector_number text, set_name text, rarity text,
+          color_identity jsonb, search_text text, image_small text, data jsonb)
       WHERE c.game_key = ${source.gameKey}
         AND c.lang = ${lang}
         AND c.card_id = x.card_id
         AND (
           (c.data - ${volatileKeys}::text[]) IS DISTINCT FROM (x.data - ${volatileKeys}::text[])
           OR c.collector_number IS DISTINCT FROM x.collector_number
+          OR (c.set_name, c.rarity, c.color_identity, c.search_text, c.image_small)
+            IS DISTINCT FROM (x.set_name, x.rarity, x.color_identity, x.search_text, x.image_small)
         )
     `);
     updated += result.rowCount ?? 0;
@@ -205,12 +244,12 @@ async function rebuildVectorIndexIfChurned(
 function emitCancelledDone(): void {
   patchState({ status: "cancelled" });
   addLog("Sync cancelled by user.");
-  const s = getState();
+  const syncState = getState();
   emitEvent("done", {
     status: "cancelled" as SyncStatus,
-    processed: s.processed,
-    skipped: s.skipped,
-    errors: s.errors,
+    processed: syncState.processed,
+    skipped: syncState.skipped,
+    errors: syncState.errors,
   });
 }
 
@@ -218,10 +257,17 @@ async function runSync(
   source: SyncSource,
   lang: string,
   forceResync: boolean,
-  skipUpdatedWithinMs?: number,
+  skipUpdatedWithinMs: number | undefined,
+  vectorizeOn: SyncVectorizeOn,
 ): Promise<void> {
   const baseUrl = source.defaultUrl;
   addLog(`Using data source: ${baseUrl}`);
+  if (vectorizeOn === "browser" && forceResync) {
+    addLog(
+      "Force resync is ignored so this computer only vectorizes cards missing front or back image vectors.",
+    );
+    forceResync = false;
+  }
 
   let cards: Awaited<ReturnType<SyncSource["fetchCards"]>>;
   try {
@@ -297,6 +343,55 @@ async function runSync(
       (!card.backImageUrl || vectorizedBacks.has(card.id))) ||
     recentlyUpdated.has(card.id);
 
+  if (vectorizeOn === "browser") {
+    await refreshStoredData(
+      source,
+      lang,
+      cards.filter(isAlreadyVectorized),
+    );
+    if (isCancelled()) {
+      emitCancelledDone();
+      return;
+    }
+    const needed: SyncSourceCard[] = [];
+    let alreadyDone = 0;
+    for (const card of cards) {
+      if (!card.imageUrl || isAlreadyVectorized(card)) alreadyDone++;
+      else needed.push(card);
+    }
+    cards = [];
+    const outcome = await serveBrowserQueue({
+      source,
+      lang,
+      cards: needed,
+      skipped: alreadyDone,
+      addLog,
+      patchState,
+      incrementCounters,
+      emitEvent,
+      getState,
+      isCancelled,
+    });
+    if (outcome === "cancelled" || isCancelled()) {
+      emitCancelledDone();
+      return;
+    }
+    patchState({ status: "completed", acceptingWork: false, queued: 0 });
+    const finished = getState();
+    addLog(
+      `Done. Processed: ${finished.processed}, Skipped: ${finished.skipped}, Errors: ${finished.errors}`,
+    );
+    emitEvent("done", {
+      status: "completed" as SyncStatus,
+      acceptingWork: false,
+      processed: finished.processed,
+      skipped: finished.skipped,
+      errors: finished.errors,
+      queued: 0,
+    });
+    return;
+  }
+
   const refreshed = await refreshStoredData(
     source,
     lang,
@@ -312,11 +407,6 @@ async function runSync(
   let pendingInserts: (typeof cardImageVectors.$inferInsert)[] = [];
   let pendingCards: SyncSourceCard[] = [];
 
-  // `processed`/`errors` must only advance once a batch's INSERT has been
-  // confirmed - incrementing them as soon as a card was *queued* let a
-  // failed batch INSERT silently lose every other card queued alongside the
-  // one worker that happened to await it, while the UI still reported them
-  // all as processed.
   async function flushInserts(force = false): Promise<void> {
     if (pendingInserts.length === 0) return;
     if (!force && pendingInserts.length < INSERT_BATCH_SIZE) return;
@@ -344,6 +434,11 @@ async function runSync(
             embedding: sql`excluded.embedding`,
             backEmbedding: sql`excluded.back_embedding`,
             data: sql`excluded.data`,
+            setName: sql`excluded.set_name`,
+            rarity: sql`excluded.rarity`,
+            colorIdentity: sql`excluded.color_identity`,
+            searchText: sql`excluded.search_text`,
+            imageSmall: sql`excluded.image_small`,
             updatedAt: sql`now()`,
           },
         });
@@ -352,9 +447,9 @@ async function runSync(
         if (c.backImageUrl) vectorizedBacks.add(c.id);
       }
       incrementCounters({ processed: batchCards.length });
-      const s = getState();
+      const syncState = getState();
       addLog(
-        `[${s.processed + s.skipped}/${s.total}] inserted batch of ${batchCards.length} cards`,
+        `[${syncState.processed + syncState.skipped}/${syncState.total}] inserted batch of ${batchCards.length} cards`,
       );
     } catch (err) {
       incrementCounters({ errors: batchCards.length });
@@ -362,30 +457,30 @@ async function runSync(
       addLog(`Error inserting batch of ${batchCards.length} cards: ${msg}`);
     }
 
-    const s = getState();
+    const syncState = getState();
     emitEvent("progress", {
-      processed: s.processed,
-      skipped: s.skipped,
-      errors: s.errors,
-      queued: s.queued,
+      processed: syncState.processed,
+      skipped: syncState.skipped,
+      errors: syncState.errors,
+      queued: syncState.queued,
     });
   }
 
   async function processCard(card: SyncSourceCard): Promise<void> {
     if (!card.imageUrl || isAlreadyVectorized(card)) {
       incrementCounters({ skipped: 1 });
-      const s = getState();
+      const syncState = getState();
       emitEvent("progress", {
-        processed: s.processed,
-        skipped: s.skipped,
-        errors: s.errors,
+        processed: syncState.processed,
+        skipped: syncState.skipped,
+        errors: syncState.errors,
         currentCard: card.name,
       });
       return;
     }
 
     try {
-      const embedding = await embedCardImageUrl(source, card.imageUrl);
+      const embedding = await embedFrontFace(source, card, card.imageUrl);
       const backEmbedding = await embedBackFace(source, card);
       const data: unknown = JSON.parse(card.data);
 
@@ -404,28 +499,29 @@ async function runSync(
         embedding,
         backEmbedding,
         data,
+        ...catalogColumnsFor(source.gameKey, lang, card.id, data),
       });
       pendingCards.push(card);
       patchState({ queued: pendingCards.length });
       await flushInserts();
 
-      const s = getState();
+      const syncState = getState();
       emitEvent("progress", {
-        processed: s.processed,
-        skipped: s.skipped,
-        errors: s.errors,
-        queued: s.queued,
+        processed: syncState.processed,
+        skipped: syncState.skipped,
+        errors: syncState.errors,
+        queued: syncState.queued,
         currentCard: card.name,
       });
     } catch (err) {
       incrementCounters({ errors: 1 });
       const msg = errorMessage(err);
       addLog(`Error: ${card.name}: ${msg}`);
-      const s = getState();
+      const syncState = getState();
       emitEvent("progress", {
-        processed: s.processed,
-        skipped: s.skipped,
-        errors: s.errors,
+        processed: syncState.processed,
+        skipped: syncState.skipped,
+        errors: syncState.errors,
         currentCard: card.name,
       });
     }
@@ -468,15 +564,15 @@ async function runSync(
   );
 
   patchState({ status: "completed" });
-  const s = getState();
+  const syncState = getState();
   addLog(
-    `Done. Processed: ${s.processed}, Skipped: ${s.skipped}, Errors: ${s.errors}`,
+    `Done. Processed: ${syncState.processed}, Skipped: ${syncState.skipped}, Errors: ${syncState.errors}`,
   );
   emitEvent("done", {
     status: "completed" as SyncStatus,
-    processed: s.processed,
-    skipped: s.skipped,
-    errors: s.errors,
+    processed: syncState.processed,
+    skipped: syncState.skipped,
+    errors: syncState.errors,
   });
 }
 
@@ -484,6 +580,39 @@ process.on("message", (msg: ParentToWorkerMessage) => {
   if (msg.type === "cancel") {
     cancelFlag = true;
     abortController?.abort();
+    cancelBrowserQueue();
+    return;
+  }
+
+  if (msg.type === "claim") {
+    send({
+      type: "workResponse",
+      requestId: msg.requestId,
+      ok: true,
+      cards: claimBrowserWork(msg.limit),
+    });
+    return;
+  }
+
+  if (msg.type === "submit") {
+    void submitBrowserWork(msg.results, msg.failures)
+      .then((state) => {
+        send(
+          { type: "workResponse", requestId: msg.requestId, ok: true },
+          () => {
+            if (state === "cancelled") finishBrowserQueue("cancelled");
+            else if (state === "idle") finishBrowserQueue("done");
+          },
+        );
+      })
+      .catch((err) => {
+        send({
+          type: "workResponse",
+          requestId: msg.requestId,
+          ok: false,
+          message: errorMessage(err),
+        });
+      });
     return;
   }
 
@@ -495,7 +624,13 @@ process.on("message", (msg: ParentToWorkerMessage) => {
     }
 
     beginRun();
-    runSync(source, msg.lang, msg.forceResync, msg.skipUpdatedWithinMs)
+    runSync(
+      source,
+      msg.lang,
+      msg.forceResync,
+      msg.skipUpdatedWithinMs,
+      msg.vectorizeOn,
+    )
       .then(() => exitAfterFlush(0))
       .catch((err) => {
         patchState({ status: "failed" });

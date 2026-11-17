@@ -1,6 +1,14 @@
 import { ACTIVE_ORG_STORAGE_KEY as ORG_KEY } from "@/lib/constants/storage-keys";
 
-let activeOrgId: string | null = localStorage.getItem(ORG_KEY);
+function readStoredActiveOrgId(): string | null {
+  try {
+    return localStorage.getItem(ORG_KEY);
+  } catch {
+    return null;
+  }
+}
+
+let activeOrgId: string | null = readStoredActiveOrgId();
 const listeners = new Set<() => void>();
 
 export function getLocalActiveOrgId(): string | null {
@@ -15,7 +23,9 @@ export function subscribeLocalActiveOrg(listener: () => void): () => void {
 export function setLocalActiveOrgId(orgId: string | null) {
   if (orgId === activeOrgId) return;
   activeOrgId = orgId;
-  if (orgId) localStorage.setItem(ORG_KEY, orgId);
-  else localStorage.removeItem(ORG_KEY);
+  try {
+    if (orgId) localStorage.setItem(ORG_KEY, orgId);
+    else localStorage.removeItem(ORG_KEY);
+  } catch {}
   for (const listener of listeners) listener();
 }

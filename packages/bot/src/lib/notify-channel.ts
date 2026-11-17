@@ -60,5 +60,6 @@ export function listPingableRoles(guild: Guild): GuildRoleSummary[] {
       name: role.name,
       color: role.color ? role.hexColor : null,
       canPing: role.mentionable || canMentionAll,
+      canAssign: role.editable,
     }));
 }

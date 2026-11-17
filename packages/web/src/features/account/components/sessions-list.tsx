@@ -14,6 +14,7 @@ import {
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "@/lib/toast";
+import { formatShortDateTime } from "@/lib/format";
 
 function describeUserAgent(ua: string | null | undefined): {
   label: string;
@@ -40,15 +41,6 @@ function describeUserAgent(ua: string | null | undefined): {
 
   const label = [browser, os].filter(Boolean).join(" on ");
   return { label, isMobile };
-}
-
-function formatDate(value: Date | string): string {
-  return new Date(value).toLocaleString(undefined, {
-    month: "short",
-    day: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
 
 export function SessionsList() {
@@ -138,7 +130,6 @@ export function SessionsList() {
           <Button
             type="button"
             variant="outline-destructive"
-            size="sm"
             disabled={isRevokingAll}
             onClick={() => setRevokeAllOpen(true)}
           >
@@ -184,14 +175,13 @@ export function SessionsList() {
                   <p className="truncate text-xs text-foreground/70">
                     {session.ipAddress ?? t("sessions.noIp")} ·{" "}
                     {t("sessions.lastActive", {
-                      date: formatDate(session.updatedAt),
+                      date: formatShortDateTime(session.updatedAt),
                     })}
                   </p>
                 </div>
                 <Button
                   type="button"
                   variant="ghost"
-                  size="sm"
                   disabled={isRevoking}
                   onClick={() => setRevokeTarget(session)}
                 >

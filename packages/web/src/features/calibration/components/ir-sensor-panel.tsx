@@ -63,6 +63,13 @@ export function IrSensorPanel({
                   <div className="flex items-center gap-1.5">
                     <Badge variant={detected ? "success" : "ghost"}>
                       {t("moduleLabel", { module: m })}
+                      <span className="sr-only">
+                        {detected
+                          ? t("irSensorPanel.detectedTooltip", { module: m })
+                          : t("irSensorPanel.notDetectedTooltip", {
+                              module: m,
+                            })}
+                      </span>
                     </Badge>
                   </div>
                 }

@@ -11,7 +11,7 @@ import type {
 } from "@/lib/interfaces/scanner";
 import { IconArrowRight } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import type { KeyboardEvent } from "react";
+import { useRef, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 function BinTile({ label, bin }: BinCorrectionTileProps) {
@@ -45,24 +45,35 @@ export function BinCorrectionDialog({
   const targetBin = correction?.targetBin;
   const needsMove = targetBin != null && currentBin !== targetBin;
   const name = correction?.cardName ?? "";
+  const isAdded = !!correction?.addedCard;
 
   const title =
     targetBin == null
       ? t("binCorrection.noBin.title", { name })
-      : needsMove
-        ? t("binCorrection.move.title", { name, to: targetBin })
-        : t("binCorrection.staysIn.title", { name, bin: targetBin });
+      : isAdded
+        ? t("binCorrection.added.title", { name, to: targetBin })
+        : needsMove
+          ? t("binCorrection.move.title", { name, to: targetBin })
+          : t("binCorrection.staysIn.title", { name, bin: targetBin });
   const description =
     targetBin == null
-      ? t("binCorrection.noBin.description")
-      : needsMove
-        ? currentBin != null
-          ? t("binCorrection.move.description", {
-              from: currentBin,
-              to: targetBin,
-            })
-          : t("binCorrection.move.descriptionNoBin", { to: targetBin })
-        : t("binCorrection.staysIn.description");
+      ? t(
+          isAdded
+            ? "binCorrection.added.noBinDescription"
+            : "binCorrection.noBin.description",
+        )
+      : isAdded
+        ? t("binCorrection.added.description", { to: targetBin })
+        : needsMove
+          ? currentBin != null
+            ? t("binCorrection.move.description", {
+                from: currentBin,
+                to: targetBin,
+              })
+            : t("binCorrection.move.descriptionNoBin", { to: targetBin })
+          : t("binCorrection.staysIn.description");
+
+  const confirmButtonRef = useRef<HTMLButtonElement>(null);
 
   const confirm = () => {
     if (!correction) return;
@@ -73,6 +84,9 @@ export function BinCorrectionDialog({
   const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (!BIN_CORRECTION_CONFIRM_KEYS.includes(event.key)) return;
     if (event.ctrlKey || event.metaKey || event.altKey) return;
+    const focusedButton =
+      event.target instanceof HTMLElement ? event.target.closest("button") : null;
+    if (focusedButton && focusedButton !== confirmButtonRef.current) return;
     event.preventDefault();
     if (event.repeat) return;
     confirm();
@@ -88,6 +102,7 @@ export function BinCorrectionDialog({
       description={description}
       className="sm:max-w-md"
       onKeyDown={handleKeyDown}
+      initialFocusRef={confirmButtonRef}
       footer={
         needsMove && correction ? (
           <>
@@ -97,13 +112,13 @@ export function BinCorrectionDialog({
                 : t("binCorrection.notNow")}
               <Kbd>{t("binCorrection.keys.escape")}</Kbd>
             </Button>
-            <Button onClick={confirm}>
+            <Button ref={confirmButtonRef} onClick={confirm}>
               {t("binCorrection.moved", { bin: targetBin })}
               <Kbd>{t("binCorrection.keys.enter")}</Kbd>
             </Button>
           </>
         ) : (
-          <Button onClick={confirm}>
+          <Button ref={confirmButtonRef} onClick={confirm}>
             {t("binCorrection.ok")}
             <Kbd>{t("binCorrection.keys.enter")}</Kbd>
           </Button>

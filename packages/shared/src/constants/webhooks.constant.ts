@@ -1,4 +1,8 @@
-export const WEBHOOK_EVENTS = ["card.scanned", "cards.stored"] as const;
+export const WEBHOOK_EVENTS = [
+  "card.scanned",
+  "cards.stored",
+  "sorter.alert",
+] as const;
 export const WEBHOOK_TEST_EVENT = "webhook.test";
 export const WEBHOOK_ENDPOINTS_PER_ORG_LIMIT = 10;
 export const WEBHOOK_URL_MAX_LENGTH = 2048;

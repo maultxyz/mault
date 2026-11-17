@@ -1,6 +1,7 @@
 import { eq } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import {
+  accuracyChecks,
   binHeightAudit,
   binHeights,
   binRouteAudit,
@@ -8,15 +9,21 @@ import {
   binSetAudit,
   binSets,
   bins,
+  cardSales,
   collectionCards,
   collections,
+  deviceAlerts,
   devices,
   feederConfigAudit,
   feederConfigs,
+  fulfilmentOrders,
+  intakeLots,
   moduleConfigAudit,
   moduleConfigs,
   orgApiKeys,
+  orgActivityLog,
   orgBilling,
+  orgInventorySnapshots,
   orgSettings,
   unmatchedCards,
   notificationRules,
@@ -38,9 +45,6 @@ export class ActiveSubscriptionError extends Error {
   }
 }
 
-// A subscription already set to cancel at period end is let through: Stripe
-// won't charge it again, and its final cancellation webhook is ignored for an
-// org whose billing row is gone (routes/public/webhook-stripe.ts).
 async function assertNoActiveSubscription(
   tx: Transaction,
   orgId: string,
@@ -70,6 +74,11 @@ export async function purgeOrgData(
   await assertNoActiveSubscription(tx, orgId);
 
   await tx.delete(collectionCards).where(eq(collectionCards.orgId, orgId));
+  await tx.delete(accuracyChecks).where(eq(accuracyChecks.orgId, orgId));
+  await tx.delete(intakeLots).where(eq(intakeLots.orgId, orgId));
+  await tx.delete(cardSales).where(eq(cardSales.orgId, orgId));
+  await tx.delete(fulfilmentOrders).where(eq(fulfilmentOrders.orgId, orgId));
+  await tx.delete(orgActivityLog).where(eq(orgActivityLog.orgId, orgId));
   await tx.delete(orgApiKeys).where(eq(orgApiKeys.orgId, orgId));
   await tx.delete(webhookEndpoints).where(eq(webhookEndpoints.orgId, orgId));
   await tx.delete(unmatchedCards).where(eq(unmatchedCards.orgId, orgId));
@@ -99,6 +108,10 @@ export async function purgeOrgData(
   await tx.delete(orgSettings).where(eq(orgSettings.orgId, orgId));
 }
 
-export async function purgeOrgBilling(orgId: string): Promise<void> {
+export async function purgeOrgServerData(orgId: string): Promise<void> {
   await db.delete(orgBilling).where(eq(orgBilling.orgId, orgId));
+  await db.delete(deviceAlerts).where(eq(deviceAlerts.orgId, orgId));
+  await db
+    .delete(orgInventorySnapshots)
+    .where(eq(orgInventorySnapshots.orgId, orgId));
 }

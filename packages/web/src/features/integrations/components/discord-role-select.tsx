@@ -14,16 +14,20 @@ export function DiscordRoleSelect({
   value,
   roles,
   onChange,
+  isSelectable = (role) => role.canPing,
+  disabled,
+  "aria-label": ariaLabel,
 }: DiscordRoleSelectProps) {
   const { t } = useTranslation("integrations");
   return (
     <Select
       value={value ?? NO_DISCORD_ROLE}
+      disabled={disabled}
       onValueChange={(next) =>
         onChange(!next || next === NO_DISCORD_ROLE ? null : next)
       }
     >
-      <SelectTrigger className="w-full">
+      <SelectTrigger className="w-full" aria-label={ariaLabel}>
         <SelectValue>
           {value ? (
             <DiscordRoleLabel
@@ -38,7 +42,7 @@ export function DiscordRoleSelect({
       <SelectContent>
         <SelectItem value={NO_DISCORD_ROLE}>{t("roles.none")}</SelectItem>
         {roles.map((role) => (
-          <SelectItem key={role.id} value={role.id} disabled={!role.canPing}>
+          <SelectItem key={role.id} value={role.id} disabled={!isSelectable(role)}>
             <DiscordRoleLabel role={role} roleId={role.id} />
           </SelectItem>
         ))}

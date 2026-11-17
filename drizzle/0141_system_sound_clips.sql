@@ -1,0 +1,2 @@
+ALTER TABLE "sound_clips" ALTER COLUMN "org_id" DROP NOT NULL;--> statement-breakpoint
+ALTER POLICY "crud-authenticated-policy-select" ON "sound_clips" TO authenticated USING (("sound_clips"."org_id" IS NULL OR ("sound_clips"."org_id" = (current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND auth_is_org_member("sound_clips"."org_id")));

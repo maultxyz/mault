@@ -2,13 +2,12 @@ import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tansta
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { ActivityIndicator, Alert, FlatList, RefreshControl, Share, useWindowDimensions, View } from "react-native";
+import { ActivityIndicator, Alert, FlatList, RefreshControl, Share, View } from "react-native";
 import {
   computeBinCount,
   DEFAULT_MODULE_COUNT,
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
   EMPTY_CARD_FILTERS,
-  SORTABLE_FIELD_TYPES,
   type CardFilters,
   type GroupedScannedCard,
 } from "@magic-vault/shared";
@@ -31,7 +30,7 @@ import {
   revokeMonitorLinks,
 } from "@/features/collections/api/collection-cards";
 import { CardActionsSheet } from "@/features/collections/components/card-actions-sheet";
-import { CardFilterSheet } from "@/features/collections/components/card-filter-sheet";
+import { CardViewOptionsSheet } from "@/features/collections/components/card-view-options-sheet";
 import { CardToolbar } from "@/features/collections/components/card-toolbar";
 import {
   collectionsQueryOptions,
@@ -42,11 +41,13 @@ import {
 import { CollectionActivity } from "@/features/collections/components/collection-activity";
 import { useSessionStream } from "@/features/monitor/api/use-session-stream";
 import { useSorter } from "@/features/sorter/api/use-sorter";
+import { cardSortOptions, countActiveCardFilters } from "@/features/collections/lib/card-query";
 import { toStatsBreakdown } from "@/features/stats/lib/stats-breakdown";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
+import { usePanelWidth } from "@/hooks/use-panel-width";
 import {
   CARD_ASPECT_RATIO,
   CARD_GRID_COLUMNS,
@@ -59,6 +60,7 @@ import {
 import { WEB_URL } from "@/lib/constants/config";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CollectionTab } from "@/lib/interfaces/collections";
+import { readReviewLayout } from "@/lib/review-layout";
 import { absoluteUrl } from "@/lib/url";
 
 export default function CollectionScreen() {
@@ -67,7 +69,7 @@ export default function CollectionScreen() {
   const colors = useTheme();
   const pricing = usePricing();
   const queryClient = useQueryClient();
-  const { width } = useWindowDimensions();
+  const width = usePanelWidth();
   const [tab, setTab] = useState<CollectionTab>("cards");
   const [search, setSearch] = useState("");
   const debounced = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
@@ -77,8 +79,7 @@ export default function CollectionScreen() {
   const [grouped, setGrouped] = useState(true);
   const [sort, setSort] = useState<string | null>(null);
   const [filters, setFilters] = useState<CardFilters>(EMPTY_CARD_FILTERS);
-  const [sortOpen, setSortOpen] = useState(false);
-  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [viewOptionsOpen, setViewOptionsOpen] = useState(false);
   const [actionsEntry, setActionsEntry] = useState<GroupedScannedCard | null>(null);
   const sorter = useSorter();
   const cardsQuery = useMemo(
@@ -107,6 +108,7 @@ export default function CollectionScreen() {
     onSuccess: (next) => {
       queryClient.setQueryData(collectionsOptions.queryKey, next);
       void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
+      void queryClient.invalidateQueries({ queryKey: ["billing"] });
       router.back();
     },
   });
@@ -141,23 +143,8 @@ export default function CollectionScreen() {
   const breakdown = useMemo(() => (stats && stats.totalCount > 0 ? toStatsBreakdown(stats) : null), [stats]);
   const binCount = computeBinCount(sorter.device?.moduleCount ?? DEFAULT_MODULE_COUNT);
   const foilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
-  const sortOptions = [
-    { value: "scan-desc", label: t("collection.sort.scanOrder") },
-    ...(collection?.game?.fieldDefinitions ?? [])
-      .filter((field) => SORTABLE_FIELD_TYPES.includes(field.type))
-      .flatMap((field) => [
-        { value: `${field.field}-asc`, label: t("collection.sort.ascending", { field: field.label }) },
-        { value: `${field.field}-desc`, label: t("collection.sort.descending", { field: field.label }) },
-      ]),
-  ];
-  const sortLabel = sortOptions.find((option) => option.value === (sort ?? "scan-desc"))?.label ?? "";
-  const activeFilterCount =
-    filters.colors.length +
-    filters.rarities.length +
-    filters.foilTypes.length +
-    filters.bins.length +
-    filters.sets.length +
-    (filters.showDownloaded ? 1 : 0);
+  const sortOptions = cardSortOptions(collection?.game?.fieldDefinitions ?? [], t("collection.sort.scanOrder"), t);
+  const activeSortAndFilterCount = countActiveCardFilters(filters) + (sort ? 1 : 0);
 
   const shareLink = useMutation({
     mutationFn: () => createMonitorLink(guid, DEFAULT_MONITOR_LINK_EXPIRY_DAYS),
@@ -171,7 +158,7 @@ export default function CollectionScreen() {
   const tileWidth = (width - CARD_GRID_GUTTER * 2 - CARD_GRID_GAP_X * (CARD_GRID_COLUMNS - 1)) / CARD_GRID_COLUMNS;
   const alertCount = stream.unmatchedCount + stream.errors.length;
   const statusColor =
-    stream.status === "connected" ? colors.success : stream.status === "error" ? colors.destructive : colors.warning;
+    stream.status === "connected" ? colors.successStrong : stream.status === "error" ? colors.destructive : colors.warningStrong;
 
   const openCard = (scanId: string) => router.push({ pathname: "/card/[scanId]", params: { scanId, guid } });
 
@@ -220,10 +207,12 @@ export default function CollectionScreen() {
             icon="check"
             label={t("collection.review", { count: reviewQueue.data.total })}
             onPress={() =>
-              router.push({
-                pathname: "/card/[scanId]",
-                params: { scanId: reviewQueue.data?.firstScanId ?? "", guid, review: "1" },
-              })
+              readReviewLayout() === "grid"
+                ? router.push({ pathname: "/review-grid", params: { guid } })
+                : router.push({
+                    pathname: "/card/[scanId]",
+                    params: { scanId: reviewQueue.data?.firstScanId ?? "", guid, review: "1" },
+                  })
             }
           />
         ) : null}
@@ -299,13 +288,9 @@ export default function CollectionScreen() {
                 accessibilityLabel={t("collections.search")}
               />
               <CardToolbar
-                sortLabel={sortLabel}
-                activeFilterCount={activeFilterCount}
-                grouped={grouped}
+                activeSortAndFilterCount={activeSortAndFilterCount}
                 needsReview={filters.needsAttention}
-                onOpenSort={() => setSortOpen(true)}
-                onOpenFilters={() => setFiltersOpen(true)}
-                onToggleGrouped={() => setGrouped((value) => !value)}
+                onOpenViewOptions={() => setViewOptionsOpen(true)}
                 onToggleNeedsReview={() => setFilters((value) => ({ ...value, needsAttention: !value.needsAttention }))}
               />
               {cards.isError ? <Callout tone="destructive" title={t("collections.cardsLoadFailed")} /> : null}
@@ -332,7 +317,11 @@ export default function CollectionScreen() {
             cards.isFetchingNextPage ? <ActivityIndicator style={{ margin: SPACING.lg }} color={colors.primaryText} /> : undefined
           }
           renderItem={({ item }) => {
-            const price = pricing.priceOf(item.card, item.isFoil, item.condition);
+            const price = pricing.priceOf(
+              item.card,
+              { isFoil: item.isFoil, foilType: item.foilType },
+              item.condition,
+            );
             const flagged = !!item.lowConfidenceMatch || !!item.alternativeMatches?.length;
             return (
               <View style={{ width: tileWidth }}>
@@ -355,24 +344,18 @@ export default function CollectionScreen() {
           }}
         />
       )}
-      <OptionSheet
-        visible={sortOpen}
-        title={t("collection.sort.title")}
-        options={sortOptions}
-        selected={[sort ?? "scan-desc"]}
-        onSelect={(value) => {
-          setSort(value === "scan-desc" ? null : value);
-          setSortOpen(false);
-        }}
-        onClose={() => setSortOpen(false)}
-      />
-      <CardFilterSheet
-        visible={filtersOpen}
+      <CardViewOptionsSheet
+        visible={viewOptionsOpen}
+        grouped={grouped}
+        onGroupedChange={setGrouped}
+        sortOptions={sortOptions}
+        selectedSort={sort ?? "scan-desc"}
+        onSortChange={(value) => setSort(value === "scan-desc" ? null : value)}
         filters={filters}
         breakdown={breakdown}
         binCount={binCount}
         onChange={setFilters}
-        onClose={() => setFiltersOpen(false)}
+        onClose={() => setViewOptionsOpen(false)}
       />
       <CardActionsSheet
         entry={actionsEntry}

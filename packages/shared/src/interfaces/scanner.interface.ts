@@ -4,7 +4,10 @@ import type {
 } from "./api.interface";
 import type { PlayingCardWithDistance } from "./card.interface";
 import type { CardCondition } from "./card-condition.interface";
+import type { FoilDetection } from "./foil-detection.interface";
+import type { RgbaImage } from "./vision-model.interface";
 import type { OcrDiagnostics } from "./ocr-region.interface";
+import type { ScannerControlCommand } from "./scanner-control-code.interface";
 import type { CardStorageLocation } from "./storage-locations.interface";
 
 export interface Point {
@@ -35,7 +38,7 @@ export interface CornerDetection {
 }
 
 export interface ScanRegion {
-  coverage: number; // 0-1
+  coverage: number;
   offsetX: number; // -0.5 to 0.5
   offsetY: number; // -0.5 to 0.5
 }
@@ -59,6 +62,12 @@ export type ScannerStatus =
   | "searching"
   | "error";
 
+export type CheckFoilByNudge = (
+  card: PlayingCardWithDistance,
+  captureAfterNudge: () => Promise<RgbaImage | null>,
+  before: RgbaImage,
+) => Promise<FoilDetection | null>;
+
 export interface CardScannerProps {
   onSearchResults?: (
     matches: PlayingCardWithDistance[],
@@ -71,17 +80,13 @@ export interface CardScannerProps {
     vectorizedOn?: ScanVectorizeSource,
     details?: UnmatchedScanDetails,
   ) => void;
+  onControlCode?: (command: ScannerControlCommand | null) => void;
+  checkFoilByNudge?: CheckFoilByNudge;
   onManualAdd?: () => void;
   onError?: (error: string) => void;
   className?: string;
   compact?: boolean;
   controlsPosition?: "bottom" | "side";
-}
-
-export interface CardMatch {
-  id: number;
-  cardId: string;
-  distance: number;
 }
 
 export type ScanVectorizeSource = "server" | "web";
@@ -96,6 +101,7 @@ export interface ScannedCard {
   isFoil?: boolean;
   foilType?: string;
   condition?: CardCondition;
+  language?: string;
   isDownloaded?: boolean;
   corrected?: boolean;
   lowConfidenceMatch?: boolean;
@@ -154,6 +160,7 @@ export interface MatchedScanDiagnostics {
   candidates: MatchCandidateDiagnostic[];
   ocr: OcrDiagnostics | null;
   detectedColor?: string | null;
+  foilDetection?: FoilDetection | null;
 }
 
 export interface MatchedScanDetails {
@@ -174,6 +181,11 @@ export interface UnmatchedCard {
   vectorizedOn?: ScanVectorizeSource;
   diagnostics?: UnmatchedScanDiagnostics;
   embedding?: number[];
+}
+
+export interface UnmatchedCardsPage {
+  cards: UnmatchedCard[];
+  total: number;
 }
 
 export interface ScanSaveRequestFields {
@@ -199,6 +211,19 @@ export interface ActiveScanningStats {
   windowMinutes: number;
 }
 
+export interface ActiveScanSession {
+  collectionGuid: string;
+  collectionName: string | null;
+  gameName: string | null;
+  orgId: string;
+  orgName: string | null;
+  userId: string;
+  displayName: string;
+  startedAt: string;
+  lastActivityAt: string;
+  scansThisSession: number;
+}
+
 export interface ScanOriginUser {
   userId: string;
   name: string;
@@ -213,4 +238,5 @@ export interface ScanOriginDevice {
 export interface CardScanOrigin {
   scannedBy: ScanOriginUser | null;
   device: ScanOriginDevice | null;
+  scannedAt?: string;
 }

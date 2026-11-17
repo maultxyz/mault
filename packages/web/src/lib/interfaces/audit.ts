@@ -7,8 +7,6 @@ import type {
 } from "@magic-vault/shared";
 import type { ReactNode } from "react";
 
-// Generic display shape the shared AuditDrawer component renders — each
-// domain's own *AuditEntry (below) gets mapped into this before display.
 export interface AuditEntry {
   guid: string;
   createdAt: string;

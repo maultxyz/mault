@@ -4,7 +4,10 @@ export {
   resolveImageUrl,
   SCAN_ATTACHMENT_NAME,
 } from "./embeds";
-export { buildSortingLogicSummary } from "./sorting-logic-summary";
+export {
+  buildPresetBinLines,
+  buildSortingLogicSummary,
+} from "./sorting-logic-summary";
 export {
   checkDiscordChannel,
   fetchDiscordGuild,

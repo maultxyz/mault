@@ -2,72 +2,98 @@ import { CardContextMenu } from "@/features/cards/components/card-context-menu";
 import { useHiddenDownloadedCount } from "@/features/cards/api/use-hidden-downloaded-count";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { ListPagination } from "@/components/list-pagination";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { useCardQueryState } from "@/features/cards/api/use-card-filter-sort";
+import {
+  useCardGridDensity,
+  useCardViewPreferences,
+  useReviewLayout,
+} from "@/features/cards/api/use-card-view-preferences";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
+import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { CardDetailPanel } from "@/features/cards/components/card-detail-panel";
 import { CardDetailPanelSkeleton } from "@/features/cards/components/card-detail-panel-skeleton";
+import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
+import { useScanImageImport } from "@/features/scanner/api/use-scan-image-import";
+import { ScanImageImportDialog } from "@/features/scanner/components/scan-image-import-dialog";
 import { CardToolbar } from "@/features/cards/components/card-toolbar";
 import { ExportedCardsDialog } from "@/features/cards/components/exported-cards-dialog";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
 import { ScannedCardItem } from "@/features/cards/components/scanned-card-item";
 import { ScannedCardTable } from "@/features/cards/components/scanned-card-table";
+import { ReviewGrid } from "@/features/cards/components/review-grid";
 import { SessionSummaryDialog } from "@/features/cards/components/session-summary-dialog";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useMoveCardsToLocation } from "@/features/storage/api/use-storage-locations";
+import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
+import { useMoveTargetCollections } from "@/features/collections/api/use-move-target-collections";
+import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import {
   allExportAdapters,
-  runExport,
+  downloadCollectionCsv,
   supportsGame,
   type ExportAdapter,
 } from "@/features/cards/lib/export";
 import {
   collectionCardPositionQueryOptions,
-  collectionCardsExportQueryOptions,
   collectionCardsPageQueryOptions,
+  collectionCardsCountQueryOptions,
   loadCollectionCardIds,
 } from "@/features/collections/api/collection-cards";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
+import { useStoredCardCount } from "@/features/collections/api/use-stored-card-count";
 import { useCollectionCardActions } from "@/features/collections/api/use-collection-card-actions";
+import { useMarkCardsDownloaded } from "@/features/collections/api/use-mark-cards-downloaded";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
 import { CardDetailScopeContext } from "@/features/cards/api/use-card-detail-scope";
+import {
+  loadCollectionPositionStep,
+  usePrefetchDetailCards,
+} from "@/features/cards/api/use-prefetch-detail-cards";
 import { collectionViewPath } from "@/lib/constants/collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { BULK_TAG_ACTIONS } from "@/lib/constants/card-tags";
 import {
   CARD_GRID_CLASS,
-  CARD_GRID_DENSITIES,
   CARD_GRID_DENSITY_CLASS,
 } from "@/lib/constants/card-grid";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
-import {
-  CARD_GROUP_DUPLICATES_STORAGE_KEY,
-  CARD_GRID_DENSITY_STORAGE_KEY,
-  CARD_VIEW_MODE_STORAGE_KEY,
-} from "@/lib/constants/storage-keys";
 import type {
-  CardGridDensity,
-  CardViewMode,
+  OpenScanOptions,
   SelectToggleOptions,
 } from "@/lib/interfaces/cards";
 import {
   IconAlbum,
+  IconBox,
   IconChevronDown,
-  IconChevronLeft,
-  IconChevronRight,
   IconDownload,
+  IconLoader2,
+  IconPhotoUp,
+  IconPlus,
   IconRosette,
+  IconSparkles,
+  IconTag,
 } from "@tabler/icons-react";
-import { CARD_CONDITIONS, computeBinCount } from "@magic-vault/shared";
+import {
+  CARD_CONDITIONS,
+  CARD_TAGS,
+  computeBinCount,
+  toReviewGridCard,
+} from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -78,8 +104,14 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import { useHotkeys } from "@/hooks/use-hotkeys";
+import { useReviewSession } from "@/hooks/use-review-session";
+import { useReviewQueueSession } from "@/features/cards/api/use-review-queue";
+import { reviewQueueStore } from "@/features/cards/lib/review-queue-store";
 import { toast } from "@/lib/toast";
-import { CARD_REVIEW_SEARCH_PARAM } from "@/lib/constants/cards";
+import {
+  CARD_REVIEW_GRID_PARAM_VALUE,
+  CARD_REVIEW_SEARCH_PARAM,
+} from "@/lib/constants/cards";
 import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
 
 export function CardGrid() {
@@ -94,12 +126,18 @@ export function CardGrid() {
     removeCard,
     removeCards,
     clearCards,
+    correctCard,
     setCardsCondition,
+    setCardsTags,
+    setCardsFoilType,
     elapsedMs,
     sessionScanCount,
   } = useScannedCards();
   const collectionGuid = viewedCollection?.guid;
   const [summaryOpen, setSummaryOpen] = useState(false);
+  const [addCardOpen, setAddCardOpen] = useState(false);
+  const [importScansOpen, setImportScansOpen] = useState(false);
+  const scanImageImport = useScanImageImport(collectionGuid);
   const { locks, currentUserId } = useCollectionLocks();
   const isScanningActive = !!(
     viewedCollection && locks[viewedCollection.guid]?.userId === currentUserId
@@ -117,6 +155,7 @@ export function CardGrid() {
     [viewedCollection?.game?.fieldDefinitions],
   );
   const moduleCount = useModuleCount();
+  const foilOptions = useFoilOptions();
   const {
     searchQuery,
     setSearchQuery,
@@ -135,80 +174,44 @@ export function CardGrid() {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const { scanId: openScanId } = useParams<{ scanId?: string }>();
   const [searchParams] = useSearchParams();
-  const isReviewing = searchParams.get(CARD_REVIEW_SEARCH_PARAM) === "1";
+  const reviewParam = searchParams.get(CARD_REVIEW_SEARCH_PARAM);
+  const isReviewing = reviewParam === "1";
+  const isGridReviewing =
+    !readOnly && !openScanId && reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
+  const [reviewLayout, setReviewLayout] = useReviewLayout();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  // Keeps the open card in the URL (/app/cards/:scanId) so it's shareable
-  // and survives a refresh, rather than living only in component state.
-  // Replaces history instead of pushing, so browser back always returns to
-  // the grid rather than stepping back through every previously viewed card.
+  const basePath =
+    readOnly && viewedCollection
+      ? collectionViewPath(viewedCollection.guid)
+      : "/app";
   const setOpenScanId = useCallback(
-    (scanId: string | null, review = false) => {
-      const reviewSuffix = review ? `?${CARD_REVIEW_SEARCH_PARAM}=1` : "";
-      const basePath =
-        readOnly && viewedCollection
-          ? collectionViewPath(viewedCollection.guid)
-          : "/app";
+    (scanId: string | null, { inReviewMode = false }: OpenScanOptions = {}) => {
+      const reviewSuffix = inReviewMode
+        ? `?${CARD_REVIEW_SEARCH_PARAM}=1`
+        : "";
       navigate(
         scanId ? `${basePath}/cards/${scanId}${reviewSuffix}` : basePath,
         { replace: true },
       );
     },
-    [navigate, readOnly, viewedCollection],
+    [navigate, basePath],
   );
+  const openReviewGrid = useCallback(() => {
+    setReviewLayout("grid");
+    navigate(
+      `${basePath}?${CARD_REVIEW_SEARCH_PARAM}=${CARD_REVIEW_GRID_PARAM_VALUE}`,
+      { replace: true },
+    );
+  }, [navigate, basePath, setReviewLayout]);
   const [page, setPage] = useState(0);
-  const [viewMode, setViewMode] = useState<CardViewMode>(() => {
-    try {
-      return localStorage.getItem(CARD_VIEW_MODE_STORAGE_KEY) === "list"
-        ? "list"
-        : "grid";
-    } catch {
-      return "grid";
-    }
-  });
-
-  const [density, setDensity] = useState<CardGridDensity>(() => {
-    try {
-      const stored = localStorage.getItem(CARD_GRID_DENSITY_STORAGE_KEY);
-      return CARD_GRID_DENSITIES.includes(stored as CardGridDensity)
-        ? (stored as CardGridDensity)
-        : "comfortable";
-    } catch {
-      return "comfortable";
-    }
-  });
-
-  const handleDensityChange = useCallback((next: CardGridDensity) => {
-    setDensity(next);
-    try {
-      localStorage.setItem(CARD_GRID_DENSITY_STORAGE_KEY, next);
-    } catch {}
-  }, []);
-
-  const handleViewModeChange = useCallback((mode: CardViewMode) => {
-    setViewMode(mode);
-    try {
-      localStorage.setItem(CARD_VIEW_MODE_STORAGE_KEY, mode);
-    } catch {}
-  }, []);
-
-  const [groupDuplicates, setGroupDuplicates] = useState<boolean>(() => {
-    try {
-      return localStorage.getItem(CARD_GROUP_DUPLICATES_STORAGE_KEY) === "1";
-    } catch {
-      return false;
-    }
-  });
-
-  const handleGroupDuplicatesChange = useCallback((grouped: boolean) => {
-    setGroupDuplicates(grouped);
-    try {
-      localStorage.setItem(
-        CARD_GROUP_DUPLICATES_STORAGE_KEY,
-        grouped ? "1" : "0",
-      );
-    } catch {}
-  }, []);
+  const {
+    viewMode,
+    handleViewModeChange,
+    groupDuplicates,
+    handleGroupDuplicatesChange,
+  } = useCardViewPreferences();
+  const [density, handleDensityChange] = useCardGridDensity();
 
   const debouncedSearch = useDebouncedValue(searchQuery, SEARCH_DEBOUNCE_MS);
   const cardsQuery = useMemo(
@@ -224,12 +227,55 @@ export function CardGrid() {
     () => ({ ...cardsQuery, unreviewed: true }),
     [cardsQuery],
   );
-  const reviewTotalRef = useRef<number | null>(null);
-  const [reviewTrail, setReviewTrail] = useState<string[]>([]);
+  const [reviewTotal, setReviewTotal] = useState<number | null>(null);
+  const { data: reviewCount } = useQuery({
+    ...collectionCardsCountQueryOptions(collectionGuid, reviewQuery),
+    enabled: !readOnly && !!collectionGuid,
+  });
+  const reviewSession = useReviewSession(openScanId, isReviewing);
+  const reviewQueueSession = useReviewQueueSession();
+  const reviewGridQuery = useMemo(
+    () => ({ ...reviewQuery, grouped: false }),
+    [reviewQuery],
+  );
+  const reviewGridPage = useQuery({
+    ...collectionCardsPageQueryOptions(collectionGuid, reviewGridQuery, 0),
+    enabled: isGridReviewing && !!collectionGuid,
+    placeholderData: undefined,
+  });
+  const reviewGridCards = useMemo(
+    () =>
+      collectionGuid
+        ? (reviewGridPage.data?.items ?? []).map((entry) =>
+            toReviewGridCard(collectionGuid, entry),
+          )
+        : [],
+    [collectionGuid, reviewGridPage.data],
+  );
 
   useEffect(() => {
     setPage(0);
   }, [cardsQuery, collectionGuid]);
+
+  const isOneByOneReviewing =
+    !readOnly && isReviewing && !!openScanId && !!collectionGuid;
+  useEffect(() => {
+    if (!isOneByOneReviewing) {
+      reviewQueueStore.stop();
+      return;
+    }
+    if (reviewQueueSession?.collectionGuid !== collectionGuid) {
+      reviewQueueStore.start(collectionGuid!, reviewGridQuery);
+    }
+    reviewQueueStore.setCurrent(openScanId!);
+  }, [
+    isOneByOneReviewing,
+    reviewQueueSession?.collectionGuid,
+    collectionGuid,
+    reviewGridQuery,
+    openScanId,
+  ]);
+  useEffect(() => () => reviewQueueStore.stop(), []);
 
   const { data: pageData, isPending: pagePending } = useQuery(
     collectionCardsPageQueryOptions(collectionGuid, cardsQuery, page),
@@ -260,8 +306,29 @@ export function CardGrid() {
     openPosition && openPosition.entry.scanId === openScanId
       ? openPosition.entry
       : null;
+  const loadPrefetchStep = useCallback(
+    (scanId: string) =>
+      loadCollectionPositionStep(
+        queryClient,
+        collectionGuid!,
+        scanId,
+        isReviewing ? reviewQuery : cardsQuery,
+        isReviewing,
+      ),
+    [queryClient, collectionGuid, isReviewing, reviewQuery, cardsQuery],
+  );
+  usePrefetchDetailCards(
+    openEntry
+      ? isReviewing
+        ? reviewSession.resolveNext(openPosition?.nextScanId)
+        : openPosition?.nextScanId
+      : null,
+    !!collectionGuid,
+    loadPrefetchStep,
+    isReviewing,
+  );
 
-  const startReview = useCallback(async () => {
+  const startOneByOneReview = useCallback(async () => {
     if (!collectionGuid) return;
     try {
       const firstPage = await queryClient.fetchQuery(
@@ -272,31 +339,34 @@ export function CardGrid() {
         toast.info(t("review.nothingLeft"));
         return;
       }
-      reviewTotalRef.current = firstPage.totalCards;
-      setReviewTrail([]);
-      setOpenScanId(first.scanId, true);
+      setReviewTotal(firstPage.totalCards);
+      setOpenScanId(first.scanId, { inReviewMode: true });
     } catch (err) {
       console.error("Failed to start card review:", err);
     }
   }, [collectionGuid, queryClient, reviewQuery, setOpenScanId, t]);
 
+  const startReview = useCallback(() => {
+    if (reviewLayout === "grid") openReviewGrid();
+    else void startOneByOneReview();
+  }, [reviewLayout, openReviewGrid, startOneByOneReview]);
+
   const finishReview = useCallback(
     (count: number) => {
       setOpenScanId(null);
-      toast.success(
-        t("review.complete", { count: reviewTotalRef.current ?? count }),
-      );
-      reviewTotalRef.current = null;
-      setReviewTrail([]);
+      toast.success(t("review.complete", { count: reviewTotal ?? count }));
+      setReviewTotal(null);
     },
-    [setOpenScanId, t],
+    [setOpenScanId, reviewTotal, t],
   );
 
   useHotkeys({
     reviewStart:
-      !readOnly && !openScanId && totalCards > 0
-        ? () => void startReview()
+      !readOnly && !openScanId && !isGridReviewing && totalCards > 0
+        ? startReview
         : undefined,
+    clearSelection:
+      selectedIds.size > 0 ? () => setSelectedIds(new Set()) : undefined,
   });
 
   const toggleSelect = useCallback((scanIds: string[]) => {
@@ -381,10 +451,6 @@ export function CardGrid() {
     }
   }, [allSelected, collectionGuid, cardsQuery]);
 
-  const { data: exportCards } = useQuery(
-    collectionCardsExportQueryOptions(collectionGuid, summaryOpen),
-  );
-
   const gameKey = viewedCollection?.game?.key;
   const exportAdapters = useMemo(
     () =>
@@ -397,46 +463,37 @@ export function CardGrid() {
   );
   const exportedCount = exportedScanIds?.length ?? 0;
   const [confirmDeleteExported, setConfirmDeleteExported] = useState(false);
+  const markCardsDownloaded = useMarkCardsDownloaded(collectionGuid);
   const { isLocked: storageLocked } = useStorageAccess();
   const { moveCards, isMoving } = useMoveCardsToLocation();
-  const { data: allCardsForDelete } = useQuery(
-    collectionCardsExportQueryOptions(
-      collectionGuid,
-      confirmOpen || confirmDeleteExported || (storageLocked && !!exportedScanIds),
-    ),
+  const moveTargetCollections = useMoveTargetCollections(collectionGuid);
+  const { moveToCollection, isMovingToCollection } =
+    useMoveCardsToCollection(collectionGuid);
+  const selectedStoredCount = useStoredCardCount(
+    collectionGuid,
+    selectedIds,
+    confirmOpen,
   );
-  const storedCountOf = (scanIds: Iterable<string>) => {
-    if (!allCardsForDelete) return 0;
-    const ids = new Set(scanIds);
-    return allCardsForDelete.filter(
-      (card) => ids.has(card.scanId) && card.storageLocation,
-    ).length;
-  };
+  const exportedStoredCount = useStoredCardCount(
+    collectionGuid,
+    exportedScanIds,
+    confirmDeleteExported || (storageLocked && !!exportedScanIds),
+  );
 
   const handleExportSelected = useCallback(
     async (adapter: ExportAdapter) => {
       if (!collectionGuid) return;
       setExportingSelected(true);
       try {
-        const allCards = await queryClient.fetchQuery(
-          collectionCardsExportQueryOptions(collectionGuid, true),
-        );
-        const selectedCards = allCards.filter((card) =>
-          selectedIds.has(card.scanId),
-        );
-        const slug = (viewedCollection?.name ?? "collection")
-          .replace(/\s+/g, "-")
-          .toLowerCase();
-        runExport(
+        const exportedIds = [...selectedIds];
+        await downloadCollectionCsv(
+          collectionGuid,
           adapter,
-          selectedCards,
-          slug,
-          { isMtg: gameKey === "mtg", fieldDefinitions },
-          true,
+          viewedCollection?.name ?? "collection",
+          { scanIds: exportedIds, combineDuplicates: true },
         );
-        if (!readOnly) {
-          setExportedScanIds(selectedCards.map((card) => card.scanId));
-        }
+        markCardsDownloaded(exportedIds);
+        if (!readOnly) setExportedScanIds(exportedIds);
       } catch (err) {
         console.error("Failed to export selected cards:", err);
         toast.error(t("cardGrid.exportSelectedFailed"));
@@ -446,12 +503,10 @@ export function CardGrid() {
     },
     [
       collectionGuid,
-      queryClient,
       selectedIds,
       viewedCollection?.name,
       readOnly,
-      gameKey,
-      fieldDefinitions,
+      markCardsDownloaded,
       t,
     ],
   );
@@ -464,6 +519,28 @@ export function CardGrid() {
         collectionGuid,
       }),
     [moveCards, exportedScanIds, collectionGuid],
+  );
+
+  const [moveSelectedOpen, setMoveSelectedOpen] = useState(false);
+  const handleMoveSelected = useCallback(
+    (locationGuid: string) =>
+      moveCards({
+        guid: locationGuid,
+        scanIds: Array.from(selectedIds),
+        collectionGuid,
+      }),
+    [moveCards, selectedIds, collectionGuid],
+  );
+  const handleMoveSelectedToCollection = useCallback(
+    async (targetCollectionGuid: string) => {
+      const moved = await moveToCollection(
+        Array.from(selectedIds),
+        targetCollectionGuid,
+      );
+      if (moved) setSelectedIds(new Set());
+      return moved;
+    },
+    [moveToCollection, selectedIds],
   );
 
   const handleDeleteExported = useCallback(() => {
@@ -527,7 +604,6 @@ export function CardGrid() {
         action={
           <Button
             variant="outline"
-            size="sm"
             render={
               <Link to="/app/collections">
                 {t("cardGrid.manageCollections")}
@@ -539,6 +615,21 @@ export function CardGrid() {
     );
   }
 
+  const addCardDialog = viewedCollection && (
+    <>
+      <AddCardDialog
+        open={addCardOpen}
+        onOpenChange={setAddCardOpen}
+        collectionGuid={viewedCollection.guid}
+      />
+      <ScanImageImportDialog
+        open={importScansOpen}
+        onOpenChange={setImportScansOpen}
+        scanImageImport={scanImageImport}
+      />
+    </>
+  );
+
   if (totalCount === 0) {
     return (
       <>
@@ -547,8 +638,47 @@ export function CardGrid() {
           className="flex-1"
           title={t("cardGrid.noCardsScanned")}
           description={t("cardGrid.scanToGetStarted")}
+          action={
+            <div className="flex flex-wrap justify-center gap-1.5">
+              <Button
+                variant="outline"
+                onClick={() => setAddCardOpen(true)}
+              >
+                <IconPlus />
+                {t("addCard.button")}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setImportScansOpen(true)}
+              >
+                <IconPhotoUp />
+                {t("importScans.button")}
+              </Button>
+            </div>
+          }
         />
+        {addCardDialog}
       </>
+    );
+  }
+
+  if (isGridReviewing) {
+    return (
+      <ReviewGrid
+        cards={reviewGridCards}
+        total={reviewGridPage.data?.totalCards ?? 0}
+        isLoading={reviewGridPage.isPending}
+        isError={reviewGridPage.isError}
+        onOpenOneByOne={(card) => {
+          setReviewLayout("single");
+          setReviewTotal(reviewGridPage.data?.totalCards ?? null);
+          setOpenScanId(card.scanId, { inReviewMode: true });
+        }}
+        onClose={() => setOpenScanId(null)}
+        onCorrect={(card, correctedCard) =>
+          correctCard(card.scanId, correctedCard)
+        }
+      />
     );
   }
 
@@ -557,14 +687,12 @@ export function CardGrid() {
   }
 
   if (openEntry) {
-    const reviewPrevScanId = isReviewing ? reviewTrail.at(-1) : undefined;
-    const prevScanId = reviewPrevScanId ?? openPosition?.prevScanId ?? null;
-    const goForward = (scanId: string | null) => {
-      if (isReviewing && scanId) {
-        setReviewTrail((trail) => [...trail, openEntry.scanId]);
-      }
-      setOpenScanId(scanId, isReviewing);
-    };
+    const prevScanId = isReviewing
+      ? reviewSession.previousScanId
+      : (openPosition?.prevScanId ?? null);
+    const nextScanId = isReviewing
+      ? reviewSession.resolveNext(openPosition?.nextScanId)
+      : (openPosition?.nextScanId ?? null);
     const detailPanel = (
       <CardDetailPanel
         scanId={openEntry.scanId}
@@ -573,10 +701,12 @@ export function CardGrid() {
         lowConfidenceMatch={openEntry.lowConfidenceMatch}
         wasCorrected={openEntry.corrected}
         isReviewed={openEntry.reviewed}
+        isDownloaded={openEntry.isDownloaded}
         storageLocation={openEntry.storageLocation}
         isFoil={openEntry.isFoil}
         foilType={openEntry.foilType}
         condition={openEntry.condition}
+        language={openEntry.language}
         binNumber={openEntry.binNumber}
         onClose={() => setOpenScanId(null)}
         onRemove={
@@ -584,25 +714,40 @@ export function CardGrid() {
             ? undefined
             : () => {
                 removeCard(openEntry.scanId);
-                setOpenScanId(
-                  isReviewing ? (openPosition?.nextScanId ?? null) : null,
-                  isReviewing,
-                );
+                if (isReviewing) {
+                  reviewSession.forget(openEntry.scanId);
+                  reviewQueueStore.markRemoved(openEntry.scanId);
+                }
+                setOpenScanId(isReviewing ? nextScanId : null, {
+                  inReviewMode: isReviewing,
+                });
               }
         }
-        onPrev={() => {
-          if (reviewPrevScanId) setReviewTrail((trail) => trail.slice(0, -1));
-          setOpenScanId(prevScanId, isReviewing);
-        }}
-        onNext={() => goForward(openPosition?.nextScanId ?? null)}
+        onPrev={() =>
+          setOpenScanId(prevScanId, { inReviewMode: isReviewing })
+        }
+        onNext={() =>
+          setOpenScanId(nextScanId, { inReviewMode: isReviewing })
+        }
         hasPrev={!!prevScanId}
-        hasNext={!!openPosition?.nextScanId}
-        currentIndex={openPosition?.index ?? 0}
-        total={openPosition?.total ?? 0}
+        hasNext={!!nextScanId}
+        currentIndex={
+          isReviewing ? reviewSession.index : (openPosition?.index ?? 0)
+        }
+        total={
+          isReviewing
+            ? Math.max(
+                reviewTotal ?? openPosition?.total ?? 0,
+                reviewSession.size,
+              )
+            : (openPosition?.total ?? 0)
+        }
         copyIndex={openPosition?.copyIndex ?? -1}
         copyCount={openPosition?.copyCount ?? 1}
         reviewMode={isReviewing}
         onReviewComplete={() => finishReview(openPosition?.total ?? 0)}
+        onShowReviewGrid={openReviewGrid}
+        onReviewed={reviewQueueStore.markReviewed}
       />
     );
     if (!readOnly) return detailPanel;
@@ -626,7 +771,10 @@ export function CardGrid() {
           onSortChange={setSortKey}
           sortableFields={sortableFields}
           onExport={() => setSummaryOpen(true)}
-          onStartReview={readOnly ? undefined : () => void startReview()}
+          onStartReview={readOnly ? undefined : startReview}
+          needsReviewCount={reviewCount?.totalCount ?? 0}
+          onAddCard={() => setAddCardOpen(true)}
+          onImportScans={() => setImportScansOpen(true)}
           collectionName={viewedCollection?.name}
           onClearAll={readOnly ? undefined : handleClearSession}
           hasCards={totalCards > 0}
@@ -664,8 +812,7 @@ export function CardGrid() {
             hiddenDownloadedCount > 0 ? (
               <Button
                 variant="outline"
-                size="sm"
-                onClick={() => setFilters({ ...filters, showDownloaded: true })}
+                onClick={() => setFilters({ ...filters, hideDownloaded: false })}
               >
                 <IconDownload />
                 {t("cardFilterPopover.showDownloadedCards")}
@@ -746,40 +893,21 @@ export function CardGrid() {
             })}
           </div>
         )}
-        {pageCount > 1 && (
-          <div className="flex items-center justify-center gap-3 pt-4">
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={clampedPage === 0}
-            >
-              <IconChevronLeft />
-            </Button>
-            <span className="text-sm text-foreground/70">
-              {t("cardGrid.pageOf", {
-                page: clampedPage + 1,
-                total: pageCount,
-              })}
-            </span>
-            <Button
-              variant="outline"
-              size="icon"
-              onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-              disabled={clampedPage === pageCount - 1}
-            >
-              <IconChevronRight />
-            </Button>
-          </div>
-        )}
+        <ListPagination
+          className="pt-4"
+          pagination={{
+            page: clampedPage + 1,
+            pageCount,
+            setPage: (nextPage) => setPage(nextPage - 1),
+          }}
+        />
       </div>
 
       {selectedIds.size > 0 && (
         <div
-          role="status"
           className="sticky bottom-4 z-50 mx-auto mb-4 flex w-fit shrink-0 items-center gap-3 rounded-lg bg-foreground px-1.5 pl-3 py-1.5 text-xs text-background shadow-2xl ring-1 ring-foreground/20 animate-in fade-in-0 slide-in-from-bottom-4 duration-150"
         >
-          <span className="font-medium">
+          <span role="status" className="font-medium">
             {t("cardGrid.cardsSelected", { count: selectedIds.size })}
           </span>
           <div className="flex gap-2">
@@ -800,8 +928,12 @@ export function CardGrid() {
                   />
                 }
               >
-                <IconDownload />
-                {t("cardGrid.export")}
+                {exportingSelected ? (
+                  <IconLoader2 className="animate-spin motion-reduce:animate-none" />
+                ) : (
+                  <IconDownload />
+                )}
+                {exportingSelected ? t("cardGrid.exporting") : t("cardGrid.export")}
                 <IconChevronDown />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="center" side="top">
@@ -817,6 +949,39 @@ export function CardGrid() {
             </DropdownMenu>
             {!readOnly && (
               <>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
+                      />
+                    }
+                  >
+                    <IconSparkles />
+                    {t("cardContextMenu.foil")}
+                    <IconChevronDown />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" side="top">
+                    <DropdownMenuItem
+                      onClick={() =>
+                        setCardsFoilType(Array.from(selectedIds), null)
+                      }
+                    >
+                      {t("cardContextMenu.nonFoil")}
+                    </DropdownMenuItem>
+                    {foilOptions.map((option) => (
+                      <DropdownMenuItem
+                        key={option}
+                        onClick={() =>
+                          setCardsFoilType(Array.from(selectedIds), option)
+                        }
+                      >
+                        {option}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <DropdownMenu>
                   <DropdownMenuTrigger
                     render={
@@ -843,6 +1008,49 @@ export function CardGrid() {
                     ))}
                   </DropdownMenuContent>
                 </DropdownMenu>
+                <DropdownMenu>
+                  <DropdownMenuTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
+                      />
+                    }
+                  >
+                    <IconTag />
+                    {t("cardTags.title")}
+                    <IconChevronDown />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" side="top">
+                    {BULK_TAG_ACTIONS.map(({ enabled, labelKey }, index) => (
+                      <DropdownMenuGroup key={labelKey}>
+                        {index > 0 && <DropdownMenuSeparator />}
+                        <DropdownMenuLabel>{t(labelKey)}</DropdownMenuLabel>
+                        {CARD_TAGS.map((tag) => (
+                          <DropdownMenuItem
+                            key={tag}
+                            onClick={() =>
+                              setCardsTags(Array.from(selectedIds), [tag], enabled)
+                            }
+                          >
+                            {t(`cardTags.names.${tag}`)}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuGroup>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                {(!storageLocked || moveTargetCollections.length > 0) && (
+                  <Button
+                    variant="ghost"
+                    disabled={isMoving || isMovingToCollection}
+                    className="text-background hover:bg-background/15 hover:text-background dark:hover:bg-background/15"
+                    onClick={() => setMoveSelectedOpen(true)}
+                  >
+                    <IconBox />
+                    {t("cardGrid.moveToLocation")}
+                  </Button>
+                )}
                 <Button
                   variant="destructive"
                   className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
@@ -856,14 +1064,17 @@ export function CardGrid() {
         </div>
       )}
 
+      {addCardDialog}
+
       <SessionSummaryDialog
-        open={summaryOpen && !!exportCards}
+        open={summaryOpen}
         onOpenChange={setSummaryOpen}
-        cards={exportCards ?? []}
+        collectionGuid={collectionGuid}
         elapsedMs={elapsedMs}
         sessionScanCount={sessionScanCount}
         collectionName={viewedCollection?.name ?? "collection"}
         onExported={(scanIds) => {
+          markCardsDownloaded(scanIds);
           if (!readOnly && scanIds.length > 0) setExportedScanIds(scanIds);
         }}
         gridFilters={filters}
@@ -883,11 +1094,22 @@ export function CardGrid() {
         onConfirm={handleBulkDelete}
       >
         <StorageDeleteWarning
-          storedCount={storedCountOf(selectedIds)}
+          storedCount={selectedStoredCount}
           total={selectedIds.size}
           className="mt-4"
         />
       </DeleteDialog>
+
+      <MoveToLocationDialog
+        open={moveSelectedOpen}
+        count={selectedIds.size}
+        isMoving={isMoving || isMovingToCollection}
+        showLocations={!storageLocked}
+        sourceCollectionGuid={collectionGuid}
+        onOpenChange={setMoveSelectedOpen}
+        onMove={handleMoveSelected}
+        onMoveToCollection={handleMoveSelectedToCollection}
+      />
 
       <ExportedCardsDialog
         open={exportedScanIds != null && !storageLocked && !confirmDeleteExported}
@@ -921,7 +1143,7 @@ export function CardGrid() {
         onConfirm={handleDeleteExported}
       >
         <StorageDeleteWarning
-          storedCount={storedCountOf(exportedScanIds ?? [])}
+          storedCount={exportedStoredCount}
           total={exportedCount}
           className="mt-4"
         />

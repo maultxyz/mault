@@ -1,18 +1,53 @@
-export const CARD_API_USER_AGENT = "MagicVault/1.0";
+export const CARD_API_USER_AGENT =
+  process.env.CARD_API_USER_AGENT || "Mault-SelfHosted/1.0";
 
 export const CARD_API_HEADERS: Record<string, string> = {
   "User-Agent": CARD_API_USER_AGENT,
   Accept: "application/json",
 };
 
-// Softmax temperature over the nearest candidates' similarities. At 0.05 a
-// 0.05 lead over the runner-up reads as ~73% confidence, 0.1 as ~88% and
-// 0.2 as ~98%. Lower is more decisive, higher more hedged.
 export const MATCH_CONFIDENCE_TEMPERATURE = 0.05;
 
-// Max cosine distance between two cards' reference embeddings for them to
-// count as the same art (reprints), pooling their match confidence.
 export const DUPLICATE_PRINTING_MAX_DISTANCE = 0.02;
+
+export const SCRYFALL_LIST_SET_CODES = ["plst", "ulst"];
+
+export const SCRYFALL_ETCHED_FINISH = "etched";
+
+export const SCRYFALL_FOIL_TYPES_BY_TCGPLAYER_VARIANT: Record<string, string> = {
+  Foil: "Traditional",
+};
+
+export const SCRYFALL_FOIL_PROMO_TYPES = [
+  "surgefoil",
+  "galaxyfoil",
+  "silverfoil",
+  "ripplefoil",
+  "rainbowfoil",
+  "doublerainbow",
+  "halofoil",
+  "textured",
+  "stepandcompleat",
+  "fracturefoil",
+  "raisedfoil",
+  "manafoil",
+  "gilded",
+  "confettifoil",
+  "neonink",
+  "oilslick",
+  "invisibleink",
+  "chocobotrackfoil",
+  "facetfoil",
+  "dazzlefoil",
+  "dragonscalefoil",
+  "cosmicfoil",
+  "singularityfoil",
+  "firstplacefoil",
+];
+
+export const SCRYFALL_FOIL_TYPE_ALIASES: Record<string, string> = {
+  silverscreen: "silverfoil",
+};
 
 export const STORED_SEARCH_LIMIT = 60;
 
@@ -24,14 +59,31 @@ export const SINGLE_TOKEN_PATTERN = /^#?([a-z0-9-]+)$/i;
 export const NAME_AND_NUMBER_PATTERN =
   /^(.*\S)\s+#?([a-z0-9-]*\d[a-z0-9-]*)(?:\/\d+)?$/i;
 
-export const NETDECK_SEARCH_PAGE_SIZE = 30;
 export const NETDECK_IMAGE_GAMES = new Set(["cyberpunk"]);
 export const NETDECK_SLUG_PATTERN = /^[a-z0-9-]+$/;
 export const NETDECK_IMAGE_URL_REFRESH_MARGIN_MS = 10 * 60 * 1000;
 export const NETDECK_IMAGE_URL_FALLBACK_TTL_MS = 60 * 60 * 1000;
 export const CYBERPUNK_TCGPLAYER_CATEGORY_ID = 92;
 
-export const FAB_SEARCH_CARD_LIMIT = 12;
+export const POKEMON_JAPAN_TCGPLAYER_CATEGORY_ID = 85;
+export const POKEMON_JAPAN_CARDMARKET_GAME_ID = 6;
+export const POKEMON_JAPAN_LANGUAGES = ["ja"];
+export const POKEMON_JAPAN_EXT_KEYS = {
+  stage: ["stage", "Stage"],
+  energyTypes: ["cardType", "Card Type"],
+  hitPoints: ["hp", "HP"],
+  retreatCost: ["retreatCost", "Retreat Cost"],
+  description: ["description", "Description"],
+  attacks: [
+    ["attack1", "Attack 1"],
+    ["attack2", "Attack 2"],
+    ["attack3", "Attack 3"],
+    ["attack4", "Attack 4"],
+  ],
+  artist: ["Artist", "artist"],
+} as const;
+export const POKEMON_JAPAN_RARITY_NONE = "None";
+
 export const FAB_STANDARD_FOILING = "S";
 export const FAB_TCGPLAYER_FOIL_NAMES: Record<string, string> = {
   S: "Normal",
@@ -45,7 +97,6 @@ export const FAB_TCGPLAYER_EDITION_PREFIXES: Record<string, string> = {
   U: "Unlimited Edition ",
 };
 
-export const GRAND_ARCHIVE_SEARCH_PAGE_SIZE = 30;
 export const GRAND_ARCHIVE_RARITY_NAMES: Record<number, string> = {
   1: "Common",
   2: "Uncommon",
@@ -71,6 +122,14 @@ export const CARD_MATCH_LIMIT = 5;
 
 export const CARD_MATCH_RUNNER_UP_SEARCH_LIMIT = 20;
 
-export const CARD_MATCH_HNSW_EF_SEARCH = 1000;
+export const CARD_MATCH_INDEX_PAGE_SIZE = 20_000;
+export const CARD_MATCH_INDEX_REVALIDATE_MS = 60_000;
+export const CARD_MATCH_GAME_LANGS_CACHE_MAX_ENTRIES = 100;
+export const CARD_MATCH_INDEX_ROWS_PER_EVENT_LOOP_TURN = 2_000;
+export const CARD_MATCH_INDEX_ESTIMATED_ROW_TEXT_BYTES = 200;
+export const CARD_MATCH_INDEX_DEFAULT_MAX_MB = 1024;
+export const CARD_MATCH_INDEX_PI_DEFAULT_MAX_MB = 384;
+export const CARD_MATCH_INDEX_EVICTION_MIN_IDLE_MS = 10 * 60_000;
 export const CARD_VECTOR_INDEX_M = 32;
 export const CARD_VECTOR_INDEX_EF_CONSTRUCTION = 200;
+export const RANDOM_SAMPLE_CANDIDATE_MULTIPLIER = 5;

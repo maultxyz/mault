@@ -11,7 +11,7 @@ export const ALL_CARDS_QUERY: CollectionCardsQuery = {
   grouped: false,
 };
 
-export const CARD_LOOKUP_QUERY: CollectionCardsQuery = {
+export const NEW_CARDS_QUERY: CollectionCardsQuery = {
   ...ALL_CARDS_QUERY,
-  filters: { ...EMPTY_CARD_FILTERS, showDownloaded: true },
+  filters: { ...EMPTY_CARD_FILTERS, hideDownloaded: true },
 };

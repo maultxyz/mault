@@ -1,3 +1,4 @@
+import { assertHardwareAllowedWhileImpersonating } from "@/lib/auth/impersonation";
 import {
   CAMERA_IDEAL_HEIGHT,
   CAMERA_IDEAL_WIDTH,
@@ -5,6 +6,10 @@ import {
 } from "@/lib/constants/scanner";
 import type { PhoneLocalCameraStatus } from "@/lib/interfaces/scanner";
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  getUserMediaWhenCameraIsReleased,
+  stopMediaStream,
+} from "@/features/scanner/lib/camera-stream";
 
 function readStoredDeviceId(): string | null {
   try {
@@ -21,13 +26,9 @@ function writeStoredDeviceId(deviceId: string | null) {
   } catch {}
 }
 
-function stopStream(stream: MediaStream | null) {
-  if (!stream) return;
-  for (const track of stream.getTracks()) track.stop();
-}
-
 function openCamera(deviceId: string | null): Promise<MediaStream> {
-  return navigator.mediaDevices.getUserMedia({
+  assertHardwareAllowedWhileImpersonating();
+  return getUserMediaWhenCameraIsReleased({
     video: {
       ...(deviceId
         ? { deviceId: { exact: deviceId } }
@@ -59,7 +60,7 @@ export function usePhoneLocalCamera() {
 
   const requestCamera = useCallback(async (deviceId: string | null) => {
     const requestId = ++requestIdRef.current;
-    stopStream(localStreamRef.current);
+    stopMediaStream(localStreamRef.current);
     localStreamRef.current = null;
     setLocalStream(null);
     setErrorMessage("");
@@ -74,7 +75,7 @@ export function usePhoneLocalCamera() {
         stream = await openCamera(null);
       }
       if (cancelledRef.current || requestId !== requestIdRef.current) {
-        stopStream(stream);
+        stopMediaStream(stream);
         return;
       }
       localStreamRef.current = stream;
@@ -104,7 +105,7 @@ export function usePhoneLocalCamera() {
 
   const disconnect = useCallback(() => {
     requestIdRef.current++;
-    stopStream(localStreamRef.current);
+    stopMediaStream(localStreamRef.current);
     localStreamRef.current = null;
     setLocalStream(null);
     setStatus("disconnected");
@@ -120,7 +121,7 @@ export function usePhoneLocalCamera() {
 
     return () => {
       cancelledRef.current = true;
-      stopStream(localStreamRef.current);
+      stopMediaStream(localStreamRef.current);
       localStreamRef.current = null;
     };
   }, [requestCamera]);

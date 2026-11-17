@@ -1,3 +1,4 @@
+import { useNextSorterNeedingAttention } from "@/features/scanner/api/use-next-sorter-needing-attention";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useRole } from "@/hooks/use-role";
 import {
@@ -10,8 +11,9 @@ import { useNavigate } from "react-router-dom";
 
 export function AppHotkeys() {
   const navigate = useNavigate();
-  const { isAdmin } = useRole();
+  const { isStaff } = useRole();
   const go = (route: string) => () => navigate(route);
+  const { goToNextSorterNeedingAttention } = useNextSorterNeedingAttention();
 
   useHotkeys({
     focusSearch: () => focusHotkeySearch(`[${HOTKEY_SEARCH_ATTRIBUTE}]`),
@@ -22,7 +24,8 @@ export function AppHotkeys() {
     goStorage: go(HOTKEY_ROUTES.goStorage),
     goCalibrate: go(HOTKEY_ROUTES.goCalibrate),
     goSettings: go(HOTKEY_ROUTES.goSettings),
-    goAdmin: isAdmin ? go(HOTKEY_ROUTES.goAdmin) : undefined,
+    goAdmin: isStaff ? go(HOTKEY_ROUTES.goAdmin) : undefined,
+    goNextSorterNeedingAttention: goToNextSorterNeedingAttention,
   });
 
   return null;

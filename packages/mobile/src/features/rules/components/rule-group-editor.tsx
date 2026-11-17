@@ -13,6 +13,7 @@ import { createCondition, createGroup } from "@/features/rules/lib/rules";
 import { useTheme } from "@/hooks/use-theme";
 import { MAX_RULE_GROUP_DEPTH } from "@/lib/constants/rules";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
+import { MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import type { ConditionEditTarget, RuleGroupEditorProps } from "@/lib/interfaces/rules";
 
 export function RuleGroupEditor({
@@ -29,7 +30,7 @@ export function RuleGroupEditor({
   const [combinatorOpen, setCombinatorOpen] = useState(false);
   const [editing, setEditing] = useState<{ target: ConditionEditTarget; condition: BinCondition } | null>(null);
   const nested = depth > 0;
-  const cardColor = nested ? colors.background : colors.muted;
+  const cardColor = nested ? colors.background : colors.card;
 
   const update = (index: number, next: BinCondition | BinRuleGroup) => {
     const conditions = [...group.conditions];
@@ -53,7 +54,9 @@ export function RuleGroupEditor({
         </AppText>
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={t("rules.combinatorTitle")}
+          accessibilityLabel={`${t("rules.combinatorTitle")}: ${group.combinator === "and" ? t("rules.combinatorAll") : t("rules.combinatorAny")}`}
+          accessibilityState={{ disabled }}
+          hitSlop={(MIN_TOUCH_TARGET - 32) / 2}
           disabled={disabled}
           onPress={() => setCombinatorOpen(true)}
           style={({ pressed }) => ({
@@ -62,8 +65,10 @@ export function RuleGroupEditor({
             gap: SPACING.xs,
             height: 32,
             paddingHorizontal: SPACING.md,
-            borderRadius: RADIUS.full,
-            backgroundColor: pressed ? colors.border : nested ? colors.background : colors.muted,
+            borderRadius: RADIUS.md,
+            borderWidth: 1,
+            borderColor: colors.border,
+            backgroundColor: pressed ? colors.muted : colors.background,
           })}
         >
           <AppText size="base" weight="bold">
@@ -79,7 +84,7 @@ export function RuleGroupEditor({
         ) : null}
       </View>
 
-      <View style={{ borderRadius: RADIUS.lg, backgroundColor: cardColor, overflow: "hidden" }}>
+      <View style={{ borderRadius: RADIUS.lg, borderWidth: 1, borderColor: colors.border, backgroundColor: cardColor, overflow: "hidden" }}>
         {group.conditions.map((item, index) => (
           <View key={item.id} style={index > 0 ? { borderTopWidth: 1, borderTopColor: colors.border } : undefined}>
             {isRuleGroup(item) ? (

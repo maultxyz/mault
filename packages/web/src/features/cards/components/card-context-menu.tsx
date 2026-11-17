@@ -13,8 +13,11 @@ import {
 } from "@/components/ui/context-menu";
 import { useCardActions } from "@/features/cards/api/use-card-actions";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
+import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import type { CardContextMenuProps } from "@/lib/interfaces/cards";
 import {
+  IconBox,
+  IconTag,
   IconCheck,
   IconCopy,
   IconExternalLink,
@@ -24,7 +27,7 @@ import {
   IconSquare,
   IconTrash,
 } from "@tabler/icons-react";
-import { CARD_CONDITIONS } from "@magic-vault/shared";
+import { CARD_CONDITIONS, CARD_TAGS } from "@magic-vault/shared";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -44,10 +47,19 @@ export function CardContextMenu({
     confirm,
     setFoil,
     setCondition,
+    tagsSet,
+    toggleTag,
     copyName,
     remove,
+    canMoveToLocation,
+    canMove,
+    sourceCollectionGuid,
+    isMovingToLocation,
+    moveToLocation,
+    moveToCollection,
   } = useCardActions(entry);
   const [confirmRemoveOpen, setConfirmRemoveOpen] = useState(false);
+  const [moveToLocationOpen, setMoveToLocationOpen] = useState(false);
   const storedCount = entry.storedCount ?? (entry.storageLocation ? 1 : 0);
   const requestRemove = () =>
     storedCount > 0 ? setConfirmRemoveOpen(true) : remove();
@@ -123,6 +135,30 @@ export function CardContextMenu({
               ))}
             </ContextMenuSubContent>
           </ContextMenuSub>
+          <ContextMenuSub>
+            <ContextMenuSubTrigger>
+              <IconTag />
+              {t("cardTags.title")}
+            </ContextMenuSubTrigger>
+            <ContextMenuSubContent>
+              {CARD_TAGS.map((tag) => (
+                <ContextMenuItem key={tag} onClick={() => toggleTag(tag)}>
+                  {tagsSet.includes(tag) ? (
+                    <IconCheck />
+                  ) : (
+                    <span className="size-3.5" />
+                  )}
+                  {t(`cardTags.names.${tag}`)}
+                </ContextMenuItem>
+              ))}
+            </ContextMenuSubContent>
+          </ContextMenuSub>
+          {canMove && (
+            <ContextMenuItem onClick={() => setMoveToLocationOpen(true)}>
+              <IconBox />
+              {t("cardContextMenu.moveToLocation")}
+            </ContextMenuItem>
+          )}
           <ContextMenuItem onClick={() => void copyName()}>
             <IconCopy />
             {t("cardContextMenu.copyName")}
@@ -150,6 +186,16 @@ export function CardContextMenu({
           className="mt-4"
         />
       </DeleteDialog>
+      <MoveToLocationDialog
+        open={moveToLocationOpen}
+        count={entry.scanIds.length}
+        isMoving={isMovingToLocation}
+        onOpenChange={setMoveToLocationOpen}
+        showLocations={canMoveToLocation}
+        sourceCollectionGuid={sourceCollectionGuid}
+        onMove={moveToLocation}
+        onMoveToCollection={moveToCollection}
+      />
     </>
   );
 }

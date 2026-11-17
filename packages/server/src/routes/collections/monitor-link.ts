@@ -34,59 +34,49 @@ export const monitorLinkRoute = new Hono<AppEnv>()
     ) {
       return c.json({ success: false, message: "Invalid expiry." }, 400);
     }
-    try {
-      const collection = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx.query.collections.findFirst({
-          where: (t, { eq, and }) =>
-            and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
-          columns: { monitorLinkVersion: true },
-        }),
-      );
-      if (!collection) {
-        return c.json({ success: false, message: "Collection not found." }, 404);
-      }
-      const { token, expiresAt } = await signMonitorLink(
-        guid,
-        orgId,
-        collection.monitorLinkVersion,
-        expiresInDays,
-      );
-      return c.json({
-        success: true,
-        message: "Created monitor link.",
-        data: { token, expiresAt: expiresAt.toISOString() } satisfies MonitorLink,
-      });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+    const collection = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx.query.collections.findFirst({
+        where: (t, { eq, and }) =>
+          and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
+        columns: { monitorLinkVersion: true },
+      }),
+    );
+    if (!collection) {
+      return c.json({ success: false, message: "Collection not found." }, 404);
     }
+    const { token, expiresAt } = await signMonitorLink(
+      guid,
+      orgId,
+      collection.monitorLinkVersion,
+      expiresInDays,
+    );
+    return c.json({
+      success: true,
+      message: "Created monitor link.",
+      data: { token, expiresAt: expiresAt.toISOString() } satisfies MonitorLink,
+    });
   })
   .post("/:guid/monitor-link/revoke", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
-    try {
-      const updated = await authQuery(c.get("jwtClaims"), (tx) =>
-        tx
-          .update(collections)
-          .set({
-            monitorLinkVersion: sql`${collections.monitorLinkVersion} + 1`,
-          })
-          .where(
-            and(
-              eq(collections.guid, guid),
-              eq(collections.orgId, orgId),
-              eq(collections.isDeleted, false),
-            ),
-          )
-          .returning({ id: collections.id }),
-      );
-      if (updated.length === 0) {
-        return c.json({ success: false, message: "Collection not found." }, 404);
-      }
-      closeMonitorLinkStreams(guid);
-      return c.json({ success: true, message: "Revoked monitor links." });
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
+    const updated = await authQuery(c.get("jwtClaims"), (tx) =>
+      tx
+        .update(collections)
+        .set({
+          monitorLinkVersion: sql`${collections.monitorLinkVersion} + 1`,
+        })
+        .where(
+          and(
+            eq(collections.guid, guid),
+            eq(collections.orgId, orgId),
+            eq(collections.isDeleted, false),
+          ),
+        )
+        .returning({ id: collections.id }),
+    );
+    if (updated.length === 0) {
+      return c.json({ success: false, message: "Collection not found." }, 404);
     }
+    closeMonitorLinkStreams(guid);
+    return c.json({ success: true, message: "Revoked monitor links." });
   });

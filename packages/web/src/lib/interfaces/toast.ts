@@ -11,3 +11,9 @@ export interface StationToastTitleProps {
   stationName: string;
   children: ReactNode;
 }
+
+export interface RequestWithToastsOptions<TData> {
+  successMessage: string;
+  failureMessage: string;
+  onSuccess: (data: TData) => void;
+}

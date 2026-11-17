@@ -21,24 +21,19 @@ export const deleteDeviceRoute = new Hono<AppEnv>().delete(
         message: "This sorter is connected. Disconnect it before deleting it.",
       });
     }
-    try {
-      const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-        const device = await getDeviceByGuid(tx, orgId, guid);
-        if (!device) return { success: false, message: "Device not found." };
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      const device = await getDeviceByGuid(tx, orgId, guid);
+      if (!device) return { success: false, message: "Device not found." };
 
-        await tx
-          .update(devices)
-          .set({ isDeleted: true })
-          .where(eq(devices.id, device.id));
-        releaseDeviceLease(orgId, guid);
-        closeDeviceLink(guid, SORTER_LINK_CLOSE_REVOKED);
+      await tx
+        .update(devices)
+        .set({ isDeleted: true })
+        .where(eq(devices.id, device.id));
+      releaseDeviceLease(orgId, guid);
+      closeDeviceLink(guid, SORTER_LINK_CLOSE_REVOKED);
 
-        return { success: true, message: "Deleted device." };
-      });
-      return c.json(result);
-    } catch (err) {
-      console.error(err);
-      return c.json({ success: false, message: "Database error." }, 500);
-    }
+      return { success: true, message: "Deleted device." };
+    });
+    return c.json(result);
   },
 );

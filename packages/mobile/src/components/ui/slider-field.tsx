@@ -20,7 +20,7 @@ export function SliderField({ label, description, valueLabel, children, ...slide
           {description}
         </AppText>
       ) : null}
-      <Slider {...slider} />
+      <Slider accessibilityValueText={valueLabel} {...slider} />
       {children}
     </View>
   );

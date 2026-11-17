@@ -44,9 +44,9 @@ export function LanguageSwitcher() {
 }
 
 export function LanguageSwitcherIcon({
-  side = "right",
+  side = "bottom",
 }: {
-  side?: "right" | "top";
+  side?: "right" | "top" | "bottom";
 }) {
   const { t, i18n } = useTranslation();
   const current = i18n.language as SupportedLanguage;

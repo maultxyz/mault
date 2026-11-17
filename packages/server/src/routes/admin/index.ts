@@ -8,22 +8,29 @@ import { cardsRevectorizeRoute } from "./cards-revectorize";
 import { cardsSyncRoute } from "./cards-sync";
 import { deletedItemsRoute } from "./deleted-items";
 import { discordChannelsRoute } from "./discord-channels";
+import { discordLinkedRoleRoute } from "./discord-linked-role";
+import { foilLabelsRoute } from "./foil-labels";
 import { plansRoute } from "./plans";
 import { platformStatsRoute } from "./platform-stats";
 import { rollbarTestRoute } from "./rollbar-test";
 import { scanMetricsRoute } from "./scan-metrics";
 import { scanVectorizeStatsRoute } from "./scan-vectorize-stats";
+import { syncApiKeysRoute } from "./sync-api-keys";
 import { syncCancelRoute } from "./sync-cancel";
 import { syncSourcesRoute } from "./sync-sources";
 import { syncStartRoute } from "./sync-start";
 import { syncStatusRoute } from "./sync-status";
+import { syncWorkRoute } from "./sync-work";
+import { systemSoundClipsRoute } from "./system-sound-clips";
 import { unmatchedRetryRoute } from "./unmatched-retry";
 
 const router = new Hono<AppEnv>()
   .route("/", syncStatusRoute)
   .route("/", syncSourcesRoute)
   .route("/", syncStartRoute)
+  .route("/", syncWorkRoute)
   .route("/", syncCancelRoute)
+  .route("/", syncApiKeysRoute)
   .route("/", cardsListRoute)
   .route("/", cardsSyncRoute)
   .route("/", cardsRevectorizeRoute)
@@ -36,7 +43,10 @@ const router = new Hono<AppEnv>()
   .route("/", plansRoute)
   .route("/", platformStatsRoute)
   .route("/", discordChannelsRoute)
+  .route("/", discordLinkedRoleRoute)
   .route("/", deletedItemsRoute)
-  .route("/", unmatchedRetryRoute);
+  .route("/", systemSoundClipsRoute)
+  .route("/", unmatchedRetryRoute)
+  .route("/", foilLabelsRoute);
 
 export { router as adminRouter };

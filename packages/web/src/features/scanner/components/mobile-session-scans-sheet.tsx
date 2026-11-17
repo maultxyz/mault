@@ -3,7 +3,7 @@ import { Drawer, DrawerContent, DrawerTitle } from "@/components/ui/drawer";
 import { Skeleton } from "@/components/ui/skeleton";
 import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
 import { usePriceSource } from "@/hooks/use-price-source";
-import { CARD_LOOKUP_QUERY } from "@/lib/constants/card-filters";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
   MOBILE_LIST_CLASS,
   MOBILE_LIST_ROW_CLASS,
@@ -23,7 +23,7 @@ export function MobileSessionScansSheet({
   const { t } = useTranslation("scanner");
   const { priceOf, format } = usePriceSource();
   const { data, isPending } = useQuery({
-    ...collectionCardsPageQueryOptions(collectionGuid, CARD_LOOKUP_QUERY, 0),
+    ...collectionCardsPageQueryOptions(collectionGuid, ALL_CARDS_QUERY, 0),
     enabled: open && !!collectionGuid && count > 0,
   });
   const items = (data?.items ?? []).slice(0, count);
@@ -33,7 +33,7 @@ export function MobileSessionScansSheet({
       <DrawerContent className="data-[vaul-drawer-direction=bottom]:max-h-[85dvh]">
         <div className="flex min-h-0 flex-col gap-3 overflow-y-auto px-5 pt-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
           <div>
-            <DrawerTitle className="font-heading text-lg font-bold text-foreground">
+            <DrawerTitle className="font-heading text-base font-semibold text-foreground">
               {t("mobileScan.session.title")}
             </DrawerTitle>
             <p className="text-sm text-foreground/70">
@@ -53,7 +53,11 @@ export function MobileSessionScansSheet({
           ) : (
             <div className={MOBILE_LIST_CLASS}>
               {items.map((entry) => {
-                const price = priceOf(entry.card, entry.isFoil, entry.condition);
+                const price = priceOf(
+                  entry.card,
+                  { isFoil: entry.isFoil, foilType: entry.foilType },
+                  entry.condition,
+                );
                 return (
                   <Link
                     key={entry.scanId}

@@ -42,18 +42,14 @@ export interface CardTextSearchResult extends CardSearchResult {
   ocr?: OcrDiagnostics;
 }
 
-export interface ScryfallListResponse {
-  data: PlayingCard[];
-  has_more: boolean;
-  next_page?: string;
-}
-
 export type SyncStatus =
   | "idle"
   | "running"
   | "completed"
   | "failed"
   | "cancelled";
+
+export type SyncVectorizeOn = "server" | "browser";
 
 export interface SyncState {
   status: SyncStatus;
@@ -67,6 +63,27 @@ export interface SyncState {
   startedAt: string | null;
   logs: string[];
   currentCard?: string;
+  vectorizeOn: SyncVectorizeOn;
+  acceptingWork: boolean;
+  concurrency?: number;
+}
+
+export interface BrowserSyncWorkCard {
+  cardId: string;
+  name: string;
+  imageUrl: string;
+  backImageUrl?: string;
+}
+
+export interface BrowserSyncWorkResult {
+  cardId: string;
+  embedding: number[];
+  backEmbedding?: number[];
+}
+
+export interface BrowserSyncWorkFailure {
+  cardId: string;
+  message: string;
 }
 
 export type HealthCheckStatus = "ok" | "error";

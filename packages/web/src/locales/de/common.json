@@ -3,7 +3,7 @@
     "scanner": "Sortieren",
     "collections": "Sammlungen",
     "scan": "Kamera koppeln",
-    "storage": "Lagerboxen",
+    "storage": "Lagerorte",
     "calibrate": "Sortierer einrichten",
     "settings": "Einstellungen",
     "organization": "Org",
@@ -24,7 +24,10 @@
     "integrations": "API & Webhooks",
     "more": "Mehr",
     "stats": "Statistiken",
-    "sortingRules": "Sortierregeln"
+    "sortingRules": "Sortierregeln",
+    "intake": "An- & Verkauf",
+    "upgradeYourPlan": "Tarif upgraden",
+    "upgradeShort": "Upgrade"
   },
   "alerts": {
     "dismiss": "Verwerfen",
@@ -86,12 +89,22 @@
     "healthChecking": "Dienststatus wird geprüft…"
   },
   "appVersion": {
-    "outdatedBanner": "Eine neue Version von Magic Vault ist verfügbar.",
-    "refreshButton": "Aktualisieren"
+    "outdatedBanner": "Eine neue Version von Mault ist verfügbar.",
+    "refreshButton": "Aktualisieren",
+    "terminalUpdate": "Beende Scans und Synchronisierungen und führe diesen Befehl in einem Terminal auf dem Pi aus. Gib bei Aufforderung dein sudo-Passwort ein. Lade danach diese Seite neu:",
+    "updateButton": "Mault aktualisieren",
+    "updating": "Mault wird aktualisiert. Lass diese Seite geöffnet, während die Dienste neu starten.",
+    "updateSucceeded": "Mault wurde erfolgreich aktualisiert. Lade die Seite neu, um die neue Version zu verwenden.",
+    "updateFailed": "Mault konnte nicht aktualisiert werden.",
+    "updateUnconfirmed": "Nach der Aktualisierung konnte keine Verbindung hergestellt werden. Prüfe das Update-Protokoll auf dem Linux-Gerät."
   },
   "impersonation": {
     "banner": "Du siehst die App aus der Sicht von {{name}}.",
-    "exitButton": "Imitation beenden"
+    "exitButton": "Imitation beenden",
+    "hardwareBlocked": "Sortierer und Kameras können nicht verbunden werden, während du einen Benutzer imitierst.",
+    "scanningBlockedTitle": "Scannen ist während der Benutzer-Imitation deaktiviert",
+    "scanningBlockedDescription": "Beende die Imitation, um Karten zu scannen, einen Sortierer zu verbinden oder eine Kamera zu verwenden.",
+    "calibrationReadOnly": "Die Kalibrierung ist während der Imitation schreibgeschützt. Beende die Imitation, um sie zu ändern oder einen Sortierer zu verbinden."
   },
   "theme": {
     "toggle": "Design umschalten",
@@ -109,7 +122,9 @@
     "cancel": "Abbrechen",
     "delete": "Löschen",
     "save": "Speichern",
-    "create": "Erstellen"
+    "create": "Erstellen",
+    "search": "Suchen",
+    "chooseFile": "Datei wählen"
   },
   "unsavedChanges": {
     "message": "Du hast ungespeicherte Änderungen",
@@ -128,7 +143,15 @@
     "revert": "Zurücksetzen"
   },
   "loadingGate": {
-    "loadingVault": "Dein Vault wird geladen…"
+    "loadingVault": "Dein Vault wird geladen…",
+    "quips": {
+      "shuffling": "Deck wird gemischt…",
+      "feeding": "Sortierer wird gefüttert…",
+      "polishing": "Foils werden poliert…",
+      "counting": "Karten werden gezählt…",
+      "pricing": "Tagespreise werden geprüft…",
+      "sorting": "Alles wird sortiert…"
+    }
   },
   "notFound": {
     "title": "Seite nicht gefunden",
@@ -141,14 +164,22 @@
   },
   "footer": {
     "donate": "Spenden",
-    "donateAriaLabel": "Mault auf Buy Me a Coffee unterstützen"
+    "donateAriaLabel": "Mault auf Buy Me a Coffee unterstützen",
+    "openSource": "Open Source",
+    "reportIssue": "Problem melden",
+    "signIn": "Anmelden",
+    "privacy": "Datenschutz",
+    "terms": "AGB",
+    "copyright": "© {{year}} Mault LLC"
   },
   "publicNav": {
     "pagesAria": "Seiten der Website",
     "pages": {
       "home": "Startseite",
       "build": "Bauanleitung",
+      "selfHost": "Selbst hosten",
       "discordBot": "Discord-Bot",
+      "download": "Download",
       "shop": "Shop"
     },
     "discordAriaLabel": "Discord beitreten",
@@ -166,8 +197,11 @@
     "keys": {
       "space": "Leertaste",
       "shift": "Umschalt",
+      "ctrl": "Strg",
       "left": "←",
       "right": "→",
+      "up": "↑",
+      "down": "↓",
       "escape": "Esc",
       "enter": "Enter",
       "delete": "Entf"
@@ -176,19 +210,24 @@
       "general": "Allgemein",
       "navigation": "Navigation",
       "scanner": "Scanner",
-      "cardDetail": "Kartendetails"
+      "cardDetail": "Kartendetails",
+      "intake": "Ankauf",
+      "foilLabeling": "Foil-Kennzeichnung"
     },
     "actions": {
       "showShortcuts": "Tastenkürzel anzeigen",
       "toggleSidebar": "Seitenleiste ein- oder ausklappen",
       "focusSearch": "Suche fokussieren",
       "dismissToasts": "Alle Benachrichtigungen schließen",
+      "save": "Änderungen speichern",
+      "clearSelection": "Auswahl aufheben",
       "goScanner": "Zum Sortieren",
       "goCollections": "Zu den Sammlungen",
       "goStorage": "Zu den Lagerboxen",
       "goCalibrate": "Zur Sortierer-Einrichtung",
       "goSettings": "Zu den Einstellungen",
       "goAdmin": "Zum Admin-Bereich",
+      "goNextSorterNeedingAttention": "Zum nächsten Sortierer, der Hilfe braucht",
       "scanPauseResume": "Scannen pausieren oder fortsetzen",
       "scanNow": "Jetzt scannen",
       "scanFeed": "Nächste Karte zuführen",
@@ -208,8 +247,18 @@
       "cardClose": "Karte schließen oder Korrektur abbrechen",
       "cardRemove": "Karte entfernen (aus ihrer Box, wenn aus dem Lager geöffnet)",
       "reviewStart": "Karten einzeln prüfen",
-      "reviewAccept": "Beim Prüfen: Karte stimmt, weiter",
-      "goSortingRules": "Zu den Sortierregeln"
+      "reviewAccept": "Beim Prüfen: markierten Treffer übernehmen, weiter",
+      "reviewPreviousMatch": "Beim Prüfen: vorherigen ähnlichen Treffer markieren",
+      "reviewNextMatch": "Beim Prüfen: nächsten ähnlichen Treffer markieren",
+      "reviewCycleFoil": "Beim Prüfen: Foil-Arten durchschalten",
+      "reviewCycleCondition": "Beim Prüfen: Zustände durchschalten",
+      "reviewCycleLanguage": "Beim Prüfen: Sprachen durchschalten",
+      "goSortingRules": "Zu den Sortierregeln",
+      "intakeOpenScanner": "Scanner für diesen Ankauf öffnen",
+      "foilLabelFoil": "Beim Kennzeichnen: als Foil markieren",
+      "foilLabelNotFoil": "Beim Kennzeichnen: als Nicht-Foil markieren",
+      "foilLabelSkip": "Beim Kennzeichnen: diese Karte überspringen",
+      "foilLabelBack": "Beim Kennzeichnen: zurück zur vorherigen Karte"
     }
   },
   "mobileMenu": {
@@ -225,5 +274,122 @@
     "rules": "Regeln",
     "storage": "Lager",
     "account": "Konto"
+  },
+  "pagination": {
+    "previous": "Zurück",
+    "next": "Weiter",
+    "label": "Seitennavigation",
+    "pageNumber": "Seite {{page}}",
+    "goToPage": "Gehe zu Seite",
+    "range": "{{from}}-{{to}} von {{total}}"
+  },
+  "guide": {
+    "contents": "Inhalt",
+    "anchorLink": {
+      "copy": "Link zu diesem Abschnitt kopieren",
+      "copied": "Link kopiert",
+      "copyFailed": "Link konnte nicht kopiert werden"
+    },
+    "code": {
+      "copy": "Kopieren",
+      "copied": "In die Zwischenablage kopiert",
+      "copyFailed": "Kopieren in die Zwischenablage fehlgeschlagen"
+    }
+  },
+  "validation": {
+    "nameRequired": "Gib einen Namen ein.",
+    "nameTooLong": "Höchstens {{max}} Zeichen.",
+    "ruleNameRequired": "Gib der Regel einen Namen.",
+    "clipNameRequired": "Gib dem Clip einen Namen.",
+    "gameRequired": "Wähle ein Spiel.",
+    "languageRequired": "Wähle eine Sprache.",
+    "collectionRequired": "Wähle eine Sammlung.",
+    "channelRequired": "Wähle einen Kanal.",
+    "clipRequired": "Wähle einen Soundclip.",
+    "conditionsRequired": "Füge mindestens eine Bedingung hinzu.",
+    "emailInvalid": "Gib eine gültige E-Mail-Adresse ein.",
+    "currentPasswordRequired": "Gib dein aktuelles Passwort ein.",
+    "passwordTooShort": "Muss mindestens {{min}} Zeichen lang sein.",
+    "passwordMismatch": "Passwörter stimmen nicht überein.",
+    "webhookUrlInvalid": "Gib eine öffentliche https://-URL ein.",
+    "eventsRequired": "Wähle mindestens ein Ereignis.",
+    "permissionsRequired": "Wähle mindestens eine Berechtigung.",
+    "conditionMultipliersInvalid": "Jeder Zustand braucht einen Prozentwert von 0 bis 100.",
+    "valueRequired": "Gib einen Wert ein.",
+    "wholeNumber": "Muss eine ganze Zahl sein.",
+    "atLeast": "Muss mindestens {{min}} sein.",
+    "atMost": "Darf höchstens {{max}} sein.",
+    "percentAtLeast": "Muss mindestens {{min}} % sein.",
+    "percentAtMost": "Darf höchstens {{max}} % sein.",
+    "amountRequired": "Gib einen Betrag ein.",
+    "percentageRequired": "Gib einen Prozentwert ein.",
+    "tiersRequired": "Füge mindestens eine Stufe hinzu.",
+    "tooManyTiers": "Höchstens {{max}} Stufen.",
+    "customerNameRequired": "Gib den Namen der Kundin oder des Kunden ein.",
+    "orderTextRequired": "Füge eine Bestellung ein oder wähle eine Datei.",
+    "orderLinesRequired": "Lass mindestens eine Karte in der Pickliste.",
+    "decklistRequired": "Gib mindestens eine Karte ein, eine pro Zeile.",
+    "cardCountRequired": "Gib eine Kartenanzahl ein.",
+    "storageLocationRequired": "Wähle, wohin die Karten gekommen sind.",
+    "commandRequired": "Gib einen Befehl ein.",
+    "verificationCodeLength": "Gib den {{length}}-stelligen Code ein.",
+    "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten.",
+    "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte."
+  },
+  "memberSeatLock": {
+    "title": "Diese Organisation hat ihr Mitgliederlimit überschritten",
+    "description_one": "Der Tarif von {{name}} enthält {{count}} Mitglied, und dein Platz liegt über diesem Limit. Bitte einen Inhaber, den Tarif zu erhöhen oder Mitglieder zu entfernen.",
+    "description_other": "Der Tarif von {{name}} enthält {{count}} Mitglieder, und dein Platz liegt über diesem Limit. Bitte einen Inhaber, den Tarif zu erhöhen oder Mitglieder zu entfernen.",
+    "switchOrganization": "Zu einer anderen Organisation wechseln",
+    "tryAgain": "Erneut versuchen",
+    "signOut": "Abmelden"
+  },
+  "planLock": {
+    "link": "Tarife ansehen"
+  },
+  "planPreview": {
+    "banner": "Vorschau des Tarifs {{plan}}. Limits und gesperrte Funktionen folgen diesem Tarif.",
+    "stop": "Vorschau beenden",
+    "planNames": {
+      "free": "Kostenlos",
+      "enthusiast": "Enthusiast",
+      "business": "Business",
+      "legacyBusiness": "Business (Legacy)"
+    }
+  },
+  "a11y": {
+    "skipToContent": "Zum Hauptinhalt springen",
+    "close": "Schließen",
+    "clear": "Leeren",
+    "openOptions": "Optionen anzeigen",
+    "remove": "Entfernen",
+    "copy": "In die Zwischenablage kopieren",
+    "retry": "Erneut versuchen",
+    "removeCondition": "Bedingung entfernen",
+    "removeGroup": "Gruppe entfernen",
+    "removeMember": "{{name}} entfernen",
+    "cancelInvite": "Einladung für {{email}} zurückziehen",
+    "removeItem": "{{name}} entfernen",
+    "resizePanel": "Bereichsgröße ändern",
+    "notifications": "Benachrichtigungen",
+    "closeNotification": "Benachrichtigung schließen",
+    "notificationsWithCount_one": "Benachrichtigungen, {{count}} ungelesen",
+    "notificationsWithCount_other": "Benachrichtigungen, {{count}} ungelesen",
+    "watching": "Schauen zu",
+    "watchersCount_one": "{{count}} Person schaut zu",
+    "watchersCount_other": "{{count}} Personen schauen zu",
+    "details": "Details",
+    "liveSession": "Scan läuft live",
+    "mainNavigation": "Haupt",
+    "settingsNavigation": "Einstellungen",
+    "selected": "Ausgewählt",
+    "loading": "Wird geladen",
+    "live": "Live",
+    "notLive": "Nicht live",
+    "severity": {
+      "info": "Hinweis:",
+      "warning": "Warnung:",
+      "danger": "Fehler:"
+    }
   }
 }

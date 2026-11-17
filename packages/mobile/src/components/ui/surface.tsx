@@ -12,7 +12,7 @@ export function Surface({ children, style, padded = true }: SurfaceProps) {
           backgroundColor: colors.card,
           borderRadius: RADIUS.lg,
           borderWidth: 1,
-          borderColor: colors.cardRing,
+          borderColor: colors.border,
           padding: padded ? SPACING.lg : 0,
           overflow: "hidden",
         },

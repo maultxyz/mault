@@ -10,18 +10,19 @@ import {
   type ReactNode,
 } from "react";
 import { AppState } from "react-native";
+import { invalidateAfterScanSave } from "@/features/collections/api/collection-cards";
 import { isRetryableSaveError, sendScanSave } from "@/features/scanner/api/scan-saves";
 import {
   deletePendingSave,
   listPendingSaves,
   putPendingSave,
 } from "@/features/scanner/lib/pending-store";
-import { PENDING_SCAN_SAVE_RETRY_DELAYS_MS } from "@/lib/constants/scanner";
 import type {
   CardSaveResult,
   PendingSavesContextValue,
   PendingScanSave,
 } from "@/lib/interfaces/scanner";
+import { pendingScanSaveRetryDelayMs } from "@magic-vault/shared";
 
 const PendingSavesContext = createContext<PendingSavesContextValue | null>(null);
 
@@ -40,12 +41,7 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
           wakers.current.delete(wake);
           resolve();
         };
-        const timer = setTimeout(
-          wake,
-          PENDING_SCAN_SAVE_RETRY_DELAYS_MS[
-            Math.min(attempt, PENDING_SCAN_SAVE_RETRY_DELAYS_MS.length - 1)
-          ],
-        );
+        const timer = setTimeout(wake, pendingScanSaveRetryDelayMs(attempt));
         wakers.current.add(wake);
       }),
     [],
@@ -94,7 +90,7 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
     async (save: PendingScanSave): Promise<CardSaveResult> => {
       try {
         const result = await sendScanSave(save, false);
-        void queryClient.invalidateQueries({ queryKey: ["collection-cards", save.collectionGuid] });
+        invalidateAfterScanSave(queryClient, save.collectionGuid);
         return result;
       } catch (err) {
         if (!isRetryableSaveError(err)) throw err;
@@ -119,7 +115,7 @@ export function PendingSavesProvider({ children }: { children: ReactNode }) {
     for (const save of listPendingSaves()) {
       if (inFlight.current.has(save.key)) continue;
       void retryUntilSettled(save, true)
-        .then(() => queryClient.invalidateQueries({ queryKey: ["collection-cards", save.collectionGuid] }))
+        .then(() => invalidateAfterScanSave(queryClient, save.collectionGuid))
         .catch(() => {});
     }
   }, [queryClient, retryUntilSettled]);

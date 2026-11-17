@@ -1,8 +1,8 @@
-import type { LightSettings } from "./lighting.interface";
+import type { LightingDraft } from "./lighting.interface";
 import type { ChannelLayout } from "./module-configs.interface";
 import type { ScanRegion } from "./scanner.interface";
 
-export interface DevicePatch extends Partial<LightSettings> {
+export interface DevicePatch extends Partial<LightingDraft> {
   name?: string;
   hardwareId?: string | null;
   scanRegion?: ScanRegion | null;
@@ -10,6 +10,7 @@ export interface DevicePatch extends Partial<LightSettings> {
   matchesNeeded?: number | null;
   feederStopPulse?: number | null;
   checkBothOrientations?: boolean | null;
+  flipCamera?: boolean;
   moduleCount?: number;
   channelLayout?: ChannelLayout;
   setupCompleted?: boolean;

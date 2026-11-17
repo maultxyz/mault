@@ -111,7 +111,6 @@ export function GameEditor({ game }: GameEditorProps) {
       <div className="flex flex-col items-start gap-1">
         <Button
           variant="ghost"
-          size="sm"
           className="-ml-2"
           nativeButton={false}
           render={<Link to={GAMES_ADMIN_PATH} />}
@@ -119,11 +118,11 @@ export function GameEditor({ game }: GameEditorProps) {
           <IconArrowLeft />
           {t("gameForm.back")}
         </Button>
-        <h1 className="font-heading text-lg font-semibold">
+        <h2 className="font-heading text-lg font-semibold">
           {game
             ? t("gameForm.editTitle", { name: game.name })
             : t("gameForm.newTitle")}
-        </h1>
+        </h2>
       </div>
 
       <FormProvider {...form}>
@@ -145,7 +144,10 @@ export function GameEditor({ game }: GameEditorProps) {
                         onValueChange={field.onChange}
                         disabled={!!game}
                       >
-                        <SelectTrigger className="w-full">
+                        <SelectTrigger
+                          className="w-full"
+                          aria-label={t("gameForm.keyLabel")}
+                        >
                           <SelectValue
                             placeholder={t("gameForm.keyPlaceholder")}
                           >
@@ -242,20 +244,6 @@ export function GameEditor({ game }: GameEditorProps) {
                     {t("gameForm.cardThicknessDescription")}
                   </FieldDescription>
                   <FieldError errors={[errors.cardThickness]} />
-                </Field>
-                <Field data-invalid={!!errors.foilTypesText}>
-                  <FieldLabel htmlFor="game-foil-types">
-                    {t("gameForm.foilTypesLabel")}
-                  </FieldLabel>
-                  <Input
-                    id="game-foil-types"
-                    placeholder={t("gameForm.foilTypesPlaceholder")}
-                    {...register("foilTypesText")}
-                  />
-                  <FieldDescription>
-                    {t("gameForm.foilTypesDescription")}
-                  </FieldDescription>
-                  <FieldError errors={[errors.foilTypesText]} />
                 </Field>
               </div>
             </SettingsSection>

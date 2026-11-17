@@ -8,6 +8,8 @@ export const ONNX_EXECUTION_PROVIDER_STORAGE_KEY =
   "magic-vault:scanner-onnx-execution-provider";
 export const BUILD_PARTS_CHECKLIST_STORAGE_KEY =
   "magic-vault:build-parts-checklist";
+export const SELF_HOST_CHECKLIST_STORAGE_KEY =
+  "magic-vault:self-host-checklist";
 
 export const SORTING_RULES_TOUR_COMPLETED_KEY =
   "magic-vault:sorting-rules-tour-completed";
@@ -27,6 +29,9 @@ export const LANGUAGE_STORAGE_KEY = "language";
 export const DISMISSED_ALERTS_STORAGE_KEY = "magic-vault:dismissed-alerts";
 
 export const CARD_VIEW_MODE_STORAGE_KEY = "magic-vault:card-view-mode";
+export const STORAGE_CARD_VIEW_MODE_STORAGE_KEY =
+  "magic-vault:storage-card-view-mode";
+export const CARD_REVIEW_LAYOUT_STORAGE_KEY = "magic-vault:card-review-layout";
 export const CARD_GROUP_DUPLICATES_STORAGE_KEY =
   "magic-vault:card-group-duplicates";
 
@@ -39,16 +44,24 @@ export const SUPPORT_PROMPT_STORAGE_KEY = "magic-vault:support-prompt";
 export const SCANNER_PIP_MINIMIZED_STORAGE_KEY =
   "magic-vault:scanner-pip-minimized";
 
-export const CARD_PRICE_TABLES_STORAGE_KEY =
-  "magic-vault:card-price-tables-open";
-
 export const CARD_TECHNICAL_DETAILS_STORAGE_KEY =
   "magic-vault:card-technical-details";
 export const CARD_OCR_REGIONS_STORAGE_KEY = "magic-vault:card-ocr-regions";
 
 export const BLE_DEVICE_MAP_STORAGE_KEY = "magic-vault:ble-device-map";
 export const CARD_GRID_DENSITY_STORAGE_KEY = "magic-vault:card-grid-density";
-export const BIN_LEVELS_COLLAPSED_STORAGE_KEY =
-  "magic-vault:bin-levels-collapsed";
-export const SORTER_BOOT_NOTICES_STORAGE_KEY = "magic-vault:sorter-boot-notices";
+export const BIN_LEVELS_EXPANDED_STORAGE_KEY =
+  "magic-vault:bin-levels-expanded";
+export const UNMATCHED_PANEL_EXPANDED_STORAGE_KEY =
+  "magic-vault:unmatched-panel-expanded";
+export const SORTER_BOOT_NOTICES_STORAGE_KEY =
+  "magic-vault:sorter-boot-notices";
 export const SORTER_MODEL_BETA_STORAGE_KEY = "magic-vault:sorter-model-beta";
+export const PLAN_PREVIEW_STORAGE_KEY = "mault:plan-preview";
+
+export const SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS = {
+  overview: "magic-vault:scan-stats-overview-expanded",
+  rarity: "magic-vault:scan-stats-rarity-expanded",
+  color: "magic-vault:scan-stats-color-expanded",
+  set: "magic-vault:scan-stats-set-expanded",
+} as const;

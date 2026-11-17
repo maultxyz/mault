@@ -1,5 +1,6 @@
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
+import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,7 @@ import { EmptyCollectionDialog } from "@/features/collections/components/empty-c
 import type { CollectionTarget } from "@/lib/interfaces/collections";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { StatGroup } from "@/components/stat-group";
+import { useHotkeys } from "@/hooks/use-hotkeys";
 import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
 import { useQueryClient } from "@tanstack/react-query";
 import {
@@ -26,10 +28,6 @@ import {
 } from "@/lib/constants/collections";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
-import {
-  editCollectionSchema,
-  type EditCollectionFormValues,
-} from "@/schemas/collections.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   IconAlbum,
@@ -44,6 +42,10 @@ import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import {
+  renameCollectionFormSchema,
+  type RenameCollectionFormValues,
+} from "@magic-vault/shared";
 
 export default function CollectionsPage() {
   const { t } = useTranslation("collections");
@@ -88,6 +90,10 @@ export default function CollectionsPage() {
   const [selectedGuids, setSelectedGuids] = useState<Set<string>>(new Set());
   const [lastToggledGuid, setLastToggledGuid] = useState<string | null>(null);
   const [bulkAction, setBulkAction] = useState<"empty" | "delete" | null>(null);
+  useHotkeys({
+    clearSelection:
+      selectedGuids.size > 0 ? () => setSelectedGuids(new Set()) : undefined,
+  });
   const liveSelectedGuids = collections
     .filter((c) => selectedGuids.has(c.guid))
     .map((c) => c.guid);
@@ -171,7 +177,7 @@ export default function CollectionsPage() {
   } | null>(null);
 
   const editForm = useForm({
-    resolver: zodResolver(editCollectionSchema),
+    resolver: zodResolver(renameCollectionFormSchema),
     defaultValues: { name: editTarget?.name ?? "" },
     mode: "onChange",
   });
@@ -201,7 +207,7 @@ export default function CollectionsPage() {
   }, [editTarget, editNameValue, editNameCheck, editForm, t]);
 
   const handleEditSubmit = useCallback(
-    async (values: EditCollectionFormValues) => {
+    async (values: RenameCollectionFormValues) => {
       if (!editTarget) return;
       await updateCollection(editTarget.guid, values.name);
       setEditTarget(null);
@@ -236,47 +242,43 @@ export default function CollectionsPage() {
         MOBILE_NAV_SCROLL_PADDING_CLASS,
       )}
     >
-      <div className="sticky top-0 z-20 border-b bg-background/80 py-3 backdrop-blur-2xl md:py-4">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-3 px-4 md:px-6">
-          <div className="flex items-center justify-between gap-4">
-            <div className="min-w-0">
-              <h1 className="font-heading text-lg font-semibold">
-                {t("page.title")}
-              </h1>
-              <p className="text-xs text-foreground/70">{t("page.subtitle")}</p>
-            </div>
-            <CreateCollectionDialog
-              trigger={({ disabled }) => (
-                <Button disabled={disabled} data-tour="create-collection">
-                  <IconPlus />
-                  {t("newCollection")}
-                </Button>
-              )}
+      <PageHeader
+        title={t("page.title")}
+        description={t("page.subtitle")}
+        actions={
+          <CreateCollectionDialog
+            trigger={({ disabled }) => (
+              <Button disabled={disabled} data-tour="create-collection">
+                <IconPlus />
+                {t("newCollection")}
+              </Button>
+            )}
+          />
+        }
+      >
+        {!isLoading && collections.length > 0 && (
+          <>
+            <StatGroup
+              heading={t("page.stats.heading")}
+              tiles={stats}
+              live={liveCount > 0}
+              gridClassName="grid-cols-2 sm:grid-cols-4"
             />
-          </div>
-          {!isLoading && collections.length > 0 && (
-            <>
-              <StatGroup
-                heading={t("page.stats.heading")}
-                tiles={stats}
-                live={liveCount > 0}
-                gridClassName="grid-cols-2 sm:grid-cols-4"
+            <div className="relative">
+              <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
+              <Input
+                type="search"
+                aria-label={t("page.searchPlaceholder")}
+                placeholder={t("page.searchPlaceholder")}
+                data-hotkey-search
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-8"
               />
-              <div className="relative">
-                <IconSearch className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70" />
-                <Input
-                  type="search"
-                  placeholder={t("page.searchPlaceholder")}
-                  data-hotkey-search
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-8"
-                />
-              </div>
-            </>
-          )}
-        </div>
-      </div>
+            </div>
+          </>
+        )}
+      </PageHeader>
 
       <div
         className={cn(
@@ -361,7 +363,7 @@ export default function CollectionsPage() {
                     disabled={disabled}
                     className="flex min-h-56 flex-col items-center justify-center gap-2 rounded-lg border border-dashed text-sm text-foreground/70 transition-colors hover:border-primary/50 hover:bg-primary/5 hover:text-foreground disabled:pointer-events-none disabled:opacity-50 motion-reduce:transition-none"
                   >
-                    <span className="rounded-full border border-dashed p-3">
+                    <span className="rounded-lg border border-dashed p-3">
                       <IconPlus className="size-5" />
                     </span>
                     {t("newCollection")}
@@ -377,7 +379,7 @@ export default function CollectionsPage() {
               <span className="font-medium">
                 {t("selection.selected", { count: liveSelectedGuids.length })}
               </span>
-              <div className="flex gap-2">
+              <div className="flex gap-1.5">
                 <Button
                   variant="ghost"
                   className={COLLECTION_SELECTION_ISLAND_BUTTON_CLASS}

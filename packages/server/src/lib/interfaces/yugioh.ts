@@ -41,7 +41,3 @@ export interface YgoCard {
   card_prices?: YgoCardPrice[];
 }
 
-export interface YgoApiResponse {
-  data?: YgoCard[];
-  error?: string;
-}

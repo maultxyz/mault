@@ -44,12 +44,12 @@ export default function CalibrationScanRegionScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader title={t("calibration.sections.scanRegion.title")} subtitle={sorter.device?.name} onBack={() => router.back()} />
-      <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg }}>
+      <ScrollView contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl, gap: SPACING.lg }}>
         {draft.saveError ? <Callout tone="destructive" title={t("calibration.saveFailed")} /> : null}
 
         <Surface style={{ gap: SPACING.md }}>
           <View>
-            <AppText heading weight="semibold">
+            <AppText heading weight="semibold" accessibilityRole="header">
               {t("calibration.scanRegion.heading")}
             </AppText>
             <AppText size="xs" tone="secondary">

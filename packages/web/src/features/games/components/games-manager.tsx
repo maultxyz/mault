@@ -56,7 +56,7 @@ export function GamesManager() {
       heading={t("gamesManager.heading")}
       description={t("gamesManager.description")}
       action={
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-1.5">
           <GamesTransferMenu games={gamesQuery.data ?? []} />
           <Button nativeButton={false} render={<Link to={NEW_GAME_PATH} />}>
             <IconPlus size={14} />
@@ -94,6 +94,7 @@ export function GamesManager() {
                 onClick={() =>
                   downloadGamesExport(buildGamesExport([game]), game.key)
                 }
+                aria-label={t("gamesManager.exportTitle")}
                 title={t("gamesManager.exportTitle")}
               >
                 <IconDownload size={14} />
@@ -103,6 +104,7 @@ export function GamesManager() {
                 variant="outline"
                 nativeButton={false}
                 render={<Link to={`${GAME_EDITOR_BASE_PATH}/${game.guid}`} />}
+                aria-label={t("gamesManager.editTitle")}
                 title={t("gamesManager.editTitle")}
               >
                 <IconPencil size={14} />
@@ -111,6 +113,7 @@ export function GamesManager() {
                 size="icon"
                 variant="outline-destructive"
                 onClick={() => setDeleteTarget(game)}
+                aria-label={t("gamesManager.deleteTitle")}
                 title={t("gamesManager.deleteTitle")}
               >
                 <IconTrash size={14} />

@@ -16,8 +16,10 @@ export function SegmentedControl<T extends string>({
       style={{
         flexDirection: "row",
         padding: 4,
-        borderRadius: RADIUS.full,
-        backgroundColor: colors.muted,
+        borderRadius: RADIUS.md,
+        borderWidth: 1,
+        borderColor: colors.border,
+        backgroundColor: colors.background,
         gap: SPACING.xs,
       }}
     >
@@ -28,21 +30,22 @@ export function SegmentedControl<T extends string>({
             key={option.value}
             accessibilityRole="tab"
             accessibilityState={{ selected }}
+            hitSlop={{ top: 4, bottom: 4 }}
             onPress={() => onChange(option.value)}
             style={{
               flex: 1,
-              height: 36,
+              minHeight: 36,
               alignItems: "center",
               justifyContent: "center",
-              borderRadius: RADIUS.full,
+              borderRadius: RADIUS.sm,
               paddingHorizontal: SPACING.sm,
-              backgroundColor: selected ? colors.foreground : "transparent",
+              backgroundColor: selected ? colors.primarySelected : "transparent",
             }}
           >
             <AppText
               weight="semibold"
               numberOfLines={1}
-              style={{ color: selected ? colors.background : colors.foregroundSecondary }}
+              style={{ color: selected ? colors.primaryText : colors.foregroundSecondary }}
             >
               {option.label}
             </AppText>

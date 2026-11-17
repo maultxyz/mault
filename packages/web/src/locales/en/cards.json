@@ -11,10 +11,13 @@
     "artBy": "Art by {{artist}}",
     "viewSource": "View source",
     "searchPlaceholder": "Search by name, number or set (e.g. MH3 123)...",
+    "allLanguages": "All languages",
     "allSets": "All sets",
     "allSetsCount": "All sets ({{count}})",
+    "noMatchingSets": "No matching sets",
     "startTyping": "Start typing to search for cards",
-    "noCardsFound": "No cards found"
+    "noCardsFound": "No cards found",
+    "searchLabel": "Search cards"
   },
   "priceTable": {
     "heading": "TCGplayer",
@@ -29,8 +32,10 @@
     "trend": "Trend",
     "avg7": "7-day avg",
     "tcgplayerMarket": "TCGplayer market",
+    "tcgplayerMarketCondition": "TCGplayer market ({{condition}})",
     "cardmarketAvg": "Cardmarket average",
     "foilPrice": "Foil {{price}}",
+    "priceAtScan": "At scan {{price}}",
     "nonFoilPrice": "Non-foil {{price}}",
     "avg30": "30-day avg",
     "market": "Market",
@@ -43,6 +48,9 @@
     "acrossPrintings": "Range across {{count}} printings"
   },
   "cardDetailPanel": {
+    "pricePaid": "Price paid ({{currency}})",
+    "pricePaidEmpty": "Not set",
+    "pricePaidSaveFailed": "Couldn't save the price paid.",
     "markCorrect": "Mark as correct",
     "markCorrectTitle": "Confirm this match is right. The card stays the same and is no longer flagged for review.",
     "backToList": "Back to card list",
@@ -57,23 +65,27 @@
     "cancel": "Cancel",
     "prices": "Prices",
     "details": "Details",
-    "cardText": "Card text",
     "thisScan": "This scan",
     "set": "Set",
     "rarity": "Rarity",
     "manaCost": "Mana cost",
     "powerToughness": "Power / Toughness",
     "artist": "Artist",
+    "dataSource": "Data source",
+    "fallbackData": "Fallback data (TCGplayer catalog)",
     "binLocation": "Bin location",
     "showOcrRegions": "Show OCR regions",
     "noOcrRegions": "This game has no OCR regions.",
     "ocrFallback": "{{field}} (fallback)",
+    "ocrFixedBox": "{{field}} (fixed box)",
     "ocrFields": {
       "name": "Name",
       "setLine": "Set line",
       "number": "Number"
     },
-    "copyOf": "Copy {{index}} of {{count}}"
+    "copyOf": "Copy {{index}} of {{count}}",
+    "moreOptions": "More",
+    "actions": "Card actions"
   },
   "cardFilterPopover": {
     "color": "Color",
@@ -85,6 +97,7 @@
     "status": "Status",
     "needsAttention": "Needs attention",
     "showDownloadedCards": "Show downloaded cards",
+    "hideDownloadedCards": "Hide downloaded cards",
     "sets": "Sets",
     "resetFilters": "Reset filters"
   },
@@ -96,7 +109,6 @@
     "scanToGetStarted": "Scan a card to get started",
     "noCardsMatchFilters": "No cards match the current filters",
     "tryAdjusting": "Try adjusting your search, sort, or filter options",
-    "pageOf": "Page {{page}} of {{total}}",
     "cardsSelected_one": "{{count}} card selected",
     "cardsSelected_other": "{{count}} cards selected",
     "clear": "Clear",
@@ -115,7 +127,9 @@
     "deleteCardsDescription_one": "This will permanently remove the selected card from your collection. This action cannot be undone.",
     "deleteCardsDescription_other": "This will permanently remove the selected cards from your collection. This action cannot be undone.",
     "downloadedHidden_one": "1 downloaded card is hidden by the downloaded filter.",
-    "downloadedHidden_other": "{{count}} downloaded cards are hidden by the downloaded filter."
+    "downloadedHidden_other": "{{count}} downloaded cards are hidden by the downloaded filter.",
+    "moveToLocation": "Move",
+    "exporting": "Exporting"
   },
   "cardSelectDialog": {
     "defaultTitle": "Select Card",
@@ -137,21 +151,25 @@
     "gridView": "Grid view",
     "listView": "List view",
     "groupDuplicates": "Group duplicates",
-    "sessionSummaryExport": "Session summary & export",
     "deleteScannedCardsTitle": "Delete Scanned Cards",
     "deleteScannedCardsDescription": "This will permanently delete all cards from your collection. This action cannot be undone.",
     "clearing": "Clearing...",
     "clearAll": "Clear All",
-    "clearAllCardsTitle": "Clear all cards",
-    "density": "Card size: {{density}}",
     "densities": {
       "compact": "compact",
       "comfortable": "comfortable",
       "large": "large"
     },
-    "review": "Review",
     "export": "Export",
-    "reviewCards": "Review cards one by one (R)"
+    "reviewCards": "Review cards one by one (R)",
+    "sortHeading": "Sort",
+    "filterHeading": "Filter",
+    "done": "Done",
+    "viewOptions": "View options",
+    "displayHeading": "Display",
+    "cardSize": "Card size",
+    "moreActions": "More actions",
+    "reviewCount": "Review {{count}}"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",
@@ -193,8 +211,10 @@
     "applyGridFilters": "Apply active filters ({{count}})",
     "close": "Close",
     "download": "Download ({{count}})",
+    "downloadFailed": "Couldn't download the export.",
     "sessionWrappedToggle": "Wrapped",
-    "combineDuplicates": "Combine duplicates"
+    "combineDuplicates": "Combine duplicates",
+    "exporting": "Exporting"
   },
   "sessionWrapped": {
     "srTitle": "{{collectionName}} Wrapped",
@@ -242,6 +262,7 @@
   },
   "foil": "Foil",
   "foilNone": "Not foil",
+  "language": "Language",
   "downloaded": "Downloaded",
   "technicalDetails": {
     "toggle": "Technical details",
@@ -282,7 +303,7 @@
     "ocrSetLine": "Set line read",
     "ocrNumber": "Number read",
     "ocrMatchedName": "Closest card name",
-    "ocrUsedFallback": "Fallback regions used",
+    "ocrUsedFallback": "Matched by fallback name",
     "ocrUsedFallbackYes": "Yes",
     "ocrUsedFallbackNo": "No",
     "ocrNotRun": "OCR didn't run for this scan.",
@@ -291,7 +312,14 @@
     "copied": "Card JSON copied.",
     "copyFailed": "Couldn't copy the card JSON.",
     "detectedColor": "Detected color bar",
-    "noColor": "None"
+    "foilDetection": "Foil detection",
+    "foilDetected": "Foil ({{method}} {{score}})",
+    "foilNotDetected": "Not foil ({{method}} {{score}})",
+    "noColor": "None",
+    "foilMethod": {
+      "rainbow": "rainbow score",
+      "nudge": "nudge change"
+    }
   },
   "cardContextMenu": {
     "open": "Open details",
@@ -303,6 +331,7 @@
     "copyName": "Copy name",
     "copied": "Name copied.",
     "copyFailed": "Couldn't copy the name.",
+    "moveToLocation": "Move",
     "remove_one": "Remove card",
     "remove_other": "Remove {{count}} cards"
   },
@@ -313,6 +342,8 @@
     "correctNext": "correct and go to next",
     "correctFinish": "correct and finish",
     "correctStay": "correct and stay on this card",
+    "pickMatch": "pick a match",
+    "jumpToSearch": "search for the right card",
     "keys": {
       "enter": "Enter",
       "shiftEnter": "Shift Enter"
@@ -321,6 +352,37 @@
     "complete_other": "Review complete: {{count}} cards checked",
     "nothingLeft": "Nothing left to review. Every card here has already been reviewed.",
     "startFailed": "Couldn't start the review. Try again."
+  },
+  "reviewQueue": {
+    "title": "Cards to review",
+    "progress": "{{checked}} of {{total}} reviewed",
+    "exit": "Exit review",
+    "loadFailed": "Couldn't load the cards to review.",
+    "notShown_one": "{{count}} more card isn't shown here.",
+    "notShown_other": "{{count}} more cards aren't shown here.",
+    "statusRemoved": "Removed",
+    "statusPending": "Not reviewed yet"
+  },
+  "reviewGrid": {
+    "title": "Review cards",
+    "remaining_one": "{{count}} card left to review",
+    "remaining_other": "{{count}} cards left to review",
+    "layoutGrid": "Grid",
+    "layoutOneByOne": "One by one",
+    "acceptAll_one": "Accept {{count}} card",
+    "acceptAll_other": "Accept all {{count}}",
+    "accept": "Looks right",
+    "correct": "Correct",
+    "close": "Close review",
+    "noPhoto": "No scan photo",
+    "correctTitle": "Correct {{name}}",
+    "doneTitle": "All reviewed",
+    "doneDescription": "Every card here has been checked.",
+    "done": "Done",
+    "loadFailed": "Couldn't load the cards to review. Try again.",
+    "acceptFailed_one": "Couldn't accept {{count}} card. Try again.",
+    "acceptFailed_other": "Couldn't accept {{count}} cards. Try again.",
+    "correctFailed": "Couldn't save the correction. Try again."
   },
   "removeDialog": {
     "title": "Remove {{name}}?",
@@ -336,10 +398,11 @@
       "DMG": "Damaged (DMG)"
     },
     "priceHint": "{{price}} at {{percent}}% of the NM price",
+    "marketPriceHint": "{{price}} TCGplayer market price for {{condition}}",
     "setSelected": "Condition"
   },
   "scanOrigin": {
-    "heading": "Scanned",
+    "scannedAt": "Scanned",
     "scannedBy": "By",
     "sorter": "Sorter",
     "deletedSorter": "{{name}} (deleted)"
@@ -360,5 +423,48 @@
     "some_one": "1 of these {{total}} cards is in a storage location. Deleting it also removes it from storage.",
     "some_other": "{{count}} of these {{total}} cards are in storage locations. Deleting them also removes them from storage.",
     "deleteAnyway": "Delete anyway"
+  },
+  "addCard": {
+    "button": "Add card",
+    "title": "Add a card",
+    "description": "Search for a card and pick the printing to add it.",
+    "collection": "Collection",
+    "added": "Added {{name}}",
+    "failed": "Couldn't add the card."
+  },
+  "importScans": {
+    "button": "Import scans",
+    "title": "Import scanned images",
+    "description": "Add cards from a document scanner or saved photos. Each image is identified and added to this collection.",
+    "tip": "Scan only the front of each card and save the images as JPEG or PNG. Files are imported in name order, so the collection keeps the order of your stack. Images that don't match go to unmatched scans for review.",
+    "dropZone": "Drop images here or choose files",
+    "dropZoneHint": "JPEG, PNG or WebP",
+    "progress": "{{done}} of {{total}} images processed",
+    "matchedCount": "{{count}} matched",
+    "unmatchedCount": "{{count}} need review",
+    "failedCount": "{{count}} failed",
+    "status": {
+      "queued": "Waiting",
+      "identifying": "Identifying",
+      "unmatched": "No match, saved for review",
+      "skipped": "Not imported"
+    },
+    "stop": "Stop",
+    "close": "Close",
+    "importMore": "Import more",
+    "unreadable": "Couldn't read this image.",
+    "identifyFailed": "Couldn't identify this image."
+  },
+  "cardTags": {
+    "title": "Tags",
+    "edit": "Edit tags",
+    "editWithTags": "Edit tags: {{tags}}",
+    "bulkAdd": "Add tag",
+    "bulkRemove": "Remove tag",
+    "names": {
+      "downloaded": "Downloaded",
+      "reviewed": "Reviewed",
+      "corrected": "Corrected"
+    }
   }
 }

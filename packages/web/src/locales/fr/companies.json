@@ -18,6 +18,7 @@
     "deleteWarning": "Supprime définitivement « {{name}} » et toutes ses données.",
     "deleteOrganization": "Supprimer l'organisation",
     "roleOwner": "Propriétaire",
+    "memberRoleLabel": "Rôle de {{name}}",
     "removeMemberTitle": "Retirer le membre",
     "removeMemberDescription": "Retirer « {{name}} » de cette organisation ? Il perdra immédiatement l'accès.",
     "deleteOrgDescription": "Supprime définitivement « {{name}} » et toutes ses données. Cette action est irréversible.",
@@ -33,7 +34,10 @@
     "organizationDeleted": "Organisation supprimée.",
     "failedToDelete": "Échec de la suppression.",
     "cancelSubscriptionFirst": "Annulez l'abonnement de cette organisation avant de la supprimer. Une fois qu'il est programmé pour s'arrêter à la fin de la période de facturation, vous pourrez supprimer l'organisation.",
-    "manageBilling": "Gérer la facturation"
+    "manageBilling": "Gérer la facturation",
+    "memberLimitReached_one": "Ton offre inclut {{count}} membre par organisation, invitations en attente comprises. Passe à une offre supérieure pour inviter plus de monde.",
+    "memberLimitReached_other": "Ton offre inclut {{count}} membres par organisation, invitations en attente comprises. Passe à une offre supérieure pour inviter plus de monde.",
+    "memberLimitUpgrade": "Voir les offres"
   },
   "orgSwitcher": {
     "organizations": "Organisations",
@@ -41,7 +45,10 @@
     "newOrganizationTitle": "Nouvelle organisation",
     "newOrganizationDescription": "Crée une nouvelle organisation pour délimiter tes bacs, collections et calibrations.",
     "cancel": "Annuler",
-    "organizationCreated": "Organisation « {{name}} » créée."
+    "organizationCreated": "Organisation « {{name}} » créée.",
+    "organizationLimitReached_one": "L'offre de {{name}} te permet de posséder {{count}} organisation. Passe à une offre supérieure pour en créer d'autres.",
+    "organizationLimitReached_other": "L'offre de {{name}} te permet de posséder {{count}} organisations. Passe à une offre supérieure pour en créer d'autres.",
+    "organizationLimitUpgrade": "Voir les offres"
   },
   "discordBot": {
     "heading": "Bot Discord",
@@ -63,5 +70,34 @@
   "failedToCreateOrganization": "Échec de la création de l'organisation.",
   "invite": "Inviter",
   "roleAdmin": "Admin",
-  "roleMember": "Membre"
+  "roleMember": "Membre",
+  "auditLog": {
+    "description": "Activité récente de cette organisation : connexions, changements de membres, utilisation des clés API.",
+    "membersOnly": "Seuls les propriétaires et admins de l'organisation peuvent voir l'activité.",
+    "empty": "Aucune activité pour l'instant."
+  },
+  "invites": {
+    "description": "Invite des personnes dans cette organisation en partageant un lien. Aucune configuration d'e-mail nécessaire.",
+    "membersOnly": "Seuls les propriétaires et admins de l'organisation peuvent gérer les invitations.",
+    "inviteTitle": "Inviter quelqu'un",
+    "inviteDescription": "Tu obtiendras un lien à lui partager toi-même.",
+    "createFailed": "Impossible de créer l'invitation",
+    "emailLabel": "E-mail",
+    "emailPlaceholder": "quelquun@exemple.fr",
+    "roleLabel": "Rôle",
+    "revealTitle": "Partage ce lien d'invitation",
+    "revealDescription": "Il n'a pas été envoyé automatiquement par e-mail. Envoie-le toi-même. Tu ne le verras plus après avoir fermé cette fenêtre.",
+    "revealDescriptionEmailed": "Nous le lui avons aussi envoyé par e-mail, mais voici le lien au cas où. Tu ne le verras plus après avoir fermé cette fenêtre.",
+    "revealDone": "Terminé",
+    "copied": "Copié dans le presse-papiers",
+    "copyFailed": "Impossible de copier dans le presse-papiers",
+    "revoke": "Révoquer",
+    "revokeConfirmTitle": "Révoquer cette invitation ?",
+    "revokeConfirmDescription": "Le lien cessera immédiatement de fonctionner.",
+    "revoked": "Invitation révoquée",
+    "revokeFailed": "Impossible de révoquer l'invitation",
+    "loadFailed": "Impossible de charger les invitations",
+    "empty": "Aucune invitation en attente",
+    "expires": "expire le {{date}}"
+  }
 }

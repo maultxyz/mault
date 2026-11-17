@@ -1,0 +1,1 @@
+ALTER TABLE "tcgplayer_products" ADD COLUMN "group_name" text;

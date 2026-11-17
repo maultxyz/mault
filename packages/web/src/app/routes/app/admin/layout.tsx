@@ -3,16 +3,20 @@ import { SettingsSectionLayoutContext } from "@/lib/settings-section-context";
 import { Outlet } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ADMIN_SECTIONS } from "@/lib/constants/admin";
+import { useRole } from "@/hooks/use-role";
 
 export default function AdminLayout() {
   const { t } = useTranslation("admin");
+  const { isAdmin } = useRole();
 
   return (
     <div className="flex flex-col flex-1 min-h-0 overflow-hidden lg:grid lg:grid-cols-12">
       <SectionNav
         title={t("page.title")}
         subtitle={t("page.subtitle")}
-        items={ADMIN_SECTIONS.map((item) => ({
+        items={ADMIN_SECTIONS.filter(
+          (item) => isAdmin || !item.adminOnly,
+        ).map((item) => ({
           to: item.path,
           icon: <item.icon size={16} />,
           label: t(item.labelKey),

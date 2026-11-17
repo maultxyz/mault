@@ -1,6 +1,6 @@
 import {
-  devicesQueryOptions,
   saveDevice,
+  writeDeviceToCache,
 } from "@/features/calibration/api/devices";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -9,7 +9,6 @@ import type {
   DeviceToggleKey,
   DeviceToggles,
   DeviceTogglesDraft,
-  Device,
 } from "@/lib/interfaces/calibration";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useMemo, useState } from "react";
@@ -55,11 +54,7 @@ export function useDeviceTogglesDraft(): DeviceTogglesDraft {
       if (!result.success) throw new Error(result.message);
       if (result.data) {
         const savedDevice = result.data;
-        queryClient.setQueryData(
-          devicesQueryOptions(activeOrg?.id).queryKey,
-          (old: Device[] | undefined) =>
-            old?.map((d) => (d.guid === savedDevice.guid ? savedDevice : d)),
-        );
+        writeDeviceToCache(queryClient, activeOrg?.id, savedDevice);
       }
       setPending({});
     } finally {

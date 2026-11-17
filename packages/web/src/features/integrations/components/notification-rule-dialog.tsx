@@ -28,14 +28,14 @@ import { DiscordRoleSelect } from "@/features/integrations/components/discord-ro
 import type { NotificationRuleDialogProps } from "@/lib/interfaces/integrations";
 import { emptyRuleGroup } from "@/lib/rule-groups";
 import { toast } from "@/lib/toast";
-import {
-  createNotificationRuleFormSchema,
-  type NotificationRuleFormValues,
-} from "@/schemas/notification-rule.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { NotificationRuleInput } from "@magic-vault/shared";
+import {
+  notificationRuleFormSchema,
+  type NotificationRuleFormValues,
+  type NotificationRuleInput,
+} from "@magic-vault/shared";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -62,7 +62,6 @@ export function NotificationRuleDialog({
   const { t } = useTranslation("integrations");
   const { activeOrg } = useOrg();
   const queryClient = useQueryClient();
-  const schema = useMemo(() => createNotificationRuleFormSchema(t), [t]);
   const {
     control,
     register,
@@ -70,7 +69,7 @@ export function NotificationRuleDialog({
     reset,
     formState: { errors },
   } = useForm<NotificationRuleFormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(notificationRuleFormSchema),
     defaultValues: emptyValues(rule),
   });
 
@@ -113,7 +112,7 @@ export function NotificationRuleDialog({
     });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog drawerOnMobile={false} open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-2xl">
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
           <DialogHeader>
@@ -138,7 +137,7 @@ export function NotificationRuleDialog({
                 name="channelId"
                 render={({ field }) => (
                   <Select value={field.value} onValueChange={field.onChange}>
-                    <SelectTrigger>
+                    <SelectTrigger aria-label={t("ruleDialog.channel")}>
                       <SelectValue
                         placeholder={t("ruleDialog.channelPlaceholder")}
                       >
@@ -180,6 +179,7 @@ export function NotificationRuleDialog({
               name="roleId"
               render={({ field }) => (
                 <DiscordRoleSelect
+                  aria-label={t("ruleDialog.role")}
                   value={field.value}
                   roles={roles}
                   onChange={field.onChange}

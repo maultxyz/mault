@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Controller, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
-import { Alert, View } from "react-native";
+import { View } from "react-native";
 import { CORRECTION_AUTO_CLOSE_SECONDS_OPTIONS, DEFAULT_CORRECTION_AUTO_CLOSE_SECONDS } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -23,7 +23,7 @@ export default function ScanningSettingsScreen() {
   const section = (heading: string, description: string, badge?: string) => (
     <View>
       <View style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-        <AppText heading weight="semibold">
+        <AppText heading weight="semibold" accessibilityRole="header">
           {heading}
         </AppText>
         {badge ? <Pill label={badge} /> : null}
@@ -54,7 +54,7 @@ export default function ScanningSettingsScreen() {
         />
       </Surface>
       <Surface style={{ gap: SPACING.md }}>
-        {section(t("settings.ocr.heading"), t("settings.ocr.description"), t("settings.ocr.badge"))}
+        {section(t("settings.ocr.heading"), t("settings.ocr.description"))}
         <Controller
           control={draft.control}
           name="ocrEnabled"
@@ -63,16 +63,7 @@ export default function ScanningSettingsScreen() {
               title={t("settings.ocr.toggleLabel")}
               value={field.value}
               disabled={disabled}
-              onValueChange={(next) => {
-                if (!next) {
-                  field.onChange(false);
-                  return;
-                }
-                Alert.alert(t("settings.ocrBetaDialog.title"), t("settings.ocrBetaDialog.description"), [
-                  { text: t("settings.ocrBetaDialog.cancel"), style: "cancel" },
-                  { text: t("settings.ocrBetaDialog.confirm"), onPress: () => field.onChange(true) },
-                ]);
-              }}
+              onValueChange={field.onChange}
             />
           )}
         />

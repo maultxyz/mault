@@ -8,21 +8,31 @@ export interface ScanImageResponse {
 export type CollectionTab = "cards" | "activity";
 
 export interface CardToolbarProps {
-  sortLabel: string;
-  activeFilterCount: number;
-  grouped: boolean;
+  activeSortAndFilterCount: number;
   needsReview: boolean;
-  onOpenSort: () => void;
-  onOpenFilters: () => void;
-  onToggleGrouped: () => void;
+  onOpenViewOptions: () => void;
   onToggleNeedsReview: () => void;
 }
 
-export interface CardFilterSheetProps {
+export interface CardSortOption {
+  value: string;
+  label: string;
+}
+
+export type CardViewMode = "grid" | "list";
+
+export interface CardViewOptionsSheetProps {
   visible: boolean;
+  viewMode?: CardViewMode;
+  onViewModeChange?: (mode: CardViewMode) => void;
+  grouped?: boolean;
+  onGroupedChange?: (grouped: boolean) => void;
+  sortOptions: CardSortOption[];
+  selectedSort: string;
+  onSortChange: (sort: string) => void;
   filters: CardFilters;
   breakdown: StatsBreakdown | null;
-  binCount: number;
+  binCount?: number;
   onChange: (filters: CardFilters) => void;
   onClose: () => void;
 }
@@ -32,6 +42,16 @@ export interface CardActionsSheetProps {
   collectionGuid: string;
   foilOptions: string[];
   onClose: () => void;
+}
+
+export interface MoveCardsToCollectionOptions {
+  sourceCollectionGuid: string;
+  onMoved?: () => void;
+}
+
+export interface MoveCardsToCollectionVariables {
+  scanIds: string[];
+  targetCollectionGuid: string;
 }
 
 export interface FilterChipProps {

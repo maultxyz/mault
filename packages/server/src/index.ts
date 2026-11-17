@@ -2,16 +2,29 @@ import "./lib/console-timestamps";
 
 import { serve } from "@hono/node-server";
 import { createNodeWebSocket } from "@hono/node-ws";
+import { piCameraRouter } from "./routes/pi-camera";
+import { piUpdateRouter } from "./routes/pi-update";
+import { createPiSerialRouter } from "./routes/pi-serial";
+import { PI_SERIAL_PATH } from "./lib/constants/pi-serial";
+import { API_PORT, getApiHost } from "./lib/constants/server";
+import { PI_SCAN_SESSION_PATH, piScanRouter } from "./routes/pi-scan";
 import { Hono } from "hono";
-import { PUBLIC_API_KEY_HEADER } from "@magic-vault/shared";
+import {
+  PLAN_PREVIEW_HEADER,
+  PUBLIC_API_KEY_HEADER,
+  SYNC_API_PATH,
+} from "@magic-vault/shared";
 import { cors } from "hono/cors";
 import { getWebUrl } from "./lib/constants/urls";
 import type { AppEnv } from "./middleware/auth";
 import { adminRouter } from "./routes/admin";
 import { announcementsRouter } from "./routes/announcements";
 import { apiKeysRouter } from "./routes/api-keys";
+import { syncApiRouter } from "./routes/sync-api";
 import { billingRouter } from "./routes/billing";
+import { businessRouter } from "./routes/business";
 import { sortBinsRouter } from "./routes/bins";
+import { presetWorkflowsRouter } from "./routes/preset-workflows";
 import { botRouter } from "./routes/bot";
 import { cardRouter } from "./routes/card";
 import { collectionsRouter } from "./routes/collections";
@@ -40,15 +53,22 @@ import {
 } from "./lib/constants/api-keys";
 import { loadPlanConfig } from "./lib/plan-config";
 import { startWebhookDeliveryWorker } from "./lib/webhooks/queue";
+import { startDeviceOfflineAlerts } from "./lib/device-alerts";
+import { startInventorySnapshots } from "./lib/inventory";
+import { startCardMatchIndexWarmup } from "./lib/card-match-index";
 
 const app = new Hono<AppEnv>();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
-const PORT = parseInt(process.env.PORT ?? "3001");
 
 const appCors = cors({
   origin: getWebUrl(),
   allowMethods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
-  allowHeaders: ["Content-Type", "Authorization", "X-Org-Id"],
+  allowHeaders: [
+    "Content-Type",
+    "Authorization",
+    "X-Org-Id",
+    PLAN_PREVIEW_HEADER,
+  ],
 });
 const publicApiCors = cors({
   origin: "*",
@@ -71,6 +91,7 @@ app.route("/bot", botRouter);
 app.route("/me", meRouter);
 app.route("/cards", cardRouter);
 app.route("/bins", sortBinsRouter);
+app.route("/preset-workflows", presetWorkflowsRouter);
 app.route("/collections", collectionsRouter);
 app.route("/overview", overviewRouter);
 app.route("/stats", statsRouter);
@@ -86,12 +107,18 @@ app.route("/integrations", integrationsRouter);
 app.route("/api-keys", apiKeysRouter);
 app.route("/webhooks", webhooksRouter);
 app.route("/billing", billingRouter);
+app.route("/business", businessRouter);
 app.route("/admin", adminRouter);
 app.route("/admin", impersonationRouter);
 app.route("/public", publicRouter);
+app.route("/pi-camera", piCameraRouter);
+app.route("/pi-update", piUpdateRouter);
+app.route(PI_SCAN_SESSION_PATH, piScanRouter);
+app.route(PI_SERIAL_PATH, createPiSerialRouter(upgradeWebSocket));
 app.route("/stream", streamRoute);
 app.route("/sorter-link", createSorterLinkRouter(upgradeWebSocket));
 app.route("/v1", publicApiRouter);
+app.route(SYNC_API_PATH, syncApiRouter);
 
 app.onError((err, c) => {
   console.error("[server] Unhandled error:", err);
@@ -101,11 +128,14 @@ app.onError((err, c) => {
 
 loadPlanConfig();
 startWebhookDeliveryWorker();
+startDeviceOfflineAlerts();
+startInventorySnapshots();
+startCardMatchIndexWarmup();
 
 const server = serve(
-  { fetch: app.fetch, port: PORT, hostname: "0.0.0.0" },
+  { fetch: app.fetch, port: API_PORT, hostname: getApiHost() },
   () => {
-    console.log(`[server] Running on port:${PORT}`);
+    console.log(`[server] Running on ${getApiHost()}:${API_PORT}`);
   },
 );
 injectWebSocket(server);

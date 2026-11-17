@@ -2,6 +2,9 @@ import { useEffect, useState } from "react";
 import EventSource from "react-native-sse";
 import {
   RECENT_SCANNED_CARDS_COUNT,
+  type CardsReviewedEvent,
+  type CardTagsChangedEvent,
+  withCardTags,
   type Collection,
   type ScannedCard,
   type UnmatchedCard,
@@ -9,20 +12,12 @@ import {
 import { getRequestAuth } from "@/lib/api/client";
 import { API_BASE } from "@/lib/constants/config";
 import {
+  INITIAL_MONITOR_STATE,
   MONITOR_EVENTS,
   MONITOR_MAX_ERRORS,
   STREAM_RECONNECT_DELAY_MS,
 } from "@/lib/constants/monitor";
 import type { MonitorState } from "@/lib/interfaces/scanner";
-
-const INITIAL_STATE: MonitorState = {
-  status: "connecting",
-  collectionName: null,
-  recentCards: [],
-  unmatchedCount: 0,
-  viewerCount: 0,
-  errors: [],
-};
 
 function parse<T>(data: string | null): T | null {
   if (!data) return null;
@@ -34,13 +29,13 @@ function parse<T>(data: string | null): T | null {
 }
 
 export function useSessionStream(collectionGuid: string): MonitorState {
-  const [state, setState] = useState<MonitorState>(INITIAL_STATE);
+  const [state, setState] = useState<MonitorState>(INITIAL_MONITOR_STATE);
 
   useEffect(() => {
     let source: EventSource<string> | null = null;
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
     let cancelled = false;
-    setState(INITIAL_STATE);
+    setState(INITIAL_MONITOR_STATE);
 
     const handle = (name: (typeof MONITOR_EVENTS)[number], data: string | null) => {
       setState((prev) => {
@@ -83,6 +78,29 @@ export function useSessionStream(collectionGuid: string): MonitorState {
           case "cards_removed": {
             const ids = new Set(parse<{ scanIds: string[] }>(data)?.scanIds ?? []);
             return { ...prev, recentCards: prev.recentCards.filter((c) => !ids.has(c.scanId)) };
+          }
+          case "cards_reviewed": {
+            const event = parse<CardsReviewedEvent>(data);
+            if (!event) return prev;
+            const confirmedIds = new Set(event.confirmedScanIds);
+            const acceptedIds = new Set([...event.confirmedScanIds, ...event.reviewedScanIds]);
+            return {
+              ...prev,
+              recentCards: prev.recentCards.map((c) =>
+                acceptedIds.has(c.scanId)
+                  ? { ...c, reviewed: true, lowConfidenceMatch: false, corrected: confirmedIds.has(c.scanId) || c.corrected }
+                  : c,
+              ),
+            };
+          }
+          case "cards_tags_changed": {
+            const event = parse<CardTagsChangedEvent>(data);
+            if (!event) return prev;
+            const ids = new Set(event.scanIds);
+            return {
+              ...prev,
+              recentCards: prev.recentCards.map((c) => (ids.has(c.scanId) ? withCardTags(c, event.tags, event.enabled) : c)),
+            };
           }
           case "cards_cleared":
             return { ...prev, recentCards: [] };

@@ -60,7 +60,7 @@ export function CorrectionAutoCloseTimer({
       );
 
   return (
-    <div className="flex flex-col items-center gap-1" aria-live="polite">
+    <div className="flex flex-col items-center gap-1">
       <div className="relative size-10 shrink-0">
         <svg viewBox="0 0 36 36" className="size-10 -rotate-90" aria-hidden>
           <circle
@@ -89,11 +89,16 @@ export function CorrectionAutoCloseTimer({
         <IconCheck
           className={cn(
             "absolute inset-0 m-auto size-5 transition-colors motion-reduce:transition-none",
-            isDone ? "text-success" : "text-foreground/70",
+            isDone ? "text-success-foreground" : "text-foreground/70",
           )}
         />
       </div>
-      <span className="text-center text-xs text-foreground/70">{label}</span>
+      <span
+        aria-live={isDone ? "polite" : "off"}
+        className="text-center text-xs text-foreground/70"
+      >
+        {label}
+      </span>
     </div>
   );
 }

@@ -1,10 +1,8 @@
 import type {
   DiscordChannelsDraft,
-  DiscordSettingsDraftValues,
-} from "@/schemas/discord-settings-draft.schema";
-import type {
   DiscordCollectionChannels,
   DiscordIntegration,
+  DiscordSettingsDraftFormValues,
   NotificationRule,
   OrgSettings,
 } from "@magic-vault/shared";
@@ -13,10 +11,12 @@ export function toDiscordSettingsDraft(
   integration: DiscordIntegration | null | undefined,
   rules: NotificationRule[],
   settings: OrgSettings | undefined,
-): DiscordSettingsDraftValues {
+): DiscordSettingsDraftFormValues {
   return {
     scanChannelId: integration?.scanChannelId ?? null,
     errorChannelId: integration?.errorChannelId ?? null,
+    scanRoleId: integration?.scanRoleId ?? null,
+    errorRoleId: integration?.errorRoleId ?? null,
     overrides: Object.fromEntries(
       (integration?.collections ?? []).map((override) => [
         override.guid,
@@ -50,7 +50,7 @@ export function changedDiscordChannels(
 
 export function isOverrideRemoved(
   override: DiscordCollectionChannels,
-  overrides: DiscordSettingsDraftValues["overrides"],
+  overrides: DiscordSettingsDraftFormValues["overrides"],
 ): boolean {
   const channels = overrides[override.guid];
   return !!channels && !channels.scanChannelId && !channels.errorChannelId;
