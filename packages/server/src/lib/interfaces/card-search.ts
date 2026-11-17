@@ -25,11 +25,13 @@ export interface TcgplayerSubTypes {
 export interface TcgplayerProductCandidate {
   name: string;
   rarity: string | null;
+  groupName: string | null;
 }
 
 export interface TcgplayerProductMatch {
   numbers: string[];
   accepts(product: TcgplayerProductCandidate): boolean;
+  preferredGroupNames?: string[];
 }
 
 export interface TcgplayerFinishProduct {

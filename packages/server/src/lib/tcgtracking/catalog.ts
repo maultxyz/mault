@@ -1,5 +1,6 @@
 import type { PlayingCardImage } from "@magic-vault/shared";
 import { fetchCardApi } from "../card-search/fetch";
+import { markSyncFetchIncomplete } from "../sync-job/fetch-completeness";
 import { CARD_API_HEADERS } from "../constants/card-search";
 import {
   TCGTRACKING_CATALOG_TTL_MS,
@@ -170,6 +171,7 @@ async function fetchCatalog(
     try {
       entries.push(...(await fetchTcgtrackingSetEntries(categoryId, set, signal)));
     } catch (err) {
+      markSyncFetchIncomplete(`TCGTracking set ${set.name} skipped`);
       addLog(
         `TCGTracking set ${set.name} skipped: ${err instanceof Error ? err.message : String(err)}`,
       );

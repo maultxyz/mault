@@ -17,8 +17,12 @@ function truncateText(text: string, maxLength: number): string {
 function describeCatalog(result: CatalogSyncResult): string {
   const label = `**${result.gameKey}** (${result.lang})`;
   if (!result.succeeded) return `${label}: failed`;
-  if (result.newCards === 0 && result.updatedCards === 0) return `${label}: no changes`;
-  return `${label}: ${result.newCards} new, ${result.updatedCards} updated`;
+  const removedCards = result.removedCards ?? 0;
+  if (result.newCards === 0 && result.updatedCards === 0 && removedCards === 0) {
+    return `${label}: no changes`;
+  }
+  const counts = `${label}: ${result.newCards} new, ${result.updatedCards} updated`;
+  return removedCards > 0 ? `${counts}, ${removedCards} removed` : counts;
 }
 
 export function buildCatalogSyncReport(

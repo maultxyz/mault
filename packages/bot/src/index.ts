@@ -14,6 +14,7 @@ import * as linkAccount from "./commands/link-account";
 import * as sendWelcome from "./commands/send-welcome";
 import * as shareCalibration from "./commands/share-calibration";
 import * as sharePreset from "./commands/share-preset";
+import * as showcase from "./commands/showcase";
 import * as showoff from "./commands/showoff";
 import * as stats from "./commands/stats";
 import { startNotifyServer } from "./notify-server";
@@ -39,6 +40,7 @@ const commands: BotCommand[] = [
   sendWelcome,
   shareCalibration,
   sharePreset,
+  showcase,
   showoff,
   stats,
 ];

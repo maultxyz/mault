@@ -157,3 +157,14 @@ export interface VectorizedFrontFace {
   embedding: number[];
   marks: CatalogPrintingMarks | null;
 }
+
+export interface SyncPruneInput {
+  storedCardIds: readonly string[];
+  fetchedCardIds: ReadonlySet<string>;
+  incompleteFetchReasons: readonly string[];
+  maxShareOfStoredCards: number;
+}
+
+export type SyncPrunePlan =
+  | { kind: "prune"; cardIdsToDelete: string[] }
+  | { kind: "skip"; reason: string; staleCardCount: number };

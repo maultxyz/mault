@@ -27,6 +27,7 @@ test("every catalog gets one line with its game, language and counts", () => {
       catalogResult({ gameKey: "gundam" }),
       catalogResult({ gameKey: "riftbound", succeeded: false }),
       catalogResult({ gameKey: "pokemon", lang: "de", updatedCards: 40 }),
+      catalogResult({ gameKey: "fab", removedCards: 2 }),
     ],
     reportOptions,
   );
@@ -43,6 +44,7 @@ test("every catalog gets one line with its game, language and counts", () => {
       "**gundam** (en): no changes",
       "**riftbound** (en): failed",
       "**pokemon** (de): 0 new, 40 updated",
+      "**fab** (en): 0 new, 0 updated, 2 removed",
     ].join("\n"),
   );
 });

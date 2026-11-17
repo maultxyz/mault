@@ -62,4 +62,16 @@ export const SHARE_PICK_TIMEOUT_MS = 60_000;
 
 export const DISCORD_SELECT_LABEL_MAX_LENGTH = 100;
 
+export const DISCORD_AUTOCOMPLETE_MAX_CHOICES = 25;
+
+export const DISCORD_AUTOCOMPLETE_VALUE_MAX_LENGTH = 100;
+
+export const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export const SHOWCASE_KIND_LABELS = {
+  collection: "collection",
+  storage: "storage location",
+} as const;
+
 export const DISCORD_EMBED_DESCRIPTION_MAX_LENGTH = 4096;

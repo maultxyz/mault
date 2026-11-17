@@ -6,6 +6,7 @@ export interface CatalogSyncResult {
   succeeded: boolean;
   newCards: number;
   updatedCards: number;
+  removedCards?: number;
 }
 
 export interface CatalogSyncReportOptions {

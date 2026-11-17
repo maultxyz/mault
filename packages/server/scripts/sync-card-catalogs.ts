@@ -190,6 +190,7 @@ async function main(): Promise<number> {
       succeeded,
       newCards: status.newCards ?? 0,
       updatedCards: status.updatedCards ?? 0,
+      removedCards: status.removedCards ?? 0,
     });
   }
 
