@@ -4,10 +4,10 @@ const PADDLE_OCR_REPO = "monkt/paddleocr-onnx";
 const PADDLE_OCR_REVISION = "7b02d0a30a07ba2b92ad1ff5a8941ae2c633de65";
 
 export const PADDLE_OCR_DETECTION_MODEL: PinnedModel = {
-  repo: "PaddlePaddle/PP-OCRv5_mobile_det_onnx",
-  revision: "e6f4fa85f00e168c862bc462aebca69eef9b3d3d",
-  filename: "inference.onnx",
-  sha256: "a431985659dc921974177a95adcfbb90fd9e51989a5e04d70d0b75f597b6e61d",
+  repo: PADDLE_OCR_REPO,
+  revision: PADDLE_OCR_REVISION,
+  filename: "detection/v3/det.onnx",
+  sha256: "ee40e80071ba3a320d4efda75f3e22047a7d049e9bf7bcaaf9daea23fc21b935",
 };
 export const PADDLE_OCR_RECOGNITION_MODEL: PinnedModel = {
   repo: PADDLE_OCR_REPO,

@@ -51,13 +51,14 @@ RUN node -e " \
   const crypto = require('crypto'); \
   const fs = require('fs'); \
   const path = require('path'); \
-  const latin = ['monkt/paddleocr-onnx', '7b02d0a30a07ba2b92ad1ff5a8941ae2c633de65']; \
+  const repo = 'monkt/paddleocr-onnx'; \
+  const revision = '7b02d0a30a07ba2b92ad1ff5a8941ae2c633de65'; \
   const files = [ \
-    ['PaddlePaddle/PP-OCRv5_mobile_det_onnx', 'e6f4fa85f00e168c862bc462aebca69eef9b3d3d', 'inference.onnx', 'a431985659dc921974177a95adcfbb90fd9e51989a5e04d70d0b75f597b6e61d'], \
-    [...latin, 'languages/latin/rec.onnx', '614ffc2d6d3902d360fad7f1b0dd455ee45e877069d14c4e51a99dc4ef144409'], \
-    [...latin, 'languages/latin/dict.txt', '3c0a8a79b612653c25f765271714f71281e4e955962c153e272b7b8c1d2b13ff'], \
+    ['detection/v3/det.onnx', 'ee40e80071ba3a320d4efda75f3e22047a7d049e9bf7bcaaf9daea23fc21b935'], \
+    ['languages/latin/rec.onnx', '614ffc2d6d3902d360fad7f1b0dd455ee45e877069d14c4e51a99dc4ef144409'], \
+    ['languages/latin/dict.txt', '3c0a8a79b612653c25f765271714f71281e4e955962c153e272b7b8c1d2b13ff'], \
   ]; \
-  Promise.all(files.map(async ([repo, revision, filename, sha256]) => { \
+  Promise.all(files.map(async ([filename, sha256]) => { \
     const url = \`https://huggingface.co/\${repo}/resolve/\${revision}/\${filename}\`; \
     const res = await fetch(url); \
     if (!res.ok) throw new Error(\`Failed to download \${url}: \${res.status}\`); \
