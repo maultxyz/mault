@@ -233,7 +233,7 @@ export function PickImportColumns({ csvImport }: PickImportColumnsProps) {
             count: Math.min(CSV_IMPORT_PREVIEW_ROWS, table.rows.length),
           })}
         </summary>
-        <div className="overflow-x-auto border-t">
+        <div className="border-t p-2">
           <Table>
             <TableHeader>
               <TableRow>

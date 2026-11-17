@@ -7,8 +7,10 @@ import { build, type Plugin } from "vite";
 import { MARKETING_PAGES } from "../src/lib/constants/marketing-pages";
 import {
   PRERENDER_PATH_GUARD_SCRIPT,
+  SHARE_PAGE_FILE,
   SITE_URL,
 } from "../src/lib/constants/seo";
+import { sharePageHtml } from "./share-page-html";
 
 interface PrerenderedPages {
   envSignature: string;
@@ -157,6 +159,7 @@ export function marketingPageHtml(): Plugin {
     },
     async closeBundle() {
       const template = readFileSync(path.join(outDir, "index.html"), "utf-8");
+      writeFileSync(path.join(outDir, SHARE_PAGE_FILE), sharePageHtml(template));
       const ssrOutDir = mkdtempSync(path.join(tmpdir(), "mault-prerender-"));
       try {
         const { envSignature, pages } = await prerenderPages(

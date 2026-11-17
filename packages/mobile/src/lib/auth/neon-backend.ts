@@ -2,6 +2,8 @@ import {
   MOBILE_SOCIAL_SIGN_IN_APP_CALLBACK_URL,
   MOBILE_SOCIAL_SIGN_IN_CALLBACK_PATH,
   MOBILE_SOCIAL_SIGN_IN_ERROR_PARAM,
+  MOBILE_SOCIAL_SIGN_IN_START_PATH,
+  MOBILE_SOCIAL_SIGN_IN_START_TOKEN_PARAM,
   NEON_AUTH_SESSION_VERIFIER_PARAM,
   type NeonSocialProvider,
 } from "@magic-vault/shared";
@@ -56,6 +58,13 @@ function readQueryParam(url: string, name: string): string | null {
   return typeof value === "string" && value ? value : null;
 }
 
+function mobileSignInStartUrl(providerSignInUrl: string): string {
+  const token = readQueryParam(providerSignInUrl, MOBILE_SOCIAL_SIGN_IN_START_TOKEN_PARAM);
+  if (!token) return providerSignInUrl;
+  const query = new URLSearchParams({ [MOBILE_SOCIAL_SIGN_IN_START_TOKEN_PARAM]: token });
+  return `${WEB_URL}${MOBILE_SOCIAL_SIGN_IN_START_PATH}?${query}`;
+}
+
 async function signInWithSocialProvider(provider: NeonSocialProvider): Promise<AuthBackendSignInResult> {
   const startResponse = await fetch(`${NEON_AUTH_URL}/sign-in/social`, {
     method: "POST",
@@ -72,7 +81,7 @@ async function signInWithSocialProvider(provider: NeonSocialProvider): Promise<A
   if (!providerSignInUrl) return { error: "social" };
 
   const browserResult = await WebBrowser.openAuthSessionAsync(
-    providerSignInUrl,
+    mobileSignInStartUrl(providerSignInUrl),
     MOBILE_SOCIAL_SIGN_IN_APP_CALLBACK_URL,
   );
   if (browserResult.type !== "success") return { error: SOCIAL_SIGN_IN_CANCELLED_ERROR };

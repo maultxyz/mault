@@ -109,6 +109,7 @@ export interface PlayingCard {
   sourceUrl?: string;
   tcgplayerId?: string;
   isFallbackData?: boolean;
+  isMissingFromCatalog?: boolean;
   cmc?: number;
   lang?: string;
   gameKey?: string;

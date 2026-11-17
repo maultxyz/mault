@@ -431,7 +431,7 @@ export function IntakeLotDetail({
             alignsEnd
             pagination={toServerPagination(cardsPageData, setCardsPage)}
           />
-          <div className="overflow-hidden rounded-card bg-card">
+          <div>
             <Table>
               <TableHeader>
                 <TableRow>

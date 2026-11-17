@@ -615,6 +615,23 @@ export default function CardDetailScreen() {
               subtitle={cardDetailSubtitle}
               price={price}
             />
+            {entry && card?.isMissingFromCatalog ? (
+              <Callout
+                tone="warning"
+                title={t("cardDetail.catalogCardRemovedTitle")}
+                description={t("cardDetail.catalogCardRemovedDescription", { name: card.name })}
+                action={
+                  reviewMode ? undefined : (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      label={t("cardDetail.catalogCardRemovedAction")}
+                      onPress={() => setEditing(true)}
+                    />
+                  )
+                }
+              />
+            ) : null}
             {entry ? (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
                 {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}

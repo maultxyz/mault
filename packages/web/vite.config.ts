@@ -54,12 +54,12 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html}"],
         // Runtime config written by the container at start-up; a precached
         // copy would pin the build's empty placeholder.
-        globIgnores: ["env.js"],
+        globIgnores: ["env.js", "share.html"],
         skipWaiting: true,
         clientsClaim: true,
         navigateFallback: "/index.html",
         // API + SSE traffic must always hit the network.
-        navigateFallbackDenylist: [/^\/api\//, /^\/s\//, /\/[^/?]+\.[^/]+$/],
+        navigateFallbackDenylist: [/^\/api\//, /^\/s\//, /^\/auth\/mobile-(callback|start)/, /[?&](neon_auth_session_verifier|error)=/, /\/[^/?]+\.[^/]+$/],
       },
     }),
   ],

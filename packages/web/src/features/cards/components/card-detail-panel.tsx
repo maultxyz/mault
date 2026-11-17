@@ -132,7 +132,9 @@ import {
   IconSwitchHorizontal,
   IconTrash,
   IconX,
+  IconAlertTriangle,
 } from "@tabler/icons-react";
+import { Callout } from "@/components/callout";
 import {
   cardDiagnosticsQueryOptions,
   cardScanOriginQueryOptions,
@@ -1110,6 +1112,22 @@ export function CardDetailPanel({
               )
             }
           />
+          {scanId && currentCard?.isMissingFromCatalog && !editing && (
+            <Callout
+              variant="warning"
+              icon={IconAlertTriangle}
+              title={t("cardDetailPanel.catalogCardRemovedTitle")}
+              action={
+                <Button variant="outline" onClick={openCorrection}>
+                  {t("cardDetailPanel.catalogCardRemovedAction")}
+                </Button>
+              }
+            >
+              {t("cardDetailPanel.catalogCardRemovedDescription", {
+                name: currentCard.name,
+              })}
+            </Callout>
+          )}
           {currentCard && !editing ? (
             <>
               {reviewMode ? (

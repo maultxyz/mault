@@ -220,7 +220,7 @@ export function CsvImportDialog({
 
         {isTabular && mapping && (
           <>
-            <div className="shrink-0 overflow-x-auto rounded-lg ring-1 ring-border">
+            <div className="shrink-0">
               <Table>
                 <TableHeader>
                   <TableRow>

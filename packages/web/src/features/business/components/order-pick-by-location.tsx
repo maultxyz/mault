@@ -24,7 +24,7 @@ export function OrderPickByLocation({
   const allScanIds = entries.map((entry) => entry.scanId);
   const pickedCount = allScanIds.filter((id) => pickedScanIds.has(id)).length;
   return (
-    <div className="overflow-hidden rounded-card bg-card">
+    <div>
       <Table>
         <TableHeader>
           <TableRow>

@@ -59,7 +59,7 @@ export function PriceLabelCardList({ form, items, formatLabelPrice }: PriceLabel
           {allSelected ? t("priceLabels.cards.selectNone") : t("priceLabels.cards.selectAll")}
         </Button>
       </div>
-      <div className="max-h-[28rem] overflow-y-auto rounded-lg bg-foreground/6">
+      <div className="max-h-[28rem] overflow-y-auto">
         <Table>
           <TableHeader>
             <TableRow>
