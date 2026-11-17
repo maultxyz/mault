@@ -587,8 +587,8 @@ For the current lighting diagnostic, `ENABLE_ONBOARD_RGB_STATUS` defaults to
 interaction with the external strip driver. Set it to `1` (or build with
 `-DENABLE_ONBOARD_RGB_STATUS=1`) to restore them.
 
-Drives the SK6812 RGBW strip (5 LEDs, GRBW byte order, neutral-white LEDs)
-on `LED_PIN`: GPIO 18 on the ESP32-S3,
+Drives an SK6812 RGBW strip (8 or 16 LEDs, GRBW byte order, neutral-white LEDs)
+on `LED_PIN`: GPIO 14 on the ESP32-S3,
 13 on classic ESP32, D8 on the Uno R4. Older firmware answers
 `{"error":"unknown command"}`.
 Firmware 2.13.0+ drives SK6812 RGBW pixels and is not compatible with RGB-only
@@ -600,11 +600,11 @@ WS2812B strips.
 ```
 `mode` is `white`, `auto` (same color as white), `off`, `custom` (needs
 `r`, `g` and `b`; RGBW firmware also accepts `w` from 0 to 255), `foil`
-(a white light chasing around the strip) or
-`value` (one LED at a time sweeps 0,1,2,3,4,3,2,1,0, cycling green/red/blue
+(alternating white light on LEDs 0 and 7 when dynamic foil lighting is enabled) or
+`value` (one LED at a time sweeps from 0 to the last configured LED and back to 0, cycling green/red/blue
 with a dark gap between flashes, leaving the mode alone). Firmware 2.13.0+
 uses the strip's dedicated neutral-white diode for white and auto modes.
-For `value`, an object request can set `durationMs` to an integer from 100 to
+For `value`, an object request can set `durationMs` to an integer from 500 to
 3000 (default 500). For example:
 `{"setLight":{"mode":"value","durationMs":500}}`.
 The reply includes `"durationMs":500` while the value animation is active.
@@ -614,16 +614,23 @@ Older firmware without the duration echo pauses scanning rather than assuming
 the shorter animation completed. `brightness` and the RGBW color channels are integers from 0 to 255;
 `brightness` defaults to the current one (160 at boot).
 
+Firmware 2.14.0+ accepts `"ledCount": 8` or `"ledCount": 16` in a `setLight`
+object and includes the active count in its reply. The count defaults to 16 at
+boot and is restored from the sorter's saved Calibration settings on connect.
+Warnings and celebrations use the configured number of LEDs.
+
 An object request may also set `leds`, a bitmask of the LEDs to light
-(bit 0 is LED 0, 31 is all five), for directional foil experiments: for
-example `{"setLight": {"mode": "white", "brightness": 32, "leds": 16}}` lights
-only LED 4, and `"leds": 14` lights LEDs 1 to 3. Any request without `leds` resets
-to LEDs 1 to 3, the main diffused lighting. Warnings use all five LEDs.
-Value celebrations sweep all five LEDs, then restore the previous lighting.
-Otherwise LEDs 0 and 4 are reserved for directional foil detection; the optional `foil` animation alternates those
-two LEDs with the middle LEDs off. Firmware without this field
-ignores it and replies without `leds`.
-→ `{"status":"ok","lightMode":"white","lightAlert":"none","brightness":160,"leds":14}`
+(bit 0 is LED 0, 65535 is all sixteen), for directional foil experiments. For
+example `{"setLight": {"mode": "white", "brightness": 32, "leds": 128}}` lights
+only LED 7, and `"leds": 65406` lights LEDs 1 to 6 and 8 to 15. A request
+without `leds` defaults to that diffused-light mask in the updated firmware.
+The web app selects `126` for 8 LEDs or `65406` for 16; for older firmware it
+keeps the previous five-LED mask `14`. Value celebrations sweep the configured
+LEDs and then restore the previous lighting.
+LEDs 0 and 7 are reserved for directional foil detection; the optional
+`foil` animation alternates those two LEDs with the other LEDs off. Firmware
+without this field ignores it and replies without `leds`.
+→ `{"status":"ok","lightMode":"white","lightAlert":"none","brightness":160,"leds":65406}`
 
 #### Timed warnings (lighting release 2.??.0)
 

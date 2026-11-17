@@ -25,6 +25,7 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   lighting: "2.11.0",
   lightingWarnings: "2.12.0",
   rgbwLighting: "2.13.0",
+  configurableLighting: "2.14.0",
 };
 
 export function isFirmwareFeatureSupported(

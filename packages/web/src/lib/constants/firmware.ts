@@ -1,5 +1,5 @@
 export const LATEST_FIRMWARE_VERSION =
-  import.meta.env.VITE_LATEST_FIRMWARE_VERSION ?? "2.13.0";
+  import.meta.env.VITE_LATEST_FIRMWARE_VERSION ?? "2.14.0";
 
 export const ESP32_FIRMWARE_CHIP = "ESP32-S3";
 export const ESP32_FLASH_BAUD_RATE = 115200;

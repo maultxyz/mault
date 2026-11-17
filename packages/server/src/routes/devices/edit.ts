@@ -5,6 +5,7 @@ import {
   isLightBrightness,
   isLightColor,
   isLightMode,
+  isLightLedCount,
   isPriceSource,
   isValueCelebrationDuration,
   isLightTimerSeconds,
@@ -53,6 +54,7 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       lightColor?: string;
       lightBrightness?: number;
       lightWhite?: number;
+      lightLedCount?: number;
       valueCelebrationEnabled?: boolean;
       valueCelebrationThreshold?: number;
       valueCelebrationPriceSource?: PriceSource;
@@ -83,10 +85,13 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
       return c.json({ success: false, message: "Unknown celebration price source." }, 400);
     }
     if ("valueCelebrationDurationMs" in body && !isValueCelebrationDuration(body.valueCelebrationDurationMs)) {
-      return c.json({ success: false, message: "Celebration duration must be an integer from 100 to 3000 ms." }, 400);
+      return c.json({ success: false, message: "Celebration duration must be an integer from 500 to 3000 ms." }, 400);
     }
     if ("lightMode" in body && !isLightMode(body.lightMode)) {
       return c.json({ success: false, message: "Unknown light mode." }, 400);
+    }
+    if ("lightLedCount" in body && !isLightLedCount(body.lightLedCount)) {
+      return c.json({ success: false, message: "LED count must be 8 or 16." }, 400);
     }
     if ("lightColor" in body && !isLightColor(body.lightColor)) {
       return c.json(
@@ -211,6 +216,7 @@ export const editDeviceRoute = new Hono<AppEnv>().put(
           lightColor: body.lightColor?.toLowerCase() ?? device.lightColor,
           lightBrightness: body.lightBrightness ?? device.lightBrightness,
           lightWhite: body.lightWhite ?? device.lightWhite,
+          lightLedCount: body.lightLedCount ?? device.lightLedCount,
           valueCelebrationEnabled: body.valueCelebrationEnabled ?? device.valueCelebrationEnabled,
           valueCelebrationThreshold: body.valueCelebrationThreshold ?? device.valueCelebrationThreshold,
           valueCelebrationPriceSource: body.valueCelebrationPriceSource ?? device.valueCelebrationPriceSource,

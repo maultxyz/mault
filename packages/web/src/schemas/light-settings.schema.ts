@@ -15,6 +15,7 @@ export const lightSettingsSchema = z.object({
   lightColor: z.string().regex(LIGHT_COLOR_PATTERN),
   lightBrightness: z.number().int().min(0).max(LIGHT_BRIGHTNESS_MAX),
   lightWhite: z.number().int().min(0).max(LIGHT_BRIGHTNESS_MAX),
+  lightLedCount: z.union([z.literal(8), z.literal(16)]),
   valueCelebrationEnabled: z.boolean(),
   valueCelebrationThreshold: z.number().min(0),
   valueCelebrationPriceSource: z.enum(PRICE_SOURCES),

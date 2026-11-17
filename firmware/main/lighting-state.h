@@ -1,20 +1,20 @@
 #pragma once
 #include <stdint.h>
 
-enum class LightWarning : uint8_t { None, Empty, Blocked };
+enum class LightWarning : uint16_t { None, Empty, Blocked };
 
 struct RgbwColor {
-  uint8_t r;
-  uint8_t g;
-  uint8_t b;
-  uint8_t w;
+  uint16_t r;
+  uint16_t g;
+  uint16_t b;
+  uint16_t w;
 };
 
-inline RgbwColor whiteLedColor(uint8_t level) {
+inline RgbwColor whiteLedColor(uint16_t level) {
   return {0, 0, 0, level};
 }
 
-inline uint8_t scaleLightChannel(uint8_t value, uint8_t brightness) {
+inline uint16_t scaleLightChannel(uint16_t value, uint16_t brightness) {
   return ((uint16_t)value * brightness + 127) / 255;
 }
 
@@ -43,10 +43,10 @@ struct LightWarningCycle {
   }
 };
 
-inline uint8_t celebrationStep(uint32_t elapsed, uint32_t duration) {
-  return elapsed * 9 / duration;
+inline uint16_t celebrationStep(uint32_t elapsed, uint32_t duration, uint16_t count) {
+  return elapsed * (2 * count - 1) / duration;
 }
 
-inline uint8_t celebrationLed(uint8_t step) {
-  return step <= 4 ? step : 8 - step;
+inline uint16_t celebrationLed(uint16_t step, uint16_t count) {
+  return step < count ? step : 2 * (count - 1) - step;
 }

@@ -13,8 +13,9 @@ export const FOIL_BRIGHTNESS_STEPS: readonly FoilCaptureStep[] = [
   { id: "whiteBrightRepeat", lighting: { lightMode: "white", lightColor: "#ffffff", lightBrightness: 12 } },
   { id: "ambientRepeat", lighting: { lightMode: "off", lightColor: "#000000", lightBrightness: 4 } },
 ];
-export const FOIL_DIRECTION_LED_MASKS = { led0: 1, diffuse: 14, led4: 16 } as const;
+export const FOIL_DIRECTION_LED_MASKS = { led0: 1, diffuse: 0xFF7E, led7: 0X0080 } as const;
 export const FOIL_DIRECTION_FAR_LEDS = [
+  { led: 7, step: "led7", repeat: "led7Repeat" },
   { led: 4, step: "led4", repeat: "led4Repeat" },
   { led: 3, step: "led3", repeat: "led3Repeat" },
 ] as const;
@@ -24,9 +25,9 @@ export const FOIL_DIRECTION_STEPS: readonly FoilCaptureStep[] = [
   { id: "whiteBright", lighting: { lightMode: "white", lightColor: "#ffffff", lightBrightness: 12, ledMask: FOIL_DIRECTION_LED_MASKS.diffuse } },
   { id: "diffuse", lighting: { lightMode: "white", lightColor: "#ffffff", lightBrightness: 32, ledMask: FOIL_DIRECTION_LED_MASKS.diffuse } },
   { id: "led0", lighting: { lightMode: "white", lightColor: "#ffffff", lightBrightness: 32, ledMask: FOIL_DIRECTION_LED_MASKS.led0 } },
-  { id: "led4", lighting: { lightMode: "white", lightColor: "#ffffff", lightBrightness: 32, ledMask: FOIL_DIRECTION_LED_MASKS.led4 } },
+  { id: "led7", lighting: { lightMode: "white", lightColor: "#ffffff", lightBrightness: 32, ledMask: FOIL_DIRECTION_LED_MASKS.led7 } },
   { id: "led0Repeat", lighting: { lightMode: "white", lightColor: "#ffffff", lightBrightness: 32, ledMask: FOIL_DIRECTION_LED_MASKS.led0 } },
-  { id: "led4Repeat", lighting: { lightMode: "white", lightColor: "#ffffff", lightBrightness: 32, ledMask: FOIL_DIRECTION_LED_MASKS.led4 } },
+  { id: "led7Repeat", lighting: { lightMode: "white", lightColor: "#ffffff", lightBrightness: 32, ledMask: FOIL_DIRECTION_LED_MASKS.led7 } },
 ];
 export const FOIL_STAGED_STEPS: readonly FoilCaptureStep[] = [
   FOIL_DIRECTION_STEPS[0],

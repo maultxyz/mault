@@ -3,13 +3,15 @@ import {
   LIGHT_BRIGHTNESS_MAX,
   LIGHT_COLOR_PATTERN,
   LIGHT_MAIN_LED_MASK,
+  LEGACY_LIGHT_MAIN_LED_MASK,
+  DEFAULT_LIGHT_LED_COUNT,
   LIGHT_MODES,
   VALUE_CELEBRATION_DURATION_MIN_MS,
   VALUE_CELEBRATION_DURATION_MAX_MS,
   LIGHT_TIMER_MIN_SECONDS,
   LIGHT_TIMER_MAX_SECONDS,
 } from "./constants/lighting.constant";
-import type { LightMode, LightSettings, LightWarningSettings } from "./interfaces/lighting.interface";
+import type { LightLedCount, LightMode, LightSettings, LightWarningSettings } from "./interfaces/lighting.interface";
 import type { ValueCelebrationSettings } from "./interfaces/lighting.interface";
 import type { PriceSource } from "./interfaces/price-source.interface";
 
@@ -35,12 +37,13 @@ export function assertLightWarningReply(line: string, settings: LightWarningSett
   }
 }
 
-export function toValueCelebrationCommand(durationMs: number) {
+export function toValueCelebrationCommand(durationMs: number, ledCount?: LightLedCount) {
   if (!isValueCelebrationDuration(durationMs)) throw new Error("Invalid celebration duration");
-  return { setLight: { mode: "value", durationMs } };
+  if (ledCount !== undefined && !isLightLedCount(ledCount)) throw new Error("Invalid LED count");
+  return { setLight: { mode: "value", durationMs, ...(ledCount !== undefined && { ledCount }) } };
 }
 
-export function confirmedValueCelebrationDuration(line: string, expectedDurationMs: number): number | null {
+export function confirmedValueCelebrationDuration(line: string, expectedDurationMs: number, expectedLedCount?: LightLedCount): number | null {
   const response: unknown = JSON.parse(line);
   if (!response || typeof response !== "object" ||
     !("status" in response) || response.status !== "ok" ||
@@ -50,7 +53,8 @@ export function confirmedValueCelebrationDuration(line: string, expectedDuration
   if (response.lightAlert === "jam" || response.lightAlert === "empty" ||
     ("warningActive" in response && response.warningActive === true)) return null;
   if (response.lightAlert !== "value" || !("durationMs" in response) ||
-    !isValueCelebrationDuration(response.durationMs) || response.durationMs !== expectedDurationMs) {
+    !isValueCelebrationDuration(response.durationMs) || response.durationMs !== expectedDurationMs ||
+    (expectedLedCount !== undefined && (!("ledCount" in response) || response.ledCount !== expectedLedCount))) {
     throw new Error("Celebration duration not confirmed; update sorter firmware");
   }
   return response.durationMs;
@@ -89,10 +93,29 @@ export function isLightBrightness(value: unknown): value is number {
   );
 }
 
+export function isLightLedCount(value: unknown): value is LightLedCount {
+  return value === 8 || value === 16;
+}
+
+export function assertLightLedCountReply(line: string, ledCount: LightLedCount) {
+  const response: unknown = JSON.parse(line);
+  if (!response || typeof response !== "object" || !("status" in response) || response.status !== "ok" ||
+    !("ledCount" in response) || response.ledCount !== ledCount) {
+    throw new Error("LED count not confirmed; update sorter firmware");
+  }
+}
+
+export function mainLightLedMask(count: LightLedCount): number {
+  return count === 8 ? 0x7E : LIGHT_MAIN_LED_MASK;
+}
+
 export function toSetLightCommand(
   settings: LightSettings & Partial<LightWarningSettings>,
-  options?: { clearAlert?: boolean; warningsSupported?: boolean; rgbwSupported?: boolean },
+  options?: { clearAlert?: boolean; warningsSupported?: boolean; rgbwSupported?: boolean; configurableLightingSupported?: boolean },
 ) {
+  if (options?.configurableLightingSupported && settings.lightLedCount !== undefined && !isLightLedCount(settings.lightLedCount)) {
+    throw new Error("Invalid LED count");
+  }
   let warnings: { enabled: boolean; emptySeconds: number; blockedSeconds: number; normalSeconds: number } | undefined;
   if (options?.warningsSupported && "lightWarningsEnabled" in settings) {
     if (typeof settings.lightWarningsEnabled !== "boolean" ||
@@ -120,7 +143,10 @@ export function toSetLightCommand(
     setLight: {
       mode: settings.lightMode,
       brightness: settings.lightBrightness,
-      leds: LIGHT_MAIN_LED_MASK,
+      leds: options?.configurableLightingSupported
+        ? mainLightLedMask(settings.lightLedCount ?? DEFAULT_LIGHT_LED_COUNT)
+        : LEGACY_LIGHT_MAIN_LED_MASK,
+      ...(options?.configurableLightingSupported && { ledCount: settings.lightLedCount ?? DEFAULT_LIGHT_LED_COUNT }),
       ...color,
       ...(warnings && { warnings }),
     },

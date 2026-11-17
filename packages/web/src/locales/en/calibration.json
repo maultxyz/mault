@@ -72,14 +72,16 @@
       "led3": "LED 3 only",
       "led0Repeat": "LED 0 only repeat",
       "led3Repeat": "LED 3 only repeat",
-      "diffuse": "Diffused LEDs 1 to 3",
+      "diffuse": "Configured diffused LEDs",
+      "led7": "LED 7 only",
+      "led7Repeat": "LED 7 only repeat",
       "led4": "LED 4 only",
       "led4Repeat": "LED 4 only repeat"
     },
-    "directionMode": "LED direction (LED 0 / LED 4)",
+    "directionMode": "LED direction (LED 0 / LED 7)",
     "stagedMode": "Main-light bracket + foil verification",
-    "stagedSequence": "Stage 1 uses only LEDs 1 to 3: LEDs off > normal white 32/255 > dim white 8/255 > bright white 96/255 > normal white 32/255 again. Stage 2 verifies every card: LED 0 > LED 4 > LED 0 > LED 4, each at 32/255 with the middle LEDs off. Keep the card still and block room light. This changes LED brightness, not camera exposure; automatic exposure can compensate. The first stage does not yet classify cards or skip verification. The final experimental reading comes from the directional captures. Normal-light repeats check capture stability. Live sorting is unchanged.",
-    "directionSequence": "Main lighting uses only diffused LEDs 1 to 3. Exposed LEDs 0 and 4 are reserved for foil detection. Keep the card still: LEDs off > LEDs 1 to 3 white 12/255 > LEDs 1 to 3 white 32/255 > LED 0 only > LED 4 only > LED 0 only > LED 4 only (single LEDs at 32/255). Requires sorter firmware with LED direction support: reflash from the website first, otherwise capture stops when the LED mask cannot be confirmed. Block room light. The foil reading is experimental.",
+    "stagedSequence": "Stage 1 uses configured diffused LEDs: LEDs off > normal white 32/255 > dim white 8/255 > bright white 96/255 > normal white 32/255 again. Stage 2 verifies every card: LED 0 > LED 7 > LED 0 > LED 7, each at 32/255 with the diffused LEDs off. Keep the card still and block room light. This changes LED brightness, not camera exposure; automatic exposure can compensate. The first stage does not yet classify cards or skip verification. The final experimental reading comes from the directional captures. Normal-light repeats check capture stability. Live sorting is unchanged.",
+    "directionSequence": "Main lighting uses configured diffused LEDs. Exposed LEDs 0 and 7 are reserved for foil detection. Keep the card still: LEDs off > diffused LEDs white 12/255 > diffused LEDs white 32/255 > LED 0 only > LED 7 only > LED 0 only > LED 7 only (single LEDs at 32/255). Requires sorter firmware with LED direction support: reflash from the website first, otherwise capture stops when the LED mask cannot be confirmed. Block room light. The foil reading is experimental.",
     "directionHelp": "Direction response divides the LED {{far}} crop by the LED 0 crop pixel by pixel, so printed artwork largely cancels, then removes the smooth falloff along the strip with a 17x17 local average. Remaining sharp changes are highlights that move with the light. Repeat noise is the same measurement for LED 0 against its repeat; a useful foil signal must sit well above it. Experimental, not a foil score.",
     "directionResponse": "LED 0 vs LED {{far}} ({{eligible}}% usable): 99th percentile residual {{peak}}, moving highlights {{glints}}% of card.",
     "directionNoise": "Repeat noise, LED 0 vs LED 0 ({{eligible}}% usable): 99th percentile residual {{peak}}, moving highlights {{glints}}% of card.",
@@ -635,8 +637,11 @@
     "previewUnavailable": "Connect the sorter and pass its self-test to preview changes on the strip. You can still edit and save.",
     "strip": {
       "heading": "Light strip",
-      "description": "Five SK6812 RGBW LEDs: diffused center LEDs 1 to 3 provide normal lighting; exposed LEDs 0 and 4 are for foil detection. Warnings and celebrations can use all five. Choose the RGB color, white-channel level, and brightness here."
+      "description": "SK6812 RGBW LEDs: diffused LEDs 1 to 6, plus 8 to 15 on a 16-LED strip, provide normal lighting. Exposed LEDs 0 and 7 are for foil detection. Warnings use all configured LEDs."
     },
+    "ledCountLabel": "LED strip length",
+    "ledCountValue": "{{count}} LEDs",
+    "ledCountHelp": "Choose 8 for the first board only, or 16 for both boards connected in sequence. Save to keep the setting.",
     "modeLabel": "Mode",
     "modes": {
       "off": {
@@ -663,9 +668,9 @@
     "brightnessValue": "{{percent}}%",
     "celebration": {
       "heading": "Valuable-card celebration",
-      "description": "One LED flashes at a time: 0, 1, 2, 3, 4, 3, 2, 1, 0, alternating green, red and blue. Runs when a newly scanned card meets the minimum value. Disable automatic celebrations with the switch. Normal lighting returns before the next feed. The new sweep requires firmware 2.12.0.",
+      "description": "One LED flashes at a time from 0 to the last configured LED and back, alternating green, red and blue. Runs when a newly scanned card meets the minimum value. Disable automatic celebrations with the switch. Normal lighting returns before the next feed. Configurable strip length requires updated firmware.",
       "duration": "Celebration duration (seconds)",
-      "invalidDuration": "Enter 0.1 to 3 seconds.",
+      "invalidDuration": "Enter 0.5 to 3 seconds.",
       "previewFailed": "Celebration test failed. Clear sorter alerts and update firmware for adjustable timing.",
       "enabled": "Enable automatic celebration",
       "threshold": "Minimum card value ({{currency}})",
@@ -681,9 +686,9 @@
       "lightBlockedWarningSeconds": "Blocked-module red warning (seconds)",
       "lightNormalSeconds": "Normal diffused lighting between warnings (seconds)",
       "invalidSeconds": "Enter a whole number from 1 to 300 seconds.",
-      "jam": "Blocked module: all five LEDs turn red for the configured warning time.",
-      "empty": "Empty hopper: all five LEDs turn amber for the configured warning time.",
-      "value": "Celebrations sweep from LED 0 to 4 and back to 0 with green, red and blue flashes.",
+      "jam": "Blocked module: all configured LEDs turn red for the configured warning time.",
+      "empty": "Empty hopper: all configured LEDs turn amber for the configured warning time.",
+      "value": "Celebrations sweep from LED 0 to the last configured LED and back with green, red and blue flashes.",
       "testCelebration": "Test celebration",
       "clear": "Clear alert"
     },

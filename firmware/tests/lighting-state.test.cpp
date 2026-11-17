@@ -43,16 +43,18 @@ int main() {
   assert(cycle.update(UINT32_MAX - 500) == LightWarning::Empty);
   assert(cycle.update(499) == LightWarning::None);
   assert(cycle.update(1499) == LightWarning::Empty);
-  const uint8_t expected[] = {0, 1, 2, 3, 4, 3, 2, 1, 0};
-  for (uint32_t duration : {100u, 500u, 3000u}) {
-    bool seen[9] = {};
-    for (uint32_t elapsed = 0; elapsed < duration; elapsed++) {
-      uint8_t step = celebrationStep(elapsed, duration);
-      assert(step < 9);
-      assert(celebrationLed(step) == expected[step]);
-      seen[step] = true;
+  for (uint16_t count : {8u, 16u}) {
+    for (uint32_t duration : {500u, 501u, 3000u}) {
+      bool seen[31] = {};
+      uint16_t steps = 2 * count - 1;
+      for (uint32_t elapsed = 0; elapsed < duration; elapsed++) {
+        uint16_t step = celebrationStep(elapsed, duration, count);
+        assert(step < steps);
+        assert(celebrationLed(step, count) == (step < count ? step : steps - step - 1));
+        seen[step] = true;
+      }
+      for (uint16_t step = 0; step < steps; step++) assert(seen[step]);
     }
-    for (bool reached : seen) assert(reached);
   }
-  puts("PASS: RGBW channel scaling, warning boundaries, priority, clearing, rollover and 0-4-0 celebration");
+  puts("PASS: RGBW channel scaling, warnings and 8/16 LED celebrations");
 }

@@ -28,7 +28,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.13.0"
+#define FIRMWARE_VERSION "2.14.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -213,7 +213,7 @@ int moduleChannelOffset = 0;
 // integrated flash/PSRAM (26-37).
 const int IR_PINS[MAX_MODULES] = {4, 5, 6, 7, 15};
 #define IR_PIN_HOPPER 16
-#define LED_PIN 18
+#define LED_PIN 14
 #elif defined(ARDUINO_ARCH_ESP32)
 // Classic ESP32 (WROOM/WROVER) pins avoid strapping (0, 2, 5, 12, 15),
 // flash (6-11), WROVER PSRAM (16, 17), and input-only pins (34-39, no

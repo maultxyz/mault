@@ -12,7 +12,7 @@ import { deleteFoilSample, exportFoilSample, loadFoilSamples, saveFoilSample, up
 import { analyzeFoilSample } from "@/features/calibration/lib/analyze-foil-sample";
 import { FOIL_CALIBRATION_MAX_DIMENSION, FOIL_CALIBRATION_SAMPLE_LIMIT, FOIL_CALIBRATION_SETTLE_MS } from "@/lib/constants/foil-calibration";
 import type { FoilCalibrationOptions, FoilCalibrationSample, FoilCaptureForm, FoilLighting } from "@/lib/interfaces/foil-calibration";
-import { isFirmwareFeatureSupported, toSetLightCommand, type LightSettings } from "@magic-vault/shared";
+import { assertLightLedCountReply, isFirmwareFeatureSupported, toSetLightCommand, type LightSettings } from "@magic-vault/shared";
 
 export function useFoilCalibration(options: FoilCalibrationOptions) {
   const { t } = useTranslation("calibration");
@@ -100,6 +100,7 @@ export function useFoilCalibration(options: FoilCalibrationOptions) {
       lightColor: device.lightColor,
       lightBrightness: device.lightBrightness,
       lightWhite: device.lightWhite,
+      lightLedCount: device.lightLedCount,
     };
     const deviceId = serial.deviceId;
     const source = camera.cameraSource;
@@ -114,16 +115,19 @@ export function useFoilCalibration(options: FoilCalibrationOptions) {
     const setLight = async (settings: FoilLighting) => {
       assertConnection();
       const rgbwSupported = isFirmwareFeatureSupported(current.current.serial.firmwareVersion, "rgbwLighting");
+      const configurableLightingSupported = isFirmwareFeatureSupported(current.current.serial.firmwareVersion, "configurableLighting");
       const { sent, line } = await current.current.serial.sendRequest(withFoilLedMask(
-        toSetLightCommand(settings, { rgbwSupported }),
+        toSetLightCommand({ ...settings, lightLedCount: device.lightLedCount }, { rgbwSupported, configurableLightingSupported }),
         settings.ledMask,
       ));
       if (!sent || !line) throw new Error("Lighting acknowledgement missing");
+      if (configurableLightingSupported) assertLightLedCountReply(line, device.lightLedCount);
       assertFoilLightingReply(line, settings);
     };
     try {
       const frames = await captureFoilSequence({
-        steps: foilExperimentSteps(label.captureMode, label.brightness),
+        steps: foilExperimentSteps(label.captureMode, label.brightness,
+          isFirmwareFeatureSupported(serial.firmwareVersion, "configurableLighting") ? device.lightLedCount : 16),
         restore,
         signal: controller.signal,
         settleMs,

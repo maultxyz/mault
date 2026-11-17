@@ -890,6 +890,20 @@
       "when": 1794618241662,
       "tag": "0126_quick_the_professor",
       "breakpoints": true
+    },
+    {
+      "idx": 127,
+      "version": "7",
+      "when": 1794846533261,
+      "tag": "0127_celebration_minimum",
+      "breakpoints": true
+    },
+    {
+      "idx": 128,
+      "version": "7",
+      "when": 1794854568301,
+      "tag": "0128_strange_husk",
+      "breakpoints": true
     }
   ]
 }

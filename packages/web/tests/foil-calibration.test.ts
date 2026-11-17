@@ -125,18 +125,22 @@ test("labels require a known binary finish and a nonempty card identification", 
   ]) assert.equal(foilCalibrationLabelSchema.safeParse(invalid).success, false);
 });
 
-test("direction sequence lights the diffused middle, LED 0 and LED 4 separately and checks the echoed mask", () => {
+test("direction sequence lights the diffused middle, LED 0 and LED 7 separately and checks the echoed mask", () => {
   const steps = foilExperimentSteps("direction", 48);
+  assert.deepEqual(foilExperimentSteps("direction", 48, 8).map((step) => step.lighting.ledMask),
+    [126, 126, 126, 1, 128, 1, 128]);
+  assert.deepEqual(foilExperimentSteps("staged", 48, 8).map((step) => step.lighting.ledMask),
+    [126, 126, 126, 126, 126, 1, 128, 1, 128]);
   assert.deepEqual(steps.map((step) => `${step.id}:${step.lighting.lightMode}:${step.lighting.lightBrightness}:${step.lighting.ledMask ?? "all"}`),
-    ["ambient:off:12:14", "whiteBright:white:12:14", "diffuse:white:32:14", "led0:white:32:1", "led4:white:32:16", "led0Repeat:white:32:1", "led4Repeat:white:32:16"]);
+    ["ambient:off:12:65406", "whiteBright:white:12:65406", "diffuse:white:32:65406", "led0:white:32:1", "led7:white:32:128", "led0Repeat:white:32:1", "led7Repeat:white:32:128"]);
   const command = { setLight: { mode: "white", brightness: 32 } };
-  assert.deepEqual(withFoilLedMask(command, 16), { setLight: { mode: "white", brightness: 32, leds: 16, suppressWarnings: true } });
+  assert.deepEqual(withFoilLedMask(command, 128), { setLight: { mode: "white", brightness: 32, leds: 128, suppressWarnings: true } });
   assert.equal(withFoilLedMask(command, undefined), command);
   const settings = steps[4].lighting;
-  assertFoilLightingReply('{"status":"ok","lightMode":"white","lightAlert":"none","brightness":32,"leds":16}', settings);
+  assertFoilLightingReply('{"status":"ok","lightMode":"white","lightAlert":"none","brightness":32,"leds":128}', settings);
   assert.throws(() => assertFoilLightingReply('{"status":"ok","lightMode":"white","lightAlert":"none","brightness":32}', settings), /LED direction/);
   assert.throws(() => assertFoilLightingReply('{"status":"ok","lightMode":"white","lightAlert":"none","brightness":32,"leds":31}', settings), /LED direction/);
-  assertFoilLightingReply('{"status":"ok","lightMode":"white","lightAlert":"none","brightness":12,"leds":14}', steps[1].lighting);
+  assertFoilLightingReply('{"status":"ok","lightMode":"white","lightAlert":"none","brightness":12,"leds":65406}', steps[1].lighting);
   assert.throws(() => assertFoilLightingReply('{"status":"ok","lightMode":"white","lightAlert":"none","brightness":12,"leds":31}', steps[1].lighting), /LED direction/);
 });
 
@@ -145,11 +149,11 @@ test("staged capture brackets main lighting before verifying every card with the
   options.steps = foilExperimentSteps("staged", 48);
   assert.deepEqual(options.steps.map((step) =>
     `${step.id}:${step.lighting.lightBrightness}:${step.lighting.ledMask}`),
-  ["ambient:12:14", "whiteBright:32:14", "white:8:14", "whiteHigh:96:14",
-    "whiteBrightRepeat:32:14", "led0:32:1", "led4:32:16", "led0Repeat:32:1", "led4Repeat:32:16"]);
+  ["ambient:12:65406", "whiteBright:32:65406", "white:8:65406", "whiteHigh:96:65406",
+    "whiteBrightRepeat:32:65406", "led0:32:1", "led7:32:128", "led0Repeat:32:1", "led7Repeat:32:128"]);
   const frames = await captureFoilSequence(options);
   assert.equal(frames.length, 9);
-  assert.deepEqual(frames.slice(5).map((frame) => frame.lighting.ledMask), [1, 16, 1, 16]);
+  assert.deepEqual(frames.slice(5).map((frame) => frame.lighting.ledMask), [1, 128, 1, 128]);
   options.steps[1].lighting.lightBrightness = 200;
   assert.equal(foilExperimentSteps("staged", 48)[1].lighting.lightBrightness, 32);
   assert.equal(foilCalibrationLabelSchema.safeParse({

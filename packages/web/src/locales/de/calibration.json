@@ -72,14 +72,16 @@
       "led3": "Nur LED 3",
       "led0Repeat": "Nur LED 0 wiederholt",
       "led3Repeat": "Nur LED 3 wiederholt",
-      "diffuse": "Diffuse LEDs 1 bis 3",
+      "diffuse": "Eingestellte diffuse LEDs",
       "led4": "Nur LED 4",
-      "led4Repeat": "Nur LED 4 wiederholt"
+      "led4Repeat": "Nur LED 4 wiederholt",
+      "led7": "Nur LED 7",
+      "led7Repeat": "Nur LED 7 wiederholt"
     },
-    "directionMode": "LED-Richtung (LED 0 / LED 4)",
+    "directionMode": "LED-Richtung (LED 0 / LED 7)",
     "stagedMode": "Hauptlichtreihe + Foil-Pruefung",
-    "stagedSequence": "Stufe 1 nutzt nur LEDs 1 bis 3: LEDs aus > normales Weiss 32/255 > dunkles Weiss 8/255 > helles Weiss 96/255 > nochmals normales Weiss 32/255. Stufe 2 prueft jede Karte: LED 0 > LED 4 > LED 0 > LED 4, jeweils 32/255 mit ausgeschalteten mittleren LEDs. Karte ruhig halten und Raumlicht abschirmen. Dies aendert die LED-Helligkeit, nicht die Kamerabelichtung; die automatische Belichtung kann ausgleichen. Stufe 1 klassifiziert noch keine Karten und ueberspringt keine Pruefung. Die experimentelle Auswertung nutzt die Richtungsaufnahmen. Wiederholungen des normalen Lichts pruefen die Stabilitaet. Live-Sortierung bleibt unveraendert.",
-    "directionSequence": "Die Hauptbeleuchtung nutzt nur diffuse LEDs 1 bis 3. Offene LEDs 0 und 4 sind fuer die Foil-Erkennung reserviert. Karte ruhig halten: LEDs aus > LEDs 1 bis 3 weiss 12/255 > LEDs 1 bis 3 weiss 32/255 > nur LED 0 > nur LED 4 > nur LED 0 > nur LED 4 (einzelne LEDs mit 32/255). Erfordert Sortierer-Firmware mit LED-Richtungsunterstuetzung: zuerst ueber die Website neu flashen, sonst stoppt die Aufnahme, wenn die LED-Maske nicht bestaetigt wird. Raumlicht abschirmen. Die Foil-Auswertung ist experimentell.",
+    "stagedSequence": "Stufe 1 nutzt die eingestellten diffusen LEDs: LEDs aus > normales Weiss 32/255 > dunkles Weiss 8/255 > helles Weiss 96/255 > nochmals normales Weiss 32/255. Stufe 2 prueft jede Karte: LED 0 > LED 7 > LED 0 > LED 7, jeweils 32/255 mit ausgeschalteten diffusen LEDs. Karte ruhig halten und Raumlicht abschirmen. Dies aendert die LED-Helligkeit, nicht die Kamerabelichtung; die automatische Belichtung kann ausgleichen. Stufe 1 klassifiziert noch keine Karten und ueberspringt keine Pruefung. Die experimentelle Auswertung nutzt die Richtungsaufnahmen. Wiederholungen des normalen Lichts pruefen die Stabilitaet. Live-Sortierung bleibt unveraendert.",
+    "directionSequence": "Die Hauptbeleuchtung nutzt die eingestellten diffusen LEDs. Offene LEDs 0 und 7 sind fuer die Foil-Erkennung reserviert. Karte ruhig halten: LEDs aus > diffuse LEDs weiss 12/255 > diffuse LEDs weiss 32/255 > nur LED 0 > nur LED 7 > nur LED 0 > nur LED 7 (einzelne LEDs mit 32/255). Erfordert Sortierer-Firmware mit LED-Richtungsunterstuetzung: zuerst ueber die Website neu flashen, sonst stoppt die Aufnahme, wenn die LED-Maske nicht bestaetigt wird. Raumlicht abschirmen. Die Foil-Auswertung ist experimentell.",
     "directionHelp": "Die Richtungsantwort teilt den LED-{{far}}-Ausschnitt Pixel fuer Pixel durch den LED-0-Ausschnitt, sodass gedrucktes Artwork weitgehend wegfaellt, und entfernt dann den gleichmaessigen Abfall entlang des Streifens mit einem lokalen 17x17-Mittelwert. Verbleibende scharfe Aenderungen sind Glanzlichter, die mit dem Licht wandern. Das Wiederholungsrauschen ist dieselbe Messung fuer LED 0 gegen ihre Wiederholung; ein brauchbares Foil-Signal muss deutlich darueber liegen. Experimentell, kein Foil-Wert.",
     "directionResponse": "LED 0 gegen LED {{far}} ({{eligible}}% nutzbar): 99. Perzentil Rest {{peak}}, wandernde Glanzlichter {{glints}}% der Karte.",
     "directionNoise": "Wiederholungsrauschen, LED 0 gegen LED 0 ({{eligible}}% nutzbar): 99. Perzentil Rest {{peak}}, wandernde Glanzlichter {{glints}}% der Karte.",
@@ -635,8 +637,11 @@
     "previewUnavailable": "Verbinde den Sortierer und lass ihn den Selbsttest bestehen, um Änderungen am Streifen zu sehen. Bearbeiten und Speichern geht trotzdem.",
     "strip": {
       "heading": "Lichtstreifen",
-      "description": "Fünf SK6812-RGBW-LEDs: diffuse mittlere LEDs 1 bis 3 für normales Licht; offene LEDs 0 und 4 für Foil-Erkennung. Warnungen und Feiern nutzen alle fünf. RGB-Farbe, Weißkanal und Helligkeit hier einstellen."
+      "description": "SK6812-RGBW-LEDs: Diffuse LEDs 1 bis 6 und bei 16 LEDs auch 8 bis 15 sorgen für normales Licht. Offene LEDs 0 und 7 dienen der Foil-Erkennung. Warnungen nutzen alle eingestellten LEDs."
     },
+    "ledCountLabel": "Länge des LED-Streifens",
+    "ledCountValue": "{{count}} LEDs",
+    "ledCountHelp": "Wähle 8 für nur die erste Platine oder 16 für beide hintereinander verbundenen Platinen. Speichern übernimmt die Einstellung.",
     "modeLabel": "Modus",
     "modes": {
       "off": {
@@ -663,9 +668,9 @@
     "brightnessValue": "{{percent}} %",
     "celebration": {
       "heading": "Feier für wertvolle Karten",
-      "description": "Je eine LED blinkt: 0, 1, 2, 3, 4, 3, 2, 1, 0, abwechselnd gruen, rot und blau. Bei neu gescannten Karten ab dem Mindestwert. Automatische Feiern per Schalter deaktivieren. Vor dem naechsten Einzug kehrt normales Licht zurueck. Neues Lauflicht ab Firmware 2.12.0.",
+      "description": "Je eine LED blinkt von 0 bis zur letzten eingestellten LED und zurueck, abwechselnd gruen, rot und blau. Bei neu gescannten Karten ab dem Mindestwert. Automatische Feiern per Schalter deaktivieren. Vor dem naechsten Einzug kehrt normales Licht zurueck. Die einstellbare Streifenlaenge erfordert aktualisierte Firmware.",
       "duration": "Dauer der Feier (Sekunden)",
-      "invalidDuration": "Gib 0,1 bis 3 Sekunden ein.",
+      "invalidDuration": "Gib 0,5 bis 3 Sekunden ein.",
       "previewFailed": "Feiertest fehlgeschlagen. Warnungen loeschen und Firmware fuer einstellbare Dauer aktualisieren.",
       "enabled": "Automatische Feier aktivieren",
       "threshold": "Mindestkartenwert ({{currency}})",
@@ -681,9 +686,9 @@
       "lightBlockedWarningSeconds": "Rote Warnung bei blockiertem Modul (Sekunden)",
       "lightNormalSeconds": "Normales diffuses Licht zwischen Warnungen (Sekunden)",
       "invalidSeconds": "Gib eine ganze Zahl von 1 bis 300 Sekunden ein.",
-      "jam": "Blockiertes Modul: alle fuenf LEDs leuchten fuer die eingestellte Warnzeit rot.",
-      "empty": "Leerer Einzug: alle fuenf LEDs leuchten fuer die eingestellte Warnzeit gelb.",
-      "value": "Feiern laufen von LED 0 bis 4 und zurueck zu 0 mit gruenen, roten und blauen Blitzen.",
+      "jam": "Blockiertes Modul: alle eingestellten LEDs leuchten fuer die eingestellte Warnzeit rot.",
+      "empty": "Leerer Einzug: alle eingestellten LEDs leuchten fuer die eingestellte Warnzeit gelb.",
+      "value": "Feiern laufen von LED 0 bis zur letzten eingestellten LED und zurueck mit gruenen, roten und blauen Blitzen.",
       "testCelebration": "Feier testen",
       "clear": "Warnung beenden"
     },

@@ -28,6 +28,7 @@ export function toDevice(row: {
   lightColor: string;
   lightBrightness: number;
   lightWhite: number;
+  lightLedCount: number;
   valueCelebrationEnabled: boolean;
   valueCelebrationThreshold: number;
   valueCelebrationPriceSource: string;
@@ -60,6 +61,7 @@ export function toDevice(row: {
     lightColor: row.lightColor,
     lightBrightness: row.lightBrightness,
     lightWhite: row.lightWhite,
+    lightLedCount: row.lightLedCount,
     valueCelebrationEnabled: row.valueCelebrationEnabled,
     valueCelebrationThreshold: row.valueCelebrationThreshold,
     valueCelebrationPriceSource: toPriceSource(row.valueCelebrationPriceSource),

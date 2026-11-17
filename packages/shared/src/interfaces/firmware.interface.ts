@@ -8,6 +8,7 @@ export type FirmwareFeature =
   | "wifiRemote"
   | "lighting"
   | "lightingWarnings"
-  | "rgbwLighting";
+  | "rgbwLighting"
+  | "configurableLighting";
 
 export type SerialResetReason = (typeof SERIAL_RESET_REASONS)[number];

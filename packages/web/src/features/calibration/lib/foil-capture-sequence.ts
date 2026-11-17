@@ -1,10 +1,17 @@
 import type { FoilCaptureForm, FoilCaptureFrame, FoilCaptureSequenceOptions, FoilLighting } from "@/lib/interfaces/foil-calibration";
-import { FOIL_BRIGHTNESS_STEPS, FOIL_CALIBRATION_STEPS, FOIL_DIRECTION_STEPS, FOIL_STAGED_STEPS } from "../../../lib/constants/foil-calibration.ts";
+import { mainLightLedMask, type LightLedCount } from "@magic-vault/shared";
+import { FOIL_BRIGHTNESS_STEPS, FOIL_CALIBRATION_STEPS, FOIL_DIRECTION_LED_MASKS, FOIL_DIRECTION_STEPS, FOIL_STAGED_STEPS } from "../../../lib/constants/foil-calibration.ts";
 
-export function foilExperimentSteps(mode: FoilCaptureForm["captureMode"], brightness: number) {
+export function foilExperimentSteps(mode: FoilCaptureForm["captureMode"], brightness: number, ledCount: LightLedCount = 16) {
   if (mode === "brightness" || mode === "direction" || mode === "staged") {
     return (mode === "brightness" ? FOIL_BRIGHTNESS_STEPS : mode === "staged" ? FOIL_STAGED_STEPS : FOIL_DIRECTION_STEPS)
-      .map((step) => ({ ...step, lighting: { ...step.lighting } }));
+      .map((step) => ({
+        ...step,
+        lighting: {
+          ...step.lighting,
+          ...(step.lighting.ledMask === FOIL_DIRECTION_LED_MASKS.diffuse && { ledMask: mainLightLedMask(ledCount) }),
+        },
+      }));
   }
   if (mode !== "color") throw new Error("Unknown foil capture mode");
   return foilCaptureSteps(brightness);

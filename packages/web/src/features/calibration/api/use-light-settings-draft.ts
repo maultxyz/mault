@@ -16,10 +16,12 @@ import {
   DEFAULT_LIGHT_COLOR,
   DEFAULT_LIGHT_MODE,
   DEFAULT_LIGHT_WHITE,
+  DEFAULT_LIGHT_LED_COUNT,
   DEFAULT_VALUE_CELEBRATION_DURATION_MS,
   DEFAULT_LIGHT_WARNING_SECONDS,
   DEFAULT_LIGHT_NORMAL_SECONDS,
   assertLightWarningReply,
+  assertLightLedCountReply,
   confirmedValueCelebrationDuration,
   isFirmwareFeatureSupported,
   toValueCelebrationCommand,
@@ -48,6 +50,7 @@ export function useLightSettingsDraft() {
       lightColor: device?.lightColor ?? DEFAULT_LIGHT_COLOR,
       lightBrightness: device?.lightBrightness ?? DEFAULT_LIGHT_BRIGHTNESS,
       lightWhite: device?.lightWhite ?? DEFAULT_LIGHT_WHITE,
+      lightLedCount: device?.lightLedCount ?? DEFAULT_LIGHT_LED_COUNT,
       valueCelebrationEnabled: device?.valueCelebrationEnabled ?? false,
       valueCelebrationThreshold: device?.valueCelebrationThreshold ?? 0,
       valueCelebrationPriceSource: source,
@@ -57,7 +60,7 @@ export function useLightSettingsDraft() {
       lightBlockedWarningSeconds: device?.lightBlockedWarningSeconds ?? DEFAULT_LIGHT_WARNING_SECONDS,
       lightNormalSeconds: device?.lightNormalSeconds ?? DEFAULT_LIGHT_NORMAL_SECONDS,
     }),
-    [device?.lightMode, device?.lightColor, device?.lightBrightness, device?.lightWhite,
+    [device?.lightMode, device?.lightColor, device?.lightBrightness, device?.lightWhite, device?.lightLedCount,
       device?.valueCelebrationEnabled, device?.valueCelebrationThreshold, device?.valueCelebrationDurationMs,
       device?.lightWarningsEnabled, device?.lightEmptyWarningSeconds, device?.lightBlockedWarningSeconds, device?.lightNormalSeconds, source],
   );
@@ -76,9 +79,11 @@ export function useLightSettingsDraft() {
       if (!canControl) return;
       const warningsSupported = isFirmwareFeatureSupported(firmwareVersion, "lightingWarnings");
       const rgbwSupported = isFirmwareFeatureSupported(firmwareVersion, "rgbwLighting");
-      const { sent, line } = await sendRequest(toSetLightCommand(settings, { ...options, warningsSupported, rgbwSupported }));
+      const configurableLightingSupported = isFirmwareFeatureSupported(firmwareVersion, "configurableLighting");
+      const { sent, line } = await sendRequest(toSetLightCommand(settings, { ...options, warningsSupported, rgbwSupported, configurableLightingSupported }));
       if (!sent || !line) throw new Error("Lighting acknowledgement missing");
       if (warningsSupported) assertLightWarningReply(line, settings);
+      if (configurableLightingSupported) assertLightLedCountReply(line, settings.lightLedCount);
     },
     [canControl, sendRequest, firmwareVersion],
   );
@@ -143,8 +148,10 @@ export function useLightSettingsDraft() {
       if (!canControl) return;
       try {
         const durationMs = form.getValues("valueCelebrationDurationMs");
-        const { sent, line } = await sendRequest(toValueCelebrationCommand(durationMs));
-        if (!sent || !line || confirmedValueCelebrationDuration(line, durationMs) === null) {
+        const ledCount = isFirmwareFeatureSupported(firmwareVersion, "configurableLighting")
+          ? form.getValues("lightLedCount") : undefined;
+        const { sent, line } = await sendRequest(toValueCelebrationCommand(durationMs, ledCount));
+        if (!sent || !line || confirmedValueCelebrationDuration(line, durationMs, ledCount) === null) {
           throw new Error("Celebration preview blocked or unconfirmed");
         }
       } catch (error) {

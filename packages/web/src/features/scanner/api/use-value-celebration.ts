@@ -8,7 +8,6 @@ import {
   confirmedValueCelebrationDuration,
   toValueCelebrationCommand,
   toSetLightCommand,
-  LIGHT_MAIN_LED_MASK,
   qualifiesForValueCelebration,
   type PlayingCard,
 } from "@magic-vault/shared";
@@ -38,18 +37,23 @@ export function useValueCelebration() {
         return false;
       }
       try {
-        const { sent, line } = await active.serial.sendRequest(toValueCelebrationCommand(active.device.valueCelebrationDurationMs));
+        const configurableLightingSupported = isFirmwareFeatureSupported(active.serial.firmwareVersion, "configurableLighting");
+        const ledCount = configurableLightingSupported ? active.device.lightLedCount : undefined;
+        const { sent, line } = await active.serial.sendRequest(toValueCelebrationCommand(active.device.valueCelebrationDurationMs, ledCount));
         if (!sent || !line) throw new Error("No celebration acknowledgement");
-        const durationMs = confirmedValueCelebrationDuration(line, active.device.valueCelebrationDurationMs);
+        const durationMs = confirmedValueCelebrationDuration(line, active.device.valueCelebrationDurationMs, ledCount);
         if (durationMs === null) return false;
         await new Promise<void>((resolve) => setTimeout(resolve, durationMs + VALUE_CELEBRATION_SETTLE_MS));
         const latest = current.current;
         if (latest.device?.guid !== guid || !latest.serial.isReady) return false;
-        const restored = await latest.serial.sendRequest(toSetLightCommand(latest.device));
+        const rgbwSupported = isFirmwareFeatureSupported(latest.serial.firmwareVersion, "rgbwLighting");
+        const restoreCommand = toSetLightCommand(latest.device, { configurableLightingSupported, rgbwSupported });
+        const restored = await latest.serial.sendRequest(restoreCommand);
         if (!restored.sent || !restored.line) throw new Error("Main lighting restoration not confirmed");
         const state: unknown = JSON.parse(restored.line);
         if (!state || typeof state !== "object" || !("status" in state) || state.status !== "ok" ||
-          !("lightAlert" in state) || state.lightAlert !== "none" || !("leds" in state) || state.leds !== LIGHT_MAIN_LED_MASK) {
+          !("lightAlert" in state) || state.lightAlert !== "none" || !("leds" in state) || state.leds !== restoreCommand.setLight.leds ||
+          (configurableLightingSupported && (!("ledCount" in state) || state.ledCount !== latest.device.lightLedCount))) {
           throw new Error("Main lighting still overridden after celebration");
         }
         return current.current.device?.guid === guid && current.current.serial.isReady;

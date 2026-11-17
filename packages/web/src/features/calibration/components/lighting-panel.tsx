@@ -59,6 +59,34 @@ export function LightingPanel({
           <div className="flex flex-col gap-4">
             <Controller
               control={control}
+              name="lightLedCount"
+              render={({ field }) => (
+                <FirmwareFeatureGate feature="configurableLighting">
+                  <div className="flex flex-col gap-1.5">
+                    <Label htmlFor="light-led-count">{t("lights.ledCountLabel")}</Label>
+                    <Select
+                      value={String(field.value)}
+                      onValueChange={(value) => {
+                        if (value !== "8" && value !== "16") return;
+                        field.onChange(value === "8" ? 8 : 16);
+                        onPreview();
+                      }}
+                    >
+                      <SelectTrigger id="light-led-count" className="w-full sm:w-64">
+                        <SelectValue>{t("lights.ledCountValue", { count: field.value })}</SelectValue>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="8">{t("lights.ledCountValue", { count: 8 })}</SelectItem>
+                        <SelectItem value="16">{t("lights.ledCountValue", { count: 16 })}</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-foreground/70">{t("lights.ledCountHelp")}</p>
+                  </div>
+                </FirmwareFeatureGate>
+              )}
+            />
+            <Controller
+              control={control}
               name="lightMode"
               render={({ field }) => (
                 <div className="flex flex-col gap-1.5">

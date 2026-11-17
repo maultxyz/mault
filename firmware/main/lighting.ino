@@ -1,14 +1,15 @@
 #if LED_STRIP_SUPPORTED
-constexpr uint16_t LED_COUNT = 5;
-constexpr uint8_t LED_FULL_MASK = (1 << LED_COUNT) - 1;
-constexpr uint8_t LED_MAIN_MASK = 0b01110;
+constexpr uint16_t LED_COUNT = 16;
+constexpr uint16_t LED_FULL_MASK = 0XFFFF;
+constexpr uint16_t LED_MAIN_MASK = 0XFF7E;
 constexpr unsigned long VALUE_CELEBRATION_DEFAULT_MS = 500;
-constexpr unsigned long VALUE_CELEBRATION_MIN_MS = 100;
+constexpr unsigned long VALUE_CELEBRATION_MIN_MS = 500;
 constexpr unsigned long VALUE_CELEBRATION_MAX_MS = 3000;
 
 Adafruit_NeoPixel stripPixels(LED_COUNT, LED_PIN, NEO_GRBW + NEO_KHZ800);
-uint8_t stripLedMask = LED_MAIN_MASK;
-uint8_t stripBrightness = 160;
+uint16_t stripLedCount = LED_COUNT;
+uint16_t stripLedMask = LED_MAIN_MASK;
+uint16_t stripBrightness = 160;
 const char* stripMode = "off";
 RgbwColor stripColor{0, 0, 0, 0};
 const char* stripAlert = "none";
@@ -59,6 +60,8 @@ void printLightState(Print& reply) {
   reply.print(stripBrightness);
   reply.print(F(",\"leds\":"));
   reply.print(stripLedMask);
+  reply.print(F(",\"ledCount\":"));
+  reply.print(stripLedCount);
   reply.print(F(",\"warnings\":{\"enabled\":"));
   reply.print(stripWarnings.enabled ? F("true") : F("false"));
   reply.print(F(",\"emptySeconds\":"));
@@ -81,7 +84,7 @@ void printLightState(Print& reply) {
 
 void renderLedStrip() {
   for (uint16_t i = 0; i < LED_COUNT; i++) {
-    const RgbwColor color = (stripLedMask >> i) & 1 ? stripColor : RgbwColor{0, 0, 0, 0};
+    const RgbwColor color = i < stripLedCount && ((stripLedMask >> i) & 1) ? stripColor : RgbwColor{0, 0, 0, 0};
     stripPixels.setPixelColor(i, scaleLightChannel(color.r, stripBrightness),
       scaleLightChannel(color.g, stripBrightness), scaleLightChannel(color.b, stripBrightness),
       scaleLightChannel(color.w, stripBrightness));
@@ -91,9 +94,10 @@ void renderLedStrip() {
 
 void renderSolidLedStrip(RgbwColor color) {
   for (uint16_t i = 0; i < LED_COUNT; i++) {
-    stripPixels.setPixelColor(i, scaleLightChannel(color.r, stripBrightness),
-      scaleLightChannel(color.g, stripBrightness), scaleLightChannel(color.b, stripBrightness),
-      scaleLightChannel(color.w, stripBrightness));
+    const RgbwColor pixel = i < stripLedCount ? color : RgbwColor{0, 0, 0, 0};
+    stripPixels.setPixelColor(i, scaleLightChannel(pixel.r, stripBrightness),
+      scaleLightChannel(pixel.g, stripBrightness), scaleLightChannel(pixel.b, stripBrightness),
+      scaleLightChannel(pixel.w, stripBrightness));
   }
   stripPixels.show();
 }
@@ -144,10 +148,10 @@ void updateLedStrip() {
       const RgbwColor colors[] = {
         {0, 255, 0, 0}, {255, 0, 0, 0}, {0, 0, 255, 0},
       };
-      const uint8_t step = celebrationStep(elapsed, stripCelebrationDurationMs);
+      const uint16_t step = celebrationStep(elapsed, stripCelebrationDurationMs, stripLedCount);
       renderSolidLedStrip({0, 0, 0, 0});
-      if ((elapsed * 9 % stripCelebrationDurationMs) * 5 < stripCelebrationDurationMs * 4) {
-        const uint8_t led = celebrationLed(step);
+      if ((elapsed * (2 * stripLedCount - 1) % stripCelebrationDurationMs) * 5 < stripCelebrationDurationMs * 4) {
+        const uint16_t led = celebrationLed(step, stripLedCount);
         const RgbwColor color = colors[step % 3];
         stripPixels.setPixelColor(led, scaleLightChannel(color.r, stripBrightness),
           scaleLightChannel(color.g, stripBrightness), scaleLightChannel(color.b, stripBrightness),
@@ -159,11 +163,11 @@ void updateLedStrip() {
   }
 #if ENABLE_DYNAMIC_FOIL_DETECTION
   static unsigned long lastStep = 0;
-  static uint8_t position = 0;
+  static uint16_t position = 0;
   if (strcmp(stripMode, "foil") != 0 || millis() - lastStep < 60) return;
   lastStep = millis();
   renderSolidLedStrip({0, 0, 0, 0});
-  const uint8_t led = position == 0 ? 0 : LED_COUNT - 1;
+  const uint16_t led = position == 0 ? 0 : 7;
   const RgbwColor white = whiteLedColor(255);
   stripPixels.setPixelColor(led, scaleLightChannel(white.r, stripBrightness),
     scaleLightChannel(white.g, stripBrightness), scaleLightChannel(white.b, stripBrightness),
@@ -176,8 +180,9 @@ void updateLedStrip() {
 void handleLightCommand(JsonDocument& doc, Print& reply) {
   JsonVariantConst request = doc["setLight"];
   const char* mode = nullptr;
-  uint8_t brightness = stripBrightness;
-  uint8_t ledMask = LED_MAIN_MASK;
+  uint16_t brightness = stripBrightness;
+  uint16_t ledMask = LED_MAIN_MASK;
+  uint16_t ledCount = stripLedCount;
   unsigned long durationMs = VALUE_CELEBRATION_DEFAULT_MS;
   RgbwColor color = stripColor;
   LightWarningCycle nextWarnings = stripWarnings;
@@ -191,6 +196,14 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
       return;
     }
     mode = request["mode"].as<const char*>();
+    if (!request["ledCount"].isNull()) {
+      if (!request["ledCount"].is<int>() ||
+          (request["ledCount"].as<int>() != 8 && request["ledCount"].as<int>() != 16)) {
+        reply.println(F("{\"error\":\"ledCount must be 8 or 16\"}"));
+        return;
+      }
+      ledCount = request["ledCount"].as<uint16_t>();
+    }
     if (!request["suppressWarnings"].isNull()) {
       if (!request["suppressWarnings"].is<bool>()) {
         reply.println(F("{\"error\":\"suppressWarnings must be a boolean\"}"));
@@ -220,7 +233,7 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
       if (!request["durationMs"].is<unsigned long>() ||
         request["durationMs"].as<unsigned long>() < VALUE_CELEBRATION_MIN_MS ||
         request["durationMs"].as<unsigned long>() > VALUE_CELEBRATION_MAX_MS) {
-        reply.println(F("{\"error\":\"durationMs must be an integer from 100 to 3000\"}"));
+        reply.println(F("{\"error\":\"durationMs must be an integer from 500 to 3000\"}"));
         return;
       }
       durationMs = request["durationMs"].as<unsigned long>();
@@ -237,10 +250,10 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
     if (!request["leds"].isNull()) {
       if (!request["leds"].is<int>() || request["leds"].as<int>() < 1 ||
           request["leds"].as<int>() > LED_FULL_MASK) {
-        reply.println(F("{\"error\":\"leds must be a bitmask from 1 to 31\"}"));
+        reply.println(F("{\"error\":\"leds must be a bitmask from 1 to 65535\"}"));
         return;
       }
-      ledMask = request["leds"].as<uint8_t>();
+      ledMask = request["leds"].as<uint16_t>();
     }
     brightness = request["brightness"] | stripBrightness;
     if (strcmp(mode, "custom") == 0) {
@@ -249,10 +262,10 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
         return;
       }
       color = {
-        request["r"].as<uint8_t>(),
-        request["g"].as<uint8_t>(),
-        request["b"].as<uint8_t>(),
-        request["w"] | static_cast<uint8_t>(0),
+        request["r"].as<uint16_t>(),
+        request["g"].as<uint16_t>(),
+        request["b"].as<uint16_t>(),
+        request["w"] | static_cast<uint16_t>(0),
       };
     }
   } else {
@@ -266,6 +279,7 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
     return;
   }
   if (strcmp(mode, "value") == 0) {
+    stripLedCount = ledCount;
     stripCelebrationDurationMs = durationMs;
     setStripAlert("value");
     printLightState(reply);
@@ -293,6 +307,7 @@ void handleLightCommand(JsonDocument& doc, Print& reply) {
   }
 
   stripMode = nextMode;
+  stripLedCount = ledCount;
   stripColor = color;
   stripBrightness = brightness;
   stripLedMask = ledMask;

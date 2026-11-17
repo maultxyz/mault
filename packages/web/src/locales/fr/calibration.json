@@ -72,14 +72,16 @@
       "led3": "LED 3 seule",
       "led0Repeat": "LED 0 seule repetee",
       "led3Repeat": "LED 3 seule repetee",
-      "diffuse": "LED 1 a 3 diffusees",
+      "diffuse": "LED diffuses configurees",
       "led4": "LED 4 seule",
-      "led4Repeat": "LED 4 seule repetee"
+      "led4Repeat": "LED 4 seule repetee",
+      "led7": "LED 7 seule",
+      "led7Repeat": "LED 7 seule repetee"
     },
-    "directionMode": "Direction des LED (LED 0 / LED 4)",
+    "directionMode": "Direction des LED (LED 0 / LED 7)",
     "stagedMode": "Serie d'eclairage principal + verification foil",
-    "stagedSequence": "Etape 1, LED 1 a 3 uniquement : LED eteintes > blanc normal 32/255 > blanc faible 8/255 > blanc fort 96/255 > blanc normal 32/255 a nouveau. Etape 2, verification de chaque carte : LED 0 > LED 4 > LED 0 > LED 4, chacune a 32/255 avec les LED centrales eteintes. Gardez la carte immobile et bloquez la lumiere ambiante. Cela change la luminosite des LED, pas l'exposition de la camera; l'exposition automatique peut compenser. L'etape 1 ne classe pas encore les cartes et ne saute aucune verification. La lecture experimentale utilise les captures directionnelles. Les repetitions de l'eclairage normal verifient la stabilite. Le tri en direct reste inchange.",
-    "directionSequence": "L'eclairage principal utilise uniquement les LED 1 a 3 diffusees. Les LED 0 et 4 exposees sont reservees a la detection foil. Gardez la carte immobile : LED eteintes > LED 1 a 3 blanches 12/255 > LED 1 a 3 blanches 32/255 > LED 0 seule > LED 4 seule > LED 0 seule > LED 4 seule (LED seules a 32/255). Necessite un firmware de trieuse avec la direction des LED : reflashez d'abord depuis le site, sinon la capture s'arrete si le masque LED n'est pas confirme. Bloquez la lumiere de la piece. La lecture foil est experimentale.",
+    "stagedSequence": "Etape 1 utilise les LED diffuses configurees : LED eteintes > blanc normal 32/255 > blanc faible 8/255 > blanc fort 96/255 > blanc normal 32/255 a nouveau. Etape 2, verification de chaque carte : LED 0 > LED 7 > LED 0 > LED 7, chacune a 32/255 avec les LED diffuses eteintes. Gardez la carte immobile et bloquez la lumiere ambiante. Cela change la luminosite des LED, pas l'exposition de la camera; l'exposition automatique peut compenser. L'etape 1 ne classe pas encore les cartes et ne saute aucune verification. La lecture experimentale utilise les captures directionnelles. Les repetitions de l'eclairage normal verifient la stabilite. Le tri en direct reste inchange.",
+    "directionSequence": "L'eclairage principal utilise les LED diffuses configurees. Les LED 0 et 7 exposees sont reservees a la detection foil. Gardez la carte immobile : LED eteintes > LED diffuses blanches 12/255 > LED diffuses blanches 32/255 > LED 0 seule > LED 7 seule > LED 0 seule > LED 7 seule (LED seules a 32/255). Necessite un firmware de trieuse avec la direction des LED : reflashez d'abord depuis le site, sinon la capture s'arrete si le masque LED n'est pas confirme. Bloquez la lumiere de la piece. La lecture foil est experimentale.",
     "directionHelp": "La reponse directionnelle divise le recadrage LED {{far}} par le recadrage LED 0 pixel par pixel, ce qui annule en grande partie l'illustration imprimee, puis retire la variation douce le long de la bande avec une moyenne locale 17x17. Les changements nets restants sont des reflets qui se deplacent avec la lumiere. Le bruit de repetition est la meme mesure entre LED 0 et sa repetition; un signal foil utile doit etre nettement au-dessus. Experimental, pas un score de foil.",
     "directionResponse": "LED 0 contre LED {{far}} ({{eligible}}% utilisable) : residu au 99e percentile {{peak}}, reflets mobiles {{glints}}% de la carte.",
     "directionNoise": "Bruit de repetition, LED 0 contre LED 0 ({{eligible}}% utilisable) : residu au 99e percentile {{peak}}, reflets mobiles {{glints}}% de la carte.",
@@ -635,8 +637,11 @@
     "previewUnavailable": "Connecte le trieur et fais-lui passer l'autotest pour prévisualiser les changements sur le ruban. Tu peux quand même modifier et enregistrer.",
     "strip": {
       "heading": "Ruban lumineux",
-      "description": "Cinq LED SK6812 RGBW : les LED centrales diffuses 1 à 3 assurent l'éclairage normal ; les LED exposées 0 et 4 servent à la détection foil. Les alertes et célébrations utilisent les cinq. Réglez ici la couleur RGB, le canal blanc et la luminosité."
+      "description": "LED SK6812 RGBW : les LED diffuses 1 à 6 et, sur un ruban de 16 LED, 8 à 15 assurent l'éclairage normal. Les LED exposées 0 et 7 servent à la détection foil. Les alertes utilisent toutes les LED configurées."
     },
+    "ledCountLabel": "Longueur du ruban LED",
+    "ledCountValue": "{{count}} LED",
+    "ledCountHelp": "Choisissez 8 pour la première carte seule ou 16 pour les deux cartes connectées en série. Enregistrez pour conserver le réglage.",
     "modeLabel": "Mode",
     "modes": {
       "off": {
@@ -663,9 +668,9 @@
     "brightnessValue": "{{percent}} %",
     "celebration": {
       "heading": "Célébration des cartes de valeur",
-      "description": "Une LED clignote a la fois : 0, 1, 2, 3, 4, 3, 2, 1, 0, alternant vert, rouge et bleu. Pour les nouvelles cartes atteignant la valeur minimale. Desactivez les celebrations automatiques avec l'interrupteur. Retour a l'eclairage normal avant la carte suivante. Nouveau balayage avec firmware 2.12.0.",
+      "description": "Une LED clignote a la fois, de 0 a la derniere LED configuree puis en sens inverse, alternant vert, rouge et bleu. Pour les nouvelles cartes atteignant la valeur minimale. Desactivez les celebrations automatiques avec l'interrupteur. Retour a l'eclairage normal avant la carte suivante. La longueur configurable necessite un firmware mis a jour.",
       "duration": "Duree de celebration (secondes)",
-      "invalidDuration": "Saisissez de 0,1 a 3 secondes.",
+      "invalidDuration": "Saisissez de 0,5 a 3 secondes.",
       "previewFailed": "Echec du test. Effacez les alertes et mettez a jour le firmware pour la duree reglable.",
       "enabled": "Activer la célébration automatique",
       "threshold": "Valeur minimale ({{currency}})",
@@ -681,9 +686,9 @@
       "lightBlockedWarningSeconds": "Alerte rouge de module bloque (secondes)",
       "lightNormalSeconds": "Eclairage diffus normal entre alertes (secondes)",
       "invalidSeconds": "Saisissez un entier de 1 a 300 secondes.",
-      "jam": "Module bloque : les cinq LED deviennent rouges pendant la duree configuree.",
-      "empty": "Chargeur vide : les cinq LED deviennent ambrees pendant la duree configuree.",
-      "value": "Les celebrations vont de la LED 0 a 4 puis reviennent a 0 avec des flashs verts, rouges et bleus.",
+      "jam": "Module bloque : toutes les LED configurees deviennent rouges pendant la duree configuree.",
+      "empty": "Chargeur vide : toutes les LED configurees deviennent ambrees pendant la duree configuree.",
+      "value": "Les celebrations vont de la LED 0 a la derniere LED configuree puis en sens inverse, avec des flashs verts, rouges et bleus.",
       "testCelebration": "Tester la célébration",
       "clear": "Arrêter l'alerte"
     },
