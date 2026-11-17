@@ -19,10 +19,12 @@ import { restoreSession, useSession } from "@/lib/auth/session";
 import { FONT_ASSETS } from "@/lib/constants/fonts";
 import { queryClient } from "@/lib/query-client";
 import { startQueryCachePersistence } from "@/lib/query-persistence";
+import { loadShortLinkBaseUrl } from "@/lib/short-link-base-url";
 
 void SplashScreen.preventAutoHideAsync();
 applyThemePreference(readThemePreference());
 startQueryCachePersistence(queryClient);
+void loadShortLinkBaseUrl();
 
 function RootNavigator() {
   const { status } = useSession();

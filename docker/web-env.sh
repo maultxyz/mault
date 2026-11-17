@@ -33,17 +33,25 @@ if [ -n "$neon_auth_url" ]; then
 fi
 printf 'window.__ENV__ = {%s};\n' "$json" > "$out"
 
-# Upstream for share link previews (nginx.conf's /__share_preview). Same
-# origin deployments reach the API container directly; an absolute
-# VITE_API_URL is called the way the browser calls it. A value nginx can't
-# quote safely falls back to the API container.
+# Upstream for share link previews (nginx.conf's /__share_preview).
+# SHARE_PREVIEW_API_URL is the API base this container can reach (e.g.
+# https://example.com/api when the platform proxy routes /api to the API
+# instead of this nginx); else an absolute VITE_API_URL is called the way the
+# browser calls it; else the compose stack's API container. A value nginx
+# can't quote safely is skipped.
+is_safe_http_url() {
+  case "$1" in
+    http://*|https://*) ! printf '%s' "$1" | grep -q '[[:space:]";{}$\\]' ;;
+    *) return 1 ;;
+  esac
+}
+share_preview_api_url=$(printenv SHARE_PREVIEW_API_URL || true)
 api_url=$(printenv VITE_API_URL || true)
-upstream=http://server:3001/public/share-preview
-case "$api_url" in
-  http://*|https://*)
-    if ! printf '%s' "$api_url" | grep -q '[[:space:]";{}$\\]'; then
-      upstream="${api_url%/}/api/public/share-preview"
-    fi
-    ;;
-esac
+if is_safe_http_url "$share_preview_api_url"; then
+  upstream="${share_preview_api_url%/}/public/share-preview"
+elif is_safe_http_url "$api_url"; then
+  upstream="${api_url%/}/api/public/share-preview"
+else
+  upstream=http://server:3001/public/share-preview
+fi
 printf 'set $share_preview_upstream "%s";\n' "$upstream" > /etc/nginx/share-preview.conf

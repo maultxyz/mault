@@ -94,6 +94,7 @@ services:
       VITE_POSTHOG_HOST: ${VITE_POSTHOG_HOST:-}
       VITE_SHOW_SCAN_LOGS: ${VITE_SHOW_SCAN_LOGS:-}
       VITE_API_DOCS_URL: ${VITE_API_DOCS_URL:-}
+      SHARE_PREVIEW_API_URL: ${SHARE_PREVIEW_API_URL:-}
     depends_on:
       - server
     ports:

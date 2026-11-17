@@ -7,3 +7,7 @@ export interface AppExtraConfig {
   authProvider: string;
   neonAuthUrl: string;
 }
+
+export interface PublicVersionInfo {
+  shortLinkBaseUrl?: string | null;
+}

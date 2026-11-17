@@ -24,7 +24,7 @@ Not on the phone yet: calibration, bin/preset editing, repack and auto-assign pr
 | --- | --- | --- |
 | `MOBILE_API_URL` | `https://mault.xyz` | Origin that serves `/api/*`. For a local server, use `http://<LAN-IP>:5173` with `pnpm --filter @magic-vault/web dev -- --host`. |
 | `MOBILE_WEB_URL` | `https://mault.xyz` | Sent as `Origin` to Neon Auth (must be a trusted origin), and used for the sign-up link. |
-| `MOBILE_SHORT_LINK_URL` | | The shortener's domain (the server's `SHORT_LINK_BASE_URL`), so the scan tab recognizes its QR codes. Unset when short links are off. |
+| `MOBILE_SHORT_LINK_URL` | | The shortener's domain (the server's `SHORT_LINK_BASE_URL`), fallback for the scan tab's QR recognition when the API's `/public/version` can't be read (the app prefers the server's value). Unset when short links are off. |
 | `MOBILE_AUTH_PROVIDER` | `AUTH_PROVIDER`, else `neon` | `neon` or `local`. |
 | `MOBILE_NEON_AUTH_URL` | `VITE_NEON_AUTH_URL` | Neon Auth base URL. |
 | `MOBILE_IOS_BUNDLE_ID` | | Required to build. No default is committed, so forks can't collide with the published app; pick your own reverse-domain ID. |

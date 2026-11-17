@@ -80,7 +80,7 @@ jobs:
           DOCS=false
           BOT=false
           SHORTENER=false
-          if grep -qE '^(packages/web/|packages/shared/|Dockerfile\.web$)' <<< "$FILES"; then WEB=true; fi
+          if grep -qE '^(packages/web/|packages/shared/|Dockerfile\.web$|nginx\.conf$|docker/web-env\.sh$)' <<< "$FILES"; then WEB=true; fi
           if grep -qE '^(packages/server/|packages/shared/|drizzle/|Dockerfile\.server$)' <<< "$FILES"; then SERVER=true; fi
           if grep -qE '^(packages/api-docs/|packages/shared/|Dockerfile\.api-docs$)' <<< "$FILES"; then DOCS=true; fi
           if grep -qE '^(packages/bot/|Dockerfile\.bot$)' <<< "$FILES"; then BOT=true; fi

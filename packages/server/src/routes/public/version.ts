@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import pkg from "../../../package.json";
+import { getShortLinkBaseUrl } from "../../lib/constants/urls";
 import { getLatestFirmwareVersion } from "../../lib/firmware-releases";
 import { isPiHost, isPiSorter } from "../../lib/pi-host";
 import type { AppEnv } from "../../middleware/auth";
@@ -13,6 +14,7 @@ export const versionRoute = new Hono<AppEnv>().get("/version", (c) => {
       latestFirmwareVersion: getLatestFirmwareVersion(),
       piSorter: isPiSorter(),
       piController: isPiSorter(),
+      shortLinkBaseUrl: getShortLinkBaseUrl(),
     },
   });
 });
