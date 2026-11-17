@@ -147,7 +147,7 @@ export function AccuracyReportView({
               description={t("accuracy.noChecksDescription")}
             />
           ) : (
-            <div className="overflow-hidden rounded-card bg-card">
+            <div>
               <Table>
                 <TableHeader>
                   <TableRow>

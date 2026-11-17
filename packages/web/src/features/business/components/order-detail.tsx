@@ -449,7 +449,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
             onPickedChange={changePicked}
           />
         ) : (
-          <div className="overflow-hidden rounded-card bg-card">
+          <div>
             <Table>
               <TableHeader>
                 <TableRow>

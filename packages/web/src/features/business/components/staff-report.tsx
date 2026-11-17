@@ -106,7 +106,7 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
           title={t("reports.staff.empty")}
         />
       ) : (
-        <div className="overflow-hidden rounded-card bg-card">
+        <div>
           <Table>
             <TableHeader>
               <TableRow>
@@ -232,7 +232,7 @@ export function StaffReportView({ range, onRangeChange }: StaffReportViewProps) 
               setPage,
             }}
           />
-          <div className="overflow-hidden rounded-card bg-card">
+          <div>
             <Table>
               <TableHeader>
                 <TableRow>
