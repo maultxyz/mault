@@ -4,14 +4,8 @@ export interface CatalogSyncResult {
   gameKey: string;
   lang: string;
   succeeded: boolean;
-  totalCards: number;
   newCards: number;
   updatedCards: number;
-  newCardNames: string[];
-  cardErrors: number;
-  cardErrorSamples: string[];
-  fatalError: string | null;
-  durationMs: number;
 }
 
 export interface CatalogSyncReportOptions {
