@@ -1,18 +1,21 @@
 import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
-import { eq } from "drizzle-orm";
 import { Hono } from "hono";
-import { authQuery } from "../../db";
-import { orgSettings } from "../../db/schema";
 import {
   findBestMatchAcrossGames,
   matchScopesForGames,
   parseMatchGameKeys,
   tagWithGame,
 } from "../../lib/card-search/match-games";
+import { isOcrEnabledForOrg } from "../../lib/card-search/org-ocr-setting";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { MILO_EMBEDDING_DIM } from "../../lib/constants/card-search";
 import { scanLog } from "../../lib/scan-log";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  markRequestAsReadOnly,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import {
   attachMatchedCards,
   findCardMatches,
@@ -25,6 +28,7 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
   "/by-text",
   requireAuth,
   requireOrg,
+  markRequestAsReadOnly,
   async (c) => {
     const body = await c.req.parseBody();
     const file = body["image"];
@@ -69,13 +73,7 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
         : collectionScope;
     const { gameKey, lang } = resolved;
 
-    const settings = await authQuery(c.get("jwtClaims"), (tx) =>
-      tx.query.orgSettings.findFirst({
-        where: eq(orgSettings.orgId, c.get("orgId")),
-        columns: { ocrEnabled: true },
-      }),
-    );
-    if (!settings?.ocrEnabled) {
+    if (!(await isOcrEnabledForOrg(c.get("jwtClaims"), c.get("orgId")))) {
       return c.json(
         { success: false, message: "OCR is turned off for this organization." },
         400,

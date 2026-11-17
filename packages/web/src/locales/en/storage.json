@@ -4,16 +4,17 @@
     "subtitle": "Where your sorted cards are kept, box by box, in the order they went in.",
     "newLocation": "New location",
     "emptyTitle": "No storage locations yet",
+    "loadFailed": "Couldn't load your storage locations.",
     "emptyDescription": "When you empty a bin from the scanner's Bin Levels, or when a full bin pauses scanning, pick or create a location to record where its cards went.",
-    "cardCount_one": "{{count}} card",
-    "cardCount_other": "{{count}} cards",
+    "cardCount_one": "{{count, compact}} card",
+    "cardCount_other": "{{count, compact}} cards",
     "rename": "Rename location",
     "delete": "Delete location",
     "actions": "Actions for {{name}}",
     "deleteTitle": "Delete {{name}}?",
     "deleteDescription": "The cards stay in your collections, but they lose this location and their position in it.",
-    "summary_one": "{{count}} card · {{value}} total",
-    "summary_other": "{{count}} cards · {{value}} total",
+    "summary_one": "{{count, compact}} card · {{value}} total",
+    "summary_other": "{{count, compact}} cards · {{value}} total",
     "addCard": "Add card"
   },
   "nameDialog": {
@@ -45,6 +46,7 @@
     "position": "#{{position}}",
     "foil": "Foil",
     "emptyTitle": "Nothing stored here",
+    "loadFailed": "Couldn't load the cards in this location.",
     "emptyDescription": "Cards show up here once a bin is emptied into this location.",
     "remove": "Remove from location",
     "nonFoil": "Non-foil",
@@ -238,25 +240,15 @@
     "printLabels": "Print labels",
     "page": {
       "title": "Storage labels",
-      "description": "Print QR labels for your boxes and binders. Scan one with the MAULT app to open that location's cards.",
-      "print": "Print",
-      "printTip": "Print at 100% scale (actual size) with no margins so the labels line up with the sticker sheet."
+      "description": "Print QR labels for your boxes and binders. Scan one with the MAULT app to open that location's cards."
     },
     "form": {
       "title": "Label sheet",
       "description": "Pick the locations and the Avery sheet you are printing on.",
-      "template": "Sheet",
-      "startPosition": "Start at label",
-      "startPositionHint": "Skip labels already used on a partial sheet. Labels count left to right, top to bottom.",
       "locations_one": "{{count}} location selected",
       "locations_other": "{{count}} locations selected",
       "selectAll": "Select all",
       "selectNone": "Select none"
-    },
-    "templates": {
-      "avery-5160": "Avery 5160 (30 per sheet, 2.625 x 1 in)",
-      "avery-5163": "Avery 5163 (10 per sheet, 4 x 2 in)",
-      "avery-5164": "Avery 5164 (6 per sheet, 4 x 3.33 in)"
     },
     "sheet": {
       "emptyTitle": "No locations selected",

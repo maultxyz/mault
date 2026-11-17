@@ -1,4 +1,10 @@
-import { formatPrice, isTradeOfferBeingPicked, type TradeOffer } from "@magic-vault/shared";
+import {
+  formatCompactPriceInCurrency,
+  formatPrice,
+  isTradeOfferBeingPicked,
+  PRICE_SOURCE_FIELDS,
+  type TradeOffer,
+} from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -48,8 +54,12 @@ function TradeOfferLibrarySection({ title, offers }: TradeOfferLibrarySectionPro
             })}\n${new Date(offer.createdAt).toLocaleDateString(i18n.language, { dateStyle: "medium" })}`}
             right={
               <View style={{ alignItems: "flex-end", gap: SPACING.xs, flexShrink: 0 }}>
-                <AppText weight="semibold" numberOfLines={1}>
-                  {formatPrice(offer.offeredValue, offer.priceSource)}
+                <AppText
+                  weight="semibold"
+                  numberOfLines={1}
+                  accessibilityLabel={formatPrice(offer.offeredValue, offer.priceSource)}
+                >
+                  {formatCompactPriceInCurrency(offer.offeredValue, PRICE_SOURCE_FIELDS[offer.priceSource].currency)}
                 </AppText>
                 {isTradeOfferBeingPicked(offer) ? (
                   <Pill

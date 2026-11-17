@@ -16,6 +16,7 @@ import { platformStatsRoute } from "./platform-stats";
 import { errorReportingTestRoute } from "./error-reporting-test";
 import { scanMetricsRoute } from "./scan-metrics";
 import { scanVectorizeStatsRoute } from "./scan-vectorize-stats";
+import { shortLinksRoute } from "./short-links";
 import { syncApiKeysRoute } from "./sync-api-keys";
 import { syncCancelRoute } from "./sync-cancel";
 import { syncSourcesRoute } from "./sync-sources";
@@ -49,6 +50,7 @@ const router = new Hono<AppEnv>()
   .route("/", systemSoundClipsRoute)
   .route("/", unmatchedRetryRoute)
   .route("/", foilLabelsRoute)
-  .route("/", apiUsageRoute);
+  .route("/", apiUsageRoute)
+  .route("/", shortLinksRoute);
 
 export { router as adminRouter };

@@ -7,35 +7,28 @@ import { Hono } from "hono";
 import { authProvider } from "../../auth";
 import { authQuery } from "../../db";
 import { notificationRules, orgBilling, soundRules } from "../../db/schema";
-import { apiAccessAllowedForPlan } from "../../lib/api-access";
-import { businessToolsAllowedForPlan } from "../../lib/business-access";
-import { chaosSortAllowedForPlan } from "../../lib/chaos-sort-access";
 import {
-  collectionLimitForPlan,
   countLiveCollections,
 } from "../../lib/collection-limit";
-import { fleetHealthAllowedForPlan } from "../../lib/fleet-health-access";
 import { memberLimitForPlan } from "../../lib/member-seat-limit";
-import { notificationRuleLimitForPlan } from "../../lib/notification-rule-limit";
 import {
   countOwnedOrganizations,
-  organizationLimitForPlan,
 } from "../../lib/organization-limit";
-import { planHasFeature, toPlanKey } from "../../lib/plan-config";
+import {
+  planHasFeature,
+  toPlanKey,
+  connectedSorterLimitForPlan,
+  planLimit,
+} from "../../lib/plan-config";
 import { currentPreviewPlan } from "../../lib/plan-preview";
 import { isLegacyPricingActive } from "../../lib/pricing-mode";
-import { repacksAllowedForPlan } from "../../lib/repack-access";
-import { customSoundsAllowedForPlan } from "../../lib/custom-sounds-access";
 import {
   dailyScanLimitForPlan,
   getScansThisMonth,
   getScansToday,
 } from "../../lib/scan-usage";
-import { sorterLimitForPlan } from "../../lib/sorter-limit";
-import { soundRuleLimitForPlan } from "../../lib/sound-rule-limit";
 import {
   countLiveStorageLocations,
-  storageAllowedForPlan,
 } from "../../lib/storage-access";
 import { findPlanForPriceId, getPaidPlanPrices } from "../../lib/stripe";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -100,25 +93,25 @@ export const getBillingRoute = new Hono<AppEnv>().get(
           cardsScannedToday: scansToday,
           cardsScannedThisMonth: scansThisMonth,
           dailyLimit: dailyScanLimitForPlan(plan),
-          maxOrganizations: organizationLimitForPlan(plan),
+          maxOrganizations: planLimit(plan, "organizations"),
           ownedOrganizations,
           maxMembersPerOrg: memberLimitForPlan(plan),
           memberCount: memberUserIds.length,
-          maxConnectedSorters: sorterLimitForPlan(plan),
-          maxSoundRules: soundRuleLimitForPlan(plan),
+          maxConnectedSorters: connectedSorterLimitForPlan(plan),
+          maxSoundRules: planLimit(plan, "soundRules"),
           soundRuleCount,
-          maxNotificationRules: notificationRuleLimitForPlan(plan),
+          maxNotificationRules: planLimit(plan, "notificationRules"),
           notificationRuleCount,
-          maxCollections: collectionLimitForPlan(plan),
+          maxCollections: planLimit(plan, "collections"),
           collectionCount,
-          chaosSort: chaosSortAllowedForPlan(plan),
-          repacks: repacksAllowedForPlan(plan),
-          customSounds: customSoundsAllowedForPlan(plan),
-          fleetHealth: fleetHealthAllowedForPlan(plan),
-          storage: storageAllowedForPlan(plan),
+          chaosSort: planHasFeature(plan, "chaosSort"),
+          repacks: planHasFeature(plan, "repacks"),
+          customSounds: planHasFeature(plan, "customSounds"),
+          fleetHealth: planHasFeature(plan, "fleetHealth"),
+          storage: planHasFeature(plan, "storage"),
           storageLocationCount,
-          apiAccess: apiAccessAllowedForPlan(plan),
-          businessTools: businessToolsAllowedForPlan(plan),
+          apiAccess: planHasFeature(plan, "apiAccess"),
+          businessTools: planHasFeature(plan, "businessTools"),
           longShareLinks: planHasFeature(plan, "longShareLinks"),
         },
       };

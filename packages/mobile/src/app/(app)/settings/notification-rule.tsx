@@ -13,6 +13,7 @@ import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SelectField } from "@/components/ui/select-field";
 import { SwitchRow } from "@/components/ui/switch-row";
@@ -69,6 +70,11 @@ export default function NotificationRuleScreen() {
     resetOptions: { keepDirtyValues: true },
   });
   const isLoading = rules.isLoading || integration.isLoading;
+  const isLoadError = (rules.isError && !rules.data) || (integration.isError && !integration.data);
+  const retryLoad = () => {
+    void integration.refetch();
+    if (gameGuid) void rules.refetch();
+  };
 
   const invalidate = () => queryClient.invalidateQueries({ queryKey: ["notification-rules", orgId] });
 
@@ -138,14 +144,16 @@ export default function NotificationRuleScreen() {
               size={existing ? "md" : "lg"}
               label={t("settings.discord.ruleDialog.save")}
               loading={save.isPending}
-              disabled={isLoading || remove.isPending}
+              disabled={isLoading || isLoadError || remove.isPending}
               onPress={() => void submit()}
             />
           </>
         }
       >
         {error ? <Callout tone="destructive" title={error} /> : null}
-        {isLoading ? (
+        {isLoadError ? (
+          <QueryErrorState onRetry={retryLoad} isRetrying={rules.isFetching || integration.isFetching} />
+        ) : isLoading ? (
           <PageSkeleton />
         ) : (
           <>

@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { ListPagination } from "@/components/list-pagination";
 import { storageLocationCardPageQueryOptions } from "@/features/storage/api/storage-locations";
@@ -16,10 +17,14 @@ import {
   storedCardScanIds,
 } from "@/features/storage/lib/stored-card-selection";
 import { useHotkeys } from "@/hooks/use-hotkeys";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useScanSelection } from "@/hooks/use-scan-selection";
 import type { SelectToggleOptions } from "@/lib/interfaces/cards";
 import { STORAGE_PAGE_SEARCH_PARAM } from "@/lib/constants/storage";
-import type { StorageLocationCardsProps } from "@/lib/interfaces/storage";
+import type {
+  StorageLocationCardsProps,
+  StoredCardSelectionProps,
+} from "@/lib/interfaces/storage";
 import type {
   StorageLocationCardReference,
   StorageLocationSearchResult,
@@ -37,6 +42,7 @@ export function StorageLocationCards({
   onOpenCard,
 }: StorageLocationCardsProps) {
   const { t } = useTranslation("storage");
+  const isMobile = useIsMobile();
   const [searchParams, setSearchParams] = useSearchParams();
   const [viewMode, setViewMode] = useStorageCardViewMode();
   const [density, setDensity] = useCardGridDensity();
@@ -45,7 +51,7 @@ export function StorageLocationCards({
     1,
   );
   const preferredPageSize = usePageSize();
-  const { data, isPending, isPlaceholderData } = useQuery(
+  const { data, isPending, isPlaceholderData, isError, refetch } = useQuery(
     storageLocationCardPageQueryOptions(
       location.guid,
       cardQuery.cardsQuery,
@@ -171,6 +177,15 @@ export function StorageLocationCards({
     topRef.current?.scrollIntoView({ block: "start" });
   };
 
+  if (isError && !data) {
+    return (
+      <LoadErrorCallout
+        message={t("cards.loadFailed")}
+        onRetry={() => void refetch()}
+      />
+    );
+  }
+
   if (location.cardCount === 0 && !isPending && total === 0) {
     return (
       <EmptyState
@@ -184,6 +199,13 @@ export function StorageLocationCards({
 
   const isLoading =
     isPending || (isPlaceholderData && data?.page !== requestedPage);
+  const selectionProps: StoredCardSelectionProps = isMobile
+    ? {}
+    : {
+        isSelected: isItemSelected,
+        onToggleSelect: toggleSelectedEntry,
+        onTogglePageSelect: togglePageSelected,
+      };
 
   return (
     <div ref={topRef} className="flex scroll-mt-20 flex-col gap-4 md:gap-2">
@@ -228,16 +250,13 @@ export function StorageLocationCards({
           entries={entries}
           density={density}
           onOpenCard={onOpenCard}
-          isSelected={isItemSelected}
-          onToggleSelect={toggleSelectedEntry}
+          {...selectionProps}
         />
       ) : (
         <StorageCardList
           entries={entries}
           onOpenCard={onOpenCard}
-          isSelected={isItemSelected}
-          onToggleSelect={toggleSelectedEntry}
-          onTogglePageSelect={togglePageSelected}
+          {...selectionProps}
         />
       )}
       {!isLoading && entries.length > 0 && (

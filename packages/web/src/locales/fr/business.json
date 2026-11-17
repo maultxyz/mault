@@ -91,7 +91,8 @@
   "views": {
     "label": "Vue achat et vente",
     "intake": "Rachat",
-    "picks": "Préparations"
+    "picks": "Préparations",
+    "labels": "Étiquettes"
   },
   "offerEditor": {
     "title": "Offre pour {{name}}",
@@ -119,8 +120,8 @@
     "emptyDescription": "Commencez-en un quand un client vient vendre des cartes.",
     "pickTitle": "Choisissez un rachat",
     "pickDescription": "Choisissez un lot à gauche ou commencez-en un nouveau.",
-    "cardCount_one": "{{count}} carte",
-    "cardCount_other": "{{count}} cartes",
+    "cardCount_one": "{{count, compact}} carte",
+    "cardCount_other": "{{count, compact}} cartes",
     "openScanner": "Ouvrir le scanner",
     "addCard": "Ajouter une carte",
     "printReceipt": "Reçu",
@@ -274,8 +275,8 @@
       "picked": "Prélevées",
       "revenue": "Chiffre d'affaires"
     },
-    "shortLines_one": "{{count}} ligne n'est pas entièrement en stock. Réattribuez après avoir scanné d'autres cartes, ou terminez avec ce que vous avez.",
-    "shortLines_other": "{{count}} lignes ne sont pas entièrement en stock. Réattribuez après avoir scanné d'autres cartes, ou terminez avec ce que vous avez.",
+    "shortLines_one": "{{count}} ligne n'est pas entièrement en stock. Réattribuez après avoir scanné d'autres cartes, choisissez un remplacement dans le menu de la ligne, ou terminez avec ce que vous avez.",
+    "shortLines_other": "{{count}} lignes ne sont pas entièrement en stock. Réattribuez après avoir scanné d'autres cartes, choisissez des remplacements dans le menu de chaque ligne, ou terminez avec ce que vous avez.",
     "lines": "Cartes à sortir",
     "markPicked": "Prélevée",
     "pickLine": "Marquer tous les exemplaires de {{name}} comme sortis",
@@ -331,7 +332,111 @@
     "sortPresetCreated_other": "{{count}} préréglages de tri créés, un par jeu",
     "openSortPreset": "Ouvrir le préréglage",
     "batchName_one": "{{count}} commande",
-    "batchName_other": "{{count}} commandes"
+    "batchName_other": "{{count}} commandes",
+    "bulk": {
+      "selectPick": "Sélectionner {{name}}",
+      "selected_one": "{{count}} préparation sélectionnée",
+      "selected_other": "{{count}} préparations sélectionnées",
+      "allocate": "Réattribuer ({{count}})",
+      "cancel": "Annuler ({{count}})",
+      "delete": "Supprimer ({{count}})",
+      "keep": "Garder les préparations",
+      "cancelTitle_one": "Annuler {{count}} préparation ?",
+      "cancelTitle_other": "Annuler {{count}} préparations ?",
+      "cancelDescription_one": "Ses cartes restent en stock et sont disponibles pour d'autres préparations. Les préparations clôturées de la sélection ne changent pas.",
+      "cancelDescription_other": "Leurs cartes restent en stock et sont disponibles pour d'autres préparations. Les préparations clôturées de la sélection ne changent pas.",
+      "cancelConfirm_one": "Annuler {{count}} préparation",
+      "cancelConfirm_other": "Annuler {{count}} préparations",
+      "deleteTitle_one": "Supprimer {{count}} préparation clôturée ?",
+      "deleteTitle_other": "Supprimer {{count}} préparations clôturées ?",
+      "deleteDescription_one": "La fiche est supprimée. Les cartes déjà sorties du stock le restent. Les préparations ouvertes de la sélection ne changent pas.",
+      "deleteDescription_other": "Les fiches sont supprimées. Les cartes déjà sorties du stock le restent. Les préparations ouvertes de la sélection ne changent pas.",
+      "done": {
+        "allocate_one": "{{count}} préparation réattribuée",
+        "allocate_other": "{{count}} préparations réattribuées",
+        "cancel_one": "{{count}} préparation annulée",
+        "cancel_other": "{{count}} préparations annulées",
+        "delete_one": "{{count}} préparation supprimée",
+        "delete_other": "{{count}} préparations supprimées"
+      },
+      "pickTogether": "Préparer ensemble ({{count}})",
+      "packingSlips": "Bons de livraison ({{count}})"
+    },
+    "batch": {
+      "title": "Préparer ensemble",
+      "description": "Préparations : {{picks}} · Cartes : {{cards}}",
+      "back": "Préparations",
+      "pickColumn": "Préparation",
+      "emptyTitle": "Rien à préparer",
+      "emptyDescription": "Aucune de ces préparations n'est ouverte ou n'a de cartes réservées. Réattribuez-les d'abord depuis la liste.",
+      "closedSkipped_one": "{{count}} préparation sélectionnée est déjà clôturée et a été écartée.",
+      "closedSkipped_other": "{{count}} préparations sélectionnées sont déjà clôturées et ont été écartées.",
+      "shortPicks_one": "{{count}} préparation n'est pas entièrement en stock. Ouvrez-la pour trouver des remplacements :",
+      "shortPicks_other": "{{count}} préparations ne sont pas entièrement en stock. Ouvrez-les pour trouver des remplacements :",
+      "progress": "{{picked}} cartes préparées sur {{total}}. Préparations prêtes à terminer : {{completed}}",
+      "complete_one": "Terminer {{count}} préparation",
+      "complete_other": "Terminer {{count}} préparations",
+      "completeHint": "Cochez toutes les cartes d'une préparation pour la terminer.",
+      "completeTitle_one": "Terminer {{count}} préparation ?",
+      "completeTitle_other": "Terminer {{count}} préparations ?",
+      "completeDescription_one": "Les cartes préparées quittent le stock avec les commandes : {{names}}",
+      "completeDescription_other": "Les cartes préparées quittent le stock avec les commandes : {{names}}",
+      "completed_one": "{{count}} préparation terminée",
+      "completed_other": "{{count}} préparations terminées"
+    },
+    "substitutes": {
+      "find": "Trouver un remplacement",
+      "title": "Remplacements",
+      "description": "Exemplaires en stock qui pourraient combler les {{missing}} manquants pour {{name}}. Les plus proches apparaissent en premier.",
+      "added": "Remplacement ajouté à la préparation",
+      "emptyTitle": "Aucun autre exemplaire en stock",
+      "emptyDescription": "Aucun exemplaire libre de cette carte n'est en stock pour le moment.",
+      "exactMatch": "Correspond à la commande",
+      "useCopy": "Utiliser cet exemplaire",
+      "useCopyFor": "Utiliser {{printing}} en {{condition}}",
+      "differences": {
+        "printing": "Autre impression",
+        "condition": "Autre état",
+        "finish": "Autre finition"
+      }
+    },
+    "packingSlips": {
+      "print": "Imprimer le bon de livraison",
+      "printAll": "Bons de livraison",
+      "pageTitle": "Bons de livraison",
+      "count_one": "{{count}} bon, un par commande de la place de marché",
+      "count_other": "{{count}} bons, un par commande de la place de marché",
+      "showPrices": "Afficher les prix",
+      "printButton": "Imprimer",
+      "title": "Bon de livraison",
+      "orderRef": "Commande {{order}}",
+      "slipLabel": "Bon de livraison pour {{order}}",
+      "quantity": "Qté",
+      "unitPrice": "Unité",
+      "lineTotal": "Total",
+      "items": "Articles",
+      "subtotal": "Sous-total",
+      "unavailableTitle": "Non inclus",
+      "unavailableLine_one": "{{count}} x {{name}}",
+      "unavailableLine_other": "{{count}} x {{name}}",
+      "thanks": "Merci pour votre commande !",
+      "emptyTitle": "Aucun bon de livraison",
+      "emptyDescription": "Les préparations annulées n'ont pas de bon de livraison.",
+      "image": "Image de la carte"
+    },
+    "pickSaveFailed": "Impossible d'enregistrer la préparation. Vos coches ont été rechargées depuis le serveur.",
+    "phonePick": {
+      "button": "Préparer sur le téléphone",
+      "title": "Préparer sur votre téléphone",
+      "description_one": "Scannez ce code depuis l'onglet Scan de l'application MAULT pour parcourir la préparation par emplacement. Les coches sont enregistrées au fur et à mesure, vous pouvez donc changer d'appareil à tout moment.",
+      "description_other": "Scannez ce code depuis l'onglet Scan de l'application MAULT pour parcourir ces {{count}} préparations par emplacement. Les coches sont enregistrées au fur et à mesure, vous pouvez donc changer d'appareil à tout moment.",
+      "qrAlt": "QR code qui ouvre cette préparation dans l'application MAULT",
+      "hint": "Ouvrez l'application, allez dans Scan et pointez l'appareil photo vers le code.",
+      "copy": "Copier le lien",
+      "copied": "Lien de préparation copié",
+      "copyFailed": "Impossible de copier le lien",
+      "done": "Terminé"
+    }
   },
   "cost": {
     "title": "Fixer le coût d'achat",
@@ -594,5 +699,64 @@
     "isPublicDescription": "Tout le monde peut ouvrir ce catalogue depuis son adresse simple, sans le lien privé. Désactivez pour exiger le lien privé.",
     "publicBadge": "Public",
     "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé."
+  },
+  "priceLabels": {
+    "title": "Étiquettes de prix",
+    "description": "Imprimez des étiquettes de prix pour les cartes d'une collection, d'un emplacement de rangement ou d'un rachat.",
+    "printForLot": "Imprimer les étiquettes de prix",
+    "form": {
+      "title": "Étiquettes",
+      "description": "Choisissez les cartes, leur prix et la planche Avery sur laquelle vous imprimez.",
+      "source": "Cartes de",
+      "markup": "Majoration (%)",
+      "markupHint": "Ajoutée au prix du marché. Utilisez un nombre négatif pour une remise.",
+      "rounding": "Arrondir les prix"
+    },
+    "sources": {
+      "collection": "Collection",
+      "location": "Emplacement de rangement",
+      "lot": "Rachat"
+    },
+    "sourceItems": {
+      "collection": "Collection",
+      "location": "Emplacement de rangement",
+      "lot": "Rachat"
+    },
+    "sourcePlaceholders": {
+      "collection": "Choisissez une collection",
+      "location": "Choisissez un emplacement",
+      "lot": "Choisissez un rachat"
+    },
+    "rounding": {
+      "none": "Ne pas arrondir",
+      "quarter": "Au 0,25 supérieur",
+      "ninetyNine": "Au ,99 supérieur",
+      "whole": "Au montant entier supérieur"
+    },
+    "cards": {
+      "selected_one": "{{count}} carte sur {{total}} sélectionnée",
+      "selected_other": "{{count}} cartes sur {{total}} sélectionnées",
+      "selectAll": "Tout sélectionner",
+      "selectNone": "Tout désélectionner",
+      "include": "Imprimer l'étiquette",
+      "card": "Carte",
+      "market": "Marché",
+      "customPrice": "Prix personnalisé",
+      "customPriceFor": "Prix personnalisé pour {{name}}",
+      "labelPrice": "Prix de l'étiquette",
+      "noPrice": "Aucun prix",
+      "truncated": "Affichage des {{shown}} premières cartes sur {{total}}. Imprimez les étiquettes des autres depuis un emplacement de rangement ou un rachat."
+    },
+    "empty": {
+      "pickSourceTitle": "Choisissez d'où viennent les cartes",
+      "pickSourceDescription": "Choisissez une collection, un emplacement de rangement ou un rachat pour lister ses cartes.",
+      "noCardsTitle": "Aucune carte ici",
+      "noCardsDescription": "Scannez ou ajoutez d'abord des cartes, puis imprimez leurs étiquettes.",
+      "noneSelectedTitle": "Aucune carte sélectionnée",
+      "noneSelectedDescription": "Sélectionnez au moins une carte pour prévisualiser son étiquette."
+    },
+    "sheet": {
+      "pageDescription": "Planche d'étiquettes de prix, page {{page}} : {{labels}}"
+    }
   }
 }

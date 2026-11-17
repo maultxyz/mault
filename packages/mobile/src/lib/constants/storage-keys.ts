@@ -1,5 +1,7 @@
 export const SESSION_TOKEN_KEY = "mault.session-token";
 export const ACTIVE_ORG_KEY = "mault.active-org";
+export const SESSION_PROFILE_KEY = "mault.session-profile";
+export const QUERY_CACHE_SNAPSHOT_KEY = "mault.query-cache-snapshot";
 export const LAST_SORTER_ID_KEY = "mault.last-sorter-id";
 export const PENDING_SCAN_SAVES_KEY = "mault.pending-scan-saves";
 export const MODEL_CACHE_DIR = "vision-models";
@@ -12,6 +14,7 @@ export const HAND_SCAN_BINS_KEY = "mault.hand-scan-bins";
 export const SCAN_TIPS_SEEN_KEY = "mault.scan-tips-seen";
 export const REVIEW_LAYOUT_KEY = "mault.review-layout";
 export const SCAN_TARGET_COLLECTIONS_KEY = "mault.scan-target-collections";
+export const SCAN_DESTINATIONS_KEY = "mault.scan-destinations";
 export const MATCH_VALIDATION_GUIDE_SEEN_KEY = "mault.match-validation-guide-seen";
 export const TORCH_STRENGTH_PERCENT_KEY = "mault.torch-strength-percent";
 export const TRADE_GUEST_KEY = "mault.trade-guest-key";

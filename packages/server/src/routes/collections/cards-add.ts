@@ -8,7 +8,10 @@ import {
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
-import { collectionCards, collections, games } from "../../db/schema";
+import { collectionCards, collections, games, storageLocations } from "../../db/schema";
+import { UUID_PATTERN } from "../../lib/constants/validation";
+import { moveCardsToLocation } from "../../lib/storage-locations";
+import { findLocationId } from "../storage-locations/shared";
 import {
   acquireDeviceLease,
   UNIDENTIFIED_SORTER_LEASE_KEY,
@@ -19,10 +22,6 @@ import { recordDeviceSorted } from "../../lib/device-alerts";
 import { findOpenIntakeLotId } from "../../lib/intake";
 import { lateSaveBinEmptiedAtSql } from "../../lib/bin-emptying";
 import { recordMatchedScan } from "../../lib/scan-stats";
-import {
-  sorterLimitForPlan,
-  sorterLimitMessage,
-} from "../../lib/sorter-limit";
 import {
   consumeDailyScan,
   dailyScanLimitForPlan,
@@ -39,7 +38,10 @@ import {
 } from "../../middleware/auth";
 import { findFullBin } from "./bin-limit";
 import { isScanSaved } from "./scan-saved";
-import { emitCardScannedWebhook } from "../../lib/webhooks/events";
+import {
+  emitCardScannedWebhook,
+  emitCardsStoredWebhook,
+} from "../../lib/webhooks/events";
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
 import { resolveScanDeviceId } from "../../lib/scan-origin";
@@ -51,6 +53,10 @@ import {
   insertScanWithPickList,
   isScanSavePickListUpdate,
 } from "../../lib/scan-pick-list";
+import { sorterLimitMessage } from "../../lib/plan-limit-messages";
+import { connectedSorterLimitForPlan, orgHasFeature } from "../../lib/plan-config";
+import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
+import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -79,9 +85,12 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       deviceGuid,
       isRetry,
       pickListUpdate,
+      storageLocationGuid,
     } = await c.req.json<ScannedCard & ScanSaveRequestFields>();
     if (pickListUpdate !== undefined && !isScanSavePickListUpdate(pickListUpdate))
       return c.json({ success: false, message: "Invalid pick-list update." }, 400);
+    if (storageLocationGuid != null && !UUID_PATTERN.test(storageLocationGuid))
+      return c.json({ success: false, message: "Invalid storage location." }, 400);
     const condition = toCardCondition(requestedCondition ?? DEFAULT_CARD_CONDITION);
 
     if (
@@ -121,6 +130,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           sorterLimitReached?: boolean;
           binLimitReached?: boolean;
           binNumber?: number;
+          storageLocationUnavailable?: boolean;
         };
 
     let keepOnlyExistingImage = false;
@@ -168,6 +178,35 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             gameId: null,
           };
 
+        const savedCardSnapshotsRequest = toSavedCardSnapshots(
+          { gameKey: collection.gameKey, lang: collection.lang },
+          card,
+          alternativeMatches,
+        );
+        savedCardSnapshotsRequest.catch(() => undefined);
+
+        let storageLocationId: number | null = null;
+        if (storageLocationGuid) {
+          const storageAllowed = await orgHasFeature(tx, orgId, "storage");
+          storageLocationId = storageAllowed
+            ? await findLocationId(tx, orgId, storageLocationGuid)
+            : null;
+          if (storageLocationId === null) {
+            return {
+              result: {
+                success: false,
+                message: storageAllowed
+                  ? STORAGE_LOCATION_NOT_FOUND_MESSAGE
+                  : STORAGE_UPGRADE_MESSAGE,
+                storageLocationUnavailable: true,
+              },
+              collectionName: undefined,
+              gameName: undefined,
+              gameId: null,
+            };
+          }
+        }
+
         const plan = await loadOrgPlan(tx, orgId);
         const dailyLimit = dailyScanLimitForPlan(plan);
         const scanLimitReachedResult = {
@@ -187,7 +226,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           return scanLimitReachedResult;
         }
 
-        const sorterLimit = sorterLimitForPlan(plan);
+        const sorterLimit = connectedSorterLimitForPlan(plan);
         if (
           !acquireDeviceLease(
             orgId,
@@ -245,15 +284,16 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           orgId,
           deviceGuid,
         );
-        const cardToResort = alreadySaved
-          ? null
-          : await findCardToResort(tx, {
-              orgId,
-              collectionId: collection.id,
-              gameId: collection.gameId,
-              cardId: (card as PlayingCardWithDistance).id,
-              scanIsFoil: isFoil ?? false,
-            });
+        const cardToResort =
+          alreadySaved || storageLocationId !== null
+            ? null
+            : await findCardToResort(tx, {
+                orgId,
+                collectionId: collection.id,
+                gameId: collection.gameId,
+                cardId: (card as PlayingCardWithDistance).id,
+                scanIsFoil: isFoil ?? false,
+              });
         if (cardToResort) {
           await moveResortedCard(tx, {
             rowId: cardToResort.id,
@@ -296,11 +336,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         }
 
         const intakeLotId = await findOpenIntakeLotId(tx, collection.id);
-        const saved = await toSavedCardSnapshots(
-          { gameKey: collection.gameKey, lang: collection.lang },
-          card,
-          alternativeMatches,
-        );
+        const saved = await savedCardSnapshotsRequest;
         await insertScanWithPickList(
           tx,
           {
@@ -333,6 +369,18 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           },
           pickListUpdate,
         );
+
+        if (storageLocationId !== null && !alreadySaved) {
+          await moveCardsToLocation(tx, {
+            orgId,
+            locationId: storageLocationId,
+            scanIds: [scanId],
+          });
+          await tx
+            .update(storageLocations)
+            .set({ lastUsedAt: new Date() })
+            .where(eq(storageLocations.id, storageLocationId));
+        }
 
         await tx
           .update(collections)
@@ -392,6 +440,8 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           capturedImageUrl,
         });
         emitCardScannedWebhook(orgId, scanId);
+        if (storageLocationGuid)
+          emitCardsStoredWebhook(orgId, storageLocationGuid, [scanId]);
       }
       if (
         !result.success &&

@@ -63,19 +63,22 @@ async function querySessionInit(
     .orderBy(desc(collectionCards.scannedAt))
     .limit(RECENT_SCANNED_CARDS_COUNT);
 
-  const [{ cardCount }] = await tx
-    .select({ cardCount: count(collectionCards.id) })
-    .from(collectionCards)
-    .where(eq(collectionCards.collectionId, collection.id));
-
   const liveUnmatched = and(
     eq(unmatchedCards.collectionId, collection.id),
     eq(unmatchedCards.isDeleted, false),
   );
-  const [{ unmatchedCount }] = await tx
-    .select({ unmatchedCount: count(unmatchedCards.id) })
-    .from(unmatchedCards)
-    .where(liveUnmatched);
+  const [{ cardCount, unmatchedCount }] = await tx
+    .select({
+      cardCount: sql<number>`(${tx
+        .select({ value: count(collectionCards.id) })
+        .from(collectionCards)
+        .where(eq(collectionCards.collectionId, collection.id))})`.mapWith(Number),
+      unmatchedCount: sql<number>`(${tx
+        .select({ value: count(unmatchedCards.id) })
+        .from(unmatchedCards)
+        .where(liveUnmatched)})`.mapWith(Number),
+    })
+    .from(sql`(SELECT 1) AS session_init_counts`);
   const unmatchedRows = await tx
     .select({
       guid: unmatchedCards.guid,

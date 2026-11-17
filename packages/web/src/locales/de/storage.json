@@ -4,16 +4,17 @@
     "subtitle": "Wo deine sortierten Karten liegen, Box für Box, in der Reihenfolge, in der sie hineinkamen.",
     "newLocation": "Neuer Lagerort",
     "emptyTitle": "Noch keine Lagerorte",
+    "loadFailed": "Deine Lagerorte konnten nicht geladen werden.",
     "emptyDescription": "Wenn du ein Fach über die Füllstände im Scanner leerst oder ein volles Fach das Scannen pausiert, wähle oder erstelle einen Lagerort, um festzuhalten, wohin die Karten kamen.",
-    "cardCount_one": "{{count}} Karte",
-    "cardCount_other": "{{count}} Karten",
+    "cardCount_one": "{{count, compact}} Karte",
+    "cardCount_other": "{{count, compact}} Karten",
     "rename": "Lagerort umbenennen",
     "delete": "Lagerort löschen",
     "actions": "Aktionen für {{name}}",
     "deleteTitle": "{{name}} löschen?",
     "deleteDescription": "Die Karten bleiben in deinen Sammlungen, verlieren aber diesen Lagerort und ihre Position darin.",
-    "summary_one": "{{count}} Karte · {{value}} gesamt",
-    "summary_other": "{{count}} Karten · {{value}} gesamt",
+    "summary_one": "{{count, compact}} Karte · {{value}} gesamt",
+    "summary_other": "{{count, compact}} Karten · {{value}} gesamt",
     "addCard": "Karte hinzufügen"
   },
   "nameDialog": {
@@ -45,6 +46,7 @@
     "position": "#{{position}}",
     "foil": "Foil",
     "emptyTitle": "Hier ist nichts gelagert",
+    "loadFailed": "Die Karten in diesem Lagerort konnten nicht geladen werden.",
     "emptyDescription": "Karten erscheinen hier, sobald ein Fach in diesen Lagerort geleert wird.",
     "remove": "Aus Lagerort entfernen",
     "nonFoil": "Nicht-Foil",
@@ -238,25 +240,15 @@
     "printLabels": "Etiketten drucken",
     "page": {
       "title": "Lagerort-Etiketten",
-      "description": "Drucke QR-Etiketten für deine Boxen und Ordner. Scanne eines mit der MAULT-App, um die Karten dieses Lagerorts zu öffnen.",
-      "print": "Drucken",
-      "printTip": "Drucke mit 100 % Skalierung (tatsächliche Größe) und ohne Ränder, damit die Etiketten auf den Etikettenbogen passen."
+      "description": "Drucke QR-Etiketten für deine Boxen und Ordner. Scanne eines mit der MAULT-App, um die Karten dieses Lagerorts zu öffnen."
     },
     "form": {
       "title": "Etikettenbogen",
       "description": "Wähle die Lagerorte und den Avery-Bogen, auf den du druckst.",
-      "template": "Bogen",
-      "startPosition": "Bei Etikett beginnen",
-      "startPositionHint": "Überspringe Etiketten, die auf einem angebrochenen Bogen schon verwendet wurden. Gezählt wird von links nach rechts, von oben nach unten.",
       "locations_one": "{{count}} Lagerort ausgewählt",
       "locations_other": "{{count}} Lagerorte ausgewählt",
       "selectAll": "Alle auswählen",
       "selectNone": "Keine auswählen"
-    },
-    "templates": {
-      "avery-5160": "Avery 5160 (30 pro Bogen, 2,625 x 1 Zoll)",
-      "avery-5163": "Avery 5163 (10 pro Bogen, 4 x 2 Zoll)",
-      "avery-5164": "Avery 5164 (6 pro Bogen, 4 x 3,33 Zoll)"
     },
     "sheet": {
       "emptyTitle": "Keine Lagerorte ausgewählt",

@@ -157,7 +157,9 @@ export function BinList({ onOpenBin }: BinListProps) {
         )}
       </div>
       {!hasCatchAll && (
-        <p className="text-xs text-destructive">{t("binList.needCatchAll")}</p>
+        <p role="alert" className="text-xs text-destructive">
+          {t("binList.needCatchAll")}
+        </p>
       )}
     </div>
   );

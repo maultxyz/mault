@@ -6,10 +6,12 @@ export const ViewedCollectionContext = createContext<Collection | null>(null);
 
 export function useViewedCollection() {
   const viewed = useContext(ViewedCollectionContext);
-  const { activeCollection, isLoading } = useCollections();
+  const { activeCollection, isLoading, isError, refetch } = useCollections();
   return {
     collection: viewed ?? activeCollection,
     isViewingOther: viewed !== null,
     isLoading,
+    isError,
+    refetch,
   };
 }

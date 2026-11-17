@@ -1,12 +1,13 @@
 import {
+  cardSortableFields,
   cardSortDirectionForField,
   DEFAULT_CARD_SORT,
   nextCardSortKeyForField,
-  SORTABLE_FIELD_TYPES,
   type CardFilters,
   type CollectionCardsQuery,
   type FieldMeta,
   isScanTimelineGrouping,
+  type PriceSource,
 } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
 import { COLLECTION_SCAN_TIMELINE_KEY } from "@/lib/constants/collections";
@@ -44,6 +45,7 @@ export function cardSortOptions(
   fieldDefinitions: FieldMeta[],
   defaultSortLabel: string,
   selectedSort: string | null,
+  priceSource: PriceSource,
   t: TFunction,
 ): CardSortOption[] {
   return [
@@ -53,9 +55,10 @@ export function cardSortOptions(
       selected: !selectedSort || selectedSort === DEFAULT_CARD_SORT,
       sortKeyOnPress: DEFAULT_CARD_SORT,
     },
-    ...fieldDefinitions
-      .filter((field) => SORTABLE_FIELD_TYPES.includes(field.type))
-      .map((field) => {
+    ...cardSortableFields(fieldDefinitions, priceSource, {
+      USD: t("collection.sort.priceUsd"),
+      EUR: t("collection.sort.priceEur"),
+    }).map((field) => {
         const direction = cardSortDirectionForField(selectedSort, field.field);
         return {
           key: field.field,

@@ -11,14 +11,14 @@ import {
   type OrgPricing,
   type PublicCardDetail,
   type PublicCardPage,
-  type PublicCardFacetCount,
   type PublicCardFacets,
   type PublicCardFilters,
   type PublicCardGame,
   type PublicCardSort,
+  type ScanImageSide,
 } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
-import type { Transaction } from "../db";
+import { db, type Transaction } from "../db";
 import { cardFilterSql, loadCardStatsForSource } from "../routes/collections/cards-query";
 import {
   loadStoredCardsByRowIds,
@@ -38,18 +38,24 @@ import {
 } from "./constants/storage-locations";
 import type {
   PublicCardBrowseScope,
+  PublicCardFacetBreakdownRow,
   PublicCardImageRow,
   PublicCardsRequest,
 } from "./interfaces/public-cards";
-import { resolveBackScanImageUrl, resolveScanImageUrl } from "./scan-images";
+import { loadScanImageSide, resolveBackScanImageUrl, resolveScanImageUrl } from "./scan-images";
 import { pricesForShareLink } from "./share-link-pricing";
+import { notReservedByOpenPicksSql } from "./order-reservations";
+import { loadRankedIdPage } from "./ranked-id-page";
+import { summarizePublicCardFacetRows } from "./public-card-facets";
 import { integerArraySql, pgTextArray } from "./sql-arrays";
 
 function publicCardsWhere(scope: PublicCardBrowseScope, gameKey: string | null = null): SQL {
   return sql`cc.org_id = ${scope.orgId}
     AND (cc.collection_id = ANY(${integerArraySql(scope.collectionIds)})
       OR cc.location_id = ANY(${integerArraySql(scope.storageLocationIds)}))
+    ${scope.collectionCardIds ? sql`AND cc.id = ANY(${integerArraySql(scope.collectionCardIds)})` : sql``}
     ${scope.inventoryOnly ? sql`AND ${INVENTORY_CARD_FILTER}` : sql``}
+    ${scope.hidesCardsReservedByOpenPicks ? sql`AND ${notReservedByOpenPicksSql(scope.orgId, sql`cc.guid`)}` : sql``}
     ${gameKey ? sql`AND g.key = ${gameKey}` : sql``}`;
 }
 
@@ -170,26 +176,7 @@ export async function loadPublicCardIdsPage(
       WHERE ${publicCardsWhere(scope, request.gameKey)}
         AND ${publicFiltersSql(request, pricing)}
     )`;
-  const counted = await tx.execute(sql`
-    WITH ${ranked} SELECT count(*)::int AS total FROM ranked
-  `);
-  const total = Number(
-    (counted.rows[0] as unknown as { total: number } | undefined)?.total ?? 0,
-  );
-  const page = Math.min(
-    request.requestedPage,
-    Math.max(Math.ceil(total / request.pageSize), 1),
-  );
-  const result = await tx.execute(sql`
-    WITH ${ranked}
-    SELECT id FROM ranked ORDER BY rn
-    LIMIT ${request.pageSize}::int OFFSET ${(page - 1) * request.pageSize}::int
-  `);
-  return {
-    rowIds: (result.rows as unknown as { id: number }[]).map((row) => Number(row.id)),
-    total,
-    page,
-  };
+  return loadRankedIdPage(tx, ranked, request.pageSize, request.requestedPage);
 }
 
 export async function loadPublicCardDetail(
@@ -235,6 +222,32 @@ export async function loadPublicCardDetail(
   return pricesForShareLink(detail, scope.showsPrices);
 }
 
+export async function loadPublicCardScanImage(
+  scope: PublicCardBrowseScope,
+  scanId: string,
+  side: ScanImageSide,
+): Promise<Buffer | null> {
+  const result = await db.execute(sql`
+    SELECT cc.captured_image_key, cc.captured_image_data_url,
+      cc.captured_back_image_key, cc.captured_back_image_data_url
+    FROM collection_cards cc
+    ${PUBLIC_CARD_JOINS}
+    WHERE cc.guid = ${scanId}::uuid AND ${publicCardsWhere(scope)}
+    LIMIT 1
+  `);
+  const row = result.rows[0] as unknown as PublicCardImageRow | undefined;
+  if (!row) return null;
+  return loadScanImageSide(
+    {
+      capturedImageKey: row.captured_image_key,
+      capturedImageDataUrl: row.captured_image_data_url,
+      capturedBackImageKey: row.captured_back_image_key,
+      capturedBackImageDataUrl: row.captured_back_image_data_url,
+    },
+    side,
+  );
+}
+
 export async function loadPublicCardFacets(
   tx: Transaction,
   scope: PublicCardBrowseScope,
@@ -248,30 +261,15 @@ export async function loadPublicCardFacets(
     pricing,
   );
   const result = await tx.execute(sql`
-    SELECT
-      COALESCE((
-        SELECT jsonb_agg(jsonb_build_object('key', key, 'count', count) ORDER BY count DESC)
-        FROM (SELECT cc.condition AS key, count(*)::int AS count
-          FROM collection_cards cc ${PUBLIC_CARD_JOINS}
-          WHERE ${where} GROUP BY cc.condition) conditions
-      ), '[]'::jsonb) AS conditions,
-      COALESCE((
-        SELECT jsonb_agg(jsonb_build_object('key', key, 'count', count) ORDER BY count DESC)
-        FROM (SELECT ${PUBLIC_CARD_LANGUAGE} AS key, count(*)::int AS count
-          FROM collection_cards cc ${PUBLIC_CARD_JOINS}
-          WHERE ${where} GROUP BY 1) languages
-      ), '[]'::jsonb) AS languages,
-      (SELECT count(*)::int FROM collection_cards cc ${PUBLIC_CARD_JOINS}
-        WHERE ${where} AND cc.is_foil) AS foil_count,
-      (SELECT count(*)::int FROM collection_cards cc ${PUBLIC_CARD_JOINS}
-        WHERE ${where} AND NOT cc.is_foil) AS non_foil_count
+    SELECT cc.condition, ${PUBLIC_CARD_LANGUAGE} AS language, cc.is_foil,
+      count(*)::int AS count
+    FROM collection_cards cc ${PUBLIC_CARD_JOINS}
+    WHERE ${where}
+    GROUP BY 1, 2, 3
   `);
-  const row = result.rows[0] as unknown as {
-    conditions: PublicCardFacetCount[];
-    languages: PublicCardFacetCount[];
-    foil_count: number;
-    non_foil_count: number;
-  };
+  const breakdown = summarizePublicCardFacetRows(
+    result.rows as unknown as PublicCardFacetBreakdownRow[],
+  );
   return {
     sets: stats.sets
       .map(({ code, name, count }) => ({ code, name, count }))
@@ -279,10 +277,10 @@ export async function loadPublicCardFacets(
     rarities: stats.rarities,
     colors: stats.colors,
     foilTypes: stats.foilTypes,
-    conditions: row.conditions,
-    languages: row.languages,
-    foilCount: Number(row.foil_count),
-    nonFoilCount: Number(row.non_foil_count),
+    conditions: breakdown.conditions,
+    languages: breakdown.languages,
+    foilCount: breakdown.foilCount,
+    nonFoilCount: breakdown.nonFoilCount,
   };
 }
 

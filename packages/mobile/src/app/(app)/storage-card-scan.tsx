@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useKeepAwake } from "expo-keep-awake";
 import { router, useIsFocused, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { StyleSheet, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -35,6 +35,8 @@ import { ShutterButton } from "@/features/scanner/components/shutter-button";
 import { captureFrame } from "@/features/scanner/lib/frame";
 import { identifyCard } from "@/features/scanner/lib/identify";
 import { warmScanModels } from "@/features/scanner/lib/inference";
+import { usePickWalk } from "@/features/business/api/use-pick-walk";
+import { pickWalkSpotLabel } from "@/features/business/lib/pick-walk-labels";
 import { useStoragePickList } from "@/features/storage/api/use-storage-pick-list";
 import { useStorageVerify } from "@/features/storage/api/use-storage-verify";
 import { useAppState } from "@/hooks/use-app-state";
@@ -42,7 +44,8 @@ import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { CAMERA_ASPECT_RATIO, CAPTURE_TARGET_RESOLUTION, CARD_SCAN_NOTICE_TONES } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import type { CardScanNotice } from "@/lib/interfaces/storage";
+import type { CardScanNotice, ScanCheckSource } from "@/lib/interfaces/storage";
+import { PICK_WALK_ORDERS_SEPARATOR } from "@/lib/constants/business";
 import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
 
 export default function StorageCardScanScreen() {
@@ -61,11 +64,33 @@ export default function StorageCardScanScreen() {
   const orgId = useActiveOrgId();
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
   const { data: collections } = useQuery(collectionsQueryOptions(orgId));
-  const { verifyGuid } = useLocalSearchParams<{ verifyGuid?: string }>();
+  const { verifyGuid, pickOrders } = useLocalSearchParams<{ verifyGuid?: string; pickOrders?: string }>();
   const isVerifying = !!verifyGuid;
+  const orderGuids = useMemo(() => (pickOrders ?? "").split(PICK_WALK_ORDERS_SEPARATOR).filter(Boolean), [pickOrders]);
+  const isOrderPick = orderGuids.length > 0;
   const pickList = useStoragePickList();
   const verify = useStorageVerify(verifyGuid);
-  const source = isVerifying
+  const orderPick = usePickWalk(orderGuids);
+  const orderPickCards = useMemo(
+    () =>
+      orderPick.entries.map((entry) => ({
+        scanId: entry.scanId,
+        collectionGuid: entry.collectionGuid,
+        card: entry.card,
+        locationName: `${entry.locationName ?? entry.collectionName}, ${pickWalkSpotLabel(entry, t)}`,
+        position: (entry.locationPosition ?? 0) + 1,
+      })),
+    [orderPick.entries, t],
+  );
+  const source: ScanCheckSource = isOrderPick
+    ? {
+        cards: orderPickCards,
+        checkedScanIds: orderPick.pickedScanIds,
+        checkedCount: orderPick.pickedCount,
+        setChecked: (scanId, checked) => orderPick.setPicked([scanId], checked),
+        onNotListed: undefined,
+      }
+    : isVerifying
     ? {
         cards: verify.cards,
         checkedScanIds: verify.verifiedScanIds,
@@ -161,6 +186,7 @@ export default function StorageCardScanScreen() {
     const name = current.cardName ?? "";
     switch (current.kind) {
       case "checked":
+        if (isOrderPick) return t("business.picks.scan.picked", { name, spot: current.locationName ?? "" });
         return isVerifying
           ? t("storage.verify.scan.verified", { name, position: current.position ?? 0 })
           : t("storage.pickList.scan.picked", {
@@ -169,10 +195,12 @@ export default function StorageCardScanScreen() {
               position: current.position ?? 0,
             });
       case "already-checked":
+        if (isOrderPick) return t("business.picks.scan.alreadyPicked", { name });
         return isVerifying
           ? t("storage.verify.scan.alreadyVerified", { name })
           : t("storage.pickList.scan.alreadyPicked", { name });
       case "not-listed":
+        if (isOrderPick) return t("business.picks.scan.notOnPick", { name });
         return isVerifying
           ? t("storage.verify.scan.notInLocation", { name })
           : t("storage.pickList.scan.notOnList", { name });
@@ -227,13 +255,21 @@ export default function StorageCardScanScreen() {
           <View style={{ flex: 1, minWidth: 0, alignItems: "flex-start" }}>
             <CameraChip
               icon="checkAll"
-              label={isVerifying ? t("storage.verify.scan.title") : t("storage.pickList.scan.title")}
+              label={
+                isOrderPick
+                  ? t("business.picks.scan.title")
+                  : isVerifying
+                    ? t("storage.verify.scan.title")
+                    : t("storage.pickList.scan.title")
+              }
             />
           </View>
           <CameraChip
             dotColor={remaining > 0 ? colors.warning : colors.success}
             label={
-              isVerifying
+              isOrderPick
+                ? t("business.picks.scan.remaining", { count: remaining })
+                : isVerifying
                 ? t("storage.verify.scan.remaining", { count: remaining })
                 : t("storage.pickList.scan.remaining", { count: remaining })
             }
@@ -259,7 +295,9 @@ export default function StorageCardScanScreen() {
         ) : (
           <AppText size="xs" style={{ color: colors.onCamera, textAlign: "center" }}>
             {modelsReady
-              ? isVerifying
+              ? isOrderPick
+                ? t("business.picks.scan.hint")
+                : isVerifying
                 ? t("storage.verify.scan.hint")
                 : t("storage.pickList.scan.hint")
               : t("storage.pickList.scan.loadingModels")}

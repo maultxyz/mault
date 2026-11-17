@@ -1,3 +1,4 @@
+import { Progress } from "@/components/ui/progress";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -18,7 +19,6 @@ import { ServiceIntervalDialog } from "@/features/business/components/service-in
 import { formatDateTime } from "@/features/business/lib/format";
 import { useClientPagination } from "@/hooks/use-client-pagination";
 import { FLEET_ALERTS_PAGE_SIZE } from "@/lib/constants/pagination";
-import { cn } from "@/lib/utils";
 import type { DeviceHealth } from "@magic-vault/shared";
 import { IconBellRinging, IconSettings, IconTool } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -111,27 +111,17 @@ export function FleetHealthPanel() {
                   </span>
                 </div>
                 {progress !== null && interval && (
-                  <div
-                    role="progressbar"
+                  <Progress
                     aria-label={t("fleet.sinceService")}
-                    aria-valuemin={0}
-                    aria-valuemax={interval}
-                    aria-valuenow={Math.min(device.cardsSinceService, interval)}
                     aria-valuetext={
                       device.serviceDue
                         ? `${device.cardsSinceService.toLocaleString()} / ${interval.toLocaleString()}, ${t("fleet.types.maintenance")}`
                         : `${device.cardsSinceService.toLocaleString()} / ${interval.toLocaleString()}`
                     }
-                    className="h-1.5 overflow-hidden rounded-full bg-muted"
-                  >
-                    <div
-                      className={cn(
-                        "h-full rounded-full",
-                        device.serviceDue ? "bg-warning" : "bg-primary",
-                      )}
-                      style={{ width: `${progress * 100}%` }}
-                    />
-                  </div>
+                    value={device.cardsSinceService}
+                    max={interval}
+                    tone={device.serviceDue ? "warning" : "primary"}
+                  />
                 )}
                 <p className="text-2xs text-foreground/70">
                   {device.lastServicedAt

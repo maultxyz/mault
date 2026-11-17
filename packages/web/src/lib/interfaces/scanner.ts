@@ -15,7 +15,6 @@ import type {
   CornerDetection,
   CardScannerProps,
   CardSearchResult,
-  OcrDiagnostics,
   RouteOptions,
   ScanAttemptResult,
   SerialMessageListener,
@@ -667,14 +666,6 @@ export interface MonitorCardsState {
   setOpenScanId: (scanId: string | null) => void;
 }
 
-export type MobileMonitorTab = "cards" | "activity";
-
-export interface MobileMonitorTabItem {
-  key: MobileMonitorTab;
-  label: string;
-  badge?: number;
-}
-
 export interface MobileSessionMonitorProps {
   session: SessionMonitorState;
   cards: MonitorCardsState;
@@ -692,14 +683,8 @@ export interface MobileMonitorCardsProps {
   binCount?: number;
   canEditCards: boolean;
   onStartReview?: () => void;
-}
-
-export interface MobileMonitorActivityProps {
-  session: SessionMonitorState;
-  collectionGuid: string;
-  stats: ScanStats | null;
-  canEditCards: boolean;
-  onOpenCard?: (scanId: string) => void;
+  unmatchedCount: number;
+  onOpenUnmatched?: () => void;
 }
 
 export interface MobileCardTileProps {
@@ -710,13 +695,11 @@ export interface MobileCardTileProps {
 
 export interface MobileCardActionsDrawerProps {
   entry: GroupedScannedCard | null;
-  onOpenDetails: (scanId: string) => void;
   onClose: () => void;
 }
 
 export interface MobileCardActionsBodyProps {
   entry: GroupedScannedCard;
-  onOpenDetails: () => void;
   onClose: () => void;
 }
 
@@ -807,14 +790,12 @@ export interface ScannerChromeContext {
   autoFeed: boolean;
   allowDuplicates: boolean;
   isAtScanLimit: boolean;
-  bluetoothSupported: boolean;
   cameras: MediaDeviceInfo[];
   selectedCameraId: string | null;
   onPause: () => void;
   onResume: () => void;
   onScanOnce: () => void;
   onRetry: () => void;
-  onConnectBluetooth: () => void;
   onResolveSensorBlocked: () => void;
   onSelectCamera: (deviceId: string) => void;
   onAutoFeedChange: (value: boolean) => void;
@@ -870,11 +851,6 @@ export interface OrientedCandidate extends OrientedSearch {
 
 export interface OrientedSearchPick extends OrientedCandidate {
   alternate: OrientedCandidate | null;
-}
-
-export interface TextSearchOutcome {
-  pick: OrientedSearchPick | null;
-  ocr: OcrDiagnostics | null;
 }
 
 export interface ScanAttemptOutcome extends ScanAttemptResult {
@@ -983,11 +959,6 @@ export interface BinCorrection {
   pickListName?: string;
   releasedPickListName?: string;
   addedCard?: ScannedCard;
-}
-
-export interface CorrectedBinTarget {
-  bin?: BinConfig;
-  pickListName?: string;
 }
 
 export interface BinCorrectionDialogProps {
@@ -1218,6 +1189,7 @@ export interface ScannerStatusBarProps {
 export interface SessionStatsPanelProps {
   stats: ScanStats | null;
   totalCards: number;
+  isBordered?: boolean;
 }
 
 export interface DebugCardSet {
@@ -1536,6 +1508,13 @@ export interface FeederCardSetupDialogProps {
 
 export interface FlatbedPlacementEditorProps {
   imageUrl: string;
+  glassWidthMm: number;
+  glassHeightMm: number;
+  placement: FlatbedPlacement | null;
+  onPlacementChange: (placement: FlatbedPlacement) => void;
+}
+
+export interface FlatbedPlacementFieldsProps {
   glassWidthMm: number;
   glassHeightMm: number;
   placement: FlatbedPlacement | null;

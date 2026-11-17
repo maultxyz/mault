@@ -32,7 +32,11 @@ export function ShareMonitorLinkDialog({
       if (!result.success || !result.data) throw new Error(result.message);
       return {
         guid: result.data.guid,
-        url: shareLinkUrl(result.data),
+        url: shareLinkUrl({
+          ...result.data,
+          kind: "collection",
+          subjectGuid: collectionGuid,
+        }),
         expiresAt: result.data.expiresAt,
       };
     },
@@ -52,6 +56,7 @@ export function ShareMonitorLinkDialog({
       revokedMessage={t("shareMonitorLink.revoked")}
       createLink={createLink}
       revokeLinks={revokeLinks}
+      sharedCardsCollectionGuid={collectionGuid}
       open={open}
       onOpenChange={onOpenChange}
       renderTrigger={open === undefined ? (activeLinkCount) => (

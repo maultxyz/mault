@@ -11,6 +11,7 @@ export const pool = new Pool({
   connectionTimeoutMillis: parseInt(
     process.env.DB_CONNECTION_TIMEOUT_MS ?? "10000",
   ),
+  keepAlive: true,
 });
 export const db = drizzle(pool, { schema });
 

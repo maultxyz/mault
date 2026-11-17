@@ -1,3 +1,4 @@
+import { clampRegion } from "@magic-vault/shared";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import {
@@ -8,7 +9,6 @@ import {
   type ScanRegion,
 } from "@magic-vault/shared";
 import { saveDevice } from "@/features/calibration/api/calibration-configs";
-import { clampRegion } from "@/features/calibration/lib/scan-region";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import type { DevicePatch, ScanSettingsDraft } from "@/lib/interfaces/calibration";
 

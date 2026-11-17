@@ -1,5 +1,6 @@
 import { SUPPORTED_LANGUAGES } from "@/lib/constants/languages";
 import { LANGUAGE_STORAGE_KEY } from "@/lib/constants/storage-keys";
+import { formatCompactNumber } from "@magic-vault/shared";
 import i18n, { type BackendModule } from "i18next";
 import { initReactI18next } from "react-i18next";
 import type { SupportedLanguage } from "@/lib/interfaces/languages";
@@ -69,6 +70,10 @@ export const i18nReady = i18n
     interpolation: { escapeValue: false },
     react: { useSuspense: false },
   });
+
+i18n.services.formatter?.add("compact", (value, lng) =>
+  formatCompactNumber(Number(value), lng),
+);
 
 i18n.on("languageChanged", (lng) => {
   if (!isBrowser) return;

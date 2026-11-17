@@ -106,11 +106,11 @@
     "triggerTooltip": "How build repacks works",
     "welcome": {
       "title": "Building repacks",
-      "content": "Let's walk through how Build Repacks fills multiple packs at once from the same set of slots. Skip anytime and replay this from the same help icon."
+      "content": "Let's walk through how Build repacks fills multiple packs at once from the same set of slots. Skip anytime and replay this from the same help icon."
     },
     "toggle": {
       "title": "Turn it on here",
-      "content": "This switch turns Build Repacks on and off. While it's on, every bin except the catch-all builds its own pack from the slots below instead of using individual rules."
+      "content": "Choose Build repacks under Sorting mode to turn it on. While it's selected, every bin except the catch-all builds its own pack from the slots below instead of using individual rules."
     },
     "duplicates": {
       "title": "Duplicate cards",

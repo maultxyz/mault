@@ -89,8 +89,8 @@
     "syncCompleted": "Card image vector sync completed",
     "syncFailed": "Card image vector sync failed",
     "sync": "Card image vector sync",
-    "cardTotal_one": "{{count}} card · {{value}}",
-    "cardTotal_other": "{{count}} cards · {{value}}",
+    "cardTotal_one": "{{count, compact}} card · {{value}}",
+    "cardTotal_other": "{{count, compact}} cards · {{value}}",
     "healthIssues_one": "{{count}} issue detected",
     "healthIssues_other": "{{count}} issues detected",
     "healthIssuesTooltip": "Having trouble: {{names}}. Click for details.",
@@ -206,6 +206,11 @@
     "title": "Keyboard shortcuts",
     "description": "Shortcuts are ignored while you're typing in a field or a dialog is open.",
     "then": "then",
+    "off": "Off",
+    "singleKey": {
+      "label": "Single-key shortcuts",
+      "hint": "When off, only shortcuts with Ctrl or Cmd, Escape, Enter, Delete and the arrow keys work. Saved in this browser."
+    },
     "keys": {
       "space": "Space",
       "shift": "Shift",
@@ -224,13 +229,13 @@
       "scanner": "Scanner",
       "cardDetail": "Card details",
       "intake": "Intake",
-      "matchValidation": "Validating matches",
-      "foilLabeling": "Foil labelling"
+      "matchValidation": "Validating matches"
     },
     "actions": {
       "showShortcuts": "Show keyboard shortcuts",
       "toggleSidebar": "Expand or collapse the sidebar",
       "focusSearch": "Focus search",
+      "openGlobalSearch": "Open global search",
       "dismissToasts": "Clear all notifications",
       "save": "Save changes",
       "clearSelection": "Clear the selection",
@@ -269,15 +274,11 @@
       "reviewCycleLanguage": "While reviewing: cycle through the languages",
       "goSortingRules": "Go to sorting rules",
       "intakeOpenScanner": "Open the scanner for this intake",
-      "foilLabelFoil": "While labelling foils: mark as foil",
-      "foilLabelNotFoil": "While labelling foils: mark as not foil",
-      "foilLabelSkip": "While labelling foils: skip this card",
       "matchValidationCorrect": "While validating matches: mark the match correct",
       "matchValidationIncorrect": "While validating matches: mark the match wrong",
       "matchValidationBadScan": "While validating matches: mark the photo as a bad scan",
       "matchValidationSkip": "While validating matches: skip this scan",
       "matchValidationBack": "While validating matches: go back to the previous scan",
-      "foilLabelBack": "While labelling foils: go back to the previous card",
       "scanFlatbedCard": "Scan the card on the flatbed"
     }
   },
@@ -292,7 +293,8 @@
     "home": "Home",
     "scan": "Scan",
     "library": "Library",
-    "more": "More"
+    "more": "More",
+    "business": "Buy & sell"
   },
   "pagination": {
     "previous": "Previous",
@@ -358,10 +360,14 @@
     "verificationCodeNumeric": "The code can only contain numbers.",
     "controlCardActionRequired": "Pick at least one thing for the card to change.",
     "orderBinDuplicate": "Each order needs its own bin.",
+    "shortLinkCodeInvalid": "Use up to {{max}} lowercase letters, numbers and hyphens, starting and ending with a letter or number.",
+    "shortLinkCodeReserved": "That code is reserved. Pick another.",
+    "shortLinkTargetInvalid": "Enter a full http:// or https:// URL.",
     "orderBinCatchAll": "The last bin catches every other card, so pick another one.",
     "catalogSourcesRequired": "Pick at least one collection or storage location.",
     "contactRequired": "Add a way to reach you.",
-    "textTooLong": "Keep this under {{max}} characters."
+    "textTooLong": "Keep this under {{max}} characters.",
+    "jsonObjectInvalid": "Enter a single JSON object, like {\"neutral\": true}."
   },
   "memberSeatLock": {
     "title": "This organization is over its member limit",
@@ -452,7 +458,9 @@
     "checkFailedTitle": "Couldn't open this link",
     "checkFailedDescription": "Check your connection and try again.",
     "shortLinkInvalidTitle": "This link doesn't work",
-    "shortLinkInvalidDescription": "Check that it was copied in full, or ask whoever shared it for a new link."
+    "shortLinkInvalidDescription": "Check that it was copied in full, or ask whoever shared it for a new link.",
+    "poweredBy": "Powered by",
+    "poweredByLabel": "Powered by {{site}} (opens in a new tab)"
   },
   "tradeOffers": {
     "declined": "Trade offer declined",
@@ -540,6 +548,8 @@
     "notFound": "This trade offer no longer exists.",
     "backToTrades": "Back to trades",
     "acceptTitle": "Accept this trade offer?",
+    "declineTitle": "Decline this trade offer?",
+    "declineDescription": "They'll see that you declined on their link. This can't be undone.",
     "sideTabs": {
       "label": "Trade sides",
       "wanted": "They want ({{count}})",
@@ -597,6 +607,18 @@
         "accepted": "Accepted",
         "declined": "Declined"
       }
+    }
+  },
+  "labelSheets": {
+    "template": "Sheet",
+    "startPosition": "Start at label",
+    "startPositionHint": "Skip labels already used on a partial sheet. Labels count left to right, top to bottom.",
+    "print": "Print",
+    "printTip": "Print at 100% scale (actual size) with no margins so the labels line up with the sticker sheet.",
+    "templates": {
+      "avery-5160": "Avery 5160 (30 per sheet, 2.625 x 1 in)",
+      "avery-5163": "Avery 5163 (10 per sheet, 4 x 2 in)",
+      "avery-5164": "Avery 5164 (6 per sheet, 4 x 3.33 in)"
     }
   }
 }

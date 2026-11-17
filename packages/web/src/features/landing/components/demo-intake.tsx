@@ -88,7 +88,7 @@ export function DemoIntake({ isRevealed }: FeatureSpotlightDemoProps) {
             className="block font-heading text-lg font-semibold tabular-nums"
           />
         </div>
-        <div className="rounded-lg border border-input bg-background px-3 py-2">
+        <div className="rounded-lg border bg-background px-3 py-2">
           <p className="text-foreground/70">{t("features.demo.credit")}</p>
           <DemoCountedPrice
             value={credit}

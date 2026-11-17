@@ -37,6 +37,9 @@ services:
       DATABASE_URL: ${DATABASE_URL:-postgresql://mault:${POSTGRES_PASSWORD}@postgres:5432/mault}
       NEON_AUTH_URL: ${NEON_AUTH_URL:-}
       MONITOR_LINK_SECRET: ${MONITOR_LINK_SECRET:-}
+      SHORTENER_URL: ${DOCKER_SHORTENER_URL:-http://shortener:3003}
+      SHORTENER_API_SECRET: ${SHORTENER_API_SECRET:-}
+      SHORT_LINK_BASE_URL: ${SHORT_LINK_BASE_URL:-}
       RESEND_API_KEY: ${RESEND_API_KEY:-}
       RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
       SCAN_IMAGE_BUCKET: ${SCAN_IMAGE_BUCKET:-}
@@ -83,6 +86,37 @@ services:
       timeout: 10s
       retries: 5
       start_period: 120s
+  shortener:
+    image: ghcr.io/maultxyz/mault-shortener:${MAULT_IMAGE_TAG:-latest}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SHORTENER_PORT: 3003
+      SHORTENER_API_SECRET: ${SHORTENER_API_SECRET:-}
+      SHORT_LINK_TARGET_ORIGIN: ${SHORT_LINK_TARGET_ORIGIN:-}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://mault:${POSTGRES_PASSWORD}@postgres:5432/mault}
+      DATABASE_SSL: ${DATABASE_SSL:-false}
+    expose:
+    - '3003'
+    restart: unless-stopped
+    command:
+    - sh
+    - -ec
+    - |
+      if [ -z "$$SHORT_LINK_TARGET_ORIGIN" ]; then
+        echo "[shortener] SHORT_LINK_TARGET_ORIGIN is unset; short links are off and the app shares long links."
+        exec sleep infinity
+      fi
+      : "$${SHORTENER_API_SECRET:?Set SHORTENER_API_SECRET to enable short links}"
+      exec node packages/shortener/dist/index.js
+    healthcheck:
+      test:
+      - CMD-SHELL
+      - '[ -z "$$SHORT_LINK_TARGET_ORIGIN" ] || node -e "fetch(''http://127.0.0.1:3003/health'').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"'
+      interval: 30s
+      timeout: 5s
+      retries: 3
   web:
     image: ghcr.io/maultxyz/mault-web:${MAULT_IMAGE_TAG:-latest}
     environment:

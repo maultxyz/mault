@@ -30,7 +30,7 @@ export function ResizeHandle({
         : {})}
       onPointerDown={onPointerDown}
       className={cn(
-        "shrink-0 relative z-10 touch-none select-none group outline-none focus-visible:bg-primary/20",
+        "shrink-0 relative z-10 touch-none select-none group outline-none focus-visible:bg-primary/20 focus-visible:ring-2 focus-visible:ring-ring",
         orientation === "vertical" ? "w-1.5 cursor-col-resize" : "h-1.5 cursor-row-resize",
         className,
       )}

@@ -2,7 +2,7 @@ import { CardImage } from "@/components/card-image";
 import { PublicCardBadges } from "@/features/public-cards/components/public-card-badges";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { raritySwatch } from "@/lib/card-swatches";
-import { PUBLIC_CARD_FOIL_GRADIENT_CLASS } from "@/lib/constants/public-cards";
+import { FOIL_GRADIENT_CLASS } from "@/lib/constants/ui";
 import type { PublicCardTileProps } from "@/lib/interfaces/public-cards";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -30,7 +30,13 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
         onClick={() => onOpen(entry.scanId)}
         aria-label={t("publicBrowse.openCard", {
           name: entry.card.name,
-          details: [entry.card.setName, entry.condition, finish, price != null ? format(price) : null]
+          details: [
+            entry.card.setName,
+            rarityLabel(entry.card.rarity),
+            entry.condition,
+            finish,
+            price != null ? format(price) : null,
+          ]
             .filter(Boolean)
             .join(", "),
         })}
@@ -44,7 +50,7 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
             <span
               className={cn(
                 "absolute top-1 left-1 z-20 rounded-full p-0.5 shadow-md",
-                PUBLIC_CARD_FOIL_GRADIENT_CLASS,
+                FOIL_GRADIENT_CLASS,
               )}
               aria-hidden
             >

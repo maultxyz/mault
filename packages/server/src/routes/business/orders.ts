@@ -19,6 +19,14 @@ import {
   type FulfilmentOrderUpdateInput,
   type OrderFulfilInput,
   type OrderSource,
+  ORDER_BULK_ACTION_MAX,
+  ORDER_BULK_ACTIONS,
+  type OrderBulkActionInput,
+  type OrderBulkActionResult,
+  type OrderLineSubstitute,
+  type OrderLineSubstituteInput,
+  ORDERS_CHANGED_EVENT,
+  type OrderPickedInput,
 } from "@magic-vault/shared";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { uuidArraySql } from "../../lib/sql-arrays";
@@ -37,6 +45,8 @@ import type { SoldCardRow } from "../../lib/interfaces/business";
 import {
   allocateOrderLines,
   carryOverOrderAllocations,
+  isOrderLineSubstituteAvailable,
+  loadOrderLineSubstitutes,
   loadPullSheet,
   normalizeOrderLines,
   orderCreatorName,
@@ -83,7 +93,87 @@ async function findOrder(tx: Transaction, orgId: string, guid: string) {
   return row ?? null;
 }
 
+type OrderRow = NonNullable<Awaited<ReturnType<typeof findOrder>>>;
+
+const PICK_CLOSED_MESSAGE = "This pick is closed.";
+const PICK_LINE_NOT_FOUND_MESSAGE = "This card isn't on the pick anymore.";
+const PICK_SUBSTITUTE_UNAVAILABLE_MESSAGE = "That copy is no longer available.";
+const PICK_LINE_FULL_MESSAGE = "This line already has every copy it needs.";
+const PICK_DELETE_OPEN_MESSAGE = "Complete or cancel the pick before deleting it.";
+
+function validScanIds(value: unknown): Set<string> {
+  return new Set(
+    Array.isArray(value)
+      ? value.filter(
+          (id): id is string => typeof id === "string" && UUID_PATTERN.test(id),
+        )
+      : [],
+  );
+}
+
+async function findOrderForUpdate(tx: Transaction, orgId: string, guid: string) {
+  if (!UUID_PATTERN.test(guid)) return null;
+  await tx.execute(sql`
+    SELECT 1 FROM fulfilment_orders
+    WHERE guid = ${guid} AND org_id = ${orgId} AND is_deleted = false
+    FOR UPDATE
+  `);
+  return findOrder(tx, orgId, guid);
+}
+
+async function allocateOrderRow(
+  tx: Transaction,
+  orgId: string,
+  row: OrderRow,
+): Promise<string | null> {
+  if (row.status !== "open") return PICK_CLOSED_MESSAGE;
+  const lines = await allocateOrderLines(tx, orgId, row.id, toOrderLines(row.lines));
+  await tx
+    .update(fulfilmentOrders)
+    .set({ lines, updatedAt: new Date() })
+    .where(eq(fulfilmentOrders.id, row.id));
+  return null;
+}
+
+async function cancelOrderRow(
+  tx: Transaction,
+  orgId: string,
+  userId: string,
+  row: OrderRow,
+): Promise<string | null> {
+  if (row.status !== "open") return PICK_CLOSED_MESSAGE;
+  const now = new Date();
+  await tx
+    .update(fulfilmentOrders)
+    .set({ status: "cancelled", closedAt: now, closedByUserId: userId, updatedAt: now })
+    .where(eq(fulfilmentOrders.id, row.id));
+  await logActivity(tx, {
+    orgId,
+    userId,
+    action: "order.cancelled",
+    summary: row.name,
+    details: { orderGuid: row.guid },
+  });
+  return null;
+}
+
+async function deleteOrderRow(tx: Transaction, row: OrderRow): Promise<string | null> {
+  if (row.status === "open") return PICK_DELETE_OPEN_MESSAGE;
+  await tx
+    .update(fulfilmentOrders)
+    .set({ isDeleted: true, updatedAt: new Date() })
+    .where(eq(fulfilmentOrders.id, row.id));
+  return null;
+}
+
 export const ordersRoute = new Hono<AppEnv>()
+  .use("/orders/*", async (c, next) => {
+    await next();
+    const orgId = c.get("orgId");
+    if (c.req.method !== "GET" && c.res.status === 200 && orgId) {
+      emitToOrg(orgId, ORDERS_CHANGED_EVENT, {});
+    }
+  })
   .get("/orders", requireAuth, requireOrg, (c) => {
     const params = parsePageParams(c);
     return businessQuery(c, async (tx, access) => {
@@ -262,33 +352,14 @@ export const ordersRoute = new Hono<AppEnv>()
       const orgId = c.get("orgId");
       const row = await findOrder(tx, orgId, c.req.param("guid"));
       if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
-      if (row.status !== "open") {
-        return { success: false, message: "This pick is closed." };
-      }
-      const lines = await allocateOrderLines(
-        tx,
-        orgId,
-        row.id,
-        toOrderLines(row.lines),
-      );
-      await tx
-        .update(fulfilmentOrders)
-        .set({ lines, updatedAt: new Date() })
-        .where(eq(fulfilmentOrders.id, row.id));
-      return { success: true, data: null };
+      const failure = await allocateOrderRow(tx, orgId, row);
+      return failure ? { success: false, message: failure } : { success: true, data: null };
     }),
   )
   .post("/orders/:guid/fulfil", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
     const body = await readJson<OrderFulfilInput>(c);
-    const requested = new Set(
-      Array.isArray(body.scanIds)
-        ? body.scanIds.filter(
-            (id): id is string =>
-              typeof id === "string" && UUID_PATTERN.test(id),
-          )
-        : [],
-    );
+    const requested = validScanIds(body.scanIds);
     if (requested.size === 0) {
       return c.json({ success: false, message: "Pick at least one card." }, 400);
     }
@@ -396,6 +467,34 @@ export const ordersRoute = new Hono<AppEnv>()
       emitToOrg(orgId, "collections_changed", { guid: collectionGuid });
     }
     return response;
+  })
+  .put("/orders/:guid/picked", requireAuth, requireOrg, async (c) => {
+    const body = await readJson<OrderPickedInput>(c);
+    const scanIds = validScanIds(body.scanIds);
+    if (scanIds.size === 0 || typeof body.isPicked !== "boolean") {
+      return c.json({ success: false, message: "Invalid picked cards." }, 400);
+    }
+    const isPicked = body.isPicked;
+    return businessQuery(c, async (tx, access) => {
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
+      const row = await findOrderForUpdate(tx, c.get("orgId"), c.req.param("guid"));
+      if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
+      if (row.status !== "open") return { success: false, message: PICK_CLOSED_MESSAGE };
+      const lines = toOrderLines(row.lines).map((line) => {
+        const picked = line.picked.filter((id) => !scanIds.has(id));
+        return {
+          ...line,
+          picked: isPicked
+            ? [...picked, ...line.allocations.filter((id) => scanIds.has(id))]
+            : picked,
+        };
+      });
+      await tx
+        .update(fulfilmentOrders)
+        .set({ lines, updatedAt: new Date() })
+        .where(eq(fulfilmentOrders.id, row.id));
+      return { success: true, data: null };
+    });
   })
   .put("/orders/:guid/order-bins", requireAuth, requireOrg, async (c) => {
     const body = await readJson<OrderBinsInput>(c);
@@ -518,27 +617,8 @@ export const ordersRoute = new Hono<AppEnv>()
       const orgId = c.get("orgId");
       const row = await findOrder(tx, orgId, c.req.param("guid"));
       if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
-      if (row.status !== "open") {
-        return { success: false, message: "This pick is closed." };
-      }
-      const now = new Date();
-      await tx
-        .update(fulfilmentOrders)
-        .set({
-          status: "cancelled",
-          closedAt: now,
-          closedByUserId: c.get("userId"),
-          updatedAt: now,
-        })
-        .where(eq(fulfilmentOrders.id, row.id));
-      await logActivity(tx, {
-        orgId,
-        userId: c.get("userId"),
-        action: "order.cancelled",
-        summary: row.name,
-        details: { orderGuid: row.guid },
-      });
-      return { success: true, data: null };
+      const failure = await cancelOrderRow(tx, orgId, c.get("userId"), row);
+      return failure ? { success: false, message: failure } : { success: true, data: null };
     }),
   )
   .delete("/orders/:guid", requireAuth, requireOrg, (c) =>
@@ -546,16 +626,102 @@ export const ordersRoute = new Hono<AppEnv>()
       if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
       const row = await findOrder(tx, c.get("orgId"), c.req.param("guid"));
       if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
-      if (row.status === "open") {
-        return {
-          success: false,
-          message: "Complete or cancel the pick before deleting it.",
-        };
+      const failure = await deleteOrderRow(tx, row);
+      return failure ? { success: false, message: failure } : { success: true, data: null };
+    }),
+  )
+  .get("/orders/:guid/lines/:lineIndex/substitutes", requireAuth, requireOrg, (c) =>
+    businessQuery(c, async (tx, access) => {
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
+      const orgId = c.get("orgId");
+      const row = await findOrder(tx, orgId, c.req.param("guid"));
+      if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
+      if (row.status !== "open") return { success: false, message: PICK_CLOSED_MESSAGE };
+      const line = toOrderLines(row.lines)[Number(c.req.param("lineIndex"))];
+      if (!line) return notFound(PICK_LINE_NOT_FOUND_MESSAGE);
+      const data: OrderLineSubstitute[] = await loadOrderLineSubstitutes(tx, orgId, line);
+      return { success: true, data };
+    }),
+  )
+  .post("/orders/:guid/substitute", requireAuth, requireOrg, async (c) => {
+    const body = await readJson<OrderLineSubstituteInput>(c);
+    const scanId = typeof body.scanId === "string" ? body.scanId : "";
+    const lineIndex = Number(body.lineIndex);
+    if (!UUID_PATTERN.test(scanId) || !Number.isInteger(lineIndex) || lineIndex < 0) {
+      return c.json({ success: false, message: "Invalid substitute." }, 400);
+    }
+    return businessQuery(c, async (tx, access) => {
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
+      const orgId = c.get("orgId");
+      const row = await findOrder(tx, orgId, c.req.param("guid"));
+      if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
+      if (row.status !== "open") return { success: false, message: PICK_CLOSED_MESSAGE };
+      const lines = toOrderLines(row.lines);
+      const line = lines[lineIndex];
+      if (!line) return notFound(PICK_LINE_NOT_FOUND_MESSAGE);
+      if (!(await isOrderLineSubstituteAvailable(tx, orgId, line, scanId))) {
+        return { success: false, message: PICK_SUBSTITUTE_UNAVAILABLE_MESSAGE };
+      }
+      const allocated = await allocateOrderLines(
+        tx,
+        orgId,
+        row.id,
+        lines.map((candidate, index) =>
+          index === lineIndex
+            ? { ...candidate, allocations: [...candidate.allocations, scanId] }
+            : candidate,
+        ),
+      );
+      if (!allocated[lineIndex].allocations.includes(scanId)) {
+        return { success: false, message: PICK_LINE_FULL_MESSAGE };
       }
       await tx
         .update(fulfilmentOrders)
-        .set({ isDeleted: true, updatedAt: new Date() })
+        .set({ lines: allocated, updatedAt: new Date() })
         .where(eq(fulfilmentOrders.id, row.id));
+      await logActivity(tx, {
+        orgId,
+        userId: c.get("userId"),
+        action: "order.updated",
+        summary: row.name,
+        details: { orderGuid: row.guid, substitutedLine: line.name, scanId },
+      });
       return { success: true, data: null };
-    }),
-  );
+    });
+  })
+  .post("/orders/bulk", requireAuth, requireOrg, async (c) => {
+    const input = await readJson<OrderBulkActionInput>(c);
+    return businessQuery(c, async (tx, access) => {
+      if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
+      const action = ORDER_BULK_ACTIONS.find((candidate) => candidate === input.action);
+      const orderGuids = Array.isArray(input.orderGuids)
+        ? [...new Set(input.orderGuids.filter((guid) => typeof guid === "string" && UUID_PATTERN.test(guid)))]
+        : [];
+      if (!action || orderGuids.length === 0 || orderGuids.length > ORDER_BULK_ACTION_MAX) {
+        return { success: false, message: "Invalid bulk pick request." };
+      }
+      const orgId = c.get("orgId");
+      const rows = await tx.query.fulfilmentOrders.findMany({
+        where: and(
+          inArray(fulfilmentOrders.guid, orderGuids),
+          eq(fulfilmentOrders.orgId, orgId),
+          eq(fulfilmentOrders.isDeleted, false),
+        ),
+      });
+      let updated = 0;
+      for (const row of rows) {
+        const failure =
+          action === "allocate"
+            ? await allocateOrderRow(tx, orgId, row)
+            : action === "cancel"
+              ? await cancelOrderRow(tx, orgId, c.get("userId"), row)
+              : await deleteOrderRow(tx, row);
+        if (!failure) updated += 1;
+      }
+      const data: OrderBulkActionResult = {
+        updated,
+        skipped: orderGuids.length - updated,
+      };
+      return { success: true, data };
+    });
+  });

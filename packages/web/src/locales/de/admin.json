@@ -10,6 +10,7 @@
     "discord": "Discord",
     "sounds": "Sounds",
     "deleted": "Gelöscht und nicht erkannt",
+    "shortLinks": "Kurzlinks",
     "hardware": "Hardware",
     "developer": "Entwickler"
   },
@@ -55,6 +56,29 @@
     },
     "toasts": {
       "commandFailed": "Die Platine hat den Befehl nicht angenommen"
+    },
+    "rawCommands": {
+      "heading": "Rohbefehle",
+      "description": "Sende beliebige JSON-Befehle direkt an die Platine, jeweils eine Zeile. Rohe Pulse umgehen die Kalibrierung, also beginne nahe der Mitte und behalte die Mechanik im Blick. Alles stoppen schaltet jeden Servo stromlos; sende Neutral, um weiterzumachen.",
+      "presets": "Beispiele",
+      "preset": {
+        "servoPulse": "Servo-Puls",
+        "servoPosition": "Servo-Position",
+        "channelPulse": "Kanal-Puls",
+        "channelRelease": "Kanal freigeben",
+        "neutral": "Neutral",
+        "status": "Status"
+      },
+      "command": "Befehl (JSON)",
+      "commandHint": "Ein JSON-Objekt, zum Beispiel {\"servo\": \"pusher\", \"module\": 1, \"value\": 305}. Pulse reichen von 120 bis 490. Alle Befehle stehen in firmware/PROTOCOL.md.",
+      "send": "Senden",
+      "stopAll": "Alles stoppen",
+      "history": "Antworten",
+      "clear": "Leeren",
+      "empty": "Noch nichts gesendet.",
+      "sent": "Gesendet:",
+      "reply": "Antwort:",
+      "failed": "Fehlgeschlagen"
     }
   },
   "cardImageVectors": {
@@ -276,8 +300,8 @@
     },
     "features": {
       "chaosSort": {
-        "label": "Chaotisches Sortieren",
-        "description": "Fächer der Reihe nach füllen, ohne Regeln. Ausschalten verhindert nur, dass weitere Presets es einschalten."
+        "label": "Chaos-Sortierung",
+        "description": "Fächer der Reihe nach füllen, ohne Regeln. Ausschalten verhindert nur, dass weitere Vorlagen es einschalten."
       },
       "storage": {
         "label": "Lagerorte",
@@ -293,7 +317,7 @@
       },
       "repacks": {
         "label": "Repacks",
-        "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Presets es einschalten. Presets, die schon im Repack-Modus sind, funktionieren weiter."
+        "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Vorlagen es einschalten. Vorlagen, die schon Repacks erstellen, funktionieren weiter."
       },
       "customSounds": {
         "label": "Eigene Sounds",
@@ -511,5 +535,40 @@
     "emptyApiKeys": "Keine Anfragen mit API-Schlüssel in diesem Zeitraum.",
     "emptyPublicRoutes": "Keine Anfragen an öffentliche Routen in diesem Zeitraum.",
     "loadError": "Die API-Nutzung konnte nicht geladen werden."
+  },
+  "shortLinks": {
+    "heading": "Eigene Kurzlinks",
+    "description": "Kurzlinks auf deiner Kurzlink-Domain, die überallhin weiterleiten, etwa zu einer Discord-Einladung oder einer Aktionsseite.",
+    "create": "Kurzlink hinzufügen",
+    "createTitle": "Kurzlink hinzufügen",
+    "editTitle": "Kurzlink bearbeiten",
+    "dialogDescription": "Wer den Kurzlink öffnet, wird zum Ziel weitergeleitet.",
+    "codeLabel": "Kurzcode",
+    "codePlaceholder": "discord",
+    "targetLabel": "Ziel-URL",
+    "targetPlaceholder": "https://example.com/seite",
+    "save": "Speichern",
+    "saveFailed": "Der Kurzlink konnte nicht gespeichert werden. Versuche es erneut.",
+    "created": "Kurzlink hinzugefügt.",
+    "updated": "Kurzlink aktualisiert.",
+    "loadFailed": "Kurzlinks konnten nicht geladen werden.",
+    "disabledTitle": "Kurzlinks sind aus",
+    "disabledDescription": "Setze SHORT_LINK_BASE_URL in der API und starte den Shortener-Dienst, um eigene Kurzlinks anzulegen.",
+    "empty": "Noch keine eigenen Kurzlinks.",
+    "updatedOn": "Aktualisiert am {{date}}",
+    "copyLink": "{{url}} kopieren",
+    "copied": "Kurzlink kopiert.",
+    "copyFailed": "Der Link konnte nicht kopiert werden. Markiere ihn und kopiere ihn manuell.",
+    "edit": "Bearbeiten",
+    "delete": "Löschen",
+    "deleteConfirmTitle": "Diesen Kurzlink löschen?",
+    "deleteConfirmDescription": "{{url}} funktioniert dann für niemanden mehr. Das kann nicht rückgängig gemacht werden.",
+    "deleted": "Kurzlink gelöscht.",
+    "deleteFailed": "Der Kurzlink konnte nicht gelöscht werden. Versuche es erneut.",
+    "failures": {
+      "disabled": "Kurzlinks sind auf diesem Server aus.",
+      "codeTaken": "Dieser Code wird schon verwendet. Wähle einen anderen.",
+      "notFound": "Diesen Kurzlink gibt es nicht mehr."
+    }
   }
 }

@@ -2,6 +2,7 @@ import {
   BROWSER_SYNC_PARALLEL,
   DELETED_ITEM_TYPES,
   SYNC_VECTORIZE_CONCURRENCY_MAX,
+  type CustomShortLinkFormValues,
   type SyncState,
 } from "@magic-vault/shared";
 import type { DeletedItemTypeFilter } from "@/lib/interfaces/admin";
@@ -13,6 +14,7 @@ import {
   IconBug,
   IconCards,
   IconCreditCard,
+  IconLink,
   IconMusic,
   IconRestore,
   IconRotate360,
@@ -65,6 +67,9 @@ export const DELETED_ITEM_TYPE_FILTERS: DeletedItemTypeFilter[] = [
 
 export const ADMIN_PATH = "/app/admin";
 export const API_USAGE_QUERY_KEY = ["admin", "api-usage"] as const;
+export const CUSTOM_SHORT_LINKS_QUERY_KEY = ["admin", "short-links"] as const;
+export const CUSTOM_SHORT_LINK_FORM_ID = "custom-short-link-form";
+export const EMPTY_CUSTOM_SHORT_LINK_FORM: CustomShortLinkFormValues = { code: "", targetUrl: "" };
 
 export const ADMIN_SECTIONS = [
   {
@@ -72,48 +77,63 @@ export const ADMIN_SECTIONS = [
     icon: IconCards,
     labelKey: "sections.cards",
     adminOnly: false,
+    showsOnMobile: true,
   },
   {
     path: "users",
     icon: IconUserScan,
     labelKey: "sections.users",
     adminOnly: false,
+    showsOnMobile: true,
   },
   {
     path: "plans",
     icon: IconCreditCard,
     labelKey: "sections.plans",
     adminOnly: true,
+    showsOnMobile: true,
   },
   {
     path: "discord",
     icon: IconBrandDiscord,
     labelKey: "sections.discord",
     adminOnly: false,
+    showsOnMobile: true,
   },
   {
     path: "sounds",
     icon: IconMusic,
     labelKey: "sections.sounds",
     adminOnly: false,
+    showsOnMobile: true,
   },
   {
     path: "deleted",
     icon: IconRestore,
     labelKey: "sections.deleted",
     adminOnly: false,
+    showsOnMobile: true,
+  },
+  {
+    path: "short-links",
+    icon: IconLink,
+    labelKey: "sections.shortLinks",
+    adminOnly: false,
+    showsOnMobile: false,
   },
   {
     path: "hardware",
     icon: IconRotate360,
     labelKey: "sections.hardware",
-    adminOnly: true,
+    adminOnly: false,
+    showsOnMobile: false,
   },
   {
     path: "developer",
     icon: IconBug,
     labelKey: "sections.developer",
     adminOnly: true,
+    showsOnMobile: false,
   },
 ] as const;
 

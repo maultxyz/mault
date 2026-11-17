@@ -1,5 +1,6 @@
+import type { ShareLinkKind } from "@magic-vault/shared";
 import type { OrgShareLink } from "@magic-vault/shared";
-export type ShareLinkKind = "collection" | "storage";
+export type { ShareLinkKind };
 
 
 export interface ShareLinkQrProps {
@@ -18,6 +19,12 @@ export interface ShareLinkListProps {
   onSelect: (link: OrgShareLink) => void;
   onRevoke: (link: OrgShareLink) => void;
 }
+
+export interface SharedCardLinksProps {
+  collectionGuid: string;
+}
+
+export type ShareLinkSheetTab = "links" | "cards";
 
 export type ShareLinkSheetView = { name: "links" } | { name: "new" } | { name: "link"; linkGuid: string };
 

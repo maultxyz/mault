@@ -15,7 +15,8 @@ import {
 } from "@/lib/constants/build";
 import { DISCORD_URL } from "@/lib/constants/links";
 import { cn } from "@/lib/utils";
-import { IconVideo } from "@tabler/icons-react";
+import { IconAlertTriangle, IconVideo } from "@tabler/icons-react";
+import { Callout } from "@/components/callout";
 import { useMemo } from "react";
 import { BUILD_STEP_IMAGE_ALT_KEYS } from "@/lib/constants/build";
 import { Trans, useTranslation } from "react-i18next";
@@ -91,11 +92,11 @@ export function BuildAssembly() {
               )}
               <div
                 id={phaseAnchorId(phase.key)}
-                className="min-w-0 flex-1 scroll-mt-16 rounded-lg border bg-card"
+                className="min-w-0 flex-1 scroll-mt-16 rounded-card bg-card"
               >
-                <div className="group/anchor sticky top-14 z-10 flex items-center gap-3 rounded-t-lg border-b bg-card px-3 py-2 md:px-4">
+                <div className="group/anchor sticky top-14 z-10 flex items-center gap-3 rounded-t-card border-b bg-card px-3 py-2 md:px-4">
                   <div className="flex min-w-0 flex-col">
-                    <span className="font-heading text-2xs font-medium tracking-widest text-primary uppercase">
+                    <span className="font-heading text-sm font-medium tracking-widest text-primary uppercase">
                       {t("assembly.phaseLabel", {
                         n: String(i + 1).padStart(2, "0"),
                       })}
@@ -134,6 +135,15 @@ export function BuildAssembly() {
                               <p className="mt-0.5 text-sm/relaxed text-foreground/70">
                                 {step.note}
                               </p>
+                            )}
+                            {step.alert && (
+                              <Callout
+                                variant="warning"
+                                icon={IconAlertTriangle}
+                                className="mt-1.5 max-w-2xl px-3 py-2 text-sm/relaxed"
+                              >
+                                {step.alert}
+                              </Callout>
                             )}
                             {step.modelParts && (
                               <PrintPartImages parts={step.modelParts} />

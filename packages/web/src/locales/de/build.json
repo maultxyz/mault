@@ -74,13 +74,13 @@
       "bare": "Blanke Platine",
       "modules_one": "{{count}} Modul",
       "modules_other": "{{count}} Module"
-    }
+    },
+    "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken."
   },
   "bom": {
     "heading": "Stückliste",
     "description": "Die Mengen richten sich nach der Anzahl der Module, die du baust – {{modules}} Module × 3 Servos, 1 Zuführung, {{irSensors}} IR-Sensoren, {{channelsUsed}} der 16 Kanäle des PCA9685 in Gebrauch. Die restlichen Kanäle stehen für zusätzliche Sortiermodule zur Verfügung (bis zu 5 Module an einem einzelnen PCA9685). Hake jedes Teil ab, sobald du es besorgt hast – die Häkchen werden in diesem Browser gespeichert.",
     "affiliateDisclaimer": "Einige „Kaufen“-Links sind Amazon-Affiliate-Links – wir erhalten möglicherweise eine kleine Provision auf qualifizierte Käufe, ohne Mehrkosten für dich.",
-    "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken.",
     "partsListLabel": "Vollständige Teileliste",
     "kitPowerSupplyNote": "Kits enthalten kein Netzteil. Du brauchst ein eigenes geregeltes 6V-Netzteil mit mindestens 3A für die Servos.",
     "kitCollapsedNote": "Du baust mit einem Bausatz, deshalb ist die Teileliste eingeklappt. Öffne sie, wenn du ein Teil nachsehen möchtest.",
@@ -115,8 +115,8 @@
           },
           "sg90Positional": {
             "part": "SG90 Mikroservo, positionierend (180°)",
-            "notes": "3 pro Modul × {{count}} Module – Bodenklappe, Paddeltor, Schieber",
-            "alert": "Kaufe digitale SG90. Analoge SG90 und besonders Servos von Tower Pro halten ihre kalibrierten Positionen in diesem Sortierer nicht zuverlässig."
+            "notes": "3 pro Modul × {{count}} Module – Bodenklappe, Paddel, Schieber",
+            "alert": "Meide SG90 von Tower Pro. Sie halten ihre kalibrierten Positionen in diesem Sortierer nicht zuverlässig."
           },
           "mg90sContinuous": {
             "part": "MG90S-Servo, 360° Dauerdrehung",
@@ -217,7 +217,7 @@
           "m2x6Screw": {
             "part": "M2×6-Schraube",
             "partSpec": "(17 pro Modul, +4 für die Platinenbefestigung, +3 für die Servotreiberplatine, +1 für den Zuführer)",
-            "notes": "17 pro Modul ({{count}} Module): Klappen (Boden/Seiten) und Schieberarme, plus 6 zum Anschrauben der Boden- und Seitenklappen am Gehäuse; +4 zur Befestigung des {{board}}; +3 zur Befestigung der PCA9685-Servotreiberplatine; +1 für den Zuführer"
+            "notes": "17 pro Modul ({{count}} Module): Bodenklappen, Paddel und Schieberarme, plus 6 zum Anschrauben der Bodenklappen und Paddel am Gehäuse; +4 zur Befestigung des {{board}}; +3 zur Befestigung der PCA9685-Servotreiberplatine; +1 für den Zuführer"
           },
           "m2x8Screw": {
             "part": "M2×8-Schraube",
@@ -270,6 +270,10 @@
           "feederBearings": {
             "part": "Kugellager",
             "notes": "Für die Variante des Einzugssockels mit Lager, damit sich die Rolle leichter dreht"
+          },
+          "neodymiumMagnets": {
+            "part": "Neodym-Magnete (5×2 mm)",
+            "notes": "Scheibenmagnete, 5 mm Durchmesser und 2 mm dick"
           }
         }
       }
@@ -412,7 +416,7 @@
           },
           "printModulePins": {
             "text": "Drucke {{count}} Module Pins für {{modules}} Sortiermodule: {{top}} für die Oberseiten und {{front}} für die Vorderseiten der Base-Support-Teile. Jedes Base-Support-Teil braucht 4 Pins oben, und jede Höheneinheit 2 vorne, außer der obersten Einheit jeder Säule. Die Pins verbinden die Base-Support-Teile miteinander und halten die Sortiermodule auf dem Sockel. Ändere die Modulanzahl in der Einrichtung oben, um dies zu aktualisieren.",
-            "note": "Stecke die Base-Support-Teile und Sortiermodule zuerst mit den Pins trocken zusammen. Wenn alles passt, klebe jeden Pin mit Sekundenkleber fest."
+            "glueAlert": "Klebe die Pins in die Stützen. Stecke die Base-Support-Teile und Sortiermodule zuerst mit den Pins trocken zusammen. Wenn alles passt, klebe jeden Pin mit Sekundenkleber fest."
           },
           "dryFit": {
             "text": "Passe jedes Modulgehäuse trocken an, bevor du Elektronik einsetzt – schleife oder korrigiere jetzt enge Servoaussparungen."
@@ -473,11 +477,11 @@
           },
           "mountBottomFlapper": {
             "text": "Baue die Bodenklappe zusammen, indem du die Klappe an das Gestänge schraubst und dann das Gestänge an das Horn. Schraube die zusammengebaute Bodenklappe mit 2 M2×6-Schrauben in das Modulgehäuse. Denke daran, das Horn noch nicht auf den Servo zu montieren.",
-            "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Dies ist die Falltür, durch die eine Karte fällt, um das nächste Modul zu erreichen, oder das aktuelle bei einem Treffer. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
+            "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Dies ist die Bodenklappe, durch die eine Karte fällt, um das nächste Modul zu erreichen, oder das aktuelle bei einem Treffer. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
           },
           "mountSideFlappers": {
             "text": "Baue die seitlichen Klappen zusammen, indem du die linke und rechte Klappe an das gemeinsame Gestänge schraubst und dann das Gestänge an das Horn (ein Paar pro Modul). Schraube die zusammengebauten seitlichen Klappen mit 4 M2×6-Schrauben in das Modulgehäuse. Denke daran, das Horn noch nicht auf den Servo zu montieren.",
-            "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Ein Paddelservo treibt beide Klappen gemeinsam an – sie öffnen und schließen als Paar, nicht unabhängig voneinander. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
+            "note": "Die Markierungen OBEN/UNTEN am Gestänge geben die Einbaurichtung an, nicht die Ausrichtung des Moduls – da die Plattform beim Bauen auf dem Kopf steht, zeigt OBEN von der Plattform weg. Ein Paddelservo treibt beide Paddel gemeinsam an – sie öffnen und schließen als Paar, nicht unabhängig voneinander. Das Horn wird erst auf den Servo gesetzt, sobald das Modul über die App kalibriert ist – siehe „Über die App kalibrieren“ weiter unten."
           },
           "mountPusherArm": {
             "text": "Baue den Schieber zusammen, indem du den Schieberarm an das Gestänge schraubst und dann das Gestänge an das Horn. Schraube den zusammengebauten Schieber mit zwei M2×8-Schrauben am Modulgehäuse fest. Denke daran, das Horn noch nicht auf den Servo zu montieren.",
@@ -548,11 +552,11 @@
             "text": "Schließe den {{board}} über seinen linken USB-C-Anschluss (mit USB beschriftet, nicht UART) an deinen Computer an, verbinde ihn per Web Serial mit der App und öffne dann /app/calibrate."
           },
           "calibrateModules": {
-            "text": "Modul-Kalibrierungsraster – lege modulweise den Öffnungs-/Schließimpuls für jede Boden- und Paddelklappe sowie links/neutral/rechts für jeden Schieber fest.",
+            "text": "Modul-Kalibrierungsraster – lege modulweise den Öffnungs-/Schließimpuls für jede Bodenklappe und jedes Paddel sowie links/neutral/rechts für jeden Schieber fest.",
             "note": "Bei pusherLeft/pusherRight den Arm zur Innenwand schwingen lassen, aber stoppen, bevor er sie berührt, etwa 10-12% von neutral entfernt. Der Schieber muss die Wand nicht treffen, um die Karte hinauszuschleudern, und Druck dagegen belastet den Servo. Ab 16% zeigt die App eine Warnung."
           },
           "installHorns": {
-            "text": "Montiere im Einrichtungsassistenten (Sortierer einrichten, öffnet sich beim ersten Verbinden des Sortierers oder über das Hilfemenü (?) unter /app/calibrate) die Hörner (mit bereits montierter Klappe bzw. Schieberarm) Servo für Servo. Für die Bodenklappe und die Seitenpaddel stellst du den Schieberegler auf 90 % und drückst das Horn dann in geschlossener Position der Klappe auf die Servowelle. Für den Schieber stellst du den Schieberegler auf 50 % und drückst dann das Horn auf die Welle. Sichere jedes Horn mit seiner Hornschraube, für alle {{count}} Modul-Servos.",
+            "text": "Montiere im Einrichtungsassistenten (Sortierer einrichten, öffnet sich beim ersten Verbinden des Sortierers oder über das Hilfemenü (?) unter /app/calibrate) die Hörner (mit bereits montierter Klappe bzw. Schieberarm) Servo für Servo. Für die Bodenklappe und die Paddel stellst du den Schieberegler auf 90 % und drückst das Horn dann in geschlossener Position auf die Servowelle. Für den Schieber stellst du den Schieberegler auf 50 % und drückst dann das Horn auf die Welle. Sichere jedes Horn mit seiner Hornschraube, für alle {{count}} Modul-Servos.",
             "note": "Ein außermittig montiertes Horn verzerrt das gesamte Gestänge. Die genauen Öffnungs-/Schließ- und Links-/Rechts-Impulse werden im nächsten Schritt feinjustiert."
           },
           "calibrateFeeder": {
@@ -576,7 +580,7 @@
         "steps": {
           "runTestCommand": {
             "text": "Sende bei angeschlossener externer Servoversorgung {\"test\": true} über die serielle Schnittstelle.",
-            "note": "Öffnet nacheinander alle Boden- und Paddelklappen, bewegt alle Schieber links und dann rechts, setzt alles auf neutral zurück und lässt anschließend kurz die Zuführung laufen."
+            "note": "Öffnet nacheinander alle Bodenklappen und Paddel, bewegt alle Schieber links und dann rechts, setzt alles auf neutral zurück und lässt anschließend kurz die Zuführung laufen."
           },
           "watchModules": {
             "text": "Beobachte jedes Modul während des Tests – stelle sicher, dass nichts am Ende seines Wegs klemmt oder schleift.",
@@ -632,15 +636,15 @@
       "baseModule": "Ein einzelner lila 3D-gedruckter Sortiermodulrahmen: ein offener Kasten mit vier Zapfen oben und Laschen an den Seiten zum Verbinden der Module.",
       "baseModuleAssembled": "Ein flacher gelber Modulrahmen neben einem hohen gelben Modul, das auf einer lila Basisstütze steht. Zu sehen ist, wie die gedruckten Rahmen zusammenpassen.",
       "finishedSorter": "Der fertige Sortierer: ein schwarzer Turm aus gestapelten Sortiermodulen mit dem Kartenmagazin oben, umgeben von weißen Fächern mit sortierten Karten.",
-      "bottomPaddleDisassembled": "Die Teile der unteren Klappe auf einer Schneidematte: eine lange pinke Klappenplatte, ein Servohorn-Adapter, ein kurzer Verbindungsarm und zwei Schrauben.",
-      "bottomPaddleAssembled": "Die zusammengebaute untere Klappe: Der Verbindungsarm ist zwischen den Scharnierhalter der Klappe und den Servohorn-Adapter geschraubt.",
-      "bottomPaddleAttached": "Die untere Klappe auf einer pinken Modulplatte montiert. Ihr Verbindungsarm ist mit einem blauen SG90-Mikroservo verbunden, die Servokabel führen zur Seite.",
-      "sidePaddlesDisassembled": "Die Teile der Seitenklappen: zwei lange pinke Klappenplatten, zwei Verbindungsarme, ein beidseitiger Servohorn-Adapter und vier Schrauben.",
-      "sidePaddlesAssembled": "Beide Seitenklappen sind über ihre Verbindungsarme mit dem mittleren Servohorn-Adapter zu einem Gestänge verbunden.",
-      "sidePaddlesAttached": "Das Seitenklappen-Gestänge auf der Modulplatte montiert und von einem blauen Mikroservo angetrieben. Die Kabel sind oben in einer Schlaufe verlegt.",
+      "bottomPaddleDisassembled": "Die Teile der Bodenklappe auf einer Schneidematte: eine lange pinke Klappenplatte, ein Servohorn-Adapter, ein kurzer Verbindungsarm und zwei Schrauben.",
+      "bottomPaddleAssembled": "Die zusammengebaute Bodenklappe: Der Verbindungsarm ist zwischen den Scharnierhalter der Klappe und den Servohorn-Adapter geschraubt.",
+      "bottomPaddleAttached": "Die Bodenklappe auf einer pinken Modulplatte montiert. Ihr Verbindungsarm ist mit einem blauen SG90-Mikroservo verbunden, die Servokabel führen zur Seite.",
+      "sidePaddlesDisassembled": "Die Teile der Paddel: zwei lange pinke Paddelplatten, zwei Verbindungsarme, ein beidseitiger Servohorn-Adapter und vier Schrauben.",
+      "sidePaddlesAssembled": "Beide Paddel sind über ihre Verbindungsarme mit dem mittleren Servohorn-Adapter zu einem Gestänge verbunden.",
+      "sidePaddlesAttached": "Das Paddel-Gestänge auf der Modulplatte montiert und von einem blauen Mikroservo angetrieben. Die Kabel sind oben in einer Schlaufe verlegt.",
       "pusherDisassembled": "Die Teile des Schiebers: zwei L-förmige Schieberarme, zwei gerade Verbindungsarme, ein dreieckiger Servohorn-Adapter und fünf Schrauben.",
       "pusherAssembled": "Der zusammengebaute Schieber: Beide L-förmigen Arme sind über die geraden Arme mit dem dreieckigen Servohorn-Adapter verbunden.",
-      "pusherAttached": "Eine Modulplatte mit allen drei Mechaniken: Schieberarme, Seitenklappen-Gestänge und untere Klappe, jeweils mit einem blauen Mikroservo verbunden.",
+      "pusherAttached": "Eine Modulplatte mit allen drei Mechaniken: Schieberarme, Paddel-Gestänge und Bodenklappe, jeweils mit einem blauen Mikroservo verbunden.",
       "rollerORings": "Die schwarze 3D-gedruckte Zuführrolle mit sechs Gummi-O-Ringen in ihren Rillen, je drei nahe jedem Ende.",
       "feederServoMounted": "Der weiße Rahmen des Zuführmoduls mit einem oben montierten blauen Servo, der die O-Ring-Rolle im Rahmen antreibt.",
       "newHopper": "Das schwarze Kartenmagazin: ein offener rechteckiger Rahmen mit einer gefederten Schraube oben und der O-Ring-Rolle an der Unterkante.",

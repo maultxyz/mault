@@ -79,7 +79,7 @@ export default function PhoneCameraPage() {
       description={t("phoneCamera.sessionEndedDescription")}
       footer={
         <Button
-          variant="outline-destructive"
+          variant="destructive"
           onClick={() => {
             setSessionEnded(false);
             disconnect();
@@ -163,8 +163,8 @@ export default function PhoneCameraPage() {
           <div className="flex items-stretch gap-1.5">
             {cameras.length > 1 && (
               <Button
-                size="lg"
-                className="h-12 min-w-0 flex-1 text-sm"
+                size="xl"
+                className="min-w-0 flex-1"
                 onClick={handleSwitchCamera}
               >
                 <IconCameraRotate />
@@ -178,8 +178,8 @@ export default function PhoneCameraPage() {
             )}
             <Button
               variant="outline"
-              size="lg"
-              className={cn("h-12 text-sm", cameras.length <= 1 && "flex-1")}
+              size="xl"
+              className={cn(cameras.length <= 1 && "flex-1")}
               onClick={disconnect}
             >
               <IconPlugOff />

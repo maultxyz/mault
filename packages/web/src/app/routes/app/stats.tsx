@@ -52,9 +52,10 @@ export default function StatsPage() {
   const [params, setParams] = useSearchParams();
   const range = parseRange(params.get(STATS_RANGE_PARAM));
   const collectionGuid = params.get(STATS_COLLECTION_PARAM);
-  const view =
-    STATS_VIEWS.find((value) => value === params.get(STATS_VIEW_PARAM)) ??
-    STATS_OVERVIEW_VIEW;
+  const view = isMobile
+    ? STATS_OVERVIEW_VIEW
+    : (STATS_VIEWS.find((value) => value === params.get(STATS_VIEW_PARAM)) ??
+      STATS_OVERVIEW_VIEW);
   const {
     data: report,
     isLoading,
@@ -201,8 +202,7 @@ export default function StatsPage() {
           />
         )}
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 md:gap-2 p-4 md:px-3 md:py-2">
-          {isMobile && viewSwitch}
-          {isMobile && view === STATS_OVERVIEW_VIEW && controls}
+          {isMobile && controls}
           {body}
         </div>
       </div>

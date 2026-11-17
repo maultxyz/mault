@@ -47,7 +47,12 @@ export function CollectionsProvider({
   const queryClient = useQueryClient();
   const { activeOrg } = useOrg();
   const moduleCount = useModuleCount();
-  const { data: collections = [], isPending: isLoading } = useQuery({
+  const {
+    data: collections = [],
+    isPending: isLoading,
+    isError,
+    refetch,
+  } = useQuery({
     ...collectionsQueryOptions,
     enabled: !!activeOrg,
   });
@@ -269,6 +274,8 @@ export function CollectionsProvider({
         collections,
         activeCollection,
         isLoading,
+        isError,
+        refetch: () => void refetch(),
         isActivating: false,
         isMutating,
         createCollection: create,

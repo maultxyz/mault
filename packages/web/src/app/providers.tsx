@@ -18,22 +18,10 @@ import { AppAlertsProvider } from "@/hooks/alerts/use-app-alerts";
 import { OrgPriceSourceProvider } from "@/hooks/use-price-source";
 import { AppStreamProvider } from "@/lib/app-stream";
 import { applyPrimaryColorName } from "@/lib/primary-color";
-import {
-  QueryClient,
-  QueryClientProvider,
-  useQuery,
-} from "@tanstack/react-query";
+import { appQueryClient } from "@/lib/query-client";
+import { QueryClientProvider, useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useSerialAutoConnect } from "@/features/scanner/api/use-serial-auto-connect";
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: Infinity,
-      retry: 1,
-    },
-  },
-});
 
 function OrgThemeApplier() {
   const { activeOrg } = useOrg();
@@ -62,7 +50,7 @@ function StationScopes({ children }: { children: React.ReactNode }) {
 
 export function BaseProviders({ children }: { children: React.ReactNode }) {
   return (
-    <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={appQueryClient}>
       <OrgThemeApplier />
       <OrgPriceSourceProvider>{children}</OrgPriceSourceProvider>
     </QueryClientProvider>

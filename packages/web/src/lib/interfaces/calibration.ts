@@ -1,3 +1,4 @@
+import type { ServoName } from "@magic-vault/shared";
 import type { ReactNode, RefObject } from "react";
 import type {
   BinHeight,
@@ -96,7 +97,7 @@ export type ModuleDelayField =
   | "pusherHoldDuration"
   | "paddleCloseDelay";
 
-export type ServoName = "bottom" | "paddle" | "pusher";
+export type { ServoName };
 
 export interface SetupServoPosition {
   servo: ServoName;
@@ -238,14 +239,8 @@ export interface FeederCalibrationPanelProps {
   onSpeedChange: (value: number) => void;
   onStopPulseChange: (value: number) => void;
   onResetStopPulse: () => void;
-  onDurationChange: (value: number) => void;
-  onPulseDurationChange: (value: number) => void;
-  onPauseDurationChange: (value: number) => void;
-  onSettleDurationChange: (value: number) => void;
   onReverseSpeedChange: (value: number) => void;
-  onReverseDurationChange: (value: number) => void;
-  onFeedRetryCountChange: (value: number) => void;
-  onSelectContinuous: () => void;
+  onFieldChange: (field: FeederTimingField, value: number) => void;
   fullWidth?: boolean;
 }
 
@@ -315,25 +310,7 @@ export interface CalibrationConflictDialogProps {
   onChoose: (source: CalibrationSource) => void;
 }
 
-export interface Device {
-  guid: string;
-  name: string;
-  hardwareId: string | null;
-  scanRegion: ScanRegion;
-  captureSettleDelayMs: number;
-  matchesNeeded: number;
-  feederStopPulse: number | null;
-  checkBothOrientations: boolean;
-  flipCamera: boolean;
-  moduleCount: number;
-  channelLayout: ChannelLayout;
-  setupCompletedAt: string | null;
-  pipelinedFeed: boolean;
-  autoConnect: boolean;
-  testOnConnect: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+export type { Device } from "@magic-vault/shared";
 
 export interface CalibrationDebugParams {
   channelLayout: ChannelLayout;
@@ -534,3 +511,11 @@ export interface CameraSettingsDraft {
   commit: () => Promise<void>;
   discard: () => Promise<void>;
 }
+
+export type FeederTimingField =
+  | "duration"
+  | "pulseDuration"
+  | "pauseDuration"
+  | "settleDuration"
+  | "reverseDuration"
+  | "feedRetryCount";

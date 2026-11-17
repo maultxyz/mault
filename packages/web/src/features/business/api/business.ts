@@ -39,8 +39,15 @@ import type {
   IntakeTransferResult,
   OrderBinsInput,
   OrderFulfilInput,
+  OrderPickedInput,
   OrderSortPresetResult,
+  OrderBulkActionInput,
+  OrderBulkActionResult,
+  OrderLineSubstitute,
+  OrderLineSubstituteInput,
   PagedList,
+  PriceLabelCardsResponse,
+  PriceLabelSource,
   Result,
   StaffReport,
   StatsRange,
@@ -83,6 +90,8 @@ export const businessKeys = {
     [...businessKeys.ordersRoot(), "list", orgId, page] as const,
   order: (guid: string | undefined) =>
     [...businessKeys.ordersRoot(), "order", guid] as const,
+  orderSubstitutes: (guid: string, lineIndex: number | null) =>
+    [...businessKeys.ordersRoot(), "substitutes", guid, lineIndex] as const,
   reportsRoot: () => [...businessKeys.root(), "reports"] as const,
   staff: (orgId: string | undefined, range: StatsRange) =>
     [...businessKeys.reportsRoot(), "staff", orgId, range] as const,
@@ -112,6 +121,12 @@ export const businessKeys = {
     [...businessKeys.accuracyRoot(), "check", guid] as const,
   fleet: (orgId: string | undefined) =>
     [...businessKeys.root(), "fleet", orgId] as const,
+  priceLabelCards: (
+    orgId: string | undefined,
+    source: PriceLabelSource | null,
+    sourceGuid: string | null,
+  ) =>
+    [...businessKeys.root(), "price-labels", orgId, source, sourceGuid] as const,
 };
 
 const unwrap = <T>(result: Result<T>) => result.data ?? null;
@@ -292,6 +307,27 @@ export function updateOrder(guid: string, input: FulfilmentOrderUpdateInput) {
   return apiPut<Result<null>>(`/api/business/orders/${guid}`, input);
 }
 
+export const orderLineSubstitutesQueryOptions = (
+  orderGuid: string,
+  lineIndex: number | null,
+) =>
+  queryOptions({
+    queryKey: businessKeys.orderSubstitutes(orderGuid, lineIndex),
+    queryFn: () =>
+      apiGet<Result<OrderLineSubstitute[]>>(
+        `/api/business/orders/${orderGuid}/lines/${lineIndex}/substitutes`,
+      ).then(unwrap),
+    enabled: lineIndex !== null,
+  });
+
+export function substituteOrderLine(orderGuid: string, input: OrderLineSubstituteInput) {
+  return apiPost<Result<null>>(`/api/business/orders/${orderGuid}/substitute`, input);
+}
+
+export function runOrderBulkAction(input: OrderBulkActionInput) {
+  return apiPost<Result<OrderBulkActionResult>>("/api/business/orders/bulk", input);
+}
+
 export function allocateOrder(guid: string) {
   return apiPost<Result<null>>(`/api/business/orders/${guid}/allocate`);
 }
@@ -301,6 +337,10 @@ export function fulfilOrder(guid: string, input: OrderFulfilInput) {
     `/api/business/orders/${guid}/fulfil`,
     input,
   );
+}
+
+export function setOrderPicked(guid: string, input: OrderPickedInput) {
+  return apiPut<Result<null>>(`/api/business/orders/${guid}/picked`, input);
 }
 
 export function updateOrderBins(guid: string, input: OrderBinsInput) {
@@ -453,3 +493,20 @@ export function setDeviceMaintenance(
 export function markDeviceServiced(guid: string) {
   return apiPost<Result<null>>(`/api/business/fleet/${guid}/serviced`);
 }
+
+export const priceLabelCardsQueryOptions = (
+  orgId: string | undefined,
+  source: PriceLabelSource | null,
+  sourceGuid: string | null,
+) =>
+  queryOptions({
+    queryKey: businessKeys.priceLabelCards(orgId, source, sourceGuid),
+    queryFn: () =>
+      apiGet<Result<PriceLabelCardsResponse>>(
+        `/api/business/price-labels/cards?${new URLSearchParams({
+          source: source ?? "",
+          guid: sourceGuid ?? "",
+        })}`,
+      ).then(unwrap),
+    enabled: !!orgId && !!source && !!sourceGuid,
+  });

@@ -85,6 +85,13 @@ export interface EmptyStateProps {
   action?: ReactNode;
 }
 
+export interface QueryErrorStateProps {
+  title?: string;
+  description?: string;
+  onRetry: () => void;
+  isRetrying?: boolean;
+}
+
 export interface SkeletonProps {
   width?: number | `${number}%`;
   height: number | `${number}%`;
@@ -102,6 +109,7 @@ export interface ListRowProps {
   right?: ReactNode;
   rightIsInteractive?: boolean;
   onPress?: () => void;
+  onPressIn?: () => void;
   onLongPress?: () => void;
   longPressLabel?: string;
   disabled?: boolean;
@@ -195,6 +203,7 @@ export interface StatGroupProps {
 export interface StatTileProps {
   label: string;
   value: string;
+  exactValue?: string;
   hint?: string;
   icon?: IconName;
 }
@@ -251,6 +260,7 @@ export interface HomeCollectionRowProps {
   name: string;
   subtitle: string;
   value?: string | null;
+  exactValue?: string | null;
   trailing?: ReactNode;
   trailingAccessibilityLabel?: string;
   isScanTarget: boolean;
@@ -302,6 +312,7 @@ export interface ShutterButtonProps {
 export interface OptionItem {
   value: string;
   label: string;
+  description?: string;
   badge?: string;
 }
 
@@ -315,6 +326,7 @@ export interface OptionSheetProps {
   searchPlaceholder?: string;
   maxVisibleOptions?: number;
   emptyMessage?: string;
+  description?: string;
 }
 
 export interface SelectFieldProps {

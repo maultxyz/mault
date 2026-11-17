@@ -4,6 +4,8 @@ import { invalidatePrintingMarkReferences } from "./printing-marks/references";
 import { and, eq, sql, type SQL } from "drizzle-orm";
 import { db } from "../db";
 import { binSets, collections, games } from "../db/schema";
+import { clearCatalogReadCaches } from "./card-search/catalog-read-cache";
+import { clearCachedCatalogCards } from "./saved-cards";
 import { matchScopeForGame } from "./card-search/match-games";
 import { resolveCardSearchForGame } from "./card-search/resolve";
 import {
@@ -121,6 +123,7 @@ async function loadSegment(
   const adapter = resolveCardSearchForGame(gameKey, lang)?.adapter;
   const rarePrintingSql = adapter?.rarePrintingSql ?? sql`false`;
   const promoPrintingSql = adapter?.promoPrintingSql ?? sql`false`;
+  const printedLanguageCodeSql = adapter?.printedLanguageCodeSql ?? sql`NULL`;
   const printedSetTotalSql = adapter?.printedSetTotalSql ?? sql`NULL`;
   const exclusionFilter = adapter?.excludedFromMatchingSql
     ? sql`AND NOT coalesce(${adapter.excludedFromMatchingSql}, false)`
@@ -138,6 +141,7 @@ async function loadSegment(
       SELECT card_id, name, set_code, collector_number,
         coalesce(${rarePrintingSql}, false) AS rare_printing,
         coalesce(${promoPrintingSql}, false) AS promo_printing,
+        (${printedLanguageCodeSql})::boolean AS printed_language_code,
         (${printedSetTotalSql})::int AS printed_set_total,
         CASE WHEN printing_mark_version = ${PRINTING_MARK_VERSION}
           THEN printing_mark_groups END AS printing_mark_groups,
@@ -165,6 +169,7 @@ async function loadSegment(
         collectorNumber: row.collector_number,
         rarePrinting: row.rare_printing === true,
         promoPrinting: row.promo_printing === true,
+        printedLanguageCode: row.printed_language_code,
         printedSetTotal: row.printed_set_total,
         printingMarkGroups: row.printing_mark_groups,
         embedding: decodeFrontEmbedding(row.embedding)!,
@@ -259,9 +264,12 @@ function revalidateSegmentInBackground(entry: CardMatchSegmentEntry) {
   }
   entry.checkedAt = Date.now();
   loadSegmentSignature(entry.gameKey, entry.lang)
-    .then((signature) =>
-      signature.value === entry.signature ? undefined : reloadSegment(entry),
-    )
+    .then((signature) => {
+      if (signature.value === entry.signature) return undefined;
+      clearCatalogReadCaches();
+      clearCachedCatalogCards();
+      return reloadSegment(entry);
+    })
     .catch(logReloadFailure(entry));
 }
 
@@ -298,6 +306,10 @@ async function cardMatchSegment(
   }
   await reloadSegment(entry);
   return entry.segment!;
+}
+
+export async function languagesOfGame(gameKey: string): Promise<string[]> {
+  return [...(await langsOfGame(gameKey))].sort();
 }
 
 async function langsOfGame(gameKey: string): Promise<string[]> {
@@ -369,6 +381,8 @@ export function warmCardMatchSegments(scopes: CollectionMatchScope[]): void {
 
 export function invalidateCardMatchIndex(gameKey?: string): void {
   invalidatePrintingMarkReferences(gameKey);
+  clearCatalogReadCaches();
+  clearCachedCatalogCards();
   for (const entry of segmentEntries.values()) {
     if (gameKey === undefined || entry.gameKey === gameKey) {
       reloadSegment(entry).catch(logReloadFailure(entry));

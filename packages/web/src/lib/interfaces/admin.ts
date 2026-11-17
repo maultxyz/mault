@@ -1,4 +1,5 @@
 import type {
+  CustomShortLink,
   DeletedItemType,
   PlatformDiscordChannelKey,
   PlatformDiscordGuildSummary,
@@ -118,16 +119,6 @@ export interface DiscordGuildSelectProps {
   onChange: (guildId: string | null) => void;
 }
 
-export interface LoadedSyncCanvas {
-  cardId: string;
-  canvas: HTMLCanvasElement;
-}
-
-export interface FailedSyncImage {
-  cardId: string;
-  message: string;
-}
-
 export interface SyncWorkerScope {
   onmessage: ((event: MessageEvent) => void) | null;
   postMessage(message: unknown): void;
@@ -185,4 +176,12 @@ export interface DeletedItemsRequest {
   page: number;
   search: string;
   type: DeletedItemType | null;
+}
+
+export interface CustomShortLinkDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  shortLinkBaseUrl: string;
+  link: CustomShortLink | null;
+  onSaved: () => Promise<unknown>;
 }

@@ -1,10 +1,10 @@
+import { CompactPrice } from "@/components/compact-value";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StatusBadge } from "@/features/business/components/status-badge";
 import { formatDay } from "@/features/business/lib/format";
-import { usePriceSource } from "@/hooks/use-price-source";
 import { BUSINESS_LIST_SKELETON_COUNT } from "@/lib/constants/business";
 import type { IntakeLotListProps } from "@/lib/interfaces/business";
 import { IconCash } from "@tabler/icons-react";
@@ -18,7 +18,6 @@ export function IntakeLotList({
   onSelect,
 }: IntakeLotListProps) {
   const { t } = useTranslation("business");
-  const { format } = usePriceSource();
 
   if (isLoading) {
     return (
@@ -67,7 +66,7 @@ export function IntakeLotList({
                   {t("intake.cardCount", { count: lot.cardCount })} ·{" "}
                   {formatDay(lot.createdAt)}
                 </span>
-                {total != null && <span>{format(total)}</span>}
+                {total != null && <CompactPrice value={total} />}
               </span>
             </Button>
           );

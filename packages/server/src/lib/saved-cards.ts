@@ -4,7 +4,11 @@ import {
   findCatalogCardKeys,
   loadCatalogCards,
 } from "./card-catalog";
+import { createCatalogCardCache } from "./catalog-card-cache";
 import {
+  CATALOG_CARD_CACHE_MAX_ENTRIES,
+  CATALOG_CARD_CACHE_MAX_KEYS_PER_CACHED_READ,
+  CATALOG_CARD_CACHE_TTL_MS,
   SAVED_ALTERNATIVE_KEYS,
   SAVED_CARD_READ_TIME_KEYS,
   SAVED_CARD_SCAN_KEYS,
@@ -17,6 +21,18 @@ import type {
   SavedCardSnapshots,
   SavedScanFields,
 } from "./interfaces/saved-cards";
+
+const catalogCardCache = createCatalogCardCache({
+  ttlMs: CATALOG_CARD_CACHE_TTL_MS,
+  maxEntries: CATALOG_CARD_CACHE_MAX_ENTRIES,
+  maxKeysPerCachedRead: CATALOG_CARD_CACHE_MAX_KEYS_PER_CACHED_READ,
+  keyOf: catalogCardKey,
+  load: loadCatalogCards,
+});
+
+export function clearCachedCatalogCards(): void {
+  catalogCardCache.clear();
+}
 
 function withoutKeys<T extends object>(value: T, keys: readonly string[]): T {
   const copy = { ...value } as Record<string, unknown>;
@@ -73,7 +89,7 @@ export async function hydrateSavedCards<T extends PlayingCard>(
   options: SavedCardHydrateOptions,
 ): Promise<T[]> {
   const keys = items.flatMap((item) => catalogKeyFor(item, item.card) ?? []);
-  const catalog = keys.length > 0 ? await loadCatalogCards(keys) : new Map();
+  const catalog = keys.length > 0 ? await catalogCardCache.load(keys) : new Map();
   return items.map((item) => {
     const key = lookupKey(item, item.card);
     return withCatalogCard(item.card, key ? catalog.get(key) : undefined, options);
@@ -91,7 +107,7 @@ export async function hydrateSavedScans<T extends SavedScanFields>(
     ),
   );
   if (keys.length === 0) return scans;
-  const catalog = await loadCatalogCards(keys);
+  const catalog = await catalogCardCache.load(keys);
   const hydrate = <C extends PlayingCard>(card: C): C => {
     const key = lookupKey(scope, card);
     return withCollectionLanguage(
@@ -104,15 +120,6 @@ export async function hydrateSavedScans<T extends SavedScanFields>(
     card: scan.card ? hydrate(scan.card) : scan.card,
     alternativeMatches: scan.alternativeMatches?.map(hydrate) ?? scan.alternativeMatches,
   }));
-}
-
-export async function hydrateSavedScan<T extends SavedScanFields>(
-  scope: SavedCardScope,
-  scan: T,
-  options: SavedCardHydrateOptions,
-): Promise<T> {
-  const [hydrated] = await hydrateSavedScans(scope, [scan], options);
-  return hydrated;
 }
 
 export function savedCardCatalogKeys(

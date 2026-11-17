@@ -1,5 +1,7 @@
 import {
   BULK_SCAN_IDS_MAX,
+  cardPriceSortCurrencyOf,
+  cardPriceSortSource,
   DEFAULT_CARD_SORT,
   EMPTY_CARD_FILTERS,
   type BinWindow,
@@ -13,16 +15,23 @@ import {
   type ScanTimelineBucket,
   type ScanTimelineGrouping,
   SORTABLE_FIELD_TYPES,
+  toConditionMultipliers,
+  toPriceSource,
 } from "@magic-vault/shared";
 import { and, eq, sql, type SQL } from "drizzle-orm";
 import { z } from "zod";
 import type { Transaction } from "../../db";
-import { collections, games } from "../../db/schema";
+import { collections, games, orgSettings } from "../../db/schema";
 import { toScannedCard } from "./shared";
 import type {
   CardsCollection,
+  CardSortScope,
+  CardsPageRow,
+  CardsPageRows,
   CardStatsSource,
+  CollectionCardsPageEntries,
   CollectionCardRow,
+  ParsedCardSort,
 } from "../../lib/interfaces/collections";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import { pgTextArray, uuidArraySql } from "../../lib/sql-arrays";
@@ -117,9 +126,12 @@ export async function findCardsCollection(
       gameName: games.name,
       lang: collections.lang,
       fieldDefinitions: games.fieldDefinitions,
+      priceSource: orgSettings.priceSource,
+      conditionMultipliers: orgSettings.conditionMultipliers,
     })
     .from(collections)
     .leftJoin(games, eq(games.id, collections.gameId))
+    .leftJoin(orgSettings, eq(orgSettings.orgId, collections.orgId))
     .where(
       and(
         eq(collections.guid, guid),
@@ -136,6 +148,10 @@ export async function findCardsCollection(
     gameName: collection.gameName,
     lang: collection.lang,
     fieldDefinitions: (collection.fieldDefinitions as FieldMeta[] | null) ?? [],
+    pricing: {
+      source: toPriceSource(collection.priceSource),
+      conditionMultipliers: toConditionMultipliers(collection.conditionMultipliers),
+    },
   };
 }
 
@@ -267,20 +283,20 @@ export function cardFilterSql(
 
 export function cardQueryUsesCatalog(
   { filters, search, sort }: CollectionCardsQuery,
-  fieldDefinitions: FieldMeta[],
+  sortScope: CardSortScope,
 ): boolean {
   return (
     filters.colors.length > 0 ||
     filters.rarities.length > 0 ||
     !!search ||
-    !!sortField(sort, fieldDefinitions)
+    parseCardSort(sort, sortScope)?.kind === "field"
   );
 }
 
-function sortField(
+function parseCardSort(
   sort: string | null,
-  fieldDefinitions: FieldMeta[],
-): { meta: FieldMeta; dir: "asc" | "desc" } | null {
+  { fieldDefinitions, pricing }: CardSortScope,
+): ParsedCardSort | null {
   if (!sort || sort === DEFAULT_CARD_SORT) return null;
 
   const split = sort.lastIndexOf("-");
@@ -288,39 +304,54 @@ function sortField(
   const dir = sort.slice(split + 1);
   if (dir !== "asc" && dir !== "desc") return null;
 
+  const currency = cardPriceSortCurrencyOf(field);
+  if (currency) {
+    return pricing ? { kind: "price", currency, pricing, dir } : null;
+  }
+
   const meta = fieldDefinitions.find(
     (f) => f.field === field && SORTABLE_FIELD_TYPES.includes(f.type),
   );
-  return meta ? { meta, dir } : null;
+  return meta ? { kind: "field", meta, dir } : null;
 }
 
 export function sortUsesStoredPrices(
   sort: string | null,
-  fieldDefinitions: FieldMeta[],
+  sortScope: CardSortScope,
 ): boolean {
-  const path = sortField(sort, fieldDefinitions)?.meta.path;
-  return (
-    !!path && (isCardPriceKey(path) || isCardPriceDetailKey(path.split(".")[0]))
-  );
+  const parsed = parseCardSort(sort, sortScope);
+  if (!parsed) return false;
+  if (parsed.kind === "price") return true;
+  const { path } = parsed.meta;
+  return isCardPriceKey(path) || isCardPriceDetailKey(path.split(".")[0]);
 }
 
 export function cardOrderSql(
   sort: string | null,
-  fieldDefinitions: FieldMeta[],
+  sortScope: CardSortScope,
 ): SQL {
   const newestFirst = sql`cc.scanned_at DESC, cc.id DESC`;
-  const sortKey = cardSortKeySql(sort, fieldDefinitions);
+  const sortKey = cardSortKeySql(sort, sortScope);
   return sortKey ? sql`${sortKey}, ${newestFirst}` : newestFirst;
 }
 
 export function cardSortKeySql(
   sort: string | null,
-  fieldDefinitions: FieldMeta[],
+  sortScope: CardSortScope,
 ): SQL | null {
-  const sorted = sortField(sort, fieldDefinitions);
-  if (!sorted) return null;
-  const { meta, dir } = sorted;
+  const parsed = parseCardSort(sort, sortScope);
+  if (!parsed) return null;
+  const direction = parsed.dir === "asc" ? sql`ASC` : sql`DESC`;
 
+  if (parsed.kind === "price") {
+    const pricing = {
+      ...parsed.pricing,
+      source: cardPriceSortSource(parsed.currency, parsed.pricing.source),
+    };
+    return sql`${joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp")} ${direction} NULLS LAST`;
+  }
+
+  const { meta } = parsed;
   const value = fieldValueSql(meta.path);
   const text = sql`COALESCE(${value} #>> '{}', '')`;
   let key: SQL;
@@ -339,7 +370,7 @@ export function cardSortKeySql(
     key = sql`${text} COLLATE "und-x-icu"`;
   }
 
-  return sql`${key} ${dir === "asc" ? sql`ASC` : sql`DESC`}`;
+  return sql`${key} ${direction}`;
 }
 
 function rankedCardsCte(
@@ -353,11 +384,11 @@ function rankedCardsCte(
       SELECT
         cc.id, cc.guid, sl.id AS location_id,
         ${DUPLICATE_KEY} AS dup_key,
-        row_number() OVER (ORDER BY ${cardOrderSql(query.sort, collection.fieldDefinitions)}) AS rn
+        row_number() OVER (ORDER BY ${cardOrderSql(query.sort, collection)}) AS rn
       FROM collection_cards cc
       ${STORAGE_LOCATION_JOIN}
-      ${cardQueryUsesCatalog(query, collection.fieldDefinitions) ? cardCatalogJoinSql(collection, CC_ALIAS_SQL_COLUMNS) : sql``}
-      ${sortUsesStoredPrices(query.sort, collection.fieldDefinitions) ? cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS) : sql``}
+      ${cardQueryUsesCatalog(query, collection) ? cardCatalogJoinSql(collection, CC_ALIAS_SQL_COLUMNS) : sql``}
+      ${sortUsesStoredPrices(query.sort, collection) ? cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS) : sql``}
       WHERE cc.collection_id = ${collection.id} AND ${cardFilterSql(query, keepScanId)}
     ),
     grouped AS (
@@ -406,17 +437,61 @@ function toCard(row: CollectionCardRow) {
   });
 }
 
-export async function loadCardsPage(
+function cardFilterUsesCatalog({ filters, search }: CollectionCardsQuery): boolean {
+  return filters.colors.length > 0 || filters.rarities.length > 0 || !!search;
+}
+
+async function loadUngroupedCardsPage(
   tx: Transaction,
   collection: CardsCollection,
   query: CollectionCardsQuery,
   page: number,
   pageSize: number,
-): Promise<{
-  items: GroupedScannedCard[];
-  totalEntries: number;
-  totalCards: number;
-}> {
+): Promise<CardsPageRows> {
+  const filter = cardFilterSql(query);
+  const result = await tx.execute(sql`
+    WITH totals AS (
+      SELECT count(*)::int AS total_entries
+      FROM collection_cards cc
+      ${cardFilterUsesCatalog(query) ? cardCatalogJoinSql(collection, CC_ALIAS_SQL_COLUMNS) : sql``}
+      WHERE cc.collection_id = ${collection.id} AND ${filter}
+    )
+    SELECT ${CARD_ROW_COLUMNS},
+      ARRAY[cc.guid::text] AS scan_ids,
+      1::int AS quantity,
+      (CASE WHEN sl.id IS NULL THEN 0 ELSE 1 END)::int AS stored_count,
+      totals.total_entries,
+      totals.total_entries AS total_cards
+    FROM collection_cards cc
+    ${STORAGE_LOCATION_JOIN}
+    ${cardQueryUsesCatalog(query, collection) ? cardCatalogJoinSql(collection, CC_ALIAS_SQL_COLUMNS) : sql``}
+    ${sortUsesStoredPrices(query.sort, collection) ? cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS) : sql``}
+    CROSS JOIN totals
+    WHERE cc.collection_id = ${collection.id} AND ${filter}
+    ORDER BY ${cardOrderSql(query.sort, collection)}
+    LIMIT ${pageSize}::int OFFSET ${page * pageSize}::int
+  `);
+  const rows = result.rows as unknown as CardsPageRow[];
+  if (rows[0] || page === 0) return { rows, totals: rows[0] };
+  const totalCount = await loadCardsCount(
+    tx,
+    collection,
+    filter,
+    cardFilterUsesCatalog(query),
+  );
+  return {
+    rows,
+    totals: { total_entries: totalCount, total_cards: totalCount },
+  };
+}
+
+async function loadGroupedCardsPage(
+  tx: Transaction,
+  collection: CardsCollection,
+  query: CollectionCardsQuery,
+  page: number,
+  pageSize: number,
+): Promise<CardsPageRows> {
   const cte = rankedCardsCte(collection, query);
   const result = await tx.execute(sql`
     WITH ${cte},
@@ -437,26 +512,29 @@ export async function loadCardsPage(
     ${STORAGE_LOCATION_JOIN}
     ORDER BY page.entry_rn
   `);
-  const rows = result.rows as unknown as (CollectionCardRow & {
-    scan_ids: string[];
-    quantity: number;
-    stored_count: number;
-    total_entries: number;
-    total_cards: number;
-  })[];
-  const totals =
-    rows[0] ?? (page > 0 ? await loadCardTotals(tx, cte) : undefined);
+  const rows = result.rows as unknown as CardsPageRow[];
   return {
-    items: await hydrateSavedScans(
-      collection,
-      rows.map((row) => ({
-        ...toCard(row),
-        scanIds: row.scan_ids,
-        quantity: row.quantity,
-        storedCount: row.stored_count,
-      })),
-      { includeRaw: true },
-    ),
+    rows,
+    totals: rows[0] ?? (page > 0 ? await loadCardTotals(tx, cte) : undefined),
+  };
+}
+
+export async function loadUnhydratedCardsPage(
+  tx: Transaction,
+  collection: CardsCollection,
+  query: CollectionCardsQuery,
+  page: number,
+  pageSize: number,
+): Promise<CollectionCardsPageEntries> {
+  const loadPage = query.grouped ? loadGroupedCardsPage : loadUngroupedCardsPage;
+  const { rows, totals } = await loadPage(tx, collection, query, page, pageSize);
+  return {
+    items: rows.map((row) => ({
+      ...toCard(row),
+      scanIds: row.scan_ids,
+      quantity: row.quantity,
+      storedCount: row.stored_count,
+    })),
     totalEntries: totals?.total_entries ?? 0,
     totalCards: totals?.total_cards ?? 0,
   };

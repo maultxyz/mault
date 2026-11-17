@@ -607,8 +607,8 @@
   "usePhoneAsCamera": "Utiliser le téléphone comme caméra",
   "requestingCameraAccess": "Demande d'accès à la caméra…",
   "cameraConnecting": "Connexion à la caméra…",
-  "cardCount_one": "{{count}} carte",
-  "cardCount_other": "{{count}} cartes",
+  "cardCount_one": "{{count, compact}} carte",
+  "cardCount_other": "{{count, compact}} cartes",
   "isScanningTooltip": "{{name}} est en train de scanner",
   "cameraAccessError": "Impossible d'accéder à la caméra. Vérifie ton appareil.",
   "staleDeviceDialog": {
@@ -691,8 +691,8 @@
       "pauseAll": "Tout mettre en pause",
       "resumeAll": "Tout reprendre",
       "resumeSelected": "Reprendre ({{count}})",
-      "sessionCount_one": "{{count}} dans cette session",
-      "sessionCount_other": "{{count}} dans cette session"
+      "sessionCount_one": "{{count, compact}} dans cette session",
+      "sessionCount_other": "{{count, compact}} dans cette session"
     },
     "cpuInferenceLimitReached": {
       "title": "WASM gère une seule trieuse à la fois",
@@ -758,14 +758,11 @@
     "reload": "Recharger"
   },
   "mobileMonitor": {
-    "tabCards": "Cartes",
-    "tabActivity": "Activité",
     "cards": "Cartes",
     "searchPlaceholder": "Rechercher des cartes",
     "needsReview": "À vérifier",
     "back": "Retour aux sessions",
     "bin": "Bac {{number}}",
-    "noActivity": "Rien n'a encore été scanné. Les scans apparaissent ici en direct.",
     "status": {
       "connected": "En direct",
       "connecting": "Connexion…",
@@ -901,9 +898,6 @@
     "cameraOffDescription": "Autorisez l'accès à la caméra pour scanner.",
     "startCamera": "Démarrer",
     "retry": "Réessayer",
-    "noSorterTitle": "Aucune trieuse connectée",
-    "noSorterDescription": "Connectez votre trieuse, ou appuyez sur le déclencheur pour scanner une carte.",
-    "connect": "Connecter",
     "bin": "Bac {{number}}",
     "pause": "Mettre en pause",
     "start": "Démarrer le scan",
@@ -948,7 +942,6 @@
     },
     "connectHint": "Allumez votre trieuse, puis connectez-vous.",
     "connectBluetooth": "Connecter en Bluetooth",
-    "connectUsb": "Connecter en USB",
     "connectPi": "Connecter la trieuse de ce Pi",
     "unsupported": "Ce navigateur ne peut pas se connecter directement à une trieuse. Connecte-toi en Wi-Fi ci-dessous, ou utilise Chrome sur Android.",
     "actions": "Actions",
@@ -1057,7 +1050,6 @@
   },
   "controlCards": {
     "openPage": "Imprimer des cartes de contrôle",
-    "openPageDescription": "Cartes QR qui modifient les réglages de scan quand le trieur les lit",
     "applied": "Carte de contrôle appliquée",
     "rejected": {
       "title": "Carte de contrôle non appliquée"
@@ -1242,7 +1234,14 @@
       "scanning": "Numérisation de la vitre...",
       "scanAgain": "Numériser à nouveau",
       "dragHint": "Tracez un cadre autour de la carte si le cadre détecté n'est pas juste.",
-      "boxTooSmall": "Le cadre est trop petit pour une carte. Tracez un cadre plus grand autour d'elle.",
+      "boxTooSmall": "Le cadre est trop petit pour une carte. Tracez un cadre plus grand autour d'elle ou saisissez une taille plus grande.",
+      "fields": {
+        "leftMm": "Gauche (mm)",
+        "topMm": "Haut (mm)",
+        "widthMm": "Largeur (mm)",
+        "heightMm": "Hauteur (mm)"
+      },
+      "fieldsHint": "Vous pouvez aussi saisir la position et la taille du cadre, mesurées depuis le coin supérieur gauche de la vitre.",
       "save": "Enregistrer la position",
       "cancel": "Annuler",
       "previewAlt": "Numérisation de toute la vitre du scanner à plat",

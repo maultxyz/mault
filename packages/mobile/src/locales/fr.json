@@ -39,7 +39,8 @@
     "trades": "Échanges",
     "more": "Plus",
     "home": "Accueil",
-    "library": "Bibliothèque"
+    "library": "Bibliothèque",
+    "business": "Achat & vente"
   },
   "auth": {
     "tagline": "Scanne, trie et suis tes cartes depuis ton téléphone.",
@@ -165,7 +166,16 @@
       "links": "Affichage des liens actifs",
       "new": "Affichage du formulaire de nouveau lien",
       "link": "Affichage du lien et du QR code"
-    }
+    },
+    "linksTab": "Liens",
+    "sharedCards": "Cartes partagées",
+    "sharedCardsDescription": "Les cartes de cette collection que vous avez partagées. Touchez-en une pour copier son lien, ou appuyez longuement pour le révoquer.",
+    "sharedCardsEmpty": "Aucune carte partagée",
+    "sharedCardsEmptyDescription": "Utilisez « Copier le lien de partage » sur une carte pour la partager. Son lien apparaît ici pour que vous puissiez le révoquer.",
+    "cardLinkCopied": "Lien copié.",
+    "cardLinkCopyFailed": "Impossible de copier le lien.",
+    "cardLinkCopyHint": "Copie le lien",
+    "created": "Créé le {{date}}"
   },
   "cards": {
     "bin": "Bac {{number}}",
@@ -298,7 +308,7 @@
     "cardCount_other": "{{count}} cartes",
     "leaderboard": {
       "title": "Classement",
-      "description_one": "L'organisation qui a scanné le plus de cartes avec Mault.",
+      "description_one": "La {{count}} organisation qui a scanné le plus de cartes avec Mault.",
       "description_other": "Les {{count}} organisations qui ont scanné le plus de cartes avec Mault.",
       "error": "Impossible de charger le classement. Réessayez dans un instant.",
       "rank": "#{{rank}}",
@@ -683,6 +693,10 @@
       "control-card-switch-failed": {
         "title": "Carte de contrôle non appliquée",
         "description": "Impossible de changer de collection ou de préréglage. Vérifie ta connexion et réessaie."
+      },
+      "storage-unavailable": {
+        "title": "Impossible de ranger la carte",
+        "description": "{{detail}} Choisissez un autre emplacement de rangement pour continuer."
       }
     },
     "scanOnce": "Scanner une",
@@ -719,9 +733,9 @@
     "handScanBin": "Bac {{number}}",
     "pauseAction": "Pause",
     "emergencyStop": "Arrêt",
-    "emergencyStopHint": "Arrêt d'urgence : arrête immédiatement le chargeur, les volets et les poussoirs",
-    "sessionChip_one": "{{count}} scannée",
-    "sessionChip_other": "{{count}} scannée",
+    "emergencyStopHint": "Arrêt d'urgence : arrête immédiatement le chargeur, les palettes et les poussoirs",
+    "sessionChip_one": "{{count, compact}} scannée",
+    "sessionChip_other": "{{count, compact}} scannée",
     "sessionScans": {
       "title": "Cette session",
       "empty": "Aucune carte scannée dans cette session pour l'instant.",
@@ -851,7 +865,8 @@
         "scanOnce": "Scan unique",
         "removing": "Retrait"
       },
-      "saved": "{{name}} enregistrée"
+      "saved": "{{name}} enregistrée",
+      "offline": "Hors ligne"
     },
     "unmatchedRecovery": {
       "title": "Carte non identifiée",
@@ -867,6 +882,25 @@
       "scannedCount_other": "{{count}} scannées",
       "lastCard": "Dernière : {{name}}",
       "noCardYet": "Aucune carte pour l'instant"
+    },
+    "destination": {
+      "title": "Destination des cartes scannées",
+      "description": "Les cartes scannées vont directement dans l'emplacement de rangement choisi. Les règles de tri et les bacs ne sont pas utilisés.",
+      "descriptionNoLocations": "Vous n'avez pas encore d'emplacement de rangement. Ajoutez-en un dans Bibliothèque > Rangement, ou ajoutez les cartes à la collection uniquement. Les règles de tri et les bacs ne sont utilisés que si vous choisissez Trier selon les règles.",
+      "descriptionLocked": "Les emplacements de rangement ne sont pas inclus dans votre formule. Les cartes sont ajoutées à la collection uniquement, et les règles de tri et les bacs ne sont utilisés que si vous choisissez Trier selon les règles.",
+      "noLocation": "Aucun emplacement",
+      "noLocationDescription": "Ajouter les cartes à la collection uniquement, sans tri",
+      "sort": "Trier selon les règles",
+      "sortDescription": "Votre préréglage de règles choisit un bac pour chaque carte",
+      "sorterChip": "Le trieur trie selon vos règles",
+      "sortChip": "Tri selon les règles",
+      "storageChip": "Dans {{name}} · sans tri",
+      "noLocationChip": "Aucun emplacement · sans tri",
+      "collectionAndLocation": "{{collection}} · {{location}}",
+      "batchDescription": "Les cartes ajoutées depuis la photo vont directement dans l'emplacement de rangement choisi.",
+      "batchDescriptionNoLocations": "Vous n'avez pas encore d'emplacement de rangement. Ajoutez-en un dans Bibliothèque > Rangement, ou ajoutez les cartes à la collection uniquement.",
+      "batchDescriptionLocked": "Les emplacements de rangement ne sont pas inclus dans votre offre, les cartes sont donc ajoutées à la collection uniquement.",
+      "batchNoLocationDescription": "Ajouter les cartes à la collection uniquement"
     }
   },
   "home": {
@@ -881,6 +915,12 @@
       "open": "Ouvre la collection"
     },
     "loadFailed": "Impossible de charger votre aperçu. Tirez vers le bas pour réessayer.",
+    "firstRun": {
+      "title": "Commencez votre collection",
+      "description": "Créez une collection, puis scannez vos premières cartes pour voir ce qu'elles valent.",
+      "createCollection": "Nouvelle collection",
+      "startScanning": "Commencer à scanner"
+    },
     "hero": {
       "value": "Valeur de la collection",
       "cards": "Cartes",
@@ -941,7 +981,9 @@
       "title": "Trier par",
       "scanOrder": "Ordre de scan (plus récents d'abord)",
       "ascending": "{{field}}, croissant",
-      "descending": "{{field}}, décroissant"
+      "descending": "{{field}}, décroissant",
+      "priceUsd": "Prix (USD)",
+      "priceEur": "Prix (EUR)"
     },
     "actions": {
       "copies_one": "{{count}} exemplaire",
@@ -1040,7 +1082,12 @@
     "actions": "Actions de la carte",
     "similarMatchesCount_one": "{{count}} correspondance similaire",
     "similarMatchesCount_other": "{{count}} correspondances similaires",
-    "reviewAcceptFailed": "Impossible de valider la carte précédente"
+    "reviewAcceptFailed": "Impossible de valider la carte précédente",
+    "share": "Copier le lien de partage",
+    "shareLinkCopied": "Lien de partage copié. Toute personne qui l’a peut voir cette carte.",
+    "shareLinkCopyFailed": "Impossible de copier un lien de partage pour cette carte.",
+    "downloadPhoto": "Télécharger la photo",
+    "downloadPhotoFailed": "Impossible de télécharger la photo. Réessayez."
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",
@@ -1169,7 +1216,7 @@
         "description": "Ignore les règles : les cartes identifiées vont dans un bac, les autres dans un autre"
       },
       "auto-assign": {
-        "title": "Tri automatique",
+        "title": "Détection automatique",
         "description": "Chaque nouvelle valeur d'un champ prend le prochain bac libre pendant le scan"
       },
       "game-sort": {
@@ -1315,7 +1362,7 @@
     "noPositionSelected": "Sélectionne une position ci-dessus pour la modifier",
     "rawPulseToggleLabel": "Valeurs brutes de l'impulsion",
     "rawPulseTooltip": "Position brute de l'impulsion du servo (120-490), la valeur exacte envoyée à l'appareil.",
-    "testServoGate": "Test : ouvre brièvement la trappe, puis la referme, pour que tu puisses observer le mouvement.",
+    "testServoGate": "Test : ouvre brièvement la palette, puis la referme, pour que tu puisses observer le mouvement.",
     "testServoPusher": "Test : pousse brièvement à gauche, puis à droite, puis revient en position neutre, pour que tu puisses observer le mouvement dans les deux sens.",
     "pusherOffsetWarning": "Plus de {{percent}} % par rapport au neutre. Le bras ne doit pas toucher la paroi intérieure, et plus vous poussez loin, plus le risque de sauter des dents d'engrenage ou de faire glisser le palonnier sur l'axe augmente.",
     "delays": {
@@ -1626,6 +1673,7 @@
   "settings": {
     "title": "Paramètres",
     "subtitle": "Paramètres de l'organisation pour chaque scanner",
+    "loadFailed": "Impossible de charger ces paramètres",
     "entrySubtitle": "Prix, scan, image de marque et intégrations",
     "sections": {
       "general": {
@@ -1707,7 +1755,7 @@
     "ocr": {
       "heading": "Reconnaissance de texte (OCR)",
       "description": "Quand un scan n'est pas une correspondance sûre, le nom et la ligne d'extension de la carte sont lus pour la trouver. S'applique à tous les scanners de cette organisation, pour les jeux dont les zones de texte sont configurées.",
-      "toggleLabel": "Activer la correspondance de texte OCR",
+      "toggleLabel": "Activer la reconnaissance de texte",
       "highAccuracyToggleLabel": "Scans plus précis",
       "highAccuracyDescription": "Lit le texte de chaque carte, pas seulement des correspondances incertaines, pour que l'extension et le numéro corrigent une correspondance sûre mais fausse. Les scans prennent un peu plus de temps."
     },
@@ -2229,6 +2277,7 @@
   "health": {
     "title": "État du système",
     "subtitle": "État en direct de la base de données.",
+    "loadFailed": "Impossible de charger l'état du système",
     "refresh": "Actualiser",
     "allHealthy": "Tout fonctionne normalement.",
     "someUnhealthy": "Certains services rencontrent des problèmes.",
@@ -2357,10 +2406,14 @@
     "verificationCodeNumeric": "Le code ne peut contenir que des chiffres.",
     "controlCardActionRequired": "Choisis au moins une chose que la carte modifie.",
     "orderBinDuplicate": "Chaque commande a besoin de son propre bac.",
+    "shortLinkCodeInvalid": "Utilisez jusqu'à {{max}} lettres minuscules, chiffres et tirets, en commençant et en finissant par une lettre ou un chiffre.",
+    "shortLinkCodeReserved": "Ce code est réservé. Choisissez-en un autre.",
+    "shortLinkTargetInvalid": "Saisissez une URL complète en http:// ou https://.",
     "orderBinCatchAll": "Le dernier bac reçoit toutes les autres cartes, choisis-en un autre.",
     "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
     "contactRequired": "Indique comment te joindre.",
-    "textTooLong": "Reste sous {{max}} caractères."
+    "textTooLong": "Reste sous {{max}} caractères.",
+    "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}."
   },
   "cardTags": {
     "title": "Étiquettes",
@@ -2617,7 +2670,7 @@
       "unlimited": "Illimité",
       "features": {
         "chaosSort": {
-          "label": "Tri en vrac",
+          "label": "Tri chaos",
           "description": "Remplir les bacs dans l'ordre, sans règles. Le désactiver empêche seulement d'autres préréglages de l'activer."
         },
         "storage": {
@@ -2634,7 +2687,7 @@
         },
         "repacks": {
           "label": "Repacks",
-          "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux déjà en mode repack continuent de fonctionner."
+          "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux qui créent déjà des repacks continuent de fonctionner."
         },
         "customSounds": {
           "label": "Sons personnalisés",
@@ -3407,6 +3460,12 @@
       "catalog": "Toutes les cartes"
     },
     "catalogLoadFailed": "Impossible de rechercher dans le catalogue de cartes. Tirez vers le bas pour réessayer.",
+    "showMoreCards": "Afficher plus de vos cartes",
+    "gameFilterLabel": "Rechercher dans",
+    "allGames": "Tous les jeux",
+    "showMoreCatalogCards": "Afficher plus de cartes",
+    "loadingMore": "Chargement de résultats supplémentaires",
+    "loadMoreFailed": "Impossible de charger plus de résultats. Réessayez.",
     "printings": {
       "title": "Impressions",
       "titleWithCount_one": "Impressions ({{count}})",
@@ -3418,7 +3477,14 @@
       "showMore": "Afficher plus d'impressions"
     }
   },
+  "offline": {
+    "title": "Tu es hors ligne",
+    "description": "Les scans seront enregistrés dès que tu seras de nouveau en ligne. Les autres modifications nécessitent une connexion.",
+    "backOnline": "De nouveau en ligne"
+  },
   "recovery": {
+    "loadFailed": "Impossible de charger ce contenu",
+    "loadFailedDescription": "Vérifie ta connexion et réessaie.",
     "undo": "Annuler",
     "retry": "Réessayer",
     "restored": "Restauré",
@@ -3452,5 +3518,246 @@
     },
     "noChange": "Pas encore d'historique",
     "changeLoadFailed": "Impossible de charger les variations de valeur"
+  },
+  "business": {
+    "title": "Achat et vente",
+    "subtitle": "Rachetez des collections au comptoir et préparez les commandes depuis votre stock.",
+    "locked": "L'achat et la vente font partie d'une offre supérieure",
+    "lockedDescription": "Vous pouvez consulter les rachats et préparations passés. Passez à une offre supérieure sur le web pour en créer.",
+    "loadFailed": "Impossible de charger cette liste.",
+    "actionFailed": "Cela n'a pas fonctionné. Réessayez.",
+    "showMore": "Afficher plus",
+    "back": "Retour",
+    "cancel": "Annuler",
+    "delete": "Supprimer",
+    "views": {
+      "intake": "Rachat",
+      "picks": "Préparations"
+    },
+    "status": {
+      "open": "Ouvert",
+      "accepted": "Acheté",
+      "fulfilled": "Terminée",
+      "cancelled": "Annulé"
+    },
+    "intake": {
+      "title": "Rachat",
+      "entrySubtitle": "Rachetez des cartes aux clients avec des offres en direct",
+      "new": "Nouveau rachat",
+      "newDescription": "Les cartes scannées dans la collection du lot y sont ajoutées jusqu'à ce que vous l'acceptiez ou l'annuliez.",
+      "create": "Démarrer le rachat",
+      "createFailed": "Impossible de démarrer le rachat",
+      "customerName": "Client",
+      "customerContact": "Contact (facultatif)",
+      "customerContactPlaceholder": "E-mail ou téléphone",
+      "collectionMode": "Scanner dans",
+      "collectionModes": {
+        "new": "Nouvelle collection",
+        "existing": "Collection existante"
+      },
+      "collection": "Collection",
+      "collectionPlaceholder": "Choisissez une collection",
+      "game": "Jeu",
+      "gamePlaceholder": "Choisissez un jeu",
+      "language": "Langue",
+      "languagePlaceholder": "Choisissez une langue",
+      "notes": "Notes (facultatif)",
+      "emptyTitle": "Aucun rachat",
+      "emptyDescription": "Commencez-en un quand un client vient vendre des cartes.",
+      "rowDetails_one": "{{count}} carte · {{collection}}",
+      "rowDetails_other": "{{count}} cartes · {{collection}}",
+      "openHint": "Ouvre le rachat",
+      "subtitle": "Scan dans {{collection}} · commencé le {{date}}",
+      "notFound": "Ce rachat n'existe plus.",
+      "moreActions": "Plus d'actions pour le rachat",
+      "openCollection": "Ouvrir la collection",
+      "collectionDeleted": "La collection du lot a été supprimée.",
+      "liveOffer": "Offre en direct",
+      "summary": "Récapitulatif",
+      "stats": {
+        "cards": "Cartes",
+        "market": "Valeur marché",
+        "cash": "Offre en espèces",
+        "credit": "Offre en avoir",
+        "paid": "Payé"
+      },
+      "payout": {
+        "cash": "Espèces",
+        "credit": "Avoir"
+      },
+      "payoutMethod": "Payer en",
+      "payoutTotal": {
+        "cash": "Espèces à verser",
+        "credit": "Avoir à accorder"
+      },
+      "belowMinimum_one": "{{count}} carte est sous votre minimum et ne reçoit pas d'offre.",
+      "belowMinimum_other": "{{count}} cartes sont sous votre minimum et ne reçoivent pas d'offre.",
+      "belowMinimumRow": "Sous le minimum, pas d'offre",
+      "scanCards": "Scanner des cartes dans ce lot",
+      "accept": "Accepter",
+      "acceptTitle": "Accepter ce lot",
+      "acceptDescription_one": "Acheter {{count}} carte à {{name}}. Le coût d'achat de chaque carte est fixé d'après son offre.",
+      "acceptDescription_other": "Acheter {{count}} cartes à {{name}}. Le coût d'achat de chaque carte est fixé d'après son offre.",
+      "acceptConfirm": "Accepter pour {{amount}}",
+      "accepted": "Lot accepté",
+      "overrideLabel": "Utiliser un autre total",
+      "overrideAmount": "Total en espèces",
+      "costBasisNote": "Coût d'achat enregistré : {{amount}}",
+      "transfer": "Déplacer les cartes vers le stock",
+      "contact": "Contact",
+      "notesTitle": "Notes",
+      "cardsSection_one": "{{count}} carte",
+      "cardsSection_other": "{{count}} cartes",
+      "noCardsOpen": "Scannez les cartes du client. Les offres se mettent à jour à chaque carte enregistrée.",
+      "noCardsClosed": "Ce lot a été clôturé sans aucune carte.",
+      "cancelLot": "Annuler le lot",
+      "cancelTitle": "Annuler ce lot",
+      "cancelDescription": "{{name}} garde ses cartes et rien n'est payé. Retirez aussi les cartes scannées si elles repartent avec le client.",
+      "cancelKeepCards": "Annuler et garder les cartes",
+      "cancelRemoveCards_one": "Annuler et retirer {{count}} carte",
+      "cancelRemoveCards_other": "Annuler et retirer {{count}} cartes",
+      "cancelled": "Lot annulé",
+      "deleteTitle": "Supprimer ce lot ?",
+      "deleteDescription": "La fiche du lot est supprimée. Les cartes achetées restent dans votre collection avec leur coût.",
+      "deleted": "Lot supprimé"
+    },
+    "transfer": {
+      "title": "Déplacer les cartes achetées",
+      "description": "Déplacez les cartes de {{name}} vers la collection où vous gardez votre stock.",
+      "target": "Déplacer vers",
+      "newCollection": "Nouvelle collection",
+      "noTargets": "Aucune autre collection pour ce jeu, une nouvelle sera donc créée.",
+      "newName": "Nom de la collection",
+      "newNamePlaceholder": "Stock",
+      "deleteSource": "Supprimer {{name}} ensuite",
+      "deleteSourceHint": "Seulement une fois qu'elle ne contient plus de cartes.",
+      "move": "Déplacer les cartes",
+      "moved_one": "{{count}} carte déplacée",
+      "moved_other": "{{count}} cartes déplacées"
+    },
+    "picks": {
+      "entrySubtitle": "Sortez les cartes vendues du stock, emplacement par emplacement",
+      "new": "Nouvelle préparation",
+      "newDescription": "Collez les cartes à sortir, une par ligne. MAULT trouve les exemplaires dans votre stock et leur emplacement.",
+      "create": "Créer la préparation",
+      "createFailed": "Impossible de créer la préparation",
+      "nameLabel": "Nom",
+      "namePlaceholder": "Commande n° 1234",
+      "cardsLabel": "Cartes",
+      "cardsPlaceholder": "4 Lightning Bolt\n1 Sol Ring",
+      "emptyTitle": "Aucune préparation",
+      "emptyDescription": "Créez une préparation ici, ou importez des commandes sur le web et scannez le QR code de la préparation depuis l'onglet Scan.",
+      "openSection": "Ouvertes",
+      "closedSection": "Clôturées",
+      "openHint": "Ouvre la préparation",
+      "rowProgress": "{{picked}} sur {{quantity}} préparées · {{allocated}} en stock",
+      "rowCards_one": "{{count}} carte",
+      "rowCards_other": "{{count}} cartes",
+      "pickAllOpen_one": "Préparer {{count}} préparation ouverte",
+      "pickAllOpen_other": "Préparer les {{count}} préparations ouvertes",
+      "noPermission": "Vous pouvez voir cette préparation, mais votre rôle ne permet pas de cocher des cartes.",
+      "complete_one": "Terminer la préparation",
+      "complete_other": "Terminer {{count}} préparations",
+      "completeTitle_one": "Terminer cette préparation ?",
+      "completeTitle_other": "Terminer {{count}} préparations ?",
+      "completeDescription_one": "Retire {{count}} carte du stock et enregistre la vente pour {{names}}.",
+      "completeDescription_other": "Retire {{count}} cartes du stock et enregistre les ventes pour {{names}}.",
+      "completed_one": "Préparation terminée",
+      "completed_other": "{{count}} préparations terminées",
+      "missing": {
+        "title": "{{name}} introuvable ?",
+        "description": "MAULT libère cet exemplaire et en cherche un autre en stock. S'il n'en reste aucun, la préparation indique la carte comme manquante pour que vous choisissiez un remplacement.",
+        "confirm": "Chercher un autre exemplaire",
+        "released": "{{name}} libéré. Vérifiez son remplacement dans la préparation."
+      },
+      "walk": {
+        "title": "Préparation",
+        "progress": "{{picked}} sur {{total}} préparées",
+        "nextUp": "Carte suivante",
+        "slot": "Emplacement {{position}}",
+        "bin": "Bac {{bin}}",
+        "collectionBin": "{{collection}}, bac {{bin}}",
+        "foil": "Foil",
+        "orderRef": "Commande {{order}}",
+        "orderBin": "bac de commande {{bin}}",
+        "picked": "Préparée",
+        "markPicked": "Marquer {{name}} de {{spot}} comme préparée",
+        "cantFind": "Introuvable",
+        "cantFindCard": "{{name}} introuvable",
+        "allPicked": "Toutes les cartes sont préparées. Terminez la préparation pour les retirer du stock.",
+        "stopProgress": "{{picked}}/{{total}}",
+        "scanToPick": "Scanner les cartes à préparer",
+        "closedSkipped_one": "{{count}} préparation est déjà clôturée et a été ignorée.",
+        "closedSkipped_other": "{{count}} préparations sont déjà clôturées et ont été ignorées.",
+        "shortPicks_one": "Il manque des cartes à {{count}} préparation",
+        "shortPicks_other": "Il manque des cartes à {{count}} préparations",
+        "openShort": "Choisir des remplacements",
+        "emptyTitle": "Rien à préparer",
+        "emptyDescription": "Ces préparations sont clôturées ou n'ont aucune carte en stock.",
+        "saveFailed": "Impossible d'enregistrer cette coche. La liste a été actualisée."
+      },
+      "scan": {
+        "title": "Scanner pour préparer",
+        "hint": "Placez une carte de la préparation dans le cadre et appuyez sur le déclencheur.",
+        "remaining_one": "Encore {{count}} à préparer",
+        "remaining_other": "Encore {{count}} à préparer",
+        "picked": "{{name}} pris dans {{spot}}",
+        "alreadyPicked": "Tous les exemplaires de {{name}} de cette préparation sont déjà préparés.",
+        "notOnPick": "{{name}} ne reste pas dans cette préparation."
+      }
+    },
+    "order": {
+      "title": "Préparation",
+      "subtitle": "{{source}} · {{date}}",
+      "sources": {
+        "tcgplayer": "TCGplayer",
+        "shopify": "Shopify",
+        "generic": "Liste"
+      },
+      "notFound": "Cette préparation n'existe plus.",
+      "moreActions": "Plus d'actions pour la préparation",
+      "stats": {
+        "quantity": "Cartes",
+        "allocated": "En stock",
+        "picked": "Préparées",
+        "revenue": "Chiffre d'affaires"
+      },
+      "shortLines_one": "{{count}} carte de cette préparation n'est pas entièrement en stock.",
+      "shortLines_other": "{{count}} cartes de cette préparation ne sont pas entièrement en stock.",
+      "startPicking": "Commencer la préparation",
+      "continuePicking": "Continuer la préparation",
+      "lines": "Cartes à sortir",
+      "linePicked": "{{picked}}/{{quantity}} préparées",
+      "lineQuantity_one": "{{count}} carte",
+      "lineQuantity_other": "{{count}} cartes",
+      "inStock_one": "seulement {{count}} en stock",
+      "inStock_other": "seulement {{count}} en stock",
+      "substitute": "Remplacer",
+      "reallocate": "Réattribuer",
+      "reallocated": "Préparation réattribuée",
+      "cancel": "Annuler la préparation",
+      "cancelTitle": "Annuler cette préparation ?",
+      "cancelDescription": "Ses cartes restent en stock et sont disponibles pour d'autres préparations.",
+      "cancelConfirm": "Annuler la préparation",
+      "cancelled": "Préparation annulée",
+      "deleteTitle": "Supprimer cette préparation ?",
+      "deleteDescription": "La fiche est supprimée. Les cartes déjà sorties du stock le restent.",
+      "deleted": "Préparation supprimée"
+    },
+    "substitute": {
+      "title": "Remplacements",
+      "description": "Exemplaires en stock qui pourraient combler les {{missing}} manquants pour {{name}}. Les plus proches apparaissent en premier.",
+      "added": "Remplacement ajouté à la préparation",
+      "emptyTitle": "Aucun autre exemplaire en stock",
+      "emptyDescription": "Aucun exemplaire libre de cette carte n'est en stock pour le moment.",
+      "exactMatch": "Correspond à la commande",
+      "useCopy": "Utiliser",
+      "useCopyHint": "Ajoute cet exemplaire à la préparation",
+      "differences": {
+        "printing": "Autre impression",
+        "condition": "Autre état",
+        "finish": "Autre finition"
+      }
+    }
   }
 }

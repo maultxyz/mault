@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { Image } from "expo-image";
 import { useTranslation } from "react-i18next";
@@ -16,7 +17,6 @@ import { SCAN_ATTRIBUTE_FIELD_WIDTH } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
 import { CARD_ART_RADIUS, SPACING } from "@/lib/constants/theme";
 import type { ReviewGridTileProps } from "@/lib/interfaces/cards";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { cardArtSources } from "@/lib/card-art";
 import { absoluteUrl } from "@/lib/url";
 import { cardStampOptionsFor } from "@magic-vault/shared";

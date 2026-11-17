@@ -6,8 +6,7 @@ WORKDIR /app
 # Disable ONNX telemetry before any native runtime initialization.
 ENV ORT_DISABLE_TELEMETRY=1
 
-# Set HuggingFace and CollectorVision caches to known paths inside the image
-ENV HF_HOME=/app/.cache/huggingface
+# Set the CollectorVision cache to a known path inside the image
 ENV COLLECTORVISION_CACHE=/app/.cache/collectorvision
 
 # The runtime user must be able to write models fetched on first use into

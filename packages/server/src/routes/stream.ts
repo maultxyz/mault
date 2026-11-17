@@ -2,7 +2,6 @@ import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import { Hono, type Context } from "hono";
 import { streamSSE } from "hono/streaming";
-import { authProvider } from "../auth";
 import {
   findMemberSeatOverflow,
   memberSeatLimitMessage,
@@ -27,16 +26,17 @@ import {
   loadActiveDeployNotice,
   subscribeDeployNotice,
 } from "../lib/deploy-notice";
-import { getLocksForGuids, subscribeOrgLocks } from "../lib/scan-lock";
+import { getLocksForGuids } from "../lib/scan-lock";
 import {
   getLiveCountsForGuids,
   getSessionViewers,
   getSessionViewersForGuids,
-  subscribeOrgLiveCounts,
+  subscribeOrgEvents,
   subscribeSession,
 } from "../lib/session-stream";
 import { subscribeSSE } from "../lib/sync-job";
 import {
+  findOrgMembership,
   getUserDisplayName,
   verifyRequestToken,
   type AppEnv,
@@ -127,7 +127,7 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
   const userId = payload.sub;
 
   if (orgId) {
-    const member = await authProvider.resolveOrgMembership(userId, orgId);
+    const member = await findOrgMembership(userId, orgId);
     if (!member) return c.json({ success: false, message: "Forbidden" }, 403);
     const seatLimit = await findMemberSeatOverflow(orgId, userId, member.role);
     if (seatLimit != null) {
@@ -166,8 +166,7 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
       .catch((err) => console.error("[stream] Failed to load deploy notice:", err));
 
     if (orgId) {
-      unsubs.push(subscribeOrgLocks(orgId, write));
-      unsubs.push(subscribeOrgLiveCounts(orgId, write));
+      unsubs.push(subscribeOrgEvents(orgId, write));
 
       let orgGuids: string[] = [];
       try {
@@ -191,31 +190,34 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
       } catch {}
 
       const orgGuidSet = new Set(orgGuids);
-      for (const guid of watchGuids) {
-        if (!orgGuidSet.has(guid)) continue;
+      const watchedOrgGuids = watchGuids.filter((guid) => orgGuidSet.has(guid));
+      for (const guid of watchedOrgGuids) {
         const sessionWrite = (event: string, data: unknown) =>
           write(`session:${guid}:${event}`, data);
-
         unsubs.push(
           subscribeSession(guid, orgId, userId, displayName, sessionWrite),
         );
-
-        try {
-          const initial = await loadSessionInit(
-            (fn) => authQuery(jwtClaims!, fn),
-            guid,
-            orgId,
-            getSessionViewers(guid),
-          );
-          if (!initial) {
-            console.warn(`[stream] Session ${guid} not found in org ${orgId}`);
-          } else {
-            write(`session:${guid}:session_init`, initial);
-          }
-        } catch (err) {
-          console.error(`[stream] Failed to load session ${guid}:`, err);
-        }
       }
+
+      await Promise.all(
+        watchedOrgGuids.map(async (guid) => {
+          try {
+            const initial = await loadSessionInit(
+              (fn) => authQuery(jwtClaims!, fn),
+              guid,
+              orgId,
+              getSessionViewers(guid),
+            );
+            if (!initial) {
+              console.warn(`[stream] Session ${guid} not found in org ${orgId}`);
+            } else {
+              write(`session:${guid}:session_init`, initial);
+            }
+          } catch (err) {
+            console.error(`[stream] Failed to load session ${guid}:`, err);
+          }
+        }),
+      );
     }
 
     await aborted;

@@ -6,13 +6,13 @@ export type HotkeyGroup =
   | "scanner"
   | "cardDetail"
   | "intake"
-  | "foilLabeling"
   | "matchValidation";
 
 export type HotkeyId =
   | "showShortcuts"
   | "toggleSidebar"
   | "focusSearch"
+  | "openGlobalSearch"
   | "dismissToasts"
   | "clearSelection"
   | "save"
@@ -52,10 +52,6 @@ export type HotkeyId =
   | "reviewCycleCondition"
   | "reviewCycleLanguage"
   | "intakeOpenScanner"
-  | "foilLabelFoil"
-  | "foilLabelNotFoil"
-  | "foilLabelSkip"
-  | "foilLabelBack"
   | "matchValidationCorrect"
   | "matchValidationIncorrect"
   | "matchValidationBadScan"
@@ -84,6 +80,7 @@ export interface HotkeyRegistration {
 export interface HotkeyHintProps {
   id: HotkeyId;
   className?: string;
+  showWhenInactive?: boolean;
 }
 
 export interface KbdProps {

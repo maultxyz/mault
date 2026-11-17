@@ -144,7 +144,7 @@ export function PresetWorkflowStageCard({
             </Button>
           )}
           <Button
-            variant="outline-destructive"
+            variant="destructive"
             size="icon"
             aria-label={t("presetWorkflows.removeStage")}
             disabled={stageCount <= 1}

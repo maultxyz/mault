@@ -9,6 +9,7 @@ import { SeasonalPumpkin, SpiderWeb } from "@/components/halloween-decor";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { PlanPreviewBanner } from "@/components/plan-preview-banner";
 import { IntakeBanner } from "@/features/business/components/intake-banner";
+import { GlobalSearchCommand } from "@/features/search/components/global-search-command";
 import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog";
 import { MobileNav } from "@/components/mobile-nav";
 import { MobileTopBar } from "@/components/mobile-top-bar";
@@ -32,7 +33,7 @@ import {
   MOBILE_NAV_HIDDEN_PATTERN,
   MOBILE_NAV_SPACE_CLASS,
 } from "@/lib/constants/nav";
-import { GRADIENT_BURST_CLASS } from "@/lib/constants/ui";
+import { GRADIENT_BURST_CLASS, SHELL_GRADIENT_CLASS } from "@/lib/constants/ui";
 import { cn } from "@/lib/utils";
 import { IconCoffee } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -54,15 +55,17 @@ export default function AppLayout() {
     <AppProviders>
       <SkipLink />
       <RouteAnnouncer />
+      <GlobalSearchCommand />
       {isMobile ? (
         <div
           className={cn(
-            "relative h-dvh w-dvw overflow-hidden flex flex-col pt-[env(safe-area-inset-top)]",
+            "relative isolate h-dvh w-dvw overflow-hidden flex flex-col pt-[env(safe-area-inset-top)]",
             isFramed ? "bg-sidebar" : "bg-background",
             !hideMobileNav && MOBILE_NAV_SPACE_CLASS,
             isFramed && MOBILE_FRAMED_SHELL_CLASS,
           )}
         >
+          {isFramed && <div aria-hidden className={SHELL_GRADIENT_CLASS} />}
           <div aria-hidden className={GRADIENT_BURST_CLASS} />
           <SpiderWeb
             corner="top-left"
@@ -90,7 +93,8 @@ export default function AppLayout() {
           {!hideMobileNav && <MobileNav />}
         </div>
       ) : (
-        <div className="h-dvh w-dvw overflow-hidden pb-6 flex flex-col bg-sidebar relative text-foreground/70">
+        <div className="h-dvh w-dvw overflow-hidden pb-6 flex flex-col bg-sidebar relative isolate text-foreground/70">
+          <div aria-hidden className={SHELL_GRADIENT_CLASS} />
           <div aria-hidden className={GRADIENT_BURST_CLASS} />
           <SpiderWeb corner="top-left" withSpider className="z-0" />
           <AppTopBar />

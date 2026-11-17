@@ -1,3 +1,4 @@
+import { MARKETING_HERO_TITLE_CLASS } from "@/lib/constants/marketing-pages";
 import { buttonVariants } from "@/components/ui/button";
 import { neon } from "@/lib/auth/client";
 import { DISCORD_BOT_INSTALL_URL } from "@/lib/constants/links";
@@ -14,10 +15,10 @@ export function DiscordBotHero() {
 
   return (
     <section className="mx-auto flex max-w-6xl flex-col items-center px-4 pt-16 pb-16 text-center md:pt-24 md:pb-24">
-      <p className="font-heading text-2xs font-medium tracking-widest text-primary uppercase">
+      <p className="font-heading text-sm font-medium tracking-widest text-primary uppercase">
         {t("hero.eyebrow")}
       </p>
-      <h1 className="mt-6 max-w-4xl font-heading text-5xl leading-[1.02] font-semibold tracking-tight text-balance md:text-6xl">
+      <h1 className={cn(MARKETING_HERO_TITLE_CLASS, "mt-6 max-w-4xl")}>
         {t("hero.title")}
       </h1>
       <p className="mt-6 max-w-2xl text-base/relaxed text-balance text-foreground/70 md:text-lg/relaxed">
@@ -51,7 +52,7 @@ export function DiscordBotHero() {
         </a>
       </div>
 
-      <p className="mt-6 max-w-xl text-xs/relaxed text-balance text-foreground/70">
+      <p className="mt-6 max-w-xl text-sm/relaxed text-balance text-foreground/70">
         {t("hero.selfHostedNote")}
       </p>
     </section>

@@ -98,7 +98,6 @@
       "language": "Langue"
     },
     "copyOf": "Exemplaire {{index}} sur {{count}}",
-    "moreOptions": "Plus",
     "actions": "Actions de la carte",
     "name": "Nom",
     "moveToLocation": "Déplacer vers un emplacement",
@@ -124,6 +123,8 @@
     "manageCollections": "Gérer les collections",
     "noCardsScanned": "Aucune carte scannée pour le moment",
     "scanToGetStarted": "Scanne une carte pour commencer",
+    "loadFailed": "Impossible de charger les cartes de cette collection.",
+    "selectAllFailed": "Impossible de sélectionner toutes les cartes. Réessaie.",
     "noCardsMatchFilters": "Aucune carte ne correspond aux filtres actuels",
     "tryAdjusting": "Essaie d'ajuster ta recherche, ton tri ou tes filtres",
     "cardsSelected_one": "{{count}} carte sélectionnée",
@@ -165,6 +166,10 @@
     "sortDescString": "Z-A",
     "sortAscDefault": "Croissant",
     "sortDescDefault": "Décroissant",
+    "priceSort": {
+      "usd": "Prix (USD)",
+      "eur": "Prix (EUR)"
+    },
     "deselectAll": "Tout désélectionner",
     "selectAll": "Tout sélectionner",
     "gridView": "Vue grille",
@@ -248,6 +253,8 @@
     "previous": "Précédent",
     "next": "Suivant",
     "skipAll": "Tout passer",
+    "pause": "Mettre le diaporama en pause",
+    "play": "Lire le diaporama",
     "intro": {
       "eyebrow": "Ta session",
       "title": "Le récap de {{collectionName}}",
@@ -349,6 +356,13 @@
       "noScanAreas": "Non vérifié : aucune zone de marque issue du scan",
       "noReferences": "Non vérifié : pas encore de références pour ce jeu",
       "singlePrinting": "Inutile : aucune impression similaire"
+    },
+    "printedLanguageCode": "Code de langue (« EN »)",
+    "printedLanguageCodeValue": {
+      "presentChanged": "EN trouvé, impression changée",
+      "presentKept": "EN trouvé",
+      "absentChanged": "Pas de EN, impression changée",
+      "absentKept": "Pas de EN"
     },
     "printedFoilMarker": "Étoile foil",
     "printedFoilMarkerValue": {
@@ -656,5 +670,19 @@
       "signedInAs": "Connecté en tant que {{name}}.",
       "signedInHint": "Les offres que vous envoyez apparaissent dans votre compte sous Échanges > Envoyées."
     }
+  },
+  "shareCardLink": {
+    "action": "Copier le lien de partage",
+    "copied": "Lien de partage copié. Toute personne qui l’a peut voir cette carte.",
+    "copyFailed": "Impossible de copier un lien de partage pour cette carte.",
+    "sharedPage": {
+      "readOnly": "Carte partagée · Lecture seule",
+      "invalidTitle": "Ce lien ne fonctionne plus",
+      "invalidDescription": "Il a peut-être été révoqué, ou la carte a été retirée. Demandez un nouveau lien à la personne qui l'a partagé."
+    }
+  },
+  "downloadScanImage": {
+    "action": "Télécharger la photo",
+    "failed": "Impossible de télécharger la photo. Réessayez."
   }
 }

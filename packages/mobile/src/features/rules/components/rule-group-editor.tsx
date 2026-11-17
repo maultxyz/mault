@@ -13,7 +13,7 @@ import { createCondition, createGroup } from "@/features/rules/lib/rules";
 import { useTheme } from "@/hooks/use-theme";
 import { MAX_RULE_GROUP_DEPTH } from "@/lib/constants/rules";
 import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
-import { MIN_TOUCH_TARGET } from "@/lib/constants/ui";
+import { COMPACT_CONTROL_MIN_HEIGHT, MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import type { ConditionEditTarget, RuleGroupEditorProps } from "@/lib/interfaces/rules";
 
 export function RuleGroupEditor({
@@ -56,14 +56,15 @@ export function RuleGroupEditor({
           accessibilityRole="button"
           accessibilityLabel={`${t("rules.combinatorTitle")}: ${group.combinator === "and" ? t("rules.combinatorAll") : t("rules.combinatorAny")}`}
           accessibilityState={{ disabled }}
-          hitSlop={(MIN_TOUCH_TARGET - 32) / 2}
+          hitSlop={(MIN_TOUCH_TARGET - COMPACT_CONTROL_MIN_HEIGHT) / 2}
           disabled={disabled}
           onPress={() => setCombinatorOpen(true)}
           style={({ pressed }) => ({
             flexDirection: "row",
             alignItems: "center",
             gap: SPACING.xs,
-            height: 32,
+            minHeight: COMPACT_CONTROL_MIN_HEIGHT,
+            paddingVertical: SPACING.xs,
             paddingHorizontal: SPACING.md,
             borderRadius: CONTROL_RADIUS,
             backgroundColor: pressed ? colors.tonalPressed : colors.tonal,

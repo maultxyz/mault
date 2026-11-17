@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { SYNC_VECTORIZE_CONCURRENCY_DEFAULT, SYNC_VECTORIZE_CONCURRENCY_OPTIONS, type SyncState, type SyncStatus } from "@magic-vault/shared";
 import { useEffect, useRef, useState } from "react";
@@ -19,7 +20,6 @@ import { CardsSyncByIdPanel } from "@/features/admin/components/cards-sync-by-id
 import { CardsSyncSourceFields } from "@/features/admin/components/cards-sync-source-fields";
 import { useTheme } from "@/hooks/use-theme";
 import { ADMIN_DEFAULT_SYNC_LANGUAGE, ADMIN_SYNC_LOG_VISIBLE_LINES, CARD_SYNC_STATUS_TONES } from "@/lib/constants/admin-cards";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { CardsSyncSourceSelection } from "@/lib/interfaces/admin-cards";
 import { SectionHeader } from "@/components/ui/section-header";

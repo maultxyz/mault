@@ -91,7 +91,8 @@
   "views": {
     "label": "Buy and sell view",
     "intake": "Intake",
-    "picks": "Picks"
+    "picks": "Picks",
+    "labels": "Labels"
   },
   "offerEditor": {
     "title": "Offer for {{name}}",
@@ -119,8 +120,8 @@
     "emptyDescription": "Start one when a customer brings cards to sell.",
     "pickTitle": "Pick an intake",
     "pickDescription": "Choose a lot on the left or start a new one.",
-    "cardCount_one": "{{count}} card",
-    "cardCount_other": "{{count}} cards",
+    "cardCount_one": "{{count, compact}} card",
+    "cardCount_other": "{{count, compact}} cards",
     "openScanner": "Open scanner",
     "addCard": "Add card",
     "printReceipt": "Receipt",
@@ -274,8 +275,8 @@
       "picked": "Picked",
       "revenue": "Revenue"
     },
-    "shortLines_one": "{{count}} line isn't fully in stock. Re-allocate after scanning more cards, or complete what you have.",
-    "shortLines_other": "{{count}} lines aren't fully in stock. Re-allocate after scanning more cards, or complete what you have.",
+    "shortLines_one": "{{count}} line isn't fully in stock. Re-allocate after scanning more cards, pick a substitute from the line's menu, or complete what you have.",
+    "shortLines_other": "{{count}} lines aren't fully in stock. Re-allocate after scanning more cards, pick substitutes from each line's menu, or complete what you have.",
     "lines": "Cards to pull",
     "markPicked": "Picked",
     "pickLine": "Mark every copy of {{name}} as picked",
@@ -331,7 +332,111 @@
     "sortPresetCreated_other": "{{count}} sort presets created, one per game",
     "openSortPreset": "Open preset",
     "batchName_one": "{{count}} order",
-    "batchName_other": "{{count}} orders"
+    "batchName_other": "{{count}} orders",
+    "bulk": {
+      "selectPick": "Select {{name}}",
+      "selected_one": "{{count}} pick selected",
+      "selected_other": "{{count}} picks selected",
+      "allocate": "Re-allocate ({{count}})",
+      "cancel": "Cancel ({{count}})",
+      "delete": "Delete ({{count}})",
+      "keep": "Keep picks",
+      "cancelTitle_one": "Cancel {{count}} pick?",
+      "cancelTitle_other": "Cancel {{count}} picks?",
+      "cancelDescription_one": "Its cards stay in inventory and are free for other picks. Closed picks in the selection are left as they are.",
+      "cancelDescription_other": "Their cards stay in inventory and are free for other picks. Closed picks in the selection are left as they are.",
+      "cancelConfirm_one": "Cancel {{count}} pick",
+      "cancelConfirm_other": "Cancel {{count}} picks",
+      "deleteTitle_one": "Delete {{count}} closed pick?",
+      "deleteTitle_other": "Delete {{count}} closed picks?",
+      "deleteDescription_one": "The pick's record is removed. Cards it already took out of inventory stay removed. Open picks in the selection are left as they are.",
+      "deleteDescription_other": "The picks' records are removed. Cards they already took out of inventory stay removed. Open picks in the selection are left as they are.",
+      "done": {
+        "allocate_one": "{{count}} pick re-allocated",
+        "allocate_other": "{{count}} picks re-allocated",
+        "cancel_one": "{{count}} pick cancelled",
+        "cancel_other": "{{count}} picks cancelled",
+        "delete_one": "{{count}} pick deleted",
+        "delete_other": "{{count}} picks deleted"
+      },
+      "pickTogether": "Pick together ({{count}})",
+      "packingSlips": "Packing slips ({{count}})"
+    },
+    "batch": {
+      "title": "Pick together",
+      "description": "Picks: {{picks}} · Cards: {{cards}}",
+      "back": "Picks",
+      "pickColumn": "Pick",
+      "emptyTitle": "Nothing to pick",
+      "emptyDescription": "None of these picks are open or have cards set aside. Re-allocate them from the Picks list first.",
+      "closedSkipped_one": "{{count}} selected pick is already closed and was left out.",
+      "closedSkipped_other": "{{count}} selected picks are already closed and were left out.",
+      "shortPicks_one": "{{count}} pick isn't fully in stock. Open it to find substitutes:",
+      "shortPicks_other": "{{count}} picks aren't fully in stock. Open them to find substitutes:",
+      "progress": "{{picked}} of {{total}} cards picked. Picks ready to complete: {{completed}}",
+      "complete_one": "Complete {{count}} pick",
+      "complete_other": "Complete {{count}} picks",
+      "completeHint": "Tick every card of a pick to complete it.",
+      "completeTitle_one": "Complete {{count}} pick?",
+      "completeTitle_other": "Complete {{count}} picks?",
+      "completeDescription_one": "Their picked cards leave inventory with the orders: {{names}}",
+      "completeDescription_other": "Their picked cards leave inventory with the orders: {{names}}",
+      "completed_one": "{{count}} pick completed",
+      "completed_other": "{{count}} picks completed"
+    },
+    "substitutes": {
+      "find": "Find substitutes",
+      "title": "Substitutes",
+      "description": "Copies in stock that could fill the {{missing}} missing for {{name}}. The closest matches come first.",
+      "added": "Substitute added to the pick",
+      "emptyTitle": "No other copies in stock",
+      "emptyDescription": "No unreserved copy of this card is in inventory right now.",
+      "exactMatch": "Matches the order",
+      "useCopy": "Use this copy",
+      "useCopyFor": "Use {{printing}} in {{condition}}",
+      "differences": {
+        "printing": "Other printing",
+        "condition": "Other condition",
+        "finish": "Other finish"
+      }
+    },
+    "packingSlips": {
+      "print": "Print packing slip",
+      "printAll": "Packing slips",
+      "pageTitle": "Packing slips",
+      "count_one": "{{count}} slip, one per marketplace order",
+      "count_other": "{{count}} slips, one per marketplace order",
+      "showPrices": "Show prices",
+      "printButton": "Print",
+      "title": "Packing slip",
+      "orderRef": "Order {{order}}",
+      "slipLabel": "Packing slip for {{order}}",
+      "quantity": "Qty",
+      "unitPrice": "Each",
+      "lineTotal": "Total",
+      "items": "Items",
+      "subtotal": "Subtotal",
+      "unavailableTitle": "Not included",
+      "unavailableLine_one": "{{count}} x {{name}}",
+      "unavailableLine_other": "{{count}} x {{name}}",
+      "thanks": "Thank you for your order!",
+      "emptyTitle": "No packing slips",
+      "emptyDescription": "Cancelled picks don't get packing slips.",
+      "image": "Card image"
+    },
+    "pickSaveFailed": "Couldn't save the pick. Your ticks were refreshed from the server.",
+    "phonePick": {
+      "button": "Pick on phone",
+      "title": "Pick on your phone",
+      "description_one": "Scan this code with the MAULT app's scan tab to walk the pick by location. Ticks save as you go, so you can switch devices anytime.",
+      "description_other": "Scan this code with the MAULT app's scan tab to walk these {{count}} picks by location. Ticks save as you go, so you can switch devices anytime.",
+      "qrAlt": "QR code that opens this pick in the MAULT app",
+      "hint": "Open the app, go to Scan and point the camera at the code.",
+      "copy": "Copy link",
+      "copied": "Pick link copied",
+      "copyFailed": "Couldn't copy the link",
+      "done": "Done"
+    }
   },
   "cost": {
     "title": "Set cost basis",
@@ -594,5 +699,64 @@
     "isPublicDescription": "Anyone can open this catalog from its plain address, without the private link. Turn off to require the private link.",
     "publicBadge": "Public",
     "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link."
+  },
+  "priceLabels": {
+    "title": "Price labels",
+    "description": "Print price stickers for cards from a collection, storage location or intake lot.",
+    "printForLot": "Print price labels",
+    "form": {
+      "title": "Labels",
+      "description": "Pick the cards, how to price them and the Avery sheet you are printing on.",
+      "source": "Cards from",
+      "markup": "Markup (%)",
+      "markupHint": "Added to the market price. Use a negative number for a discount.",
+      "rounding": "Round prices"
+    },
+    "sources": {
+      "collection": "Collection",
+      "location": "Storage location",
+      "lot": "Intake lot"
+    },
+    "sourceItems": {
+      "collection": "Collection",
+      "location": "Storage location",
+      "lot": "Intake lot"
+    },
+    "sourcePlaceholders": {
+      "collection": "Choose a collection",
+      "location": "Choose a location",
+      "lot": "Choose an intake lot"
+    },
+    "rounding": {
+      "none": "Don't round",
+      "quarter": "Up to the next 0.25",
+      "ninetyNine": "Up to the next .99",
+      "whole": "Up to the next whole amount"
+    },
+    "cards": {
+      "selected_one": "{{count}} of {{total}} card selected",
+      "selected_other": "{{count}} of {{total}} cards selected",
+      "selectAll": "Select all",
+      "selectNone": "Select none",
+      "include": "Print label",
+      "card": "Card",
+      "market": "Market",
+      "customPrice": "Custom price",
+      "customPriceFor": "Custom price for {{name}}",
+      "labelPrice": "Label price",
+      "noPrice": "No price",
+      "truncated": "Showing the first {{shown}} of {{total}} cards. Print labels from a storage location or intake lot to label the rest."
+    },
+    "empty": {
+      "pickSourceTitle": "Choose where the cards come from",
+      "pickSourceDescription": "Pick a collection, storage location or intake lot to list its cards.",
+      "noCardsTitle": "No cards here",
+      "noCardsDescription": "Scan or add cards first, then print their labels.",
+      "noneSelectedTitle": "No cards selected",
+      "noneSelectedDescription": "Select at least one card to preview its label."
+    },
+    "sheet": {
+      "pageDescription": "Price label sheet page {{page}}: {{labels}}"
+    }
   }
 }

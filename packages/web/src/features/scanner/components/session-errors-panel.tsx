@@ -17,7 +17,7 @@ export function SessionErrorsPanel({ errors }: { errors: SessionError[] }) {
         {errors.map((err) => (
           <div key={err.id} className="px-3 py-1.5">
             <p className="text-xs text-destructive leading-snug">{err.message}</p>
-            <p className="text-2xs text-destructive/60 mt-0.5">
+            <p className="text-2xs text-destructive mt-0.5">
               {new Date(err.timestamp).toLocaleTimeString(undefined, {
                 hour: "2-digit",
                 minute: "2-digit",

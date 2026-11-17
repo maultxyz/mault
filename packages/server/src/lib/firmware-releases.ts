@@ -32,7 +32,6 @@ export function getLatestFirmwareVersion(): string | null {
   return (
     checkedOutFirmwareVersion ||
     process.env.LATEST_FIRMWARE_VERSION ||
-    process.env.VITE_LATEST_FIRMWARE_VERSION ||
     null
   );
 }

@@ -1,4 +1,6 @@
+import { CountDot } from "@/components/count-dot";
 import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import {
@@ -8,6 +10,7 @@ import {
 import { TradeOfferHeaderButton } from "@/features/trade-offers/components/trade-offer-header-button";
 import { TradeOfferPage } from "@/features/trade-offers/components/trade-offer-page";
 import { TradeOfferProvider } from "@/features/trade-offers/components/trade-offer-provider";
+import { PoweredByMault } from "@/features/public-cards/components/powered-by-mault";
 import { PublicCardDetailView } from "@/features/public-cards/components/public-card-detail";
 import { PublicCardFilterPanel } from "@/features/public-cards/components/public-card-filter-panel";
 import { PublicCardResults } from "@/features/public-cards/components/public-card-results";
@@ -15,18 +18,36 @@ import {
   countActivePublicCardFilters,
   parsePriceInput,
 } from "@/features/public-cards/lib/public-card-filters";
-import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import { useDebouncedSearchParamText } from "@/hooks/use-debounced-search-param-text";
+import {
+  clearPublicCardPriceSearchParams,
+  readPageNumberSearchParam,
+  readPublicCardFiltersFromSearchParams,
+  readPublicCardGameKeyFromSearchParams,
+  readPublicCardSortFromSearchParams,
+  searchParamsSubsetKey,
+  writePageNumberSearchParam,
+  writePublicCardFiltersToSearchParams,
+  writeTextSearchParam,
+} from "@/lib/card-search-params";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import {
   ALL_PUBLIC_CARD_GAMES,
+  PUBLIC_CARD_GAME_PARAM,
+  PUBLIC_CARD_MAX_PRICE_PARAM,
+  PUBLIC_CARD_MIN_PRICE_PARAM,
+  PUBLIC_CARD_PAGE_PARAM,
   PUBLIC_CARD_PARAM,
+  PUBLIC_CARD_PARAM_NAMES_CLEARED_ON_TEXT_CHANGE,
+  PUBLIC_CARD_SEARCH_QUERY_PARAM,
+  PUBLIC_CARD_SORT_PARAM,
+  PUBLIC_CARD_VIEW_STATE_PARAM_NAMES,
   PUBLIC_TRADE_OFFER_PARAM,
   PUBLIC_TRADE_OFFER_PARAM_VALUE,
 } from "@/lib/constants/public-cards";
 import { applyPrimaryColorName } from "@/lib/primary-color";
 import { cn } from "@/lib/utils";
-import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import type { PublicCardBrowserProps } from "@/lib/interfaces/public-cards";
 import {
   DEFAULT_PUBLIC_CARD_SORT,
@@ -55,31 +76,63 @@ export function PublicCardBrowser({
   tradeOfferLink,
 }: PublicCardBrowserProps) {
   const { t } = useTranslation("cards");
+  const isMobile = useIsMobile();
   const resultsRef = useRef<HTMLDivElement>(null);
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState<PublicCardSort>(DEFAULT_PUBLIC_CARD_SORT);
-  const [gameKey, setGameKey] = useState<string>(ALL_PUBLIC_CARD_GAMES);
-  const [filters, setFilters] = useState<PublicCardFilters>(EMPTY_PUBLIC_CARD_FILTERS);
-  const [minPriceInput, setMinPriceInput] = useState("");
-  const [maxPriceInput, setMaxPriceInput] = useState("");
-  const [requestedPage, setRequestedPage] = useState(1);
-  const [showsFilterDrawer, setShowsFilterDrawer] = useState(false);
-  const debouncedSearch = useDebouncedValue(search.trim(), SEARCH_DEBOUNCE_MS);
-  useEffect(() => {
-    applyPrimaryColorName(info.primaryColor);
-    return () => applyPrimaryColorName(null);
-  }, [info.primaryColor]);
-  const debouncedMinPrice = useDebouncedValue(parsePriceInput(minPriceInput), SEARCH_DEBOUNCE_MS);
-  const debouncedMaxPrice = useDebouncedValue(parsePriceInput(maxPriceInput), SEARCH_DEBOUNCE_MS);
-  const selectedGameKey = gameKey === ALL_PUBLIC_CARD_GAMES ? null : gameKey;
-  const appliedFilters = useMemo<PublicCardFilters>(
-    () => ({ ...filters, minPrice: debouncedMinPrice, maxPrice: debouncedMaxPrice }),
-    [filters, debouncedMinPrice, debouncedMaxPrice],
-  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const {
+    text: search,
+    setText: setSearch,
+    debouncedText: debouncedSearchText,
+  } = useDebouncedSearchParamText(PUBLIC_CARD_SEARCH_QUERY_PARAM, {
+    paramNamesClearedOnChange: PUBLIC_CARD_PARAM_NAMES_CLEARED_ON_TEXT_CHANGE,
+  });
+  const {
+    text: minPriceInput,
+    setText: setMinPriceInput,
+    debouncedText: debouncedMinPriceInput,
+  } = useDebouncedSearchParamText(PUBLIC_CARD_MIN_PRICE_PARAM, {
+    paramNamesClearedOnChange: PUBLIC_CARD_PARAM_NAMES_CLEARED_ON_TEXT_CHANGE,
+  });
+  const {
+    text: maxPriceInput,
+    setText: setMaxPriceInput,
+    debouncedText: debouncedMaxPriceInput,
+  } = useDebouncedSearchParamText(PUBLIC_CARD_MAX_PRICE_PARAM, {
+    paramNamesClearedOnChange: PUBLIC_CARD_PARAM_NAMES_CLEARED_ON_TEXT_CHANGE,
+  });
   const sorts = PUBLIC_CARD_SORTS.filter(
     (option) =>
       info.showsPrices ||
       !(PUBLIC_CARD_PRICE_SORTS as readonly string[]).includes(option),
+  );
+  const sortInUrl = readPublicCardSortFromSearchParams(searchParams);
+  const sort = sorts.includes(sortInUrl) ? sortInUrl : DEFAULT_PUBLIC_CARD_SORT;
+  const gameKey = readPublicCardGameKeyFromSearchParams(searchParams);
+  const viewStateKey = searchParamsSubsetKey(
+    searchParams,
+    PUBLIC_CARD_VIEW_STATE_PARAM_NAMES,
+  );
+  const filters = useMemo(
+    () =>
+      readPublicCardFiltersFromSearchParams(new URLSearchParams(viewStateKey)),
+    [viewStateKey],
+  );
+  const requestedPage = readPageNumberSearchParam(
+    searchParams,
+    PUBLIC_CARD_PAGE_PARAM,
+  );
+  const [showsFilterDrawer, setShowsFilterDrawer] = useState(false);
+  const debouncedSearch = debouncedSearchText.trim();
+  useEffect(() => {
+    applyPrimaryColorName(info.primaryColor);
+    return () => applyPrimaryColorName(null);
+  }, [info.primaryColor]);
+  const debouncedMinPrice = parsePriceInput(debouncedMinPriceInput);
+  const debouncedMaxPrice = parsePriceInput(debouncedMaxPriceInput);
+  const selectedGameKey = gameKey === ALL_PUBLIC_CARD_GAMES ? null : gameKey;
+  const appliedFilters = useMemo<PublicCardFilters>(
+    () => ({ ...filters, minPrice: debouncedMinPrice, maxPrice: debouncedMaxPrice }),
+    [filters, debouncedMinPrice, debouncedMaxPrice],
   );
   const facets = useQuery(publicCardsFacetsQueryOptions(source, selectedGameKey));
   const cards = useQuery(
@@ -93,7 +146,6 @@ export function PublicCardBrowser({
     }),
   );
   const activeFilterCount = countActivePublicCardFilters(appliedFilters, gameKey);
-  const [searchParams, setSearchParams] = useSearchParams();
   const openScanId = searchParams.get(PUBLIC_CARD_PARAM);
   const showsTradeOffer =
     !!tradeOfferLink && searchParams.get(PUBLIC_TRADE_OFFER_PARAM) === PUBLIC_TRADE_OFFER_PARAM_VALUE;
@@ -162,28 +214,66 @@ export function PublicCardBrowser({
       ?.focus();
   }, [openScanId]);
 
-  const changeFilters = (next: PublicCardFilters) => {
-    setFilters(next);
-    setRequestedPage(1);
-    if (openScanId || showsTradeOffer) leaveCardForResults();
+  const changeResultsViewState = (
+    writeViewState: (nextSearchParams: URLSearchParams) => void,
+  ) => {
+    lastOpenedScanId.current = null;
+    setSearchParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        writeViewState(next);
+        next.delete(PUBLIC_CARD_PAGE_PARAM);
+        next.delete(PUBLIC_CARD_PARAM);
+        next.delete(PUBLIC_TRADE_OFFER_PARAM);
+        return next;
+      },
+      { replace: true },
+    );
   };
-  const changeGameKey = (next: string) => {
-    setGameKey(next);
-    setFilters({
-      ...EMPTY_PUBLIC_CARD_FILTERS,
-      finish: filters.finish,
+  const changeFilters = (nextFilters: PublicCardFilters) =>
+    changeResultsViewState((nextSearchParams) =>
+      writePublicCardFiltersToSearchParams(nextSearchParams, nextFilters),
+    );
+  const changeGameKey = (nextGameKey: string) =>
+    changeResultsViewState((nextSearchParams) => {
+      writeTextSearchParam(
+        nextSearchParams,
+        PUBLIC_CARD_GAME_PARAM,
+        nextGameKey,
+        ALL_PUBLIC_CARD_GAMES,
+      );
+      writePublicCardFiltersToSearchParams(nextSearchParams, {
+        ...EMPTY_PUBLIC_CARD_FILTERS,
+        finish: filters.finish,
+      });
     });
-    setRequestedPage(1);
-    if (openScanId || showsTradeOffer) leaveCardForResults();
-  };
+  const changeSort = (nextSort: PublicCardSort) =>
+    changeResultsViewState((nextSearchParams) =>
+      writeTextSearchParam(
+        nextSearchParams,
+        PUBLIC_CARD_SORT_PARAM,
+        nextSort,
+        DEFAULT_PUBLIC_CARD_SORT,
+      ),
+    );
   const clearFilters = () => {
-    setGameKey(ALL_PUBLIC_CARD_GAMES);
-    setFilters(EMPTY_PUBLIC_CARD_FILTERS);
     setMinPriceInput("");
     setMaxPriceInput("");
-    setRequestedPage(1);
-    if (openScanId || showsTradeOffer) leaveCardForResults();
+    changeResultsViewState((nextSearchParams) => {
+      nextSearchParams.delete(PUBLIC_CARD_GAME_PARAM);
+      writePublicCardFiltersToSearchParams(
+        nextSearchParams,
+        EMPTY_PUBLIC_CARD_FILTERS,
+      );
+      clearPublicCardPriceSearchParams(nextSearchParams);
+    });
   };
+  const changePage = (nextPage: number) =>
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      writePageNumberSearchParam(next, PUBLIC_CARD_PAGE_PARAM, nextPage);
+      return next;
+    }, { replace: true });
   const filterPanel = (
     <PublicCardFilterPanel
       info={info}
@@ -192,23 +282,13 @@ export function PublicCardBrowser({
       onGameKeyChange={changeGameKey}
       sort={sort}
       sorts={sorts}
-      onSortChange={(next) => {
-        setSort(next);
-        setRequestedPage(1);
-        if (openScanId || showsTradeOffer) leaveCardForResults();
-      }}
+      onSortChange={changeSort}
       filters={filters}
       onFiltersChange={changeFilters}
       minPriceInput={minPriceInput}
       maxPriceInput={maxPriceInput}
-      onMinPriceInputChange={(value) => {
-        setMinPriceInput(value);
-        setRequestedPage(1);
-      }}
-      onMaxPriceInputChange={(value) => {
-        setMaxPriceInput(value);
-        setRequestedPage(1);
-      }}
+      onMinPriceInputChange={setMinPriceInput}
+      onMaxPriceInputChange={setMaxPriceInput}
       onClear={clearFilters}
     />
   );
@@ -238,41 +318,53 @@ export function PublicCardBrowser({
             </p>
           </div>
         </div>
-        <div className="relative w-full min-w-0">
-          <IconSearch
-            className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70 max-md:left-3"
-            aria-hidden
-          />
-          <Input
-            type="search"
-            placeholder={t("publicBrowse.searchPlaceholder")}
-            aria-label={t("publicBrowse.searchPlaceholder")}
-            maxLength={PUBLIC_CARDS_SEARCH_MAX_LENGTH}
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setRequestedPage(1);
-              if (openScanId || showsTradeOffer) leaveCardForResults();
-            }}
-            className="pl-8 max-md:pl-10"
-          />
+        <div className="flex w-full min-w-0 items-center gap-1.5">
+          <div className="relative min-w-0 flex-1">
+            <IconSearch
+              className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-foreground/70 max-md:left-3"
+              aria-hidden
+            />
+            <Input
+              type="search"
+              placeholder={t("publicBrowse.searchPlaceholder")}
+              aria-label={t("publicBrowse.searchPlaceholder")}
+              maxLength={PUBLIC_CARDS_SEARCH_MAX_LENGTH}
+              value={search}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                if (openScanId || showsTradeOffer) leaveCardForResults();
+              }}
+              className="pl-8 max-md:pl-10"
+            />
+          </div>
+          {isMobile && (
+            <>
+              <TradeOfferHeaderButton isIconOnly />
+              <Button
+                variant={activeFilterCount > 0 ? "selected" : "outline"}
+                size="icon"
+                className="relative shrink-0"
+                aria-label={
+                  activeFilterCount > 0
+                    ? t("publicBrowse.filtersWithCount", { count: activeFilterCount })
+                    : t("publicBrowse.filtersHeading")
+                }
+                onClick={() => setShowsFilterDrawer(true)}
+              >
+                <IconAdjustmentsHorizontal />
+                <CountDot count={activeFilterCount} />
+              </Button>
+            </>
+          )}
         </div>
-        <div className="flex items-center gap-1.5 md:justify-end">
-          <TradeOfferHeaderButton />
-          <Button
-            variant={activeFilterCount > 0 ? "selected" : "outline"}
-            className="flex-1 md:hidden"
-            onClick={() => setShowsFilterDrawer(true)}
-          >
-            <IconAdjustmentsHorizontal />
-            {activeFilterCount > 0
-              ? t("publicBrowse.filtersWithCount", { count: activeFilterCount })
-              : t("publicBrowse.filtersHeading")}
-          </Button>
-        </div>
+        {!isMobile && (
+          <div className="flex items-center gap-1.5 justify-end">
+            <TradeOfferHeaderButton />
+          </div>
+        )}
       </header>
       <div className={cn("flex min-h-0 flex-1", (openScanId || showsTradeOffer) && "hidden")}>
-        <aside className="hidden w-64 shrink-0 overflow-y-auto border-r bg-sidebar/70 p-4 md:flex md:flex-col md:gap-5 lg:w-72">
+        <aside className="hidden w-64 shrink-0 overflow-y-auto border-r bg-muted p-4 md:flex md:flex-col md:gap-5 lg:w-72">
           {sidebarTop}
           {filterPanel}
         </aside>
@@ -284,7 +376,7 @@ export function PublicCardBrowser({
             isError={cards.isError}
             onRetry={() => void cards.refetch()}
             onPageChange={(next) => {
-              setRequestedPage(next);
+              changePage(next);
               resultsRef.current?.scrollTo({ top: 0 });
             }}
             onOpenCard={openCard}
@@ -327,6 +419,9 @@ export function PublicCardBrowser({
         {sidebarTop}
         {filterPanel}
       </DynamicDialog>
+      <footer className="flex shrink-0 items-center justify-center bg-black px-4 py-1.5 dark:border-t md:justify-end md:px-3 md:py-1">
+        <PoweredByMault isInverted />
+      </footer>
     </main>
   );
 

@@ -16,6 +16,7 @@ import { RepackPanel } from "@/features/bins/components/repack-panel";
 import { RepackTour } from "@/features/bins/components/repack-tour";
 import { SortingRulesIntro } from "@/features/bins/components/sorting-rules-intro";
 import { SortingRulesTour } from "@/features/bins/components/sorting-rules-tour";
+import { SaveBarGroup } from "@/components/save-bar-group";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { EditingStagePresetBanner } from "@/features/bins/components/editing-stage-preset-banner";
 import { MultiStageRulesRedirect } from "@/features/bins/components/multi-stage-rules-redirect";
@@ -41,27 +42,29 @@ export default function BinsPage() {
   const content = isMobile ? (
     <MobileBins />
   ) : (
-    <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
-      <h1 className="sr-only">{t("nav.sortingRules")}</h1>
-      <section className="col-span-4 lg:col-span-3 overflow-hidden flex flex-col h-full border-r p-2 gap-2 bg-sidebar/70">
-        <AutoAssignPanel />
-        <BinList />
-      </section>
-      <section className="col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4 md:px-3 md:py-2 flex flex-col gap-4 md:gap-2">
-        <div className="flex items-start justify-between gap-4">
-          <SortingRulesIntro />
-          <div className="flex shrink-0 items-center gap-1.5">
-            <BinRulesMenu />
-            <BinsHelpTour />
+    <SaveBarGroup>
+      <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
+        <h1 className="sr-only">{t("nav.sortingRules")}</h1>
+        <section className="col-span-4 lg:col-span-3 overflow-hidden flex flex-col h-full border-r p-2 gap-2 bg-sidebar/70">
+          <AutoAssignPanel />
+          <BinList />
+        </section>
+        <section className="col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4 md:px-3 md:py-2 flex flex-col gap-4 md:gap-2">
+          <div className="flex items-start justify-between gap-4">
+            <SortingRulesIntro />
+            <div className="flex shrink-0 items-center gap-1.5">
+              <BinRulesMenu />
+              <BinsHelpTour />
+            </div>
           </div>
-        </div>
-        <PresetDescriptionNote />
-        <PresetStagesPanel />
-        <RepackPanel />
-        <AlphabetPanel />
-        <BinConfigPanel />
-      </section>
-    </div>
+          <PresetDescriptionNote />
+          <PresetStagesPanel />
+          <RepackPanel />
+          <AlphabetPanel />
+          <BinConfigPanel />
+        </section>
+      </div>
+    </SaveBarGroup>
   );
 
   return (

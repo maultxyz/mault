@@ -14,7 +14,8 @@ import { useTranslation } from "react-i18next";
 
 export function OrderPickByLocation({
   entries,
-  orderBins,
+  orderBinOf,
+  pickNameOf,
   pickedScanIds,
   canPick,
   onPickedChange,
@@ -41,6 +42,7 @@ export function OrderPickByLocation({
             <TableHead>{t("orders.locationColumn")}</TableHead>
             <TableHead>{t("table.card")}</TableHead>
             <TableHead>{t("table.condition")}</TableHead>
+            {pickNameOf && <TableHead>{t("orders.batch.pickColumn")}</TableHead>}
             <TableHead>{t("table.orderRef")}</TableHead>
           </TableRow>
         </TableHeader>
@@ -98,15 +100,11 @@ export function OrderPickByLocation({
                 </div>
               </TableCell>
               <TableCell>{entry.condition}</TableCell>
+              {pickNameOf && (
+                <TableCell className="max-w-48 truncate text-sm">{pickNameOf(entry)}</TableCell>
+              )}
               <TableCell className="text-sm">
-                <OrderRefLabel
-                  orderRef={entry.orderRef}
-                  binNumber={
-                    entry.orderRef == null
-                      ? null
-                      : (orderBins[entry.orderRef] ?? null)
-                  }
-                />
+                <OrderRefLabel orderRef={entry.orderRef} binNumber={orderBinOf(entry)} />
               </TableCell>
             </TableRow>
           ))}

@@ -12,7 +12,7 @@ export function LandingStats() {
           <span className="text-3xl font-heading font-semibold tracking-tight tabular-nums md:text-4xl">
             {stat.value}
           </span>
-          <span className="text-xs text-foreground/70">
+          <span className="text-sm text-foreground/70">
             {t(`stats.items.${stat.key}`)}
           </span>
         </div>

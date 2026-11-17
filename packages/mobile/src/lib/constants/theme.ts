@@ -44,6 +44,7 @@ export const LIGHT_COLORS: ThemeColors = {
   inputBackground: "rgba(223, 225, 230, 0.2)",
   cardRing: "rgba(41, 45, 52, 0.1)",
   destructiveTint: "rgba(231, 0, 11, 0.1)",
+  onDestructive: "#ffffff",
   onBrandSurface: "rgba(255, 255, 255, 0.16)",
   onCamera: "#ffffff",
   onStatusStrong: "#ffffff",
@@ -95,6 +96,7 @@ export const DARK_COLORS: ThemeColors = {
   inputBackground: "rgba(255, 255, 255, 0.045)",
   cardRing: "rgba(227, 228, 232, 0.1)",
   destructiveTint: "rgba(255, 100, 103, 0.2)",
+  onDestructive: "#111214",
   onBrandSurface: "rgba(255, 255, 255, 0.16)",
   onCamera: "#ffffff",
   onStatusStrong: "#ffffff",
@@ -153,13 +155,6 @@ export const DARK_PRIMARY_TEXT_MIN_LIGHTNESS = 0.72;
 export const PRIMARY_MUTED_ALPHA = { light: 0.1, dark: 0.2 } as const;
 export const PRIMARY_SELECTED_ALPHA = { light: 0.12, dark: 0.24 } as const;
 export const PRIMARY_PRESSED_LIGHTNESS_SCALE = 0.88;
-
-export const SHEET_SHADOW = {
-  shadowOffset: { width: 0, height: -4 },
-  shadowOpacity: 1,
-  shadowRadius: 12,
-  elevation: 16,
-} as const;
 
 export const FLOATING_BUTTON_SHADOW = {
   shadowOffset: { width: 0, height: 4 },

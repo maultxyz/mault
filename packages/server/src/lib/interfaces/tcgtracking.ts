@@ -89,6 +89,7 @@ export interface TcgtrackingGameConfig {
   ): boolean;
   primaryCardIdOf?(product: TcgtrackingProduct): string | null;
   comparableProductName?(name: string): string;
+  storedNameOf?(productName: string): string;
   colorIdentityOf?(colors: string[]): string[];
   primaryShapedFieldsOf?(
     input: TcgtrackingPrimaryShapedFieldsInput,
@@ -168,4 +169,15 @@ export interface TcgplayerPriceSyncResult {
   prices: number;
   products: number;
   failedSets: number;
+}
+
+export interface TcgtrackingCatalogSyncSourceOptions {
+  gameKey: string;
+  label: string;
+  gameName: string;
+  defaultUrl: string;
+  languages: string[];
+  categoryId: number;
+  cardName: (entry: TcgtrackingCatalogEntry) => string;
+  setCode: (entry: TcgtrackingCatalogEntry) => string;
 }

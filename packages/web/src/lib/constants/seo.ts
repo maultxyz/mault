@@ -7,3 +7,5 @@ export const PRERENDER_PATH_GUARD_SCRIPT =
 export const CLIENT_RENDERED_BOUNDARY_MARKER = "<!--$!-->";
 export const PRERENDER_MAX_PASSES = 40;
 export const PRERENDER_PASS_DELAY_MS = 50;
+
+export const SITE_DOMAIN = new URL(SITE_URL).host;

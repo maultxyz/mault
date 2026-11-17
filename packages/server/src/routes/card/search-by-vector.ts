@@ -1,5 +1,7 @@
 import {
   decodePrintingMarkGrids,
+  parsePrintedLanguageCodeFormValue,
+  PRINTED_LANGUAGE_CODE_FORM_FIELD,
   type CardSearchEmbeddings,
 } from "@magic-vault/shared";
 import { Hono } from "hono";
@@ -11,7 +13,12 @@ import {
 } from "../../lib/card-search/match-games";
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { sendDiscordNotification } from "../../lib/discord";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  markRequestAsReadOnly,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import {
   attachMatchedCards,
   findCardMatches,
@@ -24,6 +31,7 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
   "/by-vector",
   requireAuth,
   requireOrg,
+  markRequestAsReadOnly,
   async (c) => {
     const body = await c.req.parseBody();
     const collectionGuid =
@@ -56,6 +64,9 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
       typeof body["printingMarksGameKey"] === "string"
         ? body["printingMarksGameKey"]
         : null;
+    const printedLanguageCode = parsePrintedLanguageCodeFormValue(
+      body[PRINTED_LANGUAGE_CODE_FORM_FIELD],
+    );
 
     try {
       const { result, scope } = await findBestMatchAcrossGames(
@@ -72,6 +83,10 @@ export const searchByVectorRoute = new Hono<AppEnv>().post(
                     body["printingMarks"],
                     matchScope.gameKey,
                   )
+                : null,
+            printedLanguageCode:
+              matchScope.gameKey === printingMarksGameKey
+                ? printedLanguageCode
                 : null,
           }),
       );

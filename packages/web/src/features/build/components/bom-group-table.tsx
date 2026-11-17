@@ -36,21 +36,21 @@ export function BomGroupTable({
         </h3>
         <AnchorLinkButton id={bomGroupAnchorId(group.key)} />
       </div>
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="overflow-x-auto rounded-card bg-card">
         <table className="w-full min-w-120 border-collapse text-sm/relaxed">
           <thead>
-            <tr className="bg-secondary/40">
+            <tr className="bg-foreground/6">
               <th className="w-8 border-b px-2.5 py-1.5" />
-              <th className="w-16 border-b px-2.5 py-1.5 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="w-16 border-b px-2.5 py-1.5 text-left text-sm font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.qty")}
               </th>
-              <th className="border-b px-2.5 py-1.5 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="border-b px-2.5 py-1.5 text-left text-sm font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.part")}
               </th>
-              <th className="border-b px-2.5 py-1.5 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="border-b px-2.5 py-1.5 text-left text-sm font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.notes")}
               </th>
-              <th className="w-12 border-b px-2.5 py-1.5 text-left font-mono text-2xs font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="w-12 border-b px-2.5 py-1.5 text-left text-sm font-semibold tracking-wide text-foreground/70 uppercase">
                 {t("bom.table.buy")}
               </th>
             </tr>

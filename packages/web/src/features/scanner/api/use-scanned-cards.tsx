@@ -1,3 +1,4 @@
+import { refreshBillingAfterScan } from "@/features/billing/lib/billing-scan-refresh";
 import { SCAN_RATE_WINDOW_MS } from "@/lib/constants/scanner";
 import {
   type BinConfig,
@@ -11,22 +12,22 @@ import {
   type PlayingCardWithDistance,
   type ScanVectorizeSource,
   type ScannedCard,
+  type GroupedScannedCard,
   type UnmatchedCard,
   type UnmatchedScanDetails,
   type AutoAssignTarget,
   type ScanRoutingContext,
+  type CorrectedScanBinTarget,
+  resolveCorrectedScanBin,
+  releasedPickListNameAfterCorrection,
   applyAutoAssignTarget,
-  findAutoAssignTarget,
-  evaluatePickListBin,
+  routeForBin,
   applyPickListFound,
   isPickListComplete,
   isPickListBin,
-  findPickListEntry,
   reservePickListBins,
-  findLowMatchCatchAll,
   isFirmwareFeatureSupported,
   isRulesMode,
-  matchScanBin,
   prepareMatchedScanPlan,
   prepareUnmatchedScanPlan,
   scanCompletionPauseReason,
@@ -102,7 +103,6 @@ import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast"
 import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
 import type {
   BinCorrection,
-  CorrectedBinTarget,
   LastRoutedBin,
   MoveCardsToCollectionInput,
   PendingBinCard,
@@ -311,7 +311,6 @@ export function ScannedCardsProvider({
   );
   const binRoutesRef = useRef(binRoutes);
   const fieldDefinitionsRef = useRef(fieldDefinitions);
-  const autoAssignFieldRef = useRef(selectedSet?.autoAssignField ?? null);
   const selectedSetRef = useRef(selectedSet);
   const binContentsRef = useRef<BinContentCard[]>([]);
   const [ignoreIrSensors] = useIgnoreIrSensors();
@@ -443,10 +442,6 @@ export function ScannedCardsProvider({
   }, [fieldDefinitions]);
 
   useEffect(() => {
-    autoAssignFieldRef.current = selectedSet?.autoAssignField ?? null;
-  }, [selectedSet?.autoAssignField]);
-
-  useEffect(() => {
     selectedSetRef.current = selectedSet;
   }, [selectedSet]);
 
@@ -515,15 +510,6 @@ export function ScannedCardsProvider({
     [saveBinConfig],
   );
 
-  const resolvePickListMatch = useCallback(
-    (card: PlayingCardWithDistance) =>
-      !isRulesMode(selectedSetRef.current) ||
-      findLowMatchCatchAll(card, rawBinConfigsRef.current)
-        ? null
-        : evaluatePickListBin(card.name, rawBinConfigsRef.current),
-    [],
-  );
-
   const markPickListFound = useCallback(
     (binNumber: number, name: string, delta: number, persist = true) => {
       const bin = rawBinConfigsRef.current.find(
@@ -548,62 +534,20 @@ export function ScannedCardsProvider({
     [toast, queryClient, t],
   );
 
-  const pickListNameInBin = useCallback(
-    (cardName: string | undefined, binNumber: number | undefined) => {
-      if (!cardName || binNumber == null) return undefined;
-      const bin = rawBinConfigsRef.current.find(
-        (c) => c.binNumber === binNumber && isPickListBin(c),
-      );
-      return bin?.pickList
-        ? findPickListEntry(cardName, bin.pickList)?.name
-        : undefined;
-    },
-    [],
-  );
-
-  const resolveCorrectedRuleBin = useCallback(
-    (
-      ruleCard: PlayingCardWithDistance,
-      currentBinNumber: number | undefined,
-    ): BinConfig | undefined => {
-      const configs = binConfigsRef.current;
-      if (selectedSetRef.current?.isChaosMode) {
-        const currentBin = configs.find(
-          (bin) => bin.binNumber === currentBinNumber,
-        );
-        if (currentBin && !currentBin.isCatchAll && !currentBin.isDisabled) {
-          return currentBin;
-        }
-      }
-      const autoTarget = selectedSetRef.current?.isRepackMode
-        ? null
-        : findAutoAssignTarget(
-            ruleCard,
-            configs,
-            fieldDefinitionsRef.current,
-            autoAssignFieldRef.current,
-            () => crypto.randomUUID(),
-          );
-      if (!autoTarget) return matchScanBin(ruleCard, scanRoutingContext());
-      return applyAutoAssign(autoTarget);
-    },
-    [scanRoutingContext, applyAutoAssign],
-  );
-
   const resolveCorrectedBin = useCallback(
     (
       ruleCard: PlayingCardWithDistance,
       currentBinNumber: number | undefined,
-    ): CorrectedBinTarget => {
-      const pickMatch = resolvePickListMatch(ruleCard);
-      if (pickMatch) {
-        return pickMatch.bin.binNumber === currentBinNumber
-          ? { bin: pickMatch.bin }
-          : { bin: pickMatch.bin, pickListName: pickMatch.entry.name };
-      }
-      return { bin: resolveCorrectedRuleBin(ruleCard, currentBinNumber) };
+    ): CorrectedScanBinTarget => {
+      const target = resolveCorrectedScanBin(ruleCard, currentBinNumber, {
+        ...scanRoutingContext(),
+        configs: rawBinConfigsRef.current,
+      });
+      return target.autoAssignTarget
+        ? { ...target, bin: applyAutoAssign(target.autoAssignTarget) }
+        : target;
     },
-    [resolvePickListMatch, resolveCorrectedRuleBin],
+    [scanRoutingContext, applyAutoAssign],
   );
 
   const pauseForCompletePacks = useCallback(() => {
@@ -623,15 +567,11 @@ export function ScannedCardsProvider({
     [],
   );
 
-  const resolveRoute = useCallback((binNumber: number): BinRoute => {
-    const found = binRoutesRef.current.find((r) => r.binNumber === binNumber);
-    if (found) return found;
-    const lastModule = Math.max(
-      1,
-      ...binRoutesRef.current.map((r) => r.module),
-    );
-    return { binNumber, module: lastModule, direction: "bottom" };
-  }, []);
+  const resolveRoute = useCallback(
+    (binNumber: number): BinRoute =>
+      routeForBin(binNumber, binRoutesRef.current),
+    [],
+  );
 
   const setForceFoilType = useCallback((foilType: string | null) => {
     forceFoilTypeRef.current = foilType;
@@ -982,11 +922,7 @@ export function ScannedCardsProvider({
               )
               .finally(() => {
                 settlePendingBinCard(record.scanId);
-                if (billingQueryKey) {
-                  void queryClient.invalidateQueries({
-                    queryKey: billingQueryKey,
-                  });
-                }
+                if (orgId) refreshBillingAfterScan(queryClient, orgId);
               });
             return;
           }
@@ -1058,11 +994,7 @@ export function ScannedCardsProvider({
                 void queryClient.invalidateQueries({
                   queryKey: binsQueryOptions.queryKey,
                 });
-              if (billingQueryKey) {
-                void queryClient.invalidateQueries({
-                  queryKey: billingQueryKey,
-                });
-              }
+              if (orgId) refreshBillingAfterScan(queryClient, orgId);
             });
         },
         complete: ({ ruleCard }) => {
@@ -1600,10 +1532,6 @@ export function ScannedCardsProvider({
       );
       if (correctionBinPromptRef.current) {
         const target = resolveCorrectedBin(ruleCard, currentBin);
-        const releasedPickListName = pickListNameInBin(
-          scan?.card.name,
-          currentBin,
-        );
         setBinCorrection({
           id: generateScanId(),
           scanId,
@@ -1611,11 +1539,12 @@ export function ScannedCardsProvider({
           currentBin,
           targetBin: target.bin?.binNumber,
           pickListName: target.pickListName,
-          releasedPickListName:
-            target.bin?.binNumber !== currentBin &&
-            releasedPickListName !== target.pickListName
-              ? releasedPickListName
-              : undefined,
+          releasedPickListName: releasedPickListNameAfterCorrection(
+            scan?.card.name,
+            currentBin,
+            target,
+            rawBinConfigsRef.current,
+          ),
         });
       }
       if (!collection) return;
@@ -1640,7 +1569,7 @@ export function ScannedCardsProvider({
           () => void invalidateCollectionCards(queryClient, collection.guid),
         );
     },
-    [resolveCorrectedBin, pickListNameInBin, queryClient, notifyEditFailed],
+    [resolveCorrectedBin, queryClient, notifyEditFailed],
   );
 
   const moveCorrectedCard = useCallback(
@@ -1694,53 +1623,63 @@ export function ScannedCardsProvider({
 
   const dismissBinCorrection = useCallback(() => setBinCorrection(null), []);
 
-  const confirmCard = useCallback(
-    (scanId: string) => {
+  const editCards = useCallback(
+    (
+      scanIds: string[],
+      applyEdit: (entry: GroupedScannedCard) => GroupedScannedCard,
+      sendEdit: (collectionGuid: string) => Promise<unknown>,
+      failure: { logMessage: string; notifiesUser: boolean },
+    ) => {
       const collection = activeCollectionRef.current;
       if (!collection) return;
       updateInCardPages(
         queryClient,
         collection.guid,
-        new Set([scanId]),
+        new Set(scanIds),
+        applyEdit,
+      );
+      sendEdit(collection.guid)
+        .catch((err) => {
+          console.error(failure.logMessage, err);
+          if (failure.notifiesUser) notifyEditFailed();
+        })
+        .finally(
+          () => void invalidateCollectionCards(queryClient, collection.guid),
+        );
+    },
+    [queryClient, notifyEditFailed],
+  );
+
+  const confirmCard = useCallback(
+    (scanId: string) =>
+      editCards(
+        [scanId],
         (entry) => ({
           ...entry,
           corrected: true,
           reviewed: true,
           lowConfidenceMatch: false,
         }),
-      );
-      confirmCollectionCard(collection.guid, scanId)
-        .catch((err) => console.error("Failed to confirm card:", err))
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
-    },
-    [queryClient],
+        (collectionGuid) => confirmCollectionCard(collectionGuid, scanId),
+        { logMessage: "Failed to confirm card:", notifiesUser: false },
+      ),
+    [editCards],
   );
 
   const markCardReviewed = useCallback(
-    (scanId: string) => {
-      const collection = activeCollectionRef.current;
-      if (!collection) return;
-      updateInCardPages(
-        queryClient,
-        collection.guid,
-        new Set([scanId]),
+    (scanId: string) =>
+      editCards(
+        [scanId],
         (entry) => ({ ...entry, reviewed: true, lowConfidenceMatch: false }),
-      );
-      markCollectionCardReviewed(collection.guid, scanId)
-        .catch((err) => console.error("Failed to mark card reviewed:", err))
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
-    },
-    [queryClient],
+        (collectionGuid) => markCollectionCardReviewed(collectionGuid, scanId),
+        { logMessage: "Failed to mark card reviewed:", notifiesUser: false },
+      ),
+    [editCards],
   );
 
   const setCardsFoilType = useCallback(
     (scanIds: string[], foilType: string | null) => {
       if (scanIds.length === 0) return;
-      const collection = activeCollectionRef.current;
       const isFoil = foilType != null;
       const scanIdSet = new Set(scanIds);
       binContentsRef.current = binContentsRef.current.map((entry) =>
@@ -1753,22 +1692,15 @@ export function ScannedCardsProvider({
             }
           : entry,
       );
-      if (!collection) return;
-      updateInCardPages(queryClient, collection.guid, scanIdSet, (entry) => ({
-        ...entry,
-        isFoil,
-        foilType: foilType ?? undefined,
-      }));
-      setCollectionCardsFoilType(collection.guid, scanIds, foilType)
-        .catch((err) => {
-          console.error("Failed to update foil status:", err);
-          notifyEditFailed();
-        })
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
+      editCards(
+        scanIds,
+        (entry) => ({ ...entry, isFoil, foilType: foilType ?? undefined }),
+        (collectionGuid) =>
+          setCollectionCardsFoilType(collectionGuid, scanIds, foilType),
+        { logMessage: "Failed to update foil status:", notifiesUser: true },
+      );
     },
-    [queryClient, notifyEditFailed],
+    [editCards],
   );
 
   const setCardFoilType = useCallback(
@@ -1779,24 +1711,16 @@ export function ScannedCardsProvider({
 
   const setCardsCondition = useCallback(
     (scanIds: string[], condition: CardCondition) => {
-      const collection = activeCollectionRef.current;
-      if (!collection || scanIds.length === 0) return;
-      updateInCardPages(
-        queryClient,
-        collection.guid,
-        new Set(scanIds),
+      if (scanIds.length === 0) return;
+      editCards(
+        scanIds,
         (entry) => ({ ...entry, condition }),
+        (collectionGuid) =>
+          setCollectionCardsCondition(collectionGuid, scanIds, condition),
+        { logMessage: "Failed to update condition:", notifiesUser: true },
       );
-      setCollectionCardsCondition(collection.guid, scanIds, condition)
-        .catch((err) => {
-          console.error("Failed to update condition:", err);
-          notifyEditFailed();
-        })
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
     },
-    [queryClient, notifyEditFailed],
+    [editCards],
   );
 
   const setCardCondition = useCallback(
@@ -1806,69 +1730,40 @@ export function ScannedCardsProvider({
   );
 
   const setCardStamp = useCallback(
-    (scanId: string, stamp: string | null) => {
-      const collection = activeCollectionRef.current;
-      if (!collection) return;
-      updateInCardPages(
-        queryClient,
-        collection.guid,
-        new Set([scanId]),
+    (scanId: string, stamp: string | null) =>
+      editCards(
+        [scanId],
         (entry) => ({ ...entry, stamp: stamp ?? undefined }),
-      );
-      setCollectionCardStamp(collection.guid, scanId, stamp)
-        .catch((err) => {
-          console.error("Failed to update stamp:", err);
-          notifyEditFailed();
-        })
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
-    },
-    [queryClient, notifyEditFailed],
+        (collectionGuid) => setCollectionCardStamp(collectionGuid, scanId, stamp),
+        { logMessage: "Failed to update stamp:", notifiesUser: true },
+      ),
+    [editCards],
   );
 
   const setCardLanguage = useCallback(
-    (scanId: string, language: string) => {
-      const collection = activeCollectionRef.current;
-      if (!collection) return;
-      updateInCardPages(
-        queryClient,
-        collection.guid,
-        new Set([scanId]),
+    (scanId: string, language: string) =>
+      editCards(
+        [scanId],
         (entry) => ({ ...entry, language }),
-      );
-      setCollectionCardLanguage(collection.guid, scanId, language)
-        .catch((err) => {
-          console.error("Failed to update language:", err);
-          notifyEditFailed();
-        })
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
-    },
-    [queryClient, notifyEditFailed],
+        (collectionGuid) =>
+          setCollectionCardLanguage(collectionGuid, scanId, language),
+        { logMessage: "Failed to update language:", notifiesUser: true },
+      ),
+    [editCards],
   );
 
   const setCardsTags = useCallback(
     (scanIds: string[], tags: CardTag[], enabled: boolean) => {
-      const collection = activeCollectionRef.current;
-      if (!collection || scanIds.length === 0 || tags.length === 0) return;
-      updateInCardPages(
-        queryClient,
-        collection.guid,
-        new Set(scanIds),
+      if (scanIds.length === 0 || tags.length === 0) return;
+      editCards(
+        scanIds,
         (entry) => withCardTags(entry, tags, enabled),
+        (collectionGuid) =>
+          setCollectionCardTags(collectionGuid, { scanIds, tags, enabled }),
+        { logMessage: "Failed to update card tags:", notifiesUser: true },
       );
-      setCollectionCardTags(collection.guid, { scanIds, tags, enabled })
-        .catch((err) => {
-          console.error("Failed to update card tags:", err);
-          notifyEditFailed();
-        })
-        .finally(
-          () => void invalidateCollectionCards(queryClient, collection.guid),
-        );
     },
-    [queryClient, notifyEditFailed],
+    [editCards],
   );
 
   const resetSessionStats = useCallback(() => {

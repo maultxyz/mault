@@ -2,7 +2,12 @@ import { collectionCsvExportRequestSchema } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { buildCardExport, csvResponse } from "../../lib/card-export";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  markRequestAsReadOnly,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import {
   findCardsCollection,
   loadAllCards,
@@ -11,7 +16,7 @@ import {
 } from "./cards-query";
 
 export const exportCollectionCardsRoute = new Hono<AppEnv>()
-  .post("/:guid/cards/csv-export", requireAuth, requireOrg, async (c) => {
+  .post("/:guid/cards/csv-export", requireAuth, requireOrg, markRequestAsReadOnly, async (c) => {
     const input = collectionCsvExportRequestSchema.safeParse(
       await c.req.json().catch(() => ({})),
     );
@@ -51,7 +56,7 @@ export const exportCollectionCardsRoute = new Hono<AppEnv>()
     if (!result.success) return c.json(result, 400);
     return csvResponse(c, result.csv, result.filename);
   })
-  .post("/:guid/cards/stored-count", requireAuth, requireOrg, async (c) => {
+  .post("/:guid/cards/stored-count", requireAuth, requireOrg, markRequestAsReadOnly, async (c) => {
     const scanIds = parseScanIds(await c.req.json().catch(() => ({})));
     if (!scanIds) {
       return c.json({ success: false, message: "Invalid card ids." }, 400);

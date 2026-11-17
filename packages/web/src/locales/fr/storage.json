@@ -4,16 +4,17 @@
     "subtitle": "Où vos cartes triées sont rangées, boîte par boîte, dans l'ordre où elles y sont entrées.",
     "newLocation": "Nouvel emplacement",
     "emptyTitle": "Aucun emplacement pour l'instant",
+    "loadFailed": "Impossible de charger vos emplacements.",
     "emptyDescription": "Quand vous videz un bac depuis les niveaux du scanner, ou quand un bac plein met le scan en pause, choisissez ou créez un emplacement pour enregistrer où vont ses cartes.",
-    "cardCount_one": "{{count}} carte",
-    "cardCount_other": "{{count}} cartes",
+    "cardCount_one": "{{count, compact}} carte",
+    "cardCount_other": "{{count, compact}} cartes",
     "rename": "Renommer l'emplacement",
     "delete": "Supprimer l'emplacement",
     "actions": "Actions pour {{name}}",
     "deleteTitle": "Supprimer {{name}} ?",
     "deleteDescription": "Les cartes restent dans tes collections, mais perdent cet emplacement et leur position.",
-    "summary_one": "{{count}} carte · {{value}} au total",
-    "summary_other": "{{count}} cartes · {{value}} au total",
+    "summary_one": "{{count, compact}} carte · {{value}} au total",
+    "summary_other": "{{count, compact}} cartes · {{value}} au total",
     "addCard": "Ajouter une carte"
   },
   "nameDialog": {
@@ -45,6 +46,7 @@
     "position": "#{{position}}",
     "foil": "Foil",
     "emptyTitle": "Rien n'est rangé ici",
+    "loadFailed": "Impossible de charger les cartes de cet emplacement.",
     "emptyDescription": "Les cartes apparaissent ici dès qu'un bac est vidé dans cet emplacement.",
     "remove": "Retirer de l'emplacement",
     "nonFoil": "Non foil",
@@ -238,25 +240,15 @@
     "printLabels": "Imprimer des étiquettes",
     "page": {
       "title": "Étiquettes de rangement",
-      "description": "Imprimez des étiquettes QR pour vos boîtes et classeurs. Scannez-en une avec l'app MAULT pour ouvrir les cartes de cet emplacement.",
-      "print": "Imprimer",
-      "printTip": "Imprimez à l'échelle 100 % (taille réelle) sans marges pour que les étiquettes s'alignent sur la planche."
+      "description": "Imprimez des étiquettes QR pour vos boîtes et classeurs. Scannez-en une avec l'app MAULT pour ouvrir les cartes de cet emplacement."
     },
     "form": {
       "title": "Planche d'étiquettes",
       "description": "Choisissez les emplacements et la planche Avery sur laquelle vous imprimez.",
-      "template": "Planche",
-      "startPosition": "Commencer à l'étiquette",
-      "startPositionHint": "Ignorez les étiquettes déjà utilisées sur une planche entamée. Elles se comptent de gauche à droite, de haut en bas.",
       "locations_one": "{{count}} emplacement sélectionné",
       "locations_other": "{{count}} emplacements sélectionnés",
       "selectAll": "Tout sélectionner",
       "selectNone": "Tout désélectionner"
-    },
-    "templates": {
-      "avery-5160": "Avery 5160 (30 par planche, 2,625 x 1 po)",
-      "avery-5163": "Avery 5163 (10 par planche, 4 x 2 po)",
-      "avery-5164": "Avery 5164 (6 par planche, 4 x 3,33 po)"
     },
     "sheet": {
       "emptyTitle": "Aucun emplacement sélectionné",

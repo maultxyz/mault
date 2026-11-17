@@ -40,7 +40,7 @@ export function PrintPartsKey({
             >
               <span
                 aria-label={t("printModel.plate", { plate })}
-                className="w-5 shrink-0 font-mono text-xs text-foreground/70 tabular-nums"
+                className="w-5 shrink-0 font-mono text-sm text-foreground/70 tabular-nums"
               >
                 {String(plate).padStart(2, "0")}
               </span>

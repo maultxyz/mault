@@ -15,6 +15,7 @@ import {
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
+import { useScanDestination } from "@/features/scanner/api/use-scan-destination";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { imageToJpegTempFile } from "@/features/scanner/lib/frame";
 import { findCardsInFrame, identifyCardInFrame } from "@/features/scanner/lib/multi-card";
@@ -31,6 +32,11 @@ import type {
 export function useBatchScan(initialMode: BatchScanMode) {
   const orgId = useActiveOrgId();
   const { collection } = useScanTarget();
+  const scanDestination = useScanDestination();
+  const storageLocationGuid =
+    scanDestination.destination.kind === "storage"
+      ? (scanDestination.destination.storageLocationGuid ?? undefined)
+      : undefined;
   const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
   const { saveCard, saveUnmatched } = usePendingSaves();
   const [photo, setPhoto] = useState<BatchScanPhotoInfo | null>(null);
@@ -171,6 +177,7 @@ export function useBatchScan(initialMode: BatchScanMode) {
           return saveCard({
             orgId,
             collectionGuid: collection.guid,
+            storageLocationGuid,
             record: { ...record, diagnostics: outcome?.matched?.diagnostics },
           });
         }
@@ -195,6 +202,8 @@ export function useBatchScan(initialMode: BatchScanMode) {
 
   return {
     collection,
+    scanDestination,
+    storageLocation: storageLocationGuid ? scanDestination.storageLocation : null,
     photo,
     cards,
     progress,

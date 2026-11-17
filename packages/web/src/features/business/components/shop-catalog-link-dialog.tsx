@@ -35,8 +35,8 @@ export function ShopCatalogLinkDialog({
           <>
             {!catalog?.isPublic && (
               <Button
-                variant="outline"
-                className="text-destructive md:mr-auto"
+                variant="destructive"
+                className="md:mr-auto"
                 disabled={!catalog?.linkToken || isResetting}
                 onClick={() => setConfirmsReset(true)}
               >

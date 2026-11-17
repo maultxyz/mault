@@ -1,45 +1,89 @@
-import {
-  SHARED_STORAGE_PATH_PREFIX,
-  SHARE_LINK_TOKEN_PARAM,
-  SHOP_CATALOG_PATH_PREFIX,
-  WATCH_PATH_PREFIX,
-} from "@magic-vault/shared";
-import { and, eq } from "drizzle-orm";
+import { shopCatalogPath, storageLabelPath, type ShortenerLink } from "@magic-vault/shared";
+import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { db } from "../db";
-import { shareLinks, shopCatalogs } from "../db/schema";
-import { signShareLinkRow } from "./share-links";
+import { shareLinks, shopCatalogs, storageLocations } from "../db/schema";
+import {
+  SHORT_LINK_STARTUP_SYNC_ATTEMPTS,
+  SHORT_LINK_STARTUP_SYNC_RETRY_MS,
+} from "./constants/short-links";
+import type {
+  ShopCatalogShortTargetRow,
+  StorageLabelShortTargetRow,
+} from "./interfaces/short-links";
+import { shareLinkShortTarget } from "./share-links";
 import { shopCatalogLinkToken } from "./shop-catalogs";
+import {
+  findShortLinkTargetPath,
+  registerShortLinks,
+  shortLinksEnabled,
+} from "./shortener-client";
 
-function pathWithToken(path: string, token: string | null): string {
-  return token ? `${path}?${new URLSearchParams({ [SHARE_LINK_TOKEN_PARAM]: token })}` : path;
+export async function shopCatalogShortTarget(
+  catalog: ShopCatalogShortTargetRow,
+): Promise<ShortenerLink> {
+  const token = catalog.isPublic
+    ? null
+    : await shopCatalogLinkToken(catalog.guid, catalog.orgId, catalog.shareLinkVersion);
+  return { code: catalog.shortCode, targetPath: shopCatalogPath(catalog.guid, token), expiresAt: null };
+}
+
+export function storageLabelShortTarget(location: StorageLabelShortTargetRow): ShortenerLink {
+  return {
+    code: location.labelShortCode,
+    targetPath: storageLabelPath({ locationGuid: location.guid, orgId: location.orgId }),
+    expiresAt: null,
+  };
 }
 
 export async function resolveShortLinkPath(shortCode: string): Promise<string | null> {
-  const [shareLink] = await db
+  return findShortLinkTargetPath(shortCode);
+}
+
+async function loadLiveShortTargets(): Promise<ShortenerLink[]> {
+  const liveShareLinks = await db
     .select()
     .from(shareLinks)
-    .where(eq(shareLinks.shortCode, shortCode))
-    .limit(1);
-  if (shareLink) {
-    const prefix =
-      shareLink.linkKind === "storage" ? SHARED_STORAGE_PATH_PREFIX : WATCH_PATH_PREFIX;
-    return pathWithToken(`${prefix}/${shareLink.subjectGuid}`, await signShareLinkRow(shareLink));
-  }
-  const [catalog] = await db
+    .where(and(isNull(shareLinks.revokedAt), gt(shareLinks.expiresAt, sql`now()`)));
+  const liveCatalogs = await db
     .select({
       guid: shopCatalogs.guid,
       orgId: shopCatalogs.orgId,
       isPublic: shopCatalogs.isPublic,
       shareLinkVersion: shopCatalogs.shareLinkVersion,
+      shortCode: shopCatalogs.shortCode,
     })
     .from(shopCatalogs)
-    .where(and(eq(shopCatalogs.shortCode, shortCode), eq(shopCatalogs.isDeleted, false)))
-    .limit(1);
-  if (!catalog) return null;
-  const path = `${SHOP_CATALOG_PATH_PREFIX}/${catalog.guid}`;
-  if (catalog.isPublic) return path;
-  return pathWithToken(
-    path,
-    await shopCatalogLinkToken(catalog.guid, catalog.orgId, catalog.shareLinkVersion),
-  );
+    .where(eq(shopCatalogs.isDeleted, false));
+  const storageLabels = await db
+    .select({
+      guid: storageLocations.guid,
+      orgId: storageLocations.orgId,
+      labelShortCode: storageLocations.labelShortCode,
+    })
+    .from(storageLocations);
+  return [
+    ...(await Promise.all(liveShareLinks.map(shareLinkShortTarget))),
+    ...(await Promise.all(liveCatalogs.map(shopCatalogShortTarget))),
+    ...storageLabels.map((location) =>
+      storageLabelShortTarget({ ...location, guid: location.guid! }),
+    ),
+  ];
+}
+
+export function startShortLinkStartupSync(): void {
+  if (!shortLinksEnabled()) return;
+  void (async () => {
+    const targets = await loadLiveShortTargets();
+    for (let attempt = 1; attempt <= SHORT_LINK_STARTUP_SYNC_ATTEMPTS; attempt++) {
+      try {
+        await registerShortLinks(targets);
+        console.log(`[short-links] Registered ${targets.length} short links with the shortener.`);
+        return;
+      } catch (error) {
+        console.warn(`[short-links] Shortener not ready (attempt ${attempt}):`, error);
+        await new Promise((resolve) => setTimeout(resolve, SHORT_LINK_STARTUP_SYNC_RETRY_MS));
+      }
+    }
+    console.error("[short-links] Gave up registering short links with the shortener.");
+  })().catch((error) => console.error("[short-links] Startup sync failed:", error));
 }

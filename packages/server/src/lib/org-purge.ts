@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { db, type Transaction } from "../db";
+import { deleteShortLinks } from "./shortener-client";
 import {
   accuracyChecks,
   binHeightAudit,
@@ -84,14 +85,28 @@ export async function purgeOrgData(
   await tx.delete(cardSales).where(eq(cardSales.orgId, orgId));
   await tx.delete(fulfilmentOrders).where(eq(fulfilmentOrders.orgId, orgId));
   await tx.delete(tradeOffers).where(eq(tradeOffers.orgId, orgId));
-  await tx.delete(shareLinks).where(eq(shareLinks.orgId, orgId));
-  await tx.delete(shopCatalogs).where(eq(shopCatalogs.orgId, orgId));
+  const purgedShareLinks = await tx
+    .delete(shareLinks)
+    .where(eq(shareLinks.orgId, orgId))
+    .returning({ shortCode: shareLinks.shortCode });
+  const purgedCatalogs = await tx
+    .delete(shopCatalogs)
+    .where(eq(shopCatalogs.orgId, orgId))
+    .returning({ shortCode: shopCatalogs.shortCode });
+  const purgedStorageLabels = await tx
+    .delete(storageLocations)
+    .where(eq(storageLocations.orgId, orgId))
+    .returning({ shortCode: storageLocations.labelShortCode });
+  await deleteShortLinks(
+    [...purgedShareLinks, ...purgedCatalogs, ...purgedStorageLabels].map(
+      (row) => row.shortCode,
+    ),
+  );
   await tx.delete(orgActivityLog).where(eq(orgActivityLog.orgId, orgId));
   await tx.delete(apiKeyUsageDaily).where(eq(apiKeyUsageDaily.orgId, orgId));
   await tx.delete(orgApiKeys).where(eq(orgApiKeys.orgId, orgId));
   await tx.delete(webhookEndpoints).where(eq(webhookEndpoints.orgId, orgId));
   await tx.delete(unmatchedCards).where(eq(unmatchedCards.orgId, orgId));
-  await tx.delete(storageLocations).where(eq(storageLocations.orgId, orgId));
   await tx.delete(soundRules).where(eq(soundRules.orgId, orgId));
   await tx
     .delete(notificationRules)

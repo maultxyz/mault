@@ -61,7 +61,7 @@ export function DiscordAccountLink() {
             : t("discord.linked")}
         </span>
         <Button
-          variant="outline-destructive"
+          variant="destructive"
           onClick={() => void unlink()}
           disabled={isUnlinking}
         >

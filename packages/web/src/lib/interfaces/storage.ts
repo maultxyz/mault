@@ -162,6 +162,13 @@ export interface StorageLocationNameDialogProps {
   onSubmit: (name: string) => Promise<boolean>;
 }
 
+export interface StorageSelectionSearchParams {
+  locationGuid: string | null;
+  shownLocationGuid: string | null | undefined;
+  scanId?: string | null;
+  reviewParamValue?: string | null;
+}
+
 export interface StorageLocationCardQueryState {
   searchQuery: string;
   setSearchQuery: (query: string) => void;
@@ -365,3 +372,30 @@ export interface StorageLocationVerifyProps {
 }
 
 export type StorageLocationView = "cards" | "verify";
+
+export interface StorageLocationDialogsState {
+  createOpen: boolean;
+  setCreateOpen: (open: boolean) => void;
+  renameOpen: boolean;
+  setRenameOpen: (open: boolean) => void;
+  deleteOpen: boolean;
+  setDeleteOpen: (open: boolean) => void;
+  shareOpen: boolean;
+  setShareOpen: (open: boolean) => void;
+  menuLocation: StorageLocation | null;
+  setMenuLocation: (location: StorageLocation | null) => void;
+  openLocationAction: (
+    location: StorageLocation,
+    openDialog: (open: boolean) => void,
+  ) => void;
+}
+
+export interface StorageLocationDialogsProps {
+  dialogs: StorageLocationDialogsState;
+  selected: StorageLocation | undefined;
+  create: (name: string) => Promise<string | null>;
+  rename: (guid: string, name: string) => Promise<boolean>;
+  remove: (guid: string) => Promise<boolean>;
+  onCreated?: (guid: string) => void;
+  onSelectedDeleted: () => void;
+}

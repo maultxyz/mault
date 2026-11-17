@@ -6,7 +6,6 @@ import { and, count, eq, isNull } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { orgApiKeys } from "../../db/schema";
-import { isApiAccessAllowed } from "../../lib/api-access";
 import { generateApiKey, toOrgApiKey } from "../../lib/api-keys";
 import {
   API_ACCESS_UPGRADE_MESSAGE,
@@ -15,6 +14,7 @@ import {
 } from "../../lib/constants/api-keys";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { apiKeyInputSchema } from "./shared";
+import { orgHasFeature } from "../../lib/plan-config";
 
 export const addApiKeyRoute = new Hono<AppEnv>().post(
   "/",
@@ -33,7 +33,7 @@ export const addApiKeyRoute = new Hono<AppEnv>().post(
       return c.json({ success: false, message: "Invalid API key." }, 400);
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      if (!(await isApiAccessAllowed(tx, orgId))) {
+      if (!(await orgHasFeature(tx, orgId, "apiAccess"))) {
         return { success: false, message: API_ACCESS_UPGRADE_MESSAGE };
       }
       const [{ value: liveKeys }] = await tx

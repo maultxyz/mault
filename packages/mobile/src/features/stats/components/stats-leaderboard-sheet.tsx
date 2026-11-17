@@ -1,3 +1,4 @@
+import { buildLeaderboardRows } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -10,7 +11,6 @@ import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Sheet } from "@/components/ui/sheet";
 import { leaderboardQueryOptions } from "@/features/stats/api/stats";
-import { buildLeaderboardRows } from "@/features/stats/lib/stats-breakdown";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { SPACING } from "@/lib/constants/theme";
 import { LIST_ROW_ICON_SIZE } from "@/lib/constants/ui";

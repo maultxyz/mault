@@ -8,6 +8,7 @@ import {
 } from "@/features/scanner/api/monitor-cards";
 import { toScanStats } from "@/features/scanner/lib/compute-stats";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
+import { useCardFiltersSearchParams } from "@/hooks/use-card-filters-search-params";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   MONITOR_NEEDS_REVIEW_CARDS_QUERY,
@@ -41,7 +42,10 @@ export function useMonitorCards(
     () => collection?.game?.fieldDefinitions ?? [],
     [collection?.game?.fieldDefinitions],
   );
-  const queryState = useCardQueryState(fieldDefinitions);
+  const urlFilters = useCardFiltersSearchParams();
+  const queryState = useCardQueryState(fieldDefinitions, urlFilters, {
+    persistsSearchAndSortInUrl: true,
+  });
 
   const {
     viewMode,

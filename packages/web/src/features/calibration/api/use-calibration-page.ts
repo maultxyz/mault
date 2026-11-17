@@ -1,3 +1,4 @@
+import { getCalibrationKey } from "@magic-vault/shared";
 import {
   binRoutesQueryOptions,
   saveBinRoute,
@@ -21,7 +22,6 @@ import { useRetractCard } from "@/features/scanner/api/use-retract-card";
 import {
   buildCalibrationDebugText,
   defaultSliderValues,
-  getCalibrationKey,
 } from "@/features/calibration/lib/calibration-utils";
 import {
   buildCalibrationExport,
@@ -629,10 +629,8 @@ export function useCalibrationPage() {
     [],
   );
 
-  const handleFeederSpeedChange = useCallback(
+  const scheduleFeederPreview = useCallback(
     (value: number) => {
-      if (!canCalibrate) return;
-      setFeederDraftField("speed", value);
       if (isFeederTestRunning) return;
       if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
       feederDebounceRef.current = setTimeout(
@@ -640,7 +638,16 @@ export function useCalibrationPage() {
         CALIBRATION_PREVIEW_DEBOUNCE_MS,
       );
     },
-    [canCalibrate, isFeederTestRunning, previewSpeed, setFeederDraftField],
+    [isFeederTestRunning, previewSpeed],
+  );
+
+  const handleFeederSpeedChange = useCallback(
+    (value: number) => {
+      if (!canCalibrate) return;
+      setFeederDraftField("speed", value);
+      scheduleFeederPreview(value);
+    },
+    [canCalibrate, scheduleFeederPreview, setFeederDraftField],
   );
 
   const moveFeederStopPulse = useCallback(
@@ -672,14 +679,9 @@ export function useCalibrationPage() {
     (value: number) => {
       if (!canCalibrate) return;
       moveFeederStopPulse(value);
-      if (isFeederTestRunning) return;
-      if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
-      feederDebounceRef.current = setTimeout(
-        () => previewSpeed(value),
-        CALIBRATION_PREVIEW_DEBOUNCE_MS,
-      );
+      scheduleFeederPreview(value);
     },
-    [canCalibrate, isFeederTestRunning, previewSpeed, moveFeederStopPulse],
+    [canCalibrate, scheduleFeederPreview, moveFeederStopPulse],
   );
 
   const handleResetFeederStopPulse = useCallback(
@@ -687,53 +689,13 @@ export function useCalibrationPage() {
     [moveFeederStopPulse],
   );
 
-  const handleFeederDurationChange = useCallback(
-    (value: number) => setFeederDraftField("duration", value),
-    [setFeederDraftField],
-  );
-
-  const handleFeederPulseDurationChange = useCallback(
-    (value: number) => setFeederDraftField("pulseDuration", value),
-    [setFeederDraftField],
-  );
-
-  const handleFeederPauseDurationChange = useCallback(
-    (value: number) => setFeederDraftField("pauseDuration", value),
-    [setFeederDraftField],
-  );
-
-  const handleFeederSettleDurationChange = useCallback(
-    (value: number) => setFeederDraftField("settleDuration", value),
-    [setFeederDraftField],
-  );
-
   const handleFeederReverseSpeedChange = useCallback(
     (value: number) => {
       if (!canCalibrate) return;
       setFeederDraftField("reverseSpeed", value);
-      if (isFeederTestRunning) return;
-      if (feederDebounceRef.current) clearTimeout(feederDebounceRef.current);
-      feederDebounceRef.current = setTimeout(
-        () => previewSpeed(value),
-        CALIBRATION_PREVIEW_DEBOUNCE_MS,
-      );
+      scheduleFeederPreview(value);
     },
-    [canCalibrate, isFeederTestRunning, previewSpeed, setFeederDraftField],
-  );
-
-  const handleFeederReverseDurationChange = useCallback(
-    (value: number) => setFeederDraftField("reverseDuration", value),
-    [setFeederDraftField],
-  );
-
-  const handleFeederFeedRetryCountChange = useCallback(
-    (value: number) => setFeederDraftField("feedRetryCount", value),
-    [setFeederDraftField],
-  );
-
-  const handleFeederSelectContinuous = useCallback(
-    () => setFeederDraftField("pulseDuration", 0),
-    [setFeederDraftField],
+    [canCalibrate, scheduleFeederPreview, setFeederDraftField],
   );
 
   const isFeederDirty = (
@@ -1082,14 +1044,8 @@ export function useCalibrationPage() {
     handleFeederSpeedChange,
     handleFeederStopPulseChange,
     handleResetFeederStopPulse,
-    handleFeederDurationChange,
-    handleFeederPulseDurationChange,
-    handleFeederPauseDurationChange,
-    handleFeederSettleDurationChange,
     handleFeederReverseSpeedChange,
-    handleFeederReverseDurationChange,
-    handleFeederFeedRetryCountChange,
-    handleFeederSelectContinuous,
+    handleFeederFieldChange: setFeederDraftField,
     feederTest,
     scanRegion,
     captureSettleDelayMs,

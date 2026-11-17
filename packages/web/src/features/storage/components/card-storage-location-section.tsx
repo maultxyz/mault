@@ -43,7 +43,7 @@ export function CardStorageLocationSection({
         </Link>
         {canEdit && !storageLocked && (
           <Button
-            variant="outline-destructive"
+            variant="destructive"
             className="shrink-0"
             disabled={isRemoving}
             onClick={() => setConfirmOpen(true)}

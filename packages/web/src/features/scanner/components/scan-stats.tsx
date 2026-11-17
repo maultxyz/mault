@@ -1,3 +1,4 @@
+import { CompactCount, CompactPrice } from "@/components/compact-value";
 import { Sparkline } from "@/components/sparkline";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -81,7 +82,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   const { filters, toggleRarity, toggleColor, toggleSet } = useCardFilters();
   const query = useMemo(() => ({ ...ALL_CARDS_QUERY, filters }), [filters]);
   const { displayStats: stats } = useCollectionCardsSummary(query);
-  const { format } = usePriceSource();
+  const { format, formatCompact } = usePriceSource();
 
   if (!stats) {
     return (
@@ -101,7 +102,7 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
       : null;
   const overviewSummary = [
     t("scanStats.summaryCards", { count: stats.totalCount }),
-    stats.hasPricing ? format(stats.totalValue) : null,
+    stats.hasPricing ? formatCompact(stats.totalValue) : null,
     cardsPerHour !== null
       ? t("scanStats.summaryRate", { rate: cardsPerHour })
       : null,
@@ -115,18 +116,27 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
 
   const statCards: {
     label: string;
-    value: string;
+    value: React.ReactNode;
     indicator?: boolean;
     trend?: number[];
     action?: React.ReactNode;
   }[] = [
-    { label: t("totalCards"), value: String(stats.totalCount) },
-    { label: t("unique"), value: String(stats.uniqueCount) },
+    {
+      label: t("totalCards"),
+      value: <CompactCount value={stats.totalCount} />,
+    },
+    { label: t("unique"), value: <CompactCount value={stats.uniqueCount} /> },
   ];
   if (stats.hasPricing) {
     statCards.push(
-      { label: t("scanStats.totalValue"), value: format(stats.totalValue) },
-      { label: t("scanStats.avgValue"), value: format(stats.avgValue) },
+      {
+        label: t("scanStats.totalValue"),
+        value: <CompactPrice value={stats.totalValue} />,
+      },
+      {
+        label: t("scanStats.avgValue"),
+        value: <CompactPrice value={stats.avgValue} />,
+      },
     );
   }
   statCards.push(
@@ -367,7 +377,7 @@ function StatCard({
   children,
 }: {
   label: string;
-  value: string;
+  value: React.ReactNode;
   className?: string;
   indicator?: boolean;
   action?: React.ReactNode;

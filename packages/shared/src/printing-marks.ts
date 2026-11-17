@@ -12,11 +12,11 @@ import {
   PRINTING_REGIONS_BY_GAME_KEY,
 } from "./constants/printing-regions.constant";
 import type { ScanOrientation } from "./interfaces/scan-identify.interface";
+import { detectPrintedLanguageCode } from "./printed-language-code";
 import type {
   PrintingMarkAccumulator,
   PrintingMarkAlignment,
   PrintingMarkCandidateReference,
-  PrintingMarkPoint,
   PrintingMarkReference,
   PrintingMarkScanGrid,
   PrintingMarkScanGrids,
@@ -25,7 +25,12 @@ import type {
 } from "./interfaces/printing-regions.interface";
 import type { CardContour } from "./interfaces/scanner.interface";
 import type { RgbaImage } from "./interfaces/vision-model.interface";
-import { contourToPoints, solveHomographyDstToSrc } from "./vision";
+import {
+  contourToPoints,
+  mapToSource,
+  solveHomographyDstToSrc,
+  wholeImageHomography,
+} from "./vision";
 
 const BASE64_ALPHABET =
   "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -69,18 +74,6 @@ function channelValue(
   );
 }
 
-function mapToSource(
-  homography: number[],
-  u: number,
-  v: number,
-): PrintingMarkPoint {
-  const h = homography;
-  const w = h[6] * u + h[7] * v + h[8];
-  return {
-    x: (h[0] * u + h[1] * v + h[2]) / w,
-    y: (h[3] * u + h[4] * v + h[5]) / w,
-  };
-}
 
 function sampleGrid(
   image: RgbaImage,
@@ -142,14 +135,6 @@ export function contourHomography(contour: CardContour): number[] {
   return solveHomographyDstToSrc(contourToPoints(contour));
 }
 
-export function wholeImageHomography(image: RgbaImage): number[] {
-  return solveHomographyDstToSrc([
-    { x: 0, y: 0 },
-    { x: image.width - 1, y: 0 },
-    { x: image.width - 1, y: image.height - 1 },
-    { x: 0, y: image.height - 1 },
-  ]);
-}
 
 export function catalogPrintingMarkGrids(
   image: RgbaImage,
@@ -539,11 +524,15 @@ export function printingMarksPayload(
   orientation: ScanOrientation,
 ): PrintingMarksPayload | null {
   if (!contour || !gameKey) return null;
-  const grids = scanPrintingMarkGrids(
-    image,
-    contourHomography(contour),
+  const homography = contourHomography(contour);
+  const grids = scanPrintingMarkGrids(image, homography, gameKey, orientation);
+  const printedLanguageCode =
+    detectPrintedLanguageCode(image, homography, gameKey, orientation)
+      ?.present ?? null;
+  if (!grids && printedLanguageCode === null) return null;
+  return {
     gameKey,
-    orientation,
-  );
-  return grids ? { gameKey, encoded: encodePrintingMarkGrids(grids) } : null;
+    encoded: grids ? encodePrintingMarkGrids(grids) : "",
+    printedLanguageCode,
+  };
 }

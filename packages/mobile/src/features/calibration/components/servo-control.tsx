@@ -1,3 +1,4 @@
+import { getCalibrationKey } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
@@ -5,14 +6,13 @@ import { Callout } from "@/components/ui/callout";
 import { Icon } from "@/components/ui/icon";
 import { Slider } from "@/components/ui/slider";
 import { StepperRow } from "@/components/ui/stepper-row";
-import { getCalibrationKey } from "@/features/calibration/lib/calibration-keys";
 import { useTheme } from "@/hooks/use-theme";
 import {
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD,
   PUSHER_NEUTRAL_OFFSET_WARNING_THRESHOLD_PERCENT,
 } from "@/lib/constants/calibration";
 import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
-import { DISABLED_OPACITY } from "@/lib/constants/ui";
+import { DISABLED_OPACITY, MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import type { ServoControlProps } from "@/lib/interfaces/calibration";
 import {
   percentToPulse,
@@ -84,6 +84,8 @@ export function ServoControl({
       ) : null}
 
       <View
+        accessibilityRole="radiogroup"
+        accessibilityLabel={t(`calibration.servos.${servo.name}`)}
         style={{
           flexDirection: "row",
           borderRadius: RADIUS.md,
@@ -99,13 +101,14 @@ export function ServoControl({
           return (
             <Pressable
               key={position}
-              accessibilityRole="button"
-              accessibilityState={{ selected, disabled: !canCalibrate }}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: selected, disabled: !canCalibrate }}
               disabled={!canCalibrate}
               onPress={() => onControl(module, servo.name, position)}
               style={({ pressed }) => ({
                 flex: 1,
-                height: 36,
+                minHeight: MIN_TOUCH_TARGET,
+                paddingVertical: SPACING.xs,
                 alignItems: "center",
                 justifyContent: "center",
                 borderRadius: RADIUS.md - 2,

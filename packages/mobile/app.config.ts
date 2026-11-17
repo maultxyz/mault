@@ -51,7 +51,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   slug: "mault",
   scheme: "mault",
   version: JSON.parse(readFileSync(resolve(__dirname, "package.json"), "utf-8")).version,
-  orientation: "default",
+  orientation: "portrait",
   userInterfaceStyle: "automatic",
   icon: "./assets/icon.png",
   ios: {
@@ -165,6 +165,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
   extra: {
     apiUrl: env("MOBILE_API_URL", "https://mault.xyz"),
     webUrl: env("MOBILE_WEB_URL", "https://mault.xyz"),
+    shortLinkUrl: env("MOBILE_SHORT_LINK_URL"),
     authProvider: env("MOBILE_AUTH_PROVIDER", env("AUTH_PROVIDER", "neon")),
     neonAuthUrl: env("MOBILE_NEON_AUTH_URL", env("VITE_NEON_AUTH_URL")),
     ...(easProjectId ? { eas: { projectId: easProjectId } } : {}),

@@ -39,7 +39,7 @@ export function OfflineDeviceTile({ device }: OfflineDeviceTileProps) {
             <RenameDeviceButton device={device} />
             <Button
               size="icon"
-              variant="outline-destructive"
+              variant="destructive"
               aria-label={deleteLabel}
               title={deleteLabel}
               disabled={deleteDevice.isPending}

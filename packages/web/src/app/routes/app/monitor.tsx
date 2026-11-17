@@ -1,7 +1,9 @@
 import { COLLECTIONS_PATH } from "@/lib/constants/collections";
+import { LIBRARY_PATH } from "@/lib/constants/nav";
 import { Button } from "@/components/ui/button";
 import { InitialsAvatar } from "@/components/ui/initials-avatar";
 import { useCollections } from "@/features/collections/api/use-collections";
+import { MobileCollectionActionsMenu } from "@/features/collections/components/mobile-collection-actions-menu";
 import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
 import { SessionMonitorView } from "@/features/scanner/components/session-monitor-view";
@@ -38,7 +40,7 @@ export default function MonitorPage() {
     (v) => v.userId !== lock?.userId && v.userId !== currentUserId,
   );
 
-  const header = (lock || otherViewers.length > 0) && (
+  const header = !isMobile && (lock || otherViewers.length > 0) && (
     <div className="flex items-center gap-1 px-1 flex-wrap">
       {lock && (
         <InitialsAvatar
@@ -83,12 +85,15 @@ export default function MonitorPage() {
                 </Button>
               )}
               <ShareMonitorLinkDialog collectionGuid={collectionGuid} />
+              {isMobile && (
+                <MobileCollectionActionsMenu collectionGuid={collectionGuid} />
+              )}
             </>
           ) : undefined
         }
         binCount={computeBinCount(moduleCount)}
         showBinLocation
-        backHref={isMobile ? "/app/monitor" : COLLECTIONS_PATH}
+        backHref={isMobile ? LIBRARY_PATH : COLLECTIONS_PATH}
         canEditCards={isActive}
       />
     </>

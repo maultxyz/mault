@@ -50,6 +50,7 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
 import { intakeReceiptPath } from "@/lib/constants/business";
+import { priceLabelsPath } from "@/lib/constants/price-labels";
 import { toServerPagination } from "@/lib/pagination";
 import type { IntakeLotDetailProps } from "@/lib/interfaces/business";
 import {
@@ -62,6 +63,7 @@ import {
   IconListCheck,
   IconPrinter,
   IconScan,
+  IconTag,
   IconTrash,
   IconX,
 } from "@tabler/icons-react";
@@ -243,50 +245,60 @@ export function IntakeLotDetail({
             <HotkeyHint id="intakeOpenScanner" />
           </Button>
         )}
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label={t("intake.moreActions")}
-                title={t("intake.moreActions")}
-              />
-            }
-          >
-            <IconDots />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem
-              onClick={() => window.open(intakeReceiptPath(lot.guid), "_blank")}
+        {(!isMobile || access?.canAcceptIntake) && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label={t("intake.moreActions")}
+                  title={t("intake.moreActions")}
+                />
+              }
             >
-              <IconPrinter />
-              {t("intake.printReceipt")}
-            </DropdownMenuItem>
-            {access?.canAcceptIntake && (
-              <>
-                <DropdownMenuSeparator />
-                {isOpen ? (
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => setCancelOpen(true)}
-                  >
-                    <IconX />
-                    {t("intake.cancelLot")}
-                  </DropdownMenuItem>
-                ) : (
-                  <DropdownMenuItem
-                    variant="destructive"
-                    onClick={() => setDeleteOpen(true)}
-                  >
-                    <IconTrash />
-                    {t("actions.delete")}
-                  </DropdownMenuItem>
-                )}
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              <IconDots />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {!isMobile && (
+                <DropdownMenuItem
+                  onClick={() => window.open(intakeReceiptPath(lot.guid), "_blank")}
+                >
+                  <IconPrinter />
+                  {t("intake.printReceipt")}
+                </DropdownMenuItem>
+              )}
+              {!isMobile && !access?.isLocked && (
+                <DropdownMenuItem onClick={() => navigate(priceLabelsPath("lot", lot.guid))}>
+                  <IconTag />
+                  {t("priceLabels.printForLot")}
+                </DropdownMenuItem>
+              )}
+              {access?.canAcceptIntake && (
+                <>
+                  {!isMobile && <DropdownMenuSeparator />}
+                  {isOpen ? (
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={() => setCancelOpen(true)}
+                    >
+                      <IconX />
+                      {t("intake.cancelLot")}
+                    </DropdownMenuItem>
+                  ) : (
+                    <DropdownMenuItem
+                      variant="destructive"
+                      onClick={() => setDeleteOpen(true)}
+                    >
+                      <IconTrash />
+                      {t("actions.delete")}
+                    </DropdownMenuItem>
+                  )}
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         {isOpen && access?.canAcceptIntake && (
           <Button
             disabled={lot.cardCount === 0}
@@ -326,7 +338,7 @@ export function IntakeLotDetail({
           {
             key: "cards",
             label: t("intake.stats.cards"),
-            value: lot.cardCount.toLocaleString(),
+            value: lot.cardCount,
           },
           ...(showMoney
             ? [
@@ -623,7 +635,7 @@ export function IntakeLotDetail({
           setTransferOpen(open);
           if (!open && inAcceptFlow) {
             setInAcceptFlow(false);
-            setReceiptPromptOpen(true);
+            if (!isMobile) setReceiptPromptOpen(true);
           }
         }}
       />

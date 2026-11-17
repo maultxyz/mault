@@ -1,9 +1,10 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import { OCR_REGIONS_BY_GAME_KEY, type PlayingCard } from "@magic-vault/shared";
+import { CATALOG_SEARCH_MIN_QUERY_LENGTH, OCR_REGIONS_BY_GAME_KEY, type PlayingCard } from "@magic-vault/shared";
 import { CardTile } from "@/components/cards/card-tile";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Screen } from "@/components/ui/screen";
 import { SearchInput } from "@/components/ui/search-input";
 import { SelectField } from "@/components/ui/select-field";
@@ -30,10 +32,8 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { usePanelWidth } from "@/hooks/use-panel-width";
-import { CARD_SEARCH_MIN_LENGTH } from "@/lib/constants/cards";
 import { CARD_GRID_COLUMNS, CARD_GRID_GAP_X, CARD_GRID_GAP_Y, SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { OCR_TILE_COLUMNS } from "@/lib/constants/health";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { ANY_SET_OPTION, CARD_SET_PICKER_LIMIT } from "@/lib/constants/scanner";
 import { RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { formatShortDate } from "@/lib/dates";
@@ -63,7 +63,7 @@ export default function HealthScreen() {
   const sets = cardSets.data ?? [];
   const selectedSetName = setCode ? (sets.find((set) => set.code === setCode)?.name ?? setCode.toUpperCase()) : null;
   const results = search.data?.pages.flatMap((page) => page.cards) ?? [];
-  const queryReady = debounced.trim().length >= CARD_SEARCH_MIN_LENGTH;
+  const queryReady = debounced.trim().length >= CATALOG_SEARCH_MIN_QUERY_LENGTH;
 
   const contentWidth = width - SCREEN_GUTTER * 2;
   const tileWidth = (contentWidth - CARD_GRID_GAP_X * (CARD_GRID_COLUMNS - 1)) / CARD_GRID_COLUMNS;
@@ -113,7 +113,9 @@ export default function HealthScreen() {
           description={t("health.lastChecked", { time: new Date(data.checkedAt).toLocaleTimeString(i18n.language) })}
         />
       ) : null}
-      {health.isPending ? (
+      {health.isError && !data ? (
+        <QueryErrorState title={t("health.loadFailed")} onRetry={() => void health.refetch()} isRetrying={health.isFetching} />
+      ) : health.isPending ? (
         <ListSkeleton withIcon={false} />
       ) : (
         <ListGroup>

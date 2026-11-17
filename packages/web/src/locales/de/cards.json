@@ -98,7 +98,6 @@
       "language": "Sprache"
     },
     "copyOf": "Exemplar {{index}} von {{count}}",
-    "moreOptions": "Mehr",
     "actions": "Kartenaktionen",
     "name": "Name",
     "moveToLocation": "In Lagerort verschieben",
@@ -124,6 +123,8 @@
     "manageCollections": "Sammlungen verwalten",
     "noCardsScanned": "Noch keine Karten gescannt",
     "scanToGetStarted": "Scanne eine Karte, um loszulegen",
+    "loadFailed": "Die Karten dieser Sammlung konnten nicht geladen werden.",
+    "selectAllFailed": "Es konnten nicht alle Karten ausgewählt werden. Versuche es erneut.",
     "noCardsMatchFilters": "Keine Karten entsprechen den aktuellen Filtern",
     "tryAdjusting": "Passe deine Suche, Sortierung oder Filter an",
     "cardsSelected_one": "{{count}} Karte ausgewählt",
@@ -165,6 +166,10 @@
     "sortDescString": "Z-A",
     "sortAscDefault": "Niedrig-Hoch",
     "sortDescDefault": "Hoch-Niedrig",
+    "priceSort": {
+      "usd": "Preis (USD)",
+      "eur": "Preis (EUR)"
+    },
     "deselectAll": "Alle abwählen",
     "selectAll": "Alle auswählen",
     "gridView": "Rasteransicht",
@@ -248,6 +253,8 @@
     "previous": "Zurück",
     "next": "Weiter",
     "skipAll": "Alles überspringen",
+    "pause": "Diashow anhalten",
+    "play": "Diashow abspielen",
     "intro": {
       "eyebrow": "Deine Sitzung",
       "title": "{{collectionName}} Rückblick",
@@ -349,6 +356,13 @@
       "noScanAreas": "Nicht geprüft: keine Merkmalsbereiche aus dem Scan",
       "noReferences": "Nicht geprüft: noch keine Referenzen für dieses Spiel",
       "singlePrinting": "Nicht nötig: keine ähnlichen Drucke"
+    },
+    "printedLanguageCode": "Sprachcode (\"EN\")",
+    "printedLanguageCodeValue": {
+      "presentChanged": "EN gefunden, Druck geändert",
+      "presentKept": "EN gefunden",
+      "absentChanged": "Kein EN, Druck geändert",
+      "absentKept": "Kein EN"
     },
     "printedFoilMarker": "Foil-Stern",
     "printedFoilMarkerValue": {
@@ -656,5 +670,19 @@
       "signedInAs": "Angemeldet als {{name}}.",
       "signedInHint": "Gesendete Angebote erscheinen in deinem Konto unter Tausch > Gesendet."
     }
+  },
+  "shareCardLink": {
+    "action": "Freigabelink kopieren",
+    "copied": "Freigabelink kopiert. Alle mit dem Link sehen diese Karte.",
+    "copyFailed": "Der Freigabelink für diese Karte konnte nicht kopiert werden.",
+    "sharedPage": {
+      "readOnly": "Geteilte Karte · Nur Ansicht",
+      "invalidTitle": "Dieser Link funktioniert nicht mehr",
+      "invalidDescription": "Er wurde vielleicht widerrufen, oder die Karte wurde entfernt. Bitte die Person, die ihn geteilt hat, um einen neuen Link."
+    }
+  },
+  "downloadScanImage": {
+    "action": "Foto herunterladen",
+    "failed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut."
   }
 }

@@ -89,8 +89,8 @@
     "syncCompleted": "Kartenbild-Vektor-Sync abgeschlossen",
     "syncFailed": "Kartenbild-Vektor-Sync fehlgeschlagen",
     "sync": "Kartenbild-Vektor-Sync",
-    "cardTotal_one": "{{count}} Karte · {{value}}",
-    "cardTotal_other": "{{count}} Karten · {{value}}",
+    "cardTotal_one": "{{count, compact}} Karte · {{value}}",
+    "cardTotal_other": "{{count, compact}} Karten · {{value}}",
     "healthIssues_one": "{{count}} Problem erkannt",
     "healthIssues_other": "{{count}} Probleme erkannt",
     "healthIssuesTooltip": "Probleme bei: {{names}}. Für Details klicken.",
@@ -206,6 +206,11 @@
     "title": "Tastenkürzel",
     "description": "Tastenkürzel werden ignoriert, während du in ein Feld tippst oder ein Dialog geöffnet ist.",
     "then": "dann",
+    "off": "Aus",
+    "singleKey": {
+      "label": "Tastenkürzel mit nur einer Taste",
+      "hint": "Wenn aus, funktionieren nur Tastenkürzel mit Strg oder Cmd, Escape, Eingabe, Entf und die Pfeiltasten. In diesem Browser gespeichert."
+    },
     "keys": {
       "space": "Leertaste",
       "shift": "Umschalt",
@@ -224,13 +229,13 @@
       "scanner": "Scanner",
       "cardDetail": "Kartendetails",
       "intake": "Ankauf",
-      "matchValidation": "Treffer prüfen",
-      "foilLabeling": "Foil-Kennzeichnung"
+      "matchValidation": "Treffer prüfen"
     },
     "actions": {
       "showShortcuts": "Tastenkürzel anzeigen",
       "toggleSidebar": "Seitenleiste ein- oder ausklappen",
       "focusSearch": "Suche fokussieren",
+      "openGlobalSearch": "Globale Suche öffnen",
       "dismissToasts": "Alle Benachrichtigungen schließen",
       "save": "Änderungen speichern",
       "clearSelection": "Auswahl aufheben",
@@ -269,15 +274,11 @@
       "reviewCycleLanguage": "Beim Prüfen: Sprachen durchschalten",
       "goSortingRules": "Zu den Sortierregeln",
       "intakeOpenScanner": "Scanner für diesen Ankauf öffnen",
-      "foilLabelFoil": "Beim Kennzeichnen: als Foil markieren",
-      "foilLabelNotFoil": "Beim Kennzeichnen: als Nicht-Foil markieren",
-      "foilLabelSkip": "Beim Kennzeichnen: diese Karte überspringen",
       "matchValidationCorrect": "Beim Prüfen von Treffern: Treffer als richtig markieren",
       "matchValidationIncorrect": "Beim Prüfen von Treffern: Treffer als falsch markieren",
       "matchValidationBadScan": "Beim Prüfen von Treffern: Foto als schlechten Scan markieren",
       "matchValidationSkip": "Beim Prüfen von Treffern: diesen Scan überspringen",
       "matchValidationBack": "Beim Prüfen von Treffern: zum vorherigen Scan zurück",
-      "foilLabelBack": "Beim Kennzeichnen: zurück zur vorherigen Karte",
       "scanFlatbedCard": "Karte auf dem Flachbett scannen"
     }
   },
@@ -292,7 +293,8 @@
     "home": "Start",
     "scan": "Scannen",
     "library": "Bibliothek",
-    "more": "Mehr"
+    "more": "Mehr",
+    "business": "An- & Verkauf"
   },
   "pagination": {
     "previous": "Zurück",
@@ -358,10 +360,14 @@
     "verificationCodeNumeric": "Der Code darf nur Ziffern enthalten.",
     "controlCardActionRequired": "Wähle mindestens eine Änderung für die Karte.",
     "orderBinDuplicate": "Jede Bestellung braucht ein eigenes Fach.",
+    "shortLinkCodeInvalid": "Verwende bis zu {{max}} Kleinbuchstaben, Ziffern und Bindestriche, mit einem Buchstaben oder einer Ziffer am Anfang und Ende.",
+    "shortLinkCodeReserved": "Dieser Code ist reserviert. Wähle einen anderen.",
+    "shortLinkTargetInvalid": "Gib eine vollständige http://- oder https://-URL ein.",
     "orderBinCatchAll": "Das letzte Fach nimmt alle übrigen Karten auf, wähle ein anderes.",
     "catalogSourcesRequired": "Wähle mindestens eine Sammlung oder einen Lagerort.",
     "contactRequired": "Gib an, wie man dich erreicht.",
-    "textTooLong": "Bleib unter {{max}} Zeichen."
+    "textTooLong": "Bleib unter {{max}} Zeichen.",
+    "jsonObjectInvalid": "Gib ein einzelnes JSON-Objekt ein, etwa {\"neutral\": true}."
   },
   "memberSeatLock": {
     "title": "Diese Organisation hat ihr Mitgliederlimit überschritten",
@@ -452,7 +458,9 @@
     "checkFailedTitle": "Dieser Link konnte nicht geöffnet werden",
     "checkFailedDescription": "Prüfe deine Verbindung und versuche es erneut.",
     "shortLinkInvalidTitle": "Dieser Link funktioniert nicht",
-    "shortLinkInvalidDescription": "Prüfe, ob er vollständig kopiert wurde, oder bitte die Person, die ihn geteilt hat, um einen neuen Link."
+    "shortLinkInvalidDescription": "Prüfe, ob er vollständig kopiert wurde, oder bitte die Person, die ihn geteilt hat, um einen neuen Link.",
+    "poweredBy": "Bereitgestellt von",
+    "poweredByLabel": "Bereitgestellt von {{site}} (öffnet in einem neuen Tab)"
   },
   "tradeOffers": {
     "declined": "Tauschangebot abgelehnt",
@@ -540,6 +548,8 @@
     "notFound": "Dieses Tauschangebot gibt es nicht mehr.",
     "backToTrades": "Zurück zu den Tauschangeboten",
     "acceptTitle": "Dieses Tauschangebot annehmen?",
+    "declineTitle": "Dieses Tauschangebot ablehnen?",
+    "declineDescription": "Die Person sieht auf ihrem Link, dass du abgelehnt hast. Das lässt sich nicht rückgängig machen.",
     "sideTabs": {
       "label": "Seiten des Tauschs",
       "wanted": "Möchte ({{count}})",
@@ -597,6 +607,18 @@
         "accepted": "Angenommen",
         "declined": "Abgelehnt"
       }
+    }
+  },
+  "labelSheets": {
+    "template": "Bogen",
+    "startPosition": "Bei Etikett beginnen",
+    "startPositionHint": "Überspringe Etiketten, die auf einem angebrochenen Bogen schon verwendet wurden. Gezählt wird von links nach rechts, von oben nach unten.",
+    "print": "Drucken",
+    "printTip": "Drucke mit 100 % Skalierung (tatsächliche Größe) und ohne Ränder, damit die Etiketten auf den Etikettenbogen passen.",
+    "templates": {
+      "avery-5160": "Avery 5160 (30 pro Bogen, 2,625 x 1 Zoll)",
+      "avery-5163": "Avery 5163 (10 pro Bogen, 4 x 2 Zoll)",
+      "avery-5164": "Avery 5164 (6 pro Bogen, 4 x 3,33 Zoll)"
     }
   }
 }

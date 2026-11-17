@@ -33,7 +33,8 @@ function toDraft(settings: OrgSettings): OrgSettingsDraftFormValues {
 export function useOrgSettingsDraft(): OrgSettingsDraft {
   const queryClient = useQueryClient();
   const options = orgSettingsQueryOptions(useActiveOrgId());
-  const { data, isLoading } = useQuery(options);
+  const { data, isError, isFetching, refetch } = useQuery(options);
+  const isLoadError = isError && !data;
   const values = useMemo(() => toDraft(data ?? DEFAULT_ORG_SETTINGS), [data]);
   const [saveError, setSaveError] = useState(false);
   const form = useForm<OrgSettingsDraftFormValues>({
@@ -70,11 +71,16 @@ export function useOrgSettingsDraft(): OrgSettingsDraft {
   return {
     control: form.control,
     savedPrimaryColor: values.primaryColor,
-    isLoading,
-    isDirty: form.formState.isDirty,
+    isLoading: !data && !isLoadError,
+    isLoadError,
+    isRetryingLoad: isLoadError && isFetching,
+    retryLoad: () => void refetch(),
+    isDirty: !!data && form.formState.isDirty,
     isSaving: form.formState.isSubmitting,
     saveError,
-    save: () => void form.handleSubmit(submit)(),
+    save: () => {
+      if (data) void form.handleSubmit(submit)();
+    },
     discard: () => form.reset(values),
   };
 }

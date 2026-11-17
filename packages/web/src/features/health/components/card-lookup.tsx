@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,9 +15,8 @@ import { CardSearchSetSelect } from "@/features/cards/components/card-search-set
 import { gameCoverageQueryOptions } from "@/features/games/api/games";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { CARD_SEARCH_ALL_SETS } from "@/lib/constants/cards";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
-import { QUERY_MIN_LENGTH } from "@magic-vault/shared";
+import { CATALOG_SEARCH_MIN_QUERY_LENGTH } from "@magic-vault/shared";
 import { IconLoader2, IconSearch } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -49,7 +49,7 @@ export function CardLookup() {
     activeLang,
     selectedSet !== CARD_SEARCH_ALL_SETS ? selectedSet : undefined,
   );
-  const isQueryReady = debouncedQuery.trim().length >= QUERY_MIN_LENGTH;
+  const isQueryReady = debouncedQuery.trim().length >= CATALOG_SEARCH_MIN_QUERY_LENGTH;
 
   return (
     <div className="flex flex-col gap-3 md:gap-2">

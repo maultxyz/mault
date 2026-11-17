@@ -43,6 +43,12 @@ import {
   toShopCatalogSources,
 } from "../../lib/shop-catalogs";
 import { generateShortLinkCode } from "../../lib/short-link-codes";
+import { shopCatalogShortTarget } from "../../lib/short-links";
+import {
+  deleteShortLinks,
+  registerShortLinks,
+  shortLinkUrlFor,
+} from "../../lib/shortener-client";
 import { uuidArraySql } from "../../lib/sql-arrays";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { businessQuery, notFound, readJson } from "./shared";
@@ -72,6 +78,7 @@ async function toShopCatalog(
       row.shareLinkVersion,
     ),
     shortCode: row.shortCode,
+    shortUrl: shortLinkUrlFor(row.shortCode),
     createdAt: row.createdAt.toISOString(),
   };
 }
@@ -244,6 +251,7 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
           shortCode: generateShortLinkCode(),
         })
         .returning();
+      await registerShortLinks([await shopCatalogShortTarget(created)]);
       await logActivity(tx, {
         orgId,
         userId: c.get("userId"),
@@ -281,6 +289,9 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
         })
         .where(eq(shopCatalogs.id, existing.id))
         .returning();
+      if (updated.isPublic !== existing.isPublic) {
+        await registerShortLinks([await shopCatalogShortTarget(updated)]);
+      }
       await logActivity(tx, {
         orgId,
         userId: c.get("userId"),
@@ -309,6 +320,8 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
         })
         .where(eq(shopCatalogs.id, existing.id))
         .returning();
+      await deleteShortLinks([existing.shortCode]);
+      await registerShortLinks([await shopCatalogShortTarget(updated)]);
       await logActivity(tx, {
         orgId,
         userId: c.get("userId"),
@@ -332,6 +345,7 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
         .update(shopCatalogs)
         .set({ isDeleted: true, updatedAt: new Date() })
         .where(eq(shopCatalogs.id, existing.id));
+      await deleteShortLinks([existing.shortCode]);
       await logActivity(tx, {
         orgId,
         userId: c.get("userId"),

@@ -105,7 +105,6 @@ export function ImpersonationUsersManager() {
                   aria-label={t("impersonationUsersManager.viewAuditLog")}
                   variant="outline"
                   size="icon"
-                  className="size-7"
                   onClick={() => setAuditOpen(true)}
                 >
                   <IconClockHour3 size={14} />

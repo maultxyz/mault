@@ -91,7 +91,8 @@
   "views": {
     "label": "Ankauf- und Verkaufsansicht",
     "intake": "Ankauf",
-    "picks": "Picks"
+    "picks": "Picks",
+    "labels": "Etiketten"
   },
   "offerEditor": {
     "title": "Angebot für {{name}}",
@@ -119,8 +120,8 @@
     "emptyDescription": "Starte einen, wenn jemand Karten verkaufen möchte.",
     "pickTitle": "Ankauf auswählen",
     "pickDescription": "Wähle links einen Ankauf oder starte einen neuen.",
-    "cardCount_one": "{{count}} Karte",
-    "cardCount_other": "{{count}} Karten",
+    "cardCount_one": "{{count, compact}} Karte",
+    "cardCount_other": "{{count, compact}} Karten",
     "openScanner": "Scanner öffnen",
     "addCard": "Karte hinzufügen",
     "printReceipt": "Beleg",
@@ -274,8 +275,8 @@
       "picked": "Gepickt",
       "revenue": "Umsatz"
     },
-    "shortLines_one": "{{count}} Zeile ist nicht vollständig auf Lager. Weise neu zu, nachdem du mehr Karten gescannt hast, oder schließe ab, was da ist.",
-    "shortLines_other": "{{count}} Zeilen sind nicht vollständig auf Lager. Weise neu zu, nachdem du mehr Karten gescannt hast, oder schließe ab, was da ist.",
+    "shortLines_one": "{{count}} Zeile ist nicht vollständig auf Lager. Weise neu zu, nachdem du mehr Karten gescannt hast, wähle einen Ersatz im Menü der Zeile oder schließe ab, was da ist.",
+    "shortLines_other": "{{count}} Zeilen sind nicht vollständig auf Lager. Weise neu zu, nachdem du mehr Karten gescannt hast, wähle Ersatz im Menü jeder Zeile oder schließe ab, was da ist.",
     "lines": "Zu ziehende Karten",
     "markPicked": "Gepickt",
     "pickLine": "Alle Exemplare von {{name}} als gezogen markieren",
@@ -331,7 +332,111 @@
     "sortPresetCreated_other": "{{count}} Sortiervorlagen erstellt, eine pro Spiel",
     "openSortPreset": "Vorlage öffnen",
     "batchName_one": "{{count}} Bestellung",
-    "batchName_other": "{{count}} Bestellungen"
+    "batchName_other": "{{count}} Bestellungen",
+    "bulk": {
+      "selectPick": "{{name}} auswählen",
+      "selected_one": "{{count}} Pick ausgewählt",
+      "selected_other": "{{count}} Picks ausgewählt",
+      "allocate": "Neu zuweisen ({{count}})",
+      "cancel": "Abbrechen ({{count}})",
+      "delete": "Löschen ({{count}})",
+      "keep": "Picks behalten",
+      "cancelTitle_one": "{{count}} Pick abbrechen?",
+      "cancelTitle_other": "{{count}} Picks abbrechen?",
+      "cancelDescription_one": "Die Karten bleiben im Bestand und stehen anderen Picks zur Verfügung. Abgeschlossene Picks in der Auswahl bleiben unverändert.",
+      "cancelDescription_other": "Die Karten bleiben im Bestand und stehen anderen Picks zur Verfügung. Abgeschlossene Picks in der Auswahl bleiben unverändert.",
+      "cancelConfirm_one": "{{count}} Pick abbrechen",
+      "cancelConfirm_other": "{{count}} Picks abbrechen",
+      "deleteTitle_one": "{{count}} abgeschlossenen Pick löschen?",
+      "deleteTitle_other": "{{count}} abgeschlossene Picks löschen?",
+      "deleteDescription_one": "Der Eintrag wird entfernt. Bereits aus dem Bestand genommene Karten bleiben entfernt. Offene Picks in der Auswahl bleiben unverändert.",
+      "deleteDescription_other": "Die Einträge werden entfernt. Bereits aus dem Bestand genommene Karten bleiben entfernt. Offene Picks in der Auswahl bleiben unverändert.",
+      "done": {
+        "allocate_one": "{{count}} Pick neu zugewiesen",
+        "allocate_other": "{{count}} Picks neu zugewiesen",
+        "cancel_one": "{{count}} Pick abgebrochen",
+        "cancel_other": "{{count}} Picks abgebrochen",
+        "delete_one": "{{count}} Pick gelöscht",
+        "delete_other": "{{count}} Picks gelöscht"
+      },
+      "pickTogether": "Zusammen picken ({{count}})",
+      "packingSlips": "Lieferscheine ({{count}})"
+    },
+    "batch": {
+      "title": "Zusammen picken",
+      "description": "Picks: {{picks}} · Karten: {{cards}}",
+      "back": "Picks",
+      "pickColumn": "Pick",
+      "emptyTitle": "Nichts zu picken",
+      "emptyDescription": "Keiner dieser Picks ist offen oder hat zurückgelegte Karten. Weise sie zuerst in der Pick-Liste neu zu.",
+      "closedSkipped_one": "{{count}} ausgewählter Pick ist bereits abgeschlossen und wurde ausgelassen.",
+      "closedSkipped_other": "{{count}} ausgewählte Picks sind bereits abgeschlossen und wurden ausgelassen.",
+      "shortPicks_one": "{{count}} Pick ist nicht vollständig auf Lager. Öffne ihn, um Ersatz zu finden:",
+      "shortPicks_other": "{{count}} Picks sind nicht vollständig auf Lager. Öffne sie, um Ersatz zu finden:",
+      "progress": "{{picked}} von {{total}} Karten gepickt. Abschlussbereite Picks: {{completed}}",
+      "complete_one": "{{count}} Pick abschließen",
+      "complete_other": "{{count}} Picks abschließen",
+      "completeHint": "Hake alle Karten eines Picks ab, um ihn abzuschließen.",
+      "completeTitle_one": "{{count}} Pick abschließen?",
+      "completeTitle_other": "{{count}} Picks abschließen?",
+      "completeDescription_one": "Die gepickten Karten gehen mit den Bestellungen aus dem Bestand: {{names}}",
+      "completeDescription_other": "Die gepickten Karten gehen mit den Bestellungen aus dem Bestand: {{names}}",
+      "completed_one": "{{count}} Pick abgeschlossen",
+      "completed_other": "{{count}} Picks abgeschlossen"
+    },
+    "substitutes": {
+      "find": "Ersatz finden",
+      "title": "Ersatz",
+      "description": "Exemplare auf Lager, die die {{missing}} fehlenden für {{name}} ersetzen könnten. Die nächsten Treffer stehen oben.",
+      "added": "Ersatz zum Pick hinzugefügt",
+      "emptyTitle": "Keine anderen Exemplare auf Lager",
+      "emptyDescription": "Gerade ist kein freies Exemplar dieser Karte im Bestand.",
+      "exactMatch": "Passt zur Bestellung",
+      "useCopy": "Dieses verwenden",
+      "useCopyFor": "{{printing}} in {{condition}} verwenden",
+      "differences": {
+        "printing": "Andere Ausgabe",
+        "condition": "Anderer Zustand",
+        "finish": "Andere Veredelung"
+      }
+    },
+    "packingSlips": {
+      "print": "Lieferschein drucken",
+      "printAll": "Lieferscheine",
+      "pageTitle": "Lieferscheine",
+      "count_one": "{{count}} Lieferschein, einer pro Marktplatz-Bestellung",
+      "count_other": "{{count}} Lieferscheine, einer pro Marktplatz-Bestellung",
+      "showPrices": "Preise anzeigen",
+      "printButton": "Drucken",
+      "title": "Lieferschein",
+      "orderRef": "Bestellung {{order}}",
+      "slipLabel": "Lieferschein für {{order}}",
+      "quantity": "Anz.",
+      "unitPrice": "Stück",
+      "lineTotal": "Summe",
+      "items": "Artikel",
+      "subtotal": "Zwischensumme",
+      "unavailableTitle": "Nicht enthalten",
+      "unavailableLine_one": "{{count}} x {{name}}",
+      "unavailableLine_other": "{{count}} x {{name}}",
+      "thanks": "Danke für deine Bestellung!",
+      "emptyTitle": "Keine Lieferscheine",
+      "emptyDescription": "Abgebrochene Picks bekommen keinen Lieferschein.",
+      "image": "Kartenbild"
+    },
+    "pickSaveFailed": "Der Pick konnte nicht gespeichert werden. Deine Häkchen wurden vom Server neu geladen.",
+    "phonePick": {
+      "button": "Auf dem Handy picken",
+      "title": "Auf dem Handy picken",
+      "description_one": "Scanne diesen Code im Scan-Tab der MAULT-App, um den Pick nach Lagerort abzulaufen. Häkchen werden sofort gespeichert, du kannst also jederzeit das Gerät wechseln.",
+      "description_other": "Scanne diesen Code im Scan-Tab der MAULT-App, um diese {{count}} Picks nach Lagerort abzulaufen. Häkchen werden sofort gespeichert, du kannst also jederzeit das Gerät wechseln.",
+      "qrAlt": "QR-Code, der diesen Pick in der MAULT-App öffnet",
+      "hint": "Öffne die App, gehe zu Scannen und richte die Kamera auf den Code.",
+      "copy": "Link kopieren",
+      "copied": "Pick-Link kopiert",
+      "copyFailed": "Link konnte nicht kopiert werden",
+      "done": "Fertig"
+    }
   },
   "cost": {
     "title": "Einkaufspreis festlegen",
@@ -594,5 +699,64 @@
     "isPublicDescription": "Jeder kann diesen Katalog über seine normale Adresse öffnen, ohne den privaten Link. Ausschalten, um den privaten Link zu verlangen.",
     "publicBadge": "Öffentlich",
     "publicLinkNote": "Dieser Katalog ist öffentlich, daher funktioniert dieser Link für alle. Schalte Öffentlich aus, um einen privaten Link zu verlangen."
+  },
+  "priceLabels": {
+    "title": "Preisetiketten",
+    "description": "Drucke Preisaufkleber für Karten aus einer Sammlung, einem Lagerort oder einem Ankauf.",
+    "printForLot": "Preisetiketten drucken",
+    "form": {
+      "title": "Etiketten",
+      "description": "Wähle die Karten, ihre Preisgestaltung und den Avery-Bogen, auf den du druckst.",
+      "source": "Karten aus",
+      "markup": "Aufschlag (%)",
+      "markupHint": "Wird auf den Marktpreis aufgeschlagen. Eine negative Zahl gibt einen Rabatt.",
+      "rounding": "Preise runden"
+    },
+    "sources": {
+      "collection": "Sammlung",
+      "location": "Lagerort",
+      "lot": "Ankauf"
+    },
+    "sourceItems": {
+      "collection": "Sammlung",
+      "location": "Lagerort",
+      "lot": "Ankauf"
+    },
+    "sourcePlaceholders": {
+      "collection": "Sammlung wählen",
+      "location": "Lagerort wählen",
+      "lot": "Ankauf wählen"
+    },
+    "rounding": {
+      "none": "Nicht runden",
+      "quarter": "Auf die nächsten 0,25 aufrunden",
+      "ninetyNine": "Auf die nächsten ,99 aufrunden",
+      "whole": "Auf den nächsten ganzen Betrag aufrunden"
+    },
+    "cards": {
+      "selected_one": "{{count}} von {{total}} Karte ausgewählt",
+      "selected_other": "{{count}} von {{total}} Karten ausgewählt",
+      "selectAll": "Alle auswählen",
+      "selectNone": "Keine auswählen",
+      "include": "Etikett drucken",
+      "card": "Karte",
+      "market": "Markt",
+      "customPrice": "Eigener Preis",
+      "customPriceFor": "Eigener Preis für {{name}}",
+      "labelPrice": "Etikettenpreis",
+      "noPrice": "Kein Preis",
+      "truncated": "Die ersten {{shown}} von {{total}} Karten werden angezeigt. Drucke die Etiketten für die übrigen über einen Lagerort oder Ankauf."
+    },
+    "empty": {
+      "pickSourceTitle": "Wähle, woher die Karten kommen",
+      "pickSourceDescription": "Wähle eine Sammlung, einen Lagerort oder einen Ankauf, um seine Karten aufzulisten.",
+      "noCardsTitle": "Hier sind keine Karten",
+      "noCardsDescription": "Scanne oder füge zuerst Karten hinzu und drucke dann ihre Etiketten.",
+      "noneSelectedTitle": "Keine Karten ausgewählt",
+      "noneSelectedDescription": "Wähle mindestens eine Karte, um ihr Etikett in der Vorschau zu sehen."
+    },
+    "sheet": {
+      "pageDescription": "Preisetikettenbogen Seite {{page}}: {{labels}}"
+    }
   }
 }

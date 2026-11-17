@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { BlurView } from "expo-blur";
@@ -64,6 +64,7 @@ import {
   CARD_GRID_GAP_X,
   CARD_GRID_GAP_Y,
   CARD_GRID_GUTTER,
+  CARD_GRID_LIST_WINDOW_SIZE,
   COLLECTION_SCAN_TIMELINE_KEY,
   LIST_END_THRESHOLD,
   SCAN_TIMELINE_HEADER_BLUR_INTENSITY,
@@ -121,7 +122,10 @@ export default function CollectionScreen() {
     () => buildCollectionCardsQuery({ search: debounced, sort, filters, grouped, scanTimeline }),
     [debounced, sort, filters, grouped, scanTimeline],
   );
-  const cards = useInfiniteQuery(collectionCardsQueryOptions(guid, cardsQuery));
+  const cards = useInfiniteQuery({
+    ...collectionCardsQueryOptions(guid, cardsQuery),
+    placeholderData: keepPreviousData,
+  });
   const summary = useQuery(collectionCardsSummaryQueryOptions(guid));
   const scanTimelineBuckets = useQuery({
     ...scanTimelineBucketsQueryOptions(guid, cardsQuery, scanTimelineGrouping ?? "day", scanTimelineTimeZone),
@@ -194,7 +198,7 @@ export default function CollectionScreen() {
   const breakdown = useMemo(() => (stats && stats.totalCount > 0 ? toStatsBreakdown(stats) : null), [stats]);
   const binCount = computeBinCount(sorter.device?.moduleCount ?? DEFAULT_MODULE_COUNT);
   const foilOptions = collection?.game?.foilTypes?.length ? collection.game.foilTypes : [t("cardDetail.foil")];
-  const sortOptions = cardSortOptions(collection?.game?.fieldDefinitions ?? [], t("collection.sort.scanOrder"), sort, t);
+  const sortOptions = cardSortOptions(collection?.game?.fieldDefinitions ?? [], t("collection.sort.scanOrder"), sort, pricing.source, t);
   const activeSortAndFilterCount =
     countActiveCardFilters(filters) + (sort && !scanTimelineGrouping ? 1 : 0) + (scanTimelineGrouping ? 1 : 0);
 
@@ -203,7 +207,7 @@ export default function CollectionScreen() {
   const headerSummary = [
     collection?.game?.name,
     totalCards != null ? t("collection.cardsCount", { count: totalCards }) : null,
-    hasPricing && stats ? pricing.format(stats.totalValue) : null,
+    hasPricing && stats ? pricing.formatCompact(stats.totalValue) : null,
   ]
     .filter(Boolean)
     .join(" · ");
@@ -261,6 +265,7 @@ export default function CollectionScreen() {
       gap: CARD_GRID_GAP_Y,
     },
     onEndReachedThreshold: LIST_END_THRESHOLD,
+    windowSize: CARD_GRID_LIST_WINDOW_SIZE,
     onScroll: trackScrollOffset,
     onMomentumScrollEnd: () => persistViewMemory(),
     onScrollEndDrag: () => persistViewMemory(),

@@ -37,3 +37,9 @@ export const MARKETING_PAGES = [
     metaPath: ["meta", "terms"],
   },
 ] as const;
+
+export const MARKETING_HERO_TITLE_CLASS =
+  "font-heading text-5xl leading-[1.02] font-semibold tracking-tight text-balance md:text-6xl";
+
+export const MARKETING_INLINE_CODE_CLASS =
+  "rounded-sm bg-foreground/6 px-1 py-0.5 font-mono text-sm text-foreground";

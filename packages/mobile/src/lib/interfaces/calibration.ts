@@ -1,3 +1,4 @@
+import type { ServoName } from "@magic-vault/shared";
 import type {
   BinDirection,
   BinHeight,
@@ -11,7 +12,7 @@ import type {
 } from "@magic-vault/shared";
 import type { IconName } from "@/lib/interfaces/ui";
 
-export type ServoName = "bottom" | "paddle" | "pusher";
+export type { ServoName };
 
 export type SliderKey = `${number}:${ServoName}`;
 
@@ -109,16 +110,7 @@ export interface FeederPanelProps {
   firmwareVersion: string | null;
 }
 
-export interface DevicePatch {
-  moduleCount?: number;
-  autoConnect?: boolean;
-  testOnConnect?: boolean;
-  pipelinedFeed?: boolean;
-  scanRegion?: ScanRegion;
-  captureSettleDelayMs?: number;
-  matchesNeeded?: number;
-  checkBothOrientations?: boolean;
-}
+export type { DevicePatch } from "@magic-vault/shared";
 
 export type DeviceToggleKey = "autoConnect" | "testOnConnect" | "pipelinedFeed";
 

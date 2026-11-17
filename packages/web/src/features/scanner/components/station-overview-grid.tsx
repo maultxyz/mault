@@ -1,4 +1,6 @@
 import { usePiHostState } from "@/hooks/use-pi-host";
+
+import { IconBadge } from "@/components/icon-badge";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
@@ -144,9 +146,9 @@ export function StationOverviewGrid({
                 />
               }
             >
-              <span className="flex size-11 items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-sidebar-primary">
+              <IconBadge size="xl">
                 <IconPlus className="size-5" />
-              </span>
+              </IconBadge>
               {t("stations.connect")}
             </DropdownMenuTrigger>
             <DropdownMenuContent align="center">
@@ -208,7 +210,6 @@ export function StationOverviewGrid({
               </Button>
               <Button
                 variant="destructive"
-                className="bg-destructive text-white hover:bg-destructive/90 dark:bg-destructive dark:hover:bg-destructive/90"
                 disabled={
                   selectedOffline.length === 0 || deleteDevices.isPending
                 }

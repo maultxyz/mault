@@ -190,6 +190,9 @@
     "heading": "Auto-detect sorting",
     "description": "Learns bin assignments as you scan: the first time a new value appears for the field below, it claims the next open bin. Repeats route back automatically, and once every bin is taken, new values fall to the catch-all.",
     "fieldPlaceholder": "Choose a field...",
+    "fieldLabel": "Field to sort by",
+    "resetNeedsSave": "Save or discard your sorting mode changes first. Then you can reset the learned bins.",
+    "resetNothingLearned": "No bin has learned a value yet, so there is nothing to reset.",
     "reset": "Reset",
     "resetConfirmTitle": "Reset auto-detected bins?",
     "resetConfirmDescription": "Clears every bin's learned value in this preset. New scans will refill them from scratch.",
@@ -357,12 +360,12 @@
       "noRuleMatched": "No bin's rules match this card, so it goes to the catch-all.",
       "overflow": "Bin {{matched}} matches, and its cards overflow into bin {{bin}}.",
       "pickList": "{{name}} is on bin {{bin}}'s pick list.",
-      "autoAssign": "Auto-assign gives this card's value its own bin: bin {{bin}}.",
-      "scanOnly": "Scan-only mode sends every identified card to bin {{bin}}.",
-      "chaos": "Chaos mode fills bins in turn, so this card goes to bin {{bin}}.",
+      "autoAssign": "Auto-detect sorting gives this card's value its own bin: bin {{bin}}.",
+      "scanOnly": "Scan only sends every identified card to bin {{bin}}.",
+      "chaos": "Chaos sort fills bins in turn, so this card goes to bin {{bin}}.",
       "alphabet": "Names starting with {{letter}} go to bin {{bin}} in this pass.",
       "alphabetCatchAll": "This name isn't in the current letters, so it goes to the catch-all.",
-      "repack": "Repack mode puts this card in a pack in bin {{bin}}.",
+      "repack": "Build repacks puts this card in a pack in bin {{bin}}.",
       "noBin": "No bin takes this card. Add a catch-all so cards like this have somewhere to go."
     }
   },
@@ -440,7 +443,20 @@
   },
   "sortingModePanel": {
     "title": "Sorting mode",
-    "explain": "What does {{mode}} do?"
+    "explain": "What does {{mode}} do?",
+    "rules": {
+      "heading": "Sorting rules",
+      "description": "Each bin takes the cards that match the rules you write for it. A card that matches no bin goes to the catch-all."
+    },
+    "summaries": {
+      "rules": "Each bin takes the cards that match its rules.",
+      "scan-only": "Identified cards go to one bin, unidentified cards to another.",
+      "auto-assign": "Each new value of a field claims the next open bin.",
+      "game-sort": "Each game gets its own bin. Cards are not saved.",
+      "repack": "Every bin builds a pack from the slots you define.",
+      "alphabet": "One letter per bin, by the first letter of the card name.",
+      "chaos": "Fills the bins one after another and records where each card is."
+    }
   },
   "mobileBins": {
     "rulesMode": "Rules",

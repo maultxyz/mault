@@ -62,3 +62,13 @@ export const ALLOWED_IMAGE_HOSTS = new Set([
 
 export const IMAGE_PROXY_MAX_BYTES = 15 * 1024 * 1024;
 export const IMAGE_PROXY_MAX_REDIRECTS = 3;
+
+export const DEFAULT_SHORTENER_URL = "http://127.0.0.1:3003";
+
+export function getShortenerUrl(): string {
+  return (process.env.SHORTENER_URL || DEFAULT_SHORTENER_URL).replace(/\/$/, "");
+}
+
+export function getShortLinkBaseUrl(): string | null {
+  return process.env.SHORT_LINK_BASE_URL?.trim() || null;
+}

@@ -49,6 +49,7 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
               collectionIds: [claims.collectionId],
               storageLocationIds: [],
               inventoryOnly: false,
+              hidesCardsReservedByOpenPicks: claims.purpose === "trade",
               showsPrices: claims.showsPrices,
               readsCacheKey: null,
             }

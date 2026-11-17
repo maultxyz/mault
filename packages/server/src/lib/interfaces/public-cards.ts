@@ -1,4 +1,8 @@
-import type { PublicCardFilters, PublicCardSort } from "@magic-vault/shared";
+import type {
+  PublicCardFacetCount,
+  PublicCardFilters,
+  PublicCardSort,
+} from "@magic-vault/shared";
 import type { Context } from "hono";
 import type { AppEnv } from "../../middleware/auth";
 import type { TtlCache } from "./public-api";
@@ -7,7 +11,9 @@ export interface PublicCardBrowseScope {
   orgId: string;
   collectionIds: number[];
   storageLocationIds: number[];
+  collectionCardIds?: number[];
   inventoryOnly: boolean;
+  hidesCardsReservedByOpenPicks: boolean;
   showsPrices: boolean;
   readsCacheKey: string | null;
 }
@@ -33,4 +39,18 @@ export interface PublicCardImageRow {
   captured_image_data_url: string | null;
   captured_back_image_key: string | null;
   captured_back_image_data_url: string | null;
+}
+
+export interface PublicCardFacetBreakdownRow {
+  condition: string;
+  language: string;
+  is_foil: boolean;
+  count: number | string;
+}
+
+export interface PublicCardFacetBreakdown {
+  conditions: PublicCardFacetCount[];
+  languages: PublicCardFacetCount[];
+  foilCount: number;
+  nonFoilCount: number;
 }

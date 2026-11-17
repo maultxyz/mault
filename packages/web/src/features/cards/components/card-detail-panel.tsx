@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import {
   useCardDetailActions,
@@ -6,7 +7,6 @@ import {
 import { HotkeyHint } from "@/components/hotkey-hint";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { HOTKEY_PRIORITY_OVERRIDE } from "@/lib/constants/hotkeys";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Kbd } from "@/components/ui/kbd";
@@ -51,6 +51,8 @@ import {
 } from "@/features/cards/components/card-detail-sections";
 import { CardDetailTitle } from "@/features/cards/components/card-detail-title";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
+import { DownloadScanImageButton } from "@/features/cards/components/download-scan-image-button";
+import { loadCollectionScanImageDownload } from "@/features/cards/api/scan-image-download";
 import { StorageDeleteWarning } from "@/features/cards/components/storage-delete-warning";
 import { CardTechnicalDetails } from "@/features/cards/components/card-technical-details";
 import { OcrRegionCrops } from "@/features/cards/components/ocr-region-crops";
@@ -73,7 +75,6 @@ import {
   CARD_DETAIL_SCROLL_CLASS,
   CARD_DETAIL_SECTIONS_CLASS,
   CARD_DETAIL_TOP_BAR_CLASS,
-  MORE_DETAIL_OPTIONS_ACCORDION_VALUE,
   REVIEW_LAYOUT_WITH_SCAN_COLUMNS_CLASS,
   REVIEW_LAYOUT_WITHOUT_SCAN_COLUMNS_CLASS,
   SIMILAR_MATCHES_ACCORDION_VALUE,
@@ -103,12 +104,15 @@ import {
   type PlayingCardWithDistance,
   cardStampOptionsFor,
   printingMarkRegionsFor,
+  scanImageDownloadFileName,
+  type ScanImageSide,
 } from "@magic-vault/shared";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { usePersistedFlag } from "@/hooks/use-persisted-state";
 import { SaveBar } from "@/components/save-bar";
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useScanDraft } from "@/features/cards/api/use-scan-draft";
+import { useCopyCardShareLink } from "@/features/cards/api/use-copy-card-share-link";
 import {
   IconBox,
   IconCheck,
@@ -122,6 +126,7 @@ import {
   IconLayoutGrid,
   IconPencil,
   IconRosette,
+  IconShare,
   IconSparkles,
   IconStar,
   IconSwitchHorizontal,
@@ -190,6 +195,7 @@ export function CardDetailPanel({
   const isMobile = useIsMobile();
   const inCardDrawer = useContext(CardDrawerContext);
   const [actionsOpen, setActionsOpen] = useState(false);
+  const { copyCardShareLink, isCopying: isCopyingShareLink } = useCopyCardShareLink();
   const [attributePicker, setAttributePicker] =
     useState<CardDetailAttributePicker | null>(null);
   const [moveTarget, setMoveTarget] = useState<CardDetailMoveTarget | null>(
@@ -203,7 +209,7 @@ export function CardDetailPanel({
   const [showTechnicalDetails, handleTechnicalDetailsChange] = usePersistedFlag(
     CARD_TECHNICAL_DETAILS_STORAGE_KEY,
   );
-  const ocrRegionsVisible = reviewMode || showOcrRegions;
+  const ocrRegionsVisible = !isMobile && (reviewMode || showOcrRegions);
   const [viewerOpen, setViewerOpen] = useState(false);
 
   const [candidates, setCandidates] = useState<PlayingCardWithDistance[]>([]);
@@ -324,6 +330,25 @@ export function CardDetailPanel({
     ? capturedBackImageUrl
     : capturedImageUrl;
   const shownOcrRegionsVisible = ocrRegionsVisible && !showsCapturedBackSide;
+  const capturedImageSide: ScanImageSide = showsCapturedBackSide
+    ? "back"
+    : "front";
+  const collectionGuid = collection?.guid;
+  const capturedImageDownload =
+    collectionGuid && scanId && shownCapturedImageUrl
+      ? {
+          loadImage: () =>
+            loadCollectionScanImageDownload(
+              collectionGuid,
+              scanId,
+              capturedImageSide,
+            ),
+          fileName: scanImageDownloadFileName(
+            currentCard?.name,
+            capturedImageSide,
+          ),
+        }
+      : undefined;
   const toggleCapturedSideLabel = showsCapturedBackSide
     ? t("cardDetailPanel.showFrontSide")
     : t("cardDetailPanel.showBackSide");
@@ -575,28 +600,33 @@ export function CardDetailPanel({
                 ? t("cardDetailPanel.capturedBackSide")
                 : t("cardDetailPanel.capturedScan")}
             </figcaption>
-            {capturedBackImageUrl && (
-              <Tooltip>
-                <TooltipTrigger
-                  render={
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      aria-label={toggleCapturedSideLabel}
-                      aria-pressed={showsCapturedBackSide}
-                      onClick={() =>
-                        setBackSideScanId(
-                          showsCapturedBackSide ? null : (scanId ?? null),
-                        )
-                      }
-                    >
-                      <IconSwitchHorizontal />
-                    </Button>
-                  }
-                />
-                <TooltipContent>{toggleCapturedSideLabel}</TooltipContent>
-              </Tooltip>
-            )}
+            <div className="flex items-center gap-1.5">
+              {capturedImageDownload && (
+                <DownloadScanImageButton {...capturedImageDownload} />
+              )}
+              {capturedBackImageUrl && (
+                <Tooltip>
+                  <TooltipTrigger
+                    render={
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        aria-label={toggleCapturedSideLabel}
+                        aria-pressed={showsCapturedBackSide}
+                        onClick={() =>
+                          setBackSideScanId(
+                            showsCapturedBackSide ? null : (scanId ?? null),
+                          )
+                        }
+                      >
+                        <IconSwitchHorizontal />
+                      </Button>
+                    }
+                  />
+                  <TooltipContent>{toggleCapturedSideLabel}</TooltipContent>
+                </Tooltip>
+              )}
+            </div>
           </div>
           <button
             type="button"
@@ -655,7 +685,6 @@ export function CardDetailPanel({
     </>
   );
 
-  const hasDisplayToggles = !reviewMode && (!!capturedImageUrl || !!scanId);
   const displayToggles = !reviewMode && (
     <>
       {capturedImageUrl && (
@@ -925,6 +954,7 @@ export function CardDetailPanel({
           open={viewerOpen}
           onOpenChange={setViewerOpen}
           capturedImageUrl={shownCapturedImageUrl}
+          download={capturedImageDownload}
           showOcrRegions={shownOcrRegionsVisible}
           onShowOcrRegionsChange={reviewMode ? undefined : setShowOcrRegions}
           ocrRegions={readOcrRegions}
@@ -966,6 +996,25 @@ export function CardDetailPanel({
                 <IconLayoutGrid />
                 {t("reviewGrid.layoutGrid")}
               </Button>
+            )}
+            {scanId && !reviewMode && (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      className="shrink-0"
+                      onClick={() => void copyCardShareLink(scanId)}
+                      disabled={isCopyingShareLink}
+                      aria-label={t("shareCardLink.action")}
+                    >
+                      <IconShare />
+                    </Button>
+                  }
+                />
+                <TooltipContent>{t("shareCardLink.action")}</TooltipContent>
+              </Tooltip>
             )}
             <Button
               size="icon"
@@ -1221,23 +1270,7 @@ export function CardDetailPanel({
                 )}
               </div>
 
-              {isMobile && hasDisplayToggles && (
-                <Accordion>
-                  <AccordionItem
-                    value={MORE_DETAIL_OPTIONS_ACCORDION_VALUE}
-                    className="border-b-0"
-                  >
-                    <AccordionTrigger className="py-1 text-xs font-medium text-foreground/70">
-                      {t("cardDetailPanel.moreOptions")}
-                    </AccordionTrigger>
-                    <AccordionContent className="flex flex-col items-start gap-3 pb-0 text-xs text-foreground/70">
-                      {displayToggles}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              )}
-
-              {!reviewMode && showTechnicalDetails && scanId && (
+              {!isMobile && !reviewMode && showTechnicalDetails && scanId && (
                 <CardTechnicalDetails
                   scanId={scanId}
                   card={currentCard}
@@ -1271,7 +1304,7 @@ export function CardDetailPanel({
               </Button>
               {reviewMode ? (
                 <Button className="flex-1" onClick={acceptInReview}>
-                  <IconCheck className="size-4" />
+                  <IconCheck />
                   {hasNext ? t("review.acceptNext") : t("review.acceptFinish")}
                 </Button>
               ) : (
@@ -1297,7 +1330,7 @@ export function CardDetailPanel({
             <div className={CARD_DETAIL_ACTION_ROW_CLASS}>
               {reviewMode && (
                 <Button onClick={acceptInReview}>
-                  <IconCheck className="size-4" />
+                  <IconCheck />
                   {hasNext ? t("review.acceptNext") : t("review.acceptFinish")}
                   <HotkeyHint id="reviewAccept" />
                 </Button>
@@ -1312,13 +1345,13 @@ export function CardDetailPanel({
                   }}
                   title={t("cardDetailPanel.markCorrectTitle")}
                 >
-                  <IconCheck className="size-4" />
+                  <IconCheck />
                   {t("cardDetailPanel.markCorrect")}
                 </Button>
               )}
               {!reviewMode && (
                 <Button variant="outline" onClick={startEditing}>
-                  <IconPencil className="size-4" />
+                  <IconPencil />
                   {t("cardPicker.correctCard")}
                   <HotkeyHint id="cardCorrect" />
                 </Button>
@@ -1419,6 +1452,17 @@ export function CardDetailPanel({
                     label: `${t("language")}: ${LANGUAGE_LABELS[currentLanguage] ?? currentLanguage}`,
                     icon: <IconLanguage />,
                     onSelect: () => setAttributePicker("language"),
+                  },
+                ]
+              : []),
+            ...(scanId && !reviewMode
+              ? [
+                  {
+                    key: "share",
+                    label: t("shareCardLink.action"),
+                    icon: <IconShare />,
+                    disabled: isCopyingShareLink,
+                    onSelect: () => void copyCardShareLink(scanId),
                   },
                 ]
               : []),

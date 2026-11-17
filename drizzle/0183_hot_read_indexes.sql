@@ -1,0 +1,3 @@
+CREATE INDEX "cards_game_lang_name_idx" ON "cards" USING btree ("game_key","lang","name");--> statement-breakpoint
+CREATE INDEX "collection_cards_collection_bin_unemptied_idx" ON "collection_cards" USING btree ("collection_id","bin_number") WHERE "collection_cards"."bin_emptied_at" IS NULL;--> statement-breakpoint
+CREATE INDEX "unmatched_cards_collection_bin_unemptied_idx" ON "unmatched_cards" USING btree ("collection_id","bin_number") WHERE "unmatched_cards"."bin_emptied_at" IS NULL AND "unmatched_cards"."is_deleted" = false;

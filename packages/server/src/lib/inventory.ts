@@ -3,9 +3,10 @@ import {
   type InventoryCollectionRow,
   type InventoryTotals,
   type OrgPricing,
+  type StatsValuePoint,
 } from "@magic-vault/shared";
 import { and, eq, sql } from "drizzle-orm";
-import { db, type Transaction } from "../db";
+import { authQuery, db, type Transaction } from "../db";
 import {
   fulfilmentOrders,
   intakeLots,
@@ -17,8 +18,21 @@ import {
   INVENTORY_SNAPSHOT_INTERVAL_MS,
   INVENTORY_SNAPSHOT_STARTUP_DELAY_MS,
 } from "./constants/business";
+import {
+  HOME_READ_CACHE_MAX_ENTRIES,
+  INVENTORY_HISTORY_CACHE_TTL_MS,
+  INVENTORY_SNAPSHOT_MIN_INTERVAL_MS,
+} from "./constants/home-read-caches";
 import type { InventoryRow } from "./interfaces/business";
+import { createOrgReadCache } from "./org-read-cache";
 import { loadOrgPricing } from "./price-source";
+import { isSnapshotDue } from "./snapshot-schedule";
+
+const lastInventorySnapshotByOrgId = new Map<string, { writtenAt: number; signature: string }>();
+const inventoryHistoryCache = createOrgReadCache<StatsValuePoint[]>(
+  INVENTORY_HISTORY_CACHE_TTL_MS,
+  HOME_READ_CACHE_MAX_ENTRIES,
+);
 
 export async function loadInventoryByCollection(
   runner: Transaction | typeof db,
@@ -88,6 +102,10 @@ export async function writeInventorySnapshot(
   totals: InventoryTotals,
   currency: string,
 ): Promise<void> {
+  lastInventorySnapshotByOrgId.set(orgId, {
+    writtenAt: Date.now(),
+    signature: inventorySnapshotSignature(totals, currency),
+  });
   const values = {
     cardCount: totals.cardCount,
     marketValue: totals.marketValue,
@@ -102,6 +120,23 @@ export async function writeInventorySnapshot(
       target: [orgInventorySnapshots.orgId, orgInventorySnapshots.day],
       set: values,
     });
+}
+
+function inventorySnapshotSignature(totals: InventoryTotals, currency: string): string {
+  return JSON.stringify([currency, totals.cardCount, totals.marketValue, totals.costBasis]);
+}
+
+export function isInventorySnapshotDue(
+  orgId: string,
+  totals: InventoryTotals,
+  currency: string,
+): boolean {
+  const lastSnapshot = lastInventorySnapshotByOrgId.get(orgId);
+  return (
+    lastSnapshot === undefined ||
+    lastSnapshot.signature !== inventorySnapshotSignature(totals, currency) ||
+    isSnapshotDue(lastSnapshot.writtenAt, Date.now(), INVENTORY_SNAPSHOT_MIN_INTERVAL_MS)
+  );
 }
 
 async function snapshotOrg(orgId: string): Promise<void> {
@@ -170,4 +205,18 @@ export async function loadInventoryHistory(
       ),
     )
     .orderBy(orgInventorySnapshots.day);
+}
+
+export function loadCachedInventoryHistory(
+  jwtClaims: string,
+  orgId: string,
+  currency: string,
+  sinceDay: string,
+): Promise<StatsValuePoint[]> {
+  return inventoryHistoryCache.get(
+    orgId,
+    `${currency}:${sinceDay}:${lastInventorySnapshotByOrgId.get(orgId)?.writtenAt ?? 0}`,
+    () =>
+      authQuery(jwtClaims, (tx) => loadInventoryHistory(tx, orgId, currency, sinceDay)),
+  );
 }

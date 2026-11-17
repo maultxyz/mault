@@ -5,13 +5,18 @@ import {
   ORDER_LINE_QUANTITY_MAX,
   ORDER_LINE_TEXT_MAX_LENGTH,
   ORDER_LINES_MAX,
+  ORDER_SUBSTITUTES_LIMIT,
+  orderSubstituteCost,
+  orderSubstituteDifferences,
   toCardCondition,
   type FulfilmentOrder,
   type FulfilmentOrderStatus,
   type OrderLine,
   type OrderBins,
   type OrderLineInput,
+  type OrderLineSubstitute,
   type OrderSource,
+  type OrderSubstituteCandidate,
   type PlayingCard,
   type PullSheetEntry,
 } from "@magic-vault/shared";
@@ -20,8 +25,23 @@ import { uuidArraySql } from "./sql-arrays";
 import type { Transaction } from "../db";
 import { fulfilmentOrders } from "../db/schema";
 import { getUserDisplayName } from "../middleware/auth";
-import type { PullSheetRow } from "./interfaces/business";
+import { ORDER_SUBSTITUTE_CANDIDATES_SCANNED } from "./constants/business";
+import type {
+  OrderSubstituteCandidateRow,
+  PullSheetRow,
+} from "./interfaces/business";
 import { hydrateSavedCards } from "./saved-cards";
+import type {
+  OrderLineCandidateRequest,
+  OrderLineCandidateRow,
+} from "./interfaces/order-line-candidates";
+import {
+  groupOrderLineCandidates,
+  normalizeOrderLineCandidateName,
+  orderLineCandidateLimits,
+  takeOrderLineCandidates,
+  toOrderLineCandidateRequest,
+} from "./order-line-candidates";
 
 function text(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -122,10 +142,6 @@ export function carryOverOrderAllocations(
   });
 }
 
-function normalizeSetName(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
-}
-
 async function existingScanIds(
   tx: Transaction,
   orgId: string,
@@ -144,7 +160,7 @@ async function existingScanIds(
   );
 }
 
-async function allocatedElsewhere(
+export async function allocatedElsewhere(
   tx: Transaction,
   orgId: string,
   orderId: number | null,
@@ -169,39 +185,118 @@ async function allocatedElsewhere(
   return ids;
 }
 
-async function findCandidates(
+async function findCandidatesForLines(
+  tx: Transaction,
+  orgId: string,
+  requests: OrderLineCandidateRequest[],
+  excluded: ReadonlySet<string>,
+): Promise<Map<number, string[]>> {
+  if (requests.length === 0) return new Map();
+  const result = await tx.execute(sql`
+    WITH requested_lines AS (
+      SELECT * FROM jsonb_to_recordset(${JSON.stringify(requests)}::jsonb) AS l(
+        line_index int, name text, set_code text, set_name text,
+        collector_number text, condition text, is_foil boolean, candidate_limit int
+      )
+    )
+    SELECT l.line_index, candidate.scan_id
+    FROM requested_lines l
+    CROSS JOIN LATERAL (
+      SELECT cc.guid::text AS scan_id, (sl.id IS NULL) AS has_no_location,
+        sl.name AS location_name, cc.location_position, cc.id AS row_id
+      FROM collection_cards cc
+      JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
+      LEFT JOIN intake_lots il ON il.id = cc.intake_lot_id
+      LEFT JOIN storage_locations sl ON sl.id = cc.location_id AND sl.is_deleted = false
+      WHERE cc.org_id = ${orgId}
+        AND (il.id IS NULL OR il.status = 'accepted')
+        AND (
+          lower(cc.card_name) = l.name
+          OR lower(split_part(cc.card_name, ' // ', 1)) = l.name
+        )
+        AND (l.set_code IS NULL OR lower(cc.card_set) = l.set_code)
+        AND (l.set_name IS NULL OR regexp_replace(lower(cc.card_set_name), '[^a-z0-9]', '', 'g') = l.set_name)
+        AND (l.collector_number IS NULL OR lower(cc.card_collector_number) = l.collector_number)
+        AND (l.condition IS NULL OR cc.condition = l.condition)
+        AND (l.is_foil IS NULL OR cc.is_foil = l.is_foil)
+        ${excluded.size > 0 ? sql`AND NOT (cc.guid = ANY(${uuidArraySql([...excluded])}))` : sql``}
+      ORDER BY (sl.id IS NULL), sl.name, cc.location_position, cc.id
+      LIMIT l.candidate_limit
+    ) candidate
+    ORDER BY l.line_index, candidate.has_no_location, candidate.location_name,
+      candidate.location_position, candidate.row_id
+  `);
+  return groupOrderLineCandidates(result.rows as unknown as OrderLineCandidateRow[]);
+}
+
+async function findSubstituteCandidates(
   tx: Transaction,
   orgId: string,
   line: OrderLineInput,
   excluded: Set<string>,
-  limit: number,
-): Promise<string[]> {
+  onlyScanIds: string[] | null,
+): Promise<OrderSubstituteCandidateRow[]> {
   const name = line.name.trim().toLowerCase();
-  const setCode = line.setCode?.toLowerCase();
-  const setName = line.setName ? normalizeSetName(line.setName) : null;
-  const number = line.collectorNumber?.toLowerCase();
   const result = await tx.execute(sql`
-    SELECT cc.guid::text AS scan_id
+    SELECT cc.guid::text AS scan_id, cc.card_set AS set_code, cc.card_set_name AS set_name,
+      cc.card_collector_number AS collector_number, cc.condition, cc.is_foil
     FROM collection_cards cc
     JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
     LEFT JOIN intake_lots il ON il.id = cc.intake_lot_id
-    LEFT JOIN storage_locations sl ON sl.id = cc.location_id AND sl.is_deleted = false
     WHERE cc.org_id = ${orgId}
       AND (il.id IS NULL OR il.status = 'accepted')
       AND (
         lower(cc.card_name) = ${name}
         OR lower(split_part(cc.card_name, ' // ', 1)) = ${name}
       )
-      ${setCode ? sql`AND lower(cc.card_set) = ${setCode}` : sql``}
-      ${!setCode && setName ? sql`AND regexp_replace(lower(cc.card_set_name), '[^a-z0-9]', '', 'g') = ${setName}` : sql``}
-      ${number ? sql`AND lower(cc.card_collector_number) = ${number}` : sql``}
-      ${line.condition ? sql`AND cc.condition = ${line.condition}` : sql``}
-      ${line.isFoil != null ? sql`AND cc.is_foil = ${line.isFoil}` : sql``}
+      ${onlyScanIds ? sql`AND cc.guid = ANY(${uuidArraySql(onlyScanIds)})` : sql``}
       ${excluded.size > 0 ? sql`AND NOT (cc.guid = ANY(${uuidArraySql([...excluded])}))` : sql``}
-    ORDER BY (sl.id IS NULL), sl.name, cc.location_position, cc.id
-    LIMIT ${limit}
+    LIMIT ${ORDER_SUBSTITUTE_CANDIDATES_SCANNED}
   `);
-  return (result.rows as { scan_id: string }[]).map((row) => row.scan_id);
+  return result.rows as unknown as OrderSubstituteCandidateRow[];
+}
+
+function toSubstituteCandidate(row: OrderSubstituteCandidateRow): OrderSubstituteCandidate {
+  return {
+    setCode: row.set_code,
+    setName: row.set_name,
+    collectorNumber: row.collector_number,
+    condition: toCardCondition(row.condition),
+    isFoil: row.is_foil,
+  };
+}
+
+export async function loadOrderLineSubstitutes(
+  tx: Transaction,
+  orgId: string,
+  line: OrderLine,
+): Promise<OrderLineSubstitute[]> {
+  const excluded = await allocatedElsewhere(tx, orgId, null);
+  const ranked = (await findSubstituteCandidates(tx, orgId, line, excluded, null))
+    .map((row) => ({ row, cost: orderSubstituteCost(line, toSubstituteCandidate(row)) }))
+    .sort((left, right) => left.cost - right.cost)
+    .slice(0, ORDER_SUBSTITUTES_LIMIT);
+  const entries = await loadPullSheet(tx, orgId, [
+    { ...line, allocations: ranked.map(({ row }) => row.scan_id), picked: [] },
+  ]);
+  const entryByScanId = new Map(entries.map((entry) => [entry.scanId, entry]));
+  return ranked.flatMap(({ row }) => {
+    const entry = entryByScanId.get(row.scan_id);
+    return entry
+      ? [{ entry, differences: orderSubstituteDifferences(line, toSubstituteCandidate(row)) }]
+      : [];
+  });
+}
+
+export async function isOrderLineSubstituteAvailable(
+  tx: Transaction,
+  orgId: string,
+  line: OrderLine,
+  scanId: string,
+): Promise<boolean> {
+  const excluded = await allocatedElsewhere(tx, orgId, null);
+  const rows = await findSubstituteCandidates(tx, orgId, line, excluded, [scanId]);
+  return rows.length === 1;
 }
 
 export async function allocateOrderLines(
@@ -224,12 +319,35 @@ export async function allocateOrderLines(
     ),
   );
   for (const ids of kept) for (const id of ids) excluded.add(id);
+  const missingByLine = lines.map(
+    (line, index) => line.quantity - Math.min(kept[index].length, line.quantity),
+  );
+  const candidateLimits = orderLineCandidateLimits(
+    lines.map((line, index) => ({
+      normalizedName: normalizeOrderLineCandidateName(line.name),
+      missing: missingByLine[index],
+    })),
+  );
+  const candidatesByLineIndex = await findCandidatesForLines(
+    tx,
+    orgId,
+    lines.flatMap((line, index) =>
+      missingByLine[index] > 0
+        ? [toOrderLineCandidateRequest(line, index, candidateLimits[index])]
+        : [],
+    ),
+    excluded,
+  );
   const result: OrderLine[] = [];
   for (const [index, line] of lines.entries()) {
     const allocations = kept[index].slice(0, line.quantity);
-    const missing = line.quantity - allocations.length;
+    const missing = missingByLine[index];
     if (missing > 0) {
-      const found = await findCandidates(tx, orgId, line, excluded, missing);
+      const found = takeOrderLineCandidates(
+        candidatesByLineIndex.get(index) ?? [],
+        excluded,
+        missing,
+      );
       for (const id of found) excluded.add(id);
       allocations.push(...found);
     }

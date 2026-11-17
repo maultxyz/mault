@@ -5,7 +5,7 @@ export const IOS_BUTTON_ICON_SIZE = 17;
 export const IOS_BUTTON_STYLES = {
   primary: "glassProminent",
   secondary: "glass",
-  destructive: "glass",
+  destructive: "glassProminent",
   ghost: "borderless",
 } as const;
 export const IOS_ICON_BUTTON_STYLES = {
@@ -15,6 +15,10 @@ export const IOS_ICON_BUTTON_STYLES = {
   camera: "glass",
 } as const;
 export const MIN_TOUCH_TARGET = 44;
+export const CHIP_MIN_HEIGHT = 36;
+export const COMPACT_CONTROL_MIN_HEIGHT = 32;
+export const COUNT_BADGE_MIN_SIZE = 16;
+export const COUNT_BADGE_LINE_HEIGHT = 14;
 export const TOP_BAR_HEIGHT = 44;
 export const TOP_BAR_BRAND_ICON_SIZE = 34;
 export const TOP_BAR_SWITCHER_HEIGHT = 32;

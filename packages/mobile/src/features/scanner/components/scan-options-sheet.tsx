@@ -22,6 +22,7 @@ export function ScanOptionsSheet({
   handScanBins,
   onHandScanBinsChange,
   hasBinPreset,
+  sortsCards,
   removeMode,
   onRemoveModeChange,
   presetName,
@@ -69,7 +70,7 @@ export function ScanOptionsSheet({
             onValueChange={onHandScanChange}
           />
         ) : null}
-        {!sorter.isReady ? (
+        {!sorter.isReady && sortsCards ? (
           <SwitchRow
             title={t("scan.options.handScanBins")}
             description={
@@ -104,7 +105,7 @@ export function ScanOptionsSheet({
           />
         ) : null}
         <ListGroup>
-          {showPreset ? (
+          {showPreset && sortsCards ? (
             <ListRow
               icon="rules"
               title={t("scan.options.preset")}

@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import {
+  CARD_IMAGE_PROXY_CACHE_CONTROL,
   NETDECK_IMAGE_GAMES,
   NETDECK_SLUG_PATTERN,
 } from "../../lib/constants/card-search";
@@ -35,7 +36,7 @@ export const netdeckImageRoute = new Hono<AppEnv>().get(
 
     return c.body(image.body, 200, {
       "Content-Type": image.contentType,
-      "Cache-Control": "public, max-age=86400",
+      "Cache-Control": CARD_IMAGE_PROXY_CACHE_CONTROL,
       "Cross-Origin-Resource-Policy": "cross-origin",
       "X-Content-Type-Options": "nosniff",
     });

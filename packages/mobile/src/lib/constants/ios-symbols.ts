@@ -29,6 +29,7 @@ export const IOS_SYMBOLS: Record<IconName, IosSymbolName> = {
   music: "music.note",
   bluetooth: "antenna.radiowaves.left.and.right",
   wifi: "wifi",
+  offline: "wifi.slash",
   discord: "bubble.left.and.bubble.right",
   camera: "camera",
   share: "square.and.arrow.up",

@@ -1,3 +1,4 @@
+import { Progress } from "@/components/ui/progress";
 import { FooterDivider } from "@/components/status-footer";
 import {
   Tooltip,
@@ -58,12 +59,7 @@ export function PlanBadge() {
             {planName}
           </span>
           <div className="flex items-center gap-1.5">
-            <div className="h-1.5 w-14 rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full rounded-full bg-primary"
-                style={{ width: `${usagePercent}%` }}
-              />
-            </div>
+            <Progress decorative value={usagePercent} className="w-14" />
             <span className="text-xs tabular-nums text-foreground/70">
               {t("plan.scansToday", { used, limit: dailyLimit })}
             </span>

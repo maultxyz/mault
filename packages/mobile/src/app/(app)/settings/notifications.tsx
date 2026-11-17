@@ -328,13 +328,22 @@ export default function NotificationsSettingsScreen() {
   );
 
   const noChannelLabel = t("settings.discord.channelSettings.none");
+  const isLoadError =
+    (integration.isError && !integration.data) || (rules.isError && !rules.data) || (settings.isError && !settings.data);
 
   return (
     <SettingsPage
       title={t("settings.sections.notifications.title")}
       isLoading={integration.isLoading || rules.isLoading || settings.isLoading}
+      isLoadError={isLoadError}
+      isRetryingLoad={integration.isFetching || rules.isFetching || settings.isFetching}
+      onRetryLoad={() => {
+        void integration.refetch();
+        void settings.refetch();
+        if (gameGuid) void rules.refetch();
+      }}
       onRefresh={() => integration.refetch()}
-      isDirty={form.formState.isDirty}
+      isDirty={!isLoadError && form.formState.isDirty}
       isSaving={form.formState.isSubmitting}
       saveError={saveError}
       onSave={() => void form.handleSubmit(submit)()}

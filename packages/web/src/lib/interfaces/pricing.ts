@@ -22,6 +22,7 @@ export interface PriceFormatter {
     condition?: CardCondition,
   ): number | null;
   format(value: number): string;
+  formatCompact(value: number): string;
 }
 
 export interface PriceSourceProviderProps {

@@ -1,4 +1,5 @@
 import {
+  PRINTED_LANGUAGE_CODE_BANDS_BY_GAME_KEY,
   printingMarksPayload,
   printingRegionsOf,
   type CardContour,
@@ -14,7 +15,14 @@ export function printingMarksSampler(
 ): (orientation: ScanOrientation) => PrintingMarksPayload | null {
   let pixels: RgbaImage | null = null;
   return (orientation) => {
-    if (!contour || printingRegionsOf(gameKey).length === 0) return null;
+    if (
+      !contour ||
+      !gameKey ||
+      (printingRegionsOf(gameKey).length === 0 &&
+        !PRINTED_LANGUAGE_CODE_BANDS_BY_GAME_KEY[gameKey])
+    ) {
+      return null;
+    }
     if (!pixels) {
       const ctx = frame.getContext("2d");
       if (!ctx) return null;

@@ -4,11 +4,14 @@ import { Button } from "@/components/ui/button";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { useShareLinks } from "@/features/share-links/api/use-share-links";
 import { ShareLinkList } from "@/features/share-links/components/share-link-list";
+import { SharedCardLinkList } from "@/features/share-links/components/shared-card-link-list";
+import { ViewTabs } from "@/components/view-tabs";
 import { shareLinkUrl } from "@/features/share-links/lib/share-link-paths";
 import { SHARE_LINKS_QUERY_KEY } from "@/lib/constants/share-links";
 import type {
   ShareLinkDetailsData,
   ShareLinkDialogProps,
+  ShareLinkDialogTab,
   ShareLinkDialogView,
 } from "@/lib/interfaces/share-links";
 import { toast } from "@/lib/toast";
@@ -56,6 +59,7 @@ export function ShareLinkDialog({
   revokedMessage,
   createLink,
   revokeLinks,
+  sharedCardsCollectionGuid,
 }: ShareLinkDialogProps) {
   const { t } = useTranslation("common");
   const { t: tShareLinks } = useTranslation("share-links");
@@ -65,6 +69,8 @@ export function ShareLinkDialog({
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const open = controlledOpen ?? uncontrolledOpen;
   const [view, setView] = useState<ShareLinkDialogView>("links");
+  const [tab, setTab] = useState<ShareLinkDialogTab>("links");
+  const showsSharedCards = view === "links" && tab === "cards" && !!sharedCardsCollectionGuid;
   const [details, setDetails] = useState<ShareLinkDetailsData | null>(null);
   const [isRevokingAll, setIsRevokingAll] = useState(false);
   const [isRevokeAllConfirmOpen, setIsRevokeAllConfirmOpen] = useState(false);
@@ -92,6 +98,7 @@ export function ShareLinkDialog({
     if (!isOpen) {
       viewChangedRef.current = false;
       setView("links");
+      setTab("links");
       setDetails(null);
       form.reset(FORM_DEFAULT_VALUES);
     }
@@ -161,7 +168,9 @@ export function ShareLinkDialog({
       ? tShareLinks("newLink")
       : view === "link"
         ? tShareLinks("linkHeading")
-        : tShareLinks("activeLinks");
+        : showsSharedCards
+          ? tShareLinks("sharedCards")
+          : tShareLinks("activeLinks");
 
   const newLinkButton = (
     <Button type="button" onClick={startNewLink}>
@@ -170,8 +179,11 @@ export function ShareLinkDialog({
     </Button>
   );
 
-  const footer =
-    view === "new" ? (
+  const footer = showsSharedCards ? (
+    <Button variant="outline" onClick={() => handleOpenChange(false)}>
+      {t("shareLink.close")}
+    </Button>
+  ) : view === "new" ? (
       <>
         <Button variant="outline" onClick={() => showView("links")}>
           {tShareLinks("back")}
@@ -185,7 +197,7 @@ export function ShareLinkDialog({
       <>
         {details?.guid && (
           <Button
-            variant="outline-destructive"
+            variant="destructive"
             className="md:mr-auto"
             onClick={handleRevokeShownLink}
             disabled={isRevokingShownLink}
@@ -202,7 +214,7 @@ export function ShareLinkDialog({
       <>
         {links.length > 0 && (
           <Button
-            variant="outline-destructive"
+            variant="destructive"
             className="md:mr-auto"
             onClick={() => setIsRevokeAllConfirmOpen(true)}
             disabled={isRevokingAll}
@@ -231,6 +243,17 @@ export function ShareLinkDialog({
     >
       <div className="-mx-1 min-h-0 flex-1 overflow-y-auto px-1">
         <div className="flex flex-col gap-3 md:gap-2 py-0.5">
+          {sharedCardsCollectionGuid && view === "links" && (
+            <ViewTabs<ShareLinkDialogTab>
+              label={tShareLinks("tabsLabel")}
+              items={[
+                { key: "links", label: tShareLinks("linksTab") },
+                { key: "cards", label: tShareLinks("sharedCards") },
+              ]}
+              value={tab}
+              onChange={setTab}
+            />
+          )}
           <h3
             ref={headingRef}
             tabIndex={-1}
@@ -238,7 +261,10 @@ export function ShareLinkDialog({
           >
             {viewHeading}
           </h3>
-          {view === "links" && (
+          {showsSharedCards && sharedCardsCollectionGuid && (
+            <SharedCardLinkList collectionGuid={sharedCardsCollectionGuid} />
+          )}
+          {view === "links" && !showsSharedCards && (
             <ShareLinkList
               subjectGuid={subjectGuid}
               onShowQr={showLink}

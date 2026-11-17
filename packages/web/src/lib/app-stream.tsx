@@ -2,17 +2,20 @@ import { resetPiScanScope } from "@/features/scanner/lib/pi-scan-store";
 import { recordSessionInits } from "@/lib/session-init-registry";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { businessKeys } from "@/features/business/api/business";
 import { createAppStreamSource } from "@/lib/api/stream";
 import { useAuthSession } from "@/lib/auth";
 import { DEFAULT_SYNC_STATE, isBrowserSaveLog } from "@/lib/constants/admin";
 import type {
   ScanLockInfo,
   SessionViewer,
-  AppStreamContextValue,
+  AppStreamSourceContextValue,
+  CollectionLocksContextValue,
 } from "@/lib/interfaces/collections";
 import {
   DEPLOY_STATUS_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
+  ORDERS_CHANGED_EVENT,
   type TradeOffersChangedEvent,
   type DeployNotice,
   type SyncState,
@@ -35,16 +38,20 @@ import {
   APP_STREAM_SETUP_RETRY_MS,
 } from "@/lib/constants/timing";
 
-const AppStreamContext = createContext<AppStreamContextValue>({
+const AppStreamSourceContext = createContext<AppStreamSourceContextValue>({
   eventSource: null,
-  locks: {},
-  currentUserId: undefined,
-  liveCounts: {},
-  viewersByGuid: {},
-  syncState: DEFAULT_SYNC_STATE,
-  deployNotice: null,
   watchCollection: () => () => {},
 });
+const CollectionLocksContext = createContext<CollectionLocksContextValue>({
+  locks: {},
+  currentUserId: undefined,
+});
+const LiveSessionCountsContext = createContext<Record<string, number>>({});
+const SessionViewersContext = createContext<Record<string, SessionViewer[]>>(
+  {},
+);
+const SyncStateContext = createContext<SyncState>(DEFAULT_SYNC_STATE);
+const DeployNoticeContext = createContext<DeployNotice | null>(null);
 
 export function AppStreamProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
@@ -184,9 +191,13 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
             );
           }
         });
+        es.addEventListener(ORDERS_CHANGED_EVENT, () => {
+          queryClient.invalidateQueries({ queryKey: businessKeys.ordersRoot() });
+        });
         es.addEventListener("collections_changed", () => {
           queryClient.invalidateQueries({
             queryKey: collectionsQueryOptions.queryKey,
+            exact: true,
           });
         });
 
@@ -261,34 +272,34 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
     };
   }, [orgId, guidsKey, queryClient, streamSetupAttempt]);
 
-  const value = useMemo<AppStreamContextValue>(
-    () => ({
-      eventSource,
-      locks,
-      currentUserId,
-      liveCounts,
-      viewersByGuid,
-      syncState,
-      deployNotice,
-      watchCollection,
-    }),
-    [
-      eventSource,
-      locks,
-      currentUserId,
-      liveCounts,
-      viewersByGuid,
-      syncState,
-      deployNotice,
-      watchCollection,
-    ],
+  const streamSourceValue = useMemo<AppStreamSourceContextValue>(
+    () => ({ eventSource, watchCollection }),
+    [eventSource, watchCollection],
+  );
+  const collectionLocksValue = useMemo<CollectionLocksContextValue>(
+    () => ({ locks, currentUserId }),
+    [locks, currentUserId],
   );
 
-  return <AppStreamContext value={value}>{children}</AppStreamContext>;
+  return (
+    <AppStreamSourceContext value={streamSourceValue}>
+      <CollectionLocksContext value={collectionLocksValue}>
+        <LiveSessionCountsContext value={liveCounts}>
+          <SessionViewersContext value={viewersByGuid}>
+            <SyncStateContext value={syncState}>
+              <DeployNoticeContext value={deployNotice}>
+                {children}
+              </DeployNoticeContext>
+            </SyncStateContext>
+          </SessionViewersContext>
+        </LiveSessionCountsContext>
+      </CollectionLocksContext>
+    </AppStreamSourceContext>
+  );
 }
 
 export function useCollectionLocks() {
-  const { locks, currentUserId } = useContext(AppStreamContext);
+  const { locks, currentUserId } = useContext(CollectionLocksContext);
   return {
     locks,
     currentUserId,
@@ -300,25 +311,25 @@ export function useCollectionLocks() {
 }
 
 export function useLiveSessionCounts(): Record<string, number> {
-  return useContext(AppStreamContext).liveCounts;
+  return useContext(LiveSessionCountsContext);
 }
 
 export function useSessionViewersByGuid(): Record<string, SessionViewer[]> {
-  return useContext(AppStreamContext).viewersByGuid;
+  return useContext(SessionViewersContext);
 }
 
 export function useSyncState(): SyncState {
-  return useContext(AppStreamContext).syncState;
+  return useContext(SyncStateContext);
 }
 
 export function useDeployNotice(): DeployNotice | null {
-  return useContext(AppStreamContext).deployNotice;
+  return useContext(DeployNoticeContext);
 }
 
 export function useCollectionStream(
   guid: string | undefined,
 ): EventSource | null {
-  const { eventSource, watchCollection } = useContext(AppStreamContext);
+  const { eventSource, watchCollection } = useContext(AppStreamSourceContext);
 
   useEffect(() => {
     if (!guid) return;
@@ -329,5 +340,5 @@ export function useCollectionStream(
 }
 
 export function useAppStreamSource() {
-  return useContext(AppStreamContext).eventSource;
+  return useContext(AppStreamSourceContext).eventSource;
 }

@@ -175,14 +175,8 @@ export default function CalibrateCalibrationPage() {
     handleFeederSpeedChange,
     handleFeederStopPulseChange,
     handleResetFeederStopPulse,
-    handleFeederDurationChange,
-    handleFeederPulseDurationChange,
-    handleFeederPauseDurationChange,
-    handleFeederSettleDurationChange,
     handleFeederReverseSpeedChange,
-    handleFeederReverseDurationChange,
-    handleFeederFeedRetryCountChange,
-    handleFeederSelectContinuous,
+    handleFeederFieldChange,
     isFeederModuleDirty,
     isSavingFeederModule,
     handleSaveFeederModuleCalibration,
@@ -360,14 +354,8 @@ export default function CalibrateCalibrationPage() {
               onSpeedChange={handleFeederSpeedChange}
               onStopPulseChange={handleFeederStopPulseChange}
               onResetStopPulse={handleResetFeederStopPulse}
-              onDurationChange={handleFeederDurationChange}
-              onPulseDurationChange={handleFeederPulseDurationChange}
-              onPauseDurationChange={handleFeederPauseDurationChange}
-              onSettleDurationChange={handleFeederSettleDurationChange}
               onReverseSpeedChange={handleFeederReverseSpeedChange}
-              onReverseDurationChange={handleFeederReverseDurationChange}
-              onFeedRetryCountChange={handleFeederFeedRetryCountChange}
-              onSelectContinuous={handleFeederSelectContinuous}
+              onFieldChange={handleFeederFieldChange}
             />
           </SettingsSection>
 

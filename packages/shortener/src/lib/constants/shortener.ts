@@ -1,0 +1,11 @@
+export const DEFAULT_SHORTENER_PORT = 3003;
+export const DEFAULT_SHORTENER_HOST = "0.0.0.0";
+export const SHORTENER_HEALTH_PATH = "/health";
+export const EXPIRED_LINK_RETENTION_INTERVAL = "1 day";
+export const SHORTENER_SECRET_MISSING_MESSAGE = "SHORTENER_API_SECRET is not set.";
+export const SHORTENER_UNAUTHORIZED_MESSAGE = "Unauthorized.";
+export const SHORTENER_INVALID_REQUEST_MESSAGE = "Invalid request.";
+export const SHORTENER_LINK_NOT_FOUND_MESSAGE = "Short link not found.";
+export const SHORTENER_CODE_TAKEN_MESSAGE = "That short link code is already in use.";
+export const SHORTENER_SERVER_ERROR_MESSAGE = "Internal server error.";
+export const REDIRECT_CACHE_CONTROL = "no-store";

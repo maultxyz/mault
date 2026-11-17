@@ -98,7 +98,6 @@
       "language": "Language"
     },
     "copyOf": "Copy {{index}} of {{count}}",
-    "moreOptions": "More",
     "actions": "Card actions",
     "name": "Name",
     "moveToLocation": "Move to location",
@@ -124,6 +123,8 @@
     "manageCollections": "Manage Collections",
     "noCardsScanned": "No cards scanned yet",
     "scanToGetStarted": "Scan a card to get started",
+    "loadFailed": "Couldn't load the cards in this collection.",
+    "selectAllFailed": "Couldn't select all cards. Try again.",
     "noCardsMatchFilters": "No cards match the current filters",
     "tryAdjusting": "Try adjusting your search, sort, or filter options",
     "cardsSelected_one": "{{count}} card selected",
@@ -165,6 +166,10 @@
     "sortDescString": "Z-A",
     "sortAscDefault": "Low-High",
     "sortDescDefault": "High-Low",
+    "priceSort": {
+      "usd": "Price (USD)",
+      "eur": "Price (EUR)"
+    },
     "deselectAll": "Deselect all",
     "selectAll": "Select all",
     "gridView": "Grid view",
@@ -248,6 +253,8 @@
     "previous": "Previous",
     "next": "Next",
     "skipAll": "Skip all",
+    "pause": "Pause slideshow",
+    "play": "Play slideshow",
     "intro": {
       "eyebrow": "Your session",
       "title": "{{collectionName}} Wrapped",
@@ -349,6 +356,13 @@
       "noScanAreas": "Not checked: no mark areas from the scan",
       "noReferences": "Not checked: no references for this game yet",
       "singlePrinting": "Not needed: no look-alike printings"
+    },
+    "printedLanguageCode": "Language code (\"EN\")",
+    "printedLanguageCodeValue": {
+      "presentChanged": "EN found, printing changed",
+      "presentKept": "EN found",
+      "absentChanged": "No EN, printing changed",
+      "absentKept": "No EN"
     },
     "printedFoilMarker": "Foil star",
     "printedFoilMarkerValue": {
@@ -656,5 +670,19 @@
       "signedInAs": "Signed in as {{name}}.",
       "signedInHint": "Offers you send show up under Trades > Sent in your account."
     }
+  },
+  "shareCardLink": {
+    "action": "Copy share link",
+    "copied": "Share link copied. Anyone with it can see this card.",
+    "copyFailed": "Couldn't copy a share link for this card.",
+    "sharedPage": {
+      "readOnly": "Shared card · Read-only view",
+      "invalidTitle": "This link doesn't work anymore",
+      "invalidDescription": "It may have been revoked, or the card was removed. Ask the person who shared it for a new link."
+    }
+  },
+  "downloadScanImage": {
+    "action": "Download photo",
+    "failed": "Couldn't download the photo. Try again."
   }
 }

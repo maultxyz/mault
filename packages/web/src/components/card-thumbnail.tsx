@@ -1,7 +1,7 @@
 import type { CardThumbnailProps } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
 
-export function CardThumbnail({ image, className }: CardThumbnailProps) {
+export function CardThumbnail({ image, className, loading = "lazy" }: CardThumbnailProps) {
   return (
     <span
       className={cn(
@@ -13,7 +13,7 @@ export function CardThumbnail({ image, className }: CardThumbnailProps) {
         <img
           src={image.small}
           alt=""
-          loading="lazy"
+          loading={loading}
           className="absolute inset-0 size-full object-cover"
         />
       )}

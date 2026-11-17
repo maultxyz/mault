@@ -1,3 +1,5 @@
+import { orderSoundRules } from "@magic-vault/shared";
+import { toSoundRulesDraft } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as DocumentPicker from "expo-document-picker";
@@ -37,7 +39,6 @@ import {
   uploadSoundClip,
 } from "@/features/sounds/api/sounds";
 import { createClipPlayer, isPlayerActive, playSoundExclusively, stopSound } from "@/features/sounds/lib/sound-playback";
-import { orderSoundRules, toSoundRulesDraft } from "@/features/sounds/lib/sound-rules-draft";
 import { useActiveOrg } from "@/hooks/use-org";
 import { SOUND_CLIP_MIME_TYPES } from "@/lib/constants/sounds";
 
@@ -52,6 +53,7 @@ export default function SoundsSettingsScreen() {
   const { data: billing } = useQuery(billingQueryOptions(orgId));
   const { data: totalRules = 0 } = useQuery(soundRuleCountQueryOptions(orgId));
   const rules = useMemo(() => rulesQuery.data ?? [], [rulesQuery.data]);
+  const isLoadError = (clips.isError && !clips.data) || (rulesQuery.isError && !rulesQuery.data);
   const ruleLimit = billing?.maxSoundRules ?? null;
   const atRuleLimit = ruleLimit !== null && totalRules >= ruleLimit;
   const isUploadLocked = billing?.customSounds === false;
@@ -229,7 +231,13 @@ export default function SoundsSettingsScreen() {
     <SettingsPage
       title={t("settings.sounds.title")}
       isLoading={clips.isLoading || rulesQuery.isLoading}
-      isDirty={form.formState.isDirty}
+      isLoadError={isLoadError}
+      isRetryingLoad={clips.isFetching || rulesQuery.isFetching}
+      onRetryLoad={() => {
+        void clips.refetch();
+        if (gameGuid) void rulesQuery.refetch();
+      }}
+      isDirty={!isLoadError && form.formState.isDirty}
       isSaving={form.formState.isSubmitting}
       saveError={saveError}
       onSave={() => void form.handleSubmit(submit)()}

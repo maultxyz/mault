@@ -12,7 +12,6 @@ import type { SyncSource, SyncSourceCard } from "../interfaces/card-search";
 import {
   SYNC_DATA_REFRESH_BATCH_SIZE,
   SYNC_NEW_CARD_NAME_LIMIT,
-  SYNC_REINDEX_MIN_CHANGED_FRACTION,
 } from "../constants/sync";
 import { toPortraitCardImage } from "../card-image";
 import { vectorizeCardImage } from "../vectorize";
@@ -30,7 +29,6 @@ import {
 import { SYNC_SOURCES } from "./sources";
 import { storedCollectorNumber } from "../card-search/collector-number";
 import { catalogColumnsFor } from "../card-catalog";
-import { rebuildGameVectorIndex } from "../game-vector-index";
 import {
   addToPrintingMarkBatch,
   cardIdsWithCurrentPrintingMarks,
@@ -235,22 +233,23 @@ async function refreshStoredData(
           data,
         );
         const catalog = catalogColumnsFor(source.gameKey, lang, c.id, data);
-        return `{"card_id":${JSON.stringify(c.id)},"collector_number":${JSON.stringify(collectorNumber)},"set_name":${JSON.stringify(catalog.setName)},"rarity":${JSON.stringify(catalog.rarity)},"color_identity":${JSON.stringify(catalog.colorIdentity)},"search_text":${JSON.stringify(catalog.searchText)},"image_small":${JSON.stringify(catalog.imageSmall)},"data":${c.data}}`;
+        return `{"card_id":${JSON.stringify(c.id)},"name":${JSON.stringify(c.name)},"collector_number":${JSON.stringify(collectorNumber)},"set_name":${JSON.stringify(catalog.setName)},"rarity":${JSON.stringify(catalog.rarity)},"color_identity":${JSON.stringify(catalog.colorIdentity)},"search_text":${JSON.stringify(catalog.searchText)},"image_small":${JSON.stringify(catalog.imageSmall)},"data":${c.data}}`;
       })
       .join(",")}]`;
     const result = await db.execute(sql`
       UPDATE cards AS c
-      SET data = x.data, collector_number = x.collector_number,
+      SET data = x.data, name = x.name, collector_number = x.collector_number,
         set_name = x.set_name, rarity = x.rarity, color_identity = x.color_identity,
         search_text = x.search_text, image_small = x.image_small
       FROM jsonb_to_recordset(${rows}::jsonb)
-        AS x(card_id text, collector_number text, set_name text, rarity text,
+        AS x(card_id text, name text, collector_number text, set_name text, rarity text,
           color_identity jsonb, search_text text, image_small text, data jsonb)
       WHERE c.game_key = ${source.gameKey}
         AND c.lang = ${lang}
         AND c.card_id = x.card_id
         AND (
           (c.data - ${volatileKeys}::text[]) IS DISTINCT FROM (x.data - ${volatileKeys}::text[])
+          OR c.name IS DISTINCT FROM x.name
           OR c.collector_number IS DISTINCT FROM x.collector_number
           OR (c.set_name, c.rarity, c.color_identity, c.search_text, c.image_small)
             IS DISTINCT FROM (x.set_name, x.rarity, x.color_identity, x.search_text, x.image_small)
@@ -261,30 +260,6 @@ async function refreshStoredData(
 
   addLog(`Stored data refreshed (${updated} changed).`);
   return updated;
-}
-
-async function rebuildVectorIndexIfChurned(
-  source: SyncSource,
-  lang: string,
-  changed: number,
-  total: number,
-): Promise<void> {
-  if (total === 0 || changed < total * SYNC_REINDEX_MIN_CHANGED_FRACTION) {
-    return;
-  }
-  addLog(
-    `${changed} of ${total} cards changed, rebuilding the vector index...`,
-  );
-  try {
-    const indexName = await rebuildGameVectorIndex(source.gameKey, lang);
-    addLog(
-      indexName
-        ? `Rebuilt vector index ${indexName}.`
-        : "No vector index found for this game and language, skipped rebuild.",
-    );
-  } catch (err) {
-    addLog(`Vector index rebuild failed: ${errorMessage(err)}`);
-  }
 }
 
 let printingMarkWrites: Promise<unknown> = Promise.resolve();
@@ -799,13 +774,6 @@ async function runSync(
     emitCancelledDone();
     return;
   }
-
-  await rebuildVectorIndexIfChurned(
-    source,
-    lang,
-    refreshed + getState().processed,
-    existingSet.size,
-  );
 
   patchState({ status: "completed" });
   const syncState = getState();

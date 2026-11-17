@@ -1,3 +1,4 @@
+import type { SelectToggleOptions } from "@/lib/interfaces/cards";
 import type {
   BUSINESS_VIEWS,
   ORDER_DETAIL_VIEWS,
@@ -23,9 +24,10 @@ import type {
   ComposedCsvOrder,
   CsvOrderImportResult,
   CsvImportComposition,
-  OrderBins,
+  CardCondition,
   OrderLineInput,
   OrderSource,
+  PlayingCardImage,
   PullSheetEntry,
   StatsRange,
 } from "@magic-vault/shared";
@@ -116,6 +118,15 @@ export interface OrderListProps {
   selectedGuid: string | undefined;
   isLoading: boolean;
   onSelect: (guid: string) => void;
+  checkedOrderGuids?: ReadonlySet<string>;
+  onToggleOrderChecked?: (guid: string, options: SelectToggleOptions) => void;
+}
+
+export interface OrderSelectionBarProps {
+  checkedOrders: FulfilmentOrder[];
+  onClear: () => void;
+  onOrdersDeleted: (orderGuids: string[]) => void;
+  className?: string;
 }
 
 export interface OrderEditDialogProps {
@@ -139,10 +150,65 @@ export interface OrderBinsDialogProps {
 
 export interface OrderPickByLocationProps {
   entries: PullSheetEntry[];
-  orderBins: OrderBins;
+  orderBinOf: (entry: PullSheetEntry) => number | null;
+  pickNameOf?: (entry: PullSheetEntry) => string;
   pickedScanIds: ReadonlySet<string>;
   canPick: boolean;
   onPickedChange: (scanIds: string[], isPicked: boolean) => void;
+}
+
+export interface OrderSubstituteDialogProps {
+  order: FulfilmentOrderDetail;
+  lineIndex: number | null;
+  onOpenChange: (open: boolean) => void;
+}
+
+export interface OrderPickProgress {
+  pickedScanIds: ReadonlySet<string>;
+  changePicked: (scanIds: string[], isPicked: boolean) => void;
+}
+
+export interface OrderPhonePickDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  orderGuids: string[];
+}
+
+export interface OrderBatchPickProps {
+  orderGuids: string[];
+}
+
+export interface PackingSlipRow {
+  key: string;
+  image: PlayingCardImage | null;
+  name: string;
+  setCode: string | null;
+  collectorNumber: string | null;
+  condition: CardCondition | null;
+  isFoil: boolean;
+  quantity: number;
+  unitPrice: number | null;
+}
+
+export interface PackingSlipUnavailableLine {
+  name: string;
+  quantity: number;
+}
+
+export interface PackingSlipData {
+  key: string;
+  orderGuid: string;
+  pickName: string;
+  orderRef: string | null;
+  date: string;
+  rows: PackingSlipRow[];
+  unavailable: PackingSlipUnavailableLine[];
+}
+
+export interface PackingSlipProps {
+  slip: PackingSlipData;
+  shopName: string;
+  showsPrices: boolean;
 }
 
 export interface OrderRefLabelProps {

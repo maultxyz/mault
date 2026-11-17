@@ -18,7 +18,6 @@ export const SORTER_NOT_FOUND_MESSAGE = "Sorter not found.";
 export const INTAKE_LOT_NOT_FOUND_MESSAGE = "Intake lot not found.";
 export const PICK_NOT_FOUND_MESSAGE = "Pick not found.";
 export const SHOP_CATALOG_NOT_FOUND_MESSAGE = "Shop catalog not found.";
-export const SHOP_CATALOG_CARD_NOT_FOUND_MESSAGE = "This card is no longer in the catalog.";
 export const SHOP_PHOTO_MISSING_MESSAGE = "Choose a photo to upload.";
 export const SHOP_PHOTO_TYPE_MESSAGE = "Upload a JPEG, PNG or WebP photo.";
 export const SHOP_PHOTO_TOO_LARGE_MESSAGE = "That photo is too large. Upload one under 10 MB.";
@@ -37,3 +36,6 @@ export const BUSINESS_FORBIDDEN_RESULT: BusinessResult = {
   success: false,
   message: BUSINESS_FORBIDDEN_MESSAGE,
 };
+
+export const ORDER_SUBSTITUTE_CANDIDATES_SCANNED = 200;
+export const ORDER_LINE_CARD_NAME_FACE_SEPARATOR = " // ";

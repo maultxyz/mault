@@ -1,3 +1,4 @@
+import { delay } from "@/lib/delay";
 import {
   DOCUMENT_SCANNER_CARD_ARRIVAL_POLL_MS,
   DOCUMENT_SCANNER_FLATBED_CARD_ARRIVAL_TIMEOUT_MS,
@@ -11,10 +12,6 @@ import type {
   FlatbedScanStep,
 } from "@/lib/interfaces/scanner";
 import { useCallback, useEffect, useRef, useState } from "react";
-
-function wait(milliseconds: number) {
-  return new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
-}
 
 export function useFlatbedScan({
   isEnabled,
@@ -67,7 +64,7 @@ export function useFlatbedScan({
           }
           nextPollAt = Date.now() + DOCUMENT_SCANNER_CARD_ARRIVAL_POLL_MS;
         }
-        await wait(FLATBED_COUNTDOWN_TICK_MS);
+        await delay(FLATBED_COUNTDOWN_TICK_MS);
       }
       return waitTokenRef.current === token ? "timed-out" : "cancelled";
     } finally {

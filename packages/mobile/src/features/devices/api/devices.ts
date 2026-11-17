@@ -14,7 +14,7 @@ import {
 import { ApiStatusError } from "@/lib/api/api-status-error";
 import { apiDelete, apiGet, apiPost, apiRequest, unwrap } from "@/lib/api/client";
 import { QUERY_STALE_MS } from "@/lib/constants/query";
-import type { Device } from "@/lib/interfaces/devices";
+import type { Device } from "@magic-vault/shared";
 
 export const devicesQueryOptions = (orgId: string | null) =>
   queryOptions({

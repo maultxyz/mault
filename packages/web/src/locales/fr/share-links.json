@@ -14,5 +14,12 @@
   "back": "Retour",
   "backToLinks": "Retour aux liens",
   "pricesShown": "Prix affichés",
-  "revokeLabel": "Révoquer le lien créé le {{date}}"
+  "revokeLabel": "Révoquer le lien créé le {{date}}",
+  "tabsLabel": "Vues des liens de partage",
+  "linksTab": "Liens",
+  "sharedCards": "Cartes partagées",
+  "sharedCardsEmpty": "Aucune carte partagée pour le moment.",
+  "sharedCardsEmptyDescription": "Utilisez « Copier le lien de partage » sur une carte pour la partager. Son lien apparaît ici pour que vous puissiez le révoquer.",
+  "copyCardLink": "Copier le lien de {{name}}",
+  "revokeCardLink": "Révoquer le lien de {{name}}"
 }

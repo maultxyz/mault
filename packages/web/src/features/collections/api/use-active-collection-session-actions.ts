@@ -47,7 +47,11 @@ export function useActiveCollectionSessionActions(): ActiveCollectionSessionActi
       if (!result.success || !result.data) {
         throw new Error(result.message);
       }
-      created.url = shareLinkUrl(result.data);
+      created.url = shareLinkUrl({
+        ...result.data,
+        kind: "collection",
+        subjectGuid: collectionGuid,
+      });
       return created.url;
     });
     setIsSharing(true);

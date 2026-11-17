@@ -127,7 +127,9 @@ export function NotificationRuleList({
                     )}
                   </span>
                 ) : (
-                  <p className="text-destructive">{t("rules.noChannel")}</p>
+                  <p role="alert" className="text-destructive">
+                    {t("rules.noChannel")}
+                  </p>
                 )}
                 <RuleSummary rules={rule.rules} />
               </div>
@@ -159,7 +161,7 @@ export function NotificationRuleList({
                 </Button>
                 <Button
                   size="icon"
-                  variant="outline-destructive"
+                  variant="destructive"
                   disabled={change.isPending}
                   aria-label={t("rules.delete", { name: rule.name })}
                   title={t("rules.delete", { name: rule.name })}

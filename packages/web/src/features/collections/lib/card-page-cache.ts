@@ -11,32 +11,13 @@ import {
   CARDS_LIST_REFRESH_THROTTLE_MS,
   CARDS_SUMMARY_REFRESH_THROTTLE_MS,
 } from "@/lib/constants/timing";
+import { createKeyedRefreshThrottle } from "@/lib/keyed-refresh-throttle";
 import type { InfiniteData, QueryClient } from "@tanstack/react-query";
 
-function createCollectionRefreshThrottle(throttleMs: number) {
-  const pendingRefreshes = new Map<string, ReturnType<typeof setTimeout>>();
-  const lastRefreshAt = new Map<string, number>();
-  return (guid: string, refresh: () => void) => {
-    if (pendingRefreshes.has(guid)) return;
-    const elapsed = Date.now() - (lastRefreshAt.get(guid) ?? 0);
-    pendingRefreshes.set(
-      guid,
-      setTimeout(
-        () => {
-          pendingRefreshes.delete(guid);
-          lastRefreshAt.set(guid, Date.now());
-          refresh();
-        },
-        Math.max(0, throttleMs - elapsed),
-      ),
-    );
-  };
-}
-
-const throttleSummaryRefresh = createCollectionRefreshThrottle(
+const throttleSummaryRefresh = createKeyedRefreshThrottle(
   CARDS_SUMMARY_REFRESH_THROTTLE_MS,
 );
-const throttleCardListRefresh = createCollectionRefreshThrottle(
+const throttleCardListRefresh = createKeyedRefreshThrottle(
   CARDS_LIST_REFRESH_THROTTLE_MS,
 );
 

@@ -11,15 +11,15 @@ import { Switch } from "@/components/ui/switch";
 import { cancelIntakeLot } from "@/features/business/api/business";
 import { useBusinessAction } from "@/features/business/api/use-business";
 import type { IntakeCancelDialogProps } from "@/lib/interfaces/business";
-import {
-  intakeCancelSchema,
-  type IntakeCancelFormValues,
-} from "@/schemas/business.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import {
+  intakeCancelSchema,
+  type IntakeCancelFormValues,
+} from "@magic-vault/shared";
 
 export function IntakeCancelDialog({
   lot,

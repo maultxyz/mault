@@ -10,6 +10,7 @@ on:
   # no release commit or tag, and images move the :dev tag rather than :latest.
   schedule:
     - cron: "17 0 * * *"
+    - cron: "17 1 * * *"
   workflow_dispatch:
     inputs:
       bump:
@@ -20,7 +21,7 @@ on:
       target:
         description: What to deploy. Anything but everything skips the release commit and tag, so the nightly run still sees the rest as pending.
         type: choice
-        options: [everything, web-and-server, bot, api-docs]
+        options: [everything, web-and-server, bot, api-docs, shortener]
         default: everything
       force:
         description: Deploy every container in the target even when nothing changed since the last release
@@ -78,10 +79,12 @@ jobs:
           SERVER=false
           DOCS=false
           BOT=false
+          SHORTENER=false
           if grep -qE '^(packages/web/|packages/shared/|Dockerfile\.web$)' <<< "$FILES"; then WEB=true; fi
           if grep -qE '^(packages/server/|packages/shared/|drizzle/|Dockerfile\.server$)' <<< "$FILES"; then SERVER=true; fi
           if grep -qE '^(packages/api-docs/|packages/shared/|Dockerfile\.api-docs$)' <<< "$FILES"; then DOCS=true; fi
           if grep -qE '^(packages/bot/|Dockerfile\.bot$)' <<< "$FILES"; then BOT=true; fi
+          if grep -qE '^(packages/shortener/|packages/shared/|Dockerfile\.shortener$)' <<< "$FILES"; then SHORTENER=true; fi
 
           COMMITS=$(git log --no-merges --format='%s' "$RANGE" | grep -v '^chore(release):' || true)
           COUNT=$(grep -c . <<< "$COMMITS" || true)
@@ -92,6 +95,7 @@ jobs:
             echo "server=$SERVER"
             echo "docs=$DOCS"
             echo "bot=$BOT"
+            echo "shortener=$SHORTENER"
             echo "last_tag=$LAST_TAG"
             echo "count=$COUNT"
             echo "authors=$AUTHORS"
@@ -99,7 +103,7 @@ jobs:
             head -n 15 <<< "$COMMITS"
             echo "COMMITS_EOF"
           } >> "$GITHUB_OUTPUT"
-          echo "Pending since ${LAST_TAG:-the first commit}: web=$WEB server=$SERVER docs=$DOCS bot=$BOT, $COUNT commit(s)"
+          echo "Pending since ${LAST_TAG:-the first commit}: web=$WEB server=$SERVER docs=$DOCS bot=$BOT shortener=$SHORTENER, $COUNT commit(s)"
 
       # Web and server are always deployed together: if only one of them
       # changed, deploying just that one would leave the other running an
@@ -121,33 +125,39 @@ jobs:
           WEB_SERVER=false
           DOCS=false
           BOT=false
+          SHORTENER=false
           case "$TARGET" in
             everything)
               if [ "$FORCE" = "true" ]; then
                 WEB_SERVER=true
                 DOCS=true
                 BOT=true
+                SHORTENER=true
               else
                 if [ "${{ steps.changes.outputs.web }}" = "true" ] || [ "${{ steps.changes.outputs.server }}" = "true" ]; then WEB_SERVER=true; fi
                 DOCS="${{ steps.changes.outputs.docs }}"
                 BOT="${{ steps.changes.outputs.bot }}"
+                SHORTENER="${{ steps.changes.outputs.shortener }}"
               fi
               ;;
             web-and-server) WEB_SERVER=true ;;
             api-docs) DOCS=true ;;
             bot) BOT=true ;;
+            shortener) SHORTENER=true ;;
             *) echo "::error::Unknown deploy target $TARGET."; exit 1 ;;
           esac
           LABELS=()
           if [ "$WEB_SERVER" = "true" ]; then LABELS+=("Web" "Server"); fi
           if [ "$DOCS" = "true" ]; then LABELS+=("API docs"); fi
           if [ "$BOT" = "true" ]; then LABELS+=("Bot"); fi
+          if [ "$SHORTENER" = "true" ]; then LABELS+=("Shortener"); fi
           {
             echo "target=$TARGET"
             echo "partial=$([ "$TARGET" = "everything" ] && echo false || echo true)"
             echo "web_server=$WEB_SERVER"
             echo "docs=$DOCS"
             echo "bot=$BOT"
+            echo "shortener=$SHORTENER"
             echo "labels=$(IFS=,; echo "${LABELS[*]}" | sed 's/,/, /g')"
             echo "any=$([ ${#LABELS[@]} -gt 0 ] && echo true || echo false)"
           } >> "$GITHUB_OUTPUT"
@@ -237,11 +247,11 @@ jobs:
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Set up pnpm
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && (steps.targets.outputs.docs == 'true' || steps.targets.outputs.web_server == 'true')
         uses: pnpm/action-setup@v4
 
       - name: Set up Node
-        if: steps.deploy.outputs.should_deploy == 'true'
+        if: steps.deploy.outputs.should_deploy == 'true' && (steps.targets.outputs.docs == 'true' || steps.targets.outputs.web_server == 'true')
         uses: actions/setup-node@v4
         with:
           node-version: 26
@@ -266,6 +276,7 @@ jobs:
             echo "server=$PREFIX-server"
             echo "docs=$PREFIX-api-docs"
             echo "bot=$PREFIX-bot"
+            echo "shortener=$PREFIX-shortener"
           } >> "$GITHUB_OUTPUT"
 
       - name: Set up Docker Buildx
@@ -360,13 +371,28 @@ jobs:
           cache-from: type=gha,scope=bot
           cache-to: type=gha,mode=max,scope=bot
 
+      # The shortener reads its config (database, API secret, target origin)
+      # from the container's environment at start-up.
+      - name: Build and push shortener image
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.shortener == 'true'
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: Dockerfile.shortener
+          push: true
+          tags: |
+            ${{ steps.images.outputs.shortener }}:v${{ steps.appversion.outputs.version }}
+            ${{ steps.images.outputs.shortener }}:sha-${{ github.sha }}
+          cache-from: type=gha,scope=shortener
+          cache-to: type=gha,mode=max,scope=shortener
+
       - name: Commit and tag app version
         id: appcommit
         if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.partial != 'true' && env.IS_DEV != 'true'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add package.json packages/web/package.json packages/server/package.json packages/shared/package.json packages/api-docs/package.json packages/bot/package.json packages/api-docs/public/openapi.json
+          git add package.json packages/web/package.json packages/server/package.json packages/shared/package.json packages/api-docs/package.json packages/bot/package.json packages/shortener/package.json packages/api-docs/public/openapi.json
           if git diff --cached --quiet; then
             echo "changed=false" >> "$GITHUB_OUTPUT"
           else
@@ -392,7 +418,7 @@ jobs:
             -H "Content-Type: application/json" \
             -d '{"durationMinutes": 60}'
 
-      - name: Promote web, API docs and bot images
+      - name: Promote web, API docs, bot and shortener images
         if: steps.deploy.outputs.should_deploy == 'true'
         run: |
           promote() {
@@ -401,6 +427,7 @@ jobs:
           if [ "${{ steps.targets.outputs.web_server }}" = "true" ]; then promote "${{ steps.images.outputs.web }}"; fi
           if [ "${{ steps.targets.outputs.docs }}" = "true" ]; then promote "${{ steps.images.outputs.docs }}"; fi
           if [ "${{ steps.targets.outputs.bot }}" = "true" ]; then promote "${{ steps.images.outputs.bot }}"; fi
+          if [ "${{ steps.targets.outputs.shortener }}" = "true" ]; then promote "${{ steps.images.outputs.shortener }}"; fi
 
       - name: Trigger Coolify deployment (web)
         if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.web_server == 'true'
@@ -427,6 +454,20 @@ jobs:
         run: |
           if [ -z "$WEBHOOK" ]; then
             echo "COOLIFY_WEBHOOK_BOT isn't set, skipping the bot deploy."
+            exit 0
+          fi
+          curl -sf --request POST "$WEBHOOK" \
+            --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
+
+      # Deployed before the server so new short links can be registered as
+      # soon as the new API starts.
+      - name: Trigger Coolify deployment (shortener)
+        if: steps.deploy.outputs.should_deploy == 'true' && steps.targets.outputs.shortener == 'true'
+        env:
+          WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK_SHORTENER }}
+        run: |
+          if [ -z "$WEBHOOK" ]; then
+            echo "COOLIFY_WEBHOOK_SHORTENER isn't set, skipping the shortener deploy."
             exit 0
           fi
           curl -sf --request POST "$WEBHOOK" \

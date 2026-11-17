@@ -21,7 +21,7 @@ export function useServerPagedList<
     page,
     selected: page === null ? selected : null,
   };
-  const { data, isPending } = useQuery(options(request));
+  const { data, isPending, isError, refetch } = useQuery(options(request));
   const previousSelected = useRef(selected);
 
   useEffect(() => {
@@ -35,6 +35,8 @@ export function useServerPagedList<
   return {
     items: data?.items ?? [],
     isLoading: isPending,
+    isError,
+    refetch: () => void refetch(),
     pagination: toServerPagination(data, setPage),
   };
 }

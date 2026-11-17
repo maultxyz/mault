@@ -7,6 +7,7 @@ import {
   MOBILE_ACCOUNT_PATH,
   MOBILE_ICON_BUTTON_CLASS,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
+  PAGE_TITLE_CLASS,
 } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
@@ -79,7 +80,7 @@ export default function HealthPage() {
           ) : (
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h1 className="text-lg font-semibold font-heading">
+                <h1 className={PAGE_TITLE_CLASS}>
                   {t("title")}
                 </h1>
                 <p className="text-xs text-foreground/70">{t("subtitle")}</p>
@@ -124,7 +125,7 @@ export default function HealthPage() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {check.status === "error" && check.message && (
-                    <span className="text-sm text-destructive">
+                    <span role="alert" className="text-sm text-destructive">
                       {check.message}
                     </span>
                   )}

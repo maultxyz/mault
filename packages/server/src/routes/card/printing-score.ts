@@ -20,7 +20,12 @@ import type {
   OrientedCardMatch,
 } from "../../lib/interfaces/card-search";
 import { vectorizeCardImage } from "../../lib/vectorize";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  markRequestAsReadOnly,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import {
   cardDistanceSql,
   findCardMatches,
@@ -157,6 +162,7 @@ export const printingScoreRoute = new Hono<AppEnv>().post(
   "/printing-score",
   requireAuth,
   requireOrg,
+  markRequestAsReadOnly,
   async (c) => {
     const body = await c.req.parseBody();
     const cardId = typeof body["cardId"] === "string" ? body["cardId"].trim() : "";

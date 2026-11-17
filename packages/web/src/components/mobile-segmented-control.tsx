@@ -33,7 +33,7 @@ export function MobileSegmentedControl<T extends string>({
             className={cn(
               "flex h-9 min-w-0 flex-1 items-center justify-center gap-1.5 truncate rounded-md px-3 text-sm font-medium transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none",
               active
-                ? "bg-card font-semibold text-primary shadow-xs dark:text-sidebar-primary"
+                ? "bg-card font-semibold text-primary shadow-xs"
                 : "text-foreground/70 active:bg-foreground/6",
             )}
           >

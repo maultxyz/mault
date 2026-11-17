@@ -27,6 +27,19 @@ export interface IssuedShareLink {
   guid: string;
   token: string;
   shortCode: string;
+  shortUrl: string | null;
+  expiresAt: Date;
+}
+
+export interface ShareLinkSigningRow {
+  guid: string;
+  orgId: string;
+  linkKind: string;
+  subjectGuid: string;
+  subjectVersion: number;
+  purpose: string;
+  showsPrices: boolean;
+  issuedAt: Date;
   expiresAt: Date;
 }
 
@@ -54,6 +67,16 @@ export interface StorageShareLinkClaims {
   expiresAt: Date;
   showsPrices: boolean;
   purpose: ShareLinkPurpose;
+}
+
+export interface CardShareLinkClaims {
+  linkGuid: string;
+  collectionCardId: number;
+  scanId: string;
+  collectionId: number;
+  cardName: string;
+  orgId: string;
+  showsPrices: boolean;
 }
 
 export interface ShareLinkRequestBody {

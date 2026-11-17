@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppTopBar } from "@/components/app-top-bar";
 import { GradientBurst } from "@/components/ui/gradient-burst";
 import { MemberSeatLocked } from "@/features/org/components/member-seat-locked";
+import { useConnectivityAnnouncements } from "@/hooks/use-connectivity-announcements";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useShellPanelStyle } from "@/hooks/use-shell-panel-style";
 import { useTheme } from "@/hooks/use-theme";
@@ -14,6 +15,7 @@ export default function AppLayout() {
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const seatLock = useMemberSeatLock(useActiveOrgId());
+  useConnectivityAnnouncements();
   const panelStyle = useShellPanelStyle(insets.bottom);
   const modalStyle = { backgroundColor: colors.background };
   const sheetOptions = {
@@ -84,6 +86,15 @@ export default function AppLayout() {
           <Stack.Screen name="trade-offer/[guid]" options={sheetOptions} />
           <Stack.Screen name="sent-trade-offer/[guid]" options={sheetOptions} />
           <Stack.Screen name="storage-pick-list" />
+          <Stack.Screen name="business/index" />
+          <Stack.Screen name="business/intake/[guid]" />
+          <Stack.Screen name="business/order/[guid]" />
+          <Stack.Screen name="business/pick" />
+          <Stack.Screen name="business/intake-new" options={sheetOptions} />
+          <Stack.Screen name="business/intake-accept" options={sheetOptions} />
+          <Stack.Screen name="business/intake-transfer" options={sheetOptions} />
+          <Stack.Screen name="business/pick-new" options={sheetOptions} />
+          <Stack.Screen name="business/substitute" options={sheetOptions} />
           <Stack.Screen name="batch-scan" options={{ contentStyle: { backgroundColor: colors.background } }} />
           <Stack.Screen
             name="storage-card-scan"

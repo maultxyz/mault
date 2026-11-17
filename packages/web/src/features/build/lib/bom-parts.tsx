@@ -63,7 +63,7 @@ export const GROUPS: BomGroup[] = [
             }
             values={{ path: "firmware/main/main.ino" }}
             components={{
-              code: <code className="font-mono text-xs" />,
+              code: <code className="font-mono text-sm" />,
             }}
           />
         ),
@@ -82,7 +82,7 @@ export const GROUPS: BomGroup[] = [
             i18nKey="bom.groups.electronics.items.esp32WithBreakout.notes"
             values={{ path: "firmware/main/main.ino" }}
             components={{
-              code: <code className="font-mono text-xs" />,
+              code: <code className="font-mono text-sm" />,
             }}
           />
         ),
@@ -411,6 +411,14 @@ export const GROUPS: BomGroup[] = [
         part: (t) => t("bom.groups.optional.items.feederBearings.part"),
         notes: (t) => t("bom.groups.optional.items.feederBearings.notes"),
         buyUrl: "https://link.amazon/B08efhD2u",
+      },
+      {
+        key: "neodymium-magnets",
+        qty: () => "1 pack",
+        name: "Neodymium magnets, 5x2 mm",
+        part: (t) => t("bom.groups.optional.items.neodymiumMagnets.part"),
+        notes: (t) => t("bom.groups.optional.items.neodymiumMagnets.notes"),
+        buyUrl: "https://link.amazon/B0ea5fbil",
       },
     ],
   },

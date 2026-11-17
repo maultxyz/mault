@@ -1,3 +1,4 @@
+import { CompactValue } from "@/components/compact-value";
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -18,7 +19,13 @@ import type {
   TradeOfferLibrarySectionProps,
   TradesBox,
 } from "@/lib/interfaces/trade-offers";
-import { formatPrice, isTradeOfferBeingPicked, type TradeOffer } from "@magic-vault/shared";
+import {
+  formatCompactPriceInCurrency,
+  formatPrice,
+  isTradeOfferBeingPicked,
+  PRICE_SOURCE_FIELDS,
+  type TradeOffer,
+} from "@magic-vault/shared";
 import { IconArrowsExchange, IconChevronRight } from "@tabler/icons-react";
 import { useId } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -66,7 +73,13 @@ function TradeOfferLibraryRow({ offer }: TradeOfferLibraryRowProps) {
         <span className="flex shrink-0 flex-col items-end gap-0.5">
           <span className="text-sm font-medium tabular-nums">
             <span className="sr-only">{t("tradeOffers.youGetValue")} </span>
-            {formatPrice(offer.offeredValue, offer.priceSource)}
+            <CompactValue
+              exact={formatPrice(offer.offeredValue, offer.priceSource)}
+              compact={formatCompactPriceInCurrency(
+                offer.offeredValue,
+                PRICE_SOURCE_FIELDS[offer.priceSource].currency,
+              )}
+            />
           </span>
           <span className="text-xs text-foreground/70">{date}</span>
         </span>

@@ -14,10 +14,6 @@ import { Hono } from "hono";
 import type { Transaction } from "../../db";
 import { deviceAlerts, devices } from "../../db/schema";
 import { logActivity } from "../../lib/activity-log";
-import {
-  FLEET_HEALTH_LOCKED_RESULT,
-  isFleetHealthAllowed,
-} from "../../lib/fleet-health-access";
 import { isDeviceLeased } from "../../lib/device-leases";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -26,6 +22,8 @@ import {
   BUSINESS_FORBIDDEN_RESULT,
   SORTER_NOT_FOUND_MESSAGE,
 } from "../../lib/constants/business";
+import { orgHasFeature } from "../../lib/plan-config";
+import { FLEET_HEALTH_LOCKED_RESULT } from "../../lib/constants/plan-access";
 
 async function findDevice(tx: Transaction, orgId: string, guid: string) {
   if (!UUID_PATTERN.test(guid)) return null;
@@ -44,7 +42,7 @@ export const fleetRoute = new Hono<AppEnv>()
   .get("/fleet", requireAuth, requireOrg, (c) =>
     businessQuery(c, async (tx) => {
       const orgId = c.get("orgId");
-      if (!(await isFleetHealthAllowed(tx, orgId))) {
+      if (!(await orgHasFeature(tx, orgId, "fleetHealth"))) {
         return FLEET_HEALTH_LOCKED_RESULT;
       }
       const deviceRows = await tx
@@ -115,7 +113,7 @@ export const fleetRoute = new Hono<AppEnv>()
     }
     return businessQuery(c, async (tx, access) => {
       if (!access.canManageSettings) return BUSINESS_FORBIDDEN_RESULT;
-      if (!(await isFleetHealthAllowed(tx, c.get("orgId")))) {
+      if (!(await orgHasFeature(tx, c.get("orgId"), "fleetHealth"))) {
         return FLEET_HEALTH_LOCKED_RESULT;
       }
       const device = await findDevice(tx, c.get("orgId"), c.req.param("guid"));
@@ -133,7 +131,7 @@ export const fleetRoute = new Hono<AppEnv>()
   .post("/fleet/:guid/serviced", requireAuth, requireOrg, (c) =>
     businessQuery(c, async (tx) => {
       const orgId = c.get("orgId");
-      if (!(await isFleetHealthAllowed(tx, orgId))) {
+      if (!(await orgHasFeature(tx, orgId, "fleetHealth"))) {
         return FLEET_HEALTH_LOCKED_RESULT;
       }
       const device = await findDevice(tx, orgId, c.req.param("guid"));

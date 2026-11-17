@@ -3,7 +3,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { useFonts } from "expo-font";
 import { DarkTheme, DefaultTheme, SplashScreen, Stack, ThemeProvider } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -12,15 +12,17 @@ import { ToastProvider } from "@/components/ui/toast-provider";
 import { PendingSavesProvider } from "@/features/scanner/api/use-pending-saves";
 import { SorterProvider } from "@/features/sorter/api/use-sorter";
 import { AppStreamProvider } from "@/features/stream/api/use-app-stream";
-import { useHomeWidgetSync } from "@/features/widgets/api/use-home-widget-sync";
+import { HomeWidgetSync } from "@/features/widgets/components/home-widget-sync";
 import { useTheme } from "@/hooks/use-theme";
 import { applyThemePreference, readThemePreference } from "@/lib/appearance";
 import { restoreSession, useSession } from "@/lib/auth/session";
 import { FONT_ASSETS } from "@/lib/constants/fonts";
 import { queryClient } from "@/lib/query-client";
+import { startQueryCachePersistence } from "@/lib/query-persistence";
 
 void SplashScreen.preventAutoHideAsync();
 applyThemePreference(readThemePreference());
+startQueryCachePersistence(queryClient);
 
 function RootNavigator() {
   const { status } = useSession();
@@ -29,38 +31,42 @@ function RootNavigator() {
   const base = scheme === "dark" ? DarkTheme : DefaultTheme;
   const [fontsLoaded, fontError] = useFonts(FONT_ASSETS);
   const ready = status !== "loading" && (fontsLoaded || !!fontError);
-  useHomeWidgetSync();
+  const navigationTheme = useMemo(
+    () => ({
+      ...base,
+      colors: {
+        ...base.colors,
+        primary: colors.primaryText,
+        background: colors.background,
+        card: colors.card,
+        text: colors.foreground,
+        border: colors.border,
+      },
+    }),
+    [base, colors.primaryText, colors.background, colors.card, colors.foreground, colors.border],
+  );
 
   useEffect(() => {
     if (ready) void SplashScreen.hideAsync();
   }, [ready]);
 
-  if (!ready) return null;
-
   return (
-    <ThemeProvider
-      value={{
-        ...base,
-        colors: {
-          ...base.colors,
-          primary: colors.primaryText,
-          background: colors.background,
-          card: colors.card,
-          text: colors.foreground,
-          border: colors.border,
-        },
-      }}
-    >
-      <StatusBar style="auto" />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Protected guard={status === "signed-in"}>
-          <Stack.Screen name="(app)" />
-        </Stack.Protected>
-        <Stack.Protected guard={status !== "signed-in"}>
-          <Stack.Screen name="sign-in" />
-        </Stack.Protected>
-      </Stack>
-    </ThemeProvider>
+    <>
+      <HomeWidgetSync />
+      {ready ? (
+        <ThemeProvider value={navigationTheme}>
+          <StatusBar style="auto" />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Protected guard={status === "signed-in"}>
+              <Stack.Screen name="(app)" />
+            </Stack.Protected>
+            <Stack.Protected guard={status !== "signed-in"}>
+              <Stack.Screen name="sign-in" />
+            </Stack.Protected>
+          </Stack>
+        </ThemeProvider>
+      ) : null}
+    </>
   );
 }
 

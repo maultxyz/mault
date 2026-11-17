@@ -14,5 +14,12 @@
   "back": "Zurück",
   "backToLinks": "Zurück zu den Links",
   "pricesShown": "Preise sichtbar",
-  "revokeLabel": "Den am {{date}} erstellten Link widerrufen"
+  "revokeLabel": "Den am {{date}} erstellten Link widerrufen",
+  "tabsLabel": "Ansichten der Freigabelinks",
+  "linksTab": "Links",
+  "sharedCards": "Geteilte Karten",
+  "sharedCardsEmpty": "Noch keine geteilten Karten.",
+  "sharedCardsEmptyDescription": "Nutze bei einer Karte „Freigabelink kopieren“, um sie zu teilen. Ihr Link erscheint hier, damit du ihn widerrufen kannst.",
+  "copyCardLink": "Link für {{name}} kopieren",
+  "revokeCardLink": "Link für {{name}} widerrufen"
 }

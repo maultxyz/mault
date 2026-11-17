@@ -140,7 +140,7 @@ export function PricingComparison({
             role="rowgroup"
             className="last:[&>[role=row]:last-child]:border-b-0"
           >
-            <div role="row" className="border-b bg-muted/50">
+            <div role="row" className="border-b bg-foreground/6">
               <div
                 role="cell"
                 className="px-3 py-2.5 font-heading text-sm font-semibold"

@@ -47,7 +47,7 @@ export function groupedCatalogSearchSql({
   adapter,
   gameKey,
   preferredLang,
-  searchFilter,
+  matchFilter,
   printingFilter,
   printingMatch,
   exactName,
@@ -56,12 +56,16 @@ export function groupedCatalogSearchSql({
 }: GroupedCatalogSearchSqlParams): SQL {
   const printingMatchSql = sql`coalesce((${printingMatch ?? sql`false`}), false)`;
   return sql`
-    WITH page_names AS (
-      SELECT cards.lang AS page_lang, cards.name AS page_name, bool_or(${printingMatchSql}) AS page_printing_match
+    WITH matched_cards AS MATERIALIZED (
+      SELECT cards.lang, cards.name, ${printingMatchSql} AS is_printing_match
       FROM cards
-      WHERE ${searchFilter}
+      WHERE ${matchFilter} AND ${catalogPrintingIsListedSql(adapter)}
+    ),
+    page_names AS (
+      SELECT cards.lang AS page_lang, cards.name AS page_name, bool_or(cards.is_printing_match) AS page_printing_match
+      FROM matched_cards AS cards
       GROUP BY cards.lang, cards.name
-      ORDER BY bool_or(${printingMatchSql}) DESC, lower(cards.name) = lower(${exactName}) DESC, cards.name, (cards.lang = ${preferredLang}) DESC, cards.lang
+      ORDER BY bool_or(cards.is_printing_match) DESC, lower(cards.name) = lower(${exactName}) DESC, cards.name, (cards.lang = ${preferredLang}) DESC, cards.lang
       OFFSET ${offset}
       LIMIT ${limit}
     )

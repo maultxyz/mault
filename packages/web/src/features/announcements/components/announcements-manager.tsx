@@ -201,7 +201,7 @@ export function AnnouncementsManager() {
                 </Button>
                 <Button
                   size="icon"
-                  variant="outline-destructive"
+                  variant="destructive"
                   onClick={() => setDeleteTarget(announcement)}
                   aria-label={t("deleteTitle")}
                   title={t("deleteTitle")}

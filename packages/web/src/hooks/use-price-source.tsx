@@ -8,7 +8,9 @@ import {
   cardPriceAtScanFor,
   cardPriceFor,
   DEFAULT_ORG_PRICING,
+  formatCompactPriceInCurrency,
   formatPrice,
+  PRICE_SOURCE_FIELDS,
   toConditionMultipliers,
   type OrgPricing,
 } from "@magic-vault/shared";
@@ -58,6 +60,11 @@ export function usePriceSource(): PriceFormatter {
           conditionMultipliers,
         ),
       format: (value) => formatPrice(value, source),
+      formatCompact: (value) =>
+        formatCompactPriceInCurrency(
+          value,
+          PRICE_SOURCE_FIELDS[source].currency,
+        ),
     }),
     [source, conditionMultipliers],
   );

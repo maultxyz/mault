@@ -42,6 +42,7 @@ import {
   detectedStampOf,
   contourHomography,
   scanPrintingMarkGrids,
+  detectPrintedLanguageCode,
   detectPrintedFoilMarkerRgba,
   PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY,
   dewarpRgba,
@@ -593,14 +594,27 @@ async function searchOrientation(
   markSource: { source: RgbaImage; contour: CardContour } | null,
 ) {
   const embeddings = await vectorizeCardImage(image);
-  const printingMarkGrids = markSource
-    ? scanPrintingMarkGrids(
-        markSource.source,
-        contourHomography(markSource.contour),
-        context.gameKey,
-        orientation,
-      )
+  const markHomography = markSource
+    ? contourHomography(markSource.contour)
     : null;
+  const printingMarkGrids =
+    markSource && markHomography
+      ? scanPrintingMarkGrids(
+          markSource.source,
+          markHomography,
+          context.gameKey,
+          orientation,
+        )
+      : null;
+  const printedLanguageCode =
+    markSource && markHomography
+      ? (detectPrintedLanguageCode(
+          markSource.source,
+          markHomography,
+          context.gameKey,
+          orientation,
+        )?.present ?? null)
+      : null;
   const scopes = piMatchScopes(context);
   const { result: nearest, scope } = await findBestMatchAcrossGames(
     scopes,
@@ -612,6 +626,8 @@ async function searchOrientation(
         skipsUnloadedIndex: matchScope.gameKey !== context.gameKey,
         printingMarkGrids:
           matchScope.gameKey === context.gameKey ? printingMarkGrids : null,
+        printedLanguageCode:
+          matchScope.gameKey === context.gameKey ? printedLanguageCode : null,
       }),
   );
   const attached = await attachMatchedCards(nearest, scope.gameKey, scope.lang);

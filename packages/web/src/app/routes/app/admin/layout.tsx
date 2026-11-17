@@ -1,4 +1,5 @@
 import { MobilePageHeader } from "@/components/mobile-page-header";
+import { PageIntro } from "@/components/page-intro";
 import { SectionNav } from "@/components/section-nav";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import {
@@ -7,7 +8,7 @@ import {
 } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { SettingsSectionLayoutContext } from "@/lib/settings-section-context";
-import { Outlet, useLocation } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { ADMIN_PATH, ADMIN_SECTIONS } from "@/lib/constants/admin";
 import { useRole } from "@/hooks/use-role";
@@ -18,10 +19,14 @@ export default function AdminLayout() {
   const { pathname } = useLocation();
   const isMobile = useIsMobile();
 
+  const current = ADMIN_SECTIONS.find((section) =>
+    pathname.startsWith(`${ADMIN_PATH}/${section.path}`),
+  );
+
   if (isMobile) {
-    const current = ADMIN_SECTIONS.find((section) =>
-      pathname.startsWith(`${ADMIN_PATH}/${section.path}`),
-    );
+    if (current && !current.showsOnMobile) {
+      return <Navigate to={ADMIN_PATH} replace />;
+    }
     return (
       <div className="flex min-h-0 flex-1 flex-col">
         {current ? (
@@ -66,6 +71,11 @@ export default function AdminLayout() {
 
       <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto">
         <div className="flex flex-col p-4 md:px-3 md:py-2 max-w-4xl mx-auto w-full gap-6 md:gap-2">
+          <PageIntro
+            isPageHeading
+            title={current ? t(current.labelKey) : t("page.title")}
+            description={current ? undefined : t("page.subtitle")}
+          />
           <SettingsSectionLayoutContext value="card">
             <Outlet />
           </SettingsSectionLayoutContext>

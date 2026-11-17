@@ -25,6 +25,10 @@ import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
 import { getWebUrl } from "./lib/constants/urls";
 import type { AppEnv } from "./middleware/auth";
+import {
+  compressResponses,
+  shouldCompressResponses,
+} from "./middleware/compression";
 import { adminRouter } from "./routes/admin";
 import { announcementsRouter } from "./routes/announcements";
 import { apiKeysRouter } from "./routes/api-keys";
@@ -70,6 +74,7 @@ import { startDeviceOfflineAlerts } from "./lib/device-alerts";
 import { startInventorySnapshots } from "./lib/inventory";
 import { startApiUsageFlushing } from "./lib/api-usage";
 import { startCardMatchIndexWarmup } from "./lib/card-match-index";
+import { startShortLinkStartupSync } from "./lib/short-links";
 
 const app = new Hono<AppEnv>();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
@@ -111,6 +116,8 @@ app.use((c, next) =>
     ? publicPayloadTooLarge(c, next)
     : payloadTooLarge(c, next),
 );
+
+if (shouldCompressResponses()) app.use(compressResponses);
 
 if (process.env.AUTH_PROVIDER === "local") {
   app.route("/local-auth", localAuthRouter);
@@ -171,6 +178,7 @@ startDeviceOfflineAlerts();
 startInventorySnapshots();
 startApiUsageFlushing();
 startCardMatchIndexWarmup();
+startShortLinkStartupSync();
 
 const server = serve(
   { fetch: app.fetch, port: API_PORT, hostname: getApiHost() },

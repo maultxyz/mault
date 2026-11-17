@@ -4,12 +4,14 @@ import { requireAuth, type AppEnv } from "../../middleware/auth";
 
 export const meSessionRoute = new Hono<AppEnv>().get("/", requireAuth, async (c) => {
   const userId = c.get("userId");
-  const [contact, role] = await Promise.all([
-    authProvider.getUserContact(userId),
-    authProvider.getUserRole(userId),
-  ]);
+  const contact = await authProvider.getUserContact(userId);
   return c.json({
     success: true,
-    data: { id: userId, name: contact.name, email: contact.email, role },
+    data: {
+      id: userId,
+      name: contact.name,
+      email: contact.email,
+      role: c.get("userRole"),
+    },
   });
 });

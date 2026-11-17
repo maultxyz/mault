@@ -5,10 +5,6 @@ import { authQuery } from "../../db";
 import { storageLocations } from "../../db/schema";
 import { markBinsEmptied } from "../../lib/bin-emptying";
 import { UUID_PATTERN } from "../../lib/constants/validation";
-import {
-  isStorageAllowed,
-  STORAGE_UPGRADE_MESSAGE,
-} from "../../lib/storage-access";
 import { assignBinToLocation } from "../../lib/storage-locations";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -19,6 +15,9 @@ import {
   resolveGameId,
   snapshotBinSet,
 } from "./shared";
+import { orgHasFeature } from "../../lib/plan-config";
+import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
+import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 export const emptyAllBinsRoute = new Hono<AppEnv>().post(
   "/bins/empty-all",
@@ -76,20 +75,19 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
           },
         },
       });
-      if (!activeBinSet)
-        return { message: "No active set found.", success: false };
-
       const emptiedBinNumbers = [
         ...new Set([
-          ...activeBinSet.bins.map((b) => b.binNumber),
+          ...(activeBinSet?.bins.map((b) => b.binNumber) ?? []),
           ...binNumbers,
           ...locations.map((l) => l.binNumber),
         ]),
       ];
+      if (emptiedBinNumbers.length === 0)
+        return { message: "No bins to empty.", success: false };
 
       const stored = new Map<string, string[]>();
       if (locations.length > 0) {
-        if (!(await isStorageAllowed(tx, orgId))) {
+        if (!(await orgHasFeature(tx, orgId, "storage"))) {
           return {
             message: STORAGE_UPGRADE_MESSAGE,
             success: false,
@@ -123,7 +121,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
             });
             if (!location) {
               return {
-                message: "Storage location not found.",
+                message: STORAGE_LOCATION_NOT_FOUND_MESSAGE,
                 success: false,
               };
             }
@@ -151,7 +149,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
 
       await markBinsEmptied(tx, orgId, emptiedBinNumbers);
 
-      if (resetAutoAssignedRules && activeBinSet.autoAssignField) {
+      if (resetAutoAssignedRules && activeBinSet?.autoAssignField) {
         await snapshotBinSet(tx, activeBinSet.id, activeBinSet.guid!, orgId);
         await resetAutoAssignBins(tx, activeBinSet.id);
       }

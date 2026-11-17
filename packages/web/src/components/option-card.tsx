@@ -29,7 +29,7 @@ export function OptionCard({
       <span
         className={cn(
           "grid size-8 shrink-0 place-items-center rounded-md",
-          selected ? "bg-primary text-primary-foreground" : "bg-muted text-foreground/70",
+          selected ? "bg-primary text-primary-foreground" : "bg-foreground/6 text-foreground/70",
         )}
       >
         <Icon className="size-4" />
@@ -42,7 +42,7 @@ export function OptionCard({
         aria-hidden
         className={cn(
           "absolute top-3 right-3 grid size-5 place-items-center rounded-full border",
-          selected ? "border-primary bg-primary text-primary-foreground" : "border-foreground/30",
+          selected ? "border-primary bg-primary text-primary-foreground" : "border-border",
         )}
       >
         {selected && <IconCheck size={12} stroke={3} />}

@@ -51,10 +51,10 @@ export function WireSwatch({ wire }: WireSwatchProps) {
 
 export function WiringTable({ columns, rows }: WiringTableProps) {
   return (
-    <div className="overflow-x-auto rounded-md border bg-card">
+    <div className="overflow-x-auto rounded-lg border bg-card">
       <table className="w-full min-w-72 border-collapse text-sm/relaxed">
         <thead>
-          <tr className="bg-muted">
+          <tr className="bg-foreground/6">
             {columns.map((col) => (
               <th
                 key={col}
@@ -70,7 +70,7 @@ export function WiringTable({ columns, rows }: WiringTableProps) {
             <tr
               key={i}
               className={cn(
-                "hover:bg-muted/50",
+                "hover:bg-foreground/6",
                 i !== rows.length - 1 && "border-b",
               )}
             >
@@ -110,7 +110,7 @@ export function WiringDiagram() {
               ? t("pi.diagramAlt", { board: BOARD_INFO[boardType].displayName })
               : t("wiring.sections.diagram.alt")
           }
-          className="w-full rounded-md border bg-card"
+          className="w-full rounded-lg border bg-card"
         />
       </a>
       <div className="flex flex-wrap items-center justify-between gap-2 text-sm/relaxed text-foreground/70">
@@ -167,7 +167,7 @@ export function WiringReference({
                 variant={active ? "outline-selected" : "outline"}
                 aria-pressed={active}
                 onClick={() => setMode(option)}
-                className="text-sm"
+                size="marketing"
               >
                 <Icon />
                 {t(`wiring.reference.${option}`)}

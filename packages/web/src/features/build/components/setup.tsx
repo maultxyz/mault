@@ -16,11 +16,13 @@ import {
   MAX_MODULES,
   MIN_MODULES,
 } from "@/lib/constants/build";
+import { SHOP_URL } from "@/lib/constants/links";
 import {
   IconLock,
   IconMinus,
   IconPackage,
   IconPlus,
+  IconShoppingCart,
   IconTool,
 } from "@tabler/icons-react";
 import { Trans, useTranslation } from "react-i18next";
@@ -62,6 +64,25 @@ export function BuildSetup() {
           {t("setup.description")}
         </p>
       </GuideSectionHeader>
+
+      <div className="mt-6 flex max-w-2xl items-start gap-2 rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm/relaxed text-primary">
+        <IconShoppingCart className="mt-0.5 size-4 shrink-0" />
+        <span>
+          <Trans
+            t={t}
+            i18nKey="setup.shopNote"
+            components={[
+              <a
+                key="0"
+                href={SHOP_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium underline underline-offset-2 hover:opacity-80"
+              />,
+            ]}
+          />
+        </span>
+      </div>
 
       <div className="mt-6 flex flex-col">
         <GuideSetupStep step={1} label={t("setup.source.label")}>
@@ -177,13 +198,13 @@ export function BuildSetup() {
                     key={i}
                     className="grid grid-cols-[96px_1fr_1fr] divide-x divide-border"
                   >
-                    <div className="flex items-center justify-center bg-secondary/40 px-2.5 py-1.5 font-mono text-sm font-medium">
+                    <div className="flex items-center justify-center bg-secondary/40 px-2.5 py-1.5 text-sm font-medium">
                       {t("hero.moduleLabel", { n: i + 1 })}
                     </div>
                     {bins.map((bin) => (
                       <div
                         key={bin}
-                        className="flex items-center justify-center bg-primary/5 px-2.5 py-1.5 font-mono text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground"
+                        className="flex items-center justify-center bg-primary/5 px-2.5 py-1.5 text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground"
                       >
                         {t("hero.binLabel", { n: bin })}
                       </div>
@@ -192,7 +213,7 @@ export function BuildSetup() {
                 ))}
                 <div className="grid grid-cols-[96px_1fr] divide-x divide-border">
                   <div className="bg-secondary/20" />
-                  <div className="flex flex-wrap items-center justify-center gap-x-2 bg-primary/5 px-2.5 py-1.5 font-mono text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground">
+                  <div className="flex flex-wrap items-center justify-center gap-x-2 bg-primary/5 px-2.5 py-1.5 text-sm font-semibold text-primary dark:bg-primary/15 dark:text-primary-foreground">
                     {t("hero.binLabel", { n: catchAllBin })}
                     <span className="font-sans text-sm font-normal text-primary/80 dark:text-primary-foreground/80">
                       {t("hero.catchAllBinNote", { modules: moduleCount })}

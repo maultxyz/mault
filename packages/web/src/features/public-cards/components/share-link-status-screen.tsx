@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import type { ShareLinkStatusScreenProps } from "@/lib/interfaces/share-links";
+import { PoweredByMault } from "@/features/public-cards/components/powered-by-mault";
 import { PublicCardsLoadingScreen } from "@/features/public-cards/components/public-cards-loading-screen";
 import { IconLinkOff, IconRefresh, IconWifiOff } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
@@ -36,6 +37,7 @@ export function ShareLinkStatusScreen({
           {t("a11y.retry")}
         </Button>
       )}
+      <PoweredByMault className="mt-6" />
     </main>
   );
 }

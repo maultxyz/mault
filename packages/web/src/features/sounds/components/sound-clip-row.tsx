@@ -222,7 +222,7 @@ export function SoundClipRow({
           </Button>
           <Button
             size="icon"
-            variant="outline-destructive"
+            variant="destructive"
             disabled={remove.isPending}
             aria-label={t("library.delete", { name: clip.name })}
             title={t("library.delete", { name: clip.name })}
