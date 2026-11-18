@@ -115,6 +115,7 @@
           },
           "sg90Positional": {
             "part": "Micro servo SG90, positionnel (180°)",
+            "partSpec": "(0,09 s/60° à 4,8 V, zone morte de 8 µs)",
             "notes": "3 par module × {{count}} modules - trappe inférieure, porte à palette, poussoir",
             "alert": "Évite les SG90 Tower Pro. Ils ne tiennent pas leurs positions calibrées de façon fiable dans ce trieur."
           },

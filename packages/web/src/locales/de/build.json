@@ -115,6 +115,7 @@
           },
           "sg90Positional": {
             "part": "SG90 Mikroservo, positionierend (180°)",
+            "partSpec": "(0,09 s/60° bei 4,8 V, 8 µs Totzone)",
             "notes": "3 pro Modul × {{count}} Module – Bodenklappe, Paddel, Schieber",
             "alert": "Meide SG90 von Tower Pro. Sie halten ihre kalibrierten Positionen in diesem Sortierer nicht zuverlässig."
           },
