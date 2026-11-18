@@ -43,7 +43,10 @@ import {
 import { STATS_PATH } from "@/lib/constants/stats";
 import { CATALOG_CARD_ROUTE_PATH, SEARCH_PATH } from "@/lib/constants/search";
 import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
-import { MATCH_VALIDATIONS_PATH } from "@/lib/constants/match-validations";
+import {
+  MATCH_VALIDATIONS_ENABLED,
+  MATCH_VALIDATIONS_PATH,
+} from "@/lib/constants/match-validations";
 import { PublicPageLayout } from "@/components/public-page-layout";
 import { lazy, Suspense, useEffect } from "react";
 import { runTasksOneByOneWhenIdle } from "@/lib/idle-tasks";
@@ -830,10 +833,14 @@ export const routes: RouteObject[] = [
                 path: CONTROL_CARDS_PATH,
                 element: <ControlCardsPage />,
               },
-              {
-                path: MATCH_VALIDATIONS_PATH,
-                element: <ValidateMatchesPage />,
-              },
+              ...(MATCH_VALIDATIONS_ENABLED
+                ? [
+                    {
+                      path: MATCH_VALIDATIONS_PATH,
+                      element: <ValidateMatchesPage />,
+                    },
+                  ]
+                : []),
               {
                 path: STATS_PATH,
                 element: <StatsPage />,

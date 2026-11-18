@@ -1,6 +1,7 @@
 import { BrandBadge } from "@/components/brand-badge";
 import { NotificationsButton } from "@/components/notifications-button";
 import { ValidateMatchesButton } from "@/components/validate-matches-button";
+import { MATCH_VALIDATIONS_ENABLED } from "@/lib/constants/match-validations";
 import { useOrg } from "@/features/companies/api/use-organization";
 
 export function MobileTopBar() {
@@ -19,7 +20,7 @@ export function MobileTopBar() {
           </span>
         )}
       </div>
-      <ValidateMatchesButton iconOnly />
+      {MATCH_VALIDATIONS_ENABLED && <ValidateMatchesButton iconOnly />}
       <NotificationsButton />
     </header>
   );

@@ -681,5 +681,11 @@
       "avery-5163": "Avery 5163 (10 pro Bogen, 4 x 2 Zoll)",
       "avery-5164": "Avery 5164 (6 pro Bogen, 4 x 3,33 Zoll)"
     }
+  },
+  "envBanner": {
+    "local": "Lokale Umgebung",
+    "selfHosting": "Selbst gehostet",
+    "development": "Entwicklungsumgebung",
+    "qa": "QA-Umgebung"
   }
 }

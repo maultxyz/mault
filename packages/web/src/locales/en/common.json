@@ -681,5 +681,11 @@
       "avery-5163": "Avery 5163 (10 per sheet, 4 x 2 in)",
       "avery-5164": "Avery 5164 (6 per sheet, 4 x 3.33 in)"
     }
+  },
+  "envBanner": {
+    "local": "Local environment",
+    "selfHosting": "Self-hosting",
+    "development": "Development environment",
+    "qa": "QA environment"
   }
 }

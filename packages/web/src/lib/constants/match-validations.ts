@@ -1,3 +1,4 @@
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import type {
   MatchValidationGuideItem,
   MatchValidationView,
@@ -11,6 +12,7 @@ import {
 import type { MatchValidationStatus } from "@magic-vault/shared";
 
 export const MATCH_VALIDATIONS_PATH = "/app/validate-matches";
+export const MATCH_VALIDATIONS_ENABLED = AUTH_PROVIDER !== "local";
 
 export const MATCH_VALIDATION_VIEW_PARAM = "view";
 export const MATCH_VALIDATION_GAME_PARAM = "game";

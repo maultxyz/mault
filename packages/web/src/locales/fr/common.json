@@ -681,5 +681,11 @@
       "avery-5163": "Avery 5163 (10 par planche, 4 x 2 po)",
       "avery-5164": "Avery 5164 (6 par planche, 4 x 3,33 po)"
     }
+  },
+  "envBanner": {
+    "local": "Environnement local",
+    "selfHosting": "Auto-hébergé",
+    "development": "Environnement de développement",
+    "qa": "Environnement QA"
   }
 }
