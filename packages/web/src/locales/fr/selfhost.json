@@ -328,8 +328,12 @@
       "description": "Rien n'est cloné ni compilé sur la carte : elle exécute une version précompilée.",
       "steps": {
         "flash": {
-          "text": "Téléchargez <code>mault-pi.img.xz</code> depuis la dernière version Pi et écrivez-la sur la carte microSD avec Raspberry Pi Imager. Dans la personnalisation de l'OS d'Imager, définissez un nom d'utilisateur, un mot de passe et le Wi-Fi, et activez SSH si vous voulez un accès au terminal. L'Ethernet fonctionne sans personnalisation.",
-          "note": "Choisissez n'importe quel nom d'utilisateur sauf mault-service, que Mault utilise pour ses propres services."
+          "text": "Téléchargez <code>mault-pi.img.xz</code> depuis la dernière version Pi et écrivez-la sur la carte microSD avec Raspberry Pi Imager. Imager ne propose pas de personnalisation de l'OS pour cette image : passez cet écran.",
+          "note": "L'Ethernet fonctionne sans configuration. La connexion, SSH et le Wi-Fi viennent du fichier de l'étape suivante."
+        },
+        "config": {
+          "text": "Avant le premier démarrage, ouvrez le lecteur <code>bootfs</code> de la carte sur n'importe quel ordinateur et remplissez <code>mault-config.txt</code> : un nom d'utilisateur et un mot de passe pour un compte administrateur, <code>ssh=yes</code> pour un accès au terminal et vos informations Wi-Fi.",
+          "note": "Choisissez n'importe quel nom d'utilisateur sauf mault-service, que Mault utilise pour ses propres services. La carte applique le fichier à chaque démarrage, en efface les mots de passe et écrit le résultat sur sa ligne Status : le même fichier sert donc aussi à réinitialiser un mot de passe oublié."
         },
         "boot": {
           "text": "Insérez la carte dans le Pi et allumez-le. Le premier démarrage prend quelques minutes pendant que Mault crée sa base de données et ses secrets. Si un pilote de servos PCA9685 répond sur le connecteur I2C, Mault contrôle directement la trieuse (GPIO) ; sinon, il attend une trieuse USB ou Bluetooth.",
@@ -342,6 +346,9 @@
         "services": {
           "text": "Mault s'exécute avec le compte mault-service et démarre automatiquement au boot. L'application web est servie sur les ports 80 et 8080 ; l'API, l'assistant caméra et le contrôleur n'écoutent que sur la carte elle-même.",
           "note": "Une synchronisation quotidienne des prix est prévue à 04:00 dans le fuseau horaire de la carte. Pour tout le reste, utilisez la commande sudo mault."
+        },
+        "security": {
+          "text": "L'application est exposée au réseau sous le compte mault-service, qui ne peut rien modifier de ce qui s'exécute en root : les versions dans <code>/opt/mault</code> sont en lecture seule pour lui, et la commande sudo mault ainsi que les assistants de mise à jour et de démarrage se trouvent dans <code>/usr/local/sbin</code> et <code>/usr/local/lib/mault</code>, qui appartiennent à root."
         },
         "settings": {
           "text": "Les réglages et secrets sont enregistrés dans <code>/var/lib/mault/.env</code>, dont un <code>CARD_API_USER_AGENT</code> généré qui identifie les requêtes de cartes et de prix de cette installation.",
@@ -392,6 +399,13 @@
         "update": {
           "text": "Terminez les scans, déconnectez la trieuse et arrêtez les synchronisations de la base de données, puis choisissez « Mettre à jour Mault » dans l'application ou lancez cette commande. Elle télécharge la nouvelle version, redémarre Mault et migre la base de données. Actualisez vos navigateurs une fois terminé.",
           "note": "Si la nouvelle version ne démarre pas, la mise à jour revient automatiquement à la version précédente."
+        },
+        "reinstall": {
+          "text": "Les cartes installées depuis la version Pi 1.0.209 ou antérieure doivent relancer l'installateur une fois par SSH avant de pouvoir se mettre à jour. D'ici là, sudo mault update et la bannière de mise à jour de l'application vous renvoient ici.",
+          "note": "Ces versions étaient modifiables par le compte mault-service : l'installateur les supprime et en installe de nouvelles. Les réglages, comptes, cartes et calibrages sont conservés."
+        },
+        "osUpdates": {
+          "text": "Les mises à jour de sécurité du système s'installent automatiquement chaque jour sans redémarrer la carte ; les correctifs du noyau s'appliquent au prochain redémarrage. Les cartes installées avant cet ajout les activent avec cette commande."
         },
         "backup": {
           "text": "Sauvegardez Postgres régulièrement.",

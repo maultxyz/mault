@@ -63,6 +63,9 @@ export const SELF_HOST_PI_RELEASE_URL = `${REPO_URL}/releases?q=pi-v&expanded=tr
 
 export const SELF_HOST_PI_INSTALL_COMMAND = `curl -fsSL ${REPO_URL}/releases/download/pi-latest/install.sh | sudo bash`;
 
+export const SELF_HOST_PI_BOOT_CONFIG =
+  "username=\npassword=\nssh=yes\nwifi_name=\nwifi_password=\nwifi_country=US";
+
 const NEON_MIGRATE = "pnpm --filter @magic-vault/server db:migrate";
 
 export const SELF_HOST_SECTIONS: SelfHostSection[] = [
@@ -204,6 +207,12 @@ export const SELF_HOST_SECTIONS: SelfHostSection[] = [
         hasNote: true,
         when: { board: "raspberry-pi" },
       },
+      {
+        key: "config",
+        code: SELF_HOST_PI_BOOT_CONFIG,
+        hasNote: true,
+        when: { board: "raspberry-pi" },
+      },
       { key: "boot", hasNote: true, when: { board: "raspberry-pi" } },
       {
         key: "installOther",
@@ -211,6 +220,7 @@ export const SELF_HOST_SECTIONS: SelfHostSection[] = [
         hasNote: true,
       },
       { key: "services", hasNote: true },
+      { key: "security" },
       { key: "settings", hasNote: true },
     ],
   },
@@ -240,6 +250,12 @@ export const SELF_HOST_SECTIONS: SelfHostSection[] = [
     when: { host: "pi" },
     steps: [
       { key: "update", code: "sudo mault update", hasNote: true },
+      {
+        key: "reinstall",
+        code: SELF_HOST_PI_INSTALL_COMMAND,
+        hasNote: true,
+      },
+      { key: "osUpdates", code: "sudo mault os-updates" },
       {
         key: "backup",
         code: "sudo -u postgres pg_dump mault > mault-backup.sql",
