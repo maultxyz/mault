@@ -10,6 +10,7 @@ import { MobileBins } from "@/features/bins/components/mobile-bins";
 import { BinRulesMenu } from "@/features/bins/components/bin-rules-menu";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { NonEnglishRulesBanner } from "@/features/bins/components/non-english-rules-banner";
+import { PresetActionsBar } from "@/features/bins/components/preset-actions-bar";
 import { PresetDescriptionNote } from "@/features/bins/components/preset-description-note";
 import { PresetStagesPanel } from "@/features/bins/components/preset-stages-panel";
 import { RepackPanel } from "@/features/bins/components/repack-panel";
@@ -46,6 +47,7 @@ export default function BinsPage() {
       <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
         <h1 className="sr-only">{t("nav.sortingRules")}</h1>
         <section className="col-span-4 lg:col-span-3 overflow-hidden flex flex-col h-full border-r p-2 gap-2 bg-sidebar/70">
+          <PresetActionsBar />
           <AutoAssignPanel />
           <BinList />
         </section>

@@ -25,10 +25,8 @@ import type { PresetDialog } from "@/lib/interfaces/bins";
 import {
   IconArrowsSplit2,
   IconCheck,
-  IconClockHour3,
   IconEdit,
   IconLoader2,
-  IconPencil,
   IconPlus,
   IconQrcode,
   IconRefresh,
@@ -170,20 +168,6 @@ export function PresetMenu() {
           >
             <IconEdit />
             {t("presetSelector.editSortingLogic")}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={!selectedSet || isPresetMutating}
-            onClick={() => setOpenDialog("rename")}
-          >
-            <IconPencil />
-            {t("presetSelector.renameSetTitle")}
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            disabled={!selectedSet}
-            onClick={() => setOpenDialog("history")}
-          >
-            <IconClockHour3 />
-            {t("presetSelector.viewHistory")}
           </DropdownMenuItem>
           <DropdownMenuItem
             disabled={!selectedSet}
