@@ -1,4 +1,4 @@
-import { LANGUAGE_LABELS } from "@magic-vault/shared";
+import { formatStorageSlot, LANGUAGE_LABELS } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useMutationState, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
@@ -638,9 +638,12 @@ export default function CardDetailScreen() {
                 {storage.data ? (
                   <PillButton
                     icon="storage"
-                    label={`${storage.data.name} · ${t("storage.position", { position: storage.data.position })}`}
+                    label={`${storage.data.name} · ${t("storage.position", { position: formatStorageSlot(storage.data.position, storage.data.batchSize) })}`}
                     accessibilityRole="link"
-                    accessibilityLabel={t("storage.storedIn", { name: storage.data.name, position: storage.data.position })}
+                    accessibilityLabel={t("storage.storedIn", {
+                      name: storage.data.name,
+                      position: formatStorageSlot(storage.data.position, storage.data.batchSize),
+                    })}
                     onPress={() => {
                       router.back();
                       router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } });

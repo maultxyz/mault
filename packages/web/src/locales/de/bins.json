@@ -175,7 +175,9 @@
       "resortModeFailed": "Neusortierung konnte nicht aktualisiert werden",
       "cardsStored_one": "{{count}} Karte eingelagert",
       "cardsStored_other": "{{count}} Karten eingelagert",
-      "matchGamesFailed": "Spiele konnten nicht aktualisiert werden"
+      "matchGamesFailed": "Spiele konnten nicht aktualisiert werden",
+      "fillLocationsFailed": "Lagerorte konnten nicht aktualisiert werden",
+      "nextFillLocation": "Fach {{bin}} füllt jetzt {{location}}"
     }
   },
   "binsPage": {},
@@ -464,5 +466,71 @@
   },
   "planLock": {
     "badge": "Upgrade"
+  },
+  "storagePlan": {
+    "tabs": {
+      "label": "Ansichten der Sortierregeln",
+      "rules": "Regeln",
+      "storage": "Lager"
+    },
+    "heading": "Lagerplan",
+    "description": "Jedes Fach füllt den nächsten Lagerort dieser Liste, der noch Platz hat. Ist der Lagerort voll, hält das Fach als voll an, und beim Leeren werden die Karten dort eingelagert.",
+    "runOut": "Sind alle Lagerorte voll, füllen sich die Fächer bis zu ihrer normalen Größe, und beim Leeren wird nach dem Lagerort gefragt.",
+    "notInPlan": "Lagerorte füllen erfordert einen Tarif mit Lager.",
+    "binsNow": "Fächer jetzt",
+    "binsNowHint": "Aus dem gespeicherten Plan. Speichere deine Änderungen, um ihn zu aktualisieren.",
+    "noLocation": "Kein Lagerort",
+    "claim_one": "{{location}}, noch {{count, compact}}",
+    "claim_other": "{{location}}, noch {{count, compact}}",
+    "fillText": "{{used, compact}} / {{capacity, compact}}",
+    "noCapacity": "{{used, compact}} eingelagert, keine Kapazität",
+    "batchOf_one": "Stapel zu {{count, compact}} Karte",
+    "batchOf_other": "Stapel zu {{count, compact}} Karten",
+    "add": "Lagerorte hinzufügen",
+    "table": {
+      "order": "#",
+      "location": "Lagerort",
+      "fill": "Füllstand",
+      "capacity": "Kapazität",
+      "batch": "Stapel",
+      "filling": "Befüllt von",
+      "actions": "Aktionen"
+    },
+    "status": {
+      "filling": "Fach {{number}}",
+      "full": "Voll",
+      "waiting": "Wartet"
+    },
+    "actions": {
+      "label": "Aktionen für {{name}}",
+      "moveUp": "Nach oben",
+      "moveDown": "Nach unten",
+      "edit": "Lagerort bearbeiten",
+      "remove": "Aus dem Plan entfernen"
+    },
+    "empty": {
+      "title": "Keine Lagerorte in diesem Plan",
+      "description": "Füge Lagerorte hinzu oder erstelle eine Serie wie A1 bis A10, die die Fächer der Reihe nach füllen."
+    },
+    "summary": {
+      "label": "Lagerplan",
+      "off": "Aus",
+      "single": "{{first}}, {{full}} von {{total}} voll",
+      "range": "{{first}} bis {{last}}, {{full}} von {{total}} voll",
+      "open": "Öffnen",
+      "setUp": "Einrichten"
+    },
+    "addDialog": {
+      "title": "Lagerorte hinzufügen",
+      "description": "Wähle die Lagerorte, die die Fächer füllen sollen. Sie werden ans Ende des Plans angehängt.",
+      "search": "Lagerorte suchen",
+      "selectAll": "Alle auswählen",
+      "none": "Alle Lagerorte sind bereits im Plan.",
+      "noMatches": "Keine passenden Lagerorte.",
+      "noCapacity": "Keine Kapazität",
+      "cancel": "Abbrechen",
+      "submit_one": "{{count}} Lagerort hinzufügen",
+      "submit_other": "{{count}} Lagerorte hinzufügen"
+    }
   }
 }

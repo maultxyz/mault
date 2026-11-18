@@ -72,6 +72,9 @@ export default function AppLayout() {
           <Stack.Screen name="collection-edit" options={sheetOptions} />
           <Stack.Screen name="collection-csv-import" options={sheetOptions} />
           <Stack.Screen name="storage-name" options={sheetOptions} />
+          <Stack.Screen name="storage-series" options={sheetOptions} />
+          <Stack.Screen name="storage-plan" options={sheetOptions} />
+          <Stack.Screen name="storage-bulk-size" options={sheetOptions} />
           <Stack.Screen name="preset-description" options={sheetOptions} />
           <Stack.Screen name="share-link" options={sheetOptions} />
           <Stack.Screen name="settings/invite-member" options={sheetOptions} />

@@ -2,6 +2,12 @@ import { cardWithStoredPricesSql } from "../../lib/card-price-sql";
 import {
   STORAGE_CARDS_PAGE_SIZE,
   STORAGE_CARDS_PAGE_SIZE_MAX,
+  STORAGE_LOCATION_NAME_MAX_LENGTH,
+  STORAGE_LOCATION_SERIES_COUNT_MAX,
+  STORAGE_LOCATION_SERIES_START_MAX,
+  storageLocationSeriesNames,
+  type StorageLocationBulkResult,
+  type StorageLocationSeriesResult,
   STORAGE_MOVE_CARDS_MAX,
   STORAGE_SEARCH_QUERY_MAX_LENGTH,
   STORAGE_SEARCH_RESULT_LIMIT,
@@ -75,6 +81,8 @@ import {
   locationNameTaken,
   orderedLocationGuids,
   parseLocationName,
+  parseBulkLocationGuids,
+  parseStorageLocationSizes,
   selectStoredCards,
   storedCardPosition,
   storedCardsWhere,
@@ -89,6 +97,7 @@ import {
   STORAGE_LOCATION_NOT_FOUND_MESSAGE,
 } from "../../lib/constants/storage-locations";
 import { createOrgReadCache } from "../../lib/org-read-cache";
+import { reclaimOrgFillLocations } from "../../lib/storage-fill-claims";
 
 const storageLocationListCache = createOrgReadCache<StorageLocation[]>(
   STORAGE_LOCATION_LIST_CACHE_TTL_MS,
@@ -222,11 +231,167 @@ const router = new Hono<AppEnv>()
     }
     return c.json({ success: true, data });
   })
+  .post("/bulk-update", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const body = await c.req
+      .json<Record<string, unknown>>()
+      .catch((): Record<string, unknown> => ({}));
+    const locationGuids = parseBulkLocationGuids(body.locationGuids);
+    const sizes = parseStorageLocationSizes(body);
+    if (
+      !locationGuids ||
+      !sizes ||
+      (sizes.capacity === undefined && sizes.batchSize === undefined)
+    ) {
+      return c.json({ success: false, message: "Invalid update." }, 400);
+    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (!(await orgHasFeature(tx, orgId, "storage"))) {
+        return STORAGE_LOCKED_RESULT;
+      }
+      const updated = await tx
+        .update(storageLocations)
+        .set({
+          ...(sizes.capacity !== undefined ? { capacity: sizes.capacity } : {}),
+          ...(sizes.batchSize !== undefined ? { batchSize: sizes.batchSize } : {}),
+          updatedAt: new Date(),
+        })
+        .where(
+          and(
+            inArray(storageLocations.guid, locationGuids),
+            eq(storageLocations.orgId, orgId),
+            eq(storageLocations.isDeleted, false),
+          ),
+        )
+        .returning({ id: storageLocations.id });
+      if (sizes.capacity !== undefined) await reclaimOrgFillLocations(tx, orgId);
+      const data: StorageLocationBulkResult = { updated: updated.length };
+      return { success: true, data };
+    });
+    return c.json(result);
+  })
+  .post("/bulk-delete", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const body = await c.req
+      .json<Record<string, unknown>>()
+      .catch((): Record<string, unknown> => ({}));
+    const locationGuids = parseBulkLocationGuids(body.locationGuids);
+    if (!locationGuids) {
+      return c.json({ success: false, message: "Invalid locations." }, 400);
+    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (!(await orgHasFeature(tx, orgId, "storage"))) {
+        return STORAGE_LOCKED_RESULT;
+      }
+      const deleted = await tx
+        .update(storageLocations)
+        .set({ isDeleted: true })
+        .where(
+          and(
+            inArray(storageLocations.guid, locationGuids),
+            eq(storageLocations.orgId, orgId),
+            eq(storageLocations.isDeleted, false),
+          ),
+        )
+        .returning({ id: storageLocations.id });
+      await reclaimOrgFillLocations(tx, orgId);
+      const data: StorageLocationBulkResult = { updated: deleted.length };
+      return { success: true, data };
+    });
+    return c.json(result);
+  })
+  .post("/series", requireAuth, requireOrg, async (c) => {
+    const orgId = c.get("orgId");
+    const body = await c.req
+      .json<Record<string, unknown>>()
+      .catch((): Record<string, unknown> => ({}));
+    const prefix = typeof body.prefix === "string" ? body.prefix.trim() : "";
+    const { firstNumber, count } = body;
+    const sizes = parseStorageLocationSizes(body);
+    if (
+      !prefix ||
+      !sizes ||
+      typeof firstNumber !== "number" ||
+      !Number.isInteger(firstNumber) ||
+      firstNumber < 0 ||
+      firstNumber > STORAGE_LOCATION_SERIES_START_MAX ||
+      typeof count !== "number" ||
+      !Number.isInteger(count) ||
+      count < 1 ||
+      count > STORAGE_LOCATION_SERIES_COUNT_MAX
+    ) {
+      return c.json({ success: false, message: "Invalid series." }, 400);
+    }
+    const names = storageLocationSeriesNames(prefix, firstNumber, count);
+    if (names.some((name) => name.length > STORAGE_LOCATION_NAME_MAX_LENGTH)) {
+      return c.json({ success: false, message: "Invalid name." }, 400);
+    }
+    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+      if (!(await orgHasFeature(tx, orgId, "storage"))) {
+        return STORAGE_LOCKED_RESULT;
+      }
+      const taken = await tx
+        .select({ name: storageLocations.name })
+        .from(storageLocations)
+        .where(
+          and(
+            eq(storageLocations.orgId, orgId),
+            eq(storageLocations.isDeleted, false),
+            inArray(
+              sql`lower(${storageLocations.name})`,
+              names.map((name) => name.toLowerCase()),
+            ),
+          ),
+        );
+      const takenNames = new Set(taken.map((row) => row.name.toLowerCase()));
+      const newNames = names.filter((name) => !takenNames.has(name.toLowerCase()));
+      const created =
+        newNames.length > 0
+          ? await tx
+              .insert(storageLocations)
+              .values(
+                newNames.map((name) => ({
+                  name,
+                  orgId,
+                  capacity: sizes.capacity ?? null,
+                  batchSize: sizes.batchSize ?? null,
+                  labelShortCode: generateShortLinkCode(),
+                })),
+              )
+              .returning({
+                guid: storageLocations.guid,
+                labelShortCode: storageLocations.labelShortCode,
+              })
+          : [];
+      await registerShortLinks(
+        created.map((row) =>
+          storageLabelShortTarget({
+            guid: row.guid!,
+            orgId,
+            labelShortCode: row.labelShortCode,
+          }),
+        ),
+      );
+      const data: StorageLocationSeriesResult = {
+        created: await loadLocations(
+          tx,
+          orgId,
+          created.map((row) => row.guid!),
+        ),
+        skippedNames: names.filter((name) => takenNames.has(name.toLowerCase())),
+      };
+      return { success: true, data };
+    });
+    return c.json(result);
+  })
   .post("/", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
-    const body = await c.req.json<{ name?: unknown }>().catch(() => ({}));
-    const name = parseLocationName((body as { name?: unknown }).name);
-    if (!name) {
+    const body = await c.req
+      .json<Record<string, unknown>>()
+      .catch((): Record<string, unknown> => ({}));
+    const name = parseLocationName(body.name);
+    const sizes = parseStorageLocationSizes(body);
+    if (!name || !sizes) {
       return c.json({ success: false, message: "Invalid name." }, 400);
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
@@ -238,7 +403,13 @@ const router = new Hono<AppEnv>()
       }
       const [created] = await tx
         .insert(storageLocations)
-        .values({ name, orgId, labelShortCode: generateShortLinkCode() })
+        .values({
+          name,
+          orgId,
+          capacity: sizes.capacity ?? null,
+          batchSize: sizes.batchSize ?? null,
+          labelShortCode: generateShortLinkCode(),
+        })
         .returning({
           guid: storageLocations.guid,
           labelShortCode: storageLocations.labelShortCode,
@@ -260,9 +431,12 @@ const router = new Hono<AppEnv>()
   .put("/:guid", requireAuth, requireOrg, async (c) => {
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
-    const body = await c.req.json<{ name?: unknown }>().catch(() => ({}));
-    const name = parseLocationName((body as { name?: unknown }).name);
-    if (!name) {
+    const body = await c.req
+      .json<Record<string, unknown>>()
+      .catch((): Record<string, unknown> => ({}));
+    const name = parseLocationName(body.name);
+    const sizes = parseStorageLocationSizes(body);
+    if (!name || !sizes) {
       return c.json({ success: false, message: "Invalid name." }, 400);
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
@@ -274,7 +448,12 @@ const router = new Hono<AppEnv>()
       }
       const updated = await tx
         .update(storageLocations)
-        .set({ name, updatedAt: new Date() })
+        .set({
+          name,
+          ...(sizes.capacity !== undefined ? { capacity: sizes.capacity } : {}),
+          ...(sizes.batchSize !== undefined ? { batchSize: sizes.batchSize } : {}),
+          updatedAt: new Date(),
+        })
         .where(
           and(
             eq(storageLocations.guid, guid),
@@ -286,6 +465,7 @@ const router = new Hono<AppEnv>()
       if (updated.length === 0) {
         return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
+      if (sizes.capacity !== undefined) await reclaimOrgFillLocations(tx, orgId);
       return { success: true, data: null };
     });
     return c.json(result);
@@ -309,6 +489,7 @@ const router = new Hono<AppEnv>()
         .update(storageLocations)
         .set({ isDeleted: true })
         .where(eq(storageLocations.id, location.id));
+      await reclaimOrgFillLocations(tx, orgId);
       return { success: true, data: null };
     });
     return c.json(result);

@@ -1,4 +1,4 @@
-import type { PickWalkEntry, PullSheetEntry } from "@magic-vault/shared";
+import { formatStorageSlot, type PickWalkEntry, type PullSheetEntry } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
 
 export function pickPlaceTitle(
@@ -13,7 +13,9 @@ export function pickPlaceTitle(
 
 export function pickWalkSpotLabel(entry: PickWalkEntry, t: TFunction): string {
   if (entry.locationName != null) {
-    return t("business.picks.walk.slot", { position: (entry.locationPosition ?? 0) + 1 });
+    return t("business.picks.walk.slot", {
+      position: formatStorageSlot(entry.locationPosition ?? 0, entry.locationBatchSize),
+    });
   }
   return entry.binNumber == null
     ? entry.collectionName

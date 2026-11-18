@@ -1,6 +1,7 @@
 import { ListPagination } from "@/components/list-pagination";
 import { Skeleton } from "@/components/ui/skeleton";
 import { StorageLocationRow } from "@/features/storage/components/storage-location-row";
+import { useStoragePlanCounts } from "@/features/storage/api/use-storage-plan-uses";
 import { STORAGE_LIST_SKELETON_COUNT } from "@/lib/constants/storage";
 import type { StorageLocationListProps } from "@/lib/interfaces/storage";
 
@@ -11,7 +12,10 @@ export function StorageLocationList({
   isLoading,
   onSelect,
   actions,
+  checkedGuids,
+  onToggleChecked,
 }: StorageLocationListProps) {
+  const planCounts = useStoragePlanCounts();
   if (isLoading) {
     return (
       <div className="flex flex-col gap-2">
@@ -32,6 +36,13 @@ export function StorageLocationList({
             isSelected={location.guid === selectedGuid}
             onSelect={() => onSelect(location.guid)}
             actions={actions}
+            isChecked={checkedGuids?.has(location.guid) ?? false}
+            planCount={planCounts.get(location.guid) ?? 0}
+            onToggleChecked={
+              onToggleChecked
+                ? (shiftKey) => onToggleChecked(location.guid, shiftKey)
+                : undefined
+            }
           />
         ))}
       </div>

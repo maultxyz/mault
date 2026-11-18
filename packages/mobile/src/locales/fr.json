@@ -842,7 +842,10 @@
       "confirmTitle": "Marquer le bac {{bins}} comme vide ?",
       "confirmDescription": "Fais-le seulement après avoir retiré les cartes. Le compteur du bac repart de zéro.",
       "confirm": "Marquer comme vide",
-      "failed": "Impossible de marquer le bac comme vide. Vérifie ta connexion et réessaie."
+      "failed": "Impossible de marquer le bac comme vide. Vérifie ta connexion et réessaie.",
+      "storeDescription": "Ne le fais qu'après avoir retiré les cartes. Les cartes sont rangées dans leurs emplacements : {{locations}}.",
+      "storeBin": "bac {{bin}} dans {{location}}",
+      "storeConfirm": "Ranger et vider"
     },
     "removal": {
       "title": "Retrait de {{collection}}",
@@ -1253,7 +1256,15 @@
       "resortDescription": "Chaque scan déplace un exemplaire déjà présent dans cette collection vers son nouveau bac au lieu d'en ajouter un autre. L'exemplaire garde sa finition foil et son état, et quitte son ancien emplacement. Les cartes absentes de la collection sont ajoutées comme d'habitude.",
       "matchGames": "Reconnaître aussi les cartes de",
       "matchGamesEmpty": "Choisissez au moins un autre jeu. En attendant, seules les cartes de ce jeu sont reconnues.",
-      "matchGamesHint": "Les cartes non reconnues vont dans le bac fourre-tout. Chaque jeu ajouté ralentit un peu les scans."
+      "matchGamesHint": "Les cartes non reconnues vont dans le bac fourre-tout. Chaque jeu ajouté ralentit un peu les scans.",
+      "storagePlan": {
+        "title": "Plan de rangement",
+        "off": "Désactivé",
+        "locked": "Les emplacements de rangement ne sont pas inclus dans ton forfait.",
+        "summary_one": "{{range}} · {{full}} sur {{count}} plein",
+        "summary_other": "{{range}} · {{full}} sur {{count}} pleins",
+        "range": "{{first}} à {{last}}"
+      }
     },
     "modes": {
       "rules": {
@@ -1383,7 +1394,39 @@
     "maxCardsPlaceholder": "Aucune limite",
     "maxCardsDescription": "Ce bac est considéré comme plein à ce nombre de cartes, même s'il reste de la place : les cartes correspondantes vont alors dans son bac de débordement ou le tri se met en pause. Laissez vide pour utiliser la taille physique du bac.",
     "maxCardsPill_one": "Contient {{count}}",
-    "maxCardsPill_other": "Contient {{count}}"
+    "maxCardsPill_other": "Contient {{count}}",
+    "storagePlan": {
+      "title": "Plan de rangement",
+      "description": "Chaque bac remplit le prochain emplacement de cette liste qui a de la place et se met en pause quand il est plein. Vider le bac y range ses cartes.",
+      "locked": "Les emplacements de rangement ne sont pas inclus dans ton forfait.",
+      "locationsTitle": "Emplacements dans l'ordre",
+      "order": "{{order}}. {{name}}",
+      "noCapacity": "Aucune capacité définie",
+      "batch": "lot {{size}}",
+      "status": {
+        "full": "Plein",
+        "filling": "Rempli par le bac {{number}}",
+        "waiting": "En attente"
+      },
+      "rowHint": "Sélectionne l'emplacement pour le déplacer, le modifier ou le retirer",
+      "actions": "Actions de l'emplacement",
+      "moveUp": "Monter {{name}}",
+      "moveDown": "Descendre {{name}}",
+      "edit": "Modifier {{name}}",
+      "remove": "Retirer {{name}} du plan",
+      "add": "Ajouter des emplacements",
+      "addTitle": "Choisis les emplacements à ajouter",
+      "addSelected_one": "Ajouter {{count}} emplacement",
+      "addSelected_other": "Ajouter {{count}} emplacements",
+      "noneLeft": "Tous les emplacements sont déjà dans le plan.",
+      "createSeries": "Créer une série",
+      "empty": "Ajoute des emplacements pour commencer à y ranger les bacs.",
+      "binsTitle": "Bacs actuels",
+      "binsHint": "Affiche le plan enregistré. Enregistre tes modifications pour le mettre à jour.",
+      "noLocation": "Aucun emplacement",
+      "claim_one": "{{name}} · {{count}} libre",
+      "claim_other": "{{name}} · {{count}} libres"
+    }
   },
   "calibration": {
     "title": "Réglage du trieur",
@@ -1716,7 +1759,77 @@
     "searchFailed": "Impossible de rechercher dans tes emplacements",
     "notFoundTitle": "Emplacement introuvable",
     "notFoundDescription": "Il a peut-être été supprimé, ou tu n'y as plus accès.",
-    "printLabel": "Imprimer l'étiquette"
+    "printLabel": "Imprimer l'étiquette",
+    "edit": "Modifier l'emplacement",
+    "add": "Ajouter un rangement",
+    "capacityLabel": "Capacité",
+    "capacityPlaceholder": "Sans limite",
+    "batchSizeLabel": "Cartes par lot",
+    "batchSizePlaceholder": "Pas de lots",
+    "sizeHint": "La capacité est le nombre de cartes que contient l'emplacement. Avec une taille de lot, la place de chaque carte se lit boîte-lot-carte, par exemple A1-2-17.",
+    "slotsUsed": "{{used}} sur {{capacity}} utilisées",
+    "fillOfCapacity": "{{cards}} · {{used}} sur {{capacity}} utilisées",
+    "series": {
+      "title": "Nouvelle série",
+      "menuDescription": "Créer des emplacements numérotés comme A1 à A10 en une fois",
+      "description": "Crée un emplacement par numéro, tous avec la même capacité et la même taille de lot. Les noms déjà utilisés sont ignorés.",
+      "prefixLabel": "Préfixe",
+      "prefixPlaceholder": "ex. A",
+      "firstNumberLabel": "Premier numéro",
+      "countLabel": "Combien",
+      "create_one": "Créer {{count}} emplacement",
+      "create_other": "Créer {{count}} emplacements",
+      "created_one": "{{count}} emplacement créé",
+      "created_other": "{{count}} emplacements créés",
+      "createdWithSkipped_one": "{{count}} emplacement créé. Déjà existants : {{names}}",
+      "createdWithSkipped_other": "{{count}} emplacements créés. Déjà existants : {{names}}",
+      "previewOne": "Crée {{name}}",
+      "preview": "Crée {{first}} à {{last}} ({{count}} emplacements)"
+    },
+    "bulk": {
+      "select": "Sélectionner des emplacements",
+      "doneSelecting": "Terminer la sélection",
+      "selectedCount_one": "{{count}} sélectionné",
+      "selectedCount_other": "{{count}} sélectionnés",
+      "selectAll": "Tout sélectionner",
+      "clear": "Effacer",
+      "setSize": "Définir la taille",
+      "addToPlan": "Ajouter au plan",
+      "removeFromPlan": "Retirer du plan",
+      "pickPreset_one": "Choisis le préréglage dont le plan de rangement doit changer pour {{count}} emplacement.",
+      "pickPreset_other": "Choisis le préréglage dont le plan de rangement doit changer pour {{count}} emplacements.",
+      "noPresets": "Aucun préréglage disponible.",
+      "addedToPlan_one": "{{count}} emplacement ajouté à {{preset}}.",
+      "addedToPlan_other": "{{count}} emplacements ajoutés à {{preset}}.",
+      "removedFromPlan_one": "{{count}} emplacement retiré de {{preset}}.",
+      "removedFromPlan_other": "{{count}} emplacements retirés de {{preset}}.",
+      "deleteTitle_one": "Supprimer {{count}} emplacement ?",
+      "deleteTitle_other": "Supprimer {{count}} emplacements ?",
+      "deleteDescription": "Leurs cartes restent dans leurs collections mais ne sont plus rattachées à un emplacement. Cette action est irréversible.",
+      "deleted_one": "{{count}} emplacement supprimé.",
+      "deleted_other": "{{count}} emplacements supprimés.",
+      "sizeTitle_one": "Définir la taille de {{count}} emplacement",
+      "sizeTitle_other": "Définir la taille de {{count}} emplacements",
+      "sizeDescription": "Active les valeurs à modifier. Les valeurs désactivées restent inchangées sur chaque emplacement.",
+      "changeCapacity": "Modifier la capacité",
+      "changeBatchSize": "Modifier la taille des lots",
+      "sizeClearHint": "Laisse un champ activé vide pour retirer cette limite.",
+      "sizeApply_one": "Mettre à jour {{count}} emplacement",
+      "sizeApply_other": "Mettre à jour {{count}} emplacements",
+      "sizeUpdated_one": "{{count}} emplacement mis à jour.",
+      "sizeUpdated_other": "{{count}} emplacements mis à jour.",
+      "deleteInPlans": "Certains font partie du plan de rangement de : {{presets}}. Ils seront retirés de ces plans."
+    },
+    "planUses": {
+      "title": "Utilisé par les règles de tri",
+      "empty": "Dans aucun plan de rangement",
+      "position": "Position {{position}} sur {{total}}",
+      "filling": "Remplit le bac {{bin}}",
+      "active": "Actif"
+    },
+    "inPlans_one": "Dans {{count}} plan",
+    "inPlans_other": "Dans {{count}} plans",
+    "deleteInPlans": "Il fait partie du plan de rangement de : {{presets}}. Il sera retiré de ces plans."
   },
   "settings": {
     "title": "Paramètres",

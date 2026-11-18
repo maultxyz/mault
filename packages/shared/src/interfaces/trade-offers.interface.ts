@@ -88,6 +88,7 @@ export interface TradeOfferWantedPlacement {
   storageLocationGuid: string | null;
   storageLocationName: string | null;
   storagePosition: number | null;
+  storageBatchSize?: number | null;
   binNumber: number | null;
 }
 
@@ -143,7 +144,7 @@ export interface TradeOfferCardGroup {
 }
 
 export type TradeOfferPlacementSummary =
-  | { kind: "storage"; locationName: string; positions: number[] }
+  | { kind: "storage"; locationName: string; positions: number[]; batchSize: number | null }
   | { kind: "bin"; collectionName: string; binNumbers: number[] }
   | { kind: "collection"; collectionName: string }
   | { kind: "missing"; count: number };

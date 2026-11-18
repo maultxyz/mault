@@ -3,7 +3,7 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Alert, FlatList, View } from "react-native";
 import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
-import { storagePickListRows } from "@magic-vault/shared";
+import { formatStorageSlot, storagePickListRows } from "@magic-vault/shared";
 import { CardRow } from "@/components/cards/card-row";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -139,7 +139,7 @@ export default function StoragePickListScreen() {
               ) : (
                 <CardRow
                   name={row.entry.card.name}
-                  subtitle={`${row.entry.locationName} · ${t("storage.position", { position: row.entry.position })} · ${row.entry.card.setName}`}
+                  subtitle={`${row.entry.locationName} · ${t("storage.position", { position: formatStorageSlot(row.entry.position, row.entry.locationBatchSize) })} · ${row.entry.card.setName}`}
                   imageUrl={absoluteUrl(row.entry.card.image?.small)}
                   checked={row.isPicked}
                   onPress={() => pickList.setPicked(row.entry.scanId, !row.isPicked)}

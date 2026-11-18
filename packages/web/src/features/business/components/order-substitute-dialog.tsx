@@ -17,7 +17,7 @@ import {
 } from "@/features/business/api/business";
 import { useBusinessAction } from "@/features/business/api/use-business";
 import type { OrderSubstituteDialogProps } from "@/lib/interfaces/business";
-import { orderLineLabel } from "@magic-vault/shared";
+import { formatStorageSlot, orderLineLabel } from "@magic-vault/shared";
 import { IconReplace } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
@@ -90,7 +90,10 @@ export function OrderSubstituteDialog({ order, lineIndex, onOpenChange }: OrderS
                     {entry.locationName
                       ? t("orders.locationAt", {
                           location: entry.locationName,
-                          position: (entry.locationPosition ?? 0) + 1,
+                          position: formatStorageSlot(
+                        entry.locationPosition ?? 0,
+                        entry.locationBatchSize,
+                      ),
                         })
                       : t("orders.inCollection", {
                           collection: entry.collectionName,

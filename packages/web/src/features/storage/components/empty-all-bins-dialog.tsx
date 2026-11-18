@@ -10,6 +10,7 @@ import {
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
 import { ResetAutoAssignToggle } from "@/features/storage/components/reset-auto-assign-toggle";
 import { StorageLocationSelect } from "@/features/storage/components/storage-location-select";
@@ -46,6 +47,7 @@ export function EmptyAllBinsDialog({
     create,
   } = useStorageLocations();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { configs } = useBinConfigs();
   const totalCards = bins.reduce((sum, bin) => sum + bin.count, 0);
 
   const form = useForm<EmptyAllBinsFormValues>({
@@ -58,24 +60,30 @@ export function EmptyAllBinsDialog({
     },
   });
 
-  const latestRef = useRef({ locations, bins, preferLocation });
-  latestRef.current = { locations, bins, preferLocation };
+  const latestRef = useRef({ locations, bins, preferLocation, configs });
+  latestRef.current = { locations, bins, preferLocation, configs };
 
   useEffect(() => {
     if (!open || locationsLoading) return;
-    const { locations, bins, preferLocation } = latestRef.current;
+    const { locations, bins, preferLocation, configs } = latestRef.current;
+    const claimedGuidOf = (binNumber: number) => {
+      const guid = configs.find((config) => config.binNumber === binNumber)
+        ?.claimedStorageLocation?.guid;
+      return guid && locations.some((l) => l.guid === guid) ? guid : null;
+    };
+    const hasClaims = bins.some((bin) => claimedGuidOf(bin.binNumber));
     const initial = preferLocation
       ? (lastUsedLocationGuid(locations) ??
         locations[0]?.guid ??
         EMPTY_BIN_NEW_LOCATION)
       : EMPTY_BIN_NO_LOCATION;
     form.reset({
-      perBin: false,
+      perBin: hasClaims,
       resetAutoAssignedRules: true,
       all: { locationGuid: initial, newName: "" },
       bins: bins.map((bin) => ({
         binNumber: bin.binNumber,
-        locationGuid: initial,
+        locationGuid: claimedGuidOf(bin.binNumber) ?? initial,
         newName: "",
       })),
     });
@@ -102,7 +110,7 @@ export function EmptyAllBinsDialog({
         if (locationGuid === EMPTY_BIN_NEW_LOCATION) {
           const name = choice.newName.trim();
           const key = name.toLowerCase();
-          const guid = created.get(key) ?? (await create(name));
+          const guid = created.get(key) ?? (await create({ name }));
           if (!guid) return;
           created.set(key, guid);
           locationGuid = guid;

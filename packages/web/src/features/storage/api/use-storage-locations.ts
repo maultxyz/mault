@@ -17,7 +17,8 @@ import {
   moveCardsToStorageLocation,
   moveCollectionToStorageLocation,
   removeCardFromStorageLocation,
-  renameStorageLocation,
+  updateStorageLocation,
+  createStorageLocationSeries,
   storageLocationKeys,
   storageLocationsQueryOptions,
 } from "@/features/storage/api/storage-locations";
@@ -34,6 +35,9 @@ import type {
   PlayingCard,
   PlayingCardWithDistance,
   Result,
+  StorageLocationSeriesInput,
+  StorageLocationSeriesResult,
+  StorageLocationSettingsInput,
   StorageLocationCard,
   StorageLocationCardContext,
   StorageLocationCardPage,
@@ -87,10 +91,37 @@ export function useStorageLocations({ withList = true } = {}) {
     onError: () => toast.error(t("toasts.failed")),
   });
 
-  const renameMutation = useMutation({
-    mutationFn: ({ guid, name }: { guid: string; name: string }) =>
-      renameStorageLocation(guid, name),
+  const updateMutation = useMutation({
+    mutationFn: ({
+      guid,
+      input,
+    }: {
+      guid: string;
+      input: StorageLocationSettingsInput;
+    }) => updateStorageLocation(guid, input),
     onSuccess: applyResult,
+    onError: () => toast.error(t("toasts.failed")),
+  });
+
+  const createSeriesMutation = useMutation({
+    mutationFn: createStorageLocationSeries,
+    onSuccess: (result) => {
+      if (!result.success || !result.data) {
+        toast.error(result.message ?? t("toasts.failed"));
+        return;
+      }
+      invalidateAll();
+      const { created, skippedNames } = result.data;
+      toast.success(t("series.created", { count: created.length }));
+      if (skippedNames.length > 0) {
+        toast.info(
+          t("series.skipped", {
+            count: skippedNames.length,
+            names: skippedNames.join(", "),
+          }),
+        );
+      }
+    },
     onError: () => toast.error(t("toasts.failed")),
   });
 
@@ -100,16 +131,30 @@ export function useStorageLocations({ withList = true } = {}) {
     onError: () => toast.error(t("toasts.failed")),
   });
 
-  const create = async (name: string): Promise<string | null> => {
-    const result = await createMutation.mutateAsync(name).catch(() => null);
+  const create = async (
+    input: StorageLocationSettingsInput,
+  ): Promise<string | null> => {
+    const result = await createMutation.mutateAsync(input).catch(() => null);
     return result?.success && result.data ? result.data.guid : null;
   };
 
-  const rename = async (guid: string, name: string): Promise<boolean> => {
-    const result = await renameMutation
-      .mutateAsync({ guid, name })
+  const update = async (
+    guid: string,
+    input: StorageLocationSettingsInput,
+  ): Promise<boolean> => {
+    const result = await updateMutation
+      .mutateAsync({ guid, input })
       .catch(() => null);
     return !!result?.success;
+  };
+
+  const createSeries = async (
+    input: StorageLocationSeriesInput,
+  ): Promise<StorageLocationSeriesResult | null> => {
+    const result = await createSeriesMutation
+      .mutateAsync(input)
+      .catch(() => null);
+    return result?.success && result.data ? result.data : null;
   };
 
   const remove = async (guid: string): Promise<boolean> => {
@@ -124,10 +169,12 @@ export function useStorageLocations({ withList = true } = {}) {
     refetch: () => void refetch(),
     isMutating:
       createMutation.isPending ||
-      renameMutation.isPending ||
+      updateMutation.isPending ||
+      createSeriesMutation.isPending ||
       deleteMutation.isPending,
     create,
-    rename,
+    update,
+    createSeries,
     remove,
   };
 }

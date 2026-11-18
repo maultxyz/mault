@@ -19,6 +19,9 @@ import type {
   PresetWorkflowStep,
   RepackConfigPatch,
   ScanOnlyConfig,
+  StorageLocation,
+  StoragePlanBinClaim,
+  StoragePlanRow,
 } from "@magic-vault/shared";
 import type { ReactNode } from "react";
 import type { BinConfigFormValues } from "@/schemas/sort-bins.schema";
@@ -51,6 +54,12 @@ export interface BinModeDraft {
   skipSaving: boolean;
   isResortMode: boolean;
   matchGameKeys: string[];
+  fillStorageLocationGuids: string[];
+}
+
+export interface EmptyBinResultExtras {
+  assignedCount?: number;
+  storedLocationGuid?: string | null;
 }
 
 export interface ChaosConfig {
@@ -331,4 +340,57 @@ export interface RenameSetInput {
   guid: string;
   name: string;
   description: string;
+}
+
+export type BinsPageView = "rules" | "storage";
+
+export interface AutoAssignPanelProps {
+  onOpenStoragePlan?: () => void;
+}
+
+export interface StoragePlanSummaryRowProps {
+  onOpen: () => void;
+}
+
+export interface StoragePlanBinsStripProps {
+  claims: StoragePlanBinClaim[];
+  className?: string;
+}
+
+export interface StoragePlanStatusBadgeProps {
+  row: StoragePlanRow;
+}
+
+export interface StoragePlanFillProps {
+  row: StoragePlanRow;
+  className?: string;
+}
+
+export interface StoragePlanRowActionsProps {
+  row: StoragePlanRow;
+  rowCount: number;
+  disabled: boolean;
+  onMove: (offset: number) => void;
+  onEdit: () => void;
+  onRemove: () => void;
+}
+
+export interface StoragePlanDialogsState {
+  addOpen: boolean;
+  setAddOpen: (open: boolean) => void;
+  seriesOpen: boolean;
+  setSeriesOpen: (open: boolean) => void;
+  editingLocation: StorageLocation | null;
+  setEditingLocation: (location: StorageLocation | null) => void;
+}
+
+export interface StoragePlanDialogsProps {
+  dialogs: StoragePlanDialogsState;
+}
+
+export interface AddStorageLocationsDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  locations: StorageLocation[];
+  onAdd: (locationGuids: string[]) => void;
 }

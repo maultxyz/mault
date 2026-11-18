@@ -11,6 +11,9 @@ import { HotkeyHint } from "@/components/hotkey-hint";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useStorageLocationSelection } from "@/features/storage/api/use-storage-location-selection";
+import { StorageLocationSelectionBar } from "@/features/storage/components/storage-location-selection-bar";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
@@ -64,17 +67,19 @@ import {
   IconListCheck,
   IconListSearch,
   IconPlus,
+  IconStack2,
   IconPrinter,
   IconTrash,
 } from "@tabler/icons-react";
 import { useCallback, useState, type CSSProperties } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Navigate, useSearchParams } from "react-router-dom";
+import { storageLocationFillText } from "@/features/storage/lib/storage-location-fill";
 
 function DesktopStoragePage() {
   const { t } = useTranslation("storage");
   const { t: tCommon } = useTranslation("common");
-  const { isMutating, create, rename, remove } = useStorageLocations({
+  const { isMutating, create, update, createSeries, remove } = useStorageLocations({
     withList: false,
   });
   const { activeOrg } = useOrg();
@@ -114,6 +119,7 @@ function DesktopStoragePage() {
     selectedParam,
   );
   const hasLocations = pagination.total > 0;
+  const locationSelection = useStorageLocationSelection(locations);
   const showsLoadError = isError && !hasLocations;
   const selectedGuid = selectedParam ?? locations[0]?.guid;
   const { data: selectedLocation } = useQuery(
@@ -268,6 +274,18 @@ function DesktopStoragePage() {
                 )}
                 {!isLocked && (
                   <Button
+                    variant="outline"
+                    size="icon"
+                    aria-label={t("series.open")}
+                    title={t("series.open")}
+                    onClick={() => dialogs.setSeriesOpen(true)}
+                    disabled={isMutating}
+                  >
+                    <IconStack2 />
+                  </Button>
+                )}
+                {!isLocked && (
+                  <Button
                     size="icon"
                     aria-label={t("page.newLocation")}
                     title={t("page.newLocation")}
@@ -291,12 +309,23 @@ function DesktopStoragePage() {
                 </Button>
               )
             )}
+            {!isLoading && hasLocations && !isLocked && (
+              <label className="flex items-center gap-1.5 px-1.5 text-xs text-foreground/70">
+                <Checkbox
+                  checked={locationSelection.allVisibleChecked}
+                  onCheckedChange={locationSelection.toggleAllVisible}
+                />
+                {t("bulk.selectAllOnPage")}
+              </label>
+            )}
             <StorageLocationList
               locations={locations}
               pagination={pagination}
               selectedGuid={isSearching ? undefined : selected?.guid}
               isLoading={isLoading}
               onSelect={openLocation}
+              checkedGuids={isLocked ? undefined : locationSelection.checkedGuids}
+              onToggleChecked={isLocked ? undefined : locationSelection.toggle}
               actions={
                 isLocked
                   ? undefined
@@ -358,10 +387,15 @@ function DesktopStoragePage() {
                     {selected.name}
                   </h1>
                   <p className="text-xs tabular-nums text-foreground/70">
-                    {t("page.summary", {
-                      count: selected.cardCount,
-                      value: format(selected.totalValue),
-                    })}
+                    {[
+                      t("page.summary", {
+                        count: selected.cardCount,
+                        value: format(selected.totalValue),
+                      }),
+                      storageLocationFillText(selected, t),
+                    ]
+                      .filter(Boolean)
+                      .join(" · ")}
                   </p>
                 </div>
                 {!isLocked && (
@@ -507,11 +541,18 @@ function DesktopStoragePage() {
         dialogs={dialogs}
         selected={selected}
         create={create}
-        rename={rename}
+        update={update}
+        createSeries={createSeries}
         remove={remove}
         onCreated={select}
         onSelectedDeleted={() => select(null)}
       />
+      {!isLocked && (
+        <StorageLocationSelectionBar
+          selection={locationSelection}
+          showsPrintLabels
+        />
+      )}
     </div>
   );
 }

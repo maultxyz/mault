@@ -18,6 +18,7 @@ import { useShiftClick } from "@/hooks/use-shift-click";
 import { usePriceSource } from "@/hooks/use-price-source";
 import type { StorageCardListProps } from "@/lib/interfaces/storage";
 import {
+  formatStorageSlot,
   formatPriceInCurrency,
   type StorageLocationSearchResult,
 } from "@magic-vault/shared";
@@ -166,14 +167,22 @@ export function StorageCardList({
                         <span className="truncate">
                           {t("cardLocation.value", {
                             name: entry.locationName,
-                            position: entry.position,
+                            position: formatStorageSlot(
+                              entry.position,
+                              entry.locationBatchSize,
+                            ),
                           })}
                         </span>
                       </Button>
                     </TableCell>
                   ) : (
                     <TableCell className="text-right text-xs font-semibold tabular-nums text-foreground/70">
-                      {t("cards.position", { position: entry.position })}
+                      {t("cards.position", {
+                        position: formatStorageSlot(
+                          entry.position,
+                          entry.locationBatchSize,
+                        ),
+                      })}
                     </TableCell>
                   )}
                   <TableCell>

@@ -3,7 +3,6 @@ import { LabelSheet } from "@/components/label-sheet";
 import { qrCodeModules } from "@/features/storage-labels/lib/storage-label-sheet";
 import {
   STORAGE_LABEL_DETAIL_FONT_RATIO,
-  STORAGE_LABEL_NAME_COUNT_GAP_RATIO,
   STORAGE_LABEL_NAME_LINE_HEIGHT,
   STORAGE_LABEL_NAME_MAX_FONT_SIZE,
   STORAGE_LABEL_NAME_MAX_LINES,
@@ -21,7 +20,6 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 function StorageLabel({ template, location, orgId }: StorageLabelProps) {
-  const { t } = useTranslation("storage");
   const qrCode = useMemo(
     () =>
       qrCodeModules(
@@ -69,27 +67,13 @@ function StorageLabel({ template, location, orgId }: StorageLabelProps) {
       >
         <div className="flex h-full flex-col justify-between text-black">
           <div
-            className="flex min-w-0 flex-col"
-            style={{ gap: `${detailFontSize * STORAGE_LABEL_NAME_COUNT_GAP_RATIO}px` }}
+            className="line-clamp-2 min-w-0 font-heading font-semibold break-words"
+            style={{
+              fontSize: `${nameFontSize}px`,
+              lineHeight: STORAGE_LABEL_NAME_LINE_HEIGHT,
+            }}
           >
-            <div
-              className="line-clamp-2 font-heading font-semibold break-words"
-              style={{
-                fontSize: `${nameFontSize}px`,
-                lineHeight: STORAGE_LABEL_NAME_LINE_HEIGHT,
-              }}
-            >
-              {location.name}
-            </div>
-            <div
-              className="tabular-nums"
-              style={{
-                fontSize: `${detailFontSize}px`,
-                lineHeight: STORAGE_LABEL_NAME_LINE_HEIGHT,
-              }}
-            >
-              {t("page.cardCount", { count: location.cardCount })}
-            </div>
+            {location.name}
           </div>
           <LabelBrand fontSize={detailFontSize} />
         </div>

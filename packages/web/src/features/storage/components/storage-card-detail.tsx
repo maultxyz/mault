@@ -77,9 +77,10 @@ export function StorageCardDetail({
             ...stored,
             locationGuid: location.guid,
             locationName: location.name,
+            locationBatchSize: location.batchSize ?? null,
           }
         : null,
-    [stored, location.guid, location.name],
+    [stored, location.guid, location.name, location.batchSize],
   );
   const actions = useStoredCardActions(entry);
   const collection =

@@ -409,7 +409,8 @@ const CARD_ROW_COLUMNS = sql`
   cc.guid, cc.card, ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
   cc.is_foil, cc.foil_type, cc.stamp, cc.condition, cc.language, cc.is_downloaded,
   cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed,
-  cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name`;
+  cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name,
+      sl.batch_size AS location_batch_size`;
 
 function toCard(row: CollectionCardRow) {
   return toScannedCard({
@@ -432,6 +433,7 @@ function toCard(row: CollectionCardRow) {
           guid: row.location_guid,
           name: row.location_name ?? "",
           position: row.location_position ?? 0,
+          batchSize: row.location_batch_size ?? null,
         }
       : null,
   });
@@ -657,7 +659,8 @@ export async function loadAllCards(
       ${SCANNED_AT_MS} AS scanned_at_ms, cc.bin_number,
       cc.is_foil, cc.foil_type, cc.stamp, cc.condition, cc.language, cc.is_downloaded,
       cc.alternative_matches, cc.is_corrected, cc.low_confidence_match, cc.is_reviewed,
-      cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name
+      cc.location_position, sl.guid::text AS location_guid, sl.name AS location_name,
+      sl.batch_size AS location_batch_size
     FROM collection_cards cc
     ${cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS)}
     ${STORAGE_LOCATION_JOIN}

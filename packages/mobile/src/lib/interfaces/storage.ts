@@ -46,7 +46,7 @@ export interface CardScanNotice {
   kind: CardScanNoticeKind;
   cardName?: string;
   locationName?: string;
-  position?: number;
+  position?: string;
 }
 
 export interface StoragePickListFormProps {
@@ -74,6 +74,7 @@ export interface StorageLocationActionsOptions {
 export interface ScanCheckSourceCard extends ScanCheckCard {
   locationName: string;
   position: number;
+  locationBatchSize?: number | null;
 }
 
 export interface ScanCheckSource {
@@ -86,4 +87,21 @@ export interface ScanCheckSource {
 
 export interface OpenStorageLabelOptions {
   replacesCurrentScreen?: boolean;
+}
+
+export type StoragePlanBulkMode = "add" | "remove";
+
+export interface StorageBulkActionsOptions {
+  selectedGuids: string[];
+  onFinished: () => void;
+}
+
+export interface StoragePlanBulkInput {
+  presetGuid: string;
+  mode: StoragePlanBulkMode;
+}
+
+
+export interface StorageLocationPlanUsesProps {
+  locationGuid: string;
 }

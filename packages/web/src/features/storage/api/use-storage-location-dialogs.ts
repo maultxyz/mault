@@ -7,6 +7,7 @@ export function useStorageLocationDialogs(): StorageLocationDialogsState {
   const [renameOpen, setRenameOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [shareOpen, setShareOpen] = useState(false);
+  const [seriesOpen, setSeriesOpen] = useState(false);
   const [menuLocation, setMenuLocation] = useState<StorageLocation | null>(
     null,
   );
@@ -26,6 +27,8 @@ export function useStorageLocationDialogs(): StorageLocationDialogsState {
     setDeleteOpen,
     shareOpen,
     setShareOpen,
+    seriesOpen,
+    setSeriesOpen,
     menuLocation,
     setMenuLocation,
     openLocationAction,

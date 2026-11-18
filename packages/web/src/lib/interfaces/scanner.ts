@@ -557,6 +557,7 @@ export interface BinLevelCellProps {
   level: BinFillLevel;
   isCatchAll: boolean;
   isDisabled: boolean;
+  claimedLocationName: string | null;
   flashKey: number | null;
   onEmpty: (binNumber: number) => void;
   className?: string;

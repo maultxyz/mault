@@ -842,7 +842,10 @@
       "confirmTitle": "Fach {{bins}} als leer markieren?",
       "confirmDescription": "Mach das erst, nachdem du die Karten herausgenommen hast. Die Zählung des Fachs beginnt wieder bei null.",
       "confirm": "Als leer markieren",
-      "failed": "Das Fach konnte nicht als leer markiert werden. Prüfe deine Verbindung und versuch es erneut."
+      "failed": "Das Fach konnte nicht als leer markiert werden. Prüfe deine Verbindung und versuch es erneut.",
+      "storeDescription": "Erst nachdem du die Karten herausgenommen hast. Die Karten werden in ihren Orten gespeichert: {{locations}}.",
+      "storeBin": "Fach {{bin}} in {{location}}",
+      "storeConfirm": "Einlagern und leeren"
     },
     "removal": {
       "title": "Entfernen aus {{collection}}",
@@ -1253,7 +1256,15 @@
       "resortDescription": "Jeder Scan verschiebt ein Exemplar, das schon in dieser Sammlung ist, in sein neues Fach, statt ein weiteres hinzuzufügen. Das Exemplar behält Foil und Zustand und verlässt seinen bisherigen Lagerort. Karten, die noch nicht in der Sammlung sind, werden wie gewohnt hinzugefügt.",
       "matchGames": "Auch Karten erkennen aus",
       "matchGamesEmpty": "Wähle mindestens ein weiteres Spiel. Bis dahin werden nur Karten dieses Spiels erkannt.",
-      "matchGamesHint": "Nicht erkannte Karten kommen in das Auffangfach. Jedes weitere Spiel macht Scans etwas langsamer."
+      "matchGamesHint": "Nicht erkannte Karten kommen in das Auffangfach. Jedes weitere Spiel macht Scans etwas langsamer.",
+      "storagePlan": {
+        "title": "Lagerplan",
+        "off": "Aus",
+        "locked": "Lagerorte sind in deinem Tarif nicht enthalten.",
+        "summary_one": "{{range}} · {{full}} von {{count}} voll",
+        "summary_other": "{{range}} · {{full}} von {{count}} voll",
+        "range": "{{first}} bis {{last}}"
+      }
     },
     "modes": {
       "rules": {
@@ -1383,7 +1394,39 @@
     "maxCardsPlaceholder": "Kein Limit",
     "maxCardsDescription": "Dieses Fach gilt bei so vielen Karten als voll, auch wenn noch Platz ist: Passende Karten gehen dann in sein Überlauffach oder das Sortieren pausiert. Leer lassen, um die physische Größe des Fachs zu nutzen.",
     "maxCardsPill_one": "Fasst {{count}}",
-    "maxCardsPill_other": "Fasst {{count}}"
+    "maxCardsPill_other": "Fasst {{count}}",
+    "storagePlan": {
+      "title": "Lagerplan",
+      "description": "Jedes Fach füllt den nächsten Ort dieser Liste mit freiem Platz und pausiert, wenn er voll ist. Beim Leeren werden die Karten dort eingelagert.",
+      "locked": "Lagerorte sind in deinem Tarif nicht enthalten.",
+      "locationsTitle": "Orte in Reihenfolge",
+      "order": "{{order}}. {{name}}",
+      "noCapacity": "Keine Kapazität festgelegt",
+      "batch": "Stapel {{size}}",
+      "status": {
+        "full": "Voll",
+        "filling": "Füllt Fach {{number}}",
+        "waiting": "Wartet"
+      },
+      "rowHint": "Wählt den Ort aus, um ihn zu verschieben, zu bearbeiten oder zu entfernen",
+      "actions": "Ortsaktionen",
+      "moveUp": "{{name}} nach oben",
+      "moveDown": "{{name}} nach unten",
+      "edit": "{{name}} bearbeiten",
+      "remove": "{{name}} aus dem Plan entfernen",
+      "add": "Orte hinzufügen",
+      "addTitle": "Orte zum Hinzufügen wählen",
+      "addSelected_one": "{{count}} Ort hinzufügen",
+      "addSelected_other": "{{count}} Orte hinzufügen",
+      "noneLeft": "Alle Orte sind bereits im Plan.",
+      "createSeries": "Serie erstellen",
+      "empty": "Füge Orte hinzu, um Fächer dort einzulagern.",
+      "binsTitle": "Fächer jetzt",
+      "binsHint": "Zeigt den gespeicherten Plan. Speichere deine Änderungen, um ihn zu aktualisieren.",
+      "noLocation": "Kein Ort",
+      "claim_one": "{{name}} · {{count}} frei",
+      "claim_other": "{{name}} · {{count}} frei"
+    }
   },
   "calibration": {
     "title": "Sortierer einrichten",
@@ -1716,7 +1759,77 @@
     "searchFailed": "Die Lagerorte konnten nicht durchsucht werden",
     "notFoundTitle": "Lagerort nicht gefunden",
     "notFoundDescription": "Er wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf.",
-    "printLabel": "Etikett drucken"
+    "printLabel": "Etikett drucken",
+    "edit": "Ort bearbeiten",
+    "add": "Lager hinzufügen",
+    "capacityLabel": "Kapazität",
+    "capacityPlaceholder": "Kein Limit",
+    "batchSizeLabel": "Karten pro Stapel",
+    "batchSizePlaceholder": "Keine Stapel",
+    "sizeHint": "Die Kapazität ist die Anzahl Karten, die der Ort fasst. Mit einer Stapelgröße lautet der Platz jeder Karte Box-Stapel-Karte, zum Beispiel A1-2-17.",
+    "slotsUsed": "{{used}} von {{capacity}} belegt",
+    "fillOfCapacity": "{{cards}} · {{used}} von {{capacity}} belegt",
+    "series": {
+      "title": "Neue Serie",
+      "menuDescription": "Nummerierte Orte wie A1 bis A10 auf einmal anlegen",
+      "description": "Legt pro Nummer einen Ort an, alle mit derselben Kapazität und Stapelgröße. Bereits vorhandene Namen werden übersprungen.",
+      "prefixLabel": "Präfix",
+      "prefixPlaceholder": "z. B. A",
+      "firstNumberLabel": "Erste Nummer",
+      "countLabel": "Anzahl",
+      "create_one": "{{count}} Ort anlegen",
+      "create_other": "{{count}} Orte anlegen",
+      "created_one": "{{count}} Ort angelegt",
+      "created_other": "{{count}} Orte angelegt",
+      "createdWithSkipped_one": "{{count}} Ort angelegt. Bereits vorhanden: {{names}}",
+      "createdWithSkipped_other": "{{count}} Orte angelegt. Bereits vorhanden: {{names}}",
+      "previewOne": "Legt {{name}} an",
+      "preview": "Legt {{first}} bis {{last}} an ({{count}} Orte)"
+    },
+    "bulk": {
+      "select": "Lagerorte auswählen",
+      "doneSelecting": "Auswahl beenden",
+      "selectedCount_one": "{{count}} ausgewählt",
+      "selectedCount_other": "{{count}} ausgewählt",
+      "selectAll": "Alle auswählen",
+      "clear": "Leeren",
+      "setSize": "Größe festlegen",
+      "addToPlan": "Zum Plan hinzufügen",
+      "removeFromPlan": "Aus dem Plan entfernen",
+      "pickPreset_one": "Wähle die Vorlage, deren Lagerplan sich für {{count}} Lagerort ändern soll.",
+      "pickPreset_other": "Wähle die Vorlage, deren Lagerplan sich für {{count}} Lagerorte ändern soll.",
+      "noPresets": "Keine Vorlagen zur Auswahl.",
+      "addedToPlan_one": "{{count}} Lagerort zu {{preset}} hinzugefügt.",
+      "addedToPlan_other": "{{count}} Lagerorte zu {{preset}} hinzugefügt.",
+      "removedFromPlan_one": "{{count}} Lagerort aus {{preset}} entfernt.",
+      "removedFromPlan_other": "{{count}} Lagerorte aus {{preset}} entfernt.",
+      "deleteTitle_one": "{{count}} Lagerort löschen?",
+      "deleteTitle_other": "{{count}} Lagerorte löschen?",
+      "deleteDescription": "Ihre Karten bleiben in ihren Sammlungen, sind aber keinem Lagerort mehr zugeordnet. Das kann nicht rückgängig gemacht werden.",
+      "deleted_one": "{{count}} Lagerort gelöscht.",
+      "deleted_other": "{{count}} Lagerorte gelöscht.",
+      "sizeTitle_one": "Größe für {{count}} Lagerort festlegen",
+      "sizeTitle_other": "Größe für {{count}} Lagerorte festlegen",
+      "sizeDescription": "Schalte die Werte ein, die du ändern möchtest. Ausgeschaltete Werte bleiben an jedem Lagerort unverändert.",
+      "changeCapacity": "Kapazität ändern",
+      "changeBatchSize": "Stapelgröße ändern",
+      "sizeClearHint": "Lass ein eingeschaltetes Feld leer, um dieses Limit zu entfernen.",
+      "sizeApply_one": "{{count}} Lagerort aktualisieren",
+      "sizeApply_other": "{{count}} Lagerorte aktualisieren",
+      "sizeUpdated_one": "{{count}} Lagerort aktualisiert.",
+      "sizeUpdated_other": "{{count}} Lagerorte aktualisiert.",
+      "deleteInPlans": "Einige sind im Lagerplan von: {{presets}}. Sie werden aus diesen Plänen entfernt."
+    },
+    "planUses": {
+      "title": "Von Sortierregeln verwendet",
+      "empty": "In keinem Lagerplan",
+      "position": "Position {{position}} von {{total}}",
+      "filling": "Füllt Fach {{bin}}",
+      "active": "Aktiv"
+    },
+    "inPlans_one": "In {{count}} Plan",
+    "inPlans_other": "In {{count}} Plänen",
+    "deleteInPlans": "Er ist im Lagerplan von: {{presets}}. Er wird aus diesen Plänen entfernt."
   },
   "settings": {
     "title": "Einstellungen",

@@ -12,6 +12,7 @@ import {
   supportsGame,
   type CardFilters,
   type ExportAdapter,
+  formatStorageSlot,
 } from "@magic-vault/shared";
 import { CardRow } from "@/components/cards/card-row";
 import { CardTile } from "@/components/cards/card-tile";
@@ -44,6 +45,7 @@ import { CardViewOptionsSheet } from "@/features/collections/components/card-vie
 import { cardSortOptions, countActiveCardFilters } from "@/features/collections/lib/card-query";
 import { toStatsBreakdown } from "@/features/stats/lib/stats-breakdown";
 import { StorageLocationVerify } from "@/features/storage/components/storage-location-verify";
+import { StorageLocationPlanUses } from "@/features/storage/components/storage-location-plan-uses";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { shareCsv } from "@/features/cards/lib/share-csv";
 import { billingQueryOptions } from "@/features/org/api/billing";
@@ -208,7 +210,14 @@ export default function StorageLocationScreen() {
         <PageHeader
           title={location?.name ?? t("storage.title")}
           subtitle={
-            location ? t("storage.summary", { count: location.cardCount, value: pricing.formatCompact(location.totalValue) }) : null
+            location
+              ? [
+                  t("storage.summary", { count: location.cardCount, value: pricing.formatCompact(location.totalValue) }),
+                  ...(location.capacity != null
+                    ? [t("storage.slotsUsed", { used: location.usedSlots ?? 0, capacity: location.capacity })]
+                    : []),
+                ].join(" · ")
+              : null
           }
           onBack={() => router.back()}
           actions={
@@ -293,6 +302,7 @@ export default function StorageLocationScreen() {
                 />
               ) : null}
               {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
+              {location && !isStorageLocked ? <StorageLocationPlanUses locationGuid={location.guid} /> : null}
             </View>
           }
           ListEmptyComponent={
@@ -324,7 +334,7 @@ export default function StorageLocationScreen() {
                 <View style={{ width: tileWidth }}>
                   <CardTile
                     name={entry.card.name}
-                    caption={[t("storage.position", { position: entry.position }), ...(value != null ? [pricing.format(value)] : [])].join(" · ")}
+                    caption={[t("storage.position", { position: formatStorageSlot(entry.position, location?.batchSize) }), ...(value != null ? [pricing.format(value)] : [])].join(" · ")}
                     {...cardArtSources(entry.card.image)}
                     isFoil={entry.isFoil}
                     flagged={(entry.lowConfidenceMatch || entry.hasAlternatives) && !entry.reviewed}
@@ -340,7 +350,7 @@ export default function StorageLocationScreen() {
                 <ListGroupItem index={index} count={items.length}>
                   <CardRow
                     name={entry.card.name}
-                    subtitle={`${t("storage.position", { position: entry.position })} · ${entry.collectionName}`}
+                    subtitle={`${t("storage.position", { position: formatStorageSlot(entry.position, location?.batchSize) })} · ${entry.collectionName}`}
                     imageUrl={absoluteUrl(entry.card.image?.small)}
                     price={value != null ? pricing.format(value) : null}
                     lowConfidence={entry.lowConfidenceMatch && !entry.reviewed}

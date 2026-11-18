@@ -6,6 +6,27 @@ export interface StorageLocationRow {
   card_count: number;
   total_value: number;
   label_short_code: string;
+  capacity: number | null;
+  batch_size: number | null;
+  used_slots: number;
+}
+
+export interface FillLocationSqlRow {
+  id: number;
+  guid: string;
+  name: string;
+  capacity: number | null;
+  batch_size: number | null;
+  used_slots: number;
+}
+
+export interface FillLocationRow {
+  id: number;
+  guid: string;
+  name: string;
+  capacity: number | null;
+  batchSize: number | null;
+  usedSlots: number;
 }
 
 export interface MoveCardsToLocationInput {
@@ -38,4 +59,9 @@ export interface StoredCardNavigationRow {
   prev_collection_guid: string | null;
   next_scan_id: string | null;
   next_collection_guid: string | null;
+}
+
+export interface StorageLocationSizes {
+  capacity: number | null | undefined;
+  batchSize: number | null | undefined;
 }

@@ -68,7 +68,7 @@ export function useLocationMoveForm({
       let targetGuid: string | null = locationGuid;
       if (targetGuid === EMPTY_BIN_NEW_LOCATION) {
         setIsCreating(true);
-        targetGuid = await create(newName).finally(() => setIsCreating(false));
+        targetGuid = await create({ name: newName }).finally(() => setIsCreating(false));
         if (!targetGuid) return;
       }
       if (await onMove(targetGuid)) onMoved();

@@ -381,3 +381,21 @@ it("two captures delivered in one tick reserve capacity before the second plan",
   await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
   expect(mocks.route).toHaveBeenCalledOnce();
 });
+
+it("a bin whose storage location has room for 5 routes 5 cards then pauses", async () => {
+  mocks.levels[0].capacity = 5;
+  const { result } = mount();
+  for (let index = 0; index < 5; index++) {
+    act(() => result.current.addCard(card));
+    await waitFor(() => expect(mocks.route).toHaveBeenCalledTimes(index + 1));
+  }
+  expect(mocks.pauseForAttention).not.toHaveBeenCalled();
+  act(() => result.current.addCard(card));
+  await waitFor(() =>
+    expect(mocks.pauseForAttention).toHaveBeenCalledWith({
+      kind: "binLimit",
+      binNumbers: [1],
+    }),
+  );
+  expect(mocks.route).toHaveBeenCalledTimes(5);
+});

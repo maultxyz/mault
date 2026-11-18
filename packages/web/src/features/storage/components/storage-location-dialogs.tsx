@@ -1,20 +1,32 @@
 import { DeleteDialog } from "@/components/delete-dialog";
 import { ShareStorageLinkDialog } from "@/features/storage/components/share-storage-link-dialog";
 import { StorageLocationNameDialog } from "@/features/storage/components/storage-location-name-dialog";
+import { StorageLocationSeriesDialog } from "@/features/storage/components/storage-location-series-dialog";
+import { StoragePlanDeleteWarning } from "@/features/storage/components/storage-plan-delete-warning";
 import type { StorageLocationDialogsProps } from "@/lib/interfaces/storage";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 export function StorageLocationDialogs({
   dialogs,
   selected,
   create,
-  rename,
+  update,
+  createSeries,
   remove,
   onCreated,
   onSelectedDeleted,
 }: StorageLocationDialogsProps) {
   const { t } = useTranslation("storage");
   const actionTarget = dialogs.menuLocation ?? selected;
+  const renameInitialValues = useMemo(
+    () => ({
+      name: actionTarget?.name ?? "",
+      capacity: actionTarget?.capacity ?? null,
+      batchSize: actionTarget?.batchSize ?? null,
+    }),
+    [actionTarget?.name, actionTarget?.capacity, actionTarget?.batchSize],
+  );
   return (
     <>
       <StorageLocationNameDialog
@@ -22,8 +34,8 @@ export function StorageLocationDialogs({
         onOpenChange={dialogs.setCreateOpen}
         title={t("page.newLocation")}
         submitLabel={t("nameDialog.create")}
-        onSubmit={async (name) => {
-          const guid = await create(name);
+        onSubmit={async (values) => {
+          const guid = await create(values);
           if (guid) onCreated?.(guid);
           return !!guid;
         }}
@@ -31,14 +43,19 @@ export function StorageLocationDialogs({
       <StorageLocationNameDialog
         open={dialogs.renameOpen}
         onOpenChange={dialogs.setRenameOpen}
-        initialName={actionTarget?.name}
+        initialValues={renameInitialValues}
         title={t("page.rename")}
         submitLabel={t("nameDialog.save")}
-        onSubmit={(name) =>
+        onSubmit={(values) =>
           actionTarget
-            ? rename(actionTarget.guid, name)
+            ? update(actionTarget.guid, values)
             : Promise.resolve(false)
         }
+      />
+      <StorageLocationSeriesDialog
+        open={dialogs.seriesOpen}
+        onOpenChange={dialogs.setSeriesOpen}
+        createSeries={createSeries}
       />
       <DeleteDialog
         open={dialogs.deleteOpen}
@@ -56,7 +73,11 @@ export function StorageLocationDialogs({
             onSelectedDeleted();
           }
         }}
-      />
+      >
+        {dialogs.deleteOpen && actionTarget && (
+          <StoragePlanDeleteWarning locations={[actionTarget]} />
+        )}
+      </DeleteDialog>
       {dialogs.menuLocation && (
         <ShareStorageLinkDialog
           locationGuid={dialogs.menuLocation.guid}

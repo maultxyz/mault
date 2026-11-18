@@ -58,6 +58,16 @@ export interface TextFieldProps {
   multiline?: boolean;
 }
 
+export interface NumberTextFieldProps {
+  label: string;
+  value: number | null;
+  onChange: (value: number | null) => void;
+  onBlur?: () => void;
+  error?: string;
+  placeholder?: string;
+  editable?: boolean;
+}
+
 export interface SearchInputProps {
   value: string;
   onChangeText: (value: string) => void;
@@ -118,6 +128,7 @@ export interface ListRowProps {
   subtitleNumberOfLines?: number;
   swipeDestructiveAction?: SwipeRowAction;
   accessibilityHint?: string;
+  checked?: boolean;
 }
 
 export interface CheckboxIndicatorProps {

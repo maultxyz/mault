@@ -1,4 +1,5 @@
-import type { BinSetMode } from "@magic-vault/shared";
+import type { BinsPageView } from "@/lib/interfaces/bins";
+import type { BinSetMode, StoragePlanLocationStatus } from "@magic-vault/shared";
 
 export const SORTING_RULES_PATH = "/app/rules";
 export const SORTING_RULES_PRESET_PARAM = "preset";
@@ -83,6 +84,19 @@ export const SORTING_MODE_SUMMARY_KEYS: Record<BinSetMode, string> = {
 };
 
 export const SORTING_MODE_SELECT_ID = "sorting-mode";
+export const BINS_VIEW_PARAM = "view";
+export const sortingRulesPresetStoragePath = (presetGuid: string) =>
+  `${sortingRulesPresetPath(presetGuid)}&${BINS_VIEW_PARAM}=storage`;
+export const BINS_PAGE_VIEWS = ["rules", "storage"] as const satisfies readonly BinsPageView[];
+export const ADD_STORAGE_LOCATIONS_SEARCH_ID = "add-storage-locations-search";
+export const STORAGE_PLAN_STATUS_BADGE_VARIANT: Record<
+  StoragePlanLocationStatus,
+  "info" | "secondary" | "outline"
+> = {
+  filling: "info",
+  full: "secondary",
+  waiting: "outline",
+};
 export const SORTING_MODE_DESCRIPTION_ID = "sorting-mode-description";
 export const SORTING_MODE_SUMMARY_ID = "sorting-mode-summary";
 export const AUTO_ASSIGN_FIELD_SELECT_ID = "auto-assign-field";

@@ -545,7 +545,8 @@
     "summaryTotal_other": "{{count}} cards in the bins",
     "expand": "Show bin levels",
     "collapse": "Hide bin levels",
-    "cellTitle": "Bin {{bin}} is {{percent}}% full"
+    "cellTitle": "Bin {{bin}} is {{percent}}% full",
+    "fillsLocation": "fills {{location}}"
   },
   "autoAssignControl": {
     "summary": "{{claimed}} of {{total}} bins claimed by {{field}}",

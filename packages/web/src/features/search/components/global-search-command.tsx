@@ -1,3 +1,4 @@
+import { formatStorageSlot } from "@magic-vault/shared";
 import { CardImage } from "@/components/card-image";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Command, CommandDialog, CommandGroup, CommandInput, CommandList } from "@/components/ui/command";
@@ -107,7 +108,7 @@ export function GlobalSearchCommand() {
                     {results.cardResults.map((result) => {
                       const placement = result.locationName
                         ? result.locationPosition != null
-                          ? t("locationPosition", { location: result.locationName, position: result.locationPosition })
+                          ? t("locationPosition", { location: result.locationName, position: formatStorageSlot(result.locationPosition, result.locationBatchSize) })
                           : result.locationName
                         : null;
                       return (

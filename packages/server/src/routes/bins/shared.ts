@@ -18,6 +18,12 @@ import {
 } from "@magic-vault/shared";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import { loadBinEmptiedTimes } from "../../lib/bin-emptying";
+import {
+  loadFillLocations,
+  toClaimedStorageLocation,
+} from "../../lib/storage-fill-claims";
+import type { FillLocationRow } from "../../lib/interfaces/storage-locations";
+import type { BinRow } from "../../lib/interfaces/bins";
 import { listOrgDevices } from "../../lib/devices";
 import type { Transaction } from "../../db";
 import { bins, binSetAudit, binSets } from "../../db/schema";
@@ -178,6 +184,35 @@ export function emptyRules(): BinRuleGroup {
   };
 }
 
+function toBinConfig(
+  bin: BinRow,
+  emptiedTimes: Map<number, number>,
+  fillLocations: Map<number, FillLocationRow>,
+): BinConfig {
+  return {
+    guid: bin.guid!,
+    binNumber: bin.binNumber,
+    rules: bin.rules as BinRuleGroup,
+    isCatchAll: bin.isCatchAll,
+    isOverride: bin.isOverride,
+    overridePriority: bin.overridePriority,
+    lowMatchPercent: bin.lowMatchPercent,
+    maxCopies: bin.maxCopies,
+    maxCopiesBy: bin.maxCopiesBy,
+    maxCards: bin.maxCards,
+    overflowBin: bin.overflowBin,
+    isDisabled: bin.isDisabled,
+    pickList: bin.isCatchAll ? null : toPickList(bin.pickList),
+    repackPriority: bin.repackPriority,
+    lastEmptiedAt: emptiedTimes.get(bin.binNumber) ?? null,
+    claimedStorageLocation: toClaimedStorageLocation(
+      bin.claimedStorageLocationId == null || bin.isCatchAll
+        ? undefined
+        : fillLocations.get(bin.claimedStorageLocationId),
+    ),
+  };
+}
+
 function toBinSet(row: {
   guid: string | null;
   name: string;
@@ -198,25 +233,11 @@ function toBinSet(row: {
   skipSaving: boolean;
   isResortMode: boolean;
   matchGameKeys: string[];
+  fillStorageLocationIds: number[];
   description: string;
   createdAt: Date;
   updatedAt: Date;
-  bins: {
-    guid: string | null;
-    binNumber: number;
-    rules: unknown;
-    isCatchAll: boolean;
-    isOverride: boolean;
-    overridePriority: number | null;
-    lowMatchPercent: number | null;
-    maxCopies: number | null;
-    maxCopiesBy: string | null;
-    maxCards: number | null;
-    overflowBin: number | null;
-    isDisabled: boolean;
-    pickList: unknown;
-    repackPriority: number | null;
-  }[];
+  bins: BinRow[];
   game: {
     guid: string | null;
     key: string;
@@ -229,7 +250,7 @@ function toBinSet(row: {
     createdAt: Date;
     updatedAt: Date;
   } | null;
-}, emptiedTimes: Map<number, number>): BinSet {
+}, emptiedTimes: Map<number, number>, fillLocations: Map<number, FillLocationRow>): BinSet {
   return {
     guid: row.guid!,
     name: row.name,
@@ -250,24 +271,11 @@ function toBinSet(row: {
     skipSaving: row.skipSaving,
     isResortMode: row.isResortMode,
     matchGameKeys: row.matchGameKeys,
+    fillStorageLocationGuids: row.fillStorageLocationIds
+      .map((id) => fillLocations.get(id)?.guid)
+      .filter((guid): guid is string => guid != null),
     description: row.description,
-    bins: row.bins.map((bin) => ({
-      guid: bin.guid!,
-      binNumber: bin.binNumber,
-      rules: bin.rules as BinRuleGroup,
-      isCatchAll: bin.isCatchAll,
-      isOverride: bin.isOverride,
-      overridePriority: bin.overridePriority,
-      lowMatchPercent: bin.lowMatchPercent,
-      maxCopies: bin.maxCopies,
-      maxCopiesBy: bin.maxCopiesBy,
-      maxCards: bin.maxCards,
-      overflowBin: bin.overflowBin,
-      isDisabled: bin.isDisabled,
-      pickList: bin.isCatchAll ? null : toPickList(bin.pickList),
-      repackPriority: bin.repackPriority,
-      lastEmptiedAt: emptiedTimes.get(bin.binNumber) ?? null,
-    })),
+    bins: row.bins.map((bin) => toBinConfig(bin, emptiedTimes, fillLocations)),
     game: row.game
       ? {
           guid: row.game.guid!,
@@ -308,6 +316,7 @@ const binSetQuery = {
     skipSaving: true,
     isResortMode: true,
     matchGameKeys: true,
+    fillStorageLocationIds: true,
     description: true,
     createdAt: true,
     updatedAt: true,
@@ -330,6 +339,7 @@ const binSetQuery = {
         isDisabled: true,
         pickList: true,
         repackPriority: true,
+        claimedStorageLocationId: true,
       },
     },
     game: true,
@@ -344,11 +354,40 @@ export async function loadSets(tx: Transaction, orgId: string) {
     orderBy: (binSets, { desc }) => [desc(binSets.updatedAt)],
   });
   const emptiedTimes = await loadBinEmptiedTimes(tx, orgId);
+  const fillLocations = await loadFillLocations(tx, [
+    ...new Set(
+      rows.flatMap((row) => [
+        ...row.fillStorageLocationIds,
+        ...row.bins.flatMap((bin) =>
+          bin.claimedStorageLocationId == null ? [] : [bin.claimedStorageLocationId],
+        ),
+      ]),
+    ),
+  ]);
   return {
     message: "Loaded sets.",
     success: true,
-    data: rows.map((row) => toBinSet(row, emptiedTimes)),
+    data: rows.map((row) => toBinSet(row, emptiedTimes, fillLocations)),
   };
+}
+
+export async function loadBinConfigs(
+  tx: Transaction,
+  orgId: string,
+  binSetId: number,
+): Promise<BinConfig[]> {
+  const rows = await tx.query.bins.findMany({
+    where: (t, { eq, and }) => and(eq(t.binSet, binSetId), eq(t.isDeleted, false)),
+    columns: binSetQuery.with.bins.columns,
+  });
+  const emptiedTimes = await loadBinEmptiedTimes(tx, orgId);
+  const claimedLocations = await loadFillLocations(
+    tx,
+    rows.flatMap((row) =>
+      row.claimedStorageLocationId == null ? [] : [row.claimedStorageLocationId],
+    ),
+  );
+  return rows.map((row) => toBinConfig(row, emptiedTimes, claimedLocations));
 }
 
 export async function snapshotBinSet(

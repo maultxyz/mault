@@ -1,4 +1,7 @@
 import {
+  STORAGE_LOCATION_BATCH_SIZE_MAX,
+  STORAGE_LOCATION_BULK_MAX,
+  STORAGE_LOCATION_CAPACITY_MAX,
   STORAGE_LOCATION_NAME_MAX_LENGTH,
   STORAGE_VERIFY_CARDS_MAX,
   toCardCondition,
@@ -21,6 +24,7 @@ import { and, asc, eq, inArray, sql, type SQL } from "drizzle-orm";
 import { shortLinkUrlFor } from "../../lib/shortener-client";
 import { uuidArraySql } from "../../lib/sql-arrays";
 import type { Transaction } from "../../db";
+import { UUID_PATTERN } from "../../lib/constants/validation";
 import {
   collectionCards,
   collections,
@@ -29,6 +33,7 @@ import {
 } from "../../db/schema";
 import type {
   StorageLocationRow,
+  StorageLocationSizes,
   StoredCardIdsPage,
   StoredCardNavigationRow,
 } from "../../lib/interfaces/storage-locations";
@@ -46,6 +51,7 @@ import {
   INVENTORY_CARD_JOINS,
   STORED_CARD_POSITION_ORDER,
   WANTED_LINE_NAME_MATCH,
+  INVALID_STORAGE_LOCATION_LIMIT,
 } from "../../lib/constants/storage-locations";
 import {
   cardFilterSql,
@@ -64,6 +70,42 @@ export function parseLocationName(value: unknown): string | null {
   const name = value.trim();
   if (!name || name.length > STORAGE_LOCATION_NAME_MAX_LENGTH) return null;
   return name;
+}
+
+function parseStorageLocationLimit(
+  value: unknown,
+  max: number,
+): number | null | undefined | typeof INVALID_STORAGE_LOCATION_LIMIT {
+  if (value === undefined || value === null) return value;
+  return typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= max
+    ? value
+    : INVALID_STORAGE_LOCATION_LIMIT;
+}
+
+export function parseBulkLocationGuids(value: unknown): string[] | null {
+  if (
+    !Array.isArray(value) ||
+    value.length === 0 ||
+    value.length > STORAGE_LOCATION_BULK_MAX ||
+    !value.every((guid) => typeof guid === "string" && UUID_PATTERN.test(guid))
+  ) {
+    return null;
+  }
+  return [...new Set(value as string[])];
+}
+
+export function parseStorageLocationSizes(
+  body: Record<string, unknown>,
+): StorageLocationSizes | null {
+  const capacity = parseStorageLocationLimit(body.capacity, STORAGE_LOCATION_CAPACITY_MAX);
+  const batchSize = parseStorageLocationLimit(body.batchSize, STORAGE_LOCATION_BATCH_SIZE_MAX);
+  if (
+    capacity === INVALID_STORAGE_LOCATION_LIMIT ||
+    batchSize === INVALID_STORAGE_LOCATION_LIMIT
+  ) {
+    return null;
+  }
+  return { capacity, batchSize };
 }
 
 export async function locationNameTaken(
@@ -152,6 +194,7 @@ export function selectStoredCardsWithPlacements(tx: Transaction) {
       binEmptiedAt: collectionCards.binEmptiedAt,
       storageLocationGuid: storageLocations.guid,
       storageLocationName: storageLocations.name,
+      storageLocationBatchSize: storageLocations.batchSize,
     })
     .from(collectionCards)
     .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
@@ -171,6 +214,7 @@ export function selectLocatedCards(tx: Transaction) {
       ...storedCardColumns(),
       locationGuid: storageLocations.guid,
       locationName: storageLocations.name,
+      locationBatchSize: storageLocations.batchSize,
     })
     .from(collectionCards)
     .innerJoin(
@@ -193,6 +237,7 @@ export async function toLocatedCards(
     ...card,
     locationGuid: rows[index].locationGuid!,
     locationName: rows[index].locationName,
+    locationBatchSize: rows[index].locationBatchSize,
   }));
 }
 
@@ -273,6 +318,8 @@ export async function loadLocations(
   const pricing = await loadOrgPricing(tx, orgId);
   const result = await tx.execute(sql`
     SELECT sl.guid, sl.name, sl.created_at, sl.last_used_at, sl.label_short_code,
+      sl.capacity, sl.batch_size,
+      COALESCE(max(cc.location_position), 0)::int AS used_slots,
       count(cc.id)::int AS card_count,
       COALESCE(sum(${joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp")}) FILTER (WHERE cc.id IS NOT NULL), 0)::float8 AS total_value
     FROM ${storageLocations} sl
@@ -298,6 +345,9 @@ export async function loadLocations(
     cardCount: Number(r.card_count),
     totalValue: Number(r.total_value),
     labelShortUrl: shortLinkUrlFor(r.label_short_code),
+    capacity: r.capacity,
+    batchSize: r.batch_size,
+    usedSlots: Number(r.used_slots),
   }));
 }
 

@@ -19,6 +19,7 @@ const rulesDraft: BinModeDraft = {
   skipSaving: false,
   isResortMode: false,
   matchGameKeys: [],
+  fillStorageLocationGuids: [],
 };
 
 describe("sortingModeOfDraft", () => {

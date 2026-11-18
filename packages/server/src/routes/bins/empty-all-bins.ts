@@ -6,6 +6,7 @@ import { storageLocations } from "../../db/schema";
 import { markBinsEmptied } from "../../lib/bin-emptying";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import { assignBinToLocation } from "../../lib/storage-locations";
+import { reclaimFillLocations } from "../../lib/storage-fill-claims";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
@@ -29,8 +30,9 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
     const {
       binNumbers = [],
       collectionGuid,
-      locations = [],
+      locations: requestedLocations = [],
       resetAutoAssignedRules = false,
+      storeInClaimedLocations = false,
     } = await c.req
       .json<Partial<EmptyAllBinsInput>>()
       .catch((): Partial<EmptyAllBinsInput> => ({}));
@@ -41,8 +43,8 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
       return c.json({ success: false, message: "Invalid bin numbers." }, 400);
     }
     if (
-      !Array.isArray(locations) ||
-      locations.some(
+      !Array.isArray(requestedLocations) ||
+      requestedLocations.some(
         (l) =>
           !Number.isInteger(l?.binNumber) ||
           typeof l?.locationGuid !== "string" ||
@@ -57,7 +59,16 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
         400,
       );
     }
-    if (locations.length > 0 && !collectionGuid) {
+    if (typeof storeInClaimedLocations !== "boolean") {
+      return c.json(
+        { success: false, message: "Invalid storeInClaimedLocations." },
+        400,
+      );
+    }
+    if (
+      (requestedLocations.length > 0 || storeInClaimedLocations) &&
+      !collectionGuid
+    ) {
       return c.json(
         { success: false, message: "A collection is required." },
         400,
@@ -75,6 +86,28 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
           },
         },
       });
+      const locations = [...requestedLocations];
+      if (storeInClaimedLocations && activeBinSet) {
+        await reclaimFillLocations(tx, activeBinSet.id);
+        const explicitBins = new Set(locations.map((l) => l.binNumber));
+        const claimedBins = await tx.query.bins.findMany({
+          where: (t, { eq, and, isNotNull }) =>
+            and(
+              eq(t.binSet, activeBinSet.id),
+              eq(t.isDeleted, false),
+              eq(t.isCatchAll, false),
+              isNotNull(t.claimedStorageLocationId),
+            ),
+          columns: { binNumber: true },
+          with: { claimedStorageLocation: { columns: { guid: true } } },
+        });
+        for (const bin of claimedBins) {
+          const claimedGuid = bin.claimedStorageLocation?.guid;
+          if (claimedGuid && !explicitBins.has(bin.binNumber)) {
+            locations.push({ binNumber: bin.binNumber, locationGuid: claimedGuid });
+          }
+        }
+      }
       const emptiedBinNumbers = [
         ...new Set([
           ...(activeBinSet?.bins.map((b) => b.binNumber) ?? []),
@@ -148,6 +181,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
       }
 
       await markBinsEmptied(tx, orgId, emptiedBinNumbers);
+      if (activeBinSet) await reclaimFillLocations(tx, activeBinSet.id);
 
       if (resetAutoAssignedRules && activeBinSet?.autoAssignField) {
         await snapshotBinSet(tx, activeBinSet.id, activeBinSet.guid!, orgId);
