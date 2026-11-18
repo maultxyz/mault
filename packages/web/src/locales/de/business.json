@@ -746,7 +746,6 @@
       "customPrice": "Eigener Preis",
       "customPriceFor": "Eigener Preis für {{name}}",
       "labelPrice": "Etikettenpreis",
-      "noPrice": "Kein Preis",
       "truncated": "Die ersten {{shown}} von {{total}} Karten werden angezeigt. Drucke die Etiketten für die übrigen über einen Lagerort oder Ankauf."
     },
     "empty": {

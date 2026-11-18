@@ -11,6 +11,7 @@ import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import {
   NEON_AUTH_SESSION_CHALLENGE_COOKIE_PATTERN,
+  NEON_AUTH_SESSION_TOKEN_COOKIE_PATTERN,
   SOCIAL_SIGN_IN_CANCELLED_ERROR,
 } from "@/lib/constants/auth";
 import { NEON_AUTH_URL, WEB_URL } from "@/lib/constants/config";
@@ -39,7 +40,10 @@ async function sessionFrom(
   missingTokenError = "verify-email",
 ): Promise<AuthBackendSignInResult> {
   if (!res.ok) return { error: await readError(res, fallback) };
-  const headerToken = res.headers.get("set-auth-token");
+  const headerToken =
+    res.headers.get("set-auth-token") ??
+    res.headers.get("set-cookie")?.match(NEON_AUTH_SESSION_TOKEN_COOKIE_PATTERN)?.[1] ??
+    null;
   const body = (await res.json().catch(() => null)) as {
     token?: string | null;
     session?: { token?: string | null } | null;
@@ -121,6 +125,7 @@ export const neonBackend: AuthBackend = {
     try {
       const res = await fetch(`${NEON_AUTH_URL}/sign-in/email`, {
         method: "POST",
+        credentials: "omit",
         headers: neonHeaders(),
         body: JSON.stringify({ email, password }),
       });
@@ -140,6 +145,7 @@ export const neonBackend: AuthBackend = {
 
   async accessToken(sessionToken) {
     const tokenResponse = await fetch(`${NEON_AUTH_URL}/token`, {
+      credentials: "omit",
       headers: neonHeaders(sessionToken),
     });
     if (tokenResponse.ok) {
@@ -148,6 +154,7 @@ export const neonBackend: AuthBackend = {
     }
     if (tokenResponse.status === 401) return null;
     const sessionResponse = await fetch(`${NEON_AUTH_URL}/get-session`, {
+      credentials: "omit",
       headers: neonHeaders(sessionToken),
     });
     if (sessionResponse.status === 401) return null;
@@ -160,6 +167,7 @@ export const neonBackend: AuthBackend = {
   async signOut(sessionToken) {
     await fetch(`${NEON_AUTH_URL}/sign-out`, {
       method: "POST",
+      credentials: "omit",
       headers: neonHeaders(sessionToken),
     }).catch(() => {});
   },
@@ -167,10 +175,40 @@ export const neonBackend: AuthBackend = {
 
 export async function neonAuthRequest<T>(path: string, sessionToken: string, body?: unknown): Promise<T> {
   const res = await fetch(`${NEON_AUTH_URL}${path}`, {
+    credentials: "omit",
     method: body === undefined ? "GET" : "POST",
     headers: neonHeaders(sessionToken),
     body: body === undefined ? undefined : JSON.stringify(body),
   });
   if (!res.ok) throw new Error(await readError(res, "Request failed."));
   return (await res.json()) as T;
+}
+
+export async function linkSocialProviderInBrowser(
+  provider: NeonSocialProvider,
+  sessionToken: string,
+): Promise<{ error?: string }> {
+  const callbackUrl = `${WEB_URL}${MOBILE_SOCIAL_SIGN_IN_CALLBACK_PATH}`;
+  const startResponse = await fetch(`${NEON_AUTH_URL}/link-social`, {
+    method: "POST",
+    credentials: "omit",
+    headers: neonHeaders(sessionToken),
+    body: JSON.stringify({
+      provider,
+      callbackURL: callbackUrl,
+      errorCallbackURL: callbackUrl,
+      disableRedirect: true,
+    }),
+  });
+  if (!startResponse.ok) return { error: await readNeonErrorCode(startResponse, "link-start") };
+  const { url: providerLinkUrl } = (await startResponse.json()) as { url?: string };
+  if (!providerLinkUrl) return { error: "link" };
+
+  const browserResult = await WebBrowser.openAuthSessionAsync(
+    mobileSignInStartUrl(providerLinkUrl),
+    MOBILE_SOCIAL_SIGN_IN_APP_CALLBACK_URL,
+  );
+  if (browserResult.type !== "success") return { error: SOCIAL_SIGN_IN_CANCELLED_ERROR };
+  const error = readQueryParam(browserResult.url, MOBILE_SOCIAL_SIGN_IN_ERROR_PARAM);
+  return error ? { error } : {};
 }

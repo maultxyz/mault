@@ -1,8 +1,15 @@
 #!/bin/bash
 # The `mault` command on Pi installs: sudo mault <command>
+# Installed as /usr/local/sbin/mault by secure-layout.sh, never run from a
+# release. Release scripts run as root only after trusted-tree.py has checked
+# that the service account cannot change them; anything reading the service's
+# own files runs as the service account.
 set -euo pipefail
+if [[ "$EUID" -eq 0 ]]; then export PATH=/usr/sbin:/usr/bin:/sbin:/bin; fi
+unset BASH_ENV ENV
 
 MAULT_HOME=/opt/mault
+MAULT_LIB=/usr/local/lib/mault
 MAULT_DATA=/var/lib/mault
 MAULT_USER=mault-service
 ROOT="$MAULT_HOME/current"
@@ -16,6 +23,7 @@ Usage: sudo mault <command>
   status                 Show whether Mault is running
   start | stop | restart Control the Mault services
   update [--bundle FILE] Install the latest release (or a downloaded bundle)
+  os-updates             Turn on automatic OS security updates
   logs [api|camera|controller|update|setup]
                          Show recent log output
   sorter usb|builtin [raspberry-pi|orange-pi-zero4]
@@ -24,6 +32,25 @@ Usage: sudo mault <command>
   urls                   Show the addresses to open Mault from
   version                Show the installed version
 EOF
+}
+
+release_field() {
+  python3 -I -c 'import json, sys; print(json.load(open(sys.argv[1]))[sys.argv[2]])' "$ROOT/release.json" "$1"
+}
+
+require_trusted_release() {
+  if [[ ! -f "$MAULT_LIB/trusted-tree.py" ]] ||
+    ! python3 -I "$MAULT_LIB/trusted-tree.py" --release "$ROOT" --path /usr/local/sbin/mault --path "$MAULT_LIB"; then
+    echo "This Mault installation lets the service account change code that runs as root." >&2
+    echo "Reinstall it once with the install.sh from the newest pi-v release (settings and cards stay):" >&2
+    echo "  curl -fsSL <release>/install.sh | sudo bash" >&2
+    exit 1
+  fi
+}
+
+run_release_script() {
+  require_trusted_release
+  bash "$SCRIPTS/$1" "${@:2}"
 }
 
 require_root() {
@@ -72,7 +99,7 @@ shift || true
 case "$command" in
   status)
     require_root "$command"
-    echo "Mault $(python3 -c 'import json; print(json.load(open("/opt/mault/current/release.json"))["version"])')"
+    echo "Mault $(release_field version)"
     # shellcheck disable=SC2046
     service_systemctl --no-pager status $(all_services) || true
     ;;
@@ -90,13 +117,20 @@ case "$command" in
     ;;
   update)
     require_root "$command"
-    as_service_user bash "$SCRIPTS/update.sh" "$@"
+    run_release_script update.sh "$@"
+    run_release_script secure-layout.sh
+    bash "$MAULT_LIB/os-updates.sh" ||
+      echo "Could not turn on automatic OS updates. Try again with: sudo mault os-updates" >&2
+    ;;
+  os-updates)
+    require_root "$command"
+    bash "$MAULT_LIB/os-updates.sh"
     ;;
   logs)
     require_root "$command"
     case "${1:-api}" in
-      api) tail -n 200 "$MAULT_DATA/.local/state/mault/api.log" ;;
-      update) tail -n 200 "$MAULT_DATA/.local/state/mault/update.log" ;;
+      api) as_service_user tail -n 200 "$MAULT_DATA/.local/state/mault/api.log" ;;
+      update) tail -n 200 /var/lib/mault-system/update.log ;;
       setup) journalctl -u mault-setup.service -n 200 --no-pager ;;
       camera|controller) service_systemctl --no-pager status "mault-$1.service" -n 200 || true ;;
       *) usage; exit 1 ;;
@@ -110,8 +144,9 @@ case "$command" in
       *) usage; exit 1 ;;
     esac
     board="${2:-raspberry-pi}"
-    sed -i -E '/^\s*(export\s+)?PI_SORTER(_BOARD)?=/d' "$MAULT_DATA/.env"
-    PI_SORTER="$mode" PI_SORTER_BOARD="$board" bash "$SCRIPTS/setup.sh"
+    require_trusted_release
+    as_service_user sed -i -E '/^\s*(export\s+)?PI_SORTER(_BOARD)?=/d' "$MAULT_DATA/.env"
+    PI_SORTER="$mode" PI_SORTER_BOARD="$board" run_release_script setup.sh
     ;;
   prices)
     require_root "$command"
@@ -122,7 +157,7 @@ case "$command" in
     print_urls
     ;;
   version)
-    python3 -c 'import json; print(json.load(open("/opt/mault/current/release.json"))["version"])'
+    release_field version
     ;;
   ""|-h|--help|help)
     usage

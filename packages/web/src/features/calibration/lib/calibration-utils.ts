@@ -2,7 +2,12 @@ import type {
   SliderKey,
   CalibrationDebugParams,
 } from "@/lib/interfaces/calibration";
-import { CHANNEL_OFFSET } from "@magic-vault/shared";
+import {
+  CHANNEL_OFFSET,
+  formatFeederSpeedWithPercent,
+  formatPulseWithPercent,
+  SERVO_PULSE_CENTER,
+} from "@magic-vault/shared";
 
 export function defaultSliderValues(modules: number[]): Record<SliderKey, number> {
   const vals = {} as Record<SliderKey, number>;
@@ -19,10 +24,12 @@ export function buildCalibrationDebugText({
   moduleCount,
   configs,
   feederConfig,
+  feederStopPulse,
   binRoutes,
   firmwareVersion,
   board,
 }: CalibrationDebugParams): string {
+  const feederCenter = feederStopPulse ?? SERVO_PULSE_CENTER;
   const lines: string[] = [
     "Mault Calibration Debug",
     `Generated: ${new Date().toISOString()}`,
@@ -31,12 +38,13 @@ export function buildCalibrationDebugText({
     `Module count: ${moduleCount}`,
     "",
     "Feeder:",
-    `  speed: ${feederConfig.speed}`,
+    `  stopPulse: ${feederStopPulse ?? `${SERVO_PULSE_CENTER} (default)`}`,
+    `  speed: ${formatFeederSpeedWithPercent(feederConfig.speed, feederCenter)}`,
     `  duration: ${feederConfig.duration}ms`,
     `  pulseDuration: ${feederConfig.pulseDuration > 0 ? `${feederConfig.pulseDuration}ms` : "continuous"}`,
     `  pauseDuration: ${feederConfig.pauseDuration}ms`,
     `  settleDuration: ${feederConfig.settleDuration}ms`,
-    `  reverseSpeed: ${feederConfig.reverseSpeed}`,
+    `  reverseSpeed: ${formatFeederSpeedWithPercent(feederConfig.reverseSpeed, feederCenter)}`,
     `  reverseDuration: ${feederConfig.reverseDuration > 0 ? `${feederConfig.reverseDuration}ms` : "off"}`,
     `  feedRetryCount: ${feederConfig.feedRetryCount}`,
     "",
@@ -45,9 +53,9 @@ export function buildCalibrationDebugText({
   for (const c of [...configs].sort((a, b) => a.moduleNumber - b.moduleNumber)) {
     lines.push(
       `Module ${c.moduleNumber}:`,
-      `  bottom: closed=${c.calibration.bottomClosed} open=${c.calibration.bottomOpen}`,
-      `  paddle: closed=${c.calibration.paddleClosed} open=${c.calibration.paddleOpen}`,
-      `  pusher: left=${c.calibration.pusherLeft} neutral=${c.calibration.pusherNeutral} right=${c.calibration.pusherRight}`,
+      `  bottom: closed=${formatPulseWithPercent(c.calibration.bottomClosed)} open=${formatPulseWithPercent(c.calibration.bottomOpen)}`,
+      `  paddle: closed=${formatPulseWithPercent(c.calibration.paddleClosed)} open=${formatPulseWithPercent(c.calibration.paddleOpen)}`,
+      `  pusher: left=${formatPulseWithPercent(c.calibration.pusherLeft)} neutral=${formatPulseWithPercent(c.calibration.pusherNeutral)} right=${formatPulseWithPercent(c.calibration.pusherRight)}`,
       `  paddleOpenDelay: ${c.calibration.paddleOpenDelay}ms`,
       `  pusherHoldDuration: ${c.calibration.pusherHoldDuration}ms`,
       `  paddleCloseDelay: ${c.calibration.paddleCloseDelay}ms`,

@@ -1,4 +1,5 @@
 import type { RawCommandResult } from "@/lib/interfaces/scanner";
+import type { FirmwareLedState } from "@magic-vault/shared";
 
 export type KitServoVerdict = "pass" | "fail";
 
@@ -38,4 +39,26 @@ export interface KitRawCommandConsoleProps {
 
 export interface RawCommandHistoryRowProps {
   entry: RawCommandHistoryEntry;
+}
+
+export interface KitLedSelection {
+  strip: number;
+  led: number;
+}
+
+export interface KitLedBenchProps {
+  disabled: boolean;
+}
+
+export interface KitLedStripRowProps {
+  strip: number;
+  leds: FirmwareLedState[];
+  selection: KitLedSelection;
+  disabled: boolean;
+  onSelect: (selection: KitLedSelection) => void;
+  onStripToggle: (strip: number, on: boolean) => void;
+}
+
+export interface KitLedSwatchProps {
+  led: FirmwareLedState;
 }

@@ -1,0 +1,9 @@
+[Unit]
+Description=Watch for Mault update requests from the app
+
+[Path]
+PathExists=/var/lib/mault-system/requests/update-request
+Unit=mault-update.service
+
+[Install]
+WantedBy=multi-user.target

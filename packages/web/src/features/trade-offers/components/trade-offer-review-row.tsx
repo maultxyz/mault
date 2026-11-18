@@ -1,3 +1,4 @@
+import { MissingPrice } from "@/components/missing-price";
 import { CardImage } from "@/components/card-image";
 import { Badge } from "@/components/ui/badge";
 import { tradeOfferPlacementLines } from "@/features/trade-offers/lib/placement-lines";
@@ -58,7 +59,7 @@ export function TradeOfferReviewRow({
           {showsPrice && (
             <span className="text-control font-medium tabular-nums">
               {row.totalPrice == null
-                ? t("tradeOffers.cardList.noPrice")
+                ? <MissingPrice />
                 : formatPrice(row.totalPrice, priceSource)}
             </span>
           )}

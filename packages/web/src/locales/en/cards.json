@@ -41,9 +41,7 @@
     "market": "Market",
     "low": "Low",
     "regular": "Regular",
-    "foil": "Foil",
-    "noPrice": "n/a",
-    "acrossPrintings": "Range across {{count}} printings"
+    "foil": "Foil"
   },
   "cardDetailPanel": {
     "catalogCardRemovedTitle": "Card no longer in the catalog",
@@ -699,7 +697,6 @@
     "conditionFor": "Condition of {{name}}",
     "yourOffers_one": "Your sent offers ({{count}})",
     "yourOffers_other": "Your sent offers ({{count}})",
-    "noPrice": "No price",
     "account": {
       "logIn": "Log in",
       "logInHint": "Log in to keep track of the offers you send. They show up under Trades > Sent in your account.",

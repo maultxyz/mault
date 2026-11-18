@@ -58,6 +58,8 @@ class UpdateTests(unittest.TestCase):
             MAULT_HOME=str(self.home),
             MAULT_DATA=str(self.data),
             MAULT_USER=getpass.getuser(),
+            MAULT_UPDATE_RUN_AS_UID=str(os.getuid()),
+            MAULT_SYSTEM_STATE=str(self.root / "system-state"),
             XDG_STATE_HOME=str(self.root / "state"),
             XDG_CONFIG_HOME=str(self.root / "config"),
             CALL_LOG=str(self.log),
@@ -126,22 +128,28 @@ class UpdateTests(unittest.TestCase):
         self.assertIn("already the latest version", result.stdout)
         self.assertNotIn("systemctl --user stop", self.log.read_text())
 
-    def test_other_users_cannot_update(self):
-        self.env["MAULT_USER"] = "someone-else"
+    def test_only_root_can_update(self):
+        self.env["MAULT_UPDATE_RUN_AS_UID"] = str(os.getuid() + 1)
         result = self.update("--bundle", str(self.bundle("1.0.1")))
         self.assertEqual(result.returncode, 1)
         self.assertIn("sudo mault update", result.stdout)
         self.assertEqual(self.current(), "1.0.0")
 
-    def test_background_runner_persists_failure(self):
-        state = self.root / "state/mault"
-        state.mkdir(parents=True)
-        (state / "update.json").write_text('{"phase":"running","startedAt":1,"message":null}')
-        self.env["MAULT_USER"] = "someone-else"
-        subprocess.run(["bash", str(self.home / "current/scripts/pi/run-update.sh")], env=self.env)
+    def test_background_runner_refuses_an_untrusted_release_and_persists_failure(self):
+        state = self.root / "system-state"
+        (state / "requests").mkdir(parents=True)
+        (state / "requests/update-request").write_text("")
+        self.env["MAULT_LIB"] = str(SCRIPTS)
+        subprocess.run(["bash", str(SCRIPTS / "run-update.sh")], env=self.env)
         saved = json.loads((state / "update.json").read_text())
         self.assertEqual(saved["phase"], "failed")
+        self.assertIsInstance(saved["startedAt"], int)
         self.assertIn("sudo mault logs update", saved["message"])
+        self.assertFalse((state / "requests/update-request").exists())
+        log = (state / "update.log").read_text()
+        self.assertIn("Refusing to run", log)
+        self.assertNotIn("systemctl --user stop", self.log.read_text())
+        self.assertEqual(self.current(), "1.0.0")
 
 
 if __name__ == "__main__":

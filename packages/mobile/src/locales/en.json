@@ -1,7 +1,7 @@
 {
   "scanner": {
     "piHardware": {
-    "bluetoothOff": "Bluetooth is switched off on the host",
+      "bluetoothOff": "Bluetooth is switched off on the host",
       "bluetoothScanning": "Searching for Bluetooth sorters…",
       "bluetoothFailed": "Could not search for Bluetooth sorters. Check that Bluetooth is enabled on the host.",
       "bluetoothEmpty": "No Bluetooth sorters found. Turn on the sorter and keep it nearby.",
@@ -448,6 +448,27 @@
         "updated": "Password updated",
         "updateFailed": "Couldn't update your password",
         "change": "Change password"
+      },
+      "signInMethods": {
+        "heading": "Sign-in methods",
+        "description": "Ways you can sign in to this account. Link another provider to sign in with it too.",
+        "password": "Email and password",
+        "linkedOn": "Linked {{date}}",
+        "onlyMethod": "Your only sign-in method",
+        "link": "Link {{provider}}",
+        "linked": "{{provider}} linked",
+        "linkFailed": "Couldn't link {{provider}}",
+        "linkFailedWithCode": "Couldn't link {{provider}} ({{code}})",
+        "alreadyLinkedElsewhere": "That {{provider}} account already belongs to another Mault account.",
+        "emailMismatch": "That {{provider}} account uses a different email address than this account.",
+        "unlink": "Unlink",
+        "unlinkHint": "Unlinks this sign-in method",
+        "unlinkConfirmTitle": "Unlink {{provider}}?",
+        "unlinkConfirmDescription": "You won't be able to sign in with {{provider}} anymore. You can link it again later.",
+        "unlinked": "{{provider}} unlinked",
+        "unlinkFailed": "Couldn't unlink {{provider}}",
+        "loadFailed": "Couldn't load sign-in methods",
+        "cancel": "Cancel"
       },
       "sessions": {
         "heading": "Sessions",
@@ -1580,8 +1601,7 @@
       "binFailed": "Bin {{bin}} didn't route",
       "sampleRunStopped": "Sample run stopped at bin {{bin}}"
     },
-    "scanRegionCalibrationPanel": {
-    }
+    "scanRegionCalibrationPanel": {}
   },
   "storage": {
     "title": "Storage",
@@ -2305,8 +2325,7 @@
     "low": "Low",
     "regular": "Regular",
     "foil": "Foil",
-    "noPrice": "n/a",
-    "acrossPrintings": "Range across {{count}} printings"
+    "noPrice": "No price"
   },
   "health": {
     "title": "System health",

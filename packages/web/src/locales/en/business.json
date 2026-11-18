@@ -746,7 +746,6 @@
       "customPrice": "Custom price",
       "customPriceFor": "Custom price for {{name}}",
       "labelPrice": "Label price",
-      "noPrice": "No price",
       "truncated": "Showing the first {{shown}} of {{total}} cards. Print labels from a storage location or intake lot to label the rest."
     },
     "empty": {

@@ -70,6 +70,7 @@ cat > "$STAGE/release.json" <<JSON
 JSON
 
 echo "[bundle] Packing"
+chmod 755 "$STAGE"
 tar -czf "$OUT/mault-pi-arm64.tar.gz" -C "$STAGE" .
 SHA256="$(sha256sum "$OUT/mault-pi-arm64.tar.gz" | cut -d' ' -f1)"
 cat > "$OUT/manifest.json" <<JSON

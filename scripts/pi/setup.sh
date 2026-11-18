@@ -1,11 +1,15 @@
 #!/bin/bash
 # Configures an installed release: secrets, database, sorter mode and services.
 # Runs as root on first boot of the SD image (mault-setup.service) and at the
-# end of install.sh. Safe to rerun.
+# end of install.sh. Safe to rerun. Root never writes, imports or parses
+# anything under /var/lib/mault itself: those steps run as the service account.
 set -euo pipefail
+if [[ "$EUID" -eq 0 ]]; then export PATH=/usr/sbin:/usr/bin:/sbin:/bin; fi
+unset BASH_ENV ENV
 
 MAULT_HOME=/opt/mault
 MAULT_DATA=/var/lib/mault
+MAULT_SYSTEM_STATE=/var/lib/mault-system
 MAULT_USER=mault-service
 ROOT="$MAULT_HOME/current"
 SCRIPTS="$ROOT/scripts/pi"
@@ -47,26 +51,24 @@ if [[ -n "$MIGRATE_FROM" && ! -f "$ENV_FILE" ]]; then
   echo "[setup] Moving settings from $MIGRATE_FROM"
   old_user="$(stat -c %U "$MIGRATE_FROM")"
   old_home="$(getent passwd "$old_user" | cut -d: -f6)"
-  grep -v -E '^\s*(export\s+)?PI_CONTROLLER_(SOCKET|CONFIG)=' "$MIGRATE_FROM/.env" > "$ENV_FILE"
-  if [[ -f "$MIGRATE_FROM/.pi-controller/calibration.json" ]]; then
-    cp "$MIGRATE_FROM/.pi-controller/calibration.json" "$MAULT_DATA/.pi-controller/"
-  fi
-  if [[ -d "$old_home/.local/state/mault" ]]; then
-    mkdir -p "$MAULT_DATA/.local/state"
-    cp -r "$old_home/.local/state/mault" "$MAULT_DATA/.local/state/"
-  fi
-  if [[ -d "$MIGRATE_FROM/.cache/collectorvision" ]]; then
-    mkdir -p "$MAULT_DATA/.cache"
-    cp -r "$MIGRATE_FROM/.cache/collectorvision" "$MAULT_DATA/.cache/"
-  fi
+  grep -v -E '^\s*(export\s+)?PI_CONTROLLER_(SOCKET|CONFIG)=' "$MIGRATE_FROM/.env" |
+    runuser -u "$MAULT_USER" -- sh -c 'umask 077 && cat > "$1"' sh "$ENV_FILE"
+  copy_into_service_data() {
+    if [[ -e "$1/$2" ]]; then
+      tar -C "$1" -cf - "$2" | runuser -u "$MAULT_USER" -- tar -C "$MAULT_DATA/$3" --no-same-owner -xf -
+    fi
+  }
+  runuser -u "$MAULT_USER" -- mkdir -p "$MAULT_DATA/.local/state" "$MAULT_DATA/.cache"
+  copy_into_service_data "$MIGRATE_FROM" .pi-controller/calibration.json .
+  copy_into_service_data "$old_home/.local/state" mault .local/state
+  copy_into_service_data "$MIGRATE_FROM/.cache" collectorvision .cache
   systemctl --user --machine="$old_user@.host" disable --now \
     mault-web.service mault-api.service mault-camera.service mault-controller.service 2>/dev/null || true
-  chown -R "$MAULT_USER:$MAULT_USER" "$MAULT_DATA"
   echo "[setup] The old checkout at $MIGRATE_FROM is no longer used. Delete it once Mault is running."
 fi
 
 if [[ ! -f "$ENV_FILE" ]]; then
-  python3 - "$ENV_FILE" <<'PY'
+  as_service_user python3 - "$ENV_FILE" <<'PY'
 import secrets
 import sys
 from pathlib import Path
@@ -90,12 +92,10 @@ path.chmod(0o600)
 print("[setup] Wrote new secrets")
 PY
 fi
-chown "$MAULT_USER:$MAULT_USER" "$ENV_FILE"
-chmod 600 "$ENV_FILE"
 
-if ! grep -q -E '^\s*(export\s+)?PI_SORTER=' "$ENV_FILE" && ! interactive; then
+if ! as_service_user grep -q -E '^\s*(export\s+)?PI_SORTER=' "$ENV_FILE" && ! interactive; then
   if [[ -z "${PI_SORTER:-}" ]]; then
-    if python3 "$SCRIPTS/detect-sorter.py"; then
+    if python3 -I "$SCRIPTS/detect-sorter.py"; then
       echo "[setup] Found a servo driver on the I2C header: this board controls the sorter."
       export PI_SORTER=1 PI_SORTER_BOARD=raspberry-pi
     else
@@ -110,16 +110,16 @@ else
   as_service_user python3 "$SCRIPTS/install-mode.py" --env "$ENV_FILE"
 fi
 if [[ -z "${CARD_API_USER_AGENT:-}" ]]; then
-  CARD_API_USER_AGENT="Mault-$(hostname | tr -c 'A-Za-z0-9._\n-' '-')-$(python3 -c 'import secrets; print(secrets.token_hex(4))')/1.0"
+  CARD_API_USER_AGENT="Mault-$(hostname | tr -c 'A-Za-z0-9._\n-' '-')-$(python3 -I -c 'import secrets; print(secrets.token_hex(4))')/1.0"
 fi
 CARD_API_USER_AGENT="$CARD_API_USER_AGENT" as_service_user python3 "$SCRIPTS/install-user-agent.py" --env "$ENV_FILE"
 
-sorter_mode="$(python3 "$SCRIPTS/install-mode.py" --env "$ENV_FILE" --print-mode)"
-sorter_board="$(python3 "$SCRIPTS/install-mode.py" --env "$ENV_FILE" --print-board)"
+sorter_mode="$(as_service_user python3 "$SCRIPTS/install-mode.py" --env "$ENV_FILE" --print-mode)"
+sorter_board="$(as_service_user python3 "$SCRIPTS/install-mode.py" --env "$ENV_FILE" --print-board)"
 if [[ "$sorter_mode" == gpio && "$sorter_board" == orange-pi-zero4 ]]; then
-  (cd "$ROOT" && python3 -c 'from scripts.pi.controller.hardware import require_zero4; require_zero4()')
+  as_service_user python3 -I -c 'import sys; sys.path.insert(0, sys.argv[1]); from scripts.pi.controller.hardware import require_zero4; require_zero4()' "$ROOT"
   DEBIAN_FRONTEND=noninteractive apt-get install -y python3-libgpiod
-  if ! python3 -c 'import gpiod; from gpiod.line import Bias, Direction, Value; assert callable(gpiod.request_lines)'; then
+  if ! python3 -I -c 'import gpiod; from gpiod.line import Bias, Direction, Value; assert callable(gpiod.request_lines)'; then
     echo "[setup] Orange Pi Zero 4 requires libgpiod v2 Python bindings from the system packages." >&2
     exit 1
   fi
@@ -181,7 +181,7 @@ systemctl reload-or-restart nginx
 
 for _ in $(seq 1 120); do
   if curl -sf http://127.0.0.1:8080/api/public/version >/dev/null; then
-    touch "$MAULT_DATA/.setup-complete"
+    touch "$MAULT_SYSTEM_STATE/setup-complete"
     bash "$SCRIPTS/mault.sh" urls
     exit 0
   fi

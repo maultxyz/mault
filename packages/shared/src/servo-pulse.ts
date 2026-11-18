@@ -1,9 +1,14 @@
 import {
+  SERVO_POSITION_KEYS,
   SERVO_PULSE_CENTER,
   SERVO_PULSE_MAX,
   SERVO_PULSE_MIN,
 } from "./constants/servo-pulse.constant";
-import type { DirectionalSpeed } from "./interfaces/servo-pulse.interface";
+import type { ServoCalibration } from "./interfaces/module-configs.interface";
+import type {
+  DirectionalSpeed,
+  ServoPositionKey,
+} from "./interfaces/servo-pulse.interface";
 
 export function pulseToPercent(pulse: number): number {
   return Math.round(
@@ -82,4 +87,24 @@ export function signedPercentToPulse(
       : { direction: "reverse", magnitude: -signedPercent },
     center,
   );
+}
+
+export function servoPositionPercents(
+  calibration: ServoCalibration,
+): Record<ServoPositionKey, number> {
+  return Object.fromEntries(
+    SERVO_POSITION_KEYS.map((key) => [key, pulseToPercent(calibration[key])]),
+  ) as Record<ServoPositionKey, number>;
+}
+
+export function formatPulseWithPercent(pulse: number): string {
+  return `${pulse} (${pulseToPercent(pulse)}%)`;
+}
+
+export function formatFeederSpeedWithPercent(
+  pulse: number,
+  center: number = SERVO_PULSE_CENTER,
+): string {
+  const { direction, magnitude } = pulseToDirectionalSpeed(pulse, center);
+  return `${pulse} (${magnitude}% ${direction})`;
 }

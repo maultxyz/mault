@@ -328,8 +328,12 @@
       "description": "Auf dem Board wird nichts geklont oder gebaut: Es läuft ein fertiges Release.",
       "steps": {
         "flash": {
-          "text": "Lade <code>mault-pi.img.xz</code> aus dem neuesten Pi-Release herunter und schreibe es mit dem Raspberry Pi Imager auf die microSD-Karte. Lege in der Betriebssystem-Anpassung des Imagers Benutzername, Passwort und WLAN fest und aktiviere SSH, wenn du Terminalzugriff möchtest. Ethernet funktioniert ohne Anpassung.",
-          "note": "Wähle einen beliebigen Benutzernamen außer mault-service, den Mault für seine eigenen Dienste verwendet."
+          "text": "Lade <code>mault-pi.img.xz</code> aus dem neuesten Pi-Release herunter und schreibe es mit dem Raspberry Pi Imager auf die microSD-Karte. Der Imager bietet für dieses Image keine Betriebssystem-Anpassung, überspringe diesen Schritt also.",
+          "note": "Ethernet funktioniert ohne Einrichtung. Anmeldung, SSH und WLAN kommen aus der Datei im nächsten Schritt."
+        },
+        "config": {
+          "text": "Öffne vor dem ersten Start das Laufwerk <code>bootfs</code> der Karte an einem beliebigen Computer und fülle <code>mault-config.txt</code> aus: Benutzername und Passwort für ein Administratorkonto, <code>ssh=yes</code> für Terminalzugriff und deine WLAN-Daten.",
+          "note": "Wähle einen beliebigen Benutzernamen außer mault-service, den Mault für seine eigenen Dienste verwendet. Das Board wendet die Datei bei jedem Start an, löscht die Passwörter daraus und schreibt das Ergebnis in die Status-Zeile. Mit derselben Datei setzt du also auch ein vergessenes Passwort zurück."
         },
         "boot": {
           "text": "Stecke die Karte in den Pi und schalte ihn ein. Der erste Start dauert einige Minuten, während Mault Datenbank und Schlüssel anlegt. Antwortet ein PCA9685-Servotreiber am I2C-Anschluss, steuert Mault den Sortierer direkt (GPIO); sonst wartet es auf einen USB- oder Bluetooth-Sortierer.",
@@ -342,6 +346,9 @@
         "services": {
           "text": "Mault läuft unter dem Konto mault-service und startet beim Booten automatisch. Die Web-App ist über Port 80 und Port 8080 erreichbar; API, Kamera-Helfer und Controller lauschen nur auf dem Board selbst.",
           "note": "Ein täglicher Preisabgleich ist für 04:00 Uhr in der Zeitzone des Boards geplant. Für alles andere gibt es den Befehl sudo mault."
+        },
+        "security": {
+          "text": "Die App ist über das Konto mault-service mit dem Netzwerk verbunden, und dieses Konto kann nichts ändern, was als root läuft: Releases in <code>/opt/mault</code> sind für es schreibgeschützt, und der Befehl sudo mault sowie die Update- und Boot-Helfer liegen in <code>/usr/local/sbin</code> und <code>/usr/local/lib/mault</code>, die root gehören."
         },
         "settings": {
           "text": "Einstellungen und Schlüssel liegen in <code>/var/lib/mault/.env</code>, darunter ein generierter <code>CARD_API_USER_AGENT</code>, der die Karten- und Preis-API-Anfragen dieser Installation kennzeichnet.",
@@ -392,6 +399,13 @@
         "update": {
           "text": "Beende Scans, trenne den Sortierer und stoppe Datenbankabgleiche. Wähle dann in der App „Mault aktualisieren“ oder führe diesen Befehl aus. Er lädt das neue Release, startet Mault neu und migriert die Datenbank. Lade deine Browser neu, wenn er fertig ist.",
           "note": "Startet die neue Version nicht, kehrt der Updater automatisch zur vorherigen Version zurück."
+        },
+        "reinstall": {
+          "text": "Boards, die mit Pi-Release 1.0.209 oder älter installiert wurden, müssen den Installer einmal erneut per SSH ausführen, bevor sie aktualisieren können. Bis dahin verweisen sudo mault update und das Update-Banner in der App hierher.",
+          "note": "Diese Releases waren für das Konto mault-service beschreibbar, deshalb löscht der Installer sie und installiert neue. Einstellungen, Konten, Karten und Kalibrierung bleiben erhalten."
+        },
+        "osUpdates": {
+          "text": "Sicherheitsupdates des Betriebssystems werden jeden Tag automatisch installiert, ohne das Board neu zu starten, damit kein Scan abbricht. Braucht ein Update einen Neustart, sehen Admins ein Banner in der App; starte dann mit sudo reboot neu, wenn kein Scan läuft. Boards, die vor dieser Funktion installiert wurden, schalten die Updates mit diesem Befehl ein."
         },
         "backup": {
           "text": "Sichere Postgres regelmäßig.",

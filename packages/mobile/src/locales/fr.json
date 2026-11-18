@@ -1,7 +1,7 @@
 {
   "scanner": {
     "piHardware": {
-    "bluetoothOff": "Le Bluetooth est désactivé sur l’hôte",
+      "bluetoothOff": "Le Bluetooth est désactivé sur l’hôte",
       "bluetoothScanning": "Recherche de trieurs Bluetooth…",
       "bluetoothFailed": "Impossible de rechercher des trieurs Bluetooth. Vérifiez que le Bluetooth est activé sur l’hôte.",
       "bluetoothEmpty": "Aucun trieur Bluetooth trouvé. Allumez le trieur et gardez-le à proximité.",
@@ -448,6 +448,27 @@
         "updated": "Mot de passe mis à jour",
         "updateFailed": "Impossible de mettre à jour le mot de passe",
         "change": "Changer de mot de passe"
+      },
+      "signInMethods": {
+        "heading": "Méthodes de connexion",
+        "description": "Les façons de te connecter à ce compte. Associe un autre fournisseur pour te connecter aussi avec lui.",
+        "password": "E-mail et mot de passe",
+        "linkedOn": "Associé le {{date}}",
+        "onlyMethod": "Ta seule méthode de connexion",
+        "link": "Associer {{provider}}",
+        "linked": "{{provider}} associé",
+        "linkFailed": "Impossible d'associer {{provider}}",
+        "linkFailedWithCode": "Impossible d'associer {{provider}} ({{code}})",
+        "alreadyLinkedElsewhere": "Ce compte {{provider}} appartient déjà à un autre compte Mault.",
+        "emailMismatch": "Ce compte {{provider}} utilise une adresse e-mail différente de celle de ce compte.",
+        "unlink": "Dissocier",
+        "unlinkHint": "Dissocie cette méthode de connexion",
+        "unlinkConfirmTitle": "Dissocier {{provider}} ?",
+        "unlinkConfirmDescription": "Tu ne pourras plus te connecter avec {{provider}}. Tu pourras l'associer de nouveau plus tard.",
+        "unlinked": "{{provider}} dissocié",
+        "unlinkFailed": "Impossible de dissocier {{provider}}",
+        "loadFailed": "Impossible de charger les méthodes de connexion",
+        "cancel": "Annuler"
       },
       "sessions": {
         "heading": "Sessions",
@@ -1580,8 +1601,7 @@
       "binFailed": "Le bac {{bin}} n'a pas été atteint",
       "sampleRunStopped": "Test d'exécution arrêté au bac {{bin}}"
     },
-    "scanRegionCalibrationPanel": {
-    }
+    "scanRegionCalibrationPanel": {}
   },
   "storage": {
     "title": "Rangement",
@@ -2305,8 +2325,7 @@
     "low": "Bas",
     "regular": "Normale",
     "foil": "Foil",
-    "noPrice": "n/d",
-    "acrossPrintings": "Fourchette sur {{count}} impressions"
+    "noPrice": "Pas de prix"
   },
   "health": {
     "title": "État du système",

@@ -132,7 +132,9 @@ app.route("/collections", collectionsRouter);
 app.route("/overview", overviewRouter);
 app.route("/stats", statsRouter);
 app.route("/leaderboard", leaderboardRouter);
-app.route("/match-validations", matchValidationsRouter);
+if (process.env.AUTH_PROVIDER !== "local") {
+  app.route("/match-validations", matchValidationsRouter);
+}
 app.route("/devices", devicesRouter);
 app.route("/games", gamesRouter);
 app.route("/announcements", announcementsRouter);

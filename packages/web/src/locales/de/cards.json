@@ -41,9 +41,7 @@
     "market": "Markt",
     "low": "Niedrig",
     "regular": "Normal",
-    "foil": "Foil",
-    "noPrice": "k. A.",
-    "acrossPrintings": "Spanne über {{count}} Drucke"
+    "foil": "Foil"
   },
   "cardDetailPanel": {
     "catalogCardRemovedTitle": "Karte nicht mehr im Katalog",
@@ -699,7 +697,6 @@
     "conditionFor": "Zustand von {{name}}",
     "yourOffers_one": "Deine gesendeten Angebote ({{count}})",
     "yourOffers_other": "Deine gesendeten Angebote ({{count}})",
-    "noPrice": "Kein Preis",
     "account": {
       "logIn": "Anmelden",
       "logInHint": "Melde dich an, um deine gesendeten Angebote im Blick zu behalten. Sie erscheinen in deinem Konto unter Tausch > Gesendet.",

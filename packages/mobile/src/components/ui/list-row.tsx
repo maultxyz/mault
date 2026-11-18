@@ -16,6 +16,7 @@ export function ListRow({
   icon,
   leading,
   value,
+  valueAccessibilityLabel,
   tone = "default",
   right,
   rightIsInteractive = false,
@@ -66,7 +67,12 @@ export function ListRow({
         ) : null}
       </View>
       {value ? (
-        <AppText tone="secondary" numberOfLines={1} style={{ flexShrink: 0, maxWidth: "50%" }}>
+        <AppText
+          tone="secondary"
+          numberOfLines={1}
+          accessibilityLabel={valueAccessibilityLabel}
+          style={{ flexShrink: 0, maxWidth: "50%" }}
+        >
           {value}
         </AppText>
       ) : null}

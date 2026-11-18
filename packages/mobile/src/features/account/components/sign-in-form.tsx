@@ -8,10 +8,10 @@ import { Callout } from "@/components/ui/callout";
 import { TextField } from "@/components/ui/text-field";
 import { signInSchema } from "@/features/account/lib/auth-schemas";
 import { SOCIAL_SIGN_IN_PROVIDERS, signIn, signInWithSocialProvider } from "@/lib/auth/session";
-import { SOCIAL_SIGN_IN_CANCELLED_ERROR, SOCIAL_SIGN_IN_PROVIDER_NAMES } from "@/lib/constants/auth";
+import { SOCIAL_SIGN_IN_CANCELLED_ERROR } from "@/lib/constants/auth";
 import { SPACING } from "@/lib/constants/theme";
 import { AppText } from "@/components/ui/app-text";
-import type { NeonSocialProvider } from "@magic-vault/shared";
+import { NEON_SOCIAL_PROVIDER_NAMES, type NeonSocialProvider } from "@magic-vault/shared";
 import type { SignInValues } from "@/lib/interfaces/forms";
 
 export function SignInForm() {
@@ -101,7 +101,7 @@ export function SignInForm() {
               key={provider}
               variant="secondary"
               size="lg"
-              label={t("auth.continueWithProvider", { provider: SOCIAL_SIGN_IN_PROVIDER_NAMES[provider] })}
+              label={t("auth.continueWithProvider", { provider: NEON_SOCIAL_PROVIDER_NAMES[provider] })}
               loading={pendingSocialProvider === provider}
               disabled={isBusy}
               onPress={() => void continueWithSocialProvider(provider)}

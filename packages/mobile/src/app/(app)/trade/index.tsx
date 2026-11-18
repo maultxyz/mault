@@ -15,8 +15,7 @@ import {
   tradeOfferFormSchemaFor,
   tradeOfferGuestBalance,
   type TradeOfferFormValues,
-  type TradeOfferQuoteRequest,
-} from "@magic-vault/shared";
+  type TradeOfferQuoteRequest, MISSING_PRICE_TEXT } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -108,8 +107,10 @@ export default function TradeScreen() {
     price === undefined || !info.data
       ? undefined
       : price == null
-        ? t("trade.noPrice")
+        ? MISSING_PRICE_TEXT
         : formatPrice(price, info.data.priceSource);
+  const rowPriceAccessibilityLabel = (price: number | null | undefined) =>
+    price === null && info.data ? t("trade.noPrice") : undefined;
   const summary =
     draft.offered.length === 0 && offeredCash == null
       ? t("trade.summaryNothing", { get: draft.wanted.length })
@@ -261,6 +262,7 @@ export default function TradeScreen() {
             <TradeCardRow
               key={card.scanId}
               value={rowPriceLabel(currentQuote?.wantedPrices[index])}
+              valueAccessibilityLabel={rowPriceAccessibilityLabel(currentQuote?.wantedPrices[index])}
               name={card.card.name}
               subtitle={[card.card.setName, t(`trade.conditions.${card.condition}`), card.isFoil ? (card.foilType ?? t("trade.foil")) : null]
                 .filter(Boolean)
@@ -294,6 +296,7 @@ export default function TradeScreen() {
             <TradeCardRow
               key={card.key}
               value={rowPriceLabel(currentQuote?.offeredPrices[index])}
+              valueAccessibilityLabel={rowPriceAccessibilityLabel(currentQuote?.offeredPrices[index])}
               name={card.name}
               subtitle={[`×${card.quantity}`, t(`trade.conditions.${card.condition}`), card.isFoil ? t("trade.foil") : null, card.setName]
                 .filter(Boolean)

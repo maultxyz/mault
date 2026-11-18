@@ -137,7 +137,7 @@ ON CONFLICT (user_id) DO UPDATE SET role = 'admin';
 
 A Raspberry Pi or Orange Pi Zero 4 can host the local-auth app and run the sorter headlessly. Nothing is cloned or built on the board: it runs a prebuilt release built by `.github/workflows/pi-release.yml`. Like the firmware and mobile releases, it is dispatched by hand: from master it publishes `pi-v<app version>` (bundle, SD image and installer) and points the `pi-latest` release's `manifest.json` and `install.sh` at it; from dev it publishes `<version>-dev.<run>` to the moving `pi-dev` pre-release, which dev installs update from. The bundle holds its own Node, the built API with its runtime dependencies, the Pi-mode web build and the Pi helpers. The scanner camera is a USB webcam plugged into the board, owned by `mault-camera.service`. Phone and computer browsers use the authenticated camera relay; they do not need browser permission to access that webcam.
 
-**Raspberry Pi 4 or 5:** download `mault-pi.img.xz` from the newest `pi-v*` release and flash it with Raspberry Pi Imager. Set a username (anything except `mault-service`), password, Wi-Fi and SSH in Imager's OS customisation; Ethernet works without it. On first boot, `mault-setup.service` writes secrets, creates the database and starts Mault. Then open `http://mault.local` (or the board's IP address) from any browser on the network.
+**Raspberry Pi 4 or 5:** download `mault-pi.img.xz` from the newest `pi-v*` release and flash it with Raspberry Pi Imager (Imager offers no OS customisation for custom images). Before the first boot, open the card's `bootfs` drive on any computer and fill in `mault-config.txt`: a username and password (an administrator account), `ssh=yes` for `ssh <username>@mault.local`, and Wi-Fi details; Ethernet needs none of it. `mault-boot-config.service` applies it on every boot, erases the passwords from the file and writes the result on its `Status` line, so the same file also resets a forgotten password. On first boot, `mault-setup.service` writes secrets, creates the database and starts Mault. Then open `http://mault.local` (or the board's IP address) from any browser on the network.
 
 **Other arm64 boards, or an existing Raspberry Pi OS install:**
 
@@ -145,7 +145,7 @@ A Raspberry Pi or Orange Pi Zero 4 can host the local-auth app and run the sorte
 curl -fsSL https://github.com/<owner>/<repo>/releases/download/pi-latest/install.sh | sudo bash
 ```
 
-`install.sh` installs Postgres with pgvector, nginx, ffmpeg, the webcam tools, BlueZ and Bleak, creates the `mault-service` account, unpacks the release into `/opt/mault/releases/<version>` (`/opt/mault/current` points at the running one), and runs `scripts/pi/setup.sh`. Setup writes `/var/lib/mault/.env` with `AUTH_PROVIDER=local`, `PI_HOST=1`, a generated `CARD_API_USER_AGENT` and new secrets, creates the `mault` role and database, and enables the user services under `mault-service` with linger so they start at boot. Reruns keep the saved settings. `sudo bash install.sh --bundle mault-pi-arm64.tar.gz` installs a downloaded bundle offline.
+`install.sh` installs Postgres with pgvector, nginx, ffmpeg, the webcam tools, BlueZ and Bleak, creates the `mault-service` account, unpacks the release into root-owned `/opt/mault/releases/<version>` (`/opt/mault/current` points at the running one), installs the `mault` command and the root helpers (see [Security](#pi-security)), and runs `scripts/pi/setup.sh`. Setup writes `/var/lib/mault/.env` with `AUTH_PROVIDER=local`, `PI_HOST=1`, a generated `CARD_API_USER_AGENT` and new secrets, creates the `mault` role and database, and enables the user services under `mault-service` with linger so they start at boot. Reruns keep the saved settings. `sudo bash install.sh --bundle mault-pi-arm64.tar.gz` installs a downloaded bundle offline.
 
 The hardware choice is `PI_SORTER=1` (the board drives the sorter through GPIO/I2C) or `PI_SORTER=0` (an Arduino/ESP32 over USB or Bluetooth). The SD image picks it on first boot: `PI_SORTER=1` when a PCA9685 answers on I2C bus 1 (the image enables I2C), else `PI_SORTER=0`. The curl installer asks, or reads `PI_SORTER` and `PI_SORTER_BOARD` from the environment (`PI_SORTER=1 PI_SORTER_BOARD=orange-pi-zero4`). Change it later with `sudo mault sorter usb` or `sudo mault sorter builtin [raspberry-pi|orange-pi-zero4]`.
 
@@ -173,14 +173,40 @@ Everything on the board goes through the `mault` command:
 
 ```bash
 sudo mault status            # version and service state
+sudo mault version           # installed version only
 sudo mault update            # install the latest release
+sudo mault update --bundle mault-pi-arm64.tar.gz   # install a downloaded bundle
+sudo mault os-updates        # turn on automatic OS security updates
+sudo mault sorter usb | builtin [raspberry-pi|orange-pi-zero4]
 sudo mault logs [api|camera|controller|update|setup]
 sudo mault start | stop | restart
 sudo mault prices            # pull prices now
 sudo mault urls              # addresses to open
 ```
 
-Admins can also update from the app's update banner (**Update Mault**), which runs `scripts/pi/run-update.sh` as a separate user job. The updater runs as `mault-service` and needs no sudo password: it downloads the bundle named in the manifest its `release.json` points at (`pi-latest` or `pi-dev`), checks its SHA-256, unpacks it next to the running release, stops the services, switches `/opt/mault/current`, re-renders the units and starts them. If the new version does not answer, it switches back to the previous release. Boards install whatever version the manifest names, so dispatching Pi Release from master with `rollback_tag: pi-vX.Y.Z` moves every board back to that release. It keeps the running and previous releases. Finish scanning, disconnect the sorter and stop any database sync first; the API refuses browser updates otherwise. Settings, accounts and saved cards stay in place, and database migrations run when the API starts.
+Admins can also update from the app's update banner (**Update Mault**), which asks the root updater (`mault-update.path` and `mault-update.service`) to run `/usr/local/lib/mault/run-update.sh`. The app can only request an update, never choose what gets installed: the updater downloads the bundle named in the manifest its `release.json` points at (`pi-latest` or `pi-dev`), checks its SHA-256, unpacks it next to the running release, stops the services, switches `/opt/mault/current`, re-renders the units and starts them. If the new version does not answer, it switches back to the previous release. Boards install whatever version the manifest names, so dispatching Pi Release from master with `rollback_tag: pi-vX.Y.Z` moves every board back to that release. It keeps the running and previous releases. Finish scanning, disconnect the sorter and stop any database sync first; the API refuses browser updates otherwise. Settings, accounts and saved cards stay in place, and database migrations run when the API starts.
+
+The operating system patches itself: the installer turns on `unattended-upgrades` for Debian security fixes and the Raspberry Pi archive (kernel, firmware), installed daily without rebooting, so a scan is never cut off. When an update needs a restart (Debian's `/run/reboot-required`, or a kernel installed since boot), admins see a banner in the app asking them to run `sudo reboot` when no scan is running; Mault starts again on its own. Mault updates only cover Mault and the Node runtime it bundles (each Pi release ships the newest Node of its major version). Boards installed before this was added turn it on with `sudo mault os-updates` or their next `sudo mault update`.
+
+<a id="pi-security"></a>**Security.** The API faces the network as `mault-service`, so nothing root runs is within that account's reach:
+
+| Path                         | Holds                                                                                              |
+| ---------------------------- | -------------------------------------------------------------------------------------------------- |
+| `/opt/mault`                 | Releases and the `current` link, root-owned and read-only to the service                           |
+| `/usr/local/sbin/mault`      | The `mault` command (a root-owned copy, not a link into a release)                                 |
+| `/usr/local/lib/mault`       | Root helpers that never run from a release: boot settings, OS updates, the root updater and the release check |
+| `/var/lib/mault-system`      | Root state (setup marker, update state and log); `requests/` is the app's update drop box           |
+| `/var/lib/mault`             | The service account's own data (`.env`, calibration, logs); root never reads or writes it directly  |
+
+Before root runs anything from a release, `trusted-tree.py` checks that every directory leading to it, the `current` link and every file under `scripts/pi` are root-owned and not writable by anyone else, and refuses otherwise. Root scripts pin `PATH` and run Python with `-I`, so nothing is picked up from the working directory or the environment. Anything that reads the service's files, renders its units or runs Node runs as `mault-service`.
+
+**Upgrading boards on Pi release 1.0.209 or older.** Those releases were writable by `mault-service`, so they can't be trusted to switch themselves over. Run the newest installer once over SSH instead of `sudo mault update`:
+
+```bash
+curl -fsSL https://github.com/<owner>/<repo>/releases/download/pi-latest/install.sh | sudo bash
+```
+
+It deletes the old releases and the old `/usr/local/bin/mault` link without running or adopting them, then installs a fresh release; settings, accounts, saved cards and calibration in `/var/lib/mault` stay. Until then, `sudo mault update` and the app's update button refuse and point to this command.
 
 The API log is at `/var/lib/mault/.local/state/mault/api.log` (`sudo mault logs`), including scan failures and feed commands.
 
@@ -330,7 +356,7 @@ Full BOM, wiring and assembly steps are at `/build`. In short:
 
 ### Firmware
 
-The sketch is `firmware/main/` (`main.ino` plus the BLE and Wi-Fi tabs). The easiest path is flashing from the app, which uses the builds published by `.github/workflows/firmware-release.yml`. To build it yourself, install ArduinoJson, Adafruit PWM Servo Driver and (Uno R4 WiFi) ArduinoBLE, and use the FQBNs from that workflow; ESP32-S3 builds need `USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=dio,PartitionScheme=min_spiffs`.
+The sketch is `firmware/main/` (`main.ino` plus the BLE, Wi-Fi and LED tabs). The easiest path is flashing from the app, which uses the builds published by `.github/workflows/firmware-release.yml`. To build it yourself, install ArduinoJson, Adafruit PWM Servo Driver, Adafruit NeoPixel and (Uno R4 WiFi) ArduinoBLE, and use the FQBNs from that workflow; ESP32-S3 builds need `USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=dio,PartitionScheme=min_spiffs`.
 
 The firmware has no idea what a bin is: the app resolves each bin to a module and direction (`left`, `right` or `bottom`) and sends newline-delimited JSON at 9600 baud, such as `{"seq":42,"route":{"module":2,"direction":"left"}}`. Note that `"left"` lands on the physical right. `firmware/PROTOCOL.md` documents every command and the USB, BLE and Wi-Fi transports. The PCA9685 channel layout (Standard from channel 0, or Legacy from channel 4 for older wiring) is chosen in Calibration and sent at connect time.
 

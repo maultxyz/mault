@@ -77,6 +77,11 @@ describe("Pi/Linux self-host guide", () => {
     expect(container.textContent).toContain("mault-pi.img.xz");
     expect(container.textContent).toContain("install.sh | sudo bash");
     expect(container.textContent).toContain("sudo mault update");
+    expect(container.textContent).toContain("mault-config.txt");
+    expect(container.textContent).toContain("wifi_country=US");
+    expect(container.textContent).toContain("sudo mault os-updates");
+    expect(container.textContent).toContain("1.0.209 or older");
+    expect(container.textContent).toContain("/usr/local/lib/mault");
     expect(container.textContent).toContain("http://mault.local");
     expect(container.textContent).toContain("Mault includes BlueZ");
     expect(container.textContent).not.toContain("git clone");
@@ -195,7 +200,7 @@ describe("Pi/Linux self-host guide", () => {
       expect(install.textContent).toContain("install.sh | sudo bash");
       expect(
         within(install as HTMLElement).getAllByRole("checkbox"),
-      ).toHaveLength(board === "raspberry-pi" ? 5 : 3);
+      ).toHaveLength(board === "raspberry-pi" ? 7 : 4);
     },
   );
   it("uses the external controller default for invalid hardware URL choices", () => {

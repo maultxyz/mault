@@ -1,4 +1,4 @@
-import { priceChangeSinceScan, tcgplayerHeadlinePrices } from "@magic-vault/shared";
+import { priceChangeSinceScan, tcgplayerHeadlinePrices, MISSING_PRICE_TEXT } from "@magic-vault/shared";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
@@ -41,18 +41,17 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
             label: t("priceTable.regular"),
             values: [
               card.priceRange?.low ?? null,
-              card.priceRange?.market ?? card.price,
+              card.priceRange ? card.priceRange.market : card.price,
             ],
           },
           {
             label: t("priceTable.foil"),
             values: [
               card.priceRangeFoil?.low ?? null,
-              card.priceRangeFoil?.market ?? card.priceFoil,
+              card.priceRangeFoil ? card.priceRangeFoil.market : card.priceFoil,
             ],
           },
         ],
-        printings: Math.max(card.priceRange?.printings ?? 1, card.priceRangeFoil?.printings ?? 1),
         highlightColumn: 1,
         format: formatUsd,
       },
@@ -76,7 +75,7 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
             values: [
               card.cardmarketPrice?.low ?? null,
               card.cardmarketPrice?.trend ?? null,
-              card.cardmarketPrice?.avg ?? card.priceEur ?? null,
+              card.cardmarketPrice ? card.cardmarketPrice.avg : (card.priceEur ?? null),
               card.cardmarketPrice?.avg7 ?? null,
               card.cardmarketPrice?.avg30 ?? null,
             ],
@@ -86,13 +85,12 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
             values: [
               card.cardmarketPriceFoil?.low ?? null,
               card.cardmarketPriceFoil?.trend ?? null,
-              card.cardmarketPriceFoil?.avg ?? card.priceEurFoil ?? null,
+              card.cardmarketPriceFoil ? card.cardmarketPriceFoil.avg : (card.priceEurFoil ?? null),
               card.cardmarketPriceFoil?.avg7 ?? null,
               card.cardmarketPriceFoil?.avg30 ?? null,
             ],
           },
         ],
-        printings: Math.max(card.cardmarketPrice?.printings ?? 1, card.cardmarketPriceFoil?.printings ?? 1),
         highlightColumn: 2,
         format: formatEur,
       },
@@ -113,17 +111,19 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
         rows: [
           {
             label: t("priceTable.regular"),
-            values: [card.cardKingdomPrice?.retail ?? card.priceCardKingdom ?? null, card.cardKingdomPrice?.buylist ?? null],
+            values: [
+              card.cardKingdomPrice ? card.cardKingdomPrice.retail : (card.priceCardKingdom ?? null),
+              card.cardKingdomPrice?.buylist ?? null,
+            ],
           },
           {
             label: t("priceTable.foil"),
             values: [
-              card.cardKingdomPriceFoil?.retail ?? card.priceCardKingdomFoil ?? null,
+              card.cardKingdomPriceFoil ? card.cardKingdomPriceFoil.retail : (card.priceCardKingdomFoil ?? null),
               card.cardKingdomPriceFoil?.buylist ?? null,
             ],
           },
         ],
-        printings: 1,
         highlightColumn: 0,
         format: formatUsd,
       },
@@ -194,8 +194,13 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                   </AppText>
                 ) : null}
               </View>
-              <AppText size="lg" heading weight="bold">
-                {main != null ? headline.format(main) : t("priceTable.noPrice")}
+              <AppText
+                size="lg"
+                heading
+                weight="bold"
+                accessibilityLabel={main != null ? undefined : t("priceTable.noPrice")}
+              >
+                {main != null ? headline.format(main) : MISSING_PRICE_TEXT}
               </AppText>
             </View>
           );
@@ -247,17 +252,13 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                       size="sm"
                       weight={metricIndex === table.highlightColumn ? "semibold" : "regular"}
                       style={{ width: PRICE_TABLE_COLUMN_WIDTH, textAlign: "right" }}
+                      accessibilityLabel={value != null ? undefined : t("priceTable.noPrice")}
                     >
-                      {value != null ? table.format(value) : t("priceTable.noPrice")}
+                      {value != null ? table.format(value) : MISSING_PRICE_TEXT}
                     </AppText>
                   ))}
                 </View>
               ))}
-              {table.printings > 1 ? (
-                <AppText size="2xs" tone="secondary">
-                  {t("priceTable.acrossPrintings", { count: table.printings })}
-                </AppText>
-              ) : null}
             </View>
           ))
         : null}

@@ -1,3 +1,4 @@
+import { MATCH_VALIDATIONS_ENABLED } from "@/lib/constants/match-validations";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import type {
   HotkeyDefinition,
@@ -39,7 +40,7 @@ export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
   "scanner",
   "cardDetail",
   "intake",
-  "matchValidation",
+  ...(MATCH_VALIDATIONS_ENABLED ? (["matchValidation"] as const) : []),
 ];
 
 export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {

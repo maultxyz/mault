@@ -182,7 +182,6 @@ export interface PriceTableProps {
   heading: string;
   columns: string[];
   rows: PriceTableRow[];
-  printings: number;
   highlightColumn: number;
   format: (value: number) => string;
 }

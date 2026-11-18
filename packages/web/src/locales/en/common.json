@@ -109,6 +109,10 @@
     "updateFailed": "Mault could not be updated.",
     "updateUnconfirmed": "Could not reconnect after updating. Run sudo mault logs update on the Pi before trying again."
   },
+  "piReboot": {
+    "banner": "This board installed system security updates that need a restart.",
+    "command": "Restart it when no scan is running; Mault starts again on its own:"
+  },
   "impersonation": {
     "banner": "You're viewing the app as {{name}}.",
     "exitButton": "Exit Impersonation",
@@ -424,7 +428,8 @@
       "warning": "Warning:",
       "danger": "Error:"
     },
-    "adminNavigation": "Admin navigation"
+    "adminNavigation": "Admin navigation",
+    "noPrice": "No price"
   },
   "shareLink": {
     "triggerWithCount_one": "{{label}} ({{count}} active link)",
@@ -536,7 +541,6 @@
       "showLess": "Show less",
       "unitPrice": "{{price}} each",
       "foil": "Foil",
-      "noPrice": "No price",
       "placementStorage": "{{location}} · #{{positions}}",
       "placementStorageNoPosition": "{{location}}",
       "placementBin_one": "{{collection}}, bin {{bins}}",
@@ -681,5 +685,11 @@
       "avery-5163": "Avery 5163 (10 per sheet, 4 x 2 in)",
       "avery-5164": "Avery 5164 (6 per sheet, 4 x 3.33 in)"
     }
+  },
+  "envBanner": {
+    "local": "Local environment",
+    "selfHosting": "Self-hosting",
+    "development": "Development environment",
+    "qa": "QA environment"
   }
 }

@@ -1,3 +1,4 @@
+import { MissingPrice } from "@/components/missing-price";
 import { CardImage } from "@/components/card-image";
 import { Badge } from "@/components/ui/badge";
 import type { TradeOfferCardListProps } from "@/lib/interfaces/trade-offers";
@@ -28,7 +29,7 @@ export function TradeOfferCardList({ cards, prices, priceSource }: TradeOfferCar
           </div>
           {prices && priceSource && (
             <span className="shrink-0 text-control font-medium tabular-nums">
-              {prices[index] == null ? t("tradeOffers.noPrice") : formatPrice(prices[index], priceSource)}
+              {prices[index] == null ? <MissingPrice /> : formatPrice(prices[index], priceSource)}
             </span>
           )}
           <div className="flex shrink-0 flex-wrap justify-end gap-1">

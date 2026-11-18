@@ -317,6 +317,7 @@ export interface CalibrationDebugParams {
   moduleCount: number;
   configs: ModuleConfig[];
   feederConfig: FeederCalibration;
+  feederStopPulse: number | null;
   binRoutes: BinRoute[];
   firmwareVersion: string | null;
   board: string | null;

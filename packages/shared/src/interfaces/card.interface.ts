@@ -12,7 +12,6 @@ export interface PlayingCardImage {
 export interface PlayingCardPriceRange {
   low: number | null;
   market: number | null;
-  printings?: number;
 }
 
 export interface PlayingCardCardmarketPrice {
@@ -22,7 +21,6 @@ export interface PlayingCardCardmarketPrice {
   avg: number | null;
   avg7: number | null;
   avg30: number | null;
-  printings?: number;
 }
 
 export interface PlayingCardCardKingdomPrice {

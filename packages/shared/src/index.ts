@@ -270,6 +270,7 @@ export * from "./interfaces/price-labels.interface";
 export * from "./constants/price-labels.constant";
 export * from "./order-substitutes";
 export * from "./initials";
+export * from "./linked-sign-in-accounts";
 export * from "./leaderboard";
 export * from "./sound-rules-draft";
 export * from "./scan-region";

@@ -109,6 +109,10 @@
     "updateFailed": "Mault konnte nicht aktualisiert werden.",
     "updateUnconfirmed": "Nach der Aktualisierung konnte keine Verbindung hergestellt werden. Führe sudo mault logs update auf dem Pi aus, bevor du es erneut versuchst."
   },
+  "piReboot": {
+    "banner": "Dieses Board hat Sicherheitsupdates des Systems installiert, die einen Neustart brauchen.",
+    "command": "Starte es neu, wenn kein Scan läuft; Mault startet danach von selbst:"
+  },
   "impersonation": {
     "banner": "Du siehst die App aus der Sicht von {{name}}.",
     "exitButton": "Imitation beenden",
@@ -424,7 +428,8 @@
       "warning": "Warnung:",
       "danger": "Fehler:"
     },
-    "adminNavigation": "Admin-Navigation"
+    "adminNavigation": "Admin-Navigation",
+    "noPrice": "Kein Preis"
   },
   "shareLink": {
     "triggerWithCount_one": "{{label}} ({{count}} aktiver Link)",
@@ -536,7 +541,6 @@
       "showLess": "Weniger anzeigen",
       "unitPrice": "je {{price}}",
       "foil": "Foil",
-      "noPrice": "Kein Preis",
       "placementStorage": "{{location}} · #{{positions}}",
       "placementStorageNoPosition": "{{location}}",
       "placementBin_one": "{{collection}}, Fach {{bins}}",
@@ -681,5 +685,11 @@
       "avery-5163": "Avery 5163 (10 pro Bogen, 4 x 2 Zoll)",
       "avery-5164": "Avery 5164 (6 pro Bogen, 4 x 3,33 Zoll)"
     }
+  },
+  "envBanner": {
+    "local": "Lokale Umgebung",
+    "selfHosting": "Selbst gehostet",
+    "development": "Entwicklungsumgebung",
+    "qa": "QA-Umgebung"
   }
 }

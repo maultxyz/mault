@@ -1,3 +1,4 @@
+import { MissingPrice } from "@/components/missing-price";
 import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
@@ -93,7 +94,7 @@ export function InPersonTradeForm() {
       ? inPersonTradeBalance(quote.data, cashAmount == null ? null : { amount: cashAmount, direction: cashDirection })
       : null;
   const rowPriceLabel = (price: number | null | undefined) =>
-    price === undefined ? null : price == null ? tCards("tradeOffers.noPrice") : formatPrice(price, priceSource);
+    price === undefined ? null : price == null ? <MissingPrice /> : formatPrice(price, priceSource);
   const hasContent = given.length > 0 || received.length > 0 || cashAmount != null;
 
   const changeReceiveCollection = (nextGuid: string) => {

@@ -109,6 +109,10 @@
     "updateFailed": "La mise à jour de Mault a échoué.",
     "updateUnconfirmed": "Impossible de se reconnecter après la mise à jour. Exécutez sudo mault logs update sur le Pi avant de réessayer."
   },
+  "piReboot": {
+    "banner": "Cette carte a installé des mises à jour de sécurité du système qui nécessitent un redémarrage.",
+    "command": "Redémarrez-la quand aucun scan n'est en cours ; Mault redémarre ensuite tout seul :"
+  },
   "impersonation": {
     "banner": "Tu vois l'application comme {{name}}.",
     "exitButton": "Quitter l'emprunt d'identité",
@@ -424,7 +428,8 @@
       "warning": "Avertissement :",
       "danger": "Erreur :"
     },
-    "adminNavigation": "Navigation de l'administration"
+    "adminNavigation": "Navigation de l'administration",
+    "noPrice": "Pas de prix"
   },
   "shareLink": {
     "triggerWithCount_one": "{{label}} ({{count}} lien actif)",
@@ -536,7 +541,6 @@
       "showLess": "Afficher moins",
       "unitPrice": "{{price}} l'unité",
       "foil": "Foil",
-      "noPrice": "Pas de prix",
       "placementStorage": "{{location}} · n° {{positions}}",
       "placementStorageNoPosition": "{{location}}",
       "placementBin_one": "{{collection}}, bac {{bins}}",
@@ -681,5 +685,11 @@
       "avery-5163": "Avery 5163 (10 par planche, 4 x 2 po)",
       "avery-5164": "Avery 5164 (6 par planche, 4 x 3,33 po)"
     }
+  },
+  "envBanner": {
+    "local": "Environnement local",
+    "selfHosting": "Auto-hébergé",
+    "development": "Environnement de développement",
+    "qa": "Environnement QA"
   }
 }

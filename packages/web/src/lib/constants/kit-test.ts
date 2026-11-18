@@ -1,4 +1,8 @@
-import { SERVO_PULSE_MAX, SERVO_PULSE_MIN } from "@magic-vault/shared";
+import {
+  LED_CHANNELS,
+  SERVO_PULSE_MAX,
+  SERVO_PULSE_MIN,
+} from "@magic-vault/shared";
 
 export const KIT_CHANNEL_COUNT = 16;
 export const KIT_CHANNELS = Array.from(
@@ -29,3 +33,7 @@ export const RAW_COMMAND_PRESETS = [
   { key: "neutral", command: { neutral: true } },
   { key: "status", command: { getStatus: true } },
 ] as const;
+
+export const KIT_LED_DEFAULT_SELECTION = { strip: 1, led: 1 } as const;
+export const KIT_LED_REPLY_ENTRY_LENGTH = LED_CHANNELS.length + 2;
+export const KIT_LED_SWATCH_MIN_OPACITY = 0.25;

@@ -1,3 +1,4 @@
+import { MissingPrice } from "@/components/missing-price";
 import { Button } from "@/components/ui/button";
 import { Field, FieldDescription, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
@@ -109,7 +110,7 @@ export function TradeOfferPage({
       ? tradeOfferGuestBalance(quote.data, offeredCash)
       : null;
   const rowPriceLabel = (price: number | null | undefined) =>
-    price === undefined ? null : price == null ? t("tradeOffers.noPrice") : formatPrice(price, priceSource);
+    price === undefined ? null : price == null ? <MissingPrice /> : formatPrice(price, priceSource);
   const summary =
     offered.length === 0 && offeredCash == null
       ? t("tradeOffers.summaryNothing", { get: wanted.length })

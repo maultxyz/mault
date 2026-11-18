@@ -1,7 +1,7 @@
 import { execFile } from "node:child_process";
-import { existsSync } from "node:fs";
-import { mkdir, readFile, writeFile, rename } from "node:fs/promises";
-import { homedir } from "node:os";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { readFile, stat, unlink, writeFile } from "node:fs/promises";
+import { release, uptime } from "node:os";
 import { dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { valid } from "semver";
@@ -10,12 +10,23 @@ import {
   PI_UPDATE_CHECK_MS,
   PI_UPDATE_COMMAND_TIMEOUT_MS,
   PI_UPDATE_MAX_BUFFER,
+  PI_UPDATE_PATH_UNIT_FILE,
+  PI_UPDATE_REQUEST_FILE,
   PI_UPDATE_STATE_FILE,
+  PI_UPDATE_SYSTEM_STATE_DIR,
   PI_UPDATE_UNIT,
   PI_UPDATE_LAUNCH_GRACE_MS,
   PI_RELEASE_FILE,
+  PI_BOOT_ID_FILE,
+  PI_KERNEL_MODULES_DIR,
+  PI_REBOOT_REQUIRED_FILE,
 } from "./constants/pi-update";
-import type { PiInstalledRelease, PiUpdateCheck } from "./interfaces/pi-update";
+import type {
+  PiInstalledKernel,
+  PiInstalledRelease,
+  PiRebootStatus,
+  PiUpdateCheck,
+} from "./interfaces/pi-update";
 import { getActiveScanLockStats } from "./scan-lock";
 import { sorterPortOwner } from "./pi-serial-port";
 import { getStatus as syncStatus } from "./sync-job/state";
@@ -31,11 +42,8 @@ export const piUpdateRuntime = {
     }
     return directory;
   },
-  stateDir: () =>
-    join(
-      process.env.XDG_STATE_HOME || join(homedir(), ".local/state"),
-      "mault",
-    ),
+  stateDir: () => PI_UPDATE_SYSTEM_STATE_DIR,
+  rootUpdaterInstalled: () => existsSync(PI_UPDATE_PATH_UNIT_FILE),
   run: promisify(execFile),
   async readInstalledRelease(root: string): Promise<PiInstalledRelease> {
     let release: { version?: unknown; manifestUrl?: unknown };
@@ -51,6 +59,26 @@ export const piUpdateRuntime = {
     if (typeof release.manifestUrl !== "string")
       throw new Error("The installed release has no update address.");
     return { version: release.version, manifestUrl: release.manifestUrl };
+  },
+  rebootRequiredFileExists: () => existsSync(PI_REBOOT_REQUIRED_FILE),
+  runningKernel: () => release(),
+  bootedAt: () => Date.now() - uptime() * 1000,
+  installedKernels(): PiInstalledKernel[] {
+    try {
+      return readdirSync(PI_KERNEL_MODULES_DIR).map((name) => ({
+        name,
+        installedAt: statSync(join(PI_KERNEL_MODULES_DIR, name)).mtimeMs,
+      }));
+    } catch {
+      return [];
+    }
+  },
+  bootId(): string | null {
+    try {
+      return readFileSync(PI_BOOT_ID_FILE, "utf8").trim() || null;
+    } catch {
+      return null;
+    }
   },
   async fetchReleaseManifest(manifestUrl: string): Promise<unknown> {
     const response = await fetch(manifestUrl, {
@@ -76,7 +104,17 @@ async function command(program: string, args: string[]): Promise<string> {
   return String(result.stdout).trim();
 }
 
-export async function readPiUpdateState(): Promise<PiUpdateState> {
+const IDLE_STATE: PiUpdateState = {
+  phase: "idle",
+  startedAt: null,
+  message: null,
+};
+
+function requestPath() {
+  return join(piUpdateRuntime.stateDir(), PI_UPDATE_REQUEST_FILE);
+}
+
+async function readRootUpdateState(): Promise<PiUpdateState> {
   try {
     return JSON.parse(
       await readFile(
@@ -86,16 +124,60 @@ export async function readPiUpdateState(): Promise<PiUpdateState> {
     );
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
-    return { phase: "idle", startedAt: null, message: null };
+    return IDLE_STATE;
   }
 }
 
-async function writeState(state: PiUpdateState) {
-  const directory = piUpdateRuntime.stateDir();
-  await mkdir(directory, { recursive: true, mode: 0o700 });
-  const file = join(directory, PI_UPDATE_STATE_FILE);
-  await writeFile(`${file}.tmp`, JSON.stringify(state), { mode: 0o600 });
-  await rename(`${file}.tmp`, file);
+async function pendingRequestTime(): Promise<number | null> {
+  try {
+    return (await stat(requestPath())).mtimeMs;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    return null;
+  }
+}
+
+async function rootUpdaterActive(): Promise<boolean> {
+  try {
+    await command("systemctl", [
+      "is-active",
+      "--quiet",
+      `${PI_UPDATE_UNIT}.service`,
+    ]);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+export async function readPiUpdateState(): Promise<PiUpdateState> {
+  const requestedAt = await pendingRequestTime();
+  const state: PiUpdateState =
+    requestedAt !== null
+      ? { phase: "running", startedAt: requestedAt, message: null }
+      : await readRootUpdateState();
+  if (
+    state.phase !== "running" ||
+    Date.now() - (state.startedAt ?? 0) <= PI_UPDATE_LAUNCH_GRACE_MS ||
+    (await rootUpdaterActive())
+  ) {
+    return state;
+  }
+  if (requestedAt !== null) {
+    await unlink(requestPath()).catch(() => {});
+    return {
+      ...state,
+      phase: "failed",
+      message:
+        "The updater did not pick up the request. Run once on the board: sudo mault update",
+    };
+  }
+  return {
+    ...state,
+    phase: "failed",
+    message:
+      "The updater stopped before completion. Check the update log with: sudo mault logs update",
+  };
 }
 
 export async function piUpdateRunning(): Promise<boolean> {
@@ -121,29 +203,35 @@ export async function checkPiUpdateVersion(): Promise<PiUpdateCheck> {
   };
 }
 
+export function kernelChangedSinceBoot(
+  runningKernel: string,
+  installedKernels: PiInstalledKernel[],
+  bootedAt: number,
+): boolean {
+  if (installedKernels.length === 0) return false;
+  return (
+    !installedKernels.some((kernel) => kernel.name === runningKernel) ||
+    installedKernels.some(
+      (kernel) => kernel.name !== runningKernel && kernel.installedAt > bootedAt,
+    )
+  );
+}
+
+export function readPiRebootStatus(): PiRebootStatus {
+  return {
+    rebootRequired:
+      piUpdateRuntime.rebootRequiredFileExists() ||
+      kernelChangedSinceBoot(
+        piUpdateRuntime.runningKernel(),
+        piUpdateRuntime.installedKernels(),
+        piUpdateRuntime.bootedAt(),
+      ),
+    bootId: piUpdateRuntime.bootId(),
+  };
+}
+
 export async function getPiUpdateStatus(): Promise<PiUpdateStatus> {
-  let state = await readPiUpdateState();
-  if (
-    state.phase === "running" &&
-    Date.now() - (state.startedAt ?? 0) > PI_UPDATE_LAUNCH_GRACE_MS
-  ) {
-    try {
-      await command("systemctl", [
-        "--user",
-        "is-active",
-        "--quiet",
-        `${PI_UPDATE_UNIT}.service`,
-      ]);
-    } catch {
-      state = {
-        ...state,
-        phase: "failed",
-        message:
-          "The updater stopped before completion. Check the update log with: sudo mault logs update",
-      };
-      await writeState(state);
-    }
-  }
+  const state = await readPiUpdateState();
   if (
     state.phase !== "running" &&
     (!cachedCheck || Date.now() - checkedAt > PI_UPDATE_CHECK_MS)
@@ -155,8 +243,7 @@ export async function getPiUpdateStatus(): Promise<PiUpdateStatus> {
           checkedAt = Date.now();
           return value;
         })
-        .catch((error) => {
-          if (state.phase === "idle") throw error;
+        .catch(() => {
           return {
             available: false,
             installedVersion: null,
@@ -176,6 +263,7 @@ export async function getPiUpdateStatus(): Promise<PiUpdateStatus> {
       installedVersion: null,
       latestVersion: null,
     }),
+    ...readPiRebootStatus(),
   };
 }
 
@@ -194,28 +282,20 @@ export async function startPiUpdate(): Promise<PiUpdateState> {
         "Finish scanning, disconnect the sorter, and stop database syncing before updating.",
       );
     }
+    if (!piUpdateRuntime.rootUpdaterInstalled()) {
+      const { manifestUrl } = await piUpdateRuntime.readInstalledRelease(
+        piUpdateRuntime.root(),
+      );
+      throw new Error(
+        `In-app updates need a one-time reinstall on the board (settings and cards stay): curl -fsSL ${new URL("install.sh", manifestUrl).href} | sudo bash`,
+      );
+    }
     const state: PiUpdateState = {
       phase: "running",
       startedAt: Date.now(),
       message: null,
     };
-    await writeState(state);
-    try {
-      await command("systemd-run", [
-        "--user",
-        "--collect",
-        `--unit=${PI_UPDATE_UNIT}`,
-        "/bin/bash",
-        join(piUpdateRuntime.root(), "scripts/pi/run-update.sh"),
-      ]);
-    } catch (error) {
-      await writeState({
-        ...state,
-        phase: "failed",
-        message: "Could not start the updater. Check the Linux user services.",
-      });
-      throw error;
-    }
+    await writeFile(requestPath(), String(state.startedAt), { mode: 0o600 });
     cachedCheck = null;
     return state;
   } finally {

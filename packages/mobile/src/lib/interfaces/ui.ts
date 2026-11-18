@@ -105,6 +105,7 @@ export interface ListRowProps {
   icon?: IconName;
   leading?: ReactNode;
   value?: string;
+  valueAccessibilityLabel?: string;
   tone?: "default" | "destructive";
   right?: ReactNode;
   rightIsInteractive?: boolean;
