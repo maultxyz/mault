@@ -9,4 +9,6 @@ export interface PiUpdateStatus {
   available: boolean;
   installedVersion: string | null;
   latestVersion: string | null;
+  rebootRequired: boolean;
+  bootId: string | null;
 }

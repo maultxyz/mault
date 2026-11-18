@@ -109,6 +109,10 @@
     "updateFailed": "La mise à jour de Mault a échoué.",
     "updateUnconfirmed": "Impossible de se reconnecter après la mise à jour. Exécutez sudo mault logs update sur le Pi avant de réessayer."
   },
+  "piReboot": {
+    "banner": "Cette carte a installé des mises à jour de sécurité du système qui nécessitent un redémarrage.",
+    "command": "Redémarrez-la quand aucun scan n'est en cours ; Mault redémarre ensuite tout seul :"
+  },
   "impersonation": {
     "banner": "Tu vois l'application comme {{name}}.",
     "exitButton": "Quitter l'emprunt d'identité",

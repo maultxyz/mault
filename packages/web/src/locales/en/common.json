@@ -109,6 +109,10 @@
     "updateFailed": "Mault could not be updated.",
     "updateUnconfirmed": "Could not reconnect after updating. Run sudo mault logs update on the Pi before trying again."
   },
+  "piReboot": {
+    "banner": "This board installed system security updates that need a restart.",
+    "command": "Restart it when no scan is running; Mault starts again on its own:"
+  },
   "impersonation": {
     "banner": "You're viewing the app as {{name}}.",
     "exitButton": "Exit Impersonation",

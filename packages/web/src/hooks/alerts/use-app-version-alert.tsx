@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useAppVersionCheck } from "@/hooks/use-app-version-check";
 import { usePiHost } from "@/hooks/use-pi-host";
-import { usePiUpdate } from "@/hooks/use-pi-update";
 import { useRole } from "@/hooks/use-role";
 import { ALERT_BANNER_ACTION_CLASS } from "@/lib/constants/colors";
 import {
@@ -9,17 +8,19 @@ import {
   PI_UPDATE_TERMINAL_COMMAND,
 } from "@/lib/constants/pi-update";
 import type { AppAlert } from "@/lib/interfaces/alerts";
+import type { PiUpdateControls } from "@/lib/interfaces/pi-update";
 import { hardReload } from "@/lib/pwa";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export function useAppVersionAlert(): AppAlert | null {
+export function useAppVersionAlert(
+  update: PiUpdateControls,
+): AppAlert | null {
   const { t } = useTranslation("common");
   const isOutdated = useAppVersionCheck();
   const piHost = usePiHost();
   const { isAdmin } = useRole();
-  const update = usePiUpdate(piHost && isAdmin);
   const [acknowledged] = useState(() => {
     try {
       return localStorage.getItem(PI_UPDATE_ACKNOWLEDGED_KEY);

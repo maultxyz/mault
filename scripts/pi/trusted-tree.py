@@ -7,6 +7,8 @@ by root and not writable by group or others, and scripts/pi may hold no
 symlinks. The mault command, the root updater and first-boot setup run this
 with python3 -I from /usr/local/lib/mault before executing anything from
 /opt/mault, so a release the service account could change is never run as root.
+--path applies the same check to an installed helper (and everything under it
+when it is a directory); secure-layout.sh checks its own installs with it.
 """
 
 import argparse
@@ -86,14 +88,26 @@ def release_problems(release, trusted_uid=0, top="/", lstat=os.lstat, readlink=o
     return tree_problems(os.path.realpath(scripts), trusted_uid, lstat)
 
 
+def path_problems(path, trusted_uid=0, top="/", lstat=os.lstat, readlink=os.readlink):
+    problems = chain_problems(path, trusted_uid, top, lstat, readlink)
+    if problems or not os.path.isdir(path):
+        return problems
+    return tree_problems(os.path.realpath(path), trusted_uid, lstat)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--release", required=True)
+    parser.add_argument("--release")
+    parser.add_argument("--path", action="append", default=[])
     arguments = parser.parse_args(argv)
-    problems = release_problems(arguments.release)
-    for problem in problems:
-        print(f"[mault] Refusing to run {arguments.release} as root: {problem}", file=sys.stderr)
-    return 1 if problems else 0
+    if not arguments.release and not arguments.path:
+        parser.error("pass --release or --path")
+    checks = [(arguments.release, release_problems(arguments.release))] if arguments.release else []
+    checks += [(path, path_problems(path)) for path in arguments.path]
+    for checked, problems in checks:
+        for problem in problems:
+            print(f"[mault] Refusing to run {checked} as root: {problem}", file=sys.stderr)
+    return 1 if any(problems for _, problems in checks) else 0
 
 
 if __name__ == "__main__":

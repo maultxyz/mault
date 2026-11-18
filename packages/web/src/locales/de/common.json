@@ -109,6 +109,10 @@
     "updateFailed": "Mault konnte nicht aktualisiert werden.",
     "updateUnconfirmed": "Nach der Aktualisierung konnte keine Verbindung hergestellt werden. Führe sudo mault logs update auf dem Pi aus, bevor du es erneut versuchst."
   },
+  "piReboot": {
+    "banner": "Dieses Board hat Sicherheitsupdates des Systems installiert, die einen Neustart brauchen.",
+    "command": "Starte es neu, wenn kein Scan läuft; Mault startet danach von selbst:"
+  },
   "impersonation": {
     "banner": "Du siehst die App aus der Sicht von {{name}}.",
     "exitButton": "Imitation beenden",

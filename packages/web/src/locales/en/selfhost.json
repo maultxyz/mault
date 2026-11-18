@@ -405,7 +405,7 @@
           "note": "Those releases were writable by the mault-service account, so the installer deletes them and installs fresh ones. Settings, accounts, cards and calibration stay."
         },
         "osUpdates": {
-          "text": "Operating system security updates install automatically every day without restarting the board; kernel fixes apply at the next restart. Boards installed before this was added turn them on with this command."
+          "text": "Operating system security updates install automatically every day without restarting the board, so a scan is never cut off. When one needs a restart, admins see a banner in the app; restart with sudo reboot when no scan is running. Boards installed before this was added turn the updates on with this command."
         },
         "backup": {
           "text": "Back up Postgres regularly.",

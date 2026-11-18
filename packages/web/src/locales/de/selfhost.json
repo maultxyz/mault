@@ -405,7 +405,7 @@
           "note": "Diese Releases waren für das Konto mault-service beschreibbar, deshalb löscht der Installer sie und installiert neue. Einstellungen, Konten, Karten und Kalibrierung bleiben erhalten."
         },
         "osUpdates": {
-          "text": "Sicherheitsupdates des Betriebssystems werden jeden Tag automatisch installiert, ohne das Board neu zu starten; Kernel-Korrekturen greifen beim nächsten Neustart. Boards, die vor dieser Funktion installiert wurden, schalten sie mit diesem Befehl ein."
+          "text": "Sicherheitsupdates des Betriebssystems werden jeden Tag automatisch installiert, ohne das Board neu zu starten, damit kein Scan abbricht. Braucht ein Update einen Neustart, sehen Admins ein Banner in der App; starte dann mit sudo reboot neu, wenn kein Scan läuft. Boards, die vor dieser Funktion installiert wurden, schalten die Updates mit diesem Befehl ein."
         },
         "backup": {
           "text": "Sichere Postgres regelmäßig.",

@@ -8,3 +8,6 @@ export const PI_UPDATE_PATH_UNIT_FILE = "/etc/systemd/system/mault-update.path";
 export const PI_UPDATE_MAX_BUFFER = 1_048_576;
 export const PI_UPDATE_LAUNCH_GRACE_MS = 30_000;
 export const PI_RELEASE_FILE = "release.json";
+export const PI_REBOOT_REQUIRED_FILE = "/run/reboot-required";
+export const PI_KERNEL_MODULES_DIR = "/lib/modules";
+export const PI_BOOT_ID_FILE = "/proc/sys/kernel/random/boot_id";

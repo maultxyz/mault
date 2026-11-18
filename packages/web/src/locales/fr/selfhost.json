@@ -405,7 +405,7 @@
           "note": "Ces versions étaient modifiables par le compte mault-service : l'installateur les supprime et en installe de nouvelles. Les réglages, comptes, cartes et calibrages sont conservés."
         },
         "osUpdates": {
-          "text": "Les mises à jour de sécurité du système s'installent automatiquement chaque jour sans redémarrer la carte ; les correctifs du noyau s'appliquent au prochain redémarrage. Les cartes installées avant cet ajout les activent avec cette commande."
+          "text": "Les mises à jour de sécurité du système s'installent automatiquement chaque jour sans redémarrer la carte, pour ne jamais interrompre un scan. Quand l'une d'elles nécessite un redémarrage, les administrateurs voient une bannière dans l'application ; redémarrez avec sudo reboot quand aucun scan n'est en cours. Les cartes installées avant cet ajout activent les mises à jour avec cette commande."
         },
         "backup": {
           "text": "Sauvegardez Postgres régulièrement.",

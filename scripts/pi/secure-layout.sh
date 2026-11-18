@@ -51,6 +51,7 @@ install_root_file "$SCRIPTS/mault.sh" /usr/local/sbin/mault 755
 if [[ -L /usr/local/bin/mault ]]; then
   rm -f /usr/local/bin/mault
 fi
+python3 -I "$MAULT_LIB/trusted-tree.py" --path /usr/local/sbin/mault --path "$MAULT_LIB"
 
 install -d -o root -g "$MAULT_USER" -m 2750 "$MAULT_SYSTEM_STATE"
 install -d -o root -g "$MAULT_USER" -m 1730 "$MAULT_SYSTEM_STATE/requests"

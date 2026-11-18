@@ -1,6 +1,7 @@
 import { execFile } from "node:child_process";
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { readFile, stat, unlink, writeFile } from "node:fs/promises";
+import { release, uptime } from "node:os";
 import { dirname, join } from "node:path";
 import { promisify } from "node:util";
 import { valid } from "semver";
@@ -16,8 +17,16 @@ import {
   PI_UPDATE_UNIT,
   PI_UPDATE_LAUNCH_GRACE_MS,
   PI_RELEASE_FILE,
+  PI_BOOT_ID_FILE,
+  PI_KERNEL_MODULES_DIR,
+  PI_REBOOT_REQUIRED_FILE,
 } from "./constants/pi-update";
-import type { PiInstalledRelease, PiUpdateCheck } from "./interfaces/pi-update";
+import type {
+  PiInstalledKernel,
+  PiInstalledRelease,
+  PiRebootStatus,
+  PiUpdateCheck,
+} from "./interfaces/pi-update";
 import { getActiveScanLockStats } from "./scan-lock";
 import { sorterPortOwner } from "./pi-serial-port";
 import { getStatus as syncStatus } from "./sync-job/state";
@@ -50,6 +59,26 @@ export const piUpdateRuntime = {
     if (typeof release.manifestUrl !== "string")
       throw new Error("The installed release has no update address.");
     return { version: release.version, manifestUrl: release.manifestUrl };
+  },
+  rebootRequiredFileExists: () => existsSync(PI_REBOOT_REQUIRED_FILE),
+  runningKernel: () => release(),
+  bootedAt: () => Date.now() - uptime() * 1000,
+  installedKernels(): PiInstalledKernel[] {
+    try {
+      return readdirSync(PI_KERNEL_MODULES_DIR).map((name) => ({
+        name,
+        installedAt: statSync(join(PI_KERNEL_MODULES_DIR, name)).mtimeMs,
+      }));
+    } catch {
+      return [];
+    }
+  },
+  bootId(): string | null {
+    try {
+      return readFileSync(PI_BOOT_ID_FILE, "utf8").trim() || null;
+    } catch {
+      return null;
+    }
   },
   async fetchReleaseManifest(manifestUrl: string): Promise<unknown> {
     const response = await fetch(manifestUrl, {
@@ -174,6 +203,33 @@ export async function checkPiUpdateVersion(): Promise<PiUpdateCheck> {
   };
 }
 
+export function kernelChangedSinceBoot(
+  runningKernel: string,
+  installedKernels: PiInstalledKernel[],
+  bootedAt: number,
+): boolean {
+  if (installedKernels.length === 0) return false;
+  return (
+    !installedKernels.some((kernel) => kernel.name === runningKernel) ||
+    installedKernels.some(
+      (kernel) => kernel.name !== runningKernel && kernel.installedAt > bootedAt,
+    )
+  );
+}
+
+export function readPiRebootStatus(): PiRebootStatus {
+  return {
+    rebootRequired:
+      piUpdateRuntime.rebootRequiredFileExists() ||
+      kernelChangedSinceBoot(
+        piUpdateRuntime.runningKernel(),
+        piUpdateRuntime.installedKernels(),
+        piUpdateRuntime.bootedAt(),
+      ),
+    bootId: piUpdateRuntime.bootId(),
+  };
+}
+
 export async function getPiUpdateStatus(): Promise<PiUpdateStatus> {
   const state = await readPiUpdateState();
   if (
@@ -187,8 +243,7 @@ export async function getPiUpdateStatus(): Promise<PiUpdateStatus> {
           checkedAt = Date.now();
           return value;
         })
-        .catch((error) => {
-          if (state.phase === "idle") throw error;
+        .catch(() => {
           return {
             available: false,
             installedVersion: null,
@@ -208,6 +263,7 @@ export async function getPiUpdateStatus(): Promise<PiUpdateStatus> {
       installedVersion: null,
       latestVersion: null,
     }),
+    ...readPiRebootStatus(),
   };
 }
 

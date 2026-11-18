@@ -10,10 +10,12 @@ import {
   readPiUpdateState,
   startPiUpdate,
   checkPiUpdateVersion,
+  kernelChangedSinceBoot,
 } from "../src/lib/pi-update";
 const INSTALLED_VERSION = "1.0.209";
 import { getStatus, resetState } from "../src/lib/sync-job/state";
 import { piUpdateRouter } from "../src/routes/pi-update";
+import { PI_UPDATE_CHECK_MS } from "../src/lib/constants/pi-update";
 
 async function fixture(t: TestContext) {
   const directory = await mkdtemp(join(tmpdir(), "mault-update-"));
@@ -198,4 +200,70 @@ test("a dev install compares dev builds by run number", async (t) => {
 test("a checkout without a release file reports that it cannot update", async (t) => {
   t.mock.method(piUpdateRuntime, "root", () => "/no/such/installation");
   await assert.rejects(checkPiUpdateVersion(), /not installed from a release/);
+});
+
+const BOOTED_AT = 1_000_000;
+
+test("a kernel installed after boot or a removed running kernel needs a reboot", () => {
+  const running = { name: "6.6.51+rpt-rpi-v8", installedAt: BOOTED_AT - 5_000 };
+  assert.equal(kernelChangedSinceBoot(running.name, [running], BOOTED_AT), false);
+  assert.equal(
+    kernelChangedSinceBoot(
+      running.name,
+      [running, { name: "6.6.62+rpt-rpi-v8", installedAt: BOOTED_AT - 1 }],
+      BOOTED_AT,
+    ),
+    false,
+  );
+  assert.equal(
+    kernelChangedSinceBoot(
+      running.name,
+      [running, { name: "6.6.62+rpt-rpi-v8", installedAt: BOOTED_AT + 60_000 }],
+      BOOTED_AT,
+    ),
+    true,
+  );
+  assert.equal(
+    kernelChangedSinceBoot(
+      running.name,
+      [{ name: "6.6.62+rpt-rpi-v8", installedAt: BOOTED_AT - 1 }],
+      BOOTED_AT,
+    ),
+    true,
+  );
+  assert.equal(kernelChangedSinceBoot(running.name, [], BOOTED_AT), false);
+});
+
+test("the update status reports a pending reboot with the boot it applies to", async (t) => {
+  await fixture(t);
+  latestRelease(t, INSTALLED_VERSION);
+  t.mock.method(piUpdateRuntime, "run", async () => ({ stdout: "", stderr: "" }));
+  t.mock.method(piUpdateRuntime, "runningKernel", () => "6.6.51+rpt-rpi-v8");
+  t.mock.method(piUpdateRuntime, "installedKernels", () => [
+    { name: "6.6.51+rpt-rpi-v8", installedAt: 0 },
+  ]);
+  t.mock.method(piUpdateRuntime, "bootedAt", () => BOOTED_AT);
+  t.mock.method(piUpdateRuntime, "bootId", () => "boot-1");
+  const reboot = t.mock.method(piUpdateRuntime, "rebootRequiredFileExists", () => false);
+  let status = await getPiUpdateStatus();
+  assert.equal(status.rebootRequired, false);
+  assert.equal(status.bootId, "boot-1");
+  reboot.mock.mockImplementation(() => true);
+  status = await getPiUpdateStatus();
+  assert.equal(status.rebootRequired, true);
+});
+
+test("the reboot notice survives a failed release check", async (t) => {
+  await fixture(t);
+  const now = Date.now();
+  t.mock.method(Date, "now", () => now + PI_UPDATE_CHECK_MS * 10);
+  t.mock.method(piUpdateRuntime, "fetchReleaseManifest", async () => {
+    throw new Error("offline");
+  });
+  t.mock.method(piUpdateRuntime, "run", async () => ({ stdout: "", stderr: "" }));
+  t.mock.method(piUpdateRuntime, "rebootRequiredFileExists", () => true);
+  t.mock.method(piUpdateRuntime, "bootId", () => "boot-2");
+  const status = await getPiUpdateStatus();
+  assert.equal(status.rebootRequired, true);
+  assert.equal(status.bootId, "boot-2");
 });

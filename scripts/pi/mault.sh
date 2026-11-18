@@ -40,7 +40,7 @@ release_field() {
 
 require_trusted_release() {
   if [[ ! -f "$MAULT_LIB/trusted-tree.py" ]] ||
-    ! python3 -I "$MAULT_LIB/trusted-tree.py" --release "$ROOT"; then
+    ! python3 -I "$MAULT_LIB/trusted-tree.py" --release "$ROOT" --path /usr/local/sbin/mault --path "$MAULT_LIB"; then
     echo "This Mault installation lets the service account change code that runs as root." >&2
     echo "Reinstall it once with the install.sh from the newest pi-v release (settings and cards stay):" >&2
     echo "  curl -fsSL <release>/install.sh | sudo bash" >&2

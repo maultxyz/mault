@@ -125,6 +125,20 @@ class TrustedTreeTests(unittest.TestCase):
         problems = self.problems(lstat=lstat_with_service_owned_current)
         self.assertTrue(any("current is owned by uid" in problem for problem in problems), problems)
 
+    def test_installed_helper_directory_is_checked_with_its_parents(self):
+        helpers = self.top / "usr/local/lib/mault"
+        helpers.mkdir(parents=True)
+        (helpers / "run-update.sh").write_text("echo trusted\n")
+        for directory, _, _ in os.walk(self.top):
+            os.chmod(directory, 0o755)
+        check = lambda: TRUSTED_TREE.path_problems(str(helpers), os.getuid(), str(self.top))
+        self.assertEqual(check(), [])
+        os.chmod(self.top / "usr/local", 0o777)
+        self.assertTrue(any("usr/local is writable" in problem for problem in check()), check())
+        os.chmod(self.top / "usr/local", 0o755)
+        os.chmod(helpers / "run-update.sh", 0o666)
+        self.assertTrue(any("run-update.sh is writable" in problem for problem in check()), check())
+
     def test_missing_release_is_refused(self):
         self.current.unlink()
         self.current.symlink_to(self.releases / "0.0.0")
@@ -189,7 +203,8 @@ class RootBoundaryTests(unittest.TestCase):
     def test_first_boot_setup_checks_the_release_before_running_it(self):
         lines = [line for line in script("mault-setup.service").splitlines() if line.startswith("Exec")]
         self.assertEqual(lines[0],
-                         "ExecStartPre=/usr/bin/python3 -I /usr/local/lib/mault/trusted-tree.py --release /opt/mault/current")
+                         "ExecStartPre=/usr/bin/python3 -I /usr/local/lib/mault/trusted-tree.py"
+                         " --release /opt/mault/current --path /usr/local/lib/mault")
         self.assertTrue(lines[1].startswith("ExecStart=/bin/bash /opt/mault/current/"))
 
     def test_helpers_referenced_by_units_and_the_command_are_installed_by_secure_layout(self):
@@ -202,6 +217,7 @@ class RootBoundaryTests(unittest.TestCase):
         self.assertLessEqual(referenced, set(helpers))
         for helper in helpers:
             self.assertTrue((SCRIPTS / helper).is_file(), helper)
+        self.assertIn('trusted-tree.py" --path /usr/local/sbin/mault --path "$MAULT_LIB"', script("secure-layout.sh"))
         self.assertIn('install_root_file "$SCRIPTS/mault.sh" /usr/local/sbin/mault 755', script("secure-layout.sh"))
 
     def test_root_scripts_pin_path_and_isolate_python(self):
@@ -226,7 +242,8 @@ class RootBoundaryTests(unittest.TestCase):
         self.assertEqual(len(re.findall(r'bash "\$SCRIPTS/', text)), 1)
         runner = re.search(r"^run_release_script\(\) \{(.*?)^\}", text, re.S | re.M)[1]
         self.assertLess(runner.index("require_trusted_release"), runner.index('bash "$SCRIPTS/'))
-        self.assertIn('python3 -I "$MAULT_LIB/trusted-tree.py" --release "$ROOT"', text)
+        self.assertIn('python3 -I "$MAULT_LIB/trusted-tree.py" --release "$ROOT" --path /usr/local/sbin/mault'
+                      ' --path "$MAULT_LIB"', text)
         self.assertIn('bash "$MAULT_LIB/os-updates.sh"', text)
         self.assertNotIn("$SCRIPTS/os-updates.sh", text)
 
@@ -234,9 +251,9 @@ class RootBoundaryTests(unittest.TestCase):
         steps = [line.strip() for line in code_lines("run-update.sh")
                  if "trusted-tree.py" in line or 'bash "$CURRENT' in line]
         self.assertEqual(steps, [
-            'python3 -I "$MAULT_LIB/trusted-tree.py" --release "$CURRENT"',
+            'python3 -I "$MAULT_LIB/trusted-tree.py" --release "$CURRENT" --path "$MAULT_LIB"',
             'bash "$CURRENT/scripts/pi/update.sh"',
-            'python3 -I "$MAULT_LIB/trusted-tree.py" --release "$CURRENT"',
+            'python3 -I "$MAULT_LIB/trusted-tree.py" --release "$CURRENT" --path "$MAULT_LIB"',
             'bash "$CURRENT/scripts/pi/secure-layout.sh"',
         ])
 

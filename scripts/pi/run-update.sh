@@ -57,9 +57,9 @@ main() {
   }
   trap finish_update EXIT
   sleep 2
-  python3 -I "$MAULT_LIB/trusted-tree.py" --release "$CURRENT"
+  python3 -I "$MAULT_LIB/trusted-tree.py" --release "$CURRENT" --path "$MAULT_LIB"
   bash "$CURRENT/scripts/pi/update.sh"
-  python3 -I "$MAULT_LIB/trusted-tree.py" --release "$CURRENT"
+  python3 -I "$MAULT_LIB/trusted-tree.py" --release "$CURRENT" --path "$MAULT_LIB"
   bash "$CURRENT/scripts/pi/secure-layout.sh"
   bash "$MAULT_LIB/os-updates.sh" || echo "[update] Could not turn on automatic OS updates."
 }
