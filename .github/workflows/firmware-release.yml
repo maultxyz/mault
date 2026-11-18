@@ -288,16 +288,20 @@ jobs:
 
   notify:
     needs: [build, publish]
-    if: always()
+    if: always() && github.ref_name != 'dev'
     runs-on: ubuntu-latest
     environment:
-      name: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
+      name: production
     steps:
       - name: Notify Discord (success)
         if: needs.publish.result == 'success'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
         run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_DEPLOY_WEBHOOK_URL isn't set for this environment, skipping."
+            exit 0
+          fi
           curl -sf -X POST "$DISCORD_WEBHOOK_URL" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
@@ -325,6 +329,10 @@ jobs:
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
         run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_DEPLOY_WEBHOOK_URL isn't set for this environment, skipping."
+            exit 0
+          fi
           curl -sf -X POST "$DISCORD_WEBHOOK_URL" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
