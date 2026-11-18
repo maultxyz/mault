@@ -55,6 +55,7 @@
     "errors": {
       "network": "Couldn't reach the server. Check your connection and try again.",
       "profile": "Signed in, but your account details couldn't be loaded. Try again.",
+      "session-rejected": "Signed in, but the sign-in service didn't accept the session. Try again.",
       "verify-email": "Verify your email address, then sign in.",
       "storage": "Signed in, but the session couldn't be saved on this device. Try again.",
       "social": "Couldn't sign you in with that account. Try again.",

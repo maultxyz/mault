@@ -186,6 +186,10 @@ async function startSession(
     return { error: "storage" };
   }
   try {
+    if (!(await getAccessToken())) {
+      clearLocalSession();
+      return { error: "session-rejected" };
+    }
     if (await loadProfile()) return {};
   } catch {
     clearLocalSession();
