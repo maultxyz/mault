@@ -98,10 +98,13 @@ test("host update only drops a request for the root updater and rejects duplicat
   assert.equal((await readPiUpdateState()).phase, "succeeded");
 });
 
-test("in-app updates ask for a one-time sudo update before the root updater exists", async (t) => {
+test("in-app updates ask for a one-time reinstall before the root updater exists", async (t) => {
   const directory = await fixture(t);
   t.mock.method(piUpdateRuntime, "rootUpdaterInstalled", () => false);
-  await assert.rejects(startPiUpdate(), /sudo mault update/);
+  await assert.rejects(
+    startPiUpdate(),
+    /curl -fsSL https:\/\/example\.test\/pi-latest\/install\.sh \| sudo bash/,
+  );
   await assert.rejects(stat(join(directory, "requests/update-request")));
 });
 

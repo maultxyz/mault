@@ -135,18 +135,21 @@ class UpdateTests(unittest.TestCase):
         self.assertIn("sudo mault update", result.stdout)
         self.assertEqual(self.current(), "1.0.0")
 
-    def test_background_runner_takes_the_request_and_persists_failure(self):
+    def test_background_runner_refuses_an_untrusted_release_and_persists_failure(self):
         state = self.root / "system-state"
         (state / "requests").mkdir(parents=True)
         (state / "requests/update-request").write_text("")
-        self.env["MAULT_UPDATE_RUN_AS_UID"] = str(os.getuid() + 1)
-        subprocess.run(["bash", str(self.home / "current/scripts/pi/run-update.sh")], env=self.env)
+        self.env["MAULT_LIB"] = str(SCRIPTS)
+        subprocess.run(["bash", str(SCRIPTS / "run-update.sh")], env=self.env)
         saved = json.loads((state / "update.json").read_text())
         self.assertEqual(saved["phase"], "failed")
         self.assertIsInstance(saved["startedAt"], int)
         self.assertIn("sudo mault logs update", saved["message"])
         self.assertFalse((state / "requests/update-request").exists())
-        self.assertIn("sudo mault update", (state / "update.log").read_text())
+        log = (state / "update.log").read_text()
+        self.assertIn("Refusing to run", log)
+        self.assertNotIn("systemctl --user stop", self.log.read_text())
+        self.assertEqual(self.current(), "1.0.0")
 
 
 if __name__ == "__main__":

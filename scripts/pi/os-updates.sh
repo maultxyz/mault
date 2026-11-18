@@ -2,9 +2,12 @@
 # Turns on automatic OS security updates through unattended-upgrades: Debian
 # security fixes plus the Raspberry Pi archive (kernel, firmware, Pi
 # libraries). Never reboots on its own, so a scan is never cut off; kernel
-# fixes apply at the next power cycle. Run as root by install.sh, every
-# `sudo mault update` and `sudo mault os-updates`.
+# fixes apply at the next power cycle. Installed to /usr/local/lib/mault by
+# secure-layout.sh and run from there as root by install.sh, every update and
+# `sudo mault os-updates`, never from a release.
 set -euo pipefail
+if [[ "$EUID" -eq 0 ]]; then export PATH=/usr/sbin:/usr/bin:/sbin:/bin; fi
+unset BASH_ENV ENV
 
 if [[ "$(id -u)" -ne 0 ]]; then
   echo "Run this as root." >&2

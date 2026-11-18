@@ -2,8 +2,11 @@
 # Installs the latest Pi release next to the running one, switches to it and
 # rolls back when it does not come up. Runs as root, from `sudo mault update`
 # or the app's update request (run-update.sh); the user services and anything
-# that reads the service's own files run as the Mault service user.
+# that reads the service's own files run as the Mault service user. Root runs
+# this only from a release trusted-tree.py has checked.
 set -euo pipefail
+if [[ "$EUID" -eq 0 ]]; then export PATH=/usr/sbin:/usr/bin:/sbin:/bin; fi
+unset BASH_ENV ENV
 
 MAULT_HOME="${MAULT_HOME:-/opt/mault}"
 MAULT_DATA="${MAULT_DATA:-/var/lib/mault}"
@@ -43,13 +46,13 @@ as_service_user() {
 }
 
 release_version() {
-  python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["version"])' "$1/release.json"
+  python3 -I -c 'import json, sys; print(json.load(open(sys.argv[1]))["version"])' "$1/release.json"
 }
 
 installed_version="$(release_version "$CURRENT")"
-manifest_url="$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["manifestUrl"])' "$CURRENT/release.json")"
+manifest_url="$(python3 -I -c 'import json, sys; print(json.load(open(sys.argv[1]))["manifestUrl"])' "$CURRENT/release.json")"
 if [[ -z "$BUNDLE" ]]; then
-  latest_version="$(curl -fsSL "$manifest_url" | python3 -c 'import json, sys; print(json.load(sys.stdin)["version"])')"
+  latest_version="$(curl -fsSL "$manifest_url" | python3 -I -c 'import json, sys; print(json.load(sys.stdin)["version"])')"
   if [[ "$latest_version" == "$installed_version" ]]; then
     echo "[update] Mault $installed_version is already the latest version."
     exit 0

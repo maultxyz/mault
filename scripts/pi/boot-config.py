@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # Applies the login, SSH and Wi-Fi settings from mault-config.txt on the SD
-# card's boot partition (mault-boot-config.service, every boot, as root).
+# card's boot partition (mault-boot-config.service, every boot, as root, with
+# python3 -I from /usr/local/lib/mault, never from a release).
 # Raspberry Pi Imager doesn't offer OS customisation for custom images, so this
 # file is how an image owner gets a login. Applied passwords are erased from
 # the file and a Status line records the result, readable from any computer.

@@ -6,6 +6,7 @@ ConditionPathExists=!/var/lib/mault-system/setup-complete
 
 [Service]
 Type=oneshot
+ExecStartPre=/usr/bin/python3 -I /usr/local/lib/mault/trusted-tree.py --release /opt/mault/current
 ExecStart=/bin/bash /opt/mault/current/scripts/pi/setup.sh --first-boot
 RemainAfterExit=yes
 StandardOutput=journal+console

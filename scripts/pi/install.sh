@@ -6,10 +6,13 @@
 #   curl -fsSL <release>/install.sh | sudo bash
 #   sudo bash install.sh --bundle mault-pi-arm64.tar.gz
 set -euo pipefail
+if [[ "$EUID" -eq 0 ]]; then export PATH=/usr/sbin:/usr/bin:/sbin:/bin; fi
+unset BASH_ENV ENV
 
 MAULT_HOME="${MAULT_HOME:-/opt/mault}"
 MAULT_DATA="${MAULT_DATA:-/var/lib/mault}"
 MAULT_USER=mault-service
+LEGACY_MAULT_COMMAND=/usr/local/bin/mault
 DEFAULT_MANIFEST_URL="__MAULT_MANIFEST_URL__"
 
 usage() {
@@ -38,7 +41,28 @@ while [[ "$#" -gt 0 ]]; do
 done
 
 release_field() {
-  python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))[sys.argv[2]])' "$1" "$2"
+  python3 -I -c 'import json, sys; print(json.load(open(sys.argv[1]))[sys.argv[2]])' "$1" "$2"
+}
+
+# Root may adopt /opt/mault only when the service account never could change
+# it: older installs made it service-owned, so anything in it may have been
+# replaced. Such a tree is never re-owned or run, only deleted; settings and
+# cards live in /var/lib/mault and stay.
+remove_untrusted_install() {
+  if [[ ! -e "$MAULT_HOME" && ! -L "$MAULT_HOME" ]]; then
+    return 0
+  fi
+  if [[ ! -L "$MAULT_HOME" && "$(stat -c %u "$MAULT_HOME")" == 0 &&
+    -z "$(find "$MAULT_HOME" \( ! -user root -o \( ! -type l -perm /022 \) \) -print -quit)" ]]; then
+    return 0
+  fi
+  echo "[install] $MAULT_HOME was writable by the Mault service account. Replacing its releases; settings and cards stay."
+  if id "$MAULT_USER" >/dev/null 2>&1; then
+    systemctl --user --machine="$MAULT_USER@.host" stop \
+      mault-api.service mault-camera.service mault-controller.service mault-prices.timer 2>/dev/null || true
+  fi
+  rm -f "$LEGACY_MAULT_COMMAND"
+  rm -rf "$MAULT_HOME"
 }
 
 # Prints the release directory of the fetched or unpacked bundle on stdout.
@@ -49,18 +73,14 @@ fetch_release() {
   work="$(mktemp -d "$MAULT_HOME/releases/.incoming.XXXXXX")"
   trap 'rm -rf "$work"' RETURN
   if [[ -z "$BUNDLE" ]]; then
-    manifest_url="${MANIFEST_URL:-}"
-    if [[ -z "$manifest_url" && -f "$MAULT_HOME/current/release.json" ]]; then
-      manifest_url="$(release_field "$MAULT_HOME/current/release.json" manifestUrl)"
-    fi
-    manifest_url="${manifest_url:-$DEFAULT_MANIFEST_URL}"
+    manifest_url="${MANIFEST_URL:-$DEFAULT_MANIFEST_URL}"
     if [[ "$manifest_url" != https://* ]]; then
       echo "[install] No release manifest URL. Pass --bundle or --manifest-url." >&2
       return 1
     fi
     echo "[install] Checking $manifest_url" >&2
     curl -fsSL "$manifest_url" -o "$work/manifest.json"
-    bundle_url="$(python3 -c 'import json, sys, urllib.parse; m = json.load(open(sys.argv[1])); print(urllib.parse.urljoin(sys.argv[2], m["bundle"]))' "$work/manifest.json" "$manifest_url")"
+    bundle_url="$(python3 -I -c 'import json, sys, urllib.parse; m = json.load(open(sys.argv[1])); print(urllib.parse.urljoin(sys.argv[2], m["bundle"]))' "$work/manifest.json" "$manifest_url")"
     expected="$(release_field "$work/manifest.json" sha256)"
     echo "[install] Downloading Mault $(release_field "$work/manifest.json" version)" >&2
     curl -fL --progress-bar "$bundle_url" -o "$work/bundle.tar.gz"
@@ -134,14 +154,12 @@ for group in video dialout gpio i2c bluetooth; do
 done
 install -d -o "$MAULT_USER" -g "$MAULT_USER" -m 700 "$MAULT_DATA"
 runuser -u "$MAULT_USER" -- install -d -m 700 "$MAULT_DATA/.pi-controller"
-install -d -m 755 "$MAULT_HOME" "$MAULT_HOME/releases"
+remove_untrusted_install
+install -d -o root -g root -m 755 "$MAULT_HOME" "$MAULT_HOME/releases"
 
 release="$(fetch_release)"
 ln -sfn "$release" "$MAULT_HOME/current.new"
 mv -T "$MAULT_HOME/current.new" "$MAULT_HOME/current"
-chmod 755 "$MAULT_HOME/current/scripts/pi/mault.sh"
-ln -sfn "$MAULT_HOME/current/scripts/pi/mault.sh" /usr/local/bin/mault
-bash "$MAULT_HOME/current/scripts/pi/os-updates.sh"
 
 echo "[install] Configuring the web server"
 install -m 644 "$MAULT_HOME/current/scripts/pi/nginx-mault.conf" /etc/nginx/sites-available/mault
@@ -159,6 +177,7 @@ if [[ "$is_raspberry_pi" -eq 1 ]]; then
 fi
 
 bash "$MAULT_HOME/current/scripts/pi/secure-layout.sh"
+bash /usr/local/lib/mault/os-updates.sh
 
 if [[ "$MODE" == image ]]; then
   systemctl enable mault-setup.service

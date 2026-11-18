@@ -227,8 +227,11 @@ export async function startPiUpdate(): Promise<PiUpdateState> {
       );
     }
     if (!piUpdateRuntime.rootUpdaterInstalled()) {
+      const { manifestUrl } = await piUpdateRuntime.readInstalledRelease(
+        piUpdateRuntime.root(),
+      );
       throw new Error(
-        "In-app updates need a one-time update on the board first: sudo mault update",
+        `In-app updates need a one-time reinstall on the board (settings and cards stay): curl -fsSL ${new URL("install.sh", manifestUrl).href} | sudo bash`,
       );
     }
     const state: PiUpdateState = {

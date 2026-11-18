@@ -6,7 +6,7 @@ ConditionPathExists=/boot/firmware/mault-config.txt
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/python3 /opt/mault/current/scripts/pi/boot-config.py
+ExecStart=/usr/bin/python3 -I /usr/local/lib/mault/boot-config.py
 StandardOutput=journal+console
 
 [Install]
