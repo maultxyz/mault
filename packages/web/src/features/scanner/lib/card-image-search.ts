@@ -13,12 +13,14 @@ import { detectStamp } from "@/features/scanner/lib/card-stamp";
 import { detectPrintedFoilMarker } from "@/features/scanner/lib/printed-foil-marker";
 import { printingMarksSampler } from "@/features/scanner/lib/printing-marks";
 import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
+import { resizeImageRegion } from "@/features/scanner/lib/resize-image-region";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
 import {
   embedCanvas,
   rotateCanvas180,
 } from "@/features/scanner/lib/milo-client";
 import type {
+  ClientDewarpResult,
   MatchScope,
   OrientedCandidate,
   OrientedSearch,
@@ -147,6 +149,22 @@ export async function captureDewarpedCardImage(
   }
 }
 
+function wholeImageAsCard(
+  canvas: HTMLCanvasElement,
+  imageContour: CardContour,
+): ClientDewarpResult {
+  return {
+    detection: {
+      cardPresent: true,
+      contour: imageContour,
+      confidence: 1,
+      sharpness: null,
+    },
+    dewarpedCanvas: resizeImageRegion(canvas, imageContour),
+    frame: canvas,
+  };
+}
+
 function buildImageSearchFormData(blob: Blob, scope: MatchScope): FormData {
   const formData = new FormData();
   formData.append("image", blob, "card.jpg");
@@ -209,6 +227,7 @@ async function searchCardImage(
   ocrMode: ScanOcrMode,
   checkBothOrientations: boolean,
   gameKey: string | undefined,
+  skipCardDetection: boolean,
 ): Promise<ScanAttemptOutcome> {
   const created: HTMLCanvasElement[] = [];
   try {
@@ -221,6 +240,7 @@ async function searchCardImage(
       ocrMode,
       checkBothOrientations,
       gameKey,
+      skipCardDetection,
     );
   } finally {
     releaseCanvases(created, [canvas]);
@@ -236,6 +256,7 @@ async function runCardImageSearch(
   ocrMode: ScanOcrMode,
   checkBothOrientations: boolean,
   gameKey: string | undefined,
+  skipCardDetection: boolean,
 ): Promise<ScanAttemptOutcome> {
   const { collectionGuid } = scope;
   let fallbackReason = "card not detected";
@@ -250,7 +271,10 @@ async function runCardImageSearch(
       dewarpedCanvas,
       detection: corners,
       frame,
-    } = await detectAndDewarpCard(canvas, refreshFrame);
+    } =
+      skipCardDetection && contour
+        ? wholeImageAsCard(canvas, contour)
+        : await detectAndDewarpCard(canvas, refreshFrame);
     detection = {
       cardDetected: corners.cardPresent,
       sharpness: corners.sharpness,
@@ -328,7 +352,9 @@ async function runCardImageSearch(
         },
       });
       scanLog(
-        `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
+        skipCardDetection
+          ? "[scanner] embedding the automatic feeder page without card detection"
+          : `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
       );
       const pick = { ...identified.pick, alternate: identified.alternate };
       const printedFoilMarker = detectPrintedFoilMarker(
@@ -416,6 +442,7 @@ export async function searchCardImageWithConsensus(
   matchesNeeded: number,
   checkBothOrientations: boolean,
   gameKey: string | undefined,
+  skipCardDetection = false,
 ): Promise<ScanOutcome> {
   const result = await identifyScanWithConsensus(
     () =>
@@ -427,6 +454,7 @@ export async function searchCardImageWithConsensus(
         ocrMode,
         checkBothOrientations,
         gameKey,
+        skipCardDetection,
       ),
     (attempt) => attempt.card,
     matchesNeeded,

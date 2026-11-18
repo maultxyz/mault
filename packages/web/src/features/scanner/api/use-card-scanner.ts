@@ -377,6 +377,7 @@ export function useCardScanner({
               matchesNeededRef.current,
               isDocumentScan || checkBothOrientationsRef.current,
               gameKeyRef.current,
+              documentScanImages?.isFromAutomaticFeeder ?? false,
             );
             setDebugImageUrl(debugImageUrl);
             const images = await orientDocumentScanImages(
@@ -834,6 +835,7 @@ export function useCardScanner({
       await performCapture(checkDuplicate, contour, false, {
         savedImageUrl,
         capturedBackImageUrl,
+        isFromAutomaticFeeder: pages.isFromAutomaticFeeder,
       });
     },
     [takeDocumentScannerPages, showStillImage, performCapture, t],

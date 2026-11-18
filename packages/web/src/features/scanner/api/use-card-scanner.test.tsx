@@ -136,7 +136,8 @@ it("browser removal skips foil refinement and addition callbacks", async () => {
   );
   expect(save).not.toHaveBeenCalled();
   expect(foil).not.toHaveBeenCalled();
-  expect(mocks.search.mock.calls[0].at(-1)).toBe("mtg");
+  expect(mocks.search.mock.calls[0][7]).toBe("mtg");
+  expect(mocks.search.mock.calls[0][8]).toBe(false);
 });
 
 it("browser matched capture refines foil before delivering the scan", async () => {

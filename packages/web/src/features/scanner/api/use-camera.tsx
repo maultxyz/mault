@@ -40,7 +40,6 @@ import {
   isDocumentScannerCameraId,
   requireDocumentScannerSessionBridge,
 } from "@/features/scanner/lib/document-scan-bridge";
-import { cropScanPageToCard } from "@/features/scanner/lib/scan-page-card-crop";
 import {
   feederCardRotationDegrees,
   loadFeederCardSetup,
@@ -311,10 +310,9 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         return {
           result,
           pages: {
-            face: await rotateScanPage(await cropScanPageToCard(page), rotationDegrees),
-            otherSide: otherSidePage
-              ? await rotateScanPage(await cropScanPageToCard(otherSidePage), rotationDegrees)
-              : null,
+            face: await rotateScanPage(page, rotationDegrees),
+            otherSide: otherSidePage ? await rotateScanPage(otherSidePage, rotationDegrees) : null,
+            isFromAutomaticFeeder: true,
           },
         };
       } catch (error) {
@@ -342,7 +340,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       });
       if (result.type === "error") return { type: "error", reason: result.reason };
       if (!page) return { type: "error", reason: "unknown" };
-      return { type: "page", unrotatedPage: await cropScanPageToCard(page), scannedWith: setup };
+      return { type: "page", unrotatedPage: page, scannedWith: setup };
     },
     [captureDocumentScannerPage],
   );
@@ -372,6 +370,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           ? await cropFlatbedPage(page, result.scanWidthMm, placement)
           : page,
         otherSide: null,
+        isFromAutomaticFeeder: false,
       };
     } catch (error) {
       console.error("[camera] cropping the flatbed scan failed:", error);

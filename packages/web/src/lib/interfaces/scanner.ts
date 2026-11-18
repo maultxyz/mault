@@ -153,30 +153,13 @@ export interface CameraContextValue {
 export interface DocumentScanSavedImages {
   savedImageUrl?: string;
   capturedBackImageUrl?: string;
-}
-
-export interface ScanPageCardBox {
-  left: number;
-  top: number;
-  width: number;
-  height: number;
-}
-
-export interface ScanPageEdgeLine {
-  slope: number;
-  intercept: number;
-}
-
-export interface ScanPageCardEdges {
-  left: ScanPageEdgeLine;
-  right: ScanPageEdgeLine;
-  top: ScanPageEdgeLine;
-  bottom: ScanPageEdgeLine;
+  isFromAutomaticFeeder: boolean;
 }
 
 export interface DocumentScannerPages {
   face: File;
   otherSide: File | null;
+  isFromAutomaticFeeder: boolean;
 }
 
 export interface MatchScope {
@@ -1377,6 +1360,7 @@ export interface ScanImageImportItem {
 
 export interface QueuedScanImage {
   file: File;
+  isFromAutomaticFeeder: boolean;
   item: ScanImageImportItem;
 }
 
@@ -1385,7 +1369,10 @@ export interface ScanImageImport {
   isRunning: boolean;
   hasHaltedOnFailure: boolean;
   importFiles: (files: File[]) => void;
-  enqueueFiles: (files: File[]) => void;
+  enqueueFiles: (
+    files: File[],
+    options?: { isFromAutomaticFeeder?: boolean },
+  ) => void;
   clear: () => void;
   stop: () => void;
 }
