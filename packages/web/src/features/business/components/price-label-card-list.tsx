@@ -1,3 +1,4 @@
+import { MissingPrice } from "@/components/missing-price";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FieldError } from "@/components/ui/field";
@@ -104,7 +105,7 @@ export function PriceLabelCardList({ form, items, formatLabelPrice }: PriceLabel
                   </TableCell>
                   <TableCell className="text-right">
                     {card.marketPrice === null ? (
-                      <span className="text-foreground/70">{t("priceLabels.cards.noPrice")}</span>
+                      <span className="text-foreground/70"><MissingPrice /></span>
                     ) : (
                       formatLabelPrice(card.marketPrice)
                     )}
@@ -127,7 +128,7 @@ export function PriceLabelCardList({ form, items, formatLabelPrice }: PriceLabel
                   <TableCell className="text-right font-medium">
                     {labelPrice === null ? (
                       <span className="font-normal text-foreground/70">
-                        {t("priceLabels.cards.noPrice")}
+                        <MissingPrice />
                       </span>
                     ) : (
                       formatLabelPrice(labelPrice)

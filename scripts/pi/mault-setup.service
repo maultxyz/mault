@@ -2,7 +2,7 @@
 Description=Mault first boot setup
 After=network.target postgresql.service systemd-logind.service
 Wants=network.target
-ConditionPathExists=!/var/lib/mault/.setup-complete
+ConditionPathExists=!/var/lib/mault-system/setup-complete
 
 [Service]
 Type=oneshot

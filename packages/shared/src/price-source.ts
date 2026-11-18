@@ -144,6 +144,8 @@ export function cardPriceAtScanFor(
     : null;
 }
 
+export const MISSING_PRICE_TEXT = "–";
+
 export function formatPrice(value: number, source: PriceSource): string {
   return formatPriceInCurrency(value, PRICE_SOURCE_FIELDS[source].currency);
 }

@@ -6,6 +6,7 @@ set -euo pipefail
 
 MAULT_HOME=/opt/mault
 MAULT_DATA=/var/lib/mault
+MAULT_SYSTEM_STATE=/var/lib/mault-system
 MAULT_USER=mault-service
 ROOT="$MAULT_HOME/current"
 SCRIPTS="$ROOT/scripts/pi"
@@ -60,7 +61,7 @@ if [[ -n "$MIGRATE_FROM" && ! -f "$ENV_FILE" ]]; then
 fi
 
 if [[ ! -f "$ENV_FILE" ]]; then
-  python3 - "$ENV_FILE" <<'PY'
+  as_service_user python3 - "$ENV_FILE" <<'PY'
 import secrets
 import sys
 from pathlib import Path
@@ -84,8 +85,6 @@ path.chmod(0o600)
 print("[setup] Wrote new secrets")
 PY
 fi
-chown "$MAULT_USER:$MAULT_USER" "$ENV_FILE"
-chmod 600 "$ENV_FILE"
 
 if ! grep -q -E '^\s*(export\s+)?PI_SORTER=' "$ENV_FILE" && ! interactive; then
   if [[ -z "${PI_SORTER:-}" ]]; then
@@ -178,7 +177,7 @@ systemctl reload-or-restart nginx
 
 for _ in $(seq 1 120); do
   if curl -sf http://127.0.0.1:8080/api/public/version >/dev/null; then
-    touch "$MAULT_DATA/.setup-complete"
+    touch "$MAULT_SYSTEM_STATE/setup-complete"
     bash "$SCRIPTS/mault.sh" urls
     exit 0
   fi

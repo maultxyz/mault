@@ -1,3 +1,4 @@
+import { MissingPrice } from "@/components/missing-price";
 import { CardImage } from "@/components/card-image";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -80,7 +81,7 @@ function TradeOfferPickListRow({ item, priceSource, onPicked }: TradeOfferPickLi
         </span>
       </label>
       <span className="shrink-0 text-control font-medium tabular-nums">
-        {item.price == null ? t("tradeOffers.cardList.noPrice") : formatPrice(item.price, priceSource)}
+        {item.price == null ? <MissingPrice /> : formatPrice(item.price, priceSource)}
       </span>
     </li>
   );

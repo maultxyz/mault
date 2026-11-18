@@ -96,7 +96,7 @@ export interface TradeOfferCardSearchProps {
 
 export interface TradeOfferOfferedRowProps {
   draft: OfferedCardDraft;
-  priceLabel: string | null;
+  priceLabel: ReactNode;
   onChange: (draft: OfferedCardDraft) => void;
   onRemove: () => void;
 }

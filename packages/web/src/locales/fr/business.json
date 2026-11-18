@@ -746,7 +746,6 @@
       "customPrice": "Prix personnalisé",
       "customPriceFor": "Prix personnalisé pour {{name}}",
       "labelPrice": "Prix de l'étiquette",
-      "noPrice": "Aucun prix",
       "truncated": "Affichage des {{shown}} premières cartes sur {{total}}. Imprimez les étiquettes des autres depuis un emplacement de rangement ou un rachat."
     },
     "empty": {

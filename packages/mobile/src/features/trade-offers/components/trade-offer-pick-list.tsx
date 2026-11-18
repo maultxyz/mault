@@ -1,4 +1,4 @@
-import { formatPrice, tradeOfferPickListSections, type TradeOfferPickListSection } from "@magic-vault/shared";
+import { formatPrice, tradeOfferPickListSections, type TradeOfferPickListSection, MISSING_PRICE_TEXT } from "@magic-vault/shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
@@ -30,6 +30,7 @@ function TradeOfferPickListRow({ item, priceSource, onPicked }: TradeOfferPickLi
     ? t("tradeOffers.pickList.picked")
     : (tradeOfferPlacementLines([item.placement], t)[0] ?? null);
   const priceLabel = item.price == null ? t("tradeOffers.cardList.noPrice") : formatPrice(item.price, priceSource);
+  const priceText = item.price == null ? MISSING_PRICE_TEXT : priceLabel;
 
   return (
     <Pressable
@@ -77,7 +78,7 @@ function TradeOfferPickListRow({ item, priceSource, onPicked }: TradeOfferPickLi
         ) : null}
       </View>
       <AppText tone="secondary" numberOfLines={1} style={{ flexShrink: 0 }}>
-        {priceLabel}
+        {priceText}
       </AppText>
     </Pressable>
   );

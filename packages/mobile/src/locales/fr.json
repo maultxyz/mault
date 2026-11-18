@@ -1,7 +1,7 @@
 {
   "scanner": {
     "piHardware": {
-    "bluetoothOff": "Le Bluetooth est désactivé sur l’hôte",
+      "bluetoothOff": "Le Bluetooth est désactivé sur l’hôte",
       "bluetoothScanning": "Recherche de trieurs Bluetooth…",
       "bluetoothFailed": "Impossible de rechercher des trieurs Bluetooth. Vérifiez que le Bluetooth est activé sur l’hôte.",
       "bluetoothEmpty": "Aucun trieur Bluetooth trouvé. Allumez le trieur et gardez-le à proximité.",
@@ -1580,8 +1580,7 @@
       "binFailed": "Le bac {{bin}} n'a pas été atteint",
       "sampleRunStopped": "Test d'exécution arrêté au bac {{bin}}"
     },
-    "scanRegionCalibrationPanel": {
-    }
+    "scanRegionCalibrationPanel": {}
   },
   "storage": {
     "title": "Rangement",
@@ -2305,8 +2304,7 @@
     "low": "Bas",
     "regular": "Normale",
     "foil": "Foil",
-    "noPrice": "n/d",
-    "acrossPrintings": "Fourchette sur {{count}} impressions"
+    "noPrice": "Pas de prix"
   },
   "health": {
     "title": "État du système",

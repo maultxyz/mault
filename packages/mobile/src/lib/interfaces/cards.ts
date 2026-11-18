@@ -114,7 +114,6 @@ export interface PriceTableData {
   heading: string;
   columns: string[];
   rows: PriceTableRow[];
-  printings: number;
   highlightColumn: number;
   format: (value: number) => string;
 }

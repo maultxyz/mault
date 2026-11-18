@@ -86,10 +86,8 @@ fetch_release() {
   rm -rf "$target"
   ln -s "$MAULT_DATA/.env" "$work/release/.env"
   ln -s "$MAULT_DATA/.pi-controller" "$work/release/.pi-controller"
+  chmod -R go-w "$work/release"
   mv "$work/release" "$target"
-  if [[ "$(id -u)" -eq 0 ]] && id "$MAULT_USER" >/dev/null 2>&1; then
-    chown -R "$MAULT_USER:$MAULT_USER" "$target"
-  fi
   echo "$target"
 }
 
@@ -134,13 +132,13 @@ for group in video dialout gpio i2c bluetooth; do
     usermod -aG "$group" "$MAULT_USER"
   fi
 done
-install -d -o "$MAULT_USER" -g "$MAULT_USER" -m 700 "$MAULT_DATA" "$MAULT_DATA/.pi-controller"
-install -d -o "$MAULT_USER" -g "$MAULT_USER" -m 755 "$MAULT_HOME" "$MAULT_HOME/releases"
+install -d -o "$MAULT_USER" -g "$MAULT_USER" -m 700 "$MAULT_DATA"
+runuser -u "$MAULT_USER" -- install -d -m 700 "$MAULT_DATA/.pi-controller"
+install -d -m 755 "$MAULT_HOME" "$MAULT_HOME/releases"
 
 release="$(fetch_release)"
 ln -sfn "$release" "$MAULT_HOME/current.new"
 mv -T "$MAULT_HOME/current.new" "$MAULT_HOME/current"
-chown -h "$MAULT_USER:$MAULT_USER" "$MAULT_HOME/current"
 chmod 755 "$MAULT_HOME/current/scripts/pi/mault.sh"
 ln -sfn "$MAULT_HOME/current/scripts/pi/mault.sh" /usr/local/bin/mault
 bash "$MAULT_HOME/current/scripts/pi/os-updates.sh"
@@ -160,9 +158,7 @@ if [[ "$is_raspberry_pi" -eq 1 ]]; then
   grep -qx 'i2c-dev' /etc/modules 2>/dev/null || echo "i2c-dev" >> /etc/modules
 fi
 
-install -m 644 "$MAULT_HOME/current/scripts/pi/mault-setup.service" /etc/systemd/system/mault-setup.service
-install -m 644 "$MAULT_HOME/current/scripts/pi/mault-boot-config.service" /etc/systemd/system/mault-boot-config.service
-systemctl enable mault-boot-config.service
+bash "$MAULT_HOME/current/scripts/pi/secure-layout.sh"
 
 if [[ "$MODE" == image ]]; then
   systemctl enable mault-setup.service

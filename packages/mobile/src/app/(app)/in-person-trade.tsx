@@ -22,8 +22,7 @@ import {
   toTradeOfferCardOption,
   type InPersonTradeCashDirection,
   type InPersonTradeFormValues,
-  type InPersonTradeQuoteRequest,
-} from "@magic-vault/shared";
+  type InPersonTradeQuoteRequest, MISSING_PRICE_TEXT } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -109,7 +108,9 @@ export default function InPersonTradeScreen() {
       ? inPersonTradeBalance(quote.data, cashAmount == null ? null : { amount: cashAmount, direction: cashDirection })
       : null;
   const rowPriceLabel = (price: number | null | undefined) =>
-    price === undefined ? undefined : price == null ? t("trade.noPrice") : formatPrice(price, priceSource);
+    price === undefined ? undefined : price == null ? MISSING_PRICE_TEXT : formatPrice(price, priceSource);
+  const rowPriceAccessibilityLabel = (price: number | null | undefined) =>
+    price === null ? t("trade.noPrice") : undefined;
   const givenScanIds = new Set(given.map((card) => card.scanId));
   const ownedMatches =
     debouncedGivenSearch.length >= IN_PERSON_TRADE_SEARCH_MIN_LENGTH
@@ -255,6 +256,7 @@ export default function InPersonTradeScreen() {
                 subtitle={card.subtitle}
                 imageUrl={card.imageUrl}
                 value={rowPriceLabel(currentQuote?.wantedPrices[index])}
+                valueAccessibilityLabel={rowPriceAccessibilityLabel(currentQuote?.wantedPrices[index])}
                 right={
                   <IconButton
                     icon="trash"
@@ -336,6 +338,7 @@ export default function InPersonTradeScreen() {
                   .join(" · ")}
                 imageUrl={card.imageUrl}
                 value={rowPriceLabel(currentQuote?.offeredPrices[index])}
+                valueAccessibilityLabel={rowPriceAccessibilityLabel(currentQuote?.offeredPrices[index])}
                 accessibilityHint={t("tradeOffers.inPerson.editCardHint")}
                 onPress={() => setEditingCard(card)}
               />

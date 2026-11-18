@@ -1,0 +1,8 @@
+[Unit]
+Description=Update Mault to the latest release
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/bash /opt/mault/current/scripts/pi/run-update.sh

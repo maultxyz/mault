@@ -424,7 +424,8 @@
       "warning": "Warnung:",
       "danger": "Fehler:"
     },
-    "adminNavigation": "Admin-Navigation"
+    "adminNavigation": "Admin-Navigation",
+    "noPrice": "Kein Preis"
   },
   "shareLink": {
     "triggerWithCount_one": "{{label}} ({{count}} aktiver Link)",
@@ -536,7 +537,6 @@
       "showLess": "Weniger anzeigen",
       "unitPrice": "je {{price}}",
       "foil": "Foil",
-      "noPrice": "Kein Preis",
       "placementStorage": "{{location}} · #{{positions}}",
       "placementStorageNoPosition": "{{location}}",
       "placementBin_one": "{{collection}}, Fach {{bins}}",

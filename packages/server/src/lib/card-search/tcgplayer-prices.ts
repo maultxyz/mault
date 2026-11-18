@@ -20,7 +20,7 @@ import type {
   TcgplayerStampProduct,
   TcgplayerSubTypes,
 } from "../interfaces/card-search";
-import { median } from "../statistics";
+import { onlyPriceRecord } from "./only-price-record";
 
 export function tcgplayerProductIdOf(
   pricing: TcgplayerPricing,
@@ -100,31 +100,6 @@ function productsInPreferredGroups<T extends { groupName: string | null }>(
   return inPreferredGroup.length > 0 ? inPreferredGroup : products;
 }
 
-function combineRanges(
-  ranges: PlayingCardPriceRange[],
-): PlayingCardPriceRange | undefined {
-  if (ranges.length <= 1) return ranges[0];
-  const present = (key: "low" | "market") =>
-    ranges.flatMap((r) => (r[key] != null ? [r[key]] : []));
-  const lows = present("low");
-  return {
-    low: lows.length ? Math.min(...lows) : null,
-    market: median(present("market")),
-    printings: ranges.length,
-  };
-}
-
-function combineConditionPrices(
-  prices: CardConditionPrices[],
-): CardConditionPrices | undefined {
-  if (prices.length <= 1) return prices[0];
-  const entries = CARD_CONDITIONS.flatMap((condition) => {
-    const value = median(prices.flatMap((price) => price[condition] ?? []));
-    return value == null ? [] : [[condition, value] as const];
-  });
-  return entries.length > 0 ? Object.fromEntries(entries) : undefined;
-}
-
 function finishPricesFor(
   finishes: TcgplayerFinishProduct[],
   rangeOf: (productId: number, subTypes: string[]) => PlayingCardPriceRange | undefined,
@@ -185,17 +160,6 @@ export function foilOnlyFoilTypeOf(
   );
   if (!foilSubType) return undefined;
   return pricing.foilTypeOfVariant?.(foilSubType) ?? foilSubType;
-}
-
-function medianFinishPrice(
-  finishPrices: Record<string, CardFinishPrices> | undefined,
-): number | null {
-  if (!finishPrices) return null;
-  return median(
-    Object.values(finishPrices).flatMap((prices) =>
-      prices.priceFoil == null ? [] : [prices.priceFoil],
-    ),
-  );
 }
 
 export async function applyTcgplayerPrices<T extends PlayingCard>(
@@ -286,17 +250,14 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
     const stampPrices = stampPricesFor(stampProductsByCard[i], rangeOf, conditionPricesOf);
     if (cardProductIds.length === 0 && !finishPrices && !stampPrices) return card;
 
+    const singleProductId =
+      cardProductIds.length === 1 ? cardProductIds[0] : null;
     const rangeFor = (subTypes: string[]) =>
-      combineRanges(
-        cardProductIds.flatMap((productId) => {
-          const range = rangeOf(productId, subTypes);
-          return range ? [range] : [];
-        }),
-      );
+      singleProductId === null ? undefined : rangeOf(singleProductId, subTypes);
     const conditionPricesFor = (subTypes: string[]) =>
-      combineConditionPrices(
-        cardProductIds.flatMap((productId) => conditionPricesOf(productId, subTypes) ?? []),
-      );
+      singleProductId === null
+        ? undefined
+        : conditionPricesOf(singleProductId, subTypes);
 
     const subTypes = pricing.subTypes(card);
     const range = rangeFor(subTypes.price);
@@ -304,11 +265,7 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
     return {
       ...card,
       price: range?.market ?? range?.low ?? card.price,
-      priceFoil:
-        rangeFoil?.market ??
-        rangeFoil?.low ??
-        medianFinishPrice(finishPrices) ??
-        card.priceFoil,
+      priceFoil: rangeFoil?.market ?? rangeFoil?.low ?? card.priceFoil,
       priceRange: range ?? card.priceRange,
       priceRangeFoil: rangeFoil ?? card.priceRangeFoil,
       finishPrices: finishPrices ?? card.finishPrices,

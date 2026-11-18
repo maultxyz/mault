@@ -56,6 +56,7 @@ export interface TradeCardRowProps {
   accessibilityHint?: string;
   selected?: boolean;
   value?: string;
+  valueAccessibilityLabel?: string;
   right?: ReactNode;
 }
 

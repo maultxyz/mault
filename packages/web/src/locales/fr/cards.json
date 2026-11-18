@@ -41,9 +41,7 @@
     "market": "Marché",
     "low": "Bas",
     "regular": "Normale",
-    "foil": "Foil",
-    "noPrice": "n/d",
-    "acrossPrintings": "Fourchette sur {{count}} impressions"
+    "foil": "Foil"
   },
   "cardDetailPanel": {
     "catalogCardRemovedTitle": "Carte retirée du catalogue",
@@ -699,7 +697,6 @@
     "conditionFor": "État de {{name}}",
     "yourOffers_one": "Vos offres envoyées ({{count}})",
     "yourOffers_other": "Vos offres envoyées ({{count}})",
-    "noPrice": "Sans prix",
     "account": {
       "logIn": "Se connecter",
       "logInHint": "Connectez-vous pour suivre les offres que vous envoyez. Elles apparaissent dans votre compte sous Échanges > Envoyées.",

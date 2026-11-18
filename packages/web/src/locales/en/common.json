@@ -424,7 +424,8 @@
       "warning": "Warning:",
       "danger": "Error:"
     },
-    "adminNavigation": "Admin navigation"
+    "adminNavigation": "Admin navigation",
+    "noPrice": "No price"
   },
   "shareLink": {
     "triggerWithCount_one": "{{label}} ({{count}} active link)",
@@ -536,7 +537,6 @@
       "showLess": "Show less",
       "unitPrice": "{{price}} each",
       "foil": "Foil",
-      "noPrice": "No price",
       "placementStorage": "{{location}} · #{{positions}}",
       "placementStorageNoPosition": "{{location}}",
       "placementBin_one": "{{collection}}, bin {{bins}}",

@@ -91,7 +91,9 @@ case "$command" in
     ;;
   update)
     require_root "$command"
-    as_service_user bash "$SCRIPTS/update.sh" "$@"
+    bash "$SCRIPTS/secure-layout.sh"
+    bash "$SCRIPTS/update.sh" "$@"
+    bash "$SCRIPTS/secure-layout.sh"
     bash "$SCRIPTS/os-updates.sh" ||
       echo "Could not turn on automatic OS updates. Try again with: sudo mault os-updates" >&2
     ;;
@@ -103,7 +105,7 @@ case "$command" in
     require_root "$command"
     case "${1:-api}" in
       api) tail -n 200 "$MAULT_DATA/.local/state/mault/api.log" ;;
-      update) tail -n 200 "$MAULT_DATA/.local/state/mault/update.log" ;;
+      update) tail -n 200 /var/lib/mault-system/update.log ;;
       setup) journalctl -u mault-setup.service -n 200 --no-pager ;;
       camera|controller) service_systemctl --no-pager status "mault-$1.service" -n 200 || true ;;
       *) usage; exit 1 ;;
