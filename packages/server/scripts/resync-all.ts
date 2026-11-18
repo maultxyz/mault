@@ -104,7 +104,12 @@ async function main() {
       const job = jobs[index];
 
       await throttleFetch();
-      const result = await syncOneCard(job.gameKey, job.cardId, job.lang);
+      const result = await syncOneCard(job.gameKey, job.cardId, job.lang).catch(
+        (err: unknown) => ({
+          success: false as const,
+          message: err instanceof Error ? err.message : String(err),
+        }),
+      );
       if (result.success) {
         processed++;
       } else {

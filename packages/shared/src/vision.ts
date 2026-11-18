@@ -365,6 +365,21 @@ export function getDefaultCardContour(
   };
 }
 
+export function getDefaultCardDewarpContour(
+  width: number,
+  height: number,
+  region: ScanRegion = DEFAULT_SCAN_REGION,
+): CardContour {
+  const box = getDefaultCardContour(width, height, region);
+  if (width < height) return box;
+  return {
+    topLeft: box.bottomLeft,
+    topRight: box.topLeft,
+    bottomRight: box.topRight,
+    bottomLeft: box.bottomRight,
+  };
+}
+
 export function maxCornerShift(a: CardContour, b: CardContour): number {
   const from = contourToPoints(a);
   const to = contourToPoints(b);

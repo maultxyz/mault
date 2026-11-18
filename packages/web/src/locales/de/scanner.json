@@ -865,6 +865,7 @@
   },
   "mobileScan": {
     "chooseCollection": "Sammlung wählen",
+    "scanningInto": "Scannen in {{name}}",
     "collection": "Sammlung",
     "options": "Scan-Optionen",
     "autoFeed": "Automatischer Einzug",
@@ -883,6 +884,12 @@
     "sorter": "Sortierer",
     "pairDesktop": "Als Desktop-Kamera nutzen",
     "pairDesktopDescription": "QR-Code auf deinem Computer scannen",
+    "statusModes": {
+      "sorter": "Sortierer",
+      "handScan": "Handscan",
+      "scanOnce": "Einzelscan",
+      "removing": "Entfernen"
+    },
     "phase": {
       "ready": "Bereit",
       "scanning": "Scannt",

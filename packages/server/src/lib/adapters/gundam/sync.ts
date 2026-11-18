@@ -14,7 +14,7 @@ function extractRows(json: unknown): GundamListCard[] {
   if (json && typeof json === "object" && Array.isArray((json as { data?: unknown }).data)) {
     return (json as { data: GundamListCard[] }).data;
   }
-  return [];
+  throw new Error("Gundam card list had an unexpected shape");
 }
 
 async function fetchCards(

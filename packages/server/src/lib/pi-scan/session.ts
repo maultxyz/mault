@@ -46,7 +46,7 @@ import {
   detectPrintedFoilMarkerRgba,
   PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY,
   dewarpRgba,
-  getDefaultCardContour,
+  getDefaultCardDewarpContour,
   rotateRgba180,
   scanBinCapacity,
   CHANNEL_OFFSET,
@@ -664,7 +664,7 @@ async function matchFrame(
   }
   const contour =
     corners.contour ??
-    getDefaultCardContour(source.width, source.height, context.region);
+    getDefaultCardDewarpContour(source.width, source.height, context.region);
   const upright = dewarpRgba(source, contour, DEWARP_OUTPUT_SIZE);
   const uprightImage = await rgbaToJpeg(upright);
   const detection: ScanDetectionDiagnostics = {

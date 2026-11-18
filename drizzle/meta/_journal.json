@@ -1324,6 +1324,13 @@
       "when": 1795015048049,
       "tag": "0188_storage_location_fill",
       "breakpoints": true
+    },
+    {
+      "idx": 189,
+      "version": "7",
+      "when": 1795025473576,
+      "tag": "0189_card_embedding_version",
+      "breakpoints": true
     }
   ]
 }

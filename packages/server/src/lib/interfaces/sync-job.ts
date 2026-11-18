@@ -7,6 +7,7 @@ import type {
 } from "@magic-vault/shared";
 import type { SyncSource, SyncSourceCard } from "./card-search";
 import type { CatalogPrintingMarks } from "./printing-marks";
+import type { CardCatalogColumns } from "./saved-cards";
 
 export interface StartMessage {
   type: "start";
@@ -168,3 +169,39 @@ export interface SyncPruneInput {
 export type SyncPrunePlan =
   | { kind: "prune"; cardIdsToDelete: string[] }
   | { kind: "skip"; reason: string; staleCardCount: number };
+
+export interface CardImageFetchOptions {
+  runSignal?: AbortSignal;
+  waitForTurn?: () => Promise<void>;
+}
+
+export interface CatalogCardRowInput {
+  gameKey: string;
+  lang: string;
+  cardId: string;
+  name: string;
+  setCode: string;
+  data: unknown;
+}
+
+export interface CatalogCardRow extends CatalogCardRowInput, CardCatalogColumns {
+  collectorNumber: string | null;
+}
+
+export interface StoredCardSyncState {
+  embeddingVersion: number;
+  hasBackEmbedding: boolean;
+  sourceDataHash: string | null;
+}
+
+export interface CardSyncPlanInput {
+  hasImage: boolean;
+  hasBackImage: boolean;
+  stored: StoredCardSyncState | undefined;
+  forceResync: boolean;
+  wasRecentlyUpdated: boolean;
+  currentEmbeddingVersion: number;
+  reembedsOutdatedEmbeddings: boolean;
+}
+
+export type CardSyncAction = "skip" | "embedBothFaces" | "embedBackFaceOnly";

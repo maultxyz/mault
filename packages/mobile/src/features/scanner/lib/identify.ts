@@ -8,7 +8,7 @@ import {
   detectPrintedFoilMarkerRgba,
   PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY,
   dewarpRgba,
-  getDefaultCardContour,
+  getDefaultCardDewarpContour,
   identifyScanImage,
   identifyScanWithConsensus,
   resolveCardSearchMatches,
@@ -94,7 +94,7 @@ async function attemptOnce(
   };
   const contour =
     corners.contour ??
-    getDefaultCardContour(frame.pixels.width, frame.pixels.height, scanRegion);
+    getDefaultCardDewarpContour(frame.pixels.width, frame.pixels.height, scanRegion);
   if (!corners.contour) {
     detection.fallbackReason = `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`;
   }

@@ -33,6 +33,7 @@ import {
   parseEmbeddingField,
   vectorLiteral,
 } from "./shared";
+import { toPortraitCardImage } from "../../lib/card-image";
 
 function validEmbedding(value: number[] | null): number[] | null {
   if (!value || value.length !== MILO_EMBEDDING_DIM) return null;
@@ -145,7 +146,9 @@ async function loadHits(
 
 async function embeddingFromUpload(value: unknown): Promise<number[] | null> {
   if (!(value instanceof File) || !value.type.startsWith("image/")) return null;
-  const vector = await vectorizeCardImage(Buffer.from(await value.arrayBuffer()));
+  const vector = await vectorizeCardImage(
+    await toPortraitCardImage(Buffer.from(await value.arrayBuffer())),
+  );
   return validEmbedding(vector.embedding);
 }
 

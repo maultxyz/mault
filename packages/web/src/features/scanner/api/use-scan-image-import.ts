@@ -99,6 +99,7 @@ export function useScanImageImport(
       targetCollectionGuid: string,
       item: ScanImageImportItem,
       file: File,
+      isFromAutomaticFeeder: boolean,
     ): Promise<boolean> => {
       const {
         t,
@@ -133,6 +134,7 @@ export function useScanImageImport(
           SCAN_IMAGE_IMPORT_MATCHES_NEEDED,
           SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS,
           targetGameKey,
+          isFromAutomaticFeeder,
         );
         const scanTarget = {
           orgId,
@@ -239,6 +241,7 @@ export function useScanImageImport(
             collectionGuid,
             next.item,
             next.file,
+            next.isFromAutomaticFeeder,
           );
           if (!canContinue) {
             hasHaltedOnFailureRef.current = true;
@@ -264,13 +267,14 @@ export function useScanImageImport(
   }, [collectionGuid, identifyAndSaveImage, queryClient]);
 
   const enqueueFiles = useCallback(
-    (files: File[]) => {
+    (files: File[], { isFromAutomaticFeeder = false } = {}) => {
       if (!collectionGuid || hasHaltedOnFailureRef.current) return;
       const queued = files
         .filter((file) => file.type.startsWith("image/"))
         .map(
           (file): QueuedScanImage => ({
             file,
+            isFromAutomaticFeeder,
             item: {
               id: generateScanId(),
               fileName: file.name,

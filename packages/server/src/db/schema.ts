@@ -105,6 +105,8 @@ export const cardImageVectors = pgTable(
     imageSmall: text("image_small"),
     printingMarkGroups: jsonb("printing_mark_groups").$type<PrintingMarkGroups>(),
     printingMarkVersion: smallint("printing_mark_version"),
+    embeddingVersion: smallint("embedding_version").notNull().default(0),
+    sourceDataHash: text("source_data_hash"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },

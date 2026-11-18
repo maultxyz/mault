@@ -298,6 +298,23 @@ export interface BinBadgeProps {
   binNumber: number;
 }
 
+export interface CameraTextRowProps {
+  label: string;
+  accessibilityLabel?: string;
+  emphasis?: "title" | "detail";
+  dotColor?: string;
+  icon?: IconName;
+  onPress?: () => void;
+}
+
+export interface ScanSessionThumbnailProps {
+  imageUrl: string | null;
+  placeholderUrl: string | null;
+  count: number;
+  accessibilityLabel: string;
+  onPress: () => void;
+}
+
 export interface CameraChipProps {
   label: string;
   dotColor?: string;

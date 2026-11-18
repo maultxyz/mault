@@ -48,6 +48,16 @@ export const THEME_PREFERENCES = ["light", "dark", "system"] as const;
 
 export const SHUTTER_SIZE = 48;
 export const SHUTTER_ICON_SIZE = 20;
+export const SCAN_SESSION_THUMBNAIL_WIDTH = 36;
+export const CAMERA_TOP_SCRIM_GRADIENT =
+  "linear-gradient(to bottom, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.6) 65%, rgba(0, 0, 0, 0) 100%)";
+export const CAMERA_BOTTOM_SCRIM_GRADIENT =
+  "linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.6) 65%, rgba(0, 0, 0, 0) 100%)";
+export const CAMERA_TEXT_SHADOW = {
+  textShadowColor: "rgba(0, 0, 0, 0.75)",
+  textShadowOffset: { width: 0, height: 1 },
+  textShadowRadius: 3,
+} as const;
 export const MULTILINE_INPUT_MIN_HEIGHT = 200;
 export const LIST_SKELETON_TITLE_WIDTHS = ["55%", "45%", "35%"] as const;
 export const PILL_MIN_HEIGHT = 20;
