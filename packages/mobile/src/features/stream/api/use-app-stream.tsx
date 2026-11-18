@@ -3,6 +3,13 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import EventSource from "react-native-sse";
 import {
   DEPLOY_STATUS_EVENT,
+  MACHINES_INIT_EVENT,
+  MACHINE_REMOVED_EVENT,
+  MACHINE_STATUS_EVENT,
+  removeMachineStatusFromList,
+  sortMachinesForDisplay,
+  upsertMachineStatus,
+  type MachineStatus,
   ORDERS_CHANGED_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
   type DeployNotice,
@@ -16,7 +23,7 @@ import { STREAM_RECONNECT_DELAY_MS } from "@/lib/constants/monitor";
 import { SCAN_LOCK_TTL_MS } from "@/lib/constants/stream";
 import type { AppStreamValue, ScanLockInfo } from "@/lib/interfaces/stream";
 
-const AppStreamContext = createContext<AppStreamValue>({ locks: {}, deployNotice: null });
+const AppStreamContext = createContext<AppStreamValue>({ locks: {}, deployNotice: null, machines: [] });
 
 function parse<T>(data: string | null | undefined): T | null {
   if (!data) return null;
@@ -38,10 +45,12 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
   const { status, activeOrgId } = useSession();
   const [locks, setLocks] = useState<Record<string, ScanLockInfo>>({});
   const [deployNotice, setDeployNotice] = useState<DeployNotice | null>(null);
+  const [machines, setMachines] = useState<MachineStatus[]>([]);
 
   useEffect(() => {
     setLocks({});
     setDeployNotice(null);
+    setMachines([]);
     if (status !== "signed-in" || !activeOrgId) return;
     let source: EventSource<string> | null = null;
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -74,6 +83,17 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
       on(ORDERS_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: BUSINESS_ORDERS_QUERY_KEY }));
       on(TRADE_OFFERS_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] }));
       on(DEPLOY_STATUS_EVENT, (data) => setDeployNotice(parse<DeployNotice | null>(data)));
+      on(MACHINES_INIT_EVENT, (data) =>
+        setMachines(sortMachinesForDisplay(parse<{ machines: MachineStatus[] }>(data)?.machines ?? [])),
+      );
+      on(MACHINE_STATUS_EVENT, (data) => {
+        const status = parse<MachineStatus>(data);
+        if (status) setMachines((prev) => upsertMachineStatus(prev, status));
+      });
+      on(MACHINE_REMOVED_EVENT, (data) => {
+        const removed = parse<{ machineId: string }>(data);
+        if (removed) setMachines((prev) => removeMachineStatusFromList(prev, removed.machineId));
+      });
       es.addEventListener("error", () => {
         es.close();
         if (cancelled) return;
@@ -90,7 +110,7 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
     };
   }, [status, activeOrgId, queryClient]);
 
-  const value = useMemo(() => ({ locks, deployNotice }), [locks, deployNotice]);
+  const value = useMemo(() => ({ locks, deployNotice, machines }), [locks, deployNotice, machines]);
   return <AppStreamContext.Provider value={value}>{children}</AppStreamContext.Provider>;
 }
 

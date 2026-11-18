@@ -5,6 +5,7 @@ import {
   MOBILE_HOME_PATH,
   MOBILE_NAV_TAB_ACTIVE_CLASS,
   MOBILE_NAV_TAB_ICON_ACTIVE_CLASS,
+  MOBILE_NAV_TAB_ICON_SIZE,
   MOBILE_NAV_TAB_CLASS,
   MOBILE_SCAN_PATH,
   MOBILE_SORTER_PATH,
@@ -112,7 +113,7 @@ export function MobileNav() {
     >
       <MobileNavTab
         to={MOBILE_HOME_PATH}
-        icon={<IconHome size={22} />}
+        icon={<IconHome size={MOBILE_NAV_TAB_ICON_SIZE} />}
         label={t("mobileTabs.home")}
         active={
           pathname.startsWith(MOBILE_HOME_PATH) ||
@@ -122,7 +123,7 @@ export function MobileNav() {
       />
       <MobileNavTab
         to={scanPath}
-        icon={<IconScan size={22} />}
+        icon={<IconScan size={MOBILE_NAV_TAB_ICON_SIZE} />}
         label={t("mobileTabs.scan")}
         active={
           pathname.startsWith(MOBILE_SCAN_PATH) ||
@@ -133,7 +134,7 @@ export function MobileNav() {
       />
       <MobileNavTab
         to={LIBRARY_PATH}
-        icon={<IconAlbum size={22} />}
+        icon={<IconAlbum size={MOBILE_NAV_TAB_ICON_SIZE} />}
         label={t("mobileTabs.library")}
         active={
           pathname.startsWith(LIBRARY_PATH) ||
@@ -145,14 +146,14 @@ export function MobileNav() {
       {hasBusinessTools && (
         <MobileNavTab
           to={INTAKE_PATH}
-          icon={<IconBuildingStore size={22} />}
+          icon={<IconBuildingStore size={MOBILE_NAV_TAB_ICON_SIZE} />}
           label={t("mobileTabs.business")}
           active={isBusinessPath}
         />
       )}
       <MobileNavTab
         to={MOBILE_ACCOUNT_PATH}
-        icon={<IconMenu2 size={22} />}
+        icon={<IconMenu2 size={MOBILE_NAV_TAB_ICON_SIZE} />}
         label={t("mobileTabs.more")}
         active={
           !(hasBusinessTools && isBusinessPath) &&

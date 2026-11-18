@@ -28,6 +28,7 @@ import { useRole } from "@/hooks/use-role";
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked-while-impersonating";
 import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
+import { MACHINES_ROUTE_PATH } from "@/lib/constants/machines";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import {
   STORAGE_LABELS_PATH,
@@ -198,6 +199,12 @@ const AdminDeveloperPage = lazy(
   () => import("@/app/routes/app/admin/developer"),
 );
 const MonitorPage = lazy(() => import("@/app/routes/app/monitor"));
+const MachinesPage = lazy(
+  withNamespaces(
+    () => import("@/app/routes/app/machines"),
+    ["common", "machines", "scanner"],
+  ),
+);
 const PhoneCameraPage = lazy(() => import("@/app/routes/app/phone-camera"));
 const ScanPage = lazy(() => import("@/app/routes/app/scan"));
 const ScanPairPage = lazy(() => import("@/app/routes/app/scan-pair"));
@@ -677,6 +684,10 @@ export const routes: RouteObject[] = [
               {
                 path: HOME_PATH,
                 element: <HomePage />,
+              },
+              {
+                path: MACHINES_ROUTE_PATH,
+                element: <MachinesPage />,
               },
               {
                 path: LIBRARY_PATH,

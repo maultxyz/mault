@@ -3,18 +3,18 @@ import { MARKETING_PAGE_PATHS } from "@/lib/constants/marketing-pages";
 import type {
   SelfHostAuth,
   SelfHostBoard,
-  SelfHostSorter,
   SelfHostHost,
   SelfHostOption,
   SelfHostSection,
   SelfHostSetupState,
+  SelfHostSorter,
 } from "@/lib/interfaces/self-host";
 import {
   IconBrandDocker,
   IconCloud,
   IconCloudUpload,
-  IconDatabase,
   IconCpu,
+  IconDatabase,
   IconPlug,
 } from "@tabler/icons-react";
 
@@ -142,7 +142,7 @@ export const SELF_HOST_SECTIONS: SelfHostSection[] = [
       { key: "compose", code: REPO_URL },
       {
         key: "images",
-        code: "ghcr.io/dishwasher-detergent/mault-server\nghcr.io/dishwasher-detergent/mault-web\nghcr.io/dishwasher-detergent/mault-bot",
+        code: "ghcr.io/maultxyz/mault-server\nghcr.io/maultxyz/mault-web\nghcr.io/maultxyz/mault-bot",
       },
       {
         key: "env",

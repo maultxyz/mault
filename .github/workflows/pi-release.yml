@@ -306,3 +306,104 @@ jobs:
             echo "- Release: [${TAG}](https://github.com/${GH_REPO}/releases/tag/${TAG})"
             echo "- Image: ${{ needs.image.result == 'success' && 'built' || 'skipped' }}"
           } >> "$GITHUB_STEP_SUMMARY"
+
+  notify:
+    needs: [rollback, prepare, bundle, image, publish]
+    if: always() && github.ref_name != 'dev'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    steps:
+      - name: Notify Discord (release)
+        if: needs.publish.result == 'success'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_DEPLOY_WEBHOOK_URL isn't set for this environment, skipping."
+            exit 0
+          fi
+          curl -sf -X POST "$DISCORD_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg version "${{ needs.prepare.outputs.version }}" \
+              --arg image "${{ needs.image.result }}" \
+              --arg url "https://github.com/${{ github.repository }}/releases/tag/${{ needs.prepare.outputs.tag }}" \
+              --arg commit "${GITHUB_SHA::7}" \
+              --arg commit_url "https://github.com/${{ github.repository }}/commit/${{ github.sha }}" \
+              --arg author "${{ github.actor }}" \
+              --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              '{
+                embeds: [{
+                  title: ("Mault for Raspberry Pi v" + $version + " released" + (if $image == "success" then " (bundle + SD image)" else " (bundle only)" end)),
+                  url: $url,
+                  color: 5763719,
+                  fields: [
+                    { name: "Commit", value: ("[`" + $commit + "`](" + $commit_url + ")"), inline: true },
+                    { name: "Author", value: $author, inline: true }
+                  ],
+                  timestamp: $ts
+                }]
+              }')"
+
+      - name: Notify Discord (rollback)
+        if: needs.rollback.result == 'success'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_DEPLOY_WEBHOOK_URL isn't set for this environment, skipping."
+            exit 0
+          fi
+          curl -sf -X POST "$DISCORD_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg tag "${{ inputs.rollback_tag }}" \
+              --arg url "https://github.com/${{ github.repository }}/releases/tag/${{ inputs.rollback_tag }}" \
+              --arg commit "${GITHUB_SHA::7}" \
+              --arg commit_url "https://github.com/${{ github.repository }}/commit/${{ github.sha }}" \
+              --arg author "${{ github.actor }}" \
+              --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              '{
+                embeds: [{
+                  title: ("Mault for Raspberry Pi rolled back to " + $tag),
+                  url: $url,
+                  color: 5763719,
+                  fields: [
+                    { name: "Commit", value: ("[`" + $commit + "`](" + $commit_url + ")"), inline: true },
+                    { name: "Author", value: $author, inline: true }
+                  ],
+                  timestamp: $ts
+                }]
+              }')"
+
+      - name: Notify Discord (failure)
+        if: contains(needs.*.result, 'failure')
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_DEPLOY_WEBHOOK_URL isn't set for this environment, skipping."
+            exit 0
+          fi
+          curl -sf -X POST "$DISCORD_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg url "https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+              --arg commit "${GITHUB_SHA::7}" \
+              --arg commit_url "https://github.com/${{ github.repository }}/commit/${{ github.sha }}" \
+              --arg author "${{ github.actor }}" \
+              --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              '{
+                embeds: [{
+                  title: "Raspberry Pi release failed",
+                  description: "Check the run log.",
+                  url: $url,
+                  color: 15548997,
+                  fields: [
+                    { name: "Commit", value: ("[`" + $commit + "`](" + $commit_url + ")"), inline: true },
+                    { name: "Author", value: $author, inline: true }
+                  ],
+                  timestamp: $ts
+                }]
+              }')"

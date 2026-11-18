@@ -1,4 +1,3 @@
-import { isPiBoard } from "@/lib/constants/build";
 import { FlashInBrowserStep } from "@/features/build/components/flash-in-browser-step";
 import { PrintPartsModel } from "@/features/build/components/print-parts-model";
 import {
@@ -11,6 +10,7 @@ import {
 import {
   ASSEMBLE_MODULES_VIDEO,
   BOARD_INFO,
+  isPiBoard,
   WIRE_AND_CALIBRATE_VIDEO,
 } from "@/lib/constants/build";
 import { PRINT_FILES_URL, REPO_URL } from "@/lib/constants/links";
@@ -92,7 +92,7 @@ export function buildPhases(
                 ),
                 source: (
                   <a
-                    href="https://github.com/dishwasher-detergent/mault/blob/master/3d%20model/Card%20Sorter.f3d"
+                    href="https://github.com/maultxyz/mault/blob/master/3d%20model/Card%20Sorter.f3d"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="underline underline-offset-2 hover:text-foreground"

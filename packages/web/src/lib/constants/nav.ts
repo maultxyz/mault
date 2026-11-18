@@ -30,6 +30,7 @@ export const MOBILE_SAVE_BAR_CLASS =
   "bottom-[calc(3.5rem+1px+env(safe-area-inset-bottom)+0.5rem)]";
 export const MOBILE_NAV_TAB_ACTIVE_CLASS = "text-primary font-semibold";
 export const MOBILE_NAV_TAB_ICON_ACTIVE_CLASS = "bg-sidebar-selected";
+export const MOBILE_NAV_TAB_ICON_SIZE = 18;
 export const MOBILE_FRAMED_SHELL_CLASS = "pb-[var(--mobile-nav-space,0px)]";
 export const MOBILE_FRAMED_PANEL_CLASS =
   "mx-1.5 rounded-card bg-background [--mobile-nav-space:0px]";

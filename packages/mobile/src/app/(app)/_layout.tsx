@@ -67,6 +67,7 @@ export default function AppLayout() {
           <Stack.Screen name="rules/repack" />
           <Stack.Screen name="rules/stages" />
           <Stack.Screen name="stats" />
+          <Stack.Screen name="machines" />
           <Stack.Screen name="validate-matches" />
           <Stack.Screen name="collection-new" options={sheetOptions} />
           <Stack.Screen name="collection-edit" options={sheetOptions} />

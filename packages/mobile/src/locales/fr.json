@@ -3990,5 +3990,95 @@
         "finish": "Autre finition"
       }
     }
+  },
+  "machines": {
+    "title": "Machines",
+    "chooseMachine": "Choisir une machine",
+    "machinePicker": "{{name}}, choisir une autre machine",
+    "empty": {
+      "title": "Aucune machine en ligne",
+      "description": "Une machine apparaît ici tant que sa trieuse est connectée dans Mault sur un ordinateur, ou qu'un Raspberry Pi scanne."
+    },
+    "runState": {
+      "running": "Tri en cours",
+      "paused": "En pause",
+      "attention": "Intervention requise",
+      "stopped": "Arrêtée",
+      "idle": "Inactive"
+    },
+    "stale": "Aucune mise à jour depuis un moment",
+    "sessionCount_one": "{{count}} carte cette session",
+    "sessionCount_other": "{{count}} cartes cette session",
+    "collection": "Scan dans {{name}}",
+    "noCollection": "Aucune collection choisie",
+    "camera": {
+      "label": "Caméra en direct de {{name}}",
+      "unavailable": "Cette machine n'a pas de caméra à afficher",
+      "idle": "La caméra s'affiche pendant le tri",
+      "loading": "Connexion à la caméra"
+    },
+    "controls": {
+      "start": "Démarrer",
+      "resume": "Reprendre",
+      "pause": "Pause",
+      "emergencyStop": "Arrêt d'urgence",
+      "emergencyStopHint": "Arrête tous les moteurs de cette machine",
+      "failed": "La machine n'a pas répondu. Vérifie qu'elle est toujours en ligne.",
+      "sent": "Envoyé à {{name}}",
+      "remoteNote": "Les commandes à distance exigent que la machine soit en ligne. Garde un moyen de couper le courant sur la machine."
+    },
+    "preset": {
+      "label": "Règles de tri",
+      "none": "Aucun préréglage",
+      "pass": "Passage {{position}} sur {{count}}"
+    },
+    "bins": {
+      "title": "Bacs",
+      "estimated": "Estimé à partir des scans depuis le dernier vidage de chaque bac",
+      "bin": "Bac {{number}}",
+      "catchAll": "Bac {{number}} (fourre-tout)",
+      "fill": "{{count}}/{{capacity}}",
+      "fillUnknown": "{{count}}",
+      "a11y": "{{name}} : {{count}} cartes sur {{capacity}}",
+      "a11yUnknown": "{{name}} : {{count}} cartes",
+      "unavailable": "Les niveaux des bacs s'affichent dès que la machine a un préréglage"
+    },
+    "recent": {
+      "title": "Scans récents",
+      "empty": "Les cartes apparaissent ici au fur et à mesure des scans",
+      "unmatched": "Non identifiée",
+      "bin": "Bac {{number}}",
+      "lowConfidence": "Vérifier cette correspondance",
+      "open": "Ouvrir {{name}}",
+      "lastCard": "Dernière carte : {{name}}"
+    },
+    "pages": {
+      "label": "Machine {{position}} sur {{count}}",
+      "goTo": "Afficher {{name}}"
+    },
+    "source": {
+      "piHost": "Raspberry Pi",
+      "station": "Ordinateur"
+    },
+    "attention": {
+      "jam": "Bourrage au module {{module}}",
+      "hopperEmpty": "Le bac d'alimentation est vide",
+      "feederError": "Erreur du chargeur",
+      "noCardDetected": "Aucune carte n'est arrivée au scanner",
+      "cardStuckInModuleOne": "Une carte est coincée dans le module 1",
+      "sorterNotResponding": "La trieuse ne répond pas",
+      "routingFailed": "Une carte n'a pas pu être triée",
+      "binLimit": "Le bac {{bins}} est plein",
+      "binLimitUnknown": "Un bac est plein",
+      "binsFull_one": "Le bac {{bins}} est plein",
+      "binsFull_other": "Les bacs {{bins}} sont pleins",
+      "packsComplete": "Tous les paquets sont terminés",
+      "saveFailed": "Un scan n'a pas pu être enregistré",
+      "scanLimit": "Limite quotidienne de scans atteinte",
+      "sorterLimit": "Limite de trieuses atteinte",
+      "collectionLocked": "La collection est verrouillée",
+      "scannerError": "Erreur de caméra",
+      "emergencyStopped": "Arrêt d'urgence"
+    }
   }
 }

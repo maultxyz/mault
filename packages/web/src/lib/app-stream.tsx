@@ -13,11 +13,20 @@ import type {
   CollectionLocksContextValue,
 } from "@/lib/interfaces/collections";
 import {
+  applyMachineStatus,
+  dropMachineStatus,
+  replaceMachineStatuses,
+} from "@/features/machines/lib/machine-status-store";
+import {
   DEPLOY_STATUS_EVENT,
+  MACHINES_INIT_EVENT,
+  MACHINE_REMOVED_EVENT,
+  MACHINE_STATUS_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
   ORDERS_CHANGED_EVENT,
   type TradeOffersChangedEvent,
   type DeployNotice,
+  type MachineStatus,
   type SyncState,
 } from "@magic-vault/shared";
 import { TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
@@ -61,6 +70,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
   const { activeOrg } = useOrg();
   const orgId = activeOrg?.id ?? null;
   useEffect(() => resetPiScanScope(orgId), [orgId]);
+  useEffect(() => replaceMachineStatuses([]), [orgId]);
 
   const [eventSource, setEventSource] = useState<EventSource | null>(null);
   const [streamSetupAttempt, setStreamSetupAttempt] = useState(0);
@@ -112,6 +122,23 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
         }
         recordSessionInits(es, watchGuids);
 
+        es.addEventListener(MACHINES_INIT_EVENT, (e) => {
+          const data = JSON.parse((e as MessageEvent).data) as {
+            machines: MachineStatus[];
+          };
+          replaceMachineStatuses(data.machines);
+        });
+        es.addEventListener(MACHINE_STATUS_EVENT, (e) => {
+          applyMachineStatus(
+            JSON.parse((e as MessageEvent).data) as MachineStatus,
+          );
+        });
+        es.addEventListener(MACHINE_REMOVED_EVENT, (e) => {
+          const data = JSON.parse((e as MessageEvent).data) as {
+            machineId: string;
+          };
+          dropMachineStatus(data.machineId);
+        });
         es.addEventListener("lock_init", (e) => {
           const { locks: initial } = JSON.parse((e as MessageEvent).data) as {
             locks: Record<string, ScanLockInfo>;
