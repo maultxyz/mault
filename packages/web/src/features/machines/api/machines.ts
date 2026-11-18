@@ -9,7 +9,7 @@ import {
 } from "@magic-vault/shared";
 
 function machinePath(machineId: string, action: string): string {
-  return `${MACHINES_PATH}/${encodeURIComponent(machineId)}/${action}`;
+  return `/api${MACHINES_PATH}/${encodeURIComponent(machineId)}/${action}`;
 }
 
 export function publishMachineStatus(machineId: string, input: MachineStatusInput) {
