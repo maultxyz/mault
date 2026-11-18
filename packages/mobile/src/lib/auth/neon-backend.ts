@@ -34,11 +34,7 @@ async function readError(res: Response, fallback: string): Promise<string> {
   }
 }
 
-async function sessionFrom(
-  res: Response,
-  fallback: string,
-  missingTokenError = "verify-email",
-): Promise<AuthBackendSignInResult> {
+async function sessionFrom(res: Response, fallback: string): Promise<AuthBackendSignInResult> {
   if (!res.ok) return { error: await readError(res, fallback) };
   const headerToken =
     res.headers.get("set-auth-token") ??
@@ -49,7 +45,7 @@ async function sessionFrom(
     session?: { token?: string | null } | null;
   } | null;
   const sessionToken = headerToken ?? body?.token ?? body?.session?.token ?? null;
-  return sessionToken ? { sessionToken } : { error: missingTokenError };
+  return sessionToken ? { sessionToken } : { error: "verify-email" };
 }
 
 async function readNeonErrorCode(res: Response, fallback: string): Promise<string> {
@@ -117,7 +113,57 @@ async function signInWithSocialProvider(provider: NeonSocialProvider): Promise<A
   if (!sessionResponse.ok) {
     return { error: await readNeonErrorCode(sessionResponse, "social-session") };
   }
-  return sessionFrom(sessionResponse, "social", "social-no-session");
+  const sessionTokenCandidates = await sessionTokenCandidatesFrom(sessionResponse);
+  if (sessionTokenCandidates.length === 0) return { error: "social-no-session" };
+  for (const sessionTokenCandidate of sessionTokenCandidates) {
+    if (await accessTokenFor(sessionTokenCandidate)) return { sessionToken: sessionTokenCandidate };
+  }
+  return { error: "social-session-rejected" };
+}
+
+async function sessionTokenCandidatesFrom(res: Response): Promise<string[]> {
+  const cookieToken = res.headers.get("set-cookie")?.match(NEON_AUTH_SESSION_TOKEN_COOKIE_PATTERN)?.[1] ?? null;
+  const body = (await res.json().catch(() => null)) as {
+    token?: string | null;
+    session?: { token?: string | null } | null;
+  } | null;
+  const candidates = [
+    res.headers.get("set-auth-token"),
+    cookieToken,
+    cookieToken ? percentDecoded(cookieToken) : null,
+    body?.token,
+    body?.session?.token,
+  ];
+  return [...new Set(candidates.filter((candidate): candidate is string => Boolean(candidate)))];
+}
+
+function percentDecoded(value: string): string | null {
+  try {
+    return decodeURIComponent(value);
+  } catch {
+    return null;
+  }
+}
+
+async function accessTokenFor(sessionToken: string): Promise<string | null> {
+  const tokenResponse = await fetch(`${NEON_AUTH_URL}/token`, {
+    credentials: "omit",
+    headers: neonHeaders(sessionToken),
+  });
+  if (tokenResponse.ok) {
+    const body = (await tokenResponse.json()) as { token?: string };
+    if (body.token) return body.token;
+  }
+  if (tokenResponse.status === 401) return null;
+  const sessionResponse = await fetch(`${NEON_AUTH_URL}/get-session`, {
+    credentials: "omit",
+    headers: neonHeaders(sessionToken),
+  });
+  if (sessionResponse.status === 401) return null;
+  if (!sessionResponse.ok) {
+    throw new Error(`Session refresh failed (${sessionResponse.status})`);
+  }
+  return sessionResponse.headers.get("set-auth-jwt");
 }
 
 export const neonBackend: AuthBackend = {
@@ -143,26 +189,7 @@ export const neonBackend: AuthBackend = {
     }
   },
 
-  async accessToken(sessionToken) {
-    const tokenResponse = await fetch(`${NEON_AUTH_URL}/token`, {
-      credentials: "omit",
-      headers: neonHeaders(sessionToken),
-    });
-    if (tokenResponse.ok) {
-      const body = (await tokenResponse.json()) as { token?: string };
-      if (body.token) return body.token;
-    }
-    if (tokenResponse.status === 401) return null;
-    const sessionResponse = await fetch(`${NEON_AUTH_URL}/get-session`, {
-      credentials: "omit",
-      headers: neonHeaders(sessionToken),
-    });
-    if (sessionResponse.status === 401) return null;
-    if (!sessionResponse.ok) {
-      throw new Error(`Session refresh failed (${sessionResponse.status})`);
-    }
-    return sessionResponse.headers.get("set-auth-jwt");
-  },
+  accessToken: accessTokenFor,
 
   async signOut(sessionToken) {
     await fetch(`${NEON_AUTH_URL}/sign-out`, {
