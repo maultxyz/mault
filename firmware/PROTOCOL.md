@@ -490,7 +490,7 @@ via `channel` above, since (like the feeder) it has no neutral pulse that
 stops it on its own. → `{"status":"ok","channel":7}`, or
 `{"error":"channel must be 0 to 15"}`
 
-### `setLed` (LED strips, firmware 2.14.0+)
+### `setLed` (LED strips, firmware 2.13.0+)
 ```json
 {"setLed": {"strip": 1, "led": 3, "on": true, "red": 255, "green": 0, "blue": 0, "white": 0, "brightness": 128}}
 ```
@@ -510,7 +510,7 @@ Not a motion command, so it still runs after an emergency stop.
 `green`/`blue`/`white`),
 `{"error":"brightness must be 0 to 255"}`
 
-### `getLeds` (firmware 2.14.0+)
+### `getLeds` (firmware 2.13.0+)
 ```json
 {"getLeds": true}
 ```

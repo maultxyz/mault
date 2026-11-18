@@ -31,7 +31,7 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   moduleDetection: "2.12.0",
   pusherNudge: "2.13.0",
   emergencyStop: "2.13.2",
-  ledStrips: "2.14.0",
+  ledStrips: "2.13.0",
 };
 
 export const MODULE_DETECTION_BOARDS: readonly string[] = ["esp32", "raspberry_pi"];
