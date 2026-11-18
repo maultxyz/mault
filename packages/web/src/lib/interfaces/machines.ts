@@ -20,7 +20,7 @@ export interface MachinePickerProps {
   onSelectMachine: (machineId: string) => void;
 }
 
-export interface MachinePageDotsProps extends MachinePickerProps {}
+export type MachinePageDotsProps = MachinePickerProps;
 
 export interface MachineBinTileProps {
   fill: MachineBinFill;
