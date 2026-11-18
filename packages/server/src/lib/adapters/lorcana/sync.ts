@@ -18,6 +18,7 @@ import type {
   LorcanaDeCard,
   LorcastCard,
 } from "../../interfaces/lorcana";
+import { markSyncFetchIncomplete } from "../../sync-job/fetch-completeness";
 
 function toSyncCardDe(raw: LorcanaDeCard): SyncSourceCard {
   return withRawData(
@@ -57,6 +58,7 @@ async function fetchGermanCards(
         { headers: CARD_API_HEADERS, signal },
       );
       if (!res.ok) {
+        markSyncFetchIncomplete(`${set.name} could not be fetched`);
         addLog(`Failed to fetch ${set.name}: ${res.status}`);
         break;
       }
@@ -137,6 +139,7 @@ async function fetchCards(
       signal,
     });
     if (!res.ok) {
+      markSyncFetchIncomplete(`${set.name} could not be fetched`);
       addLog(`Failed to fetch ${set.name}: ${res.status}`);
       continue;
     }

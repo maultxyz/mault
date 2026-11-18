@@ -153,6 +153,7 @@ export interface SyncSourceCard {
   printingMarkImageUrl?: string;
   fallbackImageUrl?: string;
   backImageUrl?: string;
+  hasPartialData?: boolean;
   data: string;
 }
 

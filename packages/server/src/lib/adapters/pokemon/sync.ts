@@ -55,7 +55,9 @@ async function fetchDetails(
         (await fetchDetail(brief.id, baseUrl, signal).catch(() => null));
       if (!detail) fellBack++;
 
-      results[index] = toSyncCard(detail ?? brief);
+      results[index] = detail
+        ? toSyncCard(detail)
+        : { ...toSyncCard(brief), hasPartialData: true };
 
       done++;
       if (done % POKEMON_DETAIL_LOG_EVERY === 0) {

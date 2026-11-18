@@ -13,6 +13,7 @@ import {
   swuCardId,
   swuCardName,
 } from "./search";
+import { markSyncFetchIncomplete } from "../../sync-job/fetch-completeness";
 
 function toSyncCard(raw: SwuCard): SyncSourceCard {
   return withRawData(
@@ -52,6 +53,7 @@ async function fetchCards(
       signal,
     });
     if (!res.ok) {
+      markSyncFetchIncomplete(`${set.fullName} could not be fetched`);
       addLog(`Failed to fetch ${set.fullName}: ${res.status}`);
       continue;
     }

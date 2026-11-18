@@ -21,6 +21,7 @@ import {
 } from "./shared";
 import { printedLanguageCodeFromImageBuffer } from "../../lib/printing-marks/scan";
 import { databaseErrorResponse } from "../../lib/database-error-response";
+import { toPortraitCardImage } from "../../lib/card-image";
 
 export const searchByImageRoute = new Hono<AppEnv>().post(
   "/",
@@ -62,10 +63,10 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
     );
     const preferredSetCodes = parsePreferredSetCodes(body);
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-
+    let buffer: Buffer;
     let embeddings: Awaited<ReturnType<typeof vectorizeCardImage>>;
     try {
+      buffer = await toPortraitCardImage(Buffer.from(await file.arrayBuffer()));
       embeddings = await vectorizeCardImage(buffer);
     } catch (err) {
       console.error(err);
