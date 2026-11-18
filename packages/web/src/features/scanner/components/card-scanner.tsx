@@ -82,7 +82,6 @@ export function CardScanner({
   controlsPosition = "bottom",
   controlsContainer,
   renderChrome,
-  viewerTouchesPanelEdges = false,
 }: CardScannerComponentProps) {
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
@@ -1084,14 +1083,13 @@ export function CardScanner({
     >
       <div
         className={cn(
-          showStatusStrip ? "flex flex-col" : "contents",
+          showStatusStrip ? "flex flex-col gap-1.5" : "contents",
           showStatusStrip && piRemote && "max-md:flex-1 max-md:min-h-0",
         )}
       >
         <div
           className={cn(
             "relative isolate overflow-hidden rounded-card bg-card",
-            viewerTouchesPanelEdges && "rounded-none border-b",
             isSideControls
               ? "h-full aspect-[2.5/3.5] shrink-0"
               : "w-full h-full max-w-full",
@@ -1204,7 +1202,6 @@ export function CardScanner({
           <ScannerOverlay
             {...overlayProps}
             region="status-strip"
-            statusStripTouchesPanelEdges={viewerTouchesPanelEdges}
           />
         )}
       </div>

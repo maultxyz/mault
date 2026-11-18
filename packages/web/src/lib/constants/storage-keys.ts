@@ -77,4 +77,3 @@ export const SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS = {
 
 export const SINGLE_KEY_HOTKEYS_STORAGE_KEY = "magic-vault:single-key-hotkeys";
 
-export const PENDING_SIGN_IN_PROVIDER_LINK_STORAGE_KEY = "magic-vault:pending-sign-in-provider-link";

@@ -21,7 +21,3 @@ export const NEON_SOCIAL_PROVIDER_NAMES = {
 
 export const NEON_PASSWORD_SIGN_IN_PROVIDER_ID = "credential";
 
-export const LINK_SIGN_IN_PROVIDER_ERROR_KEYS_BY_CODE: Record<string, "alreadyLinkedElsewhere" | "emailMismatch"> = {
-  account_already_linked_to_different_user: "alreadyLinkedElsewhere",
-  "email_doesn't_match": "emailMismatch",
-};

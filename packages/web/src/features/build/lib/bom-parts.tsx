@@ -105,7 +105,14 @@ export const GROUPS: BomGroup[] = [
         key: "sg90-positional",
         qty: (n) => String(n * 3),
         name: "SG90 micro servo, positional",
-        part: (t) => t("bom.groups.electronics.items.sg90Positional.part"),
+        part: (t) => (
+          <>
+            {t("bom.groups.electronics.items.sg90Positional.part")}{" "}
+            <span className="text-foreground/70">
+              {t("bom.groups.electronics.items.sg90Positional.partSpec")}
+            </span>
+          </>
+        ),
         notes: (t, n) =>
           t("bom.groups.electronics.items.sg90Positional.notes", {
             count: n,

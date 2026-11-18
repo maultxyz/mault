@@ -115,6 +115,7 @@
           },
           "sg90Positional": {
             "part": "SG90 micro servo, positional (180°)",
+            "partSpec": "(0.09 s/60° at 4.8 V, 8 µs dead zone)",
             "notes": "3 per module × {{count}} modules: bottom paddle, side paddle gate, pusher",
             "alert": "Avoid Tower Pro SG90s. They don't hold their calibrated positions reliably in this sorter."
           },

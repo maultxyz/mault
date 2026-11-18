@@ -7,12 +7,10 @@ import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import {
   linkedSignInAccountsQueryOptions,
-  linkSignInProvider,
   unlinkSignInAccount,
 } from "@/features/account/api/account";
 import type { SignInMethodsSectionProps } from "@/lib/interfaces/auth";
 import { SettingsSection } from "@/features/settings/components/settings-section";
-import { SOCIAL_SIGN_IN_CANCELLED_ERROR } from "@/lib/constants/auth";
 import { formatShortDate } from "@/lib/dates";
 import type { IconName } from "@/lib/interfaces/ui";
 import {
@@ -20,8 +18,6 @@ import {
   NEON_SOCIAL_PROVIDER_NAMES,
   canUnlinkSignInAccount,
   isNeonSocialProvider,
-  linkSignInProviderErrorKey,
-  unlinkedNeonSocialProviders,
   type LinkedSignInAccount,
 } from "@magic-vault/shared";
 
@@ -42,31 +38,6 @@ export function SignInMethodsSection({ onMessage }: SignInMethodsSectionProps) {
   const accounts = useQuery(linkedSignInAccountsQueryOptions());
   const refreshAccounts = () => void queryClient.invalidateQueries({ queryKey: linkedSignInAccountsQueryOptions().queryKey });
   const passwordLabel = t("account.profile.signInMethods.password");
-
-  const link = useMutation({
-    mutationFn: linkSignInProvider,
-    onSuccess: (result, provider) => {
-      const providerName = NEON_SOCIAL_PROVIDER_NAMES[provider];
-      if (!result.error) {
-        onMessage({ tone: "success", text: t("account.profile.signInMethods.linked", { provider: providerName }) });
-        return;
-      }
-      if (result.error === SOCIAL_SIGN_IN_CANCELLED_ERROR) return;
-      onMessage({
-        tone: "destructive",
-        text: t(`account.profile.signInMethods.${linkSignInProviderErrorKey(result.error)}`, {
-          provider: providerName,
-          code: result.error,
-        }),
-      });
-    },
-    onError: (_, provider) =>
-      onMessage({
-        tone: "destructive",
-        text: t("account.profile.signInMethods.linkFailed", { provider: NEON_SOCIAL_PROVIDER_NAMES[provider] }),
-      }),
-    onSettled: refreshAccounts,
-  });
 
   const unlink = useMutation({
     mutationFn: unlinkSignInAccount,
@@ -96,8 +67,7 @@ export function SignInMethodsSection({ onMessage }: SignInMethodsSectionProps) {
   };
 
   const linkedAccounts = accounts.data ?? [];
-  const providersToLink = unlinkedNeonSocialProviders(linkedAccounts);
-  const isBusy = link.isPending || unlink.isPending;
+  const isBusy = unlink.isPending;
 
   return (
     <SettingsSection
@@ -110,8 +80,7 @@ export function SignInMethodsSection({ onMessage }: SignInMethodsSectionProps) {
       {accounts.isPending ? (
         <ListSkeleton rows={2} />
       ) : accounts.data ? (
-        <>
-          <ListGroup>
+        <ListGroup>
             {linkedAccounts.map((account) => {
               const canUnlink = canUnlinkSignInAccount(linkedAccounts, account);
               const linkedOn = t("account.profile.signInMethods.linkedOn", {
@@ -133,21 +102,7 @@ export function SignInMethodsSection({ onMessage }: SignInMethodsSectionProps) {
                 />
               );
             })}
-          </ListGroup>
-          {providersToLink.length > 0 ? (
-            <ListGroup>
-              {providersToLink.map((provider) => (
-                <ListRow
-                  key={provider}
-                  icon="plus"
-                  title={t("account.profile.signInMethods.link", { provider: NEON_SOCIAL_PROVIDER_NAMES[provider] })}
-                  onPress={() => link.mutate(provider)}
-                  disabled={isBusy}
-                />
-              ))}
-            </ListGroup>
-          ) : null}
-        </>
+        </ListGroup>
       ) : null}
     </SettingsSection>
   );

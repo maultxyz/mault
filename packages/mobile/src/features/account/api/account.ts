@@ -1,11 +1,10 @@
 import { queryOptions } from "@tanstack/react-query";
-import { linkSocialProviderInBrowser, neonAuthRequest } from "@/lib/auth/neon-backend";
+import { neonAuthRequest } from "@/lib/auth/neon-backend";
 import { getSessionToken } from "@/lib/auth/session";
 import type { AuthSessionRow } from "@/lib/interfaces/auth";
 import {
   sortLinkedSignInAccounts,
   type LinkedSignInAccount,
-  type NeonSocialProvider,
 } from "@magic-vault/shared";
 
 function token(): string {
@@ -49,10 +48,6 @@ export const linkedSignInAccountsQueryOptions = () =>
     queryFn: async () =>
       sortLinkedSignInAccounts((await neonAuthRequest<LinkedSignInAccount[] | null>("/list-accounts", token())) ?? []),
   });
-
-export async function linkSignInProvider(provider: NeonSocialProvider): Promise<{ error?: string }> {
-  return linkSocialProviderInBrowser(provider, token());
-}
 
 export async function unlinkSignInAccount(account: LinkedSignInAccount): Promise<void> {
   await neonAuthRequest("/unlink-account", token(), {

@@ -29,6 +29,7 @@ import type {
   ScanTimelineBlock,
   ScanTimelineGrouping,
   PrintingMarkRegion,
+  MatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import type { KeyboardEvent, MouseEvent, ReactNode, Ref } from "react";
 import type { ScanStats } from "@/lib/interfaces/scanner";
@@ -379,6 +380,10 @@ export interface CardTechnicalDetailsProps {
   lowConfidenceMatch?: boolean;
   wasCorrected?: boolean;
   isReviewed?: boolean;
+}
+
+export interface ScanDiagnosticsProps {
+  diagnostics: MatchedScanDiagnostics;
 }
 
 export interface TechnicalDetailRowProps {
