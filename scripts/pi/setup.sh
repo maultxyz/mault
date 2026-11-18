@@ -41,6 +41,12 @@ interactive() {
   [[ "$FIRST_BOOT" -eq 0 ]] && { : </dev/tty; } 2>/dev/null
 }
 
+if [[ -f "$ENV_FILE" ]]; then
+  bash "$SCRIPTS/install.sh" --read-postgres-password "$ENV_FILE" >/dev/null
+elif [[ -n "$MIGRATE_FROM" ]]; then
+  bash "$SCRIPTS/install.sh" --read-postgres-password "$MIGRATE_FROM/.env" >/dev/null
+fi
+
 if [[ -n "$MIGRATE_FROM" && ! -f "$ENV_FILE" ]]; then
   echo "[setup] Moving settings from $MIGRATE_FROM"
   old_user="$(stat -c %U "$MIGRATE_FROM")"
@@ -134,13 +140,10 @@ RULES
   udevadm settle
 fi
 
+password="$(bash "$SCRIPTS/install.sh" --read-postgres-password "$ENV_FILE")"
+
 echo "[setup] Preparing the database"
 systemctl enable --now postgresql
-password="$(as_service_user sed -n 's/^POSTGRES_PASSWORD=//p' "$ENV_FILE" | head -1)"
-if [[ ! "$password" =~ ^[A-Za-z0-9]+$ ]]; then
-  echo "[setup] POSTGRES_PASSWORD in $ENV_FILE is missing or has unexpected characters." >&2
-  exit 1
-fi
 runuser -u postgres -- psql -v ON_ERROR_STOP=1 <<SQL
 DO \$\$
 BEGIN
