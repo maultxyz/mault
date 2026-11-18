@@ -70,12 +70,12 @@ export function ScanCardsPanel({ source, mode }: ScanCardsPanelProps) {
         return mode === "verify"
           ? t("verify.scan.verified", {
               name,
-              position: current.position ?? 0,
+              position: current.position ?? "",
             })
           : t("pickList.scan.picked", {
               name,
               location: current.locationName ?? "",
-              position: current.position ?? 0,
+              position: current.position ?? "",
             });
       case "already-checked":
         return mode === "verify"

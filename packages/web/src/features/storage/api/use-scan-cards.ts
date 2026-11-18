@@ -21,6 +21,7 @@ import type {
   ScanCardsSource,
 } from "@/lib/interfaces/storage";
 import {
+  formatStorageSlot,
   findCardForScan,
   OCR_REGIONS_BY_GAME_KEY,
   scanCheckCollectionGuid,
@@ -162,7 +163,10 @@ export function useScanCards(source: ScanCardsSource): ScanCards {
         kind: match.kind === "unchecked" ? "checked" : "already-checked",
         cardName: match.card.card.name,
         locationName: match.card.locationName,
-        position: match.card.position,
+        position: formatStorageSlot(
+          match.card.position,
+          match.card.locationBatchSize,
+        ),
       });
     } catch {
       if (isCurrent()) showResult({ kind: "failed" });

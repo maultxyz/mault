@@ -1275,7 +1275,14 @@ export function useScanSession({
     const ctx = latestRef.current;
     if (fullBinNumbers.length === 0) return false;
     try {
-      await emptyBins(fullBinNumbers, ctx.collection?.game?.guid);
+      const collectionGuid = ctx.collection?.guid;
+      const storesInClaimedLocations =
+        !!collectionGuid && ctx.configs.some((config) => config.claimedStorageLocation != null);
+      await emptyBins(
+        fullBinNumbers,
+        ctx.collection?.game?.guid,
+        storesInClaimedLocations ? { collectionGuid, storeInClaimedLocations: true } : {},
+      );
     } catch {
       return false;
     }
@@ -1286,6 +1293,7 @@ export function useScanSession({
     await queryClient.invalidateQueries({
       queryKey: binSetsQueryOptions(ctx.orgId).queryKey,
     });
+    void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
     start();
     return true;
   }, [fullBinNumbers, queryClient, start]);

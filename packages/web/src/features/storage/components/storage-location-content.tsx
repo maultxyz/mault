@@ -1,5 +1,6 @@
 import { ViewTabs } from "@/components/view-tabs";
 import { StorageLocationCards } from "@/features/storage/components/storage-location-cards";
+import { StorageLocationPresetUses } from "@/features/storage/components/storage-location-preset-uses";
 import { StorageLocationVerify } from "@/features/storage/components/storage-location-verify";
 import {
   STORAGE_LOCATION_VIEWS,
@@ -34,6 +35,7 @@ export function StorageLocationContent(props: StorageLocationCardsProps) {
 
   return (
     <div className="flex flex-col gap-4 md:gap-2">
+      <StorageLocationPresetUses locationGuid={props.location.guid} />
       <ViewTabs<StorageLocationView>
         label={t("verify.tabs.label")}
         items={STORAGE_LOCATION_VIEWS.map((key) => ({

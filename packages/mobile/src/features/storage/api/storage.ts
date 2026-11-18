@@ -14,7 +14,12 @@ import type {
   StorageLocationCardsSummary,
   StorageLocationCsvExportRequest,
   StorageLocationExportSummary,
+  StorageLocationBulkResult,
+  StorageLocationBulkUpdateInput,
   StorageLocationSearchResult,
+  StorageLocationSeriesInput,
+  StorageLocationSeriesResult,
+  StorageLocationSettingsInput,
 } from "@magic-vault/shared";
 import { collectionCardsQueryParams } from "@/features/collections/api/collection-cards";
 import { apiDelete, apiGet, apiPost, apiPostText, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
@@ -159,12 +164,24 @@ export const cardStorageLocationQueryOptions = (collectionGuid: string, scanId: 
       ),
   });
 
-export async function createStorageLocation(name: string): Promise<void> {
-  check(await apiPost<Result<unknown>>("/api/storage-locations", { name }));
+export async function createStorageLocation(input: StorageLocationSettingsInput): Promise<void> {
+  check(await apiPost<Result<unknown>>("/api/storage-locations", input));
 }
 
-export async function renameStorageLocation(guid: string, name: string): Promise<void> {
-  check(await apiPut<Result<unknown>>(`/api/storage-locations/${guid}`, { name }));
+export async function updateStorageLocation(guid: string, input: StorageLocationSettingsInput): Promise<void> {
+  check(await apiPut<Result<unknown>>(`/api/storage-locations/${guid}`, input));
+}
+
+export function createStorageLocationSeries(input: StorageLocationSeriesInput): Promise<StorageLocationSeriesResult> {
+  return unwrap(apiPost<Result<StorageLocationSeriesResult>>("/api/storage-locations/series", input));
+}
+
+export function bulkUpdateStorageLocations(input: StorageLocationBulkUpdateInput): Promise<StorageLocationBulkResult> {
+  return unwrap(apiPost<Result<StorageLocationBulkResult>>("/api/storage-locations/bulk-update", input));
+}
+
+export function bulkDeleteStorageLocations(locationGuids: string[]): Promise<StorageLocationBulkResult> {
+  return unwrap(apiPost<Result<StorageLocationBulkResult>>("/api/storage-locations/bulk-delete", { locationGuids }));
 }
 
 export async function deleteStorageLocation(guid: string): Promise<void> {

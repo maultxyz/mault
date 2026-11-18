@@ -712,7 +712,9 @@
       "source": "Cards from",
       "markup": "Markup (%)",
       "markupHint": "Added to the market price. Use a negative number for a discount.",
-      "rounding": "Round prices"
+      "rounding": "Round prices",
+      "showPrices": "Show prices",
+      "showPricesHint": "Turn off to print labels with the card and its storage code only."
     },
     "sources": {
       "collection": "Collection",

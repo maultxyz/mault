@@ -210,7 +210,7 @@ export function limitTradeOfferLocationSections(
 export function summarizeTradeOfferPlacements(
   placements: (TradeOfferWantedPlacement | null)[],
 ): TradeOfferPlacementSummary[] {
-  const storage = new Map<string, { locationName: string; positions: number[] }>();
+  const storage = new Map<string, { locationName: string; positions: number[]; batchSize: number | null }>();
   const bins = new Map<string, number[]>();
   const collections = new Set<string>();
   let missing = 0;
@@ -219,7 +219,11 @@ export function summarizeTradeOfferPlacements(
       missing += 1;
     } else if (placement.storageLocationName != null) {
       const key = placement.storageLocationGuid ?? placement.storageLocationName;
-      const entry = storage.get(key) ?? { locationName: placement.storageLocationName, positions: [] };
+      const entry = storage.get(key) ?? {
+        locationName: placement.storageLocationName,
+        positions: [],
+        batchSize: placement.storageBatchSize ?? null,
+      };
       if (placement.storagePosition != null) entry.positions.push(placement.storagePosition);
       storage.set(key, entry);
     } else if (placement.binNumber != null) {
@@ -234,6 +238,7 @@ export function summarizeTradeOfferPlacements(
       kind: "storage" as const,
       locationName: entry.locationName,
       positions: unique(entry.positions),
+      batchSize: entry.batchSize,
     })),
     ...[...bins.entries()].map(([collectionName, binNumbers]) => ({
       kind: "bin" as const,

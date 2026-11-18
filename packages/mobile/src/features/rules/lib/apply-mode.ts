@@ -7,6 +7,7 @@ import {
   setRepackConfig,
   setMatchGames,
   setScanOnly,
+  setFillStorageLocations,
   setResortMode,
   setSkipSaving,
 } from "@/features/rules/api/bin-sets";
@@ -124,6 +125,9 @@ export async function applyMode(
   }
   if (values.isResortMode !== baseline.isResortMode) {
     latest = await setResortMode(set.guid, values.isResortMode);
+  }
+  if (values.fillStorageLocationGuids.join() !== baseline.fillStorageLocationGuids.join()) {
+    latest = await setFillStorageLocations(set.guid, values.fillStorageLocationGuids);
   }
   return latest;
 }

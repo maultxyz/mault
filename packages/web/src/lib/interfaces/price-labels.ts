@@ -24,6 +24,7 @@ export interface PriceLabelCardListProps {
   form: UseFormReturn<PriceLabelOptionsFormValues>;
   items: PriceLabelItem[];
   formatLabelPrice: (price: number) => string;
+  showsPrices: boolean;
 }
 
 export interface PriceLabelSheetProps {
@@ -31,12 +32,14 @@ export interface PriceLabelSheetProps {
   items: PriceLabelItem[];
   startPosition: number;
   formatLabelPrice: (price: number) => string;
+  showsPrices: boolean;
 }
 
 export interface PriceLabelProps {
   template: LabelSheetTemplate;
   item: PriceLabelItem;
   formatLabelPrice: (price: number) => string;
+  showsPrices: boolean;
 }
 
 export interface PriceLabelsViewProps {

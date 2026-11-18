@@ -80,6 +80,10 @@ export function BinStatusMeter() {
         level={level}
         isCatchAll={catchAllBin === level.binNumber}
         isDisabled={disabledBins.has(level.binNumber)}
+        claimedLocationName={
+          configs.find((config) => config.binNumber === level.binNumber)
+            ?.claimedStorageLocation?.name ?? null
+        }
         flashKey={
           lastRoutedBin?.binNumber === level.binNumber ? lastRoutedBin.at : null
         }

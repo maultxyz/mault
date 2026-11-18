@@ -1,4 +1,4 @@
-import { orderLineLabel } from "@magic-vault/shared";
+import { formatStorageSlot, orderLineLabel } from "@magic-vault/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -94,7 +94,9 @@ export default function OrderSubstituteScreen() {
                   subtitle={[
                     [entry.condition, entry.isFoil ? t("business.picks.walk.foil") : null].filter(Boolean).join(" · "),
                     entry.locationName != null
-                      ? `${where}, ${t("business.picks.walk.slot", { position: (entry.locationPosition ?? 0) + 1 })}`
+                      ? `${where}, ${t("business.picks.walk.slot", {
+                          position: formatStorageSlot(entry.locationPosition ?? 0, entry.locationBatchSize),
+                        })}`
                       : where,
                     differenceText,
                   ].join("\n")}

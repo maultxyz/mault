@@ -545,7 +545,8 @@
     "summaryTotal_other": "{{count}} cartes dans les bacs",
     "expand": "Afficher les niveaux",
     "collapse": "Masquer les niveaux",
-    "cellTitle": "Le bac {{bin}} est plein à {{percent}} %"
+    "cellTitle": "Le bac {{bin}} est plein à {{percent}} %",
+    "fillsLocation": "remplit {{location}}"
   },
   "autoAssignControl": {
     "summary": "{{claimed}} bacs sur {{total}} attribués par {{field}}",

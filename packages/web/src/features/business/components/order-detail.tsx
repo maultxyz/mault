@@ -64,6 +64,7 @@ import type {
 } from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
 import {
+  formatStorageSlot,
   formatDecklist,
   hasEveryOrderBin,
   orderLineLabel,
@@ -689,9 +690,10 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                                         {entry.locationName
                                           ? t("orders.locationAt", {
                                               location: entry.locationName,
-                                              position:
-                                                (entry.locationPosition ?? 0) +
-                                                1,
+                                              position: formatStorageSlot(
+                                                entry.locationPosition ?? 0,
+                                                entry.locationBatchSize,
+                                              ),
                                             })
                                           : t("orders.inCollection", {
                                               collection: entry.collectionName,

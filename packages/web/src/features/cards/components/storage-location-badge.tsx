@@ -1,3 +1,4 @@
+import { formatStorageSlot } from "@magic-vault/shared";
 import { Badge } from "@/components/ui/badge";
 import type { StorageLocationBadgeProps } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
@@ -15,14 +16,14 @@ export function StorageLocationBadge({
       className={cn("min-w-0 max-w-full shrink", className)}
       title={t("scannedCardItem.storageTooltip", {
         name: location.name,
-        position: location.position,
+        position: formatStorageSlot(location.position, location.batchSize),
       })}
     >
       <IconBox />
       <span className="truncate">
         {t("scannedCardItem.storage", {
           name: location.name,
-          position: location.position,
+          position: formatStorageSlot(location.position, location.batchSize),
         })}
       </span>
     </Badge>

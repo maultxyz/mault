@@ -1,3 +1,4 @@
+import { formatStorageSlot } from "@magic-vault/shared";
 import { Callout } from "@/components/callout";
 import type { StorageDeleteWarningProps } from "@/lib/interfaces/cards";
 import { IconBox } from "@tabler/icons-react";
@@ -17,7 +18,7 @@ export function StorageDeleteWarning({
       {location && total === 1
         ? t("storageDeleteWarning.single", {
             name: location.name,
-            position: location.position,
+            position: formatStorageSlot(location.position, location.batchSize),
           })
         : storedCount === total
           ? t("storageDeleteWarning.all", { count: storedCount })

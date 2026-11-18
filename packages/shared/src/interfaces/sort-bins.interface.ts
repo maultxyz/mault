@@ -78,6 +78,14 @@ export interface BinConfig {
   pickList?: PickList | null;
   repackPriority?: number | null;
   lastEmptiedAt?: number | null;
+  claimedStorageLocation?: ClaimedStorageLocation | null;
+}
+
+export interface ClaimedStorageLocation {
+  guid: string;
+  name: string;
+  capacity: number | null;
+  remainingSlots: number | null;
 }
 
 export type BinSizePreset =
@@ -168,6 +176,7 @@ export interface BinSet {
   skipSaving: boolean;
   isResortMode: boolean;
   matchGameKeys: string[];
+  fillStorageLocationGuids: string[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -207,6 +216,7 @@ export interface EmptyAllBinsOptions {
   collectionGuid?: string;
   locations?: EmptyAllBinLocation[];
   resetAutoAssignedRules?: boolean;
+  storeInClaimedLocations?: boolean;
 }
 
 export interface EmptyAllBinsInput extends EmptyAllBinsOptions {

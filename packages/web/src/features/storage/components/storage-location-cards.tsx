@@ -61,12 +61,13 @@ export function StorageLocationCards({
   );
   const entries = useMemo(
     () =>
-      (data?.cards ?? []).map((card) => ({
+      (data?.cards ?? []).map((card): StorageLocationSearchResult => ({
         ...card,
         locationGuid: location.guid,
         locationName: location.name,
+        locationBatchSize: location.batchSize ?? null,
       })),
-    [data?.cards, location.guid, location.name],
+    [data?.cards, location.guid, location.name, location.batchSize],
   );
   const {
     selectedIds,

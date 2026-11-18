@@ -23,6 +23,7 @@ import { setScanOnlyRoute } from "./set-scan-only";
 import { setSkipSavingRoute } from "./set-skip-saving";
 import { setMatchGamesRoute } from "./set-match-games";
 import { setResortModeRoute } from "./set-resort-mode";
+import { setFillLocationsRoute } from "./set-fill-locations";
 
 const router = new Hono<AppEnv>()
   .route("/", checkBinSetNameRoute)
@@ -44,6 +45,7 @@ const router = new Hono<AppEnv>()
   .route("/", setSkipSavingRoute)
   .route("/", setMatchGamesRoute)
   .route("/", setResortModeRoute)
+  .route("/", setFillLocationsRoute)
   .route("/", pickListFoundRoute)
   .route("/", deleteBinSetRoute)
   .route("/", binSetHistoryRoute)

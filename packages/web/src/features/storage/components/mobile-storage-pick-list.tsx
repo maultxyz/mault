@@ -1,3 +1,4 @@
+import { formatStorageSlot } from "@magic-vault/shared";
 import { CardThumbnail } from "@/components/card-thumbnail";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MOBILE_LIST_CLASS, MOBILE_LIST_ROW_CLASS } from "@/lib/constants/nav";
@@ -62,7 +63,12 @@ export function MobileStoragePickList({
               <span className="block truncate text-xs font-normal text-foreground/70">
                 {[
                   ...(showLocation ? [row.entry.locationName] : []),
-                  t("cards.position", { position: row.entry.position }),
+                  t("cards.position", {
+                    position: formatStorageSlot(
+                      row.entry.position,
+                      row.entry.locationBatchSize,
+                    ),
+                  }),
                   row.entry.card.setName,
                 ].join(" · ")}
               </span>

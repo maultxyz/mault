@@ -1,3 +1,4 @@
+import { formatStorageSlot } from "@magic-vault/shared";
 import { CardThumbnail } from "@/components/card-thumbnail";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -70,7 +71,10 @@ export function OrderPickByLocation({
                 {entry.locationName
                   ? t("orders.locationAt", {
                       location: entry.locationName,
-                      position: (entry.locationPosition ?? 0) + 1,
+                      position: formatStorageSlot(
+                        entry.locationPosition ?? 0,
+                        entry.locationBatchSize,
+                      ),
                     })
                   : t("orders.inCollection", {
                       collection: entry.collectionName,

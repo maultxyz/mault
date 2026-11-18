@@ -175,7 +175,9 @@
       "resortModeFailed": "Impossible de mettre à jour le retri",
       "cardsStored_one": "{{count}} carte rangée",
       "cardsStored_other": "{{count}} cartes rangées",
-      "matchGamesFailed": "Impossible de mettre à jour les jeux"
+      "matchGamesFailed": "Impossible de mettre à jour les jeux",
+      "fillLocationsFailed": "Impossible de mettre à jour les emplacements",
+      "nextFillLocation": "Le bac {{bin}} remplit maintenant {{location}}"
     }
   },
   "binsPage": {},
@@ -464,5 +466,71 @@
   },
   "planLock": {
     "badge": "Mise à niveau"
+  },
+  "storagePlan": {
+    "tabs": {
+      "label": "Vues des règles de tri",
+      "rules": "Règles",
+      "storage": "Rangement"
+    },
+    "heading": "Plan de rangement",
+    "description": "Chaque bac remplit le prochain emplacement de cette liste qui a de la place. Un bac se met en pause quand son emplacement est plein, et le vider range les cartes à cet endroit.",
+    "runOut": "Quand tous les emplacements sont pleins, les bacs se remplissent jusqu'à leur taille normale et le vidage demande où ranger les cartes.",
+    "notInPlan": "Remplir des emplacements de rangement nécessite une offre avec le rangement.",
+    "binsNow": "Bacs actuels",
+    "binsNowHint": "D'après le plan enregistré. Enregistre tes modifications pour le mettre à jour.",
+    "noLocation": "Aucun emplacement",
+    "claim_one": "{{location}}, {{count, compact}} restante",
+    "claim_other": "{{location}}, {{count, compact}} restantes",
+    "fillText": "{{used, compact}} / {{capacity, compact}}",
+    "noCapacity": "{{used, compact}} rangées, sans capacité",
+    "batchOf_one": "Lots de {{count, compact}} carte",
+    "batchOf_other": "Lots de {{count, compact}} cartes",
+    "add": "Ajouter des emplacements",
+    "table": {
+      "order": "#",
+      "location": "Emplacement",
+      "fill": "Remplissage",
+      "capacity": "Capacité",
+      "batch": "Lot",
+      "filling": "Rempli par",
+      "actions": "Actions"
+    },
+    "status": {
+      "filling": "Bac {{number}}",
+      "full": "Plein",
+      "waiting": "En attente"
+    },
+    "actions": {
+      "label": "Actions pour {{name}}",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "edit": "Modifier l'emplacement",
+      "remove": "Retirer du plan"
+    },
+    "empty": {
+      "title": "Aucun emplacement dans ce plan",
+      "description": "Ajoute des emplacements ou crée une série, comme A1 à A10, que les bacs rempliront dans l'ordre."
+    },
+    "summary": {
+      "label": "Plan de rangement",
+      "off": "Désactivé",
+      "single": "{{first}}, {{full}} sur {{total}} plein",
+      "range": "{{first}} à {{last}}, {{full}} sur {{total}} pleins",
+      "open": "Ouvrir",
+      "setUp": "Configurer"
+    },
+    "addDialog": {
+      "title": "Ajouter des emplacements",
+      "description": "Choisis les emplacements que les bacs doivent remplir. Ils sont ajoutés à la fin du plan.",
+      "search": "Rechercher des emplacements",
+      "selectAll": "Tout sélectionner",
+      "none": "Tous les emplacements sont déjà dans le plan.",
+      "noMatches": "Aucun emplacement ne correspond.",
+      "noCapacity": "Sans capacité",
+      "cancel": "Annuler",
+      "submit_one": "Ajouter {{count}} emplacement",
+      "submit_other": "Ajouter {{count}} emplacements"
+    }
   }
 }

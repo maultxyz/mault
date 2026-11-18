@@ -15,7 +15,7 @@ import type { PriceLabelCardListProps } from "@/lib/interfaces/price-labels";
 import { useController, useFormState } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-export function PriceLabelCardList({ form, items, formatLabelPrice }: PriceLabelCardListProps) {
+export function PriceLabelCardList({ form, items, formatLabelPrice, showsPrices }: PriceLabelCardListProps) {
   const { t } = useTranslation("business");
   const { t: tCards } = useTranslation("cards");
   const { field: deselectedField } = useController({
@@ -68,9 +68,13 @@ export function PriceLabelCardList({ form, items, formatLabelPrice }: PriceLabel
                 <span className="sr-only">{t("priceLabels.cards.include")}</span>
               </TableHead>
               <TableHead>{t("priceLabels.cards.card")}</TableHead>
-              <TableHead className="text-right">{t("priceLabels.cards.market")}</TableHead>
-              <TableHead className="w-28">{t("priceLabels.cards.customPrice")}</TableHead>
-              <TableHead className="text-right">{t("priceLabels.cards.labelPrice")}</TableHead>
+              {showsPrices && (
+                <>
+                  <TableHead className="text-right">{t("priceLabels.cards.market")}</TableHead>
+                  <TableHead className="w-28">{t("priceLabels.cards.customPrice")}</TableHead>
+                  <TableHead className="text-right">{t("priceLabels.cards.labelPrice")}</TableHead>
+                </>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -97,12 +101,15 @@ export function PriceLabelCardList({ form, items, formatLabelPrice }: PriceLabel
                           card.collectorNumber && `#${card.collectorNumber}`,
                           card.condition,
                           card.isFoil && tCards("foil"),
+                          card.storageCode,
                         ]
                           .filter(Boolean)
                           .join(" · ")}
                       </span>
                     </label>
                   </TableCell>
+                  {showsPrices && (
+                  <>
                   <TableCell className="text-right">
                     {card.marketPrice === null ? (
                       <span className="text-foreground/70"><MissingPrice /></span>
@@ -134,6 +141,8 @@ export function PriceLabelCardList({ form, items, formatLabelPrice }: PriceLabel
                       formatLabelPrice(labelPrice)
                     )}
                   </TableCell>
+                  </>
+                  )}
                 </TableRow>
               );
             })}

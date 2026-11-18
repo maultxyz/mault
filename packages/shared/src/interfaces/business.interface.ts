@@ -239,6 +239,7 @@ export interface PullSheetEntry {
   binNumber: number | null;
   locationName: string | null;
   locationPosition: number | null;
+  locationBatchSize?: number | null;
   picked: boolean;
   orderRef: string | null;
   gameKey: string | null;

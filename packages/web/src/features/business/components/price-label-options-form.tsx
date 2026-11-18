@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/card";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -48,6 +49,7 @@ export function PriceLabelOptionsForm({ form, orgId, loadedSourceName }: PriceLa
   const { field: sourceField } = useController({ control: form.control, name: "source" });
   const { field: sourceGuidField } = useController({ control: form.control, name: "sourceGuid" });
   const { field: roundingField } = useController({ control: form.control, name: "rounding" });
+  const { field: showsPricesField } = useController({ control: form.control, name: "showsPrices" });
   const { field: markupField, fieldState: markupState } = useController({
     control: form.control,
     name: "markupPercent",
@@ -137,6 +139,18 @@ export function PriceLabelOptionsForm({ form, orgId, loadedSourceName }: PriceLa
             </SelectContent>
           </Select>
         </Field>
+        <label className="flex items-center justify-between gap-3">
+          <span className="flex flex-col">
+            <span className="text-control font-medium">{t("priceLabels.form.showPrices")}</span>
+            <span className="text-xs text-foreground/70">{t("priceLabels.form.showPricesHint")}</span>
+          </span>
+          <Switch
+            aria-label={t("priceLabels.form.showPrices")}
+            checked={showsPricesField.value}
+            onCheckedChange={showsPricesField.onChange}
+          />
+        </label>
+        {showsPricesField.value && (
         <div className="flex flex-col gap-3 md:gap-2">
           <Field data-invalid={markupState.invalid || undefined}>
             <FieldLabel htmlFor="price-label-markup">{t("priceLabels.form.markup")}</FieldLabel>
@@ -179,6 +193,7 @@ export function PriceLabelOptionsForm({ form, orgId, loadedSourceName }: PriceLa
             </Select>
           </Field>
         </div>
+        )}
         <div className="flex flex-col gap-3 md:gap-2">
           <LabelSheetOptionFields
             idPrefix="price-label"

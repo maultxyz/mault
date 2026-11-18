@@ -140,3 +140,8 @@ export type PresetDescriptionRouteParams = {
 export interface PresetDescriptionSaveContext {
   previous: BinSet[] | undefined;
 }
+
+export interface StoragePlanDraft {
+  isOpen: boolean;
+  locationGuids: string[];
+}

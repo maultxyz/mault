@@ -13,6 +13,7 @@ export const modeSchema = z
     chaosBinSize: z.string().regex(/^\d*$/),
     skipSaving: z.boolean(),
     isResortMode: z.boolean(),
+    fillStorageLocationGuids: z.array(z.string()),
   })
   .refine((values) => values.mode !== "auto-assign" || !!values.autoAssignField, { path: ["autoAssignField"] });
 

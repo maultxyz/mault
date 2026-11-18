@@ -22,6 +22,8 @@ import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snaps
 import { PlanNotice } from "@/components/plan-notice";
 import { ScanOnlyBinSelect } from "@/features/bins/components/scan-only-bin-select";
 import { SortingModeToggleRow } from "@/features/bins/components/sorting-mode-toggle-row";
+import { StoragePlanSummaryRow } from "@/features/bins/components/storage-plan-summary-row";
+import type { AutoAssignPanelProps } from "@/lib/interfaces/bins";
 import {
   sortingModeChangePatch,
   sortingModeOfDraft,
@@ -55,7 +57,7 @@ import { gamesQueryOptions } from "@/features/games/api/games";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export function AutoAssignPanel() {
+export function AutoAssignPanel({ onOpenStoragePlan }: AutoAssignPanelProps) {
   const { t } = useTranslation("bins");
   const {
     selectedSet,
@@ -363,6 +365,10 @@ export function AutoAssignPanel() {
             {t("chaosPanel.binSizeDescription")}
           </p>
         </div>
+      )}
+
+      {onOpenStoragePlan && (
+        <StoragePlanSummaryRow onOpen={onOpenStoragePlan} />
       )}
 
       <SortingModeToggleRow

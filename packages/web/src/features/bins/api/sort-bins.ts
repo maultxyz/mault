@@ -17,6 +17,7 @@ import type {
   AlphabetConfig,
   BinConfigSaveInput,
   ChaosConfig,
+  EmptyBinResultExtras,
 } from "@/lib/interfaces/bins";
 import { queryOptions } from "@tanstack/react-query";
 
@@ -102,9 +103,9 @@ export async function emptyBin(
   binNumber: number,
   gameGuid?: string,
   options: EmptyBinOptions = {},
-): Promise<Result<BinConfig[]> & { assignedCount?: number }> {
+): Promise<Result<BinConfig[]> & EmptyBinResultExtras> {
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
-  return apiPost<Result<BinConfig[]> & { assignedCount?: number }>(
+  return apiPost<Result<BinConfig[]> & EmptyBinResultExtras>(
     `/api/bins/bins/${binNumber}/empty${params}`,
     options,
   );
@@ -145,6 +146,15 @@ export async function setMatchGames(
 ): Promise<Result<BinSet[]>> {
   return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/match-games`, {
     gameKeys,
+  });
+}
+
+export async function setFillStorageLocations(
+  guid: string,
+  storageLocationGuids: string[],
+): Promise<Result<BinSet[]>> {
+  return apiPut<Result<BinSet[]>>(`/api/bins/${guid}/fill-locations`, {
+    storageLocationGuids,
   });
 }
 

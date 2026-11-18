@@ -1,3 +1,4 @@
+import { formatStorageSlot } from "@magic-vault/shared";
 import { CardThumbnail } from "@/components/card-thumbnail";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
@@ -65,7 +66,12 @@ export function MobileStorageCardList({
                   {[
                     onOpenLocation
                       ? entry.locationName
-                      : t("cards.position", { position: entry.position }),
+                      : t("cards.position", {
+                          position: formatStorageSlot(
+                            entry.position,
+                            entry.locationBatchSize,
+                          ),
+                        }),
                     entry.card.setName,
                   ]
                     .filter(Boolean)

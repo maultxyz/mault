@@ -16,6 +16,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Callout } from "@/components/callout";
+import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
+import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useStorageLocations } from "@/features/storage/api/use-storage-locations";
 import { StorageUpgradeNote } from "@/features/storage/components/storage-upgrade-note";
@@ -30,7 +33,7 @@ import {
   type EmptyBinLocationFormValues,
 } from "@/schemas/storage.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconLoader2 } from "@tabler/icons-react";
+import { IconAlertTriangle, IconLoader2 } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -51,7 +54,14 @@ export function EmptyBinToLocationDialog({
     useStorageLocations();
   const { isLocked } = useStorageAccess();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { configs } = useBinConfigs();
+  const fillLevels = useBinFillLevels();
   const open = binNumber != null;
+  const claimedLocation =
+    configs.find((config) => config.binNumber === binNumber)
+      ?.claimedStorageLocation ?? null;
+  const binCardCount =
+    fillLevels.find((level) => level.binNumber === binNumber)?.count ?? 0;
   const isLastStep = !step || step.index >= step.total;
 
   const form = useForm<EmptyBinLocationFormValues>({
@@ -60,12 +70,23 @@ export function EmptyBinToLocationDialog({
   });
 
   const lastPickedRef = useRef<string | null>(null);
-  const latestRef = useRef({ locations, preferLocation, isLocked });
-  latestRef.current = { locations, preferLocation, isLocked };
+  const latestRef = useRef({
+    locations,
+    preferLocation,
+    isLocked,
+    claimedLocationGuid: claimedLocation?.guid ?? null,
+  });
+  latestRef.current = {
+    locations,
+    preferLocation,
+    isLocked,
+    claimedLocationGuid: claimedLocation?.guid ?? null,
+  };
 
   useEffect(() => {
     if (!open || locationsLoading) return;
-    const { locations, preferLocation, isLocked } = latestRef.current;
+    const { locations, preferLocation, isLocked, claimedLocationGuid } =
+      latestRef.current;
     const fallback =
       isLocked || !preferLocation
         ? EMPTY_BIN_NO_LOCATION
@@ -73,10 +94,16 @@ export function EmptyBinToLocationDialog({
           ? ""
           : EMPTY_BIN_NEW_LOCATION;
     const lastPicked = lastPickedRef.current;
+    const claimed =
+      claimedLocationGuid &&
+      locations.some((l) => l.guid === claimedLocationGuid)
+        ? claimedLocationGuid
+        : null;
     const lastUsed =
-      lastPicked && locations.some((l) => l.guid === lastPicked)
+      claimed ??
+      (lastPicked && locations.some((l) => l.guid === lastPicked)
         ? lastPicked
-        : lastUsedLocationGuid(locations);
+        : lastUsedLocationGuid(locations));
     form.reset({
       locationGuid: isLocked ? fallback : (lastUsed ?? fallback),
       newName: "",
@@ -84,6 +111,11 @@ export function EmptyBinToLocationDialog({
   }, [open, binNumber, locationsLoading, form]);
 
   const locationGuid = form.watch("locationGuid");
+  const overflowsClaim =
+    claimedLocation != null &&
+    locationGuid === claimedLocation.guid &&
+    claimedLocation.remainingSlots != null &&
+    binCardCount > claimedLocation.remainingSlots;
 
   const handleSubmit = async (values: EmptyBinLocationFormValues) => {
     if (!open) return;
@@ -95,7 +127,7 @@ export function EmptyBinToLocationDialog({
       }
       const guid =
         values.locationGuid === EMPTY_BIN_NEW_LOCATION
-          ? await create(values.newName)
+          ? await create({ name: values.newName })
           : values.locationGuid;
       if (!guid) return;
       lastPickedRef.current = guid;
@@ -182,6 +214,22 @@ export function EmptyBinToLocationDialog({
                   </Field>
                 )}
               />
+              {claimedLocation && locationGuid === claimedLocation.guid && (
+                <p className="text-xs text-foreground/70">
+                  {t("emptyDialog.claimedHint", {
+                    location: claimedLocation.name,
+                  })}
+                </p>
+              )}
+              {overflowsClaim && claimedLocation && (
+                <Callout variant="warning" icon={IconAlertTriangle}>
+                  {t("emptyDialog.claimOverflow", {
+                    location: claimedLocation.name,
+                    count: binCardCount,
+                    room: claimedLocation.remainingSlots,
+                  })}
+                </Callout>
+              )}
               {locationGuid === EMPTY_BIN_NEW_LOCATION && (
                 <Controller
                   name="newName"

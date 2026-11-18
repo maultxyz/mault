@@ -378,7 +378,7 @@ export async function loadPullSheet(
       cc.is_foil, cc.condition, cc.bin_number, cc.location_position,
       col.guid::text AS collection_guid, col.name AS collection_name,
       col.lang AS collection_lang, g.key AS game_key,
-      sl.name AS location_name
+      sl.name AS location_name, sl.batch_size AS location_batch_size
     FROM collection_cards cc
     JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
     LEFT JOIN games g ON g.id = col.game_id
@@ -407,6 +407,7 @@ export async function loadPullSheet(
     binNumber: row.bin_number,
     locationName: row.location_name,
     locationPosition: row.location_position,
+    locationBatchSize: row.location_batch_size,
     picked: picked.has(row.scan_id),
     orderRef: lines[lineOf.get(row.scan_id) ?? 0]?.orderRef ?? null,
     gameKey: row.game_key,

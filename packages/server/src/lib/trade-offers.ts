@@ -273,6 +273,7 @@ async function loadCurrentWantedCards(
                   storageLocationGuid: row.storageLocationGuid ?? null,
                   storageLocationName: row.storageLocationName ?? null,
                   storagePosition: row.storageLocationName != null ? row.locationPosition : null,
+                  storageBatchSize: row.storageLocationBatchSize ?? null,
                   binNumber: row.storageLocationName == null && row.binEmptiedAt == null ? row.binNumber : null,
                 },
               ] as const,

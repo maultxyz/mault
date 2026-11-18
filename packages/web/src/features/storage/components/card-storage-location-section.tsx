@@ -1,3 +1,4 @@
+import { formatStorageSlot } from "@magic-vault/shared";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import { DetailSection } from "@/features/cards/components/detail-section";
@@ -37,7 +38,7 @@ export function CardStorageLocationSection({
           <span className="truncate">
             {t("cardLocation.value", {
               name: location.name,
-              position: location.position,
+              position: formatStorageSlot(location.position, location.batchSize),
             })}
           </span>
         </Link>

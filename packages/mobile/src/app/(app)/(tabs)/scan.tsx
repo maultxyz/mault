@@ -137,15 +137,28 @@ export default function ScanScreen() {
     setMarkFullBinsEmptyFailed(false);
     void session.markFullBinsEmpty().then((marked) => setMarkFullBinsEmptyFailed(!marked));
   };
-  const confirmMarkFullBinsEmpty = () =>
+  const confirmMarkFullBinsEmpty = () => {
+    const claimedBins = session.binConfigs.filter((bin) => bin.claimedStorageLocation != null);
     Alert.alert(
       t("scan.emptyBin.confirmTitle", { bins: session.fullBinNumbers.join(", ") }),
-      t("scan.emptyBin.confirmDescription"),
+      claimedBins.length > 0
+        ? t("scan.emptyBin.storeDescription", {
+            locations: claimedBins
+              .map((bin) =>
+                t("scan.emptyBin.storeBin", { bin: bin.binNumber, location: bin.claimedStorageLocation?.name ?? "" }),
+              )
+              .join(", "),
+          })
+        : t("scan.emptyBin.confirmDescription"),
       [
         { text: t("common.cancel"), style: "cancel" },
-        { text: t("scan.emptyBin.confirm"), onPress: markFullBinsEmpty },
+        {
+          text: claimedBins.length > 0 ? t("scan.emptyBin.storeConfirm") : t("scan.emptyBin.confirm"),
+          onPress: markFullBinsEmpty,
+        },
       ],
     );
+  };
   const forcedSetName =
     session.forcedSetCodes.length === 0
       ? t("scan.options.anySet")

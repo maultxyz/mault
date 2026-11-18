@@ -1,8 +1,13 @@
 import type { CalloutVariant } from "@/lib/interfaces/callout";
 import type {
+  StorageLocationNameFormValues,
+  StorageLocationSeriesFormValues,
+} from "@magic-vault/shared";
+import type {
   ScanCardsResultKind,
   StorageLocationView,
 } from "@/lib/interfaces/storage";
+import type { StorageLocationBulkSizesFormValues } from "@magic-vault/shared";
 import {
   STORAGE_LABEL_ORG_SEARCH_PARAM,
   STORAGE_LABELS_PATH,
@@ -19,6 +24,32 @@ export {
 };
 
 export const EMPTY_BIN_NEW_LOCATION = "__new__";
+
+export const EMPTY_STORAGE_LOCATION_BULK_SIZES_FORM: StorageLocationBulkSizesFormValues = {
+  changesCapacity: false,
+  capacity: null,
+  changesBatchSize: false,
+  batchSize: null,
+};
+
+export const STORAGE_LOCATION_BULK_SIZES_FORM_ID = "storage-location-bulk-sizes-form";
+export const STORAGE_PLAN_PRESET_SELECT_ID = "storage-plan-preset-select";
+
+export const EMPTY_STORAGE_LOCATION_NAME_FORM: StorageLocationNameFormValues = {
+  name: "",
+  capacity: null,
+  batchSize: null,
+};
+
+export const DEFAULT_STORAGE_LOCATION_SERIES_FORM: StorageLocationSeriesFormValues = {
+  prefix: "A",
+  firstNumber: 1,
+  count: 10,
+  capacity: null,
+  batchSize: null,
+};
+
+export const STORAGE_LOCATION_SERIES_PREVIEW_MAX = 6;
 export const EMPTY_BIN_NO_LOCATION = "__none__";
 export const MOVE_TARGET_COLLECTION_PREFIX = "collection:";
 export const STORAGE_CARD_SEARCH_PARAM = "card";
@@ -52,3 +83,5 @@ export function storageLabelsPath(locationGuids: string[] = []): string {
   const query = params.toString();
   return query ? `${STORAGE_LABELS_PATH}?${query}` : STORAGE_LABELS_PATH;
 }
+
+export const STORAGE_PRESET_USES_HEADING_ID = "storage-preset-uses-heading";

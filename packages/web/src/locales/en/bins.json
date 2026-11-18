@@ -175,7 +175,9 @@
       "resortModeFailed": "Failed to update re-sort",
       "cardsStored_one": "Stored {{count}} card",
       "cardsStored_other": "Stored {{count}} cards",
-      "matchGamesFailed": "Failed to update games"
+      "matchGamesFailed": "Failed to update games",
+      "fillLocationsFailed": "Failed to update storage locations",
+      "nextFillLocation": "Bin {{bin}} now fills {{location}}"
     }
   },
   "binsPage": {},
@@ -464,5 +466,71 @@
   },
   "planLock": {
     "badge": "Upgrade"
+  },
+  "storagePlan": {
+    "tabs": {
+      "label": "Sorting rules views",
+      "rules": "Rules",
+      "storage": "Storage"
+    },
+    "heading": "Storage plan",
+    "description": "Each bin fills the next location in this list that has room. A bin pauses as full when its location is full, and emptying it stores the cards there.",
+    "runOut": "When every location is full, bins fill to their normal size and emptying asks where to store them.",
+    "notInPlan": "Filling storage locations needs a plan with storage.",
+    "binsNow": "Bins now",
+    "binsNowHint": "From the saved plan. Save your changes to update it.",
+    "noLocation": "No location",
+    "claim_one": "{{location}}, {{count, compact}} left",
+    "claim_other": "{{location}}, {{count, compact}} left",
+    "fillText": "{{used, compact}} / {{capacity, compact}}",
+    "noCapacity": "{{used, compact}} stored, no capacity",
+    "batchOf_one": "Batches of {{count, compact}} card",
+    "batchOf_other": "Batches of {{count, compact}} cards",
+    "add": "Add locations",
+    "table": {
+      "order": "#",
+      "location": "Location",
+      "fill": "Fill",
+      "capacity": "Capacity",
+      "batch": "Batch",
+      "filling": "Filling",
+      "actions": "Actions"
+    },
+    "status": {
+      "filling": "Bin {{number}}",
+      "full": "Full",
+      "waiting": "Waiting"
+    },
+    "actions": {
+      "label": "Actions for {{name}}",
+      "moveUp": "Move up",
+      "moveDown": "Move down",
+      "edit": "Edit location",
+      "remove": "Remove from plan"
+    },
+    "empty": {
+      "title": "No locations in this plan",
+      "description": "Add locations or create a series, such as A1 to A10, for bins to fill in order."
+    },
+    "summary": {
+      "label": "Storage plan",
+      "off": "Off",
+      "single": "{{first}}, {{full}} of {{total}} full",
+      "range": "{{first}} to {{last}}, {{full}} of {{total}} full",
+      "open": "Open",
+      "setUp": "Set up"
+    },
+    "addDialog": {
+      "title": "Add locations",
+      "description": "Pick the locations bins should fill. They are added to the end of the plan.",
+      "search": "Search locations",
+      "selectAll": "Select all",
+      "none": "Every location is already in the plan.",
+      "noMatches": "No locations match.",
+      "noCapacity": "No capacity",
+      "cancel": "Cancel",
+      "submit_one": "Add {{count}} location",
+      "submit_other": "Add {{count}} locations"
+    }
   }
 }

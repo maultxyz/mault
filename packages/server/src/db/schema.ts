@@ -27,6 +27,7 @@ import {
   unique,
   uniqueIndex,
   uuid,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm/relations";
 
@@ -268,6 +269,10 @@ export const binSets = pgTable(
     skipSaving: boolean("skip_saving").notNull().default(false),
     isResortMode: boolean("is_resort_mode").notNull().default(false),
     matchGameKeys: text("match_game_keys").array().notNull().default(sql`'{}'::text[]`),
+    fillStorageLocationIds: integer("fill_storage_location_ids")
+      .array()
+      .notNull()
+      .default(sql`'{}'::integer[]`),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -406,6 +411,10 @@ export const bins = pgTable(
     isDisabled: boolean("is_disabled").notNull().default(false),
     pickList: jsonb("pick_list"),
     repackPriority: integer("repack_priority"),
+    claimedStorageLocationId: integer("claimed_storage_location_id").references(
+      (): AnyPgColumn => storageLocations.id,
+      { onDelete: "set null" },
+    ),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -581,6 +590,8 @@ export const storageLocations = pgTable(
     orgId: text("org_id").notNull(),
     shareLinkVersion: integer("share_link_version").notNull().default(0),
     labelShortCode: text("label_short_code").notNull(),
+    capacity: integer("capacity"),
+    batchSize: integer("batch_size"),
     isDeleted: boolean("is_deleted").notNull().default(false),
     lastUsedAt: timestamp("last_used_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -1975,6 +1986,10 @@ export const binRelations = relations(bins, ({ one }) => ({
   binSet: one(binSets, {
     fields: [bins.binSet],
     references: [binSets.id],
+  }),
+  claimedStorageLocation: one(storageLocations, {
+    fields: [bins.claimedStorageLocationId],
+    references: [storageLocations.id],
   }),
 }));
 

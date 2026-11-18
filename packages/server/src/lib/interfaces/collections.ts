@@ -57,6 +57,7 @@ export interface CollectionCardRow {
   location_guid?: string | null;
   location_name?: string | null;
   location_position?: number | null;
+  location_batch_size?: number | null;
 }
 
 export interface CardsPageTotals {

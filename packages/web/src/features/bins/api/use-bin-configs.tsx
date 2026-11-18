@@ -53,6 +53,7 @@ import {
   setSkipSaving as setSkipSavingAction,
   setMatchGames as setMatchGamesAction,
   setResortMode as setResortModeAction,
+  setFillStorageLocations as setFillStorageLocationsAction,
 } from "@/features/bins/api/sort-bins";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -238,6 +239,7 @@ export function BinConfigsProvider({
     skipSaving: selectedSet?.skipSaving ?? false,
     isResortMode: selectedSet?.isResortMode ?? false,
     matchGameKeys: presetMatchGameKeys(selectedSet),
+    fillStorageLocationGuids: selectedSet?.fillStorageLocationGuids ?? [],
   };
   const effectiveMode = modeDraft ?? modeBaseline;
   const isModeDirty =
@@ -252,7 +254,9 @@ export function BinConfigsProvider({
       modeDraft.chaosBinSize !== modeBaseline.chaosBinSize ||
       modeDraft.skipSaving !== modeBaseline.skipSaving ||
       modeDraft.isResortMode !== modeBaseline.isResortMode ||
-      modeDraft.matchGameKeys.join() !== modeBaseline.matchGameKeys.join());
+      modeDraft.matchGameKeys.join() !== modeBaseline.matchGameKeys.join() ||
+      modeDraft.fillStorageLocationGuids.join() !==
+        modeBaseline.fillStorageLocationGuids.join());
 
   const saveBinMutation = useMutation({
     mutationFn: saveBinConfigAction,
@@ -436,7 +440,7 @@ export function BinConfigsProvider({
       binNumber: number;
       options?: EmptyBinOptions;
     }) => emptyBinAction(binNumber, activeGameGuid, options),
-    onSuccess: (result) => {
+    onSuccess: (result, { binNumber }) => {
       if (!result.success) {
         toast.error(result.message ?? t("useBinConfigs.toasts.emptyBinFailed"));
         return;
@@ -456,6 +460,17 @@ export function BinConfigsProvider({
       }
       if (result.data) {
         const confirmedBins = result.data;
+        const nextClaim = confirmedBins.find(
+          (bin) => bin.binNumber === binNumber,
+        )?.claimedStorageLocation;
+        if (result.storedLocationGuid && nextClaim) {
+          toast.info(
+            t("useBinConfigs.toasts.nextFillLocation", {
+              bin: binNumber,
+              location: nextClaim.name,
+            }),
+          );
+        }
         queryClient.setQueryData<BinSet[]>(binsQueryOptions.queryKey, (old = []) =>
           old.map((set) =>
             set.isActive && matchesGame(set, activeGameGuid)
@@ -560,6 +575,19 @@ export function BinConfigsProvider({
     }),
   });
 
+  const setFillStorageLocationsMutation = useMutation({
+    mutationFn: ({
+      guid,
+      storageLocationGuids,
+    }: {
+      guid: string;
+      storageLocationGuids: string[];
+    }) => setFillStorageLocationsAction(guid, storageLocationGuids),
+    ...presetsMutationHandlers("useBinConfigs.toasts.fillLocationsFailed", {
+      showServerMessage: true,
+    }),
+  });
+
   const setAlphabetConfigMutation = useMutation({
     mutationFn: ({ guid, config }: { guid: string; config: AlphabetConfig }) =>
       setAlphabetConfigAction(guid, config),
@@ -582,7 +610,8 @@ export function BinConfigsProvider({
     setChaosModeMutation.isPending ||
     setSkipSavingMutation.isPending ||
     setMatchGamesMutation.isPending ||
-    setResortModeMutation.isPending;
+    setResortModeMutation.isPending ||
+    setFillStorageLocationsMutation.isPending;
 
   const save = useCallback(
     (input: BinConfigSaveInput) => {
@@ -808,6 +837,15 @@ export function BinConfigsProvider({
         await setResortModeMutation.mutateAsync({
           guid: selectedSet.guid,
           isResortMode: modeDraft.isResortMode,
+        });
+      }
+      if (
+        modeDraft.fillStorageLocationGuids.join() !==
+        modeBaseline.fillStorageLocationGuids.join()
+      ) {
+        await setFillStorageLocationsMutation.mutateAsync({
+          guid: selectedSet.guid,
+          storageLocationGuids: modeDraft.fillStorageLocationGuids,
         });
       }
       if (modeDraft.isAlphabetMode !== modeBaseline.isAlphabetMode) {

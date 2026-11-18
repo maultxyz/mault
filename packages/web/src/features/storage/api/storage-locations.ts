@@ -14,6 +14,11 @@ import type {
   PickListEntryInput,
   StoragePickList,
   StorageRemoveCardsResult,
+  StorageLocationSeriesInput,
+  StorageLocationSeriesResult,
+  StorageLocationSettingsInput,
+  StorageLocationBulkResult,
+  StorageLocationBulkUpdateInput,
 } from "@magic-vault/shared";
 import { STORAGE_CARDS_PAGE_SIZE_MAX } from "@magic-vault/shared";
 import { cardsQueryParams } from "@/features/collections/api/collection-cards";
@@ -274,9 +279,15 @@ export const cardStorageLocationQueryOptions = (
   });
 
 export function createStorageLocation(
-  name: string,
+  input: StorageLocationSettingsInput,
 ): Promise<Result<{ guid: string }>> {
-  return apiPost("/api/storage-locations", { name });
+  return apiPost("/api/storage-locations", input);
+}
+
+export function createStorageLocationSeries(
+  input: StorageLocationSeriesInput,
+): Promise<Result<StorageLocationSeriesResult>> {
+  return apiPost("/api/storage-locations/series", input);
 }
 
 export function moveCardsToStorageLocation(
@@ -304,11 +315,11 @@ export function moveCollectionToStorageLocation(
   });
 }
 
-export function renameStorageLocation(
+export function updateStorageLocation(
   guid: string,
-  name: string,
+  input: StorageLocationSettingsInput,
 ): Promise<Result<null>> {
-  return apiPut(`/api/storage-locations/${guid}`, { name });
+  return apiPut(`/api/storage-locations/${guid}`, input);
 }
 
 export function removeCardFromStorageLocation(
@@ -316,6 +327,18 @@ export function removeCardFromStorageLocation(
   scanId: string,
 ): Promise<Result<null>> {
   return apiDelete(`/api/storage-locations/${guid}/cards/${scanId}`);
+}
+
+export function bulkUpdateStorageLocations(
+  input: StorageLocationBulkUpdateInput,
+): Promise<Result<StorageLocationBulkResult>> {
+  return apiPost("/api/storage-locations/bulk-update", input);
+}
+
+export function bulkDeleteStorageLocations(
+  locationGuids: string[],
+): Promise<Result<StorageLocationBulkResult>> {
+  return apiPost("/api/storage-locations/bulk-delete", { locationGuids });
 }
 
 export function deleteStorageLocation(guid: string): Promise<Result<null>> {

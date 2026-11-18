@@ -1,4 +1,6 @@
 import { useStorageLocationDialogs } from "@/features/storage/api/use-storage-location-dialogs";
+import { useStorageLocationSelection } from "@/features/storage/api/use-storage-location-selection";
+import { StorageLocationSelectionBar } from "@/features/storage/components/storage-location-selection-bar";
 import { useStorageReviewStart } from "@/features/storage/api/use-storage-review-start";
 import { StorageLocationDialogs } from "@/features/storage/components/storage-location-dialogs";
 import { Callout } from "@/components/callout";
@@ -56,15 +58,19 @@ import {
   IconListCheck,
   IconListSearch,
   IconPlus,
+  IconStack2,
   IconPrinter,
   IconTrash,
 } from "@tabler/icons-react";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useSearchParams } from "react-router-dom";
+import { storageLocationFillText } from "@/features/storage/lib/storage-location-fill";
+import { useStoragePlanCounts } from "@/features/storage/api/use-storage-plan-uses";
 
 export function MobileStorage() {
   const { t } = useTranslation("storage");
+  const planCounts = useStoragePlanCounts();
   const { t: tCards } = useTranslation("cards");
   const { t: tHome } = useTranslation("home");
   const {
@@ -74,7 +80,8 @@ export function MobileStorage() {
     refetch,
     isMutating,
     create,
-    rename,
+    update,
+    createSeries,
     remove,
   } = useStorageLocations();
   const { formatCompact } = usePriceSource();
@@ -90,6 +97,8 @@ export function MobileStorage() {
     openLocationAction,
   } = dialogState;
   const [searchQuery, setSearchQuery] = useState("");
+  const [isSelectingLocations, setIsSelectingLocations] = useState(false);
+  const locationSelection = useStorageLocationSelection(locations);
   const debouncedQuery = useDebouncedValue(
     searchQuery.trim(),
     SEARCH_DEBOUNCE_MS,
@@ -152,7 +161,8 @@ export function MobileStorage() {
       dialogs={dialogState}
       selected={selected}
       create={create}
-      rename={rename}
+      update={update}
+      createSeries={createSeries}
       remove={remove}
       onSelectedDeleted={() => select(null)}
     />
@@ -188,10 +198,15 @@ export function MobileStorage() {
       <div className="flex min-h-0 flex-1 flex-col">
         <MobilePageHeader
           title={selected.name}
-          subtitle={t("page.summary", {
-            count: selected.cardCount,
-            value: formatCompact(selected.totalValue),
-          })}
+          subtitle={[
+            t("page.summary", {
+              count: selected.cardCount,
+              value: formatCompact(selected.totalValue),
+            }),
+            storageLocationFillText(selected, t),
+          ]
+            .filter(Boolean)
+            .join(" · ")}
           onBack={() => select(null)}
           actions={
             !isLocked && (
@@ -305,6 +320,19 @@ export function MobileStorage() {
         title={tHome("library.title")}
         actions={
           <>
+            {!isLocked && locations.length > 0 && (
+              <Button
+                variant="ghost"
+                className={MOBILE_PILL_BUTTON_SM_CLASS}
+                aria-pressed={isSelectingLocations}
+                onClick={() => {
+                  if (isSelectingLocations) locationSelection.clear();
+                  setIsSelectingLocations(!isSelectingLocations);
+                }}
+              >
+                {isSelectingLocations ? t("bulk.done") : t("bulk.selectMode")}
+              </Button>
+            )}
             {locations.length > 0 && (
               <Button
                 variant="ghost"
@@ -314,6 +342,17 @@ export function MobileStorage() {
                 render={<Link to={STORAGE_PICK_LIST_PATH} />}
               >
                 <IconListSearch />
+              </Button>
+            )}
+            {!isLocked && (
+              <Button
+                variant="ghost"
+                className={MOBILE_CIRCLE_BUTTON_CLASS}
+                aria-label={t("series.open")}
+                disabled={isMutating}
+                onClick={() => dialogState.setSeriesOpen(true)}
+              >
+                <IconStack2 />
               </Button>
             )}
             {!isLocked && (
@@ -393,14 +432,33 @@ export function MobileStorage() {
                     <MobileListRow
                       icon={<IconBox />}
                       label={location.name}
-                      description={t("page.summary", {
-                        count: location.cardCount,
-                        value: formatCompact(location.totalValue),
-                      })}
-                      onClick={() => select(location.guid)}
+                      description={[
+                        storageLocationFillText(location, t) ??
+                          t("page.summary", {
+                            count: location.cardCount,
+                            value: formatCompact(location.totalValue),
+                          }),
+                        planCounts.has(location.guid)
+                          ? t("planUses.rowBadge", {
+                              count: planCounts.get(location.guid),
+                            })
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(" · ")}
+                      selected={
+                        isSelectingLocations
+                          ? locationSelection.checkedGuids.has(location.guid)
+                          : undefined
+                      }
+                      onClick={() =>
+                        isSelectingLocations
+                          ? locationSelection.toggle(location.guid, false)
+                          : select(location.guid)
+                      }
                     />
                   </div>
-                  {!isLocked && (
+                  {!isLocked && !isSelectingLocations && (
                     <StorageLocationActionsMenu
                       location={location}
                       disabled={isMutating}
@@ -417,6 +475,12 @@ export function MobileStorage() {
         </div>
       </div>
       {dialogs}
+      {isSelectingLocations && (
+        <StorageLocationSelectionBar
+          selection={locationSelection}
+          showsPrintLabels={false}
+        />
+      )}
     </div>
   );
 }

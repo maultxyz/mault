@@ -34,6 +34,7 @@ import {
   globalSearchGamesFor,
   isGlobalSearchGameSelected,
   selectedGlobalSearchGameKey,
+  formatStorageSlot,
 } from "@magic-vault/shared";
 
 export default function GlobalSearchScreen() {
@@ -150,7 +151,10 @@ export default function GlobalSearchScreen() {
                   {cardResults.map((result) => {
                     const placement = result.locationName
                       ? result.locationPosition != null
-                        ? t("search.locationPosition", { location: result.locationName, position: result.locationPosition })
+                        ? t("search.locationPosition", {
+                            location: result.locationName,
+                            position: formatStorageSlot(result.locationPosition, result.locationBatchSize),
+                          })
                         : result.locationName
                       : null;
                     const imageUrl = absoluteUrl(result.imageUrl);

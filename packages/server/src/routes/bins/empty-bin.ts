@@ -1,20 +1,14 @@
-import type {
-  BinConfig,
-  BinRuleGroup,
-  EmptyBinOptions,
-} from "@magic-vault/shared";
+import type { EmptyBinOptions } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { storageLocations } from "../../db/schema";
-import {
-  loadBinEmptiedTimes,
-  markBinsEmptied,
-} from "../../lib/bin-emptying";
+import { markBinsEmptied } from "../../lib/bin-emptying";
 import { assignBinToLocation } from "../../lib/storage-locations";
+import { reclaimFillLocations } from "../../lib/storage-fill-claims";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
-import { resolveGameId, activeBinSetWhere } from "./shared";
+import { resolveGameId, activeBinSetWhere, loadBinConfigs } from "./shared";
 import { orgHasFeature } from "../../lib/plan-config";
 import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
 import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
@@ -30,10 +24,9 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
       return c.json({ success: false, message: "Invalid bin number." }, 400);
     }
     const gameGuid = c.req.query("gameGuid");
-    const { locationGuid, collectionGuid } = await c.req
-      .json<EmptyBinOptions>()
-      .catch((): EmptyBinOptions => ({}));
-    if (locationGuid && !collectionGuid) {
+    const { locationGuid: requestedLocationGuid, collectionGuid, storeInClaimedLocation = false } =
+      await c.req.json<EmptyBinOptions>().catch((): EmptyBinOptions => ({}));
+    if ((requestedLocationGuid || storeInClaimedLocation) && !collectionGuid) {
       return c.json(
         { success: false, message: "A collection is required." },
         400,
@@ -47,6 +40,23 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
       });
       if (!activeBinSet)
         return { message: "No active set found.", success: false };
+
+      let locationGuid = requestedLocationGuid;
+      if (!locationGuid && storeInClaimedLocation) {
+        await reclaimFillLocations(tx, activeBinSet.id);
+        const bin = await tx.query.bins.findFirst({
+          where: (t, { eq, and }) =>
+            and(
+              eq(t.binSet, activeBinSet.id),
+              eq(t.binNumber, binNumber),
+              eq(t.isDeleted, false),
+              eq(t.isCatchAll, false),
+            ),
+          columns: { claimedStorageLocationId: true },
+          with: { claimedStorageLocation: { columns: { guid: true } } },
+        });
+        locationGuid = bin?.claimedStorageLocation?.guid ?? undefined;
+      }
 
       let storedScanIds: string[] = [];
       if (locationGuid && collectionGuid) {
@@ -93,60 +103,24 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
       }
 
       await markBinsEmptied(tx, orgId, [binNumber]);
-
-      const updatedBins = await tx.query.bins.findMany({
-        where: (t, { eq, and }) =>
-          and(eq(t.binSet, activeBinSet.id), eq(t.isDeleted, false)),
-        columns: {
-          guid: true,
-          binNumber: true,
-          rules: true,
-          isCatchAll: true,
-          isOverride: true,
-          overridePriority: true,
-          lowMatchPercent: true,
-          maxCopies: true,
-          maxCopiesBy: true,
-          maxCards: true,
-          overflowBin: true,
-          isDisabled: true,
-          repackPriority: true,
-        },
-      });
-      const emptiedTimes = await loadBinEmptiedTimes(tx, orgId);
+      await reclaimFillLocations(tx, activeBinSet.id);
 
       return {
         message: "Bin marked as emptied.",
         success: true,
         assignedCount: storedScanIds.length,
         storedScanIds,
-        data: updatedBins.map(
-          (b): BinConfig => ({
-            guid: b.guid!,
-            binNumber: b.binNumber,
-            rules: b.rules as BinRuleGroup,
-            isCatchAll: b.isCatchAll,
-            isOverride: b.isOverride,
-            overridePriority: b.overridePriority,
-            lowMatchPercent: b.lowMatchPercent,
-            maxCopies: b.maxCopies,
-            maxCopiesBy: b.maxCopiesBy,
-            maxCards: b.maxCards,
-            overflowBin: b.overflowBin,
-            isDisabled: b.isDisabled,
-            repackPriority: b.repackPriority,
-            lastEmptiedAt: emptiedTimes.get(b.binNumber) ?? null,
-          }),
-        ),
+        storedLocationGuid: storedScanIds.length > 0 ? (locationGuid ?? null) : null,
+        data: await loadBinConfigs(tx, orgId, activeBinSet.id),
       };
     });
     if (
       result.success &&
       "storedScanIds" in result &&
       result.storedScanIds &&
-      locationGuid
+      result.storedLocationGuid
     ) {
-      emitCardsStoredWebhook(orgId, locationGuid, result.storedScanIds);
+      emitCardsStoredWebhook(orgId, result.storedLocationGuid, result.storedScanIds);
     }
     return c.json(result);
   },

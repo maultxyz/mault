@@ -1,4 +1,4 @@
-import { DEFAULT_CARD_CONDITION, type ScannedCard } from "@magic-vault/shared";
+import { formatStorageSlot, DEFAULT_CARD_CONDITION, type ScannedCard } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
 
 export function describeRemovalCopy(
@@ -11,7 +11,10 @@ export function describeRemovalCopy(
   const place = copy.storageLocation
     ? t("scanRemoval.storage", {
         name: copy.storageLocation.name,
-        position: copy.storageLocation.position,
+        position: formatStorageSlot(
+          copy.storageLocation.position,
+          copy.storageLocation.batchSize,
+        ),
       })
     : copy.binNumber != null
       ? t("scanRemoval.bin", { number: copy.binNumber })

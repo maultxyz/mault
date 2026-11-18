@@ -842,7 +842,10 @@
       "confirmTitle": "Mark bin {{bins}} empty?",
       "confirmDescription": "Only do this after taking the cards out. The bin's count starts again from zero.",
       "confirm": "Mark empty",
-      "failed": "Couldn't mark the bin empty. Check your connection and try again."
+      "failed": "Couldn't mark the bin empty. Check your connection and try again.",
+      "storeDescription": "Only do this after taking the cards out. Cards are stored in their locations: {{locations}}.",
+      "storeBin": "bin {{bin}} in {{location}}",
+      "storeConfirm": "Store and mark empty"
     },
     "removal": {
       "title": "Removing from {{collection}}",
@@ -1253,7 +1256,15 @@
       "resortDescription": "Each scan moves a copy that is already in this collection into its new bin instead of adding another copy. The copy keeps its foil and condition and leaves its old storage location. Cards not in the collection yet are added as usual.",
       "matchGames": "Also identify cards from",
       "matchGamesEmpty": "Pick at least one other game. Until you do, only this game's cards are recognized.",
-      "matchGamesHint": "Cards that aren't recognized go to the catch-all. Each extra game makes scans a little slower."
+      "matchGamesHint": "Cards that aren't recognized go to the catch-all. Each extra game makes scans a little slower.",
+      "storagePlan": {
+        "title": "Storage plan",
+        "off": "Off",
+        "locked": "Storage locations aren't included in your plan.",
+        "summary_one": "{{range}} · {{full}} of {{count}} full",
+        "summary_other": "{{range}} · {{full}} of {{count}} full",
+        "range": "{{first}} to {{last}}"
+      }
     },
     "modes": {
       "rules": {
@@ -1383,7 +1394,39 @@
     "maxCardsPlaceholder": "No limit",
     "maxCardsDescription": "This bin counts as full at this many cards, even if it has room: matching cards then go to its overflow bin or pause sorting. Leave empty to use the bin's physical size.",
     "maxCardsPill_one": "Holds {{count}}",
-    "maxCardsPill_other": "Holds {{count}}"
+    "maxCardsPill_other": "Holds {{count}}",
+    "storagePlan": {
+      "title": "Storage plan",
+      "description": "Each bin fills the next location in this list that has room and pauses when it is full. Emptying the bin stores its cards there.",
+      "locked": "Storage locations aren't included in your plan.",
+      "locationsTitle": "Locations in order",
+      "order": "{{order}}. {{name}}",
+      "noCapacity": "No capacity set",
+      "batch": "batch {{size}}",
+      "status": {
+        "full": "Full",
+        "filling": "Filling bin {{number}}",
+        "waiting": "Waiting"
+      },
+      "rowHint": "Selects the location to move, edit or remove it",
+      "actions": "Location actions",
+      "moveUp": "Move {{name}} up",
+      "moveDown": "Move {{name}} down",
+      "edit": "Edit {{name}}",
+      "remove": "Remove {{name}} from the plan",
+      "add": "Add locations",
+      "addTitle": "Choose locations to add",
+      "addSelected_one": "Add {{count}} location",
+      "addSelected_other": "Add {{count}} locations",
+      "noneLeft": "Every location is already in the plan.",
+      "createSeries": "Create series",
+      "empty": "Add locations to start storing bins in them.",
+      "binsTitle": "Bins now",
+      "binsHint": "Shows the saved plan. Save your changes to update it.",
+      "noLocation": "No location",
+      "claim_one": "{{name}} · {{count}} left",
+      "claim_other": "{{name}} · {{count}} left"
+    }
   },
   "calibration": {
     "title": "Sorter setup",
@@ -1716,7 +1759,77 @@
     "searchFailed": "Couldn't search your storage locations",
     "notFoundTitle": "Location not found",
     "notFoundDescription": "It may have been deleted, or you no longer have access to it.",
-    "printLabel": "Print label"
+    "printLabel": "Print label",
+    "edit": "Edit location",
+    "add": "Add storage",
+    "capacityLabel": "Capacity",
+    "capacityPlaceholder": "No limit",
+    "batchSizeLabel": "Cards per batch",
+    "batchSizePlaceholder": "No batches",
+    "sizeHint": "Capacity is how many cards the location holds. With a batch size, each card's place reads box-batch-card, like A1-2-17.",
+    "slotsUsed": "{{used}} of {{capacity}} used",
+    "fillOfCapacity": "{{cards}} · {{used}} of {{capacity}} used",
+    "series": {
+      "title": "New series",
+      "menuDescription": "Create numbered locations like A1 to A10 in one go",
+      "description": "Creates one location per number, all with the same capacity and batch size. Names that already exist are skipped.",
+      "prefixLabel": "Prefix",
+      "prefixPlaceholder": "e.g. A",
+      "firstNumberLabel": "First number",
+      "countLabel": "How many",
+      "create_one": "Create {{count}} location",
+      "create_other": "Create {{count}} locations",
+      "created_one": "Created {{count}} location",
+      "created_other": "Created {{count}} locations",
+      "createdWithSkipped_one": "Created {{count}} location. Skipped existing: {{names}}",
+      "createdWithSkipped_other": "Created {{count}} locations. Skipped existing: {{names}}",
+      "previewOne": "Creates {{name}}",
+      "preview": "Creates {{first}} to {{last}} ({{count}} locations)"
+    },
+    "bulk": {
+      "select": "Select locations",
+      "doneSelecting": "Done selecting",
+      "selectedCount_one": "{{count}} selected",
+      "selectedCount_other": "{{count}} selected",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "setSize": "Set size",
+      "addToPlan": "Add to plan",
+      "removeFromPlan": "Remove from plan",
+      "pickPreset_one": "Pick the preset whose storage plan should change for {{count}} location.",
+      "pickPreset_other": "Pick the preset whose storage plan should change for {{count}} locations.",
+      "noPresets": "No presets to choose from.",
+      "addedToPlan_one": "Added {{count}} location to {{preset}}.",
+      "addedToPlan_other": "Added {{count}} locations to {{preset}}.",
+      "removedFromPlan_one": "Removed {{count}} location from {{preset}}.",
+      "removedFromPlan_other": "Removed {{count}} locations from {{preset}}.",
+      "deleteTitle_one": "Delete {{count}} location?",
+      "deleteTitle_other": "Delete {{count}} locations?",
+      "deleteDescription": "Their cards stay in their collections but are no longer assigned to a location. This can't be undone.",
+      "deleted_one": "Deleted {{count}} location.",
+      "deleted_other": "Deleted {{count}} locations.",
+      "sizeTitle_one": "Set size for {{count}} location",
+      "sizeTitle_other": "Set size for {{count}} locations",
+      "sizeDescription": "Turn on the values to change. Values you leave off stay as they are on each location.",
+      "changeCapacity": "Change capacity",
+      "changeBatchSize": "Change batch size",
+      "sizeClearHint": "Leave a turned-on field empty to remove that limit.",
+      "sizeApply_one": "Update {{count}} location",
+      "sizeApply_other": "Update {{count}} locations",
+      "sizeUpdated_one": "Updated {{count}} location.",
+      "sizeUpdated_other": "Updated {{count}} locations.",
+      "deleteInPlans": "Some are in the storage plan of: {{presets}}. They will be removed from those plans."
+    },
+    "planUses": {
+      "title": "Used by sorting rules",
+      "empty": "Not in any storage plan",
+      "position": "Position {{position}} of {{total}}",
+      "filling": "Filling bin {{bin}}",
+      "active": "Active"
+    },
+    "inPlans_one": "In {{count}} plan",
+    "inPlans_other": "In {{count}} plans",
+    "deleteInPlans": "It is in the storage plan of: {{presets}}. It will be removed from those plans."
   },
   "settings": {
     "title": "Settings",
