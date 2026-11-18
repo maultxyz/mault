@@ -4,7 +4,7 @@ import { router, useIsFocused } from "expo-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, Alert, StyleSheet, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { TabBottomSafeAreaView } from "@/components/ui/tab-bottom-safe-area-view";
 import {
   binSetMode,
   CARD_CONDITIONS,
@@ -522,8 +522,7 @@ export default function ScanScreen() {
         ) : null}
       </View>
 
-      <SafeAreaView
-        edges={["bottom"]}
+      <TabBottomSafeAreaView
         pointerEvents="box-none"
         style={{ position: "absolute", left: 0, right: 0, bottom: 0 }}
       >
@@ -592,7 +591,7 @@ export default function ScanScreen() {
             </View>
           </View>
         </View>
-      </SafeAreaView>
+      </TabBottomSafeAreaView>
       <ScanTipsSheet visible={tipsOpen && focused} onClose={closeTips} />
       <ScanOptionsSheet
         visible={optionsOpen}
