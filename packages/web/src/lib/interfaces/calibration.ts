@@ -9,6 +9,12 @@ import type {
   ChannelLayout,
   ScanRegion,
   FeederTestFormValues,
+  CardContour,
+  MatchedScanDiagnostics,
+  PlayingCard,
+  PrintingScoreResult,
+  ScanOcrMode,
+  UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import type { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
 import type { PrintingScoreFormValues } from "@/schemas/printing-score.schema";
@@ -488,7 +494,26 @@ export interface ScorePrintingFrameInput {
   region: ScanRegion;
   checkBothOrientations: boolean;
   collectionGuid: string;
+  gameKey: string | undefined;
+  ocrMode: ScanOcrMode;
   values: PrintingScoreFormValues;
+}
+
+export interface PrintingFrameScanCheck {
+  card: Pick<PlayingCard, "id" | "name" | "set" | "collectorNumber"> | null;
+  scannedImageUrl: string;
+  cropContour: CardContour;
+  cardDetected: boolean;
+  frameWidth: number;
+  frameHeight: number;
+  lowConfidenceMatch: boolean;
+  matched: MatchedScanDiagnostics | null;
+  unmatched: UnmatchedScanDiagnostics | null;
+}
+
+export interface PrintingFrameScore {
+  score: PrintingScoreResult;
+  scanCheck: PrintingFrameScanCheck;
 }
 
 export type PendingConnectKind = "usb" | "bluetooth" | "cloud";

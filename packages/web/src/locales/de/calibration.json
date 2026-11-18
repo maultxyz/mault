@@ -209,6 +209,16 @@
   },
   "cameraPrintingScore": {
     "heading": "Hilfe zur Kamerakalibrierung",
+    "cardSectionHeading": "Karte im Scanner",
+    "cameraSectionHeading": "Kamera",
+    "scanSettingsSectionHeading": "Scan-Einstellungen",
+    "resultsHeading": "Ergebnis",
+    "resultsEmpty": "Wähle Set und Karte und drücke dann Bewerten, um zu sehen, wie ein Scan dieses Bild behandeln würde.",
+    "cropBorderDetected": "Umriss: die Karte, die die letzte Bewertung erkannt und zugeschnitten hat.",
+    "cropBorderScanRegion": "Hervorgehobener Bereich: Es wurde keine Karte erkannt, daher hat die letzte Bewertung den kalibrierten Scanbereich zugeschnitten.",
+    "scannedImageCaption": "Gescannt",
+    "catalogImageCaption": "Katalog",
+    "scannedImageAlt": "Die Karte, wie der Scan sie aus dem Kamerabild zugeschnitten hat",
     "setLabel": "Set",
     "cardLabel": "Karte",
     "setPlaceholder": "Set wählen",
@@ -227,17 +237,32 @@
     "distanceLabel": "Abstand",
     "matchScoreLabel": "Übereinstimmungswert",
     "matchScoreValue": "{{score}} / 100",
-    "matchScoreHelp": "Ziele auf 50 oder mehr, damit Scans auch bei anderem Licht genug Spielraum haben. Unter 20 prüfe Zoom, Fokus und Spiegelungen.",
+    "matchScoreHelp": "Die meisten guten Kamerascans erreichen 50 oder mehr. Niedrigere Werte passen auch, haben aber bei anderem Licht weniger Spielraum. Unter 20 prüfe Zoom, Fokus und Spiegelungen.",
     "nearestDifferent": "Die nächste Karte im Katalog ist {{name}} ({{set}} {{number}}) mit {{distance}}.",
     "cardLine": "{{name}}, {{set}} {{number}}",
     "failed": "Dieses Bild konnte nicht bewertet werden.",
-    "verdict": {
-      "accept": "Ein Scan würde diese Karte akzeptieren.",
-      "other_card": "Ein Scan würde eine andere Karte erkennen.",
-      "too_far": "Ein Scan würde dieses Bild ablehnen. Die nächste Karte liegt bei {{threshold}} oder höher.",
-      "ambiguous": "Ein Scan würde dieses Bild ablehnen. Eine andere Karte ist fast genauso nah.",
-      "empty_index": "Ein Scan würde dieses Bild ablehnen. Für dieses Spiel sind keine Karten synchronisiert."
-    }
+    "ocrToggleLabel": "Texterkennung (OCR)",
+    "ocrToggleDescription": "Liest wie beim Scannen zusätzlich Name, Set-Zeile und Nummer der Karte.",
+    "highAccuracyToggleLabel": "Genauere Scans",
+    "highAccuracyToggleDescription": "Liest den Text auf jeder Karte, nicht nur wenn der Bildabgleich unsicher ist.",
+    "scanSettingsNotSaved": "Diese starten mit den Scan-Einstellungen deiner Organisation. Änderungen hier gelten nur für diese Hilfe und werden nicht gespeichert.",
+    "textRead": "Gelesener Text: {{text}}",
+    "noTextRead": "Es wurde kein Text gelesen.",
+    "scanCheck": {
+      "acceptByText": "Ein Scan würde diese Karte übernehmen, erkannt an ihrem Text.",
+      "acceptByImage": "Ein Scan würde diese Karte übernehmen, erkannt an ihrem Bild.",
+      "otherCard": "Ein Scan würde stattdessen {{name}} ({{set}} {{number}}) erkennen.",
+      "noMatch": "Ein Scan würde für dieses Bild keinen Treffer finden."
+    },
+    "scanDetailsHeading": "Warum ein Scan so entscheiden würde",
+    "matchedByLabel": "Erkannt durch",
+    "matchedBy": {
+      "embedding": "Bild",
+      "ocr": "Text (OCR)"
+    },
+    "lowConfidenceLabel": "Unsicherer Treffer",
+    "yes": "Ja",
+    "no": "Nein"
   },
   "useCalibrationPage": {
     "toasts": {

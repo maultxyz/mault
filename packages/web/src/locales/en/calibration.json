@@ -209,6 +209,16 @@
   },
   "cameraPrintingScore": {
     "heading": "Camera calibration aid",
+    "cardSectionHeading": "Card on the scanner",
+    "cameraSectionHeading": "Camera",
+    "scanSettingsSectionHeading": "Scan settings",
+    "resultsHeading": "Result",
+    "resultsEmpty": "Choose the set and card, then press Score to see how a scan would handle this frame.",
+    "cropBorderDetected": "Outline: the card the last score detected and cropped.",
+    "cropBorderScanRegion": "Highlighted box: no card was detected, so the last score cropped the calibrated scan region.",
+    "scannedImageCaption": "Scanned",
+    "catalogImageCaption": "Catalog",
+    "scannedImageAlt": "The card as the scan cropped it from the camera frame",
     "setLabel": "Set",
     "cardLabel": "Card",
     "setPlaceholder": "Choose a set",
@@ -227,17 +237,32 @@
     "distanceLabel": "Distance",
     "matchScoreLabel": "Match score",
     "matchScoreValue": "{{score}} / 100",
-    "matchScoreHelp": "Aim for 50 or higher so scans have room to spare under different light. Below 20, check zoom, focus and glare.",
+    "matchScoreHelp": "Most good camera scans score 50 or higher. Lower scores still match, with less room to spare under different light. Below 20, check zoom, focus and glare.",
     "nearestDifferent": "The closest card in the catalog is {{name}} ({{set}} {{number}}) at {{distance}}.",
     "cardLine": "{{name}}, {{set}} {{number}}",
     "failed": "Could not score that frame.",
-    "verdict": {
-      "accept": "A scan would accept this card.",
-      "other_card": "A scan would match a different card.",
-      "too_far": "A scan would reject this frame. The closest card is at {{threshold}} or higher.",
-      "ambiguous": "A scan would reject this frame. Another card is almost as close.",
-      "empty_index": "A scan would reject this frame. No cards are synced for this game."
-    }
+    "ocrToggleLabel": "Text recognition (OCR)",
+    "ocrToggleDescription": "Also read the card's name, set line and number, the way a scan does.",
+    "highAccuracyToggleLabel": "Higher accuracy scans",
+    "highAccuracyToggleDescription": "Read the text on every card, not only when the image match is unsure.",
+    "scanSettingsNotSaved": "These start from your organization's scan settings. Changes here only apply to this aid and aren't saved.",
+    "textRead": "Text read: {{text}}",
+    "noTextRead": "No text was read.",
+    "scanCheck": {
+      "acceptByText": "A scan would accept this card, matched by its text.",
+      "acceptByImage": "A scan would accept this card, matched by its image.",
+      "otherCard": "A scan would match {{name}} ({{set}} {{number}}) instead.",
+      "noMatch": "A scan would not find a match for this frame."
+    },
+    "scanDetailsHeading": "Why a scan would decide this",
+    "matchedByLabel": "Matched by",
+    "matchedBy": {
+      "embedding": "Image",
+      "ocr": "Text (OCR)"
+    },
+    "lowConfidenceLabel": "Low confidence match",
+    "yes": "Yes",
+    "no": "No"
   },
   "useCalibrationPage": {
     "toasts": {

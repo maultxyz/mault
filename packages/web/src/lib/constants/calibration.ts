@@ -191,3 +191,19 @@ export const CALIBRATION_SECTIONS = [
 export const CALIBRATION_LIVE_DETECTION_INTERVAL_MS = 200;
 
 export const CALIBRATE_PATH = "/app/calibrate";
+
+export const PRINTING_SCORE_FORM_ID = "camera-printing-score-form";
+export const PRINTING_SCORE_RESULTS_HEADING_ID = "camera-printing-score-results-heading";
+
+export const PRINTING_MATCH_SCORE_ANCHORS: readonly {
+  distanceShareOfThreshold: number;
+  score: number;
+}[] = [
+  { distanceShareOfThreshold: 0, score: 100 },
+  { distanceShareOfThreshold: 0.25, score: 100 },
+  { distanceShareOfThreshold: 0.575, score: 75 },
+  { distanceShareOfThreshold: 0.75, score: 50 },
+  { distanceShareOfThreshold: 1, score: 0 },
+];
+
+export const PRINTING_SCORE_DEFAULT_PREVIEW_ASPECT_RATIO = 3 / 4;

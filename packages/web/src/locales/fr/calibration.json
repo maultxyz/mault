@@ -209,6 +209,16 @@
   },
   "cameraPrintingScore": {
     "heading": "Aide au calibrage de la caméra",
+    "cardSectionHeading": "Carte dans le scanner",
+    "cameraSectionHeading": "Caméra",
+    "scanSettingsSectionHeading": "Paramètres de scan",
+    "resultsHeading": "Résultat",
+    "resultsEmpty": "Choisis l'extension et la carte, puis appuie sur Noter pour voir comment un scan traiterait cette image.",
+    "cropBorderDetected": "Contour : la carte que la dernière note a détectée et recadrée.",
+    "cropBorderScanRegion": "Zone mise en évidence : aucune carte n'a été détectée, la dernière note a donc recadré la zone de scan calibrée.",
+    "scannedImageCaption": "Scannée",
+    "catalogImageCaption": "Catalogue",
+    "scannedImageAlt": "La carte telle que le scan l'a recadrée dans l'image de la caméra",
     "setLabel": "Set",
     "cardLabel": "Carte",
     "setPlaceholder": "Choisir un set",
@@ -227,17 +237,32 @@
     "distanceLabel": "Distance",
     "matchScoreLabel": "Score de correspondance",
     "matchScoreValue": "{{score}} / 100",
-    "matchScoreHelp": "Visez 50 ou plus pour garder de la marge sous un autre éclairage. En dessous de 20, vérifiez le zoom, la mise au point et les reflets.",
+    "matchScoreHelp": "La plupart des bons scans par caméra obtiennent 50 ou plus. Un score plus bas correspond encore, avec moins de marge sous un autre éclairage. En dessous de 20, vérifie le zoom, la mise au point et les reflets.",
     "nearestDifferent": "La carte la plus proche du catalogue est {{name}} ({{set}} {{number}}) à {{distance}}.",
     "cardLine": "{{name}}, {{set}} {{number}}",
     "failed": "Impossible de noter cette image.",
-    "verdict": {
-      "accept": "Un scan accepterait cette carte.",
-      "other_card": "Un scan reconnaîtrait une autre carte.",
-      "too_far": "Un scan refuserait cette image. La carte la plus proche est à {{threshold}} ou plus.",
-      "ambiguous": "Un scan refuserait cette image. Une autre carte est presque aussi proche.",
-      "empty_index": "Un scan refuserait cette image. Aucune carte n'est synchronisée pour ce jeu."
-    }
+    "ocrToggleLabel": "Reconnaissance de texte (OCR)",
+    "ocrToggleDescription": "Lit aussi le nom, la ligne d'extension et le numéro de la carte, comme un scan.",
+    "highAccuracyToggleLabel": "Scans plus précis",
+    "highAccuracyToggleDescription": "Lit le texte de chaque carte, pas seulement quand la correspondance par image est incertaine.",
+    "scanSettingsNotSaved": "Ces réglages partent des paramètres de scan de ton organisation. Les changements ici ne s'appliquent qu'à cette aide et ne sont pas enregistrés.",
+    "textRead": "Texte lu : {{text}}",
+    "noTextRead": "Aucun texte n'a été lu.",
+    "scanCheck": {
+      "acceptByText": "Un scan accepterait cette carte, reconnue par son texte.",
+      "acceptByImage": "Un scan accepterait cette carte, reconnue par son image.",
+      "otherCard": "Un scan reconnaîtrait plutôt {{name}} ({{set}} {{number}}).",
+      "noMatch": "Un scan ne trouverait aucune correspondance pour cette image."
+    },
+    "scanDetailsHeading": "Pourquoi un scan déciderait ainsi",
+    "matchedByLabel": "Reconnue par",
+    "matchedBy": {
+      "embedding": "Image",
+      "ocr": "Texte (OCR)"
+    },
+    "lowConfidenceLabel": "Correspondance peu sûre",
+    "yes": "Oui",
+    "no": "Non"
   },
   "useCalibrationPage": {
     "toasts": {
