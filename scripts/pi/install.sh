@@ -25,8 +25,10 @@ BUNDLE=""
 MANIFEST_URL=""
 MODE=install
 MIGRATE_FROM=""
+ENV_TO_CHECK=""
 while [[ "$#" -gt 0 ]]; do
   case "$1" in
+    --read-postgres-password) ENV_TO_CHECK="${2:-}"; MODE=check; shift 2 ;;
     --bundle) BUNDLE="${2:-}"; shift 2 ;;
     --manifest-url) MANIFEST_URL="${2:-}"; shift 2 ;;
     --migrate-from) MIGRATE_FROM="${2:-}"; shift 2 ;;
@@ -36,6 +38,36 @@ while [[ "$#" -gt 0 ]]; do
     *) usage ;;
   esac
 done
+
+read_postgres_password() {
+  python3 - "$1" <<'PYENV'
+from pathlib import Path
+import re
+import sys
+
+path = Path(sys.argv[1])
+try:
+    value = ""
+    for line in path.read_text().splitlines():
+        match = re.fullmatch(r"\s*(?:export\s+)?POSTGRES_PASSWORD\s*=\s*(.*?)\s*", line)
+        if match:
+            password_match = re.fullmatch(
+                r"\s*(?:\"([A-Za-z0-9]+)\"|'([A-Za-z0-9]+)'|([A-Za-z0-9]+))\s*(?:#.*)?",
+                match[1],
+            )
+            value = next((part for part in password_match.groups() if part), "") if password_match else ""
+    if not re.fullmatch(r"[A-Za-z0-9]+", value):
+        raise ValueError()
+except (OSError, ValueError):
+    sys.exit(f"[install] POSTGRES_PASSWORD in {path} must contain a non-empty alphanumeric value, optionally quoted. Existing services have not been stopped.")
+print(value)
+PYENV
+}
+
+if [[ "$MODE" == check ]]; then
+  read_postgres_password "$ENV_TO_CHECK"
+  exit 0
+fi
 
 release_field() {
   python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))[sys.argv[2]])' "$1" "$2"
@@ -107,6 +139,20 @@ if [[ "$(uname -m)" != aarch64 ]]; then
   exit 1
 fi
 
+if [[ "$MODE" != image ]]; then
+  if [[ -z "$MIGRATE_FROM" && -n "${SUDO_USER:-}" ]]; then
+    old_checkout="$(getent passwd "$SUDO_USER" | cut -d: -f6)/mault"
+    if [[ -f "$old_checkout/.env" && -f "$old_checkout/scripts/pi/install.sh" ]]; then
+      MIGRATE_FROM="$old_checkout"
+    fi
+  fi
+  if [[ -f "$MAULT_DATA/.env" ]]; then
+    read_postgres_password "$MAULT_DATA/.env" >/dev/null
+  elif [[ -n "$MIGRATE_FROM" ]]; then
+    read_postgres_password "$MIGRATE_FROM/.env" >/dev/null
+  fi
+fi
+
 board_model="$(tr -d '\0' < /proc/device-tree/model 2>/dev/null || true)"
 is_raspberry_pi=0
 if [[ "$MODE" == image || "$board_model" == *"Raspberry Pi"* ]]; then
@@ -167,12 +213,6 @@ if [[ "$MODE" == image ]]; then
   exit 0
 fi
 
-if [[ -z "$MIGRATE_FROM" && -n "${SUDO_USER:-}" ]]; then
-  old_checkout="$(getent passwd "$SUDO_USER" | cut -d: -f6)/mault"
-  if [[ -f "$old_checkout/.env" && -f "$old_checkout/scripts/pi/install.sh" ]]; then
-    MIGRATE_FROM="$old_checkout"
-  fi
-fi
 setup_arguments=()
 if [[ -n "$MIGRATE_FROM" ]]; then
   setup_arguments+=(--migrate-from "$MIGRATE_FROM")
