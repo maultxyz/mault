@@ -9,7 +9,7 @@ import {
 } from "@/lib/constants/pi-update";
 import type { AppAlert } from "@/lib/interfaces/alerts";
 import type { PiUpdateControls } from "@/lib/interfaces/pi-update";
-import { hardReload } from "@/lib/pwa";
+import { hardReload } from "@/lib/hard-reload";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";

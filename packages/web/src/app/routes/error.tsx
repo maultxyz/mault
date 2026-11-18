@@ -6,7 +6,7 @@ import {
   hardReload,
   isStaleChunkError,
   reloadOnceForStaleChunks,
-} from "@/lib/pwa";
+} from "@/lib/hard-reload";
 import { IconBug, IconRefresh } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
