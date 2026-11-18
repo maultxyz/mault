@@ -908,6 +908,7 @@ export function useCalibrationPage() {
       moduleCount,
       configs,
       feederConfig,
+      feederStopPulse,
       binRoutes,
       firmwareVersion,
       board,
@@ -918,7 +919,7 @@ export function useCalibrationPage() {
     } catch {
       toast.error(t("useCalibrationPage.toasts.copyFailed"));
     }
-  }, [toast, channelLayout, moduleCount, configs, feederConfig, binRoutes, firmwareVersion, board, t]);
+  }, [toast, channelLayout, moduleCount, configs, feederConfig, feederStopPulse, binRoutes, firmwareVersion, board, t]);
 
   const handleExportConfig = useCallback(() => {
     downloadCalibrationExport(

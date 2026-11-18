@@ -160,11 +160,30 @@ export interface FeederCalibrationValues {
   reverseDuration: number;
 }
 
+export type ServoPositionKey =
+  | "bottomClosed"
+  | "bottomOpen"
+  | "paddleClosed"
+  | "paddleOpen"
+  | "pusherLeft"
+  | "pusherNeutral"
+  | "pusherRight";
+
+export interface FeederSpeedPercent {
+  direction: "forward" | "reverse";
+  magnitude: number;
+}
+
 export interface DeviceCalibrationResult {
   deviceName: string;
   moduleCount: number;
-  modules: { moduleNumber: number; calibration: ServoCalibrationValues }[];
+  modules: {
+    moduleNumber: number;
+    calibration: ServoCalibrationValues;
+    positionPercents?: Record<ServoPositionKey, number>;
+  }[];
   feeder: FeederCalibrationValues;
+  feederSpeeds?: { speed: FeederSpeedPercent; reverseSpeed: FeederSpeedPercent };
 }
 
 export interface RulePresetSummary {
