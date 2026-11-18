@@ -1,4 +1,7 @@
+import { CardImage } from "@/components/card-image";
+import { CompactCount } from "@/components/compact-value";
 import { Button } from "@/components/ui/button";
+import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
@@ -10,8 +13,13 @@ import { MobileScanNotice } from "@/features/scanner/components/mobile-scan-noti
 import { MobileScanControlsSheet } from "@/features/scanner/components/mobile-scan-controls-sheet";
 import { MobileScanOptionsSheet } from "@/features/scanner/components/mobile-scan-options-sheet";
 import { MobileSessionScansSheet } from "@/features/scanner/components/mobile-session-scans-sheet";
+import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import {
+  MOBILE_SCAN_BOTTOM_SCRIM_CLASS,
   MOBILE_SCAN_CHIP_CLASS,
+  MOBILE_SCAN_SESSION_THUMBNAIL_CLASS,
+  MOBILE_SCAN_TEXT_ROW_CLASS,
+  MOBILE_SCAN_TOP_SCRIM_CLASS,
   SESSION_TIMER_RUNNING_STATUSES,
 } from "@/lib/constants/scanner";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
@@ -20,7 +28,6 @@ import { cn } from "@/lib/utils";
 import {
   IconAdjustments,
   IconCamera,
-  IconCards,
   IconChevronRight,
   IconDots,
   IconHandStop,
@@ -28,6 +35,7 @@ import {
   IconPlayerPlayFilled,
   IconTrash,
 } from "@tabler/icons-react";
+import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
@@ -47,6 +55,12 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
     queuedCount: removalQueuedCount,
     isRemoveModeActive,
   } = useScanRemoval();
+
+  const { data: latestCardsPage } = useQuery({
+    ...collectionCardsPageQueryOptions(activeCollection?.guid, ALL_CARDS_QUERY, 0),
+    enabled: !!activeCollection && sessionScanCount > 0,
+  });
+  const lastScannedCardImage = latestCardsPage?.items[0]?.card.image?.small;
 
   const running = SESSION_TIMER_RUNNING_STATUSES.includes(chrome.status);
   const sorterDriven = chrome.isReady || chrome.handScanActive;
@@ -76,6 +90,24 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
           : t("mobileScan.phase.ready");
     }
   })();
+  const scanModeLabel = chrome.isReady
+    ? t("mobileScan.statusModes.sorter")
+    : isRemoveModeActive
+      ? t("mobileScan.statusModes.removing")
+      : chrome.handScanActive
+        ? t("mobileScan.statusModes.handScan")
+        : t("mobileScan.statusModes.scanOnce");
+  const statusText = `${scanModeLabel} · ${phaseLabel}`;
+  const phaseDotClassName =
+    chrome.status === "error"
+      ? "bg-destructive"
+      : running
+        ? "bg-success"
+        : chrome.status === "paused" ||
+            chrome.status === "initializing" ||
+            chrome.status === "requesting-camera"
+          ? "bg-warning"
+          : null;
 
   const notice = (() => {
     if (chrome.isEmergencyStopped) {
@@ -174,46 +206,46 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
   return (
     <>
       <div className="pointer-events-none absolute inset-0 z-30 flex flex-col justify-between">
-        <div className="flex items-center gap-2 px-4 pt-3">
-          <span className={MOBILE_SCAN_CHIP_CLASS}>
-            {running && (
-              <span
-                aria-hidden
-                className="size-2 shrink-0 rounded-full bg-success animate-pulse motion-reduce:animate-none"
-              />
+        <div className={cn("flex flex-col gap-3 px-4 pt-3 pb-6", MOBILE_SCAN_TOP_SCRIM_CLASS)}>
+        <div className="flex items-start gap-2">
+          <div className="flex min-w-0 flex-1 flex-col gap-1">
+            <button
+              type="button"
+              disabled={running}
+              aria-label={
+                activeCollection
+                  ? t("mobileScan.scanningInto", { name: activeCollection.name })
+                  : t("mobileScan.chooseCollection")
+              }
+              onClick={() => setCollectionsOpen(true)}
+              className={cn(MOBILE_SCAN_TEXT_ROW_CLASS, "font-heading text-lg font-semibold")}
+            >
+              <span className="truncate">
+                {activeCollection?.name ?? t("mobileScan.chooseCollection")}
+              </span>
+              {!running && <IconChevronRight aria-hidden className="size-4" />}
+            </button>
+            {isRemoveModeActive && (
+              <button
+                type="button"
+                onClick={() => setRemovalQueueOpen(true)}
+                className={cn(MOBILE_SCAN_TEXT_ROW_CLASS, "text-xs font-medium")}
+              >
+                <IconTrash aria-hidden className="size-3.5" />
+                <span className="truncate">
+                  {t("scanRemoval.queuedCount", { count: removalQueuedCount })}
+                </span>
+                <IconChevronRight aria-hidden className="size-3" />
+              </button>
             )}
-            <span role="status" aria-live="polite" className="truncate">
-              {phaseLabel}
-            </span>
-          </span>
-          {isRemoveModeActive ? (
-            <button
-              type="button"
-              onClick={() => setRemovalQueueOpen(true)}
-              className={cn(MOBILE_SCAN_CHIP_CLASS, "shrink-0")}
-            >
-              <IconTrash aria-hidden className="size-4 shrink-0 text-destructive" />
-              {t("scanRemoval.queuedCount", { count: removalQueuedCount })}
-              <IconChevronRight className="size-4 shrink-0" />
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={() => setSessionOpen(true)}
-              className={cn(MOBILE_SCAN_CHIP_CLASS, "shrink-0")}
-            >
-              <IconCards className="size-4 shrink-0" />
-              {t("mobileScan.session.chip", { count: sessionScanCount })}
-              <IconChevronRight className="size-4 shrink-0" />
-            </button>
-          )}
+          </div>
           <button
             type="button"
             aria-label={t("mobileScan.options")}
             onClick={() => setOptionsOpen(true)}
             className={cn(
               MOBILE_SCAN_CHIP_CLASS,
-              "ml-auto size-9 shrink-0 justify-center px-0",
+              "size-9 shrink-0 justify-center px-0",
             )}
           >
             <IconDots className="size-5" />
@@ -222,7 +254,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
         <div
           role="status"
           aria-live="polite"
-          className="flex justify-center px-4 pt-3"
+          className="flex justify-center"
         >
           {chrome.handScanActive && chrome.lastRoutedBin && (
             <div
@@ -240,33 +272,69 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
             </div>
           )}
         </div>
+        </div>
 
-        <div className="flex flex-col gap-3 md:gap-2 px-4 pb-[calc(var(--mobile-nav-space,0px)+1rem)]">
+        <div
+          className={cn(
+            "flex flex-col gap-3 px-4 pt-6 pb-[calc(var(--mobile-nav-space,0px)+1rem)]",
+            MOBILE_SCAN_BOTTOM_SCRIM_CLASS,
+          )}
+        >
           <div role="status" aria-live="polite">
             {notice}
           </div>
-          <div className="flex items-center justify-end gap-1.5">
-            {chrome.isConnected && !chrome.isEmergencyStopped && (
+          {chrome.isConnected && !chrome.isEmergencyStopped && (
+            <div className="flex">
               <Button
                 variant="destructive"
-                className="mr-auto"
+                className="pointer-events-auto"
                 onClick={chrome.onEmergencyStop}
               >
                 <IconHandStop />
                 {t("emergencyStop.stop")}
               </Button>
-            )}
-            <button
-              type="button"
-              aria-label={t("mobileScan.controls.open")}
-              onClick={() => setControlsOpen(true)}
-              className={cn(
-                MOBILE_SCAN_CHIP_CLASS,
-                "size-11 justify-center px-0",
-              )}
+            </div>
+          )}
+          <div className="flex justify-center">
+            <span
+              role="status"
+              aria-live="polite"
+              className={cn(MOBILE_SCAN_TEXT_ROW_CLASS, "pointer-events-none text-xs font-medium")}
             >
-              <IconAdjustments className="size-5" />
-            </button>
+              {phaseDotClassName && (
+                <span
+                  aria-hidden
+                  className={cn("size-2 shrink-0 rounded-full", phaseDotClassName)}
+                />
+              )}
+              <span className="truncate">{statusText}</span>
+            </span>
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="flex flex-1 items-center justify-start">
+              {sessionScanCount > 0 && (
+                <button
+                  type="button"
+                  aria-label={t("mobileScan.session.chip", { count: sessionScanCount })}
+                  onClick={() => setSessionOpen(true)}
+                  className={MOBILE_SCAN_SESSION_THUMBNAIL_CLASS}
+                >
+                  {lastScannedCardImage && (
+                    <CardImage
+                      src={lastScannedCardImage}
+                      alt=""
+                      className="absolute inset-0"
+                    />
+                  )}
+                  <span
+                    aria-hidden
+                    className="absolute inset-x-0 bottom-0 bg-black/60 text-center text-2xs font-semibold text-white"
+                  >
+                    <CompactCount value={sessionScanCount} />
+                  </span>
+                </button>
+              )}
+            </div>
             <button
               type="button"
               disabled={
@@ -288,7 +356,7 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
                   : chrome.onScanOnce
               }
               className={cn(
-                "pointer-events-auto flex size-12 items-center justify-center rounded-full text-white transition-transform active:scale-95 disabled:opacity-50 motion-reduce:active:scale-100 [&_svg]:size-5",
+                "pointer-events-auto flex size-12 shrink-0 items-center justify-center rounded-full text-white transition-transform active:scale-95 disabled:opacity-50 motion-reduce:active:scale-100 [&_svg]:size-5",
                 running ? "bg-destructive" : "bg-primary",
               )}
             >
@@ -302,6 +370,19 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
                 <IconCamera />
               )}
             </button>
+            <div className="flex flex-1 items-center justify-end">
+              <button
+                type="button"
+                aria-label={t("mobileScan.controls.open")}
+                onClick={() => setControlsOpen(true)}
+                className={cn(
+                  MOBILE_SCAN_CHIP_CLASS,
+                  "size-10 justify-center px-0",
+                )}
+              >
+                <IconAdjustments className="size-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>

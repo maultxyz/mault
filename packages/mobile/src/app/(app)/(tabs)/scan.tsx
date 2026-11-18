@@ -43,7 +43,8 @@ import { ScanDestinationSheet } from "@/features/scanner/components/scan-destina
 import { useScanResultAnnouncements } from "@/features/scanner/api/use-scan-result-announcements";
 import { useScanLiveActivity } from "@/features/scanner/api/use-scan-live-activity";
 import { useScanStatusAnnouncements } from "@/features/scanner/api/use-scan-status-announcements";
-import { CameraChip } from "@/features/scanner/components/camera-chip";
+import { CameraTextRow } from "@/features/scanner/components/camera-text-row";
+import { ScanSessionThumbnail } from "@/features/scanner/components/scan-session-thumbnail";
 import { BinBadge } from "@/features/scanner/components/bin-badge";
 import { CameraEmptyStateFrame } from "@/features/scanner/components/camera-empty-state-frame";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
@@ -73,7 +74,8 @@ import {
   SCAN_SAVED_STATUS_MS,
 } from "@/lib/constants/scanner";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
-import { SHUTTER_SIZE } from "@/lib/constants/ui";
+import { CAMERA_BOTTOM_SCRIM_GRADIENT, CAMERA_TOP_SCRIM_GRADIENT, SHUTTER_SIZE } from "@/lib/constants/ui";
+import { cardArtSources } from "@/lib/card-art";
 import { SCANNER_QR_REPEAT_MS } from "@/lib/constants/phone-camera";
 import { useCameraMountReady } from "@/hooks/use-camera-mount-ready";
 import { useIsOnline } from "@/hooks/use-is-online";
@@ -269,6 +271,10 @@ export default function ScanScreen() {
     lastBinNumber: session.feed[0]?.binNumber ?? null,
   });
   const [sessionOpen, setSessionOpen] = useState(false);
+  const lastMatchedFeedEntry = session.feed.find((entry) => entry.card);
+  const sessionThumbnailArt = lastMatchedFeedEntry?.card
+    ? cardArtSources(lastMatchedFeedEntry.card.image)
+    : { imageUrl: session.feed[0]?.capturedImageUrl ?? null, placeholderUrl: null };
   const [controlsOpen, setControlsOpen] = useState(false);
   const [removalQueueOpen, setRemovalQueueOpen] = useState(false);
   const [removalBinPickerOpen, setRemovalBinPickerOpen] = useState(false);
@@ -448,15 +454,46 @@ export default function ScanScreen() {
 
       <View
         pointerEvents="box-none"
-        style={{ paddingTop: SPACING.md, paddingHorizontal: SCREEN_GUTTER, gap: SPACING.md }}
+        style={{
+          paddingTop: SPACING.md,
+          paddingBottom: SPACING.xl,
+          paddingHorizontal: SCREEN_GUTTER,
+          gap: SPACING.md,
+          experimental_backgroundImage: CAMERA_TOP_SCRIM_GRADIENT,
+        }}
       >
-        <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", gap: SPACING.sm }}>
-          <View style={{ flex: 1, minWidth: 0, flexDirection: "row" }}>
-            <CameraChip
-              icon="collections"
-              label={collection ? t("scan.scanningInto", { name: collection.name }) : t("scan.chooseCollection")}
+        <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "flex-start", gap: SPACING.sm }}>
+          <View pointerEvents="box-none" style={{ flex: 1, minWidth: 0, gap: SPACING.xs }}>
+            <CameraTextRow
+              emphasis="title"
+              label={collection ? collection.name : t("scan.chooseCollection")}
+              accessibilityLabel={
+                collection ? t("scan.scanningInto", { name: collection.name }) : t("scan.chooseCollection")
+              }
               onPress={session.isRunning ? undefined : () => setCollectionPickerOpen(true)}
             />
+            {collection && !session.removal.isEnabled ? (
+              <CameraTextRow
+                icon={scanDestination.sortsCards ? "rules" : "storage"}
+                label={destinationLabel}
+                onPress={session.isRunning || sorter.isReady ? undefined : () => setDestinationPickerOpen(true)}
+              />
+            ) : null}
+            {showRemovalChip && collection ? (
+              <CameraTextRow
+                icon="trash"
+                dotColor={session.removal.isActive ? colors.destructive : undefined}
+                label={t("scan.removal.chip", { collection: collection.name, count: session.removal.entries.length })}
+                onPress={() => setRemovalQueueOpen(true)}
+              />
+            ) : null}
+            {session.removal.isEnabled && sorter.isConnected && removalBinLabel ? (
+              <CameraTextRow
+                icon="sorter"
+                label={t("scan.removal.binChip", { bin: removalBinLabel })}
+                onPress={() => setRemovalBinPickerOpen(true)}
+              />
+            ) : null}
           </View>
           <TorchToggle torch={torch} />
           <IconButton
@@ -474,47 +511,7 @@ export default function ScanScreen() {
             onPress={() => setOptionsOpen(true)}
           />
         </View>
-        {collection && !session.removal.isEnabled ? (
-          <View pointerEvents="box-none" style={{ flexDirection: "row" }}>
-            <CameraChip
-              icon={scanDestination.sortsCards ? "rules" : "storage"}
-              label={destinationLabel}
-              onPress={session.isRunning || sorter.isReady ? undefined : () => setDestinationPickerOpen(true)}
-            />
-          </View>
-        ) : null}
         <TorchBrightness torch={torch} />
-        <View pointerEvents="box-none" style={{ flexDirection: "row", gap: SPACING.sm }}>
-          <View accessibilityLiveRegion="polite" style={{ flexShrink: 1, minWidth: 0 }}>
-            <CameraChip dotColor={phaseColor} label={statusText} />
-          </View>
-          {session.sessionCount > 0 ? (
-            <CameraChip
-              icon="check"
-              label={t("scan.sessionChip", { count: session.sessionCount })}
-              onPress={() => setSessionOpen(true)}
-            />
-          ) : null}
-        </View>
-        {showRemovalChip && collection ? (
-          <View pointerEvents="box-none" style={{ flexDirection: "row" }}>
-            <CameraChip
-              icon="trash"
-              dotColor={session.removal.isActive ? colors.destructive : undefined}
-              label={t("scan.removal.chip", { collection: collection.name, count: session.removal.entries.length })}
-              onPress={() => setRemovalQueueOpen(true)}
-            />
-          </View>
-        ) : null}
-        {session.removal.isEnabled && sorter.isConnected && removalBinLabel ? (
-          <View pointerEvents="box-none" style={{ flexDirection: "row" }}>
-            <CameraChip
-              icon="sorter"
-              label={t("scan.removal.binChip", { bin: removalBinLabel })}
-              onPress={() => setRemovalBinPickerOpen(true)}
-            />
-          </View>
-        ) : null}
         {lastBin != null && !session.removal.isActive ? (
           <View pointerEvents="none" style={{ alignItems: "center" }}>
             <BinBadge key={session.feed[0]?.scanId} binNumber={lastBin} />
@@ -528,32 +525,37 @@ export default function ScanScreen() {
       >
         <View
           pointerEvents="box-none"
-          style={{ paddingHorizontal: SCREEN_GUTTER, paddingBottom: SPACING.lg, gap: SPACING.md }}
+          style={{
+            paddingHorizontal: SCREEN_GUTTER,
+            paddingTop: SPACING.xl,
+            paddingBottom: SPACING.lg,
+            gap: SPACING.md,
+            experimental_backgroundImage: CAMERA_BOTTOM_SCRIM_GRADIENT,
+          }}
         >
           {notice}
+          {sorter.isConnected && !emergencyStopped ? (
+            <View pointerEvents="box-none" style={{ flexDirection: "row" }}>
+              <Button
+                variant="destructive"
+                icon="handStop"
+                label={t("scan.emergencyStop")}
+                accessibilityHint={t("scan.emergencyStopHint")}
+                onPress={stopSorter}
+              />
+            </View>
+          ) : null}
+          <View accessibilityLiveRegion="polite" style={{ alignItems: "center" }}>
+            <CameraTextRow dotColor={phaseColor} label={statusText} />
+          </View>
           <View pointerEvents="box-none" style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
             <View pointerEvents="box-none" style={{ flex: 1, alignItems: "flex-start" }}>
-              {sorter.isConnected && !emergencyStopped ? (
-                <Button
-                  variant="destructive"
-                  icon="handStop"
-                  label={t("scan.emergencyStop")}
-                  accessibilityHint={t("scan.emergencyStopHint")}
-                  onPress={stopSorter}
-                />
-              ) : null}
-              {collection && !sorter.isConnected && !session.isRunning ? (
-                <IconButton
-                  icon="multiCard"
-                  variant="camera"
-                  size={SHUTTER_SIZE - SPACING.sm}
-                  accessibilityLabel={t("batchScan.open")}
-                  onPress={() =>
-                    router.push({
-                      pathname: "/batch-scan",
-                      params: { mode: session.removal.isEnabled ? "remove" : "add" },
-                    })
-                  }
+              {session.sessionCount > 0 ? (
+                <ScanSessionThumbnail
+                  {...sessionThumbnailArt}
+                  count={session.sessionCount}
+                  accessibilityLabel={t("scan.sessionChip", { count: session.sessionCount })}
+                  onPress={() => setSessionOpen(true)}
                 />
               ) : null}
             </View>
@@ -586,6 +588,20 @@ export default function ScanScreen() {
                   size={SHUTTER_SIZE - SPACING.sm}
                   accessibilityLabel={t("scan.controls.open")}
                   onPress={() => setControlsOpen(true)}
+                />
+              ) : null}
+              {collection && !sorter.isConnected && !session.isRunning ? (
+                <IconButton
+                  icon="multiCard"
+                  variant="camera"
+                  size={SHUTTER_SIZE - SPACING.sm}
+                  accessibilityLabel={t("batchScan.open")}
+                  onPress={() =>
+                    router.push({
+                      pathname: "/batch-scan",
+                      params: { mode: session.removal.isEnabled ? "remove" : "add" },
+                    })
+                  }
                 />
               ) : null}
             </View>

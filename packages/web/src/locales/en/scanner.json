@@ -865,6 +865,7 @@
   },
   "mobileScan": {
     "chooseCollection": "Choose a collection",
+    "scanningInto": "Scanning into {{name}}",
     "collection": "Collection",
     "options": "Scan options",
     "autoFeed": "Auto-feed",
@@ -883,6 +884,12 @@
     "sorter": "Sorter",
     "pairDesktop": "Use as a desktop camera",
     "pairDesktopDescription": "Scan the QR code shown on your computer",
+    "statusModes": {
+      "sorter": "Sorter",
+      "handScan": "Hand scan",
+      "scanOnce": "Scan one",
+      "removing": "Removing"
+    },
     "phase": {
       "ready": "Ready",
       "scanning": "Scanning",

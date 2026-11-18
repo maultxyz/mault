@@ -217,6 +217,14 @@ export const SCAN_REGION_MASK_STROKE = "rgb(255 255 255 / 0.9)";
 
 export const MOBILE_SCAN_CHIP_CLASS =
   "pointer-events-auto inline-flex h-9 min-w-0 items-center gap-1.5 rounded-lg bg-black/55 px-3 text-sm font-medium text-white backdrop-blur-md active:bg-black/70";
+export const MOBILE_SCAN_TEXT_ROW_CLASS =
+  "pointer-events-auto flex min-w-0 max-w-full items-center gap-1.5 text-left text-white [text-shadow:0_1px_3px_rgb(0_0_0/0.75)] active:opacity-70 disabled:active:opacity-100 [&_svg]:shrink-0 [&_svg]:drop-shadow";
+export const MOBILE_SCAN_TOP_SCRIM_CLASS =
+  "bg-linear-to-b from-black/60 via-black/60 via-65% to-transparent";
+export const MOBILE_SCAN_BOTTOM_SCRIM_CLASS =
+  "bg-linear-to-t from-black/60 via-black/60 via-65% to-transparent";
+export const MOBILE_SCAN_SESSION_THUMBNAIL_CLASS =
+  "pointer-events-auto relative block aspect-[5/7] w-9 shrink-0 overflow-hidden rounded-sm border-2 border-white bg-black/55 transition-transform active:scale-95 motion-reduce:active:scale-100";
 export const MOBILE_SCAN_PANEL_CLASS =
   "pointer-events-auto rounded-xl bg-black/60 p-3 text-white backdrop-blur-md";
 
