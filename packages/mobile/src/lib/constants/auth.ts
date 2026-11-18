@@ -3,6 +3,7 @@ export const SESSION_RESTORE_RETRY_MIN_MS = 2_000;
 export const SESSION_RESTORE_RETRY_MAX_MS = 30_000;
 export const WEB_SIGN_UP_PATH = "/auth/sign-up";
 export const NEON_AUTH_SESSION_CHALLENGE_COOKIE_PATTERN = /__Secure-neon-auth\.session_chall[ae]nge=[^;,\s]+/g;
+export const NEON_AUTH_SESSION_TOKEN_COOKIE_NAME = "__Secure-neon-auth.session_token";
 export const NEON_AUTH_SESSION_TOKEN_COOKIE_PATTERN = /__Secure-neon-auth\.session_token=([^;,\s]+)/;
 export const SOCIAL_SIGN_IN_CANCELLED_ERROR = "cancelled";
 export const SIGN_IN_BRAND_ICON_SIZE = 48;

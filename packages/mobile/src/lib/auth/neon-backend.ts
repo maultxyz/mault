@@ -11,17 +11,24 @@ import * as Linking from "expo-linking";
 import * as WebBrowser from "expo-web-browser";
 import {
   NEON_AUTH_SESSION_CHALLENGE_COOKIE_PATTERN,
+  NEON_AUTH_SESSION_TOKEN_COOKIE_NAME,
   NEON_AUTH_SESSION_TOKEN_COOKIE_PATTERN,
   SOCIAL_SIGN_IN_CANCELLED_ERROR,
 } from "@/lib/constants/auth";
 import { NEON_AUTH_URL, WEB_URL } from "@/lib/constants/config";
 import type { AuthBackend, AuthBackendSignInResult } from "@/lib/interfaces/auth";
 
+function sessionTokenCookieValue(sessionToken: string): string {
+  return sessionToken.includes("%") ? sessionToken : encodeURIComponent(sessionToken);
+}
+
 function neonHeaders(sessionToken?: string): Record<string, string> {
   return {
     "Content-Type": "application/json",
     Origin: WEB_URL,
-    ...(sessionToken ? { Authorization: `Bearer ${sessionToken}` } : {}),
+    ...(sessionToken
+      ? { Cookie: `${NEON_AUTH_SESSION_TOKEN_COOKIE_NAME}=${sessionTokenCookieValue(sessionToken)}` }
+      : {}),
   };
 }
 
@@ -37,8 +44,8 @@ async function readError(res: Response, fallback: string): Promise<string> {
 async function sessionFrom(res: Response, fallback: string): Promise<AuthBackendSignInResult> {
   if (!res.ok) return { error: await readError(res, fallback) };
   const headerToken =
-    res.headers.get("set-auth-token") ??
     res.headers.get("set-cookie")?.match(NEON_AUTH_SESSION_TOKEN_COOKIE_PATTERN)?.[1] ??
+    res.headers.get("set-auth-token") ??
     null;
   const body = (await res.json().catch(() => null)) as {
     token?: string | null;
@@ -127,22 +134,8 @@ async function sessionTokenCandidatesFrom(res: Response): Promise<string[]> {
     token?: string | null;
     session?: { token?: string | null } | null;
   } | null;
-  const candidates = [
-    res.headers.get("set-auth-token"),
-    cookieToken,
-    cookieToken ? percentDecoded(cookieToken) : null,
-    body?.token,
-    body?.session?.token,
-  ];
+  const candidates = [cookieToken, res.headers.get("set-auth-token"), body?.token, body?.session?.token];
   return [...new Set(candidates.filter((candidate): candidate is string => Boolean(candidate)))];
-}
-
-function percentDecoded(value: string): string | null {
-  try {
-    return decodeURIComponent(value);
-  } catch {
-    return null;
-  }
 }
 
 async function accessTokenFor(sessionToken: string): Promise<string | null> {
