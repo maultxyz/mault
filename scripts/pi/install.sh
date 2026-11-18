@@ -86,7 +86,7 @@ fetch_release() {
   rm -rf "$target"
   ln -s "$MAULT_DATA/.env" "$work/release/.env"
   ln -s "$MAULT_DATA/.pi-controller" "$work/release/.pi-controller"
-  chmod -R go-w "$work/release"
+  chmod -R go-w,a+rX "$work/release"
   mv "$work/release" "$target"
   echo "$target"
 }

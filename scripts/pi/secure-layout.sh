@@ -26,7 +26,7 @@ if [[ "$(id -u)" -ne 0 ]]; then
 fi
 
 chown -R root:root "$MAULT_HOME"
-chmod -R go-w "$MAULT_HOME"
+chmod -R go-w,a+rX "$MAULT_HOME"
 
 install -d -o root -g "$MAULT_USER" -m 2750 "$MAULT_SYSTEM_STATE"
 install -d -o root -g "$MAULT_USER" -m 1730 "$MAULT_SYSTEM_STATE/requests"
