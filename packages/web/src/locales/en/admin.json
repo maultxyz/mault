@@ -50,7 +50,7 @@
     },
     "leds": {
       "heading": "LED strips",
-      "description": "Two 8-LED strips on GPIO 14. Pick an LED to switch it on or off and set its color and brightness, or switch a whole strip at once.",
+      "description": "Two 8-LED RGBW strips on GPIO 14. Pick an LED to switch it on or off and set its red, green, blue and white levels and brightness, or switch a whole strip at once.",
       "reload": "Reload from board",
       "needsFirmware": "LED strips need firmware {{version}} or newer. Flash the board to use them.",
       "strip": "Strip {{strip}}",
@@ -59,8 +59,12 @@
       "on": "On",
       "off": "Off",
       "selected": "Strip {{strip}}, LED {{led}}",
-      "hue": "Color",
-      "hueValue": "{{hue}}°",
+      "channels": {
+        "red": "Red",
+        "green": "Green",
+        "blue": "Blue",
+        "white": "White"
+      },
       "brightness": "Brightness",
       "brightnessValue": "{{percent}}%",
       "applyToStrip": "Apply to strip {{strip}}"

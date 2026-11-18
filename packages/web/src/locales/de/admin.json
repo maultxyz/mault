@@ -50,7 +50,7 @@
     },
     "leds": {
       "heading": "LED-Streifen",
-      "description": "Zwei Streifen mit je 8 LEDs an GPIO 14. Wähle eine LED, um sie ein- oder auszuschalten und Farbe und Helligkeit einzustellen, oder schalte einen ganzen Streifen auf einmal.",
+      "description": "Zwei RGBW-Streifen mit je 8 LEDs an GPIO 14. Wähle eine LED, um sie ein- oder auszuschalten und Rot, Grün, Blau, Weiß und Helligkeit einzustellen, oder schalte einen ganzen Streifen auf einmal.",
       "reload": "Vom Board neu laden",
       "needsFirmware": "LED-Streifen brauchen Firmware {{version}} oder neuer. Flashe das Board, um sie zu nutzen.",
       "strip": "Streifen {{strip}}",
@@ -59,8 +59,12 @@
       "on": "An",
       "off": "Aus",
       "selected": "Streifen {{strip}}, LED {{led}}",
-      "hue": "Farbe",
-      "hueValue": "{{hue}}°",
+      "channels": {
+        "red": "Rot",
+        "green": "Grün",
+        "blue": "Blau",
+        "white": "Weiß"
+      },
       "brightness": "Helligkeit",
       "brightnessValue": "{{percent}} %",
       "applyToStrip": "Auf Streifen {{strip}} anwenden"

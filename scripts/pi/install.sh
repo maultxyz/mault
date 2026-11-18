@@ -115,7 +115,7 @@ fi
 
 echo "[install] Installing system packages"
 packages=(curl ca-certificates libatomic1 python3 python3-smbus v4l-utils ffmpeg postgresql nginx
-  bluez python3-bleak dbus-user-session avahi-daemon)
+  bluez python3-bleak dbus-user-session avahi-daemon unattended-upgrades)
 if [[ "$is_raspberry_pi" -eq 1 ]]; then
   packages+=(python3-lgpio)
 fi
@@ -143,6 +143,7 @@ mv -T "$MAULT_HOME/current.new" "$MAULT_HOME/current"
 chown -h "$MAULT_USER:$MAULT_USER" "$MAULT_HOME/current"
 chmod 755 "$MAULT_HOME/current/scripts/pi/mault.sh"
 ln -sfn "$MAULT_HOME/current/scripts/pi/mault.sh" /usr/local/bin/mault
+bash "$MAULT_HOME/current/scripts/pi/os-updates.sh"
 
 echo "[install] Configuring the web server"
 install -m 644 "$MAULT_HOME/current/scripts/pi/nginx-mault.conf" /etc/nginx/sites-available/mault
@@ -160,9 +161,12 @@ if [[ "$is_raspberry_pi" -eq 1 ]]; then
 fi
 
 install -m 644 "$MAULT_HOME/current/scripts/pi/mault-setup.service" /etc/systemd/system/mault-setup.service
+install -m 644 "$MAULT_HOME/current/scripts/pi/mault-boot-config.service" /etc/systemd/system/mault-boot-config.service
+systemctl enable mault-boot-config.service
 
 if [[ "$MODE" == image ]]; then
   systemctl enable mault-setup.service
+  install -m 644 "$MAULT_HOME/current/scripts/pi/mault-config.txt" /boot/firmware/mault-config.txt
   echo "[install] Image prepared. Mault finishes setting up on first boot."
   exit 0
 fi

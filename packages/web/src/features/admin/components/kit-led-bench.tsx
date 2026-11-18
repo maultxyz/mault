@@ -6,18 +6,16 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useKitLeds } from "@/features/admin/api/use-kit-leds";
 import { KitLedStripRow } from "@/features/admin/components/kit-led-strip-row";
-import {
-  KIT_LED_DEFAULT_SELECTION,
-  KIT_LED_HUE_GRADIENT,
-} from "@/lib/constants/kit-test";
+import { KitLedSwatch } from "@/features/admin/components/kit-led-swatch";
+import { KIT_LED_DEFAULT_SELECTION } from "@/lib/constants/kit-test";
 import type {
   KitLedBenchProps,
   KitLedSelection,
 } from "@/lib/interfaces/kit-test";
 import {
   FIRMWARE_FEATURE_MIN_VERSIONS,
-  LED_BRIGHTNESS_MAX,
-  LED_HUE_MAX,
+  LED_CHANNELS,
+  LED_LEVEL_MAX,
 } from "@magic-vault/shared";
 import { IconRefresh } from "@tabler/icons-react";
 import { useId, useState } from "react";
@@ -76,7 +74,8 @@ export function KitLedBench({ disabled }: KitLedBenchProps) {
 
       <div className="flex flex-col gap-3 rounded-lg bg-foreground/6 p-2">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-sm font-medium">
+          <h3 className="flex items-center gap-1.5 text-sm font-medium">
+            <KitLedSwatch led={selected} />
             {t("kitTest.leds.selected", {
               strip: selection.strip,
               led: selection.led,
@@ -95,32 +94,35 @@ export function KitLedBench({ disabled }: KitLedBenchProps) {
           </div>
         </div>
 
-        <SliderField
-          label={t("kitTest.leds.hue")}
-          valueLabel={t("kitTest.leds.hueValue", { hue: selected.hue })}
-          min={0}
-          max={LED_HUE_MAX}
-          value={selected.hue}
-          disabled={locked}
-          onValueChange={(hue) => previewLeds({ ...selection, hue })}
-          onValueCommitted={(hue) => void updateLeds({ ...selection, hue })}
-        >
-          <div
-            aria-hidden
-            className="h-1.5 rounded-full"
-            style={{ background: KIT_LED_HUE_GRADIENT }}
-          />
-        </SliderField>
+        <div className="grid gap-3 md:grid-cols-2 md:gap-2">
+          {LED_CHANNELS.map((channel) => (
+            <SliderField
+              key={channel}
+              label={t(`kitTest.leds.channels.${channel}`)}
+              valueLabel={selected[channel]}
+              min={0}
+              max={LED_LEVEL_MAX}
+              value={selected[channel]}
+              disabled={locked}
+              onValueChange={(level) =>
+                previewLeds({ ...selection, [channel]: level })
+              }
+              onValueCommitted={(level) =>
+                void updateLeds({ ...selection, [channel]: level })
+              }
+            />
+          ))}
+        </div>
 
         <SliderField
           label={t("kitTest.leds.brightness")}
           valueLabel={t("kitTest.leds.brightnessValue", {
             percent: Math.round(
-              (selected.brightness / LED_BRIGHTNESS_MAX) * 100,
+              (selected.brightness / LED_LEVEL_MAX) * 100,
             ),
           })}
           min={0}
-          max={LED_BRIGHTNESS_MAX}
+          max={LED_LEVEL_MAX}
           value={selected.brightness}
           disabled={locked}
           onValueChange={(brightness) =>
@@ -136,12 +138,7 @@ export function KitLedBench({ disabled }: KitLedBenchProps) {
             variant="outline"
             disabled={locked}
             onClick={() =>
-              void updateLeds({
-                strip: selection.strip,
-                on: selected.on,
-                hue: selected.hue,
-                brightness: selected.brightness,
-              })
+              void updateLeds({ ...selected, strip: selection.strip })
             }
           >
             {t("kitTest.leds.applyToStrip", { strip: selection.strip })}

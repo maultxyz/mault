@@ -179,9 +179,10 @@ jobs:
           cp dist-pi/mault-pi-arm64.tar.gz scripts/pi/image/stage-mault/00-mault/files/
           chmod +x scripts/pi/image/stage-mault/prerun.sh scripts/pi/image/stage-mault/00-mault/00-run.sh
 
-      # Nobody can sign in to the image's default account: Raspberry Pi
-      # Imager's OS customisation sets the real user, Wi-Fi and SSH. Mault
-      # itself needs no login on the board.
+      # Nobody can sign in to the image's default account. Owners set their
+      # own login, SSH and Wi-Fi in mault-config.txt on the boot partition
+      # (scripts/pi/boot-config.py), since Imager offers no OS customisation
+      # for custom images. Mault itself needs no login on the board.
       - name: Generate a locked default password
         id: password
         run: |

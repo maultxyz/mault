@@ -16,6 +16,7 @@ Usage: sudo mault <command>
   status                 Show whether Mault is running
   start | stop | restart Control the Mault services
   update [--bundle FILE] Install the latest release (or a downloaded bundle)
+  os-updates             Turn on automatic OS security updates
   logs [api|camera|controller|update|setup]
                          Show recent log output
   sorter usb|builtin [raspberry-pi|orange-pi-zero4]
@@ -91,6 +92,12 @@ case "$command" in
   update)
     require_root "$command"
     as_service_user bash "$SCRIPTS/update.sh" "$@"
+    bash "$SCRIPTS/os-updates.sh" ||
+      echo "Could not turn on automatic OS updates. Try again with: sudo mault os-updates" >&2
+    ;;
+  os-updates)
+    require_root "$command"
+    bash "$SCRIPTS/os-updates.sh"
     ;;
   logs)
     require_root "$command"

@@ -21,16 +21,14 @@ export interface FirmwareRelease {
   publishedAt: string;
 }
 
-export interface FirmwareLedState {
+export type FirmwareLedChannel = "red" | "green" | "blue" | "white";
+
+export interface FirmwareLedState extends Record<FirmwareLedChannel, number> {
   on: boolean;
-  hue: number;
   brightness: number;
 }
 
-export interface FirmwareLedUpdate {
+export interface FirmwareLedUpdate extends Partial<FirmwareLedState> {
   strip: number;
   led?: number;
-  on?: boolean;
-  hue?: number;
-  brightness?: number;
 }

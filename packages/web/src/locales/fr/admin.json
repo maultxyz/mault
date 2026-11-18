@@ -50,7 +50,7 @@
     },
     "leds": {
       "heading": "Bandes LED",
-      "description": "Deux bandes de 8 LED sur le GPIO 14. Choisissez une LED pour l'allumer ou l'éteindre et régler sa couleur et sa luminosité, ou basculez une bande entière d'un coup.",
+      "description": "Deux bandes RGBW de 8 LED sur le GPIO 14. Choisissez une LED pour l'allumer ou l'éteindre et régler son rouge, son vert, son bleu, son blanc et sa luminosité, ou basculez une bande entière d'un coup.",
       "reload": "Recharger depuis la carte",
       "needsFirmware": "Les bandes LED nécessitent le firmware {{version}} ou plus récent. Flashez la carte pour les utiliser.",
       "strip": "Bande {{strip}}",
@@ -59,8 +59,12 @@
       "on": "Allumée",
       "off": "Éteinte",
       "selected": "Bande {{strip}}, LED {{led}}",
-      "hue": "Couleur",
-      "hueValue": "{{hue}}°",
+      "channels": {
+        "red": "Rouge",
+        "green": "Vert",
+        "blue": "Bleu",
+        "white": "Blanc"
+      },
       "brightness": "Luminosité",
       "brightnessValue": "{{percent}} %",
       "applyToStrip": "Appliquer à la bande {{strip}}"

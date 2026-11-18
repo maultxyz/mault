@@ -486,26 +486,30 @@ stops it on its own. → `{"status":"ok","channel":7}`, or
 
 ### `setLed` (LED strips, firmware 2.14.0+)
 ```json
-{"setLed": {"strip": 1, "led": 3, "on": true, "hue": 200, "brightness": 128}}
+{"setLed": {"strip": 1, "led": 3, "on": true, "red": 255, "green": 0, "blue": 0, "white": 0, "brightness": 128}}
 ```
-Two 8-LED NeoPixel strips chained on GPIO 14 (strip 1 is the first 8 pixels).
+Two 8-LED RGBW NeoPixel (SK6812) strips chained on GPIO 14 (strip 1 is the
+first 8 pixels).
 - `strip`: 1 or 2 (required)
 - `led`: 1 to 8; omit it to change every LED on the strip
-- `on`, `hue` (0 to 359 degrees, full saturation), `brightness` (0 to 255):
-  each optional, only the given ones change
+- `on`, `red`, `green`, `blue`, `white` and `brightness` (each 0 to 255):
+  each optional, only the given ones change. Brightness scales all four
+  channels of that LED.
 
-Every LED starts off at boot (hue 0, brightness 128) and nothing is stored.
+Every LED starts off at boot (white 255, the rest 0, brightness 128) and
+nothing is stored.
 Not a motion command, so it still runs after an emergency stop.
 → `{"status":"ok"}`, or `{"error":"strip must be 1 to 2"}`,
-`{"error":"led must be 1 to 8"}`, `{"error":"hue must be 0 to 359"}`,
+`{"error":"led must be 1 to 8"}`, `{"error":"red must be 0 to 255"}` (or
+`green`/`blue`/`white`),
 `{"error":"brightness must be 0 to 255"}`
 
 ### `getLeds` (firmware 2.14.0+)
 ```json
 {"getLeds": true}
 ```
-→ `{"ledStrips":2,"ledsPerStrip":8,"leds":[[on,hue,brightness],...]}` with one
-`[0|1, hue, brightness]` entry per LED, strip 1 first. The Pi controller has
+→ `{"ledStrips":2,"ledsPerStrip":8,"leds":[[on,red,green,blue,white,brightness],...]}`
+with one entry per LED (`on` is 0 or 1), strip 1 first. The Pi controller has
 no LED strips and answers both with `unknown command`.
 
 ### `setConfig` (calibration values — does not move anything)

@@ -1,0 +1,22 @@
+# Mault board settings, read every time the board starts.
+#
+# Edit this file on any computer before putting the SD card in the board (it's
+# on the card's "bootfs" drive), save it, then start the board. Passwords are
+# erased from this file once they've been applied, and the Status line below
+# shows the result.
+#
+# Status: not applied yet
+
+# Login: creates this account (or changes its password) with administrator
+# (sudo) rights. Use lowercase letters, digits, - or _, starting with a letter.
+username=
+password=
+
+# SSH: yes turns on remote login, then connect with: ssh <username>@mault.local
+ssh=no
+
+# Wi-Fi (WPA): leave blank for Ethernet. wifi_country is the two-letter code of
+# the country the board is in, for example US, GB, DE or FR.
+wifi_name=
+wifi_password=
+wifi_country=US
