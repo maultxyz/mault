@@ -40,6 +40,7 @@ import { STORAGE_PATH } from "@/lib/constants/storage";
 import { TRADES_PATH } from "@/lib/constants/trade-offers";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { MACHINES_ROUTE_PATH } from "@/lib/constants/machines";
 import { ORDERS_PATH } from "@/lib/constants/business";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { cn } from "@/lib/utils";
@@ -48,6 +49,7 @@ import {
   IconAlbum,
   IconArrowsSplit2,
   IconChartBar,
+  IconDeviceDesktopAnalytics,
   IconBrandDiscord,
   IconBrandGithub,
   IconCameraSpark,
@@ -435,6 +437,11 @@ export function AppNav() {
       to: STATS_PATH,
       icon: <IconChartBar size={16} />,
       label: t("nav.stats"),
+    },
+    {
+      to: MACHINES_ROUTE_PATH,
+      icon: <IconDeviceDesktopAnalytics size={16} />,
+      label: t("nav.machines"),
     },
     {
       to: ORDERS_PATH,

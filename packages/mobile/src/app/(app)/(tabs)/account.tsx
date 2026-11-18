@@ -96,6 +96,7 @@ export default function AccountScreen() {
           <ListRow icon="sorter" title={t("account.sorterConnection")} onPress={() => router.push("/sorter")} />
           <ListRow icon="rules" title={t("rules.title")} onPress={() => router.push("/rules")} />
           <ListRow icon="stats" title={t("tabs.stats")} onPress={() => router.push("/stats")} />
+          <ListRow icon="monitor" title={t("machines.title")} onPress={() => router.push("/machines")} />
         </ListGroup>
       </View>
       {hasBusinessTools ? null : (

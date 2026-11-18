@@ -19,6 +19,7 @@ import {
 } from "../lib/monitor-links";
 import {
   DEPLOY_STATUS_EVENT,
+  MACHINES_INIT_EVENT,
   MEMBER_SEAT_LIMIT_ERROR_CODE,
   MEMBER_SEAT_LIMIT_HTTP_STATUS,
 } from "@magic-vault/shared";
@@ -27,6 +28,7 @@ import {
   subscribeDeployNotice,
 } from "../lib/deploy-notice";
 import { getLocksForGuids } from "../lib/scan-lock";
+import { listMachineStatuses } from "../lib/machine-status";
 import {
   getLiveCountsForGuids,
   getSessionViewers,
@@ -183,6 +185,7 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
         );
         orgGuids = guids.map((r) => r.guid!).filter(Boolean);
         write("lock_init", { locks: getLocksForGuids(orgGuids) });
+        write(MACHINES_INIT_EVENT, { machines: listMachineStatuses(orgId) });
         write("live_init", {
           counts: getLiveCountsForGuids(orgGuids),
           viewers: getSessionViewersForGuids(orgGuids),

@@ -257,6 +257,21 @@ export function getPiScanSession(orgId: string): PiScanSessionState {
   return publicState(sessions.get(orgId));
 }
 
+export function getPiScanMachineSource(orgId: string) {
+  const session = sessions.get(orgId);
+  if (!session) return null;
+  return {
+    state: publicState(session),
+    context: session.context,
+    cameraId: session.cameraId ?? null,
+    jwtClaims: session.jwtClaims,
+  };
+}
+
+export function listPiScanSessionOrgIds(): string[] {
+  return [...sessions.keys()];
+}
+
 function jpegDataUrl(buffer: Buffer): string {
   return `data:image/jpeg;base64,${buffer.toString("base64")}`;
 }

@@ -22,6 +22,7 @@ import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { ADMIN_PATH } from "@/lib/constants/admin";
 import { useRole } from "@/hooks/use-role";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { MACHINES_ROUTE_PATH } from "@/lib/constants/machines";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { INTAKE_PATH } from "@/lib/constants/business";
 import type { SupportedLanguage } from "@/lib/interfaces/languages";
@@ -33,6 +34,7 @@ import {
   IconDatabaseCog,
   IconCash,
   IconChartBar,
+  IconDeviceDesktopAnalytics,
   IconLanguage,
   IconLogout,
   IconSettings,
@@ -144,6 +146,11 @@ export default function MePage() {
               icon={<IconChartBar />}
               label={t("nav.stats")}
               to={STATS_PATH}
+            />
+            <MobileListRow
+              icon={<IconDeviceDesktopAnalytics />}
+              label={t("nav.machines")}
+              to={MACHINES_ROUTE_PATH}
             />
             {!hasBusinessTools && (
               <MobileListRow

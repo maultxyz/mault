@@ -16,6 +16,7 @@ import {
 import { PI_SCAN_SESSION_PATH, piScanRouter } from "./routes/pi-scan";
 import { Hono } from "hono";
 import {
+  MACHINES_PATH,
   PLAN_PREVIEW_HEADER,
   PUBLIC_API_KEY_HEADER,
   SHARE_LINK_GUEST_KEY_HEADER,
@@ -49,6 +50,8 @@ import { statsRouter } from "./routes/stats";
 import { leaderboardRouter } from "./routes/leaderboard";
 import { matchValidationsRouter } from "./routes/match-validations";
 import { devicesRouter } from "./routes/devices";
+import { machinesRouter } from "./routes/machines";
+import { startPiHostMachineStatusPublisher } from "./lib/pi-scan/machine-status";
 import { gamesRouter } from "./routes/games";
 import { impersonationRouter } from "./routes/impersonation";
 import { localAuthRouter } from "./routes/local-auth";
@@ -136,6 +139,7 @@ if (process.env.AUTH_PROVIDER !== "local") {
   app.route("/match-validations", matchValidationsRouter);
 }
 app.route("/devices", devicesRouter);
+app.route(MACHINES_PATH, machinesRouter);
 app.route("/games", gamesRouter);
 app.route("/announcements", announcementsRouter);
 app.route("/notifications", notificationsRouter);
@@ -181,6 +185,7 @@ startInventorySnapshots();
 startApiUsageFlushing();
 startCardMatchIndexWarmup();
 startShortLinkStartupSync();
+startPiHostMachineStatusPublisher();
 
 const server = serve(
   { fetch: app.fetch, port: API_PORT, hostname: getApiHost() },

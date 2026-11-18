@@ -3990,5 +3990,95 @@
         "finish": "Andere Veredelung"
       }
     }
+  },
+  "machines": {
+    "title": "Maschinen",
+    "chooseMachine": "Maschine wählen",
+    "machinePicker": "{{name}}, andere Maschine wählen",
+    "empty": {
+      "title": "Keine Maschinen online",
+      "description": "Eine Maschine erscheint hier, solange ihr Sortierer in Mault auf einem Computer verbunden ist oder ein Raspberry Pi scannt."
+    },
+    "runState": {
+      "running": "Sortiert",
+      "paused": "Pausiert",
+      "attention": "Braucht Aufmerksamkeit",
+      "stopped": "Gestoppt",
+      "idle": "Untätig"
+    },
+    "stale": "Seit einer Weile keine Aktualisierung",
+    "sessionCount_one": "{{count}} Karte in dieser Sitzung",
+    "sessionCount_other": "{{count}} Karten in dieser Sitzung",
+    "collection": "Scannen in {{name}}",
+    "noCollection": "Keine Sammlung gewählt",
+    "camera": {
+      "label": "Live-Kamera von {{name}}",
+      "unavailable": "Diese Maschine hat keine Kamera zum Anzeigen",
+      "idle": "Die Kamera wird angezeigt, während die Maschine sortiert",
+      "loading": "Verbindung zur Kamera wird hergestellt"
+    },
+    "controls": {
+      "start": "Starten",
+      "resume": "Fortsetzen",
+      "pause": "Pausieren",
+      "emergencyStop": "Not-Stopp",
+      "emergencyStopHint": "Stoppt alle Motoren dieser Maschine",
+      "failed": "Die Maschine hat nicht reagiert. Prüfe, ob sie noch online ist.",
+      "sent": "An {{name}} gesendet",
+      "remoteNote": "Fernsteuerung braucht eine Maschine, die online ist. Sorge dafür, dass du den Strom an der Maschine abschalten kannst."
+    },
+    "preset": {
+      "label": "Sortierregeln",
+      "none": "Keine Vorlage",
+      "pass": "Durchgang {{position}} von {{count}}"
+    },
+    "bins": {
+      "title": "Fächer",
+      "estimated": "Geschätzt aus den Scans seit dem letzten Leeren jedes Fachs",
+      "bin": "Fach {{number}}",
+      "catchAll": "Fach {{number}} (Sammelfach)",
+      "fill": "{{count}}/{{capacity}}",
+      "fillUnknown": "{{count}}",
+      "a11y": "{{name}}: {{count}} von {{capacity}} Karten",
+      "a11yUnknown": "{{name}}: {{count}} Karten",
+      "unavailable": "Füllstände erscheinen, sobald die Maschine eine Vorlage hat"
+    },
+    "recent": {
+      "title": "Letzte Scans",
+      "empty": "Karten erscheinen hier, sobald sie gescannt werden",
+      "unmatched": "Nicht erkannt",
+      "bin": "Fach {{number}}",
+      "lowConfidence": "Treffer prüfen",
+      "open": "{{name}} öffnen",
+      "lastCard": "Letzte Karte: {{name}}"
+    },
+    "pages": {
+      "label": "Maschine {{position}} von {{count}}",
+      "goTo": "{{name}} anzeigen"
+    },
+    "source": {
+      "piHost": "Raspberry Pi",
+      "station": "Computer"
+    },
+    "attention": {
+      "jam": "Stau an Modul {{module}}",
+      "hopperEmpty": "Der Kartenschacht ist leer",
+      "feederError": "Fehler im Einzug",
+      "noCardDetected": "Keine Karte ist beim Scanner angekommen",
+      "cardStuckInModuleOne": "Eine Karte steckt in Modul 1 fest",
+      "sorterNotResponding": "Der Sortierer antwortet nicht",
+      "routingFailed": "Eine Karte konnte nicht einsortiert werden",
+      "binLimit": "Fach {{bins}} ist voll",
+      "binLimitUnknown": "Ein Fach ist voll",
+      "binsFull_one": "Fach {{bins}} ist voll",
+      "binsFull_other": "Fächer {{bins}} sind voll",
+      "packsComplete": "Alle Packs sind fertig",
+      "saveFailed": "Ein Scan konnte nicht gespeichert werden",
+      "scanLimit": "Tägliches Scanlimit erreicht",
+      "sorterLimit": "Sortiererlimit erreicht",
+      "collectionLocked": "Die Sammlung ist gesperrt",
+      "scannerError": "Kamerafehler",
+      "emergencyStopped": "Not-Stopp"
+    }
   }
 }
