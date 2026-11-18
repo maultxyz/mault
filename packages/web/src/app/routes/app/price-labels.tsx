@@ -63,7 +63,7 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
     },
     mode: "onChange",
   });
-  const [source, sourceGuid, deselectedScanIds, customPrices, markupPercent, rounding, templateId, startPosition] =
+  const [source, sourceGuid, deselectedScanIds, customPrices, markupPercent, rounding, templateId, startPosition, showsPrices] =
     useWatch({
       control: form.control,
       name: [
@@ -75,6 +75,7 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
         "rounding",
         "templateId",
         "startPosition",
+        "showsPrices",
       ],
     });
   const cardsQuery = useQuery(
@@ -103,6 +104,7 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
       items={selectedItems}
       startPosition={startPosition}
       formatLabelPrice={formatLabelPrice}
+      showsPrices={showsPrices}
     />
   );
   const printButton = (
@@ -138,7 +140,12 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
           })}
         </Callout>
       )}
-      <PriceLabelCardList form={form} items={items} formatLabelPrice={formatLabelPrice} />
+      <PriceLabelCardList
+        form={form}
+        items={items}
+        formatLabelPrice={formatLabelPrice}
+        showsPrices={showsPrices}
+      />
       {selectedItems.length > 0 ? (
         sheet
       ) : (

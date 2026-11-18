@@ -38,6 +38,7 @@ export const priceLabelOptionsSchema = z
         formValidationMessage("atMost", { max: PRICE_LABEL_MARKUP_PERCENT_MAX }),
       ),
     rounding: z.enum(PRICE_LABEL_ROUNDING_MODES),
+    showsPrices: z.boolean(),
     ...labelSheetOptionsShape,
   })
   .superRefine(refineLabelSheetStartPosition);

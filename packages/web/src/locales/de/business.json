@@ -712,7 +712,9 @@
       "source": "Karten aus",
       "markup": "Aufschlag (%)",
       "markupHint": "Wird auf den Marktpreis aufgeschlagen. Eine negative Zahl gibt einen Rabatt.",
-      "rounding": "Preise runden"
+      "rounding": "Preise runden",
+      "showPrices": "Preise anzeigen",
+      "showPricesHint": "Ausschalten, um Etiketten nur mit der Karte und ihrem Lagercode zu drucken."
     },
     "sources": {
       "collection": "Sammlung",

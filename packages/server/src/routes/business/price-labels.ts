@@ -1,5 +1,6 @@
 import {
   cardPriceFor,
+  formatStorageSlotCode,
   PRICE_LABEL_CARDS_MAX,
   PRICE_LABEL_SOURCES,
   roundCurrency,
@@ -110,10 +111,20 @@ export const priceLabelsRoute = new Hono<AppEnv>().get(
           language: collectionCards.language,
           collectionLang: collections.lang,
           gameKey: games.key,
+          locationPosition: collectionCards.locationPosition,
+          locationName: storageLocations.name,
+          locationBatchSize: storageLocations.batchSize,
         })
         .from(collectionCards)
         .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
         .leftJoin(games, eq(games.id, collections.gameId))
+        .leftJoin(
+          storageLocations,
+          and(
+            eq(storageLocations.id, collectionCards.locationId),
+            eq(storageLocations.isDeleted, false),
+          ),
+        )
         .where(scope.where)
         .orderBy(...scope.orderBy)
         .limit(PRICE_LABEL_CARDS_MAX);
@@ -147,6 +158,10 @@ export const priceLabelsRoute = new Hono<AppEnv>().get(
             condition,
             language: row.language,
             marketPrice: marketPrice === null ? null : roundCurrency(marketPrice),
+            storageCode:
+              row.locationName != null && row.locationPosition != null
+                ? formatStorageSlotCode(row.locationName, row.locationPosition, row.locationBatchSize)
+                : null,
           };
         }),
       };

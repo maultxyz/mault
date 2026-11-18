@@ -712,7 +712,9 @@
       "source": "Cartes de",
       "markup": "Majoration (%)",
       "markupHint": "Ajoutée au prix du marché. Utilisez un nombre négatif pour une remise.",
-      "rounding": "Arrondir les prix"
+      "rounding": "Arrondir les prix",
+      "showPrices": "Afficher les prix",
+      "showPricesHint": "Désactivez pour imprimer des étiquettes avec seulement la carte et son code de rangement."
     },
     "sources": {
       "collection": "Collection",

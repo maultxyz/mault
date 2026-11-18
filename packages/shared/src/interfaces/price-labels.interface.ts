@@ -24,6 +24,7 @@ export interface PriceLabelCard {
   condition: CardCondition;
   language: string | null;
   marketPrice: number | null;
+  storageCode?: string | null;
 }
 
 export interface PriceLabelCardsResponse {
