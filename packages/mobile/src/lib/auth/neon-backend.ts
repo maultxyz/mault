@@ -174,3 +174,32 @@ export async function neonAuthRequest<T>(path: string, sessionToken: string, bod
   if (!res.ok) throw new Error(await readError(res, "Request failed."));
   return (await res.json()) as T;
 }
+
+export async function linkSocialProviderInBrowser(
+  provider: NeonSocialProvider,
+  sessionToken: string,
+): Promise<{ error?: string }> {
+  const callbackUrl = `${WEB_URL}${MOBILE_SOCIAL_SIGN_IN_CALLBACK_PATH}`;
+  const startResponse = await fetch(`${NEON_AUTH_URL}/link-social`, {
+    method: "POST",
+    credentials: "omit",
+    headers: neonHeaders(sessionToken),
+    body: JSON.stringify({
+      provider,
+      callbackURL: callbackUrl,
+      errorCallbackURL: callbackUrl,
+      disableRedirect: true,
+    }),
+  });
+  if (!startResponse.ok) return { error: await readNeonErrorCode(startResponse, "link-start") };
+  const { url: providerLinkUrl } = (await startResponse.json()) as { url?: string };
+  if (!providerLinkUrl) return { error: "link" };
+
+  const browserResult = await WebBrowser.openAuthSessionAsync(
+    mobileSignInStartUrl(providerLinkUrl),
+    MOBILE_SOCIAL_SIGN_IN_APP_CALLBACK_URL,
+  );
+  if (browserResult.type !== "success") return { error: SOCIAL_SIGN_IN_CANCELLED_ERROR };
+  const error = readQueryParam(browserResult.url, MOBILE_SOCIAL_SIGN_IN_ERROR_PARAM);
+  return error ? { error } : {};
+}

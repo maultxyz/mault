@@ -1,4 +1,5 @@
 import type { NeonSocialProvider } from "@magic-vault/shared";
+import type { StatusTone } from "@/lib/interfaces/theme";
 
 export interface SessionUser {
   id: string;
@@ -52,4 +53,8 @@ export interface AuthSessionRow {
   ipAddress: string | null;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface SignInMethodsSectionProps {
+  onMessage: (message: { tone: StatusTone; text: string }) => void;
 }
