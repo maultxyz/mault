@@ -57,9 +57,29 @@ export default defineConfig({
         globIgnores: ["env.js", "share.html"],
         skipWaiting: true,
         clientsClaim: true,
-        navigateFallback: "/index.html",
-        // API + SSE traffic must always hit the network.
-        navigateFallbackDenylist: [/^\/api\//, /^\/s\//, /^\/auth\/mobile-(callback|start)/, /[?&](neon_auth_session_verifier|error)=/, /\/[^/?]+\.[^/]+$/],
+        // Pages load network-first so a reload always gets the deployed
+        // index.html (and its new bundle hashes) even while an older worker
+        // is still in control; Safari often keeps the old worker for a long
+        // time. The precached index.html is only the offline fallback. The
+        // function is serialized into sw.js, so it can't use outer values.
+        runtimeCaching: [
+          {
+            urlPattern: ({ request, url }) =>
+              request.mode === "navigate" &&
+              !/^\/(api|s)\//.test(url.pathname) &&
+              !/^\/auth\/mobile-(callback|start)/.test(url.pathname) &&
+              !/\/[^/]+\.[^/]+$/.test(url.pathname) &&
+              !/[?&](neon_auth_session_verifier|error)=/.test(url.search),
+            handler: "NetworkFirst",
+            options: {
+              cacheName: "pages",
+              networkTimeoutSeconds: 5,
+              expiration: { maxEntries: 20 },
+              cacheableResponse: { statuses: [200] },
+              precacheFallback: { fallbackURL: "/index.html" },
+            },
+          },
+        ],
       },
     }),
   ],
