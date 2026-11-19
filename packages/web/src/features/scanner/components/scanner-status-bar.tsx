@@ -48,7 +48,7 @@ function ConnectionStatusPill({
   return (
     <Button
       variant="secondary"
-      className="rounded-full bg-background/85 backdrop-blur-sm"
+      className="rounded-full bg-background/85 backdrop-blur-sm hover:bg-background aria-expanded:bg-background dark:bg-background/85 dark:hover:bg-background dark:aria-expanded:bg-background"
       aria-label={`${label}: ${stateLabel}`}
       title={stateLabel}
       {...buttonProps}
