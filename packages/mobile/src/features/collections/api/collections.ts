@@ -16,6 +16,7 @@ export const collectionsQueryOptions = (orgId: string | null) =>
     queryFn: () => unwrap(apiGet<Result<Collection[]>>("/api/collections")),
     enabled: !!orgId,
     staleTime: QUERY_STALE_MS,
+    refetchOnWindowFocus: true,
   });
 
 export function createCollection(values: CreateCollectionFormValues): Promise<Collection[]> {

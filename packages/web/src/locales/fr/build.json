@@ -633,6 +633,7 @@
   "imageAlt": {
     "printPart": "Rendu du modèle 3D : {{part}}",
     "breakoutBaseSupport": "Support de base pour carte d'extension",
+    "stepPhoto": "Photo de cette étape de montage",
     "photos": {
       "baseModule": "Un cadre de module de tri violet imprimé en 3D : une boîte ouverte avec quatre tenons sur le dessus et des pattes sur les côtés pour assembler les modules.",
       "baseModuleAssembled": "Un cadre de module jaune bas à côté d'un grand module jaune posé sur un support de base violet, pour montrer comment les cadres imprimés s'emboîtent.",

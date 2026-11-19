@@ -10,6 +10,7 @@ import type {
 import type { PlayingCard, PlayingCardWithDistance } from "./card.interface";
 import type { OcrDiagnostics } from "./ocr-region.interface";
 import type {
+  CardContour,
   MatchCandidateDiagnostic,
   MatchedScanDetails,
   ScanDetectionDiagnostics,
@@ -63,6 +64,7 @@ export interface ScanImageCandidate extends OrientedSearchCandidate {
 
 export interface ScanImageSearchOptions<T extends ScanImageCandidate> {
   checkBothOrientations: boolean;
+  preferredOrientation?: ScanOrientation | null;
   ocrEnabled?: boolean;
   ocrMode?: ScanOcrMode | ((candidate: T) => ScanOcrMode);
   search: (orientation: ScanOrientation) => Promise<T>;
@@ -77,6 +79,24 @@ export interface ScanImageSearchOutcome<T extends ScanImageCandidate> {
   ocr: OcrDiagnostics | null;
   matchedBy: ScanMatchSource;
   lowConfidenceMatch: boolean;
+}
+
+export interface IdentifyRequestRetryOptions {
+  retryDelaysMs?: readonly number[];
+  wait?: (delayMs: number) => Promise<void>;
+}
+
+export interface CardSettleObservation {
+  cardPresent: boolean;
+  contour: CardContour | null;
+}
+
+export interface CardSettleTracker {
+  observe: (
+    observation: CardSettleObservation,
+    frameLongSidePx: number,
+  ) => boolean;
+  reset: () => void;
 }
 
 export interface ScanConsensusOutcome<T> {

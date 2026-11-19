@@ -38,7 +38,7 @@ function TradeOfferPickListRow({ item, priceSource, onPicked }: TradeOfferPickLi
         <CardImage
           src={card.imageUrl ?? undefined}
           alt=""
-          className={cn("aspect-[2.5/3.5] w-9 shrink-0 rounded-sm", item.isPicked && "opacity-60")}
+          className={cn("aspect-[2.5/3.5] w-9 shrink-0 rounded-sm max-md:w-11", item.isPicked && "opacity-60")}
         />
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className={cn("truncate text-control font-medium", item.isPicked && "line-through")}>

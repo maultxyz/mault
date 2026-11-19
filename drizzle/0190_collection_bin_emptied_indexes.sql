@@ -1,0 +1,3 @@
+CREATE INDEX "collection_cards_collection_bin_emptied_idx" ON "collection_cards" USING btree ("collection_id","bin_number","bin_emptied_at");--> statement-breakpoint
+CREATE INDEX "trade_offers_org_created_idx" ON "trade_offers" USING btree ("org_id","created_at");--> statement-breakpoint
+CREATE INDEX "unmatched_cards_collection_bin_emptied_idx" ON "unmatched_cards" USING btree ("collection_id","bin_number","bin_emptied_at");

@@ -65,21 +65,70 @@ export interface CardsPageTotals {
   total_cards: number;
 }
 
-export interface CardsPageRow extends CollectionCardRow, CardsPageTotals {
+export interface CardsPageEntryRow extends CollectionCardRow {
   scan_ids: string[];
   quantity: number;
   stored_count: number;
 }
 
+export interface CardsPageRow extends CardsPageEntryRow, CardsPageTotals {}
+
 export interface CardsPageRows {
-  rows: CardsPageRow[];
+  rows: CardsPageEntryRow[];
   totals: CardsPageTotals | undefined;
+}
+
+export interface UnhydratedCardsPageOptions {
+  ungroupedTotalsAreLoadedSeparately?: boolean;
+}
+
+export interface GroupedCardRankingRow {
+  row_id: number;
+  is_stored: boolean;
+  entry_rank: number;
+}
+
+export interface GroupedCardRanking {
+  memberRowIds: Int32Array;
+  entryMemberOffsets: Int32Array;
+  entryStoredCounts: Int32Array;
+}
+
+export type CachedGroupedCardRanking =
+  | { isTooLargeToCache: true }
+  | { isTooLargeToCache: false; ranking: GroupedCardRanking };
+
+export interface GroupedCardRankingPageEntry {
+  representativeRowId: number;
+  memberRowIds: number[];
+  storedCount: number;
+}
+
+export interface GroupedCardRankingPage {
+  entries: GroupedCardRankingPageEntry[];
+  totalEntries: number;
+  totalCards: number;
+}
+
+export interface GroupedCardRepresentativeRow extends CollectionCardRow {
+  row_id: number;
+}
+
+export interface GroupedCardMemberRow {
+  row_id: number;
+  guid: string;
 }
 
 export interface CollectionCardsPageEntries {
   items: GroupedScannedCard[];
   totalEntries: number;
   totalCards: number;
+}
+
+export interface LoadedCardsPageEntries {
+  gameKey: string | null;
+  lang: string;
+  data: CollectionCardsPageEntries;
 }
 
 export type TransactionRunner = <T>(fn: (tx: Transaction) => Promise<T>) => Promise<T>;

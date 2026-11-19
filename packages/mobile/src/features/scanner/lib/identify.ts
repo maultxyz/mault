@@ -66,12 +66,13 @@ async function searchOrientationText(
   orientation: OrientedPick["orientation"],
   embedding: number[],
   scope: MatchScope,
+  resolvedGameKey?: string,
 ): Promise<CardTextSearchResult | null> {
   const crop =
     orientation === "rotated" ? rotateRgba180(uprightOcrCrop) : uprightOcrCrop;
   try {
     const uri = await writeJpegTempFile(crop, OCR_IMAGE_JPEG_QUALITY);
-    return await searchByText(embedding, scope, uri);
+    return await searchByText(embedding, scope, uri, resolvedGameKey);
   } catch {
     return null;
   }
@@ -109,17 +110,19 @@ async function attemptOnce(
       OCR_CROP_WIDTH,
       OCR_CROP_HEIGHT,
     ));
-  const readText: ReadOrientationText = (orientation, embedding) => {
+  const readText: ReadOrientationText = (orientation, embedding, resolvedGameKey) => {
     if (!cardContour) return Promise.resolve(null);
     return searchOrientationText(
       ocrCrop(cardContour),
       orientation,
       embedding,
       options.scope,
+      resolvedGameKey,
     );
   };
   const identified = await identifyScanImage({
     checkBothOrientations: options.checkBothOrientations,
+    preferredOrientation: options.preferredOrientation ?? null,
     ocrMode: cardContour ? options.ocrMode : "off",
     search: async (orientation) => {
       const pixels =
@@ -143,7 +146,11 @@ async function attemptOnce(
       return { pixels, orientation, embedding, result, textResult };
     },
     readText: async (candidate) => {
-      const result = await readText(candidate.orientation, candidate.embedding);
+      const result = await readText(
+        candidate.orientation,
+        candidate.embedding,
+        candidate.result.data?.[0]?.gameKey,
+      );
       return result ? { ...candidate, result, ocr: result.ocr ?? null } : null;
     },
   });
@@ -205,6 +212,7 @@ async function toOutcome(
     card: attempt.card,
     alternativeMatches: attempt.card ? attempt.alternativeMatches : [],
     capturedImageUrl,
+    matchedOrientation: attempt.card && attempt.contour ? attempt.orientation : null,
     ...toScanMatchDetails(attempt, attempts, matchesNeeded, "web"),
   };
 }

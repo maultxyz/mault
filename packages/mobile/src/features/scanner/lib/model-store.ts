@@ -1,7 +1,8 @@
 import { Directory, File, Paths } from "expo-file-system";
 import * as Crypto from "expo-crypto";
 import type { PinnedModel } from "@magic-vault/shared";
-import { MODEL_CACHE_DIR } from "@/lib/constants/storage-keys";
+import { MODEL_CACHE_DIR, MODEL_DOWNLOAD_FILE_SUFFIX } from "@/lib/constants/storage-keys";
+import type { ModelDownloadProgressListener } from "@/lib/interfaces/scanner";
 
 function toHex(buffer: ArrayBuffer): string {
   return Array.from(new Uint8Array(buffer))
@@ -13,29 +14,44 @@ async function sha256Hex(bytes: Uint8Array<ArrayBuffer>): Promise<string> {
   return toHex(await Crypto.digest(Crypto.CryptoDigestAlgorithm.SHA256, bytes));
 }
 
-function modelFile(model: PinnedModel): File {
+function modelDirectory(): Directory {
   const dir = new Directory(Paths.document, MODEL_CACHE_DIR);
   if (!dir.exists) dir.create({ intermediates: true });
-  return new File(dir, `${model.sha256}.onnx`);
+  return dir;
 }
 
-export async function loadPinnedModel(model: PinnedModel): Promise<Uint8Array> {
-  const file = modelFile(model);
-  if (file.exists) {
-    const cached = await file.bytes();
-    if ((await sha256Hex(cached)) === model.sha256) return cached;
-    file.delete();
-  }
+function modelFile(model: PinnedModel): File {
+  return new File(modelDirectory(), `${model.sha256}.onnx`);
+}
 
+export function isPinnedModelDownloaded(model: PinnedModel): boolean {
+  return modelFile(model).exists;
+}
+
+export function deletePinnedModelFile(model: PinnedModel): void {
+  const file = modelFile(model);
+  if (file.exists) file.delete();
+}
+
+export async function ensurePinnedModelFile(
+  model: PinnedModel,
+  onDownloadProgress?: ModelDownloadProgressListener,
+): Promise<string> {
+  const file = modelFile(model);
+  if (file.exists) return file.uri;
+
+  const download = new File(modelDirectory(), `${model.sha256}${MODEL_DOWNLOAD_FILE_SUFFIX}`);
+  if (download.exists) download.delete();
   const url = `https://huggingface.co/${model.repo}/resolve/${model.revision}/${model.filename}`;
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`Failed to download ${model.filename}: ${res.status}`);
-  const bytes = new Uint8Array(await res.arrayBuffer());
-  const digest = await sha256Hex(bytes);
+  await File.downloadFileAsync(url, download, {
+    idempotent: true,
+    onProgress: ({ bytesWritten, totalBytes }) => onDownloadProgress?.(bytesWritten, totalBytes),
+  });
+  const digest = await sha256Hex(await download.bytes());
   if (digest !== model.sha256) {
+    download.delete();
     throw new Error(`Checksum mismatch for ${model.repo}/${model.filename}`);
   }
-  file.create({ overwrite: true });
-  await file.write(bytes);
-  return bytes;
+  await download.move(file);
+  return modelFile(model).uri;
 }

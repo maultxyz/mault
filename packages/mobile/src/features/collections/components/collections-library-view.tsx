@@ -24,7 +24,7 @@ import { useCollectionActions } from "@/features/collections/api/use-collection-
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { orgOverviewQueryOptions } from "@/features/home/api/overview";
 import { HomeCollectionRow } from "@/features/home/components/home-collection-row";
-import { useAppStream } from "@/features/stream/api/use-app-stream";
+import { useScanLocks } from "@/features/stream/api/use-app-stream";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePrefetchCollectionFirstPage } from "@/hooks/use-prefetch-collection-first-page";
 import { usePricing } from "@/hooks/use-pricing";
@@ -41,7 +41,7 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
   const prefetchCollectionFirstPage = usePrefetchCollectionFirstPage();
   const { user } = useSession();
   const [search, setSearch] = useState("");
-  const { locks } = useAppStream();
+  const locks = useScanLocks();
   const { collection: scanTarget, collections: allCollections, collectionsQuery } = useScanTarget();
   const isScreenFocused = useIsFocused();
   const overview = useQuery(orgOverviewQueryOptions(orgId, isScreenFocused));

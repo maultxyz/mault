@@ -24,6 +24,8 @@ export const CARD_SCAN_TIMELINE_OPTIONS: CardScanTimeline[] = [
 ];
 
 export const CARD_SCAN_TIMELINE_LOAD_AHEAD_MARGIN = "800px";
+export const CARD_SCAN_TIMELINE_BLOCK_CONTENT_CLASS =
+  "-m-1 p-1 [content-visibility:auto] [contain-intrinsic-size:auto_600px]";
 
 export const REVIEW_GRID_CLASS =
   "grid grid-cols-[repeat(auto-fill,minmax(15rem,1fr))] gap-3";

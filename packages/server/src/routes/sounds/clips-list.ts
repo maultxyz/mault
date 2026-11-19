@@ -2,7 +2,7 @@ import { and, asc, eq, isNull, or, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { soundClips } from "../../db/schema";
-import { readOrgResource } from "../../lib/org-resource-read-cache";
+import { readOrgSettingsResource } from "../../lib/org-resource-read-cache";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toSoundClip } from "./shared";
 
@@ -12,7 +12,7 @@ export const listSoundClipsRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    const clips = await readOrgResource(orgId, "sounds:clips", async () => {
+    const clips = await readOrgSettingsResource(orgId, "sounds:clips", async () => {
       const rows = await authQuery(c.get("jwtClaims"), (tx) =>
         tx
           .select()

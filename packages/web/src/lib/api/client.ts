@@ -7,6 +7,7 @@ import {
 import { setLocalToken } from "@/lib/auth/local-token";
 import { getAuthSession, getOrgId } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/api";
+import type { ApiPostFormOptions } from "@/lib/interfaces/api-client";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { readMemberSeatLimit, setMemberSeatLock } from "@/lib/member-seat-lock";
 import { getPlanPreview } from "@/lib/plan-preview";
@@ -158,13 +159,22 @@ export async function apiDelete<T>(path: string): Promise<T> {
 export async function apiPostForm<T>(
   path: string,
   formData: FormData,
+  { timeoutMs, reportsHttpStatus = false }: ApiPostFormOptions = {},
 ): Promise<T> {
   const wasImpersonating = !!getImpersonationState();
   const res = await fetch(`${API_BASE}${path}`, {
     method: "POST",
     headers: { ...(await getAuthHeaders()) },
     body: formData,
+    signal: timeoutMs ? AbortSignal.timeout(timeoutMs) : undefined,
   });
-  await checkResponse(res, wasImpersonating);
+  try {
+    await checkResponse(res, wasImpersonating);
+  } catch (error) {
+    if (reportsHttpStatus && !(error instanceof ApiStatusError)) {
+      throw new ApiStatusError(res.status);
+    }
+    throw error;
+  }
   return res.json();
 }

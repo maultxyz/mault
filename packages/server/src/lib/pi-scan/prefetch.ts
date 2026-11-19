@@ -1,3 +1,15 @@
+export function usablePrefetchedMatch<TMatch>(
+  prefetched:
+    | { match: TMatch | null; matchInputsKey: string }
+    | null
+    | undefined,
+  currentMatchInputsKey: string,
+): TMatch | null {
+  if (!prefetched || prefetched.matchInputsKey !== currentMatchInputsKey)
+    return null;
+  return prefetched.match;
+}
+
 export class PiScanPrefetch<T> {
   private pending: {
     feed: Record<string, unknown>;

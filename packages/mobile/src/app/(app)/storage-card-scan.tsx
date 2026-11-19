@@ -150,6 +150,7 @@ export default function StorageCardScanScreen() {
           scope: { collectionGuid: scanCollectionGuid },
           matchesNeeded: DEFAULT_MATCHES_NEEDED,
           checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
+          preferredOrientation: "upright",
           ocrMode: scanOcrMode(
             orgSettings,
             (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,

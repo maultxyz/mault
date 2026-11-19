@@ -192,7 +192,27 @@ export default function TradeScreen() {
   }
 
   return (
-    <Screen header={header}>
+    <Screen
+      header={header}
+      footer={
+        <>
+          <AppText size="sm" accessibilityLiveRegion="polite">
+            {isReady ? summary : t("trade.needGet")}
+          </AppText>
+          <Button
+            size="lg"
+            icon="send"
+            label={t("trade.send")}
+            disabled={!isReady}
+            loading={send.isPending}
+            onPress={form.handleSubmit((values) => {
+              setSent(false);
+              send.mutate(values);
+            })}
+          />
+        </>
+      }
+    >
       <AppText size="sm" tone="secondary">
         {t("trade.description", { source: info.data.name })}
       </AppText>
@@ -338,23 +358,6 @@ export default function TradeScreen() {
           isUpdating={quote.isPlaceholderData || quote.isFetching}
         />
       ) : null}
-
-      <View style={{ gap: SPACING.sm }}>
-        <AppText size="sm" accessibilityLiveRegion="polite">
-          {isReady ? summary : t("trade.needGet")}
-        </AppText>
-        <Button
-          size="lg"
-          icon="send"
-          label={t("trade.send")}
-          disabled={!isReady}
-          loading={send.isPending}
-          onPress={form.handleSubmit((values) => {
-            setSent(false);
-            send.mutate(values);
-          })}
-        />
-      </View>
 
       <OptionSheet
         visible={!!editingCard}

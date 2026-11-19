@@ -1331,6 +1331,13 @@
       "when": 1795025473576,
       "tag": "0189_card_embedding_version",
       "breakpoints": true
+    },
+    {
+      "idx": 190,
+      "version": "7",
+      "when": 1795054424717,
+      "tag": "0190_collection_bin_emptied_indexes",
+      "breakpoints": true
     }
   ]
 }

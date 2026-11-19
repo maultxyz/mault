@@ -3,11 +3,12 @@
   "version": "1.0.209",
   "private": true,
   "scripts": {
-    "dev": "vite",
+    "dev": "node --env-file-if-exists=../../.env ../../scripts/wait-for-api.mjs && vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "model": "node --max-old-space-size=8192 scripts/build-sorter-model.mjs",
+    "instruction-images": "node scripts/build-instruction-images.mjs",
     "test": "vitest run"
   },
   "dependencies": {

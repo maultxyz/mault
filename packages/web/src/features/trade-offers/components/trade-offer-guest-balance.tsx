@@ -13,7 +13,7 @@ export function TradeOfferGuestBalance({ balance, priceSource, isUpdating }: Tra
       aria-busy={isUpdating}
       className={cn("flex flex-col gap-1 transition-opacity motion-reduce:transition-none", isUpdating && "opacity-60")}
     >
-      <dl className="grid grid-cols-3 gap-2 text-control">
+      <dl className="grid grid-cols-3 gap-2 text-control max-md:grid-cols-2 max-md:gap-x-3 max-md:gap-y-1">
         <div className="flex flex-col">
           <dt className="text-xs text-foreground/70">{t("tradeOffers.balance.youGet")}</dt>
           <dd className="font-semibold tabular-nums">{format(balance.getValue)}</dd>
@@ -22,7 +22,7 @@ export function TradeOfferGuestBalance({ balance, priceSource, isUpdating }: Tra
           <dt className="text-xs text-foreground/70">{t("tradeOffers.balance.youGive")}</dt>
           <dd className="font-semibold tabular-nums">{format(balance.giveValue)}</dd>
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col max-md:col-span-2 max-md:flex-row max-md:items-center max-md:justify-between max-md:gap-2">
           <dt className="text-xs text-foreground/70">{t("tradeOffers.balance.difference")}</dt>
           <dd className="flex items-center gap-1 font-semibold tabular-nums">
             <IconScale className="size-3.5 shrink-0 text-foreground/70" aria-hidden />

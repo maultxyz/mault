@@ -916,6 +916,7 @@
         "removing": "Removing"
       },
       "saved": "Saved {{name}}",
+      "downloadingModels": "Downloading models {{percent}}%",
       "offline": "Offline"
     },
     "unmatchedRecovery": {
@@ -3471,6 +3472,11 @@
       "giveDescription": "Copies from your inventory",
       "giveEmpty": "Search your cards to add what you're giving.",
       "searchOwnedLabel": "Search your cards",
+      "giveSource": "Choose from",
+      "allCollections": "All collections (search)",
+      "filterCollectionLabel": "Filter this collection",
+      "noCollectionCards": "No cards in this collection to give.",
+      "loadMoreCards": "Load more cards",
       "addGivenCard": "Give {{name}}",
       "addReceivedCard": "Get {{name}}",
       "getTitle_one": "You get ({{count}})",
@@ -3570,6 +3576,8 @@
     "tapToRemove": "Removes it from your trade offer",
     "loadMore": "Load more",
     "done": "Done",
+    "reviewOffer_one": "Review trade offer (1 card)",
+    "reviewOffer_other": "Review trade offer ({{count}} cards)",
     "chooseCardsHint": "Tap the cards you want.",
     "fromCollectionTitle": "From your collection",
     "givingCount_one": "Giving {{count}}",

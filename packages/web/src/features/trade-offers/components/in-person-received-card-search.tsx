@@ -30,6 +30,7 @@ export function InPersonReceivedCardSearch({ collectionGuid, gameKey, onAdd }: I
         <Input
           id={searchId}
           type="search"
+          enterKeyHint="search"
           value={query}
           maxLength={TRADE_OFFER_SEARCH_QUERY_MAX_LENGTH}
           placeholder={t("tradeOffers.searchPlaceholder")}
@@ -40,13 +41,13 @@ export function InPersonReceivedCardSearch({ collectionGuid, gameKey, onAdd }: I
         {isSearching && !isFetching ? t("tradeOffers.searchResults", { count: results.length }) : ""}
       </p>
       {results.length > 0 && (
-        <ul className="flex max-h-56 flex-col divide-y divide-border overflow-y-auto">
+        <ul className="flex max-h-56 flex-col divide-y divide-border overflow-y-auto max-md:max-h-72">
           {results.map((option) => (
             <li key={option.cardId} className="flex items-center gap-2 p-2">
               <img
                 src={option.imageUrl ?? ""}
                 alt=""
-                className="aspect-[2.5/3.5] w-8 shrink-0 rounded-sm bg-muted object-cover"
+                className="aspect-[2.5/3.5] w-8 shrink-0 rounded-sm bg-muted object-cover max-md:w-10"
               />
               <div className="flex min-w-0 flex-1 flex-col">
                 <span className="truncate text-control font-medium">{option.name}</span>

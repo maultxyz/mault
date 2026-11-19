@@ -1,13 +1,22 @@
 import { formatCompactNumber } from "@magic-vault/shared";
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import { APP_LANGUAGES, COMPACT_NUMBER_I18N_FORMAT, DEFAULT_LANGUAGE } from "@/lib/constants/i18n";
+import {
+  APP_LANGUAGES,
+  COMPACT_NUMBER_I18N_FORMAT,
+  DEFAULT_LANGUAGE,
+  TRANSLATION_NAMESPACE,
+} from "@/lib/constants/i18n";
 import { LANGUAGE_PREFERENCE_KEY } from "@/lib/constants/storage-keys";
 import type { AppLanguage, LanguagePreference } from "@/lib/interfaces/i18n";
 import { readKv, writeKv } from "@/lib/storage/kv";
-import de from "@/locales/de.json";
 import en from "@/locales/en.json";
-import fr from "@/locales/fr.json";
+
+function loadTranslations(language: AppLanguage): typeof en {
+  if (language === "de") return require("../locales/de.json") as typeof en;
+  if (language === "fr") return require("../locales/fr.json") as typeof en;
+  return en;
+}
 
 function deviceLanguage(): AppLanguage {
   try {
@@ -29,12 +38,21 @@ function resolveLanguage(preference: LanguagePreference): AppLanguage {
 
 export function saveLanguagePreference(preference: LanguagePreference): void {
   writeKv(LANGUAGE_PREFERENCE_KEY, preference === "system" ? null : preference);
-  void i18n.changeLanguage(resolveLanguage(preference));
+  const language = resolveLanguage(preference);
+  if (!i18n.hasResourceBundle(language, TRANSLATION_NAMESPACE)) {
+    i18n.addResourceBundle(language, TRANSLATION_NAMESPACE, loadTranslations(language));
+  }
+  void i18n.changeLanguage(language);
 }
 
+const initialLanguage = resolveLanguage(readLanguagePreference());
+
 void i18n.use(initReactI18next).init({
-  resources: { en: { translation: en }, de: { translation: de }, fr: { translation: fr } },
-  lng: resolveLanguage(readLanguagePreference()),
+  resources: {
+    [DEFAULT_LANGUAGE]: { [TRANSLATION_NAMESPACE]: loadTranslations(DEFAULT_LANGUAGE) },
+    [initialLanguage]: { [TRANSLATION_NAMESPACE]: loadTranslations(initialLanguage) },
+  },
+  lng: initialLanguage,
   fallbackLng: DEFAULT_LANGUAGE,
   interpolation: { escapeValue: false },
 });

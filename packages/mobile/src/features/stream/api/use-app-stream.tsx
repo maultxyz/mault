@@ -1,5 +1,6 @@
 import { useQueryClient } from "@tanstack/react-query";
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
+import { AppState } from "react-native";
 import EventSource from "react-native-sse";
 import {
   DEPLOY_STATUS_EVENT,
@@ -20,10 +21,12 @@ import { getRequestAuth } from "@/lib/api/client";
 import { useSession } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/config";
 import { STREAM_RECONNECT_DELAY_MS } from "@/lib/constants/monitor";
-import { SCAN_LOCK_TTL_MS } from "@/lib/constants/stream";
-import type { AppStreamValue, ScanLockInfo } from "@/lib/interfaces/stream";
+import { SCAN_LOCK_TTL_MS, STREAM_BACKGROUND_RECONNECT_MS } from "@/lib/constants/stream";
+import type { ScanLockInfo } from "@/lib/interfaces/stream";
 
-const AppStreamContext = createContext<AppStreamValue>({ locks: {}, deployNotice: null, machines: [] });
+const ScanLocksContext = createContext<Record<string, ScanLockInfo>>({});
+const DeployNoticeContext = createContext<DeployNotice | null>(null);
+const MachineStatusesContext = createContext<MachineStatus[]>([]);
 
 function parse<T>(data: string | null | undefined): T | null {
   if (!data) return null;
@@ -55,16 +58,32 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
     let source: EventSource<string> | null = null;
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
     let cancelled = false;
+    let hasOpenedBefore = false;
+    let connectAttempt = 0;
+    let backgroundedAt: number | null = null;
+
+    const refreshAfterReconnect = () => {
+      void queryClient.invalidateQueries({ queryKey: ["collections"] });
+      void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
+      void queryClient.invalidateQueries({ queryKey: BUSINESS_ORDERS_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] });
+    };
 
     const connect = async () => {
+      const attempt = ++connectAttempt;
       const { token } = await getRequestAuth();
-      if (cancelled) return;
+      if (cancelled || attempt !== connectAttempt) return;
       const params = new URLSearchParams({ orgId: activeOrgId });
       if (token) params.set("token", token);
       const es = new EventSource<string>(`${API_BASE}/api/stream?${params.toString()}`, { pollingInterval: 0 });
       source = es;
       const on = (name: string, handler: (data: string | null) => void) =>
         es.addEventListener(name, (event) => handler((event as { data: string | null }).data));
+
+      es.addEventListener("open", () => {
+        if (hasOpenedBefore) refreshAfterReconnect();
+        hasOpenedBefore = true;
+      });
 
       on("lock_init", (data) => setLocks(parse<{ locks: Record<string, ScanLockInfo> }>(data)?.locks ?? {}));
       on("lock_acquired", (data) => {
@@ -95,25 +114,61 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
         if (removed) setMachines((prev) => removeMachineStatusFromList(prev, removed.machineId));
       });
       es.addEventListener("error", () => {
+        if (source !== es) return;
         es.close();
         if (cancelled) return;
+        if (reconnectTimer) clearTimeout(reconnectTimer);
         reconnectTimer = setTimeout(() => void connect(), STREAM_RECONNECT_DELAY_MS);
       });
     };
 
+    const closeSource = () => {
+      const current = source;
+      source = null;
+      current?.removeAllEventListeners();
+      current?.close();
+    };
+
+    const appStateSubscription = AppState.addEventListener("change", (appState) => {
+      if (appState !== "active") {
+        backgroundedAt ??= Date.now();
+        return;
+      }
+      const wasBackgroundedAt = backgroundedAt;
+      backgroundedAt = null;
+      if (wasBackgroundedAt === null || Date.now() - wasBackgroundedAt < STREAM_BACKGROUND_RECONNECT_MS) return;
+      if (reconnectTimer) clearTimeout(reconnectTimer);
+      reconnectTimer = null;
+      closeSource();
+      void connect();
+    });
+
     void connect();
     return () => {
       cancelled = true;
+      appStateSubscription.remove();
       if (reconnectTimer) clearTimeout(reconnectTimer);
-      source?.removeAllEventListeners();
-      source?.close();
+      closeSource();
     };
   }, [status, activeOrgId, queryClient]);
 
-  const value = useMemo(() => ({ locks, deployNotice, machines }), [locks, deployNotice, machines]);
-  return <AppStreamContext.Provider value={value}>{children}</AppStreamContext.Provider>;
+  return (
+    <ScanLocksContext.Provider value={locks}>
+      <DeployNoticeContext.Provider value={deployNotice}>
+        <MachineStatusesContext.Provider value={machines}>{children}</MachineStatusesContext.Provider>
+      </DeployNoticeContext.Provider>
+    </ScanLocksContext.Provider>
+  );
 }
 
-export function useAppStream(): AppStreamValue {
-  return useContext(AppStreamContext);
+export function useScanLocks(): Record<string, ScanLockInfo> {
+  return useContext(ScanLocksContext);
+}
+
+export function useDeployNotice(): DeployNotice | null {
+  return useContext(DeployNoticeContext);
+}
+
+export function useMachineStatuses(): MachineStatus[] {
+  return useContext(MachineStatusesContext);
 }

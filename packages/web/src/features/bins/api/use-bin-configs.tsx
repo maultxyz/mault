@@ -439,7 +439,11 @@ export function BinConfigsProvider({
     }: {
       binNumber: number;
       options?: EmptyBinOptions;
-    }) => emptyBinAction(binNumber, activeGameGuid, options),
+    }) =>
+      emptyBinAction(binNumber, activeGameGuid, {
+        collectionGuid: targetCollection?.guid,
+        ...options,
+      }),
     onSuccess: (result, { binNumber }) => {
       if (!result.success) {
         toast.error(result.message ?? t("useBinConfigs.toasts.emptyBinFailed"));
@@ -493,7 +497,11 @@ export function BinConfigsProvider({
     }: {
       binNumbers: number[];
       options?: EmptyAllBinsOptions;
-    }) => emptyAllBinsAction(binNumbers, activeGameGuid, options),
+    }) =>
+      emptyAllBinsAction(binNumbers, activeGameGuid, {
+        collectionGuid: targetCollection?.guid,
+        ...options,
+      }),
     onSuccess: (result) => {
       if (result.success && result.data) {
         queryClient.setQueryData(binsQueryOptions.queryKey, result.data);

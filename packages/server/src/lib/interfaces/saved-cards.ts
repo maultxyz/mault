@@ -56,6 +56,10 @@ export interface SavedCardHydrateOptions {
   includeRaw: boolean;
 }
 
+export interface SavedScanHydrateOptions extends SavedCardHydrateOptions {
+  includeRawOnAlternativeMatches?: boolean;
+}
+
 export interface SavedCardSnapshots<
   TCard extends PlayingCard,
   TAlternative extends PlayingCard,

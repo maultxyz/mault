@@ -44,6 +44,7 @@ import {
   type AppEnv,
 } from "../middleware/auth";
 import { loadSessionInit } from "./session-init";
+import type { SseWriter } from "../lib/interfaces/sse";
 import { pricesForShareLink } from "../lib/share-link-pricing";
 import { rejectWhenShareLinkRateLimited } from "../lib/share-link-rate-limit";
 import { recordPublicRouteUsage } from "../lib/api-usage";
@@ -152,8 +153,10 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
 
   return streamSSE(c, async (stream) => {
     const aborted = new Promise<void>((resolve) => stream.onAbort(resolve));
-    const write = (event: string, data: unknown) => {
-      stream.writeSSE({ event, data: JSON.stringify(data) }).catch(() => {});
+    const write: SseWriter = (event, data, serializedData) => {
+      stream
+        .writeSSE({ event, data: serializedData?.() ?? JSON.stringify(data) })
+        .catch(() => {});
     };
 
     const unsubs: Array<() => void> = [
@@ -195,8 +198,8 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
       const orgGuidSet = new Set(orgGuids);
       const watchedOrgGuids = watchGuids.filter((guid) => orgGuidSet.has(guid));
       for (const guid of watchedOrgGuids) {
-        const sessionWrite = (event: string, data: unknown) =>
-          write(`session:${guid}:${event}`, data);
+        const sessionWrite: SseWriter = (event, data, serializedData) =>
+          write(`session:${guid}:${event}`, data, serializedData);
         unsubs.push(
           subscribeSession(guid, orgId, userId, displayName, sessionWrite),
         );

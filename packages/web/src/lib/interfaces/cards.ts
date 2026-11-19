@@ -410,7 +410,6 @@ export interface SessionSummaryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   collectionGuid: string | undefined;
-  elapsedMs: number;
   sessionScanCount: number;
   collectionName: string;
   onExported: (scanIds: string[]) => void;

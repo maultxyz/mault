@@ -916,6 +916,7 @@
         "removing": "Retrait"
       },
       "saved": "{{name}} enregistrée",
+      "downloadingModels": "Téléchargement des modèles {{percent}} %",
       "offline": "Hors ligne"
     },
     "unmatchedRecovery": {
@@ -3471,6 +3472,11 @@
       "giveDescription": "Des exemplaires de votre inventaire",
       "giveEmpty": "Cherchez dans vos cartes pour ajouter ce que vous donnez.",
       "searchOwnedLabel": "Chercher dans vos cartes",
+      "giveSource": "Choisir dans",
+      "allCollections": "Toutes les collections (recherche)",
+      "filterCollectionLabel": "Filtrer cette collection",
+      "noCollectionCards": "Aucune carte à donner dans cette collection.",
+      "loadMoreCards": "Charger plus de cartes",
       "addGivenCard": "Donner {{name}}",
       "addReceivedCard": "Recevoir {{name}}",
       "getTitle_one": "Vous recevez ({{count}})",
@@ -3570,6 +3576,8 @@
     "tapToRemove": "La retire de votre offre",
     "loadMore": "Charger plus",
     "done": "Terminé",
+    "reviewOffer_one": "Vérifier l'offre d'échange (1 carte)",
+    "reviewOffer_other": "Vérifier l'offre d'échange ({{count}} cartes)",
     "chooseCardsHint": "Touchez les cartes que vous voulez.",
     "fromCollectionTitle": "Depuis votre collection",
     "givingCount_one": "Vous donnez {{count}}",

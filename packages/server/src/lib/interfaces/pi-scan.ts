@@ -89,6 +89,7 @@ export interface PiScanLive {
   configurationVersion: number;
   allowDuplicates: boolean;
   lastCardId: string | null;
+  lastMatchedOrientation: "upright" | "rotated" | null;
   removalEnabled: boolean;
   removalBinNumber: number | null;
   removalEntries: ScanRemovalEntry[];
@@ -141,6 +142,12 @@ export interface PiScanFrameMatch {
   stampDetection: StampDetection | null;
   printedFoilMarker: PrintedFoilMarkerDetection | null;
   foilDetection: import("@magic-vault/shared").FoilDetection | null;
+}
+
+export interface PiScanPrefetchedCard {
+  frame: Buffer;
+  match: PiScanFrameMatch | null;
+  matchInputsKey: string;
 }
 
 export interface PiScanPipelineOptions {

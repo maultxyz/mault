@@ -1,10 +1,12 @@
 export const SESSION_TOKEN_KEY = "mault.session-token";
+export const ACCESS_TOKEN_KEY = "mault.access-token";
 export const ACTIVE_ORG_KEY = "mault.active-org";
 export const SESSION_PROFILE_KEY = "mault.session-profile";
 export const QUERY_CACHE_SNAPSHOT_KEY = "mault.query-cache-snapshot";
 export const LAST_SORTER_ID_KEY = "mault.last-sorter-id";
 export const PENDING_SCAN_SAVES_KEY = "mault.pending-scan-saves";
 export const MODEL_CACHE_DIR = "vision-models";
+export const MODEL_DOWNLOAD_FILE_SUFFIX = ".download";
 export const SORTER_AUTO_CONNECT_KEY = "mault.sorter-auto-connect";
 export const THEME_PREFERENCE_KEY = "mault.theme-preference";
 export const LANGUAGE_PREFERENCE_KEY = "mault.language-preference";

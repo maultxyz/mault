@@ -118,26 +118,29 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
       if (emptiedBinNumbers.length === 0)
         return { message: "No bins to empty.", success: false };
 
+      const collection = collectionGuid
+        ? await tx.query.collections.findFirst({
+            where: (t, { eq, and }) =>
+              and(
+                eq(t.guid, collectionGuid),
+                eq(t.orgId, orgId),
+                eq(t.isDeleted, false),
+              ),
+            columns: { id: true },
+          })
+        : undefined;
+      if (collectionGuid && !collection) {
+        return { message: "Collection not found.", success: false };
+      }
+
       const stored = new Map<string, string[]>();
-      if (locations.length > 0) {
+      if (locations.length > 0 && collection) {
         if (!(await orgHasFeature(tx, orgId, "storage"))) {
           return {
             message: STORAGE_UPGRADE_MESSAGE,
             success: false,
             upgradeRequired: true,
           };
-        }
-        const collection = await tx.query.collections.findFirst({
-          where: (t, { eq, and }) =>
-            and(
-              eq(t.guid, collectionGuid!),
-              eq(t.orgId, orgId),
-              eq(t.isDeleted, false),
-            ),
-          columns: { id: true },
-        });
-        if (!collection) {
-          return { message: "Collection not found.", success: false };
         }
         const locationIds = new Map<string, number>();
         for (const { binNumber, locationGuid } of locations) {
@@ -180,7 +183,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
         }
       }
 
-      await markBinsEmptied(tx, orgId, emptiedBinNumbers);
+      await markBinsEmptied(tx, orgId, emptiedBinNumbers, collection?.id);
       if (activeBinSet) await reclaimFillLocations(tx, activeBinSet.id);
 
       if (resetAutoAssignedRules && activeBinSet?.autoAssignField) {

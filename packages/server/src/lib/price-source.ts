@@ -16,6 +16,8 @@ import { createOrgReadCache } from "./org-read-cache";
 const orgPricingCache = createOrgReadCache<OrgPricing>(
   ORG_PRICING_CACHE_TTL_MS,
   ORG_SETTINGS_READ_CACHE_MAX_ENTRIES,
+  0,
+  { isUnaffectedByCardWrites: true },
 );
 
 export function loadOrgPricing(

@@ -8,7 +8,10 @@ import {
   piScanHoldsPort,
   resetPiScanSessionStats,
 } from "@/features/scanner/api/pi-scan-session";
-import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import {
+  useScanElapsedMs,
+  useScannedCards,
+} from "@/features/scanner/api/use-scanned-cards";
 import { bucketScanTimes } from "@/features/scanner/lib/scan-rate";
 import { piScanElapsedMs } from "@/features/scanner/lib/pi-scan-status";
 import {
@@ -38,13 +41,9 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   const Container = scrollable ? ScrollArea : "div";
   const { t } = useTranslation("scanner");
   const [expandedSets, setExpandedSets] = useState(false);
-  const {
-    elapsedMs,
-    isTimerActive,
-    recentScanTimes,
-    sessionScanCount,
-    resetSessionStats,
-  } = useScannedCards();
+  const { isTimerActive, recentScanTimes, sessionScanCount, resetSessionStats } =
+    useScannedCards();
+  const elapsedMs = useScanElapsedMs();
   const piScan = useSyncExternalStore(subscribePiScan, getPiScanState);
   const piLive =
     piScanHoldsPort(piScan) ||

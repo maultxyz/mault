@@ -53,7 +53,7 @@ export function TradeOfferOfferedRow({ draft, priceLabel, onChange, onRemove }: 
           <IconTrash />
         </Button>
       </div>
-      <div className="flex flex-wrap items-center gap-1.5 pl-12.5">
+      <div className="flex flex-wrap items-center gap-1.5 md:pl-12.5">
         <Input
           type="number"
           inputMode="numeric"
@@ -61,7 +61,7 @@ export function TradeOfferOfferedRow({ draft, priceLabel, onChange, onRemove }: 
           max={TRADE_OFFER_CARD_QUANTITY_MAX}
           value={draft.quantity}
           aria-label={t("tradeOffers.quantityFor", { name: option.name })}
-          className="w-16"
+          className="w-16 max-md:w-20"
           onChange={(event) => {
             const quantity = Math.min(
               Math.max(Number.parseInt(event.target.value, 10) || 1, 1),
@@ -77,7 +77,7 @@ export function TradeOfferOfferedRow({ draft, priceLabel, onChange, onRemove }: 
           }}
         >
           <SelectTrigger
-            className="w-44"
+            className="max-md:min-w-0 max-md:flex-1 md:w-44"
             aria-label={t("tradeOffers.conditionFor", { name: option.name })}
           >
             <SelectValue>{t(`condition.names.${draft.condition}`)}</SelectValue>
@@ -96,7 +96,7 @@ export function TradeOfferOfferedRow({ draft, priceLabel, onChange, onRemove }: 
             checked={draft.isFoil}
             onCheckedChange={(checked) => onChange({ ...draft, isFoil: checked === true })}
           />
-          <label htmlFor={foilId} className="text-control">
+          <label htmlFor={foilId} className="text-control max-md:flex max-md:min-h-11 max-md:items-center max-md:pr-1">
             {t("foil")}
           </label>
         </span>

@@ -1,4 +1,6 @@
 import {
+  OWNER_TRADE_OFFERS_LIMIT_PARAM,
+  OWNER_TRADE_OFFERS_OFFSET_PARAM,
   SHARE_LINK_GUEST_KEY_HEADER,
   TRADE_OFFERS_CHANGED_EVENT,
   TRADE_OFFER_STATUSES,
@@ -50,6 +52,7 @@ import {
 } from "../../lib/session-stream";
 import {
   listOwnerTradeOffers,
+  parseOwnerTradeOffersPage,
   pickTradeOfferCards,
   respondToTradeOffer,
 } from "../../lib/trade-offers";
@@ -167,8 +170,14 @@ export const tradeOffersRouter = new Hono<AppEnv>()
       : null;
     const orgId = c.get("orgId");
     const jwtClaims = c.get("jwtClaims");
-    const data = await ownerTradeOffersCache.get(orgId, status ?? "all", () =>
-      authQuery(jwtClaims, (tx) => listOwnerTradeOffers(tx, orgId, status)),
+    const page = parseOwnerTradeOffersPage(
+      c.req.query(OWNER_TRADE_OFFERS_LIMIT_PARAM),
+      c.req.query(OWNER_TRADE_OFFERS_OFFSET_PARAM),
+    );
+    const data = await ownerTradeOffersCache.get(
+      orgId,
+      JSON.stringify([status ?? "all", page?.limit ?? null, page?.offset ?? null]),
+      () => authQuery(jwtClaims, (tx) => listOwnerTradeOffers(tx, orgId, status, page)),
     );
     return c.json({ success: true, data });
   })

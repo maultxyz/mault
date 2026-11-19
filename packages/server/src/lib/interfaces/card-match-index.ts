@@ -90,6 +90,7 @@ export interface CardMatchSegmentEntry {
   lang: string;
   segment: CardMatchSegment | null;
   signature: string | null;
+  cardsTableWriteCount: string | null;
   loading: Promise<void> | null;
   queuedForBackgroundLoad: boolean;
   reloadRequested: boolean;
@@ -106,6 +107,7 @@ export interface CardMatchSegmentSignature {
 export interface LoadedCardMatchSegment {
   segment: CardMatchSegment;
   signature: string;
+  cardsTableWriteCount: string;
 }
 
 export interface CardNameTrigramIndex {

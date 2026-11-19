@@ -1,6 +1,9 @@
 import {
+  IDENTIFY_REQUEST_TIMEOUT_MS,
   printedLanguageCodeFormValue,
   PRINTED_LANGUAGE_CODE_FORM_FIELD,
+  requestIdentifyWithRetries,
+  RESOLVED_GAME_KEY_FORM_FIELD,
   type CardSearchResult,
   type CardTextSearchResult,
   type PlayingCard,
@@ -39,17 +42,23 @@ export function searchByVector(
       form.append(PRINTED_LANGUAGE_CODE_FORM_FIELD, printedLanguageCode);
     }
   }
-  return apiPostForm<CardSearchResult>("/api/cards/by-vector", form);
+  return requestIdentifyWithRetries(() =>
+    apiPostForm<CardSearchResult>("/api/cards/by-vector", form, IDENTIFY_REQUEST_TIMEOUT_MS),
+  );
 }
 
 export function searchByText(
   embedding: number[],
   scope: MatchScope,
   imageUri: string,
+  resolvedGameKey?: string,
 ): Promise<CardTextSearchResult> {
   const form = scopeForm(embedding, scope);
   form.append("image", { uri: imageUri, name: "card.jpg", type: "image/jpeg" } as unknown as Blob);
-  return apiPostForm<CardTextSearchResult>("/api/cards/by-text", form);
+  if (resolvedGameKey) form.append(RESOLVED_GAME_KEY_FORM_FIELD, resolvedGameKey);
+  return requestIdentifyWithRetries(() =>
+    apiPostForm<CardTextSearchResult>("/api/cards/by-text", form, IDENTIFY_REQUEST_TIMEOUT_MS),
+  );
 }
 
 export async function getCardById(

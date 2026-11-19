@@ -40,6 +40,28 @@ describe("routeCardToBin", () => {
     expect(params.triggerAutoFeedAfterRoutedCard).not.toHaveBeenCalled();
   });
 
+  it("hands the next feed to the caller instead of feeding when it is deferred", async () => {
+    let deferredFeed: (() => Promise<void>) | null = null;
+    const params = routeParams(
+      { status: "routed" },
+      {
+        deferNextFeed: (feedNextCard) => {
+          deferredFeed = feedNextCard;
+        },
+      },
+    );
+    await routeCardToBin(params);
+    expect(params.triggerAutoFeedAfterRoutedCard).not.toHaveBeenCalled();
+    expect(deferredFeed).toBe(params.triggerAutoFeedAfterRoutedCard);
+  });
+
+  it("never defers a feed after a failed route", async () => {
+    const deferNextFeed = vi.fn();
+    const params = routeParams({ error: "jam" }, { deferNextFeed });
+    await routeCardToBin(params);
+    expect(deferNextFeed).not.toHaveBeenCalled();
+  });
+
   it("does not feed after a failed route", async () => {
     const params = routeParams({ error: "timeout: no card detected at module 2" });
     await routeCardToBin(params);

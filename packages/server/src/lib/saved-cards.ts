@@ -20,6 +20,7 @@ import type {
   SavedCardScope,
   SavedCardSnapshots,
   SavedScanFields,
+  SavedScanHydrateOptions,
 } from "./interfaces/saved-cards";
 
 const catalogCardCache = createCatalogCardCache({
@@ -108,7 +109,7 @@ function withCatalogMissingFlag<T extends PlayingCard>(card: T, isMissingFromCat
 export async function hydrateSavedScans<T extends SavedScanFields>(
   scope: SavedCardScope,
   scans: T[],
-  options: SavedCardHydrateOptions,
+  options: SavedScanHydrateOptions,
 ): Promise<T[]> {
   const keys = scans.flatMap((scan) =>
     [scan.card, ...(scan.alternativeMatches ?? [])].flatMap(
@@ -116,22 +117,48 @@ export async function hydrateSavedScans<T extends SavedScanFields>(
     ),
   );
   if (keys.length === 0) return scans;
-  const catalog = await catalogCardCache.load(keys);
-  const hydrate = <C extends PlayingCard>(card: C): C => {
+  return hydrateSavedScansFromCatalog(
+    scope,
+    scans,
+    await catalogCardCache.load(keys),
+    options,
+  );
+}
+
+export function hydrateSavedScansFromCatalog<T extends SavedScanFields>(
+  scope: SavedCardScope,
+  scans: T[],
+  catalog: Map<string, PlayingCard>,
+  options: SavedScanHydrateOptions,
+): T[] {
+  const mainCardOptions = { includeRaw: options.includeRaw };
+  const alternativeMatchOptions = {
+    includeRaw: options.includeRawOnAlternativeMatches ?? options.includeRaw,
+  };
+  const hydrate = <C extends PlayingCard>(
+    card: C,
+    cardOptions: SavedCardHydrateOptions,
+  ): C => {
     const key = lookupKey(scope, card);
     return withCollectionLanguage(
-      withCatalogCard(card, key ? catalog.get(key) : undefined, options),
+      withCatalogCard(card, key ? catalog.get(key) : undefined, cardOptions),
       scope.lang,
     );
   };
   const hydrateMainCard = <C extends PlayingCard>(card: C): C => {
     const key = lookupKey(scope, card);
-    return withCatalogMissingFlag(hydrate(card), !!key && !catalog.has(key));
+    return withCatalogMissingFlag(
+      hydrate(card, mainCardOptions),
+      !!key && !catalog.has(key),
+    );
   };
   return scans.map((scan) => ({
     ...scan,
     card: scan.card ? hydrateMainCard(scan.card) : scan.card,
-    alternativeMatches: scan.alternativeMatches?.map(hydrate) ?? scan.alternativeMatches,
+    alternativeMatches:
+      scan.alternativeMatches?.map((alternative) =>
+        hydrate(alternative, alternativeMatchOptions),
+      ) ?? scan.alternativeMatches,
   }));
 }
 

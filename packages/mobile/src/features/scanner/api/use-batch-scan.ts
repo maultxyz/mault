@@ -81,6 +81,7 @@ export function useBatchScan(initialMode: BatchScanMode) {
         scope: { collectionGuid: collection.guid },
         matchesNeeded: 1,
         checkBothOrientations: DEFAULT_CHECK_BOTH_ORIENTATIONS,
+        preferredOrientation: "upright" as const,
         ocrMode: scanOcrMode(
           orgSettings,
           (OCR_REGIONS_BY_GAME_KEY[gameKey]?.length ?? 0) > 0,

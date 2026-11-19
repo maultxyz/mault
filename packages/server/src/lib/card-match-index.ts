@@ -81,6 +81,18 @@ function sentEmbeddingSql(
     : sql`vector_send(${column})`;
 }
 
+async function loadCardsTableWriteCount(): Promise<string> {
+  const result = await db.execute<{ write_count: string }>(sql`
+    SELECT (
+      pg_stat_get_tuples_inserted(cards_table.oid)
+      + pg_stat_get_tuples_updated(cards_table.oid)
+      + pg_stat_get_tuples_deleted(cards_table.oid)
+    )::text AS write_count
+    FROM (SELECT 'cards'::regclass::oid AS oid) AS cards_table
+  `);
+  return result.rows[0].write_count;
+}
+
 async function loadSegmentSignature(
   gameKey: string,
   lang: string,
@@ -119,6 +131,7 @@ async function loadSegment(
   lang: string,
 ): Promise<LoadedCardMatchSegment> {
   const startedAt = Date.now();
+  const cardsTableWriteCount = await loadCardsTableWriteCount();
   const signature = await loadSegmentSignature(gameKey, lang);
   const adapter = resolveCardSearchForGame(gameKey, lang)?.adapter;
   const rarePrintingSql = adapter?.rarePrintingSql ?? sql`false`;
@@ -185,7 +198,7 @@ async function loadSegment(
   console.log(
     `[card-match-index] loaded ${gameKey}/${lang}: ${segment.rowCount} cards, ${Math.round(cardMatchSegmentBytes(segment) / 1024 / 1024)} MB in ${Date.now() - startedAt}ms`,
   );
-  return { segment, signature: signature.value };
+  return { segment, signature: signature.value, cardsTableWriteCount };
 }
 
 function logReloadFailure(entry: CardMatchSegmentEntry) {
@@ -203,9 +216,10 @@ function reloadSegment(entry: CardMatchSegmentEntry): Promise<void> {
   }
   entry.checkedAt = Date.now();
   const loading = loadSegment(entry.gameKey, entry.lang)
-    .then(({ segment, signature }) => {
+    .then(({ segment, signature, cardsTableWriteCount }) => {
       entry.segment = segment;
       entry.signature = signature;
+      entry.cardsTableWriteCount = cardsTableWriteCount;
       evictIdleSegmentsOverBudget();
     })
     .finally(() => {
@@ -263,9 +277,14 @@ function revalidateSegmentInBackground(entry: CardMatchSegmentEntry) {
     return;
   }
   entry.checkedAt = Date.now();
-  loadSegmentSignature(entry.gameKey, entry.lang)
-    .then((signature) => {
-      if (signature.value === entry.signature) return undefined;
+  loadCardsTableWriteCount()
+    .then(async (cardsTableWriteCount) => {
+      if (cardsTableWriteCount === entry.cardsTableWriteCount) return undefined;
+      const signature = await loadSegmentSignature(entry.gameKey, entry.lang);
+      if (signature.value === entry.signature) {
+        entry.cardsTableWriteCount = cardsTableWriteCount;
+        return undefined;
+      }
       clearCatalogReadCaches();
       clearCachedCatalogCards();
       return reloadSegment(entry);
@@ -282,6 +301,7 @@ function segmentEntry(gameKey: string, lang: string): CardMatchSegmentEntry {
       lang,
       segment: null,
       signature: null,
+      cardsTableWriteCount: null,
       loading: null,
       queuedForBackgroundLoad: false,
       reloadRequested: false,

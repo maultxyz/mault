@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
 import type { AccessibilityValue, RefreshControlProps, StyleProp, TextProps, ViewStyle } from "react-native";
-import type { CommLogEntry, PlayingCard, ScanRegion } from "@magic-vault/shared";
+import type { PlayingCard, ScanRegion } from "@magic-vault/shared";
 import type { ICONS } from "@/lib/constants/icons";
 import type { LiveCorners } from "@/lib/interfaces/scanner";
 import type { SwipeRowAction } from "@/lib/interfaces/search";
@@ -148,6 +148,7 @@ export interface ScreenProps {
   onRefresh?: () => unknown;
   edges?: ("top" | "bottom")[];
   header?: ReactNode;
+  footer?: ReactNode;
   contentStartsWithList?: boolean;
 }
 
@@ -232,10 +233,6 @@ export interface CardRowProps {
   checked?: boolean;
   onPress?: () => void;
   onPressIn?: () => void;
-}
-
-export interface CommLogProps {
-  entries: CommLogEntry[];
 }
 
 export interface CardTileProps {

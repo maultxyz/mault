@@ -6,3 +6,7 @@ export function cardArtSources(image: CardArtImageUrls | null | undefined): Card
   const placeholderUrl = image?.normal && image.small && image.small !== image.normal ? absoluteUrl(image.small) : null;
   return { imageUrl, placeholderUrl };
 }
+
+export function cardThumbnailUrl(image: CardArtImageUrls | null | undefined): string | null {
+  return absoluteUrl(image?.small ?? image?.normal);
+}

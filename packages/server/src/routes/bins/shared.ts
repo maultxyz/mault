@@ -346,14 +346,22 @@ const binSetQuery = {
   },
 } as const;
 
-export async function loadSets(tx: Transaction, orgId: string) {
+export async function loadSets(
+  tx: Transaction,
+  orgId: string,
+  emptiedTimesCollectionId?: number,
+) {
   const rows = await tx.query.binSets.findMany({
     ...binSetQuery,
     where: (binSets, { eq, and }) =>
       and(eq(binSets.orgId, orgId), eq(binSets.isDeleted, false)),
     orderBy: (binSets, { desc }) => [desc(binSets.updatedAt)],
   });
-  const emptiedTimes = await loadBinEmptiedTimes(tx, orgId);
+  const emptiedTimes = await loadBinEmptiedTimes(
+    tx,
+    orgId,
+    emptiedTimesCollectionId,
+  );
   const fillLocations = await loadFillLocations(tx, [
     ...new Set(
       rows.flatMap((row) => [

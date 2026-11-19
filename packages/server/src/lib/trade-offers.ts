@@ -1,4 +1,5 @@
 import {
+  OWNER_TRADE_OFFERS_PAGE_LIMIT_MAX,
   PRICE_SOURCE_FIELDS,
   TRADE_OFFER_PENDING_PER_GUEST_MAX,
   cardPriceFor,
@@ -43,6 +44,7 @@ import type {
   CreateTradeOfferInput,
   CurrentTradeOfferWantedCards,
   CreateTradeOfferResult,
+  OwnerTradeOffersPage,
   PickTradeOfferCardsInput,
   PickTradeOfferCardsResult,
   RemoveTradeOfferWantedCardsInput,
@@ -345,12 +347,27 @@ function offeredCashInCurrency(offer: PublicTradeOffer, currency: string): numbe
   return cash && cash.currency === currency ? cash.amount : null;
 }
 
+export function parseOwnerTradeOffersPage(
+  requestedLimit: string | undefined,
+  requestedOffset: string | undefined,
+): OwnerTradeOffersPage | null {
+  if (requestedLimit === undefined) return null;
+  const limit = Number.parseInt(requestedLimit, 10);
+  if (!Number.isInteger(limit) || limit < 1) return null;
+  const offset = Number.parseInt(requestedOffset ?? "0", 10);
+  return {
+    limit: Math.min(limit, OWNER_TRADE_OFFERS_PAGE_LIMIT_MAX),
+    offset: Number.isInteger(offset) && offset > 0 ? offset : 0,
+  };
+}
+
 export async function listOwnerTradeOffers(
   tx: Transaction,
   orgId: string,
   status: TradeOfferStatus | null,
+  page: OwnerTradeOffersPage | null = null,
 ): Promise<TradeOffer[]> {
-  const rows = await tx
+  const orderedRows = tx
     .select({
       offer: tradeOffers,
       collectionName: collections.name,
@@ -365,7 +382,10 @@ export async function listOwnerTradeOffers(
         status ? eq(tradeOffers.status, status) : undefined,
       ),
     )
-    .orderBy(desc(tradeOffers.createdAt));
+    .orderBy(desc(tradeOffers.createdAt), desc(tradeOffers.id));
+  const rows = page
+    ? await orderedRows.limit(page.limit).offset(page.offset)
+    : await orderedRows;
   const offers = rows.map((row) => ({ ...row, public: toPublicTradeOffer(row.offer) }));
   const pricing = await loadOrgPricing(tx, orgId);
   const wantedScanIds = offers.flatMap((entry) => entry.public.wanted.map((card) => card.scanId));

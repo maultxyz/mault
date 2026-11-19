@@ -1,4 +1,7 @@
-import { OCR_REGIONS_BY_GAME_KEY } from "@magic-vault/shared";
+import {
+  OCR_REGIONS_BY_GAME_KEY,
+  RESOLVED_GAME_KEY_FORM_FIELD,
+} from "@magic-vault/shared";
 import { Hono } from "hono";
 import {
   findBestMatchAcrossGames,
@@ -58,8 +61,14 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
     }
     const matchGameKeys = parseMatchGameKeys(body["matchGameKeys"]);
     const scopes = matchScopesForGames(collectionScope, matchGameKeys);
+    const requestedGameKey = body[RESOLVED_GAME_KEY_FORM_FIELD];
+    const requestedScope =
+      typeof requestedGameKey === "string"
+        ? scopes.find((scope) => scope.gameKey === requestedGameKey)
+        : undefined;
     const resolved =
-      scopes.length > 1
+      requestedScope ??
+      (scopes.length > 1
         ? (
             await findBestMatchAcrossGames(scopes, (matchScope) =>
               findCardMatches({
@@ -70,7 +79,7 @@ export const searchByTextRoute = new Hono<AppEnv>().post(
               }),
             )
           ).scope
-        : collectionScope;
+        : collectionScope);
     const { gameKey, lang } = resolved;
 
     if (!(await isOcrEnabledForOrg(c.get("jwtClaims"), c.get("orgId")))) {

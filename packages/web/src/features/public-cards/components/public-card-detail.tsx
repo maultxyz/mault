@@ -251,7 +251,7 @@ export function PublicCardDetailView({
           {tradeOffer && (
             <Button
               variant={tradeOffer.isWanted(detail.scanId) ? "selected" : "outline"}
-              className="mt-2 mr-1.5"
+              className="mt-2 mr-1.5 max-md:mr-0 max-md:w-full"
               aria-pressed={tradeOffer.isWanted(detail.scanId)}
               onClick={() => tradeOffer.toggleWanted(detail)}
             >

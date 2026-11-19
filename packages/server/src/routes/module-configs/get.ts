@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { getDeviceByGuid } from "../../lib/devices";
-import { readOrgResource } from "../../lib/org-resource-read-cache";
+import { readOrgSettingsResource } from "../../lib/org-resource-read-cache";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { buildConfigs } from "./shared";
 
@@ -12,7 +12,7 @@ export const getModuleConfigsRoute = new Hono<AppEnv>().get(
   async (c) => {
     const orgId = c.get("orgId");
     const deviceGuid = c.req.param("guid") as string;
-    const result = await readOrgResource(orgId, `devices:modules:${deviceGuid}`, () =>
+    const result = await readOrgSettingsResource(orgId, `devices:modules:${deviceGuid}`, () =>
       authQuery(c.get("jwtClaims"), async (tx) => {
         const device = await getDeviceByGuid(tx, orgId, deviceGuid);
         if (!device) return { success: false, message: "Device not found." };

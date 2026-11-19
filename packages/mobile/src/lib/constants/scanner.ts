@@ -91,6 +91,9 @@ export const BATCH_SCAN_CORRECTION_SHEET_MAX_HEIGHT_RATIO = 0.9;
 export const CAMERA_MOUNT_SETTLE_MS = 400;
 
 export const SCAN_SAVED_STATUS_MS = 3000;
+export const SCAN_MODEL_DOWNLOAD_PROGRESS_STEP_PERCENT = 10;
+export const SCAN_MODEL_WARM_DELAY_MS = 2000;
+export const LIVE_DETECTION_MIN_GAP_MS = 120;
 
 export const ANNOUNCED_SCANNER_PHASES: ScannerPhase[] = ["idle", "ready", "paused", "error"];
 

@@ -29,6 +29,7 @@ import type {
   ScanOutcome,
 } from "@/lib/interfaces/scanner";
 import { scanLog } from "@/lib/scan-log";
+import { IDENTIFY_REQUEST_OPTIONS } from "@/lib/constants/scanner";
 import {
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
@@ -36,7 +37,10 @@ import {
   identifyScanImage,
   identifyScanWithConsensus,
   hasCardMatch,
+  requestIdentifyWithRetries,
   resolveCardSearchMatches,
+  RESOLVED_GAME_KEY_FORM_FIELD,
+  ScanIdentifyRequestError,
   toScanMatchDetails,
   type CardContour,
   type CardTextSearchResult,
@@ -44,6 +48,7 @@ import {
   PRINTED_LANGUAGE_CODE_FORM_FIELD,
   type PrintingMarksPayload,
   type ScanOcrMode,
+  type ScanOrientation,
   type ScanDetectionDiagnostics,
 } from "@magic-vault/shared";
 
@@ -107,6 +112,7 @@ async function searchOrientationText(
   embedding: number[],
   scope: MatchScope,
   created: HTMLCanvasElement[],
+  resolvedGameKey?: string,
 ): Promise<CardTextSearchResult | null> {
   const crop =
     orientation === "rotated"
@@ -114,8 +120,15 @@ async function searchOrientationText(
       : uprightOcrCrop;
   if (crop !== uprightOcrCrop) created.push(crop);
   try {
-    const result = await searchByText(
-      buildSearchFormData(embedding, scope, await canvasToBlob(crop)),
+    const formData = buildSearchFormData(
+      embedding,
+      scope,
+      await canvasToBlob(crop),
+    );
+    if (resolvedGameKey)
+      formData.append(RESOLVED_GAME_KEY_FORM_FIELD, resolvedGameKey);
+    const result = await requestIdentifyWithRetries(() =>
+      searchByText(formData, IDENTIFY_REQUEST_OPTIONS),
     );
     scanLog(
       `[scanner] OCR (${orientation}): name="${result.ocr?.readout.name ?? ""}" setLine="${result.ocr?.readout.setLine ?? ""}" number="${result.ocr?.readout.number ?? ""}" closestName=${result.ocr?.matchedName ? `"${result.ocr.matchedName}" (${(result.ocr.nameScore ?? 0).toFixed(2)})` : "none"} -> ${hasCardMatch(result) ? `matched ${result.data![0].cardId} at ${result.data![0].distance.toFixed(3)}` : "no match"}`,
@@ -228,6 +241,7 @@ async function searchCardImage(
   checkBothOrientations: boolean,
   gameKey: string | undefined,
   skipCardDetection: boolean,
+  preferredOrientation: ScanOrientation | null,
 ): Promise<ScanAttemptOutcome> {
   const created: HTMLCanvasElement[] = [];
   try {
@@ -241,6 +255,7 @@ async function searchCardImage(
       checkBothOrientations,
       gameKey,
       skipCardDetection,
+      preferredOrientation,
     );
   } finally {
     releaseCanvases(created, [canvas]);
@@ -257,6 +272,7 @@ async function runCardImageSearch(
   checkBothOrientations: boolean,
   gameKey: string | undefined,
   skipCardDetection: boolean,
+  preferredOrientation: ScanOrientation | null,
 ): Promise<ScanAttemptOutcome> {
   const { collectionGuid } = scope;
   let fallbackReason = "card not detected";
@@ -300,10 +316,18 @@ async function runCardImageSearch(
       const readText = (
         orientation: OrientedCandidate["orientation"],
         embedding: number[],
+        resolvedGameKey?: string,
       ) => {
         const crop = ocrCrop();
         return crop
-          ? searchOrientationText(crop, orientation, embedding, scope, created)
+          ? searchOrientationText(
+              crop,
+              orientation,
+              embedding,
+              scope,
+              created,
+              resolvedGameKey,
+            )
           : Promise.resolve(null);
       };
       const printingMarksFor = printingMarksSampler(
@@ -314,6 +338,7 @@ async function runCardImageSearch(
       const readsTextWithImage = ocrMode === "every-scan" && !!cardContour;
       const identified = await identifyScanImage({
         checkBothOrientations,
+        preferredOrientation,
         ocrMode,
         search: async (orientation) => {
           const oriented =
@@ -322,14 +347,15 @@ async function runCardImageSearch(
               : dewarpedCanvas;
           created.push(oriented);
           const embedding = await embedCanvas(oriented);
+          const vectorFormData = buildSearchFormData(
+            embedding,
+            scope,
+            undefined,
+            printingMarksFor(orientation),
+          );
           const [result, textResult] = await Promise.all([
-            searchByVector(
-              buildSearchFormData(
-                embedding,
-                scope,
-                undefined,
-                printingMarksFor(orientation),
-              ),
+            requestIdentifyWithRetries(() =>
+              searchByVector(vectorFormData, IDENTIFY_REQUEST_OPTIONS),
             ),
             readsTextWithImage ? readText(orientation, embedding) : undefined,
           ]);
@@ -345,6 +371,7 @@ async function runCardImageSearch(
           const result = await readText(
             candidate.orientation,
             candidate.embedding,
+            candidate.result.data?.[0]?.gameKey,
           );
           return result
             ? { ...candidate, result, ocr: result.ocr ?? null }
@@ -375,6 +402,7 @@ async function runCardImageSearch(
     }
     fallbackReason = `card not detected (cardPresent=${corners.cardPresent}, sharpness=${corners.sharpness ?? "n/a"})`;
   } catch (err) {
+    if (err instanceof ScanIdentifyRequestError) throw err;
     fallbackReason = `client-side vectorization threw: ${err instanceof Error ? err.message : String(err)}`;
     console.error(
       "[scanner] client-side vectorization failed, falling back to server:",
@@ -389,8 +417,12 @@ async function runCardImageSearch(
     warpedCanvas,
     checkBothOrientations,
     async (oriented) => {
-      const result = await searchByImage(
-        buildImageSearchFormData(await canvasToBlob(oriented), scope),
+      const formData = buildImageSearchFormData(
+        await canvasToBlob(oriented),
+        scope,
+      );
+      const result = await requestIdentifyWithRetries(() =>
+        searchByImage(formData, IDENTIFY_REQUEST_OPTIONS),
       );
       return { result, embedding: result.diagnostics?.embedding ?? null };
     },
@@ -429,6 +461,7 @@ function toScanOutcome(
     detectedContour,
     vectorizedOn,
     dewarpedCardImage,
+    matchedOrientation: card && detectedContour ? outcome.orientation : null,
     ...toScanMatchDetails(outcome, attempts, matchesNeeded, vectorizedOn),
   };
 }
@@ -443,6 +476,7 @@ export async function searchCardImageWithConsensus(
   checkBothOrientations: boolean,
   gameKey: string | undefined,
   skipCardDetection = false,
+  preferredOrientation: ScanOrientation | null = null,
 ): Promise<ScanOutcome> {
   const result = await identifyScanWithConsensus(
     () =>
@@ -455,6 +489,7 @@ export async function searchCardImageWithConsensus(
         checkBothOrientations,
         gameKey,
         skipCardDetection,
+        preferredOrientation,
       ),
     (attempt) => attempt.card,
     matchesNeeded,

@@ -1,6 +1,6 @@
 import { keepPreviousData, useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { BlurView } from "expo-blur";
 import { useTranslation } from "react-i18next";
 import { FlatList, View, type NativeScrollEvent, type NativeSyntheticEvent } from "react-native";
@@ -15,7 +15,6 @@ import {
   type CardFilters,
   type GroupedScannedCard,
 } from "@magic-vault/shared";
-import { CardTile } from "@/components/cards/card-tile";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
@@ -33,6 +32,7 @@ import {
 } from "@/features/collections/api/collection-cards";
 import { toScanTimelineListRows } from "@/features/collections/lib/scan-timeline-rows";
 import { CardActionsSheet } from "@/features/collections/components/card-actions-sheet";
+import { CollectionCardTile } from "@/features/collections/components/collection-card-tile";
 import { CardViewOptionsSheet } from "@/features/collections/components/card-view-options-sheet";
 import { CardToolbar } from "@/features/collections/components/card-toolbar";
 import { CollectionGridSkeleton } from "@/features/collections/components/collection-grid-skeleton";
@@ -81,7 +81,6 @@ import { BUTTON_HEIGHTS } from "@/lib/constants/ui";
 import type { CollectionScanTimeline, ScanTimelineListRow } from "@/lib/interfaces/collections";
 import { readReviewLayout } from "@/lib/review-layout";
 import { writeKv } from "@/lib/storage/kv";
-import { cardArtSources } from "@/lib/card-art";
 
 export default function CollectionScreen() {
   const { guid } = useLocalSearchParams<{ guid: string }>();
@@ -227,35 +226,29 @@ export default function CollectionScreen() {
 
   const openUnmatched = () => router.push({ pathname: "/unmatched/[guid]", params: { guid } });
 
-  const openCard = (scanId: string) => router.push({ pathname: "/card/[scanId]", params: { scanId, guid } });
+  const openCard = useCallback(
+    (scanId: string) => router.push({ pathname: "/card/[scanId]", params: { scanId, guid } }),
+    [guid],
+  );
+  const prefetchCard = useCallback(
+    (scanId: string) => prefetchCollectionCard(guid, scanId),
+    [prefetchCollectionCard, guid],
+  );
 
-  const renderCardTile = (item: GroupedScannedCard) => {
-    const price = pricing.priceOf(
-      item.card,
-      { isFoil: item.isFoil, foilType: item.foilType },
-      item.condition,
-    );
-    const flagged = !!item.lowConfidenceMatch || !!item.alternativeMatches?.length;
-    return (
-      <View key={item.scanId} style={{ width: tileWidth }}>
-        <CardTile
-          name={item.card.name}
-          caption={
-            price != null
-              ? pricing.format(price)
-              : `${item.card.set.toUpperCase()} #${item.card.collectorNumber}`
-          }
-          {...cardArtSources(item.card.image)}
-          quantity={item.quantity}
-          flagged={flagged}
-          corrected={!!item.corrected || !!item.reviewed}
-          onPress={() => openCard(item.scanId)}
-          onPressIn={() => prefetchCollectionCard(guid, item.scanId)}
-          onLongPress={() => setActionsEntry(item)}
-        />
-      </View>
-    );
-  };
+  const renderCardTile = useCallback(
+    (item: GroupedScannedCard) => (
+      <CollectionCardTile
+        key={item.scanId}
+        item={item}
+        width={tileWidth}
+        pricing={pricing}
+        onOpen={openCard}
+        onPrefetch={prefetchCard}
+        onShowActions={setActionsEntry}
+      />
+    ),
+    [tileWidth, pricing, openCard, prefetchCard],
+  );
 
   const sharedListProps = {
     keyboardShouldPersistTaps: "handled" as const,

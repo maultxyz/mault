@@ -74,6 +74,7 @@ import {
   setCollectionCardTags,
   collectionCardQueryOptions,
   invalidateCollectionCards,
+  invalidateCollectionCardsAfterEdits,
   scanImageQueryOptions,
   updateCollectionCard,
 } from "@/features/collections/api/collection-cards";
@@ -244,7 +245,7 @@ export default function CardDetailScreen() {
       if (context) restoreCardCaches(queryClient, context.snapshot);
     },
     onSettled: () => {
-      invalidateCollectionCards(queryClient, guid);
+      invalidateCollectionCardsAfterEdits(queryClient, guid);
       void queryClient.invalidateQueries({ queryKey: cardAcquisitionCostQueryOptions(activeOrgId, scanId).queryKey });
     },
   });
@@ -262,7 +263,7 @@ export default function CardDetailScreen() {
     onError: (_error, _kind, context) => {
       if (context) restoreCardCaches(queryClient, context.snapshot);
     },
-    onSettled: () => invalidateCollectionCards(queryClient, guid),
+    onSettled: () => invalidateCollectionCardsAfterEdits(queryClient, guid),
   });
 
   const acceptInBackground = useMutation({
@@ -272,7 +273,7 @@ export default function CardDetailScreen() {
     onMutate: async ({ kind, acceptedScanId }): Promise<CardCachePatchContext> => ({
       snapshot: await patchCardsInCaches(queryClient, guid, [acceptedScanId], reviewedCardPatch(kind)),
     }),
-    onSettled: () => invalidateCollectionCards(queryClient, guid),
+    onSettled: () => invalidateCollectionCardsAfterEdits(queryClient, guid),
     onError: (_error, _variables, context) => {
       if (context) restoreCardCaches(queryClient, context.snapshot);
       AccessibilityInfo.announceForAccessibility(t("cardDetail.reviewAcceptFailed"));
@@ -305,7 +306,7 @@ export default function CardDetailScreen() {
       if (context) restoreCardCaches(queryClient, context.snapshot);
       AccessibilityInfo.announceForAccessibility(t("cardTags.saveFailed"));
     },
-    onSettled: () => invalidateCollectionCards(queryClient, guid),
+    onSettled: () => invalidateCollectionCardsAfterEdits(queryClient, guid),
   });
 
   const removeCardsWithUndo = useDeferredCardRemoval();

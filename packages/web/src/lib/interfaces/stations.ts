@@ -141,6 +141,7 @@ export interface StationOverviewCardProps {
   name: string;
   status: StationStatus;
   camera: ReactNode;
+  bins?: ReactNode;
   latestCard: PlayingCard | undefined;
   collectionName: string | undefined;
   totalCount: number;

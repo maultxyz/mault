@@ -179,6 +179,7 @@ export * from "./interfaces/scan-removal.interface";
 export * from "./constants/scan-removal.constant";
 export * from "./form-validation";
 export * from "./scan-identify";
+export * from "./card-settle";
 export * from "./serial-session";
 export * from "./sorter-link-connection";
 export * from "./image-proxy";

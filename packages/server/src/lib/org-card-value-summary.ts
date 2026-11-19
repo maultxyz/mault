@@ -16,6 +16,7 @@ import {
 import {
   HOME_READ_CACHE_MAX_ENTRIES,
   ORG_CARD_VALUE_SUMMARY_CACHE_TTL_MS,
+  ORG_CARD_VALUE_SUMMARY_MINIMUM_MS_BETWEEN_LOADS,
 } from "./constants/home-read-caches";
 import type {
   OrgCardValueSummary,
@@ -28,6 +29,7 @@ import { loadOrgPricing } from "./price-source";
 const orgCardValueSummaryCache = createOrgReadCache<OrgCardValueSummary>(
   ORG_CARD_VALUE_SUMMARY_CACHE_TTL_MS,
   HOME_READ_CACHE_MAX_ENTRIES,
+  ORG_CARD_VALUE_SUMMARY_MINIMUM_MS_BETWEEN_LOADS,
 );
 
 export function utcDayKey(date: Date = new Date()): string {

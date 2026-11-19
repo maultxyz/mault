@@ -203,7 +203,7 @@ export default function SorterScreen() {
             />
           }
         />
-        {showLog ? <CommLog entries={sorter.commLog} /> : null}
+        {showLog ? <CommLog /> : null}
       </View>
     </Screen>
   );
