@@ -546,6 +546,10 @@ export interface BinLevelCellProps {
   className?: string;
 }
 
+export interface BinLevelGridProps {
+  className?: string;
+}
+
 export interface BinLevelSummary {
   totalCards: number;
   fullest: BinFillLevel | null;

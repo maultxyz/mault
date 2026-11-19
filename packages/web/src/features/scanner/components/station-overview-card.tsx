@@ -21,6 +21,7 @@ export function StationOverviewCard({
   name,
   status,
   camera,
+  bins,
   latestCard,
   collectionName,
   totalCount,
@@ -76,6 +77,7 @@ export function StationOverviewCard({
       ) : (
         cameraArea
       )}
+      {bins}
       <div className="pointer-events-none absolute inset-x-2 top-2 flex items-start justify-between gap-2">
         <div className="flex flex-wrap items-center gap-1.5">
           {onToggleSelect && (
