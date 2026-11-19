@@ -1,21 +1,31 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  applyPickListFound,
   autoAssignOrderBins,
   buildOrderSortPresetBins,
   buildPickWalk,
+  buildSorterPickPresetBins,
+  findPickListEntry,
+  formatDecklist,
   fullyPickedOrders,
+  normalizePickListEntries,
+  parseDecklist,
   pickWalkStops,
+  sorterPickScanIds,
   withOrderPicks,
   type FulfilmentOrderDetail,
   hasEveryOrderBin,
+  IMPLICIT_ORDER_REF,
   orderBinsError,
   orderRefsOf,
   orderSortPresetGameKeys,
+  orderSortRefsOf,
   pickOrderGroups,
   resolveScanBin,
   type BinConfig,
   type OrderLine,
+  type PickList,
   type PlayingCard,
   type PullSheetEntry,
   type ScanRoutingContext,
@@ -37,6 +47,7 @@ function entry(scanId: string, lineIndex: number, name: string, gameKey = "mtg")
     binNumber: null,
     locationName: "Box A",
     locationPosition: 0,
+    locationGuid: null,
     picked: false,
     orderRef: null,
     gameKey,
@@ -80,7 +91,13 @@ test("order picking: bins must be unique, in range and leave the catch-all free"
   assert.equal(orderBinsError({ a: 5 }, 5), "catchAll");
   assert.equal(hasEveryOrderBin(orderRefsOf(lines), { "1001": 1 }), false);
   assert.equal(hasEveryOrderBin(orderRefsOf(lines), { "1001": 1, "1002": 2 }), true);
-  assert.equal(hasEveryOrderBin([], {}), false);
+  // a pick without order references needs only the implicit whole-order bin
+  assert.equal(hasEveryOrderBin([], {}), true);
+  assert.equal(hasEveryOrderBin(orderSortRefsOf(lines), { "1001": 1, "1002": 2 }), false);
+  assert.equal(
+    hasEveryOrderBin(orderSortRefsOf(lines), { "1001": 1, "1002": 2, [IMPLICIT_ORDER_REF]: 3 }),
+    true,
+  );
 });
 
 test("order picking: the sort preset has one pick-list bin per order and a catch-all", () => {
@@ -90,9 +107,9 @@ test("order picking: the sort preset has one pick-list bin per order and a catch
   assert.deepEqual(
     bins.map((bin) => [bin.binNumber, bin.isCatchAll, bin.pickList?.entries ?? null]),
     [
-      [1, false, [{ name: "Sol Ring", quantity: 1, found: 0 }]],
+      [1, false, [{ name: "Sol Ring", quantity: 1, found: 0, isFoil: false }]],
       [2, false, null],
-      [3, false, [{ name: "Sol Ring", quantity: 2, found: 0 }]],
+      [3, false, [{ name: "Sol Ring", quantity: 2, found: 0, isFoil: false }]],
       [4, false, null],
       [5, true, null],
     ],
@@ -126,6 +143,101 @@ test("order picking: a card from the batch routes to its order's bin until that 
   assert.equal(second.action === "route" && second.bin?.binNumber, 2);
   const other = resolveScanBin({ name: "Counterspell" }, context);
   assert.equal(other.action === "route" && other.bin?.binNumber, 3);
+});
+
+test("order picking: pick lists match the closest printing and reject conflicting ones", () => {
+  const pickList: PickList = {
+    mode: "until_found",
+    entries: [
+      {
+        name: "Sol Ring",
+        quantity: 1,
+        found: 0,
+        setCode: "m10",
+        collectorNumber: "1",
+        isFoil: false,
+      },
+      { name: "Sol Ring", quantity: 2, found: 0 },
+    ],
+  };
+  const scan = (set?: string, collector?: string, isFoil?: boolean) => ({
+    name: "Sol Ring",
+    setCode: set ?? null,
+    collectorNumber: collector ?? null,
+    isFoil: isFoil ?? null,
+  });
+  // the exact printing wins over the unspecified copy
+  assert.equal(findPickListEntry(scan("m10", "1"), pickList)?.setCode, "m10");
+  // a different printing falls back to the unspecified entry
+  assert.equal(findPickListEntry(scan("ddb", "2"), pickList)?.setCode, undefined);
+  // a name-only scan matches the unspecified entry
+  assert.equal(findPickListEntry({ name: "Sol Ring" }, pickList)?.setCode, undefined);
+  // a foil copy falls to the unspecified entry, not the non-foil one
+  assert.equal(findPickListEntry(scan("m10", "1", true), pickList)?.setCode, undefined);
+  // a conflicting scan never fills the only entry
+  const strict: PickList = {
+    mode: "until_found",
+    entries: [{ name: "Sol Ring", quantity: 2, found: 0, setCode: "m10" }],
+  };
+  assert.equal(findPickListEntry(scan("ddb", "2"), strict), undefined);
+  assert.equal(findPickListEntry({ name: "Sol Ring" }, strict)?.setCode, "m10");
+  // found counts target the entry they matched
+  assert.equal(applyPickListFound(pickList, scan("m10", "1"), 1)?.entries[0]?.found, 1);
+  assert.equal(applyPickListFound(pickList, { name: "Sol Ring" }, 1)?.entries[1]?.found, 1);
+});
+
+test("order picking: pick lists with different printings of a card stay separate entries", () => {
+  assert.deepEqual(
+    normalizePickListEntries([
+      { name: "Sol Ring", quantity: 1, setCode: "m10" },
+      { name: "Sol Ring", quantity: 1 },
+      { name: "Sol Ring", quantity: 1, setCode: "m10" },
+    ]),
+    [
+      { name: "Sol Ring", quantity: 2, setCode: "m10" },
+      { name: "Sol Ring", quantity: 1 },
+    ],
+  );
+});
+
+test("order picking: the sorter routes each printing to its own bin and puts conflicting cards back", () => {
+  const printingCard = (set: string, collector: string): PlayingCard =>
+    ({ name: "Sol Ring", set, collectorNumber: collector }) as PlayingCard;
+  const groups = pickOrderGroups(
+    [line("Sol Ring", "1001", ["a"]), line("Sol Ring", "1002", ["b"])],
+    [
+      { ...entry("a", 0, "Sol Ring"), card: printingCard("m10", "1") },
+      { ...entry("b", 1, "Sol Ring"), card: printingCard("ddb", "2") },
+    ],
+    { "1001": 1, "1002": 2 },
+  );
+  const configs: BinConfig[] = buildOrderSortPresetBins(groups, "mtg", 3).map((bin) => ({
+    guid: `bin-${bin.binNumber}`,
+    binNumber: bin.binNumber,
+    isCatchAll: bin.isCatchAll,
+    pickList: bin.pickList,
+    rules: { id: `rules-${bin.binNumber}`, combinator: "and", conditions: [] },
+  }));
+  const context = {
+    binSet: null,
+    configs,
+    fieldDefinitions: [],
+    binContents: [],
+    countCardsInBin: () => 0,
+    isBinFull: () => false,
+    binRoom: () => Infinity,
+    createRuleId: () => "new-rule",
+  } as ScanRoutingContext;
+  const first = resolveScanBin({ name: "Sol Ring", set: "m10", collectorNumber: "1" }, context);
+  assert.equal(first.action === "route" && first.bin?.binNumber, 1);
+  configs[0].pickList!.entries[0].found = 1;
+  // the ddb copy the second order wants still reaches bin 2
+  const wanted = resolveScanBin({ name: "Sol Ring", set: "ddb", collectorNumber: "2" }, context);
+  assert.equal(wanted.action === "route" && wanted.bin?.binNumber, 2);
+  configs[1].pickList!.entries[0].found = 1;
+  // an extra m10 copy nobody wants falls to the catch-all instead of filling a pick
+  const extra = resolveScanBin({ name: "Sol Ring", set: "m10", collectorNumber: "1" }, context);
+  assert.equal(extra.action === "route" && extra.bin?.isCatchAll, true);
 });
 
 test("order picking: moving a line to another order keeps its allocated copies", async () => {
@@ -205,4 +317,131 @@ test("marks picks on an order and finds fully picked orders", () => {
   assert.deepEqual(fullyPickedOrders([partly], new Set(["a1"])), []);
   assert.deepEqual(fullyPickedOrders([partly], new Set(["a1", "a2"])).map((item) => item.guid), ["x"]);
   assert.equal(withOrderPicks(partly, new Set(["a1"]), false).picked, 0);
+});
+
+test("merges pick lists when orders in a batch share a sorter bin", () => {
+  const first = pickOrderGroups(
+    [line("Sol Ring", "1001", ["a"])],
+    [entry("a", 0, "Sol Ring")],
+    { "1001": 1 },
+  );
+  const second = pickOrderGroups(
+    [line("Sol Ring", "1002", ["b", "c"]), line("Opt", "1002", ["d"])],
+    [entry("b", 0, "Sol Ring"), entry("c", 0, "Sol Ring"), entry("d", 1, "Opt")],
+    { "1002": 1 },
+  );
+  const bins = buildOrderSortPresetBins([...first, ...second], "mtg", 3);
+  assert.deepEqual(bins[0].pickList?.entries, [
+    { name: "Sol Ring", quantity: 3, found: 0, isFoil: false },
+    { name: "Opt", quantity: 1, found: 0, isFoil: false },
+  ]);
+  assert.equal(bins[0].isCatchAll, false);
+  assert.equal(bins[1].pickList, null);
+  assert.equal(bins[2].isCatchAll, true);
+});
+
+test("order picking: decklist lines keep their printing data", () => {
+  const text = [
+    "1 Rayquaza EX [SWSH01: 143]",
+    "1 Rayquaza EX [SWSH01 #144]",
+    "2 Rayquaza EX (SWSH01) 145",
+    "1 Rayquaza EX [SWSH01: 143] *F*",
+    "1 Rayquaza EX",
+    "1 Bolt #12",
+    "4 Lightning Bolt",
+    "Deck",
+    "// comment",
+  ].join("\n");
+  const entries = parseDecklist(text);
+  // two different printings of Rayquaza EX from the same set stay separate
+  assert.deepEqual(entries, [
+    { name: "Rayquaza EX", quantity: 1, setCode: "SWSH01", collectorNumber: "143" },
+    { name: "Rayquaza EX", quantity: 1, setCode: "SWSH01", collectorNumber: "144" },
+    { name: "Rayquaza EX", quantity: 2, setCode: "SWSH01", collectorNumber: "145" },
+    { name: "Rayquaza EX", quantity: 1, setCode: "SWSH01", collectorNumber: "143", isFoil: true },
+    { name: "Rayquaza EX", quantity: 1 },
+    { name: "Bolt", quantity: 1, collectorNumber: "12" },
+    { name: "Lightning Bolt", quantity: 4 },
+  ]);
+  // formatting keeps the printing so the textarea round-trips it
+  assert.equal(
+    formatDecklist(entries.slice(0, 3)),
+    [
+      "1 Rayquaza EX [SWSH01: 143]",
+      "1 Rayquaza EX [SWSH01: 144]",
+      "2 Rayquaza EX [SWSH01: 145]",
+    ].join("\n"),
+  );
+  // same name and printing still merge into one entry
+  assert.deepEqual(
+    parseDecklist("1 Sol Ring [M10: 1]\n2 Sol Ring [m10:1]"),
+    [{ name: "Sol Ring", quantity: 3, setCode: "M10", collectorNumber: "1" }],
+  );
+});
+
+test("order picking: a pick without order references sorts as one implicit whole-order group", () => {
+  const groups = pickOrderGroups(
+    [line("Sol Ring", null, ["a"]), line("Opt", null, ["b"])],
+    [entry("a", 0, "Sol Ring"), entry("b", 1, "Opt")],
+    { [IMPLICIT_ORDER_REF]: 2 },
+  );
+  assert.deepEqual(orderSortRefsOf([line("Sol Ring", null, ["a"])]), [""]);
+  assert.deepEqual(orderSortRefsOf([line("Sol Ring", "1001", ["a"])]), ["1001"]);
+  assert.deepEqual(groups.map((group) => [group.orderRef, group.binNumber]), [
+    [null, 2],
+  ]);
+  assert.deepEqual(orderSortPresetGameKeys(groups), ["mtg"]);
+  const bins = buildOrderSortPresetBins(groups, "mtg", 4);
+  assert.deepEqual(
+    bins.map((bin) => [bin.binNumber, bin.isCatchAll, bin.pickList?.entries ?? null]),
+    [
+      [1, false, null],
+      [2, false, [{ name: "Sol Ring", quantity: 1, found: 0, isFoil: false }, { name: "Opt", quantity: 1, found: 0, isFoil: false }]],
+      [3, false, null],
+      [4, true, null],
+    ],
+  );
+});
+
+test("order picking: the sorter-pick preset only lists the chosen box's cards, catch-all put back last", () => {
+  const inBoxA = { ...entry("a", 0, "Sol Ring"), locationGuid: "box-a" };
+  const inBoxALater = { ...entry("b", 1, "Sol Ring"), locationGuid: "box-a" };
+  const inBoxB = { ...entry("c", 1, "Sol Ring"), locationGuid: "box-b" };
+  const loose = { ...entry("d", 2, "Bolt"), locationName: null, locationGuid: null, binNumber: 2 };
+  const groups = pickOrderGroups(
+    [line("Sol Ring", "1001", ["a"]), line("Sol Ring", "1002", ["b", "c"]), line("Bolt", null, ["d"])],
+    [inBoxA, inBoxALater, inBoxB, loose],
+    { "1001": 1, "1002": 2 },
+  );
+  const bins = buildSorterPickPresetBins(groups, "box-a", "mtg", 4);
+  assert.deepEqual(
+    bins.map((bin) => [bin.binNumber, bin.isCatchAll, bin.pickList?.entries ?? null]),
+    [
+      [1, false, [{ name: "Sol Ring", quantity: 1, found: 0, isFoil: false }]],
+      [2, false, [{ name: "Sol Ring", quantity: 1, found: 0, isFoil: false }]],
+      [3, false, null],
+      [4, true, null],
+    ],
+  );
+});
+
+test("order picking: sorter results mark the box's unpicked copies by found count", () => {
+  const pullSheet = [
+    { ...entry("a", 0, "Sol Ring"), locationGuid: "box-a", picked: true },
+    { ...entry("b", 1, "Sol Ring"), locationGuid: "box-a" },
+    { ...entry("c", 1, "Sol Ring"), locationGuid: "box-a" },
+    { ...entry("d", 1, "Sol Ring"), locationGuid: "box-b" },
+    { ...entry("e", 2, "Bolt"), locationGuid: "box-a" },
+  ];
+  // the copy picked by hand before the run leaves the box, so it doesn't consume a found count
+  const result = sorterPickScanIds(pullSheet, { "Sol Ring": 2, "Bolt": 0 }, "box-a");
+  assert.deepEqual(result.scanIds, ["b", "c"]);
+  assert.deepEqual(result.consumedByName, { "Sol Ring": 2 });
+  // over-fed counts cap at the copies still in the box
+  assert.deepEqual(sorterPickScanIds(pullSheet, { "Sol Ring": 9 }, "box-a").scanIds, ["b", "c"]);
+  // another box's copies are untouched
+  assert.deepEqual(sorterPickScanIds(pullSheet, { "Sol Ring": 1 }, "box-b"), {
+    scanIds: ["d"],
+    consumedByName: { "Sol Ring": 1 },
+  });
 });
