@@ -1146,7 +1146,8 @@
     "shareLinkCopied": "Share link copied. Anyone with it can see this card.",
     "shareLinkCopyFailed": "Couldn't copy a share link for this card.",
     "downloadPhoto": "Download photo",
-    "downloadPhotoFailed": "Couldn't download the photo. Try again."
+    "downloadPhotoFailed": "Couldn't download the photo. Try again.",
+    "backSideAlt": "{{name}}, back side"
   },
   "reviewGrid": {
     "title": "Review cards",

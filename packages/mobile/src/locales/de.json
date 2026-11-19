@@ -1146,7 +1146,8 @@
     "shareLinkCopied": "Freigabelink kopiert. Alle mit dem Link sehen diese Karte.",
     "shareLinkCopyFailed": "Der Freigabelink für diese Karte konnte nicht kopiert werden.",
     "downloadPhoto": "Foto herunterladen",
-    "downloadPhotoFailed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut."
+    "downloadPhotoFailed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut.",
+    "backSideAlt": "{{name}}, Rückseite"
   },
   "reviewGrid": {
     "title": "Karten prüfen",

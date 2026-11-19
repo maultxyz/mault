@@ -71,6 +71,7 @@ export interface PlayingCard {
   id: string;
   name: string;
   image: PlayingCardImage | null;
+  backImage?: PlayingCardImage | null;
   set: string;
   setName: string;
   collectorNumber: string;

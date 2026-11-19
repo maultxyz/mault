@@ -34,12 +34,18 @@ function normalizeScryfallCard(rawInput: ScryfallApiCard): PlayingCard {
   const raw = withPrintedFields(rawInput);
   const face = raw.card_faces?.[0];
   const imageUris = raw.image_uris ?? face?.image_uris;
+  const backFaceImageUris = raw.image_uris
+    ? undefined
+    : raw.card_faces?.[1]?.image_uris;
 
   return {
     id: raw.id,
     name: raw.name,
     image: imageUris
       ? { small: imageUris.small, normal: imageUris.normal }
+      : null,
+    backImage: backFaceImageUris
+      ? { small: backFaceImageUris.small, normal: backFaceImageUris.normal }
       : null,
     set: raw.set,
     setName: raw.set_name,

@@ -102,7 +102,8 @@
     "actions": "Kartenaktionen",
     "name": "Name",
     "moveToLocation": "In Lagerort verschieben",
-    "moveToCollection": "In Sammlung verschieben"
+    "moveToCollection": "In Sammlung verschieben",
+    "backSideAlt": "{{name}}, Rückseite"
   },
   "cardFilterPopover": {
     "color": "Farbe",
