@@ -1,10 +1,3 @@
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -16,7 +9,6 @@ import {
   LANGUAGE_NATIVE_NAMES,
   SUPPORTED_LANGUAGES,
 } from "@/lib/constants/languages";
-import { IconCheck, IconLanguage } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import type { SupportedLanguage } from "@/lib/interfaces/languages";
 
@@ -40,40 +32,5 @@ export function LanguageSwitcher() {
         ))}
       </SelectContent>
     </Select>
-  );
-}
-
-export function LanguageSwitcherIcon({
-  side = "bottom",
-}: {
-  side?: "right" | "top" | "bottom";
-}) {
-  const { t, i18n } = useTranslation();
-  const current = i18n.language as SupportedLanguage;
-
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger
-        render={
-          <Button variant="ghost" size="icon-lg">
-            <IconLanguage />
-            <span className="sr-only">{t("settings:appearance.language")}</span>
-          </Button>
-        }
-      />
-      <DropdownMenuContent side={side} align="end">
-        {SUPPORTED_LANGUAGES.map((lang) => (
-          <DropdownMenuItem
-            key={lang}
-            onClick={() => void i18n.changeLanguage(lang)}
-          >
-            <span className="flex-1">{LANGUAGE_NATIVE_NAMES[lang]}</span>
-            {lang === current && (
-              <IconCheck size={14} className="text-primary shrink-0" />
-            )}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
   );
 }

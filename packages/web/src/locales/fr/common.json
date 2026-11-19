@@ -2,7 +2,9 @@
   "matchValidationProgress": {
     "label": "Progression de la validation communautaire",
     "valueText": "{{done}} sur {{total}} vérifications faites",
-    "percent": "{{percent}} %"
+    "percent": "{{percent}} %",
+    "description": "Vérifie si les scans des autres ont reconnu la bonne carte. Chaque vérification améliore la reconnaissance des cartes pour tout le monde.",
+    "start": "Commencer la vérification"
   },
   "nav": {
     "validateMatches": "Valider les correspondances",
@@ -54,7 +56,9 @@
   },
   "userMenu": {
     "trigger": "Menu du compte",
-    "signOut": "Se déconnecter"
+    "signOut": "Se déconnecter",
+    "theme": "Thème",
+    "language": "Langue"
   },
   "emailVerification": {
     "banner": "Merci de vérifier ton adresse e-mail ({{email}}) pour sécuriser ton compte.",

@@ -2,7 +2,9 @@
   "matchValidationProgress": {
     "label": "Fortschritt der Community-Prüfung",
     "valueText": "{{done}} von {{total}} Prüfungen erledigt",
-    "percent": "{{percent}} %"
+    "percent": "{{percent}} %",
+    "description": "Prüfe, ob die Scans anderer die richtige Karte erkannt haben. Jede Prüfung verbessert die Kartenerkennung für alle.",
+    "start": "Mit dem Prüfen beginnen"
   },
   "nav": {
     "validateMatches": "Treffer prüfen",
@@ -54,7 +56,9 @@
   },
   "userMenu": {
     "trigger": "Kontomenü",
-    "signOut": "Abmelden"
+    "signOut": "Abmelden",
+    "theme": "Design",
+    "language": "Sprache"
   },
   "emailVerification": {
     "banner": "Bitte bestätige deine E-Mail-Adresse ({{email}}), um dein Konto abzusichern.",

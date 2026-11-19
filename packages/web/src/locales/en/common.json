@@ -2,7 +2,9 @@
   "matchValidationProgress": {
     "label": "Community scan validation progress",
     "valueText": "{{done}} of {{total}} reviews done",
-    "percent": "{{percent}}%"
+    "percent": "{{percent}}%",
+    "description": "Check whether other people's scans matched the right card. Every review makes card matching better for everyone.",
+    "start": "Start validating"
   },
   "nav": {
     "validateMatches": "Validate matches",
@@ -54,7 +56,9 @@
   },
   "userMenu": {
     "trigger": "Account menu",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "theme": "Theme",
+    "language": "Language"
   },
   "emailVerification": {
     "banner": "Please verify your email address ({{email}}) to secure your account.",
