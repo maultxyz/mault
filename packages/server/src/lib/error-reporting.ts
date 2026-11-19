@@ -1,22 +1,46 @@
-import { PostHog } from "posthog-node";
-import { POSTHOG_DEFAULT_HOST } from "./constants/error-reporting";
+const betterStackErrorsDsn = process.env.BETTER_STACK_ERRORS_DSN;
 
-const posthogProjectApiKey = process.env.POSTHOG_PROJECT_API_KEY;
+async function loadBetterStackErrorTracking(dsn: string) {
+  const Sentry = await import("@sentry/node");
+  Sentry.init({
+    dsn,
+    environment: process.env.NODE_ENV ?? "development",
+    dataCollection: {
+      userInfo: false,
+      cookies: false,
+      httpHeaders: false,
+      urlQueryParams: false,
+    },
+    enableRuntimeChannelInjection: false,
+    defaultIntegrations: false,
+    integrations: [
+      Sentry.onUncaughtExceptionIntegration(),
+      Sentry.onUnhandledRejectionIntegration(),
+      Sentry.linkedErrorsIntegration(),
+      Sentry.dedupeIntegration(),
+      Sentry.contextLinesIntegration(),
+      Sentry.nodeContextIntegration(),
+    ],
+  });
+  return Sentry;
+}
 
-const posthog = posthogProjectApiKey
-  ? new PostHog(posthogProjectApiKey, {
-      host: process.env.POSTHOG_HOST || POSTHOG_DEFAULT_HOST,
-      enableExceptionAutocapture: true,
+const betterStackErrorTracking = betterStackErrorsDsn
+  ? loadBetterStackErrorTracking(betterStackErrorsDsn).catch((error: unknown) => {
+      console.error("[error-reporting] Better Stack failed to load:", error);
+      return null;
     })
   : null;
 
 export function reportServerError(
   error: unknown,
   properties: Record<string, unknown> = {},
-  distinctId?: string,
+  userId?: string,
 ) {
-  posthog?.captureException(error, distinctId, {
-    environment: process.env.NODE_ENV ?? "development",
-    ...properties,
-  });
+  void betterStackErrorTracking?.then((Sentry) =>
+    Sentry?.captureException(error, {
+      extra: properties,
+      user: userId ? { id: userId } : undefined,
+    }),
+  );
 }

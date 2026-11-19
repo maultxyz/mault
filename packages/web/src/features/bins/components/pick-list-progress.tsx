@@ -1,3 +1,4 @@
+import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { usePickListActions } from "@/features/bins/api/use-pick-list";
 import type { PickListProgressProps } from "@/lib/interfaces/bins";
@@ -58,12 +59,7 @@ export function PickListProgress({
         )}
       </div>
       {untilFound && (
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full bg-primary transition-[width] motion-reduce:transition-none"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
+        <Progress decorative value={percent} />
       )}
       <ul className="flex flex-col divide-y divide-border overflow-hidden rounded-card bg-card">
         {pickList.entries.map((entry) => {

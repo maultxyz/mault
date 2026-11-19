@@ -25,5 +25,7 @@ COPY --from=builder /app/packages/web/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY docker/web-env.sh /docker-entrypoint.d/40-web-env.sh
 RUN sed -i 's/\r$//' /docker-entrypoint.d/40-web-env.sh \
-    && chmod +x /docker-entrypoint.d/40-web-env.sh
+    && chmod +x /docker-entrypoint.d/40-web-env.sh \
+    && printf 'set $share_preview_upstream "http://server:3001/public/share-preview";\n' > /etc/nginx/share-preview.conf \
+    && printf 'set $neon_auth_url "";\n' > /etc/nginx/neon-auth.conf
 EXPOSE 80

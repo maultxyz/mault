@@ -65,7 +65,7 @@ export function BarList({ items, collapsedCount }: BarListProps) {
           <Pressable
             key={item.key}
             accessibilityRole="button"
-            accessibilityLabel={[item.label, item.display, item.secondary].filter(Boolean).join(", ")}
+            accessibilityLabel={[item.label, item.exactDisplay ?? item.display, item.secondary].filter(Boolean).join(", ")}
             accessibilityHint={t("stats.compare.filterHint")}
             onPress={item.onPress}
             style={({ pressed }) => ({

@@ -14,5 +14,12 @@
   "back": "Back",
   "backToLinks": "Back to links",
   "pricesShown": "Prices shown",
-  "revokeLabel": "Revoke the link created {{date}}"
+  "revokeLabel": "Revoke the link created {{date}}",
+  "tabsLabel": "Share link views",
+  "linksTab": "Links",
+  "sharedCards": "Shared cards",
+  "sharedCardsEmpty": "No shared cards yet.",
+  "sharedCardsEmptyDescription": "Use Copy share link on a card to share it. Its link shows up here so you can revoke it.",
+  "copyCardLink": "Copy the link for {{name}}",
+  "revokeCardLink": "Revoke the link for {{name}}"
 }

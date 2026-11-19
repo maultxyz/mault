@@ -1,4 +1,6 @@
 import {
+  detectPrintedLanguageCodeRgba,
+  PRINTED_LANGUAGE_CODE_BANDS_BY_GAME_KEY,
   printingRegionsOf,
   scanPrintingMarkGrids,
   wholeImageHomography,
@@ -18,4 +20,13 @@ export async function scanGridsFromImageBuffer(
     gameKey,
     "upright",
   );
+}
+
+export async function printedLanguageCodeFromImageBuffer(
+  gameKey: string,
+  buffer: Buffer,
+): Promise<boolean | null> {
+  if (!PRINTED_LANGUAGE_CODE_BANDS_BY_GAME_KEY[gameKey]) return null;
+  const image = await rgbaFromImageBuffer(buffer);
+  return detectPrintedLanguageCodeRgba(image, gameKey)?.present ?? null;
 }

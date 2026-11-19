@@ -7,3 +7,5 @@ export const LANGUAGE_NAMES: Record<(typeof APP_LANGUAGES)[number], string> = {
   de: "Deutsch",
   fr: "Français",
 };
+
+export const COMPACT_NUMBER_I18N_FORMAT = "compact";

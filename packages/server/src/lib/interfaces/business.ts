@@ -55,6 +55,7 @@ export interface PullSheetRow {
   condition: string;
   bin_number: number | null;
   location_position: number | null;
+  location_batch_size: number | null;
   collection_guid: string;
   collection_name: string;
   collection_lang: string;

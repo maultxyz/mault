@@ -8,7 +8,11 @@ import {
 import { and, desc, eq, gt, isNull, or, sql } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { collections, shareLinks, storageLocations } from "../db/schema";
-import { MONITOR_LINK_ISSUER, STORAGE_SHARE_LINK_ISSUER } from "./constants/auth";
+import {
+  CARD_SHARE_LINK_ISSUER,
+  MONITOR_LINK_ISSUER,
+  STORAGE_SHARE_LINK_ISSUER,
+} from "./constants/auth";
 import { ONE_MINUTE_MS } from "./constants/timing";
 import type {
   IssueShareLinkInput,
@@ -28,6 +32,7 @@ import { deleteShortLinks, registerShortLinks, shortLinkUrlFor } from "./shorten
 const ISSUER_BY_KIND: Record<ShareLinkKind, string> = {
   collection: MONITOR_LINK_ISSUER,
   storage: STORAGE_SHARE_LINK_ISSUER,
+  card: CARD_SHARE_LINK_ISSUER,
 };
 
 function wholeSeconds(date: Date): Date {
@@ -44,6 +49,7 @@ export function signShareLinkRow(row: ShareLinkSigningRow): Promise<string> {
     issuedAt: row.issuedAt,
     expiresAt: row.expiresAt,
     showsPrices: row.showsPrices,
+    requiresGuestContact: row.requiresGuestContact,
     purpose: row.purpose as ShareLinkPurpose,
   });
 }
@@ -58,7 +64,7 @@ export async function shareLinkShortTarget(
       row.subjectGuid,
       await signShareLinkRow(row),
     ),
-    expiresAt: row.expiresAt.toISOString(),
+    expiresAt: row.linkKind === "card" ? null : row.expiresAt.toISOString(),
   };
 }
 
@@ -75,10 +81,12 @@ export async function issueShareLink(
       linkKind: input.kind,
       collectionId: input.kind === "collection" ? input.subjectId : null,
       storageLocationId: input.kind === "storage" ? input.subjectId : null,
+      collectionCardId: input.kind === "card" ? input.subjectId : null,
       subjectGuid: input.subjectGuid,
       subjectVersion: input.subjectVersion,
       purpose: input.purpose,
       showsPrices: input.showsPrices,
+      requiresGuestContact: input.requiresGuestContact,
       issuedAt,
       expiresAt,
       createdByUserId: input.createdByUserId,

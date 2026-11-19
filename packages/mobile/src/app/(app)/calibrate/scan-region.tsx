@@ -1,3 +1,5 @@
+import { SCAN_REGION_OFFSET_LIMIT } from "@magic-vault/shared";
+import { SCAN_REGION_COVERAGE_MIN } from "@magic-vault/shared";
 import { router, useNavigation, usePreventRemove } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { Alert, ScrollView, View } from "react-native";
@@ -19,8 +21,6 @@ import {
   CAPTURE_SETTLE_DELAY_SLIDER_MAX,
   MATCHES_NEEDED_MIN,
   MATCHES_NEEDED_SLIDER_MAX,
-  SCAN_REGION_COVERAGE_MIN,
-  SCAN_REGION_OFFSET_LIMIT,
   sliderMax,
 } from "@/lib/constants/calibration";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";

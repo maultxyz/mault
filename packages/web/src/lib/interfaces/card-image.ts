@@ -4,4 +4,5 @@ export interface CardImageProps {
   alt: string;
   className?: string;
   loading?: "lazy" | "eager";
+  fit?: "cover" | "fill";
 }

@@ -1,6 +1,5 @@
 import type {
   PlayingCardWithDistance,
-  ScannedCard,
   ScanRemovalEntry,
 } from "@magic-vault/shared";
 
@@ -31,10 +30,6 @@ export interface ScanRemovalRowProps {
   entries: ScanRemovalEntry[];
   onSelectCopy: (scanId: string) => void;
   onDrop: () => void;
-}
-
-export interface ScanRemovalCopyLabelProps {
-  copy: ScannedCard;
 }
 
 export interface ScanRemovalListProps {

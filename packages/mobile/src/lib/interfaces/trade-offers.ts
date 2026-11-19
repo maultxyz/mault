@@ -74,3 +74,17 @@ export type TradesBox = (typeof TRADES_BOXES)[number];
 export interface OutgoingTradeOfferReviewProps {
   offer: OutgoingTradeOffer;
 }
+
+export type NewTradeSheet = "kind" | "source";
+
+export interface NewTradeSheetsProps {
+  openSheet: NewTradeSheet | null;
+  onOpenSheetChange: (sheet: NewTradeSheet | null) => void;
+}
+
+export interface InPersonGivenTradeCard {
+  scanId: string;
+  name: string;
+  subtitle: string;
+  imageUrl: string | null;
+}

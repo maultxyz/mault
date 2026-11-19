@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# Disable ONNX telemetry for the API and its child processes.
+export ORT_DISABLE_TELEMETRY=1
+
 ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+export PATH="$ROOT/node/bin:$PATH"
 LOG_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/mault"
 umask 077
 mkdir -p "$LOG_DIR"
@@ -21,5 +25,5 @@ if [[ "$database_ready" -eq 0 ]]; then
   exit 1
 fi
 
-pnpm --filter @magic-vault/server db:migrate-local
+(cd "$ROOT/packages/server" && node_modules/.bin/tsx scripts/migrate-local.ts)
 exec node --env-file="$ROOT/.env" "$ROOT/packages/server/dist/index.js"

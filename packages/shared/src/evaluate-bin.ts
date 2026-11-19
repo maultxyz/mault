@@ -425,11 +425,12 @@ export function scanBinCapacity(
   height: number | null | undefined,
   cardThickness: number | null | undefined,
   set: Pick<BinSet, "isChaosMode" | "chaosBinSize"> | null | undefined,
-  bin: Pick<BinConfig, "isCatchAll" | "maxCards">,
+  bin: Pick<BinConfig, "isCatchAll" | "maxCards" | "claimedStorageLocation">,
 ): number | null {
   const physicalCapacity = computeBinCapacity(height, cardThickness);
   const chaosBinSize = set?.isChaosMode && !bin.isCatchAll ? set.chaosBinSize : null;
-  const limits = [physicalCapacity, chaosBinSize, bin.maxCards ?? null].filter(
+  const storageRoom = bin.claimedStorageLocation?.remainingSlots ?? null;
+  const limits = [physicalCapacity, chaosBinSize, bin.maxCards ?? null, storageRoom].filter(
     (limit): limit is number => limit != null,
   );
   return limits.length > 0 ? Math.min(...limits) : null;

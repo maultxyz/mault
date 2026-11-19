@@ -19,6 +19,8 @@ import {
   COMPOSITE_HEIGHT,
   NOTIFY_SERVER_PORT,
   SCAN_ATTACHMENT_NAME,
+  SCAN_PHOTO_CARD_ASPECT_RATIO,
+  SCAN_PHOTO_JPEG_QUALITY,
   SERVER_URL,
 } from "./lib/constants";
 import type { MemberRoleBody, NotifyBody } from "./lib/interfaces";
@@ -31,6 +33,17 @@ function decodeDataUrl(dataUrl: string): Buffer | null {
   } catch {
     return null;
   }
+}
+
+function toCardProportions(scanPhoto: Buffer): Promise<Buffer> {
+  return sharp(scanPhoto)
+    .resize({
+      width: Math.round(COMPOSITE_HEIGHT * SCAN_PHOTO_CARD_ASPECT_RATIO),
+      height: COMPOSITE_HEIGHT,
+      fit: "fill",
+    })
+    .jpeg({ quality: SCAN_PHOTO_JPEG_QUALITY })
+    .toBuffer();
 }
 
 async function compositeSideBySide(
@@ -67,7 +80,7 @@ async function compositeSideBySide(
       { input: left, left: 0, top: 0 },
       { input: right, left: leftWidth + COMPOSITE_GAP, top: 0 },
     ])
-    .jpeg({ quality: 85 })
+    .jpeg({ quality: SCAN_PHOTO_JPEG_QUALITY })
     .toBuffer();
 }
 
@@ -167,6 +180,14 @@ export function startNotifyServer(client: Client) {
       const files = [];
       if (body.attachmentDataUrl) {
         let buffer = decodeDataUrl(body.attachmentDataUrl);
+        if (buffer) {
+          try {
+            buffer = await toCardProportions(buffer);
+          } catch (err) {
+            console.error("[bot] Failed to reshape the scan photo:", err);
+            buffer = null;
+          }
+        }
         if (buffer && body.secondaryImageUrl) {
           try {
             buffer = await compositeSideBySide(buffer, body.secondaryImageUrl);

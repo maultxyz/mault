@@ -1,5 +1,5 @@
+import { clampRegion } from "@magic-vault/shared";
 import {
-  clampRegion,
   nudgeRegionByKey,
 } from "@/features/calibration/lib/scan-region-geometry";
 import type { CameraSource } from "@/lib/interfaces/scanner";

@@ -1,14 +1,9 @@
-import {
-  toPickList,
-  type BinConfig,
-  type BinRuleGroup,
-  type PickListInput,
-} from "@magic-vault/shared";
+import type { BinRuleGroup, PickListInput } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { bins } from "../../db/schema";
-import { loadBinEmptiedTimes } from "../../lib/bin-emptying";
+import { reclaimFillLocations } from "../../lib/storage-fill-claims";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
   resolveGameId,
@@ -25,6 +20,7 @@ import {
   emptyRules,
   normalizeOverflowBins,
   toBinPickList,
+  loadBinConfigs,
 } from "./shared";
 
 export const editBinRoute = new Hono<AppEnv>().put(
@@ -162,50 +158,11 @@ export const editBinRoute = new Hono<AppEnv>().put(
       await normalizeOverflowBins(tx, activeBinSet.id);
       await snapshotBinSet(tx, activeBinSet.id, activeBinSet.guid!, orgId);
 
-      const updatedBins = await tx.query.bins.findMany({
-        where: (t, { eq, and }) =>
-          and(eq(t.binSet, activeBinSet.id), eq(t.isDeleted, false)),
-        columns: {
-          guid: true,
-          binNumber: true,
-          rules: true,
-          isCatchAll: true,
-          isOverride: true,
-          overridePriority: true,
-          lowMatchPercent: true,
-          maxCopies: true,
-          maxCopiesBy: true,
-          maxCards: true,
-          overflowBin: true,
-          isDisabled: true,
-          pickList: true,
-          repackPriority: true,
-        },
-      });
-      const emptiedTimes = await loadBinEmptiedTimes(tx, orgId);
-
+      await reclaimFillLocations(tx, activeBinSet.id);
       return {
         message: "Successfully saved bin config.",
         success: true,
-        data: updatedBins.map(
-          (b): BinConfig => ({
-            guid: b.guid!,
-            binNumber: b.binNumber,
-            rules: b.rules as BinRuleGroup,
-            isCatchAll: b.isCatchAll,
-            isOverride: b.isOverride,
-            overridePriority: b.overridePriority,
-            lowMatchPercent: b.lowMatchPercent,
-            maxCopies: b.maxCopies,
-            maxCopiesBy: b.maxCopiesBy,
-            maxCards: b.maxCards,
-            overflowBin: b.overflowBin,
-            isDisabled: b.isDisabled,
-            pickList: b.isCatchAll ? null : toPickList(b.pickList),
-            repackPriority: b.repackPriority,
-            lastEmptiedAt: emptiedTimes.get(b.binNumber) ?? null,
-          }),
-        ),
+        data: await loadBinConfigs(tx, orgId, activeBinSet.id),
       };
     });
     return c.json(result);

@@ -1,3 +1,4 @@
+import { FOIL_GRADIENT_CLASS } from "@/lib/constants/ui";
 import { CardImage } from "@/components/card-image";
 import { NEW_CARD_ANIMATION_WINDOW_MS } from "@/lib/constants/card-grid";
 import { Badge } from "@/components/ui/badge";
@@ -75,7 +76,8 @@ export const ScannedCardItem = memo(function ScannedCardItem({
           {isFoil && (
             <div
               className={cn(
-                "absolute top-1 z-20 rounded-full p-0.5 shadow-md bg-gradient-to-br from-fuchsia-400 via-cyan-400 to-amber-300",
+                "absolute top-1 z-20 rounded-full p-0.5 shadow-md",
+                FOIL_GRADIENT_CLASS,
                 showReviewStatus ? "left-6" : "left-1",
               )}
               title={foilType ?? t("foil")}

@@ -10,6 +10,7 @@ import {
 } from "@/lib/constants/card-grid";
 import type { OrderSelectionBarProps } from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { OrderBulkAction } from "@magic-vault/shared";
 import { packingSlipsPath, pickBatchPath } from "@/lib/constants/business";
 import {
@@ -28,6 +29,7 @@ export function OrderSelectionBar({ checkedOrders, onClear, onOrdersDeleted, cla
   const { access } = useBusinessAccess();
   const run = useBusinessAction();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [pendingAction, setPendingAction] = useState<OrderBulkAction | null>(null);
   const [confirmAction, setConfirmAction] = useState<OrderBulkAction | null>(null);
   if (checkedOrders.length === 0) return null;
@@ -66,43 +68,47 @@ export function OrderSelectionBar({ checkedOrders, onClear, onOrdersDeleted, cla
           <IconRoute />
           {t("orders.bulk.pickTogether", { count: openOrders.length })}
         </Button>
-        <Button
-          variant="ghost"
-          className={SELECTION_ACTION_BAR_BUTTON_CLASS}
-          disabled={printableOrders.length === 0}
-          onClick={() =>
-            window.open(packingSlipsPath(printableOrders.map((order) => order.guid)), "_blank")
-          }
-        >
-          <IconPrinter />
-          {t("orders.bulk.packingSlips", { count: printableOrders.length })}
-        </Button>
-        <Button
-          variant="ghost"
-          className={SELECTION_ACTION_BAR_BUTTON_CLASS}
-          disabled={!canAct || openOrders.length === 0 || pendingAction !== null}
-          onClick={() => void runBulkAction("allocate")}
-        >
-          <IconListCheck />
-          {t("orders.bulk.allocate", { count: openOrders.length })}
-        </Button>
-        <Button
-          variant="ghost"
-          className={SELECTION_ACTION_BAR_BUTTON_CLASS}
-          disabled={!canAct || openOrders.length === 0 || pendingAction !== null}
-          onClick={() => setConfirmAction("cancel")}
-        >
-          <IconBan />
-          {t("orders.bulk.cancel", { count: openOrders.length })}
-        </Button>
-        <Button
-          className={SELECTION_ACTION_BAR_DESTRUCTIVE_BUTTON_CLASS}
-          disabled={!canAct || closedOrders.length === 0 || pendingAction !== null}
-          onClick={() => setConfirmAction("delete")}
-        >
-          <IconTrash />
-          {t("orders.bulk.delete", { count: closedOrders.length })}
-        </Button>
+        {!isMobile && (
+          <>
+            <Button
+              variant="ghost"
+              className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+              disabled={printableOrders.length === 0}
+              onClick={() =>
+                window.open(packingSlipsPath(printableOrders.map((order) => order.guid)), "_blank")
+              }
+            >
+              <IconPrinter />
+              {t("orders.bulk.packingSlips", { count: printableOrders.length })}
+            </Button>
+            <Button
+              variant="ghost"
+              className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+              disabled={!canAct || openOrders.length === 0 || pendingAction !== null}
+              onClick={() => void runBulkAction("allocate")}
+            >
+              <IconListCheck />
+              {t("orders.bulk.allocate", { count: openOrders.length })}
+            </Button>
+            <Button
+              variant="ghost"
+              className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+              disabled={!canAct || openOrders.length === 0 || pendingAction !== null}
+              onClick={() => setConfirmAction("cancel")}
+            >
+              <IconBan />
+              {t("orders.bulk.cancel", { count: openOrders.length })}
+            </Button>
+            <Button
+              className={SELECTION_ACTION_BAR_DESTRUCTIVE_BUTTON_CLASS}
+              disabled={!canAct || closedOrders.length === 0 || pendingAction !== null}
+              onClick={() => setConfirmAction("delete")}
+            >
+              <IconTrash />
+              {t("orders.bulk.delete", { count: closedOrders.length })}
+            </Button>
+          </>
+        )}
       </SelectionActionBar>
       <ConfirmDialog
         open={confirmAction === "cancel"}

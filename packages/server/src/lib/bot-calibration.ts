@@ -1,4 +1,9 @@
-import { DEFAULT_FEEDER_CALIBRATION } from "@magic-vault/shared";
+import {
+  DEFAULT_FEEDER_CALIBRATION,
+  pulseToDirectionalSpeed,
+  SERVO_PULSE_CENTER,
+  servoPositionPercents,
+} from "@magic-vault/shared";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { authProvider } from "../auth";
 import { db } from "../db";
@@ -59,6 +64,7 @@ export async function loadUserDeviceCalibration(
       orgId: devices.orgId,
       name: devices.name,
       moduleCount: devices.moduleCount,
+      feederStopPulse: devices.feederStopPulse,
     })
     .from(devices)
     .where(and(eq(devices.guid, deviceGuid), eq(devices.isDeleted, false)))
@@ -85,12 +91,21 @@ export async function loadUserDeviceCalibration(
       .limit(1),
   ]);
 
+  const feeder = feederRow
+    ? rowToCalibration(feederRow)
+    : { ...DEFAULT_FEEDER_CALIBRATION };
+  const feederCenter = device.feederStopPulse ?? SERVO_PULSE_CENTER;
   return {
     deviceName: device.name,
     moduleCount: device.moduleCount,
-    modules: buildConfigs(moduleRows, device.moduleCount),
-    feeder: feederRow
-      ? rowToCalibration(feederRow)
-      : { ...DEFAULT_FEEDER_CALIBRATION },
+    modules: buildConfigs(moduleRows, device.moduleCount).map((module) => ({
+      ...module,
+      positionPercents: servoPositionPercents(module.calibration),
+    })),
+    feeder,
+    feederSpeeds: {
+      speed: pulseToDirectionalSpeed(feeder.speed, feederCenter),
+      reverseSpeed: pulseToDirectionalSpeed(feeder.reverseSpeed, feederCenter),
+    },
   };
 }

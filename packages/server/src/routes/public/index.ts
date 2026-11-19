@@ -2,12 +2,14 @@ import { Hono } from "hono";
 import { recordPublicRouteUsage } from "../../lib/api-usage";
 import { usageEndpointOf } from "../../lib/public-api/usage-endpoint";
 import type { AppEnv } from "../../middleware/auth";
+import { publicCardShareLinkRoute } from "./card-share-link";
 import { firmwareReleasesRoute } from "./firmware-releases";
 import { publicGamesRoute } from "./games";
 import { healthRoute } from "./health";
 import { publicMetricsRoute } from "./metrics";
 import { publicMonitorLinkRoute } from "./monitor-link";
 import { pricingRoute } from "./pricing";
+import { sharePreviewRoute } from "./share-preview";
 import { publicShopCatalogRoute } from "./shop-catalog";
 import { publicShortLinkRoute } from "./short-link";
 import { publicStorageShareLinkRoute } from "./storage-share-link";
@@ -29,7 +31,9 @@ const router = new Hono<AppEnv>()
   .route("/", publicMetricsRoute)
   .route("/", publicMonitorLinkRoute)
   .route("/", publicStorageShareLinkRoute)
+  .route("/", publicCardShareLinkRoute)
   .route("/", publicShopCatalogRoute)
+  .route("/", sharePreviewRoute)
   .route("/", publicShortLinkRoute)
   .route("/", pricingRoute)
   .route("/", healthRoute)

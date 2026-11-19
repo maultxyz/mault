@@ -55,7 +55,17 @@ export interface PublicCardTileProps {
 export interface PublicCardDetailViewProps {
   source: PublicCardsSource;
   scanId: string;
-  onClose: () => void;
+  onClose?: () => void;
+}
+
+export interface PoweredByMaultProps {
+  className?: string;
+  isInverted?: boolean;
+}
+
+export interface SharedCardViewProps {
+  token: string;
+  scanId: string;
 }
 
 export interface PublicCardBadgesProps {
@@ -107,6 +117,7 @@ export interface WatchCardBrowserProps {
   collectionGuid: string;
   collectionName: string;
   purpose: ShareLinkPurpose;
+  requiresGuestContact: boolean;
   session: SessionMonitorState;
 }
 
@@ -120,4 +131,5 @@ export interface StorageCardBrowserProps {
   token: string;
   locationName: string;
   purpose: ShareLinkPurpose;
+  requiresGuestContact: boolean;
 }

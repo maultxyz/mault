@@ -5,6 +5,7 @@ import {
 import { cn } from "@/lib/utils";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
+import { SaveBarGroup } from "@/components/save-bar-group";
 import {
   SettingsSection,
   SettingsSections,
@@ -14,6 +15,7 @@ import { ApiKeysManager } from "@/features/account/components/api-keys-manager";
 import { ChangeEmailForm } from "@/features/account/components/change-email-form";
 import { DiscordAccountLink } from "@/features/account/components/discord-account-link";
 import { ChangePasswordForm } from "@/features/account/components/change-password-form";
+import { SignInMethodsList } from "@/features/account/components/sign-in-methods-list";
 import { SessionsList } from "@/features/account/components/sessions-list";
 import { UpdateNameForm } from "@/features/account/components/update-name-form";
 import { useOnboarding } from "@/features/onboarding/api/use-onboarding";
@@ -77,7 +79,7 @@ export default function AccountPage() {
                 </SettingsSection>
               </>
             ) : (
-              <>
+              <SaveBarGroup>
                 <SettingsSection heading={t("profile.heading")}>
                   <UpdateNameForm />
                 </SettingsSection>
@@ -87,18 +89,23 @@ export default function AccountPage() {
                 <SettingsSection heading={t("password.heading")}>
                   <ChangePasswordForm />
                 </SettingsSection>
+                <SettingsSection heading={t("signInMethods.heading")}>
+                  <SignInMethodsList />
+                </SettingsSection>
                 <SettingsSection heading={t("sessions.heading")}>
                   <SessionsList />
                 </SettingsSection>
-              </>
+              </SaveBarGroup>
             )}
 
-            <SettingsSection
-              heading={t("discord.heading")}
-              description={t("discord.description")}
-            >
-              <DiscordAccountLink />
-            </SettingsSection>
+            {!isMobile && (
+              <SettingsSection
+                heading={t("discord.heading")}
+                description={t("discord.description")}
+              >
+                <DiscordAccountLink />
+              </SettingsSection>
+            )}
 
             {!isMobile && (
               <SettingsSection

@@ -58,6 +58,16 @@ export interface TextFieldProps {
   multiline?: boolean;
 }
 
+export interface NumberTextFieldProps {
+  label: string;
+  value: number | null;
+  onChange: (value: number | null) => void;
+  onBlur?: () => void;
+  error?: string;
+  placeholder?: string;
+  editable?: boolean;
+}
+
 export interface SearchInputProps {
   value: string;
   onChangeText: (value: string) => void;
@@ -85,6 +95,13 @@ export interface EmptyStateProps {
   action?: ReactNode;
 }
 
+export interface QueryErrorStateProps {
+  title?: string;
+  description?: string;
+  onRetry: () => void;
+  isRetrying?: boolean;
+}
+
 export interface SkeletonProps {
   width?: number | `${number}%`;
   height: number | `${number}%`;
@@ -98,10 +115,12 @@ export interface ListRowProps {
   icon?: IconName;
   leading?: ReactNode;
   value?: string;
+  valueAccessibilityLabel?: string;
   tone?: "default" | "destructive";
   right?: ReactNode;
   rightIsInteractive?: boolean;
   onPress?: () => void;
+  onPressIn?: () => void;
   onLongPress?: () => void;
   longPressLabel?: string;
   disabled?: boolean;
@@ -109,6 +128,7 @@ export interface ListRowProps {
   subtitleNumberOfLines?: number;
   swipeDestructiveAction?: SwipeRowAction;
   accessibilityHint?: string;
+  checked?: boolean;
 }
 
 export interface CheckboxIndicatorProps {
@@ -195,6 +215,7 @@ export interface StatGroupProps {
 export interface StatTileProps {
   label: string;
   value: string;
+  exactValue?: string;
   hint?: string;
   icon?: IconName;
 }
@@ -251,6 +272,7 @@ export interface HomeCollectionRowProps {
   name: string;
   subtitle: string;
   value?: string | null;
+  exactValue?: string | null;
   trailing?: ReactNode;
   trailingAccessibilityLabel?: string;
   isScanTarget: boolean;
@@ -274,6 +296,23 @@ export interface DetailRowProps {
 
 export interface BinBadgeProps {
   binNumber: number;
+}
+
+export interface CameraTextRowProps {
+  label: string;
+  accessibilityLabel?: string;
+  emphasis?: "title" | "detail";
+  dotColor?: string;
+  icon?: IconName;
+  onPress?: () => void;
+}
+
+export interface ScanSessionThumbnailProps {
+  imageUrl: string | null;
+  placeholderUrl: string | null;
+  count: number;
+  accessibilityLabel: string;
+  onPress: () => void;
 }
 
 export interface CameraChipProps {

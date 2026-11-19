@@ -32,6 +32,17 @@ import type {
   PullSheetRow,
 } from "./interfaces/business";
 import { hydrateSavedCards } from "./saved-cards";
+import type {
+  OrderLineCandidateRequest,
+  OrderLineCandidateRow,
+} from "./interfaces/order-line-candidates";
+import {
+  groupOrderLineCandidates,
+  normalizeOrderLineCandidateName,
+  orderLineCandidateLimits,
+  takeOrderLineCandidates,
+  toOrderLineCandidateRequest,
+} from "./order-line-candidates";
 
 function text(value: unknown): string | null {
   if (typeof value !== "string") return null;
@@ -132,10 +143,6 @@ export function carryOverOrderAllocations(
   });
 }
 
-function normalizeSetName(value: string): string {
-  return value.toLowerCase().replace(/[^a-z0-9]/g, "");
-}
-
 async function existingScanIds(
   tx: Transaction,
   orgId: string,
@@ -179,39 +186,48 @@ export async function allocatedElsewhere(
   return ids;
 }
 
-async function findCandidates(
+async function findCandidatesForLines(
   tx: Transaction,
   orgId: string,
-  line: OrderLineInput,
-  excluded: Set<string>,
-  limit: number,
-): Promise<string[]> {
-  const name = line.name.trim().toLowerCase();
-  const setCode = line.setCode?.toLowerCase();
-  const setName = line.setName ? normalizeSetName(line.setName) : null;
-  const number = line.collectorNumber?.toLowerCase();
+  requests: OrderLineCandidateRequest[],
+  excluded: ReadonlySet<string>,
+): Promise<Map<number, string[]>> {
+  if (requests.length === 0) return new Map();
   const result = await tx.execute(sql`
-    SELECT cc.guid::text AS scan_id
-    FROM collection_cards cc
-    JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
-    LEFT JOIN intake_lots il ON il.id = cc.intake_lot_id
-    LEFT JOIN storage_locations sl ON sl.id = cc.location_id AND sl.is_deleted = false
-    WHERE cc.org_id = ${orgId}
-      AND (il.id IS NULL OR il.status = 'accepted')
-      AND (
-        lower(cc.card_name) = ${name}
-        OR lower(split_part(cc.card_name, ' // ', 1)) = ${name}
+    WITH requested_lines AS (
+      SELECT * FROM jsonb_to_recordset(${JSON.stringify(requests)}::jsonb) AS l(
+        line_index int, name text, set_code text, set_name text,
+        collector_number text, condition text, is_foil boolean, candidate_limit int
       )
-      ${setCode ? sql`AND lower(cc.card_set) = ${setCode}` : sql``}
-      ${!setCode && setName ? sql`AND regexp_replace(lower(cc.card_set_name), '[^a-z0-9]', '', 'g') = ${setName}` : sql``}
-      ${number ? sql`AND lower(cc.card_collector_number) = ${number}` : sql``}
-      ${line.condition ? sql`AND cc.condition = ${line.condition}` : sql``}
-      ${line.isFoil != null ? sql`AND cc.is_foil = ${line.isFoil}` : sql``}
-      ${excluded.size > 0 ? sql`AND NOT (cc.guid = ANY(${uuidArraySql([...excluded])}))` : sql``}
-    ORDER BY (sl.id IS NULL), sl.name, cc.location_position, cc.id
-    LIMIT ${limit}
+    )
+    SELECT l.line_index, candidate.scan_id
+    FROM requested_lines l
+    CROSS JOIN LATERAL (
+      SELECT cc.guid::text AS scan_id, (sl.id IS NULL) AS has_no_location,
+        sl.name AS location_name, cc.location_position, cc.id AS row_id
+      FROM collection_cards cc
+      JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
+      LEFT JOIN intake_lots il ON il.id = cc.intake_lot_id
+      LEFT JOIN storage_locations sl ON sl.id = cc.location_id AND sl.is_deleted = false
+      WHERE cc.org_id = ${orgId}
+        AND (il.id IS NULL OR il.status = 'accepted')
+        AND (
+          lower(cc.card_name) = l.name
+          OR lower(split_part(cc.card_name, ' // ', 1)) = l.name
+        )
+        AND (l.set_code IS NULL OR lower(cc.card_set) = l.set_code)
+        AND (l.set_name IS NULL OR regexp_replace(lower(cc.card_set_name), '[^a-z0-9]', '', 'g') = l.set_name)
+        AND (l.collector_number IS NULL OR lower(cc.card_collector_number) = l.collector_number)
+        AND (l.condition IS NULL OR cc.condition = l.condition)
+        AND (l.is_foil IS NULL OR cc.is_foil = l.is_foil)
+        ${excluded.size > 0 ? sql`AND NOT (cc.guid = ANY(${uuidArraySql([...excluded])}))` : sql``}
+      ORDER BY (sl.id IS NULL), sl.name, cc.location_position, cc.id
+      LIMIT l.candidate_limit
+    ) candidate
+    ORDER BY l.line_index, candidate.has_no_location, candidate.location_name,
+      candidate.location_position, candidate.row_id
   `);
-  return (result.rows as { scan_id: string }[]).map((row) => row.scan_id);
+  return groupOrderLineCandidates(result.rows as unknown as OrderLineCandidateRow[]);
 }
 
 async function findSubstituteCandidates(
@@ -304,12 +320,35 @@ export async function allocateOrderLines(
     ),
   );
   for (const ids of kept) for (const id of ids) excluded.add(id);
+  const missingByLine = lines.map(
+    (line, index) => line.quantity - Math.min(kept[index].length, line.quantity),
+  );
+  const candidateLimits = orderLineCandidateLimits(
+    lines.map((line, index) => ({
+      normalizedName: normalizeOrderLineCandidateName(line.name),
+      missing: missingByLine[index],
+    })),
+  );
+  const candidatesByLineIndex = await findCandidatesForLines(
+    tx,
+    orgId,
+    lines.flatMap((line, index) =>
+      missingByLine[index] > 0
+        ? [toOrderLineCandidateRequest(line, index, candidateLimits[index])]
+        : [],
+    ),
+    excluded,
+  );
   const result: OrderLine[] = [];
   for (const [index, line] of lines.entries()) {
     const allocations = kept[index].slice(0, line.quantity);
-    const missing = line.quantity - allocations.length;
+    const missing = missingByLine[index];
     if (missing > 0) {
-      const found = await findCandidates(tx, orgId, line, excluded, missing);
+      const found = takeOrderLineCandidates(
+        candidatesByLineIndex.get(index) ?? [],
+        excluded,
+        missing,
+      );
       for (const id of found) excluded.add(id);
       allocations.push(...found);
     }
@@ -356,7 +395,8 @@ export async function loadPullSheet(
       cc.is_foil, cc.condition, cc.bin_number, cc.location_position,
       col.guid::text AS collection_guid, col.name AS collection_name,
       col.lang AS collection_lang, g.key AS game_key,
-      sl.name AS location_name, sl.guid::text AS location_guid
+      sl.name AS location_name, sl.guid::text AS location_guid,
+      sl.batch_size AS location_batch_size
     FROM collection_cards cc
     JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
     LEFT JOIN games g ON g.id = col.game_id
@@ -386,6 +426,7 @@ export async function loadPullSheet(
     locationName: row.location_name,
     locationGuid: row.location_guid,
     locationPosition: row.location_position,
+    locationBatchSize: row.location_batch_size,
     picked: picked.has(row.scan_id),
     orderRef: lines[lineOf.get(row.scan_id) ?? 0]?.orderRef ?? null,
     gameKey: row.game_key,

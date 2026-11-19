@@ -1,3 +1,4 @@
+import type { ServoName } from "@magic-vault/shared";
 import type { ReactNode, RefObject } from "react";
 import type {
   BinHeight,
@@ -8,6 +9,12 @@ import type {
   ChannelLayout,
   ScanRegion,
   FeederTestFormValues,
+  CardContour,
+  MatchedScanDiagnostics,
+  PlayingCard,
+  PrintingScoreResult,
+  ScanOcrMode,
+  UnmatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import type { useCalibrationPage } from "@/features/calibration/api/use-calibration-page";
 import type { PrintingScoreFormValues } from "@/schemas/printing-score.schema";
@@ -96,7 +103,7 @@ export type ModuleDelayField =
   | "pusherHoldDuration"
   | "paddleCloseDelay";
 
-export type ServoName = "bottom" | "paddle" | "pusher";
+export type { ServoName };
 
 export interface SetupServoPosition {
   servo: ServoName;
@@ -238,14 +245,8 @@ export interface FeederCalibrationPanelProps {
   onSpeedChange: (value: number) => void;
   onStopPulseChange: (value: number) => void;
   onResetStopPulse: () => void;
-  onDurationChange: (value: number) => void;
-  onPulseDurationChange: (value: number) => void;
-  onPauseDurationChange: (value: number) => void;
-  onSettleDurationChange: (value: number) => void;
   onReverseSpeedChange: (value: number) => void;
-  onReverseDurationChange: (value: number) => void;
-  onFeedRetryCountChange: (value: number) => void;
-  onSelectContinuous: () => void;
+  onFieldChange: (field: FeederTimingField, value: number) => void;
   fullWidth?: boolean;
 }
 
@@ -315,31 +316,14 @@ export interface CalibrationConflictDialogProps {
   onChoose: (source: CalibrationSource) => void;
 }
 
-export interface Device {
-  guid: string;
-  name: string;
-  hardwareId: string | null;
-  scanRegion: ScanRegion;
-  captureSettleDelayMs: number;
-  matchesNeeded: number;
-  feederStopPulse: number | null;
-  checkBothOrientations: boolean;
-  flipCamera: boolean;
-  moduleCount: number;
-  channelLayout: ChannelLayout;
-  setupCompletedAt: string | null;
-  pipelinedFeed: boolean;
-  autoConnect: boolean;
-  testOnConnect: boolean;
-  createdAt: string;
-  updatedAt: string;
-}
+export type { Device } from "@magic-vault/shared";
 
 export interface CalibrationDebugParams {
   channelLayout: ChannelLayout;
   moduleCount: number;
   configs: ModuleConfig[];
   feederConfig: FeederCalibration;
+  feederStopPulse: number | null;
   binRoutes: BinRoute[];
   firmwareVersion: string | null;
   board: string | null;
@@ -481,6 +465,7 @@ export interface ModuleCalibrationGridProps {
 }
 
 export interface ScanRegionCalibrationPanelProps {
+  cameraSettings: CameraSettingsDraft;
   scanRegion: ScanRegion;
   captureSettleDelayMs: number;
   matchesNeeded: number;
@@ -509,7 +494,26 @@ export interface ScorePrintingFrameInput {
   region: ScanRegion;
   checkBothOrientations: boolean;
   collectionGuid: string;
+  gameKey: string | undefined;
+  ocrMode: ScanOcrMode;
   values: PrintingScoreFormValues;
+}
+
+export interface PrintingFrameScanCheck {
+  card: Pick<PlayingCard, "id" | "name" | "set" | "collectorNumber"> | null;
+  scannedImageUrl: string;
+  cropContour: CardContour;
+  cardDetected: boolean;
+  frameWidth: number;
+  frameHeight: number;
+  lowConfidenceMatch: boolean;
+  matched: MatchedScanDiagnostics | null;
+  unmatched: UnmatchedScanDiagnostics | null;
+}
+
+export interface PrintingFrameScore {
+  score: PrintingScoreResult;
+  scanCheck: PrintingFrameScanCheck;
 }
 
 export type PendingConnectKind = "usb" | "bluetooth" | "cloud";
@@ -517,3 +521,27 @@ export type PendingConnectKind = "usb" | "bluetooth" | "cloud";
 export interface FetchSavedCalibrationOptions {
   bypassCache?: boolean;
 }
+
+export interface CameraSettingsValues {
+  cameraId: string;
+  focusDistance: number | null;
+}
+
+export interface CameraSettingsDraft {
+  cameraId: string;
+  isCameraChanged: boolean;
+  isDirty: boolean;
+  isSaving: boolean;
+  setCamera: (cameraId: string) => void;
+  previewFocus: (value: number | null) => void;
+  commit: () => Promise<void>;
+  discard: () => Promise<void>;
+}
+
+export type FeederTimingField =
+  | "duration"
+  | "pulseDuration"
+  | "pauseDuration"
+  | "settleDuration"
+  | "reverseDuration"
+  | "feedRetryCount";

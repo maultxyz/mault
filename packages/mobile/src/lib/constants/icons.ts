@@ -40,6 +40,7 @@ import IconHandStop from "@tabler/icons-react-native/IconHandStop";
 import IconMusic from "@tabler/icons-react-native/IconMusic";
 import IconBluetooth from "@tabler/icons-react-native/IconBluetooth";
 import IconWifi from "@tabler/icons-react-native/IconWifi";
+import IconWifiOff from "@tabler/icons-react-native/IconWifiOff";
 import IconBrandDiscord from "@tabler/icons-react-native/IconBrandDiscord";
 import IconBox from "@tabler/icons-react-native/IconBox";
 import IconBrackets from "@tabler/icons-react-native/IconBrackets";
@@ -116,6 +117,7 @@ export const ICONS = {
   music: IconMusic,
   bluetooth: IconBluetooth,
   wifi: IconWifi,
+  offline: IconWifiOff,
   discord: IconBrandDiscord,
   camera: IconCamera,
   share: IconShare,

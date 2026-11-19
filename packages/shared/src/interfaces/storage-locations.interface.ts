@@ -3,7 +3,7 @@ import type { PlayingCardWithDistance } from "./card.interface";
 import type { CardCondition, ConditionMultipliers } from "./card-condition.interface";
 import type { CardStatsAggregate } from "./collection-cards.interface";
 import type { FieldMeta } from "./sort-bins.interface";
-import type { PickListEntry, PickListEntryInput } from "./pick-list.interface";
+import type { PickListEntry } from "./pick-list.interface";
 import type { PriceSource } from "./price-source.interface";
 
 export interface StorageLocation {
@@ -14,12 +14,56 @@ export interface StorageLocation {
   lastUsedAt: Date | null;
   createdAt: Date;
   labelShortUrl?: string | null;
+  capacity?: number | null;
+  batchSize?: number | null;
+  usedSlots?: number;
 }
 
 export interface CardStorageLocation {
   guid: string;
   name: string;
   position: number;
+  batchSize?: number | null;
+}
+
+export interface StorageSlotParts {
+  batch: number;
+  cardInBatch: number;
+}
+
+export interface FillLocationCandidate {
+  id: number;
+  capacity: number | null;
+  usedSlots: number;
+}
+
+export interface StorageLocationSettingsInput {
+  name: string;
+  capacity?: number | null;
+  batchSize?: number | null;
+}
+
+export interface StorageLocationSeriesInput {
+  prefix: string;
+  firstNumber: number;
+  count: number;
+  capacity: number | null;
+  batchSize: number | null;
+}
+
+export interface StorageLocationBulkUpdateInput {
+  locationGuids: string[];
+  capacity?: number | null;
+  batchSize?: number | null;
+}
+
+export interface StorageLocationBulkResult {
+  updated: number;
+}
+
+export interface StorageLocationSeriesResult {
+  created: StorageLocation[];
+  skippedNames: string[];
 }
 
 export interface StorageLocationCard {
@@ -64,10 +108,6 @@ export interface StorageLocationCardContext {
   total: number;
   previous: StorageLocationCardNeighbor | null;
   next: StorageLocationCardNeighbor | null;
-}
-
-export interface StoragePickListRequest {
-  entries: PickListEntryInput[];
 }
 
 export interface StoragePickListCard extends StorageLocationSearchResult {
@@ -133,11 +173,13 @@ export interface StorageLocationExportCard {
 export interface StorageLocationSearchResult extends StorageLocationCard {
   locationGuid: string;
   locationName: string;
+  locationBatchSize?: number | null;
 }
 
 export interface EmptyBinOptions {
   locationGuid?: string;
   collectionGuid?: string;
+  storeInClaimedLocation?: boolean;
 }
 
 export interface StorageLocationExportSummary {
@@ -162,6 +204,7 @@ export interface StorageShareLinkInfo {
   priceSource: PriceSource;
   conditionMultipliers: ConditionMultipliers;
   showsPrices: boolean;
+  requiresGuestContact?: boolean;
   purpose: ShareLinkPurpose;
 }
 

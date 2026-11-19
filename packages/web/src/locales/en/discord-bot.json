@@ -57,6 +57,10 @@
         "usage": "/showoff",
         "description": "Post your collection's total value and your most valuable card. Needs a linked account."
       },
+      "showcase": {
+        "usage": "/showcase collection|storage <name>",
+        "description": "Post one collection or storage location with its card count, total value and five most valuable cards. Needs a linked account."
+      },
       "shareCalibration": {
         "usage": "/share-calibration",
         "description": "Pick one of your sorters from a dropdown and post its module and feeder calibration values. Needs a linked account."

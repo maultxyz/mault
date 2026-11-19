@@ -28,6 +28,7 @@ import type {
   PreviousCollectionValues,
 } from "./interfaces/widget-summary";
 import { loadOrgPricing } from "./price-source";
+import { isSnapshotDue } from "./snapshot-schedule";
 
 const lastSnapshotAtByOrgId = new Map<string, number>();
 
@@ -112,11 +113,10 @@ export async function writeCollectionValueSnapshots(
 }
 
 export function isCollectionValueSnapshotDue(orgId: string): boolean {
-  const lastSnapshotAt = lastSnapshotAtByOrgId.get(orgId);
-  return (
-    lastSnapshotAt === undefined ||
-    utcDay(lastSnapshotAt) !== utcDay() ||
-    Date.now() - lastSnapshotAt >= COLLECTION_VALUE_SNAPSHOT_MIN_INTERVAL_MS
+  return isSnapshotDue(
+    lastSnapshotAtByOrgId.get(orgId),
+    Date.now(),
+    COLLECTION_VALUE_SNAPSHOT_MIN_INTERVAL_MS,
   );
 }
 

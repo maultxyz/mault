@@ -2,6 +2,8 @@ import type {
   OrgShareLink,
   ShareLinkPurpose,
   StorageShareLinkInfo,
+  CardShareLinkInfo,
+  SharedCardLink,
 } from "@magic-vault/shared";
 import type { MonitorLinkFormValues } from "@/schemas/monitor-link.schema";
 import type { Button } from "@/components/ui/button";
@@ -18,6 +20,7 @@ export interface ShareLinkOptions {
   purpose: ShareLinkPurpose;
   expiresInDays: number;
   showPrices: boolean;
+  requireGuestContact: boolean;
 }
 
 export interface ShareLinkDialogProps {
@@ -30,6 +33,8 @@ export interface ShareLinkDialogProps {
   revokedMessage: string;
   createLink: (options: ShareLinkOptions) => Promise<CreatedShareLink>;
   revokeLinks: () => Promise<void>;
+  sharedCardsCollectionGuid?: string;
+  startsWithNewTradeLink?: boolean;
 }
 
 export interface ShareStorageLinkDialogProps {
@@ -37,7 +42,27 @@ export interface ShareStorageLinkDialogProps {
   renderTrigger?: (activeLinkCount: number) => ReactElement;
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  startsWithNewTradeLink?: boolean;
 }
+
+export interface SharedCardLinkListProps {
+  collectionGuid: string;
+}
+
+export interface SharedCardLinkRowProps {
+  link: SharedCardLink;
+  isRevoking: boolean;
+  onCopy: (link: SharedCardLink) => void;
+  onRevoke: (link: SharedCardLink) => void;
+}
+
+export type ShareLinkDialogTab = "links" | "cards";
+
+export type SharedCardLinkState =
+  | { status: "checking" }
+  | { status: "invalid" }
+  | { status: "failed" }
+  | { status: "valid"; info: CardShareLinkInfo };
 
 export type ShareLinkTriggerButtonProps = ComponentProps<typeof Button> & {
   label: string;

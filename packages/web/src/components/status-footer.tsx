@@ -232,7 +232,7 @@ function SorterStatusItem() {
         </div>
         <ScrollArea
           viewportRef={commLogRef}
-          className="h-56 rounded-md border bg-muted"
+          className="h-56 rounded-lg bg-foreground/6"
         >
           {entries.length === 0 ? (
             <p className="p-2 text-xs text-foreground/70">
@@ -290,7 +290,7 @@ export function StatusFooter() {
   const { t } = useTranslation("common");
   const { status: cameraStatus } = useCameraContext();
   const { totalCount, totalValue } = useCollectionCardsSummary();
-  const { format } = usePriceSource();
+  const { formatCompact } = usePriceSource();
 
   const cameraDot =
     cameraStatus === "ready"
@@ -328,7 +328,7 @@ export function StatusFooter() {
           <p className="text-xs tabular-nums">
             {t("statusFooter.cardTotal", {
               count: totalCount,
-              value: format(totalValue),
+              value: formatCompact(totalValue),
             })}
           </p>
         </>

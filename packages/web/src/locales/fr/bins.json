@@ -170,12 +170,14 @@
       "emptyAllBinsFailed": "Échec du vidage des bacs",
       "repackFailed": "Échec de la mise à jour des paramètres de repack",
       "alphabetFailed": "Échec de la mise à jour du tri alphabétique",
-      "chaosFailed": "Impossible de mettre à jour le tri en vrac",
+      "chaosFailed": "Impossible de mettre à jour le tri chaos",
       "skipSavingFailed": "Impossible de mettre à jour l'enregistrement",
       "resortModeFailed": "Impossible de mettre à jour le retri",
       "cardsStored_one": "{{count}} carte rangée",
       "cardsStored_other": "{{count}} cartes rangées",
-      "matchGamesFailed": "Impossible de mettre à jour les jeux"
+      "matchGamesFailed": "Impossible de mettre à jour les jeux",
+      "fillLocationsFailed": "Impossible de mettre à jour les emplacements",
+      "nextFillLocation": "Le bac {{bin}} remplit maintenant {{location}}"
     }
   },
   "binsPage": {},
@@ -190,6 +192,9 @@
     "heading": "Détection automatique",
     "description": "Apprend les affectations de bacs pendant le scan : dès qu'une nouvelle valeur apparaît pour le champ ci-dessous, elle occupe le prochain bac libre. Les répétitions y sont ensuite dirigées automatiquement, et une fois tous les bacs occupés, les nouvelles valeurs vont au fourre-tout.",
     "fieldPlaceholder": "Choisir un champ...",
+    "fieldLabel": "Champ de tri",
+    "resetNeedsSave": "Enregistre ou annule d'abord tes modifications du mode de tri. Tu pourras ensuite réinitialiser les bacs appris.",
+    "resetNothingLearned": "Aucun bac n'a encore appris de valeur, il n'y a donc rien à réinitialiser.",
     "reset": "Réinitialiser",
     "resetConfirmTitle": "Réinitialiser les bacs détectés automatiquement ?",
     "resetConfirmDescription": "Efface la valeur apprise de chaque bac de ce préréglage. Les prochains scans les rempliront à nouveau depuis le début.",
@@ -232,12 +237,12 @@
     "description": "Chaque scan déplace un exemplaire déjà présent dans cette collection vers son nouveau bac au lieu d'en ajouter un autre. L'exemplaire garde sa finition foil et son état, et quitte son ancien emplacement. Les cartes absentes de la collection sont ajoutées comme d'habitude."
   },
   "chaosPanel": {
-    "heading": "Tri en vrac",
+    "heading": "Tri chaos",
     "description": "Ignore les règles et remplit les bacs l'un après l'autre, en passant au suivant quand un bac est plein. Quand tu vides un bac, choisis l'emplacement où tu le ranges, et chaque carte y est enregistrée dans l'ordre.",
     "binSizeLabel": "Cartes par bac",
     "binSizePlaceholder": "Remplir jusqu'à la taille du bac",
     "binSizeDescription": "Passe au bac suivant après ce nombre de cartes. Laisse vide pour remplir chaque bac jusqu'à sa taille étalonnée.",
-    "notInPlan": "Le tri en vrac ne fait pas partie de ton offre."
+    "notInPlan": "Le tri chaos ne fait pas partie de ton offre."
   },
   "alphabetPanel": {
     "heading": "Trier par ordre alphabétique",
@@ -349,7 +354,7 @@
     "noValue": "rien",
     "resultAnnouncement": "{{name}} va dans {{bin}}",
     "scannedTo": "Lors du scan, cette carte est aussi allée dans {{bin}}.",
-    "scannedElsewhere": "Lors du scan, cette carte est allée dans {{scanned}}, pas dans {{tested}}. Le preset a peut-être changé depuis, ou un bac plein, un débordement ou une liste de recherche l'a envoyée ailleurs. Ce test ne tient pas compte du remplissage des bacs.",
+    "scannedElsewhere": "Lors du scan, cette carte est allée dans {{scanned}}, pas dans {{tested}}. Le préréglage a peut-être changé depuis, ou un bac plein, un débordement ou une liste de recherche l'a envoyée ailleurs. Ce test ne tient pas compte du remplissage des bacs.",
     "reasons": {
       "rules": "Les règles du bac {{bin}} correspondent à cette carte, et c'est le premier bac qui correspond.",
       "override": "Le bac {{bin}} est prioritaire et ses règles correspondent, il l'emporte donc sur les autres bacs.",
@@ -357,12 +362,12 @@
       "noRuleMatched": "Aucune règle de bac ne correspond à cette carte, elle va donc dans le bac fourre-tout.",
       "overflow": "Le bac {{matched}} correspond, et ses cartes débordent dans le bac {{bin}}.",
       "pickList": "{{name}} est sur la liste de prélèvement du bac {{bin}}.",
-      "autoAssign": "L'attribution automatique donne à la valeur de cette carte son propre bac : le bac {{bin}}.",
-      "scanOnly": "Le mode scan seul envoie chaque carte identifiée dans le bac {{bin}}.",
-      "chaos": "Le mode chaos remplit les bacs à tour de rôle, cette carte va donc dans le bac {{bin}}.",
+      "autoAssign": "La détection automatique donne à la valeur de cette carte son propre bac : le bac {{bin}}.",
+      "scanOnly": "Le mode Scan uniquement envoie chaque carte identifiée dans le bac {{bin}}.",
+      "chaos": "Le tri chaos remplit les bacs à tour de rôle, cette carte va donc dans le bac {{bin}}.",
       "alphabet": "Les noms commençant par {{letter}} vont dans le bac {{bin}} pour ce passage.",
       "alphabetCatchAll": "Ce nom ne fait pas partie des lettres en cours, il va donc dans le bac fourre-tout.",
-      "repack": "Le mode repack place cette carte dans un paquet du bac {{bin}}.",
+      "repack": "Créer des repacks place cette carte dans un pack du bac {{bin}}.",
       "noBin": "Aucun bac ne prend cette carte. Ajoutez un bac fourre-tout pour que ces cartes aient une place."
     }
   },
@@ -440,7 +445,20 @@
   },
   "sortingModePanel": {
     "title": "Mode de tri",
-    "explain": "À quoi sert {{mode}} ?"
+    "explain": "À quoi sert {{mode}} ?",
+    "rules": {
+      "heading": "Règles de tri",
+      "description": "Chaque bac reçoit les cartes qui correspondent à ses règles. Une carte qui ne correspond à aucun bac va dans le bac fourre-tout."
+    },
+    "summaries": {
+      "rules": "Chaque bac reçoit les cartes qui correspondent à ses règles.",
+      "scan-only": "Les cartes identifiées vont dans un bac, les autres dans un second.",
+      "auto-assign": "Chaque nouvelle valeur d'un champ occupe le prochain bac libre.",
+      "game-sort": "Chaque jeu a son propre bac. Les cartes ne sont pas enregistrées.",
+      "repack": "Chaque bac constitue un pack à partir des créneaux que tu définis.",
+      "alphabet": "Une lettre par bac, selon la première lettre du nom de la carte.",
+      "chaos": "Remplit les bacs l'un après l'autre et retient où se trouve chaque carte."
+    }
   },
   "mobileBins": {
     "rulesMode": "Règles",
@@ -448,5 +466,71 @@
   },
   "planLock": {
     "badge": "Mise à niveau"
+  },
+  "storagePlan": {
+    "tabs": {
+      "label": "Vues des règles de tri",
+      "rules": "Règles",
+      "storage": "Rangement"
+    },
+    "heading": "Plan de rangement",
+    "description": "Chaque bac remplit le prochain emplacement de cette liste qui a de la place. Un bac se met en pause quand son emplacement est plein, et le vider range les cartes à cet endroit.",
+    "runOut": "Quand tous les emplacements sont pleins, les bacs se remplissent jusqu'à leur taille normale et le vidage demande où ranger les cartes.",
+    "notInPlan": "Remplir des emplacements de rangement nécessite une offre avec le rangement.",
+    "binsNow": "Bacs actuels",
+    "binsNowHint": "D'après le plan enregistré. Enregistre tes modifications pour le mettre à jour.",
+    "noLocation": "Aucun emplacement",
+    "claim_one": "{{location}}, {{count, compact}} restante",
+    "claim_other": "{{location}}, {{count, compact}} restantes",
+    "fillText": "{{used, compact}} / {{capacity, compact}}",
+    "noCapacity": "{{used, compact}} rangées, sans capacité",
+    "batchOf_one": "Lots de {{count, compact}} carte",
+    "batchOf_other": "Lots de {{count, compact}} cartes",
+    "add": "Ajouter des emplacements",
+    "table": {
+      "order": "#",
+      "location": "Emplacement",
+      "fill": "Remplissage",
+      "capacity": "Capacité",
+      "batch": "Lot",
+      "filling": "Rempli par",
+      "actions": "Actions"
+    },
+    "status": {
+      "filling": "Bac {{number}}",
+      "full": "Plein",
+      "waiting": "En attente"
+    },
+    "actions": {
+      "label": "Actions pour {{name}}",
+      "moveUp": "Monter",
+      "moveDown": "Descendre",
+      "edit": "Modifier l'emplacement",
+      "remove": "Retirer du plan"
+    },
+    "empty": {
+      "title": "Aucun emplacement dans ce plan",
+      "description": "Ajoute des emplacements ou crée une série, comme A1 à A10, que les bacs rempliront dans l'ordre."
+    },
+    "summary": {
+      "label": "Plan de rangement",
+      "off": "Désactivé",
+      "single": "{{first}}, {{full}} sur {{total}} plein",
+      "range": "{{first}} à {{last}}, {{full}} sur {{total}} pleins",
+      "open": "Ouvrir",
+      "setUp": "Configurer"
+    },
+    "addDialog": {
+      "title": "Ajouter des emplacements",
+      "description": "Choisis les emplacements que les bacs doivent remplir. Ils sont ajoutés à la fin du plan.",
+      "search": "Rechercher des emplacements",
+      "selectAll": "Tout sélectionner",
+      "none": "Tous les emplacements sont déjà dans le plan.",
+      "noMatches": "Aucun emplacement ne correspond.",
+      "noCapacity": "Sans capacité",
+      "cancel": "Annuler",
+      "submit_one": "Ajouter {{count}} emplacement",
+      "submit_other": "Ajouter {{count}} emplacements"
+    }
   }
 }

@@ -6,7 +6,6 @@ import { count, eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { webhookEndpoints } from "../../db/schema";
-import { isApiAccessAllowed } from "../../lib/api-access";
 import {
   WEBHOOK_ENDPOINT_COLUMNS,
   WEBHOOK_MANAGER_ROLES,
@@ -16,6 +15,7 @@ import { generateWebhookSecret } from "../../lib/webhooks/delivery";
 import { toWebhookEndpoint } from "../../lib/webhooks/endpoints";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { webhookInputError, webhookInputSchema } from "./shared";
+import { orgHasFeature } from "../../lib/plan-config";
 
 export const addWebhookRoute = new Hono<AppEnv>().post(
   "/",
@@ -37,7 +37,7 @@ export const addWebhookRoute = new Hono<AppEnv>().post(
       );
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      if (!(await isApiAccessAllowed(tx, orgId))) {
+      if (!(await orgHasFeature(tx, orgId, "apiAccess"))) {
         return { success: false, message: WEBHOOK_UPGRADE_MESSAGE };
       }
       const [{ value: existing }] = await tx

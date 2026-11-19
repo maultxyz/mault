@@ -82,7 +82,6 @@ export function CardScanner({
   controlsPosition = "bottom",
   controlsContainer,
   renderChrome,
-  viewerTouchesPanelEdges = false,
 }: CardScannerComponentProps) {
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
@@ -337,6 +336,13 @@ export function CardScanner({
     if (!open && phonePairingStatus !== "connected") stopPhonePairing();
   };
   const scanningBlocked = isAtScanLimit;
+  const selectStationCamera = useCallback((cameraId: string) => {
+    if (piRemote && piScanLive) {
+      toast.error(t("piHardware.stopBeforeSwitching"));
+      return;
+    }
+    void selectCamera(cameraId);
+  }, [piRemote, piScanLive, selectCamera, t, toast]);
 
   const verifyJam = useVerifyJam();
   const [ignoreIrSensors] = useIgnoreIrSensors();
@@ -947,6 +953,7 @@ export function CardScanner({
         <video ref={videoRef} className="hidden" playsInline muted />
         {piRemote && isCameraActive && (
           <PiCameraPreview
+            cameraId={selectedCameraId}
             alt={t("piScan.preview")}
             rotated
             flipped={device?.flipCamera}
@@ -979,16 +986,14 @@ export function CardScanner({
           autoFeed,
           allowDuplicates,
           isAtScanLimit,
-          bluetoothSupported,
           cameras,
           selectedCameraId,
           onPause: pause,
           onResume: () => void handleResumeScanning(),
           onScanOnce: () => void handleForceScanClick(),
           onRetry: handleRetryError,
-          onConnectBluetooth: connectBluetooth,
           onResolveSensorBlocked: reopenSensorBlockedToast,
-          onSelectCamera: selectCamera,
+          onSelectCamera: selectStationCamera,
           onAutoFeedChange: setAutoFeed,
           onAllowDuplicatesChange: setAllowDuplicates,
           isFeeding,
@@ -1042,7 +1047,7 @@ export function CardScanner({
       scanningBlocked,
       onCameraConnect: handleRetryError,
       onCameraDisconnect: handleStopCamera,
-      onCameraSelect: selectCamera,
+      onCameraSelect: selectStationCamera,
       onCalibrateFlatbed: () => setFlatbedPlacementOpen(true),
       isFeederSelected: isFeederMode,
       onSetUpFeederCard: () => setFeederCardSetupOpen(true),
@@ -1078,14 +1083,13 @@ export function CardScanner({
     >
       <div
         className={cn(
-          showStatusStrip ? "flex flex-col" : "contents",
+          showStatusStrip ? "flex flex-col gap-1.5" : "contents",
           showStatusStrip && piRemote && "max-md:flex-1 max-md:min-h-0",
         )}
       >
         <div
           className={cn(
             "relative isolate overflow-hidden rounded-card bg-card",
-            viewerTouchesPanelEdges && "rounded-none border-b",
             isSideControls
               ? "h-full aspect-[2.5/3.5] shrink-0"
               : "w-full h-full max-w-full",
@@ -1097,6 +1101,7 @@ export function CardScanner({
           <video ref={videoRef} className="hidden" playsInline muted />
           {piRemote && isCameraActive && (
             <PiCameraPreview
+            cameraId={selectedCameraId}
               alt={t("piScan.preview")}
               rotated
               flipped={device?.flipCamera}
@@ -1160,9 +1165,9 @@ export function CardScanner({
             selectedCameraId={selectedCameraId}
             phonePairingStatus={phonePairingStatus}
             scanningBlocked={scanningBlocked}
-            onCameraConnect={piRemote ? undefined : handleRetryError}
+            onCameraConnect={handleRetryError}
             onCameraDisconnect={handleStopCamera}
-            onCameraSelect={selectCamera}
+            onCameraSelect={selectStationCamera}
             onOpenPhonePairing={handleOpenPhonePairing}
             onScannerConnect={connect}
             onScannerConnectBluetooth={connectBluetooth}
@@ -1197,7 +1202,6 @@ export function CardScanner({
           <ScannerOverlay
             {...overlayProps}
             region="status-strip"
-            statusStripTouchesPanelEdges={viewerTouchesPanelEdges}
           />
         )}
       </div>

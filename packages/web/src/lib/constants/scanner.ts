@@ -6,6 +6,7 @@ import type {
 } from "@/lib/interfaces/stations";
 import { PI_SCAN_SESSION_PATH } from "@magic-vault/shared";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
+import { monitorCollectionPath } from "@/lib/constants/collections";
 import {
   type CollectionCardsQuery,
   type PiScanSessionState,
@@ -105,6 +106,19 @@ export const JAM_VERIFY_SAMPLES = 3;
 export const JAM_VERIFY_INTERVAL_MS = 750;
 export const SCAN_POSITION_MODULE = 1;
 export const MONITOR_OPEN_CARD_PARAM = "card";
+export const MONITOR_REVIEW_PARAM = "review";
+export const MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE = "1";
+
+export function monitorCollectionCardPath(
+  collectionGuid: string,
+  scanId: string,
+): string {
+  return `${monitorCollectionPath(collectionGuid)}?${new URLSearchParams({ [MONITOR_OPEN_CARD_PARAM]: scanId })}`;
+}
+
+export function monitorCollectionReviewPath(collectionGuid: string): string {
+  return `${monitorCollectionPath(collectionGuid)}?${new URLSearchParams({ [MONITOR_REVIEW_PARAM]: MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE })}`;
+}
 export const CARD_SETS_STALE_MS = 15 * 60 * 1000;
 export const CARD_SET_PICKER_LIMIT = 100;
 export const MONITOR_NEEDS_REVIEW_CARDS_QUERY: CollectionCardsQuery = {
@@ -114,7 +128,6 @@ export const MONITOR_NEEDS_REVIEW_CARDS_QUERY: CollectionCardsQuery = {
 };
 export const SENSOR_BLOCKED_TOAST_ID = "test-sensor-blocked";
 export const SESSION_LOCK_ALERT_ID = "session-lock";
-export const ROUTE_TIMEOUT_MODULE_PATTERN = /no card detected at module (\d+)/;
 
 export const PARKED_PANELS_ROOT_CLASS =
   "fixed top-0 left-0 -z-10 invisible pointer-events-none";
@@ -204,6 +217,14 @@ export const SCAN_REGION_MASK_STROKE = "rgb(255 255 255 / 0.9)";
 
 export const MOBILE_SCAN_CHIP_CLASS =
   "pointer-events-auto inline-flex h-9 min-w-0 items-center gap-1.5 rounded-lg bg-black/55 px-3 text-sm font-medium text-white backdrop-blur-md active:bg-black/70";
+export const MOBILE_SCAN_TEXT_ROW_CLASS =
+  "pointer-events-auto flex min-w-0 max-w-full items-center gap-1.5 text-left text-white [text-shadow:0_1px_3px_rgb(0_0_0/0.75)] active:opacity-70 disabled:active:opacity-100 [&_svg]:shrink-0 [&_svg]:drop-shadow";
+export const MOBILE_SCAN_TOP_SCRIM_CLASS =
+  "bg-linear-to-b from-black/60 via-black/60 via-65% to-transparent";
+export const MOBILE_SCAN_BOTTOM_SCRIM_CLASS =
+  "bg-linear-to-t from-black/60 via-black/60 via-65% to-transparent";
+export const MOBILE_SCAN_SESSION_THUMBNAIL_CLASS =
+  "pointer-events-auto relative block aspect-[5/7] w-9 shrink-0 overflow-hidden rounded-sm border-2 border-white bg-black/55 transition-transform active:scale-95 motion-reduce:active:scale-100";
 export const MOBILE_SCAN_PANEL_CLASS =
   "pointer-events-auto rounded-xl bg-black/60 p-3 text-white backdrop-blur-md";
 
@@ -254,6 +275,19 @@ export const FLATBED_DEFAULT_PLACEMENT: FlatbedPlacement = {
   widthMm: 70,
   heightMm: 95,
 };
+export const FLATBED_EMPTY_PLACEMENT: FlatbedPlacement = {
+  leftMm: 0,
+  topMm: 0,
+  widthMm: 0,
+  heightMm: 0,
+};
+export const FLATBED_PLACEMENT_FIELD_NAMES = [
+  "leftMm",
+  "topMm",
+  "widthMm",
+  "heightMm",
+] as const satisfies readonly (keyof FlatbedPlacement)[];
+export const FLATBED_PLACEMENT_FIELD_STEP_MM = 0.1;
 export const FLATBED_SCAN_MARGIN_MM = 4;
 export const FLATBED_DEFAULT_GLASS_WIDTH_MM = 216;
 export const FLATBED_MIN_PLACEMENT_MM = 40;
@@ -277,15 +311,6 @@ export const FEEDER_CARD_DEFAULT_SETUP: FeederCardSetup = {
 };
 export const FEEDER_CARD_ROTATED_PAGE_QUALITY = 0.92;
 export const FEEDER_CARD_SETUP_FORM_ID = "feeder-card-setup-form";
-export const SCAN_PAGE_CARD_IMAGE_QUALITY = 0.8;
-export const SCAN_PAGE_CARD_DARK_LUMINANCE = 150;
-export const SCAN_PAGE_CARD_MIN_DARK_LINE_RATIO = 0.05;
-export const SCAN_PAGE_CARD_EDGE_MIN_DARK_PIXELS = 1;
-export const SCAN_PAGE_CARD_CROP_MARGIN_PX = 6;
-export const SCAN_PAGE_CARD_ANALYSIS_MAX_DIMENSION_PX = 1600;
-export const SCAN_PAGE_CARD_EDGE_SAMPLE_INSET_RATIO = 0.15;
-export const SCAN_PAGE_CARD_EDGE_MIN_SAMPLES = 10;
-export const SCAN_PAGE_CARD_EDGE_OUTLIER_PX = 2;
 export const SCAN_PAGE_SAVED_IMAGE_MAX_DIMENSION_PX = 1200;
 export const SCAN_PAGE_SAVED_IMAGE_QUALITY = 0.85;
 export const SCAN_PAGE_ORIENTATION_SAMPLE_WIDTH_PX = 24;

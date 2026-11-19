@@ -25,11 +25,13 @@ export interface TcgplayerSubTypes {
 export interface TcgplayerProductCandidate {
   name: string;
   rarity: string | null;
+  groupName: string | null;
 }
 
 export interface TcgplayerProductMatch {
   numbers: string[];
   accepts(product: TcgplayerProductCandidate): boolean;
+  preferredGroupNames?: string[];
 }
 
 export interface TcgplayerFinishProduct {
@@ -77,6 +79,7 @@ export interface CardSearchAdapter {
   normalizeStored(raw: unknown, id: string, lang: string): PlayingCard | null;
   rarePrintingSql?: SQL;
   promoPrintingSql?: SQL;
+  printedLanguageCodeSql?: SQL;
   printedSetTotalSql?: SQL;
   releasedAtSql?: SQL;
   releaseSequenceSql?: SQL;
@@ -150,6 +153,7 @@ export interface SyncSourceCard {
   printingMarkImageUrl?: string;
   fallbackImageUrl?: string;
   backImageUrl?: string;
+  hasPartialData?: boolean;
   data: string;
 }
 
@@ -179,6 +183,7 @@ export interface SyncSource {
 export interface TextRankedPrintingEvidence {
   isPreferredSet: boolean;
   matchesPrintedPromo: boolean;
+  matchesPrintedLanguageCode: boolean;
   setLineMatch: boolean;
   letteredNumberMatch: boolean;
   numberMatch: boolean;
@@ -214,6 +219,7 @@ export interface CardTextMatchParams {
   readout: OcrReadout;
   preferredSetCodes?: string[];
   printedPromo?: boolean | null;
+  printedLanguageCode?: boolean | null;
   printingMarkGrids?: PrintingMarkScanGrids | null;
 }
 

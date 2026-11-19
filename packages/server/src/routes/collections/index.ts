@@ -3,6 +3,7 @@ import type { AppEnv } from "../../middleware/auth";
 import { addCollectionRoute } from "./add";
 import { addCollectionCardRoute } from "./cards-add";
 import { addManualCollectionCardRoute } from "./cards-manual-add";
+import { collectionCsvImportRoute } from "./cards-csv-import";
 import { sortOnlyScanRoute } from "./cards-sort-only";
 import { searchOwnedCardsRoute } from "./cards-search";
 import { collectionCardBinsRoute } from "./cards-bins";
@@ -64,6 +65,7 @@ const router = new Hono<AppEnv>()
   .route("/", collectionCardPositionRoute)
   .route("/", addCollectionCardRoute)
   .route("/", addManualCollectionCardRoute)
+  .route("/", collectionCsvImportRoute)
   .route("/", sortOnlyScanRoute)
   .route("/", collectionCardImageRoute)
   .route("/", collectionCardDiagnosticsRoute)

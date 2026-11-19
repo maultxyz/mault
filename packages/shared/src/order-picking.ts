@@ -123,14 +123,6 @@ export function orderBinsError(
   return null;
 }
 
-export function pickOrderBins(orderBins: OrderBins, orderRefs: string[]): OrderBins {
-  return Object.fromEntries(
-    orderRefs
-      .filter((ref) => orderBins[ref] != null)
-      .map((ref) => [ref, orderBins[ref]]),
-  );
-}
-
 export function hasEveryOrderBin(orderRefs: string[], orderBins: OrderBins): boolean {
   return orderRefs.every((ref) => orderBins[ref] != null);
 }

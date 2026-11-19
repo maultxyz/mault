@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { FlatList, View } from "react-native";
 import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
-import { STORAGE_VERIFY_CARDS_MAX, storagePickListRows } from "@magic-vault/shared";
+import { formatStorageSlot, STORAGE_VERIFY_CARDS_MAX, storagePickListRows } from "@magic-vault/shared";
 import { CardRow } from "@/components/cards/card-row";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -113,7 +113,7 @@ export function StorageLocationVerify({ location }: StorageLocationVerifyProps) 
           <ListGroupItem index={index} count={rows.length}>
             <CardRow
               name={row.entry.card.name}
-              subtitle={`${t("storage.position", { position: row.entry.position })} · ${row.entry.card.setName}`}
+              subtitle={`${t("storage.position", { position: formatStorageSlot(row.entry.position, row.entry.locationBatchSize ?? location.batchSize) })} · ${row.entry.card.setName}`}
               imageUrl={absoluteUrl(row.entry.card.image?.small)}
               checked={row.isPicked}
               onPress={() => verify.setVerified(row.entry.scanId, !row.isPicked)}

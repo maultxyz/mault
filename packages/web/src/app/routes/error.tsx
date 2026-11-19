@@ -1,6 +1,12 @@
+import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { Button } from "@/components/ui/button";
 import { reportClientError } from "@/lib/error-reporting";
+import {
+  hardReload,
+  isStaleChunkError,
+  reloadOnceForStaleChunks,
+} from "@/lib/hard-reload";
 import { IconBug, IconRefresh } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -13,6 +19,7 @@ export default function ErrorPage() {
   console.error(error);
 
   useEffect(() => {
+    if (isStaleChunkError(error) && reloadOnceForStaleChunks()) return;
     if (!isRouteErrorResponse(error)) {
       reportClientError(error);
     }
@@ -35,7 +42,7 @@ export default function ErrorPage() {
     >
       <IconBug className="size-16 text-foreground/70" />
       <div className="flex flex-col gap-1">
-        <h1 className="font-heading text-lg font-semibold">
+        <h1 className={PAGE_TITLE_CLASS}>
           {t("errorPage.title")}
         </h1>
         <p className="text-xs text-foreground/70">
@@ -48,12 +55,12 @@ export default function ErrorPage() {
         )}
       </div>
       {detail && (
-        <pre className="max-w-lg overflow-auto rounded-lg border bg-muted p-3 text-left text-2xs text-foreground/70">
+        <pre className="max-w-lg overflow-auto rounded-lg bg-foreground/6 p-3 text-left text-2xs text-foreground/70">
           {detail}
         </pre>
       )}
       <div className="flex items-center gap-1.5">
-        <Button variant="outline" onClick={() => window.location.reload()}>
+        <Button variant="outline" onClick={() => void hardReload()}>
           <IconRefresh size={14} />
           {t("errorPage.reload")}
         </Button>

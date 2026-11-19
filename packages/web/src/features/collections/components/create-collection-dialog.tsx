@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { PlanNotice } from "@/components/plan-notice";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,7 +21,7 @@ import {
   gameLanguagesQueryOptions,
   gamesQueryOptions,
 } from "@/features/games/api/games";
-import { EMPTY_LANGUAGES, LANGUAGE_LABELS } from "@/lib/constants/languages";
+import { EMPTY_LANGUAGES } from "@/lib/constants/languages";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconLoader2 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -157,7 +158,7 @@ export function CreateCollectionDialog({
               !form.formState.isValid || isMutating || atCollectionLimit
             }
           >
-            {isMutating && <IconLoader2 className="size-4 animate-spin" />}
+            {isMutating && <IconLoader2 className="animate-spin" />}
             {t("createDialog.create")}
           </Button>
         </>

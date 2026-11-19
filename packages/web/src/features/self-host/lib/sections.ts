@@ -11,8 +11,13 @@ function matches(
 ): boolean {
   if (!when) return true;
   return (
-    (!when.host || when.host === setup.host) &&
-    (!when.auth || when.auth === setup.auth)
+    (!when.host ||
+      (Array.isArray(when.host)
+        ? when.host.includes(setup.host)
+        : when.host === setup.host)) &&
+    (!when.auth || when.auth === setup.auth) &&
+    (!when.sorter || when.sorter === setup.sorter) &&
+    (!when.board || when.board === setup.board)
   );
 }
 

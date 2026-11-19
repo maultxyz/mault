@@ -10,16 +10,26 @@ import { MobileBins } from "@/features/bins/components/mobile-bins";
 import { BinRulesMenu } from "@/features/bins/components/bin-rules-menu";
 import { NoGameBanner } from "@/features/bins/components/no-game-banner";
 import { NonEnglishRulesBanner } from "@/features/bins/components/non-english-rules-banner";
+import { PresetActionsBar } from "@/features/bins/components/preset-actions-bar";
 import { PresetDescriptionNote } from "@/features/bins/components/preset-description-note";
 import { PresetStagesPanel } from "@/features/bins/components/preset-stages-panel";
 import { RepackPanel } from "@/features/bins/components/repack-panel";
 import { RepackTour } from "@/features/bins/components/repack-tour";
 import { SortingRulesIntro } from "@/features/bins/components/sorting-rules-intro";
 import { SortingRulesTour } from "@/features/bins/components/sorting-rules-tour";
+import { SaveBarGroup } from "@/components/save-bar-group";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { EditingStagePresetBanner } from "@/features/bins/components/editing-stage-preset-banner";
 import { MultiStageRulesRedirect } from "@/features/bins/components/multi-stage-rules-redirect";
-import { SORTING_RULES_PRESET_PARAM } from "@/lib/constants/bins";
+import { StoragePlanPanel } from "@/features/bins/components/storage-plan-panel";
+import { ViewTabs } from "@/components/view-tabs";
+import {
+  BINS_PAGE_VIEWS,
+  BINS_VIEW_PARAM,
+  SORTING_RULES_PRESET_PARAM,
+} from "@/lib/constants/bins";
+import type { BinsPageView } from "@/lib/interfaces/bins";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
@@ -34,34 +44,57 @@ function BinsHelpTour({ className }: { className?: string }) {
 
 export default function BinsPage() {
   const { t } = useTranslation("common");
+  const { t: tBins } = useTranslation("bins");
   const [searchParams] = useSearchParams();
   const editingPresetGuid = searchParams.get(SORTING_RULES_PRESET_PARAM);
   const isMobile = useIsMobile();
+  const [view, setView] = useState<BinsPageView>(() =>
+    BINS_PAGE_VIEWS.find((key) => key === searchParams.get(BINS_VIEW_PARAM)) ??
+    "rules",
+  );
 
   const content = isMobile ? (
     <MobileBins />
   ) : (
-    <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
-      <h1 className="sr-only">{t("nav.sortingRules")}</h1>
-      <section className="col-span-4 lg:col-span-3 overflow-hidden flex flex-col h-full border-r p-2 gap-2 bg-sidebar/70">
-        <AutoAssignPanel />
-        <BinList />
-      </section>
-      <section className="col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4 md:px-3 md:py-2 flex flex-col gap-4 md:gap-2">
-        <div className="flex items-start justify-between gap-4">
-          <SortingRulesIntro />
-          <div className="flex shrink-0 items-center gap-1.5">
-            <BinRulesMenu />
-            <BinsHelpTour />
-          </div>
-        </div>
-        <PresetDescriptionNote />
-        <PresetStagesPanel />
-        <RepackPanel />
-        <AlphabetPanel />
-        <BinConfigPanel />
-      </section>
-    </div>
+    <SaveBarGroup>
+      <div className="grid grid-cols-12 flex-1 min-h-0 overflow-hidden">
+        <h1 className="sr-only">{t("nav.sortingRules")}</h1>
+        <section className="col-span-4 lg:col-span-3 overflow-hidden flex flex-col h-full border-r p-2 gap-2 bg-sidebar/70">
+          <PresetActionsBar />
+          <AutoAssignPanel onOpenStoragePlan={() => setView("storage")} />
+          <BinList />
+        </section>
+        <section className="col-span-8 lg:col-span-9 overflow-y-auto max-h-full @container p-4 md:px-3 md:py-2 flex flex-col gap-4 md:gap-2">
+          <ViewTabs
+            label={tBins("storagePlan.tabs.label")}
+            value={view}
+            onChange={setView}
+            items={BINS_PAGE_VIEWS.map((key) => ({
+              key,
+              label: tBins(`storagePlan.tabs.${key}`),
+            }))}
+          />
+          {view === "storage" ? (
+            <StoragePlanPanel />
+          ) : (
+            <>
+              <div className="flex items-start justify-between gap-4">
+                <SortingRulesIntro />
+                <div className="flex shrink-0 items-center gap-1.5">
+                  <BinRulesMenu />
+                  <BinsHelpTour />
+                </div>
+              </div>
+              <PresetDescriptionNote />
+              <PresetStagesPanel />
+              <RepackPanel />
+              <AlphabetPanel />
+              <BinConfigPanel />
+            </>
+          )}
+        </section>
+      </div>
+    </SaveBarGroup>
   );
 
   return (

@@ -11,6 +11,7 @@ import {
   priceChangeSinceScan,
   tcgplayerHeadlinePrices,
 } from "@magic-vault/shared";
+import { MissingPrice } from "@/components/missing-price";
 import { IconChevronDown } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -19,18 +20,16 @@ function PriceTable({
   heading,
   columns,
   rows,
-  printings,
   highlightColumn,
   format,
 }: PriceTableProps) {
-  const { t } = useTranslation("cards");
   const visibleRows = rows.filter((row) =>
     row.values.some((value) => value != null),
   );
   if (visibleRows.length === 0) return null;
 
   const formatOptional = (value: number | null) =>
-    value != null ? format(value) : t("priceTable.noPrice");
+    value != null ? format(value) : <MissingPrice />;
 
   return (
     <div className="max-w-full overflow-x-auto">
@@ -71,11 +70,6 @@ function PriceTable({
           ))}
         </tbody>
       </table>
-      {printings > 1 && (
-        <p className="pt-2 text-2xs text-foreground/70">
-          {t("priceTable.acrossPrintings", { count: printings })}
-        </p>
-      )}
     </div>
   );
 }
@@ -107,7 +101,7 @@ function PriceHeadline({
         {label}
       </span>
       <span className="font-heading text-sm font-semibold tabular-nums">
-        {headline != null ? format(headline) : t("priceTable.noPrice")}
+        {headline != null ? format(headline) : <MissingPrice />}
       </span>
       {secondary != null && (
         <span className="text-2xs tabular-nums text-foreground/70">
@@ -171,21 +165,17 @@ export function CardPriceDetails({
             label: t("priceTable.regular"),
             values: [
               card.priceRange?.low ?? null,
-              card.priceRange?.market ?? card.price,
+              card.priceRange ? card.priceRange.market : card.price,
             ],
           },
           {
             label: t("priceTable.foil"),
             values: [
               card.priceRangeFoil?.low ?? null,
-              card.priceRangeFoil?.market ?? card.priceFoil,
+              card.priceRangeFoil ? card.priceRangeFoil.market : card.priceFoil,
             ],
           },
         ],
-        printings: Math.max(
-          card.priceRange?.printings ?? 1,
-          card.priceRangeFoil?.printings ?? 1,
-        ),
         highlightColumn: 1,
         format: formatUsd,
       },
@@ -215,7 +205,9 @@ export function CardPriceDetails({
             values: [
               card.cardmarketPrice?.low ?? null,
               card.cardmarketPrice?.trend ?? null,
-              card.cardmarketPrice?.avg ?? card.priceEur ?? null,
+              card.cardmarketPrice
+                ? card.cardmarketPrice.avg
+                : (card.priceEur ?? null),
               card.cardmarketPrice?.avg7 ?? null,
               card.cardmarketPrice?.avg30 ?? null,
             ],
@@ -225,16 +217,14 @@ export function CardPriceDetails({
             values: [
               card.cardmarketPriceFoil?.low ?? null,
               card.cardmarketPriceFoil?.trend ?? null,
-              card.cardmarketPriceFoil?.avg ?? card.priceEurFoil ?? null,
+              card.cardmarketPriceFoil
+                ? card.cardmarketPriceFoil.avg
+                : (card.priceEurFoil ?? null),
               card.cardmarketPriceFoil?.avg7 ?? null,
               card.cardmarketPriceFoil?.avg30 ?? null,
             ],
           },
         ],
-        printings: Math.max(
-          card.cardmarketPrice?.printings ?? 1,
-          card.cardmarketPriceFoil?.printings ?? 1,
-        ),
         highlightColumn: 2,
         format: formatEur,
       },
@@ -256,21 +246,22 @@ export function CardPriceDetails({
           {
             label: t("priceTable.regular"),
             values: [
-              card.cardKingdomPrice?.retail ?? card.priceCardKingdom ?? null,
+              card.cardKingdomPrice
+                ? card.cardKingdomPrice.retail
+                : (card.priceCardKingdom ?? null),
               card.cardKingdomPrice?.buylist ?? null,
             ],
           },
           {
             label: t("priceTable.foil"),
             values: [
-              card.cardKingdomPriceFoil?.retail ??
-                card.priceCardKingdomFoil ??
-                null,
+              card.cardKingdomPriceFoil
+                ? card.cardKingdomPriceFoil.retail
+                : (card.priceCardKingdomFoil ?? null),
               card.cardKingdomPriceFoil?.buylist ?? null,
             ],
           },
         ],
-        printings: 1,
         highlightColumn: 0,
         format: formatUsd,
       },

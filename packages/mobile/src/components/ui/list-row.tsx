@@ -16,10 +16,12 @@ export function ListRow({
   icon,
   leading,
   value,
+  valueAccessibilityLabel,
   tone = "default",
   right,
   rightIsInteractive = false,
   onPress,
+  onPressIn,
   onLongPress,
   longPressLabel,
   disabled = false,
@@ -27,6 +29,7 @@ export function ListRow({
   subtitleNumberOfLines = 2,
   swipeDestructiveAction,
   accessibilityHint,
+  checked,
 }: ListRowProps) {
   const { t } = useTranslation();
   const colors = useTheme();
@@ -35,11 +38,12 @@ export function ListRow({
   const row = (
     <Pressable
       accessible={!rightIsInteractive}
-      accessibilityRole={onPress ? "button" : undefined}
+      accessibilityRole={checked != null ? "checkbox" : onPress ? "button" : undefined}
       accessibilityHint={accessibilityHint}
-      accessibilityState={{ disabled, selected: selected ?? undefined }}
+      accessibilityState={{ disabled, selected: selected ?? undefined, checked }}
       disabled={(!onPress && !onLongPress) || disabled}
       onPress={onPress}
+      onPressIn={onPressIn}
       {...longPressHandlers}
       style={({ pressed }) => ({
         flexDirection: "row",
@@ -64,7 +68,12 @@ export function ListRow({
         ) : null}
       </View>
       {value ? (
-        <AppText tone="secondary" numberOfLines={1} style={{ flexShrink: 0, maxWidth: "50%" }}>
+        <AppText
+          tone="secondary"
+          numberOfLines={1}
+          accessibilityLabel={valueAccessibilityLabel}
+          style={{ flexShrink: 0, maxWidth: "50%" }}
+        >
           {value}
         </AppText>
       ) : null}

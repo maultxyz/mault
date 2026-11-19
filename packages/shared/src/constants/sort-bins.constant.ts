@@ -60,3 +60,11 @@ export const REPACK_UNIQUE_BY_PRINTING = "$printing";
 export const REPACK_UNIQUE_BY_NAME = "$name";
 
 export const SCAN_ONLY_DEFAULT_BIN = 7;
+
+export const MULTI_VALUE_OPERATORS: ConditionOperator[] = [
+  "in",
+  "not_in",
+  "contains_any",
+  "contains_all",
+  "contains_none",
+];

@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppTopBar } from "@/components/app-top-bar";
 import { GradientBurst } from "@/components/ui/gradient-burst";
 import { MemberSeatLocked } from "@/features/org/components/member-seat-locked";
+import { useConnectivityAnnouncements } from "@/hooks/use-connectivity-announcements";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useShellPanelStyle } from "@/hooks/use-shell-panel-style";
 import { useTheme } from "@/hooks/use-theme";
@@ -14,6 +15,7 @@ export default function AppLayout() {
   const colors = useTheme();
   const insets = useSafeAreaInsets();
   const seatLock = useMemberSeatLock(useActiveOrgId());
+  useConnectivityAnnouncements();
   const panelStyle = useShellPanelStyle(insets.bottom);
   const modalStyle = { backgroundColor: colors.background };
   const sheetOptions = {
@@ -65,10 +67,15 @@ export default function AppLayout() {
           <Stack.Screen name="rules/repack" />
           <Stack.Screen name="rules/stages" />
           <Stack.Screen name="stats" />
+          <Stack.Screen name="machines" />
           <Stack.Screen name="validate-matches" />
           <Stack.Screen name="collection-new" options={sheetOptions} />
           <Stack.Screen name="collection-edit" options={sheetOptions} />
+          <Stack.Screen name="collection-csv-import" options={sheetOptions} />
           <Stack.Screen name="storage-name" options={sheetOptions} />
+          <Stack.Screen name="storage-series" options={sheetOptions} />
+          <Stack.Screen name="storage-plan" options={sheetOptions} />
+          <Stack.Screen name="storage-bulk-size" options={sheetOptions} />
           <Stack.Screen name="preset-description" options={sheetOptions} />
           <Stack.Screen name="share-link" options={sheetOptions} />
           <Stack.Screen name="settings/invite-member" options={sheetOptions} />
@@ -100,6 +107,7 @@ export default function AppLayout() {
           />
           <Stack.Screen name="shared-link" />
           <Stack.Screen name="search" />
+          <Stack.Screen name="in-person-trade" />
           <Stack.Screen name="trade/index" />
           <Stack.Screen name="trade/browse" />
           <Stack.Screen name="trade/collection" />

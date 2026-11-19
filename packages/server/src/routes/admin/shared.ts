@@ -2,12 +2,15 @@ import { sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { SYNC_SOURCES } from "../../lib/sync-job";
-import { toPortraitCardImage } from "../../lib/card-image";
+import { fetchPortraitCardImage } from "../../lib/sync-job/card-image-fetch";
+import {
+  buildCatalogCardRow,
+  sourceDataHashOf,
+} from "../../lib/sync-job/catalog-row";
+import { CARD_EMBEDDING_VERSION } from "../../lib/constants/sync";
 import { invalidateCardMatchIndex } from "../../lib/card-match-index";
 import { publicGamesCache } from "../../lib/public-games";
 import { vectorizeCardImage } from "../../lib/vectorize";
-import { storedCollectorNumber } from "../../lib/card-search/collector-number";
-import { catalogColumnsFor } from "../../lib/card-catalog";
 import {
   addToPrintingMarkBatch,
   persistPrintingMarkBatch,
@@ -24,9 +27,11 @@ async function fetchPortraitImage(
   url: string,
   headers: Record<string, string>,
 ): Promise<Buffer | null> {
-  const imageRes = await fetch(url, { headers });
-  if (!imageRes.ok) return null;
-  return toPortraitCardImage(Buffer.from(await imageRes.arrayBuffer()));
+  try {
+    return await fetchPortraitCardImage(url, headers);
+  } catch {
+    return null;
+  }
 }
 
 async function embedImageUrl(
@@ -121,10 +126,27 @@ export async function syncOneCard(
   const backEmbedding = card.backImageUrl
     ? await embedImageUrl(card.backImageUrl, source.fetchHeaders)
     : null;
-  const collectorNumber = storedCollectorNumber(gameKey, lang, cardId, data);
-  const catalog = catalogColumnsFor(gameKey, lang, cardId, data);
+  const { data: _parsedData, ...row } = buildCatalogCardRow({
+    gameKey,
+    lang,
+    cardId,
+    name: card.name,
+    setCode: card.setCode,
+    data,
+  });
+  const storedColumns = {
+    ...row,
+    embedding: front.embedding,
+    backEmbedding,
+    data: sql`${card.data}::jsonb`,
+    embeddingVersion: CARD_EMBEDDING_VERSION,
+    sourceDataHash: sourceDataHashOf(
+      { ...row, data },
+      source.volatileDataKeys ?? [],
+    ),
+    ...printingMarkColumns(gameKey, front.marks),
+  };
 
-  const markColumns = printingMarkColumns(gameKey, front.marks);
   await db.transaction(async (tx) => {
     const existing = await tx
       .select({ version: cardImageVectors.printingMarkVersion })
@@ -138,36 +160,14 @@ export async function syncOneCard(
     }
     await tx
       .insert(cardImageVectors)
-      .values({
-        cardId,
-        gameKey,
-        lang,
-        name: card.name,
-        setCode: card.setCode,
-        collectorNumber,
-        embedding: front.embedding,
-        backEmbedding,
-        data: sql`${card.data}::jsonb`,
-        ...catalog,
-        ...markColumns,
-      })
+      .values(storedColumns)
       .onConflictDoUpdate({
         target: [
           cardImageVectors.gameKey,
           cardImageVectors.lang,
           cardImageVectors.cardId,
         ],
-        set: {
-          name: card.name,
-          setCode: card.setCode,
-          collectorNumber,
-          embedding: front.embedding,
-          backEmbedding,
-          data: sql`${card.data}::jsonb`,
-          ...catalog,
-          ...markColumns,
-          updatedAt: new Date(),
-        },
+        set: { ...storedColumns, updatedAt: sql`now()` },
       });
     await persistPrintingMarkBatch(tx, gameKey, markBatch);
   });

@@ -16,6 +16,7 @@ import {
   IconCheckbox,
   IconDots,
   IconDownload,
+  IconFileImport,
   IconListCheck,
   IconPhotoUp,
   IconPlus,
@@ -60,11 +61,16 @@ export function CardToolbar({
   extraActions,
   onAddCard,
   onImportScans,
+  onImportCsv,
 }: CardToolbarProps) {
   const { t } = useTranslation("cards");
   const [clearAllDialogOpen, setClearAllDialogOpen] = useState(false);
   const hasMoreActions =
-    !!onToggleSelectAll || !!onExport || !!onImportScans || !!onClearAll;
+    !!onToggleSelectAll ||
+    !!onExport ||
+    !!onImportScans ||
+    !!onImportCsv ||
+    !!onClearAll;
   const showReview = !!onStartReview && (needsReviewCount ?? 0) > 0;
 
   return (
@@ -153,6 +159,12 @@ export function CardToolbar({
                 <DropdownMenuItem onClick={onImportScans}>
                   <IconPhotoUp />
                   {t("importScans.button")}
+                </DropdownMenuItem>
+              )}
+              {onImportCsv && (
+                <DropdownMenuItem onClick={onImportCsv}>
+                  <IconFileImport />
+                  {t("importCsv.button")}
                 </DropdownMenuItem>
               )}
               {onClearAll && (

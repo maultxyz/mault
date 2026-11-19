@@ -5,7 +5,7 @@ import { IconButton } from "@/components/ui/icon-button";
 import { SearchInput } from "@/components/ui/search-input";
 import { useTheme } from "@/hooks/use-theme";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
-import { SEARCH_INPUT_HEIGHT } from "@/lib/constants/ui";
+import { COUNT_BADGE_LINE_HEIGHT, COUNT_BADGE_MIN_SIZE, SEARCH_INPUT_HEIGHT } from "@/lib/constants/ui";
 import type { CardToolbarProps } from "@/lib/interfaces/collections";
 
 export function CardToolbar({
@@ -46,8 +46,8 @@ export function CardToolbar({
               position: "absolute",
               top: -2,
               right: -2,
-              minWidth: 16,
-              height: 16,
+              minWidth: COUNT_BADGE_MIN_SIZE,
+              minHeight: COUNT_BADGE_MIN_SIZE,
               paddingHorizontal: 4,
               borderRadius: RADIUS.full,
               backgroundColor: colors.primary,
@@ -55,7 +55,7 @@ export function CardToolbar({
               justifyContent: "center",
             }}
           >
-            <AppText size="2xs" weight="bold" style={{ color: colors.primaryForeground, lineHeight: 14 }}>
+            <AppText size="2xs" weight="bold" style={{ color: colors.primaryForeground, lineHeight: COUNT_BADGE_LINE_HEIGHT }}>
               {String(activeSortAndFilterCount)}
             </AppText>
           </View>

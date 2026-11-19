@@ -1,16 +1,13 @@
+import type { ScanLockInfo } from "@magic-vault/shared";
 import type { TradeOffer } from "@magic-vault/shared";
-import type { AnnouncementSeverity, DeployNotice } from "@magic-vault/shared";
+import type { AnnouncementSeverity, DeployNotice, MachineStatus } from "@magic-vault/shared";
 
-export interface ScanLockInfo {
-  userId: string;
-  displayName: string;
-  expiresAt: number;
-}
+export type { ScanLockInfo };
 
 export interface AppStreamValue {
   locks: Record<string, ScanLockInfo>;
-  liveCounts: Record<string, number>;
   deployNotice: DeployNotice | null;
+  machines: MachineStatus[];
 }
 
 export interface AppAlert {

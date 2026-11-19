@@ -5,6 +5,7 @@ import { STORAGE_LABELS_PATH, STORAGE_LOCATION_SEARCH_PARAM } from "@magic-vault
 import { Alert, Linking } from "react-native";
 import { useActiveShareLinkCount } from "@/features/share-links/api/use-active-share-link-count";
 import { deleteStorageLocation } from "@/features/storage/api/storage";
+import { useStoragePlanUses } from "@/features/storage/api/use-storage-plan-uses";
 import type { StorageLocationActionsOptions, StorageLocationActionTarget } from "@/lib/interfaces/storage";
 import type { OptionItem } from "@/lib/interfaces/ui";
 import { WEB_URL } from "@/lib/constants/config";
@@ -13,6 +14,7 @@ export function useStorageLocationActions({ onDeleted, shareLinkCountGuid }: Sto
   const { t } = useTranslation();
   const activeShareLinkCount = useActiveShareLinkCount(shareLinkCountGuid);
   const queryClient = useQueryClient();
+  const { presetNamesUsing } = useStoragePlanUses();
   const remove = useMutation({
     mutationFn: (guid: string) => deleteStorageLocation(guid),
     onSuccess: () => {
@@ -27,7 +29,7 @@ export function useStorageLocationActions({ onDeleted, shareLinkCountGuid }: Sto
       label: activeShareLinkCount > 0 ? t("storage.shareWithCount", { count: activeShareLinkCount }) : t("storage.share"),
     },
     { value: "printLabel", label: t("storage.printLabel") },
-    { value: "rename", label: t("storage.rename") },
+    { value: "rename", label: t("storage.edit") },
     { value: "delete", label: t("storage.delete") },
   ];
 
@@ -41,7 +43,12 @@ export function useStorageLocationActions({ onDeleted, shareLinkCountGuid }: Sto
     } else if (action === "rename") {
       router.push({ pathname: "/storage-name", params: { guid: location.guid, name: location.name } });
     } else if (action === "delete") {
-      Alert.alert(t("storage.deleteTitle", { name: location.name }), t("storage.deleteDescription"), [
+      const presetNames = presetNamesUsing([location.guid]);
+      const description = [
+        t("storage.deleteDescription"),
+        ...(presetNames.length > 0 ? [t("storage.deleteInPlans", { presets: presetNames.join(", ") })] : []),
+      ].join("\n\n");
+      Alert.alert(t("storage.deleteTitle", { name: location.name }), description, [
         { text: t("storage.cancel"), style: "cancel" },
         { text: t("storage.delete"), style: "destructive", onPress: () => remove.mutate(location.guid) },
       ]);

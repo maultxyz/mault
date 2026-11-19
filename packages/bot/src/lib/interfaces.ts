@@ -80,6 +80,24 @@ export interface ShowoffResult extends StatsResult {
   orgName: string;
 }
 
+export type ShowcaseKind = "collection" | "storage";
+
+export interface ShowcaseTarget {
+  guid: string;
+  name: string;
+  orgName: string;
+}
+
+export interface ShowcaseResult {
+  kind: ShowcaseKind;
+  name: string;
+  orgName: string;
+  gameNames: string[];
+  cardCount: number;
+  totalValueDisplay: string;
+  topCards: TopCardSummary[];
+}
+
 export interface CollectionSummary {
   guid: string | null;
   name: string;
@@ -142,11 +160,30 @@ export interface FeederCalibrationValues {
   reverseDuration: number;
 }
 
+export type ServoPositionKey =
+  | "bottomClosed"
+  | "bottomOpen"
+  | "paddleClosed"
+  | "paddleOpen"
+  | "pusherLeft"
+  | "pusherNeutral"
+  | "pusherRight";
+
+export interface FeederSpeedPercent {
+  direction: "forward" | "reverse";
+  magnitude: number;
+}
+
 export interface DeviceCalibrationResult {
   deviceName: string;
   moduleCount: number;
-  modules: { moduleNumber: number; calibration: ServoCalibrationValues }[];
+  modules: {
+    moduleNumber: number;
+    calibration: ServoCalibrationValues;
+    positionPercents?: Record<ServoPositionKey, number>;
+  }[];
   feeder: FeederCalibrationValues;
+  feederSpeeds?: { speed: FeederSpeedPercent; reverseSpeed: FeederSpeedPercent };
 }
 
 export interface RulePresetSummary {

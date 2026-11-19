@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Self-hosting guide | Mault",
-    "description": "Run Mault on your own server with Docker Compose: Postgres, the API, the web app and the API docs, step by step."
+    "description": "Run Mault with Docker Compose, Coolify, or directly on a Pi/Linux host. Prerequisites, installation and updates, step by step."
   },
   "hero": {
     "eyebrow": "Self-hosting guide",
@@ -21,6 +21,10 @@
       "coolify": {
         "title": "Coolify",
         "description": "Runs the prebuilt images from GitHub Container Registry."
+      },
+      "pi": {
+        "title": "Pi/Linux",
+        "description": "Flash a ready-made Raspberry Pi image, or run one installer command on another arm64 board. Uses a USB webcam and a GPIO or external controller."
       }
     },
     "auth": {
@@ -32,6 +36,29 @@
       "neon": {
         "title": "Neon",
         "description": "Hosted Postgres and Neon Auth. Adds email verification, password editing and social sign-in."
+      },
+      "piNote": "The Pi/Linux release sets up built-in accounts and local Postgres. Neon is available with Docker Compose or Coolify."
+    },
+    "sorter": {
+      "label": "How is the sorter controlled?",
+      "gpio": {
+        "title": "Pi controlled with GPIO pins",
+        "description": "The Pi drives the PCA9685 and sensors directly over GPIO/I2C."
+      },
+      "usb": {
+        "title": "ESP32 / Arduino",
+        "description": "An external controller connected to the host over USB or Bluetooth."
+      }
+    },
+    "board": {
+      "label": "Which Pi board?",
+      "raspberry-pi": {
+        "title": "Raspberry Pi",
+        "description": "Direct GPIO/I2C control on a Raspberry Pi."
+      },
+      "orange-pi-zero4": {
+        "title": "Orange Pi Zero 4",
+        "description": "Direct control with the Zero 4 GPIO/I2C hardware."
       }
     }
   },
@@ -61,6 +88,12 @@
         },
         "domain": {
           "text": "Optional: a domain and an HTTPS reverse proxy for access outside your network."
+        },
+        "piSystem": {
+          "text": "Use a Raspberry Pi 4 or 5 with a 16 GB or larger microSD card, or another arm64 board running a 64-bit Debian-based OS (such as Orange Pi Zero 4). You need Raspberry Pi Imager on your computer for the Raspberry Pi image."
+        },
+        "piHardware": {
+          "text": "Connect a USB webcam to the board and have your sorter ready: GPIO/I2C wiring for direct control, or an Arduino/ESP32 with compatible Mault firmware for USB or Bluetooth. Bluetooth also needs a BLE adapter on the board. The board needs internet access for card data and updates."
         }
       }
     },
@@ -134,7 +167,7 @@
           "text": "Make yourself platform admin in Neon's SQL editor."
         },
         "game": {
-          "text": "In <code>/app/admin</code>, add a game in the Games Manager and run its sync. Scans can't match until one has synced."
+          "text": "Open <code>/app/admin</code> and sync your game’s card catalog first. Wait for vectorization to finish, then add the game in Games Manager and choose its fields using a synced sample card. Complete these steps before scanning."
         },
         "admins": {
           "text": "Optional: make another user platform admin. There's no screen for it yet."
@@ -262,6 +295,133 @@
         "migrate": {
           "text": "Run the migrations.",
           "note": "Repeat this before every update."
+        }
+      }
+    },
+    "piHardware": {
+      "label": "Hardware",
+      "title": "Choose how the sorter connects",
+      "description": "Choose your controller and, for GPIO, your board above. The guide explains which options to choose when the installer prompts. Both modes use PI_HOST=1 and the host’s USB webcam.",
+      "steps": {
+        "gpio": {
+          "text": "Direct GPIO/I2C control uses <code>PI_SORTER=1</code>. The host controls the PCA9685 and sensors through the local Python controller. No Arduino/ESP32 firmware flashing is needed for this mode."
+        },
+        "raspberry": {
+          "text": "Your selected board is Raspberry Pi (<code>PI_SORTER_BOARD=raspberry-pi</code>). The image already has I2C turned on and finds the servo driver on first boot."
+        },
+        "orange": {
+          "text": "Your selected board is Orange Pi Zero 4 (<code>PI_SORTER_BOARD=orange-pi-zero4</code>). Use a supported Zero 4 system image with the libgpiod v2 Python API.",
+          "note": "Enable the image’s i2c0 boot overlay separately, then reboot so the header I2C adapter is available. Direct mode uses one built-in sorter."
+        },
+        "usb": {
+          "text": "Your selected ESP32 / Arduino uses <code>PI_SORTER=0</code>. Connect a controller with compatible Mault firmware over USB or host Bluetooth. GPIO and I2C are not needed for external controllers."
+        },
+        "bluetooth": {
+          "text": "For host Bluetooth, use a BLE-capable sorter and a board with a BLE adapter. Mault includes BlueZ and the Python Bleak package. Open Connect Bluetooth in the sorter menu, search for your sorter and select it.",
+          "note": "The API owns the Bluetooth connection, so it works from remote browsers and during headless scans. Keep the sorter nearby and advertising, and disconnect other clients before connecting. Web Bluetooth instead uses the browser computer’s adapter."
+        }
+      }
+    },
+    "piInstall": {
+      "label": "Installation",
+      "title": "Install Mault on the board",
+      "description": "Nothing is cloned or built on the board: it runs a prebuilt release.",
+      "steps": {
+        "flash": {
+          "text": "Download <code>mault-pi.img.xz</code> from the latest Pi release and flash it to the microSD card with Raspberry Pi Imager. Imager offers no OS customisation for this image, so skip that screen.",
+          "note": "Ethernet works without any setup. The login, SSH and Wi-Fi come from the file in the next step."
+        },
+        "config": {
+          "text": "Before the first boot, open the card's <code>bootfs</code> drive on any computer and fill in <code>mault-config.txt</code>: a username and password for an administrator account, <code>ssh=yes</code> for terminal access, and your Wi-Fi details.",
+          "note": "Choose any username except mault-service, which Mault uses for its own services. The board applies the file on every boot, erases the passwords from it and writes the result on its Status line, so the same file also resets a forgotten password."
+        },
+        "boot": {
+          "text": "Put the card in the Pi and power it on. The first boot takes a few minutes while Mault creates its database and secrets. If a PCA9685 servo driver answers on the I2C header, Mault controls the sorter directly (GPIO); otherwise it waits for a USB or Bluetooth sorter.",
+          "note": "Change this later with sudo mault sorter usb or sudo mault sorter builtin."
+        },
+        "installOther": {
+          "text": "On another arm64 board, or a Raspberry Pi that already runs Raspberry Pi OS, run this command over SSH. It installs the system packages and the latest release, then asks how the sorter is connected.",
+          "note": "If the board has a ~/mault checkout from the old installer, its settings, accounts, cards and calibration are kept and its old services are turned off."
+        },
+        "services": {
+          "text": "Mault runs as the mault-service account and starts automatically at boot. The web app is served on port 80 and port 8080; the API, camera helper and controller only listen on the board itself.",
+          "note": "A daily price sync is scheduled for 04:00 in the board's time zone. Use the sudo mault command for everything else."
+        },
+        "security": {
+          "text": "The app faces the network as the mault-service account, which cannot change anything that runs as root: releases in <code>/opt/mault</code> are read-only to it, and the sudo mault command and the update and boot helpers live in root-owned <code>/usr/local/sbin</code> and <code>/usr/local/lib/mault</code>."
+        },
+        "settings": {
+          "text": "Settings and secrets are stored in <code>/var/lib/mault/.env</code>, including a generated <code>CARD_API_USER_AGENT</code> that identifies this installation's card and price API requests.",
+          "note": "Price sources use this name to identify requests. A unique name does not remove request limits, so prices sync only once a day."
+        }
+      }
+    },
+    "piOpen": {
+      "label": "First use",
+      "title": "Open the app and prepare scanning",
+      "description": "Use a phone or computer on the same network. The host provides the camera and sorter connection.",
+      "steps": {
+        "address": {
+          "text": "Open <code>http://mault.local</code> in a browser on the same network. If that does not load, use the board's IP address instead, which this command shows.",
+          "note": "Port 8080 also works. Remote browsers reach the API through the web app; they do not need access to any other port."
+        },
+        "account": {
+          "text": "Sign up on your own installation. The first account becomes platform admin with a Home organization."
+        },
+        "game": {
+          "text": "Open <code>/app/admin</code> and sync your game’s card catalog first. Wait for vectorization to finish, then add the game in Games Manager and choose its fields using a synced sample card. Complete these steps before scanning.",
+          "note": "On a Pi host, “Start on this computer” uses your browser computer to vectorize missing card images. Keep the admin page open until it finishes. Live scans identify cards on the host."
+        },
+        "scan": {
+          "text": "Open the scanner and calibrate your sorter. GPIO mode attaches the built-in sorter automatically; external-controller mode lets you connect the sorter over USB or host Bluetooth. The camera helper owns the USB webcam, so remote browsers do not need camera permission for it."
+        }
+      }
+    },
+    "piPrices": {
+      "label": "Prices",
+      "title": "Price sync",
+      "description": "Prices sync automatically every day for TCGplayer, Cardmarket and Card Kingdom. After syncing your first game, pull prices once so cards have a price right away.",
+      "steps": {
+        "firstPull": {
+          "text": "Pull prices once after your first game sync.",
+          "note": "Cards have no price until the first pull. Avoid repeated manual runs; price sources can block excessive requests."
+        },
+        "check": {
+          "text": "Check when the next daily run is scheduled."
+        }
+      }
+    },
+    "piMaintain": {
+      "label": "Maintenance",
+      "title": "Update and look after the board",
+      "description": "Admins can update from the banner in the app. Everything else uses the mault command over SSH.",
+      "steps": {
+        "update": {
+          "text": "Finish scanning, disconnect the sorter and stop database syncs, then select Update Mault in the app or run this command. It downloads the new release, restarts Mault and migrates the database. Refresh your browsers when it finishes.",
+          "note": "If the new version does not start, the updater goes back to the previous version automatically."
+        },
+        "reinstall": {
+          "text": "Boards installed from Pi release 1.0.209 or older must run the installer once more over SSH before they can update. Until then, sudo mault update and the update banner in the app point you here.",
+          "note": "Those releases were writable by the mault-service account, so the installer deletes them and installs fresh ones. Settings, accounts, cards and calibration stay."
+        },
+        "osUpdates": {
+          "text": "Operating system security updates install automatically every day without restarting the board, so a scan is never cut off. When one needs a restart, admins see a banner in the app; restart with sudo reboot when no scan is running. Boards installed before this was added turn the updates on with this command."
+        },
+        "backup": {
+          "text": "Back up Postgres regularly.",
+          "note": "Also keep secure copies of /var/lib/mault/.env and, in direct mode, /var/lib/mault/.pi-controller/calibration.json."
+        },
+        "logs": {
+          "text": "For startup or scan failures, inspect the API log."
+        },
+        "automatic": {
+          "text": "Mault starts automatically when the board powers on or reboots, so you normally do not need the start and stop commands below."
+        },
+        "start": {
+          "text": "Start Mault manually when needed."
+        },
+        "stop": {
+          "text": "When you need to stop Mault, finish any scan first and run this command."
         }
       }
     }

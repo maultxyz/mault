@@ -30,6 +30,7 @@
     "integrations": "API & webhooks",
     "more": "More",
     "stats": "Stats",
+    "machines": "Machines",
     "sortingRules": "Sorting rules",
     "intake": "Buy & sell",
     "upgradeYourPlan": "Upgrade your plan",
@@ -89,8 +90,8 @@
     "syncCompleted": "Card image vector sync completed",
     "syncFailed": "Card image vector sync failed",
     "sync": "Card image vector sync",
-    "cardTotal_one": "{{count}} card · {{value}}",
-    "cardTotal_other": "{{count}} cards · {{value}}",
+    "cardTotal_one": "{{count, compact}} card · {{value}}",
+    "cardTotal_other": "{{count, compact}} cards · {{value}}",
     "healthIssues_one": "{{count}} issue detected",
     "healthIssues_other": "{{count}} issues detected",
     "healthIssuesTooltip": "Having trouble: {{names}}. Click for details.",
@@ -102,12 +103,16 @@
   "appVersion": {
     "outdatedBanner": "A new version of Mault is available.",
     "refreshButton": "Refresh",
-    "terminalUpdate": "Finish scanning and syncing, then run this command in a terminal on the Pi. Enter your sudo password if prompted. When it finishes, refresh this page:",
+    "terminalUpdate": "Finish scanning and syncing first. You can also run this command in a terminal on the Pi, then refresh this page:",
     "updateButton": "Update Mault",
     "updating": "Updating Mault. Keep this page open while services restart.",
     "updateSucceeded": "Mault updated successfully. Refresh to use the new version.",
     "updateFailed": "Mault could not be updated.",
-    "updateUnconfirmed": "Could not reconnect after updating. Check the Linux update log before trying again."
+    "updateUnconfirmed": "Could not reconnect after updating. Run sudo mault logs update on the Pi before trying again."
+  },
+  "piReboot": {
+    "banner": "This board installed system security updates that need a restart.",
+    "command": "Restart it when no scan is running; Mault starts again on its own:"
   },
   "impersonation": {
     "banner": "You're viewing the app as {{name}}.",
@@ -206,6 +211,11 @@
     "title": "Keyboard shortcuts",
     "description": "Shortcuts are ignored while you're typing in a field or a dialog is open.",
     "then": "then",
+    "off": "Off",
+    "singleKey": {
+      "label": "Single-key shortcuts",
+      "hint": "When off, only shortcuts with Ctrl or Cmd, Escape, Enter, Delete and the arrow keys work. Saved in this browser."
+    },
     "keys": {
       "space": "Space",
       "shift": "Shift",
@@ -232,6 +242,7 @@
       "showShortcuts": "Show keyboard shortcuts",
       "toggleSidebar": "Expand or collapse the sidebar",
       "focusSearch": "Focus search",
+      "openGlobalSearch": "Open global search",
       "dismissToasts": "Clear all notifications",
       "save": "Save changes",
       "clearSelection": "Clear the selection",
@@ -270,15 +281,11 @@
       "reviewCycleLanguage": "While reviewing: cycle through the languages",
       "goSortingRules": "Go to sorting rules",
       "intakeOpenScanner": "Open the scanner for this intake",
-      "foilLabelFoil": "While labelling foils: mark as foil",
-      "foilLabelNotFoil": "While labelling foils: mark as not foil",
-      "foilLabelSkip": "While labelling foils: skip this card",
       "matchValidationCorrect": "While validating matches: mark the match correct",
       "matchValidationIncorrect": "While validating matches: mark the match wrong",
       "matchValidationBadScan": "While validating matches: mark the photo as a bad scan",
       "matchValidationSkip": "While validating matches: skip this scan",
       "matchValidationBack": "While validating matches: go back to the previous scan",
-      "foilLabelBack": "While labelling foils: go back to the previous card",
       "scanFlatbedCard": "Scan the card on the flatbed",
       "pickNext": "While picking: next card",
       "pickPrevious": "While picking: previous card",
@@ -296,7 +303,8 @@
     "home": "Home",
     "scan": "Scan",
     "library": "Library",
-    "more": "More"
+    "more": "More",
+    "business": "Buy & sell"
   },
   "pagination": {
     "previous": "Previous",
@@ -368,7 +376,8 @@
     "orderBinCatchAll": "The last bin catches every other card, so pick another one.",
     "catalogSourcesRequired": "Pick at least one collection or storage location.",
     "contactRequired": "Add a way to reach you.",
-    "textTooLong": "Keep this under {{max}} characters."
+    "textTooLong": "Keep this under {{max}} characters.",
+    "jsonObjectInvalid": "Enter a single JSON object, like {\"neutral\": true}."
   },
   "memberSeatLock": {
     "title": "This organization is over its member limit",
@@ -425,7 +434,8 @@
       "warning": "Warning:",
       "danger": "Error:"
     },
-    "adminNavigation": "Admin navigation"
+    "adminNavigation": "Admin navigation",
+    "noPrice": "No price"
   },
   "shareLink": {
     "triggerWithCount_one": "{{label}} ({{count}} active link)",
@@ -449,6 +459,8 @@
     "qrHint": "Scan to open",
     "showPrices": "Show prices",
     "showPricesDescription": "Turn off to hide card prices and totals from anyone using this link.",
+    "requireGuestContact": "Require contact info",
+    "requireGuestContactDescription": "Turn off to let people send a trade offer without leaving an email, phone or username.",
     "typeLabel": "Link type",
     "monitorType": "Monitor link",
     "tradeType": "Trade link",
@@ -459,7 +471,9 @@
     "checkFailedTitle": "Couldn't open this link",
     "checkFailedDescription": "Check your connection and try again.",
     "shortLinkInvalidTitle": "This link doesn't work",
-    "shortLinkInvalidDescription": "Check that it was copied in full, or ask whoever shared it for a new link."
+    "shortLinkInvalidDescription": "Check that it was copied in full, or ask whoever shared it for a new link.",
+    "poweredBy": "Powered by",
+    "poweredByLabel": "Powered by {{site}} (opens in a new tab)"
   },
   "tradeOffers": {
     "declined": "Trade offer declined",
@@ -470,6 +484,7 @@
     "decline": "Decline",
     "accept": "Accept",
     "contact": "Contact",
+    "noContact": "No contact info given",
     "note": "Note",
     "theyWant_one": "They want {{count}} card",
     "theyWant_other": "They want {{count}} cards",
@@ -507,7 +522,8 @@
         "declined": "Declined"
       },
       "picking_one": "Picking, {{count}} left",
-      "picking_other": "Picking, {{count}} left"
+      "picking_other": "Picking, {{count}} left",
+      "inPerson": "In person"
     },
     "cardList": {
       "cardCount_one": "{{count}} card",
@@ -531,7 +547,6 @@
       "showLess": "Show less",
       "unitPrice": "{{price}} each",
       "foil": "Foil",
-      "noPrice": "No price",
       "placementStorage": "{{location}} · #{{positions}}",
       "placementStorageNoPosition": "{{location}}",
       "placementBin_one": "{{collection}}, bin {{bins}}",
@@ -547,6 +562,8 @@
     "notFound": "This trade offer no longer exists.",
     "backToTrades": "Back to trades",
     "acceptTitle": "Accept this trade offer?",
+    "declineTitle": "Decline this trade offer?",
+    "declineDescription": "They'll see that you declined on their link. This can't be undone.",
     "sideTabs": {
       "label": "Trade sides",
       "wanted": "They want ({{count}})",
@@ -604,6 +621,63 @@
         "accepted": "Accepted",
         "declined": "Declined"
       }
+    },
+    "newTrade": {
+      "button": "New trade",
+      "link": "Trade link",
+      "linkHint": "Share a link so someone can pick cards and send you an offer.",
+      "inPerson": "In-person trade",
+      "inPersonHint": "Fill out both sides yourself and record a trade you made.",
+      "linkTitle": "Create a trade link",
+      "linkDescription": "Pick what the trade link shows. People who open it can choose cards and send you an offer.",
+      "sourceLabel": "Share from",
+      "sourcePlaceholder": "Choose a collection or storage location",
+      "collections": "Collections",
+      "storageLocations": "Storage locations",
+      "continue": "Continue"
+    },
+    "inPerson": {
+      "title": "In-person trade",
+      "description": "Record a trade you made in person. Cards you give leave your inventory and cards you get are added to a collection.",
+      "detailsTitle": "Trade partner",
+      "detailsDescription": "Optional, to remember who you traded with",
+      "partnerName": "Name (optional)",
+      "partnerContact": "Contact (optional)",
+      "giveTitle_one": "You give ({{count}})",
+      "giveTitle_other": "You give ({{count}})",
+      "giveDescription": "Copies from your inventory",
+      "giveEmpty": "Search your cards to add what you're giving.",
+      "searchOwnedLabel": "Search your cards",
+      "addGivenCard": "Give {{name}}",
+      "addReceivedCard": "Get {{name}}",
+      "getTitle_one": "You get ({{count}})",
+      "getTitle_other": "You get ({{count}})",
+      "getDescription": "Cards added to the collection you pick",
+      "getEmpty": "Search to add the cards you're getting.",
+      "pickCollectionFirst": "Pick the collection the cards you get go into.",
+      "receiveCollection": "Add received cards to",
+      "receiveCollectionPlaceholder": "Choose a collection",
+      "cashTitle": "Cash",
+      "cashDirection": "Who pays cash",
+      "cashReceived": "They pay me",
+      "cashGiven": "I pay them",
+      "readyHint": "Recording removes the cards you give and adds the cards you get.",
+      "emptyHint": "Add a card or a cash amount to record the trade.",
+      "record": "Record trade",
+      "recorded": "Trade recorded.",
+      "recordFailed": "Couldn't record the trade. Try again.",
+      "reviewTitle": "In-person trade with {{name}}",
+      "recordedOn": "Recorded in person on {{date}}",
+      "youGave_one": "You gave {{count}} card",
+      "youGave_other": "You gave {{count}} cards",
+      "youGot_one": "You got {{count}} card",
+      "youGot_other": "You got {{count}} cards",
+      "rowDetails": "In person · {{given}} given · {{received}} received",
+      "addCards": "Add cards",
+      "searchCatalog": "Search cards",
+      "noResults": "No cards found",
+      "editCardHint": "Change quantity, condition or foil",
+      "remove": "Remove"
     }
   },
   "labelSheets": {
@@ -617,5 +691,11 @@
       "avery-5163": "Avery 5163 (10 per sheet, 4 x 2 in)",
       "avery-5164": "Avery 5164 (6 per sheet, 4 x 3.33 in)"
     }
+  },
+  "envBanner": {
+    "local": "Local environment",
+    "selfHosting": "Self-hosting",
+    "development": "Development environment",
+    "qa": "QA environment"
   }
 }

@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "mimosa-hook-status/v1",
+  "recordedAt": "2026-11-17T22:43:23.074Z",
+  "sessionId": "sess_8649e323-6121-4637-b08f-bd748c9d2568",
+  "event": "PostToolUse",
+  "toolName": "Edit",
+  "file": "/home/lennart/Projects/privat/mault-analysis/mault/packages/web/src/features/business/components/order-batch-pick.test.tsx",
+  "outcome": "inconclusive",
+  "coverage": "partial",
+  "findingCount": 0,
+  "durationMs": 13,
+  "hostState": "hook_complete",
+  "reportHint": ".mimosa/reports/"
+}

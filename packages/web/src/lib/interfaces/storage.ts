@@ -22,6 +22,11 @@ import type {
   StorageLocationCardReference,
   StorageLocationCard,
   StorageLocationSearchResult,
+  StorageLocationNameFormValues,
+  StorageLocationSeriesInput,
+  StorageLocationSeriesResult,
+  StorageLocationSettingsInput,
+  StorageLocationBulkUpdateInput,
 } from "@magic-vault/shared";
 
 export interface EmptyBinDialogStep {
@@ -142,6 +147,9 @@ export interface StorageLocationRowProps {
   isSelected: boolean;
   onSelect: () => void;
   actions?: StorageLocationActionHandlers & { disabled: boolean };
+  isChecked?: boolean;
+  onToggleChecked?: (shiftKey: boolean) => void;
+  planCount?: number;
 }
 
 export interface StorageLocationListProps {
@@ -151,15 +159,80 @@ export interface StorageLocationListProps {
   isLoading: boolean;
   onSelect: (guid: string) => void;
   actions?: StorageLocationActionHandlers & { disabled: boolean };
+  checkedGuids?: ReadonlySet<string>;
+  onToggleChecked?: (guid: string, shiftKey: boolean) => void;
+}
+
+export interface StorageLocationSelection {
+  checkedGuids: ReadonlySet<string>;
+  checkedLocations: StorageLocation[];
+  allVisibleChecked: boolean;
+  toggle: (guid: string, shiftKey: boolean) => void;
+  toggleAllVisible: () => void;
+  clear: () => void;
+}
+
+export type StoragePlanMembershipAction = "add" | "remove";
+
+export interface StorageLocationSelectionBarProps {
+  selection: StorageLocationSelection;
+  showsPrintLabels: boolean;
+}
+
+export interface StorageLocationBulkSizesDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  count: number;
+  onSubmit: (input: Pick<StorageLocationBulkUpdateInput, "capacity" | "batchSize">) => Promise<boolean>;
+}
+
+export interface StoragePlanMembershipDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  action: StoragePlanMembershipAction;
+  count: number;
+  onSubmit: (presetGuid: string) => Promise<boolean>;
 }
 
 export interface StorageLocationNameDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  initialName?: string;
+  initialValues?: StorageLocationNameFormValues;
   title: string;
   submitLabel: string;
-  onSubmit: (name: string) => Promise<boolean>;
+  onSubmit: (values: StorageLocationNameFormValues) => Promise<boolean>;
+}
+
+export interface OptionalNumberInputProps {
+  id: string;
+  value: number | null;
+  onChange: (value: number | null) => void;
+  onBlur?: () => void;
+  min?: number;
+  max: number;
+  placeholder?: string;
+  invalid?: boolean;
+  describedBy?: string;
+}
+
+export interface StorageLocationSeriesDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  createSeries: (
+    input: StorageLocationSeriesInput,
+  ) => Promise<StorageLocationSeriesResult | null>;
+}
+
+export interface StorageLocationFillTextProps {
+  location: Pick<StorageLocation, "capacity" | "usedSlots">;
+  className?: string;
+}
+
+export interface StorageSelectionSearchParams {
+  locationGuid: string | null;
+  shownLocationGuid: string | null | undefined;
+  scanId?: string | null;
+  reviewParamValue?: string | null;
 }
 
 export interface StorageLocationCardQueryState {
@@ -205,6 +278,14 @@ export interface StorageCardSelectionBarProps {
   location: StorageLocation;
   selectedReferences: StorageLocationCardReference[];
   onClear: () => void;
+}
+
+export interface StoragePlanDeleteWarningProps {
+  locations: Pick<StorageLocation, "guid" | "name">[];
+}
+
+export interface StorageLocationPresetUsesProps {
+  locationGuid: string;
 }
 
 export interface StorageLocationCardsProps {
@@ -293,7 +374,7 @@ export interface ScanCardsResult {
   kind: ScanCardsResultKind;
   cardName?: string;
   locationName?: string;
-  position?: number;
+  position?: string;
 }
 
 export interface ScanCardsSource {
@@ -365,3 +446,33 @@ export interface StorageLocationVerifyProps {
 }
 
 export type StorageLocationView = "cards" | "verify";
+
+export interface StorageLocationDialogsState {
+  createOpen: boolean;
+  setCreateOpen: (open: boolean) => void;
+  renameOpen: boolean;
+  setRenameOpen: (open: boolean) => void;
+  deleteOpen: boolean;
+  setDeleteOpen: (open: boolean) => void;
+  shareOpen: boolean;
+  setShareOpen: (open: boolean) => void;
+  seriesOpen: boolean;
+  setSeriesOpen: (open: boolean) => void;
+  menuLocation: StorageLocation | null;
+  setMenuLocation: (location: StorageLocation | null) => void;
+  openLocationAction: (
+    location: StorageLocation,
+    openDialog: (open: boolean) => void,
+  ) => void;
+}
+
+export interface StorageLocationDialogsProps {
+  dialogs: StorageLocationDialogsState;
+  selected: StorageLocation | undefined;
+  create: (input: StorageLocationSettingsInput) => Promise<string | null>;
+  update: (guid: string, input: StorageLocationSettingsInput) => Promise<boolean>;
+  createSeries: StorageLocationSeriesDialogProps["createSeries"];
+  remove: (guid: string) => Promise<boolean>;
+  onCreated?: (guid: string) => void;
+  onSelectedDeleted: () => void;
+}

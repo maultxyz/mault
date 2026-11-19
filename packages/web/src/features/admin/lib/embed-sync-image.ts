@@ -1,11 +1,6 @@
-import type { BrowserSyncWorkCard } from "@magic-vault/shared";
 import { MILO_INPUT_SIZE } from "@magic-vault/shared";
 import { API_BASE } from "@/lib/constants/api";
 import { syncImageUrl } from "@/features/admin/lib/sync-image-url";
-import type {
-  FailedSyncImage,
-  LoadedSyncCanvas,
-} from "@/lib/interfaces/admin";
 
 function drawPortrait(
   bitmap: ImageBitmap,
@@ -29,24 +24,6 @@ function drawPortrait(
     return;
   }
   ctx.drawImage(bitmap, 0, 0, MILO_INPUT_SIZE, MILO_INPUT_SIZE);
-}
-
-export async function loadSyncCanvases(
-  cards: BrowserSyncWorkCard[],
-  signal: AbortSignal,
-): Promise<(LoadedSyncCanvas | FailedSyncImage | null)[]> {
-  return Promise.all(
-    cards.map(async (card) => {
-      try {
-        const canvas = await loadSyncCanvas(card.imageUrl, signal);
-        return { cardId: card.cardId, canvas };
-      } catch (err) {
-        if (signal.aborted) return null;
-        const message = err instanceof Error ? err.message : "Image failed.";
-        return { cardId: card.cardId, message };
-      }
-    }),
-  );
 }
 
 export async function loadSyncCanvas(

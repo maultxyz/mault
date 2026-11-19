@@ -1,0 +1,1 @@
+export const PROFILE_INITIAL_BADGE_SIZE = 48;

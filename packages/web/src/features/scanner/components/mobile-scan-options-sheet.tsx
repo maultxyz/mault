@@ -12,7 +12,6 @@ import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useFoilOptions } from "@/features/cards/api/use-foil-options";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { CONTROL_CARDS_PATH } from "@/lib/constants/control-cards";
 import { FOIL_NONE_VALUE } from "@/lib/constants/scanner";
 import {
   MOBILE_LIST_CLASS,
@@ -31,7 +30,6 @@ import {
   IconLayoutGrid,
   IconListDetails,
   IconPlayerTrackNext,
-  IconQrcode,
   IconRosette,
   IconSparkles,
 } from "@tabler/icons-react";
@@ -218,12 +216,6 @@ export function MobileScanOptionsSheet({
               label={t("mobileScan.pairDesktop")}
               description={t("mobileScan.pairDesktopDescription")}
               to={MOBILE_SCAN_PAIR_PATH}
-            />
-            <MobileListRow
-              icon={<IconQrcode />}
-              label={t("controlCards.openPage")}
-              description={t("controlCards.openPageDescription")}
-              to={CONTROL_CARDS_PATH}
             />
           </div>
         </div>

@@ -3,6 +3,13 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 import EventSource from "react-native-sse";
 import {
   DEPLOY_STATUS_EVENT,
+  MACHINES_INIT_EVENT,
+  MACHINE_REMOVED_EVENT,
+  MACHINE_STATUS_EVENT,
+  removeMachineStatusFromList,
+  sortMachinesForDisplay,
+  upsertMachineStatus,
+  type MachineStatus,
   ORDERS_CHANGED_EVENT,
   PICK_LIST_CHANGED_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
@@ -17,7 +24,7 @@ import { STREAM_RECONNECT_DELAY_MS } from "@/lib/constants/monitor";
 import { SCAN_LOCK_TTL_MS } from "@/lib/constants/stream";
 import type { AppStreamValue, ScanLockInfo } from "@/lib/interfaces/stream";
 
-const AppStreamContext = createContext<AppStreamValue>({ locks: {}, liveCounts: {}, deployNotice: null });
+const AppStreamContext = createContext<AppStreamValue>({ locks: {}, deployNotice: null, machines: [] });
 
 function parse<T>(data: string | null | undefined): T | null {
   if (!data) return null;
@@ -38,13 +45,13 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
   const queryClient = useQueryClient();
   const { status, activeOrgId } = useSession();
   const [locks, setLocks] = useState<Record<string, ScanLockInfo>>({});
-  const [liveCounts, setLiveCounts] = useState<Record<string, number>>({});
   const [deployNotice, setDeployNotice] = useState<DeployNotice | null>(null);
+  const [machines, setMachines] = useState<MachineStatus[]>([]);
 
   useEffect(() => {
     setLocks({});
-    setLiveCounts({});
     setDeployNotice(null);
+    setMachines([]);
     if (status !== "signed-in" || !activeOrgId) return;
     let source: EventSource<string> | null = null;
     let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
@@ -73,17 +80,22 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
         const lock = parse<{ guid: string }>(data);
         if (lock) setLocks((prev) => without(prev, lock.guid));
       });
-      on("live_init", (data) => setLiveCounts(parse<{ counts: Record<string, number> }>(data)?.counts ?? {}));
-      on("live_count", (data) => {
-        const live = parse<{ guid: string; count: number }>(data);
-        if (!live) return;
-        setLiveCounts((prev) => (live.count <= 0 ? without(prev, live.guid) : { ...prev, [live.guid]: live.count }));
-      });
       on("collections_changed", () => void queryClient.invalidateQueries({ queryKey: ["collections"] }));
       on(ORDERS_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: BUSINESS_ORDERS_QUERY_KEY }));
       on(PICK_LIST_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: ["bin-sets", activeOrgId] }));
       on(TRADE_OFFERS_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] }));
       on(DEPLOY_STATUS_EVENT, (data) => setDeployNotice(parse<DeployNotice | null>(data)));
+      on(MACHINES_INIT_EVENT, (data) =>
+        setMachines(sortMachinesForDisplay(parse<{ machines: MachineStatus[] }>(data)?.machines ?? [])),
+      );
+      on(MACHINE_STATUS_EVENT, (data) => {
+        const status = parse<MachineStatus>(data);
+        if (status) setMachines((prev) => upsertMachineStatus(prev, status));
+      });
+      on(MACHINE_REMOVED_EVENT, (data) => {
+        const removed = parse<{ machineId: string }>(data);
+        if (removed) setMachines((prev) => removeMachineStatusFromList(prev, removed.machineId));
+      });
       es.addEventListener("error", () => {
         es.close();
         if (cancelled) return;
@@ -100,7 +112,7 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
     };
   }, [status, activeOrgId, queryClient]);
 
-  const value = useMemo(() => ({ locks, liveCounts, deployNotice }), [locks, liveCounts, deployNotice]);
+  const value = useMemo(() => ({ locks, deployNotice, machines }), [locks, deployNotice, machines]);
   return <AppStreamContext.Provider value={value}>{children}</AppStreamContext.Provider>;
 }
 

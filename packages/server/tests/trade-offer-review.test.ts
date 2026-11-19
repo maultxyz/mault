@@ -142,7 +142,7 @@ test("summarizes where a merged row's copies are", () => {
       null,
     ]),
     [
-      { kind: "storage", locationName: "Box", positions: [3, 7] },
+      { kind: "storage", locationName: "Box", positions: [3, 7], batchSize: null },
       { kind: "bin", collectionName: "Main", binNumbers: [2] },
       { kind: "collection", collectionName: "Main" },
       { kind: "missing", count: 1 },

@@ -7,12 +7,12 @@ import type {
 import { sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
-import { storedCollectorNumber } from "../card-search/collector-number";
-import { catalogColumnsFor } from "../card-catalog";
 import {
   BROWSER_SYNC_LEASE_MS,
   BROWSER_SYNC_MAX_ATTEMPTS,
+  CARD_EMBEDDING_VERSION,
 } from "../constants/sync";
+import { buildCatalogCardRow, sourceDataHashOf } from "./catalog-row";
 import type { AcceptedBrowserWork, BrowserQueueHost, QueueState, QueuedCard } from "../interfaces/sync-job";
 
 let queue: QueueState | null = null;
@@ -169,24 +169,25 @@ export async function submitBrowserWork(
           failItem(item, "Stored card text could not be read.");
           continue;
         }
+        const row = buildCatalogCardRow({
+          gameKey: source.gameKey,
+          lang,
+          cardId: item.card.id,
+          name: item.card.name,
+          setCode: item.card.setCode,
+          data,
+        });
         ready.push({
           item,
           row: {
-            cardId: item.card.id,
-            gameKey: source.gameKey,
-            lang,
-            name: item.card.name,
-            setCode: item.card.setCode,
-            collectorNumber: storedCollectorNumber(
-              source.gameKey,
-              lang,
-              item.card.id,
-              data,
-            ),
+            ...row,
             embedding,
             backEmbedding,
-            data,
-            ...catalogColumnsFor(source.gameKey, lang, item.card.id, data),
+            embeddingVersion: CARD_EMBEDDING_VERSION,
+            sourceDataHash: sourceDataHashOf(
+              row,
+              source.volatileDataKeys ?? [],
+            ),
           },
         });
       }

@@ -5,11 +5,8 @@ import { authQuery } from "../../db";
 import { storageLocations } from "../../db/schema";
 import { markBinsEmptied } from "../../lib/bin-emptying";
 import { UUID_PATTERN } from "../../lib/constants/validation";
-import {
-  isStorageAllowed,
-  STORAGE_UPGRADE_MESSAGE,
-} from "../../lib/storage-access";
 import { assignBinToLocation } from "../../lib/storage-locations";
+import { reclaimFillLocations } from "../../lib/storage-fill-claims";
 import { emitCardsStoredWebhook } from "../../lib/webhooks/events";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import {
@@ -19,6 +16,9 @@ import {
   resolveGameId,
   snapshotBinSet,
 } from "./shared";
+import { orgHasFeature } from "../../lib/plan-config";
+import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
+import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 export const emptyAllBinsRoute = new Hono<AppEnv>().post(
   "/bins/empty-all",
@@ -30,8 +30,9 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
     const {
       binNumbers = [],
       collectionGuid,
-      locations = [],
+      locations: requestedLocations = [],
       resetAutoAssignedRules = false,
+      storeInClaimedLocations = false,
     } = await c.req
       .json<Partial<EmptyAllBinsInput>>()
       .catch((): Partial<EmptyAllBinsInput> => ({}));
@@ -42,8 +43,8 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
       return c.json({ success: false, message: "Invalid bin numbers." }, 400);
     }
     if (
-      !Array.isArray(locations) ||
-      locations.some(
+      !Array.isArray(requestedLocations) ||
+      requestedLocations.some(
         (l) =>
           !Number.isInteger(l?.binNumber) ||
           typeof l?.locationGuid !== "string" ||
@@ -58,7 +59,16 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
         400,
       );
     }
-    if (locations.length > 0 && !collectionGuid) {
+    if (typeof storeInClaimedLocations !== "boolean") {
+      return c.json(
+        { success: false, message: "Invalid storeInClaimedLocations." },
+        400,
+      );
+    }
+    if (
+      (requestedLocations.length > 0 || storeInClaimedLocations) &&
+      !collectionGuid
+    ) {
       return c.json(
         { success: false, message: "A collection is required." },
         400,
@@ -76,20 +86,41 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
           },
         },
       });
-      if (!activeBinSet)
-        return { message: "No active set found.", success: false };
-
+      const locations = [...requestedLocations];
+      if (storeInClaimedLocations && activeBinSet) {
+        await reclaimFillLocations(tx, activeBinSet.id);
+        const explicitBins = new Set(locations.map((l) => l.binNumber));
+        const claimedBins = await tx.query.bins.findMany({
+          where: (t, { eq, and, isNotNull }) =>
+            and(
+              eq(t.binSet, activeBinSet.id),
+              eq(t.isDeleted, false),
+              eq(t.isCatchAll, false),
+              isNotNull(t.claimedStorageLocationId),
+            ),
+          columns: { binNumber: true },
+          with: { claimedStorageLocation: { columns: { guid: true } } },
+        });
+        for (const bin of claimedBins) {
+          const claimedGuid = bin.claimedStorageLocation?.guid;
+          if (claimedGuid && !explicitBins.has(bin.binNumber)) {
+            locations.push({ binNumber: bin.binNumber, locationGuid: claimedGuid });
+          }
+        }
+      }
       const emptiedBinNumbers = [
         ...new Set([
-          ...activeBinSet.bins.map((b) => b.binNumber),
+          ...(activeBinSet?.bins.map((b) => b.binNumber) ?? []),
           ...binNumbers,
           ...locations.map((l) => l.binNumber),
         ]),
       ];
+      if (emptiedBinNumbers.length === 0)
+        return { message: "No bins to empty.", success: false };
 
       const stored = new Map<string, string[]>();
       if (locations.length > 0) {
-        if (!(await isStorageAllowed(tx, orgId))) {
+        if (!(await orgHasFeature(tx, orgId, "storage"))) {
           return {
             message: STORAGE_UPGRADE_MESSAGE,
             success: false,
@@ -123,7 +154,7 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
             });
             if (!location) {
               return {
-                message: "Storage location not found.",
+                message: STORAGE_LOCATION_NOT_FOUND_MESSAGE,
                 success: false,
               };
             }
@@ -150,8 +181,9 @@ export const emptyAllBinsRoute = new Hono<AppEnv>().post(
       }
 
       await markBinsEmptied(tx, orgId, emptiedBinNumbers);
+      if (activeBinSet) await reclaimFillLocations(tx, activeBinSet.id);
 
-      if (resetAutoAssignedRules && activeBinSet.autoAssignField) {
+      if (resetAutoAssignedRules && activeBinSet?.autoAssignField) {
         await snapshotBinSet(tx, activeBinSet.id, activeBinSet.guid!, orgId);
         await resetAutoAssignBins(tx, activeBinSet.id);
       }

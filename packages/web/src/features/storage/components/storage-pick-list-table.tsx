@@ -1,3 +1,4 @@
+import { formatStorageSlot } from "@magic-vault/shared";
 import { CardThumbnail } from "@/components/card-thumbnail";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -22,7 +23,7 @@ export function StoragePickListTable({
   const { t } = useTranslation("storage");
 
   return (
-    <div className="overflow-hidden rounded-card bg-card">
+    <div>
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">
@@ -99,7 +100,10 @@ export function StoragePickListTable({
                   </TableCell>
                 )}
                 <TableCell className="text-right text-xs font-semibold tabular-nums text-foreground/70">
-                  {row.entry.position}
+                  {formatStorageSlot(
+                    row.entry.position,
+                    row.entry.locationBatchSize,
+                  )}
                 </TableCell>
                 <TableCell>
                   <CardThumbnail image={row.entry.card.image} />

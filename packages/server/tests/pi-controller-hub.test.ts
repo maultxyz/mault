@@ -232,3 +232,23 @@ test("an emergency stop skips the busy guard and exclusive owner", async (contex
   physical.reply(0, { error: "stopped" });
   assert.deepEqual(sessionReplies, [{ error: "stopped", seq: 1 }]);
 });
+
+test("module detection changes inputs only when the controller is idle and unreserved", async (context) => {
+  const physical = new FakeControllerPort();
+  const hub = new PiControllerHub(async () => physical);
+  context.after(() => { hub.release("session"); hub.release("bridge"); });
+  const browser = await hub.open("bridge");
+  const scan = await hub.open("session");
+  assert.equal((await request(browser, { detectModules: true, seq: 1 })).error, "busy");
+  assert.equal((await request(browser, { getStatus: true, detectModules: true, seq: 2 })).error, "busy");
+  assert.equal(physical.commands.length, 0);
+  hub.release("session", scan);
+  const detected = request(browser, { detectModules: true, seq: 3 });
+  physical.reply(0, { status: "ok", modules: 3, sensors: [true, true, true, false, false] });
+  assert.equal((await detected).modules, 3);
+  const motion = request(browser, { feeder: true, seq: 4 });
+  assert.equal((await request(browser, { detectModules: true, seq: 5 })).error, "busy");
+  assert.equal(physical.commands.length, 2);
+  physical.reply(1);
+  await motion;
+});

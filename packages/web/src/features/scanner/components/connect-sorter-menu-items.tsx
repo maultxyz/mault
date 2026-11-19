@@ -1,3 +1,5 @@
+import { PiSorterMenuItems } from "./pi-sorter-menu-items";
+import { useSerial } from "@/features/scanner/api/use-serial";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
 import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
 import type { ConnectSorterMenuItemsProps } from "@/lib/interfaces/sorter-wifi";
@@ -14,10 +16,13 @@ export function ConnectSorterMenuItems({
 }: ConnectSorterMenuItemsProps) {
   const { t } = useTranslation("scanner");
   const { piHost, piSorter } = usePiHostState();
+  const { connect } = useSerial();
   const piRemote = piHost && usesHostHardware();
 
-  if (piSorter) {
-    return <DropdownMenuItem disabled>{t("serial.piSorterBuiltIn")}</DropdownMenuItem>;
+  if (piSorter) return <DropdownMenuItem disabled={disabled} onClick={() => void connect()}>{t("serial.piSorterBuiltIn")}</DropdownMenuItem>;
+
+  if (piHost) {
+    return <PiSorterMenuItems disabled={disabled} onSelect={(controllerId) => void connect({ controllerId })} />;
   }
 
   return (

@@ -1,7 +1,6 @@
-import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
-import { cardImageVectors } from "../../db/schema";
+import { languagesOfGame } from "../../lib/card-match-index";
 import { requireAuth, type AppEnv } from "../../middleware/auth";
 
 export const gameLanguagesRoute = new Hono<AppEnv>().get(
@@ -17,13 +16,6 @@ export const gameLanguagesRoute = new Hono<AppEnv>().get(
     if (!game)
       return c.json({ success: false, message: "Game not found." }, 404);
 
-    const rows = await db
-      .select({ lang: cardImageVectors.lang })
-      .from(cardImageVectors)
-      .where(eq(cardImageVectors.gameKey, game.key))
-      .groupBy(cardImageVectors.lang)
-      .orderBy(cardImageVectors.lang);
-
-    return c.json({ success: true, data: rows?.map((r) => r.lang) ?? [] });
+    return c.json({ success: true, data: await languagesOfGame(game.key) });
   },
 );

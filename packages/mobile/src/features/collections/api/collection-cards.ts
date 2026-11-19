@@ -192,9 +192,15 @@ export function createMonitorLink(
   expiresInDays: number,
   showPrices: boolean,
   purpose: ShareLinkPurpose,
+  requireGuestContact: boolean,
 ): Promise<MonitorLink> {
   return unwrap(
-    apiPost<Result<MonitorLink>>(`/api/collections/${guid}/monitor-link`, { expiresInDays, showPrices, purpose }),
+    apiPost<Result<MonitorLink>>(`/api/collections/${guid}/monitor-link`, {
+      expiresInDays,
+      showPrices,
+      purpose,
+      requireGuestContact,
+    }),
   );
 }
 

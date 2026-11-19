@@ -5,6 +5,7 @@
 #include <Wire.h>
 #include <ctype.h>
 #include <Adafruit_PWMServoDriver.h>
+#include <Adafruit_NeoPixel.h>
 #if defined(ARDUINO_ARCH_ESP32)
 #include "esp_mac.h"
 #include "esp_system.h"
@@ -29,7 +30,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.13.2"
+#define FIRMWARE_VERSION "2.13.3"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -825,6 +826,23 @@ const char* servoDriverStatus() {
 
 unsigned long paddleOpenedAt[MAX_MODULES] = {0};
 
+// Servo and feeder current spikes can garble an I2C write. A garbled feeder
+// stop used to cost a full driver restart (tens of ms) with the feeder still
+// spinning, pushing a second card in, and a second failure left it running.
+// So retry once straight away (arduino-esp32 recovers its own bus), and only
+// then restart the driver, up to SERVO_WRITE_ATTEMPTS writes in all.
+// getStatus reports the failure count so a flaky bus shows up.
+#define SERVO_WRITE_ATTEMPTS 4
+unsigned long servoWriteFailures = 0;
+
+void writeServoChannel(int channel, uint16_t off) {
+  for (int attempt = 0; attempt < SERVO_WRITE_ATTEMPTS; attempt++) {
+    if (attempt >= 2) recoverServoDriver();
+    if (pwm.setPWM(channel, 0, off) == 0) return;
+    servoWriteFailures++;
+  }
+}
+
 int servoPulse(int pulse) {
   return constrain(pulse, 120, 490);
 }
@@ -859,10 +877,7 @@ void setServoPosition(int channel, int pulse) {
       !isPusherNudge(module, value)) {
     lowerPaddleForPush(module);
   }
-  if (pwm.setPWM(channel, 0, value) != 0) {
-    recoverServoDriver();
-    pwm.setPWM(channel, 0, value);
-  }
+  writeServoChannel(channel, value);
   lastServoMoveAt = millis();
   servosReleased = false;
 
@@ -890,10 +905,7 @@ void lowerPaddleForPush(int module) {
 // speed with nothing noticing. Write full-off directly and retry after a
 // driver recovery, like setServoPosition() does for moves.
 void cutServoSignal(int channel) {
-  if (pwm.setPWM(channel, 0, 4096) != 0) {
-    recoverServoDriver();
-    pwm.setPWM(channel, 0, 4096);
-  }
+  writeServoChannel(channel, 4096);
 }
 
 void releaseAllServos() {
@@ -924,8 +936,6 @@ void stopFeeder() {
   cutServoSignal(getFeederChannel());  // cut PWM signal entirely to stop 360° servo
 }
 
-// The last card in the hopper has nothing behind it to push it fully in, so
-// once the hopper's empty, keep the motor running settleDuration ms longer.
 void runFeederReverse() {
   setServoPosition(getFeederChannel(), feederConfig.reverseSpeed);
   waitMs(feederConfig.reverseDuration);
@@ -937,12 +947,35 @@ void rollBackFeeder() {
   runFeederReverse();
 }
 
-void settleAndStopFeeder() {
-  if (!hopperHasCards()) {
-    waitMs(feederConfig.settleDuration);
+// The hopper sensor can blink "empty" for a moment while the stack shifts
+// under the card being fed, so empty only counts once it holds for
+// HOPPER_EMPTY_CONFIRM_MS.
+#define HOPPER_EMPTY_CONFIRM_MS 30
+
+bool hopperConfirmedEmpty() {
+  unsigned long start = millis();
+  while (millis() - start < HOPPER_EMPTY_CONFIRM_MS) {
+    if (hopperHasCards() || emergencyStopped) return false;
+    waitMs(2);
   }
+  return !hopperHasCards();
+}
+
+// Stops the feeder the moment module 1 sees a card, and only then looks at
+// the hopper. Reading the hopper first let one blink of its sensor keep the
+// motor running settleDuration ms past detection, which fed a second card.
+// The last card in the hopper has nothing behind it to push it fully in, so
+// once the hopper's really empty, run the motor settleDuration ms more.
+void settleAndStopFeeder() {
   stopFeeder();
-  rollBackFeeder();
+  if (!hopperConfirmedEmpty()) {
+    rollBackFeeder();
+    return;
+  }
+  if (feederConfig.settleDuration <= 0) return;
+  setServoPosition(getFeederChannel(), feederConfig.speed);
+  waitMs(feederConfig.settleDuration);
+  stopFeeder();
 }
 
 // Pulses the feeder, polling module 1's IR between pulses (continuous if
@@ -994,14 +1027,7 @@ FeedResult runFeeder() {
 
     stopFeeder();
     if (digitalRead(irPin(1)) == LOW) {
-      // Motor's already off - only the last card (hopper now empty) needs an extra push to fully seat it.
-      if (!hopperHasCards()) {
-        setServoPosition(getFeederChannel(), feederConfig.speed);
-        waitMs(feederConfig.settleDuration);
-        stopFeeder();
-      } else {
-        rollBackFeeder();
-      }
+      settleAndStopFeeder();
       return FEED_DETECTED;
     }
     waitMs(feederConfig.pauseDuration);
@@ -1568,6 +1594,8 @@ void printStatus(Print& reply, bool live) {
   if (live) {
     reply.print(F(",\"uptimeMs\":"));
     reply.print(millis());
+    reply.print(F(",\"servoWriteFailures\":"));
+    reply.print(servoWriteFailures);
 #if BLE_SUPPORTED
     if (bleMtu() > 0) {
       reply.print(F(",\"bleMtu\":"));
@@ -1612,6 +1640,8 @@ void runCommand(JsonDocument& doc, Print& reply) {
 #if WIFI_SUPPORTED
   if (handleCloudCommand(doc, reply)) return;
 #endif
+
+  if (handleLedCommand(doc, reply)) return;
 
   // {"setChannelOffset": N} — see channel layout comment near the top.
   if (doc["setChannelOffset"].is<int>()) {
@@ -1954,6 +1984,7 @@ void setup() {
   // count - harmless, and the app hasn't told us the offset yet.
   for (int m = 0; m < MAX_MODULES; m++) pinMode(IR_PINS[m], INPUT_PULLUP);
   pinMode(IR_PIN_HOPPER, INPUT_PULLUP);
+  ledsInit();
 
   initServoDriver();
   // The PCA9685 can keep driving a stalled servo through an MCU reset, so a

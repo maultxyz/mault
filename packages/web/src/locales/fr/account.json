@@ -30,6 +30,22 @@
     "updated": "Mot de passe mis à jour",
     "updateFailed": "Impossible de mettre à jour le mot de passe"
   },
+  "signInMethods": {
+    "heading": "Méthodes de connexion",
+    "description": "Les façons de te connecter à ce compte. Pour ajouter un fournisseur, connecte-toi avec lui en utilisant l'adresse e-mail de ce compte.",
+    "password": "E-mail et mot de passe",
+    "linkedOn": "Associé le {{date}}",
+    "onlyMethod": "Ta seule méthode de connexion",
+    "unlink": "Dissocier",
+    "unlinkProvider": "Dissocier {{provider}}",
+    "unlinkHint": "Dissocie cette méthode de connexion",
+    "unlinkConfirmTitle": "Dissocier {{provider}} ?",
+    "unlinkConfirmDescription": "Tu ne pourras plus te connecter avec {{provider}}. Te reconnecter avec lui en utilisant l'adresse e-mail de ce compte l'ajoutera de nouveau.",
+    "unlinked": "{{provider}} dissocié",
+    "unlinkFailed": "Impossible de dissocier {{provider}}",
+    "loadFailed": "Impossible de charger les méthodes de connexion",
+    "cancel": "Annuler"
+  },
   "sessions": {
     "heading": "Sessions",
     "description": "Appareils actuellement connectés à ton compte.",

@@ -17,6 +17,25 @@ export interface MonitorLink {
   expiresAt: string;
 }
 
+export type CardShareLink = MonitorLink;
+
+export interface SharedCardLink extends ShareableLink {
+  guid: string;
+  scanId: string;
+  cardName: string;
+  setCode: string | null;
+  createdAt: string;
+  shortCode: string;
+}
+
+export interface CardShareLinkInfo {
+  scanId: string;
+  cardName: string;
+  priceSource: PriceSource;
+  conditionMultipliers: ConditionMultipliers;
+  showsPrices: boolean;
+}
+
 export interface ShortLinkTarget {
   path: string;
 }
@@ -56,11 +75,14 @@ export interface MonitorLinkInfo {
   priceSource: PriceSource;
   conditionMultipliers: ConditionMultipliers;
   showsPrices: boolean;
+  requiresGuestContact?: boolean;
   purpose: ShareLinkPurpose;
 }
 
+export type BrowsableShareLinkKind = Exclude<ShareLinkKind, "card">;
+
 export interface ParsedShareLinkUrl {
-  kind: ShareLinkKind;
+  kind: BrowsableShareLinkKind;
   guid: string;
   token: string;
 }

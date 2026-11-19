@@ -10,13 +10,13 @@ import { and, eq, isNull, sql } from "drizzle-orm";
 import { randomUUID } from "node:crypto";
 import { apiKeyQuery, db } from "../../db";
 import { webhookEndpoints } from "../../db/schema";
-import { isApiAccessAllowed } from "../api-access";
 import { WEBHOOK_STORED_CARDS_PER_EVENT } from "../constants/webhooks";
 import {
   loadPublicApiCard,
   loadPublicApiCardsByScanIds,
 } from "../public-api/cards";
 import { enqueueWebhookJob, queueWebhookDeliveries } from "./queue";
+import { orgHasFeature } from "../plan-config";
 
 async function loadSubscribedEndpointIds(
   orgId: string,
@@ -34,7 +34,7 @@ async function loadSubscribedEndpointIds(
         ),
       );
     if (rows.length === 0) return [];
-    if (!(await isApiAccessAllowed(tx, orgId))) return [];
+    if (!(await orgHasFeature(tx, orgId, "apiAccess"))) return [];
     return rows.map((row) => row.id);
   });
 }

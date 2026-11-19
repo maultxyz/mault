@@ -1,16 +1,16 @@
+import { getInitials } from "@magic-vault/shared";
 import { MobileIconBadge } from "@/components/mobile-icon-badge";
 import { MobileListRow } from "@/components/mobile-list-row";
 import { PlanLockTag } from "@/components/plan-lock-tag";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileSection } from "@/components/mobile-section";
 import { MobileSegmentedControl } from "@/components/mobile-segmented-control";
-import { getInitials } from "@/components/ui/initials-avatar";
 import { useSignOut } from "@/features/account/api/use-sign-out";
+import { useHasBusinessTools } from "@/features/business/api/use-has-business-tools";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePlanLockedPath } from "@/hooks/use-plan-locked-path";
 import { useAuthSession } from "@/lib/auth";
-import { DISCORD_URL, SHOP_URL } from "@/lib/constants/links";
 import { LANGUAGE_NATIVE_NAMES } from "@/lib/constants/languages";
 import {
   MOBILE_LIST_CLASS,
@@ -22,6 +22,7 @@ import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { ADMIN_PATH } from "@/lib/constants/admin";
 import { useRole } from "@/hooks/use-role";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { MACHINES_ROUTE_PATH } from "@/lib/constants/machines";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { INTAKE_PATH } from "@/lib/constants/business";
 import type { SupportedLanguage } from "@/lib/interfaces/languages";
@@ -31,14 +32,12 @@ import {
   IconActivityHeartbeat,
   IconArrowsSplit2,
   IconDatabaseCog,
-  IconBrandDiscord,
-  IconBuilding,
   IconCash,
   IconChartBar,
+  IconDeviceDesktopAnalytics,
   IconLanguage,
   IconLogout,
   IconSettings,
-  IconShoppingCart,
   IconUserCircle,
 } from "@tabler/icons-react";
 import { useTheme } from "next-themes";
@@ -58,6 +57,7 @@ export default function MePage() {
   const signOut = useSignOut();
   const { planLockFor } = usePlanLockedPath();
   const intakeLock = planLockFor(INTAKE_PATH);
+  const hasBusinessTools = useHasBusinessTools();
 
   if (!isMobile) return <Navigate to={SETTINGS_PATHS.root} replace />;
 
@@ -116,11 +116,6 @@ export default function MePage() {
                     />
                   );
                 })}
-                <MobileListRow
-                  icon={<IconBuilding />}
-                  label={tCompanies("orgSwitcher.manageOrganizations")}
-                  to={SETTINGS_PATHS.organization}
-                />
               </div>
             </MobileSection>
           )}
@@ -153,12 +148,19 @@ export default function MePage() {
               to={STATS_PATH}
             />
             <MobileListRow
-              icon={<IconCash />}
-              label={t("nav.intake")}
-              to={INTAKE_PATH}
-              disabled={intakeLock?.isDisabled}
-              trailing={intakeLock && <PlanLockTag label={intakeLock.tag} />}
+              icon={<IconDeviceDesktopAnalytics />}
+              label={t("nav.machines")}
+              to={MACHINES_ROUTE_PATH}
             />
+            {!hasBusinessTools && (
+              <MobileListRow
+                icon={<IconCash />}
+                label={t("nav.intake")}
+                to={INTAKE_PATH}
+                disabled={intakeLock?.isDisabled}
+                trailing={intakeLock && <PlanLockTag label={intakeLock.tag} />}
+              />
+            )}
             <MobileListRow
               icon={<IconActivityHeartbeat />}
               label={tHealth("title")}
@@ -184,19 +186,6 @@ export default function MePage() {
               onChange={setTheme}
             />
           </MobileSection>
-
-          <div className={MOBILE_LIST_CLASS}>
-            <MobileListRow
-              icon={<IconShoppingCart />}
-              label={t("nav.cart")}
-              href={SHOP_URL}
-            />
-            <MobileListRow
-              icon={<IconBrandDiscord />}
-              label={t("nav.discord")}
-              href={DISCORD_URL}
-            />
-          </div>
 
           <div className={MOBILE_LIST_CLASS}>
             <MobileListRow

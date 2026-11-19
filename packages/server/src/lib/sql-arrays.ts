@@ -15,3 +15,7 @@ export function uuidArraySql(ids: string[]): SQL {
 export function integerArraySql(ids: number[]): SQL {
   return sql`${`{${ids.filter((id) => Number.isInteger(id)).join(",")}}`}::int[]`;
 }
+
+export function textArraySql(values: string[]): SQL {
+  return sql`${pgTextArray(values)}::text[]`;
+}

@@ -21,7 +21,10 @@ export const piCameraRouter = new Hono<AppEnv>()
     const method = PI_CAMERA_ACTIONS[action as keyof typeof PI_CAMERA_ACTIONS];
     if (c.req.method !== method) return c.text("Method not allowed", 405);
     try {
-      const upstream = await fetch(`${PI_CAMERA_HELPER_URL}/${action}`, {
+      const url = new URL(`${PI_CAMERA_HELPER_URL}/${action}`);
+      const cameraId = c.req.query("cameraId");
+      if (cameraId) url.searchParams.set("cameraId", cameraId);
+      const upstream = await fetch(url, {
         method,
         headers:
           method === "POST"

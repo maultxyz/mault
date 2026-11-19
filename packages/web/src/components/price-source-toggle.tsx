@@ -1,3 +1,7 @@
+import {
+  TOGGLE_TILE_SELECTED_CLASS,
+  TOGGLE_TILE_UNSELECTED_CLASS,
+} from "@/lib/constants/ui";
 import type { PriceSourceToggleProps } from "@/lib/interfaces/settings";
 import { cn } from "@/lib/utils";
 import { PRICE_SOURCE_FIELDS, PRICE_SOURCES } from "@magic-vault/shared";
@@ -17,10 +21,10 @@ export function PriceSourceToggle({ value, onChange }: PriceSourceToggleProps) {
             onClick={() => onChange(source)}
             aria-pressed={isSelected}
             className={cn(
-              "flex flex-col items-center gap-1 rounded-lg border p-3 w-36 transition-all",
+              "flex flex-col items-center gap-1 rounded-lg border p-3 w-36 transition-colors motion-reduce:transition-none",
               isSelected
-                ? "border-primary bg-primary/5 text-foreground"
-                : "border-border text-foreground/70 hover:border-foreground/40 hover:text-foreground",
+                ? TOGGLE_TILE_SELECTED_CLASS
+                : TOGGLE_TILE_UNSELECTED_CLASS,
             )}
           >
             <span className="text-xs font-medium">

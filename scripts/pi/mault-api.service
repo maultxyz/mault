@@ -8,6 +8,7 @@ WorkingDirectory=%h/mault
 Environment=NODE_ENV=production
 Environment=API_HOST=127.0.0.1
 Environment=VECTORIZE_CONCURRENCY=1
+Environment=COLLECTORVISION_CACHE=%h/.cache/collectorvision
 ExecStart=/bin/bash %h/mault/scripts/pi/run-api.sh
 Restart=on-failure
 RestartSec=2

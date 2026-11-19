@@ -2,6 +2,7 @@ import { and, asc, eq, isNull, or, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { soundClips } from "../../db/schema";
+import { readOrgResource } from "../../lib/org-resource-read-cache";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { toSoundClip } from "./shared";
 
@@ -11,21 +12,24 @@ export const listSoundClipsRoute = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    const rows = await authQuery(c.get("jwtClaims"), (tx) =>
-      tx
-        .select()
-        .from(soundClips)
-        .where(
-          and(
-            or(eq(soundClips.orgId, orgId), isNull(soundClips.orgId)),
-            eq(soundClips.isDeleted, false),
-          ),
-        )
-        .orderBy(asc(sql`${soundClips.orgId} IS NULL`), asc(soundClips.name)),
-    );
+    const clips = await readOrgResource(orgId, "sounds:clips", async () => {
+      const rows = await authQuery(c.get("jwtClaims"), (tx) =>
+        tx
+          .select()
+          .from(soundClips)
+          .where(
+            and(
+              or(eq(soundClips.orgId, orgId), isNull(soundClips.orgId)),
+              eq(soundClips.isDeleted, false),
+            ),
+          )
+          .orderBy(asc(sql`${soundClips.orgId} IS NULL`), asc(soundClips.name)),
+      );
+      return Promise.all(rows.map(toSoundClip));
+    });
     return c.json({
       success: true,
-      data: await Promise.all(rows.map(toSoundClip)),
+      data: clips,
     });
   },
 );

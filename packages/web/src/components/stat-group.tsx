@@ -1,3 +1,5 @@
+import { CompactCount } from "@/components/compact-value";
+import { IconBadge } from "@/components/icon-badge";
 import type { StatGroupProps, StatTileContentProps } from "@/lib/interfaces/stat-group";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
@@ -7,16 +9,17 @@ function StatTileContent({ tile }: StatTileContentProps) {
   return (
     <>
       {TileIcon && (
-        <span
-          aria-hidden
-          className="mb-2 flex size-8 items-center md:mb-1.5 md:size-7 justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20 dark:text-sidebar-primary"
-        >
+        <IconBadge aria-hidden size="compact" className="mb-2 md:mb-1.5">
           <TileIcon className="size-4" />
-        </span>
+        </IconBadge>
       )}
       <p className="text-xs text-foreground/70">{tile.label}</p>
       <p className="text-lg font-semibold tabular-nums text-foreground md:text-base">
-        {tile.value ?? "-"}
+        {typeof tile.value === "number" ? (
+          <CompactCount value={tile.value} />
+        ) : (
+          (tile.value ?? "-")
+        )}
       </p>
       {tile.detail !== undefined && (
         <p className="text-2xs text-foreground/70">{tile.detail ?? "-"}</p>

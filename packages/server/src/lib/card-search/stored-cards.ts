@@ -21,7 +21,16 @@ import {
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import { STORED_SEARCH_LIMIT } from "../constants/card-search";
-import { applyCardPrices } from "./card-prices";
+import {
+  applyCardPrices,
+  applyLoadedCardPrices,
+  loadStoredCardPrices,
+} from "./card-prices";
+import {
+  catalogCacheKey,
+  createCatalogSearchCache,
+  loadThroughStoredCardCache,
+} from "./catalog-read-cache";
 import { listCardSets } from "./card-sets";
 import type {
   CardPrintingRow,
@@ -37,33 +46,75 @@ import {
   groupedCatalogSearchSql,
 } from "./catalog-printing-order";
 
-async function findStoredCards(
+async function loadStoredCards(
   { adapter, gameKey, lang }: ResolvedCardSearch,
-  cardIds: string[],
+  ids: string[],
 ): Promise<Map<string, PlayingCard>> {
-  const ids = [...new Set(cardIds)];
   if (ids.length === 0) return new Map();
-  const rows = await db
-    .select({ cardId: cardImageVectors.cardId, data: cardImageVectors.data })
-    .from(cardImageVectors)
-    .where(
-      and(
-        eq(cardImageVectors.gameKey, gameKey),
-        eq(cardImageVectors.lang, lang),
-        inArray(cardImageVectors.cardId, ids),
-        isNotNull(cardImageVectors.data),
+  const priceScope = { gameKey, lang };
+  const [rows, pricesOfRequestedIds] = await Promise.all([
+    db
+      .select({ cardId: cardImageVectors.cardId, data: cardImageVectors.data })
+      .from(cardImageVectors)
+      .where(
+        and(
+          eq(cardImageVectors.gameKey, gameKey),
+          eq(cardImageVectors.lang, lang),
+          inArray(cardImageVectors.cardId, ids),
+          isNotNull(cardImageVectors.data),
+        ),
       ),
-    );
+    loadStoredCardPrices(priceScope, ids),
+  ]);
   const cards = rows.flatMap((row) => {
     const card = adapter.normalizeStored(row.data, row.cardId, lang);
     return card ? [{ cardId: row.cardId, card }] : [];
   });
-  const priced = await applyCardPrices(
+  const requestedIds = new Set(ids);
+  const unrequestedPriceIds = cards
+    .map(({ card }) => card.id)
+    .filter((cardId) => !requestedIds.has(cardId));
+  const storedPrices =
+    unrequestedPriceIds.length === 0
+      ? pricesOfRequestedIds
+      : new Map([
+          ...pricesOfRequestedIds,
+          ...(await loadStoredCardPrices(priceScope, unrequestedPriceIds)),
+        ]);
+  const priced = await applyLoadedCardPrices(
     adapter,
-    { gameKey, lang },
     cards.map(({ card }) => card),
+    storedPrices,
   );
   return new Map(cards.map(({ cardId }, i) => [cardId, priced[i]]));
+}
+
+function findStoredCards(
+  resolved: ResolvedCardSearch,
+  cardIds: string[],
+): Promise<Map<string, PlayingCard>> {
+  const ids = [...new Set(cardIds)];
+  if (ids.length === 0) return Promise.resolve(new Map());
+  return loadThroughStoredCardCache(
+    (cardId) => catalogCacheKey([resolved.gameKey, resolved.lang, cardId]),
+    ids,
+    (missingIds) => loadStoredCards(resolved, missingIds),
+  );
+}
+
+const cardSearchCache = createCatalogSearchCache<Result<CardSearchPage>>();
+const cardSetSearchCache = createCatalogSearchCache<CardSetOption[]>();
+const groupedCatalogSearchCache =
+  createCatalogSearchCache<Result<CatalogCardSearchPage>>();
+const cardPrintingsCache = createCatalogSearchCache<Result<CardPrintingsPage>>();
+
+function resolvedSearchCacheKeyParts({
+  gameKey,
+  lang,
+  searchAllLanguages,
+  onlyLanguage,
+}: ResolvedCardSearch): (string | boolean | undefined)[] {
+  return [gameKey, lang, searchAllLanguages === true, onlyLanguage];
 }
 
 function storedLanguageMatch({
@@ -227,7 +278,7 @@ export async function searchCardsByIds(
   return findStoredCards(resolved, ids);
 }
 
-export async function searchCards(
+async function searchCardsUncached(
   resolved: ResolvedCardSearch,
   query: string,
   offset = 0,
@@ -250,7 +301,7 @@ export async function searchCards(
   };
 }
 
-export async function searchCardSets(
+async function searchCardSetsUncached(
   resolved: ResolvedCardSearch,
   query: string,
 ): Promise<CardSetOption[]> {
@@ -284,11 +335,12 @@ export async function searchCardSets(
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export async function searchCatalogCardsGroupedByName(
+async function searchCatalogCardsGroupedByNameUncached(
   resolved: ResolvedCardSearch,
   query: string,
   offset = 0,
   setCode?: string,
+  pageLimit = STORED_SEARCH_LIMIT,
 ): Promise<Result<CatalogCardSearchPage>> {
   if (validateCatalogQuery(query)) {
     return {
@@ -324,11 +376,11 @@ export async function searchCatalogCardsGroupedByName(
       printingMatch,
       exactName: trimmed,
       offset,
-      limit: STORED_SEARCH_LIMIT + 1,
+      limit: pageLimit + 1,
     }),
   );
-  const hasMore = result.rows.length > STORED_SEARCH_LIMIT;
-  const normalized = result.rows.slice(0, STORED_SEARCH_LIMIT).flatMap((row) => {
+  const hasMore = result.rows.length > pageLimit;
+  const normalized = result.rows.slice(0, pageLimit).flatMap((row) => {
     const card = adapter.normalizeStored(row.data, row.card_id, row.lang);
     return card
       ? [{ card: { ...card, lang: row.lang }, printingCount: Number(row.printing_count) }]
@@ -348,7 +400,7 @@ export async function searchCatalogCardsGroupedByName(
         card: pricedCards[index],
         printingCount,
       })),
-      nextOffset: hasMore ? offset + STORED_SEARCH_LIMIT : null,
+      nextOffset: hasMore ? offset + pageLimit : null,
     },
   };
 }
@@ -371,7 +423,7 @@ async function findStoredCardName(
   return row?.name ?? null;
 }
 
-export async function listCardPrintings(
+async function listCardPrintingsUncached(
   resolved: ResolvedCardSearch,
   { cardId, cardName, offset }: { cardId?: string; cardName?: string; offset: number },
 ): Promise<Result<CardPrintingsPage>> {
@@ -402,4 +454,55 @@ export async function listCardPrintings(
       nextOffset: offset + CARD_PRINTINGS_PAGE_SIZE < totalCount ? offset + CARD_PRINTINGS_PAGE_SIZE : null,
     },
   };
+}
+
+export function searchCards(
+  resolved: ResolvedCardSearch,
+  query: string,
+  offset = 0,
+  setCode?: string,
+): Promise<Result<CardSearchPage>> {
+  return cardSearchCache.get(
+    catalogCacheKey([...resolvedSearchCacheKeyParts(resolved), query, offset, setCode]),
+    () => searchCardsUncached(resolved, query, offset, setCode),
+  );
+}
+
+export function searchCardSets(
+  resolved: ResolvedCardSearch,
+  query: string,
+): Promise<CardSetOption[]> {
+  return cardSetSearchCache.get(
+    catalogCacheKey([...resolvedSearchCacheKeyParts(resolved), query]),
+    () => searchCardSetsUncached(resolved, query),
+  );
+}
+
+export function searchCatalogCardsGroupedByName(
+  resolved: ResolvedCardSearch,
+  query: string,
+  offset = 0,
+  setCode?: string,
+  pageLimit = STORED_SEARCH_LIMIT,
+): Promise<Result<CatalogCardSearchPage>> {
+  return groupedCatalogSearchCache.get(
+    catalogCacheKey([...resolvedSearchCacheKeyParts(resolved), query, offset, setCode, pageLimit]),
+    () => searchCatalogCardsGroupedByNameUncached(resolved, query, offset, setCode, pageLimit),
+  );
+}
+
+export function listCardPrintings(
+  resolved: ResolvedCardSearch,
+  printingsQuery: { cardId?: string; cardName?: string; offset: number },
+): Promise<Result<CardPrintingsPage>> {
+  return cardPrintingsCache.get(
+    catalogCacheKey([
+      resolved.gameKey,
+      resolved.lang,
+      printingsQuery.cardId,
+      printingsQuery.cardName,
+      printingsQuery.offset,
+    ]),
+    () => listCardPrintingsUncached(resolved, printingsQuery),
+  );
 }

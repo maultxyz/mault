@@ -11,6 +11,9 @@ export async function assignBinToLocation(
   tx: Transaction,
   { binNumber, collectionId, locationId }: AssignBinToLocationInput,
 ): Promise<string[]> {
+  await tx.execute(
+    sql`SELECT pg_advisory_xact_lock(hashtext(${`storage_location:${locationId}`}))`,
+  );
   const result = await tx.execute(sql`
     WITH stack AS (
       SELECT 'card' AS kind, cc.id, cc.scanned_at

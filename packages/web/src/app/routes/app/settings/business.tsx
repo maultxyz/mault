@@ -9,10 +9,12 @@ import { useBusinessSettingsDraft } from "@/features/business/api/use-business-s
 import { BusinessPermissionsSettings } from "@/features/business/components/business-permissions-settings";
 import { BuylistSettings } from "@/features/business/components/buylist-settings";
 import { ShopCatalogsSection } from "@/features/business/components/shop-catalogs-section";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useTranslation } from "react-i18next";
 
 export default function SettingsBusinessPage() {
   const { t } = useTranslation("business");
+  const isMobile = useIsMobile();
   const draft = useBusinessSettingsDraft();
   const disabled = draft.isLoading || draft.isSaving || !draft.canManage;
 
@@ -21,21 +23,25 @@ export default function SettingsBusinessPage() {
       {!draft.isLoading && !draft.canManage && (
         <Callout variant="info">{t("settings.managersOnly")}</Callout>
       )}
-      <SettingsSection
-        heading={t("settings.buylist.heading")}
-        description={t("settings.buylist.description")}
-      >
-        <BuylistSettings control={draft.control} disabled={disabled} />
-      </SettingsSection>
-      <SettingsSection
-        heading={t("settings.permissions.heading")}
-        description={t("settings.permissions.description")}
-      >
-        <BusinessPermissionsSettings
-          control={draft.control}
-          disabled={disabled}
-        />
-      </SettingsSection>
+      {!isMobile && (
+        <>
+          <SettingsSection
+            heading={t("settings.buylist.heading")}
+            description={t("settings.buylist.description")}
+          >
+            <BuylistSettings control={draft.control} disabled={disabled} />
+          </SettingsSection>
+          <SettingsSection
+            heading={t("settings.permissions.heading")}
+            description={t("settings.permissions.description")}
+          >
+            <BusinessPermissionsSettings
+              control={draft.control}
+              disabled={disabled}
+            />
+          </SettingsSection>
+        </>
+      )}
       <ShopCatalogsSection />
       <SaveBar
         show={draft.isDirty}

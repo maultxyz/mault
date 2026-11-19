@@ -68,6 +68,8 @@ export function usePiUpdate(enabled: boolean): PiUpdateControls {
         available: false,
         installedVersion: null,
         latestVersion: null,
+        rebootRequired: false,
+        bootId: null,
         ...previous,
         state,
       }));

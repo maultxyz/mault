@@ -160,7 +160,7 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
   });
   const actions = (
     <>
-      {canAct && (
+      {canAct && !isMobile && (
         <Button
           variant="outline"
           disabled={entries.length === 0 || openOrders.length === 0}
@@ -181,14 +181,16 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
           {t("orders.phonePick.button")}
         </Button>
       )}
-      <Button
-        variant="outline"
-        disabled={orders.length === 0}
-        onClick={() => window.open(packingSlipsPath(orderGuids), "_blank")}
-      >
-        <IconPrinter />
-        {t("orders.packingSlips.printAll")}
-      </Button>
+      {!isMobile && (
+        <Button
+          variant="outline"
+          disabled={orders.length === 0}
+          onClick={() => window.open(packingSlipsPath(orderGuids), "_blank")}
+        >
+          <IconPrinter />
+          {t("orders.packingSlips.printAll")}
+        </Button>
+      )}
       {canAct && (
         <Button
           disabled={completedOrders.length === 0 || isCompleting}

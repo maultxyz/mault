@@ -8,7 +8,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
-import { tradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
+import { pendingTradeOffersQueryOptions, tradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { TradeOfferReview } from "@/features/trade-offers/components/trade-offer-review";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
@@ -19,12 +19,24 @@ export default function TradeOfferScreen() {
   const colors = useTheme();
   const orgId = useActiveOrgId();
   const offers = useQuery(tradeOffersQueryOptions(orgId));
-  const offer = offers.data?.find((candidate) => candidate.guid === guid) ?? null;
+  const pendingOffers = useQuery(pendingTradeOffersQueryOptions(orgId));
+  const offer =
+    offers.data?.find((candidate) => candidate.guid === guid) ??
+    (offers.data ? undefined : pendingOffers.data?.find((candidate) => candidate.guid === guid)) ??
+    null;
 
   return (
     <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
-        title={offer ? t("tradeOffers.reviewTitle", { name: offer.guestName }) : t("tradeOffers.title")}
+        title={
+          !offer
+            ? t("tradeOffers.title")
+            : offer.linkKind === "inPerson"
+              ? offer.guestName
+                ? t("tradeOffers.inPerson.reviewTitle", { name: offer.guestName })
+                : t("tradeOffers.inPerson.title")
+              : t("tradeOffers.reviewTitle", { name: offer.guestName })
+        }
       />
       {offer ? (
         <TradeOfferReview key={offer.guid} offer={offer} />

@@ -15,7 +15,7 @@ class ControllerServiceTests(unittest.TestCase):
             root = Path(directory) / "separate checkout"
             scripts = root / "scripts/pi"
             scripts.mkdir(parents=True)
-            for name in ("install-services.mjs", "mault-api.service", "mault-web.service",
+            for name in ("install-services.mjs", "mault-api.service", "mault-prices.service", "mault-prices.timer",
                          "mault-camera.service", "mault-controller.service"):
                 shutil.copyfile(SCRIPTS / name, scripts / name)
             config = Path(directory) / "user-config"

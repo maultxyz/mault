@@ -17,6 +17,7 @@ import {
   revokeOtherAuthSessions,
   updateName,
 } from "@/features/account/api/account";
+import { SignInMethodsSection } from "@/features/account/components/sign-in-methods-section";
 import { describeUserAgent } from "@/features/account/lib/user-agent";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import { SettingsSection } from "@/features/settings/components/settings-section";
@@ -101,7 +102,11 @@ export default function ProfileScreen() {
     <SettingsPage
       title={t("account.profile.title")}
       subtitle={isLocal ? t("account.profile.localSubtitle") : t("account.profile.subtitle")}
-      onRefresh={isLocal ? undefined : () => sessions.refetch()}
+      onRefresh={
+        isLocal
+          ? undefined
+          : () => Promise.all([sessions.refetch(), queryClient.refetchQueries({ queryKey: linkedSignInAccountsQueryOptions().queryKey })])
+      }
       isDirty={!isLocal && nameForm.formState.isDirty}
       isSaving={nameForm.formState.isSubmitting}
       onSave={() => void nameForm.handleSubmit(saveName)()}
@@ -151,6 +156,8 @@ export default function ProfileScreen() {
               />
             </ListGroup>
           </SettingsSection>
+
+          <SignInMethodsSection onMessage={setMessage} />
 
           <SettingsSection title={t("account.profile.sessions.heading")} description={t("account.profile.sessions.description")}>
             {sessions.isError ? <Callout tone="destructive" title={t("account.profile.sessions.loadFailed")} /> : null}

@@ -1,4 +1,13 @@
 {
+  "scanner": {
+    "piHardware": {
+      "bluetoothOff": "Bluetooth ist auf dem Host ausgeschaltet",
+      "bluetoothScanning": "Bluetooth-Sortierer werden gesucht…",
+      "bluetoothFailed": "Bluetooth-Sortierer konnten nicht gesucht werden. Prüfe, ob Bluetooth auf dem Host aktiviert ist.",
+      "bluetoothEmpty": "Keine Bluetooth-Sortierer gefunden. Schalte den Sortierer ein und halte ihn in der Nähe.",
+      "bluetoothRescan": "Erneut suchen"
+    }
+  },
   "app": {
     "name": "Mault"
   },
@@ -30,7 +39,8 @@
     "trades": "Tausch",
     "more": "Mehr",
     "home": "Start",
-    "library": "Bibliothek"
+    "library": "Bibliothek",
+    "business": "An- & Verkauf"
   },
   "auth": {
     "tagline": "Scanne, sortiere und verwalte deine Karten vom Handy aus.",
@@ -45,10 +55,15 @@
     "errors": {
       "network": "Der Server ist nicht erreichbar. Prüfe deine Verbindung und versuche es erneut.",
       "profile": "Angemeldet, aber deine Kontodaten konnten nicht geladen werden. Versuche es erneut.",
+      "session-rejected": "Angemeldet, aber der Anmeldedienst hat die Sitzung nicht akzeptiert. Versuche es erneut.",
       "verify-email": "Bestätige deine E-Mail-Adresse und melde dich dann an.",
-      "storage": "Angemeldet, aber die Sitzung konnte auf diesem Gerät nicht gespeichert werden. Versuche es erneut."
+      "storage": "Angemeldet, aber die Sitzung konnte auf diesem Gerät nicht gespeichert werden. Versuche es erneut.",
+      "social": "Die Anmeldung mit diesem Konto ist fehlgeschlagen. Versuche es erneut.",
+      "socialWithCode": "Die Anmeldung mit diesem Konto ist fehlgeschlagen ({{code}}). Versuche es erneut."
     },
-    "createAccountOnWeb": "Neu bei Mault? Erstelle ein Konto im Web"
+    "createAccountOnWeb": "Neu bei Mault? Erstelle ein Konto im Web",
+    "orContinueWith": "Oder weiter mit",
+    "continueWithProvider": "Weiter mit {{provider}}"
   },
   "collections": {
     "title": "Sammlung",
@@ -99,7 +114,32 @@
     "scanInto": "In diese Sammlung scannen",
     "scan": "Scannen",
     "notFoundTitle": "Sammlung nicht gefunden",
-    "notFoundDescription": "Sie wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf."
+    "notFoundDescription": "Sie wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf.",
+    "importCsv": {
+      "button": "CSV importieren",
+      "title": "Karten aus einer CSV importieren",
+      "description": "Lade einen Sammlungsexport von Moxfield, Archidekt, ManaBox, Deckbox, Dragon Shield, TCGplayer oder eine beliebige CSV mit einer Spalte für den Kartennamen hoch.",
+      "detectedFormat": "Format: {{format}}.",
+      "genericFormat": "allgemeine CSV",
+      "skipped_one": "{{count, compact}} Zeile ohne Kartennamen oder Anzahl wurde übersprungen.",
+      "skipped_other": "{{count, compact}} Zeilen ohne Kartennamen oder Anzahl wurden übersprungen.",
+      "matched_one": "{{count, compact}} Karte ist bereit zum Import.",
+      "matched_other": "{{count, compact}} Karten sind bereit zum Import.",
+      "unmatchedTitle_one": "{{count, compact}} Zeile passt zu keiner Karte",
+      "unmatchedTitle_other": "{{count, compact}} Zeilen passen zu keiner Karte",
+      "unmatchedLine": "Zeile {{line}}: {{quantity}}x {{name}}",
+      "noNameColumn": "Diese Datei hat keine Spalte für den Kartennamen.",
+      "emptyFile": "Diese Datei enthält keine Karten.",
+      "import_one": "{{count, compact}} Karte importieren",
+      "import_other": "{{count, compact}} Karten importieren",
+      "imported_one": "{{count, compact}} Karte importiert",
+      "imported_other": "{{count, compact}} Karten importiert",
+      "previewFailed": "Die Datei konnte nicht geprüft werden.",
+      "failed": "Die Karten konnten nicht importiert werden.",
+      "chooseFile": "Datei auswählen",
+      "chooseAnother": "Andere Datei auswählen",
+      "readFailed": "Die Datei konnte nicht gelesen werden."
+    }
   },
   "shareLink": {
     "collectionTitle": "Live-Ansicht teilen",
@@ -125,6 +165,8 @@
     "cancel": "Abbrechen",
     "showPrices": "Preise anzeigen",
     "showPricesDescription": "Ausschalten, um Kartenpreise und Summen für alle mit diesem Link auszublenden.",
+    "requireGuestContact": "Kontaktdaten verlangen",
+    "requireGuestContactDescription": "Ausschalten, damit man ein Tauschangebot ohne E-Mail, Telefon oder Benutzername senden kann.",
     "typeLabel": "Link-Typ",
     "monitorType": "Monitor",
     "tradeType": "Tausch",
@@ -156,7 +198,16 @@
       "links": "Aktive Links werden angezeigt",
       "new": "Formular für einen neuen Link wird angezeigt",
       "link": "Link und QR-Code werden angezeigt"
-    }
+    },
+    "linksTab": "Links",
+    "sharedCards": "Geteilte Karten",
+    "sharedCardsDescription": "Karten aus dieser Sammlung, die du geteilt hast. Tippe auf eine, um ihren Link zu kopieren, oder halte sie gedrückt, um ihn zu widerrufen.",
+    "sharedCardsEmpty": "Noch keine geteilten Karten",
+    "sharedCardsEmptyDescription": "Nutze bei einer Karte „Freigabelink kopieren“, um sie zu teilen. Ihr Link erscheint hier, damit du ihn widerrufen kannst.",
+    "cardLinkCopied": "Link kopiert.",
+    "cardLinkCopyFailed": "Der Link konnte nicht kopiert werden.",
+    "cardLinkCopyHint": "Kopiert den Link",
+    "created": "Erstellt am {{date}}"
   },
   "cards": {
     "bin": "Fach {{number}}",
@@ -399,6 +450,21 @@
         "updateFailed": "Passwort konnte nicht aktualisiert werden",
         "change": "Passwort ändern"
       },
+      "signInMethods": {
+        "heading": "Anmeldemethoden",
+        "description": "Möglichkeiten, dich bei diesem Konto anzumelden. Um einen Anbieter hinzuzufügen, melde dich damit mit der E-Mail-Adresse dieses Kontos an.",
+        "password": "E-Mail und Passwort",
+        "linkedOn": "Verknüpft am {{date}}",
+        "onlyMethod": "Deine einzige Anmeldemethode",
+        "unlink": "Trennen",
+        "unlinkHint": "Trennt diese Anmeldemethode",
+        "unlinkConfirmTitle": "{{provider}} trennen?",
+        "unlinkConfirmDescription": "Du kannst dich dann nicht mehr mit {{provider}} anmelden. Meldest du dich wieder damit mit der E-Mail-Adresse dieses Kontos an, wird es erneut hinzugefügt.",
+        "unlinked": "{{provider}} getrennt",
+        "unlinkFailed": "{{provider}} konnte nicht getrennt werden",
+        "loadFailed": "Anmeldemethoden konnten nicht geladen werden",
+        "cancel": "Abbrechen"
+      },
       "sessions": {
         "heading": "Sitzungen",
         "description": "Geräte, die aktuell bei deinem Konto angemeldet sind.",
@@ -637,7 +703,7 @@
       },
       "repack-complete": {
         "title": "Packs vollständig",
-        "description": "Alle Pack-Behälter sind voll. Leere sie und tippe dann auf Fortsetzen, um die nächste Runde zu starten."
+        "description": "Alle Pack-Fächer sind voll. Leere sie und tippe dann auf Fortsetzen, um die nächste Runde zu starten."
       },
       "bin-data-unavailable": {
         "title": "Füllstände nicht verfügbar",
@@ -714,9 +780,9 @@
     "handScanBin": "Fach {{number}}",
     "pauseAction": "Pause",
     "emergencyStop": "Stopp",
-    "emergencyStopHint": "Not-Stopp: hält Einzug, Klappen und Schieber sofort an",
-    "sessionChip_one": "{{count}} gescannt",
-    "sessionChip_other": "{{count}} gescannt",
+    "emergencyStopHint": "Not-Stopp: hält Einzug, Paddel und Schieber sofort an",
+    "sessionChip_one": "{{count, compact}} gescannt",
+    "sessionChip_other": "{{count, compact}} gescannt",
     "sessionScans": {
       "title": "Diese Sitzung",
       "empty": "In dieser Sitzung wurden noch keine Karten gescannt.",
@@ -750,8 +816,8 @@
       "handScan": "Karten automatisch erkennen",
       "handScanDescription": "Ohne Sortierer scannen. Tippe auf Start und halte eine Karte ruhig ins Bild, dann wird sie automatisch gescannt.",
       "handScanBins": "In Fächer sortieren",
-      "handScanBinsDescription": "Zeigt mit deinem Preset, in welches Fach jede Karte gehört. Aus lassen, um Karten nur in der Sammlung zu speichern.",
-      "handScanBinsNoPreset": "Wähle ein Preset für dieses Spiel, um Karten in Fächer zu sortieren.",
+      "handScanBinsDescription": "Zeigt mit deiner Vorlage, in welches Fach jede Karte gehört. Aus lassen, um Karten nur in der Sammlung zu speichern.",
+      "handScanBinsNoPreset": "Wähle eine Vorlage für dieses Spiel, um Karten in Fächer zu sortieren.",
       "camera": "Kamera",
       "cameraFallback": "Kamera {{number}}",
       "cameraPosition": {
@@ -759,7 +825,7 @@
         "front": "Vorderseite",
         "external": "Extern"
       },
-      "preset": "Regel-Preset",
+      "preset": "Regelvorlage",
       "chooseCamera": "Kamera auswählen",
       "foilType": "Foil-Typ",
       "notFoil": "Kein Foil",
@@ -777,7 +843,10 @@
       "confirmTitle": "Fach {{bins}} als leer markieren?",
       "confirmDescription": "Mach das erst, nachdem du die Karten herausgenommen hast. Die Zählung des Fachs beginnt wieder bei null.",
       "confirm": "Als leer markieren",
-      "failed": "Das Fach konnte nicht als leer markiert werden. Prüfe deine Verbindung und versuch es erneut."
+      "failed": "Das Fach konnte nicht als leer markiert werden. Prüfe deine Verbindung und versuch es erneut.",
+      "storeDescription": "Erst nachdem du die Karten herausgenommen hast. Die Karten werden in ihren Orten gespeichert: {{locations}}.",
+      "storeBin": "Fach {{bin}} in {{location}}",
+      "storeConfirm": "Einlagern und leeren"
     },
     "removal": {
       "title": "Entfernen aus {{collection}}",
@@ -846,7 +915,8 @@
         "scanOnce": "Einzelscan",
         "removing": "Entfernen"
       },
-      "saved": "{{name}} gespeichert"
+      "saved": "{{name}} gespeichert",
+      "offline": "Offline"
     },
     "unmatchedRecovery": {
       "title": "Karte nicht erkannt",
@@ -871,7 +941,7 @@
       "noLocation": "Kein Lagerort",
       "noLocationDescription": "Karten nur zur Sammlung hinzufügen, ohne Sortierung",
       "sort": "Nach Regeln sortieren",
-      "sortDescription": "Dein Preset wählt für jede Karte ein Fach",
+      "sortDescription": "Deine Vorlage wählt für jede Karte ein Fach",
       "sorterChip": "Sortierer sortiert nach deinen Regeln",
       "sortChip": "Sortiert nach Regeln",
       "storageChip": "In {{name}} · ohne Sortierung",
@@ -895,6 +965,12 @@
       "open": "Öffnet die Sammlung"
     },
     "loadFailed": "Deine Übersicht konnte nicht geladen werden. Zum Aktualisieren nach unten ziehen.",
+    "firstRun": {
+      "title": "Starte deine Sammlung",
+      "description": "Lege eine Sammlung an und scanne dann deine ersten Karten, um zu sehen, was sie wert sind.",
+      "createCollection": "Neue Sammlung",
+      "startScanning": "Scannen starten"
+    },
     "hero": {
       "value": "Sammlungswert",
       "cards": "Karten",
@@ -955,7 +1031,9 @@
       "title": "Sortieren nach",
       "scanOrder": "Scanreihenfolge (neueste zuerst)",
       "ascending": "{{field}}, aufsteigend",
-      "descending": "{{field}}, absteigend"
+      "descending": "{{field}}, absteigend",
+      "priceUsd": "Preis (USD)",
+      "priceEur": "Preis (EUR)"
     },
     "actions": {
       "copies_one": "{{count}} Exemplar",
@@ -985,6 +1063,9 @@
     "loadingMoreCards": "Weitere Karten werden geladen"
   },
   "cardDetail": {
+    "catalogCardRemovedTitle": "Karte nicht mehr im Katalog",
+    "catalogCardRemovedDescription": "Die Karte, der dieses Exemplar zugeordnet war ({{name}}), wurde aus der Kartendatenbank entfernt, weil ihre Daten fehlerhaft waren. Suche die richtige Druckversion, damit Preis und Details aktuell bleiben.",
+    "catalogCardRemovedAction": "Richtige Karte suchen",
     "noCollectionsToMoveTo": "Es gibt keine andere Sammlung für dieses Spiel, in die die Karte verschoben werden kann.",
     "noLocationsToMoveTo": "Es gibt keinen anderen Lagerort, an den die Karte verschoben werden kann.",
     "pricePaid": "Kaufpreis ({{currency}})",
@@ -1054,7 +1135,12 @@
     "actions": "Kartenaktionen",
     "similarMatchesCount_one": "{{count}} ähnliche Übereinstimmung",
     "similarMatchesCount_other": "{{count}} ähnliche Übereinstimmungen",
-    "reviewAcceptFailed": "Die vorherige Karte konnte nicht bestätigt werden"
+    "reviewAcceptFailed": "Die vorherige Karte konnte nicht bestätigt werden",
+    "share": "Freigabelink kopieren",
+    "shareLinkCopied": "Freigabelink kopiert. Alle mit dem Link sehen diese Karte.",
+    "shareLinkCopyFailed": "Der Freigabelink für diese Karte konnte nicht kopiert werden.",
+    "downloadPhoto": "Foto herunterladen",
+    "downloadPhotoFailed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut."
   },
   "reviewGrid": {
     "title": "Karten prüfen",
@@ -1079,17 +1165,17 @@
   "rules": {
     "title": "Sortierregeln",
     "noCollectionTitle": "Keine aktive Sammlung",
-    "noCollectionDescription": "Wähle die Sammlung, in die du sortierst, und bearbeite hier die Presets ihres Spiels.",
+    "noCollectionDescription": "Wähle die Sammlung, in die du sortierst, und bearbeite hier die Vorlagen ihres Spiels.",
     "noGameTitle": "Diese Sammlung hat kein Spiel",
     "noGameDescription": "Wähle im Web ein Spiel für die Sammlung, um Sortierregeln einzurichten.",
-    "presets": "Preset",
-    "choosePreset": "Preset wählen",
-    "noPresetsTitle": "Keine Presets für dieses Spiel",
-    "noPresetsDescription": "Erstelle ein Preset im Web und ziehe dann zum Aktualisieren nach unten.",
-    "activateFailed": "Preset konnte nicht gewechselt werden",
+    "presets": "Vorlage",
+    "choosePreset": "Vorlage wählen",
+    "noPresetsTitle": "Keine Vorlagen für dieses Spiel",
+    "noPresetsDescription": "Erstelle eine Vorlage im Web und ziehe dann zum Aktualisieren nach unten.",
+    "activateFailed": "Vorlage konnte nicht gewechselt werden",
     "binsWithRules_one": "{{count}} Fach mit Regeln",
     "binsWithRules_other": "{{count}} Fächer mit Regeln",
-    "bins": "Bins",
+    "bins": "Fächer",
     "bin": "Fach {{number}}",
     "catchAll": "Auffangfach",
     "disabled": "Deaktiviert",
@@ -1108,10 +1194,10 @@
     "overflowTargetNotice_one": "Dieses Fach ist der Überlauf für Fach {{bins}}. Karten landen hier, wenn dieses Fach voll ist, daher kann es keine eigenen Regeln haben.",
     "overflowTargetNotice_other": "Dieses Fach ist der Überlauf für die Fächer {{bins}}. Karten landen hier, wenn diese Fächer voll sind, daher kann es keine eigenen Regeln haben.",
     "pickListNotice": "Dieses Fach nutzt eine Pickliste. Bearbeite sie im Web.",
-    "noActiveTitle": "Kein aktives Preset",
-    "noActiveDescription": "Aktiviere oben ein Preset, um seine Fächer zu bearbeiten.",
+    "noActiveTitle": "Keine aktive Vorlage",
+    "noActiveDescription": "Aktiviere oben eine Vorlage, um ihre Fächer zu bearbeiten.",
     "saveFailed": "Dieses Fach konnte nicht gespeichert werden",
-    "loadFailed": "Deine Presets konnten nicht geladen werden",
+    "loadFailed": "Deine Vorlagen konnten nicht geladen werden",
     "matchPrefix": "Treffer",
     "matchSuffix": "davon",
     "combinatorAll": "alle",
@@ -1154,53 +1240,61 @@
       "matchedBinDescription": "Karten, die erkannt wurden",
       "unmatchedBin": "Nicht erkannte Karten",
       "unmatchedBinDescription": "Karten, die nicht zugeordnet werden konnten",
-      "autoAssignField": "Behälter zuweisen nach",
-      "reset": "Gelernte Behälter zurücksetzen",
-      "resetHint": "Löscht den gelernten Wert jedes Behälters, damit neue Scans sie neu füllen",
-      "resetTitle": "Automatisch erkannte Behälter zurücksetzen?",
-      "resetDescription": "Löscht den gelernten Wert jedes Behälters in diesem Preset. Neue Scans füllen sie von vorn.",
-      "resetFailed": "Die gelernten Behälter konnten nicht zurückgesetzt werden",
-      "chaosBinSize": "Karten pro Behälter",
-      "chaosBinSizeDescription": "Wechselt nach so vielen Karten zum nächsten Behälter. Leer lassen, um jeden Behälter bis zu seiner Größe zu füllen.",
-      "chaosBinSizePlaceholder": "Behältergröße",
+      "autoAssignField": "Fächer zuweisen nach",
+      "reset": "Gelernte Fächer zurücksetzen",
+      "resetHint": "Löscht den gelernten Wert jedes Fachs, damit neue Scans sie neu füllen",
+      "resetTitle": "Automatisch erkannte Fächer zurücksetzen?",
+      "resetDescription": "Löscht den gelernten Wert jedes Fachs in dieser Vorlage. Neue Scans füllen sie von vorn.",
+      "resetFailed": "Die gelernten Fächer konnten nicht zurückgesetzt werden",
+      "chaosBinSize": "Karten pro Fach",
+      "chaosBinSizeDescription": "Wechselt nach so vielen Karten zum nächsten Fach. Leer lassen, um jedes Fach bis zu seiner Größe zu füllen.",
+      "chaosBinSizePlaceholder": "Fachgröße",
       "repackSaveFirst": "Speichere, um zu Repacks zu wechseln, und richte dann die Pack-Plätze ein.",
-      "alphabetHint": "Nach dem Speichern zeigt der Regeln-Tab, welche Buchstaben jeder Behälter bekommt, und du kannst zum nächsten Durchgang wechseln.",
+      "alphabetHint": "Nach dem Speichern zeigt der Regeln-Tab, welche Buchstaben jedes Fach bekommt, und du kannst zum nächsten Durchgang wechseln.",
       "skipSaving": "Karten nicht speichern",
       "skipSavingDescription": "Karten werden wie gewohnt erkannt und sortiert, aber nichts wird zur Sammlung hinzugefügt. Scans zählen weiterhin zu deinem Tageslimit.",
       "resort": "Gespeicherte Karten neu sortieren",
       "resortDescription": "Jeder Scan verschiebt ein Exemplar, das schon in dieser Sammlung ist, in sein neues Fach, statt ein weiteres hinzuzufügen. Das Exemplar behält Foil und Zustand und verlässt seinen bisherigen Lagerort. Karten, die noch nicht in der Sammlung sind, werden wie gewohnt hinzugefügt.",
       "matchGames": "Auch Karten erkennen aus",
       "matchGamesEmpty": "Wähle mindestens ein weiteres Spiel. Bis dahin werden nur Karten dieses Spiels erkannt.",
-      "matchGamesHint": "Nicht erkannte Karten kommen in das Auffangfach. Jedes weitere Spiel macht Scans etwas langsamer."
+      "matchGamesHint": "Nicht erkannte Karten kommen in das Auffangfach. Jedes weitere Spiel macht Scans etwas langsamer.",
+      "storagePlan": {
+        "title": "Lagerplan",
+        "off": "Aus",
+        "locked": "Lagerorte sind in deinem Tarif nicht enthalten.",
+        "summary_one": "{{range}} · {{full}} von {{count}} voll",
+        "summary_other": "{{range}} · {{full}} von {{count}} voll",
+        "range": "{{first}} bis {{last}}"
+      }
     },
     "modes": {
       "rules": {
         "title": "Sortierregeln",
-        "description": "Jeder Behälter nimmt die Karten, die seinen Regeln entsprechen"
+        "description": "Jedes Fach nimmt die Karten, die seinen Regeln entsprechen"
       },
       "scan-only": {
-        "title": "Nur scannen",
-        "description": "Regeln überspringen: Erkannte Karten kommen in einen Behälter, nicht erkannte in einen anderen"
+        "title": "Nur Scannen",
+        "description": "Regeln überspringen: Erkannte Karten kommen in ein Fach, nicht erkannte in ein anderes"
       },
       "auto-assign": {
-        "title": "Automatisch sortieren",
-        "description": "Jeder neue Wert eines Feldes belegt beim Scannen den nächsten freien Behälter"
+        "title": "Automatische Erkennung",
+        "description": "Jeder neue Wert eines Feldes belegt beim Scannen das nächste freie Fach"
       },
       "game-sort": {
         "title": "Nach Spiel sortieren",
         "description": "Jedes Spiel bekommt ein eigenes Fach. Die Karten werden sortiert, aber nicht gespeichert."
       },
       "repack": {
-        "title": "Repacks bauen",
-        "description": "Jeder Behälter baut aus den festgelegten Plätzen sein eigenes Pack. Was nicht passt, kommt in den Sammelbehälter."
+        "title": "Repacks erstellen",
+        "description": "Jedes Fach baut aus den festgelegten Plätzen sein eigenes Pack. Was nicht passt, kommt ins Auffangfach."
       },
       "alphabet": {
         "title": "Alphabetisch sortieren",
-        "description": "Ein Buchstabe pro Behälter, in Durchgängen, mit feinerer Sortierung für große Stapel"
+        "description": "Ein Buchstabe pro Fach, in Durchgängen, mit feinerer Sortierung für große Stapel"
       },
       "chaos": {
         "title": "Chaos-Sortierung",
-        "description": "Regeln ignorieren und die Behälter nacheinander füllen"
+        "description": "Regeln ignorieren und die Fächer nacheinander füllen"
       }
     },
     "repack": {
@@ -1215,9 +1309,9 @@
       "uniqueByName": "Keine doppelten Namen",
       "uniqueByField": "Keine doppelten {{field}}",
       "siftLabel": "Karten aussieben",
-      "siftDescription": "Karten, die diesen Regeln entsprechen, kommen in den ersten Behälter statt in ein Pack",
-      "siftHint": "Karten, die diesen Regeln entsprechen, kommen in Behälter {{bin}}. Alle anderen Behälter bauen Packs aus dem Rest.",
-      "siftNoBin": "Zum Aussieben braucht es mindestens einen aktiven Behälter neben dem Sammelbehälter.",
+      "siftDescription": "Karten, die diesen Regeln entsprechen, kommen in das erste Fach statt in ein Pack",
+      "siftHint": "Karten, die diesen Regeln entsprechen, kommen in Fach {{bin}}. Alle anderen Fächer bauen Packs aus dem Rest.",
+      "siftNoBin": "Zum Aussieben braucht es mindestens ein aktives Fach neben dem Auffangfach.",
       "slotsLabel": "Plätze",
       "slotCountLabel": "Anzahl",
       "removeSlot": "Platz entfernen",
@@ -1256,14 +1350,14 @@
       "lastStage": "Letzte Stufe"
     },
     "alphabet": {
-      "needBins": "Die alphabetische Sortierung braucht mindestens einen Behälter neben dem Sammelbehälter.",
+      "needBins": "Die alphabetische Sortierung braucht mindestens ein Fach neben dem Auffangfach.",
       "passHeading": "Durchgang {{current}} von {{total}}",
-      "passRange": "Sortiert Namen von {{from}} bis {{to}}. Alles andere kommt in den Sammelbehälter.",
-      "prefixRange": "Sortiert den Stapel {{prefix}} nach dem nächsten Buchstaben: {{from}} bis {{to}}. Alles andere kommt in den Sammelbehälter.",
+      "passRange": "Sortiert Namen von {{from}} bis {{to}}. Alles andere kommt ins Auffangfach.",
+      "prefixRange": "Sortiert den Stapel {{prefix}} nach dem nächsten Buchstaben: {{from}} bis {{to}}. Alles andere kommt ins Auffangfach.",
       "unusedBin": "Nicht verwendet",
-      "nextPassHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Behälter, lege die Karten aus dem Sammelbehälter zurück in den Zuführer und wechsle zu den nächsten Buchstaben.",
-      "lastPassHint": "Das ist der letzte Durchgang. Was danach im Sammelbehälter bleibt, hat einen Namen, der nicht mit einem Buchstaben beginnt.",
-      "nextPileHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Behälter und halte jeden Stapel in Reihenfolge. Als Nächstes: der Stapel {{prefix}}.",
+      "nextPassHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Fach, lege die Karten aus dem Auffangfach zurück in den Zuführer und wechsle zu den nächsten Buchstaben.",
+      "lastPassHint": "Das ist der letzte Durchgang. Was danach im Auffangfach bleibt, hat einen Namen, der nicht mit einem Buchstaben beginnt.",
+      "nextPileHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Fach und halte jeden Stapel in Reihenfolge. Als Nächstes: der Stapel {{prefix}}.",
       "pileDoneHint": "Das ist der letzte Durchgang für den Stapel {{prefix}}. Fange von vorn an, um zum ganzen Alphabet zurückzukehren.",
       "previous": "Zurück",
       "next": "Nächste Buchstaben",
@@ -1272,10 +1366,10 @@
       "sortDeeperItem": "Stapel {{label}} nach nächstem Buchstaben",
       "upLevel": "Eine Ebene höher",
       "confirmTitle": "Zu neuen Buchstaben wechseln?",
-      "confirmDescription": "Stelle sicher, dass jeder Behälter leer ist und die Karten aus dem Sammelbehälter wieder im Zuführer liegen. Alle Behälter werden als geleert markiert.",
+      "confirmDescription": "Stelle sicher, dass jedes Fach leer ist und die Karten aus dem Auffangfach wieder im Zuführer liegen. Alle Fächer werden als geleert markiert.",
       "confirmPileTitle": "Stapel {{prefix}} starten?",
-      "confirmPileDescription": "Leere jeden Behälter und halte jeden Stapel in Reihenfolge. Lege dann den Stapel {{prefix}} in den Zuführer. Alle Behälter werden als geleert markiert.",
-      "confirm": "Behälter sind leer"
+      "confirmPileDescription": "Leere jedes Fach und halte jeden Stapel in Reihenfolge. Lege dann den Stapel {{prefix}} in den Zuführer. Alle Fächer werden als geleert markiert.",
+      "confirm": "Fächer sind leer"
     },
     "binSummary": {
       "alphabetLetter": "Namen mit {{letter}}",
@@ -1289,9 +1383,9 @@
     "autoAssignLocked": "Die automatische Erkennung legt diese Regeln für dich fest. Ändere den Sortiermodus, um sie zu bearbeiten.",
     "scanOnlyLocked": "Nur Scannen ist aktiv. Gescannte und nicht erkannte Karten gehen in die im Sortiermodus gewählten Fächer. Schalte es aus, um Fächer zu konfigurieren.",
     "description": {
-      "title": "Preset-Notizen",
+      "title": "Notizen zur Vorlage",
       "label": "Beschreibung",
-      "placeholder": "Notizen zu diesem Preset, was es sortiert, wann man es nutzt...",
+      "placeholder": "Notizen zu dieser Vorlage, was sie sortiert, wann man sie nutzt...",
       "add": "Beschreibung hinzufügen",
       "edit": "Bearbeiten",
       "save": "Speichern",
@@ -1301,7 +1395,39 @@
     "maxCardsPlaceholder": "Kein Limit",
     "maxCardsDescription": "Dieses Fach gilt bei so vielen Karten als voll, auch wenn noch Platz ist: Passende Karten gehen dann in sein Überlauffach oder das Sortieren pausiert. Leer lassen, um die physische Größe des Fachs zu nutzen.",
     "maxCardsPill_one": "Fasst {{count}}",
-    "maxCardsPill_other": "Fasst {{count}}"
+    "maxCardsPill_other": "Fasst {{count}}",
+    "storagePlan": {
+      "title": "Lagerplan",
+      "description": "Jedes Fach füllt den nächsten Ort dieser Liste mit freiem Platz und pausiert, wenn er voll ist. Beim Leeren werden die Karten dort eingelagert.",
+      "locked": "Lagerorte sind in deinem Tarif nicht enthalten.",
+      "locationsTitle": "Orte in Reihenfolge",
+      "order": "{{order}}. {{name}}",
+      "noCapacity": "Keine Kapazität festgelegt",
+      "batch": "Stapel {{size}}",
+      "status": {
+        "full": "Voll",
+        "filling": "Füllt Fach {{number}}",
+        "waiting": "Wartet"
+      },
+      "rowHint": "Wählt den Ort aus, um ihn zu verschieben, zu bearbeiten oder zu entfernen",
+      "actions": "Ortsaktionen",
+      "moveUp": "{{name}} nach oben",
+      "moveDown": "{{name}} nach unten",
+      "edit": "{{name}} bearbeiten",
+      "remove": "{{name}} aus dem Plan entfernen",
+      "add": "Orte hinzufügen",
+      "addTitle": "Orte zum Hinzufügen wählen",
+      "addSelected_one": "{{count}} Ort hinzufügen",
+      "addSelected_other": "{{count}} Orte hinzufügen",
+      "noneLeft": "Alle Orte sind bereits im Plan.",
+      "createSeries": "Serie erstellen",
+      "empty": "Füge Orte hinzu, um Fächer dort einzulagern.",
+      "binsTitle": "Fächer jetzt",
+      "binsHint": "Zeigt den gespeicherten Plan. Speichere deine Änderungen, um ihn zu aktualisieren.",
+      "noLocation": "Kein Ort",
+      "claim_one": "{{name}} · {{count}} frei",
+      "claim_other": "{{name}} · {{count}} frei"
+    }
   },
   "calibration": {
     "title": "Sortierer einrichten",
@@ -1314,7 +1440,7 @@
     "msValue": "{{value}} ms",
     "continuous": "Dauerbetrieb",
     "servos": {
-      "bottom": "Unteres Paddel",
+      "bottom": "Bodenklappe",
       "paddle": "Paddel",
       "pusher": "Schieber"
     },
@@ -1430,7 +1556,7 @@
       "value_other": "{{count}} Module",
       "description": "Wie viele physische Sortiermodule verbaut sind. Ändert die Anzahl der verfügbaren Fächer sowie die Abschnitte unten.",
       "reduceTitle": "Modulanzahl verringern?",
-      "reduceDescription": "Eine Reduzierung auf {{count}} Module entfernt die Sortierregeln und Kalibrierungsdaten für Module und Fächer über dieser Anzahl, in allen Fach-Voreinstellungen.",
+      "reduceDescription": "Eine Reduzierung auf {{count}} Module entfernt die Sortierregeln und Kalibrierungsdaten für Module und Fächer über dieser Anzahl, in allen Vorlagen.",
       "reduceConfirm": "Modulanzahl ändern",
       "detect": {
         "button": "Erkennen",
@@ -1512,7 +1638,8 @@
       "resetToNeutral": "Grundstellung",
       "binFailed": "Fach {{bin}} wurde nicht angesteuert",
       "sampleRunStopped": "Testlauf bei Fach {{bin}} gestoppt"
-    }
+    },
+    "scanRegionCalibrationPanel": {}
   },
   "storage": {
     "title": "Lager",
@@ -1633,11 +1760,82 @@
     "searchFailed": "Die Lagerorte konnten nicht durchsucht werden",
     "notFoundTitle": "Lagerort nicht gefunden",
     "notFoundDescription": "Er wurde vielleicht gelöscht, oder du hast keinen Zugriff mehr darauf.",
-    "printLabel": "Etikett drucken"
+    "printLabel": "Etikett drucken",
+    "edit": "Ort bearbeiten",
+    "add": "Lager hinzufügen",
+    "capacityLabel": "Kapazität",
+    "capacityPlaceholder": "Kein Limit",
+    "batchSizeLabel": "Karten pro Stapel",
+    "batchSizePlaceholder": "Keine Stapel",
+    "sizeHint": "Die Kapazität ist die Anzahl Karten, die der Ort fasst. Mit einer Stapelgröße lautet der Platz jeder Karte Box-Stapel-Karte, zum Beispiel A1-2-17.",
+    "slotsUsed": "{{used}} von {{capacity}} belegt",
+    "fillOfCapacity": "{{cards}} · {{used}} von {{capacity}} belegt",
+    "series": {
+      "title": "Neue Serie",
+      "menuDescription": "Nummerierte Orte wie A1 bis A10 auf einmal anlegen",
+      "description": "Legt pro Nummer einen Ort an, alle mit derselben Kapazität und Stapelgröße. Bereits vorhandene Namen werden übersprungen.",
+      "prefixLabel": "Präfix",
+      "prefixPlaceholder": "z. B. A",
+      "firstNumberLabel": "Erste Nummer",
+      "countLabel": "Anzahl",
+      "create_one": "{{count}} Ort anlegen",
+      "create_other": "{{count}} Orte anlegen",
+      "created_one": "{{count}} Ort angelegt",
+      "created_other": "{{count}} Orte angelegt",
+      "createdWithSkipped_one": "{{count}} Ort angelegt. Bereits vorhanden: {{names}}",
+      "createdWithSkipped_other": "{{count}} Orte angelegt. Bereits vorhanden: {{names}}",
+      "previewOne": "Legt {{name}} an",
+      "preview": "Legt {{first}} bis {{last}} an ({{count}} Orte)"
+    },
+    "bulk": {
+      "select": "Lagerorte auswählen",
+      "doneSelecting": "Auswahl beenden",
+      "selectedCount_one": "{{count}} ausgewählt",
+      "selectedCount_other": "{{count}} ausgewählt",
+      "selectAll": "Alle auswählen",
+      "clear": "Leeren",
+      "setSize": "Größe festlegen",
+      "addToPlan": "Zum Plan hinzufügen",
+      "removeFromPlan": "Aus dem Plan entfernen",
+      "pickPreset_one": "Wähle die Vorlage, deren Lagerplan sich für {{count}} Lagerort ändern soll.",
+      "pickPreset_other": "Wähle die Vorlage, deren Lagerplan sich für {{count}} Lagerorte ändern soll.",
+      "noPresets": "Keine Vorlagen zur Auswahl.",
+      "addedToPlan_one": "{{count}} Lagerort zu {{preset}} hinzugefügt.",
+      "addedToPlan_other": "{{count}} Lagerorte zu {{preset}} hinzugefügt.",
+      "removedFromPlan_one": "{{count}} Lagerort aus {{preset}} entfernt.",
+      "removedFromPlan_other": "{{count}} Lagerorte aus {{preset}} entfernt.",
+      "deleteTitle_one": "{{count}} Lagerort löschen?",
+      "deleteTitle_other": "{{count}} Lagerorte löschen?",
+      "deleteDescription": "Ihre Karten bleiben in ihren Sammlungen, sind aber keinem Lagerort mehr zugeordnet. Das kann nicht rückgängig gemacht werden.",
+      "deleted_one": "{{count}} Lagerort gelöscht.",
+      "deleted_other": "{{count}} Lagerorte gelöscht.",
+      "sizeTitle_one": "Größe für {{count}} Lagerort festlegen",
+      "sizeTitle_other": "Größe für {{count}} Lagerorte festlegen",
+      "sizeDescription": "Schalte die Werte ein, die du ändern möchtest. Ausgeschaltete Werte bleiben an jedem Lagerort unverändert.",
+      "changeCapacity": "Kapazität ändern",
+      "changeBatchSize": "Stapelgröße ändern",
+      "sizeClearHint": "Lass ein eingeschaltetes Feld leer, um dieses Limit zu entfernen.",
+      "sizeApply_one": "{{count}} Lagerort aktualisieren",
+      "sizeApply_other": "{{count}} Lagerorte aktualisieren",
+      "sizeUpdated_one": "{{count}} Lagerort aktualisiert.",
+      "sizeUpdated_other": "{{count}} Lagerorte aktualisiert.",
+      "deleteInPlans": "Einige sind im Lagerplan von: {{presets}}. Sie werden aus diesen Plänen entfernt."
+    },
+    "planUses": {
+      "title": "Von Sortierregeln verwendet",
+      "empty": "In keinem Lagerplan",
+      "position": "Position {{position}} von {{total}}",
+      "filling": "Füllt Fach {{bin}}",
+      "active": "Aktiv"
+    },
+    "inPlans_one": "In {{count}} Plan",
+    "inPlans_other": "In {{count}} Plänen",
+    "deleteInPlans": "Er ist im Lagerplan von: {{presets}}. Er wird aus diesen Plänen entfernt."
   },
   "settings": {
     "title": "Einstellungen",
     "subtitle": "Organisationsweite Einstellungen für jeden Scanner",
+    "loadFailed": "Diese Einstellungen konnten nicht geladen werden",
     "entrySubtitle": "Preise, Scannen, Branding und Integrationen",
     "sections": {
       "general": {
@@ -1719,7 +1917,7 @@
     "ocr": {
       "heading": "Texterkennung (OCR)",
       "description": "Wenn ein Scan nicht sicher erkannt wird, werden Kartenname und Set-Zeile gelesen, um die Karte zu finden. Gilt für alle Scanner dieser Organisation, bei Spielen mit eingerichteten Textbereichen.",
-      "toggleLabel": "OCR-Texterkennung aktivieren",
+      "toggleLabel": "Texterkennung aktivieren",
       "highAccuracyToggleLabel": "Genauere Scans",
       "highAccuracyDescription": "Liest den Text auf jeder Karte, nicht nur bei unsicheren Treffern, damit Set und Nummer einen sicheren, aber falschen Treffer korrigieren können. Scans dauern etwas länger."
     },
@@ -2235,12 +2433,12 @@
     "low": "Niedrig",
     "regular": "Normal",
     "foil": "Foil",
-    "noPrice": "k. A.",
-    "acrossPrintings": "Spanne über {{count}} Drucke"
+    "noPrice": "Kein Preis"
   },
   "health": {
     "title": "Systemstatus",
     "subtitle": "Live-Status der Datenbank.",
+    "loadFailed": "Der Systemstatus konnte nicht geladen werden",
     "refresh": "Aktualisieren",
     "allHealthy": "Alles funktioniert einwandfrei.",
     "someUnhealthy": "Einige Dienste haben Probleme.",
@@ -2375,7 +2573,8 @@
     "orderBinCatchAll": "Das letzte Fach nimmt alle übrigen Karten auf, wähle ein anderes.",
     "catalogSourcesRequired": "Wähle mindestens eine Sammlung oder einen Lagerort.",
     "contactRequired": "Gib an, wie man dich erreicht.",
-    "textTooLong": "Bleib unter {{max}} Zeichen."
+    "textTooLong": "Bleib unter {{max}} Zeichen.",
+    "jsonObjectInvalid": "Gib ein einzelnes JSON-Objekt ein, etwa {\"neutral\": true}."
   },
   "cardTags": {
     "title": "Markierungen",
@@ -2632,8 +2831,8 @@
       "unlimited": "Unbegrenzt",
       "features": {
         "chaosSort": {
-          "label": "Chaotisches Sortieren",
-          "description": "Fächer der Reihe nach füllen, ohne Regeln. Ausschalten verhindert nur, dass weitere Presets es einschalten."
+          "label": "Chaos-Sortierung",
+          "description": "Fächer der Reihe nach füllen, ohne Regeln. Ausschalten verhindert nur, dass weitere Vorlagen es einschalten."
         },
         "storage": {
           "label": "Lagerorte",
@@ -2649,7 +2848,7 @@
         },
         "repacks": {
           "label": "Repacks",
-          "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Presets es einschalten. Presets, die schon im Repack-Modus sind, funktionieren weiter."
+          "description": "Repacks aus Fach-Slots erstellen. Ausschalten verhindert nur, dass Vorlagen es einschalten. Vorlagen, die schon Repacks erstellen, funktionieren weiter."
         },
         "customSounds": {
           "label": "Eigene Sounds",
@@ -3119,6 +3318,7 @@
     "reviewDescription": "Gesendet über {{source}} am {{date}}",
     "unknownSource": "einen geteilten Link",
     "contact": "Kontakt",
+    "noContact": "Keine Kontaktdaten angegeben",
     "theyWant_one": "Möchte {{count}} Karte",
     "theyWant_other": "Möchte {{count}} Karten",
     "theyOffer_one": "Bietet {{count}} Karte",
@@ -3150,7 +3350,8 @@
         "declined": "Abgelehnt"
       },
       "picking_one": "Wird gepickt, noch {{count}}",
-      "picking_other": "Wird gepickt, noch {{count}}"
+      "picking_other": "Wird gepickt, noch {{count}}",
+      "inPerson": "Vor Ort"
     },
     "cardList": {
       "cardCount_one": "{{count}} Karte",
@@ -3243,6 +3444,63 @@
         "accepted": "Angenommen",
         "declined": "Abgelehnt"
       }
+    },
+    "newTrade": {
+      "button": "Neuer Tausch",
+      "link": "Tauschlink",
+      "linkHint": "Teile einen Link, damit jemand Karten auswählen und dir ein Angebot senden kann.",
+      "inPerson": "Tausch vor Ort",
+      "inPersonHint": "Fülle beide Seiten selbst aus und erfasse einen Tausch, den du gemacht hast.",
+      "linkTitle": "Tauschlink erstellen",
+      "linkDescription": "Wähle, was der Tauschlink zeigt. Wer ihn öffnet, kann Karten auswählen und dir ein Angebot senden.",
+      "sourceLabel": "Teilen aus",
+      "sourcePlaceholder": "Sammlung oder Lagerort wählen",
+      "collections": "Sammlungen",
+      "storageLocations": "Lagerorte",
+      "continue": "Weiter"
+    },
+    "inPerson": {
+      "title": "Tausch vor Ort",
+      "description": "Erfasse einen Tausch, den du persönlich gemacht hast. Karten, die du gibst, verlassen deinen Bestand, und Karten, die du bekommst, kommen in eine Sammlung.",
+      "detailsTitle": "Tauschpartner",
+      "detailsDescription": "Optional, damit du weißt, mit wem du getauscht hast",
+      "partnerName": "Name (optional)",
+      "partnerContact": "Kontakt (optional)",
+      "giveTitle_one": "Du gibst ({{count}})",
+      "giveTitle_other": "Du gibst ({{count}})",
+      "giveDescription": "Exemplare aus deinem Bestand",
+      "giveEmpty": "Durchsuche deine Karten, um hinzuzufügen, was du gibst.",
+      "searchOwnedLabel": "Deine Karten durchsuchen",
+      "addGivenCard": "{{name}} geben",
+      "addReceivedCard": "{{name}} bekommen",
+      "getTitle_one": "Du bekommst ({{count}})",
+      "getTitle_other": "Du bekommst ({{count}})",
+      "getDescription": "Karten kommen in die gewählte Sammlung",
+      "getEmpty": "Suche, um die Karten hinzuzufügen, die du bekommst.",
+      "pickCollectionFirst": "Wähle die Sammlung für die Karten, die du bekommst.",
+      "receiveCollection": "Erhaltene Karten hinzufügen zu",
+      "receiveCollectionPlaceholder": "Sammlung wählen",
+      "cashTitle": "Bargeld",
+      "cashDirection": "Wer zahlt Bargeld",
+      "cashReceived": "Sie zahlen mir",
+      "cashGiven": "Ich zahle ihnen",
+      "readyHint": "Beim Erfassen werden deine gegebenen Karten entfernt und die erhaltenen hinzugefügt.",
+      "emptyHint": "Füge eine Karte oder einen Betrag hinzu, um den Tausch zu erfassen.",
+      "record": "Tausch erfassen",
+      "recorded": "Tausch erfasst.",
+      "recordFailed": "Der Tausch konnte nicht erfasst werden. Versuche es erneut.",
+      "reviewTitle": "Tausch vor Ort mit {{name}}",
+      "recordedOn": "Vor Ort erfasst am {{date}}",
+      "youGave_one": "Du hast {{count}} Karte gegeben",
+      "youGave_other": "Du hast {{count}} Karten gegeben",
+      "youGot_one": "Du hast {{count}} Karte bekommen",
+      "youGot_other": "Du hast {{count}} Karten bekommen",
+      "rowDetails": "Vor Ort · {{given}} gegeben · {{received}} bekommen",
+      "addCards": "Karten hinzufügen",
+      "searchCatalog": "Karten suchen",
+      "noResults": "Keine Karten gefunden",
+      "editCardHint": "Anzahl, Zustand oder Foil ändern",
+      "remove": "Entfernen"
     }
   },
   "trade": {
@@ -3257,6 +3515,7 @@
     "detailsTitle": "Deine Angaben",
     "nameLabel": "Dein Name",
     "contactLabel": "E-Mail, Telefon oder Benutzername",
+    "contactLabelOptional": "E-Mail, Telefon oder Benutzername (optional)",
     "noteLabel": "Notiz (optional)",
     "getTitle_one": "Du bekommst ({{count}})",
     "getTitle_other": "Du bekommst ({{count}})",
@@ -3277,6 +3536,16 @@
     "summaryWithCash": "Karten, die du bekommst: {{get}} · Karten, die du gibst: {{give}} · Bargeld: {{cash}}",
     "summaryNothing": "Karten, die du bekommst: {{get}} · Nichts im Gegenzug",
     "needGet": "Füge eine gewünschte Karte hinzu, um fortzufahren.",
+    "noPrice": "Kein Preis",
+    "balance": {
+      "youGet": "Du bekommst",
+      "youGive": "Du gibst",
+      "difference": "Differenz",
+      "youGiveMore": "Du gibst {{amount}} mehr",
+      "youGetMore": "Du bekommst {{amount}} mehr",
+      "even": "Ausgeglichener Tausch",
+      "missingPrices": "Einige Karten haben keinen Preis, die Summen können daher abweichen."
+    },
     "send": "Tauschangebot senden",
     "quantityIncrease": "Anzahl: {{count}}",
     "quantityDecrease": "Anzahl: {{count}}",
@@ -3422,6 +3691,12 @@
       "catalog": "Alle Karten"
     },
     "catalogLoadFailed": "Der Kartenkatalog konnte nicht durchsucht werden. Zum Aktualisieren nach unten ziehen.",
+    "showMoreCards": "Mehr deiner Karten anzeigen",
+    "gameFilterLabel": "Suchen in",
+    "allGames": "Alle Spiele",
+    "showMoreCatalogCards": "Mehr Karten anzeigen",
+    "loadingMore": "Weitere Ergebnisse werden geladen",
+    "loadMoreFailed": "Weitere Ergebnisse konnten nicht geladen werden. Versuche es erneut.",
     "printings": {
       "title": "Drucke",
       "titleWithCount_one": "Drucke ({{count}})",
@@ -3433,7 +3708,14 @@
       "showMore": "Weitere Drucke anzeigen"
     }
   },
+  "offline": {
+    "title": "Du bist offline",
+    "description": "Scans werden gespeichert, sobald du wieder online bist. Andere Änderungen brauchen eine Verbindung.",
+    "backOnline": "Wieder online"
+  },
   "recovery": {
+    "loadFailed": "Das konnte nicht geladen werden",
+    "loadFailedDescription": "Prüfe deine Verbindung und versuche es erneut.",
     "undo": "Rückgängig",
     "retry": "Erneut versuchen",
     "restored": "Wiederhergestellt",
@@ -3707,6 +3989,96 @@
         "condition": "Anderer Zustand",
         "finish": "Andere Veredelung"
       }
+    }
+  },
+  "machines": {
+    "title": "Maschinen",
+    "chooseMachine": "Maschine wählen",
+    "machinePicker": "{{name}}, andere Maschine wählen",
+    "empty": {
+      "title": "Keine Maschinen online",
+      "description": "Eine Maschine erscheint hier, solange ihr Sortierer in Mault auf einem Computer verbunden ist oder ein Raspberry Pi scannt."
+    },
+    "runState": {
+      "running": "Sortiert",
+      "paused": "Pausiert",
+      "attention": "Braucht Aufmerksamkeit",
+      "stopped": "Gestoppt",
+      "idle": "Untätig"
+    },
+    "stale": "Seit einer Weile keine Aktualisierung",
+    "sessionCount_one": "{{count}} Karte in dieser Sitzung",
+    "sessionCount_other": "{{count}} Karten in dieser Sitzung",
+    "collection": "Scannen in {{name}}",
+    "noCollection": "Keine Sammlung gewählt",
+    "camera": {
+      "label": "Live-Kamera von {{name}}",
+      "unavailable": "Diese Maschine hat keine Kamera zum Anzeigen",
+      "idle": "Die Kamera wird angezeigt, während die Maschine sortiert",
+      "loading": "Verbindung zur Kamera wird hergestellt"
+    },
+    "controls": {
+      "start": "Starten",
+      "resume": "Fortsetzen",
+      "pause": "Pausieren",
+      "emergencyStop": "Not-Stopp",
+      "emergencyStopHint": "Stoppt alle Motoren dieser Maschine",
+      "failed": "Die Maschine hat nicht reagiert. Prüfe, ob sie noch online ist.",
+      "sent": "An {{name}} gesendet",
+      "remoteNote": "Fernsteuerung braucht eine Maschine, die online ist. Sorge dafür, dass du den Strom an der Maschine abschalten kannst."
+    },
+    "preset": {
+      "label": "Sortierregeln",
+      "none": "Keine Vorlage",
+      "pass": "Durchgang {{position}} von {{count}}"
+    },
+    "bins": {
+      "title": "Fächer",
+      "estimated": "Geschätzt aus den Scans seit dem letzten Leeren jedes Fachs",
+      "bin": "Fach {{number}}",
+      "catchAll": "Fach {{number}} (Sammelfach)",
+      "fill": "{{count}}/{{capacity}}",
+      "fillUnknown": "{{count}}",
+      "a11y": "{{name}}: {{count}} von {{capacity}} Karten",
+      "a11yUnknown": "{{name}}: {{count}} Karten",
+      "unavailable": "Füllstände erscheinen, sobald die Maschine eine Vorlage hat"
+    },
+    "recent": {
+      "title": "Letzte Scans",
+      "empty": "Karten erscheinen hier, sobald sie gescannt werden",
+      "unmatched": "Nicht erkannt",
+      "bin": "Fach {{number}}",
+      "lowConfidence": "Treffer prüfen",
+      "open": "{{name}} öffnen",
+      "lastCard": "Letzte Karte: {{name}}"
+    },
+    "pages": {
+      "label": "Maschine {{position}} von {{count}}",
+      "goTo": "{{name}} anzeigen"
+    },
+    "source": {
+      "piHost": "Raspberry Pi",
+      "station": "Computer"
+    },
+    "attention": {
+      "jam": "Stau an Modul {{module}}",
+      "hopperEmpty": "Der Kartenschacht ist leer",
+      "feederError": "Fehler im Einzug",
+      "noCardDetected": "Keine Karte ist beim Scanner angekommen",
+      "cardStuckInModuleOne": "Eine Karte steckt in Modul 1 fest",
+      "sorterNotResponding": "Der Sortierer antwortet nicht",
+      "routingFailed": "Eine Karte konnte nicht einsortiert werden",
+      "binLimit": "Fach {{bins}} ist voll",
+      "binLimitUnknown": "Ein Fach ist voll",
+      "binsFull_one": "Fach {{bins}} ist voll",
+      "binsFull_other": "Fächer {{bins}} sind voll",
+      "packsComplete": "Alle Packs sind fertig",
+      "saveFailed": "Ein Scan konnte nicht gespeichert werden",
+      "scanLimit": "Tägliches Scanlimit erreicht",
+      "sorterLimit": "Sortiererlimit erreicht",
+      "collectionLocked": "Die Sammlung ist gesperrt",
+      "scannerError": "Kamerafehler",
+      "emergencyStopped": "Not-Stopp"
     }
   }
 }

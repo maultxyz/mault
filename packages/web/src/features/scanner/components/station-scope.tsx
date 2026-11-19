@@ -21,6 +21,8 @@ import {
 import { StationOverviewTile } from "@/features/scanner/components/station-overview-tile";
 import { StationPanel } from "@/features/scanner/components/station-panel";
 import { StationSummaryReporter } from "@/features/scanner/components/station-summary-reporter";
+import { MachineStatusPublisher } from "@/features/machines/components/machine-status-publisher";
+import { usePiHost } from "@/hooks/use-pi-host";
 import type { StationState } from "@/lib/interfaces/stations";
 import { useMemo } from "react";
 import { createPortal } from "react-dom";
@@ -44,6 +46,7 @@ export function StationScope({
     overviewOpen,
     getOverviewTileElement,
   } = useStations();
+  const piHost = usePiHost();
   const isActive = station.id === activeStationId;
   const isLive = isStationLive(station.id);
   const showsPanel = panelsDocked
@@ -77,6 +80,10 @@ export function StationScope({
                                     {connectedStationIds.has(station.id) && (
                                       <StationSummaryReporter />
                                     )}
+                                    {connectedStationIds.has(station.id) &&
+                                      !(piHost && index === 0) && (
+                                        <MachineStatusPublisher />
+                                      )}
                                     {panelLayout &&
                                       showsPanel &&
                                       createPortal(

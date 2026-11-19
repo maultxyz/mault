@@ -1,3 +1,4 @@
+import { Progress } from "@/components/ui/progress";
 import { Callout } from "@/components/callout";
 import { Button } from "@/components/ui/button";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
@@ -485,12 +486,7 @@ export function DeviceSetupWizard() {
       }
     >
       <div className="flex flex-col gap-1.5">
-        <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
-          <div
-            className="h-full rounded-full bg-primary transition-[width] duration-300"
-            style={{ width: `${progress}%` }}
-          />
-        </div>
+        <Progress decorative value={progress} />
         <p className="self-end text-xs text-foreground/70">
           {t("setupWizard.stepCounter", {
             current: stepIndex + 1,
@@ -820,7 +816,7 @@ function IrSensorRow({ label, hint, present, seen }: SetupIrSensorRowProps) {
       ) : (
         <span
           aria-hidden
-          className="size-[18px] shrink-0 rounded-full border border-dashed border-muted-foreground"
+          className="size-4.5 shrink-0 rounded-full border border-dashed border-foreground/60"
         />
       )}
     </div>

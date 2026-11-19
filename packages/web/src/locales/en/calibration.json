@@ -5,7 +5,7 @@
   },
   "servos": {
     "bottom": {
-      "label": "Bottom Paddle"
+      "label": "Bottom paddle"
     },
     "paddle": {
       "label": "Paddles"
@@ -191,7 +191,8 @@
     "executionProviderLabel": "AI Detection Backend",
     "executionProviderDescription": "Which backend runs the card-matching model in your browser (card detection always runs on WASM, where it is faster). WASM is the default and works everywhere, but runs one sorter at a time. WebGPU can be faster on some GPUs, runs several sorters at once, and falls back to WASM if it fails to start.",
     "executionProviderWebGpu": "WebGPU",
-    "regionKeyboardLabel": "Scan region. Use the arrow keys to move it and the plus and minus keys to resize it. Hold Shift for bigger steps.",
+    "regionLabel": "Scan region",
+    "regionKeyboardHint": "Drag the dashed box, or focus it and use the arrow keys to move it and the plus and minus keys to resize it. Hold Shift for bigger steps.",
     "executionProviderWasm": "WASM (default)",
     "usePhoneAsCamera": "Use Phone as Camera",
     "phoneCameraConnected": "Phone Camera Connected",
@@ -208,6 +209,16 @@
   },
   "cameraPrintingScore": {
     "heading": "Camera calibration aid",
+    "cardSectionHeading": "Card on the scanner",
+    "cameraSectionHeading": "Camera",
+    "scanSettingsSectionHeading": "Scan settings",
+    "resultsHeading": "Result",
+    "resultsEmpty": "Choose the set and card, then press Score to see how a scan would handle this frame.",
+    "cropBorderDetected": "Outline: the card the last score detected and cropped.",
+    "cropBorderScanRegion": "Highlighted box: no card was detected, so the last score cropped the calibrated scan region.",
+    "scannedImageCaption": "Scanned",
+    "catalogImageCaption": "Catalog",
+    "scannedImageAlt": "The card as the scan cropped it from the camera frame",
     "setLabel": "Set",
     "cardLabel": "Card",
     "setPlaceholder": "Choose a set",
@@ -226,17 +237,32 @@
     "distanceLabel": "Distance",
     "matchScoreLabel": "Match score",
     "matchScoreValue": "{{score}} / 100",
-    "matchScoreHelp": "Aim for 50 or higher so scans have room to spare under different light. Below 20, check zoom, focus and glare.",
+    "matchScoreHelp": "Most good camera scans score 50 or higher. Lower scores still match, with less room to spare under different light. Below 20, check zoom, focus and glare.",
     "nearestDifferent": "The closest card in the catalog is {{name}} ({{set}} {{number}}) at {{distance}}.",
     "cardLine": "{{name}}, {{set}} {{number}}",
     "failed": "Could not score that frame.",
-    "verdict": {
-      "accept": "A scan would accept this card.",
-      "other_card": "A scan would match a different card.",
-      "too_far": "A scan would reject this frame. The closest card is at {{threshold}} or higher.",
-      "ambiguous": "A scan would reject this frame. Another card is almost as close.",
-      "empty_index": "A scan would reject this frame. No cards are synced for this game."
-    }
+    "ocrToggleLabel": "Text recognition (OCR)",
+    "ocrToggleDescription": "Also read the card's name, set line and number, the way a scan does.",
+    "highAccuracyToggleLabel": "Higher accuracy scans",
+    "highAccuracyToggleDescription": "Read the text on every card, not only when the image match is unsure.",
+    "scanSettingsNotSaved": "These start from your organization's scan settings. Changes here only apply to this aid and aren't saved.",
+    "textRead": "Text read: {{text}}",
+    "noTextRead": "No text was read.",
+    "scanCheck": {
+      "acceptByText": "A scan would accept this card, matched by its text.",
+      "acceptByImage": "A scan would accept this card, matched by its image.",
+      "otherCard": "A scan would match {{name}} ({{set}} {{number}}) instead.",
+      "noMatch": "A scan would not find a match for this frame."
+    },
+    "scanDetailsHeading": "Why a scan would decide this",
+    "matchedByLabel": "Matched by",
+    "matchedBy": {
+      "embedding": "Image",
+      "ocr": "Text (OCR)"
+    },
+    "lowConfidenceLabel": "Low confidence match",
+    "yes": "Yes",
+    "no": "No"
   },
   "useCalibrationPage": {
     "toasts": {
@@ -424,7 +450,7 @@
         },
         "bottom": {
           "name": "Bottom paddle",
-          "desc": "The trapdoor floor of each module. Closed holds the card, open drops it to the next module."
+          "desc": "The floor of each module. Closed holds the card, open drops it to the next module."
         },
         "paddle": {
           "name": "Paddles",
@@ -442,18 +468,18 @@
       "body": "Count the sorting modules stacked on this sorter, not including the feeder. Each module adds two bins."
     },
     "servos": {
-      "bottom": "The bottom paddle is the module's trapdoor floor. It holds the card while the module decides where it goes.",
+      "bottom": "The bottom paddle is the module's floor. It holds the card while the module decides where it goes.",
       "paddle": "The paddles are the side gates. They keep the card in place until it's pushed out to a bin.",
       "pusher": "The pusher is the arm that sweeps the card sideways out of the module into one of its two bins."
     },
     "positions": {
       "bottomClosed": {
         "title": "Bottom paddle: closed",
-        "body": "Drag until the trapdoor closes off the bottom of the module, so a card resting on it can't fall through. It doesn't have to be perfectly level. Stop as soon as it's closed; pushing further strains the servo."
+        "body": "Drag until the bottom paddle closes off the bottom of the module, so a card resting on it can't fall through. It doesn't have to be perfectly level. Stop as soon as it's closed; pushing further strains the servo."
       },
       "bottomOpen": {
         "title": "Bottom paddle: open",
-        "body": "Drag until the trapdoor swings fully open and a card would drop cleanly to the module below. Stop where it stops moving."
+        "body": "Drag until the bottom paddle swings fully open and a card would drop cleanly to the module below. Stop where it stops moving."
       },
       "paddleClosed": {
         "title": "Paddles: closed",
@@ -510,7 +536,7 @@
     },
     "test": {
       "heading": "Run the self-test",
-      "body": "The sorter opens every trapdoor and paddle, sweeps every pusher both ways, then briefly spins the feeder. Make sure no cards are in the modules, then run it.",
+      "body": "The sorter opens every bottom paddle and side paddle, sweeps every pusher both ways, then briefly spins the feeder. Make sure no cards are in the modules, then run it.",
       "run": "Run test",
       "running": "Testing…",
       "passed": "Test passed. This sorter is ready to use.",

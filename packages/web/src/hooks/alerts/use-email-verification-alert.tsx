@@ -52,7 +52,7 @@ function useEmailVerificationAlertNeon(): AppAlert | null {
           disabled={isSending}
           className={ALERT_BANNER_ACTION_CLASS}
         >
-          {isSending && <IconLoader2 className="size-3 animate-spin" />}
+          {isSending && <IconLoader2 className="animate-spin motion-reduce:animate-none" />}
           {t("emailVerification.sendCode")}
         </Button>
         <Button

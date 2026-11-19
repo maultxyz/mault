@@ -74,11 +74,17 @@ export function useDocumentScan(
     return bridge.onDocumentScanEvent((event) => {
       if (event.scanBatchId !== activeScanRef.current?.scanBatchId) return;
       if (event.type === "page") {
-        enqueueFilesRef.current([
-          new File([event.imageBytes.slice()], event.fileName, {
-            type: event.mimeType,
-          }),
-        ]);
+        enqueueFilesRef.current(
+          [
+            new File([event.imageBytes.slice()], event.fileName, {
+              type: event.mimeType,
+            }),
+          ],
+          {
+            isFromAutomaticFeeder:
+              activeScanRef.current?.settings.source === "scanner",
+          },
+        );
         return;
       }
       if (event.type === "error") {

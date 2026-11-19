@@ -1,4 +1,4 @@
-import { summarizeTradeOfferPlacements, type TradeOfferWantedPlacement } from "@magic-vault/shared";
+import { formatStorageSlot, summarizeTradeOfferPlacements, type TradeOfferWantedPlacement } from "@magic-vault/shared";
 import type {
   TradeOfferPlacementLine,
   TradeOfferReviewTFunction,
@@ -16,7 +16,9 @@ export function tradeOfferPlacementLines(
           summary.positions.length > 0
             ? t("tradeOffers.cardList.placementStorage", {
                 location: summary.locationName,
-                positions: summary.positions.join(", "),
+                positions: summary.positions
+                  .map((position) => formatStorageSlot(position, summary.batchSize))
+                  .join(", "),
               })
             : t("tradeOffers.cardList.placementStorageNoPosition", { location: summary.locationName }),
       };

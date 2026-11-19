@@ -33,9 +33,8 @@ export function StationPanel({ layout }: { layout: StationPanelLayout }) {
   return (
     <>
       <LazyCardScanner
-        className="-mx-2 -mt-2 flex-none"
+        className="flex-none"
         controlsContainer={controlsContainer}
-        viewerTouchesPanelEdges
       />
       <div
         ref={setControlsContainer}

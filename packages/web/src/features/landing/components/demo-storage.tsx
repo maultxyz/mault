@@ -35,7 +35,7 @@ function DemoStorageTable({
   const { t } = useTranslation("storage");
 
   return (
-    <div className="rounded-lg border">
+    <div>
       <Table>
         <TableHeader>
           <TableRow className="hover:bg-transparent">

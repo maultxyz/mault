@@ -1,7 +1,7 @@
 import { HOME_PATH } from "@/lib/constants/nav";
 import { AppLoadingScreen } from "@/components/app-loading-screen";
 import { neon } from "@/lib/auth/client";
-import { NEON_SOCIAL_PROVIDERS } from "@/lib/constants/auth";
+import { NEON_SOCIAL_PROVIDERS } from "@magic-vault/shared";
 import {
   AuthLoading,
   RedirectToSignIn,

@@ -1,3 +1,4 @@
+import { usePiHostState } from "@/hooks/use-pi-host";
 import { PageHeader } from "@/components/page-header";
 import { StatGroup } from "@/components/stat-group";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export default function SortersPage() {
+  const { piSorter } = usePiHostState();
   const { t } = useTranslation("scanner");
   const [searchQuery, setSearchQuery] = useState("");
   const overview = useSorterOverview(searchQuery);
@@ -54,27 +56,27 @@ export default function SortersPage() {
     {
       key: "sorters",
       label: t("stations.overview.stats.sorters"),
-      value: totalCount.toLocaleString(),
+      value: totalCount,
     },
     {
       key: "connected",
       label: t("stations.overview.stats.connected"),
-      value: connectedSorters.length.toLocaleString(),
+      value: connectedSorters.length,
     },
     {
       key: "sorting",
       label: t("stations.overview.stats.sorting"),
-      value: sortingCount.toLocaleString(),
+      value: sortingCount,
     },
     {
       key: "attention",
       label: t("stations.overview.stats.attention"),
-      value: attentionCount.toLocaleString(),
+      value: attentionCount,
     },
     {
       key: "offline",
       label: t("stations.overview.stats.offline"),
-      value: offlineDevices.length.toLocaleString(),
+      value: offlineDevices.length,
     },
   ];
 
@@ -110,7 +112,7 @@ export default function SortersPage() {
                 </Button>
               </>
             )}
-            <DropdownMenu>
+            {!piSorter && <DropdownMenu>
               <DropdownMenuTrigger render={<Button />}>
                 <IconPlus />
                 {t("stations.connect")}
@@ -118,7 +120,7 @@ export default function SortersPage() {
               <DropdownMenuContent align="end">
                 <ConnectSorterMenuOptions />
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu>}
           </div>
         }
       >

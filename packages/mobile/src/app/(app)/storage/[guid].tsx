@@ -1,4 +1,4 @@
-import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { keepPreviousData, useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -12,6 +12,7 @@ import {
   supportsGame,
   type CardFilters,
   type ExportAdapter,
+  formatStorageSlot,
 } from "@magic-vault/shared";
 import { CardRow } from "@/components/cards/card-row";
 import { CardTile } from "@/components/cards/card-tile";
@@ -44,6 +45,7 @@ import { CardViewOptionsSheet } from "@/features/collections/components/card-vie
 import { cardSortOptions, countActiveCardFilters } from "@/features/collections/lib/card-query";
 import { toStatsBreakdown } from "@/features/stats/lib/stats-breakdown";
 import { StorageLocationVerify } from "@/features/storage/components/storage-location-verify";
+import { StorageLocationPlanUses } from "@/features/storage/components/storage-location-plan-uses";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { shareCsv } from "@/features/cards/lib/share-csv";
 import { billingQueryOptions } from "@/features/org/api/billing";
@@ -55,6 +57,7 @@ import {
   CARD_GRID_COLUMNS,
   CARD_GRID_GAP_X,
   CARD_GRID_GAP_Y,
+  CARD_GRID_LIST_WINDOW_SIZE,
   LIST_END_THRESHOLD,
   SEARCH_DEBOUNCE_MS,
   STORAGE_CARD_VIEW_MODE_KEY,
@@ -104,13 +107,16 @@ export default function StorageLocationScreen() {
     () => ({ search: debouncedSearch, sort, filters, grouped: false }),
     [debouncedSearch, sort, filters],
   );
-  const cards = useInfiniteQuery(storageLocationCardsPageQueryOptions(guid, cardsQuery));
+  const cards = useInfiniteQuery({
+    ...storageLocationCardsPageQueryOptions(guid, cardsQuery),
+    placeholderData: keepPreviousData,
+  });
   const summary = useQuery(storageLocationCardsSummaryQueryOptions(guid));
   const breakdown = useMemo(
     () => (summary.data && summary.data.stats.totalCount > 0 ? toStatsBreakdown(summary.data.stats) : null),
     [summary.data],
   );
-  const sortOptions = cardSortOptions(summary.data?.sortableFields ?? [], t("storage.positionOrder"), sort, t);
+  const sortOptions = cardSortOptions(summary.data?.sortableFields ?? [], t("storage.positionOrder"), sort, pricing.source, t);
   const activeSortAndFilterCount = countActiveCardFilters(filters) + (sort ? 1 : 0);
   const isQueryActive = !!debouncedSearch || activeSortAndFilterCount > 0 || filters.needsAttention;
   const items = useMemo(() => cards.data?.pages.flatMap((page) => page.cards) ?? [], [cards.data]);
@@ -204,7 +210,14 @@ export default function StorageLocationScreen() {
         <PageHeader
           title={location?.name ?? t("storage.title")}
           subtitle={
-            location ? t("storage.summary", { count: location.cardCount, value: pricing.format(location.totalValue) }) : null
+            location
+              ? [
+                  t("storage.summary", { count: location.cardCount, value: pricing.formatCompact(location.totalValue) }),
+                  ...(location.capacity != null
+                    ? [t("storage.slotsUsed", { used: location.usedSlots ?? 0, capacity: location.capacity })]
+                    : []),
+                ].join(" · ")
+              : null
           }
           onBack={() => router.back()}
           actions={
@@ -247,6 +260,7 @@ export default function StorageLocationScreen() {
           columnWrapperStyle={isGrid ? { gap: CARD_GRID_GAP_X, paddingHorizontal: SPACING.sm } : undefined}
           contentContainerStyle={{ paddingBottom: SPACING.xxl, gap: isGrid ? CARD_GRID_GAP_Y : undefined }}
           onEndReachedThreshold={LIST_END_THRESHOLD}
+          windowSize={CARD_GRID_LIST_WINDOW_SIZE}
           onEndReached={() => {
             if (cards.hasNextPage && !cards.isFetchingNextPage) void cards.fetchNextPage();
           }}
@@ -288,6 +302,7 @@ export default function StorageLocationScreen() {
                 />
               ) : null}
               {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
+              {location && !isStorageLocked ? <StorageLocationPlanUses locationGuid={location.guid} /> : null}
             </View>
           }
           ListEmptyComponent={
@@ -319,7 +334,7 @@ export default function StorageLocationScreen() {
                 <View style={{ width: tileWidth }}>
                   <CardTile
                     name={entry.card.name}
-                    caption={[t("storage.position", { position: entry.position }), ...(value != null ? [pricing.format(value)] : [])].join(" · ")}
+                    caption={[t("storage.position", { position: formatStorageSlot(entry.position, location?.batchSize) }), ...(value != null ? [pricing.format(value)] : [])].join(" · ")}
                     {...cardArtSources(entry.card.image)}
                     isFoil={entry.isFoil}
                     flagged={(entry.lowConfidenceMatch || entry.hasAlternatives) && !entry.reviewed}
@@ -335,7 +350,7 @@ export default function StorageLocationScreen() {
                 <ListGroupItem index={index} count={items.length}>
                   <CardRow
                     name={entry.card.name}
-                    subtitle={`${t("storage.position", { position: entry.position })} · ${entry.collectionName}`}
+                    subtitle={`${t("storage.position", { position: formatStorageSlot(entry.position, location?.batchSize) })} · ${entry.collectionName}`}
                     imageUrl={absoluteUrl(entry.card.image?.small)}
                     price={value != null ? pricing.format(value) : null}
                     lowConfidence={entry.lowConfidenceMatch && !entry.reviewed}

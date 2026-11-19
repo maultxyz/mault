@@ -4,6 +4,7 @@ import type {
   StatsCollectionRow,
   StatsGameRow,
   StatsPriceBucket,
+  StatsReport,
   StatsTotals,
 } from "@magic-vault/shared";
 
@@ -19,4 +20,9 @@ export interface StatsReportRow {
   top_cards: StatsTopCardRow[];
   collections: StatsCollectionRow[];
   games: StatsGameRow[];
+}
+
+export interface LoadedStatsReport {
+  report: StatsReport;
+  currency: string;
 }

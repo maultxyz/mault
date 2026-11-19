@@ -1,3 +1,4 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -7,7 +8,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { REVIEW_GRID_NO_SELECTION_VALUE } from "@/lib/constants/card-grid";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import type { ReviewGridAttributeFieldsProps } from "@/lib/interfaces/cards";
 import {
   CARD_CONDITIONS,

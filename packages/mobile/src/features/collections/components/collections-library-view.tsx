@@ -51,7 +51,8 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
     enabled: !!orgId && valueMode === "change",
   });
   const trendsByGuid = new Map((widgetSummary.data?.collections ?? []).map((trend) => [trend.guid, trend]));
-  const rowValue = (value: number | undefined) => (value != null ? pricing.format(value) : null);
+  const rowValue = (value: number | undefined) => (value != null ? pricing.formatCompact(value) : null);
+  const rowExactValue = (value: number | undefined) => (value != null ? pricing.format(value) : null);
   const rowChange = (guid: string) => {
     const trend = trendsByGuid.get(guid);
     const change = trend ? valueChangeOf(trend, pricing.format, i18n.language) : null;
@@ -80,7 +81,7 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
   const filtered = query ? sorted.filter((collection) => collection.name.toLowerCase().includes(query)) : sorted;
   const overviewData = overview.data;
   const summary = overviewData
-    ? [pricing.format(overviewData.totalValue), t("collection.cardsCount", { count: overviewData.cardCount })].join(" · ")
+    ? [pricing.formatCompact(overviewData.totalValue), t("collection.cardsCount", { count: overviewData.cardCount })].join(" · ")
     : null;
   const openNewCollection = () => router.push("/collection-new");
 
@@ -168,6 +169,7 @@ export function CollectionsLibraryView({ title, viewSwitcher }: LibraryViewProps
                 isScanTarget={isScanTarget}
                 isLive={!!lock}
                 value={valueMode === "value" ? rowValue(value) : null}
+                exactValue={valueMode === "value" ? rowExactValue(value) : null}
                 trailing={
                   valueMode === "change" ? (
                     widgetSummary.isPending ? (

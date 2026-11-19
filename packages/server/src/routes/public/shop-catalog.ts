@@ -3,6 +3,7 @@ import { Hono, type Context } from "hono";
 import { createMiddleware } from "hono/factory";
 import type { ShopCatalogClaims } from "../../lib/interfaces/share-tokens";
 import { rejectWhenShareLinkRateLimited } from "../../lib/share-link-rate-limit";
+import { shopCatalogScope } from "../../lib/share-link-scopes";
 import {
   shopCatalogReadsCache,
   verifyPublicShopCatalog,
@@ -34,16 +35,7 @@ const shopCatalogBrowseRoute = createPublicCardBrowseRoute({
   readsCache: shopCatalogReadsCache,
   resolveScope: async (c) => {
     const claims = await claimsFor(c);
-    if (!claims) return null;
-    return {
-      orgId: claims.orgId,
-      collectionIds: claims.collectionIds,
-      storageLocationIds: claims.storageLocationIds,
-      inventoryOnly: true,
-      hidesCardsReservedByOpenPicks: true,
-      showsPrices: claims.showsPrices,
-      readsCacheKey: `${claims.catalogGuid}|${claims.orgId}`,
-    };
+    return claims ? shopCatalogScope(claims) : null;
   },
   infoExtras: async (c) => {
     const claims = await claimsFor(c);

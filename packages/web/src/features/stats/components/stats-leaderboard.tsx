@@ -1,3 +1,4 @@
+import { buildLeaderboardRows } from "@magic-vault/shared";
 import { Callout } from "@/components/callout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -13,7 +14,6 @@ import {
 } from "@/components/ui/table";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { leaderboardQueryOptions } from "@/features/stats/api/leaderboard";
-import { buildLeaderboardRows } from "@/features/stats/lib/leaderboard-rows";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { StatsLeaderboardButtonProps } from "@/lib/interfaces/stats";
 import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";

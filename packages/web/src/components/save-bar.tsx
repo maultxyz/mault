@@ -6,12 +6,48 @@ import { MOBILE_SAVE_BAR_CLASS } from "@/lib/constants/nav";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { cn } from "@/lib/utils";
 import { IconLoader2 } from "@tabler/icons-react";
-import { useRef } from "react";
+import { useContext, useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
-import type { SaveBarProps } from "@/lib/interfaces/save-bar";
+import type {
+  SaveBarGroupMemberProps,
+  SaveBarProps,
+} from "@/lib/interfaces/save-bar";
+import { SaveBarGroupContext, submitFormById } from "@/lib/save-bar-group";
 
-export function SaveBar({
+export function SaveBar(props: SaveBarProps) {
+  const group = useContext(SaveBarGroupContext);
+  return group ? (
+    <SaveBarGroupMember group={group} {...props} />
+  ) : (
+    <SaveBarView {...props} />
+  );
+}
+
+function SaveBarGroupMember({
+  group,
+  show,
+  formId,
+  onSave,
+  isSaving = false,
+  onDiscard,
+  saveButtonDataTour,
+}: SaveBarGroupMemberProps) {
+  const draftId = useId();
+  useEffect(() => {
+    group.setDraft(draftId, {
+      isDirty: show,
+      isSaving,
+      save: () => (formId ? submitFormById(formId) : onSave?.()),
+      discard: onDiscard,
+      saveButtonDataTour,
+    });
+  });
+  useEffect(() => () => group.removeDraft(draftId), [group, draftId]);
+  return null;
+}
+
+export function SaveBarView({
   show,
   formId,
   onSave,

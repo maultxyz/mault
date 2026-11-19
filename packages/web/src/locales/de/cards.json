@@ -41,11 +41,12 @@
     "market": "Markt",
     "low": "Niedrig",
     "regular": "Normal",
-    "foil": "Foil",
-    "noPrice": "k. A.",
-    "acrossPrintings": "Spanne über {{count}} Drucke"
+    "foil": "Foil"
   },
   "cardDetailPanel": {
+    "catalogCardRemovedTitle": "Karte nicht mehr im Katalog",
+    "catalogCardRemovedDescription": "Die Karte, der dieses Exemplar zugeordnet war ({{name}}), wurde aus der Kartendatenbank entfernt, weil ihre Daten fehlerhaft waren. Suche die richtige Druckversion, damit Preis und Details aktuell bleiben.",
+    "catalogCardRemovedAction": "Richtige Karte suchen",
     "pricePaid": "Kaufpreis ({{currency}})",
     "pricePaidEmpty": "Nicht festgelegt",
     "pricePaidSaveFailed": "Der Kaufpreis konnte nicht gespeichert werden.",
@@ -98,7 +99,6 @@
       "language": "Sprache"
     },
     "copyOf": "Exemplar {{index}} von {{count}}",
-    "moreOptions": "Mehr",
     "actions": "Kartenaktionen",
     "name": "Name",
     "moveToLocation": "In Lagerort verschieben",
@@ -124,6 +124,8 @@
     "manageCollections": "Sammlungen verwalten",
     "noCardsScanned": "Noch keine Karten gescannt",
     "scanToGetStarted": "Scanne eine Karte, um loszulegen",
+    "loadFailed": "Die Karten dieser Sammlung konnten nicht geladen werden.",
+    "selectAllFailed": "Es konnten nicht alle Karten ausgewählt werden. Versuche es erneut.",
     "noCardsMatchFilters": "Keine Karten entsprechen den aktuellen Filtern",
     "tryAdjusting": "Passe deine Suche, Sortierung oder Filter an",
     "cardsSelected_one": "{{count}} Karte ausgewählt",
@@ -165,6 +167,10 @@
     "sortDescString": "Z-A",
     "sortAscDefault": "Niedrig-Hoch",
     "sortDescDefault": "Hoch-Niedrig",
+    "priceSort": {
+      "usd": "Preis (USD)",
+      "eur": "Preis (EUR)"
+    },
     "deselectAll": "Alle abwählen",
     "selectAll": "Alle auswählen",
     "gridView": "Rasteransicht",
@@ -248,6 +254,8 @@
     "previous": "Zurück",
     "next": "Weiter",
     "skipAll": "Alles überspringen",
+    "pause": "Diashow anhalten",
+    "play": "Diashow abspielen",
     "intro": {
       "eyebrow": "Deine Sitzung",
       "title": "{{collectionName}} Rückblick",
@@ -349,6 +357,13 @@
       "noScanAreas": "Nicht geprüft: keine Merkmalsbereiche aus dem Scan",
       "noReferences": "Nicht geprüft: noch keine Referenzen für dieses Spiel",
       "singlePrinting": "Nicht nötig: keine ähnlichen Drucke"
+    },
+    "printedLanguageCode": "Sprachcode (\"EN\")",
+    "printedLanguageCodeValue": {
+      "presentChanged": "EN gefunden, Druck geändert",
+      "presentKept": "EN gefunden",
+      "absentChanged": "Kein EN, Druck geändert",
+      "absentKept": "Kein EN"
     },
     "printedFoilMarker": "Foil-Stern",
     "printedFoilMarkerValue": {
@@ -530,6 +545,29 @@
       }
     }
   },
+  "importCsv": {
+    "button": "CSV importieren",
+    "title": "Karten aus einer CSV importieren",
+    "description": "Lade einen Sammlungsexport von Moxfield, Archidekt, ManaBox, Deckbox, Dragon Shield, TCGplayer oder eine beliebige CSV mit einer Spalte für den Kartennamen hoch.",
+    "detectedFormat": "Format: {{format}}.",
+    "genericFormat": "allgemeine CSV",
+    "skipped_one": "{{count, compact}} Zeile ohne Kartennamen oder Anzahl wurde übersprungen.",
+    "skipped_other": "{{count, compact}} Zeilen ohne Kartennamen oder Anzahl wurden übersprungen.",
+    "checking": "Karten werden zugeordnet...",
+    "matched_one": "{{count, compact}} Karte ist bereit zum Import.",
+    "matched_other": "{{count, compact}} Karten sind bereit zum Import.",
+    "unmatchedTitle_one": "{{count, compact}} Zeile passt zu keiner Karte",
+    "unmatchedTitle_other": "{{count, compact}} Zeilen passen zu keiner Karte",
+    "unmatchedLine": "Zeile {{line}}: {{quantity}}x {{name}}",
+    "noNameColumn": "Diese Datei hat keine Spalte für den Kartennamen.",
+    "emptyFile": "Diese Datei enthält keine Karten.",
+    "import_one": "{{count, compact}} Karte importieren",
+    "import_other": "{{count, compact}} Karten importieren",
+    "imported_one": "{{count, compact}} Karte importiert",
+    "imported_other": "{{count, compact}} Karten importiert",
+    "previewFailed": "Die Datei konnte nicht geprüft werden.",
+    "failed": "Die Karten konnten nicht importiert werden."
+  },
   "cardTags": {
     "title": "Markierungen",
     "edit": "Markierungen bearbeiten",
@@ -616,6 +654,16 @@
     "sendFailed": "Tauschangebot konnte nicht gesendet werden. Versuch es noch einmal.",
     "nameLabel": "Dein Name",
     "contactLabel": "E-Mail, Telefon oder Benutzername",
+    "contactLabelOptional": "E-Mail, Telefon oder Benutzername (optional)",
+    "balance": {
+      "youGet": "Du bekommst",
+      "youGive": "Du gibst",
+      "difference": "Differenz",
+      "youGiveMore": "Du gibst {{amount}} mehr",
+      "youGetMore": "Du bekommst {{amount}} mehr",
+      "even": "Ausgeglichener Tausch",
+      "missingPrices": "Einige Karten haben keinen Preis, die Summen können daher abweichen."
+    },
     "contactPlaceholder": "name@example.com",
     "noteLabel": "Notiz (optional)",
     "headerButton_zero": "Tauschangebot",
@@ -649,12 +697,25 @@
     "conditionFor": "Zustand von {{name}}",
     "yourOffers_one": "Deine gesendeten Angebote ({{count}})",
     "yourOffers_other": "Deine gesendeten Angebote ({{count}})",
-    "noPrice": "Kein Preis",
     "account": {
       "logIn": "Anmelden",
       "logInHint": "Melde dich an, um deine gesendeten Angebote im Blick zu behalten. Sie erscheinen in deinem Konto unter Tausch > Gesendet.",
       "signedInAs": "Angemeldet als {{name}}.",
       "signedInHint": "Gesendete Angebote erscheinen in deinem Konto unter Tausch > Gesendet."
     }
+  },
+  "shareCardLink": {
+    "action": "Freigabelink kopieren",
+    "copied": "Freigabelink kopiert. Alle mit dem Link sehen diese Karte.",
+    "copyFailed": "Der Freigabelink für diese Karte konnte nicht kopiert werden.",
+    "sharedPage": {
+      "readOnly": "Geteilte Karte · Nur Ansicht",
+      "invalidTitle": "Dieser Link funktioniert nicht mehr",
+      "invalidDescription": "Er wurde vielleicht widerrufen, oder die Karte wurde entfernt. Bitte die Person, die ihn geteilt hat, um einen neuen Link."
+    }
+  },
+  "downloadScanImage": {
+    "action": "Foto herunterladen",
+    "failed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut."
   }
 }

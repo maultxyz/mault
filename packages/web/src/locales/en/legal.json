@@ -13,77 +13,136 @@
   "privacy": {
     "title": "Privacy Policy",
     "intro": [
-      "This policy explains what information Mault LLC (\"Mault\", \"we\", \"us\") collects when you use the hosted Mault service, and how we use it.",
-      "It covers the hosted service only. If you're running a self-hosted instance (AUTH_PROVIDER=local), your data stays on infrastructure you control, and you're the one responsible for it. This policy doesn't apply to that deployment."
+      "This policy explains what information Mault LLC (\"Mault\", \"we\", \"us\") collects when you use the hosted Mault service: the web app at mault.xyz, the Mault apps for iOS, Android and desktop, the Mault Discord bot, and the public pages Mault serves for share links and shop catalogs. It also explains how we use and share that information and the choices you have.",
+      "It doesn't cover self-hosted installations of Mault (including installs on a Raspberry Pi). Their data stays on infrastructure the operator controls, and the operator is responsible for it.",
+      "If you use Mault for a business and store information about other people in it, such as the customers you buy cards from or the people who send you trade offers, you decide what to collect and we process it on your behalf. You're responsible for having the right to collect it and for answering those people's requests about it."
     ],
     "sections": [
       {
-        "heading": "Information we collect",
+        "heading": "Information you give us",
         "body": [
-          "Account information: your email and name, handled by our authentication provider (Neon Auth) when you sign up or sign in.",
-          "Organization data: organization names, membership, and roles for the teams you create or join.",
-          "Collection data: the collections, bins, sorting rules, and card records you create while using the app.",
-          "Card scan images: when you scan a physical card, the photo is sent to our server to match it against the card database. We store the photo with the resulting card record (or with the unmatched scan) so you can review it, correct mismatches, and so we can improve scan accuracy.",
-          "Payment information: if you subscribe to the Business plan, billing details are collected and processed directly by Stripe. We never see or store your full card number.",
-          "Discord webhook data: if you connect a Discord webhook, we send the scan and collection notifications you've configured, which can include the scan photo, to the webhook URL you provided.",
-          "Basic operational logs (errors, request metadata) used to keep the service reliable. We don't use third-party analytics or advertising trackers."
+          "Account information: your name, email address and profile picture, handled by our authentication provider (Neon Auth). If you sign in with Google, GitHub, Discord or Apple, we receive your name, email address and, where the service provides one, your profile picture from that service. If you use Sign in with Apple and choose to hide your email, we receive a private relay address instead. We never see your password for those services.",
+          "Organizations: organization names, members, roles and invitations, including the email addresses of the people you invite.",
+          "Collection and inventory data: the collections, cards, conditions, prices, purchase costs, storage locations, sorting presets and rules, notes, labels and sound clips you create or upload.",
+          "Card scan photos: when you scan a card, we receive photos of its front (and back, when your setup captures it) together with technical scan details such as the text read from the card and match scores. We store them with the card record or the unmatched scan, along with who scanned it and on which sorter, so you can review and correct matches.",
+          "Buy and sell tools: if you use them, the names and contact details you enter for customers in intake lots, your orders and pick lists, records of cards you sold, and the photo you upload for your shop.",
+          "Trade offers: when someone sends a trade offer through a trade link, we store the name, contact details (if the link asks for them) and message they enter, the cards and cash involved, and a random identifier their browser creates (we only store a hashed form of it). If they're signed in, the offer is also linked to their account.",
+          "Discord: if you link your Discord account, we store your Discord user ID and username. If you link a Discord server, we store its server, channel and role IDs. The notifications you set up, which can include scan photos, card names and prices, are posted to the channels you choose.",
+          "Payments: paid plans are billed through Stripe, which collects and processes your payment details. We store only your Stripe customer and subscription IDs, your plan and its status, and never see your full card number.",
+          "Developer features: the API keys you create (we store only a hashed form of each key) and the webhook endpoints you add, along with the events we deliver to them.",
+          "Support and donations: the messages you send us. If you donate through Buy Me a Coffee, the amount and your message (unless you hide it) are posted to our Discord server. Buy Me a Coffee handles the payment under its own privacy policy."
         ]
       },
       {
-        "heading": "How we use this information",
+        "heading": "Information collected automatically",
         "body": [
-          "To operate and provide the service, including authenticating you and keeping your data scoped to your organization.",
-          "To process payments for paid plans and manage your subscription.",
-          "To send the notifications you've explicitly configured (such as Discord webhook messages).",
-          "To maintain the security and reliability of the service."
+          "Sorters and devices: the name, hardware identifier, calibration and settings of each sorter you connect, how many cards it has sorted, when it was last online, and the alerts it raises.",
+          "Activity and usage records: a log of actions taken in your organization and who took them, scan statistics (outcome, time and who scanned), and daily request counts for each API key and public page. These counts don't include IP addresses.",
+          "Error reports: when the web app or our servers hit an error, we send a report to our error-tracking provider, Better Stack. It includes the error message and where it happened in the code, your browser and operating system, the page address without its query string, the app version and, for server errors, your user ID. We configure it not to collect IP addresses, cookies or request headers, and it doesn't record sessions or track page views.",
+          "Server logs: like most websites, the servers we operate keep short-lived request logs (such as IP addresses and the pages requested) to keep the service secure and working.",
+          "We don't use advertising or analytics trackers, and we don't build advertising profiles. Our uptime monitoring only checks that our services respond and doesn't involve your data."
         ]
       },
       {
-        "heading": "How we share information",
+        "heading": "Information stored on your device",
         "body": [
-          "We don't sell your personal information. We share it only with the service providers needed to run Mault:",
-          "Neon, for database hosting, scan image storage, and authentication.",
-          "Stripe, for payment processing on paid plans.",
-          "Discord, only if and when you configure a webhook to send notifications there.",
-          "Third-party trading card game databases (e.g. Scryfall and similar sources), which we query to identify and enrich card data. These queries don't include your personal information."
+          "Web app: we store your sign-in session, active organization, preferences, scans that are waiting to upload and downloaded recognition models in your browser's local storage, and our service worker caches the app so it loads quickly. Our authentication provider sets sign-in cookies through mault.xyz, and a short-lived cookie is used while you sign in to the mobile app with Google, GitHub, Discord or Apple. We don't use advertising cookies.",
+          "Mobile app: the app uses your camera to scan cards and read QR codes, and Bluetooth to connect to your sorter, only when you use those features. Card recognition runs on your phone, and photos are uploaded only when a scan is saved. The app keeps a cache of your data on the device so it opens quickly (cleared when you sign out or switch organizations), and on iOS its widgets and Live Activities show collection and scan data on your device. It doesn't use your location, contacts or photo library.",
+          "Desktop app: the desktop app checks GitHub for updates. If you choose a folder for document scanner copies, the images are saved only on your computer."
         ]
       },
       {
-        "heading": "Data retention",
+        "heading": "How we use information",
         "body": [
-          "We keep your account, organization, and collection data for as long as your account is active.",
-          "Card scan photos are kept as long as the card or unmatched scan they belong to. Deleting the card, clearing unmatched scans, deleting the collection, or deleting your organization deletes its photos.",
-          "You can request deletion of your account and associated data at any time by contacting us."
+          "To provide the service: signing you in, keeping each organization's data separate, identifying and pricing your cards, sorting them, and showing your collections, trades and shop.",
+          "To improve card recognition: Mault staff may review scan photos and matches to find and fix mistakes. Unreviewed scan photos from cards scanned between October 25 and November 1, 2026 were also shown to other signed-in Mault users, so they could mark each match right or wrong. Those reviewers saw the photo and the matched card, not your name or your organization's name.",
+          "To bill you for paid plans and manage your subscription.",
+          "To send the notifications and webhook events you've set up.",
+          "To keep the service secure and reliable: preventing abuse, enforcing rate limits and plan limits, and finding and fixing errors.",
+          "To answer your support requests.",
+          "We don't sell your personal information, use it for targeted advertising, or send your scan photos to third-party AI services."
         ]
       },
       {
-        "heading": "Your rights",
+        "heading": "What other people can see",
         "body": [
-          "You can access, correct, export, or delete your personal data by contacting us at the address below, or directly through the app where available."
+          "Members of your organization can see its data, according to their role.",
+          "Share links: anyone with a share link can see the cards it covers, including their scan photos on the card detail page and their prices unless you hide them. Shop catalogs you make public can be opened without a link and may be indexed by search engines. Links don't show your collection names or purchase costs, and you can revoke them at any time.",
+          "Leaderboards: organizations are ranked by cards scanned (and by match reviews) on the leaderboard in the app and in the Discord bot. Your organization's name appears only if you opt in under Settings; otherwise it's shown as anonymous.",
+          "Discord: the notifications you set up, and the cards you choose to show off with the bot's commands, are visible to the members of those Discord channels.",
+          "Mault staff: a small number of Mault staff can access accounts and organization data to provide support and keep the service running. That includes signing in as a user to troubleshoot a problem; every such session is logged."
+        ]
+      },
+      {
+        "heading": "Service providers we share information with",
+        "body": [
+          "We share information only with the providers we need to run Mault, and only for that purpose:",
+          "Neon: database hosting, storage for scan photos, sound clips and shop photos, and authentication, including the sign-in and invitation emails it sends.",
+          "Stripe: payment processing and subscription billing.",
+          "Better Stack: error tracking and uptime monitoring.",
+          "Discord: delivering the notifications and bot features you turn on.",
+          "GitHub: hosting our code and app updates, and running our scheduled maintenance jobs (such as card catalog and price updates), which have access to our database.",
+          "Google, GitHub, Discord and Apple: only if you choose to sign in with them.",
+          "Apple and Google: distributing our mobile apps, under their own privacy policies.",
+          "We run the servers that host the web app, the API and our link shortener ourselves, in the United States. To identify and price cards, we use public card databases and price sources such as Scryfall, TCGdex, TCGplayer data (through TCGTracking), Cardmarket and Card Kingdom. We only download card and price data from them and never send them your personal information.",
+          "We may also disclose information if the law requires it, to protect the rights and safety of our users or of Mault, or as part of a merger, acquisition or sale of our business, in which case this policy continues to apply to it."
+        ]
+      },
+      {
+        "heading": "How long we keep information",
+        "body": [
+          "We keep your account, organization and collection data for as long as your account is active.",
+          "Deleting a card deletes it and its scan photos right away, and clearing unmatched scans deletes their photos. Other things you delete, such as collections, storage locations and presets, are kept in a deleted state so they can be restored if you ask, until your organization's data is deleted.",
+          "When an organization owner deletes the organization's data in Settings, we delete its collections, cards, scan photos, sorters, trades, orders, sales records, share links, API keys and activity log, and cancel its subscription. We keep anonymous scan statistics and daily scan counts, which are no longer linked to the organization.",
+          "Daily API usage counts are kept for 90 days. Error reports are kept for the limited period set in our Better Stack account. Billing records are kept as long as tax and accounting rules require. Logs of staff signing in as users are kept for security.",
+          "To delete your account itself, contact us at the address below."
+        ]
+      },
+      {
+        "heading": "Your choices",
+        "body": [
+          "You can view and edit your data in the app, export your collections as CSV files, revoke share links and API keys, unlink Discord, choose whether your organization's name appears on leaderboards, and delete your organization's data from Settings. For anything else, including a copy of your data or deleting your account, contact us at {{email}}."
+        ]
+      },
+      {
+        "heading": "If you're in the European Economic Area, the United Kingdom or Switzerland",
+        "body": [
+          "Mault LLC is responsible for the personal information described in this policy, except for information an organization stores about other people, which we process on that organization's behalf.",
+          "We rely on these legal bases: performing our contract with you (providing the service and billing), our legitimate interests (keeping the service secure, fixing errors, improving card recognition and supporting users, balanced against your rights), your consent where we ask for it (such as linking Discord or appearing on leaderboards), and our legal obligations (such as keeping billing records).",
+          "You have the right to access, correct, delete or receive a portable copy of your personal information, to restrict or object to how we use it, and to withdraw your consent at any time without affecting earlier use. You can also complain to your local data protection authority.",
+          "We and our providers process information in the United States. Where the law requires it, these transfers rely on safeguards such as the EU Standard Contractual Clauses or the EU-U.S. Data Privacy Framework."
+        ]
+      },
+      {
+        "heading": "If you're in the United States",
+        "body": [
+          "Depending on your state (for example California, Colorado, Connecticut, Virginia or Texas), you may have the right to know what personal information we collect and how we use it, to get a copy of it, to correct it and to delete it. We don't sell personal information or share it for cross-context behavioral advertising, and we don't use sensitive personal information to infer characteristics about you.",
+          "In the past 12 months, we collected the categories described above: identifiers (such as your name, email address and account IDs), commercial information (your plan, orders and sales records), internet activity limited to error reports and usage counts, and visual information (card scan photos). We collect them for the purposes in this policy and share them only with the service providers listed above.",
+          "To exercise your rights, contact us at the address below. We'll verify your request by confirming it from the email address on your account, and you can use an authorized agent. We won't treat you differently for exercising your rights."
         ]
       },
       {
         "heading": "Security",
         "body": [
-          "Traffic to the hosted service is encrypted in transit (HTTPS). Data is scoped per organization using database-level row-level security, and API access uses short-lived bearer tokens rather than cookies."
+          "Traffic to the hosted service is encrypted in transit (HTTPS). Each organization's data is kept separate with database-level row-level security, API keys and guest identifiers are stored only in hashed form, and share links are signed and can be revoked. No system is perfectly secure, but we work to protect your information and will notify you of a breach where the law requires it."
         ]
       },
       {
         "heading": "Children's privacy",
         "body": [
-          "Mault is not directed at children under 13, and we don't knowingly collect personal information from them."
+          "Mault isn't directed at children under 13, or under 16 in the European Economic Area and the United Kingdom, and we don't knowingly collect their personal information. If you believe a child has given us personal information, contact us and we'll delete it."
         ]
       },
       {
         "heading": "Changes to this policy",
         "body": [
-          "We may update this policy from time to time. We'll update the date at the top of this page when we do."
+          "We may update this policy as Mault changes. We'll update the date at the top of this page, and for significant changes we'll also tell you in the app or by email."
         ]
       },
       {
         "heading": "Contact us",
         "body": [
-          "Questions about this policy? Reach us at {{email}}."
+          "Questions or requests about this policy? Reach Mault LLC at {{email}}."
         ]
       }
     ]

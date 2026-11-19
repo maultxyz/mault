@@ -1,3 +1,4 @@
+import { isPiBoard } from "@/lib/constants/build";
 import { Callout } from "@/components/callout";
 import {
   Accordion,
@@ -46,7 +47,7 @@ export function WiringOverview() {
       <p className="text-sm/relaxed text-foreground/70">
         <Trans
           t={t}
-          i18nKey="wiring.description"
+          i18nKey={isPiBoard(boardType) ? "pi.overview" : "wiring.description"}
           values={{ count: moduleCount + 1, board: board.shortName }}
           components={{ pin: <Pin /> }}
         />
@@ -92,13 +93,20 @@ export function I2cWiringReference() {
   const { t } = useTranslation("build");
   const { boardType } = useBuildSetup();
   const board = BOARD_INFO[boardType];
-  const isEsp32 = boardType !== "uno_r4";
+  const isEsp32 = boardType === "esp32";
+  const isPi = isPiBoard(boardType);
 
   return (
     <WiringReference
       anchorKey="i2c"
       title={t("wiring.sections.i2c.title")}
-      footnote={isEsp32 ? t("wiring.sections.i2c.esp32Note") : undefined}
+      footnote={
+        isPi
+          ? t("pi.logic")
+          : isEsp32
+            ? t("wiring.sections.i2c.esp32Note")
+            : undefined
+      }
     >
       <WiringTable
         columns={[
@@ -109,12 +117,12 @@ export function I2cWiringReference() {
         rows={[
           [
             <Pin key="a">SDA</Pin>,
-            <Pin key="b">{board.i2cSda}</Pin>,
+            <Pin key="b">{isPi ? `${t("pi.pin")} 3 · SDA` : board.i2cSda}</Pin>,
             <WireSwatch key="c" wire="sda" />,
           ],
           [
             <Pin key="a">SCL</Pin>,
-            <Pin key="b">{board.i2cScl}</Pin>,
+            <Pin key="b">{isPi ? `${t("pi.pin")} 5 · SCL` : board.i2cScl}</Pin>,
             <WireSwatch key="c" wire="scl" />,
           ],
           [
@@ -125,12 +133,14 @@ export function I2cWiringReference() {
                 components={{ pin: <Pin /> }}
               />
             </span>,
-            <Pin key="b">{board.logicVoltage}</Pin>,
+            <Pin key="b">
+              {isPi ? `${t("pi.pin")} 1 · 3.3V` : board.logicVoltage}
+            </Pin>,
             <WireSwatch key="c" wire="vcc" />,
           ],
           [
             <Pin key="a">GND</Pin>,
-            <Pin key="b">GND</Pin>,
+            <Pin key="b">{isPi ? `${t("pi.pin")} 6 · GND` : "GND"}</Pin>,
             <WireSwatch key="c" wire="gnd" />,
           ],
         ]}
@@ -192,18 +202,27 @@ export function IrSensorWiringReference() {
   const { t } = useTranslation("build");
   const { moduleCount, boardType } = useBuildSetup();
   const board = BOARD_INFO[boardType];
-  const isEsp32 = boardType !== "uno_r4";
+  const isEsp32 = boardType === "esp32";
+  const isPi = isPiBoard(boardType);
   const prefix = isEsp32 ? "GPIO" : "D";
 
   const rows = [
     ...Array.from({ length: moduleCount }, (_, i) => [
       t("wiring.irTable.moduleGate", { n: i + 1 }),
-      <Pin key="pin">{`${prefix}${board.irPins[i]}`}</Pin>,
+      <Pin key="pin">
+        {isPi
+          ? `${t("pi.pin")} ${board.physicalIrPins?.[i]}`
+          : `${prefix}${board.irPins[i]}`}
+      </Pin>,
       <WireSwatch key="wire" wire="irSignal" />,
     ]),
     [
       t("wiring.irTable.hopperThroat"),
-      <Pin key="pin">{`${prefix}${board.hopperIrPin}`}</Pin>,
+      <Pin key="pin">
+        {isPi
+          ? `${t("pi.pin")} ${board.physicalHopperPin}`
+          : `${prefix}${board.hopperIrPin}`}
+      </Pin>,
       <WireSwatch key="wire" wire="irSignal" />,
     ],
   ];
@@ -223,7 +242,13 @@ export function IrSensorWiringReference() {
           }}
         />
       }
-      footnote={isEsp32 ? t("wiring.irSensors.esp32Note") : undefined}
+      footnote={
+        isPi
+          ? t("pi.sensors")
+          : isEsp32
+            ? t("wiring.irSensors.esp32Note")
+            : undefined
+      }
     >
       <WiringTable
         columns={[

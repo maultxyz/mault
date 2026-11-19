@@ -240,6 +240,7 @@ export interface PullSheetEntry {
   locationName: string | null;
   locationPosition: number | null;
   locationGuid: string | null;
+  locationBatchSize?: number | null;
   picked: boolean;
   orderRef: string | null;
   gameKey: string | null;
@@ -407,13 +408,6 @@ export interface InventoryTotals {
 export interface InventoryCollectionRow extends InventoryTotals {
   guid: string;
   name: string;
-}
-
-export interface InventorySnapshotPoint {
-  day: string;
-  cardCount: number;
-  marketValue: number;
-  costBasis: number;
 }
 
 export interface CollectionCostInput {

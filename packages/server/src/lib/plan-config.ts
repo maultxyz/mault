@@ -17,6 +17,12 @@ import { currentPreviewPlan } from "./plan-preview";
 import { refreshPricingMode } from "./pricing-mode";
 import { PLAN_CONFIG_LOAD_RETRY_MS } from "./constants/timing";
 import {
+  ORG_BILLING_PLAN_CACHE_TTL_MS,
+  ORG_BILLING_PLAN_CACHE_VARIANT_KEY,
+  ORG_SETTINGS_READ_CACHE_MAX_ENTRIES,
+} from "./constants/org-settings-read-cache";
+import { createOrgReadCache } from "./org-read-cache";
+import {
   ENTHUSIAST_PLAN_DAILY_SCAN_LIMIT,
   ENTHUSIAST_PLAN_MAX_CONNECTED_SORTERS,
   ENTHUSIAST_PLAN_MAX_NOTIFICATION_RULES,
@@ -120,6 +126,11 @@ export function defaultPlanConfig(): PlanConfig {
 }
 
 let cachedConfig: PlanConfig = defaultPlanConfig();
+
+const orgBillingPlanCache = createOrgReadCache<string>(
+  ORG_BILLING_PLAN_CACHE_TTL_MS,
+  ORG_SETTINGS_READ_CACHE_MAX_ENTRIES,
+);
 
 function toLimit(value: unknown, fallback: number | null): number | null {
   if (value === null) return null;
@@ -251,11 +262,32 @@ export async function loadPlanForOrg(
   const previewPlan = currentPreviewPlan();
   if (previewPlan) return previewPlan;
   if (!isBillingEnabled()) return undefined;
-  const billing = await tx.query.orgBilling.findFirst({
-    where: eq(orgBilling.orgId, orgId),
-    columns: { plan: true },
-  });
-  return billing?.plan ?? "free";
+  return orgBillingPlanCache.get(
+    orgId,
+    ORG_BILLING_PLAN_CACHE_VARIANT_KEY,
+    async () => {
+      const billing = await tx.query.orgBilling.findFirst({
+        where: eq(orgBilling.orgId, orgId),
+        columns: { plan: true },
+      });
+      return billing?.plan ?? "free";
+    },
+  );
+}
+
+export async function orgPlanLimit(
+  tx: Transaction,
+  orgId: string,
+  limit: PlanLimitKey,
+): Promise<number | null> {
+  return planLimit(await loadPlanForOrg(tx, orgId), limit);
+}
+
+export async function orgConnectedSorterLimit(
+  tx: Transaction,
+  orgId: string,
+): Promise<number> {
+  return connectedSorterLimitForPlan(await loadPlanForOrg(tx, orgId));
 }
 
 export async function orgHasFeature(

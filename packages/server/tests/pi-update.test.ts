@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { mkdtemp, readFile, writeFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, stat, utimes, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test, type TestContext } from "node:test";
@@ -10,17 +10,38 @@ import {
   readPiUpdateState,
   startPiUpdate,
   checkPiUpdateVersion,
+  kernelChangedSinceBoot,
 } from "../src/lib/pi-update";
-import pkg from "../package.json";
+const INSTALLED_VERSION = "1.0.209";
 import { getStatus, resetState } from "../src/lib/sync-job/state";
 import { piUpdateRouter } from "../src/routes/pi-update";
+import { PI_UPDATE_CHECK_MS } from "../src/lib/constants/pi-update";
 
 async function fixture(t: TestContext) {
   const directory = await mkdtemp(join(tmpdir(), "mault-update-"));
   t.after(() => rm(directory, { recursive: true, force: true }));
+  await mkdir(join(directory, "requests"));
   t.mock.method(piUpdateRuntime, "stateDir", () => directory);
+  t.mock.method(piUpdateRuntime, "rootUpdaterInstalled", () => true);
   t.mock.method(piUpdateRuntime, "root", () => "/installation/mault");
+  t.mock.method(piUpdateRuntime, "readInstalledRelease", async () => ({
+    version: INSTALLED_VERSION,
+    manifestUrl: "https://example.test/pi-latest/manifest.json",
+  }));
   return directory;
+}
+
+function latestRelease(t: TestContext, version: unknown) {
+  const requested: string[] = [];
+  t.mock.method(
+    piUpdateRuntime,
+    "fetchReleaseManifest",
+    async (manifestUrl: string) => {
+      requested.push(manifestUrl);
+      return { version, bundle: "mault-pi-arm64.tar.gz", sha256: "unused" };
+    },
+  );
+  return requested;
 }
 
 test("host updater is disabled outside Pi hosting and requires platform admin", async (t) => {
@@ -49,18 +70,6 @@ test("host updater is disabled outside Pi hosting and requires platform admin", 
   );
 });
 
-test("host updater refuses local changes before launching anything", async (t) => {
-  await fixture(t);
-  let launches = 0;
-  t.mock.method(piUpdateRuntime, "run", async (program: string) => {
-    if (program === "systemd-run") launches++;
-    return { stdout: " M README.md", stderr: "" };
-  });
-  await assert.rejects(startPiUpdate(), /Local files have changed/);
-  assert.equal(launches, 0);
-  assert.equal((await readPiUpdateState()).phase, "idle");
-});
-
 test("host updater refuses active database sync", async (t) => {
   await fixture(t);
   const previous = getStatus();
@@ -69,33 +78,21 @@ test("host updater refuses active database sync", async (t) => {
   await assert.rejects(startPiUpdate(), /stop database syncing/);
 });
 
-test("host update runs independently, rejects duplicates and persists its result", async (t) => {
+test("host update only drops a request for the root updater and rejects duplicates", async (t) => {
   const directory = await fixture(t);
-  const calls: { program: string; args: string[] }[] = [];
-  t.mock.method(
-    piUpdateRuntime,
-    "run",
-    async (program: string, args: string[]) => {
-      calls.push({ program, args });
-      return { stdout: "", stderr: "" };
-    },
-  );
+  const calls: string[] = [];
+  t.mock.method(piUpdateRuntime, "run", async (program: string) => {
+    calls.push(program);
+    return { stdout: "", stderr: "" };
+  });
   const state = await startPiUpdate();
   assert.equal(state.phase, "running");
-  const launch = calls.find((call) => call.program === "systemd-run")!;
-  assert.deepEqual(launch.args, [
-    "--user",
-    "--collect",
-    "--unit=mault-update",
-    "/bin/bash",
-    "/installation/mault/scripts/pi/run-update.sh",
-  ]);
-  assert.deepEqual(await readPiUpdateState(), state);
+  const request = join(directory, "requests/update-request");
+  assert.ok((await stat(request)).isFile());
+  assert.deepEqual(calls, []);
+  assert.equal((await readPiUpdateState()).phase, "running");
   await assert.rejects(startPiUpdate(), /already running/);
-  assert.equal(
-    calls.filter((call) => call.program === "systemd-run").length,
-    1,
-  );
+  await rm(request);
   await writeFile(
     join(directory, "update.json"),
     JSON.stringify({ ...state, phase: "succeeded" }),
@@ -103,71 +100,47 @@ test("host update runs independently, rejects duplicates and persists its result
   assert.equal((await readPiUpdateState()).phase, "succeeded");
 });
 
-test("failed job launch is recorded instead of leaving an update running", async (t) => {
-  await fixture(t);
+test("in-app updates ask for a one-time reinstall before the root updater exists", async (t) => {
+  const directory = await fixture(t);
+  t.mock.method(piUpdateRuntime, "rootUpdaterInstalled", () => false);
+  await assert.rejects(
+    startPiUpdate(),
+    /curl -fsSL https:\/\/example\.test\/pi-latest\/install\.sh \| sudo bash/,
+  );
+  await assert.rejects(stat(join(directory, "requests/update-request")));
+});
+
+test("a request the root updater never picks up fails and is withdrawn", async (t) => {
+  const directory = await fixture(t);
+  const request = join(directory, "requests/update-request");
+  await writeFile(request, "");
+  const longAgo = new Date(Date.now() - 60_000);
+  await utimes(request, longAgo, longAgo);
   t.mock.method(piUpdateRuntime, "run", async (program: string) => {
-    if (program === "systemd-run") throw new Error("No user bus");
+    if (program === "systemctl") throw new Error("inactive");
     return { stdout: "", stderr: "" };
   });
-  await assert.rejects(startPiUpdate(), /No user bus/);
-  assert.equal((await readPiUpdateState()).phase, "failed");
+  const state = await readPiUpdateState();
+  assert.equal(state.phase, "failed");
+  assert.match(state.message ?? "", /sudo mault update/);
+  await assert.rejects(stat(request));
 });
 
-test("availability checks use the tracking remote and only offer a fast-forward", async (t) => {
+test("availability checks read the release manifest of the installed release", async (t) => {
   await fixture(t);
-  const calls: string[][] = [];
-  t.mock.method(
-    piUpdateRuntime,
-    "run",
-    async (_program: string, args: string[]) => {
-      calls.push(args);
-      const stdout =
-        args[0] === "branch"
-          ? "master"
-          : args[0] === "config"
-            ? "origin"
-            : args[0] === "show"
-              ? JSON.stringify({ version: "99.0.0" })
-              : "";
-      return { stdout, stderr: "" };
-    },
-  );
+  const requested = latestRelease(t, "99.0.0");
+  t.mock.method(piUpdateRuntime, "run", async () => ({
+    stdout: "",
+    stderr: "",
+  }));
   const status = await getPiUpdateStatus();
   assert.equal(status.available, true);
-  assert.equal(status.installedVersion, pkg.version);
+  assert.equal(status.installedVersion, INSTALLED_VERSION);
   assert.equal(status.latestVersion, "99.0.0");
-  assert.ok(calls.some((args) => args.join(" ") === "fetch -- origin"));
-  assert.ok(
-    calls.some(
-      (args) => args.join(" ") === "merge-base --is-ancestor HEAD @{upstream}",
-    ),
-  );
+  assert.deepEqual(requested, ["https://example.test/pi-latest/manifest.json"]);
 });
 
-test("different upstream commits with the same app version do not offer an update", async (t) => {
-  await fixture(t);
-  t.mock.method(
-    piUpdateRuntime,
-    "run",
-    async (_program: string, args: string[]) => ({
-      stdout:
-        args[0] === "branch"
-          ? "master"
-          : args[0] === "config"
-            ? "origin"
-            : args[0] === "show"
-              ? JSON.stringify({ version: pkg.version })
-              : "",
-      stderr: "",
-    }),
-  );
-  const status = await checkPiUpdateVersion();
-  assert.equal(status.available, false);
-  assert.equal(status.installedVersion, pkg.version);
-  assert.equal(status.latestVersion, pkg.version);
-});
-
-test("a stale running result after a stopped updater becomes a persisted failure", async (t) => {
+test("a stale running result after a stopped updater reads as failed", async (t) => {
   const directory = await fixture(t);
   await writeFile(
     join(directory, "update.json"),
@@ -184,39 +157,113 @@ test("a stale running result after a stopped updater becomes a persisted failure
   assert.equal((await getPiUpdateStatus()).state.phase, "failed");
   assert.equal(
     JSON.parse(await readFile(join(directory, "update.json"), "utf8")).phase,
-    "failed",
+    "running",
   );
 });
 
 for (const [version, available] of [
-  ["1.0.170", false],
-  ["1.0.99", false],
-  [pkg.version, false],
-  [`${pkg.version}-dev.test`, false],
+  ["1.0.170", true],
+  ["1.0.99", true],
+  [INSTALLED_VERSION, false],
+  [`${INSTALLED_VERSION}-dev.1`, true],
+  ["1.0.210-dev.1", true],
   ["99.0.0-dev.test", true],
   ["99.0.0", true],
 ] as const) {
-  test(`tracking version ${version} ${available ? "offers" : "does not offer"} an update`, async (t) => {
+  test(`release version ${version} ${available ? "offers" : "does not offer"} an update`, async (t) => {
     await fixture(t);
-    t.mock.method(piUpdateRuntime, "run", async (_program: string, args: string[]) => ({
-      stdout: args[0] === "branch" ? "pi-host"
-        : args[0] === "config" ? "chase"
-        : args[0] === "show" ? JSON.stringify({ version }) : "",
-      stderr: "",
-    }));
+    latestRelease(t, version);
     const status = await checkPiUpdateVersion();
     assert.equal(status.available, available);
     assert.equal(status.latestVersion, version);
   });
 }
 
-test("an invalid tracking version fails the update check", async (t) => {
+test("an invalid release version fails the update check", async (t) => {
   await fixture(t);
-  t.mock.method(piUpdateRuntime, "run", async (_program: string, args: string[]) => ({
-    stdout: args[0] === "branch" ? "pi-host"
-      : args[0] === "config" ? "chase"
-      : args[0] === "show" ? JSON.stringify({ version: "unknown" }) : "",
-    stderr: "",
-  }));
+  latestRelease(t, "unknown");
   await assert.rejects(checkPiUpdateVersion(), /no valid app version/);
+});
+
+test("a dev install compares dev builds by run number", async (t) => {
+  t.mock.method(piUpdateRuntime, "root", () => "/installation/mault");
+  t.mock.method(piUpdateRuntime, "readInstalledRelease", async () => ({
+    version: "1.0.209-dev.5",
+    manifestUrl: "https://example.test/pi-dev/manifest.json",
+  }));
+  latestRelease(t, "1.0.209-dev.6");
+  const status = await checkPiUpdateVersion();
+  assert.equal(status.available, true);
+  assert.equal(status.installedVersion, "1.0.209-dev.5");
+});
+
+test("a checkout without a release file reports that it cannot update", async (t) => {
+  t.mock.method(piUpdateRuntime, "root", () => "/no/such/installation");
+  await assert.rejects(checkPiUpdateVersion(), /not installed from a release/);
+});
+
+const BOOTED_AT = 1_000_000;
+
+test("a kernel installed after boot or a removed running kernel needs a reboot", () => {
+  const running = { name: "6.6.51+rpt-rpi-v8", installedAt: BOOTED_AT - 5_000 };
+  assert.equal(kernelChangedSinceBoot(running.name, [running], BOOTED_AT), false);
+  assert.equal(
+    kernelChangedSinceBoot(
+      running.name,
+      [running, { name: "6.6.62+rpt-rpi-v8", installedAt: BOOTED_AT - 1 }],
+      BOOTED_AT,
+    ),
+    false,
+  );
+  assert.equal(
+    kernelChangedSinceBoot(
+      running.name,
+      [running, { name: "6.6.62+rpt-rpi-v8", installedAt: BOOTED_AT + 60_000 }],
+      BOOTED_AT,
+    ),
+    true,
+  );
+  assert.equal(
+    kernelChangedSinceBoot(
+      running.name,
+      [{ name: "6.6.62+rpt-rpi-v8", installedAt: BOOTED_AT - 1 }],
+      BOOTED_AT,
+    ),
+    true,
+  );
+  assert.equal(kernelChangedSinceBoot(running.name, [], BOOTED_AT), false);
+});
+
+test("the update status reports a pending reboot with the boot it applies to", async (t) => {
+  await fixture(t);
+  latestRelease(t, INSTALLED_VERSION);
+  t.mock.method(piUpdateRuntime, "run", async () => ({ stdout: "", stderr: "" }));
+  t.mock.method(piUpdateRuntime, "runningKernel", () => "6.6.51+rpt-rpi-v8");
+  t.mock.method(piUpdateRuntime, "installedKernels", () => [
+    { name: "6.6.51+rpt-rpi-v8", installedAt: 0 },
+  ]);
+  t.mock.method(piUpdateRuntime, "bootedAt", () => BOOTED_AT);
+  t.mock.method(piUpdateRuntime, "bootId", () => "boot-1");
+  const reboot = t.mock.method(piUpdateRuntime, "rebootRequiredFileExists", () => false);
+  let status = await getPiUpdateStatus();
+  assert.equal(status.rebootRequired, false);
+  assert.equal(status.bootId, "boot-1");
+  reboot.mock.mockImplementation(() => true);
+  status = await getPiUpdateStatus();
+  assert.equal(status.rebootRequired, true);
+});
+
+test("the reboot notice survives a failed release check", async (t) => {
+  await fixture(t);
+  const now = Date.now();
+  t.mock.method(Date, "now", () => now + PI_UPDATE_CHECK_MS * 10);
+  t.mock.method(piUpdateRuntime, "fetchReleaseManifest", async () => {
+    throw new Error("offline");
+  });
+  t.mock.method(piUpdateRuntime, "run", async () => ({ stdout: "", stderr: "" }));
+  t.mock.method(piUpdateRuntime, "rebootRequiredFileExists", () => true);
+  t.mock.method(piUpdateRuntime, "bootId", () => "boot-2");
+  const status = await getPiUpdateStatus();
+  assert.equal(status.rebootRequired, true);
+  assert.equal(status.bootId, "boot-2");
 });

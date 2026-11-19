@@ -5,6 +5,7 @@ import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
 import type { StorageShareLinkClaims } from "../../lib/interfaces/share-tokens";
 import { loadOrgPricing } from "../../lib/price-source";
 import { shareLinkRateLimit } from "../../lib/share-link-rate-limit";
+import { storageShareLinkScope } from "../../lib/share-link-scopes";
 import {
   sharedStorageReadsCache,
   sharedStorageReadsKey,
@@ -32,6 +33,8 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
       return claims
         ? {
             allowsTradeOffers: claims.purpose === "trade",
+            showsPrices: claims.showsPrices,
+            requiresGuestContact: claims.requiresGuestContact,
             scope: {
               kind: "storage",
               orgId: claims.orgId,
@@ -47,17 +50,7 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
       readsCache: null,
       resolveScope: async (c) => {
         const claims = await claimsFor(c);
-        return claims
-          ? {
-              orgId: claims.orgId,
-              collectionIds: [],
-              storageLocationIds: [claims.locationId],
-              inventoryOnly: false,
-              hidesCardsReservedByOpenPicks: claims.purpose === "trade",
-              showsPrices: claims.showsPrices,
-              readsCacheKey: null,
-            }
-          : null;
+        return claims ? storageShareLinkScope(claims) : null;
       },
     }),
   )
@@ -78,6 +71,7 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
     const tokenInfo = {
       expiresAt: claims.expiresAt.toISOString(),
       purpose: claims.purpose,
+      requiresGuestContact: claims.requiresGuestContact,
     };
     const cachedInfo = sharedStorageReadsCache.get(cacheKey) as
       | StorageShareLinkInfo

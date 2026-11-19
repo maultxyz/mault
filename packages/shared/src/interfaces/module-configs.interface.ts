@@ -28,3 +28,5 @@ export interface FeederCalibration {
   reverseDuration: number;
   feedRetryCount: number;
 }
+
+export type ServoName = "bottom" | "paddle" | "pusher";

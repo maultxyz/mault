@@ -1,3 +1,4 @@
+import { CompactCount } from "@/components/compact-value";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
 import { useStations } from "@/features/scanner/api/use-stations";
@@ -70,7 +71,7 @@ export function ScannerPip() {
           }
         />
         <span className="sr-only">{`${t("scannerPip.expand")}: ${statusLabel}`}</span>
-        <span className="tabular-nums">{totalCount}</span>
+        <CompactCount value={totalCount} className="tabular-nums" />
       </button>
     );
   }

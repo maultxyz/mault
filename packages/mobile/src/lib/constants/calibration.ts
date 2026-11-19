@@ -75,8 +75,6 @@ export const BIN_SLOTS_PHYSICAL_ORDER = [
 export const CAPTURE_SETTLE_DELAY_SLIDER_MAX = 2_000;
 export const MATCHES_NEEDED_MIN = 1;
 export const MATCHES_NEEDED_SLIDER_MAX = 5;
-export const SCAN_REGION_COVERAGE_MIN = 0.1;
-export const SCAN_REGION_OFFSET_LIMIT = 0.45;
 
 export const DEVICE_TOGGLE_KEYS: DeviceToggleKey[] = ["autoConnect", "testOnConnect", "pipelinedFeed"];
 export const CALIBRATION_STEP_SETTLE_MS = 500;

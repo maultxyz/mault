@@ -6,7 +6,7 @@ import type { WatchLiveSidebarProps } from "@/lib/interfaces/public-cards";
 export function WatchLiveSidebar({ session, stats, cardCount }: WatchLiveSidebarProps) {
   return (
     <div className="flex shrink-0 flex-col gap-2">
-      <SessionStatsPanel stats={stats} totalCards={cardCount} />
+      <SessionStatsPanel stats={stats} totalCards={cardCount} isBordered />
       <UnmatchedCardsPanel cards={session.unmatchedCards} total={session.unmatchedCount} />
       <SessionErrorsPanel errors={session.errors} />
     </div>

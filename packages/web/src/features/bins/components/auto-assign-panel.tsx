@@ -22,12 +22,34 @@ import { AutoAssignSnapshot } from "@/features/bins/components/auto-assign-snaps
 import { PlanNotice } from "@/components/plan-notice";
 import { ScanOnlyBinSelect } from "@/features/bins/components/scan-only-bin-select";
 import { SortingModeToggleRow } from "@/features/bins/components/sorting-mode-toggle-row";
+import { StoragePlanSummaryRow } from "@/features/bins/components/storage-plan-summary-row";
+import type { AutoAssignPanelProps } from "@/lib/interfaces/bins";
+import {
+  sortingModeChangePatch,
+  sortingModeOfDraft,
+} from "@/features/bins/lib/sorting-mode";
+import {
+  AUTO_ASSIGN_FIELD_SELECT_ID,
+  RESET_AUTO_ASSIGN_HINT_ID,
+  SORTING_MODE_DESCRIPTION_ID,
+  SORTING_MODE_DESCRIPTION_KEYS,
+  SORTING_MODE_LABEL_KEYS,
+  SORTING_MODE_OPTIONS,
+  SORTING_MODE_SELECT_ID,
+  SORTING_MODE_SUMMARY_ID,
+  SORTING_MODE_SUMMARY_KEYS,
+} from "@/lib/constants/bins";
 import {
   CHAOS_BIN_SIZE_MAX,
   SCAN_ONLY_DEFAULT_BIN,
   SCAN_RULE_GAME_FIELD,
+  type BinSetMode,
 } from "@magic-vault/shared";
-import { IconAlertTriangle, IconRefresh } from "@tabler/icons-react";
+import {
+  IconAlertTriangle,
+  IconInfoCircle,
+  IconRefresh,
+} from "@tabler/icons-react";
 import { Callout } from "@/components/callout";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
@@ -35,7 +57,7 @@ import { gamesQueryOptions } from "@/features/games/api/games";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export function AutoAssignPanel() {
+export function AutoAssignPanel({ onOpenStoragePlan }: AutoAssignPanelProps) {
   const { t } = useTranslation("bins");
   const {
     selectedSet,
@@ -52,6 +74,7 @@ export function AutoAssignPanel() {
     discardMode,
   } = useBinConfigs();
   const [resetDialogOpen, setResetDialogOpen] = useState(false);
+  const [isDescriptionOpen, setIsDescriptionOpen] = useState(false);
   const isMobile = useIsMobile();
   const { activeOrg } = useOrg();
   const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
@@ -73,9 +96,9 @@ export function AutoAssignPanel() {
         : effectiveMode.matchGameKeys.filter((key) => key !== matchGameKey),
     });
   const isScanOnly = effectiveMode.scanOnly;
-  const isRepackMode = effectiveMode.isRepackMode;
-  const isAlphabetMode = effectiveMode.isAlphabetMode;
   const isChaosMode = effectiveMode.isChaosMode;
+  const sortingMode = sortingModeOfDraft(effectiveMode);
+  const sortingModeLabel = t(SORTING_MODE_LABEL_KEYS[sortingMode]);
   const disableToggles = isPresetMutating || isSavingMode;
   const hasLearnedBins = configs.some(
     (config) => !config.isCatchAll && config.rules.conditions.length > 0,
@@ -83,6 +106,20 @@ export function AutoAssignPanel() {
   const chaosLocked = billing?.chaosSort === false && !selectedSet.isChaosMode;
   const repackLocked =
     billing?.repacks === false && !selectedSet.isRepackMode;
+  const lockedModes: BinSetMode[] = [
+    ...(repackLocked ? (["repack"] as const) : []),
+    ...(chaosLocked ? (["chaos"] as const) : []),
+  ];
+  const unavailableModes: BinSetMode[] = [
+    ...lockedModes,
+    ...(otherGames.length === 0 ? (["game-sort"] as const) : []),
+    ...(eligibleFields.length === 0 ? (["auto-assign"] as const) : []),
+  ];
+  const resetDisabledHint = isModeDirty
+    ? t("autoAssignPanel.resetNeedsSave")
+    : hasLearnedBins
+      ? null
+      : t("autoAssignPanel.resetNothingLearned");
 
   return (
     <Field
@@ -92,31 +129,86 @@ export function AutoAssignPanel() {
       )}
       data-tour="auto-assign-panel"
     >
-      <SortingModeToggleRow
-        label={t("gameSortPanel.heading")}
-        description={t("gameSortPanel.description")}
-        checked={isGameSort}
-        disabled={
-          disableToggles ||
-          otherGames.length === 0 ||
-          isFieldAutoAssign ||
-          isScanOnly ||
-          isRepackMode ||
-          isAlphabetMode ||
-          isChaosMode
-        }
-        onCheckedChange={(checked) =>
-          stageMode(
-            checked
-              ? {
-                  autoAssignField: SCAN_RULE_GAME_FIELD,
-                  skipSaving: true,
-                  isResortMode: false,
+      <div className="flex flex-col gap-1.5" data-tour="repack-toggle">
+        <div className="flex items-center gap-1">
+          <FieldLabel htmlFor={SORTING_MODE_SELECT_ID}>
+            {t("sortingModePanel.title")}
+          </FieldLabel>
+          <button
+            type="button"
+            aria-expanded={isDescriptionOpen}
+            aria-controls={SORTING_MODE_DESCRIPTION_ID}
+            aria-label={t("sortingModePanel.explain", {
+              mode: sortingModeLabel,
+            })}
+            onClick={() => setIsDescriptionOpen((open) => !open)}
+            className={cn(
+              "grid size-6 shrink-0 place-items-center rounded-md text-foreground/70 transition-colors hover:text-foreground max-md:size-8",
+              isDescriptionOpen && "text-primary",
+            )}
+          >
+            <IconInfoCircle className="size-3.5 max-md:size-4" />
+          </button>
+        </div>
+        <Select
+          value={sortingMode}
+          disabled={disableToggles}
+          onValueChange={(nextMode) => {
+            if (!nextMode) return;
+            stageMode(
+              sortingModeChangePatch(
+                sortingMode,
+                nextMode,
+                eligibleFields[0]?.field ?? null,
+              ),
+            );
+          }}
+        >
+          <SelectTrigger
+            id={SORTING_MODE_SELECT_ID}
+            aria-describedby={SORTING_MODE_SUMMARY_ID}
+            className="w-full overflow-hidden"
+          >
+            <SelectValue>{sortingModeLabel}</SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {SORTING_MODE_OPTIONS.map((option) => (
+              <SelectItem
+                key={option}
+                value={option}
+                label={t(SORTING_MODE_LABEL_KEYS[option])}
+                disabled={
+                  option !== sortingMode && unavailableModes.includes(option)
                 }
-              : { autoAssignField: null, matchGameKeys: [] },
-          )
-        }
-      />
+              >
+                <span className="flex flex-col gap-0.5 py-0.5 pr-6 whitespace-normal">
+                  <span className="flex items-center gap-1.5 font-medium">
+                    {t(SORTING_MODE_LABEL_KEYS[option])}
+                    {lockedModes.includes(option) && (
+                      <Badge variant="outline">{t("planLock.badge")}</Badge>
+                    )}
+                  </span>
+                  <span className="max-w-72 text-xs text-foreground/70">
+                    {t(SORTING_MODE_SUMMARY_KEYS[option])}
+                  </span>
+                </span>
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p id={SORTING_MODE_SUMMARY_ID} className="text-xs text-foreground/70">
+          {t(SORTING_MODE_SUMMARY_KEYS[sortingMode])}
+        </p>
+        <p
+          id={SORTING_MODE_DESCRIPTION_ID}
+          hidden={!isDescriptionOpen}
+          className="text-xs text-foreground/70"
+        >
+          {t(SORTING_MODE_DESCRIPTION_KEYS[sortingMode])}
+        </p>
+      </div>
+      {repackLocked && <PlanNotice message={t("repackPanel.notInPlan")} />}
+      {chaosLocked && <PlanNotice message={t("chaosPanel.notInPlan")} />}
 
       {isGameSort && (
         <div className="flex flex-col gap-2">
@@ -149,42 +241,13 @@ export function AutoAssignPanel() {
               {t("gameSortPanel.hint")}
             </p>
           )}
-          <Button
-            variant="outline"
-            disabled={disableToggles || isModeDirty || !hasLearnedBins}
-            onClick={() => setResetDialogOpen(true)}
-          >
-            <IconRefresh />
-            {t("presetSelector.resetAutoAssign")}
-          </Button>
         </div>
       )}
 
-      <SortingModeToggleRow
-        className="border-t pt-2"
-        label={t("autoAssignPanel.heading")}
-        description={t("autoAssignPanel.description")}
-        checked={isFieldAutoAssign}
-        disabled={
-          disableToggles ||
-          isGameSort ||
-          eligibleFields.length === 0 ||
-          isScanOnly ||
-          isRepackMode ||
-          isAlphabetMode ||
-          isChaosMode
-        }
-        onCheckedChange={(checked) => {
-          stageMode({
-            autoAssignField: checked ? eligibleFields[0].field : null,
-          });
-        }}
-      />
-
       {isFieldAutoAssign && (
-        <div className="flex flex-col gap-2">
-          <FieldLabel className="sr-only">
-            {t("autoAssignPanel.fieldPlaceholder")}
+        <div className="flex flex-col gap-1.5">
+          <FieldLabel htmlFor={AUTO_ASSIGN_FIELD_SELECT_ID}>
+            {t("autoAssignPanel.fieldLabel")}
           </FieldLabel>
           <Select
             value={effectiveMode.autoAssignField ?? ""}
@@ -193,7 +256,7 @@ export function AutoAssignPanel() {
             }
           >
             <SelectTrigger
-              aria-label={t("autoAssignPanel.fieldPlaceholder")}
+              id={AUTO_ASSIGN_FIELD_SELECT_ID}
               className="w-full overflow-hidden"
               disabled={disableToggles}
             >
@@ -209,14 +272,30 @@ export function AutoAssignPanel() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+      )}
+
+      {isEnabled && (
+        <div className="flex flex-col gap-1.5">
           <Button
             variant="outline"
             disabled={disableToggles || isModeDirty || !hasLearnedBins}
+            aria-describedby={
+              resetDisabledHint ? RESET_AUTO_ASSIGN_HINT_ID : undefined
+            }
             onClick={() => setResetDialogOpen(true)}
           >
             <IconRefresh />
             {t("presetSelector.resetAutoAssign")}
           </Button>
+          {resetDisabledHint && (
+            <p
+              id={RESET_AUTO_ASSIGN_HINT_ID}
+              className="text-xs text-foreground/70"
+            >
+              {resetDisabledHint}
+            </p>
+          )}
         </div>
       )}
 
@@ -230,21 +309,6 @@ export function AutoAssignPanel() {
       >
         <AutoAssignSnapshot />
       </DeleteDialog>
-
-      <SortingModeToggleRow
-        className="border-t pt-2"
-        label={t("scanOnlyPanel.heading")}
-        description={t("scanOnlyPanel.description")}
-        checked={isScanOnly}
-        disabled={
-          disableToggles ||
-          isEnabled ||
-          isRepackMode ||
-          isAlphabetMode ||
-          isChaosMode
-        }
-        onCheckedChange={(checked) => stageMode({ scanOnly: checked })}
-      />
 
       {isScanOnly && (
         <div className="flex flex-col gap-2">
@@ -273,69 +337,8 @@ export function AutoAssignPanel() {
         </div>
       )}
 
-      <SortingModeToggleRow
-        className="border-t pt-2"
-        dataTour="repack-toggle"
-        label={t("repackPanel.heading")}
-        description={t("repackPanel.description")}
-        badge={
-          repackLocked && (
-            <Badge variant="outline">{t("planLock.badge")}</Badge>
-          )
-        }
-        checked={isRepackMode}
-        disabled={
-          disableToggles ||
-          repackLocked ||
-          isEnabled ||
-          isScanOnly ||
-          isAlphabetMode ||
-          isChaosMode
-        }
-        onCheckedChange={(checked) => stageMode({ isRepackMode: checked })}
-      />
-      {repackLocked && (
-        <PlanNotice message={t("repackPanel.notInPlan")} />
-      )}
-
-      <SortingModeToggleRow
-        className="border-t pt-2"
-        label={t("alphabetPanel.heading")}
-        description={t("alphabetPanel.description")}
-        checked={isAlphabetMode}
-        disabled={
-          disableToggles ||
-          isEnabled ||
-          isScanOnly ||
-          isRepackMode ||
-          isChaosMode
-        }
-        onCheckedChange={(checked) => stageMode({ isAlphabetMode: checked })}
-      />
-
-      <SortingModeToggleRow
-        className="border-t pt-2"
-        label={t("chaosPanel.heading")}
-        description={t("chaosPanel.description")}
-        badge={
-          chaosLocked && (
-            <Badge variant="outline">{t("planLock.badge")}</Badge>
-          )
-        }
-        checked={isChaosMode}
-        disabled={
-          disableToggles ||
-          chaosLocked ||
-          isEnabled ||
-          isScanOnly ||
-          isRepackMode ||
-          isAlphabetMode
-        }
-        onCheckedChange={(checked) => stageMode({ isChaosMode: checked })}
-      />
-      {chaosLocked && <PlanNotice message={t("chaosPanel.notInPlan")} />}
       {isChaosMode && (
-        <div className="flex flex-col gap-1 pl-1">
+        <div className="flex flex-col gap-1">
           <label htmlFor="chaos-bin-size" className="text-xs font-medium">
             {t("chaosPanel.binSizeLabel")}
           </label>
@@ -362,6 +365,10 @@ export function AutoAssignPanel() {
             {t("chaosPanel.binSizeDescription")}
           </p>
         </div>
+      )}
+
+      {onOpenStoragePlan && (
+        <StoragePlanSummaryRow onOpen={onOpenStoragePlan} />
       )}
 
       <SortingModeToggleRow

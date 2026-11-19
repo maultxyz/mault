@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  FQBN: esp32:esp32:esp32s3:USBMode=hwcdc,CDCOnBoot=cdc,PartitionScheme=min_spiffs
+  FQBN: esp32:esp32:esp32s3:USBMode=hwcdc,CDCOnBoot=cdc,FlashMode=dio,PartitionScheme=min_spiffs
   UNO_FQBN: arduino:renesas_uno:minima
   UNO_WIFI_FQBN: arduino:renesas_uno:unor4wifi
 
@@ -41,6 +41,7 @@ jobs:
           arduino-cli lib install ArduinoJson
           arduino-cli lib install "Adafruit PWM Servo Driver Library"
           arduino-cli lib install ArduinoBLE
+          arduino-cli lib install "Adafruit NeoPixel"
 
       - name: Compile (ESP32)
         run: arduino-cli compile --fqbn "$FQBN" firmware/main

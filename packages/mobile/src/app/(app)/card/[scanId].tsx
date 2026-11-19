@@ -1,3 +1,4 @@
+import { formatStorageSlot, LANGUAGE_LABELS } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useMutationState, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Image } from "expo-image";
@@ -78,6 +79,8 @@ import {
 } from "@/features/collections/api/collection-cards";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
+import { useCopyCardShareLink } from "@/features/share-links/api/use-copy-card-share-link";
+import { useShareScanImage } from "@/features/cards/api/use-share-scan-image";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import {
   cardStorageLocationQueryOptions,
@@ -93,10 +96,10 @@ import { useTheme } from "@/hooks/use-theme";
 import {
   CARD_DETAIL_HEADER_ACTION_COUNT,
   CARD_DETAIL_MENU_SHEETS,
+  CARD_DETAIL_SHARE_ACTION,
   CARD_REVIEW_ACCEPT_MUTATION_KEY,
 } from "@/lib/constants/cards";
 import { formatDateTime } from "@/lib/dates";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import { PAGE_HEADER_ICON_BUTTON_SIZE, TOAST_UNDO_DURATION_MS } from "@/lib/constants/ui";
 import { saveReviewLayout } from "@/lib/review-layout";
@@ -343,7 +346,10 @@ export default function CardDetailScreen() {
     onError: () => AccessibilityInfo.announceForAccessibility(t("storage.actionFailed")),
   });
 
+  const copyShareLink = useCopyCardShareLink();
+  const shareScanImage = useShareScanImage();
   const actionMenuOptions = [
+    ...(reviewMode ? [] : [{ value: CARD_DETAIL_SHARE_ACTION, label: t("cardDetail.share") }]),
     { value: "collection", label: t("storage.moveToCollection") },
     ...(canMoveToLocation
       ? [{ value: "location", label: storage.data ? t("storage.moveToOtherLocation") : t("storage.moveToLocation") }]
@@ -494,6 +500,9 @@ export default function CardDetailScreen() {
         }
       />
       <PinnedActionsLayout actions={bottomActions} actionsDirection="row">
+        {copyShareLink.isSuccess ? <Callout tone="success" title={t("cardDetail.shareLinkCopied")} /> : null}
+        {copyShareLink.isError ? <Callout tone="destructive" title={t("cardDetail.shareLinkCopyFailed")} /> : null}
+        {shareScanImage.isError ? <Callout tone="destructive" title={t("cardDetail.downloadPhotoFailed")} /> : null}
         {position.isError ? (
           <Callout
             tone="destructive"
@@ -606,15 +615,35 @@ export default function CardDetailScreen() {
               subtitle={cardDetailSubtitle}
               price={price}
             />
+            {entry && card?.isMissingFromCatalog ? (
+              <Callout
+                tone="warning"
+                title={t("cardDetail.catalogCardRemovedTitle")}
+                description={t("cardDetail.catalogCardRemovedDescription", { name: card.name })}
+                action={
+                  reviewMode ? undefined : (
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      label={t("cardDetail.catalogCardRemovedAction")}
+                      onPress={() => setEditing(true)}
+                    />
+                  )
+                }
+              />
+            ) : null}
             {entry ? (
               <View style={{ flexDirection: "row", flexWrap: "wrap", gap: SPACING.sm, alignItems: "center" }}>
                 {!isReviewed && canConfirm ? <Pill tone="warning" label={t("cards.needsReview")} /> : null}
                 {storage.data ? (
                   <PillButton
                     icon="storage"
-                    label={`${storage.data.name} · ${t("storage.position", { position: storage.data.position })}`}
+                    label={`${storage.data.name} · ${t("storage.position", { position: formatStorageSlot(storage.data.position, storage.data.batchSize) })}`}
                     accessibilityRole="link"
-                    accessibilityLabel={t("storage.storedIn", { name: storage.data.name, position: storage.data.position })}
+                    accessibilityLabel={t("storage.storedIn", {
+                      name: storage.data.name,
+                      position: formatStorageSlot(storage.data.position, storage.data.batchSize),
+                    })}
                     onPress={() => {
                       router.back();
                       router.push({ pathname: "/storage/[guid]", params: { guid: storage.data?.guid ?? "" } });
@@ -697,18 +726,37 @@ export default function CardDetailScreen() {
                     <AppText size="xs" tone="secondary">
                       {showsCapturedBackSide ? t("cardDetail.capturedBackSide") : t("cardDetail.capturedScan")}
                     </AppText>
-                    {capturedBackUrl ? (
-                      <IconButton
-                        icon="switchSides"
-                        variant="plain"
-                        size={32}
-                        selected={showsCapturedBackSide}
-                        accessibilityLabel={
-                          showsCapturedBackSide ? t("cardDetail.showFrontSide") : t("cardDetail.showBackSide")
-                        }
-                        onPress={() => setBackSideScanId(showsCapturedBackSide ? null : scanId)}
-                      />
-                    ) : null}
+                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6 }}>
+                      {capturedUrl ? (
+                        <IconButton
+                          icon="download"
+                          variant="plain"
+                          size={32}
+                          disabled={shareScanImage.isPending}
+                          accessibilityLabel={t("cardDetail.downloadPhoto")}
+                          onPress={() =>
+                            shareScanImage.mutate({
+                              collectionGuid: guid,
+                              scanId,
+                              side: showsCapturedBackSide ? "back" : "front",
+                              cardName: card?.name,
+                            })
+                          }
+                        />
+                      ) : null}
+                      {capturedBackUrl ? (
+                        <IconButton
+                          icon="switchSides"
+                          variant="plain"
+                          size={32}
+                          selected={showsCapturedBackSide}
+                          accessibilityLabel={
+                            showsCapturedBackSide ? t("cardDetail.showFrontSide") : t("cardDetail.showBackSide")
+                          }
+                          onPress={() => setBackSideScanId(showsCapturedBackSide ? null : scanId)}
+                        />
+                      ) : null}
+                    </View>
                   </View>
                   <CardImageFrame>
                     {capturedUrl ? (
@@ -816,7 +864,14 @@ export default function CardDetailScreen() {
         title={t("cardDetail.actions")}
         options={actionMenuOptions}
         selected={[]}
-        onSelect={(value) => setSheet(CARD_DETAIL_MENU_SHEETS.find((menuSheet) => menuSheet === value) ?? null)}
+        onSelect={(value) => {
+          if (value === CARD_DETAIL_SHARE_ACTION) {
+            setSheet(null);
+            copyShareLink.mutate(scanId);
+            return;
+          }
+          setSheet(CARD_DETAIL_MENU_SHEETS.find((menuSheet) => menuSheet === value) ?? null);
+        }}
         onClose={() => setSheet(null)}
       />
       <OptionSheet

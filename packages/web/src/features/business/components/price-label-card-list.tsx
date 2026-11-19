@@ -1,3 +1,4 @@
+import { MissingPrice } from "@/components/missing-price";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FieldError } from "@/components/ui/field";
@@ -14,7 +15,7 @@ import type { PriceLabelCardListProps } from "@/lib/interfaces/price-labels";
 import { useController, useFormState } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-export function PriceLabelCardList({ form, items, formatLabelPrice }: PriceLabelCardListProps) {
+export function PriceLabelCardList({ form, items, formatLabelPrice, showsPrices }: PriceLabelCardListProps) {
   const { t } = useTranslation("business");
   const { t: tCards } = useTranslation("cards");
   const { field: deselectedField } = useController({
@@ -59,7 +60,7 @@ export function PriceLabelCardList({ form, items, formatLabelPrice }: PriceLabel
           {allSelected ? t("priceLabels.cards.selectNone") : t("priceLabels.cards.selectAll")}
         </Button>
       </div>
-      <div className="max-h-[28rem] overflow-y-auto rounded-lg bg-foreground/6">
+      <div className="max-h-[28rem] overflow-y-auto">
         <Table>
           <TableHeader>
             <TableRow>
@@ -67,9 +68,13 @@ export function PriceLabelCardList({ form, items, formatLabelPrice }: PriceLabel
                 <span className="sr-only">{t("priceLabels.cards.include")}</span>
               </TableHead>
               <TableHead>{t("priceLabels.cards.card")}</TableHead>
-              <TableHead className="text-right">{t("priceLabels.cards.market")}</TableHead>
-              <TableHead className="w-28">{t("priceLabels.cards.customPrice")}</TableHead>
-              <TableHead className="text-right">{t("priceLabels.cards.labelPrice")}</TableHead>
+              {showsPrices && (
+                <>
+                  <TableHead className="text-right">{t("priceLabels.cards.market")}</TableHead>
+                  <TableHead className="w-28">{t("priceLabels.cards.customPrice")}</TableHead>
+                  <TableHead className="text-right">{t("priceLabels.cards.labelPrice")}</TableHead>
+                </>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -96,15 +101,18 @@ export function PriceLabelCardList({ form, items, formatLabelPrice }: PriceLabel
                           card.collectorNumber && `#${card.collectorNumber}`,
                           card.condition,
                           card.isFoil && tCards("foil"),
+                          card.storageCode,
                         ]
                           .filter(Boolean)
                           .join(" · ")}
                       </span>
                     </label>
                   </TableCell>
+                  {showsPrices && (
+                  <>
                   <TableCell className="text-right">
                     {card.marketPrice === null ? (
-                      <span className="text-foreground/70">{t("priceLabels.cards.noPrice")}</span>
+                      <span className="text-foreground/70"><MissingPrice /></span>
                     ) : (
                       formatLabelPrice(card.marketPrice)
                     )}
@@ -127,12 +135,14 @@ export function PriceLabelCardList({ form, items, formatLabelPrice }: PriceLabel
                   <TableCell className="text-right font-medium">
                     {labelPrice === null ? (
                       <span className="font-normal text-foreground/70">
-                        {t("priceLabels.cards.noPrice")}
+                        <MissingPrice />
                       </span>
                     ) : (
                       formatLabelPrice(labelPrice)
                     )}
                   </TableCell>
+                  </>
+                  )}
                 </TableRow>
               );
             })}

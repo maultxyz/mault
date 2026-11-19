@@ -38,6 +38,10 @@ export const COMPOSITE_HEIGHT = 480;
 
 export const COMPOSITE_GAP = 16;
 
+export const SCAN_PHOTO_CARD_ASPECT_RATIO = 2.5 / 3.5;
+
+export const SCAN_PHOTO_JPEG_QUALITY = 85;
+
 export const SCAN_ATTACHMENT_NAME = "scan.jpg";
 
 export const LINK_CONFIRM_TIMEOUT_MS = 30_000;
@@ -62,4 +66,23 @@ export const SHARE_PICK_TIMEOUT_MS = 60_000;
 
 export const DISCORD_SELECT_LABEL_MAX_LENGTH = 100;
 
+export const DISCORD_AUTOCOMPLETE_MAX_CHOICES = 25;
+
+export const DISCORD_AUTOCOMPLETE_VALUE_MAX_LENGTH = 100;
+
+export const UUID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export const SHOWCASE_KIND_LABELS = {
+  collection: "collection",
+  storage: "storage location",
+} as const;
+
 export const DISCORD_EMBED_DESCRIPTION_MAX_LENGTH = 4096;
+
+export const BETTER_STACK_BOT_HEARTBEAT_URL =
+  process.env.BETTER_STACK_BOT_HEARTBEAT_URL ?? "";
+
+export const UPTIME_HEARTBEAT_INTERVAL_MS = 60_000;
+
+export const UPTIME_HEARTBEAT_TIMEOUT_MS = 10_000;

@@ -1,3 +1,4 @@
+import { CompactCount } from "@/components/compact-value";
 import { STATS_HERO_SPARKLINE } from "@/lib/constants/stats";
 import type { ValueHeroProps } from "@/lib/interfaces/stats";
 import { cn } from "@/lib/utils";
@@ -77,7 +78,13 @@ export function ValueHero({ label, value, stats, sparklineValues, change }: Valu
               )}
             >
               <dt className="text-2xs">{stat.label}</dt>
-              <dd className="text-lg font-semibold tabular-nums">{stat.value}</dd>
+              <dd className="text-lg font-semibold tabular-nums">
+                {typeof stat.value === "number" ? (
+                  <CompactCount value={stat.value} />
+                ) : (
+                  stat.value
+                )}
+              </dd>
             </div>
           ))}
         </dl>

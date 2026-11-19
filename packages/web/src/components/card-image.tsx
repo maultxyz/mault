@@ -2,7 +2,14 @@ import type { CardImageProps } from "@/lib/interfaces/card-image";
 import { cn } from "@/lib/utils";
 import { useState } from "react";
 
-export function CardImage({ src, placeholderSrc, alt, className, loading = "lazy" }: CardImageProps) {
+export function CardImage({
+  src,
+  placeholderSrc,
+  alt,
+  className,
+  loading = "lazy",
+  fit = "cover",
+}: CardImageProps) {
   const [loadedSrc, setLoadedSrc] = useState<string | null>(null);
   const isLoaded = !!src && loadedSrc === src;
   const showsBlurredPlaceholder = !isLoaded && !!placeholderSrc && placeholderSrc !== src;
@@ -33,7 +40,8 @@ export function CardImage({ src, placeholderSrc, alt, className, loading = "lazy
           draggable={false}
           onLoad={() => setLoadedSrc(src)}
           className={cn(
-            "relative size-full object-cover transition-opacity duration-300 motion-reduce:transition-none",
+            "relative size-full transition-opacity duration-300 motion-reduce:transition-none",
+            fit === "fill" ? "object-fill" : "object-cover",
             isLoaded ? "opacity-100" : "opacity-0",
           )}
         />

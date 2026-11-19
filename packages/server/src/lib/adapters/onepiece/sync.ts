@@ -5,7 +5,12 @@ import type {
 import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { ONE_PIECE_DEFAULT_URL } from "../../constants/urls";
-import { dedupeOnePieceRows, findCardVersion, onePieceSetCode } from "./search";
+import {
+  dedupeOnePieceRows,
+  findCardVersion,
+  onePiecePrintedName,
+  onePieceSetCode,
+} from "./search";
 import type { OptcgCard } from "../../interfaces/onepiece";
 
 const CATALOGS = [
@@ -18,7 +23,7 @@ function toSyncCard(raw: OptcgCard, id: string): SyncSourceCard {
   return withRawData(
     {
       id,
-      name: raw.card_name,
+      name: onePiecePrintedName(raw.card_name),
       setCode: onePieceSetCode(raw),
       imageUrl: raw.card_image ?? undefined,
     },

@@ -1,3 +1,4 @@
+import "./lib/disable-onnx-telemetry";
 import "./lib/console-timestamps";
 
 import { serve } from "@hono/node-server";
@@ -15,6 +16,7 @@ import {
 import { PI_SCAN_SESSION_PATH, piScanRouter } from "./routes/pi-scan";
 import { Hono } from "hono";
 import {
+  MACHINES_PATH,
   PLAN_PREVIEW_HEADER,
   PUBLIC_API_KEY_HEADER,
   SHARE_LINK_GUEST_KEY_HEADER,
@@ -24,6 +26,10 @@ import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
 import { getWebUrl } from "./lib/constants/urls";
 import type { AppEnv } from "./middleware/auth";
+import {
+  compressResponses,
+  shouldCompressResponses,
+} from "./middleware/compression";
 import { adminRouter } from "./routes/admin";
 import { announcementsRouter } from "./routes/announcements";
 import { apiKeysRouter } from "./routes/api-keys";
@@ -44,6 +50,8 @@ import { statsRouter } from "./routes/stats";
 import { leaderboardRouter } from "./routes/leaderboard";
 import { matchValidationsRouter } from "./routes/match-validations";
 import { devicesRouter } from "./routes/devices";
+import { machinesRouter } from "./routes/machines";
+import { startPiHostMachineStatusPublisher } from "./lib/pi-scan/machine-status";
 import { gamesRouter } from "./routes/games";
 import { impersonationRouter } from "./routes/impersonation";
 import { localAuthRouter } from "./routes/local-auth";
@@ -112,6 +120,8 @@ app.use((c, next) =>
     : payloadTooLarge(c, next),
 );
 
+if (shouldCompressResponses()) app.use(compressResponses);
+
 if (process.env.AUTH_PROVIDER === "local") {
   app.route("/local-auth", localAuthRouter);
 }
@@ -125,8 +135,11 @@ app.route("/collections", collectionsRouter);
 app.route("/overview", overviewRouter);
 app.route("/stats", statsRouter);
 app.route("/leaderboard", leaderboardRouter);
-app.route("/match-validations", matchValidationsRouter);
+if (process.env.AUTH_PROVIDER !== "local") {
+  app.route("/match-validations", matchValidationsRouter);
+}
 app.route("/devices", devicesRouter);
+app.route(MACHINES_PATH, machinesRouter);
 app.route("/games", gamesRouter);
 app.route("/announcements", announcementsRouter);
 app.route("/notifications", notificationsRouter);
@@ -172,6 +185,7 @@ startInventorySnapshots();
 startApiUsageFlushing();
 startCardMatchIndexWarmup();
 startShortLinkStartupSync();
+startPiHostMachineStatusPublisher();
 
 const server = serve(
   { fetch: app.fetch, port: API_PORT, hostname: getApiHost() },

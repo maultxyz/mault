@@ -14,6 +14,8 @@ import {
   type PublicTradeOffer,
   type Result,
   type TradeOfferCardOptionPage,
+  type TradeOfferQuote,
+  type TradeOfferQuoteRequest,
   type TradeOfferRequest,
 } from "@magic-vault/shared";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
@@ -34,7 +36,28 @@ export const publicTradeOffersKeys = {
   mine: (link: TradeOfferLink) => [...publicTradeOffersKeys.root(link), "mine"] as const,
   search: (link: TradeOfferLink, gameKey: string, query: string) =>
     [...publicTradeOffersKeys.root(link), "search", gameKey, query] as const,
+  quote: (link: TradeOfferLink, request: TradeOfferQuoteRequest) =>
+    [...publicTradeOffersKeys.root(link), "quote", request] as const,
 };
+
+export const tradeOfferQuoteQueryOptions = (
+  link: TradeOfferLink,
+  request: TradeOfferQuoteRequest,
+  showsPrices: boolean,
+) =>
+  queryOptions({
+    queryKey: publicTradeOffersKeys.quote(link, request),
+    queryFn: async () =>
+      readResult<TradeOfferQuote>(
+        await fetch(tradeOffersUrl(link, "/quote"), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(request),
+        }),
+      ),
+    enabled: showsPrices && (request.wantedScanIds.length > 0 || request.offered.length > 0),
+    placeholderData: keepPreviousData,
+  });
 
 export const guestTradeOffersQueryOptions = (link: TradeOfferLink) =>
   queryOptions({

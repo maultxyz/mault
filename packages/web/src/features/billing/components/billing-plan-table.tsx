@@ -1,3 +1,4 @@
+import { Progress } from "@/components/ui/progress";
 import {
   Table,
   TableBody,
@@ -73,12 +74,7 @@ export function BillingPlanTable({ billing }: BillingPlanTableProps) {
                         {usageText(row)}
                       </span>
                       {usagePercent != null && (
-                        <div className="h-1.5 w-16 rounded-full bg-muted">
-                          <div
-                            className="h-1.5 rounded-full bg-primary"
-                            style={{ width: `${usagePercent}%` }}
-                          />
-                        </div>
+                        <Progress decorative value={usagePercent} className="w-16" />
                       )}
                     </div>
                   </TableCell>

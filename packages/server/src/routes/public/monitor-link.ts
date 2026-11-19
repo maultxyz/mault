@@ -12,6 +12,7 @@ import { createPublicCardBrowseRoute } from "./card-browse";
 import { readCardsSummary } from "../collections/cards-read";
 import { parseCardsQuery } from "../collections/cards-query";
 import { pricesForShareLink } from "../../lib/share-link-pricing";
+import { collectionShareLinkScope } from "../../lib/share-link-scopes";
 
 async function claimsFor(c: Context<AppEnv>): Promise<MonitorLinkClaims | null> {
   const token = c.req.query("token");
@@ -28,6 +29,8 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
       return claims
         ? {
             allowsTradeOffers: claims.purpose === "trade",
+            showsPrices: claims.showsPrices,
+            requiresGuestContact: claims.requiresGuestContact,
             scope: {
               kind: "collection",
               orgId: claims.orgId,
@@ -43,17 +46,7 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
       readsCache: null,
       resolveScope: async (c) => {
         const claims = await claimsFor(c);
-        return claims
-          ? {
-              orgId: claims.orgId,
-              collectionIds: [claims.collectionId],
-              storageLocationIds: [],
-              inventoryOnly: false,
-              hidesCardsReservedByOpenPicks: claims.purpose === "trade",
-              showsPrices: claims.showsPrices,
-              readsCacheKey: null,
-            }
-          : null;
+        return claims ? collectionShareLinkScope(claims) : null;
       },
     }),
   )
@@ -73,6 +66,7 @@ export const publicMonitorLinkRoute = new Hono<AppEnv>()
         priceSource: pricing.source,
         conditionMultipliers: pricing.conditionMultipliers,
         showsPrices: claims.showsPrices,
+        requiresGuestContact: claims.requiresGuestContact,
         purpose: claims.purpose,
       } satisfies MonitorLinkInfo,
     });

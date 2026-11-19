@@ -16,6 +16,7 @@ const mocks = vi.hoisted(() => ({
   applyPiZoom: vi.fn().mockResolvedValue(undefined),
   isMobile: vi.fn(),
   setStationCamera: vi.fn(),
+  station: { id: "station", cameraId: null as string | null },
   queryClient: { fetchQuery: vi.fn() },
   t: (key: string) => key,
 }));
@@ -32,7 +33,7 @@ vi.mock("./use-phone-camera-capture", () => ({
   usePhoneCameraCapture: () => ({}),
 }));
 vi.mock("./use-stations", () => ({
-  useStation: () => ({ station: { id: "station" }, isLive: true }),
+  useStation: () => ({ station: mocks.station, isLive: true }),
   useStations: () => ({
     setStationCamera: mocks.setStationCamera,
     stations: [],
@@ -60,6 +61,8 @@ vi.mock("../lib/camera-stream", () => ({
   waitForTrackSetup: async () => {},
 }));
 vi.mock("../lib/pi-camera", () => ({
+  listPiCameras: async () => [{ deviceId: "pi-camera:/dev/test", kind: "videoinput" }],
+  isPiCameraId: (id: string) => id?.startsWith("pi-camera"),
   readPiCameraHealth: mocks.readHealth,
   browserMustUsePiCamera: mocks.mustUsePi,
   acquirePiRelayStream: mocks.acquireRelay,
@@ -78,6 +81,7 @@ describe("camera startup focus", () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    mocks.station.cameraId = null;
     mocks.readHealth.mockResolvedValue({ status: "unavailable" });
     mocks.mustUsePi.mockReturnValue(false);
     mocks.isMobile.mockReturnValue(false);
@@ -196,4 +200,50 @@ describe("camera startup focus", () => {
       expect(mocks.applyTrackFocus).toHaveBeenCalledWith(track, 42),
     );
   });
+
+it("a delayed focus preview cannot overwrite the newly selected camera's displayed focus", async () => {
+  mocks.mustUsePi.mockReturnValue(true);
+  mocks.isMobile.mockReturnValue(true);
+  mocks.readHealth.mockResolvedValue({ status: "ready", focus: { min: 0, max: 100, step: 1 }, focusMode: "manual", lensPosition: 37 });
+  let finish: () => void = () => {};
+  mocks.applyPiFocus.mockImplementationOnce(() => new Promise<void>((resolve) => { finish = resolve; }));
+  const { result, unmount } = renderHook(() => useCameraContext(), { wrapper: CameraProvider });
+  await waitFor(() => expect(result.current.focusDistance).toBe(37));
+  let preview: Promise<void> = Promise.resolve();
+  act(() => { preview = result.current.applyFocusDistance(45, false); });
+  mocks.readHealth.mockResolvedValue({ status: "ready", focus: { min: 0, max: 100, step: 1 }, focusMode: "manual", lensPosition: 22 });
+  await act(async () => { expect(await result.current.selectCamera("pi-camera:/dev/other")).toBe(true); });
+  expect(result.current.focusDistance).toBe(22);
+  await act(async () => { finish(); await preview; });
+  expect(result.current.focusDistance).toBe(22);
+  unmount();
+});
+
+it("previews another camera without saving the station assignment", async () => {
+  mocks.mustUsePi.mockReturnValue(true);
+  mocks.readHealth.mockResolvedValue({ status: "ready" });
+  const { result } = renderHook(useCameraContext, { wrapper: CameraProvider });
+  await waitFor(() => expect(result.current.status).toBe("ready"));
+  mocks.setStationCamera.mockClear();
+  await act(async () => { await result.current.selectCamera("pi-camera:/dev/second", false); });
+  expect(result.current.selectedCameraId).toBe("pi-camera:/dev/second");
+  expect(mocks.setStationCamera).not.toHaveBeenCalled();
+  await act(async () => { await result.current.selectCamera("pi-camera:/dev/second"); });
+  expect(mocks.setStationCamera).toHaveBeenCalledWith("station", "pi-camera:/dev/second");
+});
+
+it("keeps a restored assignment when initial default-camera startup finishes late", async () => {
+  mocks.mustUsePi.mockReturnValue(true);
+  let finish: ((value: unknown) => void) | undefined;
+  mocks.readHealth.mockImplementationOnce(() => new Promise((resolve) => { finish = resolve; }));
+  mocks.readHealth.mockResolvedValue({ status: "ready" });
+  const { result, rerender } = renderHook(useCameraContext, { wrapper: CameraProvider });
+  await waitFor(() => expect(finish).toBeDefined());
+  mocks.station.cameraId = "pi-camera:/dev/saved";
+  rerender();
+  await act(async () => { finish?.({ status: "ready" }); });
+  await waitFor(() => expect(result.current.selectedCameraId).toBe("pi-camera:/dev/saved"));
+  expect(mocks.setStationCamera).not.toHaveBeenCalledWith("station", "pi-camera:/dev/test");
+});
+
 });

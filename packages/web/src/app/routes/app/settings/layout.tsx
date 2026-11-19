@@ -76,13 +76,14 @@ export default function SettingsLayout() {
 
       <div className="flex-1 lg:col-span-10 min-h-0 lg:h-full overflow-y-auto">
         <div className="flex flex-col p-4 md:px-3 md:py-2 max-w-4xl mx-auto w-full gap-4">
-          {current && (
-            <PageIntro
-              className="mb-2"
-              title={t(current.labelKey)}
-              description={t(`sectionIntros.${current.path}`)}
-            />
-          )}
+          <PageIntro
+            isPageHeading
+            className="mb-2"
+            title={current ? t(current.labelKey) : t("title")}
+            description={
+              current ? t(`sectionIntros.${current.path}`) : t("subtitle")
+            }
+          />
           <Outlet />
         </div>
       </div>

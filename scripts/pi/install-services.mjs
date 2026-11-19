@@ -38,8 +38,9 @@ const settings = existsSync(envPath)
 const builtin = /^(1|true|on)$/i.test(settings.PI_SORTER ?? "");
 const units = [
   "mault-api.service",
-  "mault-web.service",
   "mault-camera.service",
+  "mault-prices.service",
+  "mault-prices.timer",
 ];
 if (builtin) units.push("mault-controller.service");
 for (const unit of units) {

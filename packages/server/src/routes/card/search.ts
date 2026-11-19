@@ -6,11 +6,13 @@ import {
 import {
   CATALOG_SEARCH_GROUP_BY_NAME,
   CATALOG_SEARCH_GROUP_BY_PARAM,
+  CATALOG_SEARCH_LIMIT_PARAM,
 } from "@magic-vault/shared";
 import {
   searchCards,
   searchCatalogCardsGroupedByName,
 } from "../../lib/card-search/stored-cards";
+import { catalogSearchPageLimit } from "../../lib/card-search/catalog-search-limit";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 
 export const searchCardRoute = new Hono<AppEnv>().get(
@@ -40,7 +42,13 @@ export const searchCardRoute = new Hono<AppEnv>().get(
     const setCode = c.req.query("set") || undefined;
     if (c.req.query(CATALOG_SEARCH_GROUP_BY_PARAM) === CATALOG_SEARCH_GROUP_BY_NAME) {
       return c.json(
-        await searchCatalogCardsGroupedByName(resolved, query, validOffset, setCode),
+        await searchCatalogCardsGroupedByName(
+          resolved,
+          query,
+          validOffset,
+          setCode,
+          catalogSearchPageLimit(c.req.query(CATALOG_SEARCH_LIMIT_PARAM)),
+        ),
       );
     }
     const result = await searchCards(resolved, query, validOffset, setCode);

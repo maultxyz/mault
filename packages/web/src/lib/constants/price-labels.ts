@@ -21,6 +21,7 @@ export const PRICE_LABEL_DEFAULT_VALUES: PriceLabelOptionsFormValues = {
   customPrices: {},
   markupPercent: 0,
   rounding: "none",
+  showsPrices: true,
   templateId: LABEL_SHEET_DEFAULT_TEMPLATE_ID,
   startPosition: 1,
 };

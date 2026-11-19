@@ -34,6 +34,7 @@ export function StorageCardGrid({
               guid: entry.locationGuid,
               name: entry.locationName,
               position: entry.position,
+              batchSize: entry.locationBatchSize,
             }}
           />
         ))}

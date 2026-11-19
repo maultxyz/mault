@@ -41,7 +41,7 @@ import {
   IconDeviceMobile,
   IconRotate,
 } from "@tabler/icons-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { OnnxExecutionProviderPreference } from "@/lib/interfaces/scanner";
 import type {
@@ -49,6 +49,7 @@ import type {
 } from "@/lib/interfaces/calibration";
 
 export function ScanRegionCalibrationPanel({
+  cameraSettings,
   scanRegion: region,
   captureSettleDelayMs: captureSettleDelayMsValue,
   matchesNeeded,
@@ -76,8 +77,6 @@ export function ScanRegionCalibrationPanel({
     retryCamera,
     cameraSource,
     cameras,
-    selectedCameraId,
-    selectCamera,
     phonePairingStatus,
     phonePairingUrl,
     startPhonePairing,
@@ -177,6 +176,8 @@ export function ScanRegionCalibrationPanel({
             videoSize.height,
           )
         : null;
+
+  const regionKeyboardHintId = useId();
 
   const {
     handleBoxKeyDown,
@@ -323,13 +324,13 @@ export function ScanRegionCalibrationPanel({
                 {t("scanRegionCalibrationPanel.cameraLabel")}
               </label>
               <Select
-                value={selectedCameraId ?? ""}
+                value={cameraSettings.cameraId}
                 onValueChange={(deviceId) => {
-                  if (deviceId && deviceId !== selectedCameraId) {
-                    void selectCamera(deviceId);
+                  if (deviceId && deviceId !== cameraSettings.cameraId) {
+                    cameraSettings.setCamera(deviceId);
                   }
                 }}
-                disabled={cameras.length < 2 || isConnecting}
+                disabled={isLoading || cameras.length < 2 || isConnecting || cameraSettings.isSaving}
               >
                 <SelectTrigger id="calibration-camera" className="w-full">
                   <SelectValue
@@ -339,7 +340,7 @@ export function ScanRegionCalibrationPanel({
                   >
                     {(() => {
                       const index = cameras.findIndex(
-                        (cam) => cam.deviceId === selectedCameraId,
+                        (cam) => cam.deviceId === cameraSettings.cameraId,
                       );
                       if (index < 0) return null;
                       return (
@@ -381,7 +382,9 @@ export function ScanRegionCalibrationPanel({
             </Button>
           )}
           {phoneCaptureError && (
-            <p className="text-sm text-destructive">{phoneCaptureError}</p>
+            <p role="alert" className="text-sm text-destructive">
+              {phoneCaptureError}
+            </p>
           )}
 
           <div className="relative aspect-[2.5/3.5] w-full overflow-hidden rounded-lg bg-muted">
@@ -398,7 +401,8 @@ export function ScanRegionCalibrationPanel({
               {box && (
                 <button
                   type="button"
-                  aria-label={t("scanRegionCalibrationPanel.regionKeyboardLabel")}
+                  aria-label={t("scanRegionCalibrationPanel.regionLabel")}
+                  aria-describedby={regionKeyboardHintId}
                   className="absolute rounded-xl border-[6px] border-dashed border-muted-foreground/70 cursor-move touch-none select-none outline-none focus-visible:ring-2 focus-visible:ring-ring"
                   style={{
                     left: `${box.left * 100}%`,
@@ -413,6 +417,7 @@ export function ScanRegionCalibrationPanel({
                   onPointerCancel={handlePointerUp}
                 >
                   <div
+                    aria-hidden="true"
                     className="absolute -right-2.5 -bottom-2.5 size-5 rounded-full bg-muted-foreground border-2 border-background cursor-nwse-resize touch-none"
                     onPointerDown={handleResizePointerDown}
                   />
@@ -438,6 +443,9 @@ export function ScanRegionCalibrationPanel({
                   </div>
                 )}
           </div>
+          <p id={regionKeyboardHintId} className="text-xs text-foreground/70">
+            {t("scanRegionCalibrationPanel.regionKeyboardHint")}
+          </p>
 
           <div className="flex items-center gap-2">
             <Button
@@ -491,7 +499,7 @@ export function ScanRegionCalibrationPanel({
 
           {isCameraActive && <CameraZoomControl className="pt-2 border-t" />}
 
-          {isCameraActive && <CameraFocusControl className="pt-2 border-t" />}
+          {isCameraActive && <CameraFocusControl className="pt-2 border-t" previewOnly onFocusChange={cameraSettings.previewFocus} disabled={isLoading || cameraSettings.isCameraChanged || cameraSettings.isSaving} />}
 
           <SliderField
             className="pt-2 border-t"

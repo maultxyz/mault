@@ -1,7 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useNavigation, usePreventRemove } from "expo-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Alert, KeyboardAvoidingView, Platform, ScrollView, View } from "react-native";
@@ -11,6 +11,8 @@ import {
   presetMatchGameKeys,
   SCAN_ONLY_DEFAULT_BIN,
   SCAN_RULE_GAME_FIELD,
+  buildStoragePlanRows,
+  summarizeStoragePlan,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
@@ -20,6 +22,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SwitchRow } from "@/components/ui/switch-row";
@@ -27,6 +30,9 @@ import { binSetsQueryOptions } from "@/features/devices/api/devices";
 import { gamesQueryOptions } from "@/features/games/api/games";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { resetAutoAssign } from "@/features/rules/api/bin-sets";
+import { useStoragePlanDraft } from "@/features/rules/api/use-storage-plan-draft";
+import { closeStoragePlanDraft, openStoragePlanDraft } from "@/features/rules/lib/storage-plan-draft";
+import { storageLocationsQueryOptions } from "@/features/storage/api/storage";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { applyMode } from "@/features/rules/lib/apply-mode";
 import { modeSchema } from "@/features/rules/lib/mode-schema";
@@ -45,11 +51,23 @@ export default function SortingModeScreen() {
   const navigation = useNavigation();
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
-  const { activeSet, bins, collection, fieldDefinitions, gameGuid, isPending: isRulesDataPending } = useRulesData();
+  const {
+    activeSet,
+    bins,
+    collection,
+    fieldDefinitions,
+    gameGuid,
+    isPending: isRulesDataPending,
+    isError: isRulesDataError,
+    refetch: refetchRulesData,
+    isRefetching: isRefetchingRulesData,
+  } = useRulesData();
   const { data: billing } = useQuery(billingQueryOptions(orgId));
   const { data: games = [] } = useQuery(gamesQueryOptions);
   const otherGames = games.filter((game) => game.isActive && game.key !== collection?.game?.key);
   const [picker, setPicker] = useState<ModePicker | null>(null);
+  const storageLocked = billing?.storage === false;
+  const { data: storageLocations = [] } = useQuery(storageLocationsQueryOptions(orgId, !storageLocked));
   const catchAll = getCatchAllBin(bins)?.binNumber;
 
   const serverValues = useMemo<ModeFormValues | undefined>(
@@ -64,6 +82,7 @@ export default function SortingModeScreen() {
             chaosBinSize: activeSet.chaosBinSize != null ? String(activeSet.chaosBinSize) : "",
             skipSaving: !!activeSet.skipSaving,
             isResortMode: !!activeSet.isResortMode,
+            fillStorageLocationGuids: activeSet.fillStorageLocationGuids ?? [],
           }
         : undefined,
     [activeSet, catchAll],
@@ -77,6 +96,28 @@ export default function SortingModeScreen() {
   const mode = form.watch("mode");
   const autoAssignField = form.watch("autoAssignField");
   const matchGameKeys = form.watch("matchGameKeys");
+  const fillStorageLocationGuids = form.watch("fillStorageLocationGuids");
+  const storagePlanDraft = useStoragePlanDraft();
+  const storagePlan = summarizeStoragePlan(buildStoragePlanRows(fillStorageLocationGuids, storageLocations, bins));
+  const storagePlanSubtitle =
+    storagePlan.total === 0
+      ? t("rules.mode.storagePlan.off")
+      : t("rules.mode.storagePlan.summary", {
+          range:
+            storagePlan.firstName === storagePlan.lastName
+              ? storagePlan.firstName
+              : t("rules.mode.storagePlan.range", { first: storagePlan.firstName, last: storagePlan.lastName }),
+          full: storagePlan.full,
+          count: storagePlan.total,
+        });
+  useEffect(() => {
+    if (!storagePlanDraft.isOpen) return;
+    const current = form.getValues("fillStorageLocationGuids");
+    if (current.join() !== storagePlanDraft.locationGuids.join()) {
+      form.setValue("fillStorageLocationGuids", storagePlanDraft.locationGuids, { shouldDirty: true });
+    }
+  }, [form, storagePlanDraft]);
+  useEffect(() => closeStoragePlanDraft, []);
   const toggleMatchGame = (gameKey: string) =>
     form.setValue(
       "matchGameKeys",
@@ -130,7 +171,13 @@ export default function SortingModeScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.lg + SPACING.xs }}
       >
-        {isRulesDataPending ? (
+        {isRulesDataError && !activeSet ? (
+          <QueryErrorState
+            title={t("rules.loadFailed")}
+            onRetry={() => void refetchRulesData()}
+            isRetrying={isRefetchingRulesData}
+          />
+        ) : isRulesDataPending ? (
           <PageSkeleton />
         ) : (
           <>
@@ -304,6 +351,19 @@ export default function SortingModeScreen() {
             ) : null}
 
             {mode === "alphabet" ? <AppText size="sm" tone="secondary">{t("rules.mode.alphabetHint")}</AppText> : null}
+
+            <ListGroup>
+              <ListRow
+                icon="storage"
+                title={t("rules.mode.storagePlan.title")}
+                subtitle={storageLocked ? t("rules.mode.storagePlan.locked") : storagePlanSubtitle}
+                disabled={!editable || storageLocked}
+                onPress={() => {
+                  openStoragePlanDraft(fillStorageLocationGuids);
+                  router.push("/storage-plan");
+                }}
+              />
+            </ListGroup>
 
             <Controller
               control={form.control}

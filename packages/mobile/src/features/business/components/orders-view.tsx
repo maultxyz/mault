@@ -1,4 +1,4 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -11,13 +11,13 @@ import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Pill } from "@/components/ui/pill";
 import { SectionHeader } from "@/components/ui/section-header";
-import { ordersQueryOptions } from "@/features/business/api/business";
+import { orderQueryOptions, ordersQueryOptions } from "@/features/business/api/business";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { BUSINESS_LIST_SKELETON_ROWS, BUSINESS_STATUS_TONES, PICK_WALK_ORDERS_SEPARATOR } from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
 import type { BusinessListViewProps, OrderRowProps } from "@/lib/interfaces/business";
 
-function OrderRow({ order, onPress }: OrderRowProps) {
+function OrderRow({ order, onPress, onPressIn }: OrderRowProps) {
   const { t, i18n } = useTranslation();
   const date = new Date(order.createdAt).toLocaleDateString(i18n.language, { dateStyle: "medium" });
   const progress =
@@ -33,6 +33,7 @@ function OrderRow({ order, onPress }: OrderRowProps) {
       right={<Pill label={t(`business.status.${order.status}`)} tone={BUSINESS_STATUS_TONES[order.status]} />}
       accessibilityHint={t("business.picks.openHint")}
       onPress={onPress}
+      onPressIn={onPressIn}
     />
   );
 }
@@ -40,7 +41,9 @@ function OrderRow({ order, onPress }: OrderRowProps) {
 export function OrdersView({ canAct }: BusinessListViewProps) {
   const { t } = useTranslation();
   const orgId = useActiveOrgId();
+  const queryClient = useQueryClient();
   const orders = useInfiniteQuery(ordersQueryOptions(orgId, true));
+  const prefetchOrder = (guid: string) => void queryClient.prefetchQuery(orderQueryOptions(guid));
   const items = orders.data?.pages.flatMap((page) => page.items) ?? [];
   const openOrders = items.filter((order) => order.status === "open");
   const closedOrders = items.filter((order) => order.status !== "open");
@@ -96,7 +99,12 @@ export function OrdersView({ canAct }: BusinessListViewProps) {
           <SectionHeader title={t("business.picks.openSection")} />
           <ListGroup>
             {openOrders.map((order) => (
-              <OrderRow key={order.guid} order={order} onPress={() => openOrderPage(order.guid)} />
+              <OrderRow
+                key={order.guid}
+                order={order}
+                onPress={() => openOrderPage(order.guid)}
+                onPressIn={() => prefetchOrder(order.guid)}
+              />
             ))}
           </ListGroup>
         </View>
@@ -106,7 +114,12 @@ export function OrdersView({ canAct }: BusinessListViewProps) {
           <SectionHeader title={t("business.picks.closedSection")} />
           <ListGroup>
             {closedOrders.map((order) => (
-              <OrderRow key={order.guid} order={order} onPress={() => openOrderPage(order.guid)} />
+              <OrderRow
+                key={order.guid}
+                order={order}
+                onPress={() => openOrderPage(order.guid)}
+                onPressIn={() => prefetchOrder(order.guid)}
+              />
             ))}
           </ListGroup>
         </View>

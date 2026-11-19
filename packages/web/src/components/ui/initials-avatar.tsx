@@ -1,15 +1,9 @@
+import { getInitials } from "@magic-vault/shared";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-
-export function getInitials(name: string | undefined): string {
-  if (!name) return "?";
-  const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) return (parts[0][0] + parts[1][0]).toUpperCase();
-  return name.slice(0, 2).toUpperCase();
-}
 
 interface InitialsAvatarProps {
   name: string;
@@ -27,10 +21,10 @@ export function InitialsAvatar({
   const sizeClass = size === "sm" ? "size-5 text-2xs" : "size-6 text-2xs";
   const colorClass =
     variant === "scanner"
-      ? "bg-amber-500/15 text-amber-800 dark:text-amber-400 ring-1 ring-amber-500/30"
+      ? "bg-warning-muted text-warning-foreground ring-1 ring-warning-border"
       : variant === "neutral"
         ? "bg-muted text-muted-foreground ring-1 ring-border"
-        : "bg-green-500/15 text-green-800 dark:text-green-400 ring-1 ring-green-500/30";
+        : "bg-success-muted text-success-foreground ring-1 ring-success-border";
 
   const avatar = (
     <span

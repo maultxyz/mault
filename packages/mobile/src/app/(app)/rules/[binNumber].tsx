@@ -14,6 +14,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PageHeader } from "@/components/ui/page-header";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SaveBar } from "@/components/ui/save-bar";
 import { SectionHeader } from "@/components/ui/section-header";
 import { translateFormErrorMessage } from "@/lib/form-validation";
@@ -36,7 +37,17 @@ export default function BinEditorScreen() {
   const colors = useTheme();
   const navigation = useNavigation();
   const queryClient = useQueryClient();
-  const { gameGuid, activeSet, bins, fieldDefinitions, freeformOptions, isPending: isRulesDataPending } = useRulesData();
+  const {
+    gameGuid,
+    activeSet,
+    bins,
+    fieldDefinitions,
+    freeformOptions,
+    isPending: isRulesDataPending,
+    isError: isRulesDataError,
+    refetch: refetchRulesData,
+    isRefetching: isRefetchingRulesData,
+  } = useRulesData();
   const bin = bins.find((b) => b.binNumber === binNumber);
   const [overflowOpen, setOverflowOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
@@ -151,7 +162,13 @@ export default function BinEditorScreen() {
         keyboardShouldPersistTaps="handled"
         contentContainerStyle={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SCREEN_GUTTER, paddingBottom: SPACING.xxl * 2, gap: SPACING.lg + SPACING.xs }}
       >
-        {isRulesDataPending ? (
+        {isRulesDataError && !activeSet ? (
+          <QueryErrorState
+            title={t("rules.loadFailed")}
+            onRetry={() => void refetchRulesData()}
+            isRetrying={isRefetchingRulesData}
+          />
+        ) : isRulesDataPending ? (
           <PageSkeleton />
         ) : (
           <>

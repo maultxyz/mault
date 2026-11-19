@@ -51,3 +51,15 @@ export function catalogPrintingLabel(printing: PlayingCard): string {
   const setLabel = printing.setName || printing.set.toUpperCase();
   return printing.collectorNumber ? `${setLabel} #${printing.collectorNumber}` : setLabel;
 }
+
+export function isGlobalSearchGameSelected(selectedGameKey: string | null, gameKey: string | null | undefined): boolean {
+  return selectedGameKey === null || gameKey === selectedGameKey;
+}
+
+export function globalSearchGamesFor(games: CatalogGame[], selectedGameKey: string | null): CatalogGame[] {
+  return games.filter((game) => isGlobalSearchGameSelected(selectedGameKey, game.gameKey));
+}
+
+export function selectedGlobalSearchGameKey(games: CatalogGame[], requestedGameKey: string | null): string | null {
+  return requestedGameKey && games.some((game) => game.gameKey === requestedGameKey) ? requestedGameKey : null;
+}

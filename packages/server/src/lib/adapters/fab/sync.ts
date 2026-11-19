@@ -1,5 +1,6 @@
 import type { SyncSource, SyncSourceCard } from "../../interfaces/card-search";
 import { withRawData } from "../../card-search/with-raw-data";
+import { markSyncFetchIncomplete } from "../../sync-job/fetch-completeness";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { FAB_SYNC_LOG_EVERY, FAB_SYNC_PAGE_SIZE } from "../../constants/sync";
 import { FAB_DEFAULT_URL } from "../../constants/urls";
@@ -73,6 +74,7 @@ async function fetchCards(
       if (signal?.aborted) throw err;
     }
     if (!card) {
+      markSyncFetchIncomplete(`${name} could not be fetched`);
       addLog(`Skipped ${name}: full card could not be fetched.`);
       continue;
     }

@@ -354,8 +354,9 @@ function copyBytes(bytes: Uint8Array): Uint8Array<ArrayBuffer> {
   return copy;
 }
 
-function piSerialUrl(token: string, orgId: string, builtin: boolean): string {
+function piSerialUrl(token: string, orgId: string, builtin: boolean, controllerId?: string): string {
   const params = new URLSearchParams({ token, orgId });
+  if (controllerId) params.set("controllerId", controllerId);
   const endpoint = builtin ? "pi-sorter" : "pi-serial";
   if (API_BASE.startsWith("http://") || API_BASE.startsWith("https://")) {
     const url = new URL(API_BASE);
@@ -414,7 +415,7 @@ export class PiSerialTransport implements ByteTransport {
     ws.onerror = () => this.errorCb?.(new Error("Pi hardware socket error"));
   }
 
-  static async open(builtin = false): Promise<
+  static async open(builtin = false, controllerId?: string): Promise<
     | { ok: true; transport: PiSerialTransport }
     | { ok: false; reason: PiSerialErrorReason }
   > {
@@ -423,13 +424,13 @@ export class PiSerialTransport implements ByteTransport {
 
     let ws: WebSocket;
     try {
-      ws = new WebSocket(piSerialUrl(token, orgId, builtin));
+      ws = new WebSocket(piSerialUrl(token, orgId, builtin, controllerId));
     } catch {
       return { ok: false, reason: "open-failed" };
     }
 
     const transport = new PiSerialTransport(ws, builtin);
-    const result = await transport.waitUntilReady();
+    const result = await transport.waitUntilReady(controllerId?.startsWith("ble:") ? 35000 : PI_SERIAL_OPEN_TIMEOUT_MS);
     if (!result.ok) {
       transport.disconnectCb = null;
       await transport.close();
@@ -438,7 +439,7 @@ export class PiSerialTransport implements ByteTransport {
     return { ok: true, transport };
   }
 
-  private waitUntilReady(): Promise<
+  private waitUntilReady(timeoutMs: number): Promise<
     { ok: true } | { ok: false; reason: PiSerialErrorReason }
   > {
     return new Promise((resolve) => {
@@ -458,7 +459,7 @@ export class PiSerialTransport implements ByteTransport {
       };
       const timer = window.setTimeout(
         () => finish(null),
-        PI_SERIAL_OPEN_TIMEOUT_MS,
+        timeoutMs,
       );
       if (this.ready) finish(this.ready);
       else this.readyWaiters.push(finish);

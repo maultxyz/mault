@@ -8,8 +8,8 @@ import {
   getLocksForGuids,
   releaseHostScanLock,
   releaseLock,
-  subscribeOrgLocks,
 } from "../src/lib/scan-lock";
+import { subscribeOrgEvents } from "../src/lib/session-stream";
 
 function mockThreadClear(t: TestContext) {
   return t.mock.method(db, "update", () => ({
@@ -22,7 +22,7 @@ test("host scan lock survives initiating browser release and competing scanners"
   t.mock.timers.enable({ apis: ["setTimeout", "Date"], now: 10_000 });
   const guid = "host-browser-release";
   const events: string[] = [];
-  const unsubscribe = subscribeOrgLocks("org", (event) => { events.push(event); });
+  const unsubscribe = subscribeOrgEvents("org", (event) => { events.push(event); });
   t.after(() => { releaseHostScanLock(guid, "owner"); unsubscribe(); });
 
   assert.deepEqual(acquireHostScanLock(guid, "owner", "org", "Owner"), { ok: true, isNewSession: true });

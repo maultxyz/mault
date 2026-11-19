@@ -10,12 +10,14 @@ export function createStorageShareLink(
   expiresInDays: number,
   showPrices: boolean,
   purpose: ShareLinkPurpose,
+  requireGuestContact: boolean,
 ): Promise<StorageShareLink> {
   return unwrap(
     apiPost<Result<StorageShareLink>>(`/api/storage-locations/${locationGuid}/share-link`, {
       expiresInDays,
       showPrices,
       purpose,
+      requireGuestContact,
     }),
   );
 }

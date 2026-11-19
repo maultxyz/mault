@@ -1,6 +1,7 @@
 import type { CardViewMode, CollectionScanTimeline } from "@/lib/interfaces/collections";
 export const SEARCH_DEBOUNCE_MS = 300;
-export const LIST_END_THRESHOLD = 0.5;
+export const LIST_END_THRESHOLD = 1.5;
+export const CARD_GRID_LIST_WINDOW_SIZE = 11;
 export const CARD_GRID_COLUMNS = 3;
 export const CARD_ASPECT_RATIO = 2.5 / 3.5;
 export const CARD_GRID_GAP_X = 12;
@@ -16,3 +17,4 @@ export const COLLECTION_SCAN_TIMELINE_OPTIONS: readonly CollectionScanTimeline[]
 export const STORAGE_CARD_VIEW_MODE_KEY = "mault:storage-card-view-mode";
 export const COLLECTION_SEARCH_MIN_COUNT = 5;
 export const UNMATCHED_LIST_PAGE_SIZE = 30;
+export const COLLECTION_CSV_IMPORT_MIME_TYPES = ["text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/plain", "application/csv", "application/vnd.ms-excel"];

@@ -30,6 +30,22 @@
     "updated": "Password updated",
     "updateFailed": "Couldn't update your password"
   },
+  "signInMethods": {
+    "heading": "Sign-in methods",
+    "description": "Ways you can sign in to this account. To add a provider, sign in with it using this account's email address.",
+    "password": "Email and password",
+    "linkedOn": "Linked {{date}}",
+    "onlyMethod": "Your only sign-in method",
+    "unlink": "Unlink",
+    "unlinkProvider": "Unlink {{provider}}",
+    "unlinkHint": "Unlinks this sign-in method",
+    "unlinkConfirmTitle": "Unlink {{provider}}?",
+    "unlinkConfirmDescription": "You won't be able to sign in with {{provider}} anymore. Signing in with it again using this account's email address adds it back.",
+    "unlinked": "{{provider}} unlinked",
+    "unlinkFailed": "Couldn't unlink {{provider}}",
+    "loadFailed": "Couldn't load sign-in methods",
+    "cancel": "Cancel"
+  },
   "sessions": {
     "heading": "Sessions",
     "description": "Devices currently signed in to your account.",

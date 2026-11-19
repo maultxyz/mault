@@ -48,6 +48,27 @@
       "failedCount_other": "{{count}} échoués",
       "historyItem": "#{{number}} canal {{channel}}"
     },
+    "leds": {
+      "heading": "Bandes LED",
+      "description": "Deux bandes RGBW de 8 LED sur le GPIO 14. Choisissez une LED pour l'allumer ou l'éteindre et régler son rouge, son vert, son bleu, son blanc et sa luminosité, ou basculez une bande entière d'un coup.",
+      "reload": "Recharger depuis la carte",
+      "needsFirmware": "Les bandes LED nécessitent le firmware {{version}} ou plus récent. Flashez la carte pour les utiliser.",
+      "strip": "Bande {{strip}}",
+      "stripOn": "Bande entière",
+      "ledLabel": "LED {{led}}, {{state}}",
+      "on": "Allumée",
+      "off": "Éteinte",
+      "selected": "Bande {{strip}}, LED {{led}}",
+      "channels": {
+        "red": "Rouge",
+        "green": "Vert",
+        "blue": "Bleu",
+        "white": "Blanc"
+      },
+      "brightness": "Luminosité",
+      "brightnessValue": "{{percent}} %",
+      "applyToStrip": "Appliquer à la bande {{strip}}"
+    },
     "status": {
       "ok": "OK",
       "busy": "La carte est occupée par une autre commande.",
@@ -56,6 +77,29 @@
     },
     "toasts": {
       "commandFailed": "La carte n'a pas accepté la commande"
+    },
+    "rawCommands": {
+      "heading": "Commandes brutes",
+      "description": "Envoie n'importe quelle commande JSON directement à la carte, une ligne à la fois. Les impulsions brutes ignorent l'étalonnage : commence près du centre et surveille la mécanique. Tout arrêter coupe l'alimentation de chaque servo ; envoie Neutre pour reprendre.",
+      "presets": "Exemples",
+      "preset": {
+        "servoPulse": "Impulsion servo",
+        "servoPosition": "Position servo",
+        "channelPulse": "Impulsion canal",
+        "channelRelease": "Libérer le canal",
+        "neutral": "Neutre",
+        "status": "État"
+      },
+      "command": "Commande (JSON)",
+      "commandHint": "Un objet JSON, par exemple {\"servo\": \"pusher\", \"module\": 1, \"value\": 305}. Les impulsions vont de 120 à 490. Toutes les commandes sont dans firmware/PROTOCOL.md.",
+      "send": "Envoyer",
+      "stopAll": "Tout arrêter",
+      "history": "Réponses",
+      "clear": "Effacer",
+      "empty": "Rien n'a encore été envoyé.",
+      "sent": "Envoyé :",
+      "reply": "Réponse :",
+      "failed": "Échec"
     }
   },
   "cardImageVectors": {
@@ -277,7 +321,7 @@
     },
     "features": {
       "chaosSort": {
-        "label": "Tri en vrac",
+        "label": "Tri chaos",
         "description": "Remplir les bacs dans l'ordre, sans règles. Le désactiver empêche seulement d'autres préréglages de l'activer."
       },
       "storage": {
@@ -294,7 +338,7 @@
       },
       "repacks": {
         "label": "Repacks",
-        "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux déjà en mode repack continuent de fonctionner."
+        "description": "Créer des repacks à partir des créneaux des bacs. Le désactiver empêche seulement les préréglages de l'activer. Ceux qui créent déjà des repacks continuent de fonctionner."
       },
       "customSounds": {
         "label": "Sons personnalisés",
@@ -476,14 +520,14 @@
     "loadFailed": "Impossible de charger les paramètres Discord."
   },
   "errorReportingTest": {
-    "heading": "Tester PostHog",
-    "description": "Envoie une erreur de test à PostHog depuis le client et/ou le serveur pour vérifier que le signalement des erreurs fonctionne",
+    "heading": "Tester Better Stack",
+    "description": "Envoie une erreur de test à Better Stack depuis le client et/ou le serveur pour vérifier que le signalement des erreurs fonctionne",
     "testClientButton": "Tester le client",
     "testServerButton": "Tester le serveur",
     "testingButton": "Envoi...",
     "toasts": {
-      "clientSent": "Erreur de test envoyée à PostHog (client).",
-      "serverError": "Impossible d'envoyer l'erreur de test à PostHog (serveur)"
+      "clientSent": "Erreur de test envoyée à Better Stack (client).",
+      "serverError": "Impossible d'envoyer l'erreur de test à Better Stack (serveur)"
     }
   },
   "systemSoundClips": {

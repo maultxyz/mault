@@ -2,7 +2,6 @@ import type { ShopCatalogSource } from "@magic-vault/shared";
 import { and, asc, eq, inArray } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { collections, shopCatalogs, storageLocations } from "../db/schema";
-import { isBusinessToolsAllowed } from "./business-access";
 import { SHOP_CATALOG_ISSUER } from "./constants/auth";
 import { PUBLIC_SHOP_CATALOG_CACHE_PREFIX } from "./constants/shop-catalogs";
 import { UUID_PATTERN } from "./constants/validation";
@@ -19,6 +18,7 @@ import {
   verifyRevocableShareToken,
 } from "./share-tokens";
 import { createTtlCache } from "./ttl-cache";
+import { orgHasFeature } from "./plan-config";
 
 const verifiedShopCatalogLinks = createTtlCache<ShopCatalogClaims>({
   ttlMs: SHARE_LINK_CLAIMS_CACHE_TTL_MS,
@@ -105,7 +105,7 @@ async function loadShopCatalogClaims(
         ),
     });
     if (!catalog || !accepts(catalog)) return null;
-    if (!(await isBusinessToolsAllowed(tx, catalog.orgId))) return null;
+    if (!(await orgHasFeature(tx, catalog.orgId, "businessTools"))) return null;
     const sources = await loadShopCatalogSources(
       tx,
       catalog.orgId,

@@ -7,6 +7,7 @@ import { BinConfigPanel } from "@/features/bins/components/bin-config-panel";
 import { BinList } from "@/features/bins/components/bin-list";
 import { BinRulesMenu } from "@/features/bins/components/bin-rules-menu";
 import { MobilePresetSelector } from "@/features/bins/components/mobile-preset-selector";
+import { MobileStoragePlan } from "@/features/bins/components/mobile-storage-plan";
 import { PresetDescriptionNote } from "@/features/bins/components/preset-description-note";
 import { RepackPanel } from "@/features/bins/components/repack-panel";
 import {
@@ -28,7 +29,7 @@ import {
   IconListNumbers,
   IconPackages,
 } from "@tabler/icons-react";
-import { useCallback, useEffect, type ReactNode } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate, useSearchParams } from "react-router-dom";
 
@@ -45,6 +46,7 @@ export function MobileBins() {
     isModeDirty,
   } = useBinConfigs();
   const activeWorkflow = useActivePresetWorkflow();
+  const [isStoragePlanOpen, setIsStoragePlanOpen] = useState(false);
 
   const binParam = Number(searchParams.get(MOBILE_BINS_BIN_PARAM));
   const openBinNumber = configs.some((config) => config.binNumber === binParam)
@@ -66,8 +68,10 @@ export function MobileBins() {
     }
   }, [openBinNumber, selectedBin, setSelectedBin]);
 
-  const openScreen = (params: Record<string, string>) =>
+  const openScreen = (params: Record<string, string>) => {
+    setIsStoragePlanOpen(false);
     setSearchParams(params);
+  };
 
   const goBack = useCallback(() => {
     if (location.key !== "default") navigate(-1);
@@ -104,6 +108,19 @@ export function MobileBins() {
     );
   }
 
+  if (screen === "mode" && isStoragePlanOpen) {
+    return (
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        <MobilePageHeader
+          title={t("storagePlan.heading")}
+          subtitle={selectedSet?.name}
+          onBack={() => setIsStoragePlanOpen(false)}
+        />
+        {screenBody(<MobileStoragePlan />)}
+      </div>
+    );
+  }
+
   if (screen === "mode") {
     return (
       <div className="relative flex min-h-0 flex-1 flex-col">
@@ -112,7 +129,9 @@ export function MobileBins() {
           subtitle={selectedSet?.name}
           onBack={goBack}
         />
-        {screenBody(<AutoAssignPanel />)}
+        {screenBody(
+          <AutoAssignPanel onOpenStoragePlan={() => setIsStoragePlanOpen(true)} />,
+        )}
       </div>
     );
   }

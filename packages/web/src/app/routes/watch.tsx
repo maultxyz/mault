@@ -88,6 +88,7 @@ export default function WatchPage() {
             collectionGuid={collectionGuid ?? ""}
             collectionName={link.info.collectionName}
             purpose={link.info.purpose}
+            requiresGuestContact={link.info.requiresGuestContact !== false}
             session={session}
           />
       </PriceSourceProvider>

@@ -1,4 +1,13 @@
 {
+  "scanner": {
+    "piHardware": {
+      "bluetoothOff": "Bluetooth is switched off on the host",
+      "bluetoothScanning": "Searching for Bluetooth sorters…",
+      "bluetoothFailed": "Could not search for Bluetooth sorters. Check that Bluetooth is enabled on the host.",
+      "bluetoothEmpty": "No Bluetooth sorters found. Turn on the sorter and keep it nearby.",
+      "bluetoothRescan": "Search again"
+    }
+  },
   "app": {
     "name": "Mault"
   },
@@ -30,7 +39,8 @@
     "trades": "Trades",
     "more": "More",
     "home": "Home",
-    "library": "Library"
+    "library": "Library",
+    "business": "Buy & sell"
   },
   "auth": {
     "tagline": "Scan, sort and track your cards from your phone.",
@@ -45,10 +55,15 @@
     "errors": {
       "network": "Couldn't reach the server. Check your connection and try again.",
       "profile": "Signed in, but your account details couldn't be loaded. Try again.",
+      "session-rejected": "Signed in, but the sign-in service didn't accept the session. Try again.",
       "verify-email": "Verify your email address, then sign in.",
-      "storage": "Signed in, but the session couldn't be saved on this device. Try again."
+      "storage": "Signed in, but the session couldn't be saved on this device. Try again.",
+      "social": "Couldn't sign you in with that account. Try again.",
+      "socialWithCode": "Couldn't sign you in with that account ({{code}}). Try again."
     },
-    "createAccountOnWeb": "New to Mault? Create an account on the web"
+    "createAccountOnWeb": "New to Mault? Create an account on the web",
+    "orContinueWith": "Or continue with",
+    "continueWithProvider": "Continue with {{provider}}"
   },
   "collections": {
     "title": "Collection",
@@ -99,7 +114,32 @@
     "scanInto": "Scan into this collection",
     "scan": "Scan",
     "notFoundTitle": "Collection not found",
-    "notFoundDescription": "It may have been deleted, or you no longer have access to it."
+    "notFoundDescription": "It may have been deleted, or you no longer have access to it.",
+    "importCsv": {
+      "button": "Import CSV",
+      "title": "Import cards from a CSV",
+      "description": "Upload a collection export from Moxfield, Archidekt, ManaBox, Deckbox, Dragon Shield, TCGplayer or any CSV with a card name column.",
+      "detectedFormat": "Format: {{format}}.",
+      "genericFormat": "generic CSV",
+      "skipped_one": "{{count, compact}} row without a card name or quantity was skipped.",
+      "skipped_other": "{{count, compact}} rows without a card name or quantity were skipped.",
+      "matched_one": "{{count, compact}} card is ready to import.",
+      "matched_other": "{{count, compact}} cards are ready to import.",
+      "unmatchedTitle_one": "{{count, compact}} row didn't match a card",
+      "unmatchedTitle_other": "{{count, compact}} rows didn't match a card",
+      "unmatchedLine": "Line {{line}}: {{quantity}}x {{name}}",
+      "noNameColumn": "This file has no card name column.",
+      "emptyFile": "This file has no cards.",
+      "import_one": "Import {{count, compact}} card",
+      "import_other": "Import {{count, compact}} cards",
+      "imported_one": "Imported {{count, compact}} card",
+      "imported_other": "Imported {{count, compact}} cards",
+      "previewFailed": "Couldn't check the file.",
+      "failed": "Couldn't import the cards.",
+      "chooseFile": "Choose file",
+      "chooseAnother": "Choose another file",
+      "readFailed": "Couldn't read that file."
+    }
   },
   "shareLink": {
     "collectionTitle": "Share live view",
@@ -125,6 +165,8 @@
     "cancel": "Cancel",
     "showPrices": "Show prices",
     "showPricesDescription": "Turn off to hide card prices and totals from anyone using this link.",
+    "requireGuestContact": "Require contact info",
+    "requireGuestContactDescription": "Turn off to let people send a trade offer without leaving an email, phone or username.",
     "typeLabel": "Link type",
     "monitorType": "Monitor",
     "tradeType": "Trade",
@@ -156,7 +198,16 @@
       "links": "Showing active links",
       "new": "Showing new link form",
       "link": "Showing link and QR code"
-    }
+    },
+    "linksTab": "Links",
+    "sharedCards": "Shared cards",
+    "sharedCardsDescription": "Cards from this collection you shared. Tap one to copy its link, or long press to revoke it.",
+    "sharedCardsEmpty": "No shared cards yet",
+    "sharedCardsEmptyDescription": "Use Copy share link on a card to share it. Its link shows up here so you can revoke it.",
+    "cardLinkCopied": "Link copied.",
+    "cardLinkCopyFailed": "Couldn't copy the link.",
+    "cardLinkCopyHint": "Copies the link",
+    "created": "Created {{date}}"
   },
   "cards": {
     "bin": "Bin {{number}}",
@@ -398,6 +449,21 @@
         "updated": "Password updated",
         "updateFailed": "Couldn't update your password",
         "change": "Change password"
+      },
+      "signInMethods": {
+        "heading": "Sign-in methods",
+        "description": "Ways you can sign in to this account. To add a provider, sign in with it using this account's email address.",
+        "password": "Email and password",
+        "linkedOn": "Linked {{date}}",
+        "onlyMethod": "Your only sign-in method",
+        "unlink": "Unlink",
+        "unlinkHint": "Unlinks this sign-in method",
+        "unlinkConfirmTitle": "Unlink {{provider}}?",
+        "unlinkConfirmDescription": "You won't be able to sign in with {{provider}} anymore. Signing in with it again using this account's email address adds it back.",
+        "unlinked": "{{provider}} unlinked",
+        "unlinkFailed": "Couldn't unlink {{provider}}",
+        "loadFailed": "Couldn't load sign-in methods",
+        "cancel": "Cancel"
       },
       "sessions": {
         "heading": "Sessions",
@@ -715,8 +781,8 @@
     "pauseAction": "Pause",
     "emergencyStop": "Stop",
     "emergencyStopHint": "Emergency stop: halts the feeder, paddles and pushers now",
-    "sessionChip_one": "{{count}} scanned",
-    "sessionChip_other": "{{count}} scanned",
+    "sessionChip_one": "{{count, compact}} scanned",
+    "sessionChip_other": "{{count, compact}} scanned",
     "sessionScans": {
       "title": "This session",
       "empty": "No cards scanned yet this session.",
@@ -777,7 +843,10 @@
       "confirmTitle": "Mark bin {{bins}} empty?",
       "confirmDescription": "Only do this after taking the cards out. The bin's count starts again from zero.",
       "confirm": "Mark empty",
-      "failed": "Couldn't mark the bin empty. Check your connection and try again."
+      "failed": "Couldn't mark the bin empty. Check your connection and try again.",
+      "storeDescription": "Only do this after taking the cards out. Cards are stored in their locations: {{locations}}.",
+      "storeBin": "bin {{bin}} in {{location}}",
+      "storeConfirm": "Store and mark empty"
     },
     "removal": {
       "title": "Removing from {{collection}}",
@@ -846,7 +915,8 @@
         "scanOnce": "Scan one",
         "removing": "Removing"
       },
-      "saved": "Saved {{name}}"
+      "saved": "Saved {{name}}",
+      "offline": "Offline"
     },
     "unmatchedRecovery": {
       "title": "Couldn't identify that card",
@@ -895,6 +965,12 @@
       "open": "Opens the collection"
     },
     "loadFailed": "Couldn't load your overview. Pull down to try again.",
+    "firstRun": {
+      "title": "Start your collection",
+      "description": "Create a collection, then scan your first cards to see what they're worth.",
+      "createCollection": "New collection",
+      "startScanning": "Start scanning"
+    },
     "hero": {
       "value": "Collection value",
       "cards": "Cards",
@@ -955,7 +1031,9 @@
       "title": "Sort by",
       "scanOrder": "Scan order (newest first)",
       "ascending": "{{field}}, ascending",
-      "descending": "{{field}}, descending"
+      "descending": "{{field}}, descending",
+      "priceUsd": "Price (USD)",
+      "priceEur": "Price (EUR)"
     },
     "actions": {
       "copies_one": "{{count}} copy",
@@ -985,6 +1063,9 @@
     "loadingMoreCards": "Loading more cards"
   },
   "cardDetail": {
+    "catalogCardRemovedTitle": "Card no longer in the catalog",
+    "catalogCardRemovedDescription": "The card this copy was matched to, {{name}}, was removed from the card database because its data was incorrect. Search for the correct printing so its price and details stay up to date.",
+    "catalogCardRemovedAction": "Find the correct card",
     "noCollectionsToMoveTo": "There's no other collection for this game to move the card to.",
     "noLocationsToMoveTo": "There's no other storage location to move the card to.",
     "pricePaid": "Price paid ({{currency}})",
@@ -1054,7 +1135,12 @@
     "actions": "Card actions",
     "similarMatchesCount_one": "{{count}} similar match",
     "similarMatchesCount_other": "{{count}} similar matches",
-    "reviewAcceptFailed": "Couldn't accept the previous card"
+    "reviewAcceptFailed": "Couldn't accept the previous card",
+    "share": "Copy share link",
+    "shareLinkCopied": "Share link copied. Anyone with it can see this card.",
+    "shareLinkCopyFailed": "Couldn't copy a share link for this card.",
+    "downloadPhoto": "Download photo",
+    "downloadPhotoFailed": "Couldn't download the photo. Try again."
   },
   "reviewGrid": {
     "title": "Review cards",
@@ -1171,7 +1257,15 @@
       "resortDescription": "Each scan moves a copy that is already in this collection into its new bin instead of adding another copy. The copy keeps its foil and condition and leaves its old storage location. Cards not in the collection yet are added as usual.",
       "matchGames": "Also identify cards from",
       "matchGamesEmpty": "Pick at least one other game. Until you do, only this game's cards are recognized.",
-      "matchGamesHint": "Cards that aren't recognized go to the catch-all. Each extra game makes scans a little slower."
+      "matchGamesHint": "Cards that aren't recognized go to the catch-all. Each extra game makes scans a little slower.",
+      "storagePlan": {
+        "title": "Storage plan",
+        "off": "Off",
+        "locked": "Storage locations aren't included in your plan.",
+        "summary_one": "{{range}} · {{full}} of {{count}} full",
+        "summary_other": "{{range}} · {{full}} of {{count}} full",
+        "range": "{{first}} to {{last}}"
+      }
     },
     "modes": {
       "rules": {
@@ -1301,7 +1395,39 @@
     "maxCardsPlaceholder": "No limit",
     "maxCardsDescription": "This bin counts as full at this many cards, even if it has room: matching cards then go to its overflow bin or pause sorting. Leave empty to use the bin's physical size.",
     "maxCardsPill_one": "Holds {{count}}",
-    "maxCardsPill_other": "Holds {{count}}"
+    "maxCardsPill_other": "Holds {{count}}",
+    "storagePlan": {
+      "title": "Storage plan",
+      "description": "Each bin fills the next location in this list that has room and pauses when it is full. Emptying the bin stores its cards there.",
+      "locked": "Storage locations aren't included in your plan.",
+      "locationsTitle": "Locations in order",
+      "order": "{{order}}. {{name}}",
+      "noCapacity": "No capacity set",
+      "batch": "batch {{size}}",
+      "status": {
+        "full": "Full",
+        "filling": "Filling bin {{number}}",
+        "waiting": "Waiting"
+      },
+      "rowHint": "Selects the location to move, edit or remove it",
+      "actions": "Location actions",
+      "moveUp": "Move {{name}} up",
+      "moveDown": "Move {{name}} down",
+      "edit": "Edit {{name}}",
+      "remove": "Remove {{name}} from the plan",
+      "add": "Add locations",
+      "addTitle": "Choose locations to add",
+      "addSelected_one": "Add {{count}} location",
+      "addSelected_other": "Add {{count}} locations",
+      "noneLeft": "Every location is already in the plan.",
+      "createSeries": "Create series",
+      "empty": "Add locations to start storing bins in them.",
+      "binsTitle": "Bins now",
+      "binsHint": "Shows the saved plan. Save your changes to update it.",
+      "noLocation": "No location",
+      "claim_one": "{{name}} · {{count}} left",
+      "claim_other": "{{name}} · {{count}} left"
+    }
   },
   "calibration": {
     "title": "Sorter setup",
@@ -1314,7 +1440,7 @@
     "msValue": "{{value}} ms",
     "continuous": "Continuous",
     "servos": {
-      "bottom": "Bottom Paddle",
+      "bottom": "Bottom paddle",
       "paddle": "Paddles",
       "pusher": "Pusher"
     },
@@ -1512,7 +1638,8 @@
       "resetToNeutral": "Reset to neutral",
       "binFailed": "Bin {{bin}} didn't route",
       "sampleRunStopped": "Sample run stopped at bin {{bin}}"
-    }
+    },
+    "scanRegionCalibrationPanel": {}
   },
   "storage": {
     "title": "Storage",
@@ -1633,11 +1760,82 @@
     "searchFailed": "Couldn't search your storage locations",
     "notFoundTitle": "Location not found",
     "notFoundDescription": "It may have been deleted, or you no longer have access to it.",
-    "printLabel": "Print label"
+    "printLabel": "Print label",
+    "edit": "Edit location",
+    "add": "Add storage",
+    "capacityLabel": "Capacity",
+    "capacityPlaceholder": "No limit",
+    "batchSizeLabel": "Cards per batch",
+    "batchSizePlaceholder": "No batches",
+    "sizeHint": "Capacity is how many cards the location holds. With a batch size, each card's place reads box-batch-card, like A1-2-17.",
+    "slotsUsed": "{{used}} of {{capacity}} used",
+    "fillOfCapacity": "{{cards}} · {{used}} of {{capacity}} used",
+    "series": {
+      "title": "New series",
+      "menuDescription": "Create numbered locations like A1 to A10 in one go",
+      "description": "Creates one location per number, all with the same capacity and batch size. Names that already exist are skipped.",
+      "prefixLabel": "Prefix",
+      "prefixPlaceholder": "e.g. A",
+      "firstNumberLabel": "First number",
+      "countLabel": "How many",
+      "create_one": "Create {{count}} location",
+      "create_other": "Create {{count}} locations",
+      "created_one": "Created {{count}} location",
+      "created_other": "Created {{count}} locations",
+      "createdWithSkipped_one": "Created {{count}} location. Skipped existing: {{names}}",
+      "createdWithSkipped_other": "Created {{count}} locations. Skipped existing: {{names}}",
+      "previewOne": "Creates {{name}}",
+      "preview": "Creates {{first}} to {{last}} ({{count}} locations)"
+    },
+    "bulk": {
+      "select": "Select locations",
+      "doneSelecting": "Done selecting",
+      "selectedCount_one": "{{count}} selected",
+      "selectedCount_other": "{{count}} selected",
+      "selectAll": "Select all",
+      "clear": "Clear",
+      "setSize": "Set size",
+      "addToPlan": "Add to plan",
+      "removeFromPlan": "Remove from plan",
+      "pickPreset_one": "Pick the preset whose storage plan should change for {{count}} location.",
+      "pickPreset_other": "Pick the preset whose storage plan should change for {{count}} locations.",
+      "noPresets": "No presets to choose from.",
+      "addedToPlan_one": "Added {{count}} location to {{preset}}.",
+      "addedToPlan_other": "Added {{count}} locations to {{preset}}.",
+      "removedFromPlan_one": "Removed {{count}} location from {{preset}}.",
+      "removedFromPlan_other": "Removed {{count}} locations from {{preset}}.",
+      "deleteTitle_one": "Delete {{count}} location?",
+      "deleteTitle_other": "Delete {{count}} locations?",
+      "deleteDescription": "Their cards stay in their collections but are no longer assigned to a location. This can't be undone.",
+      "deleted_one": "Deleted {{count}} location.",
+      "deleted_other": "Deleted {{count}} locations.",
+      "sizeTitle_one": "Set size for {{count}} location",
+      "sizeTitle_other": "Set size for {{count}} locations",
+      "sizeDescription": "Turn on the values to change. Values you leave off stay as they are on each location.",
+      "changeCapacity": "Change capacity",
+      "changeBatchSize": "Change batch size",
+      "sizeClearHint": "Leave a turned-on field empty to remove that limit.",
+      "sizeApply_one": "Update {{count}} location",
+      "sizeApply_other": "Update {{count}} locations",
+      "sizeUpdated_one": "Updated {{count}} location.",
+      "sizeUpdated_other": "Updated {{count}} locations.",
+      "deleteInPlans": "Some are in the storage plan of: {{presets}}. They will be removed from those plans."
+    },
+    "planUses": {
+      "title": "Used by sorting rules",
+      "empty": "Not in any storage plan",
+      "position": "Position {{position}} of {{total}}",
+      "filling": "Filling bin {{bin}}",
+      "active": "Active"
+    },
+    "inPlans_one": "In {{count}} plan",
+    "inPlans_other": "In {{count}} plans",
+    "deleteInPlans": "It is in the storage plan of: {{presets}}. It will be removed from those plans."
   },
   "settings": {
     "title": "Settings",
     "subtitle": "Organization-wide settings for every scanner",
+    "loadFailed": "Couldn't load these settings",
     "entrySubtitle": "Pricing, scanning, branding and integrations",
     "sections": {
       "general": {
@@ -1719,7 +1917,7 @@
     "ocr": {
       "heading": "Text recognition (OCR)",
       "description": "When a scan isn't a confident match, read the card's name and set line to find it. Applies to every scanner in this organization, for games with text regions set up.",
-      "toggleLabel": "Enable OCR text matching",
+      "toggleLabel": "Enable text recognition",
       "highAccuracyToggleLabel": "Higher accuracy scans",
       "highAccuracyDescription": "Read the text on every card, not only uncertain ones, so the set and number can correct a confident but wrong match. Scans take a little longer."
     },
@@ -2235,12 +2433,12 @@
     "low": "Low",
     "regular": "Regular",
     "foil": "Foil",
-    "noPrice": "n/a",
-    "acrossPrintings": "Range across {{count}} printings"
+    "noPrice": "No price"
   },
   "health": {
     "title": "System health",
     "subtitle": "Live status of the database.",
+    "loadFailed": "Couldn't load the system status",
     "refresh": "Refresh",
     "allHealthy": "Everything is operational.",
     "someUnhealthy": "Some services are having trouble.",
@@ -2375,7 +2573,8 @@
     "orderBinCatchAll": "The last bin catches every other card, so pick another one.",
     "catalogSourcesRequired": "Pick at least one collection or storage location.",
     "contactRequired": "Add a way to reach you.",
-    "textTooLong": "Keep this under {{max}} characters."
+    "textTooLong": "Keep this under {{max}} characters.",
+    "jsonObjectInvalid": "Enter a single JSON object, like {\"neutral\": true}."
   },
   "cardTags": {
     "title": "Tags",
@@ -2649,7 +2848,7 @@
         },
         "repacks": {
           "label": "Repacks",
-          "description": "Build repacks from bin slots. Turning it off only stops presets from switching it on. Presets already in repack mode keep working."
+          "description": "Build repacks from bin slots. Turning it off only stops presets from switching it on. Presets already building repacks keep working."
         },
         "customSounds": {
           "label": "Custom sounds",
@@ -3119,6 +3318,7 @@
     "reviewDescription": "Sent from {{source}} on {{date}}",
     "unknownSource": "a shared link",
     "contact": "Contact",
+    "noContact": "No contact info given",
     "theyWant_one": "They want {{count}} card",
     "theyWant_other": "They want {{count}} cards",
     "theyOffer_one": "They offer {{count}} card",
@@ -3150,7 +3350,8 @@
         "declined": "Declined"
       },
       "picking_one": "Picking, {{count}} left",
-      "picking_other": "Picking, {{count}} left"
+      "picking_other": "Picking, {{count}} left",
+      "inPerson": "In person"
     },
     "cardList": {
       "cardCount_one": "{{count}} card",
@@ -3243,6 +3444,63 @@
         "accepted": "Accepted",
         "declined": "Declined"
       }
+    },
+    "newTrade": {
+      "button": "New trade",
+      "link": "Trade link",
+      "linkHint": "Share a link so someone can pick cards and send you an offer.",
+      "inPerson": "In-person trade",
+      "inPersonHint": "Fill out both sides yourself and record a trade you made.",
+      "linkTitle": "Create a trade link",
+      "linkDescription": "Pick what the trade link shows. People who open it can choose cards and send you an offer.",
+      "sourceLabel": "Share from",
+      "sourcePlaceholder": "Choose a collection or storage location",
+      "collections": "Collections",
+      "storageLocations": "Storage locations",
+      "continue": "Continue"
+    },
+    "inPerson": {
+      "title": "In-person trade",
+      "description": "Record a trade you made in person. Cards you give leave your inventory and cards you get are added to a collection.",
+      "detailsTitle": "Trade partner",
+      "detailsDescription": "Optional, to remember who you traded with",
+      "partnerName": "Name (optional)",
+      "partnerContact": "Contact (optional)",
+      "giveTitle_one": "You give ({{count}})",
+      "giveTitle_other": "You give ({{count}})",
+      "giveDescription": "Copies from your inventory",
+      "giveEmpty": "Search your cards to add what you're giving.",
+      "searchOwnedLabel": "Search your cards",
+      "addGivenCard": "Give {{name}}",
+      "addReceivedCard": "Get {{name}}",
+      "getTitle_one": "You get ({{count}})",
+      "getTitle_other": "You get ({{count}})",
+      "getDescription": "Cards added to the collection you pick",
+      "getEmpty": "Search to add the cards you're getting.",
+      "pickCollectionFirst": "Pick the collection the cards you get go into.",
+      "receiveCollection": "Add received cards to",
+      "receiveCollectionPlaceholder": "Choose a collection",
+      "cashTitle": "Cash",
+      "cashDirection": "Who pays cash",
+      "cashReceived": "They pay me",
+      "cashGiven": "I pay them",
+      "readyHint": "Recording removes the cards you give and adds the cards you get.",
+      "emptyHint": "Add a card or a cash amount to record the trade.",
+      "record": "Record trade",
+      "recorded": "Trade recorded.",
+      "recordFailed": "Couldn't record the trade. Try again.",
+      "reviewTitle": "In-person trade with {{name}}",
+      "recordedOn": "Recorded in person on {{date}}",
+      "youGave_one": "You gave {{count}} card",
+      "youGave_other": "You gave {{count}} cards",
+      "youGot_one": "You got {{count}} card",
+      "youGot_other": "You got {{count}} cards",
+      "rowDetails": "In person · {{given}} given · {{received}} received",
+      "addCards": "Add cards",
+      "searchCatalog": "Search cards",
+      "noResults": "No cards found",
+      "editCardHint": "Change quantity, condition or foil",
+      "remove": "Remove"
     }
   },
   "trade": {
@@ -3257,6 +3515,7 @@
     "detailsTitle": "Your details",
     "nameLabel": "Your name",
     "contactLabel": "Email, phone or username",
+    "contactLabelOptional": "Email, phone or username (optional)",
     "noteLabel": "Note (optional)",
     "getTitle_one": "You get ({{count}})",
     "getTitle_other": "You get ({{count}})",
@@ -3277,6 +3536,16 @@
     "summaryWithCash": "Cards you get: {{get}} · Cards you give: {{give}} · Cash: {{cash}}",
     "summaryNothing": "Cards you get: {{get}} · Nothing in return",
     "needGet": "Add a card you want to continue.",
+    "noPrice": "No price",
+    "balance": {
+      "youGet": "You get",
+      "youGive": "You give",
+      "difference": "Difference",
+      "youGiveMore": "You give {{amount}} more",
+      "youGetMore": "You get {{amount}} more",
+      "even": "Even trade",
+      "missingPrices": "Some cards have no price, so the totals may be off."
+    },
     "send": "Send trade offer",
     "quantityIncrease": "Quantity: {{count}}",
     "quantityDecrease": "Quantity: {{count}}",
@@ -3422,6 +3691,12 @@
       "catalog": "All cards"
     },
     "catalogLoadFailed": "Couldn't search the card catalog. Pull down to try again.",
+    "showMoreCards": "Show more of your cards",
+    "gameFilterLabel": "Search in",
+    "allGames": "All games",
+    "showMoreCatalogCards": "Show more cards",
+    "loadingMore": "Loading more results",
+    "loadMoreFailed": "Couldn't load more results. Try again.",
     "printings": {
       "title": "Printings",
       "titleWithCount_one": "Printings ({{count}})",
@@ -3433,7 +3708,14 @@
       "showMore": "Show more printings"
     }
   },
+  "offline": {
+    "title": "You're offline",
+    "description": "Scans are saved once you're back online. Other changes need a connection.",
+    "backOnline": "Back online"
+  },
   "recovery": {
+    "loadFailed": "Couldn't load this",
+    "loadFailedDescription": "Check your connection and try again.",
     "undo": "Undo",
     "retry": "Retry",
     "restored": "Restored",
@@ -3707,6 +3989,96 @@
         "condition": "Other condition",
         "finish": "Other finish"
       }
+    }
+  },
+  "machines": {
+    "title": "Machines",
+    "chooseMachine": "Choose a machine",
+    "machinePicker": "{{name}}, choose another machine",
+    "empty": {
+      "title": "No machines online",
+      "description": "A machine shows up here while its sorter is connected in Mault on a computer, or while a Raspberry Pi is scanning."
+    },
+    "runState": {
+      "running": "Sorting",
+      "paused": "Paused",
+      "attention": "Needs attention",
+      "stopped": "Stopped",
+      "idle": "Idle"
+    },
+    "stale": "No update for a while",
+    "sessionCount_one": "{{count}} card this session",
+    "sessionCount_other": "{{count}} cards this session",
+    "collection": "Scanning into {{name}}",
+    "noCollection": "No collection chosen",
+    "camera": {
+      "label": "Live camera on {{name}}",
+      "unavailable": "This machine has no camera to show",
+      "idle": "The camera shows while the machine is sorting",
+      "loading": "Connecting to the camera"
+    },
+    "controls": {
+      "start": "Start",
+      "resume": "Resume",
+      "pause": "Pause",
+      "emergencyStop": "Emergency stop",
+      "emergencyStopHint": "Stops every motor on this machine",
+      "failed": "The machine didn't respond. Check that it's still online.",
+      "sent": "Sent to {{name}}",
+      "remoteNote": "Remote controls need the machine online. Keep a way to cut power at the machine."
+    },
+    "preset": {
+      "label": "Sorting rules",
+      "none": "No preset",
+      "pass": "Pass {{position}} of {{count}}"
+    },
+    "bins": {
+      "title": "Bins",
+      "estimated": "Estimated from scans since each bin was last emptied",
+      "bin": "Bin {{number}}",
+      "catchAll": "Bin {{number}} (catch-all)",
+      "fill": "{{count}}/{{capacity}}",
+      "fillUnknown": "{{count}}",
+      "a11y": "{{name}}: {{count}} of {{capacity}} cards",
+      "a11yUnknown": "{{name}}: {{count}} cards",
+      "unavailable": "Bin levels show once the machine has a preset"
+    },
+    "recent": {
+      "title": "Recent scans",
+      "empty": "Cards show up here as they're scanned",
+      "unmatched": "Not identified",
+      "bin": "Bin {{number}}",
+      "lowConfidence": "Check this match",
+      "open": "Open {{name}}",
+      "lastCard": "Last card: {{name}}"
+    },
+    "pages": {
+      "label": "Machine {{position}} of {{count}}",
+      "goTo": "Show {{name}}"
+    },
+    "source": {
+      "piHost": "Raspberry Pi",
+      "station": "Computer"
+    },
+    "attention": {
+      "jam": "Jam at module {{module}}",
+      "hopperEmpty": "Hopper is empty",
+      "feederError": "Feeder error",
+      "noCardDetected": "No card reached the scanner",
+      "cardStuckInModuleOne": "A card is stuck in module 1",
+      "sorterNotResponding": "Sorter isn't responding",
+      "routingFailed": "A card couldn't be routed",
+      "binLimit": "Bin {{bins}} is full",
+      "binLimitUnknown": "A bin is full",
+      "binsFull_one": "Bin {{bins}} is full",
+      "binsFull_other": "Bins {{bins}} are full",
+      "packsComplete": "All packs are complete",
+      "saveFailed": "A scan couldn't be saved",
+      "scanLimit": "Daily scan limit reached",
+      "sorterLimit": "Sorter limit reached",
+      "collectionLocked": "Collection is locked",
+      "scannerError": "Camera error",
+      "emergencyStopped": "Emergency stop"
     }
   }
 }

@@ -6,7 +6,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { cardmarketPrices, cardmarketProducts } from "../../db/schema";
 import type { CardSearchAdapter, CardmarketPricing } from "../interfaces/card-search";
-import { median } from "../statistics";
+import { onlyPriceRecord } from "./only-price-record";
 
 export function cardmarketMatchName(name: string): string {
   return name
@@ -68,23 +68,6 @@ async function resolveProductIds(
   });
 }
 
-function combinePrices(
-  prices: PlayingCardCardmarketPrice[],
-): PlayingCardCardmarketPrice | undefined {
-  if (prices.length <= 1) return prices[0];
-  const present = (key: "low" | "trend" | "avg" | "avg7" | "avg30") =>
-    prices.flatMap((p) => (p[key] != null ? [p[key]] : []));
-  const lows = present("low");
-  return {
-    low: lows.length ? Math.min(...lows) : null,
-    trend: median(present("trend")),
-    avg: median(present("avg")),
-    avg7: median(present("avg7")),
-    avg30: median(present("avg30")),
-    printings: prices.length,
-  };
-}
-
 function hasPrice(price: PlayingCardCardmarketPrice): boolean {
   return price.avg != null || price.trend != null || price.low != null;
 }
@@ -113,7 +96,7 @@ export async function applyCardmarketPrices<T extends PlayingCard>(
     });
     if (products.length === 0) return card;
 
-    const regular = combinePrices(
+    const regular = onlyPriceRecord(
       products
         .map((row) => ({
           productId: row.productId,
@@ -125,7 +108,7 @@ export async function applyCardmarketPrices<T extends PlayingCard>(
         }))
         .filter(hasPrice),
     );
-    const foil = combinePrices(
+    const foil = onlyPriceRecord(
       products
         .map((row) => ({
           productId: row.productId,

@@ -1,0 +1,204 @@
+import {
+  infiniteQueryOptions,
+  keepPreviousData,
+  queryOptions,
+  type InfiniteData,
+  type QueryClient,
+} from "@tanstack/react-query";
+import {
+  EMPTY_CARD_FILTERS,
+  type SetCardTagsRequest,
+  type CardScanOrigin,
+  type CollectionCardPosition,
+  type CollectionCardsQuery,
+  type MonitorLink,
+  type ShareLinkPurpose,
+  type CollectionCardsPage,
+  type CollectionCardsSummary,
+  type Result,
+  type ScannedCard,
+  type ScanTimelineBuckets,
+  type ScanTimelineGrouping,
+} from "@magic-vault/shared";
+import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
+import { SCAN_IMAGE_STALE_MS, SCAN_SAVE_REFRESH_THROTTLE_MS } from "@/lib/constants/query";
+import type { CardUpdateBody } from "@/lib/interfaces/cards";
+import type { ScanImageResponse } from "@/lib/interfaces/collections";
+
+function cardsParams(search: string, page?: number, review = false): string {
+  const params = new URLSearchParams({
+    grouped: review ? "0" : "1",
+    filters: JSON.stringify(review ? { ...EMPTY_CARD_FILTERS, needsAttention: true } : EMPTY_CARD_FILTERS),
+  });
+  if (review) params.set("unreviewed", "1");
+  if (page != null) params.set("page", String(page));
+  if (search) params.set("search", search);
+  return params.toString();
+}
+
+export function collectionCardsQueryParams(query: CollectionCardsQuery, page: number): string {
+  const params = new URLSearchParams({ filters: JSON.stringify(query.filters), page: String(page) });
+  if (query.grouped) params.set("grouped", "1");
+  if (query.search) params.set("search", query.search);
+  if (query.sort) params.set("sort", query.sort);
+  return params.toString();
+}
+
+export const collectionCardsQueryOptions = (guid: string, query: CollectionCardsQuery) =>
+  infiniteQueryOptions({
+    queryKey: ["collection-cards", guid, "list", query] as const,
+    queryFn: ({ pageParam }) =>
+      unwrap(apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${collectionCardsQueryParams(query, pageParam)}`)),
+    initialPageParam: 0,
+    getNextPageParam: (last) =>
+      (last.page + 1) * last.pageSize < last.totalEntries ? last.page + 1 : undefined,
+  });
+
+export const scanTimelineBucketsQueryOptions = (
+  guid: string,
+  query: CollectionCardsQuery,
+  grouping: ScanTimelineGrouping,
+  timeZone: string,
+) =>
+  queryOptions({
+    queryKey: ["collection-cards", guid, "scan-timeline-buckets", query, grouping, timeZone] as const,
+    queryFn: () => {
+      const params = new URLSearchParams(collectionCardsQueryParams(query, 0));
+      params.delete("page");
+      params.set("grouping", grouping);
+      params.set("timeZone", timeZone);
+      return unwrap(apiGet<Result<ScanTimelineBuckets>>(`/api/collections/${guid}/cards/scan-timeline?${params}`));
+    },
+    placeholderData: keepPreviousData,
+  });
+
+export const collectionCardsSummaryQueryOptions = (guid: string) =>
+  queryOptions({
+    queryKey: ["collection-cards", guid, "summary"] as const,
+    queryFn: () =>
+      unwrap(apiGet<Result<CollectionCardsSummary>>(`/api/collections/${guid}/cards/summary?${cardsParams("")}`)),
+    placeholderData: keepPreviousData,
+  });
+
+export const collectionCardQueryOptions = (guid: string, scanId: string, review = false) =>
+  queryOptions({
+    queryKey: ["collection-card", guid, scanId, review] as const,
+    queryFn: () =>
+      unwrap(
+        apiGet<Result<CollectionCardPosition | null>>(
+          `/api/collections/${guid}/cards/${scanId}/position?${cardsParams("", undefined, review)}`,
+        ),
+      ),
+  });
+
+export const reviewQueueQueryOptions = (guid: string) =>
+  queryOptions({
+    queryKey: ["collection-cards", guid, "review-queue"] as const,
+    queryFn: () =>
+      unwrap(
+        apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${cardsParams("", 0, true)}`),
+      ).then((page) => ({ total: page.totalEntries, firstScanId: page.items[0]?.scanId ?? null })),
+  });
+
+export function cachedCollectionCardPosition(
+  queryClient: QueryClient,
+  guid: string,
+  scanId: string,
+): CollectionCardPosition | undefined {
+  const lists = queryClient.getQueriesData<InfiniteData<CollectionCardsPage>>({
+    queryKey: ["collection-cards", guid, "list"],
+  });
+  for (const [, data] of lists) {
+    const entry = data?.pages.flatMap((page) => page.items).find((item) => item.scanId === scanId);
+    if (entry) {
+      return { entry, index: 0, total: 0, prevScanId: null, nextScanId: null, copyIndex: 0, copyCount: entry.quantity };
+    }
+  }
+  return undefined;
+}
+
+export function updateCollectionCard(guid: string, scanId: string, body: CardUpdateBody): Promise<unknown> {
+  return unwrap(apiPut<Result<unknown>>(`/api/collections/${guid}/cards/${scanId}`, body));
+}
+
+export function setCollectionCardTags(guid: string, request: SetCardTagsRequest): Promise<unknown> {
+  return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/cards/tags`, request));
+}
+
+export function invalidateCollectionCards(queryClient: QueryClient, guid: string): void {
+  void queryClient.invalidateQueries({ queryKey: ["collection-cards", guid] });
+  void queryClient.invalidateQueries({ queryKey: ["collection-card", guid] });
+  void queryClient.invalidateQueries({ queryKey: ["org-overview"], refetchType: "none" });
+  void queryClient.invalidateQueries({ queryKey: ["stats"], refetchType: "none" });
+  void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
+}
+
+const scanSaveRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
+const lastScanSaveRefresh = new Map<string, number>();
+
+export function invalidateAfterScanSave(queryClient: QueryClient, guid: string): void {
+  if (scanSaveRefreshTimers.has(guid)) return;
+  const wait = Math.max(0, SCAN_SAVE_REFRESH_THROTTLE_MS - (Date.now() - (lastScanSaveRefresh.get(guid) ?? 0)));
+  scanSaveRefreshTimers.set(
+    guid,
+    setTimeout(() => {
+      scanSaveRefreshTimers.delete(guid);
+      lastScanSaveRefresh.set(guid, Date.now());
+      void queryClient.invalidateQueries({ queryKey: ["collection-cards", guid] });
+    }, wait),
+  );
+}
+
+export const cardScanOriginQueryOptions = (guid: string, scanId: string) =>
+  queryOptions({
+    queryKey: ["card-scan-origin", scanId] as const,
+    queryFn: () =>
+      unwrapOr(apiGet<Result<CardScanOrigin | null>>(`/api/collections/${guid}/cards/${scanId}/origin`), null),
+    staleTime: Infinity,
+  });
+
+export const scanImageQueryOptions = (guid: string, scanId: string) =>
+  queryOptions({
+    queryKey: ["collection-card-image", guid, scanId] as const,
+    queryFn: () => unwrap(apiGet<Result<ScanImageResponse>>(`/api/collections/${guid}/cards/${scanId}/image`)),
+    staleTime: SCAN_IMAGE_STALE_MS,
+  });
+
+export function removeCollectionCard(guid: string, scanId: string): Promise<unknown> {
+  return unwrap(apiDelete<Result<unknown>>(`/api/collections/${guid}/cards/${scanId}`));
+}
+
+export function removeCollectionCards(guid: string, scanIds: string[]): Promise<unknown> {
+  return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/cards/remove-bulk`, { scanIds }));
+}
+
+export function moveCollectionCardsToCollection(
+  guid: string,
+  scanIds: string[],
+  targetCollectionGuid: string,
+): Promise<unknown> {
+  return unwrap(
+    apiPost<Result<unknown>>(`/api/collections/${guid}/cards/move-to-collection`, { scanIds, targetCollectionGuid }),
+  );
+}
+
+export function fetchCollectionCardCopies(guid: string, cardIds: string[]): Promise<ScannedCard[]> {
+  const params = new URLSearchParams({ cardIds: cardIds.join(",") });
+  return unwrap(apiGet<Result<ScannedCard[]>>(`/api/collections/${guid}/cards/copies?${params.toString()}`));
+}
+
+export function createMonitorLink(
+  guid: string,
+  expiresInDays: number,
+  showPrices: boolean,
+  purpose: ShareLinkPurpose,
+): Promise<MonitorLink> {
+  return unwrap(
+    apiPost<Result<MonitorLink>>(`/api/collections/${guid}/monitor-link`, { expiresInDays, showPrices, purpose }),
+  );
+}
+
+export function revokeMonitorLinks(guid: string): Promise<unknown> {
+  return unwrap(apiPost<Result<unknown>>(`/api/collections/${guid}/monitor-link/revoke`));
+}
+

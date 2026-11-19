@@ -35,8 +35,7 @@ const statusPill = cva(
       placement: {
         overlay:
           "absolute bottom-1 left-1 right-1 z-30 rounded-lg backdrop-blur-3xl",
-        strip: "min-h-8 rounded-lg",
-        "strip-touching-panel-edges": "min-h-8 border-x-0 border-t-0",
+        strip: "min-h-8 rounded-card",
       },
       variant: {
         default: "bg-card border-border",
@@ -94,17 +93,11 @@ export function ScannerOverlay({
   sessionDetail = null,
   piReady = false,
   region = "all",
-  statusStripTouchesPanelEdges = false,
 }: ScannerOverlayProps) {
   const { t } = useTranslation("scanner");
   const hasWifiSorters = useWifiSorters(false).length > 0;
   const isPhoneMode = cameraSource === "phone";
-  const pillPlacement =
-    region !== "status-strip"
-      ? "overlay"
-      : statusStripTouchesPanelEdges
-        ? "strip-touching-panel-edges"
-        : "strip";
+  const pillPlacement = region === "status-strip" ? "strip" : "overlay";
   const fullOverlay = renderFullOverlay();
 
   if (region === "status-strip") {

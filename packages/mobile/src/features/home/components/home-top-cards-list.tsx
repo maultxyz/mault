@@ -6,11 +6,13 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { SectionHeader } from "@/components/ui/section-header";
 import { cardArtSources } from "@/lib/card-art";
+import { usePrefetchCollectionCard } from "@/hooks/use-prefetch-collection-card";
 import { SPACING } from "@/lib/constants/theme";
 import type { HomeTopCardsListProps } from "@/lib/interfaces/home";
 import { absoluteUrl } from "@/lib/url";
 
 export function HomeTopCardsList({ title, cards, priceOf, action }: HomeTopCardsListProps) {
+  const prefetchCollectionCard = usePrefetchCollectionCard();
   if (cards.length === 0) return null;
   return (
     <View style={{ gap: SPACING.sm }}>
@@ -34,6 +36,7 @@ export function HomeTopCardsList({ title, cards, priceOf, action }: HomeTopCards
               onPress={() =>
                 router.push({ pathname: "/card/[scanId]", params: { scanId: card.scanId, guid: card.collectionGuid } })
               }
+              onPressIn={() => prefetchCollectionCard(card.collectionGuid, card.scanId)}
             />
           );
         })}

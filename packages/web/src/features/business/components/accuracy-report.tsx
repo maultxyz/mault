@@ -102,35 +102,35 @@ export function AccuracyReportView({
             heading={t("accuracy.batchHeading")}
             gridClassName="grid-cols-2 sm:grid-cols-3 lg:grid-cols-6"
             tiles={[
-              { key: "cards", label: t("accuracy.stats.cards"), value: stats.cardCount.toLocaleString() },
+              { key: "cards", label: t("accuracy.stats.cards"), value: stats.cardCount },
               {
                 key: "corrected",
                 label: t("accuracy.stats.corrected"),
-                value: stats.corrected.toLocaleString(),
+                value: stats.corrected,
                 detail: rate(stats.corrected),
               },
               {
                 key: "low",
                 label: t("accuracy.stats.lowConfidence"),
-                value: stats.lowConfidence.toLocaleString(),
+                value: stats.lowConfidence,
                 detail: rate(stats.lowConfidence),
               },
               {
                 key: "alternatives",
                 label: t("accuracy.stats.alternatives"),
-                value: stats.withAlternatives.toLocaleString(),
+                value: stats.withAlternatives,
                 detail: rate(stats.withAlternatives),
               },
               {
                 key: "reviewed",
                 label: t("accuracy.stats.reviewed"),
-                value: stats.reviewed.toLocaleString(),
+                value: stats.reviewed,
                 detail: rate(stats.reviewed),
               },
               {
                 key: "unmatched",
                 label: t("accuracy.stats.unmatched"),
-                value: stats.unmatched.toLocaleString(),
+                value: stats.unmatched,
               },
             ]}
           />
@@ -147,7 +147,7 @@ export function AccuracyReportView({
               description={t("accuracy.noChecksDescription")}
             />
           ) : (
-            <div className="overflow-hidden rounded-card bg-card">
+            <div>
               <Table>
                 <TableHeader>
                   <TableRow>

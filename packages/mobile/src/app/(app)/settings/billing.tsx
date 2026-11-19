@@ -22,7 +22,7 @@ export default function BillingSettingsScreen() {
   const { t, i18n } = useTranslation();
   const colors = useTheme();
   const org = useActiveOrg();
-  const { data: billing, isPending, refetch } = useQuery(billingQueryOptions(org?.id ?? null));
+  const { data: billing, isError, isFetching, refetch } =useQuery(billingQueryOptions(org?.id ?? null));
   const isPaidPlan = !!billing && billing.plan !== "free";
   const planRows = billing ? billingPlanTableRows(billing) : [];
   const offeringText = (row: BillingPlanTableRow) => {
@@ -41,7 +41,10 @@ export default function BillingSettingsScreen() {
   return (
     <SettingsPage
       title={t("settings.sections.billing.title")}
-      isLoading={isPending || !billing}
+      isLoading={!billing && !isError}
+      isLoadError={isError && !billing}
+      isRetryingLoad={isFetching}
+      onRetryLoad={() => void refetch()}
       onRefresh={() => refetch()}
     >
       {billing ? (

@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "Guide d'auto-hébergement | Mault",
-    "description": "Fais tourner Mault sur ton propre serveur avec Docker Compose : Postgres, l'API, l'application web et la documentation de l'API, étape par étape."
+    "description": "Héberge Mault avec Docker Compose, Coolify ou directement sur un hôte Pi/Linux. Prérequis, installation et mises à jour, étape par étape."
   },
   "hero": {
     "eyebrow": "Guide d'auto-hébergement",
@@ -21,6 +21,10 @@
       "coolify": {
         "title": "Coolify",
         "description": "Utilise les images prêtes à l'emploi de GitHub Container Registry."
+      },
+      "pi": {
+        "title": "Pi/Linux",
+        "description": "Flashez une image Raspberry Pi prête à l'emploi, ou lancez une seule commande d'installation sur une autre carte arm64. Utilise une webcam USB et un contrôleur GPIO ou externe."
       }
     },
     "auth": {
@@ -32,6 +36,29 @@
       "neon": {
         "title": "Neon",
         "description": "Postgres hébergé et Neon Auth. Ajoute la vérification de l'e-mail, la modification du mot de passe et la connexion via les réseaux sociaux."
+      },
+      "piNote": "La version Pi/Linux configure les comptes intégrés et un Postgres local. Neon est disponible avec Docker Compose ou Coolify."
+    },
+    "sorter": {
+      "label": "Comment le trieur est-il commandé ?",
+      "gpio": {
+        "title": "Commande Pi par broches GPIO",
+        "description": "Le Pi pilote directement le PCA9685 et les capteurs par GPIO/I2C."
+      },
+      "usb": {
+        "title": "ESP32 / Arduino",
+        "description": "Un contrôleur externe connecté à l’hôte en USB ou Bluetooth."
+      }
+    },
+    "board": {
+      "label": "Quelle carte Pi ?",
+      "raspberry-pi": {
+        "title": "Raspberry Pi",
+        "description": "Commande directe GPIO/I2C sur un Raspberry Pi."
+      },
+      "orange-pi-zero4": {
+        "title": "Orange Pi Zero 4",
+        "description": "Commande directe avec le matériel GPIO/I2C du Zero 4."
       }
     }
   },
@@ -61,6 +88,12 @@
         },
         "domain": {
           "text": "Facultatif : un domaine et un proxy inverse HTTPS pour un accès depuis l'extérieur de ton réseau."
+        },
+        "piSystem": {
+          "text": "Utilisez un Raspberry Pi 4 ou 5 avec une carte microSD d'au moins 16 Go, ou une autre carte arm64 avec un système 64 bits basé sur Debian (comme l'Orange Pi Zero 4). Pour l'image Raspberry Pi, installez Raspberry Pi Imager sur votre ordinateur."
+        },
+        "piHardware": {
+          "text": "Branchez une webcam USB sur la carte et préparez votre trieuse : câblage GPIO/I2C pour le contrôle direct, ou un Arduino/ESP32 avec un firmware Mault compatible pour l'USB ou le Bluetooth. Le Bluetooth nécessite aussi un adaptateur BLE sur la carte. La carte a besoin d'un accès Internet pour les données des cartes et les mises à jour."
         }
       }
     },
@@ -134,7 +167,7 @@
           "text": "Deviens administrateur de la plateforme depuis l'éditeur SQL de Neon."
         },
         "game": {
-          "text": "Dans <code>/app/admin</code>, ajoute un jeu dans le gestionnaire de jeux et lance sa synchronisation. Les scans ne trouvent rien avant."
+          "text": "Ouvre <code>/app/admin</code> et synchronise d’abord le catalogue de cartes de ton jeu. Attends la fin de la vectorisation, puis ajoute le jeu dans Games Manager et choisis ses champs à partir d’une carte synchronisée. Termine ces étapes avant de scanner."
         },
         "admins": {
           "text": "Facultatif : fais d'un autre utilisateur un administrateur de la plateforme. Il n'y a pas encore d'écran pour ça."
@@ -262,6 +295,133 @@
         "migrate": {
           "text": "Lance les migrations.",
           "note": "Recommence avant chaque mise à jour."
+        }
+      }
+    },
+    "piHardware": {
+      "label": "Matériel",
+      "title": "Choisis la connexion au trieur",
+      "description": "Choisis ton contrôleur et, pour GPIO, ta carte ci-dessus. Le guide explique les options à sélectionner lorsque le programme d’installation les demande. Les deux modes utilisent PI_HOST=1 et la webcam USB de l’hôte.",
+      "steps": {
+        "gpio": {
+          "text": "La commande directe GPIO/I2C utilise <code>PI_SORTER=1</code>. L’hôte pilote le PCA9685 et les capteurs via le contrôleur Python local. Ce mode ne nécessite pas de flasher un firmware Arduino/ESP32."
+        },
+        "raspberry": {
+          "text": "La carte choisie est un Raspberry Pi (<code>PI_SORTER_BOARD=raspberry-pi</code>). L'I2C est déjà activé dans l'image et le pilote de servos est détecté au premier démarrage."
+        },
+        "orange": {
+          "text": "Tu as choisi Orange Pi Zero 4 (<code>PI_SORTER_BOARD=orange-pi-zero4</code>). Utilise une image système Zero 4 compatible avec l’API Python libgpiod v2.",
+          "note": "Active séparément l’overlay de démarrage i2c0 de l’image, puis redémarre pour rendre l’adaptateur I2C du connecteur disponible. Le mode direct utilise un seul trieur intégré."
+        },
+        "usb": {
+          "text": "Ton ESP32 / Arduino utilise <code>PI_SORTER=0</code>. Connecte un contrôleur équipé d’un firmware Mault compatible en USB ou via le Bluetooth de l’hôte. Les contrôleurs externes n’ont besoin ni de GPIO ni d’I2C."
+        },
+        "bluetooth": {
+          "text": "Pour le Bluetooth de l'hôte, utilisez une trieuse compatible BLE et une carte avec un adaptateur BLE. Mault inclut BlueZ et le paquet Python Bleak. Ouvrez « Connecter en Bluetooth » dans le menu de la trieuse, recherchez votre trieuse et sélectionnez-la.",
+          "note": "L’API gère la connexion Bluetooth, qui fonctionne donc depuis les navigateurs distants et pendant les scans sans bureau. Garde le trieur à proximité et détectable, puis déconnecte les autres clients avant de te connecter. Web Bluetooth utilise, lui, l’adaptateur de l’ordinateur du navigateur."
+        }
+      }
+    },
+    "piInstall": {
+      "label": "Installation",
+      "title": "Installer Mault sur la carte",
+      "description": "Rien n'est cloné ni compilé sur la carte : elle exécute une version précompilée.",
+      "steps": {
+        "flash": {
+          "text": "Téléchargez <code>mault-pi.img.xz</code> depuis la dernière version Pi et écrivez-la sur la carte microSD avec Raspberry Pi Imager. Imager ne propose pas de personnalisation de l'OS pour cette image : passez cet écran.",
+          "note": "L'Ethernet fonctionne sans configuration. La connexion, SSH et le Wi-Fi viennent du fichier de l'étape suivante."
+        },
+        "config": {
+          "text": "Avant le premier démarrage, ouvrez le lecteur <code>bootfs</code> de la carte sur n'importe quel ordinateur et remplissez <code>mault-config.txt</code> : un nom d'utilisateur et un mot de passe pour un compte administrateur, <code>ssh=yes</code> pour un accès au terminal et vos informations Wi-Fi.",
+          "note": "Choisissez n'importe quel nom d'utilisateur sauf mault-service, que Mault utilise pour ses propres services. La carte applique le fichier à chaque démarrage, en efface les mots de passe et écrit le résultat sur sa ligne Status : le même fichier sert donc aussi à réinitialiser un mot de passe oublié."
+        },
+        "boot": {
+          "text": "Insérez la carte dans le Pi et allumez-le. Le premier démarrage prend quelques minutes pendant que Mault crée sa base de données et ses secrets. Si un pilote de servos PCA9685 répond sur le connecteur I2C, Mault contrôle directement la trieuse (GPIO) ; sinon, il attend une trieuse USB ou Bluetooth.",
+          "note": "Modifiez ce choix plus tard avec sudo mault sorter usb ou sudo mault sorter builtin."
+        },
+        "installOther": {
+          "text": "Sur une autre carte arm64, ou un Raspberry Pi qui exécute déjà Raspberry Pi OS, lancez cette commande en SSH. Elle installe les paquets système et la dernière version, puis demande comment la trieuse est connectée.",
+          "note": "Si la carte contient un dossier ~/mault de l'ancien installateur, ses réglages, comptes, cartes et calibrage sont conservés et ses anciens services sont désactivés."
+        },
+        "services": {
+          "text": "Mault s'exécute avec le compte mault-service et démarre automatiquement au boot. L'application web est servie sur les ports 80 et 8080 ; l'API, l'assistant caméra et le contrôleur n'écoutent que sur la carte elle-même.",
+          "note": "Une synchronisation quotidienne des prix est prévue à 04:00 dans le fuseau horaire de la carte. Pour tout le reste, utilisez la commande sudo mault."
+        },
+        "security": {
+          "text": "L'application est exposée au réseau sous le compte mault-service, qui ne peut rien modifier de ce qui s'exécute en root : les versions dans <code>/opt/mault</code> sont en lecture seule pour lui, et la commande sudo mault ainsi que les assistants de mise à jour et de démarrage se trouvent dans <code>/usr/local/sbin</code> et <code>/usr/local/lib/mault</code>, qui appartiennent à root."
+        },
+        "settings": {
+          "text": "Les réglages et secrets sont enregistrés dans <code>/var/lib/mault/.env</code>, dont un <code>CARD_API_USER_AGENT</code> généré qui identifie les requêtes de cartes et de prix de cette installation.",
+          "note": "Les sources de prix identifient les requêtes avec ce nom. Un nom unique ne supprime pas les limites de requêtes : les prix ne sont donc synchronisés qu'une fois par jour."
+        }
+      }
+    },
+    "piOpen": {
+      "label": "Première utilisation",
+      "title": "Ouvre l’application et prépare le scan",
+      "description": "Utilise un téléphone ou un ordinateur sur le même réseau. L’hôte fournit la caméra et la connexion au trieur.",
+      "steps": {
+        "address": {
+          "text": "Ouvrez <code>http://mault.local</code> dans un navigateur sur le même réseau. Si la page ne se charge pas, utilisez plutôt l'adresse IP de la carte, affichée par cette commande.",
+          "note": "Le port 8080 fonctionne aussi. Les navigateurs distants accèdent à l'API via l'application web et n'ont besoin d'aucun autre port."
+        },
+        "account": {
+          "text": "Inscris-toi sur ta propre installation. Le premier compte devient administrateur de plateforme avec une organisation Home."
+        },
+        "game": {
+          "text": "Ouvre <code>/app/admin</code> et synchronise d’abord le catalogue de cartes de ton jeu. Attends la fin de la vectorisation, puis ajoute le jeu dans Games Manager et choisis ses champs à partir d’une carte synchronisée. Termine ces étapes avant de scanner.",
+          "note": "Sur un hôte Pi, « Start on this computer » utilise l’ordinateur du navigateur pour vectoriser les images de cartes manquantes. Garde la page d’administration ouverte jusqu’à la fin. Les scans en direct identifient les cartes sur l’hôte."
+        },
+        "scan": {
+          "text": "Ouvre le scanner et calibre ton trieur. Le mode GPIO connecte automatiquement le trieur intégré ; le mode contrôleur externe permet de connecter le trieur en USB ou via le Bluetooth de l’hôte. Le service caméra gère la webcam USB : les navigateurs distants n’ont pas besoin d’autorisation caméra pour l’utiliser."
+        }
+      }
+    },
+    "piPrices": {
+      "label": "Prix",
+      "title": "Synchronisation des prix",
+      "description": "Les prix se synchronisent automatiquement chaque jour pour TCGplayer, Cardmarket et Card Kingdom. Après la synchronisation de votre premier jeu, récupérez les prix une fois pour que les cartes aient tout de suite un prix.",
+      "steps": {
+        "firstPull": {
+          "text": "Récupérez les prix une fois après la synchronisation de votre premier jeu.",
+          "note": "Les cartes n'ont pas de prix avant la première récupération. Évitez les lancements manuels répétés ; les sources de prix peuvent bloquer les requêtes excessives."
+        },
+        "check": {
+          "text": "Vérifiez quand la prochaine exécution quotidienne est prévue."
+        }
+      }
+    },
+    "piMaintain": {
+      "label": "Maintenance",
+      "title": "Mettre à jour et entretenir la carte",
+      "description": "Les admins peuvent mettre à jour depuis la bannière de l'application. Tout le reste passe par la commande mault en SSH.",
+      "steps": {
+        "update": {
+          "text": "Terminez les scans, déconnectez la trieuse et arrêtez les synchronisations de la base de données, puis choisissez « Mettre à jour Mault » dans l'application ou lancez cette commande. Elle télécharge la nouvelle version, redémarre Mault et migre la base de données. Actualisez vos navigateurs une fois terminé.",
+          "note": "Si la nouvelle version ne démarre pas, la mise à jour revient automatiquement à la version précédente."
+        },
+        "reinstall": {
+          "text": "Les cartes installées depuis la version Pi 1.0.209 ou antérieure doivent relancer l'installateur une fois par SSH avant de pouvoir se mettre à jour. D'ici là, sudo mault update et la bannière de mise à jour de l'application vous renvoient ici.",
+          "note": "Ces versions étaient modifiables par le compte mault-service : l'installateur les supprime et en installe de nouvelles. Les réglages, comptes, cartes et calibrages sont conservés."
+        },
+        "osUpdates": {
+          "text": "Les mises à jour de sécurité du système s'installent automatiquement chaque jour sans redémarrer la carte, pour ne jamais interrompre un scan. Quand l'une d'elles nécessite un redémarrage, les administrateurs voient une bannière dans l'application ; redémarrez avec sudo reboot quand aucun scan n'est en cours. Les cartes installées avant cet ajout activent les mises à jour avec cette commande."
+        },
+        "backup": {
+          "text": "Sauvegardez Postgres régulièrement.",
+          "note": "Conservez aussi des copies sécurisées de /var/lib/mault/.env et, en mode direct, de /var/lib/mault/.pi-controller/calibration.json."
+        },
+        "logs": {
+          "text": "En cas d'échec au démarrage ou pendant un scan, consultez le journal de l'API."
+        },
+        "automatic": {
+          "text": "Mault démarre automatiquement quand la carte s'allume ou redémarre ; vous n'avez normalement pas besoin des commandes de démarrage et d'arrêt ci-dessous."
+        },
+        "start": {
+          "text": "Démarrez Mault manuellement si nécessaire."
+        },
+        "stop": {
+          "text": "Pour arrêter Mault, terminez d'abord tout scan, puis lancez cette commande."
         }
       }
     }

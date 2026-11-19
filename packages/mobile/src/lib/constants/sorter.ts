@@ -7,7 +7,6 @@ export const BLE_PREFERRED_MTU = 517;
 export const BLE_STATE_SETTLE_TIMEOUT_MS = 3000;
 export const CLOUD_SORTER_ID_PREFIX = "cloud:";
 export const MAX_COMM_LOG_ENTRIES = 200;
-export const ROUTE_TIMEOUT_MODULE_PATTERN = /module (\d+)/i;
 export const COMM_LOG_VISIBLE_ENTRIES = 40;
 export const PHASE_TONES = {
   idle: "neutral",

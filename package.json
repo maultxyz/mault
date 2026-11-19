@@ -1,6 +1,6 @@
 {
   "name": "magic-vault-monorepo",
-  "version": "1.0.207",
+  "version": "1.0.209",
   "private": true,
   "scripts": {
     "dev": "turbo dev --filter=!@magic-vault/bot --filter=!@magic-vault/shortener",
@@ -8,9 +8,7 @@
     "dev:shortener": "turbo dev --filter=@magic-vault/shortener",
     "build": "turbo build",
     "lint": "turbo lint",
-    "version:patch": "node scripts/version-bump.mjs patch",
-    "version:minor": "node scripts/version-bump.mjs minor",
-    "version:major": "node scripts/version-bump.mjs major"
+    "uptime:sync": "node --env-file-if-exists=.env scripts/better-stack-uptime.mjs"
   },
   "devDependencies": {
     "turbo": "^2.5.4"

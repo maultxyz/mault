@@ -27,6 +27,7 @@ import {
   unique,
   uniqueIndex,
   uuid,
+  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm/relations";
 
@@ -42,8 +43,12 @@ const vector = customType<{ data: number[]; driverData: string }>({
   },
 });
 
+const claimedOrgIdSql = sql.raw(
+  `(SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')`,
+);
+
 const orgRls = (orgId: any) =>
-  sql`(${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')) AND auth_is_org_member(${orgId})`;
+  sql`(${orgId} = ${claimedOrgIdSql}) AND (SELECT auth_is_org_member(current_setting('request.jwt.claims', true)::json ->> 'org_id'))`;
 
 export const apiServiceRole = pgRole("api_service").existing();
 
@@ -57,11 +62,11 @@ const apiServiceRead = (using: ReturnType<typeof sql>) =>
 
 const apiServiceOrgRead = (orgId: any) =>
   apiServiceRead(
-    sql`${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')`,
+    sql`${orgId} = ${claimedOrgIdSql}`,
   );
 
 const apiServiceOrgWrite = (orgId: any) => {
-  const ownOrg = sql`${orgId} = (current_setting('request.jwt.claims', true)::json ->> 'org_id')`;
+  const ownOrg = sql`${orgId} = ${claimedOrgIdSql}`;
   return [
     pgPolicy("api-service-policy-update", {
       as: "permissive",
@@ -100,6 +105,8 @@ export const cardImageVectors = pgTable(
     imageSmall: text("image_small"),
     printingMarkGroups: jsonb("printing_mark_groups").$type<PrintingMarkGroups>(),
     printingMarkVersion: smallint("printing_mark_version"),
+    embeddingVersion: smallint("embedding_version").notNull().default(0),
+    sourceDataHash: text("source_data_hash"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -113,6 +120,7 @@ export const cardImageVectors = pgTable(
       .using("hnsw", table.backEmbedding.op("vector_cosine_ops"))
       .where(sql`${table.backEmbedding} IS NOT NULL`),
     index("cards_name_trgm_idx").using("gin", table.name.op("gin_trgm_ops")),
+    index("cards_game_lang_name_idx").on(table.gameKey, table.lang, table.name),
     index("cards_collector_number_idx").on(
       table.gameKey,
       table.lang,
@@ -263,6 +271,10 @@ export const binSets = pgTable(
     skipSaving: boolean("skip_saving").notNull().default(false),
     isResortMode: boolean("is_resort_mode").notNull().default(false),
     matchGameKeys: text("match_game_keys").array().notNull().default(sql`'{}'::text[]`),
+    fillStorageLocationIds: integer("fill_storage_location_ids")
+      .array()
+      .notNull()
+      .default(sql`'{}'::integer[]`),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -401,6 +413,10 @@ export const bins = pgTable(
     isDisabled: boolean("is_disabled").notNull().default(false),
     pickList: jsonb("pick_list"),
     repackPriority: integer("repack_priority"),
+    claimedStorageLocationId: integer("claimed_storage_location_id").references(
+      (): AnyPgColumn => storageLocations.id,
+      { onDelete: "set null" },
+    ),
     orgId: text("org_id").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -576,6 +592,8 @@ export const storageLocations = pgTable(
     orgId: text("org_id").notNull(),
     shareLinkVersion: integer("share_link_version").notNull().default(0),
     labelShortCode: text("label_short_code").notNull(),
+    capacity: integer("capacity"),
+    batchSize: integer("batch_size"),
     isDeleted: boolean("is_deleted").notNull().default(false),
     lastUsedAt: timestamp("last_used_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -784,6 +802,9 @@ export const collectionCards = pgTable(
       table.binNumber,
       table.scannedAt,
     ),
+    index("collection_cards_collection_bin_unemptied_idx")
+      .on(table.collectionId, table.binNumber)
+      .where(sql`${table.binEmptiedAt} IS NULL`),
     index("collection_cards_org_bin_emptied_idx").on(
       table.orgId,
       table.binNumber,
@@ -921,6 +942,8 @@ export const tradeOffers = pgTable(
     offeredCards: jsonb("offered_cards").notNull(),
     offeredCashAmount: doublePrecision("offered_cash_amount"),
     offeredCashCurrency: text("offered_cash_currency"),
+    givenCashAmount: doublePrecision("given_cash_amount"),
+    givenCashCurrency: text("given_cash_currency"),
     status: text("status").notNull().default("pending"),
     respondedAt: timestamp("responded_at"),
     respondedByUserId: text("responded_by_user_id"),
@@ -949,10 +972,12 @@ export const shareLinks = pgTable(
     linkKind: text("link_kind").notNull(),
     collectionId: integer("collection_id"),
     storageLocationId: integer("storage_location_id"),
+    collectionCardId: integer("collection_card_id"),
     subjectGuid: uuid("subject_guid").notNull(),
     subjectVersion: integer("subject_version").notNull(),
     purpose: text("purpose").notNull(),
     showsPrices: boolean("shows_prices").notNull(),
+    requiresGuestContact: boolean("requires_guest_contact").notNull().default(true),
     issuedAt: timestamp("issued_at").notNull(),
     expiresAt: timestamp("expires_at").notNull(),
     createdByUserId: text("created_by_user_id").notNull(),
@@ -1232,6 +1257,9 @@ export const unmatchedCards = pgTable(
       table.binNumber,
       table.binEmptiedAt,
     ),
+    index("unmatched_cards_collection_bin_unemptied_idx")
+      .on(table.collectionId, table.binNumber)
+      .where(sql`${table.binEmptiedAt} IS NULL AND ${table.isDeleted} = false`),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -1960,6 +1988,10 @@ export const binRelations = relations(bins, ({ one }) => ({
   binSet: one(binSets, {
     fields: [bins.binSet],
     references: [binSets.id],
+  }),
+  claimedStorageLocation: one(storageLocations, {
+    fields: [bins.claimedStorageLocationId],
+    references: [storageLocations.id],
   }),
 }));
 

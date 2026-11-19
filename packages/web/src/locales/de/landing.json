@@ -222,7 +222,7 @@
   "pricing": {
     "eyebrow": "Preise",
     "heading": "Einfache, transparente Preise",
-    "subtitle": "Dieselbe App in jedem Tarif. Free reicht für gelegentliches Sortieren. Enthusiast hebt die Limits an und bringt chaotisches Sortieren und Lagerorte für ambitionierte Sammler. Business hebt die Limits auf und bringt API-Zugriff und Werkzeuge zum Kaufen und Verkaufen von Karten.",
+    "subtitle": "Dieselbe App in jedem Tarif. Free reicht für gelegentliches Sortieren. Enthusiast hebt die Limits an und bringt die Chaos-Sortierung und Lagerorte für ambitionierte Sammler. Business hebt die Limits auf und bringt API-Zugriff und Werkzeuge zum Kaufen und Verkaufen von Karten.",
     "intervals": {
       "label": "Abrechnungszeitraum",
       "month": "Monatlich",
@@ -291,7 +291,7 @@
       }
     },
     "features": {
-      "chaosSort": "Chaotisches Sortieren, der schnellste Weg, einen großen Stapel wegzuräumen",
+      "chaosSort": "Chaos-Sortierung, der schnellste Weg, einen großen Stapel wegzuräumen",
       "repacks": "Repacks erstellen: jedes Fach füllt sein eigenes Pack aus den Slots, die du festlegst",
       "customSounds": "Eigene Sounds: lade deine eigenen Clips hoch, die beim Sortieren passender Karten abgespielt werden",
       "fleetHealth": "Flottenzustand: sieh Status, Karten seit der letzten Wartung und Alarmverlauf jedes Sortierers und lege Wartungsintervalle fest",

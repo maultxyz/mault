@@ -2,6 +2,10 @@ import { queryOptions } from "@tanstack/react-query";
 import { neonAuthRequest } from "@/lib/auth/neon-backend";
 import { getSessionToken } from "@/lib/auth/session";
 import type { AuthSessionRow } from "@/lib/interfaces/auth";
+import {
+  sortLinkedSignInAccounts,
+  type LinkedSignInAccount,
+} from "@magic-vault/shared";
 
 function token(): string {
   const value = getSessionToken();
@@ -36,4 +40,18 @@ export async function revokeAuthSession(sessionToken: string): Promise<void> {
 
 export async function revokeOtherAuthSessions(): Promise<void> {
   await neonAuthRequest("/revoke-other-sessions", token(), {});
+}
+
+export const linkedSignInAccountsQueryOptions = () =>
+  queryOptions({
+    queryKey: ["linked-sign-in-accounts"] as const,
+    queryFn: async () =>
+      sortLinkedSignInAccounts((await neonAuthRequest<LinkedSignInAccount[] | null>("/list-accounts", token())) ?? []),
+  });
+
+export async function unlinkSignInAccount(account: LinkedSignInAccount): Promise<void> {
+  await neonAuthRequest("/unlink-account", token(), {
+    providerId: account.providerId,
+    accountId: account.accountId,
+  });
 }

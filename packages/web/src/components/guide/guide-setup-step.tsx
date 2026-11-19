@@ -9,7 +9,7 @@ export function GuideSetupStep({
   return (
     <div className="group/step flex gap-3">
       <div className="flex flex-col items-center">
-        <span className="grid size-6 shrink-0 place-items-center rounded-sm border border-primary font-heading text-2xs font-semibold text-primary">
+        <span className="grid size-6 shrink-0 place-items-center rounded-sm border border-primary font-heading text-sm font-semibold text-primary">
           {String(step).padStart(2, "0")}
         </span>
         <span

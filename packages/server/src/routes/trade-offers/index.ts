@@ -2,16 +2,25 @@ import {
   SHARE_LINK_GUEST_KEY_HEADER,
   TRADE_OFFERS_CHANGED_EVENT,
   TRADE_OFFER_STATUSES,
+  inPersonTradeQuoteRequestSchema,
+  inPersonTradeRequestSchema,
   tradeOfferAcceptRequestSchema,
+  type CreatedInPersonTrade,
   tradeOfferPickedRequestSchema,
   type ClaimOutgoingTradeOffersResult,
+  type TradeOffer,
   type TradeOfferPickResult,
   type TradeOfferStatus,
   type TradeOffersChangedEvent,
 } from "@magic-vault/shared";
 import { Hono, type Context } from "hono";
 import { authQuery, db } from "../../db";
+import { quoteInPersonTrade, recordInPersonTrade } from "../../lib/in-person-trades";
 import {
+  IN_PERSON_TRADE_COLLECTION_NOT_FOUND_MESSAGE,
+  IN_PERSON_TRADE_GIVEN_NOT_FOUND_MESSAGE,
+  IN_PERSON_TRADE_INVALID_MESSAGE,
+  IN_PERSON_TRADE_RECEIVED_NOT_FOUND_MESSAGE,
   TRADE_OFFER_CLAIM_RATE_LIMITED_MESSAGE,
   TRADE_OFFER_CLAIM_RATE_LIMIT_REQUESTS,
   TRADE_OFFER_CLAIM_RATE_LIMIT_SWEEP_SIZE,
@@ -22,7 +31,10 @@ import {
   TRADE_OFFER_NOTHING_TO_PICK_MESSAGE,
   TRADE_OFFER_NOT_FOUND_MESSAGE,
   TRADE_OFFER_NOT_PENDING_MESSAGE,
+  OWNER_TRADE_OFFERS_CACHE_MAX_ENTRIES,
+  OWNER_TRADE_OFFERS_CACHE_TTL_MS,
 } from "../../lib/constants/trade-offers";
+import { createOrgReadCache } from "../../lib/org-read-cache";
 import { guestKeyHashFromHeader } from "../../lib/guest-keys";
 import {
   claimGuestTradeOffers,
@@ -42,6 +54,7 @@ import {
   respondToTradeOffer,
 } from "../../lib/trade-offers";
 import {
+  markRequestAsReadOnly,
   rejectWhileImpersonating,
   requireAuth,
   requireOrg,
@@ -53,6 +66,11 @@ const consumeClaimRateLimit = createRateLimiter({
   windowMs: TRADE_OFFER_CLAIM_RATE_LIMIT_WINDOW_MS,
   sweepSize: TRADE_OFFER_CLAIM_RATE_LIMIT_SWEEP_SIZE,
 });
+
+const ownerTradeOffersCache = createOrgReadCache<TradeOffer[]>(
+  OWNER_TRADE_OFFERS_CACHE_TTL_MS,
+  OWNER_TRADE_OFFERS_CACHE_MAX_ENTRIES,
+);
 
 function publishTradeOfferChanges(orgId: string, response: TradeOfferResponse) {
   deleteScanImages(response.imageKeys);
@@ -147,10 +165,47 @@ export const tradeOffersRouter = new Hono<AppEnv>()
     const status = (TRADE_OFFER_STATUSES as readonly string[]).includes(requested ?? "")
       ? (requested as TradeOfferStatus)
       : null;
-    const data = await authQuery(c.get("jwtClaims"), (tx) =>
-      listOwnerTradeOffers(tx, c.get("orgId"), status),
+    const orgId = c.get("orgId");
+    const jwtClaims = c.get("jwtClaims");
+    const data = await ownerTradeOffersCache.get(orgId, status ?? "all", () =>
+      authQuery(jwtClaims, (tx) => listOwnerTradeOffers(tx, orgId, status)),
     );
     return c.json({ success: true, data });
+  })
+  .post("/in-person/quote", requireAuth, requireOrg, markRequestAsReadOnly, async (c) => {
+    const input = inPersonTradeQuoteRequestSchema.safeParse(await c.req.json().catch(() => null));
+    if (!input.success) {
+      return c.json({ success: false, message: IN_PERSON_TRADE_INVALID_MESSAGE }, 400);
+    }
+    const orgId = c.get("orgId");
+    const data = await authQuery(c.get("jwtClaims"), (tx) => quoteInPersonTrade(tx, orgId, input.data));
+    return c.json({ success: true, data });
+  })
+  .post("/in-person", requireAuth, requireOrg, async (c) => {
+    const input = inPersonTradeRequestSchema.safeParse(await c.req.json().catch(() => null));
+    if (!input.success) {
+      return c.json({ success: false, message: IN_PERSON_TRADE_INVALID_MESSAGE }, 400);
+    }
+    const orgId = c.get("orgId");
+    const result = await authQuery(c.get("jwtClaims"), (tx) =>
+      recordInPersonTrade(tx, { orgId, userId: c.get("userId"), request: input.data }),
+    );
+    switch (result.status) {
+      case "collection-not-found":
+        return c.json({ success: false, message: IN_PERSON_TRADE_COLLECTION_NOT_FOUND_MESSAGE }, 404);
+      case "given-not-found":
+        return c.json({ success: false, message: IN_PERSON_TRADE_GIVEN_NOT_FOUND_MESSAGE }, 409);
+      case "received-not-found":
+        return c.json({ success: false, message: IN_PERSON_TRADE_RECEIVED_NOT_FOUND_MESSAGE }, 400);
+      case "recorded": {
+        publishTradeOfferChanges(orgId, result.removal);
+        if (result.receiveCollectionGuid && result.addedCount > 0) {
+          emitCollectionCardsChanged(orgId, result.receiveCollectionGuid);
+        }
+        const data: CreatedInPersonTrade = { guid: result.guid };
+        return c.json({ success: true, data });
+      }
+    }
   })
   .post("/:guid/accept", requireAuth, requireOrg, (c) => respond(c, "accepted"))
   .post("/:guid/decline", requireAuth, requireOrg, (c) => respond(c, "declined"))

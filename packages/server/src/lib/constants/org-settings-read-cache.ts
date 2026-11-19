@@ -1,0 +1,7 @@
+export const ORG_PRICING_CACHE_TTL_MS = 30_000;
+export const ORG_BILLING_PLAN_CACHE_TTL_MS = 30_000;
+export const ORG_BUSINESS_SETTINGS_CACHE_TTL_MS = 30_000;
+export const ORG_SETTINGS_READ_CACHE_MAX_ENTRIES = 5_000;
+export const ORG_PRICING_CACHE_VARIANT_KEY = "pricing";
+export const ORG_BILLING_PLAN_CACHE_VARIANT_KEY = "billingPlan";
+export const ORG_BUSINESS_SETTINGS_CACHE_VARIANT_KEY = "businessSettings";

@@ -19,7 +19,13 @@ import {
 } from "../constants/shop-catalogs.constant";
 import { SET_DESCRIPTION_MAX_LENGTH, SET_NAME_MAX_LENGTH } from "../constants/sort-bins.constant";
 import { storagePickListEntries } from "../storage-pick-list";
-import { STORAGE_LOCATION_NAME_MAX_LENGTH } from "../constants/sorters.constant";
+import {
+  STORAGE_LOCATION_BATCH_SIZE_MAX,
+  STORAGE_LOCATION_CAPACITY_MAX,
+  STORAGE_LOCATION_NAME_MAX_LENGTH,
+  STORAGE_LOCATION_SERIES_COUNT_MAX,
+  STORAGE_LOCATION_SERIES_START_MAX,
+} from "../constants/sorters.constant";
 import {
   SOUND_CLIP_NAME_MAX_LENGTH,
   SOUND_RULE_NAME_MAX_LENGTH,
@@ -136,9 +142,59 @@ export const shopCatalogFormSchema = z
     },
   );
 
+function boundedWholeNumberSchema(min: number, max: number) {
+  return z
+    .number(formValidationMessage("wholeNumber"))
+    .int(formValidationMessage("wholeNumber"))
+    .min(min, formValidationMessage("atLeast", { min }))
+    .max(max, formValidationMessage("atMost", { max }));
+}
+
+const storageLocationCapacitySchema = boundedWholeNumberSchema(
+  1,
+  STORAGE_LOCATION_CAPACITY_MAX,
+).nullable();
+
+const storageLocationBatchSizeSchema = boundedWholeNumberSchema(
+  1,
+  STORAGE_LOCATION_BATCH_SIZE_MAX,
+).nullable();
+
 export const storageLocationNameFormSchema = z.object({
   name: nameSchema(STORAGE_LOCATION_NAME_MAX_LENGTH),
+  capacity: storageLocationCapacitySchema,
+  batchSize: storageLocationBatchSizeSchema,
 });
+
+export const storageLocationBulkSizesFormSchema = z
+  .object({
+    changesCapacity: z.boolean(),
+    capacity: storageLocationCapacitySchema,
+    changesBatchSize: z.boolean(),
+    batchSize: storageLocationBatchSizeSchema,
+  })
+  .refine((values) => values.changesCapacity || values.changesBatchSize, {
+    message: formValidationMessage("valueRequired"),
+    path: ["changesCapacity"],
+  });
+
+export const storageLocationSeriesFormSchema = z
+  .object({
+    prefix: z
+      .string()
+      .trim()
+      .min(1, formValidationMessage("nameRequired"))
+      .max(
+        STORAGE_LOCATION_NAME_MAX_LENGTH - String(STORAGE_LOCATION_SERIES_START_MAX).length,
+        formValidationMessage("nameTooLong", {
+          max: STORAGE_LOCATION_NAME_MAX_LENGTH - String(STORAGE_LOCATION_SERIES_START_MAX).length,
+        }),
+      ),
+    firstNumber: boundedWholeNumberSchema(0, STORAGE_LOCATION_SERIES_START_MAX),
+    count: boundedWholeNumberSchema(1, STORAGE_LOCATION_SERIES_COUNT_MAX),
+    capacity: storageLocationCapacitySchema,
+    batchSize: storageLocationBatchSizeSchema,
+  });
 
 export const scanDraftFormSchema = z.object({
   foilType: z.string().nullable(),

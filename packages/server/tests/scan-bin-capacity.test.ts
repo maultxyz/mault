@@ -28,3 +28,18 @@ test("a bin's own max cards caps it below its physical size, chaos size and on c
   assert.equal(scanBinCapacity(UNLIMITED_BIN_HEIGHT, 1, null, { isCatchAll: true, maxCards: 50 }), 50);
   assert.equal(scanBinCapacity(100, 1, null, { isCatchAll: false, maxCards: null }), 100);
 });
+
+test("a claimed storage location caps the bin at the room left in that location", () => {
+  const claim = (remainingSlots: number | null) => ({
+    guid: "a1",
+    name: "A1",
+    capacity: remainingSlots == null ? null : 50,
+    remainingSlots,
+  });
+  assert.equal(scanBinCapacity(100, 1, null, { isCatchAll: false, claimedStorageLocation: claim(5) }), 5);
+  assert.equal(scanBinCapacity(100, 1, null, { isCatchAll: false, claimedStorageLocation: claim(0) }), 0);
+  assert.equal(scanBinCapacity(3, 1, null, { isCatchAll: false, claimedStorageLocation: claim(5) }), 3);
+  assert.equal(scanBinCapacity(100, 1, null, { isCatchAll: true, claimedStorageLocation: claim(5) }), 5);
+  assert.equal(scanBinCapacity(100, 1, null, { isCatchAll: false, claimedStorageLocation: claim(null) }), 100);
+  assert.equal(scanBinCapacity(100, 1, null, { isCatchAll: false, claimedStorageLocation: null }), 100);
+});

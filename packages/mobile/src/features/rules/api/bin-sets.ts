@@ -2,6 +2,7 @@ import type {
   BinConfig,
   BinSet,
   EmptyAllBinsInput,
+  EmptyAllBinsOptions,
   PickListFoundInput,
   PickListFoundResult,
   Result,
@@ -18,9 +19,13 @@ export function markPickListFound(binGuid: string, input: PickListFoundInput): P
   return unwrap(apiPost<Result<PickListFoundResult>>(`/api/bins/bins/${binGuid}/pick-list/found`, input));
 }
 
-export function emptyBins(binNumbers: number[], gameGuid: string | undefined): Promise<BinSet[]> {
+export function emptyBins(
+  binNumbers: number[],
+  gameGuid: string | undefined,
+  options: EmptyAllBinsOptions = {},
+): Promise<BinSet[]> {
   const params = gameGuid ? `?${new URLSearchParams({ gameGuid })}` : "";
-  const input: EmptyAllBinsInput = { binNumbers };
+  const input: EmptyAllBinsInput = { ...options, binNumbers };
   return unwrap(apiPost<Result<BinSet[]>>(`/api/bins/bins/empty-all${params}`, input));
 }
 
@@ -61,6 +66,10 @@ export function setResortMode(guid: string, isResortMode: boolean): Promise<BinS
 
 export function setMatchGames(guid: string, gameKeys: string[]): Promise<BinSet[]> {
   return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/match-games`, { gameKeys }));
+}
+
+export function setFillStorageLocations(guid: string, storageLocationGuids: string[]): Promise<BinSet[]> {
+  return unwrap(apiPut<Result<BinSet[]>>(`/api/bins/${guid}/fill-locations`, { storageLocationGuids }));
 }
 
 export function setSkipSaving(guid: string, skipSaving: boolean): Promise<BinSet[]> {

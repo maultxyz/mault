@@ -1,3 +1,4 @@
+import { MULTI_VALUE_OPERATORS } from "@magic-vault/shared";
 import * as Crypto from "expo-crypto";
 import type { TFunction } from "i18next";
 import {
@@ -12,7 +13,7 @@ import {
   type BinSetMode,
   type FieldMeta,
 } from "@magic-vault/shared";
-import { MULTI_VALUE_OPERATORS, VALUELESS_OPERATORS } from "@/lib/constants/rules";
+import { VALUELESS_OPERATORS } from "@/lib/constants/rules";
 import type { ConditionDescription } from "@/lib/interfaces/rules";
 
 export function sortFields(fields: FieldMeta[]): FieldMeta[] {

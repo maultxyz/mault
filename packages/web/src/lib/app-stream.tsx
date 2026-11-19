@@ -10,16 +10,26 @@ import { DEFAULT_SYNC_STATE, isBrowserSaveLog } from "@/lib/constants/admin";
 import type {
   ScanLockInfo,
   SessionViewer,
-  AppStreamContextValue,
+  AppStreamSourceContextValue,
+  CollectionLocksContextValue,
 } from "@/lib/interfaces/collections";
 import {
+  applyMachineStatus,
+  dropMachineStatus,
+  replaceMachineStatuses,
+} from "@/features/machines/lib/machine-status-store";
+import {
   DEPLOY_STATUS_EVENT,
+  MACHINES_INIT_EVENT,
+  MACHINE_REMOVED_EVENT,
+  MACHINE_STATUS_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
   ORDERS_CHANGED_EVENT,
   PICK_LIST_CHANGED_EVENT,
   type PickList,
   type TradeOffersChangedEvent,
   type DeployNotice,
+  type MachineStatus,
   type SyncState,
 } from "@magic-vault/shared";
 import { TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
@@ -40,16 +50,20 @@ import {
   APP_STREAM_SETUP_RETRY_MS,
 } from "@/lib/constants/timing";
 
-const AppStreamContext = createContext<AppStreamContextValue>({
+const AppStreamSourceContext = createContext<AppStreamSourceContextValue>({
   eventSource: null,
-  locks: {},
-  currentUserId: undefined,
-  liveCounts: {},
-  viewersByGuid: {},
-  syncState: DEFAULT_SYNC_STATE,
-  deployNotice: null,
   watchCollection: () => () => {},
 });
+const CollectionLocksContext = createContext<CollectionLocksContextValue>({
+  locks: {},
+  currentUserId: undefined,
+});
+const LiveSessionCountsContext = createContext<Record<string, number>>({});
+const SessionViewersContext = createContext<Record<string, SessionViewer[]>>(
+  {},
+);
+const SyncStateContext = createContext<SyncState>(DEFAULT_SYNC_STATE);
+const DeployNoticeContext = createContext<DeployNotice | null>(null);
 
 export function AppStreamProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
@@ -59,6 +73,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
   const { activeOrg } = useOrg();
   const orgId = activeOrg?.id ?? null;
   useEffect(() => resetPiScanScope(orgId), [orgId]);
+  useEffect(() => replaceMachineStatuses([]), [orgId]);
 
   const [eventSource, setEventSource] = useState<EventSource | null>(null);
   const [streamSetupAttempt, setStreamSetupAttempt] = useState(0);
@@ -110,6 +125,23 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
         }
         recordSessionInits(es, watchGuids);
 
+        es.addEventListener(MACHINES_INIT_EVENT, (e) => {
+          const data = JSON.parse((e as MessageEvent).data) as {
+            machines: MachineStatus[];
+          };
+          replaceMachineStatuses(data.machines);
+        });
+        es.addEventListener(MACHINE_STATUS_EVENT, (e) => {
+          applyMachineStatus(
+            JSON.parse((e as MessageEvent).data) as MachineStatus,
+          );
+        });
+        es.addEventListener(MACHINE_REMOVED_EVENT, (e) => {
+          const data = JSON.parse((e as MessageEvent).data) as {
+            machineId: string;
+          };
+          dropMachineStatus(data.machineId);
+        });
         es.addEventListener("lock_init", (e) => {
           const { locks: initial } = JSON.parse((e as MessageEvent).data) as {
             locks: Record<string, ScanLockInfo>;
@@ -201,6 +233,7 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
         es.addEventListener("collections_changed", () => {
           queryClient.invalidateQueries({
             queryKey: collectionsQueryOptions.queryKey,
+            exact: true,
           });
         });
 
@@ -275,34 +308,34 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
     };
   }, [orgId, guidsKey, queryClient, streamSetupAttempt]);
 
-  const value = useMemo<AppStreamContextValue>(
-    () => ({
-      eventSource,
-      locks,
-      currentUserId,
-      liveCounts,
-      viewersByGuid,
-      syncState,
-      deployNotice,
-      watchCollection,
-    }),
-    [
-      eventSource,
-      locks,
-      currentUserId,
-      liveCounts,
-      viewersByGuid,
-      syncState,
-      deployNotice,
-      watchCollection,
-    ],
+  const streamSourceValue = useMemo<AppStreamSourceContextValue>(
+    () => ({ eventSource, watchCollection }),
+    [eventSource, watchCollection],
+  );
+  const collectionLocksValue = useMemo<CollectionLocksContextValue>(
+    () => ({ locks, currentUserId }),
+    [locks, currentUserId],
   );
 
-  return <AppStreamContext value={value}>{children}</AppStreamContext>;
+  return (
+    <AppStreamSourceContext value={streamSourceValue}>
+      <CollectionLocksContext value={collectionLocksValue}>
+        <LiveSessionCountsContext value={liveCounts}>
+          <SessionViewersContext value={viewersByGuid}>
+            <SyncStateContext value={syncState}>
+              <DeployNoticeContext value={deployNotice}>
+                {children}
+              </DeployNoticeContext>
+            </SyncStateContext>
+          </SessionViewersContext>
+        </LiveSessionCountsContext>
+      </CollectionLocksContext>
+    </AppStreamSourceContext>
+  );
 }
 
 export function useCollectionLocks() {
-  const { locks, currentUserId } = useContext(AppStreamContext);
+  const { locks, currentUserId } = useContext(CollectionLocksContext);
   return {
     locks,
     currentUserId,
@@ -314,25 +347,25 @@ export function useCollectionLocks() {
 }
 
 export function useLiveSessionCounts(): Record<string, number> {
-  return useContext(AppStreamContext).liveCounts;
+  return useContext(LiveSessionCountsContext);
 }
 
 export function useSessionViewersByGuid(): Record<string, SessionViewer[]> {
-  return useContext(AppStreamContext).viewersByGuid;
+  return useContext(SessionViewersContext);
 }
 
 export function useSyncState(): SyncState {
-  return useContext(AppStreamContext).syncState;
+  return useContext(SyncStateContext);
 }
 
 export function useDeployNotice(): DeployNotice | null {
-  return useContext(AppStreamContext).deployNotice;
+  return useContext(DeployNoticeContext);
 }
 
 export function useCollectionStream(
   guid: string | undefined,
 ): EventSource | null {
-  const { eventSource, watchCollection } = useContext(AppStreamContext);
+  const { eventSource, watchCollection } = useContext(AppStreamSourceContext);
 
   useEffect(() => {
     if (!guid) return;
@@ -343,5 +376,5 @@ export function useCollectionStream(
 }
 
 export function useAppStreamSource() {
-  return useContext(AppStreamContext).eventSource;
+  return useContext(AppStreamSourceContext).eventSource;
 }

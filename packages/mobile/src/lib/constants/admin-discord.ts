@@ -1,4 +1,4 @@
-import type { AnnouncementSeverity, PlatformDiscordChannelKey } from "@magic-vault/shared";
+import type { AnnouncementSeverity } from "@magic-vault/shared";
 import type { StatusTone } from "@/lib/interfaces/theme";
 import type { AnnouncementFormValues, PlatformDiscordAdminDraftFormValues } from "@/lib/interfaces/admin-discord";
 
@@ -19,8 +19,6 @@ export const EMPTY_PLATFORM_DISCORD_ADMIN_DRAFT: PlatformDiscordAdminDraftFormVa
   stats: [],
   linkedRole: { guildId: null, roleId: null },
 };
-
-export const PLATFORM_DISCORD_CHANNEL_SECTIONS: readonly PlatformDiscordChannelKey[] = ["stats", "donations", "pricing"];
 
 export const ANNOUNCEMENT_SEVERITIES = ["info", "warning", "danger"] as const satisfies readonly AnnouncementSeverity[];
 

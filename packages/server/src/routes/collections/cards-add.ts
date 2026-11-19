@@ -10,10 +10,6 @@ import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { collectionCards, collections, games, storageLocations } from "../../db/schema";
 import { UUID_PATTERN } from "../../lib/constants/validation";
-import {
-  isStorageAllowed,
-  STORAGE_UPGRADE_MESSAGE,
-} from "../../lib/storage-access";
 import { moveCardsToLocation } from "../../lib/storage-locations";
 import { findLocationId } from "../storage-locations/shared";
 import {
@@ -26,10 +22,6 @@ import { recordDeviceSorted } from "../../lib/device-alerts";
 import { findOpenIntakeLotId } from "../../lib/intake";
 import { lateSaveBinEmptiedAtSql } from "../../lib/bin-emptying";
 import { recordMatchedScan } from "../../lib/scan-stats";
-import {
-  sorterLimitForPlan,
-  sorterLimitMessage,
-} from "../../lib/sorter-limit";
 import {
   consumeDailyScan,
   dailyScanLimitForPlan,
@@ -61,6 +53,10 @@ import {
   insertScanWithPickList,
   isScanSavePickListUpdate,
 } from "../../lib/scan-pick-list";
+import { sorterLimitMessage } from "../../lib/plan-limit-messages";
+import { connectedSorterLimitForPlan, orgHasFeature } from "../../lib/plan-config";
+import { STORAGE_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
+import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 export const addCollectionCardRoute = new Hono<AppEnv>().post(
   "/:guid/cards",
@@ -182,9 +178,16 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             gameId: null,
           };
 
+        const savedCardSnapshotsRequest = toSavedCardSnapshots(
+          { gameKey: collection.gameKey, lang: collection.lang },
+          card,
+          alternativeMatches,
+        );
+        savedCardSnapshotsRequest.catch(() => undefined);
+
         let storageLocationId: number | null = null;
         if (storageLocationGuid) {
-          const storageAllowed = await isStorageAllowed(tx, orgId);
+          const storageAllowed = await orgHasFeature(tx, orgId, "storage");
           storageLocationId = storageAllowed
             ? await findLocationId(tx, orgId, storageLocationGuid)
             : null;
@@ -193,7 +196,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
               result: {
                 success: false,
                 message: storageAllowed
-                  ? "Storage location not found."
+                  ? STORAGE_LOCATION_NOT_FOUND_MESSAGE
                   : STORAGE_UPGRADE_MESSAGE,
                 storageLocationUnavailable: true,
               },
@@ -223,7 +226,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           return scanLimitReachedResult;
         }
 
-        const sorterLimit = sorterLimitForPlan(plan);
+        const sorterLimit = connectedSorterLimitForPlan(plan);
         if (
           !acquireDeviceLease(
             orgId,
@@ -333,11 +336,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         }
 
         const intakeLotId = await findOpenIntakeLotId(tx, collection.id);
-        const saved = await toSavedCardSnapshots(
-          { gameKey: collection.gameKey, lang: collection.lang },
-          card,
-          alternativeMatches,
-        );
+        const saved = await savedCardSnapshotsRequest;
         await insertScanWithPickList(
           tx,
           {

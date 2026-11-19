@@ -7,13 +7,17 @@ import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { TextField } from "@/components/ui/text-field";
 import { signInSchema } from "@/features/account/lib/auth-schemas";
-import { signIn } from "@/lib/auth/session";
+import { SOCIAL_SIGN_IN_PROVIDERS, signIn, signInWithSocialProvider } from "@/lib/auth/session";
+import { SOCIAL_SIGN_IN_CANCELLED_ERROR } from "@/lib/constants/auth";
 import { SPACING } from "@/lib/constants/theme";
+import { AppText } from "@/components/ui/app-text";
+import { NEON_SOCIAL_PROVIDER_NAMES, type NeonSocialProvider } from "@magic-vault/shared";
 import type { SignInValues } from "@/lib/interfaces/forms";
 
 export function SignInForm() {
   const { t } = useTranslation();
   const [error, setError] = useState<string | null>(null);
+  const [pendingSocialProvider, setPendingSocialProvider] = useState<NeonSocialProvider | null>(null);
   const { control, handleSubmit, formState } = useForm<SignInValues>({
     resolver: zodResolver(signInSchema),
     defaultValues: { email: "", password: "" },
@@ -24,6 +28,21 @@ export function SignInForm() {
     const result = await signIn(values.email, values.password);
     if (result.error) setError(t(`auth.errors.${result.error}`, { defaultValue: result.error }));
   });
+
+  const continueWithSocialProvider = async (provider: NeonSocialProvider) => {
+    setError(null);
+    setPendingSocialProvider(provider);
+    const result = await signInWithSocialProvider(provider);
+    setPendingSocialProvider(null);
+    if (result.error && result.error !== SOCIAL_SIGN_IN_CANCELLED_ERROR) {
+      setError(
+        t(`auth.errors.${result.error}`, {
+          defaultValue: t("auth.errors.socialWithCode", { code: result.error }),
+        }),
+      );
+    }
+  };
+  const isBusy = formState.isSubmitting || pendingSocialProvider !== null;
 
   return (
     <View style={{ gap: SPACING.lg }}>
@@ -65,7 +84,31 @@ export function SignInForm() {
           />
         )}
       />
-      <Button label={t("auth.signIn")} size="lg" loading={formState.isSubmitting} onPress={onSubmit} />
+      <Button
+        label={t("auth.signIn")}
+        size="lg"
+        loading={formState.isSubmitting}
+        disabled={isBusy}
+        onPress={onSubmit}
+      />
+      {SOCIAL_SIGN_IN_PROVIDERS.length ? (
+        <View style={{ gap: SPACING.md }}>
+          <AppText tone="secondary" style={{ textAlign: "center" }}>
+            {t("auth.orContinueWith")}
+          </AppText>
+          {SOCIAL_SIGN_IN_PROVIDERS.map((provider) => (
+            <Button
+              key={provider}
+              variant="secondary"
+              size="lg"
+              label={t("auth.continueWithProvider", { provider: NEON_SOCIAL_PROVIDER_NAMES[provider] })}
+              loading={pendingSocialProvider === provider}
+              disabled={isBusy}
+              onPress={() => void continueWithSocialProvider(provider)}
+            />
+          ))}
+        </View>
+      ) : null}
     </View>
   );
 }

@@ -16,6 +16,7 @@ import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SectionHeader } from "@/components/ui/section-header";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
@@ -62,6 +63,17 @@ export default function ShopCatalogEditScreen() {
   const storageLocations = useQuery(storageLocationsQueryOptions(orgId, true));
   const isLoadingForm =
     (!isNew && (access.isLoading || list.isLoading)) || collections.isLoading || storageLocations.isLoading;
+  const isLoadError =
+    (!isNew && ((access.isError && !access.data) || (list.isError && !list.data))) ||
+    (collections.isError && !collections.data) ||
+    (storageLocations.isError && !storageLocations.data);
+  const retryLoad = () => {
+    void collections.refetch();
+    void storageLocations.refetch();
+    if (isNew) return;
+    void access.refetch();
+    if (access.data?.canManageSettings) void list.refetch();
+  };
   const form = useForm<ShopCatalogFormValues>({
     resolver: zodResolver(shopCatalogFormSchema),
     defaultValues: {
@@ -109,13 +121,18 @@ export default function ShopCatalogEditScreen() {
             size="lg"
             label={isNew ? t("settings.shopCatalogs.add") : t("settings.shopCatalogs.save")}
             loading={save.isPending}
-            disabled={!isNew && !catalog}
+            disabled={isLoadError || (!isNew && !catalog)}
             onPress={form.handleSubmit((values) => save.mutate(values))}
           />
         }
       >
         {save.isError ? <Callout tone="destructive" title={save.error.message} /> : null}
-        {isLoadingForm ? (
+        {isLoadError ? (
+          <QueryErrorState
+            onRetry={retryLoad}
+            isRetrying={access.isFetching || list.isFetching || collections.isFetching || storageLocations.isFetching}
+          />
+        ) : isLoadingForm ? (
           <PageSkeleton />
         ) : (
           <>

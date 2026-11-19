@@ -1,34 +1,16 @@
-import { useSerial } from "@/features/scanner/api/use-serial";
-import {
-  KIT_COMMAND_TIMEOUT_MS,
-  KIT_SWEEP_PULSES,
-  KIT_SWEEP_STEP_MS,
-} from "@/lib/constants/kit-test";
-import { toast } from "@/lib/toast";
+import { useKitCommand } from "@/features/admin/api/use-kit-command";
+import { KIT_SWEEP_PULSES, KIT_SWEEP_STEP_MS } from "@/lib/constants/kit-test";
 import { useCallback, useState } from "react";
-import { useTranslation } from "react-i18next";
 import { delay } from "@/lib/delay";
 
 export function useKitChannel() {
-  const { t } = useTranslation("admin");
-  const { sendRawCommand } = useSerial();
+  const sendCommand = useKitCommand();
   const [isBusy, setIsBusy] = useState(false);
 
   const send = useCallback(
-    async (payload: unknown): Promise<boolean> => {
-      const result = await sendRawCommand(
-        JSON.stringify(payload),
-        KIT_COMMAND_TIMEOUT_MS,
-      );
-      const ok = result.status === "ok" && !result.line?.includes('"error"');
-      if (!ok) {
-        toast.error(t("kitTest.toasts.commandFailed"), {
-          description: result.line ?? t(`kitTest.status.${result.status}`),
-        });
-      }
-      return ok;
-    },
-    [sendRawCommand, t],
+    async (payload: unknown): Promise<boolean> =>
+      (await sendCommand(payload)) !== null,
+    [sendCommand],
   );
 
   const run = useCallback(async (task: () => Promise<unknown>) => {

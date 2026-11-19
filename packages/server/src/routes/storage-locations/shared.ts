@@ -1,4 +1,7 @@
 import {
+  STORAGE_LOCATION_BATCH_SIZE_MAX,
+  STORAGE_LOCATION_BULK_MAX,
+  STORAGE_LOCATION_CAPACITY_MAX,
   STORAGE_LOCATION_NAME_MAX_LENGTH,
   STORAGE_VERIFY_CARDS_MAX,
   toCardCondition,
@@ -21,6 +24,7 @@ import { and, asc, eq, inArray, sql, type SQL } from "drizzle-orm";
 import { shortLinkUrlFor } from "../../lib/shortener-client";
 import { uuidArraySql } from "../../lib/sql-arrays";
 import type { Transaction } from "../../db";
+import { UUID_PATTERN } from "../../lib/constants/validation";
 import {
   collectionCards,
   collections,
@@ -29,9 +33,11 @@ import {
 } from "../../db/schema";
 import type {
   StorageLocationRow,
+  StorageLocationSizes,
   StoredCardIdsPage,
   StoredCardNavigationRow,
 } from "../../lib/interfaces/storage-locations";
+import type { CardSortScope } from "../../lib/interfaces/collections";
 import {
   cardPricesJoinSql,
   cardWithStoredPricesSql,
@@ -45,6 +51,7 @@ import {
   INVENTORY_CARD_JOINS,
   STORED_CARD_POSITION_ORDER,
   WANTED_LINE_NAME_MATCH,
+  INVALID_STORAGE_LOCATION_LIMIT,
 } from "../../lib/constants/storage-locations";
 import {
   cardFilterSql,
@@ -56,12 +63,49 @@ import {
 import { CC_ALIAS_SQL_COLUMNS } from "../../lib/constants/card-prices";
 import { loadOrgPricing } from "../../lib/price-source";
 import { hydrateSavedCards } from "../../lib/saved-cards";
+import { loadRankedIdPage } from "../../lib/ranked-id-page";
 
 export function parseLocationName(value: unknown): string | null {
   if (typeof value !== "string") return null;
   const name = value.trim();
   if (!name || name.length > STORAGE_LOCATION_NAME_MAX_LENGTH) return null;
   return name;
+}
+
+function parseStorageLocationLimit(
+  value: unknown,
+  max: number,
+): number | null | undefined | typeof INVALID_STORAGE_LOCATION_LIMIT {
+  if (value === undefined || value === null) return value;
+  return typeof value === "number" && Number.isInteger(value) && value >= 1 && value <= max
+    ? value
+    : INVALID_STORAGE_LOCATION_LIMIT;
+}
+
+export function parseBulkLocationGuids(value: unknown): string[] | null {
+  if (
+    !Array.isArray(value) ||
+    value.length === 0 ||
+    value.length > STORAGE_LOCATION_BULK_MAX ||
+    !value.every((guid) => typeof guid === "string" && UUID_PATTERN.test(guid))
+  ) {
+    return null;
+  }
+  return [...new Set(value as string[])];
+}
+
+export function parseStorageLocationSizes(
+  body: Record<string, unknown>,
+): StorageLocationSizes | null {
+  const capacity = parseStorageLocationLimit(body.capacity, STORAGE_LOCATION_CAPACITY_MAX);
+  const batchSize = parseStorageLocationLimit(body.batchSize, STORAGE_LOCATION_BATCH_SIZE_MAX);
+  if (
+    capacity === INVALID_STORAGE_LOCATION_LIMIT ||
+    batchSize === INVALID_STORAGE_LOCATION_LIMIT
+  ) {
+    return null;
+  }
+  return { capacity, batchSize };
 }
 
 export async function locationNameTaken(
@@ -140,12 +184,37 @@ export function selectStoredCards(tx: Transaction) {
     .leftJoin(games, eq(games.id, collections.gameId));
 }
 
+export function selectStoredCardsWithPlacements(tx: Transaction) {
+  return tx
+    .select({
+      ...storedCardColumns(),
+      collectionIsDeleted: collections.isDeleted,
+      locationPosition: collectionCards.locationPosition,
+      binNumber: collectionCards.binNumber,
+      binEmptiedAt: collectionCards.binEmptiedAt,
+      storageLocationGuid: storageLocations.guid,
+      storageLocationName: storageLocations.name,
+      storageLocationBatchSize: storageLocations.batchSize,
+    })
+    .from(collectionCards)
+    .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .leftJoin(games, eq(games.id, collections.gameId))
+    .leftJoin(
+      storageLocations,
+      and(
+        eq(storageLocations.id, collectionCards.locationId),
+        eq(storageLocations.isDeleted, false),
+      ),
+    );
+}
+
 export function selectLocatedCards(tx: Transaction) {
   return tx
     .select({
       ...storedCardColumns(),
       locationGuid: storageLocations.guid,
       locationName: storageLocations.name,
+      locationBatchSize: storageLocations.batchSize,
     })
     .from(collectionCards)
     .innerJoin(
@@ -168,6 +237,7 @@ export async function toLocatedCards(
     ...card,
     locationGuid: rows[index].locationGuid!,
     locationName: rows[index].locationName,
+    locationBatchSize: rows[index].locationBatchSize,
   }));
 }
 
@@ -248,6 +318,8 @@ export async function loadLocations(
   const pricing = await loadOrgPricing(tx, orgId);
   const result = await tx.execute(sql`
     SELECT sl.guid, sl.name, sl.created_at, sl.last_used_at, sl.label_short_code,
+      sl.capacity, sl.batch_size,
+      COALESCE(max(cc.location_position), 0)::int AS used_slots,
       count(cc.id)::int AS card_count,
       COALESCE(sum(${joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp")}) FILTER (WHERE cc.id IS NOT NULL), 0)::float8 AS total_value
     FROM ${storageLocations} sl
@@ -273,6 +345,9 @@ export async function loadLocations(
     cardCount: Number(r.card_count),
     totalValue: Number(r.total_value),
     labelShortUrl: shortLinkUrlFor(r.label_short_code),
+    capacity: r.capacity,
+    batchSize: r.batch_size,
+    usedSlots: Number(r.used_slots),
   }));
 }
 
@@ -374,13 +449,26 @@ export async function loadLocationFieldDefinitions(
   );
 }
 
+export async function loadLocationCardSortScope(
+  tx: Transaction,
+  orgId: string,
+  locationId: number,
+  sort: string | null,
+): Promise<CardSortScope> {
+  if (!sort) return { fieldDefinitions: [], pricing: null };
+  return {
+    fieldDefinitions: await loadLocationFieldDefinitions(tx, locationId),
+    pricing: await loadOrgPricing(tx, orgId),
+  };
+}
+
 function storedCardsRankedCte(
   locationId: number,
   query: CollectionCardsQuery,
-  fieldDefinitions: FieldMeta[],
+  sortScope: CardSortScope,
   keepScanId?: string,
 ): SQL {
-  const sortKey = cardSortKeySql(query.sort, fieldDefinitions);
+  const sortKey = cardSortKeySql(query.sort, sortScope);
   const keepCard = keepScanId ? sql` OR cc.guid = ${keepScanId}::uuid` : sql``;
   return sql`
     ranked AS (
@@ -390,8 +478,8 @@ function storedCardsRankedCte(
         ) AS rn
       FROM collection_cards cc
       ${STORED_CARD_COLLECTION_JOINS}
-      ${cardQueryUsesCatalog(query, fieldDefinitions) ? cardCatalogJoinSql(STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}
-      ${sortUsesStoredPrices(query.sort, fieldDefinitions) ? cardPricesJoinSql("cp", STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}
+      ${cardQueryUsesCatalog(query, sortScope) ? cardCatalogJoinSql(STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}
+      ${sortUsesStoredPrices(query.sort, sortScope) ? cardPricesJoinSql("cp", STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}
       WHERE cc.location_id = ${locationId}
         AND ((${cardFilterSql(query, keepScanId)})${keepCard})
     )`;
@@ -401,40 +489,26 @@ export async function loadStoredCardIdsPage(
   tx: Transaction,
   locationId: number,
   query: CollectionCardsQuery,
-  fieldDefinitions: FieldMeta[],
+  sortScope: CardSortScope,
   pageSize: number,
   requestedPage: number,
 ): Promise<StoredCardIdsPage> {
-  const ranked = storedCardsRankedCte(locationId, query, fieldDefinitions);
-  const counted = await tx.execute(sql`
-    WITH ${ranked} SELECT count(*)::int AS total FROM ranked
-  `);
-  const total = Number(
-    (counted.rows[0] as unknown as { total: number } | undefined)?.total ?? 0,
+  return loadRankedIdPage(
+    tx,
+    storedCardsRankedCte(locationId, query, sortScope),
+    pageSize,
+    requestedPage,
   );
-  const page = Math.min(requestedPage, Math.max(Math.ceil(total / pageSize), 1));
-  const result = await tx.execute(sql`
-    WITH ${ranked}
-    SELECT id FROM ranked ORDER BY rn
-    LIMIT ${pageSize}::int OFFSET ${(page - 1) * pageSize}::int
-  `);
-  return {
-    rowIds: (result.rows as unknown as { id: number }[]).map((row) =>
-      Number(row.id),
-    ),
-    total,
-    page,
-  };
 }
 
 export async function loadStoredCardReferences(
   tx: Transaction,
   locationId: number,
   query: CollectionCardsQuery,
-  fieldDefinitions: FieldMeta[],
+  sortScope: CardSortScope,
 ): Promise<StorageLocationCardReference[]> {
   const result = await tx.execute(sql`
-    WITH ${storedCardsRankedCte(locationId, query, fieldDefinitions)}
+    WITH ${storedCardsRankedCte(locationId, query, sortScope)}
     SELECT guid::text AS scan_id, collection_guid::text AS collection_guid
     FROM ranked ORDER BY rn
   `);
@@ -461,13 +535,13 @@ export async function loadStoredCardNavigation(
   tx: Transaction,
   locationId: number,
   query: CollectionCardsQuery,
-  fieldDefinitions: FieldMeta[],
+  sortScope: CardSortScope,
   scanId: string,
   unreviewedOnly: boolean,
 ): Promise<Omit<StorageLocationCardContext, "card"> | null> {
   const neighborFilter = unreviewedOnly ? sql`AND NOT is_reviewed` : sql``;
   const result = await tx.execute(sql`
-    WITH ${storedCardsRankedCte(locationId, { ...query, unreviewed: false }, fieldDefinitions, scanId)},
+    WITH ${storedCardsRankedCte(locationId, { ...query, unreviewed: false }, sortScope, scanId)},
     target AS (SELECT rn FROM ranked WHERE guid = ${scanId}::uuid)
     SELECT
       (target.rn - 1)::int AS index,

@@ -1,6 +1,6 @@
 export type ScanImageKind = "cards" | "unmatched";
 
-export type ScanImageSide = "front" | "back";
+export type { ScanImageSide } from "@magic-vault/shared";
 
 export interface ScanImageTarget {
   orgId: string;

@@ -84,3 +84,19 @@ jobs:
           if [ "$FORCE" = "true" ]; then ARGS+=("--force"); fi
           if [ "$REFRESH_ONLY" = "true" ]; then ARGS+=("--refresh-only"); fi
           pnpm --filter @magic-vault/server exec tsx scripts/sync-prices.ts "${ARGS[@]}"
+
+      - name: Report to Better Stack
+        if: always() && github.event_name == 'schedule'
+        env:
+          HEARTBEAT_URL: ${{ secrets.BETTER_STACK_PRICE_SYNC_HEARTBEAT_URL }}
+          RUN_SUCCEEDED: ${{ job.status == 'success' }}
+        run: |
+          if [ -z "$HEARTBEAT_URL" ]; then
+            echo "BETTER_STACK_PRICE_SYNC_HEARTBEAT_URL is unset; skipping the uptime heartbeat."
+            exit 0
+          fi
+          if [ "$RUN_SUCCEEDED" = "true" ]; then
+            curl -fsS -m 10 --retry 3 "$HEARTBEAT_URL" > /dev/null
+          else
+            curl -fsS -m 10 --retry 3 "$HEARTBEAT_URL/fail" > /dev/null
+          fi

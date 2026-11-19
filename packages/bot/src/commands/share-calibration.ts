@@ -10,6 +10,8 @@ import { ACCOUNT_NOT_LINKED_MESSAGE, DISCORD_BLURPLE } from "../lib/constants";
 import type {
   CalibrationDeviceSummary,
   DeviceCalibrationResult,
+  FeederSpeedPercent,
+  ServoPositionKey,
 } from "../lib/interfaces";
 import { promptForSelection } from "../lib/select-prompt";
 
@@ -30,6 +32,20 @@ function formatCalibrationRows(rows: [string, string][]) {
     .join("\n")}\n\`\`\``;
 }
 
+function pulseWithPercent(
+  pulse: number,
+  percent: number | undefined,
+): string {
+  return percent === undefined ? `${pulse}` : `${pulse} (${percent}%)`;
+}
+
+function speedWithPercent(
+  pulse: number,
+  speed: FeederSpeedPercent | undefined,
+): string {
+  return speed ? `${pulse} (${speed.magnitude}% ${speed.direction})` : `${pulse}`;
+}
+
 function buildCalibrationEmbed(
   sharedBy: string,
   calibration: DeviceCalibrationResult,
@@ -40,18 +56,30 @@ function buildCalibrationEmbed(
     .setDescription(
       `Shared by **${sharedBy}** · ${calibration.moduleCount} ${
         calibration.moduleCount === 1 ? "module" : "modules"
-      } · servo values are raw PWM pulses`,
+      } · servo values are raw PWM pulses (percent of servo travel)`,
     );
 
-  for (const { moduleNumber, calibration: servo } of calibration.modules) {
+  for (const {
+    moduleNumber,
+    calibration: servo,
+    positionPercents,
+  } of calibration.modules) {
+    const position = (key: ServoPositionKey) =>
+      pulseWithPercent(servo[key], positionPercents?.[key]);
     embed.addFields({
       name: `Module ${moduleNumber}`,
       value: formatCalibrationRows([
-        ["Trapdoor closed/open", `${servo.bottomClosed} / ${servo.bottomOpen}`],
-        ["Paddle closed/open", `${servo.paddleClosed} / ${servo.paddleOpen}`],
+        [
+          "Trapdoor closed/open",
+          `${position("bottomClosed")} / ${position("bottomOpen")}`,
+        ],
+        [
+          "Paddle closed/open",
+          `${position("paddleClosed")} / ${position("paddleOpen")}`,
+        ],
         [
           "Pusher left/neutral/right",
-          `${servo.pusherLeft} / ${servo.pusherNeutral} / ${servo.pusherRight}`,
+          `${position("pusherLeft")} / ${position("pusherNeutral")} / ${position("pusherRight")}`,
         ],
         ["Pusher hold", `${servo.pusherHoldDuration} ms`],
         [
@@ -62,15 +90,18 @@ function buildCalibrationEmbed(
     });
   }
 
-  const { feeder } = calibration;
+  const { feeder, feederSpeeds } = calibration;
   embed.addFields({
     name: "Feeder",
     value: formatCalibrationRows([
-      ["Speed", `${feeder.speed}`],
+      ["Speed", speedWithPercent(feeder.speed, feederSpeeds?.speed)],
       ["Duration", `${feeder.duration} ms`],
       ["Pulse/pause", `${feeder.pulseDuration} / ${feeder.pauseDuration} ms`],
       ["Settle", `${feeder.settleDuration} ms`],
-      ["Reverse speed", `${feeder.reverseSpeed}`],
+      [
+        "Reverse speed",
+        speedWithPercent(feeder.reverseSpeed, feederSpeeds?.reverseSpeed),
+      ],
       ["Reverse duration", `${feeder.reverseDuration} ms`],
     ]),
   });

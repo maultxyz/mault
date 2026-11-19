@@ -10,7 +10,7 @@ import {
 } from "@magic-vault/shared";
 import { apiGet, apiPut, unwrap } from "@/lib/api/client";
 import type { DevicePatch } from "@/lib/interfaces/calibration";
-import type { Device } from "@/lib/interfaces/devices";
+import type { Device } from "@magic-vault/shared";
 
 export const moduleConfigsQueryOptions = (deviceGuid: string | null) =>
   queryOptions({

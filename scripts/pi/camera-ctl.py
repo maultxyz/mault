@@ -7,6 +7,7 @@ read a JPEG stream from this helper instead of their own camera.
 
 from __future__ import annotations
 
+import hashlib
 import glob
 import json
 import os
@@ -42,7 +43,7 @@ class JpegBuffer:
 
 
 def device_label(device: str) -> str:
-    name_path = f"/sys/class/video4linux/{os.path.basename(device)}/name"
+    name_path = f"/sys/class/video4linux/{os.path.basename(os.path.realpath(device))}/name"
     try:
         raw = open(name_path, encoding="utf-8").read().strip()
     except OSError:
@@ -51,11 +52,11 @@ def device_label(device: str) -> str:
     return " ".join(head.split()) or "USB webcam"
 
 
-def find_webcam() -> str:
-    override = os.environ.get("WEBCAM_DEVICE", "").strip()
-    if override:
-        return override
-    matches: list[str] = []
+def find_webcams() -> list[str]:
+    aliases = {}
+    for path in sorted(glob.glob("/dev/v4l/by-id/*-video-index0")):
+        aliases.setdefault(os.path.realpath(path), path)
+    matches = []
     for node in sorted(glob.glob("/sys/class/video4linux/video*")):
         try:
             index = (Path(node) / "index").read_text(encoding="utf-8").strip()
@@ -66,7 +67,19 @@ def find_webcam() -> str:
             for parent in Path(node).resolve().parents
         ):
             continue
-        matches.append("/dev/" + os.path.basename(node))
+        device = "/dev/" + os.path.basename(node)
+        matches.append(aliases.get(os.path.realpath(device), device))
+    override = os.environ.get("WEBCAM_DEVICE", "").strip()
+    if override and not any(os.path.realpath(device) == os.path.realpath(override) for device in matches):
+        matches.insert(0, override)
+    return matches
+
+
+def find_webcam() -> str:
+    override = os.environ.get("WEBCAM_DEVICE", "").strip()
+    matches = find_webcams()
+    if override:
+        return override
     if not matches:
         raise RuntimeError("no USB webcam found")
     return matches[0]
@@ -106,6 +119,8 @@ def read_zoom_range(device: str) -> dict[str, int] | None:
 
 class Camera:
     def __init__(self) -> None:
+        self.focus_state_path: Path | None = None
+        self.zoom_state_path: Path | None = None
         self.buffer = JpegBuffer()
         self.error: str | None = None
         self.device: str | None = None
@@ -124,8 +139,8 @@ class Camera:
             and self.proc.poll() is None
         )
 
-    def start(self) -> None:
-        self.device = find_webcam()
+    def start(self, device: str | None = None) -> None:
+        self.device = device or find_webcam()
         self.label = device_label(self.device)
         self.focus = read_focus_range(self.device)
         self.zoom = read_zoom_range(self.device)
@@ -254,9 +269,10 @@ class Camera:
             return {"zoomLevel": int(level.group(1))}
 
     def restore_zoom(self) -> None:
-        if self.zoom is None or not ZOOM_STATE_PATH.exists():
+        state_path = self.zoom_state_path or ZOOM_STATE_PATH
+        if self.zoom is None or not state_path.exists():
             return
-        saved = json.loads(ZOOM_STATE_PATH.read_text())
+        saved = json.loads(state_path.read_text())
         try:
             self.set_zoom(saved.get("zoomLevel"))
         except (ValueError, RuntimeError) as exc:
@@ -274,30 +290,35 @@ class Camera:
                 raise ValueError("zoomLevel is outside the webcam zoom range")
             value = int(round(zoom_level))
             self._set_control(f"zoom_absolute={value}")
-            ZOOM_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-            temporary = ZOOM_STATE_PATH.with_suffix(".tmp")
+            state_path = self.zoom_state_path or ZOOM_STATE_PATH
+            state_path.parent.mkdir(parents=True, exist_ok=True)
+            temporary = state_path.with_suffix(".tmp")
             temporary.write_text(json.dumps({"zoomLevel": value}))
-            temporary.replace(ZOOM_STATE_PATH)
+            temporary.replace(state_path)
             return value
 
     def restore_focus(self) -> None:
-        if not FOCUS_STATE_PATH.exists():
+        state_path = self.focus_state_path or FOCUS_STATE_PATH
+        if not state_path.exists():
             return
-        saved = json.loads(FOCUS_STATE_PATH.read_text())
+        saved = json.loads(state_path.read_text())
         self.set_focus(saved["mode"], saved.get("lensPosition"))
         if saved["mode"] == "manual":
             time.sleep(FOCUS_STARTUP_SETTLE_S)
             self.set_focus("manual", saved.get("lensPosition"))
 
-    def set_focus(self, mode: str, lens_position: float | None) -> int | None:
+    def set_focus(self, mode: str, lens_position: float | None, persist: bool = True) -> int | None:
         with self.focus_lock:
             position = self._apply_focus(mode, lens_position)
+            if not persist:
+                return position
             saved = {"mode": "auto" if mode == "auto" else "manual",
                      "lensPosition": position if mode == "lock" else lens_position}
-            FOCUS_STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
-            temporary = FOCUS_STATE_PATH.with_suffix(".tmp")
+            state_path = self.focus_state_path or FOCUS_STATE_PATH
+            state_path.parent.mkdir(parents=True, exist_ok=True)
+            temporary = state_path.with_suffix(".tmp")
             temporary.write_text(json.dumps(saved))
-            temporary.replace(FOCUS_STATE_PATH)
+            temporary.replace(state_path)
             return position
 
     def _apply_focus(self, mode: str, lens_position: float | None) -> int | None:
@@ -360,6 +381,33 @@ class Camera:
 
 
 CAMERA = Camera()
+CAMERAS: dict[str, Camera] = {}
+CAMERAS_LOCK = threading.RLock()
+
+
+def selected_camera(camera_id: str | None) -> Camera:
+    if camera_id is None:
+        return CAMERA
+    devices = find_webcams()
+    if camera_id not in devices:
+        raise ValueError("camera is not connected")
+    key = os.path.realpath(camera_id)
+    with CAMERAS_LOCK:
+        if CAMERA.device and os.path.realpath(CAMERA.device) == key:
+            if not CAMERA.healthy():
+                CAMERA.start(camera_id)
+            return CAMERA
+        camera = CAMERAS.get(key)
+        if camera is None:
+            camera = Camera()
+            suffix = hashlib.sha256(camera_id.encode()).hexdigest()[:16]
+            camera.focus_state_path = FOCUS_STATE_PATH.with_name(f"camera-focus-{suffix}.json")
+            camera.zoom_state_path = ZOOM_STATE_PATH.with_name(f"camera-zoom-{suffix}.json")
+            CAMERAS[key] = camera
+        if not camera.healthy():
+            camera.start(camera_id)
+        return camera
+
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -387,28 +435,42 @@ class Handler(BaseHTTPRequestHandler):
         if not self._host_is_loopback():
             return
         path = self.path.split("?", 1)[0]
+        if path == "/devices":
+            devices = [{"id": device, "label": f"{device_label(device)} ({os.path.basename(device)})"} for device in find_webcams()]
+            self._send(200, json.dumps({"devices": devices}).encode(), "application/json")
+            return
+        if path not in ("/health", "/frame", "/stream"):
+            self._send(404, b"not found", "text/plain")
+            return
+        try:
+            camera = selected_camera(parse_qs(urlsplit(self.path).query).get("cameraId", [None])[0])
+        except (ValueError, RuntimeError, OSError) as exc:
+            self._send(503, str(exc).encode(), "text/plain")
+            return
         if path == "/health":
-            if not CAMERA.healthy():
+            if not camera.healthy():
                 self._send(
                     503,
-                    (CAMERA.error or "camera is not running").encode(),
+                    (camera.error or "camera is not running").encode(),
                     "text/plain",
                 )
                 return
             try:
-                focus_settings = CAMERA.focus_settings() if CAMERA.focus else {}
-                zoom_settings = CAMERA.zoom_settings() if CAMERA.zoom else {}
+                focus_settings = camera.focus_settings() if camera.focus else {}
+                zoom_settings = camera.zoom_settings() if camera.zoom else {}
             except RuntimeError as exc:
                 self._send(503, str(exc).encode(), "text/plain")
                 return
             payload = json.dumps(
                 {
                     "ok": True,
-                    "label": CAMERA.label,
-                    "width": CAMERA.width,
-                    "height": CAMERA.height,
-                    "focus": CAMERA.focus,
-                    "zoom": CAMERA.zoom,
+                    "id": next((device for device in find_webcams() if os.path.realpath(device) == os.path.realpath(camera.device or "")), camera.device),
+                    "label": camera.label,
+                    "width": camera.width,
+                    "height": camera.height,
+                    "focus": camera.focus,
+                    "focusPreview": True,
+                    "zoom": camera.zoom,
                     **focus_settings,
                     **zoom_settings,
                 }
@@ -416,20 +478,20 @@ class Handler(BaseHTTPRequestHandler):
             self._send(200, payload, "application/json")
             return
         if path == "/frame":
-            with CAMERA.buffer.condition:
+            with camera.buffer.condition:
                 if parse_qs(urlsplit(self.path).query).get("fresh") == ["1"]:
-                    sequence = CAMERA.buffer.sequence
-                    arrived = CAMERA.buffer.condition.wait_for(
-                        lambda: CAMERA.buffer.sequence > sequence, timeout=3
+                    sequence = camera.buffer.sequence
+                    arrived = camera.buffer.condition.wait_for(
+                        lambda: camera.buffer.sequence > sequence, timeout=3
                     )
                     if not arrived:
                         self._send(503, b"camera produced no fresh frame", "text/plain")
                         return
-                frame = CAMERA.buffer.frame
-            if not CAMERA.healthy() or frame is None:
+                frame = camera.buffer.frame
+            if not camera.healthy() or frame is None:
                 self._send(
                     503,
-                    (CAMERA.error or "camera is not running").encode(),
+                    (camera.error or "camera is not running").encode(),
                     "text/plain",
                 )
                 return
@@ -438,10 +500,10 @@ class Handler(BaseHTTPRequestHandler):
         if path != "/stream":
             self._send(404, b"not found", "text/plain")
             return
-        if not CAMERA.healthy():
+        if not camera.healthy():
             self._send(
                 503,
-                (CAMERA.error or "camera is not running").encode(),
+                (camera.error or "camera is not running").encode(),
                 "text/plain",
             )
             return
@@ -454,15 +516,15 @@ class Handler(BaseHTTPRequestHandler):
         self.end_headers()
         try:
             next_at = 0.0
-            while True:
-                with CAMERA.buffer.condition:
-                    if CAMERA.buffer.frame is None:
-                        CAMERA.buffer.condition.wait()
-                    frame = CAMERA.buffer.frame
+            while camera.healthy():
+                with camera.buffer.condition:
+                    if camera.buffer.frame is None:
+                        camera.buffer.condition.wait()
+                    frame = camera.buffer.frame
                 now = time.monotonic()
                 if now < next_at:
                     time.sleep(next_at - now)
-                    frame = CAMERA.buffer.frame
+                    frame = camera.buffer.frame
                 if not frame:
                     continue
                 part = (
@@ -492,11 +554,16 @@ class Handler(BaseHTTPRequestHandler):
             return
         length = int(self.headers.get("Content-Length", "0") or "0")
         try:
+            camera = selected_camera(parse_qs(urlsplit(self.path).query).get("cameraId", [None])[0])
             body = json.loads(self.rfile.read(length) or b"{}")
             lens = body.get("lensPosition")
-            position = CAMERA.set_focus(
+            if "persist" in body and not isinstance(body["persist"], bool):
+                raise ValueError("persist must be a boolean")
+            options = {"persist": False} if body.get("persist") is False else {}
+            position = camera.set_focus(
                 str(body.get("mode", "")),
                 None if lens is None else float(lens),
+                **options,
             )
         except (ValueError, RuntimeError, OSError, json.JSONDecodeError) as exc:
             self._send(400, str(exc).encode(), "text/plain")
@@ -511,7 +578,8 @@ class Handler(BaseHTTPRequestHandler):
         try:
             body = json.loads(self.rfile.read(length) or b"{}")
             level = body.get("zoomLevel")
-            value = CAMERA.set_zoom(None if level is None else float(level))
+            camera = selected_camera(parse_qs(urlsplit(self.path).query).get("cameraId", [None])[0])
+            value = camera.set_zoom(None if level is None else float(level))
         except (ValueError, RuntimeError, OSError, json.JSONDecodeError) as exc:
             self._send(400, str(exc).encode(), "text/plain")
             return

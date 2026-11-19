@@ -1,6 +1,7 @@
 import { OBJECT_STORAGE_ENABLED } from "./constants/object-storage";
 import type {
   ScanImageKind,
+  ScanImageSide,
   ScanImageTarget,
   StoredScanImage,
   StoredBackScanImageRow,
@@ -86,6 +87,20 @@ export async function loadScanImage(
   return row.capturedImageDataUrl
     ? (parseDataUrl(row.capturedImageDataUrl)?.body ?? null)
     : null;
+}
+
+export function loadScanImageSide(
+  row: StoredScanImageRow & StoredBackScanImageRow,
+  side: ScanImageSide,
+): Promise<Buffer | null> {
+  return loadScanImage(
+    side === "back"
+      ? {
+          capturedImageKey: row.capturedBackImageKey,
+          capturedImageDataUrl: row.capturedBackImageDataUrl,
+        }
+      : row,
+  );
 }
 
 export function deleteScanImages(keys: (string | null)[]): void {

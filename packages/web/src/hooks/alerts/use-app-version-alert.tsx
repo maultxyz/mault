@@ -1,22 +1,26 @@
 import { Button } from "@/components/ui/button";
 import { useAppVersionCheck } from "@/hooks/use-app-version-check";
 import { usePiHost } from "@/hooks/use-pi-host";
-import { usePiUpdate } from "@/hooks/use-pi-update";
 import { useRole } from "@/hooks/use-role";
 import { ALERT_BANNER_ACTION_CLASS } from "@/lib/constants/colors";
-import { PI_UPDATE_ACKNOWLEDGED_KEY } from "@/lib/constants/pi-update";
+import {
+  PI_UPDATE_ACKNOWLEDGED_KEY,
+  PI_UPDATE_TERMINAL_COMMAND,
+} from "@/lib/constants/pi-update";
 import type { AppAlert } from "@/lib/interfaces/alerts";
-import { hardReload } from "@/lib/pwa";
+import type { PiUpdateControls } from "@/lib/interfaces/pi-update";
+import { hardReload } from "@/lib/hard-reload";
 import { IconAlertTriangle } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
-export function useAppVersionAlert(): AppAlert | null {
+export function useAppVersionAlert(
+  update: PiUpdateControls,
+): AppAlert | null {
   const { t } = useTranslation("common");
   const isOutdated = useAppVersionCheck();
   const piHost = usePiHost();
   const { isAdmin } = useRole();
-  const update = usePiUpdate(piHost && isAdmin);
   const [acknowledged] = useState(() => {
     try {
       return localStorage.getItem(PI_UPDATE_ACKNOWLEDGED_KEY);
@@ -56,15 +60,21 @@ export function useAppVersionAlert(): AppAlert | null {
           !update.busy && (
             <span className="block">
               {t("appVersion.terminalUpdate")}{" "}
-              <code className="select-all">
-                cd ~/mault &amp;&amp; bash scripts/pi/update.sh
-              </code>
+              <code className="select-all">{PI_UPDATE_TERMINAL_COMMAND}</code>
             </span>
           )}
       </>
     ),
     actions: (
       <>
+        {piHost && isAdmin && available && !update.busy && (
+          <Button
+            className={ALERT_BANNER_ACTION_CLASS}
+            onClick={() => void update.start()}
+          >
+            {t("appVersion.updateButton")}
+          </Button>
+        )}
         {!update.busy && (
           <Button
             variant="outline"

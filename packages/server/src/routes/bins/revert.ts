@@ -1,6 +1,7 @@
 import type { BinConfig } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { reclaimFillLocations } from "../../lib/storage-fill-claims";
 import { authQuery } from "../../db";
 import { bins, binSetAudit } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -104,6 +105,7 @@ export const revertBinSetRoute = new Hono<AppEnv>().post(
         }
       }
       await normalizeOverflowBins(tx, binSet.id);
+      await reclaimFillLocations(tx, binSet.id);
 
       await tx.insert(binSetAudit).values({
         binSetGuid: entry.binSetGuid,

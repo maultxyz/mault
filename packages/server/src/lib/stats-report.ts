@@ -8,7 +8,7 @@ import {
   type StatsReport,
 } from "@magic-vault/shared";
 import { sql, type SQL } from "drizzle-orm";
-import type { Transaction } from "../db";
+import { authQuery, type Transaction } from "../db";
 import {
   collectionCards,
   collections,
@@ -21,18 +21,29 @@ import {
 } from "../routes/collections/cards-query";
 import { joinedScannedCardPriceSql } from "./card-price-sql";
 import { COLLECTION_CARD_SQL_COLUMNS } from "./constants/card-prices";
+import {
+  STATS_REPORT_CACHE_MAX_ENTRIES,
+  STATS_REPORT_CACHE_TTL_MS,
+} from "./constants/home-read-caches";
 import { ONE_DAY_MS } from "./constants/timing";
-import type { StatsReportRow } from "./interfaces/stats";
+import type { LoadedStatsReport, StatsReportRow } from "./interfaces/stats";
+import { createOrgReadCache } from "./org-read-cache";
 import { loadOrgPricing } from "./price-source";
 import { hydrateSavedCards } from "./saved-cards";
+
+const statsReportCache = createOrgReadCache<LoadedStatsReport | null>(
+  STATS_REPORT_CACHE_TTL_MS,
+  STATS_REPORT_CACHE_MAX_ENTRIES,
+);
 
 function priceBucketsSql(): SQL {
   const buckets = STATS_PRICE_BUCKETS.map(({ key, min, max }) => {
     const upper = max == null ? sql`true` : sql`price < ${max}`;
+    const inBucket = sql`price > 0 AND price >= ${min} AND ${upper}`;
     return sql`json_build_object(
       'key', ${key}::text,
-      'count', (SELECT count(*)::int FROM base WHERE price > 0 AND price >= ${min} AND ${upper}),
-      'value', (SELECT COALESCE(sum(price), 0)::float8 FROM base WHERE price > 0 AND price >= ${min} AND ${upper})
+      'count', (count(*) FILTER (WHERE ${inBucket}))::int,
+      'value', COALESCE(sum(price) FILTER (WHERE ${inBucket}), 0)::float8
     )`;
   });
   return sql`json_build_array(${sql.join(buckets, sql`, `)})`;
@@ -43,7 +54,7 @@ export async function loadStatsReport(
   orgId: string,
   range: StatsRange,
   collectionGuid: string | null,
-): Promise<StatsReport | null> {
+): Promise<LoadedStatsReport | null> {
   const collection = collectionGuid
     ? await findCardsCollection(tx, collectionGuid, orgId)
     : null;
@@ -96,27 +107,33 @@ export async function loadStatsReport(
       LEFT JOIN card_prices cp ON cp.game_key = ${games.key}
         AND cp.lang = COALESCE(${collectionCards.cardLang}, ${collections.lang})
         AND cp.card_id = ${collectionCards.cardId}
-      WHERE ${scope}
+      WHERE ${collectionCards.orgId} = ${orgId}
+        AND ${scope}
         AND (${intakeLots.id} IS NULL OR ${intakeLots.status} = 'accepted')
+    ),
+    per_collection AS (
+      SELECT ${collections.guid}::text AS guid, ${collections.name} AS name,
+        ${games.key} AS game_key,
+        ${games.name} AS "gameName",
+        count(b.row_id)::int AS row_count,
+        count(b.scan_id)::int AS "cardCount",
+        count(DISTINCT b.card_id)::int AS "uniqueCount",
+        COALESCE(sum(b.price) FILTER (WHERE b.price > 0), 0)::float8 AS "totalValue",
+        COALESCE(avg(b.price) FILTER (WHERE b.price > 0), 0)::float8 AS "avgValue",
+        (count(b.scan_id) FILTER (WHERE b.created_at >= ${sinceIso}::timestamp))::int AS "scansInRange",
+        COALESCE(sum(b.price) FILTER (WHERE b.price > 0 AND b.created_at >= ${sinceIso}::timestamp), 0)::float8 AS "valueAddedInRange",
+        to_char(max(b.created_at), ${isoTimestamp}) AS "lastScanAt",
+        COALESCE(sum(b.cost), 0)::float8 AS "costBasis",
+        count(b.cost)::int AS "costedCount",
+        COALESCE(sum(b.price) FILTER (WHERE b.price > 0 AND b.cost IS NOT NULL), 0)::float8 AS "costedValue"
+      FROM ${collections}
+      LEFT JOIN ${games} ON ${games.id} = ${collections.gameId}
+      LEFT JOIN base b ON b.collection_id = ${collections.id}
+      WHERE ${scope}
+      GROUP BY ${collections.id}, ${collections.guid}, ${collections.name}, ${games.key}, ${games.name}
     )
     SELECT
-      (
-        SELECT json_build_object(
-          'cardCount', count(*)::int,
-          'uniqueCount', count(DISTINCT card_id)::int,
-          'totalValue', COALESCE(sum(price) FILTER (WHERE price > 0), 0)::float8,
-          'avgValue', COALESCE(avg(price) FILTER (WHERE price > 0), 0)::float8,
-          'priceableCount', (count(*) FILTER (WHERE price > 0))::int,
-          'foilCount', (count(*) FILTER (WHERE is_foil))::int,
-          'needsReviewCount', (count(*) FILTER (WHERE NOT is_corrected AND needs_review))::int,
-          'correctedCount', (count(*) FILTER (WHERE is_corrected))::int,
-          'scansInRange', (count(*) FILTER (WHERE ${inRange}))::int,
-          'valueAddedInRange', COALESCE(sum(price) FILTER (WHERE price > 0 AND ${inRange}), 0)::float8,
-          'costBasis', COALESCE(sum(cost), 0)::float8,
-          'costedCount', count(cost)::int,
-          'costedValue', COALESCE(sum(price) FILTER (WHERE price > 0 AND cost IS NOT NULL), 0)::float8
-        ) FROM base
-      ) AS totals,
+      overall.totals,
       (
         SELECT COALESCE(json_agg(json_build_object(
           'start', to_char(s.bucket, 'YYYY-MM-DD'),
@@ -136,7 +153,7 @@ export async function loadStatsReport(
           GROUP BY 1
         ) a ON a.bucket = s.bucket
       ) AS activity,
-      ${priceBucketsSql()} AS price_buckets,
+      overall.price_buckets,
       (
         SELECT COALESCE(json_agg(json_build_object(
           'scanId', top.scan_id,
@@ -158,33 +175,41 @@ export async function loadStatsReport(
       ) AS top_cards,
       (
         SELECT COALESCE(json_agg(r ORDER BY r."totalValue" DESC, r.name), '[]'::json) FROM (
-          SELECT ${collections.guid}::text AS guid, ${collections.name} AS name,
-            ${games.name} AS "gameName",
-            count(b.scan_id)::int AS "cardCount",
-            count(DISTINCT b.card_id)::int AS "uniqueCount",
-            COALESCE(sum(b.price) FILTER (WHERE b.price > 0), 0)::float8 AS "totalValue",
-            COALESCE(avg(b.price) FILTER (WHERE b.price > 0), 0)::float8 AS "avgValue",
-            (count(b.scan_id) FILTER (WHERE b.created_at >= ${sinceIso}::timestamp))::int AS "scansInRange",
-            COALESCE(sum(b.price) FILTER (WHERE b.price > 0 AND b.created_at >= ${sinceIso}::timestamp), 0)::float8 AS "valueAddedInRange",
-            to_char(max(b.created_at), ${isoTimestamp}) AS "lastScanAt",
-            COALESCE(sum(b.cost), 0)::float8 AS "costBasis",
-            count(b.cost)::int AS "costedCount",
-            COALESCE(sum(b.price) FILTER (WHERE b.price > 0 AND b.cost IS NOT NULL), 0)::float8 AS "costedValue"
-          FROM ${collections}
-          LEFT JOIN ${games} ON ${games.id} = ${collections.gameId}
-          LEFT JOIN base b ON b.collection_id = ${collections.id}
-          WHERE ${scope}
-          GROUP BY ${collections.id}, ${collections.guid}, ${collections.name}, ${games.name}
+          SELECT guid, name, "gameName", "cardCount", "uniqueCount", "totalValue", "avgValue",
+            "scansInRange", "valueAddedInRange", "lastScanAt", "costBasis", "costedCount", "costedValue"
+          FROM per_collection
         ) r
       ) AS collections,
       (
         SELECT COALESCE(json_agg(g ORDER BY g."totalValue" DESC), '[]'::json) FROM (
-          SELECT game_key AS key, game_name AS name,
-            count(*)::int AS "cardCount",
-            COALESCE(sum(price) FILTER (WHERE price > 0), 0)::float8 AS "totalValue"
-          FROM base GROUP BY game_key, game_name
+          SELECT game_key AS key, "gameName" AS name,
+            sum(row_count)::int AS "cardCount",
+            sum("totalValue")::float8 AS "totalValue"
+          FROM per_collection
+          WHERE row_count > 0
+          GROUP BY game_key, "gameName"
         ) g
       ) AS games
+    FROM (
+      SELECT
+        json_build_object(
+          'cardCount', count(*)::int,
+          'uniqueCount', count(DISTINCT card_id)::int,
+          'totalValue', COALESCE(sum(price) FILTER (WHERE price > 0), 0)::float8,
+          'avgValue', COALESCE(avg(price) FILTER (WHERE price > 0), 0)::float8,
+          'priceableCount', (count(*) FILTER (WHERE price > 0))::int,
+          'foilCount', (count(*) FILTER (WHERE is_foil))::int,
+          'needsReviewCount', (count(*) FILTER (WHERE NOT is_corrected AND needs_review))::int,
+          'correctedCount', (count(*) FILTER (WHERE is_corrected))::int,
+          'scansInRange', (count(*) FILTER (WHERE ${inRange}))::int,
+          'valueAddedInRange', COALESCE(sum(price) FILTER (WHERE price > 0 AND ${inRange}), 0)::float8,
+          'costBasis', COALESCE(sum(cost), 0)::float8,
+          'costedCount', count(cost)::int,
+          'costedValue', COALESCE(sum(price) FILTER (WHERE price > 0 AND cost IS NOT NULL), 0)::float8
+        ) AS totals,
+        ${priceBucketsSql()} AS price_buckets
+      FROM base
+    ) AS overall
   `);
   const row = result.rows[0] as unknown as StatsReportRow;
 
@@ -196,7 +221,7 @@ export async function loadStatsReport(
     { includeRaw: false },
   );
 
-  return {
+  const report: StatsReport = {
     scope: collection ? "collection" : "org",
     range,
     bucket,
@@ -221,4 +246,17 @@ export async function loadStatsReport(
     costsVisible: true,
     valueHistory: null,
   };
+  return { report, currency };
+}
+
+export function loadCachedStatsReport(
+  jwtClaims: string,
+  orgId: string,
+  range: StatsRange,
+  collectionGuid: string | null,
+): Promise<LoadedStatsReport | null> {
+  const day = new Date().toISOString().slice(0, 10);
+  return statsReportCache.get(orgId, `${day}:${range}:${collectionGuid ?? ""}`, () =>
+    authQuery(jwtClaims, (tx) => loadStatsReport(tx, orgId, range, collectionGuid)),
+  );
 }

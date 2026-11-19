@@ -13,6 +13,7 @@ export function HomeCollectionRow({
   name,
   subtitle,
   value,
+  exactValue,
   trailing,
   trailingAccessibilityLabel,
   isScanTarget,
@@ -33,7 +34,7 @@ export function HomeCollectionRow({
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel={[name, subtitle, trailing ? trailingAccessibilityLabel : value].filter(Boolean).join(", ")}
+        accessibilityLabel={[name, subtitle, trailing ? trailingAccessibilityLabel : (exactValue ?? value)].filter(Boolean).join(", ")}
         onPress={onPress}
         onPressIn={onPressIn}
         {...longPressHandlers}

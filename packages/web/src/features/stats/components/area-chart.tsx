@@ -66,7 +66,7 @@ export function AreaChart({ data, formatValue, formatAxisValue, ariaLabel, endLa
           aria-hidden
           viewBox={`0 0 ${width} ${height}`}
           preserveAspectRatio="none"
-          className="absolute inset-0 size-full overflow-visible text-primary dark:text-sidebar-primary"
+          className="absolute inset-0 size-full overflow-visible text-primary"
         >
           <defs>
             <linearGradient id={fillId} x1="0" y1="0" x2="0" y2="1">

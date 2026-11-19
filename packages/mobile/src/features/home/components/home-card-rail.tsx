@@ -13,6 +13,7 @@ import {
 import { CARD_ART_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import type { HomeCardRailProps } from "@/lib/interfaces/home";
 import { cardArtSources } from "@/lib/card-art";
+import { usePrefetchCollectionCard } from "@/hooks/use-prefetch-collection-card";
 
 export function HomeCardRail({
   title,
@@ -24,6 +25,7 @@ export function HomeCardRail({
   isLoading = false,
   loadingTileCount = HOME_CARD_RAIL_LOADING_TILE_COUNT,
 }: HomeCardRailProps) {
+  const prefetchCollectionCard = usePrefetchCollectionCard();
   if (!isLoading && cards.length === 0) return null;
   return (
     <View style={{ gap: SPACING.sm }}>
@@ -62,6 +64,7 @@ export function HomeCardRail({
               onPress={() =>
                 router.push({ pathname: "/card/[scanId]", params: { scanId: card.scanId, guid: card.collectionGuid } })
               }
+              onPressIn={() => prefetchCollectionCard(card.collectionGuid, card.scanId)}
             />
           </View>
           );

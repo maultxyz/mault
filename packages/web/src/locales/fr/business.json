@@ -120,8 +120,8 @@
     "emptyDescription": "Commencez-en un quand un client vient vendre des cartes.",
     "pickTitle": "Choisissez un rachat",
     "pickDescription": "Choisissez un lot à gauche ou commencez-en un nouveau.",
-    "cardCount_one": "{{count}} carte",
-    "cardCount_other": "{{count}} cartes",
+    "cardCount_one": "{{count, compact}} carte",
+    "cardCount_other": "{{count, compact}} cartes",
     "openScanner": "Ouvrir le scanner",
     "addCard": "Ajouter une carte",
     "printReceipt": "Reçu",
@@ -602,7 +602,8 @@
       "orderSortPresetReused": "Préréglage de tri réutilisé",
       "orderSorterPickCreated": "Préparation groupée démarrée",
       "orderSorterPickApplied": "Préparation groupée appliquée",
-      "orderSorterPickPresetsCleaned": "Préréglages de trieuse utilisés supprimés"
+      "orderSorterPickPresetsCleaned": "Préréglages de trieuse utilisés supprimés",
+      "tradeRecorded": "Échange enregistré"
     },
     "messages": {
       "cardCorrected": "{{from}} corrigée en {{to}}",
@@ -635,7 +636,8 @@
       "orderSortPresetReused": "A réutilisé le préréglage de tri {{summary}}",
       "orderSorterPickCreated": "A démarré une préparation groupée depuis {{summary}}",
       "orderSorterPickApplied": "A appliqué une préparation groupée pour {{summary}}",
-      "orderSorterPickPresetsCleaned": "A supprimé {{summary}} préréglages de trieuse utilisés"
+      "orderSorterPickPresetsCleaned": "A supprimé {{summary}} préréglages de trieuse utilisés",
+      "tradeRecorded": "A enregistré un échange en personne avec {{summary}}"
     }
   },
   "accuracy": {
@@ -810,7 +812,9 @@
       "source": "Cartes de",
       "markup": "Majoration (%)",
       "markupHint": "Ajoutée au prix du marché. Utilisez un nombre négatif pour une remise.",
-      "rounding": "Arrondir les prix"
+      "rounding": "Arrondir les prix",
+      "showPrices": "Afficher les prix",
+      "showPricesHint": "Désactivez pour imprimer des étiquettes avec seulement la carte et son code de rangement."
     },
     "sources": {
       "collection": "Collection",
@@ -844,7 +848,6 @@
       "customPrice": "Prix personnalisé",
       "customPriceFor": "Prix personnalisé pour {{name}}",
       "labelPrice": "Prix de l'étiquette",
-      "noPrice": "Aucun prix",
       "truncated": "Affichage des {{shown}} premières cartes sur {{total}}. Imprimez les étiquettes des autres depuis un emplacement de rangement ou un rachat."
     },
     "empty": {

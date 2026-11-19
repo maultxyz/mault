@@ -1,4 +1,7 @@
-import { QUERY_INVALIDATION_EXCLUDED_KEYS } from "@/lib/constants/query";
+import {
+  APP_QUERY_DEFAULT_OPTIONS,
+  QUERY_INVALIDATION_EXCLUDED_KEYS,
+} from "@/lib/constants/query";
 import { QueryClient } from "@tanstack/react-query";
 
 export function invalidateAppQueries(queryClient: QueryClient) {
@@ -8,11 +11,10 @@ export function invalidateAppQueries(queryClient: QueryClient) {
   });
 }
 
+export const appQueryClient = new QueryClient({
+  defaultOptions: APP_QUERY_DEFAULT_OPTIONS,
+});
+
 export const publicQueryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      staleTime: Infinity,
-      retry: 1,
-    },
-  },
+  defaultOptions: APP_QUERY_DEFAULT_OPTIONS,
 });

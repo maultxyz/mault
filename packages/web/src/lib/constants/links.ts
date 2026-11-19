@@ -1,6 +1,6 @@
 import { runtimeEnv } from "@/lib/runtime-env";
 
-export const REPO_URL = "https://github.com/dishwasher-detergent/mault";
+export const REPO_URL = "https://github.com/maultxyz/mault";
 export const MODEL_URL = `${REPO_URL}/tree/master/3d%20model`;
 export const PRINT_FILES_URL =
   "https://makerworld.com/en/models/3066180-tcg-card-sorting-machine";

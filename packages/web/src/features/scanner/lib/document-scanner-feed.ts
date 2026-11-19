@@ -1,3 +1,4 @@
+import { delay } from "@/lib/delay";
 import {
   DOCUMENT_SCANNER_CARD_ARRIVAL_POLL_MS,
   DOCUMENT_SCANNER_CARD_ARRIVAL_TIMEOUT_MS,
@@ -10,10 +11,6 @@ import type { SerialRequestResult } from "@magic-vault/shared";
 
 function feedReply(reply: Record<string, unknown>): SerialRequestResult {
   return { sent: true, line: JSON.stringify(reply) };
-}
-
-function wait(milliseconds: number) {
-  return new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 }
 
 async function isModuleOneLoaded(readIR: DocumentScannerFeedParams["readIR"]) {
@@ -48,7 +45,7 @@ export async function feedCardFromDocumentScanner({
   if (deliverCardWithSorterFeeder) return deliverCardWithSorterFeeder();
 
   if (ignoreIrSensors) {
-    await wait(DOCUMENT_SCANNER_IGNORED_IR_DROP_WAIT_MS);
+    await delay(DOCUMENT_SCANNER_IGNORED_IR_DROP_WAIT_MS);
     return feedReply({ detected: true });
   }
 
@@ -61,7 +58,7 @@ export async function feedCardFromDocumentScanner({
       : DOCUMENT_SCANNER_CARD_ARRIVAL_TIMEOUT_MS);
   while (Date.now() < deadline) {
     if (await isModuleOneLoaded(readIR)) return feedReply({ detected: true });
-    await wait(DOCUMENT_SCANNER_CARD_ARRIVAL_POLL_MS);
+    await delay(DOCUMENT_SCANNER_CARD_ARRIVAL_POLL_MS);
   }
   return feedReply({ error: cardDidNotArriveMessage });
 }

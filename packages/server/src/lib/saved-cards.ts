@@ -4,7 +4,11 @@ import {
   findCatalogCardKeys,
   loadCatalogCards,
 } from "./card-catalog";
+import { createCatalogCardCache } from "./catalog-card-cache";
 import {
+  CATALOG_CARD_CACHE_MAX_ENTRIES,
+  CATALOG_CARD_CACHE_MAX_KEYS_PER_CACHED_READ,
+  CATALOG_CARD_CACHE_TTL_MS,
   SAVED_ALTERNATIVE_KEYS,
   SAVED_CARD_READ_TIME_KEYS,
   SAVED_CARD_SCAN_KEYS,
@@ -17,6 +21,18 @@ import type {
   SavedCardSnapshots,
   SavedScanFields,
 } from "./interfaces/saved-cards";
+
+const catalogCardCache = createCatalogCardCache({
+  ttlMs: CATALOG_CARD_CACHE_TTL_MS,
+  maxEntries: CATALOG_CARD_CACHE_MAX_ENTRIES,
+  maxKeysPerCachedRead: CATALOG_CARD_CACHE_MAX_KEYS_PER_CACHED_READ,
+  keyOf: catalogCardKey,
+  load: loadCatalogCards,
+});
+
+export function clearCachedCatalogCards(): void {
+  catalogCardCache.clear();
+}
 
 function withoutKeys<T extends object>(value: T, keys: readonly string[]): T {
   const copy = { ...value } as Record<string, unknown>;
@@ -49,10 +65,12 @@ export function withCatalogCard<T extends PlayingCard>(
   current: PlayingCard | undefined,
   { includeRaw }: SavedCardHydrateOptions,
 ): T {
-  if (!current) return includeRaw ? saved : withoutKeys(saved, ["raw"]);
+  if (!current) {
+    return withoutKeys(saved, includeRaw ? ["isMissingFromCatalog"] : ["raw", "isMissingFromCatalog"]);
+  }
   const merged = {
     ...withoutKeys(current, ["raw"]),
-    ...withoutKeys(saved, ["raw"]),
+    ...withoutKeys(saved, ["raw", "isMissingFromCatalog"]),
     ...withoutKeys(current, [...SAVED_CARD_SCAN_KEYS, "raw"]),
     image: current.image?.normal ? current.image : saved.image,
   };
@@ -73,11 +91,18 @@ export async function hydrateSavedCards<T extends PlayingCard>(
   options: SavedCardHydrateOptions,
 ): Promise<T[]> {
   const keys = items.flatMap((item) => catalogKeyFor(item, item.card) ?? []);
-  const catalog = keys.length > 0 ? await loadCatalogCards(keys) : new Map();
+  const catalog = keys.length > 0 ? await catalogCardCache.load(keys) : new Map();
   return items.map((item) => {
     const key = lookupKey(item, item.card);
-    return withCatalogCard(item.card, key ? catalog.get(key) : undefined, options);
+    return withCatalogMissingFlag(
+      withCatalogCard(item.card, key ? catalog.get(key) : undefined, options),
+      !!key && !catalog.has(key),
+    );
   });
+}
+
+function withCatalogMissingFlag<T extends PlayingCard>(card: T, isMissingFromCatalog: boolean): T {
+  return isMissingFromCatalog ? { ...card, isMissingFromCatalog: true } : card;
 }
 
 export async function hydrateSavedScans<T extends SavedScanFields>(
@@ -91,7 +116,7 @@ export async function hydrateSavedScans<T extends SavedScanFields>(
     ),
   );
   if (keys.length === 0) return scans;
-  const catalog = await loadCatalogCards(keys);
+  const catalog = await catalogCardCache.load(keys);
   const hydrate = <C extends PlayingCard>(card: C): C => {
     const key = lookupKey(scope, card);
     return withCollectionLanguage(
@@ -99,20 +124,15 @@ export async function hydrateSavedScans<T extends SavedScanFields>(
       scope.lang,
     );
   };
+  const hydrateMainCard = <C extends PlayingCard>(card: C): C => {
+    const key = lookupKey(scope, card);
+    return withCatalogMissingFlag(hydrate(card), !!key && !catalog.has(key));
+  };
   return scans.map((scan) => ({
     ...scan,
-    card: scan.card ? hydrate(scan.card) : scan.card,
+    card: scan.card ? hydrateMainCard(scan.card) : scan.card,
     alternativeMatches: scan.alternativeMatches?.map(hydrate) ?? scan.alternativeMatches,
   }));
-}
-
-export async function hydrateSavedScan<T extends SavedScanFields>(
-  scope: SavedCardScope,
-  scan: T,
-  options: SavedCardHydrateOptions,
-): Promise<T> {
-  const [hydrated] = await hydrateSavedScans(scope, [scan], options);
-  return hydrated;
 }
 
 export function savedCardCatalogKeys(

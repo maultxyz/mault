@@ -1,0 +1,90 @@
+{
+  "title": "Machines",
+  "chooseMachine": "Choose a machine",
+  "machinePicker": "{{name}}, choose another machine",
+  "empty": {
+    "title": "No machines online",
+    "description": "A machine shows up here while its sorter is connected in Mault on a computer, or while a Raspberry Pi is scanning."
+  },
+  "runState": {
+    "running": "Sorting",
+    "paused": "Paused",
+    "attention": "Needs attention",
+    "stopped": "Stopped",
+    "idle": "Idle"
+  },
+  "stale": "No update for a while",
+  "sessionCount_one": "{{count}} card this session",
+  "sessionCount_other": "{{count}} cards this session",
+  "collection": "Scanning into {{name}}",
+  "noCollection": "No collection chosen",
+  "camera": {
+    "label": "Live camera on {{name}}",
+    "unavailable": "This machine has no camera to show",
+    "idle": "The camera shows while the machine is sorting",
+    "loading": "Connecting to the camera"
+  },
+  "controls": {
+    "start": "Start",
+    "resume": "Resume",
+    "pause": "Pause",
+    "emergencyStop": "Emergency stop",
+    "emergencyStopHint": "Stops every motor on this machine",
+    "failed": "The machine didn't respond. Check that it's still online.",
+    "sent": "Sent to {{name}}",
+    "remoteNote": "Remote controls need the machine online. Keep a way to cut power at the machine."
+  },
+  "preset": {
+    "label": "Sorting rules",
+    "none": "No preset",
+    "pass": "Pass {{position}} of {{count}}"
+  },
+  "bins": {
+    "title": "Bins",
+    "estimated": "Estimated from scans since each bin was last emptied",
+    "bin": "Bin {{number}}",
+    "catchAll": "Bin {{number}} (catch-all)",
+    "fill": "{{count}}/{{capacity}}",
+    "fillUnknown": "{{count}}",
+    "a11y": "{{name}}: {{count}} of {{capacity}} cards",
+    "a11yUnknown": "{{name}}: {{count}} cards",
+    "unavailable": "Bin levels show once the machine has a preset"
+  },
+  "recent": {
+    "title": "Recent scans",
+    "empty": "Cards show up here as they're scanned",
+    "unmatched": "Not identified",
+    "bin": "Bin {{number}}",
+    "lowConfidence": "Check this match",
+    "open": "Open {{name}}",
+    "lastCard": "Last card: {{name}}"
+  },
+  "pages": {
+    "label": "Machine {{position}} of {{count}}",
+    "goTo": "Show {{name}}"
+  },
+  "source": {
+    "piHost": "Raspberry Pi",
+    "station": "Computer"
+  },
+  "attention": {
+    "jam": "Jam at module {{module}}",
+    "hopperEmpty": "Hopper is empty",
+    "feederError": "Feeder error",
+    "noCardDetected": "No card reached the scanner",
+    "cardStuckInModuleOne": "A card is stuck in module 1",
+    "sorterNotResponding": "Sorter isn't responding",
+    "routingFailed": "A card couldn't be routed",
+    "binLimit": "Bin {{bins}} is full",
+    "binLimitUnknown": "A bin is full",
+    "binsFull_one": "Bin {{bins}} is full",
+    "binsFull_other": "Bins {{bins}} are full",
+    "packsComplete": "All packs are complete",
+    "saveFailed": "A scan couldn't be saved",
+    "scanLimit": "Daily scan limit reached",
+    "sorterLimit": "Sorter limit reached",
+    "collectionLocked": "Collection is locked",
+    "scannerError": "Camera error",
+    "emergencyStopped": "Emergency stop"
+  }
+}

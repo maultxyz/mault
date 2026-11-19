@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { formatPrice } from "@magic-vault/shared";
+import { formatPrice, MISSING_PRICE_TEXT } from "@magic-vault/shared";
 import { CardThumbnail } from "@/components/cards/card-thumbnail";
 import { ListRow } from "@/components/ui/list-row";
 import { tradeOfferPlacementLines } from "@/features/trade-offers/lib/placement-lines";
@@ -44,8 +44,11 @@ export function TradeOfferReviewRow({
         !showsPrice
           ? undefined
           : row.totalPrice == null
-            ? t("tradeOffers.cardList.noPrice")
+            ? MISSING_PRICE_TEXT
             : formatPrice(row.totalPrice, priceSource)
+      }
+      valueAccessibilityLabel={
+        showsPrice && row.totalPrice == null ? t("tradeOffers.cardList.noPrice") : undefined
       }
     />
   );

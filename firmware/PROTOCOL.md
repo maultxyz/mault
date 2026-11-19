@@ -57,7 +57,7 @@ a serial connection to the device can drive it by following this spec
   on a first must match the `busy` reply to the second one, not the first;
   with `seq` the rejection carries the rejected command's number. Nothing is
   queued: resend once the first response has arrived. `stop` (firmware
-  2.14.0+) is the only command that runs while another is in progress; see
+  2.13.2+) is the only command that runs while another is in progress; see
   `stop` below. One exception: on the
   Uno R4 WiFi (ArduinoBLE backend), BLE input can't be read while a
   BLE-originated command is running, so a BLE line sent during a BLE command
@@ -316,6 +316,12 @@ native USB port), `"other"` or `"unknown"`. The Uno R4 only reports
 banner) also reports `"uptimeMs"`, milliseconds since boot (wraps after
 about 49 days).
 
+The first firmware release after 2.13.2 adds `"servoWriteFailures"` to the
+`getStatus` reply (not the banner): how many PCA9685 I2C writes have failed
+since boot. Each failed write is retried (twice straight away, then with a
+driver restart), so a growing count means a noisy or marginal I2C bus or
+servo supply even when nothing visibly went wrong.
+
 Firmware 2.9.0+ adds `"servoDriver"` to both the boot banner and the
 `getStatus` reply: `"ok"` if the PCA9685 acknowledges its I2C address
 (`0x40`), `"missing"` if it doesn't even after an I2C restart (unplugged,
@@ -363,10 +369,10 @@ answer on I2C.
 {"neutral": true}
 ```
 Resets every module's bottom/paddle/pusher to closed/closed/neutral and
-stops the feeder. Firmware 2.14.0+ also clears an emergency stop (see
+stops the feeder. Firmware 2.13.2+ also clears an emergency stop (see
 `stop`). → `{"status":"ok"}`
 
-### `stop` (emergency stop, firmware 2.14.0+)
+### `stop` (emergency stop, firmware 2.13.2+)
 ```json
 {"stop": true}
 ```
@@ -484,6 +490,34 @@ via `channel` above, since (like the feeder) it has no neutral pulse that
 stops it on its own. → `{"status":"ok","channel":7}`, or
 `{"error":"channel must be 0 to 15"}`
 
+### `setLed` (LED strips, firmware 2.13.0+)
+```json
+{"setLed": {"strip": 1, "led": 3, "on": true, "red": 255, "green": 0, "blue": 0, "white": 0, "brightness": 128}}
+```
+Two 8-LED RGBW NeoPixel (SK6812) strips chained on GPIO 14 (strip 1 is the
+first 8 pixels).
+- `strip`: 1 or 2 (required)
+- `led`: 1 to 8; omit it to change every LED on the strip
+- `on`, `red`, `green`, `blue`, `white` and `brightness` (each 0 to 255):
+  each optional, only the given ones change. Brightness scales all four
+  channels of that LED.
+
+Every LED starts off at boot (white 255, the rest 0, brightness 128) and
+nothing is stored.
+Not a motion command, so it still runs after an emergency stop.
+→ `{"status":"ok"}`, or `{"error":"strip must be 1 to 2"}`,
+`{"error":"led must be 1 to 8"}`, `{"error":"red must be 0 to 255"}` (or
+`green`/`blue`/`white`),
+`{"error":"brightness must be 0 to 255"}`
+
+### `getLeds` (firmware 2.13.0+)
+```json
+{"getLeds": true}
+```
+→ `{"ledStrips":2,"ledsPerStrip":8,"leds":[[on,red,green,blue,white,brightness],...]}`
+with one entry per LED (`on` is 0 or 1), strip 1 first. The Pi controller has
+no LED strips and answers both with `unknown command`.
+
 ### `setConfig` (calibration values — does not move anything)
 ```json
 {
@@ -569,7 +603,7 @@ the feeder as a side effect. → `{"status":"ok"}`
 | `duration` | Overall timeout (ms) to detect a card before giving up |
 | `pulseDuration` | If `> 0`, run in pulsed mode: drive for this many ms, then check IR (`0` = continuous-drive mode instead) |
 | `pauseDuration` | Pause (ms) between pulses in pulsed mode |
-| `settleDuration` | Extra run time (ms) after detection, only when the hopper is now empty, so the last card (with nothing behind it) still fully clears into module 1 |
+| `settleDuration` | Extra run time (ms) after detection, only when the hopper is now empty, so the last card (with nothing behind it) still fully clears into module 1. The feeder always stops at detection first; the hopper must read empty for 30 ms before this extra push runs |
 | `reverseSpeed` | Raw PWM pulse driving the feeder motor backward during rollback (the other side of the motor's stop point from `speed`). Firmware 2.4.0+ |
 | `reverseDuration` | Rollback time (ms): once a feed delivers a card to module 1 and cards remain in the hopper, the roller runs backward this long so the next card, dragged forward by friction, is pulled back instead of creeping in behind it (a double feed). `0` (the default) turns it off. Firmware 2.4.0+; older firmware ignores both fields |
 
@@ -665,7 +699,7 @@ refused the token (set it up again with a fresh token).
 max module count for the active channel offset), `true` meaning a card
 is present. `hopper` is `true` while cards remain in the feeder stack.
 
-### `detectModules` (firmware 2.12.0+, ESP32 only)
+### `detectModules` (ESP32 firmware 2.12.0+, Pi controller pi-0.2.0)
 ```json
 {"detectModules": true}
 ```
@@ -676,6 +710,15 @@ a pin reading LOW under the pull-up is a sensor seeing a card, otherwise
 the pin is switched to a pull-down for 2 ms and a sensor holds it HIGH
 while an empty pin drops LOW. `modules` counts wired sensors from module 1
 up to the first missing one; `sensors` lists every addressable module.
+The built-in Raspberry Pi and Orange Pi controller uses the same command
+and reply with its supported GPIO pull-up/pull-down probe. Both report
+`board:"raspberry_pi"`; `pi-0.1.0` does not support detection. The three-
+or five-module layout defines the maximum addressable sensor array length,
+not the number of connected modules. Changing channel offset still changes
+that addressable capacity; detection does not change channel allocation or
+feeder behavior. Raspberry Pi and Orange Pi API support does not establish
+physical validation on both boards.
+
 Boards without an internal pull-down (Uno R4) reply
 `{"error":"module detection unsupported"}`, and the app keeps the module
 count the user picked.
@@ -696,7 +739,7 @@ count the user picked.
   below the one the card is caught in). Then it either opens the target
   module's paddle and drives its pusher in the requested direction
   (`"left"`/`"right"`), or opens just the target module's own bottom to
-  drop the card there (`"bottom"`). Before firmware 2.14.0 the card
+  drop the card there (`"bottom"`). Before firmware 2.13.1 the card
   stopped at each module on the way and the next bottom only opened once
   that module's sensor saw it.
 - For a `"left"`/`"right"` push, the target module's paddle opens first
@@ -758,6 +801,6 @@ response time for the feed (the web client waits 25s instead of 15s).
 | `{"error":"command too long"}` | line exceeded 255 characters |
 | `{"error":"push_blocked","reason":"lower the side paddle before pushing a card","module":N}` | firmware 2.2.x only: a `servo`/`channel` pusher move while a card is on module *N*'s platform and its side paddle isn't down (see Push safeguard) |
 | `{"error":"busy","reason":"another command is in progress"}` | a line arrived while another command (from any transport) was still executing; the line was not run |
-| `{"error":"stopped"}` | firmware 2.14.0+: the command was interrupted by `stop`, or is a motion command sent while an emergency stop is latched (see `stop`) |
+| `{"error":"stopped"}` | firmware 2.13.2+: the command was interrupted by `stop`, or is a motion command sent while an emergency stop is latched (see `stop`) |
 | `{"error":"unknown command"}` | valid JSON, but no recognized top-level key |
 | `{"error":"jam","module":N}` | **unsolicited** — module *N*'s IR saw a card continuously for 20s with no servo activity (informational only - no paddle-flap is attempted since nothing is actively sorting) |

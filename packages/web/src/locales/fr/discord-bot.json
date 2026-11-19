@@ -57,6 +57,10 @@
         "usage": "/showoff",
         "description": "Publie la valeur totale de ta collection et ta carte la plus chère. Nécessite un compte lié."
       },
+      "showcase": {
+        "usage": "/showcase collection|storage <name>",
+        "description": "Publie une collection ou un emplacement de stockage avec son nombre de cartes, sa valeur totale et ses cinq cartes les plus chères. Nécessite un compte lié."
+      },
       "shareCalibration": {
         "usage": "/share-calibration",
         "description": "Choisis un de tes trieurs dans une liste et publie ses valeurs de calibrage des modules et du chargeur. Nécessite un compte lié."

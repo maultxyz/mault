@@ -51,6 +51,34 @@ export function isPlacementLargeEnough(placement: FlatbedPlacement): boolean {
   );
 }
 
+function roundToTenthOfMillimeter(valueMm: number): number {
+  return Math.round(valueMm * 10) / 10;
+}
+
+export function roundFlatbedPlacement(placement: FlatbedPlacement): FlatbedPlacement {
+  return {
+    leftMm: roundToTenthOfMillimeter(placement.leftMm),
+    topMm: roundToTenthOfMillimeter(placement.topMm),
+    widthMm: roundToTenthOfMillimeter(placement.widthMm),
+    heightMm: roundToTenthOfMillimeter(placement.heightMm),
+  };
+}
+
+export function clampFlatbedPlacementToGlass(
+  placement: FlatbedPlacement,
+  glassWidthMm: number,
+  glassHeightMm: number,
+): FlatbedPlacement {
+  const leftMm = Math.min(glassWidthMm, Math.max(0, placement.leftMm));
+  const topMm = Math.min(glassHeightMm, Math.max(0, placement.topMm));
+  return {
+    leftMm,
+    topMm,
+    widthMm: Math.min(glassWidthMm - leftMm, Math.max(0, placement.widthMm)),
+    heightMm: Math.min(glassHeightMm - topMm, Math.max(0, placement.heightMm)),
+  };
+}
+
 function canvasToJpegFile(canvas: HTMLCanvasElement, fileName: string): Promise<File> {
   return new Promise((resolve, reject) => {
     canvas.toBlob(

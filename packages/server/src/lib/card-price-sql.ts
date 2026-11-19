@@ -16,6 +16,7 @@ import {
 import {
   CARD_PRICE_COLUMNS,
   COLLECTION_CARD_SQL_COLUMNS,
+  STORED_SCANNED_PRICE_ALIAS,
 } from "./constants/card-prices";
 import type {
   CardPriceDetails,
@@ -108,13 +109,11 @@ export function scannedCardPriceSql(
   pricing: OrgPricing,
   cols: ScannedCardSqlColumns = COLLECTION_CARD_SQL_COLUMNS,
 ): SQL<number | null> {
-  return scannedPriceFrom(
-    pricing,
-    cols,
-    (key) => storedCardPriceSql(key, cols),
-    (key) => storedCardPriceSelect(cols, finishPriceSql(sql`cp.details`, cols, key)),
-    (key) => storedCardPriceSelect(cols, stampPriceSql(sql`cp.details`, cols, key)),
-  );
+  return sql<number | null>`(
+    SELECT ${joinedScannedCardPriceSql(pricing, cols, STORED_SCANNED_PRICE_ALIAS)}
+    FROM (SELECT 1) AS stored_scanned_price_anchor
+    LEFT JOIN LATERAL ${storedCardPriceSelect(cols, sql`cp.*`)} AS ${sql.raw(STORED_SCANNED_PRICE_ALIAS)} ON true
+  )`;
 }
 
 export function joinedScannedCardPriceSql(

@@ -120,8 +120,8 @@
     "emptyDescription": "Start one when a customer brings cards to sell.",
     "pickTitle": "Pick an intake",
     "pickDescription": "Choose a lot on the left or start a new one.",
-    "cardCount_one": "{{count}} card",
-    "cardCount_other": "{{count}} cards",
+    "cardCount_one": "{{count, compact}} card",
+    "cardCount_other": "{{count, compact}} cards",
     "openScanner": "Open scanner",
     "addCard": "Add card",
     "printReceipt": "Receipt",
@@ -602,7 +602,8 @@
       "orderSortPresetReused": "Sort preset reused",
       "orderSorterPickCreated": "Sorter pick started",
       "orderSorterPickApplied": "Sorter pick applied",
-      "orderSorterPickPresetsCleaned": "Used sorter presets discarded"
+      "orderSorterPickPresetsCleaned": "Used sorter presets discarded",
+      "tradeRecorded": "Trade recorded"
     },
     "messages": {
       "cardCorrected": "Corrected {{from}} to {{to}}",
@@ -635,7 +636,8 @@
       "orderSortPresetReused": "Reused the sort preset {{summary}}",
       "orderSorterPickCreated": "Started a sorter pick from {{summary}}",
       "orderSorterPickApplied": "Applied a sorter pick for {{summary}}",
-      "orderSorterPickPresetsCleaned": "Discarded {{summary}} used sorter presets"
+      "orderSorterPickPresetsCleaned": "Discarded {{summary}} used sorter presets",
+      "tradeRecorded": "Recorded an in-person trade with {{summary}}"
     }
   },
   "accuracy": {
@@ -810,7 +812,9 @@
       "source": "Cards from",
       "markup": "Markup (%)",
       "markupHint": "Added to the market price. Use a negative number for a discount.",
-      "rounding": "Round prices"
+      "rounding": "Round prices",
+      "showPrices": "Show prices",
+      "showPricesHint": "Turn off to print labels with the card and its storage code only."
     },
     "sources": {
       "collection": "Collection",
@@ -844,7 +848,6 @@
       "customPrice": "Custom price",
       "customPriceFor": "Custom price for {{name}}",
       "labelPrice": "Label price",
-      "noPrice": "No price",
       "truncated": "Showing the first {{shown}} of {{total}} cards. Print labels from a storage location or intake lot to label the rest."
     },
     "empty": {

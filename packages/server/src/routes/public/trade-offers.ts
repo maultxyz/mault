@@ -2,6 +2,7 @@ import {
   SHARE_LINK_GUEST_KEY_HEADER,
   TRADE_OFFERS_CHANGED_EVENT,
   TRADE_OFFER_SEARCH_QUERY_MAX_LENGTH,
+  tradeOfferQuoteRequestSchema,
   tradeOfferRequestSchema,
 } from "@magic-vault/shared";
 import { Hono, type Context } from "hono";
@@ -9,7 +10,9 @@ import { db } from "../../db";
 import { guestKeyHashFromHeader } from "../../lib/guest-keys";
 import { MONITOR_LINK_INVALID_MESSAGE } from "../../lib/constants/auth";
 import {
+  TRADE_OFFER_CONTACT_REQUIRED_MESSAGE,
   TRADE_OFFER_GUEST_KEY_MESSAGE,
+  TRADE_OFFER_PRICES_HIDDEN_MESSAGE,
   TRADE_OFFER_GUEST_LIMIT_MESSAGE,
   TRADE_OFFER_INVALID_MESSAGE,
   TRADE_OFFER_OFFERED_NOT_FOUND_MESSAGE,
@@ -24,6 +27,7 @@ import { emitToOrg } from "../../lib/session-stream";
 import {
   createTradeOffer,
   listGuestTradeOffers,
+  quoteTradeOffer,
   searchTradeOfferCards,
 } from "../../lib/trade-offers";
 import { optionalVerifiedUserId } from "../../lib/optional-auth";
@@ -59,6 +63,20 @@ export function createPublicTradeOffersRoute(
       }
       return c.json({ success: true, data });
     })
+    .post("/trade-offers/quote", async (c) => {
+      const link = await resolveLink(c);
+      if (!link) return invalidLink(c);
+      if (!link.allowsTradeOffers) return notTradeLink(c);
+      if (!link.showsPrices) {
+        return c.json({ success: false, message: TRADE_OFFER_PRICES_HIDDEN_MESSAGE }, 403);
+      }
+      const parsed = tradeOfferQuoteRequestSchema.safeParse(await c.req.json().catch(() => null));
+      if (!parsed.success) {
+        return c.json({ success: false, message: TRADE_OFFER_INVALID_MESSAGE }, 400);
+      }
+      const data = await db.transaction((tx) => quoteTradeOffer(tx, link.scope, parsed.data));
+      return c.json({ success: true, data });
+    })
     .get("/trade-offers", async (c) => {
       const link = await resolveLink(c);
       if (!link) return invalidLink(c);
@@ -81,6 +99,9 @@ export function createPublicTradeOffersRoute(
       const parsed = tradeOfferRequestSchema.safeParse(await c.req.json().catch(() => null));
       if (!parsed.success) {
         return c.json({ success: false, message: TRADE_OFFER_INVALID_MESSAGE }, 400);
+      }
+      if (link.requiresGuestContact && parsed.data.guestContact === "") {
+        return c.json({ success: false, message: TRADE_OFFER_CONTACT_REQUIRED_MESSAGE }, 400);
       }
       const guestUserId = await optionalVerifiedUserId(
         c.req.header("Authorization"),

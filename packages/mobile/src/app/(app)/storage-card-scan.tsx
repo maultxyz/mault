@@ -16,6 +16,7 @@ import {
   scanCheckCollectionGuid,
   readsPrintedLanguageEveryScan,
   scanOcrMode,
+  formatStorageSlot,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
@@ -78,7 +79,8 @@ export default function StorageCardScanScreen() {
         collectionGuid: entry.collectionGuid,
         card: entry.card,
         locationName: `${entry.locationName ?? entry.collectionName}, ${pickWalkSpotLabel(entry, t)}`,
-        position: (entry.locationPosition ?? 0) + 1,
+        position: entry.locationPosition ?? 0,
+        locationBatchSize: entry.locationBatchSize,
       })),
     [orderPick.entries, t],
   );
@@ -173,7 +175,7 @@ export default function StorageCardScanScreen() {
         kind: match.kind === "unchecked" ? "checked" : "already-checked",
         cardName: match.card.card.name,
         locationName: match.card.locationName,
-        position: match.card.position,
+        position: formatStorageSlot(match.card.position, match.card.locationBatchSize),
       });
     } catch {
       showNotice({ kind: "failed" });
@@ -188,11 +190,11 @@ export default function StorageCardScanScreen() {
       case "checked":
         if (isOrderPick) return t("business.picks.scan.picked", { name, spot: current.locationName ?? "" });
         return isVerifying
-          ? t("storage.verify.scan.verified", { name, position: current.position ?? 0 })
+          ? t("storage.verify.scan.verified", { name, position: current.position ?? "" })
           : t("storage.pickList.scan.picked", {
               name,
               location: current.locationName ?? "",
-              position: current.position ?? 0,
+              position: current.position ?? "",
             });
       case "already-checked":
         if (isOrderPick) return t("business.picks.scan.alreadyPicked", { name });

@@ -7,6 +7,9 @@ export interface OrgSettingsDraft {
   control: Control<OrgSettingsDraftFormValues>;
   savedPrimaryColor: string | null;
   isLoading: boolean;
+  isLoadError: boolean;
+  isRetryingLoad: boolean;
+  retryLoad: () => void;
   isDirty: boolean;
   isSaving: boolean;
   saveError: boolean;
@@ -50,6 +53,9 @@ export interface SettingsPageProps {
   isSaving?: boolean;
   saveError?: boolean;
   isLoading?: boolean;
+  isLoadError?: boolean;
+  isRetryingLoad?: boolean;
+  onRetryLoad?: () => void;
   onRefresh?: () => unknown;
   onSave?: () => void;
   onDiscard?: () => void;

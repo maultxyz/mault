@@ -1,6 +1,6 @@
+import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { AlertBanner } from "@/components/alert-banner";
 import { useCollections } from "@/features/collections/api/use-collections";
-import { LANGUAGE_LABELS } from "@/lib/constants/languages";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 

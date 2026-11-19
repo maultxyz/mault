@@ -62,7 +62,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
 
   return (
     <div className="flex flex-col gap-4 md:gap-2">
-      <div className="flex flex-wrap items-center gap-2">
+      <div className="flex flex-wrap items-center gap-1.5">
         <Button variant="ghost" onClick={onClose}>
           <IconArrowLeft />
           {t("accuracy.back")}
@@ -106,7 +106,7 @@ export function SpotCheckRunner({ guid, onClose }: SpotCheckRunnerProps) {
 
       {sample && (
         <div className="flex flex-col gap-3 md:gap-2 rounded-card bg-card p-4 md:p-2.5">
-          <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center justify-between gap-1.5">
             <Button
               variant="ghost"
               size="icon"

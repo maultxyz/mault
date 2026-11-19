@@ -1,4 +1,10 @@
-import type { TradeOfferRequest, TradeOfferStatus, TradeOffersChangedEvent } from "@magic-vault/shared";
+import type {
+  StorageLocationCard,
+  TradeOfferRequest,
+  TradeOfferStatus,
+  TradeOffersChangedEvent,
+  TradeOfferWantedPlacement,
+} from "@magic-vault/shared";
 import type { tradeOffers } from "../../db/schema";
 
 export type TradeOfferRow = typeof tradeOffers.$inferSelect;
@@ -24,6 +30,8 @@ export type CreateTradeOfferResult =
 export interface PublicTradeOfferLink {
   scope: TradeOfferScope;
   allowsTradeOffers: boolean;
+  showsPrices: boolean;
+  requiresGuestContact: boolean;
 }
 
 export type TradeOfferScope =
@@ -62,3 +70,8 @@ export type PickTradeOfferCardsResult =
   | { status: "picked"; response: TradeOfferResponse; remainingScanIds: string[] }
   | { status: "not-found" }
   | { status: "nothing-to-pick" };
+
+export interface CurrentTradeOfferWantedCards {
+  cardsByScanId: Map<string, StorageLocationCard>;
+  placementsByScanId: Map<string, TradeOfferWantedPlacement>;
+}

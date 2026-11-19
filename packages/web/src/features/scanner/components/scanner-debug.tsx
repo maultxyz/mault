@@ -84,7 +84,7 @@ export function ScannerDebug() {
                   variant="outline"
                   aria-label={t("scannerDebug.heading")}
                 >
-                  <IconBug className="size-3.5" />
+                  <IconBug />
                 </Button>
               }
             />

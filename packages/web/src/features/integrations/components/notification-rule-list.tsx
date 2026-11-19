@@ -127,7 +127,9 @@ export function NotificationRuleList({
                     )}
                   </span>
                 ) : (
-                  <p className="text-destructive">{t("rules.noChannel")}</p>
+                  <p role="alert" className="text-destructive">
+                    {t("rules.noChannel")}
+                  </p>
                 )}
                 <RuleSummary rules={rule.rules} />
               </div>

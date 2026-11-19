@@ -1,5 +1,6 @@
-import { registerHotkeys } from "@/lib/hotkeys";
+import { registerHotkeys, withoutCharacterKeyHotkeys } from "@/lib/hotkeys";
 import type { HotkeyHandlers } from "@/lib/interfaces/hotkeys";
+import { areSingleKeyHotkeysEnabled } from "@/lib/single-key-hotkeys-store";
 import { useEffect, useRef } from "react";
 
 export function useHotkeys(
@@ -18,7 +19,10 @@ export function useHotkeys(
   useEffect(
     () =>
       registerHotkeys({
-        getHandlers: () => handlersRef.current,
+        getHandlers: () =>
+          areSingleKeyHotkeysEnabled()
+            ? handlersRef.current
+            : withoutCharacterKeyHotkeys(handlersRef.current),
         isEnabled: () => enabledRef.current,
         priority,
       }),

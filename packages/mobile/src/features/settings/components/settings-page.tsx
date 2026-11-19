@@ -4,6 +4,7 @@ import { Alert, View } from "react-native";
 import { Callout } from "@/components/ui/callout";
 import { PageHeader } from "@/components/ui/page-header";
 import { PageLoading } from "@/components/ui/page-loading";
+import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SaveBar } from "@/components/ui/save-bar";
 import { Screen } from "@/components/ui/screen";
 import { useActiveOrg } from "@/hooks/use-org";
@@ -18,6 +19,9 @@ export function SettingsPage({
   isSaving = false,
   saveError = false,
   isLoading = false,
+  isLoadError = false,
+  isRetryingLoad = false,
+  onRetryLoad,
   onRefresh,
   onSave = noop,
   onDiscard = noop,
@@ -29,7 +33,8 @@ export function SettingsPage({
   const { t } = useTranslation();
   const navigation = useNavigation();
   const org = useActiveOrg();
-  usePreventRemove(isDirty && !isSaving && !isLeavingWithoutGuard, ({ data }) => {
+  const hasLoadedData = !isLoading && !isLoadError;
+  usePreventRemove(hasLoadedData && isDirty && !isSaving && !isLeavingWithoutGuard, ({ data }) => {
     Alert.alert(t("common.discardTitle"), t("settings.discardDescription"), [
       { text: t("common.keepEditing"), style: "cancel" },
       {
@@ -48,11 +53,21 @@ export function SettingsPage({
         onRefresh={onRefresh}
         header={<PageHeader title={title} subtitle={subtitle ?? org?.name} onBack={() => router.back()} />}
       >
-        {saveError ? <Callout tone="destructive" title={t("settings.draft.saveFailed")} /> : null}
-        {isLoading ? <PageLoading /> : children}
+        {saveError && hasLoadedData ? <Callout tone="destructive" title={t("settings.draft.saveFailed")} /> : null}
+        {isLoadError ? (
+          <QueryErrorState
+            title={t("settings.loadFailed")}
+            onRetry={onRetryLoad ?? (() => void onRefresh?.())}
+            isRetrying={isRetryingLoad}
+          />
+        ) : isLoading ? (
+          <PageLoading />
+        ) : (
+          children
+        )}
       </Screen>
       <SaveBar
-        visible={isSaveBarVisible ?? isDirty}
+        visible={hasLoadedData && (isSaveBarVisible ?? isDirty)}
         saving={isSaving}
         onSave={onSave}
         onDiscard={onSaveBarDiscard ?? onDiscard}

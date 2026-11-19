@@ -63,6 +63,7 @@ export default function BatchScanScreen() {
   const [correctingKey, setCorrectingKey] = useState<string | null>(null);
   const [removalReviewOpen, setRemovalReviewOpen] = useState(false);
   const [destinationPickerOpen, setDestinationPickerOpen] = useState(false);
+  const [previewSize, setPreviewSize] = useState({ width: 0, height: 0 });
   const isRemoveMode = batch.mode === "remove";
   const destinationName =
     batch.collection && (batch.storageLocation || batch.scanDestination.canStore)
@@ -99,12 +100,16 @@ export default function BatchScanScreen() {
   const takePhoto = async () => {
     setIsCapturing(true);
     try {
-      const frame = await captureFrame(photoOutput, BATCH_WORKING_LONG_SIDE);
+      const frame = await captureFrame(
+        photoOutput,
+        BATCH_WORKING_LONG_SIDE,
+        previewSize.width > 0 && previewSize.height > 0 ? previewSize.width / previewSize.height : undefined,
+      );
       setIsCapturing(false);
       await batch.processPhoto(frame);
     } catch {
       setIsCapturing(false);
-      Alert.alert(t("batchScan.captureFailed"));
+      showToast({ message: t("batchScan.captureFailed"), tone: "destructive" });
     }
   };
 
@@ -262,7 +267,12 @@ export default function BatchScanScreen() {
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.camera }}>
+    <View
+      style={{ flex: 1, backgroundColor: colors.camera }}
+      onLayout={(event) =>
+        setPreviewSize({ width: event.nativeEvent.layout.width, height: event.nativeEvent.layout.height })
+      }
+    >
       {focused ? <StatusBar style="light" /> : null}
       {!permission.hasPermission ? (
         <CameraEmptyStateFrame>

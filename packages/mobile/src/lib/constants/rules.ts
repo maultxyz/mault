@@ -1,13 +1,6 @@
 import type { ConditionOperator } from "@magic-vault/shared";
 import type { BinSetMode } from "@magic-vault/shared";
 
-export const MULTI_VALUE_OPERATORS: ConditionOperator[] = [
-  "in",
-  "not_in",
-  "contains_any",
-  "contains_all",
-  "contains_none",
-];
 export const VALUELESS_OPERATORS: ConditionOperator[] = ["is_null", "is_not_null"];
 export const MAX_RULE_GROUP_DEPTH = 2;
 export const BIN_ROW_MAX_CHIPS = 3;
@@ -17,3 +10,4 @@ export const SORTING_MODES: BinSetMode[] = ["rules", "scan-only", "auto-assign",
 export const REPACK_ALLOW_DUPLICATES_VALUE = "$allow";
 export const PRESET_OPTION_PREFIX = "preset:";
 export const WORKFLOW_OPTION_PREFIX = "workflow:";
+export const STORAGE_PLAN_FILL_BAR_WIDTH = 56;

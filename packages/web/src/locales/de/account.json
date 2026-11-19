@@ -30,6 +30,22 @@
     "updated": "Passwort aktualisiert",
     "updateFailed": "Passwort konnte nicht aktualisiert werden"
   },
+  "signInMethods": {
+    "heading": "Anmeldemethoden",
+    "description": "Möglichkeiten, dich bei diesem Konto anzumelden. Um einen Anbieter hinzuzufügen, melde dich damit mit der E-Mail-Adresse dieses Kontos an.",
+    "password": "E-Mail und Passwort",
+    "linkedOn": "Verknüpft am {{date}}",
+    "onlyMethod": "Deine einzige Anmeldemethode",
+    "unlink": "Trennen",
+    "unlinkProvider": "{{provider}} trennen",
+    "unlinkHint": "Trennt diese Anmeldemethode",
+    "unlinkConfirmTitle": "{{provider}} trennen?",
+    "unlinkConfirmDescription": "Du kannst dich dann nicht mehr mit {{provider}} anmelden. Meldest du dich wieder damit mit der E-Mail-Adresse dieses Kontos an, wird es erneut hinzugefügt.",
+    "unlinked": "{{provider}} getrennt",
+    "unlinkFailed": "{{provider}} konnte nicht getrennt werden",
+    "loadFailed": "Anmeldemethoden konnten nicht geladen werden",
+    "cancel": "Abbrechen"
+  },
   "sessions": {
     "heading": "Sitzungen",
     "description": "Geräte, die aktuell bei deinem Konto angemeldet sind.",

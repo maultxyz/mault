@@ -7,11 +7,11 @@ import {
 } from "@/features/storage/api/storage";
 import type { CardCacheSnapshot } from "@/lib/interfaces/undo";
 
-export async function renameStorageLocationInCaches(
+export async function patchStorageLocationInCaches(
   queryClient: QueryClient,
   orgId: string | null,
   guid: string,
-  name: string,
+  patch: Partial<StorageLocation>,
 ): Promise<CardCacheSnapshot> {
   const listKey = storageLocationsQueryOptions(orgId, true).queryKey;
   const pageKey = storageLocationsPageQueryOptions(orgId).queryKey;
@@ -22,7 +22,7 @@ export async function renameStorageLocationInCaches(
     [pageKey, queryClient.getQueryData(pageKey)],
     [locationKey, queryClient.getQueryData(locationKey)],
   ];
-  const renamed = (location: StorageLocation) => (location.guid === guid ? { ...location, name } : location);
+  const renamed = (location: StorageLocation) => (location.guid === guid ? { ...location, ...patch } : location);
   queryClient.setQueryData(listKey, (data) => data?.map(renamed));
   queryClient.setQueryData(pageKey, (data) =>
     data && { ...data, pages: data.pages.map((page) => ({ ...page, items: page.items.map(renamed) })) },

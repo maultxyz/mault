@@ -1,295 +1,247 @@
 #!/bin/bash
+# Installs Mault from a prebuilt release bundle. Nothing is cloned or built on
+# the board. Also runs inside the SD image build (--image) and fetches releases
+# for the updater (--fetch-only).
+#
+#   curl -fsSL <release>/install.sh | sudo bash
+#   sudo bash install.sh --bundle mault-pi-arm64.tar.gz
 set -euo pipefail
+if [[ "$EUID" -eq 0 ]]; then export PATH=/usr/sbin:/usr/bin:/sbin:/bin; fi
+unset BASH_ENV ENV
 
-INSTALL_HEADLESS=1
-if [[ "$#" -gt 1 ]]; then
-  echo "Usage: $0 [--desktop | --headless]" >&2
+MAULT_HOME="${MAULT_HOME:-/opt/mault}"
+MAULT_DATA="${MAULT_DATA:-/var/lib/mault}"
+MAULT_USER=mault-service
+LEGACY_MAULT_COMMAND=/usr/local/bin/mault
+DEFAULT_MANIFEST_URL="__MAULT_MANIFEST_URL__"
+
+usage() {
+  cat >&2 <<'EOF'
+Usage: install.sh [--bundle FILE] [--manifest-url URL] [--migrate-from DIR]
+       install.sh --image --bundle FILE
+       install.sh --fetch-only [--bundle FILE] [--manifest-url URL]
+EOF
   exit 1
-fi
-case "${1:-}" in
-  --headless) INSTALL_HEADLESS=1 ;;
-  --desktop) INSTALL_HEADLESS=0 ;;
-  --help|-h)
-    echo "Usage: $0 [--desktop | --headless]"
-    echo "Headless by default. Use --desktop to create optional shortcuts in a graphical session."
-    exit 0 ;;
-  "") ;;
-  *) echo "Unknown argument: $1" >&2; exit 1 ;;
-esac
+}
 
-# Dockerfiles own the application toolchain pins. Use Python so this also
-# works on a fresh Pi before Node or pnpm has been installed.
-pi_docker_toolchain() {
-  python3 - "$1" <<'PY'
-import json
+BUNDLE=""
+MANIFEST_URL=""
+MODE=install
+MIGRATE_FROM=""
+ENV_TO_CHECK=""
+while [[ "$#" -gt 0 ]]; do
+  case "$1" in
+    --read-postgres-password) ENV_TO_CHECK="${2:-}"; MODE=check; shift 2 ;;
+    --bundle) BUNDLE="${2:-}"; shift 2 ;;
+    --manifest-url) MANIFEST_URL="${2:-}"; shift 2 ;;
+    --migrate-from) MIGRATE_FROM="${2:-}"; shift 2 ;;
+    --image) MODE=image; shift ;;
+    --fetch-only) MODE=fetch; shift ;;
+    -h|--help) usage ;;
+    *) usage ;;
+  esac
+done
+
+# Root never parses the service account's own files: a .env under MAULT_DATA is
+# read as that account. An old checkout's .env belongs to its login user.
+read_postgres_password() {
+  local reader=()
+  if [[ "$EUID" -eq 0 && "$1" == "$MAULT_DATA/"* ]]; then
+    reader=(runuser -u "$MAULT_USER" --)
+  fi
+  "${reader[@]}" python3 -I - "$1" <<'PYENV'
 from pathlib import Path
 import re
 import sys
 
-root = Path(sys.argv[1])
-versions = {"Node": set(), "pnpm": set()}
-for name in ("Dockerfile.server", "Dockerfile.web", "Dockerfile.bot", "Dockerfile.api-docs"):
-    text = (root / name).read_text()
-    nodes = re.findall(r"^FROM\s+node:(\d+)(?:[.\w-]*)(?:\s|$)", text, re.M | re.I)
-    pnpms = re.findall(r"^RUN\s+npm\s+install\s+-g\s+pnpm@(\d+\.\d+\.\d+)(?:\s|$)", text, re.M)
-    if not nodes or not pnpms:
-        sys.exit(f"[dependencies] Cannot read pinned Node and pnpm versions from {name}.")
-    versions["Node"].update(nodes)
-    versions["pnpm"].update(pnpms)
-for name, values in versions.items():
-    if len(values) != 1:
-        sys.exit(f"[dependencies] Dockerfiles disagree on {name}: {sorted(values)}")
-node = next(iter(versions["Node"]))
-pnpm = next(iter(versions["pnpm"]))
-if json.loads((root / "package.json").read_text()).get("packageManager") != f"pnpm@{pnpm}":
-    sys.exit("[dependencies] package.json packageManager must match the Dockerfile pnpm version.")
-print(node, pnpm)
-PY
+path = Path(sys.argv[1])
+try:
+    value = ""
+    for line in path.read_text().splitlines():
+        match = re.fullmatch(r"\s*(?:export\s+)?POSTGRES_PASSWORD\s*=\s*(.*?)\s*", line)
+        if match:
+            password_match = re.fullmatch(
+                r"\s*(?:\"([A-Za-z0-9]+)\"|'([A-Za-z0-9]+)'|([A-Za-z0-9]+))\s*(?:#.*)?",
+                match[1],
+            )
+            value = next((part for part in password_match.groups() if part), "") if password_match else ""
+    if not re.fullmatch(r"[A-Za-z0-9]+", value):
+        raise ValueError()
+except (OSError, ValueError):
+    sys.exit(f"[install] POSTGRES_PASSWORD in {path} must contain a non-empty alphanumeric value, optionally quoted. Existing services have not been stopped.")
+print(value)
+PYENV
 }
 
-pi_ensure_toolchain() {
-  local root="$1" pins required_node required_pnpm current_node=0 setup_file
-  pins="$(pi_docker_toolchain "$root")" || return 1
-  read -r required_node required_pnpm <<< "$pins"
-  echo "[dependencies] Docker toolchain: Node $required_node, pnpm $required_pnpm"
-  if command -v node >/dev/null 2>&1; then
-    current_node="$(node -p 'process.versions.node.split(".")[0]')"
-  fi
-  if [[ "$current_node" != "$required_node" ]]; then
-    echo "[dependencies] Installing Node $required_node (current major: $current_node)"
-    setup_file="$(mktemp)" || return 1
-    if ! curl -fsSL "https://deb.nodesource.com/setup_${required_node}.x" -o "$setup_file"; then
-      rm -f "$setup_file"
-      return 1
-    fi
-    if ! sudo -E bash "$setup_file"; then
-      rm -f "$setup_file"
-      return 1
-    fi
-    rm -f "$setup_file"
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y nodejs || return 1
-    hash -r
-  fi
-  if [[ "$(node -p 'process.versions.node.split(".")[0]')" != "$required_node" ]]; then
-    echo "[dependencies] Node on PATH does not match Docker's Node $required_node. Check for a user-installed Node override." >&2
-    return 1
-  fi
-  if ! command -v pnpm >/dev/null 2>&1 || [[ "$(pnpm --version)" != "$required_pnpm" ]]; then
-    echo "[dependencies] Installing pnpm $required_pnpm"
-    # Replace any Corepack shim left by older Pi installations.
-    sudo npm install -g --force "pnpm@$required_pnpm" || return 1
-    hash -r
-  fi
-  if [[ "$(pnpm --version)" != "$required_pnpm" ]]; then
-    echo "[dependencies] pnpm on PATH does not match Docker's pnpm $required_pnpm." >&2
-    return 1
-  fi
+if [[ "$MODE" == check ]]; then
+  read_postgres_password "$ENV_TO_CHECK"
+  exit 0
+fi
+
+release_field() {
+  python3 -I -c 'import json, sys; print(json.load(open(sys.argv[1]))[sys.argv[2]])' "$1" "$2"
 }
 
+# Root may adopt /opt/mault only when the service account never could change
+# it: older installs made it service-owned, so anything in it may have been
+# replaced. Such a tree is never re-owned or run, only deleted; settings and
+# cards live in /var/lib/mault and stay.
+remove_untrusted_install() {
+  if [[ ! -e "$MAULT_HOME" && ! -L "$MAULT_HOME" ]]; then
+    return 0
+  fi
+  if [[ ! -L "$MAULT_HOME" && "$(stat -c %u "$MAULT_HOME")" == 0 &&
+    -z "$(find "$MAULT_HOME" \( ! -user root -o \( ! -type l -perm /022 \) \) -print -quit)" ]]; then
+    return 0
+  fi
+  echo "[install] $MAULT_HOME was writable by the Mault service account. Replacing its releases; settings and cards stay."
+  if id "$MAULT_USER" >/dev/null 2>&1; then
+    systemctl --user --machine="$MAULT_USER@.host" stop \
+      mault-api.service mault-camera.service mault-controller.service mault-prices.timer 2>/dev/null || true
+  fi
+  rm -f "$LEGACY_MAULT_COMMAND"
+  rm -rf "$MAULT_HOME"
+}
 
-# shellcheck disable=SC1091
-source "$(cd "$(dirname "$0")" && pwd)/session.sh"
-pi_require_user
+# Prints the release directory of the fetched or unpacked bundle on stdout.
+fetch_release() {
+  local work manifest_url bundle_url expected actual version target
+  umask 022
+  mkdir -p "$MAULT_HOME/releases"
+  work="$(mktemp -d "$MAULT_HOME/releases/.incoming.XXXXXX")"
+  trap 'rm -rf "$work"' RETURN
+  if [[ -z "$BUNDLE" ]]; then
+    manifest_url="${MANIFEST_URL:-$DEFAULT_MANIFEST_URL}"
+    if [[ "$manifest_url" != https://* ]]; then
+      echo "[install] No release manifest URL. Pass --bundle or --manifest-url." >&2
+      return 1
+    fi
+    echo "[install] Checking $manifest_url" >&2
+    curl -fsSL "$manifest_url" -o "$work/manifest.json"
+    bundle_url="$(python3 -I -c 'import json, sys, urllib.parse; m = json.load(open(sys.argv[1])); print(urllib.parse.urljoin(sys.argv[2], m["bundle"]))' "$work/manifest.json" "$manifest_url")"
+    expected="$(release_field "$work/manifest.json" sha256)"
+    echo "[install] Downloading Mault $(release_field "$work/manifest.json" version)" >&2
+    curl -fL --progress-bar "$bundle_url" -o "$work/bundle.tar.gz"
+    actual="$(sha256sum "$work/bundle.tar.gz" | cut -d' ' -f1)"
+    if [[ "$actual" != "$expected" ]]; then
+      echo "[install] The download is corrupt (checksum mismatch). Try again." >&2
+      return 1
+    fi
+    BUNDLE="$work/bundle.tar.gz"
+  fi
+  mkdir "$work/release"
+  tar -xzf "$BUNDLE" -C "$work/release" --no-same-owner
+  version="$(release_field "$work/release/release.json" version)"
+  if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-dev\.[0-9]+)?$ ]]; then
+    echo "[install] The bundle has no valid version." >&2
+    return 1
+  fi
+  target="$MAULT_HOME/releases/$version"
+  if [[ -e "$target" && "$(readlink -f "$MAULT_HOME/current" 2>/dev/null)" == "$(readlink -f "$target")" ]]; then
+    echo "$target"
+    return 0
+  fi
+  rm -rf "$target"
+  ln -s "$MAULT_DATA/.env" "$work/release/.env"
+  ln -s "$MAULT_DATA/.pi-controller" "$work/release/.pi-controller"
+  chmod -R go-w,a+rX "$work/release"
+  mv "$work/release" "$target"
+  echo "$target"
+}
 
-ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
-cd "$ROOT"
+if [[ "$MODE" == fetch ]]; then
+  fetch_release
+  exit 0
+fi
+
+if [[ "$(id -u)" -ne 0 ]]; then
+  echo "Run the installer with sudo." >&2
+  exit 1
+fi
+if [[ "$(uname -m)" != aarch64 ]]; then
+  echo "Mault needs a 64-bit (arm64) OS. Flash the 64-bit Raspberry Pi OS or your board's arm64 image." >&2
+  exit 1
+fi
+
+if [[ "$MODE" != image ]]; then
+  if [[ -z "$MIGRATE_FROM" && -n "${SUDO_USER:-}" ]]; then
+    old_checkout="$(getent passwd "$SUDO_USER" | cut -d: -f6)/mault"
+    if [[ -f "$old_checkout/.env" && -f "$old_checkout/scripts/pi/install.sh" ]]; then
+      MIGRATE_FROM="$old_checkout"
+    fi
+  fi
+  if [[ -f "$MAULT_DATA/.env" ]]; then
+    read_postgres_password "$MAULT_DATA/.env" >/dev/null
+  elif [[ -n "$MIGRATE_FROM" ]]; then
+    read_postgres_password "$MIGRATE_FROM/.env" >/dev/null
+  fi
+fi
+
+board_model="$(tr -d '\0' < /proc/device-tree/model 2>/dev/null || true)"
+is_raspberry_pi=0
+if [[ "$MODE" == image || "$board_model" == *"Raspberry Pi"* ]]; then
+  is_raspberry_pi=1
+fi
 
 echo "[install] Installing system packages"
-sudo DEBIAN_FRONTEND=noninteractive apt-get update
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y \
-  git curl ca-certificates python3 build-essential v4l-utils ffmpeg postgresql dbus-user-session
-sudo systemctl enable --now postgresql
-pg_major="$(psql --version | awk '{print $3}' | cut -d. -f1)"
-sudo DEBIAN_FRONTEND=noninteractive apt-get install -y "postgresql-${pg_major}-pgvector"
-
-pi_ensure_toolchain "$ROOT"
-
-if [[ ! -f .env ]]; then
-  python3 - << 'PY'
-import secrets
-from pathlib import Path
-
-password = secrets.token_hex(24)
-text = f"""AUTH_PROVIDER=local
-VITE_AUTH_PROVIDER=local
-DATABASE_URL=postgresql://mault:{password}@127.0.0.1:5432/mault
-DATABASE_SSL=false
-POSTGRES_PASSWORD={password}
-OWN_AUTH_TOKEN_PEPPER={secrets.token_hex(32)}
-IMPERSONATION_SECRET={secrets.token_hex(32)}
-MONITOR_LINK_SECRET={secrets.token_hex(32)}
-WEB_URL=http://127.0.0.1:8080
-PORT=3001
-VITE_APP_ENV=local
-PI_HOST=1
-"""
-Path(".env").write_text(text)
-Path(".env").chmod(0o600)
-print("[install] Wrote .env")
-PY
+packages=(curl ca-certificates libatomic1 python3 python3-smbus v4l-utils ffmpeg postgresql nginx
+  bluez python3-bleak dbus-user-session avahi-daemon unattended-upgrades)
+if [[ "$is_raspberry_pi" -eq 1 ]]; then
+  packages+=(python3-lgpio)
 fi
+export DEBIAN_FRONTEND=noninteractive
+apt-get update
+apt-get install -y "${packages[@]}"
+pg_major="$(ls /usr/lib/postgresql | sort -n | tail -1)"
+apt-get install -y "postgresql-${pg_major}-pgvector"
 
-python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env"
-sorter_mode="$(python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env" --print-mode)"
-sorter_board="$(python3 "$ROOT/scripts/pi/install-mode.py" --env "$ROOT/.env" --print-board)"
-if [[ "$sorter_mode" == gpio && "$sorter_board" == raspberry-pi ]]; then
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3-lgpio python3-smbus raspi-config
-  sudo raspi-config nonint do_i2c 0
-  if [[ ! -e /dev/i2c-1 ]]; then
-    echo "[install] I2C enabled. Reboot the Pi, then rerun this installer." >&2
-    exit 1
+echo "[install] Creating the $MAULT_USER account"
+if ! id "$MAULT_USER" >/dev/null 2>&1; then
+  useradd --system --home-dir "$MAULT_DATA" --create-home --shell /usr/sbin/nologin "$MAULT_USER"
+fi
+for group in video dialout gpio i2c bluetooth; do
+  if getent group "$group" >/dev/null; then
+    usermod -aG "$group" "$MAULT_USER"
   fi
-fi
-if [[ "$sorter_mode" == gpio && "$sorter_board" == orange-pi-zero4 ]]; then
-  python3 -c 'from scripts.pi.controller.hardware import require_zero4; require_zero4()'
-  sudo DEBIAN_FRONTEND=noninteractive apt-get install -y python3-libgpiod python3-smbus
-  if ! python3 -c 'import gpiod; from gpiod.line import Bias, Direction, Value; assert callable(gpiod.request_lines)'; then
-    echo "[install] Orange Pi Zero 4 requires libgpiod v2 Python bindings from the system packages." >&2
-    exit 1
-  fi
-  sudo groupadd -f gpio
-  sudo groupadd -f i2c
-  sudo tee /etc/udev/rules.d/70-mault-zero4.rules >/dev/null <<'RULES'
-SUBSYSTEM=="gpio", KERNEL=="gpiochip*", KERNELS=="2000000.pinctrl", GROUP="gpio", MODE="0660"
-SUBSYSTEM=="i2c-dev", KERNEL=="i2c-*", KERNELS=="2510000.twi", GROUP="i2c", MODE="0660"
-RULES
-  sudo udevadm control --reload-rules
-  sudo udevadm trigger --action=change --subsystem-match=gpio --parent-match=/sys/bus/platform/devices/2000000.pinctrl
-  if [[ -e /sys/bus/platform/devices/2510000.twi ]]; then
-    sudo udevadm trigger --action=change --subsystem-match=i2c-dev --parent-match=/sys/bus/platform/devices/2510000.twi
-  else
-    echo "[install] Zero 4 header TWI0 needs the i2c0 boot overlay. Enable it separately and reboot before hardware tests."
-  fi
-  sudo udevadm settle
-fi
-
-PASSWORD="$(python3 - << 'PY'
-from pathlib import Path
-for line in Path(".env").read_text().splitlines():
-    if line.startswith("POSTGRES_PASSWORD="):
-        print(line.split("=", 1)[1])
-        break
-PY
-)"
-
-if [[ -z "$PASSWORD" ]]; then
-  echo "POSTGRES_PASSWORD is missing from .env" >&2
-  exit 1
-fi
-
-sudo -u postgres psql -v ON_ERROR_STOP=1 << SQL
-DO \$\$
-BEGIN
-  IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'mault') THEN
-    CREATE ROLE mault LOGIN SUPERUSER PASSWORD '${PASSWORD}';
-  ELSE
-    ALTER ROLE mault WITH LOGIN SUPERUSER PASSWORD '${PASSWORD}';
-  END IF;
-END
-\$\$;
-SELECT 'CREATE DATABASE mault OWNER mault'
-WHERE NOT EXISTS (SELECT FROM pg_database WHERE datname = 'mault')\\gexec
-SQL
-sudo -u postgres psql -d mault -v ON_ERROR_STOP=1 -c "CREATE EXTENSION IF NOT EXISTS vector;"
-
-pnpm install
-pnpm --filter @magic-vault/server build
-NODE_OPTIONS="${NODE_OPTIONS:+$NODE_OPTIONS }--max-old-space-size=4096" pnpm --filter @magic-vault/web build
-
-set -a
-# shellcheck disable=SC1091
-source .env
-set +a
-pnpm --filter @magic-vault/server db:migrate-local
-
-echo "[install] Enabling user services"
-required_groups=(video)
-if [[ "$sorter_mode" == gpio ]]; then
-  required_groups+=(gpio i2c)
-else
-  required_groups+=(dialout)
-fi
-hardware_groups_active=1
-for group in "${required_groups[@]}"; do
-  case " $(id -nG "$USER") " in
-    *" $group "*) ;;
-    *) sudo usermod -aG "$group" "$USER" ;;
-  esac
-  case " $(id -nG) " in
-    *" $group "*) ;;
-    *) hardware_groups_active=0 ;;
-  esac
 done
+install -d -o "$MAULT_USER" -g "$MAULT_USER" -m 700 "$MAULT_DATA"
+runuser -u "$MAULT_USER" -- install -d -m 700 "$MAULT_DATA/.pi-controller"
+remove_untrusted_install
+install -d -o root -g root -m 755 "$MAULT_HOME" "$MAULT_HOME/releases"
 
-pi_ensure_user_bus
+release="$(fetch_release)"
+ln -sfn "$release" "$MAULT_HOME/current.new"
+mv -T "$MAULT_HOME/current.new" "$MAULT_HOME/current"
 
-node "$ROOT/scripts/pi/install-services.mjs" "$ROOT"
-systemctl --user daemon-reload
-if [[ "$sorter_mode" == gpio ]]; then
-  systemctl --user enable mault-controller.service
-elif systemctl --user cat mault-controller.service >/dev/null 2>&1; then
-  systemctl --user disable --now mault-controller.service
-fi
-if [[ "$hardware_groups_active" -eq 0 ]]; then
-  echo "[install] Restarting user services to apply hardware group permissions"
-  sudo systemctl restart "user@$(id -u).service"
-  pi_ensure_user_bus
-fi
-if ! systemctl --user enable --now mault-camera.service mault-api.service mault-web.service; then
-  systemctl --user --no-pager --full status mault-api.service mault-web.service mault-camera.service || true
-  exit 1
-fi
+echo "[install] Configuring the web server"
+install -m 644 "$MAULT_HOME/current/scripts/pi/nginx-mault.conf" /etc/nginx/sites-available/mault
+ln -sfn /etc/nginx/sites-available/mault /etc/nginx/sites-enabled/mault
+rm -f /etc/nginx/sites-enabled/default
+systemctl enable nginx postgresql bluetooth avahi-daemon
 
-# Desktop shortcuts are optional; camera access never uses a desktop portal.
-if [[ "$INSTALL_HEADLESS" -eq 0 && -n "${DISPLAY:-}${WAYLAND_DISPLAY:-}" ]]; then
-DESKTOP="${XDG_DESKTOP_DIR:-$HOME/Desktop}"
-mkdir -p "$DESKTOP"
-for action in Start Stop; do
-  script="$ROOT/scripts/pi/$(echo "$action" | tr '[:upper:]' '[:lower:]').sh"
-  if [[ "$action" == "Start" ]]; then
-    icon="/usr/share/pixmaps/chromium.png"
-    comment="Start Mault and open it"
-  else
-    icon="/usr/share/icons/AdwaitaLegacy/48x48/legacy/process-stop.png"
-    comment="Stop Mault"
+if [[ "$is_raspberry_pi" -eq 1 ]]; then
+  config_txt=/boot/firmware/config.txt
+  [[ -f "$config_txt" ]] || config_txt=/boot/config.txt
+  if [[ -f "$config_txt" ]] && ! grep -q '^dtparam=i2c_arm=on' "$config_txt"; then
+    echo "dtparam=i2c_arm=on" >> "$config_txt"
   fi
-  cat > "$DESKTOP/${action} MAULT.desktop" << EOF
-[Desktop Entry]
-Type=Application
-Version=1.0
-Name=${action} Mault
-Comment=${comment}
-Exec=lxterminal -t "${action} Mault" -e bash -lc '${script}; echo; echo "Press Enter to close."; read'
-Icon=${icon}
-Terminal=false
-Categories=Utility;
-StartupNotify=false
-EOF
-  chmod +x "$DESKTOP/${action} MAULT.desktop"
-done
-gio set "$DESKTOP/Start MAULT.desktop" metadata::trusted true 2>/dev/null || true
-gio set "$DESKTOP/Stop MAULT.desktop" metadata::trusted true 2>/dev/null || true
-
+  grep -qx 'i2c-dev' /etc/modules 2>/dev/null || echo "i2c-dev" >> /etc/modules
 fi
 
-for _ in $(seq 1 60); do
-  if curl -sf http://127.0.0.1:8080/ >/dev/null; then
-    break
-  fi
-  sleep 0.5
-done
+bash "$MAULT_HOME/current/scripts/pi/secure-layout.sh"
+bash /usr/local/lib/mault/os-updates.sh
 
-if ! curl -sf http://127.0.0.1:8080/ >/dev/null; then
-  echo "[install] The web app did not come up on port 8080." >&2
-  systemctl --user --no-pager --full status mault-api.service mault-web.service mault-camera.service || true
-  exit 1
+if [[ "$MODE" == image ]]; then
+  systemctl enable mault-setup.service
+  install -m 644 "$MAULT_HOME/current/scripts/pi/mault-config.txt" /boot/firmware/mault-config.txt
+  echo "[install] Image prepared. Mault finishes setting up on first boot."
+  exit 0
 fi
 
-if ! curl -fs --max-time 5 http://127.0.0.1:8765/health >/dev/null; then
-  echo "[install] The web app is ready, but the USB webcam is not ready yet."
-  echo "[install] Check the webcam connection and mault-camera.service; browsers retry automatically."
+setup_arguments=()
+if [[ -n "$MIGRATE_FROM" ]]; then
+  setup_arguments+=(--migrate-from "$MIGRATE_FROM")
 fi
-
-echo "[install] Ready."
-pi_print_urls
-echo "[install] The services also start on boot."
+systemctl daemon-reload
+systemctl reload-or-restart nginx
+exec bash "$MAULT_HOME/current/scripts/pi/setup.sh" "${setup_arguments[@]}"

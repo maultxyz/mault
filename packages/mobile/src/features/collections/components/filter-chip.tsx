@@ -2,21 +2,23 @@ import { Pressable, View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { useTheme } from "@/hooks/use-theme";
 import { CONTROL_RADIUS, RADIUS, SPACING } from "@/lib/constants/theme";
+import { CHIP_MIN_HEIGHT, MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import type { FilterChipProps } from "@/lib/interfaces/collections";
 
-export function FilterChip({ label, selected, swatch, onPress }: FilterChipProps) {
+export function FilterChip({ label, selected, selectionRole = "checkbox", swatch, onPress }: FilterChipProps) {
   const colors = useTheme();
   return (
     <Pressable
-      accessibilityRole="checkbox"
+      accessibilityRole={selectionRole}
       accessibilityState={{ checked: selected }}
-      hitSlop={{ top: 4, bottom: 4 }}
+      hitSlop={{ top: (MIN_TOUCH_TARGET - CHIP_MIN_HEIGHT) / 2, bottom: (MIN_TOUCH_TARGET - CHIP_MIN_HEIGHT) / 2 }}
       onPress={onPress}
       style={({ pressed }) => ({
         flexDirection: "row",
         alignItems: "center",
         gap: 6,
-        height: 36,
+        minHeight: CHIP_MIN_HEIGHT,
+        paddingVertical: SPACING.xs,
         paddingHorizontal: SPACING.md + 2,
         borderRadius: CONTROL_RADIUS,
         backgroundColor: selected ? colors.primarySelected : pressed ? colors.tonalPressed : colors.tonal,

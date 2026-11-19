@@ -1,0 +1,110 @@
+import type { ReactNode } from "react";
+import type { IconName } from "@/lib/interfaces/ui";
+import type { Control } from "react-hook-form";
+import { type OrgSettingsDraftFormValues } from "@magic-vault/shared";
+
+export interface OrgSettingsDraft {
+  control: Control<OrgSettingsDraftFormValues>;
+  savedPrimaryColor: string | null;
+  isLoading: boolean;
+  isDirty: boolean;
+  isSaving: boolean;
+  saveError: boolean;
+  save: () => void;
+  discard: () => void;
+}
+
+export interface ThemeColorOption {
+  name: string;
+  value: string;
+  fg: string;
+}
+
+export interface SettingsSectionLink {
+  path:
+    | "/settings/general"
+    | "/settings/scanning"
+    | "/settings/pricing"
+    | "/settings/organization"
+    | "/settings/billing"
+    | "/settings/sounds"
+    | "/settings/notifications"
+    | "/settings/webhooks"
+    | "/settings/integrations"
+    | "/settings/shop-catalogs";
+  key: string;
+  icon: IconName;
+}
+
+export interface SettingsSectionProps {
+  title: string;
+  description?: string;
+  badge?: string;
+  children: ReactNode;
+}
+
+export interface SettingsPageProps {
+  title: string;
+  subtitle?: string | null;
+  isDirty?: boolean;
+  isSaving?: boolean;
+  saveError?: boolean;
+  isLoading?: boolean;
+  onRefresh?: () => unknown;
+  onSave?: () => void;
+  onDiscard?: () => void;
+  isSaveBarVisible?: boolean;
+  onSaveBarDiscard?: () => void;
+  isLeavingWithoutGuard?: boolean;
+  children: ReactNode;
+}
+
+export type OrgRole = "owner" | "admin" | "member";
+
+export interface OrgMember {
+  id: string;
+  userId: string;
+  role: OrgRole;
+  name: string;
+  email: string;
+}
+
+export interface OrgInvitation {
+  id: string;
+  email: string;
+  role: OrgRole;
+  status: string;
+}
+
+export interface OrgDetails {
+  name: string;
+  members: OrgMember[];
+  invitations: OrgInvitation[];
+  canManageMembers: boolean;
+  canRename: boolean;
+}
+
+export interface ShopCatalogSourceSwitchesProps {
+  options: { guid: string; name: string }[];
+  value: string[];
+  onChange: (next: string[]) => void;
+  emptyLabel: string;
+}
+
+export interface SettingsNotice {
+  tone: "success" | "destructive";
+  text: string;
+}
+
+export interface NeonFullOrganization {
+  name: string;
+  members?: { id: string; userId: string; role: OrgRole; user?: { name?: string; email?: string } }[];
+  invitations?: { id: string; email: string; role: OrgRole; status: string }[];
+}
+
+export interface RuleEnabledSwitchProps {
+  accessibilityLabel: string;
+  value: boolean;
+  onValueChange: (value: boolean) => void;
+  disabled?: boolean;
+}

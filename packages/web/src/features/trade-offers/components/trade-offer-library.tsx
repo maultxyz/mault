@@ -1,3 +1,4 @@
+import { CompactValue } from "@/components/compact-value";
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -5,6 +6,7 @@ import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { useTradeOffers } from "@/features/trade-offers/api/trade-offers";
+import { tradeOfferSourceLabel } from "@/features/trade-offers/lib/trade-offer-source-label";
 import { OutgoingTradeOfferList } from "@/features/trade-offers/components/outgoing-trade-offer-list";
 import {
   TRADE_OFFER_STATUS_BADGE_VARIANTS,
@@ -18,7 +20,13 @@ import type {
   TradeOfferLibrarySectionProps,
   TradesBox,
 } from "@/lib/interfaces/trade-offers";
-import { formatPrice, isTradeOfferBeingPicked, type TradeOffer } from "@magic-vault/shared";
+import {
+  formatCompactPriceInCurrency,
+  formatPrice,
+  isTradeOfferBeingPicked,
+  PRICE_SOURCE_FIELDS,
+  type TradeOffer,
+} from "@magic-vault/shared";
 import { IconArrowsExchange, IconChevronRight } from "@tabler/icons-react";
 import { useId } from "react";
 import { Link, useSearchParams } from "react-router-dom";
@@ -41,7 +49,10 @@ function TradeOfferLibraryRow({ offer }: TradeOfferLibraryRowProps) {
         <span className="flex min-w-0 flex-1 flex-col gap-0.5">
           <span className="flex min-w-0 items-center gap-1.5">
             <span className="truncate text-sm font-medium">
-              {offer.guestName || t("tradeOffers.library.unnamedGuest")}
+              {offer.guestName ||
+                (offer.linkKind === "inPerson"
+                  ? t("tradeOffers.inPerson.title")
+                  : t("tradeOffers.library.unnamedGuest"))}
             </span>
             {remainingPickCount > 0 ? (
               <Badge variant="info">
@@ -56,17 +67,25 @@ function TradeOfferLibraryRow({ offer }: TradeOfferLibraryRowProps) {
             )}
           </span>
           <span className="truncate text-xs text-foreground/70">
-            {t("tradeOffers.library.rowDetails", {
-              source: offer.sourceName ?? t("tradeOffers.unknownSource"),
-              wanted: offer.wanted.length,
-              offered: offeredCount,
-            })}
+            {offer.linkKind === "inPerson"
+              ? t("tradeOffers.inPerson.rowDetails", { given: offer.wanted.length, received: offeredCount })
+              : t("tradeOffers.library.rowDetails", {
+                  source: tradeOfferSourceLabel(offer, t),
+                  wanted: offer.wanted.length,
+                  offered: offeredCount,
+                })}
           </span>
         </span>
         <span className="flex shrink-0 flex-col items-end gap-0.5">
           <span className="text-sm font-medium tabular-nums">
             <span className="sr-only">{t("tradeOffers.youGetValue")} </span>
-            {formatPrice(offer.offeredValue, offer.priceSource)}
+            <CompactValue
+              exact={formatPrice(offer.offeredValue, offer.priceSource)}
+              compact={formatCompactPriceInCurrency(
+                offer.offeredValue,
+                PRICE_SOURCE_FIELDS[offer.priceSource].currency,
+              )}
+            />
           </span>
           <span className="text-xs text-foreground/70">{date}</span>
         </span>

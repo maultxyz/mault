@@ -1,6 +1,9 @@
 import type { MatchValidationStatus } from "@magic-vault/shared";
 import type { MatchValidationGuideItem, MatchValidationView } from "@/lib/interfaces/match-validations";
 import type { PillProps } from "@/lib/interfaces/ui";
+import { AUTH_PROVIDER } from "@/lib/constants/config";
+
+export const MATCH_VALIDATIONS_ENABLED = AUTH_PROVIDER !== "local";
 
 export const MATCH_VALIDATION_VIEWS: readonly MatchValidationView[] = ["review", "scans"];
 export const MATCH_VALIDATION_ALL_GAMES = "";

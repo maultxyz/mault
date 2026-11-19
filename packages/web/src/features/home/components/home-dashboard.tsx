@@ -1,8 +1,11 @@
 import { Callout } from "@/components/callout";
+import { CompactCount, CompactPrice } from "@/components/compact-value";
+import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { orgOverviewQueryOptions } from "@/features/collections/api/org-overview";
-import { PiSorterCalibrationLink } from "@/features/calibration/components/pi-sorter-calibration-link";
+import { useCollections } from "@/features/collections/api/use-collections";
+import { CreateCollectionDialog } from "@/features/collections/components/create-collection-dialog";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { widgetSummaryQueryOptions } from "@/features/home/api/widget-summary";
 import { HomeCardRail } from "@/features/home/components/home-card-rail";
@@ -16,13 +19,24 @@ import { useCollectionLocks } from "@/lib/app-stream";
 import { CARD_REVIEW_SEARCH_PARAM } from "@/lib/constants/cards";
 import { collectionViewPath, monitorCollectionPath } from "@/lib/constants/collections";
 import { HOME_CARD_OF_THE_DAY_TILE_CLASS } from "@/lib/constants/home";
+import { MOBILE_SCAN_PATH } from "@/lib/constants/nav";
+import { SCANNER_PATH, monitorCollectionReviewPath } from "@/lib/constants/scanner";
 import { STATS_PATH } from "@/lib/constants/stats";
 import { TRADES_PATH, tradeOfferPath } from "@/lib/constants/trade-offers";
 import { ONE_DAY_MS } from "@/lib/constants/timing";
 import { cardPriceChangeSinceScanOf, valueChangeOf, type OrgOverviewCard } from "@magic-vault/shared";
-import { IconAlertTriangle, IconArrowsExchange, IconBroadcast, IconHelpCircle } from "@tabler/icons-react";
+import {
+  IconAlbum,
+  IconAlertTriangle,
+  IconArrowsExchange,
+  IconBroadcast,
+  IconHelpCircle,
+  IconPlus,
+  IconScan,
+} from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 function formatDay(date: string, locale: string): string {
   return new Date(`${date}T00:00:00Z`).toLocaleDateString(locale, { month: "short", day: "numeric", timeZone: "UTC" });
@@ -34,14 +48,15 @@ export function HomeDashboard() {
   const { format } = usePriceSource();
   const isMobile = useIsMobile();
   const { locks } = useCollectionLocks();
-  const overview = useQuery(orgOverviewQueryOptions(activeOrg?.id));
+  const { collections } = useCollections();
+  const overview =useQuery(orgOverviewQueryOptions(activeOrg?.id));
   const summary = useQuery(widgetSummaryQueryOptions(activeOrg?.id));
   const pendingTradeOffers = usePendingTradeOffers();
   const locale = i18n.language;
-  const numberFormat = new Intl.NumberFormat(locale);
   const overviewData = overview.data;
   const summaryData = summary.data;
   const collectionPath = (guid: string) => (isMobile ? monitorCollectionPath(guid) : collectionViewPath(guid));
+  const isFirstRun = !overview.isError && overviewData?.collectionCount === 0 && collections.length === 0;
 
   const change = summaryData ? valueChangeOf(summaryData.all, format, locale) : null;
   const previousDay = summaryData?.all.previousDay;
@@ -61,7 +76,7 @@ export function HomeDashboard() {
       ? (price ?? "")
       : [price, card.collectionName].filter(Boolean).join(" · ");
   };
-  const collectionNames = new Map((summaryData?.collections ?? []).map((collection) => [collection.guid, collection.name]));
+  const collectionNames = new Map(collections.map((collection) => [collection.guid, collection.name]));
 
   return (
     <div className="flex flex-col gap-6 md:gap-2">
@@ -85,7 +100,12 @@ export function HomeDashboard() {
         <>
           <ValueHero
             label={t("hero.value")}
-            value={format(overviewData.totalValue)}
+            value={
+              <CompactPrice
+                value={overviewData.totalValue}
+                compactsOnlyBelowMd
+              />
+            }
             change={change ? { change, caption: changeCaption } : null}
             sparklineValues={
               summaryData && summaryData.all.valueHistory.length >= 2
@@ -93,9 +113,22 @@ export function HomeDashboard() {
                 : overviewData.scansByDay.map((day) => day.count)
             }
             stats={[
-              { label: t("hero.cards"), value: numberFormat.format(overviewData.cardCount) },
-              { label: t("hero.collections"), value: numberFormat.format(overviewData.collectionCount) },
-              ...(summaryData ? [{ label: t("hero.scanned"), value: numberFormat.format(summaryData.scansAllTime) }] : []),
+              {
+                label: t("hero.cards"),
+                value: <CompactCount value={overviewData.cardCount} />,
+              },
+              {
+                label: t("hero.collections"),
+                value: <CompactCount value={overviewData.collectionCount} />,
+              },
+              ...(summaryData
+                ? [
+                    {
+                      label: t("hero.scanned"),
+                      value: <CompactCount value={summaryData.scansAllTime} />,
+                    },
+                  ]
+                : []),
             ]}
           />
           {(liveCollections.length > 0 || reviewCount > 0 || pendingTradeOffers.length > 0) && (
@@ -122,7 +155,7 @@ export function HomeDashboard() {
                   description={t("review.description")}
                   to={
                     isMobile
-                      ? monitorCollectionPath(firstReviewCard.collectionGuid)
+                      ? monitorCollectionReviewPath(firstReviewCard.collectionGuid)
                       : `${collectionViewPath(firstReviewCard.collectionGuid)}?${CARD_REVIEW_SEARCH_PARAM}=1`
                   }
                 />
@@ -139,7 +172,36 @@ export function HomeDashboard() {
             </div>
           )}
 
-          {isMobile && <PiSorterCalibrationLink />}
+          {isFirstRun && (
+            <div className="rounded-card bg-card px-4">
+              <EmptyState
+                icon={IconAlbum}
+                title={t("firstRun.title")}
+                titleAs="h2"
+                description={t("firstRun.description")}
+                action={
+                  <div className="flex flex-wrap justify-center gap-1.5">
+                    <CreateCollectionDialog
+                      trigger={({ disabled }) => (
+                        <Button disabled={disabled}>
+                          <IconPlus />
+                          {t("firstRun.createCollection")}
+                        </Button>
+                      )}
+                    />
+                    <Button
+                      variant="outline"
+                      nativeButton={false}
+                      render={<Link to={isMobile ? MOBILE_SCAN_PATH : SCANNER_PATH} />}
+                    >
+                      <IconScan />
+                      {t("firstRun.startScanning")}
+                    </Button>
+                  </div>
+                }
+              />
+            </div>
+          )}
 
           {(summary.isPending || summaryData) && (
             <HomeCardRail
@@ -158,12 +220,20 @@ export function HomeDashboard() {
               <div className="flex flex-col gap-4 md:gap-2 rounded-card bg-card p-5 md:p-2.5">
                 <dl className="flex gap-8">
                   <div className="flex flex-col-reverse">
-                    <dt className="text-xs text-foreground/70">{t("activity.today")}</dt>
-                    <dd className="text-2xl font-bold tabular-nums text-foreground">{numberFormat.format(overviewData.scansToday)}</dd>
+                    <dt className="text-xs text-foreground/70">
+                      {t("activity.today")}
+                    </dt>
+                    <dd className="text-2xl font-bold tabular-nums text-foreground">
+                      <CompactCount value={overviewData.scansToday} />
+                    </dd>
                   </div>
                   <div className="flex flex-col-reverse">
-                    <dt className="text-xs text-foreground/70">{t("activity.thisWeek")}</dt>
-                    <dd className="text-2xl font-bold tabular-nums text-foreground">{numberFormat.format(overviewData.scansThisWeek)}</dd>
+                    <dt className="text-xs text-foreground/70">
+                      {t("activity.thisWeek")}
+                    </dt>
+                    <dd className="text-2xl font-bold tabular-nums text-foreground">
+                      <CompactCount value={overviewData.scansThisWeek} />
+                    </dd>
                   </div>
                 </dl>
                 <ColumnChart

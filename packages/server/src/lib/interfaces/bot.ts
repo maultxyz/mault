@@ -1,4 +1,28 @@
-import type { FeederCalibration, ModuleConfig } from "@magic-vault/shared";
+import type {
+  DirectionalSpeed,
+  FeederCalibration,
+  ModuleConfig,
+  ServoPositionKey,
+} from "@magic-vault/shared";
+import type { BOT_SHOWCASE_KINDS } from "../constants/discord";
+
+export type BotShowcaseKind = (typeof BOT_SHOWCASE_KINDS)[number];
+
+export interface BotShowcaseTarget {
+  guid: string;
+  name: string;
+  orgName: string;
+}
+
+export interface BotShowcase {
+  kind: BotShowcaseKind;
+  name: string;
+  orgName: string;
+  gameNames: string[];
+  cardCount: number;
+  totalValueDisplay: string;
+  topCards: BotTopCard[];
+}
 
 export interface BotTopCard {
   name: string;
@@ -25,11 +49,16 @@ export interface BotCalibrationDevice {
   moduleCount: number;
 }
 
+export interface BotModuleCalibration extends ModuleConfig {
+  positionPercents: Record<ServoPositionKey, number>;
+}
+
 export interface BotDeviceCalibration {
   deviceName: string;
   moduleCount: number;
-  modules: ModuleConfig[];
+  modules: BotModuleCalibration[];
   feeder: FeederCalibration;
+  feederSpeeds: { speed: DirectionalSpeed; reverseSpeed: DirectionalSpeed };
 }
 
 export interface BotRulePreset {

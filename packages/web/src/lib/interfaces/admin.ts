@@ -119,16 +119,6 @@ export interface DiscordGuildSelectProps {
   onChange: (guildId: string | null) => void;
 }
 
-export interface LoadedSyncCanvas {
-  cardId: string;
-  canvas: HTMLCanvasElement;
-}
-
-export interface FailedSyncImage {
-  cardId: string;
-  message: string;
-}
-
 export interface SyncWorkerScope {
   onmessage: ((event: MessageEvent) => void) | null;
   postMessage(message: unknown): void;

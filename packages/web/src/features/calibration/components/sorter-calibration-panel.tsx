@@ -159,14 +159,8 @@ export function SorterCalibrationPanel({
             onSpeedChange={state.handleFeederSpeedChange}
             onStopPulseChange={state.handleFeederStopPulseChange}
             onResetStopPulse={state.handleResetFeederStopPulse}
-            onDurationChange={state.handleFeederDurationChange}
-            onPulseDurationChange={state.handleFeederPulseDurationChange}
-            onPauseDurationChange={state.handleFeederPauseDurationChange}
-            onSettleDurationChange={state.handleFeederSettleDurationChange}
             onReverseSpeedChange={state.handleFeederReverseSpeedChange}
-            onReverseDurationChange={state.handleFeederReverseDurationChange}
-            onFeedRetryCountChange={state.handleFeederFeedRetryCountChange}
-            onSelectContinuous={state.handleFeederSelectContinuous}
+            onFieldChange={state.handleFeederFieldChange}
             fullWidth
           />
         ) : (

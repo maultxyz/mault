@@ -1,3 +1,4 @@
+import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { BaseProviders } from "@/app/providers";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -47,7 +48,7 @@ function IntakeReceipt() {
 
   if (isLoading || !lot) {
     return (
-      <div className="mx-auto w-full max-w-3xl p-6">
+      <div className="mx-auto w-full max-w-3xl p-4 md:px-3 md:py-2">
         {isError ? (
           <LoadErrorCallout
             message={t("errors.loadFailed")}
@@ -70,10 +71,10 @@ function IntakeReceipt() {
       tabIndex={-1}
       className="min-h-dvh bg-card text-foreground outline-none"
     >
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 md:gap-2 p-6 print:p-0">
+      <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 md:gap-2 p-4 md:px-3 md:py-2 print:p-0">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h1 className="font-heading text-lg font-semibold">
+            <h1 className={PAGE_TITLE_CLASS}>
               {activeOrg?.name ?? t("receipt.title")}
             </h1>
             <p className="text-sm text-foreground/70">

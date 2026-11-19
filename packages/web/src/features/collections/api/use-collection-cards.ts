@@ -17,7 +17,12 @@ export function useCollectionCardsSummary(
   query: CollectionCardsQuery = ALL_CARDS_QUERY,
 ) {
   const { collection: activeCollection } = useViewedCollection();
-  const { data: summary, isPending } = useQuery(
+  const {
+    data: summary,
+    isPending,
+    isError,
+    refetch,
+  } = useQuery(
     collectionCardsSummaryQueryOptions(activeCollection?.guid, query),
   );
 
@@ -37,6 +42,8 @@ export function useCollectionCardsSummary(
     totalCount: summary?.all.totalCount ?? 0,
     totalValue: summary?.all.totalValue ?? 0,
     isPending: !!activeCollection && isPending,
+    isError,
+    refetch: () => void refetch(),
   };
 }
 

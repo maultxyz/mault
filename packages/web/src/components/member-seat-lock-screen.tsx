@@ -24,10 +24,10 @@ export function MemberSeatLockScreen() {
       aria-modal="true"
       aria-labelledby={titleId}
       aria-describedby={descriptionId}
-      className="fixed inset-0 z-60 flex items-center justify-center overflow-y-auto bg-background p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]"
+      className="fixed inset-0 z-lock-screen flex items-center justify-center overflow-y-auto bg-background p-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))]"
     >
       <div className="flex w-full max-w-sm flex-col gap-4 animate-in fade-in motion-reduce:animate-none">
-        <span className="grid size-10 place-items-center rounded-lg bg-muted">
+        <span className="grid size-10 place-items-center rounded-lg bg-foreground/6">
           <IconLock className="size-5 text-foreground/70" />
         </span>
         <div className="flex flex-col gap-1.5">

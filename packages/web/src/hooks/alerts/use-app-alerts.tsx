@@ -4,6 +4,10 @@ import { useChannelLayoutAlert } from "@/hooks/alerts/use-channel-layout-alert";
 import { useEmailVerificationAlert } from "@/hooks/alerts/use-email-verification-alert";
 import { useFirmwareMissingAlert } from "@/hooks/alerts/use-firmware-missing-alert";
 import { useFirmwareVersionAlert } from "@/hooks/alerts/use-firmware-version-alert";
+import { usePiRebootAlert } from "@/hooks/alerts/use-pi-reboot-alert";
+import { usePiHost } from "@/hooks/use-pi-host";
+import { usePiUpdate } from "@/hooks/use-pi-update";
+import { useRole } from "@/hooks/use-role";
 import type { AppAlert, AppAlertsContextValue } from "@/lib/interfaces/alerts";
 import { DISMISSED_ALERTS_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import {
@@ -29,7 +33,11 @@ export function AppAlertsProvider({ children }: { children: ReactNode }) {
 
   const emailVerification = useEmailVerificationAlert();
   const channelLayout = useChannelLayoutAlert();
-  const appVersion = useAppVersionAlert();
+  const piHost = usePiHost();
+  const { isAdmin } = useRole();
+  const piUpdate = usePiUpdate(piHost && isAdmin);
+  const appVersion = useAppVersionAlert(piUpdate);
+  const piReboot = usePiRebootAlert(piUpdate);
   const firmwareVersion = useFirmwareVersionAlert();
   const firmwareMissing = useFirmwareMissingAlert();
   const announcements = useAnnouncementAlerts();
@@ -40,6 +48,7 @@ export function AppAlertsProvider({ children }: { children: ReactNode }) {
         emailVerification,
         channelLayout,
         appVersion,
+        piReboot,
         firmwareVersion.alert,
         firmwareMissing,
         ...announcements,
@@ -48,6 +57,7 @@ export function AppAlertsProvider({ children }: { children: ReactNode }) {
       emailVerification,
       channelLayout,
       appVersion,
+      piReboot,
       firmwareVersion.alert,
       firmwareMissing,
       announcements,

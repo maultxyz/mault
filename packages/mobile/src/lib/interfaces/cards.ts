@@ -12,6 +12,7 @@ import type {
   PriceSource,
   ReviewGridAttributes,
   ReviewGridCard,
+  ScanImageSide,
   ScanDraftFormValues,
   ScannedCard,
 } from "@magic-vault/shared";
@@ -113,7 +114,6 @@ export interface PriceTableData {
   heading: string;
   columns: string[];
   rows: PriceTableRow[];
-  printings: number;
   highlightColumn: number;
   format: (value: number) => string;
 }
@@ -241,7 +241,11 @@ export interface ScanDraftSave {
   dirtyFields: Partial<Record<keyof ScanDraftFormValues, boolean>>;
 }
 
-export interface AddCatalogCardInput {
+export type { AddCatalogCardInput } from "@magic-vault/shared";
+
+export interface ScanImageShareRequest {
   collectionGuid: string;
-  card: PlayingCard;
+  scanId: string;
+  side: ScanImageSide;
+  cardName: string | null | undefined;
 }

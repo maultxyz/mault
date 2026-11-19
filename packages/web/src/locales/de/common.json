@@ -30,6 +30,7 @@
     "integrations": "API & Webhooks",
     "more": "Mehr",
     "stats": "Statistiken",
+    "machines": "Maschinen",
     "sortingRules": "Sortierregeln",
     "intake": "An- & Verkauf",
     "upgradeYourPlan": "Tarif upgraden",
@@ -89,8 +90,8 @@
     "syncCompleted": "Kartenbild-Vektor-Sync abgeschlossen",
     "syncFailed": "Kartenbild-Vektor-Sync fehlgeschlagen",
     "sync": "Kartenbild-Vektor-Sync",
-    "cardTotal_one": "{{count}} Karte · {{value}}",
-    "cardTotal_other": "{{count}} Karten · {{value}}",
+    "cardTotal_one": "{{count, compact}} Karte · {{value}}",
+    "cardTotal_other": "{{count, compact}} Karten · {{value}}",
     "healthIssues_one": "{{count}} Problem erkannt",
     "healthIssues_other": "{{count}} Probleme erkannt",
     "healthIssuesTooltip": "Probleme bei: {{names}}. Für Details klicken.",
@@ -102,12 +103,16 @@
   "appVersion": {
     "outdatedBanner": "Eine neue Version von Mault ist verfügbar.",
     "refreshButton": "Aktualisieren",
-    "terminalUpdate": "Beende Scans und Synchronisierungen und führe diesen Befehl in einem Terminal auf dem Pi aus. Gib bei Aufforderung dein sudo-Passwort ein. Lade danach diese Seite neu:",
+    "terminalUpdate": "Beende zuerst Scans und Synchronisierungen. Du kannst auch diesen Befehl in einem Terminal auf dem Pi ausführen und danach diese Seite neu laden:",
     "updateButton": "Mault aktualisieren",
     "updating": "Mault wird aktualisiert. Lass diese Seite geöffnet, während die Dienste neu starten.",
     "updateSucceeded": "Mault wurde erfolgreich aktualisiert. Lade die Seite neu, um die neue Version zu verwenden.",
     "updateFailed": "Mault konnte nicht aktualisiert werden.",
-    "updateUnconfirmed": "Nach der Aktualisierung konnte keine Verbindung hergestellt werden. Prüfe das Update-Protokoll auf dem Linux-Gerät."
+    "updateUnconfirmed": "Nach der Aktualisierung konnte keine Verbindung hergestellt werden. Führe sudo mault logs update auf dem Pi aus, bevor du es erneut versuchst."
+  },
+  "piReboot": {
+    "banner": "Dieses Board hat Sicherheitsupdates des Systems installiert, die einen Neustart brauchen.",
+    "command": "Starte es neu, wenn kein Scan läuft; Mault startet danach von selbst:"
   },
   "impersonation": {
     "banner": "Du siehst die App aus der Sicht von {{name}}.",
@@ -206,6 +211,11 @@
     "title": "Tastenkürzel",
     "description": "Tastenkürzel werden ignoriert, während du in ein Feld tippst oder ein Dialog geöffnet ist.",
     "then": "dann",
+    "off": "Aus",
+    "singleKey": {
+      "label": "Tastenkürzel mit nur einer Taste",
+      "hint": "Wenn aus, funktionieren nur Tastenkürzel mit Strg oder Cmd, Escape, Eingabe, Entf und die Pfeiltasten. In diesem Browser gespeichert."
+    },
     "keys": {
       "space": "Leertaste",
       "shift": "Umschalt",
@@ -232,6 +242,7 @@
       "showShortcuts": "Tastenkürzel anzeigen",
       "toggleSidebar": "Seitenleiste ein- oder ausklappen",
       "focusSearch": "Suche fokussieren",
+      "openGlobalSearch": "Globale Suche öffnen",
       "dismissToasts": "Alle Benachrichtigungen schließen",
       "save": "Änderungen speichern",
       "clearSelection": "Auswahl aufheben",
@@ -270,15 +281,11 @@
       "reviewCycleLanguage": "Beim Prüfen: Sprachen durchschalten",
       "goSortingRules": "Zu den Sortierregeln",
       "intakeOpenScanner": "Scanner für diesen Ankauf öffnen",
-      "foilLabelFoil": "Beim Kennzeichnen: als Foil markieren",
-      "foilLabelNotFoil": "Beim Kennzeichnen: als Nicht-Foil markieren",
-      "foilLabelSkip": "Beim Kennzeichnen: diese Karte überspringen",
       "matchValidationCorrect": "Beim Prüfen von Treffern: Treffer als richtig markieren",
       "matchValidationIncorrect": "Beim Prüfen von Treffern: Treffer als falsch markieren",
       "matchValidationBadScan": "Beim Prüfen von Treffern: Foto als schlechten Scan markieren",
       "matchValidationSkip": "Beim Prüfen von Treffern: diesen Scan überspringen",
       "matchValidationBack": "Beim Prüfen von Treffern: zum vorherigen Scan zurück",
-      "foilLabelBack": "Beim Kennzeichnen: zurück zur vorherigen Karte",
       "scanFlatbedCard": "Karte auf dem Flachbett scannen",
       "pickNext": "Beim Picken: nächste Karte",
       "pickPrevious": "Beim Picken: vorherige Karte",
@@ -296,7 +303,8 @@
     "home": "Start",
     "scan": "Scannen",
     "library": "Bibliothek",
-    "more": "Mehr"
+    "more": "Mehr",
+    "business": "An- & Verkauf"
   },
   "pagination": {
     "previous": "Zurück",
@@ -368,7 +376,8 @@
     "orderBinCatchAll": "Das letzte Fach nimmt alle übrigen Karten auf, wähle ein anderes.",
     "catalogSourcesRequired": "Wähle mindestens eine Sammlung oder einen Lagerort.",
     "contactRequired": "Gib an, wie man dich erreicht.",
-    "textTooLong": "Bleib unter {{max}} Zeichen."
+    "textTooLong": "Bleib unter {{max}} Zeichen.",
+    "jsonObjectInvalid": "Gib ein einzelnes JSON-Objekt ein, etwa {\"neutral\": true}."
   },
   "memberSeatLock": {
     "title": "Diese Organisation hat ihr Mitgliederlimit überschritten",
@@ -425,7 +434,8 @@
       "warning": "Warnung:",
       "danger": "Fehler:"
     },
-    "adminNavigation": "Admin-Navigation"
+    "adminNavigation": "Admin-Navigation",
+    "noPrice": "Kein Preis"
   },
   "shareLink": {
     "triggerWithCount_one": "{{label}} ({{count}} aktiver Link)",
@@ -449,6 +459,8 @@
     "qrHint": "Zum Öffnen scannen",
     "showPrices": "Preise anzeigen",
     "showPricesDescription": "Ausschalten, um Kartenpreise und Summen für alle mit diesem Link auszublenden.",
+    "requireGuestContact": "Kontaktdaten verlangen",
+    "requireGuestContactDescription": "Ausschalten, damit man ein Tauschangebot ohne E-Mail, Telefon oder Benutzername senden kann.",
     "typeLabel": "Link-Typ",
     "monitorType": "Monitor-Link",
     "tradeType": "Tausch-Link",
@@ -459,7 +471,9 @@
     "checkFailedTitle": "Dieser Link konnte nicht geöffnet werden",
     "checkFailedDescription": "Prüfe deine Verbindung und versuche es erneut.",
     "shortLinkInvalidTitle": "Dieser Link funktioniert nicht",
-    "shortLinkInvalidDescription": "Prüfe, ob er vollständig kopiert wurde, oder bitte die Person, die ihn geteilt hat, um einen neuen Link."
+    "shortLinkInvalidDescription": "Prüfe, ob er vollständig kopiert wurde, oder bitte die Person, die ihn geteilt hat, um einen neuen Link.",
+    "poweredBy": "Bereitgestellt von",
+    "poweredByLabel": "Bereitgestellt von {{site}} (öffnet in einem neuen Tab)"
   },
   "tradeOffers": {
     "declined": "Tauschangebot abgelehnt",
@@ -470,6 +484,7 @@
     "decline": "Ablehnen",
     "accept": "Annehmen",
     "contact": "Kontakt",
+    "noContact": "Keine Kontaktdaten angegeben",
     "note": "Notiz",
     "theyWant_one": "Möchte {{count}} Karte",
     "theyWant_other": "Möchte {{count}} Karten",
@@ -507,7 +522,8 @@
         "declined": "Abgelehnt"
       },
       "picking_one": "Wird gepickt, noch {{count}}",
-      "picking_other": "Wird gepickt, noch {{count}}"
+      "picking_other": "Wird gepickt, noch {{count}}",
+      "inPerson": "Vor Ort"
     },
     "cardList": {
       "cardCount_one": "{{count}} Karte",
@@ -531,7 +547,6 @@
       "showLess": "Weniger anzeigen",
       "unitPrice": "je {{price}}",
       "foil": "Foil",
-      "noPrice": "Kein Preis",
       "placementStorage": "{{location}} · #{{positions}}",
       "placementStorageNoPosition": "{{location}}",
       "placementBin_one": "{{collection}}, Fach {{bins}}",
@@ -547,6 +562,8 @@
     "notFound": "Dieses Tauschangebot gibt es nicht mehr.",
     "backToTrades": "Zurück zu den Tauschangeboten",
     "acceptTitle": "Dieses Tauschangebot annehmen?",
+    "declineTitle": "Dieses Tauschangebot ablehnen?",
+    "declineDescription": "Die Person sieht auf ihrem Link, dass du abgelehnt hast. Das lässt sich nicht rückgängig machen.",
     "sideTabs": {
       "label": "Seiten des Tauschs",
       "wanted": "Möchte ({{count}})",
@@ -604,6 +621,63 @@
         "accepted": "Angenommen",
         "declined": "Abgelehnt"
       }
+    },
+    "newTrade": {
+      "button": "Neuer Tausch",
+      "link": "Tauschlink",
+      "linkHint": "Teile einen Link, damit jemand Karten auswählen und dir ein Angebot senden kann.",
+      "inPerson": "Tausch vor Ort",
+      "inPersonHint": "Fülle beide Seiten selbst aus und erfasse einen Tausch, den du gemacht hast.",
+      "linkTitle": "Tauschlink erstellen",
+      "linkDescription": "Wähle, was der Tauschlink zeigt. Wer ihn öffnet, kann Karten auswählen und dir ein Angebot senden.",
+      "sourceLabel": "Teilen aus",
+      "sourcePlaceholder": "Sammlung oder Lagerort wählen",
+      "collections": "Sammlungen",
+      "storageLocations": "Lagerorte",
+      "continue": "Weiter"
+    },
+    "inPerson": {
+      "title": "Tausch vor Ort",
+      "description": "Erfasse einen Tausch, den du persönlich gemacht hast. Karten, die du gibst, verlassen deinen Bestand, und Karten, die du bekommst, kommen in eine Sammlung.",
+      "detailsTitle": "Tauschpartner",
+      "detailsDescription": "Optional, damit du weißt, mit wem du getauscht hast",
+      "partnerName": "Name (optional)",
+      "partnerContact": "Kontakt (optional)",
+      "giveTitle_one": "Du gibst ({{count}})",
+      "giveTitle_other": "Du gibst ({{count}})",
+      "giveDescription": "Exemplare aus deinem Bestand",
+      "giveEmpty": "Durchsuche deine Karten, um hinzuzufügen, was du gibst.",
+      "searchOwnedLabel": "Deine Karten durchsuchen",
+      "addGivenCard": "{{name}} geben",
+      "addReceivedCard": "{{name}} bekommen",
+      "getTitle_one": "Du bekommst ({{count}})",
+      "getTitle_other": "Du bekommst ({{count}})",
+      "getDescription": "Karten kommen in die gewählte Sammlung",
+      "getEmpty": "Suche, um die Karten hinzuzufügen, die du bekommst.",
+      "pickCollectionFirst": "Wähle die Sammlung für die Karten, die du bekommst.",
+      "receiveCollection": "Erhaltene Karten hinzufügen zu",
+      "receiveCollectionPlaceholder": "Sammlung wählen",
+      "cashTitle": "Bargeld",
+      "cashDirection": "Wer zahlt Bargeld",
+      "cashReceived": "Sie zahlen mir",
+      "cashGiven": "Ich zahle ihnen",
+      "readyHint": "Beim Erfassen werden deine gegebenen Karten entfernt und die erhaltenen hinzugefügt.",
+      "emptyHint": "Füge eine Karte oder einen Betrag hinzu, um den Tausch zu erfassen.",
+      "record": "Tausch erfassen",
+      "recorded": "Tausch erfasst.",
+      "recordFailed": "Der Tausch konnte nicht erfasst werden. Versuche es erneut.",
+      "reviewTitle": "Tausch vor Ort mit {{name}}",
+      "recordedOn": "Vor Ort erfasst am {{date}}",
+      "youGave_one": "Du hast {{count}} Karte gegeben",
+      "youGave_other": "Du hast {{count}} Karten gegeben",
+      "youGot_one": "Du hast {{count}} Karte bekommen",
+      "youGot_other": "Du hast {{count}} Karten bekommen",
+      "rowDetails": "Vor Ort · {{given}} gegeben · {{received}} bekommen",
+      "addCards": "Karten hinzufügen",
+      "searchCatalog": "Karten suchen",
+      "noResults": "Keine Karten gefunden",
+      "editCardHint": "Anzahl, Zustand oder Foil ändern",
+      "remove": "Entfernen"
     }
   },
   "labelSheets": {
@@ -617,5 +691,11 @@
       "avery-5163": "Avery 5163 (10 pro Bogen, 4 x 2 Zoll)",
       "avery-5164": "Avery 5164 (6 pro Bogen, 4 x 3,33 Zoll)"
     }
+  },
+  "envBanner": {
+    "local": "Lokale Umgebung",
+    "selfHosting": "Selbst gehostet",
+    "development": "Entwicklungsumgebung",
+    "qa": "QA-Umgebung"
   }
 }

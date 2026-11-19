@@ -68,9 +68,11 @@ export function OutgoingTradeOfferReview({ offer }: OutgoingTradeOfferReviewProp
         <SectionHeader title={t("tradeOffers.sent.yourDetails")} />
         <Surface style={{ gap: SPACING.xs }}>
           <AppText selectable>{offer.guestName}</AppText>
-          <AppText size="sm" tone="secondary" selectable>
-            {offer.guestContact}
-          </AppText>
+          {offer.guestContact ? (
+            <AppText size="sm" tone="secondary" selectable>
+              {offer.guestContact}
+            </AppText>
+          ) : null}
           {offer.guestNote ? (
             <AppText size="sm" tone="secondary" selectable>
               {offer.guestNote}

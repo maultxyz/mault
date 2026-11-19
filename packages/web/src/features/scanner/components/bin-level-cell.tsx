@@ -11,6 +11,7 @@ export function BinLevelCell({
   level,
   isCatchAll,
   isDisabled,
+  claimedLocationName,
   flashKey,
   onEmpty,
   className,
@@ -63,6 +64,8 @@ export function BinLevelCell({
         {t("binStatusMeter.binLabel", { bin: level.binNumber })}
         {isCatchAll && ` · ${t("binStatusMeter.catchAll")}`}
         {isDisabled && ` · ${t("binStatusMeter.disabled")}`}
+        {claimedLocationName &&
+          ` · ${t("binStatusMeter.fillsLocation", { location: claimedLocationName })}`}
       </span>
       {status === "full" && (
         <IconAlertOctagon

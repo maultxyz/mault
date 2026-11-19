@@ -51,7 +51,7 @@ export function FeatureSpotlightRow({
           revealClass,
         )}
       >
-        <p className="flex items-center gap-2 font-heading text-2xs font-medium tracking-widest text-primary uppercase">
+        <p className="flex items-center gap-2 font-heading text-sm font-medium tracking-widest text-primary uppercase">
           <Icon aria-hidden className="size-4" />
           {isNew && t("features.new")}
         </p>

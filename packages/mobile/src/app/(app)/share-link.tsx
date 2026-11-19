@@ -3,19 +3,26 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, View } from "react-native";
 import { PageHeader } from "@/components/ui/page-header";
+import { TabStrip } from "@/components/ui/tab-strip";
 import { ExistingShareLink } from "@/features/share-links/components/existing-share-link";
 import { NewShareLinkForm } from "@/features/share-links/components/new-share-link-form";
+import { SharedCardLinks } from "@/features/share-links/components/shared-card-links";
 import { SubjectShareLinks } from "@/features/share-links/components/subject-share-links";
 import { useTheme } from "@/hooks/use-theme";
-import type { ShareLinkKind, ShareLinkSheetView } from "@/lib/interfaces/share-links";
+import { NEW_TRADE_LINK_PARAM_VALUE } from "@/lib/constants/trade-offers";
+import { SCREEN_GUTTER } from "@/lib/constants/theme";
+import type { ShareLinkKind, ShareLinkSheetTab, ShareLinkSheetView } from "@/lib/interfaces/share-links";
 
 export default function ShareLinkScreen() {
-  const { kind, guid } = useLocalSearchParams<{ kind: ShareLinkKind; guid: string }>();
+  const { kind, guid, newTradeLink } = useLocalSearchParams<{ kind: ShareLinkKind; guid: string; newTradeLink?: string }>();
+  const startsWithNewTradeLink = newTradeLink === NEW_TRADE_LINK_PARAM_VALUE;
   const { t } = useTranslation();
   const colors = useTheme();
-  const [view, setView] = useState<ShareLinkSheetView>({ name: "links" });
+  const [view, setView] = useState<ShareLinkSheetView>({ name: startsWithNewTradeLink ? "new" : "links" });
   const [createdWithoutLink, setCreatedWithoutLink] = useState(false);
   const isStorage = kind === "storage";
+  const [tab, setTab] = useState<ShareLinkSheetTab>("links");
+  const showsTabs = kind === "collection" && view.name === "links";
 
   const show = (next: ShareLinkSheetView, announcement: string) => {
     setView(next);
@@ -28,17 +35,34 @@ export default function ShareLinkScreen() {
       ? { title: t("shareLinks.linkTitle"), subtitle: t("shareLinks.detailDescription") }
       : view.name === "new"
         ? { title: t("shareLinks.newLinkTitle"), subtitle: isStorage ? t("shareLink.storageDescription") : t("shareLink.collectionDescription") }
-        : { title: isStorage ? t("shareLink.storageTitle") : t("shareLink.collectionTitle"), subtitle: t("shareLinks.subjectDescription") };
+        : {
+            title: isStorage ? t("shareLink.storageTitle") : t("shareLink.collectionTitle"),
+            subtitle:
+              showsTabs && tab === "cards" ? t("shareLinks.sharedCardsDescription") : t("shareLinks.subjectDescription"),
+          };
 
   return (
     <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader title={header.title} subtitle={header.subtitle} />
+      {showsTabs ? (
+        <View style={{ paddingHorizontal: SCREEN_GUTTER }}>
+          <TabStrip<ShareLinkSheetTab>
+            items={[
+              { value: "links", label: t("shareLinks.linksTab") },
+              { value: "cards", label: t("shareLinks.sharedCards") },
+            ]}
+            value={tab}
+            onChange={setTab}
+          />
+        </View>
+      ) : null}
       {view.name === "link" ? (
         <ExistingShareLink linkGuid={view.linkGuid} subjectGuid={guid} onClose={showLinks} />
       ) : view.name === "new" ? (
         <NewShareLinkForm
           kind={kind}
           subjectGuid={guid}
+          initialPurpose={startsWithNewTradeLink ? "trade" : undefined}
           onBack={showLinks}
           onCreated={(createdLinkGuid) => {
             if (createdLinkGuid) {
@@ -49,6 +73,8 @@ export default function ShareLinkScreen() {
             }
           }}
         />
+      ) : showsTabs && tab === "cards" ? (
+        <SharedCardLinks collectionGuid={guid} />
       ) : (
         <SubjectShareLinks
           kind={kind}

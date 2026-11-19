@@ -93,7 +93,6 @@ jobs:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
       CARD_API_USER_AGENT: ${{ vars.CARD_API_USER_AGENT }}
       COLLECTORVISION_CACHE: ${{ github.workspace }}/.cache/collectorvision
-      HF_HOME: ${{ github.workspace }}/.cache/huggingface
       VECTORIZE_CONCURRENCY: 4
     steps:
       - name: Checkout
@@ -116,9 +115,7 @@ jobs:
       - name: Cache models
         uses: actions/cache@v4
         with:
-          path: |
-            .cache/collectorvision
-            .cache/huggingface
+          path: .cache/collectorvision
           key: models-${{ hashFiles('packages/server/src/lib/models/**') }}
 
       # Stops 30 minutes before the job limit so the cards embedded so far are
@@ -186,3 +183,19 @@ jobs:
           if [ -n "$LANGUAGES" ] && [ "$LANGUAGES" != "all" ]; then ARGS+=("--languages=$LANGUAGES"); fi
           if [ "$FORCE_RESYNC" = "true" ]; then ARGS+=("--force"); fi
           pnpm --filter @magic-vault/server exec tsx scripts/sync-card-catalogs.ts "${ARGS[@]}"
+
+      - name: Report to Better Stack
+        if: always() && github.event_name == 'schedule'
+        env:
+          HEARTBEAT_URL: ${{ secrets.BETTER_STACK_CATALOG_SYNC_HEARTBEAT_URL }}
+          RUN_SUCCEEDED: ${{ job.status == 'success' && needs.sync.result == 'success' }}
+        run: |
+          if [ -z "$HEARTBEAT_URL" ]; then
+            echo "BETTER_STACK_CATALOG_SYNC_HEARTBEAT_URL is unset; skipping the uptime heartbeat."
+            exit 0
+          fi
+          if [ "$RUN_SUCCEEDED" = "true" ]; then
+            curl -fsS -m 10 --retry 3 "$HEARTBEAT_URL" > /dev/null
+          else
+            curl -fsS -m 10 --retry 3 "$HEARTBEAT_URL/fail" > /dev/null
+          fi

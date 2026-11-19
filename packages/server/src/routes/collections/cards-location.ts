@@ -18,6 +18,7 @@ export const collectionCardLocationRoute = new Hono<AppEnv>().get(
           guid: storageLocations.guid,
           name: storageLocations.name,
           position: collectionCards.locationPosition,
+          batchSize: storageLocations.batchSize,
         })
         .from(collectionCards)
         .innerJoin(
@@ -32,7 +33,12 @@ export const collectionCardLocationRoute = new Hono<AppEnv>().get(
         )
         .limit(1);
       const data: CardStorageLocation | null = row
-        ? { guid: row.guid!, name: row.name, position: row.position ?? 0 }
+        ? {
+            guid: row.guid!,
+            name: row.name,
+            position: row.position ?? 0,
+            batchSize: row.batchSize,
+          }
         : null;
       return { success: true, data };
     });

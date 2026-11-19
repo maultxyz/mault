@@ -4,10 +4,20 @@ import { proxiedImageUrl } from "@magic-vault/shared";
 import { syncImageUrl } from "../../web/src/features/admin/lib/sync-image-url";
 import { imageProxyRoute } from "../src/routes/card/image-proxy";
 
-test("Yu-Gi-Oh browser sync uses the existing image proxy for both image faces", () => {
+test("Browser sync proxies image hosts without CORS support for both faces", () => {
   for (const imageUrl of [
     "https://images.ygoprodeck.com/images/cards/5479217.jpg",
     "https://images.ygoprodeck.com/images/cards/93170499.jpg",
+    "https://cdn.swu-db.com/images/cards/SOR/010.png",
+    "https://cdn.swu-db.com/images/cards/SOR/010-back.png",
+    "https://www.gundam-gcg.com/en/images/cards/card/EB01-001.webp?261016",
+    "https://gundam-gcg.com/en/images/cards/card/EB01-001.webp",
+    "https://cards.lorcast.io/card/digital/large/sample.avif?1",
+    "https://optcgapi.com/media/static/Card_Images/ST01-016.jpg",
+    "https://images.fleshcube.com/large/MST131.webp",
+    "https://cmsassets.rgpub.io/sanity/images/sample.png?accountingTag=RB",
+    "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/sample.webp?Expires=123&Signature=a%2Bb",
+    "https://cdn.tcgtracking.com/product/494102_1000w.jpg",
   ]) {
     assert.equal(syncImageUrl(imageUrl, ""), proxiedImageUrl(imageUrl));
     assert.equal(
@@ -15,8 +25,12 @@ test("Yu-Gi-Oh browser sync uses the existing image proxy for both image faces",
       `https://mault.example${proxiedImageUrl(imageUrl)}`,
     );
   }
-  const scryfall = "https://cards.scryfall.io/normal/front/a/b/card.jpg";
-  assert.equal(syncImageUrl(scryfall, ""), scryfall);
+  for (const imageUrl of [
+    "https://cards.scryfall.io/normal/front/a/b/card.jpg",
+    "https://assets.tcgdex.net/en/base/base1/1/high.webp",
+    "https://api.gatcg.com/cards/images/example.jpg",
+  ])
+    assert.equal(syncImageUrl(imageUrl, ""), imageUrl);
   assert.equal(syncImageUrl("/local-card.jpg", ""), "/local-card.jpg");
 });
 
@@ -73,4 +87,42 @@ test("image proxy refuses redirects off the allowlist and SVG responses", async 
   upstreamResponse = () =>
     new Response("<svg/>", { headers: { "Content-Type": "image/svg+xml" } });
   assert.equal((await proxied()).status, 502);
+});
+
+test("new browser proxy hosts relay AVIF and signed image URLs without changing the query", async (t) => {
+  const samples = [
+    "https://www.gundam-gcg.com/en/images/cards/card/EB01-001.webp?261016",
+    "https://cards.lorcast.io/card/digital/large/sample.avif?1709690747",
+    "https://optcgapi.com/media/static/Card_Images/ST01-016.jpg",
+    "https://images.fleshcube.com/large/MST131.webp",
+    "https://cmsassets.rgpub.io/sanity/images/sample.png?accountingTag=RB",
+    "https://dstcynss47vun.cloudfront.net/prod/cyberpunk/sample.webp?Expires=123&Signature=a%2Bb",
+  ];
+  let requested = "";
+  t.mock.method(globalThis, "fetch", async (url: string) => {
+    requested = url;
+    return new Response(Uint8Array.from([1, 2, 3]), {
+      headers: { "Content-Type": "image/avif" },
+    });
+  });
+  for (const image of samples) {
+    const response = await imageProxyRoute.request(
+      `/image-proxy?url=${encodeURIComponent(image)}`,
+    );
+    assert.equal(response.status, 200, image);
+    assert.equal(requested, image);
+    assert.equal(
+      response.headers.get("Cross-Origin-Resource-Policy"),
+      "cross-origin",
+    );
+    assert.equal(response.headers.get("Content-Type"), "image/avif");
+  }
+  assert.equal(
+    (
+      await imageProxyRoute.request(
+        `/image-proxy?url=${encodeURIComponent("https://unrelated.cloudfront.net/private")}`,
+      )
+    ).status,
+    400,
+  );
 });

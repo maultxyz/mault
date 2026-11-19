@@ -1,5 +1,6 @@
 import {
   DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
+  DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
   MONITOR_LINK_EXPIRY_DAYS,
   type StorageShareLink,
@@ -14,15 +15,14 @@ import {
   shareLinkExpiresInMinutes,
 } from "../../lib/share-link-policy";
 import { isShareTokenConfigured } from "../../lib/share-tokens";
-import {
-  isStorageAllowed,
-  STORAGE_UPGRADE_MESSAGE,
-} from "../../lib/storage-access";
 import { forgetSharedStorageReads } from "../../lib/shared-storage-reads-cache";
 import { issueShareLink, revokeShareLinksForSubject } from "../../lib/share-links";
 import { forgetVerifiedStorageShareLinks } from "../../lib/storage-share-links";
 import type { ShareLinkRequestBody } from "../../lib/interfaces/share-tokens";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import { orgHasFeature } from "../../lib/plan-config";
+import { STORAGE_LOCKED_RESULT } from "../../lib/constants/plan-access";
+import { STORAGE_LOCATION_NOT_FOUND_MESSAGE } from "../../lib/constants/storage-locations";
 
 export const storageShareLinkRoute = new Hono<AppEnv>()
   .post("/:guid/share-link", requireAuth, requireOrg, async (c) => {
@@ -48,17 +48,18 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
       return c.json({ success: false, message: "Invalid price visibility." }, 400);
     }
     const showsPrices = body.showPrices ?? DEFAULT_SHARE_LINK_SHOWS_PRICES;
+    if (body.requireGuestContact !== undefined && typeof body.requireGuestContact !== "boolean") {
+      return c.json({ success: false, message: "Invalid contact requirement." }, 400);
+    }
+    const requiresGuestContact =
+      body.requireGuestContact ?? DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT;
     const purpose = parseShareLinkPurpose(body.purpose);
     if (!purpose) {
       return c.json({ success: false, message: "Invalid link type." }, 400);
     }
     const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      if (!(await isStorageAllowed(tx, orgId))) {
-        return {
-          success: false,
-          message: STORAGE_UPGRADE_MESSAGE,
-          upgradeRequired: true,
-        };
+      if (!(await orgHasFeature(tx, orgId, "storage"))) {
+        return STORAGE_LOCKED_RESULT;
       }
       const location = await tx.query.storageLocations.findFirst({
         where: (t, { eq, and }) =>
@@ -66,7 +67,7 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
         columns: { id: true, shareLinkVersion: true },
       });
       if (!location) {
-        return { success: false, message: "Storage location not found." };
+        return { success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE };
       }
       const allowsLongLinks = await allowsLongShareLinks(tx, orgId);
       const { guid: linkGuid, token, shortCode, shortUrl, expiresAt } = await issueShareLink(tx, {
@@ -77,6 +78,7 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
         subjectVersion: location.shareLinkVersion,
         purpose,
         showsPrices,
+        requiresGuestContact,
         expiresInMinutes: shareLinkExpiresInMinutes(purpose, allowsLongLinks, expiresInDays),
         createdByUserId: c.get("userId"),
       });
@@ -111,7 +113,7 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
         .returning({ id: storageLocations.id });
     });
     if (updated.length === 0) {
-      return c.json({ success: false, message: "Storage location not found." });
+      return c.json({ success: false, message: STORAGE_LOCATION_NOT_FOUND_MESSAGE });
     }
     forgetVerifiedStorageShareLinks(guid);
     forgetSharedStorageReads(guid);

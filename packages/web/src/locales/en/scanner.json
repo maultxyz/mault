@@ -545,7 +545,8 @@
     "summaryTotal_other": "{{count}} cards in the bins",
     "expand": "Show bin levels",
     "collapse": "Hide bin levels",
-    "cellTitle": "Bin {{bin}} is {{percent}}% full"
+    "cellTitle": "Bin {{bin}} is {{percent}}% full",
+    "fillsLocation": "fills {{location}}"
   },
   "autoAssignControl": {
     "summary": "{{claimed}} of {{total}} bins claimed by {{field}}",
@@ -607,8 +608,8 @@
   "usePhoneAsCamera": "Use Phone as Camera",
   "requestingCameraAccess": "Requesting camera access…",
   "cameraConnecting": "Connecting to camera…",
-  "cardCount_one": "{{count}} card",
-  "cardCount_other": "{{count}} cards",
+  "cardCount_one": "{{count, compact}} card",
+  "cardCount_other": "{{count, compact}} cards",
   "isScanningTooltip": "{{name}} is scanning",
   "cameraAccessError": "Could not access camera. Please check your device.",
   "staleDeviceDialog": {
@@ -691,8 +692,8 @@
       "pauseAll": "Pause all",
       "resumeAll": "Resume all",
       "resumeSelected": "Resume ({{count}})",
-      "sessionCount_one": "{{count}} this session",
-      "sessionCount_other": "{{count}} this session"
+      "sessionCount_one": "{{count, compact}} this session",
+      "sessionCount_other": "{{count, compact}} this session"
     },
     "cpuInferenceLimitReached": {
       "title": "WASM runs one sorter at a time",
@@ -758,14 +759,11 @@
     "reload": "Reload"
   },
   "mobileMonitor": {
-    "tabCards": "Cards",
-    "tabActivity": "Activity",
     "cards": "Cards",
     "searchPlaceholder": "Search cards",
     "needsReview": "Needs review",
     "back": "Back to sessions",
     "bin": "Bin {{number}}",
-    "noActivity": "Nothing scanned yet. Scans show up here as they happen.",
     "status": {
       "connected": "Live",
       "connecting": "Connecting…",
@@ -867,6 +865,7 @@
   },
   "mobileScan": {
     "chooseCollection": "Choose a collection",
+    "scanningInto": "Scanning into {{name}}",
     "collection": "Collection",
     "options": "Scan options",
     "autoFeed": "Auto-feed",
@@ -885,6 +884,12 @@
     "sorter": "Sorter",
     "pairDesktop": "Use as a desktop camera",
     "pairDesktopDescription": "Scan the QR code shown on your computer",
+    "statusModes": {
+      "sorter": "Sorter",
+      "handScan": "Hand scan",
+      "scanOnce": "Scan one",
+      "removing": "Removing"
+    },
     "phase": {
       "ready": "Ready",
       "scanning": "Scanning",
@@ -901,9 +906,6 @@
     "cameraOffDescription": "Allow camera access to start scanning.",
     "startCamera": "Start camera",
     "retry": "Retry",
-    "noSorterTitle": "No sorter connected",
-    "noSorterDescription": "Connect your sorter to sort cards, or tap the shutter to scan one card.",
-    "connect": "Connect",
     "bin": "Bin {{number}}",
     "pause": "Pause scanning",
     "start": "Start scanning",
@@ -948,7 +950,6 @@
     },
     "connectHint": "Turn on your sorter, then connect to it.",
     "connectBluetooth": "Connect over Bluetooth",
-    "connectUsb": "Connect over USB",
     "connectPi": "Connect the sorter on this Pi",
     "unsupported": "This browser can't connect to a sorter directly. Connect to one over Wi-Fi below, or use Chrome on Android.",
     "actions": "Actions",
@@ -1057,7 +1058,6 @@
   },
   "controlCards": {
     "openPage": "Print control cards",
-    "openPageDescription": "QR cards that change scan settings when the sorter reads them",
     "applied": "Control card applied",
     "rejected": {
       "title": "Control card not applied"
@@ -1242,7 +1242,14 @@
       "scanning": "Scanning the glass...",
       "scanAgain": "Scan again",
       "dragHint": "Drag a box around the card if the detected box is off.",
-      "boxTooSmall": "The box is too small for a card. Drag a larger box around it.",
+      "boxTooSmall": "The box is too small for a card. Drag a larger box around it or enter a larger size.",
+      "fields": {
+        "leftMm": "Left (mm)",
+        "topMm": "Top (mm)",
+        "widthMm": "Width (mm)",
+        "heightMm": "Height (mm)"
+      },
+      "fieldsHint": "You can also type the box position and size, measured from the top left corner of the glass.",
       "save": "Save position",
       "cancel": "Cancel",
       "previewAlt": "Scan of the whole flatbed glass",
@@ -1269,5 +1276,15 @@
       "title": "Couldn't reset the sorter",
       "description": "The sorter didn't confirm the reset. Check the connection and try again."
     }
+  },
+  "piHardware": {
+    "bluetoothOff": "Bluetooth is switched off on the host",
+    "bluetoothScanning": "Searching for Bluetooth sorters…",
+    "bluetoothFailed": "Could not search for Bluetooth sorters. Check that Bluetooth is enabled on the host.",
+    "bluetoothEmpty": "No Bluetooth sorters found. Turn on the sorter and keep it nearby.",
+    "bluetoothRescan": "Search again",
+    "loading": "Loading connected sorters…",
+    "unavailable": "Could not list connected sorters",
+    "stopBeforeSwitching": "Stop the Pi scan before switching its sorter or camera."
   }
 }

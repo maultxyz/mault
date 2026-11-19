@@ -156,13 +156,6 @@ export const PRIMARY_MUTED_ALPHA = { light: 0.1, dark: 0.2 } as const;
 export const PRIMARY_SELECTED_ALPHA = { light: 0.12, dark: 0.24 } as const;
 export const PRIMARY_PRESSED_LIGHTNESS_SCALE = 0.88;
 
-export const SHEET_SHADOW = {
-  shadowOffset: { width: 0, height: -4 },
-  shadowOpacity: 1,
-  shadowRadius: 12,
-  elevation: 16,
-} as const;
-
 export const FLOATING_BUTTON_SHADOW = {
   shadowOffset: { width: 0, height: 4 },
   shadowOpacity: 1,

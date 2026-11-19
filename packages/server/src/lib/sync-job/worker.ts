@@ -1,18 +1,22 @@
+import "../disable-onnx-telemetry";
+
 import type {
   SyncState,
   SyncStatus,
   SyncVectorizeOn,
 } from "@magic-vault/shared";
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { cardImageVectors } from "../../db/schema";
 import type { SyncSource, SyncSourceCard } from "../interfaces/card-search";
 import {
+  CARD_EMBEDDING_VERSION,
   SYNC_DATA_REFRESH_BATCH_SIZE,
   SYNC_NEW_CARD_NAME_LIMIT,
-  SYNC_REINDEX_MIN_CHANGED_FRACTION,
+  SYNC_PRUNE_DELETE_BATCH_SIZE,
+  SYNC_PRUNE_LOGGED_NAME_LIMIT,
+  SYNC_PRUNE_MAX_SHARE_OF_STORED_CARDS,
 } from "../constants/sync";
-import { toPortraitCardImage } from "../card-image";
 import { vectorizeCardImage } from "../vectorize";
 import type {
   ParentToWorkerMessage,
@@ -26,9 +30,14 @@ import {
   submitBrowserWork,
 } from "./browser-queue";
 import { SYNC_SOURCES } from "./sources";
-import { storedCollectorNumber } from "../card-search/collector-number";
-import { catalogColumnsFor } from "../card-catalog";
-import { rebuildGameVectorIndex } from "../game-vector-index";
+import {
+  resetSyncFetchCompleteness,
+  syncFetchIncompleteReasons,
+} from "./fetch-completeness";
+import { planSyncPrune } from "./prune";
+import { fetchPortraitCardImage } from "./card-image-fetch";
+import { planCardSync } from "./card-sync-plan";
+import { buildCatalogCardRow, sourceDataHashOf } from "./catalog-row";
 import {
   addToPrintingMarkBatch,
   cardIdsWithCurrentPrintingMarks,
@@ -46,7 +55,11 @@ import type {
   CatalogPrintingMarks,
   PrintingMarkBatch,
 } from "../interfaces/printing-marks";
-import type { VectorizedFrontFace } from "../interfaces/sync-job";
+import type {
+  CardSyncAction,
+  StoredCardSyncState,
+  VectorizedFrontFace,
+} from "../interfaces/sync-job";
 
 function errorMessage(err: unknown): string {
   if (!(err instanceof Error)) return String(err);
@@ -146,17 +159,11 @@ function throttleImageFetch(): Promise<void> {
   return thisTurn;
 }
 
-async function fetchPortraitCardImage(
-  source: SyncSource,
-  url: string,
-): Promise<Buffer> {
-  await throttleImageFetch();
-  const imageRes = await fetch(url, {
-    headers: source.fetchHeaders,
-    signal: getAbortSignal(),
+function fetchSyncCardImage(source: SyncSource, url: string): Promise<Buffer> {
+  return fetchPortraitCardImage(url, source.fetchHeaders, {
+    runSignal: getAbortSignal(),
+    waitForTurn: throttleImageFetch,
   });
-  if (!imageRes.ok) throw new Error(`Image fetch failed: ${imageRes.status}`);
-  return toPortraitCardImage(Buffer.from(await imageRes.arrayBuffer()));
 }
 
 async function fetchFrontFaceImage(
@@ -165,13 +172,13 @@ async function fetchFrontFaceImage(
   imageUrl: string,
 ): Promise<Buffer> {
   try {
-    return await fetchPortraitCardImage(source, imageUrl);
+    return await fetchSyncCardImage(source, imageUrl);
   } catch (err) {
     if (!card.fallbackImageUrl || card.fallbackImageUrl === imageUrl) throw err;
     addLog(
       `Image failed for ${card.name} (${errorMessage(err)}), using the TCGTracking image.`,
     );
-    return fetchPortraitCardImage(source, card.fallbackImageUrl);
+    return fetchSyncCardImage(source, card.fallbackImageUrl);
   }
 }
 
@@ -180,17 +187,12 @@ async function vectorizeFrontFace(
   lang: string,
   card: SyncSourceCard,
   imageUrl: string,
+  data: unknown,
 ): Promise<VectorizedFrontFace> {
   const buffer = await fetchFrontFaceImage(source, card, imageUrl);
   const [{ embedding }, marks] = await Promise.all([
     vectorizeCardImage(buffer),
-    readCatalogPrintingMarks(
-      source.gameKey,
-      lang,
-      card.id,
-      JSON.parse(card.data),
-      buffer,
-    ),
+    readCatalogPrintingMarks(source.gameKey, lang, card.id, data, buffer),
   ]);
   return { embedding, marks };
 }
@@ -201,7 +203,7 @@ async function embedBackFace(
 ): Promise<number[] | null> {
   if (!card.backImageUrl) return null;
   try {
-    const buffer = await fetchPortraitCardImage(source, card.backImageUrl);
+    const buffer = await fetchSyncCardImage(source, card.backImageUrl);
     const { embedding } = await vectorizeCardImage(buffer);
     return embedding;
   } catch (err) {
@@ -214,75 +216,85 @@ async function refreshStoredData(
   source: SyncSource,
   lang: string,
   cards: SyncSourceCard[],
+  storedCards: ReadonlyMap<string, StoredCardSyncState>,
 ): Promise<number> {
   if (cards.length === 0) return 0;
-  addLog(`Refreshing stored data for ${cards.length} existing cards...`);
+  addLog(`Checking stored data for ${cards.length} existing cards...`);
 
-  const volatileKeys = `{${(source.volatileDataKeys ?? []).join(",")}}`;
+  const volatileDataKeys = source.volatileDataKeys ?? [];
+  const volatileKeys = `{${volatileDataKeys.join(",")}}`;
   let updated = 0;
-  for (let i = 0; i < cards.length; i += SYNC_DATA_REFRESH_BATCH_SIZE) {
-    if (isCancelled()) return updated;
-    const batch = cards.slice(i, i + SYNC_DATA_REFRESH_BATCH_SIZE);
-    const rows = `[${batch
-      .map((c) => {
-        const data: unknown = JSON.parse(c.data);
-        const collectorNumber = storedCollectorNumber(
-          source.gameKey,
-          lang,
-          c.id,
-          data,
-        );
-        const catalog = catalogColumnsFor(source.gameKey, lang, c.id, data);
-        return `{"card_id":${JSON.stringify(c.id)},"collector_number":${JSON.stringify(collectorNumber)},"set_name":${JSON.stringify(catalog.setName)},"rarity":${JSON.stringify(catalog.rarity)},"color_identity":${JSON.stringify(catalog.colorIdentity)},"search_text":${JSON.stringify(catalog.searchText)},"image_small":${JSON.stringify(catalog.imageSmall)},"data":${c.data}}`;
-      })
-      .join(",")}]`;
+  let sent = 0;
+  let changedRows: string[] = [];
+  let changedHashes: { card_id: string; source_data_hash: string }[] = [];
+
+  const flush = async () => {
+    if (changedRows.length === 0) return;
+    const rows = `[${changedRows.join(",")}]`;
+    const hashes = JSON.stringify(changedHashes);
+    sent += changedRows.length;
+    changedRows = [];
+    changedHashes = [];
     const result = await db.execute(sql`
       UPDATE cards AS c
-      SET data = x.data, collector_number = x.collector_number,
+      SET data = x.data, name = x.name, set_code = x.set_code,
+        collector_number = x.collector_number,
         set_name = x.set_name, rarity = x.rarity, color_identity = x.color_identity,
-        search_text = x.search_text, image_small = x.image_small
+        search_text = x.search_text, image_small = x.image_small,
+        source_data_hash = x.source_data_hash, updated_at = now()
       FROM jsonb_to_recordset(${rows}::jsonb)
-        AS x(card_id text, collector_number text, set_name text, rarity text,
-          color_identity jsonb, search_text text, image_small text, data jsonb)
+        AS x(card_id text, name text, set_code text, collector_number text, set_name text,
+          rarity text, color_identity jsonb, search_text text, image_small text,
+          source_data_hash text, data jsonb)
       WHERE c.game_key = ${source.gameKey}
         AND c.lang = ${lang}
         AND c.card_id = x.card_id
         AND (
           (c.data - ${volatileKeys}::text[]) IS DISTINCT FROM (x.data - ${volatileKeys}::text[])
+          OR c.name IS DISTINCT FROM x.name
+          OR c.set_code IS DISTINCT FROM x.set_code
           OR c.collector_number IS DISTINCT FROM x.collector_number
           OR (c.set_name, c.rarity, c.color_identity, c.search_text, c.image_small)
             IS DISTINCT FROM (x.set_name, x.rarity, x.color_identity, x.search_text, x.image_small)
         )
     `);
     updated += result.rowCount ?? 0;
-  }
+    await db.execute(sql`
+      UPDATE cards AS c
+      SET source_data_hash = x.source_data_hash
+      FROM jsonb_to_recordset(${hashes}::jsonb)
+        AS x(card_id text, source_data_hash text)
+      WHERE c.game_key = ${source.gameKey}
+        AND c.lang = ${lang}
+        AND c.card_id = x.card_id
+        AND c.source_data_hash IS DISTINCT FROM x.source_data_hash
+    `);
+  };
 
-  addLog(`Stored data refreshed (${updated} changed).`);
-  return updated;
-}
-
-async function rebuildVectorIndexIfChurned(
-  source: SyncSource,
-  lang: string,
-  changed: number,
-  total: number,
-): Promise<void> {
-  if (total === 0 || changed < total * SYNC_REINDEX_MIN_CHANGED_FRACTION) {
-    return;
-  }
-  addLog(
-    `${changed} of ${total} cards changed, rebuilding the vector index...`,
-  );
-  try {
-    const indexName = await rebuildGameVectorIndex(source.gameKey, lang);
-    addLog(
-      indexName
-        ? `Rebuilt vector index ${indexName}.`
-        : "No vector index found for this game and language, skipped rebuild.",
+  for (const card of cards) {
+    if (isCancelled()) return updated;
+    const row = buildCatalogCardRow({
+      gameKey: source.gameKey,
+      lang,
+      cardId: card.id,
+      name: card.name,
+      setCode: card.setCode,
+      data: JSON.parse(card.data),
+    });
+    const sourceDataHash = sourceDataHashOf(row, volatileDataKeys);
+    if (storedCards.get(card.id)?.sourceDataHash === sourceDataHash) continue;
+    changedRows.push(
+      `{"card_id":${JSON.stringify(card.id)},"name":${JSON.stringify(row.name)},"set_code":${JSON.stringify(row.setCode)},"collector_number":${JSON.stringify(row.collectorNumber)},"set_name":${JSON.stringify(row.setName)},"rarity":${JSON.stringify(row.rarity)},"color_identity":${JSON.stringify(row.colorIdentity)},"search_text":${JSON.stringify(row.searchText)},"image_small":${JSON.stringify(row.imageSmall)},"source_data_hash":${JSON.stringify(sourceDataHash)},"data":${card.data}}`,
     );
-  } catch (err) {
-    addLog(`Vector index rebuild failed: ${errorMessage(err)}`);
+    changedHashes.push({ card_id: card.id, source_data_hash: sourceDataHash });
+    if (changedRows.length >= SYNC_DATA_REFRESH_BATCH_SIZE) await flush();
   }
+  await flush();
+
+  addLog(
+    `Stored data checked (${sent} compared in the database, ${updated} changed).`,
+  );
+  return updated;
 }
 
 let printingMarkWrites: Promise<unknown> = Promise.resolve();
@@ -434,6 +446,54 @@ function emitCancelledDone(): void {
   });
 }
 
+async function pruneCardsDroppedFromSource(
+  source: SyncSource,
+  lang: string,
+  storedCards: { id: string; name: string; setCode: string | null }[],
+  fetchedCards: SyncSourceCard[],
+): Promise<Set<string>> {
+  const plan = planSyncPrune({
+    storedCardIds: storedCards.map((card) => card.id),
+    fetchedCardIds: new Set(fetchedCards.map((card) => card.id)),
+    incompleteFetchReasons: syncFetchIncompleteReasons(),
+    maxShareOfStoredCards: SYNC_PRUNE_MAX_SHARE_OF_STORED_CARDS,
+  });
+  if (plan.kind === "skip") {
+    addLog(
+      `Not removing ${plan.staleCardCount} stored ${source.label} cards missing from the source because ${plan.reason}.`,
+    );
+    return new Set();
+  }
+  if (plan.cardIdsToDelete.length === 0) return new Set();
+
+  const cardIdsToDelete = new Set(plan.cardIdsToDelete);
+  const removedNames = storedCards
+    .filter((card) => cardIdsToDelete.has(card.id))
+    .slice(0, SYNC_PRUNE_LOGGED_NAME_LIMIT)
+    .map((card) => (card.setCode ? `${card.name} (${card.setCode})` : card.name));
+  addLog(
+    `Removing ${cardIdsToDelete.size} stored ${source.label} cards the source no longer lists: ${removedNames.join(", ")}${cardIdsToDelete.size > removedNames.length ? ", ..." : ""}`,
+  );
+
+  let removedCount = 0;
+  for (let start = 0; start < plan.cardIdsToDelete.length; start += SYNC_PRUNE_DELETE_BATCH_SIZE) {
+    const batch = plan.cardIdsToDelete.slice(start, start + SYNC_PRUNE_DELETE_BATCH_SIZE);
+    const deleted = await db
+      .delete(cardImageVectors)
+      .where(
+        and(
+          eq(cardImageVectors.gameKey, source.gameKey),
+          eq(cardImageVectors.lang, lang),
+          inArray(cardImageVectors.cardId, batch),
+        ),
+      )
+      .returning({ id: cardImageVectors.cardId });
+    removedCount += deleted.length;
+  }
+  patchState({ removedCards: removedCount });
+  return cardIdsToDelete;
+}
+
 async function runSync(
   source: SyncSource,
   lang: string,
@@ -443,6 +503,7 @@ async function runSync(
 ): Promise<void> {
   const baseUrl = source.defaultUrl;
   addLog(`Using data source: ${baseUrl}`);
+  resetSyncFetchCompleteness();
   await dropOutdatedPrintingMarkReferences(source.gameKey);
   if (vectorizeOn === "browser" && forceResync) {
     addLog(
@@ -482,11 +543,15 @@ async function runSync(
 
   addLog(`Loading existing ${source.label} cards from DB...`);
 
-  const existing = await db
+  let existing = await db
     .select({
       id: cardImageVectors.cardId,
+      name: cardImageVectors.name,
+      setCode: cardImageVectors.setCode,
       updatedAt: cardImageVectors.updatedAt,
       hasBack: sql<boolean>`${cardImageVectors.backEmbedding} IS NOT NULL`,
+      embeddingVersion: cardImageVectors.embeddingVersion,
+      sourceDataHash: cardImageVectors.sourceDataHash,
     })
     .from(cardImageVectors)
     .where(
@@ -495,10 +560,34 @@ async function runSync(
         eq(cardImageVectors.lang, lang),
       ),
     );
-  const existingSet = new Set(existing.map((r) => r.id));
-  const vectorizedBacks = new Set(
-    existing.filter((r) => r.hasBack).map((r) => r.id),
+  if (isCancelled()) {
+    emitCancelledDone();
+    return;
+  }
+  const prunedCardIds = await pruneCardsDroppedFromSource(
+    source,
+    lang,
+    existing,
+    cards,
   );
+  if (prunedCardIds.size > 0) {
+    existing = existing.filter((row) => !prunedCardIds.has(row.id));
+  }
+
+  const existingSet = new Set(existing.map((r) => r.id));
+  const storedCards = new Map<string, StoredCardSyncState>(
+    existing.map((r) => [
+      r.id,
+      {
+        embeddingVersion: r.embeddingVersion,
+        hasBackEmbedding: r.hasBack,
+        sourceDataHash: r.sourceDataHash,
+      },
+    ]),
+  );
+  const outdatedEmbeddingCount = existing.filter(
+    (r) => r.embeddingVersion < CARD_EMBEDDING_VERSION,
+  ).length;
 
   const recentlyUpdated = new Set<string>();
   if (skipUpdatedWithinMs && skipUpdatedWithinMs > 0) {
@@ -519,17 +608,46 @@ async function runSync(
       ".",
   );
 
-  const isAlreadyVectorized = (card: SyncSourceCard) =>
-    (!forceResync &&
-      existingSet.has(card.id) &&
-      (!card.backImageUrl || vectorizedBacks.has(card.id))) ||
-    recentlyUpdated.has(card.id);
+  if (outdatedEmbeddingCount > 0 && vectorizeOn === "server") {
+    addLog(
+      `${outdatedEmbeddingCount} stored cards have image vectors from an older image normalization and will be vectorized again.`,
+    );
+  }
+
+  const syncActionFor = (card: SyncSourceCard): CardSyncAction => {
+    const stored = storedCards.get(card.id);
+    if (card.hasPartialData && stored) return "skip";
+    return planCardSync({
+      hasImage: Boolean(card.imageUrl),
+      hasBackImage: Boolean(card.backImageUrl),
+      stored,
+      forceResync,
+      wasRecentlyUpdated: recentlyUpdated.has(card.id),
+      currentEmbeddingVersion: CARD_EMBEDDING_VERSION,
+      reembedsOutdatedEmbeddings: vectorizeOn === "server",
+    });
+  };
+  const partialDataCount = cards.filter(
+    (card) => card.hasPartialData && storedCards.has(card.id),
+  ).length;
+  if (partialDataCount > 0) {
+    addLog(
+      `${partialDataCount} stored cards came back without full details and keep their stored data this run.`,
+    );
+  }
+  const cardsToRefresh = cards.filter(
+    (card) =>
+      storedCards.has(card.id) &&
+      !card.hasPartialData &&
+      syncActionFor(card) !== "embedBothFaces",
+  );
 
   if (vectorizeOn === "browser") {
     const refreshedInBrowserMode = await refreshStoredData(
       source,
       lang,
-      cards.filter(isAlreadyVectorized),
+      cardsToRefresh,
+      storedCards,
     );
     patchState({ updatedCards: refreshedInBrowserMode });
     if (isCancelled()) {
@@ -539,7 +657,7 @@ async function runSync(
     const needed: SyncSourceCard[] = [];
     let alreadyDone = 0;
     for (const card of cards) {
-      if (!card.imageUrl || isAlreadyVectorized(card)) alreadyDone++;
+      if (syncActionFor(card) === "skip") alreadyDone++;
       else needed.push(card);
     }
     const allCards = cards;
@@ -585,7 +703,8 @@ async function runSync(
   const refreshed = await refreshStoredData(
     source,
     lang,
-    cards.filter(isAlreadyVectorized),
+    cardsToRefresh,
+    storedCards,
   );
   let newCardCount = 0;
   let updatedCardCount = refreshed;
@@ -605,6 +724,76 @@ async function runSync(
     ? await cardIdsWithCurrentPrintingMarks(source.gameKey, lang)
     : new Set<string>();
 
+  async function writeCardRows(
+    rows: (typeof cardImageVectors.$inferInsert)[],
+    rowCards: SyncSourceCard[],
+    rowMarks: (CatalogPrintingMarks | null)[],
+  ): Promise<void> {
+    const markBatch: PrintingMarkBatch = new Map();
+    rowCards.forEach((card, index) => {
+      if (!countedMarkCardIds.has(card.id)) {
+        addToPrintingMarkBatch(markBatch, rowMarks[index]);
+      }
+    });
+    await oneMarkWriteAtATime(() =>
+      db.transaction(async (tx) => {
+        await tx
+          .insert(cardImageVectors)
+          .values(rows)
+          .onConflictDoUpdate({
+            target: [
+              cardImageVectors.gameKey,
+              cardImageVectors.lang,
+              cardImageVectors.cardId,
+            ],
+            set: {
+              name: sql`excluded.name`,
+              setCode: sql`excluded.set_code`,
+              collectorNumber: sql`excluded.collector_number`,
+              embedding: sql`excluded.embedding`,
+              backEmbedding: sql`excluded.back_embedding`,
+              data: sql`excluded.data`,
+              setName: sql`excluded.set_name`,
+              rarity: sql`excluded.rarity`,
+              colorIdentity: sql`excluded.color_identity`,
+              searchText: sql`excluded.search_text`,
+              imageSmall: sql`excluded.image_small`,
+              printingMarkGroups: sql`excluded.printing_mark_groups`,
+              printingMarkVersion: sql`excluded.printing_mark_version`,
+              embeddingVersion: sql`excluded.embedding_version`,
+              sourceDataHash: sql`excluded.source_data_hash`,
+              updatedAt: sql`now()`,
+            },
+          });
+        await persistPrintingMarkBatch(tx, source.gameKey, markBatch);
+      }),
+    );
+    rowMarks.forEach((marks, index) => {
+      if (marks) countedMarkCardIds.add(rowCards[index].id);
+    });
+    rows.forEach((row, index) => {
+      storedCards.set(rowCards[index].id, {
+        embeddingVersion: CARD_EMBEDDING_VERSION,
+        hasBackEmbedding: row.backEmbedding != null,
+        sourceDataHash: row.sourceDataHash ?? null,
+      });
+    });
+  }
+
+  function countStoredCard(card: SyncSourceCard): void {
+    if (existingSet.has(card.id)) {
+      updatedCardCount++;
+    } else {
+      newCardCount++;
+      if (newCardNames.length < SYNC_NEW_CARD_NAME_LIMIT) {
+        newCardNames.push(
+          card.setCode ? `${card.name} (${card.setCode})` : card.name,
+        );
+      }
+    }
+    existingSet.add(card.id);
+  }
+
   async function flushInserts(force = false): Promise<void> {
     if (pendingInserts.length === 0) return;
     if (!force && pendingInserts.length < INSERT_BATCH_SIZE) return;
@@ -614,79 +803,51 @@ async function runSync(
     pendingInserts = [];
     pendingCards = [];
     pendingMarks = [];
-    const markBatch: PrintingMarkBatch = new Map();
-    batchCards.forEach((card, index) => {
-      if (!countedMarkCardIds.has(card.id)) {
-        addToPrintingMarkBatch(markBatch, batchMarks[index]);
-      }
-    });
     patchState({ queued: 0 });
     addLog(`Inserting batch of ${batchCards.length} cards...`);
 
+    let writtenCards = batchCards;
     try {
-      await oneMarkWriteAtATime(() =>
-        db.transaction(async (tx) => {
-          await tx
-            .insert(cardImageVectors)
-            .values(batchRows)
-            .onConflictDoUpdate({
-              target: [
-                cardImageVectors.gameKey,
-                cardImageVectors.lang,
-                cardImageVectors.cardId,
-              ],
-              set: {
-                name: sql`excluded.name`,
-                setCode: sql`excluded.set_code`,
-                collectorNumber: sql`excluded.collector_number`,
-                embedding: sql`excluded.embedding`,
-                backEmbedding: sql`excluded.back_embedding`,
-                data: sql`excluded.data`,
-                setName: sql`excluded.set_name`,
-                rarity: sql`excluded.rarity`,
-                colorIdentity: sql`excluded.color_identity`,
-                searchText: sql`excluded.search_text`,
-                imageSmall: sql`excluded.image_small`,
-                printingMarkGroups: sql`excluded.printing_mark_groups`,
-                printingMarkVersion: sql`excluded.printing_mark_version`,
-                updatedAt: sql`now()`,
-              },
-            });
-          await persistPrintingMarkBatch(tx, source.gameKey, markBatch);
-        }),
-      );
-      batchMarks.forEach((marks, index) => {
-        if (marks) countedMarkCardIds.add(batchCards[index].id);
-      });
-      for (const c of batchCards) {
-        if (existingSet.has(c.id)) {
-          updatedCardCount++;
-        } else {
-          newCardCount++;
-          if (newCardNames.length < SYNC_NEW_CARD_NAME_LIMIT) {
-            newCardNames.push(c.setCode ? `${c.name} (${c.setCode})` : c.name);
+      await writeCardRows(batchRows, batchCards, batchMarks);
+    } catch (err) {
+      writtenCards = [];
+      if (batchCards.length === 1) {
+        addLog(`Error inserting ${batchCards[0].name}: ${errorMessage(err)}`);
+      } else {
+        addLog(
+          `Batch of ${batchCards.length} cards failed (${errorMessage(err)}); inserting them one at a time.`,
+        );
+        for (let index = 0; index < batchCards.length; index++) {
+          try {
+            await writeCardRows(
+              [batchRows[index]],
+              [batchCards[index]],
+              [batchMarks[index]],
+            );
+            writtenCards.push(batchCards[index]);
+          } catch (rowErr) {
+            addLog(
+              `Error inserting ${batchCards[index].name}: ${errorMessage(rowErr)}`,
+            );
           }
         }
-        existingSet.add(c.id);
-        if (c.backImageUrl) vectorizedBacks.add(c.id);
       }
-      patchState({
-        newCards: newCardCount,
-        updatedCards: updatedCardCount,
-        newCardNames: [...newCardNames],
-      });
-      incrementCounters({ processed: batchCards.length });
-      const syncState = getState();
-      addLog(
-        `[${syncState.processed + syncState.skipped}/${syncState.total}] inserted batch of ${batchCards.length} cards`,
-      );
-    } catch (err) {
-      incrementCounters({ errors: batchCards.length });
-      const msg = errorMessage(err);
-      addLog(`Error inserting batch of ${batchCards.length} cards: ${msg}`);
     }
 
+    writtenCards.forEach(countStoredCard);
+    patchState({
+      newCards: newCardCount,
+      updatedCards: updatedCardCount,
+      newCardNames: [...newCardNames],
+    });
+    incrementCounters({
+      processed: writtenCards.length,
+      errors: batchCards.length - writtenCards.length,
+    });
     const syncState = getState();
+    addLog(
+      `[${syncState.processed + syncState.skipped}/${syncState.total}] inserted ${writtenCards.length} of ${batchCards.length} cards`,
+    );
     emitEvent("progress", {
       processed: syncState.processed,
       skipped: syncState.skipped,
@@ -695,8 +856,32 @@ async function runSync(
     });
   }
 
+  async function storeBackFaceOnly(card: SyncSourceCard): Promise<void> {
+    const backEmbedding = await embedBackFace(source, card);
+    if (!backEmbedding) {
+      incrementCounters({ errors: 1 });
+      return;
+    }
+    await db
+      .update(cardImageVectors)
+      .set({ backEmbedding, updatedAt: sql`now()` })
+      .where(
+        and(
+          eq(cardImageVectors.gameKey, source.gameKey),
+          eq(cardImageVectors.lang, lang),
+          eq(cardImageVectors.cardId, card.id),
+        ),
+      );
+    const stored = storedCards.get(card.id);
+    if (stored) storedCards.set(card.id, { ...stored, hasBackEmbedding: true });
+    updatedCardCount++;
+    patchState({ updatedCards: updatedCardCount });
+    incrementCounters({ processed: 1 });
+  }
+
   async function processCard(card: SyncSourceCard): Promise<void> {
-    if (!card.imageUrl || isAlreadyVectorized(card)) {
+    const action = syncActionFor(card);
+    if (action === "skip" || !card.imageUrl) {
       incrementCounters({ skipped: 1 });
       const syncState = getState();
       emitEvent("progress", {
@@ -709,37 +894,35 @@ async function runSync(
     }
 
     try {
-      const { embedding, marks } = await vectorizeFrontFace(
-        source,
-        lang,
-        card,
-        card.imageUrl,
-      );
-      const backEmbedding = await embedBackFace(source, card);
-      const data: unknown = JSON.parse(card.data);
-
-      pendingInserts.push({
-        cardId: card.id,
-        gameKey: source.gameKey,
-        lang,
-        name: card.name,
-        setCode: card.setCode,
-        collectorNumber: storedCollectorNumber(
-          source.gameKey,
+      if (action === "embedBackFaceOnly") {
+        await storeBackFaceOnly(card);
+      } else {
+        const data: unknown = JSON.parse(card.data);
+        const [{ embedding, marks }, backEmbedding] = await Promise.all([
+          vectorizeFrontFace(source, lang, card, card.imageUrl, data),
+          embedBackFace(source, card),
+        ]);
+        const row = buildCatalogCardRow({
+          gameKey: source.gameKey,
           lang,
-          card.id,
+          cardId: card.id,
+          name: card.name,
+          setCode: card.setCode,
           data,
-        ),
-        embedding,
-        backEmbedding,
-        data,
-        ...catalogColumnsFor(source.gameKey, lang, card.id, data),
-        ...printingMarkColumns(source.gameKey, marks),
-      });
-      pendingCards.push(card);
-      pendingMarks.push(marks);
-      patchState({ queued: pendingCards.length });
-      await flushInserts();
+        });
+        pendingInserts.push({
+          ...row,
+          embedding,
+          backEmbedding,
+          embeddingVersion: CARD_EMBEDDING_VERSION,
+          sourceDataHash: sourceDataHashOf(row, source.volatileDataKeys ?? []),
+          ...printingMarkColumns(source.gameKey, marks),
+        });
+        pendingCards.push(card);
+        pendingMarks.push(marks);
+        patchState({ queued: pendingCards.length });
+        await flushInserts();
+      }
 
       const syncState = getState();
       emitEvent("progress", {
@@ -797,13 +980,6 @@ async function runSync(
     emitCancelledDone();
     return;
   }
-
-  await rebuildVectorIndexIfChurned(
-    source,
-    lang,
-    refreshed + getState().processed,
-    existingSet.size,
-  );
 
   patchState({ status: "completed" });
   const syncState = getState();

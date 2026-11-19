@@ -1,9 +1,11 @@
-import type {
-  CardSearchResult,
-  CardTextSearchResult,
-  PlayingCard,
-  PrintingMarksPayload,
-  Result,
+import {
+  printedLanguageCodeFormValue,
+  PRINTED_LANGUAGE_CODE_FORM_FIELD,
+  type CardSearchResult,
+  type CardTextSearchResult,
+  type PlayingCard,
+  type PrintingMarksPayload,
+  type Result,
 } from "@magic-vault/shared";
 import { apiGet, apiPostForm } from "@/lib/api/client";
 import type { MatchScope } from "@/lib/interfaces/scanner";
@@ -30,6 +32,12 @@ export function searchByVector(
   if (printingMarks) {
     form.append("printingMarks", printingMarks.encoded);
     form.append("printingMarksGameKey", printingMarks.gameKey);
+    const printedLanguageCode = printedLanguageCodeFormValue(
+      printingMarks.printedLanguageCode,
+    );
+    if (printedLanguageCode) {
+      form.append(PRINTED_LANGUAGE_CODE_FORM_FIELD, printedLanguageCode);
+    }
   }
   return apiPostForm<CardSearchResult>("/api/cards/by-vector", form);
 }

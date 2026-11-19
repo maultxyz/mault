@@ -34,7 +34,7 @@ export function HomeHero({ label, value, change, changeCaption, stats, sparkline
   const accessibilityLabel = [
     `${label}: ${value}`,
     changeText ? `${changeText} ${changeCaption}` : null,
-    ...stats.map((stat) => `${stat.label}: ${stat.value}`),
+    ...stats.map((stat) => `${stat.label}: ${stat.exactValue ?? stat.value}`),
   ]
     .filter(Boolean)
     .join(", ");

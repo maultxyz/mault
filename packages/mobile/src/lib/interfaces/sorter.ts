@@ -8,7 +8,7 @@ import type {
   SerialRequestResult,
   SerialResetReason,
 } from "@magic-vault/shared";
-import type { Device } from "@/lib/interfaces/devices";
+import type { Device } from "@magic-vault/shared";
 
 export interface ByteTransport {
   readonly id: string;

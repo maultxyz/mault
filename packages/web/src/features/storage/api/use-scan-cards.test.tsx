@@ -143,7 +143,7 @@ it("identifies a host relay frame before video metadata is available and checks 
   expect(result.current.result).toMatchObject({
     kind: "checked",
     locationName: "Shelf",
-    position: 3,
+    position: "3",
   });
 });
 

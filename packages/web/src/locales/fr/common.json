@@ -30,6 +30,7 @@
     "integrations": "API et webhooks",
     "more": "Plus",
     "stats": "Statistiques",
+    "machines": "Machines",
     "sortingRules": "Règles de tri",
     "intake": "Achat & vente",
     "upgradeYourPlan": "Changez d'offre",
@@ -89,8 +90,8 @@
     "syncCompleted": "Synchronisation des vecteurs d'image terminée",
     "syncFailed": "Échec de la synchronisation des vecteurs d'image",
     "sync": "Synchronisation des vecteurs d'image des cartes",
-    "cardTotal_one": "{{count}} carte · {{value}}",
-    "cardTotal_other": "{{count}} cartes · {{value}}",
+    "cardTotal_one": "{{count, compact}} carte · {{value}}",
+    "cardTotal_other": "{{count, compact}} cartes · {{value}}",
     "healthIssues_one": "{{count}} problème détecté",
     "healthIssues_other": "{{count}} problèmes détectés",
     "healthIssuesTooltip": "Problème avec : {{names}}. Cliquez pour les détails.",
@@ -102,12 +103,16 @@
   "appVersion": {
     "outdatedBanner": "Une nouvelle version de Mault est disponible.",
     "refreshButton": "Actualiser",
-    "terminalUpdate": "Terminez les scans et les synchronisations, puis exécutez cette commande dans un terminal sur le Pi. Saisissez votre mot de passe sudo si demandé. Actualisez ensuite cette page :",
+    "terminalUpdate": "Terminez d'abord les scans et les synchronisations. Vous pouvez aussi exécuter cette commande dans un terminal sur le Pi, puis actualiser cette page :",
     "updateButton": "Mettre à jour Mault",
     "updating": "Mise à jour de Mault. Gardez cette page ouverte pendant le redémarrage des services.",
     "updateSucceeded": "Mault a été mis à jour. Actualisez la page pour utiliser la nouvelle version.",
     "updateFailed": "La mise à jour de Mault a échoué.",
-    "updateUnconfirmed": "Impossible de se reconnecter après la mise à jour. Consultez le journal de mise à jour sur Linux."
+    "updateUnconfirmed": "Impossible de se reconnecter après la mise à jour. Exécutez sudo mault logs update sur le Pi avant de réessayer."
+  },
+  "piReboot": {
+    "banner": "Cette carte a installé des mises à jour de sécurité du système qui nécessitent un redémarrage.",
+    "command": "Redémarrez-la quand aucun scan n'est en cours ; Mault redémarre ensuite tout seul :"
   },
   "impersonation": {
     "banner": "Tu vois l'application comme {{name}}.",
@@ -206,6 +211,11 @@
     "title": "Raccourcis clavier",
     "description": "Les raccourcis sont ignorés pendant la saisie dans un champ ou lorsqu'une boîte de dialogue est ouverte.",
     "then": "puis",
+    "off": "Désactivé",
+    "singleKey": {
+      "label": "Raccourcis à une seule touche",
+      "hint": "Désactivés, seuls les raccourcis avec Ctrl ou Cmd, Échap, Entrée, Suppr et les flèches fonctionnent. Enregistré dans ce navigateur."
+    },
     "keys": {
       "space": "Espace",
       "shift": "Maj",
@@ -232,6 +242,7 @@
       "showShortcuts": "Afficher les raccourcis clavier",
       "toggleSidebar": "Déplier ou replier la barre latérale",
       "focusSearch": "Aller à la recherche",
+      "openGlobalSearch": "Ouvrir la recherche globale",
       "dismissToasts": "Fermer toutes les notifications",
       "save": "Enregistrer les modifications",
       "clearSelection": "Effacer la sélection",
@@ -270,15 +281,11 @@
       "reviewCycleLanguage": "Pendant la vérification : parcourir les langues",
       "goSortingRules": "Aller aux règles de tri",
       "intakeOpenScanner": "Ouvrir le scanner pour ce rachat",
-      "foilLabelFoil": "Pendant l'étiquetage : marquer comme foil",
-      "foilLabelNotFoil": "Pendant l'étiquetage : marquer comme non foil",
-      "foilLabelSkip": "Pendant l'étiquetage : passer cette carte",
       "matchValidationCorrect": "Pendant la validation : marquer la correspondance juste",
       "matchValidationIncorrect": "Pendant la validation : marquer la correspondance fausse",
       "matchValidationBadScan": "Pendant la validation : marquer la photo comme mauvais scan",
       "matchValidationSkip": "Pendant la validation : ignorer ce scan",
       "matchValidationBack": "Pendant la validation : revenir au scan précédent",
-      "foilLabelBack": "Pendant l'étiquetage : revenir à la carte précédente",
       "scanFlatbedCard": "Numériser la carte sur le scanner à plat",
       "pickNext": "Pendant le prélèvement : carte suivante",
       "pickPrevious": "Pendant le prélèvement : carte précédente",
@@ -296,7 +303,8 @@
     "home": "Accueil",
     "scan": "Scanner",
     "library": "Bibliothèque",
-    "more": "Plus"
+    "more": "Plus",
+    "business": "Achat & vente"
   },
   "pagination": {
     "previous": "Précédent",
@@ -368,7 +376,8 @@
     "orderBinCatchAll": "Le dernier bac reçoit toutes les autres cartes, choisis-en un autre.",
     "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
     "contactRequired": "Indique comment te joindre.",
-    "textTooLong": "Reste sous {{max}} caractères."
+    "textTooLong": "Reste sous {{max}} caractères.",
+    "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}."
   },
   "memberSeatLock": {
     "title": "Cette organisation dépasse sa limite de membres",
@@ -425,7 +434,8 @@
       "warning": "Avertissement :",
       "danger": "Erreur :"
     },
-    "adminNavigation": "Navigation de l'administration"
+    "adminNavigation": "Navigation de l'administration",
+    "noPrice": "Pas de prix"
   },
   "shareLink": {
     "triggerWithCount_one": "{{label}} ({{count}} lien actif)",
@@ -449,6 +459,8 @@
     "qrHint": "Scanner pour ouvrir",
     "showPrices": "Afficher les prix",
     "showPricesDescription": "Désactive pour masquer les prix des cartes et les totaux à toute personne utilisant ce lien.",
+    "requireGuestContact": "Exiger des coordonnées",
+    "requireGuestContactDescription": "Désactive pour permettre d'envoyer une offre d'échange sans e-mail, téléphone ni pseudo.",
     "typeLabel": "Type de lien",
     "monitorType": "Lien de suivi",
     "tradeType": "Lien d'échange",
@@ -459,7 +471,9 @@
     "checkFailedTitle": "Impossible d'ouvrir ce lien",
     "checkFailedDescription": "Vérifie ta connexion et réessaie.",
     "shortLinkInvalidTitle": "Ce lien ne fonctionne pas",
-    "shortLinkInvalidDescription": "Vérifie qu'il a été copié en entier, ou demande un nouveau lien à la personne qui l'a partagé."
+    "shortLinkInvalidDescription": "Vérifie qu'il a été copié en entier, ou demande un nouveau lien à la personne qui l'a partagé.",
+    "poweredBy": "Propulsé par",
+    "poweredByLabel": "Propulsé par {{site}} (s'ouvre dans un nouvel onglet)"
   },
   "tradeOffers": {
     "declined": "Offre d'échange refusée",
@@ -470,6 +484,7 @@
     "decline": "Refuser",
     "accept": "Accepter",
     "contact": "Contact",
+    "noContact": "Aucune coordonnée fournie",
     "note": "Note",
     "theyWant_one": "Demande {{count}} carte",
     "theyWant_other": "Demande {{count}} cartes",
@@ -507,7 +522,8 @@
         "declined": "Refusée"
       },
       "picking_one": "Préparation, {{count}} restante",
-      "picking_other": "Préparation, {{count}} restantes"
+      "picking_other": "Préparation, {{count}} restantes",
+      "inPerson": "En personne"
     },
     "cardList": {
       "cardCount_one": "{{count}} carte",
@@ -531,7 +547,6 @@
       "showLess": "Afficher moins",
       "unitPrice": "{{price}} l'unité",
       "foil": "Foil",
-      "noPrice": "Pas de prix",
       "placementStorage": "{{location}} · n° {{positions}}",
       "placementStorageNoPosition": "{{location}}",
       "placementBin_one": "{{collection}}, bac {{bins}}",
@@ -547,6 +562,8 @@
     "notFound": "Cette offre d'échange n'existe plus.",
     "backToTrades": "Retour aux échanges",
     "acceptTitle": "Accepter cette offre d'échange ?",
+    "declineTitle": "Refuser cette offre d'échange ?",
+    "declineDescription": "La personne verra sur son lien que vous avez refusé. Cette action est irréversible.",
     "sideTabs": {
       "label": "Côtés de l'échange",
       "wanted": "Demande ({{count}})",
@@ -604,6 +621,63 @@
         "accepted": "Acceptée",
         "declined": "Refusée"
       }
+    },
+    "newTrade": {
+      "button": "Nouvel échange",
+      "link": "Lien d'échange",
+      "linkHint": "Partagez un lien pour qu'on puisse choisir des cartes et vous envoyer une offre.",
+      "inPerson": "Échange en personne",
+      "inPersonHint": "Remplissez les deux côtés vous-même et enregistrez un échange effectué.",
+      "linkTitle": "Créer un lien d'échange",
+      "linkDescription": "Choisissez ce que le lien d'échange affiche. Les personnes qui l'ouvrent peuvent choisir des cartes et vous envoyer une offre.",
+      "sourceLabel": "Partager depuis",
+      "sourcePlaceholder": "Choisissez une collection ou un emplacement",
+      "collections": "Collections",
+      "storageLocations": "Emplacements de stockage",
+      "continue": "Continuer"
+    },
+    "inPerson": {
+      "title": "Échange en personne",
+      "description": "Enregistrez un échange fait en personne. Les cartes que vous donnez quittent votre inventaire et celles que vous recevez sont ajoutées à une collection.",
+      "detailsTitle": "Partenaire d'échange",
+      "detailsDescription": "Facultatif, pour vous souvenir avec qui vous avez échangé",
+      "partnerName": "Nom (facultatif)",
+      "partnerContact": "Contact (facultatif)",
+      "giveTitle_one": "Vous donnez ({{count}})",
+      "giveTitle_other": "Vous donnez ({{count}})",
+      "giveDescription": "Des exemplaires de votre inventaire",
+      "giveEmpty": "Cherchez dans vos cartes pour ajouter ce que vous donnez.",
+      "searchOwnedLabel": "Chercher dans vos cartes",
+      "addGivenCard": "Donner {{name}}",
+      "addReceivedCard": "Recevoir {{name}}",
+      "getTitle_one": "Vous recevez ({{count}})",
+      "getTitle_other": "Vous recevez ({{count}})",
+      "getDescription": "Cartes ajoutées à la collection choisie",
+      "getEmpty": "Cherchez pour ajouter les cartes que vous recevez.",
+      "pickCollectionFirst": "Choisissez la collection des cartes que vous recevez.",
+      "receiveCollection": "Ajouter les cartes reçues à",
+      "receiveCollectionPlaceholder": "Choisir une collection",
+      "cashTitle": "Argent",
+      "cashDirection": "Qui paie en argent",
+      "cashReceived": "Ils me paient",
+      "cashGiven": "Je les paie",
+      "readyHint": "L'enregistrement retire les cartes données et ajoute les cartes reçues.",
+      "emptyHint": "Ajoutez une carte ou un montant pour enregistrer l'échange.",
+      "record": "Enregistrer l'échange",
+      "recorded": "Échange enregistré.",
+      "recordFailed": "Impossible d'enregistrer l'échange. Réessayez.",
+      "reviewTitle": "Échange en personne avec {{name}}",
+      "recordedOn": "Enregistré en personne le {{date}}",
+      "youGave_one": "Vous avez donné {{count}} carte",
+      "youGave_other": "Vous avez donné {{count}} cartes",
+      "youGot_one": "Vous avez reçu {{count}} carte",
+      "youGot_other": "Vous avez reçu {{count}} cartes",
+      "rowDetails": "En personne · {{given}} données · {{received}} reçues",
+      "addCards": "Ajouter des cartes",
+      "searchCatalog": "Chercher des cartes",
+      "noResults": "Aucune carte trouvée",
+      "editCardHint": "Modifier la quantité, l'état ou le foil",
+      "remove": "Retirer"
     }
   },
   "labelSheets": {
@@ -617,5 +691,11 @@
       "avery-5163": "Avery 5163 (10 par planche, 4 x 2 po)",
       "avery-5164": "Avery 5164 (6 par planche, 4 x 3,33 po)"
     }
+  },
+  "envBanner": {
+    "local": "Environnement local",
+    "selfHosting": "Auto-hébergé",
+    "development": "Environnement de développement",
+    "qa": "Environnement QA"
   }
 }

@@ -8,14 +8,8 @@ function catalogResult(overrides: Partial<CatalogSyncResult>): CatalogSyncResult
     gameKey: "mtg",
     lang: "en",
     succeeded: true,
-    totalCards: 100,
     newCards: 0,
     updatedCards: 0,
-    newCardNames: [],
-    cardErrors: 0,
-    cardErrorSamples: [],
-    fatalError: null,
-    durationMs: 65_000,
     ...overrides,
   };
 }
@@ -26,62 +20,43 @@ const reportOptions = {
   runUrl: "https://github.com/example/mault/actions/runs/1",
 };
 
-test("a failed catalog is listed with its error while the rest still report", () => {
+test("every catalog gets one line with its game, language and counts", () => {
   const report = buildCatalogSyncReport(
     [
-      catalogResult({
-        gameKey: "mtg",
-        newCards: 12,
-        updatedCards: 3,
-        newCardNames: ["Lightning Bolt (abc)", "Counterspell (abc)"],
-      }),
+      catalogResult({ gameKey: "mtg", newCards: 12, updatedCards: 3 }),
       catalogResult({ gameKey: "gundam" }),
-      catalogResult({
-        gameKey: "riftbound",
-        succeeded: false,
-        fatalError: "Riftcodex card list fetch failed: 502",
-      }),
-      catalogResult({
-        gameKey: "sorcery",
-        cardErrors: 6,
-        cardErrorSamples: ["Error: Apprentice Wizard: image fetch failed"],
-      }),
+      catalogResult({ gameKey: "riftbound", succeeded: false }),
+      catalogResult({ gameKey: "pokemon", lang: "de", updatedCards: 40 }),
+      catalogResult({ gameKey: "fab", removedCards: 2 }),
     ],
     reportOptions,
   );
 
   const [embed] = report.embeds;
-  assert.equal(embed.title, "Card catalog sync completed with failures");
+  assert.equal(embed.title, "Card catalog sync");
   assert.equal(embed.url, reportOptions.runUrl);
-  assert.match(embed.description ?? "", /3 of 4 catalogs synced: 12 new cards, 3 updated\./);
-  assert.match(embed.description ?? "", /Failed: riftbound \(en\)/);
-  assert.match(embed.description ?? "", /Unchanged: gundam \(en\)/);
-
-  const fieldNames = (embed.fields ?? []).map((field) => field.name);
-  assert.deepEqual(fieldNames, [
-    "Synced: mtg (en)",
-    "Failed: riftbound (en)",
-    "Synced: sorcery (en)",
-  ]);
-  assert.match(embed.fields?.[0].value ?? "", /New: Lightning Bolt \(abc\), Counterspell \(abc\) and 10 more/);
-  assert.match(embed.fields?.[1].value ?? "", /Riftcodex card list fetch failed: 502/);
-  assert.match(embed.fields?.[2].value ?? "", /Apprentice Wizard/);
+  assert.equal(embed.fields, undefined);
+  assert.equal(embed.color, 0xfee75c);
+  assert.equal(
+    embed.description,
+    [
+      "**mtg** (en): 12 new, 3 updated",
+      "**gundam** (en): no changes",
+      "**riftbound** (en): failed",
+      "**pokemon** (de): 0 new, 40 updated",
+      "**fab** (en): 0 new, 0 updated, 2 removed",
+    ].join("\n"),
+  );
 });
 
-test("the report stays within Discord's embed size limit", () => {
-  const longError = "x".repeat(5000);
+test("forty catalogs all fit in the report", () => {
   const report = buildCatalogSyncReport(
-    Array.from({ length: 30 }, (_, index) =>
-      catalogResult({ gameKey: `game${index}`, succeeded: false, fatalError: longError }),
+    Array.from({ length: 40 }, (_, index) =>
+      catalogResult({ gameKey: `game${index}`, newCards: 1000, updatedCards: 100000 }),
     ),
     reportOptions,
   );
   const [embed] = report.embeds;
-  const embedLength =
-    embed.title.length +
-    (embed.description ?? "").length +
-    (embed.fields ?? []).reduce((sum, field) => sum + field.name.length + field.value.length, 0);
-  assert.ok(embedLength <= 6000, `embed is ${embedLength} characters`);
-  assert.ok((embed.fields ?? []).length <= 25);
-  assert.equal(embed.color, 0xed4245);
+  assert.match(embed.description ?? "", /\*\*game39\*\* \(en\): 1000 new, 100000 updated$/);
+  assert.ok((embed.description ?? "").length <= 4096);
 });

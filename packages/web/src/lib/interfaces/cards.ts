@@ -1,3 +1,8 @@
+import type {
+  FetchQueryOptions,
+  QueryKey,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import type { HotkeyId } from "@/lib/interfaces/hotkeys";
 import type {
   CardCondition,
@@ -9,6 +14,7 @@ import type {
   CardSetOption,
   Collection,
   CollectionCardsQuery,
+  CollectionCsvParseResult,
   FieldMeta,
   GroupedScannedCard,
   OcrOverlayRegion,
@@ -23,6 +29,7 @@ import type {
   ScanTimelineBlock,
   ScanTimelineGrouping,
   PrintingMarkRegion,
+  MatchedScanDiagnostics,
 } from "@magic-vault/shared";
 import type { KeyboardEvent, MouseEvent, ReactNode, Ref } from "react";
 import type { ScanStats } from "@/lib/interfaces/scanner";
@@ -149,10 +156,18 @@ export interface CardSearchState {
   loadMore: () => void;
 }
 
+export interface ScanImageDownloadRequest {
+  loadImage: () => Promise<Blob>;
+  fileName: string;
+}
+
+export type DownloadScanImageButtonProps = ScanImageDownloadRequest;
+
 export interface CardImageViewerProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   capturedImageUrl: string;
+  download?: ScanImageDownloadRequest;
   showOcrRegions: boolean;
   onShowOcrRegionsChange?: (show: boolean) => void;
   ocrRegions?: OcrOverlayRegion[];
@@ -168,7 +183,6 @@ export interface PriceTableProps {
   heading: string;
   columns: string[];
   rows: PriceTableRow[];
-  printings: number;
   highlightColumn: number;
   format: (value: number) => string;
 }
@@ -229,6 +243,7 @@ export interface CardToolbarProps {
   extraActions?: ReactNode;
   onAddCard?: () => void;
   onImportScans?: () => void;
+  onImportCsv?: () => void;
   searchQuery: string;
   onSearchChange: (query: string) => void;
   sortKey: string | null;
@@ -367,6 +382,10 @@ export interface CardTechnicalDetailsProps {
   isReviewed?: boolean;
 }
 
+export interface ScanDiagnosticsProps {
+  diagnostics: MatchedScanDiagnostics;
+}
+
 export interface TechnicalDetailRowProps {
   label: string;
   children: ReactNode;
@@ -429,6 +448,12 @@ export type WrappedSlide =
       elapsedMs: number;
     }
   | { key: string; type: "outro" };
+
+export interface CardFiltersSearchParamsState {
+  filters: CardFilters;
+  setFilters: (filters: CardFilters) => void;
+  updateFilters: (update: (previous: CardFilters) => CardFilters) => void;
+}
 
 export interface CardFiltersContextValue {
   filters: CardFilters;
@@ -640,6 +665,19 @@ export interface OpenScanOptions {
   inReviewMode?: boolean;
 }
 
+export interface CardGridLocationState {
+  wasOpenedFromCardGrid?: boolean;
+}
+
+export interface CardQueryStateOptions {
+  persistsSearchAndSortInUrl?: boolean;
+}
+
+export interface DebouncedSearchParamTextOptions {
+  isPersistedInUrl?: boolean;
+  paramNamesClearedOnChange?: readonly string[];
+}
+
 export interface CardThumbnailProps {
   image: PlayingCardImage | null | undefined;
   className?: string;
@@ -747,4 +785,34 @@ export interface CardScanTimelineProps {
   renderBlockCards: (
     block: ScanTimelineBlock<GroupedScannedCard>,
   ) => ReactNode;
+}
+
+export interface NavigableCardNeighbor {
+  scanId: string;
+  collectionGuid: string;
+}
+
+export interface NavigableCardContext {
+  card: { collectionGuid: string };
+  previous: NavigableCardNeighbor | null;
+  next: NavigableCardNeighbor | null;
+  total: number;
+  index: number;
+}
+
+export type CardContextQueryOptions<
+  TContext,
+  TKey extends QueryKey,
+> = UseQueryOptions<TContext | null, Error, TContext | null, TKey> &
+  FetchQueryOptions<TContext | null, Error, TContext | null, TKey>;
+
+export interface CollectionCsvImportDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  collectionGuid: string;
+}
+
+export interface CollectionCsvImportFile {
+  fileName: string;
+  parsed: CollectionCsvParseResult;
 }

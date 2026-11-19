@@ -1,3 +1,4 @@
+import { CompactPrice } from "@/components/compact-value";
 import { Callout } from "@/components/callout";
 import { CardThumbnail } from "@/components/card-thumbnail";
 import { DeleteDialog } from "@/components/delete-dialog";
@@ -64,6 +65,7 @@ import type {
 import { toast } from "@/lib/toast";
 import {
   buildPickWalk,
+  formatStorageSlot,
   formatDecklist,
   hasEveryOrderBin,
   orderLineLabel,
@@ -255,94 +257,104 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
             })}
           </p>
         </div>
-        <DropdownMenu>
-          <DropdownMenuTrigger
-            render={
-              <Button
-                variant="outline"
-                size="icon"
-                aria-label={t("orders.moreActions")}
-                title={t("orders.moreActions")}
-              />
-            }
-          >
-            <IconDots />
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => void copyDecklist()}>
-              <IconClipboardList />
-              {t("orders.copyDecklist")}
-            </DropdownMenuItem>
-            {order.status !== "cancelled" && (
-              <DropdownMenuItem
-                onClick={() => window.open(packingSlipsPath([order.guid]), "_blank")}
-              >
-                <IconPrinter />
-                {t("orders.packingSlips.print")}
-              </DropdownMenuItem>
-            )}
-            {order.pullSheet.length > 0 && (
-              <DropdownMenuItem
-                onClick={() =>
-                  downloadTextFile(
-                    `${order.name}-pull-sheet.csv`,
-                    buildPullSheetCsv(order.pullSheet, order.orderBins),
-                  )
-                }
-              >
-                <IconDownload />
-                {t("orders.downloadPullSheet")}
-              </DropdownMenuItem>
-            )}
-            {canAct && (
-              <>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={() => setEditOpen(true)}>
-                  <IconPencil />
-                  {t("orders.edit")}
+        {(!isMobile || canAct) && (
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  variant="outline"
+                  size="icon"
+                  aria-label={t("orders.moreActions")}
+                  title={t("orders.moreActions")}
+                />
+              }
+            >
+              <IconDots />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {!isMobile && (
+                <DropdownMenuItem onClick={() => void copyDecklist()}>
+                  <IconClipboardList />
+                  {t("orders.copyDecklist")}
                 </DropdownMenuItem>
+              )}
+              {!isMobile && order.status !== "cancelled" && (
                 <DropdownMenuItem
-                  disabled={pending}
+                  onClick={() => window.open(packingSlipsPath([order.guid]), "_blank")}
+                >
+                  <IconPrinter />
+                  {t("orders.packingSlips.print")}
+                </DropdownMenuItem>
+              )}
+              {!isMobile && order.pullSheet.length > 0 && (
+                <DropdownMenuItem
                   onClick={() =>
-                    void act(
-                      () => allocateOrder(order.guid),
-                      t("orders.reallocated"),
+                    downloadTextFile(
+                      `${order.name}-pull-sheet.csv`,
+                      buildPullSheetCsv(order.pullSheet, order.orderBins),
                     )
                   }
                 >
-                  <IconRefresh />
-                  {t("orders.reallocate")}
+                  <IconDownload />
+                  {t("orders.downloadPullSheet")}
                 </DropdownMenuItem>
-                {orderRefs.length > 0 && (
-                  <>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setOrderBinsOpen(true)}>
-                      <IconBox />
-                      {t("orders.assignOrderBins")}
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      disabled={!canCreateSortPreset || pending}
-                      onClick={() => setSortPresetOpen(true)}
-                    >
-                      <IconArrowsSort />
-                      {t("orders.createSortPreset")}
-                    </DropdownMenuItem>
-                  </>
-                )}
-              </>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
+              )}
+              {canAct && (
+                <>
+                  {!isMobile && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                        <IconPencil />
+                        {t("orders.edit")}
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  <DropdownMenuItem
+                    disabled={pending}
+                    onClick={() =>
+                      void act(
+                        () => allocateOrder(order.guid),
+                        t("orders.reallocated"),
+                      )
+                    }
+                  >
+                    <IconRefresh />
+                    {t("orders.reallocate")}
+                  </DropdownMenuItem>
+                  {!isMobile && orderRefs.length > 0 && (
+                    <>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => setOrderBinsOpen(true)}>
+                        <IconBox />
+                        {t("orders.assignOrderBins")}
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        disabled={!canCreateSortPreset || pending}
+                        onClick={() => setSortPresetOpen(true)}
+                      >
+                        <IconArrowsSort />
+                        {t("orders.createSortPreset")}
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
         {canAct && (
           <>
-            <Button
-              variant="outline"
-              disabled={!showPullSheet}
-              onClick={() => setPhonePickOpen(true)}
-            >
-              <IconDeviceMobile />
-              {t("orders.phonePick.button")}
-            </Button>
+            {!isMobile && (
+              <Button
+                variant="outline"
+                disabled={!showPullSheet}
+                onClick={() => setPhonePickOpen(true)}
+              >
+                <IconDeviceMobile />
+                {t("orders.phonePick.button")}
+              </Button>
+            )}
             <Button
               variant="destructive"
               onClick={() => setCancelOpen(true)}
@@ -400,7 +412,10 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
           {
             key: "revenue",
             label: t("orders.stats.revenue"),
-            value: order.revenue == null ? null : format(order.revenue),
+            value:
+              order.revenue == null ? null : (
+                <CompactPrice value={order.revenue} />
+              ),
           },
         ]}
       />
@@ -437,7 +452,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
             onMissing={canAct ? setMissingScanId : undefined}
           />
         ) : (
-          <div className="overflow-hidden rounded-card bg-card">
+          <div>
             <Table>
               <TableHeader>
                 <TableRow>
@@ -640,7 +655,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                             {copies.map((entry) => (
                               <TableRow
                                 key={entry.scanId}
-                                className="bg-muted/40"
+                                className="bg-foreground/6"
                               >
                                 <TableCell>
                                   <Checkbox
@@ -677,9 +692,10 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
                                         {entry.locationName
                                           ? t("orders.locationAt", {
                                               location: entry.locationName,
-                                              position:
-                                                (entry.locationPosition ?? 0) +
-                                                1,
+                                              position: formatStorageSlot(
+                                                entry.locationPosition ?? 0,
+                                                entry.locationBatchSize,
+                                              ),
                                             })
                                           : t("orders.inCollection", {
                                               collection: entry.collectionName,

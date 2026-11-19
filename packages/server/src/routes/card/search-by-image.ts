@@ -8,18 +8,26 @@ import {
 import { resolveGameKeyAndLang } from "../../lib/card-search/resolve";
 import { sendDiscordNotification } from "../../lib/discord";
 import { vectorizeCardImage } from "../../lib/vectorize";
-import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
+import {
+  markRequestAsReadOnly,
+  requireAuth,
+  requireOrg,
+  type AppEnv,
+} from "../../middleware/auth";
 import {
   attachMatchedCards,
   findCardMatches,
   parsePreferredSetCodes,
 } from "./shared";
+import { printedLanguageCodeFromImageBuffer } from "../../lib/printing-marks/scan";
 import { databaseErrorResponse } from "../../lib/database-error-response";
+import { toPortraitCardImage } from "../../lib/card-image";
 
 export const searchByImageRoute = new Hono<AppEnv>().post(
   "/",
   requireAuth,
   requireOrg,
+  markRequestAsReadOnly,
   async (c) => {
     const body = await c.req.parseBody();
     const file = body["image"];
@@ -55,10 +63,10 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
     );
     const preferredSetCodes = parsePreferredSetCodes(body);
 
-    const buffer = Buffer.from(await file.arrayBuffer());
-
+    let buffer: Buffer;
     let embeddings: Awaited<ReturnType<typeof vectorizeCardImage>>;
     try {
+      buffer = await toPortraitCardImage(Buffer.from(await file.arrayBuffer()));
       embeddings = await vectorizeCardImage(buffer);
     } catch (err) {
       console.error(err);
@@ -67,6 +75,11 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
         500,
       );
     }
+
+    const printedLanguageCode = await printedLanguageCodeFromImageBuffer(
+      resolved.gameKey,
+      buffer,
+    );
 
     try {
       const { result, scope } = await findBestMatchAcrossGames(
@@ -77,6 +90,10 @@ export const searchByImageRoute = new Hono<AppEnv>().post(
             embeddings,
             preferredSetCodes,
             skipsUnloadedIndex: matchScope.gameKey !== resolved.gameKey,
+            printedLanguageCode:
+              matchScope.gameKey === resolved.gameKey
+                ? printedLanguageCode
+                : null,
           }),
       );
       const withEmbedding = result.diagnostics

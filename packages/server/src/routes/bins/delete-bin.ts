@@ -1,5 +1,6 @@
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
+import { reclaimFillLocations } from "../../lib/storage-fill-claims";
 import { authQuery } from "../../db";
 import { bins } from "../../db/schema";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -36,6 +37,7 @@ export const deleteBinRoute = new Hono<AppEnv>().delete(
           .set({ isDeleted: true })
           .where(eq(bins.id, existing.id));
       }
+      await reclaimFillLocations(tx, activeBinSet.id);
       return {
         message: "Successfully cleared bin config.",
         success: true,

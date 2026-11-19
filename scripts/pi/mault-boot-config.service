@@ -1,0 +1,13 @@
+[Unit]
+Description=Apply Mault login, SSH and Wi-Fi settings from the boot partition
+After=local-fs.target NetworkManager.service
+Before=mault-setup.service
+ConditionPathExists=/boot/firmware/mault-config.txt
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 -I /usr/local/lib/mault/boot-config.py
+StandardOutput=journal+console
+
+[Install]
+WantedBy=multi-user.target

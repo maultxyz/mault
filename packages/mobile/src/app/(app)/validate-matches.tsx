@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { router } from "expo-router";
+import { Redirect, router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -12,12 +12,20 @@ import { MatchValidationGuideSheet } from "@/features/match-validations/componen
 import { MatchValidationQueue } from "@/features/match-validations/components/match-validation-queue";
 import { MatchValidationScanList } from "@/features/match-validations/components/match-validation-scan-list";
 import { useTheme } from "@/hooks/use-theme";
-import { MATCH_VALIDATION_ALL_GAMES, MATCH_VALIDATION_VIEWS } from "@/lib/constants/match-validations";
+import {
+  MATCH_VALIDATION_ALL_GAMES,
+  MATCH_VALIDATION_VIEWS,
+  MATCH_VALIDATIONS_ENABLED,
+} from "@/lib/constants/match-validations";
 import { MATCH_VALIDATION_GUIDE_SEEN_KEY } from "@/lib/constants/storage-keys";
 import type { MatchValidationView } from "@/lib/interfaces/match-validations";
 import { readKv, writeKv } from "@/lib/storage/kv";
 
 export default function ValidateMatchesScreen() {
+  return MATCH_VALIDATIONS_ENABLED ? <ValidateMatchesContent /> : <Redirect href="/" />;
+}
+
+function ValidateMatchesContent() {
   const { t } = useTranslation();
   const colors = useTheme();
   const [view, setView] = useState<MatchValidationView>("review");

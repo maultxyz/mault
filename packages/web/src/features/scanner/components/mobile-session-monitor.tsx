@@ -1,4 +1,3 @@
-import { MobileTabStrip } from "@/components/mobile-tab-strip";
 import {
   MOBILE_HERO_LABEL_CLASS,
   MOBILE_HERO_VALUE_CLASS,
@@ -7,23 +6,32 @@ import {
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { MobileCardDetailDrawer } from "@/features/scanner/components/mobile-card-detail-drawer";
-import { MobileMonitorActivity } from "@/features/scanner/components/mobile-monitor-activity";
+import { SessionErrorsPanel } from "@/features/scanner/components/session-errors-panel";
+import { UnmatchedCardsGridDialog } from "@/features/scanner/components/unmatched-cards-grid-dialog";
+import {
+  clearUnmatchedScans,
+  removeUnmatchedScan,
+} from "@/features/collections/api/collections";
 import { MobileMonitorCards } from "@/features/scanner/components/mobile-monitor-cards";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { useScrollCollapse } from "@/hooks/use-scroll-collapse";
-import type {
-  MobileMonitorTab,
-  MobileMonitorTabItem,
-  MobileSessionMonitorProps,
-} from "@/lib/interfaces/scanner";
+import type { MobileSessionMonitorProps } from "@/lib/interfaces/scanner";
 import { cn } from "@/lib/utils";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { toReviewGridCard } from "@magic-vault/shared";
+import { formatCompactNumber, toReviewGridCard } from "@magic-vault/shared";
+import { CompactCount, CompactPrice } from "@/components/compact-value";
 import { useReviewLayout } from "@/features/cards/api/use-card-view-preferences";
 import { ReviewGrid } from "@/features/cards/components/review-grid";
 import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
-import { MONITOR_NEEDS_REVIEW_CARDS_QUERY } from "@/lib/constants/scanner";
+import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
+import {
+  MONITOR_NEEDS_REVIEW_CARDS_QUERY,
+  MONITOR_OPEN_CARD_PARAM,
+  MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE,
+  MONITOR_REVIEW_PARAM,
+} from "@/lib/constants/scanner";
 import { toast } from "@/lib/toast";
 import { useTranslation } from "react-i18next";
 
@@ -37,29 +45,46 @@ export function MobileSessionMonitor({
   canEditCards,
   backHref,
 }: MobileSessionMonitorProps) {
-  const { t } = useTranslation("scanner");
-  const { format } = usePriceSource();
+  const { t, i18n } = useTranslation("scanner");
+  const { formatCompact } = usePriceSource();
   const { t: tCards } = useTranslation("cards");
   const queryClient = useQueryClient();
-  const [tab, setTab] = useState<MobileMonitorTab>("cards");
-  const [reviewing, setReviewing] = useState(false);
-  const [reviewingGrid, setReviewingGrid] = useState(false);
+  const [unmatchedOpen, setUnmatchedOpen] = useState(false);
+  const [unmatchedOpenIndex, setUnmatchedOpenIndex] = useState<number | null>(
+    null,
+  );
+  const [searchParams, setSearchParams] = useSearchParams();
+  const reviewParam = searchParams.get(MONITOR_REVIEW_PARAM);
+  const reviewingGrid = reviewParam === CARD_REVIEW_GRID_PARAM_VALUE;
+  const reviewing = reviewParam !== null && !reviewingGrid;
   const [reviewLayout, setReviewLayout] = useReviewLayout();
   const [scrollRoot, setScrollRoot] = useState<HTMLDivElement | null>(null);
   const heroCollapsed = useScrollCollapse(scrollRoot);
   const { collection, status, unmatchedCount, errors } = session;
   const { stats, cardCount, openScanId, setOpenScanId } = cards;
-  const alertCount = unmatchedCount + errors.length;
   const hasPricing = !!stats?.hasPricing;
 
-  const handleOpenCard = useCallback(
-    (scanId: string) => setOpenScanId(scanId),
-    [setOpenScanId],
+  const showCardAndReview = useCallback(
+    (scanId: string | null, review: string | null) => {
+      setSearchParams(
+        (previous) => {
+          const next = new URLSearchParams(previous);
+          if (scanId) next.set(MONITOR_OPEN_CARD_PARAM, scanId);
+          else next.delete(MONITOR_OPEN_CARD_PARAM);
+          if (review) next.set(MONITOR_REVIEW_PARAM, review);
+          else next.delete(MONITOR_REVIEW_PARAM);
+          return next;
+        },
+        { replace: true },
+      );
+    },
+    [setSearchParams],
   );
-  const handleCloseCard = useCallback(() => {
-    setReviewing(false);
-    setOpenScanId(null);
-  }, [setOpenScanId]);
+
+  const handleCloseCard = useCallback(
+    () => showCardAndReview(null, null),
+    [showCardAndReview],
+  );
 
   const reviewGridPage = useQuery({
     ...collectionCardsPageQueryOptions(
@@ -80,10 +105,8 @@ export function MobileSessionMonitor({
 
   const openReviewGrid = useCallback(() => {
     setReviewLayout("grid");
-    setReviewing(false);
-    setOpenScanId(null);
-    setReviewingGrid(true);
-  }, [setReviewLayout, setOpenScanId]);
+    showCardAndReview(null, CARD_REVIEW_GRID_PARAM_VALUE);
+  }, [setReviewLayout, showCardAndReview]);
 
   const startOneByOneReview = useCallback(async () => {
     try {
@@ -96,29 +119,28 @@ export function MobileSessionMonitor({
       );
       const first = page.items[0];
       if (!first) {
+        showCardAndReview(null, null);
         toast.info(tCards("review.nothingLeft"));
         return;
       }
-      setReviewing(true);
-      setOpenScanId(first.scanId);
+      showCardAndReview(first.scanId, MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE);
     } catch {
+      showCardAndReview(null, null);
       toast.error(tCards("review.startFailed"));
     }
-  }, [collectionGuid, queryClient, setOpenScanId, tCards]);
+  }, [collectionGuid, queryClient, showCardAndReview, tCards]);
 
   const startReview = useCallback(() => {
     if (reviewLayout === "grid") openReviewGrid();
     else void startOneByOneReview();
   }, [reviewLayout, openReviewGrid, startOneByOneReview]);
 
-  const tabs: MobileMonitorTabItem[] = [
-    { key: "cards", label: t("mobileMonitor.tabCards") },
-    {
-      key: "activity",
-      label: t("mobileMonitor.tabActivity"),
-      badge: alertCount,
-    },
-  ];
+  const reviewAwaitsFirstCard = reviewing && !openScanId;
+  const startOneByOneReviewRef = useRef(startOneByOneReview);
+  startOneByOneReviewRef.current = startOneByOneReview;
+  useEffect(() => {
+    if (reviewAwaitsFirstCard) void startOneByOneReviewRef.current();
+  }, [reviewAwaitsFirstCard]);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
@@ -129,8 +151,8 @@ export function MobileSessionMonitor({
           collection?.game?.name,
           heroCollapsed &&
             (hasPricing && stats
-              ? format(stats.totalValue)
-              : `${cardCount} ${t("mobileMonitor.cards")}`),
+              ? formatCompact(stats.totalValue)
+              : `${formatCompactNumber(cardCount, i18n.language)} ${t("mobileMonitor.cards")}`),
         ]
           .filter(Boolean)
           .join(" · ")}
@@ -163,12 +185,18 @@ export function MobileSessionMonitor({
               : t("mobileMonitor.cards")}
           </p>
           <p className={MOBILE_HERO_VALUE_CLASS}>
-            {stats?.hasPricing ? format(stats.totalValue) : String(cardCount)}
+            {stats?.hasPricing ? (
+              <CompactPrice value={stats.totalValue} />
+            ) : (
+              <CompactCount value={cardCount} />
+            )}
           </p>
           <p className="text-sm text-foreground/70 tabular-nums">
             {[
-              hasPricing && `${cardCount} ${t("mobileMonitor.cards")}`,
-              stats && `${stats.uniqueCount} ${t("unique")}`,
+              hasPricing &&
+                `${formatCompactNumber(cardCount, i18n.language)} ${t("mobileMonitor.cards")}`,
+              stats &&
+                `${formatCompactNumber(stats.uniqueCount, i18n.language)} ${t("unique")}`,
             ]
               .filter(Boolean)
               .join(" · ") || " "}
@@ -191,45 +219,59 @@ export function MobileSessionMonitor({
             isError={reviewGridPage.isError}
             onOpenOneByOne={(card) => {
               setReviewLayout("single");
-              setReviewingGrid(false);
-              setReviewing(true);
-              setOpenScanId(card.scanId);
+              showCardAndReview(
+                card.scanId,
+                MONITOR_REVIEW_ONE_BY_ONE_PARAM_VALUE,
+              );
             }}
-            onClose={() => setReviewingGrid(false)}
+            onClose={handleCloseCard}
           />
         </div>
       ) : (
-        <>
-          <MobileTabStrip items={tabs} value={tab} onChange={setTab} />
-
-          <div
-            ref={setScrollRoot}
-            data-scroll-root
-            className={cn(
-              "min-h-0 flex-1 overflow-y-auto",
-              MOBILE_NAV_SCROLL_PADDING_CLASS,
-            )}
-          >
-            {tab === "cards" ? (
-              <MobileMonitorCards
-                cards={cards}
-                status={status}
-                binCount={binCount}
-                canEditCards={canEditCards}
-                onStartReview={startReview}
-              />
-            ) : (
-              <MobileMonitorActivity
-                session={session}
-                collectionGuid={collectionGuid}
-                stats={stats}
-                canEditCards={canEditCards}
-                onOpenCard={handleOpenCard}
-              />
-            )}
-          </div>
-        </>
+        <div
+          ref={setScrollRoot}
+          data-scroll-root
+          className={cn(
+            "min-h-0 flex-1 overflow-y-auto",
+            MOBILE_NAV_SCROLL_PADDING_CLASS,
+          )}
+        >
+          {errors.length > 0 && (
+            <div className="px-4 pt-4">
+              <SessionErrorsPanel errors={errors} />
+            </div>
+          )}
+          <MobileMonitorCards
+            cards={cards}
+            status={status}
+            binCount={binCount}
+            canEditCards={canEditCards}
+            onStartReview={startReview}
+            unmatchedCount={unmatchedCount}
+            onOpenUnmatched={() => {
+              setUnmatchedOpenIndex(null);
+              setUnmatchedOpen(true);
+            }}
+          />
+        </div>
       )}
+
+      <UnmatchedCardsGridDialog
+        open={unmatchedOpen}
+        onOpenChange={setUnmatchedOpen}
+        openIndex={unmatchedOpenIndex}
+        onOpenIndexChange={setUnmatchedOpenIndex}
+        collectionGuid={collectionGuid}
+        canIdentify={canEditCards}
+        onRemove={
+          canEditCards
+            ? (scanId) => removeUnmatchedScan(collectionGuid, scanId)
+            : undefined
+        }
+        onRemoveAll={
+          canEditCards ? () => clearUnmatchedScans(collectionGuid) : undefined
+        }
+      />
 
       <MobileCardDetailDrawer
         collectionGuid={collectionGuid}

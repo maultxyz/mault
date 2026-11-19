@@ -3,12 +3,10 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
 import { binSets } from "../../db/schema";
-import {
-  CHAOS_SORT_UPGRADE_MESSAGE,
-  isChaosSortAllowed,
-} from "../../lib/chaos-sort-access";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadSets } from "./shared";
+import { orgHasFeature } from "../../lib/plan-config";
+import { CHAOS_SORT_UPGRADE_MESSAGE } from "../../lib/constants/plan-access";
 
 export const setChaosRoute = new Hono<AppEnv>().put(
   "/:guid/chaos",
@@ -42,7 +40,7 @@ export const setChaosRoute = new Hono<AppEnv>().put(
       if (
         isChaosMode &&
         !target.isChaosMode &&
-        !(await isChaosSortAllowed(tx, orgId))
+        !(await orgHasFeature(tx, orgId, "chaosSort"))
       ) {
         return {
           success: false,

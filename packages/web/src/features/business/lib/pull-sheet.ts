@@ -1,5 +1,6 @@
 import { ORDER_PULL_SHEET_HEADERS } from "@/lib/constants/business";
 import {
+  formatStorageSlot,
   csvEscape,
   IMPLICIT_ORDER_REF,
   type OrderBins,
@@ -14,7 +15,9 @@ export function buildPullSheetCsv(
     const orderBin = orderBins[entry.orderRef ?? IMPLICIT_ORDER_REF];
     return [
       entry.locationName ?? entry.collectionName,
-      entry.locationName ? String((entry.locationPosition ?? 0) + 1) : "",
+      entry.locationName
+        ? formatStorageSlot(entry.locationPosition ?? 0, entry.locationBatchSize)
+        : "",
       entry.collectionName,
       entry.binNumber == null ? "" : String(entry.binNumber),
       entry.card.name,

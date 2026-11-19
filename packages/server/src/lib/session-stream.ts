@@ -2,6 +2,10 @@ import {
   COLLECTION_CARDS_CHANGED_THROTTLE_MS,
   PICK_LIST_CHANGED_THROTTLE_MS,
 } from "./constants/timing";
+import {
+  invalidateOrgReadCaches,
+  invalidateOrgReadCachesForEvent,
+} from "./org-read-cache";
 import type { SseWriter } from "./interfaces/sse";
 import type {
   SessionEntry,
@@ -12,7 +16,7 @@ import type { PickList } from "@magic-vault/shared";
 import { PICK_LIST_CHANGED_EVENT } from "@magic-vault/shared";
 
 const sessions = new Map<string, SessionEntry>();
-const orgCountWriters = new Map<string, Set<SseWriter>>();
+const orgWriters = new Map<string, Set<SseWriter>>();
 const lastCollectionCardsChangedAt = new Map<string, number>();
 const pendingCollectionCardsChanged = new Map<
   string,
@@ -22,7 +26,8 @@ const lastPickListChangedAt = new Map<string, number>();
 const pendingPickListChanged = new Map<string, ReturnType<typeof setTimeout>>();
 
 export function emitToOrg(orgId: string, event: string, data: unknown) {
-  const writers = orgCountWriters.get(orgId);
+  invalidateOrgReadCachesForEvent(orgId, event);
+  const writers = orgWriters.get(orgId);
   if (!writers) return;
   for (const writer of writers) {
     try {
@@ -32,6 +37,7 @@ export function emitToOrg(orgId: string, event: string, data: unknown) {
 }
 
 export function emitCollectionCardsChanged(orgId: string, guid: string) {
+  invalidateOrgReadCaches(orgId);
   if (pendingCollectionCardsChanged.has(orgId)) return;
   const sinceLastEmit =
     Date.now() - (lastCollectionCardsChangedAt.get(orgId) ?? 0);
@@ -163,18 +169,18 @@ export function getSessionViewersForGuids(
   return result;
 }
 
-export function subscribeOrgLiveCounts(
+export function subscribeOrgEvents(
   orgId: string,
   writer: SseWriter,
 ): () => void {
-  let writers = orgCountWriters.get(orgId);
+  let writers = orgWriters.get(orgId);
   if (!writers) {
     writers = new Set();
-    orgCountWriters.set(orgId, writers);
+    orgWriters.set(orgId, writers);
   }
   writers.add(writer);
   return () => {
     writers!.delete(writer);
-    if (writers!.size === 0) orgCountWriters.delete(orgId);
+    if (writers!.size === 0) orgWriters.delete(orgId);
   };
 }

@@ -5,9 +5,9 @@ import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import type { StorageLocationCardQueryState } from "@/lib/interfaces/storage";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import { EMPTY_FIELD_DEFINITIONS } from "@/lib/constants/storage";
-import { DEFAULT_CARD_SORT, EMPTY_CARD_FILTERS } from "@magic-vault/shared";
+import { useCardFiltersSearchParams } from "@/hooks/use-card-filters-search-params";
 import { useQuery } from "@tanstack/react-query";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 
 export function useStorageLocationCardQuery(
   locationGuid: string | undefined,
@@ -15,6 +15,7 @@ export function useStorageLocationCardQuery(
   const { data: summary } = useQuery(
     storageLocationCardsSummaryQueryOptions(locationGuid),
   );
+  const urlFilters = useCardFiltersSearchParams();
   const {
     searchQuery,
     setSearchQuery,
@@ -24,14 +25,11 @@ export function useStorageLocationCardQuery(
     filters,
     setFilters,
     activeFilterCount,
-  } = useCardQueryState(summary?.sortableFields ?? EMPTY_FIELD_DEFINITIONS);
-  const [queriedLocationGuid, setQueriedLocationGuid] = useState(locationGuid);
-  if (queriedLocationGuid !== locationGuid) {
-    setQueriedLocationGuid(locationGuid);
-    setSearchQuery("");
-    setSortKey(DEFAULT_CARD_SORT);
-    setFilters(EMPTY_CARD_FILTERS);
-  }
+  } = useCardQueryState(
+    summary?.sortableFields ?? EMPTY_FIELD_DEFINITIONS,
+    urlFilters,
+    { persistsSearchAndSortInUrl: true },
+  );
 
   const debouncedSearch = useDebouncedValue(searchQuery, SEARCH_DEBOUNCE_MS);
   const cardsQuery = useMemo(

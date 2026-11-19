@@ -68,6 +68,7 @@ export const riftboundAdapter: CardSearchAdapter = {
       return {
         numbers: [number],
         accepts: (product) => productMatchName(product.name).endsWith(name),
+        preferredGroupNames: raw.set?.label ? [raw.set.label] : [],
       };
     },
   },

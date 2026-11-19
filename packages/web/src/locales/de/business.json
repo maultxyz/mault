@@ -120,8 +120,8 @@
     "emptyDescription": "Starte einen, wenn jemand Karten verkaufen möchte.",
     "pickTitle": "Ankauf auswählen",
     "pickDescription": "Wähle links einen Ankauf oder starte einen neuen.",
-    "cardCount_one": "{{count}} Karte",
-    "cardCount_other": "{{count}} Karten",
+    "cardCount_one": "{{count, compact}} Karte",
+    "cardCount_other": "{{count, compact}} Karten",
     "openScanner": "Scanner öffnen",
     "addCard": "Karte hinzufügen",
     "printReceipt": "Beleg",
@@ -602,7 +602,8 @@
       "orderSortPresetReused": "Sortiervorlage wiederverwendet",
       "orderSorterPickCreated": "Sorter-Sammelpick gestartet",
       "orderSorterPickApplied": "Sorter-Sammelpick übernommen",
-      "orderSorterPickPresetsCleaned": "Verwendete Sorter-Vorlagen verworfen"
+      "orderSorterPickPresetsCleaned": "Verwendete Sorter-Vorlagen verworfen",
+      "tradeRecorded": "Tausch erfasst"
     },
     "messages": {
       "cardCorrected": "{{from}} zu {{to}} korrigiert",
@@ -635,7 +636,8 @@
       "orderSortPresetReused": "Hat die Sortiervorlage {{summary}} wiederverwendet",
       "orderSorterPickCreated": "Hat einen Sorter-Sammelpick aus {{summary}} gestartet",
       "orderSorterPickApplied": "Hat einen Sorter-Sammelpick für {{summary}} übernommen",
-      "orderSorterPickPresetsCleaned": "Hat {{summary}} verwendete Sorter-Vorlagen verworfen"
+      "orderSorterPickPresetsCleaned": "Hat {{summary}} verwendete Sorter-Vorlagen verworfen",
+      "tradeRecorded": "Hat einen Tausch vor Ort mit {{summary}} erfasst"
     }
   },
   "accuracy": {
@@ -810,7 +812,9 @@
       "source": "Karten aus",
       "markup": "Aufschlag (%)",
       "markupHint": "Wird auf den Marktpreis aufgeschlagen. Eine negative Zahl gibt einen Rabatt.",
-      "rounding": "Preise runden"
+      "rounding": "Preise runden",
+      "showPrices": "Preise anzeigen",
+      "showPricesHint": "Ausschalten, um Etiketten nur mit der Karte und ihrem Lagercode zu drucken."
     },
     "sources": {
       "collection": "Sammlung",
@@ -844,7 +848,6 @@
       "customPrice": "Eigener Preis",
       "customPriceFor": "Eigener Preis für {{name}}",
       "labelPrice": "Etikettenpreis",
-      "noPrice": "Kein Preis",
       "truncated": "Die ersten {{shown}} von {{total}} Karten werden angezeigt. Drucke die Etiketten für die übrigen über einen Lagerort oder Ankauf."
     },
     "empty": {

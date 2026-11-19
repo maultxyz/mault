@@ -4,6 +4,14 @@ export const BROWSER_SYNC_PARALLEL = 6;
 export const BROWSER_SYNC_IMAGE_PROXY_HOSTS = new Set([
   "images.ygoprodeck.com",
   "cdn.tcgtracking.com",
+  "cdn.swu-db.com",
+  "gundam-gcg.com",
+  "www.gundam-gcg.com",
+  "cards.lorcast.io",
+  "optcgapi.com",
+  "images.fleshcube.com",
+  "cmsassets.rgpub.io",
+  "dstcynss47vun.cloudfront.net",
 ]);
 
 export const SYNC_VECTORIZE_CONCURRENCY_OPTIONS = [1, 2, 4, 8, 16, 32] as const;

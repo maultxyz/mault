@@ -74,3 +74,6 @@ export const SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS = {
   color: "magic-vault:scan-stats-color-expanded",
   set: "magic-vault:scan-stats-set-expanded",
 } as const;
+
+export const SINGLE_KEY_HOTKEYS_STORAGE_KEY = "magic-vault:single-key-hotkeys";
+

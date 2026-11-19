@@ -1,0 +1,10 @@
+[Unit]
+Description=Mault daily price sync
+
+[Timer]
+OnCalendar=*-*-* 04:00:00
+RandomizedDelaySec=30m
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -65,6 +65,9 @@ export interface ActivePresetWorkflowState {
   label: string;
   presetName: (presetGuid: string) => string;
   isPending: boolean;
+  isError: boolean;
+  isRefetching: boolean;
+  refetch: () => Promise<unknown>;
 }
 
 export interface AlphabetPassCardProps {
@@ -136,4 +139,9 @@ export type PresetDescriptionRouteParams = {
 
 export interface PresetDescriptionSaveContext {
   previous: BinSet[] | undefined;
+}
+
+export interface StoragePlanDraft {
+  isOpen: boolean;
+  locationGuids: string[];
 }

@@ -48,6 +48,27 @@
       "failedCount_other": "{{count}} failed",
       "historyItem": "#{{number}} ch {{channel}}"
     },
+    "leds": {
+      "heading": "LED strips",
+      "description": "Two 8-LED RGBW strips on GPIO 14. Pick an LED to switch it on or off and set its red, green, blue and white levels and brightness, or switch a whole strip at once.",
+      "reload": "Reload from board",
+      "needsFirmware": "LED strips need firmware {{version}} or newer. Flash the board to use them.",
+      "strip": "Strip {{strip}}",
+      "stripOn": "Whole strip",
+      "ledLabel": "LED {{led}}, {{state}}",
+      "on": "On",
+      "off": "Off",
+      "selected": "Strip {{strip}}, LED {{led}}",
+      "channels": {
+        "red": "Red",
+        "green": "Green",
+        "blue": "Blue",
+        "white": "White"
+      },
+      "brightness": "Brightness",
+      "brightnessValue": "{{percent}}%",
+      "applyToStrip": "Apply to strip {{strip}}"
+    },
     "status": {
       "ok": "OK",
       "busy": "The board is busy with another command.",
@@ -56,6 +77,29 @@
     },
     "toasts": {
       "commandFailed": "The board didn't accept the command"
+    },
+    "rawCommands": {
+      "heading": "Raw commands",
+      "description": "Send any JSON command straight to the board, one line at a time. Raw pulses skip calibration, so start near the center and watch the linkage. Stop all cuts power to every servo; send Neutral to recover.",
+      "presets": "Examples",
+      "preset": {
+        "servoPulse": "Servo pulse",
+        "servoPosition": "Servo position",
+        "channelPulse": "Channel pulse",
+        "channelRelease": "Release channel",
+        "neutral": "Neutral",
+        "status": "Status"
+      },
+      "command": "Command (JSON)",
+      "commandHint": "One JSON object, for example {\"servo\": \"pusher\", \"module\": 1, \"value\": 305}. Pulses run from 120 to 490. See firmware/PROTOCOL.md for every command.",
+      "send": "Send",
+      "stopAll": "Stop all",
+      "history": "Replies",
+      "clear": "Clear",
+      "empty": "Nothing sent yet.",
+      "sent": "Sent:",
+      "reply": "Reply:",
+      "failed": "Failed"
     }
   },
   "cardImageVectors": {
@@ -244,14 +288,14 @@
     "percentOfTotal": "{{percent}}% of scans"
   },
   "errorReportingTest": {
-    "heading": "Test PostHog",
-    "description": "Send a test error to PostHog from the client and/or the server to confirm error reporting is wired up",
+    "heading": "Test Better Stack",
+    "description": "Send a test error to Better Stack from the client and/or the server to confirm error reporting is wired up",
     "testClientButton": "Test Client",
     "testServerButton": "Test Server",
     "testingButton": "Sending...",
     "toasts": {
-      "clientSent": "Sent test error to PostHog (client).",
-      "serverError": "Failed to send test error to PostHog (server)"
+      "clientSent": "Sent test error to Better Stack (client).",
+      "serverError": "Failed to send test error to Better Stack (server)"
     }
   },
   "impersonationAuditDrawer": {
@@ -305,7 +349,7 @@
       },
       "repacks": {
         "label": "Repacks",
-        "description": "Build repacks from bin slots. Turning it off only stops presets from switching it on. Presets already in repack mode keep working."
+        "description": "Build repacks from bin slots. Turning it off only stops presets from switching it on. Presets that already build repacks keep working."
       },
       "customSounds": {
         "label": "Custom sounds",

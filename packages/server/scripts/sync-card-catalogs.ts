@@ -6,7 +6,6 @@ import {
   buildCatalogSyncReport,
   postCatalogSyncReport,
 } from "../src/lib/catalog-sync-report";
-import { CATALOG_SYNC_REPORT_ERROR_SAMPLE_LIMIT } from "../src/lib/constants/sync";
 import type { CatalogSyncResult } from "../src/lib/interfaces/catalog-sync-report";
 import {
   cancelSync,
@@ -105,14 +104,8 @@ function missingCatalogResult(catalog: {
   return {
     ...catalog,
     succeeded: false,
-    totalCards: 0,
     newCards: 0,
     updatedCards: 0,
-    newCardNames: [],
-    cardErrors: 0,
-    cardErrorSamples: [],
-    fatalError: "The sync job ended without reporting a result.",
-    durationMs: 0,
   };
 }
 
@@ -160,32 +153,19 @@ async function main(): Promise<number> {
     return 0;
   }
 
-  let cardErrorSamples: string[] = [];
   subscribeSSE((event, data) => {
     if (event !== "log") return;
-    const line = (data as { line: string }).line;
-    log(`  ${line}`);
-    if (
-      line.startsWith("Error") &&
-      cardErrorSamples.length < CATALOG_SYNC_REPORT_ERROR_SAMPLE_LIMIT
-    ) {
-      cardErrorSamples.push(line);
-    }
+    log(`  ${(data as { line: string }).line}`);
   });
 
   const results: CatalogSyncResult[] = [];
   for (const { gameKey, lang } of catalogs) {
     const label = `${gameKey} (${lang})`;
     if (timeLimitReached()) {
-      results.push({
-        ...missingCatalogResult({ gameKey, lang }),
-        fatalError: TIME_LIMIT_MESSAGE,
-      });
+      results.push(missingCatalogResult({ gameKey, lang }));
       continue;
     }
     log(`Starting ${forceResync ? "force resync" : "sync"} of ${label}`);
-    cardErrorSamples = [];
-    const startedAt = Date.now();
     let startError: string | null = null;
     let stoppedAtTimeLimit = false;
     try {
@@ -208,18 +188,9 @@ async function main(): Promise<number> {
       gameKey,
       lang,
       succeeded,
-      totalCards: status.total,
       newCards: status.newCards ?? 0,
       updatedCards: status.updatedCards ?? 0,
-      newCardNames: status.newCardNames ?? [],
-      cardErrors: status.errors,
-      cardErrorSamples,
-      fatalError: succeeded
-        ? null
-        : stoppedAtTimeLimit
-          ? TIME_LIMIT_MESSAGE
-          : (startError ?? status.fatalError ?? `ended with status ${status.status}`),
-      durationMs: Date.now() - startedAt,
+      removedCards: status.removedCards ?? 0,
     });
   }
 

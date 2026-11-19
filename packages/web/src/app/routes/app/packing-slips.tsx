@@ -1,3 +1,4 @@
+import { PAGE_TITLE_CLASS } from "@/lib/constants/nav";
 import { BaseProviders } from "@/app/providers";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -82,7 +83,7 @@ function PackingSlips() {
       <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 p-6 md:gap-2 print:max-w-none print:gap-0 print:p-0">
         <div className="flex flex-wrap items-center justify-between gap-4 print:hidden">
           <div>
-            <h1 className="font-heading text-lg font-semibold">{t("orders.packingSlips.pageTitle")}</h1>
+            <h1 className={PAGE_TITLE_CLASS}>{t("orders.packingSlips.pageTitle")}</h1>
             <p className="text-sm text-foreground/70">
               {t("orders.packingSlips.count", { count: slips.length })}
             </p>

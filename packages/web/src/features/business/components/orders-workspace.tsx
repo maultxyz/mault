@@ -1,4 +1,5 @@
 import { EmptyState } from "@/components/empty-state";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { Button } from "@/components/ui/button";
 import { ordersQueryOptions } from "@/features/business/api/business";
@@ -27,7 +28,6 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
   const { t } = useTranslation("business");
-  const { t: tCommon } = useTranslation("common");
   const isMobile = useIsMobile();
   const { orgId, access } = useBusinessAccess();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -36,6 +36,8 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
     items: orders,
     pagination,
     isLoading,
+    isError,
+    refetch,
   } = useServerPagedList(
     (request) => ordersQueryOptions(orgId, request),
     selectedParam,
@@ -117,7 +119,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
     return (
       <div className="relative flex min-h-0 flex-1 flex-col">
         <MobilePageHeader
-          title={tCommon("nav.intake")}
+          title={t("views.picks")}
           actions={
             <Button
               variant="ghost"
@@ -212,7 +214,13 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
           ) : (
             <h1 className="sr-only">{t("views.picks")}</h1>
           )}
-          {!selectedGuid && !isLoading && (
+          {!selectedGuid && isError && (
+            <LoadErrorCallout
+              message={t("errors.loadFailed")}
+              onRetry={refetch}
+            />
+          )}
+          {!selectedGuid && !isLoading && !isError && (
             <EmptyState
               icon={IconTruckDelivery}
               title={t("orders.pickTitle")}

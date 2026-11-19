@@ -1,6 +1,5 @@
 import {
   INVENTORY_HISTORY_DAYS,
-  PRICE_SOURCE_FIELDS,
   type StatsReport,
 } from "@magic-vault/shared";
 import { Hono } from "hono";
@@ -8,11 +7,11 @@ import { authQuery } from "../../db";
 import { loadBusinessAccess } from "../../lib/business-access";
 import { ONE_DAY_MS } from "../../lib/constants/timing";
 import {
-  loadInventoryHistory,
+  isInventorySnapshotDue,
+  loadCachedInventoryHistory,
   writeInventorySnapshot,
 } from "../../lib/inventory";
-import { loadOrgPricing } from "../../lib/price-source";
-import { loadStatsReport } from "../../lib/stats-report";
+import { loadCachedStatsReport } from "../../lib/stats-report";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { parseStatsRange } from "../../lib/stats-range";
 
@@ -33,51 +32,47 @@ const router = new Hono<AppEnv>().get(
   requireOrg,
   async (c) => {
     const orgId = c.get("orgId");
-    const result = await authQuery(c.get("jwtClaims"), async (tx) => {
-      const report = await loadStatsReport(
-        tx,
+    const jwtClaims = c.get("jwtClaims");
+    const [loaded, access] = await Promise.all([
+      loadCachedStatsReport(
+        jwtClaims,
         orgId,
         parseStatsRange(c.req.query("range")),
         c.req.query("collection") || null,
-      );
-      if (!report) return null;
-      const access = await loadBusinessAccess(tx, orgId, c.get("orgRole"));
-      if (!access.canViewCosts) return { report: hideCosts(report), snapshot: null };
-      if (report.scope !== "org") return { report, snapshot: null };
-      const currency =
-        PRICE_SOURCE_FIELDS[(await loadOrgPricing(tx, orgId)).source].currency;
-      const since = new Date(Date.now() - INVENTORY_HISTORY_DAYS * ONE_DAY_MS)
-        .toISOString()
-        .slice(0, 10);
-      return {
-        report: {
-          ...report,
-          valueHistory: await loadInventoryHistory(tx, orgId, currency, since),
-        },
-        snapshot: { currency, totals: report.totals },
-      };
-    });
-    if (!result) {
+      ),
+      authQuery(jwtClaims, (tx) => loadBusinessAccess(tx, orgId, c.get("orgRole"))),
+    ]);
+    if (!loaded) {
       return c.json(
         { success: false, message: "Collection not found." },
         404,
       );
     }
-    if (result.snapshot) {
-      const { totals, currency } = result.snapshot;
-      void writeInventorySnapshot(
-        orgId,
-        {
-          cardCount: totals.cardCount,
-          marketValue: totals.totalValue,
-          costBasis: totals.costBasis ?? 0,
-          costedCards: totals.costedCount ?? 0,
-          costedMarketValue: totals.costedValue ?? 0,
-        },
-        currency,
-      ).catch((err) => console.error("[stats] snapshot:", err));
+    const { report, currency } = loaded;
+    if (!access.canViewCosts) {
+      return c.json({ success: true, data: hideCosts(report) });
     }
-    return c.json({ success: true, data: result.report });
+    if (report.scope !== "org") {
+      return c.json({ success: true, data: report });
+    }
+    const since = new Date(Date.now() - INVENTORY_HISTORY_DAYS * ONE_DAY_MS)
+      .toISOString()
+      .slice(0, 10);
+    const valueHistory = await loadCachedInventoryHistory(jwtClaims, orgId, currency, since);
+    const { totals } = report;
+    const inventoryTotals = {
+      cardCount: totals.cardCount,
+      marketValue: totals.totalValue,
+      costBasis: totals.costBasis ?? 0,
+      costedCards: totals.costedCount ?? 0,
+      costedMarketValue: totals.costedValue ?? 0,
+    };
+    if (isInventorySnapshotDue(orgId, inventoryTotals, currency)) {
+      void writeInventorySnapshot(orgId, inventoryTotals, currency).catch((err) =>
+        console.error("[stats] snapshot:", err),
+      );
+    }
+    return c.json({ success: true, data: { ...report, valueHistory } });
   },
 );
 

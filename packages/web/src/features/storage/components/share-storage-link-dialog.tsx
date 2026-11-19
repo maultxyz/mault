@@ -16,16 +16,18 @@ export function ShareStorageLinkDialog({
   renderTrigger,
   open,
   onOpenChange,
+  startsWithNewTradeLink,
 }: ShareStorageLinkDialogProps) {
   const { t } = useTranslation("storage");
 
   const createLink = useCallback(
-    async ({ purpose, expiresInDays, showPrices }: ShareLinkOptions) => {
+    async ({ purpose, expiresInDays, showPrices, requireGuestContact }: ShareLinkOptions) => {
       const result = await createStorageShareLink(
         locationGuid,
         expiresInDays,
         showPrices,
         purpose,
+        requireGuestContact,
       );
       if (!result.success || !result.data) throw new Error(result.message);
       return {
@@ -57,6 +59,7 @@ export function ShareStorageLinkDialog({
       renderTrigger={renderTrigger}
       open={open}
       onOpenChange={onOpenChange}
+      startsWithNewTradeLink={startsWithNewTradeLink}
     />
   );
 }

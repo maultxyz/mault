@@ -49,6 +49,8 @@ export function compareTextRankedPrintings(
     Number(b.letteredNumberMatch) - Number(a.letteredNumberMatch) ||
     Number(b.numberMatch) - Number(a.numberMatch) ||
     Number(b.setTotalMatch) - Number(a.setTotalMatch) ||
+    Number(b.matchesPrintedLanguageCode) -
+      Number(a.matchesPrintedLanguageCode) ||
     Number(a.rarePrinting) - Number(b.rarePrinting) ||
     a.distance - b.distance
   );

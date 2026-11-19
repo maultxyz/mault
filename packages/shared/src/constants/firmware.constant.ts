@@ -30,10 +30,11 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   retractCard: "2.11.0",
   moduleDetection: "2.12.0",
   pusherNudge: "2.13.0",
-  emergencyStop: "2.14.0",
+  emergencyStop: "2.13.2",
+  ledStrips: "2.13.0",
 };
 
-export const MODULE_DETECTION_BOARDS: readonly string[] = ["esp32"];
+export const MODULE_DETECTION_BOARDS: readonly string[] = ["esp32", "raspberry_pi"];
 
 export function isModuleDetectionSupported(
   version: string | null | undefined,
@@ -42,6 +43,9 @@ export function isModuleDetectionSupported(
   return (
     !!board &&
     MODULE_DETECTION_BOARDS.includes(board) &&
+    (board === "raspberry_pi"
+      ? !!version?.startsWith("pi-")
+      : !version?.startsWith("pi-")) &&
     isFirmwareFeatureSupported(version, "moduleDetection")
   );
 }
@@ -50,8 +54,17 @@ export function isFirmwareFeatureSupported(
   version: string | null | undefined,
   feature: FirmwareFeature,
 ): boolean {
-  if (version === "pi-0.1.0") {
-    return feature !== "wifiRemote" && feature !== "retractCard";
+  if (version?.startsWith("pi-")) {
+    if (version !== "pi-0.1.0" && version !== "pi-0.2.0") return false;
+    return (
+      feature !== "wifiRemote" &&
+      feature !== "retractCard" &&
+      feature !== "ledStrips" &&
+      !isFirmwareVersionOutdated(
+        version,
+        feature === "moduleDetection" ? "pi-0.2.0" : "pi-0.1.0",
+      )
+    );
   }
   return (
     !!version &&
@@ -62,12 +75,20 @@ export function isFirmwareFeatureSupported(
 export const SERIAL_FED_EVENT = "fed";
 export const SERIAL_FEED_TIMEOUT_ERROR_PREFIX = "timeout";
 export const SERIAL_JAM_ERROR = "jam";
+export const ROUTE_TIMEOUT_MODULE_PATTERN = /no card detected at module (\d+)/;
 export const SERIAL_BUSY_ERROR = "busy";
 export const SERIAL_STOPPED_ERROR = "stopped";
 export const SERIAL_STOPPED_STATUS = "stopped";
 export const SERIAL_PUSH_BLOCKED_ERROR = "push_blocked";
 export const SERIAL_ROLLBACK_OFF_ERROR = "rollback_off";
 export const SERIAL_RETRACTED_STATUS = "retracted";
+export const LED_STRIP_COUNT = 2;
+export const LEDS_PER_STRIP = 8;
+export const LED_LEVEL_MAX = 255;
+export const LED_CHANNELS = ["red", "green", "blue", "white"] as const;
+export const LED_DEFAULT_LEVELS = { red: 0, green: 0, blue: 0, white: 255 } as const;
+export const LED_DEFAULT_BRIGHTNESS = 128;
+export const GET_LEDS_COMMAND = { getLeds: true } as const;
 export const DETECT_MODULES_COMMAND = { detectModules: true } as const;
 export const DETECT_MODULES_TIMEOUT_MS = 5_000;
 export const RETRACT_CARD_TIMEOUT_MS = 10_000;

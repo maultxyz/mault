@@ -11,6 +11,8 @@ import type {
   orgApiKeyFormSchema,
   syncApiKeyFormSchema,
   storageLocationNameFormSchema,
+  storageLocationSeriesFormSchema,
+  storageLocationBulkSizesFormSchema,
   storagePickListFormSchema,
   scanDraftFormSchema,
   discordSettingsDraftFormSchema,
@@ -37,6 +39,8 @@ export type OrganizationInviteFormValues = z.infer<typeof organizationInviteForm
 export type OrgApiKeyFormValues = z.infer<typeof orgApiKeyFormSchema>;
 export type SyncApiKeyFormValues = z.infer<typeof syncApiKeyFormSchema>;
 export type StorageLocationNameFormValues = z.infer<typeof storageLocationNameFormSchema>;
+export type StorageLocationSeriesFormValues = z.infer<typeof storageLocationSeriesFormSchema>;
+export type StorageLocationBulkSizesFormValues = z.infer<typeof storageLocationBulkSizesFormSchema>;
 export type ScanDraftFormValues = z.infer<typeof scanDraftFormSchema>;
 export type DiscordSettingsDraftFormValues = z.infer<typeof discordSettingsDraftFormSchema>;
 export type NotificationRuleFormValues = z.infer<typeof notificationRuleFormSchema>;

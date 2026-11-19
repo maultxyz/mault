@@ -1,3 +1,4 @@
+import type { MemberSeatLock } from "@magic-vault/shared";
 export interface LocalAuthResponse {
   success: boolean;
   message?: string;
@@ -17,10 +18,7 @@ export interface ApiRequestOptions {
   acceptStatuses?: number[];
 }
 
-export interface MemberSeatLock {
-  orgId: string;
-  limit: number;
-}
+export type { MemberSeatLock };
 
 export interface MemberSeatLockedProps {
   lock: MemberSeatLock;

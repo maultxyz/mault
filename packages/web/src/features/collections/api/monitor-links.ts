@@ -1,5 +1,6 @@
 import {
   DEFAULT_SHARE_LINK_PURPOSE,
+  DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
 } from "@magic-vault/shared";
 import { apiPost } from "@/lib/api/client";
@@ -16,10 +17,11 @@ export function createMonitorLink(
   expiresInDays: number,
   showPrices = DEFAULT_SHARE_LINK_SHOWS_PRICES,
   purpose: ShareLinkPurpose = DEFAULT_SHARE_LINK_PURPOSE,
+  requireGuestContact = DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
 ): Promise<Result<MonitorLink>> {
   return apiPost<Result<MonitorLink>>(
     `/api/collections/${collectionGuid}/monitor-link`,
-    { expiresInDays, showPrices, purpose },
+    { expiresInDays, showPrices, purpose, requireGuestContact },
   );
 }
 

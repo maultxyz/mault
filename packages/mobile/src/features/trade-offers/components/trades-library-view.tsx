@@ -1,4 +1,10 @@
-import { formatPrice, isTradeOfferBeingPicked, type TradeOffer } from "@magic-vault/shared";
+import {
+  formatCompactPriceInCurrency,
+  formatPrice,
+  isTradeOfferBeingPicked,
+  PRICE_SOURCE_FIELDS,
+  type TradeOffer,
+} from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
@@ -8,6 +14,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
+import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
@@ -18,6 +25,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { outgoingTradeOffersQueryOptions } from "@/features/trade-offers/api/outgoing-trade-offers";
 import { tradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
+import { NewTradeSheets } from "@/features/trade-offers/components/new-trade-sheets";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useSession } from "@/lib/auth/session";
 import { SPACING } from "@/lib/constants/theme";
@@ -27,7 +35,7 @@ import {
   TRADES_BOXES,
 } from "@/lib/constants/trade-offers";
 import type { LibraryViewProps } from "@/lib/interfaces/library";
-import type { TradeOfferLibrarySectionProps, TradesBox } from "@/lib/interfaces/trade-offers";
+import type { NewTradeSheet, TradeOfferLibrarySectionProps, TradesBox } from "@/lib/interfaces/trade-offers";
 
 function TradeOfferLibrarySection({ title, offers }: TradeOfferLibrarySectionProps) {
   const { t, i18n } = useTranslation();
@@ -40,16 +48,30 @@ function TradeOfferLibrarySection({ title, offers }: TradeOfferLibrarySectionPro
           <ListRow
             key={offer.guid}
             icon="transfer"
-            title={offer.guestName || t("tradeOffers.library.unnamedGuest")}
-            subtitle={`${t("tradeOffers.library.rowDetails", {
-              source: offer.sourceName ?? t("tradeOffers.unknownSource"),
-              wanted: offer.wanted.length,
-              offered: offer.offered.reduce((sum, card) => sum + card.quantity, 0),
-            })}\n${new Date(offer.createdAt).toLocaleDateString(i18n.language, { dateStyle: "medium" })}`}
+            title={
+              offer.guestName ||
+              (offer.linkKind === "inPerson" ? t("tradeOffers.inPerson.title") : t("tradeOffers.library.unnamedGuest"))
+            }
+            subtitle={`${
+              offer.linkKind === "inPerson"
+                ? t("tradeOffers.inPerson.rowDetails", {
+                    given: offer.wanted.length,
+                    received: offer.offered.reduce((sum, card) => sum + card.quantity, 0),
+                  })
+                : t("tradeOffers.library.rowDetails", {
+                    source: offer.sourceName ?? t("tradeOffers.unknownSource"),
+                    wanted: offer.wanted.length,
+                    offered: offer.offered.reduce((sum, card) => sum + card.quantity, 0),
+                  })
+            }\n${new Date(offer.createdAt).toLocaleDateString(i18n.language, { dateStyle: "medium" })}`}
             right={
               <View style={{ alignItems: "flex-end", gap: SPACING.xs, flexShrink: 0 }}>
-                <AppText weight="semibold" numberOfLines={1}>
-                  {formatPrice(offer.offeredValue, offer.priceSource)}
+                <AppText
+                  weight="semibold"
+                  numberOfLines={1}
+                  accessibilityLabel={formatPrice(offer.offeredValue, offer.priceSource)}
+                >
+                  {formatCompactPriceInCurrency(offer.offeredValue, PRICE_SOURCE_FIELDS[offer.priceSource].currency)}
                 </AppText>
                 {isTradeOfferBeingPicked(offer) ? (
                   <Pill
@@ -158,12 +180,23 @@ export function TradesLibraryView({ title, viewSwitcher }: LibraryViewProps) {
   const receivedOffers = useQuery(tradeOffersQueryOptions(orgId));
   const sentOffers = useQuery(outgoingTradeOffersQueryOptions(userId));
   const visibleOffers = box === "sent" ? sentOffers : receivedOffers;
+  const [newTradeSheet, setNewTradeSheet] = useState<NewTradeSheet | null>(null);
 
   return (
     <Screen
       onRefresh={() => visibleOffers.refetch()}
       header={
-        <PageHeader title={title} subtitle={t("tradeOffers.library.subtitle")}>
+        <PageHeader
+          title={title}
+          subtitle={t("tradeOffers.library.subtitle")}
+          actions={
+            <IconButton
+              icon="plus"
+              accessibilityLabel={t("tradeOffers.newTrade.button")}
+              onPress={() => setNewTradeSheet("kind")}
+            />
+          }
+        >
           {viewSwitcher}
         </PageHeader>
       }
@@ -174,6 +207,7 @@ export function TradesLibraryView({ title, viewSwitcher }: LibraryViewProps) {
         onChange={setBox}
       />
       {box === "sent" ? <SentTradeOffers /> : <ReceivedTradeOffers />}
+      <NewTradeSheets openSheet={newTradeSheet} onOpenSheetChange={setNewTradeSheet} />
     </Screen>
   );
 }

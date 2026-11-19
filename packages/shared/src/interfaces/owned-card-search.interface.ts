@@ -11,4 +11,5 @@ export interface OwnedCardSearchResult {
   locationGuid: string | null;
   locationName: string | null;
   locationPosition: number | null;
+  locationBatchSize?: number | null;
 }

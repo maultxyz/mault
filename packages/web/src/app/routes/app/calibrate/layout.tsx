@@ -295,16 +295,17 @@ export default function CalibrateLayout() {
               {t("common:impersonation.calibrationReadOnly")}
             </Callout>
           )}
+          <PageIntro
+            isPageHeading
+            title={t(`sections.${section}`)}
+            description={t(`sectionIntros.${section}`)}
+          />
           <SettingsSectionLayoutContext value="card">
             <div
               inert={isSessionActive || isImpersonating}
               aria-disabled={isSessionActive || isImpersonating}
               className="flex flex-1 flex-col gap-6 md:gap-2 pb-4"
             >
-              <PageIntro
-                title={t(`sections.${section}`)}
-                description={t(`sectionIntros.${section}`)}
-              />
               <Outlet context={calibrationPage} />
             </div>
           </SettingsSectionLayoutContext>

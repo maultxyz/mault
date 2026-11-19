@@ -70,22 +70,23 @@ export function StorageCardQueryToolbar({
           }}
         />
       )}
-      <Button
-        variant={allSelected ? "selected" : "outline"}
-        size="icon"
-        disabled={!canSelectAll}
-        aria-pressed={allSelected}
-        aria-label={tCards(
-          allSelected ? "cardToolbar.deselectAll" : "cardToolbar.selectAll",
-        )}
-        title={tCards(
-          allSelected ? "cardToolbar.deselectAll" : "cardToolbar.selectAll",
-        )}
-        className={iconButtonClassName}
-        onClick={onToggleSelectAll}
-      >
-        <IconCheckbox />
-      </Button>
+      {!isMobile && (
+        <Button
+          variant={allSelected ? "selected" : "outline"}
+          size="icon"
+          disabled={!canSelectAll}
+          aria-pressed={allSelected}
+          aria-label={tCards(
+            allSelected ? "cardToolbar.deselectAll" : "cardToolbar.selectAll",
+          )}
+          title={tCards(
+            allSelected ? "cardToolbar.deselectAll" : "cardToolbar.selectAll",
+          )}
+          onClick={onToggleSelectAll}
+        >
+          <IconCheckbox />
+        </Button>
+      )}
       <CardViewOptionsDrawer
         sortKey={sortKey}
         onSortChange={setSortKey}

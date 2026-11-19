@@ -81,7 +81,7 @@ export function EmptyCollectionDialog({
     }
     const guid =
       values.locationGuid === EMPTY_BIN_NEW_LOCATION
-        ? await create(values.newName)
+        ? await create({ name: values.newName })
         : values.locationGuid;
     if (!guid) return;
     const moved = await moveCollections({

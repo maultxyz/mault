@@ -27,6 +27,7 @@ export async function executeScanFoilNudge(
     !input.isReady ||
     !(
       input.firmwareVersion === "pi-0.1.0" ||
+      input.firmwareVersion === "pi-0.2.0" ||
       /^\d+\.\d+\.\d+(?:[-+].*)?$/.test(input.firmwareVersion ?? "")
     ) ||
     !isFirmwareFeatureSupported(input.firmwareVersion, "pusherNudge") ||
