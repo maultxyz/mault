@@ -108,6 +108,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
             binNumber: binNumber ?? null,
             binEmptiedAt: lateSaveBinEmptiedAtSql(
               orgId,
+              collection.id,
               binNumber,
               new Date(scannedAt).getTime(),
             ),

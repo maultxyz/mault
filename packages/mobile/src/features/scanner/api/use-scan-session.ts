@@ -1281,7 +1281,7 @@ export function useScanSession({
       await emptyBins(
         fullBinNumbers,
         ctx.collection?.game?.guid,
-        storesInClaimedLocations ? { collectionGuid, storeInClaimedLocations: true } : {},
+        { collectionGuid, storeInClaimedLocations: storesInClaimedLocations },
       );
     } catch {
       return false;

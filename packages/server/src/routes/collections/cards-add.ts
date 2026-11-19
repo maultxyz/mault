@@ -298,6 +298,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           await moveResortedCard(tx, {
             rowId: cardToResort.id,
             orgId,
+            collectionId: collection.id,
             scanId,
             scannedAt,
             binNumber,
@@ -348,6 +349,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
             binNumber: binNumber ?? null,
             binEmptiedAt: lateSaveBinEmptiedAtSql(
               orgId,
+              collection.id,
               binNumber,
               new Date(scannedAt).getTime(),
             ),

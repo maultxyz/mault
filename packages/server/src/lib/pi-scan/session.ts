@@ -364,7 +364,7 @@ async function prepareContext(
       );
     }
 
-    const sets = await loadSets(tx, session.orgId);
+    const sets = await loadSets(tx, session.orgId, collection.id);
     const active = sets.data?.find(
       (item) => item.isActive && item.game?.key === collection.gameKey,
     );

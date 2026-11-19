@@ -41,6 +41,21 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
       if (!activeBinSet)
         return { message: "No active set found.", success: false };
 
+      const collection = collectionGuid
+        ? await tx.query.collections.findFirst({
+            where: (t, { eq, and }) =>
+              and(
+                eq(t.guid, collectionGuid),
+                eq(t.orgId, orgId),
+                eq(t.isDeleted, false),
+              ),
+            columns: { id: true },
+          })
+        : undefined;
+      if (collectionGuid && !collection) {
+        return { message: "Collection not found.", success: false };
+      }
+
       let locationGuid = requestedLocationGuid;
       if (!locationGuid && storeInClaimedLocation) {
         await reclaimFillLocations(tx, activeBinSet.id);
@@ -59,7 +74,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
       }
 
       let storedScanIds: string[] = [];
-      if (locationGuid && collectionGuid) {
+      if (locationGuid && collection) {
         if (!(await orgHasFeature(tx, orgId, "storage"))) {
           return {
             message: STORAGE_UPGRADE_MESSAGE,
@@ -79,18 +94,6 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
         if (!location) {
           return { message: STORAGE_LOCATION_NOT_FOUND_MESSAGE, success: false };
         }
-        const collection = await tx.query.collections.findFirst({
-          where: (t, { eq, and }) =>
-            and(
-              eq(t.guid, collectionGuid),
-              eq(t.orgId, orgId),
-              eq(t.isDeleted, false),
-            ),
-          columns: { id: true },
-        });
-        if (!collection) {
-          return { message: "Collection not found.", success: false };
-        }
         storedScanIds = await assignBinToLocation(tx, {
           binNumber,
           collectionId: collection.id,
@@ -102,7 +105,7 @@ export const emptyBinRoute = new Hono<AppEnv>().post(
           .where(eq(storageLocations.id, location.id));
       }
 
-      await markBinsEmptied(tx, orgId, [binNumber]);
+      await markBinsEmptied(tx, orgId, [binNumber], collection?.id);
       await reclaimFillLocations(tx, activeBinSet.id);
 
       return {

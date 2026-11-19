@@ -20,6 +20,7 @@ export interface CardToResort {
 export interface MoveResortedCardInput {
   rowId: number;
   orgId: string;
+  collectionId: number;
   scanId: string;
   scannedAt: number;
   binNumber: number | null | undefined;
