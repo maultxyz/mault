@@ -95,11 +95,15 @@ import { useJamToast } from "@/features/scanner/api/use-jam-toast";
 import { usePendingScanSaves } from "@/features/scanner/api/use-pending-scan-saves";
 import { usePiHost } from "@/hooks/use-pi-host";
 import { useSessionMonitor } from "@/features/scanner/api/use-session-monitor";
-import { useScanTimer } from "@/features/scanner/api/use-scan-timer";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { BinCorrectionDialog } from "@/features/scanner/components/bin-correction-dialog";
 import { routeCardToBin } from "@/features/scanner/lib/route-card-to-bin";
+import { pendingScanCardsStore } from "@/features/cards/lib/pending-scan-cards-store";
+import {
+  useScanTimer,
+  useScanTimerElapsedMs,
+} from "@/features/scanner/api/use-scan-timer";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
 import type {
@@ -332,7 +336,7 @@ export function ScannedCardsProvider({
   const prevCollectionGuidRef = useRef<string | undefined>(undefined);
   const [scannerRunning, setScannerRunning] = useState(false);
   const [timerResetSignal, setTimerResetSignal] = useState(0);
-  const { elapsedMs, isActive: isTimerActive } = useScanTimer(
+  const { store: scanTimer, isActive: isTimerActive } = useScanTimer(
     scannerRunning,
     timerResetSignal,
   );
@@ -748,6 +752,12 @@ export function ScannedCardsProvider({
       const scanId = generateScanId();
       const scannedAt = Date.now();
       let placement: ScanPlacement | null = null;
+      let deferredNextFeed: (() => Promise<void>) | null = null;
+      const feedNextCardOnce = () => {
+        const feedNextCard = deferredNextFeed;
+        deferredNextFeed = null;
+        if (feedNextCard) void feedNextCard();
+      };
       void runScanDisposition({
         prepare: () =>
           prepareMatchedScanPlan(
@@ -846,6 +856,13 @@ export function ScannedCardsProvider({
               decision.persistence.kind === "cards/sorted",
             );
           }
+          if (decision.persistence.kind === "cards") {
+            pendingScanCardsStore.add({
+              scanId: record.scanId,
+              collectionGuid: collection.guid,
+              card: decision.persistence.record.card,
+            });
+          }
         },
         pick: (decision) => {
           if (decision.action !== "route") return;
@@ -880,6 +897,9 @@ export function ScannedCardsProvider({
               isPipelinedFeedEnabled,
               pause: pauseForRoutingFailure,
               triggerAutoFeedAfterRoutedCard,
+              deferNextFeed: (feedNextCard) => {
+                deferredNextFeed = feedNextCard;
+              },
               onJam: showJamToast,
             });
           }
@@ -887,7 +907,10 @@ export function ScannedCardsProvider({
         persist: async (decision) => {
           const record = decision.record;
           const matchedBin = decision.bin;
-          if (!record) return;
+          if (!record) {
+            feedNextCardOnce();
+            return;
+          }
           const orgId = activeOrgIdRef.current;
           const billingQueryKey = orgId
             ? billingQueryOptions(orgId).queryKey
@@ -900,6 +923,7 @@ export function ScannedCardsProvider({
             );
           }
           if (decision.persistence.kind === "cards/sorted") {
+            feedNextCardOnce();
             await recordSortOnlyScan(
               collection.guid,
               decision.persistence.record,
@@ -928,12 +952,15 @@ export function ScannedCardsProvider({
             return;
           }
 
-          await saveCard({
-            orgId: orgId ?? null,
-            collectionGuid: collection.guid,
-            deviceGuid: deviceGuidRef.current,
-            record: decision.persistence.record,
-          })
+          await saveCard(
+            {
+              orgId: orgId ?? null,
+              collectionGuid: collection.guid,
+              deviceGuid: deviceGuidRef.current,
+              record: decision.persistence.record,
+            },
+            feedNextCardOnce,
+          )
             .then((result) => {
               if (result.success) return;
               binContentsRef.current = binContentsRef.current.filter(
@@ -989,6 +1016,7 @@ export function ScannedCardsProvider({
               });
             })
             .finally(() => {
+              feedNextCardOnce();
               settlePendingBinCard(record.scanId);
               void invalidateCollectionCards(queryClient, collection.guid);
               if (decision.pickListUpdate)
@@ -1079,7 +1107,12 @@ export function ScannedCardsProvider({
   const dismissFullBins = useCallback(() => setFullBins(null), [setFullBins]);
 
   const routeToBin = useCallback(
-    (binNumber: number, failedKey: string, cardName?: string) => {
+    (
+      binNumber: number,
+      failedKey: string,
+      cardName?: string,
+      deferNextFeed?: (feedNextCard: () => Promise<void>) => void,
+    ) => {
       if (
         !serialRef.current.isConnected ||
         !serialRef.current.isReady ||
@@ -1100,6 +1133,7 @@ export function ScannedCardsProvider({
         isPipelinedFeedEnabled,
         pause: pauseForRoutingFailure,
         triggerAutoFeedAfterRoutedCard,
+        deferNextFeed,
         onJam: showJamToast,
       });
     },
@@ -1144,6 +1178,12 @@ export function ScannedCardsProvider({
       let placement: ScanPlacement | null = null;
       const scanId = generateScanId();
       const scannedAt = Date.now();
+      let deferredNextFeed: (() => Promise<void>) | null = null;
+      const feedNextCardOnce = () => {
+        const feedNextCard = deferredNextFeed;
+        deferredNextFeed = null;
+        if (feedNextCard) void feedNextCard();
+      };
       void runScanDisposition({
         prepare: () =>
           prepareUnmatchedScanPlan(
@@ -1199,22 +1239,32 @@ export function ScannedCardsProvider({
             await routeToBin(
               bin.binNumber,
               "scannedCards.routingFailedCatchAll",
+              undefined,
+              (feedNextCard) => {
+                deferredNextFeed = feedNextCard;
+              },
             );
         },
         persist: async (plan) => {
-          if (plan.persistence.kind === "none") return;
+          if (plan.persistence.kind === "none") {
+            feedNextCardOnce();
+            return;
+          }
           const record = plan.record;
           const catchAll = plan.bin;
           const dropRecord = () => {
             dropUnmatched(record.scanId);
             syncUnmatched(collection.guid);
           };
-          await saveUnmatched({
-            orgId: activeOrgIdRef.current ?? null,
-            collectionGuid: collection.guid,
-            deviceGuid: deviceGuidRef.current,
-            record: plan.persistence.record,
-          })
+          await saveUnmatched(
+            {
+              orgId: activeOrgIdRef.current ?? null,
+              collectionGuid: collection.guid,
+              deviceGuid: deviceGuidRef.current,
+              record: plan.persistence.record,
+            },
+            feedNextCardOnce,
+          )
             .then((result) => {
               if (result.success) return;
               dropRecord();
@@ -1235,6 +1285,7 @@ export function ScannedCardsProvider({
               });
             })
             .finally(() => {
+              feedNextCardOnce();
               settlePendingBinCard(record.scanId);
               void invalidateBinCounts(queryClient, collection.guid);
               void invalidateUnmatchedCards(queryClient, collection.guid);
@@ -1788,17 +1839,23 @@ export function ScannedCardsProvider({
     }
   }, [queryClient, syncUnmatched, resetSessionStats]);
 
-  return (
-    <ScannedCardsContext
-      value={{
+  const isEmergencyStopped = feedAttention?.kind === "emergencyStopped";
+  const forceFoilTypeValue = piScanSettings.foilType;
+  const forceSetCodesValue = piScanSettings.preferredSetCodes;
+  const scanConditionValue = piScanSettings.condition ?? scanCondition;
+  const setForceFoilTypeValue = piScanSettings.setFoilType;
+  const setForceSetCodesValue = piScanSettings.setPreferredSetCodes;
+  const setScanConditionValue = piScanSettings.setCondition;
+  const contextValue = useMemo<ScannedCardsContextValue>(
+    () => ({
         unmatchedCards,
         unmatchedCount,
         isLoading,
         autoFeed,
-        forceFoilType: piScanSettings.foilType,
-        forceSetCodes: piScanSettings.preferredSetCodes,
-        scanCondition: piScanSettings.condition ?? scanCondition,
-        elapsedMs,
+        forceFoilType: forceFoilTypeValue,
+        forceSetCodes: forceSetCodesValue,
+        scanCondition: scanConditionValue,
+        scanTimer,
         isTimerActive,
         recentScanTimes,
         sessionScanCount,
@@ -1806,10 +1863,10 @@ export function ScannedCardsProvider({
         setScannerRunning,
         resetSessionStats,
         setAutoFeed,
-        setForceFoilType: piScanSettings.setFoilType,
-        setForceSetCodes: piScanSettings.setPreferredSetCodes,
+        setForceFoilType: setForceFoilTypeValue,
+        setForceSetCodes: setForceSetCodesValue,
         setForceSetCodesAfterCollectionSwitch,
-        setScanCondition: piScanSettings.setCondition,
+        setScanCondition: setScanConditionValue,
         registerCardArrivedHook,
         registerFeedSource,
         feedOneCard,
@@ -1820,7 +1877,7 @@ export function ScannedCardsProvider({
         resume,
         emergencyStop,
         resetAfterEmergencyStop,
-        isEmergencyStopped: feedAttention?.kind === "emergencyStopped",
+        isEmergencyStopped,
         attention,
         reopenAttention,
         reportScannerError,
@@ -1857,8 +1914,79 @@ export function ScannedCardsProvider({
         setCardStamp,
         setCardsTags,
         clearCards,
-      }}
-    >
+    }),
+    [
+      unmatchedCards,
+      unmatchedCount,
+      isLoading,
+      autoFeed,
+      forceFoilTypeValue,
+      forceSetCodesValue,
+      scanConditionValue,
+      scanTimer,
+      isTimerActive,
+      recentScanTimes,
+      sessionScanCount,
+      lastRoutedBin,
+      setScannerRunning,
+      resetSessionStats,
+      setAutoFeed,
+      setForceFoilTypeValue,
+      setForceSetCodesValue,
+      setForceSetCodesAfterCollectionSwitch,
+      setScanConditionValue,
+      registerCardArrivedHook,
+      registerFeedSource,
+      feedOneCard,
+      registerPauseHook,
+      registerResumeHook,
+      pause,
+      pauseForAttention,
+      resume,
+      emergencyStop,
+      resetAfterEmergencyStop,
+      isEmergencyStopped,
+      attention,
+      reopenAttention,
+      reportScannerError,
+      isFeedHalted,
+      clearFeedHalt,
+      showJamToast,
+      addCard,
+      addUnmatchedCard,
+      removeUnmatchedCard,
+      removeAllUnmatchedCards,
+      identifyUnmatchedCard,
+      promptAddedCardBin,
+      sendCatchAllBin,
+      sendCardToBin,
+      binLimitBin,
+      resolveBinLimit,
+      dismissBinLimit,
+      fullBins,
+      fullBinCount,
+      emptyNextFullBin,
+      dismissFullBins,
+      removeCard,
+      removeCards,
+      removeCardsWithUndo,
+      moveCardsToCollection,
+      correctCard,
+      confirmCard,
+      markCardReviewed,
+      setCardFoilType,
+      setCardsFoilType,
+      setCardCondition,
+      setCardsCondition,
+      setCardLanguage,
+      setCardStamp,
+      setCardsTags,
+      clearCards,
+    ],
+  );
+
+  return (
+    <ScannedCardsContext value={contextValue}>
       {children}
       <BinCorrectionDialog
         correction={binCorrection}
@@ -1867,6 +1995,16 @@ export function ScannedCardsProvider({
       />
     </ScannedCardsContext>
   );
+}
+
+export function useScanElapsedMs(isLive = true): number {
+  const context = useContext(ScannedCardsContext);
+  if (!context) {
+    throw new Error(
+      "useScanElapsedMs must be used within a ScannedCardsProvider",
+    );
+  }
+  return useScanTimerElapsedMs(context.scanTimer, isLive);
 }
 
 export function useScannedCards() {

@@ -6,14 +6,12 @@ import { i18nReady, initialLanguage } from "@/lib/i18n";
 import { trimTrailingSlashes } from "@/lib/pathname";
 import { loadPiHost } from "@/lib/pi-host";
 import { prerenderEnvSignature } from "@/lib/prerender-env";
-import { registerServiceWorker } from "@/lib/pwa";
 import "@/lib/error-reporting";
 import { StrictMode } from "react";
 import { createRoot, hydrateRoot } from "react-dom/client";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 
 performance.mark("app:modules-evaluated");
-registerServiceWorker();
 void loadPiHost();
 
 const rootElement = document.getElementById("root")!;

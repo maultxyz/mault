@@ -2,6 +2,8 @@ import { collectionCardsKeys } from "@/features/collections/api/collection-cards
 import { apiGet, apiPost } from "@/lib/api/client";
 import {
   IN_PERSON_TRADE_CATALOG_SEARCH_QUERY_KEY,
+  IN_PERSON_TRADE_COLLECTION_CARDS_PAGE_SIZE,
+  IN_PERSON_TRADE_COLLECTION_CARDS_QUERY_KEY,
   IN_PERSON_TRADE_OWNED_SEARCH_QUERY_KEY,
   IN_PERSON_TRADE_QUOTE_QUERY_KEY,
   IN_PERSON_TRADE_SEARCH_RESULTS_MAX,
@@ -9,7 +11,9 @@ import {
   TRADE_OFFERS_QUERY_KEY,
 } from "@/lib/constants/trade-offers";
 import {
+  OWNED_CARD_SEARCH_COLLECTION_PARAM,
   OWNED_CARD_SEARCH_LIMIT_PARAM,
+  OWNED_CARD_SEARCH_OFFSET_PARAM,
   type CardSearchPage,
   type CreatedInPersonTrade,
   type InPersonTradeQuoteRequest,
@@ -18,7 +22,13 @@ import {
   type Result,
   type TradeOfferQuote,
 } from "@magic-vault/shared";
-import { keepPreviousData, queryOptions, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  infiniteQueryOptions,
+  keepPreviousData,
+  queryOptions,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 
 async function unwrapResult<T>(request: Promise<Result<T>>): Promise<T> {
   const result = await request;
@@ -46,6 +56,31 @@ export const inPersonOwnedCardSearchQueryOptions = (orgId: string | undefined, q
       return unwrapResult(apiGet<Result<OwnedCardSearchResult[]>>(`/api/collections/cards/search?${params}`));
     },
     enabled: !!orgId && query.length >= TRADE_OFFER_SEARCH_MIN_LENGTH,
+    placeholderData: keepPreviousData,
+  });
+
+export const inPersonCollectionCardsQueryOptions = (
+  orgId: string | undefined,
+  collectionGuid: string,
+  query: string,
+) =>
+  infiniteQueryOptions({
+    queryKey: [IN_PERSON_TRADE_COLLECTION_CARDS_QUERY_KEY, orgId, collectionGuid, query] as const,
+    queryFn: ({ pageParam }) => {
+      const params = new URLSearchParams({
+        q: query,
+        [OWNED_CARD_SEARCH_COLLECTION_PARAM]: collectionGuid,
+        [OWNED_CARD_SEARCH_LIMIT_PARAM]: String(IN_PERSON_TRADE_COLLECTION_CARDS_PAGE_SIZE),
+        [OWNED_CARD_SEARCH_OFFSET_PARAM]: String(pageParam),
+      });
+      return unwrapResult(apiGet<Result<OwnedCardSearchResult[]>>(`/api/collections/cards/search?${params}`));
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, _pages, lastOffset) =>
+      lastPage.length === IN_PERSON_TRADE_COLLECTION_CARDS_PAGE_SIZE
+        ? lastOffset + IN_PERSON_TRADE_COLLECTION_CARDS_PAGE_SIZE
+        : undefined,
+    enabled: !!orgId && !!collectionGuid,
     placeholderData: keepPreviousData,
   });
 

@@ -9,6 +9,7 @@ import { useStationName } from "@/features/scanner/api/use-station-name";
 import { stationCanResume } from "@/features/scanner/lib/station-attention";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { useSorterSelection } from "@/features/scanner/api/use-sorter-selection";
+import { BinLevelGrid } from "@/features/scanner/components/bin-level-grid";
 import { RenameDeviceButton } from "@/features/scanner/components/rename-device-button";
 import { StationOverviewCard } from "@/features/scanner/components/station-overview-card";
 import { Button } from "@/components/ui/button";
@@ -124,6 +125,7 @@ export function StationOverviewTile() {
       }
       openLabel={t("stations.overview.openStation", { name })}
       onOpen={openStation}
+      bins={<BinLevelGrid />}
       camera={
         showsVideo ? (
           <video

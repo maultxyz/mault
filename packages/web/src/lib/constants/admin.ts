@@ -18,6 +18,7 @@ import {
   IconMusic,
   IconRestore,
   IconRotate360,
+  IconSparkles,
   IconUserScan,
 } from "@tabler/icons-react";
 
@@ -99,6 +100,13 @@ export const ADMIN_SECTIONS = [
     labelKey: "sections.discord",
     adminOnly: false,
     showsOnMobile: true,
+  },
+  {
+    path: "whats-new",
+    icon: IconSparkles,
+    labelKey: "sections.whatsNew",
+    adminOnly: false,
+    showsOnMobile: false,
   },
   {
     path: "sounds",

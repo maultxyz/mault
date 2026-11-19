@@ -294,7 +294,8 @@
   },
   "mobileMenu": {
     "back": "Back",
-    "theme": "Theme"
+    "theme": "Theme",
+    "about": "About"
   },
   "firmwareGate": {
     "requires": "Requires firmware {{version}} or newer. Update your sorter's firmware to use this."
@@ -648,6 +649,11 @@
       "giveDescription": "Copies from your inventory",
       "giveEmpty": "Search your cards to add what you're giving.",
       "searchOwnedLabel": "Search your cards",
+      "giveSource": "Choose from",
+      "allCollections": "All collections (search)",
+      "filterCollectionLabel": "Filter this collection",
+      "noCollectionCards": "No cards in this collection to give.",
+      "loadMoreCards": "Load more cards",
       "addGivenCard": "Give {{name}}",
       "addReceivedCard": "Get {{name}}",
       "getTitle_one": "You get ({{count}})",
@@ -697,5 +703,37 @@
     "selfHosting": "Self-hosting",
     "development": "Development environment",
     "qa": "QA environment"
+  },
+  "featureHighlights": {
+    "title": "What's new",
+    "entrySubtitle": "Recent features and improvements",
+    "step": "{{current}} of {{total}}",
+    "back": "Back",
+    "next": "Next",
+    "gotIt": "Got it",
+    "seeAll": "See all updates",
+    "learnMore": "Learn more",
+    "opensInBrowser": "opens in a new tab",
+    "appeared": "What's new: new features are shown in the bottom right corner.",
+    "slideAnnouncement": "{{current}} of {{total}}: {{title}}",
+    "slideRoleDescription": "slide",
+    "timeline": {
+      "empty": "No feature highlights yet",
+      "new": "New",
+      "loadingMore": "Loading more highlights",
+      "loadMore": "Load more",
+      "loadFailed": "Couldn't load what's new."
+    },
+    "triggerWithCount_one": "What's new, {{count}} new",
+    "triggerWithCount_other": "What's new, {{count}} new",
+    "search": {
+      "label": "Search updates",
+      "placeholder": "Search updates",
+      "clear": "Clear search",
+      "noMatches": "No updates match \"{{query}}\"",
+      "resultsCount_one": "{{count}} update found",
+      "resultsCount_other": "{{count}} updates found"
+    },
+    "openInTimeline": "Open in What's new"
   }
 }

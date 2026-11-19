@@ -10,4 +10,5 @@ export const orgOverviewQueryOptions = (orgId: string | null, isScreenFocused = 
     enabled: !!orgId,
     staleTime: OVERVIEW_REFRESH_MS,
     refetchInterval: isScreenFocused ? OVERVIEW_REFRESH_MS : false,
+    refetchOnWindowFocus: true,
   });

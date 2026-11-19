@@ -67,6 +67,7 @@ export function PendingScanSavesProvider({
           send: sendPendingSave,
           put: putPendingScanSave,
           remove: deletePendingScanSave,
+          storesBeforeFirstAttempt: true,
           onPendingCountChange: (delta) =>
             setPendingCount((count) => count + delta),
           onRetryableFailure: (save, error, wasQueued) =>
@@ -92,25 +93,35 @@ export function PendingScanSavesProvider({
   }, [queue]);
 
   const submit = useCallback(
-    (save: PendingScanSave) => queue.submit(save),
+    (save: PendingScanSave, onStored?: () => void) =>
+      queue.submit(save, onStored),
     [queue],
   );
 
   const saveCard = useCallback(
-    async (save: CardScanSave) => {
+    async (save: CardScanSave, onStored?: () => void) => {
       const { scanId, card } = save.record;
-      pendingScanCardsStore.add({
-        scanId,
-        collectionGuid: save.collectionGuid,
-        card,
-      });
-      try {
-        const result = (await submit({
-          ...save,
-          kind: "card",
+      if (
+        !pendingScanCardsStore
+          .getSnapshot()
+          .some((pendingScanCard) => pendingScanCard.scanId === scanId)
+      ) {
+        pendingScanCardsStore.add({
           scanId,
-          queuedAt: Date.now(),
-        })) as CardSaveResult;
+          collectionGuid: save.collectionGuid,
+          card,
+        });
+      }
+      try {
+        const result = (await submit(
+          {
+            ...save,
+            kind: "card",
+            scanId,
+            queuedAt: Date.now(),
+          },
+          onStored,
+        )) as CardSaveResult;
         if (result.success) pendingScanCardsStore.markSaved(scanId);
         else pendingScanCardsStore.remove(scanId);
         return result;
@@ -123,13 +134,16 @@ export function PendingScanSavesProvider({
   );
 
   const saveUnmatched = useCallback(
-    (save: UnmatchedScanSave) =>
-      submit({
-        ...save,
-        kind: "unmatched",
-        scanId: save.record.scanId,
-        queuedAt: Date.now(),
-      }) as Promise<UnmatchedSaveResult>,
+    (save: UnmatchedScanSave, onStored?: () => void) =>
+      submit(
+        {
+          ...save,
+          kind: "unmatched",
+          scanId: save.record.scanId,
+          queuedAt: Date.now(),
+        },
+        onStored,
+      ) as Promise<UnmatchedSaveResult>,
     [submit],
   );
 

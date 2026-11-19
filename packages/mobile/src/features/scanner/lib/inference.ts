@@ -14,17 +14,34 @@ import {
 } from "@magic-vault/shared";
 import { DETECTOR_SESSION_KEY, MILO_SESSION_KEY } from "@/lib/constants/scanner";
 import type { Image } from "react-native-nitro-image";
-import type { CapturedFrame } from "@/lib/interfaces/scanner";
+import type { CapturedFrame, ScanModelsDownloadListener } from "@/lib/interfaces/scanner";
 import { resizedPixels } from "./frame";
+import { isPinnedModelDownloaded } from "./model-store";
 import { firstOutput, runModel, warmModel } from "./onnx";
 
 const DETECTOR_OPTIONS = { graphOptimizationLevel: "disabled" as const };
 
-export function warmScanModels(): Promise<void> {
+export function warmScanModels(onDownloadProgress?: ScanModelsDownloadListener): Promise<void> {
+  const downloads = new Map<string, { bytesWritten: number; totalBytes: number }>();
+  const reportDownload = (sessionKey: string) => (bytesWritten: number, totalBytes: number) => {
+    if (!onDownloadProgress || totalBytes <= 0) return;
+    downloads.set(sessionKey, { bytesWritten, totalBytes });
+    let written = 0;
+    let total = 0;
+    for (const download of downloads.values()) {
+      written += download.bytesWritten;
+      total += download.totalBytes;
+    }
+    onDownloadProgress(Math.min(100, Math.floor((written / total) * 100)));
+  };
   return Promise.all([
-    warmModel(DETECTOR_SESSION_KEY, CORNER_DETECTOR_MODEL, DETECTOR_OPTIONS),
-    warmModel(MILO_SESSION_KEY, MILO_MODEL),
+    warmModel(DETECTOR_SESSION_KEY, CORNER_DETECTOR_MODEL, DETECTOR_OPTIONS, reportDownload(DETECTOR_SESSION_KEY)),
+    warmModel(MILO_SESSION_KEY, MILO_MODEL, undefined, reportDownload(MILO_SESSION_KEY)),
   ]).then(() => undefined);
+}
+
+export function areScanModelsDownloaded(): boolean {
+  return isPinnedModelDownloaded(CORNER_DETECTOR_MODEL) && isPinnedModelDownloaded(MILO_MODEL);
 }
 
 export function detectCorners(

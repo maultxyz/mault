@@ -66,3 +66,39 @@ test("only writes count as mutating requests", () => {
   assert.equal(isMutatingRequestMethod("POST"), true);
   assert.equal(isMutatingRequestMethod("DELETE"), true);
 });
+
+test("a spaced cache loads the first read at once and delays the next load after an invalidation", async () => {
+  const cache = createOrgReadCache<{ loadCount: number }>(60_000, 10, 80);
+  const loader = countingLoader();
+  const startedAt = Date.now();
+  await cache.get("org-cache-f", "summary", loader.load);
+  assert.ok(Date.now() - startedAt < 60);
+  invalidateOrgReadCaches("org-cache-f");
+  const second = await cache.get("org-cache-f", "summary", loader.load);
+  assert.equal(second.loadCount, 2);
+  assert.ok(Date.now() - startedAt >= 75);
+});
+
+test("reads that arrive while a spaced load is waiting share that one load", async () => {
+  const cache = createOrgReadCache<{ loadCount: number }>(60_000, 10, 80);
+  const loader = countingLoader();
+  await cache.get("org-cache-g", "summary", loader.load);
+  invalidateOrgReadCaches("org-cache-g");
+  const waiting = cache.get("org-cache-g", "summary", loader.load);
+  invalidateOrgReadCaches("org-cache-g");
+  const joined = cache.get("org-cache-g", "summary", loader.load);
+  const [first, second] = await Promise.all([waiting, joined]);
+  assert.equal(first.loadCount, 2);
+  assert.equal(second.loadCount, 2);
+  assert.equal(loader.loadCount(), 2);
+});
+
+test("spacing applies per variant, so another variant loads at once", async () => {
+  const cache = createOrgReadCache<{ loadCount: number }>(60_000, 10, 5_000);
+  const loader = countingLoader();
+  await cache.get("org-cache-h", "summary-a", loader.load);
+  const startedAt = Date.now();
+  await cache.get("org-cache-h", "summary-b", loader.load);
+  assert.ok(Date.now() - startedAt < 60);
+  assert.equal(loader.loadCount(), 2);
+});

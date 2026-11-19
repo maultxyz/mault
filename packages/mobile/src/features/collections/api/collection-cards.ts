@@ -21,7 +21,7 @@ import {
   type ScanTimelineGrouping,
 } from "@magic-vault/shared";
 import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
-import { SCAN_IMAGE_STALE_MS, SCAN_SAVE_REFRESH_THROTTLE_MS } from "@/lib/constants/query";
+import { CARD_EDIT_REFRESH_DELAY_MS, SCAN_IMAGE_STALE_MS, SCAN_SAVE_REFRESH_THROTTLE_MS } from "@/lib/constants/query";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
 import type { ScanImageResponse } from "@/lib/interfaces/collections";
 
@@ -131,6 +131,20 @@ export function invalidateCollectionCards(queryClient: QueryClient, guid: string
   void queryClient.invalidateQueries({ queryKey: ["org-overview"], refetchType: "none" });
   void queryClient.invalidateQueries({ queryKey: ["stats"], refetchType: "none" });
   void queryClient.invalidateQueries({ queryKey: ["storage-locations"] });
+}
+
+const cardEditRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();
+
+export function invalidateCollectionCardsAfterEdits(queryClient: QueryClient, guid: string): void {
+  const pending = cardEditRefreshTimers.get(guid);
+  if (pending) clearTimeout(pending);
+  cardEditRefreshTimers.set(
+    guid,
+    setTimeout(() => {
+      cardEditRefreshTimers.delete(guid);
+      invalidateCollectionCards(queryClient, guid);
+    }, CARD_EDIT_REFRESH_DELAY_MS),
+  );
 }
 
 const scanSaveRefreshTimers = new Map<string, ReturnType<typeof setTimeout>>();

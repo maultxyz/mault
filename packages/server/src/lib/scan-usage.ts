@@ -1,9 +1,9 @@
 import { and, eq, gte, sql } from "drizzle-orm";
-import { db, type Transaction } from "../db";
+import { singleStatementDb, type Transaction } from "../db";
 import { orgDailyScanUsage } from "../db/schema";
 import { planLimit } from "./plan-config";
 
-function todayUtc(): string {
+export function todayUtc(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
@@ -24,7 +24,7 @@ export async function consumeDailyScan(
   plan: string | undefined,
 ): Promise<boolean> {
   const limit = dailyScanLimitForPlan(plan);
-  const rows = await db
+  const rows = await singleStatementDb
     .insert(orgDailyScanUsage)
     .values({ orgId, day: todayUtc(), scanCount: 1 })
     .onConflictDoUpdate({

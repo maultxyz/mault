@@ -62,6 +62,7 @@ export interface IdentifyOptions {
   scope: MatchScope;
   matchesNeeded: number;
   checkBothOrientations: boolean;
+  preferredOrientation?: Orientation | null;
   ocrMode: ScanOcrMode;
   gameKey: string | null;
   minSharpness?: number;
@@ -71,6 +72,7 @@ export interface IdentifyOutcome {
   card: PlayingCardWithDistance | null;
   alternativeMatches: PlayingCardWithDistance[];
   capturedImageUrl: string | null;
+  matchedOrientation: Orientation | null;
   matched: MatchedScanDetails | null;
   noMatch: UnmatchedScanDetails | null;
 }
@@ -148,6 +150,10 @@ export interface ScanFeedEntry {
   lowConfidence?: boolean;
 }
 
+export type ModelDownloadProgressListener = (bytesWritten: number, totalBytes: number) => void;
+
+export type ScanModelsDownloadListener = (downloadedPercent: number) => void;
+
 export interface ScanSessionState {
   phase: ScannerPhase;
   pauseReason: ScannerPauseReason | null;
@@ -155,6 +161,7 @@ export interface ScanSessionState {
   feed: ScanFeedEntry[];
   sessionCount: number;
   modelError: string | null;
+  modelDownloadPercent: number | null;
 }
 
 export interface PendingCardSave {
@@ -200,6 +207,7 @@ export interface ScanSessionInputs {
 }
 
 export interface ScanSessionValue extends ScanSessionState {
+  retryModelLoad: () => void;
   isRunning: boolean;
   canStart: boolean;
   start: () => void;
@@ -388,14 +396,25 @@ export type ScannerQrLink =
   | { kind: "short-link"; shortCode: string }
   | { kind: "desktop-camera"; collectionGuid: string };
 
+export type LiveFrameInspector = (image: Image, isCardDetected: boolean) => Promise<void>;
+
 export interface ScannerQrWatcherOptions {
   active: boolean;
   onQrLink: (qrLink: ScannerQrLink) => void;
-  grabLiveFrame: () => Promise<Image>;
 }
 
 export interface ScannerQrWatcher {
   outputs: CameraOutput[];
+  inspectLiveFrame?: LiveFrameInspector;
+}
+
+export interface LiveCardOutlineProps {
+  grabLiveFrame: () => Promise<Image>;
+  isActive: boolean;
+  isPaused: boolean;
+  color: string;
+  onDetection?: (corners: LiveCorners | null) => void;
+  onLiveFrame?: LiveFrameInspector;
 }
 
 export interface RoutedCardTarget {
@@ -454,6 +473,7 @@ export interface BatchScanCorrectionSheetProps {
 export type ReadOrientationText = (
   orientation: OrientedPick["orientation"],
   embedding: number[],
+  resolvedGameKey?: string,
 ) => Promise<CardTextSearchResult | null>;
 
 export interface CameraTorch {

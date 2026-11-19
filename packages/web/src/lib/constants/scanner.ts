@@ -12,7 +12,9 @@ import {
   type PiScanSessionState,
   type ScannerStatus,
   EMPTY_CARD_FILTERS,
+  IDENTIFY_REQUEST_TIMEOUT_MS,
 } from "@magic-vault/shared";
+import type { ApiPostFormOptions } from "@/lib/interfaces/api-client";
 import { runtimeEnv } from "@/lib/runtime-env";
 import type { CommLogEntry, DesktopScannerIcon } from "@magic-vault/shared";
 import type {
@@ -165,6 +167,10 @@ export const CORRECTION_TIMER_CIRCUMFERENCE =
   2 * Math.PI * CORRECTION_TIMER_RADIUS;
 
 export const SCANNER_LIVE_DETECTION_INTERVAL_MS = 300;
+export const IDENTIFY_REQUEST_OPTIONS: ApiPostFormOptions = {
+  timeoutMs: IDENTIFY_REQUEST_TIMEOUT_MS,
+  reportsHttpStatus: true,
+};
 export const SCANNER_CAMERA_FRAME_RATE = 15;
 export const SCANNER_BACKGROUND_PREVIEW_INTERVAL_MS = 1000;
 export const SCANNER_PREVIEW_FRAME_TOLERANCE_MS = 8;

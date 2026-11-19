@@ -12,7 +12,8 @@
     "deleted": "Supprimés et non reconnus",
     "shortLinks": "Liens courts",
     "hardware": "Matériel",
-    "developer": "Développeur"
+    "developer": "Développeur",
+    "whatsNew": "Nouveautés"
   },
   "kitTest": {
     "board": {
@@ -438,7 +439,8 @@
       "intakeLot": "Rachat",
       "fulfilmentOrder": "Commande",
       "accuracyCheck": "Contrôle",
-      "shopCatalog": "Catalogue boutique"
+      "shopCatalog": "Catalogue boutique",
+      "featureHighlight": "Nouveauté"
     },
     "toasts": {
       "restored": "{{name}} restauré",
@@ -590,6 +592,73 @@
       "disabled": "Les liens courts sont désactivés sur ce serveur.",
       "codeTaken": "Ce code est déjà utilisé. Choisissez-en un autre.",
       "notFound": "Ce lien court n'existe plus."
+    }
+  },
+  "featureHighlights": {
+    "heading": "Nouveautés",
+    "description": "Présentations de fonctionnalités affichées à chaque personne après la connexion : une carte sur ordinateur, une feuille sur téléphone. Les nouveautés de version sont livrées avec l'app et n'apparaissent pas ici.",
+    "add": "Ajouter une nouveauté",
+    "loadFailed": "Impossible de charger les nouveautés.",
+    "empty": "Aucune nouveauté pour l'instant.",
+    "summary_one": "{{date}}, {{count}} diapositive",
+    "summary_other": "{{date}}, {{count}} diapositives",
+    "editLabel": "Modifier {{title}}",
+    "deleteLabel": "Supprimer {{title}}",
+    "status": {
+      "draft": "Brouillon",
+      "scheduled": "Planifiée",
+      "published": "Publiée"
+    },
+    "mediaTypes": {
+      "none": "Aucun",
+      "image": "Image ou GIF",
+      "video": "Vidéo"
+    },
+    "form": {
+      "createTitle": "Ajouter une nouveauté",
+      "editTitle": "Modifier la nouveauté",
+      "description": "Chaque diapositive affiche un média, un titre, un texte et un lien facultatif.",
+      "publishedAt": "Date de publication",
+      "published": "Publiée",
+      "publishHint": "Une nouveauté publiée est visible à partir de sa date de publication, jusqu'à ce qu'elle ait plus de 45 jours.",
+      "slideHeading": "Diapositive {{number}}",
+      "moveUp": "Monter la diapositive {{number}}",
+      "moveDown": "Descendre la diapositive {{number}}",
+      "removeSlide": "Retirer la diapositive {{number}}",
+      "addSlide": "Ajouter une diapositive",
+      "title": "Titre",
+      "body": "Texte",
+      "mediaType": "Média",
+      "mediaUrl": "URL du média",
+      "mediaUrlHint": "Importez un fichier ou collez une URL https:// hébergée.",
+      "posterUrl": "URL de l'image d'aperçu (facultatif)",
+      "altText": "Texte alternatif",
+      "linkUrl": "URL du lien (facultatif)",
+      "linkLabel": "Libellé du lien",
+      "urlPlaceholder": "https://",
+      "upload": "Importer",
+      "uploading": "Importation...",
+      "cancel": "Annuler",
+      "save": "Enregistrer",
+      "saving": "Enregistrement..."
+    },
+    "preview": {
+      "label": "Aperçu",
+      "untitled": "Sans titre"
+    },
+    "toasts": {
+      "saveSuccess": "Nouveauté enregistrée.",
+      "saveError": "Impossible d'enregistrer la nouveauté.",
+      "deleteSuccess": "Nouveauté supprimée.",
+      "deleteError": "Impossible de supprimer la nouveauté.",
+      "uploadSuccess": "Média importé.",
+      "uploadError": "Impossible d'importer le fichier.",
+      "unsupportedFile": "Utilisez un fichier PNG, JPEG, WebP, GIF, MP4 ou WebM.",
+      "fileTooLarge": "Le fichier doit faire moins de {{size}} Mo."
+    },
+    "deleteDialog": {
+      "title": "Supprimer la nouveauté ?",
+      "description": "Elle ne sera plus affichée. Vous pouvez la restaurer depuis les éléments supprimés."
     }
   }
 }

@@ -1,6 +1,7 @@
 import { InferenceSession, Tensor } from "onnxruntime-react-native";
 import type { PinnedModel } from "@magic-vault/shared";
-import { loadPinnedModel } from "./model-store";
+import type { ModelDownloadProgressListener } from "@/lib/interfaces/scanner";
+import { deletePinnedModelFile, ensurePinnedModelFile } from "./model-store";
 
 const sessions = new Map<string, Promise<InferenceSession>>();
 const queues = new Map<string, Promise<unknown>>();
@@ -14,16 +15,30 @@ function enqueue<T>(key: string, task: () => Promise<T>): Promise<T> {
   return next;
 }
 
+async function createSessionFromModelFile(
+  model: PinnedModel,
+  options: InferenceSession.SessionOptions | undefined,
+  onDownloadProgress: ModelDownloadProgressListener | undefined,
+): Promise<InferenceSession> {
+  const sessionOptions: InferenceSession.SessionOptions = { executionProviders: ["cpu"], ...options };
+  const modelUri = await ensurePinnedModelFile(model, onDownloadProgress);
+  try {
+    return await InferenceSession.create(modelUri, sessionOptions);
+  } catch {
+    deletePinnedModelFile(model);
+    return InferenceSession.create(await ensurePinnedModelFile(model, onDownloadProgress), sessionOptions);
+  }
+}
+
 function loadSession(
   key: string,
   model: PinnedModel,
   options?: InferenceSession.SessionOptions,
+  onDownloadProgress?: ModelDownloadProgressListener,
 ): Promise<InferenceSession> {
   let promise = sessions.get(key);
   if (!promise) {
-    promise = loadPinnedModel(model).then((bytes) =>
-      InferenceSession.create(bytes, { executionProviders: ["cpu"], ...options }),
-    );
+    promise = createSessionFromModelFile(model, options, onDownloadProgress);
     const created = promise;
     created.catch(() => {
       if (sessions.get(key) === created) sessions.delete(key);
@@ -37,8 +52,9 @@ export function warmModel(
   key: string,
   model: PinnedModel,
   options?: InferenceSession.SessionOptions,
+  onDownloadProgress?: ModelDownloadProgressListener,
 ): Promise<void> {
-  return loadSession(key, model, options).then(() => undefined);
+  return loadSession(key, model, options, onDownloadProgress).then(() => undefined);
 }
 
 export function runModel(

@@ -271,7 +271,7 @@ export function InPersonTradeForm() {
           <h3 id={`${formId}-cash`} className="font-heading text-sm font-semibold">
             {t("tradeOffers.inPerson.cashTitle")}
           </h3>
-          <div className="flex flex-wrap items-end gap-1.5">
+          <div className="flex flex-wrap items-end gap-1.5 max-md:flex-col max-md:items-stretch max-md:gap-3">
             <Controller
               name="cashDirection"
               control={form.control}
@@ -287,7 +287,7 @@ export function InPersonTradeForm() {
                 />
               )}
             />
-            <Field data-invalid={!!errors.cash} className="w-40">
+            <Field data-invalid={!!errors.cash} className="md:w-40">
               <FieldLabel htmlFor={cashId}>{tCards("tradeOffers.cashLabel", { currency: cashCurrency })}</FieldLabel>
               <Input id={cashId} inputMode="decimal" autoComplete="off" placeholder="0.00" {...form.register("cash")} />
               <FieldError errors={[errors.cash]} />
@@ -306,7 +306,7 @@ export function InPersonTradeForm() {
             />
           </div>
         )}
-        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 md:px-3 md:py-2">
+        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 max-md:flex-col max-md:items-stretch md:px-3 md:py-2">
           <p role="status" className="text-control">
             {hasContent ? t("tradeOffers.inPerson.readyHint") : t("tradeOffers.inPerson.emptyHint")}
           </p>

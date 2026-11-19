@@ -1,7 +1,45 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import type {
+  ScanTimerStore,
+  WritableScanTimerStore,
+} from "@/lib/interfaces/scanner";
+
+function createScanTimerStore(): WritableScanTimerStore {
+  let elapsedMs = 0;
+  const listeners = new Set<() => void>();
+  return {
+    subscribe(listener) {
+      listeners.add(listener);
+      return () => {
+        listeners.delete(listener);
+      };
+    },
+    getSnapshot: () => elapsedMs,
+    set(nextElapsedMs) {
+      if (nextElapsedMs === elapsedMs) return;
+      elapsedMs = nextElapsedMs;
+      for (const listener of listeners) listener();
+    },
+  };
+}
+
+function subscribeToNothing() {
+  return () => {};
+}
+
+export function useScanTimerElapsedMs(
+  store: ScanTimerStore,
+  isLive = true,
+): number {
+  return useSyncExternalStore(
+    isLive ? store.subscribe : subscribeToNothing,
+    store.getSnapshot,
+  );
+}
 
 export function useScanTimer(isRunning: boolean, resetSignal: number) {
-  const [elapsedMs, setElapsedMs] = useState(0);
+  const [store] = useState(createScanTimerStore);
+  const setElapsedMs = store.set;
   const accumulated = useRef(0);
   const segmentStart = useRef<number | null>(null);
 
@@ -9,7 +47,7 @@ export function useScanTimer(isRunning: boolean, resetSignal: number) {
     accumulated.current = 0;
     segmentStart.current = segmentStart.current === null ? null : Date.now();
     setElapsedMs(0);
-  }, [resetSignal]);
+  }, [resetSignal, setElapsedMs]);
 
   useEffect(() => {
     if (!isRunning) return;
@@ -27,7 +65,7 @@ export function useScanTimer(isRunning: boolean, resetSignal: number) {
       }
       setElapsedMs(accumulated.current);
     };
-  }, [isRunning]);
+  }, [isRunning, setElapsedMs]);
 
-  return { elapsedMs, isActive: isRunning };
+  return { store: store as ScanTimerStore, isActive: isRunning };
 }

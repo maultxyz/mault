@@ -17,6 +17,7 @@ import type {
   CardSearchResult,
   RouteOptions,
   ScanAttemptResult,
+  ScanOrientation,
   SerialMessageListener,
   SerialRequestResult,
   UnmatchedScanDetails,
@@ -168,6 +169,38 @@ export interface MatchScope {
   matchGameKeys?: string[];
 }
 
+export interface QrDecodeWorkerRequest {
+  decodeId: number;
+  pixels: ArrayBuffer;
+  width: number;
+  height: number;
+}
+
+export interface QrDecodeWorkerResponse {
+  decodeId: number;
+  text: string | null;
+  failed: boolean;
+}
+
+export interface PendingQrDecode {
+  image: ImageData;
+  resolve: (text: string | null) => void;
+}
+
+export interface QrDecodeWorkerScope {
+  onmessage: ((event: MessageEvent<QrDecodeWorkerRequest>) => void) | null;
+  postMessage: (message: QrDecodeWorkerResponse) => void;
+}
+
+export interface ScanTimerStore {
+  subscribe: (listener: () => void) => () => void;
+  getSnapshot: () => number;
+}
+
+export interface WritableScanTimerStore extends ScanTimerStore {
+  set: (elapsedMs: number) => void;
+}
+
 export interface ScannedCardsContextValue {
   unmatchedCards: UnmatchedCard[];
   unmatchedCount: number;
@@ -176,7 +209,7 @@ export interface ScannedCardsContextValue {
   forceFoilType: string | null;
   forceSetCodes: string[];
   scanCondition: CardCondition;
-  elapsedMs: number;
+  scanTimer: ScanTimerStore;
   isTimerActive: boolean;
   recentScanTimes: number[];
   sessionScanCount: number;
@@ -546,6 +579,10 @@ export interface BinLevelCellProps {
   className?: string;
 }
 
+export interface BinLevelGridProps {
+  className?: string;
+}
+
 export interface BinLevelSummary {
   totalCards: number;
   fullest: BinFillLevel | null;
@@ -849,6 +886,7 @@ export interface ScanOutcome {
   detectedContour: CardContour | null;
   vectorizedOn: ScanVectorizeSource;
   dewarpedCardImage: ImageData | null;
+  matchedOrientation: ScanOrientation | null;
   matched: MatchedScanDetails | null;
   noMatch: UnmatchedScanDetails | null;
 }
@@ -995,6 +1033,7 @@ export interface RouteCardToBinParams {
   isPipelinedFeedEnabled: () => boolean;
   pause: () => void;
   triggerAutoFeedAfterRoutedCard: () => Promise<void>;
+  deferNextFeed?: (feedNextCard: () => Promise<void>) => void;
   onJam: (options: JamToastOptions) => void;
 }
 
@@ -1224,8 +1263,14 @@ export type PendingScanSave =
     });
 
 export interface PendingScanSavesContextValue {
-  saveCard: (save: CardScanSave) => Promise<CardSaveResult>;
-  saveUnmatched: (save: UnmatchedScanSave) => Promise<UnmatchedSaveResult>;
+  saveCard: (
+    save: CardScanSave,
+    onStored?: () => void,
+  ) => Promise<CardSaveResult>;
+  saveUnmatched: (
+    save: UnmatchedScanSave,
+    onStored?: () => void,
+  ) => Promise<UnmatchedSaveResult>;
   pendingCount: number;
 }
 

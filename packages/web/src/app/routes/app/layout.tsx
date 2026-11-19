@@ -9,6 +9,7 @@ import { SeasonalPumpkin, SpiderWeb } from "@/components/halloween-decor";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { PlanPreviewBanner } from "@/components/plan-preview-banner";
 import { IntakeBanner } from "@/features/business/components/intake-banner";
+import { FeatureHighlightsHost } from "@/features/feature-highlights/components/feature-highlights-host";
 import { GlobalSearchCommand } from "@/features/search/components/global-search-command";
 import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog";
 import { MobileNav } from "@/components/mobile-nav";
@@ -41,7 +42,11 @@ import { Outlet, useLocation } from "react-router-dom";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { RouteAnnouncer } from "@/components/route-announcer";
+import { RouteLoadingIndicator } from "@/components/route-loading-indicator";
 import { SkipLink } from "@/components/skip-link";
+import { useRoutePreloadOnIntent } from "@/hooks/use-route-preload-on-intent";
+import { registerServiceWorker } from "@/lib/pwa";
+import { useEffect } from "react";
 
 export default function AppLayout() {
   const { t } = useTranslation("common");
@@ -50,11 +55,14 @@ export default function AppLayout() {
   const hideMobileNav = MOBILE_NAV_HIDDEN_PATTERN.test(pathname);
   const isImmersive = MOBILE_IMMERSIVE_PATTERN.test(pathname);
   const isFramed = !hideMobileNav;
+  useRoutePreloadOnIntent();
+  useEffect(() => registerServiceWorker(), []);
 
   return (
     <AppProviders>
       <SkipLink />
       <RouteAnnouncer />
+      <RouteLoadingIndicator />
       <GlobalSearchCommand />
       {isMobile ? (
         <div
@@ -91,6 +99,7 @@ export default function AppLayout() {
             </PageTransition>
           </main>
           {!hideMobileNav && <MobileNav />}
+          <FeatureHighlightsHost />
         </div>
       ) : (
         <div className="h-dvh w-dvw overflow-hidden pb-6 flex flex-col bg-sidebar relative isolate text-foreground/70">
@@ -116,6 +125,7 @@ export default function AppLayout() {
               </PageTransition>
             </main>
           </div>
+          <FeatureHighlightsHost />
           <ScannerPip />
           <DesktopScannerPip />
           <AppHotkeys />

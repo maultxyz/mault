@@ -40,6 +40,7 @@ import type {
 } from "../interfaces/card-search";
 import { validateCatalogQuery } from "./validate";
 import { parsePrintingQueries } from "./printing-query";
+import { matchesEnglishCardNameSql } from "../english-card-name-search";
 import {
   cardPrintingsSql,
   catalogPrintingIsListedSql,
@@ -174,7 +175,7 @@ function printingMatches({ setCode, number, name }: PrintingQuery): SQL {
   return sql`(lower(${cardImageVectors.setCode}) = ${set} AND (${numberMatches(number)} OR ${collectorNumber} = ${`${set}-${wanted}`} OR ${collectorNumber} = ${`${set}${wanted}`}))`;
 }
 
-function storedSearchMatch(trimmed: string) {
+function storedSearchMatch(trimmed: string, gameKey: string) {
   const pattern = likePattern(trimmed);
   const printingQueries = parsePrintingQueries(trimmed);
   const printingMatch = printingQueries.length
@@ -185,7 +186,20 @@ function storedSearchMatch(trimmed: string) {
     : undefined;
   return {
     printingMatch,
-    match: or(ilike(cardImageVectors.name, pattern), printingMatch, setMatch),
+    match: or(
+      ilike(cardImageVectors.name, pattern),
+      printingMatch,
+      setMatch,
+      matchesEnglishCardNameSql(
+        {
+          gameKey: sql`${gameKey}`,
+          lang: sql`${cardImageVectors.lang}`,
+          setCode: sql`${cardImageVectors.setCode}`,
+          collectorNumber: sql`${cardImageVectors.collectorNumber}`,
+        },
+        trimmed,
+      ),
+    ),
   };
 }
 
@@ -197,7 +211,7 @@ async function searchStoredCards(
 ): Promise<CardSearchPage> {
   const { adapter, gameKey, lang } = resolved;
   const trimmed = query.trim();
-  const { match, printingMatch } = storedSearchMatch(trimmed);
+  const { match, printingMatch } = storedSearchMatch(trimmed, gameKey);
   const rows = await db
     .select({
       cardId: cardImageVectors.cardId,
@@ -306,7 +320,7 @@ async function searchCardSetsUncached(
   query: string,
 ): Promise<CardSetOption[]> {
   if (validateCatalogQuery(query)) return [];
-  const { match } = storedSearchMatch(query.trim());
+  const { match } = storedSearchMatch(query.trim(), resolved.gameKey);
   const rows = await db
     .select({
       code: cardImageVectors.setCode,
@@ -351,7 +365,7 @@ async function searchCatalogCardsGroupedByNameUncached(
   }
   const { adapter, gameKey, lang } = resolved;
   const trimmed = query.trim();
-  const { match, printingMatch } = storedSearchMatch(trimmed);
+  const { match, printingMatch } = storedSearchMatch(trimmed, gameKey);
   const printingFilter =
     and(
       isNotNull(cardImageVectors.data),

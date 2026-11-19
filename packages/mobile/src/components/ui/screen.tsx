@@ -1,5 +1,6 @@
 import { useContext } from "react";
 import { ScrollView, View } from "react-native";
+import { BottomActionBar } from "@/components/ui/bottom-action-bar";
 import { OfflineBanner } from "@/components/ui/offline-banner";
 import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -15,6 +16,7 @@ export function Screen({
   onRefresh,
   edges = [],
   header,
+  footer,
   contentStartsWithList = false,
 }: ScreenProps) {
   const colors = useTheme();
@@ -28,12 +30,13 @@ export function Screen({
       {isOfflineBannerHosted ? null : <OfflineBanner />}
       {scroll ? (
         <ScrollView
+          style={{ flex: 1 }}
           contentInsetAdjustmentBehavior="automatic"
           keyboardShouldPersistTaps="handled"
           contentContainerStyle={{
             paddingHorizontal: padding,
             paddingTop: topPadding,
-            paddingBottom: padding + SPACING.xxl,
+            paddingBottom: footer ? padding : padding + SPACING.xxl,
             gap: SPACING.lg + SPACING.xs,
           }}
           refreshControl={onRefresh ? <PullToRefreshControl onRefresh={onRefresh} /> : undefined}
@@ -45,6 +48,7 @@ export function Screen({
           {children}
         </View>
       )}
+      {footer ? <BottomActionBar>{footer}</BottomActionBar> : null}
     </SafeAreaView>
   );
 }

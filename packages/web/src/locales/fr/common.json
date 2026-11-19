@@ -294,7 +294,8 @@
   },
   "mobileMenu": {
     "back": "Retour",
-    "theme": "Thème"
+    "theme": "Thème",
+    "about": "À propos"
   },
   "firmwareGate": {
     "requires": "Nécessite le firmware {{version}} ou plus récent. Mets à jour le firmware de ton trieur pour l'utiliser."
@@ -648,6 +649,11 @@
       "giveDescription": "Des exemplaires de votre inventaire",
       "giveEmpty": "Cherchez dans vos cartes pour ajouter ce que vous donnez.",
       "searchOwnedLabel": "Chercher dans vos cartes",
+      "giveSource": "Choisir dans",
+      "allCollections": "Toutes les collections (recherche)",
+      "filterCollectionLabel": "Filtrer cette collection",
+      "noCollectionCards": "Aucune carte à donner dans cette collection.",
+      "loadMoreCards": "Charger plus de cartes",
       "addGivenCard": "Donner {{name}}",
       "addReceivedCard": "Recevoir {{name}}",
       "getTitle_one": "Vous recevez ({{count}})",
@@ -697,5 +703,37 @@
     "selfHosting": "Auto-hébergé",
     "development": "Environnement de développement",
     "qa": "Environnement QA"
+  },
+  "featureHighlights": {
+    "title": "Nouveautés",
+    "entrySubtitle": "Nouvelles fonctionnalités et améliorations",
+    "step": "{{current}} sur {{total}}",
+    "back": "Retour",
+    "next": "Suivant",
+    "gotIt": "Compris",
+    "seeAll": "Voir toutes les nouveautés",
+    "learnMore": "En savoir plus",
+    "opensInBrowser": "s'ouvre dans un nouvel onglet",
+    "appeared": "Nouveautés : de nouvelles fonctionnalités s'affichent en bas à droite.",
+    "slideAnnouncement": "{{current}} sur {{total}} : {{title}}",
+    "slideRoleDescription": "diapositive",
+    "timeline": {
+      "empty": "Aucune nouveauté pour l'instant",
+      "new": "Nouveau",
+      "loadingMore": "Chargement d'autres nouveautés",
+      "loadMore": "Charger plus",
+      "loadFailed": "Impossible de charger les nouveautés."
+    },
+    "triggerWithCount_one": "Nouveautés, {{count}} nouveauté",
+    "triggerWithCount_other": "Nouveautés, {{count}} nouveautés",
+    "search": {
+      "label": "Rechercher dans les nouveautés",
+      "placeholder": "Rechercher dans les nouveautés",
+      "clear": "Effacer la recherche",
+      "noMatches": "Aucune nouveauté ne correspond à « {{query}} »",
+      "resultsCount_one": "{{count}} nouveauté trouvée",
+      "resultsCount_other": "{{count}} nouveautés trouvées"
+    },
+    "openInTimeline": "Ouvrir dans Nouveautés"
   }
 }

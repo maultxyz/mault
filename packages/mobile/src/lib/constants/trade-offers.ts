@@ -18,3 +18,5 @@ export const IN_PERSON_TRADE_QUOTE_QUERY_KEY = "in-person-trade-quote";
 export const IN_PERSON_TRADE_SEARCH_QUERY_KEY = "in-person-trade-search";
 export const IN_PERSON_TRADE_SEARCH_MIN_LENGTH = 2;
 export const IN_PERSON_TRADE_SEARCH_RESULTS_MAX = 30;
+export const IN_PERSON_TRADE_COLLECTION_CARDS_PAGE_SIZE = 30;
+export const IN_PERSON_GIVEN_ALL_COLLECTIONS = "all";

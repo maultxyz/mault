@@ -14,6 +14,7 @@ import {
   getScansToday,
 } from "../../lib/scan-usage";
 import {
+  markRequestAsCardWrite,
   rejectWhileImpersonating,
   requireAuth,
   requireOrg,
@@ -27,6 +28,7 @@ export const sortOnlyScanRoute = new Hono<AppEnv>().post(
   "/:guid/cards/sorted",
   requireAuth,
   requireOrg,
+  markRequestAsCardWrite,
   rejectWhileImpersonating,
   async (c) => {
     const orgId = c.get("orgId");

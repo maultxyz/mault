@@ -8,9 +8,15 @@ import {
   SESSION_RESTORE_RETRY_MIN_MS,
 } from "@/lib/constants/auth";
 import { API_BASE, AUTH_PROVIDER } from "@/lib/constants/config";
-import { ACTIVE_ORG_KEY, SESSION_PROFILE_KEY, SESSION_TOKEN_KEY } from "@/lib/constants/storage-keys";
+import {
+  ACCESS_TOKEN_KEY,
+  ACTIVE_ORG_KEY,
+  SESSION_PROFILE_KEY,
+  SESSION_TOKEN_KEY,
+} from "@/lib/constants/storage-keys";
 import type {
   CachedJwt,
+  StoredAccessToken,
   CachedSessionProfile,
   SessionSnapshot,
   SessionUser,
@@ -36,6 +42,7 @@ let snapshot: SessionSnapshot = {
 };
 let sessionToken: string | null = null;
 let cachedJwt: CachedJwt | null = null;
+let isCachedJwtFromStorage = false;
 let pendingJwt: Promise<string | null> | null = null;
 const listeners = new Set<() => void>();
 
@@ -63,6 +70,35 @@ export function useSession(): SessionSnapshot {
   return useSyncExternalStore(subscribe, getSessionSnapshot);
 }
 
+function storeAccessToken(forSessionToken: string, jwt: string): void {
+  void writeSecure(
+    ACCESS_TOKEN_KEY,
+    JSON.stringify({ sessionToken: forSessionToken, jwt } satisfies StoredAccessToken),
+  ).catch(() => {});
+}
+
+function clearStoredAccessToken(): void {
+  void writeSecure(ACCESS_TOKEN_KEY, null).catch(() => {});
+}
+
+function restoreStoredAccessToken(forSessionToken: string, raw: string | null): void {
+  if (!raw || cachedJwt) return;
+  try {
+    const stored = JSON.parse(raw) as Partial<StoredAccessToken>;
+    const expiresAt = typeof stored.jwt === "string" ? jwtExpiresAt(stored.jwt) : null;
+    if (
+      typeof stored.jwt !== "string" ||
+      stored.sessionToken !== forSessionToken ||
+      expiresAt === null ||
+      expiresAt - JWT_REFRESH_MARGIN_MS <= Date.now()
+    ) {
+      return;
+    }
+    cachedJwt = { token: stored.jwt, expiresAt };
+    isCachedJwtFromStorage = true;
+  } catch {}
+}
+
 export async function getAccessToken(): Promise<string | null> {
   if (!sessionToken) return null;
   if (cachedJwt && cachedJwt.expiresAt - JWT_REFRESH_MARGIN_MS > Date.now()) {
@@ -76,6 +112,8 @@ export async function getAccessToken(): Promise<string | null> {
         cachedJwt = jwt
           ? { token: jwt, expiresAt: jwtExpiresAt(jwt) ?? Date.now() + JWT_REFRESH_MARGIN_MS * 2 }
           : null;
+        isCachedJwtFromStorage = false;
+        if (jwt && sessionToken === token) storeAccessToken(token, jwt);
         return jwt;
       })
       .finally(() => {
@@ -140,6 +178,8 @@ function readCachedSessionProfile(): CachedSessionProfile | null {
 function clearLocalSession(): void {
   sessionToken = null;
   cachedJwt = null;
+  isCachedJwtFromStorage = false;
+  clearStoredAccessToken();
   writeKv(SESSION_PROFILE_KEY, null);
   void writeSecure(SESSION_TOKEN_KEY, null).catch((error: unknown) =>
     console.warn("Clearing the stored session failed", error),
@@ -148,17 +188,31 @@ function clearLocalSession(): void {
 }
 
 export async function restoreSession(): Promise<void> {
-  sessionToken = await readSecure(SESSION_TOKEN_KEY);
+  const [storedSessionToken, storedAccessToken] = await Promise.all([
+    readSecure(SESSION_TOKEN_KEY),
+    readSecure(ACCESS_TOKEN_KEY),
+  ]);
+  sessionToken = storedSessionToken;
   if (!sessionToken) {
     writeKv(SESSION_PROFILE_KEY, null);
+    clearStoredAccessToken();
     setSnapshot({ status: "signed-out" });
     return;
   }
+  restoreStoredAccessToken(sessionToken, storedAccessToken);
   const cachedProfile = readCachedSessionProfile();
   if (cachedProfile) applySignedInProfile(cachedProfile);
   for (let attempt = 0; ; attempt++) {
     try {
-      if (!(await loadProfile())) clearLocalSession();
+      if (!(await loadProfile())) {
+        if (isCachedJwtFromStorage) {
+          isCachedJwtFromStorage = false;
+          cachedJwt = null;
+          clearStoredAccessToken();
+          continue;
+        }
+        clearLocalSession();
+      }
       return;
     } catch (error) {
       console.warn("Session restore failed, retrying", error);
@@ -178,6 +232,7 @@ async function startSession(
   if ("error" in result) return { error: result.error };
   sessionToken = result.sessionToken;
   cachedJwt = null;
+  isCachedJwtFromStorage = false;
   try {
     await writeSecure(SESSION_TOKEN_KEY, sessionToken);
   } catch (error) {

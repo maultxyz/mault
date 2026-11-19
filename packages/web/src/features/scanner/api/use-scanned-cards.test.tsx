@@ -138,7 +138,13 @@ vi.mock("./use-pending-scan-saves", () => ({
 }));
 vi.mock("@/hooks/use-pi-host", () => ({ usePiHost: () => false }));
 vi.mock("./use-session-monitor", () => ({ useSessionMonitor: () => ({}) }));
-vi.mock("./use-scan-timer", () => ({ useScanTimer: () => ({ elapsedMs: 0 }) }));
+vi.mock("./use-scan-timer", () => ({
+  useScanTimer: () => ({
+    store: { subscribe: () => () => {}, getSnapshot: () => 0 },
+    isActive: false,
+  }),
+  useScanTimerElapsedMs: () => 0,
+}));
 vi.mock("./use-serial", () => ({
   useSerial: () => ({
     isConnected: true,

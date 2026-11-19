@@ -3,7 +3,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { activeAnnouncementsQueryOptions } from "@/features/stream/api/announcements";
-import { useAppStream } from "@/features/stream/api/use-app-stream";
+import { useDeployNotice } from "@/features/stream/api/use-app-stream";
 import { useActiveOrgId } from "@/hooks/use-org";
 import type { AppAlert } from "@/lib/interfaces/stream";
 
@@ -11,7 +11,7 @@ export function useAppAlerts(): AppAlert[] {
   const { t } = useTranslation();
   const orgId = useActiveOrgId();
   const sorter = useSorter();
-  const { deployNotice } = useAppStream();
+  const deployNotice = useDeployNotice();
   const { data: announcements } = useQuery(activeAnnouncementsQueryOptions(orgId));
   const firmwareMissing = sorter.isConnected && sorter.isReady && !sorter.firmwareVersion;
 

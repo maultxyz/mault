@@ -669,6 +669,8 @@
     "headerButton_zero": "Trade offer",
     "headerButton_one": "Trade offer (1)",
     "headerButton_other": "Trade offer ({{count}})",
+    "reviewBar_one": "Review trade offer (1 card)",
+    "reviewBar_other": "Review trade offer ({{count}} cards)",
     "inTradeOffer": "In your trade offer",
     "addToTradeOffer": "Add to trade offer",
     "quickAdd": "Add {{name}} to trade offer",

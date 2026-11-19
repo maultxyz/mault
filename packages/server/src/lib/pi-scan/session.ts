@@ -7,7 +7,7 @@ import { configurePiScanSorter } from "./configure";
 import { checkPiScanFoil } from "./foil";
 import { loadSoundRules } from "../../routes/sounds/shared";
 import { loadCollections } from "../../routes/collections/shared";
-import { PiScanPrefetch } from "./prefetch";
+import { PiScanPrefetch, usablePrefetchedMatch } from "./prefetch";
 import { routeLoadedPiCard } from "./route-card";
 import { feedNextPiScanCard } from "./feed-next-card";
 import { retainPiScanUnsavedCards, waitForPiScanResume } from "./recovery";
@@ -94,6 +94,7 @@ import {
 import type {
   PiScanBinCard,
   PiScanFrameMatch,
+  PiScanPrefetchedCard,
   PiScanLive,
   PiScanRunContext,
   PiScanStartInput,
@@ -364,7 +365,7 @@ async function prepareContext(
       );
     }
 
-    const sets = await loadSets(tx, session.orgId);
+    const sets = await loadSets(tx, session.orgId, collection.id);
     const active = sets.data?.find(
       (item) => item.isActive && item.game?.key === collection.gameKey,
     );
@@ -593,6 +594,22 @@ function piMatchScopes(context: PiScanRunContext): CollectionMatchScope[] {
   );
 }
 
+function piMatchInputsKey(
+  session: PiScanLive,
+  context: PiScanRunContext,
+): string {
+  return JSON.stringify([
+    session.collectionGuid,
+    session.preferredSetCodes,
+    piMatchScopes(context),
+    context.region,
+    context.flipCamera,
+    context.checkBothOrientations,
+    context.ocrEnabled,
+    context.highAccuracyScans,
+  ]);
+}
+
 function piScopeForMatchedGame(
   context: PiScanRunContext,
   gameKey: string | undefined,
@@ -700,6 +717,9 @@ async function matchFrame(
     Awaited<ReturnType<typeof searchOrientation>>
   >({
     checkBothOrientations: context.checkBothOrientations,
+    preferredOrientation: corners.contour
+      ? session.lastMatchedOrientation
+      : null,
     ocrMode: (candidate) => {
       const scope = piScopeForMatchedGame(
         context,
@@ -838,14 +858,22 @@ async function matchUntilConsensus(
   session: PiScanLive,
   context: PiScanRunContext,
   firstFrame?: Buffer,
+  firstFrameMatch?: PiScanFrameMatch | null,
 ): Promise<{
   matched: PiScanFrameMatch;
   attempts: ScanAttemptDiagnostic[];
   card: PlayingCardWithDistance | null;
 }> {
   let initial = firstFrame;
+  let initialMatch = firstFrame ? firstFrameMatch : null;
   const outcome = await identifyScanWithConsensus(
     async () => {
+      const earlyMatch = initialMatch;
+      initialMatch = null;
+      if (earlyMatch) {
+        initial = undefined;
+        return earlyMatch;
+      }
       const frame = initial ?? (await grabSettledCameraFrame(undefined, undefined, session.cameraId));
       initial = undefined;
       return matchFrame(session, context, frame);
@@ -853,6 +881,8 @@ async function matchUntilConsensus(
     (attempt) => attempt.resolved.card,
     context.matchesNeeded,
   );
+  if (outcome.card && outcome.attempt.detection.cardDetected)
+    session.lastMatchedOrientation = outcome.attempt.orientation;
   return {
     matched: outcome.attempt,
     attempts: outcome.attempts.map(attemptDiagnostic),
@@ -972,7 +1002,7 @@ async function processMatched(
   link: SorterLink,
   identified: Awaited<ReturnType<typeof matchUntilConsensus>>,
   pipeline: Parameters<typeof routeLoadedPiCard>[2],
-  prefetch: PiScanPrefetch<Buffer>,
+  prefetch: PiScanPrefetch<PiScanPrefetchedCard>,
 ) {
   const card = identified.card;
   if (!card) return;
@@ -1137,7 +1167,7 @@ async function processUnmatched(
   link: SorterLink,
   identified: Awaited<ReturnType<typeof matchUntilConsensus>>,
   pipeline: Parameters<typeof routeLoadedPiCard>[2],
-  prefetch: PiScanPrefetch<Buffer>,
+  prefetch: PiScanPrefetch<PiScanPrefetchedCard>,
 ) {
   session.lastCardId = null;
   const matched = identified.matched;
@@ -1441,8 +1471,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
     `[pi-scan] started collection ${session.collectionGuid} on ${context.deviceGuid}`,
   );
   session.startedAt = Date.now();
-  const prefetch = new PiScanPrefetch(async () => {
-    await sleep(context.settleMs);
+  const prefetch = new PiScanPrefetch<PiScanPrefetchedCard>(async () => {
     if (
       session.stopRequested ||
       session.pauseRequested ||
@@ -1450,7 +1479,19 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
     ) {
       return null;
     }
-    return grabSettledCameraFrame(undefined, undefined, session.cameraId);
+    const frame = await grabSettledCameraFrame(
+      undefined,
+      undefined,
+      session.cameraId,
+    );
+    const matchInputsKey = piMatchInputsKey(session, context);
+    const match = await matchFrame(session, context, frame).catch(
+      (error: unknown) => {
+        console.error("[pi-scan] early identification failed:", error);
+        return null;
+      },
+    );
+    return { frame, match, matchInputsKey };
   });
   const pipeline = {
     enabled: () =>
@@ -1536,7 +1577,6 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         break;
       }
       session.activity = "matching";
-      if (!prefetched?.identified) await sleep(context.settleMs);
       const jammedAfterFeed = takeJam(link);
       if (jammedAfterFeed != null) {
         fail(session, `Jam at module ${jammedAfterFeed}.`);
@@ -1544,11 +1584,24 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
       }
 
       await runPiScanCardWorkflow(session, {
-        capture: async () => prefetched?.identified ?? grabSettledCameraFrame(undefined, undefined, session.cameraId),
+        capture: async () =>
+          prefetched?.identified?.frame ??
+          grabSettledCameraFrame(undefined, undefined, session.cameraId),
         readControl: readPiScannerControlCode,
         applyControl: (command) =>
           applyControlCard(session, context, link, command),
-        identify: (frame) => matchUntilConsensus(session, context, frame),
+        identify: (frame) =>
+          matchUntilConsensus(
+            session,
+            context,
+            frame,
+            frame === prefetched?.identified?.frame
+              ? usablePrefetchedMatch(
+                  prefetched.identified,
+                  piMatchInputsKey(session, context),
+                )
+              : null,
+          ),
         removal: (outcome) =>
           processRemoval(
             session,
@@ -1753,6 +1806,7 @@ function createSession(
     cameraId: body.cameraId,
     pendingSave: null,
     configurationVersion: 0,
+    lastMatchedOrientation: null,
     allowDuplicates: body.allowDuplicates !== false,
     lastCardId: null,
     removalEnabled: body.removalEnabled === true,

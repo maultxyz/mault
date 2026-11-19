@@ -3,10 +3,10 @@ import {
   PICK_LIST_CHANGED_THROTTLE_MS,
 } from "./constants/timing";
 import {
-  invalidateOrgReadCaches,
+  invalidateOrgCardReadCaches,
   invalidateOrgReadCachesForEvent,
 } from "./org-read-cache";
-import type { SseWriter } from "./interfaces/sse";
+import type { SerializedSseData, SseWriter } from "./interfaces/sse";
 import type {
   SessionEntry,
   ViewerEntry,
@@ -25,19 +25,25 @@ const pendingCollectionCardsChanged = new Map<
 const lastPickListChangedAt = new Map<string, number>();
 const pendingPickListChanged = new Map<string, ReturnType<typeof setTimeout>>();
 
+export function serializeSseDataOnce(data: unknown): SerializedSseData {
+  let serialized: string | undefined;
+  return () => (serialized ??= JSON.stringify(data));
+}
+
 export function emitToOrg(orgId: string, event: string, data: unknown) {
   invalidateOrgReadCachesForEvent(orgId, event);
   const writers = orgWriters.get(orgId);
   if (!writers) return;
+  const serializedData = serializeSseDataOnce(data);
   for (const writer of writers) {
     try {
-      writer(event, data);
+      writer(event, data, serializedData);
     } catch {}
   }
 }
 
 export function emitCollectionCardsChanged(orgId: string, guid: string) {
-  invalidateOrgReadCaches(orgId);
+  invalidateOrgCardReadCaches(orgId);
   if (pendingCollectionCardsChanged.has(orgId)) return;
   const sinceLastEmit =
     Date.now() - (lastCollectionCardsChangedAt.get(orgId) ?? 0);
@@ -86,9 +92,10 @@ function broadcastViewers(guid: string, session: SessionEntry) {
   const viewers = Array.from(session.viewers).map(
     ({ userId, displayName }) => ({ userId, displayName }),
   );
+  const serializedViewers = serializeSseDataOnce({ viewers });
   for (const entry of session.viewers) {
     try {
-      entry.writer("viewers_updated", { viewers });
+      entry.writer("viewers_updated", { viewers }, serializedViewers);
     } catch {}
   }
   emitToOrg(session.orgId, "live_count", { guid, count: session.viewers.size });
@@ -132,9 +139,10 @@ export function emitToSession(
 ): void {
   const session = sessions.get(guid);
   if (!session || session.orgId !== orgId) return;
+  const serializedData = serializeSseDataOnce(data);
   for (const entry of session.viewers) {
     try {
-      entry.writer(event, data);
+      entry.writer(event, data, serializedData);
     } catch {}
   }
 }

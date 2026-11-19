@@ -3,9 +3,15 @@ import { pickConsensus } from "./consensus";
 import { isStrongerTextMatch } from "./text-match";
 import { gameReadsPrintedLanguage } from "./card-language";
 import { CLOSE_MATCH_DELTA } from "./constants/ocr-regions.constant";
+import {
+  IDENTIFY_REQUEST_RETRY_DELAYS_MS,
+  PREFERRED_ORIENTATION_MAX_DISTANCE,
+} from "./constants/scanner.constant";
+import { MemberSeatLimitError } from "./scan-save";
 import type { CardSearchResult } from "./interfaces/api.interface";
 import type { PlayingCardWithDistance } from "./interfaces/card.interface";
 import type {
+  IdentifyRequestRetryOptions,
   LookupMatchedCard,
   OrientedSearchCandidate,
   ResolvedCardSearchMatches,
@@ -208,17 +214,90 @@ export function toScanMatchDetails(
   };
 }
 
+export function isConfidentOrientationMatch(result: CardSearchResult): boolean {
+  const leader = result.data?.[0];
+  return (
+    leader != null &&
+    !needsTextSearch(result) &&
+    leader.distance <= PREFERRED_ORIENTATION_MAX_DISTANCE
+  );
+}
+
+export function isScanOrientationDetermined(
+  pick: OrientedSearchCandidate,
+  alternate: OrientedSearchCandidate | null,
+): boolean {
+  return (
+    alternate === null ||
+    (hasCardMatch(pick.result) && !hasCardMatch(alternate.result))
+  );
+}
+
 export async function searchScanOrientations<T extends OrientedSearchCandidate>(
   checkBothOrientations: boolean,
   search: (orientation: ScanOrientation) => Promise<T>,
+  preferredOrientation: ScanOrientation | null = null,
 ): Promise<T & { alternate: T | null }> {
   if (!checkBothOrientations)
     return { ...(await search("upright")), alternate: null };
+  if (preferredOrientation) {
+    const preferred = await search(preferredOrientation);
+    if (isConfidentOrientationMatch(preferred.result))
+      return { ...preferred, alternate: null };
+    const other = await search(
+      preferredOrientation === "upright" ? "rotated" : "upright",
+    );
+    return preferredOrientation === "upright"
+      ? pickBetterOrientation(preferred, other)
+      : pickBetterOrientation(other, preferred);
+  }
   const [upright, rotated] = await Promise.all([
     search("upright"),
     search("rotated"),
   ]);
   return pickBetterOrientation(upright, rotated);
+}
+
+export class ScanIdentifyRequestError extends Error {
+  readonly cause: unknown;
+
+  constructor(cause: unknown) {
+    super(cause instanceof Error ? cause.message : "The scan request failed.");
+    this.name = "ScanIdentifyRequestError";
+    this.cause = cause;
+  }
+}
+
+export function isRetryableIdentifyError(error: unknown): boolean {
+  if (error instanceof MemberSeatLimitError) return false;
+  if (
+    error &&
+    typeof error === "object" &&
+    "status" in error &&
+    typeof error.status === "number"
+  ) {
+    return error.status >= 500;
+  }
+  return true;
+}
+
+export async function requestIdentifyWithRetries<T>(
+  send: () => Promise<T>,
+  {
+    retryDelaysMs = IDENTIFY_REQUEST_RETRY_DELAYS_MS,
+    wait = (delayMs) =>
+      new Promise<void>((resolve) => setTimeout(resolve, delayMs)),
+  }: IdentifyRequestRetryOptions = {},
+): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await send();
+    } catch (error) {
+      if (attempt >= retryDelaysMs.length || !isRetryableIdentifyError(error))
+        throw new ScanIdentifyRequestError(error);
+      await wait(retryDelaysMs[attempt]);
+    }
+  }
 }
 
 export async function identifyScanImage<T extends ScanImageCandidate>(
@@ -227,6 +306,7 @@ export async function identifyScanImage<T extends ScanImageCandidate>(
   const image = await searchScanOrientations(
     options.checkBothOrientations,
     options.search,
+    options.preferredOrientation ?? null,
   );
   const mode =
     typeof options.ocrMode === "function"
@@ -245,7 +325,12 @@ export async function identifyScanImage<T extends ScanImageCandidate>(
     };
   }
   const candidates: T[] = [image];
-  if (image.alternate) candidates.push(image.alternate);
+  if (
+    image.alternate &&
+    (image.alternate.textResult !== undefined ||
+      !isScanOrientationDetermined(image, image.alternate))
+  )
+    candidates.push(image.alternate);
   const texts = await Promise.all(
     candidates.map(async (candidate) => {
       if (candidate.textResult !== undefined) {

@@ -669,6 +669,8 @@
     "headerButton_zero": "Tauschangebot",
     "headerButton_one": "Tauschangebot (1)",
     "headerButton_other": "Tauschangebot ({{count}})",
+    "reviewBar_one": "Tauschangebot prüfen (1 Karte)",
+    "reviewBar_other": "Tauschangebot prüfen ({{count}} Karten)",
     "inTradeOffer": "Im Tauschangebot",
     "addToTradeOffer": "Zum Tauschangebot hinzufügen",
     "quickAdd": "{{name}} zum Tauschangebot hinzufügen",

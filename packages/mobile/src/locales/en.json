@@ -916,6 +916,7 @@
         "removing": "Removing"
       },
       "saved": "Saved {{name}}",
+      "downloadingModels": "Downloading models {{percent}}%",
       "offline": "Offline"
     },
     "unmatchedRecovery": {
@@ -2783,6 +2784,7 @@
         "notificationRule": "Notification rule",
         "game": "Game",
         "announcement": "Announcement",
+        "featureHighlight": "What's new highlight",
         "intakeLot": "Intake lot",
         "fulfilmentOrder": "Order",
         "accuracyCheck": "Spot check",
@@ -3471,6 +3473,11 @@
       "giveDescription": "Copies from your inventory",
       "giveEmpty": "Search your cards to add what you're giving.",
       "searchOwnedLabel": "Search your cards",
+      "giveSource": "Choose from",
+      "allCollections": "All collections (search)",
+      "filterCollectionLabel": "Filter this collection",
+      "noCollectionCards": "No cards in this collection to give.",
+      "loadMoreCards": "Load more cards",
       "addGivenCard": "Give {{name}}",
       "addReceivedCard": "Get {{name}}",
       "getTitle_one": "You get ({{count}})",
@@ -3570,6 +3577,8 @@
     "tapToRemove": "Removes it from your trade offer",
     "loadMore": "Load more",
     "done": "Done",
+    "reviewOffer_one": "Review trade offer (1 card)",
+    "reviewOffer_other": "Review trade offer ({{count}} cards)",
     "chooseCardsHint": "Tap the cards you want.",
     "fromCollectionTitle": "From your collection",
     "givingCount_one": "Giving {{count}}",
@@ -4079,6 +4088,33 @@
       "collectionLocked": "Collection is locked",
       "scannerError": "Camera error",
       "emergencyStopped": "Emergency stop"
+    }
+  },
+  "featureHighlights": {
+    "title": "What's new",
+    "entrySubtitle": "Recent features and improvements",
+    "step": "{{current}} of {{total}}",
+    "back": "Back",
+    "next": "Next",
+    "gotIt": "Got it",
+    "seeAll": "See all updates",
+    "learnMore": "Learn more",
+    "openVideo": "Open video",
+    "opensInBrowser": "Opens in your browser",
+    "videoPlaceholder": "Video",
+    "loadFailed": "Couldn't load what's new",
+    "timeline": {
+      "empty": "No feature highlights yet",
+      "new": "New",
+      "loadingMore": "Loading more highlights"
+    },
+    "search": {
+      "label": "Search updates",
+      "placeholder": "Search updates",
+      "clear": "Clear search",
+      "noMatches": "No updates match \"{{query}}\"",
+      "resultsCount_one": "{{count}} update found",
+      "resultsCount_other": "{{count}} updates found"
     }
   }
 }

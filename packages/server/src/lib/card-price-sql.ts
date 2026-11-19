@@ -148,9 +148,10 @@ export function cardPricesJoinSql(
   cardPricesAlias: string,
   { gameKey, lang }: CatalogJoinScope,
   { cardId, cardLang }: Pick<ScannedCardSqlColumns, "cardId" | "cardLang">,
+  cardPricesRelation = "card_prices",
 ): SQL {
   const cp = sql.raw(cardPricesAlias);
-  return sql`LEFT JOIN card_prices ${cp} ON ${cp}.game_key = ${gameKey} AND ${cp}.lang = COALESCE(${cardLang}, ${lang}) AND ${cp}.card_id = ${cardId}`;
+  return sql`LEFT JOIN ${sql.raw(cardPricesRelation)} ${cp} ON ${cp}.game_key = ${gameKey} AND ${cp}.lang = COALESCE(${cardLang}, ${lang}) AND ${cp}.card_id = ${cardId}`;
 }
 
 export function joinedCardPricesJsonSql(cardPricesAlias = "cp"): SQL {

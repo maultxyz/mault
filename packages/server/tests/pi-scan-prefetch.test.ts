@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { PiScanPrefetch } from "../src/lib/pi-scan/prefetch";
+import {
+  PiScanPrefetch,
+  usablePrefetchedMatch,
+} from "../src/lib/pi-scan/prefetch";
 
 test("identifies the fed card before routing completes and consumes it once", async () => {
   let scans = 0;
@@ -61,4 +64,18 @@ test("cleanup waits for an active scan and discards its result", async () => {
   finish("card");
   await discarded;
   assert.equal(await prefetch.take(), null);
+});
+
+test("an early identification is used only while its match inputs are unchanged", () => {
+  const prefetched = { match: "early match", matchInputsKey: "collection-a" };
+  assert.equal(usablePrefetchedMatch(prefetched, "collection-a"), "early match");
+  assert.equal(usablePrefetchedMatch(prefetched, "collection-b"), null);
+  assert.equal(usablePrefetchedMatch(null, "collection-a"), null);
+  assert.equal(
+    usablePrefetchedMatch(
+      { match: null, matchInputsKey: "collection-a" },
+      "collection-a",
+    ),
+    null,
+  );
 });

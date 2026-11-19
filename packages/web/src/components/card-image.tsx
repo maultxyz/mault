@@ -21,6 +21,8 @@ export function CardImage({
           aria-hidden
           alt=""
           src={placeholderSrc}
+          loading={loading}
+          decoding="async"
           draggable={false}
           className="absolute inset-0 size-full scale-110 object-cover blur-md"
         />
@@ -37,6 +39,7 @@ export function CardImage({
           src={src}
           alt={alt}
           loading={loading}
+          decoding="async"
           draggable={false}
           onLoad={() => setLoadedSrc(src)}
           className={cn(

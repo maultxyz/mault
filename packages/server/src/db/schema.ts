@@ -2,6 +2,7 @@ import { CARD_SEARCH_FIELDS } from "../lib/constants/collections";
 import type { CardPriceDetails } from "../lib/interfaces/card-prices";
 import {
   REPACK_UNIQUE_BY_PRINTING,
+  type AdminFeatureHighlightSlideInput,
   type PrintingMarkGroups,
   type CsvImportMapping,
 } from "@magic-vault/shared";
@@ -45,6 +46,10 @@ const vector = customType<{ data: number[]; driverData: string }>({
 
 const claimedOrgIdSql = sql.raw(
   `(SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')`,
+);
+
+const claimedUserIdSql = sql.raw(
+  `(SELECT current_setting('request.jwt.claims', true)::json ->> 'sub')`,
 );
 
 const orgRls = (orgId: any) =>
@@ -225,6 +230,48 @@ export const announcements = pgTable(
       role: authenticatedRole,
       read: true,
       modify: false,
+    }),
+  ],
+).enableRLS();
+
+export const featureHighlights = pgTable(
+  "feature_highlights",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    isPublished: boolean("is_published").notNull().default(false),
+    publishedAt: timestamp("published_at").defaultNow().notNull(),
+    slides: jsonb("slides").$type<AdminFeatureHighlightSlideInput[]>().notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("feature_highlights_guid_idx").on(table.guid),
+    crudPolicy({
+      role: authenticatedRole,
+      read: true,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
+export const featureHighlightViews = pgTable(
+  "feature_highlight_views",
+  {
+    userId: text("user_id").notNull(),
+    highlightId: text("highlight_id").notNull(),
+    seenAt: timestamp("seen_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "feature_highlight_views_user_highlight_pk",
+      columns: [table.userId, table.highlightId],
+    }),
+    crudPolicy({
+      role: authenticatedRole,
+      read: sql`${table.userId} = ${claimedUserIdSql}`,
+      modify: sql`${table.userId} = ${claimedUserIdSql}`,
     }),
   ],
 ).enableRLS();
@@ -810,6 +857,11 @@ export const collectionCards = pgTable(
       table.binNumber,
       table.binEmptiedAt,
     ),
+    index("collection_cards_collection_bin_emptied_idx").on(
+      table.collectionId,
+      table.binNumber,
+      table.binEmptiedAt,
+    ),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -953,6 +1005,7 @@ export const tradeOffers = pgTable(
   (table) => [
     unique("trade_offers_guid_idx").on(table.guid),
     index("trade_offers_org_status_idx").on(table.orgId, table.status),
+    index("trade_offers_org_created_idx").on(table.orgId, table.createdAt),
     index("trade_offers_guest_idx").on(table.guestKeyHash),
     index("trade_offers_guest_user_idx").on(table.guestUserId, table.createdAt),
     crudPolicy({
@@ -1254,6 +1307,11 @@ export const unmatchedCards = pgTable(
     ),
     index("unmatched_cards_org_bin_emptied_idx").on(
       table.orgId,
+      table.binNumber,
+      table.binEmptiedAt,
+    ),
+    index("unmatched_cards_collection_bin_emptied_idx").on(
+      table.collectionId,
       table.binNumber,
       table.binEmptiedAt,
     ),

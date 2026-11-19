@@ -2,7 +2,7 @@ import { setImmediate as yieldToEventLoop } from "node:timers/promises";
 import { PRINTING_MARK_VERSION } from "./constants/printing-marks";
 import { invalidatePrintingMarkReferences } from "./printing-marks/references";
 import { and, eq, sql, type SQL } from "drizzle-orm";
-import { db } from "../db";
+import { backgroundLoadDb } from "../db";
 import { binSets, collections, games } from "../db/schema";
 import { clearCatalogReadCaches } from "./card-search/catalog-read-cache";
 import { clearCachedCatalogCards } from "./saved-cards";
@@ -58,7 +58,7 @@ let embeddingTransferFormat: Promise<CardMatchEmbeddingTransferFormat> | null =
   null;
 
 function cardMatchEmbeddingTransferFormat(): Promise<CardMatchEmbeddingTransferFormat> {
-  embeddingTransferFormat ??= db
+  embeddingTransferFormat ??= backgroundLoadDb
     .execute<{ extversion: string }>(
       sql`SELECT extversion FROM pg_extension WHERE extname = 'vector'`,
     )
@@ -81,11 +81,23 @@ function sentEmbeddingSql(
     : sql`vector_send(${column})`;
 }
 
+async function loadCardsTableWriteCount(): Promise<string> {
+  const result = await backgroundLoadDb.execute<{ write_count: string }>(sql`
+    SELECT (
+      pg_stat_get_tuples_inserted(cards_table.oid)
+      + pg_stat_get_tuples_updated(cards_table.oid)
+      + pg_stat_get_tuples_deleted(cards_table.oid)
+    )::text AS write_count
+    FROM (SELECT 'cards'::regclass::oid AS oid) AS cards_table
+  `);
+  return result.rows[0].write_count;
+}
+
 async function loadSegmentSignature(
   gameKey: string,
   lang: string,
 ): Promise<CardMatchSegmentSignature> {
-  const result = await db.execute<{
+  const result = await backgroundLoadDb.execute<{
     row_count: number;
     back_face_count: number;
     last_updated: string;
@@ -119,6 +131,7 @@ async function loadSegment(
   lang: string,
 ): Promise<LoadedCardMatchSegment> {
   const startedAt = Date.now();
+  const cardsTableWriteCount = await loadCardsTableWriteCount();
   const signature = await loadSegmentSignature(gameKey, lang);
   const adapter = resolveCardSearchForGame(gameKey, lang)?.adapter;
   const rarePrintingSql = adapter?.rarePrintingSql ?? sql`false`;
@@ -137,7 +150,7 @@ async function loadSegment(
   const decodeFrontEmbedding = createCardMatchEmbeddingDecoder(transferFormat);
   const decodeBackEmbedding = createCardMatchEmbeddingDecoder(transferFormat);
   const fetchPageAfter = (afterCardId: string): Promise<{ rows: CardMatchIndexPageRow[] }> =>
-    db.execute<CardMatchIndexPageRow>(sql`
+    backgroundLoadDb.execute<CardMatchIndexPageRow>(sql`
       SELECT card_id, name, set_code, collector_number,
         coalesce(${rarePrintingSql}, false) AS rare_printing,
         coalesce(${promoPrintingSql}, false) AS promo_printing,
@@ -185,7 +198,7 @@ async function loadSegment(
   console.log(
     `[card-match-index] loaded ${gameKey}/${lang}: ${segment.rowCount} cards, ${Math.round(cardMatchSegmentBytes(segment) / 1024 / 1024)} MB in ${Date.now() - startedAt}ms`,
   );
-  return { segment, signature: signature.value };
+  return { segment, signature: signature.value, cardsTableWriteCount };
 }
 
 function logReloadFailure(entry: CardMatchSegmentEntry) {
@@ -203,9 +216,10 @@ function reloadSegment(entry: CardMatchSegmentEntry): Promise<void> {
   }
   entry.checkedAt = Date.now();
   const loading = loadSegment(entry.gameKey, entry.lang)
-    .then(({ segment, signature }) => {
+    .then(({ segment, signature, cardsTableWriteCount }) => {
       entry.segment = segment;
       entry.signature = signature;
+      entry.cardsTableWriteCount = cardsTableWriteCount;
       evictIdleSegmentsOverBudget();
     })
     .finally(() => {
@@ -263,9 +277,14 @@ function revalidateSegmentInBackground(entry: CardMatchSegmentEntry) {
     return;
   }
   entry.checkedAt = Date.now();
-  loadSegmentSignature(entry.gameKey, entry.lang)
-    .then((signature) => {
-      if (signature.value === entry.signature) return undefined;
+  loadCardsTableWriteCount()
+    .then(async (cardsTableWriteCount) => {
+      if (cardsTableWriteCount === entry.cardsTableWriteCount) return undefined;
+      const signature = await loadSegmentSignature(entry.gameKey, entry.lang);
+      if (signature.value === entry.signature) {
+        entry.cardsTableWriteCount = cardsTableWriteCount;
+        return undefined;
+      }
       clearCatalogReadCaches();
       clearCachedCatalogCards();
       return reloadSegment(entry);
@@ -282,6 +301,7 @@ function segmentEntry(gameKey: string, lang: string): CardMatchSegmentEntry {
       lang,
       segment: null,
       signature: null,
+      cardsTableWriteCount: null,
       loading: null,
       queuedForBackgroundLoad: false,
       reloadRequested: false,
@@ -314,7 +334,7 @@ export async function languagesOfGame(gameKey: string): Promise<string[]> {
 
 async function langsOfGame(gameKey: string): Promise<string[]> {
   return gameLangsCache.get(gameKey, async () => {
-    const result = await db.execute<{ lang: string }>(
+    const result = await backgroundLoadDb.execute<{ lang: string }>(
       sql`SELECT DISTINCT lang FROM cards WHERE game_key = ${gameKey}`,
     );
     return result.rows.map((row) => row.lang);
@@ -391,7 +411,7 @@ export function invalidateCardMatchIndex(gameKey?: string): void {
 }
 
 async function warmCardMatchIndex(): Promise<void> {
-  const scopes = await db
+  const scopes = await backgroundLoadDb
     .selectDistinct({
       gameKey: games.key,
       lang: collections.lang,
@@ -411,7 +431,7 @@ async function warmCardMatchIndex(): Promise<void> {
       }
     }),
   );
-  const presetMatchGames = await db
+  const presetMatchGames = await backgroundLoadDb
     .selectDistinct({ gameKey: sql<string>`unnest(${binSets.matchGameKeys})` })
     .from(binSets)
     .where(and(eq(binSets.isActive, true), eq(binSets.isDeleted, false)));

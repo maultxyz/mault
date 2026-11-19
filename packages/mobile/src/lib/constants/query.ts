@@ -8,6 +8,7 @@ export const QUERY_RETRY_COUNT = 1;
 export const OVERVIEW_REFRESH_MS = 60_000;
 export const SCAN_IMAGE_STALE_MS = 5 * 60_000;
 export const SCAN_SAVE_REFRESH_THROTTLE_MS = 3000;
+export const CARD_EDIT_REFRESH_DELAY_MS = 1500;
 export const PERSISTED_ORG_QUERY_ROOT_KEYS: ReadonlySet<string> = new Set([
   "org-overview",
   WIDGET_SUMMARY_QUERY_KEY,

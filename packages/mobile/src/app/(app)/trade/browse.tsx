@@ -39,6 +39,16 @@ export default function TradeBrowseScreen() {
           onBack={() => router.back()}
         />
       }
+      footer={
+        draft.wanted.length > 0 ? (
+          <Button
+            size="lg"
+            icon="transfer"
+            label={t("trade.reviewOffer", { count: draft.wanted.length })}
+            onPress={() => router.back()}
+          />
+        ) : undefined
+      }
     >
       <SearchInput
         value={search}
@@ -84,13 +94,11 @@ export default function TradeBrowseScreen() {
           onPress={() => void cards.fetchNextPage()}
         />
       ) : null}
-      {draft.wanted.length > 0 ? (
-        <Button size="lg" label={t("trade.done")} onPress={() => router.back()} />
-      ) : (
+      {draft.wanted.length === 0 ? (
         <AppText size="xs" tone="secondary" style={{ textAlign: "center" }}>
           {t("trade.chooseCardsHint")}
         </AppText>
-      )}
+      ) : null}
     </Screen>
   );
 }

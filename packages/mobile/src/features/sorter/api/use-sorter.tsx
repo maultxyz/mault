@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
@@ -108,7 +109,6 @@ export function SorterProvider({ children }: { children: ReactNode }) {
   const [device, setDevice] = useState<Device | null>(null);
   const [firmwareVersion, setFirmwareVersion] = useState<string | null>(null);
   const [board, setBoard] = useState<string | null>(null);
-  const [commLog, setCommLog] = useState<CommLogEntry[]>([]);
   const deviceRef = useRef<Device | null>(null);
   const uptimeRef = useRef<number | null>(null);
   const discoveryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -121,8 +121,6 @@ export function SorterProvider({ children }: { children: ReactNode }) {
   const reconnectTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const launchedRef = useRef(false);
   const { status: sessionStatus } = useSession();
-
-  useEffect(() => link.subscribeCommLog(() => setCommLog(link.getCommLog())), []);
 
   const stopDiscovery = useCallback(() => {
     if (discoveryTimerRef.current) clearTimeout(discoveryTimerRef.current);
@@ -592,7 +590,6 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       board,
       isReady: phase === "ready",
       isConnected: !!device,
-      commLog,
       startDiscovery,
       stopDiscovery,
       connect,
@@ -625,7 +622,6 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       device,
       firmwareVersion,
       board,
-      commLog,
       startDiscovery,
       stopDiscovery,
       connect,
@@ -654,6 +650,18 @@ export function useSorter(): SorterContextValue {
   const context = useContext(SorterContext);
   if (!context) throw new Error("useSorter must be used inside SorterProvider");
   return context;
+}
+
+function subscribeToCommLog(listener: () => void): () => void {
+  return link.subscribeCommLog(listener);
+}
+
+function readCommLog(): CommLogEntry[] {
+  return link.getCommLog();
+}
+
+export function useSorterCommLog(): CommLogEntry[] {
+  return useSyncExternalStore(subscribeToCommLog, readCommLog, readCommLog);
 }
 
 export function useSorterMessage(listener: (message: unknown) => void): void {

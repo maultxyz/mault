@@ -1,17 +1,13 @@
 import { DeleteDialog } from "@/components/delete-dialog";
 import { Button } from "@/components/ui/button";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
-import { useBinRoutes } from "@/features/calibration/api/use-bin-routes";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useBinFillLevels } from "@/features/scanner/api/use-bin-fill-levels";
-import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
-import { BinLevelCell } from "@/features/scanner/components/bin-level-cell";
+import { BinLevelGrid } from "@/features/scanner/components/bin-level-grid";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { EmptyAllBinsDialog } from "@/features/storage/components/empty-all-bins-dialog";
 import { ResetAutoAssignToggle } from "@/features/storage/components/reset-auto-assign-toggle";
-import { EmptyBinToLocationDialog } from "@/features/storage/components/empty-bin-to-location-dialog";
 import { summarizeBinLevels } from "@/features/scanner/lib/bin-levels";
-import { buildBinLevelLayout } from "@/lib/bin-machine-layout";
 import { usePersistedFlag } from "@/hooks/use-persisted-state";
 import { BIN_LEVELS_EXPANDED_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { cn } from "@/lib/utils";
@@ -26,12 +22,8 @@ import { useTranslation } from "react-i18next";
 export function BinStatusMeter() {
   const { t } = useTranslation("scanner");
   const levels = useBinFillLevels();
-  const { configs, emptyBin, emptyAllBins, selectedSet, sets } =
-    useBinConfigs();
+  const { emptyAllBins, selectedSet, sets } = useBinConfigs();
   const { activeCollection } = useCollections();
-  const { routes } = useBinRoutes();
-  const { lastRoutedBin } = useScannedCards();
-  const [confirmBin, setConfirmBin] = useState<number | null>(null);
   const [confirmAll, setConfirmAll] = useState(false);
   const [resetAutoAssignedRules, setResetAutoAssignedRules] = useState(true);
   const [expanded, setExpanded] = usePersistedFlag(
@@ -39,25 +31,6 @@ export function BinStatusMeter() {
   );
   const collapsed = !expanded;
   const { isLocked: storageLocked } = useStorageAccess();
-  const catchAllBin = configs.find((c) => c.isCatchAll)?.binNumber;
-  const disabledBins = new Set(
-    configs
-      .filter((c) => !c.isCatchAll && c.isDisabled)
-      .map((c) => c.binNumber),
-  );
-
-  const layout = useMemo(
-    () =>
-      buildBinLevelLayout(
-        routes,
-        levels.map((level) => level.binNumber),
-      ),
-    [routes, levels],
-  );
-  const levelByBin = useMemo(
-    () => new Map(levels.map((level) => [level.binNumber, level])),
-    [levels],
-  );
   const summary = useMemo(() => summarizeBinLevels(levels), [levels]);
   const canResetAutoAssignedRules = !!sets.find((set) => set.isActive)
     ?.autoAssignField;
@@ -65,32 +38,6 @@ export function BinStatusMeter() {
   if (levels.length === 0) return null;
 
   const toggleCollapsed = () => setExpanded(!expanded);
-
-  const renderCell = (
-    binNumber: number | undefined,
-    key: string,
-    className: string,
-  ) => {
-    const level = binNumber != null ? levelByBin.get(binNumber) : undefined;
-    if (!level) return <div key={key} className={className} />;
-    return (
-      <BinLevelCell
-        key={key}
-        className={className}
-        level={level}
-        isCatchAll={catchAllBin === level.binNumber}
-        isDisabled={disabledBins.has(level.binNumber)}
-        claimedLocationName={
-          configs.find((config) => config.binNumber === level.binNumber)
-            ?.claimedStorageLocation?.name ?? null
-        }
-        flashKey={
-          lastRoutedBin?.binNumber === level.binNumber ? lastRoutedBin.at : null
-        }
-        onEmpty={setConfirmBin}
-      />
-    );
-  };
 
   return (
     <div className="flex-none overflow-hidden rounded-card bg-card">
@@ -158,26 +105,7 @@ export function BinStatusMeter() {
         )}
       </div>
 
-      {!collapsed && (
-        <div className="grid grid-cols-2">
-          {layout.rows.flatMap((row, rowIndex) =>
-            row.map((binNumber, slot) =>
-              renderCell(
-                binNumber,
-                `row-${rowIndex}-${slot}`,
-                cn("border-t border-border", slot === 0 && "border-r"),
-              ),
-            ),
-          )}
-          {layout.bottom.map((binNumber) =>
-            renderCell(
-              binNumber,
-              `bottom-${binNumber}`,
-              "col-span-2 border-t border-border",
-            ),
-          )}
-        </div>
-      )}
+      {!collapsed && <BinLevelGrid />}
 
       <EmptyAllBinsDialog
         open={confirmAll && !storageLocked}
@@ -218,18 +146,6 @@ export function BinStatusMeter() {
         )}
       </DeleteDialog>
 
-      <EmptyBinToLocationDialog
-        binNumber={confirmBin}
-        preferLocation={!!selectedSet?.isChaosMode}
-        collectionGuid={activeCollection?.guid}
-        onOpenChange={(open) => {
-          if (!open) setConfirmBin(null);
-        }}
-        onConfirm={async (options) => {
-          if (confirmBin == null) return;
-          if (await emptyBin(confirmBin, options)) setConfirmBin(null);
-        }}
-      />
     </div>
   );
 }

@@ -7,7 +7,8 @@ export function cardCatalogJoinSql(
   { gameKey, lang }: CatalogJoinScope,
   { cardId, cardLang }: Pick<ScannedCardSqlColumns, "cardId" | "cardLang">,
   alias: string = CARD_CATALOG_ALIAS,
+  catalogRelation = "cards",
 ): SQL {
   const cat = sql.raw(alias);
-  return sql`LEFT JOIN cards ${cat} ON ${cat}.game_key = ${gameKey} AND ${cat}.lang = COALESCE(${cardLang}, ${lang}) AND ${cat}.card_id = ${cardId}`;
+  return sql`LEFT JOIN ${sql.raw(catalogRelation)} ${cat} ON ${cat}.game_key = ${gameKey} AND ${cat}.lang = COALESCE(${cardLang}, ${lang}) AND ${cat}.card_id = ${cardId}`;
 }

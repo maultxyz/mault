@@ -25,4 +25,10 @@ export const UNMATCHED_PAGE_SIZE = 24;
 export const UNMATCHED_PAGE_MAX = 100;
 
 export const COLLECTION_PREVIEW_IMAGE_COUNT = 3;
+
+export const COLLECTION_CARDS_RAW_CARD_DATA_PARAM = "rawCardData";
+
+export const COLLECTION_CARDS_RAW_CARD_DATA_ALL = "all";
+
+export const COLLECTION_CARDS_RAW_CARD_DATA_MAIN_ONLY = "mainOnly";
 export const BULK_SCAN_IDS_MAX = 50_000;

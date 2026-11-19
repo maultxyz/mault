@@ -1,5 +1,8 @@
 export * from "./interfaces/announcement.interface";
 export * from "./constants/announcement.constant";
+export * from "./interfaces/feature-highlight.interface";
+export * from "./constants/feature-highlight.constant";
+export * from "./feature-highlight-search";
 export * from "./constants/platform-roles.constant";
 export * from "./interfaces/api.interface";
 export * from "./interfaces/bin-heights.interface";
@@ -179,6 +182,7 @@ export * from "./interfaces/scan-removal.interface";
 export * from "./constants/scan-removal.constant";
 export * from "./form-validation";
 export * from "./scan-identify";
+export * from "./card-settle";
 export * from "./serial-session";
 export * from "./sorter-link-connection";
 export * from "./image-proxy";

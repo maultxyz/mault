@@ -633,6 +633,7 @@
   "imageAlt": {
     "printPart": "3D-Modellansicht: {{part}}",
     "breakoutBaseSupport": "Breakout-Basisstütze",
+    "stepPhoto": "Foto zu diesem Bauschritt",
     "photos": {
       "baseModule": "Ein einzelner lila 3D-gedruckter Sortiermodulrahmen: ein offener Kasten mit vier Zapfen oben und Laschen an den Seiten zum Verbinden der Module.",
       "baseModuleAssembled": "Ein flacher gelber Modulrahmen neben einem hohen gelben Modul, das auf einer lila Basisstütze steht. Zu sehen ist, wie die gedruckten Rahmen zusammenpassen.",

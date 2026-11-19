@@ -48,7 +48,17 @@ import {
 import {
   APP_STREAM_GUID_DEBOUNCE_MS,
   APP_STREAM_SETUP_RETRY_MS,
+  ORG_OVERVIEW_REFRESH_MS,
 } from "@/lib/constants/timing";
+import {
+  ORG_OVERVIEW_QUERY_KEY,
+  WIDGET_SUMMARY_QUERY_KEY,
+} from "@/lib/constants/home";
+import { createKeyedRefreshThrottle } from "@/lib/keyed-refresh-throttle";
+
+const throttleOrgOverviewRefresh = createKeyedRefreshThrottle(
+  ORG_OVERVIEW_REFRESH_MS,
+);
 
 const AppStreamSourceContext = createContext<AppStreamSourceContextValue>({
   eventSource: null,
@@ -234,6 +244,14 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
           queryClient.invalidateQueries({
             queryKey: collectionsQueryOptions.queryKey,
             exact: true,
+          });
+          throttleOrgOverviewRefresh(orgId, () => {
+            void queryClient.invalidateQueries({
+              queryKey: [ORG_OVERVIEW_QUERY_KEY],
+            });
+            void queryClient.invalidateQueries({
+              queryKey: [WIDGET_SUMMARY_QUERY_KEY],
+            });
           });
         });
 

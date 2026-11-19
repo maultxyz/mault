@@ -54,6 +54,7 @@ export async function moveResortedCard(
   {
     rowId,
     orgId,
+    collectionId,
     scanId,
     scannedAt,
     binNumber,
@@ -69,7 +70,7 @@ export async function moveResortedCard(
       guid: scanId,
       scannedAt: new Date(scannedAt),
       binNumber: binNumber ?? null,
-      binEmptiedAt: lateSaveBinEmptiedAtSql(orgId, binNumber, scannedAt),
+      binEmptiedAt: lateSaveBinEmptiedAtSql(orgId, collectionId, binNumber, scannedAt),
       locationId: null,
       locationPosition: null,
       scannedByUserId,

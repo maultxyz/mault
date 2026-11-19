@@ -14,7 +14,7 @@ function snapshotCanvas(source: HTMLCanvasElement): HTMLCanvasElement {
   snapshot ??= document.createElement("canvas");
   if (snapshot.width !== source.width) snapshot.width = source.width;
   if (snapshot.height !== source.height) snapshot.height = source.height;
-  const ctx = snapshot.getContext("2d");
+  const ctx = snapshot.getContext("2d", { willReadFrequently: true });
   if (!ctx) throw new Error("Could not get canvas context");
   ctx.clearRect(0, 0, snapshot.width, snapshot.height);
   ctx.drawImage(source, 0, 0);

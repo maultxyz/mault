@@ -6,6 +6,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { ValidateMatchesButton } from "@/components/validate-matches-button";
 import { MATCH_VALIDATIONS_ENABLED } from "@/lib/constants/match-validations";
 import { UserMenu } from "@/features/account/components/user-menu";
+import { FeatureHighlightsButton } from "@/features/feature-highlights/components/feature-highlights-button";
 import { PresetMenu } from "@/features/bins/components/preset-menu";
 import { CollectionMenu } from "@/features/collections/components/collection-menu";
 import { StationAttentionButton } from "@/features/scanner/components/station-attention-button";
@@ -50,6 +51,7 @@ export function AppTopBar() {
         </div>
       )}
       <div className="flex shrink-0 items-center gap-0.5 **:data-[slot=button]:hover:bg-sidebar-accent **:data-[slot=button]:aria-expanded:bg-sidebar-accent">
+        <FeatureHighlightsButton />
         <LanguageSwitcherIcon />
         <ThemeToggle />
         <NotificationsButton />

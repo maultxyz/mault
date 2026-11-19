@@ -8,6 +8,8 @@ export const PHONE_CAMERA_JPEG_QUALITY = 85;
 
 export const QR_SCAN_INTERVAL_MS = 800;
 
+export const QR_SCAN_WITH_CARD_INTERVAL_MS = 2400;
+
 export const QR_DECODE_LONG_SIDE = 720;
 
 export const SCANNER_QR_REPEAT_MS = 5000;

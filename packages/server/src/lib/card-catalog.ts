@@ -1,6 +1,6 @@
 import type { PlayingCard } from "@magic-vault/shared";
 import { sql } from "drizzle-orm";
-import { db } from "../db";
+import { singleStatementDb } from "../db";
 import { ADAPTERS_BY_GAME_KEY } from "./card-search/resolve";
 import { CARD_SEARCH_FIELDS } from "./constants/collections";
 import { EMPTY_CARD_CATALOG_COLUMNS } from "./constants/saved-cards";
@@ -73,7 +73,7 @@ async function selectCatalogRows(
   keys: CatalogCardKey[],
   withData: boolean,
 ): Promise<{ card_id: string; lang: string; data: unknown }[]> {
-  const result = await db.execute(sql`
+  const result = await singleStatementDb.execute(sql`
     SELECT c.card_id, c.lang, ${withData ? sql`c.data` : sql`NULL::jsonb`} AS data
     FROM unnest(
       ${pgTextArray(keys.map((key) => key.lang))}::text[],

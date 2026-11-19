@@ -74,3 +74,5 @@ export const TOGGLE_TILE_SELECTED_CLASS =
 
 export const TOGGLE_TILE_UNSELECTED_CLASS =
   "border-border text-foreground/70 hover:bg-foreground/6 hover:text-foreground";
+
+export const REDUCED_MOTION_MEDIA_QUERY = "(prefers-reduced-motion: reduce)";

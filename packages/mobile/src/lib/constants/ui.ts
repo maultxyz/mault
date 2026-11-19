@@ -23,6 +23,7 @@ export const TOP_BAR_HEIGHT = 44;
 export const TOP_BAR_BRAND_ICON_SIZE = 34;
 export const TOP_BAR_SWITCHER_HEIGHT = 32;
 export const INPUT_HEIGHT = 48;
+export const SEARCH_INPUT_CLEAR_BUTTON_HIT_SLOP = 12;
 export const SEARCH_INPUT_HEIGHT = 44;
 export const LIST_ROW_MIN_HEIGHT = 48;
 export const LIST_ROW_ICON_SIZE = 36;

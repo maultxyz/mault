@@ -40,7 +40,7 @@ GRANT USAGE ON SCHEMA public TO authenticated;
 
 DO $$
 DECLARE
-  read_only_tables text[] := ARRAY['cards', 'printing_mark_references', 'card_prices', 'games', 'announcements', 'org_daily_scan_usage', 'org_billing', 'plan_settings', 'device_alerts', 'org_inventory_snapshots', 'collection_value_snapshots'];
+  read_only_tables text[] := ARRAY['cards', 'printing_mark_references', 'card_prices', 'games', 'announcements', 'feature_highlights', 'org_daily_scan_usage', 'org_billing', 'plan_settings', 'device_alerts', 'org_inventory_snapshots', 'collection_value_snapshots'];
   read_write_tables text[] := ARRAY[
     'bin_sets', 'preset_workflows', 'preset_workflow_steps', 'bins', 'bin_routes', 'bin_heights', 'module_configs', 'feeder_configs',
     'collections', 'collection_cards', 'unmatched_cards', 'org_settings',
@@ -49,6 +49,7 @@ DECLARE
     'storage_locations', 'org_api_keys', 'webhook_endpoints',
     'intake_lots', 'fulfilment_orders', 'card_sales', 'org_activity_log', 'accuracy_checks', 'shop_catalogs', 'trade_offers', 'share_links', 'import_templates'
   ];
+  user_scoped_tables text[] := ARRAY['feature_highlight_views'];
   tbl text;
 BEGIN
   -- Global read-only tables (crudPolicy read: true, modify: false) - written
@@ -69,6 +70,14 @@ BEGIN
     IF to_regclass('public.' || tbl) IS NOT NULL THEN
       EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON %I TO authenticated', tbl);
       EXECUTE format('GRANT USAGE, SELECT ON SEQUENCE %I TO authenticated', tbl || '_id_seq');
+    END IF;
+  END LOOP;
+
+  -- User-scoped tables (crudPolicy read/modify: user_id = the claim's sub)
+  -- with composite primary keys, so there is no sequence to grant.
+  FOREACH tbl IN ARRAY user_scoped_tables LOOP
+    IF to_regclass('public.' || tbl) IS NOT NULL THEN
+      EXECUTE format('GRANT SELECT, INSERT, UPDATE, DELETE ON %I TO authenticated', tbl);
     END IF;
   END LOOP;
 END

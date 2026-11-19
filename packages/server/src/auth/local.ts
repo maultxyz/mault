@@ -3,21 +3,26 @@ import { eq, sql } from "drizzle-orm";
 import { isAuthError } from "own-auth";
 import { db } from "../db";
 import { platformUserRoles } from "../db/schema";
+import { verifyLocalTokenThroughCache } from "./local-token-cache";
 import { getOwnAuth } from "./own-auth-instance";
 import type { AuthProvider } from "../lib/interfaces/auth";
 
-export const localAuthProvider: AuthProvider = {
-  async verifyToken(token) {
-    if (token.startsWith("oa_")) {
-      try {
-        const verified = await getOwnAuth().verifyApiKey(token);
-        return verified.user ? { sub: verified.user.id } : null;
-      } catch {
-        return null;
-      }
+async function verifyLocalToken(token: string): Promise<{ sub: string } | null> {
+  if (token.startsWith("oa_")) {
+    try {
+      const verified = await getOwnAuth().verifyApiKey(token);
+      return verified.user ? { sub: verified.user.id } : null;
+    } catch {
+      return null;
     }
-    const session = await getOwnAuth().getCurrentSession(token);
-    return session ? { sub: session.user.id } : null;
+  }
+  const session = await getOwnAuth().getCurrentSession(token);
+  return session ? { sub: session.user.id } : null;
+}
+
+export const localAuthProvider: AuthProvider = {
+  verifyToken(token) {
+    return verifyLocalTokenThroughCache(token, verifyLocalToken);
   },
 
   async getUserRole(userId) {

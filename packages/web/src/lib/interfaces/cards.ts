@@ -37,6 +37,7 @@ import type { ScanStats } from "@/lib/interfaces/scanner";
 export interface CardSearchPickerProps {
   collectionGuid: string | undefined;
   initialQuery?: string;
+  defaultLanguage?: string;
   disabled?: boolean;
   onSelect: (card: PlayingCard) => void;
 }
@@ -410,7 +411,6 @@ export interface SessionSummaryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   collectionGuid: string | undefined;
-  elapsedMs: number;
   sessionScanCount: number;
   collectionName: string;
   onExported: (scanIds: string[]) => void;

@@ -1,6 +1,5 @@
 import type {
   BinRoute,
-  CommLogEntry,
   RetractCardOutcome,
   RouteOptions,
   SerialMessageListener,
@@ -99,7 +98,6 @@ export interface SorterContextValue {
   board: string | null;
   isReady: boolean;
   isConnected: boolean;
-  commLog: CommLogEntry[];
   startDiscovery: () => void;
   stopDiscovery: () => void;
   connect: (id: string) => Promise<void>;

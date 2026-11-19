@@ -12,7 +12,8 @@
     "deleted": "Gelöscht und nicht erkannt",
     "shortLinks": "Kurzlinks",
     "hardware": "Hardware",
-    "developer": "Entwickler"
+    "developer": "Entwickler",
+    "whatsNew": "Neuigkeiten"
   },
   "kitTest": {
     "board": {
@@ -438,7 +439,8 @@
       "intakeLot": "Ankauf",
       "fulfilmentOrder": "Bestellung",
       "accuracyCheck": "Stichprobe",
-      "shopCatalog": "Shop-Katalog"
+      "shopCatalog": "Shop-Katalog",
+      "featureHighlight": "Neuigkeit"
     },
     "toasts": {
       "restored": "{{name}} wiederhergestellt",
@@ -590,6 +592,73 @@
       "disabled": "Kurzlinks sind auf diesem Server aus.",
       "codeTaken": "Dieser Code wird schon verwendet. Wähle einen anderen.",
       "notFound": "Diesen Kurzlink gibt es nicht mehr."
+    }
+  },
+  "featureHighlights": {
+    "heading": "Neuigkeiten",
+    "description": "Hinweise auf neue Funktionen, die jede Person nach der Anmeldung sieht: als Karte am Desktop und als Blatt auf Smartphones. Release-Hinweise kommen mit der App und erscheinen hier nicht.",
+    "add": "Neuigkeit hinzufügen",
+    "loadFailed": "Neuigkeiten konnten nicht geladen werden.",
+    "empty": "Noch keine Neuigkeiten.",
+    "summary_one": "{{date}}, {{count}} Folie",
+    "summary_other": "{{date}}, {{count}} Folien",
+    "editLabel": "{{title}} bearbeiten",
+    "deleteLabel": "{{title}} löschen",
+    "status": {
+      "draft": "Entwurf",
+      "scheduled": "Geplant",
+      "published": "Veröffentlicht"
+    },
+    "mediaTypes": {
+      "none": "Keine",
+      "image": "Bild oder GIF",
+      "video": "Video"
+    },
+    "form": {
+      "createTitle": "Neuigkeit hinzufügen",
+      "editTitle": "Neuigkeit bearbeiten",
+      "description": "Jede Folie zeigt Medien, einen Titel, Text und optional einen Link.",
+      "publishedAt": "Veröffentlichungsdatum",
+      "published": "Veröffentlicht",
+      "publishHint": "Eine veröffentlichte Neuigkeit ist ab ihrem Datum sichtbar, bis sie älter als 45 Tage ist.",
+      "slideHeading": "Folie {{number}}",
+      "moveUp": "Folie {{number}} nach oben",
+      "moveDown": "Folie {{number}} nach unten",
+      "removeSlide": "Folie {{number}} entfernen",
+      "addSlide": "Folie hinzufügen",
+      "title": "Titel",
+      "body": "Text",
+      "mediaType": "Medien",
+      "mediaUrl": "Medien-URL",
+      "mediaUrlHint": "Lade eine Datei hoch oder füge eine gehostete https://-URL ein.",
+      "posterUrl": "Vorschaubild-URL (optional)",
+      "altText": "Alternativtext",
+      "linkUrl": "Link-URL (optional)",
+      "linkLabel": "Linktext",
+      "urlPlaceholder": "https://",
+      "upload": "Hochladen",
+      "uploading": "Wird hochgeladen...",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saving": "Wird gespeichert..."
+    },
+    "preview": {
+      "label": "Vorschau",
+      "untitled": "Ohne Titel"
+    },
+    "toasts": {
+      "saveSuccess": "Neuigkeit gespeichert.",
+      "saveError": "Neuigkeit konnte nicht gespeichert werden.",
+      "deleteSuccess": "Neuigkeit gelöscht.",
+      "deleteError": "Neuigkeit konnte nicht gelöscht werden.",
+      "uploadSuccess": "Medien hochgeladen.",
+      "uploadError": "Datei konnte nicht hochgeladen werden.",
+      "unsupportedFile": "Verwende eine PNG-, JPEG-, WebP-, GIF-, MP4- oder WebM-Datei.",
+      "fileTooLarge": "Die Datei muss kleiner als {{size}} MB sein."
+    },
+    "deleteDialog": {
+      "title": "Neuigkeit löschen?",
+      "description": "Sie wird niemandem mehr angezeigt. Du kannst sie unter Gelöschte Elemente wiederherstellen."
     }
   }
 }

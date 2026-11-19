@@ -166,7 +166,6 @@ export function CardGrid() {
     setCardsCondition,
     setCardsTags,
     setCardsFoilType,
-    elapsedMs,
     sessionScanCount,
   } = useScannedCards();
   const collectionGuid = viewedCollection?.guid;
@@ -1330,7 +1329,6 @@ export function CardGrid() {
         open={summaryOpen}
         onOpenChange={setSummaryOpen}
         collectionGuid={collectionGuid}
-        elapsedMs={elapsedMs}
         sessionScanCount={sessionScanCount}
         collectionName={viewedCollection?.name ?? "collection"}
         onExported={(scanIds) => {

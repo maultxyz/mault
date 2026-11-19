@@ -14,6 +14,7 @@ import {
   bins,
   collections,
   devices,
+  featureHighlights,
   fulfilmentOrders,
   games,
   importTemplates,
@@ -516,6 +517,36 @@ export const DELETED_ITEM_SOURCES: Record<DeletedItemType, DeletedItemSource> =
             ),
           )
           .returning({ id: announcements.id });
+        return row ? restored(null) : NOT_FOUND;
+      },
+    },
+    featureHighlight: {
+      list: () =>
+        deletedRows(
+          "featureHighlight",
+          db
+            .select({
+              guid: featureHighlights.guid,
+              slides: featureHighlights.slides,
+              publishedAt: featureHighlights.publishedAt,
+              updatedAt: featureHighlights.updatedAt,
+            })
+            .from(featureHighlights)
+            .where(eq(featureHighlights.isDeleted, true)),
+          (r) => r.slides[0]?.title ?? "",
+          (r) => r.publishedAt.toISOString(),
+        ),
+      async restore(tx, guid) {
+        const [row] = await tx
+          .update(featureHighlights)
+          .set({ isDeleted: false, updatedAt: new Date() })
+          .where(
+            and(
+              eq(featureHighlights.guid, guid),
+              eq(featureHighlights.isDeleted, true),
+            ),
+          )
+          .returning({ id: featureHighlights.id });
         return row ? restored(null) : NOT_FOUND;
       },
     },
