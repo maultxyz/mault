@@ -19,6 +19,7 @@ import {
   findAutoAssignTarget,
   evaluatePickListBin,
   applyPickListFound,
+  type PickListCard,
   isPickListComplete,
   isPickListBin,
   findPickListEntry,
@@ -520,22 +521,22 @@ export function ScannedCardsProvider({
       !isRulesMode(selectedSetRef.current) ||
       findLowMatchCatchAll(card, rawBinConfigsRef.current)
         ? null
-        : evaluatePickListBin(card.name, rawBinConfigsRef.current),
+        : evaluatePickListBin(card, rawBinConfigsRef.current),
     [],
   );
 
   const markPickListFound = useCallback(
-    (binNumber: number, name: string, delta: number, persist = true) => {
+    (binNumber: number, card: PickListCard | string, delta: number, persist = true) => {
       const bin = rawBinConfigsRef.current.find(
         (c) => c.binNumber === binNumber && isPickListBin(c),
       );
       if (!bin?.pickList) return;
-      const next = applyPickListFound(bin.pickList, name, delta);
+      const next = applyPickListFound(bin.pickList, card, delta);
       if (!next) return;
       rawBinConfigsRef.current = rawBinConfigsRef.current.map((c) =>
         c.binNumber === binNumber ? { ...c, pickList: next } : c,
       );
-      if (persist) void recordPickListFound(queryClient, bin.guid, name, delta);
+      if (persist) void recordPickListFound(queryClient, bin.guid, card, delta);
       else setBinPickListInCache(queryClient, bin.guid, next);
       if (delta > 0 && isPickListComplete(next)) {
         toast.success(t("scannedCards.pickListComplete.title"), {
@@ -917,7 +918,7 @@ export function ScannedCardsProvider({
           if (update)
             markPickListFound(
               update.binNumber,
-              update.name,
+              update,
               update.delta,
               decision.persistence.kind === "cards/sorted",
             );

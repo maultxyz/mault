@@ -4,6 +4,7 @@ import {
   isScanFillingLastRepackPack,
   resolveUnmatchedScanBin,
 } from "./scan-routing";
+import { pickListEntryCard } from "./pick-list";
 import type {
   MatchedScanPlan,
   MatchedScanPlanInput,
@@ -68,7 +69,7 @@ export function prepareMatchedScanPlan(
               ? {
                   pickListUpdate: {
                     binGuid: match.bin.guid,
-                    name: match.entry.name,
+                    ...pickListEntryCard(match.entry),
                     delta: 1 as const,
                   },
                 }
@@ -92,7 +93,7 @@ export function prepareMatchedScanPlan(
       ? {
           binGuid: match.bin.guid,
           binNumber: match.bin.binNumber,
-          name: match.entry.name,
+          ...pickListEntryCard(match.entry),
           delta: 1,
         }
       : null,

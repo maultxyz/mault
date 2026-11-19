@@ -529,7 +529,7 @@ export function useScanSession({
       const { orgId: activeOrgId } = latestRef.current;
       const bin = configs.find((item) => item.guid === update.binGuid);
       const updatedPickList = bin?.pickList
-        ? applyPickListFound(bin.pickList, update.name, update.delta)
+        ? applyPickListFound(bin.pickList, update, update.delta)
         : null;
       if (updatedPickList) {
         locallyUpdatedConfigsRef.current = configs.map((c) =>

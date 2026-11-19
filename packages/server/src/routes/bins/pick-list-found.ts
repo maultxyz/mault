@@ -16,13 +16,22 @@ export const pickListFoundRoute = new Hono<AppEnv>()
     async (c) => {
       const orgId = c.get("orgId");
       const binGuid = c.req.param("binGuid");
-      const { name, delta } = await c.req.json<Partial<PickListFoundInput>>();
+      const body = await c.req.json<Partial<PickListFoundInput>>();
+      const { name, delta } = body;
       if (typeof name !== "string" || (delta !== 1 && delta !== -1)) {
         return c.json({ success: false, message: "Invalid request." }, 400);
       }
+      const printing = {
+        setCode: typeof body.setCode === "string" ? body.setCode : undefined,
+        collectorNumber:
+          typeof body.collectorNumber === "string"
+            ? body.collectorNumber
+            : undefined,
+        isFoil: typeof body.isFoil === "boolean" ? body.isFoil : undefined,
+      };
       const data = await authQuery(c.get("jwtClaims"), (tx) =>
         updateBinPickList(tx, orgId, binGuid, (current) =>
-          applyPickListFound(current, name, delta),
+          applyPickListFound(current, { name, ...printing }, delta),
         ),
       );
       if (!data) {

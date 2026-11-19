@@ -48,6 +48,9 @@ export interface ScanPickListUpdate {
   binGuid: string;
   binNumber: number;
   name: string;
+  setCode?: string;
+  collectorNumber?: string;
+  isFoil?: boolean;
   delta: number;
 }
 
