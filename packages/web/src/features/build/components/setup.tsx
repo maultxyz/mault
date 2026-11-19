@@ -15,6 +15,8 @@ import {
   KIT_MODULE_COUNT,
   MAX_MODULES,
   MIN_MODULES,
+  RECOMMENDED_BOARD_TYPE,
+  RECOMMENDED_ESP32_MOUNT_TYPE,
 } from "@/lib/constants/build";
 import { SHOP_URL } from "@/lib/constants/links";
 import {
@@ -95,6 +97,7 @@ export function BuildSetup() {
               icon={IconPackage}
               title={t("setup.source.kit.title")}
               description={t("setup.source.kit.description")}
+              badge={t("setup.recommended")}
               selected={usingKit}
               onSelect={chooseKit}
             />
@@ -131,6 +134,11 @@ export function BuildSetup() {
                 icon={BOARD_ICONS[type]}
                 title={BOARD_INFO[type].displayName}
                 description={t(`setup.board.${type}.description`)}
+                badge={
+                  type === RECOMMENDED_BOARD_TYPE
+                    ? t("setup.recommended")
+                    : undefined
+                }
                 selected={boardType === type}
                 disabled={usingKit}
                 onSelect={() => updateSetup({ boardType: type })}
@@ -152,6 +160,11 @@ export function BuildSetup() {
                   icon={ESP32_MOUNT_ICONS[type]}
                   title={t(`setup.mount.${type}.title`)}
                   description={t(`setup.mount.${type}.description`)}
+                  badge={
+                    type === RECOMMENDED_ESP32_MOUNT_TYPE
+                      ? t("setup.recommended")
+                      : undefined
+                  }
                   selected={mountType === type}
                   disabled={usingKit}
                   onSelect={() => updateSetup({ mountType: type })}
