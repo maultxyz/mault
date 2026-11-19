@@ -198,3 +198,30 @@ export interface PlanLock {
   tag: string;
   isDisabled: boolean;
 }
+
+export interface PublicNavLink {
+  key: string;
+  to: string;
+  external?: boolean;
+  isFeatured?: boolean;
+  isHostedOnly?: boolean;
+}
+
+export type PublicNavEntry =
+  | ({ kind: "link" } & PublicNavLink)
+  | { kind: "group"; key: string; links: PublicNavLink[] };
+
+export interface PublicNavLinksProps {
+  onNavigate?: () => void;
+}
+
+export interface PublicNavLinkItemProps {
+  link: PublicNavLink;
+  baseClassName: string;
+  onNavigate?: () => void;
+}
+
+export interface PublicNavMenuLinkProps {
+  link: PublicNavLink;
+  className: string;
+}

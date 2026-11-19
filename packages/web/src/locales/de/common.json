@@ -195,8 +195,8 @@
   "publicNav": {
     "pagesAria": "Seiten der Website",
     "pages": {
-      "home": "Startseite",
       "build": "Bauanleitung",
+      "pricing": "Preise",
       "selfHost": "Selbst hosten",
       "discordBot": "Discord-Bot",
       "download": "Download",
@@ -207,7 +207,12 @@
     "menuAriaLabel": "Menü",
     "signIn": "Anmelden",
     "getStarted": "Jetzt starten",
-    "openApp": "App öffnen"
+    "openApp": "App öffnen",
+    "groups": {
+      "hardware": "Hardware",
+      "software": "Software"
+    },
+    "opensInNewTab": "(öffnet in einem neuen Tab)"
   },
   "backHome": "Zurück zur Startseite",
   "hotkeys": {

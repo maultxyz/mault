@@ -176,3 +176,15 @@ export interface PricingComparisonProps {
   planPrices: PaidPlanPrices | null;
   interval: BillingInterval;
 }
+
+export interface DraggableMarqueeOptions {
+  secondsPerLoop: number;
+  isPaused: boolean;
+  isEnabled: boolean;
+}
+
+export interface MarqueeDrag {
+  pointerId: number;
+  startX: number;
+  startOffset: number;
+}

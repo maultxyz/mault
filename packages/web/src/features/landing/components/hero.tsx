@@ -41,10 +41,6 @@ export function LandingHero() {
             {t("hero.seeFeatures")}
           </a>
         </div>
-        <p className="font-heading text-sm tracking-widest text-foreground/70 uppercase">
-          {t("hero.eyebrow")}
-          <span className="hidden sm:inline"> · {t("hero.tagline")}</span>
-        </p>
       </div>
 
       <div className="relative w-full animate-in fade-in slide-in-from-bottom-6 duration-1000 [animation-delay:150ms] [animation-fill-mode:both] motion-reduce:animate-none">

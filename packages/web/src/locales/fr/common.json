@@ -195,8 +195,8 @@
   "publicNav": {
     "pagesAria": "Pages du site",
     "pages": {
-      "home": "Accueil",
       "build": "Construire",
+      "pricing": "Tarifs",
       "selfHost": "Auto-hébergement",
       "discordBot": "Bot Discord",
       "download": "Télécharger",
@@ -207,7 +207,12 @@
     "menuAriaLabel": "Menu",
     "signIn": "Se connecter",
     "getStarted": "Commencer",
-    "openApp": "Ouvrir l'application"
+    "openApp": "Ouvrir l'application",
+    "groups": {
+      "hardware": "Matériel",
+      "software": "Logiciel"
+    },
+    "opensInNewTab": "(s'ouvre dans un nouvel onglet)"
   },
   "backHome": "Retour à l'accueil",
   "hotkeys": {

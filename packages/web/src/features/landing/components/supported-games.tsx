@@ -1,10 +1,14 @@
+import { Button } from "@/components/ui/button";
 import { usePublicGames } from "@/features/landing/api/use-public-games";
+import { useDraggableMarquee } from "@/hooks/use-draggable-marquee";
 import {
+  GAMES_MARQUEE_KEYBOARD_NUDGE_PX,
   GAMES_MARQUEE_MIN_ITEMS,
   GAMES_MARQUEE_SECONDS_PER_ITEM,
 } from "@/lib/constants/landing";
 import type { PublicGame } from "@magic-vault/shared";
 import { cn } from "@/lib/utils";
+import { IconArrowsHorizontal, IconLayoutGrid } from "@tabler/icons-react";
 import { useId, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -18,20 +22,36 @@ export function LandingSupportedGames() {
   const { t, i18n } = useTranslation("landing");
   const games = usePublicGames();
   const [isPaused, setIsPaused] = useState(false);
+  const [isGrid, setIsGrid] = useState(false);
   const pauseHintId = useId();
+  const items = games ? repeatToFill(games) : [];
+  const { trackRef, rowRef, isDragging, pointerHandlers, nudge } =
+    useDraggableMarquee({
+      secondsPerLoop: items.length * GAMES_MARQUEE_SECONDS_PER_ITEM,
+      isPaused,
+      isEnabled: items.length > 0 && !isGrid,
+    });
 
   if (games !== null && games.length === 0) return null;
 
-  const items = games ? repeatToFill(games) : [];
-
-  const togglePauseOnSpace = (event: KeyboardEvent<HTMLElement>) => {
-    if (event.key !== " " || event.target !== event.currentTarget) return;
-    event.preventDefault();
-    setIsPaused((paused) => !paused);
+  const handleMarqueeKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.target !== event.currentTarget) return;
+    if (event.key === " ") {
+      event.preventDefault();
+      setIsPaused((paused) => !paused);
+    } else if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+      event.preventDefault();
+      nudge(
+        event.key === "ArrowRight"
+          ? GAMES_MARQUEE_KEYBOARD_NUDGE_PX
+          : -GAMES_MARQUEE_KEYBOARD_NUDGE_PX,
+      );
+    }
   };
 
   const renderRow = (hidden: boolean) => (
     <ul
+      ref={hidden ? undefined : rowRef}
       aria-hidden={hidden || undefined}
       className="flex shrink-0 items-center gap-14 pr-14"
     >
@@ -56,48 +76,80 @@ export function LandingSupportedGames() {
 
   return (
     <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 pb-8 md:pb-12">
-      <p aria-hidden className="text-center text-sm text-foreground/70">
-        {t("supportedGames.heading")}
-      </p>
-      <section
-        role="marquee"
-        aria-label={t("supportedGames.heading")}
-        aria-describedby={games ? pauseHintId : undefined}
-        tabIndex={games ? 0 : undefined}
-        onKeyDown={togglePauseOnSpace}
-        className="overflow-hidden rounded-lg py-3 outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]"
-      >
-        {games === null ? (
-          <div className="flex justify-center gap-10">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="h-5 w-40 animate-pulse rounded-sm bg-foreground/8 motion-reduce:animate-none"
-              />
-            ))}
-          </div>
-        ) : (
-          <div
-            className={cn(
-              "flex w-max animate-marquee hover:[animation-play-state:paused] motion-reduce:animate-none",
-              isPaused && "[animation-play-state:paused]",
-            )}
-            style={{
-              ["--marquee-duration" as string]: `${items.length * GAMES_MARQUEE_SECONDS_PER_ITEM}s`,
-            }}
-          >
-            {renderRow(false)}
-            {renderRow(true)}
-          </div>
-        )}
+      <div className="flex flex-col items-center gap-1">
+        <p aria-hidden className="text-center text-sm text-foreground/70">
+          {t("supportedGames.heading")}
+        </p>
         {games && (
-          <p id={pauseHintId} className="sr-only" aria-live="polite">
-            {isPaused
-              ? t("supportedGames.pausedHint")
-              : t("supportedGames.pauseHint")}
-          </p>
+          <Button
+            variant="ghost"
+            size="marketing"
+            className="text-foreground/70 hover:text-foreground"
+            onClick={() => setIsGrid((grid) => !grid)}
+          >
+            {isGrid ? <IconArrowsHorizontal /> : <IconLayoutGrid />}
+            {isGrid
+              ? t("supportedGames.showScrolling")
+              : t("supportedGames.showGrid")}
+          </Button>
         )}
-      </section>
+      </div>
+      {games && isGrid ? (
+        <section aria-label={t("supportedGames.heading")} className="py-3">
+          <ul className="grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-3 md:grid-cols-4">
+            {games.map((game) => (
+              <li key={game.key} className="flex flex-col gap-0.5">
+                <span className="font-heading text-base font-semibold text-foreground/80 md:text-lg">
+                  {game.name}
+                </span>
+                <span className="font-heading text-sm text-foreground/70 tabular-nums">
+                  {t("supportedGames.cardsIndexed", {
+                    count: game.cardCount,
+                    formatted: game.cardCount.toLocaleString(i18n.language),
+                  })}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : (
+        <section
+          role="marquee"
+          aria-label={t("supportedGames.heading")}
+          aria-describedby={games ? pauseHintId : undefined}
+          tabIndex={games ? 0 : undefined}
+          onKeyDown={handleMarqueeKeyDown}
+          {...(games ? pointerHandlers : {})}
+          className={cn(
+            "overflow-hidden rounded-lg py-3 select-none touch-pan-y",
+            games && (isDragging ? "cursor-grabbing" : "cursor-grab"),
+            "outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-inset [mask-image:linear-gradient(to_right,transparent,black_15%,black_85%,transparent)]",
+          )}
+        >
+          {games === null ? (
+            <div className="flex justify-center gap-10">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-5 w-40 animate-pulse rounded-sm bg-foreground/8 motion-reduce:animate-none"
+                />
+              ))}
+            </div>
+          ) : (
+            <div ref={trackRef} className="flex w-max will-change-transform">
+              {renderRow(false)}
+              {renderRow(true)}
+            </div>
+          )}
+          {games && (
+            <p id={pauseHintId} className="sr-only" aria-live="polite">
+              {isPaused
+                ? t("supportedGames.pausedHint")
+                : t("supportedGames.pauseHint")}
+            </p>
+          )}
+        </section>
+      )}
     </div>
   );
 }

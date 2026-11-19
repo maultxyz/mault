@@ -1,3 +1,4 @@
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { DOWNLOAD_PATH } from "@/lib/constants/download";
 import { SELF_HOST_PATH } from "@/lib/constants/self-host";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
@@ -6,7 +7,7 @@ import { WHATS_NEW_PATH } from "@/lib/constants/feature-highlights";
 import { ORDERS_PATH } from "@/lib/constants/business";
 import { PRINT_FILES_URL, SHOP_URL } from "@/lib/constants/links";
 import { STORAGE_PATH } from "@/lib/constants/storage";
-import type { PlanGatedPath } from "@/lib/interfaces/nav";
+import type { PlanGatedPath, PublicNavEntry } from "@/lib/interfaces/nav";
 
 export const NAV_SUBITEMS_LIMIT = 5;
 
@@ -96,15 +97,40 @@ export const MOBILE_NAV_HIDDEN_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
 export const MOBILE_IMMERSIVE_PATTERN = /^\/app\/scan\/?$/;
 export const MOBILE_IMMERSIVE_PANEL_CLASS = "bg-black dark:bg-black";
 
-export const PUBLIC_NAV_PAGES = [
-  { key: "home", to: "/" },
-  { key: "build", to: "/build" },
-  { key: "selfHost", to: SELF_HOST_PATH },
-  { key: "discordBot", to: "/discord-bot" },
-  { key: "download", to: DOWNLOAD_PATH },
-  { key: "shop", to: SHOP_URL, external: true },
-  { key: "makerWorld", to: PRINT_FILES_URL, external: true },
-] as const;
+export const PUBLIC_NAV_MENU_TRIGGER_CLASS =
+  "h-auto rounded-md text-sm text-foreground/70 hover:bg-foreground/6 hover:text-foreground focus:bg-foreground/6 data-popup-open:bg-foreground/6 data-popup-open:text-foreground data-open:bg-foreground/6 data-open:text-foreground data-[active=true]:text-foreground";
+export const PUBLIC_NAV_FEATURED_LINK_CLASS = "font-semibold text-foreground";
+export const PUBLIC_NAV_MENU_LINK_CLASS =
+  "px-3 py-2 text-sm font-medium text-foreground/70 hover:bg-foreground/6 hover:text-foreground focus:bg-foreground/6 data-[active=true]:bg-foreground/6 data-[active=true]:text-foreground";
+export const PUBLIC_NAV_DRAWER_LINK_CLASS =
+  "rounded-md px-3 py-2.5 text-sm font-medium transition-colors hover:bg-foreground/6 hover:text-foreground";
+
+export const PUBLIC_NAV_ENTRIES: PublicNavEntry[] = [
+  { kind: "link", key: "build", to: "/build", isFeatured: true },
+  { kind: "link", key: "pricing", to: "/#pricing", isHostedOnly: true },
+  {
+    kind: "group",
+    key: "hardware",
+    links: [
+      { key: "shop", to: SHOP_URL, external: true },
+      { key: "makerWorld", to: PRINT_FILES_URL, external: true },
+    ],
+  },
+  {
+    kind: "group",
+    key: "software",
+    links: [
+      { key: "download", to: DOWNLOAD_PATH },
+      { key: "selfHost", to: SELF_HOST_PATH },
+      { key: "discordBot", to: "/discord-bot" },
+    ],
+  },
+];
+
+export const PUBLIC_NAV_VISIBLE_ENTRIES = PUBLIC_NAV_ENTRIES.filter(
+  (entry) =>
+    !(entry.kind === "link" && entry.isHostedOnly && AUTH_PROVIDER === "local"),
+);
 
 export const PLAN_GATED_PATHS: readonly PlanGatedPath[] = [
   {
