@@ -2,18 +2,30 @@ import { Button } from "@/components/ui/button";
 import { FeatureHighlightLinkButton } from "@/features/feature-highlights/components/feature-highlight-link-button";
 import { FeatureHighlightMedia } from "@/features/feature-highlights/components/feature-highlight-media";
 import { resolveFeatureHighlightText } from "@/features/feature-highlights/lib/feature-highlight-slides";
-import { FEATURE_HIGHLIGHT_INTERACTIVE_KEY_TARGETS } from "@/lib/constants/feature-highlights";
+import {
+  FEATURE_HIGHLIGHT_CLICK_IGNORED_SELECTOR,
+  FEATURE_HIGHLIGHT_INTERACTIVE_KEY_TARGETS,
+  FEATURE_HIGHLIGHT_OPENABLE_SLIDE_CLASS,
+} from "@/lib/constants/feature-highlights";
 import type { FeatureHighlightCarouselProps } from "@/lib/interfaces/feature-highlights";
 import { cn } from "@/lib/utils";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link, useNavigate } from "react-router-dom";
 
 export function FeatureHighlightCarousel({
   slides,
   onFinish,
+  slideIndex,
+  onSlideIndexChange,
+  openHrefOf,
+  onOpenSlide,
 }: FeatureHighlightCarouselProps) {
   const { t } = useTranslation("common");
-  const [requestedIndex, setRequestedIndex] = useState(0);
+  const navigate = useNavigate();
+  const [ownSlideIndex, setOwnSlideIndex] = useState(0);
+  const requestedIndex = slideIndex ?? ownSlideIndex;
+  const setRequestedIndex = onSlideIndexChange ?? setOwnSlideIndex;
   const [announcement, setAnnouncement] = useState("");
   const rootRef = useRef<HTMLDivElement>(null);
   const nextButtonRef = useRef<HTMLButtonElement>(null);
@@ -75,6 +87,20 @@ export function FeatureHighlightCarousel({
   const title = resolveFeatureHighlightText(t, current.slide.title);
   const body = resolveFeatureHighlightText(t, current.slide.body);
   const link = current.slide.link;
+  const openHref = openHrefOf?.(current);
+  const openCurrentSlide = () => onOpenSlide?.(current);
+  const handleSlideClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!openHref) return;
+    const target = event.target;
+    if (
+      target instanceof Element &&
+      target.closest(FEATURE_HIGHLIGHT_CLICK_IGNORED_SELECTOR)
+    ) {
+      return;
+    }
+    openCurrentSlide();
+    navigate(openHref);
+  };
   const step = t("featureHighlights.step", { current: index + 1, total });
 
   return (
@@ -86,11 +112,30 @@ export function FeatureHighlightCarousel({
         aria-label={step}
         className="flex flex-col gap-3 md:gap-2 animate-in fade-in-0 duration-200 motion-reduce:animate-none"
       >
-        <FeatureHighlightMedia slide={current.slide} allowsAutoplay />
-        <h3 className="font-heading text-base font-semibold text-foreground">
-          {title}
-        </h3>
-        <p className="text-sm whitespace-pre-line text-foreground/70">{body}</p>
+        <div
+          role="presentation"
+          onClick={handleSlideClick}
+          className={cn(
+            "flex flex-col gap-3 md:gap-2",
+            openHref && FEATURE_HIGHLIGHT_OPENABLE_SLIDE_CLASS,
+          )}
+        >
+          <FeatureHighlightMedia slide={current.slide} allowsAutoplay />
+          <h3 className="font-heading text-base font-semibold text-foreground">
+            {openHref ? (
+              <Link
+                to={openHref}
+                onClick={openCurrentSlide}
+                className="rounded-sm underline-offset-2 outline-none hover:underline focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                {title}
+              </Link>
+            ) : (
+              title
+            )}
+          </h3>
+          <p className="text-sm whitespace-pre-line text-foreground/70">{body}</p>
+        </div>
         {link && <FeatureHighlightLinkButton link={link} />}
       </div>
 

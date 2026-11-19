@@ -7,8 +7,9 @@ import {
   WHATS_NEW_PATH,
 } from "@/lib/constants/feature-highlights";
 import type { FeatureHighlightsFloatingCardProps } from "@/lib/interfaces/feature-highlights";
-import { IconSparkles, IconX } from "@tabler/icons-react";
-import { useEffect, useId, useRef } from "react";
+import { whatsNewHighlightPath } from "@/features/feature-highlights/lib/feature-highlight-timeline";
+import { IconArrowsMaximize, IconSparkles, IconX } from "@tabler/icons-react";
+import { useEffect, useId, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -20,6 +21,11 @@ export function FeatureHighlightsFloatingCard({
   const { t } = useTranslation("common");
   const headingId = useId();
   const cardRef = useRef<HTMLElement>(null);
+  const [slideIndex, setSlideIndex] = useState(0);
+  const currentSlide = slides[Math.min(slideIndex, Math.max(slides.length - 1, 0))];
+  const currentHref = currentSlide
+    ? whatsNewHighlightPath(currentSlide.highlightId)
+    : WHATS_NEW_PATH;
 
   const dismiss = () => {
     const card = cardRef.current;
@@ -66,13 +72,31 @@ export function FeatureHighlightsFloatingCard({
         <Button
           variant="ghost"
           size="icon"
+          aria-label={t("featureHighlights.openInTimeline")}
+          title={t("featureHighlights.openInTimeline")}
+          nativeButton={false}
+          render={<Link to={currentHref} />}
+          onClick={onOpenTimeline}
+        >
+          <IconArrowsMaximize aria-hidden />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
           aria-label={t("a11y.close")}
           onClick={dismiss}
         >
           <IconX aria-hidden />
         </Button>
       </div>
-      <FeatureHighlightCarousel slides={slides} onFinish={dismiss} />
+      <FeatureHighlightCarousel
+        slides={slides}
+        onFinish={dismiss}
+        slideIndex={slideIndex}
+        onSlideIndexChange={setSlideIndex}
+        openHrefOf={(slide) => whatsNewHighlightPath(slide.highlightId)}
+        onOpenSlide={onOpenTimeline}
+      />
       <Button
         variant="link"
         className="mt-2 self-start px-0"

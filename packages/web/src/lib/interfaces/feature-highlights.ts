@@ -15,6 +15,10 @@ export interface FeatureHighlightCarouselSlide {
 export interface FeatureHighlightCarouselProps {
   slides: FeatureHighlightCarouselSlide[];
   onFinish: () => void;
+  slideIndex?: number;
+  onSlideIndexChange?: (slideIndex: number) => void;
+  openHrefOf?: (slide: FeatureHighlightCarouselSlide) => string;
+  onOpenSlide?: (slide: FeatureHighlightCarouselSlide) => void;
 }
 
 export interface FeatureHighlightMediaProps {
@@ -48,6 +52,7 @@ export interface FeatureHighlightMonthGroup {
 export interface FeatureHighlightTimelineEntryProps {
   highlight: FeatureHighlight;
   isNew: boolean;
+  isEmphasized: boolean;
 }
 
 export interface FeatureHighlightFormDialogProps {

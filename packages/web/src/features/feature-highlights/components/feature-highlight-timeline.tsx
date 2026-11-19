@@ -12,7 +12,13 @@ import { groupFeatureHighlightsByMonth } from "@/features/feature-highlights/lib
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { useInView } from "@/hooks/use-in-view";
 import { useAuthSession } from "@/lib/auth";
-import { FEATURE_HIGHLIGHT_TIMELINE_PRELOAD_MARGIN } from "@/lib/constants/feature-highlights";
+import {
+  FEATURE_HIGHLIGHT_ID_ATTRIBUTE,
+  FEATURE_HIGHLIGHT_TARGET_EMPHASIS_MS,
+  FEATURE_HIGHLIGHT_TIMELINE_PRELOAD_MARGIN,
+  WHATS_NEW_HIGHLIGHT_PARAM,
+} from "@/lib/constants/feature-highlights";
+import { prefersReducedMotion } from "@/lib/motion";
 import type { FeatureHighlightTimelineProps } from "@/lib/interfaces/feature-highlights";
 import { cn } from "@/lib/utils";
 import {
@@ -23,6 +29,7 @@ import { IconSearch, IconSparkles } from "@tabler/icons-react";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useSearchParams } from "react-router-dom";
 
 function TimelineEntrySkeleton() {
   return (
@@ -113,7 +120,60 @@ export function FeatureHighlightTimeline({
     [i18n.language],
   );
 
-  const loadsMore = isSearching || isSentinelInView;
+  const [searchParams, setSearchParams] = useSearchParams();
+  const targetHighlightId = searchParams.get(WHATS_NEW_HIGHLIGHT_PARAM);
+  const isTargetShown =
+    !!targetHighlightId &&
+    highlights.some((highlight) => highlight.id === targetHighlightId);
+  const isSeekingTarget = !!targetHighlightId && !!data && !isTargetShown;
+  const [emphasizedHighlightId, setEmphasizedHighlightId] = useState<
+    string | null
+  >(null);
+
+  useEffect(() => {
+    if (!targetHighlightId || !data) return;
+    if (!isTargetShown && (hasNextPage || isFetchingNextPage) && !isFetchNextPageError) {
+      return;
+    }
+    if (isTargetShown) {
+      const entry = listRef.current?.querySelector<HTMLElement>(
+        `[${FEATURE_HIGHLIGHT_ID_ATTRIBUTE}="${CSS.escape(targetHighlightId)}"]`,
+      );
+      entry?.scrollIntoView?.({
+        block: "start",
+        behavior: prefersReducedMotion() ? "auto" : "smooth",
+      });
+      entry?.focus({ preventScroll: true });
+      setEmphasizedHighlightId(targetHighlightId);
+    }
+    setSearchParams(
+      (previous) => {
+        const next = new URLSearchParams(previous);
+        next.delete(WHATS_NEW_HIGHLIGHT_PARAM);
+        return next;
+      },
+      { replace: true },
+    );
+  }, [
+    targetHighlightId,
+    data,
+    isTargetShown,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+    setSearchParams,
+  ]);
+
+  useEffect(() => {
+    if (!emphasizedHighlightId) return;
+    const timeout = setTimeout(
+      () => setEmphasizedHighlightId(null),
+      FEATURE_HIGHLIGHT_TARGET_EMPHASIS_MS,
+    );
+    return () => clearTimeout(timeout);
+  }, [emphasizedHighlightId]);
+
+  const loadsMore = isSearching || isSentinelInView || isSeekingTarget;
   useEffect(() => {
     if (!loadsMore || !hasNextPage || isFetchingNextPage || isFetchNextPageError) {
       return;
@@ -216,6 +276,7 @@ export function FeatureHighlightTimeline({
                     <FeatureHighlightTimelineEntry
                       highlight={highlight}
                       isNew={newOnThisVisit.has(highlight.id)}
+                      isEmphasized={emphasizedHighlightId === highlight.id}
                     />
                   </li>
                 ))}

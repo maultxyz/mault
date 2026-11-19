@@ -1,3 +1,7 @@
+import {
+  WHATS_NEW_HIGHLIGHT_PARAM,
+  WHATS_NEW_PATH,
+} from "@/lib/constants/feature-highlights";
 import type { FeatureHighlightMonthGroup } from "@/lib/interfaces/feature-highlights";
 import type { FeatureHighlight } from "@magic-vault/shared";
 
@@ -25,4 +29,11 @@ export function groupFeatureHighlightsByMonth(
     group.highlights.push(highlight);
   }
   return groups;
+}
+
+export function whatsNewHighlightPath(highlightId: string): string {
+  const searchParams = new URLSearchParams({
+    [WHATS_NEW_HIGHLIGHT_PARAM]: highlightId,
+  });
+  return `${WHATS_NEW_PATH}?${searchParams.toString()}`;
 }

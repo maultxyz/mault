@@ -223,6 +223,26 @@ describe("What's new search", () => {
     expect(searchField()).toHaveValue("");
   });
 
+  it("loads pages until the highlight from the popup is found, then focuses it and drops the param", async () => {
+    const scrollIntoView = vi.fn();
+    Element.prototype.scrollIntoView = scrollIntoView;
+    renderPage("/app/whats-new?highlight=price-labels");
+    const entry = await screen.findByRole("article", { name: "Price labels" });
+    expect(mocks.loadTimelinePage).toHaveBeenLastCalledWith(
+      "2026-11-10T12:00:00.000Z|bulk-edit",
+    );
+    await waitFor(() => expect(entry).toHaveFocus());
+    expect(scrollIntoView).toHaveBeenCalledWith({ block: "start", behavior: "smooth" });
+    await waitFor(() => expect(screen.getByTestId("location")).toBeEmptyDOMElement());
+  });
+
+  it("drops an unknown highlight param after loading every page", async () => {
+    renderPage("/app/whats-new?highlight=deleted");
+    await screen.findByRole("article", { name: "Search in every language" });
+    await waitFor(() => expect(mocks.loadTimelinePage).toHaveBeenCalledTimes(2));
+    await waitFor(() => expect(screen.getByTestId("location")).toBeEmptyDOMElement());
+  });
+
   it("restores the search from the q parameter", async () => {
     renderPage("/app/whats-new?q=bulk");
     expect(await screen.findByRole("searchbox", {

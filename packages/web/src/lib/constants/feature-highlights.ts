@@ -75,3 +75,9 @@ export const FEATURE_HIGHLIGHTS_POPOVER_LIMIT = 3;
 export const FEATURE_HIGHLIGHTS_POPOVER_CLASS =
   "w-80 max-h-[min(36rem,calc(100dvh-4rem))] gap-3 overflow-y-auto rounded-xl";
 export const WHATS_NEW_SEARCH_PARAM = "q";
+export const WHATS_NEW_HIGHLIGHT_PARAM = "highlight";
+export const FEATURE_HIGHLIGHT_TARGET_EMPHASIS_MS = 2000;
+export const FEATURE_HIGHLIGHT_CLICK_IGNORED_SELECTOR =
+  "a, button, video, input, select, textarea, [role='button']";
+export const FEATURE_HIGHLIGHT_OPENABLE_SLIDE_CLASS =
+  "-m-1 cursor-pointer rounded-lg p-1 transition-colors hover:bg-foreground/3 motion-reduce:transition-none";

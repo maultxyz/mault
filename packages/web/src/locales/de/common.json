@@ -728,6 +728,7 @@
       "noMatches": "Keine Neuigkeiten passen zu „{{query}}“",
       "resultsCount_one": "{{count}} Neuigkeit gefunden",
       "resultsCount_other": "{{count}} Neuigkeiten gefunden"
-    }
+    },
+    "openInTimeline": "In Neuigkeiten öffnen"
   }
 }

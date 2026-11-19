@@ -728,6 +728,7 @@
       "noMatches": "Aucune nouveauté ne correspond à « {{query}} »",
       "resultsCount_one": "{{count}} nouveauté trouvée",
       "resultsCount_other": "{{count}} nouveautés trouvées"
-    }
+    },
+    "openInTimeline": "Ouvrir dans Nouveautés"
   }
 }

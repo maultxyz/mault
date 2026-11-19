@@ -4,12 +4,14 @@ import { FeatureHighlightMedia } from "@/features/feature-highlights/components/
 import { resolveFeatureHighlightText } from "@/features/feature-highlights/lib/feature-highlight-slides";
 import { FEATURE_HIGHLIGHT_ID_ATTRIBUTE } from "@/lib/constants/feature-highlights";
 import type { FeatureHighlightTimelineEntryProps } from "@/lib/interfaces/feature-highlights";
+import { cn } from "@/lib/utils";
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
 
 export function FeatureHighlightTimelineEntry({
   highlight,
   isNew,
+  isEmphasized,
 }: FeatureHighlightTimelineEntryProps) {
   const { t, i18n } = useTranslation("common");
   const titleId = useId();
@@ -21,7 +23,11 @@ export function FeatureHighlightTimelineEntry({
     <article
       {...{ [FEATURE_HIGHLIGHT_ID_ATTRIBUTE]: highlight.id }}
       aria-labelledby={titleId}
-      className="flex flex-col gap-4 rounded-card bg-card p-4 md:gap-3 md:p-2.5"
+      tabIndex={-1}
+      className={cn(
+        "flex scroll-mt-4 flex-col gap-4 rounded-card bg-card p-4 outline-none transition-shadow motion-reduce:transition-none md:gap-3 md:p-2.5",
+        isEmphasized && "ring-2 ring-primary",
+      )}
     >
       <div className="flex items-center gap-2">
         <time

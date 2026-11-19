@@ -728,6 +728,7 @@
       "noMatches": "No updates match \"{{query}}\"",
       "resultsCount_one": "{{count}} update found",
       "resultsCount_other": "{{count}} updates found"
-    }
+    },
+    "openInTimeline": "Open in What's new"
   }
 }
