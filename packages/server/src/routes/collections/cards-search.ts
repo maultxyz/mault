@@ -22,6 +22,7 @@ import { INVENTORY_CARD_FILTER } from "../../lib/constants/storage-locations";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import { createOrgReadCache } from "../../lib/org-read-cache";
 import { containsLikePattern } from "../../lib/sql-like";
+import { matchesEnglishCardNameSql } from "../../lib/english-card-name-search";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import type { OwnedCardSearchRow } from "../../lib/interfaces/owned-card-search";
 
@@ -47,6 +48,18 @@ export const searchOwnedCardsRoute = new Hono<AppEnv>().get(
       orgId,
       JSON.stringify([query, limit, offset, gameKey, collectionGuid]),
       async () => {
+        const englishNameMatch = query
+          ? matchesEnglishCardNameSql(
+              {
+                gameKey: sql`g.key`,
+                lang: sql`COALESCE(cc.card_lang, col.lang)`,
+                setCode: sql`cc.card_set`,
+                collectorNumber: sql`cc.card_collector_number`,
+              },
+              query,
+            )
+          : undefined;
+        const nameMatch = sql`lower(cc.card_name) LIKE ${containsLikePattern(query)}`;
         const rows = await authQuery(c.get("jwtClaims"), async (tx) => {
           const result = await tx.execute(sql`
             SELECT
@@ -71,7 +84,7 @@ export const searchOwnedCardsRoute = new Hono<AppEnv>().get(
             ${cardCatalogJoinSql({ gameKey: sql`g.key`, lang: sql`col.lang` }, CC_ALIAS_SQL_COLUMNS)}
             WHERE cc.org_id = ${orgId}
               AND ${INVENTORY_CARD_FILTER}
-              ${query ? sql`AND lower(cc.card_name) LIKE ${containsLikePattern(query)}` : sql``}
+              ${query ? sql`AND ${englishNameMatch ? sql`(${nameMatch} OR ${englishNameMatch})` : nameMatch}` : sql``}
               ${gameKey ? sql`AND g.key = ${gameKey}` : sql``}
               ${collectionGuid ? sql`AND col.guid = ${collectionGuid}` : sql``}
             ORDER BY

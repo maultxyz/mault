@@ -23,6 +23,7 @@ import { z } from "zod";
 import type { Transaction } from "../../db";
 import { collections, games, orgSettings } from "../../db/schema";
 import { toScannedCard } from "./shared";
+import { matchesEnglishCardNameSql } from "../../lib/english-card-name-search";
 import type {
   CachedGroupedCardRanking,
   CardsCollection,
@@ -307,7 +308,17 @@ export function cardFilterSql(
   }
 
   if (search) {
-    conditions.push(sql`strpos(${CATALOG_CC_ALIAS_COLUMNS.searchText}, ${search}::text) > 0`);
+    const searchTextMatch = sql`strpos(${CATALOG_CC_ALIAS_COLUMNS.searchText}, ${search}::text) > 0`;
+    const englishNameMatch = matchesEnglishCardNameSql(
+      {
+        gameKey: sql`(SELECT search_game.key FROM collections search_collection JOIN games search_game ON search_game.id = search_collection.game_id WHERE search_collection.id = cc.collection_id)`,
+        lang: sql`cc.card_lang`,
+        setCode: sql`cc.card_set`,
+        collectorNumber: sql`cc.card_collector_number`,
+      },
+      search,
+    );
+    conditions.push(englishNameMatch ? sql`(${searchTextMatch} OR ${englishNameMatch})` : searchTextMatch);
   }
 
   return conditions.length > 0 ? sql.join(conditions, sql` AND `) : sql`TRUE`;
