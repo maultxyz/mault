@@ -1,10 +1,15 @@
-import { COLLECTION_CARDS_CHANGED_THROTTLE_MS } from "./constants/timing";
+import {
+  COLLECTION_CARDS_CHANGED_THROTTLE_MS,
+  PICK_LIST_CHANGED_THROTTLE_MS,
+} from "./constants/timing";
 import type { SseWriter } from "./interfaces/sse";
 import type {
   SessionEntry,
   ViewerEntry,
   ViewerInfo,
 } from "./interfaces/session-stream";
+import type { PickList } from "@magic-vault/shared";
+import { PICK_LIST_CHANGED_EVENT } from "@magic-vault/shared";
 
 const sessions = new Map<string, SessionEntry>();
 const orgCountWriters = new Map<string, Set<SseWriter>>();
@@ -13,6 +18,8 @@ const pendingCollectionCardsChanged = new Map<
   string,
   ReturnType<typeof setTimeout>
 >();
+const lastPickListChangedAt = new Map<string, number>();
+const pendingPickListChanged = new Map<string, ReturnType<typeof setTimeout>>();
 
 export function emitToOrg(orgId: string, event: string, data: unknown) {
   const writers = orgCountWriters.get(orgId);
@@ -40,6 +47,32 @@ export function emitCollectionCardsChanged(orgId: string, guid: string) {
   pendingCollectionCardsChanged.set(
     orgId,
     setTimeout(emit, COLLECTION_CARDS_CHANGED_THROTTLE_MS - sinceLastEmit),
+  );
+}
+
+/**
+ * Push a bin's pick list to every open tab, throttled per bin so the sorter's
+ * per-card found updates never flood the stream.
+ */
+export function emitPickListChanged(
+  orgId: string,
+  binGuid: string,
+  pickList: PickList,
+) {
+  if (pendingPickListChanged.has(binGuid)) return;
+  const sinceLastEmit = Date.now() - (lastPickListChangedAt.get(binGuid) ?? 0);
+  const emit = () => {
+    pendingPickListChanged.delete(binGuid);
+    lastPickListChangedAt.set(binGuid, Date.now());
+    emitToOrg(orgId, PICK_LIST_CHANGED_EVENT, { binGuid, pickList });
+  };
+  if (sinceLastEmit >= PICK_LIST_CHANGED_THROTTLE_MS) {
+    emit();
+    return;
+  }
+  pendingPickListChanged.set(
+    binGuid,
+    setTimeout(emit, PICK_LIST_CHANGED_THROTTLE_MS - sinceLastEmit),
   );
 }
 

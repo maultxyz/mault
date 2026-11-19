@@ -310,6 +310,53 @@ export interface OrderSortPresetResult {
   presets: OrderSortPreset[];
 }
 
+export interface SortPresetRunInput {
+  orderGuids: string[];
+  deviceGuid?: string;
+  previousPresetGuid?: string;
+}
+
+export interface SortPresetCandidate {
+  guid: string;
+  name: string;
+  gameKey: string;
+  createdAt: string;
+}
+
+export interface PreviousSortPresetsResult {
+  presets: SortPresetCandidate[];
+}
+
+export interface SorterPickRunInput {
+  orderGuids: string[];
+  locationGuid: string;
+  deviceGuid?: string;
+}
+
+export interface SorterPickReleaseInput {
+  orderGuid: string;
+  scanId: string;
+}
+
+export interface SorterPickReleaseResult {
+  released: boolean;
+  unfiled: boolean;
+}
+
+export interface SorterPickApplyInput {
+  orderGuids: string[];
+  locationGuid: string;
+  presetGuids: string[];
+}
+
+export interface SorterPickApplyResult {
+  pickedByOrder: Record<string, string[]>;
+}
+
+export interface SorterPickCleanupResult {
+  removed: number;
+}
+
 export interface OrderFulfilInput {
   scanIds: string[];
 }
