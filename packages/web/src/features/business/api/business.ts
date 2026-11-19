@@ -43,6 +43,7 @@ import type {
   OrderSortPresetResult,
   OrderBulkActionInput,
   OrderBulkActionResult,
+  PreviousSortPresetsResult,
   OrderLineSubstitute,
   OrderLineSubstituteInput,
   PagedList,
@@ -50,6 +51,11 @@ import type {
   PriceLabelSource,
   Result,
   StaffReport,
+  SorterPickApplyInput,
+  SorterPickApplyResult,
+  SorterPickCleanupResult,
+  SorterPickReleaseInput,
+  SorterPickReleaseResult,
   StatsRange,
 } from "@magic-vault/shared";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
@@ -350,6 +356,61 @@ export function updateOrderBins(guid: string, input: OrderBinsInput) {
 export function createOrderSortPreset(guid: string) {
   return apiPost<Result<OrderSortPresetResult>>(
     `/api/business/orders/${guid}/sort-preset`,
+  );
+}
+
+export function createPickRunSortPreset(
+  orderGuids: string[],
+  deviceGuid?: string,
+  previousPresetGuid?: string,
+) {
+  return apiPost<Result<OrderSortPresetResult>>(
+    "/api/business/pick-runs/sort-preset",
+    { orderGuids, deviceGuid, previousPresetGuid },
+  );
+}
+
+export function previousSortPresetsQueryOptions(orderGuids: string[]) {
+  return queryOptions({
+    queryKey: [...businessKeys.ordersRoot(), "previousPresets", orderGuids] as const,
+    queryFn: async () => {
+      const result = await apiGet<Result<PreviousSortPresetsResult>>(
+        `/api/business/pick-runs/previous-presets?orderGuids=${orderGuids.join(",")}`,
+      );
+      return unwrap(result).presets;
+    },
+    enabled: orderGuids.length > 0,
+  });
+}
+
+export function createSorterPickRun(
+  orderGuids: string[],
+  locationGuid: string,
+  deviceGuid?: string,
+) {
+  return apiPost<Result<OrderSortPresetResult>>(
+    "/api/business/pick-runs/sorter-pick",
+    { orderGuids, locationGuid, deviceGuid },
+  );
+}
+
+export function applySorterPickRun(input: SorterPickApplyInput) {
+  return apiPost<Result<SorterPickApplyResult>>(
+    "/api/business/pick-runs/sorter-pick/apply",
+    input,
+  );
+}
+
+export function cleanupUsedPresets() {
+  return apiPost<Result<SorterPickCleanupResult>>(
+    "/api/business/pick-runs/presets/cleanup",
+  );
+}
+
+export function releaseSorterPickMissing(input: SorterPickReleaseInput) {
+  return apiPost<Result<SorterPickReleaseResult>>(
+    "/api/business/pick-runs/sorter-pick/release",
+    input,
   );
 }
 

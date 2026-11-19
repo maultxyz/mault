@@ -406,7 +406,9 @@
       "boxPickSummary": "{{picked}} von {{pickTotal}} Picks erledigt",
       "boxPickBadge": "Pick",
       "boxLoadMore": "Weitere Karten laden",
-      "boxCollectionNote": "Karten in einem Sammlungs-Fach, kein Lagerort."
+      "boxCollectionNote": "Karten in einem Sammlungs-Fach, kein Lagerort.",
+      "sortPresetButton": "Mit dem Sorter sortieren",
+      "sortPresetHint": "Erstellt eine aktive Fachvoreinstellung, die gescannte Karten in das Fach ihrer Bestellung legt und den Rest in das Einlagerungs-Fach."
     },
     "substitutes": {
       "find": "Ersatz finden",
@@ -466,6 +468,54 @@
       "missingConfirm": "Exemplar freigeben",
       "missingReleased_one": "{{count}} Exemplar zurück in den Bestand freigegeben",
       "missingReleased_other": "{{count}} Exemplare zurück in den Bestand freigegeben"
+    },
+    "sorterPick": {
+      "stopButton": "Sammelpick",
+      "stopButtonHint": "Schütte die ganze Box in den Sorter: Karten, die die Picks brauchen, landen in ihren Bestell-Fächern, alles andere kommt für {{location}} wieder heraus.",
+      "title": "Sammelpick · {{location}}",
+      "prepareDescription": "Schütte die ganze Box in den Sorter. Karten, die die Picks brauchen, landen in den Bestell-Fächern, alles andere kommt im Zurückleg-Fach heraus und wandert zurück in die Box.",
+      "runDescription": "Leere die Box durch den Sorter. Wenn sie leer ist, übernimm die Ergebnisse, um die gepickten Karten zu markieren.",
+      "appliedDescription": "Leere das Zurückleg-Fach zurück in {{location}}. Die Platznummern bleiben, wie sie sind.",
+      "orderCards_one": "{{count}} Karte",
+      "orderCards_other": "{{count}} Karten",
+      "binHint": "Fach {{bin}} — Karten für {{order}} kommen hier heraus.",
+      "binProgress": "{{found}} von {{total}} sortiert",
+      "runProgress": "{{found}} von {{total}} Karten bisher sortiert.",
+      "allSorted": "Alles ist sortiert. Übernimm die Ergebnisse und leere das Zurückleg-Fach zurück in die Box.",
+      "allSortedPreset": "Jede Karte ist im Fach ihrer Bestellung. Leere die Fächer in die Bestellungen.",
+      "runPresetDescription": "Leere die gepickten Karten durch den Sorter — jede Karte landet im Fach ihrer Bestellung. Der Fortschritt hier aktualisiert sich, während der Sorter scannt.",
+      "preparePresetDescription": "Leere die gepickten Karten durch den Sorter — jede Karte landet im Fach ihrer Bestellung. Die Scans werden nicht gespeichert, dein Bestand bleibt, wie er ist.",
+      "sorterLabel": "Sorter",
+      "sorterOption": "{{name}} · {{bins}} Fächer",
+      "sorterDefault": "Beliebiger Sorter (größtes)",
+      "sorterHint": "Die Vorlage bekommt Fächer für diesen Sorter. Voreingestellt ist der Sorter, der mit diesem Tab verbunden ist.",
+      "previousTitle": "Vorherige Vorlage: {{name}}",
+      "previousUse": "Vorherige verwenden",
+      "previousHint": "Aktiviert die zuvor für diese Picks erstellte Vorlage erneut — gleiche Fächer, gleicher Stand. Es wird keine neue Vorlage erstellt.",
+      "putBackBin": "Zurücklegen in {{location}}",
+      "putBackBinHint": "Alles, was die Picks nicht brauchen, kommt hier heraus. Leere es zurück in {{location}} — die Platznummern bleiben, wie sie sind.",
+      "startButton": "Durchlauf starten",
+      "startButtonHint": "Erstellt eine aktive Sortiervorlage nur für {{location}}. Der Sorter speichert diese Scans nicht.",
+      "applyButton": "Sorter-Ergebnisse übernehmen",
+      "applyButtonHint": "Markiert die Karten des Sorters anhand der Fach-Zähler als gepickt.",
+      "applied_one": "{{count}} Karte als gepickt markiert",
+      "applied_other": "{{count}} Karten als gepickt markiert",
+      "appliedHint": "Die Picks sind aktualisiert. Leere das Zurückleg-Fach zurück in die Box.",
+      "missingCount_one": "{{count}} Karte war nicht in der Box:",
+      "missingCount_other": "{{count}} Karten waren nicht in der Box:",
+      "discardRunPreset": "Durchlauf-Vorlage verwerfen",
+      "discardRunPresetHint": "Entfernt die Sortiervorlage dieses Durchlaufs aus den Sortierregeln. Einen neuen Sammelpick kannst du jederzeit starten.",
+      "discardedRun": "Durchlauf-Vorlage verworfen",
+      "usedPresets_one": "{{count}} verwendete Vorlage aus früheren Durchläufen",
+      "usedPresets_other": "{{count}} verwendete Vorlagen aus früheren Durchläufen",
+      "usedPresetsHint": "Vorlagen aus beendeten Sorter-Durchläufen sammeln sich hier. Verwerfen entfernt sie aus den Sortierregeln — Karten und Picks bleiben unberührt.",
+      "discardUsed": "Verwerfen",
+      "cleanupTitle_one": "{{count}} verwendete Vorlage verwerfen?",
+      "cleanupTitle_other": "{{count}} verwendete Vorlagen verwerfen?",
+      "cleanupDescription": "Vorlagen aus beendeten Sorter-Durchläufen werden entfernt. Die aktuell aktive Vorlage und alle gespeicherten Sortiersets bleiben erhalten.",
+      "cleanedUp_one": "{{count}} verwendete Vorlage verworfen",
+      "cleanedUp_other": "{{count}} verwendete Vorlagen verworfen",
+      "done": "Fertig"
     },
     "phonePick": {
       "button": "Auf dem Handy picken",
@@ -548,7 +598,11 @@
       "catalogCreated": "Shop-Katalog erstellt",
       "catalogUpdated": "Shop-Katalog geändert",
       "catalogDeleted": "Shop-Katalog gelöscht",
-      "orderSortPresetCreated": "Sortiervorlage erstellt"
+      "orderSortPresetCreated": "Sortiervorlage erstellt",
+      "orderSortPresetReused": "Sortiervorlage wiederverwendet",
+      "orderSorterPickCreated": "Sorter-Sammelpick gestartet",
+      "orderSorterPickApplied": "Sorter-Sammelpick übernommen",
+      "orderSorterPickPresetsCleaned": "Verwendete Sorter-Vorlagen verworfen"
     },
     "messages": {
       "cardCorrected": "{{from}} zu {{to}} korrigiert",
@@ -577,7 +631,11 @@
       "catalogCreated": "Hat den Shop-Katalog {{summary}} erstellt",
       "catalogUpdated": "Hat den Shop-Katalog {{summary}} geändert",
       "catalogDeleted": "Hat den Shop-Katalog {{summary}} gelöscht",
-      "orderSortPresetCreated": "Sortiervorlage für {{summary}} erstellt"
+      "orderSortPresetCreated": "Sortiervorlage für {{summary}} erstellt",
+      "orderSortPresetReused": "Hat die Sortiervorlage {{summary}} wiederverwendet",
+      "orderSorterPickCreated": "Hat einen Sorter-Sammelpick aus {{summary}} gestartet",
+      "orderSorterPickApplied": "Hat einen Sorter-Sammelpick für {{summary}} übernommen",
+      "orderSorterPickPresetsCleaned": "Hat {{summary}} verwendete Sorter-Vorlagen verworfen"
     }
   },
   "accuracy": {

@@ -27,7 +27,17 @@ export function PickSortView({ groups, canPick, onUnpick }: PickSortViewProps) {
             order: group.orderName,
           })}
         >
-          <h3 className="flex flex-wrap items-center gap-x-2 gap-y-1 font-heading text-sm font-semibold">
+          <h3
+            className="flex flex-wrap items-center gap-x-2 gap-y-1 font-heading text-sm font-semibold"
+            title={
+              group.binNumber != null
+                ? t("orders.sorterPick.binHint", {
+                    bin: group.binNumber,
+                    order: group.orderName,
+                  })
+                : undefined
+            }
+          >
             <IconBox className="size-4 shrink-0 text-foreground/70" />
             <span className="min-w-0 truncate">{group.orderName}</span>
             <OrderRefLabel orderRef={group.orderRef} binNumber={group.binNumber} />

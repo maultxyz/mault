@@ -13,6 +13,7 @@ import {
   type StorageLocationCard,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";import {
+  IconArrowsSort,
   IconCheck,
   IconChevronLeft,
   IconChevronRight,
@@ -37,6 +38,7 @@ export function PickContainerView({
   pickedScanIds,
   canPick,
   onToggle,
+  onSorterPick,
 }: PickContainerViewProps) {
   const { t } = useTranslation("business");
   const [stopIndex, setStopIndex] = useState(0);
@@ -122,6 +124,20 @@ export function PickContainerView({
         <p className="rounded-lg border bg-muted/40 px-2 py-1.5 text-xs text-foreground/70">
           {t("orders.batch.boxCollectionNote")}
         </p>
+      )}
+
+      {onSorterPick && canPick && stop.locationGuid != null && (
+        <Button
+          variant="outline"
+          className="max-md:min-h-12"
+          title={t("orders.sorterPick.stopButtonHint", {
+            location: stop.locationName,
+          })}
+          onClick={() => onSorterPick(stop)}
+        >
+          <IconArrowsSort />
+          {t("orders.sorterPick.stopButton")}
+        </Button>
       )}
 
       {locationGuid == null ? (

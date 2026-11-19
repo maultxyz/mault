@@ -19,6 +19,8 @@ import { useOrderPickProgress } from "@/features/business/api/use-order-pick-pro
 import { OrderPhonePickDialog } from "@/features/business/components/order-phone-pick-dialog";
 import { PickContainerView } from "@/features/business/components/pick-container-view";
 import { PickFocusView } from "@/features/business/components/pick-focus-view";
+import { PickSortPresetDialog } from "@/features/business/components/pick-sort-preset-dialog";
+import { PickSorterPickDialog } from "@/features/business/components/pick-sorter-pick-dialog";
 import { PickSortView } from "@/features/business/components/pick-sort-view";
 import { PickWalkNextUp } from "@/features/business/components/pick-walk-next-up";
 import { PickWalkStopList } from "@/features/business/components/pick-walk-stop-list";
@@ -44,12 +46,15 @@ import { cn } from "@/lib/utils";
 import {
   buildPickWalk,
   fullyPickedOrders,
+  IMPLICIT_ORDER_REF,
   pickWalkStops,
   toOrderLineInput,
   type PickWalkEntry,
+  type PickWalkStop,
 } from "@magic-vault/shared";
 import {
   IconAlertTriangle,
+  IconArrowsSort,
   IconDeviceMobile,
   IconInfoCircle,
   IconPackageExport,
@@ -71,6 +76,10 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
   const [phonePickOpen, setPhonePickOpen] = useState(false);
   const [missingEntry, setMissingEntry] = useState<PickWalkEntry | null>(null);
   const [isReleasing, setIsReleasing] = useState(false);
+  const [sorterPickStop, setSorterPickStop] = useState<PickWalkStop | null>(
+    null,
+  );
+  const [sortPresetOpen, setSortPresetOpen] = useState(false);
   const [view, setView] = useState<BatchPickView>("pick");
   const orderQueries = useQueries({
     queries: orderGuids.map((orderGuid) => orderQueryOptions(orderGuid)),
@@ -154,6 +163,17 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
       {canAct && (
         <Button
           variant="outline"
+          disabled={entries.length === 0 || openOrders.length === 0}
+          title={t("orders.batch.sortPresetHint")}
+          onClick={() => setSortPresetOpen(true)}
+        >
+          <IconArrowsSort />
+          {t("orders.batch.sortPresetButton")}
+        </Button>
+      )}
+      {canAct && (
+        <Button
+          variant="outline"
           disabled={entries.length === 0}
           onClick={() => setPhonePickOpen(true)}
         >
@@ -207,7 +227,7 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
           orderRef: entry.orderRef,
           binNumber:
             entry.orderRef == null
-              ? null
+              ? (order.orderBins[IMPLICIT_ORDER_REF] ?? null)
               : (order.orderBins[entry.orderRef] ?? null),
           picked: [],
           total: 0,
@@ -275,8 +295,8 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
 
             {progressText && (
               <div className="sticky top-0 z-10 -mx-4 border-b bg-background/80 px-4 py-2 backdrop-blur-2xl md:-mx-3 md:px-3">
-                <div className="flex items-center gap-4">
-                  <div className="min-w-0 flex-1">
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                  <div className="min-w-0">
                     <p
                       className="text-sm font-medium tabular-nums"
                       role="status"
@@ -344,6 +364,7 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
                 onToggle={(scanId, isPicked) =>
                   pickProgress.changePicked([scanId], isPicked)
                 }
+                onSorterPick={setSorterPickStop}
               />
             ) : (
               <>
@@ -375,6 +396,7 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
                   entries.find((entry) => entry.scanId === scanId) ?? null,
                 )
               }
+              onSorterPick={setSorterPickStop}
             />
 
             {canAct && completedOrders.length > 0 && (
@@ -423,6 +445,18 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
         open={phonePickOpen}
         onOpenChange={setPhonePickOpen}
         orderGuids={openOrders.map((order) => order.guid)}
+      />
+      <PickSorterPickDialog
+        stop={sorterPickStop}
+        orders={openOrders}
+        onOpenChange={(open) => {
+          if (!open) setSorterPickStop(null);
+        }}
+      />
+      <PickSortPresetDialog
+        open={sortPresetOpen}
+        onOpenChange={setSortPresetOpen}
+        orders={openOrders}
       />
     </div>
   );

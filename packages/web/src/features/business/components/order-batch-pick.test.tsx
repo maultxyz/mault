@@ -15,6 +15,42 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { MemoryRouter } from "react-router-dom";
 
 const updateOrderMock = vi.fn().mockResolvedValue({ success: true });
+const createSorterPickRunMock = vi.fn().mockResolvedValue({
+  success: true,
+  data: { presets: [{ guid: "preset-1", name: "Box A", gameKey: "mtg" }] },
+});
+const applySorterPickRunMock = vi.fn().mockResolvedValue({
+  success: true,
+  data: { pickedByOrder: { o1: ["a"] } },
+});
+const createPickRunSortPresetMock = vi.fn().mockResolvedValue({
+  success: true,
+  data: {
+    presets: [{ guid: "preset-2", name: "Order 1, Order 2", gameKey: "mtg" }],
+  },
+});
+const deleteSetMock = vi.fn().mockResolvedValue({ success: true, data: [] });
+const releaseSorterPickMissingMock = vi.fn().mockResolvedValue({
+  success: true,
+  data: { released: true, unfiled: true },
+});
+const previousPresetsMock = [
+  { guid: "preset-prev", name: "Older run", gameKey: "mtg", createdAt: "" },
+];
+
+vi.mock("@/features/business/components/pick-sorter-select", () => ({
+  PickSorterSelect: () => null,
+}));
+
+vi.mock("@/features/bins/api/sort-bins", () => ({
+  binsQueryOptions: { queryKey: ["bins"] },
+  deleteSet: (...args: unknown[]) => deleteSetMock(...args),
+}));
+
+vi.mock("@/features/bins/api/sort-bins", () => ({
+  binsQueryOptions: { queryKey: ["bins"] },
+  deleteSet: (...args: unknown[]) => deleteSetMock(...args),
+}));
 
 vi.mock("@/features/storage/api/storage-locations", () => ({
   storageLocationCardPageQueryOptions: (guid: string, _q: unknown, page: number) => ({
@@ -56,6 +92,16 @@ vi.mock("@/features/business/api/business", () => ({
   setOrderPicked: vi.fn().mockResolvedValue({ success: true, data: null }),
   updateOrder: (...args: unknown[]) => updateOrderMock(...args),
   fulfilOrder: vi.fn().mockResolvedValue({ success: true, data: null }),
+  createSorterPickRun: (...args: unknown[]) => createSorterPickRunMock(...args),
+  applySorterPickRun: (...args: unknown[]) => applySorterPickRunMock(...args),
+  createPickRunSortPreset: (...args: unknown[]) =>
+    createPickRunSortPresetMock(...args),
+  previousSortPresetsQueryOptions: (orderGuids: string[]) => ({
+    queryKey: ["business", "orders", "previousPresets", orderGuids],
+    queryFn: async () => previousPresetsMock,
+  }),
+  releaseSorterPickMissing: (...args: unknown[]) =>
+    releaseSorterPickMissingMock(...args),
 }));
 
 vi.mock("@/features/business/api/use-business", () => ({
@@ -210,6 +256,11 @@ async function heroSection() {
 describe("OrderBatchPick", () => {
   beforeEach(() => {
     updateOrderMock.mockClear();
+    createSorterPickRunMock.mockClear();
+    applySorterPickRunMock.mockClear();
+    createPickRunSortPresetMock.mockClear();
+    deleteSetMock.mockClear();
+    releaseSorterPickMissingMock.mockClear();
     Element.prototype.scrollIntoView = vi.fn();
     vi.stubGlobal(
       "matchMedia",
@@ -417,5 +468,137 @@ describe("OrderBatchPick", () => {
       expect(sessionStorage.getItem("pick-batch:active")).toBeNull();
     });
     for (const order of Object.values(mockOrders)) order.status = "open";
+  });
+
+  it("runs a grouped pick for one box and applies the sorter results", async () => {
+    renderBatch();
+    await heroSection();
+    const boxSection = screen
+      .getByRole("heading", { name: /Box A/ })
+      .closest("section")!;
+    fireEvent.click(
+      within(boxSection).getByRole("button", {
+        name: "orders.sorterPick.stopButton",
+      }),
+    );
+    expect(
+      await screen.findByText("orders.sorterPick.title"),
+    ).toBeTruthy();
+    expect(screen.getByText("Order 1")).toBeTruthy();
+    expect(screen.getByText("Order 2")).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole("button", { name: "orders.sorterPick.startButton" }),
+    );
+    await waitFor(() => {
+      expect(createSorterPickRunMock).toHaveBeenCalledWith(
+        ["o1", "o2"],
+        "loc-1",
+        undefined,
+      );
+    });
+    // the discard is available from creation, before anything is applied
+    expect(
+      await screen.findByRole("button", {
+        name: "orders.sorterPick.discardRunPreset",
+      }),
+    ).toBeTruthy();
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "orders.sorterPick.applyButton",
+      }),
+    );
+    await waitFor(() => {
+      expect(applySorterPickRunMock).toHaveBeenCalledWith({
+        orderGuids: ["o1", "o2"],
+        locationGuid: "loc-1",
+        presetGuids: ["preset-1"],
+      });
+    });
+    expect(
+      await screen.findByText("orders.sorterPick.appliedHint"),
+    ).toBeTruthy();
+    // cards still unpicked after applying weren't found in the box
+    const groupedDialog = await screen.findByRole("dialog");
+    expect(
+      await within(groupedDialog).findByText("orders.sorterPick.missingCount"),
+    ).toBeTruthy();
+    fireEvent.click(
+      within(groupedDialog).getAllByRole("button", {
+        name: "orders.pickWalk.cantFindCard",
+      })[0],
+    );
+    fireEvent.click(
+      await screen.findByRole("button", {
+        name: "orders.pickWalk.missingConfirm",
+      }),
+    );
+    await waitFor(() => {
+      expect(releaseSorterPickMissingMock).toHaveBeenCalledWith({
+        orderGuid: "o1",
+        scanId: "a",
+      });
+    });
+    fireEvent.click(
+      screen.getByRole("button", { name: "orders.sorterPick.done" }),
+    );
+    await waitFor(() => {
+      expect(screen.queryByText("orders.sorterPick.title")).toBeNull();
+    });
+  });
+
+  it("builds the batch sort preset from a dialog with a sorter choice", async () => {
+    renderBatch();
+    await heroSection();
+    fireEvent.click(
+      screen.getByRole("button", { name: "orders.batch.sortPresetButton" }),
+    );
+    const openedDialog = await screen.findByRole("dialog");
+    expect(
+      await within(openedDialog).findByText("orders.batch.sortTab"),
+    ).toBeTruthy();
+    // a previous preset for these picks is offered before creating a new one
+    expect(
+      await screen.findByText("orders.sorterPick.previousTitle"),
+    ).toBeTruthy();
+    const dialog = screen.getByRole("dialog");
+    fireEvent.click(
+      within(dialog).getByRole("button", {
+        name: "orders.sorterPick.startButton",
+      }),
+    );
+    await waitFor(() => {
+      expect(createPickRunSortPresetMock).toHaveBeenCalledWith(
+        ["o1", "o2"],
+        undefined,
+        undefined,
+      );
+    });
+    // the dialog stays open showing the run, with the discard available
+    expect(
+      await screen.findByText("orders.sorterPick.runPresetDescription"),
+    ).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole("button", { name: "orders.sorterPick.discardRunPreset" }),
+    );
+    await waitFor(() => {
+      expect(deleteSetMock).toHaveBeenCalledWith("preset-2");
+    });
+    // back to the prepare state, the previous preset is offered again
+    expect(
+      await screen.findByText("orders.sorterPick.preparePresetDescription"),
+    ).toBeTruthy();
+    fireEvent.click(
+      screen.getByRole("button", { name: "orders.sorterPick.previousUse" }),
+    );
+    await waitFor(() => {
+      expect(createPickRunSortPresetMock).toHaveBeenCalledWith(
+        ["o1", "o2"],
+        undefined,
+        "preset-prev",
+      );
+    });
+    expect(
+      await screen.findByText("orders.sorterPick.runPresetDescription"),
+    ).toBeTruthy();
   });
 });

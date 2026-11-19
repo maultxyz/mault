@@ -406,7 +406,9 @@
       "boxPickSummary": "{{picked}} of {{pickTotal}} picks handled",
       "boxPickBadge": "Pick",
       "boxLoadMore": "Load more cards",
-      "boxCollectionNote": "Cards in a collection bin, not a storage box."
+      "boxCollectionNote": "Cards in a collection bin, not a storage box.",
+      "sortPresetButton": "Sort with the sorter",
+      "sortPresetHint": "Builds an active bin preset that routes scanned cards into their order's bin and everything else into the store-back bin."
     },
     "substitutes": {
       "find": "Find substitutes",
@@ -466,6 +468,54 @@
       "missingConfirm": "Release copy",
       "missingReleased_one": "{{count}} copy released back into stock",
       "missingReleased_other": "{{count}} copies released back into stock"
+    },
+    "sorterPick": {
+      "stopButton": "Group pick",
+      "stopButtonHint": "Dump the whole box into the sorter: cards the picks need land in their order bins, everything else comes back out for {{location}}.",
+      "title": "Group pick · {{location}}",
+      "prepareDescription": "Dump the whole box into the sorter. Cards the picks need land in the order bins, everything else comes out in the put-back bin so it can go back into the box.",
+      "runDescription": "Feed the box through the sorter. When it is empty, apply the results to mark the picked cards.",
+      "appliedDescription": "Empty the put-back bin back into {{location}}. The slot positions stay as they are.",
+      "orderCards_one": "{{count}} card",
+      "orderCards_other": "{{count}} cards",
+      "binHint": "Bin {{bin}} — cards for {{order}} come out here.",
+      "binProgress": "{{found}} of {{total}} sorted",
+      "runProgress": "{{found}} of {{total}} cards sorted so far.",
+      "allSorted": "Everything is sorted. Apply the results, then empty the put-back bin back into the box.",
+      "allSortedPreset": "Every card is in its order's bin. Empty the bins into the orders.",
+      "runPresetDescription": "Feed the picked cards through the sorter — each card lands in its order's bin. The progress here updates as the sorter scans.",
+      "preparePresetDescription": "Feed the picked cards through the sorter — each card lands in its order's bin. The scans are not saved, so your inventory stays as it is.",
+      "sorterLabel": "Sorter",
+      "sorterOption": "{{name}} · {{bins}} bins",
+      "sorterDefault": "Any sorter (largest)",
+      "sorterHint": "The preset gets bins for this sorter. Default is the sorter connected to this tab.",
+      "previousTitle": "Previous preset: {{name}}",
+      "previousUse": "Use previous",
+      "previousHint": "Reactivates the preset created earlier for these picks — same bins, same progress. No new preset is created.",
+      "putBackBin": "Put back into {{location}}",
+      "putBackBinHint": "Everything the picks don't need comes out here. Empty it back into {{location}} — the slot positions stay as they are.",
+      "startButton": "Start the run",
+      "startButtonHint": "Creates an active sorter preset for {{location}} only. The sorter doesn't save these scans.",
+      "applyButton": "Apply sorter results",
+      "applyButtonHint": "Marks the sorter's cards picked based on the bins' counts.",
+      "applied_one": "Marked {{count}} card as picked",
+      "applied_other": "Marked {{count}} cards as picked",
+      "appliedHint": "The picks are updated. Empty the put-back bin back into the box.",
+      "missingCount_one": "{{count}} card wasn't found in the box:",
+      "missingCount_other": "{{count}} cards weren't found in the box:",
+      "discardRunPreset": "Discard run preset",
+      "discardRunPresetHint": "Removes this run's sorter preset from the sorting rules. You can start a new grouped pick anytime.",
+      "discardedRun": "Run preset discarded",
+      "usedPresets_one": "{{count}} used preset from earlier runs",
+      "usedPresets_other": "{{count}} used presets from earlier runs",
+      "usedPresetsHint": "Presets from finished sorter runs pile up here. Discarding removes them from the sorting rules — cards and picks are not touched.",
+      "discardUsed": "Discard",
+      "cleanupTitle_one": "Discard {{count}} used preset?",
+      "cleanupTitle_other": "Discard {{count}} used presets?",
+      "cleanupDescription": "Presets from finished sorter runs are removed. The currently active preset and all saved sorting sets are kept.",
+      "cleanedUp_one": "Discarded {{count}} used preset",
+      "cleanedUp_other": "Discarded {{count}} used presets",
+      "done": "Done"
     },
     "phonePick": {
       "button": "Pick on phone",
@@ -548,7 +598,11 @@
       "catalogCreated": "Shop catalog created",
       "catalogUpdated": "Shop catalog changed",
       "catalogDeleted": "Shop catalog deleted",
-      "orderSortPresetCreated": "Sort preset created"
+      "orderSortPresetCreated": "Sort preset created",
+      "orderSortPresetReused": "Sort preset reused",
+      "orderSorterPickCreated": "Sorter pick started",
+      "orderSorterPickApplied": "Sorter pick applied",
+      "orderSorterPickPresetsCleaned": "Used sorter presets discarded"
     },
     "messages": {
       "cardCorrected": "Corrected {{from}} to {{to}}",
@@ -577,7 +631,11 @@
       "catalogCreated": "Created the shop catalog {{summary}}",
       "catalogUpdated": "Changed the shop catalog {{summary}}",
       "catalogDeleted": "Deleted the shop catalog {{summary}}",
-      "orderSortPresetCreated": "Created a sort preset for {{summary}}"
+      "orderSortPresetCreated": "Created a sort preset for {{summary}}",
+      "orderSortPresetReused": "Reused the sort preset {{summary}}",
+      "orderSorterPickCreated": "Started a sorter pick from {{summary}}",
+      "orderSorterPickApplied": "Applied a sorter pick for {{summary}}",
+      "orderSorterPickPresetsCleaned": "Discarded {{summary}} used sorter presets"
     }
   },
   "accuracy": {
