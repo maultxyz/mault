@@ -1,5 +1,7 @@
 import { queryOptions, type QueryClient } from "@tanstack/react-query";
 import {
+  COLLECTION_CARDS_RAW_CARD_DATA_NONE,
+  COLLECTION_CARDS_RAW_CARD_DATA_PARAM,
   EMPTY_CARD_FILTERS,
   groupReviewAcceptRequests,
   toReviewGridCard,
@@ -24,6 +26,7 @@ export const collectionReviewGridQueryOptions = (guid: string) =>
         page: "0",
         unreviewed: "1",
         filters: JSON.stringify({ ...EMPTY_CARD_FILTERS, needsAttention: true }),
+        [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE,
       });
       const page = await unwrap(apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${params.toString()}`));
       return { cards: page.items.map((entry) => toReviewGridCard(guid, entry)), total: page.totalEntries };

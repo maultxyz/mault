@@ -31,4 +31,6 @@ export const COLLECTION_CARDS_RAW_CARD_DATA_PARAM = "rawCardData";
 export const COLLECTION_CARDS_RAW_CARD_DATA_ALL = "all";
 
 export const COLLECTION_CARDS_RAW_CARD_DATA_MAIN_ONLY = "mainOnly";
+
+export const COLLECTION_CARDS_RAW_CARD_DATA_NONE = "none";
 export const BULK_SCAN_IDS_MAX = 50_000;

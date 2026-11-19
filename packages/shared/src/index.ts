@@ -264,6 +264,7 @@ export * from "./module-one-clearance";
 export * from "./scan-workflow";
 export * from "./interfaces/scan-workflow.interface";
 export * from "./scan-sound";
+export * from "./raw-card-data";
 
 export * from "./scan-foil-nudge";
 export * from "./interfaces/scan-foil-nudge.interface";

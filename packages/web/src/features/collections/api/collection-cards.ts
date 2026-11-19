@@ -14,6 +14,8 @@ import type {
 } from "@magic-vault/shared";
 import {
   COLLECTION_CARDS_PAGE_SIZE,
+  COLLECTION_CARDS_RAW_CARD_DATA_NONE,
+  COLLECTION_CARDS_RAW_CARD_DATA_PARAM,
   SCAN_TIMELINE_PAGE_SIZE,
   UNMATCHED_PAGE_SIZE,
 } from "@magic-vault/shared";
@@ -150,7 +152,7 @@ export const collectionCardsPageQueryOptions = (
     queryFn: () =>
       unwrap(
         apiGet<Result<CollectionCardsPage>>(
-          `/api/collections/${guid}/cards?${cardsQueryParams(query, { page: String(page), limit: String(pageSize) })}`,
+          `/api/collections/${guid}/cards?${cardsQueryParams(query, { page: String(page), limit: String(pageSize), [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE })}`,
         ),
       ),
     enabled: !!guid,
@@ -166,7 +168,7 @@ export const scanTimelineCardsQueryOptions = (
     queryFn: ({ pageParam }) =>
       unwrap(
         apiGet<Result<CollectionCardsPage>>(
-          `/api/collections/${guid}/cards?${cardsQueryParams(query, { page: String(pageParam), limit: String(SCAN_TIMELINE_PAGE_SIZE) })}`,
+          `/api/collections/${guid}/cards?${cardsQueryParams(query, { page: String(pageParam), limit: String(SCAN_TIMELINE_PAGE_SIZE), [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE })}`,
         ),
       ),
     initialPageParam: 0,

@@ -39,10 +39,12 @@ import {
   toRuleCard,
   UNMATCHED_PREVIEW_COUNT,
   withCardTags,
+  withRawCardDataForRules,
   type CardTag,
 } from "@magic-vault/shared";
 
 import { billingQueryOptions } from "@/features/billing/api/billing";
+import { getCardById } from "@/features/cards/api/card-search";
 import { recordSupportPromptScan } from "@/features/billing/lib/support-prompt";
 import { useBinConfigs } from "@/features/bins/api/use-bin-configs";
 import { announcePolitely } from "@/lib/live-announcer";
@@ -1573,15 +1575,16 @@ export function ScannedCardsProvider({
         (collection
           ? findInCardPages(queryClient, collection.guid, scanId)
           : undefined);
-      const ruleCard = toRuleCard(corrected, {
-        isFoil: scan?.isFoil,
-        foilType: scan?.foilType,
-      });
       const currentBin = scan?.binNumber;
-      binContentsRef.current = binContentsRef.current.map((entry) =>
-        entry.scanId === scanId ? { ...entry, card: ruleCard } : entry,
-      );
-      if (correctionBinPromptRef.current) {
+      const applyCorrectedRuleCard = (ruleSourceCard: PlayingCardWithDistance) => {
+        const ruleCard = toRuleCard(ruleSourceCard, {
+          isFoil: scan?.isFoil,
+          foilType: scan?.foilType,
+        });
+        binContentsRef.current = binContentsRef.current.map((entry) =>
+          entry.scanId === scanId ? { ...entry, card: ruleCard } : entry,
+        );
+        if (!correctionBinPromptRef.current) return;
         const target = resolveCorrectedBin(ruleCard, currentBin);
         setBinCorrection({
           id: generateScanId(),
@@ -1597,8 +1600,24 @@ export function ScannedCardsProvider({
             rawBinConfigsRef.current,
           ),
         });
+      };
+      if (!collection) {
+        applyCorrectedRuleCard(corrected);
+        return;
       }
-      if (!collection) return;
+      void withRawCardDataForRules(corrected, (cardWithoutRawData) =>
+        getCardById(
+          cardWithoutRawData.id,
+          collection.guid,
+          cardWithoutRawData.lang,
+          cardWithoutRawData.gameKey,
+        ).then((result) => (result.success ? (result.data ?? null) : null)),
+      )
+        .catch((error: unknown) => {
+          console.error("Loading the corrected card's game fields failed:", error);
+          return corrected;
+        })
+        .then(applyCorrectedRuleCard);
       updateInCardPages(
         queryClient,
         collection.guid,
