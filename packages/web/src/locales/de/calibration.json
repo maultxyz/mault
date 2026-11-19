@@ -394,6 +394,7 @@
     },
     "disconnect": "Trennen",
     "connectDevice": "Gerät verbinden",
+    "sorterSelectLabel": "Sortierer zum Kalibrieren",
     "connectUsb": "Über USB verbinden",
     "connectPi": "Sortierer an diesem Pi verbinden",
     "connectBluetooth": "Über Bluetooth verbinden",

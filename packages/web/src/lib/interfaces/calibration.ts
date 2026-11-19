@@ -545,3 +545,7 @@ export type FeederTimingField =
   | "settleDuration"
   | "reverseDuration"
   | "feedRetryCount";
+
+export interface CalibrationSorterSelectProps {
+  isDisabled: boolean;
+}

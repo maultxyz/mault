@@ -6,6 +6,7 @@ import { useDevice } from "@/features/calibration/api/use-device";
 import { useDeviceCalibrationSync } from "@/features/calibration/api/use-device-calibration-sync";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { FEEDER_PREVIEW_STOP_MS } from "@/lib/constants/timing";
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import {
   DEFAULT_FEEDER_CALIBRATION,
   type FeederCalibration,
@@ -34,12 +35,16 @@ export function FeederConfigProvider({
   const toast = useStationToast();
   const queryClient = useQueryClient();
   const device = useDevice();
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
   const { sendCommand } = useSerial();
   const { applyToDevice } = useDeviceCalibrationSync();
 
   const queryOpts = feederQueryOptions(device?.guid);
   const { data: feederConfig = { ...DEFAULT_FEEDER_CALIBRATION } } =
-    useQuery(queryOpts);
+    useQuery({
+      ...queryOpts,
+      enabled: !!device?.guid && areSecondaryRequestsEnabled,
+    });
 
   const saveConfigMutation = useMutation({
     mutationFn: (calibration: FeederCalibration) =>

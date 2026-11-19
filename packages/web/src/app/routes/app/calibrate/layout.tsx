@@ -55,6 +55,8 @@ import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { PageIntro } from "@/components/page-intro";
 import { ConnectSorterMenuItems } from "@/features/scanner/components/connect-sorter-menu-items";
+import { CalibrationSorterSelect } from "@/features/calibration/components/calibration-sorter-select";
+import { useDevice } from "@/features/calibration/api/use-device";
 
 export function useCalibrationOutletContext() {
   return useOutletContext<CalibrationPageState>();
@@ -106,6 +108,7 @@ export default function CalibrateLayout() {
     handleExportConfig,
     handleImportConfig,
     isImporting,
+    isOfflineCalibration,
   } = calibrationPage;
 
   const importInputRef = useRef<HTMLInputElement>(null);
@@ -115,6 +118,11 @@ export default function CalibrateLayout() {
   const { isImpersonating } = useImpersonation();
   const isMobile = useIsMobile();
   const { piHost, piSorter } = usePiHostState();
+  const device = useDevice();
+  const sorterSelect =
+    !isMobile && !piSorter && !isConnected ? (
+      <CalibrationSorterSelect isDisabled={isOfflineCalibration} />
+    ) : null;
 
   return (
     <div className="flex flex-col flex-1 min-h-0">
@@ -140,12 +148,15 @@ export default function CalibrateLayout() {
             className="sticky top-0 z-20 -mx-4 md:-mx-3 flex flex-wrap items-center justify-between gap-2 border-b bg-background/80 p-2 backdrop-blur-md"
           >
             {isImpersonating ? (
-              <div />
+              <div className="flex flex-wrap items-center gap-1.5">
+                {sorterSelect}
+              </div>
             ) : (
               <div
                 className="flex flex-wrap items-center gap-1.5"
                 data-tour="calibration-connect"
               >
+                {sorterSelect}
                 {piSorter ? (
                   <Button
                     variant="outline"
@@ -306,7 +317,7 @@ export default function CalibrateLayout() {
               aria-disabled={isSessionActive || isImpersonating}
               className="flex flex-1 flex-col gap-6 md:gap-2 pb-4"
             >
-              <Outlet context={calibrationPage} />
+              <Outlet key={device?.guid} context={calibrationPage} />
             </div>
           </SettingsSectionLayoutContext>
         </div>

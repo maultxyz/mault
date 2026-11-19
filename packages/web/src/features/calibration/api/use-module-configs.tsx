@@ -9,6 +9,7 @@ import type {
   ServoName,
 } from "@/lib/interfaces/calibration";
 import { useSerial } from "@/features/scanner/api/use-serial";
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import {
   DEFAULT_CALIBRATION,
   DEFAULT_MODULE_COUNT,
@@ -40,11 +41,15 @@ export function ModuleConfigsProvider({
   const toast = useStationToast();
   const queryClient = useQueryClient();
   const device = useDevice();
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
   const { sendCommand } = useSerial();
   const { applyToDevice } = useDeviceCalibrationSync();
 
   const queryOpts = modulesQueryOptions(device?.guid);
-  const { data: configs = defaultConfigs() } = useQuery(queryOpts);
+  const { data: configs = defaultConfigs() } = useQuery({
+    ...queryOpts,
+    enabled: !!device?.guid && areSecondaryRequestsEnabled,
+  });
 
   const saveConfigMutation = useMutation({
     mutationFn: ({

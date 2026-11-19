@@ -1,16 +1,16 @@
 import { EmptyState } from "@/components/empty-state";
 import { MobilePageHeader } from "@/components/mobile-page-header";
-import { PageHeader } from "@/components/page-header";
 import { useMachineStatuses } from "@/features/machines/api/use-machine-statuses";
 import { MachinePageDots } from "@/features/machines/components/machine-page-dots";
 import { MachinePanel } from "@/features/machines/components/machine-panel";
 import { MachinePicker } from "@/features/machines/components/machine-picker";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import { HOME_PATH, MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { IconDeviceDesktopAnalytics } from "@tabler/icons-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Navigate } from "react-router-dom";
 
 function MobileMachinesPager() {
   const machines = useMachineStatuses();
@@ -65,7 +65,7 @@ function MobileMachinesPager() {
               MOBILE_NAV_SCROLL_PADDING_CLASS,
             )}
           >
-            <MachinePanel machine={machine} showsName={false} />
+            <MachinePanel machine={machine} />
           </div>
         ))}
       </div>
@@ -96,29 +96,12 @@ export default function MachinesPage() {
     />
   );
 
-  if (isMobile) {
-    return (
-      <div className="relative flex min-h-0 flex-1 flex-col">
-        <MobilePageHeader title={t("title")} titleVisuallyHidden />
-        {machines.length === 0 ? emptyState : <MobileMachinesPager />}
-      </div>
-    );
-  }
+  if (!isMobile) return <Navigate to={HOME_PATH} replace />;
 
   return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      <PageHeader title={t("title")} spansFullWidth />
-      <div className="min-h-0 flex-1 overflow-y-auto">
-        {machines.length === 0 ? (
-          emptyState
-        ) : (
-          <div className="grid grid-cols-1 gap-6 p-4 md:px-3 md:py-2 lg:grid-cols-2 2xl:grid-cols-3">
-            {machines.map((machine) => (
-              <MachinePanel key={machine.machineId} machine={machine} showsName />
-            ))}
-          </div>
-        )}
-      </div>
+    <div className="relative flex min-h-0 flex-1 flex-col">
+      <MobilePageHeader title={t("title")} titleVisuallyHidden />
+      {machines.length === 0 ? emptyState : <MobileMachinesPager />}
     </div>
   );
 }

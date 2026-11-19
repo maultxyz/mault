@@ -1,10 +1,19 @@
+import { ERROR_REPORTING_IDLE_LOAD_TIMEOUT_MS } from "@/lib/constants/timing";
+import { scheduleIdleTask } from "@/lib/idle-tasks";
 import { runtimeEnv } from "@/lib/runtime-env";
 
 const betterStackErrorsDsn = runtimeEnv("VITE_BETTER_STACK_ERRORS_DSN");
 
+function waitUntilBrowserIsIdle(): Promise<void> {
+  return new Promise((resolve) =>
+    scheduleIdleTask(resolve, ERROR_REPORTING_IDLE_LOAD_TIMEOUT_MS),
+  );
+}
+
 async function loadBetterStackErrorTracking(dsn: string) {
-  const Sentry = await import("@sentry/browser");
-  Sentry.init({
+  await waitUntilBrowserIsIdle();
+  const { init, captureException } = await import("@sentry/browser");
+  init({
     dsn,
     environment: runtimeEnv("VITE_APP_ENV"),
     release: __APP_VERSION__,
@@ -19,7 +28,7 @@ async function loadBetterStackErrorTracking(dsn: string) {
         (integration) => integration.name !== "BrowserSession",
       ),
   });
-  return Sentry;
+  return { captureException };
 }
 
 const betterStackErrorTracking = betterStackErrorsDsn
@@ -30,5 +39,7 @@ const betterStackErrorTracking = betterStackErrorsDsn
   : null;
 
 export function reportClientError(error: unknown) {
-  void betterStackErrorTracking?.then((Sentry) => Sentry?.captureException(error));
+  void betterStackErrorTracking?.then((errorTracking) =>
+    errorTracking?.captureException(error),
+  );
 }

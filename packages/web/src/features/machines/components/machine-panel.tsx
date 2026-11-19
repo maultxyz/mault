@@ -3,10 +3,10 @@ import { MachineCameraView } from "@/features/machines/components/machine-camera
 import { MachinePresetRow } from "@/features/machines/components/machine-preset-row";
 import { MachineRecentCards } from "@/features/machines/components/machine-recent-cards";
 import { MachineStatusSummary } from "@/features/machines/components/machine-status-summary";
-import type { MachinePanelSectionProps } from "@/lib/interfaces/machines";
+import type { MachinePanelProps } from "@/lib/interfaces/machines";
 import { useTranslation } from "react-i18next";
 
-export function MachinePanel({ machine, showsName }: MachinePanelSectionProps) {
+export function MachinePanel({ machine }: MachinePanelProps) {
   const { t } = useTranslation("machines");
 
   return (
@@ -14,9 +14,6 @@ export function MachinePanel({ machine, showsName }: MachinePanelSectionProps) {
       aria-label={machine.name}
       className="flex min-w-0 flex-col gap-4 md:gap-2"
     >
-      {showsName && (
-        <h2 className="truncate font-heading text-base font-semibold text-foreground">{machine.name}</h2>
-      )}
       <MachineCameraView machine={machine} />
       <MachineStatusSummary machine={machine} />
       {(machine.canEmergencyStop || machine.canPause || machine.canResume) && (

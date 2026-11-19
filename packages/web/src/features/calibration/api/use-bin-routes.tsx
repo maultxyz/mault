@@ -4,6 +4,7 @@ import {
 } from "@/features/calibration/api/bin-routes";
 import { useDevice } from "@/features/calibration/api/use-device";
 import { useModuleCount } from "@/features/calibration/api/use-module-count";
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import type { BinRoutesContextValue } from "@/lib/interfaces/calibration";
 import { createDefaultBinRoutes, type BinRoute } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -20,13 +21,17 @@ const BinRoutesContext = createContext<BinRoutesContextValue | null>(null);
 export function BinRoutesProvider({ children }: { children: React.ReactNode }) {
   const queryClient = useQueryClient();
   const device = useDevice();
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
   const moduleCount = useModuleCount();
   const [isSaving, setIsSaving] = useState(false);
   const [pending, setPending] = useState<Record<number, BinRoute>>({});
 
   const queryOpts = binRoutesQueryOptions(device?.guid);
   const { data: savedRoutes = createDefaultBinRoutes(moduleCount) } =
-    useQuery(queryOpts);
+    useQuery({
+      ...queryOpts,
+      enabled: !!device?.guid && areSecondaryRequestsEnabled,
+    });
 
   const routes = useMemo(
     () => savedRoutes.map((r) => pending[r.binNumber] ?? r),

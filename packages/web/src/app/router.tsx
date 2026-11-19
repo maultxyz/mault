@@ -360,14 +360,14 @@ function AppChunkPreloader() {
     loadAuthGuard().catch(ignoreFailure);
     loadAppLayout().catch(ignoreFailure);
     loadHomePage().catch(ignoreFailure);
-    if (!isMobile || piHost) loadScannerPage().catch(ignoreFailure);
-  }, [isMobile, piHost]);
+  }, []);
   useEffect(() => {
     if (!isInApp) return;
     let cancelIdlePreload = () => {};
     const delayHandle = setTimeout(() => {
       cancelIdlePreload = runTasksOneByOneWhenIdle(
         [
+          ...(!isMobile || piHost ? [loadScannerPage] : []),
           loadLibraryPage,
           loadCollectionViewPage,
           loadStatsPage,
@@ -381,7 +381,7 @@ function AppChunkPreloader() {
       clearTimeout(delayHandle);
       cancelIdlePreload();
     };
-  }, [isInApp]);
+  }, [isInApp, isMobile, piHost]);
   return null;
 }
 
