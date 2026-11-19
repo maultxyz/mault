@@ -41,7 +41,7 @@ import {
   IconSparkles,
   IconUserCircle,
 } from "@tabler/icons-react";
-import { openWhatsNew } from "@/lib/whats-new-store";
+import { WHATS_NEW_PATH } from "@/lib/constants/feature-highlights";
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
@@ -195,7 +195,7 @@ export default function MePage() {
                 icon={<IconSparkles />}
                 label={t("featureHighlights.title")}
                 description={t("featureHighlights.entrySubtitle")}
-                onClick={openWhatsNew}
+                to={WHATS_NEW_PATH}
               />
             </div>
           </MobileSection>

@@ -4097,11 +4097,24 @@
     "back": "Retour",
     "next": "Suivant",
     "gotIt": "Compris",
+    "seeAll": "Voir toutes les nouveautés",
     "learnMore": "En savoir plus",
     "openVideo": "Ouvrir la vidéo",
     "opensInBrowser": "S'ouvre dans votre navigateur",
     "videoPlaceholder": "Vidéo",
     "loadFailed": "Impossible de charger les nouveautés",
-    "empty": "Aucune nouveauté pour le moment"
+    "timeline": {
+      "empty": "Aucune nouveauté pour l'instant",
+      "new": "Nouveau",
+      "loadingMore": "Chargement d'autres nouveautés"
+    },
+    "search": {
+      "label": "Rechercher dans les nouveautés",
+      "placeholder": "Rechercher dans les nouveautés",
+      "clear": "Effacer la recherche",
+      "noMatches": "Aucune nouveauté ne correspond à « {{query}} »",
+      "resultsCount_one": "{{count}} nouveauté trouvée",
+      "resultsCount_other": "{{count}} nouveautés trouvées"
+    }
   }
 }

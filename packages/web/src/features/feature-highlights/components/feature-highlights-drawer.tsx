@@ -4,22 +4,24 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
-import { FeatureHighlightsPanel } from "@/features/feature-highlights/components/feature-highlights-panel";
+import { Button } from "@/components/ui/button";
+import { FeatureHighlightCarousel } from "@/features/feature-highlights/components/feature-highlight-carousel";
+import { WHATS_NEW_PATH } from "@/lib/constants/feature-highlights";
 import type { FeatureHighlightsDrawerProps } from "@/lib/interfaces/feature-highlights";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 export function FeatureHighlightsDrawer({
   open,
-  status,
   slides,
   onDismiss,
-  onRetry,
+  onOpenTimeline,
 }: FeatureHighlightsDrawerProps) {
   const { t } = useTranslation("common");
-  const [shownContent, setShownContent] = useState({ status, slides });
-  if (open && (shownContent.status !== status || shownContent.slides !== slides)) {
-    setShownContent({ status, slides });
+  const [shownSlides, setShownSlides] = useState(slides);
+  if (open && shownSlides !== slides && slides.length > 0) {
+    setShownSlides(slides);
   }
 
   return (
@@ -36,12 +38,15 @@ export function FeatureHighlightsDrawer({
           </DrawerTitle>
         </DrawerHeader>
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto p-4 pt-3">
-          <FeatureHighlightsPanel
-            status={shownContent.status}
-            slides={shownContent.slides}
-            onDismiss={onDismiss}
-            onRetry={onRetry}
-          />
+          <FeatureHighlightCarousel slides={shownSlides} onFinish={onDismiss} />
+          <Button
+            variant="secondary"
+            className="mt-3 w-full"
+            render={<Link to={WHATS_NEW_PATH} />}
+            onClick={onOpenTimeline}
+          >
+            {t("featureHighlights.seeAll")}
+          </Button>
         </div>
       </DrawerContent>
     </Drawer>

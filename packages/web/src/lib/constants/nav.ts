@@ -2,6 +2,7 @@ import { DOWNLOAD_PATH } from "@/lib/constants/download";
 import { SELF_HOST_PATH } from "@/lib/constants/self-host";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { STATS_PATH } from "@/lib/constants/stats";
+import { WHATS_NEW_PATH } from "@/lib/constants/feature-highlights";
 import { ORDERS_PATH } from "@/lib/constants/business";
 import { PRINT_FILES_URL, SHOP_URL } from "@/lib/constants/links";
 import { STORAGE_PATH } from "@/lib/constants/storage";
@@ -89,6 +90,7 @@ export const MOBILE_ACCOUNT_TAB_PATHS = [
   SETTINGS_PATHS.root,
   STATS_PATH,
   ORDERS_PATH,
+  WHATS_NEW_PATH,
 ];
 export const MOBILE_NAV_HIDDEN_PATTERN = /^\/app\/monitor\/[^/]+\/camera\/?$/;
 export const MOBILE_IMMERSIVE_PATTERN = /^\/app\/scan\/?$/;

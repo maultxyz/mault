@@ -4097,11 +4097,24 @@
     "back": "Zurück",
     "next": "Weiter",
     "gotIt": "Verstanden",
+    "seeAll": "Alle Neuigkeiten ansehen",
     "learnMore": "Mehr erfahren",
     "openVideo": "Video öffnen",
     "opensInBrowser": "Öffnet sich im Browser",
     "videoPlaceholder": "Video",
     "loadFailed": "Neuigkeiten konnten nicht geladen werden",
-    "empty": "Gerade gibt es keine neuen Funktionen"
+    "timeline": {
+      "empty": "Noch keine Neuigkeiten",
+      "new": "Neu",
+      "loadingMore": "Weitere Neuigkeiten werden geladen"
+    },
+    "search": {
+      "label": "Neuigkeiten durchsuchen",
+      "placeholder": "Neuigkeiten durchsuchen",
+      "clear": "Suche löschen",
+      "noMatches": "Keine Neuigkeiten passen zu „{{query}}“",
+      "resultsCount_one": "{{count}} Neuigkeit gefunden",
+      "resultsCount_other": "{{count}} Neuigkeiten gefunden"
+    }
   }
 }

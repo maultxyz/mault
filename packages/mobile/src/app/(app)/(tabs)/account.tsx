@@ -18,7 +18,6 @@ import { Surface } from "@/components/ui/surface";
 import { useRole } from "@/hooks/use-role";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { useHasBusinessTools } from "@/features/business/api/use-has-business-tools";
-import { FeatureHighlightsRecentSheet } from "@/features/feature-highlights/components/feature-highlights-recent-sheet";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
 import { useLanguagePreference } from "@/hooks/use-language-preference";
 import { useSwitchOrg } from "@/hooks/use-org";
@@ -41,7 +40,6 @@ export default function AccountScreen() {
   const [themePreference, setThemePreference] = useThemePreference();
   const [languagePreference, setLanguagePreference] = useLanguagePreference();
   const [languageOpen, setLanguageOpen] = useState(false);
-  const [featureHighlightsOpen, setFeatureHighlightsOpen] = useState(false);
 
   const switchOrg = useSwitchOrg();
   const hasBusinessTools = useHasBusinessTools();
@@ -166,7 +164,7 @@ export default function AccountScreen() {
             icon="sparkles"
             title={t("featureHighlights.title")}
             subtitle={t("featureHighlights.entrySubtitle")}
-            onPress={() => setFeatureHighlightsOpen(true)}
+            onPress={() => router.push("/whats-new")}
           />
           <ListRow title={t("account.server")} value={API_BASE.replace(/^https?:\/\//, "")} />
           <ListRow title={t("account.version")} value={Constants.expoConfig?.version ?? ""} />
@@ -197,7 +195,6 @@ export default function AccountScreen() {
         }}
         onClose={() => setLanguageOpen(false)}
       />
-      <FeatureHighlightsRecentSheet visible={featureHighlightsOpen} onClose={() => setFeatureHighlightsOpen(false)} />
     </Screen>
   );
 }

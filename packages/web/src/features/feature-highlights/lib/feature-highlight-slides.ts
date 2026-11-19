@@ -28,14 +28,10 @@ export function featureHighlightCarouselSlides(
   );
 }
 
-export function unseenHighlightIdsOf(
+export function highlightIdsOf(
   slides: FeatureHighlightCarouselSlide[],
-  seenHighlightIds: string[],
 ): string[] {
-  const seen = new Set(seenHighlightIds);
-  return [...new Set(slides.map((slide) => slide.highlightId))].filter(
-    (highlightId) => !seen.has(highlightId),
-  );
+  return [...new Set(slides.map((slide) => slide.highlightId))];
 }
 
 function literal(value: string): FeatureHighlightText {

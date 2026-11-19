@@ -11,8 +11,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useSignOut } from "@/features/account/api/use-sign-out";
 import { useAuthSession } from "@/lib/auth";
-import { openWhatsNew } from "@/lib/whats-new-store";
-import { IconLogout, IconSparkles, IconUserCircle } from "@tabler/icons-react";
+import { IconLogout, IconUserCircle } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
@@ -64,10 +63,6 @@ export function UserMenu() {
         <DropdownMenuItem onClick={() => navigate("/app/account/settings")}>
           <IconUserCircle size={14} />
           {t("breadcrumb.account")}
-        </DropdownMenuItem>
-        <DropdownMenuItem onClick={openWhatsNew}>
-          <IconSparkles size={14} />
-          {t("featureHighlights.title")}
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={handleSignOut}>

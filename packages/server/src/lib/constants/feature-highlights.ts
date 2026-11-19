@@ -34,3 +34,4 @@ export const FEATURE_HIGHLIGHT_MEDIA_UPLOAD_BODY_MAX_BYTES =
 export const FEATURE_HIGHLIGHT_GUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 export const FEATURE_HIGHLIGHT_INCLUDE_SEEN_VALUES = ["1", "true"];
+export const FEATURE_HIGHLIGHT_TIMELINE_CURSOR_SEPARATOR = "|";

@@ -1,6 +1,4 @@
-import type { FeatureHighlight, FeatureHighlightMedia, FeatureHighlightSlide, FeatureHighlightsResponse } from "@magic-vault/shared";
-
-export type FeatureHighlightsQueryScope = "unseen" | "recent";
+import type { FeatureHighlight, FeatureHighlightMedia, FeatureHighlightSlide } from "@magic-vault/shared";
 
 export interface FeatureHighlightCarouselSlide {
   key: string;
@@ -10,12 +8,9 @@ export interface FeatureHighlightCarouselSlide {
 
 export interface FeatureHighlightsSheetProps {
   visible: boolean;
-  highlights: FeatureHighlight[] | undefined;
-  isLoading?: boolean;
-  isLoadError?: boolean;
-  isRetrying?: boolean;
-  onRetryLoad?: () => void;
+  highlights: FeatureHighlight[];
   onClose: (shownHighlightIds: string[]) => void;
+  onOpenTimeline?: (shownHighlightIds: string[]) => void;
 }
 
 export interface FeatureHighlightSlideViewProps {
@@ -35,11 +30,17 @@ export interface FeatureHighlightsPromptProps {
   isHomeLoaded: boolean;
 }
 
-export interface FeatureHighlightsRecentSheetProps {
-  visible: boolean;
-  onClose: () => void;
+export interface MarkFeatureHighlightsSeenContext {
+  previousData: [readonly unknown[], unknown][];
 }
 
-export interface MarkFeatureHighlightsSeenContext {
-  previousResponses: [readonly unknown[], FeatureHighlightsResponse | undefined][];
+export interface FeatureHighlightTimelineSection {
+  key: string;
+  title: string;
+  data: FeatureHighlight[];
+}
+
+export interface FeatureHighlightTimelineEntryProps {
+  highlight: FeatureHighlight;
+  isNew: boolean;
 }

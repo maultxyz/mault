@@ -1,12 +1,11 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
-import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { FeatureHighlight } from "@magic-vault/shared";
 import { FeatureHighlightCarousel } from "./feature-highlight-carousel";
 import { FeatureHighlightsHost } from "./feature-highlights-host";
 import { featureHighlightCarouselSlides } from "@/features/feature-highlights/lib/feature-highlight-slides";
-import { closeWhatsNew } from "@/lib/whats-new-store";
 
 const mocks = vi.hoisted(() => ({
   markSeen: vi.fn(),
@@ -49,11 +48,6 @@ vi.mock("@/features/feature-highlights/api/feature-highlights", async () => {
         queryKey: ["feature-highlights", "unseen", userId],
         queryFn: mocks.loadUnseen,
         enabled: !!userId,
-      }),
-    recentFeatureHighlightsQueryOptions: (userId: string | null) =>
-      queryOptions({
-        queryKey: ["feature-highlights", "recent", userId],
-        queryFn: () => ({ highlights: [], seenHighlightIds: [] }),
       }),
   };
 });
@@ -112,7 +106,6 @@ beforeEach(() => {
   mockReducedMotion(false);
 });
 
-afterEach(() => closeWhatsNew());
 
 describe("FeatureHighlightCarousel", () => {
   it("resolves translated keys and renders literal text as is", () => {
@@ -219,6 +212,23 @@ describe("FeatureHighlightsHost", () => {
     await waitFor(() =>
       expect(mocks.markSeen.mock.calls[0]?.[0]).toEqual(["highlight-1"]),
     );
+  });
+
+  it("links to the What's new page and marks the shown highlights seen", async () => {
+    mocks.loadUnseen.mockResolvedValue({
+      highlights: [highlight],
+      seenHighlightIds: [],
+    });
+    mocks.markSeen.mockResolvedValue(undefined);
+    renderHost();
+    await screen.findByRole("region", { name: "featureHighlights.title" });
+    const seeAllLink = screen.getByRole("link", { name: "featureHighlights.seeAll" });
+    expect(seeAllLink).toHaveAttribute("href", "/app/whats-new");
+    fireEvent.click(seeAllLink);
+    await waitFor(() =>
+      expect(mocks.markSeen.mock.calls[0]?.[0]).toEqual(["highlight-1"]),
+    );
+    expect(screen.queryByRole("region", { name: "featureHighlights.title" })).toBeNull();
   });
 
   it("stays hidden when nothing is unseen", async () => {

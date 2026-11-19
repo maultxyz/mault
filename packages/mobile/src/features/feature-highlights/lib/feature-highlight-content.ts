@@ -1,7 +1,11 @@
 import type { FeatureHighlight, FeatureHighlightText } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
 import { WEB_URL } from "@/lib/constants/config";
-import type { FeatureHighlightCarouselSlide } from "@/lib/interfaces/feature-highlights";
+import { formatMonthYear } from "@/lib/dates";
+import type {
+  FeatureHighlightCarouselSlide,
+  FeatureHighlightTimelineSection,
+} from "@/lib/interfaces/feature-highlights";
 
 export function resolveFeatureHighlightText(t: TFunction, text: FeatureHighlightText): string {
   return text.kind === "translated" ? t(text.key) : text.value;
@@ -20,4 +24,25 @@ export function featureHighlightCarouselSlides(highlights: FeatureHighlight[]): 
       slide,
     })),
   );
+}
+
+export function featureHighlightTimelineSections(
+  highlights: FeatureHighlight[],
+  locale: string,
+): FeatureHighlightTimelineSection[] {
+  const sections: FeatureHighlightTimelineSection[] = [];
+  const seenHighlightIds = new Set<string>();
+  for (const highlight of highlights) {
+    if (seenHighlightIds.has(highlight.id)) continue;
+    seenHighlightIds.add(highlight.id);
+    const publishedAt = new Date(highlight.publishedAt);
+    const monthKey = `${publishedAt.getFullYear()}-${publishedAt.getMonth()}`;
+    const lastSection = sections[sections.length - 1];
+    if (lastSection?.key === monthKey) {
+      lastSection.data.push(highlight);
+      continue;
+    }
+    sections.push({ key: monthKey, title: formatMonthYear(publishedAt, locale), data: [highlight] });
+  }
+  return sections;
 }

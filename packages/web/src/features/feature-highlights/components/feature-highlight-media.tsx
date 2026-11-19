@@ -4,7 +4,10 @@ import { FEATURE_HIGHLIGHT_MEDIA_CLASS } from "@/lib/constants/feature-highlight
 import type { FeatureHighlightMediaProps } from "@/lib/interfaces/feature-highlights";
 import { useTranslation } from "react-i18next";
 
-export function FeatureHighlightMedia({ slide }: FeatureHighlightMediaProps) {
+export function FeatureHighlightMedia({
+  slide,
+  allowsAutoplay,
+}: FeatureHighlightMediaProps) {
   const { t } = useTranslation("common");
   const prefersReducedMotion = usePrefersReducedMotion();
   const media = slide.media;
@@ -23,7 +26,7 @@ export function FeatureHighlightMedia({ slide }: FeatureHighlightMediaProps) {
         playsInline
         loop
         controls
-        autoPlay={!prefersReducedMotion}
+        autoPlay={allowsAutoplay && !prefersReducedMotion}
         preload="metadata"
       />
     );

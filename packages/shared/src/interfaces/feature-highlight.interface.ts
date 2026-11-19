@@ -37,6 +37,12 @@ export interface FeatureHighlightsResponse {
   seenHighlightIds: string[];
 }
 
+export interface FeatureHighlightTimelinePage {
+  highlights: FeatureHighlight[];
+  seenHighlightIds: string[];
+  nextBefore: string | null;
+}
+
 export interface MarkFeatureHighlightsSeenRequest {
   highlightIds: string[];
 }

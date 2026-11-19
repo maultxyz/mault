@@ -1,17 +1,21 @@
 import { IconBadge } from "@/components/icon-badge";
 import { Button } from "@/components/ui/button";
-import { FeatureHighlightsPanel } from "@/features/feature-highlights/components/feature-highlights-panel";
+import { FeatureHighlightCarousel } from "@/features/feature-highlights/components/feature-highlight-carousel";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
-import { FEATURE_HIGHLIGHTS_CARD_CLASS } from "@/lib/constants/feature-highlights";
+import {
+  FEATURE_HIGHLIGHTS_CARD_CLASS,
+  WHATS_NEW_PATH,
+} from "@/lib/constants/feature-highlights";
 import type { FeatureHighlightsFloatingCardProps } from "@/lib/interfaces/feature-highlights";
 import { IconSparkles, IconX } from "@tabler/icons-react";
 import { useEffect, useId, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 export function FeatureHighlightsFloatingCard({
-  movesFocusOnOpen,
+  slides,
   onDismiss,
-  ...panelProps
+  onOpenTimeline,
 }: FeatureHighlightsFloatingCardProps) {
   const { t } = useTranslation("common");
   const headingId = useId();
@@ -29,10 +33,6 @@ export function FeatureHighlightsFloatingCard({
   useEffect(() => {
     dismissRef.current = dismiss;
   });
-
-  useEffect(() => {
-    if (movesFocusOnOpen) cardRef.current?.focus();
-  }, [movesFocusOnOpen]);
 
   useEffect(() => {
     const card = cardRef.current;
@@ -72,7 +72,15 @@ export function FeatureHighlightsFloatingCard({
           <IconX aria-hidden />
         </Button>
       </div>
-      <FeatureHighlightsPanel {...panelProps} onDismiss={dismiss} />
+      <FeatureHighlightCarousel slides={slides} onFinish={dismiss} />
+      <Button
+        variant="link"
+        className="mt-2 self-start px-0"
+        render={<Link to={WHATS_NEW_PATH} />}
+        onClick={onOpenTimeline}
+      >
+        {t("featureHighlights.seeAll")}
+      </Button>
     </section>
   );
 }

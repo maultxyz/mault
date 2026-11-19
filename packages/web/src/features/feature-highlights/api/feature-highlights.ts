@@ -14,17 +14,20 @@ import {
   FEATURE_HIGHLIGHTS_QUERY_KEY,
   FEATURE_HIGHLIGHTS_SEEN_API,
   FEATURE_HIGHLIGHT_SEEN_MAX_IDS,
-  RECENT_FEATURE_HIGHLIGHTS_API,
+  FEATURE_HIGHLIGHT_TIMELINE_STALE_MS,
+  FEATURE_HIGHLIGHTS_TIMELINE_API,
 } from "@/lib/constants/feature-highlights";
 import type {
   AdminFeatureHighlight,
   AdminFeatureHighlightInput,
   FeatureHighlightsResponse,
+  FeatureHighlightTimelinePage,
   MarkFeatureHighlightsSeenRequest,
   Result,
   UploadedFeatureHighlightMedia,
 } from "@magic-vault/shared";
-import { queryOptions } from "@tanstack/react-query";
+import { FEATURE_HIGHLIGHTS_TIMELINE_BEFORE_PARAM } from "@magic-vault/shared";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 
 async function adminFeatureHighlightRequest<T>(
   method: "POST" | "PUT",
@@ -80,12 +83,29 @@ export function unseenFeatureHighlightsQueryOptions(userId: string | null) {
   });
 }
 
-export function recentFeatureHighlightsQueryOptions(userId: string | null) {
-  return queryOptions({
-    queryKey: [FEATURE_HIGHLIGHTS_QUERY_KEY, "recent", userId] as const,
-    queryFn: () => loadFeatureHighlights(RECENT_FEATURE_HIGHLIGHTS_API),
+async function loadFeatureHighlightTimelinePage(
+  before: string | null,
+): Promise<FeatureHighlightTimelinePage> {
+  const query = before
+    ? `?${FEATURE_HIGHLIGHTS_TIMELINE_BEFORE_PARAM}=${encodeURIComponent(before)}`
+    : "";
+  const result = await apiGet<Result<FeatureHighlightTimelinePage>>(
+    `${FEATURE_HIGHLIGHTS_TIMELINE_API}${query}`,
+  );
+  if (!result.success || !result.data) {
+    throw new Error(result.message || "Failed to load feature highlights.");
+  }
+  return result.data;
+}
+
+export function featureHighlightTimelineQueryOptions(userId: string | null) {
+  return infiniteQueryOptions({
+    queryKey: [FEATURE_HIGHLIGHTS_QUERY_KEY, "timeline", userId] as const,
+    queryFn: ({ pageParam }) => loadFeatureHighlightTimelinePage(pageParam),
+    initialPageParam: null as string | null,
+    getNextPageParam: (lastPage) => lastPage.nextBefore,
     enabled: !!userId,
-    ...LOAD_ONCE_PER_SESSION,
+    staleTime: FEATURE_HIGHLIGHT_TIMELINE_STALE_MS,
   });
 }
 

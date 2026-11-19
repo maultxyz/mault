@@ -3,6 +3,9 @@ import type { FeatureHighlight } from "../interfaces/feature-highlight.interface
 export const FEATURE_HIGHLIGHTS_PATH = "/feature-highlights";
 export const FEATURE_HIGHLIGHTS_SEEN_PATH = "/feature-highlights/seen";
 export const FEATURE_HIGHLIGHTS_INCLUDE_SEEN_PARAM = "includeSeen";
+export const FEATURE_HIGHLIGHTS_TIMELINE_PATH = "/feature-highlights/timeline";
+export const FEATURE_HIGHLIGHTS_TIMELINE_BEFORE_PARAM = "before";
+export const FEATURE_HIGHLIGHTS_TIMELINE_PAGE_SIZE = 20;
 export const ADMIN_FEATURE_HIGHLIGHTS_PATH = "/admin/feature-highlights";
 export const ADMIN_FEATURE_HIGHLIGHT_MEDIA_PATH = "/admin/feature-highlights/media";
 

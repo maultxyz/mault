@@ -706,12 +706,28 @@
     "back": "Retour",
     "next": "Suivant",
     "gotIt": "Compris",
+    "seeAll": "Voir toutes les nouveautés",
     "learnMore": "En savoir plus",
     "opensInBrowser": "s'ouvre dans un nouvel onglet",
-    "loadFailed": "Impossible de charger les nouveautés.",
-    "empty": "Aucune nouvelle fonctionnalité pour le moment",
     "appeared": "Nouveautés : de nouvelles fonctionnalités s'affichent en bas à droite.",
     "slideAnnouncement": "{{current}} sur {{total}} : {{title}}",
-    "slideRoleDescription": "diapositive"
+    "slideRoleDescription": "diapositive",
+    "timeline": {
+      "empty": "Aucune nouveauté pour l'instant",
+      "new": "Nouveau",
+      "loadingMore": "Chargement d'autres nouveautés",
+      "loadMore": "Charger plus",
+      "loadFailed": "Impossible de charger les nouveautés."
+    },
+    "triggerWithCount_one": "Nouveautés, {{count}} nouveauté",
+    "triggerWithCount_other": "Nouveautés, {{count}} nouveautés",
+    "search": {
+      "label": "Rechercher dans les nouveautés",
+      "placeholder": "Rechercher dans les nouveautés",
+      "clear": "Effacer la recherche",
+      "noMatches": "Aucune nouveauté ne correspond à « {{query}} »",
+      "resultsCount_one": "{{count}} nouveauté trouvée",
+      "resultsCount_other": "{{count}} nouveautés trouvées"
+    }
   }
 }

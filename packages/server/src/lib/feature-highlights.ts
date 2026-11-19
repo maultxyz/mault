@@ -5,16 +5,16 @@ import {
   type FeatureHighlight,
   type FeatureHighlightSlide,
 } from "@magic-vault/shared";
-import { eq } from "drizzle-orm";
-import { db } from "../db";
-import { featureHighlights } from "../db/schema";
+import { and, eq, inArray } from "drizzle-orm";
+import { authQuery, db } from "../db";
+import { featureHighlightViews, featureHighlights } from "../db/schema";
 import { createCachedValue } from "./cached-value";
 import { FEATURE_HIGHLIGHTS_CACHE_MAX_AGE_MS } from "./constants/feature-highlights";
 import {
   resolveFeatureHighlightMediaUrl,
   toPersistedFeatureHighlightMediaUrl,
 } from "./feature-highlight-media";
-import { toAdminSourcedFeatureHighlight } from "./feature-highlight-selection";
+import { publishedFeatureHighlightsOf } from "./feature-highlight-selection";
 
 type FeatureHighlightRow = typeof featureHighlights.$inferSelect;
 
@@ -34,19 +34,10 @@ export function loadLiveFeatureHighlightRows(): Promise<FeatureHighlightRow[]> {
 }
 
 export async function loadPublishedFeatureHighlights(): Promise<FeatureHighlight[]> {
-  const rows = await loadLiveFeatureHighlightRows();
-  return [
-    ...RELEASE_FEATURE_HIGHLIGHTS,
-    ...rows
-      .filter((row) => row.isPublished)
-      .map((row) =>
-        toAdminSourcedFeatureHighlight({
-          guid: row.guid!,
-          publishedAt: row.publishedAt,
-          slides: row.slides,
-        }),
-      ),
-  ];
+  return publishedFeatureHighlightsOf(
+    RELEASE_FEATURE_HIGHLIGHTS,
+    await loadLiveFeatureHighlightRows(),
+  );
 }
 
 export async function loadKnownFeatureHighlightIds(): Promise<Set<string>> {
@@ -66,6 +57,26 @@ async function resolveFeatureHighlightSlideMedia(
     resolveFeatureHighlightMediaUrl(slide.media.posterUrl),
   ]);
   return { ...slide, media: url ? { ...slide.media, url, posterUrl } : null };
+}
+
+export async function loadSeenFeatureHighlightIds(
+  jwtClaims: string,
+  userId: string,
+  highlightIds: string[],
+): Promise<Set<string>> {
+  if (highlightIds.length === 0) return new Set();
+  const rows = await authQuery(jwtClaims, (tx) =>
+    tx
+      .select({ highlightId: featureHighlightViews.highlightId })
+      .from(featureHighlightViews)
+      .where(
+        and(
+          eq(featureHighlightViews.userId, userId),
+          inArray(featureHighlightViews.highlightId, highlightIds),
+        ),
+      ),
+  );
+  return new Set(rows.map((row) => row.highlightId));
 }
 
 export async function resolveFeatureHighlightMedia(

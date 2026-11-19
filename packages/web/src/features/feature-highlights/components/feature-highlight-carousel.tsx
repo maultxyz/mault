@@ -1,13 +1,12 @@
 import { Button } from "@/components/ui/button";
+import { FeatureHighlightLinkButton } from "@/features/feature-highlights/components/feature-highlight-link-button";
 import { FeatureHighlightMedia } from "@/features/feature-highlights/components/feature-highlight-media";
 import { resolveFeatureHighlightText } from "@/features/feature-highlights/lib/feature-highlight-slides";
 import { FEATURE_HIGHLIGHT_INTERACTIVE_KEY_TARGETS } from "@/lib/constants/feature-highlights";
 import type { FeatureHighlightCarouselProps } from "@/lib/interfaces/feature-highlights";
 import { cn } from "@/lib/utils";
-import { IconExternalLink } from "@tabler/icons-react";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
 
 export function FeatureHighlightCarousel({
   slides,
@@ -76,11 +75,6 @@ export function FeatureHighlightCarousel({
   const title = resolveFeatureHighlightText(t, current.slide.title);
   const body = resolveFeatureHighlightText(t, current.slide.body);
   const link = current.slide.link;
-  const linkLabel =
-    (link && resolveFeatureHighlightText(t, link.label).trim()) ||
-    t("featureHighlights.learnMore");
-  const isInternalLink =
-    !!link && link.url.startsWith("/") && !link.url.startsWith("//");
   const step = t("featureHighlights.step", { current: index + 1, total });
 
   return (
@@ -92,39 +86,12 @@ export function FeatureHighlightCarousel({
         aria-label={step}
         className="flex flex-col gap-3 md:gap-2 animate-in fade-in-0 duration-200 motion-reduce:animate-none"
       >
-        <FeatureHighlightMedia slide={current.slide} />
+        <FeatureHighlightMedia slide={current.slide} allowsAutoplay />
         <h3 className="font-heading text-base font-semibold text-foreground">
           {title}
         </h3>
         <p className="text-sm whitespace-pre-line text-foreground/70">{body}</p>
-        {link &&
-          (isInternalLink ? (
-            <Button
-              variant="secondary"
-              className="self-start"
-              nativeButton={false}
-              render={<Link to={link.url} />}
-            >
-              {linkLabel}
-            </Button>
-          ) : (
-            <Button
-              variant="secondary"
-              className="self-start"
-              nativeButton={false}
-              render={
-                <a
-                  href={link.url}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={`${linkLabel}, ${t("featureHighlights.opensInBrowser")}`}
-                />
-              }
-            >
-              {linkLabel}
-              <IconExternalLink aria-hidden />
-            </Button>
-          ))}
+        {link && <FeatureHighlightLinkButton link={link} />}
       </div>
 
       <div className="flex flex-col gap-3 md:gap-2">

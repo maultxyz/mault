@@ -2,10 +2,7 @@ import {
   FEATURE_HIGHLIGHTS_INCLUDE_SEEN_PARAM,
   type FeatureHighlightsResponse,
 } from "@magic-vault/shared";
-import { and, eq, inArray } from "drizzle-orm";
 import { Hono } from "hono";
-import { authQuery } from "../../db";
-import { featureHighlightViews } from "../../db/schema";
 import { FEATURE_HIGHLIGHT_INCLUDE_SEEN_VALUES } from "../../lib/constants/feature-highlights";
 import {
   featureHighlightsInWindow,
@@ -13,6 +10,7 @@ import {
 } from "../../lib/feature-highlight-selection";
 import {
   loadPublishedFeatureHighlights,
+  loadSeenFeatureHighlightIds,
   resolveFeatureHighlightMedia,
 } from "../../lib/feature-highlights";
 import { requireAuth, type AppEnv } from "../../middleware/auth";
@@ -29,27 +27,14 @@ export const listFeatureHighlightsRoute = new Hono<AppEnv>().get(
       await loadPublishedFeatureHighlights(),
       now,
     );
-    const userId = c.get("userId");
-    const seenRows =
-      highlights.length === 0
-        ? []
-        : await authQuery(c.get("jwtClaims"), (tx) =>
-            tx
-              .select({ highlightId: featureHighlightViews.highlightId })
-              .from(featureHighlightViews)
-              .where(
-                and(
-                  eq(featureHighlightViews.userId, userId),
-                  inArray(
-                    featureHighlightViews.highlightId,
-                    highlights.map((highlight) => highlight.id),
-                  ),
-                ),
-              ),
-          );
+    const seenHighlightIds = await loadSeenFeatureHighlightIds(
+      c.get("jwtClaims"),
+      c.get("userId"),
+      highlights.map((highlight) => highlight.id),
+    );
     const selected = selectFeatureHighlights({
       highlights,
-      seenHighlightIds: new Set(seenRows.map((row) => row.highlightId)),
+      seenHighlightIds,
       includesSeenHighlights,
       now,
     });

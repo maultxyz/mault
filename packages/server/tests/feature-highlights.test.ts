@@ -20,7 +20,10 @@ import {
 } from "../src/lib/feature-highlight-media";
 import {
   filterKnownFeatureHighlightIds,
+  parseFeatureHighlightTimelineCursor,
+  publishedFeatureHighlightsOf,
   selectFeatureHighlights,
+  selectFeatureHighlightTimelinePage,
   toAdminSourcedFeatureHighlight,
 } from "../src/lib/feature-highlight-selection";
 
@@ -427,4 +430,117 @@ test("feature highlight media: uploads check type, size and storage", () => {
     false,
   );
   assert.equal(parseFeatureHighlightMediaUpload({}, true).success, false);
+});
+
+function timelinePage(
+  highlights: FeatureHighlight[],
+  before: string | null,
+  pageSize: number,
+  seenHighlightIds: ReadonlySet<string> = new Set(),
+) {
+  return selectFeatureHighlightTimelinePage({
+    highlights,
+    seenHighlightIds,
+    before: before ? parseFeatureHighlightTimelineCursor(before) : null,
+    pageSize,
+    now,
+  });
+}
+
+function walkTimeline(highlights: FeatureHighlight[], pageSize: number): string[][] {
+  const pages: string[][] = [];
+  let before: string | null = null;
+  do {
+    const page = timelinePage(highlights, before, pageSize);
+    pages.push(idsOf(page.highlights));
+    before = page.nextBefore;
+  } while (before && pages.length < 50);
+  return pages;
+}
+
+test("feature highlight timeline: merges sources with no age window or cap, newest first", () => {
+  const highlights = [
+    releaseHighlight("release-ancient", daysAgo(FEATURE_HIGHLIGHT_MAX_AGE_DAYS * 10)),
+    adminHighlight("admin-new", daysAgo(1)),
+    releaseHighlight("release-mid", daysAgo(30)),
+    ...Array.from({ length: FEATURE_HIGHLIGHT_MAX_SHOWN + 2 }, (_, index) =>
+      adminHighlight(`admin-${index}`, daysAgo(100 + index)),
+    ),
+  ];
+  const page = timelinePage(highlights, null, 100, new Set(["release-mid"]));
+  assert.equal(page.highlights.length, highlights.length);
+  assert.deepEqual(idsOf(page.highlights).slice(0, 3), [
+    "admin-new",
+    "release-mid",
+    "admin-0",
+  ]);
+  assert.equal(page.highlights.at(-1)?.id, "release-ancient");
+  assert.deepEqual(page.seenHighlightIds, ["release-mid"]);
+  assert.equal(page.nextBefore, null);
+});
+
+test("feature highlight timeline: future, unpublished and deleted highlights are left out", () => {
+  const published = publishedFeatureHighlightsOf(
+    [releaseHighlight("release-future", new Date(now.getTime() + 60_000))],
+    [
+      { guid: "live", isPublished: true, isDeleted: false, publishedAt: daysAgo(1), slides: [plainSlide()] },
+      { guid: "draft", isPublished: false, isDeleted: false, publishedAt: daysAgo(1), slides: [plainSlide()] },
+      { guid: "deleted", isPublished: true, isDeleted: true, publishedAt: daysAgo(1), slides: [plainSlide()] },
+      { guid: "scheduled", isPublished: true, isDeleted: false, publishedAt: new Date(now.getTime() + 60_000), slides: [plainSlide()] },
+    ],
+  );
+  assert.deepEqual(idsOf(timelinePage(published, null, 20).highlights), ["live"]);
+});
+
+test("feature highlight timeline: pages end on the last page with no cursor", () => {
+  const highlights = Array.from({ length: 5 }, (_, index) =>
+    adminHighlight(`highlight-${index}`, daysAgo(index + 1)),
+  );
+  assert.deepEqual(walkTimeline(highlights, 2), [
+    ["highlight-0", "highlight-1"],
+    ["highlight-2", "highlight-3"],
+    ["highlight-4"],
+  ]);
+  const exact = timelinePage(highlights.slice(0, 4), null, 2);
+  const second = timelinePage(highlights.slice(0, 4), exact.nextBefore, 2);
+  assert.deepEqual(idsOf(second.highlights), ["highlight-2", "highlight-3"]);
+  assert.equal(second.nextBefore, null);
+  assert.deepEqual(timelinePage([], null, 2), {
+    highlights: [],
+    seenHighlightIds: [],
+    nextBefore: null,
+  });
+});
+
+test("feature highlight timeline: equal timestamps are neither skipped nor repeated", () => {
+  const sameTime = daysAgo(3);
+  const highlights = [
+    adminHighlight("b", sameTime),
+    releaseHighlight("d", sameTime),
+    adminHighlight("a", sameTime),
+    adminHighlight("newer", daysAgo(1)),
+    adminHighlight("c", sameTime),
+    adminHighlight("older", daysAgo(9)),
+  ];
+  const pages = walkTimeline(highlights, 2);
+  assert.deepEqual(pages, [
+    ["newer", "d"],
+    ["c", "b"],
+    ["a", "older"],
+  ]);
+  assert.deepEqual(walkTimeline([...highlights].reverse(), 4).flat(), pages.flat());
+});
+
+test("feature highlight timeline: a bare ISO cursor returns strictly older highlights", () => {
+  const highlights = [
+    adminHighlight("same", daysAgo(2)),
+    adminHighlight("older", daysAgo(3)),
+  ];
+  assert.deepEqual(
+    idsOf(timelinePage(highlights, daysAgo(2).toISOString(), 20).highlights),
+    ["older"],
+  );
+  assert.equal(parseFeatureHighlightTimelineCursor("not a date"), null);
+  assert.equal(parseFeatureHighlightTimelineCursor(""), null);
+  assert.equal(parseFeatureHighlightTimelineCursor(`${daysAgo(1).toISOString()}|`), null);
 });

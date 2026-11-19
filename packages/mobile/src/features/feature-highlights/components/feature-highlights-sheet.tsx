@@ -2,10 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, PanResponder, View } from "react-native";
 import { Button } from "@/components/ui/button";
-import { EmptyState } from "@/components/ui/empty-state";
-import { QueryErrorState } from "@/components/ui/query-error-state";
 import { Sheet } from "@/components/ui/sheet";
-import { Skeleton } from "@/components/ui/skeleton";
 import { FeatureHighlightSlideView } from "@/features/feature-highlights/components/feature-highlight-slide-view";
 import { FeatureHighlightStepIndicator } from "@/features/feature-highlights/components/feature-highlight-step-indicator";
 import {
@@ -13,24 +10,20 @@ import {
   resolveFeatureHighlightText,
 } from "@/features/feature-highlights/lib/feature-highlight-content";
 import {
-  FEATURE_HIGHLIGHT_SKELETON_MEDIA_HEIGHT,
   FEATURE_HIGHLIGHT_SWIPE_MIN_DISTANCE,
   FEATURE_HIGHLIGHT_SWIPE_START_DISTANCE,
 } from "@/lib/constants/feature-highlights";
-import { SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
+import { SPACING } from "@/lib/constants/theme";
 import type { FeatureHighlightsSheetProps } from "@/lib/interfaces/feature-highlights";
 
 export function FeatureHighlightsSheet({
   visible,
   highlights,
-  isLoading = false,
-  isLoadError = false,
-  isRetrying = false,
-  onRetryLoad,
   onClose,
+  onOpenTimeline,
 }: FeatureHighlightsSheetProps) {
   const { t } = useTranslation();
-  const slides = featureHighlightCarouselSlides(highlights ?? []);
+  const slides = featureHighlightCarouselSlides(highlights);
   const [currentIndex, setCurrentIndex] = useState(0);
   const slideIndex = Math.min(currentIndex, Math.max(slides.length - 1, 0));
   const currentSlide = slides[slideIndex];
@@ -40,7 +33,7 @@ export function FeatureHighlightsSheet({
     if (visible) setCurrentIndex(0);
   }, [visible]);
 
-  const shownHighlightIds = () => (highlights ?? []).map((highlight) => highlight.id);
+  const shownHighlightIds = () => highlights.map((highlight) => highlight.id);
   const close = () => onClose(shownHighlightIds());
   const showSlide = (nextIndex: number) => {
     const nextSlide = slides[nextIndex];
@@ -79,6 +72,13 @@ export function FeatureHighlightsSheet({
           style={{ flex: 1 }}
         />
       </View>
+      {onOpenTimeline ? (
+        <Button
+          variant="ghost"
+          label={t("featureHighlights.seeAll")}
+          onPress={() => onOpenTimeline(shownHighlightIds())}
+        />
+      ) : null}
     </View>
   ) : undefined;
 
@@ -88,17 +88,7 @@ export function FeatureHighlightsSheet({
         <View key={currentSlide.key} {...panResponder.panHandlers}>
           <FeatureHighlightSlideView slide={currentSlide.slide} />
         </View>
-      ) : isLoading ? (
-        <View accessible accessibilityLabel={t("common.loading")} style={{ gap: SPACING.md }}>
-          <Skeleton height={FEATURE_HIGHLIGHT_SKELETON_MEDIA_HEIGHT} radius={SURFACE_RADIUS} />
-          <Skeleton width="60%" height={20} />
-          <Skeleton height={40} />
-        </View>
-      ) : isLoadError && onRetryLoad ? (
-        <QueryErrorState title={t("featureHighlights.loadFailed")} onRetry={onRetryLoad} isRetrying={isRetrying} />
-      ) : (
-        <EmptyState icon="sparkles" title={t("featureHighlights.empty")} />
-      )}
+      ) : null}
     </Sheet>
   );
 }

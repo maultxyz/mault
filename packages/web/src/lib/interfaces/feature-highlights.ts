@@ -1,13 +1,10 @@
 import type {
   AdminFeatureHighlight,
+  FeatureHighlight,
+  FeatureHighlightLink,
   FeatureHighlightSlide,
 } from "@magic-vault/shared";
 import type { FeatureHighlightFormValues } from "@/schemas/feature-highlights.schema";
-
-export interface WhatsNewState {
-  isOpen: boolean;
-  openRequestId: number;
-}
 
 export interface FeatureHighlightCarouselSlide {
   key: string;
@@ -22,25 +19,35 @@ export interface FeatureHighlightCarouselProps {
 
 export interface FeatureHighlightMediaProps {
   slide: FeatureHighlightSlide;
+  allowsAutoplay: boolean;
 }
 
-export type FeatureHighlightsPanelStatus = "loading" | "error" | "ready";
+export interface FeatureHighlightLinkButtonProps {
+  link: FeatureHighlightLink;
+}
 
-export interface FeatureHighlightsPanelProps {
-  status: FeatureHighlightsPanelStatus;
+export interface FeatureHighlightsFloatingCardProps {
   slides: FeatureHighlightCarouselSlide[];
   onDismiss: () => void;
-  onRetry: () => void;
+  onOpenTimeline: () => void;
 }
 
-export interface FeatureHighlightsFloatingCardProps
-  extends FeatureHighlightsPanelProps {
-  movesFocusOnOpen: boolean;
-}
-
-export interface FeatureHighlightsDrawerProps
-  extends FeatureHighlightsPanelProps {
+export interface FeatureHighlightsDrawerProps {
   open: boolean;
+  slides: FeatureHighlightCarouselSlide[];
+  onDismiss: () => void;
+  onOpenTimeline: () => void;
+}
+
+export interface FeatureHighlightMonthGroup {
+  key: string;
+  monthStart: Date;
+  highlights: FeatureHighlight[];
+}
+
+export interface FeatureHighlightTimelineEntryProps {
+  highlight: FeatureHighlight;
+  isNew: boolean;
 }
 
 export interface FeatureHighlightFormDialogProps {
@@ -56,4 +63,20 @@ export interface FeatureHighlightSlideFieldsProps {
   onMoveUp: () => void;
   onMoveDown: () => void;
   onRemove: () => void;
+}
+
+export interface FeatureHighlightCompactEntryProps {
+  highlight: FeatureHighlight;
+  isNew: boolean;
+}
+
+export interface FeatureHighlightSearchFieldProps {
+  value: string;
+  onValueChange: (value: string) => void;
+}
+
+export interface FeatureHighlightTimelineProps {
+  searchText: string;
+  onSearchTextChange: (searchText: string) => void;
+  searchQuery: string;
 }
