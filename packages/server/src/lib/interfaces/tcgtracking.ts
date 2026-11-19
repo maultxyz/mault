@@ -74,9 +74,15 @@ export interface TcgtrackingPrimaryShapedFieldsInput {
   setCode: string;
   tcgtrackingSetName: string;
   primarySetName?: string;
+  sameNamePrimaryCard?: TcgtrackingSameNamePrimaryCard;
 }
 
-export type TcgtrackingNumbering = "global" | "per-set" | "name-only";
+export interface TcgtrackingSameNamePrimaryCard {
+  name: string;
+  data: Record<string, unknown>;
+}
+
+export type TcgtrackingNumbering = "global" | "per-set";
 
 export interface TcgtrackingGameConfig {
   numbering: TcgtrackingNumbering;
@@ -95,9 +101,11 @@ export interface TcgtrackingGameConfig {
     input: TcgtrackingPrimaryShapedFieldsInput,
   ): Record<string, unknown>;
   normalizesFallbackThroughPrimaryAdapter?: boolean;
+  fallbacksBorrowSameNamePrimaryCard?: boolean;
   productNumberKeyOf?(
     product: TcgtrackingProduct,
     setProducts: TcgtrackingProduct[],
+    set: TcgtrackingCatalogSet,
   ): string | null;
   finishProductsOf?(
     product: TcgtrackingProduct,

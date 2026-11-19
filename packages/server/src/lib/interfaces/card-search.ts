@@ -152,6 +152,7 @@ export interface SyncSourceCard {
   imageUrl: string | undefined;
   printingMarkImageUrl?: string;
   fallbackImageUrl?: string;
+  prefersLinkedProductImage?: boolean;
   backImageUrl?: string;
   hasPartialData?: boolean;
   data: string;

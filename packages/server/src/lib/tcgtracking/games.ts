@@ -10,6 +10,11 @@ import {
   sorceryProductArtworkKey,
 } from "../adapters/sorcery/tcgplayer-products";
 import { onePiecePrintedName } from "../adapters/onepiece/printed-id";
+import { yugiohPrintingKeyOfCard } from "../adapters/yugioh/search";
+import {
+  yugiohPrimaryShape,
+  yugiohProductPrintingKey,
+} from "../adapters/yugioh/tcgtracking-products";
 import type { GundamCard } from "../interfaces/gundam";
 import type { SorceryCard } from "../interfaces/sorcery";
 import type { TcgtrackingGameConfig } from "../interfaces/tcgtracking";
@@ -104,8 +109,12 @@ export const TCGTRACKING_GAMES: Record<string, TcgtrackingGameConfig> = {
     }),
   },
   yugioh: {
-    numbering: "name-only",
-    primaryShapedFieldsOf: ({ name }) => ({ name }),
+    numbering: "global",
+    numberKeyOf: yugiohPrintingKeyOfCard,
+    productNumberKeyOf: yugiohProductPrintingKey,
+    primaryShapedFieldsOf: yugiohPrimaryShape,
+    normalizesFallbackThroughPrimaryAdapter: true,
+    fallbacksBorrowSameNamePrimaryCard: true,
   },
   sorcery: {
     numbering: "per-set",

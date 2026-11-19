@@ -23,6 +23,7 @@ import type {
   TcgtrackingPrimaryCard,
   TcgtrackingPrimarySet,
   TcgtrackingProduct,
+  TcgtrackingSameNamePrimaryCard,
 } from "../interfaces/tcgtracking";
 import {
   loadTcgtrackingCatalog,
@@ -79,6 +80,18 @@ function toPrimaryCard(
   };
 }
 
+function firstPrimaryIndexByBaseName(
+  primaries: (TcgtrackingPrimaryCard | null)[],
+): Map<string, number> {
+  const indexes = new Map<string, number>();
+  primaries.forEach((primary, index) => {
+    if (primary && !indexes.has(primary.baseNameKey)) {
+      indexes.set(primary.baseNameKey, index);
+    }
+  });
+  return indexes;
+}
+
 function isRecentSet(entry: TcgtrackingCatalogEntry): boolean {
   const publishedAt = Date.parse(entry.set.published_on ?? "");
   return (
@@ -108,7 +121,7 @@ function productNumberKeysOf(
     catalog.map(({ product, set }) => [
       product.id,
       config.productNumberKeyOf
-        ? config.productNumberKeyOf(product, productsBySetId.get(set.id) ?? [])
+        ? config.productNumberKeyOf(product, productsBySetId.get(set.id) ?? [], set)
         : product.number
           ? collectorNumberKey(product.number)
           : null,
@@ -250,7 +263,12 @@ function stampProductId<T extends SyncSourceCardDetail>(
   productId: number,
   context: MergeContext,
 ): T {
-  const fallbackImageUrl = tcgtrackingCardImage(productId).normal;
+  const productImageUrl = tcgtrackingCardImage(productId).normal;
+  const usesProductImage = card.prefersLinkedProductImage || !card.imageUrl;
+  const imageUrl = usesProductImage ? productImageUrl : card.imageUrl;
+  const fallbackImageUrl = usesProductImage
+    ? (card.imageUrl ?? productImageUrl)
+    : productImageUrl;
   const entry = context.productsById.get(productId);
   const finishProducts = entry
     ? (context.config.finishProductsOf?.(
@@ -260,7 +278,7 @@ function stampProductId<T extends SyncSourceCardDetail>(
     : [];
   return {
     ...card,
-    imageUrl: card.imageUrl ?? fallbackImageUrl,
+    imageUrl,
     fallbackImageUrl,
     data: JSON.stringify({
       ...JSON.parse(card.data),
@@ -426,7 +444,7 @@ export async function mergeTcgtrackingCatalog(
   for (let index = 0; index < primaryCards.length; index++) {
     const card = primaryCards[index];
     const primary = primaries[index];
-    if (!primary || config.numbering === "name-only") continue;
+    if (!primary) continue;
     const key = primaryKey(config, primary);
     const product =
       context.productsByPrimaryCardId.get(primary.id)?.product ??
@@ -461,9 +479,6 @@ export async function mergeTcgtrackingCatalog(
     const baseName = baseCardNameKey(
       comparableProductName(config, entry.product),
     );
-    if (config.numbering === "name-only") {
-      return isRecentSet(entry) && !primaryBaseNames.has(baseName);
-    }
     const key = productKey(config, entry, alignedSets, context.productNumberKeys);
     if (config.numbering === "global") {
       if (!key) return false;
@@ -489,10 +504,29 @@ export async function mergeTcgtrackingCatalog(
     );
   };
 
+  const sameNamePrimaryIndexByBaseName = config.fallbacksBorrowSameNamePrimaryCard
+    ? firstPrimaryIndexByBaseName(primaries)
+    : null;
+  const sameNamePrimaryCardOf = (
+    entry: TcgtrackingCatalogEntry,
+  ): TcgtrackingSameNamePrimaryCard | undefined => {
+    const index = sameNamePrimaryIndexByBaseName?.get(
+      baseCardNameKey(comparableProductName(config, entry.product)),
+    );
+    if (index === undefined) return undefined;
+    const card = primaryCards[index];
+    return { name: card.name, data: JSON.parse(card.data) };
+  };
+
   const fallbacks = catalog
     .filter(isMissingFromPrimary)
     .map((entry) =>
-      toTcgtrackingFallbackSyncCard(entry, primarySetOf(entry), config),
+      toTcgtrackingFallbackSyncCard(
+        entry,
+        primarySetOf(entry),
+        config,
+        sameNamePrimaryCardOf(entry),
+      ),
     );
   const fallbackIds = new Set(fallbacks.map((card) => card.id));
 
@@ -510,6 +544,7 @@ export async function mergeTcgtrackingCatalog(
       entry,
       storedPrimarySetOf(data),
       config,
+      sameNamePrimaryCardOf(entry),
     );
     superseded.push({
       ...card,
