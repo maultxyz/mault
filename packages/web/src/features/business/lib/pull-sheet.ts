@@ -1,6 +1,7 @@
 import { ORDER_PULL_SHEET_HEADERS } from "@/lib/constants/business";
 import {
   csvEscape,
+  IMPLICIT_ORDER_REF,
   type OrderBins,
   type PullSheetEntry,
 } from "@magic-vault/shared";
@@ -10,8 +11,7 @@ export function buildPullSheetCsv(
   orderBins: OrderBins,
 ): string {
   const rows = entries.map((entry) => {
-    const orderBin =
-      entry.orderRef == null ? undefined : orderBins[entry.orderRef];
+    const orderBin = orderBins[entry.orderRef ?? IMPLICIT_ORDER_REF];
     return [
       entry.locationName ?? entry.collectionName,
       entry.locationName ? String((entry.locationPosition ?? 0) + 1) : "",

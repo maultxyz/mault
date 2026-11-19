@@ -11,6 +11,7 @@ import type { PickWalkStopListProps } from "@/lib/interfaces/business";
 import { cn } from "@/lib/utils";
 import { pickWalkStops, type PickWalkEntry } from "@magic-vault/shared";
 import {
+  IconArrowsSort,
   IconBox,
   IconCircle,
   IconCircleCheckFilled,
@@ -27,6 +28,7 @@ export function PickWalkStopList({
   headingLevel = "h2",
   onToggle,
   onMissing,
+  onSorterPick,
 }: PickWalkStopListProps) {
   const { t } = useTranslation("business");
   const [cursor, setCursor] = useState(0);
@@ -177,6 +179,20 @@ export function PickWalkStopList({
                   total: stop.entries.length,
                 })}
               </span>
+              {onSorterPick && canPick && stop.locationGuid != null && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="shrink-0 max-md:h-7 max-md:px-2 max-md:text-xs"
+                  title={t("orders.sorterPick.stopButtonHint", {
+                    location: stop.locationName,
+                  })}
+                  onClick={() => onSorterPick(stop)}
+                >
+                  <IconArrowsSort />
+                  {t("orders.sorterPick.stopButton")}
+                </Button>
+              )}
             </Heading>
             <div className="flex flex-col overflow-hidden rounded-lg ring-1 ring-border">
               {stop.entries.map((entry, entryIndex) =>
