@@ -166,6 +166,7 @@ export interface PickWalkStopListProps {
   headingLevel?: "h2" | "h3";
   onToggle: (scanId: string, isPicked: boolean) => void;
   onMissing?: (scanId: string) => void;
+  onSorterPick?: (stop: PickWalkStop) => void;
 }
 
 export interface OrderSubstituteDialogProps {
@@ -240,6 +241,13 @@ export interface PickContainerViewProps {
   pickedScanIds: ReadonlySet<string>;
   canPick: boolean;
   onToggle: (scanId: string, isPicked: boolean) => void;
+  onSorterPick?: (stop: PickWalkStop) => void;
+}
+
+export interface PickSorterPickDialogProps {
+  stop: PickWalkStop | null;
+  orders: FulfilmentOrderDetail[];
+  onOpenChange: (open: boolean) => void;
 }
 
 export interface PickSortGroup {
