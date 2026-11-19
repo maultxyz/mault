@@ -186,5 +186,63 @@
     "copyFailed": "Impossible de copier le secret.",
     "upgrade": "Les webhooks ne font pas partie de votre offre.",
     "loadFailed": "Impossible de charger les webhooks."
+  },
+  "statsSync": {
+    "key": {
+      "heading": "Synchronisation des statistiques auto-hébergées",
+      "description": "Tu fais tourner Mault sur ton propre serveur ? Génère une clé ici et saisis-la sur ton serveur dans Paramètres > Intégrations. Ton serveur envoie alors ses totaux de scans ici une fois par jour, en commençant par tous les jours déjà scannés. Seuls les nombres de scans quotidiens sont envoyés, jamais les cartes, photos ou collections. Les scans synchronisés apparaissent dans le classement marqués comme auto-hébergés, et chacun peut les masquer.",
+      "generate": "Générer une clé",
+      "regenerate": "Remplacer la clé",
+      "revoke": "Révoquer",
+      "revoked": "Clé de synchronisation révoquée.",
+      "generateFailed": "Impossible de générer une clé de synchronisation.",
+      "revokeFailed": "Impossible de révoquer la clé de synchronisation.",
+      "loadFailed": "Impossible de charger la clé de synchronisation.",
+      "empty": "Aucun serveur auto-hébergé n'est lié à cette organisation.",
+      "managersOnly": "Seuls les propriétaires et administrateurs de l'organisation peuvent gérer la clé de synchronisation.",
+      "createdBy": "Créée par {{name}} le {{date}}",
+      "lastSynced": "Dernière synchronisation le {{date}}",
+      "neverSynced": "Pas encore synchronisée",
+      "syncedScans_one": "{{formattedCount}} scan synchronisé",
+      "syncedScans_other": "{{formattedCount}} scans synchronisés",
+      "revealTitle": "Copie ta clé de synchronisation",
+      "revealDescription": "C'est la seule fois où la clé complète est affichée. Colle-la sur ton serveur auto-hébergé dans Paramètres > Intégrations.",
+      "revealDone": "Je l'ai copiée",
+      "copy": "Copier la clé",
+      "copied": "Clé de synchronisation copiée.",
+      "copyFailed": "Impossible de copier la clé de synchronisation.",
+      "regenerateConfirmTitle": "Remplacer la clé de synchronisation ?",
+      "regenerateConfirmDescription": "La clé actuelle cesse de fonctionner immédiatement. Ton serveur ne pourra plus synchroniser tant que tu n'y auras pas saisi la nouvelle clé. Les scans déjà synchronisés restent.",
+      "revokeConfirmTitle": "Révoquer la clé de synchronisation ?",
+      "revokeConfirmDescription": "Ton serveur arrête immédiatement la synchronisation. Les scans déjà synchronisés restent dans le classement."
+    },
+    "connection": {
+      "heading": "Synchroniser les statistiques avec Mault",
+      "description": "Ajoute les nombres de scans de cette organisation aux classements Mault. Crée une organisation sur {{url}}, génère une clé de synchronisation dans Paramètres > Intégrations et colle-la ici. Tous tes scans passés sont envoyés d'abord, puis les nouveaux totaux une fois par jour. Seuls les nombres de scans quotidiens sont envoyés, jamais les cartes, photos ou collections.",
+      "keyLabel": "Clé de synchronisation",
+      "keyPlaceholder": "mvstats_...",
+      "keyDescription": "Générée par ton organisation sur le site principal de Mault.",
+      "connect": "Connecter",
+      "connectFailed": "Le site principal de Mault n'a pas accepté cette clé. Vérifie que tu l'as copiée en entier et qu'elle n'a pas été révoquée ou remplacée.",
+      "syncNow": "Synchroniser maintenant",
+      "syncFailed": "Impossible de synchroniser les statistiques.",
+      "disconnect": "Déconnecter",
+      "disconnected": "Synchronisation des statistiques déconnectée.",
+      "disconnectFailed": "Impossible de déconnecter la synchronisation.",
+      "disconnectConfirmTitle": "Arrêter la synchronisation ?",
+      "disconnectConfirmDescription": "Les nouveaux scans ne sont plus envoyés. Les scans déjà synchronisés restent sur le site principal jusqu'à ce que la clé y soit révoquée.",
+      "loadFailed": "Impossible de charger les paramètres de synchronisation.",
+      "managersOnly": "Seuls les propriétaires et administrateurs de l'organisation peuvent gérer la synchronisation.",
+      "notConnected": "Cette organisation ne synchronise pas ses statistiques.",
+      "lastSynced": "Dernière synchronisation le {{date}}",
+      "neverSynced": "Pas encore synchronisée",
+      "syncedScans_one": "{{formattedCount}} scan sur le site principal",
+      "syncedScans_other": "{{formattedCount}} scans sur le site principal",
+      "errors": {
+        "invalidKey": "Le site principal n'accepte plus cette clé. Génères-y une nouvelle clé, puis déconnecte et reconnecte.",
+        "unreachable": "Impossible de joindre le site principal de Mault. Nouvel essai dans l'heure.",
+        "rejected": "Le site principal de Mault a refusé la dernière synchronisation. Nouvel essai dans l'heure."
+      }
+    }
   }
 }

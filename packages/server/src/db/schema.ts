@@ -1813,6 +1813,74 @@ export const scanStats = pgTable(
   ],
 );
 
+export const statsSyncKeys = pgTable(
+  "stats_sync_keys",
+  {
+    id: serial().primaryKey(),
+    orgId: text("org_id").notNull(),
+    keyPrefix: text("key_prefix").notNull(),
+    keyHash: text("key_hash").notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    lastSyncedAt: timestamp("last_synced_at"),
+    revokedAt: timestamp("revoked_at"),
+  },
+  (table) => [
+    unique("stats_sync_keys_hash_idx").on(table.keyHash),
+    uniqueIndex("stats_sync_keys_live_org_idx")
+      .on(table.orgId)
+      .where(sql`${table.revokedAt} IS NULL`),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const selfHostedDailyScanStats = pgTable(
+  "self_hosted_daily_scan_stats",
+  {
+    orgId: text("org_id").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    scanCount: integer("scan_count").notNull(),
+    matchedCount: integer("matched_count").notNull(),
+    unmatchedCount: integer("unmatched_count").notNull(),
+    correctedCount: integer("corrected_count").notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.orgId, table.day] }),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
+export const statsSyncConnections = pgTable(
+  "stats_sync_connections",
+  {
+    orgId: text("org_id").primaryKey(),
+    syncKey: text("sync_key").notNull(),
+    keyPrefix: text("key_prefix").notNull(),
+    connectedBy: text("connected_by").notNull(),
+    connectedAt: timestamp("connected_at").defaultNow().notNull(),
+    lastSyncedAt: timestamp("last_synced_at"),
+    lastAttemptAt: timestamp("last_attempt_at"),
+    lastErrorCode: text("last_error_code"),
+    syncedScanCount: integer("synced_scan_count"),
+  },
+  () => [
+    crudPolicy({
+      role: authenticatedRole,
+      read: false,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
 export const platformBillingSettings = pgTable("platform_billing_settings", {
   id: text("id").primaryKey(),
   isLegacyPricingActive: boolean("is_legacy_pricing_active")

@@ -299,6 +299,7 @@ docker compose --profile bot up --build -d   # + Discord bot (internal :3002)
 - For production, set `WEB_URL` to your public origin and use real secrets.
 - With `AUTH_PROVIDER=neon`, `.env` must point at a migrated Neon project; the bundled `postgres` then sits unused.
 - Prices need the cron job from [Prices](#prices).
+- Leaderboards: an owner or admin can link an organization to the hosted Mault leaderboards under Settings > Integrations with a stats sync key from mault.xyz. Only daily scan totals are sent, first every past day, then once a day. `STATS_SYNC_TARGET_URL` (default `https://mault.xyz/api`) changes where they go.
 
 ### Link shortener
 

@@ -52,6 +52,10 @@ import { collectionsRouter } from "./routes/collections";
 import { overviewRouter } from "./routes/overview";
 import { statsRouter } from "./routes/stats";
 import { leaderboardRouter } from "./routes/leaderboard";
+import {
+  hostedStatsSyncRouter,
+  selfHostedStatsSyncRouter,
+} from "./routes/stats-sync";
 import { matchValidationsRouter } from "./routes/match-validations";
 import { devicesRouter } from "./routes/devices";
 import { machinesRouter } from "./routes/machines";
@@ -82,6 +86,7 @@ import { startInventorySnapshots } from "./lib/inventory";
 import { startApiUsageFlushing } from "./lib/api-usage";
 import { startCardMatchIndexWarmup } from "./lib/card-match-index";
 import { startShortLinkStartupSync } from "./lib/short-links";
+import { startStatsSyncSchedule } from "./lib/stats-sync-connection";
 
 const app = new Hono<AppEnv>();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
@@ -147,6 +152,9 @@ app.route("/stats", statsRouter);
 app.route("/leaderboard", leaderboardRouter);
 if (process.env.AUTH_PROVIDER !== "local") {
   app.route("/match-validations", matchValidationsRouter);
+  app.route("/stats-sync", hostedStatsSyncRouter);
+} else {
+  app.route("/stats-sync", selfHostedStatsSyncRouter);
 }
 app.route("/devices", devicesRouter);
 app.route(MACHINES_PATH, machinesRouter);
@@ -196,6 +204,7 @@ startInventorySnapshots();
 startApiUsageFlushing();
 startCardMatchIndexWarmup();
 startShortLinkStartupSync();
+startStatsSyncSchedule();
 startPiHostMachineStatusPublisher();
 
 const server = serve(

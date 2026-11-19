@@ -373,7 +373,8 @@
     "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
     "contactRequired": "Indique comment te joindre.",
     "textTooLong": "Reste sous {{max}} caractères.",
-    "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}."
+    "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}.",
+    "statsSyncKeyInvalid": "Colle la clé entière. Elle commence par mvstats_."
   },
   "memberSeatLock": {
     "title": "Cette organisation dépasse sa limite de membres",

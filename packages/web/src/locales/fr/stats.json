@@ -125,7 +125,12 @@
       "title": "Votre organisation est classée anonymement",
       "description": "Les autres organisations voient votre nombre de scans et votre rang, mais pas votre nom. Affichez votre nom depuis les paramètres.",
       "action": "Afficher mon nom"
-    }
+    },
+    "hideSelfHosted": {
+      "label": "Masquer les scans auto-hébergés",
+      "description": "Les serveurs auto-hébergés déclarent eux-mêmes leurs chiffres, qui ne peuvent pas être vérifiés. Active cette option pour ne classer que les scans hébergés."
+    },
+    "selfHostedBadge": "Auto-hébergé"
   },
   "views": {
     "overview": "Vue d'ensemble",

@@ -4,12 +4,14 @@ export interface LeaderboardEntry {
   scanCount: number;
   isOwnOrg: boolean;
   isAnonymous: boolean;
+  selfHostedScanCount: number;
 }
 
 export interface Leaderboard {
   entries: LeaderboardEntry[];
   ownEntry: LeaderboardEntry;
   optedIn: boolean;
+  includesSelfHosted: boolean;
 }
 
 export interface LeaderboardRow {

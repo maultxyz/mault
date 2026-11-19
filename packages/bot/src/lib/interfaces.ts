@@ -68,6 +68,7 @@ export interface LeaderboardRow {
   scanCount: number;
   isOwnOrg: boolean;
   isAnonymous: boolean;
+  selfHostedScanCount?: number;
 }
 
 export interface LeaderboardResult {

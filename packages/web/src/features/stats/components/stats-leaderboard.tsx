@@ -2,8 +2,10 @@ import { buildLeaderboardRows } from "@magic-vault/shared";
 import { Callout } from "@/components/callout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Switch } from "@/components/ui/switch";
 import {
   Table,
   TableBody,
@@ -14,13 +16,15 @@ import {
 } from "@/components/ui/table";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { leaderboardQueryOptions } from "@/features/stats/api/leaderboard";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import type { StatsLeaderboardButtonProps } from "@/lib/interfaces/stats";
 import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import { LEADERBOARD_SIZE } from "@magic-vault/shared";
 import { IconAlertTriangle, IconTrophy } from "@tabler/icons-react";
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -28,12 +32,37 @@ function StatsLeaderboardContent() {
   const { t, i18n } = useTranslation("stats");
   const { activeOrg } = useOrg();
   const numberFormat = new Intl.NumberFormat(i18n.language);
+  const [hideSelfHosted, setHideSelfHosted] = useState(false);
   const {
     data: leaderboard,
     isLoading,
     isError,
     refetch,
-  } = useQuery(leaderboardQueryOptions(activeOrg?.id));
+  } = useQuery({
+    ...leaderboardQueryOptions(
+      activeOrg?.id,
+      AUTH_PROVIDER !== "local" && !hideSelfHosted,
+    ),
+    placeholderData: keepPreviousData,
+  });
+
+  const selfHostedToggle = (
+    <div className="flex items-center justify-between gap-3 rounded-lg bg-foreground/6 px-3 py-2">
+      <div className="flex min-w-0 flex-col">
+        <Label htmlFor="leaderboard-hide-self-hosted" className="text-control">
+          {t("leaderboard.hideSelfHosted.label")}
+        </Label>
+        <span className="text-xs text-foreground/70">
+          {t("leaderboard.hideSelfHosted.description")}
+        </span>
+      </div>
+      <Switch
+        id="leaderboard-hide-self-hosted"
+        checked={hideSelfHosted}
+        onCheckedChange={setHideSelfHosted}
+      />
+    </div>
+  );
 
   return isError ? (
     <Callout
@@ -55,6 +84,7 @@ function StatsLeaderboardContent() {
     </div>
   ) : (
     <div className="flex min-h-0 flex-col gap-3 overflow-y-auto">
+      {AUTH_PROVIDER !== "local" && selfHostedToggle}
       {!leaderboard.optedIn && (
         <Callout
           variant="info"
@@ -104,6 +134,12 @@ function StatsLeaderboardContent() {
                         ? t("leaderboard.anonymousOrg")
                         : t("leaderboard.unknownOrg"))}
                   </span>
+                  {leaderboard.includesSelfHosted &&
+                    entry.selfHostedScanCount > 0 && (
+                      <Badge variant="outline">
+                        {t("leaderboard.selfHostedBadge")}
+                      </Badge>
+                    )}
                   {entry.isOwnOrg && (
                     <Badge variant="outline">
                       {leaderboard.optedIn

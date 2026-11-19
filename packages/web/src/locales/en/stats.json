@@ -125,7 +125,12 @@
       "title": "Your organization is ranked anonymously",
       "description": "Other organizations see your scan count and rank, but not your name. Show your name from Settings.",
       "action": "Show my name"
-    }
+    },
+    "hideSelfHosted": {
+      "label": "Hide self-hosted scans",
+      "description": "Self-hosted servers report their own counts, which can't be verified. Turn this on to rank hosted scans only."
+    },
+    "selfHostedBadge": "Self-hosted"
   },
   "views": {
     "overview": "Overview",

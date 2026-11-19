@@ -21,7 +21,10 @@ import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Switch } from "@/components/ui/switch";
 import { useOrgApiKeys } from "@/features/integrations/api/use-org-api-keys";
+import { StatsSyncConnectionSection } from "@/features/integrations/components/stats-sync-connection-section";
+import { StatsSyncKeySection } from "@/features/integrations/components/stats-sync-key-section";
 import { WebhooksSection } from "@/features/integrations/components/webhooks-section";
+import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { API_REFERENCE_URL, PUBLIC_API_DOCS_URL } from "@/lib/constants/links";
 import {
   type OrgApiKey,
@@ -218,6 +221,11 @@ export function ApiKeysIntegration() {
           )}
         </SettingsSection>
         <WebhooksSection />
+        {AUTH_PROVIDER === "local" ? (
+          <StatsSyncConnectionSection />
+        ) : (
+          <StatsSyncKeySection />
+        )}
       </SettingsSections>
 
       <DynamicDialog
