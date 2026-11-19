@@ -1,5 +1,6 @@
 import {
   isCardCondition,
+  IMPLICIT_ORDER_REF,
   orderLineIdentity,
   orderRefsOf,
   ORDER_LINE_QUANTITY_MAX,
@@ -321,6 +322,22 @@ export async function allocateOrderLines(
   return result;
 }
 
+export function orderLinesWithPicks(
+  lines: OrderLine[],
+  scanIds: ReadonlySet<string>,
+  isPicked: boolean,
+): OrderLine[] {
+  return lines.map((line) => {
+    const picked = line.picked.filter((id) => !scanIds.has(id));
+    return {
+      ...line,
+      picked: isPicked
+        ? [...picked, ...line.allocations.filter((id) => scanIds.has(id))]
+        : picked,
+    };
+  });
+}
+
 export async function loadPullSheet(
   tx: Transaction,
   orgId: string,
@@ -379,12 +396,13 @@ export function toOrderBins(value: unknown, lines: OrderLineInput[]): OrderBins 
   if (!value || typeof value !== "object" || Array.isArray(value)) return {};
   const raw = value as Record<string, unknown>;
   const bins: OrderBins = {};
+  const toBin = (bin: unknown): bin is number =>
+    typeof bin === "number" && Number.isInteger(bin) && bin >= 1;
   for (const ref of orderRefsOf(lines)) {
-    const bin = raw[ref];
-    if (typeof bin === "number" && Number.isInteger(bin) && bin >= 1) {
-      bins[ref] = bin;
-    }
+    if (toBin(raw[ref])) bins[ref] = raw[ref] as number;
   }
+  // an order without order references sorts as one implicit whole-order group
+  if (toBin(raw[IMPLICIT_ORDER_REF])) bins[IMPLICIT_ORDER_REF] = raw[IMPLICIT_ORDER_REF] as number;
   return bins;
 }
 
