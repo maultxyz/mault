@@ -377,7 +377,7 @@ export function previousSortPresetsQueryOptions(orderGuids: string[]) {
       const result = await apiGet<Result<PreviousSortPresetsResult>>(
         `/api/business/pick-runs/previous-presets?orderGuids=${orderGuids.join(",")}`,
       );
-      return unwrap(result).presets;
+      return unwrap(result)?.presets;
     },
     enabled: orderGuids.length > 0,
   });

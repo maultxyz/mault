@@ -18,7 +18,6 @@ import {
   usePickRunProgress,
 } from "@/features/business/lib/pick-run-progress";
 import { PickSorterSelect } from "@/features/business/components/pick-sorter-select";
-import { OrderRefLabel } from "@/features/business/components/order-ref-label";
 import type { FulfilmentOrderDetail, OrderSortPreset } from "@magic-vault/shared";
 import { orderSortRefsOf } from "@magic-vault/shared";
 import { sortingRulesPresetPath } from "@/lib/constants/bins";

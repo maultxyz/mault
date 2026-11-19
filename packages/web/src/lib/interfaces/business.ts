@@ -30,6 +30,7 @@ import type {
   PlayingCardImage,
   PickWalkEntry,
   PickWalkStop,
+  PullSheetEntry,
   StatsRange,
 } from "@magic-vault/shared";
 import type { ComponentProps, ReactNode } from "react";
@@ -167,6 +168,15 @@ export interface PickWalkStopListProps {
   onToggle: (scanId: string, isPicked: boolean) => void;
   onMissing?: (scanId: string) => void;
   onSorterPick?: (stop: PickWalkStop) => void;
+}
+
+export interface OrderPickByLocationProps {
+  entries: PullSheetEntry[];
+  orderBinOf: (entry: PullSheetEntry) => number | null;
+  pickNameOf?: (entry: PullSheetEntry) => string;
+  pickedScanIds: ReadonlySet<string>;
+  canPick: boolean;
+  onPickedChange: (scanIds: string[], isPicked: boolean) => void;
 }
 
 export interface OrderSubstituteDialogProps {

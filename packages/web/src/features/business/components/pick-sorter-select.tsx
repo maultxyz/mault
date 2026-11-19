@@ -46,7 +46,7 @@ export function PickSorterSelect({ value, onChange }: PickSorterSelectProps) {
       <FieldLabel htmlFor="pick-sorter-select">
         {t("orders.sorterPick.sorterLabel")}
       </FieldLabel>
-      <Select value={value} onValueChange={onChange}>
+      <Select value={value} onValueChange={(next) => onChange(next ?? "")}>
         <SelectTrigger id="pick-sorter-select">
           <SelectValue>
             {(() => {
