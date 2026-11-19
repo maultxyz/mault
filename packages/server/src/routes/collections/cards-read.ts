@@ -13,6 +13,7 @@ import { applyCardPricesToScans } from "../../lib/card-search/card-prices";
 import {
   COLLECTION_CARDS_AGGREGATE_CACHE_MAX_ENTRIES,
   COLLECTION_CARDS_AGGREGATE_CACHE_TTL_MS,
+  COLLECTION_CARDS_SUMMARY_MINIMUM_MS_BETWEEN_LOADS,
 } from "../../lib/constants/collection-read-caches";
 import { createOrgReadCache } from "../../lib/org-read-cache";
 import { loadOrgPricing } from "../../lib/price-source";
@@ -33,6 +34,7 @@ import type { TransactionRunner } from "../../lib/interfaces/collections";
 const cardsSummaryCache = createOrgReadCache<CollectionCardsSummary | null>(
   COLLECTION_CARDS_AGGREGATE_CACHE_TTL_MS,
   COLLECTION_CARDS_AGGREGATE_CACHE_MAX_ENTRIES,
+  COLLECTION_CARDS_SUMMARY_MINIMUM_MS_BETWEEN_LOADS,
 );
 
 const cardsCountCache = createOrgReadCache<CollectionCardsCount | null>(

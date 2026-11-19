@@ -35,7 +35,12 @@ import type {
 } from "../../lib/interfaces/collections";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import { pgTextArray, uuidArraySql } from "../../lib/sql-arrays";
-import { NUMERIC_PREFIX_SQL_PATTERN } from "../../lib/constants/collections";
+import {
+  CARD_STATS_CATALOG_CTE,
+  CARD_STATS_KEYS_CTE,
+  CARD_STATS_PRICES_CTE,
+  NUMERIC_PREFIX_SQL_PATTERN,
+} from "../../lib/constants/collections";
 import {
   CARD_PRICE_COLUMNS,
   CARD_PRICE_DETAIL_KEYS,
@@ -47,7 +52,10 @@ import {
   joinedScannedCardPriceSql,
 } from "../../lib/card-price-sql";
 import { cardCatalogJoinSql } from "../../lib/card-catalog-sql";
-import { CATALOG_CC_ALIAS_COLUMNS } from "../../lib/constants/saved-cards";
+import {
+  CARD_CATALOG_ALIAS,
+  CATALOG_CC_ALIAS_COLUMNS,
+} from "../../lib/constants/saved-cards";
 import { hydrateSavedScans } from "../../lib/saved-cards";
 import type {
   CardPriceDetailKey,
@@ -750,13 +758,33 @@ function collectionStatsSource(collection: {
   };
 }
 
-function cardStatsBaseSql(
+function cardStatsCtesSql(
   source: CardStatsSource,
   filter: SQL,
   pricing: OrgPricing,
 ): SQL {
   const price = sql`COALESCE(${joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp")}, 0)`;
+  const keys = sql.raw(CARD_STATS_KEYS_CTE);
   return sql`
+    ${keys} AS MATERIALIZED (
+      SELECT DISTINCT (${source.scope.gameKey})::text AS game_key,
+        COALESCE(cc.card_lang, ${source.scope.lang}) AS lang, cc.card_id
+      FROM collection_cards cc
+      ${source.joins}
+      WHERE ${source.where}
+    ),
+    ${sql.raw(CARD_STATS_PRICES_CTE)} AS MATERIALIZED (
+      SELECT cp.*
+      FROM ${keys} k
+      JOIN card_prices cp ON cp.game_key = k.game_key AND cp.lang = k.lang AND cp.card_id = k.card_id
+    ),
+    ${sql.raw(CARD_STATS_CATALOG_CTE)} AS MATERIALIZED (
+      SELECT cat.game_key, cat.lang, cat.card_id, cat.set_name, cat.rarity,
+        cat.color_identity, cat.search_text
+      FROM ${keys} k
+      JOIN cards cat ON cat.game_key = k.game_key AND cat.lang = k.lang AND cat.card_id = k.card_id
+    ),
+    base AS MATERIALIZED (
     SELECT cc.card_id AS card_key, cc.card_name AS name, cc.card_set AS set_code,
       ${CATALOG_CC_ALIAS_COLUMNS.setName} AS set_name, ${CATALOG_CC_ALIAS_COLUMNS.rarity} AS rarity,
       ${CATALOG_CC_ALIAS_COLUMNS.colorIdentity} AS colors,
@@ -764,9 +792,10 @@ function cardStatsBaseSql(
       ${price} AS price, (${filter}) AS in_filter
     FROM collection_cards cc
     ${source.joins}
-    ${cardPricesJoinSql("cp", source.scope, CC_ALIAS_SQL_COLUMNS)}
-    ${cardCatalogJoinSql(source.scope, CC_ALIAS_SQL_COLUMNS)}
+    ${cardPricesJoinSql("cp", source.scope, CC_ALIAS_SQL_COLUMNS, CARD_STATS_PRICES_CTE)}
+    ${cardCatalogJoinSql(source.scope, CC_ALIAS_SQL_COLUMNS, CARD_CATALOG_ALIAS, CARD_STATS_CATALOG_CTE)}
     WHERE ${source.where}
+    )
   `;
 }
 
@@ -816,7 +845,7 @@ export async function loadCardStats(
   pricing: OrgPricing,
 ): Promise<{ all: CardStatsAggregate; filtered: CardStatsAggregate }> {
   const result = await tx.execute(sql`
-    WITH base AS MATERIALIZED (${cardStatsBaseSql(collectionStatsSource(collection), filter, pricing)}),
+    WITH ${cardStatsCtesSql(collectionStatsSource(collection), filter, pricing)},
     filtered AS (SELECT * FROM base WHERE in_filter)
     SELECT
       ${cardStatsJsonSql(sql`base`)} AS all_stats,
@@ -843,7 +872,7 @@ export async function loadCardStatsForSource(
   pricing: OrgPricing,
 ): Promise<CardStatsAggregate> {
   const result = await tx.execute(sql`
-    WITH base AS MATERIALIZED (${cardStatsBaseSql(source, sql`true`, pricing)})
+    WITH ${cardStatsCtesSql(source, sql`true`, pricing)}
     SELECT ${cardStatsJsonSql(sql`base`)} AS all_stats
   `);
   const row = result.rows[0] as unknown as { all_stats: CardStatsAggregate };

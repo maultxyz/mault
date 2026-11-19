@@ -1,6 +1,7 @@
 import { ORG_EVENTS_WITHOUT_DATA_CHANGES } from "./constants/org-read-cache";
 import type { OrgReadCache } from "./interfaces/cached-value";
 import { createKeyedCache } from "./keyed-cache";
+import { createSpacedLoader } from "./spaced-loader";
 
 const dataGenerationByOrgId = new Map<string, number>();
 
@@ -16,12 +17,19 @@ export function isMutatingRequestMethod(method: string): boolean {
   return method !== "GET" && method !== "HEAD" && method !== "OPTIONS";
 }
 
-export function createOrgReadCache<T>(ttlMs: number, maxEntries: number): OrgReadCache<T> {
+export function createOrgReadCache<T>(
+  ttlMs: number,
+  maxEntries: number,
+  minimumMsBetweenLoads = 0,
+): OrgReadCache<T> {
   const cache = createKeyedCache<T>(ttlMs, maxEntries);
+  const spacedLoader = createSpacedLoader<T>(minimumMsBetweenLoads, maxEntries);
   return {
     get(orgId, variantKey, load) {
       const generation = dataGenerationByOrgId.get(orgId) ?? 0;
-      return cache.get(`${orgId}\u0000${generation}\u0000${variantKey}`, load);
+      return cache.get(`${orgId}\u0000${generation}\u0000${variantKey}`, () =>
+        spacedLoader.load(`${orgId}\u0000${variantKey}`, load),
+      );
     },
   };
 }
