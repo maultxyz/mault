@@ -25,7 +25,3 @@ export type MachinePageDotsProps = MachinePickerProps;
 export interface MachineBinTileProps {
   fill: MachineBinFill;
 }
-
-export interface MachinePanelSectionProps extends MachinePanelProps {
-  showsName: boolean;
-}

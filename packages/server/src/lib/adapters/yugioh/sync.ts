@@ -7,21 +7,45 @@ import { withRawData } from "../../card-search/with-raw-data";
 import { CARD_API_HEADERS } from "../../constants/card-search";
 import { YUGIOH_DEFAULT_URL } from "../../constants/urls";
 import { splitSetCode } from "./search";
+import {
+  hasSeveralYugiohArtworks,
+  mainYugiohArtworkOf,
+  yugiohPasscodeOf,
+  yugiohPrintingId,
+  yugiohPrintingsOf,
+} from "./printings";
 import type { YgoCard } from "../../interfaces/yugioh";
 
-function toSyncCards(raw: YgoCard): SyncSourceCard[] {
-  const primarySet = raw.card_sets?.[0];
-  const { set } = primarySet ? splitSetCode(primarySet.set_code) : { set: "" };
-
+function toArtworkSyncCards(raw: YgoCard): SyncSourceCard[] {
   return (raw.card_images ?? []).map((image) =>
     withRawData(
       {
         id: String(image.id),
         name: raw.name,
-        setCode: set,
+        setCode: "",
         imageUrl: image.image_url,
       },
       raw,
+    ),
+  );
+}
+
+function toSyncCards(raw: YgoCard): SyncSourceCard[] {
+  const printings = yugiohPrintingsOf(raw);
+  if (printings.length === 0) return toArtworkSyncCards(raw);
+  const artwork = mainYugiohArtworkOf(raw);
+  const prefersLinkedProductImage = hasSeveralYugiohArtworks(raw);
+
+  return printings.map((printing) =>
+    withRawData(
+      {
+        id: yugiohPrintingId(raw, printing),
+        name: raw.name,
+        setCode: splitSetCode(printing.set_code).set,
+        imageUrl: artwork?.image_url,
+        ...(prefersLinkedProductImage ? { prefersLinkedProductImage } : {}),
+      },
+      { ...raw, card_sets: [printing] },
     ),
   );
 }
@@ -41,13 +65,13 @@ async function fetchCards(
   const json = (await res.json()) as { data?: YgoCard[] };
   const rows = json.data ?? [];
   const cards = rows.flatMap(toSyncCards);
-  addLog(`Fetched ${rows.length} cards (${cards.length} artworks).`);
+  addLog(`Fetched ${rows.length} cards (${cards.length} printings).`);
 
   return cards;
 }
 
 async function fetchOne(id: string, baseUrl: string): Promise<FetchOneResult> {
-  const url = `${baseUrl}?id=${encodeURIComponent(id)}`;
+  const url = `${baseUrl}?id=${encodeURIComponent(yugiohPasscodeOf(id))}`;
   const res = await fetch(url, { headers: CARD_API_HEADERS });
   if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
 
@@ -56,8 +80,10 @@ async function fetchOne(id: string, baseUrl: string): Promise<FetchOneResult> {
   if (!raw) return { card: null, urls: [url] };
 
   const cards = toSyncCards(raw);
-  const match = cards.find((c) => c.id === id) ?? cards[0];
-  return { card: match ?? null, urls: [url] };
+  const match = cards.find((card) => card.id === id) ?? cards[0];
+  if (!match) return { card: null, urls: [url] };
+  const { id: _id, ...card } = match;
+  return { card, urls: [url] };
 }
 
 export const yugiohSyncSource: SyncSource = {

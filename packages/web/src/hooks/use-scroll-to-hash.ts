@@ -6,7 +6,7 @@ import {
 import { useEffect } from "react";
 import { useLocation } from "react-router-dom";
 
-export function useScrollToHash() {
+export function useScrollToHash({ highlightTarget = true } = {}) {
   const { hash } = useLocation();
 
   useEffect(() => {
@@ -27,6 +27,7 @@ export function useScrollToHash() {
         return;
       }
       el.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (!highlightTarget) return;
       highlighted = el;
       el.classList.add(...GUIDE_ANCHOR_HIGHLIGHT_CLASSES);
       timeout = setTimeout(() => {
@@ -40,5 +41,5 @@ export function useScrollToHash() {
       clearTimeout(timeout);
       highlighted?.classList.remove(...GUIDE_ANCHOR_HIGHLIGHT_CLASSES);
     };
-  }, [hash]);
+  }, [hash, highlightTarget]);
 }

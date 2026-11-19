@@ -75,7 +75,8 @@
       "modules_one": "{{count}} module",
       "modules_other": "{{count}} modules"
     },
-    "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même."
+    "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même.",
+    "recommended": "Recommandé"
   },
   "bom": {
     "heading": "Nomenclature",

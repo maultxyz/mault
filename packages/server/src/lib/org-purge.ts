@@ -31,6 +31,9 @@ import {
   orgInventorySnapshots,
   collectionValueSnapshots,
   orgSettings,
+  selfHostedDailyScanStats,
+  statsSyncConnections,
+  statsSyncKeys,
   unmatchedCards,
   notificationRules,
   soundClips,
@@ -105,6 +108,7 @@ export async function purgeOrgData(
   await tx.delete(orgActivityLog).where(eq(orgActivityLog.orgId, orgId));
   await tx.delete(apiKeyUsageDaily).where(eq(apiKeyUsageDaily.orgId, orgId));
   await tx.delete(orgApiKeys).where(eq(orgApiKeys.orgId, orgId));
+  await tx.delete(statsSyncKeys).where(eq(statsSyncKeys.orgId, orgId));
   await tx.delete(webhookEndpoints).where(eq(webhookEndpoints.orgId, orgId));
   await tx.delete(unmatchedCards).where(eq(unmatchedCards.orgId, orgId));
   await tx.delete(soundRules).where(eq(soundRules.orgId, orgId));
@@ -141,4 +145,10 @@ export async function purgeOrgServerData(orgId: string): Promise<void> {
   await db
     .delete(collectionValueSnapshots)
     .where(eq(collectionValueSnapshots.orgId, orgId));
+  await db
+    .delete(selfHostedDailyScanStats)
+    .where(eq(selfHostedDailyScanStats.orgId, orgId));
+  await db
+    .delete(statsSyncConnections)
+    .where(eq(statsSyncConnections.orgId, orgId));
 }

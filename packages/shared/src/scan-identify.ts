@@ -2,7 +2,10 @@ import { consensusAttemptLimit } from "./scan-decisions";
 import { pickConsensus } from "./consensus";
 import { isStrongerTextMatch } from "./text-match";
 import { gameReadsPrintedLanguage } from "./card-language";
-import { CLOSE_MATCH_DELTA } from "./constants/ocr-regions.constant";
+import {
+  CLOSE_MATCH_DELTA,
+  UNCONFIRMED_TEXT_MATCH_MAX_DISTANCE_GAP,
+} from "./constants/ocr-regions.constant";
 import {
   IDENTIFY_REQUEST_RETRY_DELAYS_MS,
   PREFERRED_ORIENTATION_MAX_DISTANCE,
@@ -78,17 +81,33 @@ function imageMatchIsInOtherLanguage(
   return (leader.lang ?? leader.card?.lang) !== printedLanguage;
 }
 
+function textMatchLooksClearlyWorseThanImageMatch(
+  imageResult: CardSearchResult,
+  textResult: CardSearchResult | null | undefined,
+): boolean {
+  const imageLeader = imageResult.data?.[0];
+  const textLeader = textResult?.data?.[0];
+  if (!imageLeader || !textLeader) return false;
+  return (
+    textLeader.distance - imageLeader.distance >
+    UNCONFIRMED_TEXT_MATCH_MAX_DISTANCE_GAP
+  );
+}
+
 export function prefersTextMatch(
   imageResult: CardSearchResult,
   textOcr:
     | { printingConfirmed?: boolean; scopedToPrintedLanguage?: string | null }
     | null
     | undefined,
+  textResult?: CardSearchResult | null,
 ): boolean {
+  if (textOcr?.printingConfirmed) return true;
+  if (imageMatchIsInOtherLanguage(imageResult, textOcr?.scopedToPrintedLanguage))
+    return true;
   return (
-    needsTextSearch(imageResult) ||
-    !!textOcr?.printingConfirmed ||
-    imageMatchIsInOtherLanguage(imageResult, textOcr?.scopedToPrintedLanguage)
+    needsTextSearch(imageResult) &&
+    !textMatchLooksClearlyWorseThanImageMatch(imageResult, textResult)
   );
 }
 
@@ -366,7 +385,9 @@ export async function identifyScanImage<T extends ScanImageCandidate>(
   const ocr =
     text?.ocr ?? texts.find((candidate) => candidate?.ocr)?.ocr ?? null;
   const usesText =
-    !!text && hasCardMatch(text.result) && prefersTextMatch(image.result, ocr);
+    !!text &&
+    hasCardMatch(text.result) &&
+    prefersTextMatch(image.result, ocr, text.result);
   return {
     pick: usesText ? text : image,
     alternate: image.alternate,

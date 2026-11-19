@@ -4,6 +4,7 @@ import { fetchCardApi } from "../../card-search/fetch";
 import type { CardSearchAdapter } from "../../interfaces/card-search";
 import {
   CARD_API_HEADERS,
+  GRAND_ARCHIVE_BACK_ORIENTATION,
   GRAND_ARCHIVE_PROMO_RARITIES,
   GRAND_ARCHIVE_RARITY_NAMES,
 } from "../../constants/card-search";
@@ -55,14 +56,29 @@ export function grandArchiveSearchUrl(
   return `${baseUrl}/search?${query}`;
 }
 
+function imageUrlOf(imagePath: string | null | undefined): string | null {
+  return imagePath ? `${GRAND_ARCHIVE_API_ROOT}${imagePath}` : null;
+}
+
+export function grandArchiveBackImageUrl(
+  edition: GrandArchiveEdition,
+): string | null {
+  const orientations = edition.other_orientations ?? [];
+  const back =
+    orientations.find(
+      (orientation) =>
+        orientation.edition?.orientation === GRAND_ARCHIVE_BACK_ORIENTATION,
+    ) ?? orientations[0];
+  return imageUrlOf(back?.edition?.image);
+}
+
 export function normalizeGrandArchiveEdition(
   source: GrandArchiveCard,
   edition: GrandArchiveEdition,
 ): PlayingCard {
   const card = withoutEditions(source);
-  const image = edition.image
-    ? `${GRAND_ARCHIVE_API_ROOT}${edition.image}`
-    : null;
+  const image = imageUrlOf(edition.image);
+  const backImage = grandArchiveBackImageUrl(edition);
   const types = card.types.map(titleCase).join(" ");
   const subtypes = card.subtypes.map(titleCase).join(" ");
   const toughness = card.life ?? card.durability;
@@ -71,6 +87,7 @@ export function normalizeGrandArchiveEdition(
     id: edition.slug,
     name: card.name,
     image: image ? { small: image, normal: image } : null,
+    backImage: backImage ? { small: backImage, normal: backImage } : null,
     set: edition.set.prefix,
     setName: edition.set.name,
     collectorNumber: edition.collector_number,

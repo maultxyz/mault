@@ -3,11 +3,14 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import {
-  DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
+  DEFAULT_SHARE_LINK_LENGTHS,
   DEFAULT_SHARE_LINK_PURPOSE,
   DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
-  MONITOR_LINK_EXPIRY_DAYS,
+  defaultMonitorLinkExpiryDays,
+  HOURS_PER_DAY,
+  longestMonitorLinkExpiryDays,
+  shareLinkDurationOfHours,
   type ShareLinkPurpose,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
@@ -29,12 +32,21 @@ export function NewShareLinkForm({ kind, subjectGuid, initialPurpose, onCreated,
   const { t } = useTranslation();
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
-  const [expiresInDays, setExpiresInDays] = useState<number>(DEFAULT_MONITOR_LINK_EXPIRY_DAYS);
+  const [chosenExpiryDays, setChosenExpiryDays] = useState<number | null>(null);
   const [showsPrices, setShowsPrices] = useState(DEFAULT_SHARE_LINK_SHOWS_PRICES);
   const [requiresGuestContact, setRequiresGuestContact] = useState(DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT);
   const [purpose, setPurpose] = useState<ShareLinkPurpose>(initialPurpose ?? DEFAULT_SHARE_LINK_PURPOSE);
   const { data: billing } = useQuery(billingQueryOptions(orgId));
-  const isOneHourLink = purpose === "trade" || billing?.longShareLinks === false;
+  const lengths = billing?.shareLinkLengths ?? DEFAULT_SHARE_LINK_LENGTHS;
+  const expiresInDays = chosenExpiryDays ?? defaultMonitorLinkExpiryDays(lengths.monitorLinkExpiryDays);
+  const isFixedLengthLink = purpose === "trade" || billing?.longShareLinks === false;
+  const expiryLabel = (days: number) => t("shareLink.expiryOption", { count: days });
+  const durationLabel = (hours: number) => {
+    const duration = shareLinkDurationOfHours(hours);
+    return duration.unit === "days"
+      ? t("shareLink.durationDays", { count: duration.count })
+      : t("shareLink.durationHours", { count: duration.count });
+  };
 
   const create = useMutation({
     mutationFn: async () => {
@@ -73,21 +85,30 @@ export function NewShareLinkForm({ kind, subjectGuid, initialPurpose, onCreated,
           {purpose === "trade" ? t("shareLink.tradeTypeDescription") : t("shareLink.monitorTypeDescription")}
         </AppText>
       </View>
-      {isOneHourLink ? (
+      {isFixedLengthLink ? (
         <Callout
           tone="info"
-          title={purpose === "trade" ? t("shareLink.tradeOneHourNote") : t("shareLink.monitorOneHourNote")}
+          title={
+            purpose === "trade"
+              ? t("shareLink.tradeLengthNote", { duration: durationLabel(lengths.tradeLinkHours) })
+              : t("shareLink.monitorShortLengthNote", {
+                  duration: durationLabel(lengths.restrictedShareLinkHours),
+                  longestDuration: durationLabel(
+                    longestMonitorLinkExpiryDays(lengths.monitorLinkExpiryDays) * HOURS_PER_DAY,
+                  ),
+                })
+          }
         />
       ) : (
         <View style={{ gap: SPACING.sm }}>
           <SectionHeader title={t("shareLink.expiryLabel")} />
           <SegmentedControl
-            options={MONITOR_LINK_EXPIRY_DAYS.map((days) => ({
+            options={lengths.monitorLinkExpiryDays.map((days) => ({
               value: String(days),
-              label: t("shareLink.expiryOption", { count: days }),
+              label: expiryLabel(days),
             }))}
             value={String(expiresInDays)}
-            onChange={(value) => setExpiresInDays(Number(value))}
+            onChange={(value) => setChosenExpiryDays(Number(value))}
           />
         </View>
       )}

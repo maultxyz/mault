@@ -41,7 +41,9 @@
     "market": "Marché",
     "low": "Bas",
     "regular": "Normale",
-    "foil": "Foil"
+    "foil": "Foil",
+    "listingsHeading": "Annonces TCGplayer",
+    "noListings": "Aucune annonce"
   },
   "cardDetailPanel": {
     "catalogCardRemovedTitle": "Carte retirée du catalogue",
@@ -102,7 +104,8 @@
     "actions": "Actions de la carte",
     "name": "Nom",
     "moveToLocation": "Déplacer vers un emplacement",
-    "moveToCollection": "Déplacer vers une collection"
+    "moveToCollection": "Déplacer vers une collection",
+    "backSideAlt": "{{name}}, verso"
   },
   "cardFilterPopover": {
     "color": "Couleur",

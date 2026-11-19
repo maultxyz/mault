@@ -86,3 +86,5 @@ export const BETTER_STACK_BOT_HEARTBEAT_URL =
 export const UPTIME_HEARTBEAT_INTERVAL_MS = 60_000;
 
 export const UPTIME_HEARTBEAT_TIMEOUT_MS = 10_000;
+export const LEADERBOARD_HIDE_SELF_HOSTED_OPTION = "hide_self_hosted";
+export const LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM = "includeSelfHosted";

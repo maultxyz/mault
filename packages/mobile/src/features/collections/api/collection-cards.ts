@@ -6,6 +6,8 @@ import {
   type QueryClient,
 } from "@tanstack/react-query";
 import {
+  COLLECTION_CARDS_RAW_CARD_DATA_NONE,
+  COLLECTION_CARDS_RAW_CARD_DATA_PARAM,
   EMPTY_CARD_FILTERS,
   type SetCardTagsRequest,
   type CardScanOrigin,
@@ -29,6 +31,7 @@ function cardsParams(search: string, page?: number, review = false): string {
   const params = new URLSearchParams({
     grouped: review ? "0" : "1",
     filters: JSON.stringify(review ? { ...EMPTY_CARD_FILTERS, needsAttention: true } : EMPTY_CARD_FILTERS),
+    [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE,
   });
   if (review) params.set("unreviewed", "1");
   if (page != null) params.set("page", String(page));
@@ -37,7 +40,11 @@ function cardsParams(search: string, page?: number, review = false): string {
 }
 
 export function collectionCardsQueryParams(query: CollectionCardsQuery, page: number): string {
-  const params = new URLSearchParams({ filters: JSON.stringify(query.filters), page: String(page) });
+  const params = new URLSearchParams({
+    filters: JSON.stringify(query.filters),
+    page: String(page),
+    [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE,
+  });
   if (query.grouped) params.set("grouped", "1");
   if (query.search) params.set("search", query.search);
   if (query.sort) params.set("sort", query.sort);

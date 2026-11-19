@@ -6,18 +6,37 @@ import {
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
   DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useSignOut } from "@/features/account/api/use-sign-out";
 import { useAuthSession } from "@/lib/auth";
-import { IconLogout, IconUserCircle } from "@tabler/icons-react";
+import {
+  LANGUAGE_NATIVE_NAMES,
+  SUPPORTED_LANGUAGES,
+} from "@/lib/constants/languages";
+import { THEME_OPTIONS } from "@/lib/constants/nav";
+import type { SupportedLanguage } from "@/lib/interfaces/languages";
+import {
+  IconLanguage,
+  IconLogout,
+  IconPalette,
+  IconUserCircle,
+} from "@tabler/icons-react";
+import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 export function UserMenu() {
-  const { t } = useTranslation("common");
+  const { t, i18n } = useTranslation("common");
+  const { theme, setTheme } = useTheme();
   const { data } = useAuthSession();
+  const currentLanguage = i18n.language as SupportedLanguage;
   const navigate = useNavigate();
 
   const name = data?.user?.name ?? undefined;
@@ -64,6 +83,48 @@ export function UserMenu() {
           <IconUserCircle size={14} />
           {t("breadcrumb.account")}
         </DropdownMenuItem>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <IconPalette size={14} />
+            <span className="flex-1">{t("userMenu.theme")}</span>
+            <span className="text-foreground/70">
+              {t(`theme.${theme ?? "system"}`)}
+            </span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuRadioGroup
+              value={theme ?? "system"}
+              onValueChange={(value) => setTheme(value as string)}
+            >
+              {THEME_OPTIONS.map((preference) => (
+                <DropdownMenuRadioItem key={preference} value={preference}>
+                  {t(`theme.${preference}`)}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
+        <DropdownMenuSub>
+          <DropdownMenuSubTrigger>
+            <IconLanguage size={14} />
+            <span className="flex-1">{t("userMenu.language")}</span>
+            <span className="text-foreground/70">
+              {LANGUAGE_NATIVE_NAMES[currentLanguage] ?? currentLanguage}
+            </span>
+          </DropdownMenuSubTrigger>
+          <DropdownMenuSubContent>
+            <DropdownMenuRadioGroup
+              value={currentLanguage}
+              onValueChange={(value) => void i18n.changeLanguage(value as string)}
+            >
+              {SUPPORTED_LANGUAGES.map((language) => (
+                <DropdownMenuRadioItem key={language} value={language}>
+                  {LANGUAGE_NATIVE_NAMES[language]}
+                </DropdownMenuRadioItem>
+              ))}
+            </DropdownMenuRadioGroup>
+          </DropdownMenuSubContent>
+        </DropdownMenuSub>
         <DropdownMenuSeparator />
         <DropdownMenuItem variant="destructive" onClick={handleSignOut}>
           <IconLogout size={14} />

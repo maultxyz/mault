@@ -6,6 +6,7 @@ import {
   releasedPickListNameAfterCorrection,
   resolveCorrectedScanBin,
   toRuleCard,
+  withRawCardDataForRules,
   type AutoAssignTarget,
   type BinConfig,
   type PlayingCard,
@@ -14,6 +15,7 @@ import {
 } from "@magic-vault/shared";
 import { invalidateCollectionCards, updateCollectionCard } from "@/features/collections/api/collection-cards";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
+import { getCardById } from "@/features/scanner/api/card-search";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { markPickListFound, saveBinConfig } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
@@ -60,9 +62,12 @@ export function useCardCorrection(guid: string): CardCorrection {
       .catch((error: unknown) => console.warn("Updating the pick list failed", error));
   };
 
+  const shouldPromptMove = (entry: ScannedCard) =>
+    promptEnabled && entry.binNumber != null && rules.collection?.guid === guid;
+
   const promptMove = (entry: ScannedCard, card: PlayingCard) => {
     const currentBin = entry.binNumber;
-    if (!promptEnabled || currentBin == null || rules.collection?.guid !== guid) return;
+    if (!shouldPromptMove(entry) || currentBin == null) return;
     const ruleCard = toRuleCard(
       { ...card, distance: 0, confidence: 1 },
       { isFoil: !!entry.isFoil, foilType: entry.foilType ?? null },
@@ -121,7 +126,14 @@ export function useCardCorrection(guid: string): CardCorrection {
   return {
     correct: async (entry, card) => {
       await correction.mutateAsync({ entry, card });
-      promptMove(entry, card);
+      if (!shouldPromptMove(entry)) return;
+      const ruleSourceCard = await withRawCardDataForRules(card, (cardWithoutRawData) =>
+        getCardById(cardWithoutRawData.id, guid, cardWithoutRawData.lang, cardWithoutRawData.gameKey),
+      ).catch((error: unknown) => {
+        console.warn("Loading the corrected card's game fields failed", error);
+        return card;
+      });
+      promptMove(entry, ruleSourceCard);
     },
     isPending: correction.isPending,
   };

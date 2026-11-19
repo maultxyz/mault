@@ -40,6 +40,7 @@ export function normalizeSwuCard(raw: SwuCard): PlayingCard {
     id: swuCardId(raw.Set, raw.Number),
     name: swuCardName(raw),
     image: raw.FrontArt ? { small: raw.FrontArt, normal: raw.FrontArt } : null,
+    backImage: raw.BackArt ? { small: raw.BackArt, normal: raw.BackArt } : null,
     set: raw.Set,
     setName: raw.Set,
     collectorNumber: raw.Number,

@@ -31,6 +31,7 @@ export const KIT_MODULE_COUNT = 3;
 export const MODULE_PINS_PER_UNIT_FRONT = 2;
 export const MODULE_PINS_PER_PIECE_TOP = 4;
 export const KIT_BOARD_TYPE: BoardType = "esp32";
+export const RECOMMENDED_BOARD_TYPE: BoardType = "esp32";
 
 export const BOARD_INFO: Record<BoardType, BoardInfo> = {
   uno_r4: {
@@ -245,6 +246,7 @@ export const BUILD_SETUP_PARAMS = {
 } as const;
 
 export const DEFAULT_ESP32_MOUNT_TYPE: Esp32MountType = "breakout";
+export const RECOMMENDED_ESP32_MOUNT_TYPE: Esp32MountType = "breakout";
 
 export const DEFAULT_BUILD_SETUP: BuildSetupState = {
   boardType: DEFAULT_BOARD_TYPE,

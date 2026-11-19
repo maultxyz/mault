@@ -41,7 +41,9 @@
     "market": "Markt",
     "low": "Niedrig",
     "regular": "Normal",
-    "foil": "Foil"
+    "foil": "Foil",
+    "listingsHeading": "TCGplayer-Angebote",
+    "noListings": "Keine Angebote"
   },
   "cardDetailPanel": {
     "catalogCardRemovedTitle": "Karte nicht mehr im Katalog",
@@ -102,7 +104,8 @@
     "actions": "Kartenaktionen",
     "name": "Name",
     "moveToLocation": "In Lagerort verschieben",
-    "moveToCollection": "In Sammlung verschieben"
+    "moveToCollection": "In Sammlung verschieben",
+    "backSideAlt": "{{name}}, Rückseite"
   },
   "cardFilterPopover": {
     "color": "Farbe",

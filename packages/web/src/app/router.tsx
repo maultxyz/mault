@@ -248,6 +248,12 @@ const AdminShortLinksPage = lazyRoute(
     ["admin"],
   ),
 );
+const AdminShareLinksPage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/app/admin/share-links"),
+    ["admin"],
+  ),
+);
 const AdminDeveloperPage = lazyRoute(
   withNamespaces(() => import("@/app/routes/app/admin/developer"), ["admin"]),
 );
@@ -360,14 +366,14 @@ function AppChunkPreloader() {
     loadAuthGuard().catch(ignoreFailure);
     loadAppLayout().catch(ignoreFailure);
     loadHomePage().catch(ignoreFailure);
-    if (!isMobile || piHost) loadScannerPage().catch(ignoreFailure);
-  }, [isMobile, piHost]);
+  }, []);
   useEffect(() => {
     if (!isInApp) return;
     let cancelIdlePreload = () => {};
     const delayHandle = setTimeout(() => {
       cancelIdlePreload = runTasksOneByOneWhenIdle(
         [
+          ...(!isMobile || piHost ? [loadScannerPage] : []),
           loadLibraryPage,
           loadCollectionViewPage,
           loadStatsPage,
@@ -381,7 +387,7 @@ function AppChunkPreloader() {
       clearTimeout(delayHandle);
       cancelIdlePreload();
     };
-  }, [isInApp]);
+  }, [isInApp, isMobile, piHost]);
   return null;
 }
 
@@ -733,6 +739,15 @@ export const routes: RouteObject[] = [
                       {
                         path: "short-links",
                         element: <AdminShortLinksPage />,
+                      },
+                      {
+                        element: <AdminGuard />,
+                        children: [
+                          {
+                            path: "share-links",
+                            element: <AdminShareLinksPage />,
+                          },
+                        ],
                       },
                       {
                         path: "hardware",

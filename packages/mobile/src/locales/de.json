@@ -149,6 +149,12 @@
     "expiryLabel": "Link läuft ab nach",
     "expiryOption_one": "{{count}} Tag",
     "expiryOption_other": "{{count}} Tagen",
+    "durationHours_one": "{{count}} Stunde",
+    "durationHours_other": "{{count}} Stunden",
+    "durationDays_one": "{{count}} Tag",
+    "durationDays_other": "{{count}} Tage",
+    "tradeLengthNote": "Tausch-Links gelten {{duration}}.",
+    "monitorShortLengthNote": "In deinem Tarif gelten Monitor-Links {{duration}}. Mit Enthusiast und Business bis zu {{longestDuration}}.",
     "create": "Link erstellen",
     "created": "Link erstellt. QR-Code und Teilen-Taste findest du unten.",
     "createFailed": "Der Freigabelink konnte nicht erstellt werden.",
@@ -171,9 +177,7 @@
     "monitorType": "Monitor",
     "tradeType": "Tausch",
     "monitorTypeDescription": "Eine Ansicht der Karten, live während du scannst. Besucher können keine Angebote senden.",
-    "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen.",
-    "tradeOneHourNote": "Tausch-Links gelten 1 Stunde.",
-    "monitorOneHourNote": "In deinem Tarif gelten Monitor-Links 1 Stunde. Mit Enthusiast und Business bis zu 30 Tage."
+    "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen."
   },
   "shareLinks": {
     "detailDescription": "Jeder mit diesem Link oder QR-Code kann ihn ohne Anmeldung öffnen.",
@@ -356,7 +360,12 @@
         "title": "Deine Organisation ist nicht in der Bestenliste",
         "description": "Andere Organisationen sehen dich nicht. Deine Zeile zeigt, auf welchem Rang du wärst. Tritt in den Einstellungen bei, um in der Liste zu erscheinen.",
         "action": "Bestenliste beitreten"
-      }
+      },
+      "hideSelfHosted": {
+        "label": "Selbst gehostete Scans ausblenden",
+        "description": "Selbst gehostete Server melden ihre Zahlen selbst, diese können nicht überprüft werden. Schalte dies ein, um nur gehostete Scans zu werten."
+      },
+      "selfHostedBadge": "Selbst gehostet"
     },
     "highlights": {
       "title": "Auf einen Blick"
@@ -1141,7 +1150,8 @@
     "shareLinkCopied": "Freigabelink kopiert. Alle mit dem Link sehen diese Karte.",
     "shareLinkCopyFailed": "Der Freigabelink für diese Karte konnte nicht kopiert werden.",
     "downloadPhoto": "Foto herunterladen",
-    "downloadPhotoFailed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut."
+    "downloadPhotoFailed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut.",
+    "backSideAlt": "{{name}}, Rückseite"
   },
   "reviewGrid": {
     "title": "Karten prüfen",
@@ -2391,6 +2401,72 @@
       "isPublicDescription": "Jeder kann diesen Katalog über seine normale Adresse öffnen, ohne den privaten Link.",
       "publicBadge": "Öffentlich",
       "publicLinkNote": "Dieser Katalog ist öffentlich, daher funktioniert dieser Link für alle. Schalte Öffentlich aus, um einen privaten Link zu verlangen."
+    },
+    "statsSync": {
+      "key": {
+        "heading": "Statistik-Sync für Selbsthoster",
+        "description": "Du betreibst Mault auf deinem eigenen Server? Erstelle hier einen Schlüssel und gib ihn auf deinem Server unter Einstellungen > Integrationen ein. Dein Server schickt dann einmal täglich seine Scan-Summen hierher, beginnend mit jedem Tag, an dem du schon gescannt hast. Es werden nur tägliche Scan-Zahlen gesendet, nie Karten, Fotos oder Sammlungen. Synchronisierte Scans erscheinen in der Rangliste als selbst gehostet gekennzeichnet, und Betrachter können sie ausblenden.",
+        "generate": "Schlüssel erstellen",
+        "regenerate": "Schlüssel ersetzen",
+        "revoke": "Widerrufen",
+        "revoked": "Statistik-Sync-Schlüssel widerrufen.",
+        "generateFailed": "Der Statistik-Sync-Schlüssel konnte nicht erstellt werden.",
+        "revokeFailed": "Der Statistik-Sync-Schlüssel konnte nicht widerrufen werden.",
+        "loadFailed": "Der Statistik-Sync-Schlüssel konnte nicht geladen werden.",
+        "empty": "Mit dieser Organisation ist kein selbst gehosteter Server verknüpft.",
+        "managersOnly": "Nur Inhaber und Admins der Organisation können den Statistik-Sync-Schlüssel verwalten.",
+        "createdBy": "Erstellt von {{name}} am {{date}}",
+        "lastSynced": "Zuletzt synchronisiert am {{date}}",
+        "neverSynced": "Noch nicht synchronisiert",
+        "syncedScans_one": "{{formattedCount}} synchronisierter Scan",
+        "syncedScans_other": "{{formattedCount}} synchronisierte Scans",
+        "revealTitle": "Statistik-Sync-Schlüssel kopieren",
+        "revealDescription": "Nur jetzt wird der vollständige Schlüssel angezeigt. Füge ihn auf deinem selbst gehosteten Server unter Einstellungen > Integrationen ein.",
+        "revealDone": "Ich habe ihn kopiert",
+        "copy": "Schlüssel kopieren",
+        "copied": "Statistik-Sync-Schlüssel kopiert.",
+        "copyFailed": "Der Statistik-Sync-Schlüssel konnte nicht kopiert werden.",
+        "regenerateConfirmTitle": "Statistik-Sync-Schlüssel ersetzen?",
+        "regenerateConfirmDescription": "Der aktuelle Schlüssel funktioniert sofort nicht mehr. Dein Server kann erst wieder synchronisieren, wenn du dort den neuen Schlüssel eingibst. Bereits synchronisierte Scans bleiben erhalten.",
+        "revokeConfirmTitle": "Statistik-Sync-Schlüssel widerrufen?",
+        "revokeConfirmDescription": "Dein Server hört sofort auf zu synchronisieren. Bereits synchronisierte Scans bleiben in der Rangliste.",
+        "actionsTitle": "Statistik-Sync-Schlüssel",
+        "share": "Schlüssel teilen",
+        "generateTitle": "Statistik-Sync-Schlüssel erstellen"
+      },
+      "connection": {
+        "heading": "Statistiken mit Mault synchronisieren",
+        "description": "Füge die Scan-Zahlen dieser Organisation den Mault-Ranglisten hinzu. Erstelle eine Organisation auf {{url}}, erzeuge dort unter Einstellungen > Integrationen einen Statistik-Sync-Schlüssel und füge ihn hier ein. Zuerst werden alle bisherigen Scans gesendet, danach einmal täglich die neuen Summen. Es werden nur tägliche Scan-Zahlen gesendet, nie Karten, Fotos oder Sammlungen.",
+        "keyLabel": "Statistik-Sync-Schlüssel",
+        "keyPlaceholder": "mvstats_...",
+        "keyDescription": "Von deiner Organisation auf der Mault-Hauptseite erstellt.",
+        "connect": "Verbinden",
+        "connectFailed": "Die Mault-Hauptseite hat diesen Schlüssel nicht akzeptiert. Prüfe, ob du ihn vollständig kopiert hast und ob er nicht widerrufen oder ersetzt wurde.",
+        "syncNow": "Jetzt synchronisieren",
+        "syncFailed": "Statistiken konnten nicht synchronisiert werden.",
+        "disconnect": "Trennen",
+        "disconnected": "Statistik-Sync getrennt.",
+        "disconnectFailed": "Statistik-Sync konnte nicht getrennt werden.",
+        "disconnectConfirmTitle": "Synchronisierung beenden?",
+        "disconnectConfirmDescription": "Neue Scans werden nicht mehr gesendet. Bereits synchronisierte Scans bleiben auf der Hauptseite, bis der Schlüssel dort widerrufen wird.",
+        "loadFailed": "Die Statistik-Sync-Einstellungen konnten nicht geladen werden.",
+        "managersOnly": "Nur Inhaber und Admins der Organisation können den Statistik-Sync verwalten.",
+        "notConnected": "Diese Organisation synchronisiert ihre Statistiken nicht.",
+        "lastSynced": "Zuletzt synchronisiert am {{date}}",
+        "neverSynced": "Noch nicht synchronisiert",
+        "syncedScans_one": "{{formattedCount}} Scan auf der Hauptseite",
+        "syncedScans_other": "{{formattedCount}} Scans auf der Hauptseite",
+        "errors": {
+          "invalidKey": "Die Hauptseite akzeptiert diesen Schlüssel nicht mehr. Erstelle dort einen neuen Schlüssel, trenne die Verbindung und verbinde erneut.",
+          "unreachable": "Die Mault-Hauptseite war nicht erreichbar. Innerhalb einer Stunde folgt ein neuer Versuch.",
+          "rejected": "Die Mault-Hauptseite hat die letzte Synchronisierung abgelehnt. Innerhalb einer Stunde folgt ein neuer Versuch."
+        },
+        "actionsTitle": "Statistik-Sync",
+        "syncing": "Wird synchronisiert...",
+        "synced": "Statistiken synchronisiert.",
+        "connected": "Statistik-Sync verbunden."
+      },
+      "cancel": "Abbrechen"
     }
   },
   "binCorrection": {
@@ -2434,7 +2510,9 @@
     "low": "Niedrig",
     "regular": "Normal",
     "foil": "Foil",
-    "noPrice": "Kein Preis"
+    "noPrice": "Kein Preis",
+    "listingsHeading": "TCGplayer-Angebote",
+    "noListings": "Keine Angebote"
   },
   "health": {
     "title": "Systemstatus",
@@ -2575,7 +2653,10 @@
     "catalogSourcesRequired": "Wähle mindestens eine Sammlung oder einen Lagerort.",
     "contactRequired": "Gib an, wie man dich erreicht.",
     "textTooLong": "Bleib unter {{max}} Zeichen.",
-    "jsonObjectInvalid": "Gib ein einzelnes JSON-Objekt ein, etwa {\"neutral\": true}."
+    "jsonObjectInvalid": "Gib ein einzelnes JSON-Objekt ein, etwa {\"neutral\": true}.",
+    "statsSyncKeyInvalid": "Füge den ganzen Schlüssel ein. Er beginnt mit mvstats_.",
+    "expiryDaysInvalid": "Gib ganze Tage von 1 bis {{max}} ein, durch Kommas getrennt.",
+    "expiryDaysTooMany": "Gib höchstens {{max}} Laufzeiten ein."
   },
   "cardTags": {
     "title": "Markierungen",
@@ -2862,7 +2943,7 @@
         },
         "longShareLinks": {
           "label": "Längere Monitor-Links",
-          "description": "Monitor-Links können 1, 7 oder 30 Tage gelten. Ohne diese Funktion gelten sie 1 Stunde. Tausch-Links gelten immer 1 Stunde."
+          "description": "Monitor-Links können jede Laufzeit in Tagen haben, die im Web unter Admin > Freigabelinks festgelegt ist. Ohne diese Funktion gilt die dort festgelegte kurze Laufzeit."
         }
       },
       "limits": {

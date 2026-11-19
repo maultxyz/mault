@@ -2,7 +2,9 @@
   "matchValidationProgress": {
     "label": "Progression de la validation communautaire",
     "valueText": "{{done}} sur {{total}} vérifications faites",
-    "percent": "{{percent}} %"
+    "percent": "{{percent}} %",
+    "description": "Vérifie si les scans des autres ont reconnu la bonne carte. Chaque vérification améliore la reconnaissance des cartes pour tout le monde.",
+    "start": "Commencer la vérification"
   },
   "nav": {
     "validateMatches": "Valider les correspondances",
@@ -54,7 +56,9 @@
   },
   "userMenu": {
     "trigger": "Menu du compte",
-    "signOut": "Se déconnecter"
+    "signOut": "Se déconnecter",
+    "theme": "Thème",
+    "language": "Langue"
   },
   "emailVerification": {
     "banner": "Merci de vérifier ton adresse e-mail ({{email}}) pour sécuriser ton compte.",
@@ -191,8 +195,8 @@
   "publicNav": {
     "pagesAria": "Pages du site",
     "pages": {
-      "home": "Accueil",
       "build": "Construire",
+      "pricing": "Tarifs",
       "selfHost": "Auto-hébergement",
       "discordBot": "Bot Discord",
       "download": "Télécharger",
@@ -203,7 +207,12 @@
     "menuAriaLabel": "Menu",
     "signIn": "Se connecter",
     "getStarted": "Commencer",
-    "openApp": "Ouvrir l'application"
+    "openApp": "Ouvrir l'application",
+    "groups": {
+      "hardware": "Matériel",
+      "software": "Logiciel"
+    },
+    "opensInNewTab": "(s'ouvre dans un nouvel onglet)"
   },
   "backHome": "Retour à l'accueil",
   "hotkeys": {
@@ -373,7 +382,10 @@
     "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
     "contactRequired": "Indique comment te joindre.",
     "textTooLong": "Reste sous {{max}} caractères.",
-    "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}."
+    "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}.",
+    "statsSyncKeyInvalid": "Colle la clé entière. Elle commence par mvstats_.",
+    "expiryDaysInvalid": "Saisissez des nombres entiers de jours entre 1 et {{max}}, séparés par des virgules.",
+    "expiryDaysTooMany": "Saisissez au maximum {{max}} durées."
   },
   "memberSeatLock": {
     "title": "Cette organisation dépasse sa limite de membres",
@@ -439,6 +451,12 @@
     "expiryLabel": "Le lien expire après",
     "expiryOption_one": "{{count}} jour",
     "expiryOption_other": "{{count}} jours",
+    "durationHours_one": "{{count}} heure",
+    "durationHours_other": "{{count}} heures",
+    "durationDays_one": "{{count}} jour",
+    "durationDays_other": "{{count}} jours",
+    "tradeLengthNote": "Les liens d'échange durent {{duration}}.",
+    "monitorShortLengthNote": "Avec votre offre, les liens de suivi durent {{duration}}. Enthusiast et Business permettent jusqu'à {{longestDuration}}.",
     "create": "Créer le lien",
     "linkLabel": "Lien",
     "copy": "Copier le lien",
@@ -462,8 +480,6 @@
     "tradeType": "Lien d'échange",
     "monitorTypeDescription": "Une vue des cartes, en direct pendant que vous scannez. Les visiteurs ne peuvent pas envoyer d'offres.",
     "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications.",
-    "tradeOneHourNote": "Les liens d'échange durent 1 heure.",
-    "monitorOneHourNote": "Avec votre offre, les liens de suivi durent 1 heure. Enthusiast et Business permettent jusqu'à 30 jours.",
     "checkFailedTitle": "Impossible d'ouvrir ce lien",
     "checkFailedDescription": "Vérifie ta connexion et réessaie.",
     "shortLinkInvalidTitle": "Ce lien ne fonctionne pas",

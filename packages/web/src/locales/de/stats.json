@@ -125,7 +125,12 @@
       "title": "Deine Organisation erscheint anonym",
       "description": "Andere Organisationen sehen deine Scan-Anzahl und deinen Rang, aber nicht deinen Namen. Zeige deinen Namen in den Einstellungen.",
       "action": "Meinen Namen zeigen"
-    }
+    },
+    "hideSelfHosted": {
+      "label": "Selbst gehostete Scans ausblenden",
+      "description": "Selbst gehostete Server melden ihre Zahlen selbst, diese können nicht überprüft werden. Schalte dies ein, um nur gehostete Scans zu werten."
+    },
+    "selfHostedBadge": "Selbst gehostet"
   },
   "views": {
     "overview": "Übersicht",

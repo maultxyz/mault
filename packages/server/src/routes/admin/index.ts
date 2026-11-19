@@ -18,6 +18,7 @@ import { errorReportingTestRoute } from "./error-reporting-test";
 import { scanMetricsRoute } from "./scan-metrics";
 import { scanVectorizeStatsRoute } from "./scan-vectorize-stats";
 import { shortLinksRoute } from "./short-links";
+import { shareLinkLengthsRoute } from "./share-link-lengths";
 import { syncApiKeysRoute } from "./sync-api-keys";
 import { syncCancelRoute } from "./sync-cancel";
 import { syncSourcesRoute } from "./sync-sources";
@@ -53,6 +54,7 @@ const router = new Hono<AppEnv>()
   .route("/", foilLabelsRoute)
   .route("/", apiUsageRoute)
   .route("/", shortLinksRoute)
+  .route("/", shareLinkLengthsRoute)
   .route("/", featureHighlightsAdminRoute);
 
 export { router as adminRouter };

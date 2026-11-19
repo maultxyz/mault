@@ -1345,6 +1345,34 @@
       "when": 1795098257542,
       "tag": "0191_feature_highlights",
       "breakpoints": true
+    },
+    {
+      "idx": 192,
+      "version": "7",
+      "when": 1795112935778,
+      "tag": "0192_stats_sync",
+      "breakpoints": true
+    },
+    {
+      "idx": 193,
+      "version": "7",
+      "when": 1795118635088,
+      "tag": "0193_platform_share_link_settings",
+      "breakpoints": true
+    },
+    {
+      "idx": 194,
+      "version": "7",
+      "when": 1795120604586,
+      "tag": "0194_simple_boomerang",
+      "breakpoints": true
+    },
+    {
+      "idx": 195,
+      "version": "7",
+      "when": 1795121779125,
+      "tag": "0195_yugioh_printings",
+      "breakpoints": true
     }
   ]
 }

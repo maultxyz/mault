@@ -1,5 +1,11 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
-import type { Leaderboard, Result, StatsRange, StatsReport } from "@magic-vault/shared";
+import {
+  LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM,
+  type Leaderboard,
+  type Result,
+  type StatsRange,
+  type StatsReport,
+} from "@magic-vault/shared";
 import { apiGet, unwrap } from "@/lib/api/client";
 import { STATS_STALE_MS } from "@/lib/constants/query";
 
@@ -16,10 +22,16 @@ export const statsQueryOptions = (orgId: string | null, range: StatsRange, colle
     placeholderData: keepPreviousData,
   });
 
-export const leaderboardQueryOptions = (orgId: string | null) =>
+export const leaderboardQueryOptions = (orgId: string | null, includeSelfHosted: boolean) =>
   queryOptions({
-    queryKey: ["leaderboard", orgId] as const,
-    queryFn: () => unwrap(apiGet<Result<Leaderboard>>("/api/leaderboard")),
+    queryKey: ["leaderboard", orgId, { includeSelfHosted }] as const,
+    queryFn: () =>
+      unwrap(
+        apiGet<Result<Leaderboard>>(
+          includeSelfHosted ? `/api/leaderboard?${LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM}=true` : "/api/leaderboard",
+        ),
+      ),
     enabled: !!orgId,
     staleTime: STATS_STALE_MS,
+    placeholderData: keepPreviousData,
   });

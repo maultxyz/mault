@@ -1,3 +1,4 @@
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import { unseenFeatureHighlightsQueryOptions } from "@/features/feature-highlights/api/feature-highlights";
 import { useMarkFeatureHighlightsSeen } from "@/features/feature-highlights/api/use-mark-feature-highlights-seen";
 import { FeatureHighlightsDrawer } from "@/features/feature-highlights/components/feature-highlights-drawer";
@@ -30,8 +31,11 @@ export function FeatureHighlightsHost() {
   const { connectedStationIds } = useStations();
   const { isTimerActive } = useScannedCards();
 
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
   const unseenQuery = useQuery(
-    unseenFeatureHighlightsQueryOptions(isImpersonating ? null : userId),
+    unseenFeatureHighlightsQueryOptions(
+      isImpersonating || !areSecondaryRequestsEnabled ? null : userId,
+    ),
   );
   const slides = useMemo(
     () => featureHighlightCarouselSlides(unseenQuery.data?.highlights ?? []),

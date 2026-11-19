@@ -1,34 +1,14 @@
-import { HOME_PATH } from "@/lib/constants/nav";
 import { AppLoadingScreen } from "@/components/app-loading-screen";
-import { neon } from "@/lib/auth/client";
-import { NEON_SOCIAL_PROVIDERS } from "@magic-vault/shared";
-import {
-  AuthLoading,
-  RedirectToSignIn,
-  SignedIn,
-} from "@neondatabase/neon-js/auth/react";
-import { NeonAuthUIProvider } from "@neondatabase/neon-js/auth/react/ui";
-import { Outlet } from "react-router-dom";
+import { useAuthSession } from "@/lib/auth";
+import { signInPathReturningTo } from "@/lib/auth-redirect";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 
 export default function AuthGuard() {
-  return (
-    <NeonAuthUIProvider
-      defaultTheme="system"
-      authClient={neon.auth}
-      baseURL={window.location.origin}
-      redirectTo={HOME_PATH}
-      account={{
-        basePath: "/app/account",
-      }}
-      social={{ providers: [...NEON_SOCIAL_PROVIDERS] }}
-    >
-      <AuthLoading>
-        <AppLoadingScreen />
-      </AuthLoading>
-      <SignedIn>
-        <Outlet />
-      </SignedIn>
-      <RedirectToSignIn />
-    </NeonAuthUIProvider>
-  );
+  const { data, isPending } = useAuthSession();
+  const { pathname, search } = useLocation();
+  if (isPending) return <AppLoadingScreen />;
+  if (!data?.user) {
+    return <Navigate to={signInPathReturningTo(pathname + search)} replace />;
+  }
+  return <Outlet />;
 }

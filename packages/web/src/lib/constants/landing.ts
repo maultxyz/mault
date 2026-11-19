@@ -10,6 +10,8 @@ export const GAMES_MARQUEE_MIN_ITEMS = 12;
 
 export const GAMES_MARQUEE_SECONDS_PER_ITEM = 4;
 
+export const GAMES_MARQUEE_KEYBOARD_NUDGE_PX = 160;
+
 export const DEMO_BIN_DIAGRAM_MODULES = [
   { module: 1, left: 1, right: 2 },
   { module: 2, left: 3, right: 4 },

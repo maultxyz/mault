@@ -11,6 +11,7 @@
     "sounds": "Sons",
     "deleted": "Supprimés et non reconnus",
     "shortLinks": "Liens courts",
+    "shareLinks": "Liens de partage",
     "hardware": "Matériel",
     "developer": "Développeur",
     "whatsNew": "Nouveautés"
@@ -351,7 +352,7 @@
       },
       "longShareLinks": {
         "label": "Liens de suivi plus longs",
-        "description": "Les liens de suivi peuvent durer 1, 7 ou 30 jours. Sans cela, ils durent 1 heure. Les liens d'échange durent toujours 1 heure."
+        "description": "Les liens de suivi peuvent durer l'une des durées en jours définies sur le web dans Admin > Liens de partage. Sans cela, ils utilisent la durée courte définie là."
       }
     },
     "limits": {
@@ -592,6 +593,28 @@
       "disabled": "Les liens courts sont désactivés sur ce serveur.",
       "codeTaken": "Ce code est déjà utilisé. Choisissez-en un autre.",
       "notFound": "Ce lien court n'existe plus."
+    }
+  },
+  "shareLinkLengths": {
+    "heading": "Durée des liens de partage",
+    "description": "Combien de temps durent les nouveaux liens de suivi et d'échange. Une durée plus courte raccourcit aussi les liens déjà partagés. Une durée plus longue s'applique aux liens créés après l'enregistrement.",
+    "restoreDefaults": "Rétablir les valeurs par défaut",
+    "saved": "Durées des liens de partage enregistrées.",
+    "saveFailed": "Impossible d'enregistrer les durées des liens de partage.",
+    "loadFailed": "Impossible de charger les durées des liens de partage.",
+    "fields": {
+      "tradeLinkHours": {
+        "label": "Liens d'échange (heures)",
+        "description": "Durée de chaque lien d'échange. Jusqu'à {{max}} heures."
+      },
+      "restrictedShareLinkHours": {
+        "label": "Liens de suivi sans liens plus longs (heures)",
+        "description": "Durée des liens de suivi pour les offres sans liens de suivi plus longs. Jusqu'à {{max}} heures."
+      },
+      "monitorLinkExpiryDays": {
+        "label": "Choix pour les liens de suivi (jours)",
+        "description": "Les durées proposées aux offres avec des liens de suivi plus longs, séparées par des virgules. Jusqu'à {{maxOptions}} choix de 1 à {{maxDays}} jours. La plus longue limite aussi les liens déjà partagés."
+      }
     }
   },
   "featureHighlights": {

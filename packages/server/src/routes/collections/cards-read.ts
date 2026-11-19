@@ -1,6 +1,7 @@
 import {
   COLLECTION_CARDS_PAGE_SIZE,
   COLLECTION_CARDS_RAW_CARD_DATA_MAIN_ONLY,
+  COLLECTION_CARDS_RAW_CARD_DATA_NONE,
   COLLECTION_CARDS_RAW_CARD_DATA_PARAM,
   pageSizeFromQuery,
   type CollectionCardsCount,
@@ -22,7 +23,7 @@ import {
 import { groupedCardRankingPage } from "../../lib/grouped-card-ranking";
 import { createOrgReadCache } from "../../lib/org-read-cache";
 import { loadOrgPricing } from "../../lib/price-source";
-import { hydrateSavedScans } from "../../lib/saved-cards";
+import { hydrateSavedScans, withoutRawCardData } from "../../lib/saved-cards";
 import {
   cardFilterSql,
   cardQueryUsesCatalog,
@@ -173,11 +174,16 @@ export async function readCardsPage(
         COLLECTION_CARDS_RAW_CARD_DATA_MAIN_ONLY,
     },
   );
-  const items = await applyCardPricesToScans(
+  const pricedItems = await applyCardPricesToScans(
     result.gameKey,
     result.lang,
     hydratedItems,
   );
+  const items =
+    params[COLLECTION_CARDS_RAW_CARD_DATA_PARAM] ===
+    COLLECTION_CARDS_RAW_CARD_DATA_NONE
+      ? withoutRawCardData(pricedItems)
+      : pricedItems;
   return {
     ...result.data,
     items,

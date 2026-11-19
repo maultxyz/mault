@@ -186,5 +186,63 @@
     "copyFailed": "Das Geheimnis konnte nicht kopiert werden.",
     "upgrade": "Webhooks sind nicht Teil deines Tarifs.",
     "loadFailed": "Webhooks konnten nicht geladen werden."
+  },
+  "statsSync": {
+    "key": {
+      "heading": "Statistik-Sync für Selbsthoster",
+      "description": "Du betreibst Mault auf deinem eigenen Server? Erstelle hier einen Schlüssel und gib ihn auf deinem Server unter Einstellungen > Integrationen ein. Dein Server schickt dann einmal täglich seine Scan-Summen hierher, beginnend mit jedem Tag, an dem du schon gescannt hast. Es werden nur tägliche Scan-Zahlen gesendet, nie Karten, Fotos oder Sammlungen. Synchronisierte Scans erscheinen in der Rangliste als selbst gehostet gekennzeichnet, und Betrachter können sie ausblenden.",
+      "generate": "Schlüssel erstellen",
+      "regenerate": "Schlüssel ersetzen",
+      "revoke": "Widerrufen",
+      "revoked": "Statistik-Sync-Schlüssel widerrufen.",
+      "generateFailed": "Der Statistik-Sync-Schlüssel konnte nicht erstellt werden.",
+      "revokeFailed": "Der Statistik-Sync-Schlüssel konnte nicht widerrufen werden.",
+      "loadFailed": "Der Statistik-Sync-Schlüssel konnte nicht geladen werden.",
+      "empty": "Mit dieser Organisation ist kein selbst gehosteter Server verknüpft.",
+      "managersOnly": "Nur Inhaber und Admins der Organisation können den Statistik-Sync-Schlüssel verwalten.",
+      "createdBy": "Erstellt von {{name}} am {{date}}",
+      "lastSynced": "Zuletzt synchronisiert am {{date}}",
+      "neverSynced": "Noch nicht synchronisiert",
+      "syncedScans_one": "{{formattedCount}} synchronisierter Scan",
+      "syncedScans_other": "{{formattedCount}} synchronisierte Scans",
+      "revealTitle": "Statistik-Sync-Schlüssel kopieren",
+      "revealDescription": "Nur jetzt wird der vollständige Schlüssel angezeigt. Füge ihn auf deinem selbst gehosteten Server unter Einstellungen > Integrationen ein.",
+      "revealDone": "Ich habe ihn kopiert",
+      "copy": "Schlüssel kopieren",
+      "copied": "Statistik-Sync-Schlüssel kopiert.",
+      "copyFailed": "Der Statistik-Sync-Schlüssel konnte nicht kopiert werden.",
+      "regenerateConfirmTitle": "Statistik-Sync-Schlüssel ersetzen?",
+      "regenerateConfirmDescription": "Der aktuelle Schlüssel funktioniert sofort nicht mehr. Dein Server kann erst wieder synchronisieren, wenn du dort den neuen Schlüssel eingibst. Bereits synchronisierte Scans bleiben erhalten.",
+      "revokeConfirmTitle": "Statistik-Sync-Schlüssel widerrufen?",
+      "revokeConfirmDescription": "Dein Server hört sofort auf zu synchronisieren. Bereits synchronisierte Scans bleiben in der Rangliste."
+    },
+    "connection": {
+      "heading": "Statistiken mit Mault synchronisieren",
+      "description": "Füge die Scan-Zahlen dieser Organisation den Mault-Ranglisten hinzu. Erstelle eine Organisation auf {{url}}, erzeuge dort unter Einstellungen > Integrationen einen Statistik-Sync-Schlüssel und füge ihn hier ein. Zuerst werden alle bisherigen Scans gesendet, danach einmal täglich die neuen Summen. Es werden nur tägliche Scan-Zahlen gesendet, nie Karten, Fotos oder Sammlungen.",
+      "keyLabel": "Statistik-Sync-Schlüssel",
+      "keyPlaceholder": "mvstats_...",
+      "keyDescription": "Von deiner Organisation auf der Mault-Hauptseite erstellt.",
+      "connect": "Verbinden",
+      "connectFailed": "Die Mault-Hauptseite hat diesen Schlüssel nicht akzeptiert. Prüfe, ob du ihn vollständig kopiert hast und ob er nicht widerrufen oder ersetzt wurde.",
+      "syncNow": "Jetzt synchronisieren",
+      "syncFailed": "Statistiken konnten nicht synchronisiert werden.",
+      "disconnect": "Trennen",
+      "disconnected": "Statistik-Sync getrennt.",
+      "disconnectFailed": "Statistik-Sync konnte nicht getrennt werden.",
+      "disconnectConfirmTitle": "Synchronisierung beenden?",
+      "disconnectConfirmDescription": "Neue Scans werden nicht mehr gesendet. Bereits synchronisierte Scans bleiben auf der Hauptseite, bis der Schlüssel dort widerrufen wird.",
+      "loadFailed": "Die Statistik-Sync-Einstellungen konnten nicht geladen werden.",
+      "managersOnly": "Nur Inhaber und Admins der Organisation können den Statistik-Sync verwalten.",
+      "notConnected": "Diese Organisation synchronisiert ihre Statistiken nicht.",
+      "lastSynced": "Zuletzt synchronisiert am {{date}}",
+      "neverSynced": "Noch nicht synchronisiert",
+      "syncedScans_one": "{{formattedCount}} Scan auf der Hauptseite",
+      "syncedScans_other": "{{formattedCount}} Scans auf der Hauptseite",
+      "errors": {
+        "invalidKey": "Die Hauptseite akzeptiert diesen Schlüssel nicht mehr. Erstelle dort einen neuen Schlüssel, trenne die Verbindung und verbinde erneut.",
+        "unreachable": "Die Mault-Hauptseite war nicht erreichbar. Innerhalb einer Stunde folgt ein neuer Versuch.",
+        "rejected": "Die Mault-Hauptseite hat die letzte Synchronisierung abgelehnt. Innerhalb einer Stunde folgt ein neuer Versuch."
+      }
+    }
   }
 }

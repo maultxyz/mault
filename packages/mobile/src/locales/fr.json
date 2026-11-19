@@ -149,6 +149,12 @@
     "expiryLabel": "Le lien expire après",
     "expiryOption_one": "{{count}} jour",
     "expiryOption_other": "{{count}} jours",
+    "durationHours_one": "{{count}} heure",
+    "durationHours_other": "{{count}} heures",
+    "durationDays_one": "{{count}} jour",
+    "durationDays_other": "{{count}} jours",
+    "tradeLengthNote": "Les liens d'échange durent {{duration}}.",
+    "monitorShortLengthNote": "Avec votre offre, les liens de suivi durent {{duration}}. Enthusiast et Business permettent jusqu'à {{longestDuration}}.",
     "create": "Créer le lien",
     "created": "Lien créé. Le code QR et le bouton Partager sont plus bas.",
     "createFailed": "Impossible de créer le lien de partage.",
@@ -171,9 +177,7 @@
     "monitorType": "Suivi",
     "tradeType": "Échange",
     "monitorTypeDescription": "Une vue des cartes, en direct pendant que vous scannez. Les visiteurs ne peuvent pas envoyer d'offres.",
-    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications.",
-    "tradeOneHourNote": "Les liens d'échange durent 1 heure.",
-    "monitorOneHourNote": "Avec votre offre, les liens de suivi durent 1 heure. Enthusiast et Business permettent jusqu'à 30 jours."
+    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications."
   },
   "shareLinks": {
     "detailDescription": "Toute personne disposant de ce lien ou de ce QR code peut l'ouvrir sans se connecter.",
@@ -356,7 +360,12 @@
         "title": "Votre organisation n'apparaît pas dans le classement",
         "description": "Les autres organisations ne vous voient pas. Votre ligne indique le rang que vous auriez. Rejoignez-le depuis les paramètres pour apparaître dans la liste.",
         "action": "Rejoindre le classement"
-      }
+      },
+      "hideSelfHosted": {
+        "label": "Masquer les scans auto-hébergés",
+        "description": "Les serveurs auto-hébergés déclarent eux-mêmes leurs chiffres, qui ne peuvent pas être vérifiés. Active cette option pour ne classer que les scans hébergés."
+      },
+      "selfHostedBadge": "Auto-hébergé"
     },
     "highlights": {
       "title": "En bref"
@@ -1141,7 +1150,8 @@
     "shareLinkCopied": "Lien de partage copié. Toute personne qui l’a peut voir cette carte.",
     "shareLinkCopyFailed": "Impossible de copier un lien de partage pour cette carte.",
     "downloadPhoto": "Télécharger la photo",
-    "downloadPhotoFailed": "Impossible de télécharger la photo. Réessayez."
+    "downloadPhotoFailed": "Impossible de télécharger la photo. Réessayez.",
+    "backSideAlt": "{{name}}, verso"
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",
@@ -2391,6 +2401,72 @@
       "isPublicDescription": "Tout le monde peut ouvrir ce catalogue depuis son adresse simple, sans le lien privé.",
       "publicBadge": "Public",
       "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé."
+    },
+    "statsSync": {
+      "key": {
+        "heading": "Synchronisation des statistiques auto-hébergées",
+        "description": "Tu fais tourner Mault sur ton propre serveur ? Génère une clé ici et saisis-la sur ton serveur dans Paramètres > Intégrations. Ton serveur envoie alors ses totaux de scans ici une fois par jour, en commençant par tous les jours déjà scannés. Seuls les nombres de scans quotidiens sont envoyés, jamais les cartes, photos ou collections. Les scans synchronisés apparaissent dans le classement marqués comme auto-hébergés, et chacun peut les masquer.",
+        "generate": "Générer une clé",
+        "regenerate": "Remplacer la clé",
+        "revoke": "Révoquer",
+        "revoked": "Clé de synchronisation révoquée.",
+        "generateFailed": "Impossible de générer une clé de synchronisation.",
+        "revokeFailed": "Impossible de révoquer la clé de synchronisation.",
+        "loadFailed": "Impossible de charger la clé de synchronisation.",
+        "empty": "Aucun serveur auto-hébergé n'est lié à cette organisation.",
+        "managersOnly": "Seuls les propriétaires et administrateurs de l'organisation peuvent gérer la clé de synchronisation.",
+        "createdBy": "Créée par {{name}} le {{date}}",
+        "lastSynced": "Dernière synchronisation le {{date}}",
+        "neverSynced": "Pas encore synchronisée",
+        "syncedScans_one": "{{formattedCount}} scan synchronisé",
+        "syncedScans_other": "{{formattedCount}} scans synchronisés",
+        "revealTitle": "Copie ta clé de synchronisation",
+        "revealDescription": "C'est la seule fois où la clé complète est affichée. Colle-la sur ton serveur auto-hébergé dans Paramètres > Intégrations.",
+        "revealDone": "Je l'ai copiée",
+        "copy": "Copier la clé",
+        "copied": "Clé de synchronisation copiée.",
+        "copyFailed": "Impossible de copier la clé de synchronisation.",
+        "regenerateConfirmTitle": "Remplacer la clé de synchronisation ?",
+        "regenerateConfirmDescription": "La clé actuelle cesse de fonctionner immédiatement. Ton serveur ne pourra plus synchroniser tant que tu n'y auras pas saisi la nouvelle clé. Les scans déjà synchronisés restent.",
+        "revokeConfirmTitle": "Révoquer la clé de synchronisation ?",
+        "revokeConfirmDescription": "Ton serveur arrête immédiatement la synchronisation. Les scans déjà synchronisés restent dans le classement.",
+        "actionsTitle": "Clé de synchronisation",
+        "share": "Partager la clé",
+        "generateTitle": "Générer une clé de synchronisation"
+      },
+      "connection": {
+        "heading": "Synchroniser les statistiques avec Mault",
+        "description": "Ajoute les nombres de scans de cette organisation aux classements Mault. Crée une organisation sur {{url}}, génère une clé de synchronisation dans Paramètres > Intégrations et colle-la ici. Tous tes scans passés sont envoyés d'abord, puis les nouveaux totaux une fois par jour. Seuls les nombres de scans quotidiens sont envoyés, jamais les cartes, photos ou collections.",
+        "keyLabel": "Clé de synchronisation",
+        "keyPlaceholder": "mvstats_...",
+        "keyDescription": "Générée par ton organisation sur le site principal de Mault.",
+        "connect": "Connecter",
+        "connectFailed": "Le site principal de Mault n'a pas accepté cette clé. Vérifie que tu l'as copiée en entier et qu'elle n'a pas été révoquée ou remplacée.",
+        "syncNow": "Synchroniser maintenant",
+        "syncFailed": "Impossible de synchroniser les statistiques.",
+        "disconnect": "Déconnecter",
+        "disconnected": "Synchronisation des statistiques déconnectée.",
+        "disconnectFailed": "Impossible de déconnecter la synchronisation.",
+        "disconnectConfirmTitle": "Arrêter la synchronisation ?",
+        "disconnectConfirmDescription": "Les nouveaux scans ne sont plus envoyés. Les scans déjà synchronisés restent sur le site principal jusqu'à ce que la clé y soit révoquée.",
+        "loadFailed": "Impossible de charger les paramètres de synchronisation.",
+        "managersOnly": "Seuls les propriétaires et administrateurs de l'organisation peuvent gérer la synchronisation.",
+        "notConnected": "Cette organisation ne synchronise pas ses statistiques.",
+        "lastSynced": "Dernière synchronisation le {{date}}",
+        "neverSynced": "Pas encore synchronisée",
+        "syncedScans_one": "{{formattedCount}} scan sur le site principal",
+        "syncedScans_other": "{{formattedCount}} scans sur le site principal",
+        "errors": {
+          "invalidKey": "Le site principal n'accepte plus cette clé. Génères-y une nouvelle clé, puis déconnecte et reconnecte.",
+          "unreachable": "Impossible de joindre le site principal de Mault. Nouvel essai dans l'heure.",
+          "rejected": "Le site principal de Mault a refusé la dernière synchronisation. Nouvel essai dans l'heure."
+        },
+        "actionsTitle": "Synchronisation des statistiques",
+        "syncing": "Synchronisation...",
+        "synced": "Statistiques synchronisées.",
+        "connected": "Synchronisation des statistiques connectée."
+      },
+      "cancel": "Annuler"
     }
   },
   "binCorrection": {
@@ -2434,7 +2510,9 @@
     "low": "Bas",
     "regular": "Normale",
     "foil": "Foil",
-    "noPrice": "Pas de prix"
+    "noPrice": "Pas de prix",
+    "listingsHeading": "Annonces TCGplayer",
+    "noListings": "Aucune annonce"
   },
   "health": {
     "title": "État du système",
@@ -2575,7 +2653,10 @@
     "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
     "contactRequired": "Indique comment te joindre.",
     "textTooLong": "Reste sous {{max}} caractères.",
-    "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}."
+    "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}.",
+    "statsSyncKeyInvalid": "Colle la clé entière. Elle commence par mvstats_.",
+    "expiryDaysInvalid": "Saisissez des nombres entiers de jours entre 1 et {{max}}, séparés par des virgules.",
+    "expiryDaysTooMany": "Saisissez au maximum {{max}} durées."
   },
   "cardTags": {
     "title": "Étiquettes",
@@ -2862,7 +2943,7 @@
         },
         "longShareLinks": {
           "label": "Liens de suivi plus longs",
-          "description": "Les liens de suivi peuvent durer 1, 7 ou 30 jours. Sans cela, ils durent 1 heure. Les liens d'échange durent toujours 1 heure."
+          "description": "Les liens de suivi peuvent durer l'une des durées en jours définies sur le web dans Admin > Liens de partage. Sans cela, ils utilisent la durée courte définie là."
         }
       },
       "limits": {

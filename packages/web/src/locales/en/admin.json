@@ -11,6 +11,7 @@
     "sounds": "Sounds",
     "deleted": "Deleted and unmatched",
     "shortLinks": "Short links",
+    "shareLinks": "Share links",
     "hardware": "Hardware",
     "developer": "Developer",
     "whatsNew": "What's new"
@@ -362,7 +363,7 @@
       },
       "longShareLinks": {
         "label": "Longer monitor links",
-        "description": "Monitor links can last 1, 7 or 30 days. Without it they last 1 hour. Trade links always last 1 hour."
+        "description": "Monitor links can last any of the day lengths set on the web in Admin > Share links. Without it they use the short length set there."
       }
     },
     "limits": {
@@ -592,6 +593,28 @@
       "disabled": "Short links are off on this server.",
       "codeTaken": "That code is already in use. Pick another.",
       "notFound": "That short link no longer exists."
+    }
+  },
+  "shareLinkLengths": {
+    "heading": "Share link lengths",
+    "description": "How long new monitor and trade links last. A shorter length also cuts links that are already shared. A longer one applies to links made after you save.",
+    "restoreDefaults": "Restore defaults",
+    "saved": "Share link lengths saved.",
+    "saveFailed": "Couldn't save the share link lengths.",
+    "loadFailed": "Couldn't load the share link lengths.",
+    "fields": {
+      "tradeLinkHours": {
+        "label": "Trade links (hours)",
+        "description": "Every trade link lasts this long. Up to {{max}} hours."
+      },
+      "restrictedShareLinkHours": {
+        "label": "Monitor links without longer links (hours)",
+        "description": "How long monitor links last on plans without longer monitor links. Up to {{max}} hours."
+      },
+      "monitorLinkExpiryDays": {
+        "label": "Monitor link choices (days)",
+        "description": "The lengths plans with longer monitor links can pick from, separated by commas. Up to {{maxOptions}} choices of 1 to {{maxDays}} days. The longest one also caps links already shared."
+      }
     }
   },
   "featureHighlights": {

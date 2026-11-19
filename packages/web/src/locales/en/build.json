@@ -75,7 +75,8 @@
       "modules_one": "{{count}} module",
       "modules_other": "{{count}} modules"
     },
-    "shopNote": "Would rather not source every part yourself? The <0>Mault shop</0> sells kits with everything except the 3D-printed parts. You'll still need to print those yourself."
+    "shopNote": "Would rather not source every part yourself? The <0>Mault shop</0> sells kits with everything except the 3D-printed parts. You'll still need to print those yourself.",
+    "recommended": "Recommended"
   },
   "bom": {
     "heading": "Bill of materials",

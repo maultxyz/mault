@@ -1,4 +1,7 @@
-import { LEADERBOARD_SIZE } from "@magic-vault/shared";
+import {
+  LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM,
+  LEADERBOARD_SIZE,
+} from "@magic-vault/shared";
 import { Hono } from "hono";
 import {
   loadLeaderboard,
@@ -13,19 +16,21 @@ export const botLeaderboardRoute = new Hono<AppEnv>().get(
   async (c) => {
     const guildId = c.req.query("guildId");
     const orgId = guildId ? await resolveOrgByGuild(guildId) : null;
+    const includeSelfHosted =
+      c.req.query(LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM) === "true";
 
     if (!orgId) {
       return c.json({
         success: true,
         data: {
-          rows: await loadTopLeaderboardEntries(),
+          rows: await loadTopLeaderboardEntries(includeSelfHosted),
           size: LEADERBOARD_SIZE,
           linkedOrgOptedIn: null,
         },
       });
     }
 
-    const leaderboard = await loadLeaderboard(orgId);
+    const leaderboard = await loadLeaderboard(orgId, includeSelfHosted);
     return c.json({
       success: true,
       data: {

@@ -7,31 +7,44 @@ import {
   isSoundPlaying,
   playSoundExclusively,
 } from "@/features/sounds/lib/sound-playback";
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import {
   selectScanSound,
   type FieldMeta,
   type PlayingCard,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 
 export function useSoundRulePlayer(
   gameGuid: string | undefined,
   fieldDefinitions: FieldMeta[],
 ) {
   const { activeOrg } = useOrg();
-  const { data: rules = [] } = useQuery(
-    soundRulesQueryOptions(activeOrg?.id, gameGuid),
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
+  const { data: rules = [] } = useQuery({
+    ...soundRulesQueryOptions(activeOrg?.id, gameGuid),
+    enabled: !!activeOrg?.id && !!gameGuid && areSecondaryRequestsEnabled,
+  });
+  const clipGuidsUsedByEnabledRules = useMemo(
+    () =>
+      new Set(
+        rules
+          .filter((rule) => rule.isEnabled && rule.clipGuid)
+          .map((rule) => rule.clipGuid!),
+      ),
+    [rules],
   );
-  const { data: clips = [] } = useQuery(
-    soundClipsQueryOptions(activeOrg?.id),
-  );
+  const { data: clips = [] } = useQuery({
+    ...soundClipsQueryOptions(activeOrg?.id),
+    enabled: !!activeOrg?.id && clipGuidsUsedByEnabledRules.size > 0,
+  });
 
   const audioByClipRef = useRef(new Map<string, HTMLAudioElement>());
   useEffect(() => {
     const next = new Map<string, HTMLAudioElement>();
     for (const clip of clips) {
-      if (!clip.url) continue;
+      if (!clip.url || !clipGuidsUsedByEnabledRules.has(clip.guid)) continue;
       const existing = audioByClipRef.current.get(clip.guid);
       if (existing && existing.src === clip.url) {
         next.set(clip.guid, existing);
@@ -42,7 +55,7 @@ export function useSoundRulePlayer(
       next.set(clip.guid, audio);
     }
     audioByClipRef.current = next;
-  }, [clips]);
+  }, [clips, clipGuidsUsedByEnabledRules]);
 
   const latestRef = useRef({ rules, fieldDefinitions });
   latestRef.current = { rules, fieldDefinitions };

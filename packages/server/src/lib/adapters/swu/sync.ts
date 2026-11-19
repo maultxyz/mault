@@ -22,6 +22,7 @@ function toSyncCard(raw: SwuCard): SyncSourceCard {
       name: swuCardName(raw),
       setCode: raw.Set,
       imageUrl: raw.FrontArt,
+      backImageUrl: raw.BackArt || undefined,
     },
     raw,
   );

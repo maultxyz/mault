@@ -147,6 +147,7 @@ export const GRAND_ARCHIVE_RARITY_NAMES: Record<number, string> = {
   8: "Collector Ultra Rare",
   9: "Collector Promo Rare",
 };
+export const GRAND_ARCHIVE_BACK_ORIENTATION = "back";
 export const GRAND_ARCHIVE_PROMO_RARITIES = new Set([6, 9]);
 
 export const MATCH_MAX_DISTANCE_RATIO = 0.9;

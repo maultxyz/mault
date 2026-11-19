@@ -15,7 +15,11 @@ import type {
   ShowoffResult,
   StatsResult,
 } from "./lib/interfaces";
-import { BOT_API_SECRET, SERVER_URL } from "./lib/constants";
+import {
+  BOT_API_SECRET,
+  LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM,
+  SERVER_URL,
+} from "./lib/constants";
 
 async function botFetch<T>(
   path: string,
@@ -89,9 +93,17 @@ export function getShowcase(
   return botFetch<ShowcaseResult>(`/bot/showcase?${query.toString()}`);
 }
 
-export function getLeaderboard(guildId: string | null) {
-  const query = guildId ? `?guildId=${encodeURIComponent(guildId)}` : "";
-  return botFetch<LeaderboardResult>(`/bot/leaderboard${query}`);
+export function getLeaderboard(
+  guildId: string | null,
+  includeSelfHosted: boolean,
+) {
+  const query = new URLSearchParams();
+  if (guildId) query.set("guildId", guildId);
+  if (includeSelfHosted) query.set(LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM, "true");
+  const queryString = query.toString();
+  return botFetch<LeaderboardResult>(
+    `/bot/leaderboard${queryString ? `?${queryString}` : ""}`,
+  );
 }
 
 export function getCollections(guildId: string) {

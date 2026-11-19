@@ -349,4 +349,6 @@ export const OCR_REGIONS_BY_GAME_KEY: Record<string, OcrRegion[]> = {
 export const DISTANCE_THRESHOLD = 0.4;
 export const CLOSE_MATCH_DELTA = 0.05;
 
+export const UNCONFIRMED_TEXT_MATCH_MAX_DISTANCE_GAP = 0.1;
+
 export const OCR_FIXED_REGION_PADDING_OF_CARD_WIDTH = 0.05;

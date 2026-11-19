@@ -116,12 +116,14 @@ export interface PriceTableData {
   rows: PriceTableRow[];
   highlightColumn: number;
   format: (value: number) => string;
+  missingValueLabel?: string;
 }
 
 export interface PriceSourceSection {
   source: PriceSource;
   headline: PriceHeadline;
   table: PriceTableData;
+  extraTables?: PriceTableData[];
 }
 
 export interface ExportSheetProps {

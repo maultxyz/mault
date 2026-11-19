@@ -4,6 +4,7 @@ import { db } from "../db";
 import { tcgplayerSkus, tcgplayerSkuSets } from "../db/schema";
 import {
   TCGPLAYER_SKU_CONDITION_COLUMNS,
+  TCGPLAYER_SKU_CONDITION_LISTING_COUNT_COLUMNS,
   TCGPLAYER_SKU_CONDITION_PRICE_COLUMNS,
   TCGPLAYER_SKU_UPSERT_BATCH_SIZE,
   TCGTRACKING_PROGRESS_LOG_EVERY_SETS,
@@ -39,6 +40,7 @@ function toSkuRows(
       };
       row[TCGPLAYER_SKU_CONDITION_COLUMNS[sku.condition]] = skuId;
       row[TCGPLAYER_SKU_CONDITION_PRICE_COLUMNS[sku.condition]] = sku.marketPrice;
+      row[TCGPLAYER_SKU_CONDITION_LISTING_COUNT_COLUMNS[sku.condition]] = sku.listingCount;
       rowsByKey.set(key, row);
     }
   }

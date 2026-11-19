@@ -18,6 +18,7 @@ import type {
 import {
   fetchCardByEditionSlug,
   findGrandArchiveEdition,
+  grandArchiveBackImageUrl,
   grandArchiveSearchUrl,
 } from "./search";
 
@@ -33,6 +34,7 @@ function toSyncCard(
       imageUrl: edition.image
         ? `${GRAND_ARCHIVE_API_ROOT}${edition.image}`
         : undefined,
+      backImageUrl: grandArchiveBackImageUrl(edition) ?? undefined,
     },
     card,
   );
