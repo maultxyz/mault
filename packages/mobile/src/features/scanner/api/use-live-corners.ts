@@ -4,16 +4,18 @@ import { maxCornerShift } from "@magic-vault/shared";
 import { detectCornersInImage } from "@/features/scanner/lib/inference";
 import {
   LIVE_DETECTION_INTERVAL_MS,
+  LIVE_DETECTION_MIN_GAP_MS,
   LIVE_OUTLINE_DEADBAND_RATIO,
   LIVE_OUTLINE_MISSES_BEFORE_HIDE,
 } from "@/lib/constants/scanner";
-import type { LiveCorners } from "@/lib/interfaces/scanner";
+import type { LiveCorners, LiveFrameInspector } from "@/lib/interfaces/scanner";
 
 export function useLiveCorners(
   grabLiveFrame: () => Promise<Image>,
   active: boolean,
   paused: boolean,
   onDetection?: (corners: LiveCorners | null) => void,
+  onLiveFrame?: LiveFrameInspector,
 ): LiveCorners | null {
   const [corners, setCorners] = useState<LiveCorners | null>(null);
   const busyRef = useRef(false);
@@ -23,6 +25,8 @@ export function useLiveCorners(
   pausedRef.current = paused;
   const onDetectionRef = useRef(onDetection);
   onDetectionRef.current = onDetection;
+  const onLiveFrameRef = useRef(onLiveFrame);
+  onLiveFrameRef.current = onLiveFrame;
 
   useEffect(() => {
     if (!active) {
@@ -54,9 +58,21 @@ export function useLiveCorners(
       setCorners(detected);
     };
     let cancelled = false;
-    const interval = setInterval(() => {
-      if (busyRef.current || pausedRef.current) return;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+    const scheduleNextDetection = (delayMs: number) => {
+      if (!cancelled) timer = setTimeout(detectOnce, delayMs);
+    };
+    const detectOnce = () => {
+      if (busyRef.current) {
+        scheduleNextDetection(LIVE_DETECTION_MIN_GAP_MS);
+        return;
+      }
+      if (pausedRef.current) {
+        scheduleNextDetection(LIVE_DETECTION_INTERVAL_MS);
+        return;
+      }
       busyRef.current = true;
+      const startedAt = Date.now();
       void grabLiveFrame()
         .then(async (image) => {
           if (pausedRef.current) return;
@@ -68,6 +84,9 @@ export function useLiveCorners(
               : null;
           show(next);
           onDetectionRef.current?.(next);
+          try {
+            await onLiveFrameRef.current?.(image, next !== null);
+          } catch {}
         })
         .catch(() => {
           if (cancelled) return;
@@ -76,11 +95,15 @@ export function useLiveCorners(
         })
         .finally(() => {
           busyRef.current = false;
+          scheduleNextDetection(
+            Math.max(LIVE_DETECTION_MIN_GAP_MS, LIVE_DETECTION_INTERVAL_MS - (Date.now() - startedAt)),
+          );
         });
-    }, LIVE_DETECTION_INTERVAL_MS);
+    };
+    scheduleNextDetection(LIVE_DETECTION_INTERVAL_MS);
     return () => {
       cancelled = true;
-      clearInterval(interval);
+      if (timer) clearTimeout(timer);
     };
   }, [grabLiveFrame, active]);
 

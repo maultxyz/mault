@@ -16,6 +16,7 @@ import {
 import { cachedDisplayName } from "../lib/display-name-cache";
 import { createKeyedCache } from "../lib/keyed-cache";
 import {
+  invalidateOrgCardReadCaches,
   invalidateOrgReadCaches,
   isMutatingRequestMethod,
 } from "../lib/org-read-cache";
@@ -41,6 +42,7 @@ export type AppVariables = {
   orgRole: OrgRole;
   impersonatedBy: string | null;
   skipsOrgReadCacheInvalidation: boolean;
+  invalidatesOnlyOrgCardReadCaches: boolean;
 };
 export type AppEnv = { Variables: AppVariables; Bindings: ServerScanBindings };
 
@@ -245,7 +247,11 @@ export const requireOrg = createMiddleware<AppEnv>(async (c, next) => {
         c.get("skipsOrgReadCacheInvalidation") === true,
       )
     ) {
-      invalidateOrgReadCaches(orgId);
+      if (c.get("invalidatesOnlyOrgCardReadCaches") === true) {
+        invalidateOrgCardReadCaches(orgId);
+      } else {
+        invalidateOrgReadCaches(orgId);
+      }
     }
   }
 });
@@ -260,6 +266,13 @@ export function requestInvalidatesOrgReadCaches(
 export const markRequestAsReadOnly = createMiddleware<AppEnv>(
   async (c, next) => {
     c.set("skipsOrgReadCacheInvalidation", true);
+    await next();
+  },
+);
+
+export const markRequestAsCardWrite = createMiddleware<AppEnv>(
+  async (c, next) => {
+    c.set("invalidatesOnlyOrgCardReadCaches", true);
     await next();
   },
 );

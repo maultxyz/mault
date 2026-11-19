@@ -19,7 +19,7 @@ import { Screen } from "@/components/ui/screen";
 import { useMachineLabels } from "@/features/machines/api/use-machine-labels";
 import { MachinePageDots } from "@/features/machines/components/machine-page-dots";
 import { MachinePanel } from "@/features/machines/components/machine-panel";
-import { useAppStream } from "@/features/stream/api/use-app-stream";
+import { useMachineStatuses } from "@/features/stream/api/use-app-stream";
 import { useTheme } from "@/hooks/use-theme";
 import { MACHINES_TABLET_MIN_WIDTH } from "@/lib/constants/machines";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
@@ -146,7 +146,7 @@ function TabletMachinesGrid({ machines }: MachinesLayoutProps) {
 
 export default function MachinesScreen() {
   const { t } = useTranslation();
-  const { machines } = useAppStream();
+  const machines = useMachineStatuses();
   const { width } = useWindowDimensions();
   const isTablet = width >= MACHINES_TABLET_MIN_WIDTH;
 

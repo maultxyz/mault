@@ -916,6 +916,7 @@
         "removing": "Retrait"
       },
       "saved": "{{name}} enregistrée",
+      "downloadingModels": "Téléchargement des modèles {{percent}} %",
       "offline": "Hors ligne"
     },
     "unmatchedRecovery": {

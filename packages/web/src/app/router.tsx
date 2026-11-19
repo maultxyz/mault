@@ -14,12 +14,10 @@ import {
   MOBILE_SORTER_PATH,
 } from "@/lib/constants/nav";
 import { COLLECTIONS_PATH } from "@/lib/constants/collections";
-import AuthGuard from "@/app/routes/auth-guard";
 import ErrorPage from "@/app/routes/error";
 import { MarketingRoute } from "@/app/marketing-route";
 import { MARKETING_PAGE_PATHS } from "@/lib/constants/marketing-pages";
 import NotFoundPage from "@/app/routes/not-found";
-import { RequireCollectionDialog } from "@/components/require-collection-dialog";
 import { RouteLoadingFallback } from "@/components/route-loading-fallback";
 import { CALIBRATE_PATH } from "@/lib/constants/calibration";
 import { useIsMobile } from "@/hooks/use-is-mobile";
@@ -27,7 +25,12 @@ import { usePiHost, usePiHostState } from "@/hooks/use-pi-host";
 import { useRole } from "@/hooks/use-role";
 import { useImpersonation } from "@/hooks/use-impersonation";
 import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked-while-impersonating";
-import { ALL_NAMESPACES, withNamespaces } from "@/lib/i18n";
+import {
+  ALL_NAMESPACES,
+  APP_SHELL_NAMESPACES,
+  withNamespaces,
+} from "@/lib/i18n";
+import { lazyRoute, registerPreloadableRoutes } from "@/lib/route-chunks";
 import { MACHINES_ROUTE_PATH } from "@/lib/constants/machines";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import {
@@ -83,58 +86,65 @@ import {
   LEGACY_REPORTS_PATH,
 } from "@/lib/constants/business";
 
-const WatchPage = lazy(
+const loadAuthGuard = () => import("@/app/routes/auth-guard");
+const AuthGuard = lazy(loadAuthGuard);
+const RequireCollectionDialog = lazy(() =>
+  import("@/components/require-collection-dialog").then((module) => ({
+    default: module.RequireCollectionDialog,
+  })),
+);
+const WatchPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/watch"),
     ["common", "scanner", "cards", "collections"],
   ),
 );
-const SharedStoragePage = lazy(
+const SharedStoragePage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/shared-storage"),
     ["common", "storage", "cards"],
   ),
 );
-const SharedCardPage = lazy(
+const SharedCardPage = lazyRoute(
   withNamespaces(() => import("@/app/routes/shared-card"), ["common", "cards"]),
 );
-const ShopCatalogPage = lazy(
+const ShopCatalogPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/shop-catalog"),
     ["common", "business", "cards"],
   ),
 );
-const LinkNotFoundPage = lazy(
+const LinkNotFoundPage = lazyRoute(
   withNamespaces(() => import("@/app/routes/link-not-found"), ["common"]),
 );
-const AuthPage = lazy(
+const AuthPage = lazyRoute(
   withNamespaces(() => import("@/app/routes/neon/auth"), ["common", "auth"]),
 );
-const MobileAuthCallbackPage = lazy(
+const MobileAuthCallbackPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/neon/mobile-auth-callback"),
     ["common", "auth"],
   ),
 );
-const AuthLocalPage = lazy(
+const AuthLocalPage = lazyRoute(
   withNamespaces(() => import("@/app/routes/local/auth"), ["common", "auth"]),
 );
-const AuthJoinPage = lazy(
+const AuthJoinPage = lazyRoute(
   withNamespaces(() => import("@/app/routes/local/join"), ["common", "auth"]),
 );
-const AuthForgotPasswordPage = lazy(
+const AuthForgotPasswordPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/local/forgot-password"),
     ["common", "auth"],
   ),
 );
-const AuthResetPasswordPage = lazy(
+const AuthResetPasswordPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/local/reset-password"),
     ["common", "auth"],
   ),
 );
-const VerifyEmailPage = lazy(
+const VerifyEmailPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/app/neon/verify-email"),
     ALL_NAMESPACES,
@@ -142,140 +152,194 @@ const VerifyEmailPage = lazy(
 );
 const loadAppLayout = withNamespaces(
   () => import("@/app/routes/app/layout"),
-  ALL_NAMESPACES,
+  APP_SHELL_NAMESPACES,
 );
 const loadScannerPage = () => import("@/app/routes/app/index");
 const loadHomePage = () => import("@/app/routes/app/home");
-const HomePage = lazy(loadHomePage);
+const HomePage = lazyRoute(loadHomePage);
 const loadLibraryPage = () => import("@/app/routes/app/library");
 const loadCollectionsPage = () => import("@/app/routes/app/collections");
 const loadCollectionViewPage = () => import("@/app/routes/app/collection-view");
 const loadStoragePage = () => import("@/app/routes/app/storage");
-const loadStatsPage = () => import("@/app/routes/app/stats");
-const LibraryPage = lazy(loadLibraryPage);
-const GlobalSearchRedirect = lazy(() => import("@/app/routes/app/search"));
-const CatalogCardPage = lazy(() => import("@/app/routes/app/catalog-card"));
-const AppLayout = lazy(loadAppLayout);
-const ScannerPage = lazy(loadScannerPage);
-const CollectionsPage = lazy(loadCollectionsPage);
-const CollectionViewPage = lazy(loadCollectionViewPage);
-const BinsPage = lazy(() => import("@/app/routes/app/bins"));
-const ValidateMatchesPage = lazy(
-  () => import("@/app/routes/app/validate-matches"),
+const loadStatsPage = withNamespaces(
+  () => import("@/app/routes/app/stats"),
+  ["stats"],
 );
-const PresetWorkflowPage = lazy(
+const LibraryPage = lazyRoute(loadLibraryPage);
+const GlobalSearchRedirect = lazyRoute(() => import("@/app/routes/app/search"));
+const CatalogCardPage = lazyRoute(() => import("@/app/routes/app/catalog-card"));
+const AppLayout = lazyRoute(loadAppLayout);
+const ScannerPage = lazyRoute(loadScannerPage);
+const CollectionsPage = lazyRoute(loadCollectionsPage);
+const CollectionViewPage = lazyRoute(loadCollectionViewPage);
+const BinsPage = lazyRoute(() => import("@/app/routes/app/bins"));
+const ValidateMatchesPage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/app/validate-matches"),
+    ["matchValidations"],
+  ),
+);
+const PresetWorkflowPage = lazyRoute(
   () => import("@/app/routes/app/preset-workflow"),
 );
-const CalibrateLayout = lazy(() => import("@/app/routes/app/calibrate/layout"));
-const CalibrateConnectionPage = lazy(
+const CalibrateLayout = lazyRoute(() => import("@/app/routes/app/calibrate/layout"));
+const CalibrateConnectionPage = lazyRoute(
   () => import("@/app/routes/app/calibrate/connection"),
 );
-const CalibrateSorterLayoutPage = lazy(
+const CalibrateSorterLayoutPage = lazyRoute(
   () => import("@/app/routes/app/calibrate/sorter-layout"),
 );
-const CalibrateTestPage = lazy(() => import("@/app/routes/app/calibrate/test"));
-const CalibrateScanRegionPage = lazy(
+const CalibrateTestPage = lazyRoute(() => import("@/app/routes/app/calibrate/test"));
+const CalibrateScanRegionPage = lazyRoute(
   () => import("@/app/routes/app/calibrate/scan-region"),
 );
-const CalibrateCalibrationPage = lazy(
+const CalibrateCalibrationPage = lazyRoute(
   () => import("@/app/routes/app/calibrate/calibration"),
 );
-const AdminLayout = lazy(() => import("@/app/routes/app/admin/layout"));
-const AdminIndexPage = lazy(() => import("@/app/routes/app/admin/index"));
-const AdminCardsPage = lazy(() => import("@/app/routes/app/admin/cards"));
-const AdminGameEditorPage = lazy(
-  () => import("@/app/routes/app/admin/game-editor"),
+const AdminLayout = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/admin/layout"), ["admin"]),
 );
-const AdminUsersPage = lazy(() => import("@/app/routes/app/admin/users"));
-const AdminPlansPage = lazy(() => import("@/app/routes/app/admin/plans"));
-const AdminDiscordPage = lazy(() => import("@/app/routes/app/admin/discord"));
-const AdminSoundsPage = lazy(() => import("@/app/routes/app/admin/sounds"));
-const AdminDeletedPage = lazy(() => import("@/app/routes/app/admin/deleted"));
-const AdminHardwarePage = lazy(() => import("@/app/routes/app/admin/hardware"));
-const AdminShortLinksPage = lazy(
-  () => import("@/app/routes/app/admin/short-links"),
+const AdminIndexPage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/admin/index"), ["admin"]),
 );
-const AdminDeveloperPage = lazy(
-  () => import("@/app/routes/app/admin/developer"),
+const AdminCardsPage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/app/admin/cards"),
+    ["admin", "games"],
+  ),
 );
-const MonitorPage = lazy(() => import("@/app/routes/app/monitor"));
-const MachinesPage = lazy(
+const AdminGameEditorPage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/app/admin/game-editor"),
+    ["admin", "games"],
+  ),
+);
+const AdminUsersPage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/admin/users"), ["admin"]),
+);
+const AdminPlansPage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/admin/plans"), ["admin"]),
+);
+const AdminDiscordPage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/app/admin/discord"),
+    ["admin", "integrations"],
+  ),
+);
+const AdminSoundsPage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/app/admin/sounds"),
+    ["admin", "sounds"],
+  ),
+);
+const AdminDeletedPage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/admin/deleted"), ["admin"]),
+);
+const AdminHardwarePage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/admin/hardware"), ["admin"]),
+);
+const AdminShortLinksPage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/app/admin/short-links"),
+    ["admin"],
+  ),
+);
+const AdminDeveloperPage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/admin/developer"), ["admin"]),
+);
+const MonitorPage = lazyRoute(() => import("@/app/routes/app/monitor"));
+const MachinesPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/app/machines"),
     ["common", "machines", "scanner"],
   ),
 );
-const PhoneCameraPage = lazy(() => import("@/app/routes/app/phone-camera"));
-const ScanPage = lazy(() => import("@/app/routes/app/scan"));
-const ScanPairPage = lazy(() => import("@/app/routes/app/scan-pair"));
-const SorterPage = lazy(() => import("@/app/routes/app/sorter"));
-const MePage = lazy(() => import("@/app/routes/app/me"));
-const SettingsLayout = lazy(() => import("@/app/routes/app/settings/layout"));
-const SettingsIndexRedirect = lazy(
+const PhoneCameraPage = lazyRoute(() => import("@/app/routes/app/phone-camera"));
+const ScanPage = lazyRoute(() => import("@/app/routes/app/scan"));
+const ScanPairPage = lazyRoute(() => import("@/app/routes/app/scan-pair"));
+const SorterPage = lazyRoute(() => import("@/app/routes/app/sorter"));
+const MePage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/me"), ["health"]),
+);
+const SettingsLayout = lazyRoute(() => import("@/app/routes/app/settings/layout"));
+const SettingsIndexRedirect = lazyRoute(
   () => import("@/app/routes/app/settings/index"),
 );
-const SettingsGeneralPage = lazy(
+const SettingsGeneralPage = lazyRoute(
   () => import("@/app/routes/app/settings/general"),
 );
-const SettingsOrganizationPage = lazy(
+const SettingsOrganizationPage = lazyRoute(
   () => import("@/app/routes/app/settings/organization"),
 );
-const SettingsBillingPage = lazy(
+const SettingsBillingPage = lazyRoute(
   () => import("@/app/routes/app/settings/billing"),
 );
-const SettingsScanningPage = lazy(
+const SettingsScanningPage = lazyRoute(
   () => import("@/app/routes/app/settings/scanning"),
 );
-const SettingsPricingPage = lazy(
+const SettingsPricingPage = lazyRoute(
   () => import("@/app/routes/app/settings/pricing"),
 );
-const SettingsBusinessPage = lazy(
+const SettingsBusinessPage = lazyRoute(
   () => import("@/app/routes/app/settings/business"),
 );
-const SettingsSoundsPage = lazy(
-  () => import("@/app/routes/app/settings/sounds"),
+const SettingsSoundsPage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/settings/sounds"), ["sounds"]),
 );
-const SettingsIntegrationsPage = lazy(
-  () => import("@/app/routes/app/settings/integrations"),
+const SettingsIntegrationsPage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/app/settings/integrations"),
+    ["integrations"],
+  ),
 );
-const SettingsNotificationsPage = lazy(
-  () => import("@/app/routes/app/settings/notifications"),
+const SettingsNotificationsPage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/app/settings/notifications"),
+    ["integrations", "notifications"],
+  ),
 );
-const AccountPage = lazy(() => import("@/app/routes/app/account"));
-const HealthPage = lazy(() => import("@/app/routes/app/health"));
-const SortersPage = lazy(() => import("@/app/routes/app/sorters"));
-const StoragePage = lazy(loadStoragePage);
-const TradesPage = lazy(() => import("@/app/routes/app/trades"));
-const InPersonTradePage = lazy(
+const AccountPage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/account"), ["account"]),
+);
+const HealthPage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/health"), ["games", "health"]),
+);
+const SortersPage = lazyRoute(() => import("@/app/routes/app/sorters"));
+const StoragePage = lazyRoute(loadStoragePage);
+const TradesPage = lazyRoute(() => import("@/app/routes/app/trades"));
+const InPersonTradePage = lazyRoute(
   () => import("@/app/routes/app/in-person-trade"),
 );
-const TradeOfferRoutePage = lazy(() => import("@/app/routes/app/trade-offer"));
-const SentTradeOfferRoutePage = lazy(
+const TradeOfferRoutePage = lazyRoute(() => import("@/app/routes/app/trade-offer"));
+const SentTradeOfferRoutePage = lazyRoute(
   () => import("@/app/routes/app/sent-trade-offer"),
 );
-const StoragePickListPage = lazy(
-  () => import("@/app/routes/app/storage-pick-list"),
+const StoragePickListPage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/app/storage-pick-list"),
+    ["csvImport"],
+  ),
 );
-const StorageLabelsPage = lazy(() => import("@/app/routes/app/storage-labels"));
-const StatsPage = lazy(loadStatsPage);
-const IntakePage = lazy(() => import("@/app/routes/app/intake"));
-const PicksPage = lazy(() => import("@/app/routes/app/picks"));
-const PriceLabelsPage = lazy(() => import("@/app/routes/app/price-labels"));
-const PickBatchPage = lazy(() => import("@/app/routes/app/pick-batch"));
-const PackingSlipsPage = lazy(() => import("@/app/routes/app/packing-slips"));
-const PickImportPage = lazy(
+const StorageLabelsPage = lazyRoute(() => import("@/app/routes/app/storage-labels"));
+const StatsPage = lazyRoute(loadStatsPage);
+const IntakePage = lazyRoute(() => import("@/app/routes/app/intake"));
+const PicksPage = lazyRoute(() => import("@/app/routes/app/picks"));
+const PriceLabelsPage = lazyRoute(() => import("@/app/routes/app/price-labels"));
+const PickBatchPage = lazyRoute(() => import("@/app/routes/app/pick-batch"));
+const PackingSlipsPage = lazyRoute(() => import("@/app/routes/app/packing-slips"));
+const PickImportPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/app/pick-import"),
     ["common", "business", "csvImport"],
   ),
 );
-const ControlCardsPage = lazy(
+const ControlCardsPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/app/control-cards"),
     ["common", "scanner", "cards"],
   ),
 );
-const IntakeReceiptPage = lazy(
+const IntakeReceiptPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/app/intake-receipt"),
     ["common", "business"],
@@ -288,6 +352,7 @@ function AppChunkPreloader() {
   const isInApp = useLocation().pathname.startsWith("/app");
   useEffect(() => {
     const ignoreFailure = () => {};
+    loadAuthGuard().catch(ignoreFailure);
     loadAppLayout().catch(ignoreFailure);
     loadHomePage().catch(ignoreFailure);
     if (!isMobile || piHost) loadScannerPage().catch(ignoreFailure);
@@ -372,7 +437,9 @@ function LegacyIntakeReceiptRedirect() {
 function RequireCollectionGuard() {
   return (
     <>
-      <RequireCollectionDialog />
+      <Suspense fallback={null}>
+        <RequireCollectionDialog />
+      </Suspense>
       <Outlet />
     </>
   );
@@ -478,10 +545,12 @@ export const routes: RouteObject[] = [
         : []),
       {
         element: (
-          <Suspense fallback={<RouteLoadingFallback />}>
+          <>
             <AppChunkPreloader />
-            <AuthGuard />
-          </Suspense>
+            <Suspense fallback={<RouteLoadingFallback />}>
+              <AuthGuard />
+            </Suspense>
+          </>
         ),
         children: [
           {
@@ -871,3 +940,5 @@ export const routes: RouteObject[] = [
     ],
   },
 ];
+
+registerPreloadableRoutes(routes);

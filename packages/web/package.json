@@ -8,6 +8,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "model": "node --max-old-space-size=8192 scripts/build-sorter-model.mjs",
+    "instruction-images": "node scripts/build-instruction-images.mjs",
     "test": "vitest run"
   },
   "dependencies": {

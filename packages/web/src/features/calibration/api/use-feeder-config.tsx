@@ -16,6 +16,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -100,8 +101,13 @@ export function FeederConfigProvider({
     };
   }, []);
 
+  const contextValue = useMemo(
+    () => ({ feederConfig, saveConfig, previewSpeed }),
+    [feederConfig, saveConfig, previewSpeed],
+  );
+
   return (
-    <FeederConfigContext value={{ feederConfig, saveConfig, previewSpeed }}>
+    <FeederConfigContext value={contextValue}>
       {children}
     </FeederConfigContext>
   );

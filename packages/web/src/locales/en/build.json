@@ -633,6 +633,7 @@
   "imageAlt": {
     "printPart": "3D model render of the {{part}}",
     "breakoutBaseSupport": "Breakout Base Support",
+    "stepPhoto": "Photo of this build step",
     "photos": {
       "baseModule": "A single purple 3D-printed sorting module frame: an open box with four pegs on top and tabs on its sides for joining modules.",
       "baseModuleAssembled": "A short yellow module frame next to a tall yellow module stacked on a purple base support, showing how the printed frames fit together.",

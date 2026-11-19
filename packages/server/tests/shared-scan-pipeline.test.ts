@@ -1,8 +1,15 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  CARD_SETTLE_STABLE_TICKS,
+  createCardSettleTracker,
+  IDENTIFY_REQUEST_RETRY_DELAYS_MS,
   identifyScanImage,
   identifyScanWithConsensus,
+  isConfidentOrientationMatch,
+  PREFERRED_ORIENTATION_MAX_DISTANCE,
+  requestIdentifyWithRetries,
+  ScanIdentifyRequestError,
   type CardSearchResult,
   type OcrDiagnostics,
   type PlayingCardWithDistance,
@@ -177,4 +184,207 @@ test("failed consensus does not route the last individually matched card", async
   assert.ok(outcome.attempt.card);
   assert.equal(outcome.attempts.length, captures);
   assert.ok(captures > 2);
+});
+
+function closeRunnerUp(id: string): CardSearchResult {
+  return {
+    success: true,
+    message: "",
+    nearestDistance: 0.2,
+    data: [
+      { cardId: id, distance: 0.2, confidence: 0.9 },
+      { cardId: `${id}-reprint`, distance: 0.21, confidence: 0.9 },
+    ],
+  } as CardSearchResult;
+}
+
+test("a confident preferred orientation skips the other orientation", async () => {
+  const searched: ScanOrientation[] = [];
+  const outcome = await identifyScanImage({
+    checkBothOrientations: true,
+    preferredOrientation: "rotated",
+    search: async (orientation) => {
+      searched.push(orientation);
+      return candidate(orientation, result("card", 0.1));
+    },
+  });
+  assert.deepEqual(searched, ["rotated"]);
+  assert.equal(outcome.pick.orientation, "rotated");
+  assert.equal(outcome.alternate, null);
+});
+
+test("an unmatched preferred orientation falls back to the other orientation", async () => {
+  const searched: ScanOrientation[] = [];
+  const outcome = await identifyScanImage({
+    checkBothOrientations: true,
+    preferredOrientation: "upright",
+    search: async (orientation) => {
+      searched.push(orientation);
+      return candidate(
+        orientation,
+        result(orientation === "rotated" ? "card" : null, 0.1),
+      );
+    },
+  });
+  assert.deepEqual(searched, ["upright", "rotated"]);
+  assert.equal(outcome.pick.orientation, "rotated");
+  assert.equal(outcome.alternate?.orientation, "upright");
+});
+
+test("a preferred orientation that matches beyond the confidence distance still checks the other", async () => {
+  const searched: ScanOrientation[] = [];
+  const outcome = await identifyScanImage({
+    checkBothOrientations: true,
+    preferredOrientation: "upright",
+    search: async (orientation) => {
+      searched.push(orientation);
+      return candidate(
+        orientation,
+        result("card", orientation === "upright" ? 0.35 : 0.1),
+      );
+    },
+  });
+  assert.deepEqual(searched, ["upright", "rotated"]);
+  assert.equal(outcome.pick.orientation, "rotated");
+});
+
+test("an unsure preferred orientation is never accepted alone", () => {
+  assert.equal(isConfidentOrientationMatch(result("card", 0.1)), true);
+  assert.equal(isConfidentOrientationMatch(result("card", 0.1, true)), false);
+  assert.equal(isConfidentOrientationMatch(closeRunnerUp("card")), false);
+  assert.equal(isConfidentOrientationMatch(result(null)), false);
+  assert.equal(
+    isConfidentOrientationMatch(
+      result("card", PREFERRED_ORIENTATION_MAX_DISTANCE + 0.01),
+    ),
+    false,
+  );
+});
+
+test("a single orientation setting ignores the preferred orientation", async () => {
+  const searched: ScanOrientation[] = [];
+  await identifyScanImage({
+    checkBothOrientations: false,
+    preferredOrientation: "rotated",
+    search: async (orientation) => {
+      searched.push(orientation);
+      return candidate(orientation, result("card"));
+    },
+  });
+  assert.deepEqual(searched, ["upright"]);
+});
+
+test("OCR skips the other orientation once the image decided the orientation", async () => {
+  const reads: ScanOrientation[] = [];
+  await identifyScanImage({
+    checkBothOrientations: true,
+    ocrEnabled: true,
+    search: async (orientation) =>
+      candidate(
+        orientation,
+        orientation === "upright" ? closeRunnerUp("card") : result(null),
+      ),
+    readText: async (image) => {
+      reads.push(image.orientation);
+      return { ...image, ocr: null };
+    },
+  });
+  assert.deepEqual(reads, ["upright"]);
+});
+
+test("OCR still reads both orientations when neither image matched", async () => {
+  const reads: ScanOrientation[] = [];
+  await identifyScanImage({
+    checkBothOrientations: true,
+    ocrEnabled: true,
+    search: async (orientation) =>
+      candidate(orientation, result(null, 0.6, true)),
+    readText: async (image) => {
+      reads.push(image.orientation);
+      return { ...image, ocr: null };
+    },
+  });
+  assert.deepEqual(reads.sort(), ["rotated", "upright"]);
+});
+
+test("identify requests retry network and server errors, then succeed", async () => {
+  const waits: number[] = [];
+  let sends = 0;
+  const value = await requestIdentifyWithRetries(
+    async () => {
+      sends++;
+      if (sends === 1) throw new TypeError("Failed to fetch");
+      if (sends === 2) throw Object.assign(new Error("down"), { status: 503 });
+      return "matched";
+    },
+    { wait: async (delayMs) => void waits.push(delayMs) },
+  );
+  assert.equal(value, "matched");
+  assert.deepEqual(waits, [...IDENTIFY_REQUEST_RETRY_DELAYS_MS]);
+});
+
+test("identify requests do not retry a rejected request", async () => {
+  let sends = 0;
+  await assert.rejects(
+    requestIdentifyWithRetries(
+      async () => {
+        sends++;
+        throw Object.assign(new Error("bad"), { status: 400 });
+      },
+      { wait: async () => assert.fail("Must not wait") },
+    ),
+    ScanIdentifyRequestError,
+  );
+  assert.equal(sends, 1);
+});
+
+test("identify requests stop after the bounded retries", async () => {
+  let sends = 0;
+  await assert.rejects(
+    requestIdentifyWithRetries(
+      async () => {
+        sends++;
+        throw new TypeError("Failed to fetch");
+      },
+      { wait: async () => undefined },
+    ),
+    ScanIdentifyRequestError,
+  );
+  assert.equal(sends, IDENTIFY_REQUEST_RETRY_DELAYS_MS.length + 1);
+});
+
+function squareContour(offset: number) {
+  return {
+    topLeft: { x: offset, y: offset },
+    topRight: { x: offset + 100, y: offset },
+    bottomRight: { x: offset + 100, y: offset + 100 },
+    bottomLeft: { x: offset, y: offset + 100 },
+  };
+}
+
+test("a card settles only after consecutive still detections", () => {
+  const tracker = createCardSettleTracker();
+  const still = { cardPresent: true, contour: squareContour(10) };
+  assert.equal(tracker.observe(still, 1000), false);
+  for (let tick = 1; tick < CARD_SETTLE_STABLE_TICKS; tick++) {
+    assert.equal(tracker.observe(still, 1000), false);
+  }
+  assert.equal(tracker.observe(still, 1000), true);
+});
+
+test("movement or a missing card restarts the settle count", () => {
+  const tracker = createCardSettleTracker(2);
+  const first = { cardPresent: true, contour: squareContour(10) };
+  const moved = { cardPresent: true, contour: squareContour(200) };
+  tracker.observe(first, 1000);
+  tracker.observe(first, 1000);
+  assert.equal(tracker.observe(moved, 1000), false);
+  assert.equal(tracker.observe(moved, 1000), false);
+  assert.equal(
+    tracker.observe({ cardPresent: false, contour: null }, 1000),
+    false,
+  );
+  assert.equal(tracker.observe(moved, 1000), false);
+  assert.equal(tracker.observe(moved, 1000), false);
+  assert.equal(tracker.observe(moved, 1000), true);
 });

@@ -29,7 +29,6 @@ import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
 import { usePresetPicker } from "@/features/rules/api/use-preset-picker";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
-import { useLiveCorners } from "@/features/scanner/api/use-live-corners";
 import { useLiveFrameSource } from "@/features/scanner/api/use-live-frame-source";
 import { useScannerQrWatcher } from "@/features/scanner/api/use-scanner-qr-watcher";
 import { useOpenOrderPick } from "@/features/business/api/use-open-order-pick";
@@ -49,7 +48,7 @@ import { BinBadge } from "@/features/scanner/components/bin-badge";
 import { CameraEmptyStateFrame } from "@/features/scanner/components/camera-empty-state-frame";
 import { CameraNotice } from "@/features/scanner/components/camera-notice";
 import { CameraPermissionEmptyState } from "@/features/scanner/components/camera-permission-empty-state";
-import { DetectedOutline } from "@/features/scanner/components/detected-outline";
+import { LiveCardOutline } from "@/features/scanner/components/live-card-outline";
 import { ScanOptionsSheet } from "@/features/scanner/components/scan-options-sheet";
 import { ScanRemovalQueueSheet } from "@/features/scanner/components/scan-removal-queue-sheet";
 import { ScanTipsSheet } from "@/features/scanner/components/scan-tips-sheet";
@@ -182,12 +181,8 @@ export default function ScanScreen() {
   const cameraRef = useRef<CameraRef>(null);
   const torch = useCameraTorch(device, cameraRef);
   const { liveFrameOutput, grabLiveFrame } = useLiveFrameSource(cameraRef);
-  const liveCorners = useLiveCorners(
-    grabLiveFrame,
-    cameraMounted && appState === "active" && !!device && permission.hasPermission && !session.modelError,
-    LIVE_DETECTION_PAUSED_PHASES.includes(session.phase),
-    session.trackLiveCorners,
-  );
+  const isLiveDetectionActive =
+    cameraMounted && appState === "active" && !!device && permission.hasPermission && !session.modelError;
   const openStorageLabel = useOpenStorageLabel();
   const openOrderPick = useOpenOrderPick();
   const lastQrLinkRef = useRef<{ linkKey: string; seenAt: number } | null>(null);
@@ -199,7 +194,6 @@ export default function ScanScreen() {
       permission.hasPermission &&
       !working &&
       !LIVE_DETECTION_PAUSED_PHASES.includes(session.phase),
-    grabLiveFrame,
     onQrLink: (qrLink) => {
       const linkKey = JSON.stringify(qrLink);
       const last = lastQrLinkRef.current;
@@ -258,7 +252,11 @@ export default function ScanScreen() {
         : t("scan.status.modes.scanOnce");
   const statusText = [
     scanModeLabel,
-    savedCardName ? t("scan.status.saved", { name: savedCardName }) : t(`scan.phase.${session.phase}`),
+    savedCardName
+      ? t("scan.status.saved", { name: savedCardName })
+      : session.phase === "loading-models" && session.modelDownloadPercent != null
+        ? t("scan.status.downloadingModels", { percent: session.modelDownloadPercent })
+        : t(`scan.phase.${session.phase}`),
     ...(isOnline ? [] : [t("scan.status.offline")]),
   ].join(" · ");
   useScanStatusAnnouncements(session.phase, statusText);
@@ -345,7 +343,13 @@ export default function ScanScreen() {
   }
 
   const notice = session.modelError ? (
-    <CameraNotice tone="destructive" title={t("scan.modelErrorTitle")} description={session.modelError} />
+    <CameraNotice
+      tone="destructive"
+      title={t("scan.modelErrorTitle")}
+      description={session.modelError}
+      actionLabel={t("recovery.retry")}
+      onAction={session.retryModelLoad}
+    />
   ) : !collection ? (
     <CameraNotice
       tone="warning"
@@ -450,7 +454,16 @@ export default function ScanScreen() {
           style={StyleSheet.absoluteFill}
         />
       ) : null}
-      {device ? <DetectedOutline corners={liveCorners} color={colors.primary} /> : null}
+      {device ? (
+        <LiveCardOutline
+          grabLiveFrame={grabLiveFrame}
+          isActive={isLiveDetectionActive}
+          isPaused={LIVE_DETECTION_PAUSED_PHASES.includes(session.phase)}
+          color={colors.primary}
+          onDetection={session.trackLiveCorners}
+          onLiveFrame={scannerQr.inspectLiveFrame}
+        />
+      ) : null}
 
       <View
         pointerEvents="box-none"

@@ -10,6 +10,7 @@ export const pendingTradeOffersQueryOptions = (orgId: string | null) =>
     queryFn: () => unwrap(apiGet<Result<TradeOffer[]>>("/api/trade-offers?status=pending")),
     enabled: !!orgId,
     staleTime: QUERY_STALE_MS,
+    refetchOnWindowFocus: true,
   });
 
 export const tradeOffersQueryOptions = (orgId: string | null) =>

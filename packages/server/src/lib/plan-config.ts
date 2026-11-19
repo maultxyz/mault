@@ -130,6 +130,8 @@ let cachedConfig: PlanConfig = defaultPlanConfig();
 const orgBillingPlanCache = createOrgReadCache<string>(
   ORG_BILLING_PLAN_CACHE_TTL_MS,
   ORG_SETTINGS_READ_CACHE_MAX_ENTRIES,
+  0,
+  { isUnaffectedByCardWrites: true },
 );
 
 function toLimit(value: unknown, fallback: number | null): number | null {

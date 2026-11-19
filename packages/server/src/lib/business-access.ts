@@ -22,6 +22,8 @@ import { loadOrgPricing } from "./price-source";
 const businessSettingsCache = createOrgReadCache<BusinessSettings>(
   ORG_BUSINESS_SETTINGS_CACHE_TTL_MS,
   ORG_SETTINGS_READ_CACHE_MAX_ENTRIES,
+  0,
+  { isUnaffectedByCardWrites: true },
 );
 
 export function isBusinessManager(role: OrgRole): boolean {

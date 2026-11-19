@@ -1,11 +1,12 @@
 import { useTranslation } from "react-i18next";
 import { AppText } from "@/components/ui/app-text";
 import { Surface } from "@/components/ui/surface";
+import { useSorterCommLog } from "@/features/sorter/api/use-sorter";
 import { COMM_LOG_VISIBLE_ENTRIES } from "@/lib/constants/sorter";
-import type { CommLogProps } from "@/lib/interfaces/ui";
 
-export function CommLog({ entries }: CommLogProps) {
+export function CommLog() {
   const { t } = useTranslation();
+  const entries = useSorterCommLog();
   const visible = entries.slice(-COMM_LOG_VISIBLE_ENTRIES).reverse();
   if (visible.length === 0) {
     return (

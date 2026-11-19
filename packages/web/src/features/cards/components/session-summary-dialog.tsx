@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { useScanElapsedMs } from "@/features/scanner/api/use-scanned-cards";
 import {
   DialogDescription,
   DialogOverlay,
@@ -419,13 +420,13 @@ export function SessionSummaryDialog({
   open,
   onOpenChange,
   collectionGuid,
-  elapsedMs,
   sessionScanCount,
   collectionName,
   onExported,
   gridFilters,
   gridFilterCount,
 }: SessionSummaryDialogProps) {
+  const elapsedMs = useScanElapsedMs(open);
   const { t } = useTranslation("cards");
   const { format } = usePriceSource();
   const [includeDownloaded, setIncludeDownloaded] = useState(false);

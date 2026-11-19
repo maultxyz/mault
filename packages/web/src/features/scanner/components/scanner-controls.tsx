@@ -17,7 +17,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
-import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import {
+  useScanElapsedMs,
+  useScannedCards,
+} from "@/features/scanner/api/use-scanned-cards";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { useRetractCard } from "@/features/scanner/api/use-retract-card";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
@@ -128,8 +131,8 @@ export function ScannerControls({
     scanCondition,
     setScanCondition,
     sessionScanCount,
-    elapsedMs,
   } = useScannedCards();
+  const elapsedMs = useScanElapsedMs();
   const { totalCount } = useCollectionCardsSummary();
   const { isRemoveModeActive, isRemoveModeEnabled, isSorterConnected } =
     useScanRemoval();

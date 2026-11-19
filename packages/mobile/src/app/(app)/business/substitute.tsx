@@ -20,7 +20,7 @@ import {
 } from "@/features/business/api/business";
 import { pickPlaceTitle } from "@/features/business/lib/pick-walk-labels";
 import { useTheme } from "@/hooks/use-theme";
-import { cardArtSources } from "@/lib/card-art";
+import { cardThumbnailUrl } from "@/lib/card-art";
 import { BUSINESS_QUERY_KEY } from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
 
@@ -79,7 +79,7 @@ export default function OrderSubstituteScreen() {
         ) : (
           <ListGroup>
             {substitutes.data.map(({ entry, differences }) => {
-              const { imageUrl, placeholderUrl } = cardArtSources(entry.card.image);
+              const imageUrl = cardThumbnailUrl(entry.card.image);
               const where = pickPlaceTitle(entry, t);
               const printing = `${entry.card.setName || entry.card.set.toUpperCase()} #${entry.card.collectorNumber}`;
               const differenceText =
@@ -89,7 +89,7 @@ export default function OrderSubstituteScreen() {
               return (
                 <ListRow
                   key={entry.scanId}
-                  leading={<CardThumbnail imageUrl={imageUrl} placeholderUrl={placeholderUrl} />}
+                  leading={<CardThumbnail imageUrl={imageUrl} />}
                   title={printing}
                   subtitle={[
                     [entry.condition, entry.isFoil ? t("business.picks.walk.foil") : null].filter(Boolean).join(" · "),

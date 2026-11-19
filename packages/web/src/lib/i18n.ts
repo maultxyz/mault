@@ -1,3 +1,4 @@
+import { ROUTE_LOADED_NAMESPACES } from "@/lib/constants/i18n-namespaces";
 import { SUPPORTED_LANGUAGES } from "@/lib/constants/languages";
 import { LANGUAGE_STORAGE_KEY } from "@/lib/constants/storage-keys";
 import { formatCompactNumber } from "@magic-vault/shared";
@@ -22,6 +23,10 @@ export const ALL_NAMESPACES = Object.keys(localeModules)
   .filter((path) => path.startsWith("../locales/en/"))
   .map((path) => path.slice("../locales/en/".length, -".json".length))
   .map((fileName) => FILE_NAME_TO_NAMESPACE[fileName] ?? fileName);
+
+export const APP_SHELL_NAMESPACES = ALL_NAMESPACES.filter(
+  (namespace) => !ROUTE_LOADED_NAMESPACES.includes(namespace),
+);
 
 const lazyJsonBackend: BackendModule = {
   type: "backend",

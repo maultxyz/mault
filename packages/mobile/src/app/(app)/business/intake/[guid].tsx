@@ -33,7 +33,7 @@ import { useCompactCount } from "@/hooks/use-compact-count";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { ApiResultError } from "@/lib/api/api-result-error";
-import { cardArtSources } from "@/lib/card-art";
+import { cardThumbnailUrl } from "@/lib/card-art";
 import { BUSINESS_STATUS_TONES } from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
 import type { IntakeLotCardRowProps } from "@/lib/interfaces/business";
@@ -41,7 +41,7 @@ import type { IntakeLotCardRowProps } from "@/lib/interfaces/business";
 function IntakeLotCardRow({ card, onPress }: IntakeLotCardRowProps) {
   const { t } = useTranslation();
   const { format } = usePricing();
-  const { imageUrl, placeholderUrl } = cardArtSources(card.card.image);
+  const imageUrl = cardThumbnailUrl(card.card.image);
   const printing = [
     card.card.setName || card.card.set.toUpperCase(),
     card.card.collectorNumber ? `#${card.card.collectorNumber}` : null,
@@ -53,7 +53,7 @@ function IntakeLotCardRow({ card, onPress }: IntakeLotCardRowProps) {
   const amount = card.offer ?? card.acquisitionCost;
   return (
     <ListRow
-      leading={<CardThumbnail imageUrl={imageUrl} placeholderUrl={placeholderUrl} />}
+      leading={<CardThumbnail imageUrl={imageUrl} />}
       title={card.card.name}
       subtitle={card.belowMinimum ? `${printing}\n${t("business.intake.belowMinimumRow")}` : printing}
       subtitleNumberOfLines={2}

@@ -54,7 +54,13 @@ export default defineConfig({
         globPatterns: ["**/*.{js,css,html}"],
         // Runtime config written by the container at start-up; a precached
         // copy would pin the build's empty placeholder.
-        globIgnores: ["env.js", "share.html"],
+        globIgnores: [
+          "env.js",
+          "share.html",
+          "**/sorter-scene-*.js",
+          "**/esp32-flasher-*.js",
+          "**/milo-sync.worker-*.js",
+        ],
         skipWaiting: true,
         clientsClaim: true,
         // Pages load network-first so a reload always gets the deployed

@@ -7,6 +7,13 @@ const mocks = vi.hoisted(() => ({
   control: vi.fn(),
   animator: { cancel: vi.fn(), setTarget: vi.fn() },
 }));
+import {
+  CARD_SETTLE_POLL_INTERVAL_MS,
+  CARD_SETTLE_STABLE_TICKS,
+  DEFAULT_CAPTURE_SETTLE_DELAY_MS,
+} from "@magic-vault/shared";
+import { detectCardCorners } from "../lib/cornelius";
+
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
 }));
@@ -156,4 +163,86 @@ it("browser matched capture refines foil before delivering the scan", async () =
   act(() => result.current.handleForceScan());
   await waitFor(() => expect(save).toHaveBeenCalledOnce());
   expect(events).toEqual(["foil", "save"]);
+});
+
+const stillCard = {
+  cardPresent: true,
+  confidence: 1,
+  sharpness: 1,
+  contour: {
+    topLeft: { x: 10, y: 10 },
+    topRight: { x: 110, y: 10 },
+    bottomRight: { x: 110, y: 150 },
+    bottomLeft: { x: 10, y: 150 },
+  },
+};
+
+it("captures once the detector confirms a still card, before the settle delay ends", async () => {
+  vi.useFakeTimers();
+  try {
+    vi.mocked(detectCardCorners).mockResolvedValue(stillCard);
+    const { result } = renderHook(() => useCardScanner({}));
+    attachCanvas(result);
+    act(() => result.current.captureCard());
+    expect(mocks.search).not.toHaveBeenCalled();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(
+        CARD_SETTLE_POLL_INTERVAL_MS * CARD_SETTLE_STABLE_TICKS + 1,
+      );
+    });
+    expect(mocks.search).toHaveBeenCalledOnce();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(DEFAULT_CAPTURE_SETTLE_DELAY_MS);
+    });
+    expect(mocks.search).toHaveBeenCalledOnce();
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+it("waits for the full settle delay while the detector sees no still card", async () => {
+  vi.useFakeTimers();
+  try {
+    vi.mocked(detectCardCorners).mockResolvedValue({
+      ...stillCard,
+      cardPresent: false,
+      contour: null,
+    });
+    const { result } = renderHook(() => useCardScanner({}));
+    attachCanvas(result);
+    act(() => result.current.captureCard());
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(DEFAULT_CAPTURE_SETTLE_DELAY_MS - 1);
+    });
+    expect(mocks.search).not.toHaveBeenCalled();
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(2);
+    });
+    expect(mocks.search).toHaveBeenCalledOnce();
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+it("remembers the matched orientation and prefers it on the next live scan", async () => {
+  mocks.search.mockResolvedValue({
+    card: { id: "card", name: "Card" },
+    alternativeMatches: [],
+    debugImageUrl: "image",
+    vectorizedOn: "web",
+    dewarpedCardImage: {},
+    matchedOrientation: "rotated",
+    matched: { lowConfidenceMatch: false, diagnostics: {} },
+  });
+  const save = vi.fn();
+  const { result } = renderHook(() =>
+    useCardScanner({ onSearchResults: save }),
+  );
+  attachCanvas(result);
+  act(() => result.current.handleForceScan());
+  await waitFor(() => expect(save).toHaveBeenCalledOnce());
+  expect(mocks.search.mock.calls[0][9]).toBe(null);
+  act(() => result.current.handleForceScan());
+  await waitFor(() => expect(save).toHaveBeenCalledTimes(2));
+  expect(mocks.search.mock.calls[1][9]).toBe("rotated");
 });

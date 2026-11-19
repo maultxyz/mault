@@ -1,5 +1,7 @@
 export const SCAN_LOCK_TTL_MS = 5 * 60 * 1000;
 
+export const STREAM_BACKGROUND_RECONNECT_MS = 30_000;
+
 export const ANNOUNCEMENTS_STALE_MS = 60_000;
 
 export const ANNOUNCEMENTS_REFETCH_MS = 5 * 60_000;

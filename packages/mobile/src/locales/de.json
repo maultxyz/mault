@@ -916,6 +916,7 @@
         "removing": "Entfernen"
       },
       "saved": "{{name}} gespeichert",
+      "downloadingModels": "Lade Modelle herunter {{percent}} %",
       "offline": "Offline"
     },
     "unmatchedRecovery": {

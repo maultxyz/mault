@@ -86,12 +86,13 @@ import { readScannerQrText } from "@/features/scanner/lib/scanner-control-code";
 import { warmScanModels } from "@/features/scanner/lib/inference";
 import { reportSerialEvent } from "@/features/sorter/api/serial-events";
 import { useSorter, useSorterMessage } from "@/features/sorter/api/use-sorter";
-import { useAppStream } from "@/features/stream/api/use-app-stream";
+import { useDeployNotice } from "@/features/stream/api/use-app-stream";
 import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
 import { useActiveOrgId } from "@/hooks/use-org";
 import {
   BIN_DATA_RETRY_MS,
   CONTROL_CARD_NOTICE_DURATION_MS,
+  SCAN_MODEL_DOWNLOAD_PROGRESS_STEP_PERCENT,
   SESSION_FEED_IMAGE_LIMIT,
   SESSION_FEED_LIMIT,
 } from "@/lib/constants/scanner";
@@ -104,6 +105,7 @@ import type {
   ControlCardNotice,
   FeedCommand,
   IdentifyOutcome,
+  Orientation,
   LiveCorners,
   RoutedCardTarget,
   ScanFeedEntry,
@@ -146,6 +148,7 @@ export function useScanSession({
   const [feed, setFeed] = useState<ScanFeedEntry[]>([]);
   const [sessionCount, setSessionCount] = useState(0);
   const [modelError, setModelError] = useState<string | null>(null);
+  const [modelDownloadPercent, setModelDownloadPercent] = useState<number | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [autoFeed, setAutoFeedState] = useState(true);
   const [allowDuplicates, setAllowDuplicates] = useState(true);
@@ -213,6 +216,7 @@ export function useScanSession({
   const binContentsLoadedRef = useRef(false);
   const [binDataReloadAttempt, setBinDataReloadAttempt] = useState(0);
   const lastCardIdRef = useRef<string | null>(null);
+  const sorterCardOrientationRef = useRef<Orientation | null>(null);
   const pendingDuplicateRef = useRef<IdentifyOutcome | null>(null);
   const binContentsRef = useRef<BinContentCard[]>([]);
   const locallyUpdatedConfigsRef = useRef<BinConfig[] | null>(null);
@@ -339,7 +343,7 @@ export function useScanSession({
     [],
   );
 
-  const { deployNotice } = useAppStream();
+  const deployNotice = useDeployNotice();
   const handledDeployNoticeRef = useRef<string | null>(null);
   useEffect(() => {
     if (!deployNotice || handledDeployNoticeRef.current === deployNotice.guid)
@@ -359,17 +363,29 @@ export function useScanSession({
     });
   }, []);
 
-  useEffect(() => {
+  const loadModels = useCallback(() => {
+    setModelError(null);
+    setModelDownloadPercent(null);
     setPhase("loading-models");
-    warmScanModels()
+    warmScanModels((downloadedPercent) =>
+      setModelDownloadPercent(
+        downloadedPercent - (downloadedPercent % SCAN_MODEL_DOWNLOAD_PROGRESS_STEP_PERCENT),
+      ),
+    )
       .then(() => {
+        setModelDownloadPercent(null);
         if (phaseRef.current === "loading-models") setPhase("ready");
       })
       .catch((err: unknown) => {
+        setModelDownloadPercent(null);
         setModelError(err instanceof Error ? err.message : String(err));
         setPhase("error");
       });
   }, [setPhase]);
+
+  useEffect(() => {
+    loadModels();
+  }, [loadModels]);
 
   useEffect(() => {
     if (!sorter.isReady && !handScanActive && runningRef.current)
@@ -1057,8 +1073,9 @@ export function useScanSession({
           return true;
         },
         applyControl: applyControlCode,
-        identify: (captured) =>
-          identifyCard(
+        identify: async (captured) => {
+          const isSorterScan = ctx.sorter.isReady;
+          const outcome = await identifyCard(
             async () => (captured.frame = await ctx.capture()),
             {
               scope: {
@@ -1076,9 +1093,15 @@ export function useScanSession({
                 readsPrintedLanguageEveryScan(ctx.collection, gameKey),
               ),
               gameKey: gameKey || null,
+              preferredOrientation: isSorterScan ? sorterCardOrientationRef.current : "upright",
             },
             device?.scanRegion ?? DEFAULT_SCAN_REGION,
-          ),
+          );
+          if (isSorterScan && outcome.matchedOrientation) {
+            sorterCardOrientationRef.current = outcome.matchedOrientation;
+          }
+          return outcome;
+        },
         card: (outcome) => outcome.card,
         isRemoval: () => latestRef.current.removal.isActive,
         remove: async (outcome) => {
@@ -1366,6 +1389,8 @@ export function useScanSession({
     feed,
     sessionCount,
     modelError,
+    modelDownloadPercent,
+    retryModelLoad: loadModels,
     isRunning,
     canStart,
     start,

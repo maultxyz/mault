@@ -5,7 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useInView } from "@/hooks/use-in-view";
-import { CARD_SCAN_TIMELINE_LOAD_AHEAD_MARGIN } from "@/lib/constants/card-grid";
+import {
+  CARD_SCAN_TIMELINE_BLOCK_CONTENT_CLASS,
+  CARD_SCAN_TIMELINE_LOAD_AHEAD_MARGIN,
+} from "@/lib/constants/card-grid";
 import type { CardScanTimelineProps } from "@/lib/interfaces/cards";
 import { IconLoader2 } from "@tabler/icons-react";
 
@@ -82,7 +85,9 @@ export function CardScanTimeline({
               </div>
               <div aria-hidden className="h-px flex-1 bg-border" />
             </div>
-            {renderBlockCards(block)}
+            <div className={CARD_SCAN_TIMELINE_BLOCK_CONTENT_CLASS}>
+              {renderBlockCards(block)}
+            </div>
           </section>
         );
       })}

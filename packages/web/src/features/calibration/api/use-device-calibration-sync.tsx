@@ -44,6 +44,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -352,8 +353,10 @@ export function DeviceCalibrationSyncProvider({
     [isConnected, firmwareVersion, pushCalibration, storeOnDevice],
   );
 
+  const contextValue = useMemo(() => ({ applyToDevice }), [applyToDevice]);
+
   return (
-    <DeviceCalibrationSyncContext value={{ applyToDevice }}>
+    <DeviceCalibrationSyncContext value={contextValue}>
       {children}
       <CalibrationConflictDialog
         conflict={isConnected ? conflict : null}

@@ -16,3 +16,18 @@ export function readOrgResource<T>(
 ): Promise<T> {
   return orgResourceReadCache.get(orgId, variantKey, load) as Promise<T>;
 }
+
+const orgSettingsResourceReadCache = createOrgReadCache<unknown>(
+  ORG_RESOURCE_READ_CACHE_TTL_MS,
+  ORG_RESOURCE_READ_CACHE_MAX_ENTRIES,
+  0,
+  { isUnaffectedByCardWrites: true },
+);
+
+export function readOrgSettingsResource<T>(
+  orgId: string,
+  variantKey: string,
+  load: () => Promise<T>,
+): Promise<T> {
+  return orgSettingsResourceReadCache.get(orgId, variantKey, load) as Promise<T>;
+}

@@ -7,6 +7,10 @@ export interface OrgReadCache<T> {
   get(orgId: string, variantKey: string, load: () => Promise<T>): Promise<T>;
 }
 
+export interface OrgReadCacheOptions {
+  isUnaffectedByCardWrites?: boolean;
+}
+
 export interface SpacedLoader<T> {
   load(key: string, load: () => Promise<T>): Promise<T>;
 }

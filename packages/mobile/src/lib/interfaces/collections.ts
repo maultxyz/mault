@@ -7,7 +7,17 @@ import type {
   ScanTimelineGrouping,
 } from "@magic-vault/shared";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
+import type { PriceFormatter } from "@/lib/interfaces/pricing";
 import type { StatsBreakdown } from "@/lib/interfaces/stats";
+
+export interface CollectionCardTileProps {
+  item: GroupedScannedCard;
+  width: number;
+  pricing: PriceFormatter;
+  onOpen: (scanId: string) => void;
+  onPrefetch: (scanId: string) => void;
+  onShowActions: (item: GroupedScannedCard) => void;
+}
 
 export interface ScanImageResponse {
   capturedImageUrl: string | null;

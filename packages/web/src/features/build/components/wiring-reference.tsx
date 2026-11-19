@@ -105,6 +105,8 @@ export function WiringDiagram() {
       <a href={src} target="_blank" rel="noopener noreferrer">
         <img
           src={src}
+          loading="lazy"
+          decoding="async"
           alt={
             isPiBoard(boardType)
               ? t("pi.diagramAlt", { board: BOARD_INFO[boardType].displayName })

@@ -17,6 +17,16 @@ const optionalEnv = (key: string): string | undefined =>
 
 const easProjectId = env("EAS_PROJECT_ID");
 
+const androidEmbeddedFontFiles = [
+  "./node_modules/@expo-google-fonts/figtree/400Regular/Figtree_400Regular.ttf",
+  "./node_modules/@expo-google-fonts/figtree/500Medium/Figtree_500Medium.ttf",
+  "./node_modules/@expo-google-fonts/figtree/600SemiBold/Figtree_600SemiBold.ttf",
+  "./node_modules/@expo-google-fonts/figtree/700Bold/Figtree_700Bold.ttf",
+  "./node_modules/@expo-google-fonts/jetbrains-mono/400Regular/JetBrainsMono_400Regular.ttf",
+  "./node_modules/@expo-google-fonts/jetbrains-mono/500Medium/JetBrainsMono_500Medium.ttf",
+  "./node_modules/@expo-google-fonts/jetbrains-mono/600SemiBold/JetBrainsMono_600SemiBold.ttf",
+];
+
 const collectionWidgetConfiguration = {
   title: "Collection",
   description: "Show all collections or pick one.",
@@ -79,6 +89,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       "expo-splash-screen",
       { image: "./assets/splash-icon.png", imageWidth: 160, backgroundColor: "#1447e6" },
     ],
+    ["expo-font", { android: { fonts: androidEmbeddedFontFiles } }],
     "expo-secure-store",
     "expo-sqlite",
     [

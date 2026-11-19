@@ -19,6 +19,7 @@ import { IconAlertTriangle, IconVideo } from "@tabler/icons-react";
 import { Callout } from "@/components/callout";
 import { useMemo } from "react";
 import { BUILD_STEP_IMAGE_ALT_KEYS } from "@/lib/constants/build";
+import { BUILD_STEP_SMALL_IMAGES } from "@/lib/constants/build-step-images";
 import { Trans, useTranslation } from "react-i18next";
 
 export function BuildAssembly() {
@@ -150,18 +151,33 @@ export function BuildAssembly() {
                             )}
                             {step.images && step.images.length > 0 && (
                               <div className="mt-1.5 flex flex-wrap gap-1.5">
-                                {step.images.map((src) => (
-                                  <img
-                                    key={src}
-                                    src={src}
-                                    alt={
-                                      BUILD_STEP_IMAGE_ALT_KEYS[src]
-                                        ? t(BUILD_STEP_IMAGE_ALT_KEYS[src])
-                                        : ""
-                                    }
-                                    className="w-full max-w-32 rounded-md border sm:max-w-56"
-                                  />
-                                ))}
+                                {step.images.map((src) => {
+                                  const smallImage =
+                                    BUILD_STEP_SMALL_IMAGES[src];
+                                  return (
+                                    <a
+                                      key={src}
+                                      href={src}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="block w-full max-w-32 rounded-md sm:max-w-56"
+                                    >
+                                      <img
+                                        src={smallImage?.src ?? src}
+                                        width={smallImage?.width}
+                                        height={smallImage?.height}
+                                        loading="lazy"
+                                        decoding="async"
+                                        alt={
+                                          BUILD_STEP_IMAGE_ALT_KEYS[src]
+                                            ? t(BUILD_STEP_IMAGE_ALT_KEYS[src])
+                                            : t("imageAlt.stepPhoto")
+                                        }
+                                        className="h-auto w-full rounded-md border"
+                                      />
+                                    </a>
+                                  );
+                                })}
                               </div>
                             )}
                           </>

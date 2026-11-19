@@ -810,6 +810,11 @@ export const collectionCards = pgTable(
       table.binNumber,
       table.binEmptiedAt,
     ),
+    index("collection_cards_collection_bin_emptied_idx").on(
+      table.collectionId,
+      table.binNumber,
+      table.binEmptiedAt,
+    ),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -953,6 +958,7 @@ export const tradeOffers = pgTable(
   (table) => [
     unique("trade_offers_guid_idx").on(table.guid),
     index("trade_offers_org_status_idx").on(table.orgId, table.status),
+    index("trade_offers_org_created_idx").on(table.orgId, table.createdAt),
     index("trade_offers_guest_idx").on(table.guestKeyHash),
     index("trade_offers_guest_user_idx").on(table.guestUserId, table.createdAt),
     crudPolicy({
@@ -1254,6 +1260,11 @@ export const unmatchedCards = pgTable(
     ),
     index("unmatched_cards_org_bin_emptied_idx").on(
       table.orgId,
+      table.binNumber,
+      table.binEmptiedAt,
+    ),
+    index("unmatched_cards_collection_bin_emptied_idx").on(
+      table.collectionId,
       table.binNumber,
       table.binEmptiedAt,
     ),

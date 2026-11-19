@@ -36,3 +36,8 @@ export interface ImpersonationPayload {
 }
 
 export type RequestTokenVerifier = (token: string) => Promise<{ sub: string } | null>;
+
+export interface VerifiedLocalToken {
+  sub: string;
+  expiresAt: number;
+}

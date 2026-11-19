@@ -10,7 +10,7 @@ import { AppState } from "react-native";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { orgOverviewQueryOptions } from "@/features/home/api/overview";
 import { useAppAlerts } from "@/features/stream/api/use-app-alerts";
-import { useAppStream } from "@/features/stream/api/use-app-stream";
+import { useScanLocks } from "@/features/stream/api/use-app-stream";
 import { pendingTradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { subscribeToCardReviewWidgetPresses, syncCardReviewWidget } from "@/features/widgets/api/card-review-widget-sync";
 import { updateHomeWidgets } from "@/features/widgets/api/update-home-widgets";
@@ -54,7 +54,7 @@ export function useHomeWidgetSync(): void {
   const { data: overview } = useQuery({ ...orgOverviewQueryOptions(orgId, false), enabled: isWidgetDataEnabled });
   const { data: tradeOffers } = useQuery({ ...pendingTradeOffersQueryOptions(orgId), enabled: isWidgetDataEnabled });
   const alerts = useAppAlerts();
-  const { locks } = useAppStream();
+  const locks = useScanLocks();
   const { data: collections } = useQuery({ ...collectionsQueryOptions(orgId), enabled: isWidgetDataEnabled });
   const isAnyScannerRunning = Object.keys(locks).length > 0;
   const { data: widgetSummary, dataUpdatedAt: widgetSummaryUpdatedAt } = useQuery({

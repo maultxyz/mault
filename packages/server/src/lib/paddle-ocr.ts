@@ -13,6 +13,7 @@ import {
   PADDLE_OCR_RECOGNITION_MAX_WIDTH,
   PADDLE_OCR_RECOGNITION_MIN_WIDTH,
   PADDLE_OCR_UNCLIP_RATIO,
+  OCR_RGB_CHANNELS,
 } from "./constants/ocr";
 import type { OcrBox } from "./interfaces/ocr-calibration";
 import type {
@@ -48,15 +49,54 @@ function getSessions(): Promise<PaddleOcrSessions> {
   return sessionsPromise;
 }
 
+const decodedImages = new WeakMap<Buffer, Promise<OcrRgbPixels>>();
+
+function decodedImage(buffer: Buffer): Promise<OcrRgbPixels> {
+  let decoded = decodedImages.get(buffer);
+  if (!decoded) {
+    decoded = sharp(buffer)
+      .removeAlpha()
+      .toColourspace("srgb")
+      .raw()
+      .toBuffer({ resolveWithObject: true })
+      .then(({ data, info }) => {
+        if (info.channels !== OCR_RGB_CHANNELS) {
+          throw new Error(
+            `Expected a ${OCR_RGB_CHANNELS}-channel image, got ${info.channels} channel(s)`,
+          );
+        }
+        return { data, width: info.width, height: info.height };
+      });
+    decodedImages.set(buffer, decoded);
+    decoded.catch(() => decodedImages.delete(buffer));
+  }
+  return decoded;
+}
+
 async function rgbPixels(
   buffer: Buffer,
   window?: OcrRectangle,
 ): Promise<OcrRgbPixels> {
-  const image = sharp(buffer).removeAlpha().toColourspace("srgb");
-  const { data, info } = await (window ? image.extract(window) : image)
-    .raw()
-    .toBuffer({ resolveWithObject: true });
-  return { data, width: info.width, height: info.height };
+  const image = await decodedImage(buffer);
+  if (!window) return image;
+  const { left, top, width, height } = window;
+  if (
+    left < 0 ||
+    top < 0 ||
+    width <= 0 ||
+    height <= 0 ||
+    left + width > image.width ||
+    top + height > image.height
+  ) {
+    throw new Error("The OCR window is outside the image.");
+  }
+  const rowBytes = width * OCR_RGB_CHANNELS;
+  const data = Buffer.allocUnsafe(rowBytes * height);
+  for (let row = 0; row < height; row++) {
+    const start = ((top + row) * image.width + left) * OCR_RGB_CHANNELS;
+    image.data.copy(data, row * rowBytes, start, start + rowBytes);
+  }
+  return { data, width, height };
 }
 
 function strideSize(size: number, scale: number): number {
@@ -279,7 +319,7 @@ export async function readTextBoxes(
   window?: OcrRectangle,
 ): Promise<OcrTextBox[]> {
   const sessions = await getSessions();
-  const { width = 0, height = 0 } = await sharp(buffer).metadata();
+  const { width, height } = await decodedImage(buffer);
   if (width === 0 || height === 0) return [];
   const area = window ?? { left: 0, top: 0, width, height };
   const pixels = await rgbPixels(buffer, area);
@@ -301,7 +341,7 @@ export async function recognizeRectangle(
   rectangle: OcrRectangle,
 ): Promise<OcrTextBox | null> {
   const sessions = await getSessions();
-  const { width = 0, height = 0 } = await sharp(buffer).metadata();
+  const { width, height } = await decodedImage(buffer);
   if (width === 0 || height === 0) return null;
   const pixels = await rgbPixels(buffer, rectangle);
   const { text, confidence } = await recognizeBox(sessions, pixels, {

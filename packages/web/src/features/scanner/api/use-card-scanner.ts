@@ -59,6 +59,9 @@ import {
   HAND_SCAN_STABLE_TICKS,
   maxCornerShift,
   runScanWorkflow,
+  CARD_SETTLE_POLL_INTERVAL_MS,
+  createCardSettleTracker,
+  type ScanOrientation,
   type PlayingCardWithDistance,
   type ScanRegion,
   type ScannerStatus,
@@ -214,6 +217,12 @@ export function useCardScanner({
   const lastScannedCardIdRef = useRef<string | null>(null);
   const isCapturingRef = useRef(false);
   const settleTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const settleWatchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const settleWatchRunRef = useRef(0);
+  const [settleTracker] = useState(() => createCardSettleTracker());
+  const preferredOrientationRef = useRef<ScanOrientation | null>(null);
   const onSearchResultsRef = useRef(onSearchResults);
   const onNoMatchRef = useRef(onNoMatch);
   const onControlCodeRef = useRef(onControlCode);
@@ -364,6 +373,7 @@ export function useCardScanner({
               dewarpedCardImage,
               matched,
               noMatch,
+              matchedOrientation,
             } = await searchCardImageWithConsensus(
               canvas,
               fromLiveVideo ? drawLatestVideoFrame : () => {},
@@ -378,7 +388,10 @@ export function useCardScanner({
               isDocumentScan || checkBothOrientationsRef.current,
               gameKeyRef.current,
               documentScanImages?.isFromAutomaticFeeder ?? false,
+              fromLiveVideo ? preferredOrientationRef.current : null,
             );
+            if (fromLiveVideo && matchedOrientation)
+              preferredOrientationRef.current = matchedOrientation;
             setDebugImageUrl(debugImageUrl);
             const images = await orientDocumentScanImages(
               savedImageUrl,
@@ -574,6 +587,11 @@ export function useCardScanner({
       outlineAnimator.cancel();
       previewLoopRef.current?.stop();
       previewLoopRef.current = null;
+      settleWatchRunRef.current += 1;
+      if (settleWatchTimerRef.current) {
+        clearTimeout(settleWatchTimerRef.current);
+        settleWatchTimerRef.current = null;
+      }
       if (settleTimeoutRef.current) {
         clearTimeout(settleTimeoutRef.current);
         settleTimeoutRef.current = null;
@@ -589,6 +607,7 @@ export function useCardScanner({
 
     const intervalId = setInterval(() => {
       if (liveDetectingRef.current || getOnnxRuntimeFailure()) return;
+      if (settleTimeoutRef.current !== null) return;
       const outlineVisible = stationIsVisible();
       if (!outlineVisible || statusRef.current === "paused") {
         clearLiveOutline();
@@ -893,6 +912,51 @@ export function useCardScanner({
     captureDocumentScannerPageThenSearch,
   ]);
 
+  const watchForSettledCard = useCallback(
+    (onSettled: () => void) => {
+      const run = ++settleWatchRunRef.current;
+      const isCurrent = () =>
+        settleWatchRunRef.current === run && settleTimeoutRef.current !== null;
+      settleTracker.reset();
+      const checkFrame = async () => {
+        settleWatchTimerRef.current = null;
+        const canvas = displayCanvasRef.current;
+        if (!isCurrent() || !canvas || getOnnxRuntimeFailure()) return;
+        let isSettled: boolean;
+        try {
+          drawLatestVideoFrame();
+          const detection = await detectCardCorners(canvas);
+          if (!isCurrent()) return;
+          isSettled = settleTracker.observe(
+            detection,
+            Math.max(canvas.width, canvas.height),
+          );
+          if (
+            isActiveStationRef.current &&
+            document.visibilityState === "visible"
+          ) {
+            outlineAnimator.setTarget(
+              detection.cardPresent ? detection.contour : null,
+            );
+            liveOutlineShownRef.current = detection.cardPresent;
+          }
+        } catch {
+          return;
+        }
+        if (isSettled) {
+          onSettled();
+          return;
+        }
+        settleWatchTimerRef.current = setTimeout(
+          () => void checkFrame(),
+          CARD_SETTLE_POLL_INTERVAL_MS,
+        );
+      };
+      void checkFrame();
+    },
+    [settleTracker, drawLatestVideoFrame, outlineAnimator],
+  );
+
   const captureCard = useCallback(() => {
     if (
       isCapturingRef.current ||
@@ -927,17 +991,25 @@ export function useCardScanner({
       canvas.height,
       scanRegionRef.current,
     );
-    settleTimeoutRef.current = setTimeout(() => {
+    const captureSettledCard = () => {
+      if (settleTimeoutRef.current === null) return;
+      clearTimeout(settleTimeoutRef.current);
       settleTimeoutRef.current = null;
       updateStatus("searching");
       performCapture(true, contour, true);
-    }, captureSettleDelayMsRef.current);
+    };
+    settleTimeoutRef.current = setTimeout(
+      captureSettledCard,
+      captureSettleDelayMsRef.current,
+    );
+    watchForSettledCard(captureSettledCard);
   }, [
     updateStatus,
     performCapture,
     cameraSource,
     capturePhonePhotoThenSearch,
     captureDocumentScannerPageThenSearch,
+    watchForSettledCard,
   ]);
   captureCardRef.current = captureCard;
 

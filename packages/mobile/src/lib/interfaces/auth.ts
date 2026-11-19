@@ -46,6 +46,11 @@ export interface CachedJwt {
   expiresAt: number;
 }
 
+export interface StoredAccessToken {
+  sessionToken: string;
+  jwt: string;
+}
+
 export interface AuthSessionRow {
   id: string;
   token: string;

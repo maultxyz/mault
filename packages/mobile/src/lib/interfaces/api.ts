@@ -16,6 +16,7 @@ export interface ApiRequestOptions {
   form?: FormData;
   orgId?: string | null;
   acceptStatuses?: number[];
+  timeoutMs?: number;
 }
 
 export type { MemberSeatLock };

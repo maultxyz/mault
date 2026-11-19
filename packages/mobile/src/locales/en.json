@@ -916,6 +916,7 @@
         "removing": "Removing"
       },
       "saved": "Saved {{name}}",
+      "downloadingModels": "Downloading models {{percent}}%",
       "offline": "Offline"
     },
     "unmatchedRecovery": {

@@ -24,17 +24,31 @@ import type { Transaction } from "../../db";
 import { collections, games, orgSettings } from "../../db/schema";
 import { toScannedCard } from "./shared";
 import type {
+  CachedGroupedCardRanking,
   CardsCollection,
   CardSortScope,
+  CardsPageEntryRow,
   CardsPageRow,
   CardsPageRows,
+  CardsPageTotals,
   CardStatsSource,
   CollectionCardsPageEntries,
   CollectionCardRow,
+  GroupedCardMemberRow,
+  GroupedCardRankingPage,
+  GroupedCardRankingRow,
+  GroupedCardRepresentativeRow,
   ParsedCardSort,
+  UnhydratedCardsPageOptions,
 } from "../../lib/interfaces/collections";
 import { UUID_PATTERN } from "../../lib/constants/validation";
-import { pgTextArray, uuidArraySql } from "../../lib/sql-arrays";
+import { readOrgResource } from "../../lib/org-resource-read-cache";
+import { GROUPED_CARD_RANKING_CACHE_MAX_ROWS } from "../../lib/constants/collection-read-caches";
+import {
+  buildGroupedCardRanking,
+  groupedCardPageRows,
+} from "../../lib/grouped-card-ranking";
+import { integerArraySql, pgTextArray, uuidArraySql } from "../../lib/sql-arrays";
 import {
   CARD_STATS_CATALOG_CTE,
   CARD_STATS_KEYS_CTE,
@@ -120,12 +134,22 @@ export function isUuid(value: string): boolean {
   return UUID_PATTERN.test(value);
 }
 
-export async function findCardsCollection(
+export function findCardsCollection(
   tx: Transaction,
   guid: string,
   orgId: string,
 ): Promise<CardsCollection | null> {
-  if (!isUuid(guid)) return null;
+  if (!isUuid(guid)) return Promise.resolve(null);
+  return readOrgResource(orgId, `collections:cards-collection:${guid}`, () =>
+    loadCardsCollection(tx, guid, orgId),
+  );
+}
+
+async function loadCardsCollection(
+  tx: Transaction,
+  guid: string,
+  orgId: string,
+): Promise<CardsCollection | null> {
   const [collection] = await tx
     .select({
       id: collections.id,
@@ -381,12 +405,11 @@ export function cardSortKeySql(
   return sql`${key} ${direction}`;
 }
 
-function rankedCardsCte(
+function rankedCardRowsCte(
   collection: CardsCollection,
   query: CollectionCardsQuery,
   keepScanId?: string,
 ): SQL {
-  const entryKey = query.grouped ? sql`dup_key` : sql`guid`;
   return sql`
     ranked AS (
       SELECT
@@ -398,7 +421,17 @@ function rankedCardsCte(
       ${cardQueryUsesCatalog(query, collection) ? cardCatalogJoinSql(collection, CC_ALIAS_SQL_COLUMNS) : sql``}
       ${sortUsesStoredPrices(query.sort, collection) ? cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS) : sql``}
       WHERE cc.collection_id = ${collection.id} AND ${cardFilterSql(query, keepScanId)}
-    ),
+    )`;
+}
+
+function rankedCardsCte(
+  collection: CardsCollection,
+  query: CollectionCardsQuery,
+  keepScanId?: string,
+): SQL {
+  const entryKey = query.grouped ? sql`dup_key` : sql`guid`;
+  return sql`
+    ${rankedCardRowsCte(collection, query, keepScanId)},
     grouped AS (
       SELECT
         ranked.*,
@@ -457,8 +490,28 @@ async function loadUngroupedCardsPage(
   query: CollectionCardsQuery,
   page: number,
   pageSize: number,
+  totalsAreLoadedSeparately: boolean,
 ): Promise<CardsPageRows> {
   const filter = cardFilterSql(query);
+  if (totalsAreLoadedSeparately) {
+    const pageResult = await tx.execute(sql`
+      SELECT ${CARD_ROW_COLUMNS},
+        ARRAY[cc.guid::text] AS scan_ids,
+        1::int AS quantity,
+        (CASE WHEN sl.id IS NULL THEN 0 ELSE 1 END)::int AS stored_count
+      FROM collection_cards cc
+      ${STORAGE_LOCATION_JOIN}
+      ${cardQueryUsesCatalog(query, collection) ? cardCatalogJoinSql(collection, CC_ALIAS_SQL_COLUMNS) : sql``}
+      ${sortUsesStoredPrices(query.sort, collection) ? cardPricesJoinSql("cp", collection, CC_ALIAS_SQL_COLUMNS) : sql``}
+      WHERE cc.collection_id = ${collection.id} AND ${filter}
+      ORDER BY ${cardOrderSql(query.sort, collection)}
+      LIMIT ${pageSize}::int OFFSET ${page * pageSize}::int
+    `);
+    return {
+      rows: pageResult.rows as unknown as CardsPageRow[],
+      totals: undefined,
+    };
+  }
   const result = await tx.execute(sql`
     WITH totals AS (
       SELECT count(*)::int AS total_entries
@@ -535,9 +588,25 @@ export async function loadUnhydratedCardsPage(
   query: CollectionCardsQuery,
   page: number,
   pageSize: number,
+  { ungroupedTotalsAreLoadedSeparately = false }: UnhydratedCardsPageOptions = {},
 ): Promise<CollectionCardsPageEntries> {
-  const loadPage = query.grouped ? loadGroupedCardsPage : loadUngroupedCardsPage;
-  const { rows, totals } = await loadPage(tx, collection, query, page, pageSize);
+  const { rows, totals } = query.grouped
+    ? await loadGroupedCardsPage(tx, collection, query, page, pageSize)
+    : await loadUngroupedCardsPage(
+        tx,
+        collection,
+        query,
+        page,
+        pageSize,
+        ungroupedTotalsAreLoadedSeparately,
+      );
+  return toCardsPageEntries(rows, totals);
+}
+
+function toCardsPageEntries(
+  rows: CardsPageEntryRow[],
+  totals: CardsPageTotals | undefined,
+): CollectionCardsPageEntries {
   return {
     items: rows.map((row) => ({
       ...toCard(row),
@@ -548,6 +617,70 @@ export async function loadUnhydratedCardsPage(
     totalEntries: totals?.total_entries ?? 0,
     totalCards: totals?.total_cards ?? 0,
   };
+}
+
+export async function loadGroupedCardRanking(
+  tx: Transaction,
+  collection: CardsCollection,
+  query: CollectionCardsQuery,
+): Promise<CachedGroupedCardRanking> {
+  const result = await tx.execute(sql`
+    WITH ${rankedCardRowsCte(collection, query)}
+    SELECT id AS row_id,
+      (location_id IS NOT NULL) AS is_stored,
+      (min(rn) OVER (PARTITION BY dup_key))::int AS entry_rank
+    FROM ranked
+    ORDER BY rn
+    LIMIT ${GROUPED_CARD_RANKING_CACHE_MAX_ROWS + 1}::int
+  `);
+  const rows = result.rows as unknown as GroupedCardRankingRow[];
+  if (rows.length > GROUPED_CARD_RANKING_CACHE_MAX_ROWS) {
+    return { isTooLargeToCache: true };
+  }
+  return { isTooLargeToCache: false, ranking: buildGroupedCardRanking(rows) };
+}
+
+export async function loadGroupedCardsPageFromRanking(
+  tx: Transaction,
+  collection: CardsCollection,
+  rankingPage: GroupedCardRankingPage,
+): Promise<CollectionCardsPageEntries> {
+  const representativeRowIds = rankingPage.entries.map(
+    (entry) => entry.representativeRowId,
+  );
+  const otherMemberRowIds = rankingPage.entries.flatMap((entry) =>
+    entry.memberRowIds.slice(1),
+  );
+  const representatives =
+    representativeRowIds.length === 0
+      ? []
+      : ((
+          await tx.execute(sql`
+            SELECT ${CARD_ROW_COLUMNS}, cc.id AS row_id
+            FROM collection_cards cc
+            ${STORAGE_LOCATION_JOIN}
+            WHERE cc.collection_id = ${collection.id}
+              AND cc.id = ANY(${integerArraySql(representativeRowIds)})
+          `)
+        ).rows as unknown as GroupedCardRepresentativeRow[]);
+  const otherMembers =
+    otherMemberRowIds.length === 0
+      ? []
+      : ((
+          await tx.execute(sql`
+            SELECT cc.id AS row_id, cc.guid::text AS guid
+            FROM collection_cards cc
+            WHERE cc.collection_id = ${collection.id}
+              AND cc.id = ANY(${integerArraySql(otherMemberRowIds)})
+          `)
+        ).rows as unknown as GroupedCardMemberRow[]);
+  return toCardsPageEntries(
+    groupedCardPageRows(rankingPage, representatives, otherMembers),
+    {
+      total_entries: rankingPage.totalEntries,
+      total_cards: rankingPage.totalCards,
+    },
+  );
 }
 
 export async function loadCardCopies(

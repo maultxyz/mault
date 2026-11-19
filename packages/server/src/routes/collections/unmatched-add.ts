@@ -12,6 +12,7 @@ import { recordUnmatchedScan } from "../../lib/scan-stats";
 import { lateSaveBinEmptiedAtSql } from "../../lib/bin-emptying";
 import { emitToSession } from "../../lib/session-stream";
 import {
+  markRequestAsCardWrite,
   rejectWhileImpersonating,
   requireAuth,
   requireOrg,
@@ -26,6 +27,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
   "/:guid/unmatched",
   requireAuth,
   requireOrg,
+  markRequestAsCardWrite,
   rejectWhileImpersonating,
   async (c) => {
     const orgId = c.get("orgId");

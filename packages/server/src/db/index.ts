@@ -3,17 +3,26 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import { Pool } from "pg";
 import * as schema from "./schema";
 
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL!,
-  ssl: process.env.DATABASE_SSL !== "false",
-  max: parseInt(process.env.DB_POOL_MAX ?? "10"),
-  idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT_MS ?? "10000"),
-  connectionTimeoutMillis: parseInt(
-    process.env.DB_CONNECTION_TIMEOUT_MS ?? "10000",
-  ),
-  keepAlive: true,
-});
+function createPool(maxConnections: number): Pool {
+  return new Pool({
+    connectionString: process.env.DATABASE_URL!,
+    ssl: process.env.DATABASE_SSL !== "false",
+    max: maxConnections,
+    idleTimeoutMillis: parseInt(process.env.DB_IDLE_TIMEOUT_MS ?? "10000"),
+    connectionTimeoutMillis: parseInt(
+      process.env.DB_CONNECTION_TIMEOUT_MS ?? "10000",
+    ),
+    keepAlive: true,
+  });
+}
+
+export const pool = createPool(parseInt(process.env.DB_POOL_MAX ?? "10"));
 export const db = drizzle(pool, { schema });
+
+export const singleStatementPool = createPool(
+  parseInt(process.env.DB_SINGLE_STATEMENT_POOL_MAX ?? "4"),
+);
+export const singleStatementDb = drizzle(singleStatementPool, { schema });
 
 export type Transaction = Parameters<Parameters<typeof db.transaction>[0]>[0];
 

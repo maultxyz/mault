@@ -50,21 +50,28 @@ export async function trackMemberSeatLimit(res: Response, orgId: string | null):
 
 export async function apiRequest<T>(
   path: string,
-  { method = "GET", body, form, orgId, acceptStatuses = [] }: ApiRequestOptions = {},
+  { method = "GET", body, form, orgId, acceptStatuses = [], timeoutMs }: ApiRequestOptions = {},
 ): Promise<T> {
   const headers = await getAuthHeaders(orgId);
   if (body !== undefined) headers["Content-Type"] = "application/json";
-  const res = await fetch(`${API_BASE}${path}`, {
-    method,
-    headers,
-    body: form ?? (body !== undefined ? JSON.stringify(body) : undefined),
-  });
-  handleForbidden(res);
-  await trackMemberSeatLimit(res, resolveRequestOrgId(orgId));
-  if (!res.ok && !acceptStatuses.includes(res.status)) {
-    throw new ApiStatusError(res.status);
+  const abortController = timeoutMs != null ? new AbortController() : null;
+  const abortTimer = abortController ? setTimeout(() => abortController.abort(), timeoutMs) : null;
+  try {
+    const res = await fetch(`${API_BASE}${path}`, {
+      method,
+      headers,
+      body: form ?? (body !== undefined ? JSON.stringify(body) : undefined),
+      signal: abortController?.signal,
+    });
+    handleForbidden(res);
+    await trackMemberSeatLimit(res, resolveRequestOrgId(orgId));
+    if (!res.ok && !acceptStatuses.includes(res.status)) {
+      throw new ApiStatusError(res.status);
+    }
+    return (await res.json()) as T;
+  } finally {
+    if (abortTimer) clearTimeout(abortTimer);
   }
-  return (await res.json()) as T;
 }
 
 export async function apiPostText(path: string, body: unknown): Promise<string> {
@@ -98,8 +105,8 @@ export function apiDelete<T>(path: string): Promise<T> {
   return apiRequest<T>(path, { method: "DELETE" });
 }
 
-export function apiPostForm<T>(path: string, form: FormData): Promise<T> {
-  return apiRequest<T>(path, { method: "POST", form });
+export function apiPostForm<T>(path: string, form: FormData, timeoutMs?: number): Promise<T> {
+  return apiRequest<T>(path, { method: "POST", form, timeoutMs });
 }
 
 export async function unwrap<T>(

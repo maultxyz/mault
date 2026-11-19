@@ -136,6 +136,12 @@ export interface PrintPartImagesState {
   images: Partial<Record<SorterPrintPart, string>>;
 }
 
+export interface BuildStepSmallImage {
+  src: string;
+  width: number;
+  height: number;
+}
+
 export interface PrintPartImagesProps {
   parts: readonly SorterPrintPart[];
 }

@@ -10,7 +10,7 @@ import {
   pickWalkSpotLabel,
 } from "@/features/business/lib/pick-walk-labels";
 import { useTheme } from "@/hooks/use-theme";
-import { cardArtSources } from "@/lib/card-art";
+import { cardThumbnailUrl } from "@/lib/card-art";
 import { SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { LIST_ROW_MIN_HEIGHT } from "@/lib/constants/ui";
 import type { PickWalkEntryRowProps } from "@/lib/interfaces/business";
@@ -21,7 +21,7 @@ export function PickWalkEntryRow({ entry, isPicked, showOrderName, canPick, onTo
   const spot = pickWalkSpotLabel(entry, t);
   const printing = pickWalkPrintingLabel(entry, t);
   const orderLabel = pickWalkOrderLabel(entry, showOrderName, t);
-  const { imageUrl, placeholderUrl } = cardArtSources(entry.card.image);
+  const imageUrl = cardThumbnailUrl(entry.card.image);
 
   return (
     <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -44,7 +44,7 @@ export function PickWalkEntryRow({ entry, isPicked, showOrderName, canPick, onTo
         })}
       >
         <CheckboxIndicator checked={isPicked} disabled={!canPick} />
-        <CardThumbnail imageUrl={imageUrl} placeholderUrl={placeholderUrl} />
+        <CardThumbnail imageUrl={imageUrl} />
         <View style={{ flex: 1, minWidth: 0, gap: 2 }}>
           <AppText
             weight="medium"

@@ -16,7 +16,7 @@ import {
   ServoCalibration,
 } from "@magic-vault/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { createContext, useCallback, useContext } from "react";
+import { createContext, useCallback, useContext, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useStationToast } from "@/features/scanner/api/use-station-toast";
 
@@ -96,8 +96,13 @@ export function ModuleConfigsProvider({
     [sendCommand],
   );
 
+  const contextValue = useMemo(
+    () => ({ configs, saveConfig, moveServo }),
+    [configs, saveConfig, moveServo],
+  );
+
   return (
-    <ModuleConfigsContext value={{ configs, saveConfig, moveServo }}>
+    <ModuleConfigsContext value={contextValue}>
       {children}
     </ModuleConfigsContext>
   );

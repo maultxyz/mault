@@ -75,3 +75,8 @@ export interface CurrentTradeOfferWantedCards {
   cardsByScanId: Map<string, StorageLocationCard>;
   placementsByScanId: Map<string, TradeOfferWantedPlacement>;
 }
+
+export interface OwnerTradeOffersPage {
+  limit: number;
+  offset: number;
+}

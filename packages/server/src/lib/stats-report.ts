@@ -24,6 +24,7 @@ import { COLLECTION_CARD_SQL_COLUMNS } from "./constants/card-prices";
 import {
   STATS_REPORT_CACHE_MAX_ENTRIES,
   STATS_REPORT_CACHE_TTL_MS,
+  STATS_REPORT_MINIMUM_MS_BETWEEN_LOADS,
 } from "./constants/home-read-caches";
 import { ONE_DAY_MS } from "./constants/timing";
 import type { LoadedStatsReport, StatsReportRow } from "./interfaces/stats";
@@ -34,6 +35,7 @@ import { hydrateSavedCards } from "./saved-cards";
 const statsReportCache = createOrgReadCache<LoadedStatsReport | null>(
   STATS_REPORT_CACHE_TTL_MS,
   STATS_REPORT_CACHE_MAX_ENTRIES,
+  STATS_REPORT_MINIMUM_MS_BETWEEN_LOADS,
 );
 
 function priceBucketsSql(): SQL {

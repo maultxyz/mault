@@ -1,4 +1,5 @@
 import { AppShell } from "@/app/app-shell";
+import { loadMarketingPage } from "@/app/marketing-pages";
 import { routes } from "@/app/router";
 import {
   CLIENT_RENDERED_BOUNDARY_MARKER,
@@ -24,6 +25,7 @@ function renderRoute(path: string): string {
 
 export async function renderMarketingPage(path: string): Promise<string> {
   await i18nReady;
+  await loadMarketingPage(path);
   for (let pass = 1; pass <= PRERENDER_MAX_PASSES; pass++) {
     const html = renderRoute(path);
     if (!html.includes(CLIENT_RENDERED_BOUNDARY_MARKER)) return html;
