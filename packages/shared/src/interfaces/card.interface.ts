@@ -33,6 +33,8 @@ export interface PlayingCardCardKingdomPrice {
 
 export type CardConditionPrices = Partial<Record<CardCondition, number>>;
 
+export type CardConditionListingCounts = Partial<Record<CardCondition, number>>;
+
 export type CardPurchaseLinks = Partial<Record<PriceSource, string>>;
 
 export type CardPricesAtScan = Partial<
@@ -89,6 +91,8 @@ export interface PlayingCard {
   priceRangeFoil?: PlayingCardPriceRange;
   priceByCondition?: CardConditionPrices;
   priceFoilByCondition?: CardConditionPrices;
+  listingCountByCondition?: CardConditionListingCounts;
+  listingCountFoilByCondition?: CardConditionListingCounts;
   priceEur?: number | null;
   priceEurFoil?: number | null;
   cardmarketPrice?: PlayingCardCardmarketPrice;

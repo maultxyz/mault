@@ -8,6 +8,7 @@ import type {
 } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
 import {
+  CARD_CONDITIONS,
   priceChangeSinceScan,
   tcgplayerHeadlinePrices,
 } from "@magic-vault/shared";
@@ -22,6 +23,7 @@ function PriceTable({
   rows,
   highlightColumn,
   format,
+  missingValueLabel,
 }: PriceTableProps) {
   const visibleRows = rows.filter((row) =>
     row.values.some((value) => value != null),
@@ -29,7 +31,7 @@ function PriceTable({
   if (visibleRows.length === 0) return null;
 
   const formatOptional = (value: number | null) =>
-    value != null ? format(value) : <MissingPrice />;
+    value != null ? format(value) : <MissingPrice label={missingValueLabel} />;
 
   return (
     <div className="max-w-full overflow-x-auto">
@@ -135,7 +137,7 @@ export function CardPriceDetails({
   condition,
   className,
 }: CardPriceDetailsProps) {
-  const { t } = useTranslation("cards");
+  const { t, i18n } = useTranslation("cards");
   const { source } = usePriceSource();
   const [tablesOpen, setTablesOpen] = useState(false);
 
@@ -179,6 +181,31 @@ export function CardPriceDetails({
         highlightColumn: 1,
         format: formatUsd,
       },
+      extraTables: [
+        {
+          heading: t("priceTable.listingsHeading"),
+          columns: CARD_CONDITIONS,
+          rows: [
+            {
+              label: t("priceTable.regular"),
+              values: CARD_CONDITIONS.map(
+                (listingCondition) =>
+                  card.listingCountByCondition?.[listingCondition] ?? null,
+              ),
+            },
+            {
+              label: t("priceTable.foil"),
+              values: CARD_CONDITIONS.map(
+                (listingCondition) =>
+                  card.listingCountFoilByCondition?.[listingCondition] ?? null,
+              ),
+            },
+          ],
+          highlightColumn: CARD_CONDITIONS.indexOf(condition ?? "NM"),
+          format: (listingCount) => listingCount.toLocaleString(i18n.language),
+          missingValueLabel: t("priceTable.noListings"),
+        },
+      ],
     },
     {
       source: "cardmarket",
@@ -301,9 +328,11 @@ export function CardPriceDetails({
       </button>
       {tablesOpen && (
         <div className="flex max-w-full flex-col gap-3 rounded-lg bg-foreground/6 px-4 py-2 w-fit">
-          {ordered.map(({ source: key, table }) => (
-            <PriceTable key={key} {...table} />
-          ))}
+          {ordered.flatMap(({ source: key, table, extraTables = [] }) =>
+            [table, ...extraTables].map((sourceTable) => (
+              <PriceTable key={`${key}:${sourceTable.heading}`} {...sourceTable} />
+            )),
+          )}
         </div>
       )}
     </div>

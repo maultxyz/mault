@@ -2510,7 +2510,9 @@
     "low": "Niedrig",
     "regular": "Normal",
     "foil": "Foil",
-    "noPrice": "Kein Preis"
+    "noPrice": "Kein Preis",
+    "listingsHeading": "TCGplayer-Angebote",
+    "noListings": "Keine Angebote"
   },
   "health": {
     "title": "Systemstatus",

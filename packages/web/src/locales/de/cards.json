@@ -41,7 +41,9 @@
     "market": "Markt",
     "low": "Niedrig",
     "regular": "Normal",
-    "foil": "Foil"
+    "foil": "Foil",
+    "listingsHeading": "TCGplayer-Angebote",
+    "noListings": "Keine Angebote"
   },
   "cardDetailPanel": {
     "catalogCardRemovedTitle": "Karte nicht mehr im Katalog",

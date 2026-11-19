@@ -2510,7 +2510,9 @@
     "low": "Low",
     "regular": "Regular",
     "foil": "Foil",
-    "noPrice": "No price"
+    "noPrice": "No price",
+    "listingsHeading": "TCGplayer listings",
+    "noListings": "No listings"
   },
   "health": {
     "title": "System health",

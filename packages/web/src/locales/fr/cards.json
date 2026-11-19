@@ -41,7 +41,9 @@
     "market": "Marché",
     "low": "Bas",
     "regular": "Normale",
-    "foil": "Foil"
+    "foil": "Foil",
+    "listingsHeading": "Annonces TCGplayer",
+    "noListings": "Aucune annonce"
   },
   "cardDetailPanel": {
     "catalogCardRemovedTitle": "Carte retirée du catalogue",

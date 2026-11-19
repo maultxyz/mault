@@ -1,5 +1,6 @@
 import {
   CARD_CONDITIONS,
+  type CardConditionListingCounts,
   type CardConditionPrices,
   type CardFinishPrices,
   type CardStampPrices,
@@ -10,6 +11,7 @@ import { and, eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { tcgplayerPrices, tcgplayerProducts, tcgplayerSkus } from "../../db/schema";
 import {
+  TCGPLAYER_SKU_CONDITION_LISTING_COUNT_COLUMNS,
   TCGPLAYER_SKU_CONDITION_PRICE_COLUMNS,
   TCGTRACKING_SKU_LANGUAGE_CODES,
 } from "../constants/tcgtracking";
@@ -221,6 +223,7 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       ),
     );
   const conditionPricesByKey = new Map<string, CardConditionPrices>();
+  const listingCountsByKey = new Map<string, CardConditionListingCounts>();
   const skuVariantsByProductLanguage = new Map<string, Set<string>>();
   for (const row of skuRows) {
     const productLanguageKey = `${row.productId}:${row.language}`;
@@ -235,6 +238,16 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       conditionPricesByKey.set(
         `${row.productId}:${row.variant}:${row.language}`,
         Object.fromEntries(entries),
+      );
+    }
+    const listingCountEntries = CARD_CONDITIONS.flatMap((condition) => {
+      const listingCount = row[TCGPLAYER_SKU_CONDITION_LISTING_COUNT_COLUMNS[condition]];
+      return listingCount == null ? [] : [[condition, listingCount] as const];
+    });
+    if (listingCountEntries.length > 0) {
+      listingCountsByKey.set(
+        `${row.productId}:${row.variant}:${row.language}`,
+        Object.fromEntries(listingCountEntries),
       );
     }
   }
@@ -258,6 +271,14 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       singleProductId === null
         ? undefined
         : conditionPricesOf(singleProductId, subTypes);
+    const listingCountsFor = (subTypes: string[]) =>
+      singleProductId === null
+        ? undefined
+        : subTypes
+            .map((subType) =>
+              listingCountsByKey.get(`${singleProductId}:${subType}:${languageCode}`),
+            )
+            .find((listingCounts) => listingCounts != null);
 
     const subTypes = pricing.subTypes(card);
     const range = rangeFor(subTypes.price);
@@ -273,6 +294,10 @@ export async function applyTcgplayerPrices<T extends PlayingCard>(
       priceByCondition: conditionPricesFor(subTypes.price) ?? card.priceByCondition,
       priceFoilByCondition:
         conditionPricesFor(subTypes.priceFoil) ?? card.priceFoilByCondition,
+      listingCountByCondition:
+        listingCountsFor(subTypes.price) ?? card.listingCountByCondition,
+      listingCountFoilByCondition:
+        listingCountsFor(subTypes.priceFoil) ?? card.listingCountFoilByCondition,
       foilOnlyFoilType:
         card.foilOnlyFoilType ??
         foilOnlyFoilTypeOf(

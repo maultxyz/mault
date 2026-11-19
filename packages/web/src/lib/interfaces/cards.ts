@@ -186,6 +186,7 @@ export interface PriceTableProps {
   rows: PriceTableRow[];
   highlightColumn: number;
   format: (value: number) => string;
+  missingValueLabel?: string;
 }
 
 export interface PriceHeadlineProps {
@@ -202,6 +203,7 @@ export interface PriceSourceSection {
   source: PriceSource;
   headline: Omit<PriceHeadlineProps, "isFoil">;
   table: PriceTableProps;
+  extraTables?: PriceTableProps[];
 }
 
 export type CardViewMode = "grid" | "list";

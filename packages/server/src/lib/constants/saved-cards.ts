@@ -47,6 +47,8 @@ export const SAVED_CARD_READ_TIME_KEYS = [
   "finishPrices",
   "priceByCondition",
   "priceFoilByCondition",
+  "listingCountByCondition",
+  "listingCountFoilByCondition",
 ] as const;
 
 export const SAVED_ALTERNATIVE_KEYS = [

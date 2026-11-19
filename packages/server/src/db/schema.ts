@@ -1990,6 +1990,11 @@ export const tcgplayerSkus = pgTable(
     moderatelyPlayedMarketPrice: doublePrecision("moderately_played_market_price"),
     heavilyPlayedMarketPrice: doublePrecision("heavily_played_market_price"),
     damagedMarketPrice: doublePrecision("damaged_market_price"),
+    nearMintListingCount: integer("near_mint_listing_count"),
+    lightlyPlayedListingCount: integer("lightly_played_listing_count"),
+    moderatelyPlayedListingCount: integer("moderately_played_listing_count"),
+    heavilyPlayedListingCount: integer("heavily_played_listing_count"),
+    damagedListingCount: integer("damaged_listing_count"),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [

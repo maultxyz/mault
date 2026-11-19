@@ -178,6 +178,13 @@ export const TCGPLAYER_SKU_CONDITION_PRICE_COLUMNS = {
   HP: "heavilyPlayedMarketPrice",
   DMG: "damagedMarketPrice",
 } as const satisfies Record<CardCondition, string>;
+export const TCGPLAYER_SKU_CONDITION_LISTING_COUNT_COLUMNS = {
+  NM: "nearMintListingCount",
+  LP: "lightlyPlayedListingCount",
+  MP: "moderatelyPlayedListingCount",
+  HP: "heavilyPlayedListingCount",
+  DMG: "damagedListingCount",
+} as const satisfies Record<CardCondition, string>;
 export const TCGTRACKING_SKU_LANGUAGE_CODES: Record<string, string> = {
   ja: "JP",
   zhs: "CS",

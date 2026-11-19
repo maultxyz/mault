@@ -1,4 +1,4 @@
-import { priceChangeSinceScan, tcgplayerHeadlinePrices, MISSING_PRICE_TEXT } from "@magic-vault/shared";
+import { CARD_CONDITIONS, priceChangeSinceScan, tcgplayerHeadlinePrices, MISSING_PRICE_TEXT } from "@magic-vault/shared";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, View } from "react-native";
@@ -12,7 +12,7 @@ import { SPACING } from "@/lib/constants/theme";
 import type { CardPriceDetailsProps, PriceSourceSection } from "@/lib/interfaces/cards";
 
 export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: CardPriceDetailsProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const colors = useTheme();
   const { source } = usePricing();
   const [open, setOpen] = useState(false);
@@ -55,6 +55,25 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
         highlightColumn: 1,
         format: formatUsd,
       },
+      extraTables: [
+        {
+          heading: t("priceTable.listingsHeading"),
+          columns: CARD_CONDITIONS,
+          rows: [
+            {
+              label: t("priceTable.regular"),
+              values: CARD_CONDITIONS.map((listingCondition) => card.listingCountByCondition?.[listingCondition] ?? null),
+            },
+            {
+              label: t("priceTable.foil"),
+              values: CARD_CONDITIONS.map((listingCondition) => card.listingCountFoilByCondition?.[listingCondition] ?? null),
+            },
+          ],
+          highlightColumn: CARD_CONDITIONS.indexOf(condition ?? "NM"),
+          format: (listingCount) => listingCount.toLocaleString(i18n.language),
+          missingValueLabel: t("priceTable.noListings"),
+        },
+      ],
     },
     {
       source: "cardmarket",
@@ -136,7 +155,10 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
 
   const headlineRows = ordered.filter(({ headline }) => headline.price != null || headline.foilPrice != null);
   const detailTables = ordered
-    .map(({ source: key, table }) => {
+    .flatMap(({ source: key, table, extraTables = [] }) =>
+      [table, ...extraTables].map((sourceTable) => ({ key: `${key}:${sourceTable.heading}`, table: sourceTable })),
+    )
+    .map(({ key, table }) => {
       const finishColumns = table.rows
         .map((row, rowIndex) => ({ label: row.label, rowIndex }))
         .filter(({ rowIndex }) => table.rows[rowIndex].values.some((value) => value != null));
@@ -252,7 +274,7 @@ export function CardPriceDetails({ card, isFoil, foilType, stamp, condition }: C
                       size="sm"
                       weight={metricIndex === table.highlightColumn ? "semibold" : "regular"}
                       style={{ width: PRICE_TABLE_COLUMN_WIDTH, textAlign: "right" }}
-                      accessibilityLabel={value != null ? undefined : t("priceTable.noPrice")}
+                      accessibilityLabel={value != null ? undefined : (table.missingValueLabel ?? t("priceTable.noPrice"))}
                     >
                       {value != null ? table.format(value) : MISSING_PRICE_TEXT}
                     </AppText>

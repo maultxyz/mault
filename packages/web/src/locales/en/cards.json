@@ -41,7 +41,9 @@
     "market": "Market",
     "low": "Low",
     "regular": "Regular",
-    "foil": "Foil"
+    "foil": "Foil",
+    "listingsHeading": "TCGplayer listings",
+    "noListings": "No listings"
   },
   "cardDetailPanel": {
     "catalogCardRemovedTitle": "Card no longer in the catalog",

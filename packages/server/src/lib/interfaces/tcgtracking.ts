@@ -122,6 +122,7 @@ export interface TcgtrackingSkuEntry {
   lng: string;
   mkt?: number | null;
   low?: number | null;
+  cnt?: number | null;
 }
 
 export interface TcgtrackingSetSkusResponse {
@@ -134,6 +135,7 @@ export interface TcgtrackingSku {
   variant: string;
   language: string;
   marketPrice: number | null;
+  listingCount: number | null;
 }
 
 export interface TcgplayerSkuSyncResult {

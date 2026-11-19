@@ -2510,7 +2510,9 @@
     "low": "Bas",
     "regular": "Normale",
     "foil": "Foil",
-    "noPrice": "Pas de prix"
+    "noPrice": "Pas de prix",
+    "listingsHeading": "Annonces TCGplayer",
+    "noListings": "Aucune annonce"
   },
   "health": {
     "title": "État du système",
