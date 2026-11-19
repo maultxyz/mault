@@ -41,10 +41,10 @@ function endRouteLoad() {
   setRouteLoadingIndicatorVisible(false);
 }
 
-export function lazyRoute<RouteComponent extends ComponentType<never>>(
+export function lazyRoute<RouteComponent extends ComponentType<object>>(
   loadRouteModule: () => Promise<RouteComponentModule<RouteComponent>>,
 ) {
-  const routeComponent = lazy(() => {
+  const routeComponent = lazy<RouteComponent>(() => {
     beginRouteLoad();
     return loadRouteModule().finally(endRouteLoad);
   });

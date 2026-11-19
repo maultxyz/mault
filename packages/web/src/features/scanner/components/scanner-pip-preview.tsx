@@ -3,7 +3,10 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useCameraContext } from "@/features/scanner/api/use-camera";
 import { useDesktopPipDrag } from "@/features/scanner/api/use-desktop-pip-drag";
-import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
+import {
+  useScanElapsedMs,
+  useScannedCards,
+} from "@/features/scanner/api/use-scanned-cards";
 import { ScannerPipSorterList } from "@/features/scanner/components/scanner-pip-sorter-list";
 import { StationStatusDot } from "@/features/scanner/components/station-status-dot";
 import type { StationStatus } from "@/lib/interfaces/stations";
@@ -24,7 +27,8 @@ export function ScannerPipPreview({
   const { t } = useTranslation("scanner");
   const { stream, cameraSource } = useCameraContext();
   const device = useDevice();
-  const { elapsedMs, isTimerActive, attention } = useScannedCards();
+  const { isTimerActive, attention } = useScannedCards();
+  const elapsedMs = useScanElapsedMs();
   const { activeCollection } = useCollections();
   const { totalCount } = useCollectionCardsSummary();
   const videoRef = useRef<HTMLVideoElement>(null);

@@ -1,6 +1,6 @@
 import type { ComponentType } from "react";
 
-export type RouteComponentModule<RouteComponent extends ComponentType<never>> = {
+export type RouteComponentModule<RouteComponent extends ComponentType<object>> = {
   default: RouteComponent;
 };
 

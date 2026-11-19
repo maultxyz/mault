@@ -1,5 +1,4 @@
 import { useEffect } from "react";
-import { InteractionManager } from "react-native";
 import { SCAN_MODEL_WARM_DELAY_MS } from "@/lib/constants/scanner";
 
 let hasWarmedScanModels = false;
@@ -7,9 +6,9 @@ let hasWarmedScanModels = false;
 export function useWarmScanModels(isHomeLoaded: boolean): void {
   useEffect(() => {
     if (!isHomeLoaded || hasWarmedScanModels) return;
-    let interaction: { cancel: () => void } | null = null;
+    let idleCallbackHandle: number | null = null;
     const timer = setTimeout(() => {
-      interaction = InteractionManager.runAfterInteractions(() => {
+      idleCallbackHandle = requestIdleCallback(() => {
         if (hasWarmedScanModels) return;
         hasWarmedScanModels = true;
         void import("@/features/scanner/lib/inference")
@@ -21,7 +20,7 @@ export function useWarmScanModels(isHomeLoaded: boolean): void {
     }, SCAN_MODEL_WARM_DELAY_MS);
     return () => {
       clearTimeout(timer);
-      interaction?.cancel();
+      if (idleCallbackHandle !== null) cancelIdleCallback(idleCallbackHandle);
     };
   }, [isHomeLoaded]);
 }
