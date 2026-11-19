@@ -15,6 +15,7 @@ import { db, type Transaction } from "../db";
 import { orgBilling, planSettings } from "../db/schema";
 import { currentPreviewPlan } from "./plan-preview";
 import { refreshPricingMode } from "./pricing-mode";
+import { refreshShareLinkLengths } from "./share-link-lengths";
 import { PLAN_CONFIG_LOAD_RETRY_MS } from "./constants/timing";
 import {
   ORG_BILLING_PLAN_CACHE_TTL_MS,
@@ -185,6 +186,7 @@ export async function refreshPlanConfig(): Promise<PlanConfig> {
   const [rows] = await Promise.all([
     db.select().from(planSettings),
     refreshPricingMode(),
+    refreshShareLinkLengths(),
   ]);
   const defaults = defaultPlanConfig();
   const next = { ...defaults };

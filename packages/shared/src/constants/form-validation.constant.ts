@@ -51,6 +51,8 @@ export const FORM_VALIDATION_MESSAGE_KEYS = [
   "orderBinCatchAll",
   "jsonObjectInvalid",
   "statsSyncKeyInvalid",
+  "expiryDaysInvalid",
+  "expiryDaysTooMany",
 ] as const;
 
 export const ORGANIZATION_NAME_MAX_LENGTH = 100;

@@ -383,7 +383,9 @@
     "contactRequired": "Add a way to reach you.",
     "textTooLong": "Keep this under {{max}} characters.",
     "jsonObjectInvalid": "Enter a single JSON object, like {\"neutral\": true}.",
-    "statsSyncKeyInvalid": "Paste the whole key. It starts with mvstats_."
+    "statsSyncKeyInvalid": "Paste the whole key. It starts with mvstats_.",
+    "expiryDaysInvalid": "Enter whole numbers of days from 1 to {{max}}, separated by commas.",
+    "expiryDaysTooMany": "Enter no more than {{max}} lengths."
   },
   "memberSeatLock": {
     "title": "This organization is over its member limit",
@@ -449,6 +451,12 @@
     "expiryLabel": "Link expires after",
     "expiryOption_one": "{{count}} day",
     "expiryOption_other": "{{count}} days",
+    "durationHours_one": "{{count}} hour",
+    "durationHours_other": "{{count}} hours",
+    "durationDays_one": "{{count}} day",
+    "durationDays_other": "{{count}} days",
+    "tradeLengthNote": "Trade links last {{duration}}.",
+    "monitorShortLengthNote": "Your plan includes monitor links that last {{duration}}. Enthusiast and Business can share them for up to {{longestDuration}}.",
     "create": "Create link",
     "linkLabel": "Link",
     "copy": "Copy link",
@@ -472,8 +480,6 @@
     "tradeType": "Trade link",
     "monitorTypeDescription": "A view of the cards, live while you scan. Visitors can't send offers.",
     "tradeTypeDescription": "Visitors can pick cards and send you trade offers, which show up in your notifications.",
-    "tradeOneHourNote": "Trade links last 1 hour.",
-    "monitorOneHourNote": "Your plan includes monitor links that last 1 hour. Enthusiast and Business can share them for up to 30 days.",
     "checkFailedTitle": "Couldn't open this link",
     "checkFailedDescription": "Check your connection and try again.",
     "shortLinkInvalidTitle": "This link doesn't work",

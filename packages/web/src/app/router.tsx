@@ -248,6 +248,12 @@ const AdminShortLinksPage = lazyRoute(
     ["admin"],
   ),
 );
+const AdminShareLinksPage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/app/admin/share-links"),
+    ["admin"],
+  ),
+);
 const AdminDeveloperPage = lazyRoute(
   withNamespaces(() => import("@/app/routes/app/admin/developer"), ["admin"]),
 );
@@ -733,6 +739,15 @@ export const routes: RouteObject[] = [
                       {
                         path: "short-links",
                         element: <AdminShortLinksPage />,
+                      },
+                      {
+                        element: <AdminGuard />,
+                        children: [
+                          {
+                            path: "share-links",
+                            element: <AdminShareLinksPage />,
+                          },
+                        ],
                       },
                       {
                         path: "hardware",

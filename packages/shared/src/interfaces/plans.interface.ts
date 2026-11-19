@@ -1,3 +1,4 @@
+import type { ShareLinkLengths } from "./share-link-lengths.interface";
 import type {
   BILLING_INTERVALS,
   PAID_PLAN_KEYS,
@@ -71,6 +72,7 @@ export interface BillingStatus {
   apiAccess?: boolean;
   businessTools?: boolean;
   longShareLinks?: boolean;
+  shareLinkLengths?: ShareLinkLengths;
 }
 
 export type BillingPlanTableRow =

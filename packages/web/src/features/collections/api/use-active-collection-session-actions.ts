@@ -3,10 +3,10 @@ import { createMonitorLink } from "@/features/collections/api/monitor-links";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useCollectionLocks } from "@/lib/app-stream";
 import { shareLinkUrl } from "@/features/share-links/lib/share-link-paths";
+import { useShareLinkLengths } from "@/features/share-links/api/use-share-link-lengths";
 import { copyTextFromPromise } from "@/lib/clipboard";
 import type { ActiveCollectionSessionActions } from "@/lib/interfaces/collections";
 import { toast } from "@/lib/toast";
-import { DEFAULT_MONITOR_LINK_EXPIRY_DAYS } from "@magic-vault/shared";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -16,6 +16,7 @@ export function useActiveCollectionSessionActions(): ActiveCollectionSessionActi
   const { locks, currentUserId } = useCollectionLocks();
   const [isReleasing, setIsReleasing] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
+  const { defaultExpiryDays } = useShareLinkLengths();
 
   const isLockedByMe = !!(
     activeCollection &&
@@ -40,10 +41,7 @@ export function useActiveCollectionSessionActions(): ActiveCollectionSessionActi
     if (!activeCollection) return;
     const collectionGuid = activeCollection.guid;
     const created: { url?: string } = {};
-    const urlPromise = createMonitorLink(
-      collectionGuid,
-      DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
-    ).then((result) => {
+    const urlPromise = createMonitorLink(collectionGuid, defaultExpiryDays).then((result) => {
       if (!result.success || !result.data) {
         throw new Error(result.message);
       }
@@ -59,7 +57,7 @@ export function useActiveCollectionSessionActions(): ActiveCollectionSessionActi
       await copyTextFromPromise(urlPromise);
       toast.success(t("switcher.monitorLinkCopied"), {
         description: t("switcher.monitorLinkCopiedDescription", {
-          count: DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
+          count: defaultExpiryDays,
         }),
       });
     } catch {
@@ -73,7 +71,7 @@ export function useActiveCollectionSessionActions(): ActiveCollectionSessionActi
     } finally {
       setIsSharing(false);
     }
-  }, [activeCollection, t]);
+  }, [activeCollection, defaultExpiryDays, t]);
 
   return {
     isLockedByMe,

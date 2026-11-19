@@ -1889,6 +1889,14 @@ export const platformBillingSettings = pgTable("platform_billing_settings", {
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
+export const platformShareLinkSettings = pgTable("platform_share_link_settings", {
+  id: text("id").primaryKey(),
+  tradeLinkHours: integer("trade_link_hours").notNull(),
+  restrictedShareLinkHours: integer("restricted_share_link_hours").notNull(),
+  monitorLinkExpiryDays: integer("monitor_link_expiry_days").array().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
 export const platformStatsSettings = pgTable("platform_stats_settings", {
   id: text("id").primaryKey(),
   stats: jsonb("stats").notNull().default([]),

@@ -383,7 +383,9 @@
     "contactRequired": "Gib an, wie man dich erreicht.",
     "textTooLong": "Bleib unter {{max}} Zeichen.",
     "jsonObjectInvalid": "Gib ein einzelnes JSON-Objekt ein, etwa {\"neutral\": true}.",
-    "statsSyncKeyInvalid": "Füge den ganzen Schlüssel ein. Er beginnt mit mvstats_."
+    "statsSyncKeyInvalid": "Füge den ganzen Schlüssel ein. Er beginnt mit mvstats_.",
+    "expiryDaysInvalid": "Gib ganze Tage von 1 bis {{max}} ein, durch Kommas getrennt.",
+    "expiryDaysTooMany": "Gib höchstens {{max}} Laufzeiten ein."
   },
   "memberSeatLock": {
     "title": "Diese Organisation hat ihr Mitgliederlimit überschritten",
@@ -449,6 +451,12 @@
     "expiryLabel": "Link läuft ab nach",
     "expiryOption_one": "{{count}} Tag",
     "expiryOption_other": "{{count}} Tagen",
+    "durationHours_one": "{{count}} Stunde",
+    "durationHours_other": "{{count}} Stunden",
+    "durationDays_one": "{{count}} Tag",
+    "durationDays_other": "{{count}} Tage",
+    "tradeLengthNote": "Tausch-Links gelten {{duration}}.",
+    "monitorShortLengthNote": "In deinem Tarif gelten Monitor-Links {{duration}}. Mit Enthusiast und Business bis zu {{longestDuration}}.",
     "create": "Link erstellen",
     "linkLabel": "Link",
     "copy": "Link kopieren",
@@ -472,8 +480,6 @@
     "tradeType": "Tausch-Link",
     "monitorTypeDescription": "Eine Ansicht der Karten, live während du scannst. Besucher können keine Angebote senden.",
     "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen.",
-    "tradeOneHourNote": "Tausch-Links gelten 1 Stunde.",
-    "monitorOneHourNote": "In deinem Tarif gelten Monitor-Links 1 Stunde. Mit Enthusiast und Business bis zu 30 Tage.",
     "checkFailedTitle": "Dieser Link konnte nicht geöffnet werden",
     "checkFailedDescription": "Prüfe deine Verbindung und versuche es erneut.",
     "shortLinkInvalidTitle": "Dieser Link funktioniert nicht",

@@ -1,8 +1,6 @@
 import {
-  DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
   DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
-  MONITOR_LINK_EXPIRY_DAYS,
   type StorageShareLink,
 } from "@magic-vault/shared";
 import { and, eq, sql } from "drizzle-orm";
@@ -11,9 +9,11 @@ import { authQuery } from "../../db";
 import { storageLocations } from "../../db/schema";
 import {
   allowsLongShareLinks,
+  parseShareLinkExpiryDays,
   parseShareLinkPurpose,
   shareLinkExpiresInMinutes,
 } from "../../lib/share-link-policy";
+import { getShareLinkLengths } from "../../lib/share-link-lengths";
 import { isShareTokenConfigured } from "../../lib/share-tokens";
 import { forgetSharedStorageReads } from "../../lib/shared-storage-reads-cache";
 import { issueShareLink, revokeShareLinksForSubject } from "../../lib/share-links";
@@ -37,11 +37,9 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
     const body = await c.req
       .json<ShareLinkRequestBody>()
       .catch(() => ({}) as ShareLinkRequestBody);
-    const expiresInDays =
-      body.expiresInDays ?? DEFAULT_MONITOR_LINK_EXPIRY_DAYS;
-    if (
-      !(MONITOR_LINK_EXPIRY_DAYS as readonly number[]).includes(expiresInDays)
-    ) {
+    const lengths = getShareLinkLengths();
+    const expiresInDays = parseShareLinkExpiryDays(body.expiresInDays, lengths);
+    if (expiresInDays === null) {
       return c.json({ success: false, message: "Invalid expiry." }, 400);
     }
     if (body.showPrices !== undefined && typeof body.showPrices !== "boolean") {
@@ -79,7 +77,7 @@ export const storageShareLinkRoute = new Hono<AppEnv>()
         purpose,
         showsPrices,
         requiresGuestContact,
-        expiresInMinutes: shareLinkExpiresInMinutes(purpose, allowsLongLinks, expiresInDays),
+        expiresInMinutes: shareLinkExpiresInMinutes(purpose, allowsLongLinks, expiresInDays, lengths),
         createdByUserId: c.get("userId"),
       });
       const data: StorageShareLink = {

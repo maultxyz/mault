@@ -149,6 +149,12 @@
     "expiryLabel": "Le lien expire après",
     "expiryOption_one": "{{count}} jour",
     "expiryOption_other": "{{count}} jours",
+    "durationHours_one": "{{count}} heure",
+    "durationHours_other": "{{count}} heures",
+    "durationDays_one": "{{count}} jour",
+    "durationDays_other": "{{count}} jours",
+    "tradeLengthNote": "Les liens d'échange durent {{duration}}.",
+    "monitorShortLengthNote": "Avec votre offre, les liens de suivi durent {{duration}}. Enthusiast et Business permettent jusqu'à {{longestDuration}}.",
     "create": "Créer le lien",
     "created": "Lien créé. Le code QR et le bouton Partager sont plus bas.",
     "createFailed": "Impossible de créer le lien de partage.",
@@ -171,9 +177,7 @@
     "monitorType": "Suivi",
     "tradeType": "Échange",
     "monitorTypeDescription": "Une vue des cartes, en direct pendant que vous scannez. Les visiteurs ne peuvent pas envoyer d'offres.",
-    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications.",
-    "tradeOneHourNote": "Les liens d'échange durent 1 heure.",
-    "monitorOneHourNote": "Avec votre offre, les liens de suivi durent 1 heure. Enthusiast et Business permettent jusqu'à 30 jours."
+    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications."
   },
   "shareLinks": {
     "detailDescription": "Toute personne disposant de ce lien ou de ce QR code peut l'ouvrir sans se connecter.",
@@ -2648,7 +2652,9 @@
     "contactRequired": "Indique comment te joindre.",
     "textTooLong": "Reste sous {{max}} caractères.",
     "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}.",
-    "statsSyncKeyInvalid": "Colle la clé entière. Elle commence par mvstats_."
+    "statsSyncKeyInvalid": "Colle la clé entière. Elle commence par mvstats_.",
+    "expiryDaysInvalid": "Saisissez des nombres entiers de jours entre 1 et {{max}}, séparés par des virgules.",
+    "expiryDaysTooMany": "Saisissez au maximum {{max}} durées."
   },
   "cardTags": {
     "title": "Étiquettes",
@@ -2935,7 +2941,7 @@
         },
         "longShareLinks": {
           "label": "Liens de suivi plus longs",
-          "description": "Les liens de suivi peuvent durer 1, 7 ou 30 jours. Sans cela, ils durent 1 heure. Les liens d'échange durent toujours 1 heure."
+          "description": "Les liens de suivi peuvent durer l'une des durées en jours définies sur le web dans Admin > Liens de partage. Sans cela, ils utilisent la durée courte définie là."
         }
       },
       "limits": {

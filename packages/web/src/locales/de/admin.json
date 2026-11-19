@@ -11,6 +11,7 @@
     "sounds": "Sounds",
     "deleted": "Gelöscht und nicht erkannt",
     "shortLinks": "Kurzlinks",
+    "shareLinks": "Freigabelinks",
     "hardware": "Hardware",
     "developer": "Entwickler",
     "whatsNew": "Neuigkeiten"
@@ -351,7 +352,7 @@
       },
       "longShareLinks": {
         "label": "Längere Monitor-Links",
-        "description": "Monitor-Links können 1, 7 oder 30 Tage gelten. Ohne diese Funktion gelten sie 1 Stunde. Tausch-Links gelten immer 1 Stunde."
+        "description": "Monitor-Links können jede Laufzeit in Tagen haben, die im Web unter Admin > Freigabelinks festgelegt ist. Ohne diese Funktion gilt die dort festgelegte kurze Laufzeit."
       }
     },
     "limits": {
@@ -592,6 +593,28 @@
       "disabled": "Kurzlinks sind auf diesem Server aus.",
       "codeTaken": "Dieser Code wird schon verwendet. Wähle einen anderen.",
       "notFound": "Diesen Kurzlink gibt es nicht mehr."
+    }
+  },
+  "shareLinkLengths": {
+    "heading": "Laufzeit von Freigabelinks",
+    "description": "Wie lange neue Monitor- und Tausch-Links gelten. Eine kürzere Laufzeit kürzt auch bereits geteilte Links. Eine längere gilt für Links, die nach dem Speichern erstellt werden.",
+    "restoreDefaults": "Standardwerte wiederherstellen",
+    "saved": "Laufzeiten der Freigabelinks gespeichert.",
+    "saveFailed": "Die Laufzeiten der Freigabelinks konnten nicht gespeichert werden.",
+    "loadFailed": "Die Laufzeiten der Freigabelinks konnten nicht geladen werden.",
+    "fields": {
+      "tradeLinkHours": {
+        "label": "Tausch-Links (Stunden)",
+        "description": "So lange gilt jeder Tausch-Link. Bis zu {{max}} Stunden."
+      },
+      "restrictedShareLinkHours": {
+        "label": "Monitor-Links ohne längere Links (Stunden)",
+        "description": "So lange gelten Monitor-Links in Tarifen ohne längere Monitor-Links. Bis zu {{max}} Stunden."
+      },
+      "monitorLinkExpiryDays": {
+        "label": "Auswahl für Monitor-Links (Tage)",
+        "description": "Die Laufzeiten, aus denen Tarife mit längeren Monitor-Links wählen, durch Kommas getrennt. Bis zu {{maxOptions}} Werte von 1 bis {{maxDays}} Tagen. Die längste begrenzt auch bereits geteilte Links."
+      }
     }
   },
   "featureHighlights": {

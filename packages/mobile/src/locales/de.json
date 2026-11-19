@@ -149,6 +149,12 @@
     "expiryLabel": "Link läuft ab nach",
     "expiryOption_one": "{{count}} Tag",
     "expiryOption_other": "{{count}} Tagen",
+    "durationHours_one": "{{count}} Stunde",
+    "durationHours_other": "{{count}} Stunden",
+    "durationDays_one": "{{count}} Tag",
+    "durationDays_other": "{{count}} Tage",
+    "tradeLengthNote": "Tausch-Links gelten {{duration}}.",
+    "monitorShortLengthNote": "In deinem Tarif gelten Monitor-Links {{duration}}. Mit Enthusiast und Business bis zu {{longestDuration}}.",
     "create": "Link erstellen",
     "created": "Link erstellt. QR-Code und Teilen-Taste findest du unten.",
     "createFailed": "Der Freigabelink konnte nicht erstellt werden.",
@@ -171,9 +177,7 @@
     "monitorType": "Monitor",
     "tradeType": "Tausch",
     "monitorTypeDescription": "Eine Ansicht der Karten, live während du scannst. Besucher können keine Angebote senden.",
-    "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen.",
-    "tradeOneHourNote": "Tausch-Links gelten 1 Stunde.",
-    "monitorOneHourNote": "In deinem Tarif gelten Monitor-Links 1 Stunde. Mit Enthusiast und Business bis zu 30 Tage."
+    "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen."
   },
   "shareLinks": {
     "detailDescription": "Jeder mit diesem Link oder QR-Code kann ihn ohne Anmeldung öffnen.",
@@ -2648,7 +2652,9 @@
     "contactRequired": "Gib an, wie man dich erreicht.",
     "textTooLong": "Bleib unter {{max}} Zeichen.",
     "jsonObjectInvalid": "Gib ein einzelnes JSON-Objekt ein, etwa {\"neutral\": true}.",
-    "statsSyncKeyInvalid": "Füge den ganzen Schlüssel ein. Er beginnt mit mvstats_."
+    "statsSyncKeyInvalid": "Füge den ganzen Schlüssel ein. Er beginnt mit mvstats_.",
+    "expiryDaysInvalid": "Gib ganze Tage von 1 bis {{max}} ein, durch Kommas getrennt.",
+    "expiryDaysTooMany": "Gib höchstens {{max}} Laufzeiten ein."
   },
   "cardTags": {
     "title": "Markierungen",
@@ -2935,7 +2941,7 @@
         },
         "longShareLinks": {
           "label": "Längere Monitor-Links",
-          "description": "Monitor-Links können 1, 7 oder 30 Tage gelten. Ohne diese Funktion gelten sie 1 Stunde. Tausch-Links gelten immer 1 Stunde."
+          "description": "Monitor-Links können jede Laufzeit in Tagen haben, die im Web unter Admin > Freigabelinks festgelegt ist. Ohne diese Funktion gilt die dort festgelegte kurze Laufzeit."
         }
       },
       "limits": {

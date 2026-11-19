@@ -22,9 +22,10 @@ import type {
 } from "./interfaces/share-tokens";
 import {
   allowsLongShareLinks,
-  isOneHourShareLink,
-  restrictedShareLinkLifetime,
+  cappedShareLinkLifetime,
+  shareLinkMaxMinutes,
 } from "./share-link-policy";
+import { getShareLinkLengths } from "./share-link-lengths";
 import { signShareToken } from "./share-tokens";
 import { generateShortLinkCode } from "./short-link-codes";
 import { deleteShortLinks, registerShortLinks, shortLinkUrlFor } from "./shortener-client";
@@ -151,12 +152,15 @@ export async function listSubjectShareLinks(
     )
     .orderBy(desc(shareLinks.issuedAt));
   const allowsLongLinks = await allowsLongShareLinks(tx, orgId);
+  const lengths = getShareLinkLengths();
   const links: OrgShareLink[] = [];
   for (const { link, collectionName, locationName } of rows) {
     const purpose = link.purpose as ShareLinkPurpose;
-    const expiresAt = isOneHourShareLink(purpose, allowsLongLinks)
-      ? restrictedShareLinkLifetime(link.issuedAt, link.expiresAt)?.expiresAt
-      : link.expiresAt;
+    const expiresAt = cappedShareLinkLifetime(
+      link.issuedAt,
+      link.expiresAt,
+      shareLinkMaxMinutes(purpose, allowsLongLinks, lengths),
+    )?.expiresAt;
     if (!expiresAt) continue;
     links.push({
       guid: link.guid,

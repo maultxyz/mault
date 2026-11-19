@@ -3,6 +3,7 @@ import { ShareLinkForm } from "@/components/share-link-form";
 import { Button } from "@/components/ui/button";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
 import { useShareLinks } from "@/features/share-links/api/use-share-links";
+import { useShareLinkLengths } from "@/features/share-links/api/use-share-link-lengths";
 import { ShareLinkList } from "@/features/share-links/components/share-link-list";
 import { SharedCardLinkList } from "@/features/share-links/components/shared-card-link-list";
 import { ViewTabs } from "@/components/view-tabs";
@@ -21,7 +22,6 @@ import {
 } from "@/schemas/monitor-link.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  DEFAULT_MONITOR_LINK_EXPIRY_DAYS,
   DEFAULT_SHARE_LINK_PURPOSE,
   DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
@@ -34,12 +34,14 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
-const FORM_DEFAULT_VALUES: MonitorLinkFormValues = {
-  purpose: DEFAULT_SHARE_LINK_PURPOSE,
-  expiresInDays: String(DEFAULT_MONITOR_LINK_EXPIRY_DAYS),
-  showPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
-  requireGuestContact: DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
-};
+function formDefaultValues(expiresInDays: number): MonitorLinkFormValues {
+  return {
+    purpose: DEFAULT_SHARE_LINK_PURPOSE,
+    expiresInDays: String(expiresInDays),
+    showPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
+    requireGuestContact: DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
+  };
+}
 
 function detailsOf(link: OrgShareLink): ShareLinkDetailsData {
   return {
@@ -79,17 +81,18 @@ export function ShareLinkDialog({
   const [isRevokeAllConfirmOpen, setIsRevokeAllConfirmOpen] = useState(false);
   const queryClient = useQueryClient();
   const { links, revoke } = useShareLinks(subjectGuid);
+  const { defaultExpiryDays } = useShareLinkLengths();
 
   const form = useForm<MonitorLinkFormValues>({
     resolver: zodResolver(monitorLinkSchema),
-    defaultValues: FORM_DEFAULT_VALUES,
+    defaultValues: formDefaultValues(defaultExpiryDays),
   });
 
   useEffect(() => {
     if (!open || !startsWithNewTradeLink) return;
-    form.reset({ ...FORM_DEFAULT_VALUES, purpose: "trade" });
+    form.reset({ ...formDefaultValues(defaultExpiryDays), purpose: "trade" });
     setView("new");
-  }, [open, startsWithNewTradeLink, form]);
+  }, [open, startsWithNewTradeLink, form, defaultExpiryDays]);
 
   useEffect(() => {
     if (!viewChangedRef.current) return;
@@ -109,12 +112,12 @@ export function ShareLinkDialog({
       setView("links");
       setTab("links");
       setDetails(null);
-      form.reset(FORM_DEFAULT_VALUES);
+      form.reset(formDefaultValues(defaultExpiryDays));
     }
   };
 
   const startNewLink = () => {
-    form.reset(FORM_DEFAULT_VALUES);
+    form.reset(formDefaultValues(defaultExpiryDays));
     showView("new");
   };
 

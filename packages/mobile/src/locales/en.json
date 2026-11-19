@@ -149,6 +149,12 @@
     "expiryLabel": "Link expires after",
     "expiryOption_one": "{{count}} day",
     "expiryOption_other": "{{count}} days",
+    "durationHours_one": "{{count}} hour",
+    "durationHours_other": "{{count}} hours",
+    "durationDays_one": "{{count}} day",
+    "durationDays_other": "{{count}} days",
+    "tradeLengthNote": "Trade links last {{duration}}.",
+    "monitorShortLengthNote": "Your plan includes monitor links that last {{duration}}. Enthusiast and Business can share them for up to {{longestDuration}}.",
     "create": "Create link",
     "created": "Link created. The QR code and Share button are below.",
     "createFailed": "Couldn't create a share link.",
@@ -171,9 +177,7 @@
     "monitorType": "Monitor",
     "tradeType": "Trade",
     "monitorTypeDescription": "A view of the cards, live while you scan. Visitors can't send offers.",
-    "tradeTypeDescription": "Visitors can pick cards and send you trade offers, which show up in your notifications.",
-    "tradeOneHourNote": "Trade links last 1 hour.",
-    "monitorOneHourNote": "Your plan includes monitor links that last 1 hour. Enthusiast and Business can share them for up to 30 days."
+    "tradeTypeDescription": "Visitors can pick cards and send you trade offers, which show up in your notifications."
   },
   "shareLinks": {
     "detailDescription": "Anyone with this link or QR code can open it without logging in.",
@@ -2648,7 +2652,9 @@
     "contactRequired": "Add a way to reach you.",
     "textTooLong": "Keep this under {{max}} characters.",
     "jsonObjectInvalid": "Enter a single JSON object, like {\"neutral\": true}.",
-    "statsSyncKeyInvalid": "Paste the whole key. It starts with mvstats_."
+    "statsSyncKeyInvalid": "Paste the whole key. It starts with mvstats_.",
+    "expiryDaysInvalid": "Enter whole numbers of days from 1 to {{max}}, separated by commas.",
+    "expiryDaysTooMany": "Enter no more than {{max}} lengths."
   },
   "cardTags": {
     "title": "Tags",
@@ -2935,7 +2941,7 @@
         },
         "longShareLinks": {
           "label": "Longer monitor links",
-          "description": "Monitor links can last 1, 7 or 30 days. Without it they last 1 hour. Trade links always last 1 hour."
+          "description": "Monitor links can last any of the day lengths set on the web in Admin > Share links. Without it they use the short length set there."
         }
       },
       "limits": {

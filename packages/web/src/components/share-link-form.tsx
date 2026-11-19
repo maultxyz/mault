@@ -14,11 +14,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { billingQueryOptions } from "@/features/billing/api/billing";
-import { useOrg } from "@/features/companies/api/use-organization";
+import { useShareLinkLengths } from "@/features/share-links/api/use-share-link-lengths";
 import type { ShareLinkFormProps } from "@/lib/interfaces/share-links";
-import { MONITOR_LINK_EXPIRY_DAYS } from "@magic-vault/shared";
-import { useQuery } from "@tanstack/react-query";
+import {
+  HOURS_PER_DAY,
+  longestMonitorLinkExpiryDays,
+  shareLinkDurationOfHours,
+} from "@magic-vault/shared";
 import { useId } from "react";
 import { Controller, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -31,11 +33,16 @@ export function ShareLinkForm({ formId, form, onSubmit }: ShareLinkFormProps) {
   const requireGuestContactId = useId();
   const requireGuestContactDescriptionId = useId();
   const purpose = useWatch({ control: form.control, name: "purpose" });
-  const { activeOrg } = useOrg();
-  const { data: billing } = useQuery(billingQueryOptions(activeOrg?.id));
-  const isOneHourLink = purpose === "trade" || billing?.longShareLinks === false;
+  const { lengths, allowsLongShareLinks } = useShareLinkLengths();
+  const isFixedLengthLink = purpose === "trade" || !allowsLongShareLinks;
   const expiryLabel = (days: number) =>
     t("shareLink.expiryOption", { count: days });
+  const durationLabel = (hours: number) => {
+    const duration = shareLinkDurationOfHours(hours);
+    return duration.unit === "days"
+      ? t("shareLink.durationDays", { count: duration.count })
+      : t("shareLink.durationHours", { count: duration.count });
+  };
 
   return (
     <form
@@ -68,14 +75,21 @@ export function ShareLinkForm({ formId, form, onSubmit }: ShareLinkFormProps) {
           </Field>
         )}
       />
-      {isOneHourLink && (
+      {isFixedLengthLink && (
         <Callout variant="info">
           {purpose === "trade"
-            ? t("shareLink.tradeOneHourNote")
-            : t("shareLink.monitorOneHourNote")}
+            ? t("shareLink.tradeLengthNote", {
+                duration: durationLabel(lengths.tradeLinkHours),
+              })
+            : t("shareLink.monitorShortLengthNote", {
+                duration: durationLabel(lengths.restrictedShareLinkHours),
+                longestDuration: durationLabel(
+                  longestMonitorLinkExpiryDays(lengths.monitorLinkExpiryDays) * HOURS_PER_DAY,
+                ),
+              })}
         </Callout>
       )}
-      {!isOneHourLink && (
+      {!isFixedLengthLink && (
         <Controller
           name="expiresInDays"
           control={form.control}
@@ -89,7 +103,7 @@ export function ShareLinkForm({ formId, form, onSubmit }: ShareLinkFormProps) {
                   <SelectValue>{expiryLabel(Number(field.value))}</SelectValue>
                 </SelectTrigger>
                 <SelectContent>
-                  {MONITOR_LINK_EXPIRY_DAYS.map((days) => (
+                  {lengths.monitorLinkExpiryDays.map((days) => (
                     <SelectItem key={days} value={String(days)}>
                       {expiryLabel(days)}
                     </SelectItem>
