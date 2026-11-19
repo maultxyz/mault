@@ -13,6 +13,7 @@ import { useId, useState, type KeyboardEvent } from "react";
 import { useTranslation } from "react-i18next";
 
 function repeatToFill(games: PublicGame[]): PublicGame[] {
+  if (games.length === 0) return [];
   const filled: PublicGame[] = [];
   while (filled.length < GAMES_MARQUEE_MIN_ITEMS) filled.push(...games);
   return filled;
