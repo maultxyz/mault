@@ -12,7 +12,8 @@
     "deleted": "Deleted and unmatched",
     "shortLinks": "Short links",
     "hardware": "Hardware",
-    "developer": "Developer"
+    "developer": "Developer",
+    "whatsNew": "What's new"
   },
   "kitTest": {
     "board": {
@@ -449,7 +450,8 @@
       "intakeLot": "Intake lot",
       "fulfilmentOrder": "Order",
       "accuracyCheck": "Spot check",
-      "shopCatalog": "Shop catalog"
+      "shopCatalog": "Shop catalog",
+      "featureHighlight": "What's new highlight"
     },
     "toasts": {
       "restored": "Restored {{name}}",
@@ -590,6 +592,73 @@
       "disabled": "Short links are off on this server.",
       "codeTaken": "That code is already in use. Pick another.",
       "notFound": "That short link no longer exists."
+    }
+  },
+  "featureHighlights": {
+    "heading": "What's new",
+    "description": "Feature highlights shown to every user after sign-in, in a card on desktop and a sheet on phones. Release highlights ship with the app and don't appear here.",
+    "add": "Add highlight",
+    "loadFailed": "Couldn't load highlights.",
+    "empty": "No highlights yet.",
+    "summary_one": "{{date}}, {{count}} slide",
+    "summary_other": "{{date}}, {{count}} slides",
+    "editLabel": "Edit {{title}}",
+    "deleteLabel": "Delete {{title}}",
+    "status": {
+      "draft": "Draft",
+      "scheduled": "Scheduled",
+      "published": "Published"
+    },
+    "mediaTypes": {
+      "none": "None",
+      "image": "Image or GIF",
+      "video": "Video"
+    },
+    "form": {
+      "createTitle": "Add highlight",
+      "editTitle": "Edit highlight",
+      "description": "Each slide shows media, a title, text and an optional link.",
+      "publishedAt": "Publish date",
+      "published": "Published",
+      "publishHint": "Users see a published highlight from its publish date until it is older than 45 days.",
+      "slideHeading": "Slide {{number}}",
+      "moveUp": "Move slide {{number}} up",
+      "moveDown": "Move slide {{number}} down",
+      "removeSlide": "Remove slide {{number}}",
+      "addSlide": "Add slide",
+      "title": "Title",
+      "body": "Text",
+      "mediaType": "Media",
+      "mediaUrl": "Media URL",
+      "mediaUrlHint": "Upload a file or paste a hosted https:// URL.",
+      "posterUrl": "Poster image URL (optional)",
+      "altText": "Alt text",
+      "linkUrl": "Link URL (optional)",
+      "linkLabel": "Link label",
+      "urlPlaceholder": "https://",
+      "upload": "Upload",
+      "uploading": "Uploading...",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saving": "Saving..."
+    },
+    "preview": {
+      "label": "Preview",
+      "untitled": "Untitled"
+    },
+    "toasts": {
+      "saveSuccess": "Highlight saved.",
+      "saveError": "Couldn't save the highlight.",
+      "deleteSuccess": "Highlight deleted.",
+      "deleteError": "Couldn't delete the highlight.",
+      "uploadSuccess": "Media uploaded.",
+      "uploadError": "Couldn't upload the file.",
+      "unsupportedFile": "Use a PNG, JPEG, WebP, GIF, MP4 or WebM file.",
+      "fileTooLarge": "Keep the file under {{size}} MB."
+    },
+    "deleteDialog": {
+      "title": "Delete highlight?",
+      "description": "Users stop seeing it. You can restore it from Deleted items."
     }
   }
 }

@@ -73,6 +73,8 @@ export interface SearchInputProps {
   onChangeText: (value: string) => void;
   placeholder: string;
   accessibilityLabel: string;
+  onClear?: () => void;
+  clearAccessibilityLabel?: string;
 }
 
 export interface SurfaceProps {

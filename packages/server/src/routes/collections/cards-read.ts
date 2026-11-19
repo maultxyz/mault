@@ -89,19 +89,18 @@ async function loadUngroupedCardsPageEntries(
   page: number,
   pageSize: number,
 ): Promise<LoadedCardsPageEntries | null> {
-  const [loaded, count] = await Promise.all([
-    run(async (tx: Transaction) => {
-      const collection = await findCardsCollection(tx, guid, orgId);
-      if (!collection) return null;
-      return toLoadedCardsPageEntries(
-        collection,
-        await loadUnhydratedCardsPage(tx, collection, query, page, pageSize, {
-          ungroupedTotalsAreLoadedSeparately: true,
-        }),
-      );
-    }),
-    readCardsCount(run, guid, orgId, params),
-  ]);
+  const count = await readCardsCount(run, guid, orgId, params);
+  if (!count) return null;
+  const loaded = await run(async (tx: Transaction) => {
+    const collection = await findCardsCollection(tx, guid, orgId);
+    if (!collection) return null;
+    return toLoadedCardsPageEntries(
+      collection,
+      await loadUnhydratedCardsPage(tx, collection, query, page, pageSize, {
+        ungroupedTotalsAreLoadedSeparately: true,
+      }),
+    );
+  });
   if (!loaded || !count) return null;
   return {
     ...loaded,

@@ -160,6 +160,12 @@ export default function AccountScreen() {
       <View style={{ gap: SPACING.sm }}>
         <SectionHeader title={t("account.about")} />
         <ListGroup>
+          <ListRow
+            icon="sparkles"
+            title={t("featureHighlights.title")}
+            subtitle={t("featureHighlights.entrySubtitle")}
+            onPress={() => router.push("/whats-new")}
+          />
           <ListRow title={t("account.server")} value={API_BASE.replace(/^https?:\/\//, "")} />
           <ListRow title={t("account.version")} value={Constants.expoConfig?.version ?? ""} />
         </ListGroup>

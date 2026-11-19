@@ -2784,6 +2784,7 @@
         "notificationRule": "Règle de notification",
         "game": "Jeu",
         "announcement": "Annonce",
+        "featureHighlight": "Nouveauté",
         "intakeLot": "Rachat",
         "fulfilmentOrder": "Commande",
         "accuracyCheck": "Contrôle",
@@ -4087,6 +4088,33 @@
       "collectionLocked": "La collection est verrouillée",
       "scannerError": "Erreur de caméra",
       "emergencyStopped": "Arrêt d'urgence"
+    }
+  },
+  "featureHighlights": {
+    "title": "Nouveautés",
+    "entrySubtitle": "Nouvelles fonctionnalités et améliorations",
+    "step": "{{current}} sur {{total}}",
+    "back": "Retour",
+    "next": "Suivant",
+    "gotIt": "Compris",
+    "seeAll": "Voir toutes les nouveautés",
+    "learnMore": "En savoir plus",
+    "openVideo": "Ouvrir la vidéo",
+    "opensInBrowser": "S'ouvre dans votre navigateur",
+    "videoPlaceholder": "Vidéo",
+    "loadFailed": "Impossible de charger les nouveautés",
+    "timeline": {
+      "empty": "Aucune nouveauté pour l'instant",
+      "new": "Nouveau",
+      "loadingMore": "Chargement d'autres nouveautés"
+    },
+    "search": {
+      "label": "Rechercher dans les nouveautés",
+      "placeholder": "Rechercher dans les nouveautés",
+      "clear": "Effacer la recherche",
+      "noMatches": "Aucune nouveauté ne correspond à « {{query}} »",
+      "resultsCount_one": "{{count}} nouveauté trouvée",
+      "resultsCount_other": "{{count}} nouveautés trouvées"
     }
   }
 }

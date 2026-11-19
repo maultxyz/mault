@@ -32,6 +32,7 @@ import {
 } from "@/lib/i18n";
 import { lazyRoute, registerPreloadableRoutes } from "@/lib/route-chunks";
 import { MACHINES_ROUTE_PATH } from "@/lib/constants/machines";
+import { WHATS_NEW_PATH } from "@/lib/constants/feature-highlights";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
 import {
   STORAGE_LABELS_PATH,
@@ -226,6 +227,9 @@ const AdminDiscordPage = lazyRoute(
     ["admin", "integrations"],
   ),
 );
+const AdminWhatsNewPage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/admin/whats-new"), ["admin"]),
+);
 const AdminSoundsPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/app/admin/sounds"),
@@ -248,6 +252,7 @@ const AdminDeveloperPage = lazyRoute(
   withNamespaces(() => import("@/app/routes/app/admin/developer"), ["admin"]),
 );
 const MonitorPage = lazyRoute(() => import("@/app/routes/app/monitor"));
+const WhatsNewPage = lazyRoute(() => import("@/app/routes/app/whats-new"));
 const MachinesPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/app/machines"),
@@ -702,6 +707,10 @@ export const routes: RouteObject[] = [
                         element: <AdminDiscordPage />,
                       },
                       {
+                        path: "whats-new",
+                        element: <AdminWhatsNewPage />,
+                      },
+                      {
                         path: "sounds",
                         element: <AdminSoundsPage />,
                       },
@@ -757,6 +766,10 @@ export const routes: RouteObject[] = [
               {
                 path: MACHINES_ROUTE_PATH,
                 element: <MachinesPage />,
+              },
+              {
+                path: WHATS_NEW_PATH,
+                element: <WhatsNewPage />,
               },
               {
                 path: LIBRARY_PATH,

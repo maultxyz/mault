@@ -13,6 +13,7 @@ export const DELETED_ITEM_TYPES = [
   "notificationRule",
   "game",
   "announcement",
+  "featureHighlight",
   "intakeLot",
   "fulfilmentOrder",
   "accuracyCheck",

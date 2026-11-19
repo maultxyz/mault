@@ -16,6 +16,8 @@ import {
 import { PI_SCAN_SESSION_PATH, piScanRouter } from "./routes/pi-scan";
 import { Hono } from "hono";
 import {
+  ADMIN_FEATURE_HIGHLIGHT_MEDIA_PATH,
+  FEATURE_HIGHLIGHTS_PATH,
   MACHINES_PATH,
   PLAN_PREVIEW_HEADER,
   PUBLIC_API_KEY_HEADER,
@@ -24,6 +26,7 @@ import {
 } from "@magic-vault/shared";
 import { bodyLimit } from "hono/body-limit";
 import { cors } from "hono/cors";
+import { FEATURE_HIGHLIGHT_MEDIA_UPLOAD_BODY_MAX_BYTES } from "./lib/constants/feature-highlights";
 import { getWebUrl } from "./lib/constants/urls";
 import type { AppEnv } from "./middleware/auth";
 import {
@@ -32,6 +35,7 @@ import {
 } from "./middleware/compression";
 import { adminRouter } from "./routes/admin";
 import { announcementsRouter } from "./routes/announcements";
+import { featureHighlightsRouter } from "./routes/feature-highlights";
 import { apiKeysRouter } from "./routes/api-keys";
 import { syncApiRouter } from "./routes/sync-api";
 import { billingRouter } from "./routes/billing";
@@ -114,10 +118,16 @@ const publicPayloadTooLarge = bodyLimit({
   maxSize: PUBLIC_REQUEST_BODY_MAX_BYTES,
   onError: (c) => c.json({ success: false, message: "Payload too large." }, 413),
 });
+const featureHighlightMediaPayloadTooLarge = bodyLimit({
+  maxSize: FEATURE_HIGHLIGHT_MEDIA_UPLOAD_BODY_MAX_BYTES,
+  onError: (c) => c.json({ success: false, message: "Payload too large." }, 413),
+});
 app.use((c, next) =>
   c.req.path.startsWith("/public/")
     ? publicPayloadTooLarge(c, next)
-    : payloadTooLarge(c, next),
+    : c.req.path === ADMIN_FEATURE_HIGHLIGHT_MEDIA_PATH
+      ? featureHighlightMediaPayloadTooLarge(c, next)
+      : payloadTooLarge(c, next),
 );
 
 if (shouldCompressResponses()) app.use(compressResponses);
@@ -142,6 +152,7 @@ app.route("/devices", devicesRouter);
 app.route(MACHINES_PATH, machinesRouter);
 app.route("/games", gamesRouter);
 app.route("/announcements", announcementsRouter);
+app.route(FEATURE_HIGHLIGHTS_PATH, featureHighlightsRouter);
 app.route("/notifications", notificationsRouter);
 app.route("/org-settings", orgSettingsRouter);
 app.route("/sounds", soundsRouter);

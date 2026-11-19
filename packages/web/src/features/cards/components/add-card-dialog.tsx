@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select";
 import { useAddManualCard } from "@/features/cards/api/use-add-manual-card";
 import { CardSearchPicker } from "@/features/cards/components/card-search-picker";
+import { defaultCardSearchLanguage } from "@/features/cards/lib/default-card-search-language";
 import { useCollections } from "@/features/collections/api/use-collections";
 import type { AddCardDialogProps } from "@/lib/interfaces/cards";
 import type { PlayingCard } from "@magic-vault/shared";
@@ -32,6 +33,9 @@ export function AddCardDialog({
     pickedGuid ??
     activeCollection?.guid ??
     collections[0]?.guid;
+  const targetCollection = collections.find(
+    (collection) => collection.guid === targetGuid,
+  );
   const collectionName = (guid: string | undefined) =>
     collections.find((c) => c.guid === guid)?.name ?? "";
 
@@ -76,8 +80,9 @@ export function AddCardDialog({
           </div>
         )}
         <CardSearchPicker
-          key={targetGuid}
+          key={`${targetGuid}:${defaultCardSearchLanguage(targetCollection)}`}
           collectionGuid={targetGuid}
+          defaultLanguage={defaultCardSearchLanguage(targetCollection)}
           disabled={isAdding || !targetGuid}
           onSelect={(card) => void handleSelect(card)}
         />

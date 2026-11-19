@@ -20,15 +20,15 @@ import {
 export function CardSearchPicker({
   collectionGuid,
   initialQuery = "",
+  defaultLanguage = CARD_SEARCH_ALL_LANGUAGES,
   disabled = false,
   onSelect,
 }: CardSearchPickerProps) {
   const { t } = useTranslation("cards");
   const [query, setQuery] = useState(initialQuery);
   const [selectedSet, setSelectedSet] = useState<string>(CARD_SEARCH_ALL_SETS);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(
-    CARD_SEARCH_ALL_LANGUAGES,
-  );
+  const [selectedLanguage, setSelectedLanguage] =
+    useState<string>(defaultLanguage);
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
   const {
     results,
