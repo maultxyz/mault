@@ -83,6 +83,7 @@ import {
 } from "../../lib/printing-marks/scan";
 import { printingMarkReferencesFor } from "../../lib/printing-marks/references";
 import { rankByPrintingMarks } from "../../lib/printing-marks/ranking";
+import { preferClosestNameMissingUnreadWords } from "../../lib/ocr-name-choice";
 import { stripLeadingZeros } from "../../lib/ocr-calibration/match";
 
 export function normalizeForMatch(text: string): string {
@@ -636,7 +637,9 @@ export async function findCardMatchesByText({
     readout.number || readout.setLine,
   );
 
+  const nameOf = ({ segment, row }: OcrCandidateRow) => nameOfRow(segment, row);
   let rows: (OcrCandidateRow & { score: number })[] = [];
+  let bestNameScore = 0;
   for (const nameQuery of nameQueries) {
     const matches = cardsWithSimilarName(
       segments,
@@ -647,18 +650,21 @@ export async function findCardMatchesByText({
         ...match,
         distance: cardRowDistance(match.segment, match.row, query),
       }))
-      .sort((a, b) => b.score - a.score || a.distance - b.distance)
-      .slice(0, OCR_NAME_CANDIDATE_LIMIT);
+      .sort((a, b) => b.score - a.score || a.distance - b.distance);
     if (
       matches.length > 0 &&
-      (rows.length === 0 || matches[0].score > rows[0].score)
+      (rows.length === 0 || matches[0].score > bestNameScore)
     ) {
-      rows = matches;
+      bestNameScore = matches[0].score;
+      rows = preferClosestNameMissingUnreadWords(
+        matches,
+        nameOf,
+        nameQuery,
+      ).slice(0, OCR_NAME_CANDIDATE_LIMIT);
     }
   }
   if (rows.length === 0) return noMatch;
 
-  const nameOf = ({ segment, row }: OcrCandidateRow) => nameOfRow(segment, row);
   const matchedName = nameOf(rows[0]);
   const nameScore = rows[0].score;
 
