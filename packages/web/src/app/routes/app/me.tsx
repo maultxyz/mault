@@ -38,8 +38,10 @@ import {
   IconLanguage,
   IconLogout,
   IconSettings,
+  IconSparkles,
   IconUserCircle,
 } from "@tabler/icons-react";
+import { openWhatsNew } from "@/lib/whats-new-store";
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
@@ -185,6 +187,17 @@ export default function MePage() {
               value={(theme ?? "system") as ThemeOption}
               onChange={setTheme}
             />
+          </MobileSection>
+
+          <MobileSection title={t("mobileMenu.about")}>
+            <div className={MOBILE_LIST_CLASS}>
+              <MobileListRow
+                icon={<IconSparkles />}
+                label={t("featureHighlights.title")}
+                description={t("featureHighlights.entrySubtitle")}
+                onClick={openWhatsNew}
+              />
+            </div>
           </MobileSection>
 
           <div className={MOBILE_LIST_CLASS}>

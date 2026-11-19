@@ -2784,6 +2784,7 @@
         "notificationRule": "Benachrichtigungsregel",
         "game": "Spiel",
         "announcement": "Ankündigung",
+        "featureHighlight": "Neuigkeiten-Beitrag",
         "intakeLot": "Ankauf",
         "fulfilmentOrder": "Bestellung",
         "accuracyCheck": "Stichprobe",
@@ -4088,5 +4089,19 @@
       "scannerError": "Kamerafehler",
       "emergencyStopped": "Not-Stopp"
     }
+  },
+  "featureHighlights": {
+    "title": "Neuigkeiten",
+    "entrySubtitle": "Neue Funktionen und Verbesserungen",
+    "step": "{{current}} von {{total}}",
+    "back": "Zurück",
+    "next": "Weiter",
+    "gotIt": "Verstanden",
+    "learnMore": "Mehr erfahren",
+    "openVideo": "Video öffnen",
+    "opensInBrowser": "Öffnet sich im Browser",
+    "videoPlaceholder": "Video",
+    "loadFailed": "Neuigkeiten konnten nicht geladen werden",
+    "empty": "Gerade gibt es keine neuen Funktionen"
   }
 }

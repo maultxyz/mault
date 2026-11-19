@@ -289,7 +289,8 @@
   },
   "mobileMenu": {
     "back": "Back",
-    "theme": "Theme"
+    "theme": "Theme",
+    "about": "About"
   },
   "firmwareGate": {
     "requires": "Requires firmware {{version}} or newer. Update your sorter's firmware to use this."
@@ -697,5 +698,20 @@
     "selfHosting": "Self-hosting",
     "development": "Development environment",
     "qa": "QA environment"
+  },
+  "featureHighlights": {
+    "title": "What's new",
+    "entrySubtitle": "Recent features and improvements",
+    "step": "{{current}} of {{total}}",
+    "back": "Back",
+    "next": "Next",
+    "gotIt": "Got it",
+    "learnMore": "Learn more",
+    "opensInBrowser": "opens in a new tab",
+    "loadFailed": "Couldn't load what's new.",
+    "empty": "No new features right now",
+    "appeared": "What's new: new features are shown in the bottom right corner.",
+    "slideAnnouncement": "{{current}} of {{total}}: {{title}}",
+    "slideRoleDescription": "slide"
   }
 }

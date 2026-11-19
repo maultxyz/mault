@@ -2784,6 +2784,7 @@
         "notificationRule": "Règle de notification",
         "game": "Jeu",
         "announcement": "Annonce",
+        "featureHighlight": "Nouveauté",
         "intakeLot": "Rachat",
         "fulfilmentOrder": "Commande",
         "accuracyCheck": "Contrôle",
@@ -4088,5 +4089,19 @@
       "scannerError": "Erreur de caméra",
       "emergencyStopped": "Arrêt d'urgence"
     }
+  },
+  "featureHighlights": {
+    "title": "Nouveautés",
+    "entrySubtitle": "Nouvelles fonctionnalités et améliorations",
+    "step": "{{current}} sur {{total}}",
+    "back": "Retour",
+    "next": "Suivant",
+    "gotIt": "Compris",
+    "learnMore": "En savoir plus",
+    "openVideo": "Ouvrir la vidéo",
+    "opensInBrowser": "S'ouvre dans votre navigateur",
+    "videoPlaceholder": "Vidéo",
+    "loadFailed": "Impossible de charger les nouveautés",
+    "empty": "Aucune nouveauté pour le moment"
   }
 }

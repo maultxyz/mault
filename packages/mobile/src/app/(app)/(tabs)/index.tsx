@@ -14,6 +14,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Surface } from "@/components/ui/surface";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
+import { FeatureHighlightsPrompt } from "@/features/feature-highlights/components/feature-highlights-prompt";
 import { orgOverviewQueryOptions } from "@/features/home/api/overview";
 import { HomeActivityFigure } from "@/features/home/components/home-activity-figure";
 import { HomeCardRail } from "@/features/home/components/home-card-rail";
@@ -262,6 +263,7 @@ export default function HomeScreen() {
           />
         </>
       ) : null}
+      <FeatureHighlightsPrompt isHomeLoaded={isHomeLoaded} />
     </Screen>
   );
 }

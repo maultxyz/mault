@@ -289,7 +289,8 @@
   },
   "mobileMenu": {
     "back": "Zurück",
-    "theme": "Design"
+    "theme": "Design",
+    "about": "Info"
   },
   "firmwareGate": {
     "requires": "Benötigt Firmware {{version}} oder neuer. Aktualisiere die Firmware deines Sortierers, um das zu nutzen."
@@ -697,5 +698,20 @@
     "selfHosting": "Selbst gehostet",
     "development": "Entwicklungsumgebung",
     "qa": "QA-Umgebung"
+  },
+  "featureHighlights": {
+    "title": "Neuigkeiten",
+    "entrySubtitle": "Neue Funktionen und Verbesserungen",
+    "step": "{{current}} von {{total}}",
+    "back": "Zurück",
+    "next": "Weiter",
+    "gotIt": "Verstanden",
+    "learnMore": "Mehr erfahren",
+    "opensInBrowser": "öffnet in einem neuen Tab",
+    "loadFailed": "Neuigkeiten konnten nicht geladen werden.",
+    "empty": "Gerade keine neuen Funktionen",
+    "appeared": "Neuigkeiten: Neue Funktionen werden unten rechts angezeigt.",
+    "slideAnnouncement": "{{current}} von {{total}}: {{title}}",
+    "slideRoleDescription": "Folie"
   }
 }

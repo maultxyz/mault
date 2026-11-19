@@ -226,6 +226,9 @@ const AdminDiscordPage = lazyRoute(
     ["admin", "integrations"],
   ),
 );
+const AdminWhatsNewPage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/admin/whats-new"), ["admin"]),
+);
 const AdminSoundsPage = lazyRoute(
   withNamespaces(
     () => import("@/app/routes/app/admin/sounds"),
@@ -700,6 +703,10 @@ export const routes: RouteObject[] = [
                       {
                         path: "discord",
                         element: <AdminDiscordPage />,
+                      },
+                      {
+                        path: "whats-new",
+                        element: <AdminWhatsNewPage />,
                       },
                       {
                         path: "sounds",

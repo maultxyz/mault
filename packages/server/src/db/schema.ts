@@ -2,6 +2,7 @@ import { CARD_SEARCH_FIELDS } from "../lib/constants/collections";
 import type { CardPriceDetails } from "../lib/interfaces/card-prices";
 import {
   REPACK_UNIQUE_BY_PRINTING,
+  type AdminFeatureHighlightSlideInput,
   type PrintingMarkGroups,
   type CsvImportMapping,
 } from "@magic-vault/shared";
@@ -45,6 +46,10 @@ const vector = customType<{ data: number[]; driverData: string }>({
 
 const claimedOrgIdSql = sql.raw(
   `(SELECT current_setting('request.jwt.claims', true)::json ->> 'org_id')`,
+);
+
+const claimedUserIdSql = sql.raw(
+  `(SELECT current_setting('request.jwt.claims', true)::json ->> 'sub')`,
 );
 
 const orgRls = (orgId: any) =>
@@ -225,6 +230,48 @@ export const announcements = pgTable(
       role: authenticatedRole,
       read: true,
       modify: false,
+    }),
+  ],
+).enableRLS();
+
+export const featureHighlights = pgTable(
+  "feature_highlights",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom(),
+    isPublished: boolean("is_published").notNull().default(false),
+    publishedAt: timestamp("published_at").defaultNow().notNull(),
+    slides: jsonb("slides").$type<AdminFeatureHighlightSlideInput[]>().notNull(),
+    isDeleted: boolean("is_deleted").notNull().default(false),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("feature_highlights_guid_idx").on(table.guid),
+    crudPolicy({
+      role: authenticatedRole,
+      read: true,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
+export const featureHighlightViews = pgTable(
+  "feature_highlight_views",
+  {
+    userId: text("user_id").notNull(),
+    highlightId: text("highlight_id").notNull(),
+    seenAt: timestamp("seen_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      name: "feature_highlight_views_user_highlight_pk",
+      columns: [table.userId, table.highlightId],
+    }),
+    crudPolicy({
+      role: authenticatedRole,
+      read: sql`${table.userId} = ${claimedUserIdSql}`,
+      modify: sql`${table.userId} = ${claimedUserIdSql}`,
     }),
   ],
 ).enableRLS();

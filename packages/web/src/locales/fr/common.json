@@ -289,7 +289,8 @@
   },
   "mobileMenu": {
     "back": "Retour",
-    "theme": "Thème"
+    "theme": "Thème",
+    "about": "À propos"
   },
   "firmwareGate": {
     "requires": "Nécessite le firmware {{version}} ou plus récent. Mets à jour le firmware de ton trieur pour l'utiliser."
@@ -697,5 +698,20 @@
     "selfHosting": "Auto-hébergé",
     "development": "Environnement de développement",
     "qa": "Environnement QA"
+  },
+  "featureHighlights": {
+    "title": "Nouveautés",
+    "entrySubtitle": "Nouvelles fonctionnalités et améliorations",
+    "step": "{{current}} sur {{total}}",
+    "back": "Retour",
+    "next": "Suivant",
+    "gotIt": "Compris",
+    "learnMore": "En savoir plus",
+    "opensInBrowser": "s'ouvre dans un nouvel onglet",
+    "loadFailed": "Impossible de charger les nouveautés.",
+    "empty": "Aucune nouvelle fonctionnalité pour le moment",
+    "appeared": "Nouveautés : de nouvelles fonctionnalités s'affichent en bas à droite.",
+    "slideAnnouncement": "{{current}} sur {{total}} : {{title}}",
+    "slideRoleDescription": "diapositive"
   }
 }

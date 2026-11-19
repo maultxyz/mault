@@ -9,6 +9,7 @@ import { SeasonalPumpkin, SpiderWeb } from "@/components/halloween-decor";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
 import { PlanPreviewBanner } from "@/components/plan-preview-banner";
 import { IntakeBanner } from "@/features/business/components/intake-banner";
+import { FeatureHighlightsHost } from "@/features/feature-highlights/components/feature-highlights-host";
 import { GlobalSearchCommand } from "@/features/search/components/global-search-command";
 import { KeyboardShortcutsButton } from "@/components/keyboard-shortcuts-dialog";
 import { MobileNav } from "@/components/mobile-nav";
@@ -98,6 +99,7 @@ export default function AppLayout() {
             </PageTransition>
           </main>
           {!hideMobileNav && <MobileNav />}
+          <FeatureHighlightsHost />
         </div>
       ) : (
         <div className="h-dvh w-dvw overflow-hidden pb-6 flex flex-col bg-sidebar relative isolate text-foreground/70">
@@ -123,6 +125,7 @@ export default function AppLayout() {
               </PageTransition>
             </main>
           </div>
+          <FeatureHighlightsHost />
           <ScannerPip />
           <DesktopScannerPip />
           <AppHotkeys />

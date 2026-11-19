@@ -1338,6 +1338,13 @@
       "when": 1795054424717,
       "tag": "0190_collection_bin_emptied_indexes",
       "breakpoints": true
+    },
+    {
+      "idx": 191,
+      "version": "7",
+      "when": 1795098257542,
+      "tag": "0191_feature_highlights",
+      "breakpoints": true
     }
   ]
 }
