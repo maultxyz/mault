@@ -9,6 +9,7 @@ import {
 } from "@/features/public-cards/api/public-cards";
 import { TradeOfferHeaderButton } from "@/features/trade-offers/components/trade-offer-header-button";
 import { TradeOfferPage } from "@/features/trade-offers/components/trade-offer-page";
+import { TradeOfferReviewBar } from "@/features/trade-offers/components/trade-offer-review-bar";
 import { TradeOfferProvider } from "@/features/trade-offers/components/trade-offer-provider";
 import { PoweredByMault } from "@/features/public-cards/components/powered-by-mault";
 import { PublicCardDetailView } from "@/features/public-cards/components/public-card-detail";
@@ -408,6 +409,7 @@ export function PublicCardBrowser({
           </div>
         </div>
       )}
+      {isMobile && tradeOfferLink && !showsTradeOffer && <TradeOfferReviewBar />}
       <DynamicDialog
         open={showsFilterDrawer}
         onOpenChange={setShowsFilterDrawer}
@@ -421,7 +423,7 @@ export function PublicCardBrowser({
         {sidebarTop}
         {filterPanel}
       </DynamicDialog>
-      <footer className="flex shrink-0 items-center justify-center bg-black px-4 py-1.5 dark:border-t md:justify-end md:px-3 md:py-1">
+      <footer className="flex shrink-0 items-center justify-center bg-black px-4 pt-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))] dark:border-t md:justify-end md:px-3 md:py-1">
         <PoweredByMault isInverted />
       </footer>
     </main>

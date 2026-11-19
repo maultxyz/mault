@@ -12,7 +12,7 @@ export function TradeOfferCardList({ cards, prices, priceSource }: TradeOfferCar
       {cards.map((card, index) => (
         <li
           key={"scanId" in card ? card.scanId : `${card.gameKey}-${card.cardId}-${index}`}
-          className="flex items-center gap-2 p-2"
+          className="flex items-center gap-2 p-2 max-md:flex-wrap"
         >
           <CardImage
             src={card.imageUrl ?? undefined}
@@ -32,7 +32,7 @@ export function TradeOfferCardList({ cards, prices, priceSource }: TradeOfferCar
               {prices[index] == null ? <MissingPrice /> : formatPrice(prices[index], priceSource)}
             </span>
           )}
-          <div className="flex shrink-0 flex-wrap justify-end gap-1">
+          <div className="flex shrink-0 flex-wrap justify-end gap-1 max-md:basis-full max-md:justify-start max-md:pl-10">
             {"quantity" in card && card.quantity > 1 && (
               <Badge variant="secondary">×{card.quantity}</Badge>
             )}

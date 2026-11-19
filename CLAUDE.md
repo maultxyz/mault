@@ -6,7 +6,7 @@ Conventions and non-obvious invariants only. Feature details belong in the code.
 
 ```bash
 pnpm install
-pnpm dev                                       # Vite :5173 + Hono :3001 (+ api-docs :5174)
+pnpm dev                                       # Vite :5173 + Hono :3001 (+ api-docs :5174); web waits for /public/version (scripts/wait-for-api.mjs)
 pnpm build                                     # tsup (server), tsc -b + vite build (web)
 pnpm --filter @magic-vault/web lint            # only package with a lint script
 pnpm --filter @magic-vault/server test         # node:test via tsx, tests/*.test.ts

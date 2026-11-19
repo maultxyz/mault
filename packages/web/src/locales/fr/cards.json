@@ -669,6 +669,8 @@
     "headerButton_zero": "Offre d'échange",
     "headerButton_one": "Offre d'échange (1)",
     "headerButton_other": "Offre d'échange ({{count}})",
+    "reviewBar_one": "Vérifier l'offre d'échange (1 carte)",
+    "reviewBar_other": "Vérifier l'offre d'échange ({{count}} cartes)",
     "inTradeOffer": "Dans votre offre",
     "addToTradeOffer": "Ajouter à l'offre",
     "quickAdd": "Ajouter {{name}} à l'offre",

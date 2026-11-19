@@ -58,6 +58,7 @@ export default function TradeCollectionScreen() {
           onBack={() => router.back()}
         />
       }
+      footer={<Button size="lg" label={t("trade.done")} onPress={() => router.back()} />}
     >
       <SelectField
         label={t("trade.collectionLabel")}
@@ -120,7 +121,6 @@ export default function TradeCollectionScreen() {
           onPress={() => void cards.fetchNextPage()}
         />
       ) : null}
-      <Button size="lg" label={t("trade.done")} onPress={() => router.back()} />
       <OptionSheet
         visible={pickingCollection}
         title={t("trade.collectionLabel")}

@@ -148,6 +148,7 @@ export interface ScreenProps {
   onRefresh?: () => unknown;
   edges?: ("top" | "bottom")[];
   header?: ReactNode;
+  footer?: ReactNode;
   contentStartsWithList?: boolean;
 }
 

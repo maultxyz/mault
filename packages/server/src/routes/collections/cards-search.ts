@@ -5,6 +5,7 @@ import {
   ownedCardSearchLimit,
   ownedCardSearchGameKey,
   ownedCardSearchOffset,
+  OWNED_CARD_SEARCH_COLLECTION_PARAM,
   OWNED_CARD_SEARCH_GAME_PARAM,
   OWNED_CARD_SEARCH_LIMIT_PARAM,
   OWNED_CARD_SEARCH_OFFSET_PARAM,
@@ -18,6 +19,7 @@ import {
   OWNED_CARD_SEARCH_CACHE_TTL_MS,
 } from "../../lib/constants/collection-read-caches";
 import { INVENTORY_CARD_FILTER } from "../../lib/constants/storage-locations";
+import { UUID_PATTERN } from "../../lib/constants/validation";
 import { createOrgReadCache } from "../../lib/org-read-cache";
 import { containsLikePattern } from "../../lib/sql-like";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -35,13 +37,15 @@ export const searchOwnedCardsRoute = new Hono<AppEnv>().get(
   async (c) => {
     const orgId = c.get("orgId");
     const query = normalizeOwnedCardSearchQuery(c.req.query("q"));
-    if (!query) return c.json({ success: true, data: [] as OwnedCardSearchResult[] });
+    const requestedCollectionGuid = c.req.query(OWNED_CARD_SEARCH_COLLECTION_PARAM)?.trim() ?? "";
+    const collectionGuid = UUID_PATTERN.test(requestedCollectionGuid) ? requestedCollectionGuid : null;
+    if (!query && !collectionGuid) return c.json({ success: true, data: [] as OwnedCardSearchResult[] });
     const limit = ownedCardSearchLimit(c.req.query(OWNED_CARD_SEARCH_LIMIT_PARAM));
     const offset = ownedCardSearchOffset(c.req.query(OWNED_CARD_SEARCH_OFFSET_PARAM));
     const gameKey = ownedCardSearchGameKey(c.req.query(OWNED_CARD_SEARCH_GAME_PARAM));
     const data = await ownedCardSearchCache.get(
       orgId,
-      JSON.stringify([query, limit, offset, gameKey]),
+      JSON.stringify([query, limit, offset, gameKey, collectionGuid]),
       async () => {
         const rows = await authQuery(c.get("jwtClaims"), async (tx) => {
           const result = await tx.execute(sql`
@@ -67,8 +71,9 @@ export const searchOwnedCardsRoute = new Hono<AppEnv>().get(
             ${cardCatalogJoinSql({ gameKey: sql`g.key`, lang: sql`col.lang` }, CC_ALIAS_SQL_COLUMNS)}
             WHERE cc.org_id = ${orgId}
               AND ${INVENTORY_CARD_FILTER}
-              AND lower(cc.card_name) LIKE ${containsLikePattern(query)}
+              ${query ? sql`AND lower(cc.card_name) LIKE ${containsLikePattern(query)}` : sql``}
               ${gameKey ? sql`AND g.key = ${gameKey}` : sql``}
+              ${collectionGuid ? sql`AND col.guid = ${collectionGuid}` : sql``}
             ORDER BY
               CASE WHEN starts_with(lower(cc.card_name), ${query}) THEN 0 ELSE 1 END,
               cc.card_name,

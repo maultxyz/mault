@@ -23,7 +23,7 @@ export function TradeOfferReviewRow({
       <CardImage
         src={card.imageUrl ?? undefined}
         alt=""
-        className="aspect-[2.5/3.5] w-9 shrink-0 rounded-sm"
+        className="aspect-[2.5/3.5] w-9 shrink-0 rounded-sm max-md:w-11"
       />
       <div className="flex min-w-0 flex-1 flex-col gap-0.5">
         <span className="truncate text-control font-medium">{card.name}</span>

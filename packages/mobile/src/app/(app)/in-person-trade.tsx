@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import * as Crypto from "expo-crypto";
 import { router } from "expo-router";
 import { useMemo, useState } from "react";
@@ -41,6 +41,7 @@ import { useToast } from "@/components/ui/toast-provider";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import {
   inPersonCatalogSearchQueryOptions,
+  inPersonCollectionCardsQueryOptions,
   inPersonOwnedCardSearchQueryOptions,
   inPersonTradeQuoteQueryOptions,
   recordInPersonTrade,
@@ -54,6 +55,7 @@ import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
 import { SPACING } from "@/lib/constants/theme";
 import {
   COLLECTION_CARDS_QUERY_ROOT,
+  IN_PERSON_GIVEN_ALL_COLLECTIONS,
   IN_PERSON_TRADE_SEARCH_MIN_LENGTH,
   TRADE_OFFERS_QUERY_KEY,
 } from "@/lib/constants/trade-offers";
@@ -74,11 +76,21 @@ export default function InPersonTradeScreen() {
   const [isCollectionSheetOpen, setIsCollectionSheetOpen] = useState(false);
   const [editingCard, setEditingCard] = useState<OfferedTradeCard | null>(null);
   const [givenSearch, setGivenSearch] = useState("");
+  const [givenSourceGuid, setGivenSourceGuid] = useState(IN_PERSON_GIVEN_ALL_COLLECTIONS);
+  const [isGivenSourceSheetOpen, setIsGivenSourceSheetOpen] = useState(false);
   const [receivedSearch, setReceivedSearch] = useState("");
   const debouncedGivenSearch = useDebouncedValue(givenSearch.trim(), SEARCH_DEBOUNCE_MS);
   const debouncedReceivedSearch = useDebouncedValue(receivedSearch.trim(), SEARCH_DEBOUNCE_MS);
   const receiveCollection = collections.data?.find((collection) => collection.guid === receiveCollectionGuid) ?? null;
-  const ownedResults = useQuery(inPersonOwnedCardSearchQueryOptions(orgId, debouncedGivenSearch));
+  const givenSourceCollection = collections.data?.find((collection) => collection.guid === givenSourceGuid) ?? null;
+  const isBrowsingGivenCollection = !!givenSourceCollection;
+  const ownedResults = useQuery({
+    ...inPersonOwnedCardSearchQueryOptions(orgId, debouncedGivenSearch),
+    enabled: !!orgId && !isBrowsingGivenCollection && debouncedGivenSearch.length >= IN_PERSON_TRADE_SEARCH_MIN_LENGTH,
+  });
+  const givenCollectionCards = useInfiniteQuery(
+    inPersonCollectionCardsQueryOptions(orgId, givenSourceCollection?.guid ?? null, debouncedGivenSearch),
+  );
   const catalogResults = useQuery(inPersonCatalogSearchQueryOptions(receiveCollectionGuid, debouncedReceivedSearch));
   const form = useForm<InPersonTradeFormValues>({
     resolver: zodResolver(inPersonTradeFormSchema),
@@ -112,10 +124,19 @@ export default function InPersonTradeScreen() {
   const rowPriceAccessibilityLabel = (price: number | null | undefined) =>
     price === null ? t("trade.noPrice") : undefined;
   const givenScanIds = new Set(given.map((card) => card.scanId));
-  const ownedMatches =
-    debouncedGivenSearch.length >= IN_PERSON_TRADE_SEARCH_MIN_LENGTH
-      ? (ownedResults.data ?? []).filter((result) => !givenScanIds.has(result.scanId))
-      : [];
+  const ownedMatches = (
+    isBrowsingGivenCollection
+      ? (givenCollectionCards.data?.pages.flat() ?? [])
+      : debouncedGivenSearch.length >= IN_PERSON_TRADE_SEARCH_MIN_LENGTH
+        ? (ownedResults.data ?? [])
+        : []
+  ).filter((result) => !givenScanIds.has(result.scanId));
+  const givenSearchAnswered = isBrowsingGivenCollection
+    ? givenCollectionCards.isSuccess && !givenCollectionCards.isFetching
+    : debouncedGivenSearch.length >= IN_PERSON_TRADE_SEARCH_MIN_LENGTH && !ownedResults.isFetching;
+  const givenSearchLabel = isBrowsingGivenCollection
+    ? t("tradeOffers.inPerson.filterCollectionLabel")
+    : t("tradeOffers.inPerson.searchOwnedLabel");
   const catalogMatches =
     debouncedReceivedSearch.length >= IN_PERSON_TRADE_SEARCH_MIN_LENGTH && receiveCollection
       ? (catalogResults.data?.cards ?? []).map((card) => toTradeOfferCardOption(card, receiveCollection.game?.key ?? ""))
@@ -153,7 +174,24 @@ export default function InPersonTradeScreen() {
   };
 
   return (
-    <Screen header={<PageHeader title={t("tradeOffers.inPerson.title")} onBack={() => router.back()} />}>
+    <Screen
+      header={<PageHeader title={t("tradeOffers.inPerson.title")} onBack={() => router.back()} />}
+      footer={
+        <>
+          <AppText size="sm" accessibilityLiveRegion="polite">
+            {hasContent ? t("tradeOffers.inPerson.readyHint") : t("tradeOffers.inPerson.emptyHint")}
+          </AppText>
+          <Button
+            size="lg"
+            icon="check"
+            label={t("tradeOffers.inPerson.record")}
+            disabled={!hasContent || (received.length > 0 && !receiveCollection)}
+            loading={record.isPending}
+            onPress={form.handleSubmit((values) => record.mutate(values))}
+          />
+        </>
+      }
+    >
       <AppText size="sm" tone="secondary">
         {t("tradeOffers.inPerson.description")}
       </AppText>
@@ -213,11 +251,16 @@ export default function InPersonTradeScreen() {
         <AppText size="xs" tone="secondary">
           {t("tradeOffers.inPerson.giveDescription")}
         </AppText>
+        <SelectField
+          label={t("tradeOffers.inPerson.giveSource")}
+          value={givenSourceCollection?.name ?? t("tradeOffers.inPerson.allCollections")}
+          onPress={() => setIsGivenSourceSheetOpen(true)}
+        />
         <SearchInput
           value={givenSearch}
           onChangeText={setGivenSearch}
-          placeholder={t("tradeOffers.inPerson.searchOwnedLabel")}
-          accessibilityLabel={t("tradeOffers.inPerson.searchOwnedLabel")}
+          placeholder={givenSearchLabel}
+          accessibilityLabel={givenSearchLabel}
         />
         {ownedMatches.length > 0 ? (
           <ListGroup>
@@ -236,16 +279,26 @@ export default function InPersonTradeScreen() {
                       ...current,
                       { scanId: result.scanId, name: result.cardName, subtitle, imageUrl: result.imageUrl },
                     ]);
-                    setGivenSearch("");
+                    if (!isBrowsingGivenCollection) setGivenSearch("");
                   }}
                 />
               );
             })}
           </ListGroup>
-        ) : debouncedGivenSearch.length >= IN_PERSON_TRADE_SEARCH_MIN_LENGTH && !ownedResults.isFetching ? (
+        ) : givenSearchAnswered ? (
           <AppText size="xs" tone="secondary" accessibilityLiveRegion="polite">
-            {t("tradeOffers.inPerson.noResults")}
+            {isBrowsingGivenCollection && !debouncedGivenSearch
+              ? t("tradeOffers.inPerson.noCollectionCards")
+              : t("tradeOffers.inPerson.noResults")}
           </AppText>
+        ) : null}
+        {isBrowsingGivenCollection && givenCollectionCards.hasNextPage ? (
+          <Button
+            variant="secondary"
+            label={t("tradeOffers.inPerson.loadMoreCards")}
+            loading={givenCollectionCards.isFetchingNextPage}
+            onPress={() => void givenCollectionCards.fetchNextPage()}
+          />
         ) : null}
         {given.length > 0 ? (
           <ListGroup>
@@ -394,20 +447,23 @@ export default function InPersonTradeScreen() {
         />
       ) : null}
 
-      <View style={{ gap: SPACING.sm }}>
-        <AppText size="sm" accessibilityLiveRegion="polite">
-          {hasContent ? t("tradeOffers.inPerson.readyHint") : t("tradeOffers.inPerson.emptyHint")}
-        </AppText>
-        <Button
-          size="lg"
-          icon="check"
-          label={t("tradeOffers.inPerson.record")}
-          disabled={!hasContent || (received.length > 0 && !receiveCollection)}
-          loading={record.isPending}
-          onPress={form.handleSubmit((values) => record.mutate(values))}
-        />
-      </View>
-
+      <OptionSheet
+        visible={isGivenSourceSheetOpen}
+        title={t("tradeOffers.inPerson.giveSource")}
+        options={[
+          { value: IN_PERSON_GIVEN_ALL_COLLECTIONS, label: t("tradeOffers.inPerson.allCollections") },
+          ...(collections.data ?? []).map((collection) => ({ value: collection.guid, label: collection.name })),
+        ]}
+        selected={[givenSourceGuid]}
+        onSelect={(guid) => {
+          setIsGivenSourceSheetOpen(false);
+          if (guid !== givenSourceGuid) {
+            setGivenSourceGuid(guid);
+            setGivenSearch("");
+          }
+        }}
+        onClose={() => setIsGivenSourceSheetOpen(false)}
+      />
       <OptionSheet
         visible={isCollectionSheetOpen}
         title={t("tradeOffers.inPerson.receiveCollection")}

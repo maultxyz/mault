@@ -327,7 +327,7 @@ export function TradeOfferPage({
             />
           </div>
         )}
-        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 md:px-3 md:py-2">
+        <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 max-md:flex-col max-md:items-stretch md:px-3 md:py-2">
           <p role="status" className="text-control">
             {isReady ? summary : t("tradeOffers.needGet")}
           </p>
