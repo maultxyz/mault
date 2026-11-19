@@ -53,6 +53,7 @@ export interface ScryfallApiCard {
   frame_effects?: string[];
   tcgplayer_id?: number;
   cardmarket_id?: number;
+  englishPrintingCardmarketId?: number;
 }
 
 export type ScryfallBulkCard = {
@@ -61,6 +62,8 @@ export type ScryfallBulkCard = {
   printed_name?: string;
   lang: string;
   set: string;
+  collector_number?: string;
+  cardmarket_id?: number;
   image_uris?: ScryfallImageUris;
   card_faces?: { image_uris?: ScryfallImageUris }[];
 };

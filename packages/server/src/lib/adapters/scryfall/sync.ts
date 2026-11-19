@@ -79,10 +79,15 @@ async function downloadBulkData(
     crlfDelay: Infinity,
   });
 
+  const borrowsEnglishCardmarketIds = !!lang && lang !== "en";
+  const englishCardmarketIdByPrinting = new Map<string, number>();
   for await (const line of lines) {
     if (!line) continue;
     seen++;
     const raw = JSON.parse(line) as ScryfallBulkCard;
+    if (borrowsEnglishCardmarketIds && raw.lang === "en" && raw.cardmarket_id) {
+      englishCardmarketIdByPrinting.set(printingKeyOf(raw), raw.cardmarket_id);
+    }
     if (lang && raw.lang !== lang) continue;
     cards.push({
       id: raw.id,
@@ -96,8 +101,61 @@ async function downloadBulkData(
   }
 
   addLog(`Scanned ${seen} cards, kept ${cards.length}.`);
+  if (borrowsEnglishCardmarketIds) {
+    const stamped = stampEnglishPrintingCardmarketIds(
+      cards,
+      englishCardmarketIdByPrinting,
+    );
+    addLog(`Borrowed the English printing's Cardmarket product for ${stamped} cards.`);
+  }
 
   return cards;
+}
+
+function printingKeyOf(raw: Pick<ScryfallBulkCard, "set" | "collector_number">): string {
+  return `${raw.set}|${raw.collector_number ?? ""}`;
+}
+
+function withEnglishPrintingCardmarketId(
+  raw: ScryfallBulkCard,
+  data: string,
+  englishPrintingCardmarketId: number | undefined,
+): string {
+  if (raw.cardmarket_id || !englishPrintingCardmarketId) return data;
+  return JSON.stringify({ ...raw, englishPrintingCardmarketId });
+}
+
+function stampEnglishPrintingCardmarketIds(
+  cards: SyncSourceCard[],
+  englishCardmarketIdByPrinting: Map<string, number>,
+): number {
+  let stamped = 0;
+  for (const card of cards) {
+    const raw = JSON.parse(card.data) as ScryfallBulkCard;
+    const data = withEnglishPrintingCardmarketId(
+      raw,
+      card.data,
+      englishCardmarketIdByPrinting.get(printingKeyOf(raw)),
+    );
+    if (data === card.data) continue;
+    card.data = data;
+    stamped++;
+  }
+  return stamped;
+}
+
+async function englishPrintingCardmarketIdOf(
+  baseUrl: string,
+  raw: ScryfallBulkCard,
+): Promise<number | undefined> {
+  if (raw.lang === "en" || raw.cardmarket_id || !raw.collector_number) {
+    return undefined;
+  }
+  const url = `${apiRoot(baseUrl)}/cards/${encodeURIComponent(raw.set)}/${encodeURIComponent(raw.collector_number)}`;
+  const res = await fetch(url, { headers: CARD_API_HEADERS });
+  if (!res.ok) return undefined;
+  const english = (await res.json()) as ScryfallBulkCard;
+  return english.cardmarket_id;
 }
 
 async function fetchCards(
@@ -115,8 +173,13 @@ async function fetchOne(id: string, baseUrl: string) {
   const url = `${baseUrl}/${id}`;
   const res = await fetch(url, { headers: CARD_API_HEADERS });
   if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
-  const data = await res.text();
-  const raw = JSON.parse(data) as ScryfallBulkCard;
+  const text = await res.text();
+  const raw = JSON.parse(text) as ScryfallBulkCard;
+  const data = withEnglishPrintingCardmarketId(
+    raw,
+    text,
+    await englishPrintingCardmarketIdOf(baseUrl, raw),
+  );
   return {
     card: {
       name: raw.name,
