@@ -30,6 +30,13 @@ export async function createPortalSession(): Promise<{
   return apiPost("/api/billing/portal");
 }
 
+export async function syncBillingFromStripe(): Promise<{
+  success: boolean;
+  message?: string;
+}> {
+  return apiPost("/api/billing/sync");
+}
+
 export const billingKeys = {
   root: () => ["billing"] as const,
 };

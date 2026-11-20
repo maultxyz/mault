@@ -4,6 +4,7 @@ import { authQuery, db } from "../../db";
 import { orgBilling } from "../../db/schema";
 import { hasActiveSubscription } from "../../lib/billing-status";
 import { findPlanPriceId, getStripe } from "../../lib/stripe";
+import { syncOrgBillingFromStripe } from "../../lib/stripe-billing-sync";
 import {
   getUserContact,
   requireAuth,
@@ -44,7 +45,13 @@ export const checkoutBillingRoute = new Hono<AppEnv>().post(
           columns: { stripeCustomerId: true, status: true },
         }),
       );
-      if (hasActiveSubscription(existing?.status)) {
+      const subscriptionInStripe = existing?.stripeCustomerId
+        ? await syncOrgBillingFromStripe(orgId, existing.stripeCustomerId)
+        : null;
+      if (
+        hasActiveSubscription(existing?.status) ||
+        hasActiveSubscription(subscriptionInStripe?.status)
+      ) {
         return c.json(
           {
             success: false,
@@ -76,6 +83,7 @@ export const checkoutBillingRoute = new Hono<AppEnv>().post(
         customer: stripeCustomerId,
         client_reference_id: orgId,
         metadata: { orgId },
+        subscription_data: { metadata: { orgId } },
         line_items: [{ price: priceId, quantity: 1 }],
         success_url: `${webUrl()}/app/settings/billing?billing=success`,
         cancel_url: `${webUrl()}/app/settings/billing?billing=cancelled`,

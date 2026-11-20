@@ -79,7 +79,7 @@ export function findPlanForPriceId(
   }
   for (const plan of PAID_PLAN_KEYS) {
     for (const interval of BILLING_INTERVALS) {
-      if (findPlanPriceId(plan, interval) === priceId) {
+      if (process.env[PLAN_PRICE_ID_ENV[plan][interval]] === priceId) {
         return { plan, interval };
       }
     }
@@ -149,7 +149,13 @@ export async function getBillingPortalConfigurationId(): Promise<
         subscription_update: {
           enabled: true,
           default_allowed_updates: ["price"],
-          proration_behavior: "create_prorations",
+          proration_behavior: "always_invoice",
+          schedule_at_period_end: {
+            conditions: [
+              { type: "decreasing_item_amount" },
+              { type: "shortening_interval" },
+            ],
+          },
           products,
         },
       }),
