@@ -97,13 +97,19 @@ export default function SorterModelViewer({
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const scene = new SorterScene({
-      container,
-      reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)")
-        .matches,
-      onLoad: () => setStatus("ready"),
-      onError: () => setStatus("error"),
-    });
+    let scene: SorterScene;
+    try {
+      scene = new SorterScene({
+        container,
+        reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)")
+          .matches,
+        onLoad: () => setStatus("ready"),
+        onError: () => setStatus("error"),
+      });
+    } catch {
+      setStatus("error");
+      return;
+    }
     scene.setTargets(targetsRef.current);
     scene.setModuleCount(moduleCountRef.current);
     scene.setHotspots(anchorsRef.current);
