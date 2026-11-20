@@ -1,8 +1,13 @@
 name: Pi Release
 
-# Dispatched by hand, like the firmware and mobile releases. Builds the
-# prebuilt Pi bundle (arm64, Node included) and a flashable Raspberry Pi OS
-# image from the dispatched branch, using the app version as-is.
+# Runs nightly on master, a few hours after the nightly Release so its version
+# bump has landed, and can be dispatched by hand. Builds the prebuilt Pi bundle
+# (arm64, Node included) and a flashable Raspberry Pi OS image from the branch,
+# using the app version as-is.
+#
+# A run with nothing to release ends green without building: the app version
+# already has a pi-v tag, or (nightly only) nothing the bundle is built from
+# changed since the last Pi release.
 #
 # master publishes pi-v<version> and points the small pi-latest release (its
 # manifest.json and install.sh) at it; production installs check that manifest
@@ -13,6 +18,10 @@ name: Pi Release
 # manifest into pi-latest, and boards offer any manifest version that differs
 # from the installed one, so they move back to that release's bundle.
 on:
+  # 04:17 UTC, off the top of the hour since GitHub delays or drops scheduled
+  # runs when load peaks at :00. Scheduled runs always use master.
+  schedule:
+    - cron: "17 4 * * *"
   workflow_dispatch:
     inputs:
       image:
@@ -80,6 +89,7 @@ jobs:
       version: ${{ steps.version.outputs.version }}
       tag: ${{ steps.version.outputs.tag }}
       manifest-url: ${{ steps.version.outputs.manifest-url }}
+      should-release: ${{ steps.version.outputs.should-release }}
       node: ${{ steps.toolchain.outputs.node }}
       pnpm: ${{ steps.toolchain.outputs.pnpm }}
     steps:
@@ -99,9 +109,18 @@ jobs:
       # The Pi version is the app version from packages/server/package.json
       # (the Release workflow bumps it), never bumped here: the API compares
       # it with the release manifest to offer updates.
+      # BUNDLE_SOURCES is what scripts/pi/build-bundle.sh copies or builds
+      # from. The package.json files are left out because every Release bumps
+      # their version; a dependency change still shows in pnpm-lock.yaml.
       - name: Read app version
         id: version
+        env:
+          BUNDLE_SOURCES: >-
+            packages/server packages/shared packages/web scripts/pi drizzle patches
+            firmware/main/main.ino pnpm-lock.yaml pnpm-workspace.yaml Dockerfile.server
+            :(exclude)packages/*/package.json
         run: |
+          SKIP_REASON=""
           VERSION=$(jq -r .version packages/server/package.json)
           REPO_RELEASES="https://github.com/${{ github.repository }}/releases/download"
           if [ "$IS_DEV" = "true" ]; then
@@ -111,15 +130,23 @@ jobs:
           else
             TAG="pi-v${VERSION}"
             MANIFEST_URL="$REPO_RELEASES/$LATEST_TAG/manifest.json"
+            LAST_TAG=$(git tag -l 'pi-v*' --sort=-v:refname | head -1)
             if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
-              echo "::error::$TAG is already released. Release a new app version first."
-              exit 1
+              SKIP_REASON="$TAG is already released. The next Pi release needs a new app version."
+            elif [ "${{ github.event_name }}" = "schedule" ] && [ -n "$LAST_TAG" ] && git diff --quiet "$LAST_TAG" HEAD -- $BUNDLE_SOURCES; then
+              SKIP_REASON="Nothing in the Pi bundle changed since $LAST_TAG."
             fi
+          fi
+          if [ -n "$SKIP_REASON" ]; then
+            echo "::notice::$SKIP_REASON Nothing to release."
+            echo "## Pi release skipped" >> "$GITHUB_STEP_SUMMARY"
+            echo "$SKIP_REASON" >> "$GITHUB_STEP_SUMMARY"
           fi
           {
             echo "version=$VERSION"
             echo "tag=$TAG"
             echo "manifest-url=$MANIFEST_URL"
+            echo "should-release=$([ -z "$SKIP_REASON" ] && echo true || echo false)"
           } >> "$GITHUB_OUTPUT"
 
       - name: Read toolchain pins
@@ -136,6 +163,7 @@ jobs:
 
   bundle:
     needs: prepare
+    if: needs.prepare.outputs.should-release == 'true'
     runs-on: ubuntu-24.04-arm
     container: node:${{ needs.prepare.outputs.node }}-bookworm
     steps:
@@ -161,7 +189,7 @@ jobs:
 
   image:
     needs: [prepare, bundle]
-    if: inputs.image
+    if: github.event_name == 'schedule' || inputs.image
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
