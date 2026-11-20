@@ -117,7 +117,8 @@
     "deviceResolveFailed": "Impossible d'identifier cette trieuse. La dernière calibration enregistrée est utilisée.",
     "deviceInUse": {
       "title": "Trieuse déjà connectée",
-      "description": "{{name}} est déjà connectée dans un autre panneau de trieuse. Déconnectez-la d’abord."
+      "description": "{{name}} est déjà connectée dans un autre panneau de trieuse. Déconnectez-la d’abord.",
+      "portDescription": "Ce port est déjà connecté dans un autre panneau de trieuse. Déconnectez-le d’abord."
     },
     "unidentifiedBoard": {
       "title": "Ancien firmware détecté",
