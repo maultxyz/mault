@@ -1,7 +1,8 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import {
   isCharacterKeyHotkey,
   isHotkeyActive,
+  registerHotkeys,
   withoutCharacterKeyHotkeys,
 } from "@/lib/hotkeys";
 import type { HotkeyHandlers } from "@/lib/interfaces/hotkeys";
@@ -64,5 +65,30 @@ describe("withoutCharacterKeyHotkeys", () => {
       "clearSelection",
       "save",
     ]);
+  });
+});
+
+describe("registerHotkeys", () => {
+  it("ignores keydown events without a key, like autofill picks", () => {
+    const handler = vi.fn();
+    const unregister = registerHotkeys({
+      priority: 0,
+      isEnabled: () => true,
+      getHandlers: () => ({ scanNow: handler }),
+    });
+    const listenerErrors: unknown[] = [];
+    const recordError = (event: ErrorEvent) => {
+      event.preventDefault();
+      listenerErrors.push(event.error);
+    };
+    window.addEventListener("error", recordError);
+    try {
+      document.dispatchEvent(new Event("keydown"));
+      expect(listenerErrors).toEqual([]);
+      expect(handler).not.toHaveBeenCalled();
+    } finally {
+      window.removeEventListener("error", recordError);
+      unregister();
+    }
   });
 });

@@ -113,6 +113,7 @@ function isIgnoredTarget(target: EventTarget | null) {
 }
 
 function handleKeyDown(event: KeyboardEvent) {
+  if (typeof event.key !== "string") return;
   if (event.defaultPrevented || event.repeat || event.isComposing) return;
   if (event.altKey) return;
   const combo = toCombo(event);
