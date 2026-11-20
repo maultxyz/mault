@@ -21,6 +21,7 @@ import {
   GROUPED_CARD_RANKING_CACHE_TTL_MS,
 } from "../../lib/constants/collection-read-caches";
 import { groupedCardRankingPage } from "../../lib/grouped-card-ranking";
+import { readStoredCardStats } from "../../lib/collection-card-stats";
 import { createOrgReadCache } from "../../lib/org-read-cache";
 import { loadOrgPricing } from "../../lib/price-source";
 import { hydrateSavedScans, withoutRawCardData } from "../../lib/saved-cards";
@@ -28,6 +29,7 @@ import {
   cardFilterSql,
   cardQueryUsesCatalog,
   findCardsCollection,
+  isUnfilteredCardsQuery,
   loadCardsCount,
   loadCardStats,
   loadGroupedCardRanking,
@@ -199,6 +201,19 @@ export async function readCardsSummary(
   params: Record<string, string>,
 ): Promise<CollectionCardsSummary | null> {
   const query = parseCardsQuery(params);
+  if (isUnfilteredCardsQuery(query)) {
+    const collection = await run((tx) => findCardsCollection(tx, guid, orgId));
+    if (!collection) return null;
+    const { stats, isRefreshing } = await readStoredCardStats(
+      collection,
+      collection.pricing,
+    );
+    return {
+      all: stats,
+      filtered: stats,
+      ...(isRefreshing ? { isRefreshing: true } : {}),
+    };
+  }
   return cardsSummaryCache.get(orgId, cardFilterCacheKey(guid, query), () =>
     run(async (tx) => {
       const collection = await findCardsCollection(tx, guid, orgId);

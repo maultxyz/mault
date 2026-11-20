@@ -305,6 +305,8 @@
     "mostValuable": "{{price}} · {{name}}"
   },
   "scanStats": {
+    "loadFailed": "Couldn't load the stats for this collection.",
+    "loading": "Loading stats",
     "emptyState": "Scan cards to see their stats.",
     "totalValue": "Total Value",
     "avgValue": "Avg Value",

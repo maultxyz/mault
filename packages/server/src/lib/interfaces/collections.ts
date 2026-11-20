@@ -1,5 +1,6 @@
 import type {
   CardPriceSortCurrency,
+  CardStatsAggregate,
   FieldMeta,
   GroupedScannedCard,
   OrgPricing,
@@ -144,4 +145,23 @@ export interface NotifyCardScannedParams {
   gameName: string | undefined;
   gameId: number | null;
   capturedImageUrl?: string;
+}
+
+export interface StoredCardStats {
+  stats: CardStatsAggregate;
+  pricingKey: string;
+  computeDurationMs: number;
+  ageMs: number;
+  isDirty: boolean;
+}
+
+export interface StoredCardStatsRead {
+  stats: CardStatsAggregate;
+  isRefreshing: boolean;
+}
+
+export interface CardStatsRefreshState {
+  inFlight: Promise<CardStatsAggregate> | null;
+  lastStartedAtMs: number;
+  lastDurationMs: number;
 }

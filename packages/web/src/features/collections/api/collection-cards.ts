@@ -14,6 +14,7 @@ import type {
 } from "@magic-vault/shared";
 import {
   COLLECTION_CARDS_PAGE_SIZE,
+  COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS,
   COLLECTION_CARDS_RAW_CARD_DATA_NONE,
   COLLECTION_CARDS_RAW_CARD_DATA_PARAM,
   SCAN_TIMELINE_PAGE_SIZE,
@@ -215,6 +216,10 @@ export const collectionCardsSummaryQueryOptions = (
         ),
       ),
     enabled: !!guid,
+    refetchInterval: (query) =>
+      query.state.data?.isRefreshing
+        ? COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS
+        : false,
     placeholderData: keepPreviousData,
   });
 

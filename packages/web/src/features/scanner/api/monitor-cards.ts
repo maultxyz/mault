@@ -5,6 +5,7 @@ import {
 import { apiGet } from "@/lib/api/client";
 import { MONITOR_LINK_CARDS_QUERY_KEY } from "@/lib/constants/query";
 import type { MonitorCardsSource } from "@/lib/interfaces/scanner";
+import { COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS } from "@magic-vault/shared";
 import type {
   CollectionCardsCount,
   CollectionCardsPage,
@@ -72,6 +73,10 @@ export function monitorCardsSummaryQueryOptions(
         cardsQueryParams(query),
       ),
     enabled: !!source.collectionGuid,
+    refetchInterval: (query) =>
+      query.state.data?.isRefreshing
+        ? COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS
+        : false,
     placeholderData: keepPreviousData,
   });
 }

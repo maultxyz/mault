@@ -122,6 +122,20 @@ export function parseCardsQuery(
   };
 }
 
+export function isUnfilteredCardsQuery({
+  search,
+  filters,
+  unreviewed,
+}: CollectionCardsQuery): boolean {
+  return (
+    !search &&
+    !unreviewed &&
+    Object.values(filters).every((value) =>
+      Array.isArray(value) ? value.length === 0 : !value,
+    )
+  );
+}
+
 export function parsePage(value: string | undefined): number {
   const page = Number.parseInt(value ?? "0", 10);
   return Number.isFinite(page) && page > 0 ? page : 0;

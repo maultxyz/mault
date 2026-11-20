@@ -393,6 +393,7 @@ export const FLATBED_OVERRIDDEN_STATUSES: ScannerStatus[] = [
   "no-match",
 ];
 
+export const SCAN_STATS_SKELETON_TILE_KEYS = ["first", "second", "third", "fourth"];
 export const SCAN_STATS_SUMMARY_SEPARATOR = " · ";
 
 export const PI_SORTER_RECONNECT_INTERVAL_MS = 5000;
