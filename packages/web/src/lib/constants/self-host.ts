@@ -59,7 +59,7 @@ export const SELF_HOST_AUTH_OPTIONS: SelfHostOption<SelfHostAuth>[] = [
 
 export const SELF_HOST_PRICE_CRON = `0 4 * * * cd /opt/mault && docker compose exec -T server sh -c 'if [ "$AUTH_PROVIDER" = local ]; then export DATABASE_URL="\${DATABASE_URL:-postgresql://mault:$POSTGRES_PASSWORD@postgres:5432/mault}" DATABASE_SSL="\${DATABASE_SSL:-false}"; fi; exec node packages/server/dist/scripts/sync-prices.js' >> /var/log/mault-prices.log 2>&1`;
 
-export const SELF_HOST_PI_RELEASE_URL = `${REPO_URL}/releases?q=pi-v&expanded=true`;
+export const SELF_HOST_PI_RELEASE_URL = `${REPO_URL}/releases/tag/pi-latest`;
 
 export const SELF_HOST_PI_INSTALL_COMMAND = `curl -fsSL ${REPO_URL}/releases/download/pi-latest/install.sh | sudo bash`;
 

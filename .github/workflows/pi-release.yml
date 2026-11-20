@@ -1,31 +1,13 @@
 name: Pi Release
 
-# Runs nightly on master, a few hours after the nightly Release so its version
-# bump has landed, and can be dispatched by hand. Builds the prebuilt Pi bundle
-# (arm64, Node included) and a flashable Raspberry Pi OS image from the branch,
-# using the app version as-is.
-#
-# A run with nothing to release ends green without building: the app version
-# already has a pi-v tag, or (nightly only) nothing the bundle is built from
-# changed since the last Pi release.
-#
-# master publishes pi-v<version> and points the small pi-latest release (its
-# manifest.json and install.sh) at it; production installs check that manifest
-# for updates. dev publishes <version>-dev.<run> to the moving pi-dev
-# pre-release, which dev installs follow; the next dev build replaces it.
-#
-# A rollback (master only) builds nothing: it copies an earlier pi-v* release's
-# manifest into pi-latest, and boards offer any manifest version that differs
-# from the installed one, so they move back to that release's bundle.
 on:
-  # 04:17 UTC, off the top of the hour since GitHub delays or drops scheduled
-  # runs when load peaks at :00. Scheduled runs always use master.
   schedule:
-    - cron: "17 4 * * *"
+    - cron: "17 4 * * 1-6"
+    - cron: "17 4 * * 0"
   workflow_dispatch:
     inputs:
       image:
-        description: Also build the SD card image
+        description: Also build the SD card image (for the release pi-latest points at when this app version is already released)
         type: boolean
         default: true
       rollback_tag:
@@ -46,6 +28,7 @@ env:
   IS_DEV: ${{ github.ref_name == 'dev' }}
   LATEST_TAG: pi-latest
   DEV_TAG: pi-dev
+  WEEKLY_IMAGE_CRON: "17 4 * * 0"
 
 jobs:
   rollback:
@@ -75,7 +58,7 @@ jobs:
           fi
           gh release upload "$LATEST_TAG" rollback/install.sh --clobber
           gh release upload "$LATEST_TAG" rollback/manifest.json --clobber
-          gh release edit "$LATEST_TAG" --notes "Points Pi installs at [${ROLLBACK_TAG}](https://github.com/${GH_REPO}/releases/tag/${ROLLBACK_TAG}) (rollback). Download the image from there."
+          gh release edit "$LATEST_TAG" --notes "Points Pi installs at [${ROLLBACK_TAG}](https://github.com/${GH_REPO}/releases/tag/${ROLLBACK_TAG}) (rollback). **mault-pi.img.xz** here is the newest SD image and is rebuilt weekly, so it can be a few releases behind: flash it, then update Mault (Update Mault in the app, or \`sudo mault update\`)."
           {
             echo "## Pi rollback to ${ROLLBACK_TAG}"
             echo ""
@@ -90,6 +73,8 @@ jobs:
       tag: ${{ steps.version.outputs.tag }}
       manifest-url: ${{ steps.version.outputs.manifest-url }}
       should-release: ${{ steps.version.outputs.should-release }}
+      image-mode: ${{ steps.version.outputs.image-mode }}
+      image-tag: ${{ steps.version.outputs.image-tag }}
       node: ${{ steps.toolchain.outputs.node }}
       pnpm: ${{ steps.toolchain.outputs.pnpm }}
     steps:
@@ -115,6 +100,8 @@ jobs:
       - name: Read app version
         id: version
         env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
           BUNDLE_SOURCES: >-
             packages/server packages/shared packages/web scripts/pi drizzle patches
             firmware/main/main.ino pnpm-lock.yaml pnpm-workspace.yaml Dockerfile.server
@@ -138,15 +125,41 @@ jobs:
             fi
           fi
           if [ -n "$SKIP_REASON" ]; then
-            echo "::notice::$SKIP_REASON Nothing to release."
-            echo "## Pi release skipped" >> "$GITHUB_STEP_SUMMARY"
+            echo "::notice::$SKIP_REASON No bundle to release."
+            echo "## Pi bundle release skipped" >> "$GITHUB_STEP_SUMMARY"
             echo "$SKIP_REASON" >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+          # image-mode: none, new (from this run's bundle) or existing (from
+          # the bundle of the release pi-latest points at).
+          WANTS_IMAGE=false
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            if [ "${{ github.event.schedule }}" = "$WEEKLY_IMAGE_CRON" ]; then WANTS_IMAGE=true; fi
+          elif [ "${{ inputs.image }}" = "true" ]; then
+            WANTS_IMAGE=true
+          fi
+          IMAGE_MODE=none
+          IMAGE_TAG="$TAG"
+          if [ "$WANTS_IMAGE" = "true" ] && [ -z "$SKIP_REASON" ]; then
+            IMAGE_MODE=new
+          elif [ "$WANTS_IMAGE" = "true" ] && [ "$IS_DEV" != "true" ]; then
+            BUNDLE_URL=$(gh release download "$LATEST_TAG" -p manifest.json -O - 2>/dev/null | jq -r '.bundle // ""' || true)
+            IMAGE_TAG=$(printf '%s' "$BUNDLE_URL" | sed -nE 's#.*/releases/download/(pi-v[0-9.]+)/.*#\1#p')
+            if [ -z "$IMAGE_TAG" ]; then
+              echo "::notice::$LATEST_TAG points at no Pi release yet, so there is no bundle to build an image from."
+            elif [ "${{ github.event_name }}" = "schedule" ] && gh release view "$IMAGE_TAG" --json assets --jq '.assets[].name' | grep -qx mault-pi.img.xz; then
+              echo "::notice::$IMAGE_TAG already has an SD image. Nothing to rebuild."
+            else
+              IMAGE_MODE=existing
+            fi
           fi
           {
             echo "version=$VERSION"
             echo "tag=$TAG"
             echo "manifest-url=$MANIFEST_URL"
             echo "should-release=$([ -z "$SKIP_REASON" ] && echo true || echo false)"
+            echo "image-mode=$IMAGE_MODE"
+            echo "image-tag=$IMAGE_TAG"
           } >> "$GITHUB_OUTPUT"
 
       - name: Read toolchain pins
@@ -189,17 +202,27 @@ jobs:
 
   image:
     needs: [prepare, bundle]
-    if: github.event_name == 'schedule' || inputs.image
+    if: >-
+      always() && needs.prepare.result == 'success' && needs.prepare.outputs.image-mode != 'none'
+      && (needs.bundle.result == 'success' || needs.prepare.outputs.image-mode == 'existing')
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download bundle
+      - name: Download this run's bundle
+        if: needs.prepare.outputs.image-mode == 'new'
         uses: actions/download-artifact@v4
         with:
           name: pi-bundle
           path: dist-pi
+
+      - name: Download the released bundle
+        if: needs.prepare.outputs.image-mode == 'existing'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: gh release download "${{ needs.prepare.outputs.image-tag }}" -p mault-pi-arm64.tar.gz -D dist-pi
 
       - name: Stage bundle for the image
         run: |
@@ -307,9 +330,14 @@ jobs:
         run: |
           BUNDLE_URL="https://github.com/${GH_REPO}/releases/download/${TAG}/mault-pi-arm64.tar.gz"
           jq --arg bundle "$BUNDLE_URL" '.bundle = $bundle' artifacts/manifest.json > manifest.json
+          if [ -f artifacts/mault-pi.img.xz ]; then
+            IMAGE_NOTE="- **mault-pi.img.xz** - flash with Raspberry Pi Imager, boot, then open http://mault.local"
+          else
+            IMAGE_NOTE="- **SD image** - not built for this release. Flash [mault-pi.img.xz](https://github.com/${GH_REPO}/releases/download/${LATEST_TAG}/mault-pi.img.xz), boot, then update Mault to get this release"
+          fi
           NOTES="Mault v${VERSION} for Raspberry Pi and other arm64 Linux boards, built from ${{ github.sha }}.
 
-          - **mault-pi.img.xz** - flash with Raspberry Pi Imager, boot, then open http://mault.local
+          ${IMAGE_NOTE}
           - **install.sh** - other arm64 boards: \`curl -fsSL https://github.com/${GH_REPO}/releases/download/${LATEST_TAG}/install.sh | sudo bash\`
           - **Update** - \`sudo mault update\`, or Update Mault in the app"
           # shellcheck disable=SC2086
@@ -324,7 +352,10 @@ jobs:
           fi
           gh release upload "$LATEST_TAG" artifacts/install.sh --clobber
           gh release upload "$LATEST_TAG" manifest.json --clobber
-          gh release edit "$LATEST_TAG" --notes "Points Pi installs at [${TAG}](https://github.com/${GH_REPO}/releases/tag/${TAG}). Download the image from there."
+          if [ -f artifacts/mault-pi.img.xz ]; then
+            gh release upload "$LATEST_TAG" artifacts/mault-pi.img.xz --clobber
+          fi
+          gh release edit "$LATEST_TAG" --notes "Points Pi installs at [${TAG}](https://github.com/${GH_REPO}/releases/tag/${TAG}). **mault-pi.img.xz** here is the newest SD image and is rebuilt weekly, so it can be a few releases behind: flash it, then update Mault (Update Mault in the app, or \`sudo mault update\`)."
 
       - name: Summary
         run: |
@@ -335,8 +366,39 @@ jobs:
             echo "- Image: ${{ needs.image.result == 'success' && 'built' || 'skipped' }}"
           } >> "$GITHUB_STEP_SUMMARY"
 
+  # An image built for a release that already exists is added to that release
+  # and replaces the one on pi-latest.
+  publish-image:
+    needs: [prepare, image]
+    if: always() && needs.prepare.outputs.image-mode == 'existing' && needs.image.result == 'success'
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      IMAGE_TAG: ${{ needs.prepare.outputs.image-tag }}
+    steps:
+      - name: Download image
+        uses: actions/download-artifact@v4
+        with:
+          name: pi-image
+          path: artifacts
+
+      - name: Publish image
+        run: |
+          gh release upload "$IMAGE_TAG" artifacts/mault-pi.img.xz --clobber
+          gh release upload "$LATEST_TAG" artifacts/mault-pi.img.xz --clobber
+          gh release edit "$LATEST_TAG" --notes "Points Pi installs at [${IMAGE_TAG}](https://github.com/${GH_REPO}/releases/tag/${IMAGE_TAG}). **mault-pi.img.xz** here is the newest SD image and is rebuilt weekly, so it can be a few releases behind: flash it, then update Mault (Update Mault in the app, or \`sudo mault update\`)."
+          {
+            echo "## Mault for Raspberry Pi SD image rebuilt"
+            echo ""
+            echo "- Built from the bundle of [${IMAGE_TAG}](https://github.com/${GH_REPO}/releases/tag/${IMAGE_TAG})"
+            echo "- Download: https://github.com/${GH_REPO}/releases/download/${LATEST_TAG}/mault-pi.img.xz"
+          } >> "$GITHUB_STEP_SUMMARY"
+
   notify:
-    needs: [rollback, prepare, bundle, image, publish]
+    needs: [rollback, prepare, bundle, image, publish, publish-image]
     if: always() && github.ref_name != 'dev'
     runs-on: ubuntu-latest
     environment:
@@ -370,6 +432,30 @@ jobs:
                     { name: "Commit", value: ("[`" + $commit + "`](" + $commit_url + ")"), inline: true },
                     { name: "Author", value: $author, inline: true }
                   ],
+                  timestamp: $ts
+                }]
+              }')"
+
+      - name: Notify Discord (image)
+        if: needs.publish-image.result == 'success'
+        env:
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK_URL" ]; then
+            echo "DISCORD_DEPLOY_WEBHOOK_URL isn't set for this environment, skipping."
+            exit 0
+          fi
+          curl -sf -X POST "$DISCORD_WEBHOOK_URL" \
+            -H "Content-Type: application/json" \
+            -d "$(jq -n \
+              --arg tag "${{ needs.prepare.outputs.image-tag }}" \
+              --arg url "https://github.com/${{ github.repository }}/releases/tag/${{ needs.prepare.outputs.image-tag }}" \
+              --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+              '{
+                embeds: [{
+                  title: ("Mault for Raspberry Pi SD image rebuilt from " + $tag),
+                  url: $url,
+                  color: 5763719,
                   timestamp: $ts
                 }]
               }')"
