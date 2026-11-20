@@ -232,6 +232,7 @@ export * from "./constants/scan-timeline.constant";
 export * from "./scan-timeline";
 export * from "./detail-prefetch";
 export * from "./order-import";
+export * from "./natural-text-order";
 export * from "./order-picking";
 export * from "./order-pick-link";
 export * from "./csv-import";

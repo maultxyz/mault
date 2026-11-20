@@ -58,11 +58,11 @@ export async function moveCardsToLocation(
   );
   const result = await tx.execute(sql`
     WITH requested AS (
-      SELECT r.id::uuid AS guid, r.ord
-      FROM unnest(${`{${scanIds.join(",")}}`}::text[]) WITH ORDINALITY AS r(id, ord)
+      SELECT DISTINCT r.id::uuid AS guid
+      FROM unnest(${`{${scanIds.join(",")}}`}::text[]) AS r(id)
     ),
     targets AS (
-      SELECT cc.id, row_number() OVER (ORDER BY requested.ord) AS rn
+      SELECT cc.id, row_number() OVER (ORDER BY cc.scanned_at, cc.id) AS rn
       FROM ${collectionCards} cc
       JOIN requested ON requested.guid = cc.guid
       JOIN collections col ON col.id = cc.collection_id AND col.is_deleted = false
