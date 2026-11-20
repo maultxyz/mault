@@ -54,6 +54,8 @@ vi.mock("../lib/scan-page-card-image", () => ({
     capturedBackImageUrl: back,
   }),
   scanPageImageDataUrl: vi.fn(),
+  scanPageCardImageDataUrl: vi.fn(),
+  scanPageCardCropDataUrl: vi.fn(),
 }));
 vi.mock("./use-scanned-cards", () => ({
   useScannedCards: () => ({ forceSetCodes: [] }),
@@ -144,7 +146,6 @@ it("browser removal skips foil refinement and addition callbacks", async () => {
   expect(save).not.toHaveBeenCalled();
   expect(foil).not.toHaveBeenCalled();
   expect(mocks.search.mock.calls[0][7]).toBe("mtg");
-  expect(mocks.search.mock.calls[0][8]).toBe(false);
 });
 
 it("browser matched capture refines foil before delivering the scan", async () => {
@@ -241,8 +242,8 @@ it("remembers the matched orientation and prefers it on the next live scan", asy
   attachCanvas(result);
   act(() => result.current.handleForceScan());
   await waitFor(() => expect(save).toHaveBeenCalledOnce());
-  expect(mocks.search.mock.calls[0][9]).toBe(null);
+  expect(mocks.search.mock.calls[0][8]).toBe(null);
   act(() => result.current.handleForceScan());
   await waitFor(() => expect(save).toHaveBeenCalledTimes(2));
-  expect(mocks.search.mock.calls[1][9]).toBe("rotated");
+  expect(mocks.search.mock.calls[1][8]).toBe("rotated");
 });

@@ -13,6 +13,7 @@ import {
   WINDOW_BACKGROUND,
 } from "./lib/constants/desktop";
 import { loadDevelopmentEnv } from "./lib/development-env";
+import { registerDevelopmentTools } from "./lib/development-tools";
 import { registerDevicePickerIpc } from "./lib/device-picker";
 import { registerDocumentScanIpc } from "./lib/document-scan";
 import { registerBluetoothPicker, registerSerialPicker } from "./lib/devices";
@@ -62,6 +63,7 @@ function createMainWindow() {
   });
   trackScannerThumbar(window);
   trackWindowState(window);
+  registerDevelopmentTools(window);
   void window.loadURL(getStartUrl());
   mainWindow = window;
 }

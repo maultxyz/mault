@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 import type { QuarterTurns } from "@/lib/interfaces/scanner";
-import { normalizedCorrelation, quarterTurnsMatchingReference } from "./scan-page-card-image";
+import {
+  backQuarterTurnsFor,
+  normalizedCorrelation,
+  quarterTurnsMatchingReference,
+} from "./scan-page-card-image";
 
 const upright = [10, 20, 30, 40, 50, 60];
 const upsideDown = [...upright].reverse();
@@ -36,5 +40,19 @@ describe("quarterTurnsMatchingReference", () => {
       true,
     );
     expect(new Set(sampledTurns)).toEqual(new Set([1, 3]));
+  });
+});
+
+describe("backQuarterTurnsFor", () => {
+  it("turns a back flipped left to right the opposite way of the front", () => {
+    expect([0, 1, 2, 3].map((turns) => backQuarterTurnsFor(turns as QuarterTurns, "horizontal"))).toEqual([
+      0, 3, 2, 1,
+    ]);
+  });
+
+  it("turns a back flipped top to bottom a half turn further for upright and upside-down fronts", () => {
+    expect([0, 1, 2, 3].map((turns) => backQuarterTurnsFor(turns as QuarterTurns, "vertical"))).toEqual([
+      2, 1, 0, 3,
+    ]);
   });
 });

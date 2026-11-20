@@ -9,7 +9,12 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { usePendingScanSaves } from "@/features/scanner/api/use-pending-scan-saves";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
 import {
+  orientDocumentScanImages,
+  scanPageCardCropDataUrl,
+} from "@/features/scanner/lib/scan-page-card-image";
+import {
   drawScanImageFile,
+  drawScanPageCardRegion,
   sortFilesByName,
 } from "@/features/scanner/lib/scan-image-file";
 import {
@@ -114,7 +119,9 @@ export function useScanImageImport(
       updateItem(item.id, { status: "identifying" });
       let sourceCanvas: HTMLCanvasElement | null = null;
       try {
-        const source = await drawScanImageFile(file).catch(() => null);
+        const source = await (isFromAutomaticFeeder ? drawScanPageCardRegion : drawScanImageFile)(
+          file,
+        ).catch(() => null);
         if (!source) {
           updateItem(item.id, {
             status: "failed",
@@ -134,8 +141,20 @@ export function useScanImageImport(
           SCAN_IMAGE_IMPORT_MATCHES_NEEDED,
           SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS,
           targetGameKey,
-          isFromAutomaticFeeder,
+          null,
+          source.cardContour ?? null,
         );
+        const capturedImageUrl =
+          isFromAutomaticFeeder && source.cardContourOnPage
+            ? (
+                await orientDocumentScanImages(
+                  await scanPageCardCropDataUrl(file, source.cardContourOnPage),
+                  undefined,
+                  outcome.card ? outcome.debugImageUrl : null,
+                  outcome.debugImageUrl,
+                )
+              ).capturedImageUrl
+            : outcome.debugImageUrl;
         const scanTarget = {
           orgId,
           collectionGuid: targetCollectionGuid,
@@ -168,7 +187,7 @@ export function useScanImageImport(
                 detectedStampOf(outcome.matched?.diagnostics.stampDetection) ??
                 undefined,
               scannedAt,
-              capturedImageUrl: outcome.debugImageUrl,
+              capturedImageUrl,
               alternativeMatches: outcome.alternativeMatches.length
                 ? outcome.alternativeMatches
                 : undefined,
@@ -197,7 +216,7 @@ export function useScanImageImport(
           ...scanTarget,
           record: {
             scanId,
-            capturedImageUrl: outcome.debugImageUrl,
+            capturedImageUrl,
             scannedAt,
             vectorizedOn: outcome.vectorizedOn,
             diagnostics: outcome.noMatch?.diagnostics,

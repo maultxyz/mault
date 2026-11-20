@@ -364,6 +364,10 @@
     "ignoreIrSensors": "Ignore IR sensors (no routing)"
   },
   "scannerMenu": {
+    "refreshCameraList": "Refresh list",
+    "refreshingCameraList": "Refreshing…",
+    "cameraListRefreshed": "Camera and scanner list refreshed",
+    "cameraListRefreshFailed": "Couldn't refresh the camera and scanner list",
     "camera": "Camera",
     "cameraFallbackLabel": "Camera {{index}}",
     "cameraInUseElsewhere": "In use by another station",

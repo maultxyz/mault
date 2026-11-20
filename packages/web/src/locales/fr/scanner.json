@@ -364,6 +364,10 @@
     "ignoreIrSensors": "Ignorer les capteurs IR (sans tri)"
   },
   "scannerMenu": {
+    "refreshCameraList": "Actualiser la liste",
+    "refreshingCameraList": "Actualisation…",
+    "cameraListRefreshed": "Liste des caméras et scanners actualisée",
+    "cameraListRefreshFailed": "Impossible d'actualiser la liste des caméras et scanners",
     "camera": "Caméra",
     "cameraFallbackLabel": "Caméra {{index}}",
     "cameraInUseElsewhere": "Utilisée par une autre station",
