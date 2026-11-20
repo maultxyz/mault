@@ -1,60 +1,11 @@
-import { LEGACY_BUSINESS_PLAN } from "@magic-vault/shared";
 import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import type Stripe from "stripe";
 import { db } from "../../db";
 import { orgBilling } from "../../db/schema";
-import {
-  findPlanForPriceId,
-  getStripe,
-  isBillingEnabled,
-} from "../../lib/stripe";
-import { invalidateMemberSeats } from "../../lib/member-seat-limit";
+import { isBillingEnabled } from "../../lib/stripe";
+import { syncOrgBillingFromStripe } from "../../lib/stripe-billing-sync";
 import type { AppEnv } from "../../middleware/auth";
-
-async function upsertOrgBillingFromSubscription(
-  orgId: string,
-  customerId: string,
-  subscription: Stripe.Subscription,
-) {
-  const item = subscription.items.data[0];
-  const plan =
-    subscription.status === "canceled"
-      ? "free"
-      : (findPlanForPriceId(item?.price.id)?.plan ?? LEGACY_BUSINESS_PLAN);
-  const cancelAtPeriodEnd =
-    subscription.cancel_at_period_end || subscription.cancel_at != null;
-  await db
-    .insert(orgBilling)
-    .values({
-      orgId,
-      stripeCustomerId: customerId,
-      stripeSubscriptionId: subscription.id,
-      stripePriceId: item?.price.id ?? null,
-      plan,
-      status: subscription.status,
-      currentPeriodEnd: item?.current_period_end
-        ? new Date(item.current_period_end * 1000)
-        : null,
-      cancelAtPeriodEnd,
-    })
-    .onConflictDoUpdate({
-      target: [orgBilling.orgId],
-      set: {
-        stripeCustomerId: customerId,
-        stripeSubscriptionId: subscription.id,
-        stripePriceId: item?.price.id ?? null,
-        plan,
-        status: subscription.status,
-        currentPeriodEnd: item?.current_period_end
-          ? new Date(item.current_period_end * 1000)
-          : null,
-        cancelAtPeriodEnd,
-        updatedAt: new Date(),
-      },
-    });
-  invalidateMemberSeats(orgId);
-}
 
 export const webhookStripeRoute = new Hono<AppEnv>().post(
   "/webhooks/stripe",
@@ -95,21 +46,12 @@ export const webhookStripeRoute = new Hono<AppEnv>().post(
           const orgId = session.client_reference_id ?? session.metadata?.orgId;
           const customerId =
             typeof session.customer === "string" ? session.customer : null;
-          const subscriptionId =
-            typeof session.subscription === "string"
-              ? session.subscription
-              : null;
-          if (orgId && customerId && subscriptionId) {
-            const subscription =
-              await getStripe().subscriptions.retrieve(subscriptionId);
-            await upsertOrgBillingFromSubscription(
-              orgId,
-              customerId,
-              subscription,
-            );
+          if (orgId && customerId) {
+            await syncOrgBillingFromStripe(orgId, customerId);
           }
           break;
         }
+        case "customer.subscription.created":
         case "customer.subscription.updated":
         case "customer.subscription.deleted": {
           const subscription = event.data.object as Stripe.Subscription;
@@ -124,11 +66,7 @@ export const webhookStripeRoute = new Hono<AppEnv>().post(
           const isForDeletedOrg =
             !existing && subscription.status === "canceled";
           if (orgId && !isForDeletedOrg) {
-            await upsertOrgBillingFromSubscription(
-              orgId,
-              customerId,
-              subscription,
-            );
+            await syncOrgBillingFromStripe(orgId, customerId);
           }
           break;
         }
