@@ -40,8 +40,10 @@ import {
   isDocumentScannerCameraId,
   requireDocumentScannerSessionBridge,
 } from "@/features/scanner/lib/document-scan-bridge";
+import { logScannedPageSize } from "@/features/scanner/lib/scan-page-card-image";
 import {
   feederCardRotationDegrees,
+  otherSideMirrorAxis,
   loadFeederCardSetup,
   rotateScanPage,
   storeFeederCardSetup,
@@ -112,27 +114,28 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   const selectedCameraIdRef = useRef(selectedCameraId);
   selectedCameraIdRef.current = selectedCameraId;
 
+  const enumerateWebcams = useCallback(async () => {
+    const mediaDevices = navigator.mediaDevices;
+    if (browserMustUsePiCamera() || !mediaDevices?.enumerateDevices) return;
+    const devices = await mediaDevices.enumerateDevices();
+    const webcams = devices.filter(
+      (device) => device.kind === "videoinput" && device.deviceId,
+    );
+    setCameras((previous) =>
+      previous.some((camera) => isPiCameraId(camera.deviceId))
+        ? previous
+        : webcams,
+    );
+  }, []);
+
   useEffect(() => {
     const mediaDevices = navigator.mediaDevices;
     if (browserMustUsePiCamera() || !mediaDevices?.enumerateDevices) return;
-    const refreshWebcams = () =>
-      void mediaDevices
-        .enumerateDevices()
-        .then((devices) => {
-          const webcams = devices.filter(
-            (device) => device.kind === "videoinput" && device.deviceId,
-          );
-          setCameras((previous) =>
-            previous.some((camera) => isPiCameraId(camera.deviceId))
-              ? previous
-              : webcams,
-          );
-        })
-        .catch(() => {});
+    const refreshWebcams = () => void enumerateWebcams().catch(() => {});
     refreshWebcams();
     mediaDevices.addEventListener("devicechange", refreshWebcams);
     return () => mediaDevices.removeEventListener("devicechange", refreshWebcams);
-  }, []);
+  }, [enumerateWebcams]);
   const [cameraSource, setCameraSource] = useState<CameraSource>("local");
   const streamRef = useRef<MediaStream | null>(null);
   const cameraStartAttemptRef = useRef(0);
@@ -205,6 +208,32 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
   }, [piRemote, isLive]);
   const stationCameraIdRef = useRef(station.cameraId);
   stationCameraIdRef.current = station.cameraId;
+
+  const [isRefreshingCameraList, setIsRefreshingCameraList] = useState(false);
+  const isRefreshingCameraListRef = useRef(false);
+  const refreshCameraList = useCallback(async () => {
+    if (isRefreshingCameraListRef.current) return;
+    isRefreshingCameraListRef.current = true;
+    setIsRefreshingCameraList(true);
+    try {
+      await Promise.all([
+        piRemote ? listPiCameras().then(setCameras) : enumerateWebcams(),
+        documentScannerBridge
+          ? queryClient.fetchQuery({
+              queryKey: DOCUMENT_SCANNERS_QUERY_KEY,
+              queryFn: () => documentScannerBridge.listDocumentScanners(),
+              staleTime: 0,
+            })
+          : null,
+      ]);
+      toast.success(t("scannerMenu.cameraListRefreshed"));
+    } catch {
+      toast.error(t("scannerMenu.cameraListRefreshFailed"));
+    } finally {
+      isRefreshingCameraListRef.current = false;
+      setIsRefreshingCameraList(false);
+    }
+  }, [piRemote, enumerateWebcams, documentScannerBridge, queryClient, t]);
 
   const otherStationCameraIds = useCallback(() => {
     const { stations, isStationLive } = stationsRef.current;
@@ -286,6 +315,14 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
       const page = new File([result.imageBytes.slice()], result.fileName, {
         type: result.mimeType,
       });
+      if (request.kind === "feeder") {
+        void logScannedPageSize(
+          page,
+          result.scanWidthMm,
+          result.scanHeightMm,
+          !!result.otherSide,
+        ).catch(() => {});
+      }
       return { result, page };
     },
     [documentScannerBridge],
@@ -312,7 +349,7 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           pages: {
             face: await rotateScanPage(page, rotationDegrees),
             otherSide: otherSidePage ? await rotateScanPage(otherSidePage, rotationDegrees) : null,
-            isFromAutomaticFeeder: true,
+            otherSideMirrorAxis: otherSideMirrorAxis(rotationDegrees),
           },
         };
       } catch (error) {
@@ -370,7 +407,6 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
           ? await cropFlatbedPage(page, result.scanWidthMm, placement)
           : page,
         otherSide: null,
-        isFromAutomaticFeeder: false,
       };
     } catch (error) {
       console.error("[camera] cropping the flatbed scan failed:", error);
@@ -683,6 +719,8 @@ export function CameraProvider({ children }: { children: React.ReactNode }) {
         zoomLevel,
         cameras: availableCameras,
         camerasInUseElsewhere,
+        refreshCameraList,
+        isRefreshingCameraList,
         selectedCameraId,
         setFocusDistance,
         setZoomLevel,

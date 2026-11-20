@@ -34,11 +34,13 @@ export interface GroupedEntry {
   stamp?: string;
   condition: CardCondition;
   language: string;
+  binNumber?: number;
 }
 
 export type GroupBy = "card" | "card-foil";
 
-export type ExportableCard = Pick<ScannedCard, "card" | "isFoil" | "foilType" | "stamp" | "condition" | "language">;
+export type ExportableCard = Pick<ScannedCard, "card" | "isFoil" | "foilType" | "stamp" | "condition" | "language"> &
+  Partial<Pick<ScannedCard, "scannedAt" | "binNumber">>;
 
 export interface ExportAdapter {
   key: string;
@@ -47,7 +49,8 @@ export interface ExportAdapter {
   groupBy: GroupBy;
   games: "all" | string[];
   usesTcgplayerSkus?: boolean;
+  exportsEachCopyInScanOrder?: boolean;
   rowKey?: (entry: GroupedEntry, ctx: ExportContext) => string;
   headers: (ctx: ExportContext) => string[];
-  row: (entry: GroupedEntry, ctx: ExportContext) => string[];
+  row: (entry: GroupedEntry, ctx: ExportContext, rowIndex: number) => string[];
 }

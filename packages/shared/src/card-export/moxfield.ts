@@ -3,7 +3,7 @@ import {
   csvEscape,
   purchasePrice,
 } from "./base";
-import { MOXFIELD_LANGUAGE_NAMES } from "../constants/card-export.constant";
+import { CARD_LANGUAGE_NAMES } from "../constants/card-export.constant";
 import type { ExportAdapter } from "../interfaces/card-export.interface";
 
 export const moxfieldAdapter: ExportAdapter = {
@@ -29,7 +29,7 @@ export const moxfieldAdapter: ExportAdapter = {
     csvEscape(card.name),
     card.set.toUpperCase(),
     conditionLabel(condition),
-    MOXFIELD_LANGUAGE_NAMES[language] ?? language.toUpperCase(),
+    CARD_LANGUAGE_NAMES[language] ?? language.toUpperCase(),
     isFoil ? "foil" : "",
     card.collectorNumber,
     "False",

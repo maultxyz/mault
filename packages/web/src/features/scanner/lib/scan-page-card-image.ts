@@ -1,11 +1,27 @@
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
 import {
+  drawScanPageCardRegion,
+  straightCardCropOnPage,
+} from "@/features/scanner/lib/scan-image-file";
+import { scanLog } from "@/lib/scan-log";
+import {
+  MM_PER_INCH,
+  SCANNER_HELPER_DPI,
+  SCAN_PAGE_BACKGROUND_SAMPLE_PX,
+  SCAN_PAGE_CARD_CROP_MARGIN_MM,
+  SHOW_SCAN_LOGS,
   SCAN_PAGE_ORIENTATION_SAMPLE_HEIGHT_PX,
   SCAN_PAGE_ORIENTATION_SAMPLE_WIDTH_PX,
   SCAN_PAGE_SAVED_IMAGE_MAX_DIMENSION_PX,
   SCAN_PAGE_SAVED_IMAGE_QUALITY,
 } from "@/lib/constants/scanner";
-import type { QuarterTurns } from "@/lib/interfaces/scanner";
+import type {
+  QuarterTurns,
+  ScanPageMirrorAxis,
+  ScanPageOtherSideCard,
+  ScanPageOtherSideImage,
+} from "@/lib/interfaces/scanner";
+import type { CardContour } from "@magic-vault/shared";
 
 export async function scanPageImageDataUrl(page: File): Promise<string | undefined> {
   const bitmap = await createImageBitmap(page);
@@ -28,6 +44,108 @@ export async function scanPageImageDataUrl(page: File): Promise<string | undefin
     bitmap.close();
     releaseCanvases([canvas]);
   }
+}
+
+export async function scanPageCardCropDataUrl(
+  page: File,
+  cardOnPage: CardContour,
+): Promise<string | undefined> {
+  const bitmap = await createImageBitmap(page);
+  const canvas = document.createElement("canvas");
+  try {
+    const crop = straightCardCropOnPage(
+      cardOnPage,
+      (SCAN_PAGE_CARD_CROP_MARGIN_MM / MM_PER_INCH) * SCANNER_HELPER_DPI,
+    );
+    const scale = Math.min(
+      1,
+      SCAN_PAGE_SAVED_IMAGE_MAX_DIMENSION_PX / Math.max(crop.width, crop.height),
+    );
+    canvas.width = Math.max(1, Math.round(crop.width * scale));
+    canvas.height = Math.max(1, Math.round(crop.height * scale));
+    const context = canvas.getContext("2d");
+    if (!context) return await scanPageImageDataUrl(page);
+    context.fillStyle = scanPageBackgroundColor(bitmap);
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.imageSmoothingQuality = "high";
+    context.setTransform(scale, 0, 0, scale, canvas.width / 2, canvas.height / 2);
+    context.rotate(-crop.angleRadians);
+    context.drawImage(bitmap, -crop.center.x, -crop.center.y);
+    return canvas.toDataURL("image/jpeg", SCAN_PAGE_SAVED_IMAGE_QUALITY);
+  } finally {
+    bitmap.close();
+    releaseCanvases([canvas]);
+  }
+}
+
+function scanPageBackgroundColor(bitmap: ImageBitmap): string {
+  const canvas = document.createElement("canvas");
+  try {
+    const scale = SCAN_PAGE_BACKGROUND_SAMPLE_PX / Math.max(bitmap.width, bitmap.height);
+    canvas.width = Math.max(2, Math.round(bitmap.width * scale));
+    canvas.height = Math.max(2, Math.round(bitmap.height * scale));
+    const context = canvas.getContext("2d", { willReadFrequently: true });
+    if (!context) return "rgb(255, 255, 255)";
+    context.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+    const { data } = context.getImageData(0, 0, canvas.width, canvas.height);
+    const ring: number[][] = [];
+    const pixelAt = (x: number, y: number) => {
+      const offset = (y * canvas.width + x) * 4;
+      return [data[offset], data[offset + 1], data[offset + 2]];
+    };
+    for (let x = 0; x < canvas.width; x++) ring.push(pixelAt(x, 0), pixelAt(x, canvas.height - 1));
+    for (let y = 1; y < canvas.height - 1; y++) ring.push(pixelAt(0, y), pixelAt(canvas.width - 1, y));
+    const median = (channel: number) =>
+      ring.map((pixel) => pixel[channel]).sort((a, b) => a - b)[Math.floor(ring.length / 2)];
+    return `rgb(${median(0)}, ${median(1)}, ${median(2)})`;
+  } finally {
+    releaseCanvases([canvas]);
+  }
+}
+
+export async function scanPageCardImageDataUrl(
+  page: File,
+  otherSideCard?: ScanPageOtherSideCard,
+): Promise<ScanPageOtherSideImage> {
+  try {
+    const region = await drawScanPageCardRegion(page, otherSideCard);
+    releaseCanvases([region.canvas]);
+    return {
+      imageUrl: region.cardContourOnPage
+        ? await scanPageCardCropDataUrl(page, region.cardContourOnPage)
+        : await scanPageImageDataUrl(page),
+      mirrorAxis: region.otherSideMirrorAxis,
+    };
+  } catch (error) {
+    console.error("[scanner] cropping the card from the scanned page failed:", error);
+    return { imageUrl: await scanPageImageDataUrl(page) };
+  }
+}
+
+export function backQuarterTurnsFor(
+  frontQuarterTurns: QuarterTurns,
+  backMirrorAxis: ScanPageMirrorAxis,
+): QuarterTurns {
+  return (
+    backMirrorAxis === "horizontal" ? (4 - frontQuarterTurns) % 4 : (6 - frontQuarterTurns) % 4
+  ) as QuarterTurns;
+}
+
+export async function logScannedPageSize(
+  page: File,
+  requestedWidthMm: number | undefined,
+  requestedHeightMm: number | undefined,
+  hasBackSide: boolean,
+): Promise<void> {
+  if (!SHOW_SCAN_LOGS) return;
+  const bitmap = await createImageBitmap(page);
+  const toMm = (pixels: number) => ((pixels / SCANNER_HELPER_DPI) * MM_PER_INCH).toFixed(0);
+  scanLog(
+    `[document-scan] scanner returned ${toMm(bitmap.width)} x ${toMm(bitmap.height)} mm ` +
+      `(requested ${requestedWidthMm ?? "?"} x ${requestedHeightMm ?? "?"} mm), ` +
+      `back side ${hasBackSide ? "received" : "not scanned"}`,
+  );
+  bitmap.close();
 }
 
 async function loadImage(imageUrl: string): Promise<HTMLImageElement> {
@@ -152,13 +270,14 @@ export async function orientDocumentScanImages(
   scannedBackImageUrl: string | undefined,
   matchedCardImageUrl: string | null,
   fallbackImageUrl: string,
+  backMirrorAxis: ScanPageMirrorAxis = "horizontal",
 ): Promise<{ capturedImageUrl: string; capturedBackImageUrl: string | undefined }> {
   if (!savedImageUrl || !matchedCardImageUrl) {
     return { capturedImageUrl: savedImageUrl ?? fallbackImageUrl, capturedBackImageUrl: scannedBackImageUrl };
   }
   try {
     const quarterTurns = await quarterTurnsToMatchImage(savedImageUrl, matchedCardImageUrl);
-    const backQuarterTurns = ((4 - quarterTurns) % 4) as QuarterTurns;
+    const backQuarterTurns = backQuarterTurnsFor(quarterTurns, backMirrorAxis);
     return {
       capturedImageUrl: await turnImageDataUrl(savedImageUrl, quarterTurns),
       capturedBackImageUrl: scannedBackImageUrl

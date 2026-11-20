@@ -16,7 +16,8 @@ import { SearchInput } from "@/components/ui/search-input";
 import { SectionHeader } from "@/components/ui/section-header";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { FilterChip } from "@/features/collections/components/filter-chip";
-import { catalogCardsSearchQueryOptions, rememberCatalogCard } from "@/features/search/api/catalog-card-search";
+import { rememberCatalogCard } from "@/features/search/api/catalog-card-search";
+import { useCatalogCardSearch } from "@/features/search/api/use-catalog-card-search";
 import { ownedCardSearchQueryOptions } from "@/features/search/api/owned-card-search";
 import { searchLocally } from "@/features/search/lib/global-search";
 import { storageLocationsQueryOptions } from "@/features/storage/api/storage";
@@ -62,7 +63,7 @@ export default function GlobalSearchScreen() {
     () => collections.filter((collection) => isGlobalSearchGameSelected(selectedGameKey, collection.game?.key)),
     [collections, selectedGameKey],
   );
-  const catalog = useInfiniteQuery(catalogCardsSearchQueryOptions(catalogGames, debouncedQuery, searchesCatalog));
+  const catalog = useCatalogCardSearch(catalogGames, debouncedQuery, searchesCatalog);
   const locations = useQuery(storageLocationsQueryOptions(orgId, true));
   const cards = useInfiniteQuery(ownedCardSearchQueryOptions(orgId, debouncedQuery, selectedGameKey, searchesCards));
   const localResults = useMemo(
@@ -73,9 +74,10 @@ export default function GlobalSearchScreen() {
     [query, searchableCollections, locations.data, t],
   );
   const cardResults = searchesCards ? (cards.data?.pages.flatMap((page) => page.results) ?? []) : [];
-  const catalogResults = searchesCatalog ? (catalog.data?.pages.flatMap((page) => page.results) ?? []) : [];
-  const isSearchingCatalog = searchesCatalog && catalog.isLoading;
-  const catalogFailed = searchesCatalog && catalog.isError && !catalog.isFetchNextPageError;
+  const catalogResults = searchesCatalog ? catalog.results : [];
+  const isSearchingCatalog = searchesCatalog && catalog.isLoadingFirstResults;
+  const isLoadingOtherCatalogGames = searchesCatalog && catalog.isLoadingOtherGames;
+  const catalogFailed = searchesCatalog && catalog.failed;
   const cardsFailed = cards.isError && !cards.isFetchNextPageError;
   const showsGameName = catalogGames.length > 1;
   const isSearchingCards = searchesCards && cards.isLoading;
@@ -87,9 +89,19 @@ export default function GlobalSearchScreen() {
     localResults.locations.length +
     localResults.settingsSections.length;
   useEffect(() => {
-    if (!searchesCards || !cards.isSuccess || isSearchingCatalog || debouncedQuery !== query) return;
+    if (!searchesCards || !cards.isSuccess || isSearchingCatalog || isLoadingOtherCatalogGames || debouncedQuery !== query) return;
     AccessibilityInfo.announceForAccessibility(t("search.resultsCount", { count: resultCount }));
-  }, [searchesCards, cards.isSuccess, cards.dataUpdatedAt, isSearchingCatalog, debouncedQuery, query, resultCount, t]);
+  }, [
+    searchesCards,
+    cards.isSuccess,
+    cards.dataUpdatedAt,
+    isSearchingCatalog,
+    isLoadingOtherCatalogGames,
+    debouncedQuery,
+    query,
+    resultCount,
+    t,
+  ]);
   const hasAnyResult =
     cardResults.length > 0 ||
     catalogResults.length > 0 ||
@@ -226,18 +238,19 @@ export default function GlobalSearchScreen() {
                       />
                     );
                   })}
-                  {searchesCatalog && catalog.hasNextPage ? (
+                  {searchesCatalog && catalog.hasMore && !isLoadingOtherCatalogGames ? (
                     <ListRow
                       icon="expand"
-                      title={catalog.isFetchingNextPage ? t("search.loadingMore") : t("search.showMoreCatalogCards")}
-                      subtitle={catalog.isFetchNextPageError ? t("search.loadMoreFailed") : undefined}
-                      tone={catalog.isFetchNextPageError ? "destructive" : "default"}
-                      disabled={catalog.isFetchingNextPage}
-                      onPress={() => void catalog.fetchNextPage()}
+                      title={catalog.isLoadingMore ? t("search.loadingMore") : t("search.showMoreCatalogCards")}
+                      subtitle={catalog.loadMoreFailed && !catalog.isLoadingMore ? t("search.loadMoreFailed") : undefined}
+                      tone={catalog.loadMoreFailed && !catalog.isLoadingMore ? "destructive" : "default"}
+                      disabled={catalog.isLoadingMore}
+                      onPress={catalog.loadMore}
                     />
                   ) : null}
                 </ListGroup>
               )}
+              {isLoadingOtherCatalogGames && !isWaitingForDebounce ? <ListSkeleton rows={1} /> : null}
             </View>
           ) : null}
 

@@ -22,9 +22,11 @@ import {
 } from "@/features/scanner/lib/hand-scan";
 import { readScannerControlCode } from "@/features/scanner/lib/scanner-control-code";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
-import { drawScanImageFile } from "@/features/scanner/lib/scan-image-file";
+import { drawScanPageCardRegion } from "@/features/scanner/lib/scan-image-file";
 import {
   orientDocumentScanImages,
+  scanPageCardCropDataUrl,
+  scanPageCardImageDataUrl,
   scanPageImageDataUrl,
 } from "@/features/scanner/lib/scan-page-card-image";
 import {
@@ -340,8 +342,11 @@ export function useCardScanner({
       documentScanImages?: DocumentScanSavedImages,
     ) => {
       const isDocumentScan = !!documentScanImages;
-      const { savedImageUrl, capturedBackImageUrl: scannedBackImageUrl } =
-        documentScanImages ?? {};
+      const {
+        savedImageUrl,
+        capturedBackImageUrl: scannedBackImageUrl,
+        backMirrorAxis,
+      } = documentScanImages ?? {};
       const canvas = displayCanvasRef.current;
       const cameraGeneration = cameraGenerationRef.current;
       if (!canvas) {
@@ -387,8 +392,8 @@ export function useCardScanner({
               matchesNeededRef.current,
               isDocumentScan || checkBothOrientationsRef.current,
               gameKeyRef.current,
-              documentScanImages?.isFromAutomaticFeeder ?? false,
               fromLiveVideo ? preferredOrientationRef.current : null,
+              documentScanImages?.cardContour ?? null,
             );
             if (fromLiveVideo && matchedOrientation)
               preferredOrientationRef.current = matchedOrientation;
@@ -398,6 +403,7 @@ export function useCardScanner({
               scannedBackImageUrl,
               matched ? debugImageUrl : null,
               debugImageUrl,
+              backMirrorAxis,
             );
             capturedImageUrlRef.current = images.capturedImageUrl;
             capturedBackImageUrlRef.current = images.capturedBackImageUrl;
@@ -834,16 +840,23 @@ export function useCardScanner({
         handleErrorRef.current(t("scanEngine.documentScannerNoPage"));
         return;
       }
-      const savedImageUrl = await scanPageImageDataUrl(pages.face);
-      const capturedBackImageUrl = pages.otherSide
-        ? await scanPageImageDataUrl(pages.otherSide)
-        : undefined;
-      const source = await drawScanImageFile(pages.face).catch(() => null);
+      const source = await drawScanPageCardRegion(pages.face).catch(() => null);
       if (!source) {
         isCapturingRef.current = false;
         handleErrorRef.current(t("scanEngine.documentScannerPageUnreadable"));
         return;
       }
+      const savedImageUrl = source.cardContourOnPage
+        ? await scanPageCardCropDataUrl(pages.face, source.cardContourOnPage)
+        : await scanPageImageDataUrl(pages.face);
+      const backSide = pages.otherSide
+        ? await scanPageCardImageDataUrl(
+            pages.otherSide,
+            source.cardContourOnPage && pages.otherSideMirrorAxis
+              ? { cardOnPage: source.cardContourOnPage, mirrorAxis: pages.otherSideMirrorAxis }
+              : undefined,
+          )
+        : null;
       const contour = showStillImage(
         source.canvas,
         source.canvas.width,
@@ -853,8 +866,9 @@ export function useCardScanner({
       releaseCanvases([source.canvas]);
       await performCapture(checkDuplicate, contour, false, {
         savedImageUrl,
-        capturedBackImageUrl,
-        isFromAutomaticFeeder: pages.isFromAutomaticFeeder,
+        capturedBackImageUrl: backSide?.imageUrl,
+        backMirrorAxis: backSide?.mirrorAxis ?? pages.otherSideMirrorAxis,
+        cardContour: source.cardContour,
       });
     },
     [takeDocumentScannerPages, showStillImage, performCapture, t],

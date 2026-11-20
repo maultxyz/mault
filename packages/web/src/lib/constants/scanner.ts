@@ -5,6 +5,7 @@ import type {
   StationStatus,
 } from "@/lib/interfaces/stations";
 import { PI_SCAN_SESSION_PATH } from "@magic-vault/shared";
+import type { ContourCornerName } from "@/lib/interfaces/scanner";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import { monitorCollectionPath } from "@/lib/constants/collections";
 import {
@@ -260,6 +261,28 @@ export const SCAN_IMAGE_IMPORT_ACCEPT = "image/jpeg,image/png,image/webp";
 export const SCAN_IMAGE_IMPORT_MAX_DIMENSION_PX = 1600;
 export const SCAN_IMAGE_IMPORT_PADDING_RATIO = 0.08;
 export const SCAN_IMAGE_IMPORT_PADDING_COLOR = "#808080";
+export const SCAN_PAGE_CARD_REGION_MARGIN_RATIO = 0.2;
+export const SCAN_PAGE_CARD_EDGE_SAMPLES = 40;
+export const SCAN_PAGE_CARD_EDGE_SAMPLE_START_RATIO = 0.12;
+export const SCAN_PAGE_CARD_EDGE_SEARCH_RATIO = 0.06;
+export const SCAN_PAGE_CARD_EDGE_MIN_SEARCH_PX = 8;
+export const SCAN_PAGE_CARD_EDGE_MIN_GRADIENT = 6;
+export const SCAN_PAGE_CARD_EDGE_MIN_BACKGROUND_DIFFERENCE = 12;
+export const SCAN_PAGE_CARD_EDGE_OUTLIER_PX = 2;
+export const SCAN_PAGE_CARD_EDGE_MIN_POINTS_RATIO = 0.5;
+export const SCAN_PAGE_OTHER_SIDE_MIN_SUPPORTED_EDGES = 3;
+export const SCAN_PAGE_OTHER_SIDE_SEARCH_MARGIN_RATIO = 0.5;
+export const SCAN_PAGE_CARD_EDGE_MAX_TURN_RADIANS = 0.1;
+export const SCAN_PAGE_CARD_EDGES: ReadonlyArray<readonly [ContourCornerName, ContourCornerName]> = [
+  ["topLeft", "topRight"],
+  ["topRight", "bottomRight"],
+  ["bottomRight", "bottomLeft"],
+  ["bottomLeft", "topLeft"],
+];
+export const SCANNER_HELPER_DPI = 300;
+export const SCAN_PAGE_CARD_CROP_MARGIN_MM = 2;
+export const SCAN_PAGE_BACKGROUND_SAMPLE_PX = 256;
+export const MM_PER_INCH = 25.4;
 export const SCAN_IMAGE_IMPORT_MATCHES_NEEDED = 1;
 export const SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS = true;
 export const DOCUMENT_SCANNERS_QUERY_KEY = ["desktop", "document-scanners"] as const;

@@ -51,6 +51,10 @@ export interface GlobalSearchLoadingGroupProps {
   heading: string;
 }
 
+export interface GlobalSearchLoadingRowProps {
+  label: string;
+}
+
 export interface SearchResultIconProps {
   icon: ComponentType<{ className?: string }>;
 }

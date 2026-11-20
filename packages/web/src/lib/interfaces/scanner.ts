@@ -12,6 +12,7 @@ import type {
   CommLogEntry,
   EmptyBinOptions,
   CardContour,
+  Point,
   CornerDetection,
   CardScannerProps,
   CardSearchResult,
@@ -121,6 +122,8 @@ export interface CameraContextValue {
   zoomLevel: number | null;
   cameras: MediaDeviceInfo[];
   camerasInUseElsewhere: MediaDeviceInfo[];
+  refreshCameraList: () => Promise<void>;
+  isRefreshingCameraList: boolean;
   selectedCameraId: string | null;
   setFocusDistance: (value: number | null) => void;
   setZoomLevel: (value: number) => void;
@@ -154,13 +157,14 @@ export interface CameraContextValue {
 export interface DocumentScanSavedImages {
   savedImageUrl?: string;
   capturedBackImageUrl?: string;
-  isFromAutomaticFeeder: boolean;
+  backMirrorAxis?: ScanPageMirrorAxis;
+  cardContour?: CardContour;
 }
 
 export interface DocumentScannerPages {
   face: File;
   otherSide: File | null;
-  isFromAutomaticFeeder: boolean;
+  otherSideMirrorAxis?: ScanPageMirrorAxis;
 }
 
 export interface MatchScope {
@@ -1635,9 +1639,51 @@ export interface ScanImageImportRowProps {
   isRunning: boolean;
 }
 
+export type ContourCornerName = keyof CardContour;
+
+export interface ScanPageEdgeLine {
+  point: Point;
+  direction: Point;
+}
+
+export interface ScanPagePixels {
+  data: Uint8ClampedArray;
+  width: number;
+  height: number;
+}
+
+export interface ScanImageRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface ScanImageCanvas {
   canvas: HTMLCanvasElement;
   imageContour: CardContour;
+  cardContour?: CardContour;
+  cardContourOnPage?: CardContour;
+  otherSideMirrorAxis?: ScanPageMirrorAxis;
+}
+
+export interface ScanPageOtherSideImage {
+  imageUrl: string | undefined;
+  mirrorAxis?: ScanPageMirrorAxis;
+}
+
+export type ScanPageMirrorAxis = "horizontal" | "vertical";
+
+export interface StraightCardCrop {
+  center: Point;
+  angleRadians: number;
+  width: number;
+  height: number;
+}
+
+export interface ScanPageOtherSideCard {
+  cardOnPage: CardContour;
+  mirrorAxis: ScanPageMirrorAxis;
 }
 
 export interface MoveCardsToCollectionInput {
