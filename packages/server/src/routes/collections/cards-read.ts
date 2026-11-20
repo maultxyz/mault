@@ -204,7 +204,7 @@ export async function readCardsSummary(
   if (isUnfilteredCardsQuery(query)) {
     const collection = await run((tx) => findCardsCollection(tx, guid, orgId));
     if (!collection) return null;
-    const { stats, isRefreshing } = await readStoredCardStats(
+    const { payload: stats, isRefreshing } = await readStoredCardStats(
       collection,
       collection.pricing,
     );

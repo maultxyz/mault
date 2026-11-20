@@ -39,7 +39,7 @@ import type {
   WidgetScanActivityRow,
 } from "./interfaces/widget-summary";
 import type { OrgCardValueSummary } from "./interfaces/org-card-value-summary";
-import { loadCachedOrgCardValueSummary, utcDayKey } from "./org-card-value-summary";
+import { loadStoredOrgCardValueSummary, utcDayKey } from "./org-card-value-summary";
 import { loadOrgOverviewCards } from "./org-overview";
 import { createOrgReadCache } from "./org-read-cache";
 
@@ -269,14 +269,21 @@ export async function loadWidgetSummary(
   return { summary, currency, collectionValues };
 }
 
-export function loadCachedWidgetSummary(
+export async function loadCachedWidgetSummary(
   jwtClaims: string,
   orgId: string,
   { includeCollectionSummaries }: { includeCollectionSummaries: boolean },
 ): Promise<LoadedWidgetSummary> {
-  const variantKey = `${utcDayKey()}:${includeCollectionSummaries ? "full" : "withoutCollectionSummaries"}`;
-  return widgetSummaryCache.get(orgId, variantKey, async () => {
-    const picks = await loadCachedOrgCardValueSummary(jwtClaims, orgId);
-    return authQuery(jwtClaims, (tx) => loadWidgetSummary(tx, orgId, picks, { includeCollectionSummaries }));
-  });
+  const {
+    payload: picks,
+    version,
+    isRefreshing,
+  } = await loadStoredOrgCardValueSummary(jwtClaims, orgId);
+  const variantKey = `${utcDayKey()}:${version}:${includeCollectionSummaries ? "full" : "withoutCollectionSummaries"}`;
+  const loaded = await widgetSummaryCache.get(orgId, variantKey, () =>
+    authQuery(jwtClaims, (tx) => loadWidgetSummary(tx, orgId, picks, { includeCollectionSummaries })),
+  );
+  return isRefreshing
+    ? { ...loaded, summary: { ...loaded.summary, isRefreshing: true } }
+    : loaded;
 }

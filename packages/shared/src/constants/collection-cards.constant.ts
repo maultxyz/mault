@@ -17,6 +17,7 @@ export const EMPTY_CARD_FILTERS: CardFilters = {
   foilTypes: [],
 };
 export const COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS = 5_000;
+export const STORED_STATS_REFRESHING_POLL_MS = 5_000;
 export const RECENT_SCANNED_CARDS_COUNT = 5;
 
 export const UNMATCHED_PREVIEW_COUNT = 5;

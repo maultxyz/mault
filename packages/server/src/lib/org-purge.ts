@@ -14,6 +14,7 @@ import {
   collectionCardStatsDirty,
   collectionCards,
   collections,
+  orgCardStats,
   deviceAlerts,
   devices,
   feederConfigAudit,
@@ -124,6 +125,7 @@ export async function purgeOrgData(
     )
   `);
   await tx.delete(collections).where(eq(collections.orgId, orgId));
+  await tx.delete(orgCardStats).where(eq(orgCardStats.orgId, orgId));
 
   await tx.delete(bins).where(eq(bins.orgId, orgId));
   await tx.delete(binSets).where(eq(binSets.orgId, orgId));

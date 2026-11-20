@@ -26,4 +26,5 @@ export interface OrgOverview {
   collectionValues: Record<string, number>;
   topCards: OrgOverviewCard[];
   recentCards: OrgOverviewCard[];
+  isRefreshing?: boolean;
 }

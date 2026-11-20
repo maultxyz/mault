@@ -81,6 +81,7 @@ export interface StatsReport {
   breakdown: CardStatsAggregate | null;
   costsVisible: boolean;
   valueHistory: StatsValuePoint[] | null;
+  isRefreshing?: boolean;
 }
 
 export type StatsInsightFact =
