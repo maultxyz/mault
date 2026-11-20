@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import type { TFunction } from "i18next";
 import { buildStatsInsightFacts, type StatsInsightFact, type StatsReport } from "@magic-vault/shared";
 import { formatDay } from "@/lib/dates";
@@ -9,6 +10,8 @@ function toInsight(fact: StatsInsightFact, t: TFunction, formatPrice: (value: nu
       return {
         key: fact.kind,
         icon: "crown",
+        onPress: () =>
+          router.push({ pathname: "/card/[scanId]", params: { scanId: fact.scanId, guid: fact.collectionGuid } }),
         title: t("stats.insights.topCard.title", { name: fact.name }),
         detail: t("stats.insights.topCard.detail", { price: formatPrice(fact.price), collection: fact.collectionName }),
       };
@@ -23,6 +26,7 @@ function toInsight(fact: StatsInsightFact, t: TFunction, formatPrice: (value: nu
       return {
         key: fact.kind,
         icon: "collections",
+        onPress: () => router.push({ pathname: "/collection/[guid]", params: { guid: fact.collectionGuid } }),
         title: t("stats.insights.topCollection.title", { name: fact.name }),
         detail: t("stats.insights.topCollection.detail", { percent: fact.percent }),
       };
@@ -33,13 +37,18 @@ function toInsight(fact: StatsInsightFact, t: TFunction, formatPrice: (value: nu
         title: t(`stats.insights.busiest.title.${fact.bucket}`, { date: formatDay(fact.start, locale) }),
         detail: t("stats.insights.busiest.detail", { count: fact.count }),
       };
-    case "review":
+    case "review": {
+      const reviewCollectionGuid = fact.collectionGuidWithMostCardsToReview;
       return {
         key: fact.kind,
         icon: "help",
+        onPress: reviewCollectionGuid
+          ? () => router.push({ pathname: "/review-grid", params: { guid: reviewCollectionGuid } })
+          : undefined,
         title: t("stats.insights.review.title", { count: fact.count }),
         detail: t("stats.insights.review.detail"),
       };
+    }
   }
 }
 

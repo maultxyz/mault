@@ -1,5 +1,10 @@
 import { STATS_HIGH_VALUE_MIN_PRICE, STATS_SPARKLINE_MIN_POINTS } from "./constants/stats.constant";
-import type { StatsActivityBucket, StatsInsightFact, StatsReport } from "./interfaces/stats.interface";
+import type {
+  StatsActivityBucket,
+  StatsCollectionRow,
+  StatsInsightFact,
+  StatsReport,
+} from "./interfaces/stats.interface";
 
 export function statsSharePercent(part: number, whole: number): number {
   return whole > 0 ? Math.round((part / whole) * 100) : 0;
@@ -22,7 +27,14 @@ export function buildStatsInsightFacts(report: StatsReport): StatsInsightFact[] 
 
   const topCard = report.topCards[0];
   if (topCard && topCard.price != null) {
-    facts.push({ kind: "topCard", name: topCard.card.name, price: topCard.price, collectionName: topCard.collectionName });
+    facts.push({
+      kind: "topCard",
+      name: topCard.card.name,
+      price: topCard.price,
+      collectionName: topCard.collectionName,
+      scanId: topCard.scanId,
+      collectionGuid: topCard.collectionGuid,
+    });
   }
 
   const highValueBuckets = report.priceBuckets.filter((bucket) => bucket.min >= STATS_HIGH_VALUE_MIN_PRICE);
@@ -43,6 +55,7 @@ export function buildStatsInsightFacts(report: StatsReport): StatsInsightFact[] 
       kind: "topCollection",
       name: topCollection.name,
       percent: statsSharePercent(topCollection.totalValue, totals.totalValue),
+      collectionGuid: topCollection.guid,
     });
   }
 
@@ -52,7 +65,17 @@ export function buildStatsInsightFacts(report: StatsReport): StatsInsightFact[] 
   );
   if (busiest) facts.push({ kind: "busiest", bucket: report.bucket, start: busiest.start, count: busiest.count });
 
-  if (totals.needsReviewCount > 0) facts.push({ kind: "review", count: totals.needsReviewCount });
+  if (totals.needsReviewCount > 0) {
+    const collectionWithMostCardsToReview = report.collections.reduce<StatsCollectionRow | null>(
+      (best, row) => ((row.needsReviewCount ?? 0) > (best?.needsReviewCount ?? 0) ? row : best),
+      null,
+    );
+    facts.push({
+      kind: "review",
+      count: totals.needsReviewCount,
+      collectionGuidWithMostCardsToReview: collectionWithMostCardsToReview?.guid ?? null,
+    });
+  }
 
   return facts;
 }

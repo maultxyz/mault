@@ -125,6 +125,7 @@ export async function loadStatsReport(
         (count(b.scan_id) FILTER (WHERE b.created_at >= ${sinceIso}::timestamp))::int AS "scansInRange",
         COALESCE(sum(b.price) FILTER (WHERE b.price > 0 AND b.created_at >= ${sinceIso}::timestamp), 0)::float8 AS "valueAddedInRange",
         to_char(max(b.created_at), ${isoTimestamp}) AS "lastScanAt",
+        (count(b.scan_id) FILTER (WHERE NOT b.is_corrected AND b.needs_review))::int AS "needsReviewCount",
         COALESCE(sum(b.cost), 0)::float8 AS "costBasis",
         count(b.cost)::int AS "costedCount",
         COALESCE(sum(b.price) FILTER (WHERE b.price > 0 AND b.cost IS NOT NULL), 0)::float8 AS "costedValue"
@@ -178,7 +179,7 @@ export async function loadStatsReport(
       (
         SELECT COALESCE(json_agg(r ORDER BY r."totalValue" DESC, r.name), '[]'::json) FROM (
           SELECT guid, name, "gameName", "cardCount", "uniqueCount", "totalValue", "avgValue",
-            "scansInRange", "valueAddedInRange", "lastScanAt", "costBasis", "costedCount", "costedValue"
+            "scansInRange", "valueAddedInRange", "lastScanAt", "needsReviewCount", "costBasis", "costedCount", "costedValue"
           FROM per_collection
         ) r
       ) AS collections,

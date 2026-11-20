@@ -31,6 +31,7 @@ export interface StatsCollectionRow {
   scansInRange: number;
   valueAddedInRange: number;
   lastScanAt: string | null;
+  needsReviewCount?: number;
   costBasis: number | null;
   costedCount: number | null;
   costedValue: number | null;
@@ -83,8 +84,8 @@ export interface StatsReport {
 }
 
 export type StatsInsightFact =
-  | { kind: "topCard"; name: string; price: number; collectionName: string }
+  | { kind: "topCard"; name: string; price: number; collectionName: string; scanId: string; collectionGuid: string }
   | { kind: "highValue"; count: number; percent: number; minPrice: number }
-  | { kind: "topCollection"; name: string; percent: number }
+  | { kind: "topCollection"; name: string; percent: number; collectionGuid: string }
   | { kind: "busiest"; bucket: StatsBucketUnit; start: string; count: number }
-  | { kind: "review"; count: number };
+  | { kind: "review"; count: number; collectionGuidWithMostCardsToReview: string | null };
