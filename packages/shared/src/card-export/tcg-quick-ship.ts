@@ -1,7 +1,6 @@
 import { conditionLabel, csvEscape } from "./base";
 import {
   skuMatchFor,
-  tcgplayerId,
   tcgplayerMarketPrice,
   tcgplayerPrinting,
 } from "./tcgplayer";
@@ -45,7 +44,7 @@ export const tcgQuickShipAdapter: ExportAdapter = {
       String(rowIndex + 1),
       entry.binNumber != null ? `Bin${entry.binNumber}` : "",
       csvEscape(product?.setName ?? entry.card.setName),
-      skuMatch?.productId ?? tcgplayerId(entry.card),
+      skuMatch?.skuId ?? "",
     ];
   },
 };
