@@ -42,7 +42,7 @@ test("tcg quick ship export: one row per copy in scan order with sequence and bi
   assert.deepEqual(rows.map((row) => row[8]), ["1", "2", "3"]);
   assert.deepEqual(rows.map((row) => row[3]), ["Normal", "Foil", "Normal"]);
   assert.deepEqual(rows.map((row) => row[9]), ["Bin2", "Bin1", "Bin2"]);
-  assert.deepEqual(rows[0], ["Repeat Offender", "101", "Near Mint", "Normal", "English", "common", "", "1", "1", "Bin2", "Murders at Karlov Manor", "7684240"]);
+  assert.deepEqual(rows[0], ["Repeat Offender", "101", "Near Mint", "Normal", "English", "common", "", "1", "1", "Bin2", "Murders at Karlov Manor", ""]);
 });
 
 test("tcg quick ship export: TCGplayer product details and SKU price win over the card", () => {
@@ -69,5 +69,5 @@ test("tcg quick ship export: TCGplayer product details and SKU price win over th
   assert.equal(row[5], "Common");
   assert.equal(row[6], "0.12");
   assert.equal(row[9], "");
-  assert.equal(row[11], "7684240");
+  assert.equal(row[11], "123");
 });

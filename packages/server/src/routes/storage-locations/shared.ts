@@ -7,6 +7,7 @@ import {
   toCardCondition,
   type CardStatsAggregate,
   type CollectionCardsQuery,
+  compareTextInNaturalOrder,
   type FieldMeta,
   type OrgPricing,
   type PlayingCardWithDistance,
@@ -297,7 +298,7 @@ export async function orderedLocationGuids(
   orgId: string,
 ): Promise<(string | null)[]> {
   const rows = await tx
-    .select({ guid: storageLocations.guid })
+    .select({ guid: storageLocations.guid, name: storageLocations.name })
     .from(storageLocations)
     .where(
       and(
@@ -306,7 +307,9 @@ export async function orderedLocationGuids(
       ),
     )
     .orderBy(asc(storageLocations.name), asc(storageLocations.id));
-  return rows.map((row) => row.guid);
+  return rows
+    .sort((left, right) => compareTextInNaturalOrder(left.name, right.name))
+    .map((row) => row.guid);
 }
 
 export async function loadLocations(
@@ -337,7 +340,9 @@ export async function loadLocations(
     GROUP BY sl.id
     ORDER BY sl.name, sl.id
   `);
-  return (result.rows as unknown as StorageLocationRow[]).map((r) => ({
+  return (result.rows as unknown as StorageLocationRow[])
+    .sort((left, right) => compareTextInNaturalOrder(left.name, right.name))
+    .map((r) => ({
     guid: r.guid,
     name: r.name,
     createdAt: new Date(r.created_at),

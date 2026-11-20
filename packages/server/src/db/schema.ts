@@ -3,6 +3,7 @@ import type { CardPriceDetails } from "../lib/interfaces/card-prices";
 import {
   REPACK_UNIQUE_BY_PRINTING,
   type AdminFeatureHighlightSlideInput,
+  type CardStatsAggregate,
   type PrintingMarkGroups,
   type CsvImportMapping,
 } from "@magic-vault/shared";
@@ -870,6 +871,61 @@ export const collectionCards = pgTable(
     apiServiceOrgRead(table.orgId),
     ...apiServiceOrgWrite(table.orgId),
   ],
+).enableRLS();
+
+export const collectionCardStats = pgTable("collection_card_stats", {
+  collectionId: integer("collection_id")
+    .primaryKey()
+    .references(() => collections.id, { onDelete: "cascade" }),
+  stats: jsonb("stats").$type<CardStatsAggregate>().notNull(),
+  pricingKey: text("pricing_key").notNull(),
+  computeStartedAt: timestamp("compute_started_at", {
+    withTimezone: true,
+  }).notNull(),
+  computeDurationMs: integer("compute_duration_ms").notNull(),
+}).enableRLS();
+
+export const collectionCardStatsDirty = pgTable(
+  "collection_card_stats_dirty",
+  {
+    id: serial().primaryKey(),
+    collectionId: integer("collection_id").notNull(),
+    markedAt: timestamp("marked_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("collection_card_stats_dirty_collection_idx").on(table.collectionId),
+  ],
+).enableRLS();
+
+export const orgCardStats = pgTable(
+  "org_card_stats",
+  {
+    orgId: text("org_id").notNull(),
+    variant: text("variant").notNull(),
+    payload: jsonb("payload").notNull(),
+    pricingKey: text("pricing_key").notNull(),
+    day: text("day").notNull(),
+    computeStartedAt: timestamp("compute_started_at", {
+      withTimezone: true,
+    }).notNull(),
+    invalidatedAt: timestamp("invalidated_at", { withTimezone: true }),
+    computeDurationMs: integer("compute_duration_ms").notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.orgId, table.variant] })],
+).enableRLS();
+
+export const orgCardStatsDirty = pgTable(
+  "org_card_stats_dirty",
+  {
+    id: serial().primaryKey(),
+    orgId: text("org_id").notNull(),
+    markedAt: timestamp("marked_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [index("org_card_stats_dirty_org_idx").on(table.orgId)],
 ).enableRLS();
 
 export const orgApiKeys = pgTable(

@@ -1,6 +1,7 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import {
   LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM,
+  STORED_STATS_REFRESHING_POLL_MS,
   type Leaderboard,
   type Result,
   type StatsRange,
@@ -19,6 +20,8 @@ export const statsQueryOptions = (orgId: string | null, range: StatsRange, colle
     },
     enabled: !!orgId,
     staleTime: STATS_STALE_MS,
+    refetchInterval: (query) =>
+      query.state.data?.isRefreshing ? STORED_STATS_REFRESHING_POLL_MS : false,
     placeholderData: keepPreviousData,
   });
 

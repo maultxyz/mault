@@ -4,6 +4,7 @@ import {
   WIDGET_SUMMARY_QUERY_KEY,
 } from "@/lib/constants/home";
 import { ORG_OVERVIEW_REFRESH_MS } from "@/lib/constants/timing";
+import { STORED_STATS_REFRESHING_POLL_MS } from "@magic-vault/shared";
 import type { Result, WidgetSummary } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
@@ -22,6 +23,8 @@ export const widgetSummaryQueryOptions = (orgId: string | undefined) =>
     queryFn: () => loadWidgetSummary(false),
     enabled: !!orgId,
     staleTime: ORG_OVERVIEW_REFRESH_MS,
+    refetchInterval: (query) =>
+      query.state.data?.isRefreshing ? STORED_STATS_REFRESHING_POLL_MS : false,
   });
 
 export const widgetSummaryWithCollectionsQueryOptions = (
@@ -32,4 +35,6 @@ export const widgetSummaryWithCollectionsQueryOptions = (
     queryFn: () => loadWidgetSummary(true),
     enabled: !!orgId,
     staleTime: ORG_OVERVIEW_REFRESH_MS,
+    refetchInterval: (query) =>
+      query.state.data?.isRefreshing ? STORED_STATS_REFRESHING_POLL_MS : false,
   });

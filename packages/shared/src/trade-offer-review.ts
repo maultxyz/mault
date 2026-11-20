@@ -7,6 +7,7 @@ import type {
   TradeOfferSideTotals,
   TradeOfferWantedPlacement,
 } from "./interfaces/trade-offers.interface";
+import { compareTextInNaturalOrder } from "./natural-text-order";
 import { TRADE_OFFER_LOCATION_SECTION_ORDER } from "./constants/trade-offers.constant";
 
 function roundCents(value: number): number {
@@ -14,7 +15,7 @@ function roundCents(value: number): number {
 }
 
 export function compareTradeOfferText(left: string, right: string): number {
-  return left.localeCompare(right, undefined, { numeric: true, sensitivity: "base" });
+  return compareTextInNaturalOrder(left, right);
 }
 
 function cardQuantity(card: TradeOfferReviewCard): number {

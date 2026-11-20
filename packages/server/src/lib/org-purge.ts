@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { deleteShortLinks } from "./shortener-client";
 import {
@@ -11,8 +11,10 @@ import {
   binSets,
   bins,
   cardSales,
+  collectionCardStatsDirty,
   collectionCards,
   collections,
+  orgCardStats,
   deviceAlerts,
   devices,
   feederConfigAudit,
@@ -116,7 +118,14 @@ export async function purgeOrgData(
     .delete(notificationRules)
     .where(eq(notificationRules.orgId, orgId));
   await tx.delete(soundClips).where(eq(soundClips.orgId, orgId));
+  await tx.execute(sql`
+    DELETE FROM ${collectionCardStatsDirty}
+    WHERE ${collectionCardStatsDirty.collectionId} IN (
+      SELECT ${collections.id} FROM ${collections} WHERE ${collections.orgId} = ${orgId}
+    )
+  `);
   await tx.delete(collections).where(eq(collections.orgId, orgId));
+  await tx.delete(orgCardStats).where(eq(orgCardStats.orgId, orgId));
 
   await tx.delete(bins).where(eq(bins.orgId, orgId));
   await tx.delete(binSets).where(eq(binSets.orgId, orgId));

@@ -1,3 +1,4 @@
+import { compareTextInNaturalOrder } from "./natural-text-order";
 import type {
   FulfilmentOrderDetail,
   OrderBins,
@@ -149,7 +150,7 @@ export function buildOrderSortPresetBins(
 }
 
 const comparePickText = (left: string | null, right: string | null) =>
-  (left ?? "").localeCompare(right ?? "", undefined, { numeric: true, sensitivity: "base" });
+  compareTextInNaturalOrder(left ?? "", right ?? "");
 
 export function buildPickWalk(orders: FulfilmentOrderDetail[]): PickWalkEntry[] {
   return orders

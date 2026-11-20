@@ -8,6 +8,7 @@ import {
 import {
   COLLECTION_CARDS_RAW_CARD_DATA_NONE,
   COLLECTION_CARDS_RAW_CARD_DATA_PARAM,
+  COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS,
   EMPTY_CARD_FILTERS,
   type SetCardTagsRequest,
   type CardScanOrigin,
@@ -84,6 +85,8 @@ export const collectionCardsSummaryQueryOptions = (guid: string) =>
     queryKey: ["collection-cards", guid, "summary"] as const,
     queryFn: () =>
       unwrap(apiGet<Result<CollectionCardsSummary>>(`/api/collections/${guid}/cards/summary?${cardsParams("")}`)),
+    refetchInterval: (query) =>
+      query.state.data?.isRefreshing ? COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS : false,
     placeholderData: keepPreviousData,
   });
 

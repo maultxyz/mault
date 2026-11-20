@@ -92,6 +92,7 @@ export interface StatsInsight {
   icon: Icon;
   title: string;
   detail: string;
+  to?: string;
 }
 
 export interface StatsSplitEntry {

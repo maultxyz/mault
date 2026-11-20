@@ -1,6 +1,7 @@
 import { apiGet } from "@/lib/api/client";
 import { ORG_OVERVIEW_QUERY_KEY } from "@/lib/constants/home";
 import { ORG_OVERVIEW_REFRESH_MS } from "@/lib/constants/timing";
+import { STORED_STATS_REFRESHING_POLL_MS } from "@magic-vault/shared";
 import type { OrgOverview, Result } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
@@ -14,4 +15,6 @@ export const orgOverviewQueryOptions = (orgId: string | undefined) =>
     queryFn: () => loadOrgOverview().then((r) => r.data ?? null),
     enabled: !!orgId,
     staleTime: ORG_OVERVIEW_REFRESH_MS,
+    refetchInterval: (query) =>
+      query.state.data?.isRefreshing ? STORED_STATS_REFRESHING_POLL_MS : false,
   });

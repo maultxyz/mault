@@ -305,6 +305,8 @@
     "mostValuable": "{{price}} · {{name}}"
   },
   "scanStats": {
+    "loadFailed": "Impossible de charger les statistiques de cette collection.",
+    "loading": "Chargement des statistiques",
     "emptyState": "Scanne des cartes pour voir leurs statistiques.",
     "totalValue": "Valeur totale",
     "avgValue": "Valeur moyenne",

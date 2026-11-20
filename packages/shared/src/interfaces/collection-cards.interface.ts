@@ -59,6 +59,7 @@ export interface CardStatsAggregate {
 export interface CollectionCardsSummary {
   all: CardStatsAggregate;
   filtered: CardStatsAggregate;
+  isRefreshing?: boolean;
 }
 
 export interface CollectionCardsCount {

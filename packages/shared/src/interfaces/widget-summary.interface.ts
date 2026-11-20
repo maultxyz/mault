@@ -48,4 +48,5 @@ export interface WidgetSummary {
   scanActivity: WidgetScanActivity[];
   latestDeviceAlert: WidgetDeviceAlert | null;
   scansAllTime: number;
+  isRefreshing?: boolean;
 }

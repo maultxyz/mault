@@ -1,6 +1,8 @@
 import { CompactCount, CompactPrice } from "@/components/compact-value";
 import { Sparkline } from "@/components/sparkline";
+import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCardFilters } from "@/features/cards/api/use-card-filters";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
@@ -24,6 +26,7 @@ import {
   SCAN_RATE_BUCKET_COUNT,
   SCAN_RATE_BUCKET_MS,
   SCAN_RATE_REFRESH_MS,
+  SCAN_STATS_SKELETON_TILE_KEYS,
   SCAN_STATS_SUMMARY_SEPARATOR,
 } from "@/lib/constants/scanner";
 import { SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS } from "@/lib/constants/storage-keys";
@@ -80,8 +83,39 @@ export function ScanStats({ className, scrollable = true }: ScanStatsProps) {
   };
   const { filters, toggleRarity, toggleColor, toggleSet } = useCardFilters();
   const query = useMemo(() => ({ ...ALL_CARDS_QUERY, filters }), [filters]);
-  const { displayStats: stats } = useCollectionCardsSummary(query);
+  const {
+    displayStats: stats,
+    isPending: statsPending,
+    isError: statsLoadFailed,
+    refetch: refetchStats,
+  } = useCollectionCardsSummary(query);
   const { format, formatCompact } = usePriceSource();
+
+  if (!stats && statsLoadFailed) {
+    return (
+      <div data-tour="scan-stats">
+        <LoadErrorCallout
+          message={t("scanStats.loadFailed")}
+          onRetry={refetchStats}
+        />
+      </div>
+    );
+  }
+
+  if (!stats && statsPending) {
+    return (
+      <div
+        data-tour="scan-stats"
+        role="status"
+        aria-label={t("scanStats.loading")}
+        className="grid grid-cols-2 gap-2 md:gap-1.5"
+      >
+        {SCAN_STATS_SKELETON_TILE_KEYS.map((key) => (
+          <Skeleton key={key} className="h-16 rounded-card md:h-12" />
+        ))}
+      </div>
+    );
+  }
 
   if (!stats) {
     return (

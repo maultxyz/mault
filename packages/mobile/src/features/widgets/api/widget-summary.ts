@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { Result, WidgetSummary } from "@magic-vault/shared";
+import { STORED_STATS_REFRESHING_POLL_MS, type Result, type WidgetSummary } from "@magic-vault/shared";
 import { apiGet, unwrap } from "@/lib/api/client";
 import {
   WIDGET_SUMMARY_IDLE_STALE_MS,
@@ -13,5 +13,8 @@ export const widgetSummaryQueryOptions = (orgId: string | null, isAnyScannerRunn
     queryFn: () => unwrap(apiGet<Result<WidgetSummary>>("/api/overview/widgets")),
     enabled: !!orgId,
     staleTime: WIDGET_SUMMARY_IDLE_STALE_MS,
-    refetchInterval: isAnyScannerRunning ? WIDGET_SUMMARY_REFRESH_MS : WIDGET_SUMMARY_IDLE_STALE_MS,
+    refetchInterval: (query) => {
+      if (query.state.data?.isRefreshing) return STORED_STATS_REFRESHING_POLL_MS;
+      return isAnyScannerRunning ? WIDGET_SUMMARY_REFRESH_MS : WIDGET_SUMMARY_IDLE_STALE_MS;
+    },
   });

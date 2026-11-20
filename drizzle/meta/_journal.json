@@ -1373,6 +1373,20 @@
       "when": 1795121779125,
       "tag": "0195_yugioh_printings",
       "breakpoints": true
+    },
+    {
+      "idx": 196,
+      "version": "7",
+      "when": 1795185656307,
+      "tag": "0196_collection_card_stats",
+      "breakpoints": true
+    },
+    {
+      "idx": 197,
+      "version": "7",
+      "when": 1795186243737,
+      "tag": "0197_org_card_stats",
+      "breakpoints": true
     }
   ]
 }

@@ -18,7 +18,7 @@ COPY packages/web/ packages/web/
 # env.js), so the image holds no deployment config. The bundled firmware's
 # version is reported by the server (LATEST_FIRMWARE_VERSION).
 
-RUN pnpm --filter @magic-vault/web build
+RUN NODE_OPTIONS=--max-old-space-size=4096 pnpm --filter @magic-vault/web build
 
 FROM nginx:alpine
 COPY --from=builder /app/packages/web/dist /usr/share/nginx/html

@@ -31,7 +31,7 @@ import {
 import { ONE_DAY_MS } from "./constants/timing";
 import type { OrgCardValueSummary } from "./interfaces/org-card-value-summary";
 import type { OrgOverviewCardsQuery } from "./interfaces/org-overview";
-import { loadCachedOrgCardValueSummary, utcDayKey } from "./org-card-value-summary";
+import { loadStoredOrgCardValueSummary, utcDayKey } from "./org-card-value-summary";
 import { createOrgReadCache } from "./org-read-cache";
 import { hydrateSavedCards } from "./saved-cards";
 
@@ -174,12 +174,19 @@ export async function loadOrgOverview(
   };
 }
 
-export function loadCachedOrgOverview(
+export async function loadCachedOrgOverview(
   jwtClaims: string,
   orgId: string,
 ): Promise<OrgOverview> {
-  return orgOverviewCache.get(orgId, utcDayKey(), async () => {
-    const valueSummary = await loadCachedOrgCardValueSummary(jwtClaims, orgId);
-    return authQuery(jwtClaims, (tx) => loadOrgOverview(tx, orgId, valueSummary));
-  });
+  const {
+    payload: valueSummary,
+    version,
+    isRefreshing,
+  } = await loadStoredOrgCardValueSummary(jwtClaims, orgId);
+  const overview = await orgOverviewCache.get(
+    orgId,
+    `${utcDayKey()}:${version}`,
+    () => authQuery(jwtClaims, (tx) => loadOrgOverview(tx, orgId, valueSummary)),
+  );
+  return isRefreshing ? { ...overview, isRefreshing: true } : overview;
 }

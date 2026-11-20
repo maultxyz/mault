@@ -213,9 +213,6 @@ export function CardGrid() {
     summary,
     allStats: stats,
     totalCount,
-    isPending: summaryPending,
-    isError: summaryLoadFailed,
-    refetch: refetchSummary,
   } = useCollectionCardsSummary();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -714,7 +711,7 @@ export function CardGrid() {
     clearCards();
   }, [clearCards]);
 
-  if (viewedCollection && (pagePending || summaryPending)) {
+  if (viewedCollection && pagePending) {
     return (
       <>
         <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b">
@@ -781,16 +778,12 @@ export function CardGrid() {
   const cardListLoadFailed = scanTimelineGrouping
     ? scanTimelineCardsQuery.isError
     : pageQuery.isError;
-  const summaryHasNoData = summaryLoadFailed && !summary;
-  const cardListHasNoData = cardListLoadFailed && !pageData;
-  if (summaryHasNoData || cardListHasNoData) {
+  if (cardListLoadFailed && !pageData) {
     return (
       <div className="p-2">
         <LoadErrorCallout
           message={t("cardGrid.loadFailed")}
           onRetry={() => {
-            if (summaryHasNoData) refetchSummary();
-            if (!cardListHasNoData) return;
             if (scanTimelineGrouping) void scanTimelineCardsQuery.refetch();
             else void pageQuery.refetch();
           }}
@@ -820,7 +813,10 @@ export function CardGrid() {
     </>
   );
 
-  if (totalCount === 0 && visiblePendingScanCards.length === 0) {
+  const collectionCardCount = summary
+    ? totalCount
+    : Math.max(viewedCollection?.cardCount ?? 0, totalCards);
+  if (collectionCardCount === 0 && visiblePendingScanCards.length === 0) {
     return (
       <>
         <NoGameBanner />
@@ -1070,7 +1066,7 @@ export function CardGrid() {
           availableColors={stats?.colors}
           availableFoilTypes={stats?.foilTypes}
           binCount={computeBinCount(moduleCount)}
-          cardCount={totalCount}
+          cardCount={collectionCardCount}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
           density={density}
