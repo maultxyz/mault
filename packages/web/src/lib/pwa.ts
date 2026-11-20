@@ -10,7 +10,10 @@ export function registerServiceWorker() {
     onNeedReload() {},
     onRegisteredSW(_swUrl, registration) {
       if (!registration) return;
-      setInterval(() => registration.update(), APP_VERSION_CHECK_INTERVAL_MS);
+      setInterval(() => {
+        if (!navigator.onLine) return;
+        registration.update().catch(() => {});
+      }, APP_VERSION_CHECK_INTERVAL_MS);
     },
   });
 }
