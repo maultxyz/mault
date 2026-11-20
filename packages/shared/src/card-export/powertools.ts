@@ -1,6 +1,6 @@
 import { finishFamily } from "../card-finishes";
 import {
-  MOXFIELD_LANGUAGE_NAMES,
+  CARD_LANGUAGE_NAMES,
   POWERTOOLS_FINISH_FAMILY_TOKENS,
   POWERTOOLS_FINISH_PATTERN_TOKENS,
 } from "../constants/card-export.constant";
@@ -96,7 +96,7 @@ export const powertoolsAdapter: ExportAdapter = {
       csvEscape(card.setName),
       card.collectorNumber.trim(),
       condition,
-      MOXFIELD_LANGUAGE_NAMES[language] ?? language,
+      CARD_LANGUAGE_NAMES[language] ?? language,
       raw?.variants?.firstEdition ? "true" : "",
       finishType.startsWith("Reverse") ? "true" : "",
       "",
