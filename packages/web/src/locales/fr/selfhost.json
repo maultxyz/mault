@@ -329,7 +329,7 @@
       "steps": {
         "flash": {
           "text": "Téléchargez <code>mault-pi.img.xz</code> depuis la dernière version Pi et écrivez-la sur la carte microSD avec Raspberry Pi Imager. Imager ne propose pas de personnalisation de l'OS pour cette image : passez cet écran.",
-          "note": "L'Ethernet fonctionne sans configuration. La connexion, SSH et le Wi-Fi viennent du fichier de l'étape suivante."
+          "note": "L'Ethernet fonctionne sans configuration. La connexion, SSH et le Wi-Fi viennent du fichier de l'étape suivante. L'image est reconstruite chaque semaine : mettez Mault à jour après le premier démarrage, avec Mettre à jour Mault dans l'application ou sudo mault update."
         },
         "config": {
           "text": "Avant le premier démarrage, ouvrez le lecteur <code>bootfs</code> de la carte sur n'importe quel ordinateur et remplissez <code>mault-config.txt</code> : un nom d'utilisateur et un mot de passe pour un compte administrateur, <code>ssh=yes</code> pour un accès au terminal et vos informations Wi-Fi.",
