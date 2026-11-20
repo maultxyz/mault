@@ -8,6 +8,7 @@ export const GLOBAL_SEARCH_SELECTED_GAME_BADGE_CLASS =
 export const CATALOG_CARD_ROUTE_PATH = `${SEARCH_PATH}/cards/:gameKey/:cardId`;
 export const OWNED_CARD_SEARCH_QUERY_KEY = "owned-card-search";
 export const CATALOG_SEARCH_QUERY_KEY = "catalog-card-search";
+export const CATALOG_SEARCH_PAGE_QUERY_KEY = "catalog-card-search-page";
 export const CATALOG_CARD_QUERY_KEY = "catalog-card";
 export const CARD_PRINTINGS_QUERY_KEY = "card-printings";
 export const CATALOG_PRINTING_QUERY_PARAM = "printing";

@@ -74,7 +74,7 @@ test("grouped search pages names, then picks one newest listed printing per name
       adapter: datedAdapter,
       gameKey: "mtg",
       preferredLang: "en",
-      searchFilter: sql`name_matches_query`,
+      matchBranches: [sql`name_matches_query`, sql`english_name_matches_query`],
       printingFilter: sql`printing_is_listed`,
       printingMatch: sql`printing_query_matches`,
       exactName: "Lightning Bolt",
@@ -82,6 +82,7 @@ test("grouped search pages names, then picks one newest listed printing per name
       limit: 61,
     }),
   );
+  assert.match(rendered.sql, /WHERE name_matches_query AND NOT coalesce[\s\S]*UNION ALL[\s\S]*WHERE english_name_matches_query AND NOT coalesce/);
   assert.match(rendered.sql, /GROUP BY cards\.lang, cards\.name/);
   assert.match(rendered.sql, /OFFSET \$\d+\s+LIMIT \$\d+/);
   assert.match(rendered.sql, /CROSS JOIN LATERAL \([\s\S]*LIMIT 1\s*\) AS chosen/);

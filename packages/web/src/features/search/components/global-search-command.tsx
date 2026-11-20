@@ -6,6 +6,7 @@ import { rememberCatalogCard } from "@/features/search/api/global-search";
 import { useGlobalSearchResults } from "@/features/search/api/use-global-search-results";
 import { GlobalSearchGameBadges } from "@/features/search/components/global-search-game-badges";
 import { GlobalSearchLoadingGroup } from "@/features/search/components/global-search-loading-group";
+import { GlobalSearchLoadingRow } from "@/features/search/components/global-search-loading-row";
 import { GlobalSearchResultItem } from "@/features/search/components/global-search-result-item";
 import { GlobalSearchShowMoreItem } from "@/features/search/components/global-search-show-more-item";
 import { SearchResultIcon } from "@/features/search/components/search-result-icon";
@@ -184,6 +185,7 @@ export function GlobalSearchCommand() {
                         />
                       );
                     })}
+                    {results.isLoadingOtherCatalogGames && <GlobalSearchLoadingRow label={t("loadingMore")} />}
                     {results.loadMoreCatalogCardsFailed && (
                       <p role="alert" className="px-2.5 py-1.5 text-xs text-destructive">
                         {t("loadMoreFailed")}

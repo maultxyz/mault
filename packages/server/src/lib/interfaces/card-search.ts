@@ -99,7 +99,7 @@ export interface GroupedCatalogSearchSqlParams {
   adapter: CardSearchAdapter;
   gameKey: string;
   preferredLang: string;
-  matchFilter: SQL;
+  matchBranches: SQL[];
   printingFilter: SQL;
   printingMatch: SQL | undefined;
   exactName: string;
