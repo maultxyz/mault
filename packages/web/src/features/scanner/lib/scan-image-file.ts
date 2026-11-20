@@ -11,13 +11,15 @@ import {
   SCAN_IMAGE_IMPORT_PADDING_COLOR,
   SCAN_IMAGE_IMPORT_PADDING_RATIO,
   SCAN_PAGE_CARD_REGION_MARGIN_RATIO,
-  SCAN_PAGE_OTHER_SIDE_MIN_EDGE_POINTS,
+  SCAN_PAGE_OTHER_SIDE_MIN_SUPPORTED_EDGES,
+  SCAN_PAGE_OTHER_SIDE_SEARCH_MARGIN_RATIO,
 } from "@/lib/constants/scanner";
 import type {
   ScanImageCanvas,
   ScanImageRegion,
   ScanPageMirrorAxis,
   ScanPageOtherSideCard,
+  StraightCardCrop,
 } from "@/lib/interfaces/scanner";
 import type { CardContour, Point } from "@magic-vault/shared";
 import { scanLog } from "@/lib/scan-log";
@@ -82,6 +84,7 @@ export function scanPageRegionAroundCard(
   cardContourOnDrawnPage: CardContour,
   drawnPageContour: CardContour,
   page: ScanImageRegion,
+  marginRatio: number = SCAN_PAGE_CARD_REGION_MARGIN_RATIO,
 ): ScanImageRegion {
   const drawnPixelsPerPagePixel =
     (drawnPageContour.topRight.x - drawnPageContour.topLeft.x) / page.width;
@@ -101,7 +104,7 @@ export function scanPageRegionAroundCard(
   const cardRight = Math.max(...xs);
   const cardBottom = Math.max(...ys);
   const margin =
-    Math.max(cardRight - cardLeft, cardBottom - cardTop) * SCAN_PAGE_CARD_REGION_MARGIN_RATIO;
+    Math.max(cardRight - cardLeft, cardBottom - cardTop) * marginRatio;
   const left = Math.max(0, Math.floor(cardLeft - margin));
   const top = Math.max(0, Math.floor(cardTop - margin));
   const right = Math.min(page.width, Math.ceil(cardRight + margin));
@@ -181,18 +184,40 @@ export function mirrorCardToOtherSide(
   };
 }
 
-export function paddedCardCropOnPage(
-  cardOnPage: CardContour,
-  page: ScanImageRegion,
-  marginPx: number,
-): ScanImageRegion | null {
-  const corners = [cardOnPage.topLeft, cardOnPage.topRight, cardOnPage.bottomRight, cardOnPage.bottomLeft];
-  const left = Math.max(0, Math.floor(Math.min(...corners.map((corner) => corner.x)) - marginPx));
-  const top = Math.max(0, Math.floor(Math.min(...corners.map((corner) => corner.y)) - marginPx));
-  const right = Math.min(page.width, Math.ceil(Math.max(...corners.map((corner) => corner.x)) + marginPx));
-  const bottom = Math.min(page.height, Math.ceil(Math.max(...corners.map((corner) => corner.y)) + marginPx));
-  if (right <= left || bottom <= top) return null;
-  return { x: left, y: top, width: right - left, height: bottom - top };
+export function straightCardCropOnPage(cardOnPage: CardContour, marginPx: number): StraightCardCrop {
+  const { topLeft, topRight, bottomRight, bottomLeft } = cardOnPage;
+  const vector = (from: Point, to: Point) => ({ x: to.x - from.x, y: to.y - from.y });
+  const length = (point: Point) => Math.hypot(point.x, point.y);
+  const unit = (point: Point) => ({ x: point.x / length(point), y: point.y / length(point) });
+  const quarterTurnBack = (point: Point) => ({ x: point.y, y: -point.x });
+  const top = vector(topLeft, topRight);
+  const bottom = vector(bottomLeft, bottomRight);
+  const left = vector(topLeft, bottomLeft);
+  const right = vector(topRight, bottomRight);
+  const directions = [unit(top), unit(bottom), quarterTurnBack(unit(left)), quarterTurnBack(unit(right))];
+  let angleRadians = Math.atan2(
+    directions.reduce((sum, direction) => sum + direction.y, 0),
+    directions.reduce((sum, direction) => sum + direction.x, 0),
+  );
+  let width = (length(top) + length(bottom)) / 2;
+  let height = (length(left) + length(right)) / 2;
+  while (angleRadians > Math.PI / 4) {
+    angleRadians -= Math.PI / 2;
+    [width, height] = [height, width];
+  }
+  while (angleRadians <= -Math.PI / 4) {
+    angleRadians += Math.PI / 2;
+    [width, height] = [height, width];
+  }
+  return {
+    center: {
+      x: (topLeft.x + topRight.x + bottomRight.x + bottomLeft.x) / 4,
+      y: (topLeft.y + topRight.y + bottomRight.y + bottomLeft.y) / 4,
+    },
+    angleRadians,
+    width: width + marginPx * 2,
+    height: height + marginPx * 2,
+  };
 }
 
 function otherSideCandidates(otherSideCard: ScanPageOtherSideCard, page: ScanImageRegion) {
@@ -215,22 +240,55 @@ function otherSideCandidates(otherSideCard: ScanPageOtherSideCard, page: ScanIma
   ];
 }
 
-function bestOtherSideCardOnPage(
+async function detectCardNear(
+  bitmap: ImageBitmap,
+  cardOnPage: CardContour,
+  page: ScanImageRegion,
+): Promise<CardContour | null> {
+  const searchRegion = scanPageRegionAroundCard(
+    cardOnPage,
+    regionCorners(page),
+    page,
+    SCAN_PAGE_OTHER_SIDE_SEARCH_MARGIN_RATIO,
+  );
+  const drawnRegion = drawScanImageRegion(bitmap, searchRegion);
+  try {
+    const detection = await detectCardCorners(drawnRegion.canvas).catch(() => null);
+    return detection?.cardPresent && detection.contour
+      ? contourOnPage(detection.contour, searchRegion, drawnRegion)
+      : null;
+  } finally {
+    releaseCanvases([drawnRegion.canvas]);
+  }
+}
+
+async function bestOtherSideCardOnPage(
+  bitmap: ImageBitmap,
   otherSideCard: ScanPageOtherSideCard,
   detectedOnPage: CardContour | null,
   drawnPage: ScanImageCanvas,
   page: ScanImageRegion,
-): { cardOnPage: CardContour; mirrorAxis: ScanPageMirrorAxis } | null {
+): Promise<{ cardOnPage: CardContour; mirrorAxis: ScanPageMirrorAxis } | null> {
   const context = drawnPage.canvas.getContext("2d", { willReadFrequently: true });
   if (!context) return null;
   const pixels = context.getImageData(0, 0, drawnPage.canvas.width, drawnPage.canvas.height);
   const luminanceAt = scanPageLuminance(pixels, drawnPage.imageContour);
   const backgroundLuminance = scanPageBackgroundLuminance(luminanceAt, drawnPage.imageContour);
+  const layouts = otherSideCandidates(otherSideCard, page);
+  const detectedNearLayouts = await Promise.all(
+    layouts.map(async (layout) => {
+      const cardOnPage = await detectCardNear(bitmap, layout.cardOnPage, page);
+      return cardOnPage
+        ? { layout: "detected near " + layout.layout, mirrorAxis: layout.mirrorAxis, cardOnPage }
+        : null;
+    }),
+  );
   const candidates = [
     ...(detectedOnPage
       ? [{ layout: "detected", mirrorAxis: null, cardOnPage: detectedOnPage }]
       : []),
-    ...otherSideCandidates(otherSideCard, page),
+    ...detectedNearLayouts.filter((candidate) => candidate !== null),
+    ...layouts,
   ];
   const scored = candidates.map((candidate) => ({
     layout: candidate.layout,
@@ -241,16 +299,31 @@ function bestOtherSideCardOnPage(
       backgroundLuminance,
     ),
   }));
-  const mostSupported = <Candidate extends { edgePointCount: number }>(list: Candidate[]) =>
-    list.reduce((first, second) => (second.edgePointCount > first.edgePointCount ? second : first));
+  const isBetter = (
+    candidate: { supportedEdgeCount: number; edgePointCount: number },
+    current: { supportedEdgeCount: number; edgePointCount: number },
+  ) =>
+    candidate.supportedEdgeCount > current.supportedEdgeCount ||
+    (candidate.supportedEdgeCount === current.supportedEdgeCount &&
+      candidate.edgePointCount > current.edgePointCount);
+  const mostSupported = <Candidate extends { supportedEdgeCount: number; edgePointCount: number }>(
+    list: Candidate[],
+  ) => list.reduce((current, candidate) => (isBetter(candidate, current) ? candidate : current));
   const best = mostSupported(scored);
   const bestMirrored = mostSupported(scored.filter((candidate) => candidate.mirrorAxis !== null));
   const mirrorAxis = bestMirrored.mirrorAxis ?? otherSideCard.mirrorAxis;
   scanLog(
-    `[document-scan] other side: using "${best.layout}", back flipped ${mirrorAxis}, edge points per layout`,
-    Object.fromEntries(scored.map((candidate) => [candidate.layout, candidate.edgePointCount])),
+    `[document-scan] other side: using "${best.layout}", back flipped ${mirrorAxis}, background ${Math.round(backgroundLuminance)}, supported edges / edge points per layout ` +
+      JSON.stringify(
+        Object.fromEntries(
+          scored.map((candidate) => [
+            candidate.layout,
+            `${candidate.supportedEdgeCount} / ${candidate.edgePointCount}`,
+          ]),
+        ),
+      ),
   );
-  return best.edgePointCount >= SCAN_PAGE_OTHER_SIDE_MIN_EDGE_POINTS
+  return best.supportedEdgeCount >= SCAN_PAGE_OTHER_SIDE_MIN_SUPPORTED_EDGES
     ? { cardOnPage: contourOnPage(best.contour, page, drawnPage), mirrorAxis }
     : null;
 }
@@ -269,9 +342,14 @@ export async function drawScanPageCardRegion(
         ? contourOnPage(detection.contour, page, drawnPage)
         : null;
     const otherSide = otherSideCard
-      ? bestOtherSideCardOnPage(otherSideCard, detectedOnPage, drawnPage, page)
+      ? await bestOtherSideCardOnPage(bitmap, otherSideCard, detectedOnPage, drawnPage, page)
       : null;
     const roughCardOnPage = otherSideCard ? otherSide?.cardOnPage : detectedOnPage;
+    scanLog(
+      `[document-scan] ${otherSideCard ? "other side" : "card side"} page ${page.width} x ${page.height} px, ` +
+        `whole-page detection ${detectedOnPage ? "found a card" : "found nothing"}` +
+        (otherSideCard ? `, front card at ${JSON.stringify(otherSideCard.cardOnPage)}` : ""),
+    );
     if (!roughCardOnPage) return drawnPage;
     releaseCanvases([drawnPage.canvas]);
     const regionOnPage = scanPageRegionAroundCard(roughCardOnPage, regionCorners(page), page);
@@ -301,10 +379,10 @@ function snapContourInRegion(region: ScanImageCanvas, roughContour: CardContour)
     roughContour,
     scanPageBackgroundLuminance(luminanceAt, region.imageContour),
   );
-  scanLog("[document-scan] snapped the card corners to the scanned edges", {
-    rough: roughContour,
-    snapped: snappedContour,
-  });
+  scanLog(
+    "[document-scan] snapped the card corners to the scanned edges " +
+      JSON.stringify({ rough: roughContour, snapped: snappedContour }),
+  );
   return snappedContour;
 }
 

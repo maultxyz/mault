@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   mirrorCardToOtherSide,
-  paddedCardCropOnPage,
   scanPageRegionAroundCard,
+  straightCardCropOnPage,
 } from "./scan-image-file";
 
 const drawnPage = {
@@ -72,29 +72,41 @@ describe("mirrorCardToOtherSide", () => {
   });
 });
 
-describe("paddedCardCropOnPage", () => {
+describe("straightCardCropOnPage", () => {
+  const center = { x: 800, y: 600 };
+  const tilt = (5 * Math.PI) / 180;
+  const corner = (dx: number, dy: number) => ({
+    x: center.x + dx * Math.cos(tilt) - dy * Math.sin(tilt),
+    y: center.y + dx * Math.sin(tilt) + dy * Math.cos(tilt),
+  });
   const tiltedCard = {
-    topLeft: { x: 410, y: 120.4 },
-    topRight: { x: 1150, y: 180 },
-    bottomRight: { x: 1080, y: 1210 },
-    bottomLeft: { x: 340.6, y: 1150 },
+    topLeft: corner(-372, -519.5),
+    topRight: corner(372, -519.5),
+    bottomRight: corner(372, 519.5),
+    bottomLeft: corner(-372, 519.5),
   };
 
-  it("keeps the whole tilted card plus the margin on every side, without straightening it", () => {
-    expect(paddedCardCropOnPage(tiltedCard, { x: 0, y: 0, width: 2000, height: 2000 }, 24)).toEqual({
-      x: 316,
-      y: 96,
-      width: 858,
-      height: 1138,
-    });
+  it("measures the tilted card and adds the margin on every side", () => {
+    const crop = straightCardCropOnPage(tiltedCard, 24);
+    expect(crop.center.x).toBeCloseTo(800);
+    expect(crop.center.y).toBeCloseTo(600);
+    expect(crop.angleRadians).toBeCloseTo(tilt);
+    expect(crop.width).toBeCloseTo(744 + 48);
+    expect(crop.height).toBeCloseTo(1039 + 48);
   });
 
-  it("stops at the page edges", () => {
-    expect(paddedCardCropOnPage(tiltedCard, { x: 0, y: 0, width: 1160, height: 1220 }, 24)).toEqual({
-      x: 316,
-      y: 96,
-      width: 844,
-      height: 1124,
-    });
+  it("keeps the crop upright when the corners are named a quarter turn around", () => {
+    const crop = straightCardCropOnPage(
+      {
+        topLeft: tiltedCard.bottomLeft,
+        topRight: tiltedCard.topLeft,
+        bottomRight: tiltedCard.topRight,
+        bottomLeft: tiltedCard.bottomRight,
+      },
+      24,
+    );
+    expect(crop.angleRadians).toBeCloseTo(tilt);
+    expect(crop.width).toBeCloseTo(744 + 48);
+    expect(crop.height).toBeCloseTo(1039 + 48);
   });
 });

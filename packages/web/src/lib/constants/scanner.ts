@@ -270,7 +270,8 @@ export const SCAN_PAGE_CARD_EDGE_MIN_GRADIENT = 6;
 export const SCAN_PAGE_CARD_EDGE_MIN_BACKGROUND_DIFFERENCE = 12;
 export const SCAN_PAGE_CARD_EDGE_OUTLIER_PX = 2;
 export const SCAN_PAGE_CARD_EDGE_MIN_POINTS_RATIO = 0.5;
-export const SCAN_PAGE_OTHER_SIDE_MIN_EDGE_POINTS = 60;
+export const SCAN_PAGE_OTHER_SIDE_MIN_SUPPORTED_EDGES = 3;
+export const SCAN_PAGE_OTHER_SIDE_SEARCH_MARGIN_RATIO = 0.5;
 export const SCAN_PAGE_CARD_EDGE_MAX_TURN_RADIANS = 0.1;
 export const SCAN_PAGE_CARD_EDGES: ReadonlyArray<readonly [ContourCornerName, ContourCornerName]> = [
   ["topLeft", "topRight"],
@@ -280,6 +281,7 @@ export const SCAN_PAGE_CARD_EDGES: ReadonlyArray<readonly [ContourCornerName, Co
 ];
 export const SCANNER_HELPER_DPI = 300;
 export const SCAN_PAGE_CARD_CROP_MARGIN_MM = 2;
+export const SCAN_PAGE_BACKGROUND_SAMPLE_PX = 256;
 export const MM_PER_INCH = 25.4;
 export const SCAN_IMAGE_IMPORT_MATCHES_NEEDED = 1;
 export const SCAN_IMAGE_IMPORT_CHECK_BOTH_ORIENTATIONS = true;

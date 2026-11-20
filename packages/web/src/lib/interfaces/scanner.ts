@@ -1674,6 +1674,13 @@ export interface ScanPageOtherSideImage {
 
 export type ScanPageMirrorAxis = "horizontal" | "vertical";
 
+export interface StraightCardCrop {
+  center: Point;
+  angleRadians: number;
+  width: number;
+  height: number;
+}
+
 export interface ScanPageOtherSideCard {
   cardOnPage: CardContour;
   mirrorAxis: ScanPageMirrorAxis;

@@ -225,7 +225,7 @@ export function snapCardContourWithEdgeSupport(
   luminanceAt: (x: number, y: number) => number,
   detectedContour: CardContour,
   backgroundLuminance: number,
-): { contour: CardContour; edgePointCount: number } {
+): { contour: CardContour; edgePointCount: number; supportedEdgeCount: number } {
   const corners = SCAN_PAGE_CARD_EDGES.map(([from]) => detectedContour[from]);
   const center = {
     x: corners.reduce((sum, corner) => sum + corner.x, 0) / corners.length,
@@ -255,12 +255,17 @@ export function snapCardContourWithEdgeSupport(
   );
   const [top, right, bottom, left] = edges.map((edge) => edge.line);
   const edgePointCount = edges.reduce((sum, edge) => sum + edge.edgePointCount, 0);
+  const supportedEdgeCount = edges.filter((edge) => edge.edgePointCount > 0).length;
   const topLeft = intersect(left, top);
   const topRight = intersect(top, right);
   const bottomRight = intersect(right, bottom);
   const bottomLeft = intersect(bottom, left);
   if (!topLeft || !topRight || !bottomRight || !bottomLeft) {
-    return { contour: detectedContour, edgePointCount: 0 };
+    return { contour: detectedContour, edgePointCount: 0, supportedEdgeCount: 0 };
   }
-  return { contour: { topLeft, topRight, bottomRight, bottomLeft }, edgePointCount };
+  return {
+    contour: { topLeft, topRight, bottomRight, bottomLeft },
+    edgePointCount,
+    supportedEdgeCount,
+  };
 }
