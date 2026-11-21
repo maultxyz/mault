@@ -1,5 +1,9 @@
 import type { ScanImageUrls } from "@/lib/interfaces/cards";
 import {
+  collectionCardDetailKeys,
+  loadThroughCardDetails,
+} from "@/features/collections/api/card-details";
+import {
   apiDelete,
   apiGet,
   apiPost,
@@ -111,9 +115,18 @@ export const cardDiagnosticsQueryOptions = (
   scanId: string | undefined,
 ) =>
   queryOptions({
-    queryKey: ["collection-card-diagnostics", collectionGuid, scanId],
-    queryFn: () =>
-      loadCardDiagnostics(collectionGuid!, scanId!).then((r) => r.data ?? null),
+    queryKey: collectionCardDetailKeys.diagnostics(collectionGuid, scanId),
+    queryFn: (context) =>
+      loadThroughCardDetails(
+        context,
+        collectionGuid,
+        scanId,
+        (details) => details.diagnostics,
+        () =>
+          loadCardDiagnostics(collectionGuid!, scanId!).then(
+            (r) => r.data ?? null,
+          ),
+      ),
     enabled: !!collectionGuid && !!scanId,
     staleTime: Infinity,
   });
@@ -123,11 +136,18 @@ export const cardScanOriginQueryOptions = (
   scanId: string,
 ) =>
   queryOptions({
-    queryKey: ["card-scan-origin", scanId] as const,
-    queryFn: () =>
-      apiGet<Result<CardScanOrigin | null>>(
-        `/api/collections/${collectionGuid}/cards/${scanId}/origin`,
-      ).then((r) => r.data ?? null),
+    queryKey: collectionCardDetailKeys.origin(scanId),
+    queryFn: (context) =>
+      loadThroughCardDetails(
+        context,
+        collectionGuid,
+        scanId,
+        (details) => details.origin,
+        () =>
+          apiGet<Result<CardScanOrigin | null>>(
+            `/api/collections/${collectionGuid}/cards/${scanId}/origin`,
+          ).then((r) => r.data ?? null),
+      ),
     enabled: !!collectionGuid,
     staleTime: Infinity,
   });

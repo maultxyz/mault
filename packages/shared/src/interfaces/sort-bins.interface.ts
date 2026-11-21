@@ -153,13 +153,15 @@ export interface PresetWorkflowsAndPresets {
   presets: BinSet[];
 }
 
+export type BinSetGame = Pick<Game, "guid" | "key" | "name">;
+
 export interface BinSet {
   guid: string;
   name: string;
   description: string;
   isActive: boolean;
   bins: BinConfig[];
-  game: Game | null;
+  game: BinSetGame | null;
   autoAssignField: string | null;
   scanOnly: boolean;
   scanOnlyBin: number | null;

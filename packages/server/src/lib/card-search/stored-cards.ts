@@ -31,7 +31,7 @@ import {
   createCatalogSearchCache,
   loadThroughStoredCardCache,
 } from "./catalog-read-cache";
-import { listCardSets } from "./card-sets";
+import { preferredSetNameSql, toCardSetOptions } from "./card-sets";
 import type {
   CardPrintingRow,
   GroupedCatalogSearchRow,
@@ -362,23 +362,14 @@ async function searchCardSetsUncached(
   const { branches } = await storedSearchBranches(query.trim(), resolved);
   const rows = await db
     .select({
-      code: cardImageVectors.setCode,
-      cardCount: sql<number>`count(*)::int`,
+      set_code: cardImageVectors.setCode,
+      set_name: preferredSetNameSql(resolved.lang),
+      card_count: sql<number>`count(*)::int`,
     })
     .from(cardImageVectors)
     .where(rowMatchesAnyBranchSql(branches))
     .groupBy(cardImageVectors.setCode);
-  if (rows.length === 0) return [];
-  const names = new Map(
-    (await listCardSets(resolved)).map((set) => [set.code, set.name]),
-  );
-  return rows
-    .map(({ code, cardCount }) => ({
-      code,
-      name: names.get(code) ?? code.toUpperCase(),
-      cardCount,
-    }))
-    .sort((a, b) => a.name.localeCompare(b.name));
+  return toCardSetOptions(rows);
 }
 
 export async function buildGroupedCatalogSearchSql(

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useCardResultKeyboardNav } from "@/features/cards/api/use-card-result-keyboard-nav";
 import { useCardSearch } from "@/features/cards/api/use-card-search";
+import { useCollectionCardSearchLanguage } from "@/features/cards/api/use-collection-card-search-language";
 import { CardSearchLanguageSelect } from "@/features/cards/components/card-search-language-select";
 import { CardSearchResultSkeletonGrid } from "@/features/cards/components/card-search-result-skeleton-grid";
 import { CardSearchResultTile } from "@/features/cards/components/card-search-result-tile";
@@ -19,10 +20,7 @@ import { cn } from "@/lib/utils";
 import { IconLoader2, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  CARD_SEARCH_ALL_LANGUAGES,
-  cardSearchResultKey,
-} from "@magic-vault/shared";
+import { cardSearchResultKey } from "@magic-vault/shared";
 
 export function CardCorrectionSearch({
   collectionGuid,
@@ -36,9 +34,9 @@ export function CardCorrectionSearch({
   const { t } = useTranslation("cards");
   const [query, setQuery] = useState(initialQuery);
   const [selectedSet, setSelectedSet] = useState<string>(CARD_SEARCH_ALL_SETS);
-  const [selectedLanguage, setSelectedLanguage] = useState<string>(
-    CARD_SEARCH_ALL_LANGUAGES,
-  );
+  const collectionLanguage = useCollectionCardSearchLanguage(collectionGuid);
+  const [chosenLanguage, setChosenLanguage] = useState<string | null>(null);
+  const selectedLanguage = chosenLanguage ?? collectionLanguage;
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
 
   const {
@@ -104,7 +102,7 @@ export function CardCorrectionSearch({
         <CardSearchLanguageSelect
           value={selectedLanguage}
           onChange={(language) => {
-            setSelectedLanguage(language);
+            setChosenLanguage(language);
             setSelectedSet(CARD_SEARCH_ALL_SETS);
           }}
         />

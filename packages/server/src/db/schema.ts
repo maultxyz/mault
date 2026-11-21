@@ -142,6 +142,9 @@ export const cardImageVectors = pgTable(
       table.lang,
       sql`lower(${table.setCode})`,
     ),
+    index("cards_set_list_idx")
+      .on(table.gameKey, table.lang, table.setCode, table.setName)
+      .where(sql`${table.data} IS NOT NULL`),
     crudPolicy({
       role: authenticatedRole,
       read: true,
@@ -831,6 +834,16 @@ export const collectionCards = pgTable(
       table.collectionId,
       table.scannedAt,
     ),
+    index("collection_cards_unreviewed_photo_scanned_idx")
+      .on(
+        table.scannedAt,
+        table.collectionId,
+        table.guid,
+        table.lowConfidenceMatch,
+      )
+      .where(
+        sql`${table.isReviewed} = false AND (${table.capturedImageKey} IS NOT NULL OR ${table.capturedImageDataUrl} IS NOT NULL)`,
+      ),
     index("collection_cards_card_id_idx").on(table.cardId),
     index("collection_cards_org_created_idx").on(table.orgId, table.createdAt),
     index("collection_cards_collection_card_idx").on(

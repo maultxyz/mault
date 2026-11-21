@@ -22,6 +22,7 @@ import type {
   StorageLocationSettingsInput,
 } from "@magic-vault/shared";
 import { collectionCardsQueryParams } from "@/features/collections/api/collection-cards";
+import { collectionCardDetailKeys, loadThroughCardDetails } from "@/features/collections/api/card-details";
 import { apiDelete, apiGet, apiPost, apiPostText, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
 import { STORAGE_LOCATIONS_PAGE_SIZE } from "@/lib/constants/storage";
 
@@ -156,11 +157,18 @@ export const storageSearchQueryOptions = (query: string) =>
 
 export const cardStorageLocationQueryOptions = (collectionGuid: string, scanId: string) =>
   queryOptions({
-    queryKey: ["storage-locations", "card", scanId] as const,
-    queryFn: () =>
-      unwrapOr(
-        apiGet<Result<CardStorageLocation | null>>(`/api/collections/${collectionGuid}/cards/${scanId}/location`),
-        null,
+    queryKey: collectionCardDetailKeys.location(scanId),
+    queryFn: (context) =>
+      loadThroughCardDetails(
+        context,
+        collectionGuid,
+        scanId,
+        (details) => details.location,
+        () =>
+          unwrapOr(
+            apiGet<Result<CardStorageLocation | null>>(`/api/collections/${collectionGuid}/cards/${scanId}/location`),
+            null,
+          ),
       ),
   });
 

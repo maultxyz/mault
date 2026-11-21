@@ -1,3 +1,7 @@
+import {
+  collectionCardDetailKeys,
+  loadThroughCardDetails,
+} from "@/features/collections/api/card-details";
 import { loadCardImage } from "@/features/collections/api/collections";
 import { SCAN_IMAGE_URL_STALE_MS } from "@/lib/constants/scanner";
 import type { ScanImageUrls } from "@/lib/interfaces/cards";
@@ -8,9 +12,15 @@ export const scanImageQueryOptions = (
   scanId: string | undefined,
 ) =>
   queryOptions({
-    queryKey: ["collection-card-image", collectionGuid, scanId],
-    queryFn: (): Promise<ScanImageUrls> =>
-      loadCardImage(collectionGuid!, scanId!).then((r) => r.data ?? {}),
+    queryKey: collectionCardDetailKeys.image(collectionGuid, scanId),
+    queryFn: (context): Promise<ScanImageUrls> =>
+      loadThroughCardDetails(
+        context,
+        collectionGuid,
+        scanId,
+        (details) => details.images,
+        () => loadCardImage(collectionGuid!, scanId!).then((r) => r.data ?? {}),
+      ),
     enabled: !!collectionGuid && !!scanId,
     staleTime: SCAN_IMAGE_URL_STALE_MS,
   });

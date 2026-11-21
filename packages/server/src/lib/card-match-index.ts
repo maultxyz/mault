@@ -2,7 +2,7 @@ import { setImmediate as yieldToEventLoop } from "node:timers/promises";
 import { PRINTING_MARK_VERSION } from "./constants/printing-marks";
 import { invalidatePrintingMarkReferences } from "./printing-marks/references";
 import { and, eq, sql, type SQL } from "drizzle-orm";
-import { backgroundLoadDb } from "../db";
+import { backgroundLoadDb, singleStatementDb } from "../db";
 import { binSets, collections, games } from "../db/schema";
 import { clearCatalogReadCaches } from "./card-search/catalog-read-cache";
 import { clearCachedCatalogCards } from "./saved-cards";
@@ -334,9 +334,19 @@ export async function languagesOfGame(gameKey: string): Promise<string[]> {
 
 async function langsOfGame(gameKey: string): Promise<string[]> {
   return gameLangsCache.get(gameKey, async () => {
-    const result = await backgroundLoadDb.execute<{ lang: string }>(
-      sql`SELECT DISTINCT lang FROM cards WHERE game_key = ${gameKey}`,
-    );
+    const result = await singleStatementDb.execute<{ lang: string }>(sql`
+      WITH RECURSIVE game_langs AS (
+        SELECT min(lang) AS lang FROM cards WHERE game_key = ${gameKey}
+        UNION ALL
+        SELECT (
+          SELECT min(next_card.lang) FROM cards next_card
+          WHERE next_card.game_key = ${gameKey} AND next_card.lang > game_langs.lang
+        )
+        FROM game_langs
+        WHERE game_langs.lang IS NOT NULL
+      )
+      SELECT lang FROM game_langs WHERE lang IS NOT NULL
+    `);
     return result.rows.map((row) => row.lang);
   });
 }

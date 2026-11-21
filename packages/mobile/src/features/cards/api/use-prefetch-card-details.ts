@@ -2,7 +2,6 @@ import { type FetchQueryOptions, type QueryClient, type QueryKey, useQueryClient
 import { Image } from "expo-image";
 import { useEffect } from "react";
 import {
-  CARD_SEARCH_ALL_LANGUAGES,
   REVIEW_DETAIL_PREFETCH_COUNT,
   REVIEW_DETAIL_PREFETCH_MAX_AGE_MS,
   walkDetailPrefetchChain,
@@ -10,6 +9,8 @@ import {
   type CollectionCardPosition,
 } from "@magic-vault/shared";
 import { cardSearchQueryOptions } from "@/features/cards/api/card-search";
+import { cachedCollectionCardSearchLanguage } from "@/features/cards/api/use-collection-card-search-language";
+import { useActiveOrgId } from "@/hooks/use-org";
 import { collectionCardQueryOptions, scanImageQueryOptions } from "@/features/collections/api/collection-cards";
 import { storageLocationCardContextQueryOptions } from "@/features/storage/api/storage";
 import type { CardDetailPrefetchStep, CardDetailPrefetchTarget } from "@/lib/interfaces/cards";
@@ -57,10 +58,11 @@ async function loadStep(
   return toStep(target.collectionGuid, position, position?.nextScanId ?? null);
 }
 
-function prefetchCorrectionSearch(queryClient: QueryClient, step: CardDetailPrefetchStep) {
+function prefetchCorrectionSearch(queryClient: QueryClient, orgId: string | null, step: CardDetailPrefetchStep) {
   const name = step.position.entry.card.name.trim();
   if (name.length < CATALOG_SEARCH_MIN_QUERY_LENGTH) return;
-  void queryClient.prefetchInfiniteQuery(cardSearchQueryOptions(name, step.collectionGuid, CARD_SEARCH_ALL_LANGUAGES));
+  const language = cachedCollectionCardSearchLanguage(queryClient, orgId, step.collectionGuid);
+  void queryClient.prefetchInfiniteQuery(cardSearchQueryOptions(name, step.collectionGuid, language));
 }
 
 function prefetchImages(urls: (string | null | undefined)[]) {
@@ -70,6 +72,7 @@ function prefetchImages(urls: (string | null | undefined)[]) {
 
 export function usePrefetchCardDetails(firstScanId: string | null | undefined, target: CardDetailPrefetchTarget) {
   const queryClient = useQueryClient();
+  const orgId = useActiveOrgId();
   const { collectionGuid, reviewMode, storageGuid } = target;
 
   useEffect(() => {
@@ -83,7 +86,7 @@ export function usePrefetchCardDetails(firstScanId: string | null | undefined, t
       isCancelled: () => cancelled,
       onStepLoaded: (scanId, step) => {
         const { entry } = step.position;
-        prefetchCorrectionSearch(queryClient, step);
+        prefetchCorrectionSearch(queryClient, orgId, step);
         prefetchImages([
           entry.card.image?.normal,
           ...(entry.alternativeMatches ?? []).map((alternative) => alternative.image?.normal || alternative.image?.small),
@@ -96,5 +99,5 @@ export function usePrefetchCardDetails(firstScanId: string | null | undefined, t
     return () => {
       cancelled = true;
     };
-  }, [firstScanId, collectionGuid, reviewMode, storageGuid, queryClient]);
+  }, [firstScanId, collectionGuid, reviewMode, storageGuid, queryClient, orgId]);
 }

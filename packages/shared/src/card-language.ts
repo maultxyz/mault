@@ -1,7 +1,9 @@
 import {
   CARD_LANGUAGES,
+  CARD_SEARCH_ALL_LANGUAGES,
   DEFAULT_CARD_LANGUAGE,
 } from "./constants/card-language.constant";
+import type { Collection } from "./interfaces/collections.interface";
 import {
   OCR_REGIONS_BY_GAME_KEY,
   PRINTED_LANGUAGE_CODES_BY_GAME_KEY,
@@ -11,6 +13,27 @@ import type { PlayingCard } from "./interfaces/card.interface";
 
 export function isCardLanguage(value: unknown): value is CardLanguage {
   return CARD_LANGUAGES.includes(value as CardLanguage);
+}
+
+export function cardSearchLanguageOfCollection(
+  collections: Pick<Collection, "guid" | "lang">[] | undefined,
+  collectionGuid: string | null | undefined,
+): string {
+  const collection = collections?.find(
+    (candidate) => candidate.guid === collectionGuid,
+  );
+  return collection && isCardLanguage(collection.lang)
+    ? collection.lang
+    : CARD_SEARCH_ALL_LANGUAGES;
+}
+
+export function cardSearchLanguageOrCollectionDefault(
+  requestedLanguage: string | null | undefined,
+  collectionLanguage: string,
+): string | undefined {
+  if (requestedLanguage === CARD_SEARCH_ALL_LANGUAGES) return undefined;
+  if (isCardLanguage(requestedLanguage)) return requestedLanguage;
+  return isCardLanguage(collectionLanguage) ? collectionLanguage : undefined;
 }
 
 export function scanLanguage(scan: {
