@@ -565,6 +565,18 @@ hopper is found empty, or it times out.
 → `{"status":"ok","detected":true,"empty":false}`,
 or on failure a `{"error":"...","empty":true|false}` shape (see Errors below).
 
+#### `requireEmptyModuleOne` (firmware 2.13.4+, Pi controller pi-0.3.0)
+```json
+{"feeder": true, "requireEmptyModuleOne": true}
+```
+A plain `feeder` succeeds at once while a card sits in module 1. After a
+routed card that should have left module 1, that would hand the client the
+same card to scan again. With this flag the firmware checks module 1's IR
+sensor first and, when it still reads a card, moves nothing and replies
+`{"error":"module 1 still holds a card","moduleOneLoaded":true}`. It
+replaces a separate `readIR` round trip before the feed. Older firmware
+ignores the flag, so only send it to a version that supports it.
+
 ### `feederValue` (raw PWM preview)
 ```json
 {"feederValue": 315}
@@ -759,17 +771,34 @@ count the user picked.
 
 → `{"status":"routed","module":2,"direction":"left"}` on success.
 
+#### `requireLoaded` (firmware 2.13.4+, Pi controller pi-0.3.0)
+```json
+{"route": {"module": 2, "direction": "left", "requireLoaded": true}}
+```
+`route` runs the feeder first when module 1 is empty, which is right for
+calibration but wrong for a scanned card: the card the client identified is
+gone and the route would sort an unscanned one. With this flag the firmware
+checks module 1's IR sensor first and, when it reads empty, moves nothing
+and replies `{"error":"no card loaded at module 1","noLoadedCard":true}`.
+It replaces a separate `readIR` round trip before the route. Older firmware
+ignores the flag, so only send it to a version that supports it.
+
 #### `feedNext` (firmware 2.1.0+)
 ```json
 {"route": {"module": 3, "direction": "left", "feedNext": true}}
 ```
 Feeds the next card into module 1 as part of this route, so a client can
 start scanning it while this card is still travelling. Once the routed
-card has reached module 2 and module 1's IR sensor reads clear, module 1's
-bottom closes and the feeder runs. If the target is module 1 itself (or
-module 1's sensor never clears within 3s), the feed runs after the card
-has been pushed/dropped instead. Either way, exactly one extra line is
-sent before the final response, from the same transport:
+card has reached its target module and module 1's IR sensor reads clear,
+module 1's bottom closes and the feeder runs. The feed never starts while
+the routed card is still falling: closing module 1's bottom that early
+caught the card's trailing edge between modules 1 and 2, out of every
+sensor's view. From firmware 2.13.4 (Pi controller pi-0.3.0) the 300 ms
+the card gets to settle at the target is counted from its arrival, so the
+close and the feed cover it instead of being followed by it. If the target
+is module 1 itself (or module 1's sensor never clears within 3s), the feed
+runs after the card has been pushed/dropped instead. Either way, exactly
+one extra line is sent before the final response, from the same transport:
 
 - `{"event":"fed","status":"ok","detected":true,"empty":false}` when a card arrived at module 1
 - `{"event":"fed","error":"empty: feeder hopper is out of cards","empty":true}` or
@@ -795,7 +824,9 @@ response time for the feed (the web client waits 25s instead of 15s).
 | `{"error":"direction must be left, right, or bottom"}` | invalid `direction` in `route` |
 | `{"error":"empty: feeder hopper is out of cards","empty":true}` | feed attempted with no cards in the hopper |
 | `{"error":"timeout: feeder did not deliver card to module 1","empty":false}` | feeder ran its full configured `duration` without module 1's IR triggering |
-| `{"error":"timeout: no card detected at module N"}` | during routing, a card didn't advance to module *N* in time (3s, plus one paddle-flap retry and another 3s) |
+| `{"error":"timeout: no card detected at module N"}` | during routing, a card didn't advance to module *N* in time (3s, plus one paddle-flap retry and another 3s per module whose sensor still sees it; a card no sensor sees, caught between two modules, gets every module on the way flapped once, top down, then 1s more) |
+| `{"error":"no card loaded at module 1","noLoadedCard":true}` | 2.13.4+: `route` with `requireLoaded` while module 1's sensor reads empty; nothing moved |
+| `{"error":"module 1 still holds a card","moduleOneLoaded":true}` | 2.13.4+: `feeder` with `requireEmptyModuleOne` while module 1's sensor reads a card; nothing moved |
 | `{"error":"servo driver not detected - ...","servoDriver":"missing"}` | firmware 2.9.0+: `test` while the PCA9685 doesn't answer on I2C |
 | `{"error":"invalid JSON","reason":"...","length":N,"received":"..."}` | line didn't parse as JSON |
 | `{"error":"command too long"}` | line exceeded 255 characters |

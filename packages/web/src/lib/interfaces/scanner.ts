@@ -232,7 +232,12 @@ export interface ScannedCardsContextValue {
     vectorizedOn?: ScanVectorizeSource,
     details?: MatchedScanDetails,
     capturedBackImageUrl?: string,
+    earlyRoute?: EarlyRoutedScan,
   ) => ScanPlacement | null;
+  routeCardEarly: (
+    candidates: PlayingCardWithDistance[],
+    details: MatchedScanDetails,
+  ) => EarlyRoutedScan | null;
   addUnmatchedCard: (
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
@@ -1019,6 +1024,69 @@ export interface ClientDewarpResult {
   detection: CornerDetection;
   dewarpedCanvas: HTMLCanvasElement | null;
   frame: HTMLCanvasElement;
+}
+
+export interface BrowserScanOutcome {
+  card: PlayingCardWithDistance | null;
+  alternativeMatches: PlayingCardWithDistance[];
+  debugImageUrl: string;
+  capturedImageUrl: string | undefined;
+  capturedBackImageUrl: string | undefined;
+  vectorizedOn: ScanVectorizeSource;
+  dewarpedCardImage: ImageData | null;
+  matched: MatchedScanDetails | null;
+  noMatch: UnmatchedScanDetails | null;
+}
+
+export interface MatchedScanPlanSource {
+  scanId: string;
+  scannedAt: number;
+  card: PlayingCardWithDistance;
+  collection: Collection;
+  capturedImageUrl?: string;
+  capturedBackImageUrl?: string;
+  alternativeMatches?: PlayingCardWithDistance[];
+  vectorizedOn?: ScanVectorizeSource;
+  details?: MatchedScanDetails;
+}
+
+export interface SettledCardCapture {
+  frame: HTMLCanvasElement;
+  detection: CornerDetection;
+}
+
+export interface CardImageSearchExtras {
+  settledCapture?: SettledCardCapture | null;
+  onImageMatchBeforeText?: (outcome: ScanOutcome) => void;
+}
+
+export interface EarlyRoutedScan {
+  scanId: string;
+  scannedAt: number;
+  collection: Collection;
+  bin: BinConfig;
+  routing: Promise<void>;
+  feedNextCard: () => void;
+}
+
+export interface CardScannerOptions
+  extends Omit<CardScannerProps, "className" | "onSearchResults"> {
+  onSearchResults?: (
+    matches: PlayingCardWithDistance[],
+    capturedImageUrl?: string,
+    vectorizedOn?: ScanVectorizeSource,
+    details?: MatchedScanDetails,
+    capturedBackImageUrl?: string,
+    earlyRoute?: EarlyRoutedScan,
+  ) => void;
+  onRouteEarly?: (
+    candidates: PlayingCardWithDistance[],
+    details: MatchedScanDetails,
+  ) => EarlyRoutedScan | null;
+  rotated?: boolean;
+  scanRegion?: ScanRegion;
+  autoCapture?: boolean;
+  skipDuplicateCheck?: boolean;
 }
 
 export interface RouteCardToBinParams {

@@ -49,10 +49,12 @@ export type AppEnv = { Variables: AppVariables; Bindings: ServerScanBindings };
 const userRoleCache = createKeyedCache<string>(
   AUTH_LOOKUP_CACHE_TTL_MS,
   AUTH_LOOKUP_CACHE_MAX_ENTRIES,
+  { staleWhileRefreshingMs: AUTH_LOOKUP_CACHE_TTL_MS },
 );
 const orgMembershipCache = createKeyedCache<{ role: OrgRole } | null>(
   AUTH_LOOKUP_CACHE_TTL_MS,
   AUTH_LOOKUP_CACHE_MAX_ENTRIES,
+  { staleWhileRefreshingMs: AUTH_LOOKUP_CACHE_TTL_MS },
 );
 
 export async function verifyToken(

@@ -74,6 +74,7 @@ export interface ScanImageSearchOptions<T extends ScanImageCandidate> {
   readText?: (
     candidate: T,
   ) => Promise<(T & { ocr: OcrDiagnostics | null }) | null>;
+  onImageMatchBeforeText?: (image: T & { alternate: T | null }) => void;
 }
 
 export interface ScanImageSearchOutcome<T extends ScanImageCandidate> {
@@ -99,6 +100,7 @@ export interface CardSettleTracker {
     observation: CardSettleObservation,
     frameLongSidePx: number,
   ) => boolean;
+  settlesOnNextStillFrame: () => boolean;
   reset: () => void;
 }
 

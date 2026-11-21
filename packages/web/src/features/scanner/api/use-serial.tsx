@@ -70,6 +70,7 @@ import {
   SERIAL_IDENTIFY_TIMEOUT_MS,
   SERIAL_PUSH_BLOCKED_ERROR,
   isBootBanner,
+  isFirmwareFeatureSupported,
   isServoDriverMissing,
   type SerialMessageListener,
   type SerialRequestResult,
@@ -1412,8 +1413,14 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   const sendRoute = useCallback(
     (route: BinRoute, options: RouteOptions = {}) =>
-      session.sendRoute(route, options),
-    [session],
+      session.sendRoute(route, {
+        ...options,
+        firmwareChecksLoadedCard: isFirmwareFeatureSupported(
+          firmwareVersion,
+          "sensorCheckedCommands",
+        ),
+      }),
+    [session, firmwareVersion],
   );
 
   const readIR = useCallback(

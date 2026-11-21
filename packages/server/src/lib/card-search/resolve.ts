@@ -61,6 +61,7 @@ export function adapterEntriesForGameKeys(
 const collectionMatchScopeCache = createKeyedCache<CollectionMatchScope | null>(
   COLLECTION_MATCH_SCOPE_CACHE_TTL_MS,
   AUTH_LOOKUP_CACHE_MAX_ENTRIES,
+  { staleWhileRefreshingMs: COLLECTION_MATCH_SCOPE_CACHE_TTL_MS },
 );
 
 export async function resolveGameKeyAndLang(

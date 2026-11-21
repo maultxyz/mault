@@ -32,6 +32,20 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   pusherNudge: "2.13.0",
   emergencyStop: "2.13.2",
   ledStrips: "2.13.0",
+  sensorCheckedCommands: "2.13.4",
+};
+
+export const PI_CONTROLLER_VERSIONS: readonly string[] = [
+  "pi-0.1.0",
+  "pi-0.2.0",
+  "pi-0.3.0",
+];
+
+const PI_CONTROLLER_FEATURE_MIN_VERSIONS: Partial<
+  Record<FirmwareFeature, string>
+> = {
+  moduleDetection: "pi-0.2.0",
+  sensorCheckedCommands: "pi-0.3.0",
 };
 
 export const MODULE_DETECTION_BOARDS: readonly string[] = ["esp32", "raspberry_pi"];
@@ -55,14 +69,14 @@ export function isFirmwareFeatureSupported(
   feature: FirmwareFeature,
 ): boolean {
   if (version?.startsWith("pi-")) {
-    if (version !== "pi-0.1.0" && version !== "pi-0.2.0") return false;
+    if (!PI_CONTROLLER_VERSIONS.includes(version)) return false;
     return (
       feature !== "wifiRemote" &&
       feature !== "retractCard" &&
       feature !== "ledStrips" &&
       !isFirmwareVersionOutdated(
         version,
-        feature === "moduleDetection" ? "pi-0.2.0" : "pi-0.1.0",
+        PI_CONTROLLER_FEATURE_MIN_VERSIONS[feature] ?? PI_CONTROLLER_VERSIONS[0],
       )
     );
   }
@@ -73,6 +87,10 @@ export function isFirmwareFeatureSupported(
 }
 
 export const SERIAL_FED_EVENT = "fed";
+export const SENSOR_CHECKED_FEED_COMMAND = {
+  feeder: true,
+  requireEmptyModuleOne: true,
+} as const;
 export const SERIAL_FEED_TIMEOUT_ERROR_PREFIX = "timeout";
 export const SERIAL_JAM_ERROR = "jam";
 export const ROUTE_TIMEOUT_MODULE_PATTERN = /no card detected at module (\d+)/;

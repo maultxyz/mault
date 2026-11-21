@@ -446,7 +446,10 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       link.failPendingReplies();
       uptimeRef.current = statusUptimeMs(status);
       const bannerVersion = (status as SorterStatusReply | null)?.version;
-      if (typeof bannerVersion === "string") versionRef.current = bannerVersion;
+      if (typeof bannerVersion === "string") {
+        versionRef.current = bannerVersion;
+        setFirmwareVersion(bannerVersion);
+      }
       setNotice({ reason: statusResetReason(status) ?? "unknown" });
       setError(null);
       setPhase("syncing");
@@ -505,10 +508,21 @@ export function SorterProvider({ children }: { children: ReactNode }) {
     [],
   );
   const sendRoute = useCallback(
-    (route: BinRoute, options?: RouteOptions) => link.sendRoute(route, options),
+    (route: BinRoute, options?: RouteOptions) =>
+      link.sendRoute(route, {
+        ...options,
+        firmwareChecksLoadedCard: isFirmwareFeatureSupported(
+          versionRef.current,
+          "sensorCheckedCommands",
+        ),
+      }),
     [],
   );
   const feed = useCallback(() => link.feed(), []);
+  const feedRequiringEmptyModuleOne = useCallback(
+    () => link.feedRequiringEmptyModuleOne(),
+    [],
+  );
   const readSensors = useCallback(() => link.readSensors(), []);
   const sendNeutral = useCallback(() => link.sendNeutral(), []);
   const sendEmergencyStop = useCallback(() => link.sendEmergencyStop(), []);
@@ -599,6 +613,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       sendRequest,
       sendRoute,
       feed,
+      feedRequiringEmptyModuleOne,
       readSensors,
       sendNeutral,
       sendEmergencyStop,
@@ -631,6 +646,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       sendRequest,
       sendRoute,
       feed,
+      feedRequiringEmptyModuleOne,
       readSensors,
       sendNeutral,
       sendEmergencyStop,

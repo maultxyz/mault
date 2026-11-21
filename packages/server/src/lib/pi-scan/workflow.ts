@@ -6,11 +6,12 @@ export function runPiScanCardWorkflow(
   ports: PiScanWorkflowPorts,
 ) {
   return runScanWorkflow({
-    controlStage: "before-identify",
+    controlStage: "during-identify",
     capture: ports.capture,
     readControl: ports.readControl,
     applyControl: ports.applyControl,
     identify: ports.identify,
+    routeEarly: ports.routeEarly,
     card: (outcome) => outcome.card,
     isRemoval: () => session.removalEnabled,
     remove: ports.removal,

@@ -1195,6 +1195,12 @@ export function useScanSession({
     void feedNextCardAfterRoutedCard({
       readSensors: () => latestRef.current.sorter.readSensors(),
       feedOnce: () => latestRef.current.sorter.feed(),
+      feedOnceRequiringEmptyModuleOne: isFirmwareFeatureSupported(
+        latestRef.current.sorter.firmwareVersion,
+        "sensorCheckedCommands",
+      )
+        ? () => latestRef.current.sorter.feedRequiringEmptyModuleOne()
+        : undefined,
       replyOf: (reply) => reply,
       retryCount: latestRef.current.feedRetryCount,
     }).then((outcome) => {

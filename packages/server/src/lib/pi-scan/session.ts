@@ -16,6 +16,11 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import {
   runScanDisposition,
   applyPickListFound,
+  closeCardSearchMatches,
+  earlyRouteBinOf,
+  isFirmwareFeatureSupported,
+  SENSOR_CHECKED_FEED_COMMAND,
+  type MatchedScanPlanInput,
   prepareMatchedScanPlan,
   prepareUnmatchedScanPlan,
   scanCompletionPauseReason,
@@ -93,7 +98,9 @@ import {
 } from "../../db/schema";
 import type {
   PiScanBinCard,
+  PiScanEarlyRoute,
   PiScanFrameMatch,
+  PiScanIdentification,
   PiScanPrefetchedCard,
   PiScanLive,
   PiScanRunContext,
@@ -677,6 +684,7 @@ async function matchFrame(
   session: PiScanLive,
   context: PiScanRunContext,
   frame: Buffer,
+  onImageMatchBeforeText?: (provisional: PiScanFrameMatch) => void,
 ): Promise<PiScanFrameMatch> {
   const read = await readScanImage(frame);
   const source = context.flipCamera ? rotateRgba180(read) : read;
@@ -713,6 +721,42 @@ async function matchFrame(
   const markSource = corners.contour
     ? { source, contour: corners.contour }
     : null;
+  const frameMatchFor = async (
+    best: Awaited<ReturnType<typeof searchOrientation>>,
+    text: Pick<PiScanFrameMatch, "ocr" | "matchedBy" | "lowConfidenceFromOcr">,
+  ): Promise<PiScanFrameMatch> => {
+    const resolved = await resolveCardSearchMatches(
+      best.result,
+      async () => null,
+    );
+    const stampDetection =
+      corners.contour && resolved.card?.stamps?.length
+        ? detectCardStampRgba(
+            best.orientation === "rotated" ? rotateRgba180(upright) : upright,
+            resolved.card,
+          )
+        : null;
+    const markerGameKey = piScopeForMatchedGame(
+      context,
+      best.result.data?.[0]?.gameKey,
+    ).gameKey;
+    const printedFoilMarker =
+      corners.contour && PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY[markerGameKey]
+        ? detectPrintedFoilMarkerRgba(
+            orientedOcrCrop(source, corners.contour, best.orientation),
+            markerGameKey,
+          )
+        : null;
+    return {
+      ...best,
+      resolved,
+      ...text,
+      detection,
+      stampDetection,
+      printedFoilMarker,
+      foilDetection: null,
+    };
+  };
   const identified = await identifyScanImage<
     Awaited<ReturnType<typeof searchOrientation>>
   >({
@@ -780,49 +824,33 @@ async function matchFrame(
         return null;
       }
     },
+    onImageMatchBeforeText: onImageMatchBeforeText
+      ? (image) => {
+          if (
+            closeCardSearchMatches(image.result).some((match) => !match.card)
+          )
+            return;
+          void frameMatchFor(
+            {
+              image: image.image,
+              orientation: image.orientation,
+              result: image.result,
+              embedding: image.embedding,
+            },
+            { ocr: null, matchedBy: "embedding", lowConfidenceFromOcr: false },
+          )
+            .then(onImageMatchBeforeText)
+            .catch((error: unknown) =>
+              console.error("[pi-scan] early route check failed:", error),
+            );
+        }
+      : undefined,
   });
-  const best = identified.pick;
-  const {
-    ocr,
-    matchedBy,
-    lowConfidenceMatch: lowConfidenceFromOcr,
-  } = identified;
-  const resolved = await resolveCardSearchMatches(
-    best.result,
-    async () => null,
-  );
-
-  const stampDetection =
-    corners.contour && resolved.card?.stamps?.length
-      ? detectCardStampRgba(
-          best.orientation === "rotated" ? rotateRgba180(upright) : upright,
-          resolved.card,
-        )
-      : null;
-
-  const markerGameKey = piScopeForMatchedGame(
-    context,
-    best.result.data?.[0]?.gameKey,
-  ).gameKey;
-  const printedFoilMarker =
-    corners.contour && PRINTED_FOIL_MARKER_BANDS_BY_GAME_KEY[markerGameKey]
-      ? detectPrintedFoilMarkerRgba(
-          orientedOcrCrop(source, corners.contour, best.orientation),
-          markerGameKey,
-        )
-      : null;
-
-  return {
-    ...best,
-    resolved,
-    ocr,
-    matchedBy,
-    lowConfidenceFromOcr,
-    detection,
-    stampDetection,
-    printedFoilMarker,
-    foilDetection: null,
-  };
+  return frameMatchFor(identified.pick, {
+    ocr: identified.ocr,
+    matchedBy: identified.matchedBy,
+    lowConfidenceFromOcr: identified.lowConfidenceMatch,
+  });
 }
 
 function orientedOcrCrop(
@@ -859,11 +887,8 @@ async function matchUntilConsensus(
   context: PiScanRunContext,
   firstFrame?: Buffer,
   firstFrameMatch?: PiScanFrameMatch | null,
-): Promise<{
-  matched: PiScanFrameMatch;
-  attempts: ScanAttemptDiagnostic[];
-  card: PlayingCardWithDistance | null;
-}> {
+  offerEarlyRoute?: (provisional: PiScanIdentification) => void,
+): Promise<PiScanIdentification> {
   let initial = firstFrame;
   let initialMatch = firstFrame ? firstFrameMatch : null;
   const outcome = await identifyScanWithConsensus(
@@ -876,7 +901,19 @@ async function matchUntilConsensus(
       }
       const frame = initial ?? (await grabSettledCameraFrame(undefined, undefined, session.cameraId));
       initial = undefined;
-      return matchFrame(session, context, frame);
+      return matchFrame(
+        session,
+        context,
+        frame,
+        offerEarlyRoute && context.matchesNeeded <= 1
+          ? (provisional) =>
+              offerEarlyRoute({
+                matched: provisional,
+                attempts: [attemptDiagnostic(provisional)],
+                card: provisional.resolved.card,
+              })
+          : undefined,
+      );
     },
     (attempt) => attempt.resolved.card,
     context.matchesNeeded,
@@ -996,19 +1033,13 @@ function routingPauseMessage(decision: ScanRoutingDecision): string {
   return "Every pack is complete. Empty the completed packs, then resume.";
 }
 
-async function processMatched(
+function matchedScanPlanInput(
   session: PiScanLive,
   context: PiScanRunContext,
-  link: SorterLink,
-  identified: Awaited<ReturnType<typeof matchUntilConsensus>>,
-  pipeline: Parameters<typeof routeLoadedPiCard>[2],
-  prefetch: PiScanPrefetch<PiScanPrefetchedCard>,
-) {
-  const card = identified.card;
-  if (!card) return;
+  identified: PiScanIdentification,
+  scan: { scanId: string; scannedAt: number; card: PlayingCardWithDistance },
+): MatchedScanPlanInput {
   const matched = identified.matched;
-  const scanId = randomUUID();
-  const scannedAt = Date.now();
   const diagnostics: MatchedScanDiagnostics = {
     matchedBy: matched.matchedBy,
     vectorizedOn: "server",
@@ -1023,29 +1054,92 @@ async function processMatched(
     printingMarks: matched.result.printingMarks ?? null,
     foilDetection: matched.foilDetection,
   };
+  return {
+    ...scan,
+    capturedImageUrl: jpegDataUrl(matched.image),
+    alternativeMatches: matched.resolved.alternativeMatches,
+    condition: session.condition,
+    sessionFoilType: session.foilType,
+    foilDetection: matched.foilDetection,
+    fallbackFoilTypes: context.foilTypes,
+    gameKey: context.gameKey,
+    isNudgeFoilDetectionEnabled: context.foilDetectionEnabled,
+    isFoilStarDetectionEnabled: context.isFoilStarDetectionEnabled,
+    lowConfidenceMatch: matched.lowConfidenceFromOcr,
+    diagnostics,
+    vectorizedOn: "server",
+    deviceGuid: context.deviceGuid,
+  };
+}
+
+function routePiCardEarly(
+  session: PiScanLive,
+  context: PiScanRunContext,
+  link: SorterLink,
+  provisional: PiScanIdentification,
+  pipeline: Parameters<typeof routeLoadedPiCard>[2],
+): PiScanEarlyRoute | null {
+  const card = provisional.card;
+  if (
+    !card ||
+    !session.allowDuplicates ||
+    context.foilDetectionEnabled ||
+    session.stopRequested ||
+    session.pauseRequested
+  )
+    return null;
+  const scanId = randomUUID();
+  const scannedAt = Date.now();
+  const routing = routingContext(context);
+  const bin = earlyRouteBinOf(
+    [card, ...provisional.matched.resolved.alternativeMatches].map(
+      (candidate) =>
+        prepareMatchedScanPlan(
+          matchedScanPlanInput(session, context, provisional, {
+            scanId,
+            scannedAt,
+            card: candidate,
+          }),
+          routing,
+        ),
+    ),
+  );
+  if (!bin) return null;
+  showCard(session, card.name, bin.binNumber, true);
+  const routed = routeScannedPiCard(
+    session,
+    link,
+    routeForBin(bin.binNumber, context.routes),
+    pipeline,
+  );
+  routed.catch(() => undefined);
+  return { scanId, scannedAt, bin, routing: routed };
+}
+
+async function processMatched(
+  session: PiScanLive,
+  context: PiScanRunContext,
+  link: SorterLink,
+  identified: PiScanIdentification,
+  pipeline: Parameters<typeof routeLoadedPiCard>[2],
+  prefetch: PiScanPrefetch<PiScanPrefetchedCard>,
+  earlyRoute: PiScanEarlyRoute | null = null,
+) {
+  const card = identified.card;
+  if (!card) return;
+  const scanId = earlyRoute?.scanId ?? randomUUID();
+  const scannedAt = earlyRoute?.scannedAt ?? Date.now();
   session.lastCardId = card.id;
   await runScanDisposition({
     prepare: () =>
       prepareMatchedScanPlan(
-        {
+        matchedScanPlanInput(session, context, identified, {
           scanId,
           scannedAt,
           card,
-          capturedImageUrl: jpegDataUrl(matched.image),
-          alternativeMatches: matched.resolved.alternativeMatches,
-          condition: session.condition,
-          sessionFoilType: session.foilType,
-          foilDetection: matched.foilDetection,
-          fallbackFoilTypes: context.foilTypes,
-          gameKey: context.gameKey,
-          isNudgeFoilDetectionEnabled: context.foilDetectionEnabled,
-          isFoilStarDetectionEnabled: context.isFoilStarDetectionEnabled,
-          lowConfidenceMatch: matched.lowConfidenceFromOcr,
-          diagnostics,
-          vectorizedOn: "server",
-          deviceGuid: context.deviceGuid,
-        },
+        }),
         routingContext(context),
+        earlyRoute?.bin,
       ),
     hold: async (decision) => {
       holdCard(session, routingPauseMessage(decision));
@@ -1065,6 +1159,10 @@ async function processMatched(
     route: async (decision) => {
       if (!decision.bin) throw new Error("No bin matched this card.");
       showCard(session, card.name, decision.bin.binNumber, true);
+      if (earlyRoute) {
+        await earlyRoute.routing;
+        return;
+      }
       await routeScannedPiCard(
         session,
         link,
@@ -1161,7 +1259,7 @@ async function processMatched(
         if (!(await waitForResume(session))) break;
       }
     },
-    checkpoint: () => waitForResume(session),
+    checkpoint: earlyRoute ? undefined : () => waitForResume(session),
     revision: () => session.configurationVersion,
   });
 }
@@ -1560,6 +1658,20 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
           }
           return link.command({ feeder: true }, PI_SCAN_FEED_TIMEOUT_MS);
         },
+        feedOnceRequiringEmptyModuleOne: isFirmwareFeatureSupported(
+          link.firmwareVersion,
+          "sensorCheckedCommands",
+        )
+          ? async () => {
+              if (!(await waitForResume(session))) {
+                throw new Error("Feeding interrupted.");
+              }
+              return link.command(
+                SENSOR_CHECKED_FEED_COMMAND,
+                PI_SCAN_FEED_TIMEOUT_MS,
+              );
+            }
+          : undefined,
         retryCount: context.feedRetryCount,
       });
       if (feedOutcome.kind === "stuckInModuleOne") {
@@ -1588,6 +1700,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         break;
       }
 
+      let earlyRoute: PiScanEarlyRoute | null = null;
       await runPiScanCardWorkflow(session, {
         capture: async () =>
           prefetched?.identified?.frame ??
@@ -1595,7 +1708,7 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
         readControl: readPiScannerControlCode,
         applyControl: (command) =>
           applyControlCard(session, context, link, command),
-        identify: (frame) =>
+        identify: (frame, offerEarlyRoute) =>
           matchUntilConsensus(
             session,
             context,
@@ -1606,7 +1719,18 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
                   piMatchInputsKey(session, context),
                 )
               : null,
+            offerEarlyRoute,
           ),
+        routeEarly: (provisional) => {
+          earlyRoute = routePiCardEarly(
+            session,
+            context,
+            link,
+            provisional,
+            pipeline,
+          );
+          return earlyRoute !== null;
+        },
         removal: (outcome) =>
           processRemoval(
             session,
@@ -1631,7 +1755,15 @@ async function runLoop(session: PiScanLive, link: SorterLink) {
             session.nudgeCalibration,
           ),
         matched: (outcome) =>
-          processMatched(session, context, link, outcome, pipeline, prefetch),
+          processMatched(
+            session,
+            context,
+            link,
+            outcome,
+            pipeline,
+            prefetch,
+            earlyRoute,
+          ),
         unmatched: (outcome) =>
           processUnmatched(session, context, link, outcome, pipeline, prefetch),
         checkpoint: () => waitForResume(session),

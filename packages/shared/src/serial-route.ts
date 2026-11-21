@@ -19,7 +19,9 @@ export async function requestSorterRoute(
     : ROUTE_RESPONSE_TIMEOUT_MS,
   sensorTimeoutMs = SERIAL_DEFAULT_RESPONSE_TIMEOUT_MS,
 ) {
-  if (options.requireLoadedCard) {
+  const firmwareChecksLoadedCard =
+    !!options.requireLoadedCard && !!options.firmwareChecksLoadedCard;
+  if (options.requireLoadedCard && !firmwareChecksLoadedCard) {
     const sensors = await request({ readIR: true }, sensorTimeoutMs);
     if (
       !Array.isArray(sensors?.ir) ||
@@ -37,6 +39,7 @@ export async function requestSorterRoute(
         ...(options.feedNext && routeAllowsPipelinedFeed(route)
           ? { feedNext: true }
           : {}),
+        ...(firmwareChecksLoadedCard ? { requireLoaded: true } : {}),
       },
     },
     timeoutMs,

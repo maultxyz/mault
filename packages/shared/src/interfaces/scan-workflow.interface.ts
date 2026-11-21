@@ -10,12 +10,16 @@ export type ScanWorkflowResult =
   | "stopped";
 
 export interface ScanWorkflowAdapter<Frame, Outcome> {
-  controlStage: "before-identify" | "after-miss";
+  controlStage: "before-identify" | "during-identify" | "after-miss";
   capture(): Promise<Frame>;
   readControl(frame: Frame): Promise<string | null> | string | null;
   applyControl(command: ScannerControlCommand | null): Promise<void> | void;
   applyOtherCode?(text: string): Promise<boolean> | boolean;
-  identify(frame: Frame): Promise<Outcome>;
+  identify(
+    frame: Frame,
+    offerEarlyRoute: (provisional: Outcome) => void,
+  ): Promise<Outcome>;
+  routeEarly?(provisional: Outcome): boolean;
   card(outcome: Outcome): PlayingCardWithDistance | null;
   isRemoval(): boolean;
   remove(outcome: Outcome): Promise<void> | void;

@@ -32,6 +32,7 @@ export interface CommLogEntry {
 export interface RouteOptions {
   feedNext?: boolean;
   requireLoadedCard?: boolean;
+  firmwareChecksLoadedCard?: boolean;
 }
 
 export interface SkippedRouteResponse {

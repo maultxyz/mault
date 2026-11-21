@@ -93,6 +93,7 @@ export function CardScanner({
   const previewRotated = !isMobile || piHost;
   const {
     addCard,
+    routeCardEarly,
     addUnmatchedCard,
     autoFeed,
     setAutoFeed,
@@ -226,6 +227,7 @@ export function CardScanner({
     displayCanvasRef,
     overlayCanvasRef,
     captureCard,
+    captureArrivedCard,
     handleForceScan,
     handlePause,
     handleResume,
@@ -250,6 +252,7 @@ export function CardScanner({
       vectorizedOn,
       details,
       capturedBackImageUrl,
+      earlyRoute,
     ) => {
       if (cards.length > 0) {
         recordScanOutcome(true);
@@ -260,6 +263,7 @@ export function CardScanner({
           vectorizedOn,
           details,
           capturedBackImageUrl,
+          earlyRoute,
         );
         archiveDocumentScan(placement, {
           cardName: cards[0].name,
@@ -287,6 +291,7 @@ export function CardScanner({
         backImageUrl: capturedBackImageUrl,
       });
     },
+    onRouteEarly: routeCardEarly,
     isRemoval: () => isRemoveModeActive,
     onRemoval: (cards) => {
       if (cards.length > 0) queueScannedCard(cards[0], cards.slice(1));
@@ -387,8 +392,8 @@ export function CardScanner({
       return;
     }
     if (status === "paused") handleResume();
-    captureCard();
-  }, [piRemote, status, handleResume, captureCard, isFeedHalted]);
+    captureArrivedCard();
+  }, [piRemote, status, handleResume, captureArrivedCard, isFeedHalted]);
 
   const handleResumeClick = useCallback(() => {
     handleResume();

@@ -72,6 +72,82 @@ test("an unreadable sensor reply does not block the feed", async () => {
   assert.equal(feeds, 1);
 });
 
+test("a firmware-checked feed reports a routed card still in module 1 without a sensor read", async () => {
+  let uncheckedFeeds = 0;
+  const outcome = await feedNextCardAfterRoutedCard<SerialReply>({
+    readSensors: async () => assert.fail("No sensor read expected"),
+    feedOnce: async () => {
+      uncheckedFeeds++;
+      return { status: "ok", detected: true };
+    },
+    feedOnceRequiringEmptyModuleOne: async () => ({
+      error: "module 1 still holds a card",
+      moduleOneLoaded: true,
+    }),
+    replyOf: (reply) => reply,
+    retryCount: 2,
+  });
+  assert.deepEqual(outcome, { kind: "stuckInModuleOne" });
+  assert.equal(uncheckedFeeds, 0);
+});
+
+test("a firmware-checked feed retries a timeout with the unchecked feed", async () => {
+  let checkedFeeds = 0;
+  let uncheckedFeeds = 0;
+  const arrived = { status: "ok", detected: true, empty: false };
+  const outcome = await feedNextCardAfterRoutedCard<SerialReply>({
+    readSensors: async () => assert.fail("No sensor read expected"),
+    feedOnce: async () => {
+      uncheckedFeeds++;
+      return arrived;
+    },
+    feedOnceRequiringEmptyModuleOne: async () => {
+      checkedFeeds++;
+      return { status: "ok", detected: false, empty: false };
+    },
+    replyOf: (reply) => reply,
+    retryCount: 1,
+  });
+  assert.deepEqual(outcome, { kind: "fed", result: arrived });
+  assert.equal(checkedFeeds, 1);
+  assert.equal(uncheckedFeeds, 1);
+});
+
+test("a firmware-checked feed that delivers a card is not sent twice", async () => {
+  let checkedFeeds = 0;
+  const arrived = { status: "ok", detected: true, empty: false };
+  const outcome = await feedNextCardAfterRoutedCard<SerialReply>({
+    readSensors: async () => assert.fail("No sensor read expected"),
+    feedOnce: async () => assert.fail("No unchecked feed expected"),
+    feedOnceRequiringEmptyModuleOne: async () => {
+      checkedFeeds++;
+      return arrived;
+    },
+    replyOf: (reply) => reply,
+    retryCount: 3,
+  });
+  assert.deepEqual(outcome, { kind: "fed", result: arrived });
+  assert.equal(checkedFeeds, 1);
+});
+
+test("the Pi host uses the firmware-checked feed when the session provides one", async () => {
+  const link = {
+    async command() {
+      return assert.fail("No sensor read expected");
+    },
+  };
+  const outcome = await feedNextPiScanCard(link, {
+    confirmRoutedCardLeftModuleOne: true,
+    feedOnce: async () => assert.fail("No unchecked feed expected"),
+    feedOnceRequiringEmptyModuleOne: async () => ({
+      error: "module 1 still holds a card",
+      moduleOneLoaded: true,
+    }),
+    retryCount: 1,
+  });
+  assert.deepEqual(outcome, { kind: "stuckInModuleOne" });
+});
+
 test("a module 1 route never asks firmware to pipeline the next feed", async () => {
   const sent: Record<string, unknown>[] = [];
   let deliver: (chunk: Uint8Array) => void = () => {};

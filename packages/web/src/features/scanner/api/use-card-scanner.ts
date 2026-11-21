@@ -12,6 +12,7 @@ import {
   captureDewarpedCardImage,
   searchCardImageWithConsensus,
 } from "@/features/scanner/lib/card-image-search";
+import { copyFrameInto } from "@/features/scanner/lib/client-vectorize";
 import { detectCardCorners } from "@/features/scanner/lib/cornelius";
 import { getOnnxRuntimeFailure } from "@/features/scanner/lib/onnx-runtime";
 import { createOutlineAnimator } from "@/features/scanner/lib/outline-animator";
@@ -42,7 +43,11 @@ import {
   observeContainerResize,
 } from "@/features/scanner/lib/canvas-fit";
 import type {
+  BrowserScanOutcome,
+  CardScannerOptions,
   DocumentScanSavedImages,
+  EarlyRoutedScan,
+  SettledCardCapture,
   VideoPreviewLoop,
 } from "@/lib/interfaces/scanner";
 import {
@@ -53,7 +58,6 @@ import {
   getDefaultCardContour,
   OCR_REGIONS_BY_GAME_KEY,
   type CardContour,
-  type CardScannerProps,
   type CornerDetection,
   HAND_SCAN_MAX_CORNER_SHIFT_RATIO,
   HAND_SCAN_REARM_SHIFT_RATIO,
@@ -65,7 +69,6 @@ import {
   createCardSettleTracker,
   type ScanOrientation,
   type PlayingCardWithDistance,
-  type ScanRegion,
   type ScannerStatus,
   type ScanVectorizeSource,
   presetMatchGameKeys,
@@ -112,18 +115,14 @@ export function useCardScanner({
   onControlCode,
   isRemoval,
   onRemoval,
+  onRouteEarly,
   checkFoilByNudge,
   onError,
   rotated = true,
   scanRegion: scanRegionProp,
   autoCapture = false,
   skipDuplicateCheck = false,
-}: Omit<CardScannerProps, "className"> & {
-  rotated?: boolean;
-  scanRegion?: ScanRegion;
-  autoCapture?: boolean;
-  skipDuplicateCheck?: boolean;
-} = {}) {
+}: CardScannerOptions = {}) {
   const { t } = useTranslation("scanner");
   const {
     stream,
@@ -224,6 +223,8 @@ export function useCardScanner({
   );
   const settleWatchRunRef = useRef(0);
   const [settleTracker] = useState(() => createCardSettleTracker());
+  const settleFrameRef = useRef<HTMLCanvasElement | null>(null);
+  const cardArrivedWhileCapturingRef = useRef(false);
   const preferredOrientationRef = useRef<ScanOrientation | null>(null);
   const onSearchResultsRef = useRef(onSearchResults);
   const onNoMatchRef = useRef(onNoMatch);
@@ -232,6 +233,8 @@ export function useCardScanner({
   isRemovalRef.current = isRemoval;
   const onRemovalRef = useRef(onRemoval);
   onRemovalRef.current = onRemoval;
+  const onRouteEarlyRef = useRef(onRouteEarly);
+  onRouteEarlyRef.current = onRouteEarly;
   const checkFoilByNudgeRef = useRef(checkFoilByNudge);
   checkFoilByNudgeRef.current = checkFoilByNudge;
   const handleErrorRef = useRef<(msg: string) => void>(() => {});
@@ -340,6 +343,7 @@ export function useCardScanner({
       contour: CardContour | null | undefined,
       fromLiveVideo: boolean,
       documentScanImages?: DocumentScanSavedImages,
+      settledCapture: SettledCardCapture | null = null,
     ) => {
       const isDocumentScan = !!documentScanImages;
       const {
@@ -355,20 +359,23 @@ export function useCardScanner({
         return;
       }
 
+      let earlyRoute: EarlyRoutedScan | null = null;
+      let isControlHandled = false;
       try {
-        await runScanWorkflow({
-          controlStage: "before-identify",
+        await runScanWorkflow<HTMLCanvasElement, BrowserScanOutcome>({
+          controlStage: "during-identify",
           capture: async () => {
             if (fromLiveVideo) drawLatestVideoFrame();
             return canvas;
           },
           readControl: readScannerControlCode,
           applyControl: (command) => {
+            isControlHandled = true;
             lastScannedCardIdRef.current = null;
             onControlCodeRef.current?.(command);
             if (statusRef.current !== "paused") updateStatus("scanning");
           },
-          identify: async () => {
+          identify: async (_frame, offerEarlyRoute) => {
             const {
               card,
               alternativeMatches,
@@ -394,10 +401,24 @@ export function useCardScanner({
               gameKeyRef.current,
               fromLiveVideo ? preferredOrientationRef.current : null,
               documentScanImages?.cardContour ?? null,
+              {
+                settledCapture,
+                onImageMatchBeforeText: fromLiveVideo
+                  ? (provisional) =>
+                      offerEarlyRoute({
+                        card: provisional.card,
+                        alternativeMatches: provisional.alternativeMatches,
+                        debugImageUrl: provisional.debugImageUrl,
+                        capturedImageUrl: provisional.debugImageUrl,
+                        capturedBackImageUrl: undefined,
+                        vectorizedOn: provisional.vectorizedOn,
+                        dewarpedCardImage: null,
+                        matched: provisional.matched,
+                        noMatch: provisional.noMatch,
+                      })
+                  : undefined,
+              },
             );
-            if (fromLiveVideo && matchedOrientation)
-              preferredOrientationRef.current = matchedOrientation;
-            setDebugImageUrl(debugImageUrl);
             const images = await orientDocumentScanImages(
               savedImageUrl,
               scannedBackImageUrl,
@@ -405,20 +426,25 @@ export function useCardScanner({
               debugImageUrl,
               backMirrorAxis,
             );
-            capturedImageUrlRef.current = images.capturedImageUrl;
-            capturedBackImageUrlRef.current = images.capturedBackImageUrl;
-            vectorizedOnRef.current = vectorizedOn;
+            if (!isControlHandled) {
+              if (fromLiveVideo && matchedOrientation)
+                preferredOrientationRef.current = matchedOrientation;
+              setDebugImageUrl(debugImageUrl);
+              capturedImageUrlRef.current = images.capturedImageUrl;
+              capturedBackImageUrlRef.current = images.capturedBackImageUrl;
+              vectorizedOnRef.current = vectorizedOn;
 
-            outlineAnimator.cancel();
-            const overlayCtx = overlayCanvasRef.current?.getContext("2d");
-            if (overlayCtx && canvas.width && canvas.height) {
-              overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
-              if (detectedContour) {
-                drawDetectionOverlay(overlayCtx, {
-                  detected: true,
-                  contour: detectedContour,
-                  confidence: 1,
-                });
+              outlineAnimator.cancel();
+              const overlayCtx = overlayCanvasRef.current?.getContext("2d");
+              if (overlayCtx && canvas.width && canvas.height) {
+                overlayCtx.clearRect(0, 0, canvas.width, canvas.height);
+                if (detectedContour) {
+                  drawDetectionOverlay(overlayCtx, {
+                    detected: true,
+                    contour: detectedContour,
+                    confidence: 1,
+                  });
+                }
               }
             }
 
@@ -426,8 +452,8 @@ export function useCardScanner({
               card,
               alternativeMatches,
               debugImageUrl,
-              capturedImageUrl: capturedImageUrlRef.current ?? undefined,
-              capturedBackImageUrl: capturedBackImageUrlRef.current,
+              capturedImageUrl: images.capturedImageUrl ?? undefined,
+              capturedBackImageUrl: images.capturedBackImageUrl,
               vectorizedOn,
               dewarpedCardImage,
               matched,
@@ -435,6 +461,22 @@ export function useCardScanner({
             };
           },
           card: (outcome) => outcome.card,
+          routeEarly: (provisional) => {
+            if (
+              !provisional.card ||
+              !provisional.matched ||
+              (checkDuplicate &&
+                !allowDuplicates &&
+                !skipDuplicateCheckRef.current)
+            )
+              return false;
+            earlyRoute =
+              onRouteEarlyRef.current?.(
+                [provisional.card, ...provisional.alternativeMatches],
+                provisional.matched,
+              ) ?? null;
+            return earlyRoute !== null;
+          },
           isRemoval: () => isRemovalRef.current?.() ?? false,
           remove: (outcome) => {
             onRemovalRef.current?.(
@@ -491,6 +533,7 @@ export function useCardScanner({
               outcome.vectorizedOn,
               outcome.matched ?? undefined,
               outcome.capturedBackImageUrl,
+              earlyRoute ?? undefined,
             );
             if (statusRef.current !== "paused") updateStatus("scanning");
           },
@@ -511,9 +554,21 @@ export function useCardScanner({
         );
       } finally {
         isCapturingRef.current = false;
+        if (cardArrivedWhileCapturingRef.current) {
+          cardArrivedWhileCapturingRef.current = false;
+          captureCardRef.current();
+        }
       }
     },
     [updateStatus, allowDuplicates, drawLatestVideoFrame, outlineAnimator, t],
+  );
+
+  useEffect(
+    () => () => {
+      if (settleFrameRef.current) releaseCanvases([settleFrameRef.current]);
+      settleFrameRef.current = null;
+    },
+    [],
   );
 
   useEffect(() => {
@@ -926,8 +981,17 @@ export function useCardScanner({
     captureDocumentScannerPageThenSearch,
   ]);
 
+  const snapshotSettleFrame = useCallback((canvas: HTMLCanvasElement) => {
+    try {
+      settleFrameRef.current ??= document.createElement("canvas");
+      return copyFrameInto(settleFrameRef.current, canvas);
+    } catch {
+      return null;
+    }
+  }, []);
+
   const watchForSettledCard = useCallback(
-    (onSettled: () => void) => {
+    (onSettled: (settled: SettledCardCapture | null) => void) => {
       const run = ++settleWatchRunRef.current;
       const isCurrent = () =>
         settleWatchRunRef.current === run && settleTimeoutRef.current !== null;
@@ -937,14 +1001,20 @@ export function useCardScanner({
         const canvas = displayCanvasRef.current;
         if (!isCurrent() || !canvas || getOnnxRuntimeFailure()) return;
         let isSettled: boolean;
+        let settled: SettledCardCapture | null = null;
         try {
           drawLatestVideoFrame();
-          const detection = await detectCardCorners(canvas);
+          const frame = settleTracker.settlesOnNextStillFrame()
+            ? snapshotSettleFrame(canvas)
+            : null;
+          const detection = await detectCardCorners(frame ?? canvas);
           if (!isCurrent()) return;
           isSettled = settleTracker.observe(
             detection,
             Math.max(canvas.width, canvas.height),
           );
+          if (frame && detection.cardPresent && detection.contour)
+            settled = { frame, detection };
           if (
             isActiveStationRef.current &&
             document.visibilityState === "visible"
@@ -958,7 +1028,7 @@ export function useCardScanner({
           return;
         }
         if (isSettled) {
-          onSettled();
+          onSettled(settled);
           return;
         }
         settleWatchTimerRef.current = setTimeout(
@@ -968,7 +1038,7 @@ export function useCardScanner({
       };
       void checkFrame();
     },
-    [settleTracker, drawLatestVideoFrame, outlineAnimator],
+    [settleTracker, drawLatestVideoFrame, outlineAnimator, snapshotSettleFrame],
   );
 
   const captureCard = useCallback(() => {
@@ -1005,15 +1075,15 @@ export function useCardScanner({
       canvas.height,
       scanRegionRef.current,
     );
-    const captureSettledCard = () => {
+    const captureSettledCard = (settled: SettledCardCapture | null) => {
       if (settleTimeoutRef.current === null) return;
       clearTimeout(settleTimeoutRef.current);
       settleTimeoutRef.current = null;
       updateStatus("searching");
-      performCapture(true, contour, true);
+      performCapture(true, contour, true, undefined, settled);
     };
     settleTimeoutRef.current = setTimeout(
-      captureSettledCard,
+      () => captureSettledCard(null),
       captureSettleDelayMsRef.current,
     );
     watchForSettledCard(captureSettledCard);
@@ -1026,6 +1096,14 @@ export function useCardScanner({
     watchForSettledCard,
   ]);
   captureCardRef.current = captureCard;
+
+  const captureArrivedCard = useCallback(() => {
+    if (isCapturingRef.current) {
+      cardArrivedWhileCapturingRef.current = true;
+      return;
+    }
+    captureCardRef.current();
+  }, []);
 
   const handleSkipDuplicate = useCallback(() => {
     setDuplicateCard(null);
@@ -1070,6 +1148,7 @@ export function useCardScanner({
     displayCanvasRef,
     overlayCanvasRef,
     captureCard,
+    captureArrivedCard,
     handleForceAddDuplicate,
     handleForceScan,
     handleSkipDuplicate,

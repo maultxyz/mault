@@ -273,6 +273,37 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         self.assertIn((4, 310), self.hardware.writes)
         self.assertNotIn((1, 310), self.hardware.writes)
 
+    async def test_card_no_sensor_sees_is_shaken_loose_by_flapping_each_module_on_the_way(self):
+        self.hardware.sensors[0] = True
+        flaps = []
+
+        def advance(channel, pulse):
+            if (channel, pulse) == (0, 310) and not flaps:
+                self.hardware.sensors[0] = False
+            if (channel, pulse) == (0, 305):
+                flaps.append(self.now)
+                self.hardware.sensors[2] = True
+
+        self.hardware.on_write = advance
+        response = await self.command(dict(route=dict(module=3, direction="left")))
+        self.assertEqual(response["status"], "routed")
+        self.assertEqual(len(flaps), 1)
+        self.assertNotIn((4, 305), self.hardware.writes)
+
+    async def test_card_no_sensor_sees_flaps_every_module_once_then_reports_the_target(self):
+        self.hardware.sensors[0] = True
+
+        def advance(channel, pulse):
+            if (channel, pulse) == (0, 310):
+                self.hardware.sensors[0] = False
+
+        self.hardware.on_write = advance
+        response = await self.command(dict(route=dict(module=3, direction="left")))
+        self.assertIn("module 3", response["error"])
+        self.assertEqual(self.hardware.writes.count((0, 305)), 3)
+        self.assertEqual(self.hardware.writes.count((3, 305)), 3)
+        self.assertLess(self.now, 7)
+
     async def test_route_jam_retries_then_reports_destination(self):
         self.hardware.sensors[0] = True
         response = await self.command(dict(route=dict(module=2, direction="bottom")))
@@ -285,6 +316,87 @@ class ControllerTests(unittest.IsolatedAsyncioTestCase):
         response = await self.command(dict(route=dict(module=1, direction="right", feedNext=True)))
         self.assertTrue(response["fedNext"])
         self.assertEqual(self.events[0]["event"], "fed")
+
+    async def test_pipeline_feeds_after_arrival_and_counts_the_enter_delay_from_arrival(self):
+        self.hardware.sensors[0] = True
+        written_at = {}
+        fed_at = []
+
+        def advance(channel, pulse):
+            written_at.setdefault((channel, pulse), self.now)
+            if (channel, pulse) == (3, 310):
+                self.hardware.sensors[0] = False
+                self.hardware.sensors[2] = True
+            elif (channel, pulse) == (15, 315):
+                self.hardware.sensors[0] = True
+
+        async def emit(event):
+            self.assertTrue(self.hardware.sensors[2])
+            fed_at.append(self.now)
+            self.events.append(event)
+
+        self.hardware.on_write = advance
+        response = await self.controller.command(
+            dict(route=dict(module=3, direction="left", feedNext=True)), emit)
+        self.assertEqual(self.events, [dict(event="fed", status="ok", detected=True, empty=False)])
+        self.assertEqual(response["status"], "routed")
+        self.assertTrue(response["fedNext"])
+        self.assertAlmostEqual(fed_at[0] - written_at[(0, 300)], 0.2)
+        self.assertGreaterEqual(written_at[(7, 310)] - written_at[(3, 310)], 0.3)
+        self.assertLess(written_at[(7, 310)] - fed_at[0], 0.3)
+
+    async def test_route_without_pipeline_keeps_the_full_card_enter_delay(self):
+        self.hardware.sensors[0] = True
+        written_at = {}
+
+        def advance(channel, pulse):
+            written_at.setdefault((channel, pulse), self.now)
+            if channel in (0, 3) and pulse == 310:
+                self.hardware.sensors[channel // 3] = False
+                self.hardware.sensors[channel // 3 + 1] = True
+
+        self.hardware.on_write = advance
+        response = await self.command(dict(route=dict(module=3, direction="left")))
+        self.assertEqual(response["status"], "routed")
+        self.assertAlmostEqual(written_at[(7, 310)] - written_at[(3, 310)], 0.3)
+
+    async def test_pipeline_never_feeds_over_a_card_lost_between_modules(self):
+        self.hardware.sensors[0] = True
+
+        def advance(channel, pulse):
+            if (channel, pulse) == (0, 310):
+                self.hardware.sensors[0] = False
+
+        self.hardware.on_write = advance
+        response = await self.command(dict(route=dict(module=3, direction="left", feedNext=True)))
+        self.assertEqual(self.events, [])
+        self.assertIn("module 3", response["error"])
+        self.assertNotIn((15, 315), self.hardware.writes)
+
+    async def test_scan_route_refuses_without_motion_when_module_one_is_empty(self):
+        response = await self.command(
+            dict(route=dict(module=2, direction="left", requireLoaded=True)))
+        self.assertEqual(response, dict(error="no card loaded at module 1", noLoadedCard=True))
+        self.assertEqual(self.hardware.writes, [])
+        self.hardware.sensors[0] = True
+        response = await self.command(
+            dict(route=dict(module=1, direction="left", requireLoaded=True)))
+        self.assertEqual(response["status"], "routed")
+
+    async def test_checked_feed_refuses_without_motion_when_module_one_is_loaded(self):
+        self.hardware.sensors[0] = True
+        response = await self.command(dict(feeder=True, requireEmptyModuleOne=True))
+        self.assertEqual(response, dict(error="module 1 still holds a card", moduleOneLoaded=True))
+        self.assertEqual(self.hardware.writes, [])
+        self.hardware.sensors[0] = False
+
+        def arrive(channel, pulse):
+            if (channel, pulse) == (15, 315):
+                self.hardware.sensors[0] = True
+
+        self.hardware.on_write = arrive
+        response = await self.command(dict(feeder=True, requireEmptyModuleOne=True))
+        self.assertEqual(response, dict(status="ok", detected=True, empty=False))
 
     async def test_partial_calibration_persists_atomically_and_validates(self):
         await self.command(dict(setConfig=dict(module=2, paddleOpenDelay=450)))
@@ -364,7 +476,7 @@ class SocketTests(unittest.IsolatedAsyncioTestCase):
         writer.write(b'{"seq":7,"getStatus":true}\n')
         reply = json.loads(await asyncio.wait_for(reader.readline(), 1))
         self.assertEqual(reply["seq"], 7)
-        self.assertEqual(reply["version"], "pi-0.2.0")
+        self.assertEqual(reply["version"], "pi-0.3.0")
         other_reader, other_writer = await asyncio.open_unix_connection(self.path)
         self.assertEqual(json.loads(await other_reader.readline())["error"], "busy")
         other_writer.close()
