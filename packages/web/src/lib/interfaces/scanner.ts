@@ -6,6 +6,7 @@ import type {
   BinConfig,
   CardCondition,
   DesktopDocumentScanArchiveRequest,
+  PersistedScanSettings,
   FoilNudgeFirmwareLimits,
   CardTag,
   CardFilters,
@@ -45,7 +46,7 @@ import type {
   DesktopDocumentScanRequest,
   CardTextSearchResult,
 } from "@magic-vault/shared";
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, ReactNode, RefObject } from "react";
 import type {
   PreTestHook,
   SorterLimitReason,
@@ -1759,6 +1760,15 @@ export interface MoveCardsToCollectionInput {
   sourceCollectionGuid: string;
   targetCollectionGuid: string;
   scanIds: string[];
+}
+
+export interface PersistedScanSettingsState {
+  settings: PersistedScanSettings;
+  settingsRef: RefObject<PersistedScanSettings>;
+  setFoilType: (foilType: string | null) => void;
+  setPreferredSetCodes: (preferredSetCodes: string[]) => void;
+  setCondition: (condition: CardCondition) => void;
+  setPreferredSetCodesAfterCollectionSwitch: (setCodes: string[]) => void;
 }
 
 export interface PiScanSettingsOptions {

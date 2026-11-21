@@ -961,6 +961,14 @@
       "batchDescriptionNoLocations": "Du hast noch keine Lagerorte. Lege unter Bibliothek > Lager einen an oder füge Karten nur zur Sammlung hinzu.",
       "batchDescriptionLocked": "Lagerorte sind in deinem Tarif nicht enthalten, daher werden Karten nur zur Sammlung hinzugefügt.",
       "batchNoLocationDescription": "Karten nur zur Sammlung hinzufügen"
+    },
+    "retainedSettings": {
+      "title": "Scan-Einstellungen weiterhin aktiv",
+      "foil": "Foil: {{type}}",
+      "condition": "Zustand: {{condition}}",
+      "sets_one": "Set: {{sets}}",
+      "sets_other": "Sets: {{sets}}",
+      "reset": "Zurücksetzen"
     }
   },
   "home": {

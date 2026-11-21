@@ -12,7 +12,6 @@ import {
   scanBinCapacity,
   computeBinCount,
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
-  DEFAULT_CARD_CONDITION,
   DEFAULT_FEEDER_CALIBRATION,
   feedNextCardAfterRoutedCard,
   feedWithRetries,
@@ -45,7 +44,6 @@ import {
   type BinConfig,
   type BinContentCard,
   type BinRoute,
-  type CardCondition,
   type ScanPickListUpdate,
   type ScannerControlCommand,
   type ScanRoutingContext,
@@ -77,6 +75,7 @@ import {
 import { sendSortOnlyScan } from "@/features/scanner/api/scan-saves";
 import { gamesQueryOptions } from "@/features/games/api/games";
 import { usePendingSaves } from "@/features/scanner/api/use-pending-saves";
+import { usePersistedScanSettings } from "@/features/scanner/api/use-persisted-scan-settings";
 import { useScanDestination } from "@/features/scanner/api/use-scan-destination";
 import { useScanRemoval } from "@/features/scanner/api/use-scan-removal";
 import { configsFromSet } from "@/features/scanner/lib/bin-routing";
@@ -282,14 +281,23 @@ export function useScanSession({
     [pause],
   );
 
-  const [scanCondition, setScanConditionState] = useState<CardCondition>(
-    DEFAULT_CARD_CONDITION,
-  );
-  const scanConditionRef = useRef<CardCondition>(DEFAULT_CARD_CONDITION);
-  const setScanCondition = useCallback((condition: CardCondition) => {
-    scanConditionRef.current = condition;
-    setScanConditionState(condition);
-  }, []);
+  const persistedScanSettings = usePersistedScanSettings(orgId, collection);
+  const scanSettingsRef = persistedScanSettings.settingsRef;
+  const scanCondition = persistedScanSettings.settings.condition;
+  const setScanCondition = persistedScanSettings.setCondition;
+  const forcedFoilType = persistedScanSettings.settings.foilType;
+  const setForcedFoilType = persistedScanSettings.setFoilType;
+  const forcedSetCodes = persistedScanSettings.settings.preferredSetCodes;
+  const setForcedSetCodes = persistedScanSettings.setPreferredSetCodes;
+  const {
+    queueForcedValuesAfterCollectionSwitch,
+    retainedSettingsNotice,
+    dismissRetainedSettingsNotice,
+    resetScanSettings,
+  } = persistedScanSettings;
+  useEffect(() => {
+    if (isRunning) dismissRetainedSettingsNotice();
+  }, [dismissRetainedSettingsNotice, isRunning]);
   const [controlCardNotice, setControlCardNotice] =
     useState<ControlCardNotice | null>(null);
   useEffect(() => {
@@ -301,40 +309,15 @@ export function useScanSession({
     return () => clearTimeout(dismissTimer);
   }, [controlCardNotice]);
 
-  const [forcedFoilType, setForcedFoilTypeState] = useState<string | null>(
-    null,
-  );
-  const [forcedSetCodes, setForcedSetCodesState] = useState<string[]>([]);
-  const forcedFoilTypeRef = useRef<string | null>(null);
-  const forcedSetCodesRef = useRef<string[]>([]);
-  const setForcedFoilType = useCallback((foilType: string | null) => {
-    forcedFoilTypeRef.current = foilType;
-    setForcedFoilTypeState(foilType);
-  }, []);
-  const setForcedSetCodes = useCallback((setCodes: string[]) => {
-    forcedSetCodesRef.current = setCodes;
-    setForcedSetCodesState(setCodes);
-  }, []);
-
-  const forcedValuesAfterCollectionSwitchRef = useRef<Pick<
-    ScannerControlCommand,
-    "forcedFoilType" | "forcedSetCode"
-  > | null>(null);
   const lockedCollectionGuidRef = useRef<string | null>(null);
   useEffect(() => {
     const previous = lockedCollectionGuidRef.current;
     const next = collection?.guid ?? null;
     if (previous && previous !== next) {
       releaseScanLock(previous).catch(() => {});
-      const forcedValues = forcedValuesAfterCollectionSwitchRef.current;
-      forcedValuesAfterCollectionSwitchRef.current = null;
-      setForcedSetCodes(
-        forcedValues?.forcedSetCode ? [forcedValues.forcedSetCode] : [],
-      );
-      setForcedFoilType(forcedValues?.forcedFoilType ?? null);
     }
     lockedCollectionGuidRef.current = next;
-  }, [collection?.guid, setForcedSetCodes, setForcedFoilType]);
+  }, [collection?.guid]);
   useEffect(
     () => () => {
       const guid = lockedCollectionGuidRef.current;
@@ -711,9 +694,9 @@ export function useScanSession({
           isFoilStarDetectionEnabled:
             ctx.orgSettings?.foilStarDetectionEnabled ?? false,
           alternativeMatches: outcome.alternativeMatches,
-          sessionFoilType: forcedFoilTypeRef.current,
+          sessionFoilType: scanSettingsRef.current.foilType,
           fallbackFoilTypes: ctx.collection.game?.foilTypes ?? [],
-          condition: scanConditionRef.current,
+          condition: scanSettingsRef.current.condition,
           lowConfidenceMatch: outcome.matched?.lowConfidenceMatch,
           diagnostics: outcome.matched?.diagnostics,
           vectorizedOn: "web",
@@ -981,10 +964,10 @@ export function useScanSession({
         !!command.collectionGuid &&
         command.collectionGuid !== ctx.collection?.guid;
       if (switchesCollection && ctx.collection) {
-        forcedValuesAfterCollectionSwitchRef.current = {
+        queueForcedValuesAfterCollectionSwitch({
           forcedFoilType: command.forcedFoilType,
           forcedSetCode: command.forcedSetCode,
-        };
+        });
       } else {
         if (command.forcedFoilType !== undefined)
           setForcedFoilType(command.forcedFoilType);
@@ -1008,7 +991,7 @@ export function useScanSession({
           );
         }
       } catch {
-        forcedValuesAfterCollectionSwitchRef.current = null;
+        queueForcedValuesAfterCollectionSwitch(null);
         pause("control-card-switch-failed");
         routeControlCard();
         return;
@@ -1022,6 +1005,7 @@ export function useScanSession({
     [
       pause,
       queryClient,
+      queueForcedValuesAfterCollectionSwitch,
       routeControlCard,
       setForcedFoilType,
       setForcedSetCodes,
@@ -1080,7 +1064,7 @@ export function useScanSession({
             {
               scope: {
                 collectionGuid: ctx.collection!.guid,
-                preferredSetCodes: forcedSetCodesRef.current,
+                preferredSetCodes: scanSettingsRef.current.preferredSetCodes,
                 matchGameKeys: presetMatchGameKeys(ctx.set),
               },
               matchesNeeded: device?.matchesNeeded ?? DEFAULT_MATCHES_NEEDED,
@@ -1425,6 +1409,8 @@ export function useScanSession({
     scanCondition,
     setScanCondition,
     controlCardNotice,
+    retainedSettingsNotice,
+    resetScanSettings,
     fullBinNumbers,
     markFullBinsEmpty,
     binConfigs: configs,

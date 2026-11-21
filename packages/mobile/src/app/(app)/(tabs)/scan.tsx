@@ -9,6 +9,7 @@ import {
   binSetMode,
   CARD_CONDITIONS,
   collectionGameLabel,
+  DEFAULT_CARD_CONDITION,
   isCardCondition,
   listScannerControlActions,
 } from "@magic-vault/shared";
@@ -175,6 +176,25 @@ export default function ScanScreen() {
         conditionName: (condition) => t(`cardDetail.conditions.${condition}`),
       })
         .map((action) => t(`scan.controlCards.actions.${action.key}`, action.values))
+        .join(", ")
+    : "";
+  const retainedSettings = session.retainedSettingsNotice?.settings;
+  const retainedSettingsDescription = retainedSettings
+    ? [
+        retainedSettings.foilType ? t("scan.retainedSettings.foil", { type: retainedSettings.foilType }) : null,
+        retainedSettings.condition !== DEFAULT_CARD_CONDITION
+          ? t("scan.retainedSettings.condition", {
+              condition: t(`cardDetail.conditions.${retainedSettings.condition}`),
+            })
+          : null,
+        retainedSettings.preferredSetCodes.length > 0
+          ? t("scan.retainedSettings.sets", {
+              count: retainedSettings.preferredSetCodes.length,
+              sets: retainedSettings.preferredSetCodes.map((code) => code.toUpperCase()).join(", "),
+            })
+          : null,
+      ]
+        .filter((description) => description !== null)
         .join(", ")
     : "";
   const working = RUNNING_PHASES.includes(session.phase);
@@ -422,6 +442,15 @@ export default function ScanScreen() {
         name: removalNotice.cardName ?? "",
         count: removalNotice.removedCount ?? 0,
       })}
+    />
+  ) : session.retainedSettingsNotice ? (
+    <CameraNotice
+      key={session.retainedSettingsNotice.noticeId}
+      tone="info"
+      title={t("scan.retainedSettings.title")}
+      description={retainedSettingsDescription}
+      actionLabel={t("scan.retainedSettings.reset")}
+      onAction={session.resetScanSettings}
     />
   ) : null;
 

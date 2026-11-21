@@ -961,6 +961,14 @@
       "batchDescriptionNoLocations": "Vous n'avez pas encore d'emplacement de rangement. Ajoutez-en un dans Bibliothèque > Rangement, ou ajoutez les cartes à la collection uniquement.",
       "batchDescriptionLocked": "Les emplacements de rangement ne sont pas inclus dans votre offre, les cartes sont donc ajoutées à la collection uniquement.",
       "batchNoLocationDescription": "Ajouter les cartes à la collection uniquement"
+    },
+    "retainedSettings": {
+      "title": "Réglages de scan toujours actifs",
+      "foil": "Foil : {{type}}",
+      "condition": "État : {{condition}}",
+      "sets_one": "Extension : {{sets}}",
+      "sets_other": "Extensions : {{sets}}",
+      "reset": "Réinitialiser"
     }
   },
   "home": {

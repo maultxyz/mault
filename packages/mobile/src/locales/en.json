@@ -961,6 +961,14 @@
       "batchDescriptionNoLocations": "You have no storage locations yet. Add one under Library > Storage, or add cards to the collection only.",
       "batchDescriptionLocked": "Storage locations are not included in your plan, so cards are added to the collection only.",
       "batchNoLocationDescription": "Add cards to the collection only"
+    },
+    "retainedSettings": {
+      "title": "Scan settings still on",
+      "foil": "Foil: {{type}}",
+      "condition": "Condition: {{condition}}",
+      "sets_one": "Set: {{sets}}",
+      "sets_other": "Sets: {{sets}}",
+      "reset": "Reset"
     }
   },
   "home": {

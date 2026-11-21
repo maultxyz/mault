@@ -140,6 +140,7 @@ export const UNMATCHED_RATE_MIN_SCANS = 10;
 export const UNMATCHED_RATE_THRESHOLD = 0.3;
 export const UNMATCHED_RATE_TOAST_COOLDOWN_MS = 30 * 60 * 1000;
 export const UNMATCHED_RATE_TOAST_ID = "unmatched-rate";
+export const RETAINED_SCAN_SETTINGS_TOAST_ID = "retained-scan-settings";
 
 export const SHOW_SCAN_LOGS = runtimeEnv("VITE_SHOW_SCAN_LOGS") === "true";
 

@@ -563,6 +563,14 @@
     "range": "Tri de {{from}} à {{to}}",
     "stopFirst": "Arrêtez le scanner avant de passer au passage suivant."
   },
+  "retainedScanSettings": {
+    "title": "Réglages de scan toujours actifs",
+    "foil": "Foil : {{type}}",
+    "condition": "État : {{condition}}",
+    "sets_one": "Extension : {{sets}}",
+    "sets_other": "Extensions : {{sets}}",
+    "reset": "Réinitialiser"
+  },
   "sessionStatsPanel": {
     "value": "Valeur"
   },
