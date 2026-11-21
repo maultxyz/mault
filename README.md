@@ -203,7 +203,7 @@ Before root runs anything from a release, `trusted-tree.py` checks that every di
 **Upgrading boards on Pi release 1.0.209 or older.** Those releases were writable by `mault-service`, so they can't be trusted to switch themselves over. Run the newest installer once over SSH instead of `sudo mault update`:
 
 ```bash
-curl -fsSL https://github.com/<owner>/<repo>/releases/download/pi-latest/install.sh | sudo bash
+curl -fsSL https://github.com/maultxyz/mault/releases/download/pi-latest/install.sh | sudo bash
 ```
 
 It deletes the old releases and the old `/usr/local/bin/mault` link without running or adopting them, then installs a fresh release; settings, accounts, saved cards and calibration in `/var/lib/mault` stay. Until then, `sudo mault update` and the app's update button refuse and point to this command.
