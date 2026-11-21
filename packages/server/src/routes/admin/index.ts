@@ -19,6 +19,7 @@ import { scanMetricsRoute } from "./scan-metrics";
 import { scanVectorizeStatsRoute } from "./scan-vectorize-stats";
 import { shortLinksRoute } from "./short-links";
 import { shareLinkLengthsRoute } from "./share-link-lengths";
+import { subscriptionSummaryRoute } from "./subscription-summary";
 import { syncApiKeysRoute } from "./sync-api-keys";
 import { syncCancelRoute } from "./sync-cancel";
 import { syncSourcesRoute } from "./sync-sources";
@@ -45,6 +46,7 @@ const router = new Hono<AppEnv>()
   .route("/", scanVectorizeStatsRoute)
   .route("/", activeScanningRoute)
   .route("/", plansRoute)
+  .route("/", subscriptionSummaryRoute)
   .route("/", platformStatsRoute)
   .route("/", discordChannelsRoute)
   .route("/", discordLinkedRoleRoute)

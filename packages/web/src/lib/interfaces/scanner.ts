@@ -6,6 +6,7 @@ import type {
   BinConfig,
   CardCondition,
   DesktopDocumentScanArchiveRequest,
+  PersistedScanSettings,
   FoilNudgeFirmwareLimits,
   CardTag,
   CardFilters,
@@ -45,7 +46,7 @@ import type {
   DesktopDocumentScanRequest,
   CardTextSearchResult,
 } from "@magic-vault/shared";
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, ReactNode, RefObject } from "react";
 import type {
   PreTestHook,
   SorterLimitReason,
@@ -232,7 +233,12 @@ export interface ScannedCardsContextValue {
     vectorizedOn?: ScanVectorizeSource,
     details?: MatchedScanDetails,
     capturedBackImageUrl?: string,
+    earlyRoute?: EarlyRoutedScan,
   ) => ScanPlacement | null;
+  routeCardEarly: (
+    candidates: PlayingCardWithDistance[],
+    details: MatchedScanDetails,
+  ) => EarlyRoutedScan | null;
   addUnmatchedCard: (
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
@@ -1021,6 +1027,69 @@ export interface ClientDewarpResult {
   frame: HTMLCanvasElement;
 }
 
+export interface BrowserScanOutcome {
+  card: PlayingCardWithDistance | null;
+  alternativeMatches: PlayingCardWithDistance[];
+  debugImageUrl: string;
+  capturedImageUrl: string | undefined;
+  capturedBackImageUrl: string | undefined;
+  vectorizedOn: ScanVectorizeSource;
+  dewarpedCardImage: ImageData | null;
+  matched: MatchedScanDetails | null;
+  noMatch: UnmatchedScanDetails | null;
+}
+
+export interface MatchedScanPlanSource {
+  scanId: string;
+  scannedAt: number;
+  card: PlayingCardWithDistance;
+  collection: Collection;
+  capturedImageUrl?: string;
+  capturedBackImageUrl?: string;
+  alternativeMatches?: PlayingCardWithDistance[];
+  vectorizedOn?: ScanVectorizeSource;
+  details?: MatchedScanDetails;
+}
+
+export interface SettledCardCapture {
+  frame: HTMLCanvasElement;
+  detection: CornerDetection;
+}
+
+export interface CardImageSearchExtras {
+  settledCapture?: SettledCardCapture | null;
+  onImageMatchBeforeText?: (outcome: ScanOutcome) => void;
+}
+
+export interface EarlyRoutedScan {
+  scanId: string;
+  scannedAt: number;
+  collection: Collection;
+  bin: BinConfig;
+  routing: Promise<void>;
+  feedNextCard: () => void;
+}
+
+export interface CardScannerOptions
+  extends Omit<CardScannerProps, "className" | "onSearchResults"> {
+  onSearchResults?: (
+    matches: PlayingCardWithDistance[],
+    capturedImageUrl?: string,
+    vectorizedOn?: ScanVectorizeSource,
+    details?: MatchedScanDetails,
+    capturedBackImageUrl?: string,
+    earlyRoute?: EarlyRoutedScan,
+  ) => void;
+  onRouteEarly?: (
+    candidates: PlayingCardWithDistance[],
+    details: MatchedScanDetails,
+  ) => EarlyRoutedScan | null;
+  rotated?: boolean;
+  scanRegion?: ScanRegion;
+  autoCapture?: boolean;
+  skipDuplicateCheck?: boolean;
+}
+
 export interface RouteCardToBinParams {
   route: BinRoute;
   sendRoute: (
@@ -1042,6 +1111,13 @@ export interface RouteCardToBinParams {
 }
 
 export type OnnxExecutionProviderPreference = "webgpu" | "wasm";
+
+export type OnnxRuntimeModule = typeof import("onnxruntime-web/wasm");
+
+export interface OnnxRuntimeWasmPaths {
+  mjs: string;
+  wasm: string;
+}
 
 export interface VisionModelRunOptions {
   alwaysRunOnCpu?: boolean;
@@ -1684,6 +1760,15 @@ export interface MoveCardsToCollectionInput {
   sourceCollectionGuid: string;
   targetCollectionGuid: string;
   scanIds: string[];
+}
+
+export interface PersistedScanSettingsState {
+  settings: PersistedScanSettings;
+  settingsRef: RefObject<PersistedScanSettings>;
+  setFoilType: (foilType: string | null) => void;
+  setPreferredSetCodes: (preferredSetCodes: string[]) => void;
+  setCondition: (condition: CardCondition) => void;
+  setPreferredSetCodesAfterCollectionSwitch: (setCodes: string[]) => void;
 }
 
 export interface PiScanSettingsOptions {

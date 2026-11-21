@@ -6,7 +6,10 @@ import time
 from pathlib import Path
 
 
-VERSION = "pi-0.2.0"
+VERSION = "pi-0.3.0"
+SENSOR_TIMEOUT_MS = 3000
+CARD_ENTER_DELAY_MS = 300
+UNSEEN_CARD_ARRIVAL_WAIT_MS = 1000
 PUSHER_NUDGE_MAX_PULSE = 20
 PUSHER_NUDGE_MAX_TRAVEL_PERCENT = 50
 MODULE_DEFAULTS = dict(bottomClosed=300, bottomOpen=310, paddleClosed=300,
@@ -166,7 +169,7 @@ class Controller:
             await self.neutral_module(module, 25)
         await self.wait(200)
 
-    async def wait_sensor(self, module, present=True, timeout=3000):
+    async def wait_sensor(self, module, present=True, timeout=SENSOR_TIMEOUT_MS):
         deadline = self.clock() + timeout / 1000
         while self.clock() < deadline:
             if self.hardware.present(module) == present:
@@ -225,7 +228,7 @@ class Controller:
         await self.move(self.channel(module, "paddle"), config["paddleClosed"])
         await self.wait(200)
 
-    async def recover(self, module):
+    async def recover(self, module, arrival_module=None):
         config = self.config["modules"][module - 1]
         for attempt in range(3):
             await self.move(self.channel(module, "paddle"), config["paddleOpen"])
@@ -234,7 +237,9 @@ class Controller:
             await self.move(self.channel(module, "paddle"), config["paddleClosed"])
             await self.move(self.channel(module, "bottom"), config["bottomOpen"])
             await self.wait(150)
-            if not self.hardware.present(module):
+            if arrival_module is None and not self.hardware.present(module):
+                break
+            if arrival_module is not None and self.hardware.present(arrival_module):
                 break
 
     async def route(self, route, emit):
@@ -242,6 +247,8 @@ class Controller:
         direction = route.get("direction")
         if direction not in ("left", "right", "bottom"):
             raise ValueError("direction must be left, right, or bottom")
+        if route.get("requireLoaded") is True and not self.hardware.present(1):
+            return dict(error="no card loaded at module 1", noLoadedCard=True)
         loaded = await self.feed()
         if "error" in loaded:
             return loaded
@@ -254,6 +261,7 @@ class Controller:
             await self.move(self.channel(preceding, "bottom"), config["bottomOpen"])
         if module > 1:
             stuck_module = await self.drop_through_to_module(module)
+            arrived_at = self.clock()
             if stuck_module:
                 await self.neutral()
                 return dict(error=f"timeout: no card detected at module {stuck_module + 1}")
@@ -262,7 +270,7 @@ class Controller:
                 await self.wait(200)
                 await emit(dict(event="fed", **await self.feed()))
                 fed = True
-            await self.wait(300)
+            await self.wait(CARD_ENTER_DELAY_MS - (self.clock() - arrived_at) * 1000)
         if direction == "bottom":
             await self.move(self.channel(module, "bottom"), self.config["modules"][module - 1]["bottomOpen"])
             await self.wait(600)
@@ -282,11 +290,22 @@ class Controller:
     async def drop_through_to_module(self, module):
         if await self.wait_sensor(module):
             return 0
+        flapped_for_unseen_card = False
         for _ in range(1, module):
             stuck = self.find_card_before_module(module)
-            if not stuck:
-                return module - 1
-            await self.recover(stuck)
+            if stuck:
+                await self.recover(stuck)
+            elif not flapped_for_unseen_card:
+                flapped_for_unseen_card = True
+                for preceding in range(1, module):
+                    await self.recover(preceding, module)
+                    if self.hardware.present(module):
+                        return 0
+                if await self.wait_sensor(module, timeout=UNSEEN_CARD_ARRIVAL_WAIT_MS):
+                    return 0
+                continue
+            else:
+                break
             if await self.wait_sensor(module):
                 return 0
         return self.find_card_before_module(module) or module - 1
@@ -370,6 +389,8 @@ class Controller:
         elif "route" in data:
             return await self.route(data["route"], emit)
         elif data.get("feeder") is True:
+            if data.get("requireEmptyModuleOne") is True and self.hardware.present(1):
+                return dict(error="module 1 still holds a card", moduleOneLoaded=True)
             return await self.feed()
         elif "feederValue" in data:
             await self.move(self.feeder_channel, integer(data["feederValue"], 120, 490))

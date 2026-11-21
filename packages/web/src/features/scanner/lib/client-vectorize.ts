@@ -5,20 +5,43 @@ import {
 } from "@magic-vault/shared";
 import { detectCardCorners } from "./cornelius";
 import { dewarpCard } from "./perspective-warp";
-import type { ClientDewarpResult } from "@/lib/interfaces/scanner";
+import type {
+  ClientDewarpResult,
+  SettledCardCapture,
+} from "@/lib/interfaces/scanner";
 import { delay } from "@/lib/delay";
 
 let snapshot: HTMLCanvasElement | null = null;
 
+export function copyFrameInto(
+  target: HTMLCanvasElement,
+  source: HTMLCanvasElement,
+): HTMLCanvasElement {
+  if (target.width !== source.width) target.width = source.width;
+  if (target.height !== source.height) target.height = source.height;
+  const ctx = target.getContext("2d", { willReadFrequently: true });
+  if (!ctx) throw new Error("Could not get canvas context");
+  ctx.clearRect(0, 0, target.width, target.height);
+  ctx.drawImage(source, 0, 0);
+  return target;
+}
+
 function snapshotCanvas(source: HTMLCanvasElement): HTMLCanvasElement {
   snapshot ??= document.createElement("canvas");
-  if (snapshot.width !== source.width) snapshot.width = source.width;
-  if (snapshot.height !== source.height) snapshot.height = source.height;
-  const ctx = snapshot.getContext("2d", { willReadFrequently: true });
-  if (!ctx) throw new Error("Could not get canvas context");
-  ctx.clearRect(0, 0, snapshot.width, snapshot.height);
-  ctx.drawImage(source, 0, 0);
-  return snapshot;
+  return copyFrameInto(snapshot, source);
+}
+
+export function dewarpSettledCard({
+  frame,
+  detection,
+}: SettledCardCapture): ClientDewarpResult {
+  return {
+    detection,
+    dewarpedCanvas: detection.contour
+      ? dewarpCard(frame, detection.contour)
+      : null,
+    frame,
+  };
 }
 
 async function detectCardCornersWithRetry(

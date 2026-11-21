@@ -44,6 +44,7 @@ export const CARD_GROUP_DUPLICATES_STORAGE_KEY =
 export const CARD_SCAN_TIMELINE_STORAGE_KEY = "magic-vault:card-scan-timeline";
 
 export const DEVICE_PREFS_STORAGE_KEY_PREFIX = "magic-vault:device-prefs:";
+export const SCAN_SETTINGS_STORAGE_KEY_PREFIX = "magic-vault:scan-settings:";
 
 export const CAMERA_FOCUS_STORAGE_KEY = "magic-vault:camera-focus";
 export const CAMERA_ZOOM_STORAGE_KEY = "magic-vault:camera-zoom";

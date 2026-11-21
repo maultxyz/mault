@@ -561,7 +561,15 @@
   },
   "alphabetPassControl": {
     "range": "Sortiert {{from}} bis {{to}}",
-    "stopFirst": "Stoppe den Scanner, bevor du zu den nächsten Buchstaben wechselst."
+    "stopFirst": "Stoppe den Scanner, bevor du zum nächsten Durchgang wechselst."
+  },
+  "retainedScanSettings": {
+    "title": "Scan-Einstellungen weiterhin aktiv",
+    "foil": "Foil: {{type}}",
+    "condition": "Zustand: {{condition}}",
+    "sets_one": "Set: {{sets}}",
+    "sets_other": "Sets: {{sets}}",
+    "reset": "Zurücksetzen"
   },
   "sessionStatsPanel": {
     "value": "Wert"

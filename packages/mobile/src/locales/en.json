@@ -961,6 +961,14 @@
       "batchDescriptionNoLocations": "You have no storage locations yet. Add one under Library > Storage, or add cards to the collection only.",
       "batchDescriptionLocked": "Storage locations are not included in your plan, so cards are added to the collection only.",
       "batchNoLocationDescription": "Add cards to the collection only"
+    },
+    "retainedSettings": {
+      "title": "Scan settings still on",
+      "foil": "Foil: {{type}}",
+      "condition": "Condition: {{condition}}",
+      "sets_one": "Set: {{sets}}",
+      "sets_other": "Sets: {{sets}}",
+      "reset": "Reset"
     }
   },
   "home": {
@@ -1301,7 +1309,7 @@
       },
       "alphabet": {
         "title": "Sort alphabetically",
-        "description": "One letter per bin, in passes, with deeper sorting for big piles"
+        "description": "Letter ranges first, then one letter per bin, with deeper sorting for big piles"
       },
       "chaos": {
         "title": "Chaos sort",
@@ -1361,25 +1369,24 @@
       "lastStage": "Last stage"
     },
     "alphabet": {
-      "needBins": "Alphabetical sort needs at least one bin besides the catch-all.",
+      "needBins": "Alphabetical sort needs at least two bins besides the catch-all.",
       "passHeading": "Pass {{current}} of {{total}}",
-      "passRange": "Sorting names starting with {{from}} to {{to}}. Everything else goes to the catch-all.",
-      "prefixRange": "Sorting the {{prefix}} pile by its next letter: {{from}} to {{to}}. Everything else goes to the catch-all.",
+      "passRange": "Sorting names from {{from}} to {{to}}, one letter per bin. Everything else goes to the catch-all.",
+      "rangePassRange": "Splitting names from {{from}} to {{to}} into letter ranges, one range per bin. Everything else goes to the catch-all.",
       "unusedBin": "Not used",
-      "nextPassHint": "When this pass is done, take the cards out of every bin, put the catch-all cards back in the feeder, then move to the next letters.",
       "lastPassHint": "This is the last pass. Anything left in the catch-all afterwards has a name that doesn't start with a letter.",
-      "nextPileHint": "When this pass is done, take the cards out of every bin and keep each pile in order. Next up: the {{prefix}} pile.",
+      "nextPileHint": "When this pass is done, take the cards out of every bin and keep each pile in order. Next up: the {{pile}} pile.",
+      "nextPile": "Next: {{pile}} pile",
       "pileDoneHint": "This is the last pass for the {{prefix}} pile. Start over to go back to the whole alphabet.",
       "previous": "Previous",
-      "next": "Next letters",
       "startOver": "Start over",
       "sortDeeper": "Sort deeper",
       "sortDeeperItem": "{{label}} pile by next letter",
       "upLevel": "Up a level",
-      "confirmTitle": "Move to a new set of letters?",
-      "confirmDescription": "Make sure every bin is empty and the catch-all cards are back in the feeder. All bins will be marked as emptied.",
-      "confirmPileTitle": "Start the {{prefix}} pile?",
-      "confirmPileDescription": "Empty every bin, keeping each pile in order, then put the {{prefix}} pile in the feeder. All bins will be marked as emptied.",
+      "confirmTitle": "Go back to the whole alphabet?",
+      "confirmDescription": "Empty every bin and put all the cards in the feeder. All bins will be marked as emptied.",
+      "confirmPileTitle": "Start the {{pile}} pile?",
+      "confirmPileDescription": "Empty every bin, keeping each pile in order, then put the {{pile}} pile in the feeder. All bins will be marked as emptied.",
       "confirm": "Bins are empty"
     },
     "binSummary": {
@@ -2063,7 +2070,8 @@
       "cancelAtPeriodEnd": "Your subscription ends on {{date}}.",
       "manageOnWeb": "Plan changes and payment details are handled on the web app.",
       "openWeb": "Open billing on the web",
-      "legacyPlanNote": "You're on the original Business plan, which is no longer offered. You keep it, with everything it includes, for as long as your subscription stays active. Switching to another plan or cancelling can't be undone."
+      "legacyPlanNote": "You're on the original Business plan, which is no longer offered. You keep it, with everything it includes, for as long as your subscription stays active. Switching to another plan or cancelling can't be undone.",
+      "billingDisabled": "Billing isn't turned on for this server, so every feature is available with no limits."
     },
     "apiKeys": {
       "heading": "API keys",
@@ -2906,6 +2914,18 @@
       }
     },
     "plans": {
+      "subscriptions": {
+        "heading": "Subscriptions",
+        "description": "Organizations with a paid subscription, by plan. Monthly recurring revenue uses each plan's list price, with yearly plans spread over 12 months, before discounts and taxes. Trials count as subscribers but add no revenue.",
+        "subscribersHeading": "Subscribers",
+        "revenueHeading": "Monthly recurring revenue",
+        "total": "Total",
+        "trialingCount_one": "{{count}} in trial",
+        "trialingCount_other": "{{count}} in trial",
+        "unpriced_one": "{{count}} subscriber's price couldn't be loaded from Stripe, so they're left out of revenue.",
+        "unpriced_other": "{{count}} subscribers' prices couldn't be loaded from Stripe, so they're left out of revenue.",
+        "loadFailed": "Couldn't load subscriptions."
+      },
       "billingDisabled": "Billing is turned off on this server, so every organization gets every feature with no limits. These settings take effect once billing is on.",
       "saveFailed": "Couldn't save plan settings",
       "featuresDescription": "Which plans can use each feature. Features are defined in code, so a new one shows up here once it's built.",

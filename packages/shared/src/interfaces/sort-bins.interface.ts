@@ -186,6 +186,29 @@ export interface AlphabetStep {
   prefix: string;
 }
 
+export interface AlphabetLetterRange {
+  firstLetterIndex: number;
+  lastLetterIndex: number;
+}
+
+export interface AlphabetPassPlan {
+  range: AlphabetLetterRange;
+  groups: AlphabetLetterRange[];
+}
+
+export interface AlphabetPassGroup {
+  binNumber: number;
+  label: string;
+  isSingleLetter: boolean;
+}
+
+export interface AlphabetPass {
+  from: string;
+  to: string;
+  sortsOneLetterPerBin: boolean;
+  groups: AlphabetPassGroup[];
+}
+
 export type DefaultBinInit = {
   binNumber: number;
   rules: BinRuleGroup;

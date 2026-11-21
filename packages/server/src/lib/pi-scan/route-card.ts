@@ -43,7 +43,14 @@ export async function routeLoadedPiCard(
     const result = await requestSorterRoute(
       (command, timeout) => link.command(command, timeout),
       route,
-      { feedNext, requireLoadedCard: true },
+      {
+        feedNext,
+        requireLoadedCard: true,
+        firmwareChecksLoadedCard: isFirmwareFeatureSupported(
+          link.firmwareVersion,
+          "sensorCheckedCommands",
+        ),
+      },
       commandTimeout,
       PI_SCAN_STATUS_TIMEOUT_MS,
     );

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 import type { CameraDevice, CameraFrameOutput, CameraOutput } from "react-native-vision-camera";
 import type {
   ScanDestination,
@@ -6,6 +6,7 @@ import type {
   BinConfig,
   CardCondition,
   CardContour,
+  PersistedScanSettings,
   CardSearchResult,
   CardTextSearchResult,
   MatchedScanDetails,
@@ -113,6 +114,30 @@ export type ScannerPauseReason =
   | "control-card"
   | "control-card-switch-failed"
   | `control-card-${ScannerControlCommandProblem | "unreadable"}`;
+
+export interface RetainedScanSettingsNotice {
+  noticeId: string;
+  settings: PersistedScanSettings;
+}
+
+export type ForcedValuesAfterCollectionSwitch = Pick<
+  ScannerControlCommand,
+  "forcedFoilType" | "forcedSetCode"
+>;
+
+export interface PersistedScanSettingsState {
+  settings: PersistedScanSettings;
+  settingsRef: RefObject<PersistedScanSettings>;
+  setFoilType: (foilType: string | null) => void;
+  setPreferredSetCodes: (preferredSetCodes: string[]) => void;
+  setCondition: (condition: CardCondition) => void;
+  queueForcedValuesAfterCollectionSwitch: (
+    forcedValues: ForcedValuesAfterCollectionSwitch | null,
+  ) => void;
+  retainedSettingsNotice: RetainedScanSettingsNotice | null;
+  dismissRetainedSettingsNotice: () => void;
+  resetScanSettings: () => void;
+}
 
 export interface ControlCardNotice {
   noticeId: string;
@@ -236,6 +261,8 @@ export interface ScanSessionValue extends ScanSessionState {
   scanCondition: CardCondition;
   setScanCondition: (condition: CardCondition) => void;
   controlCardNotice: ControlCardNotice | null;
+  retainedSettingsNotice: RetainedScanSettingsNotice | null;
+  resetScanSettings: () => void;
   fullBinNumbers: number[];
   markFullBinsEmpty: () => Promise<boolean>;
   binConfigs: BinConfig[];

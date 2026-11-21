@@ -13,6 +13,11 @@ import {
   DEFAULT_CAPTURE_SETTLE_DELAY_MS,
 } from "@magic-vault/shared";
 import { detectCardCorners } from "../lib/cornelius";
+import type {
+  CardImageSearchExtras,
+  EarlyRoutedScan,
+  ScanOutcome,
+} from "@/lib/interfaces/scanner";
 
 vi.mock("react-i18next", () => ({
   useTranslation: () => ({ t: (key: string) => key }),
@@ -81,6 +86,9 @@ vi.mock("../lib/outline-animator", () => ({
   createOutlineAnimator: () => mocks.animator,
 }));
 vi.mock("../lib/cornelius", () => ({ detectCardCorners: vi.fn() }));
+vi.mock("../lib/client-vectorize", () => ({
+  copyFrameInto: (target: HTMLCanvasElement) => target,
+}));
 vi.mock("../lib/onnx-runtime", () => ({ getOnnxRuntimeFailure: () => null }));
 vi.mock("../lib/card-detection", () => ({ drawDetectionOverlay: vi.fn() }));
 
@@ -98,6 +106,36 @@ beforeEach(() => {
 });
 afterEach(cleanup);
 
+const stillCard = {
+  cardPresent: true,
+  confidence: 1,
+  sharpness: 1,
+  contour: {
+    topLeft: { x: 10, y: 10 },
+    topRight: { x: 110, y: 10 },
+    bottomRight: { x: 110, y: 150 },
+    bottomLeft: { x: 10, y: 150 },
+  },
+};
+
+const matchedDetails = { lowConfidenceMatch: false, diagnostics: {} };
+const provisionalOutcome = {
+  card: { id: "image-card", name: "Card" },
+  alternativeMatches: [{ id: "reprint", name: "Card" }],
+  debugImageUrl: "provisional-image",
+  vectorizedOn: "web",
+  matched: matchedDetails,
+  noMatch: null,
+} as unknown as ScanOutcome;
+const finalOutcome = {
+  card: { id: "reprint", name: "Card" },
+  alternativeMatches: [],
+  debugImageUrl: "image",
+  vectorizedOn: "web",
+  dewarpedCardImage: {},
+  matched: matchedDetails,
+};
+
 function attachCanvas(
   result: ReturnType<
     typeof renderHook<ReturnType<typeof useCardScanner>, unknown>
@@ -112,18 +150,114 @@ function attachCanvas(
   act(() => result.current.handleResume());
 }
 
-it("browser control cards apply settings without identifying or saving", async () => {
+it("browser control cards apply settings and drop the identification that ran alongside", async () => {
   const save = vi.fn();
   const control = vi.fn();
+  const routeEarly = vi.fn(() => null);
   mocks.control.mockReturnValue("mault-control:invalid");
+  mocks.search.mockImplementation(async (...args: unknown[]) => {
+    (args[10] as CardImageSearchExtras).onImageMatchBeforeText?.(
+      provisionalOutcome,
+    );
+    return finalOutcome;
+  });
   const { result } = renderHook(() =>
-    useCardScanner({ onSearchResults: save, onControlCode: control }),
+    useCardScanner({
+      onSearchResults: save,
+      onControlCode: control,
+      onRouteEarly: routeEarly,
+    }),
   );
   attachCanvas(result);
   act(() => result.current.handleForceScan());
   await waitFor(() => expect(control).toHaveBeenCalledWith(null));
-  expect(mocks.search).not.toHaveBeenCalled();
+  await waitFor(() => expect(result.current.status).toBe("scanning"));
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  });
+  expect(mocks.search).toHaveBeenCalledOnce();
+  expect(routeEarly).not.toHaveBeenCalled();
   expect(save).not.toHaveBeenCalled();
+});
+
+it("routes before the text match and delivers the final card with that route", async () => {
+  const earlyRoute = { scanId: "scan" } as EarlyRoutedScan;
+  const routeEarly = vi.fn(() => earlyRoute);
+  const save = vi.fn();
+  const foil = vi.fn();
+  mocks.search.mockImplementation(async (...args: unknown[]) => {
+    (args[10] as CardImageSearchExtras).onImageMatchBeforeText?.(
+      provisionalOutcome,
+    );
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    return finalOutcome;
+  });
+  const { result } = renderHook(() =>
+    useCardScanner({
+      onSearchResults: save,
+      onRouteEarly: routeEarly,
+      checkFoilByNudge: foil,
+    }),
+  );
+  attachCanvas(result);
+  act(() => result.current.handleForceScan());
+  await waitFor(() => expect(save).toHaveBeenCalledOnce());
+  expect(routeEarly).toHaveBeenCalledExactlyOnceWith(
+    [provisionalOutcome.card, ...provisionalOutcome.alternativeMatches],
+    provisionalOutcome.matched,
+  );
+  expect(save.mock.calls[0][0]).toEqual([finalOutcome.card]);
+  expect(save.mock.calls[0][5]).toBe(earlyRoute);
+  expect(foil).not.toHaveBeenCalled();
+});
+
+it("delivers an ordinary scan when the early route is declined", async () => {
+  const routeEarly = vi.fn(() => null);
+  const save = vi.fn();
+  const foil = vi.fn(async () => null);
+  mocks.search.mockImplementation(async (...args: unknown[]) => {
+    (args[10] as CardImageSearchExtras).onImageMatchBeforeText?.(
+      provisionalOutcome,
+    );
+    await new Promise((resolve) => setTimeout(resolve, 10));
+    return finalOutcome;
+  });
+  const { result } = renderHook(() =>
+    useCardScanner({
+      onSearchResults: save,
+      onRouteEarly: routeEarly,
+      checkFoilByNudge: foil,
+    }),
+  );
+  attachCanvas(result);
+  act(() => result.current.handleForceScan());
+  await waitFor(() => expect(save).toHaveBeenCalledOnce());
+  expect(routeEarly).toHaveBeenCalledOnce();
+  expect(save.mock.calls[0][5]).toBeUndefined();
+  expect(foil).toHaveBeenCalledOnce();
+});
+
+it("captures a card that arrived while the previous scan was still being identified", async () => {
+  let finishSearch = () => {};
+  mocks.search.mockImplementationOnce(
+    () =>
+      new Promise((resolve) => {
+        finishSearch = () => resolve(finalOutcome);
+      }),
+  );
+  vi.mocked(detectCardCorners).mockResolvedValue(stillCard);
+  const save = vi.fn();
+  const { result } = renderHook(() =>
+    useCardScanner({ onSearchResults: save }),
+  );
+  attachCanvas(result);
+  act(() => result.current.handleForceScan());
+  await waitFor(() => expect(mocks.search).toHaveBeenCalledOnce());
+  act(() => result.current.captureArrivedCard());
+  expect(mocks.search).toHaveBeenCalledOnce();
+  await act(async () => finishSearch());
+  await waitFor(() => expect(mocks.search).toHaveBeenCalledTimes(2));
+  await waitFor(() => expect(save).toHaveBeenCalledTimes(2));
 });
 
 it("browser removal skips foil refinement and addition callbacks", async () => {
@@ -166,17 +300,6 @@ it("browser matched capture refines foil before delivering the scan", async () =
   expect(events).toEqual(["foil", "save"]);
 });
 
-const stillCard = {
-  cardPresent: true,
-  confidence: 1,
-  sharpness: 1,
-  contour: {
-    topLeft: { x: 10, y: 10 },
-    topRight: { x: 110, y: 10 },
-    bottomRight: { x: 110, y: 150 },
-    bottomLeft: { x: 10, y: 150 },
-  },
-};
 
 it("captures once the detector confirms a still card, before the settle delay ends", async () => {
   vi.useFakeTimers();
@@ -192,6 +315,9 @@ it("captures once the detector confirms a still card, before the settle delay en
       );
     });
     expect(mocks.search).toHaveBeenCalledOnce();
+    expect(mocks.search.mock.calls[0][10].settledCapture.detection).toBe(
+      stillCard,
+    );
     await act(async () => {
       await vi.advanceTimersByTimeAsync(DEFAULT_CAPTURE_SETTLE_DELAY_MS);
     });
@@ -220,6 +346,7 @@ it("waits for the full settle delay while the detector sees no still card", asyn
       await vi.advanceTimersByTimeAsync(2);
     });
     expect(mocks.search).toHaveBeenCalledOnce();
+    expect(mocks.search.mock.calls[0][10].settledCapture).toBeNull();
   } finally {
     vi.useRealTimers();
   }

@@ -332,6 +332,18 @@
     "startedOnly": "Gestartet {{started}}",
     "loadFailed": "Das Protokoll der Identitätsübernahmen konnte nicht geladen werden."
   },
+  "subscriptionSummary": {
+    "heading": "Abonnements",
+    "description": "Organisationen mit einem bezahlten Abonnement, nach Plan. Der monatlich wiederkehrende Umsatz nutzt den Listenpreis jedes Plans, Jahrespläne auf 12 Monate verteilt, vor Rabatten und Steuern. Testphasen zählen als Abonnenten, bringen aber keinen Umsatz.",
+    "subscribersHeading": "Abonnenten",
+    "revenueHeading": "Monatlich wiederkehrender Umsatz",
+    "total": "Gesamt",
+    "trialingCount_one": "{{count}} in der Testphase",
+    "trialingCount_other": "{{count}} in der Testphase",
+    "unpriced_one": "Der Preis von {{count}} Abonnenten konnte nicht von Stripe geladen werden, daher fehlt er im Umsatz.",
+    "unpriced_other": "Die Preise von {{count}} Abonnenten konnten nicht von Stripe geladen werden, daher fehlen sie im Umsatz.",
+    "loadFailed": "Abonnements konnten nicht geladen werden."
+  },
   "metricsStats": {
     "heading": "Scan-Statistiken",
     "description": "App-weite Scan-Aktivität über alle Organisationen hinweg und ob jeder Scan auf dem Server oder im Browser vektorisiert wurde. Jemand gilt als aktiv scannend, solange in den letzten {{minutes}} Minuten ein Scan gespeichert wurde.",

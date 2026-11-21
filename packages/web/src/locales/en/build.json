@@ -443,14 +443,14 @@
             "note": "This pulls down a few hundred MB (the whole Xtensa toolchain) and takes a few minutes."
           },
           "installLibraries": {
-            "text": "In the Arduino IDE, install the ArduinoJson and Adafruit PWM Servo Driver libraries.",
+            "text": "In the Arduino IDE, install the ArduinoJson, Adafruit PWM Servo Driver, and Adafruit NeoPixel libraries.",
             "note": "Library Manager → search each by name."
           },
           "installLibrariesEsp32": {
             "note": "Library Manager → search each by name. Bluetooth support ships with the ESP32 core you just installed, so no extra Bluetooth library is needed."
           },
           "installLibrariesUnoR4": {
-            "text": "In the Arduino IDE, install the ArduinoJson, Adafruit PWM Servo Driver, and ArduinoBLE libraries.",
+            "text": "In the Arduino IDE, install the ArduinoJson, Adafruit PWM Servo Driver, Adafruit NeoPixel, and ArduinoBLE libraries.",
             "note": "Library Manager → search each by name. ArduinoBLE powers Bluetooth on the Uno R4 WiFi. The Uno R4 Minima has no Bluetooth hardware and doesn't use it, so Minima builds can skip it."
           },
           "uploadSketch": {

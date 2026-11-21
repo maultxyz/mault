@@ -9,6 +9,7 @@ import {
   type EmptyBinOptions,
   type MatchedScanDetails,
   type MatchedScanPlan,
+  type MatchedScanPlanInput,
   type PlayingCard,
   type PlayingCardWithDistance,
   type ScanVectorizeSource,
@@ -30,6 +31,7 @@ import {
   reservePickListBins,
   isFirmwareFeatureSupported,
   isRulesMode,
+  earlyRouteBinOf,
   prepareMatchedScanPlan,
   prepareUnmatchedScanPlan,
   scanCompletionPauseReason,
@@ -91,6 +93,7 @@ import {
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { usePiScanSettings } from "@/features/scanner/api/use-pi-scan-settings";
+import { usePersistedScanSettings } from "@/features/scanner/api/use-persisted-scan-settings";
 import { useAutoFeed } from "@/features/scanner/api/use-auto-feed";
 import { useDeployScanPause } from "@/features/scanner/api/use-deploy-pause";
 import { useComputedBinFillLevels } from "@/features/scanner/api/use-computed-bin-fill-levels";
@@ -111,7 +114,9 @@ import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast"
 import { useSoundRulePlayer } from "@/features/sounds/api/use-sound-rule-player";
 import type {
   BinCorrection,
+  EarlyRoutedScan,
   LastRoutedBin,
+  MatchedScanPlanSource,
   MoveCardsToCollectionInput,
   PendingBinCard,
   JamToastOptions,
@@ -424,14 +429,12 @@ export function ScannedCardsProvider({
     resume,
   );
 
-  const [forceFoilType, setForceFoilTypeState] = useState<string | null>(null);
-  const forceFoilTypeRef = useRef<string | null>(null);
-  const [forceSetCodes, setForceSetCodes] = useState<string[]>([]);
-  const forceSetCodesAfterCollectionSwitchRef = useRef<string[]>([]);
-  const [scanCondition, setScanConditionState] = useState<CardCondition>(
-    DEFAULT_CARD_CONDITION,
+  const resetScanSettingsRef = useRef<() => void>(() => {});
+  const persistedScanSettings = usePersistedScanSettings(
+    activeCollection,
+    resetScanSettingsRef,
   );
-  const scanConditionRef = useRef<CardCondition>(DEFAULT_CARD_CONDITION);
+  const scanSettingsRef = persistedScanSettings.settingsRef;
 
   const pickListsActive = isRulesMode(selectedSet);
   useEffect(() => {
@@ -581,32 +584,25 @@ export function ScannedCardsProvider({
     [],
   );
 
-  const setForceFoilType = useCallback((foilType: string | null) => {
-    forceFoilTypeRef.current = foilType;
-    setForceFoilTypeState(foilType);
-  }, []);
-
-  const setLocalScanCondition = useCallback((condition: CardCondition) => {
-    scanConditionRef.current = condition;
-    setScanConditionState(condition);
-  }, []);
-
   const piScanSettings = usePiScanSettings({
     collectionGuid: activeCollection?.guid,
-    condition: scanCondition,
-    setCondition: setLocalScanCondition,
-    foilType: forceFoilType,
-    preferredSetCodes: forceSetCodes,
-    setFoilType: setForceFoilType,
-    setPreferredSetCodes: setForceSetCodes,
+    condition: persistedScanSettings.settings.condition,
+    setCondition: persistedScanSettings.setCondition,
+    foilType: persistedScanSettings.settings.foilType,
+    preferredSetCodes: persistedScanSettings.settings.preferredSetCodes,
+    setFoilType: persistedScanSettings.setFoilType,
+    setPreferredSetCodes: persistedScanSettings.setPreferredSetCodes,
+  });
+  useEffect(() => {
+    resetScanSettingsRef.current = () => {
+      piScanSettings.setFoilType(null);
+      piScanSettings.setPreferredSetCodes([]);
+      piScanSettings.setCondition(DEFAULT_CARD_CONDITION);
+    };
   });
 
-  const setForceSetCodesAfterCollectionSwitch = useCallback(
-    (setCodes: string[]) => {
-      forceSetCodesAfterCollectionSwitchRef.current = setCodes;
-    },
-    [],
-  );
+  const setForceSetCodesAfterCollectionSwitch =
+    persistedScanSettings.setPreferredSetCodesAfterCollectionSwitch;
 
   useEffect(() => {
     const prev = prevCollectionGuidRef.current;
@@ -614,8 +610,6 @@ export function ScannedCardsProvider({
     if (prev !== next) pendingBinCardsRef.current.clear();
     if (prev && prev !== next) {
       releaseScanLock(prev).catch(() => {});
-      setForceSetCodes(forceSetCodesAfterCollectionSwitchRef.current);
-      forceSetCodesAfterCollectionSwitchRef.current = [];
     }
     prevCollectionGuidRef.current = next;
     activeCollectionRef.current = activeCollection;
@@ -727,6 +721,106 @@ export function ScannedCardsProvider({
     };
   }, [activeCollection?.guid, needsBinContents, binContentsWindowsKey]);
 
+  const matchedScanPlanInput = useCallback(
+    ({
+      collection,
+      details,
+      ...scan
+    }: MatchedScanPlanSource): MatchedScanPlanInput => ({
+      ...scan,
+      gameKey: collection.game?.key,
+      isNudgeFoilDetectionEnabled: isNudgeFoilDetectionEnabledRef.current,
+      isFoilStarDetectionEnabled: isFoilStarDetectionEnabledRef.current,
+      sessionFoilType: scanSettingsRef.current.foilType,
+      foilDetection: details?.diagnostics.foilDetection,
+      fallbackFoilTypes: collection.game?.foilTypes ?? [],
+      condition: scanSettingsRef.current.condition,
+      lowConfidenceMatch: details?.lowConfidenceMatch,
+      diagnostics: details?.diagnostics,
+      deviceGuid: deviceGuidRef.current,
+    }),
+    [scanSettingsRef],
+  );
+
+  const routeCardEarly = useCallback(
+    (
+      candidates: PlayingCardWithDistance[],
+      details: MatchedScanDetails,
+    ): EarlyRoutedScan | null => {
+      const collection = activeCollectionRef.current;
+      if (!collection || isNudgeFoilDetectionEnabledRef.current) return null;
+      const lock = locksRef.current?.[collection.guid];
+      if (lock && lock.userId !== currentUserIdRef.current) return null;
+      if (
+        !serialRef.current.isConnected ||
+        !serialRef.current.isReady ||
+        serialRef.current.ignoreIrSensors
+      )
+        return null;
+      const scanId = generateScanId();
+      const scannedAt = Date.now();
+      const routingContext = scanRoutingContext();
+      const bin = earlyRouteBinOf(
+        candidates.map((card) =>
+          prepareMatchedScanPlan(
+            matchedScanPlanInput({
+              scanId,
+              scannedAt,
+              card,
+              collection,
+              details,
+            }),
+            routingContext,
+          ),
+        ),
+      );
+      if (!bin) return null;
+      let deferredNextFeed: (() => Promise<void>) | null = null;
+      const routing = routeCardToBin({
+        route: resolveRoute(bin.binNumber),
+        sendRoute: serialRef.current.sendRoute,
+        toast,
+        t,
+        failedKey: "scannedCards.routingFailed",
+        cardName: candidates[0]?.name,
+        collectionGuid: collection.guid,
+        deviceGuid: deviceGuidRef.current,
+        isAutoFeedEnabled,
+        isPipelinedFeedEnabled,
+        pause: pauseForRoutingFailure,
+        triggerAutoFeedAfterRoutedCard,
+        deferNextFeed: (feedNextCard) => {
+          deferredNextFeed = feedNextCard;
+        },
+        onJam: showJamToast,
+      });
+      return {
+        scanId,
+        scannedAt,
+        collection,
+        bin,
+        routing,
+        feedNextCard: () => {
+          const feedNextCard = deferredNextFeed;
+          deferredNextFeed = null;
+          if (feedNextCard) void feedNextCard();
+        },
+      };
+    },
+    [
+      toast,
+      t,
+      scanRoutingContext,
+      matchedScanPlanInput,
+      resolveRoute,
+      isAutoFeedEnabled,
+      isPipelinedFeedEnabled,
+      pauseForRoutingFailure,
+      triggerAutoFeedAfterRoutedCard,
+      showJamToast,
+    ],
+  );
+
   const addCard = useCallback(
     (
       card: PlayingCardWithDistance,
@@ -735,8 +829,9 @@ export function ScannedCardsProvider({
       vectorizedOn?: ScanVectorizeSource,
       details?: MatchedScanDetails,
       capturedBackImageUrl?: string,
+      earlyRoute?: EarlyRoutedScan,
     ): ScanPlacement | null => {
-      const collection = activeCollectionRef.current;
+      const collection = earlyRoute?.collection ?? activeCollectionRef.current;
       if (!collection) {
         toast.error(t("scannedCards.noCollectionSelected.title"), {
           description: t("scannedCards.noCollectionSelected.description"),
@@ -744,7 +839,7 @@ export function ScannedCardsProvider({
         return null;
       }
 
-      const lock = locksRef.current?.[collection.guid];
+      const lock = earlyRoute ? undefined : locksRef.current?.[collection.guid];
       if (lock && lock.userId !== currentUserIdRef.current) {
         toast.error(t("scannedCards.collectionLocked.title"), {
           description: t("scannedCards.collectionLocked.description"),
@@ -752,8 +847,8 @@ export function ScannedCardsProvider({
         return null;
       }
 
-      const scanId = generateScanId();
-      const scannedAt = Date.now();
+      const scanId = earlyRoute?.scanId ?? generateScanId();
+      const scannedAt = earlyRoute?.scannedAt ?? Date.now();
       let placement: ScanPlacement | null = null;
       let deferredNextFeed: (() => Promise<void>) | null = null;
       const feedNextCardOnce = () => {
@@ -879,27 +974,19 @@ export function ScannedCardsProvider({
       void runScanDisposition({
         prepare: () =>
           prepareMatchedScanPlan(
-            {
+            matchedScanPlanInput({
               scanId,
               scannedAt,
               card,
+              collection,
               capturedImageUrl,
               capturedBackImageUrl,
               alternativeMatches,
-              gameKey: collection.game?.key,
-              isNudgeFoilDetectionEnabled:
-                isNudgeFoilDetectionEnabledRef.current,
-              isFoilStarDetectionEnabled: isFoilStarDetectionEnabledRef.current,
-              sessionFoilType: forceFoilTypeRef.current,
-              foilDetection: details?.diagnostics.foilDetection,
-              fallbackFoilTypes: collection.game?.foilTypes ?? [],
-              condition: scanConditionRef.current,
-              lowConfidenceMatch: details?.lowConfidenceMatch,
-              diagnostics: details?.diagnostics,
               vectorizedOn,
-              deviceGuid: deviceGuidRef.current,
-            },
+              details,
+            }),
             scanRoutingContext(),
+            earlyRoute?.bin,
           ),
         hold: async (decision) => {
           if (decision.action === "pause") {
@@ -997,6 +1084,11 @@ export function ScannedCardsProvider({
           const matchedBin = decision.bin;
           savingScan = saveScan(decision);
 
+          if (earlyRoute) {
+            await earlyRoute.routing;
+            earlyRoute.feedNextCard();
+            return;
+          }
           if (
             matchedBin &&
             serialRef.current.isConnected &&
@@ -1037,6 +1129,7 @@ export function ScannedCardsProvider({
       toast,
       t,
       scanRoutingContext,
+      matchedScanPlanInput,
       applyAutoAssign,
       markPickListFound,
       queryClient,
@@ -1916,7 +2009,8 @@ export function ScannedCardsProvider({
   const isEmergencyStopped = feedAttention?.kind === "emergencyStopped";
   const forceFoilTypeValue = piScanSettings.foilType;
   const forceSetCodesValue = piScanSettings.preferredSetCodes;
-  const scanConditionValue = piScanSettings.condition ?? scanCondition;
+  const scanConditionValue =
+    piScanSettings.condition ?? persistedScanSettings.settings.condition;
   const setForceFoilTypeValue = piScanSettings.setFoilType;
   const setForceSetCodesValue = piScanSettings.setPreferredSetCodes;
   const setScanConditionValue = piScanSettings.setCondition;
@@ -1959,6 +2053,7 @@ export function ScannedCardsProvider({
         clearFeedHalt,
         showJamToast,
         addCard,
+        routeCardEarly,
         addUnmatchedCard,
         removeUnmatchedCard,
         removeAllUnmatchedCards,
@@ -2027,6 +2122,7 @@ export function ScannedCardsProvider({
       clearFeedHalt,
       showJamToast,
       addCard,
+      routeCardEarly,
       addUnmatchedCard,
       removeUnmatchedCard,
       removeAllUnmatchedCards,

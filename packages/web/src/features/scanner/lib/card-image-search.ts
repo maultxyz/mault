@@ -8,7 +8,10 @@ import {
   canvasToBlob,
   extractCardImage,
 } from "@/features/scanner/lib/card-detection";
-import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
+import {
+  detectAndDewarpCard,
+  dewarpSettledCard,
+} from "@/features/scanner/lib/client-vectorize";
 import { detectStamp } from "@/features/scanner/lib/card-stamp";
 import { detectPrintedFoilMarker } from "@/features/scanner/lib/printed-foil-marker";
 import { printingMarksSampler } from "@/features/scanner/lib/printing-marks";
@@ -19,6 +22,7 @@ import {
   rotateCanvas180,
 } from "@/features/scanner/lib/milo-client";
 import type {
+  CardImageSearchExtras,
   ClientDewarpResult,
   MatchScope,
   OrientedCandidate,
@@ -30,6 +34,7 @@ import type {
 import { scanLog } from "@/lib/scan-log";
 import { IDENTIFY_REQUEST_OPTIONS } from "@/lib/constants/scanner";
 import {
+  closeCardSearchMatches,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
   searchScanOrientations,
@@ -236,6 +241,7 @@ async function searchCardImage(
   gameKey: string | undefined,
   preferredOrientation: ScanOrientation | null,
   knownCardContour: CardContour | null,
+  extras: CardImageSearchExtras,
 ): Promise<ScanAttemptOutcome> {
   const created: HTMLCanvasElement[] = [];
   try {
@@ -250,6 +256,7 @@ async function searchCardImage(
       gameKey,
       preferredOrientation,
       knownCardContour,
+      extras,
     );
   } finally {
     releaseCanvases(created, [canvas]);
@@ -267,6 +274,7 @@ async function runCardImageSearch(
   gameKey: string | undefined,
   preferredOrientation: ScanOrientation | null,
   knownCardContour: CardContour | null,
+  { settledCapture, onImageMatchBeforeText }: CardImageSearchExtras,
 ): Promise<ScanAttemptOutcome> {
   const { collectionGuid } = scope;
   let fallbackReason = "card not detected";
@@ -283,7 +291,9 @@ async function runCardImageSearch(
       frame,
     } = knownCardContour
       ? knownCardOnPage(canvas, knownCardContour)
-      : await detectAndDewarpCard(canvas, refreshFrame);
+      : settledCapture
+        ? dewarpSettledCard(settledCapture)
+        : await detectAndDewarpCard(canvas, refreshFrame);
     detection = {
       cardDetected: corners.cardPresent,
       sharpness: corners.sharpness,
@@ -373,6 +383,36 @@ async function runCardImageSearch(
             ? { ...candidate, result, ocr: result.ocr ?? null }
             : null;
         },
+        onImageMatchBeforeText: onImageMatchBeforeText
+          ? (image) => {
+              if (
+                closeCardSearchMatches(image.result).some(
+                  (match) => !match.card,
+                )
+              )
+                return;
+              void toAttemptOutcome(image, collectionGuid, true, {
+                printedFoilMarker: detectPrintedFoilMarker(
+                  ocrCrop,
+                  image.orientation,
+                  gameKey,
+                ),
+                detectedContour: corners.contour,
+                dewarpedCardImage: null,
+                vectorizedOn: "web",
+                detection,
+                ocr: null,
+                lowConfidenceMatch: false,
+                matchedBy: "embedding",
+              })
+                .then((attempt) =>
+                  onImageMatchBeforeText(toScanOutcome(attempt, [attempt], 1)),
+                )
+                .catch((err) =>
+                  console.error("[scanner] early route check failed:", err),
+                );
+            }
+          : undefined,
       });
       scanLog(
         `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
@@ -471,10 +511,14 @@ export async function searchCardImageWithConsensus(
   gameKey: string | undefined,
   preferredOrientation: ScanOrientation | null = null,
   knownCardContour: CardContour | null = null,
+  extras: CardImageSearchExtras = {},
 ): Promise<ScanOutcome> {
+  let settledCapture = extras.settledCapture ?? null;
   const result = await identifyScanWithConsensus(
-    () =>
-      searchCardImage(
+    () => {
+      const settledCaptureForAttempt = settledCapture;
+      settledCapture = null;
+      return searchCardImage(
         canvas,
         refreshFrame,
         contour,
@@ -484,7 +528,13 @@ export async function searchCardImageWithConsensus(
         gameKey,
         preferredOrientation,
         knownCardContour,
-      ),
+        {
+          settledCapture: settledCaptureForAttempt,
+          onImageMatchBeforeText:
+            matchesNeeded <= 1 ? extras.onImageMatchBeforeText : undefined,
+        },
+      );
+    },
     (attempt) => attempt.card,
     matchesNeeded,
   );

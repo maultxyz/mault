@@ -99,3 +99,38 @@ test("an emergency stop reaches firmware mid-route and skips queued routes", asy
   assert.deepEqual(await second, { skipped: true });
   assert.equal(sent.filter((command) => "route" in command).length, 1);
 });
+
+test("firmware that checks module 1 itself gets the route without a sensor read", async () => {
+  const { session, sent } = sessionWith(() => ({ status: "routed", module: 2, direction: "left" }));
+  const reply = await session.sendRoute(route, {
+    requireLoadedCard: true,
+    firmwareChecksLoadedCard: true,
+  });
+  assert.equal((reply as Record<string, unknown>).status, "routed");
+  assert.deepEqual(
+    sent.map(({ seq: _seq, ...command }) => command),
+    [{ route: { module: 2, direction: "left", requireLoaded: true } }],
+  );
+});
+
+test("a calibration route never asks firmware to require a loaded card", async () => {
+  const { session, sent } = sessionWith(() => ({ status: "routed" }));
+  await session.sendRoute(route, { firmwareChecksLoadedCard: true });
+  assert.deepEqual(
+    sent.map(({ seq: _seq, ...command }) => command),
+    [{ route: { module: 2, direction: "left" } }],
+  );
+});
+
+test("a firmware no-card refusal skips the routes queued behind it", async () => {
+  const { session, sent } = sessionWith(() => ({
+    error: "no card loaded at module 1",
+    noLoadedCard: true,
+  }));
+  const options = { requireLoadedCard: true, firmwareChecksLoadedCard: true };
+  const first = session.sendRoute(route, options);
+  const second = session.sendRoute(route, options);
+  assert.equal(((await first) as Record<string, unknown>).noLoadedCard, true);
+  assert.deepEqual(await second, { skipped: true });
+  assert.equal(sent.length, 1);
+});

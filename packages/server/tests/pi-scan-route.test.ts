@@ -47,6 +47,37 @@ test("Pi routes one loaded card and requires the routed acknowledgment", async (
   ]);
 });
 
+for (const version of ["2.13.4", "2.14.0", "2.13.4-dev.12", "pi-0.3.0"]) {
+  test(`Pi lets firmware ${version} check module 1 as part of the route`, async () => {
+    const routed = linkWith([{ status: "routed" }]);
+    (routed.link as { firmwareVersion: string | null }).firmwareVersion = version;
+    await routeLoadedPiCard(routed.link, { binNumber: 3, module: 2, direction: "left" });
+    assert.deepEqual(routed.commands, [
+      { route: { module: 2, direction: "left", requireLoaded: true } },
+    ]);
+
+    const empty = linkWith([{ error: "no card loaded at module 1", noLoadedCard: true }]);
+    (empty.link as { firmwareVersion: string | null }).firmwareVersion = version;
+    await assert.rejects(
+      routeLoadedPiCard(empty.link, { binNumber: 3, module: 2, direction: "left" }),
+      /module 1/,
+    );
+    assert.equal(empty.commands.length, 1);
+  });
+}
+
+for (const version of ["2.13.3", "2.13.2", "pi-0.2.0", null]) {
+  test(`Pi reads module 1 itself before routing on firmware ${version}`, async () => {
+    const { link, commands } = linkWith([{ ir: [true] }, { status: "routed" }]);
+    (link as { firmwareVersion: string | null }).firmwareVersion = version;
+    await routeLoadedPiCard(link, { binNumber: 3, module: 2, direction: "left" });
+    assert.deepEqual(commands, [
+      { readIR: true },
+      { route: { module: 2, direction: "left" } },
+    ]);
+  });
+}
+
 for (const [version, enabled, expected] of [
   ["2.1.0", true, true],
   ["2.7.0", false, false],

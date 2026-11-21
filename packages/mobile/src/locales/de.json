@@ -961,6 +961,14 @@
       "batchDescriptionNoLocations": "Du hast noch keine Lagerorte. Lege unter Bibliothek > Lager einen an oder füge Karten nur zur Sammlung hinzu.",
       "batchDescriptionLocked": "Lagerorte sind in deinem Tarif nicht enthalten, daher werden Karten nur zur Sammlung hinzugefügt.",
       "batchNoLocationDescription": "Karten nur zur Sammlung hinzufügen"
+    },
+    "retainedSettings": {
+      "title": "Scan-Einstellungen weiterhin aktiv",
+      "foil": "Foil: {{type}}",
+      "condition": "Zustand: {{condition}}",
+      "sets_one": "Set: {{sets}}",
+      "sets_other": "Sets: {{sets}}",
+      "reset": "Zurücksetzen"
     }
   },
   "home": {
@@ -1301,7 +1309,7 @@
       },
       "alphabet": {
         "title": "Alphabetisch sortieren",
-        "description": "Ein Buchstabe pro Fach, in Durchgängen, mit feinerer Sortierung für große Stapel"
+        "description": "Zuerst Buchstabenbereiche, dann ein Buchstabe pro Fach, mit feinerer Sortierung für große Stapel"
       },
       "chaos": {
         "title": "Chaos-Sortierung",
@@ -1361,25 +1369,24 @@
       "lastStage": "Letzte Stufe"
     },
     "alphabet": {
-      "needBins": "Die alphabetische Sortierung braucht mindestens ein Fach neben dem Auffangfach.",
+      "needBins": "Die alphabetische Sortierung braucht mindestens zwei Fächer neben dem Auffangfach.",
       "passHeading": "Durchgang {{current}} von {{total}}",
-      "passRange": "Sortiert Namen von {{from}} bis {{to}}. Alles andere kommt ins Auffangfach.",
-      "prefixRange": "Sortiert den Stapel {{prefix}} nach dem nächsten Buchstaben: {{from}} bis {{to}}. Alles andere kommt ins Auffangfach.",
+      "passRange": "Sortiert Namen von {{from}} bis {{to}}, ein Buchstabe pro Fach. Alles andere kommt ins Auffangfach.",
+      "rangePassRange": "Teilt Namen von {{from}} bis {{to}} in Buchstabenbereiche auf, ein Bereich pro Fach. Alles andere kommt ins Auffangfach.",
       "unusedBin": "Nicht verwendet",
-      "nextPassHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Fach, lege die Karten aus dem Auffangfach zurück in den Zuführer und wechsle zu den nächsten Buchstaben.",
       "lastPassHint": "Das ist der letzte Durchgang. Was danach im Auffangfach bleibt, hat einen Namen, der nicht mit einem Buchstaben beginnt.",
-      "nextPileHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Fach und halte jeden Stapel in Reihenfolge. Als Nächstes: der Stapel {{prefix}}.",
+      "nextPileHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Fach und halte jeden Stapel in Reihenfolge. Als Nächstes: der Stapel {{pile}}.",
+      "nextPile": "Weiter: Stapel {{pile}}",
       "pileDoneHint": "Das ist der letzte Durchgang für den Stapel {{prefix}}. Fange von vorn an, um zum ganzen Alphabet zurückzukehren.",
       "previous": "Zurück",
-      "next": "Nächste Buchstaben",
       "startOver": "Von vorn beginnen",
       "sortDeeper": "Feiner sortieren",
       "sortDeeperItem": "Stapel {{label}} nach nächstem Buchstaben",
       "upLevel": "Eine Ebene höher",
-      "confirmTitle": "Zu neuen Buchstaben wechseln?",
-      "confirmDescription": "Stelle sicher, dass jedes Fach leer ist und die Karten aus dem Auffangfach wieder im Zuführer liegen. Alle Fächer werden als geleert markiert.",
-      "confirmPileTitle": "Stapel {{prefix}} starten?",
-      "confirmPileDescription": "Leere jedes Fach und halte jeden Stapel in Reihenfolge. Lege dann den Stapel {{prefix}} in den Zuführer. Alle Fächer werden als geleert markiert.",
+      "confirmTitle": "Zurück zum ganzen Alphabet?",
+      "confirmDescription": "Leere jedes Fach und lege alle Karten in den Zuführer. Alle Fächer werden als geleert markiert.",
+      "confirmPileTitle": "Stapel {{pile}} starten?",
+      "confirmPileDescription": "Leere jedes Fach und halte jeden Stapel in Reihenfolge. Lege dann den Stapel {{pile}} in den Zuführer. Alle Fächer werden als geleert markiert.",
       "confirm": "Fächer sind leer"
     },
     "binSummary": {
@@ -2063,7 +2070,8 @@
       "cancelAtPeriodEnd": "Dein Abonnement endet am {{date}}.",
       "manageOnWeb": "Tarifänderungen und Zahlungsdaten werden in der Web-App verwaltet.",
       "openWeb": "Abrechnung im Web öffnen",
-      "legacyPlanNote": "Du nutzt den ursprünglichen Business-Tarif, der nicht mehr angeboten wird. Du behältst ihn mit allem, was dazugehört, solange dein Abo aktiv bleibt. Ein Wechsel zu einem anderen Tarif oder eine Kündigung lässt sich nicht rückgängig machen."
+      "legacyPlanNote": "Du nutzt den ursprünglichen Business-Tarif, der nicht mehr angeboten wird. Du behältst ihn mit allem, was dazugehört, solange dein Abo aktiv bleibt. Ein Wechsel zu einem anderen Tarif oder eine Kündigung lässt sich nicht rückgängig machen.",
+      "billingDisabled": "Die Abrechnung ist auf diesem Server nicht aktiviert, daher sind alle Funktionen ohne Limits verfügbar."
     },
     "apiKeys": {
       "heading": "API-Schlüssel",
@@ -2906,6 +2914,18 @@
       }
     },
     "plans": {
+      "subscriptions": {
+        "heading": "Abonnements",
+        "description": "Organisationen mit einem bezahlten Abonnement, nach Plan. Der monatlich wiederkehrende Umsatz nutzt den Listenpreis jedes Plans, Jahrespläne auf 12 Monate verteilt, vor Rabatten und Steuern. Testphasen zählen als Abonnenten, bringen aber keinen Umsatz.",
+        "subscribersHeading": "Abonnenten",
+        "revenueHeading": "Monatlich wiederkehrender Umsatz",
+        "total": "Gesamt",
+        "trialingCount_one": "{{count}} in der Testphase",
+        "trialingCount_other": "{{count}} in der Testphase",
+        "unpriced_one": "Der Preis von {{count}} Abonnenten konnte nicht von Stripe geladen werden, daher fehlt er im Umsatz.",
+        "unpriced_other": "Die Preise von {{count}} Abonnenten konnten nicht von Stripe geladen werden, daher fehlen sie im Umsatz.",
+        "loadFailed": "Abonnements konnten nicht geladen werden."
+      },
       "billingDisabled": "Die Abrechnung ist auf diesem Server ausgeschaltet, daher bekommt jede Organisation alle Funktionen ohne Limits. Diese Einstellungen greifen, sobald die Abrechnung aktiv ist.",
       "saveFailed": "Tarifeinstellungen konnten nicht gespeichert werden",
       "featuresDescription": "Welche Tarife jede Funktion nutzen können. Funktionen sind im Code definiert, eine neue erscheint hier, sobald sie gebaut ist.",

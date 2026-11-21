@@ -10,7 +10,8 @@ export type FirmwareFeature =
   | "moduleDetection"
   | "pusherNudge"
   | "emergencyStop"
-  | "ledStrips";
+  | "ledStrips"
+  | "sensorCheckedCommands";
 
 export type RetractCardOutcome = "retracted" | "rollback_off" | "failed";
 

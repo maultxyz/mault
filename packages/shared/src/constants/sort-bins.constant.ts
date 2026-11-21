@@ -39,6 +39,7 @@ export const CUSTOM_BIN_HEIGHT_MAX_MM = 1000;
 export const DEFAULT_CARD_THICKNESS_MM = 0.3;
 export const ALPHABET_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 export const ALPHABET_PREFIX_MAX_LENGTH = 10;
+export const ALPHABET_MIN_SORTING_BINS = 2;
 
 export const SORTABLE_FIELD_TYPES: FieldType[] = ["string", "numeric", "enum"];
 
