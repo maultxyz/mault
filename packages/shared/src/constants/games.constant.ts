@@ -52,3 +52,9 @@ export const DEFAULT_OPERATORS_BY_FIELD_TYPE: Record<
     { value: "is_not_null", label: "is not empty" },
   ],
 };
+
+export const DEFAULT_GAME_CATALOG_LANG = "en";
+
+export const GAME_CATALOG_LANG_BY_GAME_KEY: Record<string, string> = {
+  pokemonjp: "ja",
+};

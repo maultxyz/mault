@@ -180,12 +180,6 @@ export const CARD_MATCH_INDEX_PI_DEFAULT_MAX_MB = 384;
 export const CARD_MATCH_INDEX_EVICTION_MIN_IDLE_MS = 10 * 60_000;
 export const RANDOM_SAMPLE_CANDIDATE_MULTIPLIER = 5;
 
-export const MATCH_GAME_DEFAULT_LANG = "en";
-
-export const MATCH_GAME_LANG_BY_GAME_KEY: Record<string, string> = {
-  pokemonjp: "ja",
-};
-
 export const MATCH_GAME_KEYS_MAX = 12;
 
 export const CATALOG_RELEASE_DATE_PATTERN = "^[0-9]{4}-[0-9]{2}-[0-9]{2}";

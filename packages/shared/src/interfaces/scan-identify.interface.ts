@@ -67,7 +67,10 @@ export interface ScanImageSearchOptions<T extends ScanImageCandidate> {
   preferredOrientation?: ScanOrientation | null;
   ocrEnabled?: boolean;
   ocrMode?: ScanOcrMode | ((candidate: T) => ScanOcrMode);
-  search: (orientation: ScanOrientation) => Promise<T>;
+  search: (
+    orientation: ScanOrientation,
+    reportImageResult: (imageResult: CardSearchResult) => void,
+  ) => Promise<T>;
   readText?: (
     candidate: T,
   ) => Promise<(T & { ocr: OcrDiagnostics | null }) | null>;

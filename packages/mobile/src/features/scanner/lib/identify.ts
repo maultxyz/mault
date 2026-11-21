@@ -124,7 +124,7 @@ async function attemptOnce(
     checkBothOrientations: options.checkBothOrientations,
     preferredOrientation: options.preferredOrientation ?? null,
     ocrMode: cardContour ? options.ocrMode : "off",
-    search: async (orientation) => {
+    search: async (orientation, reportImageResult) => {
       const pixels =
         orientation === "rotated" ? rotateRgba180(dewarped) : dewarped;
       const embedding = await embedCard(pixels);
@@ -138,7 +138,10 @@ async function attemptOnce(
             options.gameKey,
             orientation,
           ),
-        ),
+        ).then((imageResult) => {
+          reportImageResult(imageResult);
+          return imageResult;
+        }),
         options.ocrMode === "every-scan" && cardContour
           ? readText(orientation, embedding)
           : undefined,

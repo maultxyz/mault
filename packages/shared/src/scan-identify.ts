@@ -235,11 +235,7 @@ export function toScanMatchDetails(
 
 export function isConfidentOrientationMatch(result: CardSearchResult): boolean {
   const leader = result.data?.[0];
-  return (
-    leader != null &&
-    !needsTextSearch(result) &&
-    leader.distance <= PREFERRED_ORIENTATION_MAX_DISTANCE
-  );
+  return leader != null && leader.distance <= PREFERRED_ORIENTATION_MAX_DISTANCE;
 }
 
 export function isScanOrientationDetermined(
@@ -254,25 +250,40 @@ export function isScanOrientationDetermined(
 
 export async function searchScanOrientations<T extends OrientedSearchCandidate>(
   checkBothOrientations: boolean,
-  search: (orientation: ScanOrientation) => Promise<T>,
+  search: (
+    orientation: ScanOrientation,
+    reportImageResult: (imageResult: CardSearchResult) => void,
+  ) => Promise<T>,
   preferredOrientation: ScanOrientation | null = null,
 ): Promise<T & { alternate: T | null }> {
+  const ignoreImageResult = () => {};
   if (!checkBothOrientations)
-    return { ...(await search("upright")), alternate: null };
+    return { ...(await search("upright", ignoreImageResult)), alternate: null };
   if (preferredOrientation) {
-    const preferred = await search(preferredOrientation);
-    if (isConfidentOrientationMatch(preferred.result))
+    let otherSearch: Promise<T> | null = null;
+    const searchOther = () => {
+      if (!otherSearch) {
+        otherSearch = search(
+          preferredOrientation === "upright" ? "rotated" : "upright",
+          ignoreImageResult,
+        );
+        otherSearch.catch(() => undefined);
+      }
+      return otherSearch;
+    };
+    const preferred = await search(preferredOrientation, (imageResult) => {
+      if (!isConfidentOrientationMatch(imageResult)) void searchOther();
+    });
+    if (isConfidentOrientationMatch(preferred.result) && !otherSearch)
       return { ...preferred, alternate: null };
-    const other = await search(
-      preferredOrientation === "upright" ? "rotated" : "upright",
-    );
+    const other = await searchOther();
     return preferredOrientation === "upright"
       ? pickBetterOrientation(preferred, other)
       : pickBetterOrientation(other, preferred);
   }
   const [upright, rotated] = await Promise.all([
-    search("upright"),
-    search("rotated"),
+    search("upright", ignoreImageResult),
+    search("rotated", ignoreImageResult),
   ]);
   return pickBetterOrientation(upright, rotated);
 }

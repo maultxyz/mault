@@ -204,7 +204,7 @@ function mount() {
   return renderHook(() => useScannedCards(), { wrapper: ScannedCardsProvider });
 }
 
-it("reserves capacity before routing can feed the next scan and persists after routing", async () => {
+it("reserves capacity before routing can feed the next scan and saves while the card routes", async () => {
   let finishRoute: () => void = () => {};
   mocks.route.mockImplementation(
     () =>
@@ -215,12 +215,12 @@ it("reserves capacity before routing can feed the next scan and persists after r
   const { result } = mount();
   act(() => result.current.addCard(card));
   await waitFor(() => expect(mocks.route).toHaveBeenCalledOnce());
-  expect(mocks.save).not.toHaveBeenCalled();
+  expect(mocks.save).toHaveBeenCalledOnce();
   act(() => result.current.addCard(card));
   await waitFor(() => expect(mocks.pause).toHaveBeenCalled());
   expect(mocks.route).toHaveBeenCalledOnce();
   await act(async () => finishRoute());
-  await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
+  expect(mocks.save).toHaveBeenCalledOnce();
 });
 
 it("a full destination pauses before routing or persistence", async () => {
@@ -250,10 +250,9 @@ it("saves pick progress with the routed card without sending a separate incremen
   const { result } = mount();
   act(() => result.current.addCard(card));
   await waitFor(() => expect(mocks.route).toHaveBeenCalledOnce());
-  expect(mocks.save).not.toHaveBeenCalled();
+  expect(mocks.save).toHaveBeenCalledOnce();
   expect(mocks.recordPick).not.toHaveBeenCalled();
   await act(async () => finishRoute());
-  await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
   expect(mocks.save.mock.calls[0][0].record.pickListUpdate).toEqual({
     binGuid: "bin", name: card.name, delta: 1,
   });
@@ -288,7 +287,7 @@ it("retains separate pick accounting for sort-only scans", async () => {
   expect(mocks.sortOnly.mock.calls[0][1]).not.toHaveProperty("pickListUpdate");
 });
 
-it("unmatched scans reserve the catch-all before routing and save afterward", async () => {
+it("unmatched scans reserve the catch-all before routing and save while the card routes", async () => {
   let finishRoute: () => void = () => {};
   mocks.route.mockImplementation(
     () =>
@@ -299,12 +298,12 @@ it("unmatched scans reserve the catch-all before routing and save afterward", as
   const { result } = mount();
   act(() => result.current.addUnmatchedCard("image"));
   await waitFor(() => expect(mocks.route).toHaveBeenCalledOnce());
-  expect(mocks.saveUnmatched).not.toHaveBeenCalled();
+  expect(mocks.saveUnmatched).toHaveBeenCalledOnce();
   act(() => result.current.addUnmatchedCard("image"));
   await waitFor(() => expect(mocks.pause).toHaveBeenCalled());
   expect(mocks.route).toHaveBeenCalledOnce();
   await act(async () => finishRoute());
-  await waitFor(() => expect(mocks.saveUnmatched).toHaveBeenCalledOnce());
+  expect(mocks.saveUnmatched).toHaveBeenCalledOnce();
 });
 
 it("unmatched sort-only scans reserve the catch-all while skipping persistence", async () => {

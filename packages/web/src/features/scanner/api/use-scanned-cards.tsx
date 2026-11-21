@@ -8,6 +8,7 @@ import {
   type BinRoute,
   type EmptyBinOptions,
   type MatchedScanDetails,
+  type MatchedScanPlan,
   type PlayingCard,
   type PlayingCardWithDistance,
   type ScanVectorizeSource,
@@ -15,6 +16,7 @@ import {
   type GroupedScannedCard,
   type UnmatchedCard,
   type UnmatchedScanDetails,
+  type UnmatchedScanPlan,
   type AutoAssignTarget,
   type ScanRoutingContext,
   type CorrectedScanBinTarget,
@@ -759,6 +761,121 @@ export function ScannedCardsProvider({
         deferredNextFeed = null;
         if (feedNextCard) void feedNextCard();
       };
+      let savingScan: Promise<void> | null = null;
+      const saveScan = async (decision: MatchedScanPlan) => {
+        const record = decision.record;
+        const matchedBin = decision.bin;
+        if (!record) return;
+        const orgId = activeOrgIdRef.current;
+        const billingQueryKey = orgId
+          ? billingQueryOptions(orgId).queryKey
+          : undefined;
+        if (billingQueryKey) {
+          queryClient.setQueryData(billingQueryKey, (old) =>
+            old
+              ? { ...old, cardsScannedToday: old.cardsScannedToday + 1 }
+              : old,
+          );
+        }
+        if (decision.persistence.kind === "cards/sorted") {
+          await recordSortOnlyScan(
+            collection.guid,
+            decision.persistence.record,
+            orgId ?? null,
+          )
+            .then((result) => {
+              if (result.success) return;
+              pauseForAttention({
+                kind: result.sorterLimitReached ? "sorterLimit" : "scanLimit",
+              });
+              if (result.sorterLimitReached) {
+                showSorterLimitToast(toast, t, sorterLimitReasonRef.current);
+                return;
+              }
+              toast.error(t("scannedCards.scanLimitReached.title"), {
+                description: t("scannedCards.scanLimitReached.description"),
+              });
+            })
+            .catch((err) =>
+              console.error("Failed to record sorted scan:", err),
+            )
+            .finally(() => {
+              settlePendingBinCard(record.scanId);
+              if (orgId) refreshBillingAfterScan(queryClient, orgId);
+            });
+          return;
+        }
+
+        await saveCard({
+          orgId: orgId ?? null,
+          collectionGuid: collection.guid,
+          deviceGuid: deviceGuidRef.current,
+          record: decision.persistence.record,
+        })
+          .then((result) => {
+            if (result.success) return;
+            binContentsRef.current = binContentsRef.current.filter(
+              (c) => c.scanId !== record.scanId,
+            );
+            if (billingQueryKey) {
+              queryClient.setQueryData(billingQueryKey, (old) =>
+                old
+                  ? {
+                      ...old,
+                      cardsScannedToday: Math.max(
+                        0,
+                        old.cardsScannedToday - 1,
+                      ),
+                    }
+                  : old,
+              );
+            }
+            pauseForAttention({
+              kind: result.binLimitReached
+                ? "binLimit"
+                : result.sorterLimitReached
+                  ? "sorterLimit"
+                  : result.scanLimitReached
+                    ? "scanLimit"
+                    : "collectionLocked",
+              binNumbers: matchedBin ? [matchedBin.binNumber] : [],
+            });
+            if (result.binLimitReached) {
+              setBinLimitBin(matchedBin ?? null);
+              return;
+            }
+            if (result.sorterLimitReached) {
+              showSorterLimitToast(toast, t, sorterLimitReasonRef.current);
+              return;
+            }
+            const key = result.scanLimitReached
+              ? "scannedCards.scanLimitReached"
+              : "scannedCards.collectionLocked";
+            toast.error(t(`${key}.title`), {
+              description: t(`${key}.description`),
+            });
+          })
+          .catch((err) => {
+            console.error("Failed to persist card:", err);
+            pauseForAttention({ kind: "saveFailed", detail: card.name });
+            toast.error(t("scannedCards.saveFailed.title"), {
+              description: t("scannedCards.saveFailed.description", {
+                name: card.name,
+              }),
+              duration: Infinity,
+              dismissible: true,
+            });
+          })
+          .finally(() => {
+            settlePendingBinCard(record.scanId);
+            void invalidateCollectionCards(queryClient, collection.guid);
+            if (decision.pickListUpdate)
+              void queryClient.invalidateQueries({
+                queryKey: binsQueryOptions.queryKey,
+              });
+            if (orgId) refreshBillingAfterScan(queryClient, orgId);
+          });
+      };
       void runScanDisposition({
         prepare: () =>
           prepareMatchedScanPlan(
@@ -878,6 +995,7 @@ export function ScannedCardsProvider({
         },
         route: async (decision) => {
           const matchedBin = decision.bin;
+          savingScan = saveScan(decision);
 
           if (
             matchedBin &&
@@ -904,128 +1022,10 @@ export function ScannedCardsProvider({
               onJam: showJamToast,
             });
           }
+          feedNextCardOnce();
         },
-        persist: async (decision) => {
-          const record = decision.record;
-          const matchedBin = decision.bin;
-          if (!record) {
-            feedNextCardOnce();
-            return;
-          }
-          const orgId = activeOrgIdRef.current;
-          const billingQueryKey = orgId
-            ? billingQueryOptions(orgId).queryKey
-            : undefined;
-          if (billingQueryKey) {
-            queryClient.setQueryData(billingQueryKey, (old) =>
-              old
-                ? { ...old, cardsScannedToday: old.cardsScannedToday + 1 }
-                : old,
-            );
-          }
-          if (decision.persistence.kind === "cards/sorted") {
-            feedNextCardOnce();
-            await recordSortOnlyScan(
-              collection.guid,
-              decision.persistence.record,
-              orgId ?? null,
-            )
-              .then((result) => {
-                if (result.success) return;
-                pauseForAttention({
-                  kind: result.sorterLimitReached ? "sorterLimit" : "scanLimit",
-                });
-                if (result.sorterLimitReached) {
-                  showSorterLimitToast(toast, t, sorterLimitReasonRef.current);
-                  return;
-                }
-                toast.error(t("scannedCards.scanLimitReached.title"), {
-                  description: t("scannedCards.scanLimitReached.description"),
-                });
-              })
-              .catch((err) =>
-                console.error("Failed to record sorted scan:", err),
-              )
-              .finally(() => {
-                settlePendingBinCard(record.scanId);
-                if (orgId) refreshBillingAfterScan(queryClient, orgId);
-              });
-            return;
-          }
-
-          await saveCard(
-            {
-              orgId: orgId ?? null,
-              collectionGuid: collection.guid,
-              deviceGuid: deviceGuidRef.current,
-              record: decision.persistence.record,
-            },
-            feedNextCardOnce,
-          )
-            .then((result) => {
-              if (result.success) return;
-              binContentsRef.current = binContentsRef.current.filter(
-                (c) => c.scanId !== record.scanId,
-              );
-              if (billingQueryKey) {
-                queryClient.setQueryData(billingQueryKey, (old) =>
-                  old
-                    ? {
-                        ...old,
-                        cardsScannedToday: Math.max(
-                          0,
-                          old.cardsScannedToday - 1,
-                        ),
-                      }
-                    : old,
-                );
-              }
-              pauseForAttention({
-                kind: result.binLimitReached
-                  ? "binLimit"
-                  : result.sorterLimitReached
-                    ? "sorterLimit"
-                    : result.scanLimitReached
-                      ? "scanLimit"
-                      : "collectionLocked",
-                binNumbers: matchedBin ? [matchedBin.binNumber] : [],
-              });
-              if (result.binLimitReached) {
-                setBinLimitBin(matchedBin ?? null);
-                return;
-              }
-              if (result.sorterLimitReached) {
-                showSorterLimitToast(toast, t, sorterLimitReasonRef.current);
-                return;
-              }
-              const key = result.scanLimitReached
-                ? "scannedCards.scanLimitReached"
-                : "scannedCards.collectionLocked";
-              toast.error(t(`${key}.title`), {
-                description: t(`${key}.description`),
-              });
-            })
-            .catch((err) => {
-              console.error("Failed to persist card:", err);
-              pauseForAttention({ kind: "saveFailed", detail: card.name });
-              toast.error(t("scannedCards.saveFailed.title"), {
-                description: t("scannedCards.saveFailed.description", {
-                  name: card.name,
-                }),
-                duration: Infinity,
-                dismissible: true,
-              });
-            })
-            .finally(() => {
-              feedNextCardOnce();
-              settlePendingBinCard(record.scanId);
-              void invalidateCollectionCards(queryClient, collection.guid);
-              if (decision.pickListUpdate)
-                void queryClient.invalidateQueries({
-                  queryKey: binsQueryOptions.queryKey,
-                });
-              if (orgId) refreshBillingAfterScan(queryClient, orgId);
-            });
+        persist: async () => {
+          await savingScan;
         },
         complete: ({ ruleCard }) => {
           setTimeout(() => playSoundForCard(ruleCard), 0);
@@ -1185,6 +1185,46 @@ export function ScannedCardsProvider({
         deferredNextFeed = null;
         if (feedNextCard) void feedNextCard();
       };
+      let savingScan: Promise<void> | null = null;
+      const saveScan = async (plan: UnmatchedScanPlan) => {
+        if (plan.persistence.kind === "none") return;
+        const record = plan.record;
+        const catchAll = plan.bin;
+        const dropRecord = () => {
+          dropUnmatched(record.scanId);
+          syncUnmatched(collection.guid);
+        };
+        await saveUnmatched({
+          orgId: activeOrgIdRef.current ?? null,
+          collectionGuid: collection.guid,
+          deviceGuid: deviceGuidRef.current,
+          record: plan.persistence.record,
+        })
+          .then((result) => {
+            if (result.success) return;
+            dropRecord();
+            pauseForAttention({
+              kind: result.binLimitReached ? "binLimit" : "saveFailed",
+              binNumbers: catchAll ? [catchAll.binNumber] : [],
+            });
+            if (result.binLimitReached) setBinLimitBin(catchAll ?? null);
+          })
+          .catch((err) => {
+            console.error("Failed to persist unmatched card:", err);
+            dropRecord();
+            pauseForAttention({ kind: "saveFailed" });
+            toast.error(t("scannedCards.saveFailedUnmatched.title"), {
+              description: t("scannedCards.saveFailedUnmatched.description"),
+              duration: Infinity,
+              dismissible: true,
+            });
+          })
+          .finally(() => {
+            settlePendingBinCard(record.scanId);
+            void invalidateBinCounts(queryClient, collection.guid);
+            void invalidateUnmatchedCards(queryClient, collection.guid);
+          });
+      };
       void runScanDisposition({
         prepare: () =>
           prepareUnmatchedScanPlan(
@@ -1235,62 +1275,21 @@ export function ScannedCardsProvider({
           setUnmatchedCount((count) => count + 1);
         },
         pick: () => {},
-        route: async ({ bin }) => {
-          if (bin)
+        route: async (plan) => {
+          savingScan = saveScan(plan);
+          if (plan.bin)
             await routeToBin(
-              bin.binNumber,
+              plan.bin.binNumber,
               "scannedCards.routingFailedCatchAll",
               undefined,
               (feedNextCard) => {
                 deferredNextFeed = feedNextCard;
               },
             );
+          feedNextCardOnce();
         },
-        persist: async (plan) => {
-          if (plan.persistence.kind === "none") {
-            feedNextCardOnce();
-            return;
-          }
-          const record = plan.record;
-          const catchAll = plan.bin;
-          const dropRecord = () => {
-            dropUnmatched(record.scanId);
-            syncUnmatched(collection.guid);
-          };
-          await saveUnmatched(
-            {
-              orgId: activeOrgIdRef.current ?? null,
-              collectionGuid: collection.guid,
-              deviceGuid: deviceGuidRef.current,
-              record: plan.persistence.record,
-            },
-            feedNextCardOnce,
-          )
-            .then((result) => {
-              if (result.success) return;
-              dropRecord();
-              pauseForAttention({
-                kind: result.binLimitReached ? "binLimit" : "saveFailed",
-                binNumbers: catchAll ? [catchAll.binNumber] : [],
-              });
-              if (result.binLimitReached) setBinLimitBin(catchAll ?? null);
-            })
-            .catch((err) => {
-              console.error("Failed to persist unmatched card:", err);
-              dropRecord();
-              pauseForAttention({ kind: "saveFailed" });
-              toast.error(t("scannedCards.saveFailedUnmatched.title"), {
-                description: t("scannedCards.saveFailedUnmatched.description"),
-                duration: Infinity,
-                dismissible: true,
-              });
-            })
-            .finally(() => {
-              feedNextCardOnce();
-              settlePendingBinCard(record.scanId);
-              void invalidateBinCounts(queryClient, collection.guid);
-              void invalidateUnmatchedCards(queryClient, collection.guid);
-            });
+        persist: async () => {
+          await savingScan;
         },
         complete: () => {},
       });
@@ -1693,6 +1692,59 @@ export function ScannedCardsProvider({
 
   const dismissBinCorrection = useCallback(() => setBinCorrection(null), []);
 
+  const promptBinAfterScanStateEdit = useCallback(
+    (scanId: string) => {
+      const collection = activeCollectionRef.current;
+      if (!collection || !correctionBinPromptRef.current) return;
+      const findScan = () => {
+        const pageEntry = findInCardPages(queryClient, collection.guid, scanId);
+        if (pageEntry) return pageEntry;
+        const binEntry = binContentsRef.current.find((entry) => entry.scanId === scanId);
+        return binEntry;
+      };
+      const scan = findScan();
+      if (!scan || scan.binNumber == null || ("storageLocation" in scan && scan.storageLocation)) return;
+      void withRawCardDataForRules(scan.card, (cardWithoutRawData) =>
+        getCardById(
+          cardWithoutRawData.id,
+          collection.guid,
+          cardWithoutRawData.lang,
+          cardWithoutRawData.gameKey,
+        ).then((result) => (result.success ? (result.data ?? null) : null)),
+      )
+        .catch((error: unknown) => {
+          console.error("Loading the edited card's game fields failed:", error);
+          return scan.card;
+        })
+        .then((ruleSourceCard) => {
+          if (activeCollectionRef.current?.guid !== collection.guid) return;
+          const editedScan = findScan() ?? scan;
+          const currentBin = editedScan.binNumber ?? undefined;
+          const ruleCard = toRuleCard(ruleSourceCard, {
+            isFoil: editedScan.isFoil,
+            foilType: editedScan.foilType,
+            stamp: editedScan.stamp,
+          });
+          const target = resolveCorrectedBin(ruleCard, currentBin);
+          setBinCorrection({
+            id: generateScanId(),
+            scanId,
+            cardName: editedScan.card.name,
+            currentBin,
+            targetBin: target.bin?.binNumber,
+            pickListName: target.pickListName,
+            releasedPickListName: releasedPickListNameAfterCorrection(
+              editedScan.card.name,
+              currentBin,
+              target,
+              rawBinConfigsRef.current,
+            ),
+          });
+        });
+    },
+    [queryClient, resolveCorrectedBin],
+  );
+
   const editCards = useCallback(
     (
       scanIds: string[],
@@ -1774,9 +1826,11 @@ export function ScannedCardsProvider({
   );
 
   const setCardFoilType = useCallback(
-    (scanId: string, foilType: string | null) =>
-      setCardsFoilType([scanId], foilType),
-    [setCardsFoilType],
+    (scanId: string, foilType: string | null) => {
+      setCardsFoilType([scanId], foilType);
+      promptBinAfterScanStateEdit(scanId);
+    },
+    [setCardsFoilType, promptBinAfterScanStateEdit],
   );
 
   const setCardsCondition = useCallback(
@@ -1800,14 +1854,16 @@ export function ScannedCardsProvider({
   );
 
   const setCardStamp = useCallback(
-    (scanId: string, stamp: string | null) =>
+    (scanId: string, stamp: string | null) => {
       editCards(
         [scanId],
         (entry) => ({ ...entry, stamp: stamp ?? undefined }),
         (collectionGuid) => setCollectionCardStamp(collectionGuid, scanId, stamp),
         { logMessage: "Failed to update stamp:", notifiesUser: true },
-      ),
-    [editCards],
+      );
+      promptBinAfterScanStateEdit(scanId);
+    },
+    [editCards, promptBinAfterScanStateEdit],
   );
 
   const setCardLanguage = useCallback(

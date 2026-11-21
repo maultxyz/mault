@@ -16,12 +16,13 @@ import { CardDetailSkeleton } from "@/features/cards/components/card-detail-skel
 import { CardDetailTitleBlock } from "@/features/cards/components/card-detail-title-block";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { catalogCardQueryOptions, rememberCatalogCard } from "@/features/search/api/catalog-card-search";
+import { useCatalogGames } from "@/features/search/api/use-catalog-games";
 import { CardPrintingsGrid } from "@/features/search/components/card-printings-grid";
 import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import { SPACING } from "@/lib/constants/theme";
 import type { CatalogCardRouteParams } from "@/lib/interfaces/search";
-import { catalogGamesOf, type PlayingCard } from "@magic-vault/shared";
+import { type PlayingCard } from "@magic-vault/shared";
 
 export default function CatalogCardScreen() {
   const { t } = useTranslation();
@@ -34,12 +35,13 @@ export default function CatalogCardScreen() {
   const [pickerOpen, setPickerOpen] = useState(false);
   const queryClient = useQueryClient();
   const [selectedCardId, setSelectedCardId] = useState(id);
-  const game = catalogGamesOf(collections, scanTargetCollection?.guid).find((entry) => entry.gameKey === gameKey) ?? null;
+  const { catalogGames, isLoading: catalogGamesLoading } = useCatalogGames();
+  const game = catalogGames.find((entry) => entry.gameKey === gameKey) ?? null;
   const cardQuery = useQuery({ ...catalogCardQueryOptions(game, selectedCardId), placeholderData: keepPreviousData });
   const card = cardQuery.data;
   const targets = collections.filter((collection) => collection.game?.key === gameKey);
   const defaultTarget = targets.find((collection) => collection.guid === scanTargetCollection?.guid) ?? targets[0] ?? null;
-  const hasFailed = cardQuery.isError || (!cardQuery.isPending && !card) || (!game && !collectionsQuery.isPending);
+  const hasFailed = cardQuery.isError || (!cardQuery.isPending && !card) || (!game && !catalogGamesLoading);
 
   const selectPrinting = (printing: PlayingCard) => {
     rememberCatalogCard(queryClient, gameKey, printing);

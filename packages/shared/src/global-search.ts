@@ -1,6 +1,8 @@
+import { DEFAULT_GAME_CATALOG_LANG, GAME_CATALOG_LANG_BY_GAME_KEY } from "./constants/games.constant";
 import { GLOBAL_SEARCH_MAX_LOCAL_RESULTS } from "./constants/global-search.constant";
 import type { PlayingCard } from "./interfaces/card.interface";
 import type { Collection } from "./interfaces/collections.interface";
+import type { Game } from "./interfaces/games.interface";
 import type { CatalogGame } from "./interfaces/global-search.interface";
 
 export function normalizeGlobalSearchQuery(rawQuery: string): string {
@@ -29,7 +31,15 @@ export function rankGlobalSearchMatches<T>(
     .map((entry) => entry.item);
 }
 
-export function catalogGamesOf(collections: readonly Collection[], preferredCollectionGuid?: string): CatalogGame[] {
+export function defaultCatalogLangOf(gameKey: string): string {
+  return GAME_CATALOG_LANG_BY_GAME_KEY[gameKey] ?? DEFAULT_GAME_CATALOG_LANG;
+}
+
+export function catalogGamesOf(
+  games: readonly Game[],
+  collections: readonly Collection[],
+  preferredCollectionGuid?: string,
+): CatalogGame[] {
   const ordered = [...collections].sort((first, second) =>
     first.guid === preferredCollectionGuid ? -1 : second.guid === preferredCollectionGuid ? 1 : 0,
   );
@@ -40,8 +50,17 @@ export function catalogGamesOf(collections: readonly Collection[], preferredColl
     catalogGamesByGameKey.set(game.key, {
       gameKey: game.key,
       gameName: game.name,
-      lang: collection.lang || "en",
+      lang: collection.lang || defaultCatalogLangOf(game.key),
       collectionGuid: collection.guid,
+    });
+  }
+  for (const game of games) {
+    if (!game.isActive || catalogGamesByGameKey.has(game.key)) continue;
+    catalogGamesByGameKey.set(game.key, {
+      gameKey: game.key,
+      gameName: game.name,
+      lang: defaultCatalogLangOf(game.key),
+      collectionGuid: null,
     });
   }
   return [...catalogGamesByGameKey.values()];

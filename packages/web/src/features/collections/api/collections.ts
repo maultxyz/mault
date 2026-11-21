@@ -25,6 +25,7 @@ import {
   type ReviewAcceptResult,
   type ReviewGridAttributeUpdate,
   SCAN_SAVE_ACCEPTED_STATUSES,
+  SCAN_SAVE_REQUEST_TIMEOUT_MS,
   buildScanSaveRequest,
   throwIfMemberSeatLimit,
   type ScannedCard,
@@ -148,6 +149,7 @@ export async function addCollectionCard(
     method: "POST",
     headers: await scanSaveHeaders(orgId),
     body: JSON.stringify(buildScanSaveRequest(record, { deviceGuid, isRetry })),
+    signal: AbortSignal.timeout(SCAN_SAVE_REQUEST_TIMEOUT_MS),
   });
   await handleForbidden(res);
   await throwIfMemberSeatLimit(res);
@@ -165,6 +167,7 @@ export async function recordSortOnlyScan(
     method: "POST",
     headers: await scanSaveHeaders(orgId),
     body: JSON.stringify(request),
+    signal: AbortSignal.timeout(SCAN_SAVE_REQUEST_TIMEOUT_MS),
   });
   await handleForbidden(res);
   await throwIfMemberSeatLimit(res);
@@ -412,6 +415,7 @@ export async function addUnmatchedCard(
     method: "POST",
     headers: await scanSaveHeaders(orgId),
     body: JSON.stringify(buildScanSaveRequest(record, { deviceGuid, isRetry })),
+    signal: AbortSignal.timeout(SCAN_SAVE_REQUEST_TIMEOUT_MS),
   });
   await handleForbidden(res);
   await throwIfMemberSeatLimit(res);

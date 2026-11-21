@@ -28,29 +28,14 @@ export class PendingSaveQueue<TSave, TResult> {
     return this.inFlight.has(key);
   }
 
-  async submit(save: TSave, onStored?: () => void): Promise<TResult> {
-    const key = this.options.keyOf(save);
-    const isStored = this.options.storesBeforeFirstAttempt
-      ? await Promise.resolve()
-          .then(() => this.options.put(save))
-          .then(
-            () => true,
-            () => false,
-          )
-      : false;
-    onStored?.();
+  async submit(save: TSave): Promise<TResult> {
     try {
-      const result = await this.options.send(save, false);
-      if (isStored) await this.options.remove(key);
-      return result;
+      return await this.options.send(save, false);
     } catch (error) {
-      if (!isRetryableScanSaveError(error)) {
-        if (isStored) await this.options.remove(key);
-        throw error;
-      }
+      if (!isRetryableScanSaveError(error)) throw error;
       this.options.onRetryableFailure?.(save, error, false);
     }
-    if (!isStored) await this.options.put(save);
+    await this.options.put(save);
     return this.retryUntilSettled(save, false);
   }
 

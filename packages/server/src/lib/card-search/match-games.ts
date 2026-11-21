@@ -1,8 +1,5 @@
-import {
-  MATCH_GAME_DEFAULT_LANG,
-  MATCH_GAME_KEYS_MAX,
-  MATCH_GAME_LANG_BY_GAME_KEY,
-} from "../constants/card-search";
+import { defaultCatalogLangOf } from "@magic-vault/shared";
+import { MATCH_GAME_KEYS_MAX } from "../constants/card-search";
 import type {
   CardMatchSearchResult,
   CollectionMatchScope,
@@ -31,7 +28,7 @@ export function parseMatchGameKeys(value: unknown): string[] {
 export function matchScopeForGame(gameKey: string): CollectionMatchScope {
   return {
     gameKey,
-    lang: MATCH_GAME_LANG_BY_GAME_KEY[gameKey] ?? MATCH_GAME_DEFAULT_LANG,
+    lang: defaultCatalogLangOf(gameKey),
     matchAllLanguages: false,
   };
 }

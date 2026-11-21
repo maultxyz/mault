@@ -61,6 +61,7 @@ export interface CardCorrectionSearchProps {
 
 export interface CardCorrection {
   correct: (entry: ScannedCard, card: PlayingCard) => Promise<void>;
+  promptAfterScanStateEdit: (editedEntry: ScannedCard) => Promise<void>;
   isPending: boolean;
 }
 
