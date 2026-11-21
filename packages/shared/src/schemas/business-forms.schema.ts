@@ -1,6 +1,10 @@
 import { z } from "zod";
 import {
+  BUSINESS_PERMISSION_KEYS,
+  BUYLIST_CREDIT_BONUS_MAX,
+  BUYLIST_PERCENT_MAX,
   BUYLIST_PRICE_MAX,
+  BUYLIST_TIERS_MAX,
   INTAKE_NOTES_MAX_LENGTH,
   INTAKE_TEXT_MAX_LENGTH,
   INTAKE_TRANSFER_NEW_COLLECTION_OPTION,
@@ -15,6 +19,33 @@ export const businessMoneySchema = z
   .number({ message: formValidationMessage("amountRequired") })
   .min(0, formValidationMessage("atLeast", { min: 0 }))
   .max(BUYLIST_PRICE_MAX, formValidationMessage("atMost", { max: BUYLIST_PRICE_MAX }));
+
+const buylistPercentSchema = (max: number) =>
+  z
+    .number({ message: formValidationMessage("percentageRequired") })
+    .min(0, formValidationMessage("atLeast", { min: 0 }))
+    .max(max, formValidationMessage("atMost", { max }));
+
+export const businessSettingsDraftSchema = z.object({
+  buylist: z.object({
+    minCardValue: businessMoneySchema,
+    tiers: z
+      .array(z.object({ minPrice: businessMoneySchema, percent: buylistPercentSchema(BUYLIST_PERCENT_MAX) }))
+      .min(1, formValidationMessage("tiersRequired"))
+      .max(BUYLIST_TIERS_MAX, formValidationMessage("tooManyTiers", { max: BUYLIST_TIERS_MAX })),
+    bulkThreshold: businessMoneySchema,
+    bulkOffer: businessMoneySchema,
+    creditBonusPercent: buylistPercentSchema(BUYLIST_CREDIT_BONUS_MAX),
+  }),
+  permissions: z.object(
+    Object.fromEntries(BUSINESS_PERMISSION_KEYS.map((key) => [key, z.boolean()])) as Record<
+      (typeof BUSINESS_PERMISSION_KEYS)[number],
+      z.ZodBoolean
+    >,
+  ),
+});
+
+export type BusinessSettingsDraftValues = z.infer<typeof businessSettingsDraftSchema>;
 
 export const intakeLotSchema = z
   .object({

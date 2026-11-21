@@ -2,9 +2,9 @@ import { Button } from "@/components/ui/button";
 import { Field, FieldError, FieldLabel } from "@/components/ui/field";
 import { NumberInput } from "@/features/business/components/number-input";
 import { usePriceSource } from "@/hooks/use-price-source";
-import { BUYLIST_PREVIEW_PRICES } from "@/lib/constants/business";
 import type { BuylistSettingsProps } from "@/lib/interfaces/business";
 import {
+  BUYLIST_PREVIEW_PRICES,
   BUYLIST_TIERS_MAX,
   buylistOfferFor,
   creditOfferFor,
@@ -30,13 +30,16 @@ export function BuylistSettings({ control, disabled }: BuylistSettingsProps) {
         <p className="text-sm font-medium">{t("settings.buylist.tiers")}</p>
         <div className="divide-y divide-border">
           {fields.map((tier, index) => (
-            <div key={tier.id} className="flex items-start gap-3 px-3 py-2">
+            <div
+              key={tier.id}
+              className="flex items-end gap-2 py-2.5 first:pt-0 md:gap-3 md:px-3 md:py-2 md:first:pt-2"
+            >
               <Controller
                 control={control}
                 name={`buylist.tiers.${index}.minPrice`}
                 render={({ field, fieldState }) => (
                   <Field
-                    className="flex-1"
+                    className="min-w-0 flex-1"
                     data-invalid={fieldState.invalid || undefined}
                   >
                     <FieldLabel htmlFor={`tier-min-${tier.id}`}>
@@ -62,7 +65,7 @@ export function BuylistSettings({ control, disabled }: BuylistSettingsProps) {
                 name={`buylist.tiers.${index}.percent`}
                 render={({ field, fieldState }) => (
                   <Field
-                    className="flex-1"
+                    className="min-w-0 flex-1"
                     data-invalid={fieldState.invalid || undefined}
                   >
                     <FieldLabel htmlFor={`tier-percent-${tier.id}`}>
@@ -87,7 +90,7 @@ export function BuylistSettings({ control, disabled }: BuylistSettingsProps) {
               <Button
                 variant="ghost"
                 size="icon"
-                className="mt-5"
+                className="shrink-0"
                 aria-label={t("settings.buylist.removeTier")}
                 title={t("settings.buylist.removeTier")}
                 disabled={disabled || fields.length <= 1}

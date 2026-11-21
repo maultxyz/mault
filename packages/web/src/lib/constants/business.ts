@@ -105,7 +105,6 @@ export const PICK_IMPORT_DEFAULT_VALUES: PickImportFormValues = {
 };
 
 export const SERVICE_INTERVAL_PRESETS = [2000, 5000, 10000] as const;
-export const BUYLIST_PREVIEW_PRICES = [0.25, 2, 10, 50] as const;
 export const COST_MODES = ["spread", "each"] as const;
 
 export const STATUS_BADGE_VARIANTS: Record<

@@ -9,6 +9,7 @@ import { SHOP_PHOTO_MAX_UPLOAD_BYTES, SHOP_PHOTO_MIME_TYPES, type ShopCatalog } 
 import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
+import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { OptionSheet } from "@/components/ui/option-sheet";
@@ -22,7 +23,6 @@ import {
   uploadShopPhoto,
 } from "@/features/business/api/shop-catalogs";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
-import { SettingsPage } from "@/features/settings/components/settings-page";
 import { SettingsSection } from "@/features/settings/components/settings-section";
 import { useActiveOrg } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
@@ -30,7 +30,7 @@ import { SHOP_PHOTO_PREVIEW_HEIGHT, SHOP_PHOTO_PREVIEW_WIDTH } from "@/lib/const
 import { RADIUS, SPACING } from "@/lib/constants/theme";
 import type { SettingsNotice } from "@/lib/interfaces/settings";
 
-export default function ShopCatalogsSettingsScreen() {
+export function ShopCatalogsSettings() {
   const { t } = useTranslation();
   const colors = useTheme();
   const queryClient = useQueryClient();
@@ -138,95 +138,86 @@ export default function ShopCatalogsSettingsScreen() {
     [...catalog.collections, ...catalog.storageLocations].map((source) => source.name).join(", ") ||
     t("settings.shopCatalogs.noLiveSources");
 
+  if (!canManage) return null;
+
   return (
-    <SettingsPage
-      title={t("settings.shopCatalogs.heading")}
-      isLoading={access.isLoading || (canManage && list.isLoading)}
-      onRefresh={() => list.refetch()}
-    >
-      <AppText size="sm" tone="secondary">
-        {t("settings.shopCatalogs.description")}
-      </AppText>
+    <>
       {locked ? <Callout tone="info" title={t("settings.shopCatalogs.upgrade")} /> : null}
-      {access.data && !canManage ? <Callout tone="info" title={t("settings.shopCatalogs.managersOnly")} /> : null}
-      {list.isError || access.isError ? <Callout tone="destructive" title={t("settings.shopCatalogs.loadFailed")} /> : null}
+      {list.isError ? <Callout tone="destructive" title={t("settings.shopCatalogs.loadFailed")} /> : null}
       {notice ? <Callout tone={notice.tone} title={notice.text} /> : null}
 
-      {canManage ? (
-        <SettingsSection title={t("settings.shopCatalogs.photo.heading")}>
-          <Surface style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
-            <View
-              style={{
-                width: SHOP_PHOTO_PREVIEW_WIDTH,
-                height: SHOP_PHOTO_PREVIEW_HEIGHT,
-                borderRadius: RADIUS.md,
-                overflow: "hidden",
-                backgroundColor: colors.muted,
-              }}
-            >
-              {photo.data?.url ? (
-                <Image
-                  source={{ uri: photo.data.url }}
-                  style={{ width: "100%", height: "100%" }}
-                  contentFit="cover"
-                  accessibilityLabel={t("settings.shopCatalogs.photo.previewAlt")}
-                />
-              ) : null}
-            </View>
-            <AppText size="xs" tone="secondary" style={{ flex: 1 }}>
-              {t("settings.shopCatalogs.photo.description")}
-            </AppText>
-          </Surface>
-          {!locked ? (
-            <ListGroup>
-              <ListRow
-                icon="upload"
-                title={photo.data?.url ? t("settings.shopCatalogs.photo.replace") : t("settings.shopCatalogs.photo.upload")}
-                disabled={uploadPhoto.isPending}
-                onPress={() => void pickPhoto()}
+      <SettingsSection title={t("settings.shopCatalogs.photo.heading")}>
+        <Surface style={{ flexDirection: "row", alignItems: "center", gap: SPACING.md }}>
+          <View
+            style={{
+              width: SHOP_PHOTO_PREVIEW_WIDTH,
+              height: SHOP_PHOTO_PREVIEW_HEIGHT,
+              borderRadius: RADIUS.md,
+              overflow: "hidden",
+              backgroundColor: colors.muted,
+            }}
+          >
+            {photo.data?.url ? (
+              <Image
+                source={{ uri: photo.data.url }}
+                style={{ width: "100%", height: "100%" }}
+                contentFit="cover"
+                accessibilityLabel={t("settings.shopCatalogs.photo.previewAlt")}
               />
-              {photo.data?.url ? (
-                <ListRow
-                  icon="trash"
-                  tone="destructive"
-                  title={t("settings.shopCatalogs.photo.remove")}
-                  disabled={removePhoto.isPending}
-                  onPress={confirmRemovePhoto}
-                />
-              ) : null}
-            </ListGroup>
-          ) : null}
-        </SettingsSection>
-      ) : null}
+            ) : null}
+          </View>
+          <AppText size="xs" tone="secondary" style={{ flex: 1 }}>
+            {t("settings.shopCatalogs.photo.description")}
+          </AppText>
+        </Surface>
+        {!locked ? (
+          <ListGroup>
+            <ListRow
+              icon="upload"
+              title={photo.data?.url ? t("settings.shopCatalogs.photo.replace") : t("settings.shopCatalogs.photo.upload")}
+              disabled={uploadPhoto.isPending}
+              onPress={() => void pickPhoto()}
+            />
+            {photo.data?.url ? (
+              <ListRow
+                icon="trash"
+                tone="destructive"
+                title={t("settings.shopCatalogs.photo.remove")}
+                disabled={removePhoto.isPending}
+                onPress={confirmRemovePhoto}
+              />
+            ) : null}
+          </ListGroup>
+        ) : null}
+      </SettingsSection>
 
-      {canManage ? (
-        <SettingsSection title={t("settings.shopCatalogs.heading")}>
-          {list.data && catalogs.length === 0 ? <EmptyState icon="store" title={t("settings.shopCatalogs.empty")} /> : null}
-          {catalogs.length > 0 || !locked ? (
-            <ListGroup>
-              {catalogs.map((catalog) => (
-                <ListRow
-                  key={catalog.guid}
-                  icon="store"
-                  title={catalog.name}
-                  subtitle={[
-                    sourceSummary(catalog),
-                    catalog.isPublic ? t("settings.shopCatalogs.publicBadge") : null,
-                    catalog.showsPrices ? null : t("settings.shopCatalogs.pricesHidden"),
-                  ]
-                    .filter(Boolean)
-                    .join("\n")}
-                  subtitleNumberOfLines={3}
-                  onPress={() => showLink(catalog.guid)}
-                  onLongPress={() => setActionsFor(catalog)}
-                  longPressLabel={t("settings.shopCatalogs.actions")}
-                />
-              ))}
-              {!locked ? <ListRow icon="plus" title={t("settings.shopCatalogs.add")} onPress={() => openEditor()} /> : null}
-            </ListGroup>
-          ) : null}
-        </SettingsSection>
-      ) : null}
+      <SettingsSection title={t("settings.shopCatalogs.heading")} description={t("settings.shopCatalogs.description")}>
+        {list.isLoading ? <ListSkeleton rows={2} /> : null}
+        {list.data && catalogs.length === 0 ? <EmptyState icon="store" title={t("settings.shopCatalogs.empty")} /> : null}
+        {!list.isLoading && (catalogs.length > 0 || !locked) ? (
+          <ListGroup>
+            {catalogs.map((catalog) => (
+              <ListRow
+                key={catalog.guid}
+                icon="store"
+                title={catalog.name}
+                subtitle={[
+                  sourceSummary(catalog),
+                  catalog.isPublic ? t("settings.shopCatalogs.publicBadge") : null,
+                  catalog.showsPrices ? null : t("settings.shopCatalogs.pricesHidden"),
+                ]
+                  .filter(Boolean)
+                  .join("\n")}
+                subtitleNumberOfLines={3}
+                onPress={() => showLink(catalog.guid)}
+                onLongPress={() => setActionsFor(catalog)}
+                longPressLabel={t("settings.shopCatalogs.actions")}
+              />
+            ))}
+            {!locked ? <ListRow icon="plus" title={t("settings.shopCatalogs.add")} onPress={() => openEditor()} /> : null}
+          </ListGroup>
+        ) : null}
+      </SettingsSection>
 
       <OptionSheet
         visible={!!actionsFor}
@@ -241,6 +232,6 @@ export default function ShopCatalogsSettingsScreen() {
         onSelect={runAction}
         onClose={() => setActionsFor(null)}
       />
-    </SettingsPage>
+    </>
   );
 }

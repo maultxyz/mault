@@ -68,6 +68,16 @@ export interface NumberTextFieldProps {
   editable?: boolean;
 }
 
+export interface DecimalTextFieldProps {
+  label: string;
+  value: number | null;
+  onChange: (value: number | null) => void;
+  onBlur?: () => void;
+  error?: string;
+  placeholder?: string;
+  editable?: boolean;
+}
+
 export interface SearchInputProps {
   value: string;
   onChangeText: (value: string) => void;

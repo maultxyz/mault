@@ -16,6 +16,7 @@ import { useShopCatalogs } from "@/features/business/api/use-shop-catalogs";
 import { ShopCatalogDialog } from "@/features/business/components/shop-catalog-dialog";
 import { ShopPhotoSettings } from "@/features/business/components/shop-photo-settings";
 import { ShopCatalogLinkDialog } from "@/features/business/components/shop-catalog-link-dialog";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { ShopCatalog } from "@magic-vault/shared";
 import { IconBuildingStore, IconDots, IconPlus, IconQrcode } from "@tabler/icons-react";
 import { useState } from "react";
@@ -23,6 +24,7 @@ import { useTranslation } from "react-i18next";
 
 export function ShopCatalogsSection() {
   const { t } = useTranslation("business");
+  const isMobile = useIsMobile();
   const {
     catalogs,
     canManage,
@@ -96,14 +98,17 @@ export function ShopCatalogsSection() {
           {catalogs.map((catalog) => {
             const sources = sourceSummary(catalog);
             return (
-              <div key={catalog.guid} className="flex items-start gap-3 px-3 py-2.5 text-sm">
+              <div
+                key={catalog.guid}
+                className="flex items-center gap-3 py-2.5 text-sm first:pt-0 md:items-start md:px-3 md:first:pt-2.5"
+              >
                 <IconBuildingStore
-                  className="mt-0.5 size-4 shrink-0 text-foreground/70"
+                  className="size-4 shrink-0 text-foreground/70 md:mt-0.5"
                   aria-hidden
                 />
                 <div className="flex min-w-0 flex-1 flex-col gap-1">
-                  <div className="flex min-w-0 items-center gap-2">
-                    <p className="truncate font-medium">{catalog.name}</p>
+                  <div className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1">
+                    <p className="max-w-full truncate font-medium">{catalog.name}</p>
                     {catalog.isPublic && (
                       <Badge variant="info">{t("shopCatalogs.publicBadge")}</Badge>
                     )}
@@ -111,7 +116,7 @@ export function ShopCatalogsSection() {
                       <Badge variant="outline">{t("shopCatalogs.pricesHidden")}</Badge>
                     )}
                   </div>
-                  <p className="truncate text-xs text-foreground/70">
+                  <p className="line-clamp-2 text-xs text-foreground/70 md:line-clamp-1">
                     {sources || t("shopCatalogs.noLiveSources")}
                   </p>
                 </div>
@@ -119,10 +124,12 @@ export function ShopCatalogsSection() {
                   <Button
                     type="button"
                     variant="outline"
+                    size={isMobile ? "icon" : "default"}
+                    aria-label={isMobile ? t("shopCatalogs.showLink") : undefined}
                     onClick={() => setLinkTargetGuid(catalog.guid)}
                   >
                     <IconQrcode />
-                    {t("shopCatalogs.showLink")}
+                    {!isMobile && t("shopCatalogs.showLink")}
                   </Button>
                   <DropdownMenu>
                     <DropdownMenuTrigger

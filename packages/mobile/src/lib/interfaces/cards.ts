@@ -140,14 +140,6 @@ export interface ExportSheetProps {
   onClose: () => void;
 }
 
-export interface PricePaidFieldProps {
-  label: string;
-  placeholder: string;
-  value: number | null;
-  onChange: (value: number | null) => void;
-  error?: string;
-}
-
 export interface CardDetailPrefetchTarget {
   collectionGuid: string;
   reviewMode: boolean;

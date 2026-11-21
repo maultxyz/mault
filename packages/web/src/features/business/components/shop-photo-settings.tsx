@@ -32,23 +32,25 @@ export function ShopPhotoSettings({
   };
 
   return (
-    <div className="flex items-center gap-3 rounded-lg bg-foreground/6 p-3">
-      <div className="flex h-16 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-card">
-        {photoUrl ? (
-          <img
-            src={photoUrl}
-            alt={t("shopCatalogs.photo.previewAlt")}
-            className="size-full object-cover"
-          />
-        ) : (
-          <IconPhoto className="size-5 text-foreground/70" aria-hidden />
-        )}
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <p className="text-sm font-medium">{t("shopCatalogs.photo.heading")}</p>
-        <p id={descriptionId} className="text-xs text-foreground/70">
-          {t("shopCatalogs.photo.description")}
-        </p>
+    <div className="flex flex-col gap-3 rounded-lg bg-foreground/6 p-3 sm:flex-row sm:items-center">
+      <div className="flex min-w-0 flex-1 items-center gap-3">
+        <div className="flex h-16 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-card">
+          {photoUrl ? (
+            <img
+              src={photoUrl}
+              alt={t("shopCatalogs.photo.previewAlt")}
+              className="size-full object-cover"
+            />
+          ) : (
+            <IconPhoto className="size-5 text-foreground/70" aria-hidden />
+          )}
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <p className="text-sm font-medium">{t("shopCatalogs.photo.heading")}</p>
+          <p id={descriptionId} className="text-xs text-foreground/70">
+            {t("shopCatalogs.photo.description")}
+          </p>
+        </div>
       </div>
       {canEdit && (
         <div className="flex shrink-0 gap-1.5">
@@ -66,6 +68,7 @@ export function ShopPhotoSettings({
           />
           <Button
             variant="outline"
+            className="max-sm:flex-1"
             aria-describedby={descriptionId}
             disabled={isUploading}
             onClick={() => inputRef.current?.click()}

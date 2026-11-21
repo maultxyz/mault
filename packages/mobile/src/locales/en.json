@@ -1893,9 +1893,9 @@
         "title": "Webhooks",
         "description": "Post scan and storage events to your own server"
       },
-      "shopCatalogs": {
-        "title": "Shop catalogs",
-        "description": "Let customers browse your stock on a tablet or website"
+      "business": {
+        "title": "Business",
+        "description": "Buylist offers, member permissions and shop catalogs"
       }
     },
     "appearance": {
@@ -2350,6 +2350,49 @@
         "saveFailed": "Couldn't save the sound rule."
       }
     },
+    "business": {
+      "description": "Set your buylist offers for buying collections and choose what members can see and do.",
+      "managersOnly": "Only owners and admins can change these settings.",
+      "buylist": {
+        "heading": "Buylist offers",
+        "description": "How much you offer for each card when buying a collection. Offers use your price source and condition values.",
+        "tiers": "Price tiers",
+        "minPrice": "Market price from",
+        "percent": "Offer (% of market)",
+        "addTier": "Add tier",
+        "removeTier": "Remove tier",
+        "tiersHint": "Each card uses the highest tier its market price reaches.",
+        "bulkThreshold": "Bulk below",
+        "bulkOffer": "Bulk offer per card",
+        "creditBonus": "Store credit bonus (%)",
+        "preview": "Example offers",
+        "previewMarket": "{{price}} card",
+        "previewCredit": "{{price}} in credit",
+        "minCardValue": "Minimum card value",
+        "minCardValueHint": "Cards worth less than this aren't taken. Set 0 to take everything.",
+        "previewDeclined": "Not taken"
+      },
+      "permissions": {
+        "heading": "Member permissions",
+        "description": "What members can do. Owners and admins can always do everything.",
+        "viewCosts": {
+          "label": "See buy prices and costs",
+          "description": "Offers, cost basis and margins."
+        },
+        "acceptIntake": {
+          "label": "Accept or cancel intake lots",
+          "description": "Members can always scan into an open lot."
+        },
+        "fulfilOrders": {
+          "label": "Create and complete picks",
+          "description": "Completing a pick removes its cards from inventory."
+        },
+        "viewActivity": {
+          "label": "See staff activity",
+          "description": "Throughput per person and the activity log."
+        }
+      }
+    },
     "shopCatalogs": {
       "heading": "Shop catalogs",
       "description": "Let customers browse your stock on a store tablet or your website. Each catalog shows the cards in the collections and storage locations you pick, through a link that keeps working until you reset it.",
@@ -2387,7 +2430,6 @@
       "resetLinkConfirmTitle": "Reset this catalog's link?",
       "resetLinkConfirmDescription": "The current link and QR code stop working. Update any tablet or website that uses it.",
       "linkReset": "Link reset. The old link no longer works.",
-      "managersOnly": "Only owners and admins can manage shop catalogs.",
       "cancel": "Cancel",
       "close": "Close",
       "actions": "Catalog actions",
