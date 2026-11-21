@@ -4,6 +4,7 @@ import type {
   CollectionSummary,
   DeviceCalibrationResult,
   GameSummary,
+  LeaderboardRequest,
   LeaderboardResult,
   LinkAccountResult,
   LinkResult,
@@ -17,7 +18,11 @@ import type {
 } from "./lib/interfaces";
 import {
   BOT_API_SECRET,
+  DEFAULT_LEADERBOARD_PERIOD,
+  DEFAULT_LEADERBOARD_RANKING,
   LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM,
+  LEADERBOARD_METRIC_PARAM,
+  LEADERBOARD_PERIOD_PARAM,
   SERVER_URL,
 } from "./lib/constants";
 
@@ -93,12 +98,20 @@ export function getShowcase(
   return botFetch<ShowcaseResult>(`/bot/showcase?${query.toString()}`);
 }
 
-export function getLeaderboard(
-  guildId: string | null,
-  includeSelfHosted: boolean,
-) {
+export function getLeaderboard({
+  guildId,
+  ranking,
+  period,
+  includeSelfHosted,
+}: LeaderboardRequest) {
   const query = new URLSearchParams();
   if (guildId) query.set("guildId", guildId);
+  if (ranking !== DEFAULT_LEADERBOARD_RANKING) {
+    query.set(LEADERBOARD_METRIC_PARAM, ranking);
+  }
+  if (period !== DEFAULT_LEADERBOARD_PERIOD) {
+    query.set(LEADERBOARD_PERIOD_PARAM, period);
+  }
   if (includeSelfHosted) query.set(LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM, "true");
   const queryString = query.toString();
   return botFetch<LeaderboardResult>(

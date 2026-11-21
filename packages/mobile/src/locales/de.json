@@ -281,6 +281,14 @@
         "count": "Karten",
         "value": "Wertzuwachs"
       },
+      "periods": {
+        "label": "Zeitraum",
+        "allTime": "Gesamt",
+        "week": "Letzte Woche",
+        "month": "Letzter Monat",
+        "year": "Letztes Jahr"
+      },
+      "updatedDaily": "Die Ranglisten werden einmal am Tag aktualisiert.",
       "weekOf": "Woche vom {{date}}",
       "thisWeek": "Diese Woche",
       "today": "Heute",
@@ -344,8 +352,17 @@
     "cardCount_other": "{{count}} Karten",
     "leaderboard": {
       "title": "Bestenliste",
-      "description_one": "Die {{count}} Organisation, die mit Mault die meisten Karten gescannt hat.",
-      "description_other": "Die {{count}} Organisationen, die mit Mault die meisten Karten gescannt haben.",
+      "descriptions": {
+        "totalScans_one": "Die {{count}} Organisation, die mit Mault die meisten Karten gescannt hat.",
+        "totalScans_other": "Die {{count}} Organisationen, die mit Mault die meisten Karten gescannt haben.",
+        "cardsPerHour_one": "Die {{count}} Organisation mit der schnellsten Maschine auf dem gehosteten Mault, gemessen an ihren besten 15 Minuten und als Karten pro Stunde angegeben.",
+        "cardsPerHour_other": "Die {{count}} Organisationen mit den schnellsten Maschinen auf dem gehosteten Mault, gemessen an den besten 15 Minuten jeder Maschine und als Karten pro Stunde angegeben."
+      },
+      "metrics": {
+        "label": "Rangliste nach",
+        "totalScans": "Meiste Karten",
+        "cardsPerHour": "Karten pro Stunde"
+      },
       "error": "Die Bestenliste konnte nicht geladen werden. Versuch es gleich noch einmal.",
       "rank": "#{{rank}}",
       "you": "Du",
@@ -354,7 +371,8 @@
       "columns": {
         "rank": "Rang",
         "organization": "Organisation",
-        "scans": "Gescannte Karten"
+        "totalScans": "Gescannte Karten",
+        "cardsPerHour": "Karten pro Stunde"
       },
       "optIn": {
         "title": "Deine Organisation ist nicht in der Bestenliste",

@@ -1401,6 +1401,20 @@
       "when": 1795297629106,
       "tag": "0199_equal_titanium_man",
       "breakpoints": true
+    },
+    {
+      "idx": 200,
+      "version": "7",
+      "when": 1795304146009,
+      "tag": "0200_condemned_freak",
+      "breakpoints": true
+    },
+    {
+      "idx": 201,
+      "version": "7",
+      "when": 1795304712795,
+      "tag": "0201_lowly_gamora",
+      "breakpoints": true
     }
   ]
 }

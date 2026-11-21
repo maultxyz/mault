@@ -75,3 +75,9 @@ export interface BotRulePresetDetails {
   modeLabel: string | null;
   binLines: string[];
 }
+
+export interface BotCollectionListItem {
+  guid: string | null;
+  name: string;
+  cardCount: number;
+}

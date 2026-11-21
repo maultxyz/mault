@@ -5,9 +5,19 @@ import type {
 import { and, eq, gt, isNotNull, ne } from "drizzle-orm";
 import { db } from "../../db";
 import { discordUserLinks } from "../../db/schema";
-import { DISCORD_LINK_CODE_LENGTH } from "../constants/discord";
+import {
+  BOT_CACHE_MAX_ENTRIES,
+  BOT_LOOKUP_CACHE_TTL_MS,
+  DISCORD_LINK_CODE_LENGTH,
+} from "../constants/discord";
 import { DISCORD_LINK_CODE_TTL_MS } from "../constants/timing";
 import type { DiscordUserLinkRedemption } from "../interfaces/discord";
+import { createKeyedCache } from "../keyed-cache";
+
+const userIdByDiscordUserCache = createKeyedCache<string | null>(
+  BOT_LOOKUP_CACHE_TTL_MS,
+  BOT_CACHE_MAX_ENTRIES,
+);
 
 export async function loadDiscordUserLink(
   userId: string,
@@ -28,7 +38,15 @@ export async function loadDiscordUserLink(
   };
 }
 
-export async function findUserIdByDiscordUser(
+export function findUserIdByDiscordUser(
+  discordUserId: string,
+): Promise<string | null> {
+  return userIdByDiscordUserCache.get(discordUserId, () =>
+    loadUserIdByDiscordUser(discordUserId),
+  );
+}
+
+async function loadUserIdByDiscordUser(
   discordUserId: string,
 ): Promise<string | null> {
   const [row] = await db
@@ -85,6 +103,7 @@ export async function unlinkDiscordUser(
       updatedAt: new Date(),
     })
     .where(eq(discordUserLinks.userId, userId));
+  userIdByDiscordUserCache.clear();
   return row?.discordUserId ?? null;
 }
 
@@ -93,7 +112,7 @@ export async function redeemDiscordUserLinkCode(
   discordUserId: string,
   discordUsername: string,
 ): Promise<DiscordUserLinkRedemption | null> {
-  return db.transaction(async (tx) => {
+  const redemption = await db.transaction(async (tx) => {
     const [row] = await tx
       .select({
         userId: discordUserLinks.userId,
@@ -144,4 +163,6 @@ export async function redeemDiscordUserLinkCode(
           : null,
     };
   });
+  if (redemption) userIdByDiscordUserCache.clear();
+  return redemption;
 }

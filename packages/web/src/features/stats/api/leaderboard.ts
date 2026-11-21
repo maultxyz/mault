@@ -1,34 +1,34 @@
 import { apiGet } from "@/lib/api/client";
 import { ORG_OVERVIEW_REFRESH_MS } from "@/lib/constants/timing";
 import {
-  LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM,
+  leaderboardQueryString,
   type Leaderboard,
+  type LeaderboardQuery,
   type Result,
 } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
 
 export const leaderboardKeys = {
   root: () => ["leaderboard"] as const,
-  org: (orgId: string | undefined, includeSelfHosted: boolean) =>
-    ["leaderboard", orgId, { includeSelfHosted }] as const,
+  org: (orgId: string | undefined, query: LeaderboardQuery) =>
+    ["leaderboard", orgId, query] as const,
 };
 
 export async function loadLeaderboard(
-  includeSelfHosted: boolean,
+  query: LeaderboardQuery,
 ): Promise<Result<Leaderboard>> {
-  const query = includeSelfHosted
-    ? `?${LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM}=true`
-    : "";
-  return apiGet<Result<Leaderboard>>(`/api/leaderboard${query}`);
+  return apiGet<Result<Leaderboard>>(
+    `/api/leaderboard${leaderboardQueryString(query)}`,
+  );
 }
 
 export const leaderboardQueryOptions = (
   orgId: string | undefined,
-  includeSelfHosted: boolean,
+  query: LeaderboardQuery,
 ) =>
   queryOptions({
-    queryKey: leaderboardKeys.org(orgId, includeSelfHosted),
-    queryFn: () => loadLeaderboard(includeSelfHosted).then((r) => r.data ?? null),
+    queryKey: leaderboardKeys.org(orgId, query),
+    queryFn: () => loadLeaderboard(query).then((r) => r.data ?? null),
     enabled: !!orgId,
     staleTime: ORG_OVERVIEW_REFRESH_MS,
   });

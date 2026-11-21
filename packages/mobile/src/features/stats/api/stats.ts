@@ -1,8 +1,9 @@
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 import {
-  LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM,
+  leaderboardQueryString,
   STORED_STATS_REFRESHING_POLL_MS,
   type Leaderboard,
+  type LeaderboardQuery,
   type Result,
   type StatsRange,
   type StatsReport,
@@ -25,15 +26,10 @@ export const statsQueryOptions = (orgId: string | null, range: StatsRange, colle
     placeholderData: keepPreviousData,
   });
 
-export const leaderboardQueryOptions = (orgId: string | null, includeSelfHosted: boolean) =>
+export const leaderboardQueryOptions = (orgId: string | null, query: LeaderboardQuery) =>
   queryOptions({
-    queryKey: ["leaderboard", orgId, { includeSelfHosted }] as const,
-    queryFn: () =>
-      unwrap(
-        apiGet<Result<Leaderboard>>(
-          includeSelfHosted ? `/api/leaderboard?${LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM}=true` : "/api/leaderboard",
-        ),
-      ),
+    queryKey: ["leaderboard", orgId, query] as const,
+    queryFn: () => unwrap(apiGet<Result<Leaderboard>>(`/api/leaderboard${leaderboardQueryString(query)}`)),
     enabled: !!orgId,
     staleTime: STATS_STALE_MS,
     placeholderData: keepPreviousData,

@@ -1875,11 +1875,15 @@ export const scanStats = pgTable(
     isCorrected: boolean("is_corrected").notNull().default(false),
     vectorizedOn: text("vectorized_on"),
     scannedByUserId: text("scanned_by_user_id"),
+    deviceGuid: text("device_guid"),
     scannedAt: timestamp("scanned_at").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
     index("scan_stats_org_scanned_idx").on(table.orgId, table.scannedAt),
+    index("scan_stats_org_device_scanned_idx")
+      .on(table.orgId, table.deviceGuid, table.scannedAt)
+      .where(sql`${table.deviceGuid} IS NOT NULL`),
     index("scan_stats_created_idx").on(table.createdAt),
     index("scan_stats_org_user_scanned_idx").on(
       table.orgId,
@@ -1888,6 +1892,14 @@ export const scanStats = pgTable(
     ),
   ],
 );
+
+export const leaderboardSnapshots = pgTable("leaderboard_snapshots", {
+  variant: text("variant").primaryKey(),
+  day: text("day").notNull(),
+  payload: jsonb("payload").notNull(),
+  computedAt: timestamp("computed_at", { withTimezone: true }).notNull(),
+  computeDurationMs: integer("compute_duration_ms").notNull(),
+}).enableRLS();
 
 export const statsSyncKeys = pgTable(
   "stats_sync_keys",

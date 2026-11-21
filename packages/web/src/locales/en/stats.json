@@ -50,6 +50,14 @@
       "count": "Cards",
       "value": "Value added"
     },
+    "periods": {
+      "label": "Time period",
+      "allTime": "All time",
+      "week": "Past week",
+      "month": "Past month",
+      "year": "Past year"
+    },
+    "updatedDaily": "Rankings update once a day.",
     "weekOf": "Week of {{date}}",
     "thisWeek": "This week",
     "today": "Today"
@@ -108,8 +116,17 @@
   "cardCount_other": "{{count}} cards",
   "leaderboard": {
     "title": "Leaderboard",
-    "description_one": "The {{count}} organization that has scanned the most cards with Mault.",
-    "description_other": "The {{count}} organizations that have scanned the most cards with Mault.",
+    "descriptions": {
+      "totalScans_one": "The {{count}} organization that has scanned the most cards with Mault.",
+      "totalScans_other": "The {{count}} organizations that have scanned the most cards with Mault.",
+      "cardsPerHour_one": "The {{count}} organization with the fastest machine on hosted Mault, from its best 15 minutes of scanning, shown as cards per hour.",
+      "cardsPerHour_other": "The {{count}} organizations with the fastest machines on hosted Mault, from each machine's best 15 minutes of scanning, shown as cards per hour."
+    },
+    "metrics": {
+      "label": "Rank by",
+      "totalScans": "Most cards",
+      "cardsPerHour": "Cards per hour"
+    },
     "error": "Couldn't load the leaderboard. Try again in a moment.",
     "rank": "#{{rank}}",
     "you": "You",
@@ -119,7 +136,8 @@
     "columns": {
       "rank": "Rank",
       "organization": "Organization",
-      "scans": "Cards scanned"
+      "totalScans": "Cards scanned",
+      "cardsPerHour": "Cards per hour"
     },
     "optIn": {
       "title": "Your organization is ranked anonymously",

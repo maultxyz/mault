@@ -281,6 +281,14 @@
         "count": "Cartes",
         "value": "Valeur ajoutée"
       },
+      "periods": {
+        "label": "Période",
+        "allTime": "Depuis le début",
+        "week": "Dernière semaine",
+        "month": "Dernier mois",
+        "year": "Dernière année"
+      },
+      "updatedDaily": "Le classement est mis à jour une fois par jour.",
       "weekOf": "Semaine du {{date}}",
       "thisWeek": "Cette semaine",
       "today": "Aujourd'hui",
@@ -344,8 +352,17 @@
     "cardCount_other": "{{count}} cartes",
     "leaderboard": {
       "title": "Classement",
-      "description_one": "La {{count}} organisation qui a scanné le plus de cartes avec Mault.",
-      "description_other": "Les {{count}} organisations qui ont scanné le plus de cartes avec Mault.",
+      "descriptions": {
+        "totalScans_one": "La {{count}} organisation qui a scanné le plus de cartes avec Mault.",
+        "totalScans_other": "Les {{count}} organisations qui ont scanné le plus de cartes avec Mault.",
+        "cardsPerHour_one": "L'organisation dont la machine est la plus rapide sur Mault hébergé, d'après ses 15 meilleures minutes de scan, exprimé en cartes par heure.",
+        "cardsPerHour_other": "Les {{count}} organisations dont les machines sont les plus rapides sur Mault hébergé, d'après les 15 meilleures minutes de chaque machine, exprimé en cartes par heure."
+      },
+      "metrics": {
+        "label": "Classer par",
+        "totalScans": "Le plus de cartes",
+        "cardsPerHour": "Cartes par heure"
+      },
       "error": "Impossible de charger le classement. Réessayez dans un instant.",
       "rank": "#{{rank}}",
       "you": "Vous",
@@ -354,7 +371,8 @@
       "columns": {
         "rank": "Rang",
         "organization": "Organisation",
-        "scans": "Cartes scannées"
+        "totalScans": "Cartes scannées",
+        "cardsPerHour": "Cartes par heure"
       },
       "optIn": {
         "title": "Votre organisation n'apparaît pas dans le classement",

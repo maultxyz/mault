@@ -12,11 +12,29 @@ import {
   collectionCardPricesJoinOn,
 } from "./card-price-sql";
 import { resolveImageUrl } from "./discord";
+import { BOT_CACHE_MAX_ENTRIES, BOT_STATS_CACHE_TTL_MS } from "./constants/discord";
 import type { BotCollectionStats } from "./interfaces/bot";
+import { createOrgReadCache } from "./org-read-cache";
 import { loadOrgPricing } from "./price-source";
 import { hydrateSavedCards } from "./saved-cards";
 
-export async function loadBotCollectionStats(
+const botCollectionStatsCache = createOrgReadCache<BotCollectionStats>(
+  BOT_STATS_CACHE_TTL_MS,
+  BOT_CACHE_MAX_ENTRIES,
+);
+
+export function loadBotCollectionStats(
+  orgId: string,
+  collection: { id: number; name: string } | null,
+): Promise<BotCollectionStats> {
+  return botCollectionStatsCache.get(
+    orgId,
+    collection ? `collection:${collection.id}` : "allCollections",
+    () => computeBotCollectionStats(orgId, collection),
+  );
+}
+
+async function computeBotCollectionStats(
   orgId: string,
   collection: { id: number; name: string } | null,
 ): Promise<BotCollectionStats> {

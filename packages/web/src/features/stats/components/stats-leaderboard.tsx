@@ -1,5 +1,17 @@
-import { buildLeaderboardRows } from "@magic-vault/shared";
+import {
+  buildLeaderboardRows,
+  DEFAULT_LEADERBOARD_METRIC,
+  DEFAULT_LEADERBOARD_PERIOD,
+  LEADERBOARD_METRICS,
+  LEADERBOARD_PERIODS,
+  LEADERBOARD_SIZE,
+  leaderboardMetricCountsSelfHosted,
+  type LeaderboardMetric,
+  type LeaderboardPeriod,
+} from "@magic-vault/shared";
 import { Callout } from "@/components/callout";
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
+import { ViewTabs } from "@/components/view-tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -18,33 +30,73 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { leaderboardQueryOptions } from "@/features/stats/api/leaderboard";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
-import type { StatsLeaderboardButtonProps } from "@/lib/interfaces/stats";
+import type {
+  StatsLeaderboardButtonProps,
+  StatsLeaderboardContentProps,
+} from "@/lib/interfaces/stats";
 import { MOBILE_ICON_BUTTON_CLASS } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
-import { LEADERBOARD_SIZE } from "@magic-vault/shared";
 import { IconAlertTriangle, IconTrophy } from "@tabler/icons-react";
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-function StatsLeaderboardContent() {
+function StatsLeaderboardContent({
+  metric,
+  onMetricChange,
+}: StatsLeaderboardContentProps) {
   const { t, i18n } = useTranslation("stats");
   const { activeOrg } = useOrg();
   const numberFormat = new Intl.NumberFormat(i18n.language);
+  const [period, setPeriod] = useState<LeaderboardPeriod>(
+    DEFAULT_LEADERBOARD_PERIOD,
+  );
   const [hideSelfHosted, setHideSelfHosted] = useState(false);
+  const canIncludeSelfHosted =
+    AUTH_PROVIDER !== "local" && leaderboardMetricCountsSelfHosted(metric);
   const {
     data: leaderboard,
     isLoading,
     isError,
     refetch,
   } = useQuery({
-    ...leaderboardQueryOptions(
-      activeOrg?.id,
-      AUTH_PROVIDER !== "local" && !hideSelfHosted,
-    ),
+    ...leaderboardQueryOptions(activeOrg?.id, {
+      metric,
+      period,
+      includeSelfHosted: canIncludeSelfHosted && !hideSelfHosted,
+    }),
     placeholderData: keepPreviousData,
   });
+
+  const metricTabs = (
+    <ViewTabs
+      label={t("leaderboard.metrics.label")}
+      value={metric}
+      onChange={onMetricChange}
+      items={LEADERBOARD_METRICS.map((key) => ({
+        key,
+        label: t(`leaderboard.metrics.${key}`),
+      }))}
+    />
+  );
+
+  const periodPicker = (
+    <div className="flex flex-col gap-1">
+      <ResponsiveSegmented
+        label={t("leaderboard.periods.label")}
+        value={period}
+        onChange={setPeriod}
+        items={LEADERBOARD_PERIODS.map((key) => ({
+          key,
+          label: t(`leaderboard.periods.${key}`),
+        }))}
+      />
+      <span className="text-xs text-foreground/70">
+        {t("leaderboard.updatedDaily")}
+      </span>
+    </div>
+  );
 
   const selfHostedToggle = (
     <div className="flex items-center justify-between gap-3 rounded-lg bg-foreground/6 px-3 py-2">
@@ -64,7 +116,7 @@ function StatsLeaderboardContent() {
     </div>
   );
 
-  return isError ? (
+  const body = isError ? (
     <Callout
       variant="error"
       icon={IconAlertTriangle}
@@ -83,8 +135,7 @@ function StatsLeaderboardContent() {
       ))}
     </div>
   ) : (
-    <div className="flex min-h-0 flex-col gap-3 overflow-y-auto">
-      {AUTH_PROVIDER !== "local" && selfHostedToggle}
+    <>
       {!leaderboard.optedIn && (
         <Callout
           variant="info"
@@ -113,7 +164,7 @@ function StatsLeaderboardContent() {
               {t("leaderboard.columns.organization")}
             </TableHead>
             <TableHead className="text-right text-xs">
-              {t("leaderboard.columns.scans")}
+              {t(`leaderboard.columns.${metric}`)}
             </TableHead>
           </TableRow>
         </TableHeader>
@@ -121,14 +172,22 @@ function StatsLeaderboardContent() {
           {buildLeaderboardRows(leaderboard).map(({ key, entry }) => (
             <TableRow
               key={key}
-              className={cn(entry.isOwnOrg && "bg-foreground/6 hover:bg-foreground/6")}
+              className={cn(
+                entry.isOwnOrg &&
+                  "bg-primary/10 text-primary hover:bg-primary/10 dark:bg-primary/20 dark:hover:bg-primary/20",
+              )}
             >
               <TableCell className="text-sm font-medium tabular-nums">
                 {t("leaderboard.rank", { rank: entry.rank })}
               </TableCell>
               <TableCell className="max-w-56 text-sm">
                 <span className="flex min-w-0 items-center gap-2">
-                  <span className="truncate font-medium text-foreground">
+                  <span
+                    className={cn(
+                      "truncate font-medium",
+                      entry.isOwnOrg ? "text-primary" : "text-foreground",
+                    )}
+                  >
                     {entry.name ??
                       (entry.isAnonymous
                         ? t("leaderboard.anonymousOrg")
@@ -156,6 +215,15 @@ function StatsLeaderboardContent() {
           ))}
         </TableBody>
       </Table>
+    </>
+  );
+
+  return (
+    <div className="flex min-h-0 flex-col gap-3 overflow-y-auto">
+      {metricTabs}
+      {periodPicker}
+      {canIncludeSelfHosted && selfHostedToggle}
+      {body}
     </div>
   );
 }
@@ -164,11 +232,16 @@ export function StatsLeaderboardButton({
   iconOnly,
 }: StatsLeaderboardButtonProps) {
   const { t } = useTranslation("stats");
+  const [metric, setMetric] = useState<LeaderboardMetric>(
+    DEFAULT_LEADERBOARD_METRIC,
+  );
 
   return (
     <DynamicDialog
       title={t("leaderboard.title")}
-      description={t("leaderboard.description", { count: LEADERBOARD_SIZE })}
+      description={t(`leaderboard.descriptions.${metric}`, {
+        count: LEADERBOARD_SIZE,
+      })}
       className="max-h-[85vh] sm:max-w-lg"
       trigger={
         <Button
@@ -182,7 +255,7 @@ export function StatsLeaderboardButton({
         </Button>
       }
     >
-      <StatsLeaderboardContent />
+      <StatsLeaderboardContent metric={metric} onMetricChange={setMetric} />
     </DynamicDialog>
   );
 }
