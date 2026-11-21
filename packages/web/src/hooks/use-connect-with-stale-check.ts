@@ -21,13 +21,17 @@ export function useConnectWithStaleCheck() {
   }, [device?.updatedAt]);
 
   const guardedConnect = useCallback(
-    (kind: PendingConnectKind, deviceGuid?: string) => {
+    (
+      kind: PendingConnectKind,
+      deviceGuid?: string,
+      bluetoothDevice?: BluetoothDevice,
+    ) => {
       const connectFn = (options?: { skipAutoTest?: boolean }) =>
         kind === "cloud" && deviceGuid
           ? connectCloud(deviceGuid, options)
           : kind === "usb"
             ? connect(options)
-            : connectBluetooth(options);
+            : connectBluetooth({ ...options, bluetoothDevice });
       if (isStale) {
         setPending(kind);
         void connectFn({ skipAutoTest: true });
@@ -52,7 +56,8 @@ export function useConnectWithStaleCheck() {
 
   return {
     connect: () => guardedConnect("usb"),
-    connectBluetooth: () => guardedConnect("bluetooth"),
+    connectBluetooth: (bluetoothDevice?: BluetoothDevice) =>
+      guardedConnect("bluetooth", undefined, bluetoothDevice),
     connectCloud: (deviceGuid: string) => guardedConnect("cloud", deviceGuid),
     staleDialogOpen: pending !== null,
     onDismissStaleDialog: () => setPending(null),

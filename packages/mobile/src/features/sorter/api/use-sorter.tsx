@@ -1,4 +1,4 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
   useCallback,
@@ -35,9 +35,14 @@ import {
   STORE_CONFIG_TIMEOUT_MS,
   RETRACT_CARD_TIMEOUT_MS,
   retractCardOutcome,
+  recentSortersWithCurrentNames,
+  rememberRecentSorter,
+  syncSorterBluetoothName,
+  type RecentSorter,
 } from "@magic-vault/shared";
 import {
   acquireDeviceLease,
+  devicesQueryOptions,
   fetchFeederConfig,
   fetchModuleConfigs,
   releaseDeviceLease,
@@ -57,7 +62,11 @@ import {
   AUTO_RECONNECT_INTERVAL_MS,
   CLOUD_SORTER_ID_PREFIX,
 } from "@/lib/constants/sorter";
-import { LAST_SORTER_ID_KEY, SORTER_AUTO_CONNECT_KEY } from "@/lib/constants/storage-keys";
+import {
+  LAST_SORTER_ID_KEY,
+  RECENT_SORTERS_KEY_PREFIX,
+  SORTER_AUTO_CONNECT_KEY,
+} from "@/lib/constants/storage-keys";
 import type { Device } from "@magic-vault/shared";
 import type {
   ByteTransport,
@@ -71,7 +80,7 @@ import type {
   SorterStatusReply,
   TestOutcome,
 } from "@/lib/interfaces/sorter";
-import { readKv, writeKv } from "@/lib/storage/kv";
+import { readKv, readKvJson, writeKv, writeKvJson } from "@/lib/storage/kv";
 import { useSession } from "@/lib/auth/session";
 
 const SorterContext = createContext<SorterContextValue | null>(null);
@@ -106,6 +115,9 @@ export function SorterProvider({ children }: { children: ReactNode }) {
   const [sensorNote, setSensorNote] = useState<SensorNote | null>(null);
   const [clearingSensor, setClearingSensor] = useState(false);
   const [discovered, setDiscovered] = useState<DiscoveredSorter[]>([]);
+  const [storedRecentSorters, setStoredRecentSorters] = useState<RecentSorter[]>([]);
+  const { data: orgDevices } = useQuery(devicesQueryOptions(orgId));
+  const advertisedNameRef = useRef<string | null>(null);
   const [device, setDevice] = useState<Device | null>(null);
   const [firmwareVersion, setFirmwareVersion] = useState<string | null>(null);
   const [board, setBoard] = useState<string | null>(null);
@@ -143,6 +155,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
     deviceRef.current = null;
     uptimeRef.current = null;
     versionRef.current = null;
+    advertisedNameRef.current = null;
     setDevice(null);
     setFirmwareVersion(null);
     setBoard(null);
@@ -313,6 +326,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
         versionRef.current = status.version ?? null;
         setBoard(status.board ?? null);
         uptimeRef.current = statusUptimeMs(status);
+        advertisedNameRef.current = status.name ?? null;
 
         let bound: Device;
         try {
@@ -333,10 +347,32 @@ export function SorterProvider({ children }: { children: ReactNode }) {
           void releaseDeviceLease(bound.guid);
           return;
         }
+        const advertisedName = await syncSorterBluetoothName(
+          link,
+          status.version,
+          advertisedNameRef.current,
+          bound.name,
+        );
+        if (stale()) {
+          void releaseDeviceLease(bound.guid);
+          return;
+        }
+        if (advertisedName) advertisedNameRef.current = advertisedName;
         deviceRef.current = bound;
         setDevice(bound);
         writeKv(SORTER_AUTO_CONNECT_KEY, bound.autoConnect ? "1" : null);
         void queryClient.invalidateQueries({ queryKey: ["devices"] });
+        if (orgId && !id.startsWith(CLOUD_SORTER_ID_PREFIX)) {
+          const key = `${RECENT_SORTERS_KEY_PREFIX}${orgId}`;
+          const nextRecent = rememberRecentSorter(readKvJson<RecentSorter[]>(key, []), {
+            id,
+            deviceGuid: bound.guid,
+            name: bound.name,
+            connectedAt: new Date().toISOString(),
+          });
+          writeKvJson(key, nextRecent);
+          setStoredRecentSorters(nextRecent);
+        }
 
         link.onBootBanner = (banner) => {
           if (!link.hasTaggedReplies) return false;
@@ -372,7 +408,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
         fail({ code: "connect-failed", detail: err instanceof Error ? err.message : undefined });
       }
     },
-    [fail, identify, queryClient, runSelfTest, scheduleReconnect, stopDiscovery, syncCalibration, teardown],
+    [fail, identify, orgId, queryClient, runSelfTest, scheduleReconnect, stopDiscovery, syncCalibration, teardown],
   );
   connectRef.current = connect;
 
@@ -588,6 +624,28 @@ export function SorterProvider({ children }: { children: ReactNode }) {
     }
   }, [clearingSensor, fail, runSelfTest]);
 
+  useEffect(() => {
+    setStoredRecentSorters(
+      orgId ? readKvJson<RecentSorter[]>(`${RECENT_SORTERS_KEY_PREFIX}${orgId}`, []) : [],
+    );
+  }, [orgId]);
+
+  const recentSorters = useMemo(
+    () => recentSortersWithCurrentNames(storedRecentSorters, orgDevices),
+    [storedRecentSorters, orgDevices],
+  );
+
+  const connectedDeviceName = orgDevices?.find((orgDevice) => orgDevice.guid === device?.guid)?.name;
+
+  useEffect(() => {
+    if (!connectedDeviceName || !firmwareVersion) return;
+    void syncSorterBluetoothName(link, firmwareVersion, advertisedNameRef.current, connectedDeviceName).then(
+      (advertisedName) => {
+        if (advertisedName) advertisedNameRef.current = advertisedName;
+      },
+    );
+  }, [connectedDeviceName, firmwareVersion]);
+
   const value = useMemo<SorterContextValue>(
     () => ({
       phase,
@@ -599,6 +657,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       dropBlockedCard,
       markSensorCleared,
       discovered,
+      recentSorters,
       device,
       firmwareVersion,
       board,
@@ -634,6 +693,7 @@ export function SorterProvider({ children }: { children: ReactNode }) {
       dropBlockedCard,
       markSensorCleared,
       discovered,
+      recentSorters,
       device,
       firmwareVersion,
       board,

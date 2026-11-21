@@ -67,6 +67,7 @@
     "piBusy": "Der USB-Anschluss am Pi wird schon verwendet. Trenne ihn im anderen Browser oder stoppe den Scan auf dem Pi und versuche es erneut.",
     "piScanBusy": "Auf dem Pi läuft ein Scan, deshalb kann dieser Browser den Sorter nicht übernehmen. Stoppe zuerst den Scan.",
     "bluetoothPermissionBlocked": "Die Bluetooth-Berechtigung ist für diesen Browser blockiert. Überprüfe die Website-Einstellungen deines Browsers (oder chrome://settings/content/bluetoothDevices), um Bluetooth zuzulassen, und versuche es erneut.",
+    "recentSorterUnreachable": "Stelle sicher, dass der Sortierer eingeschaltet und in der Nähe ist, und versuche es erneut.",
     "connectionLost": {
       "title": "Verbindung getrennt",
       "description": "Der Sortierer hat die Verbindung unerwartet getrennt. Falls du über USB verbunden bist, stelle sicher, dass keine andere Anwendung (z. B. der serielle Monitor der Arduino IDE) den Port verwendet, und verbinde dich erneut."
@@ -695,7 +696,7 @@
       "renameFailed": "Der Sortierer konnte nicht umbenannt werden",
       "renameDialog": {
         "title": "Sortierer umbenennen",
-        "description": "Der Name erscheint in den Sortierer-Tabs und auf dieser Seite.",
+        "description": "Der Name erscheint in den Sortierer-Tabs, auf dieser Seite und in Bluetooth-Gerätelisten, sobald der Sortierer mit Firmware 2.14.0 oder neuer verbunden ist.",
         "nameLabel": "Name",
         "submit": "Speichern"
       },
@@ -1030,6 +1031,10 @@
       "rejected": "Abgelehnt, WLAN erneut einrichten"
     },
     "pausedForPower": "Der Sortierer ist beim Start des WLANs wegen Spannungseinbrüchen immer wieder neu gestartet. Daher ist WLAN pausiert, USB und Bluetooth funktionieren weiter. Nutze ein stärkeres Netzteil oder versorge die Servos separat, trenne den Sortierer dann kurz vom Strom oder speichere das WLAN erneut, um es noch einmal zu versuchen."
+  },
+  "recentSorters": {
+    "title": "Zuletzt verbundene Sortierer",
+    "connected": "Verbunden"
   },
   "wifiConnect": {
     "item": "WLAN: {{name}}",

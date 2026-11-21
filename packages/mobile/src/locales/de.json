@@ -515,6 +515,7 @@
     "firmware": "Firmware {{version}} auf {{board}}",
     "findSorters": "Sortierer suchen",
     "stopSearching": "Suche beenden",
+    "recent": "Zuletzt verbundene Sortierer",
     "nearby": "Sortierer in der Nähe",
     "searching": "Suche nach Sortierern",
     "noneFound": "Keine Sortierer gefunden",

@@ -515,6 +515,7 @@
     "firmware": "Firmware {{version}} sur {{board}}",
     "findSorters": "Rechercher des trieurs",
     "stopSearching": "Arrêter la recherche",
+    "recent": "Trieurs récents",
     "nearby": "Trieurs à proximité",
     "searching": "Recherche de trieurs",
     "noneFound": "Aucun trieur trouvé",

@@ -1,6 +1,9 @@
 export const MAX_CONNECTED_SORTERS = 3;
 
 export const DEVICE_NAME_MAX_LENGTH = 50;
+export const SORTER_BLUETOOTH_NAME_MAX_BYTES = 29;
+export const SORTER_NAME_UNSAFE_CHARACTERS = /["\\\u0000-\u001f\u007f-\u009f]/g;
+export const RECENT_SORTERS_MAX = 5;
 
 export const STORAGE_LOCATION_NAME_MAX_LENGTH = 50;
 export const STORAGE_LOCATION_CAPACITY_MAX = 100_000;

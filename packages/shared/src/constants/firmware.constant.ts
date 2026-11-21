@@ -33,6 +33,7 @@ export const FIRMWARE_FEATURE_MIN_VERSIONS: Record<FirmwareFeature, string> = {
   emergencyStop: "2.13.2",
   ledStrips: "2.13.0",
   sensorCheckedCommands: "2.13.4",
+  sorterName: "2.14.0",
 };
 
 export const PI_CONTROLLER_VERSIONS: readonly string[] = [
@@ -74,6 +75,7 @@ export function isFirmwareFeatureSupported(
       feature !== "wifiRemote" &&
       feature !== "retractCard" &&
       feature !== "ledStrips" &&
+      feature !== "sorterName" &&
       !isFirmwareVersionOutdated(
         version,
         PI_CONTROLLER_FEATURE_MIN_VERSIONS[feature] ?? PI_CONTROLLER_VERSIONS[0],

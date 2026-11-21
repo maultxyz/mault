@@ -30,7 +30,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.13.2"
+#define FIRMWARE_VERSION "2.14.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -124,6 +124,24 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(SERVO_DRIVER_I2C_ADDR);
 //     generated ID to EEPROM/data flash - the only board with nothing
 //     factory-unique to read.
 char deviceId[7] = "";
+
+// Name the sorter advertises over BLE and reports in getStatus, set by
+// {"setName": ...} so a renamed sorter is easy to find in a Bluetooth picker.
+// Empty means the default "Mault Sorter <id>". 29 bytes fills a scan
+// response (31 bytes minus the 2-byte AD header), where both BLE backends
+// put the name. Persisted in NVS on ESP32 and EEPROM elsewhere (see
+// loadSorterName()).
+#define SORTER_NAME_MAX_BYTES 29
+char sorterName[SORTER_NAME_MAX_BYTES + 1] = "";
+
+void formatAdvertisedName(char* out, size_t size) {
+  if (sorterName[0] != '\0') {
+    strncpy(out, sorterName, size - 1);
+    out[size - 1] = '\0';
+  } else {
+    snprintf(out, size, "Mault Sorter %s", deviceId);
+  }
+}
 
 // Formats a colon-separated MAC string ("aa:bb:cc:dd:ee:ff") into deviceId as
 // its last 6 hex characters, uppercased and with colons stripped - plenty of
@@ -662,6 +680,55 @@ bool persistConfig() {
   return true;
 }
 
+#if defined(ARDUINO_ARCH_ESP32)
+// NVS rather than the emulated EEPROM, whose fixed EEPROM_SIZE ends right
+// after StoredConfig.
+#define SORTER_NAME_PREFS_NAMESPACE "sorter"
+#define SORTER_NAME_PREFS_KEY "name"
+
+void loadSorterName() {
+  Preferences prefs;
+  if (!prefs.begin(SORTER_NAME_PREFS_NAMESPACE, true)) return;
+  if (prefs.isKey(SORTER_NAME_PREFS_KEY)) {
+    prefs.getString(SORTER_NAME_PREFS_KEY, sorterName, sizeof(sorterName));
+  }
+  prefs.end();
+}
+
+void storeSorterName() {
+  Preferences prefs;
+  if (!prefs.begin(SORTER_NAME_PREFS_NAMESPACE, false)) return;
+  if (sorterName[0] == '\0') {
+    prefs.remove(SORTER_NAME_PREFS_KEY);
+  } else {
+    prefs.putString(SORTER_NAME_PREFS_KEY, sorterName);
+  }
+  prefs.end();
+}
+#else
+// Past the Uno R4 WiFi's cloud settings (512 plus their 332 bytes), inside
+// the 8 KB the Renesas core emulates.
+#define SORTER_NAME_EEPROM_ADDR 1024
+#define SORTER_NAME_EEPROM_MAGIC 0xD5
+
+void loadSorterName() {
+  if (EEPROM.read(SORTER_NAME_EEPROM_ADDR) != SORTER_NAME_EEPROM_MAGIC) return;
+  for (int i = 0; i <= SORTER_NAME_MAX_BYTES; i++) {
+    sorterName[i] = (char)EEPROM.read(SORTER_NAME_EEPROM_ADDR + 1 + i);
+  }
+  sorterName[SORTER_NAME_MAX_BYTES] = '\0';
+}
+
+void storeSorterName() {
+  writeEepromByte(SORTER_NAME_EEPROM_ADDR, 0);
+  for (int i = 0; i <= SORTER_NAME_MAX_BYTES; i++) {
+    writeEepromByte(SORTER_NAME_EEPROM_ADDR + 1 + i, (uint8_t)sorterName[i]);
+    feedWatchdog();
+  }
+  writeEepromByte(SORTER_NAME_EEPROM_ADDR, SORTER_NAME_EEPROM_MAGIC);
+}
+#endif
+
 void printStoredModule(int module, Print& reply) {
   reply.print(F("{\"status\":\"ok\",\"module\":"));
   reply.print(module);
@@ -692,7 +759,7 @@ void printStoredFeeder(Print& reply) {
 #define DELAY_PUSHER_HOLD  150
 
 #define MAX_CMD_LEN 255
-#define MAX_REPLY_LEN 320
+#define MAX_REPLY_LEN 384
 
 // One InputState per transport - a command's response must go back out the
 // same transport it arrived on (the protocol has no request IDs; a client
@@ -1609,6 +1676,10 @@ void printStatus(Print& reply, bool live) {
   reply.print(F("{\"status\":\"ready\",\"version\":\"" FIRMWARE_VERSION
                 "\",\"board\":\"" BOARD_TYPE "\",\"id\":\""));
   reply.print(deviceId);
+  char advertisedName[SORTER_NAME_MAX_BYTES + 1];
+  formatAdvertisedName(advertisedName, sizeof(advertisedName));
+  reply.print(F("\",\"name\":\""));
+  printJsonEscaped(advertisedName, reply);
   reply.print(F("\",\"ble\":\""));
   reply.print(bleStatus());
   reply.print(F("\",\"resetReason\":\""));
@@ -1674,6 +1745,29 @@ void runCommand(JsonDocument& doc, Print& reply) {
 #endif
 
   if (handleLedCommand(doc, reply)) return;
+
+  // {"setName": "Kitchen sorter"} - see PROTOCOL.md. An empty name goes back
+  // to the default "Mault Sorter <id>".
+  if (doc["setName"].is<const char*>()) {
+    const char* name = doc["setName"].as<const char*>();
+    if (strlen(name) > SORTER_NAME_MAX_BYTES) {
+      reply.println(F("{\"error\":\"name must be up to 29 bytes\"}"));
+      return;
+    }
+    if (strcmp(name, sorterName) != 0) {
+      strcpy(sorterName, name);
+      storeSorterName();
+#if BLE_SUPPORTED
+      bleUpdateName();
+#endif
+    }
+    char advertisedName[SORTER_NAME_MAX_BYTES + 1];
+    formatAdvertisedName(advertisedName, sizeof(advertisedName));
+    reply.print(F("{\"status\":\"ok\",\"name\":\""));
+    printJsonEscaped(advertisedName, reply);
+    reply.println(F("\"}"));
+    return;
+  }
 
   // {"setChannelOffset": N} — see channel layout comment near the top.
   if (doc["setChannelOffset"].is<int>()) {
@@ -2025,6 +2119,7 @@ void setup() {
   }
   beginEeprom();
   loadStoredConfig();
+  loadSorterName();
 
   // All MAX_MODULES pins are set up regardless of the eventual offset/module
   // count - harmless, and the app hasn't told us the offset yet.

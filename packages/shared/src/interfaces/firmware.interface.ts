@@ -11,7 +11,8 @@ export type FirmwareFeature =
   | "pusherNudge"
   | "emergencyStop"
   | "ledStrips"
-  | "sensorCheckedCommands";
+  | "sensorCheckedCommands"
+  | "sorterName";
 
 export type RetractCardOutcome = "retracted" | "rollback_off" | "failed";
 

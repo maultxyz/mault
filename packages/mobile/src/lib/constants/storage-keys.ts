@@ -4,6 +4,7 @@ export const ACTIVE_ORG_KEY = "mault.active-org";
 export const SESSION_PROFILE_KEY = "mault.session-profile";
 export const QUERY_CACHE_SNAPSHOT_KEY = "mault.query-cache-snapshot";
 export const LAST_SORTER_ID_KEY = "mault.last-sorter-id";
+export const RECENT_SORTERS_KEY_PREFIX = "mault.recent-sorters.";
 export const PENDING_SCAN_SAVES_KEY = "mault.pending-scan-saves";
 export const MODEL_CACHE_DIR = "vision-models";
 export const MODEL_DOWNLOAD_FILE_SUFFIX = ".download";

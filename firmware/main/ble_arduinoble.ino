@@ -37,6 +37,22 @@ bool bleAvailable = false;
 // False when Wi-Fi owns the co-processor this boot (see cloud_wifis3.ino), so
 // bleInit() never ran.
 bool bleStarted = false;
+// ArduinoBLE keeps a pointer to the local name and works out the free scan
+// response space from the string it already points at, so a rename writes
+// the other buffer instead of overwriting the one in use.
+char bleNameBuffers[2][SORTER_NAME_MAX_BYTES + 1];
+uint8_t bleNameBufferIndex = 0;
+// Set when setName lands while a central is connected: blePoll() re-advertises
+// with the new name once it disconnects.
+bool bleNamePending = false;
+
+void bleUseAdvertisedName() {
+  bleNameBufferIndex ^= 1;
+  char* name = bleNameBuffers[bleNameBufferIndex];
+  formatAdvertisedName(name, SORTER_NAME_MAX_BYTES + 1);
+  BLE.setLocalName(name);
+  BLE.setDeviceName(name);
+}
 
 // Manual prototype, belt-and-suspenders alongside main.ino's early
 // #include <ArduinoBLE.h> - see that file's comment on why the Arduino
@@ -76,10 +92,7 @@ void bleInit() {
   // failed above, setup()'s EEPROM fallback (loadOrCreateDeviceId()) takes
   // over instead once it sees deviceId is still empty.
   setDeviceIdFromMac(BLE.address().c_str());
-  char localName[32];
-  snprintf(localName, sizeof(localName), "Mault Sorter %s", deviceId);
-
-  BLE.setLocalName(localName);
+  bleUseAdvertisedName();
   BLE.setAdvertisedService(nusService);
   nusService.addCharacteristic(rxChar);
   nusService.addCharacteristic(txChar);
@@ -95,7 +108,24 @@ void blePoll() {
   if (polling || !bleAvailable) return;
   polling = true;
   BLE.poll();
+  if (bleNamePending && !BLE.connected()) {
+    bleNamePending = false;
+    BLE.advertise();
+  }
   polling = false;
+}
+
+// Called after setName stored a new name. A connected central keeps the old
+// advertisement until it disconnects: advertising now would let a second
+// central connect alongside it.
+void bleUpdateName() {
+  if (!bleAvailable) return;
+  bleUseAdvertisedName();
+  if (BLE.connected()) {
+    bleNamePending = true;
+    return;
+  }
+  BLE.advertise();
 }
 
 bool bleIsConnected() { return bleAvailable && BLE.connected(); }

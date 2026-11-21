@@ -29,6 +29,8 @@ export default function SorterScreen() {
   const busy = (BUSY_PHASES as readonly string[]).includes(sorter.phase);
   const connected = sorter.isConnected;
   const wifiSorters = useWifiSorters(!connected);
+  const recentIds = new Set(sorter.recentSorters.map((recent) => recent.id));
+  const nearbySorters = sorter.discovered.filter((found) => !recentIds.has(found.id));
 
   return (
     <Screen
@@ -148,28 +150,50 @@ export default function SorterScreen() {
             loading={busy && sorter.phase !== "scanning"}
             onPress={sorter.phase === "scanning" ? sorter.stopDiscovery : sorter.startDiscovery}
           />
-          <View style={{ gap: SPACING.sm }}>
-            <SectionHeader title={t("sorter.nearby")} />
-            {sorter.discovered.length === 0 ? (
-              <EmptyState
-                icon="bluetooth"
-                title={sorter.phase === "scanning" ? t("sorter.searching") : t("sorter.noneFound")}
-                description={t("sorter.bluetoothOnly")}
-              />
-            ) : (
+          {sorter.recentSorters.length > 0 ? (
+            <View style={{ gap: SPACING.sm }}>
+              <SectionHeader title={t("sorter.recent")} />
               <ListGroup>
-                {sorter.discovered.map((found) => (
-                  <ListRow
-                    key={found.id}
-                    icon="sorter"
-                    title={found.name ?? t("sorter.unnamed")}
-                    subtitle={found.rssi != null ? t("sorter.signal", { rssi: found.rssi }) : undefined}
-                    onPress={() => void sorter.connect(found.id)}
-                  />
-                ))}
+                {sorter.recentSorters.map((recent) => {
+                  const nearby = sorter.discovered.find((found) => found.id === recent.id);
+                  return (
+                    <ListRow
+                      key={recent.id}
+                      icon="sorter"
+                      title={recent.name}
+                      subtitle={nearby?.rssi != null ? t("sorter.signal", { rssi: nearby.rssi }) : undefined}
+                      disabled={busy && sorter.phase !== "scanning"}
+                      onPress={() => void sorter.connect(recent.id)}
+                    />
+                  );
+                })}
               </ListGroup>
-            )}
-          </View>
+            </View>
+          ) : null}
+          {nearbySorters.length > 0 || sorter.recentSorters.length === 0 ? (
+            <View style={{ gap: SPACING.sm }}>
+              <SectionHeader title={t("sorter.nearby")} />
+              {nearbySorters.length === 0 ? (
+                <EmptyState
+                  icon="bluetooth"
+                  title={sorter.phase === "scanning" ? t("sorter.searching") : t("sorter.noneFound")}
+                  description={t("sorter.bluetoothOnly")}
+                />
+              ) : (
+                <ListGroup>
+                  {nearbySorters.map((found) => (
+                    <ListRow
+                      key={found.id}
+                      icon="sorter"
+                      title={found.name ?? t("sorter.unnamed")}
+                      subtitle={found.rssi != null ? t("sorter.signal", { rssi: found.rssi }) : undefined}
+                      onPress={() => void sorter.connect(found.id)}
+                    />
+                  ))}
+                </ListGroup>
+              )}
+            </View>
+          ) : null}
           {wifiSorters.length > 0 ? (
             <View style={{ gap: SPACING.sm }}>
               <SectionHeader title={t("sorter.overWifi")} />

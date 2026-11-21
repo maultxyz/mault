@@ -1,6 +1,7 @@
 import { PiSorterMenuItems } from "./pi-sorter-menu-items";
 import { useSerial } from "@/features/scanner/api/use-serial";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { RecentSorterMenuItems } from "@/features/scanner/components/recent-sorter-menu-items";
 import { WifiSorterMenuItems } from "@/features/scanner/components/wifi-sorter-menu-items";
 import type { ConnectSorterMenuItemsProps } from "@/lib/interfaces/sorter-wifi";
 import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
@@ -27,6 +28,12 @@ export function ConnectSorterMenuItems({
 
   return (
     <>
+      {!piRemote && isWebBluetoothSupported() && (
+        <RecentSorterMenuItems
+          disabled={disabled}
+          onSelect={(bluetoothDevice) => onConnectBluetooth(bluetoothDevice)}
+        />
+      )}
       <DropdownMenuItem disabled={disabled} onClick={() => onConnectUsb()}>
         {t(piRemote ? "scannerMenu.connectPi" : "scannerMenu.connectUsb")}
       </DropdownMenuItem>

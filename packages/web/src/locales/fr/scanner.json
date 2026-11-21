@@ -67,6 +67,7 @@
     "piBusy": "Le port USB du Pi est déjà utilisé. Déconnecte-le dans l'autre navigateur, ou arrête le scan sur le Pi, puis réessaie.",
     "piScanBusy": "Un scan tourne sur le Pi, donc ce navigateur ne peut pas prendre le trieur. Arrête d'abord le scan.",
     "bluetoothPermissionBlocked": "L'autorisation Bluetooth est bloquée pour ce navigateur. Vérifie les paramètres du site dans ton navigateur (ou chrome://settings/content/bluetoothDevices) pour autoriser le Bluetooth, puis réessaie.",
+    "recentSorterUnreachable": "Vérifie que le trieur est allumé et à proximité, puis réessaie.",
     "connectionLost": {
       "title": "Connexion perdue",
       "description": "Le trieur s'est déconnecté de manière inattendue. Si tu es connecté via USB, vérifie qu'aucune autre application (comme le moniteur série de l'IDE Arduino) n'utilise le port, puis reconnecte-toi."
@@ -695,7 +696,7 @@
       "renameFailed": "Impossible de renommer le trieur",
       "renameDialog": {
         "title": "Renommer le trieur",
-        "description": "Le nom apparaît dans les onglets des trieurs et sur cette page.",
+        "description": "Le nom apparaît dans les onglets des trieurs, sur cette page et dans les listes d’appareils Bluetooth une fois le trieur connecté avec le firmware 2.14.0 ou plus récent.",
         "nameLabel": "Nom",
         "submit": "Enregistrer"
       },
@@ -1030,6 +1031,10 @@
       "rejected": "Refusé, reconfigure le Wi-Fi"
     },
     "pausedForPower": "La trieuse redémarrait sans cesse à cause de chutes de tension au démarrage du Wi-Fi, donc le Wi-Fi est en pause et l'USB et le Bluetooth fonctionnent toujours. Utilise une alimentation plus puissante ou alimente les servos séparément, puis débranche et rebranche la trieuse ou enregistre à nouveau le Wi-Fi pour réessayer."
+  },
+  "recentSorters": {
+    "title": "Trieurs récents",
+    "connected": "Connecté"
   },
   "wifiConnect": {
     "item": "Wi-Fi : {{name}}",

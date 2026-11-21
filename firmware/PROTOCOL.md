@@ -165,13 +165,16 @@ protocol standpoint.
   never block when no host is attached. Without a USB host the boot banner
   only goes out over BLE once a central connects, so a client should send
   `{"getStatus": true}` after connecting.
-- **Advertised name:** `"Mault Sorter XXXXXX"`, where `XXXXXX` is the same
+- **Advertised name:** the name saved with `setName` (2.14.0+), else
+  `"Mault Sorter XXXXXX"`, where `XXXXXX` is the same
   `id` reported in `getStatus`/the boot banner (see Transport above) - on
   these two boards, sourced from the BLE MAC (`BLE.address()` on the Uno R4
   WiFi's ArduinoBLE backend, `esp_read_mac(..., ESP_MAC_WIFI_STA)` on the
   ESP32-S3 Bluedroid backend, read before BLE even advertises). This exists
   so multiple physical units show up as distinct entries in a phone/OS
-  Bluetooth picker before a client ever connects to one.
+  Bluetooth picker before a client ever connects to one. The advertisement
+  carries the flags and the NUS service; the complete name is in the scan
+  response, and the GAP device name matches it.
 
 ## Wi-Fi transport (ESP32 firmware 2.10.0+, Uno R4 WiFi from the first firmware release after 2.10.1)
 
@@ -333,6 +336,25 @@ Firmware 2.10.0+ on ESP32 (and the first firmware release after 2.10.1 on the Un
 `"connecting"`, `"connected"` or `"rejected"`) to the `getStatus` reply. See
 `getWifi` for details. The app treats the presence of `"wifi"` as the board
 supporting Wi-Fi remote access.
+
+Firmware 2.14.0+ adds `"name"` to both the boot banner and the `getStatus`
+reply: the name it advertises over BLE (see `setName`).
+
+### `setName` (firmware 2.14.0+)
+```json
+{"setName": "Kitchen sorter"}
+```
+→ `{"status":"ok","name":"Kitchen sorter"}`
+
+Saves the name the sorter advertises over BLE (NVS on ESP32, EEPROM
+elsewhere, kept across reboots and reflashes) and reports it as `"name"`. Up
+to 29 bytes of UTF-8 (`{"error":"name must be up to 29 bytes"}` otherwise);
+an empty string goes back to `"Mault Sorter XXXXXX"`. Advertising switches to
+the new name at once, or after the current BLE central disconnects. Phones
+and browsers may show a cached name until they scan again. The app sends it
+after connecting and after a rename whenever the device record's name (cut to
+29 bytes, without quotes, backslashes or control characters) differs from the
+reported one.
 
 ### `setChannelOffset`
 ```json

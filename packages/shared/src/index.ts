@@ -191,6 +191,7 @@ export * from "./scan-identify";
 export * from "./card-settle";
 export * from "./serial-session";
 export * from "./sorter-link-connection";
+export * from "./sorter-name";
 export * from "./image-proxy";
 export * from "./interfaces/sounds.interface";
 export * from "./constants/sounds.constant";

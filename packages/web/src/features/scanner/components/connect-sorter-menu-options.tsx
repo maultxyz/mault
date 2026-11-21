@@ -28,7 +28,9 @@ export function ConnectSorterMenuOptions() {
     return (
       <ConnectSorterMenuItems
         onConnectUsb={() => connectAnotherSorter("usb")}
-        onConnectBluetooth={() => connectAnotherSorter("bluetooth")}
+        onConnectBluetooth={(bluetoothDevice) =>
+          connectAnotherSorter("bluetooth", bluetoothDevice)
+        }
         onConnectCloud={connectAnotherSorterCloud}
       />
     );
