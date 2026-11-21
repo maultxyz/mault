@@ -134,6 +134,8 @@ vi.mock("./use-pending-scan-saves", () => ({
   usePendingScanSaves: () => ({
     saveCard: mocks.save,
     saveUnmatched: mocks.saveUnmatched,
+    storeCardSaveAheadOfRoute: vi.fn(),
+    storeUnmatchedSaveAheadOfRoute: vi.fn(),
   }),
 }));
 vi.mock("@/hooks/use-pi-host", () => ({ usePiHost: () => false }));

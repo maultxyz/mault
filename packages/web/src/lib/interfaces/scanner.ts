@@ -1275,6 +1275,8 @@ export interface PendingScanSavesContextValue {
     save: UnmatchedScanSave,
     onStored?: () => void,
   ) => Promise<UnmatchedSaveResult>;
+  storeCardSaveAheadOfRoute: (save: CardScanSave) => void;
+  storeUnmatchedSaveAheadOfRoute: (save: UnmatchedScanSave) => void;
   pendingCount: number;
 }
 

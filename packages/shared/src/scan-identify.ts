@@ -235,11 +235,7 @@ export function toScanMatchDetails(
 
 export function isConfidentOrientationMatch(result: CardSearchResult): boolean {
   const leader = result.data?.[0];
-  return (
-    leader != null &&
-    !needsTextSearch(result) &&
-    leader.distance <= PREFERRED_ORIENTATION_MAX_DISTANCE
-  );
+  return leader != null && leader.distance <= PREFERRED_ORIENTATION_MAX_DISTANCE;
 }
 
 export function isScanOrientationDetermined(

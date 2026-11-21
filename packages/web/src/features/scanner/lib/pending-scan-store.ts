@@ -36,7 +36,9 @@ async function runWrite(
 ): Promise<void> {
   const db = await openDb();
   await new Promise<void>((resolve, reject) => {
-    const tx = db.transaction(PENDING_SCAN_SAVES_STORE_NAME, "readwrite");
+    const tx = db.transaction(PENDING_SCAN_SAVES_STORE_NAME, "readwrite", {
+      durability: "relaxed",
+    });
     write(tx.objectStore(PENDING_SCAN_SAVES_STORE_NAME));
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);

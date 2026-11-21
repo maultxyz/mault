@@ -248,10 +248,10 @@ test("a preferred orientation that matches beyond the confidence distance still 
   assert.equal(outcome.pick.orientation, "rotated");
 });
 
-test("an unsure preferred orientation is never accepted alone", () => {
+test("a preferred orientation is accepted alone only for a close image match", () => {
   assert.equal(isConfidentOrientationMatch(result("card", 0.1)), true);
-  assert.equal(isConfidentOrientationMatch(result("card", 0.1, true)), false);
-  assert.equal(isConfidentOrientationMatch(closeRunnerUp("card")), false);
+  assert.equal(isConfidentOrientationMatch(result("card", 0.1, true)), true);
+  assert.equal(isConfidentOrientationMatch(closeRunnerUp("card")), true);
   assert.equal(isConfidentOrientationMatch(result(null)), false);
   assert.equal(
     isConfidentOrientationMatch(

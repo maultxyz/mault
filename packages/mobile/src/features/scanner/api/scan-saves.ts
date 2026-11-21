@@ -8,17 +8,34 @@ import { API_BASE } from "@/lib/constants/config";
 import {
   buildScanSaveRequest,
   SCAN_SAVE_ACCEPTED_STATUSES,
+  SCAN_SAVE_REQUEST_TIMEOUT_MS,
   throwIfMemberSeatLimit,
   type SortOnlyScanRequest,
 } from "@magic-vault/shared";
 import type { CardSaveResult, PendingScanSave } from "@/lib/interfaces/scanner";
+
+async function fetchWithScanSaveTimeout(
+  url: string,
+  init: RequestInit,
+): Promise<Response> {
+  const abortController = new AbortController();
+  const abortTimer = setTimeout(
+    () => abortController.abort(),
+    SCAN_SAVE_REQUEST_TIMEOUT_MS,
+  );
+  try {
+    return await fetch(url, { ...init, signal: abortController.signal });
+  } finally {
+    clearTimeout(abortTimer);
+  }
+}
 
 export async function sendScanSave(
   save: PendingScanSave,
   isRetry: boolean,
 ): Promise<CardSaveResult> {
   const path = save.kind === "card" ? "cards" : "unmatched";
-  const res = await fetch(
+  const res = await fetchWithScanSaveTimeout(
     `${API_BASE}/api/collections/${save.collectionGuid}/${path}`,
     {
       method: "POST",
@@ -50,7 +67,7 @@ export async function sendSortOnlyScan(
   collectionGuid: string,
   record: SortOnlyScanRequest,
 ): Promise<CardSaveResult> {
-  const response = await fetch(
+  const response = await fetchWithScanSaveTimeout(
     `${API_BASE}/api/collections/${collectionGuid}/cards/sorted`,
     {
       method: "POST",

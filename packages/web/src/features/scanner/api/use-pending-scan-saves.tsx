@@ -98,6 +98,28 @@ export function PendingScanSavesProvider({
     [queue],
   );
 
+  const storeCardSaveAheadOfRoute = useCallback(
+    (save: CardScanSave) =>
+      queue.storeAheadOfSubmit({
+        ...save,
+        kind: "card",
+        scanId: save.record.scanId,
+        queuedAt: Date.now(),
+      }),
+    [queue],
+  );
+
+  const storeUnmatchedSaveAheadOfRoute = useCallback(
+    (save: UnmatchedScanSave) =>
+      queue.storeAheadOfSubmit({
+        ...save,
+        kind: "unmatched",
+        scanId: save.record.scanId,
+        queuedAt: Date.now(),
+      }),
+    [queue],
+  );
+
   const saveCard = useCallback(
     async (save: CardScanSave, onStored?: () => void) => {
       const { scanId, card } = save.record;
@@ -197,8 +219,20 @@ export function PendingScanSavesProvider({
   }, [pendingCount, t]);
 
   const value = useMemo(
-    () => ({ saveCard, saveUnmatched, pendingCount }),
-    [saveCard, saveUnmatched, pendingCount],
+    () => ({
+      saveCard,
+      saveUnmatched,
+      storeCardSaveAheadOfRoute,
+      storeUnmatchedSaveAheadOfRoute,
+      pendingCount,
+    }),
+    [
+      saveCard,
+      saveUnmatched,
+      storeCardSaveAheadOfRoute,
+      storeUnmatchedSaveAheadOfRoute,
+      pendingCount,
+    ],
   );
 
   return (

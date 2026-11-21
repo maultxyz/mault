@@ -45,6 +45,10 @@ import {
 import { notifyCardScanned } from "./notify-card-scanned";
 import { loadOrgPlan } from "./scan-limit";
 import { databaseErrorResponse } from "../../lib/database-error-response";
+import {
+  applyScanSaveTimeouts,
+  startScanSaveTimer,
+} from "../../lib/scan-save-timing";
 import { toSavedCardSnapshots } from "../../lib/saved-cards";
 import { findCardToResort, moveResortedCard } from "../../lib/resort-scan";
 import {
@@ -64,6 +68,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
   markRequestAsCardWrite,
   rejectWhileImpersonating,
   async (c) => {
+    const saveTimer = startScanSaveTimer("card");
     const guid = c.req.param("guid");
     const userId = c.get("userId");
     const orgId = c.get("orgId");
@@ -87,6 +92,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       pickListUpdate,
       storageLocationGuid,
     } = await c.req.json<ScannedCard & ScanSaveRequestFields>();
+    saveTimer.markStage("requestBodyRead");
     if (pickListUpdate !== undefined && !isScanSavePickListUpdate(pickListUpdate))
       return c.json({ success: false, message: "Invalid pick-list update." }, 400);
     if (storageLocationGuid != null && !UUID_PATTERN.test(storageLocationGuid))
@@ -103,6 +109,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       });
     }
 
+    saveTimer.markStage("retryCheckDone");
     const displayName = await getUserDisplayName(userId);
     const { ok: lockOk, isNewSession } = acquireLock(
       guid,
@@ -134,16 +141,19 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         };
 
     let keepOnlyExistingImage = false;
-    const storedImagesRequest = Promise.all([
-      storeScanImage(
-        { orgId, collectionGuid: guid, scanId, kind: "cards" },
-        capturedImageUrl,
-      ),
-      storeScanImage(
-        { orgId, collectionGuid: guid, scanId, kind: "cards", side: "back" },
-        capturedBackImageUrl,
-      ),
-    ]);
+    const storedImagesRequest = saveTimer.markStageWhenSettled(
+      "imagesStored",
+      Promise.all([
+        storeScanImage(
+          { orgId, collectionGuid: guid, scanId, kind: "cards" },
+          capturedImageUrl,
+        ),
+        storeScanImage(
+          { orgId, collectionGuid: guid, scanId, kind: "cards", side: "back" },
+          capturedBackImageUrl,
+        ),
+      ]),
+    );
     storedImagesRequest.catch(() => undefined);
     const deleteStoredImages = async () => {
       const [storedImage, storedBackImage] = await storedImagesRequest;
@@ -156,6 +166,8 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
         gameName: string | undefined;
         gameId: number | null;
       }>(c.get("jwtClaims"), async (tx) => {
+        saveTimer.markStage("databaseConnectionAcquired");
+        await applyScanSaveTimeouts(tx);
         const saveContext = await loadScanSaveContext(tx, {
           orgId,
           collectionGuid: guid,
@@ -398,6 +410,8 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           gameId: collection.gameId,
         };
       });
+      saveTimer.markStage("transactionCommitted");
+      saveTimer.finish(scanId, result.success ? "saved" : "rejected");
       if (!result.success || keepOnlyExistingImage) {
         await deleteStoredImages();
       }
@@ -442,6 +456,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
       }
       return c.json(result);
     } catch (err) {
+      saveTimer.finish(scanId, "failed");
       await deleteStoredImages();
       emitToSession(orgId, guid, "scan_error", {
         message: "Failed to save card to collection.",

@@ -22,6 +22,10 @@ import { findFullBin } from "./bin-limit";
 import { isScanSaved } from "./scan-saved";
 import { resolveScanDeviceId } from "../../lib/scan-origin";
 import { databaseErrorResponse } from "../../lib/database-error-response";
+import {
+  applyScanSaveTimeouts,
+  startScanSaveTimer,
+} from "../../lib/scan-save-timing";
 
 export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
   "/:guid/unmatched",
@@ -30,6 +34,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
   markRequestAsCardWrite,
   rejectWhileImpersonating,
   async (c) => {
+    const saveTimer = startScanSaveTimer("unmatched");
     const orgId = c.get("orgId");
     const guid = c.req.param("guid");
     const {
@@ -44,6 +49,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
       deviceGuid,
       isRetry,
     } = await c.req.json<UnmatchedCard & ScanSaveRequestFields>();
+    saveTimer.markStage("requestBodyRead");
     if (
       isRetry &&
       (await isScanSaved(c.get("jwtClaims"), unmatchedCards, scanId))
@@ -53,6 +59,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
         data: { scanId, scannedAt, binNumber } as UnmatchedCard,
       });
     }
+    saveTimer.markStage("retryCheckDone");
     const [storedImage, storedBackImage] = await Promise.all([
       storeScanImage(
         { orgId, collectionGuid: guid, scanId, kind: "unmatched" },
@@ -63,8 +70,11 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
         capturedBackImageUrl,
       ),
     ]);
+    saveTimer.markStage("imagesStored");
     try {
       const result = await authQuery(c.get("jwtClaims"), async (tx) => {
+        saveTimer.markStage("databaseConnectionAcquired");
+        await applyScanSaveTimeouts(tx);
         const collection = await tx.query.collections.findFirst({
           where: (t, { eq, and }) =>
             and(eq(t.guid, guid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
@@ -133,6 +143,8 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
           } as UnmatchedCard,
         };
       });
+      saveTimer.markStage("transactionCommitted");
+      saveTimer.finish(scanId, result.success ? "saved" : "rejected");
       if (!result.success) deleteScanImages([storedImage.key, storedBackImage.key]);
       if (result.success) {
         void recordUnmatchedScan(
@@ -150,6 +162,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
       }
       return c.json(result);
     } catch (err) {
+      saveTimer.finish(scanId, "failed");
       deleteScanImages([storedImage.key, storedBackImage.key]);
       return databaseErrorResponse(c, err);
     }

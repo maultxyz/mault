@@ -137,3 +137,18 @@ test("a queue that stores only on failure reports the save at once", async () =>
   await queue.submit({ scanId: "a" }, () => events.push("stored"));
   assert.deepEqual(events, ["stored", "send"]);
 });
+
+test("a save stored ahead of submit is not stored again and is removed once saved", async () => {
+  const { queue, events } = harness(async () => "saved");
+  queue.storeAheadOfSubmit({ scanId: "a" });
+  queue.storeAheadOfSubmit({ scanId: "a" });
+  let storedBeforeSend = false;
+  assert.equal(
+    await queue.submit({ scanId: "a" }, () => {
+      storedBeforeSend = events.join() === "put";
+    }),
+    "saved",
+  );
+  assert.equal(storedBeforeSend, true);
+  assert.deepEqual(events, ["put", "send", "remove"]);
+});

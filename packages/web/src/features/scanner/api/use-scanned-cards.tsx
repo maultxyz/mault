@@ -212,7 +212,12 @@ export function ScannedCardsProvider({
 
   const { activeOrg } = useOrg();
   const activeOrgIdRef = useRef(activeOrg?.id);
-  const { saveCard, saveUnmatched } = usePendingScanSaves();
+  const {
+    saveCard,
+    saveUnmatched,
+    storeCardSaveAheadOfRoute,
+    storeUnmatchedSaveAheadOfRoute,
+  } = usePendingScanSaves();
   const { sorterLimitReason, reportStationAttention } = useStations();
   const { station: currentStation } = useStation();
   const sorterLimitReasonRef = useRef(sorterLimitReason);
@@ -878,6 +883,14 @@ export function ScannedCardsProvider({
         },
         route: async (decision) => {
           const matchedBin = decision.bin;
+          if (decision.persistence.kind === "cards") {
+            storeCardSaveAheadOfRoute({
+              orgId: activeOrgIdRef.current ?? null,
+              collectionGuid: collection.guid,
+              deviceGuid: deviceGuidRef.current,
+              record: decision.persistence.record,
+            });
+          }
 
           if (
             matchedBin &&
@@ -1054,6 +1067,7 @@ export function ScannedCardsProvider({
       setFullBins,
       pauseForCompletePacks,
       saveCard,
+      storeCardSaveAheadOfRoute,
     ],
   );
 
@@ -1235,7 +1249,15 @@ export function ScannedCardsProvider({
           setUnmatchedCount((count) => count + 1);
         },
         pick: () => {},
-        route: async ({ bin }) => {
+        route: async ({ bin, persistence }) => {
+          if (persistence.kind !== "none") {
+            storeUnmatchedSaveAheadOfRoute({
+              orgId: activeOrgIdRef.current ?? null,
+              collectionGuid: collection.guid,
+              deviceGuid: deviceGuidRef.current,
+              record: persistence.record,
+            });
+          }
           if (bin)
             await routeToBin(
               bin.binNumber,
@@ -1304,6 +1326,7 @@ export function ScannedCardsProvider({
       routeToBin,
       t,
       saveUnmatched,
+      storeUnmatchedSaveAheadOfRoute,
       dropUnmatched,
       syncUnmatched,
       trackPendingBinCard,
