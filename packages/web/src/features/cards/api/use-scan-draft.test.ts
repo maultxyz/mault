@@ -40,6 +40,38 @@ describe("useScanDraft", () => {
     expect(setCardFoilType).toHaveBeenLastCalledWith("scan-b", "Foil");
   });
 
+  it("keeps the next card's saved foil when it opens before the save finishes", async () => {
+    const setCardFoilType = vi.fn();
+    const firstCard: ScanDraftOptions = {
+      scanId: "scan-a",
+      savedFoilType: null,
+      savedStamp: null,
+      savedCondition: "NM",
+      savedLanguage: "en",
+      savedAcquisitionCost: null,
+      setCardFoilType,
+      setCardStamp: vi.fn(),
+      setCardCondition: vi.fn(),
+      setCardLanguage: vi.fn(),
+      setCardAcquisitionCost: vi.fn(),
+    };
+    const { result, rerender } = renderScanDraft(firstCard);
+    const moveOn = vi.fn();
+
+    act(() => result.current.setFoilType("Foil"));
+    await act(async () => {
+      result.current.runAfterCommit(moveOn);
+      rerender({ ...firstCard, scanId: "scan-b" });
+    });
+
+    await waitFor(() =>
+      expect(setCardFoilType).toHaveBeenCalledWith("scan-a", "Foil"),
+    );
+    expect(result.current.foilType).toBeNull();
+    expect(result.current.isDirty).toBe(false);
+    expect(moveOn).not.toHaveBeenCalled();
+  });
+
   it("drops an unsaved change when moving to another card", async () => {
     const options: ScanDraftOptions = {
       scanId: "scan-a",

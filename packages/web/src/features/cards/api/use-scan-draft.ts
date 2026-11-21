@@ -65,7 +65,7 @@ export function useScanDraft({
         if (dirtyFields.acquisitionCost) {
           setCardAcquisitionCost(scanId, draft.acquisitionCost);
         }
-        form.reset(draft);
+        if (draftScanIdRef.current === scanId) form.reset(draft);
       })(),
     [
       form,
@@ -85,9 +85,11 @@ export function useScanDraft({
         action();
         return;
       }
-      void commit().then(() => setAfterCommit(() => action));
+      void commit().then(() => {
+        if (draftScanIdRef.current === scanId) setAfterCommit(() => action);
+      });
     },
-    [form, commit],
+    [form, commit, scanId],
   );
 
   useEffect(() => {
