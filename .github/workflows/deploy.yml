@@ -27,6 +27,10 @@ on:
         description: Deploy every container in the target even when nothing changed since the last release
         type: boolean
         default: false
+      deploy_to_coolify:
+        description: Deploy to Coolify. Off publishes the release only (version bump, commit, tag, images on the channel tag) and skips the Coolify deploys and database migrations, so the hosted app stays on its current version until a forced deploy.
+        type: boolean
+        default: true
       rollback_tag:
         description: "Rollback: redeploy this release tag (vX.Y.Z) instead of the branch. Reuses its images, rebuilds any that are missing, and skips the bump, commit, tag and migrations."
         type: string
@@ -49,11 +53,18 @@ env:
 # re-run on its own ("Re-run failed jobs"): later stages only start once the
 # earlier ones succeeded or were skipped, and images are only moved onto the
 # channel tags Coolify pulls after every image built.
+# With deploy_to_coolify off the run is still a full release for self-hosters
+# (bump, commit, tag, channel tags), but nothing is sent to Coolify and no
+# migrations run. The release tag then marks that work as released, so the
+# nightly run won't deploy it: run a forced deploy to bring the hosted app up
+# (that runs the migrations). Until then a manual redeploy in Coolify would
+# pull the new images onto the old schema.
 jobs:
   plan:
     runs-on: ubuntu-latest
     outputs:
       should_deploy: ${{ steps.deploy.outputs.should_deploy }}
+      coolify: ${{ steps.deploy.outputs.coolify }}
       rollback: ${{ steps.rollback.outputs.active }}
       version: ${{ steps.appversion.outputs.version }}
       sha: ${{ steps.appversion.outputs.sha }}
@@ -221,6 +232,7 @@ jobs:
       - name: Compute deploy flag
         id: deploy
         run: |
+          echo "coolify=${{ (github.event_name == 'workflow_dispatch' && inputs.deploy_to_coolify == false) && 'false' || 'true' }}" >> "$GITHUB_OUTPUT"
           if [ "$(TZ=America/Chicago date +%Z)" = "CDT" ]; then
             EXPECTED_CRON="17 0 * * *"
           else
@@ -252,6 +264,9 @@ jobs:
             TITLE="$TITLE (${{ steps.targets.outputs.labels }})"
           elif [ "${{ inputs.force }}" = "true" ]; then
             TITLE="$TITLE (forced)"
+          fi
+          if [ "${{ steps.deploy.outputs.coolify }}" != "true" ]; then
+            TITLE="$TITLE (images only, not deployed)"
           fi
           if [ -n "${{ steps.changes.outputs.last_tag }}" ]; then
             URL="https://github.com/${{ github.repository }}/compare/${{ steps.changes.outputs.last_tag }}...${{ github.sha }}"
@@ -507,7 +522,7 @@ jobs:
       # here must never block the deploy itself. The announcement expires on
       # its own (durationMinutes) if the notify stage never removes it.
       - name: Announce deploy
-        if: needs.plan.outputs.web_server == 'true'
+        if: needs.plan.outputs.web_server == 'true' && needs.plan.outputs.coolify == 'true'
         continue-on-error: true
         env:
           API_URL: ${{ secrets.MAULT_API_URL }}
@@ -539,13 +554,13 @@ jobs:
           if [ "${{ needs.plan.outputs.shortener }}" = "true" ]; then promote "${{ needs.plan.outputs.shortener_image }}"; fi
 
       - name: Trigger Coolify deployment (web)
-        if: needs.plan.outputs.web_server == 'true'
+        if: needs.plan.outputs.web_server == 'true' && needs.plan.outputs.coolify == 'true'
         run: |
           curl -sf --request POST "${{ secrets.COOLIFY_WEBHOOK_WEB }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
       - name: Trigger Coolify deployment (API docs)
-        if: needs.plan.outputs.docs == 'true'
+        if: needs.plan.outputs.docs == 'true' && needs.plan.outputs.coolify == 'true'
         env:
           WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK_API_DOCS }}
         run: |
@@ -557,7 +572,7 @@ jobs:
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
 
       - name: Trigger Coolify deployment (bot)
-        if: needs.plan.outputs.bot == 'true'
+        if: needs.plan.outputs.bot == 'true' && needs.plan.outputs.coolify == 'true'
         env:
           WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK_BOT }}
         run: |
@@ -571,7 +586,7 @@ jobs:
       # Deployed before the server so new short links can be registered as
       # soon as the new API starts.
       - name: Trigger Coolify deployment (shortener)
-        if: needs.plan.outputs.shortener == 'true'
+        if: needs.plan.outputs.shortener == 'true' && needs.plan.outputs.coolify == 'true'
         env:
           WEBHOOK: ${{ secrets.COOLIFY_WEBHOOK_SHORTENER }}
         run: |
@@ -586,7 +601,7 @@ jobs:
   # older server against the newer schema.
   migrate:
     needs: [plan, deploy-apps]
-    if: ${{ !cancelled() && !failure() && needs.plan.outputs.should_deploy == 'true' && needs.plan.outputs.web_server == 'true' && needs.plan.outputs.rollback != 'true' }}
+    if: ${{ !cancelled() && !failure() && needs.plan.outputs.should_deploy == 'true' && needs.plan.outputs.web_server == 'true' && needs.plan.outputs.rollback != 'true' && needs.plan.outputs.coolify == 'true' }}
     runs-on: ubuntu-latest
     environment:
       name: ${{ github.ref_name == 'dev' && 'development' || 'production' }}
@@ -638,6 +653,7 @@ jobs:
             "${{ needs.plan.outputs.server_image }}:v${{ needs.plan.outputs.version }}"
 
       - name: Trigger Coolify deployment (server)
+        if: needs.plan.outputs.coolify == 'true'
         run: |
           curl -sf --request POST "${{ secrets.COOLIFY_WEBHOOK_SERVER }}" \
             --header "Authorization: Bearer ${{ secrets.COOLIFY_TOKEN }}"
@@ -646,6 +662,7 @@ jobs:
       # deploy only counts as finished once the server reports the new
       # version.
       - name: Wait for new server version
+        if: needs.plan.outputs.coolify == 'true'
         continue-on-error: true
         timeout-minutes: 30
         env:
@@ -668,7 +685,7 @@ jobs:
       FAILED: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
     steps:
       - name: Remove deploy announcement
-        if: needs.plan.outputs.should_deploy == 'true' && needs.plan.outputs.web_server == 'true'
+        if: needs.plan.outputs.should_deploy == 'true' && needs.plan.outputs.web_server == 'true' && needs.plan.outputs.coolify == 'true'
         continue-on-error: true
         env:
           API_URL: ${{ secrets.MAULT_API_URL }}
@@ -684,7 +701,7 @@ jobs:
           exit 1
 
       - name: Notify Discord (success)
-        if: env.FAILED != 'true' && needs.plan.outputs.should_deploy == 'true' && needs.plan.outputs.web_server == 'true' && github.ref_name != 'dev'
+        if: env.FAILED != 'true' && needs.plan.outputs.should_deploy == 'true' && needs.plan.outputs.web_server == 'true' && needs.plan.outputs.coolify == 'true' && github.ref_name != 'dev'
         env:
           DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_DEPLOY_WEBHOOK_URL }}
           DISCORD_ROLE_ID: ${{ secrets.DISCORD_DEPLOYMENTS_ROLE_ID }}
