@@ -37,7 +37,6 @@ import type { ScanStats } from "@/lib/interfaces/scanner";
 export interface CardSearchPickerProps {
   collectionGuid: string | undefined;
   initialQuery?: string;
-  defaultLanguage?: string;
   disabled?: boolean;
   onSelect: (card: PlayingCard) => void;
 }

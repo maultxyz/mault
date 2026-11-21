@@ -1,7 +1,12 @@
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { ScannedCardsProvider, useScannedCards } from "./use-scanned-cards";
-import type { PickList, PlayingCardWithDistance } from "@magic-vault/shared";
+import type {
+  MatchedScanDetails,
+  PickList,
+  PlayingCardWithDistance,
+} from "@magic-vault/shared";
+import type { EarlyRoutedScan } from "@/lib/interfaces/scanner";
 
 const mocks = vi.hoisted(() => ({
   collection: {
@@ -403,4 +408,58 @@ it("a bin whose storage location has room for 5 routes 5 cards then pauses", asy
     }),
   );
   expect(mocks.route).toHaveBeenCalledTimes(5);
+});
+
+const matchedDetails = {
+  lowConfidenceMatch: false,
+  diagnostics: {},
+} as unknown as MatchedScanDetails;
+const reprint = { ...card, id: "reprint" } as PlayingCardWithDistance;
+
+it("routes before the text match, then saves the final card in that bin without routing again", async () => {
+  let finishRoute: () => void = () => {};
+  mocks.route.mockImplementation(
+    () =>
+      new Promise<void>((resolve) => {
+        finishRoute = resolve;
+      }),
+  );
+  const { result } = mount();
+  let earlyRoute = null as EarlyRoutedScan | null;
+  act(() => {
+    earlyRoute = result.current.routeCardEarly([card, reprint], matchedDetails);
+  });
+  expect(earlyRoute).not.toBeNull();
+  expect(mocks.route).toHaveBeenCalledOnce();
+  expect(mocks.save).not.toHaveBeenCalled();
+  act(() =>
+    result.current.addCard(
+      reprint,
+      "image",
+      [],
+      "web",
+      matchedDetails,
+      undefined,
+      earlyRoute!,
+    ),
+  );
+  await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
+  expect(mocks.route).toHaveBeenCalledOnce();
+  const saved = mocks.save.mock.calls[0][0].record;
+  expect(saved.scanId).toBe(earlyRoute!.scanId);
+  expect(saved.card.id).toBe("reprint");
+  expect(saved.binNumber).toBe(1);
+  await act(async () => finishRoute());
+});
+
+it("never routes early into a destination that would pause", () => {
+  mocks.levels[0].count = 1;
+  const { result } = mount();
+  let earlyRoute = null as EarlyRoutedScan | null;
+  act(() => {
+    earlyRoute = result.current.routeCardEarly([card, reprint], matchedDetails);
+  });
+  expect(earlyRoute).toBeNull();
+  expect(mocks.route).not.toHaveBeenCalled();
+  expect(mocks.pause).not.toHaveBeenCalled();
 });

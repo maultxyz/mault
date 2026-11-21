@@ -12,10 +12,12 @@ export async function feedNextPiScanCard(
   {
     confirmRoutedCardLeftModuleOne,
     feedOnce,
+    feedOnceRequiringEmptyModuleOne,
     retryCount,
   }: {
     confirmRoutedCardLeftModuleOne: boolean;
     feedOnce: () => Promise<SerialReply>;
+    feedOnceRequiringEmptyModuleOne?: () => Promise<SerialReply>;
     retryCount: number;
   },
 ): Promise<FeedNextCardAfterRoutedCardOutcome<SerialReply>> {
@@ -29,6 +31,7 @@ export async function feedNextPiScanCard(
     readSensors: () =>
       link.command({ readIR: true }, PI_SCAN_STATUS_TIMEOUT_MS),
     feedOnce,
+    feedOnceRequiringEmptyModuleOne,
     replyOf: (reply) => reply,
     retryCount,
   });

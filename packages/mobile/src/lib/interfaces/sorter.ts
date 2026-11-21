@@ -7,7 +7,7 @@ import type {
   SerialRequestResult,
   SerialResetReason,
 } from "@magic-vault/shared";
-import type { Device } from "@magic-vault/shared";
+import type { Device, RecentSorter } from "@magic-vault/shared";
 
 export interface ByteTransport {
   readonly id: string;
@@ -78,6 +78,7 @@ export interface SorterStatusReply {
   version?: string;
   board?: string;
   id?: string;
+  name?: string;
   bleMtu?: number;
   uptimeMs?: number;
   servoDriver?: string;
@@ -93,6 +94,7 @@ export interface SorterContextValue {
   dropBlockedCard: () => Promise<void>;
   markSensorCleared: () => Promise<void>;
   discovered: DiscoveredSorter[];
+  recentSorters: RecentSorter[];
   device: Device | null;
   firmwareVersion: string | null;
   board: string | null;
@@ -107,6 +109,7 @@ export interface SorterContextValue {
   sendRequest: (command: object, timeoutMs?: number) => Promise<SerialRequestResult>;
   sendRoute: (route: BinRoute, options?: RouteOptions) => Promise<unknown>;
   feed: () => Promise<SerialReply | null>;
+  feedRequiringEmptyModuleOne: () => Promise<SerialReply | null>;
   readSensors: () => Promise<SerialReply | null>;
   sendNeutral: () => Promise<boolean>;
   sendEmergencyStop: () => Promise<boolean>;

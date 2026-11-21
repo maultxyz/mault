@@ -10,4 +10,5 @@ export interface AppExtraConfig {
 
 export interface PublicVersionInfo {
   shortLinkBaseUrl?: string | null;
+  billingEnabled?: boolean;
 }

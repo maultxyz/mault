@@ -27,6 +27,9 @@ export function createCardSettleTracker(
       stableTicks = isStill ? stableTicks + 1 : 0;
       return stableTicks >= stableTicksNeeded;
     },
+    settlesOnNextStillFrame() {
+      return previous !== null && stableTicks >= stableTicksNeeded - 1;
+    },
     reset() {
       previous = null;
       stableTicks = 0;

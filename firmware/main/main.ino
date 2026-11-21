@@ -30,7 +30,7 @@
 // (WROOM/WROVER) and the Uno R4 Minima have no native USB either way and
 // are unaffected - Serial there is always the UART bridge chip.
 
-#define FIRMWARE_VERSION "2.13.3"
+#define FIRMWARE_VERSION "2.14.0"
 
 // Reported in getStatus/boot so the app knows how (or whether) it can
 // update the device - only the ESP32 build can be reflashed from the
@@ -124,6 +124,24 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver(SERVO_DRIVER_I2C_ADDR);
 //     generated ID to EEPROM/data flash - the only board with nothing
 //     factory-unique to read.
 char deviceId[7] = "";
+
+// Name the sorter advertises over BLE and reports in getStatus, set by
+// {"setName": ...} so a renamed sorter is easy to find in a Bluetooth picker.
+// Empty means the default "Mault Sorter <id>". 29 bytes fills a scan
+// response (31 bytes minus the 2-byte AD header), where both BLE backends
+// put the name. Persisted in NVS on ESP32 and EEPROM elsewhere (see
+// loadSorterName()).
+#define SORTER_NAME_MAX_BYTES 29
+char sorterName[SORTER_NAME_MAX_BYTES + 1] = "";
+
+void formatAdvertisedName(char* out, size_t size) {
+  if (sorterName[0] != '\0') {
+    strncpy(out, sorterName, size - 1);
+    out[size - 1] = '\0';
+  } else {
+    snprintf(out, size, "Mault Sorter %s", deviceId);
+  }
+}
 
 // Formats a colon-separated MAC string ("aa:bb:cc:dd:ee:ff") into deviceId as
 // its last 6 hex characters, uppercased and with colons stripped - plenty of
@@ -251,6 +269,10 @@ const int IR_PINS[MAX_MODULES] = {2, 3, 4, 6, 7};
 #endif
 
 #define IR_TIMEOUT_MS 3000
+// After flapping every module for a card no sensor sees, a card that came
+// loose lands well within this, and a shorter wait keeps a 4-module jam
+// inside the app's 15s route timeout.
+#define UNSEEN_CARD_ARRIVAL_WAIT_MS 1000
 #define SERIAL_CONNECT_WAIT_MS 1500
 
 // Every blocking wait goes through waitMs(), which keeps the watchdog fed,
@@ -658,6 +680,55 @@ bool persistConfig() {
   return true;
 }
 
+#if defined(ARDUINO_ARCH_ESP32)
+// NVS rather than the emulated EEPROM, whose fixed EEPROM_SIZE ends right
+// after StoredConfig.
+#define SORTER_NAME_PREFS_NAMESPACE "sorter"
+#define SORTER_NAME_PREFS_KEY "name"
+
+void loadSorterName() {
+  Preferences prefs;
+  if (!prefs.begin(SORTER_NAME_PREFS_NAMESPACE, true)) return;
+  if (prefs.isKey(SORTER_NAME_PREFS_KEY)) {
+    prefs.getString(SORTER_NAME_PREFS_KEY, sorterName, sizeof(sorterName));
+  }
+  prefs.end();
+}
+
+void storeSorterName() {
+  Preferences prefs;
+  if (!prefs.begin(SORTER_NAME_PREFS_NAMESPACE, false)) return;
+  if (sorterName[0] == '\0') {
+    prefs.remove(SORTER_NAME_PREFS_KEY);
+  } else {
+    prefs.putString(SORTER_NAME_PREFS_KEY, sorterName);
+  }
+  prefs.end();
+}
+#else
+// Past the Uno R4 WiFi's cloud settings (512 plus their 332 bytes), inside
+// the 8 KB the Renesas core emulates.
+#define SORTER_NAME_EEPROM_ADDR 1024
+#define SORTER_NAME_EEPROM_MAGIC 0xD5
+
+void loadSorterName() {
+  if (EEPROM.read(SORTER_NAME_EEPROM_ADDR) != SORTER_NAME_EEPROM_MAGIC) return;
+  for (int i = 0; i <= SORTER_NAME_MAX_BYTES; i++) {
+    sorterName[i] = (char)EEPROM.read(SORTER_NAME_EEPROM_ADDR + 1 + i);
+  }
+  sorterName[SORTER_NAME_MAX_BYTES] = '\0';
+}
+
+void storeSorterName() {
+  writeEepromByte(SORTER_NAME_EEPROM_ADDR, 0);
+  for (int i = 0; i <= SORTER_NAME_MAX_BYTES; i++) {
+    writeEepromByte(SORTER_NAME_EEPROM_ADDR + 1 + i, (uint8_t)sorterName[i]);
+    feedWatchdog();
+  }
+  writeEepromByte(SORTER_NAME_EEPROM_ADDR, SORTER_NAME_EEPROM_MAGIC);
+}
+#endif
+
 void printStoredModule(int module, Print& reply) {
   reply.print(F("{\"status\":\"ok\",\"module\":"));
   reply.print(module);
@@ -688,7 +759,7 @@ void printStoredFeeder(Print& reply) {
 #define DELAY_PUSHER_HOLD  150
 
 #define MAX_CMD_LEN 255
-#define MAX_REPLY_LEN 320
+#define MAX_REPLY_LEN 384
 
 // One InputState per transport - a command's response must go back out the
 // same transport it arrived on (the protocol has no request IDs; a client
@@ -1038,8 +1109,10 @@ FeedResult runFeeder() {
 // Flaps a module's paddle open/closed a few times to try to jostle a stuck
 // card loose - mirrors the manual fix of flapping the side paddles by hand.
 // Bails early as soon as the IR sensor sees the card clear, rather than
-// finishing the full sequence for no reason.
-void wiggleModulePaddle(int module) {
+// finishing the full sequence for no reason. For a card no sensor sees
+// (arrivalModule set), it bails once arrivalModule's sensor sees the card
+// instead, since this module's sensor already reads clear.
+void wiggleModulePaddle(int module, int arrivalModule = 0) {
   ModuleConfig& c = moduleConfig[module - 1];
   int bottomChannel = getChannel(module, 0);  // front/bottom flap
   int paddleChannel = getChannel(module, 1);  // side paddle
@@ -1058,8 +1131,9 @@ void wiggleModulePaddle(int module) {
     setServoPosition(bottomChannel, c.bottomOpen);
     waitMs(150);
 
-    // Stop as soon as the card clears this module.
-    if (digitalRead(irPin(module)) == HIGH) return;
+    // Stop as soon as the card clears this module (or reaches arrivalModule).
+    if (arrivalModule == 0 && digitalRead(irPin(module)) == HIGH) return;
+    if (arrivalModule != 0 && digitalRead(irPin(arrivalModule)) == LOW) return;
   }
 
   // routeCard() calls this recovery after the bottom has already been opened,
@@ -1274,6 +1348,12 @@ void printRoutedResponse(int module, const char* direction, bool feedNext, Print
 // whose bottom stays closed so the card stops there. Stopping and starting
 // at each module on the way caught cards on the edges and slowed every route.
 // Only then does "bottom" open the target's own trapdoor.
+//
+// With feedNext the next card is fed only once this one has reached the
+// target: closing module 1's bottom while the card was still falling caught
+// its trailing edge between modules 1 and 2, out of every sensor's view.
+// DELAY_CARD_ENTER counts from the card's arrival, so the close and the feed
+// already cover it and the push doesn't wait it out again.
 void routeCard(int targetModule, const char* direction, bool feedNext, Print& reply) {
   ensureServoDriver();
   if (!feedNextCard(reply)) return;
@@ -1288,6 +1368,7 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
       setServoPosition(getChannel(m, 0), moduleConfig[m - 1].bottomOpen);
     }
     int stuckModule = dropCardThroughToModule(targetModule);
+    unsigned long arrivedAt = millis();
     if (stuckModule != 0) {
       reply.print(F("{\"error\":\"timeout: no card detected at module "));
       reply.print(stuckModule + 1);
@@ -1301,7 +1382,8 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
       feedAndReportEvent(reply);
       nextFed = true;
     }
-    waitMs(DELAY_CARD_ENTER);
+    unsigned long sinceArrival = millis() - arrivedAt;
+    if (sinceArrival < DELAY_CARD_ENTER) waitMs(DELAY_CARD_ENTER - sinceArrival);
   }
 
   if (dropBottom) {
@@ -1323,12 +1405,29 @@ void routeCard(int targetModule, const char* direction, bool feedNext, Print& re
 // to once per module on the way. Returns 0 once the card arrives, else the
 // module it's still caught in (or the one just above the target when no
 // sensor on the way sees it).
+//
+// A card can also stop between two sensors (it left module 1 but hangs
+// above module 2), where no sensor sees it. Then every module on the way is
+// flapped once, top down, until the target sees the card. That happens once
+// per route, followed by a short wait (UNSEEN_CARD_ARRIVAL_WAIT_MS).
 int dropCardThroughToModule(int targetModule) {
   if (waitForCard(targetModule)) return 0;
+  bool flappedForUnseenCard = false;
   for (int attempt = 1; attempt < targetModule; attempt++) {
     int stuckModule = findCardBeforeModule(targetModule);
-    if (stuckModule == 0) return targetModule - 1;
-    wiggleModulePaddle(stuckModule);
+    if (stuckModule != 0) {
+      wiggleModulePaddle(stuckModule);
+    } else if (!flappedForUnseenCard) {
+      flappedForUnseenCard = true;
+      for (int m = 1; m < targetModule; m++) {
+        wiggleModulePaddle(m, targetModule);
+        if (digitalRead(irPin(targetModule)) == LOW) return 0;
+      }
+      if (waitForCard(targetModule, UNSEEN_CARD_ARRIVAL_WAIT_MS)) return 0;
+      continue;
+    } else {
+      break;
+    }
     if (waitForCard(targetModule)) return 0;
   }
   int stuckModule = findCardBeforeModule(targetModule);
@@ -1577,6 +1676,10 @@ void printStatus(Print& reply, bool live) {
   reply.print(F("{\"status\":\"ready\",\"version\":\"" FIRMWARE_VERSION
                 "\",\"board\":\"" BOARD_TYPE "\",\"id\":\""));
   reply.print(deviceId);
+  char advertisedName[SORTER_NAME_MAX_BYTES + 1];
+  formatAdvertisedName(advertisedName, sizeof(advertisedName));
+  reply.print(F("\",\"name\":\""));
+  printJsonEscaped(advertisedName, reply);
   reply.print(F("\",\"ble\":\""));
   reply.print(bleStatus());
   reply.print(F("\",\"resetReason\":\""));
@@ -1642,6 +1745,29 @@ void runCommand(JsonDocument& doc, Print& reply) {
 #endif
 
   if (handleLedCommand(doc, reply)) return;
+
+  // {"setName": "Kitchen sorter"} - see PROTOCOL.md. An empty name goes back
+  // to the default "Mault Sorter <id>".
+  if (doc["setName"].is<const char*>()) {
+    const char* name = doc["setName"].as<const char*>();
+    if (strlen(name) > SORTER_NAME_MAX_BYTES) {
+      reply.println(F("{\"error\":\"name must be up to 29 bytes\"}"));
+      return;
+    }
+    if (strcmp(name, sorterName) != 0) {
+      strcpy(sorterName, name);
+      storeSorterName();
+#if BLE_SUPPORTED
+      bleUpdateName();
+#endif
+    }
+    char advertisedName[SORTER_NAME_MAX_BYTES + 1];
+    formatAdvertisedName(advertisedName, sizeof(advertisedName));
+    reply.print(F("{\"status\":\"ok\",\"name\":\""));
+    printJsonEscaped(advertisedName, reply);
+    reply.println(F("\"}"));
+    return;
+  }
 
   // {"setChannelOffset": N} — see channel layout comment near the top.
   if (doc["setChannelOffset"].is<int>()) {
@@ -1796,7 +1922,14 @@ void runCommand(JsonDocument& doc, Print& reply) {
   }
 
   // {"feeder": true} — run feeder until module 1 IR detects a card (or timeout/empty hopper)
+  // "requireEmptyModuleOne": true (2.13.4+) refuses when module 1 already
+  // holds a card. A plain feed succeeds at once in that case, so after a
+  // routed card that never left module 1 the app would scan it again.
   if (isTrue(doc["feeder"])) {
+    if (isTrue(doc["requireEmptyModuleOne"]) && digitalRead(irPin(1)) == LOW) {
+      reply.println(F("{\"error\":\"module 1 still holds a card\",\"moduleOneLoaded\":true}"));
+      return;
+    }
     FeedResult result = runFeeder();
     reply.print(F("{\"status\":\"ok\",\"detected\":"));
     printBool(result == FEED_DETECTED, reply);
@@ -1922,6 +2055,13 @@ void runCommand(JsonDocument& doc, Print& reply) {
       reply.println(F("{\"error\":\"direction must be left, right, or bottom\"}"));
       return;
     }
+    // "requireLoaded": true (2.13.4+): a scan route is for the card the app
+    // just scanned. routeCard() would run the feeder when module 1 is empty
+    // and sort an unscanned card, so refuse before anything moves.
+    if (isTrue(route["requireLoaded"]) && digitalRead(irPin(1)) == HIGH) {
+      reply.println(F("{\"error\":\"no card loaded at module 1\",\"noLoadedCard\":true}"));
+      return;
+    }
     routeCard(module, direction, route["feedNext"] | false, reply);
     return;
   }
@@ -1979,6 +2119,7 @@ void setup() {
   }
   beginEeprom();
   loadStoredConfig();
+  loadSorterName();
 
   // All MAX_MODULES pins are set up regardless of the eventual offset/module
   // count - harmless, and the app hasn't told us the offset yet.

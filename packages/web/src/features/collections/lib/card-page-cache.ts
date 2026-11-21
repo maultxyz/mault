@@ -12,7 +12,7 @@ import {
   CARDS_SUMMARY_REFRESH_THROTTLE_MS,
 } from "@/lib/constants/timing";
 import { createKeyedRefreshThrottle } from "@/lib/keyed-refresh-throttle";
-import type { InfiniteData, QueryClient } from "@tanstack/react-query";
+import type { InfiniteData, Query, QueryClient } from "@tanstack/react-query";
 
 const throttleSummaryRefresh = createKeyedRefreshThrottle(
   CARDS_SUMMARY_REFRESH_THROTTLE_MS,
@@ -20,6 +20,9 @@ const throttleSummaryRefresh = createKeyedRefreshThrottle(
 const throttleCardListRefresh = createKeyedRefreshThrottle(
   CARDS_LIST_REFRESH_THROTTLE_MS,
 );
+const latestCardWriteAt = new Map<string, number>();
+const fetchStartTrackedClients = new WeakSet<QueryClient>();
+const queryFetchStartedAt = new WeakMap<Query, number>();
 
 export function patchCardPages(
   queryClient: QueryClient,
@@ -122,11 +125,41 @@ export function invalidateCollectionCards(
       queryKey: [...collectionCardsKeys.all(guid), "summary"],
     });
   });
+  trackQueryFetchStarts(queryClient);
+  latestCardWriteAt.set(guid, Date.now());
   throttleCardListRefresh(guid, () => {
-    void queryClient.invalidateQueries({
-      queryKey: collectionCardsKeys.all(guid),
-      predicate: (query) =>
-        !CARD_QUERY_KINDS_REFRESHED_SEPARATELY.includes(String(query.queryKey[2])),
-    });
+    const writtenAt = latestCardWriteAt.get(guid) ?? 0;
+    const isRefreshedHere = (query: Query) =>
+      !CARD_QUERY_KINDS_REFRESHED_SEPARATELY.includes(String(query.queryKey[2]));
+    void queryClient
+      .invalidateQueries({
+        queryKey: collectionCardsKeys.all(guid),
+        predicate: isRefreshedHere,
+        refetchType: "none",
+      })
+      .then(() =>
+        queryClient.refetchQueries({
+          queryKey: collectionCardsKeys.all(guid),
+          type: "active",
+          predicate: (query) =>
+            isRefreshedHere(query) &&
+            !isFetchStartedAfter(query, writtenAt),
+        }),
+      );
   });
+}
+
+function trackQueryFetchStarts(queryClient: QueryClient) {
+  if (fetchStartTrackedClients.has(queryClient)) return;
+  fetchStartTrackedClients.add(queryClient);
+  queryClient.getQueryCache().subscribe((event) => {
+    if (event.type === "updated" && event.action.type === "fetch") {
+      queryFetchStartedAt.set(event.query, Date.now());
+    }
+  });
+}
+
+function isFetchStartedAfter(query: Query, writtenAt: number): boolean {
+  if (query.state.fetchStatus !== "fetching") return false;
+  return (queryFetchStartedAt.get(query) ?? 0) > writtenAt;
 }

@@ -1,7 +1,5 @@
-import type { Result } from "@magic-vault/shared";
-import { apiGet, unwrapOr } from "@/lib/api/client";
 import { SHORT_LINK_BASE_URL } from "@/lib/constants/config";
-import type { PublicVersionInfo } from "@/lib/interfaces/config";
+import { loadPublicVersionInfo } from "@/lib/public-version-info";
 
 let serverShortLinkBaseUrl: string | null = null;
 
@@ -10,10 +8,7 @@ export function shortLinkBaseUrl(): string | null {
 }
 
 export async function loadShortLinkBaseUrl(): Promise<void> {
-  const versionInfo = await unwrapOr<PublicVersionInfo | null>(
-    apiGet<Result<PublicVersionInfo>>("/api/public/version"),
-    null,
-  ).catch(() => null);
+  const versionInfo = await loadPublicVersionInfo();
   const baseUrl = versionInfo?.shortLinkBaseUrl?.trim().replace(/\/$/, "");
   if (baseUrl) serverShortLinkBaseUrl = baseUrl;
 }

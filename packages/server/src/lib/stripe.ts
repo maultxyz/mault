@@ -15,6 +15,7 @@ import {
   LEGACY_BUSINESS_PRICE_ID_ENV,
   PLAN_PRICE_ID_ENV,
 } from "./constants/billing";
+import type { RecurringPriceInfo } from "./interfaces/subscription-summary";
 import { isLegacyPricingActive } from "./pricing-mode";
 import { STRIPE_PRICE_CACHE_TTL_MS as PRICE_CACHE_TTL_MS } from "./constants/timing";
 
@@ -166,19 +167,15 @@ export async function getBillingPortalConfigurationId(): Promise<
   return config.id;
 }
 
-const _planPriceCache = new Map<
+const _recurringPriceCache = new Map<
   string,
-  { info: PlanPriceInfo | null; cachedAt: number }
+  { info: RecurringPriceInfo | null; cachedAt: number }
 >();
 
-async function getPlanPriceInfo(
-  plan: PaidPlanKey,
-  interval: BillingInterval,
-): Promise<PlanPriceInfo | null> {
-  const priceId = findPlanPriceId(plan, interval);
-  if (!priceId) return null;
-
-  const cached = _planPriceCache.get(priceId);
+export async function getRecurringPriceInfo(
+  priceId: string,
+): Promise<RecurringPriceInfo | null> {
+  const cached = _recurringPriceCache.get(priceId);
   if (cached && Date.now() - cached.cachedAt < PRICE_CACHE_TTL_MS) {
     return cached.info;
   }
@@ -191,9 +188,22 @@ async function getPlanPriceInfo(
           amount: price.unit_amount,
           currency: price.currency,
           interval: price.recurring.interval,
+          intervalCount: price.recurring.interval_count,
         };
-  _planPriceCache.set(priceId, { info, cachedAt: Date.now() });
+  _recurringPriceCache.set(priceId, { info, cachedAt: Date.now() });
   return info;
+}
+
+async function getPlanPriceInfo(
+  plan: PaidPlanKey,
+  interval: BillingInterval,
+): Promise<PlanPriceInfo | null> {
+  const priceId = findPlanPriceId(plan, interval);
+  if (!priceId) return null;
+  const info = await getRecurringPriceInfo(priceId);
+  return info
+    ? { amount: info.amount, currency: info.currency, interval: info.interval }
+    : null;
 }
 
 async function getPlanIntervalPrices(

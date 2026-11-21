@@ -1,19 +1,8 @@
 import { ROUTE_LOADING_INDICATOR_DELAY_MS } from "@/lib/constants/timing";
-import type {
-  RouteChunkLoader,
-  RouteComponentModule,
-} from "@/lib/interfaces/route-chunks";
-import {
-  isValidElement,
-  lazy,
-  useSyncExternalStore,
-  type ComponentType,
-} from "react";
-import { matchRoutes, type RouteObject } from "react-router-dom";
+import type { RouteComponentModule } from "@/lib/interfaces/route-chunks";
+import { lazy, useSyncExternalStore, type ComponentType } from "react";
 
 const indicatorListeners = new Set<() => void>();
-const loaderByRouteComponent = new WeakMap<object, RouteChunkLoader>();
-let preloadableRoutes: RouteObject[] = [];
 let pendingRouteLoadCount = 0;
 let isRouteLoadingIndicatorVisible = false;
 let indicatorDelayHandle: ReturnType<typeof setTimeout> | null = null;
@@ -48,23 +37,7 @@ export function lazyRoute<RouteComponent extends ComponentType<object>>(
     beginRouteLoad();
     return loadRouteModule().finally(endRouteLoad);
   });
-  loaderByRouteComponent.set(routeComponent, loadRouteModule);
   return routeComponent;
-}
-
-export function registerPreloadableRoutes(routes: RouteObject[]) {
-  preloadableRoutes = routes;
-}
-
-export function preloadRouteChunks(pathname: string) {
-  const matches = matchRoutes(preloadableRoutes, pathname);
-  if (!matches) return;
-  for (const { route } of matches) {
-    const element = route.element;
-    if (!isValidElement(element) || typeof element.type === "string") continue;
-    const loadRouteModule = loaderByRouteComponent.get(element.type);
-    if (loadRouteModule) void loadRouteModule().catch(() => undefined);
-  }
 }
 
 function subscribeToRouteLoadingIndicator(listener: () => void) {

@@ -1,8 +1,16 @@
+import { createHash } from "node:crypto";
 import { setImmediate as yieldToEventLoop } from "node:timers/promises";
+import { PgDialect } from "drizzle-orm/pg-core";
+import { readCardMatchSnapshot, saveCardMatchSnapshot } from "./card-match-snapshots";
+import {
+  cardMatchFlagsSql,
+  fillCardMatchFlagsInBackground,
+  storedOrComputedFlagSql,
+} from "./card-match-flags";
 import { PRINTING_MARK_VERSION } from "./constants/printing-marks";
 import { invalidatePrintingMarkReferences } from "./printing-marks/references";
 import { and, eq, sql, type SQL } from "drizzle-orm";
-import { backgroundLoadDb } from "../db";
+import { backgroundLoadDb, singleStatementDb } from "../db";
 import { binSets, collections, games } from "../db/schema";
 import { clearCatalogReadCaches } from "./card-search/catalog-read-cache";
 import { clearCachedCatalogCards } from "./saved-cards";
@@ -42,6 +50,7 @@ import { isPiHost } from "./pi-host";
 import { getState as getSyncState } from "./sync-job/state";
 
 const segmentEntries = new Map<string, CardMatchSegmentEntry>();
+const pgDialect = new PgDialect();
 const gameLangsCache = createKeyedCache<string[]>(
   CARD_MATCH_INDEX_REVALIDATE_MS,
   CARD_MATCH_GAME_LANGS_CACHE_MAX_ENTRIES,
@@ -133,40 +142,49 @@ async function loadSegment(
   const startedAt = Date.now();
   const cardsTableWriteCount = await loadCardsTableWriteCount();
   const signature = await loadSegmentSignature(gameKey, lang);
-  const adapter = resolveCardSearchForGame(gameKey, lang)?.adapter;
-  const rarePrintingSql = adapter?.rarePrintingSql ?? sql`false`;
-  const promoPrintingSql = adapter?.promoPrintingSql ?? sql`false`;
-  const printedLanguageCodeSql = adapter?.printedLanguageCodeSql ?? sql`NULL`;
-  const printedSetTotalSql = adapter?.printedSetTotalSql ?? sql`NULL`;
-  const exclusionFilter = adapter?.excludedFromMatchingSql
-    ? sql`AND NOT coalesce(${adapter.excludedFromMatchingSql}, false)`
-    : sql``;
+  const flags = cardMatchFlagsSql(resolveCardSearchForGame(gameKey, lang)?.adapter);
 
-  const builder = createCardMatchSegmentBuilder(gameKey, lang, {
-    expectedRows: signature.rowCount,
-    expectedBackFaces: signature.backFaceCount,
-  });
   const transferFormat = await cardMatchEmbeddingTransferFormat();
-  const decodeFrontEmbedding = createCardMatchEmbeddingDecoder(transferFormat);
-  const decodeBackEmbedding = createCardMatchEmbeddingDecoder(transferFormat);
-  const fetchPageAfter = (afterCardId: string): Promise<{ rows: CardMatchIndexPageRow[] }> =>
-    backgroundLoadDb.execute<CardMatchIndexPageRow>(sql`
+  const pageQueryAfter = (afterCardId: string): SQL => sql`
       SELECT card_id, name, set_code, collector_number,
-        coalesce(${rarePrintingSql}, false) AS rare_printing,
-        coalesce(${promoPrintingSql}, false) AS promo_printing,
-        (${printedLanguageCodeSql})::boolean AS printed_language_code,
-        (${printedSetTotalSql})::int AS printed_set_total,
+        ${storedOrComputedFlagSql(flags, "is_rare_printing", flags.rarePrinting)} AS rare_printing,
+        ${storedOrComputedFlagSql(flags, "is_promo_printing", flags.promoPrinting)} AS promo_printing,
+        ${storedOrComputedFlagSql(flags, "printed_language_code", flags.printedLanguageCode)} AS printed_language_code,
+        ${storedOrComputedFlagSql(flags, "printed_set_total", flags.printedSetTotal)} AS printed_set_total,
+        ${flags.storedFlagsAreCurrent} AS match_flags_stored,
         CASE WHEN printing_mark_version = ${PRINTING_MARK_VERSION}
           THEN printing_mark_groups END AS printing_mark_groups,
         ${sentEmbeddingSql(sql`embedding`, transferFormat)} AS embedding,
         ${sentEmbeddingSql(sql`back_embedding`, transferFormat)} AS back_embedding
       FROM cards
       WHERE game_key = ${gameKey} AND lang = ${lang} AND card_id > ${afterCardId}
-        ${exclusionFilter}
+        AND NOT ${storedOrComputedFlagSql(flags, "is_excluded_from_matching", flags.excludedFromMatching)}
       ORDER BY card_id
       LIMIT ${CARD_MATCH_INDEX_PAGE_SIZE}
-    `);
+    `;
+  const snapshotStamp = cardMatchSnapshotStamp(
+    signature.value,
+    transferFormat,
+    pageQueryAfter(""),
+  );
+  const snapshot = await readCardMatchSnapshot(gameKey, lang, snapshotStamp);
+  if (snapshot) {
+    console.log(
+      `[card-match-index] loaded ${gameKey}/${lang} from its snapshot: ${snapshot.rowCount} cards, ${Math.round(cardMatchSegmentBytes(snapshot) / 1024 / 1024)} MB in ${Date.now() - startedAt}ms`,
+    );
+    return { segment: snapshot, signature: signature.value, cardsTableWriteCount };
+  }
 
+  const builder = createCardMatchSegmentBuilder(gameKey, lang, {
+    expectedRows: signature.rowCount,
+    expectedBackFaces: signature.backFaceCount,
+  });
+  const decodeFrontEmbedding = createCardMatchEmbeddingDecoder(transferFormat);
+  const decodeBackEmbedding = createCardMatchEmbeddingDecoder(transferFormat);
+  const fetchPageAfter = (afterCardId: string): Promise<{ rows: CardMatchIndexPageRow[] }> =>
+    backgroundLoadDb.execute<CardMatchIndexPageRow>(pageQueryAfter(afterCardId));
+
+  let computedFlagsCount = 0;
   let nextPage: Promise<{ rows: CardMatchIndexPageRow[] }> | null = fetchPageAfter("");
   while (nextPage) {
     const page: { rows: CardMatchIndexPageRow[] } = await nextPage;
@@ -175,6 +193,7 @@ async function loadSegment(
       ? null
       : fetchPageAfter(page.rows[page.rows.length - 1].card_id);
     for (const [index, row] of page.rows.entries()) {
+      if (!row.match_flags_stored) computedFlagsCount += 1;
       builder.add({
         cardId: row.card_id,
         name: row.name,
@@ -198,7 +217,27 @@ async function loadSegment(
   console.log(
     `[card-match-index] loaded ${gameKey}/${lang}: ${segment.rowCount} cards, ${Math.round(cardMatchSegmentBytes(segment) / 1024 / 1024)} MB in ${Date.now() - startedAt}ms`,
   );
+  saveCardMatchSnapshot(segment, snapshotStamp);
+  if (computedFlagsCount > 0) fillCardMatchFlagsInBackground(gameKey, lang, flags);
   return { segment, signature: signature.value, cardsTableWriteCount };
+}
+
+function cardMatchSnapshotStamp(
+  signature: string,
+  transferFormat: CardMatchEmbeddingTransferFormat,
+  firstPageQuery: SQL,
+): string {
+  const renderedQuery = pgDialect.sqlToQuery(firstPageQuery);
+  return createHash("sha256")
+    .update(
+      JSON.stringify([
+        signature,
+        transferFormat,
+        renderedQuery.sql,
+        renderedQuery.params,
+      ]),
+    )
+    .digest("hex");
 }
 
 function logReloadFailure(entry: CardMatchSegmentEntry) {
@@ -334,9 +373,19 @@ export async function languagesOfGame(gameKey: string): Promise<string[]> {
 
 async function langsOfGame(gameKey: string): Promise<string[]> {
   return gameLangsCache.get(gameKey, async () => {
-    const result = await backgroundLoadDb.execute<{ lang: string }>(
-      sql`SELECT DISTINCT lang FROM cards WHERE game_key = ${gameKey}`,
-    );
+    const result = await singleStatementDb.execute<{ lang: string }>(sql`
+      WITH RECURSIVE game_langs AS (
+        SELECT min(lang) AS lang FROM cards WHERE game_key = ${gameKey}
+        UNION ALL
+        SELECT (
+          SELECT min(next_card.lang) FROM cards next_card
+          WHERE next_card.game_key = ${gameKey} AND next_card.lang > game_langs.lang
+        )
+        FROM game_langs
+        WHERE game_langs.lang IS NOT NULL
+      )
+      SELECT lang FROM game_langs WHERE lang IS NOT NULL
+    `);
     return result.rows.map((row) => row.lang);
   });
 }

@@ -67,6 +67,7 @@
     "piBusy": "The Pi's USB port is already in use. Disconnect it in the other browser, or stop the scan running on the Pi, then try again.",
     "piScanBusy": "A scan is running on the Pi, so this browser cannot take the sorter. Stop the scan first.",
     "bluetoothPermissionBlocked": "Bluetooth permission is blocked for this browser. Check your browser's site settings (or chrome://settings/content/bluetoothDevices) to allow Bluetooth, then try again.",
+    "recentSorterUnreachable": "Make sure the sorter is turned on and nearby, then try again.",
     "connectionLost": {
       "title": "Connection lost",
       "description": "The sorter disconnected unexpectedly. If you're connected over USB, make sure no other application (like the Arduino IDE's Serial Monitor) is using the port, then reconnect."
@@ -561,7 +562,15 @@
   },
   "alphabetPassControl": {
     "range": "Sorting {{from}} to {{to}}",
-    "stopFirst": "Stop the scanner before moving to the next letters."
+    "stopFirst": "Stop the scanner before moving to the next pass."
+  },
+  "retainedScanSettings": {
+    "title": "Scan settings still on",
+    "foil": "Foil: {{type}}",
+    "condition": "Condition: {{condition}}",
+    "sets_one": "Set: {{sets}}",
+    "sets_other": "Sets: {{sets}}",
+    "reset": "Reset"
   },
   "sessionStatsPanel": {
     "value": "Value"
@@ -687,7 +696,7 @@
       "renameFailed": "Couldn't rename the sorter",
       "renameDialog": {
         "title": "Rename sorter",
-        "description": "The name shows on the sorter tabs and on this page.",
+        "description": "The name shows on the sorter tabs, on this page and in Bluetooth device lists once the sorter is connected with firmware 2.14.0 or later.",
         "nameLabel": "Name",
         "submit": "Save"
       },
@@ -1022,6 +1031,10 @@
       "rejected": "Rejected, set up Wi-Fi again"
     },
     "pausedForPower": "The sorter kept restarting from power dips when Wi-Fi started, so Wi-Fi is paused and USB and Bluetooth still work. Use a stronger power supply or power the servos separately, then unplug and replug the sorter or save Wi-Fi again to retry."
+  },
+  "recentSorters": {
+    "title": "Recent sorters",
+    "connected": "Connected"
   },
   "wifiConnect": {
     "item": "Wi-Fi: {{name}}",

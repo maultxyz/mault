@@ -77,6 +77,7 @@ const router = new Hono<AppEnv>()
   .get("/progress", requireAuth, async (c) => {
     const data = await matchValidationProgressCache.get(
       MATCH_VALIDATION_PROGRESS_MAX_AGE_MS,
+      { servesStaleWhileRefreshing: true },
     );
     return c.json({ success: true, data });
   })

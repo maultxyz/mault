@@ -218,13 +218,24 @@ export interface PiScanIdentification {
   card: import("@magic-vault/shared").PlayingCardWithDistance | null;
 }
 
+export interface PiScanEarlyRoute {
+  scanId: string;
+  scannedAt: number;
+  bin: BinConfig;
+  routing: Promise<void>;
+}
+
 export interface PiScanWorkflowPorts {
   capture(): Promise<Buffer>;
   readControl(frame: Buffer): Promise<string | null>;
   applyControl(
     command: import("@magic-vault/shared").ScannerControlCommand | null,
   ): Promise<void>;
-  identify(frame: Buffer): Promise<PiScanIdentification>;
+  identify(
+    frame: Buffer,
+    offerEarlyRoute: (provisional: PiScanIdentification) => void,
+  ): Promise<PiScanIdentification>;
+  routeEarly(provisional: PiScanIdentification): boolean;
   removal(outcome: PiScanIdentification): Promise<void>;
   nudge(
     outcome: PiScanIdentification,

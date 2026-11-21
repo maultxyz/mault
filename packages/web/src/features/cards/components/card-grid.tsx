@@ -332,6 +332,19 @@ export function CardGrid() {
     () => ({ ...cardsQuery, unreviewed: true }),
     [cardsQuery],
   );
+  const { data: openPosition, isPending: openPositionPending } = useQuery(
+    collectionCardPositionQueryOptions(
+      collectionGuid,
+      openScanId,
+      isReviewing ? reviewQuery : cardsQuery,
+    ),
+  );
+  const openEntry =
+    openPosition && openPosition.entry.scanId === openScanId
+      ? openPosition.entry
+      : null;
+  const isCardListHidden =
+    isGridReviewing || (!!openScanId && (openPositionPending || !!openEntry));
   const [reviewTotal, setReviewTotal] = useState<number | null>(null);
   const { data: reviewCount } = useQuery({
     ...collectionCardsCountQueryOptions(collectionGuid, reviewQuery),
@@ -396,7 +409,7 @@ export function CardGrid() {
       page,
       pageSize,
     ),
-    enabled: !!collectionGuid && !scanTimelineGrouping,
+    enabled: !!collectionGuid && !scanTimelineGrouping && !isCardListHidden,
   });
   const prefetchCardPage = useCallback(
     (oneBasedPage: number) => {
@@ -415,7 +428,7 @@ export function CardGrid() {
   const scanTimelineTimeZone = useMemo(() => deviceTimeZone(), []);
   const scanTimelineCardsQuery = useInfiniteQuery({
     ...scanTimelineCardsQueryOptions(collectionGuid, cardsQuery),
-    enabled: !!collectionGuid && !!scanTimelineGrouping,
+    enabled: !!collectionGuid && !!scanTimelineGrouping && !isCardListHidden,
   });
   const scanTimelineBucketsQuery = useQuery({
     ...scanTimelineBucketsQueryOptions(
@@ -424,7 +437,7 @@ export function CardGrid() {
       scanTimelineGrouping ?? "day",
       scanTimelineTimeZone,
     ),
-    enabled: !!collectionGuid && !!scanTimelineGrouping,
+    enabled: !!collectionGuid && !!scanTimelineGrouping && !isCardListHidden,
   });
   const scanTimelinePages = scanTimelineCardsQuery.data?.pages;
   const pageData = scanTimelineGrouping
@@ -500,17 +513,6 @@ export function CardGrid() {
     if (page !== clampedPage) setPage(clampedPage);
   }, [page, clampedPage, setPage]);
 
-  const { data: openPosition, isPending: openPositionPending } = useQuery(
-    collectionCardPositionQueryOptions(
-      collectionGuid,
-      openScanId,
-      isReviewing ? reviewQuery : cardsQuery,
-    ),
-  );
-  const openEntry =
-    openPosition && openPosition.entry.scanId === openScanId
-      ? openPosition.entry
-      : null;
   const loadPrefetchStep = useCallback(
     (scanId: string) =>
       loadCollectionPositionStep(

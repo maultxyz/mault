@@ -1,5 +1,7 @@
 import type { PlayingCard, PlayingCardWithDistance } from "./card.interface";
-import type { ScannedCard } from "./scanner.interface";
+import type { CardAcquisitionCost } from "./business.interface";
+import type { CardScanOrigin, MatchedScanDiagnostics, ScannedCard } from "./scanner.interface";
+import type { CardStorageLocation } from "./storage-locations.interface";
 
 export interface CardFilters {
   colors: string[];
@@ -98,3 +100,16 @@ export interface AddManualCardRequest {
 }
 
 export type CardSortDirection = "asc" | "desc";
+
+export interface CollectionCardScanImageUrls {
+  capturedImageUrl?: string;
+  capturedBackImageUrl?: string;
+}
+
+export interface CollectionCardDetails {
+  images: CollectionCardScanImageUrls;
+  diagnostics: MatchedScanDiagnostics | null;
+  origin: CardScanOrigin | null;
+  location: CardStorageLocation | null;
+  cost: CardAcquisitionCost | null;
+}

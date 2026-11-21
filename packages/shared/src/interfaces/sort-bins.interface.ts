@@ -153,13 +153,15 @@ export interface PresetWorkflowsAndPresets {
   presets: BinSet[];
 }
 
+export type BinSetGame = Pick<Game, "guid" | "key" | "name">;
+
 export interface BinSet {
   guid: string;
   name: string;
   description: string;
   isActive: boolean;
   bins: BinConfig[];
-  game: Game | null;
+  game: BinSetGame | null;
   autoAssignField: string | null;
   scanOnly: boolean;
   scanOnlyBin: number | null;
@@ -184,6 +186,29 @@ export interface BinSet {
 export interface AlphabetStep {
   pass: number;
   prefix: string;
+}
+
+export interface AlphabetLetterRange {
+  firstLetterIndex: number;
+  lastLetterIndex: number;
+}
+
+export interface AlphabetPassPlan {
+  range: AlphabetLetterRange;
+  groups: AlphabetLetterRange[];
+}
+
+export interface AlphabetPassGroup {
+  binNumber: number;
+  label: string;
+  isSingleLetter: boolean;
+}
+
+export interface AlphabetPass {
+  from: string;
+  to: string;
+  sortsOneLetterPerBin: boolean;
+  groups: AlphabetPassGroup[];
 }
 
 export type DefaultBinInit = {

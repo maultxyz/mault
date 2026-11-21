@@ -5,6 +5,7 @@ import { MobilePageHeader } from "@/components/mobile-page-header";
 import { MobileSection } from "@/components/mobile-section";
 import { Button } from "@/components/ui/button";
 import { useSerial } from "@/features/scanner/api/use-serial";
+import { MobileRecentSorters } from "@/features/scanner/components/mobile-recent-sorters";
 import { MobileRemoteSorters } from "@/features/scanner/components/mobile-remote-sorters";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePiHostState } from "@/hooks/use-pi-host";
@@ -33,6 +34,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
 import { isWebBluetoothSupported } from "@/lib/web-bluetooth";
+import type { RecentBluetoothSorter } from "@/lib/interfaces/scanner";
 
 export default function SorterPage() {
   const { t } = useTranslation("scanner");
@@ -47,6 +49,9 @@ export default function SorterPage() {
     "pi" | "bluetooth" | null
   >(null);
   const [connectingGuid, setConnectingGuid] = useState<string | null>(null);
+  const [connectingRecentId, setConnectingRecentId] = useState<string | null>(
+    null,
+  );
   const bluetoothSupported = isWebBluetoothSupported();
 
   if (!isMobile) return <Navigate to={SORTERS_OVERVIEW_PATH} replace />;
@@ -69,6 +74,19 @@ export default function SorterPage() {
       await run("connect", fn);
     } finally {
       setConnectTarget(null);
+    }
+  };
+
+  const connectRecent = async (sorter: RecentBluetoothSorter) => {
+    setConnectingRecentId(sorter.id);
+    try {
+      await run("connect", () =>
+        serial.connectBluetooth({
+          bluetoothDevice: sorter.bluetoothDevice ?? undefined,
+        }),
+      );
+    } finally {
+      setConnectingRecentId(null);
     }
   };
 
@@ -194,6 +212,13 @@ export default function SorterPage() {
                 <Callout variant="info">
                   {t("mobileSorter.unsupported")}
                 </Callout>
+              )}
+              {bluetoothSupported && !piSorter && !piConnect && (
+                <MobileRecentSorters
+                  disabled={busy !== null}
+                  connectingId={connectingRecentId}
+                  onConnect={(sorter) => void connectRecent(sorter)}
+                />
               )}
               <MobileRemoteSorters
                 disabled={busy !== null}

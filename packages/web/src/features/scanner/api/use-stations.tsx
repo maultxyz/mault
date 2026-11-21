@@ -345,14 +345,17 @@ export function StationsProvider({ children }: { children: React.ReactNode }) {
     [],
   );
 
-  const connectAnotherSorter = useCallback((kind: StationConnectKind) => {
+  const connectAnotherSorter = useCallback((
+    kind: StationConnectKind,
+    bluetoothDevice?: BluetoothDevice,
+  ) => {
     if (connectedRef.current.size >= maxConnectedSortersRef.current) return;
     const standby = stationsRef.current.find(
       (s) => !connectedRef.current.has(s.id),
     );
     const connector = standby && connectorsRef.current.get(standby.id);
     if (!connector) return;
-    void (kind.startsWith("pi:") ? connector.connect(kind.slice(3)) : kind === "usb" ? connector.connect() : connector.connectBluetooth());
+    void (kind.startsWith("pi:") ? connector.connect(kind.slice(3)) : kind === "usb" ? connector.connect() : connector.connectBluetooth(bluetoothDevice));
   }, []);
 
   const connectAnotherSorterCloud = useCallback((deviceGuid: string) => {

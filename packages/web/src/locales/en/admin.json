@@ -323,6 +323,18 @@
       "startError": "Failed to start impersonation"
     }
   },
+  "subscriptionSummary": {
+    "heading": "Subscriptions",
+    "description": "Organizations with a paid subscription, by plan. Monthly recurring revenue uses each plan's list price, with yearly plans spread over 12 months, before discounts and taxes. Trials count as subscribers but add no revenue.",
+    "subscribersHeading": "Subscribers",
+    "revenueHeading": "Monthly recurring revenue",
+    "total": "Total",
+    "trialingCount_one": "{{count}} in trial",
+    "trialingCount_other": "{{count}} in trial",
+    "unpriced_one": "{{count}} subscriber's price couldn't be loaded from Stripe, so they're left out of revenue.",
+    "unpriced_other": "{{count}} subscribers' prices couldn't be loaded from Stripe, so they're left out of revenue.",
+    "loadFailed": "Couldn't load subscriptions."
+  },
   "metricsStats": {
     "heading": "Scan stats",
     "description": "App-wide scan activity across every organization, and whether each scan was vectorized on the server or in the browser. Someone counts as actively scanning while they've saved a scan in the last {{minutes}} minutes.",

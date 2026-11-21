@@ -113,6 +113,13 @@ export const cardImageVectors = pgTable(
     printingMarkVersion: smallint("printing_mark_version"),
     embeddingVersion: smallint("embedding_version").notNull().default(0),
     sourceDataHash: text("source_data_hash"),
+    isRarePrinting: boolean("is_rare_printing"),
+    isPromoPrinting: boolean("is_promo_printing"),
+    printedLanguageCode: boolean("printed_language_code"),
+    printedSetTotal: integer("printed_set_total"),
+    isExcludedFromMatching: boolean("is_excluded_from_matching"),
+    matchFlagsFingerprint: integer("match_flags_fingerprint"),
+    matchFlagsSourceUpdatedAt: timestamp("match_flags_source_updated_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -142,6 +149,9 @@ export const cardImageVectors = pgTable(
       table.lang,
       sql`lower(${table.setCode})`,
     ),
+    index("cards_set_list_idx")
+      .on(table.gameKey, table.lang, table.setCode, table.setName)
+      .where(sql`${table.data} IS NOT NULL`),
     crudPolicy({
       role: authenticatedRole,
       read: true,
@@ -831,6 +841,16 @@ export const collectionCards = pgTable(
       table.collectionId,
       table.scannedAt,
     ),
+    index("collection_cards_unreviewed_photo_scanned_idx")
+      .on(
+        table.scannedAt,
+        table.collectionId,
+        table.guid,
+        table.lowConfidenceMatch,
+      )
+      .where(
+        sql`${table.isReviewed} = false AND (${table.capturedImageKey} IS NOT NULL OR ${table.capturedImageDataUrl} IS NOT NULL)`,
+      ),
     index("collection_cards_card_id_idx").on(table.cardId),
     index("collection_cards_org_created_idx").on(table.orgId, table.createdAt),
     index("collection_cards_collection_card_idx").on(

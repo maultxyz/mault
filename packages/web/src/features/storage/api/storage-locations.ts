@@ -22,6 +22,7 @@ import type {
 } from "@magic-vault/shared";
 import { STORAGE_CARDS_PAGE_SIZE_MAX } from "@magic-vault/shared";
 import { cardsQueryParams } from "@/features/collections/api/collection-cards";
+import { loadThroughCardDetails } from "@/features/collections/api/card-details";
 import { pageRequestParams } from "@/lib/api/page-request";
 import { ALL_CARDS_QUERY } from "@/lib/constants/card-filters";
 import type { PageRequest } from "@/lib/interfaces/pagination";
@@ -271,10 +272,17 @@ export const cardStorageLocationQueryOptions = (
 ) =>
   queryOptions({
     queryKey: storageLocationKeys.card(scanId),
-    queryFn: () =>
-      apiGet<Result<CardStorageLocation | null>>(
-        `/api/collections/${collectionGuid}/cards/${scanId}/location`,
-      ).then((r) => r.data ?? null),
+    queryFn: (context) =>
+      loadThroughCardDetails(
+        context,
+        collectionGuid,
+        scanId,
+        (details) => details.location,
+        () =>
+          apiGet<Result<CardStorageLocation | null>>(
+            `/api/collections/${collectionGuid}/cards/${scanId}/location`,
+          ).then((r) => r.data ?? null),
+      ),
     enabled: !!collectionGuid && !!scanId,
   });
 

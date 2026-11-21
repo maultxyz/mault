@@ -44,7 +44,6 @@ import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { RouteAnnouncer } from "@/components/route-announcer";
 import { RouteLoadingIndicator } from "@/components/route-loading-indicator";
 import { SkipLink } from "@/components/skip-link";
-import { useRoutePreloadOnIntent } from "@/hooks/use-route-preload-on-intent";
 import { ServiceWorkerRegistration } from "@/components/service-worker-registration";
 
 export default function AppLayout() {
@@ -54,7 +53,6 @@ export default function AppLayout() {
   const hideMobileNav = MOBILE_NAV_HIDDEN_PATTERN.test(pathname);
   const isImmersive = MOBILE_IMMERSIVE_PATTERN.test(pathname);
   const isFramed = !hideMobileNav;
-  useRoutePreloadOnIntent();
 
   return (
     <AppProviders>

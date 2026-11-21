@@ -1,0 +1,2 @@
+CREATE INDEX "cards_set_list_idx" ON "cards" USING btree ("game_key","lang","set_code","set_name") WHERE "cards"."data" IS NOT NULL;--> statement-breakpoint
+CREATE INDEX "collection_cards_unreviewed_photo_scanned_idx" ON "collection_cards" USING btree ("scanned_at","collection_id","guid","low_confidence_match") WHERE "collection_cards"."is_reviewed" = false AND ("collection_cards"."captured_image_key" IS NOT NULL OR "collection_cards"."captured_image_data_url" IS NOT NULL);

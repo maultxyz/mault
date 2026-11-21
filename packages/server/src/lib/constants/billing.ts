@@ -29,6 +29,13 @@ export const ACTIVE_SUBSCRIPTION_STATUSES = [
   "trialing",
   "past_due",
 ] as const;
+export const TRIALING_SUBSCRIPTION_STATUS = "trialing";
+export const MONTHS_PER_PRICE_INTERVAL: Record<string, number> = {
+  day: 12 / 365,
+  week: 12 / 52,
+  month: 1,
+  year: 12,
+};
 export const PLATFORM_BILLING_SETTINGS_ID = "platform";
 
 export const PLAN_RANK: Record<PlanKey, number> = {

@@ -1,4 +1,5 @@
 import {
+  SENSOR_CHECKED_FEED_COMMAND,
   SERIAL_DEFAULT_RESPONSE_TIMEOUT_MS,
   SerialSession,
   type SerialReply,
@@ -18,6 +19,12 @@ export class SorterLink extends SerialSession<ByteTransport> {
 
   feed(): Promise<SerialReply | null> {
     return this.runAfterRoutes(() => this.sendParsed({ feeder: true }, FEEDER_RESPONSE_TIMEOUT_MS));
+  }
+
+  feedRequiringEmptyModuleOne(): Promise<SerialReply | null> {
+    return this.runAfterRoutes(() =>
+      this.sendParsed(SENSOR_CHECKED_FEED_COMMAND, FEEDER_RESPONSE_TIMEOUT_MS),
+    );
   }
 
   readSensors(): Promise<SerialReply | null> {

@@ -1,8 +1,11 @@
 import { cardSetsQueryOptions } from "@/features/cards/api/card-sets";
 import { cardSearchQueryOptions } from "@/features/cards/api/use-card-search";
+import { cachedCollectionCardSearchLanguage } from "@/features/cards/api/use-collection-card-search-language";
 import { scanImageQueryOptions } from "@/features/cards/api/use-scan-image";
 import { collectionCardPositionQueryOptions } from "@/features/collections/api/collection-cards";
-import { cardDiagnosticsQueryOptions } from "@/features/collections/api/collections";
+import { collectionCardDetailsQueryOptions } from "@/features/collections/api/card-details";
+import { SCAN_IMAGE_URL_STALE_MS } from "@/lib/constants/scanner";
+import type { ScanImageUrls } from "@/lib/interfaces/cards";
 import {
   DETAIL_PREFETCH_COUNT,
   DETAIL_PREFETCH_STALE_MS,
@@ -12,7 +15,6 @@ import type {
   DetailPrefetchStep,
 } from "@/lib/interfaces/cards";
 import {
-  CARD_SEARCH_ALL_LANGUAGES,
   CATALOG_SEARCH_MIN_QUERY_LENGTH,
   REVIEW_DETAIL_PREFETCH_COUNT,
   REVIEW_DETAIL_PREFETCH_MAX_AGE_MS,
@@ -60,17 +62,36 @@ function prefetchReviewCorrectionSearch(
 ) {
   const name = step.card.name;
   if (name.trim().length < CATALOG_SEARCH_MIN_QUERY_LENGTH) return;
+  const language = cachedCollectionCardSearchLanguage(
+    queryClient,
+    step.collectionGuid,
+  );
   void queryClient.prefetchInfiniteQuery(
-    cardSearchQueryOptions(
-      name,
-      step.collectionGuid,
-      undefined,
-      CARD_SEARCH_ALL_LANGUAGES,
-    ),
+    cardSearchQueryOptions(name, step.collectionGuid, undefined, language),
   );
   void queryClient.prefetchQuery(
-    cardSetsQueryOptions(step.collectionGuid, name, CARD_SEARCH_ALL_LANGUAGES),
+    cardSetsQueryOptions(step.collectionGuid, name, language),
   );
+}
+
+async function prefetchCardDetailImages(
+  queryClient: QueryClient,
+  collectionGuid: string,
+  scanId: string,
+): Promise<ScanImageUrls> {
+  const imageState = queryClient.getQueryState<ScanImageUrls>(
+    scanImageQueryOptions(collectionGuid, scanId).queryKey,
+  );
+  if (
+    imageState?.data &&
+    Date.now() - imageState.dataUpdatedAt < SCAN_IMAGE_URL_STALE_MS
+  ) {
+    return imageState.data;
+  }
+  const details = await queryClient.fetchQuery(
+    collectionCardDetailsQueryOptions(collectionGuid, scanId),
+  );
+  return details.images;
 }
 
 export async function fetchPrefetchQueryData<TData, TKey extends QueryKey>(
@@ -138,18 +159,8 @@ export function usePrefetchDetailCards(
       isCancelled: () => cancelled,
       onStepLoaded: (scanId, step) => {
         preloadStepImages(step, reviewMode);
-        if (reviewMode) {
-          prefetchReviewCorrectionSearch(queryClient, step);
-          void queryClient.prefetchQuery(
-            cardDiagnosticsQueryOptions(step.collectionGuid, scanId),
-          );
-        }
-        const scanImage = scanImageQueryOptions(step.collectionGuid, scanId);
-        void (
-          reviewMode
-            ? fetchPrefetchQueryData(queryClient, scanImage, true)
-            : queryClient.fetchQuery(scanImage)
-        )
+        if (reviewMode) prefetchReviewCorrectionSearch(queryClient, step);
+        void prefetchCardDetailImages(queryClient, step.collectionGuid, scanId)
           .then((images) => {
             if (cancelled) return;
             preloadImage(images?.capturedImageUrl, reviewMode);

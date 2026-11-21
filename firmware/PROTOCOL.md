@@ -165,13 +165,16 @@ protocol standpoint.
   never block when no host is attached. Without a USB host the boot banner
   only goes out over BLE once a central connects, so a client should send
   `{"getStatus": true}` after connecting.
-- **Advertised name:** `"Mault Sorter XXXXXX"`, where `XXXXXX` is the same
+- **Advertised name:** the name saved with `setName` (2.14.0+), else
+  `"Mault Sorter XXXXXX"`, where `XXXXXX` is the same
   `id` reported in `getStatus`/the boot banner (see Transport above) - on
   these two boards, sourced from the BLE MAC (`BLE.address()` on the Uno R4
   WiFi's ArduinoBLE backend, `esp_read_mac(..., ESP_MAC_WIFI_STA)` on the
   ESP32-S3 Bluedroid backend, read before BLE even advertises). This exists
   so multiple physical units show up as distinct entries in a phone/OS
-  Bluetooth picker before a client ever connects to one.
+  Bluetooth picker before a client ever connects to one. The advertisement
+  carries the flags and the NUS service; the complete name is in the scan
+  response, and the GAP device name matches it.
 
 ## Wi-Fi transport (ESP32 firmware 2.10.0+, Uno R4 WiFi from the first firmware release after 2.10.1)
 
@@ -333,6 +336,25 @@ Firmware 2.10.0+ on ESP32 (and the first firmware release after 2.10.1 on the Un
 `"connecting"`, `"connected"` or `"rejected"`) to the `getStatus` reply. See
 `getWifi` for details. The app treats the presence of `"wifi"` as the board
 supporting Wi-Fi remote access.
+
+Firmware 2.14.0+ adds `"name"` to both the boot banner and the `getStatus`
+reply: the name it advertises over BLE (see `setName`).
+
+### `setName` (firmware 2.14.0+)
+```json
+{"setName": "Kitchen sorter"}
+```
+→ `{"status":"ok","name":"Kitchen sorter"}`
+
+Saves the name the sorter advertises over BLE (NVS on ESP32, EEPROM
+elsewhere, kept across reboots and reflashes) and reports it as `"name"`. Up
+to 29 bytes of UTF-8 (`{"error":"name must be up to 29 bytes"}` otherwise);
+an empty string goes back to `"Mault Sorter XXXXXX"`. Advertising switches to
+the new name at once, or after the current BLE central disconnects. Phones
+and browsers may show a cached name until they scan again. The app sends it
+after connecting and after a rename whenever the device record's name (cut to
+29 bytes, without quotes, backslashes or control characters) differs from the
+reported one.
 
 ### `setChannelOffset`
 ```json
@@ -565,6 +587,18 @@ hopper is found empty, or it times out.
 → `{"status":"ok","detected":true,"empty":false}`,
 or on failure a `{"error":"...","empty":true|false}` shape (see Errors below).
 
+#### `requireEmptyModuleOne` (firmware 2.13.4+, Pi controller pi-0.3.0)
+```json
+{"feeder": true, "requireEmptyModuleOne": true}
+```
+A plain `feeder` succeeds at once while a card sits in module 1. After a
+routed card that should have left module 1, that would hand the client the
+same card to scan again. With this flag the firmware checks module 1's IR
+sensor first and, when it still reads a card, moves nothing and replies
+`{"error":"module 1 still holds a card","moduleOneLoaded":true}`. It
+replaces a separate `readIR` round trip before the feed. Older firmware
+ignores the flag, so only send it to a version that supports it.
+
 ### `feederValue` (raw PWM preview)
 ```json
 {"feederValue": 315}
@@ -759,17 +793,34 @@ count the user picked.
 
 → `{"status":"routed","module":2,"direction":"left"}` on success.
 
+#### `requireLoaded` (firmware 2.13.4+, Pi controller pi-0.3.0)
+```json
+{"route": {"module": 2, "direction": "left", "requireLoaded": true}}
+```
+`route` runs the feeder first when module 1 is empty, which is right for
+calibration but wrong for a scanned card: the card the client identified is
+gone and the route would sort an unscanned one. With this flag the firmware
+checks module 1's IR sensor first and, when it reads empty, moves nothing
+and replies `{"error":"no card loaded at module 1","noLoadedCard":true}`.
+It replaces a separate `readIR` round trip before the route. Older firmware
+ignores the flag, so only send it to a version that supports it.
+
 #### `feedNext` (firmware 2.1.0+)
 ```json
 {"route": {"module": 3, "direction": "left", "feedNext": true}}
 ```
 Feeds the next card into module 1 as part of this route, so a client can
 start scanning it while this card is still travelling. Once the routed
-card has reached module 2 and module 1's IR sensor reads clear, module 1's
-bottom closes and the feeder runs. If the target is module 1 itself (or
-module 1's sensor never clears within 3s), the feed runs after the card
-has been pushed/dropped instead. Either way, exactly one extra line is
-sent before the final response, from the same transport:
+card has reached its target module and module 1's IR sensor reads clear,
+module 1's bottom closes and the feeder runs. The feed never starts while
+the routed card is still falling: closing module 1's bottom that early
+caught the card's trailing edge between modules 1 and 2, out of every
+sensor's view. From firmware 2.13.4 (Pi controller pi-0.3.0) the 300 ms
+the card gets to settle at the target is counted from its arrival, so the
+close and the feed cover it instead of being followed by it. If the target
+is module 1 itself (or module 1's sensor never clears within 3s), the feed
+runs after the card has been pushed/dropped instead. Either way, exactly
+one extra line is sent before the final response, from the same transport:
 
 - `{"event":"fed","status":"ok","detected":true,"empty":false}` when a card arrived at module 1
 - `{"event":"fed","error":"empty: feeder hopper is out of cards","empty":true}` or
@@ -795,7 +846,9 @@ response time for the feed (the web client waits 25s instead of 15s).
 | `{"error":"direction must be left, right, or bottom"}` | invalid `direction` in `route` |
 | `{"error":"empty: feeder hopper is out of cards","empty":true}` | feed attempted with no cards in the hopper |
 | `{"error":"timeout: feeder did not deliver card to module 1","empty":false}` | feeder ran its full configured `duration` without module 1's IR triggering |
-| `{"error":"timeout: no card detected at module N"}` | during routing, a card didn't advance to module *N* in time (3s, plus one paddle-flap retry and another 3s) |
+| `{"error":"timeout: no card detected at module N"}` | during routing, a card didn't advance to module *N* in time (3s, plus one paddle-flap retry and another 3s per module whose sensor still sees it; a card no sensor sees, caught between two modules, gets every module on the way flapped once, top down, then 1s more) |
+| `{"error":"no card loaded at module 1","noLoadedCard":true}` | 2.13.4+: `route` with `requireLoaded` while module 1's sensor reads empty; nothing moved |
+| `{"error":"module 1 still holds a card","moduleOneLoaded":true}` | 2.13.4+: `feeder` with `requireEmptyModuleOne` while module 1's sensor reads a card; nothing moved |
 | `{"error":"servo driver not detected - ...","servoDriver":"missing"}` | firmware 2.9.0+: `test` while the PCA9685 doesn't answer on I2C |
 | `{"error":"invalid JSON","reason":"...","length":N,"received":"..."}` | line didn't parse as JSON |
 | `{"error":"command too long"}` | line exceeded 255 characters |

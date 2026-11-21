@@ -7,7 +7,7 @@ import { BinCard } from "@/features/bins/components/bin-card";
 import { useOrg } from "@/features/companies/api/use-organization";
 import type { BinListProps } from "@/lib/interfaces/bins";
 import {
-  getAlphabetPassLetters,
+  getAlphabetPassLabels,
   getOverflowSources,
   getRepackPackBins,
   isRulesMode,
@@ -35,7 +35,7 @@ export function BinList({ onOpenBin }: BinListProps) {
   const showOverflow = isRulesMode(effectiveMode) && !isModeDirty;
   const alphabetLetters =
     effectiveMode.isAlphabetMode && !isModeDirty
-      ? getAlphabetPassLetters(
+      ? getAlphabetPassLabels(
           configs,
           selectedSet?.alphabetPass ?? 0,
           selectedSet?.alphabetPrefix ?? "",

@@ -27,6 +27,7 @@ import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/
 import { CARD_EDIT_REFRESH_DELAY_MS, SCAN_IMAGE_STALE_MS, SCAN_SAVE_REFRESH_THROTTLE_MS } from "@/lib/constants/query";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
 import type { ScanImageResponse } from "@/lib/interfaces/collections";
+import { collectionCardDetailKeys, loadThroughCardDetails } from "@/features/collections/api/card-details";
 
 function cardsParams(search: string, page?: number, review = false): string {
   const params = new URLSearchParams({
@@ -175,16 +176,32 @@ export function invalidateAfterScanSave(queryClient: QueryClient, guid: string):
 
 export const cardScanOriginQueryOptions = (guid: string, scanId: string) =>
   queryOptions({
-    queryKey: ["card-scan-origin", scanId] as const,
-    queryFn: () =>
-      unwrapOr(apiGet<Result<CardScanOrigin | null>>(`/api/collections/${guid}/cards/${scanId}/origin`), null),
+    queryKey: collectionCardDetailKeys.origin(scanId),
+    queryFn: (context) =>
+      loadThroughCardDetails(
+        context,
+        guid,
+        scanId,
+        (details) => details.origin,
+        () => unwrapOr(apiGet<Result<CardScanOrigin | null>>(`/api/collections/${guid}/cards/${scanId}/origin`), null),
+      ),
     staleTime: Infinity,
   });
 
 export const scanImageQueryOptions = (guid: string, scanId: string) =>
   queryOptions({
-    queryKey: ["collection-card-image", guid, scanId] as const,
-    queryFn: () => unwrap(apiGet<Result<ScanImageResponse>>(`/api/collections/${guid}/cards/${scanId}/image`)),
+    queryKey: collectionCardDetailKeys.image(guid, scanId),
+    queryFn: (context): Promise<ScanImageResponse> =>
+      loadThroughCardDetails(
+        context,
+        guid,
+        scanId,
+        (details) => ({
+          capturedImageUrl: details.images.capturedImageUrl ?? null,
+          capturedBackImageUrl: details.images.capturedBackImageUrl ?? null,
+        }),
+        () => unwrap(apiGet<Result<ScanImageResponse>>(`/api/collections/${guid}/cards/${scanId}/image`)),
+      ),
     staleTime: SCAN_IMAGE_STALE_MS,
   });
 

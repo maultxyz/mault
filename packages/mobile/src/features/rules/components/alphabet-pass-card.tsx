@@ -5,8 +5,9 @@ import { Alert, View } from "react-native";
 import {
   ALPHABET_PREFIX_MAX_LENGTH,
   clampAlphabetPass,
+  getAlphabetPass,
   getAlphabetPassCount,
-  getAlphabetPassLetters,
+  getAlphabetStepPile,
   getCatchAllBin,
   getNextAlphabetStep,
   getPreviousAlphabetStep,
@@ -34,9 +35,12 @@ export function AlphabetPassCard({ set, bins }: AlphabetPassCardProps) {
   const pass = clampAlphabetPass(bins, set.alphabetPass ?? 0);
   const prefix = set.alphabetPrefix ?? "";
   const step = { pass, prefix };
-  const letters = getAlphabetPassLetters(bins, pass, prefix);
-  const labels = [...letters.values()];
+  const alphabetPass = getAlphabetPass(bins, pass, prefix);
+  const groups = alphabetPass?.groups ?? [];
+  const labels = new Map(groups.map((group) => [group.binNumber, group.label]));
+  const singleLetterLabels = groups.filter((group) => group.isSingleLetter).map((group) => group.label);
   const nextStep = getNextAlphabetStep(bins, step);
+  const nextPile = nextStep ? getAlphabetStepPile(bins, nextStep) : null;
   const previousStep = getPreviousAlphabetStep(bins, step);
   const catchAll = getCatchAllBin(bins);
 
@@ -46,10 +50,10 @@ export function AlphabetPassCard({ set, bins }: AlphabetPassCardProps) {
   });
 
   const confirm = (target: AlphabetStep) => {
-    const startsPile = target.prefix !== "" && target.prefix !== prefix;
+    const pile = getAlphabetStepPile(bins, target);
     Alert.alert(
-      startsPile ? t("rules.alphabet.confirmPileTitle", { prefix: target.prefix }) : t("rules.alphabet.confirmTitle"),
-      startsPile ? t("rules.alphabet.confirmPileDescription", { prefix: target.prefix }) : t("rules.alphabet.confirmDescription"),
+      pile ? t("rules.alphabet.confirmPileTitle", { pile }) : t("rules.alphabet.confirmTitle"),
+      pile ? t("rules.alphabet.confirmPileDescription", { pile }) : t("rules.alphabet.confirmDescription"),
       [
         { text: t("common.cancel"), style: "cancel" },
         { text: t("rules.alphabet.confirm"), onPress: () => move.mutate(target) },
@@ -59,10 +63,8 @@ export function AlphabetPassCard({ set, bins }: AlphabetPassCardProps) {
 
   if (passCount === 0) return <Callout tone="info" title={t("rules.alphabet.needBins")} />;
 
-  const hint = nextStep
-    ? nextStep.prefix !== prefix
-      ? t("rules.alphabet.nextPileHint", { prefix: nextStep.prefix })
-      : t("rules.alphabet.nextPassHint")
+  const hint = nextPile
+    ? t("rules.alphabet.nextPileHint", { pile: nextPile })
     : prefix
       ? t("rules.alphabet.pileDoneHint", { prefix })
       : t("rules.alphabet.lastPassHint");
@@ -72,9 +74,9 @@ export function AlphabetPassCard({ set, bins }: AlphabetPassCardProps) {
       <View style={{ gap: 2 }}>
         <SectionHeader title={t("rules.alphabet.passHeading", { current: pass + 1, total: passCount })} />
         <AppText size="xs" tone="secondary">
-          {prefix
-            ? t("rules.alphabet.prefixRange", { prefix, from: labels[0], to: labels[labels.length - 1] })
-            : t("rules.alphabet.passRange", { from: labels[0], to: labels[labels.length - 1] })}
+          {alphabetPass?.sortsOneLetterPerBin === false
+            ? t("rules.alphabet.rangePassRange", { from: alphabetPass.from, to: alphabetPass.to })
+            : t("rules.alphabet.passRange", { from: alphabetPass?.from, to: alphabetPass?.to })}
         </AppText>
       </View>
       <ListGroup>
@@ -85,7 +87,7 @@ export function AlphabetPassCard({ set, bins }: AlphabetPassCardProps) {
             value={
               bin.binNumber === catchAll?.binNumber
                 ? t("rules.catchAll")
-                : (letters.get(bin.binNumber) ?? t("rules.alphabet.unusedBin"))
+                : (labels.get(bin.binNumber) ?? t("rules.alphabet.unusedBin"))
             }
           />
         ))}
@@ -103,11 +105,11 @@ export function AlphabetPassCard({ set, bins }: AlphabetPassCardProps) {
         <Button
           variant="primary"
           icon={nextStep ? "arrowRight" : "refresh"}
-          label={nextStep ? t("rules.alphabet.next") : t("rules.alphabet.startOver")}
+          label={nextPile ? t("rules.alphabet.nextPile", { pile: nextPile }) : t("rules.alphabet.startOver")}
           loading={move.isPending}
           onPress={() => confirm(nextStep ?? { pass: 0, prefix: "" })}
         />
-        {prefix.length < ALPHABET_PREFIX_MAX_LENGTH ? (
+        {prefix.length < ALPHABET_PREFIX_MAX_LENGTH && singleLetterLabels.length > 0 ? (
           <Button
             variant="secondary"
             label={t("rules.alphabet.sortDeeper")}
@@ -128,7 +130,7 @@ export function AlphabetPassCard({ set, bins }: AlphabetPassCardProps) {
       <OptionSheet
         visible={deeperOpen}
         title={t("rules.alphabet.sortDeeper")}
-        options={labels.map((label) => ({ value: label, label: t("rules.alphabet.sortDeeperItem", { label }) }))}
+        options={singleLetterLabels.map((label) => ({ value: label, label: t("rules.alphabet.sortDeeperItem", { label }) }))}
         selected={[]}
         onSelect={(label) => {
           setDeeperOpen(false);

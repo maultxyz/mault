@@ -44,6 +44,7 @@ export const CARD_GROUP_DUPLICATES_STORAGE_KEY =
 export const CARD_SCAN_TIMELINE_STORAGE_KEY = "magic-vault:card-scan-timeline";
 
 export const DEVICE_PREFS_STORAGE_KEY_PREFIX = "magic-vault:device-prefs:";
+export const SCAN_SETTINGS_STORAGE_KEY_PREFIX = "magic-vault:scan-settings:";
 
 export const CAMERA_FOCUS_STORAGE_KEY = "magic-vault:camera-focus";
 export const CAMERA_ZOOM_STORAGE_KEY = "magic-vault:camera-zoom";
@@ -58,6 +59,7 @@ export const CARD_TECHNICAL_DETAILS_STORAGE_KEY =
 export const CARD_OCR_REGIONS_STORAGE_KEY = "magic-vault:card-ocr-regions";
 
 export const BLE_DEVICE_MAP_STORAGE_KEY = "magic-vault:ble-device-map";
+export const RECENT_SORTERS_STORAGE_KEY_PREFIX = "magic-vault:recent-sorters:";
 export const CARD_GRID_DENSITY_STORAGE_KEY = "magic-vault:card-grid-density";
 export const BIN_LEVELS_EXPANDED_STORAGE_KEY =
   "magic-vault:bin-levels-expanded";

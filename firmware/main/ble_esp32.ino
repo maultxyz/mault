@@ -1,5 +1,5 @@
-// BLE backend for ESP32-S3, using the Bluedroid stack bundled with the
-// esp32:esp32 Arduino core (BLEDevice/BLEServer/BLECharacteristic - already
+// BLE backend for ESP32-S3, using the BLE library bundled with the
+// esp32:esp32 Arduino core (NimBLE on S3 since core 3.3, Bluedroid before) (BLEDevice/BLEServer/BLECharacteristic - already
 // installed by firmware-release.yml/firmware-pr-check.yml's `arduino-cli
 // core install esp32:esp32`, no extra library needed). Implements the same
 // bleInit()/blePoll()/bleIsConnected()/bleSendLine() contract as
@@ -10,6 +10,11 @@
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
+#if defined(CONFIG_NIMBLE_ENABLED)
+#include "services/gap/ble_svc_gap.h"
+#elif defined(CONFIG_BLUEDROID_ENABLED)
+#include <esp_gap_ble_api.h>
+#endif
 
 // Nordic UART Service (NUS) - a widely-recognized BLE "serial" convention,
 // reused here (rather than inventing our own UUIDs) so generic BLE terminal
@@ -30,12 +35,37 @@
 #define BLE_CONN_INTERVAL_MAX 24
 #define BLE_CONN_SUPERVISION_TIMEOUT 400
 #define BLE_RX_RING_SIZE 512
+#define BLE_ADV_FLAGS_GENERAL_DISCOVERABLE 0x06
 
 ByteRing<BLE_RX_RING_SIZE> bleRx;
 
 BLEServer* bleServer = nullptr;
 BLECharacteristic* bleTxChar = nullptr;
 volatile bool bleConnected = false;
+// Set when setName lands while a central is connected: advertising only
+// picks the new name up once it disconnects (see bleUpdateName()).
+volatile bool bleNamePending = false;
+char bleAdvertisedName[SORTER_NAME_MAX_BYTES + 1] = "";
+
+// The advertisement carries the flags and the NUS service (21 of 31 bytes)
+// and the scan response only the complete name, so a 29-byte name always
+// fits. Built by hand because the library default moves the name between the
+// two packets by length and never rebuilds it after a rename.
+void bleApplyAdvertisingName() {
+#if defined(CONFIG_NIMBLE_ENABLED)
+  ble_svc_gap_device_name_set(bleAdvertisedName);
+#elif defined(CONFIG_BLUEDROID_ENABLED)
+  esp_ble_gap_set_device_name(bleAdvertisedName);
+#endif
+  BLEAdvertisementData advertisement;
+  advertisement.setFlags(BLE_ADV_FLAGS_GENERAL_DISCOVERABLE);
+  advertisement.setCompleteServices(BLEUUID(BLE_SERVICE_UUID));
+  BLEAdvertisementData scanResponse;
+  scanResponse.setName(bleAdvertisedName);
+  BLEAdvertising* advertising = bleServer->getAdvertising();
+  advertising->setAdvertisementData(advertisement);
+  advertising->setScanResponseData(scanResponse);
+}
 
 class SorterServerCallbacks : public BLEServerCallbacks {
   void onConnect(BLEServer* server) override { bleConnected = true; }
@@ -52,6 +82,10 @@ class SorterServerCallbacks : public BLEServerCallbacks {
 #endif
   void onDisconnect(BLEServer* server) override {
     bleConnected = false;
+    if (bleNamePending) {
+      bleNamePending = false;
+      bleApplyAdvertisingName();
+    }
     // Bluedroid stops advertising once connected and doesn't resume on its
     // own - restart it so a disconnected (or different) central can
     // reconnect without a power cycle.
@@ -67,16 +101,12 @@ class SorterRxCallbacks : public BLECharacteristicCallbacks {
 };
 
 void bleInit() {
-  // deviceId is already populated by main.ino's setup() (via
-  // initDeviceIdFromEspMac(), called before bleInit()) - reused here rather
-  // than re-reading the MAC, since the Arduino BLE library's device-name API
-  // varies across esp32-arduino core versions and it's simplest to just fold
-  // the already-known ID into the name up front instead of depending on
-  // being able to rename the device post-init.
-  char localName[32];
-  snprintf(localName, sizeof(localName), "Mault Sorter %s", deviceId);
+  // deviceId and the saved sorterName are already loaded by main.ino's
+  // setup() (initDeviceIdFromEspMac() and loadSorterName() run before
+  // bleInit()), so the default name can include the ID.
+  formatAdvertisedName(bleAdvertisedName, sizeof(bleAdvertisedName));
 
-  BLEDevice::init(localName);
+  BLEDevice::init(bleAdvertisedName);
   BLEDevice::setMTU(BLE_PREFERRED_MTU);
   bleServer = BLEDevice::createServer();
   bleServer->setCallbacks(new SorterServerCallbacks());
@@ -96,8 +126,24 @@ void bleInit() {
   bleTxChar->addDescriptor(new BLE2902());
 
   service->start();
-  bleServer->getAdvertising()->addServiceUUID(BLE_SERVICE_UUID);
+  bleApplyAdvertisingName();
   bleServer->getAdvertising()->start();
+}
+
+// Called after setName stored a new name. A connected central keeps the old
+// advertisement until it disconnects: restarting advertising now would let a
+// second central connect alongside it.
+void bleUpdateName() {
+  if (bleServer == nullptr) return;
+  formatAdvertisedName(bleAdvertisedName, sizeof(bleAdvertisedName));
+  if (bleConnected) {
+    bleNamePending = true;
+    return;
+  }
+  BLEAdvertising* advertising = bleServer->getAdvertising();
+  advertising->stop();
+  bleApplyAdvertisingName();
+  advertising->start();
 }
 
 void blePoll() { bleRx.drainTo(bleInput, bleReply); }

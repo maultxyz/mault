@@ -36,9 +36,12 @@ export function AlphabetPanel() {
     previousStep,
     pass,
     passCount,
-    letters,
+    labels,
+    singleLetterLabels,
+    sortsOneLetterPerBin,
     from,
     to,
+    nextPile,
     isLastPass,
   } = useAlphabetPass();
   const [pending, setPending] = useState<AlphabetStep | null>(null);
@@ -54,14 +57,11 @@ export function AlphabetPanel() {
   }
 
   const catchAll = getCatchAllBin(configs);
-  const passLabels = [...letters.values()];
-  const canSortDeeper = prefix.length < ALPHABET_PREFIX_MAX_LENGTH;
-  const nextStartsPile = !!nextStep && nextStep.prefix !== prefix;
+  const canSortDeeper =
+    prefix.length < ALPHABET_PREFIX_MAX_LENGTH && singleLetterLabels.length > 0;
 
-  const hint = nextStep
-    ? nextStartsPile
-      ? t("alphabetPanel.nextPileHint", { prefix: nextStep.prefix })
-      : t("alphabetPanel.nextPassHint")
+  const hint = nextPile
+    ? t("alphabetPanel.nextPileHint", { pile: nextPile })
     : prefix
       ? t("alphabetPanel.pileDoneHint", { prefix })
       : t("alphabetPanel.lastPassHint");
@@ -77,9 +77,9 @@ export function AlphabetPanel() {
             })}
           </h2>
           <p className="text-sm text-foreground/70">
-            {prefix
-              ? t("alphabetPanel.prefixRange", { prefix, from, to })
-              : t("alphabetPanel.passRange", { from, to })}
+            {sortsOneLetterPerBin
+              ? t("alphabetPanel.passRange", { from, to })
+              : t("alphabetPanel.rangePassRange", { from, to })}
           </p>
         </div>
         {prefix && (
@@ -105,9 +105,9 @@ export function AlphabetPanel() {
             </span>
             {config.binNumber === catchAll?.binNumber ? (
               <Badge variant="default">{t("catchAll")}</Badge>
-            ) : letters.has(config.binNumber) ? (
+            ) : labels.has(config.binNumber) ? (
               <span className="text-lg font-semibold font-heading">
-                {letters.get(config.binNumber)}
+                {labels.get(config.binNumber)}
               </span>
             ) : (
               <span className="text-sm text-foreground/70">
@@ -145,7 +145,7 @@ export function AlphabetPanel() {
               <IconChevronDown />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              {passLabels.map((label) => (
+              {singleLetterLabels.map((label) => (
                 <DropdownMenuItem
                   key={label}
                   onClick={() => setPending({ pass: 0, prefix: label })}
@@ -170,9 +170,7 @@ export function AlphabetPanel() {
             disabled={isPresetMutating}
             onClick={() => nextStep && setPending(nextStep)}
           >
-            {nextStartsPile && nextStep
-              ? t("alphabetPanel.nextPile", { prefix: nextStep.prefix })
-              : t("alphabetPanel.next")}{" "}
+            {t("alphabetPanel.nextPile", { pile: nextPile })}{" "}
             <IconArrowRight />
           </Button>
         )}
