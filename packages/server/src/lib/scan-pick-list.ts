@@ -9,6 +9,7 @@ import { and, eq } from "drizzle-orm";
 import type { PgInsertValue } from "drizzle-orm/pg-core";
 import type { Transaction } from "../db";
 import { bins, collectionCards } from "../db/schema";
+import { emitPickListChanged } from "./session-stream";
 
 export async function updateBinPickList(
   tx: Transaction,
@@ -32,6 +33,7 @@ export async function updateBinPickList(
   const next = current ? update(current) : null;
   if (!next) return { changed: false, pickList: current };
   await tx.update(bins).set({ pickList: next }).where(eq(bins.id, target.id));
+  emitPickListChanged(orgId, binGuid, next);
   return { changed: true, pickList: next };
 }
 
@@ -53,7 +55,7 @@ export async function applyScanPickListUpdate(
 ): Promise<void> {
   if (!update) return;
   const result = await updateBinPickList(tx, orgId, update.binGuid, (current) =>
-    applyPickListFound(current, update.name, update.delta),
+    applyPickListFound(current, update, update.delta),
   );
   if (!result?.pickList)
     console.warn(

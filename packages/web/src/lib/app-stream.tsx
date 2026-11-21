@@ -3,6 +3,7 @@ import { recordSessionInits } from "@/lib/session-init-registry";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { businessKeys } from "@/features/business/api/business";
+import { setBinPickListInCache } from "@/features/bins/api/use-pick-list";
 import { createAppStreamSource } from "@/lib/api/stream";
 import { useAuthSession } from "@/lib/auth";
 import { DEFAULT_SYNC_STATE, isBrowserSaveLog } from "@/lib/constants/admin";
@@ -24,6 +25,8 @@ import {
   MACHINE_STATUS_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
   ORDERS_CHANGED_EVENT,
+  PICK_LIST_CHANGED_EVENT,
+  type PickList,
   type TradeOffersChangedEvent,
   type DeployNotice,
   type MachineStatus,
@@ -230,6 +233,12 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
         });
         es.addEventListener(ORDERS_CHANGED_EVENT, () => {
           queryClient.invalidateQueries({ queryKey: businessKeys.ordersRoot() });
+        });
+        es.addEventListener(PICK_LIST_CHANGED_EVENT, (e) => {
+          const { binGuid, pickList } = JSON.parse(
+            (e as MessageEvent).data,
+          ) as { binGuid: string; pickList: PickList | null };
+          if (binGuid) setBinPickListInCache(queryClient, binGuid, pickList);
         });
         es.addEventListener("collections_changed", () => {
           queryClient.invalidateQueries({

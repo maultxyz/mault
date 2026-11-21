@@ -41,6 +41,7 @@ export const HOTKEY_GROUP_ORDER: HotkeyGroup[] = [
   "cardDetail",
   "intake",
   ...(MATCH_VALIDATIONS_ENABLED ? (["matchValidation"] as const) : []),
+  "pickWalk",
 ];
 
 export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
@@ -101,6 +102,12 @@ export const HOTKEYS: Record<HotkeyId, HotkeyDefinition> = {
     group: "matchValidation",
     keys: [{ key: "arrowleft" }],
   },
+  pickNext: { group: "pickWalk", keys: [{ key: "j" }, { key: "arrowdown" }] },
+  pickPrevious: {
+    group: "pickWalk",
+    keys: [{ key: "k" }, { key: "arrowup" }],
+  },
+  pickToggle: { group: "pickWalk", keys: [{ key: " " }] },
 };
 
 export const HOTKEY_ROUTES = {

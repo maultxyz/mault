@@ -1,0 +1,171 @@
+import { Platform } from "react-native";
+import type { ThemeColors } from "@/lib/interfaces/theme";
+
+export const LIGHT_COLORS: ThemeColors = {
+  background: "#f2f3f5",
+  shell: "#f7f8f9",
+  shellAccent: "#ecedf0",
+  tonal: "#ecedf0",
+  tonalPressed: "#e3e5ea",
+  foreground: "#292d34",
+  foregroundSecondary: "rgba(41, 45, 52, 0.75)",
+  card: "#ffffff",
+  muted: "#f7f8f9",
+  mutedForeground: "#5c6573",
+  border: "#e3e5ea",
+  primary: "#1447e6",
+  primaryForeground: "#ffffff",
+  primaryText: "#1447e6",
+  primaryMuted: "rgba(20, 71, 230, 0.1)",
+  primarySelected: "rgba(20, 71, 230, 0.12)",
+  primaryPressed: "#193cb8",
+  destructive: "#e7000b",
+  destructiveStrong: "#c10007",
+  destructiveMuted: "#fef2f2",
+  destructiveBorder: "#ffa2a2",
+  destructiveForeground: "#c10007",
+  success: "#00c950",
+  successStrong: "#008236",
+  successMuted: "#f0fdf4",
+  successBorder: "#7bf1a8",
+  successForeground: "#016630",
+  warning: "#fe9a00",
+  warningStrong: "#bb4d00",
+  warningMuted: "#fefce8",
+  warningBorder: "#ffdf20",
+  warningForeground: "#973c00",
+  info: "#2b7fff",
+  infoStrong: "#1447e6",
+  infoMuted: "#eff6ff",
+  infoBorder: "#8ec5ff",
+  infoForeground: "#1447e6",
+  overlay: "rgba(0, 0, 0, 0.5)",
+  input: "#e3e5ea",
+  inputBackground: "rgba(223, 225, 230, 0.2)",
+  cardRing: "rgba(41, 45, 52, 0.1)",
+  destructiveTint: "rgba(231, 0, 11, 0.1)",
+  onDestructive: "#ffffff",
+  onBrandSurface: "rgba(255, 255, 255, 0.16)",
+  onCamera: "#ffffff",
+  onStatusStrong: "#ffffff",
+  camera: "#000000",
+  cameraScrim: "rgba(0, 0, 0, 0.6)",
+  popoverShadow: "rgba(16, 24, 40, 0.14)",
+};
+
+export const DARK_COLORS: ThemeColors = {
+  background: "#111214",
+  shell: "#18191b",
+  shellAccent: "#2a2c30",
+  tonal: "#2a2c30",
+  tonalPressed: "#33353a",
+  foreground: "#e3e4e8",
+  foregroundSecondary: "rgba(227, 228, 232, 0.7)",
+  card: "#1c1d20",
+  muted: "#2a2c30",
+  mutedForeground: "#9ea3ad",
+  border: "rgba(255, 255, 255, 0.1)",
+  primary: "#155dfc",
+  primaryForeground: "#ffffff",
+  primaryText: "#51a2ff",
+  primaryMuted: "rgba(21, 93, 252, 0.2)",
+  primarySelected: "rgba(21, 93, 252, 0.24)",
+  primaryPressed: "#1447e6",
+  destructive: "#ff6467",
+  destructiveStrong: "#c10007",
+  destructiveMuted: "#460809",
+  destructiveBorder: "#c10007",
+  destructiveForeground: "#ffa2a2",
+  success: "#00c950",
+  successStrong: "#008236",
+  successMuted: "#032e15",
+  successBorder: "#016630",
+  successForeground: "#7bf1a8",
+  warning: "#fe9a00",
+  warningStrong: "#bb4d00",
+  warningMuted: "#461901",
+  warningBorder: "#973c00",
+  warningForeground: "#ffdf20",
+  info: "#2b7fff",
+  infoStrong: "#1447e6",
+  infoMuted: "#162456",
+  infoBorder: "#193cb8",
+  infoForeground: "#8ec5ff",
+  overlay: "rgba(0, 0, 0, 0.6)",
+  input: "rgba(255, 255, 255, 0.1)",
+  inputBackground: "rgba(255, 255, 255, 0.045)",
+  cardRing: "rgba(227, 228, 232, 0.1)",
+  destructiveTint: "rgba(255, 100, 103, 0.2)",
+  onDestructive: "#111214",
+  onBrandSurface: "rgba(255, 255, 255, 0.16)",
+  onCamera: "#ffffff",
+  onStatusStrong: "#ffffff",
+  camera: "#000000",
+  cameraScrim: "rgba(0, 0, 0, 0.6)",
+  popoverShadow: "rgba(0, 0, 0, 0.5)",
+};
+
+export const RADIUS = Platform.select({
+  ios: { sm: 6, md: 12, lg: 20, xl: 28, full: 999 },
+  default: { sm: 4, md: 12, lg: 16, xl: 28, full: 999 },
+});
+
+export const CONTROL_RADIUS = RADIUS.full;
+export const BADGE_RADIUS = RADIUS.full;
+export const CARD_ART_RADIUS = 12;
+export const SURFACE_RADIUS = 22;
+export const CARD_THUMBNAIL_RADIUS = 4;
+export const CONTROL_PADDING_HORIZONTAL = 16;
+
+export const SPACING = {
+  xs: 4,
+  sm: 8,
+  md: 12,
+  lg: 16,
+  xl: 24,
+  xxl: 32,
+} as const;
+
+export const FONT_SIZE = {
+  "2xs": 12,
+  xs: 14,
+  sm: 15,
+  base: 16,
+  lg: 18,
+  xl: 20,
+  "2xl": 24,
+  "3xl": 30,
+  "4xl": 34,
+  display: 42,
+} as const;
+
+export const SCREEN_GUTTER = 16;
+
+export const FONT_FAMILY = {
+  regular: "Figtree_400Regular",
+  medium: "Figtree_500Medium",
+  semibold: "Figtree_600SemiBold",
+  bold: "Figtree_700Bold",
+  headingMedium: "Figtree_600SemiBold",
+  headingSemibold: "Figtree_700Bold",
+  mono: "JetBrainsMono_400Regular",
+} as const;
+
+export const DARK_PRIMARY_TEXT_MIN_LIGHTNESS = 0.72;
+export const PRIMARY_MUTED_ALPHA = { light: 0.1, dark: 0.2 } as const;
+export const PRIMARY_SELECTED_ALPHA = { light: 0.12, dark: 0.24 } as const;
+export const PRIMARY_PRESSED_LIGHTNESS_SCALE = 0.88;
+
+export const SHEET_SHADOW = {
+  shadowOffset: { width: 0, height: -4 },
+  shadowOpacity: 1,
+  shadowRadius: 12,
+  elevation: 16,
+} as const;
+
+export const FLOATING_BUTTON_SHADOW = {
+  shadowOffset: { width: 0, height: 4 },
+  shadowOpacity: 1,
+  shadowRadius: 12,
+  elevation: 6,
+} as const;

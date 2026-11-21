@@ -28,6 +28,8 @@ import type {
   OrderLineInput,
   OrderSource,
   PlayingCardImage,
+  PickWalkEntry,
+  PickWalkStop,
   PullSheetEntry,
   StatsRange,
 } from "@magic-vault/shared";
@@ -148,6 +150,26 @@ export interface OrderBinsDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
+export interface PickWalkNextUpProps {
+  entry: PickWalkEntry;
+  showOrderName: boolean;
+  canPick: boolean;
+  isReleasing?: boolean;
+  onPicked: () => void;
+  onMissing: () => void;
+}
+
+export interface PickWalkStopListProps {
+  entries: PickWalkEntry[];
+  pickedScanIds: ReadonlySet<string>;
+  canPick: boolean;
+  showOrderName: boolean;
+  headingLevel?: "h2" | "h3";
+  onToggle: (scanId: string, isPicked: boolean) => void;
+  onMissing?: (scanId: string) => void;
+  onSorterPick?: (stop: PickWalkStop) => void;
+}
+
 export interface OrderPickByLocationProps {
   entries: PullSheetEntry[];
   orderBinOf: (entry: PullSheetEntry) => number | null;
@@ -205,10 +227,61 @@ export interface PackingSlipData {
   unavailable: PackingSlipUnavailableLine[];
 }
 
+export type BatchPickView = "list" | "pick" | "focus" | "box" | "sort";
+
+export interface PickFocusViewProps {
+  entries: PickWalkEntry[];
+  pickedScanIds: ReadonlySet<string>;
+  total: number;
+  pickedCount: number;
+  complete: boolean;
+  showOrderName: boolean;
+  canPick: boolean;
+  isReleasing: boolean;
+  onPick: (scanId: string) => void;
+  onUnpick: (scanId: string) => void;
+  onMissing: (entry: PickWalkEntry) => void;
+  onComplete: () => void;
+  completedCount: number;
+  onBack: () => void;
+}
+
+export interface PickContainerViewProps {
+  stops: PickWalkStop[];
+  pickedScanIds: ReadonlySet<string>;
+  canPick: boolean;
+  onToggle: (scanId: string, isPicked: boolean) => void;
+  onSorterPick?: (stop: PickWalkStop) => void;
+}
+
+export interface PickSorterPickDialogProps {
+  stop: PickWalkStop | null;
+  orders: FulfilmentOrderDetail[];
+  onOpenChange: (open: boolean) => void;
+}
+
+export interface PickSortGroup {
+  key: string;
+  orderGuid: string;
+  orderName: string;
+  orderRef: string | null;
+  binNumber: number | null;
+  picked: PickWalkEntry[];
+  total: number;
+}
+
+export interface PickSortViewProps {
+  groups: PickSortGroup[];
+  canPick: boolean;
+  onUnpick: (scanId: string) => void;
+}
+
 export interface PackingSlipProps {
   slip: PackingSlipData;
   shopName: string;
   showsPrices: boolean;
+  showsImages: boolean;
+  logoUrl: string | null;
 }
 
 export interface OrderRefLabelProps {

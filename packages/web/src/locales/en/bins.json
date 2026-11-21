@@ -418,7 +418,7 @@
     "cardCount_one": "{{count}} card, max {{max}}",
     "cardCount_other": "{{count}} cards, max {{max}}",
     "decklistPlaceholder": "4 Lightning Bolt\n1 Sol Ring\nCounterspell",
-    "decklistHint": "One card per line, with an optional quantity. Set codes, collector numbers and section headers from Moxfield, Arena or MTGO exports are ignored. Double-faced cards match either face.",
+    "decklistHint": "One card per line, with an optional quantity. Set codes and collector numbers like [SWSH01: 143] or (SWSH01) 143 pin the exact printing — different printings of a card stay separate entries. Section headers from Moxfield, Arena or MTGO exports are ignored. Double-faced cards match either face.",
     "progressLabel": "Progress",
     "progress": {
       "foundOf": "{{found}} of {{total}} found",

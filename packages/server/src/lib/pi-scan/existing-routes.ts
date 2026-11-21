@@ -2,6 +2,7 @@ import {
   buildScanSaveRequest,
   type BinConfig,
   type PickList,
+  type PickListFoundInput,
   type ScannedCard,
 } from "@magic-vault/shared";
 import { Hono } from "hono";
@@ -122,15 +123,20 @@ export function recoverSessionScanSaves(
 export async function recordPickFound(
   actor: ServerScanActor,
   binGuid: string,
-  name: string,
-  delta = 1,
+  input: PickListFoundInput,
 ): Promise<PickList | null> {
   const result = await callJson(
     sortBinsRouter,
     `/bins/${binGuid}/pick-list/found`,
     "POST",
     actor,
-    { name, delta },
+    {
+      name: input.name,
+      setCode: input.setCode,
+      collectorNumber: input.collectorNumber,
+      isFoil: input.isFoil,
+      delta: input.delta,
+    },
   );
   return result.ok ? (result.body.data?.pickList ?? null) : null;
 }

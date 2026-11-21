@@ -127,6 +127,10 @@ export const ACTIVITY_ACTIONS = [
   "order.fulfilled",
   "order.cancelled",
   "order.sortPresetCreated",
+  "order.sortPresetReused",
+  "order.sorterPickCreated",
+  "order.sorterPickApplied",
+  "order.sorterPickPresetsCleaned",
   "accuracy.completed",
   "device.serviced",
   "business.settings",
@@ -179,6 +183,10 @@ export const ACTIVITY_ACTION_KEYS: Record<ActivityAction, string> = {
   "order.fulfilled": "orderFulfilled",
   "order.cancelled": "orderCancelled",
   "order.sortPresetCreated": "orderSortPresetCreated",
+  "order.sortPresetReused": "orderSortPresetReused",
+  "order.sorterPickCreated": "orderSorterPickCreated",
+  "order.sorterPickApplied": "orderSorterPickApplied",
+  "order.sorterPickPresetsCleaned": "orderSorterPickPresetsCleaned",
   "accuracy.completed": "accuracyCompleted",
   "device.serviced": "deviceServiced",
   "business.settings": "businessSettings",
@@ -205,6 +213,8 @@ export const ORDER_SUBSTITUTE_FINISH_DIFFERENCE_COST = 3;
 export const ORDER_SUBSTITUTE_WORSE_CONDITION_EXTRA_COST = 0.5;
 
 export const ORDERS_CHANGED_EVENT = "orders_changed";
+
+export const PICK_LIST_CHANGED_EVENT = "pick_list_changed";
 export const ORDER_PICKS_PATH = "/app/orders/pick";
 export const ORDER_BATCH_PICK_PATH = `${ORDER_PICKS_PATH}/batch`;
 export const ORDER_PICK_SEARCH_PARAM = "order";

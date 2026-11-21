@@ -216,7 +216,13 @@ export function parseOrderImport(text: string): OrderImport {
   const rows = parseCsvRows(text);
   if (!looksLikeCsv(rows)) {
     const lines = parseDecklist(text).map(
-      (entry): OrderLineInput => ({ name: entry.name, quantity: entry.quantity }),
+      (entry): OrderLineInput => ({
+        name: entry.name,
+        quantity: entry.quantity,
+        setCode: entry.setCode,
+        collectorNumber: entry.collectorNumber,
+        isFoil: entry.isFoil,
+      }),
     );
     return { source: "generic", lines: lines.slice(0, ORDER_LINES_MAX), skipped: 0 };
   }

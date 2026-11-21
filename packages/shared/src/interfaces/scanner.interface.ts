@@ -204,6 +204,9 @@ export interface UnmatchedCardsPage {
 export interface ScanSavePickListUpdate {
   binGuid: string;
   name: string;
+  setCode?: string;
+  collectorNumber?: string;
+  isFoil?: boolean;
   delta: 1;
 }
 

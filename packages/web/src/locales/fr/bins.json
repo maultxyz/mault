@@ -418,7 +418,7 @@
     "cardCount_one": "{{count}} carte, max. {{max}}",
     "cardCount_other": "{{count}} cartes, max. {{max}}",
     "decklistPlaceholder": "4 Lightning Bolt\n1 Sol Ring\nCounterspell",
-    "decklistHint": "Une carte par ligne, avec une quantité facultative. Les codes d'édition, numéros de collection et titres de section des exports Moxfield, Arena ou MTGO sont ignorés. Les cartes recto verso correspondent à chaque face.",
+    "decklistHint": "Une carte par ligne, avec une quantité facultative. Les codes d'édition et numéros de collection comme [SWSH01 : 143] ou (SWSH01) 143 déterminent l'édition exacte — les différentes éditions d'une carte restent des entrées séparées. Les titres de section des exports Moxfield, Arena ou MTGO sont ignorés. Les cartes recto verso correspondent à chaque face.",
     "progressLabel": "Progression",
     "progress": {
       "foundOf": "{{found}} sur {{total}} trouvées",

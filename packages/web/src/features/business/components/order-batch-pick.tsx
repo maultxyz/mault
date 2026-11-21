@@ -6,24 +6,55 @@ import { LoadErrorCallout } from "@/components/load-error-callout";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
 import { Button } from "@/components/ui/button";
-import { fulfilOrder, orderQueryOptions } from "@/features/business/api/business";
-import { useBusinessAccess, useBusinessAction } from "@/features/business/api/use-business";
-import { OrderPickByLocation } from "@/features/business/components/order-pick-by-location";
-import { OrderPhonePickDialog } from "@/features/business/components/order-phone-pick-dialog";
+import {
+  fulfilOrder,
+  orderQueryOptions,
+  updateOrder,
+} from "@/features/business/api/business";
+import {
+  useBusinessAccess,
+  useBusinessAction,
+} from "@/features/business/api/use-business";
 import { useOrderPickProgress } from "@/features/business/api/use-order-pick-progress";
+import { OrderPhonePickDialog } from "@/features/business/components/order-phone-pick-dialog";
+import { PickContainerView } from "@/features/business/components/pick-container-view";
+import { PickFocusView } from "@/features/business/components/pick-focus-view";
+import { PickSortPresetDialog } from "@/features/business/components/pick-sort-preset-dialog";
+import { PickSorterPickDialog } from "@/features/business/components/pick-sorter-pick-dialog";
+import { PickSortView } from "@/features/business/components/pick-sort-view";
+import { PickWalkNextUp } from "@/features/business/components/pick-walk-next-up";
+import { PickWalkStopList } from "@/features/business/components/pick-walk-stop-list";
+import {
+  clearActivePickBatch,
+  writeActivePickBatch,
+} from "@/features/business/lib/active-pick-batch";
 import { useIsMobile } from "@/hooks/use-is-mobile";
+import { ViewTabs } from "@/components/view-tabs";
 import {
   packingSlipsPath,
   PICKS_PATH,
   picksPath,
 } from "@/lib/constants/business";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
-import type { OrderBatchPickProps } from "@/lib/interfaces/business";
+import type {
+  BatchPickView,
+  OrderBatchPickProps,
+  PickSortGroup,
+} from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
-import { buildPickWalk, fullyPickedOrders, type PickWalkEntry } from "@magic-vault/shared";
+import {
+  buildPickWalk,
+  fullyPickedOrders,
+  IMPLICIT_ORDER_REF,
+  pickWalkStops,
+  toOrderLineInput,
+  type PickWalkEntry,
+  type PickWalkStop,
+} from "@magic-vault/shared";
 import {
   IconAlertTriangle,
+  IconArrowsSort,
   IconDeviceMobile,
   IconInfoCircle,
   IconPackageExport,
@@ -31,7 +62,7 @@ import {
   IconTruckDelivery,
 } from "@tabler/icons-react";
 import { useQueries } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -43,6 +74,13 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
   const [completeOpen, setCompleteOpen] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
   const [phonePickOpen, setPhonePickOpen] = useState(false);
+  const [missingEntry, setMissingEntry] = useState<PickWalkEntry | null>(null);
+  const [isReleasing, setIsReleasing] = useState(false);
+  const [sorterPickStop, setSorterPickStop] = useState<PickWalkStop | null>(
+    null,
+  );
+  const [sortPresetOpen, setSortPresetOpen] = useState(false);
+  const [view, setView] = useState<BatchPickView>("pick");
   const orderQueries = useQueries({
     queries: orderGuids.map((orderGuid) => orderQueryOptions(orderGuid)),
   });
@@ -56,13 +94,25 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
     order.lines.some((line) => line.allocations.length < line.quantity),
   );
   const entries = buildPickWalk(openOrders);
-  const walkEntryByScanId = new Map<string, PickWalkEntry>(
-    entries.map((entry) => [entry.scanId, entry]),
-  );
   const completedOrders = fullyPickedOrders(openOrders, pickedSet);
+  const pickedCount = entries.filter((entry) => pickedSet.has(entry.scanId)).length;
+  const nextEntry =
+    entries.find((entry) => !pickedSet.has(entry.scanId)) ?? null;
   const canAct = access?.canFulfilOrders ?? false;
   const isPending = orderQueries.some((query) => query.isPending);
   const failedQuery = orderQueries.find((query) => query.isError);
+  const showOrderName = openOrders.length > 1;
+  const missingOrder = missingEntry
+    ? openOrders.find((order) => order.guid === missingEntry.orderGuid)
+    : undefined;
+
+  useEffect(() => {
+    writeActivePickBatch(orderGuids);
+  }, [orderGuids]);
+
+  useEffect(() => {
+    if (orders.length > 0 && openOrders.length === 0) clearActivePickBatch();
+  }, [orders, openOrders.length]);
 
   const completePicks = async () => {
     setIsCompleting(true);
@@ -80,6 +130,27 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
     if (completedCount > 0) {
       toast.success(t("orders.batch.completed", { count: completedCount }));
     }
+    if (completedCount === openOrders.length) clearActivePickBatch();
+  };
+
+  const releaseMissing = async () => {
+    if (!missingEntry || !missingOrder) return;
+    setIsReleasing(true);
+    const result = await run(
+      () =>
+        updateOrder(missingOrder.guid, {
+          name: missingOrder.name,
+          lines: missingOrder.lines.map(toOrderLineInput),
+          releasedScanIds: [missingEntry.scanId],
+        }),
+    );
+    setIsReleasing(false);
+    setMissingEntry(null);
+    if (result) {
+      toast.success(
+        t("orders.pickWalk.missingReleased", { count: 1 }),
+      );
+    }
   };
 
   const title = t("orders.batch.title");
@@ -90,6 +161,17 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
   const actions = (
     <>
       {canAct && !isMobile && (
+        <Button
+          variant="outline"
+          disabled={entries.length === 0 || openOrders.length === 0}
+          title={t("orders.batch.sortPresetHint")}
+          onClick={() => setSortPresetOpen(true)}
+        >
+          <IconArrowsSort />
+          {t("orders.batch.sortPresetButton")}
+        </Button>
+      )}
+      {canAct && (
         <Button
           variant="outline"
           disabled={entries.length === 0}
@@ -122,6 +204,46 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
     </>
   );
 
+  const progressText =
+    entries.length > 0
+      ? t("orders.pickWalk.progress", {
+          picked: pickedCount,
+          total: entries.length,
+        })
+      : null;
+
+  const sortGroups = useMemo<PickSortGroup[]>(() => {
+    const groups = new Map<string, PickSortGroup>();
+    for (const entry of entries) {
+      const key = `${entry.orderGuid}|${entry.orderRef ?? ""}`;
+      let group = groups.get(key);
+      if (!group) {
+        const order = openOrders.find(
+          (candidate) => candidate.guid === entry.orderGuid,
+        );
+        if (!order) continue;
+        group = {
+          key,
+          orderGuid: entry.orderGuid,
+          orderName: order.name,
+          orderRef: entry.orderRef,
+          binNumber:
+            entry.orderRef == null
+              ? (order.orderBins[IMPLICIT_ORDER_REF] ?? null)
+              : (order.orderBins[entry.orderRef] ?? null),
+          picked: [],
+          total: 0,
+        };
+        groups.set(key, group);
+      }
+      group.total += 1;
+      if (pickedSet.has(entry.scanId)) group.picked.push(entry);
+    }
+    return [...groups.values()];
+  }, [entries, openOrders, pickedSet]);
+
+  const walkStops = useMemo(() => pickWalkStops(entries), [entries]);
+
   return (
     <div className={cn("min-h-0 flex-1 overflow-y-auto", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
       {isMobile ? (
@@ -137,7 +259,7 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
           actions={actions}
         />
       )}
-      <div className="flex flex-col gap-4 p-4 md:gap-2 md:px-3 md:py-2">
+      <div className="flex flex-col gap-4 p-4 md:gap-3 md:px-3 md:py-2">
         {isPending ? (
           <ListSkeleton rows={8} />
         ) : failedQuery ? (
@@ -172,21 +294,125 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
                 </ul>
               </Callout>
             )}
-            <p role="status" className="text-xs text-foreground/70">
-              {t("orders.batch.progress", {
-                picked: entries.filter((entry) => pickedSet.has(entry.scanId)).length,
-                total: entries.length,
-                completed: completedOrders.length,
-              })}
-            </p>
-            <OrderPickByLocation
+
+            {progressText && (
+              <div className="sticky top-0 z-10 -mx-4 border-b bg-background/80 px-4 py-2 backdrop-blur-2xl md:-mx-3 md:px-3">
+                <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
+                  <div className="min-w-0">
+                    <p
+                      className="text-sm font-medium tabular-nums"
+                      role="status"
+                      aria-live="polite"
+                    >
+                      {progressText}
+                    </p>
+                    <div
+                      className="mt-1 h-1 overflow-hidden rounded-sm bg-muted"
+                      aria-hidden
+                    >
+                      <div
+                        className="h-full rounded-sm bg-primary transition-[width] motion-reduce:transition-none"
+                        style={{
+                          width: `${(pickedCount / entries.length) * 100}%`,
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <ViewTabs<BatchPickView>
+                    label={t("orders.batch.viewLabel")}
+                    className="shrink-0 border-b-0"
+                    items={[
+                      { key: "list", label: t("orders.batch.listTab") },
+                      { key: "pick", label: t("orders.batch.walkTab") },
+                      { key: "focus", label: t("orders.batch.focusTab") },
+                      { key: "box", label: t("orders.batch.boxTab") },
+                      { key: "sort", label: t("orders.batch.sortTab") },
+                    ]}
+                    value={view}
+                    onChange={setView}
+                  />
+                </div>
+              </div>
+            )}
+
+            {view === "focus" && entries.length > 0 ? (
+              <PickFocusView
+                entries={entries}
+                pickedScanIds={pickedSet}
+                total={entries.length}
+                pickedCount={pickedCount}
+                complete={pickedCount === entries.length}
+                showOrderName={showOrderName}
+                canPick={canAct}
+                isReleasing={isReleasing}
+                onPick={(scanId) => pickProgress.changePicked([scanId], true)}
+                onUnpick={(scanId) => pickProgress.changePicked([scanId], false)}
+                onMissing={(entry) => setMissingEntry(entry)}
+                onComplete={() => setCompleteOpen(true)}
+                completedCount={completedOrders.length}
+                onBack={() => setView("pick")}
+              />
+            ) : view === "sort" ? (
+              <PickSortView
+                groups={sortGroups}
+                canPick={canAct}
+                onUnpick={(scanId) => pickProgress.changePicked([scanId], false)}
+              />
+            ) : view === "box" ? (
+              <PickContainerView
+                stops={walkStops}
+                pickedScanIds={pickedSet}
+                canPick={canAct}
+                onToggle={(scanId, isPicked) =>
+                  pickProgress.changePicked([scanId], isPicked)
+                }
+                onSorterPick={setSorterPickStop}
+              />
+            ) : (
+              <>
+            {view === "pick" && nextEntry ? (
+              <PickWalkNextUp
+                entry={nextEntry}
+                showOrderName={showOrderName}
+                canPick={canAct}
+                isReleasing={isReleasing}
+                onPicked={() => pickProgress.changePicked([nextEntry.scanId], true)}
+                onMissing={() => setMissingEntry(nextEntry)}
+              />
+            ) : view === "pick" ? (
+              <Callout variant="success">
+                {t("orders.pickWalk.allPicked")}
+              </Callout>
+            ) : null}
+
+            <PickWalkStopList
               entries={entries}
-              orderBinOf={(entry) => walkEntryByScanId.get(entry.scanId)?.orderBin ?? null}
-              pickNameOf={(entry) => walkEntryByScanId.get(entry.scanId)?.orderName ?? ""}
               pickedScanIds={pickedSet}
               canPick={canAct}
-              onPickedChange={pickProgress.changePicked}
+              showOrderName={showOrderName}
+              onToggle={(scanId, isPicked) =>
+                pickProgress.changePicked([scanId], isPicked)
+              }
+              onMissing={(scanId) =>
+                setMissingEntry(
+                  entries.find((entry) => entry.scanId === scanId) ?? null,
+                )
+              }
+              onSorterPick={setSorterPickStop}
             />
+
+            {canAct && completedOrders.length > 0 && (
+              <Button
+                size="lg"
+                disabled={isCompleting}
+                onClick={() => setCompleteOpen(true)}
+              >
+                <IconPackageExport />
+                {t("orders.batch.complete", { count: completedOrders.length })}
+              </Button>
+            )}
+              </>
+            )}
           </>
         )}
       </div>
@@ -203,10 +429,36 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
         isPending={isCompleting}
         onConfirm={() => void completePicks()}
       />
+      <ConfirmDialog
+        open={missingEntry != null}
+        onOpenChange={(open) => {
+          if (!open) setMissingEntry(null);
+        }}
+        title={t("orders.pickWalk.missingTitle", {
+          name: missingEntry?.card.name ?? "",
+        })}
+        description={t("orders.pickWalk.missingDescription")}
+        confirmLabel={t("orders.pickWalk.missingConfirm")}
+        cancelLabel={t("actions.back")}
+        isPending={isReleasing}
+        onConfirm={() => void releaseMissing()}
+      />
       <OrderPhonePickDialog
         open={phonePickOpen}
         onOpenChange={setPhonePickOpen}
         orderGuids={openOrders.map((order) => order.guid)}
+      />
+      <PickSorterPickDialog
+        stop={sorterPickStop}
+        orders={openOrders}
+        onOpenChange={(open) => {
+          if (!open) setSorterPickStop(null);
+        }}
+      />
+      <PickSortPresetDialog
+        open={sortPresetOpen}
+        onOpenChange={setSortPresetOpen}
+        orders={openOrders}
       />
     </div>
   );

@@ -8,6 +8,7 @@ import {
   applyPickListFound,
   type BinSet,
   type PickList,
+  type PickListCard,
 } from "@magic-vault/shared";
 import { useQueryClient, type QueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
@@ -48,14 +49,25 @@ function getBinPickListFromCache(
 export async function recordPickListFound(
   queryClient: QueryClient,
   binGuid: string,
-  name: string,
+  card: PickListCard | string,
   delta: number,
 ): Promise<void> {
   const current = getBinPickListFromCache(queryClient, binGuid);
-  const optimistic = current ? applyPickListFound(current, name, delta) : null;
+  const optimistic = current ? applyPickListFound(current, card, delta) : null;
   if (optimistic) setBinPickListInCache(queryClient, binGuid, optimistic);
+  const name = typeof card === "string" ? card : card.name;
+  const input =
+    typeof card === "string"
+      ? { name, delta }
+      : {
+          name,
+          setCode: card.setCode ?? undefined,
+          collectorNumber: card.collectorNumber ?? undefined,
+          isFoil: card.isFoil ?? undefined,
+          delta,
+        };
   try {
-    const result = await markPickListFound(binGuid, { name, delta });
+    const result = await markPickListFound(binGuid, input);
     if (result.success && result.data) {
       setBinPickListInCache(queryClient, binGuid, result.data.pickList);
     }

@@ -12,6 +12,7 @@ import {
   upsertMachineStatus,
   type MachineStatus,
   ORDERS_CHANGED_EVENT,
+  PICK_LIST_CHANGED_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
   type DeployNotice,
 } from "@magic-vault/shared";
@@ -100,6 +101,7 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
       });
       on("collections_changed", () => void queryClient.invalidateQueries({ queryKey: ["collections"] }));
       on(ORDERS_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: BUSINESS_ORDERS_QUERY_KEY }));
+      on(PICK_LIST_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: ["bin-sets", activeOrgId] }));
       on(TRADE_OFFERS_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] }));
       on(DEPLOY_STATUS_EVENT, (data) => setDeployNotice(parse<DeployNotice | null>(data)));
       on(MACHINES_INIT_EVENT, (data) =>

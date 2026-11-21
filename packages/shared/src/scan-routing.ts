@@ -142,7 +142,7 @@ export function resolveScanBin(
   const lowMatchBin = findLowMatchCatchAll(card, configs);
   const pickListMatch =
     isRulesMode(binSet ?? undefined) && !lowMatchBin
-      ? evaluatePickListBin(card.name, context.configs)
+      ? evaluatePickListBin(card, context.configs)
       : null;
   const autoAssignTarget =
     pickListMatch || binSet?.isRepackMode
