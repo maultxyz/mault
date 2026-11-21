@@ -65,13 +65,9 @@ export function useCardCorrection(guid: string): CardCorrection {
   const shouldPromptMove = (entry: ScannedCard) =>
     promptEnabled && entry.binNumber != null && rules.collection?.guid === guid;
 
-  const promptMove = (entry: ScannedCard, card: PlayingCard) => {
+  const promptMove = (entry: ScannedCard, card: PlayingCard, ruleCard: PlayingCard) => {
     const currentBin = entry.binNumber;
     if (!shouldPromptMove(entry) || currentBin == null) return;
-    const ruleCard = toRuleCard(
-      { ...card, distance: 0, confidence: 1 },
-      { isFoil: !!entry.isFoil, foilType: entry.foilType ?? null },
-    );
     const routingContext: ScanRoutingContext = {
       binSet: rules.activeSet,
       configs: rules.bins,
@@ -123,17 +119,40 @@ export function useCardCorrection(guid: string): CardCorrection {
     );
   };
 
+  const ruleSourceCardOf = (card: PlayingCard, failureMessage: string) =>
+    withRawCardDataForRules(card, (cardWithoutRawData) =>
+      getCardById(cardWithoutRawData.id, guid, cardWithoutRawData.lang, cardWithoutRawData.gameKey),
+    ).catch((error: unknown) => {
+      console.warn(failureMessage, error);
+      return card;
+    });
+
   return {
     correct: async (entry, card) => {
       await correction.mutateAsync({ entry, card });
       if (!shouldPromptMove(entry)) return;
-      const ruleSourceCard = await withRawCardDataForRules(card, (cardWithoutRawData) =>
-        getCardById(cardWithoutRawData.id, guid, cardWithoutRawData.lang, cardWithoutRawData.gameKey),
-      ).catch((error: unknown) => {
-        console.warn("Loading the corrected card's game fields failed", error);
-        return card;
-      });
-      promptMove(entry, ruleSourceCard);
+      const ruleSourceCard = await ruleSourceCardOf(card, "Loading the corrected card's game fields failed");
+      promptMove(
+        entry,
+        card,
+        toRuleCard(
+          { ...ruleSourceCard, distance: 0, confidence: 1 },
+          { isFoil: !!entry.isFoil, foilType: entry.foilType ?? null },
+        ),
+      );
+    },
+    promptAfterScanStateEdit: async (editedEntry) => {
+      if (!shouldPromptMove(editedEntry) || editedEntry.storageLocation) return;
+      const ruleSourceCard = await ruleSourceCardOf(editedEntry.card, "Loading the edited card's game fields failed");
+      promptMove(
+        editedEntry,
+        editedEntry.card,
+        toRuleCard(ruleSourceCard, {
+          isFoil: !!editedEntry.isFoil,
+          foilType: editedEntry.foilType ?? null,
+          stamp: editedEntry.stamp ?? null,
+        }),
+      );
     },
     isPending: correction.isPending,
   };

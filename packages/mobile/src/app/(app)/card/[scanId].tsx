@@ -237,9 +237,17 @@ export default function CardDetailScreen() {
       });
       return { snapshot };
     },
-    onSuccess: (_, { values }) => {
+    onSuccess: (_, { values, dirtyFields }) => {
       form.reset(values);
       AccessibilityInfo.announceForAccessibility(t("common.changesSaved"));
+      if (entry && (dirtyFields.foilType || dirtyFields.stamp)) {
+        void correction.promptAfterScanStateEdit({
+          ...entry,
+          isFoil: values.foilType != null,
+          foilType: values.foilType ?? undefined,
+          stamp: values.stamp ?? undefined,
+        });
+      }
     },
     onError: (_error, _save, context) => {
       if (context) restoreCardCaches(queryClient, context.snapshot);

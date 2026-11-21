@@ -1693,6 +1693,59 @@ export function ScannedCardsProvider({
 
   const dismissBinCorrection = useCallback(() => setBinCorrection(null), []);
 
+  const promptBinAfterScanStateEdit = useCallback(
+    (scanId: string) => {
+      const collection = activeCollectionRef.current;
+      if (!collection || !correctionBinPromptRef.current) return;
+      const findScan = () => {
+        const pageEntry = findInCardPages(queryClient, collection.guid, scanId);
+        if (pageEntry) return pageEntry;
+        const binEntry = binContentsRef.current.find((entry) => entry.scanId === scanId);
+        return binEntry;
+      };
+      const scan = findScan();
+      if (!scan || scan.binNumber == null || ("storageLocation" in scan && scan.storageLocation)) return;
+      void withRawCardDataForRules(scan.card, (cardWithoutRawData) =>
+        getCardById(
+          cardWithoutRawData.id,
+          collection.guid,
+          cardWithoutRawData.lang,
+          cardWithoutRawData.gameKey,
+        ).then((result) => (result.success ? (result.data ?? null) : null)),
+      )
+        .catch((error: unknown) => {
+          console.error("Loading the edited card's game fields failed:", error);
+          return scan.card;
+        })
+        .then((ruleSourceCard) => {
+          if (activeCollectionRef.current?.guid !== collection.guid) return;
+          const editedScan = findScan() ?? scan;
+          const currentBin = editedScan.binNumber ?? undefined;
+          const ruleCard = toRuleCard(ruleSourceCard, {
+            isFoil: editedScan.isFoil,
+            foilType: editedScan.foilType,
+            stamp: editedScan.stamp,
+          });
+          const target = resolveCorrectedBin(ruleCard, currentBin);
+          setBinCorrection({
+            id: generateScanId(),
+            scanId,
+            cardName: editedScan.card.name,
+            currentBin,
+            targetBin: target.bin?.binNumber,
+            pickListName: target.pickListName,
+            releasedPickListName: releasedPickListNameAfterCorrection(
+              editedScan.card.name,
+              currentBin,
+              target,
+              rawBinConfigsRef.current,
+            ),
+          });
+        });
+    },
+    [queryClient, resolveCorrectedBin],
+  );
+
   const editCards = useCallback(
     (
       scanIds: string[],
@@ -1774,9 +1827,11 @@ export function ScannedCardsProvider({
   );
 
   const setCardFoilType = useCallback(
-    (scanId: string, foilType: string | null) =>
-      setCardsFoilType([scanId], foilType),
-    [setCardsFoilType],
+    (scanId: string, foilType: string | null) => {
+      setCardsFoilType([scanId], foilType);
+      promptBinAfterScanStateEdit(scanId);
+    },
+    [setCardsFoilType, promptBinAfterScanStateEdit],
   );
 
   const setCardsCondition = useCallback(
@@ -1800,14 +1855,16 @@ export function ScannedCardsProvider({
   );
 
   const setCardStamp = useCallback(
-    (scanId: string, stamp: string | null) =>
+    (scanId: string, stamp: string | null) => {
       editCards(
         [scanId],
         (entry) => ({ ...entry, stamp: stamp ?? undefined }),
         (collectionGuid) => setCollectionCardStamp(collectionGuid, scanId, stamp),
         { logMessage: "Failed to update stamp:", notifiesUser: true },
-      ),
-    [editCards],
+      );
+      promptBinAfterScanStateEdit(scanId);
+    },
+    [editCards, promptBinAfterScanStateEdit],
   );
 
   const setCardLanguage = useCallback(
