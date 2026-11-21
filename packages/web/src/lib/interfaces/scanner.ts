@@ -1043,6 +1043,13 @@ export interface RouteCardToBinParams {
 
 export type OnnxExecutionProviderPreference = "webgpu" | "wasm";
 
+export type OnnxRuntimeModule = typeof import("onnxruntime-web/wasm");
+
+export interface OnnxRuntimeWasmPaths {
+  mjs: string;
+  wasm: string;
+}
+
 export interface VisionModelRunOptions {
   alwaysRunOnCpu?: boolean;
 }

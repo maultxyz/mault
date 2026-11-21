@@ -151,9 +151,15 @@ class InferenceWorker {
     modelBuffer: ArrayBuffer,
     executionProvider: OnnxExecutionProviderPreference,
   ) {
-    this.worker = new Worker(new URL("./inference.worker.ts", import.meta.url), {
-      type: "module",
-    });
+    this.worker =
+      executionProvider === "webgpu"
+        ? new Worker(
+            new URL("./inference-webgpu.worker.ts", import.meta.url),
+            { type: "module" },
+          )
+        : new Worker(new URL("./inference.worker.ts", import.meta.url), {
+            type: "module",
+          });
     this.ready = new Promise((resolve, reject) => {
       this.settleReady = { resolve, reject };
     });
@@ -207,7 +213,7 @@ class InferenceWorker {
       const error = message.isWasmRuntimeError
         ? wasmRuntimeError(message.message)
         : new Error(message.message);
-      if (message.isWasmRuntimeError) markRuntimeFailed(error);
+      markRuntimeFailed(error);
       this.fail(error);
       return;
     }
