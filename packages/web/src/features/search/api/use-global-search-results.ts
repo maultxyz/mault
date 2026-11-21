@@ -2,12 +2,12 @@ import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { ownedCardSearchQueryOptions } from "@/features/search/api/global-search";
 import { useCatalogCardSearch } from "@/features/search/api/use-catalog-card-search";
+import { useCatalogGames } from "@/features/search/api/use-catalog-games";
 import { storageLocationsQueryOptions } from "@/features/storage/api/storage-locations";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useSettingsSections } from "@/hooks/use-settings-sections";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import {
-  catalogGamesOf,
   globalSearchGamesFor,
   isGlobalSearchGameSelected,
   selectedGlobalSearchGameKey,
@@ -22,7 +22,7 @@ import { useTranslation } from "react-i18next";
 export function useGlobalSearchResults(search: string, isSearchOpen: boolean, requestedGameKey: string | null) {
   const { t } = useTranslation("settings");
   const { activeOrg } = useOrg();
-  const { collections, activeCollection } = useCollections();
+  const { collections } = useCollections();
   const settingsSections = useSettingsSections();
   const query = search.trim();
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
@@ -30,10 +30,7 @@ export function useGlobalSearchResults(search: string, isSearchOpen: boolean, re
   const searchesCatalog = isSearchOpen && debouncedQuery.length >= CATALOG_SEARCH_MIN_QUERY_LENGTH;
   const isWaitingForDebounce = query.length >= GLOBAL_SEARCH_MIN_QUERY_LENGTH && query !== debouncedQuery;
 
-  const availableGames = useMemo(
-    () => catalogGamesOf(collections, activeCollection?.guid),
-    [collections, activeCollection?.guid],
-  );
+  const { catalogGames: availableGames } = useCatalogGames();
   const selectedGameKey = selectedGlobalSearchGameKey(availableGames, requestedGameKey);
   const catalogGames = useMemo(
     () => globalSearchGamesFor(availableGames, selectedGameKey),

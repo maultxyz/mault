@@ -5,7 +5,7 @@ export interface CatalogGame {
   gameKey: string;
   gameName: string;
   lang: string;
-  collectionGuid: string;
+  collectionGuid: string | null;
 }
 
 export interface CatalogCardSearchResult {

@@ -1,6 +1,9 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
+  catalogGamesOf,
+  type Collection,
+  type Game,
   globalSearchGamesFor,
   isGlobalSearchGameSelected,
   OWNED_CARD_SEARCH_MAX_OFFSET,
@@ -42,4 +45,29 @@ test("global search narrows games and collections to the selected game", () => {
   assert.equal(selectedGlobalSearchGameKey([magic], "pokemon"), null);
   assert.equal(isGlobalSearchGameSelected(null, undefined), true);
   assert.equal(isGlobalSearchGameSelected("mtg", "pokemon"), false);
+});
+
+function testGame(key: string, isActive = true): Game {
+  return {
+    guid: key,
+    key,
+    name: key,
+    isActive,
+    fieldDefinitions: [],
+    foilTypes: [],
+    apiDocsUrl: null,
+    cardThickness: null,
+    createdAt: new Date(0),
+    updatedAt: new Date(0),
+  };
+}
+
+test("catalog games list every active game, collection games first", () => {
+  const collection = { guid: "c1", lang: "de", game: testGame("pokemon") } as Collection;
+  const games = [testGame("mtg"), testGame("pokemon"), testGame("pokemonjp"), testGame("retired", false)];
+  assert.deepEqual(catalogGamesOf(games, [collection]), [
+    { gameKey: "pokemon", gameName: "pokemon", lang: "de", collectionGuid: "c1" },
+    { gameKey: "mtg", gameName: "mtg", lang: "en", collectionGuid: null },
+    { gameKey: "pokemonjp", gameName: "pokemonjp", lang: "ja", collectionGuid: null },
+  ]);
 });

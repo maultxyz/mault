@@ -10,6 +10,7 @@ import { CardDetailTitle } from "@/features/cards/components/card-detail-title";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { catalogCardQueryOptions, rememberCatalogCard } from "@/features/search/api/global-search";
 import { useAddCatalogCard } from "@/features/search/api/use-add-catalog-card";
+import { useCatalogGames } from "@/features/search/api/use-catalog-games";
 import { CardPrintingsGrid } from "@/features/search/components/card-printings-grid";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { usePriceSource } from "@/hooks/use-price-source";
@@ -32,7 +33,7 @@ import {
 } from "@/lib/constants/search";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
-import { catalogGamesOf, type Collection, type PlayingCard } from "@magic-vault/shared";
+import { type Collection, type PlayingCard } from "@magic-vault/shared";
 import { IconArrowLeft, IconInfoCircle, IconPlus } from "@tabler/icons-react";
 import { keepPreviousData, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
@@ -52,14 +53,14 @@ export default function CatalogCardPage() {
   const { priceOf } = usePriceSource();
   const addCard = useAddCatalogCard();
   const [pickedCollectionGuid, setPickedCollectionGuid] = useState<string | null>(null);
-  const game =
-    catalogGamesOf(collections, activeCollection?.guid).find((entry) => entry.gameKey === gameKey) ?? null;
+  const { catalogGames, isLoading: catalogGamesLoading } = useCatalogGames();
+  const game = catalogGames.find((entry) => entry.gameKey === gameKey) ?? null;
   const cardQuery = useQuery({ ...catalogCardQueryOptions(game, selectedCardId), placeholderData: keepPreviousData });
   const card = cardQuery.data;
   const targets = collections.filter((collection) => collection.game?.key === gameKey);
   const defaultTarget = targets.find((collection) => collection.guid === activeCollection?.guid) ?? targets[0] ?? null;
   const target = targets.find((collection) => collection.guid === pickedCollectionGuid) ?? defaultTarget;
-  const unknownGame = !game && !collectionsLoading;
+  const unknownGame = !game && !catalogGamesLoading;
   const title = card?.name ?? t("catalogCard.title");
   const backLabel = t("common:mobileMenu.back");
 

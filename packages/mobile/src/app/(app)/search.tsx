@@ -18,6 +18,7 @@ import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { FilterChip } from "@/features/collections/components/filter-chip";
 import { rememberCatalogCard } from "@/features/search/api/catalog-card-search";
 import { useCatalogCardSearch } from "@/features/search/api/use-catalog-card-search";
+import { useCatalogGames } from "@/features/search/api/use-catalog-games";
 import { ownedCardSearchQueryOptions } from "@/features/search/api/owned-card-search";
 import { searchLocally } from "@/features/search/lib/global-search";
 import { storageLocationsQueryOptions } from "@/features/storage/api/storage";
@@ -30,7 +31,6 @@ import { SPACING } from "@/lib/constants/theme";
 import { absoluteUrl } from "@/lib/url";
 import {
   CATALOG_SEARCH_MIN_QUERY_LENGTH,
-  catalogGamesOf,
   GLOBAL_SEARCH_MIN_QUERY_LENGTH,
   globalSearchGamesFor,
   isGlobalSearchGameSelected,
@@ -46,14 +46,11 @@ export default function GlobalSearchScreen() {
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
   const searchesCards = debouncedQuery.length >= GLOBAL_SEARCH_MIN_QUERY_LENGTH;
   const searchesCatalog = debouncedQuery.length >= CATALOG_SEARCH_MIN_QUERY_LENGTH;
-  const { collections, collection: scanTargetCollection } = useScanTarget();
+  const { collections } = useScanTarget();
   const queryClient = useQueryClient();
   const pricing = usePricing();
   const [requestedGameKey, setRequestedGameKey] = useState<string | null>(null);
-  const availableGames = useMemo(
-    () => catalogGamesOf(collections, scanTargetCollection?.guid),
-    [collections, scanTargetCollection?.guid],
-  );
+  const { catalogGames: availableGames } = useCatalogGames();
   const selectedGameKey = selectedGlobalSearchGameKey(availableGames, requestedGameKey);
   const catalogGames = useMemo(
     () => globalSearchGamesFor(availableGames, selectedGameKey),

@@ -109,7 +109,7 @@ export const catalogCardQueryOptions = (game: CatalogGame | null, cardId: string
     queryKey: catalogCardQueryKey(game?.gameKey ?? "", cardId),
     queryFn: async (): Promise<PlayingCard> => {
       if (!game) throw new Error("Unknown game.");
-      const result = await getCardById(cardId, game.collectionGuid, game.lang, game.gameKey);
+      const result = await getCardById(cardId, game.collectionGuid ?? undefined, game.lang, game.gameKey);
       if (!result.success || !result.data) throw new Error(result.message ?? "Card not found.");
       return result.data;
     },
