@@ -39,9 +39,10 @@ export function AlphabetPassControl() {
     nextStep,
     pass,
     passCount,
-    letters,
+    singleLetterLabels,
     from,
     to,
+    nextPile,
     isLastPass,
   } = useAlphabetPass();
   const [pending, setPending] = useState<AlphabetStep | null>(null);
@@ -50,9 +51,8 @@ export function AlphabetPassControl() {
 
   const isDisabled = isPresetMutating || isTimerActive;
   const target = nextStep ?? { pass: 0, prefix: "" };
-  const startsPile = target.prefix !== prefix;
-  const passLabels = [...letters.values()];
-  const canSortDeeper = prefix.length < ALPHABET_PREFIX_MAX_LENGTH;
+  const canSortDeeper =
+    prefix.length < ALPHABET_PREFIX_MAX_LENGTH && singleLetterLabels.length > 0;
 
   const controls = (
     <div className="flex flex-wrap items-center justify-end gap-1.5">
@@ -82,7 +82,7 @@ export function AlphabetPassControl() {
             <IconChevronDown />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {passLabels.map((label) => (
+            {singleLetterLabels.map((label) => (
               <DropdownMenuItem
                 key={label}
                 onClick={() => setPending({ pass: 0, prefix: label })}
@@ -107,9 +107,7 @@ export function AlphabetPassControl() {
           </>
         ) : (
           <>
-            {startsPile
-              ? tBins("alphabetPanel.nextPile", { prefix: target.prefix })
-              : tBins("alphabetPanel.next")}{" "}
+            {tBins("alphabetPanel.nextPile", { pile: nextPile })}{" "}
             <IconArrowRight />
           </>
         )}

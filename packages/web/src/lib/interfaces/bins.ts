@@ -80,9 +80,12 @@ export interface AlphabetPassState {
   previousStep: AlphabetStep | null;
   pass: number;
   passCount: number;
-  letters: Map<number, string>;
+  labels: Map<number, string>;
+  singleLetterLabels: string[];
+  sortsOneLetterPerBin: boolean;
   from: string | undefined;
   to: string | undefined;
+  nextPile: string | null;
   isLastPass: boolean;
 }
 

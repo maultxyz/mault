@@ -1301,7 +1301,7 @@
       },
       "alphabet": {
         "title": "Tri alphabétique",
-        "description": "Une lettre par bac, en plusieurs tours, avec un tri plus fin pour les grosses piles"
+        "description": "D'abord des plages de lettres, puis une lettre par bac, avec un tri plus fin pour les grosses piles"
       },
       "chaos": {
         "title": "Tri chaos",
@@ -1361,25 +1361,24 @@
       "lastStage": "Dernière étape"
     },
     "alphabet": {
-      "needBins": "Le tri alphabétique nécessite au moins un bac en plus du bac fourre-tout.",
+      "needBins": "Le tri alphabétique nécessite au moins deux bacs en plus du bac fourre-tout.",
       "passHeading": "Tour {{current}} sur {{total}}",
-      "passRange": "Tri des noms commençant par {{from}} à {{to}}. Tout le reste va dans le bac fourre-tout.",
-      "prefixRange": "Tri de la pile {{prefix}} par la lettre suivante : {{from}} à {{to}}. Tout le reste va dans le bac fourre-tout.",
+      "passRange": "Tri des noms de {{from}} à {{to}}, une lettre par bac. Tout le reste va dans le bac fourre-tout.",
+      "rangePassRange": "Découpage des noms de {{from}} à {{to}} en plages de lettres, une plage par bac. Tout le reste va dans le bac fourre-tout.",
       "unusedBin": "Non utilisé",
-      "nextPassHint": "Quand ce tour est fini, vide chaque bac, remets les cartes du bac fourre-tout dans le chargeur, puis passe aux lettres suivantes.",
       "lastPassHint": "C'est le dernier tour. Ce qui reste ensuite dans le bac fourre-tout a un nom qui ne commence pas par une lettre.",
-      "nextPileHint": "Quand ce tour est fini, vide chaque bac en gardant chaque pile dans l'ordre. Ensuite : la pile {{prefix}}.",
+      "nextPileHint": "Quand ce tour est fini, vide chaque bac en gardant chaque pile dans l'ordre. Ensuite : la pile {{pile}}.",
+      "nextPile": "Suivant : pile {{pile}}",
       "pileDoneHint": "C'est le dernier tour pour la pile {{prefix}}. Recommence pour revenir à l'alphabet complet.",
       "previous": "Précédent",
-      "next": "Lettres suivantes",
       "startOver": "Recommencer",
       "sortDeeper": "Trier plus finement",
       "sortDeeperItem": "Pile {{label}} par lettre suivante",
       "upLevel": "Remonter d'un niveau",
-      "confirmTitle": "Passer à de nouvelles lettres ?",
-      "confirmDescription": "Vérifie que chaque bac est vide et que les cartes du bac fourre-tout sont de retour dans le chargeur. Tous les bacs seront marqués comme vidés.",
-      "confirmPileTitle": "Commencer la pile {{prefix}} ?",
-      "confirmPileDescription": "Vide chaque bac en gardant chaque pile dans l'ordre, puis mets la pile {{prefix}} dans le chargeur. Tous les bacs seront marqués comme vidés.",
+      "confirmTitle": "Revenir à l'alphabet complet ?",
+      "confirmDescription": "Vide chaque bac et remets toutes les cartes dans le chargeur. Tous les bacs seront marqués comme vidés.",
+      "confirmPileTitle": "Commencer la pile {{pile}} ?",
+      "confirmPileDescription": "Vide chaque bac en gardant chaque pile dans l'ordre, puis mets la pile {{pile}} dans le chargeur. Tous les bacs seront marqués comme vidés.",
       "confirm": "Les bacs sont vides"
     },
     "binSummary": {

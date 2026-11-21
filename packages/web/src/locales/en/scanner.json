@@ -561,7 +561,7 @@
   },
   "alphabetPassControl": {
     "range": "Sorting {{from}} to {{to}}",
-    "stopFirst": "Stop the scanner before moving to the next letters."
+    "stopFirst": "Stop the scanner before moving to the next pass."
   },
   "sessionStatsPanel": {
     "value": "Value"

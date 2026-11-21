@@ -1301,7 +1301,7 @@
       },
       "alphabet": {
         "title": "Sort alphabetically",
-        "description": "One letter per bin, in passes, with deeper sorting for big piles"
+        "description": "Letter ranges first, then one letter per bin, with deeper sorting for big piles"
       },
       "chaos": {
         "title": "Chaos sort",
@@ -1361,25 +1361,24 @@
       "lastStage": "Last stage"
     },
     "alphabet": {
-      "needBins": "Alphabetical sort needs at least one bin besides the catch-all.",
+      "needBins": "Alphabetical sort needs at least two bins besides the catch-all.",
       "passHeading": "Pass {{current}} of {{total}}",
-      "passRange": "Sorting names starting with {{from}} to {{to}}. Everything else goes to the catch-all.",
-      "prefixRange": "Sorting the {{prefix}} pile by its next letter: {{from}} to {{to}}. Everything else goes to the catch-all.",
+      "passRange": "Sorting names from {{from}} to {{to}}, one letter per bin. Everything else goes to the catch-all.",
+      "rangePassRange": "Splitting names from {{from}} to {{to}} into letter ranges, one range per bin. Everything else goes to the catch-all.",
       "unusedBin": "Not used",
-      "nextPassHint": "When this pass is done, take the cards out of every bin, put the catch-all cards back in the feeder, then move to the next letters.",
       "lastPassHint": "This is the last pass. Anything left in the catch-all afterwards has a name that doesn't start with a letter.",
-      "nextPileHint": "When this pass is done, take the cards out of every bin and keep each pile in order. Next up: the {{prefix}} pile.",
+      "nextPileHint": "When this pass is done, take the cards out of every bin and keep each pile in order. Next up: the {{pile}} pile.",
+      "nextPile": "Next: {{pile}} pile",
       "pileDoneHint": "This is the last pass for the {{prefix}} pile. Start over to go back to the whole alphabet.",
       "previous": "Previous",
-      "next": "Next letters",
       "startOver": "Start over",
       "sortDeeper": "Sort deeper",
       "sortDeeperItem": "{{label}} pile by next letter",
       "upLevel": "Up a level",
-      "confirmTitle": "Move to a new set of letters?",
-      "confirmDescription": "Make sure every bin is empty and the catch-all cards are back in the feeder. All bins will be marked as emptied.",
-      "confirmPileTitle": "Start the {{prefix}} pile?",
-      "confirmPileDescription": "Empty every bin, keeping each pile in order, then put the {{prefix}} pile in the feeder. All bins will be marked as emptied.",
+      "confirmTitle": "Go back to the whole alphabet?",
+      "confirmDescription": "Empty every bin and put all the cards in the feeder. All bins will be marked as emptied.",
+      "confirmPileTitle": "Start the {{pile}} pile?",
+      "confirmPileDescription": "Empty every bin, keeping each pile in order, then put the {{pile}} pile in the feeder. All bins will be marked as emptied.",
       "confirm": "Bins are empty"
     },
     "binSummary": {
