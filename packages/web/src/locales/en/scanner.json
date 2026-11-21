@@ -117,7 +117,8 @@
     "deviceResolveFailed": "Couldn't identify this sorter. Using the last saved calibration.",
     "deviceInUse": {
       "title": "Sorter already connected",
-      "description": "{{name}} is already connected in another sorter panel. Disconnect it there first."
+      "description": "{{name}} is already connected in another sorter panel. Disconnect it there first.",
+      "portDescription": "This port is already connected in another sorter panel. Disconnect it there first."
     },
     "unidentifiedBoard": {
       "title": "Older firmware detected",

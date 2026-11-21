@@ -117,7 +117,8 @@
     "deviceResolveFailed": "Dieser Sortierer konnte nicht identifiziert werden. Die zuletzt gespeicherte Kalibrierung wird verwendet.",
     "deviceInUse": {
       "title": "Sortierer bereits verbunden",
-      "description": "{{name}} ist bereits in einem anderen Sortierer-Bereich verbunden. Trenne ihn dort zuerst."
+      "description": "{{name}} ist bereits in einem anderen Sortierer-Bereich verbunden. Trenne ihn dort zuerst.",
+      "portDescription": "Dieser Anschluss ist bereits in einem anderen Sortierer-Bereich verbunden. Trenne ihn dort zuerst."
     },
     "unidentifiedBoard": {
       "title": "Ältere Firmware erkannt",

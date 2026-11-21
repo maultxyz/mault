@@ -47,7 +47,7 @@ export class SerialTransport implements ByteTransport {
 
   static async requestAndOpen(): Promise<
     | { ok: true; transport: SerialTransport }
-    | { ok: false; reason: "cancelled" | "open-failed" }
+    | { ok: false; reason: "cancelled" | "open-failed" | "in-use" }
   > {
     let port: SerialPort;
     try {
@@ -55,6 +55,7 @@ export class SerialTransport implements ByteTransport {
     } catch {
       return { ok: false, reason: "cancelled" };
     }
+    if (port.readable?.locked) return { ok: false, reason: "in-use" };
     if (!port.readable || !port.writable) {
       try {
         await port.open({ baudRate: 9600 });

@@ -952,6 +952,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       const result = await SerialTransport.requestAndOpen();
       if (!result.ok) {
         if (result.reason === "cancelled") return;
+        if (result.reason === "in-use") {
+          toast.error(t("serial.deviceInUse.title"), {
+            description: t("serial.deviceInUse.portDescription"),
+          });
+          return;
+        }
         toast.error(t("serial.connectionFailed.title"), {
           description: t("serial.connectionFailed.description"),
         });

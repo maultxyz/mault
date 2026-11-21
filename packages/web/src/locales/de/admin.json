@@ -50,6 +50,82 @@
       "failedCount_other": "{{count}} durchgefallen",
       "historyItem": "#{{number}} K {{channel}}"
     },
+    "stress": {
+      "heading": "Belastungstest",
+      "description": "Bewegt Servos ununterbrochen zwischen Minimum und Maximum, um herauszufinden, wie lange sie halten. Richte eine Webcam auf die Servos, dann erkennt der Test, welche stehen bleiben, oder beobachte sie selbst und markiere jedes, sobald es stehen bleibt.",
+      "channels": "Kanäle",
+      "hint": "Wähle einen oder mehrere Kanäle. Der Test endet, wenn jedes Servo markiert ist, wenn du auf Stopp drückst oder wenn das Board nicht mehr antwortet. Gestoppte Servos werden sofort freigegeben.",
+      "start": "Starten",
+      "stop": "Stopp",
+      "running": "Läuft",
+      "finished": "Beendet",
+      "elapsed": "Laufzeit {{elapsed}}",
+      "stoppedCount": "{{stopped}} von {{total}} gestoppt",
+      "channel": "Kanal {{channel}}",
+      "cycles_one": "{{count}} Zyklus",
+      "cycles_other": "{{count}} Zyklen",
+      "moving": "Bewegt sich",
+      "survived": "Bewegt sich noch",
+      "stoppedAfter": "Gestoppt nach {{elapsed}}",
+      "markStopped": "Bewegt sich nicht mehr",
+      "markStoppedOnChannel": "Servo an Kanal {{channel}} bewegt sich nicht mehr",
+      "endReason": {
+        "manual": "Belastungstest nach {{elapsed}} gestoppt.",
+        "allServosStopped": "Alle Servos sind stehen geblieben. Der Test lief {{elapsed}}.",
+        "boardStopped": "Das Board hat nach {{elapsed}} nicht mehr geantwortet. Prüfe Stromversorgung und Verbindung."
+      },
+      "cameraStoppedAfter": "Kamera: gestoppt nach {{elapsed}}",
+      "camera": {
+        "heading": "Mit einer Kamera beobachten",
+        "description": "Befestige eine Webcam so, dass sie die Servohörner sieht, und ziehe dann um jedes Horn einen Rahmen. Der erste Zyklus lernt, was sich ändert, wenn sich jedes Servo bewegt. Danach wird ein Servo, dessen Rahmen sich 3 Bewegungen in Folge nicht mehr ändert, als gestoppt markiert. Langsame Lichtänderungen werden während des Tests mitverfolgt.",
+        "camera": "Kamera",
+        "pickCamera": "Kamera wählen",
+        "noCameras": "Keine Kameras gefunden",
+        "unnamedCamera": "Kamera",
+        "cameraNumber": "Kamera {{number}}",
+        "turnOff": "Kamera ausschalten",
+        "startFailed": "Die Kamera ist nicht gestartet. Prüfe, ob sie angeschlossen ist, von keiner anderen App benutzt wird und der Browser sie verwenden darf.",
+        "pickChannels": "Wähle oben die zu testenden Kanäle und ziehe dann für jeden einen Rahmen.",
+        "boxFor": "Rahmen ziehen für:",
+        "channelWithBox": "Kanal {{channel}} (mit Rahmen)",
+        "clearBox": "Rahmen entfernen",
+        "editorLabel": "Kameravorschau, Rahmen für Kanal {{channel}}",
+        "editorHint": "Ziehe auf der Vorschau einen Rahmen um das Horn oder platziere und skaliere ihn mit den Schaltflächen. Kanäle ohne Rahmen beobachtest du selbst.",
+        "reached": "Kamera: {{percent}} % Bewegung",
+        "status": {
+          "learning": "Kamera: lernt die Positionen",
+          "watching": "Kamera: beobachtet",
+          "noMotion": "Die Kamera sieht dieses Servo nicht sich bewegen. Mach das Horn besser sichtbar oder beobachte es selbst."
+        },
+        "announceStopped": "Die Kamera hat gesehen, dass das Servo an Kanal {{channel}} stehen geblieben ist.",
+        "adjustLabel": "Rahmen für Kanal {{channel}} verschieben oder in der Größe ändern",
+        "adjust": {
+          "left": "Rahmen nach links",
+          "right": "Rahmen nach rechts",
+          "up": "Rahmen nach oben",
+          "down": "Rahmen nach unten",
+          "grow": "Rahmen vergrößern",
+          "shrink": "Rahmen verkleinern"
+        }
+      },
+      "channelButton": "Kanal {{channel}}, {{role}}",
+      "calibrationHint": "Modulservos bewegen sich zwischen ihren kalibrierten Positionen für diesen Sortierer, die anderen Kanäle nutzen den vollen Bereich. Paddel und Schieber eines Moduls können nicht zusammen laufen, weil die Firmware das Paddel vor jeder Schieberbewegung absenkt.",
+      "calibrationHintWithFeeder": "Modulservos bewegen sich zwischen ihren kalibrierten Positionen für diesen Sortierer, die anderen Kanäle nutzen den vollen Bereich. Paddel und Schieber eines Moduls können nicht zusammen laufen, weil die Firmware das Paddel vor jeder Schieberbewegung absenkt. Kanal {{channel}} ist die Zuführung, die sich dreht statt eine Position zu halten, und kann daher nicht getestet werden.",
+      "defaultCalibration": "Für dieses Board ist kein Sortierer gespeichert, daher nutzen die Modulservos die Standardkalibrierung. Kalibriere den Sortierer zuerst, wenn die Gestänge montiert sind.",
+      "role": {
+        "bottom": "Modul {{module}} Bodenklappe",
+        "paddle": "Modul {{module}} Paddel",
+        "pusher": "Modul {{module}} Schieber",
+        "feeder": "Zuführung",
+        "unassigned": "Von keinem Modul genutzt"
+      },
+      "pulses": {
+        "bottom": "geschlossen {{min}}, offen {{max}}",
+        "paddle": "geschlossen {{min}}, offen {{max}}",
+        "pusher": "links {{min}}, rechts {{max}}",
+        "unassigned": "voller Bereich {{min}} bis {{max}}"
+      }
+    },
     "leds": {
       "heading": "LED-Streifen",
       "description": "Zwei RGBW-Streifen mit je 8 LEDs an GPIO 14. Wähle eine LED, um sie ein- oder auszuschalten und Rot, Grün, Blau, Weiß und Helligkeit einzustellen, oder schalte einen ganzen Streifen auf einmal.",
