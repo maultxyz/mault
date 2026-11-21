@@ -388,3 +388,34 @@ test("movement or a missing card restarts the settle count", () => {
   assert.equal(tracker.observe(moved, 1000), false);
   assert.equal(tracker.observe(moved, 1000), true);
 });
+
+test("an unsure preferred image result starts the other orientation before the preferred text read ends", async () => {
+  const events: string[] = [];
+  let finishPreferredTextRead = () => {};
+  const outcome = await identifyScanImage({
+    checkBothOrientations: true,
+    preferredOrientation: "upright",
+    search: async (orientation, reportImageResult) => {
+      events.push(`${orientation} started`);
+      const match = result("card", orientation === "upright" ? 0.35 : 0.1);
+      reportImageResult(match);
+      if (orientation === "upright")
+        await new Promise<void>((resolve) => {
+          finishPreferredTextRead = resolve;
+        });
+      else {
+        await Promise.resolve();
+        finishPreferredTextRead();
+      }
+      events.push(`${orientation} finished`);
+      return candidate(orientation, match);
+    },
+  });
+  assert.deepEqual(events, [
+    "upright started",
+    "rotated started",
+    "rotated finished",
+    "upright finished",
+  ]);
+  assert.equal(outcome.pick.orientation, "rotated");
+});

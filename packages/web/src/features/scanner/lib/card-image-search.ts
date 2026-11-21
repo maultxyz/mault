@@ -333,7 +333,7 @@ async function runCardImageSearch(
         checkBothOrientations,
         preferredOrientation,
         ocrMode,
-        search: async (orientation) => {
+        search: async (orientation, reportImageResult) => {
           const oriented =
             orientation === "rotated"
               ? rotateCanvas180(dewarpedCanvas)
@@ -349,7 +349,10 @@ async function runCardImageSearch(
           const [result, textResult] = await Promise.all([
             requestIdentifyWithRetries(() =>
               searchByVector(vectorFormData, IDENTIFY_REQUEST_OPTIONS),
-            ),
+            ).then((imageResult) => {
+              reportImageResult(imageResult);
+              return imageResult;
+            }),
             readsTextWithImage ? readText(orientation, embedding) : undefined,
           ]);
           return {

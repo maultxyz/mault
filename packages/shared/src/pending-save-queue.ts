@@ -4,7 +4,6 @@ import { isRetryableScanSaveError, pendingScanSaveRetryDelayMs } from "./scan-sa
 export class PendingSaveQueue<TSave, TResult> {
   private readonly inFlight = new Set<string>();
   private readonly wakers = new Set<() => void>();
-  private readonly storedAhead = new Map<string, Promise<boolean>>();
   private stopped = false;
 
   private readonly options: PendingSaveQueueOptions<TSave, TResult>;
@@ -29,43 +28,14 @@ export class PendingSaveQueue<TSave, TResult> {
     return this.inFlight.has(key);
   }
 
-  storeAheadOfSubmit(save: TSave): void {
-    const key = this.options.keyOf(save);
-    if (this.storedAhead.has(key)) return;
-    this.storedAhead.set(key, this.store(save));
-  }
-
-  private store(save: TSave): Promise<boolean> {
-    return Promise.resolve()
-      .then(() => this.options.put(save))
-      .then(
-        () => true,
-        () => false,
-      );
-  }
-
-  async submit(save: TSave, onStored?: () => void): Promise<TResult> {
-    const key = this.options.keyOf(save);
-    const storedAhead = this.storedAhead.get(key);
-    this.storedAhead.delete(key);
-    const isStored = storedAhead
-      ? await storedAhead
-      : this.options.storesBeforeFirstAttempt
-        ? await this.store(save)
-        : false;
-    onStored?.();
+  async submit(save: TSave): Promise<TResult> {
     try {
-      const result = await this.options.send(save, false);
-      if (isStored) await this.options.remove(key);
-      return result;
+      return await this.options.send(save, false);
     } catch (error) {
-      if (!isRetryableScanSaveError(error)) {
-        if (isStored) await this.options.remove(key);
-        throw error;
-      }
+      if (!isRetryableScanSaveError(error)) throw error;
       this.options.onRetryableFailure?.(save, error, false);
     }
-    if (!isStored) await this.options.put(save);
+    await this.options.put(save);
     return this.retryUntilSettled(save, false);
   }
 
