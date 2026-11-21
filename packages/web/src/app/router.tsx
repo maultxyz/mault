@@ -30,7 +30,7 @@ import {
   APP_SHELL_NAMESPACES,
   withNamespaces,
 } from "@/lib/i18n";
-import { lazyRoute, registerPreloadableRoutes } from "@/lib/route-chunks";
+import { lazyRoute } from "@/lib/route-chunks";
 import { MACHINES_ROUTE_PATH } from "@/lib/constants/machines";
 import { WHATS_NEW_PATH } from "@/lib/constants/feature-highlights";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
@@ -968,5 +968,3 @@ export const routes: RouteObject[] = [
     ],
   },
 ];
-
-registerPreloadableRoutes(routes);
