@@ -332,6 +332,18 @@
     "startedOnly": "Démarré {{started}}",
     "loadFailed": "Impossible de charger le journal d'usurpation d'identité."
   },
+  "subscriptionSummary": {
+    "heading": "Abonnements",
+    "description": "Organisations avec un abonnement payant, par offre. Le revenu mensuel récurrent utilise le prix catalogue de chaque offre, les offres annuelles réparties sur 12 mois, avant remises et taxes. Les essais comptent comme abonnés mais n'ajoutent aucun revenu.",
+    "subscribersHeading": "Abonnés",
+    "revenueHeading": "Revenu mensuel récurrent",
+    "total": "Total",
+    "trialingCount_one": "{{count}} en essai",
+    "trialingCount_other": "{{count}} en essai",
+    "unpriced_one": "Le prix de {{count}} abonné n'a pas pu être chargé depuis Stripe, il est donc exclu du revenu.",
+    "unpriced_other": "Les prix de {{count}} abonnés n'ont pas pu être chargés depuis Stripe, ils sont donc exclus du revenu.",
+    "loadFailed": "Impossible de charger les abonnements."
+  },
   "metricsStats": {
     "heading": "Statistiques de scan",
     "description": "Activité de scan à l'échelle de l'application, toutes organisations confondues, et si chaque scan a été vectorisé sur le serveur ou dans le navigateur. Une personne est comptée comme scannant tant qu'elle a enregistré un scan au cours des {{minutes}} dernières minutes.",

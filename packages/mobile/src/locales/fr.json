@@ -2070,7 +2070,8 @@
       "cancelAtPeriodEnd": "Ton abonnement se termine le {{date}}.",
       "manageOnWeb": "Les changements de forfait et les informations de paiement se gèrent dans l'application web.",
       "openWeb": "Ouvrir la facturation sur le web",
-      "legacyPlanNote": "Vous avez l'offre Business d'origine, qui n'est plus proposée. Vous la conservez, avec tout ce qu'elle inclut, tant que votre abonnement reste actif. Passer à une autre offre ou résilier est définitif."
+      "legacyPlanNote": "Vous avez l'offre Business d'origine, qui n'est plus proposée. Vous la conservez, avec tout ce qu'elle inclut, tant que votre abonnement reste actif. Passer à une autre offre ou résilier est définitif.",
+      "billingDisabled": "La facturation n'est pas activée sur ce serveur, donc toutes les fonctionnalités sont disponibles sans limite."
     },
     "apiKeys": {
       "heading": "Clés API",
@@ -2913,6 +2914,18 @@
       }
     },
     "plans": {
+      "subscriptions": {
+        "heading": "Abonnements",
+        "description": "Organisations avec un abonnement payant, par offre. Le revenu mensuel récurrent utilise le prix catalogue de chaque offre, les offres annuelles réparties sur 12 mois, avant remises et taxes. Les essais comptent comme abonnés mais n'ajoutent aucun revenu.",
+        "subscribersHeading": "Abonnés",
+        "revenueHeading": "Revenu mensuel récurrent",
+        "total": "Total",
+        "trialingCount_one": "{{count}} en essai",
+        "trialingCount_other": "{{count}} en essai",
+        "unpriced_one": "Le prix de {{count}} abonné n'a pas pu être chargé depuis Stripe, il est donc exclu du revenu.",
+        "unpriced_other": "Les prix de {{count}} abonnés n'ont pas pu être chargés depuis Stripe, ils sont donc exclus du revenu.",
+        "loadFailed": "Impossible de charger les abonnements."
+      },
       "billingDisabled": "La facturation est désactivée sur ce serveur, chaque organisation a donc toutes les fonctionnalités sans limite. Ces réglages s'appliquent une fois la facturation activée.",
       "saveFailed": "Impossible d'enregistrer les réglages des offres",
       "featuresDescription": "Quelles offres peuvent utiliser chaque fonctionnalité. Les fonctionnalités sont définies dans le code, une nouvelle apparaît ici une fois développée.",

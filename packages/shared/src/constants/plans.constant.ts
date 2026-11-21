@@ -15,6 +15,12 @@ export const PAID_PLAN_KEYS = ["enthusiast", "business"] as const;
 
 export const DEFAULT_PAID_PLAN = "business";
 
+export const SUBSCRIPTION_SUMMARY_PLAN_KEYS = [
+  "enthusiast",
+  "business",
+  "legacyBusiness",
+] as const;
+
 export const PLAN_FEATURE_KEYS = [
   "chaosSort",
   "repacks",

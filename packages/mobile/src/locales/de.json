@@ -2070,7 +2070,8 @@
       "cancelAtPeriodEnd": "Dein Abonnement endet am {{date}}.",
       "manageOnWeb": "Tarifänderungen und Zahlungsdaten werden in der Web-App verwaltet.",
       "openWeb": "Abrechnung im Web öffnen",
-      "legacyPlanNote": "Du nutzt den ursprünglichen Business-Tarif, der nicht mehr angeboten wird. Du behältst ihn mit allem, was dazugehört, solange dein Abo aktiv bleibt. Ein Wechsel zu einem anderen Tarif oder eine Kündigung lässt sich nicht rückgängig machen."
+      "legacyPlanNote": "Du nutzt den ursprünglichen Business-Tarif, der nicht mehr angeboten wird. Du behältst ihn mit allem, was dazugehört, solange dein Abo aktiv bleibt. Ein Wechsel zu einem anderen Tarif oder eine Kündigung lässt sich nicht rückgängig machen.",
+      "billingDisabled": "Die Abrechnung ist auf diesem Server nicht aktiviert, daher sind alle Funktionen ohne Limits verfügbar."
     },
     "apiKeys": {
       "heading": "API-Schlüssel",
@@ -2913,6 +2914,18 @@
       }
     },
     "plans": {
+      "subscriptions": {
+        "heading": "Abonnements",
+        "description": "Organisationen mit einem bezahlten Abonnement, nach Plan. Der monatlich wiederkehrende Umsatz nutzt den Listenpreis jedes Plans, Jahrespläne auf 12 Monate verteilt, vor Rabatten und Steuern. Testphasen zählen als Abonnenten, bringen aber keinen Umsatz.",
+        "subscribersHeading": "Abonnenten",
+        "revenueHeading": "Monatlich wiederkehrender Umsatz",
+        "total": "Gesamt",
+        "trialingCount_one": "{{count}} in der Testphase",
+        "trialingCount_other": "{{count}} in der Testphase",
+        "unpriced_one": "Der Preis von {{count}} Abonnenten konnte nicht von Stripe geladen werden, daher fehlt er im Umsatz.",
+        "unpriced_other": "Die Preise von {{count}} Abonnenten konnten nicht von Stripe geladen werden, daher fehlen sie im Umsatz.",
+        "loadFailed": "Abonnements konnten nicht geladen werden."
+      },
       "billingDisabled": "Die Abrechnung ist auf diesem Server ausgeschaltet, daher bekommt jede Organisation alle Funktionen ohne Limits. Diese Einstellungen greifen, sobald die Abrechnung aktiv ist.",
       "saveFailed": "Tarifeinstellungen konnten nicht gespeichert werden",
       "featuresDescription": "Welche Tarife jede Funktion nutzen können. Funktionen sind im Code definiert, eine neue erscheint hier, sobald sie gebaut ist.",
