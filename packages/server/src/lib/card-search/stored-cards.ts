@@ -42,6 +42,7 @@ import { validateCatalogQuery } from "./validate";
 import { parsePrintingQueries } from "./printing-query";
 import { matchesEnglishCardNameSql } from "../english-card-name-search";
 import { ENGLISH_CARD_LANG } from "../constants/english-card-name-search";
+import { languagesOfGame } from "../card-match-index";
 import {
   cardPrintingsSql,
   catalogPrintingIsListedSql,
@@ -176,16 +177,21 @@ function printingMatches({ setCode, number, name }: PrintingQuery): SQL {
   return sql`(lower(${cardImageVectors.setCode}) = ${set} AND (${numberMatches(number)} OR ${collectorNumber} = ${`${set}-${wanted}`} OR ${collectorNumber} = ${`${set}${wanted}`}))`;
 }
 
-function searchIncludesNonEnglishCards({
+async function nonEnglishSearchLanguages({
+  gameKey,
   lang,
   searchAllLanguages,
   onlyLanguage,
-}: ResolvedCardSearch): boolean {
-  if (onlyLanguage) return onlyLanguage !== ENGLISH_CARD_LANG;
-  return searchAllLanguages === true || lang !== ENGLISH_CARD_LANG;
+}: ResolvedCardSearch): Promise<string[]> {
+  const searchedLanguages = onlyLanguage
+    ? [onlyLanguage]
+    : searchAllLanguages
+      ? await languagesOfGame(gameKey)
+      : [lang];
+  return searchedLanguages.filter((language) => language !== ENGLISH_CARD_LANG);
 }
 
-function storedSearchMatch(trimmed: string, resolved: ResolvedCardSearch) {
+async function storedSearchMatch(trimmed: string, resolved: ResolvedCardSearch) {
   const pattern = likePattern(trimmed);
   const printingQueries = parsePrintingQueries(trimmed);
   const printingMatch = printingQueries.length
@@ -197,7 +203,8 @@ function storedSearchMatch(trimmed: string, resolved: ResolvedCardSearch) {
   const indexedMatch =
     or(ilike(cardImageVectors.name, pattern), printingMatch, setMatch) ??
     ilike(cardImageVectors.name, pattern);
-  const englishNameMatch = searchIncludesNonEnglishCards(resolved)
+  const nonEnglishLanguages = await nonEnglishSearchLanguages(resolved);
+  const englishNameSubquery = nonEnglishLanguages.length
     ? matchesEnglishCardNameSql(
         {
           gameKey: sql`${resolved.gameKey}`,
@@ -208,8 +215,39 @@ function storedSearchMatch(trimmed: string, resolved: ResolvedCardSearch) {
         trimmed,
       )
     : undefined;
-  const match = englishNameMatch ? (or(indexedMatch, englishNameMatch) ?? indexedMatch) : indexedMatch;
-  return { printingMatch, indexedMatch, englishNameMatch, match };
+  const englishNameMatch = englishNameSubquery
+    ? and(inArray(cardImageVectors.lang, nonEnglishLanguages), englishNameSubquery)
+    : undefined;
+  return { printingMatch, indexedMatch, englishNameMatch };
+}
+
+async function storedSearchBranches(
+  trimmed: string,
+  resolved: ResolvedCardSearch,
+  setCode?: string,
+) {
+  const { indexedMatch, englishNameMatch, printingMatch } = await storedSearchMatch(trimmed, resolved);
+  const branches = [indexedMatch, englishNameMatch].flatMap((match) => {
+    const branch = match
+      ? and(
+          eq(cardImageVectors.gameKey, resolved.gameKey),
+          storedLanguageMatch(resolved),
+          match,
+          isNotNull(cardImageVectors.data),
+          setCode ? eq(cardImageVectors.setCode, setCode) : undefined,
+        )
+      : undefined;
+    return branch ? [branch] : [];
+  });
+  return { branches, printingMatch };
+}
+
+function rowMatchesAnyBranchSql(branches: SQL[]): SQL {
+  if (branches.length === 1) return branches[0];
+  const branchIds = branches.map(
+    (branch) => sql`SELECT ${cardImageVectors.id} FROM ${cardImageVectors} WHERE ${branch}`,
+  );
+  return sql`${cardImageVectors.id} IN (${sql.join(branchIds, sql` UNION ALL `)})`;
 }
 
 async function searchStoredCards(
@@ -220,7 +258,7 @@ async function searchStoredCards(
 ): Promise<CardSearchPage> {
   const { adapter, gameKey, lang } = resolved;
   const trimmed = query.trim();
-  const { match, printingMatch } = storedSearchMatch(trimmed, resolved);
+  const { branches, printingMatch } = await storedSearchBranches(trimmed, resolved, setCode);
   const rows = await db
     .select({
       cardId: cardImageVectors.cardId,
@@ -228,15 +266,7 @@ async function searchStoredCards(
       data: cardImageVectors.data,
     })
     .from(cardImageVectors)
-    .where(
-      and(
-        eq(cardImageVectors.gameKey, gameKey),
-        storedLanguageMatch(resolved),
-        match,
-        setCode ? eq(cardImageVectors.setCode, setCode) : undefined,
-        isNotNull(cardImageVectors.data),
-      ),
-    )
+    .where(rowMatchesAnyBranchSql(branches))
     .orderBy(
       ...(printingMatch ? [desc(sql`coalesce(${printingMatch}, false)`)] : []),
       desc(sql`lower(${cardImageVectors.name}) = lower(${trimmed})`),
@@ -329,21 +359,14 @@ async function searchCardSetsUncached(
   query: string,
 ): Promise<CardSetOption[]> {
   if (validateCatalogQuery(query)) return [];
-  const { match } = storedSearchMatch(query.trim(), resolved);
+  const { branches } = await storedSearchBranches(query.trim(), resolved);
   const rows = await db
     .select({
       code: cardImageVectors.setCode,
       cardCount: sql<number>`count(*)::int`,
     })
     .from(cardImageVectors)
-    .where(
-      and(
-        eq(cardImageVectors.gameKey, resolved.gameKey),
-        storedLanguageMatch(resolved),
-        match,
-        isNotNull(cardImageVectors.data),
-      ),
-    )
+    .where(rowMatchesAnyBranchSql(branches))
     .groupBy(cardImageVectors.setCode);
   if (rows.length === 0) return [];
   const names = new Map(
@@ -358,32 +381,26 @@ async function searchCardSetsUncached(
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-export function buildGroupedCatalogSearchSql(
+export async function buildGroupedCatalogSearchSql(
   resolved: ResolvedCardSearch,
   query: string,
   offset: number,
   setCode: string | undefined,
   limit: number,
-): SQL {
+): Promise<SQL> {
   const { adapter, gameKey, lang } = resolved;
   const trimmed = query.trim();
-  const { indexedMatch, englishNameMatch, printingMatch } = storedSearchMatch(trimmed, resolved);
+  const { branches: matchBranches, printingMatch } = await storedSearchBranches(
+    trimmed,
+    resolved,
+    setCode,
+  );
   const printingFilter =
     and(
       isNotNull(cardImageVectors.data),
       catalogPrintingIsListedSql(adapter),
       setCode ? eq(cardImageVectors.setCode, setCode) : undefined,
     ) ?? sql`true`;
-  const matchBranches = [indexedMatch, englishNameMatch].flatMap((match) => {
-    const branch = and(
-      eq(cardImageVectors.gameKey, gameKey),
-      storedLanguageMatch(resolved),
-      match,
-      isNotNull(cardImageVectors.data),
-      setCode ? eq(cardImageVectors.setCode, setCode) : undefined,
-    );
-    return match && branch ? [branch] : [];
-  });
   return groupedCatalogSearchSql({
     adapter,
     gameKey,
@@ -413,7 +430,7 @@ async function searchCatalogCardsGroupedByNameUncached(
   }
   const { adapter, gameKey, lang } = resolved;
   const result = await db.execute<GroupedCatalogSearchRow>(
-    buildGroupedCatalogSearchSql(resolved, query, offset, setCode, pageLimit + 1),
+    await buildGroupedCatalogSearchSql(resolved, query, offset, setCode, pageLimit + 1),
   );
   const hasMore = result.rows.length > pageLimit;
   const normalized = result.rows.slice(0, pageLimit).flatMap((row) => {
