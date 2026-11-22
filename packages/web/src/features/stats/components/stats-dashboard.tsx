@@ -28,7 +28,6 @@ import {
 import {
   STATS_ACTIVITY_METRICS,
   STATS_BAR_LIST_LIMIT,
-  STATS_COLLECTION_COST_COLUMNS,
   STATS_COLLECTION_METRICS,
   STATS_COLLECTION_TABLE_COLUMNS,
   STATS_SPLIT_MAX_SEGMENTS,
@@ -44,14 +43,7 @@ import type {
   StatsDashboardProps,
   StatsSplitEntry,
   StatsTopCardsProps,
-  StatsValueSectionProps,
 } from "@/lib/interfaces/stats";
-import type { CollectionCostTarget } from "@/lib/interfaces/business";
-import { Callout } from "@/components/callout";
-import { EmptyState } from "@/components/empty-state";
-import { Button } from "@/components/ui/button";
-import { useBusinessAccess } from "@/features/business/api/use-business";
-import { CollectionCostDialog } from "@/features/business/components/collection-cost-dialog";
 import { cn } from "@/lib/utils";
 import {
   foldChartSegments,
@@ -63,8 +55,6 @@ import {
 import {
   IconArrowDown,
   IconArrowUp,
-  IconChartLine,
-  IconCoin,
   IconCoins,
   IconHelpCircle,
   IconScan,
@@ -137,68 +127,19 @@ function StatsActivitySection({ report }: StatsActivitySectionProps) {
   );
 }
 
-function collectionMargin(row: StatsCollectionRow): number | null {
-  return row.costedCount ? (row.costedValue ?? 0) - (row.costBasis ?? 0) : null;
-}
-
 function sortValue(row: StatsCollectionRow, column: StatsCollectionColumn) {
   if (column === "name") return row.name.toLowerCase();
   if (column === "lastScanAt") return row.lastScanAt ?? "";
-  if (column === "costBasis")
-    return row.costedCount ? (row.costBasis ?? 0) : -1;
-  if (column === "margin")
-    return collectionMargin(row) ?? Number.NEGATIVE_INFINITY;
   return row[column];
-}
-
-function StatsValueSection({ report }: StatsValueSectionProps) {
-  const { t, i18n } = useTranslation("stats");
-  const locale = i18n.language;
-  const { t: tBusiness } = useTranslation("business");
-  const { format, formatCompact } = usePriceSource();
-  const history = report.valueHistory ?? [];
-
-  return (
-    <SettingsSection
-      heading={tBusiness("reports.inventory.history")}
-      description={t("value.description")}
-    >
-      {history.length < 2 ? (
-        <EmptyState
-          size="compact"
-          icon={IconChartLine}
-          title={tBusiness("reports.inventory.historyEmpty")}
-          description={tBusiness("reports.inventory.historyEmptyDescription")}
-        />
-      ) : (
-        <AreaChart
-          ariaLabel={tBusiness("reports.inventory.history")}
-          formatValue={format}
-          formatAxisValue={formatCompact}
-          data={history.map((point) => ({
-            key: point.day,
-            label: formatDay(point.day, locale),
-            value: point.marketValue,
-          }))}
-        />
-      )}
-    </SettingsSection>
-  );
 }
 
 function StatsCollectionsTable({
   collections,
-  costsVisible,
   onSelectCollection,
-  onSetCost,
 }: StatsCollectionsTableProps) {
   const { t, i18n } = useTranslation("stats");
   const locale = i18n.language;
-  const { t: tBusiness } = useTranslation("business");
-  const { access } = useBusinessAccess();
-  const columns: StatsCollectionColumn[] = costsVisible
-    ? [...STATS_COLLECTION_TABLE_COLUMNS, ...STATS_COLLECTION_COST_COLUMNS]
-    : [...STATS_COLLECTION_TABLE_COLUMNS];
+  const columns: StatsCollectionColumn[] = [...STATS_COLLECTION_TABLE_COLUMNS];
   const { format } = usePriceSource();
   const [sort, setSort] = useState<StatsCollectionSort>({
     column: "totalValue",
@@ -236,12 +177,6 @@ function StatsCollectionsTable({
         return format(row[column]);
       case "lastScanAt":
         return formatShortDate(row.lastScanAt, locale) ?? t("compare.never");
-      case "costBasis":
-        return row.costedCount ? format(row.costBasis ?? 0) : "-";
-      case "margin": {
-        const margin = collectionMargin(row);
-        return margin === null ? "-" : format(margin);
-      }
       default:
         return row[column].toLocaleString(locale);
     }
@@ -286,7 +221,6 @@ function StatsCollectionsTable({
                 </TableHead>
               );
             })}
-            {costsVisible && <TableHead />}
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -306,18 +240,6 @@ function StatsCollectionsTable({
                   {cell(row, column)}
                 </TableCell>
               ))}
-              {costsVisible && (
-                <TableCell className="py-0 text-right">
-                  <Button
-                    variant="ghost"
-                    className="relative z-10"
-                    disabled={access?.isLocked || row.cardCount === 0}
-                    onClick={() => onSetCost(row)}
-                  >
-                    {tBusiness("reports.inventory.setCost")}
-                  </Button>
-                </TableCell>
-              )}
             </TableRow>
           ))}
         </TableBody>
@@ -328,15 +250,11 @@ function StatsCollectionsTable({
 
 function StatsCollectionsSection({
   collections,
-  costsVisible,
   onSelectCollection,
 }: StatsCollectionsSectionProps) {
   const { t, i18n } = useTranslation("stats");
   const locale = i18n.language;
   const { format } = usePriceSource();
-  const [costTarget, setCostTarget] = useState<CollectionCostTarget | null>(
-    null,
-  );
   const [metric, setMetric] = useState<StatsCollectionMetric>("totalValue");
   const total = collections.reduce((sum, row) => sum + row[metric], 0);
   const ranked = [...collections].sort((a, b) => b[metric] - a[metric]);
@@ -377,13 +295,7 @@ function StatsCollectionsSection({
       </div>
       <StatsCollectionsTable
         collections={collections}
-        costsVisible={costsVisible}
         onSelectCollection={onSelectCollection}
-        onSetCost={(row) => setCostTarget({ guid: row.guid, name: row.name })}
-      />
-      <CollectionCostDialog
-        collection={costTarget}
-        onOpenChange={(open) => !open && setCostTarget(null)}
       />
     </SettingsSection>
   );
@@ -444,9 +356,6 @@ export function StatsDashboard({
   const { totals } = report;
   const breakdown = report.breakdown ? toScanStats(report.breakdown) : null;
   const isOrg = report.scope === "org";
-  const { t: tBusiness } = useTranslation("business");
-  const costed = report.costsVisible && (totals.costedCount ?? 0) > 0;
-  const margin = (totals.costedValue ?? 0) - (totals.costBasis ?? 0);
   const isMobile = useIsMobile();
   const insights = buildStatsInsights(report, t, format, locale, isMobile);
 
@@ -541,43 +450,9 @@ export function StatsDashboard({
                 count: totals.correctedCount,
               }),
             },
-            ...(report.costsVisible
-              ? [
-                  {
-                    key: "costBasis",
-                    icon: IconCoin,
-                    label: tBusiness("reports.inventory.costBasis"),
-                    value: costed ? (
-                      <CompactPrice value={totals.costBasis ?? 0} />
-                    ) : (
-                      "-"
-                    ),
-                    detail: tBusiness("reports.inventory.costedCards", {
-                      percent: `${statsSharePercent(totals.costedCount ?? 0, totals.cardCount)}%`,
-                    }),
-                  },
-                  {
-                    key: "margin",
-                    icon: IconChartLine,
-                    label: tBusiness("reports.inventory.unrealized"),
-                    value: costed ? <CompactPrice value={margin} /> : "-",
-                    detail: costed
-                      ? `${statsSharePercent(margin, totals.costBasis ?? 0)}%`
-                      : null,
-                  },
-                ]
-              : []),
           ]}
         />
       </div>
-
-      {costed && (totals.costedCount ?? 0) < totals.cardCount && (
-        <Callout variant="info" icon={IconCoin}>
-          {tBusiness("reports.inventory.uncostedNote", {
-            count: totals.cardCount - (totals.costedCount ?? 0),
-          })}
-        </Callout>
-      )}
 
       <StatsHighlights insights={insights} />
 
@@ -597,16 +472,11 @@ export function StatsDashboard({
         </SettingsSection>
       </div>
 
-      {isOrg && report.costsVisible && report.valueHistory && (
-        <StatsValueSection report={report} />
-      )}
-
       <StatsTopCards cards={report.topCards} />
 
-      {isOrg && (report.collections.length > 1 || report.costsVisible) && (
+      {isOrg && report.collections.length > 1 && (
         <StatsCollectionsSection
           collections={report.collections}
-          costsVisible={report.costsVisible}
           onSelectCollection={onSelectCollection}
         />
       )}

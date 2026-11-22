@@ -21,6 +21,20 @@ export const SORTING_RULES_TOUR_COMPLETED_KEY =
 export const CALIBRATION_TOUR_COMPLETED_KEY =
   "magic-vault:calibration-tour-completed";
 export const REPACK_TOUR_COMPLETED_KEY = "magic-vault:repack-tour-completed";
+export const BUSINESS_OVERVIEW_TOUR_COMPLETED_KEY =
+  "magic-vault:business-overview-tour-completed";
+export const BUSINESS_BUYS_TOUR_COMPLETED_KEY =
+  "magic-vault:business-buys-tour-completed";
+export const BUSINESS_PICKS_TOUR_COMPLETED_KEY =
+  "magic-vault:business-picks-tour-completed";
+export const BUSINESS_RESERVATIONS_TOUR_COMPLETED_KEY =
+  "magic-vault:business-reservations-tour-completed";
+export const BUSINESS_LABELS_TOUR_COMPLETED_KEY =
+  "magic-vault:business-labels-tour-completed";
+export const BUSINESS_SALES_TOUR_COMPLETED_KEY =
+  "magic-vault:business-sales-tour-completed";
+export const SCANNER_BUY_TOUR_COMPLETED_KEY =
+  "magic-vault:scanner-buy-tour-completed";
 export const ONBOARDING_COMPLETED_KEY = "magic-vault:onboarding-completed";
 
 export const ACTIVE_COLLECTION_STORAGE_KEY = "activeCollectionGuid";
@@ -78,4 +92,4 @@ export const SCAN_STATS_PANEL_EXPANDED_STORAGE_KEYS = {
 } as const;
 
 export const SINGLE_KEY_HOTKEYS_STORAGE_KEY = "magic-vault:single-key-hotkeys";
-
+export const SCANNER_BUY_START_HIDDEN_STORAGE_KEY = "magic-vault:scanner-buy-start-hidden";

@@ -424,7 +424,7 @@
       },
       "businessTools": {
         "label": "Kaufen und Verkaufen",
-        "description": "Ankäufe mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
+        "description": "Wareneingänge mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Verkäufe, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
       },
       "repacks": {
         "label": "Repacks",
@@ -525,7 +525,7 @@
       "notificationRule": "Benachrichtigungsregel",
       "game": "Spiel",
       "announcement": "Ankündigung",
-      "intakeLot": "Ankauf",
+      "intakeLot": "Wareneingang",
       "fulfilmentOrder": "Bestellung",
       "accuracyCheck": "Stichprobe",
       "shopCatalog": "Shop-Katalog",
@@ -619,6 +619,20 @@
     "toasts": {
       "clientSent": "Testfehler an Better Stack gesendet (Client).",
       "serverError": "Testfehler konnte nicht an Better Stack gesendet werden (Server)"
+    }
+  },
+  "serverCaches": {
+    "heading": "Server-Caches",
+    "description": "Leert die In-Memory-Caches der API (Organisationsdaten, Katalogsuchen, Rollen und Mitgliedschaften, Planeinstellungen, Freigabelinks, Bestenlisten), damit die nächsten Anfragen frische Daten lesen. Nur der Serverprozess, der die Anfrage bearbeitet, wird geleert.",
+    "clearButton": "Caches leeren",
+    "clearingButton": "Wird geleert...",
+    "reloadMatchIndexButton": "Kartenabgleichsindex neu laden",
+    "reloadingMatchIndexButton": "Wird neu geladen...",
+    "toasts": {
+      "cleared": "{{count}} Caches geleert.",
+      "clearError": "Caches konnten nicht geleert werden",
+      "matchIndexReloading": "Der Kartenabgleichsindex wird im Hintergrund neu geladen.",
+      "matchIndexError": "Der Kartenabgleichsindex konnte nicht neu geladen werden"
     }
   },
   "systemSoundClips": {

@@ -39,3 +39,8 @@ export const BUSINESS_FORBIDDEN_RESULT: BusinessResult = {
 
 export const ORDER_SUBSTITUTE_CANDIDATES_SCANNED = 200;
 export const ORDER_LINE_CARD_NAME_FACE_SEPARATOR = " // ";
+
+export const INVENTORY_MARGIN_CACHE_TTL_MS = 120_000;
+export const INVENTORY_MARGIN_CACHE_MAX_ENTRIES = 500;
+export const INVENTORY_MARGIN_MIN_MS_BETWEEN_LOADS = 15_000;
+export const ISO_DAY_PATTERN = /^\d{4}-\d{2}-\d{2}$/;

@@ -8,9 +8,10 @@ import { useTranslation } from "react-i18next";
 import {
   businessKeys,
   businessSettingsQueryOptions,
-  cardAcquisitionCostQueryOptions,
+  cardPricingQueryOptions,
   setCardAcquisitionCost,
 } from "@/features/business/api/business";
+import { useHasBusinessTools } from "@/features/business/api/use-has-business-tools";
 
 export function useBusinessAccess() {
   const { activeOrg } = useOrg();
@@ -74,6 +75,9 @@ export function useSaveCardAcquisitionCost() {
             queryKey: businessKeys.cardCost(activeOrg?.id, targetScanId),
           }),
           queryClient.invalidateQueries({
+            queryKey: businessKeys.cardPricing(activeOrg?.id, targetScanId),
+          }),
+          queryClient.invalidateQueries({
             queryKey: businessKeys.intakeRoot(),
           }),
         ]);
@@ -83,11 +87,13 @@ export function useSaveCardAcquisitionCost() {
   );
 }
 
-export function useCardAcquisitionCost(scanId: string | undefined) {
+export function useCardPricing(scanId: string | undefined) {
   const { activeOrg } = useOrg();
-  const { data } = useQuery(
-    cardAcquisitionCostQueryOptions(activeOrg?.id, scanId),
-  );
+  const hasBusinessTools = useHasBusinessTools();
+  const { data } = useQuery({
+    ...cardPricingQueryOptions(activeOrg?.id, scanId),
+    enabled: hasBusinessTools && !!activeOrg?.id && !!scanId,
+  });
   const saveCardAcquisitionCost = useSaveCardAcquisitionCost();
-  return { acquisitionCost: data ?? null, saveCardAcquisitionCost };
+  return { cardPricing: hasBusinessTools ? (data ?? null) : null, saveCardAcquisitionCost };
 }

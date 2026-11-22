@@ -1,9 +1,6 @@
 import {
   formValidationMessage,
   PRICE_LABEL_CUSTOM_PRICE_MAX,
-  PRICE_LABEL_MARKUP_PERCENT_MAX,
-  PRICE_LABEL_MARKUP_PERCENT_MIN,
-  PRICE_LABEL_ROUNDING_MODES,
   PRICE_LABEL_SOURCES,
 } from "@magic-vault/shared";
 import { z } from "zod";
@@ -27,17 +24,6 @@ export const priceLabelOptionsSchema = z
           formValidationMessage("atMost", { max: PRICE_LABEL_CUSTOM_PRICE_MAX }),
         ),
     ),
-    markupPercent: z
-      .number(formValidationMessage("valueRequired"))
-      .min(
-        PRICE_LABEL_MARKUP_PERCENT_MIN,
-        formValidationMessage("atLeast", { min: PRICE_LABEL_MARKUP_PERCENT_MIN }),
-      )
-      .max(
-        PRICE_LABEL_MARKUP_PERCENT_MAX,
-        formValidationMessage("atMost", { max: PRICE_LABEL_MARKUP_PERCENT_MAX }),
-      ),
-    rounding: z.enum(PRICE_LABEL_ROUNDING_MODES),
     showsPrices: z.boolean(),
     ...labelSheetOptionsShape,
   })

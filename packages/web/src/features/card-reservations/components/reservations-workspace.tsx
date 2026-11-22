@@ -1,4 +1,6 @@
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { BusinessTour } from "@/features/business/components/business-tour";
+import { BUSINESS_RESERVATIONS_TOUR } from "@/features/business/lib/business-tours";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
@@ -13,6 +15,10 @@ import {
   createCardReservationPick,
   releaseCardReservations,
 } from "@/features/card-reservations/api/card-reservations";
+import {
+  BusinessListFilters,
+  BusinessStatusFilter,
+} from "@/features/business/components/business-status-filter";
 import { CardReservationRequestCard } from "@/features/card-reservations/components/card-reservation-request-card";
 import { CardReservationRequestList } from "@/features/card-reservations/components/card-reservation-request-list";
 import { cardReservationBusyKey } from "@/features/card-reservations/lib/card-reservation-busy-key";
@@ -22,10 +28,13 @@ import {
   CARD_RESERVATION_LIST_SKELETON_COUNT,
   CARD_RESERVATION_REQUEST_PARAM,
 } from "@/lib/constants/card-reservations";
-import { BUSINESS_LIST_SEARCH_DEBOUNCE_MS } from "@/lib/constants/business";
+import { BUSINESS_LIST_SEARCH_DEBOUNCE_MS, picksPath } from "@/lib/constants/business";
 import { ListSearchInput } from "@/components/list-search-input";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import {
+  MOBILE_CIRCLE_BUTTON_CLASS,
+  MOBILE_NAV_SCROLL_PADDING_CLASS,
+} from "@/lib/constants/nav";
 import type {
   CardReservationActionTarget,
   CardReservationConfirmation,
@@ -35,7 +44,10 @@ import type {
 import { cn } from "@/lib/utils";
 import {
   BUSINESS_LIST_SEARCH_MAX_LENGTH,
+  CARD_RESERVATION_CLOSED_STATUSES,
   CARD_RESERVATION_LIST_VIEWS,
+  CARD_RESERVATION_OPEN_STAGES,
+  type CardReservationStage,
   cardReservationGroupStage,
   groupCardReservationsByRequest,
   type CardReservationListView,
@@ -45,7 +57,7 @@ import { IconBookmark } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 
 function CardReservationRequestSection({
   title,
@@ -72,11 +84,12 @@ function CardReservationRequestSection({
   );
 }
 
-export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) {
+export function ReservationsWorkspace({ backToOverview }: ReservationsWorkspaceProps) {
   const { t } = useTranslation("business");
   const isMobile = useIsMobile();
   const { orgId, access } = useBusinessAccess();
   const runBusinessAction = useBusinessAction();
+  const navigate = useNavigate();
   const confirmText = useCardReservationConfirmText();
   const [view, setView] = useState<CardReservationListView>(CARD_RESERVATION_LIST_VIEWS[0]);
   const [confirmation, setConfirmation] = useState<CardReservationConfirmation>(null);
@@ -84,21 +97,40 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
   const [listSearch, setListSearch] = useState("");
   const debouncedListSearch = useDebouncedValue(listSearch.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
   const list = useQuery(cardReservationsQueryOptions(orgId, view, debouncedListSearch));
+  const [stageFilter, setStageFilter] = useState<CardReservationStage | null>(null);
+  const filterStages: readonly CardReservationStage[] =
+    view === "active" ? CARD_RESERVATION_OPEN_STAGES : CARD_RESERVATION_CLOSED_STATUSES;
   const listSearchInput = (
-    <ListSearchInput
-      value={listSearch}
-      onChange={setListSearch}
-      placeholder={t("search.reservationsPlaceholder")}
-      maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
+    <BusinessListFilters
+      search={
+        <ListSearchInput
+          value={listSearch}
+          onChange={setListSearch}
+          placeholder={t("search.reservationsPlaceholder")}
+          maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
+        />
+      }
+      filter={
+        <BusinessStatusFilter<CardReservationStage>
+          statuses={filterStages}
+          value={stageFilter}
+          onChange={setStageFilter}
+          labelOf={(stage) => t(`reservations.stages.${stage}`)}
+        />
+      }
     />
   );
-  const emptyTitle = debouncedListSearch
+  const emptyTitle = debouncedListSearch || stageFilter
     ? t("search.noResultsTitle")
     : t(`reservations.empty.${view}Title`);
   const emptyDescription = debouncedListSearch
     ? t("search.noResultsDescription", { query: debouncedListSearch })
+    : stageFilter
+    ? t("filters.noMatchesDescription")
     : t(`reservations.empty.${view}Description`);
-  const groups = groupCardReservationsByRequest(list.data ?? []);
+  const groups = groupCardReservationsByRequest(list.data ?? []).filter(
+    (group) => !stageFilter || cardReservationGroupStage(group) === stageFilter,
+  );
   const readyGroups = groups.filter((group) => cardReservationGroupStage(group) === "readyForPickup");
   const pullGroups = groups.filter((group) => {
     const stage = cardReservationGroupStage(group);
@@ -115,6 +147,7 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
     setSearchParams({ [CARD_RESERVATION_REQUEST_PARAM]: requestGuid }, { replace: true });
   const changeView = (nextView: CardReservationListView) => {
     setView(nextView);
+    setStageFilter(null);
     setSearchParams({}, { replace: true });
   };
   const canAct = !!access?.canFulfilOrders && !access.isLocked;
@@ -130,7 +163,7 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
 
   async function createPick(group: CardReservationRequestGroup) {
     setBusyKey(cardReservationBusyKey({ kind: "request", group }, "pick"));
-    await runBusinessAction(
+    const created = await runBusinessAction(
       () =>
         createCardReservationPick(group.requestGuid, {
           name: t("reservations.pickName", { name: group.guestName }),
@@ -138,6 +171,7 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
       t("reservations.pickCreated", { count: group.toPullCount, name: group.guestName }),
     );
     setBusyKey(null);
+    if (created?.data) navigate(picksPath(created.data.orderGuid));
   }
 
   const confirm = async () => {
@@ -155,15 +189,17 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
   };
 
   const viewSwitch = (
-    <ResponsiveSegmented<CardReservationListView>
-      label={t("reservations.listLabel")}
-      items={CARD_RESERVATION_LIST_VIEWS.map((listView) => ({
-        key: listView,
-        label: t(`reservations.lists.${listView}`),
-      }))}
-      value={view}
-      onChange={changeView}
-    />
+    <div data-tour="reservations-lists">
+      <ResponsiveSegmented<CardReservationListView>
+        label={t("reservations.listLabel")}
+        items={CARD_RESERVATION_LIST_VIEWS.map((listView) => ({
+          key: listView,
+          label: t(`reservations.lists.${listView}`),
+        }))}
+        value={view}
+        onChange={changeView}
+      />
+    </div>
   );
 
   const content = list.isPending ? (
@@ -222,14 +258,24 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
   if (isMobile) {
     return (
       <div className="relative flex min-h-0 flex-1 flex-col">
-        <MobilePageHeader title={t("views.reservations")} />
+        <MobilePageHeader
+          title={t("views.reservations")}
+          actions={
+            <BusinessTour
+              tour={BUSINESS_RESERVATIONS_TOUR}
+              className={MOBILE_CIRCLE_BUTTON_CLASS}
+            />
+          }
+        />
         <div className={cn("min-h-0 flex-1 overflow-y-auto", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
           <div className="flex flex-col gap-4 p-4">
-            {switcher}
+            {backToOverview}
             {access?.isLocked && <BusinessUpgradeCallout />}
             {viewSwitch}
             {listSearchInput}
-            {content}
+            <div data-tour="reservations-requests" className="flex flex-col gap-4">
+              {content}
+            </div>
           </div>
         </div>
         {confirmDialog}
@@ -242,7 +288,7 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
   ) : list.isError ? null : groups.length === 0 ? (
     <EmptyState size="compact" icon={IconBookmark} title={emptyTitle} description={emptyDescription} />
   ) : (
-    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+    <div data-tour="reservations-requests" className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
       {view === "active" ? (
         <>
           <CardReservationRequestList
@@ -279,7 +325,7 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
     <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
       <div className="grid min-h-0 flex-1 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
-          {switcher}
+          {backToOverview}
           {viewSwitch}
           {listSearchInput}
           {sidebarList}
@@ -288,6 +334,7 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
           <PageHeader
             title={t("views.reservations")}
             description={t("reservations.description")}
+            actions={<BusinessTour tour={BUSINESS_RESERVATIONS_TOUR} />}
             spansFullWidth
           />
           <div className="flex flex-col gap-2 px-3 py-2">

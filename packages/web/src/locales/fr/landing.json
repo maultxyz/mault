@@ -84,7 +84,7 @@
       },
       "intake": {
         "title": "Racheter des collections au comptoir",
-        "description": "Scannez les cartes d'un client dans son propre rachat et voyez une offre en espèces et en avoir se construire à partir de vos paliers. Les cartes sous votre minimum sont barrées, et l'acceptation enregistre ce que vous avez payé et imprime un reçu."
+        "description": "Scannez les cartes d'un client, d'un fournisseur ou d'une boîte fraîchement ouverte directement dans votre stock et voyez une offre en espèces et en avoir se construire à partir de vos paliers. Les cartes sous votre minimum sont barrées, et terminer l'achat enregistre ce que vous avez payé et imprime un reçu."
       }
     },
     "new": "Nouveau",
@@ -152,7 +152,7 @@
         },
         "permissions": {
           "title": "Prix de rachat privés",
-          "description": "Laissez l'équipe scanner les rachats sans voir les offres, coûts ou marges."
+          "description": "Laissez l'équipe scanner les achats sans voir les offres, coûts ou marges."
         },
         "recognition": {
           "title": "Reconnaissance instantanée",

@@ -1,15 +1,20 @@
 import type { SelectToggleOptions } from "@/lib/interfaces/cards";
 import type {
-  BUSINESS_VIEWS,
-  ORDER_DETAIL_VIEWS,
+  BUSINESS_INVENTORY_COLUMNS,
+  BUSINESS_OVERVIEW_VIEWS,
+  BUSINESS_SALES_METRICS,
+  BUSINESS_SECTION_VIEWS,
   PICK_IMPORT_CREATE_MODES,
   PICK_IMPORT_STEPS,
+  SET_PRICES_TABS,
 } from "@/lib/constants/business";
 import type { CardListFile } from "@/lib/interfaces/card-list-import";
 import type { UseCsvImportResult } from "@/lib/interfaces/csv-import";
 import type { ClientPagination } from "@/lib/interfaces/pagination";
 import type { PickImportFormValues } from "@/schemas/business.schema";
 import type {
+  BusinessOverview,
+  BusinessOverviewReservations,
   BusinessSettingsDraftValues,
   AccuracyCheckStatus,
   DeviceHealth,
@@ -19,10 +24,15 @@ import type {
   IntakeLot,
   IntakeLotCard,
   IntakeLotStatus,
+  InventoryMargin,
+  SaleRow,
+  SalesReport,
   ComposedCsvOrder,
   CsvOrderImportResult,
   CsvImportComposition,
   CardCondition,
+  CardPricing,
+  CardSellRule,
   OrderLineInput,
   OrderSource,
   PlayingCardImage,
@@ -30,8 +40,9 @@ import type {
   PickWalkStop,
   PullSheetEntry,
   StatsRange,
+  StatsReport,
 } from "@magic-vault/shared";
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, ComponentType, ReactNode } from "react";
 import type { Control } from "react-hook-form";
 
 export type BusinessStatus =
@@ -59,6 +70,11 @@ export interface BuylistSettingsProps {
   disabled: boolean;
 }
 
+export interface SellPriceSettingsProps {
+  control: Control<BusinessSettingsDraftValues>;
+  disabled: boolean;
+}
+
 export interface BusinessPermissionsSettingsProps {
   control: Control<BusinessSettingsDraftValues>;
   disabled: boolean;
@@ -75,12 +91,100 @@ export interface IntakeLotListProps {
   isLoading: boolean;
   onSelect: (guid: string) => void;
   search?: string;
+  isFiltered?: boolean;
 }
 
-export interface IntakeLotDialogProps {
+export interface BuyStartDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreated: (guid: string) => void;
+  defaultCollectionGuid?: string;
+  opensScannerAfterStart?: boolean;
+}
+
+export interface OpenBuyState {
+  openBuy: IntakeLot | null;
+  hasLoaded: boolean;
+  canStartBuy: boolean;
+}
+
+export type ScannerBuyDialog =
+  | { kind: "finish"; lot: IntakeLot }
+  | { kind: "cancel"; lot: IntakeLot }
+  | { kind: "remove"; lot: IntakeLot; scanIds: string[] }
+  | { kind: "transfer"; lot: IntakeLot }
+  | { kind: "start" };
+
+export interface ScannerBuyStartBarProps {
+  onStart: () => void;
+}
+
+export interface ScannerBuyFinished {
+  guid: string;
+  collectionGuid: string | undefined;
+}
+
+export interface ScannerBuyState extends OpenBuyState {
+  collectionGuid: string | undefined;
+  lot: IntakeLot | null;
+  belowMinimumScanIds: string[];
+  finishedBuyGuid: string | null;
+  markFinished: (guid: string) => void;
+  dismissFinished: () => void;
+  dialog: ScannerBuyDialog | null;
+  setDialog: (dialog: ScannerBuyDialog | null) => void;
+}
+
+export interface ScannerBuyOverviewProps {
+  state: ScannerBuyState;
+  editsOffers: boolean;
+  onOpenDialog: (dialog: ScannerBuyDialog) => void;
+  headingLevel?: "h2" | "h3";
+  headerAction?: ReactNode;
+}
+
+export interface ScannerBuyRecentCardsProps {
+  lot: IntakeLot;
+  editsOffers: boolean;
+}
+
+export interface ScannerBuyFinishedSummaryProps {
+  guid: string;
+  onOpenDialog: (dialog: ScannerBuyDialog) => void;
+  onDismiss: () => void;
+}
+
+export interface ScannerBuyDialogsProps {
+  state: ScannerBuyState;
+  onFinished?: () => void;
+}
+
+export interface MobileScannerBuyTriggerContext {
+  openBuy: IntakeLot | null;
+  canStartBuy: boolean;
+  canFinish: boolean;
+  openSheet: () => void;
+  requestFinish: () => void;
+  requestStart: () => void;
+}
+
+export interface MobileScanBuyRowProps {
+  collectionGuid: string;
+  isRunning: boolean;
+  isRemoveModeActive: boolean;
+}
+
+export interface MobileScannerBuyStripProps {
+  collectionGuid: string | undefined;
+}
+
+export interface MobileScannerBuyProps {
+  collectionGuid: string | undefined;
+  renderTrigger: (context: MobileScannerBuyTriggerContext) => ReactNode;
+}
+
+export interface BuyStartMemory {
+  collectionGuid: string;
+  storageLocationGuid: string;
 }
 
 export interface IntakeLotDetailProps {
@@ -94,11 +198,39 @@ export interface IntakeOfferEditorProps {
   card: IntakeLotCard;
 }
 
-export interface IntakeAcceptDialogProps {
+export interface BuyFinishDialogProps {
   lot: IntakeLot;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAccepted: () => void;
+  onFinished: () => void;
+}
+
+export interface BuyPerformanceSectionProps {
+  lot: IntakeLot;
+}
+
+export interface SalesReportFilters {
+  from: string;
+  to: string;
+  buyGuid: string | null;
+}
+
+export interface SalesReportListProps {
+  report: SalesReport;
+  showsCosts: boolean;
+}
+
+export interface SalesReportBodyProps {
+  filters: SalesReportFilters;
+}
+
+export interface SaleMoneyProps {
+  value: number | null;
+  currency: string;
+}
+
+export interface SaleRowProps {
+  sale: SaleRow;
 }
 
 export interface IntakeTransferDialogProps {
@@ -122,6 +254,7 @@ export interface OrderListProps {
   checkedOrderGuids?: ReadonlySet<string>;
   onToggleOrderChecked?: (guid: string, options: SelectToggleOptions) => void;
   search?: string;
+  isFiltered?: boolean;
 }
 
 export interface OrderSelectionBarProps {
@@ -141,8 +274,6 @@ export interface OrderDetailProps {
   guid: string;
   onDeleted: () => void;
 }
-
-export type OrderDetailView = (typeof ORDER_DETAIL_VIEWS)[number];
 
 export interface OrderBinsDialogProps {
   order: FulfilmentOrderDetail;
@@ -196,6 +327,11 @@ export interface OrderPhonePickDialogProps {
   orderGuids: string[];
 }
 
+export interface PickReservationPromptProps {
+  requestGuids: string[];
+  onClose: () => void;
+}
+
 export interface OrderBatchPickProps {
   orderGuids: string[];
 }
@@ -229,11 +365,31 @@ export interface PackingSlipData {
 
 export type BatchPickView = "list" | "pick" | "focus" | "box" | "sort";
 
+export type PickWalkWorkspaceView = BatchPickView | "lines";
+
+export interface PickWalkWorkspaceLinesView {
+  label: string;
+  content: ReactNode;
+}
+
+export interface PickWalkWorkspaceProps {
+  orders: FulfilmentOrderDetail[];
+  pickedScanIds: ReadonlySet<string>;
+  onPickedChange: (scanIds: string[], isPicked: boolean) => void;
+  canPick: boolean;
+  completedCount: number;
+  completeLabel?: string;
+  isCompleting: boolean;
+  onComplete: () => void;
+  headingLevel?: "h2" | "h3";
+  isProgressSticky?: boolean;
+  linesView?: PickWalkWorkspaceLinesView;
+  showsCompleteBelowCards?: boolean;
+}
+
 export interface PickFocusViewProps {
   entries: PickWalkEntry[];
   pickedScanIds: ReadonlySet<string>;
-  total: number;
-  pickedCount: number;
   complete: boolean;
   showOrderName: boolean;
   canPick: boolean;
@@ -243,7 +399,7 @@ export interface PickFocusViewProps {
   onMissing: (entry: PickWalkEntry) => void;
   onComplete: () => void;
   completedCount: number;
-  onBack: () => void;
+  completeLabel?: string;
 }
 
 export interface PickContainerViewProps {
@@ -289,11 +445,6 @@ export interface OrderRefLabelProps {
   binNumber: number | null;
 }
 
-export interface CollectionCostDialogProps {
-  collection: CollectionCostTarget | null;
-  onOpenChange: (open: boolean) => void;
-}
-
 export interface StaffReportViewProps {
   range: StatsRange;
   onRangeChange: (range: StatsRange) => void;
@@ -324,14 +475,101 @@ export interface ServiceIntervalDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export type BusinessView = (typeof BUSINESS_VIEWS)[number];
+export type BusinessView = (typeof BUSINESS_SECTION_VIEWS)[number];
 
-export interface BusinessViewSwitchProps {
-  value: BusinessView;
+export type BusinessOverviewView = (typeof BUSINESS_OVERVIEW_VIEWS)[number];
+export type BusinessSalesMetric = (typeof BUSINESS_SALES_METRICS)[number];
+export type BusinessInventoryColumn = (typeof BUSINESS_INVENTORY_COLUMNS)[number];
+
+export interface SetPricesActionProps {
+  scanIds: string[];
+  buttonClassName?: string;
+}
+
+export interface SetPricesDialogProps {
+  scanIds: string[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  tabs: readonly SetPricesTab[];
+  initialTab?: SetPricesTab;
+  sellRule?: CardSellRule;
+}
+
+export interface SetPricesFormsProps {
+  scanIds: string[];
+  tabs: readonly SetPricesTab[];
+  initialTab?: SetPricesTab;
+  sellRule?: CardSellRule;
+  onDone: () => void;
+}
+
+export type SetPricesTab = (typeof SET_PRICES_TABS)[number];
+
+export interface SetPricesTabFormProps {
+  scanIds: string[];
+  sellRule?: CardSellRule;
+  onDone: () => void;
+}
+
+export interface CardPricingPanelProps {
+  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  title: string;
+  children: ReactNode;
+}
+
+export interface CardPricingBlockProps {
+  pricing: CardPricing;
+  cost: number | null;
+  costError?: string;
+  onCostChange: (cost: number) => void;
+}
+
+export interface BusinessStatusFilterProps<T extends string> {
+  statuses: readonly T[];
+  value: T | null;
+  onChange: (value: T | null) => void;
+  labelOf: (status: T) => string;
+}
+
+export interface BusinessListFiltersProps {
+  search: ReactNode;
+  filter: ReactNode;
+}
+
+export interface BusinessOverviewBodyProps {
+  overview: BusinessOverview;
+}
+
+export interface BusinessSalesChartProps {
+  sales: BusinessOverview["sales"];
+}
+
+export interface BusinessReservationsChartProps {
+  reservations: BusinessOverviewReservations;
+}
+
+export interface BusinessInventoryCostsProps {
+  report: StatsReport;
+  margin: InventoryMargin | null;
+}
+
+export interface BusinessOverviewSectionProps {
+  icon: ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  to: string;
+  linkLabel: string;
+  children?: ReactNode;
+}
+
+export interface BusinessOverviewRowProps {
+  to: string;
+  title: string;
+  detail: string;
 }
 
 export interface OrdersWorkspaceProps {
-  switcher: ReactNode;
+  backToOverview: ReactNode;
 }
 
 export interface IntakeCardDetailProps {
@@ -341,11 +579,6 @@ export interface IntakeCardDetailProps {
   onNavigate: (scanId: string) => void;
   onShowReviewGrid: () => void;
   onClose: () => void;
-}
-
-export interface CollectionCostTarget {
-  guid: string;
-  name: string;
 }
 
 export type PickImportStep = (typeof PICK_IMPORT_STEPS)[number];

@@ -74,7 +74,9 @@ export function ReservationComposerPage({
     entry,
     queueLength: reservations?.queueLengthOf(entry.scanId) ?? 0,
     price: showsPrices
-      ? priceOf(entry.card, { isFoil: entry.isFoil, foilType: entry.foilType ?? undefined }, entry.condition)
+      ? entry.sellPrice !== undefined
+        ? entry.sellPrice
+        : priceOf(entry.card, { isFoil: entry.isFoil, foilType: entry.foilType ?? undefined }, entry.condition)
       : null,
   }));
   const heldCount = rows.filter((row) => row.queueLength === 0).length;

@@ -1,14 +1,8 @@
-import { LANGUAGE_LABELS } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  INTAKE_COLLECTION_MODES,
-  intakeLotSchema,
-  type IntakeCollectionMode,
-  type IntakeLotFormValues,
-} from "@magic-vault/shared";
+import { BUY_SOURCE_TYPES, buyStartSchema, type BuySourceType, type BuyStartFormValues } from "@magic-vault/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { router } from "expo-router";
-import { useEffect, useMemo, useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -22,83 +16,98 @@ import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SelectField } from "@/components/ui/select-field";
 import { TextField } from "@/components/ui/text-field";
 import { createIntakeLot } from "@/features/business/api/business";
-import { collectionsQueryOptions } from "@/features/collections/api/collections";
-import { gameLanguagesQueryOptions, gamesQueryOptions } from "@/features/games/api/games";
+import { readBuyStartDefaults, saveBuyStartDefaults } from "@/features/business/lib/buy-start-defaults";
+import { useScanTarget } from "@/features/collections/api/use-scan-target";
+import { billingQueryOptions } from "@/features/org/api/billing";
+import { storageLocationsQueryOptions } from "@/features/storage/api/storage";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
-import { BUSINESS_INTAKE_QUERY_KEY, INTAKE_LOT_DEFAULT_VALUES } from "@/lib/constants/business";
+import {
+  BUSINESS_INTAKE_QUERY_KEY,
+  BUY_NO_STORAGE_LOCATION_OPTION,
+  BUY_START_DEFAULT_VALUES,
+} from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
-export default function NewIntakeLotScreen() {
+export default function StartBuyScreen() {
+  const { collectionGuid: requestedCollectionGuid } = useLocalSearchParams<{ collectionGuid?: string }>();
   const { t } = useTranslation();
   const colors = useTheme();
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
-  const [sheet, setSheet] = useState<"game" | "lang" | "collection" | null>(null);
-  const { data: games = [] } = useQuery(gamesQueryOptions);
-  const { data: collections = [] } = useQuery(collectionsQueryOptions(orgId));
-  const activeGames = useMemo(() => games.filter((game) => game.isActive), [games]);
-  const form = useForm<IntakeLotFormValues>({
-    resolver: zodResolver(intakeLotSchema),
-    defaultValues: INTAKE_LOT_DEFAULT_VALUES,
+  const { collection: scanTargetCollection, collections, setScanTargetGuid } = useScanTarget();
+  const { data: billing } = useQuery(billingQueryOptions(orgId));
+  const canStore = !!billing && billing.storage !== false;
+  const { data: storageLocations = [] } = useQuery(storageLocationsQueryOptions(orgId, canStore));
+  const [sheet, setSheet] = useState<"collection" | "location" | null>(null);
+  const form = useForm<BuyStartFormValues>({
+    resolver: zodResolver(buyStartSchema),
+    defaultValues: BUY_START_DEFAULT_VALUES,
   });
-  const collectionMode = form.watch("collectionMode");
-  const gameGuid = form.watch("gameGuid");
-  const lang = form.watch("lang");
+  const sourceType = form.watch("sourceType");
   const collectionGuid = form.watch("collectionGuid");
-  const { data: languages = [] } = useQuery(gameLanguagesQueryOptions(gameGuid || null));
-  const errors = form.formState.errors;
+  const storageLocationGuid = form.watch("storageLocationGuid");
+  const collectionError = form.formState.errors.collectionGuid?.message;
 
   useEffect(() => {
-    if (activeGames.length > 0 && !form.getValues("gameGuid")) form.setValue("gameGuid", activeGames[0].guid);
-  }, [activeGames, form]);
+    if (!orgId || collections.length === 0 || form.getValues("collectionGuid")) return;
+    const remembered = readBuyStartDefaults(orgId);
+    const requestedCollection = collections.find((candidate) => candidate.guid === requestedCollectionGuid);
+    const rememberedCollection = collections.find((candidate) => candidate.guid === remembered?.collectionGuid);
+    if (remembered) form.setValue("sourceType", remembered.sourceType);
+    form.setValue(
+      "collectionGuid",
+      requestedCollection?.guid ?? rememberedCollection?.guid ?? scanTargetCollection?.guid ?? collections[0].guid,
+    );
+    if (remembered?.storageLocationGuid) form.setValue("storageLocationGuid", remembered.storageLocationGuid);
+  }, [orgId, collections, scanTargetCollection, requestedCollectionGuid, form]);
 
   useEffect(() => {
-    if (collections.length > 0 && !form.getValues("collectionGuid")) form.setValue("collectionGuid", collections[0].guid);
-  }, [collections, form]);
-
-  useEffect(() => {
-    const current = form.getValues("lang");
-    if (languages.length > 0 && !languages.includes(current)) {
-      form.setValue("lang", languages.includes("en") ? "en" : languages[0], { shouldValidate: true });
+    const current = form.getValues("storageLocationGuid");
+    if (current && storageLocations.length > 0 && !storageLocations.some((location) => location.guid === current)) {
+      form.setValue("storageLocationGuid", "");
     }
-  }, [languages, form]);
+  }, [storageLocations, form]);
 
   const create = useMutation({
-    mutationFn: (values: IntakeLotFormValues) => {
-      const isNew = values.collectionMode === "new";
-      return createIntakeLot({
-        collectionGuid: isNew ? null : values.collectionGuid,
-        newCollection: isNew ? { gameGuid: values.gameGuid, lang: values.lang } : null,
-        customerName: values.customerName,
-        customerContact: values.customerContact || null,
+    mutationFn: (values: BuyStartFormValues) =>
+      createIntakeLot({
+        sourceType: values.sourceType,
+        customerName: values.name,
+        customerContact: values.sourceType === "customer" ? values.contact || null : null,
         notes: values.notes || null,
-      });
-    },
-    onSuccess: ({ guid }) => {
+        collectionGuid: values.collectionGuid,
+        destinationStorageLocationGuid: canStore && values.storageLocationGuid ? values.storageLocationGuid : null,
+      }),
+    onSuccess: (_created, values) => {
+      if (orgId) {
+        saveBuyStartDefaults(orgId, {
+          sourceType: values.sourceType,
+          collectionGuid: values.collectionGuid,
+          storageLocationGuid: values.storageLocationGuid,
+        });
+      }
       void queryClient.invalidateQueries({ queryKey: BUSINESS_INTAKE_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: ["collections"] });
+      setScanTargetGuid(values.collectionGuid);
       router.back();
-      router.push({ pathname: "/business/intake/[guid]", params: { guid } });
+      router.navigate("/scan");
     },
   });
 
-  const fieldError = (message: string | undefined) =>
-    message ? (
-      <AppText size="xs" tone="destructive" accessibilityLiveRegion="polite">
-        {translateFormErrorMessage(t, message)}
-      </AppText>
-    ) : null;
+  const selectedCollection = collections.find((candidate) => candidate.guid === collectionGuid) ?? null;
+  const selectedLocation = storageLocations.find((location) => location.guid === storageLocationGuid) ?? null;
 
   return (
     <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
-      <PageHeader title={t("business.intake.new")} subtitle={t("business.intake.newDescription")} />
+      <PageHeader title={t("business.buy.startTitle")} subtitle={t("business.buy.startDescription")} />
       <PinnedActionsLayout
         actions={
           <Button
             size="lg"
-            label={t("business.intake.create")}
+            icon="scan"
+            label={t("business.buy.startAndScan")}
             loading={create.isPending}
             onPress={form.handleSubmit((values) => create.mutate(values))}
           />
@@ -111,14 +120,25 @@ export default function NewIntakeLotScreen() {
             description={create.error instanceof Error ? create.error.message : undefined}
           />
         ) : null}
+        <View style={{ gap: SPACING.xs }}>
+          <AppText size="sm" weight="medium">
+            {t("business.buy.sourceType")}
+          </AppText>
+          <SegmentedControl<BuySourceType>
+            value={sourceType}
+            onChange={(value) => form.setValue("sourceType", value)}
+            options={BUY_SOURCE_TYPES.map((value) => ({ value, label: t(`business.buy.sourceTypes.${value}`) }))}
+          />
+        </View>
         <Controller
           control={form.control}
-          name="customerName"
+          name="name"
           render={({ field, fieldState }) => (
             <TextField
-              label={t("business.intake.customerName")}
-              autoComplete="name"
-              textContentType="name"
+              label={t(`business.buy.nameLabel.${sourceType}`)}
+              placeholder={t(`business.buy.namePlaceholder.${sourceType}`)}
+              autoComplete={sourceType === "customer" ? "name" : "off"}
+              textContentType={sourceType === "customer" ? "name" : "none"}
               autoCapitalize="words"
               value={field.value}
               onBlur={field.onBlur}
@@ -127,67 +147,52 @@ export default function NewIntakeLotScreen() {
             />
           )}
         />
-        <Controller
-          control={form.control}
-          name="customerContact"
-          render={({ field, fieldState }) => (
-            <TextField
-              label={t("business.intake.customerContact")}
-              placeholder={t("business.intake.customerContactPlaceholder")}
-              autoCapitalize="none"
-              value={field.value}
-              onBlur={field.onBlur}
-              onChangeText={field.onChange}
-              error={fieldState.error ? translateFormErrorMessage(t, fieldState.error.message) : undefined}
-            />
-          )}
-        />
-        <View style={{ gap: SPACING.xs }}>
-          <AppText size="sm" weight="medium">
-            {t("business.intake.collectionMode")}
-          </AppText>
-          <SegmentedControl<IntakeCollectionMode>
-            value={collectionMode}
-            onChange={(value) => form.setValue("collectionMode", value, { shouldValidate: true })}
-            options={INTAKE_COLLECTION_MODES.map((value) => ({
-              value,
-              label: t(`business.intake.collectionModes.${value}`),
-            }))}
+        {sourceType === "customer" ? (
+          <Controller
+            control={form.control}
+            name="contact"
+            render={({ field, fieldState }) => (
+              <TextField
+                label={t("business.intake.customerContact")}
+                placeholder={t("business.intake.customerContactPlaceholder")}
+                autoCapitalize="none"
+                value={field.value}
+                onBlur={field.onBlur}
+                onChangeText={field.onChange}
+                error={fieldState.error ? translateFormErrorMessage(t, fieldState.error.message) : undefined}
+              />
+            )}
           />
+        ) : null}
+        <View style={{ gap: SPACING.xs }}>
+          <SelectField
+            label={t("business.buy.collection")}
+            value={selectedCollection?.name ?? null}
+            placeholder={t("business.intake.collectionPlaceholder")}
+            onPress={() => setSheet("collection")}
+          />
+          {collectionError ? (
+            <AppText size="xs" tone="destructive" accessibilityLiveRegion="polite">
+              {translateFormErrorMessage(t, collectionError)}
+            </AppText>
+          ) : null}
+          <AppText size="xs" tone="secondary">
+            {t("business.buy.collectionHint")}
+          </AppText>
         </View>
-        {collectionMode === "new" ? (
-          <>
-            <View style={{ gap: SPACING.xs }}>
-              <SelectField
-                label={t("business.intake.game")}
-                value={activeGames.find((game) => game.guid === gameGuid)?.name ?? null}
-                placeholder={t("business.intake.gamePlaceholder")}
-                onPress={() => setSheet("game")}
-              />
-              {fieldError(errors.gameGuid?.message)}
-            </View>
-            <View style={{ gap: SPACING.xs }}>
-              <SelectField
-                label={t("business.intake.language")}
-                value={lang ? (LANGUAGE_LABELS[lang] ?? lang) : null}
-                placeholder={t("business.intake.languagePlaceholder")}
-                disabled={languages.length <= 1}
-                onPress={() => setSheet("lang")}
-              />
-              {fieldError(errors.lang?.message)}
-            </View>
-          </>
-        ) : (
+        {canStore ? (
           <View style={{ gap: SPACING.xs }}>
             <SelectField
-              label={t("business.intake.collection")}
-              value={collections.find((collection) => collection.guid === collectionGuid)?.name ?? null}
-              placeholder={t("business.intake.collectionPlaceholder")}
-              onPress={() => setSheet("collection")}
+              label={t("business.buy.storageLocation")}
+              value={selectedLocation?.name ?? t("business.buy.noStorageLocation")}
+              placeholder={t("business.buy.noStorageLocation")}
+              onPress={() => setSheet("location")}
             />
-            {fieldError(errors.collectionGuid?.message)}
+            <AppText size="xs" tone="secondary">
+              {t("business.buy.storageLocationHint")}
+            </AppText>
           </View>
-        )}
+        ) : null}
         <Controller
           control={form.control}
           name="notes"
@@ -204,36 +209,27 @@ export default function NewIntakeLotScreen() {
         />
       </PinnedActionsLayout>
       <OptionSheet
-        visible={sheet === "game"}
-        title={t("business.intake.game")}
-        options={activeGames.map((game) => ({ value: game.guid, label: game.name }))}
-        selected={[gameGuid]}
-        onSelect={(value) => {
-          setSheet(null);
-          form.setValue("gameGuid", value, { shouldValidate: true });
-          form.setValue("lang", "");
-        }}
-        onClose={() => setSheet(null)}
-      />
-      <OptionSheet
-        visible={sheet === "lang"}
-        title={t("business.intake.language")}
-        options={languages.map((code) => ({ value: code, label: LANGUAGE_LABELS[code] ?? code }))}
-        selected={[lang]}
-        onSelect={(value) => {
-          setSheet(null);
-          form.setValue("lang", value, { shouldValidate: true });
-        }}
-        onClose={() => setSheet(null)}
-      />
-      <OptionSheet
         visible={sheet === "collection"}
-        title={t("business.intake.collection")}
-        options={collections.map((collection) => ({ value: collection.guid, label: collection.name }))}
+        title={t("business.buy.collection")}
+        options={collections.map((candidate) => ({ value: candidate.guid, label: candidate.name }))}
         selected={[collectionGuid]}
         onSelect={(value) => {
           setSheet(null);
           form.setValue("collectionGuid", value, { shouldValidate: true });
+        }}
+        onClose={() => setSheet(null)}
+      />
+      <OptionSheet
+        visible={sheet === "location"}
+        title={t("business.buy.storageLocation")}
+        options={[
+          { value: BUY_NO_STORAGE_LOCATION_OPTION, label: t("business.buy.noStorageLocation") },
+          ...storageLocations.map((location) => ({ value: location.guid, label: location.name })),
+        ]}
+        selected={[storageLocationGuid || BUY_NO_STORAGE_LOCATION_OPTION]}
+        onSelect={(value) => {
+          setSheet(null);
+          form.setValue("storageLocationGuid", value === BUY_NO_STORAGE_LOCATION_OPTION ? "" : value);
         }}
         onClose={() => setSheet(null)}
       />

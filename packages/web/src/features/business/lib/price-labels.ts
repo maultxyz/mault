@@ -1,15 +1,12 @@
 import type { PriceLabelItem } from "@/lib/interfaces/price-labels";
 import {
   PRICE_LABEL_SOURCES,
-  priceLabelPrice,
   type PriceLabelCard,
-  type PriceLabelPricing,
   type PriceLabelSource,
 } from "@magic-vault/shared";
 
 export function buildPriceLabelItems(
   cards: PriceLabelCard[],
-  pricing: PriceLabelPricing,
   customPrices: Record<string, number>,
 ): PriceLabelItem[] {
   return cards.map((card) => {
@@ -17,7 +14,7 @@ export function buildPriceLabelItems(
     const hasCustomPrice = customPrice !== undefined && Number.isFinite(customPrice);
     return {
       card,
-      labelPrice: hasCustomPrice ? customPrice : priceLabelPrice(card.marketPrice, pricing),
+      labelPrice: hasCustomPrice ? customPrice : card.sellPrice,
       hasCustomPrice,
     };
   });

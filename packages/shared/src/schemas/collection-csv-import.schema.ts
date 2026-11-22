@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { BUYLIST_PRICE_MAX } from "../constants/business.constant";
 import { CARD_CONDITIONS } from "../constants/card-condition.constant";
 import { CARD_LANGUAGES } from "../constants/card-language.constant";
 import {
@@ -21,6 +22,7 @@ export const collectionCsvImportRowSchema = z.object({
   isFoil: z.boolean().nullable(),
   condition: z.enum(CARD_CONDITIONS as [CardCondition, ...CardCondition[]]).nullable(),
   language: z.enum(CARD_LANGUAGES).nullable(),
+  cost: z.number().min(0).max(BUYLIST_PRICE_MAX).nullable().optional(),
 });
 
 export const collectionCsvImportRequestSchema = z.object({

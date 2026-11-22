@@ -16,17 +16,21 @@ export function useServerPagedList<
   ) => UseQueryOptions<PagedList<T> | null, Error, PagedList<T> | null, TKey>,
   selected: string | null,
   search = "",
+  status = "",
 ): ServerPagedList<T> {
   const [page, setPage] = useState<number | null>(null);
-  const [pagedSearch, setPagedSearch] = useState(search);
-  if (pagedSearch !== search) {
-    setPagedSearch(search);
+  const filterKey = `${search}
+${status}`;
+  const [pagedFilterKey, setPagedFilterKey] = useState(filterKey);
+  if (pagedFilterKey !== filterKey) {
+    setPagedFilterKey(filterKey);
     setPage(null);
   }
   const request: PageRequest = {
-    page: pagedSearch === search ? page : null,
+    page: pagedFilterKey === filterKey ? page : null,
     selected: page === null ? selected : null,
     ...(search ? { search } : {}),
+    ...(status ? { status } : {}),
   };
   const { data, isPending, isError, refetch } = useQuery(options(request));
   const previousSelected = useRef(selected);

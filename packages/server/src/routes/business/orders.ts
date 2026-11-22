@@ -1,5 +1,6 @@
 import {
   CARD_RESERVATIONS_CHANGED_EVENT,
+  FULFILMENT_ORDER_STATUSES,
   type OrderFulfilResult,
   buildOrderSortPresetBins,
   computeBinCount,
@@ -31,7 +32,12 @@ import {
   type OrderPickedInput,
 } from "@magic-vault/shared";
 import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
-import { containsLikePattern, parseBusinessListSearch } from "../../lib/business-list-search";
+import {
+  containsLikePattern,
+  parseBusinessListSearch,
+  parseBusinessListStatus,
+} from "../../lib/business-list-search";
+import { loadCardSellPrices } from "../../lib/card-pricing";
 import { uuidArraySql } from "../../lib/sql-arrays";
 import { Hono } from "hono";
 import type { Transaction } from "../../db";
@@ -46,6 +52,7 @@ import { logActivity } from "../../lib/activity-log";
 import {
   markReservedCardsReadyForPickup,
   reservationHeldScanIds,
+  reservationRequestGuidsOfPick,
   unlinkCardReservationPick,
 } from "../../lib/card-reservations";
 import { UUID_PATTERN } from "../../lib/constants/validation";
@@ -188,11 +195,13 @@ export const ordersRoute = new Hono<AppEnv>()
   .get("/orders", requireAuth, requireOrg, (c) => {
     const params = parsePageParams(c);
     const search = parseBusinessListSearch(c);
+    const status = parseBusinessListStatus(c, FULFILMENT_ORDER_STATUSES);
     return businessQuery(c, async (tx, access) => {
       const pattern = search ? containsLikePattern(search) : null;
       const scope = and(
         eq(fulfilmentOrders.orgId, c.get("orgId")),
         eq(fulfilmentOrders.isDeleted, false),
+        status ? eq(fulfilmentOrders.status, status) : undefined,
         pattern
           ? or(
               ilike(fulfilmentOrders.name, pattern),
@@ -315,6 +324,8 @@ export const ordersRoute = new Hono<AppEnv>()
           orgId,
           pullSheet.map((entry) => entry.scanId),
         ),
+        reservationRequestGuids:
+          row.status === "open" ? await reservationRequestGuidsOfPick(tx, orgId, row.id) : [],
         orderBins: toOrderBins(row.orderBins, lines),
         binCount: computeBinCount(await getModuleCount(tx, orgId)),
       };
@@ -424,6 +435,7 @@ export const ordersRoute = new Hono<AppEnv>()
         now,
       );
       const ids = [...lineOf.keys()].filter((id) => !readyForPickupScanIds.has(id));
+      const sellPriceByScanId = await loadCardSellPrices(tx, orgId, ids);
       const sold = ids.length
         ? ((
             await tx.execute(sql`
@@ -436,7 +448,7 @@ export const ordersRoute = new Hono<AppEnv>()
                 cc.card_name AS name,
                 cc.card_set AS set_code,
                 cc.card_collector_number AS collector_number,
-                cc.is_foil, cc.condition, cc.acquisition_cost,
+                cc.is_foil, cc.condition, cc.acquisition_cost, cc.intake_lot_id,
                 cc.acquisition_currency, cc.captured_image_key AS image_key,
                 cc.captured_back_image_key AS back_image_key,
                 col.guid::text AS collection_guid, col.name AS collection_name
@@ -444,6 +456,8 @@ export const ordersRoute = new Hono<AppEnv>()
           ).rows as unknown as SoldCardRow[])
         : [];
       if (sold.length > 0) {
+        const lineUnitPriceOf = (scanId: string) =>
+          lines[lineOf.get(scanId) ?? 0]?.unitPrice ?? null;
         await tx.insert(cardSales).values(
           sold.map((card) => ({
             orgId,
@@ -456,11 +470,13 @@ export const ordersRoute = new Hono<AppEnv>()
             collectorNumber: card.collector_number,
             isFoil: card.is_foil,
             condition: card.condition,
-            salePrice: lines[lineOf.get(card.scan_id) ?? 0]?.unitPrice ?? null,
+            salePrice:
+              lineUnitPriceOf(card.scan_id) ?? sellPriceByScanId.get(card.scan_id) ?? null,
             acquisitionCost:
               card.acquisition_currency === currency
                 ? card.acquisition_cost
                 : null,
+            intakeLotId: card.intake_lot_id,
             currency,
             collectionName: card.collection_name,
             soldByUserId: c.get("userId"),

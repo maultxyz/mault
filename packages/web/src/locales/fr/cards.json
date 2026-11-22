@@ -49,8 +49,6 @@
     "catalogCardRemovedTitle": "Carte retirée du catalogue",
     "catalogCardRemovedDescription": "La carte associée à cet exemplaire, {{name}}, a été retirée de la base de cartes car ses données étaient incorrectes. Recherche la bonne impression pour que son prix et ses détails restent à jour.",
     "catalogCardRemovedAction": "Trouver la bonne carte",
-    "pricePaid": "Prix payé ({{currency}})",
-    "pricePaidEmpty": "Non défini",
     "pricePaidSaveFailed": "Impossible d'enregistrer le prix payé.",
     "markCorrect": "Marquer comme correcte",
     "markCorrectTitle": "Confirme que cette correspondance est juste. La carte reste la même et n'est plus signalée pour vérification.",
@@ -120,7 +118,9 @@
     "hideDownloadedCards": "Masquer les cartes téléchargées",
     "sets": "Sets",
     "resetFilters": "Réinitialiser les filtres",
-    "unmatched": "Non reconnues"
+    "unmatched": "Non reconnues",
+    "buy": "Entrée de stock",
+    "onlyThisBuy": "Uniquement cette entrée de stock"
   },
   "cardGrid": {
     "noCollectionSelected": "Aucune collection sélectionnée",
@@ -639,7 +639,8 @@
     "cardLoadFailed": "Impossible de charger cette carte.",
     "referenceImage": "Image de référence",
     "backToCards": "Retour aux cartes",
-    "tradeHint": "Touchez + sur une carte ou ouvrez-la pour l'ajouter à votre offre"
+    "tradeHint": "Touchez + sur une carte ou ouvrez-la pour l'ajouter à votre offre",
+    "shopPrice": "Prix"
   },
   "tradeOffers": {
     "game": "Jeu",

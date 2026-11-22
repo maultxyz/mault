@@ -22,7 +22,8 @@ export type CollectionCsvImportField =
   | "quantity"
   | "foil"
   | "condition"
-  | "language";
+  | "language"
+  | "cost";
 
 export interface CollectionCsvFormat {
   key: Exclude<CollectionCsvFormatKey, "generic">;
@@ -42,6 +43,7 @@ export interface CollectionCsvImportRow {
   isFoil: boolean | null;
   condition: CardCondition | null;
   language: CardLanguage | null;
+  cost: number | null;
 }
 
 export interface CollectionCsvParseResult {

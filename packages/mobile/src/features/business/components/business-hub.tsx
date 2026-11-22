@@ -1,22 +1,28 @@
+import { SALES_REPORT_BUY_PARAM } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Callout } from "@/components/ui/callout";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
-import { TabStrip } from "@/components/ui/tab-strip";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
+import { BusinessTipsButton } from "@/features/business/components/business-tips-button";
+import { BusinessTipsSheet } from "@/features/business/components/business-tips-sheet";
+import { BusinessOverviewView } from "@/features/business/components/business-overview-view";
 import { IntakeLotsView } from "@/features/business/components/intake-lots-view";
 import { OrdersView } from "@/features/business/components/orders-view";
 import { ReservationsView } from "@/features/business/components/reservations-view";
+import { SalesView } from "@/features/business/components/sales-view";
+import { useBusinessTips } from "@/features/business/lib/use-business-tips";
 import { useActiveOrgId } from "@/hooks/use-org";
 import {
   BUSINESS_INTAKE_VIEW,
+  BUSINESS_OVERVIEW_VIEW,
   BUSINESS_QUERY_KEY,
-  BUSINESS_PICKS_VIEW,
   BUSINESS_RESERVATIONS_VIEW,
+  BUSINESS_SALES_VIEW,
+  BUSINESS_TIPS_TOPIC_BY_VIEW,
   BUSINESS_VIEWS,
 } from "@/lib/constants/business";
 import type { BusinessHubProps, BusinessView } from "@/lib/interfaces/business";
@@ -25,52 +31,62 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
   const { t } = useTranslation();
   const orgId = useActiveOrgId();
   const queryClient = useQueryClient();
-  const { view: viewParam } = useLocalSearchParams<{ view?: string }>();
-  const [view, setView] = useState<BusinessView>(
-    BUSINESS_VIEWS.find((candidate) => candidate === viewParam) ?? BUSINESS_INTAKE_VIEW,
-  );
+  const params = useLocalSearchParams<{ view?: string; [SALES_REPORT_BUY_PARAM]?: string }>();
+  const viewParam = params.view;
+  const salesBuyGuid = params[SALES_REPORT_BUY_PARAM] || null;
+  const view: BusinessView =
+    BUSINESS_VIEWS.find((candidate) => candidate === viewParam) ?? BUSINESS_OVERVIEW_VIEW;
   const access = useQuery(businessAccessQueryOptions(orgId));
   const isLocked = !!access.data?.isLocked;
   const canCreateIntake = !!access.data && !isLocked;
   const canCreatePick = !!access.data?.canFulfilOrders && !isLocked;
   const isIntake = view === BUSINESS_INTAKE_VIEW;
   const isReservations = view === BUSINESS_RESERVATIONS_VIEW;
+  const isOverview = view === BUSINESS_OVERVIEW_VIEW;
+  const isSales = view === BUSINESS_SALES_VIEW;
+  const tipsTopic = BUSINESS_TIPS_TOPIC_BY_VIEW[view];
+  const tips = useBusinessTips(tipsTopic, !!access.data && !isLocked);
+  const showCreateAction =
+    !isReservations && !isOverview && !isSales && (isIntake ? canCreateIntake : canCreatePick);
 
   return (
     <Screen
       onRefresh={() => queryClient.invalidateQueries({ queryKey: BUSINESS_QUERY_KEY })}
       header={
         <PageHeader
-          title={t("business.title")}
-          subtitle={t("business.subtitle")}
+          title={isOverview ? t("business.title") : t(`business.views.${view}`)}
+          subtitle={isOverview ? t("business.subtitle") : undefined}
           onBack={onBack}
           actions={
-            !isReservations && (isIntake ? canCreateIntake : canCreatePick) ? (
-              <IconButton
-                icon="plus"
-                accessibilityLabel={isIntake ? t("business.intake.new") : t("business.picks.new")}
-                onPress={() => router.push(isIntake ? "/business/intake-new" : "/business/pick-new")}
-              />
-            ) : null
-          }
-          tabs={
-            <TabStrip<BusinessView>
-              value={view}
-              onChange={setView}
-              items={BUSINESS_VIEWS.map((value) => ({ value, label: t(`business.views.${value}`) }))}
-            />
+            <>
+              <BusinessTipsButton onPress={tips.open} />
+              {showCreateAction ? (
+                <IconButton
+                  icon="plus"
+                  accessibilityLabel={isIntake ? t("business.intake.new") : t("business.picks.new")}
+                  onPress={() => router.push(isIntake ? "/business/intake-new" : "/business/pick-new")}
+                />
+              ) : null}
+            </>
           }
         />
       }
     >
       {isLocked ? <Callout tone="info" title={t("business.locked")} description={t("business.lockedDescription")} /> : null}
-      {isIntake ? (
+      {isOverview ? (
+        <BusinessOverviewView
+          onOpenView={(nextView) => router.push({ pathname: "/business", params: { view: nextView } })}
+        />
+      ) : isIntake ? (
         <IntakeLotsView canAct={canCreateIntake} />
       ) : isReservations ? (
         <ReservationsView canAct={canCreatePick} />
+      ) : isSales ? (
+        <SalesView key={salesBuyGuid ?? "all"} buyGuid={salesBuyGuid} />
       ) : (
         <OrdersView canAct={!!access.data?.canFulfilOrders} />
       )}
+      <BusinessTipsSheet topic={tipsTopic} visible={tips.isOpen} onClose={tips.close} />
     </Screen>
   );
 }

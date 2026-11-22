@@ -1,6 +1,11 @@
+import { SelectionActionBar } from "@/components/selection-action-bar";
+import { SetPricesAction } from "@/features/business/components/set-prices-action";
+import {
+  SELECTION_ACTION_BAR_BUTTON_CLASS,
+  SELECTION_ACTION_BAR_DESTRUCTIVE_BUTTON_CLASS,
+} from "@/lib/constants/card-grid";
 import { Callout } from "@/components/callout";
 import { DeleteDialog } from "@/components/delete-dialog";
-import { ConfirmDialog } from "@/components/confirm-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
 import { ListSkeleton } from "@/components/list-skeleton";
@@ -39,7 +44,8 @@ import {
   useBusinessAccess,
   useBusinessAction,
 } from "@/features/business/api/use-business";
-import { IntakeAcceptDialog } from "@/features/business/components/intake-accept-dialog";
+import { BuyFinishDialog } from "@/features/business/components/buy-finish-dialog";
+import { BuyPerformanceSection } from "@/features/business/components/buy-performance-section";
 import { IntakeCancelDialog } from "@/features/business/components/intake-cancel-dialog";
 import { IntakeOfferEditor } from "@/features/business/components/intake-offer-editor";
 import { AddCardDialog } from "@/features/cards/components/add-card-dialog";
@@ -104,8 +110,6 @@ export function IntakeLotDetail({
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [transferOpen, setTransferOpen] = useState(false);
   const [addCardOpen, setAddCardOpen] = useState(false);
-  const [inAcceptFlow, setInAcceptFlow] = useState(false);
-  const [receiptPromptOpen, setReceiptPromptOpen] = useState(false);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   useHotkeys({
     clearSelection: selected.size > 0 ? () => setSelected(new Set()) : undefined,
@@ -162,6 +166,7 @@ export function IntakeLotDetail({
   }
 
   const isOpen = lot.status === "open";
+  const usesOffers = lot.sourceType !== "opened";
   const canRemove = isOpen;
   const liveSelected = [...selected];
   const allSelected =
@@ -195,7 +200,7 @@ export function IntakeLotDetail({
     value == null ? null : format(value);
 
   return (
-    <div className="flex flex-col gap-4 md:gap-2">
+    <div className="flex flex-1 flex-col gap-4 md:gap-2">
       <div className="sticky -top-4 z-10 -mx-4 -mt-4 flex flex-wrap items-center gap-1.5 border-b bg-background/80 p-2 pl-4 backdrop-blur-2xl md:-top-2 md:-mx-3 md:-mt-2 md:pl-3">
         <div className="mr-auto min-w-0">
           <div className="flex items-center gap-2">
@@ -203,15 +208,22 @@ export function IntakeLotDetail({
               {lot.customerName}
             </DetailHeading>
             <StatusBadge status={lot.status} />
+            <Badge variant="outline">{t(`intake.sourceTypes.${lot.sourceType}`)}</Badge>
             {lot.collectionGameName && (
               <Badge variant="outline">{lot.collectionGameName}</Badge>
             )}
           </div>
           <p className="text-xs text-foreground/70">
-            {t("intake.subtitle", {
-              collection: lot.collectionName,
-              date: formatDateTime(lot.createdAt),
-            })}
+            {lot.destinationLocationName
+              ? t("intake.subtitleWithLocation", {
+                  collection: lot.collectionName,
+                  location: lot.destinationLocationName,
+                  date: formatDateTime(lot.createdAt),
+                })
+              : t("intake.subtitle", {
+                  collection: lot.collectionName,
+                  date: formatDateTime(lot.createdAt),
+                })}
           </p>
         </div>
         {lot.cardCount > 0 && (
@@ -301,6 +313,7 @@ export function IntakeLotDetail({
         )}
         {isOpen && access?.canAcceptIntake && (
           <Button
+            data-tour="intake-finish"
             disabled={lot.cardCount === 0}
             onClick={() => setAcceptOpen(true)}
           >
@@ -309,6 +322,7 @@ export function IntakeLotDetail({
           </Button>
         )}
         {lot.status === "accepted" &&
+          lot.ownsCollection &&
           !lot.collectionDeleted &&
           lot.cardsInSource > 0 &&
           access?.canAcceptIntake && (
@@ -331,8 +345,9 @@ export function IntakeLotDetail({
       )}
 
       <StatGroup
-        heading={t(isOpen ? "intake.liveOffer" : "intake.summary")}
+        heading={t(isOpen && usesOffers ? "intake.liveOffer" : "intake.summary")}
         live={isOpen ? true : undefined}
+        dataTour="intake-stats"
         gridClassName="grid-cols-2 sm:grid-cols-4"
         tiles={[
           {
@@ -347,29 +362,40 @@ export function IntakeLotDetail({
                   label: t("intake.stats.market"),
                   value: money(lot.marketTotal),
                 },
-                {
-                  key: "cash",
-                  label: t("intake.stats.cash"),
-                  value: money(lot.cashOffer),
-                },
+                ...(usesOffers
+                  ? [
+                      {
+                        key: "cash",
+                        label: t("intake.stats.cash"),
+                        value: money(lot.cashOffer),
+                      },
+                    ]
+                  : []),
+                ...(!usesOffers && lot.status !== "accepted"
+                  ? []
+                  : [
                 lot.status === "accepted"
                   ? {
                       key: "paid",
                       label: t("intake.stats.paid"),
                       value: money(lot.paidTotal),
-                      detail: lot.payoutMethod
-                        ? t(`intake.payout.${lot.payoutMethod}`)
-                        : null,
+                      detail:
+                        usesOffers && lot.payoutMethod
+                          ? t(`intake.payout.${lot.payoutMethod}`)
+                          : null,
                     }
                   : {
                       key: "credit",
                       label: t("intake.stats.credit"),
                       value: money(lot.creditOffer),
                     },
+                    ]),
               ]
             : []),
         ]}
       />
+
+      <BuyPerformanceSection lot={lot} />
 
       {lot.cardCount === 0 ? (
         <EmptyState
@@ -405,33 +431,11 @@ export function IntakeLotDetail({
               })}
             </Callout>
           )}
-          {canRemove && liveSelected.length > 0 && (
-            <div className="flex items-center justify-between gap-2 rounded-card bg-card px-3 py-1.5 text-sm animate-in fade-in-0 motion-reduce:animate-none">
-              <span className="font-medium">
-                {t("intake.remove.selected", { count: liveSelected.length })}
-              </span>
-              <div className="flex gap-1.5">
-                <Button
-                  variant="ghost"
-                  onClick={() => setSelected(new Set())}
-                >
-                  {t("intake.remove.clear")}
-                </Button>
-                <Button
-                  variant="destructive"
-                  onClick={() => setRemoveTarget(liveSelected)}
-                >
-                  <IconX />
-                  {t("intake.remove.button")}
-                </Button>
-              </div>
-            </div>
-          )}
           <ListPagination
             alignsEnd
             pagination={toServerPagination(cardsPageData, setCardsPage)}
           />
-          <div>
+          <div data-tour="intake-cards">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -462,9 +466,11 @@ export function IntakeLotDetail({
                       <TableHead className="text-right">
                         {t("table.market")}
                       </TableHead>
-                      <TableHead className="text-right">
-                        {t(isOpen ? "table.offer" : "table.cost")}
-                      </TableHead>
+                      {(usesOffers || !isOpen) && (
+                        <TableHead className="text-right">
+                          {t(isOpen ? "table.offer" : "table.cost")}
+                        </TableHead>
+                      )}
                     </>
                   )}
                   {canRemove && (
@@ -544,7 +550,7 @@ export function IntakeLotDetail({
                         <TableCell className="text-right tabular-nums">
                           {money(entry.marketPrice) ?? "-"}
                         </TableCell>
-                        {isOpen ? (
+                        {isOpen && !usesOffers ? null : isOpen ? (
                           <TableCell
                             className="py-0 text-right"
                             onClick={(e) => e.stopPropagation()}
@@ -588,6 +594,27 @@ export function IntakeLotDetail({
         </div>
       )}
 
+      {canRemove && liveSelected.length > 0 && (
+        <SelectionActionBar
+          className="mt-auto mb-0"
+          selectedCount={liveSelected.length}
+          selectionLabel={t("intake.remove.selected", { count: liveSelected.length })}
+          onClear={() => setSelected(new Set())}
+        >
+          <SetPricesAction
+            scanIds={liveSelected}
+            buttonClassName={SELECTION_ACTION_BAR_BUTTON_CLASS}
+          />
+          <Button
+            variant="destructive"
+            className={SELECTION_ACTION_BAR_DESTRUCTIVE_BUTTON_CLASS}
+            onClick={() => setRemoveTarget(liveSelected)}
+          >
+            {t("intake.remove.button")}
+          </Button>
+        </SelectionActionBar>
+      )}
+
       <DeleteDialog
         open={removeTarget !== null}
         onOpenChange={(open) => !open && setRemoveTarget(null)}
@@ -605,39 +632,18 @@ export function IntakeLotDetail({
         collectionGuid={lot.collectionGuid}
         addsToIntakeLot
       />
-      <IntakeAcceptDialog
+      <BuyFinishDialog
         lot={lot}
         open={acceptOpen}
         onOpenChange={setAcceptOpen}
-        onAccepted={() => {
-          setInAcceptFlow(true);
-          setTransferOpen(true);
-        }}
-      />
-      <ConfirmDialog
-        open={receiptPromptOpen}
-        onOpenChange={setReceiptPromptOpen}
-        title={t("intake.receiptPrompt.title")}
-        description={t("intake.receiptPrompt.description", {
-          name: lot.customerName,
-        })}
-        confirmLabel={t("intake.receiptPrompt.print")}
-        cancelLabel={t("intake.receiptPrompt.skip")}
-        onConfirm={() => {
-          window.open(intakeReceiptPath(lot.guid, true), "_blank");
-          setReceiptPromptOpen(false);
+        onFinished={() => {
+          if (lot.ownsCollection) setTransferOpen(true);
         }}
       />
       <IntakeTransferDialog
         lot={lot}
         open={transferOpen}
-        onOpenChange={(open) => {
-          setTransferOpen(open);
-          if (!open && inAcceptFlow) {
-            setInAcceptFlow(false);
-            if (!isMobile) setReceiptPromptOpen(true);
-          }
-        }}
+        onOpenChange={setTransferOpen}
       />
       <IntakeCancelDialog
         lot={lot}

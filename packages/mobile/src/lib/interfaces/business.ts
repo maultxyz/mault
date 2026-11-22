@@ -1,6 +1,10 @@
+import type { ReactNode } from "react";
 import type { Control } from "react-hook-form";
 import type {
+  BuyPerformance,
+  BuySourceType,
   BusinessSettingsDraftValues,
+  CardPricing,
   CardReservationRequestGroup,
   FulfilmentOrder,
   FulfilmentOrderDetail,
@@ -9,10 +13,44 @@ import type {
   OrderLine,
   PickWalkEntry,
   PickWalkStop,
+  SaleRow,
+  UnmovedBuy,
 } from "@magic-vault/shared";
-import type { BUSINESS_VIEWS } from "@/lib/constants/business";
+import type { BUSINESS_TIPS_TOPICS, BUSINESS_VIEWS, SALES_RANGES } from "@/lib/constants/business";
+import type { IconName } from "@/lib/interfaces/ui";
 
 export type BusinessView = (typeof BUSINESS_VIEWS)[number];
+
+export type SalesRange = (typeof SALES_RANGES)[number];
+
+export interface SalesReportFilter {
+  fromDay: string | null;
+  buyGuid: string | null;
+}
+
+export interface SalesViewProps {
+  buyGuid: string | null;
+}
+
+export interface SaleRowItemProps {
+  sale: SaleRow;
+  showProfit: boolean;
+}
+
+export interface BuyStartDefaults {
+  sourceType: BuySourceType;
+  collectionGuid: string;
+  storageLocationGuid: string;
+}
+
+export interface BuyPerformanceSectionProps {
+  buyGuid: string;
+  performance: BuyPerformance;
+}
+
+export interface UnmovedBuysCalloutProps {
+  buys: UnmovedBuy[];
+}
 
 export interface BusinessHubProps {
   onBack?: () => void;
@@ -34,8 +72,19 @@ export interface PickWalk {
   setPicked: (scanIds: string[], isPicked: boolean) => void;
 }
 
+export interface BusinessOverviewViewProps {
+  onOpenView: (view: BusinessView) => void;
+}
+
 export interface BusinessListViewProps {
   canAct: boolean;
+}
+
+export interface BusinessStatusFilterProps<T extends string> {
+  statuses: readonly T[];
+  value: T | null;
+  onChange: (value: T | null) => void;
+  labelOf: (status: T) => string;
 }
 
 export interface BusinessListSearchProps {
@@ -104,6 +153,7 @@ export interface PickWalkNextCardProps {
 export interface BusinessSettingsDraft {
   control: Control<BusinessSettingsDraftValues>;
   canManage: boolean;
+  hasBusinessTools: boolean;
   isLoading: boolean;
   isLoadError: boolean;
   isRetryingLoad: boolean;
@@ -118,4 +168,50 @@ export interface BusinessSettingsDraft {
 export interface BusinessSettingsFormProps {
   control: Control<BusinessSettingsDraftValues>;
   disabled: boolean;
+}
+
+export interface CardPricingSectionProps {
+  pricing: CardPricing | undefined;
+  isLoading: boolean;
+  isLoadError: boolean;
+  onRetryLoad: () => void;
+  costField: ReactNode;
+  canEditSellRule: boolean;
+  onEditSellRule: () => void;
+}
+
+export interface CardSellPriceSheetProps {
+  visible: boolean;
+  pricing: CardPricing;
+  onClose: () => void;
+}
+
+export interface ScanBuySheetProps {
+  visible: boolean;
+  buy: IntakeLot | null;
+  onClose: () => void;
+  onShowTips: () => void;
+}
+
+export type BusinessTipsTopic = (typeof BUSINESS_TIPS_TOPICS)[number];
+
+export interface BusinessTip {
+  key: string;
+  icon: IconName;
+}
+
+export interface BusinessTipsSheetProps {
+  topic: BusinessTipsTopic;
+  visible: boolean;
+  onClose: () => void;
+}
+
+export interface BusinessTipsButtonProps {
+  onPress: () => void;
+}
+
+export interface BusinessTipsState {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
 }

@@ -26,8 +26,6 @@ const FOCUS_SWIPE_THRESHOLD_PX = 80;
 export function PickFocusView({
   entries,
   pickedScanIds,
-  total,
-  pickedCount,
   complete,
   showOrderName,
   canPick,
@@ -37,7 +35,7 @@ export function PickFocusView({
   onMissing,
   onComplete,
   completedCount,
-  onBack,
+  completeLabel,
 }: PickFocusViewProps) {
   const { t } = useTranslation("business");
   const firstUnpickedIndex = entries.findIndex(
@@ -117,51 +115,21 @@ export function PickFocusView({
   const swiping = swipeDelta !== 0;
 
   return (
-    <div className="fixed inset-0 z-50 flex flex-col bg-background">
-      <header className="flex shrink-0 items-center gap-1.5 border-b px-2 py-2 pt-[max(0.5rem,env(safe-area-inset-top))]">
-        <Button
-          variant="ghost"
-          size="icon"
-          aria-label={t("orders.batch.focusBack")}
-          title={t("orders.batch.focusBack")}
-          onClick={onBack}
-        >
-          <IconChevronLeft />
-        </Button>
-        <div className="min-w-0 flex-1">
-          <p
-            className="text-sm font-medium tabular-nums"
-            role="status"
-            aria-live="polite"
-          >
-            {t("orders.pickWalk.progress", { picked: pickedCount, total })}
-          </p>
-          <div
-            className="mt-1 h-1 overflow-hidden rounded-sm bg-muted"
-            aria-hidden
-          >
-            <div
-              className="h-full rounded-sm bg-primary transition-[width] motion-reduce:transition-none"
-              style={{ width: `${total === 0 ? 0 : (pickedCount / total) * 100}%` }}
-            />
-          </div>
-        </div>
-      </header>
-
+    <div className="flex flex-col overflow-hidden rounded-card bg-card">
       {complete ? (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-4 p-6 text-center">
+        <div className="flex flex-col items-center justify-center gap-4 p-6 text-center">
           <p className="text-lg font-semibold">{t("orders.pickWalk.allPicked")}</p>
           {canPick && completedCount > 0 && (
             <Button size="lg" onClick={onComplete}>
               <IconPackageExport />
-              {t("orders.batch.complete", { count: completedCount })}
+              {completeLabel ?? t("orders.batch.complete", { count: completedCount })}
             </Button>
           )}
         </div>
       ) : entry ? (
         <>
           <div
-            className="flex min-h-0 flex-1 flex-col items-center justify-center gap-5 overflow-y-auto p-4"
+            className="flex flex-col items-center justify-center gap-5 p-4"
             onTouchStart={onTouchStart}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
@@ -251,7 +219,7 @@ export function PickFocusView({
             </p>
           </div>
 
-          <div className="flex shrink-0 flex-col gap-1.5 border-t p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
+          <div className="flex shrink-0 flex-col gap-1.5 border-t p-3">
             {picked && (
               <Callout variant="warning" icon={IconAlertTriangle}>
                 {t("orders.batch.focusPickedNote")}
@@ -317,7 +285,7 @@ export function PickFocusView({
           </div>
         </>
       ) : (
-        <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-3 p-6 text-center">
+        <div className="flex flex-col items-center justify-center gap-3 p-6 text-center">
           <p className="text-lg font-semibold">{t("orders.pickWalk.allPicked")}</p>
         </div>
       )}

@@ -10,12 +10,12 @@
     "loadFailed": "Couldn't load this. Check your connection and try again."
   },
   "upgrade": {
-    "locked": "Buy and sell (intake, picks, cost tracking and spot checks) is not part of your plan. You can still view what you already have.",
+    "locked": "Buy and sell (intakes, picks, sales, cost tracking and spot checks) is not part of your plan. You can still view what you already have.",
     "link": "See plans"
   },
   "status": {
     "open": "Open",
-    "accepted": "Bought",
+    "accepted": "Finished",
     "cancelled": "Cancelled",
     "fulfilled": "Completed",
     "completed": "Finished"
@@ -49,7 +49,7 @@
     "saved": "Business settings saved",
     "saveFailed": "Couldn't save business settings",
     "buylist": {
-      "heading": "Buylist offers",
+      "heading": "Buying prices",
       "description": "How much you offer for each card when buying a collection. Offers use your price source and condition values.",
       "tiers": "Price tiers",
       "minPrice": "Market price from",
@@ -75,8 +75,8 @@
         "description": "Offers, cost basis and margins."
       },
       "acceptIntake": {
-        "label": "Accept or cancel intake lots",
-        "description": "Members can always scan into an open lot."
+        "label": "Finish or cancel intakes",
+        "description": "Members can always scan into an open intake."
       },
       "fulfilOrders": {
         "label": "Create and complete picks",
@@ -86,14 +86,152 @@
         "label": "See staff activity",
         "description": "Throughput per person and the activity log."
       }
+    },
+    "sell": {
+      "heading": "Selling prices",
+      "description": "How your shop catalogs and price labels price cards: the market price plus your margin, then rounded. Set a different margin or a fixed price on selected cards with Set prices.",
+      "defaultMarkup": "Default margin (%)",
+      "defaultMarkupHint": "Added to the market price. Use a negative number for a discount.",
+      "rounding": "Round prices",
+      "roundingModes": {
+        "none": "Don't round",
+        "quarter": "Up to the next 0.25",
+        "ninetyNine": "Up to the next .99",
+        "whole": "Up to the next whole amount"
+      },
+      "preview": "Example sell prices",
+      "previewItem": "{{market}} card sells for {{price}}"
+    }
+  },
+  "overview": {
+    "back": "Overview",
+    "title": "Buy & sell",
+    "description": "What needs doing across intakes, picks and reservations.",
+    "cards_one": "{{count}} card",
+    "cards_other": "{{count}} cards",
+    "intake": {
+      "description": "Bring in new inventory from customers, vendors, bulk lots or opened product. Scan it straight into your stock, then finish the intake.",
+      "empty": "No open intakes.",
+      "link": "Go to intakes"
+    },
+    "picks": {
+      "description": "Pull sold cards from storage and complete the sale.",
+      "empty": "No open picks.",
+      "progress": "{{picked}} of {{total}} picked",
+      "link": "Go to picks"
+    },
+    "reservations": {
+      "description": "Cards customers reserved from your shop catalogs.",
+      "link": "Go to reservations"
+    },
+    "labels": {
+      "description": "Print price labels for a collection, storage location or intake.",
+      "link": "Go to labels"
+    },
+    "views": {
+      "overview": "Overview",
+      "staff": "Staff",
+      "accuracy": "Accuracy"
+    },
+    "now": {
+      "heading": "Right now"
+    },
+    "share": "{{percent}}%",
+    "tiles": {
+      "openIntake": "Open intakes",
+      "openPicks": "Open picks",
+      "cardsToPick": "Cards to pick",
+      "readyToComplete_one": "{{count}} ready to complete",
+      "readyToComplete_other": "{{count}} ready to complete",
+      "requests_one": "{{count}} request",
+      "requests_other": "{{count}} requests",
+      "beingPicked_one": "{{count}} being picked",
+      "beingPicked_other": "{{count}} being picked",
+      "soldCards": "Cards sold",
+      "perDay": "{{count}} a day on average",
+      "revenue": "Revenue",
+      "averageSale": "{{value}} per card",
+      "profit": "Profit",
+      "profitMargin": "{{percent}}% margin",
+      "profitNoCosts": "No costs recorded"
+    },
+    "sales": {
+      "heading": "Last {{days}} days",
+      "title": "Sales",
+      "description": "Cards sold each day over the last {{days}} days, from picks and reservation pickups.",
+      "metrics": {
+        "count": "Cards",
+        "revenue": "Revenue"
+      },
+      "today": "Today"
+    },
+    "attention": {
+      "heading": "Needs attention",
+      "readyForPickup": {
+        "title_one": "{{count}} reservation ready for pickup",
+        "title_other": "{{count}} reservations ready for pickup",
+        "detail": "Let the customer know, or mark it picked up when they collect."
+      },
+      "readyToComplete": {
+        "title_one": "{{count}} pick ready to complete",
+        "title_other": "{{count}} picks ready to complete",
+        "detail": "Every card is picked. Complete it to record the sale."
+      },
+      "toPull": {
+        "title_one": "{{count}} reservation to pull",
+        "title_other": "{{count}} reservations to pull",
+        "detail": "Create a pick to pull the held cards."
+      },
+      "openIntake": {
+        "title_one": "{{count}} open intake",
+        "title_other": "{{count}} open intakes",
+        "detail": "Review the cards, make an offer, then finish the intake."
+      },
+      "allClear": {
+        "title": "All caught up",
+        "detail": "Nothing needs your attention right now."
+      }
+    },
+    "reservationsChart": {
+      "title": "Reservations by stage",
+      "description": "Open reservation requests and where each one is.",
+      "none": "No open reservations.",
+      "requests_one": "Request",
+      "requests_other": "Requests"
+    },
+    "inventory": {
+      "heading": "Inventory costs",
+      "value": "Inventory value",
+      "uncosted": "Cards without a cost",
+      "uncostedDetail": "Set a cost to include them in margins",
+      "historyDescription": "Daily market value of everything you own, with cards in open intakes left out.",
+      "collectionsTitle": "Costs by collection",
+      "collectionsDescription": "What you paid for each collection against what it is worth now.",
+      "rowSummary": "Worth {{value}}, cost {{cost}}",
+      "columns": {
+        "name": "Collection",
+        "cardCount": "Cards",
+        "totalValue": "Value",
+        "costBasis": "Cost",
+        "margin": "Margin"
+      },
+      "setCostsHint": "To record what you paid, select cards in a collection and use Set prices.",
+      "sellValueOfCosted": "Sell value",
+      "sellValueDetail": "Cards with a cost, at your sell prices",
+      "unrealizedProfit": "Unrealized profit",
+      "marginPercent": "{{percent}}% margin"
+    },
+    "salesSection": {
+      "description": "Every card you sold, with what it cost you and the profit.",
+      "link": "Go to sales"
     }
   },
   "views": {
-    "label": "Buy and sell view",
     "intake": "Intake",
     "picks": "Picks",
     "labels": "Labels",
-    "reservations": "Reservations"
+    "reservations": "Reservations",
+    "sales": "Sales"
   },
   "offerEditor": {
     "title": "Offer for {{name}}",
@@ -108,8 +246,7 @@
     "subtitle": "Scanning into {{collection}} · started {{date}}",
     "new": "New intake",
     "newTitle": "Start an intake",
-    "newDescription": "Cards scanned into the lot's collection are added to it until you accept or cancel it.",
-    "customerName": "Customer",
+    "newDescription": "Use an intake whenever new inventory comes in: a customer at the counter, a vendor delivery, a bulk lot or opened product. Cards you scan into the collection are added to the intake until you finish or cancel it, so you can track what each card cost and what it sells for.",
     "customerContact": "Contact (optional)",
     "customerContactPlaceholder": "Email or phone",
     "collection": "Scan into",
@@ -118,16 +255,16 @@
     "start": "Start intake",
     "created": "Intake started",
     "emptyTitle": "No intakes yet",
-    "emptyDescription": "Start one when a customer brings cards to sell.",
+    "emptyDescription": "Start one when a customer brings cards to sell, a vendor order arrives or you open sealed product.",
     "pickTitle": "Pick an intake",
-    "pickDescription": "Choose a lot on the left or start a new one.",
+    "pickDescription": "Choose an intake on the left or start a new one.",
     "cardCount_one": "{{count, compact}} card",
     "cardCount_other": "{{count, compact}} cards",
     "openScanner": "Open scanner",
     "addCard": "Add card",
     "printReceipt": "Receipt",
-    "accept": "Accept",
-    "cancelLot": "Cancel lot",
+    "accept": "Finish",
+    "cancelLot": "Cancel intake",
     "liveOffer": "Live offer",
     "summary": "Summary",
     "stats": {
@@ -146,58 +283,44 @@
       "cash": "Cash to pay",
       "credit": "Store credit to give"
     },
-    "noCardsTitle": "No cards in this lot",
-    "noCardsOpen": "Open the scanner and sort the customer's cards. Offers update as each card is saved.",
-    "noCardsClosed": "This lot was closed without any cards.",
-    "acceptTitle": "Accept this lot",
-    "acceptDescription_one": "Buy {{count}} card from {{name}}. Each card's cost basis is set from its offer.",
-    "acceptDescription_other": "Buy {{count}} cards from {{name}}. Each card's cost basis is set from its offer.",
-    "overrideLabel": "Use a different total",
-    "overrideAmount": "Cash total",
+    "noCardsTitle": "No cards in this intake",
+    "noCardsOpen": "Open the scanner and scan the cards. Offers update as each card is saved.",
+    "noCardsClosed": "This intake was closed without any cards.",
+    "acceptTitle": "Finish this intake",
+    "acceptDescription_one": "Add {{count}} card from {{name}} to your stock. Each card's cost is set from its offer.",
+    "acceptDescription_other": "Add {{count}} cards from {{name}} to your stock. Each card's cost is set from its offer.",
     "costBasisNote": "Cost basis recorded: {{amount}}",
-    "accepted": "Lot accepted",
-    "cancelTitle": "Cancel this lot",
+    "accepted": "Intake finished",
+    "cancelTitle": "Cancel this intake",
     "cancelDescription": "{{name}} keeps their cards and nothing is paid.",
     "removeCards_one": "Remove the {{count}} scanned card",
     "removeCards_other": "Remove the {{count}} scanned cards",
     "removeCardsHint": "Takes them out of the collection, since they leave with the customer.",
-    "cancelled": "Lot cancelled",
-    "deleteTitle": "Delete this lot?",
-    "deleteDescription": "The lot's record is removed. Cards you bought stay in your collection with their cost.",
-    "collectionModes": {
-      "new": "New collection",
-      "existing": "Existing collection"
-    },
-    "collectionModeHints": {
-      "new": "Keeps this customer's cards apart from your stock. Named after the customer.",
-      "existing": "A collection can only have one open lot at a time."
-    },
-    "game": "Game",
-    "chooseGame": "Choose a game",
-    "language": "Language",
-    "removeCardsHintOwned": "Takes them out, since they leave with the customer. The lot's own collection is removed too.",
+    "cancelled": "Intake cancelled",
+    "deleteTitle": "Delete this intake?",
+    "deleteDescription": "The intake's record is removed. Its cards stay in your collection with their cost.",
+    "removeCardsHintOwned": "Takes them out, since they leave with the customer. The intake's own collection is removed too.",
     "review": {
       "start": "Review",
-      "startTitle": "Go through this lot's cards that haven't been reviewed yet, newest first",
-      "nothingLeft": "Nothing left to review. Every card in this lot has already been reviewed.",
-      "remove": "Remove from lot",
-      "removeTitle": "Take {{name}} out of the lot?",
+      "startTitle": "Go through this intake's cards that haven't been reviewed yet, newest first",
+      "nothingLeft": "Nothing left to review. Every card in this intake has already been reviewed.",
+      "remove": "Remove from intake",
+      "removeTitle": "Take {{name}} out of the intake?",
       "removeDescription": "The card goes back to {{name}} and is taken out of the collection, so the offer goes down."
     },
     "moreActions": "More actions",
     "remove": {
-      "button": "Remove from lot",
-      "clear": "Clear",
+      "button": "Remove from intake",
       "selectAll": "Select all cards",
       "selectRow": "Select {{name}}",
-      "row": "Remove {{name}} from the lot",
+      "row": "Remove {{name}} from the intake",
       "selected_one": "{{count}} card selected",
       "selected_other": "{{count}} cards selected",
-      "title_one": "Remove {{count}} card from the lot?",
-      "title_other": "Remove {{count}} cards from the lot?",
+      "title_one": "Remove {{count}} card from the intake?",
+      "title_other": "Remove {{count}} cards from the intake?",
       "description": "Use this when {{name}} turns down the offer for a card or you pass on it. The cards are taken out of the collection and the offer goes down.",
-      "done_one": "{{count}} card removed from the lot",
-      "done_other": "{{count}} cards removed from the lot"
+      "done_one": "{{count}} card removed from the intake",
+      "done_other": "{{count}} cards removed from the intake"
     },
     "belowMinimum": {
       "notice_one": "{{count}} card is below your minimum card value of {{value}} and gets no offer.",
@@ -206,11 +329,62 @@
       "remove_other": "Remove {{count}} cards",
       "rowTitle": "Below your minimum card value, so no offer"
     },
-    "receiptPrompt": {
-      "title": "Print a receipt?",
-      "description": "Give {{name}} a receipt for the cards you bought.",
-      "print": "Print receipt",
-      "skip": "Skip"
+    "subtitleWithLocation": "Scanning into {{collection}}, {{location}} · started {{date}}",
+    "collectionHint": "Cards go straight into this collection. A collection can only have one open intake at a time.",
+    "sourceType": "Coming from",
+    "sourceTypes": {
+      "customer": "Customer",
+      "vendor": "Vendor",
+      "opened": "Opened product"
+    },
+    "nameLabels": {
+      "customer": "Customer name",
+      "vendor": "Vendor",
+      "opened": "Product"
+    },
+    "namePlaceholders": {
+      "customer": "Name",
+      "vendor": "Distributor or seller",
+      "opened": "Booster box"
+    },
+    "storageLocation": "Storage location (optional)",
+    "noStorageLocation": "No storage location",
+    "storageLocationHint": "Cards move into this location when you finish the intake.",
+    "finish": {
+      "totalPaid": "Total paid",
+      "totalPaidHint": "Starts at the cash offer. Each card's cost comes from its offer.",
+      "productCost": "Product cost",
+      "productCostHint": "What you paid for the product. It is spread across the cards by market value and becomes their cost.",
+      "totalPaidSpread": "This differs from the offer of {{offer}}, so the total is spread over the cards by their value.",
+      "printReceipt": "Print a receipt",
+      "destination": "The cards stay in {{collection}}.",
+      "destinationWithLocation": "The cards stay in {{collection}} and move into {{location}}.",
+      "legacyMoveNote": "You can move them into your stock next."
+    },
+    "performance": {
+      "heading": "Performance",
+      "paid": "Paid",
+      "sold": "Sold",
+      "soldDetail_one": "Of {{count}} card",
+      "soldDetail_other": "Of {{count}} cards",
+      "revenue": "Revenue",
+      "costOfSold": "Cost of sold",
+      "profit": "Profit",
+      "paidBack": "Paid back",
+      "paidBackDetail": "Revenue as a share of what you paid",
+      "percent": "{{value}}%",
+      "remaining": "Cards left",
+      "remainingDetail": "Cost {{cost}}, sells for {{value}}",
+      "seeSales": "See sales"
+    },
+    "unmoved": {
+      "title_one": "{{count}} finished intake still has cards in its own collection",
+      "title_other": "{{count}} finished intakes still have cards in their own collection",
+      "description": "Intakes now scan straight into your stock. Move the cards of these older intakes into stock once.",
+      "row_one": "{{count}} card in {{collection}}",
+      "row_other": "{{count}} cards in {{collection}}",
+      "move": "Move into stock",
+      "moveFor": "Move the cards from {{name}} into stock"
     }
   },
   "receipt": {
@@ -293,6 +467,15 @@
     "fulfilDescription_one": "Removes {{count}} card from inventory, since it's leaving with the order.",
     "fulfilDescription_other": "Removes {{count}} cards from inventory, since they're leaving with the order.",
     "fulfilled": "Pick completed",
+    "reservationPrompt": {
+      "title_one": "Open the reservation?",
+      "title_other": "Open the reservations?",
+      "description_one": "This pick was for a reservation. Its cards are now ready for pickup, so you can tell the customer or mark it picked up.",
+      "description_other": "These picks were for {{count}} reservations. Their cards are now ready for pickup, so you can tell the customers or mark them picked up.",
+      "confirm_one": "Open reservation",
+      "confirm_other": "Open reservations",
+      "stay": "Stay here"
+    },
     "cancel": "Cancel pick",
     "cancelTitle": "Cancel this pick",
     "cancelDescription": "Its cards stay in inventory and are free for other picks.",
@@ -312,10 +495,8 @@
     "orderCardCount_one": "{{count}} card",
     "orderCardCount_other": "{{count}} cards",
     "locationColumn": "Location",
-    "viewsLabel": "Pick view",
     "views": {
-      "location": "Pick by location",
-      "order": "Sort by order"
+      "lines": "Order lines"
     },
     "orderRefPlaceholder": "Order",
     "orderRefInputLabel": "Order for {{name}}",
@@ -326,9 +507,6 @@
     "tooManyOrders": "Your sorter has {{count}} bins for orders, so some orders are left without one.",
     "saveOrderBins": "Save bins",
     "orderBinsSaved": "Order bins saved",
-    "createSortPreset": "Create sort preset",
-    "sortPresetTitle": "Sort this pick by order?",
-    "sortPresetDescription": "Creates a sorting preset with one bin per order and makes it active. Feed the pulled cards through the sorter and each lands in its order's bin. Scans with this preset are not saved, so your inventory stays as it is.",
     "sortPresetCreated_one": "Sort preset created and activated",
     "sortPresetCreated_other": "{{count}} sort presets created, one per game",
     "openSortPreset": "Open preset",
@@ -367,8 +545,8 @@
       "title": "Pick together",
       "description": "Picks: {{picks}} · Cards: {{cards}}",
       "back": "Picks",
-      "walkTab": "Picking",
-      "sortTab": "Sort to orders",
+      "walkTab": "Guided",
+      "sortTab": "Split by order",
       "viewLabel": "Pick batch view",
       "pickColumn": "Pick",
       "emptyTitle": "Nothing to pick",
@@ -393,10 +571,12 @@
       "completed_other": "{{count}} picks completed",
       "resume_one": "Resume pick together ({{count}} pick)",
       "resume_other": "Resume pick together ({{count}} picks)",
-      "listTab": "List",
-      "focusTab": "Focus",
-      "boxTab": "Box",
-      "focusBack": "Back to picking",
+      "stop": "Stop picking together",
+      "stopHint": "Leaves this group. Cards you ticked stay ticked on each pick, and nothing is completed.",
+      "stopped": "Stopped picking together. Ticked cards stay on each pick.",
+      "listTab": "All cards",
+      "focusTab": "One at a time",
+      "boxTab": "By box",
       "focusBackCard": "Previous card",
       "focusSkip": "Skip",
       "focusSwipeHint": "Swipe right to pick, left to skip",
@@ -408,8 +588,18 @@
       "boxPickBadge": "Pick",
       "boxLoadMore": "Load more cards",
       "boxCollectionNote": "Cards in a collection bin, not a storage box.",
-      "sortPresetButton": "Sort with the sorter",
-      "sortPresetHint": "Builds an active bin preset that routes scanned cards into their order's bin and everything else into the store-back bin."
+      "sortPresetButton": "Split with sorter",
+      "sortPresetHint": "Feed the cards you pulled through the sorter. Each card lands in its order's bin.",
+      "sortPresetTitle": "Split pulled cards with the sorter",
+      "viewHints": {
+        "pick": "Pull the card on top, then the next one. Cards follow where they're stored, so you pass each shelf once. For a whole box, use Pull with sorter.",
+        "list": "Every card to pull, grouped by where it's stored. Tick each card as you pull it. For a whole box, use Pull with sorter.",
+        "focus": "One card at a time, big and easy to read. Mark it picked or skip it. Handy on a phone.",
+        "box": "Go through one storage box at a time and see every card in it. Pull the highlighted cards, or use Pull with sorter to let the sorter find them.",
+        "sort": "Divide the cards you pulled into one pile per order. Each block lists the cards for that order's pile.",
+        "sortWithSorter": "Divide the cards you pulled into one pile per order. Each block lists the cards for that order's pile. Or use Split with sorter to let the sorter do it.",
+        "lines": "Every line of this pick, grouped by order. Find substitutes or remove cards here."
+      }
     },
     "substitutes": {
       "find": "Find substitutes",
@@ -454,6 +644,7 @@
     },
     "pickSaveFailed": "Couldn't save the pick. Your ticks were refreshed from the server.",
     "pickWalk": {
+      "cardPosition": "Card {{index}} of {{total}}",
       "nextUp": "Next up",
       "slot": "Slot {{position}}",
       "bin": "Bin {{bin}}",
@@ -471,30 +662,30 @@
       "missingReleased_other": "{{count}} copies released back into stock"
     },
     "sorterPick": {
-      "stopButton": "Group pick",
-      "stopButtonHint": "Dump the whole box into the sorter: cards the picks need land in their order bins, everything else comes back out for {{location}}.",
-      "title": "Group pick · {{location}}",
+      "stopButton": "Pull with sorter",
+      "stopButtonHint": "Dump this box into the sorter. Cards the picks need land in their order bins, everything else comes back out for {{location}}.",
+      "title": "Pull with sorter · {{location}}",
       "prepareDescription": "Dump the whole box into the sorter. Cards the picks need land in the order bins, everything else comes out in the put-back bin so it can go back into the box.",
       "runDescription": "Feed the box through the sorter. When it is empty, apply the results to mark the picked cards.",
       "appliedDescription": "Empty the put-back bin back into {{location}}. The slot positions stay as they are.",
       "orderCards_one": "{{count}} card",
       "orderCards_other": "{{count}} cards",
-      "binHint": "Bin {{bin}} — cards for {{order}} come out here.",
+      "binHint": "Bin {{bin}}: cards for {{order}} come out here.",
       "binProgress": "{{found}} of {{total}} sorted",
       "runProgress": "{{found}} of {{total}} cards sorted so far.",
       "allSorted": "Everything is sorted. Apply the results, then empty the put-back bin back into the box.",
       "allSortedPreset": "Every card is in its order's bin. Empty the bins into the orders.",
-      "runPresetDescription": "Feed the picked cards through the sorter — each card lands in its order's bin. The progress here updates as the sorter scans.",
-      "preparePresetDescription": "Feed the picked cards through the sorter — each card lands in its order's bin. The scans are not saved, so your inventory stays as it is.",
+      "runPresetDescription": "Feed the picked cards through the sorter. Each card lands in its order's bin. The progress here updates as the sorter scans.",
+      "preparePresetDescription": "Feed the picked cards through the sorter. Each card lands in its order's bin. The scans are not saved, so your inventory stays as it is.",
       "sorterLabel": "Sorter",
       "sorterOption": "{{name}} · {{bins}} bins",
       "sorterDefault": "Any sorter (largest)",
       "sorterHint": "The preset gets bins for this sorter. Default is the sorter connected to this tab.",
       "previousTitle": "Previous preset: {{name}}",
       "previousUse": "Use previous",
-      "previousHint": "Reactivates the preset created earlier for these picks — same bins, same progress. No new preset is created.",
+      "previousHint": "Reactivates the preset created earlier for these picks, with the same bins and progress. No new preset is created.",
       "putBackBin": "Put back into {{location}}",
-      "putBackBinHint": "Everything the picks don't need comes out here. Empty it back into {{location}} — the slot positions stay as they are.",
+      "putBackBinHint": "Everything the picks don't need comes out here. Empty it back into {{location}}. The slot positions stay as they are.",
       "startButton": "Start the run",
       "startButtonHint": "Creates an active sorter preset for {{location}} only. The sorter doesn't save these scans.",
       "applyButton": "Apply sorter results",
@@ -509,7 +700,7 @@
       "discardedRun": "Run preset discarded",
       "usedPresets_one": "{{count}} used preset from earlier runs",
       "usedPresets_other": "{{count}} used presets from earlier runs",
-      "usedPresetsHint": "Presets from finished sorter runs pile up here. Discarding removes them from the sorting rules — cards and picks are not touched.",
+      "usedPresetsHint": "Presets from finished sorter runs pile up here. Discarding removes them from the sorting rules. Cards and picks are not touched.",
       "discardUsed": "Discard",
       "cleanupTitle_one": "Discard {{count}} used preset?",
       "cleanupTitle_other": "Discard {{count}} used presets?",
@@ -534,37 +725,17 @@
     "fulfilDescriptionWithReservations_other": "{{count}} reserved cards are marked ready for pickup and stay in stock until the customer picks them up. Cards that aren't reserved leave inventory: {{removed}}.",
     "reservationCardsNote": "Cards held for reservations stay in stock and are marked ready for pickup."
   },
-  "cost": {
-    "title": "Set cost basis",
-    "description": "Record what you paid for the cards in {{name}}.",
-    "mode": "Amount is",
-    "modes": {
-      "spread": "Total paid",
-      "each": "Per card"
-    },
-    "modeHints": {
-      "spread": "Split across the cards by market value, so valuable cards carry more of the cost.",
-      "each": "Every card gets the same cost."
-    },
-    "amount": "Amount",
-    "overwrite": "Replace existing costs",
-    "overwriteHint": "Off: only cards without a cost are updated.",
-    "save": "Set cost",
-    "saved_one": "Cost set on {{count}} card",
-    "saved_other": "Cost set on {{count}} cards"
-  },
   "reports": {
     "noCostAccess": "Your role can't see costs and margins. Ask an owner or admin to allow it in Settings > Business.",
     "inventory": {
       "costBasis": "Cost basis",
       "costedCards": "{{percent}} of cards costed",
       "unrealized": "Unrealized margin",
-      "uncostedNote_one": "{{count}} card has no cost basis, so margins only count costed cards. Use Set cost on a collection to fill it in.",
-      "uncostedNote_other": "{{count}} cards have no cost basis, so margins only count costed cards. Use Set cost on a collection to fill it in.",
+      "uncostedNote_one": "{{count}} card has no cost basis, so margins only count costed cards. Select cards in a collection and use Set prices to fill it in.",
+      "uncostedNote_other": "{{count}} cards have no cost basis, so margins only count costed cards. Select cards in a collection and use Set prices to fill it in.",
       "history": "Value over time",
       "historyEmpty": "Not enough history yet",
-      "historyEmptyDescription": "Inventory value is recorded once a day.",
-      "setCost": "Set cost"
+      "historyEmptyDescription": "Inventory value is recorded once a day."
     },
     "staff": {
       "throughput": "Throughput",
@@ -584,12 +755,13 @@
       "cardDeleted": "Card deleted",
       "cardsDeleted": "Cards deleted",
       "cardsMoved": "Cards moved",
+      "cardsSellPriceSet": "Sell prices set",
       "cardsCleared": "Collection emptied",
       "cardsCondition": "Condition changed",
       "collectionDeleted": "Collection deleted",
       "costSet": "Cost set",
       "intakeCreated": "Intake started",
-      "intakeAccepted": "Intake accepted",
+      "intakeAccepted": "Intake finished",
       "intakeCancelled": "Intake cancelled",
       "orderCreated": "Pick created",
       "orderUpdated": "Pick edited",
@@ -608,7 +780,6 @@
       "orderSorterPickApplied": "Sorter pick applied",
       "orderSorterPickPresetsCleaned": "Used sorter presets discarded",
       "tradeRecorded": "Trade recorded",
-      "tradeRecorded": "Trade recorded",
       "reservationCollected": "Reservation picked up",
       "reservationReleased": "Reservation released"
     },
@@ -626,7 +797,7 @@
       "collectionDeleted": "Deleted the collection {{summary}}",
       "costSet": "Set the cost of {{cards}} cards in {{summary}}",
       "intakeCreated": "Started an intake for {{summary}}",
-      "intakeAccepted": "Bought {{cards}} cards from {{summary}}",
+      "intakeAccepted": "Finished the intake of {{cards}} cards from {{summary}}",
       "intakeCancelled": "Cancelled the intake for {{summary}}",
       "orderCreated": "Created the pick {{summary}}",
       "orderUpdated": "Edited the pick {{summary}}",
@@ -635,7 +806,7 @@
       "accuracyCompleted": "Finished a spot check on {{summary}}: {{incorrect}} wrong out of {{checked}}",
       "deviceServiced": "Serviced {{summary}}",
       "businessSettings": "Changed the business settings",
-      "intakeTransferred": "Moved {{cards}} cards bought from {{summary}}",
+      "intakeTransferred": "Moved {{cards}} cards from the intake for {{summary}}",
       "catalogCreated": "Created the shop catalog {{summary}}",
       "catalogUpdated": "Changed the shop catalog {{summary}}",
       "catalogDeleted": "Deleted the shop catalog {{summary}}",
@@ -644,7 +815,6 @@
       "orderSorterPickCreated": "Started a sorter pick from {{summary}}",
       "orderSorterPickApplied": "Applied a sorter pick for {{summary}}",
       "orderSorterPickPresetsCleaned": "Discarded {{summary}} used sorter presets",
-      "tradeRecorded": "Recorded an in-person trade with {{summary}}",
       "tradeRecorded": "Recorded an in-person trade with {{summary}}",
       "reservationCollected": "Marked the reservation of {{summary}} as picked up",
       "reservationReleased": "Released the reservation of {{summary}}"
@@ -727,12 +897,12 @@
   },
   "banner": {
     "title": "Intake in progress: {{name}}",
-    "description": "Every card you scan into {{collection}} is added to this lot and kept apart from your stock.",
+    "description": "Every card you scan into {{collection}} is added to this intake.",
     "open": "Open intake"
   },
   "transfer": {
     "button": "Move cards",
-    "title": "Move the bought cards",
+    "title": "Move the intake's cards",
     "description": "Move the cards from {{name}} into the collection where you keep your stock.",
     "target": "Move to",
     "newCollection": "New collection",
@@ -761,7 +931,7 @@
     "collectionsLabel": "Collections",
     "storageLocationsLabel": "Storage locations",
     "noSources": "Nothing to pick yet.",
-    "inventoryNote": "Cards in open or cancelled intake lots never show.",
+    "inventoryNote": "Cards in open or cancelled intakes never show.",
     "empty": "No shop catalogs yet",
     "loadFailed": "Couldn't load shop catalogs.",
     "upgrade": "Shop catalogs are part of the Business plan.",
@@ -821,38 +991,30 @@
   },
   "priceLabels": {
     "title": "Price labels",
-    "description": "Print price stickers for cards from a collection, storage location or intake lot.",
+    "description": "Print price stickers for cards from a collection, storage location or intake.",
     "printForLot": "Print price labels",
     "form": {
       "title": "Labels",
-      "description": "Pick the cards, how to price them and the Avery sheet you are printing on.",
+      "description": "Pick the cards and the Avery sheet you are printing on.",
       "source": "Cards from",
-      "markup": "Markup (%)",
-      "markupHint": "Added to the market price. Use a negative number for a discount.",
-      "rounding": "Round prices",
       "showPrices": "Show prices",
-      "showPricesHint": "Turn off to print labels with the card and its storage code only."
+      "showPricesHint": "Turn off to print labels with the card and its storage code only.",
+      "sellPriceHint": "Labels print each card's sell price, set in <settingsLink>Settings > Pricing</settingsLink> and with Set prices on selected cards. Type a custom price below to override one."
     },
     "sources": {
       "collection": "Collection",
       "location": "Storage location",
-      "lot": "Intake lot"
+      "lot": "Intake"
     },
     "sourceItems": {
       "collection": "Collection",
       "location": "Storage location",
-      "lot": "Intake lot"
+      "lot": "Intake"
     },
     "sourcePlaceholders": {
       "collection": "Choose a collection",
       "location": "Choose a location",
-      "lot": "Choose an intake lot"
-    },
-    "rounding": {
-      "none": "Don't round",
-      "quarter": "Up to the next 0.25",
-      "ninetyNine": "Up to the next .99",
-      "whole": "Up to the next whole amount"
+      "lot": "Choose an intake"
     },
     "cards": {
       "selected_one": "{{count}} of {{total}} card selected",
@@ -865,11 +1027,11 @@
       "customPrice": "Custom price",
       "customPriceFor": "Custom price for {{name}}",
       "labelPrice": "Label price",
-      "truncated": "Showing the first {{shown}} of {{total}} cards. Print labels from a storage location or intake lot to label the rest."
+      "truncated": "Showing the first {{shown}} of {{total}} cards. Print labels from a storage location or intake to label the rest."
     },
     "empty": {
       "pickSourceTitle": "Choose where the cards come from",
-      "pickSourceDescription": "Pick a collection, storage location or intake lot to list its cards.",
+      "pickSourceDescription": "Pick a collection, storage location or intake to list its cards.",
       "noCardsTitle": "No cards here",
       "noCardsDescription": "Scan or add cards first, then print their labels.",
       "noneSelectedTitle": "No cards selected",
@@ -976,11 +1138,155 @@
     "createPickFor_one": "Create a pick for 1 card held for {{name}}",
     "createPickFor_other": "Create a pick for {{count}} cards held for {{name}}"
   },
+  "filters": {
+    "status": "Status",
+    "allStatuses": "All statuses",
+    "noMatchesDescription": "Nothing matches this status."
+  },
   "search": {
     "noResultsTitle": "No matches",
     "noResultsDescription": "Nothing matches \"{{query}}\". Try another name or word.",
-    "intakePlaceholder": "Search intake by customer or note",
+    "intakePlaceholder": "Search intakes by name or note",
     "picksPlaceholder": "Search picks by name, card or order",
     "reservationsPlaceholder": "Search by customer, card or catalog"
+  },
+  "setPrices": {
+    "button": "Set prices",
+    "title_one": "Set prices for {{count}} card",
+    "title_other": "Set prices for {{count}} cards",
+    "description": "Choose what these cards sell for and what you paid for them.",
+    "tabsLabel": "Price to set",
+    "tabs": {
+      "sell": "Sell price",
+      "cost": "Cost"
+    },
+    "sell": {
+      "modeLabel": "Sell price",
+      "modes": {
+        "default": "Use default",
+        "markup": "Market + %",
+        "fixed": "Fixed price"
+      },
+      "markupLabel": "Margin (%)",
+      "fixedLabel": "Price per card",
+      "example": "A card worth {{market}} sells for {{price}}.",
+      "fixedExample": "Each card sells for {{price}}, whatever the market does.",
+      "defaultHint": "Follows the default margin of {{percent}}% from Settings > Pricing.",
+      "apply_one": "Set sell price for {{count}} card",
+      "apply_other": "Set sell price for {{count}} cards",
+      "applied_one": "Sell price set for {{count}} card",
+      "applied_other": "Sell price set for {{count}} cards"
+    },
+    "cost": {
+      "modeLabel": "Amount is",
+      "modes": {
+        "each": "Amount per card",
+        "spread": "Spread a total by value"
+      },
+      "modeHints": {
+        "each": "Every card gets the same cost.",
+        "spread": "Split across the cards by market value, so valuable cards carry more of the cost."
+      },
+      "amountLabels": {
+        "each": "Cost per card",
+        "spread": "Total paid"
+      },
+      "intakeNote": "Cards in an open or cancelled intake are skipped. Set their offer in the intake instead.",
+      "apply_one": "Set cost for {{count}} card",
+      "apply_other": "Set cost for {{count}} cards",
+      "applied_one": "Cost set on {{count}} card",
+      "applied_other": "Cost set on {{count}} cards"
+    }
+  },
+  "cardPricing": {
+    "intake": {
+      "heading": "Intake",
+      "from": "From",
+      "added": "Added"
+    },
+    "heading": "Pricing",
+    "market": "Market price",
+    "sell": "Listed price",
+    "rules": {
+      "default": "Default margin ({{percent}})",
+      "markup": "Market {{percent}}",
+      "fixed": "Fixed price"
+    },
+    "editSellPrice": "Edit sell price",
+    "costLabel": "Paid ({{currency}})",
+    "intakeOfferLabel": "Intake offer ({{currency}})",
+    "noCost": "Not set"
+  },
+  "sales": {
+    "title": "Sales",
+    "description": "Every card you sold, from completed picks and reservation pickups.",
+    "totals": "Totals",
+    "costOfSold": "Cost of sold",
+    "profit": "Profit",
+    "margin": "Margin",
+    "costedSales_one": "From {{count}} sale with a cost",
+    "costedSales_other": "From {{count}} sales with a cost",
+    "emptyTitle": "No sales in this range",
+    "emptyDescription": "Sales show here when you complete a pick or a reservation is picked up.",
+    "columns": {
+      "soldAt": "Sold",
+      "card": "Card",
+      "salePrice": "Sale price",
+      "cost": "Cost",
+      "profit": "Profit",
+      "channel": "Channel",
+      "buy": "Intake"
+    },
+    "channels": {
+      "pick": "Pick",
+      "reservation": "Reservation"
+    },
+    "boughtIn": "From intake",
+    "profitShort": "Profit {{value}}",
+    "from": "From",
+    "to": "To",
+    "buyFilter": "Intake: {{name}}",
+    "buyFilterUnknown": "this intake",
+    "removeBuyFilter": "Show sales from every intake",
+    "noBuy": "Not from an intake",
+    "export": "Export CSV",
+    "exportFailed": "Couldn't export the sales.",
+    "noAccess": "Your role can't see sales. Ask an owner or admin to allow it in Settings > Business."
+  },
+  "scannerBuy": {
+    "startPrompt": {
+      "title": "New inventory coming in?",
+      "description": "Start an intake and every card you scan into this collection is added to it, with offers worked out as you go.",
+      "start": "Start an intake",
+      "hide": "Hide",
+      "show": "Show intake bar on the scanner",
+      "showShort": "Show intake"
+    },
+    "panelLabel": "Intake in progress",
+    "finish": "Finish intake",
+    "recentCards": "Recent cards",
+    "noRecentCards": "No cards in this intake yet. Scan cards to add them.",
+    "finishedTitle": "Intake finished: {{name}}",
+    "finishedCards_one": "{{count}} card",
+    "finishedCards_other": "{{count}} cards",
+    "finishedPaid": "Paid {{amount}}",
+    "finishedPaidWith": "Paid {{amount}} ({{method}})",
+    "startAnother": "Start another intake",
+    "dismiss": "Dismiss",
+    "noOpenBuy": "No intake is open for this collection.",
+    "line": {
+      "customer": "Intake from {{name}}",
+      "vendor": "Intake from {{name}}",
+      "opened": "Opening {{name}}"
+    },
+    "lineWithOffer": {
+      "customer": "Intake from {{name}} · offer {{amount}}",
+      "vendor": "Intake from {{name}} · offer {{amount}}"
+    },
+    "openingWithCount_one": "Opening {{name}} · {{count}} card",
+    "openingWithCount_other": "Opening {{name}} · {{count}} cards",
+    "cardCount_one": "{{count}} card",
+    "cardCount_other": "{{count}} cards",
+    "offer": "Offer {{amount}}"
   }
 }

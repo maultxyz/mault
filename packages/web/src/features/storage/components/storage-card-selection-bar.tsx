@@ -19,6 +19,7 @@ import {
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useMarkStorageCardsDownloaded } from "@/features/storage/api/use-mark-storage-cards-downloaded";
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
+import { SetPricesAction } from "@/features/business/components/set-prices-action";
 import { useStoredCardBulkActions } from "@/features/storage/api/use-stored-card-bulk-actions";
 import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import {
@@ -257,6 +258,10 @@ export function StorageCardSelectionBar({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
+        <SetPricesAction
+          scanIds={selectedScanIds}
+          buttonClassName={SELECTION_ACTION_BAR_BUTTON_CLASS}
+        />
         {!storageLocked && (
           <>
             <Button

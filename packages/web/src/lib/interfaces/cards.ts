@@ -270,6 +270,7 @@ export interface CardToolbarProps {
   availableColors?: ScanStats["colors"];
   availableFoilTypes?: { key: string; label: string }[];
   binCount?: number;
+  openBuyGuid?: string | null;
   viewMode: CardViewMode;
   onViewModeChange: (mode: CardViewMode) => void;
   density?: CardGridDensity;
@@ -358,6 +359,10 @@ export interface ScannedCardTableProps {
     options: SelectToggleOptions,
   ) => void;
   onTogglePageSelect?: () => void;
+}
+
+export interface CardGridProps {
+  toolbarLeading?: ReactNode;
 }
 
 export interface SelectionActionBarProps {
@@ -604,6 +609,7 @@ export interface CardFilterFieldsProps {
   binCount?: number;
   unmatchedCount?: number;
   onShowUnmatched?: () => void;
+  openBuyGuid?: string | null;
 }
 
 export interface CardDisplayOptionsProps {

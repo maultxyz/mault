@@ -17,11 +17,10 @@ import { useTranslation } from "react-i18next";
 export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
   const { t } = useTranslation("cards");
   const { priceOf, format } = usePriceSource();
-  const price = priceOf(
-    entry.card,
-    { isFoil: entry.isFoil, foilType: entry.foilType ?? undefined },
-    entry.condition,
-  );
+  const price =
+    entry.sellPrice !== undefined
+      ? entry.sellPrice
+      : priceOf(entry.card, { isFoil: entry.isFoil, foilType: entry.foilType ?? undefined }, entry.condition);
   const finish = entry.isFoil ? (entry.foilType ?? t("foil")) : null;
   const tradeOffer = useTradeOfferContext();
   const isWanted = tradeOffer?.isWanted(entry.scanId) ?? false;

@@ -1,5 +1,6 @@
 import {
   PRICE_SOURCE_FIELDS,
+  cardPriceFor,
   pickedCardLanguage,
   toTradeOfferCardOption,
   tradeOfferCardImageUrl,
@@ -227,6 +228,13 @@ export async function recordInPersonTrade(
         added,
         null,
       );
+      const tradeValue = cardPriceFor(
+        catalogCard,
+        { isFoil: card.isFoil },
+        pricing.source,
+        card.condition,
+        pricing.conditionMultipliers,
+      );
       for (let copy = 0; copy < card.quantity; copy += 1) {
         const scanId = randomUUID();
         addedScanIds.push(scanId);
@@ -243,6 +251,9 @@ export async function recordInPersonTrade(
           scannedByUserId: userId,
           intakeLotId,
           orgId,
+          acquisitionCost: tradeValue === null ? null : Math.round(tradeValue * 100) / 100,
+          acquisitionCurrency: tradeValue === null ? null : currency,
+          acquiredAt: tradeValue === null ? null : respondedAt,
         });
       }
     }

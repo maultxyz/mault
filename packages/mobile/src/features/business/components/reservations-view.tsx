@@ -14,6 +14,9 @@ import {
   isActiveCardReservationStatus,
   type CardReservationListView,
   type CardReservationRequestGroup,
+  CARD_RESERVATION_CLOSED_STATUSES,
+  CARD_RESERVATION_OPEN_STAGES,
+  type CardReservationStage,
 } from "@magic-vault/shared";
 import { CardThumbnail } from "@/components/cards/card-thumbnail";
 import { AppText } from "@/components/ui/app-text";
@@ -36,6 +39,7 @@ import {
 } from "@/features/business/api/business";
 import { useBusinessAction } from "@/features/business/api/use-business-action";
 import { BusinessListSearch } from "@/features/business/components/business-list-search";
+import { BusinessStatusFilter } from "@/features/business/components/business-status-filter";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { tradeOfferPlacementLines } from "@/features/trade-offers/lib/placement-lines";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -192,7 +196,12 @@ export function ReservationsView({ canAct }: BusinessListViewProps) {
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
   const reservations = useQuery(cardReservationsQueryOptions(orgId, listView, true, debouncedSearch));
-  const groups = groupCardReservationsByRequest(reservations.data ?? []);
+  const [stageFilter, setStageFilter] = useState<CardReservationStage | null>(null);
+  const filterStages: readonly CardReservationStage[] =
+    listView === "active" ? CARD_RESERVATION_OPEN_STAGES : CARD_RESERVATION_CLOSED_STATUSES;
+  const groups = groupCardReservationsByRequest(reservations.data ?? []).filter(
+    (group) => !stageFilter || cardReservationGroupStage(group) === stageFilter,
+  );
   const readyGroups = groups.filter((group) => cardReservationGroupStage(group) === "readyForPickup");
   const pullGroups = groups.filter((group) => {
     const stage = cardReservationGroupStage(group);
@@ -338,6 +347,8 @@ export function ReservationsView({ canAct }: BusinessListViewProps) {
             name: t("business.reservations.pickName", { name: group.guestName }),
           }),
         t("business.reservations.pickCreated", { count: group.toPullCount, name: group.guestName }),
+        (created) =>
+          router.push({ pathname: "/business/order/[guid]", params: { guid: created.orderGuid } }),
       );
       return;
     }
@@ -368,11 +379,17 @@ export function ReservationsView({ canAct }: BusinessListViewProps) {
   ) : groups.length === 0 ? (
     <EmptyState
       icon="bookmark"
-      title={debouncedSearch ? t("business.search.noResultsTitle") : t(`business.reservations.empty.${listView}Title`)}
+      title={
+        debouncedSearch || stageFilter
+          ? t("business.search.noResultsTitle")
+          : t(`business.reservations.empty.${listView}Title`)
+      }
       description={
         debouncedSearch
           ? t("business.search.noResultsDescription", { query: debouncedSearch })
-          : t(`business.reservations.empty.${listView}Description`)
+          : stageFilter
+            ? t("business.filters.noMatchesDescription")
+            : t(`business.reservations.empty.${listView}Description`)
       }
     />
   ) : listView === "active" ? (
@@ -405,13 +422,24 @@ export function ReservationsView({ canAct }: BusinessListViewProps) {
           label: t(`business.reservations.lists.${value}`),
         }))}
         value={listView}
-        onChange={setListView}
+        onChange={(nextView) => {
+          setListView(nextView);
+          setStageFilter(null);
+        }}
       />
-      <BusinessListSearch
-        value={search}
-        onChange={setSearch}
-        placeholder={t("business.search.reservationsPlaceholder")}
-      />
+      <View style={{ gap: SPACING.sm }}>
+        <BusinessListSearch
+          value={search}
+          onChange={setSearch}
+          placeholder={t("business.search.reservationsPlaceholder")}
+        />
+        <BusinessStatusFilter<CardReservationStage>
+          statuses={filterStages}
+          value={stageFilter}
+          onChange={setStageFilter}
+          labelOf={(stage) => t(`business.reservations.stages.${stage}`)}
+        />
+      </View>
       {content}
       <OptionSheet
         visible={!!actionsFor}

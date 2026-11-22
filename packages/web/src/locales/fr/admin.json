@@ -424,7 +424,7 @@
       },
       "businessTools": {
         "label": "Achat et vente",
-        "description": "Rachats avec offres de rachat, import et expédition des commandes, rapports de coûts et de marges, et contrôles par échantillon. Les fiches existantes restent consultables dans tous les cas."
+        "description": "Entrées de stock avec offres de rachat, import et expédition des commandes, ventes, rapports de coûts et de marges, et contrôles par échantillon. Les fiches existantes restent consultables dans tous les cas."
       },
       "repacks": {
         "label": "Repacks",
@@ -525,7 +525,7 @@
       "notificationRule": "Règle de notification",
       "game": "Jeu",
       "announcement": "Annonce",
-      "intakeLot": "Rachat",
+      "intakeLot": "Entrée de stock",
       "fulfilmentOrder": "Commande",
       "accuracyCheck": "Contrôle",
       "shopCatalog": "Catalogue boutique",
@@ -619,6 +619,20 @@
     "toasts": {
       "clientSent": "Erreur de test envoyée à Better Stack (client).",
       "serverError": "Impossible d'envoyer l'erreur de test à Better Stack (serveur)"
+    }
+  },
+  "serverCaches": {
+    "heading": "Caches du serveur",
+    "description": "Vide les caches en mémoire de l'API (lectures d'organisation, recherches de catalogue, rôles et adhésions, réglages des forfaits, liens de partage, classements) pour que les prochaines requêtes lisent des données à jour. Seul le processus serveur qui traite la requête est vidé.",
+    "clearButton": "Vider les caches",
+    "clearingButton": "Vidage...",
+    "reloadMatchIndexButton": "Recharger l'index de correspondance des cartes",
+    "reloadingMatchIndexButton": "Rechargement...",
+    "toasts": {
+      "cleared": "{{count}} caches vidés.",
+      "clearError": "Impossible de vider les caches",
+      "matchIndexReloading": "L'index de correspondance des cartes se recharge en arrière-plan.",
+      "matchIndexError": "Impossible de recharger l'index de correspondance des cartes"
     }
   },
   "systemSoundClips": {

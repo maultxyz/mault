@@ -1,6 +1,7 @@
 import { cardLanguageFromText } from "./card-language";
-import { conditionFromText, foilFromText, parseCsvRows } from "./order-import";
+import { conditionFromText, foilFromText, parseCsvRows, parsePrice } from "./order-import";
 import {
+  COLLECTION_CSV_COST_ALIASES,
   COLLECTION_CSV_ETCHED_PATTERN,
   COLLECTION_CSV_FORMATS,
   COLLECTION_CSV_GENERIC_COLUMNS,
@@ -39,6 +40,10 @@ function columnIndexes(
     COLLECTION_CSV_FORMATS.find((entry) => entry.key === format)?.columns ??
     COLLECTION_CSV_GENERIC_COLUMNS;
   const indexes: Partial<Record<CollectionCsvImportField, number>> = {};
+  const costIndex = COLLECTION_CSV_COST_ALIASES.map((alias) => normalized.indexOf(alias)).find(
+    (candidate) => candidate !== -1,
+  );
+  if (costIndex !== undefined) indexes.cost = costIndex;
   for (const [field, aliases] of Object.entries(columns) as [CollectionCsvImportField, readonly string[]][]) {
     const index = aliases
       .map((alias) => normalized.indexOf(alias))
@@ -108,6 +113,7 @@ export function parseCollectionCsv(text: string): CollectionCsvParseResult {
         (conditionText && /foil/i.test(conditionText) ? true : null),
       condition: importedConditionFromText(conditionText),
       language: cardLanguageFromText(cell(row, "language")),
+      cost: parsePrice(cell(row, "cost") ?? undefined),
     });
   });
 

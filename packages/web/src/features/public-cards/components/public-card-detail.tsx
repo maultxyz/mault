@@ -105,11 +105,10 @@ export function PublicCardDetailView({
   }
 
   const { card } = detail;
-  const price = priceOf(
-    card,
-    { isFoil: detail.isFoil, foilType: detail.foilType ?? undefined },
-    detail.condition,
-  );
+  const price =
+    detail.sellPrice !== undefined
+      ? detail.sellPrice
+      : priceOf(card, { isFoil: detail.isFoil, foilType: detail.foilType ?? undefined }, detail.condition);
   const language = scanLanguage(detail);
   const conditionName = isCardCondition(detail.condition)
     ? tCards(`condition.names.${detail.condition}`)
@@ -291,17 +290,22 @@ export function PublicCardDetailView({
               ))}
             </dl>
 
-            {price != null && (
-              <DetailSection title={tCards("cardDetailPanel.prices")}>
-                <CardPriceDetails
-                  card={card}
-                  isFoil={detail.isFoil}
-                  foilType={detail.foilType}
-                  stamp={detail.stamp}
-                  condition={detail.condition}
-                />
-              </DetailSection>
-            )}
+            {price != null &&
+              (detail.sellPrice !== undefined ? (
+                <DetailSection title={tCards("publicBrowse.shopPrice")}>
+                  <p className="text-lg font-semibold tabular-nums">{format(price)}</p>
+                </DetailSection>
+              ) : (
+                <DetailSection title={tCards("cardDetailPanel.prices")}>
+                  <CardPriceDetails
+                    card={card}
+                    isFoil={detail.isFoil}
+                    foilType={detail.foilType}
+                    stamp={detail.stamp}
+                    condition={detail.condition}
+                  />
+                </DetailSection>
+              ))}
           </div>
         </div>
       </div>

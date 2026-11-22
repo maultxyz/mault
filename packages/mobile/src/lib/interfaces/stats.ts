@@ -76,6 +76,7 @@ export interface StatsInsight {
 
 export interface StatsHighlightsProps {
   insights: StatsInsight[];
+  heading?: string;
 }
 
 

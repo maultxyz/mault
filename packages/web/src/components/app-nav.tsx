@@ -41,7 +41,11 @@ import { STORAGE_PATH } from "@/lib/constants/storage";
 import { TRADES_PATH } from "@/lib/constants/trade-offers";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STATS_PATH } from "@/lib/constants/stats";
-import { ORDERS_PATH } from "@/lib/constants/business";
+import {
+  BUSINESS_SECTION_VIEWS,
+  BUSINESS_VIEW_PATHS,
+  ORDERS_PATH,
+} from "@/lib/constants/business";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { cn } from "@/lib/utils";
 import {
@@ -349,6 +353,7 @@ function SubItem({
 
 export function AppNav() {
   const { t, i18n } = useTranslation("common");
+  const { t: tBusiness } = useTranslation("business");
   const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
   const { data: githubStars } = useQuery(
     githubStarsQueryOptions(areSecondaryRequestsEnabled),
@@ -445,6 +450,13 @@ export function AppNav() {
       icon: <IconCash size={16} />,
       label: t("nav.intake"),
       ...planGated(ORDERS_PATH),
+      subItems: planLockFor(ORDERS_PATH)
+        ? undefined
+        : BUSINESS_SECTION_VIEWS.map((view) => ({
+            key: view,
+            to: BUSINESS_VIEW_PATHS[view],
+            label: tBusiness(`views.${view}`),
+          })),
     },
 
 
@@ -498,7 +510,11 @@ export function AppNav() {
           }
 
           return (
-            <div key={item.to} className="mx-1">
+            <div
+              key={item.to}
+              className="mx-1"
+              data-tour={item.to === ORDERS_PATH ? "business-nav" : undefined}
+            >
               <ExpandedNavItem {...item} />
               {item.subItems && item.subItems.length > 0 && (
                 <div className="mt-0.5 flex flex-col gap-0.5">

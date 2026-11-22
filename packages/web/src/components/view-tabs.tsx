@@ -9,6 +9,7 @@ export function ViewTabs<T extends string>({
   label,
   fill = false,
   className,
+  dataTour,
 }: ViewTabsProps<T>) {
   const { onKeyDown, tabIndexFor } = useTabListKeyboard(
     items.map((item) => item.key),
@@ -20,6 +21,7 @@ export function ViewTabs<T extends string>({
     <div
       role="tablist"
       aria-label={label}
+      data-tour={dataTour}
       className={cn("flex items-end gap-4 border-b max-md:gap-6", className)}
     >
       {items.map((item, index) => {

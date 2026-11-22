@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { PriceLabelCard } from "@magic-vault/shared";
 import { buildPriceLabelItems, toPriceLabelSource } from "./price-labels";
 
-const card = (scanId: string, marketPrice: number | null): PriceLabelCard => ({
+const card = (scanId: string, sellPrice: number | null): PriceLabelCard => ({
   scanId,
   name: "Card",
   setName: "Set",
@@ -12,14 +12,14 @@ const card = (scanId: string, marketPrice: number | null): PriceLabelCard => ({
   foilType: null,
   condition: "NM",
   language: null,
-  marketPrice,
+  marketPrice: sellPrice,
+  sellPrice,
 });
 
 describe("buildPriceLabelItems", () => {
-  it("prices with markup and rounding unless a custom price is set", () => {
+  it("prints the sell price unless a custom price is set", () => {
     const items = buildPriceLabelItems(
-      [card("a", 2), card("b", 2), card("c", null)],
-      { markupPercent: 10, rounding: "ninetyNine" },
+      [card("a", 2.99), card("b", 2), card("c", null)],
       { b: 5 },
     );
     expect(items.map((item) => [item.labelPrice, item.hasCustomPrice])).toEqual([

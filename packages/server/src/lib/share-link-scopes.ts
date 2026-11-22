@@ -55,6 +55,7 @@ export function shopCatalogScope(claims: ShopCatalogClaims): PublicCardBrowseSco
     hidesCardsReservedByOpenPicks: true,
     hidesCardsHeldByReservations: false,
     showsPrices: claims.showsPrices,
+    usesSellPrices: true,
     readsCacheKey: `${claims.catalogGuid}|${claims.orgId}`,
   };
 }

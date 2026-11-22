@@ -388,6 +388,20 @@
       "serverError": "Failed to send test error to Better Stack (server)"
     }
   },
+  "serverCaches": {
+    "heading": "Server caches",
+    "description": "Clear the API's in-memory caches (org reads, catalog searches, roles and memberships, plan settings, share links, leaderboards) so the next requests read fresh data. Only the server process that handles the request is cleared.",
+    "clearButton": "Clear caches",
+    "clearingButton": "Clearing...",
+    "reloadMatchIndexButton": "Reload card match index",
+    "reloadingMatchIndexButton": "Reloading...",
+    "toasts": {
+      "cleared": "Cleared {{count}} caches.",
+      "clearError": "Failed to clear caches",
+      "matchIndexReloading": "Card match index is reloading in the background.",
+      "matchIndexError": "Failed to reload the card match index"
+    }
+  },
   "impersonationAuditDrawer": {
     "title": "Impersonation Audit Log",
     "empty": "No impersonation sessions yet",
@@ -435,7 +449,7 @@
       },
       "businessTools": {
         "label": "Buy and sell",
-        "description": "Intake lots with buylist offers, order import and fulfilment, cost and margin reports, and spot checks. Existing records stay viewable either way."
+        "description": "Intakes with buylist offers, order import and fulfilment, sales, cost and margin reports, and spot checks. Existing records stay viewable either way."
       },
       "repacks": {
         "label": "Repacks",
@@ -536,7 +550,7 @@
       "notificationRule": "Notification rule",
       "game": "Game",
       "announcement": "Announcement",
-      "intakeLot": "Intake lot",
+      "intakeLot": "Intake",
       "fulfilmentOrder": "Order",
       "accuracyCheck": "Spot check",
       "shopCatalog": "Shop catalog",

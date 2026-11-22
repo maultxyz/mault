@@ -23,6 +23,7 @@ import { BUSINESS_UPGRADE_REQUIRED_RESULT } from "../../lib/constants/business";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import { findIntakeLot, intakeLotCardsWhere } from "../../lib/intake";
 import { loadOrgPricing } from "../../lib/price-source";
+import { loadCardSellPrices } from "../../lib/card-pricing";
 import { hydrateSavedCards } from "../../lib/saved-cards";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { businessQuery, notFound, pricingCurrency } from "./shared";
@@ -129,6 +130,12 @@ export const priceLabelsRoute = new Hono<AppEnv>().get(
         .orderBy(...scope.orderBy)
         .limit(PRICE_LABEL_CARDS_MAX);
       const pricing = await loadOrgPricing(tx, orgId);
+      const sellPrices = await loadCardSellPrices(
+        tx,
+        orgId,
+        rows.map((row) => row.scanId!),
+        pricing,
+      );
       const cards = await hydrateSavedCards(
         rows.map((row) => ({ gameKey: row.gameKey, lang: row.collectionLang, card: row.card })),
         { includeRaw: false },
@@ -158,6 +165,7 @@ export const priceLabelsRoute = new Hono<AppEnv>().get(
             condition,
             language: row.language,
             marketPrice: marketPrice === null ? null : roundCurrency(marketPrice),
+            sellPrice: sellPrices.get(row.scanId!) ?? null,
             storageCode:
               row.locationName != null && row.locationPosition != null
                 ? formatStorageSlotCode(row.locationName, row.locationPosition, row.locationBatchSize)

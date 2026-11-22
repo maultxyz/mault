@@ -20,6 +20,7 @@ import {
   type IntakeLotReceipt,
   type IntakeLotInput,
   type IntakePayoutMethod,
+  INTAKE_LOT_STATUSES,
 } from "@magic-vault/shared";
 import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { Hono } from "hono";
@@ -33,7 +34,11 @@ import { collectionNameTaken } from "../collections/shared";
 import { logActivity } from "../../lib/activity-log";
 import { loadBusinessSettings } from "../../lib/business-access";
 import { UUID_PATTERN } from "../../lib/constants/validation";
-import { containsLikePattern, parseBusinessListSearch } from "../../lib/business-list-search";
+import {
+  containsLikePattern,
+  parseBusinessListSearch,
+  parseBusinessListStatus,
+} from "../../lib/business-list-search";
 import { parsePageParams, resolvePageWindow } from "../../lib/paging";
 import type { IntakeLotRow } from "../../lib/interfaces/business";
 import type { Transaction } from "../../db";
@@ -53,8 +58,12 @@ import {
   summarizeIntakeCards,
   summarizeIntakePrices,
   toIntakeLot,
+  toBuySourceType,
+  buyUsesOffers,
+  withoutIntakeOffer,
 } from "../../lib/intake";
 import { loadOrgPricing } from "../../lib/price-source";
+import { moveCardsToLocation } from "../../lib/storage-locations";
 import { deleteScanImages } from "../../lib/scan-images";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
@@ -105,7 +114,7 @@ async function loadIntakeLotDetail(
     ...lot,
     cardCount: pricedCards.length,
     cardsInSource: Number(inSource?.count ?? 0),
-    belowMinimumScanIds: pricedCards
+    belowMinimumScanIds: !buyUsesOffers(row) ? [] : pricedCards
       .filter(
         (card) =>
           card.manualOffer === null &&
@@ -140,11 +149,13 @@ export const intakeRoute = new Hono<AppEnv>()
   .get("/intake", requireAuth, requireOrg, (c) => {
     const params = parsePageParams(c);
     const search = parseBusinessListSearch(c);
+    const status = parseBusinessListStatus(c, INTAKE_LOT_STATUSES);
     return businessQuery(c, async (tx, access) => {
       const orgId = c.get("orgId");
       const pattern = search ? containsLikePattern(search) : null;
       const live = and(
         eq(intakeLots.isDeleted, false),
+        status ? eq(intakeLots.status, status) : undefined,
         pattern
           ? or(
               ilike(intakeLots.customerName, pattern),
@@ -252,12 +263,24 @@ export const intakeRoute = new Hono<AppEnv>()
             "That collection already has an open intake lot. Accept or cancel it first.",
         };
       }
+      const destinationGuid = body.destinationStorageLocationGuid;
+      const destination =
+        typeof destinationGuid === "string" && UUID_PATTERN.test(destinationGuid)
+          ? await tx.query.storageLocations.findFirst({
+              where: (t, { eq, and }) =>
+                and(eq(t.guid, destinationGuid), eq(t.orgId, orgId), eq(t.isDeleted, false)),
+              columns: { id: true },
+            })
+          : null;
+      if (destinationGuid && !destination) return notFound("Storage location not found.");
       const [created] = await tx
         .insert(intakeLots)
         .values({
           orgId,
           collectionId: collection.id,
           ownsCollection: validNew,
+          sourceType: toBuySourceType(body.sourceType),
+          destinationLocationId: destination?.id ?? null,
           customerName,
           customerContact: cleanText(
             body.customerContact,
@@ -317,8 +340,9 @@ export const intakeRoute = new Hono<AppEnv>()
         settings.buylist,
         { limit: params.pageSize, offset: (page - 1) * params.pageSize },
       );
+      const shownCards = buyUsesOffers(row) ? cards : cards.map(withoutIntakeOffer);
       const data: PagedList<IntakeLotCard> = {
-        items: access.canViewCosts ? cards : cards.map(hideIntakeCardCosts),
+        items: access.canViewCosts ? shownCards : shownCards.map(hideIntakeCardCosts),
         total,
         page,
         pageSize: params.pageSize,
@@ -338,9 +362,10 @@ export const intakeRoute = new Hono<AppEnv>()
         await loadOrgPricing(tx, orgId),
         settings.buylist,
       );
+      const shownCards = buyUsesOffers(row) ? cards : cards.map(withoutIntakeOffer);
       const data: IntakeLotReceipt = {
         ...(await loadIntakeLotDetail(tx, orgId, row, access.canViewCosts)),
-        cards: access.canViewCosts ? cards : cards.map(hideIntakeCardCosts),
+        cards: access.canViewCosts ? shownCards : shownCards.map(hideIntakeCardCosts),
       };
       return { success: true, data };
     }),
@@ -397,6 +422,10 @@ export const intakeRoute = new Hono<AppEnv>()
       if (row.status !== "open") {
         return { success: false, message: "This lot is already closed." };
       }
+      const usesOffers = buyUsesOffers(row);
+      if (!usesOffers && override === null) {
+        return { success: false, message: "Enter what you paid for this product." };
+      }
       const settings = await loadBusinessSettings(tx, orgId);
       const pricing = await loadOrgPricing(tx, orgId);
       const currency = pricingCurrency(pricing);
@@ -412,7 +441,9 @@ export const intakeRoute = new Hono<AppEnv>()
         override === null
           ? cards.map((card) => card.offer ?? 0)
           : spreadTotal(
-              cards.map((card) => card.offer || card.marketPrice || 0),
+              cards.map((card) =>
+                usesOffers ? card.offer || card.marketPrice || 0 : card.marketPrice || 0,
+              ),
               override,
             );
       const now = new Date();
@@ -422,18 +453,25 @@ export const intakeRoute = new Hono<AppEnv>()
         acquiredAt: now,
         rows: cards.map((card, i) => ({ scanId: card.scanId, cost: costs[i] })),
       });
+      if (row.destinationLocationId !== null && cards.length > 0) {
+        await moveCardsToLocation(tx, {
+          orgId,
+          locationId: row.destinationLocationId,
+          scanIds: cards.map((card) => card.scanId),
+        });
+      }
       const paidTotal =
-        payoutMethod === "credit"
+        usesOffers && payoutMethod === "credit"
           ? creditOfferFor(cashTotal, settings.buylist)
           : roundCurrency(cashTotal);
       await tx
         .update(intakeLots)
         .set({
           status: "accepted",
-          payoutMethod,
+          payoutMethod: usesOffers ? payoutMethod : "cash",
           marketTotal: summary.marketTotal,
-          cashOffer: cashTotal,
-          creditOffer: creditOfferFor(cashTotal, settings.buylist),
+          cashOffer: usesOffers ? cashTotal : null,
+          creditOffer: usesOffers ? creditOfferFor(cashTotal, settings.buylist) : null,
           paidTotal,
           currency,
           cardCount: cards.length,

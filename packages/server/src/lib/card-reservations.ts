@@ -58,6 +58,7 @@ import {
 import type { SoldCardRow } from "./interfaces/business";
 import type { ShopCatalogClaims } from "./interfaces/share-tokens";
 import { loadOrgPricing } from "./price-source";
+import { loadCardSellPrices } from "./card-pricing";
 import { findPublicCardRowIds } from "./public-card-browse";
 import { integerArraySql, uuidArraySql } from "./sql-arrays";
 import { loadCurrentWantedCards, storedCardPrice } from "./trade-offers";
@@ -209,6 +210,9 @@ export async function createCardReservations(
   }
   const cards = await loadReservationCards(tx, requestedRowIds);
   if (cards.size !== requestedRowIds.length) return { status: "card-not-found" };
+  const pricing = await loadOrgPricing(tx, orgId);
+  const priceCurrency = PRICE_SOURCE_FIELDS[pricing.source].currency;
+  const sellPrices = await loadCardSellPrices(tx, orgId, scanIds, pricing);
   const holdExpiresAt = cardReservationHoldExpiry(now, catalog.reservationHoldDays);
   const requestGuid = randomUUID();
   const values = requestedRowIds.map((collectionCardId, index) => {
@@ -228,6 +232,8 @@ export async function createCardReservations(
       holdDays: catalog.reservationHoldDays,
       holdStartedAt: holdsCard ? now : null,
       holdExpiresAt: holdsCard ? holdExpiresAt : null,
+      priceAtReservation: sellPrices.get(scanIds[index]) ?? null,
+      priceCurrency,
     };
   });
   await tx.insert(cardReservations).values(values);
@@ -432,7 +438,13 @@ export async function listOwnerCardReservations(
       guestContact: row.reservation.guestContact,
       guestNote: row.reservation.guestNote,
       catalogName: row.catalogName ?? null,
-      price: current ? storedCardPrice(current, pricing) : null,
+      price:
+        row.reservation.priceAtReservation != null &&
+        row.reservation.priceCurrency === PRICE_SOURCE_FIELDS[pricing.source].currency
+          ? row.reservation.priceAtReservation
+          : current
+            ? storedCardPrice(current, pricing)
+            : null,
       priceSource: pricing.source,
       placement: publicReservation.scanId
         ? (placementsByScanId.get(publicReservation.scanId) ?? null)
@@ -510,8 +522,19 @@ export async function collectCardReservations(
   const currency = PRICE_SOURCE_FIELDS[pricing.source].currency;
   const storedRows = await loadStoredCardsByRowIds(tx, heldRowIds);
   const stored = await toStoredCards(storedRows, false);
+  const reservedPriceByRowId = new Map(
+    held.map((reservation) => [
+      reservation.collectionCardId,
+      reservation.priceAtReservation != null && reservation.priceCurrency === currency
+        ? reservation.priceAtReservation
+        : null,
+    ]),
+  );
   const salePriceByRowId = new Map(
-    storedRows.map((row, index) => [row.rowId, storedCardPrice(stored[index], pricing)]),
+    storedRows.map((row, index) => [
+      row.rowId,
+      reservedPriceByRowId.get(row.rowId) ?? storedCardPrice(stored[index], pricing),
+    ]),
   );
   const sold = (
     await tx.execute(sql`
@@ -524,7 +547,7 @@ export async function collectCardReservations(
         cc.card_name AS name,
         cc.card_set AS set_code,
         cc.card_collector_number AS collector_number,
-        cc.is_foil, cc.condition, cc.acquisition_cost,
+        cc.is_foil, cc.condition, cc.acquisition_cost, cc.intake_lot_id,
         cc.acquisition_currency, cc.captured_image_key AS image_key,
         cc.captured_back_image_key AS back_image_key,
         col.guid::text AS collection_guid, col.name AS collection_name
@@ -545,6 +568,7 @@ export async function collectCardReservations(
       condition: card.condition,
       salePrice: salePriceOf(card),
       acquisitionCost: card.acquisition_currency === currency ? card.acquisition_cost : null,
+      intakeLotId: card.intake_lot_id,
       currency,
       collectionName: card.collection_name,
       soldByUserId: input.userId,
@@ -727,6 +751,24 @@ export async function unlinkCardReservationPick(
     .update(cardReservations)
     .set({ fulfilmentOrderId: null })
     .where(and(eq(cardReservations.orgId, orgId), eq(cardReservations.fulfilmentOrderId, orderId)));
+}
+
+export async function reservationRequestGuidsOfPick(
+  tx: Transaction,
+  orgId: string,
+  orderId: number,
+): Promise<string[]> {
+  const rows = await tx
+    .selectDistinct({ requestGuid: cardReservations.requestGuid })
+    .from(cardReservations)
+    .where(
+      and(
+        eq(cardReservations.orgId, orgId),
+        eq(cardReservations.fulfilmentOrderId, orderId),
+        eq(cardReservations.status, "ready"),
+      ),
+    );
+  return rows.map((row) => row.requestGuid);
 }
 
 export async function reservationHeldScanIds(

@@ -49,8 +49,6 @@
     "catalogCardRemovedTitle": "Card no longer in the catalog",
     "catalogCardRemovedDescription": "The card this copy was matched to, {{name}}, was removed from the card database because its data was incorrect. Search for the correct printing so its price and details stay up to date.",
     "catalogCardRemovedAction": "Find the correct card",
-    "pricePaid": "Price paid ({{currency}})",
-    "pricePaidEmpty": "Not set",
     "pricePaidSaveFailed": "Couldn't save the price paid.",
     "markCorrect": "Mark as correct",
     "markCorrectTitle": "Confirm this match is right. The card stays the same and is no longer flagged for review.",
@@ -120,7 +118,9 @@
     "hideDownloadedCards": "Hide downloaded cards",
     "sets": "Sets",
     "resetFilters": "Reset filters",
-    "unmatched": "Unmatched"
+    "unmatched": "Unmatched",
+    "buy": "Intake",
+    "onlyThisBuy": "Only this intake"
   },
   "cardGrid": {
     "noCollectionSelected": "No collection selected",
@@ -639,7 +639,8 @@
     "cardLoadFailed": "Couldn't load this card.",
     "referenceImage": "Reference image",
     "backToCards": "Back to cards",
-    "tradeHint": "Tap + on a card or open it to add it to your trade offer"
+    "tradeHint": "Tap + on a card or open it to add it to your trade offer",
+    "shopPrice": "Price"
   },
   "tradeOffers": {
     "game": "Game",

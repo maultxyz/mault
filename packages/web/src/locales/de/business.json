@@ -10,12 +10,12 @@
     "loadFailed": "Das konnte nicht geladen werden. Prüf deine Verbindung und versuch es noch einmal."
   },
   "upgrade": {
-    "locked": "Kaufen und Verkaufen (Ankauf, Picks, Einkaufspreise und Stichproben) ist nicht Teil deines Tarifs. Was du schon hast, kannst du weiterhin ansehen.",
+    "locked": "Kaufen und Verkaufen (Wareneingänge, Picks, Verkäufe, Einkaufspreise und Stichproben) ist nicht Teil deines Tarifs. Was du schon hast, kannst du weiterhin ansehen.",
     "link": "Tarife ansehen"
   },
   "status": {
     "open": "Offen",
-    "accepted": "Gekauft",
+    "accepted": "Abgeschlossen",
     "cancelled": "Abgebrochen",
     "fulfilled": "Abgeschlossen",
     "completed": "Fertig"
@@ -49,7 +49,7 @@
     "saved": "Business-Einstellungen gespeichert",
     "saveFailed": "Business-Einstellungen konnten nicht gespeichert werden",
     "buylist": {
-      "heading": "Ankaufsangebote",
+      "heading": "Ankaufspreise",
       "description": "Wie viel du beim Ankauf einer Sammlung für jede Karte bietest. Angebote nutzen deine Preisquelle und Zustandswerte.",
       "tiers": "Preisstufen",
       "minPrice": "Marktwert ab",
@@ -75,8 +75,8 @@
         "description": "Angebote, Einkaufspreise und Margen."
       },
       "acceptIntake": {
-        "label": "Ankäufe annehmen oder abbrechen",
-        "description": "In einen offenen Ankauf scannen dürfen Mitglieder immer."
+        "label": "Wareneingänge abschließen oder abbrechen",
+        "description": "In einen offenen Wareneingang scannen dürfen Mitglieder immer."
       },
       "fulfilOrders": {
         "label": "Picks erstellen und abschließen",
@@ -86,14 +86,152 @@
         "label": "Aktivität des Teams sehen",
         "description": "Durchsatz pro Person und das Aktivitätsprotokoll."
       }
+    },
+    "sell": {
+      "heading": "Verkaufspreise",
+      "description": "So bepreisen deine Shop-Kataloge und Preisetiketten Karten: Marktpreis plus deine Marge, danach gerundet. Eine andere Marge oder einen Festpreis legst du für ausgewählte Karten mit Preise festlegen fest.",
+      "defaultMarkup": "Standardmarge (%)",
+      "defaultMarkupHint": "Wird auf den Marktpreis aufgeschlagen. Eine negative Zahl gibt einen Rabatt.",
+      "rounding": "Preise runden",
+      "roundingModes": {
+        "none": "Nicht runden",
+        "quarter": "Auf die nächsten 0,25 aufrunden",
+        "ninetyNine": "Auf die nächsten ,99 aufrunden",
+        "whole": "Auf den nächsten ganzen Betrag aufrunden"
+      },
+      "preview": "Beispielhafte Verkaufspreise",
+      "previewItem": "Karte für {{market}} kostet {{price}}"
+    }
+  },
+  "overview": {
+    "back": "Übersicht",
+    "title": "An- & Verkauf",
+    "description": "Was bei Wareneingängen, Picks und Reservierungen ansteht.",
+    "cards_one": "{{count}} Karte",
+    "cards_other": "{{count}} Karten",
+    "intake": {
+      "description": "Nimm neuen Bestand von Kundschaft, Händlern, Bulk-Posten oder geöffnetem Produkt auf. Scanne ihn direkt in deinen Bestand und schließe den Wareneingang dann ab.",
+      "empty": "Keine offenen Wareneingänge.",
+      "link": "Zu den Wareneingängen"
+    },
+    "picks": {
+      "description": "Verkaufte Karten aus dem Lager ziehen und den Verkauf abschließen.",
+      "empty": "Keine offenen Picks.",
+      "progress": "{{picked}} von {{total}} gepickt",
+      "link": "Zu den Picks"
+    },
+    "reservations": {
+      "description": "Karten, die Kunden in deinen Shop-Katalogen reserviert haben.",
+      "link": "Zu den Reservierungen"
+    },
+    "labels": {
+      "description": "Preisetiketten für eine Sammlung, einen Lagerort oder einen Wareneingang drucken.",
+      "link": "Zu den Etiketten"
+    },
+    "views": {
+      "overview": "Übersicht",
+      "staff": "Team",
+      "accuracy": "Genauigkeit"
+    },
+    "now": {
+      "heading": "Aktuell"
+    },
+    "share": "{{percent}} %",
+    "tiles": {
+      "openIntake": "Offene Wareneingänge",
+      "openPicks": "Offene Picks",
+      "cardsToPick": "Karten zu picken",
+      "readyToComplete_one": "{{count}} abschlussbereit",
+      "readyToComplete_other": "{{count}} abschlussbereit",
+      "requests_one": "{{count}} Anfrage",
+      "requests_other": "{{count}} Anfragen",
+      "beingPicked_one": "{{count}} wird gepickt",
+      "beingPicked_other": "{{count}} werden gepickt",
+      "soldCards": "Verkaufte Karten",
+      "perDay": "Im Schnitt {{count}} pro Tag",
+      "revenue": "Umsatz",
+      "averageSale": "{{value}} pro Karte",
+      "profit": "Gewinn",
+      "profitMargin": "{{percent}} % Marge",
+      "profitNoCosts": "Keine Einkaufspreise erfasst"
+    },
+    "sales": {
+      "heading": "Letzte {{days}} Tage",
+      "title": "Verkäufe",
+      "description": "Verkaufte Karten pro Tag in den letzten {{days}} Tagen, aus Picks und abgeholten Reservierungen.",
+      "metrics": {
+        "count": "Karten",
+        "revenue": "Umsatz"
+      },
+      "today": "Heute"
+    },
+    "attention": {
+      "heading": "Zu erledigen",
+      "readyForPickup": {
+        "title_one": "{{count}} Reservierung abholbereit",
+        "title_other": "{{count}} Reservierungen abholbereit",
+        "detail": "Gib dem Kunden Bescheid oder markiere sie bei der Abholung als abgeholt."
+      },
+      "readyToComplete": {
+        "title_one": "{{count}} Pick abschlussbereit",
+        "title_other": "{{count}} Picks abschlussbereit",
+        "detail": "Alle Karten sind gepickt. Schließe ab, um den Verkauf zu erfassen."
+      },
+      "toPull": {
+        "title_one": "{{count}} Reservierung zu ziehen",
+        "title_other": "{{count}} Reservierungen zu ziehen",
+        "detail": "Erstelle einen Pick, um die zurückgelegten Karten zu ziehen."
+      },
+      "openIntake": {
+        "title_one": "{{count}} offener Wareneingang",
+        "title_other": "{{count}} offene Wareneingänge",
+        "detail": "Prüfe die Karten, mach ein Angebot und schließ den Wareneingang dann ab."
+      },
+      "allClear": {
+        "title": "Alles erledigt",
+        "detail": "Gerade gibt es nichts zu tun."
+      }
+    },
+    "reservationsChart": {
+      "title": "Reservierungen nach Stand",
+      "description": "Offene Reservierungsanfragen und wo jede gerade steht.",
+      "none": "Keine offenen Reservierungen.",
+      "requests_one": "Anfrage",
+      "requests_other": "Anfragen"
+    },
+    "inventory": {
+      "heading": "Bestandskosten",
+      "value": "Bestandswert",
+      "uncosted": "Karten ohne Kosten",
+      "uncostedDetail": "Kosten eintragen, um sie in Margen einzubeziehen",
+      "historyDescription": "Täglicher Marktwert von allem, was du besitzt, ohne Karten in offenen Wareneingängen.",
+      "collectionsTitle": "Kosten nach Sammlung",
+      "collectionsDescription": "Was du für jede Sammlung bezahlt hast, verglichen mit ihrem aktuellen Wert.",
+      "rowSummary": "Wert {{value}}, Kosten {{cost}}",
+      "columns": {
+        "name": "Sammlung",
+        "cardCount": "Karten",
+        "totalValue": "Wert",
+        "costBasis": "Kosten",
+        "margin": "Marge"
+      },
+      "setCostsHint": "Um festzuhalten, was du bezahlt hast, wähle Karten in einer Sammlung aus und nutze Preise festlegen.",
+      "sellValueOfCosted": "Verkaufswert",
+      "sellValueDetail": "Karten mit Einkaufspreis, zu deinen Verkaufspreisen",
+      "unrealizedProfit": "Nicht realisierter Gewinn",
+      "marginPercent": "{{percent}} % Marge"
+    },
+    "salesSection": {
+      "description": "Jede verkaufte Karte mit ihrem Einkaufspreis und dem Gewinn.",
+      "link": "Zu den Verkäufen"
     }
   },
   "views": {
-    "label": "Ankauf- und Verkaufsansicht",
-    "intake": "Ankauf",
+    "intake": "Wareneingang",
     "picks": "Picks",
     "labels": "Etiketten",
-    "reservations": "Reservierungen"
+    "reservations": "Reservierungen",
+    "sales": "Verkäufe"
   },
   "offerEditor": {
     "title": "Angebot für {{name}}",
@@ -106,28 +244,27 @@
   },
   "intake": {
     "subtitle": "Scannt in {{collection}} · gestartet {{date}}",
-    "new": "Neuer Ankauf",
-    "newTitle": "Ankauf starten",
-    "newDescription": "Karten, die in die Sammlung des Ankaufs gescannt werden, landen darin, bis du ihn annimmst oder abbrichst.",
-    "customerName": "Kunde",
+    "new": "Neuer Wareneingang",
+    "newTitle": "Wareneingang starten",
+    "newDescription": "Nutze einen Wareneingang, sobald neuer Bestand reinkommt: Kundschaft an der Theke, eine Händlerlieferung, ein Bulk-Posten oder geöffnetes Produkt. Karten, die du in die Sammlung scannst, kommen zum Wareneingang, bis du ihn abschließt oder abbrichst. So siehst du, was jede Karte gekostet hat und wofür sie verkauft wird.",
     "customerContact": "Kontakt (optional)",
     "customerContactPlaceholder": "E-Mail oder Telefon",
     "collection": "Scannen in",
     "chooseCollection": "Sammlung wählen",
     "notes": "Notizen (optional)",
-    "start": "Ankauf starten",
-    "created": "Ankauf gestartet",
-    "emptyTitle": "Noch keine Ankäufe",
-    "emptyDescription": "Starte einen, wenn jemand Karten verkaufen möchte.",
-    "pickTitle": "Ankauf auswählen",
-    "pickDescription": "Wähle links einen Ankauf oder starte einen neuen.",
+    "start": "Wareneingang starten",
+    "created": "Wareneingang gestartet",
+    "emptyTitle": "Noch keine Wareneingänge",
+    "emptyDescription": "Starte einen, wenn jemand Karten verkaufen möchte, eine Händlerbestellung ankommt oder du versiegelte Ware öffnest.",
+    "pickTitle": "Wareneingang auswählen",
+    "pickDescription": "Wähle links einen Wareneingang oder starte einen neuen.",
     "cardCount_one": "{{count, compact}} Karte",
     "cardCount_other": "{{count, compact}} Karten",
     "openScanner": "Scanner öffnen",
     "addCard": "Karte hinzufügen",
     "printReceipt": "Beleg",
-    "accept": "Annehmen",
-    "cancelLot": "Ankauf abbrechen",
+    "accept": "Abschließen",
+    "cancelLot": "Wareneingang abbrechen",
     "liveOffer": "Aktuelles Angebot",
     "summary": "Übersicht",
     "stats": {
@@ -146,58 +283,44 @@
       "cash": "Bar auszuzahlen",
       "credit": "Gutzuschreiben"
     },
-    "noCardsTitle": "Keine Karten in diesem Ankauf",
-    "noCardsOpen": "Öffne den Scanner und sortiere die Karten des Kunden. Die Angebote aktualisieren sich mit jeder gespeicherten Karte.",
-    "noCardsClosed": "Dieser Ankauf wurde ohne Karten abgeschlossen.",
-    "acceptTitle": "Ankauf annehmen",
-    "acceptDescription_one": "{{count}} Karte von {{name}} kaufen. Der Einkaufspreis jeder Karte wird aus ihrem Angebot übernommen.",
-    "acceptDescription_other": "{{count}} Karten von {{name}} kaufen. Der Einkaufspreis jeder Karte wird aus ihrem Angebot übernommen.",
-    "overrideLabel": "Anderen Gesamtbetrag verwenden",
-    "overrideAmount": "Gesamtbetrag bar",
+    "noCardsTitle": "Keine Karten in diesem Wareneingang",
+    "noCardsOpen": "Öffne den Scanner und scanne die Karten. Die Angebote aktualisieren sich mit jeder gespeicherten Karte.",
+    "noCardsClosed": "Dieser Wareneingang wurde ohne Karten abgeschlossen.",
+    "acceptTitle": "Wareneingang abschließen",
+    "acceptDescription_one": "{{count}} Karte von {{name}} in deinen Bestand übernehmen. Der Einkaufspreis jeder Karte wird aus ihrem Angebot übernommen.",
+    "acceptDescription_other": "{{count}} Karten von {{name}} in deinen Bestand übernehmen. Der Einkaufspreis jeder Karte wird aus ihrem Angebot übernommen.",
     "costBasisNote": "Erfasster Einkaufspreis: {{amount}}",
-    "accepted": "Ankauf angenommen",
-    "cancelTitle": "Ankauf abbrechen",
+    "accepted": "Wareneingang abgeschlossen",
+    "cancelTitle": "Wareneingang abbrechen",
     "cancelDescription": "{{name}} behält die Karten und es wird nichts ausgezahlt.",
     "removeCards_one": "Die {{count}} gescannte Karte entfernen",
     "removeCards_other": "Die {{count}} gescannten Karten entfernen",
     "removeCardsHint": "Nimmt sie aus der Sammlung, weil sie mit dem Kunden wieder gehen.",
-    "cancelled": "Ankauf abgebrochen",
-    "deleteTitle": "Ankauf löschen?",
-    "deleteDescription": "Der Eintrag wird entfernt. Gekaufte Karten bleiben mit ihrem Einkaufspreis in deiner Sammlung.",
-    "collectionModes": {
-      "new": "Neue Sammlung",
-      "existing": "Vorhandene Sammlung"
-    },
-    "collectionModeHints": {
-      "new": "Hält die Karten dieses Kunden von deinem Bestand getrennt. Wird nach dem Kunden benannt.",
-      "existing": "Eine Sammlung kann nur einen offenen Ankauf gleichzeitig haben."
-    },
-    "game": "Spiel",
-    "chooseGame": "Spiel wählen",
-    "language": "Sprache",
-    "removeCardsHintOwned": "Nimmt sie heraus, weil sie mit dem Kunden wieder gehen. Die eigene Sammlung des Ankaufs wird ebenfalls entfernt.",
+    "cancelled": "Wareneingang abgebrochen",
+    "deleteTitle": "Wareneingang löschen?",
+    "deleteDescription": "Der Eintrag wird entfernt. Die Karten bleiben mit ihrem Einkaufspreis in deiner Sammlung.",
+    "removeCardsHintOwned": "Nimmt sie heraus, weil sie mit dem Kunden wieder gehen. Die eigene Sammlung des Wareneingangs wird ebenfalls entfernt.",
     "review": {
       "start": "Prüfen",
-      "startTitle": "Die noch nicht geprüften Karten dieses Ankaufs durchgehen, neueste zuerst",
-      "nothingLeft": "Nichts mehr zu prüfen. Jede Karte in diesem Ankauf wurde bereits geprüft.",
-      "remove": "Aus Ankauf entfernen",
-      "removeTitle": "{{name}} aus dem Ankauf nehmen?",
+      "startTitle": "Die noch nicht geprüften Karten dieses Wareneingangs durchgehen, neueste zuerst",
+      "nothingLeft": "Nichts mehr zu prüfen. Jede Karte in diesem Wareneingang wurde bereits geprüft.",
+      "remove": "Aus Wareneingang entfernen",
+      "removeTitle": "{{name}} aus dem Wareneingang nehmen?",
       "removeDescription": "Die Karte geht an {{name}} zurück und wird aus der Sammlung genommen, daher sinkt das Angebot."
     },
     "moreActions": "Weitere Aktionen",
     "remove": {
-      "button": "Aus Ankauf entfernen",
-      "clear": "Auswahl aufheben",
+      "button": "Aus Wareneingang entfernen",
       "selectAll": "Alle Karten auswählen",
       "selectRow": "{{name}} auswählen",
-      "row": "{{name}} aus dem Ankauf entfernen",
+      "row": "{{name}} aus dem Wareneingang entfernen",
       "selected_one": "{{count}} Karte ausgewählt",
       "selected_other": "{{count}} Karten ausgewählt",
-      "title_one": "{{count}} Karte aus dem Ankauf entfernen?",
-      "title_other": "{{count}} Karten aus dem Ankauf entfernen?",
+      "title_one": "{{count}} Karte aus dem Wareneingang entfernen?",
+      "title_other": "{{count}} Karten aus dem Wareneingang entfernen?",
       "description": "Nutze das, wenn {{name}} das Angebot für eine Karte ablehnt oder du sie nicht nehmen willst. Die Karten werden aus der Sammlung genommen und das Angebot sinkt.",
-      "done_one": "{{count}} Karte aus dem Ankauf entfernt",
-      "done_other": "{{count}} Karten aus dem Ankauf entfernt"
+      "done_one": "{{count}} Karte aus dem Wareneingang entfernt",
+      "done_other": "{{count}} Karten aus dem Wareneingang entfernt"
     },
     "belowMinimum": {
       "notice_one": "{{count}} Karte liegt unter deinem Mindestwert von {{value}} und bekommt kein Angebot.",
@@ -206,11 +329,62 @@
       "remove_other": "{{count}} Karten entfernen",
       "rowTitle": "Unter deinem Mindestwert, daher kein Angebot"
     },
-    "receiptPrompt": {
-      "title": "Beleg drucken?",
-      "description": "Gib {{name}} einen Beleg für die gekauften Karten.",
-      "print": "Beleg drucken",
-      "skip": "Überspringen"
+    "subtitleWithLocation": "Scannt in {{collection}}, {{location}} · gestartet {{date}}",
+    "collectionHint": "Karten landen direkt in dieser Sammlung. Eine Sammlung kann nur einen offenen Wareneingang gleichzeitig haben.",
+    "sourceType": "Herkunft",
+    "sourceTypes": {
+      "customer": "Kunde",
+      "vendor": "Händler",
+      "opened": "Geöffnete Ware"
+    },
+    "nameLabels": {
+      "customer": "Name des Kunden",
+      "vendor": "Händler",
+      "opened": "Produkt"
+    },
+    "namePlaceholders": {
+      "customer": "Name",
+      "vendor": "Großhändler oder Verkäufer",
+      "opened": "Booster-Display"
+    },
+    "storageLocation": "Lagerort (optional)",
+    "noStorageLocation": "Kein Lagerort",
+    "storageLocationHint": "Die Karten kommen an diesen Lagerort, wenn du den Wareneingang abschließt.",
+    "finish": {
+      "totalPaid": "Bezahlter Gesamtbetrag",
+      "totalPaidHint": "Beginnt beim Bar-Angebot. Der Einkaufspreis jeder Karte kommt aus ihrem Angebot.",
+      "productCost": "Produktkosten",
+      "productCostHint": "Was du für das Produkt bezahlt hast. Der Betrag wird nach Marktwert auf die Karten verteilt und zu ihren Kosten.",
+      "totalPaidSpread": "Weicht vom Angebot über {{offer}} ab, daher wird der Betrag nach Wert auf die Karten verteilt.",
+      "printReceipt": "Beleg drucken",
+      "destination": "Die Karten bleiben in {{collection}}.",
+      "destinationWithLocation": "Die Karten bleiben in {{collection}} und kommen nach {{location}}.",
+      "legacyMoveNote": "Danach kannst du sie in deinen Bestand verschieben."
+    },
+    "performance": {
+      "heading": "Ergebnis",
+      "paid": "Bezahlt",
+      "sold": "Verkauft",
+      "soldDetail_one": "Von {{count}} Karte",
+      "soldDetail_other": "Von {{count}} Karten",
+      "revenue": "Umsatz",
+      "costOfSold": "Einkauf der verkauften Karten",
+      "profit": "Gewinn",
+      "paidBack": "Wieder eingespielt",
+      "paidBackDetail": "Umsatz im Verhältnis zum bezahlten Betrag",
+      "percent": "{{value}} %",
+      "remaining": "Verbleibende Karten",
+      "remainingDetail": "Einkauf {{cost}}, Verkaufswert {{value}}",
+      "seeSales": "Verkäufe ansehen"
+    },
+    "unmoved": {
+      "title_one": "{{count}} abgeschlossener Wareneingang hat noch Karten in seiner eigenen Sammlung",
+      "title_other": "{{count}} abgeschlossene Wareneingänge haben noch Karten in ihrer eigenen Sammlung",
+      "description": "Wareneingänge werden jetzt direkt in deinen Bestand gescannt. Verschiebe die Karten dieser älteren Wareneingänge einmalig in den Bestand.",
+      "row_one": "{{count}} Karte in {{collection}}",
+      "row_other": "{{count}} Karten in {{collection}}",
+      "move": "In den Bestand verschieben",
+      "moveFor": "Karten von {{name}} in den Bestand verschieben"
     }
   },
   "receipt": {
@@ -293,6 +467,15 @@
     "fulfilDescription_one": "Entfernt {{count}} Karte aus dem Bestand, weil sie mit der Bestellung rausgeht.",
     "fulfilDescription_other": "Entfernt {{count}} Karten aus dem Bestand, weil sie mit der Bestellung rausgehen.",
     "fulfilled": "Pick abgeschlossen",
+    "reservationPrompt": {
+      "title_one": "Reservierung öffnen?",
+      "title_other": "Reservierungen öffnen?",
+      "description_one": "Dieser Pick war für eine Reservierung. Die Karten liegen jetzt zur Abholung bereit, du kannst dem Kunden Bescheid geben oder sie als abgeholt markieren.",
+      "description_other": "Diese Picks waren für {{count}} Reservierungen. Die Karten liegen jetzt zur Abholung bereit, du kannst den Kunden Bescheid geben oder sie als abgeholt markieren.",
+      "confirm_one": "Reservierung öffnen",
+      "confirm_other": "Reservierungen öffnen",
+      "stay": "Hierbleiben"
+    },
     "cancel": "Pick abbrechen",
     "cancelTitle": "Pick abbrechen",
     "cancelDescription": "Die Karten bleiben im Bestand und stehen anderen Picks zur Verfügung.",
@@ -312,10 +495,8 @@
     "orderCardCount_one": "{{count}} Karte",
     "orderCardCount_other": "{{count}} Karten",
     "locationColumn": "Lagerort",
-    "viewsLabel": "Pick-Ansicht",
     "views": {
-      "location": "Nach Lagerort picken",
-      "order": "Nach Bestellung sortieren"
+      "lines": "Bestellpositionen"
     },
     "orderRefPlaceholder": "Bestellung",
     "orderRefInputLabel": "Bestellung für {{name}}",
@@ -326,9 +507,6 @@
     "tooManyOrders": "Dein Sortierer hat {{count}} Fächer für Bestellungen, daher bleiben einige Bestellungen ohne Fach.",
     "saveOrderBins": "Fächer speichern",
     "orderBinsSaved": "Fächer gespeichert",
-    "createSortPreset": "Sortiervorlage erstellen",
-    "sortPresetTitle": "Diesen Pick nach Bestellung sortieren?",
-    "sortPresetDescription": "Erstellt eine Sortiervorlage mit einem Fach pro Bestellung und aktiviert sie. Lass die gezogenen Karten durch den Sortierer laufen, dann landet jede im Fach ihrer Bestellung. Scans mit dieser Vorlage werden nicht gespeichert, dein Bestand bleibt also unverändert.",
     "sortPresetCreated_one": "Sortiervorlage erstellt und aktiviert",
     "sortPresetCreated_other": "{{count}} Sortiervorlagen erstellt, eine pro Spiel",
     "openSortPreset": "Vorlage öffnen",
@@ -367,8 +545,8 @@
       "title": "Zusammen picken",
       "description": "Picks: {{picks}} · Karten: {{cards}}",
       "back": "Picks",
-      "walkTab": "Picken",
-      "sortTab": "Den Picks zuordnen",
+      "walkTab": "Geführt",
+      "sortTab": "Nach Bestellung aufteilen",
       "viewLabel": "Pick-Batch-Ansicht",
       "pickColumn": "Pick",
       "emptyTitle": "Nichts zu picken",
@@ -393,10 +571,12 @@
       "completed_other": "{{count}} Picks abgeschlossen",
       "resume_one": "Zusammen picken fortsetzen ({{count}} Pick)",
       "resume_other": "Zusammen picken fortsetzen ({{count}} Picks)",
-      "listTab": "Liste",
-      "focusTab": "Fokus",
-      "boxTab": "Box",
-      "focusBack": "Zurück zum Picken",
+      "stop": "Zusammen picken beenden",
+      "stopHint": "Verlässt diese Gruppe. Abgehakte Karten bleiben in jedem Pick abgehakt, nichts wird abgeschlossen.",
+      "stopped": "Zusammen picken beendet. Abgehakte Karten bleiben in jedem Pick.",
+      "listTab": "Alle Karten",
+      "focusTab": "Einzeln",
+      "boxTab": "Nach Box",
       "focusBackCard": "Vorherige Karte",
       "focusSkip": "Überspringen",
       "focusSwipeHint": "Nach rechts wischen zum Picken, nach links zum Überspringen",
@@ -408,8 +588,18 @@
       "boxPickBadge": "Pick",
       "boxLoadMore": "Weitere Karten laden",
       "boxCollectionNote": "Karten in einem Sammlungs-Fach, kein Lagerort.",
-      "sortPresetButton": "Mit dem Sorter sortieren",
-      "sortPresetHint": "Erstellt eine aktive Fachvoreinstellung, die gescannte Karten in das Fach ihrer Bestellung legt und den Rest in das Einlagerungs-Fach."
+      "sortPresetButton": "Mit Sorter aufteilen",
+      "sortPresetHint": "Leere die gezogenen Karten durch den Sorter. Jede Karte landet im Fach ihrer Bestellung.",
+      "sortPresetTitle": "Gezogene Karten mit dem Sorter aufteilen",
+      "viewHints": {
+        "pick": "Nimm die oberste Karte, dann die nächste. Die Karten folgen ihrem Lagerort, so kommst du an jedem Regal nur einmal vorbei. Für eine ganze Box nutze Mit Sorter ziehen.",
+        "list": "Alle Karten zum Ziehen, nach Lagerort gruppiert. Hake jede Karte ab, sobald du sie gezogen hast. Für eine ganze Box nutze Mit Sorter ziehen.",
+        "focus": "Eine Karte nach der anderen, groß und gut lesbar. Als gepickt markieren oder überspringen. Praktisch auf dem Handy.",
+        "box": "Geh eine Box nach der anderen durch und sieh alle Karten darin. Ziehe die hervorgehobenen Karten oder lass sie mit Mit Sorter ziehen vom Sorter finden.",
+        "sort": "Teile die gezogenen Karten auf einen Stapel pro Bestellung auf. Jeder Block listet die Karten für den Stapel dieser Bestellung.",
+        "sortWithSorter": "Teile die gezogenen Karten auf einen Stapel pro Bestellung auf. Jeder Block listet die Karten für den Stapel dieser Bestellung. Oder nutze Mit Sorter aufteilen, damit der Sorter das übernimmt.",
+        "lines": "Alle Positionen dieses Picks, nach Bestellung gruppiert. Hier findest du Ersatz oder entfernst Karten."
+      }
     },
     "substitutes": {
       "find": "Ersatz finden",
@@ -454,6 +644,7 @@
     },
     "pickSaveFailed": "Der Pick konnte nicht gespeichert werden. Deine Häkchen wurden vom Server neu geladen.",
     "pickWalk": {
+      "cardPosition": "Karte {{index}} von {{total}}",
       "nextUp": "Als Nächstes",
       "slot": "Platz {{position}}",
       "bin": "Fach {{bin}}",
@@ -471,30 +662,30 @@
       "missingReleased_other": "{{count}} Exemplare zurück in den Bestand freigegeben"
     },
     "sorterPick": {
-      "stopButton": "Sammelpick",
-      "stopButtonHint": "Schütte die ganze Box in den Sorter: Karten, die die Picks brauchen, landen in ihren Bestell-Fächern, alles andere kommt für {{location}} wieder heraus.",
-      "title": "Sammelpick · {{location}}",
+      "stopButton": "Mit Sorter ziehen",
+      "stopButtonHint": "Schütte diese Box in den Sorter: Karten, die die Picks brauchen, landen in ihren Bestell-Fächern, alles andere kommt für {{location}} wieder heraus.",
+      "title": "Mit Sorter ziehen · {{location}}",
       "prepareDescription": "Schütte die ganze Box in den Sorter. Karten, die die Picks brauchen, landen in den Bestell-Fächern, alles andere kommt im Zurückleg-Fach heraus und wandert zurück in die Box.",
       "runDescription": "Leere die Box durch den Sorter. Wenn sie leer ist, übernimm die Ergebnisse, um die gepickten Karten zu markieren.",
       "appliedDescription": "Leere das Zurückleg-Fach zurück in {{location}}. Die Platznummern bleiben, wie sie sind.",
       "orderCards_one": "{{count}} Karte",
       "orderCards_other": "{{count}} Karten",
-      "binHint": "Fach {{bin}} — Karten für {{order}} kommen hier heraus.",
+      "binHint": "Fach {{bin}}: Karten für {{order}} kommen hier heraus.",
       "binProgress": "{{found}} von {{total}} sortiert",
       "runProgress": "{{found}} von {{total}} Karten bisher sortiert.",
       "allSorted": "Alles ist sortiert. Übernimm die Ergebnisse und leere das Zurückleg-Fach zurück in die Box.",
       "allSortedPreset": "Jede Karte ist im Fach ihrer Bestellung. Leere die Fächer in die Bestellungen.",
-      "runPresetDescription": "Leere die gepickten Karten durch den Sorter — jede Karte landet im Fach ihrer Bestellung. Der Fortschritt hier aktualisiert sich, während der Sorter scannt.",
-      "preparePresetDescription": "Leere die gepickten Karten durch den Sorter — jede Karte landet im Fach ihrer Bestellung. Die Scans werden nicht gespeichert, dein Bestand bleibt, wie er ist.",
+      "runPresetDescription": "Leere die gepickten Karten durch den Sorter. Jede Karte landet im Fach ihrer Bestellung. Der Fortschritt hier aktualisiert sich, während der Sorter scannt.",
+      "preparePresetDescription": "Leere die gepickten Karten durch den Sorter. Jede Karte landet im Fach ihrer Bestellung. Die Scans werden nicht gespeichert, dein Bestand bleibt, wie er ist.",
       "sorterLabel": "Sorter",
       "sorterOption": "{{name}} · {{bins}} Fächer",
       "sorterDefault": "Beliebiger Sorter (größtes)",
       "sorterHint": "Die Vorlage bekommt Fächer für diesen Sorter. Voreingestellt ist der Sorter, der mit diesem Tab verbunden ist.",
       "previousTitle": "Vorherige Vorlage: {{name}}",
       "previousUse": "Vorherige verwenden",
-      "previousHint": "Aktiviert die zuvor für diese Picks erstellte Vorlage erneut — gleiche Fächer, gleicher Stand. Es wird keine neue Vorlage erstellt.",
+      "previousHint": "Aktiviert die zuvor für diese Picks erstellte Vorlage erneut, mit gleichen Fächern und gleichem Stand. Es wird keine neue Vorlage erstellt.",
       "putBackBin": "Zurücklegen in {{location}}",
-      "putBackBinHint": "Alles, was die Picks nicht brauchen, kommt hier heraus. Leere es zurück in {{location}} — die Platznummern bleiben, wie sie sind.",
+      "putBackBinHint": "Alles, was die Picks nicht brauchen, kommt hier heraus. Leere es zurück in {{location}}. Die Platznummern bleiben, wie sie sind.",
       "startButton": "Durchlauf starten",
       "startButtonHint": "Erstellt eine aktive Sortiervorlage nur für {{location}}. Der Sorter speichert diese Scans nicht.",
       "applyButton": "Sorter-Ergebnisse übernehmen",
@@ -509,7 +700,7 @@
       "discardedRun": "Durchlauf-Vorlage verworfen",
       "usedPresets_one": "{{count}} verwendete Vorlage aus früheren Durchläufen",
       "usedPresets_other": "{{count}} verwendete Vorlagen aus früheren Durchläufen",
-      "usedPresetsHint": "Vorlagen aus beendeten Sorter-Durchläufen sammeln sich hier. Verwerfen entfernt sie aus den Sortierregeln — Karten und Picks bleiben unberührt.",
+      "usedPresetsHint": "Vorlagen aus beendeten Sorter-Durchläufen sammeln sich hier. Verwerfen entfernt sie aus den Sortierregeln. Karten und Picks bleiben unberührt.",
       "discardUsed": "Verwerfen",
       "cleanupTitle_one": "{{count}} verwendete Vorlage verwerfen?",
       "cleanupTitle_other": "{{count}} verwendete Vorlagen verwerfen?",
@@ -534,37 +725,17 @@
     "fulfilDescriptionWithReservations_other": "{{count}} reservierte Karten werden als abholbereit markiert und bleiben im Bestand, bis sie abgeholt werden. Nicht reservierte Karten verlassen den Bestand: {{removed}}.",
     "reservationCardsNote": "Für Reservierungen zurückgelegte Karten bleiben im Bestand und werden als abholbereit markiert."
   },
-  "cost": {
-    "title": "Einkaufspreis festlegen",
-    "description": "Erfasse, was du für die Karten in {{name}} bezahlt hast.",
-    "mode": "Betrag ist",
-    "modes": {
-      "spread": "Gesamtbetrag",
-      "each": "Pro Karte"
-    },
-    "modeHints": {
-      "spread": "Wird nach Marktwert auf die Karten verteilt, wertvolle Karten tragen also mehr.",
-      "each": "Jede Karte bekommt denselben Einkaufspreis."
-    },
-    "amount": "Betrag",
-    "overwrite": "Vorhandene Einkaufspreise ersetzen",
-    "overwriteHint": "Aus: Nur Karten ohne Einkaufspreis werden aktualisiert.",
-    "save": "Festlegen",
-    "saved_one": "Einkaufspreis für {{count}} Karte festgelegt",
-    "saved_other": "Einkaufspreis für {{count}} Karten festgelegt"
-  },
   "reports": {
     "noCostAccess": "Deine Rolle darf keine Kosten und Margen sehen. Bitte einen Inhaber oder Admin, das unter Einstellungen > Business zu erlauben.",
     "inventory": {
       "costBasis": "Einkaufswert",
       "costedCards": "{{percent}} der Karten mit Einkaufspreis",
       "unrealized": "Nicht realisierte Marge",
-      "uncostedNote_one": "{{count}} Karte hat keinen Einkaufspreis, daher zählen Margen nur Karten mit Einkaufspreis. Nutze Einkaufspreis festlegen bei einer Sammlung, um ihn nachzutragen.",
-      "uncostedNote_other": "{{count}} Karten haben keinen Einkaufspreis, daher zählen Margen nur Karten mit Einkaufspreis. Nutze Einkaufspreis festlegen bei einer Sammlung, um ihn nachzutragen.",
+      "uncostedNote_one": "{{count}} Karte hat keinen Einkaufspreis, daher zählen Margen nur Karten mit Einkaufspreis. Wähle Karten in einer Sammlung aus und nutze Preise festlegen, um ihn nachzutragen.",
+      "uncostedNote_other": "{{count}} Karten haben keinen Einkaufspreis, daher zählen Margen nur Karten mit Einkaufspreis. Wähle Karten in einer Sammlung aus und nutze Preise festlegen, um ihn nachzutragen.",
       "history": "Wert im Zeitverlauf",
       "historyEmpty": "Noch zu wenig Verlauf",
-      "historyEmptyDescription": "Der Bestandswert wird einmal am Tag erfasst.",
-      "setCost": "Einkaufspreis festlegen"
+      "historyEmptyDescription": "Der Bestandswert wird einmal am Tag erfasst."
     },
     "staff": {
       "throughput": "Durchsatz",
@@ -584,13 +755,14 @@
       "cardDeleted": "Karte gelöscht",
       "cardsDeleted": "Karten gelöscht",
       "cardsMoved": "Karten verschoben",
+      "cardsSellPriceSet": "Verkaufspreise festgelegt",
       "cardsCleared": "Sammlung geleert",
       "cardsCondition": "Zustand geändert",
       "collectionDeleted": "Sammlung gelöscht",
       "costSet": "Einkaufspreis festgelegt",
-      "intakeCreated": "Ankauf gestartet",
-      "intakeAccepted": "Ankauf angenommen",
-      "intakeCancelled": "Ankauf abgebrochen",
+      "intakeCreated": "Wareneingang gestartet",
+      "intakeAccepted": "Wareneingang abgeschlossen",
+      "intakeCancelled": "Wareneingang abgebrochen",
       "orderCreated": "Pick erstellt",
       "orderUpdated": "Pick bearbeitet",
       "orderFulfilled": "Pick abgeschlossen",
@@ -598,7 +770,7 @@
       "accuracyCompleted": "Stichprobe abgeschlossen",
       "deviceServiced": "Sortierer gewartet",
       "businessSettings": "Business-Einstellungen geändert",
-      "intakeTransferred": "Ankauf verschoben",
+      "intakeTransferred": "Wareneingang verschoben",
       "catalogCreated": "Shop-Katalog erstellt",
       "catalogUpdated": "Shop-Katalog geändert",
       "catalogDeleted": "Shop-Katalog gelöscht",
@@ -607,7 +779,6 @@
       "orderSorterPickCreated": "Sorter-Sammelpick gestartet",
       "orderSorterPickApplied": "Sorter-Sammelpick übernommen",
       "orderSorterPickPresetsCleaned": "Verwendete Sorter-Vorlagen verworfen",
-      "tradeRecorded": "Tausch erfasst",
       "tradeRecorded": "Tausch erfasst",
       "reservationCollected": "Reservierung abgeholt",
       "reservationReleased": "Reservierung freigegeben"
@@ -625,9 +796,9 @@
       "cardsCondition_other": "{{count}} Karten auf {{condition}} gesetzt",
       "collectionDeleted": "Sammlung {{summary}} gelöscht",
       "costSet": "Einkaufspreis für {{cards}} Karten in {{summary}} festgelegt",
-      "intakeCreated": "Ankauf für {{summary}} gestartet",
-      "intakeAccepted": "{{cards}} Karten von {{summary}} gekauft",
-      "intakeCancelled": "Ankauf für {{summary}} abgebrochen",
+      "intakeCreated": "Wareneingang für {{summary}} gestartet",
+      "intakeAccepted": "Wareneingang von {{cards}} Karten aus {{summary}} abgeschlossen",
+      "intakeCancelled": "Wareneingang für {{summary}} abgebrochen",
       "orderCreated": "Pick {{summary}} erstellt",
       "orderUpdated": "Pick {{summary}} bearbeitet",
       "orderFulfilled": "{{summary}} abgeschlossen ({{sold}} Karten)",
@@ -635,7 +806,7 @@
       "accuracyCompleted": "Stichprobe für {{summary}} abgeschlossen: {{incorrect}} falsch von {{checked}}",
       "deviceServiced": "{{summary}} gewartet",
       "businessSettings": "Business-Einstellungen geändert",
-      "intakeTransferred": "{{cards}} von {{summary}} gekaufte Karten verschoben",
+      "intakeTransferred": "{{cards}} Karten aus dem Wareneingang für {{summary}} verschoben",
       "catalogCreated": "Hat den Shop-Katalog {{summary}} erstellt",
       "catalogUpdated": "Hat den Shop-Katalog {{summary}} geändert",
       "catalogDeleted": "Hat den Shop-Katalog {{summary}} gelöscht",
@@ -644,7 +815,6 @@
       "orderSorterPickCreated": "Hat einen Sorter-Sammelpick aus {{summary}} gestartet",
       "orderSorterPickApplied": "Hat einen Sorter-Sammelpick für {{summary}} übernommen",
       "orderSorterPickPresetsCleaned": "Hat {{summary}} verwendete Sorter-Vorlagen verworfen",
-      "tradeRecorded": "Hat einen Tausch vor Ort mit {{summary}} erfasst",
       "tradeRecorded": "Hat einen Tausch vor Ort mit {{summary}} erfasst",
       "reservationCollected": "Reservierung von {{summary}} als abgeholt markiert",
       "reservationReleased": "Reservierung von {{summary}} freigegeben"
@@ -726,13 +896,13 @@
     "notInPlan": "Der Flottenzustand ist nicht Teil deines Tarifs."
   },
   "banner": {
-    "title": "Ankauf läuft: {{name}}",
-    "description": "Jede Karte, die du in {{collection}} scannst, landet in diesem Ankauf und bleibt von deinem Bestand getrennt.",
-    "open": "Ankauf öffnen"
+    "title": "Wareneingang läuft: {{name}}",
+    "description": "Jede Karte, die du in {{collection}} scannst, landet in diesem Wareneingang.",
+    "open": "Wareneingang öffnen"
   },
   "transfer": {
     "button": "Karten verschieben",
-    "title": "Gekaufte Karten verschieben",
+    "title": "Karten des Wareneingangs verschieben",
     "description": "Verschiebe die Karten aus {{name}} in die Sammlung, in der du deinen Bestand führst.",
     "target": "Verschieben nach",
     "newCollection": "Neue Sammlung",
@@ -761,7 +931,7 @@
     "collectionsLabel": "Sammlungen",
     "storageLocationsLabel": "Lagerorte",
     "noSources": "Noch nichts zur Auswahl.",
-    "inventoryNote": "Karten aus offenen oder abgebrochenen Ankäufen werden nie angezeigt.",
+    "inventoryNote": "Karten aus offenen oder abgebrochenen Wareneingängen werden nie angezeigt.",
     "empty": "Noch keine Shop-Kataloge",
     "loadFailed": "Shop-Kataloge konnten nicht geladen werden.",
     "upgrade": "Shop-Kataloge sind Teil des Business-Tarifs.",
@@ -821,38 +991,30 @@
   },
   "priceLabels": {
     "title": "Preisetiketten",
-    "description": "Drucke Preisaufkleber für Karten aus einer Sammlung, einem Lagerort oder einem Ankauf.",
+    "description": "Drucke Preisaufkleber für Karten aus einer Sammlung, einem Lagerort oder einem Wareneingang.",
     "printForLot": "Preisetiketten drucken",
     "form": {
       "title": "Etiketten",
-      "description": "Wähle die Karten, ihre Preisgestaltung und den Avery-Bogen, auf den du druckst.",
+      "description": "Wähle die Karten und den Avery-Bogen, auf den du druckst.",
       "source": "Karten aus",
-      "markup": "Aufschlag (%)",
-      "markupHint": "Wird auf den Marktpreis aufgeschlagen. Eine negative Zahl gibt einen Rabatt.",
-      "rounding": "Preise runden",
       "showPrices": "Preise anzeigen",
-      "showPricesHint": "Ausschalten, um Etiketten nur mit der Karte und ihrem Lagercode zu drucken."
+      "showPricesHint": "Ausschalten, um Etiketten nur mit der Karte und ihrem Lagercode zu drucken.",
+      "sellPriceHint": "Etiketten zeigen den Verkaufspreis jeder Karte, festgelegt unter <settingsLink>Einstellungen > Preise</settingsLink> und mit Preise festlegen für ausgewählte Karten. Gib unten einen eigenen Preis ein, um ihn zu überschreiben."
     },
     "sources": {
       "collection": "Sammlung",
       "location": "Lagerort",
-      "lot": "Ankauf"
+      "lot": "Wareneingang"
     },
     "sourceItems": {
       "collection": "Sammlung",
       "location": "Lagerort",
-      "lot": "Ankauf"
+      "lot": "Wareneingang"
     },
     "sourcePlaceholders": {
       "collection": "Sammlung wählen",
       "location": "Lagerort wählen",
-      "lot": "Ankauf wählen"
-    },
-    "rounding": {
-      "none": "Nicht runden",
-      "quarter": "Auf die nächsten 0,25 aufrunden",
-      "ninetyNine": "Auf die nächsten ,99 aufrunden",
-      "whole": "Auf den nächsten ganzen Betrag aufrunden"
+      "lot": "Wareneingang wählen"
     },
     "cards": {
       "selected_one": "{{count}} von {{total}} Karte ausgewählt",
@@ -865,11 +1027,11 @@
       "customPrice": "Eigener Preis",
       "customPriceFor": "Eigener Preis für {{name}}",
       "labelPrice": "Etikettenpreis",
-      "truncated": "Die ersten {{shown}} von {{total}} Karten werden angezeigt. Drucke die Etiketten für die übrigen über einen Lagerort oder Ankauf."
+      "truncated": "Die ersten {{shown}} von {{total}} Karten werden angezeigt. Drucke die Etiketten für die übrigen über einen Lagerort oder Wareneingang."
     },
     "empty": {
       "pickSourceTitle": "Wähle, woher die Karten kommen",
-      "pickSourceDescription": "Wähle eine Sammlung, einen Lagerort oder einen Ankauf, um seine Karten aufzulisten.",
+      "pickSourceDescription": "Wähle eine Sammlung, einen Lagerort oder einen Wareneingang, um seine Karten aufzulisten.",
       "noCardsTitle": "Hier sind keine Karten",
       "noCardsDescription": "Scanne oder füge zuerst Karten hinzu und drucke dann ihre Etiketten.",
       "noneSelectedTitle": "Keine Karten ausgewählt",
@@ -976,11 +1138,155 @@
     "createPickFor_one": "Pickliste für 1 Karte erstellen, die für {{name}} zurückgelegt ist",
     "createPickFor_other": "Pickliste für {{count}} Karten erstellen, die für {{name}} zurückgelegt sind"
   },
+  "filters": {
+    "status": "Status",
+    "allStatuses": "Alle Status",
+    "noMatchesDescription": "Nichts passt zu diesem Status."
+  },
   "search": {
     "noResultsTitle": "Keine Treffer",
     "noResultsDescription": "Nichts passt zu \"{{query}}\". Versuche einen anderen Namen oder Begriff.",
-    "intakePlaceholder": "Ankäufe nach Kunde oder Notiz durchsuchen",
+    "intakePlaceholder": "Wareneingänge nach Name oder Notiz durchsuchen",
     "picksPlaceholder": "Picklisten nach Name, Karte oder Bestellung durchsuchen",
     "reservationsPlaceholder": "Nach Kunde, Karte oder Katalog suchen"
+  },
+  "setPrices": {
+    "button": "Preise festlegen",
+    "title_one": "Preise für {{count}} Karte festlegen",
+    "title_other": "Preise für {{count}} Karten festlegen",
+    "description": "Lege fest, wofür diese Karten verkauft werden und was du dafür bezahlt hast.",
+    "tabsLabel": "Festzulegender Preis",
+    "tabs": {
+      "sell": "Verkaufspreis",
+      "cost": "Einkaufspreis"
+    },
+    "sell": {
+      "modeLabel": "Verkaufspreis",
+      "modes": {
+        "default": "Standard verwenden",
+        "markup": "Markt + %",
+        "fixed": "Festpreis"
+      },
+      "markupLabel": "Marge (%)",
+      "fixedLabel": "Preis pro Karte",
+      "example": "Eine Karte im Wert von {{market}} kostet {{price}}.",
+      "fixedExample": "Jede Karte kostet {{price}}, egal wie sich der Markt entwickelt.",
+      "defaultHint": "Folgt der Standardmarge von {{percent}} % aus Einstellungen > Preise.",
+      "apply_one": "Verkaufspreis für {{count}} Karte festlegen",
+      "apply_other": "Verkaufspreis für {{count}} Karten festlegen",
+      "applied_one": "Verkaufspreis für {{count}} Karte festgelegt",
+      "applied_other": "Verkaufspreis für {{count}} Karten festgelegt"
+    },
+    "cost": {
+      "modeLabel": "Betrag ist",
+      "modes": {
+        "each": "Betrag pro Karte",
+        "spread": "Gesamtbetrag nach Wert verteilen"
+      },
+      "modeHints": {
+        "each": "Jede Karte bekommt denselben Einkaufspreis.",
+        "spread": "Wird nach Marktwert auf die Karten verteilt, wertvolle Karten tragen also mehr."
+      },
+      "amountLabels": {
+        "each": "Einkaufspreis pro Karte",
+        "spread": "Gesamtbetrag"
+      },
+      "intakeNote": "Karten in einem offenen oder abgebrochenen Wareneingang werden übersprungen. Lege ihr Angebot stattdessen im Wareneingang fest.",
+      "apply_one": "Einkaufspreis für {{count}} Karte festlegen",
+      "apply_other": "Einkaufspreis für {{count}} Karten festlegen",
+      "applied_one": "Einkaufspreis für {{count}} Karte festgelegt",
+      "applied_other": "Einkaufspreis für {{count}} Karten festgelegt"
+    }
+  },
+  "cardPricing": {
+    "intake": {
+      "heading": "Wareneingang",
+      "from": "Von",
+      "added": "Hinzugefügt"
+    },
+    "heading": "Preise",
+    "market": "Marktpreis",
+    "sell": "Angebotspreis",
+    "rules": {
+      "default": "Standardmarge ({{percent}})",
+      "markup": "Markt {{percent}}",
+      "fixed": "Festpreis"
+    },
+    "editSellPrice": "Verkaufspreis bearbeiten",
+    "costLabel": "Bezahlt ({{currency}})",
+    "intakeOfferLabel": "Angebot im Wareneingang ({{currency}})",
+    "noCost": "Nicht festgelegt"
+  },
+  "sales": {
+    "title": "Verkäufe",
+    "description": "Jede verkaufte Karte aus abgeschlossenen Picks und abgeholten Reservierungen.",
+    "totals": "Summen",
+    "costOfSold": "Einkauf der verkauften Karten",
+    "profit": "Gewinn",
+    "margin": "Marge",
+    "costedSales_one": "Aus {{count}} Verkauf mit Einkaufspreis",
+    "costedSales_other": "Aus {{count}} Verkäufen mit Einkaufspreis",
+    "emptyTitle": "Keine Verkäufe in diesem Zeitraum",
+    "emptyDescription": "Verkäufe erscheinen hier, wenn du einen Pick abschließt oder eine Reservierung abgeholt wird.",
+    "columns": {
+      "soldAt": "Verkauft",
+      "card": "Karte",
+      "salePrice": "Verkaufspreis",
+      "cost": "Einkauf",
+      "profit": "Gewinn",
+      "channel": "Weg",
+      "buy": "Wareneingang"
+    },
+    "channels": {
+      "pick": "Pick",
+      "reservation": "Reservierung"
+    },
+    "boughtIn": "Aus Wareneingang",
+    "profitShort": "Gewinn {{value}}",
+    "from": "Von",
+    "to": "Bis",
+    "buyFilter": "Wareneingang: {{name}}",
+    "buyFilterUnknown": "dieser Wareneingang",
+    "removeBuyFilter": "Verkäufe aus allen Wareneingängen zeigen",
+    "noBuy": "Nicht aus einem Wareneingang",
+    "export": "CSV exportieren",
+    "exportFailed": "Die Verkäufe konnten nicht exportiert werden.",
+    "noAccess": "Deine Rolle kann keine Verkäufe sehen. Bitte einen Inhaber oder Admin, das unter Einstellungen > Business zu erlauben."
+  },
+  "scannerBuy": {
+    "startPrompt": {
+      "title": "Neuer Bestand kommt rein?",
+      "description": "Starte einen Wareneingang, dann kommt jede Karte, die du in diese Sammlung scannst, dazu, und das Angebot wird laufend berechnet.",
+      "start": "Wareneingang starten",
+      "hide": "Ausblenden",
+      "show": "Wareneingangsleiste im Scanner anzeigen",
+      "showShort": "Wareneingang zeigen"
+    },
+    "panelLabel": "Laufender Wareneingang",
+    "finish": "Wareneingang abschließen",
+    "recentCards": "Letzte Karten",
+    "noRecentCards": "Noch keine Karten in diesem Wareneingang. Scanne Karten, um sie hinzuzufügen.",
+    "finishedTitle": "Wareneingang abgeschlossen: {{name}}",
+    "finishedCards_one": "{{count}} Karte",
+    "finishedCards_other": "{{count}} Karten",
+    "finishedPaid": "{{amount}} bezahlt",
+    "finishedPaidWith": "{{amount}} bezahlt ({{method}})",
+    "startAnother": "Weiteren Wareneingang starten",
+    "dismiss": "Ausblenden",
+    "noOpenBuy": "Für diese Sammlung ist kein Wareneingang offen.",
+    "line": {
+      "customer": "Wareneingang von {{name}}",
+      "vendor": "Wareneingang von {{name}}",
+      "opened": "{{name}} wird geöffnet"
+    },
+    "lineWithOffer": {
+      "customer": "Wareneingang von {{name}} · Angebot {{amount}}",
+      "vendor": "Wareneingang von {{name}} · Angebot {{amount}}"
+    },
+    "openingWithCount_one": "{{name}} wird geöffnet · {{count}} Karte",
+    "openingWithCount_other": "{{name}} wird geöffnet · {{count}} Karten",
+    "cardCount_one": "{{count}} Karte",
+    "cardCount_other": "{{count}} Karten",
+    "offer": "Angebot {{amount}}"
   }
 }

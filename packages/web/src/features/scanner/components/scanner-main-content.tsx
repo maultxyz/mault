@@ -1,3 +1,5 @@
+import { ScannerBuyShowButton } from "@/features/business/components/scanner-buy-show-button";
+import { ScannerBuyPanel } from "@/features/business/components/scanner-buy-panel";
 import { CardGrid } from "@/features/cards/components/card-grid";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useScannedCards } from "@/features/scanner/api/use-scanned-cards";
@@ -27,5 +29,10 @@ export function ScannerMainContent() {
       />
     );
   }
-  return <CardGrid />;
+  return (
+    <>
+      <ScannerBuyPanel />
+      <CardGrid toolbarLeading={<ScannerBuyShowButton />} />
+    </>
+  );
 }

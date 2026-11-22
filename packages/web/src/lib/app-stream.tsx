@@ -239,6 +239,10 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
             (e as MessageEvent).data,
           ) as CardReservationsChangedEvent;
           queryClient.invalidateQueries({ queryKey: cardReservationsKeys.root() });
+          queryClient.invalidateQueries({ queryKey: businessKeys.overview(orgId) });
+          queryClient.invalidateQueries({ queryKey: businessKeys.salesRoot() });
+          queryClient.invalidateQueries({ queryKey: businessKeys.buyPerformanceRoot() });
+          queryClient.invalidateQueries({ queryKey: businessKeys.inventoryMargin(orgId) });
           if (changed.createdReservation) {
             toast.info(
               i18n.t("common:reservations.newReservationToast", {
@@ -251,6 +255,10 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
         });
         es.addEventListener(ORDERS_CHANGED_EVENT, () => {
           queryClient.invalidateQueries({ queryKey: businessKeys.ordersRoot() });
+          queryClient.invalidateQueries({ queryKey: businessKeys.overview(orgId) });
+          queryClient.invalidateQueries({ queryKey: businessKeys.salesRoot() });
+          queryClient.invalidateQueries({ queryKey: businessKeys.buyPerformanceRoot() });
+          queryClient.invalidateQueries({ queryKey: businessKeys.inventoryMargin(orgId) });
         });
         es.addEventListener(PICK_LIST_CHANGED_EVENT, (e) => {
           const { binGuid, pickList } = JSON.parse(

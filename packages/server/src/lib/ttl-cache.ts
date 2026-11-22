@@ -1,3 +1,4 @@
+import { registerCacheClearer } from "./cache-registry";
 import type { TtlCache, TtlCacheConfig } from "./interfaces/public-api";
 
 export function createTtlCache<V>({ ttlMs, maxEntries }: TtlCacheConfig): TtlCache<V> {
@@ -13,6 +14,8 @@ export function createTtlCache<V>({ ttlMs, maxEntries }: TtlCacheConfig): TtlCac
       entries.delete(oldestKey);
     }
   };
+
+  registerCacheClearer(() => entries.clear());
 
   return {
     get(key) {

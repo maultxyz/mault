@@ -49,8 +49,6 @@
     "catalogCardRemovedTitle": "Karte nicht mehr im Katalog",
     "catalogCardRemovedDescription": "Die Karte, der dieses Exemplar zugeordnet war ({{name}}), wurde aus der Kartendatenbank entfernt, weil ihre Daten fehlerhaft waren. Suche die richtige Druckversion, damit Preis und Details aktuell bleiben.",
     "catalogCardRemovedAction": "Richtige Karte suchen",
-    "pricePaid": "Kaufpreis ({{currency}})",
-    "pricePaidEmpty": "Nicht festgelegt",
     "pricePaidSaveFailed": "Der Kaufpreis konnte nicht gespeichert werden.",
     "markCorrect": "Als korrekt markieren",
     "markCorrectTitle": "Bestätige, dass dieser Treffer stimmt. Die Karte bleibt gleich und ist nicht mehr zur Prüfung markiert.",
@@ -120,7 +118,9 @@
     "hideDownloadedCards": "Heruntergeladene Karten ausblenden",
     "sets": "Editionen",
     "resetFilters": "Filter zurücksetzen",
-    "unmatched": "Nicht erkannt"
+    "unmatched": "Nicht erkannt",
+    "buy": "Wareneingang",
+    "onlyThisBuy": "Nur dieser Wareneingang"
   },
   "cardGrid": {
     "noCollectionSelected": "Keine Sammlung ausgewählt",
@@ -639,7 +639,8 @@
     "cardLoadFailed": "Diese Karte konnte nicht geladen werden.",
     "referenceImage": "Referenzbild",
     "backToCards": "Zurück zu den Karten",
-    "tradeHint": "Tippe auf + bei einer Karte oder öffne sie, um sie zum Tauschangebot hinzuzufügen"
+    "tradeHint": "Tippe auf + bei einer Karte oder öffne sie, um sie zum Tauschangebot hinzuzufügen",
+    "shopPrice": "Preis"
   },
   "tradeOffers": {
     "game": "Spiel",

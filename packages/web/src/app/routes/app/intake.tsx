@@ -13,11 +13,14 @@ import { useBusinessAccess } from "@/features/business/api/use-business";
 import { BusinessUpgradeCallout } from "@/features/business/components/business-upgrade-callout";
 import { IntakeCardDetail } from "@/features/business/components/intake-card-detail";
 import { IntakeLotDetail } from "@/features/business/components/intake-lot-detail";
-import { IntakeLotDialog } from "@/features/business/components/intake-lot-dialog";
+import { BuyStartDialog } from "@/features/business/components/buy-start-dialog";
+import { BusinessTour } from "@/features/business/components/business-tour";
+import { BUSINESS_BUYS_TOUR } from "@/features/business/lib/business-tours";
 import { IntakeLotList } from "@/features/business/components/intake-lot-list";
+import { UnmovedBuysCallout } from "@/features/business/components/unmoved-buys-callout";
 import { ListSearchInput } from "@/components/list-search-input";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { BusinessViewSwitch } from "@/features/business/components/business-view-switch";
+import { BusinessOverviewBackButton } from "@/features/business/components/business-overview-back-button";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
 import {
@@ -26,7 +29,6 @@ import {
 } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import {
-  BUSINESS_INTAKE_VIEW,
   BUSINESS_LIST_SEARCH_DEBOUNCE_MS,
   INTAKE_CARD_PARAM,
   INTAKE_LOT_PARAM,
@@ -37,20 +39,25 @@ import { ReviewGrid } from "@/features/cards/components/review-grid";
 import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
 import { IconCash, IconPlus } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { BUSINESS_LIST_SEARCH_MAX_LENGTH } from "@magic-vault/shared";
+import {
+  BUSINESS_LIST_SEARCH_MAX_LENGTH,
+  INTAKE_LOT_STATUSES,
+  type IntakeLotStatus,
+} from "@magic-vault/shared";
+import { BusinessListFilters, BusinessStatusFilter } from "@/features/business/components/business-status-filter";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 
 export default function IntakePage() {
   const { t } = useTranslation("business");
-  const { t: tCommon } = useTranslation("common");
   const { t: tCards } = useTranslation("cards");
   const isMobile = useIsMobile();
   const { orgId, access } = useBusinessAccess();
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedParam = searchParams.get(INTAKE_LOT_PARAM);
   const [listSearch, setListSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<IntakeLotStatus | null>(null);
   const debouncedListSearch = useDebouncedValue(listSearch.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
   const {
     items: lots,
@@ -62,14 +69,29 @@ export default function IntakePage() {
     (request) => intakeLotsQueryOptions(orgId, request),
     selectedParam,
     debouncedListSearch,
+    statusFilter ?? "",
   );
   const listSearchInput = (
-    <ListSearchInput
-      value={listSearch}
-      onChange={setListSearch}
-      placeholder={t("search.intakePlaceholder")}
-      maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
-    />
+    <div data-tour="intake-list">
+      <BusinessListFilters
+        search={
+          <ListSearchInput
+            value={listSearch}
+            onChange={setListSearch}
+            placeholder={t("search.intakePlaceholder")}
+            maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
+          />
+        }
+        filter={
+          <BusinessStatusFilter<IntakeLotStatus>
+            statuses={INTAKE_LOT_STATUSES}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            labelOf={(status) => t(`status.${status}`)}
+          />
+        }
+      />
+    </div>
   );
   const [createOpen, setCreateOpen] = useState(false);
   const selectedGuid = isMobile
@@ -126,18 +148,14 @@ export default function IntakePage() {
   }, [selectedGuid, setSearchParams]);
 
   const createDialog = (
-    <IntakeLotDialog
-      open={createOpen}
-      onOpenChange={setCreateOpen}
-      onCreated={(guid) => select(guid)}
-    />
+    <BuyStartDialog open={createOpen} onOpenChange={setCreateOpen} />
   );
 
   if (isMobile) {
     if (isGridReviewing) {
       return (
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-          <h1 className="sr-only">{tCommon("nav.intake")}</h1>
+          <h1 className="sr-only">{t("views.intake")}</h1>
           <ReviewGrid
             cards={reviewGridPage.data?.cards ?? []}
             total={reviewGridPage.data?.total ?? 0}
@@ -158,14 +176,17 @@ export default function IntakePage() {
           <MobilePageHeader
             title={t("views.intake")}
             onBack={() => select(null)}
+            actions={
+              <BusinessTour tour={BUSINESS_BUYS_TOUR} className={MOBILE_CIRCLE_BUTTON_CLASS} />
+            }
           />
           <div
             className={cn(
-              "min-h-0 flex-1 overflow-y-auto p-4",
+              "flex min-h-0 flex-1 flex-col overflow-y-auto p-4",
               MOBILE_NAV_SCROLL_PADDING_CLASS,
             )}
           >
-            <div className="flex flex-col gap-4 md:gap-2">
+            <div className="flex flex-1 flex-col gap-4 md:gap-2">
               {access?.isLocked && <BusinessUpgradeCallout />}
               <IntakeLotDetail
                 key={selectedGuid}
@@ -200,17 +221,21 @@ export default function IntakePage() {
     return (
       <div className="relative flex min-h-0 flex-1 flex-col">
         <MobilePageHeader
-          title={tCommon("nav.intake")}
+          title={t("views.intake")}
           actions={
-            <Button
-              variant="ghost"
-              className={MOBILE_CIRCLE_BUTTON_CLASS}
-              aria-label={t("intake.new")}
-              disabled={access?.isLocked}
-              onClick={() => setCreateOpen(true)}
-            >
-              <IconPlus />
-            </Button>
+            <>
+              <BusinessTour tour={BUSINESS_BUYS_TOUR} className={MOBILE_CIRCLE_BUTTON_CLASS} />
+              <Button
+                variant="ghost"
+                className={MOBILE_CIRCLE_BUTTON_CLASS}
+                aria-label={t("intake.new")}
+                data-tour="intake-new"
+                disabled={access?.isLocked}
+                onClick={() => setCreateOpen(true)}
+              >
+                <IconPlus />
+              </Button>
+            </>
           }
         />
         <div
@@ -220,8 +245,9 @@ export default function IntakePage() {
           )}
         >
           <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
-            <BusinessViewSwitch value={BUSINESS_INTAKE_VIEW} />
+            <BusinessOverviewBackButton />
             {access?.isLocked && <BusinessUpgradeCallout />}
+            <UnmovedBuysCallout />
             {listSearchInput}
             <IntakeLotList
               lots={lots}
@@ -230,6 +256,7 @@ export default function IntakePage() {
               isLoading={isLoading}
               onSelect={select}
               search={debouncedListSearch}
+              isFiltered={statusFilter !== null}
             />
           </div>
         </div>
@@ -244,20 +271,25 @@ export default function IntakePage() {
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
       {!showsLotHeading && (
-        <h1 className="sr-only">{tCommon("nav.intake")}</h1>
+        <h1 className="sr-only">{t("views.intake")}</h1>
       )}
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
-          <BusinessViewSwitch value={BUSINESS_INTAKE_VIEW} />
-          <Button
-            variant="outline"
-            className="w-full"
-            disabled={access?.isLocked}
-            onClick={() => setCreateOpen(true)}
-          >
-            <IconPlus />
-            {t("intake.new")}
-          </Button>
+          <BusinessOverviewBackButton />
+          <div className="flex gap-1.5">
+            <Button
+              variant="outline"
+              className="min-w-0 flex-1"
+              data-tour="intake-new"
+              disabled={access?.isLocked}
+              onClick={() => setCreateOpen(true)}
+            >
+              <IconPlus />
+              {t("intake.new")}
+            </Button>
+            <BusinessTour tour={BUSINESS_BUYS_TOUR} />
+          </div>
+          <UnmovedBuysCallout />
           {listSearchInput}
           <IntakeLotList
             lots={lots}
@@ -266,6 +298,7 @@ export default function IntakePage() {
             isLoading={isLoading}
             onSelect={select}
             search={debouncedListSearch}
+            isFiltered={statusFilter !== null}
           />
         </section>
         {selectedGuid && openScanId && selectedLot ? (

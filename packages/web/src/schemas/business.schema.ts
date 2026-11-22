@@ -11,6 +11,7 @@ import {
   orderDecklistSchema,
   orderSortCatchAllBin,
   ACCURACY_SAMPLE_SIZES,
+  intakeAcceptSchema,
 } from "@magic-vault/shared";
 import { PICK_IMPORT_CREATE_MODES } from "@/lib/constants/business";
 import { z } from "zod";
@@ -18,6 +19,14 @@ import { z } from "zod";
 export const intakeOfferSchema = z.object({ offer: businessMoneySchema });
 
 export type IntakeOfferFormValues = z.infer<typeof intakeOfferSchema>;
+
+export const buyFinishSchema = z.object({
+  payoutMethod: intakeAcceptSchema.shape.payoutMethod,
+  totalPaid: businessMoneySchema,
+  printReceipt: z.boolean(),
+});
+
+export type BuyFinishFormValues = z.infer<typeof buyFinishSchema>;
 
 const orderLineQuantity = z
   .number(formValidationMessage("wholeNumber"))
@@ -96,14 +105,6 @@ export const orderBinsSchema = (binCount: number) =>
   });
 
 export type OrderBinsFormValues = z.infer<ReturnType<typeof orderBinsSchema>>;
-
-export const collectionCostSchema = z.object({
-  total: businessMoneySchema,
-  mode: z.enum(["spread", "each"]),
-  overwrite: z.boolean(),
-});
-
-export type CollectionCostFormValues = z.infer<typeof collectionCostSchema>;
 
 export const accuracyCheckSchema = z.object({
   sampleSize: z

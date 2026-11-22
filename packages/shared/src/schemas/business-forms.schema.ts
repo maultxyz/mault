@@ -10,8 +10,15 @@ import {
   INTAKE_TRANSFER_NEW_COLLECTION_OPTION,
   ORDER_LINES_MAX,
   ORDER_NAME_MAX_LENGTH,
+  BUY_SOURCE_TYPES,
+  CARD_COST_MODES,
+  SELL_PRICE_MODES,
+  PRICE_MARKUP_PERCENT_MAX,
+  PRICE_MARKUP_PERCENT_MIN,
 } from "../constants/business.constant";
+import { BULK_SCAN_IDS_MAX } from "../constants/collection-cards.constant";
 import { SET_NAME_MAX_LENGTH } from "../constants/sort-bins.constant";
+import { PRICE_LABEL_ROUNDING_MODES } from "../constants/price-labels.constant";
 import { formValidationMessage } from "../form-validation";
 import { normalizePickListEntries, parseDecklist } from "../pick-list";
 
@@ -26,7 +33,16 @@ const buylistPercentSchema = (max: number) =>
     .min(0, formValidationMessage("atLeast", { min: 0 }))
     .max(max, formValidationMessage("atMost", { max }));
 
+export const sellPriceConfigSchema = z.object({
+  defaultMarkupPercent: z
+    .number({ message: formValidationMessage("percentageRequired") })
+    .min(PRICE_MARKUP_PERCENT_MIN, formValidationMessage("atLeast", { min: PRICE_MARKUP_PERCENT_MIN }))
+    .max(PRICE_MARKUP_PERCENT_MAX, formValidationMessage("atMost", { max: PRICE_MARKUP_PERCENT_MAX })),
+  rounding: z.enum(PRICE_LABEL_ROUNDING_MODES),
+});
+
 export const businessSettingsDraftSchema = z.object({
+  sell: sellPriceConfigSchema,
   buylist: z.object({
     minCardValue: businessMoneySchema,
     tiers: z
@@ -126,3 +142,64 @@ export const orderDecklistSchema = z.object({
 });
 
 export type OrderDecklistFormValues = z.infer<typeof orderDecklistSchema>;
+
+export const priceMarkupPercentSchema = z
+  .number({ message: formValidationMessage("percentageRequired") })
+  .min(PRICE_MARKUP_PERCENT_MIN, formValidationMessage("atLeast", { min: PRICE_MARKUP_PERCENT_MIN }))
+  .max(PRICE_MARKUP_PERCENT_MAX, formValidationMessage("atMost", { max: PRICE_MARKUP_PERCENT_MAX }));
+
+export const sellPriceFormSchema = z
+  .object({
+    mode: z.enum(SELL_PRICE_MODES),
+    markupPercent: priceMarkupPercentSchema,
+    fixedPrice: businessMoneySchema,
+  });
+
+export type SellPriceFormValues = z.infer<typeof sellPriceFormSchema>;
+
+export const cardCostFormSchema = z.object({
+  mode: z.enum(CARD_COST_MODES),
+  amount: businessMoneySchema,
+});
+
+export type CardCostFormValues = z.infer<typeof cardCostFormSchema>;
+
+const scanIdsSchema = z.array(z.string().uuid()).min(1).max(BULK_SCAN_IDS_MAX);
+
+export const cardSellPriceRequestSchema = z.discriminatedUnion("mode", [
+  z.object({ scanIds: scanIdsSchema, mode: z.literal("default") }),
+  z.object({ scanIds: scanIdsSchema, mode: z.literal("markup"), markupPercent: priceMarkupPercentSchema }),
+  z.object({ scanIds: scanIdsSchema, mode: z.literal("fixed"), fixedPrice: businessMoneySchema }),
+]);
+
+export type CardSellPriceRequest = z.infer<typeof cardSellPriceRequestSchema>;
+
+export const cardCostRequestSchema = z.object({
+  scanIds: scanIdsSchema,
+  mode: z.enum(CARD_COST_MODES),
+  amount: businessMoneySchema,
+});
+
+export type CardCostRequest = z.infer<typeof cardCostRequestSchema>;
+
+export const buyStartSchema = z
+  .object({
+    sourceType: z.enum(BUY_SOURCE_TYPES),
+    name: z
+      .string()
+      .trim()
+      .min(1, formValidationMessage("buyNameRequired"))
+      .max(INTAKE_TEXT_MAX_LENGTH, formValidationMessage("nameTooLong", { max: INTAKE_TEXT_MAX_LENGTH })),
+    contact: z
+      .string()
+      .trim()
+      .max(INTAKE_TEXT_MAX_LENGTH, formValidationMessage("nameTooLong", { max: INTAKE_TEXT_MAX_LENGTH })),
+    notes: z
+      .string()
+      .trim()
+      .max(INTAKE_NOTES_MAX_LENGTH, formValidationMessage("nameTooLong", { max: INTAKE_NOTES_MAX_LENGTH })),
+    collectionGuid: z.string().min(1, formValidationMessage("collectionRequired")),
+    storageLocationGuid: z.string(),
+  });
+
+export type BuyStartFormValues = z.infer<typeof buyStartSchema>;

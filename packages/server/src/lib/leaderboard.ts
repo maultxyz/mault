@@ -21,6 +21,7 @@ import {
   scanStats,
   selfHostedDailyScanStats,
 } from "../db/schema";
+import { registerCacheClearer } from "./cache-registry";
 import { createCachedValue } from "./cached-value";
 import {
   LEADERBOARD_CARDS_PER_HOUR_WINDOW_MINUTES,
@@ -37,6 +38,7 @@ import type {
 } from "./interfaces/leaderboard";
 
 const cachedRankings = new Map<string, CachedLeaderboardRanking>();
+registerCacheClearer(() => cachedRankings.clear());
 const inFlightRankings = new Map<string, Promise<OrgScanCount[]>>();
 const optedInOrgIdsCache = createCachedValue(loadOptedInOrgIds);
 const orgNamesCache = createKeyedCache<Map<string, string>>(

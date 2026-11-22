@@ -20,9 +20,8 @@ import {
 } from "@/components/ui/tooltip";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Label } from "@/components/ui/label";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { useCardAcquisitionCost } from "@/features/business/api/use-business";
-import { NumberInput } from "@/features/business/components/number-input";
+import { useCardPricing } from "@/features/business/api/use-business";
+import { CardPricingBlock } from "@/features/business/components/card-pricing-block";
 import {
   Select,
   SelectContent,
@@ -260,15 +259,18 @@ export function CardDetailPanel({
     !!scanId &&
     !!scanOrigin &&
     (!!scanOrigin.scannedAt || !!scanOrigin.scannedBy || !!scanOrigin.device);
-  const { acquisitionCost, saveCardAcquisitionCost } =
-    useCardAcquisitionCost(scanId);
+  const { cardPricing, saveCardAcquisitionCost } = useCardPricing(scanId);
   const scanDraft = useScanDraft({
     scanId,
     savedFoilType: foilType ?? (isFoil ? t("foil") : null),
     savedStamp: stamp ?? null,
     savedCondition: toCardCondition(condition),
     savedLanguage: scanLanguage({ language, card: currentCard ?? {} }),
-    savedAcquisitionCost: acquisitionCost?.cost ?? null,
+    savedAcquisitionCost: cardPricing
+      ? cardPricing.isInOpenIntake
+        ? cardPricing.intakeOffer
+        : cardPricing.cost
+      : null,
     setCardFoilType,
     setCardStamp,
     setCardCondition,
@@ -1185,36 +1187,14 @@ export function CardDetailPanel({
                       stamp={currentStamp}
                       condition={currentCondition}
                     >
-                        {scanId && acquisitionCost && (
-                          <Field
-                            className="w-40"
-                            data-invalid={
-                              !!scanDraft.acquisitionCostError || undefined
-                            }
-                          >
-                            <FieldLabel htmlFor="card-price-paid">
-                              {t("cardDetailPanel.pricePaid", {
-                                currency: acquisitionCost.currency,
-                              })}
-                            </FieldLabel>
-                            <NumberInput
-                              id="card-price-paid"
-                              min={0}
-                              step={0.01}
-                              placeholder={t("cardDetailPanel.pricePaidEmpty")}
-                              value={scanDraft.acquisitionCost}
-                              onChange={scanDraft.setAcquisitionCost}
-                              aria-invalid={!!scanDraft.acquisitionCostError}
-                            />
-                            {scanDraft.acquisitionCostError && (
-                              <FieldError
-                                errors={[
-                                  { message: scanDraft.acquisitionCostError },
-                                ]}
-                              />
-                            )}
-                          </Field>
-                        )}
+                      {scanId && cardPricing?.scanId === scanId && (
+                        <CardPricingBlock
+                          pricing={cardPricing}
+                          cost={scanDraft.acquisitionCost}
+                          costError={scanDraft.acquisitionCostError}
+                          onCostChange={scanDraft.setAcquisitionCost}
+                        />
+                      )}
                     </CardPricesSection>
 
                     {!inCardDrawer &&

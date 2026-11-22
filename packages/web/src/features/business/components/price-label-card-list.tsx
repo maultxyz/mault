@@ -45,7 +45,7 @@ export function PriceLabelCardList({ form, items, formatLabelPrice, showsPrices 
   };
 
   return (
-    <fieldset className="flex flex-col gap-2">
+    <fieldset data-tour="labels-cards" className="flex flex-col gap-2">
       <div className="flex items-center justify-between gap-1.5">
         <legend className="text-sm font-medium">
           {t("priceLabels.cards.selected", { count: selectedCount, total: items.length })}

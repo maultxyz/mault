@@ -2,11 +2,8 @@ import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
 import { MobilePageHeader } from "@/components/mobile-page-header";
 import { PageHeader } from "@/components/page-header";
-import { ViewTabs } from "@/components/view-tabs";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { AccuracyReportView } from "@/features/business/components/accuracy-report";
-import { StaffReportView } from "@/features/business/components/staff-report";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { statsReportQueryOptions } from "@/features/stats/api/stats";
 import { StatsControls } from "@/features/stats/components/stats-controls";
@@ -18,15 +15,7 @@ import {
   MOBILE_ACCOUNT_PATH,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
 } from "@/lib/constants/nav";
-import {
-  STATS_CHECK_PARAM,
-  STATS_COLLECTION_PARAM,
-  STATS_OVERVIEW_VIEW,
-  STATS_RANGE_PARAM,
-  STATS_VIEW_PARAM,
-  STATS_VIEWS,
-} from "@/lib/constants/stats";
-import type { StatsView } from "@/lib/interfaces/stats";
+import { STATS_COLLECTION_PARAM, STATS_RANGE_PARAM } from "@/lib/constants/stats";
 import { cn } from "@/lib/utils";
 import {
   STATS_DEFAULT_RANGE,
@@ -52,10 +41,6 @@ export default function StatsPage() {
   const [params, setParams] = useSearchParams();
   const range = parseRange(params.get(STATS_RANGE_PARAM));
   const collectionGuid = params.get(STATS_COLLECTION_PARAM);
-  const view = isMobile
-    ? STATS_OVERVIEW_VIEW
-    : (STATS_VIEWS.find((value) => value === params.get(STATS_VIEW_PARAM)) ??
-      STATS_OVERVIEW_VIEW);
   const {
     data: report,
     isLoading,
@@ -81,31 +66,6 @@ export default function StatsPage() {
     scrollRef.current?.scrollTo({ top: 0 });
   };
 
-  const viewSwitch = (
-    <ViewTabs<StatsView>
-      label={t("title")}
-      className="border-b-0"
-      items={STATS_VIEWS.map((value) => ({
-        key: value,
-        label: t(`views.${value}`),
-      }))}
-      value={view}
-      onChange={(value) => {
-        setParams(
-          (prev) => {
-            const next = new URLSearchParams(prev);
-            if (value === STATS_OVERVIEW_VIEW) next.delete(STATS_VIEW_PARAM);
-            else next.set(STATS_VIEW_PARAM, value);
-            next.delete(STATS_CHECK_PARAM);
-            return next;
-          },
-          { replace: true },
-        );
-        scrollRef.current?.scrollTo({ top: 0 });
-      }}
-    />
-  );
-
   const controls = (
     <StatsControls
       collectionGuid={collectionGuid}
@@ -118,24 +78,7 @@ export default function StatsPage() {
   );
 
   const body =
-    view === "staff" ? (
-      <StaffReportView
-        range={range}
-        onRangeChange={(next) =>
-          setParam(
-            STATS_RANGE_PARAM,
-            next === STATS_DEFAULT_RANGE ? null : next,
-          )
-        }
-      />
-    ) : view === "accuracy" ? (
-      <AccuracyReportView
-        collectionGuid={collectionGuid}
-        checkGuid={params.get(STATS_CHECK_PARAM)}
-        onCollectionChange={(guid) => setParam(STATS_COLLECTION_PARAM, guid)}
-        onCheckChange={(guid) => setParam(STATS_CHECK_PARAM, guid)}
-      />
-    ) : isError ? (
+    isError ? (
       <Callout
         variant="error"
         icon={IconAlertTriangle}
@@ -194,11 +137,10 @@ export default function StatsPage() {
             description={t("subtitle")}
             actions={
               <>
-                {view === STATS_OVERVIEW_VIEW && controls}
+                {controls}
                 <StatsLeaderboardButton />
               </>
             }
-            tabs={viewSwitch}
           />
         )}
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 md:gap-2 p-4 md:px-3 md:py-2">

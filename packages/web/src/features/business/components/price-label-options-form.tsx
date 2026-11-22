@@ -6,8 +6,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Field, FieldError, FieldLabel } from "@/components/ui/field";
-import { Input } from "@/components/ui/input";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -24,15 +23,12 @@ import type {
   PriceLabelOptionsFormProps,
   PriceLabelSourceOption,
 } from "@/lib/interfaces/price-labels";
-import {
-  PRICE_LABEL_ROUNDING_MODES,
-  PRICE_LABEL_SOURCES,
-  type PriceLabelRoundingMode,
-  type PriceLabelSource,
-} from "@magic-vault/shared";
+import { SETTINGS_PATHS } from "@/lib/constants/settings";
+import { PRICE_LABEL_SOURCES, type PriceLabelSource } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useController, useWatch } from "react-hook-form";
-import { useTranslation } from "react-i18next";
+import { Trans, useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
 
 export function PriceLabelOptionsForm({ form, orgId, loadedSourceName }: PriceLabelOptionsFormProps) {
   const { t } = useTranslation("business");
@@ -48,12 +44,7 @@ export function PriceLabelOptionsForm({ form, orgId, loadedSourceName }: PriceLa
   });
   const { field: sourceField } = useController({ control: form.control, name: "source" });
   const { field: sourceGuidField } = useController({ control: form.control, name: "sourceGuid" });
-  const { field: roundingField } = useController({ control: form.control, name: "rounding" });
   const { field: showsPricesField } = useController({ control: form.control, name: "showsPrices" });
-  const { field: markupField, fieldState: markupState } = useController({
-    control: form.control,
-    name: "markupPercent",
-  });
   const { field: templateField } = useController({ control: form.control, name: "templateId" });
   const { field: startPositionField, fieldState: startPositionState } = useController({
     control: form.control,
@@ -95,106 +86,82 @@ export function PriceLabelOptionsForm({ form, orgId, loadedSourceName }: PriceLa
         <CardDescription>{t("priceLabels.form.description")}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 md:gap-2">
-        <Field>
-          <FieldLabel htmlFor="price-label-source">{t("priceLabels.form.source")}</FieldLabel>
-          <Select
-            value={source}
-            onValueChange={(value) => {
-              if (value) changeSource(value as PriceLabelSource);
-            }}
-          >
-            <SelectTrigger id="price-label-source" className="w-full">
-              <SelectValue>{t(`priceLabels.sources.${source}`)}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {PRICE_LABEL_SOURCES.map((sourceOption) => (
-                <SelectItem key={sourceOption} value={sourceOption}>
-                  {t(`priceLabels.sources.${sourceOption}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="price-label-source-item">
-            {t(`priceLabels.sourceItems.${source}`)}
-          </FieldLabel>
-          <Select
-            value={sourceGuidField.value || null}
-            onValueChange={(value) => {
-              if (value) changeSourceGuid(value);
-            }}
-          >
-            <SelectTrigger id="price-label-source-item" className="w-full">
-              <SelectValue>
-                {selectedSourceName ?? t(`priceLabels.sourcePlaceholders.${source}`)}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {sourceOptions.map((option) => (
-                <SelectItem key={option.guid} value={option.guid}>
-                  {option.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <label className="flex items-center justify-between gap-3">
-          <span className="flex flex-col">
-            <span className="text-control font-medium">{t("priceLabels.form.showPrices")}</span>
-            <span className="text-xs text-foreground/70">{t("priceLabels.form.showPricesHint")}</span>
-          </span>
-          <Switch
-            aria-label={t("priceLabels.form.showPrices")}
-            checked={showsPricesField.value}
-            onCheckedChange={showsPricesField.onChange}
-          />
-        </label>
-        {showsPricesField.value && (
-        <div className="flex flex-col gap-3 md:gap-2">
-          <Field data-invalid={markupState.invalid || undefined}>
-            <FieldLabel htmlFor="price-label-markup">{t("priceLabels.form.markup")}</FieldLabel>
-            <Input
-              id="price-label-markup"
-              type="number"
-              inputMode="decimal"
-              step="any"
-              name={markupField.name}
-              ref={markupField.ref}
-              onBlur={markupField.onBlur}
-              value={Number.isNaN(markupField.value) ? "" : markupField.value}
-              onChange={(event) => markupField.onChange(event.target.valueAsNumber)}
-              aria-invalid={markupState.invalid}
-              aria-describedby="price-label-markup-hint"
-            />
-            <p id="price-label-markup-hint" className="text-xs text-foreground/70">
-              {t("priceLabels.form.markupHint")}
-            </p>
-            {markupState.invalid && <FieldError errors={[markupState.error]} />}
-          </Field>
+        <div data-tour="labels-source" className="flex flex-col gap-3 md:gap-2">
           <Field>
-            <FieldLabel htmlFor="price-label-rounding">{t("priceLabels.form.rounding")}</FieldLabel>
+            <FieldLabel htmlFor="price-label-source">{t("priceLabels.form.source")}</FieldLabel>
             <Select
-              value={roundingField.value}
+              value={source}
               onValueChange={(value) => {
-                if (value) roundingField.onChange(value as PriceLabelRoundingMode);
+                if (value) changeSource(value as PriceLabelSource);
               }}
             >
-              <SelectTrigger id="price-label-rounding" className="w-full">
-                <SelectValue>{t(`priceLabels.rounding.${roundingField.value}`)}</SelectValue>
+              <SelectTrigger id="price-label-source" className="w-full">
+                <SelectValue>{t(`priceLabels.sources.${source}`)}</SelectValue>
               </SelectTrigger>
               <SelectContent>
-                {PRICE_LABEL_ROUNDING_MODES.map((rounding) => (
-                  <SelectItem key={rounding} value={rounding}>
-                    {t(`priceLabels.rounding.${rounding}`)}
+                {PRICE_LABEL_SOURCES.map((sourceOption) => (
+                  <SelectItem key={sourceOption} value={sourceOption}>
+                    {t(`priceLabels.sources.${sourceOption}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="price-label-source-item">
+              {t(`priceLabels.sourceItems.${source}`)}
+            </FieldLabel>
+            <Select
+              value={sourceGuidField.value || null}
+              onValueChange={(value) => {
+                if (value) changeSourceGuid(value);
+              }}
+            >
+              <SelectTrigger id="price-label-source-item" className="w-full">
+                <SelectValue>
+                  {selectedSourceName ?? t(`priceLabels.sourcePlaceholders.${source}`)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {sourceOptions.map((option) => (
+                  <SelectItem key={option.guid} value={option.guid}>
+                    {option.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </Field>
         </div>
-        )}
-        <div className="flex flex-col gap-3 md:gap-2">
+        <div data-tour="labels-prices" className="flex flex-col gap-3 md:gap-2">
+          <label className="flex items-center justify-between gap-3">
+            <span className="flex flex-col">
+              <span className="text-control font-medium">{t("priceLabels.form.showPrices")}</span>
+              <span className="text-xs text-foreground/70">{t("priceLabels.form.showPricesHint")}</span>
+            </span>
+            <Switch
+              aria-label={t("priceLabels.form.showPrices")}
+              checked={showsPricesField.value}
+              onCheckedChange={showsPricesField.onChange}
+            />
+          </label>
+          {showsPricesField.value && (
+            <p className="text-xs text-foreground/70">
+              <Trans
+                t={t}
+                i18nKey="priceLabels.form.sellPriceHint"
+                components={{
+                  settingsLink: (
+                    <Link
+                      to={SETTINGS_PATHS.pricing}
+                      className="font-medium text-primary underline-offset-4 hover:underline"
+                    />
+                  ),
+                }}
+              />
+            </p>
+          )}
+        </div>
+        <div data-tour="labels-sheet" className="flex flex-col gap-3 md:gap-2">
           <LabelSheetOptionFields
             idPrefix="price-label"
             templateId={templateField.value}

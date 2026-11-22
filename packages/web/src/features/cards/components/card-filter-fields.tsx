@@ -3,6 +3,7 @@ import { Slider } from "@/components/ui/slider";
 import { CARD_COLOR_ACTIVE_CLASS } from "@/lib/constants/colors";
 import { cn } from "@/lib/utils";
 import {
+  IconCoins,
   IconDownload,
   IconHelpCircle,
   IconQuestionMark,
@@ -32,6 +33,7 @@ export function CardFilterFields({
   binCount,
   unmatchedCount = 0,
   onShowUnmatched,
+  openBuyGuid,
 }: CardFilterFieldsProps) {
   const { t } = useTranslation("cards");
   const bins = Array.from({ length: binCount ?? 0 }, (_, i) => i + 1);
@@ -264,6 +266,36 @@ export function CardFilterFields({
           {t("cardFilterPopover.needsAttention")}
         </button>
       </div>
+
+      {(openBuyGuid || activeFilters.intakeLotGuid) && (
+        <div>
+          <p className="text-xs font-medium text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:text-foreground">
+            {t("cardFilterPopover.buy")}
+          </p>
+          <button
+            type="button"
+            aria-pressed={!!activeFilters.intakeLotGuid}
+            onClick={() =>
+              onFiltersChange({
+                ...activeFilters,
+                intakeLotGuid: activeFilters.intakeLotGuid
+                  ? null
+                  : (openBuyGuid ?? null),
+              })
+            }
+            className={cn(
+              chipBase,
+              "flex items-center gap-1.5 px-2 h-7 max-md:h-9 max-md:px-3",
+              activeFilters.intakeLotGuid
+                ? "bg-primary text-primary-foreground border-primary"
+                : chipInactive,
+            )}
+          >
+            <IconCoins className="size-3.5" />
+            {t("cardFilterPopover.onlyThisBuy")}
+          </button>
+        </div>
+      )}
 
       {onShowUnmatched && unmatchedCount > 0 && (
         <div>

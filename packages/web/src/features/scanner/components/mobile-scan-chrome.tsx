@@ -1,5 +1,6 @@
 import { CardImage } from "@/components/card-image";
 import { CompactCount } from "@/components/compact-value";
+import { MobileScanBuyRow } from "@/features/business/components/mobile-scan-buy-row";
 import { Button } from "@/components/ui/button";
 import { collectionCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -237,6 +238,13 @@ export function MobileScanChrome({ chrome }: MobileScanChromeProps) {
                 </span>
                 <IconChevronRight aria-hidden className="size-3" />
               </button>
+            )}
+            {activeCollection && (
+              <MobileScanBuyRow
+                collectionGuid={activeCollection.guid}
+                isRunning={running}
+                isRemoveModeActive={isRemoveModeActive}
+              />
             )}
           </div>
           <button

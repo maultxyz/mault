@@ -2,6 +2,7 @@ import { apiUsageRoute } from "./api-usage";
 import { Hono } from "hono";
 import type { AppEnv } from "../../middleware/auth";
 import { activeScanningRoute } from "./active-scanning";
+import { cachesRoute } from "./caches";
 import { cardsDumpRoute } from "./cards-dump";
 import { cardsGamesRoute } from "./cards-games";
 import { cardsListRoute } from "./cards-list";
@@ -42,6 +43,7 @@ const router = new Hono<AppEnv>()
   .route("/", cardsGamesRoute)
   .route("/", cardsDumpRoute)
   .route("/", errorReportingTestRoute)
+  .route("/", cachesRoute)
   .route("/", scanMetricsRoute)
   .route("/", scanVectorizeStatsRoute)
   .route("/", activeScanningRoute)

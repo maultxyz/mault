@@ -30,6 +30,7 @@ export function CardViewOptionsDrawer({
   availableColors,
   availableFoilTypes,
   binCount,
+  openBuyGuid,
   unmatchedCount,
   onShowUnmatched,
   viewMode,
@@ -63,6 +64,7 @@ export function CardViewOptionsDrawer({
           }
           size="icon"
           className={cn("shrink-0", triggerClassName)}
+          data-tour="card-view-options"
           aria-label={label}
           title={label}
         >
@@ -120,6 +122,7 @@ export function CardViewOptionsDrawer({
               availableColors={availableColors}
               availableFoilTypes={availableFoilTypes}
               binCount={binCount}
+              openBuyGuid={openBuyGuid}
               unmatchedCount={unmatchedCount}
               onShowUnmatched={
                 onShowUnmatched &&

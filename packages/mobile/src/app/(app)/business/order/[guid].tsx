@@ -21,6 +21,9 @@ import { StatGroup } from "@/components/ui/stat-group";
 import { StatTile } from "@/components/ui/stat-tile";
 import { allocateOrder, cancelOrder, deleteOrder, orderQueryOptions } from "@/features/business/api/business";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
+import { BusinessTipsButton } from "@/features/business/components/business-tips-button";
+import { BusinessTipsSheet } from "@/features/business/components/business-tips-sheet";
+import { useBusinessTips } from "@/features/business/lib/use-business-tips";
 import { useBusinessAction } from "@/features/business/api/use-business-action";
 import { usePickActions } from "@/features/business/api/use-pick-actions";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -69,6 +72,7 @@ export default function OrderScreen() {
   const { format } = usePricing();
   const order = useQuery(orderQueryOptions(guid));
   const access = useQuery(businessAccessQueryOptions(orgId));
+  const tips = useBusinessTips("picks", !!access.data && !access.data.isLocked);
   const actions = usePickActions();
   const { run: runAction } = useBusinessAction();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -132,9 +136,12 @@ export default function OrderScreen() {
           }
           onBack={() => router.back()}
           actions={
-            detail && canAct ? (
-              <IconButton icon="more" accessibilityLabel={t("business.order.moreActions")} onPress={() => setMenuOpen(true)} />
-            ) : null
+            <>
+              <BusinessTipsButton onPress={tips.open} />
+              {detail && canAct ? (
+                <IconButton icon="more" accessibilityLabel={t("business.order.moreActions")} onPress={() => setMenuOpen(true)} />
+              ) : null}
+            </>
           }
         />
       }
@@ -215,6 +222,7 @@ export default function OrderScreen() {
         onSelect={chooseMenuAction}
         onClose={() => setMenuOpen(false)}
       />
+      <BusinessTipsSheet topic="picks" visible={tips.isOpen} onClose={tips.close} />
     </Screen>
   );
 }

@@ -183,5 +183,196 @@
     }
   },
   "connectYourSorterTitle": "Connecter ton trieur",
-  "saveYourChangesTitle": "Enregistrer les changements"
+  "saveYourChangesTitle": "Enregistrer les changements",
+  "businessTours": {
+    "overview": {
+      "triggerTooltip": "Comment fonctionne Achat & vente",
+      "welcome": {
+        "title": "Bienvenue dans Achat & vente",
+        "content": "C’est ici que vous gérez votre boutique. Faites entrer des cartes de clients, de fournisseurs, de lots en vrac ou de produits ouverts, préparez et expédiez les commandes, réservez des cartes pour vos clients, imprimez des étiquettes de prix et suivez vos ventes. Passez à tout moment et relancez ceci depuis l’icône d’aide."
+      },
+      "now": {
+        "title": "En ce moment",
+        "content": "Ces tuiles montrent ce qui est en cours : entrées de stock, préparations et réservations. Cliquez sur une tuile pour ouvrir la page correspondante."
+      },
+      "attention": {
+        "title": "À traiter",
+        "content": "Vos prochaines tâches s'affichent ici, par exemple les préparations à terminer ou les cartes à sortir. Cliquez dessus pour y aller directement."
+      },
+      "charts": {
+        "title": "Ventes et réservations",
+        "content": "Voyez combien vous avez vendu ces dernières semaines et comment évoluent les réservations."
+      },
+      "sections": {
+        "title": "Chaque partie de la boutique",
+        "content": "Chaque carte ouvre un espace : Entrées de stock, Préparations, Réservations, Étiquettes et Ventes. Les entrées de stock et préparations en cours sont listées ici."
+      },
+      "views": {
+        "title": "Équipe et précision",
+        "content": "Changez d'onglet pour voir ce que chaque membre de l'équipe a fait et la précision de vos scans."
+      },
+      "nav": {
+        "title": "Toujours à un clic",
+        "content": "Les pages Achat & vente sont aussi dans la barre latérale, pour passer de l'une à l'autre depuis n'importe où."
+      }
+    },
+    "buys": {
+      "triggerTooltip": "Comment fonctionnent les entrées de stock",
+      "newBuy": {
+        "title": "Démarrer une nouvelle entrée de stock",
+        "content": "Utilisez une entrée de stock dès que du nouveau stock arrive en boutique : un client qui vous vend des cartes, une livraison d’un fournisseur, un lot en vrac que vous avez acheté ou un produit scellé que vous ouvrez. Choisissez la collection, et chaque carte scannée y va directement, pour suivre ce que chaque carte a coûté et à combien elle se vend."
+      },
+      "list": {
+        "title": "Vos entrées de stock",
+        "content": "Recherchez vos entrées de stock ou filtrez-les par statut pour trouver celles en cours, terminées ou annulées."
+      },
+      "unmoved": {
+        "title": "Mettre les cartes en stock",
+        "content": "Ces entrées de stock terminées ont encore des cartes dans leur propre collection. Déplacez-les dans votre stock quand vous êtes prêt."
+      },
+      "stats": {
+        "title": "L'offre en direct",
+        "content": "Pour un client, l’offre se met à jour selon votre liste de rachat à mesure que vous ajoutez des cartes. Pour une livraison fournisseur ou un lot en vrac, vous pouvez ignorer l’offre et saisir le total payé en terminant. Un produit ouvert n’a pas d’offre : vous saisissez ce qu’il a coûté."
+      },
+      "cards": {
+        "title": "Toutes les cartes de l'entrée de stock",
+        "content": "Ouvrez une carte pour modifier son offre. Les cartes sous votre valeur minimale ne reçoivent pas d'offre, et vous pouvez les retirer en un clic."
+      },
+      "finish": {
+        "title": "Terminer l'entrée de stock",
+        "content": "Terminez une fois que vous avez payé : le client, la facture du fournisseur ou le prix du lot en vrac. Le montant payé est réparti sur les cartes comme leur coût, et les cartes vont dans le stockage si vous avez choisi un emplacement."
+      },
+      "performance": {
+        "title": "Les résultats de l'entrée de stock",
+        "content": "Pour les entrées de stock terminées, voyez ce que les cartes ont rapporté jusqu'ici par rapport à ce que vous avez payé."
+      }
+    },
+    "picks": {
+      "triggerTooltip": "Comment fonctionnent les préparations",
+      "welcome": {
+        "title": "Préparer les commandes",
+        "content": "Une préparation est une liste de cartes à sortir pour une commande. Mault trouve les cartes dans votre stock et vous indique où se trouve chacune."
+      },
+      "import": {
+        "title": "Ajouter une préparation",
+        "content": "Collez une liste de deck ou importez une commande pour créer une préparation."
+      },
+      "list": {
+        "title": "Vos préparations",
+        "content": "Filtrez les préparations par statut. Cochez-en plusieurs pour les sortir en un seul passage avec Préparer ensemble."
+      },
+      "views": {
+        "title": "Choisir comment préparer",
+        "content": "Guidé vous accompagne carte par carte. Vous pouvez aussi voir toutes les cartes, avancer une par une, travailler boîte par boîte ou répartir les cartes par commande."
+      },
+      "phone": {
+        "title": "Préparer sur le téléphone",
+        "content": "Scannez le code avec votre téléphone pour emporter la préparation. Les cartes cochées sont enregistrées sur les deux appareils."
+      },
+      "complete": {
+        "title": "Terminer la préparation",
+        "content": "Quand chaque carte est cochée, terminez la préparation. Les cartes quittent votre stock et la vente est enregistrée."
+      }
+    },
+    "reservations": {
+      "triggerTooltip": "Comment fonctionnent les réservations",
+      "welcome": {
+        "title": "Réservations de cartes",
+        "content": "Vos clients peuvent réserver des cartes depuis votre catalogue. Vous gardez les cartes pour eux jusqu'à ce qu'ils viennent les retirer."
+      },
+      "lists": {
+        "title": "En cours et historique",
+        "content": "En cours montre les réservations dont vous devez encore vous occuper. Historique montre celles qui sont terminées."
+      },
+      "stages": {
+        "title": "Où en est chaque demande",
+        "content": "Les demandes sont groupées par étape : prête à retirer, à sortir, en préparation et dans la file derrière un autre client."
+      },
+      "createPick": {
+        "title": "Sortir les cartes",
+        "content": "Créez une préparation pour sortir les cartes réservées de votre stock. Une fois la préparation terminée, les cartes sont prêtes à retirer."
+      },
+      "actions": {
+        "title": "Remettre ou libérer",
+        "content": "Marquez les cartes comme retirées quand le client les récupère. La vente est enregistrée au prix fixé lors de la réservation. Libérez les cartes si le client n'en veut plus."
+      }
+    },
+    "labels": {
+      "triggerTooltip": "Comment fonctionnent les étiquettes de prix",
+      "source": {
+        "title": "Choisir vos cartes",
+        "content": "Imprimez des étiquettes pour une collection, un emplacement de stockage ou une entrée de stock."
+      },
+      "prices": {
+        "title": "Le prix sur chaque étiquette",
+        "content": "Les étiquettes affichent le prix de vente de chaque carte. Modifiez votre marge et l'arrondi dans Paramètres > Prix, ou fixez le prix de cartes sélectionnées avec Définir les prix."
+      },
+      "sheet": {
+        "title": "Choisir la planche",
+        "content": "Choisissez la planche d'étiquettes sur laquelle vous imprimez et où commencer, pour réutiliser une planche déjà entamée."
+      },
+      "cards": {
+        "title": "Ajuster une carte",
+        "content": "Décochez les cartes sans étiquette, ou saisissez un prix personnalisé pour une carte. Les prix personnalisés ne valent que pour cette impression."
+      },
+      "print": {
+        "title": "Imprimer",
+        "content": "Quand l'aperçu vous convient, imprimez les étiquettes."
+      }
+    },
+    "sales": {
+      "triggerTooltip": "Comment fonctionne le rapport des ventes",
+      "welcome": {
+        "title": "Vos ventes",
+        "content": "Chaque carte vendue via une préparation ou une réservation apparaît ici."
+      },
+      "filters": {
+        "title": "Choisir une période",
+        "content": "Choisissez les dates du rapport. Si vous ouvrez les ventes depuis une entrée de stock, le rapport ne montre que les cartes de cette entrée de stock."
+      },
+      "totals": {
+        "title": "Totaux",
+        "content": "Voyez le chiffre d'affaires, le coût des ventes, le bénéfice et la marge. Le bénéfice ne compte que les ventes dont vous connaissez le coût de la carte."
+      },
+      "table": {
+        "title": "Chaque vente",
+        "content": "Chaque ligne est une carte vendue, avec son prix et, s'il est connu, son coût."
+      },
+      "export": {
+        "title": "Exporter",
+        "content": "Téléchargez le rapport en fichier CSV pour votre comptabilité."
+      }
+    },
+    "scannerBuy": {
+      "triggerTooltip": "Comment fonctionne l'entrée de stock depuis le scanner",
+      "start": {
+        "title": "Faire entrer du stock en scannant",
+        "content": "Démarrez une entrée de stock ici dès que du nouveau stock arrive : d’un client, d’une livraison fournisseur, d’un lot en vrac ou d’un produit scellé ouvert. Vous ne quittez jamais le scanner."
+      },
+      "menu": {
+        "title": "Ou depuis le menu de la collection",
+        "content": "Vous pouvez aussi démarrer une entrée de stock à tout moment depuis le menu de la collection."
+      },
+      "scan": {
+        "title": "Scannez comme d'habitude",
+        "content": "Tant qu'une entrée de stock est en cours, chaque carte scannée y est ajoutée."
+      },
+      "totals": {
+        "title": "Totaux en direct",
+        "content": "Suivez le nombre de cartes et l'offre pendant que vous scannez. Si des cartes valent moins que votre minimum, retirez-les en un clic."
+      },
+      "recent": {
+        "title": "Cartes récentes",
+        "content": "Voyez les dernières cartes scannées avec leur offre, et modifiez l'offre d'une carte."
+      },
+      "filter": {
+        "title": "Afficher seulement cette entrée de stock",
+        "content": "Activez Uniquement cette entrée de stock dans les options d'affichage pour ne voir que les cartes de cette entrée de stock dans la grille."
+      },
+      "finish": {
+        "title": "Terminer l'entrée de stock",
+        "content": "Terminez l’entrée de stock ici une fois payé, qu’il s’agisse d’un client, d’une facture fournisseur ou d’un lot en vrac, sans quitter le scanner."
+      }
+    }
+  }
 }

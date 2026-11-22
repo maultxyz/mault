@@ -370,6 +370,7 @@
     "tiersRequired": "Add at least one tier.",
     "tooManyTiers": "Add no more than {{max}} tiers.",
     "customerNameRequired": "Enter the customer's name.",
+    "buyNameRequired": "Enter a name for this intake.",
     "orderTextRequired": "Paste an order or choose a file.",
     "orderLinesRequired": "Keep at least one card on the pick.",
     "decklistRequired": "Enter at least one card, one per line.",

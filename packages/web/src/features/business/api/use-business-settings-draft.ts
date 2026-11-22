@@ -10,6 +10,7 @@ import {
   type BusinessSettingsDraftValues,
   DEFAULT_BUSINESS_PERMISSIONS,
   DEFAULT_BUYLIST_CONFIG,
+  DEFAULT_SELL_PRICE_CONFIG,
   sortBuylistTiers,
 } from "@magic-vault/shared";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,6 +26,7 @@ export function useBusinessSettingsDraft() {
   const values = useMemo<BusinessSettingsDraftValues>(
     () => ({
       buylist: settings?.buylist ?? DEFAULT_BUYLIST_CONFIG,
+      sell: settings?.sell ?? DEFAULT_SELL_PRICE_CONFIG,
       permissions: settings?.permissions ?? DEFAULT_BUSINESS_PERMISSIONS,
     }),
     [settings],
@@ -40,6 +42,7 @@ export function useBusinessSettingsDraft() {
     try {
       const result = await saveBusinessSettings({
         buylist: { ...draft.buylist, tiers: sortBuylistTiers(draft.buylist.tiers) },
+        sell: draft.sell,
         permissions: draft.permissions,
       });
       if (!result.success || !result.data) {
@@ -49,7 +52,11 @@ export function useBusinessSettingsDraft() {
       await queryClient.invalidateQueries({
         queryKey: businessKeys.settings(orgId),
       });
-      form.reset({ buylist: result.data.buylist, permissions: result.data.permissions });
+      form.reset({
+        buylist: result.data.buylist,
+        sell: result.data.sell,
+        permissions: result.data.permissions,
+      });
       toast.success(t("settings.saved"));
     } catch {
       toast.error(t("settings.saveFailed"));

@@ -8,6 +8,7 @@ export interface StatGroupTile {
   detail?: string | null;
   icon?: Icon;
   onClick?: () => void;
+  to?: string;
 }
 
 export interface StatTileContentProps {
@@ -19,6 +20,7 @@ export interface StatGroupProps {
   tiles: StatGroupTile[];
   live?: boolean;
   gridClassName?: string;
+  dataTour?: string;
 }
 
 export interface StatCellProps {

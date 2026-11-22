@@ -8,12 +8,13 @@ import {
   type MatchedScanDiagnostics,
   type OrgRole,
 } from "@magic-vault/shared";
-import { and, eq } from "drizzle-orm";
+import { and, eq, sql } from "drizzle-orm";
 import type { Transaction } from "../db";
 import {
   collectionCards,
   collections,
   devices,
+  intakeLots,
   storageLocations,
   unmatchedCards,
 } from "../db/schema";
@@ -143,11 +144,12 @@ async function loadVisibleCardAcquisitionCost(
   if (!(await canViewCardCosts(tx, orgId, orgRole))) return null;
   const [card] = await tx
     .select({
-      cost: collectionCards.acquisitionCost,
-      currency: collectionCards.acquisitionCurrency,
+      cost: sql<number | null>`CASE WHEN ${intakeLots.status} = 'open' THEN ${collectionCards.intakeOffer} ELSE ${collectionCards.acquisitionCost} END`,
+      currency: sql<string | null>`CASE WHEN ${intakeLots.status} = 'open' THEN ${collectionCards.intakeOfferCurrency} ELSE ${collectionCards.acquisitionCurrency} END`,
     })
     .from(collectionCards)
     .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .leftJoin(intakeLots, eq(intakeLots.id, collectionCards.intakeLotId))
     .where(
       and(
         eq(collectionCards.guid, scanId),

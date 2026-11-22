@@ -4,7 +4,6 @@ import { AppText } from "@/components/ui/app-text";
 import { Callout } from "@/components/ui/callout";
 import { useBusinessSettingsDraft } from "@/features/business/api/use-business-settings-draft";
 import { BusinessPermissionsSettings } from "@/features/business/components/business-permissions-settings";
-import { BuylistSettings } from "@/features/business/components/buylist-settings";
 import { ShopCatalogsSettings } from "@/features/business/components/shop-catalogs-settings";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -41,7 +40,6 @@ export default function BusinessSettingsScreen() {
         {t("settings.business.description")}
       </AppText>
       {!draft.canManage ? <Callout tone="info" title={t("settings.business.managersOnly")} /> : null}
-      <BuylistSettings control={draft.control} disabled={disabled} />
       <BusinessPermissionsSettings control={draft.control} disabled={disabled} />
       <ShopCatalogsSettings />
     </SettingsPage>

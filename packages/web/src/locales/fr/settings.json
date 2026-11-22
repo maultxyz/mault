@@ -91,11 +91,11 @@
     "organization": "Renomme ton organisation, invite des personnes et choisis ce que chaque membre peut faire.",
     "billing": "Consulte ton forfait et ton utilisation, et gère ou améliore ton abonnement.",
     "scanning": "Choisis comment les cartes sont identifiées, imprime des cartes de contrôle et décide de ce qui se passe quand un scan doit être corrigé.",
-    "pricing": "Choisis d'où viennent les prix des cartes et combien vaut chaque état.",
+    "pricing": "Choisissez d'où viennent les prix des cartes, la valeur de chaque état et comment vous fixez le prix des cartes que vous vendez et achetez.",
     "sounds": "Joue un son quand une carte scannée correspond à une règle, par exemple pour les cartes de valeur.",
     "notifications": "Relie ton serveur Discord et choisis quels scans et alertes sont publiés et où.",
     "integrations": "Crée des clés API et des webhooks pour que ta boutique ou d'autres outils sachent où tes cartes sont rangées.",
-    "business": "Définissez vos offres de rachat et choisissez ce que les membres peuvent voir et faire."
+    "business": "Choisissez ce que les membres peuvent voir et faire, et partagez vos catalogues."
   },
   "invites": {
     "heading": "Invitations"

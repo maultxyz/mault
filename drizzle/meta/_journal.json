@@ -1450,6 +1450,20 @@
       "when": 1795323096876,
       "tag": "0206_aberrant_wolfsbane",
       "breakpoints": true
+    },
+    {
+      "idx": 207,
+      "version": "7",
+      "when": 1795376059079,
+      "tag": "0207_dashing_giant_man",
+      "breakpoints": true
+    },
+    {
+      "idx": 208,
+      "version": "7",
+      "when": 1795378336112,
+      "tag": "0208_messy_jackal",
+      "breakpoints": true
     }
   ]
 }

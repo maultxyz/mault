@@ -1,6 +1,7 @@
 import {
   toBusinessPermissions,
   toBuylistConfig,
+  toSellPriceConfig,
   type BusinessSettings,
 } from "@magic-vault/shared";
 import { Hono } from "hono";
@@ -28,8 +29,13 @@ export const businessSettingsRoute = new Hono<AppEnv>()
     return businessQuery(c, async (tx, access) => {
       if (!access.canManageSettings) return BUSINESS_FORBIDDEN_RESULT;
       const orgId = c.get("orgId");
+      const sell =
+        body.sell === undefined
+          ? (await loadBusinessSettings(tx, orgId)).sell
+          : toSellPriceConfig(body.sell);
       const values = {
         buylistConfig: buylist,
+        sellConfig: sell,
         businessPermissions: permissions,
         updatedAt: new Date(),
       };
@@ -42,6 +48,6 @@ export const businessSettingsRoute = new Hono<AppEnv>()
         userId: c.get("userId"),
         action: "business.settings",
       });
-      return { success: true, data: { buylist, permissions } };
+      return { success: true, data: { buylist, sell, permissions } };
     });
   });

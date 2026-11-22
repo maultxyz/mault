@@ -14,7 +14,6 @@ export function CardDetailInfoSections({
   foilType,
   stamp,
   condition,
-  priceExtras,
 }: CardDetailInfoSectionsProps) {
   const { t } = useTranslation();
   return (
@@ -28,7 +27,6 @@ export function CardDetailInfoSections({
         <Surface style={{ gap: SPACING.md }}>
           <CardPriceDetails card={card} isFoil={isFoil} foilType={foilType} stamp={stamp} condition={condition} />
           <CardPurchaseLinks card={card} />
-          {priceExtras}
         </Surface>
       </CollapsibleSection>
     </>

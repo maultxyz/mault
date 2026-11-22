@@ -1,4 +1,5 @@
 import type { ConditionMultipliers, PriceSource } from "@magic-vault/shared";
+import type { useOrgSettingsDraft } from "@/features/companies/api/use-org-settings-draft";
 
 export interface PrimaryColorPickerProps {
   value: string | null;
@@ -27,4 +28,8 @@ export interface CorrectionAutoCloseSettingProps {
   value: number | null;
   disabled?: boolean;
   onChange: (seconds: number | null) => void;
+}
+
+export interface MarketPricingSectionsProps {
+  draft: ReturnType<typeof useOrgSettingsDraft>;
 }

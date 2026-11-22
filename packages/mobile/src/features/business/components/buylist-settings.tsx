@@ -30,7 +30,7 @@ export function BuylistSettings({ control, disabled }: BusinessSettingsFormProps
 
   return (
     <>
-      <SettingsSection title={t("settings.business.buylist.heading")} description={t("settings.business.buylist.description")}>
+      <SettingsSection title={t("settings.pricing.buying.heading")} description={t("settings.pricing.buying.description")}>
         <AppText size="sm" weight="medium">
           {t("settings.business.buylist.tiers")}
         </AppText>

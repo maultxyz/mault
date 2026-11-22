@@ -7,6 +7,7 @@ import {
   PUBLIC_CARD_PRICE_SORTS,
   PUBLIC_CARDS_SEARCH_MAX_LENGTH,
   PUBLIC_CARD_SORTS,
+  PRICE_SOURCE_FIELDS,
   publicCardFiltersSchema,
   type OrgPricing,
   type PublicCardDetail,
@@ -44,6 +45,8 @@ import type {
 } from "./interfaces/public-cards";
 import { loadScanImageSide, resolveBackScanImageUrl, resolveScanImageUrl } from "./scan-images";
 import { pricesForShareLink } from "./share-link-pricing";
+import { loadCardSellPrices, loadSellPriceConfig, sellPriceSql } from "./card-pricing";
+import type { SellPriceSqlContext } from "./interfaces/card-pricing";
 import { notReservedByOpenPicksSql } from "./order-reservations";
 import { notHeldByCardReservationsSql } from "./card-reservation-sql";
 import { loadRankedIdPage } from "./ranked-id-page";
@@ -106,20 +109,50 @@ export function parsePublicCardsRequest(
   };
 }
 
-function cardPriceSql(pricing: OrgPricing): SQL {
-  return joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp");
+function cardPriceSql(pricing: OrgPricing, sellPrices: SellPriceSqlContext | null): SQL {
+  const marketPrice = joinedScannedCardPriceSql(pricing, CC_ALIAS_SQL_COLUMNS, "cp");
+  return sellPrices ? sellPriceSql(marketPrice, sellPrices.config, sellPrices.currency) : marketPrice;
 }
 
-function cardOrderSql(sort: PublicCardSort, pricing: OrgPricing): SQL {
+async function sellPriceContext(
+  tx: Transaction,
+  scope: PublicCardBrowseScope,
+  pricing: OrgPricing,
+): Promise<SellPriceSqlContext | null> {
+  if (!scope.usesSellPrices) return null;
+  return {
+    config: await loadSellPriceConfig(tx, scope.orgId),
+    currency: PRICE_SOURCE_FIELDS[pricing.source].currency,
+  };
+}
+
+async function loadScopeSellPrices(
+  tx: Transaction,
+  scope: PublicCardBrowseScope,
+  scanIds: string[],
+): Promise<Map<string, number | null> | null> {
+  if (!scope.usesSellPrices) return null;
+  return loadCardSellPrices(tx, scope.orgId, scanIds);
+}
+
+function cardOrderSql(
+  sort: PublicCardSort,
+  pricing: OrgPricing,
+  sellPrices: SellPriceSqlContext | null,
+): SQL {
   if (sort === "name") return sql`cc.card_name COLLATE "und-x-icu" ASC, cc.id ASC`;
   if (sort === "price-desc" || sort === "price-asc") {
     const direction = sort === "price-desc" ? sql`DESC` : sql`ASC`;
-    return sql`${cardPriceSql(pricing)} ${direction} NULLS LAST, cc.id ASC`;
+    return sql`${cardPriceSql(pricing, sellPrices)} ${direction} NULLS LAST, cc.id ASC`;
   }
   return sql`cc.scanned_at DESC, cc.id DESC`;
 }
 
-function publicFiltersSql(request: PublicCardsRequest, pricing: OrgPricing): SQL {
+function publicFiltersSql(
+  request: PublicCardsRequest,
+  pricing: OrgPricing,
+  sellPrices: SellPriceSqlContext | null,
+): SQL {
   const { filters } = request;
   const conditions: SQL[] = [
     cardFilterSql({
@@ -146,10 +179,10 @@ function publicFiltersSql(request: PublicCardsRequest, pricing: OrgPricing): SQL
   if (filters.finish === "foil") conditions.push(sql`cc.is_foil`);
   if (filters.finish === "nonfoil") conditions.push(sql`NOT cc.is_foil`);
   if (filters.minPrice !== null) {
-    conditions.push(sql`${cardPriceSql(pricing)} >= ${filters.minPrice}::float8`);
+    conditions.push(sql`${cardPriceSql(pricing, sellPrices)} >= ${filters.minPrice}::float8`);
   }
   if (filters.maxPrice !== null) {
-    conditions.push(sql`${cardPriceSql(pricing)} <= ${filters.maxPrice}::float8`);
+    conditions.push(sql`${cardPriceSql(pricing, sellPrices)} <= ${filters.maxPrice}::float8`);
   }
   return sql.join(conditions, sql` AND `);
 }
@@ -166,17 +199,18 @@ export async function loadPublicCardIdsPage(
     request.sort === "price-asc" ||
     filters.minPrice !== null ||
     filters.maxPrice !== null;
+  const sellPrices = await sellPriceContext(tx, scope, pricing);
   const usesCatalog =
     !!request.search || filters.rarities.length > 0 || filters.colors.length > 0;
   const ranked = sql`
     ranked AS (
-      SELECT cc.id, row_number() OVER (ORDER BY ${cardOrderSql(request.sort, pricing)}) AS rn
+      SELECT cc.id, row_number() OVER (ORDER BY ${cardOrderSql(request.sort, pricing, sellPrices)}) AS rn
       FROM collection_cards cc
       ${PUBLIC_CARD_JOINS}
       ${usesCatalog ? cardCatalogJoinSql(STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}
       ${usesPrices ? cardPricesJoinSql("cp", STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}
       WHERE ${publicCardsWhere(scope, request.gameKey)}
-        AND ${publicFiltersSql(request, pricing)}
+        AND ${publicFiltersSql(request, pricing, sellPrices)}
     )`;
   return loadRankedIdPage(tx, ranked, request.pageSize, request.requestedPage);
 }
@@ -218,7 +252,9 @@ export async function loadPublicCardDetail(
     false,
   );
   if (!stored) return null;
+  const sellPrices = await loadScopeSellPrices(tx, scope, [stored.scanId]);
   const detail: PublicCardDetail = {
+    ...(sellPrices ? { sellPrice: sellPrices.get(stored.scanId) ?? null } : {}),
     scanId: stored.scanId,
     card: stored.card,
     isFoil: stored.isFoil,
@@ -338,8 +374,14 @@ export async function loadPublicCardPage(
 ): Promise<PublicCardPage> {
   const { rowIds, total, page } = await loadPublicCardIdsPage(tx, scope, request, pricing);
   const storedCards = await toStoredCards(await loadStoredCardsByRowIds(tx, rowIds), false);
+  const sellPrices = await loadScopeSellPrices(
+    tx,
+    scope,
+    storedCards.map((stored) => stored.scanId),
+  );
   const cardPage: PublicCardPage = {
     cards: storedCards.map((stored) => ({
+      ...(sellPrices ? { sellPrice: sellPrices.get(stored.scanId) ?? null } : {}),
       scanId: stored.scanId,
       card: stored.card,
       isFoil: stored.isFoil,

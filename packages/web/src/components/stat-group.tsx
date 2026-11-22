@@ -3,6 +3,8 @@ import { IconBadge } from "@/components/icon-badge";
 import type { StatGroupProps, StatTileContentProps } from "@/lib/interfaces/stat-group";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { STAT_TILE_LINK_CLASS } from "@/lib/constants/ui";
 
 function StatTileContent({ tile }: StatTileContentProps) {
   const TileIcon = tile.icon;
@@ -33,10 +35,11 @@ export function StatGroup({
   tiles,
   live,
   gridClassName = "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5",
+  dataTour,
 }: StatGroupProps) {
   const { t } = useTranslation("common");
   return (
-    <section className="flex flex-col gap-2">
+    <section data-tour={dataTour} className="flex flex-col gap-2">
       <div className="flex items-center gap-1.5">
         <h2 className="font-heading text-base font-semibold text-foreground md:text-sm">
           {heading}
@@ -60,12 +63,16 @@ export function StatGroup({
       </div>
       <div className={cn("grid gap-2", gridClassName)}>
         {tiles.map((tile) =>
-          tile.onClick ? (
+          tile.to ? (
+            <Link key={tile.key} to={tile.to} className={STAT_TILE_LINK_CLASS}>
+              <StatTileContent tile={tile} />
+            </Link>
+          ) : tile.onClick ? (
             <button
               key={tile.key}
               type="button"
               onClick={tile.onClick}
-              className="flex cursor-pointer flex-col items-start rounded-card bg-card p-3 md:p-2 text-left transition-colors hover:bg-foreground/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className={STAT_TILE_LINK_CLASS}
             >
               <StatTileContent tile={tile} />
             </button>

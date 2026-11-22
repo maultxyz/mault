@@ -33,6 +33,7 @@ export interface PageRequest {
   page: number | null;
   selected: string | null;
   search?: string;
+  status?: string;
 }
 
 export interface ServerPagedList<T> {

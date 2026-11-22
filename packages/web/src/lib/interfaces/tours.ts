@@ -37,6 +37,19 @@ export interface TourHelpButtonProps {
   completedKey: string;
   tooltip: string;
   className?: string;
+  autoStart?: boolean;
+}
+
+export interface BusinessTourDefinition {
+  completedKey: string;
+  triggerTooltipKey: string;
+  steps: TourStepConfig[];
+}
+
+export interface BusinessTourProps {
+  tour: BusinessTourDefinition;
+  className?: string;
+  autoStart?: boolean;
 }
 
 export interface OnboardingContextValue {

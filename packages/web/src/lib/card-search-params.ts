@@ -2,6 +2,7 @@ import {
   CARD_FILTER_BINS_PARAM,
   CARD_FILTER_ENABLED_PARAM_VALUE,
   CARD_FILTER_HIDE_DOWNLOADED_PARAM,
+  CARD_FILTER_INTAKE_LOT_PARAM,
   CARD_FILTER_LIST_SEARCH_PARAMS,
   CARD_FILTER_MIN_MATCH_PERCENT_PARAM,
   CARD_FILTER_NEEDS_ATTENTION_PARAM,
@@ -81,7 +82,9 @@ export function readCardFiltersFromSearchParams(
   const minMatchPercent = Number(
     searchParams.get(CARD_FILTER_MIN_MATCH_PERCENT_PARAM),
   );
+  const intakeLotGuid = searchParams.get(CARD_FILTER_INTAKE_LOT_PARAM);
   return {
+    ...(intakeLotGuid ? { intakeLotGuid } : {}),
     colors: searchParams.getAll(CARD_FILTER_LIST_SEARCH_PARAMS.colors),
     rarities: searchParams.getAll(CARD_FILTER_LIST_SEARCH_PARAMS.rarities),
     sets: searchParams.getAll(CARD_FILTER_LIST_SEARCH_PARAMS.sets),
@@ -150,6 +153,11 @@ export function writeCardFiltersToSearchParams(
     searchParams,
     CARD_FILTER_MIN_MATCH_PERCENT_PARAM,
     filters.minMatchPercent > 0 ? String(filters.minMatchPercent) : "",
+  );
+  writeTextSearchParam(
+    searchParams,
+    CARD_FILTER_INTAKE_LOT_PARAM,
+    filters.intakeLotGuid ?? "",
   );
 }
 

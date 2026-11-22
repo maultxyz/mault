@@ -50,6 +50,7 @@ export function CardToolbar({
   availableColors,
   availableFoilTypes,
   binCount,
+  openBuyGuid,
   cardCount,
   viewMode,
   onViewModeChange,
@@ -113,6 +114,7 @@ export function CardToolbar({
           availableColors={availableColors ?? []}
           availableFoilTypes={availableFoilTypes ?? []}
           binCount={binCount}
+          openBuyGuid={openBuyGuid}
           unmatchedCount={unmatchedCount}
           onShowUnmatched={onShowUnmatched}
           viewMode={viewMode}

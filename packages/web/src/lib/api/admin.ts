@@ -6,6 +6,7 @@ import type {
 } from "@/lib/interfaces/admin";
 import type {
   ActiveScanSession,
+  AdminClearCachesResult,
   ApiUsageReport,
   ActiveScanningStats,
   AdminUserSummary,
@@ -160,6 +161,14 @@ export async function testServerErrorReporting(): Promise<{
   return apiPost<{ success: boolean; message: string }>(
     "/api/admin/error-reporting/test",
   );
+}
+
+export async function clearServerCaches(): Promise<Result<AdminClearCachesResult>> {
+  return apiPost<Result<AdminClearCachesResult>>("/api/admin/caches/clear");
+}
+
+export async function reloadCardMatchIndex(): Promise<Result<null>> {
+  return apiPost<Result<null>>("/api/admin/caches/card-match-index/reload");
 }
 
 export async function getPublicMetrics(): Promise<Result<PublicMetrics>> {
