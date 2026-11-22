@@ -45,6 +45,7 @@ import { clearUnmatchedCardsRoute } from "./unmatched-clear";
 import { deleteUnmatchedCardRoute } from "./unmatched-delete";
 import { identifyUnmatchedCardRoute } from "./unmatched-identify";
 import { listUnmatchedCardsRoute } from "./unmatched-list";
+import { retryUnmatchedCardsRoute } from "./unmatched-retry";
 
 const router = new Hono<AppEnv>()
   .route("/", searchOwnedCardsRoute)
@@ -88,6 +89,7 @@ const router = new Hono<AppEnv>()
   .route("/", clearUnmatchedCardsRoute)
   .route("/", deleteUnmatchedCardRoute)
   .route("/", identifyUnmatchedCardRoute)
+  .route("/", retryUnmatchedCardsRoute)
   .route("/", releaseScanLockRoute)
   .route("/", debugErrorRoute)
   .route("/", phoneCameraSignalRoute)

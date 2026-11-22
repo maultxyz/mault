@@ -23,6 +23,7 @@ import type {
   ScanOrientation,
   SerialMessageListener,
   SerialRequestResult,
+  UnmatchedRetryProgress,
   UnmatchedScanDetails,
   UnmatchedScanDiagnostics,
   BinRoute,
@@ -941,6 +942,21 @@ export interface UnmatchedCardsBrowserProps {
   className?: string;
 }
 
+export interface RetryUnmatchedCardsState {
+  progress: UnmatchedRetryProgress | null;
+  isRetrying: boolean;
+  start: (scanIds: string[]) => Promise<void>;
+  stop: () => void;
+}
+
+export interface UnmatchedCardSelectionState {
+  selectedScanIds: string[];
+  isSelected: (scanId: string) => boolean;
+  toggle: (scanId: string) => void;
+  selectMany: (scanIds: string[]) => void;
+  clear: () => void;
+}
+
 export interface UnmatchedViewState {
   isOpen: boolean;
   openIndex: number | null;
@@ -961,6 +977,8 @@ export interface UnmatchedCardDetailProps {
 export interface UnmatchedCardTileProps {
   entry: UnmatchedCard;
   onOpen: () => void;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
 }
 
 export interface UnmatchedCardImageProps {

@@ -2,6 +2,7 @@ import type { ReactNode, RefObject } from "react";
 import type { CameraDevice, CameraFrameOutput, CameraOutput } from "react-native-vision-camera";
 import type {
   ScanDestination,
+  UnmatchedRetryProgress,
   StorageLocation,
   BinConfig,
   CardCondition,
@@ -551,4 +552,22 @@ export interface ScanDestinationSheetProps {
   scanDestination: ScanDestinationState;
   offersSortWithRules: boolean;
   onClose: () => void;
+}
+
+export interface RetryUnmatchedCardsState {
+  progress: UnmatchedRetryProgress | null;
+  isRetrying: boolean;
+  start: (scanIds: string[]) => Promise<void>;
+  stop: () => void;
+}
+
+export interface UnmatchedScanSelectionState {
+  isSelecting: boolean;
+  selectedScanIds: string[];
+  isSelected: (scanId: string) => boolean;
+  startSelecting: () => void;
+  stopSelecting: () => void;
+  toggle: (scanId: string) => void;
+  selectMany: (scanIds: string[]) => void;
+  clear: () => void;
 }
