@@ -1,6 +1,8 @@
 import { MULTI_VALUE_OPERATORS } from "@magic-vault/shared";
 import type { ConditionRowProps } from "@/lib/interfaces/bins";
 import {
+  BOOLEAN_FIELD_OPTIONS,
+  ruleDateValue,
   CONDITION_VALUE_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,
   COUNT_OPERATORS,
@@ -258,6 +260,44 @@ export function ConditionRow({
       (fieldMeta.type === "set" &&
         (condition.operator === "equals" ||
           condition.operator === "not_equals"));
+    if (fieldMeta.type === "boolean") {
+      const options = fieldMeta.options ?? BOOLEAN_FIELD_OPTIONS;
+      return (
+        <Select
+          value={String(condition.value)}
+          onValueChange={(val) => handleValueChange(val as string)}
+        >
+          <SelectTrigger
+            aria-label={t("conditionRow.valueLabel")}
+            className={cn("min-w-24 flex-1", CONDITION_SELECT_TRIGGER_CLASS)}
+          >
+            <SelectValue placeholder={t("conditionRow.selectPlaceholder")}>
+              {options.find((opt) => opt.value === String(condition.value))?.label}
+            </SelectValue>
+          </SelectTrigger>
+          <SelectContent>
+            {options.map((opt) => (
+              <SelectItem key={opt.value} value={opt.value}>
+                {opt.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      );
+    }
+
+    if (fieldMeta.type === "date") {
+      return (
+        <Input
+          type="date"
+          aria-label={t("conditionRow.valueLabel")}
+          className={cn("min-w-24 flex-1", CONDITION_INPUT_CLASS)}
+          value={ruleDateValue(condition.value) ?? ""}
+          onChange={(e) => handleValueChange(e.target.value)}
+        />
+      );
+    }
+
     const isOptionsField =
       (fieldMeta.type === "enum" || fieldMeta.type === "set") &&
       !!fieldMeta.options;

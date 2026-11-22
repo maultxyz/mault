@@ -36,7 +36,7 @@ import { storageLocationsQueryOptions } from "@/features/storage/api/storage";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { applyMode } from "@/features/rules/lib/apply-mode";
 import { modeSchema } from "@/features/rules/lib/mode-schema";
-import { binSetMode } from "@magic-vault/shared";
+import { AUTO_ASSIGN_EXCLUDED_FIELD_TYPES, binSetMode } from "@magic-vault/shared";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useTheme } from "@/hooks/use-theme";
 import { upgradeRequiredMessage } from "@/lib/api/upgrade-required-error";
@@ -125,7 +125,7 @@ export default function SortingModeScreen() {
       { shouldDirty: true },
     );
   const savedMode = binSetMode(activeSet);
-  const eligibleFields = fieldDefinitions.filter((f) => f.type !== "numeric");
+  const eligibleFields = fieldDefinitions.filter((f) => !AUTO_ASSIGN_EXCLUDED_FIELD_TYPES.includes(f.type));
   const chaosLocked = billing?.chaosSort === false && !activeSet?.isChaosMode;
   const repackLocked = billing?.repacks === false && !activeSet?.isRepackMode;
   const editable = !!activeSet?.isActive;

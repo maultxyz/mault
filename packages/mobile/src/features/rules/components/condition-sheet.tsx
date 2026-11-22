@@ -2,10 +2,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, View } from "react-native";
 import {
+  BOOLEAN_FIELD_OPTIONS,
   CONDITION_VALUE_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,
   COUNT_OPERATORS,
   isScanRuleField,
+  ruleDateValue,
   type BinCondition,
   type ConditionOperator,
 } from "@magic-vault/shared";
@@ -18,7 +20,7 @@ import { SearchInput } from "@/components/ui/search-input";
 import { Sheet } from "@/components/ui/sheet";
 import { defaultValueFor, isConditionComplete, isMultiValue, needsValue, sortFields } from "@/features/rules/lib/rules";
 import { useTheme } from "@/hooks/use-theme";
-import { CONDITION_SHEET_MAX_HEIGHT_RATIO, NUMERIC_INPUT_PATTERN } from "@/lib/constants/rules";
+import { CONDITION_SHEET_MAX_HEIGHT_RATIO, NUMERIC_INPUT_PATTERN, RULE_DATE_INPUT_MAX_LENGTH } from "@/lib/constants/rules";
 import { CONTROL_RADIUS, SCREEN_GUTTER, SPACING } from "@/lib/constants/theme";
 import { BUTTON_HEIGHTS, MIN_TOUCH_TARGET } from "@/lib/constants/ui";
 import type { ConditionSheetProps, ConditionSheetStep } from "@/lib/interfaces/rules";
@@ -54,8 +56,16 @@ export function ConditionSheet({
   const meta = draft ? fieldDefinitions.find((f) => f.field === draft.field) : undefined;
   const multi = draft ? isMultiValue(meta, draft.operator) : false;
   const count = !!draft && COUNT_OPERATORS.includes(draft.operator);
-  const options = meta && (meta.type === "enum" || meta.type === "set") ? (meta.options ?? null) : null;
-  const freeform = !!draft && freeformOptions && !isScanRuleField(draft.field, fieldDefinitions);
+  const options =
+    meta?.type === "boolean"
+      ? (meta.options ?? BOOLEAN_FIELD_OPTIONS)
+      : meta && (meta.type === "enum" || meta.type === "set")
+        ? (meta.options ?? null)
+        : null;
+  const freeform =
+    !!draft && freeformOptions && meta?.type !== "boolean" && !isScanRuleField(draft.field, fieldDefinitions);
+  const hasInvalidDate =
+    !!draft && meta?.type === "date" && needsValue(draft.operator) && ruleDateValue(draft.value) === null;
   const sortedOptions = useMemo(() => (options ? [...options].sort((a, b) => a.label.localeCompare(b.label)) : []), [options]);
   const values = draft && Array.isArray(draft.value) ? draft.value : [];
 
@@ -121,6 +131,18 @@ export function ConditionSheet({
             />
           ))}
         </View>
+      );
+    }
+    if (meta.type === "date" && !count) {
+      return (
+        <Input
+          accessibilityLabel={meta.label}
+          keyboardType="numbers-and-punctuation"
+          maxLength={RULE_DATE_INPUT_MAX_LENGTH}
+          placeholder={t("rules.datePlaceholder")}
+          value={String(draft.value)}
+          onChangeText={(text) => setDraft({ ...draft, value: text.trim() })}
+        />
       );
     }
     if (meta.type === "numeric" || count) {
@@ -262,7 +284,7 @@ export function ConditionSheet({
             ) : null}
           </ScrollView>
           <View style={{ paddingHorizontal: SCREEN_GUTTER, paddingTop: SPACING.sm }}>
-            <Button size="lg" label={t("common.done")} disabled={!isConditionComplete(draft)} onPress={() => onSave(draft)} />
+            <Button size="lg" label={t("common.done")} disabled={!isConditionComplete(draft) || hasInvalidDate} onPress={() => onSave(draft)} />
           </View>
         </>
       ) : null}

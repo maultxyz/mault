@@ -2,6 +2,8 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import {
   areAllRepackPacksComplete,
+  buildFieldDefinition,
+  evaluateCondition,
   countCopiesInBin,
   evaluateCardBin,
   evaluateRepackBin,
@@ -544,4 +546,29 @@ test("collector number rules compare numerically", () => {
   assert.equal(route("2XM-1", [from100, catchAll]), catchAll);
   assert.equal(route("144a", [exactly144, catchAll]), exactly144);
   assert.equal(route("145", [exactly144, catchAll]), catchAll);
+});
+
+test("boolean fields read true, false and unknown from booleans, numbers and text", () => {
+  const promoField: FieldMeta = buildFieldDefinition({ field: "promo", label: "Promo", type: "boolean", path: "promo" });
+  const value = (promo: unknown) => getCardValue({ promo } as never, "promo", [promoField]);
+  assert.deepEqual(promoField.options?.map((option) => option.value), ["true", "false"]);
+  assert.equal(value(true), "true");
+  assert.equal(value(0), "false");
+  assert.equal(value("Yes"), "true");
+  assert.equal(value(undefined), null);
+  assert.equal(evaluateCondition({ promo: true } as never, { id: "c", field: "promo", operator: "equals", value: "true" }, [promoField]), true);
+  assert.equal(evaluateCondition({ promo: false } as never, { id: "c", field: "promo", operator: "equals", value: "true" }, [promoField]), false);
+  assert.equal(evaluateCondition({} as never, { id: "c", field: "promo", operator: "is_null", value: "" }, [promoField]), true);
+});
+
+test("date fields compare by calendar day whatever separator or time the source uses", () => {
+  const releasedField = buildFieldDefinition({ field: "released", label: "Released", type: "date", path: "released_at" });
+  const matches = (releasedAt: unknown, operator: "equals" | "gt" | "lte", value: string) =>
+    evaluateCondition({ released_at: releasedAt } as never, { id: "c", field: "released", operator, value }, [releasedField]);
+  assert.equal(matches("2024/03/01", "equals", "2024-03-01"), true);
+  assert.equal(matches("2024-03-01T12:00:00Z", "equals", "2024-03-01"), true);
+  assert.equal(matches("2024-03-02", "gt", "2024-03-01"), true);
+  assert.equal(matches("2024-02-29", "gt", "2024-03-01"), false);
+  assert.equal(matches("2024-03-01", "lte", "2024-03-01"), true);
+  assert.equal(matches(undefined, "gt", "2000-01-01"), false);
 });

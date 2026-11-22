@@ -1,4 +1,4 @@
-import { GAME_FIELD_TYPES } from "@magic-vault/shared";
+import { GAME_FIELD_TYPES, GAME_FIELD_TYPES_WITH_OPTIONS } from "@magic-vault/shared";
 import { Callout } from "@/components/callout";
 import { EmptyState } from "@/components/empty-state";
 import { SettingsSection } from "@/components/settings-section";
@@ -80,7 +80,7 @@ export function GameFieldDefinitionsEditor() {
 
   function hasOptions(index: number) {
     const type = rows?.[index]?.type;
-    return type === "enum" || type === "set";
+    return !!type && GAME_FIELD_TYPES_WITH_OPTIONS.includes(type);
   }
 
   return (

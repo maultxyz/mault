@@ -145,6 +145,7 @@ export * from "./interfaces/scan-routing.interface";
 export * from "./interfaces/pick-list.interface";
 export * from "./constants/pick-list.constant";
 export * from "./rule-fields";
+export * from "./game-field-definitions";
 export * from "./scan-rule-fields";
 export * from "./match-games";
 export * from "./price-source";

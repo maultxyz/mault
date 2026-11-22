@@ -42,7 +42,13 @@ export const ALPHABET_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 export const ALPHABET_PREFIX_MAX_LENGTH = 10;
 export const ALPHABET_MIN_SORTING_BINS = 2;
 
-export const SORTABLE_FIELD_TYPES: FieldType[] = ["string", "numeric", "enum"];
+export const SORTABLE_FIELD_TYPES: FieldType[] = ["string", "numeric", "enum", "boolean", "date"];
+
+export const AUTO_ASSIGN_EXCLUDED_FIELD_TYPES: FieldType[] = ["numeric", "date"];
+
+export const RULE_DATE_PATTERN = /^(\d{4})[-/](\d{2})[-/](\d{2})(?:$|[T\s])/;
+export const RULE_TRUE_TEXT_VALUES = ["true", "yes", "1"];
+export const RULE_FALSE_TEXT_VALUES = ["false", "no", "0"];
 
 export function createDefaultCatchAllOnlyBins(
   binCount: number,

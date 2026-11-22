@@ -40,6 +40,7 @@ import {
   SORTING_MODE_SUMMARY_KEYS,
 } from "@/lib/constants/bins";
 import {
+  AUTO_ASSIGN_EXCLUDED_FIELD_TYPES,
   CHAOS_BIN_SIZE_MAX,
   SCAN_ONLY_DEFAULT_BIN,
   SCAN_RULE_GAME_FIELD,
@@ -82,7 +83,7 @@ export function AutoAssignPanel({ onOpenStoragePlan }: AutoAssignPanelProps) {
 
   if (!selectedSet) return null;
 
-  const eligibleFields = fieldDefinitions.filter((f) => f.type !== "numeric");
+  const eligibleFields = fieldDefinitions.filter((f) => !AUTO_ASSIGN_EXCLUDED_FIELD_TYPES.includes(f.type));
   const isEnabled = !!effectiveMode.autoAssignField;
   const isGameSort = effectiveMode.autoAssignField === SCAN_RULE_GAME_FIELD;
   const isFieldAutoAssign = isEnabled && !isGameSort;

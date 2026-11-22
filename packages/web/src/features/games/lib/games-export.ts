@@ -1,5 +1,5 @@
 import { downloadBlob } from "@/lib/download";
-import { DEFAULT_OPERATORS_BY_FIELD_TYPE } from "@magic-vault/shared";
+import { buildFieldDefinition } from "@magic-vault/shared";
 import { GAMES_EXPORT_FORMAT_VERSION } from "@/lib/constants/games";
 import type { GamesImportPlan } from "@/lib/interfaces/games";
 import {
@@ -40,14 +40,7 @@ export function toGameInput(game: ExportedGame): GameInput {
     apiDocsUrl: game.apiDocsUrl,
     cardThickness: game.cardThickness,
     isActive: game.isActive,
-    fieldDefinitions: game.fieldDefinitions.map((f) => ({
-      field: f.field,
-      label: f.label,
-      type: f.type,
-      path: f.path,
-      operators: DEFAULT_OPERATORS_BY_FIELD_TYPE[f.type],
-      ...(f.options?.length ? { options: f.options } : {}),
-    })),
+    fieldDefinitions: game.fieldDefinitions.map(buildFieldDefinition),
   };
 }
 

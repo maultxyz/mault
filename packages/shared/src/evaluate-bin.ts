@@ -27,6 +27,7 @@ import {
 } from "./constants/sort-bins.constant";
 import { SCAN_RULE_MATCH_PERCENT_FIELD } from "./constants/scan-rule-fields.constant";
 import { cardMatchPercent } from "./scan-rule-fields";
+import { ruleBooleanValue, ruleDateValue } from "./game-field-definitions";
 
 export function getByPath(card: SourceCard, path: string): unknown {
   return path.split(".").reduce<unknown>((value, key) => {
@@ -77,6 +78,8 @@ export function getCardValue(
   const rawValue = rawRoot ? getRawValue(rawRoot, meta.path) : undefined;
   const value = rawValue !== undefined ? rawValue : getByPath(card, meta.path);
 
+  if (meta.type === "boolean") return ruleBooleanValue(value);
+  if (meta.type === "date") return ruleDateValue(value);
   if (meta.type === "numeric") {
     if (typeof value === "number") return value;
     if (value === undefined || value === null) return null;
@@ -152,16 +155,16 @@ export function evaluateCondition(
       return cardText.endsWith(valueText);
 
     case "gt":
-      return cardValue !== null && Number(cardValue) > comparableConditionNumber(value);
+      return cardValue !== null && comparableConditionNumber(cardValue) > comparableConditionNumber(value);
 
     case "gte":
-      return cardValue !== null && Number(cardValue) >= comparableConditionNumber(value);
+      return cardValue !== null && comparableConditionNumber(cardValue) >= comparableConditionNumber(value);
 
     case "lt":
-      return cardValue !== null && Number(cardValue) < comparableConditionNumber(value);
+      return cardValue !== null && comparableConditionNumber(cardValue) < comparableConditionNumber(value);
 
     case "lte":
-      return cardValue !== null && Number(cardValue) <= comparableConditionNumber(value);
+      return cardValue !== null && comparableConditionNumber(cardValue) <= comparableConditionNumber(value);
 
     case "is_null":
       return isNullish(cardValue);

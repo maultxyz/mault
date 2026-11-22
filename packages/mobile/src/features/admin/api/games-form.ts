@@ -1,4 +1,4 @@
-import { DEFAULT_OPERATORS_BY_FIELD_TYPE, GAME_FIELD_TYPES, GAME_KEY_PATTERN } from "@magic-vault/shared";
+import { buildFieldDefinition, GAME_FIELD_TYPES, GAME_KEY_PATTERN } from "@magic-vault/shared";
 import { z } from "zod";
 import type { FieldMeta, FieldRenames, Game, GameInput } from "@magic-vault/shared";
 import {
@@ -9,7 +9,7 @@ import type { GameEditorFormValues, GameFieldDefinitionDraft } from "@/lib/inter
 const gameFieldDefinitionSchema = z.object({
   field: z.string().trim().min(1, GAME_EDITOR_VALIDATION_KEYS.required),
   label: z.string().trim().min(1, GAME_EDITOR_VALIDATION_KEYS.required),
-  type: z.enum(GAME_FIELD_TYPES as ["string", "numeric", "enum", "set"]),
+  type: z.enum(GAME_FIELD_TYPES),
   path: z.string().trim().min(1, GAME_EDITOR_VALIDATION_KEYS.required),
   optionsText: z.string(),
   originalField: z.string().optional(),
@@ -68,14 +68,13 @@ function toFieldDefinitions(definitions: GameFieldDefinitionDraft[]): FieldMeta[
       .map((value) => value.trim())
       .filter(Boolean)
       .map((value) => ({ value, label: value.charAt(0).toUpperCase() + value.slice(1) }));
-    return {
+    return buildFieldDefinition({
       field: definition.field.trim(),
       label: definition.label.trim(),
       type: definition.type,
       path: definition.path.trim(),
-      operators: DEFAULT_OPERATORS_BY_FIELD_TYPE[definition.type],
-      ...(options.length ? { options } : {}),
-    };
+      options,
+    });
   });
 }
 
