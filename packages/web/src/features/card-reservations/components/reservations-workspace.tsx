@@ -145,7 +145,7 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
     const { action, target } = confirmation;
     setBusyKey(cardReservationBusyKey(target));
     const text = confirmText(confirmation);
-    await runBusinessAction(
+    await runBusinessAction<unknown>(
       () =>
         action === "collect" ? collectCardReservations(target) : releaseCardReservations(target),
       text.success,
