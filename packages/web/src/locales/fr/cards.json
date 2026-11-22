@@ -118,7 +118,9 @@
     "hideDownloadedCards": "Masquer les cartes téléchargées",
     "sets": "Sets",
     "resetFilters": "Réinitialiser les filtres",
-    "unmatched": "Non reconnues"
+    "unmatched": "Non reconnues",
+    "buy": "Achat",
+    "onlyThisBuy": "Uniquement cet achat"
   },
   "cardGrid": {
     "noCollectionSelected": "Aucune collection sélectionnée",

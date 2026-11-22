@@ -246,3 +246,10 @@ export const DEFAULT_SELL_PRICE_CONFIG: SellPriceConfig = {
   defaultMarkupPercent: 0,
   rounding: "none",
 };
+
+export const BUY_SOURCE_TYPES = ["customer", "vendor", "opened"] as const;
+export const SALES_REPORT_PAGE_SIZE = 50;
+export const SALES_REPORT_EXPORT_MAX_ROWS = 50_000;
+export const SALES_REPORT_FROM_PARAM = "from";
+export const SALES_REPORT_TO_PARAM = "to";
+export const SALES_REPORT_BUY_PARAM = "buy";

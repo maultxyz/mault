@@ -54,3 +54,16 @@ export function useQueuedSheetPresentation(visible: boolean) {
 
   return { isPresented, onSheetDismissed: () => releaseSheet(sheetId) };
 }
+
+export function runAfterSheetsDismissed(action: () => void) {
+  if (presentedSheetIds.size === 0) {
+    action();
+    return;
+  }
+  const listener = () => {
+    if (presentedSheetIds.size > 0) return;
+    listeners.delete(listener);
+    action();
+  };
+  listeners.add(listener);
+}

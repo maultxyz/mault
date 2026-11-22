@@ -10,6 +10,7 @@ import {
   INTAKE_TRANSFER_NEW_COLLECTION_OPTION,
   ORDER_LINES_MAX,
   ORDER_NAME_MAX_LENGTH,
+  BUY_SOURCE_TYPES,
   CARD_COST_MODES,
   SELL_PRICE_MODES,
   PRICE_MARKUP_PERCENT_MAX,
@@ -180,3 +181,25 @@ export const cardCostRequestSchema = z.object({
 });
 
 export type CardCostRequest = z.infer<typeof cardCostRequestSchema>;
+
+export const buyStartSchema = z
+  .object({
+    sourceType: z.enum(BUY_SOURCE_TYPES),
+    name: z
+      .string()
+      .trim()
+      .min(1, formValidationMessage("buyNameRequired"))
+      .max(INTAKE_TEXT_MAX_LENGTH, formValidationMessage("nameTooLong", { max: INTAKE_TEXT_MAX_LENGTH })),
+    contact: z
+      .string()
+      .trim()
+      .max(INTAKE_TEXT_MAX_LENGTH, formValidationMessage("nameTooLong", { max: INTAKE_TEXT_MAX_LENGTH })),
+    notes: z
+      .string()
+      .trim()
+      .max(INTAKE_NOTES_MAX_LENGTH, formValidationMessage("nameTooLong", { max: INTAKE_NOTES_MAX_LENGTH })),
+    collectionGuid: z.string().min(1, formValidationMessage("collectionRequired")),
+    storageLocationGuid: z.string(),
+  });
+
+export type BuyStartFormValues = z.infer<typeof buyStartSchema>;

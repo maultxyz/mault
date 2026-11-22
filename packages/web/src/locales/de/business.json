@@ -10,7 +10,7 @@
     "loadFailed": "Das konnte nicht geladen werden. Prüf deine Verbindung und versuch es noch einmal."
   },
   "upgrade": {
-    "locked": "Kaufen und Verkaufen (Ankauf, Picks, Einkaufspreise und Stichproben) ist nicht Teil deines Tarifs. Was du schon hast, kannst du weiterhin ansehen.",
+    "locked": "Kaufen und Verkaufen (Ankäufe, Picks, Verkäufe, Einkaufspreise und Stichproben) ist nicht Teil deines Tarifs. Was du schon hast, kannst du weiterhin ansehen.",
     "link": "Tarife ansehen"
   },
   "status": {
@@ -75,7 +75,7 @@
         "description": "Angebote, Einkaufspreise und Margen."
       },
       "acceptIntake": {
-        "label": "Ankäufe annehmen oder abbrechen",
+        "label": "Ankäufe abschließen oder abbrechen",
         "description": "In einen offenen Ankauf scannen dürfen Mitglieder immer."
       },
       "fulfilOrders": {
@@ -106,13 +106,13 @@
   "overview": {
     "back": "Übersicht",
     "title": "An- & Verkauf",
-    "description": "Was bei Ankauf, Picks und Reservierungen ansteht.",
+    "description": "Was bei Ankäufen, Picks und Reservierungen ansteht.",
     "cards_one": "{{count}} Karte",
     "cards_other": "{{count}} Karten",
     "intake": {
-      "description": "Karten von Kunden ankaufen. Einscannen, ein Angebot machen, dann annehmen.",
-      "empty": "Kein offener Ankauf.",
-      "link": "Zum Ankauf"
+      "description": "Karten von Kunden, Händlern oder aus geöffneter Ware ankaufen. Direkt in deinen Bestand scannen, dann den Ankauf abschließen.",
+      "empty": "Keine offenen Ankäufe.",
+      "link": "Zu den Ankäufen"
     },
     "picks": {
       "description": "Verkaufte Karten aus dem Lager ziehen und den Verkauf abschließen.",
@@ -138,7 +138,7 @@
     },
     "share": "{{percent}} %",
     "tiles": {
-      "openIntake": "Offener Ankauf",
+      "openIntake": "Offene Ankäufe",
       "openPicks": "Offene Picks",
       "cardsToPick": "Karten zu picken",
       "readyToComplete_one": "{{count}} abschlussbereit",
@@ -150,7 +150,10 @@
       "soldCards": "Verkaufte Karten",
       "perDay": "Im Schnitt {{count}} pro Tag",
       "revenue": "Umsatz",
-      "averageSale": "{{value}} pro Karte"
+      "averageSale": "{{value}} pro Karte",
+      "profit": "Gewinn",
+      "profitMargin": "{{percent}} % Marge",
+      "profitNoCosts": "Keine Einkaufspreise erfasst"
     },
     "sales": {
       "heading": "Letzte {{days}} Tage",
@@ -182,7 +185,7 @@
       "openIntake": {
         "title_one": "{{count}} offener Ankauf",
         "title_other": "{{count}} offene Ankäufe",
-        "detail": "Karten prüfen, ein Angebot machen, dann annehmen."
+        "detail": "Prüfe die Karten, mach ein Angebot und schließ den Ankauf dann ab."
       },
       "allClear": {
         "title": "Alles erledigt",
@@ -212,14 +215,23 @@
         "costBasis": "Kosten",
         "margin": "Marge"
       },
-      "setCostsHint": "Um festzuhalten, was du bezahlt hast, wähle Karten in einer Sammlung aus und nutze Preise festlegen."
+      "setCostsHint": "Um festzuhalten, was du bezahlt hast, wähle Karten in einer Sammlung aus und nutze Preise festlegen.",
+      "sellValueOfCosted": "Verkaufswert",
+      "sellValueDetail": "Karten mit Einkaufspreis, zu deinen Verkaufspreisen",
+      "unrealizedProfit": "Nicht realisierter Gewinn",
+      "marginPercent": "{{percent}} % Marge"
+    },
+    "salesSection": {
+      "description": "Jede verkaufte Karte mit ihrem Einkaufspreis und dem Gewinn.",
+      "link": "Zu den Verkäufen"
     }
   },
   "views": {
-    "intake": "Ankauf",
+    "intake": "Ankäufe",
     "picks": "Picks",
     "labels": "Etiketten",
-    "reservations": "Reservierungen"
+    "reservations": "Reservierungen",
+    "sales": "Verkäufe"
   },
   "offerEditor": {
     "title": "Angebot für {{name}}",
@@ -234,8 +246,7 @@
     "subtitle": "Scannt in {{collection}} · gestartet {{date}}",
     "new": "Neuer Ankauf",
     "newTitle": "Ankauf starten",
-    "newDescription": "Karten, die in die Sammlung des Ankaufs gescannt werden, landen darin, bis du ihn annimmst oder abbrichst.",
-    "customerName": "Kunde",
+    "newDescription": "Karten, die du in die Sammlung scannst, landen in diesem Ankauf, bis du ihn abschließt oder abbrichst.",
     "customerContact": "Kontakt (optional)",
     "customerContactPlaceholder": "E-Mail oder Telefon",
     "collection": "Scannen in",
@@ -244,7 +255,7 @@
     "start": "Ankauf starten",
     "created": "Ankauf gestartet",
     "emptyTitle": "Noch keine Ankäufe",
-    "emptyDescription": "Starte einen, wenn jemand Karten verkaufen möchte.",
+    "emptyDescription": "Starte einen, wenn jemand Karten verkaufen möchte, eine Händlerbestellung ankommt oder du versiegelte Ware öffnest.",
     "pickTitle": "Ankauf auswählen",
     "pickDescription": "Wähle links einen Ankauf oder starte einen neuen.",
     "cardCount_one": "{{count, compact}} Karte",
@@ -252,7 +263,7 @@
     "openScanner": "Scanner öffnen",
     "addCard": "Karte hinzufügen",
     "printReceipt": "Beleg",
-    "accept": "Annehmen",
+    "accept": "Abschließen",
     "cancelLot": "Ankauf abbrechen",
     "liveOffer": "Aktuelles Angebot",
     "summary": "Übersicht",
@@ -273,15 +284,13 @@
       "credit": "Gutzuschreiben"
     },
     "noCardsTitle": "Keine Karten in diesem Ankauf",
-    "noCardsOpen": "Öffne den Scanner und sortiere die Karten des Kunden. Die Angebote aktualisieren sich mit jeder gespeicherten Karte.",
+    "noCardsOpen": "Öffne den Scanner und scanne die Karten. Die Angebote aktualisieren sich mit jeder gespeicherten Karte.",
     "noCardsClosed": "Dieser Ankauf wurde ohne Karten abgeschlossen.",
-    "acceptTitle": "Ankauf annehmen",
+    "acceptTitle": "Ankauf abschließen",
     "acceptDescription_one": "{{count}} Karte von {{name}} kaufen. Der Einkaufspreis jeder Karte wird aus ihrem Angebot übernommen.",
     "acceptDescription_other": "{{count}} Karten von {{name}} kaufen. Der Einkaufspreis jeder Karte wird aus ihrem Angebot übernommen.",
-    "overrideLabel": "Anderen Gesamtbetrag verwenden",
-    "overrideAmount": "Gesamtbetrag bar",
     "costBasisNote": "Erfasster Einkaufspreis: {{amount}}",
-    "accepted": "Ankauf angenommen",
+    "accepted": "Ankauf abgeschlossen",
     "cancelTitle": "Ankauf abbrechen",
     "cancelDescription": "{{name}} behält die Karten und es wird nichts ausgezahlt.",
     "removeCards_one": "Die {{count}} gescannte Karte entfernen",
@@ -290,17 +299,6 @@
     "cancelled": "Ankauf abgebrochen",
     "deleteTitle": "Ankauf löschen?",
     "deleteDescription": "Der Eintrag wird entfernt. Gekaufte Karten bleiben mit ihrem Einkaufspreis in deiner Sammlung.",
-    "collectionModes": {
-      "new": "Neue Sammlung",
-      "existing": "Vorhandene Sammlung"
-    },
-    "collectionModeHints": {
-      "new": "Hält die Karten dieses Kunden von deinem Bestand getrennt. Wird nach dem Kunden benannt.",
-      "existing": "Eine Sammlung kann nur einen offenen Ankauf gleichzeitig haben."
-    },
-    "game": "Spiel",
-    "chooseGame": "Spiel wählen",
-    "language": "Sprache",
     "removeCardsHintOwned": "Nimmt sie heraus, weil sie mit dem Kunden wieder gehen. Die eigene Sammlung des Ankaufs wird ebenfalls entfernt.",
     "review": {
       "start": "Prüfen",
@@ -313,7 +311,6 @@
     "moreActions": "Weitere Aktionen",
     "remove": {
       "button": "Aus Ankauf entfernen",
-      "clear": "Auswahl aufheben",
       "selectAll": "Alle Karten auswählen",
       "selectRow": "{{name}} auswählen",
       "row": "{{name}} aus dem Ankauf entfernen",
@@ -332,11 +329,62 @@
       "remove_other": "{{count}} Karten entfernen",
       "rowTitle": "Unter deinem Mindestwert, daher kein Angebot"
     },
-    "receiptPrompt": {
-      "title": "Beleg drucken?",
-      "description": "Gib {{name}} einen Beleg für die gekauften Karten.",
-      "print": "Beleg drucken",
-      "skip": "Überspringen"
+    "subtitleWithLocation": "Scannt in {{collection}}, {{location}} · gestartet {{date}}",
+    "collectionHint": "Karten landen direkt in dieser Sammlung. Eine Sammlung kann nur einen offenen Ankauf gleichzeitig haben.",
+    "sourceType": "Ankauf von",
+    "sourceTypes": {
+      "customer": "Kunde",
+      "vendor": "Händler",
+      "opened": "Geöffnete Ware"
+    },
+    "nameLabels": {
+      "customer": "Name des Kunden",
+      "vendor": "Händler",
+      "opened": "Produkt"
+    },
+    "namePlaceholders": {
+      "customer": "Name",
+      "vendor": "Großhändler oder Verkäufer",
+      "opened": "Booster-Display"
+    },
+    "storageLocation": "Lagerort (optional)",
+    "noStorageLocation": "Kein Lagerort",
+    "storageLocationHint": "Die Karten kommen an diesen Lagerort, wenn du den Ankauf abschließt.",
+    "finish": {
+      "totalPaid": "Bezahlter Gesamtbetrag",
+      "totalPaidHint": "Beginnt beim Bar-Angebot. Der Einkaufspreis jeder Karte kommt aus ihrem Angebot.",
+      "productCost": "Produktkosten",
+      "productCostHint": "Was du für das Produkt bezahlt hast. Der Betrag wird nach Marktwert auf die Karten verteilt und zu ihren Kosten.",
+      "totalPaidSpread": "Weicht vom Angebot über {{offer}} ab, daher wird der Betrag nach Wert auf die Karten verteilt.",
+      "printReceipt": "Beleg drucken",
+      "destination": "Die Karten bleiben in {{collection}}.",
+      "destinationWithLocation": "Die Karten bleiben in {{collection}} und kommen nach {{location}}.",
+      "legacyMoveNote": "Danach kannst du sie in deinen Bestand verschieben."
+    },
+    "performance": {
+      "heading": "Ergebnis",
+      "paid": "Bezahlt",
+      "sold": "Verkauft",
+      "soldDetail_one": "Von {{count}} Karte",
+      "soldDetail_other": "Von {{count}} Karten",
+      "revenue": "Umsatz",
+      "costOfSold": "Einkauf der verkauften Karten",
+      "profit": "Gewinn",
+      "paidBack": "Wieder eingespielt",
+      "paidBackDetail": "Umsatz im Verhältnis zum bezahlten Betrag",
+      "percent": "{{value}} %",
+      "remaining": "Verbleibende Karten",
+      "remainingDetail": "Einkauf {{cost}}, Verkaufswert {{value}}",
+      "seeSales": "Verkäufe ansehen"
+    },
+    "unmoved": {
+      "title_one": "{{count}} abgeschlossener Ankauf hat noch Karten in seiner eigenen Sammlung",
+      "title_other": "{{count}} abgeschlossene Ankäufe haben noch Karten in ihrer eigenen Sammlung",
+      "description": "Ankäufe werden jetzt direkt in deinen Bestand gescannt. Verschiebe die Karten dieser älteren Ankäufe einmalig in den Bestand.",
+      "row_one": "{{count}} Karte in {{collection}}",
+      "row_other": "{{count}} Karten in {{collection}}",
+      "move": "In den Bestand verschieben",
+      "moveFor": "Karten von {{name}} in den Bestand verschieben"
     }
   },
   "receipt": {
@@ -713,7 +761,7 @@
       "collectionDeleted": "Sammlung gelöscht",
       "costSet": "Einkaufspreis festgelegt",
       "intakeCreated": "Ankauf gestartet",
-      "intakeAccepted": "Ankauf angenommen",
+      "intakeAccepted": "Ankauf abgeschlossen",
       "intakeCancelled": "Ankauf abgebrochen",
       "orderCreated": "Pick erstellt",
       "orderUpdated": "Pick bearbeitet",
@@ -849,7 +897,7 @@
   },
   "banner": {
     "title": "Ankauf läuft: {{name}}",
-    "description": "Jede Karte, die du in {{collection}} scannst, landet in diesem Ankauf und bleibt von deinem Bestand getrennt.",
+    "description": "Jede Karte, die du in {{collection}} scannst, landet in diesem Ankauf.",
     "open": "Ankauf öffnen"
   },
   "transfer": {
@@ -1098,7 +1146,7 @@
   "search": {
     "noResultsTitle": "Keine Treffer",
     "noResultsDescription": "Nichts passt zu \"{{query}}\". Versuche einen anderen Namen oder Begriff.",
-    "intakePlaceholder": "Ankäufe nach Kunde oder Notiz durchsuchen",
+    "intakePlaceholder": "Ankäufe nach Name oder Notiz durchsuchen",
     "picksPlaceholder": "Picklisten nach Name, Karte oder Bestellung durchsuchen",
     "reservationsPlaceholder": "Nach Kunde, Karte oder Katalog suchen"
   },
@@ -1163,5 +1211,77 @@
     "costLabel": "Einkaufspreis ({{currency}})",
     "intakeOfferLabel": "Ankaufsangebot ({{currency}})",
     "noCost": "Nicht festgelegt"
+  },
+  "sales": {
+    "title": "Verkäufe",
+    "description": "Jede verkaufte Karte aus abgeschlossenen Picks und abgeholten Reservierungen.",
+    "totals": "Summen",
+    "costOfSold": "Einkauf der verkauften Karten",
+    "profit": "Gewinn",
+    "margin": "Marge",
+    "costedSales_one": "Aus {{count}} Verkauf mit Einkaufspreis",
+    "costedSales_other": "Aus {{count}} Verkäufen mit Einkaufspreis",
+    "emptyTitle": "Keine Verkäufe in diesem Zeitraum",
+    "emptyDescription": "Verkäufe erscheinen hier, wenn du einen Pick abschließt oder eine Reservierung abgeholt wird.",
+    "columns": {
+      "soldAt": "Verkauft",
+      "card": "Karte",
+      "salePrice": "Verkaufspreis",
+      "cost": "Einkauf",
+      "profit": "Gewinn",
+      "channel": "Weg",
+      "buy": "Ankauf"
+    },
+    "channels": {
+      "pick": "Pick",
+      "reservation": "Reservierung"
+    },
+    "boughtIn": "Angekauft in",
+    "profitShort": "Gewinn {{value}}",
+    "from": "Von",
+    "to": "Bis",
+    "buyFilter": "Ankauf: {{name}}",
+    "buyFilterUnknown": "dieser Ankauf",
+    "removeBuyFilter": "Verkäufe aus allen Ankäufen zeigen",
+    "noBuy": "Nicht aus einem Ankauf",
+    "export": "CSV exportieren",
+    "exportFailed": "Die Verkäufe konnten nicht exportiert werden.",
+    "noAccess": "Deine Rolle kann keine Verkäufe sehen. Bitte einen Inhaber oder Admin, das unter Einstellungen > Business zu erlauben."
+  },
+  "scannerBuy": {
+    "startPrompt": {
+      "title": "Karten ankaufen?",
+      "description": "Starte einen Ankauf, dann kommt jede Karte, die du in diese Sammlung scannst, dazu, und das Angebot wird laufend berechnet.",
+      "start": "Ankauf starten",
+      "hide": "Ausblenden",
+      "show": "Ankaufsleiste im Scanner anzeigen",
+      "showShort": "Ankauf zeigen"
+    },
+    "panelLabel": "Laufender Ankauf",
+    "finish": "Ankauf abschließen",
+    "recentCards": "Letzte Karten",
+    "noRecentCards": "Noch keine Karten in diesem Ankauf. Scanne Karten, um sie hinzuzufügen.",
+    "finishedTitle": "Ankauf abgeschlossen: {{name}}",
+    "finishedCards_one": "{{count}} Karte",
+    "finishedCards_other": "{{count}} Karten",
+    "finishedPaid": "{{amount}} bezahlt",
+    "finishedPaidWith": "{{amount}} bezahlt ({{method}})",
+    "startAnother": "Weiteren Ankauf starten",
+    "dismiss": "Ausblenden",
+    "noOpenBuy": "Für diese Sammlung ist kein Ankauf offen.",
+    "line": {
+      "customer": "Ankauf von {{name}}",
+      "vendor": "Ankauf von {{name}}",
+      "opened": "{{name}} wird geöffnet"
+    },
+    "lineWithOffer": {
+      "customer": "Ankauf von {{name}} · Angebot {{amount}}",
+      "vendor": "Ankauf von {{name}} · Angebot {{amount}}"
+    },
+    "openingWithCount_one": "{{name}} wird geöffnet · {{count}} Karte",
+    "openingWithCount_other": "{{name}} wird geöffnet · {{count}} Karten",
+    "cardCount_one": "{{count}} Karte",
+    "cardCount_other": "{{count}} Karten",
+    "offer": "Angebot {{amount}}"
   }
 }

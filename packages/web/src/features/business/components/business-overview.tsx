@@ -7,7 +7,10 @@ import { StatGroup } from "@/components/stat-group";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ViewTabs } from "@/components/view-tabs";
-import { businessOverviewQueryOptions } from "@/features/business/api/business";
+import {
+  businessOverviewQueryOptions,
+  inventoryMarginQueryOptions,
+} from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { AccuracyReportView } from "@/features/business/components/accuracy-report";
 import { BusinessInventoryCosts } from "@/features/business/components/business-inventory-costs";
@@ -16,6 +19,7 @@ import {
   BusinessSalesChart,
 } from "@/features/business/components/business-overview-charts";
 import { BusinessUpgradeCallout } from "@/features/business/components/business-upgrade-callout";
+import { salesMarginPercent } from "@/features/business/lib/sales-report";
 import { StaffReportView } from "@/features/business/components/staff-report";
 import { statsReportQueryOptions } from "@/features/stats/api/stats";
 import { StatsHighlights } from "@/features/stats/components/stats-highlights";
@@ -36,6 +40,7 @@ import {
   picksPath,
   PRICE_LABELS_PATH,
   RESERVATIONS_PATH,
+  SALES_PATH,
 } from "@/lib/constants/business";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import type {
@@ -55,12 +60,14 @@ import {
 import {
   IconBookmark,
   IconCash,
+  IconChartLine,
   IconChevronRight,
   IconCircleCheck,
   IconClock,
   IconCoins,
   IconListCheck,
   IconPackageExport,
+  IconReceipt,
   IconShoppingCart,
   IconTag,
   IconTruckDelivery,
@@ -124,6 +131,9 @@ function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
   const { format } = usePriceSource();
   const costReport = useQuery(
     statsReportQueryOptions(access?.canViewCosts ? orgId : undefined, STATS_DEFAULT_RANGE, null),
+  );
+  const inventoryMargin = useQuery(
+    inventoryMarginQueryOptions(orgId, access?.canViewCosts ?? false),
   );
   const { intake, picks, reservations, sales } = overview;
   const attention = businessOverviewAttentionItems(overview);
@@ -208,11 +218,11 @@ function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
         />
         <StatGroup
           heading={t("overview.sales.heading", { days: BUSINESS_OVERVIEW_SALES_DAYS })}
-          gridClassName="grid-cols-2"
+          gridClassName={sales.profit != null ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2"}
           tiles={[
             {
               key: "soldCards",
-              to: PICKS_PATH,
+              to: SALES_PATH,
               icon: IconShoppingCart,
               label: t("overview.tiles.soldCards"),
               value: sales.cardCount,
@@ -224,7 +234,7 @@ function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
               ? [
                   {
                     key: "revenue",
-                    to: PICKS_PATH,
+                    to: SALES_PATH,
                     icon: IconCoins,
                     label: t("overview.tiles.revenue"),
                     value: <CompactPrice value={sales.total} />,
@@ -234,6 +244,23 @@ function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
                             value: format(sales.total / sales.cardCount),
                           })
                         : null,
+                  },
+                ]
+              : []),
+            ...(sales.profit != null
+              ? [
+                  {
+                    key: "profit",
+                    to: SALES_PATH,
+                    icon: IconChartLine,
+                    label: t("overview.tiles.profit"),
+                    value: <CompactPrice value={sales.profit} />,
+                    detail:
+                      sales.costedCount > 0 && sales.costOfSold != null
+                        ? t("overview.tiles.profitMargin", {
+                            percent: salesMarginPercent(sales.profit, sales.costOfSold),
+                          })
+                        : t("overview.tiles.profitNoCosts"),
                   },
                 ]
               : []),
@@ -296,6 +323,13 @@ function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
             <p className="text-xs text-foreground/70">{t("overview.picks.empty")}</p>
           )}
         </BusinessOverviewSection>
+        <BusinessOverviewSection
+          icon={IconReceipt}
+          title={t("views.sales")}
+          description={t("overview.salesSection.description")}
+          to={SALES_PATH}
+          linkLabel={t("overview.salesSection.link")}
+        />
         {reservations && (
           <BusinessOverviewSection
             icon={IconBookmark}
@@ -317,7 +351,7 @@ function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
       </div>
 
       {costReport.data?.costsVisible && costReport.data.totals.cardCount > 0 && (
-        <BusinessInventoryCosts report={costReport.data} />
+        <BusinessInventoryCosts report={costReport.data} margin={inventoryMargin.data ?? null} />
       )}
     </>
   );

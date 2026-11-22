@@ -3,6 +3,7 @@ import { openIntakeLotsQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { INTAKE_LOT_PARAM, INTAKE_PATH } from "@/lib/constants/business";
+import { isScannerPagePath } from "@/lib/scanner-pathname";
 import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import { IconArrowRight } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
@@ -25,7 +26,9 @@ export function IntakeBanner() {
       candidate.collectionGuid === activeCollection?.guid,
   );
 
-  if (!lot || pathname.startsWith(INTAKE_PATH)) return null;
+  if (!lot || pathname.startsWith(INTAKE_PATH) || isScannerPagePath(pathname)) {
+    return null;
+  }
 
   const showMoney = access?.canViewCosts && lot.cashOffer != null;
 

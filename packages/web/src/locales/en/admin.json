@@ -435,7 +435,7 @@
       },
       "businessTools": {
         "label": "Buy and sell",
-        "description": "Intake lots with buylist offers, order import and fulfilment, cost and margin reports, and spot checks. Existing records stay viewable either way."
+        "description": "Buys with buylist offers, order import and fulfilment, sales, cost and margin reports, and spot checks. Existing records stay viewable either way."
       },
       "repacks": {
         "label": "Repacks",
@@ -536,7 +536,7 @@
       "notificationRule": "Notification rule",
       "game": "Game",
       "announcement": "Announcement",
-      "intakeLot": "Intake lot",
+      "intakeLot": "Buy",
       "fulfilmentOrder": "Order",
       "accuracyCheck": "Spot check",
       "shopCatalog": "Shop catalog",

@@ -1,5 +1,11 @@
 import {
   BUSINESS_LIST_SEARCH_PARAM,
+  type BuyPerformance,
+  type InventoryMargin,
+  SALES_REPORT_BUY_PARAM,
+  SALES_REPORT_FROM_PARAM,
+  type SalesReport,
+  type UnmovedBuy,
   BUSINESS_LIST_STATUS_PARAM,
   type BusinessOverview,
   CARD_RESERVATION_LIST_VIEW_PARAM,
@@ -35,6 +41,8 @@ import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/
 import {
   BUSINESS_RESERVATIONS_QUERY_KEY,
   BUSINESS_INTAKE_QUERY_KEY,
+  BUSINESS_INVENTORY_MARGIN_QUERY_KEY,
+  BUSINESS_SALES_QUERY_KEY,
   BUSINESS_OVERVIEW_QUERY_KEY,
   BUSINESS_LIST_PAGE_SIZE,
   BUSINESS_ORDERS_QUERY_KEY,
@@ -42,7 +50,7 @@ import {
   INTAKE_LOT_CARDS_PAGE_SIZE,
 } from "@/lib/constants/business";
 import { QUERY_STALE_MS } from "@/lib/constants/query";
-import type { MobileCardReservationTarget } from "@/lib/interfaces/business";
+import type { MobileCardReservationTarget, SalesReportFilter } from "@/lib/interfaces/business";
 
 function nextPageOf<T>(last: PagedList<T>, pages: PagedList<T>[]): number | undefined {
   return pages.reduce((sum, page) => sum + page.items.length, 0) < last.total ? pages.length + 1 : undefined;
@@ -78,6 +86,63 @@ export const businessOverviewQueryOptions = (orgId: string | null) =>
     queryKey: [...BUSINESS_OVERVIEW_QUERY_KEY, orgId] as const,
     queryFn: () => unwrap(apiGet<Result<BusinessOverview>>("/api/business/overview")),
     enabled: !!orgId,
+    staleTime: QUERY_STALE_MS,
+  });
+
+export const openIntakeLotsQueryOptions = (
+  orgId: string | null,
+  enabled: boolean,
+  pollWhileCollectionHasOpenBuy: string | null,
+) =>
+  queryOptions({
+    queryKey: [...BUSINESS_INTAKE_QUERY_KEY, "open", orgId] as const,
+    queryFn: () => unwrap(apiGet<Result<IntakeLot[]>>("/api/business/intake/open")),
+    enabled: !!orgId && enabled,
+    staleTime: QUERY_STALE_MS,
+    refetchInterval: (query) =>
+      pollWhileCollectionHasOpenBuy &&
+      query.state.data?.some((lot) => lot.collectionGuid === pollWhileCollectionHasOpenBuy)
+        ? INTAKE_LIVE_REFETCH_MS
+        : false,
+  });
+
+export const unmovedBuysQueryOptions = (orgId: string | null, enabled: boolean) =>
+  queryOptions({
+    queryKey: [...BUSINESS_INTAKE_QUERY_KEY, "unmoved", orgId] as const,
+    queryFn: () => unwrap(apiGet<Result<UnmovedBuy[]>>("/api/business/intake/unmoved")),
+    enabled: !!orgId && enabled,
+    staleTime: QUERY_STALE_MS,
+  });
+
+export const buyPerformanceQueryOptions = (guid: string | undefined, enabled: boolean) =>
+  queryOptions({
+    queryKey: [...BUSINESS_INTAKE_QUERY_KEY, "performance", guid] as const,
+    queryFn: () => unwrap(apiGet<Result<BuyPerformance>>(`/api/business/intake/${guid}/performance`)),
+    enabled: !!guid && enabled,
+    staleTime: QUERY_STALE_MS,
+  });
+
+export const salesReportQueryOptions = (orgId: string | null, filter: SalesReportFilter) =>
+  infiniteQueryOptions({
+    queryKey: [...BUSINESS_SALES_QUERY_KEY, orgId, filter.fromDay, filter.buyGuid] as const,
+    queryFn: ({ pageParam }) => {
+      const params = new URLSearchParams({ page: String(pageParam) });
+      if (filter.fromDay) params.set(SALES_REPORT_FROM_PARAM, filter.fromDay);
+      if (filter.buyGuid) params.set(SALES_REPORT_BUY_PARAM, filter.buyGuid);
+      return unwrap(apiGet<Result<SalesReport>>(`/api/business/sales?${params}`));
+    },
+    initialPageParam: 1,
+    getNextPageParam: (last: SalesReport) => (last.page * last.pageSize < last.total ? last.page + 1 : undefined),
+    placeholderData: keepPreviousData,
+    enabled: !!orgId,
+    staleTime: QUERY_STALE_MS,
+  });
+
+export const inventoryMarginQueryOptions = (orgId: string | null, enabled: boolean) =>
+  queryOptions({
+    queryKey: [...BUSINESS_INVENTORY_MARGIN_QUERY_KEY, orgId] as const,
+    queryFn: () => unwrap(apiGet<Result<InventoryMargin>>("/api/business/inventory/margin")),
+    enabled: !!orgId && enabled,
     staleTime: QUERY_STALE_MS,
   });
 

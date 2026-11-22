@@ -242,7 +242,7 @@
       "navigation": "Navigation",
       "scanner": "Scanner",
       "cardDetail": "Kartendetails",
-      "intake": "Ankauf",
+      "intake": "Ankäufe",
       "matchValidation": "Treffer prüfen",
       "foilLabeling": "Foil-Kennzeichnung",
       "pickWalk": "Pickvorgang"
@@ -370,6 +370,7 @@
     "tiersRequired": "Füge mindestens eine Stufe hinzu.",
     "tooManyTiers": "Höchstens {{max}} Stufen.",
     "customerNameRequired": "Gib den Namen der Kundin oder des Kunden ein.",
+    "buyNameRequired": "Gib einen Namen für diesen Ankauf ein.",
     "orderTextRequired": "Füge eine Bestellung ein oder wähle eine Datei.",
     "orderLinesRequired": "Lass mindestens eine Karte in der Pickliste.",
     "decklistRequired": "Gib mindestens eine Karte ein, eine pro Zeile.",

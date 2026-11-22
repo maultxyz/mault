@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, apiPut } from "@/lib/api/client";
+import { apiDelete, apiGet, apiGetBlob, apiPost, apiPut } from "@/lib/api/client";
 import { pageRequestParams } from "@/lib/api/page-request";
 import {
   FLEET_REFETCH_MS,
@@ -6,6 +6,7 @@ import {
   INTAKE_LOT_CARDS_PAGE_SIZE,
   INTAKE_LIVE_REFETCH_MS,
 } from "@/lib/constants/business";
+import type { SalesReportFilters } from "@/lib/interfaces/business";
 import type { PageRequest } from "@/lib/interfaces/pagination";
 import type {
   AccuracyCheckDetail,
@@ -21,6 +22,7 @@ import type {
   CardSellPriceRequest,
   BusinessSettings,
   BusinessSettingsResponse,
+  BuyPerformance,
   CardAcquisitionCost,
   CardAcquisitionCostInput,
   DeviceMaintenanceInput,
@@ -40,6 +42,7 @@ import type {
   IntakeReviewCardPage,
   IntakeTransferInput,
   IntakeTransferResult,
+  InventoryMargin,
   OrderBinsInput,
   OrderFulfilInput,
   OrderPickedInput,
@@ -53,13 +56,20 @@ import type {
   PriceLabelCardsResponse,
   PriceLabelSource,
   Result,
+  SalesReport,
   StaffReport,
+  UnmovedBuy,
   SorterPickApplyInput,
   SorterPickApplyResult,
   SorterPickCleanupResult,
   SorterPickReleaseInput,
   SorterPickReleaseResult,
   StatsRange,
+} from "@magic-vault/shared";
+import {
+  SALES_REPORT_BUY_PARAM,
+  SALES_REPORT_FROM_PARAM,
+  SALES_REPORT_TO_PARAM,
 } from "@magic-vault/shared";
 import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
@@ -98,6 +108,16 @@ export const businessKeys = {
     ] as const,
   intakeUnreviewedCards: (lotGuid: string | undefined) =>
     [...businessKeys.intakeRoot(), "unreviewed", lotGuid] as const,
+  unmovedBuys: (orgId: string | undefined) =>
+    [...businessKeys.intakeRoot(), "unmoved", orgId] as const,
+  buyPerformanceRoot: () => [...businessKeys.root(), "buy-performance"] as const,
+  buyPerformance: (guid: string | undefined) =>
+    [...businessKeys.buyPerformanceRoot(), guid] as const,
+  salesRoot: () => [...businessKeys.root(), "sales"] as const,
+  sales: (orgId: string | undefined, filters: SalesReportFilters, page: number) =>
+    [...businessKeys.salesRoot(), orgId, filters, page] as const,
+  inventoryMargin: (orgId: string | undefined) =>
+    [...businessKeys.root(), "inventory-margin", orgId] as const,
   ordersRoot: () => [...businessKeys.root(), "orders"] as const,
   orderList: (orgId: string | undefined, page: PageRequest) =>
     [...businessKeys.ordersRoot(), "list", orgId, page] as const,
@@ -596,4 +616,63 @@ export const priceLabelCardsQueryOptions = (
         })}`,
       ).then(unwrap),
     enabled: !!orgId && !!source && !!sourceGuid,
+  });
+
+export const unmovedBuysQueryOptions = (orgId: string | undefined) =>
+  queryOptions({
+    queryKey: businessKeys.unmovedBuys(orgId),
+    queryFn: () =>
+      apiGet<Result<UnmovedBuy[]>>("/api/business/intake/unmoved").then(
+        (result) => result.data ?? [],
+      ),
+    enabled: !!orgId,
+  });
+
+export const buyPerformanceQueryOptions = (guid: string | undefined, enabled: boolean) =>
+  queryOptions({
+    queryKey: businessKeys.buyPerformance(guid),
+    queryFn: () =>
+      apiGet<Result<BuyPerformance>>(`/api/business/intake/${guid}/performance`).then(unwrap),
+    enabled: !!guid && enabled,
+  });
+
+function salesReportParams(filters: SalesReportFilters): URLSearchParams {
+  const params = new URLSearchParams();
+  if (filters.from) params.set(SALES_REPORT_FROM_PARAM, filters.from);
+  if (filters.to) params.set(SALES_REPORT_TO_PARAM, filters.to);
+  if (filters.buyGuid) params.set(SALES_REPORT_BUY_PARAM, filters.buyGuid);
+  return params;
+}
+
+export const salesReportQueryOptions = (
+  orgId: string | undefined,
+  filters: SalesReportFilters,
+  page: number,
+  enabled: boolean,
+) =>
+  queryOptions({
+    queryKey: businessKeys.sales(orgId, filters, page),
+    queryFn: async () => {
+      const params = salesReportParams(filters);
+      params.set("page", String(page));
+      const result = await apiGet<Result<SalesReport>>(
+        `/api/business/sales?${params.toString()}`,
+      );
+      if (!result.success) throw new Error(result.message);
+      return result.data ?? null;
+    },
+    enabled: !!orgId && enabled,
+    placeholderData: keepPreviousData,
+  });
+
+export function downloadSalesReportCsv(filters: SalesReportFilters): Promise<Blob> {
+  return apiGetBlob(`/api/business/sales/export?${salesReportParams(filters).toString()}`);
+}
+
+export const inventoryMarginQueryOptions = (orgId: string | undefined, enabled: boolean) =>
+  queryOptions({
+    queryKey: businessKeys.inventoryMargin(orgId),
+    queryFn: () =>
+      apiGet<Result<InventoryMargin>>("/api/business/inventory/margin").then(unwrap),
+    enabled: !!orgId && enabled,
   });

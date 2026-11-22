@@ -23,7 +23,13 @@ import type {
 } from "@/lib/interfaces/business";
 import { cn } from "@/lib/utils";
 import { statsSharePercent, type StatsCollectionRow } from "@magic-vault/shared";
-import { IconChartLine, IconCoin, IconCoins, IconPercentage } from "@tabler/icons-react";
+import {
+  IconChartLine,
+  IconCoin,
+  IconCoins,
+  IconPercentage,
+  IconTag,
+} from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -39,7 +45,7 @@ function collectionMargin(row: StatsCollectionRow): number | null {
   return row.costedCount ? (row.costedValue ?? 0) - (row.costBasis ?? 0) : null;
 }
 
-export function BusinessInventoryCosts({ report }: BusinessInventoryCostsProps) {
+export function BusinessInventoryCosts({ report, margin }: BusinessInventoryCostsProps) {
   const { t, i18n } = useTranslation("business");
   const locale = i18n.language;
   const isMobile = useIsMobile();
@@ -47,7 +53,7 @@ export function BusinessInventoryCosts({ report }: BusinessInventoryCostsProps) 
   const { totals } = report;
   const costedCount = totals.costedCount ?? 0;
   const isCosted = costedCount > 0;
-  const margin = (totals.costedValue ?? 0) - (totals.costBasis ?? 0);
+  const hasSellMargin = !!margin && margin.costedCount > 0;
   const history = report.valueHistory ?? [];
   const rows = [...report.collections].sort((a, b) => b.totalValue - a.totalValue);
 
@@ -79,7 +85,7 @@ export function BusinessInventoryCosts({ report }: BusinessInventoryCostsProps) 
     <>
       <StatGroup
         heading={t("overview.inventory.heading")}
-        gridClassName="grid-cols-2 lg:grid-cols-4"
+        gridClassName="grid-cols-2 sm:grid-cols-3 lg:grid-cols-5"
         tiles={[
           {
             key: "value",
@@ -93,17 +99,33 @@ export function BusinessInventoryCosts({ report }: BusinessInventoryCostsProps) 
             key: "costBasis",
             icon: IconCoin,
             label: t("reports.inventory.costBasis"),
-            value: isCosted ? <CompactPrice value={totals.costBasis ?? 0} /> : "-",
+            value: hasSellMargin ? (
+              <CompactPrice value={margin.costBasis} />
+            ) : isCosted ? (
+              <CompactPrice value={totals.costBasis ?? 0} />
+            ) : (
+              "-"
+            ),
             detail: t("reports.inventory.costedCards", {
               percent: `${statsSharePercent(costedCount, totals.cardCount)}%`,
             }),
           },
           {
-            key: "margin",
+            key: "sellValue",
+            icon: IconTag,
+            label: t("overview.inventory.sellValueOfCosted"),
+            value: hasSellMargin ? <CompactPrice value={margin.sellValueOfCosted} /> : "-",
+            detail: t("overview.inventory.sellValueDetail"),
+          },
+          {
+            key: "unrealizedProfit",
             icon: IconChartLine,
-            label: t("reports.inventory.unrealized"),
-            value: isCosted ? <CompactPrice value={margin} /> : "-",
-            detail: isCosted ? `${statsSharePercent(margin, totals.costBasis ?? 0)}%` : null,
+            label: t("overview.inventory.unrealizedProfit"),
+            value: hasSellMargin ? <CompactPrice value={margin.unrealizedProfit} /> : "-",
+            detail:
+              hasSellMargin && margin.marginPercent != null
+                ? t("overview.inventory.marginPercent", { percent: margin.marginPercent })
+                : null,
           },
           {
             key: "uncosted",

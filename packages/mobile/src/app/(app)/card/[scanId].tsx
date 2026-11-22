@@ -70,6 +70,7 @@ import { CardDetailTitleBlock } from "@/features/cards/components/card-detail-ti
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
 import { setCardAcquisitionCost } from "@/features/business/api/card-cost";
 import { cardPricingQueryOptions } from "@/features/business/api/card-pricing";
+import { useOpenBuy } from "@/features/business/api/use-open-buy";
 import { CardPricingSection } from "@/features/business/components/card-pricing-section";
 import { CardSellPriceSheet } from "@/features/business/components/card-sell-price-sheet";
 import {
@@ -143,6 +144,8 @@ export default function CardDetailScreen() {
   const canViewCosts = hasBusinessTools && !!businessAccess.data?.canViewCosts;
   const canEditSellRule = hasBusinessTools && !!businessAccess.data?.canManageSettings;
   const cardPricing = useQuery(cardPricingQueryOptions(activeOrgId, scanId, hasBusinessTools));
+  const openBuy = useOpenBuy(hasBusinessTools ? guid : null, false);
+  const isInOpenOpenedProductBuy = !!cardPricing.data?.isInOpenIntake && openBuy?.sourceType === "opened";
   const savedBuyPrice =
     canViewCosts && cardPricing.data
       ? cardPricing.data.isInOpenIntake
@@ -835,7 +838,7 @@ export default function CardDetailScreen() {
                 canEditSellRule={canEditSellRule}
                 onEditSellRule={() => setIsSellPriceSheetOpen(true)}
                 costField={
-                  canViewCosts && cardPricing.data ? (
+                  canViewCosts && cardPricing.data && !isInOpenOpenedProductBuy ? (
                     <Surface>
                       <DecimalTextField
                         label={t(

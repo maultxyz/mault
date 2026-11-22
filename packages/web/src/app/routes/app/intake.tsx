@@ -13,8 +13,9 @@ import { useBusinessAccess } from "@/features/business/api/use-business";
 import { BusinessUpgradeCallout } from "@/features/business/components/business-upgrade-callout";
 import { IntakeCardDetail } from "@/features/business/components/intake-card-detail";
 import { IntakeLotDetail } from "@/features/business/components/intake-lot-detail";
-import { IntakeLotDialog } from "@/features/business/components/intake-lot-dialog";
+import { BuyStartDialog } from "@/features/business/components/buy-start-dialog";
 import { IntakeLotList } from "@/features/business/components/intake-lot-list";
+import { UnmovedBuysCallout } from "@/features/business/components/unmoved-buys-callout";
 import { ListSearchInput } from "@/components/list-search-input";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { BusinessOverviewBackButton } from "@/features/business/components/business-overview-back-button";
@@ -48,7 +49,6 @@ import { useSearchParams } from "react-router-dom";
 
 export default function IntakePage() {
   const { t } = useTranslation("business");
-  const { t: tCommon } = useTranslation("common");
   const { t: tCards } = useTranslation("cards");
   const isMobile = useIsMobile();
   const { orgId, access } = useBusinessAccess();
@@ -144,18 +144,14 @@ export default function IntakePage() {
   }, [selectedGuid, setSearchParams]);
 
   const createDialog = (
-    <IntakeLotDialog
-      open={createOpen}
-      onOpenChange={setCreateOpen}
-      onCreated={(guid) => select(guid)}
-    />
+    <BuyStartDialog open={createOpen} onOpenChange={setCreateOpen} />
   );
 
   if (isMobile) {
     if (isGridReviewing) {
       return (
         <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
-          <h1 className="sr-only">{tCommon("nav.intake")}</h1>
+          <h1 className="sr-only">{t("views.intake")}</h1>
           <ReviewGrid
             cards={reviewGridPage.data?.cards ?? []}
             total={reviewGridPage.data?.total ?? 0}
@@ -179,11 +175,11 @@ export default function IntakePage() {
           />
           <div
             className={cn(
-              "min-h-0 flex-1 overflow-y-auto p-4",
+              "flex min-h-0 flex-1 flex-col overflow-y-auto p-4",
               MOBILE_NAV_SCROLL_PADDING_CLASS,
             )}
           >
-            <div className="flex flex-col gap-4 md:gap-2">
+            <div className="flex flex-1 flex-col gap-4 md:gap-2">
               {access?.isLocked && <BusinessUpgradeCallout />}
               <IntakeLotDetail
                 key={selectedGuid}
@@ -218,7 +214,7 @@ export default function IntakePage() {
     return (
       <div className="relative flex min-h-0 flex-1 flex-col">
         <MobilePageHeader
-          title={tCommon("nav.intake")}
+          title={t("views.intake")}
           actions={
             <Button
               variant="ghost"
@@ -240,6 +236,7 @@ export default function IntakePage() {
           <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
             <BusinessOverviewBackButton />
             {access?.isLocked && <BusinessUpgradeCallout />}
+            <UnmovedBuysCallout />
             {listSearchInput}
             <IntakeLotList
               lots={lots}
@@ -263,7 +260,7 @@ export default function IntakePage() {
   return (
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
       {!showsLotHeading && (
-        <h1 className="sr-only">{tCommon("nav.intake")}</h1>
+        <h1 className="sr-only">{t("views.intake")}</h1>
       )}
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
@@ -277,6 +274,7 @@ export default function IntakePage() {
             <IconPlus />
             {t("intake.new")}
           </Button>
+          <UnmovedBuysCallout />
           {listSearchInput}
           <IntakeLotList
             lots={lots}

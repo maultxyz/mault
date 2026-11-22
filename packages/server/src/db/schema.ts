@@ -681,6 +681,8 @@ export const intakeLots = pgTable(
       .notNull()
       .references(() => collections.id),
     ownsCollection: boolean("owns_collection").notNull().default(false),
+    sourceType: text("source_type").notNull().default("customer"),
+    destinationLocationId: integer("destination_location_id"),
     customerName: text("customer_name").notNull(),
     customerContact: text("customer_contact"),
     notes: text("notes"),
@@ -1262,6 +1264,7 @@ export const cardSales = pgTable(
     condition: text("condition").notNull().default("NM"),
     salePrice: doublePrecision("sale_price"),
     acquisitionCost: doublePrecision("acquisition_cost"),
+    intakeLotId: integer("intake_lot_id"),
     currency: text("currency").notNull(),
     collectionName: text("collection_name"),
     soldByUserId: text("sold_by_user_id"),

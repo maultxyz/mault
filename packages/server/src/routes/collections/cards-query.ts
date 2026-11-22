@@ -86,6 +86,7 @@ const cardFiltersSchema = z.object({
   sets: z.array(z.string()).default([]),
   minMatchPercent: z.number().min(0).max(100).default(0),
   foilTypes: z.array(z.string()).default([]),
+  intakeLotGuid: z.string().uuid().nullable().default(null),
 });
 
 const binWindowsSchema = z.array(
@@ -313,6 +314,12 @@ export function cardFilterSql(
 
   if (filters.foilTypes.length > 0) {
     conditions.push(sql`${FOIL_LABEL} = ${anyOf(filters.foilTypes)}`);
+  }
+
+  if (filters.intakeLotGuid) {
+    conditions.push(
+      sql`cc.intake_lot_id = (SELECT il.id FROM intake_lots il WHERE il.guid = ${filters.intakeLotGuid}::uuid)`,
+    );
   }
 
   if (filters.minMatchPercent > 0) {

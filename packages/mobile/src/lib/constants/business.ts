@@ -1,10 +1,11 @@
 import type {
+  BuySourceType,
+  BuyStartFormValues,
   CardReservationStage,
   FulfilmentOrderStatus,
-  IntakeLotFormValues,
   IntakeLotStatus,
 } from "@magic-vault/shared";
-import type { PillProps } from "@/lib/interfaces/ui";
+import type { IconName, PillProps } from "@/lib/interfaces/ui";
 
 export const BUSINESS_QUERY_KEY = ["business"] as const;
 export const BUSINESS_ORDERS_QUERY_KEY = [...BUSINESS_QUERY_KEY, "orders"] as const;
@@ -17,12 +18,24 @@ export const BUSINESS_OVERVIEW_VIEW = "overview";
 export const BUSINESS_INTAKE_VIEW = "intake";
 export const BUSINESS_PICKS_VIEW = "picks";
 export const BUSINESS_RESERVATIONS_VIEW = "reservations";
+export const BUSINESS_SALES_VIEW = "sales";
 export const BUSINESS_VIEWS = [
   BUSINESS_OVERVIEW_VIEW,
   BUSINESS_INTAKE_VIEW,
   BUSINESS_PICKS_VIEW,
   BUSINESS_RESERVATIONS_VIEW,
+  BUSINESS_SALES_VIEW,
 ] as const;
+export const BUSINESS_SALES_QUERY_KEY = [...BUSINESS_QUERY_KEY, "sales"] as const;
+export const BUSINESS_INVENTORY_MARGIN_QUERY_KEY = [...BUSINESS_QUERY_KEY, "inventory-margin"] as const;
+export const SALES_RANGES = ["7", "30", "90", "all"] as const;
+export const SALES_RANGE_DAYS: Record<(typeof SALES_RANGES)[number], number | null> = {
+  "7": 7,
+  "30": 30,
+  "90": 90,
+  all: null,
+};
+export const SALES_DEFAULT_RANGE: (typeof SALES_RANGES)[number] = "30";
 export const BUSINESS_OVERVIEW_QUERY_KEY = [...BUSINESS_QUERY_KEY, "overview"] as const;
 export const BUSINESS_ATTENTION_ICONS = {
   readyForPickup: "bookmark",
@@ -50,14 +63,19 @@ export const CARD_RESERVATION_STAGE_TONES: Record<CardReservationStage, NonNulla
 };
 export const PICK_WALK_ORDERS_SEPARATOR = ",";
 export const PICK_WALK_NEXT_CARD_WIDTH = 104;
-export const INTAKE_LOT_DEFAULT_VALUES: IntakeLotFormValues = {
-  collectionMode: "new",
-  collectionGuid: "",
-  gameGuid: "",
-  lang: "",
-  customerName: "",
-  customerContact: "",
+export const BUY_START_DEFAULT_VALUES: BuyStartFormValues = {
+  sourceType: "customer",
+  name: "",
+  contact: "",
   notes: "",
+  collectionGuid: "",
+  storageLocationGuid: "",
+};
+export const BUY_NO_STORAGE_LOCATION_OPTION = "none";
+export const BUY_SOURCE_ICONS: Record<BuySourceType, IconName> = {
+  customer: "account",
+  vendor: "store",
+  opened: "sparkles",
 };
 export const ORDER_DECKLIST_DEFAULT_VALUES = { name: "", decklist: "" };
 export const BUSINESS_STATUS_TONES: Record<IntakeLotStatus | FulfilmentOrderStatus, NonNullable<PillProps["tone"]>> = {

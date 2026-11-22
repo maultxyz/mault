@@ -24,6 +24,9 @@ import type {
   IntakeLot,
   IntakeLotCard,
   IntakeLotStatus,
+  InventoryMargin,
+  SaleRow,
+  SalesReport,
   ComposedCsvOrder,
   CsvOrderImportResult,
   CsvImportComposition,
@@ -91,10 +94,96 @@ export interface IntakeLotListProps {
   isFiltered?: boolean;
 }
 
-export interface IntakeLotDialogProps {
+export interface BuyStartDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreated: (guid: string) => void;
+  defaultCollectionGuid?: string;
+  opensScannerAfterStart?: boolean;
+}
+
+export interface OpenBuyState {
+  openBuy: IntakeLot | null;
+  hasLoaded: boolean;
+  canStartBuy: boolean;
+}
+
+export type ScannerBuyDialog =
+  | { kind: "finish"; lot: IntakeLot }
+  | { kind: "cancel"; lot: IntakeLot }
+  | { kind: "remove"; lot: IntakeLot; scanIds: string[] }
+  | { kind: "transfer"; lot: IntakeLot }
+  | { kind: "start" };
+
+export interface ScannerBuyStartBarProps {
+  onStart: () => void;
+}
+
+export interface ScannerBuyFinished {
+  guid: string;
+  collectionGuid: string | undefined;
+}
+
+export interface ScannerBuyState extends OpenBuyState {
+  collectionGuid: string | undefined;
+  lot: IntakeLot | null;
+  belowMinimumScanIds: string[];
+  finishedBuyGuid: string | null;
+  markFinished: (guid: string) => void;
+  dismissFinished: () => void;
+  dialog: ScannerBuyDialog | null;
+  setDialog: (dialog: ScannerBuyDialog | null) => void;
+}
+
+export interface ScannerBuyOverviewProps {
+  state: ScannerBuyState;
+  editsOffers: boolean;
+  onOpenDialog: (dialog: ScannerBuyDialog) => void;
+  headingLevel?: "h2" | "h3";
+}
+
+export interface ScannerBuyRecentCardsProps {
+  lot: IntakeLot;
+  editsOffers: boolean;
+}
+
+export interface ScannerBuyFinishedSummaryProps {
+  guid: string;
+  onOpenDialog: (dialog: ScannerBuyDialog) => void;
+  onDismiss: () => void;
+}
+
+export interface ScannerBuyDialogsProps {
+  state: ScannerBuyState;
+  onFinished?: () => void;
+}
+
+export interface MobileScannerBuyTriggerContext {
+  openBuy: IntakeLot | null;
+  canStartBuy: boolean;
+  canFinish: boolean;
+  openSheet: () => void;
+  requestFinish: () => void;
+  requestStart: () => void;
+}
+
+export interface MobileScanBuyRowProps {
+  collectionGuid: string;
+  isRunning: boolean;
+  isRemoveModeActive: boolean;
+}
+
+export interface MobileScannerBuyStripProps {
+  collectionGuid: string | undefined;
+}
+
+export interface MobileScannerBuyProps {
+  collectionGuid: string | undefined;
+  renderTrigger: (context: MobileScannerBuyTriggerContext) => ReactNode;
+}
+
+export interface BuyStartMemory {
+  collectionGuid: string;
+  storageLocationGuid: string;
 }
 
 export interface IntakeLotDetailProps {
@@ -108,11 +197,39 @@ export interface IntakeOfferEditorProps {
   card: IntakeLotCard;
 }
 
-export interface IntakeAcceptDialogProps {
+export interface BuyFinishDialogProps {
   lot: IntakeLot;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onAccepted: () => void;
+  onFinished: () => void;
+}
+
+export interface BuyPerformanceSectionProps {
+  lot: IntakeLot;
+}
+
+export interface SalesReportFilters {
+  from: string;
+  to: string;
+  buyGuid: string | null;
+}
+
+export interface SalesReportListProps {
+  report: SalesReport;
+  showsCosts: boolean;
+}
+
+export interface SalesReportBodyProps {
+  filters: SalesReportFilters;
+}
+
+export interface SaleMoneyProps {
+  value: number | null;
+  currency: string;
+}
+
+export interface SaleRowProps {
+  sale: SaleRow;
 }
 
 export interface IntakeTransferDialogProps {
@@ -426,6 +543,7 @@ export interface BusinessReservationsChartProps {
 
 export interface BusinessInventoryCostsProps {
   report: StatsReport;
+  margin: InventoryMargin | null;
 }
 
 export interface BusinessOverviewSectionProps {

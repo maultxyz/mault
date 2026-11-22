@@ -84,7 +84,7 @@
       },
       "intake": {
         "title": "Buy collections over the counter",
-        "description": "Scan a customer's cards into their own intake and watch a cash and store credit offer build from your buylist tiers. Cards below your minimum are struck out, and accepting records what you paid and prints a receipt."
+        "description": "Scan cards from a customer, a vendor or a freshly opened box straight into your stock and watch a cash and store credit offer build from your buylist tiers. Cards below your minimum are struck out, and finishing records what you paid and prints a receipt."
       }
     },
     "new": "New",
@@ -152,7 +152,7 @@
         },
         "permissions": {
           "title": "Buy prices stay private",
-          "description": "Let staff scan intakes without seeing offers, costs or margins."
+          "description": "Let staff scan buys without seeing offers, costs or margins."
         },
         "recognition": {
           "title": "Instant recognition",

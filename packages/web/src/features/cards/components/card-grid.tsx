@@ -1,3 +1,4 @@
+import type { CardGridProps } from "@/lib/interfaces/cards";
 import { CardContextMenu } from "@/features/cards/components/card-context-menu";
 import { useHiddenDownloadedCount } from "@/features/cards/api/use-hidden-downloaded-count";
 import { DeleteDialog } from "@/components/delete-dialog";
@@ -46,6 +47,7 @@ import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useMoveCardsToLocation } from "@/features/storage/api/use-storage-locations";
 import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
 import { SetPricesAction } from "@/features/business/components/set-prices-action";
+import { useOpenBuy } from "@/features/business/api/use-open-buy";
 import { useMoveTargetCollections } from "@/features/collections/api/use-move-target-collections";
 import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import {
@@ -164,7 +166,7 @@ import {
 } from "@/lib/constants/cards";
 import { useCollectionLocks, useSessionViewersByGuid } from "@/lib/app-stream";
 
-export function CardGrid() {
+export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
   const { t } = useTranslation("cards");
   const {
     collection: viewedCollection,
@@ -210,6 +212,13 @@ export function CardGrid() {
         )
       : undefined;
   const { filters, setFilters } = useCardFilters();
+  const { openBuy, hasLoaded: hasLoadedOpenBuys } = useOpenBuy(collectionGuid);
+  const openBuyGuid = openBuy?.guid ?? null;
+  useEffect(() => {
+    if (!filters.intakeLotGuid || !hasLoadedOpenBuys) return;
+    if (filters.intakeLotGuid === openBuyGuid) return;
+    setFilters({ ...filters, intakeLotGuid: null });
+  }, [filters, setFilters, hasLoadedOpenBuys, openBuyGuid]);
   const fieldDefinitions = useMemo(
     () => viewedCollection?.game?.fieldDefinitions ?? [],
     [viewedCollection?.game?.fieldDefinitions],
@@ -1108,6 +1117,7 @@ export function CardGrid() {
         className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b"
       >
         <CardToolbar
+          leading={toolbarLeading}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           sortKey={sortKey}
@@ -1139,6 +1149,7 @@ export function CardGrid() {
           availableColors={stats?.colors}
           availableFoilTypes={stats?.foilTypes}
           binCount={computeBinCount(moduleCount)}
+          openBuyGuid={openBuyGuid}
           cardCount={collectionCardCount}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}

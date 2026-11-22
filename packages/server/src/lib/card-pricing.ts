@@ -110,6 +110,7 @@ export async function loadCardPricing(
       intakeOffer: collectionCards.intakeOffer,
       intakeOfferCurrency: collectionCards.intakeOfferCurrency,
       intakeLotStatus: intakeLots.status,
+      intakeLotSourceType: intakeLots.sourceType,
     })
     .from(collectionCards)
     .leftJoin(intakeLots, eq(intakeLots.id, collectionCards.intakeLotId))
@@ -126,6 +127,7 @@ export async function loadCardPricing(
     sellRule,
     defaultMarkupPercent: config.defaultMarkupPercent,
     isInOpenIntake: row.intakeLotStatus === "open",
+    openBuyUsesOffers: row.intakeLotStatus === "open" && row.intakeLotSourceType !== "opened",
     intakeOffer:
       canViewCosts && row.intakeOfferCurrency === currency ? row.intakeOffer : null,
     cost: canViewCosts && row.acquisitionCurrency === currency ? row.acquisitionCost : null,

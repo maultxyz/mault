@@ -2,12 +2,14 @@ import { ScanningBlockedWhileImpersonating } from "@/components/scanning-blocked
 import { Drawer, DrawerContent, DrawerTrigger } from "@/components/ui/drawer";
 import { ResizeHandle } from "@/components/ui/resize-handle";
 import { PresetSelector } from "@/features/bins/components/preset-selector";
+import { MobileScannerBuyStrip } from "@/features/business/components/mobile-scanner-buy-strip";
 import { useReviewQueueSession } from "@/features/cards/api/use-review-queue";
 import { CardGrid } from "@/features/cards/components/card-grid";
 import { ReviewQueuePanel } from "@/features/cards/components/collection-review-queue-panel";
 import { orgSettingsQueryOptions } from "@/features/companies/api/org-settings";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
+import { useCollections } from "@/features/collections/api/use-collections";
 import { AlphabetPassControl } from "@/features/scanner/components/alphabet-pass-control";
 import { AutoAssignControl } from "@/features/scanner/components/auto-assign-control";
 import { PresetStageControl } from "@/features/scanner/components/preset-stage-control";
@@ -67,6 +69,7 @@ function MobileScanner() {
   const { t } = useTranslation(["scanner", "common"]);
   const { isImpersonating } = useImpersonation();
   const { totalCount } = useCollectionCardsSummary();
+  const { activeCollection } = useCollections();
   const piHost = usePiHost();
 
   return (
@@ -86,6 +89,7 @@ function MobileScanner() {
           <CardScanner className="flex-1 min-h-0" />
         )}
         <ActiveCollectionUnmatchedCardsPanel />
+        <MobileScannerBuyStrip collectionGuid={activeCollection?.guid} />
         <BinStatusMeter />
         <AutoAssignControl />
         <AlphabetPassControl />

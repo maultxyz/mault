@@ -1,6 +1,7 @@
 import {
   BUSINESS_OVERVIEW_SALES_DAYS,
   CARD_RESERVATION_OPEN_STAGES,
+  MISSING_PRICE_TEXT,
   businessOverviewAttentionItems,
   formatCompactNumber,
 } from "@magic-vault/shared";
@@ -16,7 +17,8 @@ import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SectionHeader } from "@/components/ui/section-header";
 import { StatGroup } from "@/components/ui/stat-group";
 import { StatTile } from "@/components/ui/stat-tile";
-import { businessOverviewQueryOptions } from "@/features/business/api/business";
+import { businessOverviewQueryOptions, inventoryMarginQueryOptions } from "@/features/business/api/business";
+import { businessAccessQueryOptions } from "@/features/business/api/business-access";
 import { AreaChart } from "@/features/stats/components/area-chart";
 import { StatsHighlights } from "@/features/stats/components/stats-highlights";
 import { StatsSection } from "@/features/stats/components/stats-section";
@@ -29,6 +31,7 @@ import {
   BUSINESS_LIST_SKELETON_ROWS,
   BUSINESS_PICKS_VIEW,
   BUSINESS_RESERVATIONS_VIEW,
+  BUSINESS_SALES_VIEW,
 } from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
 import type { BusinessOverviewViewProps } from "@/lib/interfaces/business";
@@ -49,7 +52,12 @@ export function BusinessOverviewView({ onOpenView }: BusinessOverviewViewProps) 
   const compactCount = useCompactCount();
   const { format, formatCompact } = usePricing();
   const overview = useQuery(businessOverviewQueryOptions(orgId));
+  const access = useQuery(businessAccessQueryOptions(orgId));
+  const canViewCosts = !!access.data?.canViewCosts;
+  const margin = useQuery(inventoryMarginQueryOptions(orgId, canViewCosts));
   const data = overview.data;
+  const percent = (value: number) =>
+    `${new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(value)}%`;
 
   if (overview.isPending) return <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} />;
   if (overview.isError || !data) {
@@ -121,7 +129,7 @@ export function BusinessOverviewView({ onOpenView }: BusinessOverviewViewProps) 
         <StatTile
           icon="store"
           label={t("business.overview.tiles.soldCards")}
-          onPress={() => onOpenView(BUSINESS_PICKS_VIEW)}
+          onPress={() => onOpenView(BUSINESS_SALES_VIEW)}
           {...compactCount(sales.cardCount)}
           hint={t("business.overview.tiles.perDay", {
             count: Math.round((sales.cardCount / BUSINESS_OVERVIEW_SALES_DAYS) * 10) / 10,
@@ -131,7 +139,7 @@ export function BusinessOverviewView({ onOpenView }: BusinessOverviewViewProps) 
           <StatTile
             icon="coins"
             label={t("business.overview.tiles.revenue")}
-            onPress={() => onOpenView(BUSINESS_PICKS_VIEW)}
+            onPress={() => onOpenView(BUSINESS_SALES_VIEW)}
             value={formatCompact(sales.total)}
             exactValue={format(sales.total)}
             hint={
@@ -141,7 +149,46 @@ export function BusinessOverviewView({ onOpenView }: BusinessOverviewViewProps) 
             }
           />
         ) : null}
+        {canViewCosts && sales.profit != null ? (
+          <StatTile
+            icon="trophy"
+            label={t("business.overview.tiles.profit")}
+            onPress={() => onOpenView(BUSINESS_SALES_VIEW)}
+            value={formatCompact(sales.profit)}
+            exactValue={format(sales.profit)}
+            hint={
+              sales.costOfSold != null
+                ? t("business.overview.tiles.costOfSold", { value: format(sales.costOfSold) })
+                : undefined
+            }
+          />
+        ) : null}
       </StatGroup>
+
+      {canViewCosts && margin.data ? (
+        <StatGroup heading={t("business.overview.margin.heading")}>
+          <StatTile
+            icon="storage"
+            label={t("business.overview.margin.costBasis")}
+            value={formatCompact(margin.data.costBasis)}
+            exactValue={format(margin.data.costBasis)}
+            hint={t("business.overview.cards", { count: margin.data.costedCount })}
+          />
+          <StatTile
+            icon="trophy"
+            label={t("business.overview.margin.unrealizedProfit")}
+            value={formatCompact(margin.data.unrealizedProfit)}
+            exactValue={format(margin.data.unrealizedProfit)}
+            hint={t("business.overview.margin.sellValueHint", { value: format(margin.data.sellValueOfCosted) })}
+          />
+          <StatTile
+            label={t("business.overview.margin.marginPercent")}
+            value={margin.data.marginPercent != null ? percent(margin.data.marginPercent) : MISSING_PRICE_TEXT}
+            exactValue={margin.data.marginPercent != null ? undefined : t("business.buy.performance.notAvailable")}
+            hint={t("business.overview.margin.marginHint")}
+          />
+        </StatGroup>
+      ) : null}
 
       <StatsHighlights heading={t("business.overview.attention.heading")} insights={insights} />
 
@@ -182,6 +229,16 @@ export function BusinessOverviewView({ onOpenView }: BusinessOverviewViewProps) 
             subtitle={intake.latestOpenLots.length > 0 ? undefined : t("business.overview.intake.link")}
             onPress={() => onOpenView(BUSINESS_INTAKE_VIEW)}
           />
+        </ListGroup>
+      </View>
+
+      <View style={{ gap: SPACING.sm }}>
+        <SectionHeader title={t("business.views.sales")} />
+        <AppText size="sm" tone="secondary">
+          {t("business.overview.salesSection.description")}
+        </AppText>
+        <ListGroup>
+          <ListRow icon="stats" title={t("business.overview.salesSection.link")} onPress={() => onOpenView(BUSINESS_SALES_VIEW)} />
         </ListGroup>
       </View>
 

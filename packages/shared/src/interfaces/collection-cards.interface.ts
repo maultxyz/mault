@@ -17,6 +17,7 @@ export interface CardFilters {
   sets: string[];
   minMatchPercent: number;
   foilTypes: string[];
+  intakeLotGuid?: string | null;
 }
 
 export interface CollectionCardsQuery {

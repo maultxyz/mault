@@ -106,7 +106,8 @@ export function useCardQueryState(
     filters.foilTypes.length +
     (filters.needsAttention ? 1 : 0) +
     (filters.hideDownloaded ? 1 : 0) +
-    (filters.minMatchPercent > 0 ? 1 : 0);
+    (filters.minMatchPercent > 0 ? 1 : 0) +
+    (filters.intakeLotGuid ? 1 : 0);
 
   return {
     searchQuery,

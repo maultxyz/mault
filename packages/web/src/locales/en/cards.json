@@ -118,7 +118,9 @@
     "hideDownloadedCards": "Hide downloaded cards",
     "sets": "Sets",
     "resetFilters": "Reset filters",
-    "unmatched": "Unmatched"
+    "unmatched": "Unmatched",
+    "buy": "Buy",
+    "onlyThisBuy": "Only this buy"
   },
   "cardGrid": {
     "noCollectionSelected": "No collection selected",

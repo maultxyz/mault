@@ -10,6 +10,7 @@ import {
   CARD_CONDITIONS,
   collectionGameLabel,
   DEFAULT_CARD_CONDITION,
+  type IntakeLot,
   isCardCondition,
   listScannerControlActions,
 } from "@magic-vault/shared";
@@ -33,6 +34,9 @@ import { useRulesData } from "@/features/rules/api/use-rules-data";
 import { useLiveFrameSource } from "@/features/scanner/api/use-live-frame-source";
 import { useScannerQrWatcher } from "@/features/scanner/api/use-scanner-qr-watcher";
 import { useOpenOrderPick } from "@/features/business/api/use-open-order-pick";
+import { useOpenBuy } from "@/features/business/api/use-open-buy";
+import { useCanStartBuy } from "@/features/business/api/use-can-start-buy";
+import { ScanBuySheet } from "@/features/business/components/scan-buy-sheet";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
 import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
@@ -61,6 +65,7 @@ import { captureFrame } from "@/features/scanner/lib/frame";
 import { useSorter } from "@/features/sorter/api/use-sorter";
 import { useAppState } from "@/hooks/use-app-state";
 import { useActiveOrgId } from "@/hooks/use-org";
+import { usePricing } from "@/hooks/use-pricing";
 import { useTheme } from "@/hooks/use-theme";
 import {
   ANY_SET_OPTION,
@@ -113,6 +118,22 @@ export default function ScanScreen() {
       : scanDestination.storageLocation
         ? t("scan.destination.storageChip", { name: scanDestination.storageLocation.name })
         : t("scan.destination.noLocationChip");
+  const { format: formatPrice } = usePricing();
+  const openBuy = useOpenBuy(collection?.guid ?? null, focused);
+  const canStartBuy = useCanStartBuy(collection?.guid ?? null);
+  const [buySheetOpen, setBuySheetOpen] = useState(false);
+  const [buySheetBuy, setBuySheetBuy] = useState<IntakeLot | null>(null);
+  const openBuySheet = (buy: IntakeLot) => {
+    setBuySheetBuy(buy);
+    setBuySheetOpen(true);
+  };
+  const openBuyLabel = openBuy
+    ? openBuy.sourceType === "opened"
+      ? t("scan.buy.openingWithCount", { name: openBuy.customerName, count: openBuy.cardCount })
+      : openBuy.cashOffer != null
+      ? t(`scan.buy.lineWithOffer.${openBuy.sourceType}`, { name: openBuy.customerName, amount: formatPrice(openBuy.cashOffer) })
+      : t(`scan.buy.line.${openBuy.sourceType}`, { name: openBuy.customerName })
+    : null;
   const [presetPickerOpen, setPresetPickerOpen] = useState(false);
   const [cameraPickerOpen, setCameraPickerOpen] = useState(false);
   const [foilTypePickerOpen, setFoilTypePickerOpen] = useState(false);
@@ -521,6 +542,26 @@ export default function ScanScreen() {
                 onPress={session.isRunning || sorter.isReady ? undefined : () => setDestinationPickerOpen(true)}
               />
             ) : null}
+            {openBuy && openBuyLabel && !session.removal.isEnabled ? (
+              <CameraTextRow
+                icon="coins"
+                label={openBuyLabel}
+                onPress={
+                  session.isRunning
+                    ? undefined
+                    : () => openBuySheet(openBuy)
+                }
+              />
+            ) : null}
+            {collection && !openBuy && canStartBuy && !session.isRunning && !session.removal.isEnabled ? (
+              <CameraTextRow
+                icon="plus"
+                label={t("scan.buy.start")}
+                onPress={() =>
+                  router.push({ pathname: "/business/intake-new", params: { collectionGuid: collection.guid } })
+                }
+              />
+            ) : null}
             {showRemovalChip && collection ? (
               <CameraTextRow
                 icon="trash"
@@ -812,6 +853,11 @@ export default function ScanScreen() {
         removal={session.removal}
         collectionName={collection?.name ?? ""}
         onClose={() => setRemovalQueueOpen(false)}
+      />
+      <ScanBuySheet
+        visible={buySheetOpen && focused}
+        buy={openBuy?.guid === buySheetBuy?.guid ? openBuy : buySheetBuy}
+        onClose={() => setBuySheetOpen(false)}
       />
       <SessionScansSheet
         visible={sessionOpen}

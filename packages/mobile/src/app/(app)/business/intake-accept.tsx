@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  businessMoneySchema,
   creditOfferFor,
   DEFAULT_BUYLIST_CONFIG,
   INTAKE_PAYOUT_METHODS,
@@ -9,7 +10,7 @@ import {
 } from "@magic-vault/shared";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -20,7 +21,6 @@ import { PageHeader } from "@/components/ui/page-header";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Surface } from "@/components/ui/surface";
-import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
 import { acceptIntakeLot, intakeLotQueryOptions } from "@/features/business/api/business";
 import { businessSettingsQueryOptions } from "@/features/business/api/business-access";
@@ -31,7 +31,7 @@ import { useTheme } from "@/hooks/use-theme";
 import { SPACING } from "@/lib/constants/theme";
 import { translateFormErrorMessage } from "@/lib/form-validation";
 
-export default function AcceptIntakeLotScreen() {
+export default function FinishBuyScreen() {
   const { guid } = useLocalSearchParams<{ guid: string }>();
   const { t } = useTranslation();
   const colors = useTheme();
@@ -41,23 +41,35 @@ export default function AcceptIntakeLotScreen() {
   const lot = useQuery(intakeLotQueryOptions(guid)).data;
   const settings = useQuery(businessSettingsQueryOptions(orgId)).data?.settings;
   const buylist = settings?.buylist ?? DEFAULT_BUYLIST_CONFIG;
-  const [overrideText, setOverrideText] = useState("");
+  const [totalText, setTotalText] = useState("");
+  const [hasPrefilled, setHasPrefilled] = useState(false);
   const form = useForm<IntakeAcceptFormValues>({
     resolver: zodResolver(intakeAcceptSchema),
-    defaultValues: { payoutMethod: "cash", useOverride: false, totalOverride: null },
+    mode: "onTouched",
+    defaultValues: { payoutMethod: "cash", useOverride: true, totalOverride: null },
   });
-  const payoutMethod = form.watch("payoutMethod");
-  const useOverride = form.watch("useOverride");
+  const isCustomerBuy = lot?.sourceType === "customer";
+  const isOpenedProduct = lot?.sourceType === "opened";
+  const payoutMethod: IntakePayoutMethod = isCustomerBuy ? form.watch("payoutMethod") : "cash";
   const totalOverride = form.watch("totalOverride");
-  const cash =
-    useOverride && totalOverride != null && Number.isFinite(totalOverride) ? totalOverride : (lot?.cashOffer ?? 0);
+  const cash = totalOverride != null && Number.isFinite(totalOverride) ? totalOverride : (lot?.cashOffer ?? 0);
   const payout = payoutMethod === "credit" ? creditOfferFor(cash, buylist) : cash;
+  const hasValidProductCost = totalOverride != null && businessMoneySchema.safeParse(totalOverride).success;
 
-  const accept = useMutation({
+  useEffect(() => {
+    if (hasPrefilled || !lot) return;
+    setHasPrefilled(true);
+    if (lot.sourceType !== "opened" && lot.cashOffer != null) {
+      setTotalText(String(lot.cashOffer));
+      form.setValue("totalOverride", lot.cashOffer);
+    }
+  }, [lot, hasPrefilled, form]);
+
+  const finish = useMutation({
     mutationFn: (values: IntakeAcceptFormValues) =>
       acceptIntakeLot(guid, {
-        payoutMethod: values.payoutMethod,
-        totalOverride: values.useOverride ? values.totalOverride : null,
+        payoutMethod: isCustomerBuy ? values.payoutMethod : "cash",
+        totalOverride: values.totalOverride,
       }),
     onSuccess: () => {
       router.back();
@@ -65,85 +77,118 @@ export default function AcceptIntakeLotScreen() {
     },
     onSettled: () => void refresh(),
   });
-  const submit = form.handleSubmit((values) => accept.mutate(values));
+  const submit = form.handleSubmit((values) => finish.mutate(values));
+  const destination = !lot
+    ? null
+    : lot.ownsCollection
+      ? t("business.buy.finishDestinationLegacy", { collection: lot.collectionName })
+      : lot.destinationLocationName
+        ? t("business.buy.finishDestinationLocation", {
+            collection: lot.collectionName,
+            location: lot.destinationLocationName,
+          })
+        : t("business.buy.finishDestination", { collection: lot.collectionName });
 
   return (
     <View collapsable={false} style={{ flex: 1, backgroundColor: colors.background }}>
       <PageHeader
-        title={t("business.intake.acceptTitle")}
-        subtitle={lot ? t("business.intake.acceptDescription", { count: lot.cardCount, name: lot.customerName }) : null}
+        title={t("business.buy.finishTitle")}
+        subtitle={
+          lot
+            ? t(isOpenedProduct ? "business.buy.finishDescriptionOpened" : "business.buy.finishDescription", {
+                count: lot.cardCount,
+                name: lot.customerName,
+              })
+            : null
+        }
       />
       <PinnedActionsLayout
         actions={
           <Button
             size="lg"
-            label={t("business.intake.acceptConfirm", { amount: format(payout) })}
-            loading={accept.isPending}
-            disabled={!lot || lot.status !== "open"}
+            label={
+              isOpenedProduct && !hasValidProductCost
+                ? t("business.buy.finish")
+                : t("business.buy.finishConfirm", { amount: format(payout) })
+            }
+            loading={finish.isPending}
+            disabled={!lot || lot.status !== "open" || (isOpenedProduct && !hasValidProductCost)}
             onPress={() => void submit()}
           />
         }
       >
-        {accept.isError ? (
+        {finish.isError ? (
           <Callout
             tone="destructive"
-            title={accept.error instanceof Error ? accept.error.message : t("business.actionFailed")}
+            title={finish.error instanceof Error ? finish.error.message : t("business.actionFailed")}
           />
         ) : null}
-        <View style={{ gap: SPACING.xs }}>
-          <AppText size="sm" weight="medium">
-            {t("business.intake.payoutMethod")}
-          </AppText>
-          <SegmentedControl<IntakePayoutMethod>
-            value={payoutMethod}
-            onChange={(value) => form.setValue("payoutMethod", value)}
-            options={INTAKE_PAYOUT_METHODS.map((value) => ({ value, label: t(`business.intake.payout.${value}`) }))}
-          />
-        </View>
-        <SwitchRow
-          title={t("business.intake.overrideLabel")}
-          value={useOverride}
-          onValueChange={(value) => {
-            form.setValue("useOverride", value);
-            if (value && lot?.cashOffer != null && !overrideText) {
-              setOverrideText(String(lot.cashOffer));
-              form.setValue("totalOverride", lot.cashOffer);
-            }
-          }}
-        />
-        {useOverride ? (
-          <Controller
-            control={form.control}
-            name="totalOverride"
-            render={({ field, fieldState }) => (
+        {isCustomerBuy ? (
+          <View style={{ gap: SPACING.xs }}>
+            <AppText size="sm" weight="medium">
+              {t("business.intake.payoutMethod")}
+            </AppText>
+            <SegmentedControl<IntakePayoutMethod>
+              value={payoutMethod}
+              onChange={(value) => form.setValue("payoutMethod", value)}
+              options={INTAKE_PAYOUT_METHODS.map((value) => ({ value, label: t(`business.intake.payout.${value}`) }))}
+            />
+          </View>
+        ) : null}
+        <Controller
+          control={form.control}
+          name="totalOverride"
+          render={({ field, fieldState }) => (
+            <View style={{ gap: SPACING.xs }}>
               <TextField
-                label={t("business.intake.overrideAmount")}
+                label={t(isOpenedProduct ? "business.buy.productCost" : "business.buy.totalPaid")}
                 keyboardType="decimal-pad"
-                value={overrideText}
+                value={totalText}
                 onBlur={field.onBlur}
                 onChangeText={(text) => {
-                  setOverrideText(text);
+                  setTotalText(text);
                   const normalized = text.trim().replace(",", ".");
                   field.onChange(normalized === "" ? null : Number(normalized));
                 }}
                 error={fieldState.error ? translateFormErrorMessage(t, fieldState.error.message) : undefined}
               />
-            )}
-          />
+              <AppText size="xs" tone="secondary">
+                {t(isOpenedProduct ? "business.buy.productCostHint" : "business.buy.totalPaidHint")}
+              </AppText>
+            </View>
+          )}
+        />
+        {isOpenedProduct ? (
+          lot?.marketTotal != null ? (
+            <Surface>
+              <View style={{ gap: SPACING.xs }} accessible>
+                <AppText size="xs" tone="secondary">
+                  {t("business.intake.stats.market")}
+                </AppText>
+                <AppText size="3xl" heading weight="bold">
+                  {format(lot.marketTotal)}
+                </AppText>
+              </View>
+            </Surface>
+          ) : null
+        ) : (
+          <Surface>
+            <View style={{ gap: SPACING.xs }} accessible accessibilityLiveRegion="polite">
+              <AppText size="xs" tone="secondary">
+                {t(`business.intake.payoutTotal.${payoutMethod}`)}
+              </AppText>
+              <AppText size="3xl" heading weight="bold">
+                {format(payout)}
+              </AppText>
+              <AppText size="xs" tone="secondary">
+                {t("business.intake.costBasisNote", { amount: format(cash) })}
+              </AppText>
+            </View>
+          </Surface>
+        )}
+        {destination ? (
+          <Callout tone="info" title={t("business.buy.finishDestinationTitle")} description={destination} />
         ) : null}
-        <Surface>
-          <View style={{ gap: SPACING.xs }} accessible accessibilityLiveRegion="polite">
-            <AppText size="xs" tone="secondary">
-              {t(`business.intake.payoutTotal.${payoutMethod}`)}
-            </AppText>
-            <AppText size="3xl" heading weight="bold">
-              {format(payout)}
-            </AppText>
-            <AppText size="xs" tone="secondary">
-              {t("business.intake.costBasisNote", { amount: format(cash) })}
-            </AppText>
-          </View>
-        </Surface>
       </PinnedActionsLayout>
     </View>
   );

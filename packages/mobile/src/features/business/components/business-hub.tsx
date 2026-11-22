@@ -1,3 +1,4 @@
+import { SALES_REPORT_BUY_PARAM } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useTranslation } from "react-i18next";
@@ -10,13 +11,14 @@ import { BusinessOverviewView } from "@/features/business/components/business-ov
 import { IntakeLotsView } from "@/features/business/components/intake-lots-view";
 import { OrdersView } from "@/features/business/components/orders-view";
 import { ReservationsView } from "@/features/business/components/reservations-view";
+import { SalesView } from "@/features/business/components/sales-view";
 import { useActiveOrgId } from "@/hooks/use-org";
 import {
   BUSINESS_INTAKE_VIEW,
   BUSINESS_OVERVIEW_VIEW,
   BUSINESS_QUERY_KEY,
-  BUSINESS_PICKS_VIEW,
   BUSINESS_RESERVATIONS_VIEW,
+  BUSINESS_SALES_VIEW,
   BUSINESS_VIEWS,
 } from "@/lib/constants/business";
 import type { BusinessHubProps, BusinessView } from "@/lib/interfaces/business";
@@ -25,7 +27,9 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
   const { t } = useTranslation();
   const orgId = useActiveOrgId();
   const queryClient = useQueryClient();
-  const { view: viewParam } = useLocalSearchParams<{ view?: string }>();
+  const params = useLocalSearchParams<{ view?: string; [SALES_REPORT_BUY_PARAM]?: string }>();
+  const viewParam = params.view;
+  const salesBuyGuid = params[SALES_REPORT_BUY_PARAM] || null;
   const view: BusinessView =
     BUSINESS_VIEWS.find((candidate) => candidate === viewParam) ?? BUSINESS_OVERVIEW_VIEW;
   const access = useQuery(businessAccessQueryOptions(orgId));
@@ -35,6 +39,7 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
   const isIntake = view === BUSINESS_INTAKE_VIEW;
   const isReservations = view === BUSINESS_RESERVATIONS_VIEW;
   const isOverview = view === BUSINESS_OVERVIEW_VIEW;
+  const isSales = view === BUSINESS_SALES_VIEW;
 
   return (
     <Screen
@@ -45,7 +50,7 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
           subtitle={isOverview ? t("business.subtitle") : undefined}
           onBack={onBack}
           actions={
-            !isReservations && !isOverview && (isIntake ? canCreateIntake : canCreatePick) ? (
+            !isReservations && !isOverview && !isSales && (isIntake ? canCreateIntake : canCreatePick) ? (
               <IconButton
                 icon="plus"
                 accessibilityLabel={isIntake ? t("business.intake.new") : t("business.picks.new")}
@@ -65,6 +70,8 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
         <IntakeLotsView canAct={canCreateIntake} />
       ) : isReservations ? (
         <ReservationsView canAct={canCreatePick} />
+      ) : isSales ? (
+        <SalesView key={salesBuyGuid ?? "all"} buyGuid={salesBuyGuid} />
       ) : (
         <OrdersView canAct={!!access.data?.canFulfilOrders} />
       )}

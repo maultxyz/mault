@@ -20,6 +20,8 @@ import {
   type IntakePayoutMethod,
   type OrgPricing,
   type PlayingCardWithDistance,
+  BUY_SOURCE_TYPES,
+  type BuySourceType,
 } from "@magic-vault/shared";
 import { and, asc, desc, eq, inArray, sql, type SQL } from "drizzle-orm";
 import type { Transaction } from "../db";
@@ -29,6 +31,7 @@ import {
   collections,
   games,
   intakeLots,
+  storageLocations,
 } from "../db/schema";
 import { collectionNameTaken } from "../routes/collections/shared";
 import { getUserDisplayName } from "../middleware/auth";
@@ -144,6 +147,10 @@ export function selectIntakeLots(tx: Transaction) {
       guid: intakeLots.guid,
       collectionId: intakeLots.collectionId,
       ownsCollection: intakeLots.ownsCollection,
+      sourceType: intakeLots.sourceType,
+      destinationLocationId: intakeLots.destinationLocationId,
+      destinationLocationGuid: storageLocations.guid,
+      destinationLocationName: storageLocations.name,
       customerName: intakeLots.customerName,
       customerContact: intakeLots.customerContact,
       notes: intakeLots.notes,
@@ -167,7 +174,14 @@ export function selectIntakeLots(tx: Transaction) {
     })
     .from(intakeLots)
     .innerJoin(collections, eq(collections.id, intakeLots.collectionId))
-    .leftJoin(games, eq(games.id, collections.gameId));
+    .leftJoin(games, eq(games.id, collections.gameId))
+    .leftJoin(
+      storageLocations,
+      and(
+        eq(storageLocations.id, intakeLots.destinationLocationId),
+        eq(storageLocations.isDeleted, false),
+      ),
+    );
 }
 
 export async function findIntakeLot(
@@ -374,8 +388,12 @@ export async function toIntakeLot(
 ): Promise<IntakeLot> {
   const money = (value: number | null | undefined) =>
     canViewCosts ? (value ?? null) : null;
+  const usesOffers = buyUsesOffers(row);
   return {
     guid: row.guid!,
+    sourceType: toBuySourceType(row.sourceType),
+    destinationLocationGuid: row.destinationLocationGuid ?? null,
+    destinationLocationName: row.destinationLocationName ?? null,
     customerName: row.customerName,
     customerContact: row.customerContact,
     notes: row.notes,
@@ -389,8 +407,8 @@ export async function toIntakeLot(
     ownsCollection: row.ownsCollection,
     cardCount: live?.cardCount ?? row.cardCount ?? 0,
     marketTotal: money(live?.marketTotal ?? row.marketTotal),
-    cashOffer: money(live?.cashOffer ?? row.cashOffer),
-    creditOffer: money(live?.creditOffer ?? row.creditOffer),
+    cashOffer: usesOffers ? money(live?.cashOffer ?? row.cashOffer) : null,
+    creditOffer: usesOffers ? money(live?.creditOffer ?? row.creditOffer) : null,
     paidTotal: money(row.paidTotal),
     createdAt: row.createdAt.toISOString(),
     acceptedAt: row.acceptedAt?.toISOString() ?? null,
@@ -550,4 +568,16 @@ export async function findNextUnreviewedLotCard(
     .orderBy(desc(collectionCards.scannedAt), desc(collectionCards.id))
     .limit(1);
   return row?.scanId ?? null;
+}
+
+export function toBuySourceType(value: string | null | undefined): BuySourceType {
+  return BUY_SOURCE_TYPES.find((type) => type === value) ?? "customer";
+}
+
+export function buyUsesOffers(row: { sourceType: string }): boolean {
+  return toBuySourceType(row.sourceType) !== "opened";
+}
+
+export function withoutIntakeOffer(card: IntakeLotCard): IntakeLotCard {
+  return { ...card, offer: null, hasManualOffer: false, belowMinimum: false };
 }

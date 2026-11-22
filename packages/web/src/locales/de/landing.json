@@ -84,7 +84,7 @@
       },
       "intake": {
         "title": "Sammlungen an der Theke ankaufen",
-        "description": "Scanne die Karten eines Kunden in einen eigenen Ankauf und sieh zu, wie aus deinen Preisstufen ein Bar- und Guthabenangebot entsteht. Karten unter deinem Mindestwert werden durchgestrichen, und beim Annehmen werden die Einkaufspreise erfasst und ein Beleg gedruckt."
+        "description": "Scanne Karten von Kunden, Händlern oder aus frisch geöffneter Ware direkt in deinen Bestand und sieh zu, wie aus deinen Preisstufen ein Bar- und Guthabenangebot entsteht. Karten unter deinem Mindestwert werden durchgestrichen, und beim Abschließen werden die Einkaufspreise erfasst und ein Beleg gedruckt."
       }
     },
     "new": "Neu",

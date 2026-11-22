@@ -11,6 +11,9 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useOpenBuy } from "@/features/business/api/use-open-buy";
+import { BuyStartDialog } from "@/features/business/components/buy-start-dialog";
+import { useScannerBuyStartBarHidden } from "@/features/business/lib/scanner-buy-start-bar";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useActiveCollectionSessionActions } from "@/features/collections/api/use-active-collection-session-actions";
 import { useCollections } from "@/features/collections/api/use-collections";
@@ -25,6 +28,8 @@ import { MENU_SCROLL_LIST_CLASS } from "@/lib/constants/ui";
 import {
   IconAlbum,
   IconCheck,
+  IconCoins,
+  IconEye,
   IconEdit,
   IconLoader2,
   IconLock,
@@ -39,7 +44,7 @@ import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
 export function CollectionMenu() {
-  const { t } = useTranslation(["collections", "common"]);
+  const { t } = useTranslation(["collections", "common", "business"]);
   const navigate = useNavigate();
   const { activeOrg } = useOrg();
   const {
@@ -64,6 +69,9 @@ export function CollectionMenu() {
     releaseScanSession,
   } = useActiveCollectionSessionActions();
   const [createOpen, setCreateOpen] = useState(false);
+  const [startBuyOpen, setStartBuyOpen] = useState(false);
+  const { canStartBuy } = useOpenBuy(activeCollection?.guid);
+  const [isBuyStartBarHidden, setBuyStartBarHidden] = useScannerBuyStartBarHidden();
   const {
     isMenuOpen,
     searchQuery,
@@ -219,6 +227,18 @@ export function CollectionMenu() {
             <IconPlus size={14} />
             {t("newCollection")}
           </DropdownMenuItem>
+          {canStartBuy && (
+            <DropdownMenuItem onClick={() => setStartBuyOpen(true)}>
+              <IconCoins size={14} />
+              {t("business:intake.newTitle")}
+            </DropdownMenuItem>
+          )}
+          {canStartBuy && isBuyStartBarHidden && (
+            <DropdownMenuItem onClick={() => setBuyStartBarHidden(false)}>
+              <IconEye size={14} />
+              {t("business:scannerBuy.startPrompt.show")}
+            </DropdownMenuItem>
+          )}
           {isLockedByMe && (
             <>
               <DropdownMenuSeparator />
@@ -239,6 +259,11 @@ export function CollectionMenu() {
         </DropdownMenuContent>
       </DropdownMenu>
       <CreateCollectionDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <BuyStartDialog
+        open={startBuyOpen}
+        onOpenChange={setStartBuyOpen}
+        defaultCollectionGuid={activeCollection?.guid}
+      />
     </>
   );
 }

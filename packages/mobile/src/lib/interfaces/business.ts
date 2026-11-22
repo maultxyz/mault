@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import type { Control } from "react-hook-form";
 import type {
+  BuyPerformance,
+  BuySourceType,
   BusinessSettingsDraftValues,
   CardPricing,
   CardReservationRequestGroup,
@@ -11,10 +13,43 @@ import type {
   OrderLine,
   PickWalkEntry,
   PickWalkStop,
+  SaleRow,
+  UnmovedBuy,
 } from "@magic-vault/shared";
-import type { BUSINESS_VIEWS } from "@/lib/constants/business";
+import type { BUSINESS_VIEWS, SALES_RANGES } from "@/lib/constants/business";
 
 export type BusinessView = (typeof BUSINESS_VIEWS)[number];
+
+export type SalesRange = (typeof SALES_RANGES)[number];
+
+export interface SalesReportFilter {
+  fromDay: string | null;
+  buyGuid: string | null;
+}
+
+export interface SalesViewProps {
+  buyGuid: string | null;
+}
+
+export interface SaleRowItemProps {
+  sale: SaleRow;
+  showProfit: boolean;
+}
+
+export interface BuyStartDefaults {
+  sourceType: BuySourceType;
+  collectionGuid: string;
+  storageLocationGuid: string;
+}
+
+export interface BuyPerformanceSectionProps {
+  buyGuid: string;
+  performance: BuyPerformance;
+}
+
+export interface UnmovedBuysCalloutProps {
+  buys: UnmovedBuy[];
+}
 
 export interface BusinessHubProps {
   onBack?: () => void;
@@ -147,5 +182,11 @@ export interface CardPricingSectionProps {
 export interface CardSellPriceSheetProps {
   visible: boolean;
   pricing: CardPricing;
+  onClose: () => void;
+}
+
+export interface ScanBuySheetProps {
+  visible: boolean;
+  buy: IntakeLot | null;
   onClose: () => void;
 }

@@ -25,7 +25,8 @@ export function CardPricingBlock({
   const [sellDialogOpen, setSellDialogOpen] = useState(false);
   const ruleKind = sellRuleKindOf(pricing.sellRule, pricing.currency);
   const canEditSellPrice = !!access?.canManageSettings && !access.isLocked;
-  const canSeeCost = !!access?.canViewCosts;
+  const isInOpenedProductBuy = pricing.isInOpenIntake && !pricing.openBuyUsesOffers;
+  const canSeeCost = !!access?.canViewCosts && !isInOpenedProductBuy;
   const canEditCost = canSeeCost && !access?.isLocked;
   const costLabel = t(
     pricing.isInOpenIntake ? "cardPricing.intakeOfferLabel" : "cardPricing.costLabel",

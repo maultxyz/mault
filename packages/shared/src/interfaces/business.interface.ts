@@ -1,4 +1,8 @@
-import type { CARD_COST_MODES, SELL_PRICE_MODES } from "../constants/business.constant";
+import type {
+  BUY_SOURCE_TYPES,
+  CARD_COST_MODES,
+  SELL_PRICE_MODES,
+} from "../constants/business.constant";
 import type { PriceLabelRoundingMode } from "./price-labels.interface";
 import type {
   ORDER_BULK_ACTIONS,
@@ -62,7 +66,12 @@ export type IntakeLotStatus = "open" | "accepted" | "cancelled";
 
 export type IntakePayoutMethod = "cash" | "credit";
 
+export type BuySourceType = (typeof BUY_SOURCE_TYPES)[number];
+
 export interface IntakeLot {
+  sourceType: BuySourceType;
+  destinationLocationGuid: string | null;
+  destinationLocationName: string | null;
   guid: string;
   customerName: string;
   customerContact: string | null;
@@ -153,6 +162,8 @@ export interface IntakeCardContext {
 }
 
 export interface IntakeLotInput {
+  sourceType?: BuySourceType;
+  destinationStorageLocationGuid?: string | null;
   collectionGuid?: string | null;
   newCollection?: IntakeNewCollectionInput | null;
   customerName: string;
@@ -614,6 +625,9 @@ export interface BusinessOverviewSalesDay {
 export interface BusinessOverviewSales {
   cardCount: number;
   total: number | null;
+  costOfSold: number | null;
+  profit: number | null;
+  costedCount: number;
   currency: string;
   history: BusinessOverviewSalesDay[];
 }
@@ -666,10 +680,83 @@ export interface CardPricing {
   sellRule: CardSellRule;
   defaultMarkupPercent: number;
   isInOpenIntake: boolean;
+  openBuyUsesOffers: boolean;
   intakeOffer: number | null;
   cost: number | null;
 }
 
 export interface CardPricesUpdateResult {
   updated: number;
+}
+
+export interface BuyPerformance {
+  currency: string;
+  paidTotal: number | null;
+  cardCount: number;
+  soldCount: number;
+  revenue: number;
+  costOfSold: number;
+  profit: number;
+  returnPercent: number | null;
+  remainingCount: number;
+  remainingCost: number;
+  remainingSellValue: number;
+}
+
+export interface UnmovedBuy {
+  guid: string;
+  customerName: string;
+  collectionGuid: string;
+  collectionName: string;
+  gameGuid: string | null;
+  cardCount: number;
+}
+
+export type SaleChannel = "pick" | "reservation";
+
+export interface SaleRow {
+  guid: string;
+  soldAt: string;
+  cardName: string;
+  setCode: string | null;
+  collectorNumber: string | null;
+  isFoil: boolean;
+  condition: string;
+  salePrice: number | null;
+  cost: number | null;
+  profit: number | null;
+  currency: string;
+  collectionName: string | null;
+  channel: SaleChannel;
+  buyGuid: string | null;
+  buyName: string | null;
+}
+
+export interface SalesReportTotals {
+  saleCount: number;
+  revenue: number;
+  cost: number | null;
+  profit: number | null;
+  marginPercent: number | null;
+  costedCount: number;
+}
+
+export interface SalesReport {
+  currency: string;
+  items: SaleRow[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totals: SalesReportTotals;
+}
+
+export interface InventoryMargin {
+  currency: string;
+  cardCount: number;
+  costedCount: number;
+  costBasis: number;
+  sellValue: number;
+  sellValueOfCosted: number;
+  unrealizedProfit: number;
+  marginPercent: number | null;
 }

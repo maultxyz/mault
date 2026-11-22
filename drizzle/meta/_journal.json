@@ -1457,6 +1457,13 @@
       "when": 1795376059079,
       "tag": "0207_dashing_giant_man",
       "breakpoints": true
+    },
+    {
+      "idx": 208,
+      "version": "7",
+      "when": 1795378336112,
+      "tag": "0208_messy_jackal",
+      "breakpoints": true
     }
   ]
 }

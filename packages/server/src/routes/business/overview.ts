@@ -108,7 +108,10 @@ async function loadSalesOverview(
     SELECT
       to_char(sales_day.day, 'YYYY-MM-DD') AS day,
       count(${cardSales.id})::int AS card_count,
-      sum(${cardSales.salePrice}) FILTER (WHERE ${cardSales.currency} = ${currency}) AS revenue
+      sum(${cardSales.salePrice}) FILTER (WHERE ${cardSales.currency} = ${currency}) AS revenue,
+      sum(${cardSales.acquisitionCost}) FILTER (WHERE ${cardSales.currency} = ${currency} AND ${cardSales.acquisitionCost} IS NOT NULL AND ${cardSales.salePrice} IS NOT NULL) AS cost_of_sold,
+      sum(${cardSales.salePrice}) FILTER (WHERE ${cardSales.currency} = ${currency} AND ${cardSales.acquisitionCost} IS NOT NULL AND ${cardSales.salePrice} IS NOT NULL) AS costed_revenue,
+      count(${cardSales.id}) FILTER (WHERE ${cardSales.currency} = ${currency} AND ${cardSales.acquisitionCost} IS NOT NULL AND ${cardSales.salePrice} IS NOT NULL)::int AS costed_count
     FROM generate_series(
       date_trunc('day', now() AT TIME ZONE 'UTC') - make_interval(days => ${BUSINESS_OVERVIEW_SALES_DAYS - 1}::int),
       date_trunc('day', now() AT TIME ZONE 'UTC'),
@@ -121,18 +124,30 @@ async function loadSalesOverview(
     GROUP BY sales_day.day
     ORDER BY sales_day.day
   `);
-  const rows = result.rows as { day: string; card_count: number; revenue: string | number | null }[];
+  const rows = result.rows as {
+    day: string;
+    card_count: number;
+    revenue: string | number | null;
+    cost_of_sold: string | number | null;
+    costed_revenue: string | number | null;
+    costed_count: number;
+  }[];
   const roundMoney = (value: number) => Math.round(value * 100) / 100;
   const history = rows.map((row) => ({
     day: row.day,
     cardCount: Number(row.card_count),
     revenue: canViewCosts ? roundMoney(Number(row.revenue ?? 0)) : null,
   }));
+  const costOfSold = roundMoney(rows.reduce((sum, row) => sum + Number(row.cost_of_sold ?? 0), 0));
+  const costedRevenue = rows.reduce((sum, row) => sum + Number(row.costed_revenue ?? 0), 0);
   return {
     cardCount: history.reduce((sum, day) => sum + day.cardCount, 0),
     total: canViewCosts
       ? roundMoney(history.reduce((sum, day) => sum + (day.revenue ?? 0), 0))
       : null,
+    costOfSold: canViewCosts ? costOfSold : null,
+    profit: canViewCosts ? roundMoney(costedRevenue - costOfSold) : null,
+    costedCount: canViewCosts ? rows.reduce((sum, row) => sum + Number(row.costed_count ?? 0), 0) : 0,
     currency,
     history,
   };

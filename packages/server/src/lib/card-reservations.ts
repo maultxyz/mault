@@ -547,7 +547,7 @@ export async function collectCardReservations(
         cc.card_name AS name,
         cc.card_set AS set_code,
         cc.card_collector_number AS collector_number,
-        cc.is_foil, cc.condition, cc.acquisition_cost,
+        cc.is_foil, cc.condition, cc.acquisition_cost, cc.intake_lot_id,
         cc.acquisition_currency, cc.captured_image_key AS image_key,
         cc.captured_back_image_key AS back_image_key,
         col.guid::text AS collection_guid, col.name AS collection_name
@@ -568,6 +568,7 @@ export async function collectCardReservations(
       condition: card.condition,
       salePrice: salePriceOf(card),
       acquisitionCost: card.acquisition_currency === currency ? card.acquisition_cost : null,
+      intakeLotId: card.intake_lot_id,
       currency,
       collectionName: card.collection_name,
       soldByUserId: input.userId,

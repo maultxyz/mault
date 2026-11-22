@@ -30,6 +30,7 @@ export function CardViewOptionsDrawer({
   availableColors,
   availableFoilTypes,
   binCount,
+  openBuyGuid,
   unmatchedCount,
   onShowUnmatched,
   viewMode,
@@ -120,6 +121,7 @@ export function CardViewOptionsDrawer({
               availableColors={availableColors}
               availableFoilTypes={availableFoilTypes}
               binCount={binCount}
+              openBuyGuid={openBuyGuid}
               unmatchedCount={unmatchedCount}
               onShowUnmatched={
                 onShowUnmatched &&

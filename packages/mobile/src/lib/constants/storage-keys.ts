@@ -18,6 +18,7 @@ export const SCAN_TIPS_SEEN_KEY = "mault.scan-tips-seen";
 export const REVIEW_LAYOUT_KEY = "mault.review-layout";
 export const SCAN_TARGET_COLLECTIONS_KEY = "mault.scan-target-collections";
 export const SCAN_DESTINATIONS_KEY = "mault.scan-destinations";
+export const BUY_START_DEFAULTS_KEY = "mault.buy-start-defaults";
 export const SCAN_SETTINGS_KEY_PREFIX = "mault.scan-settings.";
 export const MATCH_VALIDATION_GUIDE_SEEN_KEY = "mault.match-validation-guide-seen";
 export const TORCH_STRENGTH_PERCENT_KEY = "mault.torch-strength-percent";

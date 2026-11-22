@@ -25,6 +25,10 @@ export interface IntakeLotRow {
   id: number;
   guid: string | null;
   collectionId: number;
+  sourceType: string;
+  destinationLocationId: number | null;
+  destinationLocationGuid: string | null;
+  destinationLocationName: string | null;
   ownsCollection: boolean;
   customerName: string;
   customerContact: string | null;
@@ -74,6 +78,7 @@ export interface SoldCardRow {
   condition: string;
   acquisition_cost: number | null;
   acquisition_currency: string | null;
+  intake_lot_id: number | null;
   image_key: string | null;
   back_image_key: string | null;
   collection_guid: string;
@@ -120,4 +125,21 @@ export interface OrderSubstituteCandidateRow {
   collector_number: string | null;
   condition: string | null;
   is_foil: boolean;
+}
+
+export interface SaleQueryRow {
+  guid: string;
+  sold_at: Date | string;
+  card_name: string;
+  set_code: string | null;
+  collector_number: string | null;
+  is_foil: boolean;
+  condition: string;
+  sale_price: number | string | null;
+  acquisition_cost: number | string | null;
+  currency: string;
+  collection_name: string | null;
+  order_id: number | null;
+  buy_guid: string | null;
+  buy_name: string | null;
 }

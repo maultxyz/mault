@@ -118,7 +118,9 @@
     "hideDownloadedCards": "Heruntergeladene Karten ausblenden",
     "sets": "Editionen",
     "resetFilters": "Filter zurücksetzen",
-    "unmatched": "Nicht erkannt"
+    "unmatched": "Nicht erkannt",
+    "buy": "Ankauf",
+    "onlyThisBuy": "Nur dieser Ankauf"
   },
   "cardGrid": {
     "noCollectionSelected": "Keine Sammlung ausgewählt",

@@ -21,6 +21,7 @@ import { SectionHeader } from "@/components/ui/section-header";
 import { StatGroup } from "@/components/ui/stat-group";
 import { StatTile } from "@/components/ui/stat-tile";
 import {
+  buyPerformanceQueryOptions,
   cancelIntakeLot,
   deleteIntakeLot,
   intakeLotCardsQueryOptions,
@@ -28,13 +29,14 @@ import {
 } from "@/features/business/api/business";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
 import { useBusinessAction } from "@/features/business/api/use-business-action";
+import { BuyPerformanceSection } from "@/features/business/components/buy-performance-section";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
 import { useCompactCount } from "@/hooks/use-compact-count";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
 import { ApiResultError } from "@/lib/api/api-result-error";
 import { cardThumbnailUrl } from "@/lib/card-art";
-import { BUSINESS_STATUS_TONES } from "@/lib/constants/business";
+import { BUSINESS_STATUS_TONES, BUY_SOURCE_ICONS } from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
 import type { IntakeLotCardRowProps } from "@/lib/interfaces/business";
 
@@ -75,12 +77,14 @@ export default function IntakeLotScreen() {
   const lotQuery = useQuery(intakeLotQueryOptions(guid));
   const lot = lotQuery.data;
   const isOpen = lot?.status === "open";
+  const isOpenedProduct = lot?.sourceType === "opened";
   const cards = useInfiniteQuery(intakeLotCardsQueryOptions(guid, isOpen));
   const access = useQuery(businessAccessQueryOptions(orgId));
   const canAccept = !!access.data?.canAcceptIntake;
   const showMoney = !!access.data?.canViewCosts;
   const cardItems = cards.data?.pages.flatMap((page) => page.items) ?? [];
-  const canTransfer = lot?.status === "accepted" && !lot.collectionDeleted && canAccept;
+  const canTransfer = lot?.status === "accepted" && lot.ownsCollection && !lot.collectionDeleted && canAccept;
+  const performance = useQuery(buyPerformanceQueryOptions(guid, showMoney && lot?.status === "accepted"));
 
   const confirmCancel = () => {
     if (!lot) return;
@@ -165,25 +169,29 @@ export default function IntakeLotScreen() {
         <>
           <View style={{ flexDirection: "row", gap: SPACING.sm }}>
             <Pill label={t(`business.status.${lot.status}`)} tone={BUSINESS_STATUS_TONES[lot.status]} />
+            <Pill label={t(`business.buy.sourceTypes.${lot.sourceType}`)} />
             {lot.payoutMethod ? <Pill label={t(`business.intake.payout.${lot.payoutMethod}`)} /> : null}
           </View>
           {lot.collectionDeleted ? <Callout tone="warning" title={t("business.intake.collectionDeleted")} /> : null}
-          <StatGroup heading={isOpen ? t("business.intake.liveOffer") : t("business.intake.summary")}>
+          <StatGroup heading={isOpen && !isOpenedProduct ? t("business.intake.liveOffer") : t("business.intake.summary")}>
             <StatTile label={t("business.intake.stats.cards")} {...compactCount(lot.cardCount)} />
             {showMoney && lot.marketTotal != null ? (
               <StatTile label={t("business.intake.stats.market")} value={format(lot.marketTotal)} />
             ) : null}
             {showMoney && lot.status === "accepted" && lot.paidTotal != null ? (
-              <StatTile label={t("business.intake.stats.paid")} value={format(lot.paidTotal)} />
+              <StatTile
+                label={t(isOpenedProduct ? "business.intake.stats.cost" : "business.intake.stats.paid")}
+                value={format(lot.paidTotal)}
+              />
             ) : null}
-            {showMoney && lot.status !== "accepted" && lot.cashOffer != null ? (
+            {showMoney && !isOpenedProduct && lot.status !== "accepted" && lot.cashOffer != null ? (
               <StatTile label={t("business.intake.stats.cash")} value={format(lot.cashOffer)} />
             ) : null}
-            {showMoney && lot.status !== "accepted" && lot.creditOffer != null ? (
+            {showMoney && !isOpenedProduct && lot.status !== "accepted" && lot.creditOffer != null ? (
               <StatTile label={t("business.intake.stats.credit")} value={format(lot.creditOffer)} />
             ) : null}
           </StatGroup>
-          {isOpen && lot.belowMinimumScanIds.length > 0 ? (
+          {isOpen && !isOpenedProduct && lot.belowMinimumScanIds.length > 0 ? (
             <Callout tone="info" title={t("business.intake.belowMinimum", { count: lot.belowMinimumScanIds.length })} />
           ) : null}
           {isOpen && !lot.collectionDeleted ? (
@@ -194,7 +202,7 @@ export default function IntakeLotScreen() {
                   size="lg"
                   variant="secondary"
                   icon="check"
-                  label={t("business.intake.accept")}
+                  label={t("business.buy.finish")}
                   disabled={lot.cardCount === 0}
                   onPress={() => router.push({ pathname: "/business/intake-accept", params: { guid: lot.guid } })}
                 />
@@ -209,6 +217,34 @@ export default function IntakeLotScreen() {
               onPress={() => router.push({ pathname: "/business/intake-transfer", params: { guid: lot.guid } })}
             />
           ) : null}
+          {performance.data ? <BuyPerformanceSection buyGuid={lot.guid} performance={performance.data} /> : null}
+          {performance.isError && !performance.data ? (
+            <QueryErrorState
+              title={t("business.buy.performance.loadFailed")}
+              onRetry={() => void performance.refetch()}
+              isRetrying={performance.isFetching}
+            />
+          ) : null}
+          <ListGroup>
+            <ListRow
+              icon={BUY_SOURCE_ICONS[lot.sourceType]}
+              title={t(`business.buy.nameLabel.${lot.sourceType}`)}
+              value={lot.customerName}
+            />
+            <ListRow
+              icon="storage"
+              title={t("business.buy.destination")}
+              subtitle={
+                lot.destinationLocationName
+                  ? t("business.buy.destinationWithLocation", {
+                      collection: lot.collectionName,
+                      location: lot.destinationLocationName,
+                    })
+                  : lot.collectionName
+              }
+              subtitleNumberOfLines={2}
+            />
+          </ListGroup>
           {lot.customerContact || lot.notes ? (
             <ListGroup>
               {lot.customerContact ? <ListRow title={t("business.intake.contact")} value={lot.customerContact} /> : null}
@@ -234,7 +270,13 @@ export default function IntakeLotScreen() {
                 {cardItems.map((card) => (
                   <IntakeLotCardRow
                     key={card.scanId}
-                    card={showMoney ? card : { ...card, offer: null, acquisitionCost: null }}
+                    card={
+                      !showMoney
+                        ? { ...card, offer: null, acquisitionCost: null }
+                        : isOpenedProduct
+                          ? { ...card, offer: null, belowMinimum: false }
+                          : card
+                    }
                     onPress={() =>
                       router.push({ pathname: "/card/[scanId]", params: { scanId: card.scanId, guid: lot.collectionGuid } })
                     }
