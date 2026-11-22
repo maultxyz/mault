@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Pressable, ScrollView, View } from "react-native";
 import {
-  CONDITION_NUMERIC_MAX,
+  CONDITION_VALUE_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,
   COUNT_OPERATORS,
   isScanRuleField,
@@ -137,7 +137,7 @@ export function ConditionSheet({
             const parsed = Number(text);
             setDraft({
               ...draft,
-              value: text === "" || text === "." || text === "-" ? "" : Math.min(parsed, CONDITION_NUMERIC_MAX),
+              value: text === "" || text === "." || text === "-" ? "" : Math.min(parsed, CONDITION_VALUE_NUMERIC_MAX),
             });
           }}
         />

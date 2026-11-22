@@ -16,6 +16,7 @@ export const COUNT_OPERATORS: ConditionOperator[] = [
 ];
 export const CONDITION_STRING_MAX_LENGTH = 200;
 export const CONDITION_NUMERIC_MAX = 100_000;
+export const CONDITION_VALUE_NUMERIC_MAX = 99_999_999;
 export const OVERRIDE_PRIORITY_MAX = 100;
 export const LOW_MATCH_PERCENT_MAX = 100;
 
