@@ -47,7 +47,7 @@ const collectionValueLayout = (
   const url = isReady ? scope.url : props.url;
   const logoUri = environment.colorScheme === "dark" ? props.logo?.dark : props.logo?.light;
   const fill = frame({ maxWidth: 10_000, maxHeight: 10_000, alignment: "topLeading" });
-  const accent = isDark ? "#60a5fa" : "#1447e6";
+  const accent = isDark ? "#8892ff" : "#6366f1";
   const chartPoints = isReady ? (scope.chartValues ?? []).map((y, x) => ({ x, y })) : [];
 
   if (family === "accessoryInline") {

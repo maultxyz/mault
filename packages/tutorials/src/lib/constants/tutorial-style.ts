@@ -1,5 +1,5 @@
 export const TUTORIAL_COLORS = {
-  primary: "#1447e6",
+  primary: "#6366f1",
   primarySoft: "#e8eefd",
   canvas: "#f4f5f7",
   foreground: "#292d34",
@@ -8,8 +8,8 @@ export const TUTORIAL_COLORS = {
   captionText: "#ffffff",
   cursorFill: "#111317",
   cursorOutline: "#ffffff",
-  ripple: "rgba(20, 71, 230, 0.45)",
-  touch: "rgba(20, 71, 230, 0.35)",
+  ripple: "rgba(99, 102, 241, 0.45)",
+  touch: "rgba(99, 102, 241, 0.35)",
   deviceFrame: "#111317",
 };
 
