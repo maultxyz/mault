@@ -639,7 +639,8 @@
     "cardLoadFailed": "Impossible de charger cette carte.",
     "referenceImage": "Image de référence",
     "backToCards": "Retour aux cartes",
-    "tradeHint": "Touchez + sur une carte ou ouvrez-la pour l'ajouter à votre offre"
+    "tradeHint": "Touchez + sur une carte ou ouvrez-la pour l'ajouter à votre offre",
+    "shopPrice": "Prix"
   },
   "tradeOffers": {
     "game": "Jeu",

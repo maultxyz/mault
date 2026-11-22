@@ -639,7 +639,8 @@
     "cardLoadFailed": "Couldn't load this card.",
     "referenceImage": "Reference image",
     "backToCards": "Back to cards",
-    "tradeHint": "Tap + on a card or open it to add it to your trade offer"
+    "tradeHint": "Tap + on a card or open it to add it to your trade offer",
+    "shopPrice": "Price"
   },
   "tradeOffers": {
     "game": "Game",
