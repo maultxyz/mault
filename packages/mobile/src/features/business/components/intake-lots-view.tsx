@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
+import { INTAKE_LOT_STATUSES, type IntakeLotStatus } from "@magic-vault/shared";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
@@ -12,6 +13,7 @@ import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Pill } from "@/components/ui/pill";
 import { BusinessListSearch } from "@/features/business/components/business-list-search";
+import { BusinessStatusFilter } from "@/features/business/components/business-status-filter";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { intakeLotCardsQueryOptions, intakeLotQueryOptions, intakeLotsQueryOptions } from "@/features/business/api/business";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -59,9 +61,18 @@ export function IntakeLotsView({ canAct }: BusinessListViewProps) {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
-  const lots = useInfiniteQuery(intakeLotsQueryOptions(orgId, true, debouncedSearch));
+  const [statusFilter, setStatusFilter] = useState<IntakeLotStatus | null>(null);
+  const lots = useInfiniteQuery(intakeLotsQueryOptions(orgId, true, debouncedSearch, statusFilter));
   const searchInput = (
-    <BusinessListSearch value={search} onChange={setSearch} placeholder={t("business.search.intakePlaceholder")} />
+    <View style={{ gap: SPACING.sm }}>
+      <BusinessListSearch value={search} onChange={setSearch} placeholder={t("business.search.intakePlaceholder")} />
+      <BusinessStatusFilter<IntakeLotStatus>
+        statuses={INTAKE_LOT_STATUSES}
+        value={statusFilter}
+        onChange={setStatusFilter}
+        labelOf={(status) => t(`business.status.${status}`)}
+      />
+    </View>
   );
   const prefetchIntakeLot = (guid: string) => {
     void queryClient.prefetchQuery(intakeLotQueryOptions(guid));
@@ -94,14 +105,18 @@ export function IntakeLotsView({ canAct }: BusinessListViewProps) {
       />
     );
   }
-  if (items.length === 0 && debouncedSearch) {
+  if (items.length === 0 && (debouncedSearch || statusFilter)) {
     return (
       <View style={{ gap: SPACING.md }}>
         {searchInput}
         <EmptyState
           icon="coins"
           title={t("business.search.noResultsTitle")}
-          description={t("business.search.noResultsDescription", { query: debouncedSearch })}
+          description={
+            debouncedSearch
+              ? t("business.search.noResultsDescription", { query: debouncedSearch })
+              : t("business.filters.noMatchesDescription")
+          }
         />
       </View>
     );

@@ -40,6 +40,7 @@ import { useOrderPickProgress } from "@/features/business/api/use-order-pick-pro
 import { OrderBinsDialog } from "@/features/business/components/order-bins-dialog";
 import { OrderEditDialog } from "@/features/business/components/order-edit-dialog";
 import { PickSortPresetDialog } from "@/features/business/components/pick-sort-preset-dialog";
+import { PickReservationPrompt } from "@/features/business/components/pick-reservation-prompt";
 import { PickWalkWorkspace } from "@/features/business/components/pick-walk-workspace";
 import { OrderRefLabel } from "@/features/business/components/order-ref-label";
 import { OrderSubstituteDialog } from "@/features/business/components/order-substitute-dialog";
@@ -100,6 +101,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
     refetch,
   } = useQuery(orderQueryOptions(guid));
   const [fulfilOpen, setFulfilOpen] = useState(false);
+  const [fulfilledRequestGuids, setFulfilledRequestGuids] = useState<string[]>([]);
   const [cancelOpen, setCancelOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
@@ -830,12 +832,20 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
         cancelLabel={t("actions.back")}
         isPending={pending}
         onConfirm={async () => {
+          const requestGuids = order.reservationRequestGuids ?? [];
           const result = await act(
             () => fulfilOrder(order.guid, { scanIds: livePicked }),
             t("orders.fulfilled"),
           );
-          if (result) setFulfilOpen(false);
+          if (result) {
+            setFulfilOpen(false);
+            setFulfilledRequestGuids(requestGuids);
+          }
         }}
+      />
+      <PickReservationPrompt
+        requestGuids={fulfilledRequestGuids}
+        onClose={() => setFulfilledRequestGuids([])}
       />
       <ConfirmDialog
         open={cancelOpen}

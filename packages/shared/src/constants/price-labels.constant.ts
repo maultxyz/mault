@@ -4,8 +4,4 @@ export const PRICE_LABEL_ROUNDING_MODES = ["none", "quarter", "ninetyNine", "who
 
 export const PRICE_LABEL_CARDS_MAX = 1000;
 
-export const PRICE_LABEL_MARKUP_PERCENT_MIN = -100;
-
-export const PRICE_LABEL_MARKUP_PERCENT_MAX = 1000;
-
 export const PRICE_LABEL_CUSTOM_PRICE_MAX = 1_000_000;

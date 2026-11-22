@@ -17,7 +17,7 @@ import { IntakeLotDialog } from "@/features/business/components/intake-lot-dialo
 import { IntakeLotList } from "@/features/business/components/intake-lot-list";
 import { ListSearchInput } from "@/components/list-search-input";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { BusinessViewSwitch } from "@/features/business/components/business-view-switch";
+import { BusinessOverviewBackButton } from "@/features/business/components/business-overview-back-button";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
 import {
@@ -26,7 +26,6 @@ import {
 } from "@/lib/constants/nav";
 import { cn } from "@/lib/utils";
 import {
-  BUSINESS_INTAKE_VIEW,
   BUSINESS_LIST_SEARCH_DEBOUNCE_MS,
   INTAKE_CARD_PARAM,
   INTAKE_LOT_PARAM,
@@ -37,7 +36,12 @@ import { ReviewGrid } from "@/features/cards/components/review-grid";
 import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
 import { IconCash, IconPlus } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
-import { BUSINESS_LIST_SEARCH_MAX_LENGTH } from "@magic-vault/shared";
+import {
+  BUSINESS_LIST_SEARCH_MAX_LENGTH,
+  INTAKE_LOT_STATUSES,
+  type IntakeLotStatus,
+} from "@magic-vault/shared";
+import { BusinessListFilters, BusinessStatusFilter } from "@/features/business/components/business-status-filter";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -51,6 +55,7 @@ export default function IntakePage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedParam = searchParams.get(INTAKE_LOT_PARAM);
   const [listSearch, setListSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<IntakeLotStatus | null>(null);
   const debouncedListSearch = useDebouncedValue(listSearch.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
   const {
     items: lots,
@@ -62,13 +67,26 @@ export default function IntakePage() {
     (request) => intakeLotsQueryOptions(orgId, request),
     selectedParam,
     debouncedListSearch,
+    statusFilter ?? "",
   );
   const listSearchInput = (
-    <ListSearchInput
-      value={listSearch}
-      onChange={setListSearch}
-      placeholder={t("search.intakePlaceholder")}
-      maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
+    <BusinessListFilters
+      search={
+        <ListSearchInput
+          value={listSearch}
+          onChange={setListSearch}
+          placeholder={t("search.intakePlaceholder")}
+          maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
+        />
+      }
+      filter={
+        <BusinessStatusFilter<IntakeLotStatus>
+          statuses={INTAKE_LOT_STATUSES}
+          value={statusFilter}
+          onChange={setStatusFilter}
+          labelOf={(status) => t(`status.${status}`)}
+        />
+      }
     />
   );
   const [createOpen, setCreateOpen] = useState(false);
@@ -220,7 +238,7 @@ export default function IntakePage() {
           )}
         >
           <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
-            <BusinessViewSwitch value={BUSINESS_INTAKE_VIEW} />
+            <BusinessOverviewBackButton />
             {access?.isLocked && <BusinessUpgradeCallout />}
             {listSearchInput}
             <IntakeLotList
@@ -230,6 +248,7 @@ export default function IntakePage() {
               isLoading={isLoading}
               onSelect={select}
               search={debouncedListSearch}
+              isFiltered={statusFilter !== null}
             />
           </div>
         </div>
@@ -248,7 +267,7 @@ export default function IntakePage() {
       )}
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
-          <BusinessViewSwitch value={BUSINESS_INTAKE_VIEW} />
+          <BusinessOverviewBackButton />
           <Button
             variant="outline"
             className="w-full"
@@ -266,6 +285,7 @@ export default function IntakePage() {
             isLoading={isLoading}
             onSelect={select}
             search={debouncedListSearch}
+            isFiltered={statusFilter !== null}
           />
         </section>
         {selectedGuid && openScanId && selectedLot ? (

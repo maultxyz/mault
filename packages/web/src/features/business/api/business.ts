@@ -14,12 +14,15 @@ import type {
   AccuracySampleInput,
   ActivityAction,
   ActivityPage,
+  BusinessOverview,
+  CardCostRequest,
+  CardPricesUpdateResult,
+  CardPricing,
+  CardSellPriceRequest,
   BusinessSettings,
   BusinessSettingsResponse,
   CardAcquisitionCost,
   CardAcquisitionCostInput,
-  CollectionCostInput,
-  CollectionCostResult,
   DeviceMaintenanceInput,
   FleetHealth,
   FulfilmentOrder,
@@ -66,6 +69,10 @@ export const businessKeys = {
     [...businessKeys.root(), "settings", orgId] as const,
   cardCost: (orgId: string | undefined, scanId: string | undefined) =>
     [...businessKeys.root(), "card-cost", orgId, scanId] as const,
+  cardPricing: (orgId: string | undefined, scanId: string | undefined) =>
+    [...businessKeys.root(), "card-pricing", orgId, scanId] as const,
+  overview: (orgId: string | undefined) =>
+    [...businessKeys.root(), "overview", orgId] as const,
   intakeRoot: () => [...businessKeys.root(), "intake"] as const,
   intakeList: (orgId: string | undefined, page: PageRequest) =>
     [...businessKeys.intakeRoot(), "list", orgId, page] as const,
@@ -147,9 +154,38 @@ export const businessSettingsQueryOptions = (orgId: string | undefined) =>
     enabled: !!orgId,
   });
 
+export const cardPricingQueryOptions = (
+  orgId: string | undefined,
+  scanId: string | undefined,
+) =>
+  queryOptions({
+    queryKey: businessKeys.cardPricing(orgId, scanId),
+    queryFn: () =>
+      apiGet<Result<CardPricing>>(`/api/business/cards/${scanId}/pricing`).then(
+        (result) => (result.success ? (result.data ?? null) : null),
+      ),
+    enabled: !!orgId && !!scanId,
+  });
+
+export function setCardSellPrice(request: CardSellPriceRequest) {
+  return apiPut<Result<CardPricesUpdateResult>>("/api/business/cards/sell-price", request);
+}
+
+export function setCardCost(request: CardCostRequest) {
+  return apiPut<Result<CardPricesUpdateResult>>("/api/business/cards/cost", request);
+}
+
 export function saveBusinessSettings(settings: BusinessSettings) {
   return apiPut<Result<BusinessSettings>>("/api/business/settings", settings);
 }
+
+export const businessOverviewQueryOptions = (orgId: string | undefined) =>
+  queryOptions({
+    queryKey: businessKeys.overview(orgId),
+    queryFn: () =>
+      apiGet<Result<BusinessOverview>>("/api/business/overview").then(unwrap),
+    enabled: !!orgId,
+  });
 
 export const intakeLotsQueryOptions = (
   orgId: string | undefined,
@@ -441,16 +477,6 @@ export function setCardAcquisitionCost(
 ) {
   return apiPut<Result<CardAcquisitionCost>>(
     `/api/business/cost/cards/${scanId}`,
-    input,
-  );
-}
-
-export function setCollectionCost(
-  collectionGuid: string,
-  input: CollectionCostInput,
-) {
-  return apiPost<Result<CollectionCostResult>>(
-    `/api/business/cost/${collectionGuid}`,
     input,
   );
 }

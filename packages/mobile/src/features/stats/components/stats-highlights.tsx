@@ -8,14 +8,14 @@ import { useTheme } from "@/hooks/use-theme";
 import { SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import type { StatsHighlightsProps } from "@/lib/interfaces/stats";
 
-export function StatsHighlights({ insights }: StatsHighlightsProps) {
+export function StatsHighlights({ insights, heading }: StatsHighlightsProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   if (insights.length === 0) return null;
 
   return (
     <View style={{ gap: SPACING.sm }}>
-      <SectionHeader title={t("stats.highlights.title")} />
+      <SectionHeader title={heading ?? t("stats.highlights.title")} />
       <View style={{ flexDirection: "row", flexWrap: "wrap", marginHorizontal: -SPACING.xs, rowGap: SPACING.sm }}>
         {insights.map((insight) => {
           const { onPress } = insight;

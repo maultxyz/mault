@@ -1,14 +1,20 @@
 import type { SelectToggleOptions } from "@/lib/interfaces/cards";
 import type {
-  BUSINESS_VIEWS,
+  BUSINESS_INVENTORY_COLUMNS,
+  BUSINESS_OVERVIEW_VIEWS,
+  BUSINESS_SALES_METRICS,
+  BUSINESS_SECTION_VIEWS,
   PICK_IMPORT_CREATE_MODES,
   PICK_IMPORT_STEPS,
+  SET_PRICES_TABS,
 } from "@/lib/constants/business";
 import type { CardListFile } from "@/lib/interfaces/card-list-import";
 import type { UseCsvImportResult } from "@/lib/interfaces/csv-import";
 import type { ClientPagination } from "@/lib/interfaces/pagination";
 import type { PickImportFormValues } from "@/schemas/business.schema";
 import type {
+  BusinessOverview,
+  BusinessOverviewReservations,
   BusinessSettingsDraftValues,
   AccuracyCheckStatus,
   DeviceHealth,
@@ -22,6 +28,8 @@ import type {
   CsvOrderImportResult,
   CsvImportComposition,
   CardCondition,
+  CardPricing,
+  CardSellRule,
   OrderLineInput,
   OrderSource,
   PlayingCardImage,
@@ -29,8 +37,9 @@ import type {
   PickWalkStop,
   PullSheetEntry,
   StatsRange,
+  StatsReport,
 } from "@magic-vault/shared";
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, ComponentType, ReactNode } from "react";
 import type { Control } from "react-hook-form";
 
 export type BusinessStatus =
@@ -58,6 +67,11 @@ export interface BuylistSettingsProps {
   disabled: boolean;
 }
 
+export interface SellPriceSettingsProps {
+  control: Control<BusinessSettingsDraftValues>;
+  disabled: boolean;
+}
+
 export interface BusinessPermissionsSettingsProps {
   control: Control<BusinessSettingsDraftValues>;
   disabled: boolean;
@@ -74,6 +88,7 @@ export interface IntakeLotListProps {
   isLoading: boolean;
   onSelect: (guid: string) => void;
   search?: string;
+  isFiltered?: boolean;
 }
 
 export interface IntakeLotDialogProps {
@@ -121,6 +136,7 @@ export interface OrderListProps {
   checkedOrderGuids?: ReadonlySet<string>;
   onToggleOrderChecked?: (guid: string, options: SelectToggleOptions) => void;
   search?: string;
+  isFiltered?: boolean;
 }
 
 export interface OrderSelectionBarProps {
@@ -191,6 +207,11 @@ export interface OrderPhonePickDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   orderGuids: string[];
+}
+
+export interface PickReservationPromptProps {
+  requestGuids: string[];
+  onClose: () => void;
 }
 
 export interface OrderBatchPickProps {
@@ -306,11 +327,6 @@ export interface OrderRefLabelProps {
   binNumber: number | null;
 }
 
-export interface CollectionCostDialogProps {
-  collection: CollectionCostTarget | null;
-  onOpenChange: (open: boolean) => void;
-}
-
 export interface StaffReportViewProps {
   range: StatsRange;
   onRangeChange: (range: StatsRange) => void;
@@ -341,14 +357,94 @@ export interface ServiceIntervalDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-export type BusinessView = (typeof BUSINESS_VIEWS)[number];
+export type BusinessView = (typeof BUSINESS_SECTION_VIEWS)[number];
 
-export interface BusinessViewSwitchProps {
-  value: BusinessView;
+export type BusinessOverviewView = (typeof BUSINESS_OVERVIEW_VIEWS)[number];
+export type BusinessSalesMetric = (typeof BUSINESS_SALES_METRICS)[number];
+export type BusinessInventoryColumn = (typeof BUSINESS_INVENTORY_COLUMNS)[number];
+
+export interface SetPricesActionProps {
+  scanIds: string[];
+  buttonClassName?: string;
+}
+
+export interface SetPricesDialogProps {
+  scanIds: string[];
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  tabs: readonly SetPricesTab[];
+  initialTab?: SetPricesTab;
+  sellRule?: CardSellRule;
+}
+
+export interface SetPricesFormsProps {
+  scanIds: string[];
+  tabs: readonly SetPricesTab[];
+  initialTab?: SetPricesTab;
+  sellRule?: CardSellRule;
+  onDone: () => void;
+}
+
+export type SetPricesTab = (typeof SET_PRICES_TABS)[number];
+
+export interface SetPricesTabFormProps {
+  scanIds: string[];
+  sellRule?: CardSellRule;
+  onDone: () => void;
+}
+
+export interface CardPricingBlockProps {
+  pricing: CardPricing;
+  cost: number | null;
+  costError?: string;
+  onCostChange: (cost: number) => void;
+}
+
+export interface BusinessStatusFilterProps<T extends string> {
+  statuses: readonly T[];
+  value: T | null;
+  onChange: (value: T | null) => void;
+  labelOf: (status: T) => string;
+}
+
+export interface BusinessListFiltersProps {
+  search: ReactNode;
+  filter: ReactNode;
+}
+
+export interface BusinessOverviewBodyProps {
+  overview: BusinessOverview;
+}
+
+export interface BusinessSalesChartProps {
+  sales: BusinessOverview["sales"];
+}
+
+export interface BusinessReservationsChartProps {
+  reservations: BusinessOverviewReservations;
+}
+
+export interface BusinessInventoryCostsProps {
+  report: StatsReport;
+}
+
+export interface BusinessOverviewSectionProps {
+  icon: ComponentType<{ className?: string }>;
+  title: string;
+  description: string;
+  to: string;
+  linkLabel: string;
+  children?: ReactNode;
+}
+
+export interface BusinessOverviewRowProps {
+  to: string;
+  title: string;
+  detail: string;
 }
 
 export interface OrdersWorkspaceProps {
-  switcher: ReactNode;
+  backToOverview: ReactNode;
 }
 
 export interface IntakeCardDetailProps {
@@ -358,11 +454,6 @@ export interface IntakeCardDetailProps {
   onNavigate: (scanId: string) => void;
   onShowReviewGrid: () => void;
   onClose: () => void;
-}
-
-export interface CollectionCostTarget {
-  guid: string;
-  name: string;
 }
 
 export type PickImportStep = (typeof PICK_IMPORT_STEPS)[number];

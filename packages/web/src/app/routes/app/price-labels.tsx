@@ -9,7 +9,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { priceLabelCardsQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { BusinessUpgradeCallout } from "@/features/business/components/business-upgrade-callout";
-import { BusinessViewSwitch } from "@/features/business/components/business-view-switch";
+import { BusinessOverviewBackButton } from "@/features/business/components/business-overview-back-button";
 import { PriceLabelCardList } from "@/features/business/components/price-label-card-list";
 import { PriceLabelOptionsForm } from "@/features/business/components/price-label-options-form";
 import { PriceLabelSheet } from "@/features/business/components/price-label-sheet";
@@ -19,7 +19,6 @@ import {
   toPriceLabelSource,
 } from "@/features/business/lib/price-labels";
 import { useIsMobile } from "@/hooks/use-is-mobile";
-import { BUSINESS_LABELS_VIEW } from "@/lib/constants/business";
 import {
   LABEL_SHEET_PRINT_PAGE_STYLE,
   LABEL_SHEET_TEMPLATES,
@@ -63,7 +62,7 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
     },
     mode: "onChange",
   });
-  const [source, sourceGuid, deselectedScanIds, customPrices, markupPercent, rounding, templateId, startPosition, showsPrices] =
+  const [source, sourceGuid, deselectedScanIds, customPrices, templateId, startPosition, showsPrices] =
     useWatch({
       control: form.control,
       name: [
@@ -71,8 +70,6 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
         "sourceGuid",
         "deselectedScanIds",
         "customPrices",
-        "markupPercent",
-        "rounding",
         "templateId",
         "startPosition",
         "showsPrices",
@@ -86,14 +83,7 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
     () => labelPriceFormatter(i18n.language, loaded?.currency ?? "USD"),
     [i18n.language, loaded?.currency],
   );
-  const items = buildPriceLabelItems(
-    loaded?.cards ?? [],
-    {
-      markupPercent: Number.isFinite(markupPercent) ? markupPercent : 0,
-      rounding,
-    },
-    customPrices,
-  );
+  const items = buildPriceLabelItems(loaded?.cards ?? [], customPrices);
   const deselected = new Set(deselectedScanIds);
   const selectedItems = items.filter((item) => !deselected.has(item.card.scanId));
   const template = LABEL_SHEET_TEMPLATES[templateId];
@@ -175,7 +165,7 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
         </MobilePageHeader>
         <div className={cn("min-h-0 flex-1 overflow-y-auto", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
           <div className="flex flex-col gap-4 p-4">
-            <BusinessViewSwitch value={BUSINESS_LABELS_VIEW} />
+            <BusinessOverviewBackButton />
             {access?.isLocked && <BusinessUpgradeCallout />}
             <Callout icon={IconInfoCircle}>{tCommon("labelSheets.printTip")}</Callout>
             {optionsForm}
@@ -192,7 +182,7 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
       <style>{LABEL_SHEET_PRINT_PAGE_STYLE}</style>
       <div className="grid min-h-0 flex-1 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-y-auto border-r bg-sidebar/70 p-2 lg:col-span-3">
-          <BusinessViewSwitch value={BUSINESS_LABELS_VIEW} />
+          <BusinessOverviewBackButton />
           {optionsForm}
         </section>
         <section className="col-span-8 flex min-h-0 flex-col overflow-y-auto lg:col-span-9">

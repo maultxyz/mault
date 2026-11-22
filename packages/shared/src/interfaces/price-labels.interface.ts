@@ -8,11 +8,6 @@ export type PriceLabelSource = (typeof PRICE_LABEL_SOURCES)[number];
 
 export type PriceLabelRoundingMode = (typeof PRICE_LABEL_ROUNDING_MODES)[number];
 
-export interface PriceLabelPricing {
-  markupPercent: number;
-  rounding: PriceLabelRoundingMode;
-}
-
 export interface PriceLabelCard {
   scanId: string;
   name: string;
@@ -24,6 +19,7 @@ export interface PriceLabelCard {
   condition: CardCondition;
   language: string | null;
   marketPrice: number | null;
+  sellPrice: number | null;
   storageCode?: string | null;
 }
 

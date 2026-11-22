@@ -49,8 +49,6 @@
     "catalogCardRemovedTitle": "Carte retirée du catalogue",
     "catalogCardRemovedDescription": "La carte associée à cet exemplaire, {{name}}, a été retirée de la base de cartes car ses données étaient incorrectes. Recherche la bonne impression pour que son prix et ses détails restent à jour.",
     "catalogCardRemovedAction": "Trouver la bonne carte",
-    "pricePaid": "Prix payé ({{currency}})",
-    "pricePaidEmpty": "Non défini",
     "pricePaidSaveFailed": "Impossible d'enregistrer le prix payé.",
     "markCorrect": "Marquer comme correcte",
     "markCorrectTitle": "Confirme que cette correspondance est juste. La carte reste la même et n'est plus signalée pour vérification.",

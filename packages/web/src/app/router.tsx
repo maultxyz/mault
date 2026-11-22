@@ -334,6 +334,9 @@ const StoragePickListPage = lazyRoute(
 );
 const StorageLabelsPage = lazyRoute(() => import("@/app/routes/app/storage-labels"));
 const StatsPage = lazyRoute(loadStatsPage);
+const BusinessOverviewPage = lazyRoute(
+  withNamespaces(() => import("@/app/routes/app/business-overview"), ["stats"]),
+);
 const IntakePage = lazyRoute(() => import("@/app/routes/app/intake"));
 const PicksPage = lazyRoute(() => import("@/app/routes/app/picks"));
 const PriceLabelsPage = lazyRoute(() => import("@/app/routes/app/price-labels"));
@@ -859,7 +862,7 @@ export const routes: RouteObject[] = [
               },
               {
                 path: ORDERS_PATH,
-                element: <Navigate to={INTAKE_PATH} replace />,
+                element: <BusinessOverviewPage />,
               },
               {
                 path: INTAKE_PATH,

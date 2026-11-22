@@ -13,6 +13,7 @@ import {
 } from "@/features/business/api/use-business";
 import { useOrderPickProgress } from "@/features/business/api/use-order-pick-progress";
 import { OrderPhonePickDialog } from "@/features/business/components/order-phone-pick-dialog";
+import { PickReservationPrompt } from "@/features/business/components/pick-reservation-prompt";
 import { PickSortPresetDialog } from "@/features/business/components/pick-sort-preset-dialog";
 import { PickWalkWorkspace } from "@/features/business/components/pick-walk-workspace";
 import {
@@ -55,6 +56,7 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
   const [isCompleting, setIsCompleting] = useState(false);
   const [phonePickOpen, setPhonePickOpen] = useState(false);
   const [sortPresetOpen, setSortPresetOpen] = useState(false);
+  const [completedRequestGuids, setCompletedRequestGuids] = useState<string[]>([]);
   const orderQueries = useQueries({
     queries: orderGuids.map((orderGuid) => orderQueryOptions(orderGuid)),
   });
@@ -84,10 +86,13 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
   const completePicks = async () => {
     setIsCompleting(true);
     const completedScanIds: string[] = [];
+    const requestGuids = new Set<string>();
     for (const order of completedOrders) {
       const scanIds = order.pullSheet.map((entry) => entry.scanId);
       const result = await run(() => fulfilOrder(order.guid, { scanIds }));
-      if (result) completedScanIds.push(...scanIds);
+      if (!result) continue;
+      completedScanIds.push(...scanIds);
+      for (const requestGuid of order.reservationRequestGuids ?? []) requestGuids.add(requestGuid);
     }
     setIsCompleting(false);
     setCompleteOpen(false);
@@ -98,6 +103,7 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
       toast.success(t("orders.batch.completed", { count: completedCount }));
     }
     if (completedCount === openOrders.length) clearActivePickBatch();
+    setCompletedRequestGuids([...requestGuids]);
   };
 
   const stopPickingTogether = () => {
@@ -252,6 +258,10 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
         open={phonePickOpen}
         onOpenChange={setPhonePickOpen}
         orderGuids={openOrders.map((order) => order.guid)}
+      />
+      <PickReservationPrompt
+        requestGuids={completedRequestGuids}
+        onClose={() => setCompletedRequestGuids([])}
       />
       <PickSortPresetDialog
         open={sortPresetOpen}

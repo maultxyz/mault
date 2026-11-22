@@ -76,3 +76,6 @@ export const TOGGLE_TILE_UNSELECTED_CLASS =
   "border-border text-foreground/70 hover:bg-foreground/6 hover:text-foreground";
 
 export const REDUCED_MOTION_MEDIA_QUERY = "(prefers-reduced-motion: reduce)";
+
+export const STAT_TILE_LINK_CLASS =
+  "flex cursor-pointer flex-col items-start rounded-card bg-card p-3 md:p-2 text-left transition-colors hover:bg-foreground/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring";

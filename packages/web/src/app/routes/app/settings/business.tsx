@@ -7,7 +7,6 @@ import {
 import { UnsavedChangesGuard } from "@/components/unsaved-changes-guard";
 import { useBusinessSettingsDraft } from "@/features/business/api/use-business-settings-draft";
 import { BusinessPermissionsSettings } from "@/features/business/components/business-permissions-settings";
-import { BuylistSettings } from "@/features/business/components/buylist-settings";
 import { ShopCatalogsSection } from "@/features/business/components/shop-catalogs-section";
 import { useTranslation } from "react-i18next";
 
@@ -21,12 +20,6 @@ export default function SettingsBusinessPage() {
       {!draft.isLoading && !draft.canManage && (
         <Callout variant="info">{t("settings.managersOnly")}</Callout>
       )}
-      <SettingsSection
-        heading={t("settings.buylist.heading")}
-        description={t("settings.buylist.description")}
-      >
-        <BuylistSettings control={draft.control} disabled={disabled} />
-      </SettingsSection>
       <SettingsSection
         heading={t("settings.permissions.heading")}
         description={t("settings.permissions.description")}

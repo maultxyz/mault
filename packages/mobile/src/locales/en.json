@@ -1109,7 +1109,6 @@
     "catalogCardRemovedAction": "Find the correct card",
     "noCollectionsToMoveTo": "There's no other collection for this game to move the card to.",
     "noLocationsToMoveTo": "There's no other storage location to move the card to.",
-    "pricePaid": "Price paid ({{currency}})",
     "pricePaidEmpty": "Not set",
     "fallbackTitle": "Card details",
     "capturedScan": "Captured scan",
@@ -1182,7 +1181,33 @@
     "shareLinkCopyFailed": "Couldn't copy a share link for this card.",
     "downloadPhoto": "Download photo",
     "downloadPhotoFailed": "Couldn't download the photo. Try again.",
-    "backSideAlt": "{{name}}, back side"
+    "backSideAlt": "{{name}}, back side",
+    "pricing": {
+      "title": "Pricing",
+      "market": "Market price",
+      "sell": "Sell price",
+      "cost": "Cost ({{currency}})",
+      "intakeOffer": "Intake offer ({{currency}})",
+      "loadFailed": "Couldn't load this card's prices.",
+      "editSellPriceHint": "Change how this card's sell price is set",
+      "rules": {
+        "default": "Default margin ({{percent}}%)",
+        "markup": "Market {{percent}}%",
+        "fixed": "Fixed price"
+      },
+      "modes": {
+        "default": "Default",
+        "markup": "Market + %",
+        "fixed": "Fixed price"
+      },
+      "sellPriceTitle": "Sell price",
+      "sellPriceDescription": "Set how this card's sell price is worked out.",
+      "defaultModeHint": "Uses your default margin ({{percent}}%) and rounding.",
+      "markupPercent": "Margin over market (%)",
+      "fixedPrice": "Fixed price ({{currency}})",
+      "sellPriceSaved": "Sell price saved.",
+      "sellPriceSaveFailed": "Couldn't save the sell price. Try again."
+    }
   },
   "reviewGrid": {
     "title": "Review cards",
@@ -1991,7 +2016,26 @@
         "tcgplayer": "TCGplayer",
         "cardmarket": "Cardmarket",
         "cardkingdom": "Card Kingdom"
-      }
+      },
+      "selling": {
+        "heading": "Selling prices",
+        "description": "What you sell cards for. Each card uses the market price plus this margin, unless it has its own margin or a fixed price.",
+        "defaultMargin": "Default margin (%)",
+        "defaultMarginHint": "Use a negative number to sell below market.",
+        "rounding": "Rounding",
+        "roundingModes": {
+          "none": "Don't round",
+          "quarter": "Up to the next 0.25",
+          "ninetyNine": "Up to the next .99",
+          "whole": "Up to the next whole amount"
+        },
+        "preview": "A {{market}} card sells for {{price}}."
+      },
+      "buying": {
+        "heading": "Buying prices",
+        "description": "What you offer for each card when buying a collection. Offers use your price source and condition values."
+      },
+      "businessManagersOnly": "Only owners and admins can change selling and buying prices."
     },
     "conditionPricing": {
       "heading": "Condition pricing",
@@ -2374,11 +2418,9 @@
       }
     },
     "business": {
-      "description": "Set your buylist offers for buying collections and choose what members can see and do.",
+      "description": "Choose what members can see and do, and share your shop catalogs.",
       "managersOnly": "Only owners and admins can change these settings.",
       "buylist": {
-        "heading": "Buylist offers",
-        "description": "How much you offer for each card when buying a collection. Offers use your price source and condition values.",
         "tiers": "Price tiers",
         "minPrice": "Market price from",
         "percent": "Offer (% of market)",
@@ -3987,6 +4029,83 @@
     "back": "Back",
     "cancel": "Cancel",
     "delete": "Delete",
+    "overview": {
+      "cards_one": "{{count}} card",
+      "cards_other": "{{count}} cards",
+      "now": {
+        "heading": "Right now"
+      },
+      "tiles": {
+        "openIntake": "Open intake",
+        "openPicks": "Open picks",
+        "cardsToPick": "Cards to pick",
+        "readyToComplete_one": "{{count}} ready to complete",
+        "readyToComplete_other": "{{count}} ready to complete",
+        "requests_one": "{{count}} request",
+        "requests_other": "{{count}} requests",
+        "beingPicked_one": "{{count}} being picked",
+        "beingPicked_other": "{{count}} being picked",
+        "soldCards": "Cards sold",
+        "perDay": "{{count}} a day on average",
+        "revenue": "Revenue",
+        "averageSale": "{{value}} per card"
+      },
+      "sales": {
+        "heading": "Last {{days}} days",
+        "title": "Sales",
+        "description": "Cards sold each day over the last {{days}} days, from picks and reservation pickups.",
+        "metrics": {
+          "count": "Cards",
+          "revenue": "Revenue"
+        },
+        "today": "Today"
+      },
+      "attention": {
+        "heading": "Needs attention",
+        "readyForPickup": {
+          "title_one": "{{count}} reservation ready for pickup",
+          "title_other": "{{count}} reservations ready for pickup",
+          "detail": "Let the customer know, or mark it picked up when they collect."
+        },
+        "readyToComplete": {
+          "title_one": "{{count}} pick ready to complete",
+          "title_other": "{{count}} picks ready to complete",
+          "detail": "Every card is picked. Complete it to record the sale."
+        },
+        "toPull": {
+          "title_one": "{{count}} reservation to pull",
+          "title_other": "{{count}} reservations to pull",
+          "detail": "Create a pick to pull the held cards."
+        },
+        "openIntake": {
+          "title_one": "{{count}} open intake",
+          "title_other": "{{count}} open intakes",
+          "detail": "Review the cards, make an offer, then accept."
+        },
+        "allClear": {
+          "title": "All caught up",
+          "detail": "Nothing needs your attention right now."
+        }
+      },
+      "reservationsChart": {
+        "title": "Reservations by stage",
+        "description": "Open reservation requests and where each one is.",
+        "none": "No open reservations.",
+        "requests_one": "Request",
+        "requests_other": "Requests"
+      },
+      "intake": {
+        "description": "Buy cards from customers. Scan them in, make an offer, then accept.",
+        "empty": "No open intake.",
+        "link": "Go to intake"
+      },
+      "picks": {
+        "description": "Pull sold cards from storage and complete the sale.",
+        "empty": "No open picks.",
+        "progress": "{{picked}} of {{total}} picked",
+        "link": "Go to picks"
+      }
+    },
     "views": {
       "intake": "Intake",
       "picks": "Picks",
@@ -4163,7 +4282,16 @@
         "alreadyPicked": "Every copy of {{name}} on this pick is already picked.",
         "notOnPick": "{{name}} isn't left on this pick."
       },
-      "reservationCardsNote": "Cards held for reservations stay in stock and are marked ready for pickup."
+      "reservationCardsNote": "Cards held for reservations stay in stock and are marked ready for pickup.",
+      "reservationPrompt": {
+        "title_one": "Open the reservation?",
+        "title_other": "Open the reservations?",
+        "description_one": "This pick was for a reservation. Its cards are now ready for pickup, so you can tell the customer or mark it picked up.",
+        "description_other": "These picks were for {{count}} reservations. Their cards are now ready for pickup, so you can tell the customers or mark them picked up.",
+        "confirm_one": "Open reservation",
+        "confirm_other": "Open reservations",
+        "stay": "Stay here"
+      }
     },
     "order": {
       "title": "Pick",
@@ -4301,6 +4429,11 @@
       "pickCreated_other": "Pick created for {{name}} with {{count}} cards",
       "cardCount_one": "1 card",
       "cardCount_other": "{{count}} cards"
+    },
+    "filters": {
+      "status": "Status",
+      "allStatuses": "All",
+      "noMatchesDescription": "Nothing matches this status."
     },
     "search": {
       "noResultsTitle": "No matches",

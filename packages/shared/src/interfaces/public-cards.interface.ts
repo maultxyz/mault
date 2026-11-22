@@ -26,7 +26,9 @@ export interface PublicCardBrowseInfo {
   primaryColor: string | null;
 }
 
-export type PublicCard = Omit<SharedStorageCard, "position">;
+export type PublicCard = Omit<SharedStorageCard, "position"> & {
+  sellPrice?: number | null;
+};
 
 export interface PublicCardPage {
   cards: PublicCard[];

@@ -50,7 +50,7 @@ export interface TextFieldProps {
   secureTextEntry?: boolean;
   autoComplete?: "email" | "password" | "name" | "off" | "new-password";
   textContentType?: "emailAddress" | "password" | "newPassword" | "name" | "none";
-  keyboardType?: "default" | "email-address" | "decimal-pad" | "number-pad";
+  keyboardType?: "default" | "email-address" | "decimal-pad" | "number-pad" | "numeric" | "numbers-and-punctuation";
   editable?: boolean;
   autoCapitalize?: "none" | "sentences" | "words";
   returnKeyType?: "next" | "done" | "go" | "search";
@@ -76,6 +76,7 @@ export interface DecimalTextFieldProps {
   error?: string;
   placeholder?: string;
   editable?: boolean;
+  allowsNegative?: boolean;
 }
 
 export interface SearchInputProps {
@@ -231,6 +232,7 @@ export interface StatTileProps {
   exactValue?: string;
   hint?: string;
   icon?: IconName;
+  onPress?: () => void;
 }
 
 export interface CardRowProps {

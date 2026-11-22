@@ -3,6 +3,8 @@ import { IconBadge } from "@/components/icon-badge";
 import type { StatGroupProps, StatTileContentProps } from "@/lib/interfaces/stat-group";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router-dom";
+import { STAT_TILE_LINK_CLASS } from "@/lib/constants/ui";
 
 function StatTileContent({ tile }: StatTileContentProps) {
   const TileIcon = tile.icon;
@@ -60,12 +62,16 @@ export function StatGroup({
       </div>
       <div className={cn("grid gap-2", gridClassName)}>
         {tiles.map((tile) =>
-          tile.onClick ? (
+          tile.to ? (
+            <Link key={tile.key} to={tile.to} className={STAT_TILE_LINK_CLASS}>
+              <StatTileContent tile={tile} />
+            </Link>
+          ) : tile.onClick ? (
             <button
               key={tile.key}
               type="button"
               onClick={tile.onClick}
-              className="flex cursor-pointer flex-col items-start rounded-card bg-card p-3 md:p-2 text-left transition-colors hover:bg-foreground/6 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              className={STAT_TILE_LINK_CLASS}
             >
               <StatTileContent tile={tile} />
             </button>

@@ -3,7 +3,11 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
-import { ORDER_PICK_LINK_MAX_ORDERS } from "@magic-vault/shared";
+import {
+  FULFILMENT_ORDER_STATUSES,
+  ORDER_PICK_LINK_MAX_ORDERS,
+  type FulfilmentOrderStatus,
+} from "@magic-vault/shared";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { EmptyState } from "@/components/ui/empty-state";
@@ -13,6 +17,7 @@ import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Pill } from "@/components/ui/pill";
 import { SectionHeader } from "@/components/ui/section-header";
 import { BusinessListSearch } from "@/features/business/components/business-list-search";
+import { BusinessStatusFilter } from "@/features/business/components/business-status-filter";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { orderQueryOptions, ordersQueryOptions } from "@/features/business/api/business";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -52,9 +57,18 @@ export function OrdersView({ canAct }: BusinessListViewProps) {
   const queryClient = useQueryClient();
   const [search, setSearch] = useState("");
   const debouncedSearch = useDebouncedValue(search.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
-  const orders = useInfiniteQuery(ordersQueryOptions(orgId, true, debouncedSearch));
+  const [statusFilter, setStatusFilter] = useState<FulfilmentOrderStatus | null>(null);
+  const orders = useInfiniteQuery(ordersQueryOptions(orgId, true, debouncedSearch, statusFilter));
   const searchInput = (
-    <BusinessListSearch value={search} onChange={setSearch} placeholder={t("business.search.picksPlaceholder")} />
+    <View style={{ gap: SPACING.sm }}>
+      <BusinessListSearch value={search} onChange={setSearch} placeholder={t("business.search.picksPlaceholder")} />
+      <BusinessStatusFilter<FulfilmentOrderStatus>
+        statuses={FULFILMENT_ORDER_STATUSES}
+        value={statusFilter}
+        onChange={setStatusFilter}
+        labelOf={(status) => t(`business.status.${status}`)}
+      />
+    </View>
   );
   const prefetchOrder = (guid: string) => void queryClient.prefetchQuery(orderQueryOptions(guid));
   const items = orders.data?.pages.flatMap((page) => page.items) ?? [];
@@ -91,14 +105,18 @@ export function OrdersView({ canAct }: BusinessListViewProps) {
       />
     );
   }
-  if (items.length === 0 && debouncedSearch) {
+  if (items.length === 0 && (debouncedSearch || statusFilter)) {
     return (
       <View style={{ gap: SPACING.lg }}>
         {searchInput}
         <EmptyState
           icon="checkAll"
           title={t("business.search.noResultsTitle")}
-          description={t("business.search.noResultsDescription", { query: debouncedSearch })}
+          description={
+            debouncedSearch
+              ? t("business.search.noResultsDescription", { query: debouncedSearch })
+              : t("business.filters.noMatchesDescription")
+          }
         />
       </View>
     );

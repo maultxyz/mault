@@ -20,6 +20,7 @@ import {
   type IntakeLotReceipt,
   type IntakeLotInput,
   type IntakePayoutMethod,
+  INTAKE_LOT_STATUSES,
 } from "@magic-vault/shared";
 import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { Hono } from "hono";
@@ -33,7 +34,11 @@ import { collectionNameTaken } from "../collections/shared";
 import { logActivity } from "../../lib/activity-log";
 import { loadBusinessSettings } from "../../lib/business-access";
 import { UUID_PATTERN } from "../../lib/constants/validation";
-import { containsLikePattern, parseBusinessListSearch } from "../../lib/business-list-search";
+import {
+  containsLikePattern,
+  parseBusinessListSearch,
+  parseBusinessListStatus,
+} from "../../lib/business-list-search";
 import { parsePageParams, resolvePageWindow } from "../../lib/paging";
 import type { IntakeLotRow } from "../../lib/interfaces/business";
 import type { Transaction } from "../../db";
@@ -140,11 +145,13 @@ export const intakeRoute = new Hono<AppEnv>()
   .get("/intake", requireAuth, requireOrg, (c) => {
     const params = parsePageParams(c);
     const search = parseBusinessListSearch(c);
+    const status = parseBusinessListStatus(c, INTAKE_LOT_STATUSES);
     return businessQuery(c, async (tx, access) => {
       const orgId = c.get("orgId");
       const pattern = search ? containsLikePattern(search) : null;
       const live = and(
         eq(intakeLots.isDeleted, false),
+        status ? eq(intakeLots.status, status) : undefined,
         pattern
           ? or(
               ilike(intakeLots.customerName, pattern),

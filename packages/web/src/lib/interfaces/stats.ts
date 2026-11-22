@@ -4,9 +4,7 @@ import type { HomeValueChange } from "@/lib/interfaces/home";
 import type {
   STATS_ACTIVITY_METRICS,
   STATS_COLLECTION_METRICS,
-  STATS_COLLECTION_COST_COLUMNS,
   STATS_COLLECTION_TABLE_COLUMNS,
-  STATS_VIEWS,
 } from "@/lib/constants/stats";
 import type {
   LeaderboardMetric,
@@ -17,15 +15,8 @@ import type {
 
 export type StatsActivityMetric = (typeof STATS_ACTIVITY_METRICS)[number];
 export type StatsCollectionMetric = (typeof STATS_COLLECTION_METRICS)[number];
-export type StatsCollectionColumn =
-  | (typeof STATS_COLLECTION_TABLE_COLUMNS)[number]
-  | (typeof STATS_COLLECTION_COST_COLUMNS)[number];
+export type StatsCollectionColumn = (typeof STATS_COLLECTION_TABLE_COLUMNS)[number];
 
-export type StatsView = (typeof STATS_VIEWS)[number];
-
-export interface StatsValueSectionProps {
-  report: StatsReport;
-}
 
 export interface StatsCollectionSort {
   column: StatsCollectionColumn;
@@ -105,6 +96,7 @@ export interface StatsSplitEntry {
 
 export interface StatsHighlightsProps {
   insights: StatsInsight[];
+  heading?: string;
 }
 
 export interface BarListItem {
@@ -133,15 +125,12 @@ export interface StatsActivitySectionProps {
 
 export interface StatsCollectionsSectionProps {
   collections: StatsCollectionRow[];
-  costsVisible: boolean;
   onSelectCollection: (guid: string) => void;
 }
 
 export interface StatsCollectionsTableProps {
   collections: StatsCollectionRow[];
-  costsVisible: boolean;
   onSelectCollection: (guid: string) => void;
-  onSetCost: (row: StatsCollectionRow) => void;
 }
 
 export interface StatsTopCardsProps {

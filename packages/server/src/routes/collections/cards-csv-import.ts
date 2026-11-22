@@ -3,6 +3,7 @@ import {
   COLLECTION_CSV_IMPORT_UNMATCHED_ROWS_MAX,
   collectionCsvImportRequestSchema,
   DEFAULT_CARD_CONDITION,
+  PRICE_SOURCE_FIELDS,
   pickedCardLanguage,
   type CollectionCsvImportResult,
 } from "@magic-vault/shared";
@@ -17,6 +18,7 @@ import { searchCardsByIds } from "../../lib/card-search/stored-cards";
 import { resolveCollectionCsvRows } from "../../lib/collection-csv-import";
 import { COLLECTION_CSV_IMPORT_INSERT_BATCH_SIZE } from "../../lib/constants/collection-csv-import";
 import { findOpenIntakeLotId } from "../../lib/intake";
+import { loadOrgPricing } from "../../lib/price-source";
 import type { ResolvedCollectionCsvImport } from "../../lib/interfaces/collection-csv-import";
 import { savedCardCatalogKeys, slimSavedCardSnapshots } from "../../lib/saved-cards";
 import { emitCollectionCardsChanged } from "../../lib/session-stream";
@@ -141,6 +143,7 @@ export const collectionCsvImportRoute = new Hono<AppEnv>()
     await authQuery(c.get("jwtClaims"), async (tx) => {
       const intakeLotId = await findOpenIntakeLotId(tx, collectionId);
       const scannedAt = new Date();
+      const currency = PRICE_SOURCE_FIELDS[(await loadOrgPricing(tx, orgId)).source].currency;
       const values = matched.flatMap(({ row, card }) => {
         const isFoil = row.isFoil ?? !!card.foilOnlyFoilType;
         return Array.from({ length: row.quantity }, () => ({
@@ -157,6 +160,11 @@ export const collectionCsvImportRoute = new Hono<AppEnv>()
           scannedByUserId: userId,
           intakeLotId,
           orgId,
+          ...(row.cost == null
+            ? {}
+            : intakeLotId
+              ? { intakeOffer: row.cost, intakeOfferCurrency: currency }
+              : { acquisitionCost: row.cost, acquisitionCurrency: currency, acquiredAt: scannedAt }),
         }));
       });
       for (

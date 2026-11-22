@@ -184,7 +184,6 @@ export interface CardDetailInfoSectionsProps {
   foilType?: string | null;
   stamp?: string | null;
   condition?: CardCondition | null;
-  priceExtras?: ReactNode;
 }
 
 export interface SkeletonTextLineProps {

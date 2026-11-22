@@ -5,6 +5,8 @@ import { activityRoute } from "./activity";
 import { fleetRoute } from "./fleet";
 import { intakeRoute } from "./intake";
 import { ordersRoute } from "./orders";
+import { overviewRoute } from "./overview";
+import { cardPricingRoute } from "./card-pricing";
 import { pickRunsRoute } from "./pick-runs";
 import { priceLabelsRoute } from "./price-labels";
 import { reportsRoute } from "./reports";
@@ -16,6 +18,8 @@ const router = new Hono<AppEnv>()
   .route("/", businessSettingsRoute)
   .route("/", intakeRoute)
   .route("/", ordersRoute)
+  .route("/", overviewRoute)
+  .route("/", cardPricingRoute)
   .route("/", pickRunsRoute)
   .route("/", priceLabelsRoute)
   .route("/", reportsRoute)

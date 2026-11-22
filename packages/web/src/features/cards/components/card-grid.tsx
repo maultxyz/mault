@@ -45,6 +45,7 @@ import { SessionSummaryDialog } from "@/features/cards/components/session-summar
 import { useStorageAccess } from "@/features/storage/api/use-storage-access";
 import { useMoveCardsToLocation } from "@/features/storage/api/use-storage-locations";
 import { useMoveCardsToCollection } from "@/features/collections/api/use-move-cards-to-collection";
+import { SetPricesAction } from "@/features/business/components/set-prices-action";
 import { useMoveTargetCollections } from "@/features/collections/api/use-move-target-collections";
 import { MoveToLocationDialog } from "@/features/storage/components/move-to-location-dialog";
 import {
@@ -1370,6 +1371,10 @@ export function CardGrid() {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
+              <SetPricesAction
+                scanIds={Array.from(selectedIds)}
+                buttonClassName={SELECTION_ACTION_BAR_BUTTON_CLASS}
+              />
               {(!storageLocked || moveTargetCollections.length > 0) && (
                 <Button
                   variant="ghost"

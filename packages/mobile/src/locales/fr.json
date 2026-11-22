@@ -1109,7 +1109,6 @@
     "catalogCardRemovedAction": "Trouver la bonne carte",
     "noCollectionsToMoveTo": "Aucune autre collection de ce jeu vers laquelle déplacer la carte.",
     "noLocationsToMoveTo": "Aucun autre emplacement de rangement vers lequel déplacer la carte.",
-    "pricePaid": "Prix payé ({{currency}})",
     "pricePaidEmpty": "Non défini",
     "fallbackTitle": "Détails de la carte",
     "capturedScan": "Scan capturé",
@@ -1182,7 +1181,33 @@
     "shareLinkCopyFailed": "Impossible de copier un lien de partage pour cette carte.",
     "downloadPhoto": "Télécharger la photo",
     "downloadPhotoFailed": "Impossible de télécharger la photo. Réessayez.",
-    "backSideAlt": "{{name}}, verso"
+    "backSideAlt": "{{name}}, verso",
+    "pricing": {
+      "title": "Prix",
+      "market": "Prix du marché",
+      "sell": "Prix de vente",
+      "cost": "Coût ({{currency}})",
+      "intakeOffer": "Offre de rachat ({{currency}})",
+      "loadFailed": "Impossible de charger les prix de cette carte.",
+      "editSellPriceHint": "Modifier le calcul du prix de vente de cette carte",
+      "rules": {
+        "default": "Marge par défaut ({{percent}} %)",
+        "markup": "Marché {{percent}} %",
+        "fixed": "Prix fixe"
+      },
+      "modes": {
+        "default": "Par défaut",
+        "markup": "Marché + %",
+        "fixed": "Prix fixe"
+      },
+      "sellPriceTitle": "Prix de vente",
+      "sellPriceDescription": "Choisissez comment le prix de vente de cette carte est calculé.",
+      "defaultModeHint": "Utilise votre marge par défaut ({{percent}} %) et votre arrondi.",
+      "markupPercent": "Marge sur le prix du marché (%)",
+      "fixedPrice": "Prix fixe ({{currency}})",
+      "sellPriceSaved": "Prix de vente enregistré.",
+      "sellPriceSaveFailed": "Impossible d'enregistrer le prix de vente. Réessayez."
+    }
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",
@@ -1991,7 +2016,26 @@
         "tcgplayer": "TCGplayer",
         "cardmarket": "Cardmarket",
         "cardkingdom": "Card Kingdom"
-      }
+      },
+      "selling": {
+        "heading": "Prix de vente",
+        "description": "Le prix auquel vous vendez les cartes. Chaque carte utilise le prix du marché plus cette marge, sauf si elle a sa propre marge ou un prix fixe.",
+        "defaultMargin": "Marge par défaut (%)",
+        "defaultMarginHint": "Utilisez un nombre négatif pour vendre sous le prix du marché.",
+        "rounding": "Arrondi",
+        "roundingModes": {
+          "none": "Ne pas arrondir",
+          "quarter": "Au 0,25 supérieur",
+          "ninetyNine": "Au ,99 supérieur",
+          "whole": "Au montant entier supérieur"
+        },
+        "preview": "Une carte à {{market}} se vend {{price}}."
+      },
+      "buying": {
+        "heading": "Prix de rachat",
+        "description": "Combien vous proposez pour chaque carte lors du rachat d'une collection. Les offres utilisent votre source de prix et vos valeurs d'état."
+      },
+      "businessManagersOnly": "Seuls les propriétaires et les admins peuvent modifier les prix de vente et de rachat."
     },
     "conditionPricing": {
       "heading": "Prix selon l'état",
@@ -2374,11 +2418,9 @@
       }
     },
     "business": {
-      "description": "Définissez vos offres de rachat et choisissez ce que les membres peuvent voir et faire.",
+      "description": "Choisissez ce que les membres peuvent voir et faire, et partagez vos catalogues de boutique.",
       "managersOnly": "Seuls les propriétaires et les admins peuvent modifier ces réglages.",
       "buylist": {
-        "heading": "Offres de rachat",
-        "description": "Combien vous proposez pour chaque carte lors du rachat d'une collection. Les offres utilisent votre source de prix et vos valeurs d'état.",
         "tiers": "Paliers de prix",
         "minPrice": "Prix du marché à partir de",
         "percent": "Offre (% du marché)",
@@ -3987,6 +4029,83 @@
     "back": "Retour",
     "cancel": "Annuler",
     "delete": "Supprimer",
+    "overview": {
+      "cards_one": "{{count}} carte",
+      "cards_other": "{{count}} cartes",
+      "now": {
+        "heading": "En ce moment"
+      },
+      "tiles": {
+        "openIntake": "Rachats ouverts",
+        "openPicks": "Préparations ouvertes",
+        "cardsToPick": "Cartes à préparer",
+        "readyToComplete_one": "{{count}} prête à terminer",
+        "readyToComplete_other": "{{count}} prêtes à terminer",
+        "requests_one": "{{count}} demande",
+        "requests_other": "{{count}} demandes",
+        "beingPicked_one": "{{count}} en préparation",
+        "beingPicked_other": "{{count}} en préparation",
+        "soldCards": "Cartes vendues",
+        "perDay": "{{count}} par jour en moyenne",
+        "revenue": "Chiffre d’affaires",
+        "averageSale": "{{value}} par carte"
+      },
+      "sales": {
+        "heading": "{{days}} derniers jours",
+        "title": "Ventes",
+        "description": "Cartes vendues chaque jour sur les {{days}} derniers jours, préparations et retraits de réservations compris.",
+        "metrics": {
+          "count": "Cartes",
+          "revenue": "Chiffre d’affaires"
+        },
+        "today": "Aujourd’hui"
+      },
+      "attention": {
+        "heading": "À traiter",
+        "readyForPickup": {
+          "title_one": "{{count}} réservation prête à retirer",
+          "title_other": "{{count}} réservations prêtes à retirer",
+          "detail": "Prévenez le client, ou marquez-la retirée lorsqu’il passe."
+        },
+        "readyToComplete": {
+          "title_one": "{{count}} préparation prête à terminer",
+          "title_other": "{{count}} préparations prêtes à terminer",
+          "detail": "Toutes les cartes sont prélevées. Terminez pour enregistrer la vente."
+        },
+        "toPull": {
+          "title_one": "{{count}} réservation à sortir",
+          "title_other": "{{count}} réservations à sortir",
+          "detail": "Créez une préparation pour sortir les cartes réservées."
+        },
+        "openIntake": {
+          "title_one": "{{count}} rachat ouvert",
+          "title_other": "{{count}} rachats ouverts",
+          "detail": "Vérifiez les cartes, faites une offre, puis acceptez."
+        },
+        "allClear": {
+          "title": "Tout est à jour",
+          "detail": "Rien ne demande votre attention pour le moment."
+        }
+      },
+      "reservationsChart": {
+        "title": "Réservations par étape",
+        "description": "Demandes de réservation ouvertes et leur avancement.",
+        "none": "Aucune réservation ouverte.",
+        "requests_one": "Demande",
+        "requests_other": "Demandes"
+      },
+      "intake": {
+        "description": "Rachetez des cartes à vos clients. Scannez-les, faites une offre, puis acceptez.",
+        "empty": "Aucun rachat ouvert.",
+        "link": "Aller aux rachats"
+      },
+      "picks": {
+        "description": "Sortez les cartes vendues du stock et terminez la vente.",
+        "empty": "Aucune préparation ouverte.",
+        "progress": "{{picked}} sur {{total}} préparées",
+        "link": "Aller aux préparations"
+      }
+    },
     "views": {
       "intake": "Rachat",
       "picks": "Préparations",
@@ -4163,7 +4282,16 @@
         "alreadyPicked": "Tous les exemplaires de {{name}} de cette préparation sont déjà préparés.",
         "notOnPick": "{{name}} ne reste pas dans cette préparation."
       },
-      "reservationCardsNote": "Les cartes réservées restent en stock et sont marquées prêtes à retirer."
+      "reservationCardsNote": "Les cartes réservées restent en stock et sont marquées prêtes à retirer.",
+      "reservationPrompt": {
+        "title_one": "Ouvrir la réservation ?",
+        "title_other": "Ouvrir les réservations ?",
+        "description_one": "Cette préparation était pour une réservation. Ses cartes sont maintenant prêtes à être retirées : prévenez le client ou marquez-la comme retirée.",
+        "description_other": "Ces préparations étaient pour {{count}} réservations. Leurs cartes sont maintenant prêtes à être retirées : prévenez les clients ou marquez-les comme retirées.",
+        "confirm_one": "Ouvrir la réservation",
+        "confirm_other": "Ouvrir les réservations",
+        "stay": "Rester ici"
+      }
     },
     "order": {
       "title": "Préparation",
@@ -4301,6 +4429,11 @@
       "pickCreated_other": "Préparation créée pour {{name}} avec {{count}} cartes",
       "cardCount_one": "1 carte",
       "cardCount_other": "{{count}} cartes"
+    },
+    "filters": {
+      "status": "Statut",
+      "allStatuses": "Tous",
+      "noMatchesDescription": "Rien ne correspond à ce statut."
     },
     "search": {
       "noResultsTitle": "Aucun résultat",

@@ -31,11 +31,11 @@ export function useBusinessAction() {
     async <T,>(
       action: () => Promise<T>,
       successMessage: string | ((result: T) => string),
-      afterSuccess?: () => void,
+      afterSuccess?: (result: T) => void,
     ): Promise<boolean> => {
       try {
         const result = await action();
-        afterSuccess?.();
+        afterSuccess?.(result);
         announce(typeof successMessage === "string" ? successMessage : successMessage(result), "success");
         return true;
       } catch (error) {

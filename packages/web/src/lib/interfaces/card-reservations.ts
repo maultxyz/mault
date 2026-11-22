@@ -94,7 +94,7 @@ export interface CardReservationRequestSectionProps extends CardReservationActio
 }
 
 export interface ReservationsWorkspaceProps {
-  switcher: ReactNode;
+  backToOverview: ReactNode;
 }
 
 export type CardReservationConfirmation = {

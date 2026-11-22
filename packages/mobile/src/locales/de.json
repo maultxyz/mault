@@ -1109,7 +1109,6 @@
     "catalogCardRemovedAction": "Richtige Karte suchen",
     "noCollectionsToMoveTo": "Es gibt keine andere Sammlung für dieses Spiel, in die die Karte verschoben werden kann.",
     "noLocationsToMoveTo": "Es gibt keinen anderen Lagerort, an den die Karte verschoben werden kann.",
-    "pricePaid": "Kaufpreis ({{currency}})",
     "pricePaidEmpty": "Nicht festgelegt",
     "fallbackTitle": "Kartendetails",
     "capturedScan": "Aufgenommener Scan",
@@ -1182,7 +1181,33 @@
     "shareLinkCopyFailed": "Der Freigabelink für diese Karte konnte nicht kopiert werden.",
     "downloadPhoto": "Foto herunterladen",
     "downloadPhotoFailed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut.",
-    "backSideAlt": "{{name}}, Rückseite"
+    "backSideAlt": "{{name}}, Rückseite",
+    "pricing": {
+      "title": "Preise",
+      "market": "Marktpreis",
+      "sell": "Verkaufspreis",
+      "cost": "Kosten ({{currency}})",
+      "intakeOffer": "Ankaufsangebot ({{currency}})",
+      "loadFailed": "Die Preise dieser Karte konnten nicht geladen werden.",
+      "editSellPriceHint": "Ändern, wie der Verkaufspreis dieser Karte festgelegt wird",
+      "rules": {
+        "default": "Standardmarge ({{percent}} %)",
+        "markup": "Markt {{percent}} %",
+        "fixed": "Festpreis"
+      },
+      "modes": {
+        "default": "Standard",
+        "markup": "Markt + %",
+        "fixed": "Festpreis"
+      },
+      "sellPriceTitle": "Verkaufspreis",
+      "sellPriceDescription": "Lege fest, wie der Verkaufspreis dieser Karte berechnet wird.",
+      "defaultModeHint": "Nutzt deine Standardmarge ({{percent}} %) und Rundung.",
+      "markupPercent": "Marge auf den Marktpreis (%)",
+      "fixedPrice": "Festpreis ({{currency}})",
+      "sellPriceSaved": "Verkaufspreis gespeichert.",
+      "sellPriceSaveFailed": "Der Verkaufspreis konnte nicht gespeichert werden. Versuch es noch einmal."
+    }
   },
   "reviewGrid": {
     "title": "Karten prüfen",
@@ -1991,7 +2016,26 @@
         "tcgplayer": "TCGplayer",
         "cardmarket": "Cardmarket",
         "cardkingdom": "Card Kingdom"
-      }
+      },
+      "selling": {
+        "heading": "Verkaufspreise",
+        "description": "Wofür du Karten verkaufst. Jede Karte nutzt den Marktpreis plus diese Marge, außer sie hat eine eigene Marge oder einen Festpreis.",
+        "defaultMargin": "Standardmarge (%)",
+        "defaultMarginHint": "Mit einer negativen Zahl verkaufst du unter Marktpreis.",
+        "rounding": "Rundung",
+        "roundingModes": {
+          "none": "Nicht runden",
+          "quarter": "Auf die nächsten 0,25 aufrunden",
+          "ninetyNine": "Auf die nächsten ,99 aufrunden",
+          "whole": "Auf den nächsten ganzen Betrag aufrunden"
+        },
+        "preview": "Eine Karte für {{market}} wird für {{price}} verkauft."
+      },
+      "buying": {
+        "heading": "Ankaufspreise",
+        "description": "Wie viel du beim Ankauf einer Sammlung für jede Karte bietest. Angebote nutzen deine Preisquelle und Zustandswerte."
+      },
+      "businessManagersOnly": "Nur Inhaber und Admins können Verkaufs- und Ankaufspreise ändern."
     },
     "conditionPricing": {
       "heading": "Preise nach Zustand",
@@ -2374,11 +2418,9 @@
       }
     },
     "business": {
-      "description": "Lege deine Ankaufsangebote fest und bestimme, was Mitglieder sehen und tun dürfen.",
+      "description": "Bestimme, was Mitglieder sehen und tun dürfen, und teile deine Shop-Kataloge.",
       "managersOnly": "Nur Inhaber und Admins können diese Einstellungen ändern.",
       "buylist": {
-        "heading": "Ankaufsangebote",
-        "description": "Wie viel du beim Ankauf einer Sammlung für jede Karte bietest. Angebote nutzen deine Preisquelle und Zustandswerte.",
         "tiers": "Preisstufen",
         "minPrice": "Marktwert ab",
         "percent": "Angebot (% vom Marktwert)",
@@ -3987,6 +4029,83 @@
     "back": "Zurück",
     "cancel": "Abbrechen",
     "delete": "Löschen",
+    "overview": {
+      "cards_one": "{{count}} Karte",
+      "cards_other": "{{count}} Karten",
+      "now": {
+        "heading": "Aktuell"
+      },
+      "tiles": {
+        "openIntake": "Offener Ankauf",
+        "openPicks": "Offene Picks",
+        "cardsToPick": "Karten zu picken",
+        "readyToComplete_one": "{{count}} abschlussbereit",
+        "readyToComplete_other": "{{count}} abschlussbereit",
+        "requests_one": "{{count}} Anfrage",
+        "requests_other": "{{count}} Anfragen",
+        "beingPicked_one": "{{count}} wird gepickt",
+        "beingPicked_other": "{{count}} werden gepickt",
+        "soldCards": "Verkaufte Karten",
+        "perDay": "Im Schnitt {{count}} pro Tag",
+        "revenue": "Umsatz",
+        "averageSale": "{{value}} pro Karte"
+      },
+      "sales": {
+        "heading": "Letzte {{days}} Tage",
+        "title": "Verkäufe",
+        "description": "Verkaufte Karten pro Tag in den letzten {{days}} Tagen, aus Picks und abgeholten Reservierungen.",
+        "metrics": {
+          "count": "Karten",
+          "revenue": "Umsatz"
+        },
+        "today": "Heute"
+      },
+      "attention": {
+        "heading": "Zu erledigen",
+        "readyForPickup": {
+          "title_one": "{{count}} Reservierung abholbereit",
+          "title_other": "{{count}} Reservierungen abholbereit",
+          "detail": "Gib dem Kunden Bescheid oder markiere sie bei der Abholung als abgeholt."
+        },
+        "readyToComplete": {
+          "title_one": "{{count}} Pick abschlussbereit",
+          "title_other": "{{count}} Picks abschlussbereit",
+          "detail": "Alle Karten sind gepickt. Schließe ab, um den Verkauf zu erfassen."
+        },
+        "toPull": {
+          "title_one": "{{count}} Reservierung zu ziehen",
+          "title_other": "{{count}} Reservierungen zu ziehen",
+          "detail": "Erstelle einen Pick, um die zurückgelegten Karten zu ziehen."
+        },
+        "openIntake": {
+          "title_one": "{{count}} offener Ankauf",
+          "title_other": "{{count}} offene Ankäufe",
+          "detail": "Karten prüfen, ein Angebot machen, dann annehmen."
+        },
+        "allClear": {
+          "title": "Alles erledigt",
+          "detail": "Gerade gibt es nichts zu tun."
+        }
+      },
+      "reservationsChart": {
+        "title": "Reservierungen nach Stand",
+        "description": "Offene Reservierungsanfragen und wo jede gerade steht.",
+        "none": "Keine offenen Reservierungen.",
+        "requests_one": "Anfrage",
+        "requests_other": "Anfragen"
+      },
+      "intake": {
+        "description": "Karten von Kunden ankaufen. Einscannen, ein Angebot machen, dann annehmen.",
+        "empty": "Kein offener Ankauf.",
+        "link": "Zum Ankauf"
+      },
+      "picks": {
+        "description": "Verkaufte Karten aus dem Lager ziehen und den Verkauf abschließen.",
+        "empty": "Keine offenen Picks.",
+        "progress": "{{picked}} von {{total}} gepickt",
+        "link": "Zu den Picks"
+      }
+    },
     "views": {
       "intake": "Ankauf",
       "picks": "Picks",
@@ -4163,7 +4282,16 @@
         "alreadyPicked": "Alle Exemplare von {{name}} in diesem Pick sind schon gepickt.",
         "notOnPick": "{{name}} ist in diesem Pick nicht mehr offen."
       },
-      "reservationCardsNote": "Für Reservierungen zurückgelegte Karten bleiben im Bestand und werden als abholbereit markiert."
+      "reservationCardsNote": "Für Reservierungen zurückgelegte Karten bleiben im Bestand und werden als abholbereit markiert.",
+      "reservationPrompt": {
+        "title_one": "Reservierung öffnen?",
+        "title_other": "Reservierungen öffnen?",
+        "description_one": "Dieser Pick war für eine Reservierung. Die Karten liegen jetzt zur Abholung bereit, du kannst dem Kunden Bescheid geben oder sie als abgeholt markieren.",
+        "description_other": "Diese Picks waren für {{count}} Reservierungen. Die Karten liegen jetzt zur Abholung bereit, du kannst den Kunden Bescheid geben oder sie als abgeholt markieren.",
+        "confirm_one": "Reservierung öffnen",
+        "confirm_other": "Reservierungen öffnen",
+        "stay": "Hierbleiben"
+      }
     },
     "order": {
       "title": "Pick",
@@ -4301,6 +4429,11 @@
       "pickCreated_other": "Pickliste für {{name}} mit {{count}} Karten erstellt",
       "cardCount_one": "1 Karte",
       "cardCount_other": "{{count}} Karten"
+    },
+    "filters": {
+      "status": "Status",
+      "allStatuses": "Alle",
+      "noMatchesDescription": "Nichts passt zu diesem Status."
     },
     "search": {
       "noResultsTitle": "Keine Treffer",

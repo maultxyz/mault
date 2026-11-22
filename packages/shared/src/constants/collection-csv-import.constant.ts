@@ -148,6 +148,15 @@ export const COLLECTION_CSV_FORMATS: readonly CollectionCsvFormat[] = [
   },
 ];
 
+export const COLLECTION_CSV_COST_ALIASES = [
+  "cost",
+  "purchase price",
+  "price paid",
+  "price bought",
+  "acquisition cost",
+  "cost basis",
+] as const;
+
 export const COLLECTION_CSV_GENERIC_COLUMNS: Record<
   CollectionCsvImportField,
   readonly string[]
@@ -169,4 +178,5 @@ export const COLLECTION_CSV_GENERIC_COLUMNS: Record<
   foil: ["foil", "finish", "printing", "foil/non-foil"],
   condition: ["condition", "cond"],
   language: ["language", "lang"],
+  cost: COLLECTION_CSV_COST_ALIASES,
 };

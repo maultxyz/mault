@@ -105,11 +105,10 @@ export function PublicCardDetailView({
   }
 
   const { card } = detail;
-  const price = priceOf(
-    card,
-    { isFoil: detail.isFoil, foilType: detail.foilType ?? undefined },
-    detail.condition,
-  );
+  const price =
+    detail.sellPrice !== undefined
+      ? detail.sellPrice
+      : priceOf(card, { isFoil: detail.isFoil, foilType: detail.foilType ?? undefined }, detail.condition);
   const language = scanLanguage(detail);
   const conditionName = isCardCondition(detail.condition)
     ? tCards(`condition.names.${detail.condition}`)

@@ -36,10 +36,14 @@ async function findCostCard(tx: Transaction, orgId: string, scanId: string) {
       name: sql<string>`${collectionCards.card} ->> 'name'`,
       cost: collectionCards.acquisitionCost,
       currency: collectionCards.acquisitionCurrency,
+      intakeOffer: collectionCards.intakeOffer,
+      intakeOfferCurrency: collectionCards.intakeOfferCurrency,
+      intakeLotStatus: intakeLots.status,
       acquiredAt: collectionCards.acquiredAt,
     })
     .from(collectionCards)
     .innerJoin(collections, eq(collections.id, collectionCards.collectionId))
+    .leftJoin(intakeLots, eq(intakeLots.id, collectionCards.intakeLotId))
     .where(
       and(
         eq(collectionCards.guid, scanId),
@@ -62,11 +66,14 @@ export const reportsRoute = new Hono<AppEnv>()
       const orgId = c.get("orgId");
       const card = await findCostCard(tx, orgId, scanId);
       if (!card) return notFound("Card not found.");
+      const isOpenIntake = card.intakeLotStatus === "open";
+      const shownCost = isOpenIntake ? card.intakeOffer : card.cost;
+      const shownCurrency = isOpenIntake ? card.intakeOfferCurrency : card.currency;
       const currency =
-        card.cost !== null && card.currency
-          ? card.currency
+        shownCost !== null && shownCurrency
+          ? shownCurrency
           : pricingCurrency(await loadOrgPricing(tx, orgId));
-      const data: CardAcquisitionCost = { cost: card.cost, currency };
+      const data: CardAcquisitionCost = { cost: shownCost, currency };
       return { success: true, data };
     });
   })
@@ -84,12 +91,19 @@ export const reportsRoute = new Hono<AppEnv>()
       const card = await findCostCard(tx, orgId, scanId);
       if (!card) return notFound("Card not found.");
       const currency = pricingCurrency(await loadOrgPricing(tx, orgId));
-      await updateAcquisitionCosts(tx, {
-        orgId,
-        currency,
-        acquiredAt: card.acquiredAt ?? new Date(),
-        rows: [{ scanId, cost }],
-      });
+      if (card.intakeLotStatus === "open") {
+        await tx
+          .update(collectionCards)
+          .set({ intakeOffer: cost, intakeOfferCurrency: cost === null ? null : currency })
+          .where(and(eq(collectionCards.guid, scanId), eq(collectionCards.orgId, orgId)));
+      } else {
+        await updateAcquisitionCosts(tx, {
+          orgId,
+          currency,
+          acquiredAt: card.acquiredAt ?? new Date(),
+          rows: [{ scanId, cost }],
+        });
+      }
       await logActivity(tx, {
         orgId,
         userId: c.get("userId"),
@@ -101,81 +115,4 @@ export const reportsRoute = new Hono<AppEnv>()
       return { success: true, data };
     });
   })
-  .post("/cost/:collectionGuid", requireAuth, requireOrg, async (c) => {
-    const collectionGuid = c.req.param("collectionGuid");
-    const body = await readJson<CollectionCostInput>(c);
-    const total = toMoney(body.total);
-    if (
-      !UUID_PATTERN.test(collectionGuid) ||
-      total === null ||
-      (body.mode !== "spread" && body.mode !== "each")
-    ) {
-      return c.json({ success: false, message: "Invalid cost." }, 400);
-    }
-    return businessQuery(c, async (tx, access) => {
-      if (access.isLocked) return BUSINESS_UPGRADE_REQUIRED_RESULT;
-      if (!access.canViewCosts) return BUSINESS_FORBIDDEN_RESULT;
-      const orgId = c.get("orgId");
-      const collection = await tx.query.collections.findFirst({
-        where: and(
-          eq(collections.guid, collectionGuid),
-          eq(collections.orgId, orgId),
-          eq(collections.isDeleted, false),
-        ),
-        columns: { id: true, name: true },
-      });
-      if (!collection) return notFound("Collection not found.");
-      const pricing = await loadOrgPricing(tx, orgId);
-      const currency = pricingCurrency(pricing);
-      const cards = await tx
-        .select({
-          scanId: collectionCards.guid,
-          price: scannedCardPriceSql(pricing),
-          cost: collectionCards.acquisitionCost,
-        })
-        .from(collectionCards)
-        .leftJoin(intakeLots, eq(intakeLots.id, collectionCards.intakeLotId))
-        .where(
-          and(
-            eq(collectionCards.collectionId, collection.id),
-            sql`(${intakeLots.id} IS NULL OR ${intakeLots.status} = 'accepted')`,
-          ),
-        );
-      const targets = body.overwrite
-        ? cards
-        : cards.filter((card) => card.cost === null);
-      const costs =
-        body.mode === "each"
-          ? targets.map(() => total)
-          : spreadTotal(
-              targets.map((card) => Number(card.price ?? 0)),
-              total,
-            );
-      await updateAcquisitionCosts(tx, {
-        orgId,
-        currency,
-        acquiredAt: new Date(),
-        rows: targets.map((card, i) => ({
-          scanId: card.scanId!,
-          cost: costs[i],
-        })),
-      });
-      await logActivity(tx, {
-        orgId,
-        userId: c.get("userId"),
-        action: "cost.set",
-        summary: collection.name,
-        details: {
-          collectionGuid,
-          mode: body.mode,
-          total,
-          currency,
-          cards: targets.length,
-        },
-      });
-      return {
-        success: true,
-        data: { updated: targets.length, skipped: cards.length - targets.length },
-      };
-    });
-  });
+;

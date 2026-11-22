@@ -9,13 +9,27 @@ import type { PillProps } from "@/lib/interfaces/ui";
 export const BUSINESS_QUERY_KEY = ["business"] as const;
 export const BUSINESS_ORDERS_QUERY_KEY = [...BUSINESS_QUERY_KEY, "orders"] as const;
 export const BUSINESS_INTAKE_QUERY_KEY = [...BUSINESS_QUERY_KEY, "intake"] as const;
+export const BUSINESS_CARD_PRICING_QUERY_KEY = [...BUSINESS_QUERY_KEY, "card-pricing"] as const;
 export const BUSINESS_LIST_PAGE_SIZE = 30;
 export const INTAKE_LOT_CARDS_PAGE_SIZE = 50;
 export const INTAKE_LIVE_REFETCH_MS = 4000;
+export const BUSINESS_OVERVIEW_VIEW = "overview";
 export const BUSINESS_INTAKE_VIEW = "intake";
 export const BUSINESS_PICKS_VIEW = "picks";
 export const BUSINESS_RESERVATIONS_VIEW = "reservations";
-export const BUSINESS_VIEWS = [BUSINESS_INTAKE_VIEW, BUSINESS_PICKS_VIEW, BUSINESS_RESERVATIONS_VIEW] as const;
+export const BUSINESS_VIEWS = [
+  BUSINESS_OVERVIEW_VIEW,
+  BUSINESS_INTAKE_VIEW,
+  BUSINESS_PICKS_VIEW,
+  BUSINESS_RESERVATIONS_VIEW,
+] as const;
+export const BUSINESS_OVERVIEW_QUERY_KEY = [...BUSINESS_QUERY_KEY, "overview"] as const;
+export const BUSINESS_ATTENTION_ICONS = {
+  readyForPickup: "bookmark",
+  readyToComplete: "checkAll",
+  toPull: "upload",
+  openIntake: "coins",
+} as const;
 export const BUSINESS_RESERVATIONS_QUERY_KEY = [...BUSINESS_QUERY_KEY, "reservations"] as const;
 export const CARD_RESERVATION_ACTION_COLLECT = "collect";
 export const CARD_RESERVATION_ACTION_RELEASE = "release";
@@ -54,3 +68,4 @@ export const BUSINESS_STATUS_TONES: Record<IntakeLotStatus | FulfilmentOrderStat
 };
 export const BUSINESS_LIST_SKELETON_ROWS = 5;
 export const BUSINESS_LIST_SEARCH_DEBOUNCE_MS = 300;
+export const SELL_PRICE_PREVIEW_MARKET_PRICE = 10;

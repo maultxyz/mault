@@ -1,5 +1,7 @@
 import {
   BUSINESS_LIST_SEARCH_PARAM,
+  BUSINESS_LIST_STATUS_PARAM,
+  type BusinessOverview,
   CARD_RESERVATION_LIST_VIEW_PARAM,
   type CardReservation,
   type CardReservationListView,
@@ -8,6 +10,7 @@ import {
   type CollectedCardReservations,
   type ReleasedCardReservations,
   type FulfilmentOrder,
+  type FulfilmentOrderStatus,
   type FulfilmentOrderDetail,
   type FulfilmentOrderInput,
   type FulfilmentOrderUpdateInput,
@@ -17,6 +20,7 @@ import {
   type IntakeLotCard,
   type IntakeLotDetail,
   type IntakeLotInput,
+  type IntakeLotStatus,
   type IntakeTransferInput,
   type IntakeTransferResult,
   type OrderFulfilInput,
@@ -31,6 +35,7 @@ import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/
 import {
   BUSINESS_RESERVATIONS_QUERY_KEY,
   BUSINESS_INTAKE_QUERY_KEY,
+  BUSINESS_OVERVIEW_QUERY_KEY,
   BUSINESS_LIST_PAGE_SIZE,
   BUSINESS_ORDERS_QUERY_KEY,
   INTAKE_LIVE_REFETCH_MS,
@@ -43,20 +48,36 @@ function nextPageOf<T>(last: PagedList<T>, pages: PagedList<T>[]): number | unde
   return pages.reduce((sum, page) => sum + page.items.length, 0) < last.total ? pages.length + 1 : undefined;
 }
 
-function businessListParams(page: number, search: string): string {
+function businessListParams(page: number, search: string, status: string | null): string {
   const params = new URLSearchParams({ page: String(page), limit: String(BUSINESS_LIST_PAGE_SIZE) });
   if (search) params.set(BUSINESS_LIST_SEARCH_PARAM, search);
+  if (status) params.set(BUSINESS_LIST_STATUS_PARAM, status);
   return params.toString();
 }
 
-export const intakeLotsQueryOptions = (orgId: string | null, enabled: boolean, search = "") =>
+export const intakeLotsQueryOptions = (
+  orgId: string | null,
+  enabled: boolean,
+  search = "",
+  status: IntakeLotStatus | null = null,
+) =>
   infiniteQueryOptions({
-    queryKey: [...BUSINESS_INTAKE_QUERY_KEY, "list", orgId, search] as const,
+    queryKey: [...BUSINESS_INTAKE_QUERY_KEY, "list", orgId, search, status] as const,
     queryFn: ({ pageParam }) =>
-      unwrap(apiGet<Result<PagedList<IntakeLot>>>(`/api/business/intake?${businessListParams(pageParam, search)}`)),
+      unwrap(
+        apiGet<Result<PagedList<IntakeLot>>>(`/api/business/intake?${businessListParams(pageParam, search, status)}`),
+      ),
     initialPageParam: 1,
     getNextPageParam: nextPageOf<IntakeLot>,
     enabled: !!orgId && enabled,
+    staleTime: QUERY_STALE_MS,
+  });
+
+export const businessOverviewQueryOptions = (orgId: string | null) =>
+  queryOptions({
+    queryKey: [...BUSINESS_OVERVIEW_QUERY_KEY, orgId] as const,
+    queryFn: () => unwrap(apiGet<Result<BusinessOverview>>("/api/business/overview")),
+    enabled: !!orgId,
     staleTime: QUERY_STALE_MS,
   });
 
@@ -103,11 +124,18 @@ export function deleteIntakeLot(guid: string): Promise<null> {
   return unwrapOr(apiDelete<Result<null>>(`/api/business/intake/${guid}`), null);
 }
 
-export const ordersQueryOptions = (orgId: string | null, enabled: boolean, search = "") =>
+export const ordersQueryOptions = (
+  orgId: string | null,
+  enabled: boolean,
+  search = "",
+  status: FulfilmentOrderStatus | null = null,
+) =>
   infiniteQueryOptions({
-    queryKey: [...BUSINESS_ORDERS_QUERY_KEY, "list", orgId, search] as const,
+    queryKey: [...BUSINESS_ORDERS_QUERY_KEY, "list", orgId, search, status] as const,
     queryFn: ({ pageParam }) =>
-      unwrap(apiGet<Result<PagedList<FulfilmentOrder>>>(`/api/business/orders?${businessListParams(pageParam, search)}`)),
+      unwrap(
+        apiGet<Result<PagedList<FulfilmentOrder>>>(`/api/business/orders?${businessListParams(pageParam, search, status)}`),
+      ),
     initialPageParam: 1,
     getNextPageParam: nextPageOf<FulfilmentOrder>,
     enabled: !!orgId && enabled,

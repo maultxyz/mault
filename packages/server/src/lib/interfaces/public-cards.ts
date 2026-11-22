@@ -16,6 +16,7 @@ export interface PublicCardBrowseScope {
   hidesCardsReservedByOpenPicks: boolean;
   hidesCardsHeldByReservations: boolean;
   showsPrices: boolean;
+  usesSellPrices?: boolean;
   readsCacheKey: string | null;
 }
 

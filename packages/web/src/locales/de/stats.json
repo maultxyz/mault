@@ -71,9 +71,7 @@
       "totalValue": "Wert",
       "avgValue": "Ø Karte",
       "scansInRange": "Gescannt",
-      "lastScanAt": "Letzter Scan",
-      "costBasis": "Einkauf",
-      "margin": "Marge"
+      "lastScanAt": "Letzter Scan"
     }
   },
   "prices": {
@@ -149,14 +147,6 @@
       "description": "Selbst gehostete Server melden ihre Zahlen selbst, diese können nicht überprüft werden. Schalte dies ein, um nur gehostete Scans zu werten."
     },
     "selfHostedBadge": "Selbst gehostet"
-  },
-  "views": {
-    "overview": "Übersicht",
-    "staff": "Team",
-    "accuracy": "Genauigkeit"
-  },
-  "value": {
-    "description": "Täglicher Marktwert von allem, was dir gehört, ohne Karten aus offenen Ankäufen."
   },
   "highlights": {
     "title": "Auf einen Blick"

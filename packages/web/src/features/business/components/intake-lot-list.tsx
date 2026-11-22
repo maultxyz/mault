@@ -17,6 +17,7 @@ export function IntakeLotList({
   isLoading,
   onSelect,
   search = "",
+  isFiltered = false,
 }: IntakeLotListProps) {
   const { t } = useTranslation("business");
 
@@ -31,12 +32,16 @@ export function IntakeLotList({
   }
 
   if (lots.length === 0) {
-    return search ? (
+    return search || isFiltered ? (
       <EmptyState
         size="compact"
         icon={IconCash}
         title={t("search.noResultsTitle")}
-        description={t("search.noResultsDescription", { query: search })}
+        description={
+          search
+            ? t("search.noResultsDescription", { query: search })
+            : t("filters.noMatchesDescription")
+        }
       />
     ) : (
       <EmptyState

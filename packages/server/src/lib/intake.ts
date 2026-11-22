@@ -188,12 +188,12 @@ export async function findIntakeLot(
 }
 
 export function manualIntakeOffer(
-  row: { acquisitionCost: number | null; acquisitionCurrency: string | null },
+  row: { intakeOffer: number | null; intakeOfferCurrency: string | null },
   pricing: OrgPricing,
 ): number | null {
-  return row.acquisitionCost !== null &&
-    row.acquisitionCurrency === PRICE_SOURCE_FIELDS[pricing.source].currency
-    ? row.acquisitionCost
+  return row.intakeOffer !== null &&
+    row.intakeOfferCurrency === PRICE_SOURCE_FIELDS[pricing.source].currency
+    ? row.intakeOffer
     : null;
 }
 
@@ -231,7 +231,8 @@ export async function loadIntakeLotCards(
       scannedAt: collectionCards.scannedAt,
       price: scannedCardPriceSql(pricing),
       acquisitionCost: collectionCards.acquisitionCost,
-      acquisitionCurrency: collectionCards.acquisitionCurrency,
+      intakeOffer: collectionCards.intakeOffer,
+      intakeOfferCurrency: collectionCards.intakeOfferCurrency,
       collectionLang: collections.lang,
       gameKey: games.key,
     })
@@ -298,8 +299,8 @@ export async function loadIntakeLotCardPrices(
       lotId: collectionCards.intakeLotId,
       scanId: collectionCards.guid,
       price: collectionCardPriceSql(pricing),
-      acquisitionCost: collectionCards.acquisitionCost,
-      acquisitionCurrency: collectionCards.acquisitionCurrency,
+      intakeOffer: collectionCards.intakeOffer,
+      intakeOfferCurrency: collectionCards.intakeOfferCurrency,
     })
     .from(collectionCards)
     .innerJoin(collections, eq(collections.id, collectionCards.collectionId))

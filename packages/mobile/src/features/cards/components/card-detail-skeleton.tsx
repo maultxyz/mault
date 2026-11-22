@@ -9,23 +9,14 @@ import {
   CARD_DETAIL_SKELETON_PRICE_ROWS,
 } from "@/lib/constants/cards";
 import { CARD_ASPECT_RATIO } from "@/lib/constants/collections";
-import { BADGE_RADIUS, CARD_ART_RADIUS, CONTROL_RADIUS, FONT_SIZE, SPACING } from "@/lib/constants/theme";
-import { INPUT_HEIGHT, PILL_MIN_HEIGHT } from "@/lib/constants/ui";
+import { BADGE_RADIUS, CARD_ART_RADIUS, FONT_SIZE, SPACING } from "@/lib/constants/theme";
+import { PILL_MIN_HEIGHT } from "@/lib/constants/ui";
 import type { CardDetailSkeletonProps, SkeletonTextLineProps } from "@/lib/interfaces/cards";
 
 function SkeletonTextLine({ fontSize, lineHeight, width }: SkeletonTextLineProps) {
   return (
     <View style={{ height: lineHeight, justifyContent: "center" }}>
       <Skeleton width={width} height={fontSize} />
-    </View>
-  );
-}
-
-export function PricePaidFieldSkeleton() {
-  return (
-    <View style={{ gap: SPACING.xs + 2 }}>
-      <SkeletonTextLine fontSize={FONT_SIZE.xs} lineHeight={Math.round(FONT_SIZE.xs * 1.45)} width="40%" />
-      <Skeleton height={INPUT_HEIGHT} radius={CONTROL_RADIUS} />
     </View>
   );
 }

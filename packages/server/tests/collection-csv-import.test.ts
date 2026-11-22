@@ -20,6 +20,7 @@ function importRow(overrides: Partial<CollectionCsvImportRow>): CollectionCsvImp
     isFoil: null,
     condition: null,
     language: null,
+    cost: null,
     ...overrides,
   };
 }
@@ -56,6 +57,7 @@ describe("parseCollectionCsv", () => {
       isFoil: true,
       condition: "LP",
       language: "en",
+      cost: null,
     });
     assert.equal(parsed.rows[1].isFoil, true);
     assert.equal(parsed.rows[1].language, "de");
@@ -78,6 +80,7 @@ describe("parseCollectionCsv", () => {
     assert.equal(manabox.format, "manabox");
     assert.equal(manabox.rows[0].condition, "NM");
     assert.equal(manabox.rows[0].isFoil, false);
+    assert.equal(manabox.rows[0].cost, 0.5);
 
     const deckbox = parseCollectionCsv(
       "Count,Tradelist Count,Name,Edition,Edition Code,Card Number,Condition,Language,Foil,Signed,Artist Proof,Altered Art,Misprint,Promo,Textless,Printing Id,Printing Note,Tags,My Price\n4,0,Island,Unlimited Edition,2ED,293,Good (Lightly Played),English,,,,,,,,,,,",

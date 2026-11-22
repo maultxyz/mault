@@ -49,7 +49,7 @@
     "saved": "Business-Einstellungen gespeichert",
     "saveFailed": "Business-Einstellungen konnten nicht gespeichert werden",
     "buylist": {
-      "heading": "Ankaufsangebote",
+      "heading": "Ankaufspreise",
       "description": "Wie viel du beim Ankauf einer Sammlung für jede Karte bietest. Angebote nutzen deine Preisquelle und Zustandswerte.",
       "tiers": "Preisstufen",
       "minPrice": "Marktwert ab",
@@ -86,10 +86,136 @@
         "label": "Aktivität des Teams sehen",
         "description": "Durchsatz pro Person und das Aktivitätsprotokoll."
       }
+    },
+    "sell": {
+      "heading": "Verkaufspreise",
+      "description": "So bepreisen deine Shop-Kataloge und Preisetiketten Karten: Marktpreis plus deine Marge, danach gerundet. Eine andere Marge oder einen Festpreis legst du für ausgewählte Karten mit Preise festlegen fest.",
+      "defaultMarkup": "Standardmarge (%)",
+      "defaultMarkupHint": "Wird auf den Marktpreis aufgeschlagen. Eine negative Zahl gibt einen Rabatt.",
+      "rounding": "Preise runden",
+      "roundingModes": {
+        "none": "Nicht runden",
+        "quarter": "Auf die nächsten 0,25 aufrunden",
+        "ninetyNine": "Auf die nächsten ,99 aufrunden",
+        "whole": "Auf den nächsten ganzen Betrag aufrunden"
+      },
+      "preview": "Beispielhafte Verkaufspreise",
+      "previewItem": "Karte für {{market}} kostet {{price}}"
+    }
+  },
+  "overview": {
+    "back": "Übersicht",
+    "title": "An- & Verkauf",
+    "description": "Was bei Ankauf, Picks und Reservierungen ansteht.",
+    "cards_one": "{{count}} Karte",
+    "cards_other": "{{count}} Karten",
+    "intake": {
+      "description": "Karten von Kunden ankaufen. Einscannen, ein Angebot machen, dann annehmen.",
+      "empty": "Kein offener Ankauf.",
+      "link": "Zum Ankauf"
+    },
+    "picks": {
+      "description": "Verkaufte Karten aus dem Lager ziehen und den Verkauf abschließen.",
+      "empty": "Keine offenen Picks.",
+      "progress": "{{picked}} von {{total}} gepickt",
+      "link": "Zu den Picks"
+    },
+    "reservations": {
+      "description": "Karten, die Kunden in deinen Shop-Katalogen reserviert haben.",
+      "link": "Zu den Reservierungen"
+    },
+    "labels": {
+      "description": "Preisetiketten für eine Sammlung, einen Lagerort oder einen Ankauf drucken.",
+      "link": "Zu den Etiketten"
+    },
+    "views": {
+      "overview": "Übersicht",
+      "staff": "Team",
+      "accuracy": "Genauigkeit"
+    },
+    "now": {
+      "heading": "Aktuell"
+    },
+    "share": "{{percent}} %",
+    "tiles": {
+      "openIntake": "Offener Ankauf",
+      "openPicks": "Offene Picks",
+      "cardsToPick": "Karten zu picken",
+      "readyToComplete_one": "{{count}} abschlussbereit",
+      "readyToComplete_other": "{{count}} abschlussbereit",
+      "requests_one": "{{count}} Anfrage",
+      "requests_other": "{{count}} Anfragen",
+      "beingPicked_one": "{{count}} wird gepickt",
+      "beingPicked_other": "{{count}} werden gepickt",
+      "soldCards": "Verkaufte Karten",
+      "perDay": "Im Schnitt {{count}} pro Tag",
+      "revenue": "Umsatz",
+      "averageSale": "{{value}} pro Karte"
+    },
+    "sales": {
+      "heading": "Letzte {{days}} Tage",
+      "title": "Verkäufe",
+      "description": "Verkaufte Karten pro Tag in den letzten {{days}} Tagen, aus Picks und abgeholten Reservierungen.",
+      "metrics": {
+        "count": "Karten",
+        "revenue": "Umsatz"
+      },
+      "today": "Heute"
+    },
+    "attention": {
+      "heading": "Zu erledigen",
+      "readyForPickup": {
+        "title_one": "{{count}} Reservierung abholbereit",
+        "title_other": "{{count}} Reservierungen abholbereit",
+        "detail": "Gib dem Kunden Bescheid oder markiere sie bei der Abholung als abgeholt."
+      },
+      "readyToComplete": {
+        "title_one": "{{count}} Pick abschlussbereit",
+        "title_other": "{{count}} Picks abschlussbereit",
+        "detail": "Alle Karten sind gepickt. Schließe ab, um den Verkauf zu erfassen."
+      },
+      "toPull": {
+        "title_one": "{{count}} Reservierung zu ziehen",
+        "title_other": "{{count}} Reservierungen zu ziehen",
+        "detail": "Erstelle einen Pick, um die zurückgelegten Karten zu ziehen."
+      },
+      "openIntake": {
+        "title_one": "{{count}} offener Ankauf",
+        "title_other": "{{count}} offene Ankäufe",
+        "detail": "Karten prüfen, ein Angebot machen, dann annehmen."
+      },
+      "allClear": {
+        "title": "Alles erledigt",
+        "detail": "Gerade gibt es nichts zu tun."
+      }
+    },
+    "reservationsChart": {
+      "title": "Reservierungen nach Stand",
+      "description": "Offene Reservierungsanfragen und wo jede gerade steht.",
+      "none": "Keine offenen Reservierungen.",
+      "requests_one": "Anfrage",
+      "requests_other": "Anfragen"
+    },
+    "inventory": {
+      "heading": "Bestandskosten",
+      "value": "Bestandswert",
+      "uncosted": "Karten ohne Kosten",
+      "uncostedDetail": "Kosten eintragen, um sie in Margen einzubeziehen",
+      "historyDescription": "Täglicher Marktwert von allem, was du besitzt, ohne Karten in offenen Ankäufen.",
+      "collectionsTitle": "Kosten nach Sammlung",
+      "collectionsDescription": "Was du für jede Sammlung bezahlt hast, verglichen mit ihrem aktuellen Wert.",
+      "rowSummary": "Wert {{value}}, Kosten {{cost}}",
+      "columns": {
+        "name": "Sammlung",
+        "cardCount": "Karten",
+        "totalValue": "Wert",
+        "costBasis": "Kosten",
+        "margin": "Marge"
+      },
+      "setCostsHint": "Um festzuhalten, was du bezahlt hast, wähle Karten in einer Sammlung aus und nutze Preise festlegen."
     }
   },
   "views": {
-    "label": "Ankauf- und Verkaufsansicht",
     "intake": "Ankauf",
     "picks": "Picks",
     "labels": "Etiketten",
@@ -293,6 +419,15 @@
     "fulfilDescription_one": "Entfernt {{count}} Karte aus dem Bestand, weil sie mit der Bestellung rausgeht.",
     "fulfilDescription_other": "Entfernt {{count}} Karten aus dem Bestand, weil sie mit der Bestellung rausgehen.",
     "fulfilled": "Pick abgeschlossen",
+    "reservationPrompt": {
+      "title_one": "Reservierung öffnen?",
+      "title_other": "Reservierungen öffnen?",
+      "description_one": "Dieser Pick war für eine Reservierung. Die Karten liegen jetzt zur Abholung bereit, du kannst dem Kunden Bescheid geben oder sie als abgeholt markieren.",
+      "description_other": "Diese Picks waren für {{count}} Reservierungen. Die Karten liegen jetzt zur Abholung bereit, du kannst den Kunden Bescheid geben oder sie als abgeholt markieren.",
+      "confirm_one": "Reservierung öffnen",
+      "confirm_other": "Reservierungen öffnen",
+      "stay": "Hierbleiben"
+    },
     "cancel": "Pick abbrechen",
     "cancelTitle": "Pick abbrechen",
     "cancelDescription": "Die Karten bleiben im Bestand und stehen anderen Picks zur Verfügung.",
@@ -542,37 +677,17 @@
     "fulfilDescriptionWithReservations_other": "{{count}} reservierte Karten werden als abholbereit markiert und bleiben im Bestand, bis sie abgeholt werden. Nicht reservierte Karten verlassen den Bestand: {{removed}}.",
     "reservationCardsNote": "Für Reservierungen zurückgelegte Karten bleiben im Bestand und werden als abholbereit markiert."
   },
-  "cost": {
-    "title": "Einkaufspreis festlegen",
-    "description": "Erfasse, was du für die Karten in {{name}} bezahlt hast.",
-    "mode": "Betrag ist",
-    "modes": {
-      "spread": "Gesamtbetrag",
-      "each": "Pro Karte"
-    },
-    "modeHints": {
-      "spread": "Wird nach Marktwert auf die Karten verteilt, wertvolle Karten tragen also mehr.",
-      "each": "Jede Karte bekommt denselben Einkaufspreis."
-    },
-    "amount": "Betrag",
-    "overwrite": "Vorhandene Einkaufspreise ersetzen",
-    "overwriteHint": "Aus: Nur Karten ohne Einkaufspreis werden aktualisiert.",
-    "save": "Festlegen",
-    "saved_one": "Einkaufspreis für {{count}} Karte festgelegt",
-    "saved_other": "Einkaufspreis für {{count}} Karten festgelegt"
-  },
   "reports": {
     "noCostAccess": "Deine Rolle darf keine Kosten und Margen sehen. Bitte einen Inhaber oder Admin, das unter Einstellungen > Business zu erlauben.",
     "inventory": {
       "costBasis": "Einkaufswert",
       "costedCards": "{{percent}} der Karten mit Einkaufspreis",
       "unrealized": "Nicht realisierte Marge",
-      "uncostedNote_one": "{{count}} Karte hat keinen Einkaufspreis, daher zählen Margen nur Karten mit Einkaufspreis. Nutze Einkaufspreis festlegen bei einer Sammlung, um ihn nachzutragen.",
-      "uncostedNote_other": "{{count}} Karten haben keinen Einkaufspreis, daher zählen Margen nur Karten mit Einkaufspreis. Nutze Einkaufspreis festlegen bei einer Sammlung, um ihn nachzutragen.",
+      "uncostedNote_one": "{{count}} Karte hat keinen Einkaufspreis, daher zählen Margen nur Karten mit Einkaufspreis. Wähle Karten in einer Sammlung aus und nutze Preise festlegen, um ihn nachzutragen.",
+      "uncostedNote_other": "{{count}} Karten haben keinen Einkaufspreis, daher zählen Margen nur Karten mit Einkaufspreis. Wähle Karten in einer Sammlung aus und nutze Preise festlegen, um ihn nachzutragen.",
       "history": "Wert im Zeitverlauf",
       "historyEmpty": "Noch zu wenig Verlauf",
-      "historyEmptyDescription": "Der Bestandswert wird einmal am Tag erfasst.",
-      "setCost": "Einkaufspreis festlegen"
+      "historyEmptyDescription": "Der Bestandswert wird einmal am Tag erfasst."
     },
     "staff": {
       "throughput": "Durchsatz",
@@ -592,6 +707,7 @@
       "cardDeleted": "Karte gelöscht",
       "cardsDeleted": "Karten gelöscht",
       "cardsMoved": "Karten verschoben",
+      "cardsSellPriceSet": "Verkaufspreise festgelegt",
       "cardsCleared": "Sammlung geleert",
       "cardsCondition": "Zustand geändert",
       "collectionDeleted": "Sammlung gelöscht",
@@ -615,7 +731,6 @@
       "orderSorterPickCreated": "Sorter-Sammelpick gestartet",
       "orderSorterPickApplied": "Sorter-Sammelpick übernommen",
       "orderSorterPickPresetsCleaned": "Verwendete Sorter-Vorlagen verworfen",
-      "tradeRecorded": "Tausch erfasst",
       "tradeRecorded": "Tausch erfasst",
       "reservationCollected": "Reservierung abgeholt",
       "reservationReleased": "Reservierung freigegeben"
@@ -652,7 +767,6 @@
       "orderSorterPickCreated": "Hat einen Sorter-Sammelpick aus {{summary}} gestartet",
       "orderSorterPickApplied": "Hat einen Sorter-Sammelpick für {{summary}} übernommen",
       "orderSorterPickPresetsCleaned": "Hat {{summary}} verwendete Sorter-Vorlagen verworfen",
-      "tradeRecorded": "Hat einen Tausch vor Ort mit {{summary}} erfasst",
       "tradeRecorded": "Hat einen Tausch vor Ort mit {{summary}} erfasst",
       "reservationCollected": "Reservierung von {{summary}} als abgeholt markiert",
       "reservationReleased": "Reservierung von {{summary}} freigegeben"
@@ -833,13 +947,11 @@
     "printForLot": "Preisetiketten drucken",
     "form": {
       "title": "Etiketten",
-      "description": "Wähle die Karten, ihre Preisgestaltung und den Avery-Bogen, auf den du druckst.",
+      "description": "Wähle die Karten und den Avery-Bogen, auf den du druckst.",
       "source": "Karten aus",
-      "markup": "Aufschlag (%)",
-      "markupHint": "Wird auf den Marktpreis aufgeschlagen. Eine negative Zahl gibt einen Rabatt.",
-      "rounding": "Preise runden",
       "showPrices": "Preise anzeigen",
-      "showPricesHint": "Ausschalten, um Etiketten nur mit der Karte und ihrem Lagercode zu drucken."
+      "showPricesHint": "Ausschalten, um Etiketten nur mit der Karte und ihrem Lagercode zu drucken.",
+      "sellPriceHint": "Etiketten zeigen den Verkaufspreis jeder Karte, festgelegt unter <settingsLink>Einstellungen > Preise</settingsLink> und mit Preise festlegen für ausgewählte Karten. Gib unten einen eigenen Preis ein, um ihn zu überschreiben."
     },
     "sources": {
       "collection": "Sammlung",
@@ -855,12 +967,6 @@
       "collection": "Sammlung wählen",
       "location": "Lagerort wählen",
       "lot": "Ankauf wählen"
-    },
-    "rounding": {
-      "none": "Nicht runden",
-      "quarter": "Auf die nächsten 0,25 aufrunden",
-      "ninetyNine": "Auf die nächsten ,99 aufrunden",
-      "whole": "Auf den nächsten ganzen Betrag aufrunden"
     },
     "cards": {
       "selected_one": "{{count}} von {{total}} Karte ausgewählt",
@@ -984,11 +1090,78 @@
     "createPickFor_one": "Pickliste für 1 Karte erstellen, die für {{name}} zurückgelegt ist",
     "createPickFor_other": "Pickliste für {{count}} Karten erstellen, die für {{name}} zurückgelegt sind"
   },
+  "filters": {
+    "status": "Status",
+    "allStatuses": "Alle Status",
+    "noMatchesDescription": "Nichts passt zu diesem Status."
+  },
   "search": {
     "noResultsTitle": "Keine Treffer",
     "noResultsDescription": "Nichts passt zu \"{{query}}\". Versuche einen anderen Namen oder Begriff.",
     "intakePlaceholder": "Ankäufe nach Kunde oder Notiz durchsuchen",
     "picksPlaceholder": "Picklisten nach Name, Karte oder Bestellung durchsuchen",
     "reservationsPlaceholder": "Nach Kunde, Karte oder Katalog suchen"
+  },
+  "setPrices": {
+    "button": "Preise festlegen",
+    "title_one": "Preise für {{count}} Karte festlegen",
+    "title_other": "Preise für {{count}} Karten festlegen",
+    "description": "Lege fest, wofür diese Karten verkauft werden und was du dafür bezahlt hast.",
+    "tabsLabel": "Festzulegender Preis",
+    "tabs": {
+      "sell": "Verkaufspreis",
+      "cost": "Einkaufspreis"
+    },
+    "sell": {
+      "modeLabel": "Verkaufspreis",
+      "modes": {
+        "default": "Standard verwenden",
+        "markup": "Markt + %",
+        "fixed": "Festpreis"
+      },
+      "markupLabel": "Marge (%)",
+      "fixedLabel": "Preis pro Karte",
+      "example": "Eine Karte im Wert von {{market}} kostet {{price}}.",
+      "fixedExample": "Jede Karte kostet {{price}}, egal wie sich der Markt entwickelt.",
+      "defaultHint": "Folgt der Standardmarge von {{percent}} % aus Einstellungen > Preise.",
+      "apply_one": "Verkaufspreis für {{count}} Karte festlegen",
+      "apply_other": "Verkaufspreis für {{count}} Karten festlegen",
+      "applied_one": "Verkaufspreis für {{count}} Karte festgelegt",
+      "applied_other": "Verkaufspreis für {{count}} Karten festgelegt"
+    },
+    "cost": {
+      "modeLabel": "Betrag ist",
+      "modes": {
+        "each": "Betrag pro Karte",
+        "spread": "Gesamtbetrag nach Wert verteilen"
+      },
+      "modeHints": {
+        "each": "Jede Karte bekommt denselben Einkaufspreis.",
+        "spread": "Wird nach Marktwert auf die Karten verteilt, wertvolle Karten tragen also mehr."
+      },
+      "amountLabels": {
+        "each": "Einkaufspreis pro Karte",
+        "spread": "Gesamtbetrag"
+      },
+      "intakeNote": "Karten in einem offenen oder abgebrochenen Ankauf werden übersprungen. Lege ihr Angebot stattdessen im Ankauf fest.",
+      "apply_one": "Einkaufspreis für {{count}} Karte festlegen",
+      "apply_other": "Einkaufspreis für {{count}} Karten festlegen",
+      "applied_one": "Einkaufspreis für {{count}} Karte festgelegt",
+      "applied_other": "Einkaufspreis für {{count}} Karten festgelegt"
+    }
+  },
+  "cardPricing": {
+    "heading": "Preise",
+    "market": "Marktpreis",
+    "sell": "Verkaufspreis",
+    "rules": {
+      "default": "Standardmarge ({{percent}})",
+      "markup": "Markt {{percent}}",
+      "fixed": "Festpreis"
+    },
+    "editSellPrice": "Verkaufspreis bearbeiten",
+    "costLabel": "Einkaufspreis ({{currency}})",
+    "intakeOfferLabel": "Ankaufsangebot ({{currency}})",
+    "noCost": "Nicht festgelegt"
   }
 }

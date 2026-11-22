@@ -49,8 +49,6 @@
     "catalogCardRemovedTitle": "Card no longer in the catalog",
     "catalogCardRemovedDescription": "The card this copy was matched to, {{name}}, was removed from the card database because its data was incorrect. Search for the correct printing so its price and details stay up to date.",
     "catalogCardRemovedAction": "Find the correct card",
-    "pricePaid": "Price paid ({{currency}})",
-    "pricePaidEmpty": "Not set",
     "pricePaidSaveFailed": "Couldn't save the price paid.",
     "markCorrect": "Mark as correct",
     "markCorrectTitle": "Confirm this match is right. The card stays the same and is no longer flagged for review.",

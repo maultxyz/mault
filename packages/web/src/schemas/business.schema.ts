@@ -97,14 +97,6 @@ export const orderBinsSchema = (binCount: number) =>
 
 export type OrderBinsFormValues = z.infer<ReturnType<typeof orderBinsSchema>>;
 
-export const collectionCostSchema = z.object({
-  total: businessMoneySchema,
-  mode: z.enum(["spread", "each"]),
-  overwrite: z.boolean(),
-});
-
-export type CollectionCostFormValues = z.infer<typeof collectionCostSchema>;
-
 export const accuracyCheckSchema = z.object({
   sampleSize: z
     .number()

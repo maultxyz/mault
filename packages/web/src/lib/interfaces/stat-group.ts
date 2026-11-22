@@ -8,6 +8,7 @@ export interface StatGroupTile {
   detail?: string | null;
   icon?: Icon;
   onClick?: () => void;
+  to?: string;
 }
 
 export interface StatTileContentProps {

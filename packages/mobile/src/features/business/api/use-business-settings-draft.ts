@@ -8,10 +8,12 @@ import {
   type BusinessSettingsResponse,
   DEFAULT_BUSINESS_PERMISSIONS,
   DEFAULT_BUYLIST_CONFIG,
+  DEFAULT_SELL_PRICE_CONFIG,
   sortBuylistTiers,
 } from "@magic-vault/shared";
 import { businessSettingsQueryOptions, saveBusinessSettings } from "@/features/business/api/business-access";
 import { useActiveOrgId } from "@/hooks/use-org";
+import { BUSINESS_CARD_PRICING_QUERY_KEY } from "@/lib/constants/business";
 import type { BusinessSettingsDraft } from "@/lib/interfaces/business";
 
 export function useBusinessSettingsDraft(): BusinessSettingsDraft {
@@ -21,6 +23,7 @@ export function useBusinessSettingsDraft(): BusinessSettingsDraft {
   const isLoadError = isError && !data;
   const values = useMemo<BusinessSettingsDraftValues>(
     () => ({
+      sell: data?.settings.sell ?? DEFAULT_SELL_PRICE_CONFIG,
       buylist: data?.settings.buylist ?? DEFAULT_BUYLIST_CONFIG,
       permissions: data?.settings.permissions ?? DEFAULT_BUSINESS_PERMISSIONS,
     }),
@@ -37,13 +40,15 @@ export function useBusinessSettingsDraft(): BusinessSettingsDraft {
     setSaveError(false);
     try {
       const saved = await saveBusinessSettings({
+        sell: draft.sell,
         buylist: { ...draft.buylist, tiers: sortBuylistTiers(draft.buylist.tiers) },
         permissions: draft.permissions,
       });
       queryClient.setQueryData(options.queryKey, (current: BusinessSettingsResponse | undefined) =>
         current ? { ...current, settings: saved } : current,
       );
-      form.reset({ buylist: saved.buylist, permissions: saved.permissions });
+      form.reset({ sell: saved.sell, buylist: saved.buylist, permissions: saved.permissions });
+      void queryClient.invalidateQueries({ queryKey: BUSINESS_CARD_PRICING_QUERY_KEY });
     } catch {
       setSaveError(true);
     }
@@ -52,6 +57,7 @@ export function useBusinessSettingsDraft(): BusinessSettingsDraft {
   return {
     control: form.control,
     canManage: !!data?.access.canManageSettings,
+    hasBusinessTools: !!data && !data.access.isLocked,
     isLoading: !data && !isLoadError,
     isLoadError,
     isRetryingLoad: isLoadError && isFetching,

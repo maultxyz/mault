@@ -52,7 +52,7 @@ import { useToast } from "@/components/ui/toast-provider";
 import { usePrefetchCardDetails } from "@/features/cards/api/use-prefetch-card-details";
 import { BinLocationDiagram } from "@/features/cards/components/bin-location-diagram";
 import { CandidateStrip } from "@/features/cards/components/candidate-strip";
-import { CardDetailSkeleton, PricePaidFieldSkeleton } from "@/features/cards/components/card-detail-skeleton";
+import { CardDetailSkeleton } from "@/features/cards/components/card-detail-skeleton";
 import type {
   CardDetailSheet,
   CardReviewAccept,
@@ -67,7 +67,11 @@ import { CardCorrectionSearch } from "@/features/cards/components/card-correctio
 import { CardDetailArt, CardImageFrame } from "@/features/cards/components/card-detail-art";
 import { CardDetailInfoSections } from "@/features/cards/components/card-detail-info-sections";
 import { CardDetailTitleBlock } from "@/features/cards/components/card-detail-title-block";
-import { cardAcquisitionCostQueryOptions, setCardAcquisitionCost } from "@/features/business/api/card-cost";
+import { businessAccessQueryOptions } from "@/features/business/api/business-access";
+import { setCardAcquisitionCost } from "@/features/business/api/card-cost";
+import { cardPricingQueryOptions } from "@/features/business/api/card-pricing";
+import { CardPricingSection } from "@/features/business/components/card-pricing-section";
+import { CardSellPriceSheet } from "@/features/business/components/card-sell-price-sheet";
 import {
   cachedCollectionCardPosition,
   cardScanOriginQueryOptions,
@@ -134,7 +138,18 @@ export default function CardDetailScreen() {
   const storage = useQuery(cardStorageLocationQueryOptions(guid, scanId));
   const activeOrgId = useActiveOrgId();
   const collections = useQuery(collectionsQueryOptions(activeOrgId));
-  const acquisitionCost = useQuery(cardAcquisitionCostQueryOptions(activeOrgId, scanId));
+  const businessAccess = useQuery(businessAccessQueryOptions(activeOrgId));
+  const hasBusinessTools = !!businessAccess.data && !businessAccess.data.isLocked;
+  const canViewCosts = hasBusinessTools && !!businessAccess.data?.canViewCosts;
+  const canEditSellRule = hasBusinessTools && !!businessAccess.data?.canManageSettings;
+  const cardPricing = useQuery(cardPricingQueryOptions(activeOrgId, scanId, hasBusinessTools));
+  const savedBuyPrice =
+    canViewCosts && cardPricing.data
+      ? cardPricing.data.isInOpenIntake
+        ? cardPricing.data.intakeOffer
+        : cardPricing.data.cost
+      : null;
+  const [isSellPriceSheetOpen, setIsSellPriceSheetOpen] = useState(false);
   const correction = useCardCorrection(guid);
   const [editing, setEditing] = useState(false);
   const [matchesOpenState, setMatchesOpenState] = useState<MatchesOpenState | null>(null);
@@ -190,10 +205,10 @@ export default function CardDetailScreen() {
             stamp: entry.stamp ?? null,
             condition: entry.condition ?? DEFAULT_CARD_CONDITION,
             language: scanLanguage(entry),
-            acquisitionCost: acquisitionCost.data?.cost ?? null,
+            acquisitionCost: savedBuyPrice,
           }
         : undefined,
-    [entry, gameFoilOptions, acquisitionCost.data],
+    [entry, gameFoilOptions, savedBuyPrice],
   );
   const form = useForm<ScanDraftFormValues>({
     resolver: zodResolver(scanDraftFormSchema),
@@ -254,7 +269,7 @@ export default function CardDetailScreen() {
     },
     onSettled: () => {
       invalidateCollectionCardsAfterEdits(queryClient, guid);
-      void queryClient.invalidateQueries({ queryKey: cardAcquisitionCostQueryOptions(activeOrgId, scanId).queryKey });
+      void queryClient.invalidateQueries({ queryKey: cardPricingQueryOptions(activeOrgId, scanId, hasBusinessTools).queryKey });
     },
   });
 
@@ -808,19 +823,33 @@ export default function CardDetailScreen() {
                 foilType={draftFoil}
                 stamp={draftStamp}
                 condition={draftCondition}
-                priceExtras={
-                  entry && acquisitionCost.data ? (
-                    <DecimalTextField
-                      label={t("cardDetail.pricePaid", { currency: acquisitionCost.data.currency })}
-                      placeholder={t("cardDetail.pricePaidEmpty")}
-                      value={form.watch("acquisitionCost")}
-                      onChange={(cost) => form.setValue("acquisitionCost", cost, { shouldDirty: true })}
-                      error={
-                        errors.acquisitionCost ? translateFormErrorMessage(t, errors.acquisitionCost.message) : undefined
-                      }
-                    />
-                  ) : entry && billing.data?.businessTools && acquisitionCost.isLoading ? (
-                    <PricePaidFieldSkeleton />
+              />
+            ) : null}
+
+            {entry && hasBusinessTools ? (
+              <CardPricingSection
+                pricing={cardPricing.data}
+                isLoading={cardPricing.isFetching}
+                isLoadError={cardPricing.isError}
+                onRetryLoad={() => void cardPricing.refetch()}
+                canEditSellRule={canEditSellRule}
+                onEditSellRule={() => setIsSellPriceSheetOpen(true)}
+                costField={
+                  canViewCosts && cardPricing.data ? (
+                    <Surface>
+                      <DecimalTextField
+                        label={t(
+                          cardPricing.data.isInOpenIntake ? "cardDetail.pricing.intakeOffer" : "cardDetail.pricing.cost",
+                          { currency: cardPricing.data.currency },
+                        )}
+                        placeholder={t("cardDetail.pricePaidEmpty")}
+                        value={form.watch("acquisitionCost")}
+                        onChange={(cost) => form.setValue("acquisitionCost", cost, { shouldDirty: true })}
+                        error={
+                          errors.acquisitionCost ? translateFormErrorMessage(t, errors.acquisitionCost.message) : undefined
+                        }
+                      />
+                    </Surface>
                   ) : null
                 }
               />
@@ -868,6 +897,13 @@ export default function CardDetailScreen() {
         )}
       </PinnedActionsLayout>
 
+      {cardPricing.data && canEditSellRule ? (
+        <CardSellPriceSheet
+          visible={isSellPriceSheetOpen}
+          pricing={cardPricing.data}
+          onClose={() => setIsSellPriceSheetOpen(false)}
+        />
+      ) : null}
       <OptionSheet
         visible={sheet === "actions"}
         title={t("cardDetail.actions")}

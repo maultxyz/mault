@@ -14,7 +14,13 @@ import {
 } from "@/features/business/lib/active-pick-batch";
 import { toast } from "@/lib/toast";
 import { useHotkeys } from "@/hooks/use-hotkeys";
-import { BUSINESS_LIST_SEARCH_MAX_LENGTH, type FulfilmentOrder } from "@magic-vault/shared";
+import {
+  BUSINESS_LIST_SEARCH_MAX_LENGTH,
+  FULFILMENT_ORDER_STATUSES,
+  type FulfilmentOrder,
+  type FulfilmentOrderStatus,
+} from "@magic-vault/shared";
+import { BusinessListFilters, BusinessStatusFilter } from "@/features/business/components/business-status-filter";
 import { useRef, useState } from "react";
 import type { SelectToggleOptions } from "@/lib/interfaces/cards";
 import {
@@ -42,13 +48,14 @@ import { useServerPagedList } from "@/hooks/use-server-paged-list";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
-export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
+export function OrdersWorkspace({ backToOverview }: OrdersWorkspaceProps) {
   const { t } = useTranslation("business");
   const isMobile = useIsMobile();
   const { orgId, access } = useBusinessAccess();
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedParam = searchParams.get(ORDER_PARAM);
   const [listSearch, setListSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState<FulfilmentOrderStatus | null>(null);
   const debouncedListSearch = useDebouncedValue(listSearch.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
   const {
     items: orders,
@@ -60,13 +67,26 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
     (request) => ordersQueryOptions(orgId, request),
     selectedParam,
     debouncedListSearch,
+    statusFilter ?? "",
   );
   const listSearchInput = (
-    <ListSearchInput
-      value={listSearch}
-      onChange={setListSearch}
-      placeholder={t("search.picksPlaceholder")}
-      maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
+    <BusinessListFilters
+      search={
+        <ListSearchInput
+          value={listSearch}
+          onChange={setListSearch}
+          placeholder={t("search.picksPlaceholder")}
+          maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
+        />
+      }
+      filter={
+        <BusinessStatusFilter<FulfilmentOrderStatus>
+          statuses={FULFILMENT_ORDER_STATUSES}
+          value={statusFilter}
+          onChange={setStatusFilter}
+          labelOf={(status) => t(`status.${status}`)}
+        />
+      }
     />
   );
   const selectedGuid = isMobile
@@ -195,7 +215,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
           )}
         >
           <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
-            {switcher}
+            {backToOverview}
             {resumeBatch}
             {access?.isLocked && <BusinessUpgradeCallout />}
             {listSearchInput}
@@ -208,6 +228,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
               checkedOrderGuids={checkedOrderGuids}
               onToggleOrderChecked={toggleOrderChecked}
               search={debouncedListSearch}
+              isFiltered={statusFilter !== null}
             />
             {selectionBar()}
           </div>
@@ -220,7 +241,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
     <div className="flex flex-1 min-h-0 flex-col overflow-hidden">
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
-          {switcher}
+          {backToOverview}
           <Button
             variant="outline"
             className="w-full"
@@ -242,6 +263,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
             checkedOrderGuids={checkedOrderGuids}
             onToggleOrderChecked={toggleOrderChecked}
             search={debouncedListSearch}
+            isFiltered={statusFilter !== null}
           />
         </section>
         <section className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 md:gap-2 md:px-3 md:py-2 lg:col-span-9">

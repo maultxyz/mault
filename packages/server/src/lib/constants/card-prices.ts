@@ -33,6 +33,7 @@ export const SHARE_LINK_HIDDEN_PRICE_KEYS: ReadonlySet<string> = new Set([
   "pricesAtScan",
   "acquisitionCost",
   "acquisitionCurrency",
+  "sellPrice",
 ]);
 
 export const CARD_PRICE_REFRESH_BATCH_SIZE = 1000;

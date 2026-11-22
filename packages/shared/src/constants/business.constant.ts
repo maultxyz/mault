@@ -1,3 +1,4 @@
+import type { SellPriceConfig } from "../interfaces/business.interface";
 import type {
   ActivityAction,
   BuylistConfig,
@@ -115,6 +116,7 @@ export const ACTIVITY_ACTIONS = [
   "card.deleted",
   "cards.deleted",
   "cards.moved",
+  "cards.sellPriceSet",
   "cards.cleared",
   "cards.condition",
   "collection.deleted",
@@ -173,6 +175,7 @@ export const ACTIVITY_ACTION_KEYS: Record<ActivityAction, string> = {
   "card.deleted": "cardDeleted",
   "cards.deleted": "cardsDeleted",
   "cards.moved": "cardsMoved",
+  "cards.sellPriceSet": "cardsSellPriceSet",
   "cards.cleared": "cardsCleared",
   "cards.condition": "cardsCondition",
   "collection.deleted": "collectionDeleted",
@@ -201,6 +204,9 @@ export const ACTIVITY_ACTION_KEYS: Record<ActivityAction, string> = {
   "reservation.released": "reservationReleased",
 };
 export const BUSINESS_LIST_SEARCH_PARAM = "q";
+export const BUSINESS_LIST_STATUS_PARAM = "status";
+export const INTAKE_LOT_STATUSES = ["open", "accepted", "cancelled"] as const;
+export const FULFILMENT_ORDER_STATUSES = ["open", "fulfilled", "cancelled"] as const;
 export const BUSINESS_LIST_SEARCH_MAX_LENGTH = 100;
 export const PAGED_LIST_DEFAULT_SIZE = 20;
 export const PAGED_LIST_MAX_SIZE = 100;
@@ -228,3 +234,15 @@ export const ORDER_PICK_SEARCH_PARAM = "order";
 export const ORDER_PICK_ORG_SEARCH_PARAM = "org";
 export const ORDER_PICK_LINK_MAX_ORDERS = 50;
 export const INTAKE_TRANSFER_NEW_COLLECTION_OPTION = "__new__";
+
+export const BUSINESS_OVERVIEW_LATEST_ITEMS = 4;
+export const BUSINESS_OVERVIEW_SALES_DAYS = 30;
+
+export const PRICE_MARKUP_PERCENT_MIN = -90;
+export const PRICE_MARKUP_PERCENT_MAX = 1000;
+export const SELL_PRICE_MODES = ["default", "markup", "fixed"] as const;
+export const CARD_COST_MODES = ["each", "spread"] as const;
+export const DEFAULT_SELL_PRICE_CONFIG: SellPriceConfig = {
+  defaultMarkupPercent: 0,
+  rounding: "none",
+};

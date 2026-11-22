@@ -1,4 +1,5 @@
 export const DECIMAL_INPUT_PATTERN = /^\d*\.?\d{0,2}$/;
+export const SIGNED_DECIMAL_INPUT_PATTERN = /^-?\d*\.?\d{0,2}$/;
 export const BUTTON_HEIGHTS = { sm: 34, md: 44, lg: 52 } as const;
 export const IOS_BUTTON_CONTROL_SIZES = { sm: "small", md: "large", lg: "extraLarge" } as const;
 export const IOS_BUTTON_LABEL_FONT_SIZES = { sm: 15, md: 17, lg: 17 } as const;

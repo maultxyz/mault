@@ -1,6 +1,7 @@
 import {
   toBusinessPermissions,
   toBuylistConfig,
+  toSellPriceConfig,
   type BusinessAccess,
   type BusinessPermissionKey,
   type BusinessSettings,
@@ -40,10 +41,11 @@ export function loadBusinessSettings(
     async () => {
       const row = await runner.query.orgSettings.findFirst({
         where: eq(orgSettings.orgId, orgId),
-        columns: { buylistConfig: true, businessPermissions: true },
+        columns: { buylistConfig: true, sellConfig: true, businessPermissions: true },
       });
       return {
         buylist: toBuylistConfig(row?.buylistConfig),
+        sell: toSellPriceConfig(row?.sellConfig),
         permissions: toBusinessPermissions(row?.businessPermissions),
       };
     },

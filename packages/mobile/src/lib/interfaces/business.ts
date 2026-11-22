@@ -1,6 +1,8 @@
+import type { ReactNode } from "react";
 import type { Control } from "react-hook-form";
 import type {
   BusinessSettingsDraftValues,
+  CardPricing,
   CardReservationRequestGroup,
   FulfilmentOrder,
   FulfilmentOrderDetail,
@@ -34,8 +36,19 @@ export interface PickWalk {
   setPicked: (scanIds: string[], isPicked: boolean) => void;
 }
 
+export interface BusinessOverviewViewProps {
+  onOpenView: (view: BusinessView) => void;
+}
+
 export interface BusinessListViewProps {
   canAct: boolean;
+}
+
+export interface BusinessStatusFilterProps<T extends string> {
+  statuses: readonly T[];
+  value: T | null;
+  onChange: (value: T | null) => void;
+  labelOf: (status: T) => string;
 }
 
 export interface BusinessListSearchProps {
@@ -104,6 +117,7 @@ export interface PickWalkNextCardProps {
 export interface BusinessSettingsDraft {
   control: Control<BusinessSettingsDraftValues>;
   canManage: boolean;
+  hasBusinessTools: boolean;
   isLoading: boolean;
   isLoadError: boolean;
   isRetryingLoad: boolean;
@@ -118,4 +132,20 @@ export interface BusinessSettingsDraft {
 export interface BusinessSettingsFormProps {
   control: Control<BusinessSettingsDraftValues>;
   disabled: boolean;
+}
+
+export interface CardPricingSectionProps {
+  pricing: CardPricing | undefined;
+  isLoading: boolean;
+  isLoadError: boolean;
+  onRetryLoad: () => void;
+  costField: ReactNode;
+  canEditSellRule: boolean;
+  onEditSellRule: () => void;
+}
+
+export interface CardSellPriceSheetProps {
+  visible: boolean;
+  pricing: CardPricing;
+  onClose: () => void;
 }

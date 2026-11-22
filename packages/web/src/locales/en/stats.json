@@ -71,9 +71,7 @@
       "totalValue": "Value",
       "avgValue": "Avg card",
       "scansInRange": "Scanned",
-      "lastScanAt": "Last scan",
-      "costBasis": "Cost",
-      "margin": "Margin"
+      "lastScanAt": "Last scan"
     }
   },
   "prices": {
@@ -149,14 +147,6 @@
       "description": "Self-hosted servers report their own counts, which can't be verified. Turn this on to rank hosted scans only."
     },
     "selfHostedBadge": "Self-hosted"
-  },
-  "views": {
-    "overview": "Overview",
-    "staff": "Staff",
-    "accuracy": "Accuracy"
-  },
-  "value": {
-    "description": "Daily market value of everything you own, with cards in open intakes left out."
   },
   "highlights": {
     "title": "Highlights"

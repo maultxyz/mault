@@ -1,3 +1,5 @@
+import type { CARD_COST_MODES, SELL_PRICE_MODES } from "../constants/business.constant";
+import type { PriceLabelRoundingMode } from "./price-labels.interface";
 import type {
   ORDER_BULK_ACTIONS,
   ORDER_SUBSTITUTE_DIFFERENCES,
@@ -30,8 +32,14 @@ export type BusinessPermissionKey = (typeof BUSINESS_PERMISSION_KEYS)[number];
 
 export type BusinessPermissions = Record<BusinessPermissionKey, boolean>;
 
+export interface SellPriceConfig {
+  defaultMarkupPercent: number;
+  rounding: PriceLabelRoundingMode;
+}
+
 export interface BusinessSettings {
   buylist: BuylistConfig;
+  sell: SellPriceConfig;
   permissions: BusinessPermissions;
 }
 
@@ -282,6 +290,7 @@ export interface FulfilmentOrderDetail extends FulfilmentOrder {
   lines: OrderLine[];
   pullSheet: PullSheetEntry[];
   reservationHeldScanIds?: string[];
+  reservationRequestGuids?: string[];
   orderBins: OrderBins;
   binCount: number;
 }
@@ -572,4 +581,95 @@ export interface OrderSubstituteCandidate {
   collectorNumber: string | null;
   condition: CardCondition;
   isFoil: boolean;
+}
+
+export interface BusinessOverviewIntakeLot {
+  guid: string;
+  customerName: string;
+  cardCount: number;
+  createdAt: string;
+}
+
+export interface BusinessOverviewPick {
+  guid: string;
+  name: string;
+  quantity: number;
+  picked: number;
+  createdAt: string;
+}
+
+export interface BusinessOverviewReservations {
+  readyForPickup: number;
+  toPull: number;
+  beingPicked: number;
+  waiting: number;
+}
+
+export interface BusinessOverviewSalesDay {
+  day: string;
+  cardCount: number;
+  revenue: number | null;
+}
+
+export interface BusinessOverviewSales {
+  cardCount: number;
+  total: number | null;
+  currency: string;
+  history: BusinessOverviewSalesDay[];
+}
+
+export interface BusinessOverview {
+  intake: {
+    openLotCount: number;
+    openCardCount: number;
+    latestOpenLots: BusinessOverviewIntakeLot[];
+  };
+  picks: {
+    openPickCount: number;
+    cardsToPick: number;
+    readyToCompleteCount: number;
+    latestOpenPicks: BusinessOverviewPick[];
+  };
+  reservations: BusinessOverviewReservations | null;
+  sales: BusinessOverviewSales;
+}
+
+export type BusinessOverviewAttentionKey =
+  | "readyForPickup"
+  | "readyToComplete"
+  | "toPull"
+  | "openIntake";
+
+export type BusinessOverviewSection = "intake" | "picks" | "reservations";
+
+export interface BusinessOverviewAttentionItem {
+  key: BusinessOverviewAttentionKey;
+  count: number;
+  section: BusinessOverviewSection;
+}
+
+export type SellPriceMode = (typeof SELL_PRICE_MODES)[number];
+
+export type CardCostMode = (typeof CARD_COST_MODES)[number];
+
+export interface CardSellRule {
+  markupPercent: number | null;
+  fixedPrice: number | null;
+  fixedCurrency: string | null;
+}
+
+export interface CardPricing {
+  scanId: string;
+  currency: string;
+  marketPrice: number | null;
+  sellPrice: number | null;
+  sellRule: CardSellRule;
+  defaultMarkupPercent: number;
+  isInOpenIntake: boolean;
+  intakeOffer: number | null;
+  cost: number | null;
+}
+
+export interface CardPricesUpdateResult {
+  updated: number;
 }

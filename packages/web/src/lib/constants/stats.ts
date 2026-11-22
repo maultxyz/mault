@@ -18,11 +18,6 @@ export const STATS_COLLECTION_TABLE_COLUMNS = [
   "lastScanAt",
 ] as const;
 export const STATS_BAR_LIST_LIMIT = 10;
-export const STATS_COLLECTION_COST_COLUMNS = ["costBasis", "margin"] as const;
-export const STATS_VIEW_PARAM = "view";
-export const STATS_OVERVIEW_VIEW = "overview";
-export const STATS_VIEWS = [STATS_OVERVIEW_VIEW, "staff", "accuracy"] as const;
-export const STATS_CHECK_PARAM = "check";
 export const STATS_CHART_GRID_FRACTIONS = [0, 0.5, 1];
 export const STATS_AREA_CHART = { width: 600, height: 200, top: 36, pillEdgePercent: 6 };
 export const STATS_HERO_SPARKLINE = { width: 600, height: 240, top: 110, lineHeight: 90 };
