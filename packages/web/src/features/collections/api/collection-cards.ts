@@ -13,6 +13,7 @@ import type {
   ScanTimelineGrouping,
 } from "@magic-vault/shared";
 import {
+  COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM,
   COLLECTION_CARDS_PAGE_SIZE,
   COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS,
   COLLECTION_CARDS_RAW_CARD_DATA_NONE,
@@ -154,6 +155,36 @@ export const collectionCardsPageQueryOptions = (
       unwrap(
         apiGet<Result<CollectionCardsPage>>(
           `/api/collections/${guid}/cards?${cardsQueryParams(query, { page: String(page), limit: String(pageSize), [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE })}`,
+        ),
+      ),
+    enabled: !!guid,
+    placeholderData: keepPreviousData,
+  });
+
+export const collectionCardGridPageQueryOptions = (
+  guid: string | undefined,
+  query: CollectionCardsQuery,
+  page: number,
+  pageSize: number,
+  includesUnmatchedCards: boolean,
+) =>
+  queryOptions({
+    queryKey: [
+      ...collectionCardsKeys.page(guid, query, page),
+      pageSize,
+      includesUnmatchedCards ? COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM : null,
+    ] as const,
+    queryFn: () =>
+      unwrap(
+        apiGet<Result<CollectionCardsPage>>(
+          `/api/collections/${guid}/cards?${cardsQueryParams(query, {
+            page: String(page),
+            limit: String(pageSize),
+            [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE,
+            ...(includesUnmatchedCards
+              ? { [COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM]: "1" }
+              : {}),
+          })}`,
         ),
       ),
     enabled: !!guid,

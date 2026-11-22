@@ -1,0 +1,1 @@
+ALTER TABLE "org_settings" ADD COLUMN "unmatched_cards_in_grid" boolean DEFAULT false NOT NULL;

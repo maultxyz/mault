@@ -566,7 +566,9 @@
       "removed_other": "Removed {{count}} unmatched cards.",
       "removeFailed_one": "Couldn't remove {{count}} card. Try again.",
       "removeFailed_other": "Couldn't remove {{count}} cards. Try again."
-    }
+    },
+    "showInGrid": "Show in card grid",
+    "showInGridFailed": "Couldn't save the setting. Try again."
   },
   "binStatusMeter": {
     "heading": "Bin Levels",

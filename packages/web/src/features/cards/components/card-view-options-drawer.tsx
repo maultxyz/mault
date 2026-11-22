@@ -15,6 +15,7 @@ import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { CardViewOptionsDrawerProps } from "@/lib/interfaces/cards";
 import { cn } from "@/lib/utils";
 import { IconAdjustmentsHorizontal } from "@tabler/icons-react";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function CardViewOptionsDrawer({
@@ -29,6 +30,8 @@ export function CardViewOptionsDrawer({
   availableColors,
   availableFoilTypes,
   binCount,
+  unmatchedCount,
+  onShowUnmatched,
   viewMode,
   onViewModeChange,
   density,
@@ -45,9 +48,14 @@ export function CardViewOptionsDrawer({
     (scanTimeline ?? "off") === "off" && !!sortKey && sortKey !== "scan-desc";
   const hasDisplayOptions = !!onViewModeChange || !!onGroupDuplicatesChange;
   const label = t("cardToolbar.viewOptions");
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Drawer direction={isMobile ? "bottom" : "right"}>
+    <Drawer
+      direction={isMobile ? "bottom" : "right"}
+      open={isOpen}
+      onOpenChange={setIsOpen}
+    >
       <DrawerTrigger asChild>
         <Button
           variant={
@@ -112,6 +120,14 @@ export function CardViewOptionsDrawer({
               availableColors={availableColors}
               availableFoilTypes={availableFoilTypes}
               binCount={binCount}
+              unmatchedCount={unmatchedCount}
+              onShowUnmatched={
+                onShowUnmatched &&
+                (() => {
+                  setIsOpen(false);
+                  onShowUnmatched();
+                })
+              }
             />
           </section>
         </div>

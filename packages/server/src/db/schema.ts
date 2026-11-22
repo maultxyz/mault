@@ -1525,6 +1525,9 @@ export const orgSettings = pgTable(
       .notNull()
       .default(true),
     leaderboardOptIn: boolean("leaderboard_opt_in").notNull().default(false),
+    unmatchedCardsInGrid: boolean("unmatched_cards_in_grid")
+      .notNull()
+      .default(false),
     priceSource: text("price_source").notNull().default("tcgplayer"),
     conditionMultipliers: jsonb("condition_multipliers"),
     buylistConfig: jsonb("buylist_config"),

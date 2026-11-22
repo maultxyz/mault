@@ -38,6 +38,7 @@ export const getOrgSettingsRoute = new Hono<AppEnv>().get(
           correctionBinPrompt: row?.correctionBinPrompt ?? true,
           pauseScanningOnDeploy: row?.pauseScanningOnDeploy ?? true,
           leaderboardOptIn: row?.leaderboardOptIn ?? false,
+          unmatchedCardsInGrid: row?.unmatchedCardsInGrid ?? false,
           correctionAutoCloseSeconds: toCorrectionAutoCloseSeconds(
             row?.correctionAutoCloseSeconds,
           ),

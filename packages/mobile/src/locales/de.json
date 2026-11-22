@@ -1097,7 +1097,11 @@
     "scanTimelineSortNote": "Die Scan-Zeitachse zeigt immer die neuesten Scans zuerst.",
     "scanTimelineBlockCount_one": "{{count}} Karte",
     "scanTimelineBlockCount_other": "{{count}} Karten",
-    "loadingMoreCards": "Weitere Karten werden geladen"
+    "loadingMoreCards": "Weitere Karten werden geladen",
+    "unmatchedTileLabel": "Nicht erkannter Scan vom {{scannedAt}}",
+    "unmatchedTag": "Nicht erkannt",
+    "moreUnmatched_one": "{{count}} weiterer nicht erkannter Scan",
+    "moreUnmatched_other": "{{count}} weitere nicht erkannte Scans"
   },
   "cardDetail": {
     "catalogCardRemovedTitle": "Karte nicht mehr im Katalog",
@@ -2796,7 +2800,10 @@
       "removed_other": "{{count}} nicht erkannte Scans entfernt",
       "removeFailed_one": "{{count}} Scan konnte nicht entfernt werden",
       "removeFailed_other": "{{count}} Scans konnten nicht entfernt werden"
-    }
+    },
+    "showInGrid": "Im Kartenraster anzeigen",
+    "showInGridDescription": "Nicht erkannte Scans erscheinen mit rotem Rahmen zwischen deinen Karten. Gilt für alle in dieser Organisation.",
+    "showInGridFailed": "Die Einstellung konnte nicht gespeichert werden"
   },
   "matchValidations": {
     "ocrFallback": "{{field}} (Ausweichbereich)",

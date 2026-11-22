@@ -254,6 +254,8 @@ export interface CardToolbarProps {
   onExport?: () => void;
   onStartReview?: () => void;
   needsReviewCount?: number;
+  onShowUnmatched?: () => void;
+  unmatchedCount?: number;
   collectionName?: string;
   onClearAll?: () => void;
   hasCards: boolean;
@@ -600,6 +602,8 @@ export interface CardFilterFieldsProps {
   availableColors: ScanStats["colors"];
   availableFoilTypes: { key: string; label: string }[];
   binCount?: number;
+  unmatchedCount?: number;
+  onShowUnmatched?: () => void;
 }
 
 export interface CardDisplayOptionsProps {

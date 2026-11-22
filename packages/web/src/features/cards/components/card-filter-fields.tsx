@@ -2,7 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";
 import { CARD_COLOR_ACTIVE_CLASS } from "@/lib/constants/colors";
 import { cn } from "@/lib/utils";
-import { IconDownload, IconHelpCircle, IconX } from "@tabler/icons-react";
+import {
+  IconDownload,
+  IconHelpCircle,
+  IconQuestionMark,
+  IconX,
+} from "@tabler/icons-react";
 import { useId } from "react";
 import { useTranslation } from "react-i18next";
 import { EMPTY_CARD_FILTERS } from "@magic-vault/shared";
@@ -25,6 +30,8 @@ export function CardFilterFields({
   availableColors,
   availableFoilTypes,
   binCount,
+  unmatchedCount = 0,
+  onShowUnmatched,
 }: CardFilterFieldsProps) {
   const { t } = useTranslation("cards");
   const bins = Array.from({ length: binCount ?? 0 }, (_, i) => i + 1);
@@ -257,6 +264,27 @@ export function CardFilterFields({
           {t("cardFilterPopover.needsAttention")}
         </button>
       </div>
+
+      {onShowUnmatched && unmatchedCount > 0 && (
+        <div>
+          <p className="text-xs font-medium text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:text-foreground">
+            {t("cardFilterPopover.unmatched")}
+          </p>
+          <button
+            type="button"
+            title={t("cardToolbar.showUnmatched")}
+            onClick={onShowUnmatched}
+            className={cn(
+              chipBase,
+              chipInactive,
+              "flex items-center gap-1.5 px-2 h-7 max-md:h-9 max-md:px-3",
+            )}
+          >
+            <IconQuestionMark className="size-3.5 text-destructive" />
+            {t("cardToolbar.unmatchedCount", { count: unmatchedCount })}
+          </button>
+        </div>
+      )}
 
       <div>
         <p className="text-xs font-medium text-foreground/70 mb-1.5 max-md:mb-2 max-md:text-sm max-md:font-semibold max-md:text-foreground">

@@ -4,6 +4,7 @@ import type {
   Collection,
   CollectionCsvParseResult,
   GroupedScannedCard,
+  InlineUnmatchedCard,
   ScanTimelineGrouping,
 } from "@magic-vault/shared";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
@@ -17,6 +18,18 @@ export interface CollectionCardTileProps {
   onOpen: (scanId: string) => void;
   onPrefetch: (scanId: string) => void;
   onShowActions: (item: GroupedScannedCard) => void;
+}
+
+export interface CollectionUnmatchedTileProps {
+  entry: InlineUnmatchedCard;
+  width: number;
+  onOpen: (scanId: string) => void;
+}
+
+export interface CollectionMoreUnmatchedTileProps {
+  hiddenCount: number;
+  width: number;
+  onOpen: () => void;
 }
 
 export interface ScanImageResponse {

@@ -1097,7 +1097,11 @@
     "scanTimelineSortNote": "La chronologie affiche toujours les scans les plus récents en premier.",
     "scanTimelineBlockCount_one": "{{count}} carte",
     "scanTimelineBlockCount_other": "{{count}} cartes",
-    "loadingMoreCards": "Chargement de cartes supplémentaires"
+    "loadingMoreCards": "Chargement de cartes supplémentaires",
+    "unmatchedTileLabel": "Scan non reconnu du {{scannedAt}}",
+    "unmatchedTag": "Non reconnu",
+    "moreUnmatched_one": "{{count}} autre scan non reconnu",
+    "moreUnmatched_other": "{{count}} autres scans non reconnus"
   },
   "cardDetail": {
     "catalogCardRemovedTitle": "Carte retirée du catalogue",
@@ -2796,7 +2800,10 @@
       "removed_other": "{{count}} scans non reconnus supprimés",
       "removeFailed_one": "Impossible de supprimer {{count}} scan",
       "removeFailed_other": "Impossible de supprimer {{count}} scans"
-    }
+    },
+    "showInGrid": "Afficher dans la grille de cartes",
+    "showInGridDescription": "Les scans non reconnus apparaissent entre vos cartes avec une bordure rouge. S'applique à tous les membres de cette organisation.",
+    "showInGridFailed": "Impossible d'enregistrer le réglage"
   },
   "matchValidations": {
     "ocrFallback": "{{field}} (zone de secours)",

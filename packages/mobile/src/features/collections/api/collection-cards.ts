@@ -6,6 +6,7 @@ import {
   type QueryClient,
 } from "@tanstack/react-query";
 import {
+  COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM,
   COLLECTION_CARDS_RAW_CARD_DATA_NONE,
   COLLECTION_CARDS_RAW_CARD_DATA_PARAM,
   COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS,
@@ -53,11 +54,21 @@ export function collectionCardsQueryParams(query: CollectionCardsQuery, page: nu
   return params.toString();
 }
 
-export const collectionCardsQueryOptions = (guid: string, query: CollectionCardsQuery) =>
+export const collectionCardsQueryOptions = (
+  guid: string,
+  query: CollectionCardsQuery,
+  includesUnmatchedCards = false,
+) =>
   infiniteQueryOptions({
-    queryKey: ["collection-cards", guid, "list", query] as const,
+    queryKey: ["collection-cards", guid, "list", query, includesUnmatchedCards] as const,
     queryFn: ({ pageParam }) =>
-      unwrap(apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${collectionCardsQueryParams(query, pageParam)}`)),
+      unwrap(
+        apiGet<Result<CollectionCardsPage>>(
+          `/api/collections/${guid}/cards?${collectionCardsQueryParams(query, pageParam)}${
+            includesUnmatchedCards ? `&${COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM}=1` : ""
+          }`,
+        ),
+      ),
     initialPageParam: 0,
     getNextPageParam: (last) =>
       (last.page + 1) * last.pageSize < last.totalEntries ? last.page + 1 : undefined,

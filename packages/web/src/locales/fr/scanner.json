@@ -566,7 +566,9 @@
       "removed_other": "{{count}} cartes non reconnues retirées.",
       "removeFailed_one": "Impossible de retirer {{count}} carte. Réessaie.",
       "removeFailed_other": "Impossible de retirer {{count}} cartes. Réessaie."
-    }
+    },
+    "showInGrid": "Afficher dans la grille de cartes",
+    "showInGridFailed": "Impossible d'enregistrer le réglage. Réessaie."
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",

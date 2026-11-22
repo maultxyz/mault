@@ -119,7 +119,8 @@
     "showDownloadedCards": "Heruntergeladene Karten anzeigen",
     "hideDownloadedCards": "Heruntergeladene Karten ausblenden",
     "sets": "Editionen",
-    "resetFilters": "Filter zurücksetzen"
+    "resetFilters": "Filter zurücksetzen",
+    "unmatched": "Nicht erkannt"
   },
   "cardGrid": {
     "noCollectionSelected": "Keine Sammlung ausgewählt",
@@ -153,7 +154,9 @@
     "moveToLocation": "Verschieben",
     "exporting": "Wird exportiert",
     "pendingScanSaving": "Wird gespeichert",
-    "pendingScanSavingName": "{{name}} wird gespeichert"
+    "pendingScanSavingName": "{{name}} wird gespeichert",
+    "moreUnmatched_one": "{{count}} weitere nicht erkannte Karte",
+    "moreUnmatched_other": "{{count}} weitere nicht erkannte Karten"
   },
   "cardSelectDialog": {
     "defaultTitle": "Karte auswählen",
@@ -204,7 +207,10 @@
       "day": "Nach Tag",
       "hour": "Nach Stunde"
     },
-    "scanTimelineSortNote": "Die Scan-Zeitachse zeigt immer die neuesten Scans zuerst."
+    "scanTimelineSortNote": "Die Scan-Zeitachse zeigt immer die neuesten Scans zuerst.",
+    "unmatchedCount_one": "{{count}} nicht erkannt",
+    "unmatchedCount_other": "{{count}} nicht erkannt",
+    "showUnmatched": "Nur nicht erkannte Karten anzeigen"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Mehrere ähnliche Treffer - zum Überprüfen tippen",

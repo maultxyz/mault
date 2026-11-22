@@ -1,7 +1,8 @@
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback } from "react";
 import { EMPTY_CARD_FILTERS } from "@magic-vault/shared";
 import { collectionCardsQueryOptions } from "@/features/collections/api/collection-cards";
+import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { buildCollectionCardsQuery, readStoredCollectionScanTimeline } from "@/features/collections/lib/card-query";
 import { readCollectionViewMemory } from "@/hooks/use-collection-view-memory";
 import { useActiveOrgId } from "@/hooks/use-org";
@@ -9,6 +10,8 @@ import { useActiveOrgId } from "@/hooks/use-org";
 export function usePrefetchCollectionFirstPage(): (collectionGuid: string) => void {
   const queryClient = useQueryClient();
   const orgId = useActiveOrgId();
+  const { data: orgSettings } = useQuery(orgSettingsQueryOptions(orgId));
+  const showsUnmatchedCardsInGrid = orgSettings?.unmatchedCardsInGrid ?? false;
   return useCallback(
     (collectionGuid: string) => {
       const memory = readCollectionViewMemory(orgId, collectionGuid);
@@ -19,8 +22,10 @@ export function usePrefetchCollectionFirstPage(): (collectionGuid: string) => vo
         grouped: memory?.grouped ?? true,
         scanTimeline: readStoredCollectionScanTimeline(),
       });
-      void queryClient.prefetchInfiniteQuery(collectionCardsQueryOptions(collectionGuid, query));
+      void queryClient.prefetchInfiniteQuery(
+        collectionCardsQueryOptions(collectionGuid, query, showsUnmatchedCardsInGrid),
+      );
     },
-    [queryClient, orgId],
+    [queryClient, orgId, showsUnmatchedCardsInGrid],
   );
 }

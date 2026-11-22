@@ -561,6 +561,12 @@ export interface RetryUnmatchedCardsState {
   stop: () => void;
 }
 
+export interface UnmatchedCardsInGridSetting {
+  isEnabled: boolean;
+  isLoading: boolean;
+  setEnabled: (isEnabled: boolean) => void;
+}
+
 export interface UnmatchedScanSelectionState {
   isSelecting: boolean;
   selectedScanIds: string[];

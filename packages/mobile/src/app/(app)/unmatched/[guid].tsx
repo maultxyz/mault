@@ -13,6 +13,7 @@ import { CheckboxIndicator } from "@/components/ui/checkbox-indicator";
 import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
+import { SwitchRow } from "@/components/ui/switch-row";
 import { ListLoadingFooter } from "@/components/ui/list-loading-footer";
 import { useToast } from "@/components/ui/toast-provider";
 import { CollectionGridSkeleton } from "@/features/collections/components/collection-grid-skeleton";
@@ -24,6 +25,7 @@ import {
 } from "@/features/collections/api/unmatched-cards";
 import { useRetryUnmatchedCards } from "@/features/collections/api/use-retry-unmatched-cards";
 import { useUnmatchedScanSelection } from "@/features/collections/api/use-unmatched-scan-selection";
+import { useUnmatchedCardsInGrid } from "@/features/org/api/use-unmatched-cards-in-grid";
 import { usePanelWidth } from "@/hooks/use-panel-width";
 import { useTheme } from "@/hooks/use-theme";
 import {
@@ -51,6 +53,7 @@ export default function UnmatchedCardsScreen() {
   const total = unmatched.data?.pages[0]?.total ?? 0;
   const retry = useRetryUnmatchedCards(guid);
   const selection = useUnmatchedScanSelection();
+  const inGrid = useUnmatchedCardsInGrid();
   const selectedCount = selection.selectedScanIds.length;
   const [isRemovingSelected, setIsRemovingSelected] = useState(false);
   const isBulkActionRunning = retry.isRetrying || isRemovingSelected;
@@ -169,6 +172,15 @@ export default function UnmatchedCardsScreen() {
                   ? t("unmatchedCards.selection.hint", { max: UNMATCHED_BULK_SELECTION_MAX })
                   : t("unmatchedCards.hint")}
               </AppText>
+            ) : null}
+            {total > 0 && !selection.isSelecting ? (
+              <SwitchRow
+                title={t("unmatchedCards.showInGrid")}
+                description={t("unmatchedCards.showInGridDescription")}
+                value={inGrid.isEnabled}
+                disabled={inGrid.isLoading}
+                onValueChange={inGrid.setEnabled}
+              />
             ) : null}
             {retry.progress ? (
               <View style={{ gap: SPACING.sm }}>

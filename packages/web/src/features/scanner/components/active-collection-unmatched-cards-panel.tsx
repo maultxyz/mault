@@ -13,6 +13,7 @@ export function ActiveCollectionUnmatchedCardsPanel() {
   return (
     <UnmatchedCardsPanel
       canIdentify
+      showsInGridToggle
       cards={unmatchedCards}
       total={unmatchedCount}
       collectionGuid={activeCollection?.guid}

@@ -1097,7 +1097,11 @@
     "scanTimelineSortNote": "The scan timeline always shows the newest scans first.",
     "scanTimelineBlockCount_one": "{{count}} card",
     "scanTimelineBlockCount_other": "{{count}} cards",
-    "loadingMoreCards": "Loading more cards"
+    "loadingMoreCards": "Loading more cards",
+    "unmatchedTileLabel": "Unmatched scan from {{scannedAt}}",
+    "unmatchedTag": "Unmatched",
+    "moreUnmatched_one": "{{count}} more unmatched scan",
+    "moreUnmatched_other": "{{count}} more unmatched scans"
   },
   "cardDetail": {
     "catalogCardRemovedTitle": "Card no longer in the catalog",
@@ -2796,7 +2800,10 @@
       "removed_other": "Removed {{count}} unmatched scans",
       "removeFailed_one": "Couldn't remove {{count}} scan",
       "removeFailed_other": "Couldn't remove {{count}} scans"
-    }
+    },
+    "showInGrid": "Show in card grid",
+    "showInGridDescription": "Unmatched scans appear between your cards with a red border. Applies to everyone in this organization.",
+    "showInGridFailed": "Couldn't save the setting"
   },
   "matchValidations": {
     "ocrFallback": "{{field}} (fallback)",

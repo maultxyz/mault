@@ -10,6 +10,7 @@ export function UnmatchedCardTile({
   onOpen,
   isSelected = false,
   onToggleSelect,
+  className,
 }: UnmatchedCardTileProps) {
   const { t } = useTranslation("scanner");
   const nearest = entry.diagnostics?.search?.candidates[0];
@@ -20,6 +21,7 @@ export function UnmatchedCardTile({
       className={cn(
         "relative rounded-card bg-card p-1.5",
         isSelected && "ring-2 ring-primary ring-offset-1",
+        className,
       )}
     >
       <button

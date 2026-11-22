@@ -566,7 +566,9 @@
       "removed_other": "{{count}} nicht erkannte Karten entfernt.",
       "removeFailed_one": "{{count}} Karte konnte nicht entfernt werden. Versuche es erneut.",
       "removeFailed_other": "{{count}} Karten konnten nicht entfernt werden. Versuche es erneut."
-    }
+    },
+    "showInGrid": "Im Kartenraster anzeigen",
+    "showInGridFailed": "Die Einstellung konnte nicht gespeichert werden. Versuche es erneut."
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",

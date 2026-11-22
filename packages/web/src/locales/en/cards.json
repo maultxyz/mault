@@ -119,7 +119,8 @@
     "showDownloadedCards": "Show downloaded cards",
     "hideDownloadedCards": "Hide downloaded cards",
     "sets": "Sets",
-    "resetFilters": "Reset filters"
+    "resetFilters": "Reset filters",
+    "unmatched": "Unmatched"
   },
   "cardGrid": {
     "noCollectionSelected": "No collection selected",
@@ -153,7 +154,9 @@
     "moveToLocation": "Move",
     "exporting": "Exporting",
     "pendingScanSaving": "Saving",
-    "pendingScanSavingName": "Saving {{name}}"
+    "pendingScanSavingName": "Saving {{name}}",
+    "moreUnmatched_one": "{{count}} more unmatched card",
+    "moreUnmatched_other": "{{count}} more unmatched cards"
   },
   "cardSelectDialog": {
     "defaultTitle": "Select Card",
@@ -204,7 +207,10 @@
       "day": "By day",
       "hour": "By hour"
     },
-    "scanTimelineSortNote": "The scan timeline always shows the newest scans first."
+    "scanTimelineSortNote": "The scan timeline always shows the newest scans first.",
+    "unmatchedCount_one": "{{count}} unmatched",
+    "unmatchedCount_other": "{{count}} unmatched",
+    "showUnmatched": "Show only unmatched cards"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Multiple close matches, tap to review",
