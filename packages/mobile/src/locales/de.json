@@ -4151,7 +4151,7 @@
     },
     "intake": {
       "title": "Ankauf",
-      "entrySubtitle": "Karten von Kunden, Händlern oder aus geöffneter Ware ankaufen",
+      "entrySubtitle": "Karten von Kundschaft, Händlern, Bulk-Posten oder geöffnetem Produkt aufnehmen",
       "new": "Ankauf starten",
       "newDescription": "Karten, die in die Sammlung des Ankaufs gescannt werden, landen darin, bis du ihn abschließt oder abbrichst.",
       "create": "Ankauf starten",
@@ -4751,7 +4751,7 @@
       "title": "Kaufen und Verkaufen im Überblick",
       "what": {
         "title": "Was Kaufen und Verkaufen ist",
-        "description": "Kaufe Karten von Kunden an, hole verkaufte Karten aus dem Lager und behalte im Blick, was du verdienst, alles aus deinem eigenen Bestand."
+        "description": "Nimm Karten von Kundschaft, Händlern oder Bulk-Posten auf, ziehe verkaufte Karten aus dem Lager und behalte deine Einnahmen im Blick, alles aus deinem eigenen Bestand."
       },
       "rightNow": {
         "title": "Aktuell",
@@ -4774,7 +4774,7 @@
       "title": "So funktionieren Ankäufe",
       "start": {
         "title": "Ankauf starten",
-        "description": "Wähle, von wem du kaufst: ein Kunde, ein Händler oder geöffnete Ware. Gescannte Karten landen direkt in der gewählten Sammlung."
+        "description": "Nutze einen Ankauf, sobald Karten reinkommen: Kundschaft verkauft dir Karten, eine Händlerlieferung, ein Bulk-Posten oder Produkt, das du geöffnet hast. Gescannte Karten landen direkt in der gewählten Sammlung."
       },
       "offer": {
         "title": "Live-Angebot",
@@ -4786,7 +4786,7 @@
       },
       "finish": {
         "title": "Ankauf abschließen",
-        "description": "Beim Abschließen wird der Einkaufspreis jeder Karte gespeichert, und die Karten wandern ins Lager, wenn du einen Lagerort gewählt hast."
+        "description": "Trage ein, was du bezahlt hast: an die Kundschaft, die Händlerrechnung oder den Preis des Bulk-Postens. Der Betrag wird als Kosten auf die Karten verteilt, und die Karten wandern ins Lager, wenn du einen Lagerort gewählt hast."
       },
       "performance": {
         "title": "Entwicklung",
@@ -4867,7 +4867,7 @@
       "open": "So funktioniert Ankaufen beim Scannen",
       "start": {
         "title": "Ankauf starten",
-        "description": "Tippe oben im Scan-Tab auf Ankauf starten, um Karten in diese Sammlung anzukaufen."
+        "description": "Tippe oben im Scan-Tab auf Ankauf starten, sobald Karten reinkommen: von Kundschaft, einem Händler, einem Bulk-Posten oder geöffnetem Produkt."
       },
       "scan": {
         "title": "Karten scannen",

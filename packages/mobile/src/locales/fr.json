@@ -4151,7 +4151,7 @@
     },
     "intake": {
       "title": "Achat",
-      "entrySubtitle": "Achetez des cartes à des clients, des fournisseurs ou dans du produit ouvert",
+      "entrySubtitle": "Faire entrer des cartes de clients, fournisseurs, lots en vrac ou produits ouverts",
       "new": "Démarrer un achat",
       "newDescription": "Les cartes scannées dans la collection de l'achat y sont ajoutées jusqu'à ce que vous le terminiez ou l'annuliez.",
       "create": "Démarrer l'achat",
@@ -4751,7 +4751,7 @@
       "title": "Achat et vente en un coup d'œil",
       "what": {
         "title": "Ce qu'est Achat et vente",
-        "description": "Achetez des cartes à vos clients, sortez les cartes vendues du stockage et suivez ce que vous gagnez, le tout depuis votre propre stock."
+        "description": "Faites entrer des cartes de clients, de fournisseurs ou de lots en vrac, sortez les cartes vendues du stock et suivez vos gains, le tout depuis votre propre stock."
       },
       "rightNow": {
         "title": "En ce moment",
@@ -4774,7 +4774,7 @@
       "title": "Comment fonctionnent les achats",
       "start": {
         "title": "Démarrer un achat",
-        "description": "Choisissez auprès de qui vous achetez : un client, un fournisseur ou un produit ouvert. Les cartes scannées vont directement dans la collection choisie."
+        "description": "Utilisez un achat dès que des cartes arrivent : un client qui vous vend des cartes, une livraison fournisseur, un lot en vrac ou un produit que vous avez ouvert. Les cartes scannées vont directement dans la collection choisie."
       },
       "offer": {
         "title": "Offre en direct",
@@ -4786,7 +4786,7 @@
       },
       "finish": {
         "title": "Terminer l'achat",
-        "description": "Terminer enregistre le coût de chaque carte et range les cartes dans le stockage si vous avez choisi un emplacement."
+        "description": "Saisissez ce que vous avez payé : au client, la facture du fournisseur ou le prix du lot en vrac. Le montant est réparti sur les cartes comme leur coût, et les cartes vont dans le stockage si vous avez choisi un emplacement."
       },
       "performance": {
         "title": "Performance",
@@ -4867,7 +4867,7 @@
       "open": "Comment acheter pendant le scan",
       "start": {
         "title": "Démarrer un achat",
-        "description": "Touchez Démarrer un achat en haut de l'onglet de scan pour acheter des cartes dans cette collection."
+        "description": "Touchez Démarrer un achat en haut de l’onglet scan dès que des cartes arrivent : d’un client, d’un fournisseur, d’un lot en vrac ou d’un produit ouvert."
       },
       "scan": {
         "title": "Scanner les cartes",

@@ -189,7 +189,7 @@
       "triggerTooltip": "So funktioniert An- & Verkauf",
       "welcome": {
         "title": "Willkommen bei An- & Verkauf",
-        "content": "Hier führst du deinen Laden. Kaufe Karten von Kunden an, picke und versende Bestellungen, halte Karten für Kunden zurück, drucke Preisetiketten und behalte deine Verkäufe im Blick. Du kannst jederzeit überspringen und die Tour über das Hilfe-Symbol erneut starten."
+        "content": "Hier führst du deinen Laden. Nimm Karten von Kundschaft, Händlern, Bulk-Posten oder geöffnetem Produkt auf, picke und versende Bestellungen, lege Karten für Kundschaft zurück, drucke Preisetiketten und behalte deine Verkäufe im Blick. Du kannst jederzeit überspringen und das hier über das Hilfe-Symbol erneut abspielen."
       },
       "now": {
         "title": "Aktuell",
@@ -220,7 +220,7 @@
       "triggerTooltip": "So funktionieren Ankäufe",
       "newBuy": {
         "title": "Neuen Ankauf starten",
-        "content": "Starte einen Ankauf, wenn dir ein Kunde oder Händler Karten verkauft oder wenn du ein versiegeltes Produkt öffnest. Wähle die Sammlung, und jede gescannte Karte landet direkt darin."
+        "content": "Nutze einen Ankauf, sobald Karten in deinen Laden kommen: eine Kundin oder ein Kunde verkauft dir Karten, eine Lieferung von einem Händler, ein Bulk-Posten, den du gekauft hast, oder versiegeltes Produkt, das du öffnest. Wähle die Sammlung, und jede gescannte Karte landet direkt darin."
       },
       "list": {
         "title": "Deine Ankäufe",
@@ -232,7 +232,7 @@
       },
       "stats": {
         "title": "Das aktuelle Angebot",
-        "content": "Solange ein Ankauf offen ist, wird das Angebot beim Hinzufügen von Karten aus deiner Ankaufsliste berechnet. Ein geöffnetes Produkt hat kein Angebot: Du gibst beim Abschließen ein, was das Produkt gekostet hat."
+        "content": "Bei Kundschaft berechnet sich das Angebot laufend aus deiner Ankaufsliste. Bei einer Händlerlieferung oder einem Bulk-Posten kannst du das Angebot ignorieren und beim Abschließen eintragen, was du insgesamt bezahlt hast. Geöffnetes Produkt hat kein Angebot: Du trägst ein, was das Produkt gekostet hat."
       },
       "cards": {
         "title": "Alle Karten im Ankauf",
@@ -240,7 +240,7 @@
       },
       "finish": {
         "title": "Ankauf abschließen",
-        "content": "Schließe ab, wenn du den Kunden bezahlst. Der gezahlte Preis wird als Einkaufspreis jeder Karte gespeichert, und die Karten kommen ins Lager, wenn du einen Lagerort gewählt hast."
+        "content": "Schließe ab, sobald du bezahlt hast: die Kundschaft, die Rechnung des Händlers oder den Preis des Bulk-Postens. Der bezahlte Betrag wird als Kosten auf die Karten verteilt, und die Karten wandern ins Lager, wenn du einen Lagerort gewählt hast."
       },
       "performance": {
         "title": "Wie sich der Ankauf lohnt",
@@ -347,7 +347,7 @@
       "triggerTooltip": "So funktioniert Ankaufen am Scanner",
       "start": {
         "title": "Karten beim Scannen ankaufen",
-        "content": "Starte hier einen Ankauf, um Karten von einem Kunden zu kaufen, ohne den Scanner zu verlassen."
+        "content": "Starte hier einen Ankauf, sobald Karten reinkommen: von Kundschaft, aus einer Händlerlieferung, einem Bulk-Posten oder geöffnetem Produkt. Du verlässt den Scanner dabei nicht."
       },
       "menu": {
         "title": "Oder über das Sammlungsmenü",
@@ -371,7 +371,7 @@
       },
       "finish": {
         "title": "Ankauf abschließen",
-        "content": "Schließe den Ankauf hier ab, wenn du den Kunden bezahlst, ohne den Scanner zu verlassen."
+        "content": "Schließe den Ankauf hier ab, sobald du bezahlt hast, egal ob Kundschaft, Händlerrechnung oder Bulk-Posten, ohne den Scanner zu verlassen."
       }
     }
   }

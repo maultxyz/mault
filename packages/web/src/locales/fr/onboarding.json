@@ -189,7 +189,7 @@
       "triggerTooltip": "Comment fonctionne Achat & vente",
       "welcome": {
         "title": "Bienvenue dans Achat & vente",
-        "content": "C'est ici que vous gérez votre boutique. Achetez des cartes à vos clients, préparez et expédiez les commandes, réservez des cartes pour vos clients, imprimez des étiquettes de prix et suivez vos ventes. Passez la visite à tout moment et relancez-la depuis l'icône d'aide."
+        "content": "C’est ici que vous gérez votre boutique. Faites entrer des cartes de clients, de fournisseurs, de lots en vrac ou de produits ouverts, préparez et expédiez les commandes, réservez des cartes pour vos clients, imprimez des étiquettes de prix et suivez vos ventes. Passez à tout moment et relancez ceci depuis l’icône d’aide."
       },
       "now": {
         "title": "En ce moment",
@@ -220,7 +220,7 @@
       "triggerTooltip": "Comment fonctionnent les achats",
       "newBuy": {
         "title": "Commencer un nouvel achat",
-        "content": "Commencez un achat quand un client ou un fournisseur vous vend des cartes, ou quand vous ouvrez un produit scellé. Choisissez la collection : chaque carte scannée y va directement."
+        "content": "Utilisez un achat dès que des cartes arrivent en boutique : un client qui vous vend des cartes, une livraison d’un fournisseur, un lot en vrac que vous avez acheté ou un produit scellé que vous ouvrez. Choisissez la collection, et chaque carte scannée y va directement."
       },
       "list": {
         "title": "Vos achats",
@@ -232,7 +232,7 @@
       },
       "stats": {
         "title": "L'offre en direct",
-        "content": "Tant qu'un achat est en cours, l'offre se met à jour selon votre liste de rachat à chaque carte ajoutée. Un produit ouvert n'a pas d'offre : vous saisissez son coût en terminant l'achat."
+        "content": "Pour un client, l’offre se met à jour selon votre liste de rachat à mesure que vous ajoutez des cartes. Pour une livraison fournisseur ou un lot en vrac, vous pouvez ignorer l’offre et saisir le total payé en terminant. Un produit ouvert n’a pas d’offre : vous saisissez ce qu’il a coûté."
       },
       "cards": {
         "title": "Toutes les cartes de l'achat",
@@ -240,7 +240,7 @@
       },
       "finish": {
         "title": "Terminer l'achat",
-        "content": "Terminez quand vous payez le client. Le prix payé est enregistré comme coût de chaque carte, et les cartes vont en stockage si vous avez choisi un emplacement."
+        "content": "Terminez une fois que vous avez payé : le client, la facture du fournisseur ou le prix du lot en vrac. Le montant payé est réparti sur les cartes comme leur coût, et les cartes vont dans le stockage si vous avez choisi un emplacement."
       },
       "performance": {
         "title": "Les résultats de l'achat",
@@ -347,7 +347,7 @@
       "triggerTooltip": "Comment acheter depuis le scanner",
       "start": {
         "title": "Acheter des cartes en scannant",
-        "content": "Commencez un achat ici pour acheter des cartes à un client sans quitter le scanner."
+        "content": "Démarrez un achat ici dès que des cartes arrivent : d’un client, d’une livraison fournisseur, d’un lot en vrac ou d’un produit scellé ouvert. Vous ne quittez jamais le scanner."
       },
       "menu": {
         "title": "Ou depuis le menu de la collection",
@@ -371,7 +371,7 @@
       },
       "finish": {
         "title": "Terminer l'achat",
-        "content": "Terminez l'achat ici quand vous payez le client, sans quitter le scanner."
+        "content": "Terminez l’achat ici une fois payé, qu’il s’agisse d’un client, d’une facture fournisseur ou d’un lot en vrac, sans quitter le scanner."
       }
     }
   }

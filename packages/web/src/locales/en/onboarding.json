@@ -189,7 +189,7 @@
       "triggerTooltip": "How Buy & sell works",
       "welcome": {
         "title": "Welcome to Buy & sell",
-        "content": "This is where you run your store. Buy cards from customers, pick and ship orders, hold cards for customers, print price labels and track your sales. Skip anytime and replay this from the help icon."
+        "content": "This is where you run your store. Bring cards in from customers, vendors, bulk lots or opened product, pick and ship orders, hold cards for customers, print price labels and track your sales. Skip anytime and replay this from the help icon."
       },
       "now": {
         "title": "Right now",
@@ -220,7 +220,7 @@
       "triggerTooltip": "How buys work",
       "newBuy": {
         "title": "Start a new buy",
-        "content": "Start a buy when a customer or vendor sells you cards, or when you open a sealed product. Pick the collection, and every card you scan goes straight into it."
+        "content": "Use a buy whenever cards come into your store: a customer selling at the counter, a delivery from a vendor, a bulk lot you bought, or sealed product you opened. Pick the collection, and every card you scan goes straight into it."
       },
       "list": {
         "title": "Your buys",
@@ -232,7 +232,7 @@
       },
       "stats": {
         "title": "The live offer",
-        "content": "While a buy is open, the offer updates from your buylist as you add cards. An opened product has no offer: you enter what the product cost when you finish it."
+        "content": "For a customer, the offer updates from your buylist as you add cards. For a vendor delivery or a bulk lot, you can ignore the offer and enter the total you paid when you finish. Opened product has no offer: you enter what the product cost."
       },
       "cards": {
         "title": "Every card in the buy",
@@ -240,7 +240,7 @@
       },
       "finish": {
         "title": "Finish the buy",
-        "content": "Finish when you pay the customer. The price you paid is saved as the cost of each card, and the cards move to storage if you chose a location."
+        "content": "Finish when you have paid: the customer, the vendor's invoice, or the price of the bulk lot. What you paid is spread across the cards as their cost, and the cards move to storage if you chose a location."
       },
       "performance": {
         "title": "How the buy did",
@@ -347,7 +347,7 @@
       "triggerTooltip": "How buying on the scanner works",
       "start": {
         "title": "Buy cards while you scan",
-        "content": "Start a buy right here to buy cards from a customer without leaving the scanner."
+        "content": "Start a buy right here whenever cards come in: from a customer, a vendor delivery, a bulk lot or sealed product you opened. You never leave the scanner."
       },
       "menu": {
         "title": "Or start from the collection menu",
@@ -371,7 +371,7 @@
       },
       "finish": {
         "title": "Finish the buy",
-        "content": "Finish the buy here when you pay the customer, without leaving the scanner."
+        "content": "Finish the buy here once you have paid, whether that is a customer, a vendor invoice or a bulk lot, without leaving the scanner."
       }
     }
   }

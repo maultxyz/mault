@@ -4151,7 +4151,7 @@
     },
     "intake": {
       "title": "Buy",
-      "entrySubtitle": "Buy cards from customers, vendors or opened product",
+      "entrySubtitle": "Bring in cards from customers, vendors, bulk lots or opened product",
       "new": "Start a buy",
       "newDescription": "Cards you scan into the buy's collection are added to it until you finish or cancel it.",
       "create": "Start buy",
@@ -4751,7 +4751,7 @@
       "title": "Buy and sell at a glance",
       "what": {
         "title": "What Buy and sell is",
-        "description": "Buy cards from customers, pull sold cards from storage and track what you earn, all from your own stock."
+        "description": "Bring cards in from customers, vendors or bulk lots, pull sold cards from storage and track what you earn, all from your own stock."
       },
       "rightNow": {
         "title": "Right now",
@@ -4774,7 +4774,7 @@
       "title": "How buys work",
       "start": {
         "title": "Start a buy",
-        "description": "Pick who you're buying from: a customer, a vendor or product you opened. Cards you scan go straight into the collection you choose."
+        "description": "Use a buy whenever cards come in: a customer selling to you, a vendor delivery, a bulk lot or product you opened. Cards you scan go straight into the collection you choose."
       },
       "offer": {
         "title": "Live offer",
@@ -4786,7 +4786,7 @@
       },
       "finish": {
         "title": "Finish the buy",
-        "description": "Finishing writes each card's cost, and moves the cards into storage if you picked a location."
+        "description": "Enter what you paid: the customer, the vendor's invoice or the price of the bulk lot. It's spread across the cards as their cost, and the cards move into storage if you picked a location."
       },
       "performance": {
         "title": "Performance",
@@ -4867,7 +4867,7 @@
       "open": "How buying while scanning works",
       "start": {
         "title": "Start a buy",
-        "description": "Tap Start a buy at the top of the scan tab to buy cards into this collection."
+        "description": "Tap Start a buy at the top of the scan tab whenever cards come in: from a customer, a vendor, a bulk lot or opened product."
       },
       "scan": {
         "title": "Scan the cards",

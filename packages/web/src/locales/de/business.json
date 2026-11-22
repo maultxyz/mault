@@ -110,7 +110,7 @@
     "cards_one": "{{count}} Karte",
     "cards_other": "{{count}} Karten",
     "intake": {
-      "description": "Karten von Kunden, Händlern oder aus geöffneter Ware ankaufen. Direkt in deinen Bestand scannen, dann den Ankauf abschließen.",
+      "description": "Nimm Karten von Kundschaft, Händlern, Bulk-Posten oder geöffnetem Produkt auf. Scanne sie direkt in deinen Bestand und schließe den Ankauf dann ab.",
       "empty": "Keine offenen Ankäufe.",
       "link": "Zu den Ankäufen"
     },
@@ -246,7 +246,7 @@
     "subtitle": "Scannt in {{collection}} · gestartet {{date}}",
     "new": "Neuer Ankauf",
     "newTitle": "Ankauf starten",
-    "newDescription": "Karten, die du in die Sammlung scannst, landen in diesem Ankauf, bis du ihn abschließt oder abbrichst.",
+    "newDescription": "Nutze einen Ankauf für alle Karten, die reinkommen: Kundschaft an der Theke, eine Händlerlieferung, ein Bulk-Posten oder geöffnetes Produkt. Karten, die du in die Sammlung scannst, kommen zum Ankauf, bis du ihn abschließt oder abbrichst.",
     "customerContact": "Kontakt (optional)",
     "customerContactPlaceholder": "E-Mail oder Telefon",
     "collection": "Scannen in",

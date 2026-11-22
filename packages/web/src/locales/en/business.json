@@ -110,7 +110,7 @@
     "cards_one": "{{count}} card",
     "cards_other": "{{count}} cards",
     "intake": {
-      "description": "Buy cards from customers, vendors or opened product. Scan them straight into your stock, then finish the buy.",
+      "description": "Bring cards in from customers, vendors, bulk lots or opened product. Scan them straight into your stock, then finish the buy.",
       "empty": "No open buys.",
       "link": "Go to buys"
     },
@@ -246,7 +246,7 @@
     "subtitle": "Scanning into {{collection}} · started {{date}}",
     "new": "New buy",
     "newTitle": "Start a buy",
-    "newDescription": "Cards you scan into the collection are added to this buy until you finish or cancel it.",
+    "newDescription": "Use a buy for any cards coming in: a customer at the counter, a vendor delivery, a bulk lot or opened product. Cards you scan into the collection are added to the buy until you finish or cancel it.",
     "customerContact": "Contact (optional)",
     "customerContactPlaceholder": "Email or phone",
     "collection": "Scan into",

@@ -110,7 +110,7 @@
     "cards_one": "{{count}} carte",
     "cards_other": "{{count}} cartes",
     "intake": {
-      "description": "Achetez des cartes à des clients, des fournisseurs ou issues de produits ouverts. Scannez-les directement dans votre stock, puis terminez l'achat.",
+      "description": "Faites entrer des cartes de clients, de fournisseurs, de lots en vrac ou de produits ouverts. Scannez-les directement dans votre stock, puis terminez l’achat.",
       "empty": "Aucun achat ouvert.",
       "link": "Aller aux achats"
     },
@@ -246,7 +246,7 @@
     "subtitle": "Scan dans {{collection}} · commencé {{date}}",
     "new": "Nouvel achat",
     "newTitle": "Commencer un achat",
-    "newDescription": "Les cartes scannées dans la collection sont ajoutées à cet achat jusqu'à ce que vous le terminiez ou l'annuliez.",
+    "newDescription": "Utilisez un achat pour toutes les cartes qui arrivent : un client au comptoir, une livraison fournisseur, un lot en vrac ou un produit ouvert. Les cartes scannées dans la collection sont ajoutées à l’achat jusqu’à ce que vous le terminiez ou l’annuliez.",
     "customerContact": "Contact (facultatif)",
     "customerContactPlaceholder": "E-mail ou téléphone",
     "collection": "Scanner dans",
