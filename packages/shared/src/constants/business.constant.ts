@@ -23,6 +23,7 @@ export const BUYLIST_TIERS_MAX = 10;
 export const BUYLIST_PRICE_MAX = 1_000_000;
 export const BUYLIST_PERCENT_MAX = 100;
 export const BUYLIST_CREDIT_BONUS_MAX = 200;
+export const BUYLIST_PREVIEW_PRICES = [0.25, 2, 10, 50] as const;
 
 export const BUSINESS_PERMISSION_KEYS = [
   "viewCosts",

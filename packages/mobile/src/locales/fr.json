@@ -281,6 +281,14 @@
         "count": "Cartes",
         "value": "Valeur ajoutée"
       },
+      "periods": {
+        "label": "Période",
+        "allTime": "Depuis le début",
+        "week": "Dernière semaine",
+        "month": "Dernier mois",
+        "year": "Dernière année"
+      },
+      "updatedDaily": "Le classement est mis à jour une fois par jour.",
       "weekOf": "Semaine du {{date}}",
       "thisWeek": "Cette semaine",
       "today": "Aujourd'hui",
@@ -344,8 +352,17 @@
     "cardCount_other": "{{count}} cartes",
     "leaderboard": {
       "title": "Classement",
-      "description_one": "La {{count}} organisation qui a scanné le plus de cartes avec Mault.",
-      "description_other": "Les {{count}} organisations qui ont scanné le plus de cartes avec Mault.",
+      "descriptions": {
+        "totalScans_one": "La {{count}} organisation qui a scanné le plus de cartes avec Mault.",
+        "totalScans_other": "Les {{count}} organisations qui ont scanné le plus de cartes avec Mault.",
+        "cardsPerHour_one": "L'organisation dont la machine est la plus rapide sur Mault hébergé, d'après ses 15 meilleures minutes de scan, exprimé en cartes par heure.",
+        "cardsPerHour_other": "Les {{count}} organisations dont les machines sont les plus rapides sur Mault hébergé, d'après les 15 meilleures minutes de chaque machine, exprimé en cartes par heure."
+      },
+      "metrics": {
+        "label": "Classer par",
+        "totalScans": "Le plus de cartes",
+        "cardsPerHour": "Cartes par heure"
+      },
       "error": "Impossible de charger le classement. Réessayez dans un instant.",
       "rank": "#{{rank}}",
       "you": "Vous",
@@ -354,7 +371,8 @@
       "columns": {
         "rank": "Rang",
         "organization": "Organisation",
-        "scans": "Cartes scannées"
+        "totalScans": "Cartes scannées",
+        "cardsPerHour": "Cartes par heure"
       },
       "optIn": {
         "title": "Votre organisation n'apparaît pas dans le classement",
@@ -1893,9 +1911,9 @@
         "title": "Webhooks",
         "description": "Envoie les événements de scan et de rangement à ton propre serveur"
       },
-      "shopCatalogs": {
-        "title": "Catalogues boutique",
-        "description": "Montrer votre stock aux clients sur une tablette ou un site"
+      "business": {
+        "title": "Business",
+        "description": "Offres de rachat, droits des membres et catalogues boutique"
       }
     },
     "appearance": {
@@ -2350,6 +2368,49 @@
         "saveFailed": "Impossible d'enregistrer la règle sonore."
       }
     },
+    "business": {
+      "description": "Définissez vos offres de rachat et choisissez ce que les membres peuvent voir et faire.",
+      "managersOnly": "Seuls les propriétaires et les admins peuvent modifier ces réglages.",
+      "buylist": {
+        "heading": "Offres de rachat",
+        "description": "Combien vous proposez pour chaque carte lors du rachat d'une collection. Les offres utilisent votre source de prix et vos valeurs d'état.",
+        "tiers": "Paliers de prix",
+        "minPrice": "Prix du marché à partir de",
+        "percent": "Offre (% du marché)",
+        "addTier": "Ajouter un palier",
+        "removeTier": "Retirer le palier",
+        "tiersHint": "Chaque carte utilise le palier le plus élevé atteint par son prix du marché.",
+        "bulkThreshold": "Vrac en dessous de",
+        "bulkOffer": "Offre vrac par carte",
+        "creditBonus": "Bonus en avoir (%)",
+        "preview": "Exemples d'offres",
+        "previewMarket": "Carte à {{price}}",
+        "previewCredit": "{{price}} en avoir",
+        "minCardValue": "Valeur minimale par carte",
+        "minCardValueHint": "Les cartes qui valent moins ne sont pas reprises. Mettez 0 pour tout reprendre.",
+        "previewDeclined": "Non reprise"
+      },
+      "permissions": {
+        "heading": "Droits des membres",
+        "description": "Ce que les membres peuvent faire. Les propriétaires et les admins peuvent toujours tout faire.",
+        "viewCosts": {
+          "label": "Voir les prix de rachat et les coûts",
+          "description": "Offres, coûts d'achat et marges."
+        },
+        "acceptIntake": {
+          "label": "Accepter ou annuler les rachats",
+          "description": "Les membres peuvent toujours scanner dans un rachat ouvert."
+        },
+        "fulfilOrders": {
+          "label": "Créer et terminer les préparations",
+          "description": "Terminer une préparation retire ses cartes du stock."
+        },
+        "viewActivity": {
+          "label": "Voir l'activité de l'équipe",
+          "description": "Rendement par personne et journal d'activité."
+        }
+      }
+    },
     "shopCatalogs": {
       "heading": "Catalogues boutique",
       "description": "Laissez vos clients parcourir votre stock sur une tablette en boutique ou sur votre site. Chaque catalogue montre les cartes des collections et emplacements choisis, via un lien qui fonctionne jusqu'à ce que vous le réinitialisiez.",
@@ -2387,7 +2448,6 @@
       "resetLinkConfirmTitle": "Réinitialiser le lien de ce catalogue ?",
       "resetLinkConfirmDescription": "Le lien et le QR code actuels cessent de fonctionner. Mettez à jour chaque tablette ou site qui les utilise.",
       "linkReset": "Lien réinitialisé. L'ancien lien ne fonctionne plus.",
-      "managersOnly": "Seuls les propriétaires et les admins peuvent gérer les catalogues boutique.",
       "cancel": "Annuler",
       "close": "Fermer",
       "actions": "Actions du catalogue",

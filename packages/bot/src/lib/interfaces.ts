@@ -5,6 +5,10 @@ import type {
   SlashCommandOptionsOnlyBuilder,
   SlashCommandSubcommandsOnlyBuilder,
 } from "discord.js";
+import type {
+  LEADERBOARD_PERIOD_CHOICES,
+  LEADERBOARD_RANKING_CHOICES,
+} from "./constants";
 
 export interface GuildChannelSummary {
   id: string;
@@ -71,9 +75,25 @@ export interface LeaderboardRow {
   selfHostedScanCount?: number;
 }
 
+export type LeaderboardRanking =
+  (typeof LEADERBOARD_RANKING_CHOICES)[number]["value"];
+
+export type LeaderboardPeriod =
+  (typeof LEADERBOARD_PERIOD_CHOICES)[number]["value"];
+
+export interface LeaderboardRequest {
+  guildId: string | null;
+  ranking: LeaderboardRanking;
+  period: LeaderboardPeriod;
+  includeSelfHosted: boolean;
+}
+
 export interface LeaderboardResult {
   rows: LeaderboardRow[];
   size: number;
+  metric?: LeaderboardRanking;
+  period?: LeaderboardPeriod;
+  includesSelfHosted?: boolean;
   linkedOrgOptedIn: boolean | null;
 }
 

@@ -9,7 +9,7 @@ import {
 } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
-import { invalidateLeaderboardCache } from "../../lib/leaderboard";
+import { forgetLeaderboardOptIns } from "../../lib/leaderboard";
 import { forgetShopCatalogReadsForOrg } from "../../lib/shop-catalogs";
 import { orgSettings } from "../../db/schema";
 import { eq } from "drizzle-orm";
@@ -167,7 +167,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
         },
       };
     });
-    if ("leaderboardOptIn" in body) invalidateLeaderboardCache();
+    if ("leaderboardOptIn" in body) forgetLeaderboardOptIns();
     forgetShopCatalogReadsForOrg(orgId);
     return c.json(result);
   },

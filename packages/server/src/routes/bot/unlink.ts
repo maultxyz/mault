@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { db } from "../../db";
+import { forgetDiscordGuildOrgs } from "../../lib/discord/guild-orgs";
 import { clearOrgDiscordReferences } from "../../lib/discord/unlink";
 import type { AppEnv } from "../../middleware/auth";
 import { resolveOrgByGuild } from "./shared";
@@ -14,5 +15,6 @@ export const botUnlinkRoute = new Hono<AppEnv>().post("/unlink", async (c) => {
   if (!orgId) return c.json({ success: true, message: "Not linked." });
 
   await db.transaction((tx) => clearOrgDiscordReferences(tx, orgId));
+  forgetDiscordGuildOrgs();
   return c.json({ success: true, message: "Unlinked." });
 });

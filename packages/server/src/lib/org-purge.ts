@@ -43,6 +43,8 @@ import {
   storageLocations,
   webhookEndpoints,
 } from "../db/schema";
+import { forgetDiscordGuildOrgs } from "./discord/guild-orgs";
+import { forgetLeaderboardOptIns } from "./leaderboard";
 const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
   "canceled",
   "incomplete_expired",
@@ -160,4 +162,6 @@ export async function purgeOrgServerData(orgId: string): Promise<void> {
   await db
     .delete(statsSyncConnections)
     .where(eq(statsSyncConnections.orgId, orgId));
+  forgetDiscordGuildOrgs();
+  forgetLeaderboardOptIns();
 }

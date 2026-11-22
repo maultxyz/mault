@@ -1,6 +1,5 @@
 export const CANDIDATE_THUMB_WIDTH = 168;
 export const PRICE_TABLE_COLUMN_WIDTH = 84;
-export const PRICE_PAID_INPUT_PATTERN = /^\d*\.?\d{0,2}$/;
 export const REVIEW_GRID_WIDE_MIN_WIDTH = 600;
 export const REVIEW_GRID_SKELETON_HEIGHT_RATIO = 0.85;
 export const CARD_DETAIL_SHARE_ACTION = "share";

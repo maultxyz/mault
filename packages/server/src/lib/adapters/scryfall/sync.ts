@@ -30,6 +30,44 @@ function cardBackImageUrl(
   return uris?.png ?? uris?.large;
 }
 
+const PRINTED_LANGUAGE_FIELDS = ["printed_name", "printed_type_line", "printed_text"] as const;
+
+function withoutPrintedLanguageFields(record: Record<string, unknown>): Record<string, unknown> {
+  const result = { ...record };
+  for (const field of PRINTED_LANGUAGE_FIELDS) delete result[field];
+  return result;
+}
+
+function englishCatalogDataOf(line: string): string {
+  const raw = JSON.parse(line) as Record<string, unknown>;
+  const faces = Array.isArray(raw.card_faces)
+    ? (raw.card_faces as Record<string, unknown>[]).map(withoutPrintedLanguageFields)
+    : undefined;
+  return JSON.stringify({
+    ...withoutPrintedLanguageFields(raw),
+    ...(faces ? { card_faces: faces } : {}),
+  });
+}
+
+function isForeignOnlyPrintingInEnglishCatalog(
+  raw: Pick<ScryfallBulkCard, "lang">,
+  lang: string | undefined,
+): boolean {
+  return lang === "en" && raw.lang !== "en";
+}
+
+function toSyncSourceCard(raw: ScryfallBulkCard, data: string): SyncSourceCard {
+  return {
+    id: raw.id,
+    name: raw.printed_name ?? raw.name,
+    setCode: raw.set,
+    imageUrl: cardImageUrl(raw),
+    printingMarkImageUrl: printingMarkImageUrl(raw),
+    backImageUrl: cardBackImageUrl(raw),
+    data,
+  };
+}
+
 function apiRoot(baseUrl: string): string {
   try {
     return new URL(baseUrl).origin;
@@ -81,6 +119,7 @@ async function downloadBulkData(
 
   const borrowsEnglishCardmarketIds = !!lang && lang !== "en";
   const englishCardmarketIdByPrinting = new Map<string, number>();
+  let foreignOnlyPrintingCount = 0;
   for await (const line of lines) {
     if (!line) continue;
     seen++;
@@ -88,19 +127,19 @@ async function downloadBulkData(
     if (borrowsEnglishCardmarketIds && raw.lang === "en" && raw.cardmarket_id) {
       englishCardmarketIdByPrinting.set(printingKeyOf(raw), raw.cardmarket_id);
     }
+    if (isForeignOnlyPrintingInEnglishCatalog(raw, lang)) {
+      cards.push(toSyncSourceCard({ ...raw, printed_name: undefined }, englishCatalogDataOf(line)));
+      foreignOnlyPrintingCount++;
+      continue;
+    }
     if (lang && raw.lang !== lang) continue;
-    cards.push({
-      id: raw.id,
-      name: raw.printed_name ?? raw.name,
-      setCode: raw.set,
-      imageUrl: cardImageUrl(raw),
-      printingMarkImageUrl: printingMarkImageUrl(raw),
-      backImageUrl: cardBackImageUrl(raw),
-      data: line,
-    });
+    cards.push(toSyncSourceCard(raw, line));
   }
 
   addLog(`Scanned ${seen} cards, kept ${cards.length}.`);
+  if (foreignOnlyPrintingCount > 0) {
+    addLog(`Kept ${foreignOnlyPrintingCount} printings only printed in another language.`);
+  }
   if (borrowsEnglishCardmarketIds) {
     const stamped = stampEnglishPrintingCardmarketIds(
       cards,
@@ -169,17 +208,19 @@ async function fetchCards(
     : downloadBulkData(baseUrl, addLog, "all_cards", lang, signal);
 }
 
-async function fetchOne(id: string, baseUrl: string) {
+async function fetchOne(id: string, baseUrl: string, lang?: string) {
   const url = `${baseUrl}/${id}`;
   const res = await fetch(url, { headers: CARD_API_HEADERS });
   if (!res.ok) return { card: null, urls: [`${url} [HTTP ${res.status}]`] };
-  const text = await res.text();
-  const raw = JSON.parse(text) as ScryfallBulkCard;
-  const data = withEnglishPrintingCardmarketId(
-    raw,
-    text,
-    await englishPrintingCardmarketIdOf(baseUrl, raw),
-  );
+  const responseText = await res.text();
+  const raw = JSON.parse(responseText) as ScryfallBulkCard;
+  const data = isForeignOnlyPrintingInEnglishCatalog(raw, lang)
+    ? englishCatalogDataOf(responseText)
+    : withEnglishPrintingCardmarketId(
+        raw,
+        responseText,
+        await englishPrintingCardmarketIdOf(baseUrl, raw),
+      );
   return {
     card: {
       name: raw.name,

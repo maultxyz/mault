@@ -424,6 +424,7 @@ export const addCollectionCardRoute = new Hono<AppEnv>().post(
           scannedAt,
           vectorizedOn,
           userId,
+          deviceGuid,
         );
         void recordDeviceSorted(orgId, deviceGuid);
         emitToSession(orgId, guid, "card_added", result.data);

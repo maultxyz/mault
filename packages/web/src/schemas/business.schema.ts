@@ -1,9 +1,5 @@
 import {
-  BUSINESS_PERMISSION_KEYS,
   businessMoneySchema,
-  BUYLIST_CREDIT_BONUS_MAX,
-  BUYLIST_PERCENT_MAX,
-  BUYLIST_TIERS_MAX,
   CARD_CONDITIONS,
   CSV_IMPORT_NAME_MAX_LENGTH,
   DEVICE_MAINTENANCE_INTERVAL_MAX,
@@ -18,42 +14,6 @@ import {
 } from "@magic-vault/shared";
 import { PICK_IMPORT_CREATE_MODES } from "@/lib/constants/business";
 import { z } from "zod";
-
-export const businessSettingsDraftSchema = z.object({
-  buylist: z.object({
-    minCardValue: businessMoneySchema,
-    tiers: z
-      .array(
-        z.object({
-          minPrice: businessMoneySchema,
-          percent: z
-            .number({ message: formValidationMessage("percentageRequired") })
-            .min(0, formValidationMessage("atLeast", { min: 0 }))
-            .max(BUYLIST_PERCENT_MAX, formValidationMessage("atMost", { max: BUYLIST_PERCENT_MAX })),
-        }),
-      )
-      .min(1, formValidationMessage("tiersRequired"))
-      .max(BUYLIST_TIERS_MAX, formValidationMessage("tooManyTiers", { max: BUYLIST_TIERS_MAX })),
-    bulkThreshold: businessMoneySchema,
-    bulkOffer: businessMoneySchema,
-    creditBonusPercent: z
-      .number({ message: formValidationMessage("percentageRequired") })
-      .min(0, formValidationMessage("atLeast", { min: 0 }))
-      .max(
-        BUYLIST_CREDIT_BONUS_MAX,
-        formValidationMessage("atMost", { max: BUYLIST_CREDIT_BONUS_MAX }),
-      ),
-  }),
-  permissions: z.object(
-    Object.fromEntries(
-      BUSINESS_PERMISSION_KEYS.map((key) => [key, z.boolean()]),
-    ) as Record<(typeof BUSINESS_PERMISSION_KEYS)[number], z.ZodBoolean>,
-  ),
-});
-
-export type BusinessSettingsDraftValues = z.infer<
-  typeof businessSettingsDraftSchema
->;
 
 export const intakeOfferSchema = z.object({ offer: businessMoneySchema });
 

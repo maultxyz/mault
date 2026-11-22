@@ -281,6 +281,14 @@
         "count": "Karten",
         "value": "Wertzuwachs"
       },
+      "periods": {
+        "label": "Zeitraum",
+        "allTime": "Gesamt",
+        "week": "Letzte Woche",
+        "month": "Letzter Monat",
+        "year": "Letztes Jahr"
+      },
+      "updatedDaily": "Die Ranglisten werden einmal am Tag aktualisiert.",
       "weekOf": "Woche vom {{date}}",
       "thisWeek": "Diese Woche",
       "today": "Heute",
@@ -344,8 +352,17 @@
     "cardCount_other": "{{count}} Karten",
     "leaderboard": {
       "title": "Bestenliste",
-      "description_one": "Die {{count}} Organisation, die mit Mault die meisten Karten gescannt hat.",
-      "description_other": "Die {{count}} Organisationen, die mit Mault die meisten Karten gescannt haben.",
+      "descriptions": {
+        "totalScans_one": "Die {{count}} Organisation, die mit Mault die meisten Karten gescannt hat.",
+        "totalScans_other": "Die {{count}} Organisationen, die mit Mault die meisten Karten gescannt haben.",
+        "cardsPerHour_one": "Die {{count}} Organisation mit der schnellsten Maschine auf dem gehosteten Mault, gemessen an ihren besten 15 Minuten und als Karten pro Stunde angegeben.",
+        "cardsPerHour_other": "Die {{count}} Organisationen mit den schnellsten Maschinen auf dem gehosteten Mault, gemessen an den besten 15 Minuten jeder Maschine und als Karten pro Stunde angegeben."
+      },
+      "metrics": {
+        "label": "Rangliste nach",
+        "totalScans": "Meiste Karten",
+        "cardsPerHour": "Karten pro Stunde"
+      },
       "error": "Die Bestenliste konnte nicht geladen werden. Versuch es gleich noch einmal.",
       "rank": "#{{rank}}",
       "you": "Du",
@@ -354,7 +371,8 @@
       "columns": {
         "rank": "Rang",
         "organization": "Organisation",
-        "scans": "Gescannte Karten"
+        "totalScans": "Gescannte Karten",
+        "cardsPerHour": "Karten pro Stunde"
       },
       "optIn": {
         "title": "Deine Organisation ist nicht in der Bestenliste",
@@ -1893,9 +1911,9 @@
         "title": "Webhooks",
         "description": "Scan- und Lagerereignisse an deinen eigenen Server senden"
       },
-      "shopCatalogs": {
-        "title": "Shop-Kataloge",
-        "description": "Kunden deinen Bestand auf einem Tablet oder deiner Website zeigen"
+      "business": {
+        "title": "Business",
+        "description": "Ankaufsangebote, Rechte für Mitglieder und Shop-Kataloge"
       }
     },
     "appearance": {
@@ -2350,6 +2368,49 @@
         "saveFailed": "Die Soundregel konnte nicht gespeichert werden."
       }
     },
+    "business": {
+      "description": "Lege deine Ankaufsangebote fest und bestimme, was Mitglieder sehen und tun dürfen.",
+      "managersOnly": "Nur Inhaber und Admins können diese Einstellungen ändern.",
+      "buylist": {
+        "heading": "Ankaufsangebote",
+        "description": "Wie viel du beim Ankauf einer Sammlung für jede Karte bietest. Angebote nutzen deine Preisquelle und Zustandswerte.",
+        "tiers": "Preisstufen",
+        "minPrice": "Marktwert ab",
+        "percent": "Angebot (% vom Marktwert)",
+        "addTier": "Stufe hinzufügen",
+        "removeTier": "Stufe entfernen",
+        "tiersHint": "Jede Karte nutzt die höchste Stufe, die ihr Marktwert erreicht.",
+        "bulkThreshold": "Bulk unter",
+        "bulkOffer": "Bulk-Angebot pro Karte",
+        "creditBonus": "Bonus für Guthaben (%)",
+        "preview": "Beispielangebote",
+        "previewMarket": "Karte für {{price}}",
+        "previewCredit": "{{price}} als Guthaben",
+        "minCardValue": "Mindestwert pro Karte",
+        "minCardValueHint": "Karten, die weniger wert sind, werden nicht angenommen. 0 nimmt alles.",
+        "previewDeclined": "Nicht angenommen"
+      },
+      "permissions": {
+        "heading": "Rechte für Mitglieder",
+        "description": "Was Mitglieder tun dürfen. Inhaber und Admins dürfen immer alles.",
+        "viewCosts": {
+          "label": "Ankaufspreise und Kosten sehen",
+          "description": "Angebote, Einkaufspreise und Margen."
+        },
+        "acceptIntake": {
+          "label": "Ankäufe annehmen oder abbrechen",
+          "description": "In einen offenen Ankauf scannen dürfen Mitglieder immer."
+        },
+        "fulfilOrders": {
+          "label": "Picks erstellen und abschließen",
+          "description": "Beim Abschließen eines Picks werden seine Karten aus dem Bestand entfernt."
+        },
+        "viewActivity": {
+          "label": "Aktivität des Teams sehen",
+          "description": "Durchsatz pro Person und das Aktivitätsprotokoll."
+        }
+      }
+    },
     "shopCatalogs": {
       "heading": "Shop-Kataloge",
       "description": "Lass Kunden deinen Bestand auf einem Tablet im Laden oder auf deiner Website durchsuchen. Jeder Katalog zeigt die Karten aus den gewählten Sammlungen und Lagerorten, über einen Link, der funktioniert, bis du ihn zurücksetzt.",
@@ -2387,7 +2448,6 @@
       "resetLinkConfirmTitle": "Link dieses Katalogs zurücksetzen?",
       "resetLinkConfirmDescription": "Der aktuelle Link und QR-Code funktionieren nicht mehr. Aktualisiere jedes Tablet und jede Website, die ihn nutzt.",
       "linkReset": "Link zurückgesetzt. Der alte Link funktioniert nicht mehr.",
-      "managersOnly": "Nur Inhaber und Admins können Shop-Kataloge verwalten.",
       "cancel": "Abbrechen",
       "close": "Schließen",
       "actions": "Katalogaktionen",

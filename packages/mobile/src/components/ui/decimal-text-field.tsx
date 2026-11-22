@@ -1,13 +1,13 @@
 import { useEffect, useState } from "react";
 import { TextField } from "@/components/ui/text-field";
-import { PRICE_PAID_INPUT_PATTERN } from "@/lib/constants/cards";
-import type { PricePaidFieldProps } from "@/lib/interfaces/cards";
+import { DECIMAL_INPUT_PATTERN } from "@/lib/constants/ui";
+import type { DecimalTextFieldProps } from "@/lib/interfaces/ui";
 
 function textFor(value: number | null): string {
-  return value == null ? "" : String(value);
+  return value == null || Number.isNaN(value) ? "" : String(value);
 }
 
-export function PricePaidField({ label, placeholder, value, onChange, error }: PricePaidFieldProps) {
+export function DecimalTextField({ value, onChange, ...props }: DecimalTextFieldProps) {
   const [text, setText] = useState(textFor(value));
 
   useEffect(() => {
@@ -16,14 +16,13 @@ export function PricePaidField({ label, placeholder, value, onChange, error }: P
 
   return (
     <TextField
-      label={label}
-      placeholder={placeholder}
+      {...props}
       keyboardType="decimal-pad"
+      returnKeyType="done"
       value={text}
-      error={error}
       onChangeText={(raw) => {
         const next = raw.replace(",", ".");
-        if (!PRICE_PAID_INPUT_PATTERN.test(next)) return;
+        if (!DECIMAL_INPUT_PATTERN.test(next)) return;
         setText(next);
         onChange(next === "" || next === "." ? null : Number(next));
       }}

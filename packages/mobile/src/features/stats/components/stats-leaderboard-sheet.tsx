@@ -1,18 +1,29 @@
-import { buildLeaderboardRows } from "@magic-vault/shared";
+import {
+  buildLeaderboardRows,
+  DEFAULT_LEADERBOARD_METRIC,
+  DEFAULT_LEADERBOARD_PERIOD,
+  LEADERBOARD_METRICS,
+  LEADERBOARD_PERIODS,
+  LEADERBOARD_SIZE,
+  leaderboardMetricCountsSelfHosted,
+  type LeaderboardMetric,
+  type LeaderboardPeriod,
+} from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { router } from "expo-router";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { LEADERBOARD_SIZE } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { Sheet } from "@/components/ui/sheet";
 import { Surface } from "@/components/ui/surface";
 import { SwitchRow } from "@/components/ui/switch-row";
+import { TabStrip } from "@/components/ui/tab-strip";
 import { leaderboardQueryOptions } from "@/features/stats/api/stats";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { AUTH_PROVIDER } from "@/lib/constants/config";
@@ -23,9 +34,16 @@ import type { StatsLeaderboardSheetProps } from "@/lib/interfaces/stats";
 export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardSheetProps) {
   const { t, i18n } = useTranslation();
   const orgId = useActiveOrgId();
+  const [metric, setMetric] = useState<LeaderboardMetric>(DEFAULT_LEADERBOARD_METRIC);
+  const [period, setPeriod] = useState<LeaderboardPeriod>(DEFAULT_LEADERBOARD_PERIOD);
   const [hideSelfHosted, setHideSelfHosted] = useState(false);
+  const canIncludeSelfHosted = AUTH_PROVIDER !== "local" && leaderboardMetricCountsSelfHosted(metric);
   const { data: leaderboard, isPending, isError } = useQuery({
-    ...leaderboardQueryOptions(orgId, AUTH_PROVIDER !== "local" && !hideSelfHosted),
+    ...leaderboardQueryOptions(orgId, {
+      metric,
+      period,
+      includeSelfHosted: canIncludeSelfHosted && !hideSelfHosted,
+    }),
     enabled: visible && !!orgId,
   });
 
@@ -34,10 +52,24 @@ export function StatsLeaderboardSheet({ visible, onClose }: StatsLeaderboardShee
       visible={visible}
       onClose={onClose}
       title={t("stats.leaderboard.title")}
-      description={t("stats.leaderboard.description", { count: LEADERBOARD_SIZE })}
+      description={t(`stats.leaderboard.descriptions.${metric}`, { count: LEADERBOARD_SIZE })}
       contentContainerStyle={{ gap: SPACING.md }}
     >
-      {AUTH_PROVIDER !== "local" ? (
+      <TabStrip<LeaderboardMetric>
+        inline
+        value={metric}
+        onChange={setMetric}
+        items={LEADERBOARD_METRICS.map((value) => ({ value, label: t(`stats.leaderboard.metrics.${value}`) }))}
+      />
+      <SegmentedControl<LeaderboardPeriod>
+        value={period}
+        onChange={setPeriod}
+        options={LEADERBOARD_PERIODS.map((value) => ({ value, label: t(`stats.leaderboard.periods.${value}`) }))}
+      />
+      <AppText tone="secondary" size="xs">
+        {t("stats.leaderboard.updatedDaily")}
+      </AppText>
+      {canIncludeSelfHosted ? (
         <Surface>
           <SwitchRow
             title={t("stats.leaderboard.hideSelfHosted.label")}

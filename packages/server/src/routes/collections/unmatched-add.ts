@@ -153,6 +153,7 @@ export const addUnmatchedCardRoute = new Hono<AppEnv>().post(
           scannedAt,
           vectorizedOn,
           c.get("userId"),
+          deviceGuid,
         );
         void recordDeviceSorted(orgId, deviceGuid);
         emitToSession(orgId, guid, "unmatched_added", result.data);

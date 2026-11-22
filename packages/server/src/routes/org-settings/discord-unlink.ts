@@ -1,5 +1,6 @@
 import { Hono } from "hono";
 import { authQuery } from "../../db";
+import { forgetDiscordGuildOrgs } from "../../lib/discord/guild-orgs";
 import { clearOrgDiscordReferences } from "../../lib/discord/unlink";
 import {
   requireAuth,
@@ -18,6 +19,7 @@ export const discordUnlinkRoute = new Hono<AppEnv>().post(
     await authQuery(c.get("jwtClaims"), (tx) =>
       clearOrgDiscordReferences(tx, orgId),
     );
+    forgetDiscordGuildOrgs();
     return c.json({ success: true, message: "Unlinked." });
   },
 );

@@ -47,3 +47,6 @@ export const BOT_SHOWCASE_TOP_CARD_COUNT = 5;
 
 export const TRADE_OFFER_EMBED_COLOR = 0x57f287;
 export const TRADE_OFFER_REVIEW_WEB_PATH = "/app/trades";
+export const BOT_LOOKUP_CACHE_TTL_MS = 60_000;
+export const BOT_STATS_CACHE_TTL_MS = 120_000;
+export const BOT_CACHE_MAX_ENTRIES = 1_000;

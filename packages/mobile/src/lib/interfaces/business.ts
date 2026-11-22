@@ -1,4 +1,6 @@
+import type { Control } from "react-hook-form";
 import type {
+  BusinessSettingsDraftValues,
   FulfilmentOrder,
   FulfilmentOrderDetail,
   IntakeLot,
@@ -75,4 +77,23 @@ export interface PickWalkNextCardProps {
   canPick: boolean;
   onPicked: () => void;
   onMissing: () => void;
+}
+
+export interface BusinessSettingsDraft {
+  control: Control<BusinessSettingsDraftValues>;
+  canManage: boolean;
+  isLoading: boolean;
+  isLoadError: boolean;
+  isRetryingLoad: boolean;
+  retryLoad: () => void;
+  isDirty: boolean;
+  isSaving: boolean;
+  saveError: boolean;
+  save: () => void;
+  discard: () => void;
+}
+
+export interface BusinessSettingsFormProps {
+  control: Control<BusinessSettingsDraftValues>;
+  disabled: boolean;
 }

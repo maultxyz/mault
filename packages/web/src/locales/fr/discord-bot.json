@@ -70,8 +70,8 @@
         "description": "Choisis un de tes préréglages de règles dans une liste et publie ses bacs et ses règles. Nécessite un compte lié."
       },
       "leaderboard": {
-        "usage": "/leaderboard",
-        "description": "Affiche les organisations qui ont scanné le plus de cartes avec Mault, la même liste que le classement dans Statistiques."
+        "usage": "/leaderboard [ranking] [period]",
+        "description": "Affiche les organisations qui ont scanné le plus de cartes avec Mault, la même liste que le classement dans Statistiques. Choisissez le classement cartes par heure pour voir quelle machine scanne le plus vite, d'après ses 15 meilleures minutes."
       }
     },
     "eyebrow": "Commandes"

@@ -70,8 +70,8 @@
         "description": "Pick one of your rule presets from a dropdown and post its bins and rules. Needs a linked account."
       },
       "leaderboard": {
-        "usage": "/leaderboard",
-        "description": "Show the organizations that have scanned the most cards with Mault, the same list as the leaderboard in Stats."
+        "usage": "/leaderboard [ranking] [period]",
+        "description": "Show the organizations that have scanned the most cards with Mault, the same list as the leaderboard in Stats. Pick the cards per hour ranking to see whose single machine scans fastest, from its best 15 minutes."
       }
     },
     "eyebrow": "Commands"
