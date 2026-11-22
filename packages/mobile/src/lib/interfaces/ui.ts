@@ -410,7 +410,7 @@ export interface InputProps {
   onChangeText: (value: string) => void;
   placeholder?: string;
   accessibilityLabel: string;
-  keyboardType?: "default" | "numeric" | "decimal-pad" | "number-pad";
+  keyboardType?: "default" | "numeric" | "decimal-pad" | "number-pad" | "numbers-and-punctuation";
   maxLength?: number;
   editable?: boolean;
   compact?: boolean;

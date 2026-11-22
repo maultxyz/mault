@@ -40,7 +40,7 @@ export interface BinRuleGroup {
   conditions: (BinCondition | BinRuleGroup)[];
 }
 
-export type FieldType = "string" | "numeric" | "enum" | "set";
+export type FieldType = "string" | "numeric" | "enum" | "set" | "boolean" | "date";
 
 export interface FieldOption {
   value: string;

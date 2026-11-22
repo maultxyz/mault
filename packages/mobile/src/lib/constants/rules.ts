@@ -6,6 +6,7 @@ export const MAX_RULE_GROUP_DEPTH = 2;
 export const BIN_ROW_MAX_CHIPS = 3;
 export const CONDITION_SHEET_MAX_HEIGHT_RATIO = 0.9;
 export const NUMERIC_INPUT_PATTERN = /^-?\d*\.?\d*$/;
+export const RULE_DATE_INPUT_MAX_LENGTH = 10;
 export const SORTING_MODES: BinSetMode[] = ["rules", "scan-only", "auto-assign", "game-sort", "repack", "alphabet", "chaos"];
 export const REPACK_ALLOW_DUPLICATES_VALUE = "$allow";
 export const PRESET_OPTION_PREFIX = "preset:";

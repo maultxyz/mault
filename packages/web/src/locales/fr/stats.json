@@ -50,14 +50,6 @@
       "count": "Cartes",
       "value": "Valeur ajoutée"
     },
-    "periods": {
-      "label": "Période",
-      "allTime": "Depuis le début",
-      "week": "Dernière semaine",
-      "month": "Dernier mois",
-      "year": "Dernière année"
-    },
-    "updatedDaily": "Le classement est mis à jour une fois par jour.",
     "weekOf": "Semaine du {{date}}",
     "thisWeek": "Cette semaine",
     "today": "Aujourd'hui"
@@ -127,6 +119,14 @@
       "totalScans": "Le plus de cartes",
       "cardsPerHour": "Cartes par heure"
     },
+    "periods": {
+      "label": "Période",
+      "allTime": "Depuis le début",
+      "week": "Dernière semaine",
+      "month": "Dernier mois",
+      "year": "Dernière année"
+    },
+    "updatedDaily": "Le classement est mis à jour une fois par jour.",
     "error": "Impossible de charger le classement. Réessayez dans un instant.",
     "rank": "#{{rank}}",
     "you": "Vous",

@@ -1,10 +1,10 @@
-import { GAME_KEY_PATTERN } from "@magic-vault/shared";
+import { GAME_FIELD_TYPES, GAME_KEY_PATTERN } from "@magic-vault/shared";
 import { z } from "zod";
 
 const exportedFieldSchema = z.object({
   field: z.string().trim().min(1),
   label: z.string().trim().min(1),
-  type: z.enum(["string", "numeric", "enum", "set"]),
+  type: z.enum(GAME_FIELD_TYPES),
   path: z.string().trim().min(1),
   options: z
     .array(z.object({ value: z.string().min(1), label: z.string().min(1) }))

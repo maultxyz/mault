@@ -108,7 +108,9 @@
     "string": "String",
     "numeric": "Numeric",
     "enum": "Enum",
-    "set": "Set"
+    "set": "Set",
+    "boolean": "Boolean",
+    "date": "Date"
   },
   "gameCoverage": {
     "heading": "Card Coverage",

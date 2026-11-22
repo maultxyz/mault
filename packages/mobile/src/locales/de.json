@@ -1230,6 +1230,7 @@
     "removeGroup": "Gruppe entfernen",
     "valuePlaceholder": "Wert...",
     "freeformPlaceholder": "Werte, durch Komma getrennt...",
+    "datePlaceholder": "JJJJ-MM-TT",
     "needCatchAll": "Mindestens ein Fach muss ein Auffangfach sein. Mache zuerst ein anderes Fach zum Auffangfach.",
     "overflowNone": "Kein Überlauf",
     "overflowNoOptions": "Keine freien Fächer. Lösche die Regeln eines Fachs, um es als Überlauf zu nutzen.",
@@ -3385,7 +3386,9 @@
         "string": "Text",
         "numeric": "Numerisch",
         "enum": "Enum",
-        "set": "Menge"
+        "set": "Menge",
+        "boolean": "Boolesch",
+        "date": "Datum"
       },
       "sync": {
         "heading": "Kartenbild-Vektoren",

@@ -1,4 +1,4 @@
-import { GAME_KEY_PATTERN } from "@magic-vault/shared";
+import { GAME_FIELD_TYPES, GAME_KEY_PATTERN } from "@magic-vault/shared";
 import type { TFunction } from "i18next";
 import { z } from "zod";
 
@@ -6,7 +6,7 @@ export function createGameFormSchema(t: TFunction<"games">) {
   const fieldMetaFormSchema = z.object({
     field: z.string().min(1, t("gameForm.validation.required")),
     label: z.string().min(1, t("gameForm.validation.required")),
-    type: z.enum(["string", "numeric", "enum", "set"]),
+    type: z.enum(GAME_FIELD_TYPES),
     path: z.string().min(1, t("gameForm.validation.required")),
     optionsText: z.string().optional(),
     originalField: z.string().optional(),

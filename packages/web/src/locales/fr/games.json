@@ -108,7 +108,9 @@
     "string": "Texte",
     "numeric": "Numérique",
     "enum": "Énumération",
-    "set": "Ensemble"
+    "set": "Ensemble",
+    "boolean": "Booléen",
+    "date": "Date"
   },
   "gameCoverage": {
     "heading": "Couverture des cartes",

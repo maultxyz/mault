@@ -1,4 +1,4 @@
-import type { FieldType, SyncStatus } from "@magic-vault/shared";
+import type { SyncStatus } from "@magic-vault/shared";
 import type { PillProps } from "@/lib/interfaces/ui";
 
 export const ADMIN_CARDS_TABS = ["stats", "games", "sync", "database", "keys"] as const;
@@ -24,8 +24,6 @@ export const ADMIN_DUMP_ALL_GAMES_SCOPE = "__all__";
 export const ADMIN_DELETE_CONFIRM_KEYWORD = "delete";
 
 export const ADMIN_DEFAULT_SYNC_LANGUAGE = "en";
-
-export const GAME_FIELD_TYPES_WITH_OPTIONS: readonly FieldType[] = ["enum", "set"];
 
 export const GAME_EDITOR_VALIDATION_KEYS = {
   required: "admin.cards.gameForm.validation.required",

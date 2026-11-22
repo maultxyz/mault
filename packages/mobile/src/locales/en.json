@@ -1230,6 +1230,7 @@
     "removeGroup": "Remove group",
     "valuePlaceholder": "Value...",
     "freeformPlaceholder": "Comma-separated values...",
+    "datePlaceholder": "YYYY-MM-DD",
     "needCatchAll": "At least one bin must be catch-all. Make another bin the catch-all first.",
     "overflowNone": "Don't overflow",
     "overflowNoOptions": "No free bins. Clear a bin's rules to use it as an overflow.",
@@ -3385,7 +3386,9 @@
         "string": "String",
         "numeric": "Numeric",
         "enum": "Enum",
-        "set": "Set"
+        "set": "Set",
+        "boolean": "Boolean",
+        "date": "Date"
       },
       "sync": {
         "heading": "Card Image Vectors",

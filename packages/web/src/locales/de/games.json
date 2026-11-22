@@ -108,7 +108,9 @@
     "string": "Text",
     "numeric": "Numerisch",
     "enum": "Enum",
-    "set": "Menge"
+    "set": "Menge",
+    "boolean": "Boolesch",
+    "date": "Datum"
   },
   "gameCoverage": {
     "heading": "Kartenabdeckung",

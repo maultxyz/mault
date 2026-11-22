@@ -1,5 +1,4 @@
-import type { FieldType } from "@magic-vault/shared";
-
+import { ruleDateValue, type FieldType } from "@magic-vault/shared";
 
 export function humanizeKey(key: string): string {
   const spaced = key
@@ -19,6 +18,8 @@ export function pathToFieldKey(path: string): string {
 
 export function inferFieldType(value: unknown): FieldType {
   if (typeof value === "number") return "numeric";
+  if (typeof value === "boolean") return "boolean";
+  if (ruleDateValue(value) !== null) return "date";
   if (Array.isArray(value)) return "set";
   return "string";
 }

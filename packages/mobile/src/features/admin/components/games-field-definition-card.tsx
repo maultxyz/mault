@@ -1,21 +1,21 @@
-import { GAME_FIELD_TYPES } from "@magic-vault/shared";
+import { GAME_FIELD_TYPES, GAME_FIELD_TYPES_WITH_OPTIONS } from "@magic-vault/shared";
+import { useState } from "react";
 import { Controller, useFormContext, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
 import { IconButton } from "@/components/ui/icon-button";
-import { SegmentedControl } from "@/components/ui/segmented-control";
+import { OptionSheet } from "@/components/ui/option-sheet";
+import { SelectField } from "@/components/ui/select-field";
 import { Surface } from "@/components/ui/surface";
 import { TextField } from "@/components/ui/text-field";
-import {
-  GAME_FIELD_TYPES_WITH_OPTIONS,
-} from "@/lib/constants/admin-cards";
 import { SPACING } from "@/lib/constants/theme";
 import type { GameEditorFormValues, GamesFieldDefinitionCardProps } from "@/lib/interfaces/admin-cards";
 
 export function GamesFieldDefinitionCard({ index, onRemove }: GamesFieldDefinitionCardProps) {
   const { t } = useTranslation();
   const { control } = useFormContext<GameEditorFormValues>();
+  const [isTypeSheetOpen, setIsTypeSheetOpen] = useState(false);
   const fieldType = useWatch({ control, name: `fieldDefinitions.${index}.type` });
   const fieldLabel = useWatch({ control, name: `fieldDefinitions.${index}.label` });
   const translateError = (message: string | undefined) => (message ? t(message) : undefined);
@@ -63,16 +63,25 @@ export function GamesFieldDefinitionCard({ index, onRemove }: GamesFieldDefiniti
         control={control}
         name={`fieldDefinitions.${index}.type`}
         render={({ field }) => (
-          <View style={{ gap: SPACING.xs + 2 }}>
-            <AppText size="xs" weight="medium">
-              {t("admin.cards.fields.typeLabel")}
-            </AppText>
-            <SegmentedControl
-              options={GAME_FIELD_TYPES.map((value) => ({ value, label: t(`admin.cards.fieldTypes.${value}`) }))}
-              value={field.value}
-              onChange={field.onChange}
+          <>
+            <SelectField
+              label={t("admin.cards.fields.typeLabel")}
+              value={t(`admin.cards.fieldTypes.${field.value}`)}
+              placeholder={t("admin.cards.fields.typeLabel")}
+              onPress={() => setIsTypeSheetOpen(true)}
             />
-          </View>
+            <OptionSheet
+              visible={isTypeSheetOpen}
+              title={t("admin.cards.fields.typeLabel")}
+              options={GAME_FIELD_TYPES.map((value) => ({ value, label: t(`admin.cards.fieldTypes.${value}`) }))}
+              selected={[field.value]}
+              onSelect={(value) => {
+                field.onChange(value);
+                setIsTypeSheetOpen(false);
+              }}
+              onClose={() => setIsTypeSheetOpen(false)}
+            />
+          </>
         )}
       />
       <Controller

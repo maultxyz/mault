@@ -1,4 +1,4 @@
-import { DEFAULT_OPERATORS_BY_FIELD_TYPE } from "@magic-vault/shared";
+import { buildFieldDefinition } from "@magic-vault/shared";
 import type { GameFormValues } from "@/schemas/games.schema";
 import type {
   FieldMeta,
@@ -61,14 +61,13 @@ export function toFieldDefinitions(
         label: v.charAt(0).toUpperCase() + v.slice(1),
       }));
 
-    return {
+    return buildFieldDefinition({
       field: f.field.trim(),
       label: f.label.trim(),
       type: f.type,
       path: f.path.trim(),
-      operators: DEFAULT_OPERATORS_BY_FIELD_TYPE[f.type],
-      ...(options?.length ? { options } : {}),
-    };
+      options,
+    });
   });
 }
 

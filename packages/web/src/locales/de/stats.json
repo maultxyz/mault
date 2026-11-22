@@ -50,14 +50,6 @@
       "count": "Karten",
       "value": "Wertzuwachs"
     },
-    "periods": {
-      "label": "Zeitraum",
-      "allTime": "Gesamt",
-      "week": "Letzte Woche",
-      "month": "Letzter Monat",
-      "year": "Letztes Jahr"
-    },
-    "updatedDaily": "Die Ranglisten werden einmal am Tag aktualisiert.",
     "weekOf": "Woche vom {{date}}",
     "thisWeek": "Diese Woche",
     "today": "Heute"
@@ -127,6 +119,14 @@
       "totalScans": "Meiste Karten",
       "cardsPerHour": "Karten pro Stunde"
     },
+    "periods": {
+      "label": "Zeitraum",
+      "allTime": "Gesamt",
+      "week": "Letzte Woche",
+      "month": "Letzter Monat",
+      "year": "Letztes Jahr"
+    },
+    "updatedDaily": "Die Ranglisten werden einmal am Tag aktualisiert.",
     "error": "Die Bestenliste konnte nicht geladen werden. Versuch es gleich noch einmal.",
     "rank": "#{{rank}}",
     "you": "Du",

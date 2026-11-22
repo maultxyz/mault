@@ -1230,6 +1230,7 @@
     "removeGroup": "Supprimer le groupe",
     "valuePlaceholder": "Valeur...",
     "freeformPlaceholder": "Valeurs séparées par des virgules...",
+    "datePlaceholder": "AAAA-MM-JJ",
     "needCatchAll": "Au moins un bac doit être un bac fourre-tout. Fais d'abord d'un autre bac le bac fourre-tout.",
     "overflowNone": "Pas de débordement",
     "overflowNoOptions": "Aucun bac libre. Efface les règles d'un bac pour l'utiliser comme débordement.",
@@ -3385,7 +3386,9 @@
         "string": "Texte",
         "numeric": "Numérique",
         "enum": "Énumération",
-        "set": "Ensemble"
+        "set": "Ensemble",
+        "boolean": "Booléen",
+        "date": "Date"
       },
       "sync": {
         "heading": "Vecteurs d'image des cartes",
