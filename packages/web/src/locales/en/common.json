@@ -746,5 +746,9 @@
       "resultsCount_other": "{{count}} updates found"
     },
     "openInTimeline": "Open in What's new"
+  },
+  "reservations": {
+    "newReservationToast_one": "{{name}} reserved {{card}}",
+    "newReservationToast_other": "{{name}} reserved {{count}} cards"
   }
 }

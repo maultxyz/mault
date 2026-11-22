@@ -1,0 +1,2 @@
+ALTER TABLE "card_reservations" ADD COLUMN "request_guid" uuid DEFAULT gen_random_uuid() NOT NULL;--> statement-breakpoint
+CREATE INDEX "card_reservations_org_request_idx" ON "card_reservations" USING btree ("org_id","request_guid");

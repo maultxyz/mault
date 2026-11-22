@@ -1,4 +1,6 @@
 import {
+  CARD_RESERVATIONS_CHANGED_EVENT,
+  type OrderFulfilResult,
   buildOrderSortPresetBins,
   computeBinCount,
   hasEveryOrderBin,
@@ -40,6 +42,11 @@ import {
   games,
 } from "../../db/schema";
 import { logActivity } from "../../lib/activity-log";
+import {
+  markReservedCardsReadyForPickup,
+  reservationHeldScanIds,
+  unlinkCardReservationPick,
+} from "../../lib/card-reservations";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import type { SoldCardRow } from "../../lib/interfaces/business";
 import {
@@ -147,6 +154,7 @@ async function cancelOrderRow(
     .update(fulfilmentOrders)
     .set({ status: "cancelled", closedAt: now, closedByUserId: userId, updatedAt: now })
     .where(eq(fulfilmentOrders.id, row.id));
+  await unlinkCardReservationPick(tx, orgId, row.id);
   await logActivity(tx, {
     orgId,
     userId,
@@ -172,6 +180,7 @@ export const ordersRoute = new Hono<AppEnv>()
     const orgId = c.get("orgId");
     if (c.req.method !== "GET" && c.res.status === 200 && orgId) {
       emitToOrg(orgId, ORDERS_CHANGED_EVENT, {});
+      emitToOrg(orgId, CARD_RESERVATIONS_CHANGED_EVENT, { createdReservation: null });
     }
   })
   .get("/orders", requireAuth, requireOrg, (c) => {
@@ -287,6 +296,11 @@ export const ordersRoute = new Hono<AppEnv>()
           ? visibleLines
           : visibleLines.map((line) => ({ ...line, unitPrice: null })),
         pullSheet,
+        reservationHeldScanIds: await reservationHeldScanIds(
+          tx,
+          orgId,
+          pullSheet.map((entry) => entry.scanId),
+        ),
         orderBins: toOrderBins(row.orderBins, lines),
         binCount: computeBinCount(await getModuleCount(tx, orgId)),
       };
@@ -388,7 +402,14 @@ export const ordersRoute = new Hono<AppEnv>()
         };
       }
       const currency = pricingCurrency(await loadOrgPricing(tx, orgId));
-      const ids = [...lineOf.keys()];
+      const now = new Date();
+      const readyForPickupScanIds = await markReservedCardsReadyForPickup(
+        tx,
+        orgId,
+        [...lineOf.keys()],
+        now,
+      );
+      const ids = [...lineOf.keys()].filter((id) => !readyForPickupScanIds.has(id));
       const sold = ids.length
         ? ((
             await tx.execute(sql`
@@ -408,7 +429,6 @@ export const ordersRoute = new Hono<AppEnv>()
             `)
           ).rows as unknown as SoldCardRow[])
         : [];
-      const now = new Date();
       if (sold.length > 0) {
         await tx.insert(cardSales).values(
           sold.map((card) => ({
@@ -455,10 +475,18 @@ export const ordersRoute = new Hono<AppEnv>()
         userId: c.get("userId"),
         action: "order.fulfilled",
         summary: row.name,
-        details: { orderGuid: row.guid, sold: sold.length },
+        details: {
+          orderGuid: row.guid,
+          sold: sold.length,
+          readyForPickup: readyForPickupScanIds.size,
+        },
       });
       committed = true;
-      return { success: true, data: { sold: sold.length } };
+      const data: OrderFulfilResult = {
+        sold: sold.length,
+        readyForPickup: readyForPickupScanIds.size,
+      };
+      return { success: true, data };
     });
     if (!committed || response.status !== 200) return response;
     deleteScanImages(imageKeys);

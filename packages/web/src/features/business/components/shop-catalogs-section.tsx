@@ -115,6 +115,9 @@ export function ShopCatalogsSection() {
                     {!catalog.showsPrices && (
                       <Badge variant="outline">{t("shopCatalogs.pricesHidden")}</Badge>
                     )}
+                    {catalog.allowsReservations && (
+                      <Badge variant="outline">{t("shopCatalogs.reservationsOn")}</Badge>
+                    )}
                   </div>
                   <p className="line-clamp-2 text-xs text-foreground/70 md:line-clamp-1">
                     {sources || t("shopCatalogs.noLiveSources")}

@@ -135,6 +135,8 @@ export const ACTIVITY_ACTIONS = [
   "catalog.updated",
   "catalog.deleted",
   "trade.recorded",
+  "reservation.collected",
+  "reservation.released",
 ] as const;
 
 export const ACTIVITY_PAGE_SIZE = 50;
@@ -187,6 +189,8 @@ export const ACTIVITY_ACTION_KEYS: Record<ActivityAction, string> = {
   "catalog.updated": "catalogUpdated",
   "catalog.deleted": "catalogDeleted",
   "trade.recorded": "tradeRecorded",
+  "reservation.collected": "reservationCollected",
+  "reservation.released": "reservationReleased",
 };
 export const PAGED_LIST_DEFAULT_SIZE = 20;
 export const PAGED_LIST_MAX_SIZE = 100;

@@ -7,6 +7,14 @@ import {
   publicCardsFacetsQueryOptions,
   publicCardsPageQueryOptions,
 } from "@/features/public-cards/api/public-cards";
+import { CardReservationsHeaderButton } from "@/features/card-reservations/components/card-reservations-header-button";
+import { CardReservationsProvider } from "@/features/card-reservations/components/card-reservations-provider";
+import { ReservationComposerPage } from "@/features/card-reservations/components/reservation-composer-page";
+import { ReservationReviewBar } from "@/features/card-reservations/components/reservation-review-bar";
+import {
+  PUBLIC_RESERVATION_COMPOSER_PARAM,
+  PUBLIC_RESERVATION_COMPOSER_PARAM_VALUE,
+} from "@/lib/constants/card-reservations";
 import { TradeOfferHeaderButton } from "@/features/trade-offers/components/trade-offer-header-button";
 import { TradeOfferPage } from "@/features/trade-offers/components/trade-offer-page";
 import { TradeOfferReviewBar } from "@/features/trade-offers/components/trade-offer-review-bar";
@@ -75,6 +83,7 @@ export function PublicCardBrowser({
   headerNote,
   sidebarTop,
   tradeOfferLink,
+  reservationHoldDays = null,
 }: PublicCardBrowserProps) {
   const { t } = useTranslation("cards");
   const isMobile = useIsMobile();
@@ -150,6 +159,11 @@ export function PublicCardBrowser({
   const openScanId = searchParams.get(PUBLIC_CARD_PARAM);
   const showsTradeOffer =
     !!tradeOfferLink && searchParams.get(PUBLIC_TRADE_OFFER_PARAM) === PUBLIC_TRADE_OFFER_PARAM_VALUE;
+  const takesReservations = reservationHoldDays !== null;
+  const showsReservationComposer =
+    takesReservations &&
+    searchParams.get(PUBLIC_RESERVATION_COMPOSER_PARAM) === PUBLIC_RESERVATION_COMPOSER_PARAM_VALUE;
+  const showsComposer = showsTradeOffer || showsReservationComposer;
   const listScrollTop = useRef(0);
   const lastOpenedScanId = useRef<string | null>(null);
   const restoresListScroll = useRef(false);
@@ -173,12 +187,32 @@ export function PublicCardBrowser({
       return next;
     });
 
+  const openReservationComposer = useCallback(() => {
+    if (!searchParams.get(PUBLIC_CARD_PARAM)) {
+      listScrollTop.current = resultsRef.current?.scrollTop ?? 0;
+      restoresListScroll.current = true;
+    }
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      next.set(PUBLIC_RESERVATION_COMPOSER_PARAM, PUBLIC_RESERVATION_COMPOSER_PARAM_VALUE);
+      next.delete(PUBLIC_CARD_PARAM);
+      return next;
+    });
+  }, [searchParams, setSearchParams]);
+  const closeReservationComposer = () =>
+    setSearchParams((previous) => {
+      const next = new URLSearchParams(previous);
+      next.delete(PUBLIC_RESERVATION_COMPOSER_PARAM);
+      return next;
+    });
+
   const openCard = (scanId: string) => {
-    listScrollTop.current = resultsRef.current?.scrollTop ?? 0;
+    if (!showsComposer) listScrollTop.current = resultsRef.current?.scrollTop ?? 0;
     lastOpenedScanId.current = scanId;
     setSearchParams((previous) => {
       const next = new URLSearchParams(previous);
       next.set(PUBLIC_CARD_PARAM, scanId);
+      next.delete(PUBLIC_RESERVATION_COMPOSER_PARAM);
       return next;
     });
   };
@@ -195,15 +229,16 @@ export function PublicCardBrowser({
       const next = new URLSearchParams(previous);
       next.delete(PUBLIC_CARD_PARAM);
       next.delete(PUBLIC_TRADE_OFFER_PARAM);
+      next.delete(PUBLIC_RESERVATION_COMPOSER_PARAM);
       return next;
     });
   };
 
   useLayoutEffect(() => {
-    if (openScanId || showsTradeOffer || !restoresListScroll.current) return;
+    if (openScanId || showsComposer || !restoresListScroll.current) return;
     restoresListScroll.current = false;
     resultsRef.current?.scrollTo({ top: listScrollTop.current });
-  }, [openScanId, showsTradeOffer]);
+  }, [openScanId, showsComposer]);
 
   useLayoutEffect(() => {
     const scanId = lastOpenedScanId.current;
@@ -226,6 +261,7 @@ export function PublicCardBrowser({
         next.delete(PUBLIC_CARD_PAGE_PARAM);
         next.delete(PUBLIC_CARD_PARAM);
         next.delete(PUBLIC_TRADE_OFFER_PARAM);
+        next.delete(PUBLIC_RESERVATION_COMPOSER_PARAM);
         return next;
       },
       { replace: true },
@@ -333,7 +369,7 @@ export function PublicCardBrowser({
               value={search}
               onChange={(event) => {
                 setSearch(event.target.value);
-                if (openScanId || showsTradeOffer) leaveCardForResults();
+                if (openScanId || showsComposer) leaveCardForResults();
               }}
               className="pl-8 max-md:pl-10"
             />
@@ -341,6 +377,7 @@ export function PublicCardBrowser({
           {isMobile && (
             <>
               <TradeOfferHeaderButton isIconOnly />
+              <CardReservationsHeaderButton isIconOnly />
               <Button
                 variant={activeFilterCount > 0 ? "selected" : "outline"}
                 size="icon"
@@ -361,10 +398,11 @@ export function PublicCardBrowser({
         {!isMobile && (
           <div className="flex items-center gap-1.5 justify-end">
             <TradeOfferHeaderButton />
+            <CardReservationsHeaderButton />
           </div>
         )}
       </header>
-      <div className={cn("flex min-h-0 flex-1", (openScanId || showsTradeOffer) && "hidden")}>
+      <div className={cn("flex min-h-0 flex-1", (openScanId || showsComposer) && "hidden")}>
         <aside className="hidden w-64 shrink-0 overflow-y-auto border-r bg-muted p-4 md:flex md:flex-col md:gap-5 lg:w-72">
           {sidebarTop}
           {filterPanel}
@@ -398,7 +436,19 @@ export function PublicCardBrowser({
           />
         </div>
       )}
-      {openScanId && !showsTradeOffer && (
+      {takesReservations && (
+        <div className={cn("min-h-0 flex-1 overflow-y-auto", !showsReservationComposer && "hidden")}>
+          <ReservationComposerPage
+            source={source}
+            sourceName={title}
+            showsPrices={info.showsPrices}
+            isVisible={showsReservationComposer}
+            onBack={closeReservationComposer}
+            onOpenCard={openCard}
+          />
+        </div>
+      )}
+      {openScanId && !showsComposer && (
         <div key={openScanId} className="min-h-0 flex-1 overflow-y-auto">
           <div className="mx-auto w-full max-w-6xl">
             <PublicCardDetailView
@@ -410,6 +460,7 @@ export function PublicCardBrowser({
         </div>
       )}
       {isMobile && tradeOfferLink && !showsTradeOffer && <TradeOfferReviewBar />}
+      {isMobile && takesReservations && !showsReservationComposer && <ReservationReviewBar />}
       <DynamicDialog
         open={showsFilterDrawer}
         onOpenChange={setShowsFilterDrawer}
@@ -429,11 +480,24 @@ export function PublicCardBrowser({
     </main>
   );
 
+  const pageWithReservations =
+    reservationHoldDays === null ? (
+      page
+    ) : (
+      <CardReservationsProvider
+        source={source}
+        holdDays={reservationHoldDays}
+        onOpenComposer={openReservationComposer}
+      >
+        {page}
+      </CardReservationsProvider>
+    );
+
   return tradeOfferLink ? (
     <TradeOfferProvider draftLinkToken={tradeOfferLink.token} onOpenComposer={openTradeOffer}>
-      {page}
+      {pageWithReservations}
     </TradeOfferProvider>
   ) : (
-    page
+    pageWithReservations
   );
 }

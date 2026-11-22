@@ -109,6 +109,8 @@ export interface ShopCatalogClaims {
   collectionIds: number[];
   storageLocationIds: number[];
   showsPrices: boolean;
+  allowsReservations: boolean;
+  reservationHoldDays: number;
 }
 
 export interface ShareLinkLifetime {

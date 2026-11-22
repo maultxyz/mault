@@ -9,6 +9,7 @@ import { ShareLinkStatusScreen } from "@/features/public-cards/components/share-
 import { publicQueryClient } from "@/lib/query-client";
 import {
   SHARE_LINK_TOKEN_PARAM,
+  toCardReservationHoldDays,
   toConditionMultipliers,
   type OrgPricing,
 } from "@magic-vault/shared";
@@ -71,6 +72,11 @@ function ShopCatalogContent() {
         source={source}
         title={validInfo.name}
         info={validInfo}
+        reservationHoldDays={
+          validInfo.allowsReservations
+            ? toCardReservationHoldDays(validInfo.reservationHoldDays)
+            : null
+        }
       />
     </PriceSourceProvider>
   );

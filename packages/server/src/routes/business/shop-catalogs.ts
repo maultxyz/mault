@@ -2,7 +2,7 @@ import {
   SHOP_PHOTO_MAX_UPLOAD_BYTES,
   SHOP_PHOTO_MIME_TYPES,
   SHOP_PHOTO_UPLOAD_FIELD,
-  shopCatalogFormSchema,
+  shopCatalogRequestSchema,
   type ShopCatalog,
   type ShopCatalogInput,
   type ShopPhoto,
@@ -70,6 +70,8 @@ async function toShopCatalog(
     name: row.name,
     showsPrices: row.showsPrices,
     isPublic: row.isPublic,
+    allowsReservations: row.allowsReservations,
+    reservationHoldDays: row.reservationHoldDays,
     collections: toShopCatalogSources(sources.collections),
     storageLocations: toShopCatalogSources(sources.storageLocations),
     linkToken: await shopCatalogLinkToken(
@@ -228,7 +230,7 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
     }),
   )
   .post("/shop-catalogs", requireAuth, requireOrg, async (c) => {
-    const input = shopCatalogFormSchema.safeParse(await readJson(c));
+    const input = shopCatalogRequestSchema.safeParse(await readJson(c));
     if (!input.success) {
       return c.json({ success: false, message: SHOP_CATALOG_INVALID_MESSAGE }, 400);
     }
@@ -247,6 +249,8 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
           name: input.data.name,
           showsPrices: input.data.showsPrices,
           isPublic: input.data.isPublic,
+          allowsReservations: input.data.allowsReservations,
+          reservationHoldDays: input.data.reservationHoldDays,
           ...sourceIds,
           shortCode: generateShortLinkCode(),
         })
@@ -263,7 +267,7 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
     });
   })
   .put("/shop-catalogs/:guid", requireAuth, requireOrg, async (c) => {
-    const input = shopCatalogFormSchema.safeParse(await readJson(c));
+    const input = shopCatalogRequestSchema.safeParse(await readJson(c));
     if (!input.success) {
       return c.json({ success: false, message: SHOP_CATALOG_INVALID_MESSAGE }, 400);
     }
@@ -284,6 +288,8 @@ export const shopCatalogsRoute = new Hono<AppEnv>()
           name: input.data.name,
           showsPrices: input.data.showsPrices,
           isPublic: input.data.isPublic,
+          allowsReservations: input.data.allowsReservations ?? existing.allowsReservations,
+          reservationHoldDays: input.data.reservationHoldDays ?? existing.reservationHoldDays,
           ...sourceIds,
           updatedAt: new Date(),
         })

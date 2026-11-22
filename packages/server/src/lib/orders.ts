@@ -25,6 +25,7 @@ import { uuidArraySql } from "./sql-arrays";
 import type { Transaction } from "../db";
 import { fulfilmentOrders } from "../db/schema";
 import { getUserDisplayName } from "../middleware/auth";
+import { activelyReservedScanIds } from "./card-reservation-sql";
 import { ORDER_SUBSTITUTE_CANDIDATES_SCANNED } from "./constants/business";
 import type {
   OrderSubstituteCandidateRow,
@@ -176,7 +177,7 @@ export async function allocatedElsewhere(
         orderId === null ? undefined : ne(fulfilmentOrders.id, orderId),
       ),
     );
-  const ids = new Set<string>();
+  const ids = new Set<string>(await activelyReservedScanIds(tx, orgId, orderId));
   for (const row of rows) {
     for (const line of toOrderLines(row.lines)) {
       for (const id of line.allocations) ids.add(id);

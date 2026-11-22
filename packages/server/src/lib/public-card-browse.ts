@@ -45,9 +45,10 @@ import type {
 import { loadScanImageSide, resolveBackScanImageUrl, resolveScanImageUrl } from "./scan-images";
 import { pricesForShareLink } from "./share-link-pricing";
 import { notReservedByOpenPicksSql } from "./order-reservations";
+import { notHeldByCardReservationsSql } from "./card-reservation-sql";
 import { loadRankedIdPage } from "./ranked-id-page";
 import { summarizePublicCardFacetRows } from "./public-card-facets";
-import { integerArraySql, pgTextArray } from "./sql-arrays";
+import { integerArraySql, pgTextArray, uuidArraySql } from "./sql-arrays";
 
 function publicCardsWhere(scope: PublicCardBrowseScope, gameKey: string | null = null): SQL {
   return sql`cc.org_id = ${scope.orgId}
@@ -56,6 +57,7 @@ function publicCardsWhere(scope: PublicCardBrowseScope, gameKey: string | null =
     ${scope.collectionCardIds ? sql`AND cc.id = ANY(${integerArraySql(scope.collectionCardIds)})` : sql``}
     ${scope.inventoryOnly ? sql`AND ${INVENTORY_CARD_FILTER}` : sql``}
     ${scope.hidesCardsReservedByOpenPicks ? sql`AND ${notReservedByOpenPicksSql(scope.orgId, sql`cc.guid`)}` : sql``}
+    ${scope.hidesCardsHeldByReservations ? sql`AND ${notHeldByCardReservationsSql(scope.orgId, sql`cc.id`)}` : sql``}
     ${gameKey ? sql`AND g.key = ${gameKey}` : sql``}`;
 }
 
@@ -177,6 +179,22 @@ export async function loadPublicCardIdsPage(
         AND ${publicFiltersSql(request, pricing)}
     )`;
   return loadRankedIdPage(tx, ranked, request.pageSize, request.requestedPage);
+}
+
+export async function findPublicCardRowIds(
+  tx: Transaction,
+  scope: PublicCardBrowseScope,
+  scanIds: string[],
+): Promise<Map<string, number>> {
+  if (scanIds.length === 0) return new Map();
+  const result = await tx.execute(sql`
+    SELECT cc.id, cc.guid::text AS scan_id
+    FROM collection_cards cc
+    ${PUBLIC_CARD_JOINS}
+    WHERE cc.guid = ANY(${uuidArraySql(scanIds)}) AND ${publicCardsWhere(scope)}
+  `);
+  const rows = result.rows as { id: number | string; scan_id: string }[];
+  return new Map(rows.map((row) => [row.scan_id, Number(row.id)]));
 }
 
 export async function loadPublicCardDetail(

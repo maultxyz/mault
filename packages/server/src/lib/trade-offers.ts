@@ -53,6 +53,7 @@ import type {
   TradeOfferScope,
 } from "./interfaces/trade-offers";
 import { notReservedByOpenPicksSql } from "./order-reservations";
+import { notHeldByCardReservationsSql } from "./card-reservation-sql";
 import { uuidArraySql } from "./sql-arrays";
 import {
   TRADE_OFFER_PENDING_PER_ORG_HOURLY_MAX,
@@ -86,6 +87,7 @@ async function loadScopedWantedStoredCards(
         ? eq(collectionCards.collectionId, scope.collectionId)
         : eq(collectionCards.locationId, scope.locationId),
       notReservedByOpenPicksSql(scope.orgId, sql`${collectionCards.guid}`),
+      notHeldByCardReservationsSql(scope.orgId, sql`${collectionCards.id}`),
     ),
   );
   return { rows, stored: await toStoredCards(rows, false) };
@@ -246,7 +248,7 @@ export async function listGuestTradeOffers(
   return rows.map(toPublicTradeOffer);
 }
 
-async function loadCurrentWantedCards(
+export async function loadCurrentWantedCards(
   tx: Transaction,
   orgId: string,
   scanIds: string[],

@@ -201,6 +201,11 @@ export interface OrderLine extends OrderLineInput {
   picked: string[];
 }
 
+export interface OrderFulfilResult {
+  sold: number;
+  readyForPickup: number;
+}
+
 export interface FulfilmentOrderInput {
   name: string;
   source: OrderSource;
@@ -274,6 +279,7 @@ export type OrderBins = Record<string, number>;
 export interface FulfilmentOrderDetail extends FulfilmentOrder {
   lines: OrderLine[];
   pullSheet: PullSheetEntry[];
+  reservationHeldScanIds?: string[];
   orderBins: OrderBins;
   binCount: number;
 }

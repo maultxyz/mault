@@ -120,6 +120,8 @@ async function loadShopCatalogClaims(
       collectionIds: sources.collections.map((source) => source.id),
       storageLocationIds: sources.storageLocations.map((source) => source.id),
       showsPrices: catalog.showsPrices,
+      allowsReservations: catalog.allowsReservations,
+      reservationHoldDays: catalog.reservationHoldDays,
     };
   });
 }

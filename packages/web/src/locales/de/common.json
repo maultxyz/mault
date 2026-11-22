@@ -746,5 +746,9 @@
       "resultsCount_other": "{{count}} Neuigkeiten gefunden"
     },
     "openInTimeline": "In Neuigkeiten öffnen"
+  },
+  "reservations": {
+    "newReservationToast_one": "{{name}} hat {{card}} reserviert",
+    "newReservationToast_other": "{{name}} hat {{count}} Karten reserviert"
   }
 }

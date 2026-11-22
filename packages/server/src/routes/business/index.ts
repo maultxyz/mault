@@ -7,6 +7,7 @@ import { intakeRoute } from "./intake";
 import { ordersRoute } from "./orders";
 import { priceLabelsRoute } from "./price-labels";
 import { reportsRoute } from "./reports";
+import { reservationsRoute } from "./reservations";
 import { businessSettingsRoute } from "./settings";
 import { shopCatalogsRoute } from "./shop-catalogs";
 
@@ -19,6 +20,7 @@ const router = new Hono<AppEnv>()
   .route("/", activityRoute)
   .route("/", accuracyRoute)
   .route("/", fleetRoute)
-  .route("/", shopCatalogsRoute);
+  .route("/", shopCatalogsRoute)
+  .route("/", reservationsRoute);
 
 export { router as businessRouter };

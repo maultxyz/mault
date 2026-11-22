@@ -10,8 +10,15 @@ import { TabStrip } from "@/components/ui/tab-strip";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
 import { IntakeLotsView } from "@/features/business/components/intake-lots-view";
 import { OrdersView } from "@/features/business/components/orders-view";
+import { ReservationsView } from "@/features/business/components/reservations-view";
 import { useActiveOrgId } from "@/hooks/use-org";
-import { BUSINESS_INTAKE_VIEW, BUSINESS_QUERY_KEY, BUSINESS_PICKS_VIEW, BUSINESS_VIEWS } from "@/lib/constants/business";
+import {
+  BUSINESS_INTAKE_VIEW,
+  BUSINESS_QUERY_KEY,
+  BUSINESS_PICKS_VIEW,
+  BUSINESS_RESERVATIONS_VIEW,
+  BUSINESS_VIEWS,
+} from "@/lib/constants/business";
 import type { BusinessHubProps, BusinessView } from "@/lib/interfaces/business";
 
 export function BusinessHub({ onBack }: BusinessHubProps) {
@@ -19,12 +26,15 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
   const orgId = useActiveOrgId();
   const queryClient = useQueryClient();
   const { view: viewParam } = useLocalSearchParams<{ view?: string }>();
-  const [view, setView] = useState<BusinessView>(viewParam === BUSINESS_PICKS_VIEW ? BUSINESS_PICKS_VIEW : BUSINESS_INTAKE_VIEW);
+  const [view, setView] = useState<BusinessView>(
+    BUSINESS_VIEWS.find((candidate) => candidate === viewParam) ?? BUSINESS_INTAKE_VIEW,
+  );
   const access = useQuery(businessAccessQueryOptions(orgId));
   const isLocked = !!access.data?.isLocked;
   const canCreateIntake = !!access.data && !isLocked;
   const canCreatePick = !!access.data?.canFulfilOrders && !isLocked;
   const isIntake = view === BUSINESS_INTAKE_VIEW;
+  const isReservations = view === BUSINESS_RESERVATIONS_VIEW;
 
   return (
     <Screen
@@ -35,7 +45,7 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
           subtitle={t("business.subtitle")}
           onBack={onBack}
           actions={
-            (isIntake ? canCreateIntake : canCreatePick) ? (
+            !isReservations && (isIntake ? canCreateIntake : canCreatePick) ? (
               <IconButton
                 icon="plus"
                 accessibilityLabel={isIntake ? t("business.intake.new") : t("business.picks.new")}
@@ -56,6 +66,8 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
       {isLocked ? <Callout tone="info" title={t("business.locked")} description={t("business.lockedDescription")} /> : null}
       {isIntake ? (
         <IntakeLotsView canAct={canCreateIntake} />
+      ) : isReservations ? (
+        <ReservationsView canAct={canCreatePick} />
       ) : (
         <OrdersView canAct={!!access.data?.canFulfilOrders} />
       )}

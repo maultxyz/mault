@@ -1140,6 +1140,8 @@ export const shopCatalogs = pgTable(
       .default(sql`'{}'::integer[]`),
     showsPrices: boolean("shows_prices").notNull().default(true),
     isPublic: boolean("is_public").notNull().default(false),
+    allowsReservations: boolean("allows_reservations").notNull().default(false),
+    reservationHoldDays: integer("reservation_hold_days").notNull().default(3),
     shareLinkVersion: integer("share_link_version").notNull().default(0),
     shortCode: text("short_code").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
@@ -1150,6 +1152,50 @@ export const shopCatalogs = pgTable(
     unique("shop_catalogs_guid_idx").on(table.guid),
     unique("shop_catalogs_short_code_idx").on(table.shortCode),
     index("shop_catalogs_org_idx").on(table.orgId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const cardReservations = pgTable(
+  "card_reservations",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    orgId: text("org_id").notNull(),
+    shopCatalogId: integer("shop_catalog_id").notNull(),
+    requestGuid: uuid("request_guid").defaultRandom().notNull(),
+    collectionCardId: integer("collection_card_id").notNull(),
+    card: jsonb("card").notNull(),
+    guestName: text("guest_name").notNull(),
+    guestContact: text("guest_contact").notNull(),
+    guestNote: text("guest_note"),
+    guestKeyHash: text("guest_key_hash").notNull(),
+    status: text("status").notNull().default("waiting"),
+    holdDays: integer("hold_days").notNull(),
+    holdStartedAt: timestamp("hold_started_at"),
+    holdExpiresAt: timestamp("hold_expires_at"),
+    closedAt: timestamp("closed_at"),
+    closedByUserId: text("closed_by_user_id"),
+    fulfilmentOrderId: integer("fulfilment_order_id"),
+    pulledAt: timestamp("pulled_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("card_reservations_guid_idx").on(table.guid),
+    index("card_reservations_fulfilment_order_idx").on(table.fulfilmentOrderId),
+    index("card_reservations_org_active_idx")
+      .on(table.orgId, table.collectionCardId)
+      .where(sql`${table.status} IN ('waiting', 'ready')`),
+    uniqueIndex("card_reservations_card_holder_idx")
+      .on(table.collectionCardId)
+      .where(sql`${table.status} = 'ready'`),
+    index("card_reservations_org_closed_idx").on(table.orgId, table.closedAt),
+    index("card_reservations_guest_idx").on(table.guestKeyHash),
+    index("card_reservations_org_request_idx").on(table.orgId, table.requestGuid),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),

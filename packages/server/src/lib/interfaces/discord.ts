@@ -77,6 +77,14 @@ export interface PriceSyncSummary {
   refreshedCards: number | null;
 }
 
+export interface CardReservationCreatedNotification {
+  orgId: string;
+  catalogName: string;
+  guestName: string;
+  cardNames: string[];
+  heldCount: number;
+}
+
 export interface TradeOfferCreatedNotification {
   scope: TradeOfferScope;
   offerGuid: string;

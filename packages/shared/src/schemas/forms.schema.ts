@@ -11,6 +11,7 @@ import {
   PASSWORD_MIN_LENGTH,
   WEBHOOK_FORM_URL_PATTERN,
 } from "../constants/form-validation.constant";
+import { CARD_RESERVATION_HOLD_DAY_CHOICES } from "../constants/card-reservations.constant";
 import { NOTIFICATION_RULE_NAME_MAX_LENGTH } from "../constants/integrations.constant";
 import { PRICE_SOURCES } from "../constants/price-source.constant";
 import {
@@ -125,22 +126,40 @@ export const syncApiKeyFormSchema = z.object({
     .min(1, formValidationMessage("permissionsRequired")),
 });
 
-export const shopCatalogFormSchema = z
-  .object({
-    name: nameSchema(SHOP_CATALOG_NAME_MAX_LENGTH),
-    showsPrices: z.boolean(),
-    isPublic: z.boolean(),
-    collectionGuids: z.array(z.string()).max(SHOP_CATALOG_SOURCES_MAX),
-    storageLocationGuids: z.array(z.string()).max(SHOP_CATALOG_SOURCES_MAX),
+const shopCatalogFieldsSchema = z.object({
+  name: nameSchema(SHOP_CATALOG_NAME_MAX_LENGTH),
+  showsPrices: z.boolean(),
+  isPublic: z.boolean(),
+  collectionGuids: z.array(z.string()).max(SHOP_CATALOG_SOURCES_MAX),
+  storageLocationGuids: z.array(z.string()).max(SHOP_CATALOG_SOURCES_MAX),
+});
+
+const shopCatalogReservationHoldDaysSchema = z
+  .number()
+  .refine((days) => (CARD_RESERVATION_HOLD_DAY_CHOICES as readonly number[]).includes(days));
+
+function hasShopCatalogSource(values: z.infer<typeof shopCatalogFieldsSchema>): boolean {
+  return values.collectionGuids.length + values.storageLocationGuids.length > 0;
+}
+
+const SHOP_CATALOG_SOURCES_REQUIRED = {
+  message: formValidationMessage("catalogSourcesRequired"),
+  path: ["collectionGuids"],
+};
+
+export const shopCatalogFormSchema = shopCatalogFieldsSchema
+  .extend({
+    allowsReservations: z.boolean(),
+    reservationHoldDays: shopCatalogReservationHoldDaysSchema,
   })
-  .refine(
-    (values) =>
-      values.collectionGuids.length + values.storageLocationGuids.length > 0,
-    {
-      message: formValidationMessage("catalogSourcesRequired"),
-      path: ["collectionGuids"],
-    },
-  );
+  .refine(hasShopCatalogSource, SHOP_CATALOG_SOURCES_REQUIRED);
+
+export const shopCatalogRequestSchema = shopCatalogFieldsSchema
+  .extend({
+    allowsReservations: z.boolean().optional(),
+    reservationHoldDays: shopCatalogReservationHoldDaysSchema.optional(),
+  })
+  .refine(hasShopCatalogSource, SHOP_CATALOG_SOURCES_REQUIRED);
 
 function boundedWholeNumberSchema(min: number, max: number) {
   return z

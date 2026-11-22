@@ -5,9 +5,13 @@ import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { AccessibilityInfo, View } from "react-native";
 import {
+  CARD_RESERVATION_HOLD_DAY_CHOICES,
+  DEFAULT_CARD_RESERVATION_HOLD_DAYS,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
+  DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
   DEFAULT_SHOP_CATALOG_IS_PUBLIC,
   shopCatalogFormSchema,
+  toCardReservationHoldDays,
   type ShopCatalogFormValues,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
@@ -18,6 +22,7 @@ import { PageSkeleton } from "@/components/ui/page-skeleton";
 import { PinnedActionsLayout } from "@/components/ui/pinned-actions-layout";
 import { QueryErrorState } from "@/components/ui/query-error-state";
 import { SectionHeader } from "@/components/ui/section-header";
+import { SegmentedControl } from "@/components/ui/segmented-control";
 import { SwitchRow } from "@/components/ui/switch-row";
 import { TextField } from "@/components/ui/text-field";
 import { createShopCatalog, shopCatalogsQueryOptions, updateShopCatalog } from "@/features/business/api/shop-catalogs";
@@ -80,6 +85,8 @@ export default function ShopCatalogEditScreen() {
       name: "",
       showsPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
       isPublic: DEFAULT_SHOP_CATALOG_IS_PUBLIC,
+      allowsReservations: DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
+      reservationHoldDays: DEFAULT_CARD_RESERVATION_HOLD_DAYS,
       collectionGuids: [],
       storageLocationGuids: [],
     },
@@ -88,12 +95,15 @@ export default function ShopCatalogEditScreen() {
           name: catalog.name,
           showsPrices: catalog.showsPrices,
           isPublic: catalog.isPublic,
+          allowsReservations: catalog.allowsReservations ?? DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
+          reservationHoldDays: toCardReservationHoldDays(catalog.reservationHoldDays),
           collectionGuids: catalog.collections.map((source) => source.guid),
           storageLocationGuids: catalog.storageLocations.map((source) => source.guid),
         }
       : undefined,
     resetOptions: { keepDirtyValues: true },
   });
+  const allowsReservations = form.watch("allowsReservations");
 
   const save = useMutation({
     mutationFn: (values: ShopCatalogFormValues) => (catalog ? updateShopCatalog(catalog.guid, values) : createShopCatalog(values)),
@@ -175,6 +185,40 @@ export default function ShopCatalogEditScreen() {
                 />
               )}
             />
+            <Controller
+              control={form.control}
+              name="allowsReservations"
+              render={({ field }) => (
+                <SwitchRow
+                  title={t("settings.shopCatalogs.allowsReservations")}
+                  description={t("settings.shopCatalogs.allowsReservationsDescription")}
+                  value={field.value}
+                  onValueChange={field.onChange}
+                />
+              )}
+            />
+            {allowsReservations ? (
+              <Controller
+                control={form.control}
+                name="reservationHoldDays"
+                render={({ field }) => (
+                  <View style={{ gap: SPACING.sm }}>
+                    <SectionHeader title={t("settings.shopCatalogs.reservationHoldLabel")} />
+                    <SegmentedControl
+                      options={CARD_RESERVATION_HOLD_DAY_CHOICES.map((days) => ({
+                        value: String(days),
+                        label: t("settings.shopCatalogs.reservationHoldDays", { count: days }),
+                      }))}
+                      value={String(field.value)}
+                      onChange={(days) => field.onChange(Number(days))}
+                    />
+                    <AppText size="xs" tone="secondary">
+                      {t("settings.shopCatalogs.reservationHoldDescription")}
+                    </AppText>
+                  </View>
+                )}
+              />
+            ) : null}
             <Controller
               control={form.control}
               name="collectionGuids"

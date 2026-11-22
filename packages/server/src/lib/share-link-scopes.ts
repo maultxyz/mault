@@ -13,6 +13,7 @@ export function collectionShareLinkScope(claims: MonitorLinkClaims): PublicCardB
     storageLocationIds: [],
     inventoryOnly: false,
     hidesCardsReservedByOpenPicks: claims.purpose === "trade",
+    hidesCardsHeldByReservations: claims.purpose === "trade",
     showsPrices: claims.showsPrices,
     readsCacheKey: null,
   };
@@ -25,6 +26,7 @@ export function storageShareLinkScope(claims: StorageShareLinkClaims): PublicCar
     storageLocationIds: [claims.locationId],
     inventoryOnly: false,
     hidesCardsReservedByOpenPicks: claims.purpose === "trade",
+    hidesCardsHeldByReservations: claims.purpose === "trade",
     showsPrices: claims.showsPrices,
     readsCacheKey: null,
   };
@@ -38,6 +40,7 @@ export function cardShareLinkScope(claims: CardShareLinkClaims): PublicCardBrows
     collectionCardIds: [claims.collectionCardId],
     inventoryOnly: false,
     hidesCardsReservedByOpenPicks: false,
+    hidesCardsHeldByReservations: false,
     showsPrices: claims.showsPrices,
     readsCacheKey: null,
   };
@@ -50,6 +53,7 @@ export function shopCatalogScope(claims: ShopCatalogClaims): PublicCardBrowseSco
     storageLocationIds: claims.storageLocationIds,
     inventoryOnly: true,
     hidesCardsReservedByOpenPicks: true,
+    hidesCardsHeldByReservations: false,
     showsPrices: claims.showsPrices,
     readsCacheKey: `${claims.catalogGuid}|${claims.orgId}`,
   };

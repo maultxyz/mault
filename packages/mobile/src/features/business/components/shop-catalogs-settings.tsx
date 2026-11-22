@@ -205,10 +205,11 @@ export function ShopCatalogsSettings() {
                   sourceSummary(catalog),
                   catalog.isPublic ? t("settings.shopCatalogs.publicBadge") : null,
                   catalog.showsPrices ? null : t("settings.shopCatalogs.pricesHidden"),
+                  catalog.allowsReservations ? t("settings.shopCatalogs.reservationsOn") : null,
                 ]
                   .filter(Boolean)
                   .join("\n")}
-                subtitleNumberOfLines={3}
+                subtitleNumberOfLines={4}
                 onPress={() => showLink(catalog.guid)}
                 onLongPress={() => setActionsFor(catalog)}
                 longPressLabel={t("settings.shopCatalogs.actions")}

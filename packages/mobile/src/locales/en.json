@@ -2473,7 +2473,14 @@
       "isPublic": "Public",
       "isPublicDescription": "Anyone can open this catalog from its plain address, without the private link.",
       "publicBadge": "Public",
-      "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link."
+      "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link.",
+      "allowsReservations": "Let customers reserve cards",
+      "allowsReservationsDescription": "Customers can reserve a card to pick up in store. If it's already reserved, they join a line and move up when the person ahead doesn't pick it up.",
+      "reservationHoldLabel": "Hold a reserved card for",
+      "reservationHoldDays_one": "{{count}} day",
+      "reservationHoldDays_other": "{{count}} days",
+      "reservationHoldDescription": "After this, the reservation runs out and the next person in line gets the card.",
+      "reservationsOn": "Takes reservations"
     },
     "statsSync": {
       "key": {
@@ -3978,7 +3985,8 @@
     "delete": "Delete",
     "views": {
       "intake": "Intake",
-      "picks": "Picks"
+      "picks": "Picks",
+      "reservations": "Reservations"
     },
     "status": {
       "open": "Open",
@@ -4150,7 +4158,8 @@
         "picked": "Picked {{name}} from {{spot}}",
         "alreadyPicked": "Every copy of {{name}} on this pick is already picked.",
         "notOnPick": "{{name}} isn't left on this pick."
-      }
+      },
+      "reservationCardsNote": "Cards held for reservations stay in stock and are marked ready for pickup."
     },
     "order": {
       "title": "Pick",
@@ -4204,6 +4213,90 @@
         "condition": "Other condition",
         "finish": "Other finish"
       }
+    },
+    "reservations": {
+      "lists": {
+        "active": "Open",
+        "closed": "History"
+      },
+      "waitingSection": "Waiting in line ({{count}})",
+      "heldUntil": "Held until {{date}}",
+      "inLinePosition": "Number {{position}} of {{total}} in line",
+      "closedOn": "Closed {{date}}",
+      "pickedUp": "Picked up",
+      "release": "Release",
+      "collected": "{{name}} picked up and recorded as sold",
+      "collectConfirmTitle": "Mark {{name}} as picked up?",
+      "collectConfirmDescription": "The card leaves your inventory and is recorded as sold for {{price}}. Anyone still in line sees that it's no longer available.",
+      "collectConfirmDescriptionNoPrice": "The card leaves your inventory and is recorded as sold without a price. Anyone still in line sees that it's no longer available.",
+      "releaseConfirmDescription": "They lose their place. If they were first in line, the next person gets the card held for them.",
+      "empty": {
+        "activeTitle": "No open reservations",
+        "activeDescription": "Reservations show up here when a customer reserves a card from a shop catalog that takes them.",
+        "closedTitle": "No past reservations",
+        "closedDescription": "Reservations that were picked up, released or ran out are listed here."
+      },
+      "pickedUpGroup_one": "Picked up",
+      "pickedUpGroup_other": "Picked up ({{count}})",
+      "releaseGroup_one": "Release",
+      "releaseGroup_other": "Release all ({{count}})",
+      "releaseCardConfirmTitle": "Release {{card}} for {{name}}?",
+      "releasedCard": "Released {{card}} for {{name}}",
+      "collectGroupConfirmTitle_one": "Mark 1 card as picked up by {{name}}?",
+      "collectGroupConfirmTitle_other": "Mark {{count}} cards as picked up by {{name}}?",
+      "collectGroupConfirmDescription_one": "The card leaves your inventory and is recorded as sold for {{total}}.",
+      "collectGroupConfirmDescription_other": "The cards leave your inventory and are recorded as sold for {{total}} in total.",
+      "collectGroupConfirmDescriptionMissingPrices_one": "The card leaves your inventory and is recorded as sold without a price.",
+      "collectGroupConfirmDescriptionMissingPrices_other": "The cards leave your inventory and are recorded as sold for {{total}} in total. Some have no price and are recorded without one.",
+      "collectGroupWaitingNote_one": "The 1 card they're still in line for stays reserved.",
+      "collectGroupWaitingNote_other": "The {{count}} cards they're still in line for stay reserved.",
+      "collectedGroup_one": "1 card picked up by {{name}} and recorded as sold",
+      "collectedGroup_other": "{{count}} cards picked up by {{name}} and recorded as sold",
+      "releaseGroupConfirmTitle_one": "Release the reservation of {{name}}?",
+      "releaseGroupConfirmTitle_other": "Release all {{count}} reservations of {{name}}?",
+      "releaseGroupConfirmDescription_one": "They lose their place. If they were first in line, the next person gets the card held for them.",
+      "releaseGroupConfirmDescription_other": "They lose their place on every card in this request. Where they were first in line, the next person gets the card held for them.",
+      "releasedGroup_one": "Released the reservation of {{name}}",
+      "releasedGroup_other": "Released {{count}} reservations of {{name}}",
+      "customerHint": "Opens the actions for this customer's reservation",
+      "cardHint": "Opens the actions for this card",
+      "pickedUpCardOption": "Picked up: {{card}}",
+      "releaseCardOption": "Release: {{card}}",
+      "stages": {
+        "readyForPickup": "Ready for pickup",
+        "beingPicked": "Being picked",
+        "toPull": "To pull",
+        "waiting": "In line",
+        "collected": "Picked up",
+        "cancelled": "Cancelled",
+        "released": "Released",
+        "expired": "Ran out",
+        "unavailable": "Card gone"
+      },
+      "groupSummary": "{{cards}}: {{stages}}",
+      "stageCounts": {
+        "readyForPickup_one": "{{count}} ready for pickup",
+        "readyForPickup_other": "{{count}} ready for pickup",
+        "beingPicked_one": "{{count}} being picked",
+        "beingPicked_other": "{{count}} being picked",
+        "toPull_one": "{{count}} to pull",
+        "toPull_other": "{{count}} to pull",
+        "waiting_one": "{{count}} in line",
+        "waiting_other": "{{count}} in line"
+      },
+      "heldTotal": "Held cards total {{total}}",
+      "heldTotalMissingPrices": "Held cards total {{total}} (some have no price)",
+      "readySection": "Ready for pickup ({{count}})",
+      "pullSection": "To pull ({{count}})",
+      "createPick_one": "Create pick",
+      "createPick_other": "Create pick ({{count}})",
+      "openPick": "Open pick {{name}}",
+      "inPick": "In pick {{name}}",
+      "pickName": "Reservation: {{name}}",
+      "pickCreated_one": "Pick created for {{name}} with 1 card",
+      "pickCreated_other": "Pick created for {{name}} with {{count}} cards",
+      "cardCount_one": "1 card",
+      "cardCount_other": "{{count}} cards"
     }
   },
   "machines": {

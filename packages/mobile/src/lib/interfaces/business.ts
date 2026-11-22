@@ -1,6 +1,7 @@
 import type { Control } from "react-hook-form";
 import type {
   BusinessSettingsDraftValues,
+  CardReservationRequestGroup,
   FulfilmentOrder,
   FulfilmentOrderDetail,
   IntakeLot,
@@ -36,6 +37,21 @@ export interface PickWalk {
 export interface BusinessListViewProps {
   canAct: boolean;
 }
+
+export interface CardReservationGroupProps {
+  group: CardReservationRequestGroup;
+  onPress?: () => void;
+}
+
+export interface CardReservationRequestSectionProps {
+  title: string;
+  groups: CardReservationRequestGroup[];
+  onPressGroup?: (group: CardReservationRequestGroup) => void;
+}
+
+export type MobileCardReservationTarget =
+  | { kind: "request"; requestGuid: string }
+  | { kind: "reservation"; reservationGuid: string };
 
 export interface IntakeLotRowProps {
   lot: IntakeLot;

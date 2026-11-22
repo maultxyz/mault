@@ -83,6 +83,7 @@ import {
   PICK_BATCH_PATH,
   PICKS_PATH,
   PRICE_LABELS_PATH,
+  RESERVATIONS_PATH,
   picksPath,
   LEGACY_REPORTS_PATH,
 } from "@/lib/constants/business";
@@ -336,6 +337,7 @@ const StatsPage = lazyRoute(loadStatsPage);
 const IntakePage = lazyRoute(() => import("@/app/routes/app/intake"));
 const PicksPage = lazyRoute(() => import("@/app/routes/app/picks"));
 const PriceLabelsPage = lazyRoute(() => import("@/app/routes/app/price-labels"));
+const ReservationsPage = lazyRoute(() => import("@/app/routes/app/reservations"));
 const PickBatchPage = lazyRoute(() => import("@/app/routes/app/pick-batch"));
 const PackingSlipsPage = lazyRoute(() => import("@/app/routes/app/packing-slips"));
 const PickImportPage = lazyRoute(
@@ -874,6 +876,10 @@ export const routes: RouteObject[] = [
               {
                 path: PRICE_LABELS_PATH,
                 element: <PriceLabelsPage />,
+              },
+              {
+                path: RESERVATIONS_PATH,
+                element: <ReservationsPage />,
               },
               {
                 path: PICK_BATCH_PATH,
