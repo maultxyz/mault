@@ -1,0 +1,22 @@
+{
+  "title": "Buy cards with Intake",
+  "subtitle": "Track what you pay for every card that comes in",
+  "steps": {
+    "intro": "Intake tracks the cards you buy from customers, vendors or opened product.",
+    "newIntake": "Start a new intake when cards come in.",
+    "source": "Choose where the cards are coming from.",
+    "name": "Enter the customer's name.",
+    "collection": "Cards you scan go straight into this collection.",
+    "start": "Start the intake.",
+    "scanner": "The scanner opens so you can scan the customer's cards.",
+    "openIntake": "Back on Intake, open the buy you just started.",
+    "addCard": "You can also add a card by hand.",
+    "searchCard": "Search for the card.",
+    "pickCard": "Pick the printing to add it to the intake.",
+    "liveOffer": "The cash and credit offers update as each card is added.",
+    "finish": "When the customer accepts, choose Finish to pay out and add the cards to your stock.",
+    "moreActions": "If they change their mind, open More actions.",
+    "cancelIntake": "Cancel the intake.",
+    "confirmCancel": "The cards go back to the customer and nothing is paid."
+  }
+}
