@@ -50,14 +50,6 @@
       "count": "Cards",
       "value": "Value added"
     },
-    "periods": {
-      "label": "Time period",
-      "allTime": "All time",
-      "week": "Past week",
-      "month": "Past month",
-      "year": "Past year"
-    },
-    "updatedDaily": "Rankings update once a day.",
     "weekOf": "Week of {{date}}",
     "thisWeek": "This week",
     "today": "Today"
@@ -127,6 +119,14 @@
       "totalScans": "Most cards",
       "cardsPerHour": "Cards per hour"
     },
+    "periods": {
+      "label": "Time period",
+      "allTime": "All time",
+      "week": "Past week",
+      "month": "Past month",
+      "year": "Past year"
+    },
+    "updatedDaily": "Rankings update once a day.",
     "error": "Couldn't load the leaderboard. Try again in a moment.",
     "rank": "#{{rank}}",
     "you": "You",
