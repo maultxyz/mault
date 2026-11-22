@@ -718,6 +718,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
             headingLevel="h3"
             isProgressSticky={false}
             linesView={{ label: t("orders.views.lines"), content: linesTable }}
+            showsCompleteBelowCards={false}
           />
         ) : (
           linesTable

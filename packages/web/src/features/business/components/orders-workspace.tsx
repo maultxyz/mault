@@ -8,7 +8,11 @@ import { BusinessUpgradeCallout } from "@/features/business/components/business-
 import { OrderDetail } from "@/features/business/components/order-detail";
 import { OrderList } from "@/features/business/components/order-list";
 import { OrderSelectionBar } from "@/features/business/components/order-selection-bar";
-import { readActivePickBatch } from "@/features/business/lib/active-pick-batch";
+import {
+  clearActivePickBatch,
+  readActivePickBatch,
+} from "@/features/business/lib/active-pick-batch";
+import { toast } from "@/lib/toast";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { BUSINESS_LIST_SEARCH_MAX_LENGTH, type FulfilmentOrder } from "@magic-vault/shared";
 import { useRef, useState } from "react";
@@ -28,7 +32,12 @@ import {
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { cn } from "@/lib/utils";
 import type { OrdersWorkspaceProps } from "@/lib/interfaces/business";
-import { IconFileImport, IconListCheck, IconTruckDelivery } from "@tabler/icons-react";
+import {
+  IconFileImport,
+  IconListCheck,
+  IconPlayerStop,
+  IconTruckDelivery,
+} from "@tabler/icons-react";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -66,7 +75,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
   const [checkedOrders, setCheckedOrders] = useState<ReadonlyMap<string, FulfilmentOrder>>(
     new Map(),
   );
-  const [activeBatchGuids] = useState<string[]>(() => readActivePickBatch());
+  const [activeBatchGuids, setActiveBatchGuids] = useState<string[]>(() => readActivePickBatch());
   const navigate = useNavigate();
   const clearCheckedOrders = () => setCheckedOrders(new Map());
   useHotkeys({ clearSelection: checkedOrders.size > 0 ? clearCheckedOrders : undefined });
@@ -96,6 +105,34 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
 
   const select = (guid: string | null) =>
     setSearchParams(guid ? { [ORDER_PARAM]: guid } : {}, { replace: true });
+
+  const stopActiveBatch = () => {
+    clearActivePickBatch();
+    setActiveBatchGuids([]);
+    toast.success(t("orders.batch.stopped"));
+  };
+
+  const resumeBatch = activeBatchGuids.length > 0 && (
+    <div className="flex gap-1.5">
+      <Button
+        variant="outline-selected"
+        className="min-w-0 flex-1"
+        onClick={() => navigate(pickBatchPath(activeBatchGuids))}
+      >
+        <IconListCheck />
+        {t("orders.batch.resume", { count: activeBatchGuids.length })}
+      </Button>
+      <Button
+        variant="outline"
+        size="icon"
+        aria-label={t("orders.batch.stop")}
+        title={t("orders.batch.stop")}
+        onClick={stopActiveBatch}
+      >
+        <IconPlayerStop />
+      </Button>
+    </div>
+  );
 
   const selectionBar = (className?: string) => (
     <OrderSelectionBar
@@ -159,16 +196,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
         >
           <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
             {switcher}
-            {activeBatchGuids.length > 0 && (
-              <Button
-                variant="outline-selected"
-                className="w-full"
-                onClick={() => navigate(pickBatchPath(activeBatchGuids))}
-              >
-                <IconListCheck />
-                {t("orders.batch.resume", { count: activeBatchGuids.length })}
-              </Button>
-            )}
+            {resumeBatch}
             {access?.isLocked && <BusinessUpgradeCallout />}
             {listSearchInput}
             <OrderList
@@ -203,16 +231,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
             <IconFileImport />
             {t("orders.importButton")}
           </Button>
-          {activeBatchGuids.length > 0 && (
-            <Button
-              variant="outline-selected"
-              className="w-full"
-              onClick={() => navigate(pickBatchPath(activeBatchGuids))}
-            >
-              <IconListCheck />
-              {t("orders.batch.resume", { count: activeBatchGuids.length })}
-            </Button>
-          )}
+          {resumeBatch}
           {listSearchInput}
           <OrderList
             orders={orders}

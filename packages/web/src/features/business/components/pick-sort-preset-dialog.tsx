@@ -139,7 +139,7 @@ export function PickSortPresetDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>{t("orders.batch.sortTab")}</DialogTitle>
+          <DialogTitle>{t("orders.batch.sortPresetTitle")}</DialogTitle>
           <DialogDescription>
             {presets.length > 0
               ? t("orders.sorterPick.runPresetDescription")

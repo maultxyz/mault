@@ -36,17 +36,19 @@ import {
   IconDeviceMobile,
   IconInfoCircle,
   IconPackageExport,
+  IconPlayerStop,
   IconPrinter,
   IconTruckDelivery,
 } from "@tabler/icons-react";
 import { useQueries } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
   const { t } = useTranslation("business");
   const isMobile = useIsMobile();
+  const navigate = useNavigate();
   const { access } = useBusinessAccess();
   const run = useBusinessAction();
   const [completeOpen, setCompleteOpen] = useState(false);
@@ -98,6 +100,12 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
     if (completedCount === openOrders.length) clearActivePickBatch();
   };
 
+  const stopPickingTogether = () => {
+    clearActivePickBatch();
+    toast.success(t("orders.batch.stopped"));
+    navigate(PICKS_PATH);
+  };
+
   const title = t("orders.batch.title");
   const description = t("orders.batch.description", {
     picks: openOrders.length,
@@ -136,6 +144,14 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
           {t("orders.packingSlips.printAll")}
         </Button>
       )}
+      <Button
+        variant="outline"
+        title={t("orders.batch.stopHint")}
+        onClick={stopPickingTogether}
+      >
+        <IconPlayerStop />
+        {t("orders.batch.stop")}
+      </Button>
       {canAct && (
         <Button
           disabled={completedOrders.length === 0 || isCompleting}

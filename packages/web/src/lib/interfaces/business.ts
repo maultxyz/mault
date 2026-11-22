@@ -245,13 +245,12 @@ export interface PickWalkWorkspaceProps {
   headingLevel?: "h2" | "h3";
   isProgressSticky?: boolean;
   linesView?: PickWalkWorkspaceLinesView;
+  showsCompleteBelowCards?: boolean;
 }
 
 export interface PickFocusViewProps {
   entries: PickWalkEntry[];
   pickedScanIds: ReadonlySet<string>;
-  total: number;
-  pickedCount: number;
   complete: boolean;
   showOrderName: boolean;
   canPick: boolean;
@@ -262,7 +261,6 @@ export interface PickFocusViewProps {
   onComplete: () => void;
   completedCount: number;
   completeLabel?: string;
-  onBack: () => void;
 }
 
 export interface PickContainerViewProps {

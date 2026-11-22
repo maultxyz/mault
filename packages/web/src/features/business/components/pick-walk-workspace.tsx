@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { ViewTabs } from "@/components/view-tabs";
 import { updateOrder } from "@/features/business/api/business";
 import { useBusinessAction } from "@/features/business/api/use-business";
+import { useIsMobile } from "@/hooks/use-is-mobile";
 import { PickContainerView } from "@/features/business/components/pick-container-view";
 import { PickFocusView } from "@/features/business/components/pick-focus-view";
 import { PickSorterPickDialog } from "@/features/business/components/pick-sorter-pick-dialog";
@@ -41,9 +42,11 @@ export function PickWalkWorkspace({
   headingLevel,
   isProgressSticky = true,
   linesView,
+  showsCompleteBelowCards = true,
 }: PickWalkWorkspaceProps) {
   const { t } = useTranslation("business");
   const run = useBusinessAction();
+  const isMobile = useIsMobile();
   const [view, setView] = useState<PickWalkWorkspaceView>("pick");
   const [missingEntry, setMissingEntry] = useState<PickWalkEntry | null>(null);
   const [isReleasing, setIsReleasing] = useState(false);
@@ -109,6 +112,9 @@ export function PickWalkWorkspace({
     ...(linesView ? [{ key: "lines" as const, label: linesView.label }] : []),
   ];
 
+  const viewHintKey =
+    view === "sort" && canPick && !isMobile ? "sortWithSorter" : view;
+
   const completeButton = canPick && completedCount > 0 && (
     <Button size="lg" disabled={isCompleting} onClick={onComplete}>
       <IconPackageExport />
@@ -147,6 +153,9 @@ export function PickWalkWorkspace({
           />
         </div>
       </div>
+      <p className="text-xs text-foreground/70">
+        {t(`orders.batch.viewHints.${viewHintKey}`)}
+      </p>
 
       {view === "lines" && linesView ? (
         linesView.content
@@ -154,8 +163,6 @@ export function PickWalkWorkspace({
         <PickFocusView
           entries={entries}
           pickedScanIds={pickedScanIds}
-          total={entries.length}
-          pickedCount={pickedCount}
           complete={pickedCount === entries.length}
           showOrderName={showOrderName}
           canPick={canPick}
@@ -166,7 +173,6 @@ export function PickWalkWorkspace({
           onComplete={onComplete}
           completedCount={completedCount}
           completeLabel={completeLabel}
-          onBack={() => setView("pick")}
         />
       ) : view === "sort" ? (
         <PickSortView
@@ -208,7 +214,7 @@ export function PickWalkWorkspace({
             }
             onSorterPick={setSorterPickStop}
           />
-          {completeButton}
+          {showsCompleteBelowCards && completeButton}
         </>
       )}
 

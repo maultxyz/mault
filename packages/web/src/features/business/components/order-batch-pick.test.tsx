@@ -387,7 +387,7 @@ describe("OrderBatchPick", () => {
     expect(screen.getByRole("button", { name: "orders.pickCopyForOrder" })).toBeTruthy();
   });
 
-  it("picks and skips in the fullscreen focus view and returns to picking", async () => {
+  it("picks and skips in the focus view and returns to picking", async () => {
     renderBatch();
     await heroSection();
     fireEvent.click(screen.getByRole("tab", { name: "orders.batch.focusTab" }));
@@ -404,11 +404,9 @@ describe("OrderBatchPick", () => {
     await waitFor(() => {
       expect(screen.getByText("Bravo")).toBeTruthy();
     });
-    fireEvent.click(
-      screen.getByRole("button", { name: "orders.batch.focusBack" }),
-    );
+    fireEvent.click(screen.getByRole("tab", { name: "orders.batch.walkTab" }));
     await waitFor(() => {
-      expect(screen.getByRole("tab", { name: "orders.batch.focusTab" })).toBeTruthy();
+      expect(screen.queryByRole("button", { name: "orders.batch.focusSkip" })).toBeNull();
     });
   });
 
@@ -554,7 +552,7 @@ describe("OrderBatchPick", () => {
     );
     const openedDialog = await screen.findByRole("dialog");
     expect(
-      await within(openedDialog).findByText("orders.batch.sortTab"),
+      await within(openedDialog).findByText("orders.batch.sortPresetTitle"),
     ).toBeTruthy();
     // a previous preset for these picks is offered before creating a new one
     expect(
