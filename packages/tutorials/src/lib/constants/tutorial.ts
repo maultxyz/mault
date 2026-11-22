@@ -17,7 +17,7 @@ export const TUTORIAL_VIEWPORTS: Record<TutorialViewportName, TutorialViewport> 
     compositionWidth: 1920,
     compositionHeight: 1080,
     isMobile: false,
-    maximumZoomScale: 1.8,
+    maximumZoomScale: 1.35,
   },
   mobile: {
     name: "mobile",
@@ -29,7 +29,7 @@ export const TUTORIAL_VIEWPORTS: Record<TutorialViewportName, TutorialViewport> 
     compositionWidth: 1080,
     compositionHeight: 1920,
     isMobile: true,
-    maximumZoomScale: 1.4,
+    maximumZoomScale: 1.2,
   },
 };
 
@@ -46,7 +46,7 @@ export const CAPTION_READING_MS_PER_CHARACTER = 55;
 export const CAPTION_MINIMUM_READING_MS = 2000;
 export const RECORDING_TAIL_MS = 900;
 
-export const ZOOM_TRANSITION_MS = 650;
+export const ZOOM_TRANSITION_MS = 900;
 export const ZOOM_HOLD_AFTER_ACTION_MS = 1600;
 export const ZOOM_TARGET_SHARE_OF_SCREEN = 0.32;
 
