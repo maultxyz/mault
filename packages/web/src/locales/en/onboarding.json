@@ -193,7 +193,7 @@
       },
       "now": {
         "title": "Right now",
-        "content": "These tiles show what is open today: buys, picks and reservations. Click a tile to jump to that page."
+        "content": "These tiles show what is open today: intakes, picks and reservations. Click a tile to jump to that page."
       },
       "attention": {
         "title": "Needs attention",
@@ -205,7 +205,7 @@
       },
       "sections": {
         "title": "Every part of the store",
-        "content": "Each card opens one area: Buys, Picks, Reservations, Labels and Sales. Open buys and picks are listed right here."
+        "content": "Each card opens one area: Intake, Picks, Reservations, Labels and Sales. Open intakes and picks are listed right here."
       },
       "views": {
         "title": "Staff and accuracy",
@@ -217,34 +217,34 @@
       }
     },
     "buys": {
-      "triggerTooltip": "How buys work",
+      "triggerTooltip": "How intake works",
       "newBuy": {
-        "title": "Start a new buy",
-        "content": "Use a buy whenever cards come into your store: a customer selling at the counter, a delivery from a vendor, a bulk lot you bought, or sealed product you opened. Pick the collection, and every card you scan goes straight into it."
+        "title": "Start a new intake",
+        "content": "Use an intake whenever new inventory comes into your store: a customer selling at the counter, a delivery from a vendor, a bulk lot you bought, or sealed product you opened. Pick the collection, and every card you scan goes straight into it, so you can track what each card cost and what it sells for."
       },
       "list": {
-        "title": "Your buys",
-        "content": "Search your buys or filter them by status to find open, finished or cancelled ones."
+        "title": "Your intakes",
+        "content": "Search your intakes or filter them by status to find open, finished or cancelled ones."
       },
       "unmoved": {
         "title": "Move cards into stock",
-        "content": "These finished buys still have cards in their buy collection. Move them into your stock when you are ready."
+        "content": "These finished intakes still have cards in their own collection. Move them into your stock when you are ready."
       },
       "stats": {
         "title": "The live offer",
         "content": "For a customer, the offer updates from your buylist as you add cards. For a vendor delivery or a bulk lot, you can ignore the offer and enter the total you paid when you finish. Opened product has no offer: you enter what the product cost."
       },
       "cards": {
-        "title": "Every card in the buy",
+        "title": "Every card in the intake",
         "content": "Open a card to change its offer. Cards worth less than your minimum get no offer, and you can remove them in one click."
       },
       "finish": {
-        "title": "Finish the buy",
+        "title": "Finish the intake",
         "content": "Finish when you have paid: the customer, the vendor's invoice, or the price of the bulk lot. What you paid is spread across the cards as their cost, and the cards move to storage if you chose a location."
       },
       "performance": {
-        "title": "How the buy did",
-        "content": "For finished buys, see what the cards have earned so far compared with what you paid."
+        "title": "How the intake did",
+        "content": "For finished intakes, see what the cards have earned so far compared with what you paid."
       }
     },
     "picks": {
@@ -301,7 +301,7 @@
       "triggerTooltip": "How price labels work",
       "source": {
         "title": "Choose your cards",
-        "content": "Print labels for a collection, a storage location or a buy."
+        "content": "Print labels for a collection, a storage location or an intake."
       },
       "prices": {
         "title": "The price on each label",
@@ -328,7 +328,7 @@
       },
       "filters": {
         "title": "Pick a date range",
-        "content": "Choose the dates to report on. When you open sales from a buy, the report only shows cards from that buy."
+        "content": "Choose the dates to report on. When you open sales from an intake, the report only shows cards from that intake."
       },
       "totals": {
         "title": "Totals",
@@ -344,18 +344,18 @@
       }
     },
     "scannerBuy": {
-      "triggerTooltip": "How buying on the scanner works",
+      "triggerTooltip": "How intake on the scanner works",
       "start": {
-        "title": "Buy cards while you scan",
-        "content": "Start a buy right here whenever cards come in: from a customer, a vendor delivery, a bulk lot or sealed product you opened. You never leave the scanner."
+        "title": "Bring in new inventory while you scan",
+        "content": "Start an intake right here whenever new inventory comes in: from a customer, a vendor delivery, a bulk lot or sealed product you opened. You never leave the scanner."
       },
       "menu": {
         "title": "Or start from the collection menu",
-        "content": "You can also start a buy from the collection menu at any time."
+        "content": "You can also start an intake from the collection menu at any time."
       },
       "scan": {
         "title": "Scan as usual",
-        "content": "While a buy is open, every card you scan goes into it."
+        "content": "While an intake is open, every card you scan goes into it."
       },
       "totals": {
         "title": "Running totals",
@@ -366,12 +366,12 @@
         "content": "See the last cards you scanned with their offers, and change an offer for a single card."
       },
       "filter": {
-        "title": "Show only this buy",
-        "content": "Turn on Only this buy in the view options to see just the cards from this buy in the grid."
+        "title": "Show only this intake",
+        "content": "Turn on Only this intake in the view options to see just the cards from this intake in the grid."
       },
       "finish": {
-        "title": "Finish the buy",
-        "content": "Finish the buy here once you have paid, whether that is a customer, a vendor invoice or a bulk lot, without leaving the scanner."
+        "title": "Finish the intake",
+        "content": "Finish the intake here once you have paid, whether that is a customer, a vendor invoice or a bulk lot, without leaving the scanner."
       }
     }
   }

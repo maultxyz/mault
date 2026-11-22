@@ -1,5 +1,7 @@
 import {
   cardSellPrice,
+  INTAKE_LOT_STATUSES,
+  type IntakeLotStatus,
   PRICE_SOURCE_FIELDS,
   type CardPricing,
   type CardSellRule,
@@ -13,6 +15,7 @@ import { loadBusinessSettings } from "./business-access";
 import { scannedCardPriceSql } from "./card-price-sql";
 import { loadOrgPricing } from "./price-source";
 import { uuidArraySql } from "./sql-arrays";
+import { toBuySourceType } from "./intake";
 
 function pricingCurrency(pricing: OrgPricing): string {
   return PRICE_SOURCE_FIELDS[pricing.source].currency;
@@ -111,6 +114,12 @@ export async function loadCardPricing(
       intakeOfferCurrency: collectionCards.intakeOfferCurrency,
       intakeLotStatus: intakeLots.status,
       intakeLotSourceType: intakeLots.sourceType,
+      intakeLotGuid: intakeLots.guid,
+      intakeLotName: intakeLots.customerName,
+      intakeLotCreatedAt: intakeLots.createdAt,
+      intakeLotAcceptedAt: intakeLots.acceptedAt,
+      intakeLotDeleted: intakeLots.isDeleted,
+      acquiredAt: collectionCards.acquiredAt,
     })
     .from(collectionCards)
     .leftJoin(intakeLots, eq(intakeLots.id, collectionCards.intakeLotId))
@@ -119,8 +128,21 @@ export async function loadCardPricing(
   if (!row) return null;
   const marketPrice = row.marketPrice == null ? null : Math.round(Number(row.marketPrice) * 100) / 100;
   const sellRule = toSellRule(row);
+  const intake =
+    row.intakeLotGuid && !row.intakeLotDeleted
+      ? {
+          guid: row.intakeLotGuid,
+          name: row.intakeLotName ?? "",
+          sourceType: toBuySourceType(row.intakeLotSourceType),
+          status: toIntakeLotStatus(row.intakeLotStatus),
+          createdAt: (row.intakeLotCreatedAt ?? new Date()).toISOString(),
+          acceptedAt: row.intakeLotAcceptedAt?.toISOString() ?? null,
+        }
+      : null;
   return {
     scanId,
+    intake,
+    acquiredAt: canViewCosts ? (row.acquiredAt?.toISOString() ?? null) : null,
     currency,
     marketPrice,
     sellPrice: cardSellPrice(marketPrice, sellRule, config, currency),
@@ -132,4 +154,8 @@ export async function loadCardPricing(
       canViewCosts && row.intakeOfferCurrency === currency ? row.intakeOffer : null,
     cost: canViewCosts && row.acquisitionCurrency === currency ? row.acquisitionCost : null,
   };
+}
+
+function toIntakeLotStatus(value: string | null): IntakeLotStatus {
+  return INTAKE_LOT_STATUSES.find((status) => status === value) ?? "open";
 }

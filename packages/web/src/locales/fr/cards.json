@@ -119,8 +119,8 @@
     "sets": "Sets",
     "resetFilters": "Réinitialiser les filtres",
     "unmatched": "Non reconnues",
-    "buy": "Achat",
-    "onlyThisBuy": "Uniquement cet achat"
+    "buy": "Entrée de stock",
+    "onlyThisBuy": "Uniquement cette entrée de stock"
   },
   "cardGrid": {
     "noCollectionSelected": "Aucune collection sélectionnée",

@@ -424,7 +424,7 @@
       },
       "businessTools": {
         "label": "Achat et vente",
-        "description": "Achats avec offres de rachat, import et expédition des commandes, ventes, rapports de coûts et de marges, et contrôles par échantillon. Les fiches existantes restent consultables dans tous les cas."
+        "description": "Entrées de stock avec offres de rachat, import et expédition des commandes, ventes, rapports de coûts et de marges, et contrôles par échantillon. Les fiches existantes restent consultables dans tous les cas."
       },
       "repacks": {
         "label": "Repacks",
@@ -525,7 +525,7 @@
       "notificationRule": "Règle de notification",
       "game": "Jeu",
       "announcement": "Annonce",
-      "intakeLot": "Achat",
+      "intakeLot": "Entrée de stock",
       "fulfilmentOrder": "Commande",
       "accuracyCheck": "Contrôle",
       "shopCatalog": "Catalogue boutique",

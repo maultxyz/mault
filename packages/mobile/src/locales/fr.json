@@ -991,19 +991,19 @@
     },
     "buy": {
       "line": {
-        "customer": "Achat à {{name}}",
-        "vendor": "Achat à {{name}}",
+        "customer": "Entrée de stock de {{name}}",
+        "vendor": "Entrée de stock de {{name}}",
         "opened": "Ouverture de {{name}}"
       },
       "lineWithOffer": {
-        "customer": "Achat à {{name}} · offre {{amount}}",
-        "vendor": "Achat à {{name}} · offre {{amount}}"
+        "customer": "Entrée de stock de {{name}} · offre {{amount}}",
+        "vendor": "Entrée de stock de {{name}} · offre {{amount}}"
       },
       "openingWithCount_one": "Ouverture de {{name}} · {{count}} carte",
       "openingWithCount_other": "Ouverture de {{name}} · {{count}} cartes",
-      "start": "Démarrer un achat",
-      "openBuy": "Ouvrir l'achat",
-      "cancelFailed": "Impossible d'annuler l'achat"
+      "start": "Démarrer une entrée de stock",
+      "openBuy": "Ouvrir l'entrée de stock",
+      "cancelFailed": "Impossible d'annuler l'entrée de stock"
     }
   },
   "home": {
@@ -1201,9 +1201,14 @@
     "pricing": {
       "title": "Prix",
       "market": "Prix du marché",
-      "sell": "Prix de vente",
-      "cost": "Coût ({{currency}})",
-      "intakeOffer": "Offre d'achat ({{currency}})",
+      "sell": "Prix affiché",
+      "cost": "Payé ({{currency}})",
+      "intakeOffer": "Offre de l'entrée de stock ({{currency}})",
+      "intake": {
+        "title": "Entrée de stock",
+        "from": "Provenance",
+        "added": "Ajoutée le"
+      },
       "loadFailed": "Impossible de charger les prix de cette carte.",
       "editSellPriceHint": "Modifier le calcul du prix de vente de cette carte",
       "rules": {
@@ -2461,8 +2466,8 @@
           "description": "Offres, coûts d'achat et marges."
         },
         "acceptIntake": {
-          "label": "Terminer ou annuler les achats",
-          "description": "Les membres peuvent toujours scanner dans un achat ouvert."
+          "label": "Terminer ou annuler les entrées de stock",
+          "description": "Les membres peuvent toujours scanner dans une entrée de stock ouverte."
         },
         "fulfilOrders": {
           "label": "Créer et terminer les préparations",
@@ -2489,7 +2494,7 @@
       "collectionsLabel": "Collections",
       "storageLocationsLabel": "Emplacements de stockage",
       "noSources": "Rien à choisir pour l'instant.",
-      "inventoryNote": "Les cartes des achats ouverts ou annulés n'apparaissent jamais.",
+      "inventoryNote": "Les cartes des entrées de stock ouvertes ou annulées n'apparaissent jamais.",
       "empty": "Aucun catalogue boutique",
       "loadFailed": "Impossible de charger les catalogues boutique.",
       "upgrade": "Les catalogues boutique font partie de l'offre Business.",
@@ -2775,7 +2780,7 @@
     "tiersRequired": "Ajoute au moins un palier.",
     "tooManyTiers": "{{max}} paliers au maximum.",
     "customerNameRequired": "Saisis le nom du client.",
-    "buyNameRequired": "Saisis un nom pour cet achat.",
+    "buyNameRequired": "Saisis un nom pour cette entrée de stock.",
     "orderTextRequired": "Colle une commande ou choisis un fichier.",
     "orderLinesRequired": "Garde au moins une carte dans la liste.",
     "decklistRequired": "Saisissez au moins une carte, une par ligne.",
@@ -3046,7 +3051,7 @@
         "game": "Jeu",
         "announcement": "Annonce",
         "featureHighlight": "Nouveauté",
-        "intakeLot": "Achat",
+        "intakeLot": "Entrée de stock",
         "fulfilmentOrder": "Commande",
         "accuracyCheck": "Contrôle",
         "shopCatalog": "Catalogue boutique"
@@ -3119,7 +3124,7 @@
         },
         "businessTools": {
           "label": "Achat et vente",
-          "description": "Achats avec offres de rachat, import et expédition des commandes, rapports de coûts et de marges, et contrôles par échantillon. Les fiches existantes restent consultables dans tous les cas."
+          "description": "Entrées de stock avec offres de rachat, import et expédition des commandes, rapports de coûts et de marges, et contrôles par échantillon. Les fiches existantes restent consultables dans tous les cas."
         },
         "repacks": {
           "label": "Repacks",
@@ -4037,9 +4042,9 @@
   },
   "business": {
     "title": "Achat et vente",
-    "subtitle": "Achetez des cartes au comptoir, préparez les commandes depuis votre stock et suivez vos bénéfices.",
+    "subtitle": "Faites entrer du nouveau stock, préparez les commandes depuis votre stock et suivez vos bénéfices.",
     "locked": "L'achat et la vente font partie d'une offre supérieure",
-    "lockedDescription": "Vous pouvez consulter les achats et préparations passés. Passez à une offre supérieure sur le web pour en créer.",
+    "lockedDescription": "Vous pouvez consulter les entrées de stock et préparations passées. Passez à une offre supérieure sur le web pour en créer.",
     "loadFailed": "Impossible de charger cette liste.",
     "actionFailed": "Cela n'a pas fonctionné. Réessayez.",
     "showMore": "Afficher plus",
@@ -4053,7 +4058,7 @@
         "heading": "En ce moment"
       },
       "tiles": {
-        "openIntake": "Achats ouverts",
+        "openIntake": "Entrées de stock ouvertes",
         "openPicks": "Préparations ouvertes",
         "cardsToPick": "Cartes à préparer",
         "readyToComplete_one": "{{count}} prête à terminer",
@@ -4097,9 +4102,9 @@
           "detail": "Créez une préparation pour sortir les cartes réservées."
         },
         "openIntake": {
-          "title_one": "{{count}} achat ouvert",
-          "title_other": "{{count}} achats ouverts",
-          "detail": "Vérifiez les cartes, puis terminez l'achat."
+          "title_one": "{{count}} entrée de stock ouverte",
+          "title_other": "{{count}} entrées de stock ouvertes",
+          "detail": "Vérifiez les cartes, puis terminez l'entrée de stock."
         },
         "allClear": {
           "title": "Tout est à jour",
@@ -4114,9 +4119,9 @@
         "requests_other": "Demandes"
       },
       "intake": {
-        "description": "Achetez des cartes à des clients, des fournisseurs ou dans du produit ouvert. Scannez-les, puis terminez l'achat.",
-        "empty": "Aucun achat ouvert.",
-        "link": "Aller aux achats"
+        "description": "Faites entrer du nouveau stock de clients, de fournisseurs, de lots en vrac ou de produits ouverts. Scannez-le, puis terminez l'entrée de stock.",
+        "empty": "Aucune entrée de stock ouverte.",
+        "link": "Aller aux entrées de stock"
       },
       "picks": {
         "description": "Sortez les cartes vendues du stock et terminez la vente.",
@@ -4138,24 +4143,24 @@
       }
     },
     "views": {
-      "intake": "Achats",
+      "intake": "Entrées de stock",
       "picks": "Préparations",
       "reservations": "Réservations",
       "sales": "Ventes"
     },
     "status": {
       "open": "Ouvert",
-      "accepted": "Acheté",
+      "accepted": "Terminé",
       "fulfilled": "Terminée",
       "cancelled": "Annulé"
     },
     "intake": {
-      "title": "Achat",
+      "title": "Entrée de stock",
       "entrySubtitle": "Faire entrer des cartes de clients, fournisseurs, lots en vrac ou produits ouverts",
-      "new": "Démarrer un achat",
-      "newDescription": "Les cartes scannées dans la collection de l'achat y sont ajoutées jusqu'à ce que vous le terminiez ou l'annuliez.",
-      "create": "Démarrer l'achat",
-      "createFailed": "Impossible de démarrer l'achat",
+      "new": "Démarrer une entrée de stock",
+      "newDescription": "Les cartes scannées dans la collection de l'entrée de stock y sont ajoutées jusqu'à ce que vous la terminiez ou l'annuliez.",
+      "create": "Démarrer l'entrée de stock",
+      "createFailed": "Impossible de démarrer l'entrée de stock",
       "customerName": "Client",
       "customerContact": "Contact (facultatif)",
       "customerContactPlaceholder": "E-mail ou téléphone",
@@ -4171,16 +4176,16 @@
       "language": "Langue",
       "languagePlaceholder": "Choisissez une langue",
       "notes": "Notes (facultatif)",
-      "emptyTitle": "Aucun achat",
+      "emptyTitle": "Aucune entrée de stock",
       "emptyDescription": "Commencez-en un quand un client vient vendre des cartes, qu'une commande fournisseur arrive ou que vous ouvrez du produit.",
       "rowDetails_one": "{{count}} carte · {{collection}}",
       "rowDetails_other": "{{count}} cartes · {{collection}}",
-      "openHint": "Ouvre l'achat",
-      "subtitle": "Achat dans {{collection}} · commencé le {{date}}",
-      "notFound": "Cet achat n'existe plus.",
-      "moreActions": "Plus d'actions pour l'achat",
+      "openHint": "Ouvre l'entrée de stock",
+      "subtitle": "Entrée de stock dans {{collection}} · démarrée le {{date}}",
+      "notFound": "Cette entrée de stock n'existe plus.",
+      "moreActions": "Plus d'actions pour l'entrée de stock",
       "openCollection": "Ouvrir la collection",
-      "collectionDeleted": "La collection de l'achat a été supprimée.",
+      "collectionDeleted": "La collection de l'entrée de stock a été supprimée.",
       "liveOffer": "Offre en direct",
       "summary": "Récapitulatif",
       "stats": {
@@ -4203,13 +4208,13 @@
       "belowMinimum_one": "{{count}} carte est sous votre minimum et ne reçoit pas d'offre.",
       "belowMinimum_other": "{{count}} cartes sont sous votre minimum et ne reçoivent pas d'offre.",
       "belowMinimumRow": "Sous le minimum, pas d'offre",
-      "scanCards": "Scanner des cartes dans cet achat",
+      "scanCards": "Scanner des cartes dans cette entrée de stock",
       "accept": "Terminer",
-      "acceptTitle": "Terminer cet achat",
-      "acceptDescription_one": "Acheter {{count}} carte à {{name}}. Le coût d'achat de chaque carte est fixé d'après son offre.",
-      "acceptDescription_other": "Acheter {{count}} cartes à {{name}}. Le coût d'achat de chaque carte est fixé d'après son offre.",
+      "acceptTitle": "Terminer cette entrée de stock",
+      "acceptDescription_one": "Ajouter {{count}} carte de {{name}} à votre stock. Le coût d'achat de chaque carte est fixé d'après son offre.",
+      "acceptDescription_other": "Ajouter {{count}} cartes de {{name}} à votre stock. Le coût d'achat de chaque carte est fixé d'après son offre.",
       "acceptConfirm": "Accepter pour {{amount}}",
-      "accepted": "Achat terminé",
+      "accepted": "Entrée de stock terminée",
       "overrideLabel": "Utiliser un autre total",
       "overrideAmount": "Total en espèces",
       "costBasisNote": "Coût d'achat enregistré : {{amount}}",
@@ -4219,20 +4224,20 @@
       "cardsSection_one": "{{count}} carte",
       "cardsSection_other": "{{count}} cartes",
       "noCardsOpen": "Scannez les cartes. Les offres se mettent à jour à chaque carte enregistrée.",
-      "noCardsClosed": "Cet achat a été clôturé sans aucune carte.",
-      "cancelLot": "Annuler l'achat",
-      "cancelTitle": "Annuler cet achat",
+      "noCardsClosed": "Cette entrée de stock a été clôturée sans aucune carte.",
+      "cancelLot": "Annuler l'entrée de stock",
+      "cancelTitle": "Annuler cette entrée de stock",
       "cancelDescription": "{{name}} garde ses cartes et rien n'est payé. Retirez aussi les cartes scannées si elles repartent.",
       "cancelKeepCards": "Annuler et garder les cartes",
       "cancelRemoveCards_one": "Annuler et retirer {{count}} carte",
       "cancelRemoveCards_other": "Annuler et retirer {{count}} cartes",
-      "cancelled": "Achat annulé",
-      "deleteTitle": "Supprimer cet achat ?",
-      "deleteDescription": "La fiche de l'achat est supprimée. Les cartes achetées restent dans votre collection avec leur coût.",
-      "deleted": "Achat supprimé"
+      "cancelled": "Entrée de stock annulée",
+      "deleteTitle": "Supprimer cette entrée de stock ?",
+      "deleteDescription": "La fiche de l'entrée de stock est supprimée. Ses cartes restent dans votre collection avec leur coût.",
+      "deleted": "Entrée de stock supprimée"
     },
     "transfer": {
-      "title": "Déplacer les cartes achetées",
+      "title": "Déplacer les cartes de l'entrée de stock",
       "description": "Déplacez les cartes de {{name}} vers la collection où vous gardez votre stock.",
       "target": "Déplacer vers",
       "newCollection": "Nouvelle collection",
@@ -4471,16 +4476,16 @@
     "search": {
       "noResultsTitle": "Aucun résultat",
       "noResultsDescription": "Rien ne correspond à « {{query}} ». Essayez un autre nom ou mot.",
-      "intakePlaceholder": "Rechercher des achats par nom ou note",
+      "intakePlaceholder": "Rechercher des entrées de stock par nom ou note",
       "picksPlaceholder": "Rechercher des préparations par nom, carte ou commande",
       "reservationsPlaceholder": "Rechercher par client, carte ou catalogue",
       "clear": "Effacer la recherche"
     },
     "buy": {
-      "startTitle": "Démarrer un achat",
-      "startDescription": "Les cartes scannées dans la collection pendant l'achat y sont ajoutées.",
+      "startTitle": "Démarrer une entrée de stock",
+      "startDescription": "Les cartes scannées dans la collection pendant l'entrée de stock y sont ajoutées.",
       "startAndScan": "Démarrer et scanner",
-      "sourceType": "Acheté auprès de",
+      "sourceType": "Provenance",
       "sourceTypes": {
         "customer": "Client",
         "vendor": "Fournisseur",
@@ -4497,14 +4502,14 @@
         "opened": "Display, coffret..."
       },
       "collection": "Scanner dans",
-      "collectionHint": "Les cartes vont directement dans cette collection. Un seul achat ouvert par collection.",
+      "collectionHint": "Les cartes vont directement dans cette collection. Une seule entrée de stock ouverte par collection.",
       "storageLocation": "Ranger dans",
-      "storageLocationHint": "Quand vous terminez l'achat, ses cartes vont dans cet emplacement.",
+      "storageLocationHint": "Quand vous terminez l'entrée de stock, ses cartes vont dans cet emplacement.",
       "noStorageLocation": "Aucun emplacement",
-      "finish": "Terminer l'achat",
-      "finishTitle": "Terminer l'achat",
-      "finishDescription_one": "Acheter {{count}} carte à {{name}}.",
-      "finishDescription_other": "Acheter {{count}} cartes à {{name}}.",
+      "finish": "Terminer l'entrée de stock",
+      "finishTitle": "Terminer l'entrée de stock",
+      "finishDescription_one": "Ajouter {{count}} carte de {{name}} à votre stock.",
+      "finishDescription_other": "Ajouter {{count}} cartes de {{name}} à votre stock.",
       "finishDescriptionOpened_one": "Ajouter {{count}} carte de {{name}} à votre inventaire.",
       "finishDescriptionOpened_other": "Ajouter {{count}} cartes de {{name}} à votre inventaire.",
       "finishConfirm": "Terminer pour {{amount}}",
@@ -4520,8 +4525,8 @@
       "destinationWithLocation": "{{collection}} · {{location}}",
       "performance": {
         "title": "Performance",
-        "description": "Ce que vous avez vendu de cet achat et ce qu'il a rapporté.",
-        "loadFailed": "Impossible de charger la performance de cet achat",
+        "description": "Ce que vous avez vendu de cette entrée de stock et ce qu'elle a rapporté.",
+        "loadFailed": "Impossible de charger la performance de cette entrée de stock",
         "paid": "Payé",
         "sold": "Cartes vendues",
         "revenueHint": "{{amount}} de chiffre d'affaires",
@@ -4534,13 +4539,13 @@
         "seeSales": "Voir les ventes"
       },
       "unmoved": {
-        "title_one": "{{count}} achat terminé est encore dans sa propre collection",
-        "title_other": "{{count}} achats terminés sont encore dans leurs propres collections",
-        "description": "Les achats se scannent désormais directement dans votre stock. Déplacez ces cartes vers le stock une fois.",
+        "title_one": "{{count}} entrée de stock terminée est encore dans sa propre collection",
+        "title_other": "{{count}} entrées de stock terminées sont encore dans leurs propres collections",
+        "description": "Les entrées de stock se scannent désormais directement dans votre stock. Déplacez ces cartes vers le stock une fois.",
         "row_one": "{{count}} carte dans {{collection}}",
         "row_other": "{{count}} cartes dans {{collection}}",
         "move": "Mettre en stock",
-        "moveHint": "Ouvre le déplacement pour cet achat"
+        "moveHint": "Ouvre le déplacement pour cette entrée de stock"
       }
     },
     "sales": {
@@ -4548,7 +4553,7 @@
       "rowProfit": "{{amount}} de bénéfice",
       "filteredByBuy": "Ventes de {{name}}",
       "showAll": "Tout afficher",
-      "showAllHint": "Affiche les ventes de tous les achats",
+      "showAllHint": "Affiche les ventes de toutes les entrées de stock",
       "ranges": {
         "7": "7 jours",
         "30": "30 jours",
@@ -4755,7 +4760,7 @@
       },
       "rightNow": {
         "title": "En ce moment",
-        "description": "Ces vignettes montrent les achats, préparations et ventes en cours. Touchez une vignette pour ouvrir sa section."
+        "description": "Ces vignettes montrent les entrées de stock, préparations et ventes en cours. Touchez une vignette pour ouvrir sa section."
       },
       "attention": {
         "title": "À traiter",
@@ -4767,14 +4772,14 @@
       },
       "sections": {
         "title": "Chaque section",
-        "description": "Achats, préparations, réservations et ventes ont chacun leur page plus bas."
+        "description": "Entrées de stock, préparations, réservations et ventes ont chacune leur page plus bas."
       }
     },
     "buys": {
-      "title": "Comment fonctionnent les achats",
+      "title": "Comment fonctionnent les entrées de stock",
       "start": {
-        "title": "Démarrer un achat",
-        "description": "Utilisez un achat dès que des cartes arrivent : un client qui vous vend des cartes, une livraison fournisseur, un lot en vrac ou un produit que vous avez ouvert. Les cartes scannées vont directement dans la collection choisie."
+        "title": "Démarrer une entrée de stock",
+        "description": "Utilisez une entrée de stock dès que du nouveau stock arrive : un client qui vous vend des cartes, une livraison fournisseur, un lot en vrac ou un produit que vous avez ouvert. Les cartes scannées vont directement dans la collection choisie, pour suivre ce que chaque carte a coûté et à combien elle se vend."
       },
       "offer": {
         "title": "Offre en direct",
@@ -4785,16 +4790,16 @@
         "description": "Ouvrez le détail d'une carte pour ajuster son offre avant de terminer."
       },
       "finish": {
-        "title": "Terminer l'achat",
+        "title": "Terminer l'entrée de stock",
         "description": "Saisissez ce que vous avez payé : au client, la facture du fournisseur ou le prix du lot en vrac. Le montant est réparti sur les cartes comme leur coût, et les cartes vont dans le stockage si vous avez choisi un emplacement."
       },
       "performance": {
         "title": "Performance",
-        "description": "Une fois l'achat terminé, Performance montre ce que ses cartes ont rapporté jusqu'ici."
+        "description": "Une fois l'entrée de stock terminée, Performance montre ce que ses cartes ont rapporté jusqu'ici."
       },
       "moveIntoStock": {
         "title": "Déplacer les cartes vers le stock",
-        "description": "Les anciens achats sans emplacement peuvent encore ranger leurs cartes avec Déplacer les cartes vers le stock."
+        "description": "Les anciennes entrées de stock sans emplacement peuvent encore ranger leurs cartes avec Déplacer les cartes vers le stock."
       }
     },
     "picks": {
@@ -4847,7 +4852,7 @@
       "title": "Comment fonctionnent les ventes",
       "filters": {
         "title": "Choisir ce que vous voyez",
-        "description": "Choisissez une période, ou affichez seulement les ventes d'un achat."
+        "description": "Choisissez une période, ou affichez seulement les ventes d'une entrée de stock."
       },
       "totals": {
         "title": "Chiffre d'affaires et coût",
@@ -4863,23 +4868,23 @@
       }
     },
     "scanBuy": {
-      "title": "Acheter depuis l'onglet de scan",
-      "open": "Comment acheter pendant le scan",
+      "title": "Entrée de stock depuis l'onglet de scan",
+      "open": "Comment fonctionne l'entrée de stock pendant le scan",
       "start": {
-        "title": "Démarrer un achat",
-        "description": "Touchez Démarrer un achat en haut de l’onglet scan dès que des cartes arrivent : d’un client, d’un fournisseur, d’un lot en vrac ou d’un produit ouvert."
+        "title": "Démarrer une entrée de stock",
+        "description": "Touchez Démarrer une entrée de stock en haut de l’onglet scan dès que du nouveau stock arrive : d’un client, d’un fournisseur, d’un lot en vrac ou d’un produit ouvert."
       },
       "scan": {
         "title": "Scanner les cartes",
-        "description": "Tant que l'achat est ouvert, chaque carte scannée dans cette collection est ajoutée à l'achat."
+        "description": "Tant que l'entrée de stock est ouverte, chaque carte scannée dans cette collection y est ajoutée."
       },
       "line": {
         "title": "Vérifier les totaux",
-        "description": "Touchez la ligne d'achat en haut pour voir le nombre de cartes, la valeur marché et votre offre."
+        "description": "Touchez la ligne d'entrée de stock en haut pour voir le nombre de cartes, la valeur marché et votre offre."
       },
       "finish": {
         "title": "Terminer ou annuler",
-        "description": "Terminez ou annulez l'achat depuis cette fenêtre sans quitter l'onglet de scan."
+        "description": "Terminez ou annulez l'entrée de stock depuis cette fenêtre sans quitter l'onglet de scan."
       }
     }
   }

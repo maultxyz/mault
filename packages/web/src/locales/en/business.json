@@ -10,12 +10,12 @@
     "loadFailed": "Couldn't load this. Check your connection and try again."
   },
   "upgrade": {
-    "locked": "Buy and sell (buys, picks, sales, cost tracking and spot checks) is not part of your plan. You can still view what you already have.",
+    "locked": "Buy and sell (intakes, picks, sales, cost tracking and spot checks) is not part of your plan. You can still view what you already have.",
     "link": "See plans"
   },
   "status": {
     "open": "Open",
-    "accepted": "Bought",
+    "accepted": "Finished",
     "cancelled": "Cancelled",
     "fulfilled": "Completed",
     "completed": "Finished"
@@ -75,8 +75,8 @@
         "description": "Offers, cost basis and margins."
       },
       "acceptIntake": {
-        "label": "Finish or cancel buys",
-        "description": "Members can always scan into an open buy."
+        "label": "Finish or cancel intakes",
+        "description": "Members can always scan into an open intake."
       },
       "fulfilOrders": {
         "label": "Create and complete picks",
@@ -106,13 +106,13 @@
   "overview": {
     "back": "Overview",
     "title": "Buy & sell",
-    "description": "What needs doing across buys, picks and reservations.",
+    "description": "What needs doing across intakes, picks and reservations.",
     "cards_one": "{{count}} card",
     "cards_other": "{{count}} cards",
     "intake": {
-      "description": "Bring cards in from customers, vendors, bulk lots or opened product. Scan them straight into your stock, then finish the buy.",
-      "empty": "No open buys.",
-      "link": "Go to buys"
+      "description": "Bring in new inventory from customers, vendors, bulk lots or opened product. Scan it straight into your stock, then finish the intake.",
+      "empty": "No open intakes.",
+      "link": "Go to intakes"
     },
     "picks": {
       "description": "Pull sold cards from storage and complete the sale.",
@@ -125,7 +125,7 @@
       "link": "Go to reservations"
     },
     "labels": {
-      "description": "Print price labels for a collection, storage location or buy.",
+      "description": "Print price labels for a collection, storage location or intake.",
       "link": "Go to labels"
     },
     "views": {
@@ -138,7 +138,7 @@
     },
     "share": "{{percent}}%",
     "tiles": {
-      "openIntake": "Open buys",
+      "openIntake": "Open intakes",
       "openPicks": "Open picks",
       "cardsToPick": "Cards to pick",
       "readyToComplete_one": "{{count}} ready to complete",
@@ -183,9 +183,9 @@
         "detail": "Create a pick to pull the held cards."
       },
       "openIntake": {
-        "title_one": "{{count}} open buy",
-        "title_other": "{{count}} open buys",
-        "detail": "Review the cards, make an offer, then finish the buy."
+        "title_one": "{{count}} open intake",
+        "title_other": "{{count}} open intakes",
+        "detail": "Review the cards, make an offer, then finish the intake."
       },
       "allClear": {
         "title": "All caught up",
@@ -204,7 +204,7 @@
       "value": "Inventory value",
       "uncosted": "Cards without a cost",
       "uncostedDetail": "Set a cost to include them in margins",
-      "historyDescription": "Daily market value of everything you own, with cards in open buys left out.",
+      "historyDescription": "Daily market value of everything you own, with cards in open intakes left out.",
       "collectionsTitle": "Costs by collection",
       "collectionsDescription": "What you paid for each collection against what it is worth now.",
       "rowSummary": "Worth {{value}}, cost {{cost}}",
@@ -227,7 +227,7 @@
     }
   },
   "views": {
-    "intake": "Buys",
+    "intake": "Intake",
     "picks": "Picks",
     "labels": "Labels",
     "reservations": "Reservations",
@@ -244,27 +244,27 @@
   },
   "intake": {
     "subtitle": "Scanning into {{collection}} · started {{date}}",
-    "new": "New buy",
-    "newTitle": "Start a buy",
-    "newDescription": "Use a buy for any cards coming in: a customer at the counter, a vendor delivery, a bulk lot or opened product. Cards you scan into the collection are added to the buy until you finish or cancel it.",
+    "new": "New intake",
+    "newTitle": "Start an intake",
+    "newDescription": "Use an intake whenever new inventory comes in: a customer at the counter, a vendor delivery, a bulk lot or opened product. Cards you scan into the collection are added to the intake until you finish or cancel it, so you can track what each card cost and what it sells for.",
     "customerContact": "Contact (optional)",
     "customerContactPlaceholder": "Email or phone",
     "collection": "Scan into",
     "chooseCollection": "Choose a collection",
     "notes": "Notes (optional)",
-    "start": "Start buy",
-    "created": "Buy started",
-    "emptyTitle": "No buys yet",
+    "start": "Start intake",
+    "created": "Intake started",
+    "emptyTitle": "No intakes yet",
     "emptyDescription": "Start one when a customer brings cards to sell, a vendor order arrives or you open sealed product.",
-    "pickTitle": "Pick a buy",
-    "pickDescription": "Choose a buy on the left or start a new one.",
+    "pickTitle": "Pick an intake",
+    "pickDescription": "Choose an intake on the left or start a new one.",
     "cardCount_one": "{{count, compact}} card",
     "cardCount_other": "{{count, compact}} cards",
     "openScanner": "Open scanner",
     "addCard": "Add card",
     "printReceipt": "Receipt",
     "accept": "Finish",
-    "cancelLot": "Cancel buy",
+    "cancelLot": "Cancel intake",
     "liveOffer": "Live offer",
     "summary": "Summary",
     "stats": {
@@ -283,44 +283,44 @@
       "cash": "Cash to pay",
       "credit": "Store credit to give"
     },
-    "noCardsTitle": "No cards in this buy",
+    "noCardsTitle": "No cards in this intake",
     "noCardsOpen": "Open the scanner and scan the cards. Offers update as each card is saved.",
-    "noCardsClosed": "This buy was closed without any cards.",
-    "acceptTitle": "Finish this buy",
-    "acceptDescription_one": "Buy {{count}} card from {{name}}. Each card's cost is set from its offer.",
-    "acceptDescription_other": "Buy {{count}} cards from {{name}}. Each card's cost is set from its offer.",
+    "noCardsClosed": "This intake was closed without any cards.",
+    "acceptTitle": "Finish this intake",
+    "acceptDescription_one": "Add {{count}} card from {{name}} to your stock. Each card's cost is set from its offer.",
+    "acceptDescription_other": "Add {{count}} cards from {{name}} to your stock. Each card's cost is set from its offer.",
     "costBasisNote": "Cost basis recorded: {{amount}}",
-    "accepted": "Buy finished",
-    "cancelTitle": "Cancel this buy",
+    "accepted": "Intake finished",
+    "cancelTitle": "Cancel this intake",
     "cancelDescription": "{{name}} keeps their cards and nothing is paid.",
     "removeCards_one": "Remove the {{count}} scanned card",
     "removeCards_other": "Remove the {{count}} scanned cards",
     "removeCardsHint": "Takes them out of the collection, since they leave with the customer.",
-    "cancelled": "Buy cancelled",
-    "deleteTitle": "Delete this buy?",
-    "deleteDescription": "The buy's record is removed. Cards you bought stay in your collection with their cost.",
-    "removeCardsHintOwned": "Takes them out, since they leave with the customer. The buy's own collection is removed too.",
+    "cancelled": "Intake cancelled",
+    "deleteTitle": "Delete this intake?",
+    "deleteDescription": "The intake's record is removed. Its cards stay in your collection with their cost.",
+    "removeCardsHintOwned": "Takes them out, since they leave with the customer. The intake's own collection is removed too.",
     "review": {
       "start": "Review",
-      "startTitle": "Go through this buy's cards that haven't been reviewed yet, newest first",
-      "nothingLeft": "Nothing left to review. Every card in this buy has already been reviewed.",
-      "remove": "Remove from buy",
-      "removeTitle": "Take {{name}} out of the buy?",
+      "startTitle": "Go through this intake's cards that haven't been reviewed yet, newest first",
+      "nothingLeft": "Nothing left to review. Every card in this intake has already been reviewed.",
+      "remove": "Remove from intake",
+      "removeTitle": "Take {{name}} out of the intake?",
       "removeDescription": "The card goes back to {{name}} and is taken out of the collection, so the offer goes down."
     },
     "moreActions": "More actions",
     "remove": {
-      "button": "Remove from buy",
+      "button": "Remove from intake",
       "selectAll": "Select all cards",
       "selectRow": "Select {{name}}",
-      "row": "Remove {{name}} from the buy",
+      "row": "Remove {{name}} from the intake",
       "selected_one": "{{count}} card selected",
       "selected_other": "{{count}} cards selected",
-      "title_one": "Remove {{count}} card from the buy?",
-      "title_other": "Remove {{count}} cards from the buy?",
+      "title_one": "Remove {{count}} card from the intake?",
+      "title_other": "Remove {{count}} cards from the intake?",
       "description": "Use this when {{name}} turns down the offer for a card or you pass on it. The cards are taken out of the collection and the offer goes down.",
-      "done_one": "{{count}} card removed from the buy",
-      "done_other": "{{count}} cards removed from the buy"
+      "done_one": "{{count}} card removed from the intake",
+      "done_other": "{{count}} cards removed from the intake"
     },
     "belowMinimum": {
       "notice_one": "{{count}} card is below your minimum card value of {{value}} and gets no offer.",
@@ -330,8 +330,8 @@
       "rowTitle": "Below your minimum card value, so no offer"
     },
     "subtitleWithLocation": "Scanning into {{collection}}, {{location}} · started {{date}}",
-    "collectionHint": "Cards go straight into this collection. A collection can only have one open buy at a time.",
-    "sourceType": "Buying from",
+    "collectionHint": "Cards go straight into this collection. A collection can only have one open intake at a time.",
+    "sourceType": "Coming from",
     "sourceTypes": {
       "customer": "Customer",
       "vendor": "Vendor",
@@ -349,7 +349,7 @@
     },
     "storageLocation": "Storage location (optional)",
     "noStorageLocation": "No storage location",
-    "storageLocationHint": "Cards move into this location when you finish the buy.",
+    "storageLocationHint": "Cards move into this location when you finish the intake.",
     "finish": {
       "totalPaid": "Total paid",
       "totalPaidHint": "Starts at the cash offer. Each card's cost comes from its offer.",
@@ -378,9 +378,9 @@
       "seeSales": "See sales"
     },
     "unmoved": {
-      "title_one": "{{count}} finished buy still has cards in its own collection",
-      "title_other": "{{count}} finished buys still have cards in their own collection",
-      "description": "Buys now scan straight into your stock. Move the cards of these older buys into stock once.",
+      "title_one": "{{count}} finished intake still has cards in its own collection",
+      "title_other": "{{count}} finished intakes still have cards in their own collection",
+      "description": "Intakes now scan straight into your stock. Move the cards of these older intakes into stock once.",
       "row_one": "{{count}} card in {{collection}}",
       "row_other": "{{count}} cards in {{collection}}",
       "move": "Move into stock",
@@ -760,9 +760,9 @@
       "cardsCondition": "Condition changed",
       "collectionDeleted": "Collection deleted",
       "costSet": "Cost set",
-      "intakeCreated": "Buy started",
-      "intakeAccepted": "Buy finished",
-      "intakeCancelled": "Buy cancelled",
+      "intakeCreated": "Intake started",
+      "intakeAccepted": "Intake finished",
+      "intakeCancelled": "Intake cancelled",
       "orderCreated": "Pick created",
       "orderUpdated": "Pick edited",
       "orderFulfilled": "Pick completed",
@@ -770,7 +770,7 @@
       "accuracyCompleted": "Spot check finished",
       "deviceServiced": "Sorter serviced",
       "businessSettings": "Business settings changed",
-      "intakeTransferred": "Buy moved",
+      "intakeTransferred": "Intake moved",
       "catalogCreated": "Shop catalog created",
       "catalogUpdated": "Shop catalog changed",
       "catalogDeleted": "Shop catalog deleted",
@@ -796,9 +796,9 @@
       "cardsCondition_other": "Set {{count}} cards to {{condition}}",
       "collectionDeleted": "Deleted the collection {{summary}}",
       "costSet": "Set the cost of {{cards}} cards in {{summary}}",
-      "intakeCreated": "Started a buy for {{summary}}",
-      "intakeAccepted": "Bought {{cards}} cards from {{summary}}",
-      "intakeCancelled": "Cancelled the buy for {{summary}}",
+      "intakeCreated": "Started an intake for {{summary}}",
+      "intakeAccepted": "Finished the intake of {{cards}} cards from {{summary}}",
+      "intakeCancelled": "Cancelled the intake for {{summary}}",
       "orderCreated": "Created the pick {{summary}}",
       "orderUpdated": "Edited the pick {{summary}}",
       "orderFulfilled": "Completed {{summary}} ({{sold}} cards)",
@@ -806,7 +806,7 @@
       "accuracyCompleted": "Finished a spot check on {{summary}}: {{incorrect}} wrong out of {{checked}}",
       "deviceServiced": "Serviced {{summary}}",
       "businessSettings": "Changed the business settings",
-      "intakeTransferred": "Moved {{cards}} cards bought from {{summary}}",
+      "intakeTransferred": "Moved {{cards}} cards from the intake for {{summary}}",
       "catalogCreated": "Created the shop catalog {{summary}}",
       "catalogUpdated": "Changed the shop catalog {{summary}}",
       "catalogDeleted": "Deleted the shop catalog {{summary}}",
@@ -896,13 +896,13 @@
     "notInPlan": "Fleet health isn't part of your plan."
   },
   "banner": {
-    "title": "Buy in progress: {{name}}",
-    "description": "Every card you scan into {{collection}} is added to this buy.",
-    "open": "Open buy"
+    "title": "Intake in progress: {{name}}",
+    "description": "Every card you scan into {{collection}} is added to this intake.",
+    "open": "Open intake"
   },
   "transfer": {
     "button": "Move cards",
-    "title": "Move the bought cards",
+    "title": "Move the intake's cards",
     "description": "Move the cards from {{name}} into the collection where you keep your stock.",
     "target": "Move to",
     "newCollection": "New collection",
@@ -931,7 +931,7 @@
     "collectionsLabel": "Collections",
     "storageLocationsLabel": "Storage locations",
     "noSources": "Nothing to pick yet.",
-    "inventoryNote": "Cards in open or cancelled buys never show.",
+    "inventoryNote": "Cards in open or cancelled intakes never show.",
     "empty": "No shop catalogs yet",
     "loadFailed": "Couldn't load shop catalogs.",
     "upgrade": "Shop catalogs are part of the Business plan.",
@@ -991,7 +991,7 @@
   },
   "priceLabels": {
     "title": "Price labels",
-    "description": "Print price stickers for cards from a collection, storage location or buy.",
+    "description": "Print price stickers for cards from a collection, storage location or intake.",
     "printForLot": "Print price labels",
     "form": {
       "title": "Labels",
@@ -1004,17 +1004,17 @@
     "sources": {
       "collection": "Collection",
       "location": "Storage location",
-      "lot": "Buy"
+      "lot": "Intake"
     },
     "sourceItems": {
       "collection": "Collection",
       "location": "Storage location",
-      "lot": "Buy"
+      "lot": "Intake"
     },
     "sourcePlaceholders": {
       "collection": "Choose a collection",
       "location": "Choose a location",
-      "lot": "Choose a buy"
+      "lot": "Choose an intake"
     },
     "cards": {
       "selected_one": "{{count}} of {{total}} card selected",
@@ -1027,11 +1027,11 @@
       "customPrice": "Custom price",
       "customPriceFor": "Custom price for {{name}}",
       "labelPrice": "Label price",
-      "truncated": "Showing the first {{shown}} of {{total}} cards. Print labels from a storage location or buy to label the rest."
+      "truncated": "Showing the first {{shown}} of {{total}} cards. Print labels from a storage location or intake to label the rest."
     },
     "empty": {
       "pickSourceTitle": "Choose where the cards come from",
-      "pickSourceDescription": "Pick a collection, storage location or buy to list its cards.",
+      "pickSourceDescription": "Pick a collection, storage location or intake to list its cards.",
       "noCardsTitle": "No cards here",
       "noCardsDescription": "Scan or add cards first, then print their labels.",
       "noneSelectedTitle": "No cards selected",
@@ -1146,7 +1146,7 @@
   "search": {
     "noResultsTitle": "No matches",
     "noResultsDescription": "Nothing matches \"{{query}}\". Try another name or word.",
-    "intakePlaceholder": "Search buys by name or note",
+    "intakePlaceholder": "Search intakes by name or note",
     "picksPlaceholder": "Search picks by name, card or order",
     "reservationsPlaceholder": "Search by customer, card or catalog"
   },
@@ -1191,7 +1191,7 @@
         "each": "Cost per card",
         "spread": "Total paid"
       },
-      "intakeNote": "Cards in an open or cancelled buy are skipped. Set their offer in the buy instead.",
+      "intakeNote": "Cards in an open or cancelled intake are skipped. Set their offer in the intake instead.",
       "apply_one": "Set cost for {{count}} card",
       "apply_other": "Set cost for {{count}} cards",
       "applied_one": "Cost set on {{count}} card",
@@ -1199,17 +1199,22 @@
     }
   },
   "cardPricing": {
+    "intake": {
+      "heading": "Intake",
+      "from": "From",
+      "added": "Added"
+    },
     "heading": "Pricing",
     "market": "Market price",
-    "sell": "Sell price",
+    "sell": "Listed price",
     "rules": {
       "default": "Default margin ({{percent}})",
       "markup": "Market {{percent}}",
       "fixed": "Fixed price"
     },
     "editSellPrice": "Edit sell price",
-    "costLabel": "Cost ({{currency}})",
-    "intakeOfferLabel": "Buy offer ({{currency}})",
+    "costLabel": "Paid ({{currency}})",
+    "intakeOfferLabel": "Intake offer ({{currency}})",
     "noCost": "Not set"
   },
   "sales": {
@@ -1230,53 +1235,53 @@
       "cost": "Cost",
       "profit": "Profit",
       "channel": "Channel",
-      "buy": "Buy"
+      "buy": "Intake"
     },
     "channels": {
       "pick": "Pick",
       "reservation": "Reservation"
     },
-    "boughtIn": "Bought in",
+    "boughtIn": "From intake",
     "profitShort": "Profit {{value}}",
     "from": "From",
     "to": "To",
-    "buyFilter": "Buy: {{name}}",
-    "buyFilterUnknown": "this buy",
-    "removeBuyFilter": "Show sales from every buy",
-    "noBuy": "Not from a buy",
+    "buyFilter": "Intake: {{name}}",
+    "buyFilterUnknown": "this intake",
+    "removeBuyFilter": "Show sales from every intake",
+    "noBuy": "Not from an intake",
     "export": "Export CSV",
     "exportFailed": "Couldn't export the sales.",
     "noAccess": "Your role can't see sales. Ask an owner or admin to allow it in Settings > Business."
   },
   "scannerBuy": {
     "startPrompt": {
-      "title": "Buying cards?",
-      "description": "Start a buy and every card you scan into this collection is added to it, with offers worked out as you go.",
-      "start": "Start a buy",
+      "title": "New inventory coming in?",
+      "description": "Start an intake and every card you scan into this collection is added to it, with offers worked out as you go.",
+      "start": "Start an intake",
       "hide": "Hide",
-      "show": "Show buy bar on the scanner",
-      "showShort": "Show buy"
+      "show": "Show intake bar on the scanner",
+      "showShort": "Show intake"
     },
-    "panelLabel": "Buy in progress",
-    "finish": "Finish buy",
+    "panelLabel": "Intake in progress",
+    "finish": "Finish intake",
     "recentCards": "Recent cards",
-    "noRecentCards": "No cards in this buy yet. Scan cards to add them.",
-    "finishedTitle": "Buy finished: {{name}}",
+    "noRecentCards": "No cards in this intake yet. Scan cards to add them.",
+    "finishedTitle": "Intake finished: {{name}}",
     "finishedCards_one": "{{count}} card",
     "finishedCards_other": "{{count}} cards",
     "finishedPaid": "Paid {{amount}}",
     "finishedPaidWith": "Paid {{amount}} ({{method}})",
-    "startAnother": "Start another buy",
+    "startAnother": "Start another intake",
     "dismiss": "Dismiss",
-    "noOpenBuy": "No buy is open for this collection.",
+    "noOpenBuy": "No intake is open for this collection.",
     "line": {
-      "customer": "Buying from {{name}}",
-      "vendor": "Buying from {{name}}",
+      "customer": "Intake from {{name}}",
+      "vendor": "Intake from {{name}}",
       "opened": "Opening {{name}}"
     },
     "lineWithOffer": {
-      "customer": "Buying from {{name}} · offer {{amount}}",
-      "vendor": "Buying from {{name}} · offer {{amount}}"
+      "customer": "Intake from {{name}} · offer {{amount}}",
+      "vendor": "Intake from {{name}} · offer {{amount}}"
     },
     "openingWithCount_one": "Opening {{name}} · {{count}} card",
     "openingWithCount_other": "Opening {{name}} · {{count}} cards",

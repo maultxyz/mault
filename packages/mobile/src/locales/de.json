@@ -991,19 +991,19 @@
     },
     "buy": {
       "line": {
-        "customer": "Ankauf von {{name}}",
-        "vendor": "Ankauf von {{name}}",
+        "customer": "Wareneingang von {{name}}",
+        "vendor": "Wareneingang von {{name}}",
         "opened": "Öffne {{name}}"
       },
       "lineWithOffer": {
-        "customer": "Ankauf von {{name}} · Angebot {{amount}}",
-        "vendor": "Ankauf von {{name}} · Angebot {{amount}}"
+        "customer": "Wareneingang von {{name}} · Angebot {{amount}}",
+        "vendor": "Wareneingang von {{name}} · Angebot {{amount}}"
       },
       "openingWithCount_one": "{{name}} wird geöffnet · {{count}} Karte",
       "openingWithCount_other": "{{name}} wird geöffnet · {{count}} Karten",
-      "start": "Ankauf starten",
-      "openBuy": "Ankauf öffnen",
-      "cancelFailed": "Ankauf konnte nicht abgebrochen werden"
+      "start": "Wareneingang starten",
+      "openBuy": "Wareneingang öffnen",
+      "cancelFailed": "Wareneingang konnte nicht abgebrochen werden"
     }
   },
   "home": {
@@ -1201,9 +1201,14 @@
     "pricing": {
       "title": "Preise",
       "market": "Marktpreis",
-      "sell": "Verkaufspreis",
-      "cost": "Kosten ({{currency}})",
-      "intakeOffer": "Ankaufsangebot ({{currency}})",
+      "sell": "Angebotspreis",
+      "cost": "Bezahlt ({{currency}})",
+      "intakeOffer": "Angebot im Wareneingang ({{currency}})",
+      "intake": {
+        "title": "Wareneingang",
+        "from": "Von",
+        "added": "Hinzugefügt"
+      },
       "loadFailed": "Die Preise dieser Karte konnten nicht geladen werden.",
       "editSellPriceHint": "Ändern, wie der Verkaufspreis dieser Karte festgelegt wird",
       "rules": {
@@ -2461,8 +2466,8 @@
           "description": "Angebote, Einkaufspreise und Margen."
         },
         "acceptIntake": {
-          "label": "Ankäufe abschließen oder abbrechen",
-          "description": "In einen offenen Ankauf scannen dürfen Mitglieder immer."
+          "label": "Wareneingänge abschließen oder abbrechen",
+          "description": "In einen offenen Wareneingang scannen dürfen Mitglieder immer."
         },
         "fulfilOrders": {
           "label": "Picks erstellen und abschließen",
@@ -2489,7 +2494,7 @@
       "collectionsLabel": "Sammlungen",
       "storageLocationsLabel": "Lagerorte",
       "noSources": "Noch nichts zur Auswahl.",
-      "inventoryNote": "Karten aus offenen oder abgebrochenen Ankäufen werden nie angezeigt.",
+      "inventoryNote": "Karten aus offenen oder abgebrochenen Wareneingängen werden nie angezeigt.",
       "empty": "Noch keine Shop-Kataloge",
       "loadFailed": "Shop-Kataloge konnten nicht geladen werden.",
       "upgrade": "Shop-Kataloge sind Teil des Business-Tarifs.",
@@ -2775,7 +2780,7 @@
     "tiersRequired": "Füge mindestens eine Stufe hinzu.",
     "tooManyTiers": "Höchstens {{max}} Stufen.",
     "customerNameRequired": "Gib den Namen der Kundin oder des Kunden ein.",
-    "buyNameRequired": "Gib einen Namen für diesen Ankauf ein.",
+    "buyNameRequired": "Gib einen Namen für diesen Wareneingang ein.",
     "orderTextRequired": "Füge eine Bestellung ein oder wähle eine Datei.",
     "orderLinesRequired": "Lass mindestens eine Karte in der Pickliste.",
     "decklistRequired": "Gib mindestens eine Karte ein, eine pro Zeile.",
@@ -3046,7 +3051,7 @@
         "game": "Spiel",
         "announcement": "Ankündigung",
         "featureHighlight": "Neuigkeiten-Beitrag",
-        "intakeLot": "Ankauf",
+        "intakeLot": "Wareneingang",
         "fulfilmentOrder": "Bestellung",
         "accuracyCheck": "Stichprobe",
         "shopCatalog": "Shop-Katalog"
@@ -3119,7 +3124,7 @@
         },
         "businessTools": {
           "label": "Kaufen und Verkaufen",
-          "description": "Ankäufe mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
+          "description": "Wareneingänge mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
         },
         "repacks": {
           "label": "Repacks",
@@ -4037,9 +4042,9 @@
   },
   "business": {
     "title": "Ankauf und Verkauf",
-    "subtitle": "Kaufe Karten an der Theke an, picke Bestellungen aus deinem Bestand und verfolge deinen Gewinn.",
+    "subtitle": "Nimm neuen Bestand auf, picke Bestellungen aus deinem Bestand und verfolge deinen Gewinn.",
     "locked": "Ankauf und Verkauf gehört zu einem höheren Tarif",
-    "lockedDescription": "Frühere Ankäufe und Picks kannst du ansehen. Upgrade im Web, um neue zu starten.",
+    "lockedDescription": "Frühere Wareneingänge und Picks kannst du ansehen. Upgrade im Web, um neue zu starten.",
     "loadFailed": "Diese Liste konnte nicht geladen werden.",
     "actionFailed": "Das hat nicht geklappt. Versuche es noch einmal.",
     "showMore": "Mehr anzeigen",
@@ -4053,7 +4058,7 @@
         "heading": "Aktuell"
       },
       "tiles": {
-        "openIntake": "Offene Ankäufe",
+        "openIntake": "Offene Wareneingänge",
         "openPicks": "Offene Picks",
         "cardsToPick": "Karten zu picken",
         "readyToComplete_one": "{{count}} abschlussbereit",
@@ -4097,9 +4102,9 @@
           "detail": "Erstelle einen Pick, um die zurückgelegten Karten zu ziehen."
         },
         "openIntake": {
-          "title_one": "{{count}} offener Ankauf",
-          "title_other": "{{count}} offene Ankäufe",
-          "detail": "Karten prüfen, dann den Ankauf abschließen."
+          "title_one": "{{count}} offener Wareneingang",
+          "title_other": "{{count}} offene Wareneingänge",
+          "detail": "Karten prüfen, dann den Wareneingang abschließen."
         },
         "allClear": {
           "title": "Alles erledigt",
@@ -4114,9 +4119,9 @@
         "requests_other": "Anfragen"
       },
       "intake": {
-        "description": "Karten von Kunden, Händlern oder aus geöffneter Ware ankaufen. Einscannen, dann den Ankauf abschließen.",
-        "empty": "Keine offenen Ankäufe.",
-        "link": "Zu den Ankäufen"
+        "description": "Neuen Bestand von Kunden, Händlern, Bulk-Posten oder aus geöffneter Ware aufnehmen. Einscannen, dann den Wareneingang abschließen.",
+        "empty": "Keine offenen Wareneingänge.",
+        "link": "Zu den Wareneingängen"
       },
       "picks": {
         "description": "Verkaufte Karten aus dem Lager ziehen und den Verkauf abschließen.",
@@ -4138,24 +4143,24 @@
       }
     },
     "views": {
-      "intake": "Ankäufe",
+      "intake": "Wareneingang",
       "picks": "Picks",
       "reservations": "Reservierungen",
       "sales": "Verkäufe"
     },
     "status": {
       "open": "Offen",
-      "accepted": "Gekauft",
+      "accepted": "Abgeschlossen",
       "fulfilled": "Abgeschlossen",
       "cancelled": "Abgebrochen"
     },
     "intake": {
-      "title": "Ankauf",
+      "title": "Wareneingang",
       "entrySubtitle": "Karten von Kundschaft, Händlern, Bulk-Posten oder geöffnetem Produkt aufnehmen",
-      "new": "Ankauf starten",
-      "newDescription": "Karten, die in die Sammlung des Ankaufs gescannt werden, landen darin, bis du ihn abschließt oder abbrichst.",
-      "create": "Ankauf starten",
-      "createFailed": "Der Ankauf konnte nicht gestartet werden",
+      "new": "Wareneingang starten",
+      "newDescription": "Karten, die in die Sammlung des Wareneingangs gescannt werden, landen darin, bis du ihn abschließt oder abbrichst.",
+      "create": "Wareneingang starten",
+      "createFailed": "Der Wareneingang konnte nicht gestartet werden",
       "customerName": "Kunde",
       "customerContact": "Kontakt (optional)",
       "customerContactPlaceholder": "E-Mail oder Telefon",
@@ -4171,16 +4176,16 @@
       "language": "Sprache",
       "languagePlaceholder": "Sprache wählen",
       "notes": "Notizen (optional)",
-      "emptyTitle": "Noch keine Ankäufe",
+      "emptyTitle": "Noch keine Wareneingänge",
       "emptyDescription": "Starte einen, wenn jemand Karten verkaufen möchte, eine Händlerbestellung ankommt oder du Ware öffnest.",
       "rowDetails_one": "{{count}} Karte · {{collection}}",
       "rowDetails_other": "{{count}} Karten · {{collection}}",
-      "openHint": "Öffnet den Ankauf",
-      "subtitle": "Ankauf in {{collection}} · gestartet {{date}}",
-      "notFound": "Diesen Ankauf gibt es nicht mehr.",
-      "moreActions": "Weitere Aktionen für den Ankauf",
+      "openHint": "Öffnet den Wareneingang",
+      "subtitle": "Wareneingang in {{collection}} · gestartet {{date}}",
+      "notFound": "Diesen Wareneingang gibt es nicht mehr.",
+      "moreActions": "Weitere Aktionen für den Wareneingang",
       "openCollection": "Sammlung öffnen",
-      "collectionDeleted": "Die Sammlung des Ankaufs wurde gelöscht.",
+      "collectionDeleted": "Die Sammlung des Wareneingangs wurde gelöscht.",
       "liveOffer": "Aktuelles Angebot",
       "summary": "Übersicht",
       "stats": {
@@ -4203,13 +4208,13 @@
       "belowMinimum_one": "{{count}} Karte liegt unter deinem Mindestwert und bekommt kein Angebot.",
       "belowMinimum_other": "{{count}} Karten liegen unter deinem Mindestwert und bekommen kein Angebot.",
       "belowMinimumRow": "Unter dem Mindestwert, kein Angebot",
-      "scanCards": "Karten in diesen Ankauf scannen",
+      "scanCards": "Karten in diesen Wareneingang scannen",
       "accept": "Abschließen",
-      "acceptTitle": "Ankauf abschließen",
-      "acceptDescription_one": "{{count}} Karte von {{name}} kaufen. Der Einkaufspreis jeder Karte wird aus ihrem Angebot übernommen.",
-      "acceptDescription_other": "{{count}} Karten von {{name}} kaufen. Der Einkaufspreis jeder Karte wird aus ihrem Angebot übernommen.",
+      "acceptTitle": "Wareneingang abschließen",
+      "acceptDescription_one": "{{count}} Karte von {{name}} in deinen Bestand übernehmen. Der Einkaufspreis jeder Karte wird aus ihrem Angebot übernommen.",
+      "acceptDescription_other": "{{count}} Karten von {{name}} in deinen Bestand übernehmen. Der Einkaufspreis jeder Karte wird aus ihrem Angebot übernommen.",
       "acceptConfirm": "Für {{amount}} annehmen",
-      "accepted": "Ankauf abgeschlossen",
+      "accepted": "Wareneingang abgeschlossen",
       "overrideLabel": "Anderen Gesamtbetrag verwenden",
       "overrideAmount": "Gesamtbetrag bar",
       "costBasisNote": "Erfasster Einkaufspreis: {{amount}}",
@@ -4219,20 +4224,20 @@
       "cardsSection_one": "{{count}} Karte",
       "cardsSection_other": "{{count}} Karten",
       "noCardsOpen": "Scanne die Karten. Die Angebote aktualisieren sich mit jeder gespeicherten Karte.",
-      "noCardsClosed": "Dieser Ankauf wurde ohne Karten abgeschlossen.",
-      "cancelLot": "Ankauf abbrechen",
-      "cancelTitle": "Ankauf abbrechen",
+      "noCardsClosed": "Dieser Wareneingang wurde ohne Karten abgeschlossen.",
+      "cancelLot": "Wareneingang abbrechen",
+      "cancelTitle": "Wareneingang abbrechen",
       "cancelDescription": "{{name}} behält die Karten und es wird nichts ausgezahlt. Entferne auch die gescannten Karten, wenn sie wieder mitgehen.",
       "cancelKeepCards": "Abbrechen, Karten behalten",
       "cancelRemoveCards_one": "Abbrechen und {{count}} Karte entfernen",
       "cancelRemoveCards_other": "Abbrechen und {{count}} Karten entfernen",
-      "cancelled": "Ankauf abgebrochen",
-      "deleteTitle": "Ankauf löschen?",
-      "deleteDescription": "Der Eintrag wird entfernt. Gekaufte Karten bleiben mit ihrem Einkaufspreis in deiner Sammlung.",
-      "deleted": "Ankauf gelöscht"
+      "cancelled": "Wareneingang abgebrochen",
+      "deleteTitle": "Wareneingang löschen?",
+      "deleteDescription": "Der Eintrag wird entfernt. Die Karten bleiben mit ihrem Einkaufspreis in deiner Sammlung.",
+      "deleted": "Wareneingang gelöscht"
     },
     "transfer": {
-      "title": "Gekaufte Karten verschieben",
+      "title": "Karten des Wareneingangs verschieben",
       "description": "Verschiebe die Karten aus {{name}} in die Sammlung, in der du deinen Bestand führst.",
       "target": "Verschieben nach",
       "newCollection": "Neue Sammlung",
@@ -4471,16 +4476,16 @@
     "search": {
       "noResultsTitle": "Keine Treffer",
       "noResultsDescription": "Nichts passt zu \"{{query}}\". Versuche einen anderen Namen oder Begriff.",
-      "intakePlaceholder": "Ankäufe nach Name oder Notiz durchsuchen",
+      "intakePlaceholder": "Wareneingänge nach Name oder Notiz durchsuchen",
       "picksPlaceholder": "Picklisten nach Name, Karte oder Bestellung durchsuchen",
       "reservationsPlaceholder": "Nach Kunde, Karte oder Katalog suchen",
       "clear": "Suche leeren"
     },
     "buy": {
-      "startTitle": "Ankauf starten",
-      "startDescription": "Karten, die du während des Ankaufs in die Sammlung scannst, werden ihm zugeordnet.",
+      "startTitle": "Wareneingang starten",
+      "startDescription": "Karten, die du während des Wareneingangs in die Sammlung scannst, werden ihm zugeordnet.",
       "startAndScan": "Starten und scannen",
-      "sourceType": "Ankauf von",
+      "sourceType": "Herkunft",
       "sourceTypes": {
         "customer": "Kunde",
         "vendor": "Händler",
@@ -4497,14 +4502,14 @@
         "opened": "Display, Bundle..."
       },
       "collection": "Scannen in",
-      "collectionHint": "Die Karten landen direkt in dieser Sammlung. Ein offener Ankauf pro Sammlung.",
+      "collectionHint": "Die Karten landen direkt in dieser Sammlung. Ein offener Wareneingang pro Sammlung.",
       "storageLocation": "Lagern in",
-      "storageLocationHint": "Wenn du den Ankauf abschließt, kommen seine Karten an diesen Lagerort.",
+      "storageLocationHint": "Wenn du den Wareneingang abschließt, kommen seine Karten an diesen Lagerort.",
       "noStorageLocation": "Kein Lagerort",
-      "finish": "Ankauf abschließen",
-      "finishTitle": "Ankauf abschließen",
-      "finishDescription_one": "{{count}} Karte von {{name}} kaufen.",
-      "finishDescription_other": "{{count}} Karten von {{name}} kaufen.",
+      "finish": "Wareneingang abschließen",
+      "finishTitle": "Wareneingang abschließen",
+      "finishDescription_one": "{{count}} Karte von {{name}} in deinen Bestand übernehmen.",
+      "finishDescription_other": "{{count}} Karten von {{name}} in deinen Bestand übernehmen.",
       "finishDescriptionOpened_one": "{{count}} Karte aus {{name}} in deinen Bestand aufnehmen.",
       "finishDescriptionOpened_other": "{{count}} Karten aus {{name}} in deinen Bestand aufnehmen.",
       "finishConfirm": "Für {{amount}} abschließen",
@@ -4520,8 +4525,8 @@
       "destinationWithLocation": "{{collection}} · {{location}}",
       "performance": {
         "title": "Entwicklung",
-        "description": "Wie viel von diesem Ankauf verkauft ist und was er eingebracht hat.",
-        "loadFailed": "Die Entwicklung dieses Ankaufs konnte nicht geladen werden",
+        "description": "Wie viel von diesem Wareneingang verkauft ist und was er eingebracht hat.",
+        "loadFailed": "Die Entwicklung dieses Wareneingangs konnte nicht geladen werden",
         "paid": "Bezahlt",
         "sold": "Verkaufte Karten",
         "revenueHint": "{{amount}} Umsatz",
@@ -4534,13 +4539,13 @@
         "seeSales": "Verkäufe ansehen"
       },
       "unmoved": {
-        "title_one": "{{count}} abgeschlossener Ankauf liegt noch in eigener Sammlung",
-        "title_other": "{{count}} abgeschlossene Ankäufe liegen noch in eigenen Sammlungen",
-        "description": "Ankäufe scannen jetzt direkt in deinen Bestand. Verschiebe diese Karten einmalig in den Bestand.",
+        "title_one": "{{count}} abgeschlossener Wareneingang liegt noch in eigener Sammlung",
+        "title_other": "{{count}} abgeschlossene Wareneingänge liegen noch in eigenen Sammlungen",
+        "description": "Wareneingänge scannen jetzt direkt in deinen Bestand. Verschiebe diese Karten einmalig in den Bestand.",
         "row_one": "{{count}} Karte in {{collection}}",
         "row_other": "{{count}} Karten in {{collection}}",
         "move": "In den Bestand",
-        "moveHint": "Öffnet das Verschieben für diesen Ankauf"
+        "moveHint": "Öffnet das Verschieben für diesen Wareneingang"
       }
     },
     "sales": {
@@ -4548,7 +4553,7 @@
       "rowProfit": "{{amount}} Gewinn",
       "filteredByBuy": "Verkäufe aus {{name}}",
       "showAll": "Alle zeigen",
-      "showAllHint": "Zeigt Verkäufe aus allen Ankäufen",
+      "showAllHint": "Zeigt Verkäufe aus allen Wareneingängen",
       "ranges": {
         "7": "7 Tage",
         "30": "30 Tage",
@@ -4755,7 +4760,7 @@
       },
       "rightNow": {
         "title": "Aktuell",
-        "description": "Diese Kacheln zeigen offene Ankäufe, Picks und Verkäufe. Tippe auf eine Kachel, um den Bereich zu öffnen."
+        "description": "Diese Kacheln zeigen offene Wareneingänge, Picks und Verkäufe. Tippe auf eine Kachel, um den Bereich zu öffnen."
       },
       "attention": {
         "title": "Zu erledigen",
@@ -4767,14 +4772,14 @@
       },
       "sections": {
         "title": "Alle Bereiche",
-        "description": "Ankäufe, Picks, Reservierungen und Verkäufe haben weiter unten jeweils eine eigene Seite."
+        "description": "Wareneingang, Picks, Reservierungen und Verkäufe haben weiter unten jeweils eine eigene Seite."
       }
     },
     "buys": {
-      "title": "So funktionieren Ankäufe",
+      "title": "So funktioniert der Wareneingang",
       "start": {
-        "title": "Ankauf starten",
-        "description": "Nutze einen Ankauf, sobald Karten reinkommen: Kundschaft verkauft dir Karten, eine Händlerlieferung, ein Bulk-Posten oder Produkt, das du geöffnet hast. Gescannte Karten landen direkt in der gewählten Sammlung."
+        "title": "Wareneingang starten",
+        "description": "Nutze einen Wareneingang, sobald neuer Bestand reinkommt: Kundschaft verkauft dir Karten, eine Händlerlieferung, ein Bulk-Posten oder Produkt, das du geöffnet hast. Gescannte Karten landen direkt in der gewählten Sammlung, damit du siehst, was jede Karte gekostet hat und wofür sie verkauft wird."
       },
       "offer": {
         "title": "Live-Angebot",
@@ -4785,16 +4790,16 @@
         "description": "Öffne die Kartendetails, um ihr Angebot vor dem Abschließen anzupassen."
       },
       "finish": {
-        "title": "Ankauf abschließen",
+        "title": "Wareneingang abschließen",
         "description": "Trage ein, was du bezahlt hast: an die Kundschaft, die Händlerrechnung oder den Preis des Bulk-Postens. Der Betrag wird als Kosten auf die Karten verteilt, und die Karten wandern ins Lager, wenn du einen Lagerort gewählt hast."
       },
       "performance": {
         "title": "Entwicklung",
-        "description": "Nach dem Abschließen zeigt Entwicklung, was die Karten eines Ankaufs bisher eingebracht haben."
+        "description": "Nach dem Abschließen zeigt Entwicklung, was die Karten eines Wareneingangs bisher eingebracht haben."
       },
       "moveIntoStock": {
         "title": "Karten in den Bestand verschieben",
-        "description": "Ältere Ankäufe ohne Lagerort können ihre Karten weiterhin mit Karten in den Bestand verschieben einlagern."
+        "description": "Ältere Wareneingänge ohne Lagerort können ihre Karten weiterhin mit Karten in den Bestand verschieben einlagern."
       }
     },
     "picks": {
@@ -4847,7 +4852,7 @@
       "title": "So funktionieren Verkäufe",
       "filters": {
         "title": "Auswählen, was du siehst",
-        "description": "Wähle einen Zeitraum oder zeige nur die Verkäufe aus einem Ankauf."
+        "description": "Wähle einen Zeitraum oder zeige nur die Verkäufe aus einem Wareneingang."
       },
       "totals": {
         "title": "Umsatz und Kosten",
@@ -4863,23 +4868,23 @@
       }
     },
     "scanBuy": {
-      "title": "Ankaufen im Scan-Tab",
-      "open": "So funktioniert Ankaufen beim Scannen",
+      "title": "Wareneingang im Scan-Tab",
+      "open": "So funktioniert der Wareneingang beim Scannen",
       "start": {
-        "title": "Ankauf starten",
-        "description": "Tippe oben im Scan-Tab auf Ankauf starten, sobald Karten reinkommen: von Kundschaft, einem Händler, einem Bulk-Posten oder geöffnetem Produkt."
+        "title": "Wareneingang starten",
+        "description": "Tippe oben im Scan-Tab auf Wareneingang starten, sobald neuer Bestand reinkommt: von Kundschaft, einem Händler, einem Bulk-Posten oder geöffnetem Produkt."
       },
       "scan": {
         "title": "Karten scannen",
-        "description": "Solange der Ankauf offen ist, kommt jede Karte, die du in diese Sammlung scannst, in den Ankauf."
+        "description": "Solange der Wareneingang offen ist, kommt jede Karte, die du in diese Sammlung scannst, in den Wareneingang."
       },
       "line": {
         "title": "Summen prüfen",
-        "description": "Tippe oben auf die Ankaufszeile, um Kartenanzahl, Marktwert und dein Angebot zu sehen."
+        "description": "Tippe oben auf die Wareneingangszeile, um Kartenanzahl, Marktwert und dein Angebot zu sehen."
       },
       "finish": {
         "title": "Abschließen oder abbrechen",
-        "description": "Schließe den Ankauf dort ab oder brich ihn ab, ohne den Scan-Tab zu verlassen."
+        "description": "Schließe den Wareneingang dort ab oder brich ihn ab, ohne den Scan-Tab zu verlassen."
       }
     }
   }

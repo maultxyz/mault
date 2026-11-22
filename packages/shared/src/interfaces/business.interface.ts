@@ -672,8 +672,19 @@ export interface CardSellRule {
   fixedCurrency: string | null;
 }
 
+export interface CardIntakeSummary {
+  guid: string;
+  name: string;
+  sourceType: BuySourceType;
+  status: IntakeLotStatus;
+  createdAt: string;
+  acceptedAt: string | null;
+}
+
 export interface CardPricing {
   scanId: string;
+  intake: CardIntakeSummary | null;
+  acquiredAt: string | null;
   currency: string;
   marketPrice: number | null;
   sellPrice: number | null;

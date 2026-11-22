@@ -119,8 +119,8 @@
     "sets": "Editionen",
     "resetFilters": "Filter zurücksetzen",
     "unmatched": "Nicht erkannt",
-    "buy": "Ankauf",
-    "onlyThisBuy": "Nur dieser Ankauf"
+    "buy": "Wareneingang",
+    "onlyThisBuy": "Nur dieser Wareneingang"
   },
   "cardGrid": {
     "noCollectionSelected": "Keine Sammlung ausgewählt",

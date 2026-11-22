@@ -511,6 +511,12 @@ export interface SetPricesTabFormProps {
   onDone: () => void;
 }
 
+export interface CardPricingPanelProps {
+  icon: ComponentType<{ className?: string; "aria-hidden"?: boolean }>;
+  title: string;
+  children: ReactNode;
+}
+
 export interface CardPricingBlockProps {
   pricing: CardPricing;
   cost: number | null;

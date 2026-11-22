@@ -193,7 +193,7 @@
       },
       "now": {
         "title": "En ce moment",
-        "content": "Ces tuiles montrent ce qui est en cours : achats, préparations et réservations. Cliquez sur une tuile pour ouvrir la page correspondante."
+        "content": "Ces tuiles montrent ce qui est en cours : entrées de stock, préparations et réservations. Cliquez sur une tuile pour ouvrir la page correspondante."
       },
       "attention": {
         "title": "À traiter",
@@ -205,7 +205,7 @@
       },
       "sections": {
         "title": "Chaque partie de la boutique",
-        "content": "Chaque carte ouvre un espace : Achats, Préparations, Réservations, Étiquettes et Ventes. Les achats et préparations en cours sont listés ici."
+        "content": "Chaque carte ouvre un espace : Entrées de stock, Préparations, Réservations, Étiquettes et Ventes. Les entrées de stock et préparations en cours sont listées ici."
       },
       "views": {
         "title": "Équipe et précision",
@@ -217,34 +217,34 @@
       }
     },
     "buys": {
-      "triggerTooltip": "Comment fonctionnent les achats",
+      "triggerTooltip": "Comment fonctionnent les entrées de stock",
       "newBuy": {
-        "title": "Commencer un nouvel achat",
-        "content": "Utilisez un achat dès que des cartes arrivent en boutique : un client qui vous vend des cartes, une livraison d’un fournisseur, un lot en vrac que vous avez acheté ou un produit scellé que vous ouvrez. Choisissez la collection, et chaque carte scannée y va directement."
+        "title": "Démarrer une nouvelle entrée de stock",
+        "content": "Utilisez une entrée de stock dès que du nouveau stock arrive en boutique : un client qui vous vend des cartes, une livraison d’un fournisseur, un lot en vrac que vous avez acheté ou un produit scellé que vous ouvrez. Choisissez la collection, et chaque carte scannée y va directement, pour suivre ce que chaque carte a coûté et à combien elle se vend."
       },
       "list": {
-        "title": "Vos achats",
-        "content": "Recherchez vos achats ou filtrez-les par statut pour trouver ceux en cours, terminés ou annulés."
+        "title": "Vos entrées de stock",
+        "content": "Recherchez vos entrées de stock ou filtrez-les par statut pour trouver celles en cours, terminées ou annulées."
       },
       "unmoved": {
         "title": "Mettre les cartes en stock",
-        "content": "Ces achats terminés ont encore des cartes dans leur collection d'achat. Déplacez-les dans votre stock quand vous êtes prêt."
+        "content": "Ces entrées de stock terminées ont encore des cartes dans leur propre collection. Déplacez-les dans votre stock quand vous êtes prêt."
       },
       "stats": {
         "title": "L'offre en direct",
         "content": "Pour un client, l’offre se met à jour selon votre liste de rachat à mesure que vous ajoutez des cartes. Pour une livraison fournisseur ou un lot en vrac, vous pouvez ignorer l’offre et saisir le total payé en terminant. Un produit ouvert n’a pas d’offre : vous saisissez ce qu’il a coûté."
       },
       "cards": {
-        "title": "Toutes les cartes de l'achat",
+        "title": "Toutes les cartes de l'entrée de stock",
         "content": "Ouvrez une carte pour modifier son offre. Les cartes sous votre valeur minimale ne reçoivent pas d'offre, et vous pouvez les retirer en un clic."
       },
       "finish": {
-        "title": "Terminer l'achat",
+        "title": "Terminer l'entrée de stock",
         "content": "Terminez une fois que vous avez payé : le client, la facture du fournisseur ou le prix du lot en vrac. Le montant payé est réparti sur les cartes comme leur coût, et les cartes vont dans le stockage si vous avez choisi un emplacement."
       },
       "performance": {
-        "title": "Les résultats de l'achat",
-        "content": "Pour les achats terminés, voyez ce que les cartes ont rapporté jusqu'ici par rapport à ce que vous avez payé."
+        "title": "Les résultats de l'entrée de stock",
+        "content": "Pour les entrées de stock terminées, voyez ce que les cartes ont rapporté jusqu'ici par rapport à ce que vous avez payé."
       }
     },
     "picks": {
@@ -301,7 +301,7 @@
       "triggerTooltip": "Comment fonctionnent les étiquettes de prix",
       "source": {
         "title": "Choisir vos cartes",
-        "content": "Imprimez des étiquettes pour une collection, un emplacement de stockage ou un achat."
+        "content": "Imprimez des étiquettes pour une collection, un emplacement de stockage ou une entrée de stock."
       },
       "prices": {
         "title": "Le prix sur chaque étiquette",
@@ -328,7 +328,7 @@
       },
       "filters": {
         "title": "Choisir une période",
-        "content": "Choisissez les dates du rapport. Si vous ouvrez les ventes depuis un achat, le rapport ne montre que les cartes de cet achat."
+        "content": "Choisissez les dates du rapport. Si vous ouvrez les ventes depuis une entrée de stock, le rapport ne montre que les cartes de cette entrée de stock."
       },
       "totals": {
         "title": "Totaux",
@@ -344,18 +344,18 @@
       }
     },
     "scannerBuy": {
-      "triggerTooltip": "Comment acheter depuis le scanner",
+      "triggerTooltip": "Comment fonctionne l'entrée de stock depuis le scanner",
       "start": {
-        "title": "Acheter des cartes en scannant",
-        "content": "Démarrez un achat ici dès que des cartes arrivent : d’un client, d’une livraison fournisseur, d’un lot en vrac ou d’un produit scellé ouvert. Vous ne quittez jamais le scanner."
+        "title": "Faire entrer du stock en scannant",
+        "content": "Démarrez une entrée de stock ici dès que du nouveau stock arrive : d’un client, d’une livraison fournisseur, d’un lot en vrac ou d’un produit scellé ouvert. Vous ne quittez jamais le scanner."
       },
       "menu": {
         "title": "Ou depuis le menu de la collection",
-        "content": "Vous pouvez aussi commencer un achat à tout moment depuis le menu de la collection."
+        "content": "Vous pouvez aussi démarrer une entrée de stock à tout moment depuis le menu de la collection."
       },
       "scan": {
         "title": "Scannez comme d'habitude",
-        "content": "Tant qu'un achat est en cours, chaque carte scannée y est ajoutée."
+        "content": "Tant qu'une entrée de stock est en cours, chaque carte scannée y est ajoutée."
       },
       "totals": {
         "title": "Totaux en direct",
@@ -366,12 +366,12 @@
         "content": "Voyez les dernières cartes scannées avec leur offre, et modifiez l'offre d'une carte."
       },
       "filter": {
-        "title": "Afficher seulement cet achat",
-        "content": "Activez Uniquement cet achat dans les options d'affichage pour ne voir que les cartes de cet achat dans la grille."
+        "title": "Afficher seulement cette entrée de stock",
+        "content": "Activez Uniquement cette entrée de stock dans les options d'affichage pour ne voir que les cartes de cette entrée de stock dans la grille."
       },
       "finish": {
-        "title": "Terminer l'achat",
-        "content": "Terminez l’achat ici une fois payé, qu’il s’agisse d’un client, d’une facture fournisseur ou d’un lot en vrac, sans quitter le scanner."
+        "title": "Terminer l'entrée de stock",
+        "content": "Terminez l’entrée de stock ici une fois payé, qu’il s’agisse d’un client, d’une facture fournisseur ou d’un lot en vrac, sans quitter le scanner."
       }
     }
   }

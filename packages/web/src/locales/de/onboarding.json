@@ -193,7 +193,7 @@
       },
       "now": {
         "title": "Aktuell",
-        "content": "Diese Kacheln zeigen, was gerade offen ist: Ankäufe, Picks und Reservierungen. Klicke auf eine Kachel, um zur passenden Seite zu springen."
+        "content": "Diese Kacheln zeigen, was gerade offen ist: Wareneingänge, Picks und Reservierungen. Klicke auf eine Kachel, um zur passenden Seite zu springen."
       },
       "attention": {
         "title": "Zu erledigen",
@@ -205,7 +205,7 @@
       },
       "sections": {
         "title": "Alle Bereiche des Ladens",
-        "content": "Jede Karte öffnet einen Bereich: Ankäufe, Picks, Reservierungen, Etiketten und Verkäufe. Offene Ankäufe und Picks stehen direkt hier."
+        "content": "Jede Karte öffnet einen Bereich: Wareneingang, Picks, Reservierungen, Etiketten und Verkäufe. Offene Wareneingänge und Picks stehen direkt hier."
       },
       "views": {
         "title": "Team und Genauigkeit",
@@ -217,34 +217,34 @@
       }
     },
     "buys": {
-      "triggerTooltip": "So funktionieren Ankäufe",
+      "triggerTooltip": "So funktioniert der Wareneingang",
       "newBuy": {
-        "title": "Neuen Ankauf starten",
-        "content": "Nutze einen Ankauf, sobald Karten in deinen Laden kommen: eine Kundin oder ein Kunde verkauft dir Karten, eine Lieferung von einem Händler, ein Bulk-Posten, den du gekauft hast, oder versiegeltes Produkt, das du öffnest. Wähle die Sammlung, und jede gescannte Karte landet direkt darin."
+        "title": "Neuen Wareneingang starten",
+        "content": "Nutze einen Wareneingang, sobald neuer Bestand in deinen Laden kommt: Kundschaft verkauft dir Karten an der Theke, eine Lieferung von einem Händler, ein Bulk-Posten, den du gekauft hast, oder versiegeltes Produkt, das du öffnest. Wähle die Sammlung, und jede gescannte Karte landet direkt darin. So behältst du im Blick, was jede Karte gekostet hat und wofür sie verkauft wird."
       },
       "list": {
-        "title": "Deine Ankäufe",
-        "content": "Durchsuche deine Ankäufe oder filtere sie nach Status, um offene, abgeschlossene oder stornierte zu finden."
+        "title": "Deine Wareneingänge",
+        "content": "Durchsuche deine Wareneingänge oder filtere sie nach Status, um offene, abgeschlossene oder stornierte zu finden."
       },
       "unmoved": {
         "title": "Karten in den Bestand verschieben",
-        "content": "Diese abgeschlossenen Ankäufe haben noch Karten in ihrer Ankaufssammlung. Verschiebe sie in deinen Bestand, wenn du so weit bist."
+        "content": "Diese abgeschlossenen Wareneingänge haben noch Karten in ihrer eigenen Sammlung. Verschiebe sie in deinen Bestand, wenn du so weit bist."
       },
       "stats": {
         "title": "Das aktuelle Angebot",
         "content": "Bei Kundschaft berechnet sich das Angebot laufend aus deiner Ankaufsliste. Bei einer Händlerlieferung oder einem Bulk-Posten kannst du das Angebot ignorieren und beim Abschließen eintragen, was du insgesamt bezahlt hast. Geöffnetes Produkt hat kein Angebot: Du trägst ein, was das Produkt gekostet hat."
       },
       "cards": {
-        "title": "Alle Karten im Ankauf",
+        "title": "Alle Karten im Wareneingang",
         "content": "Öffne eine Karte, um ihr Angebot zu ändern. Karten unter deinem Mindestwert bekommen kein Angebot, und du kannst sie mit einem Klick entfernen."
       },
       "finish": {
-        "title": "Ankauf abschließen",
+        "title": "Wareneingang abschließen",
         "content": "Schließe ab, sobald du bezahlt hast: die Kundschaft, die Rechnung des Händlers oder den Preis des Bulk-Postens. Der bezahlte Betrag wird als Kosten auf die Karten verteilt, und die Karten wandern ins Lager, wenn du einen Lagerort gewählt hast."
       },
       "performance": {
-        "title": "Wie sich der Ankauf lohnt",
-        "content": "Bei abgeschlossenen Ankäufen siehst du, was die Karten bisher eingebracht haben, verglichen mit dem, was du bezahlt hast."
+        "title": "Wie sich der Wareneingang lohnt",
+        "content": "Bei abgeschlossenen Wareneingängen siehst du, was die Karten bisher eingebracht haben, verglichen mit dem, was du bezahlt hast."
       }
     },
     "picks": {
@@ -301,7 +301,7 @@
       "triggerTooltip": "So funktionieren Preisetiketten",
       "source": {
         "title": "Karten auswählen",
-        "content": "Drucke Etiketten für eine Sammlung, einen Lagerort oder einen Ankauf."
+        "content": "Drucke Etiketten für eine Sammlung, einen Lagerort oder einen Wareneingang."
       },
       "prices": {
         "title": "Der Preis auf jedem Etikett",
@@ -328,7 +328,7 @@
       },
       "filters": {
         "title": "Zeitraum wählen",
-        "content": "Wähle die Tage für den Bericht. Öffnest du die Verkäufe aus einem Ankauf, zeigt der Bericht nur Karten aus diesem Ankauf."
+        "content": "Wähle die Tage für den Bericht. Öffnest du die Verkäufe aus einem Wareneingang, zeigt der Bericht nur Karten aus diesem Wareneingang."
       },
       "totals": {
         "title": "Summen",
@@ -344,18 +344,18 @@
       }
     },
     "scannerBuy": {
-      "triggerTooltip": "So funktioniert Ankaufen am Scanner",
+      "triggerTooltip": "So funktioniert der Wareneingang am Scanner",
       "start": {
-        "title": "Karten beim Scannen ankaufen",
-        "content": "Starte hier einen Ankauf, sobald Karten reinkommen: von Kundschaft, aus einer Händlerlieferung, einem Bulk-Posten oder geöffnetem Produkt. Du verlässt den Scanner dabei nicht."
+        "title": "Neuen Bestand beim Scannen aufnehmen",
+        "content": "Starte hier einen Wareneingang, sobald neuer Bestand reinkommt: von Kundschaft, aus einer Händlerlieferung, einem Bulk-Posten oder geöffnetem Produkt. Du verlässt den Scanner dabei nicht."
       },
       "menu": {
         "title": "Oder über das Sammlungsmenü",
-        "content": "Du kannst einen Ankauf auch jederzeit über das Sammlungsmenü starten."
+        "content": "Du kannst einen Wareneingang auch jederzeit über das Sammlungsmenü starten."
       },
       "scan": {
         "title": "Ganz normal scannen",
-        "content": "Solange ein Ankauf offen ist, landet jede gescannte Karte darin."
+        "content": "Solange ein Wareneingang offen ist, landet jede gescannte Karte darin."
       },
       "totals": {
         "title": "Laufende Summen",
@@ -366,12 +366,12 @@
         "content": "Sieh die zuletzt gescannten Karten mit ihren Angeboten und ändere das Angebot für einzelne Karten."
       },
       "filter": {
-        "title": "Nur diesen Ankauf zeigen",
-        "content": "Schalte in den Ansichtsoptionen Nur dieser Ankauf ein, um im Raster nur die Karten aus diesem Ankauf zu sehen."
+        "title": "Nur diesen Wareneingang zeigen",
+        "content": "Schalte in den Ansichtsoptionen Nur dieser Wareneingang ein, um im Raster nur die Karten aus diesem Wareneingang zu sehen."
       },
       "finish": {
-        "title": "Ankauf abschließen",
-        "content": "Schließe den Ankauf hier ab, sobald du bezahlt hast, egal ob Kundschaft, Händlerrechnung oder Bulk-Posten, ohne den Scanner zu verlassen."
+        "title": "Wareneingang abschließen",
+        "content": "Schließe den Wareneingang hier ab, sobald du bezahlt hast, egal ob Kundschaft, Händlerrechnung oder Bulk-Posten, ohne den Scanner zu verlassen."
       }
     }
   }

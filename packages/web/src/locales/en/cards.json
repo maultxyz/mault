@@ -119,8 +119,8 @@
     "sets": "Sets",
     "resetFilters": "Reset filters",
     "unmatched": "Unmatched",
-    "buy": "Buy",
-    "onlyThisBuy": "Only this buy"
+    "buy": "Intake",
+    "onlyThisBuy": "Only this intake"
   },
   "cardGrid": {
     "noCollectionSelected": "No collection selected",

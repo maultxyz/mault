@@ -424,7 +424,7 @@
       },
       "businessTools": {
         "label": "Kaufen und Verkaufen",
-        "description": "Ankäufe mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Verkäufe, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
+        "description": "Wareneingänge mit Ankaufsangeboten, Import und Erledigung von Bestellungen, Verkäufe, Kosten- und Margenberichte sowie Stichproben. Vorhandene Einträge bleiben in jedem Fall sichtbar."
       },
       "repacks": {
         "label": "Repacks",
@@ -525,7 +525,7 @@
       "notificationRule": "Benachrichtigungsregel",
       "game": "Spiel",
       "announcement": "Ankündigung",
-      "intakeLot": "Ankauf",
+      "intakeLot": "Wareneingang",
       "fulfilmentOrder": "Bestellung",
       "accuracyCheck": "Stichprobe",
       "shopCatalog": "Shop-Katalog",
