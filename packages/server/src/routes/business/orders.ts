@@ -7,7 +7,7 @@ import {
   ORDER_NAME_MAX_LENGTH,
   ORDER_SOURCES,
   orderBinsError,
-  orderRefsOf,
+  orderSortRefsOf,
   orderSortPresetGameKeys,
   pickOrderGroups,
   SET_NAME_MAX_LENGTH,
@@ -58,6 +58,7 @@ import {
   loadPullSheet,
   normalizeOrderLines,
   orderCreatorName,
+  orderLinesWithPicks,
   summarizeOrder,
   toOrderBins,
   toOrderLines,
@@ -521,15 +522,7 @@ export const ordersRoute = new Hono<AppEnv>()
       const row = await findOrderForUpdate(tx, c.get("orgId"), c.req.param("guid"));
       if (!row) return notFound(PICK_NOT_FOUND_MESSAGE);
       if (row.status !== "open") return { success: false, message: PICK_CLOSED_MESSAGE };
-      const lines = toOrderLines(row.lines).map((line) => {
-        const picked = line.picked.filter((id) => !scanIds.has(id));
-        return {
-          ...line,
-          picked: isPicked
-            ? [...picked, ...line.allocations.filter((id) => scanIds.has(id))]
-            : picked,
-        };
-      });
+      const lines = orderLinesWithPicks(toOrderLines(row.lines), scanIds, isPicked);
       await tx
         .update(fulfilmentOrders)
         .set({ lines, updatedAt: new Date() })
@@ -582,7 +575,7 @@ export const ordersRoute = new Hono<AppEnv>()
       const orderBins = toOrderBins(row.orderBins, lines);
       const binCount = computeBinCount(await getModuleCount(tx, orgId));
       if (
-        !hasEveryOrderBin(orderRefsOf(lines), orderBins) ||
+        !hasEveryOrderBin(orderSortRefsOf(lines), orderBins) ||
         orderBinsError(orderBins, binCount)
       ) {
         return { success: false, message: "Give every order a sorter bin first." };

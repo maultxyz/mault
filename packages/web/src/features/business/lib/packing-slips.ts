@@ -93,3 +93,35 @@ export function packingSlipSubtotal(slip: PackingSlipData): number | null {
     ) / 100
   );
 }
+
+export interface PackingSlipPrintOptions {
+  showsPrices: boolean;
+  showsImages: boolean;
+}
+
+const PACKING_SLIP_PRINT_OPTIONS_KEY = "packing-slips:print";
+
+export function readPackingSlipPrintOptions(): PackingSlipPrintOptions {
+  const defaults: PackingSlipPrintOptions = {
+    showsPrices: true,
+    showsImages: true,
+  };
+  try {
+    const raw = localStorage.getItem(PACKING_SLIP_PRINT_OPTIONS_KEY);
+    const parsed: unknown = raw ? JSON.parse(raw) : null;
+    if (!parsed || typeof parsed !== "object") return defaults;
+    const record = parsed as Record<string, unknown>;
+    return {
+      showsPrices: typeof record.showsPrices === "boolean" ? record.showsPrices : true,
+      showsImages: typeof record.showsImages === "boolean" ? record.showsImages : true,
+    };
+  } catch {
+    return defaults;
+  }
+}
+
+export function writePackingSlipPrintOptions(options: PackingSlipPrintOptions): void {
+  try {
+    localStorage.setItem(PACKING_SLIP_PRINT_OPTIONS_KEY, JSON.stringify(options));
+  } catch {}
+}

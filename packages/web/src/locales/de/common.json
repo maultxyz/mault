@@ -243,7 +243,9 @@
       "scanner": "Scanner",
       "cardDetail": "Kartendetails",
       "intake": "Ankauf",
-      "matchValidation": "Treffer prüfen"
+      "matchValidation": "Treffer prüfen",
+      "foilLabeling": "Foil-Kennzeichnung",
+      "pickWalk": "Pickvorgang"
     },
     "actions": {
       "showShortcuts": "Tastenkürzel anzeigen",
@@ -293,7 +295,10 @@
       "matchValidationBadScan": "Beim Prüfen von Treffern: Foto als schlechten Scan markieren",
       "matchValidationSkip": "Beim Prüfen von Treffern: diesen Scan überspringen",
       "matchValidationBack": "Beim Prüfen von Treffern: zum vorherigen Scan zurück",
-      "scanFlatbedCard": "Karte auf dem Flachbett scannen"
+      "scanFlatbedCard": "Karte auf dem Flachbett scannen",
+      "pickNext": "Beim Picken: nächste Karte",
+      "pickPrevious": "Beim Picken: vorherige Karte",
+      "pickToggle": "Beim Picken: Karte als gepickt markieren"
     }
   },
   "mobileMenu": {

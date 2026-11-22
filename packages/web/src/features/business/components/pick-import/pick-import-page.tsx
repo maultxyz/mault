@@ -89,6 +89,9 @@ export function PickImportPage() {
         : parseDecklist(text).map((entry) => ({
             name: entry.name,
             quantity: entry.quantity,
+            setCode: entry.setCode,
+            collectorNumber: entry.collectorNumber,
+            isFoil: entry.isFoil,
           })),
     [isTabular, text],
   );

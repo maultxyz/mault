@@ -11,8 +11,8 @@ import type {
   PickWalkStop,
   PullSheetEntry,
 } from "./interfaces/business.interface";
-import type { PickList } from "./interfaces/pick-list.interface";
-import { normalizePickListEntries } from "./pick-list";
+import type { PickList, PickListEntryInput } from "./interfaces/pick-list.interface";
+import { normalizePickListEntries, pickListNameKey } from "./pick-list";
 
 export function combineOrdersIntoPick(
   orders: { reference: string | null; lines: OrderLineInput[] }[],
@@ -33,6 +33,24 @@ export function orderRefsOf(lines: Pick<OrderLine, "orderRef">[]): string[] {
   return refs;
 }
 
+/**
+ * Sorter bin key for an order without order references: the whole order is one
+ * implicit group. The empty string can't collide with a real reference because
+ * references are trimmed and never empty.
+ */
+export const IMPLICIT_ORDER_REF = "";
+
+export function orderSortRefsOf(lines: Pick<OrderLine, "orderRef">[]): string[] {
+  const refs = orderRefsOf(lines);
+  return lines.some((line) => line.orderRef == null) && !refs.includes(IMPLICIT_ORDER_REF)
+    ? [...refs, IMPLICIT_ORDER_REF]
+    : refs;
+}
+
+function orderSortBin(orderBins: OrderBins, orderRef: string | null): number | null {
+  return orderBins[orderRef ?? IMPLICIT_ORDER_REF] ?? null;
+}
+
 export function pickOrderGroups(
   lines: OrderLine[],
   pullSheet: PullSheetEntry[],
@@ -43,7 +61,7 @@ export function pickOrderGroups(
     const orderRef = line.orderRef ?? null;
     const group = groups.get(orderRef) ?? {
       orderRef,
-      binNumber: orderRef == null ? null : (orderBins[orderRef] ?? null),
+      binNumber: orderSortBin(orderBins, orderRef),
       lineIndexes: [],
       entries: [],
       quantity: 0,
@@ -107,13 +125,13 @@ export function orderBinsError(
 }
 
 export function hasEveryOrderBin(orderRefs: string[], orderBins: OrderBins): boolean {
-  return orderRefs.length > 0 && orderRefs.every((ref) => orderBins[ref] != null);
+  return orderRefs.every((ref) => orderBins[ref] != null);
 }
 
 export function orderSortPresetGameKeys(groups: PickOrderGroup[]): string[] {
   const keys: string[] = [];
   for (const group of groups) {
-    if (group.orderRef == null || group.binNumber == null) continue;
+    if (group.binNumber == null) continue;
     for (const entry of group.entries) {
       if (entry.gameKey && !keys.includes(entry.gameKey)) keys.push(entry.gameKey);
     }
@@ -121,21 +139,37 @@ export function orderSortPresetGameKeys(groups: PickOrderGroup[]): string[] {
   return keys;
 }
 
-export function buildOrderSortPresetBins(
+function buildPickListPresetBins(
   groups: PickOrderGroup[],
   gameKey: string,
   binCount: number,
+  includeEntry: (entry: PullSheetEntry) => boolean,
 ): OrderSortPresetBin[] {
-  const pickListByBin = new Map<number, PickList>();
+  const entriesByBin = new Map<number, PickListEntryInput[]>();
   for (const group of groups) {
-    if (group.orderRef == null || group.binNumber == null) continue;
-    const entries = normalizePickListEntries(
-      group.entries
-        .filter((entry) => entry.gameKey === gameKey)
-        .map((entry) => ({ name: entry.card.name, quantity: 1 })),
-    ).map((entry) => ({ ...entry, found: 0 }));
+    if (group.binNumber == null) continue;
+    const entries = entriesByBin.get(group.binNumber) ?? [];
+    for (const entry of group.entries.filter(
+      (entry) => entry.gameKey === gameKey && includeEntry(entry),
+    )) {
+      entries.push({
+        name: entry.card.name,
+        quantity: 1,
+        setCode: entry.card.set,
+        collectorNumber: entry.card.collectorNumber,
+        isFoil: entry.isFoil,
+      });
+    }
+    entriesByBin.set(group.binNumber, entries);
+  }
+  const pickListByBin = new Map<number, PickList>();
+  for (const [binNumber, rawEntries] of entriesByBin) {
+    const entries = normalizePickListEntries(rawEntries).map((entry) => ({
+      ...entry,
+      found: 0,
+    }));
     if (entries.length > 0) {
-      pickListByBin.set(group.binNumber, { mode: "until_found", entries });
+      pickListByBin.set(binNumber, { mode: "until_found", entries });
     }
   }
   const catchAllBin = orderSortCatchAllBin(binCount);
@@ -149,6 +183,54 @@ export function buildOrderSortPresetBins(
   });
 }
 
+export function buildOrderSortPresetBins(
+  groups: PickOrderGroup[],
+  gameKey: string,
+  binCount: number,
+): OrderSortPresetBin[] {
+  return buildPickListPresetBins(groups, gameKey, binCount, () => true);
+}
+
+export function buildSorterPickPresetBins(
+  groups: PickOrderGroup[],
+  locationGuid: string,
+  gameKey: string,
+  binCount: number,
+): OrderSortPresetBin[] {
+  return buildPickListPresetBins(
+    groups,
+    gameKey,
+    binCount,
+    (entry) => entry.locationGuid === locationGuid,
+  );
+}
+
+export function sorterPickScanIds(
+  pullSheet: PullSheetEntry[],
+  foundByName: Readonly<Record<string, number>>,
+  locationGuid: string,
+): { scanIds: string[]; consumedByName: Record<string, number> } {
+  const remaining = new Map<string, number>();
+  for (const [name, found] of Object.entries(foundByName)) {
+    remaining.set(pickListNameKey(name), found);
+  }
+  const consumed = new Map<string, number>();
+  const scanIds: string[] = [];
+  for (const entry of pullSheet) {
+    if (entry.locationGuid !== locationGuid || entry.picked) continue;
+    const key = pickListNameKey(entry.card.name);
+    const found = remaining.get(key) ?? 0;
+    if (found <= 0) continue;
+    scanIds.push(entry.scanId);
+    remaining.set(key, found - 1);
+    consumed.set(entry.card.name, (consumed.get(entry.card.name) ?? 0) + 1);
+  }
+  return {
+    scanIds,
+    consumedByName: Object.fromEntries(consumed),
+  };
+}
+
 const comparePickText = (left: string | null, right: string | null) =>
   compareTextInNaturalOrder(left ?? "", right ?? "");
 
@@ -160,7 +242,7 @@ export function buildPickWalk(orders: FulfilmentOrderDetail[]): PickWalkEntry[] 
         ...entry,
         orderGuid: order.guid,
         orderName: order.name,
-        orderBin: entry.orderRef == null ? null : (order.orderBins[entry.orderRef] ?? null),
+        orderBin: orderSortBin(order.orderBins, entry.orderRef),
       })),
     )
     .sort(
@@ -189,6 +271,7 @@ export function pickWalkStops(entries: PickWalkEntry[]): PickWalkStop[] {
     stops.push({
       stopKey,
       locationName: entry.locationName,
+      locationGuid: entry.locationGuid ?? null,
       collectionName: entry.collectionName,
       binNumber: entry.locationName != null ? null : entry.binNumber,
       entries: [entry],

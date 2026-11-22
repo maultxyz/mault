@@ -3,6 +3,7 @@ import { recordSessionInits } from "@/lib/session-init-registry";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { businessKeys } from "@/features/business/api/business";
+import { setBinPickListInCache } from "@/features/bins/api/use-pick-list";
 import { cardReservationsKeys } from "@/features/card-reservations/api/card-reservations";
 import { createAppStreamSource } from "@/lib/api/stream";
 import { useAuthSession } from "@/lib/auth";
@@ -25,6 +26,8 @@ import {
   MACHINE_STATUS_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
   ORDERS_CHANGED_EVENT,
+  PICK_LIST_CHANGED_EVENT,
+  type PickList,
   CARD_RESERVATIONS_CHANGED_EVENT,
   type CardReservationsChangedEvent,
   type TradeOffersChangedEvent,
@@ -248,6 +251,12 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
         });
         es.addEventListener(ORDERS_CHANGED_EVENT, () => {
           queryClient.invalidateQueries({ queryKey: businessKeys.ordersRoot() });
+        });
+        es.addEventListener(PICK_LIST_CHANGED_EVENT, (e) => {
+          const { binGuid, pickList } = JSON.parse(
+            (e as MessageEvent).data,
+          ) as { binGuid: string; pickList: PickList | null };
+          if (binGuid) setBinPickListInCache(queryClient, binGuid, pickList);
         });
         es.addEventListener("collections_changed", () => {
           queryClient.invalidateQueries({

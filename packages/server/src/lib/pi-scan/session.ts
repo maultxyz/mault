@@ -1213,8 +1213,7 @@ async function processMatched(
         const pickList = await recordPickFound(
           { userId: session.userId, orgId: session.orgId },
           update.binGuid,
-          update.name,
-          update.delta,
+          update,
         );
         if (!pickList) throw new Error("The pick list could not be updated.");
         const listed = context.pickConfigs.find(
@@ -1226,11 +1225,7 @@ async function processMatched(
           (bin) => bin.guid === update.binGuid,
         );
         if (listed?.pickList)
-          listed.pickList = applyPickListFound(
-            listed.pickList,
-            update.name,
-            update.delta,
-          );
+          listed.pickList = applyPickListFound(listed.pickList, update, update.delta);
       }
     },
     complete: async (decision) => {

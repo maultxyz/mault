@@ -8,6 +8,7 @@ import { BusinessUpgradeCallout } from "@/features/business/components/business-
 import { OrderDetail } from "@/features/business/components/order-detail";
 import { OrderList } from "@/features/business/components/order-list";
 import { OrderSelectionBar } from "@/features/business/components/order-selection-bar";
+import { readActivePickBatch } from "@/features/business/lib/active-pick-batch";
 import { useHotkeys } from "@/hooks/use-hotkeys";
 import { BUSINESS_LIST_SEARCH_MAX_LENGTH, type FulfilmentOrder } from "@magic-vault/shared";
 import { useRef, useState } from "react";
@@ -16,6 +17,7 @@ import {
   BUSINESS_LIST_SEARCH_DEBOUNCE_MS,
   ORDER_PARAM,
   PICK_IMPORT_PATH,
+  pickBatchPath,
 } from "@/lib/constants/business";
 import { ListSearchInput } from "@/components/list-search-input";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
@@ -26,10 +28,10 @@ import {
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { cn } from "@/lib/utils";
 import type { OrdersWorkspaceProps } from "@/lib/interfaces/business";
-import { IconFileImport, IconTruckDelivery } from "@tabler/icons-react";
+import { IconFileImport, IconListCheck, IconTruckDelivery } from "@tabler/icons-react";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
 import { useTranslation } from "react-i18next";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
 export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
   const { t } = useTranslation("business");
@@ -64,6 +66,8 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
   const [checkedOrders, setCheckedOrders] = useState<ReadonlyMap<string, FulfilmentOrder>>(
     new Map(),
   );
+  const [activeBatchGuids] = useState<string[]>(() => readActivePickBatch());
+  const navigate = useNavigate();
   const clearCheckedOrders = () => setCheckedOrders(new Map());
   useHotkeys({ clearSelection: checkedOrders.size > 0 ? clearCheckedOrders : undefined });
   const checkAnchorGuidRef = useRef<string | null>(null);
@@ -155,6 +159,16 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
         >
           <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
             {switcher}
+            {activeBatchGuids.length > 0 && (
+              <Button
+                variant="outline-selected"
+                className="w-full"
+                onClick={() => navigate(pickBatchPath(activeBatchGuids))}
+              >
+                <IconListCheck />
+                {t("orders.batch.resume", { count: activeBatchGuids.length })}
+              </Button>
+            )}
             {access?.isLocked && <BusinessUpgradeCallout />}
             {listSearchInput}
             <OrderList
@@ -189,6 +203,16 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
             <IconFileImport />
             {t("orders.importButton")}
           </Button>
+          {activeBatchGuids.length > 0 && (
+            <Button
+              variant="outline-selected"
+              className="w-full"
+              onClick={() => navigate(pickBatchPath(activeBatchGuids))}
+            >
+              <IconListCheck />
+              {t("orders.batch.resume", { count: activeBatchGuids.length })}
+            </Button>
+          )}
           {listSearchInput}
           <OrderList
             orders={orders}

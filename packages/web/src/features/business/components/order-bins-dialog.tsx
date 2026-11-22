@@ -19,8 +19,8 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   autoAssignOrderBins,
-  orderRefsOf,
   orderSortCatchAllBin,
+  orderSortRefsOf,
 } from "@magic-vault/shared";
 import { IconLoader2, IconWand } from "@tabler/icons-react";
 import { useEffect } from "react";
@@ -34,7 +34,7 @@ export function OrderBinsDialog({
 }: OrderBinsDialogProps) {
   const { t } = useTranslation("business");
   const run = useBusinessAction();
-  const orderRefs = orderRefsOf(order.lines);
+  const orderRefs = orderSortRefsOf(order.lines);
   const form = useForm<OrderBinsFormValues>({
     resolver: zodResolver(orderBinsSchema(order.binCount)),
     defaultValues: { bins: [] },
@@ -46,7 +46,7 @@ export function OrderBinsDialog({
 
   useEffect(() => {
     if (!open) return;
-    const refs = orderRefsOf(order.lines);
+    const refs = orderSortRefsOf(order.lines);
     form.reset({
       bins: refs.map((orderRef) => ({
         orderRef,
@@ -131,7 +131,9 @@ export function OrderBinsDialog({
                         htmlFor={`order-bin-${index}`}
                         className="min-w-0 flex-1 truncate"
                       >
-                        {t("orders.orderRefLabel", { order: binField.orderRef })}
+                        {binField.orderRef === ""
+                          ? t("orders.noOrder")
+                          : t("orders.orderRefLabel", { order: binField.orderRef })}
                       </FieldLabel>
                       <NumberInput
                         id={`order-bin-${index}`}

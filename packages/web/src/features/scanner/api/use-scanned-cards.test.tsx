@@ -286,7 +286,10 @@ it("retains separate pick accounting for sort-only scans", async () => {
   await waitFor(() => expect(mocks.sortOnly).toHaveBeenCalledOnce());
   expect(mocks.recordPick).toHaveBeenCalledOnce();
   expect(mocks.recordPick).toHaveBeenCalledWith(
-    mocks.queryClient, "bin", card.name, 1,
+    mocks.queryClient,
+    "bin",
+    { binGuid: "bin", binNumber: 1, name: card.name, delta: 1 },
+    1,
   );
   expect(mocks.save).not.toHaveBeenCalled();
   expect(mocks.sortOnly.mock.calls[0][1]).not.toHaveProperty("pickListUpdate");

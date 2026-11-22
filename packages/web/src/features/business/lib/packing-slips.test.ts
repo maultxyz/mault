@@ -1,6 +1,11 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, beforeEach } from "vitest";
 import type { FulfilmentOrderDetail, OrderLine, PullSheetEntry } from "@magic-vault/shared";
-import { buildPackingSlips, packingSlipSubtotal } from "./packing-slips";
+import {
+  buildPackingSlips,
+  packingSlipSubtotal,
+  readPackingSlipPrintOptions,
+  writePackingSlipPrintOptions,
+} from "./packing-slips";
 
 const line = (overrides: Partial<OrderLine>): OrderLine => ({
   name: "Brainstorm",
@@ -67,5 +72,34 @@ describe("buildPackingSlips", () => {
     expect(fulfilled[0].rows[0].quantity).toBe(1);
     expect(fulfilled[0].unavailable).toEqual([{ name: "Brainstorm", quantity: 1 }]);
     expect(buildPackingSlips(order({ status: "cancelled", lines: [line({})] }))).toEqual([]);
+  });
+});
+
+describe("packing slip print options", () => {
+  beforeEach(() => {
+    localStorage.removeItem("packing-slips:print");
+  });
+
+  it("defaults to prices and images shown", () => {
+    expect(readPackingSlipPrintOptions()).toEqual({
+      showsPrices: true,
+      showsImages: true,
+    });
+  });
+
+  it("round trips written options", () => {
+    writePackingSlipPrintOptions({ showsPrices: false, showsImages: false });
+    expect(readPackingSlipPrintOptions()).toEqual({
+      showsPrices: false,
+      showsImages: false,
+    });
+  });
+
+  it("falls back to defaults on unparsable storage", () => {
+    localStorage.setItem("packing-slips:print", "not json");
+    expect(readPackingSlipPrintOptions()).toEqual({
+      showsPrices: true,
+      showsImages: true,
+    });
   });
 });

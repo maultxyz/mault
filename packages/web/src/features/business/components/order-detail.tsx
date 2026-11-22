@@ -42,7 +42,7 @@ import { OrderPhonePickDialog } from "@/features/business/components/order-phone
 import { useOrderPickProgress } from "@/features/business/api/use-order-pick-progress";
 import { OrderBinsDialog } from "@/features/business/components/order-bins-dialog";
 import { OrderEditDialog } from "@/features/business/components/order-edit-dialog";
-import { OrderPickByLocation } from "@/features/business/components/order-pick-by-location";
+import { PickWalkStopList } from "@/features/business/components/pick-walk-stop-list";
 import { OrderRefLabel } from "@/features/business/components/order-ref-label";
 import { OrderSubstituteDialog } from "@/features/business/components/order-substitute-dialog";
 import { StatusBadge } from "@/features/business/components/status-badge";
@@ -64,6 +64,7 @@ import type {
 } from "@/lib/interfaces/business";
 import { toast } from "@/lib/toast";
 import {
+  buildPickWalk,
   formatStorageSlot,
   formatDecklist,
   hasEveryOrderBin,
@@ -123,6 +124,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
   const [lastCopyName, setLastCopyName] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [phonePickOpen, setPhonePickOpen] = useState(false);
+  const [missingScanId, setMissingScanId] = useState<string | null>(null);
   const pickProgress = useOrderPickProgress(order ? [order] : []);
 
   if (isLoading || !order) {
@@ -442,14 +444,14 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
           />
         )}
         {showPullSheet && view === "location" ? (
-          <OrderPickByLocation
-            entries={order.pullSheet}
-            orderBinOf={(entry) =>
-              entry.orderRef == null ? null : (order.orderBins[entry.orderRef] ?? null)
-            }
+          <PickWalkStopList
+            entries={buildPickWalk([order])}
             pickedScanIds={pickedSet}
             canPick={canAct}
-            onPickedChange={changePicked}
+            showOrderName={false}
+            headingLevel="h3"
+            onToggle={(scanId, isPicked) => changePicked([scanId], isPicked)}
+            onMissing={canAct ? setMissingScanId : undefined}
           />
         ) : (
           <div>
@@ -887,6 +889,37 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
         onConfirm={async () => {
           if (await act(() => cancelOrder(order.guid), t("orders.cancelled"))) {
             setCancelOpen(false);
+          }
+        }}
+      />
+      <ConfirmDialog
+        open={missingScanId != null}
+        onOpenChange={(open) => {
+          if (!open) setMissingScanId(null);
+        }}
+        title={t("orders.pickWalk.missingTitle", {
+          name:
+            order.pullSheet.find((entry) => entry.scanId === missingScanId)?.card
+              .name ?? "",
+        })}
+        description={t("orders.pickWalk.missingDescription")}
+        confirmLabel={t("orders.pickWalk.missingConfirm")}
+        cancelLabel={t("actions.back")}
+        isPending={pending}
+        onConfirm={async () => {
+          if (missingScanId == null) return;
+          setPending(true);
+          const result = await run(() =>
+            updateOrder(order.guid, {
+              name: order.name,
+              lines: order.lines.map(toOrderLineInput),
+              releasedScanIds: [missingScanId],
+            }),
+          );
+          setPending(false);
+          setMissingScanId(null);
+          if (result) {
+            toast.success(t("orders.pickWalk.missingReleased", { count: 1 }));
           }
         }}
       />
