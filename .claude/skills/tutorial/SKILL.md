@@ -26,10 +26,12 @@ The `tutorial` API (`TutorialContext` in `src/lib/interfaces/tutorial.ts`):
 - `tutorial.click(locator)`, `tutorial.type(locator, "text", { pressEnterAfterTyping })`, `tutorial.hover(locator)`: animate the cursor, zoom in on the target (`{ zoomsIn: false }` to stay wide), then act. Phones tap.
 - `tutorial.press("Escape")`, `tutorial.goto("/app/...")`, `tutorial.zoomOut()` (show the whole screen, e.g. after results load), `tutorial.pause(ms)`.
 - `tutorial.ui("namespace:path.to.key", { count })` returns the English web string. Locate elements with it (`page.getByRole("button", { name: tutorial.ui("collections:newCollection") })`) instead of copying labels, so copy changes in the locale files keep scripts working.
+- Scanning: every recording has a fake camera and hand scan turned on. `await tutorial.showCardToCamera("Sol Ring")` slides that card (Scryfall image by exact name, MTG only, cached in `out/.card-images`) under the camera; the real scanner then detects, identifies and saves it. `await tutorial.clearCamera()` takes it away before the next card. Press Start scanning first (`scanner:scannerControls.start`), wait for the card to show up in the UI before clearing, and pick cards worth more than the org's buy minimum when offers matter. See `business-intake/tutorial.ts`.
+- `prepare(tutorial)` (optional, next to `run`) runs after the page loads but before recording starts; use it to undo leftovers from a failed run (e.g. cancel an open intake) so reruns start clean.
 - `tutorial.isMobile` for flows that differ below `md` (use separate caption keys such as `openSearchMobile` when wording differs).
 - Wait for data with Playwright locators (`await locator.waitFor()`), never fixed sleeps.
 
-Prefer flows that change nothing in the demo org. When a tutorial must create data, name it so a rerun does not collide, and say so in the summary.
+Scanning saves real cards into the active collection: end the tutorial by removing them (cancelling an intake does) or say so in the summary. Prefer flows that change nothing in the demo org. When a tutorial must create data, name it so a rerun does not collide, and say so in the summary.
 
 ## Running
 

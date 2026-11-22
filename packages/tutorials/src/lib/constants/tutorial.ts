@@ -9,9 +9,9 @@ export const TUTORIAL_LANGUAGE: TutorialLanguage = "en";
 export const TUTORIAL_VIEWPORTS: Record<TutorialViewportName, TutorialViewport> = {
   desktop: {
     name: "desktop",
-    cssWidth: 1280,
-    cssHeight: 720,
-    deviceScaleFactor: 1.5,
+    cssWidth: 1920,
+    cssHeight: 1080,
+    deviceScaleFactor: 1,
     videoWidth: 1920,
     videoHeight: 1080,
     compositionWidth: 1920,
@@ -80,11 +80,23 @@ export const TUTORIAL_PRESEEDED_LOCAL_STORAGE: Record<string, string> = {
   "magic-vault:business-sales-tour-completed": "true",
   "magic-vault:scanner-buy-tour-completed": "true",
   "magic-vault:match-validation-guide-seen": "true",
+  "magic-vault:scanner-hand-scan": "true",
   "magic-vault:support-prompt": JSON.stringify({ scans: 0, lastShownAt: null, optedOut: true }),
   theme: "light",
 };
 
 export const TUTORIAL_LANGUAGE_STORAGE_KEY = "language";
 export const TUTORIAL_ACTIVE_ORG_STORAGE_KEY = "activeOrgId";
+
+export const FAKE_CAMERA_WIDTH = 1280;
+export const FAKE_CAMERA_HEIGHT = 720;
+export const FAKE_CAMERA_FRAME_INTERVAL_MS = 33;
+export const FAKE_CAMERA_CARD_HEIGHT_SHARE = 0.78;
+export const FAKE_CAMERA_SLIDE_MS = 450;
+export const FAKE_CAMERA_DEVICE_ID = "tutorial-camera";
+export const FAKE_CAMERA_DEVICE_LABEL = "Tutorial camera";
+export const SCRYFALL_CARD_IMAGE_URL =
+  "https://api.scryfall.com/cards/named?format=image&version=large&exact=";
+export const TUTORIAL_HTTP_USER_AGENT = "MaultTutorials/1.0";
 export const FEATURE_HIGHLIGHTS_API_PATH = "/feature-highlights";
 export const TUTORIAL_MAIN_HEADING_SELECTOR = "#main-content h1";

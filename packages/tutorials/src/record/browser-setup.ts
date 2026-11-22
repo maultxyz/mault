@@ -7,7 +7,8 @@ import {
   TUTORIAL_LANGUAGE_STORAGE_KEY,
   TUTORIAL_PRESEEDED_LOCAL_STORAGE,
 } from "../lib/constants/tutorial";
-import type { TutorialLanguage } from "../lib/interfaces/tutorial";
+import type { TutorialLanguage, TutorialViewport } from "../lib/interfaces/tutorial";
+import { installFakeCamera } from "./fake-camera";
 
 export function tutorialBaseUrl(): string {
   return process.env.TUTORIAL_BASE_URL || DEFAULT_TUTORIAL_BASE_URL;
@@ -42,6 +43,7 @@ export async function assertAppIsReachable(baseUrl: string): Promise<void> {
 export async function prepareTutorialContext(
   context: BrowserContext,
   language: TutorialLanguage,
+  viewport: TutorialViewport,
 ): Promise<void> {
   await context.addInitScript(
     ({ preseededEntries, languageStorageKey, selectedLanguage }) => {
@@ -56,6 +58,8 @@ export async function prepareTutorialContext(
       selectedLanguage: language,
     },
   );
+  await installFakeCamera(context, viewport);
+  await context.grantPermissions(["camera"]);
   const unseenFeatureHighlightsPattern = new RegExp(`${FEATURE_HIGHLIGHTS_API_PATH}(\\?.*)?$`);
   await context.route(unseenFeatureHighlightsPattern, (route) =>
     route.request().method() === "GET"

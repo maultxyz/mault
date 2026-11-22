@@ -82,11 +82,14 @@ export interface TutorialContext {
   goto(appPath: string): Promise<void>;
   zoomOut(): void;
   pause(milliseconds: number): Promise<void>;
+  showCardToCamera(cardName: string): Promise<void>;
+  clearCamera(): Promise<void>;
 }
 
 export interface TutorialDefinition {
   startPath: string;
   viewports: TutorialViewportName[];
+  prepare?(tutorial: TutorialContext): Promise<void>;
   run(tutorial: TutorialContext): Promise<void>;
 }
 

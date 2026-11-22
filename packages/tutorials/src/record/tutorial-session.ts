@@ -20,6 +20,7 @@ import type {
   TutorialViewport,
 } from "../lib/interfaces/tutorial";
 import { translateWebString } from "../lib/web-translations";
+import { clearFakeCamera, showCardToFakeCamera } from "./fake-camera";
 
 export async function waitForAppPageReady(page: Page): Promise<void> {
   await page
@@ -113,6 +114,8 @@ export function createTutorialSession(options: {
       events.push({ kind: "zoomOut", atMs: elapsedMs() });
     },
     pause,
+    showCardToCamera: (cardName) => showCardToFakeCamera(page, cardName),
+    clearCamera: () => clearFakeCamera(page),
   };
 
   return { context, events, elapsedMs };

@@ -55,7 +55,7 @@ async function recordVariant(options: {
     locale: language,
     colorScheme: "light",
   });
-  await prepareTutorialContext(context, language);
+  await prepareTutorialContext(context, language, viewport);
   const page = await context.newPage();
   const recordingStartedAtEpochMs = Date.now();
   const screencast = await startScreencast({
@@ -76,6 +76,10 @@ async function recordVariant(options: {
   try {
     await page.goto(new URL(definition.startPath, baseUrl).toString());
     await waitForAppPageReady(page);
+    if (definition.prepare) {
+      await definition.prepare(session.context);
+      session.events.length = 0;
+    }
     const contentStartMs = session.elapsedMs();
     await definition.run(session.context);
     await page.waitForTimeout(RECORDING_TAIL_MS);
