@@ -1,4 +1,5 @@
 import type { PlayingCard } from "@magic-vault/shared";
+import { registerCacheClearer } from "./cache-registry";
 import type {
   CatalogCardCache,
   CatalogCardCacheOptions,
@@ -34,6 +35,13 @@ export function createCatalogCardCache({
     return entry.card;
   }
 
+  function clear() {
+    generation += 1;
+    entries.clear();
+  }
+
+  registerCacheClearer(clear);
+
   return {
     async load(keys) {
       const uniqueKeys = new Map<string, CatalogCardKey>();
@@ -58,9 +66,6 @@ export function createCatalogCardCache({
       }
       return cards;
     },
-    clear() {
-      generation += 1;
-      entries.clear();
-    },
+    clear,
   };
 }

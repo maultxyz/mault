@@ -621,6 +621,20 @@
       "serverError": "Impossible d'envoyer l'erreur de test à Better Stack (serveur)"
     }
   },
+  "serverCaches": {
+    "heading": "Caches du serveur",
+    "description": "Vide les caches en mémoire de l'API (lectures d'organisation, recherches de catalogue, rôles et adhésions, réglages des forfaits, liens de partage, classements) pour que les prochaines requêtes lisent des données à jour. Seul le processus serveur qui traite la requête est vidé.",
+    "clearButton": "Vider les caches",
+    "clearingButton": "Vidage...",
+    "reloadMatchIndexButton": "Recharger l'index de correspondance des cartes",
+    "reloadingMatchIndexButton": "Rechargement...",
+    "toasts": {
+      "cleared": "{{count}} caches vidés.",
+      "clearError": "Impossible de vider les caches",
+      "matchIndexReloading": "L'index de correspondance des cartes se recharge en arrière-plan.",
+      "matchIndexError": "Impossible de recharger l'index de correspondance des cartes"
+    }
+  },
   "systemSoundClips": {
     "heading": "Clips sonores système",
     "description": "Des clips que chaque organisation peut utiliser dans ses règles sonores. Les organisations peuvent les écouter, mais pas les renommer ni les supprimer.",

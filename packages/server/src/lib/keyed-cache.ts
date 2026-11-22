@@ -1,3 +1,4 @@
+import { registerCacheClearer } from "./cache-registry";
 import type { KeyedCache, KeyedCacheOptions } from "./interfaces/cached-value";
 
 export function createKeyedCache<T>(
@@ -38,6 +39,8 @@ export function createKeyedCache<T>(
       return;
     }
   }
+
+  registerCacheClearer(() => entries.clear());
 
   return {
     get(key, load) {

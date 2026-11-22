@@ -1,3 +1,4 @@
+import { registerCacheClearer } from "./cache-registry";
 import type { CachedValue } from "./interfaces/cached-value";
 
 export function createCachedValue<T>(
@@ -5,6 +6,11 @@ export function createCachedValue<T>(
 ): CachedValue<T> {
   let cached: { value: T; computedAt: number } | null = null;
   let inFlight: Promise<T> | null = null;
+
+  registerCacheClearer(() => {
+    cached = null;
+    inFlight = null;
+  });
 
   return {
     get(maxAgeMs, options) {

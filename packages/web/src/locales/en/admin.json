@@ -388,6 +388,20 @@
       "serverError": "Failed to send test error to Better Stack (server)"
     }
   },
+  "serverCaches": {
+    "heading": "Server caches",
+    "description": "Clear the API's in-memory caches (org reads, catalog searches, roles and memberships, plan settings, share links, leaderboards) so the next requests read fresh data. Only the server process that handles the request is cleared.",
+    "clearButton": "Clear caches",
+    "clearingButton": "Clearing...",
+    "reloadMatchIndexButton": "Reload card match index",
+    "reloadingMatchIndexButton": "Reloading...",
+    "toasts": {
+      "cleared": "Cleared {{count}} caches.",
+      "clearError": "Failed to clear caches",
+      "matchIndexReloading": "Card match index is reloading in the background.",
+      "matchIndexError": "Failed to reload the card match index"
+    }
+  },
   "impersonationAuditDrawer": {
     "title": "Impersonation Audit Log",
     "empty": "No impersonation sessions yet",

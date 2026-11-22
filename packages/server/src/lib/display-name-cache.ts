@@ -1,6 +1,8 @@
+import { registerCacheClearer } from "./cache-registry";
 import { DISPLAY_NAME_CACHE_TTL_MS } from "./constants/auth";
 
 const cache = new Map<string, { name: string; expiresAt: number }>();
+registerCacheClearer(() => cache.clear());
 
 export async function cachedDisplayName(
   userId: string,

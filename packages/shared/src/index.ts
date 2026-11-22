@@ -44,6 +44,7 @@ export * from "./interfaces/admin-unmatched.interface";
 export * from "./interfaces/platform-stats.interface";
 export * from "./interfaces/platform-discord-channels.interface";
 export * from "./interfaces/plans.interface";
+export * from "./interfaces/admin-caches.interface";
 export * from "./billing-usage";
 export * from "./interfaces/organization.interface";
 export * from "./interfaces/vision-model.interface";

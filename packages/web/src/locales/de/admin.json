@@ -621,6 +621,20 @@
       "serverError": "Testfehler konnte nicht an Better Stack gesendet werden (Server)"
     }
   },
+  "serverCaches": {
+    "heading": "Server-Caches",
+    "description": "Leert die In-Memory-Caches der API (Organisationsdaten, Katalogsuchen, Rollen und Mitgliedschaften, Planeinstellungen, Freigabelinks, Bestenlisten), damit die nächsten Anfragen frische Daten lesen. Nur der Serverprozess, der die Anfrage bearbeitet, wird geleert.",
+    "clearButton": "Caches leeren",
+    "clearingButton": "Wird geleert...",
+    "reloadMatchIndexButton": "Kartenabgleichsindex neu laden",
+    "reloadingMatchIndexButton": "Wird neu geladen...",
+    "toasts": {
+      "cleared": "{{count}} Caches geleert.",
+      "clearError": "Caches konnten nicht geleert werden",
+      "matchIndexReloading": "Der Kartenabgleichsindex wird im Hintergrund neu geladen.",
+      "matchIndexError": "Der Kartenabgleichsindex konnte nicht neu geladen werden"
+    }
+  },
   "systemSoundClips": {
     "heading": "System-Soundclips",
     "description": "Clips, die jede Organisation in ihren Sound-Regeln verwenden kann. Organisationen können sie abspielen, aber nicht umbenennen oder löschen.",
