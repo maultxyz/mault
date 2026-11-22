@@ -4743,5 +4743,144 @@
     "cancelAllConfirmTitle_one": "Annuler cette réservation ?",
     "cancelAllConfirmTitle_other": "Annuler les {{count}} réservations en cours ?",
     "cancelCardOption": "Annuler : {{card}}"
+  },
+  "businessTips": {
+    "done": "Compris",
+    "open": "Afficher les conseils pour cette page",
+    "overview": {
+      "title": "Achat et vente en un coup d'œil",
+      "what": {
+        "title": "Ce qu'est Achat et vente",
+        "description": "Achetez des cartes à vos clients, sortez les cartes vendues du stockage et suivez ce que vous gagnez, le tout depuis votre propre stock."
+      },
+      "rightNow": {
+        "title": "En ce moment",
+        "description": "Ces vignettes montrent les achats, préparations et ventes en cours. Touchez une vignette pour ouvrir sa section."
+      },
+      "attention": {
+        "title": "À traiter",
+        "description": "Cette liste vous indique quoi faire ensuite, comme une préparation à terminer ou une réservation à sortir."
+      },
+      "sales": {
+        "title": "Ventes et bénéfice",
+        "description": "Le graphique montre les cartes vendues chaque jour. Le bénéfice est le prix de vente moins ce que ces cartes vous ont coûté."
+      },
+      "sections": {
+        "title": "Chaque section",
+        "description": "Achats, préparations, réservations et ventes ont chacun leur page plus bas."
+      }
+    },
+    "buys": {
+      "title": "Comment fonctionnent les achats",
+      "start": {
+        "title": "Démarrer un achat",
+        "description": "Choisissez auprès de qui vous achetez : un client, un fournisseur ou un produit ouvert. Les cartes scannées vont directement dans la collection choisie."
+      },
+      "offer": {
+        "title": "Offre en direct",
+        "description": "Chaque carte scannée reçoit une offre selon votre liste de rachat, et le total se met à jour pendant le scan. Un produit ouvert n'a pas d'offre : vous saisissez son coût en terminant."
+      },
+      "adjust": {
+        "title": "Modifier une offre",
+        "description": "Ouvrez le détail d'une carte pour ajuster son offre avant de terminer."
+      },
+      "finish": {
+        "title": "Terminer l'achat",
+        "description": "Terminer enregistre le coût de chaque carte et range les cartes dans le stockage si vous avez choisi un emplacement."
+      },
+      "performance": {
+        "title": "Performance",
+        "description": "Une fois l'achat terminé, Performance montre ce que ses cartes ont rapporté jusqu'ici."
+      },
+      "moveIntoStock": {
+        "title": "Déplacer les cartes vers le stock",
+        "description": "Les anciens achats sans emplacement peuvent encore ranger leurs cartes avec Déplacer les cartes vers le stock."
+      }
+    },
+    "picks": {
+      "title": "Comment fonctionnent les préparations",
+      "create": {
+        "title": "Créer ou importer",
+        "description": "Créez une préparation en collant les cartes à sortir, ou importez des commandes sur le web."
+      },
+      "together": {
+        "title": "Préparer plusieurs à la fois",
+        "description": "Préparez toutes les préparations ouvertes ensemble pour sortir chaque carte en un seul passage."
+      },
+      "walk": {
+        "title": "Parcourir le stockage dans l'ordre",
+        "description": "Les cartes sont listées dans l'ordre du stockage, vous allez d'un emplacement au suivant sans revenir en arrière."
+      },
+      "phone": {
+        "title": "Préparer sur le téléphone",
+        "description": "Sur le web, Préparer sur le téléphone affiche un code QR. Visez-le avec l'onglet de scan pour ouvrir la préparation ici."
+      },
+      "complete": {
+        "title": "Terminer la préparation",
+        "description": "Quand chaque carte est prise, terminez la préparation. Les cartes quittent votre stock et la vente est enregistrée."
+      }
+    },
+    "reservations": {
+      "title": "Comment fonctionnent les réservations",
+      "lists": {
+        "title": "Actives et clôturées",
+        "description": "Les réservations actives attendent encore une action de votre part. Les clôturées ont été retirées, libérées ou ont expiré."
+      },
+      "stages": {
+        "title": "Étapes",
+        "description": "Une carte peut être prête à retirer, à sortir, en préparation ou en file d'attente derrière un autre client."
+      },
+      "pull": {
+        "title": "Sortir les cartes réservées",
+        "description": "Créez une préparation pour sortir les cartes mises de côté d'un client. Une fois terminée, elles sont prêtes à retirer."
+      },
+      "pickedUp": {
+        "title": "Marquer comme retirée",
+        "description": "Quand le client vient chercher ses cartes, marquez-les comme retirées. La vente est enregistrée au prix fixé lors de la réservation."
+      },
+      "release": {
+        "title": "Libérer",
+        "description": "Libérez une réservation pour rendre la carte disponible. La personne suivante dans la file se la voit mettre de côté."
+      }
+    },
+    "sales": {
+      "title": "Comment fonctionnent les ventes",
+      "filters": {
+        "title": "Choisir ce que vous voyez",
+        "description": "Choisissez une période, ou affichez seulement les ventes d'un achat."
+      },
+      "totals": {
+        "title": "Chiffre d'affaires et coût",
+        "description": "Le chiffre d'affaires est ce que vous avez vendu. Le coût des ventes est ce que ces cartes vous ont coûté."
+      },
+      "profit": {
+        "title": "Bénéfice et marge",
+        "description": "Le bénéfice et la marge ne comptent que les ventes dont le coût est connu, les autres cartes sont exclues."
+      },
+      "list": {
+        "title": "Chaque vente",
+        "description": "La liste montre chaque carte vendue, issue des préparations terminées et des retraits de réservations."
+      }
+    },
+    "scanBuy": {
+      "title": "Acheter depuis l'onglet de scan",
+      "open": "Comment acheter pendant le scan",
+      "start": {
+        "title": "Démarrer un achat",
+        "description": "Touchez Démarrer un achat en haut de l'onglet de scan pour acheter des cartes dans cette collection."
+      },
+      "scan": {
+        "title": "Scanner les cartes",
+        "description": "Tant que l'achat est ouvert, chaque carte scannée dans cette collection est ajoutée à l'achat."
+      },
+      "line": {
+        "title": "Vérifier les totaux",
+        "description": "Touchez la ligne d'achat en haut pour voir le nombre de cartes, la valeur marché et votre offre."
+      },
+      "finish": {
+        "title": "Terminer ou annuler",
+        "description": "Terminez ou annulez l'achat depuis cette fenêtre sans quitter l'onglet de scan."
+      }
+    }
   }
 }

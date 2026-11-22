@@ -16,6 +16,9 @@ import { PageHeader } from "@/components/ui/page-header";
 import { ProgressBar } from "@/components/ui/progress-bar";
 import { Screen } from "@/components/ui/screen";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
+import { BusinessTipsButton } from "@/features/business/components/business-tips-button";
+import { BusinessTipsSheet } from "@/features/business/components/business-tips-sheet";
+import { useBusinessTips } from "@/features/business/lib/use-business-tips";
 import { usePickActions } from "@/features/business/api/use-pick-actions";
 import { usePickWalk } from "@/features/business/api/use-pick-walk";
 import { PickWalkEntryRow } from "@/features/business/components/pick-walk-entry-row";
@@ -38,6 +41,7 @@ export default function PickWalkScreen() {
   );
   const walk = usePickWalk(orderGuids);
   const access = useQuery(businessAccessQueryOptions(orgId));
+  const tips = useBusinessTips("picks", !!access.data && !access.data.isLocked);
   const actions = usePickActions();
   const canPick = !!access.data?.canFulfilOrders;
   const showOrderName = walk.openOrders.length > 1;
@@ -61,13 +65,16 @@ export default function PickWalkScreen() {
           subtitle={total > 0 ? progressText : null}
           onBack={() => router.back()}
           actions={
-            canPick && walk.nextEntry ? (
-              <IconButton
-                icon="camera"
-                accessibilityLabel={t("business.picks.walk.scanToPick")}
-                onPress={() => router.push({ pathname: "/storage-card-scan", params: { pickOrders: ordersParam ?? "" } })}
-              />
-            ) : null
+            <>
+              <BusinessTipsButton onPress={tips.open} />
+              {canPick && walk.nextEntry ? (
+                <IconButton
+                  icon="camera"
+                  accessibilityLabel={t("business.picks.walk.scanToPick")}
+                  onPress={() => router.push({ pathname: "/storage-card-scan", params: { pickOrders: ordersParam ?? "" } })}
+                />
+              ) : null}
+            </>
           }
         />
       }
@@ -174,6 +181,7 @@ export default function PickWalkScreen() {
           })}
         </>
       )}
+      <BusinessTipsSheet topic="picks" visible={tips.isOpen} onClose={tips.close} />
     </Screen>
   );
 }

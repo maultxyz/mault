@@ -1,4 +1,6 @@
 import { Callout } from "@/components/callout";
+import { BusinessTour } from "@/features/business/components/business-tour";
+import { BUSINESS_SALES_TOUR } from "@/features/business/lib/business-tours";
 import { CompactPrice } from "@/components/compact-value";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
@@ -36,6 +38,7 @@ import {
   SALES_TABLE_SKELETON_ROWS,
 } from "@/lib/constants/business";
 import {
+  MOBILE_CIRCLE_BUTTON_CLASS,
   MOBILE_LIST_CLASS,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
 } from "@/lib/constants/nav";
@@ -219,6 +222,7 @@ function SalesReportBody({ filters }: SalesReportBodyProps) {
     <>
       <StatGroup
         heading={t("sales.totals")}
+        dataTour="sales-totals"
         gridClassName={cn("grid-cols-2", showsCosts ? "sm:grid-cols-3 lg:grid-cols-5" : "sm:grid-cols-2")}
         tiles={[
           {
@@ -268,7 +272,7 @@ function SalesReportBody({ filters }: SalesReportBodyProps) {
           description={t("sales.emptyDescription")}
         />
       ) : (
-        <div className="flex flex-col gap-2">
+        <div data-tour="sales-table" className="flex flex-col gap-2">
           {isMobile ? (
             <SalesReportMobileList report={data} showsCosts={showsCosts} />
           ) : (
@@ -319,6 +323,7 @@ export function SalesReportPage() {
   const exportButton = (
     <Button
       variant="outline"
+      data-tour="sales-export"
       disabled={!canSeeSales || access?.isLocked || isExporting}
       onClick={() => void exportCsv()}
     >
@@ -328,7 +333,7 @@ export function SalesReportPage() {
   );
 
   const filterBar = (
-    <div className="flex flex-wrap items-end gap-3 md:gap-2">
+    <div data-tour="sales-filters" className="flex flex-wrap items-end gap-3 md:gap-2">
       <div className="flex flex-col gap-1">
         <Label htmlFor="sales-from" className="text-control">
           {t("sales.from")}
@@ -390,11 +395,26 @@ export function SalesReportPage() {
   return (
     <div className={cn("min-h-0 flex-1 overflow-y-auto", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
       {isMobile ? (
-        <MobilePageHeader title={title} subtitle={description}>
+        <MobilePageHeader
+          title={title}
+          subtitle={description}
+          actions={
+            <BusinessTour tour={BUSINESS_SALES_TOUR} className={MOBILE_CIRCLE_BUTTON_CLASS} />
+          }
+        >
           {exportButton}
         </MobilePageHeader>
       ) : (
-        <PageHeader title={title} description={description} actions={exportButton} />
+        <PageHeader
+          title={title}
+          description={description}
+          actions={
+            <>
+              <BusinessTour tour={BUSINESS_SALES_TOUR} />
+              {exportButton}
+            </>
+          }
+        />
       )}
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 p-4 md:gap-2 md:px-3 md:py-2">
         <BusinessOverviewBackButton />

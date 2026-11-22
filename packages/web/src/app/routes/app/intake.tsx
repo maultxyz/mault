@@ -14,6 +14,8 @@ import { BusinessUpgradeCallout } from "@/features/business/components/business-
 import { IntakeCardDetail } from "@/features/business/components/intake-card-detail";
 import { IntakeLotDetail } from "@/features/business/components/intake-lot-detail";
 import { BuyStartDialog } from "@/features/business/components/buy-start-dialog";
+import { BusinessTour } from "@/features/business/components/business-tour";
+import { BUSINESS_BUYS_TOUR } from "@/features/business/lib/business-tours";
 import { IntakeLotList } from "@/features/business/components/intake-lot-list";
 import { UnmovedBuysCallout } from "@/features/business/components/unmoved-buys-callout";
 import { ListSearchInput } from "@/components/list-search-input";
@@ -70,24 +72,26 @@ export default function IntakePage() {
     statusFilter ?? "",
   );
   const listSearchInput = (
-    <BusinessListFilters
-      search={
-        <ListSearchInput
-          value={listSearch}
-          onChange={setListSearch}
-          placeholder={t("search.intakePlaceholder")}
-          maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
-        />
-      }
-      filter={
-        <BusinessStatusFilter<IntakeLotStatus>
-          statuses={INTAKE_LOT_STATUSES}
-          value={statusFilter}
-          onChange={setStatusFilter}
-          labelOf={(status) => t(`status.${status}`)}
-        />
-      }
-    />
+    <div data-tour="intake-list">
+      <BusinessListFilters
+        search={
+          <ListSearchInput
+            value={listSearch}
+            onChange={setListSearch}
+            placeholder={t("search.intakePlaceholder")}
+            maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
+          />
+        }
+        filter={
+          <BusinessStatusFilter<IntakeLotStatus>
+            statuses={INTAKE_LOT_STATUSES}
+            value={statusFilter}
+            onChange={setStatusFilter}
+            labelOf={(status) => t(`status.${status}`)}
+          />
+        }
+      />
+    </div>
   );
   const [createOpen, setCreateOpen] = useState(false);
   const selectedGuid = isMobile
@@ -172,6 +176,9 @@ export default function IntakePage() {
           <MobilePageHeader
             title={t("views.intake")}
             onBack={() => select(null)}
+            actions={
+              <BusinessTour tour={BUSINESS_BUYS_TOUR} className={MOBILE_CIRCLE_BUTTON_CLASS} />
+            }
           />
           <div
             className={cn(
@@ -216,15 +223,19 @@ export default function IntakePage() {
         <MobilePageHeader
           title={t("views.intake")}
           actions={
-            <Button
-              variant="ghost"
-              className={MOBILE_CIRCLE_BUTTON_CLASS}
-              aria-label={t("intake.new")}
-              disabled={access?.isLocked}
-              onClick={() => setCreateOpen(true)}
-            >
-              <IconPlus />
-            </Button>
+            <>
+              <BusinessTour tour={BUSINESS_BUYS_TOUR} className={MOBILE_CIRCLE_BUTTON_CLASS} />
+              <Button
+                variant="ghost"
+                className={MOBILE_CIRCLE_BUTTON_CLASS}
+                aria-label={t("intake.new")}
+                data-tour="intake-new"
+                disabled={access?.isLocked}
+                onClick={() => setCreateOpen(true)}
+              >
+                <IconPlus />
+              </Button>
+            </>
           }
         />
         <div
@@ -265,15 +276,19 @@ export default function IntakePage() {
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
           <BusinessOverviewBackButton />
-          <Button
-            variant="outline"
-            className="w-full"
-            disabled={access?.isLocked}
-            onClick={() => setCreateOpen(true)}
-          >
-            <IconPlus />
-            {t("intake.new")}
-          </Button>
+          <div className="flex gap-1.5">
+            <Button
+              variant="outline"
+              className="min-w-0 flex-1"
+              data-tour="intake-new"
+              disabled={access?.isLocked}
+              onClick={() => setCreateOpen(true)}
+            >
+              <IconPlus />
+              {t("intake.new")}
+            </Button>
+            <BusinessTour tour={BUSINESS_BUYS_TOUR} />
+          </div>
           <UnmovedBuysCallout />
           {listSearchInput}
           <IntakeLotList

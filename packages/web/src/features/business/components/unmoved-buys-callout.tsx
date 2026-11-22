@@ -26,7 +26,7 @@ export function UnmovedBuysCallout() {
   if (!canMove || unmoved.length === 0) return null;
 
   return (
-    <>
+    <div data-tour="intake-unmoved">
       <Callout
         variant="info"
         icon={IconPackages}
@@ -72,6 +72,6 @@ export function UnmovedBuysCallout() {
           onOpenChange={setIsDialogOpen}
         />
       )}
-    </>
+    </div>
   );
 }

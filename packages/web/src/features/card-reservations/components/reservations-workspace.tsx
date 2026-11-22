@@ -1,4 +1,6 @@
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { BusinessTour } from "@/features/business/components/business-tour";
+import { BUSINESS_RESERVATIONS_TOUR } from "@/features/business/lib/business-tours";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
@@ -29,7 +31,10 @@ import {
 import { BUSINESS_LIST_SEARCH_DEBOUNCE_MS, picksPath } from "@/lib/constants/business";
 import { ListSearchInput } from "@/components/list-search-input";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import {
+  MOBILE_CIRCLE_BUTTON_CLASS,
+  MOBILE_NAV_SCROLL_PADDING_CLASS,
+} from "@/lib/constants/nav";
 import type {
   CardReservationActionTarget,
   CardReservationConfirmation,
@@ -184,15 +189,17 @@ export function ReservationsWorkspace({ backToOverview }: ReservationsWorkspaceP
   };
 
   const viewSwitch = (
-    <ResponsiveSegmented<CardReservationListView>
-      label={t("reservations.listLabel")}
-      items={CARD_RESERVATION_LIST_VIEWS.map((listView) => ({
-        key: listView,
-        label: t(`reservations.lists.${listView}`),
-      }))}
-      value={view}
-      onChange={changeView}
-    />
+    <div data-tour="reservations-lists">
+      <ResponsiveSegmented<CardReservationListView>
+        label={t("reservations.listLabel")}
+        items={CARD_RESERVATION_LIST_VIEWS.map((listView) => ({
+          key: listView,
+          label: t(`reservations.lists.${listView}`),
+        }))}
+        value={view}
+        onChange={changeView}
+      />
+    </div>
   );
 
   const content = list.isPending ? (
@@ -251,14 +258,24 @@ export function ReservationsWorkspace({ backToOverview }: ReservationsWorkspaceP
   if (isMobile) {
     return (
       <div className="relative flex min-h-0 flex-1 flex-col">
-        <MobilePageHeader title={t("views.reservations")} />
+        <MobilePageHeader
+          title={t("views.reservations")}
+          actions={
+            <BusinessTour
+              tour={BUSINESS_RESERVATIONS_TOUR}
+              className={MOBILE_CIRCLE_BUTTON_CLASS}
+            />
+          }
+        />
         <div className={cn("min-h-0 flex-1 overflow-y-auto", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
           <div className="flex flex-col gap-4 p-4">
             {backToOverview}
             {access?.isLocked && <BusinessUpgradeCallout />}
             {viewSwitch}
             {listSearchInput}
-            {content}
+            <div data-tour="reservations-requests" className="flex flex-col gap-4">
+              {content}
+            </div>
           </div>
         </div>
         {confirmDialog}
@@ -271,7 +288,7 @@ export function ReservationsWorkspace({ backToOverview }: ReservationsWorkspaceP
   ) : list.isError ? null : groups.length === 0 ? (
     <EmptyState size="compact" icon={IconBookmark} title={emptyTitle} description={emptyDescription} />
   ) : (
-    <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
+    <div data-tour="reservations-requests" className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
       {view === "active" ? (
         <>
           <CardReservationRequestList
@@ -317,6 +334,7 @@ export function ReservationsWorkspace({ backToOverview }: ReservationsWorkspaceP
           <PageHeader
             title={t("views.reservations")}
             description={t("reservations.description")}
+            actions={<BusinessTour tour={BUSINESS_RESERVATIONS_TOUR} />}
             spansFullWidth
           />
           <div className="flex flex-col gap-2 px-3 py-2">

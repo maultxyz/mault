@@ -4743,5 +4743,144 @@
     "cancelAllConfirmTitle_one": "Cancel this reservation?",
     "cancelAllConfirmTitle_other": "Cancel all {{count}} open reservations?",
     "cancelCardOption": "Cancel: {{card}}"
+  },
+  "businessTips": {
+    "done": "Got it",
+    "open": "Show tips for this page",
+    "overview": {
+      "title": "Buy and sell at a glance",
+      "what": {
+        "title": "What Buy and sell is",
+        "description": "Buy cards from customers, pull sold cards from storage and track what you earn, all from your own stock."
+      },
+      "rightNow": {
+        "title": "Right now",
+        "description": "These tiles show open buys, picks and sales. Tap a tile to open that section."
+      },
+      "attention": {
+        "title": "Needs attention",
+        "description": "This list tells you what to do next, like a pick ready to complete or a reservation to pull."
+      },
+      "sales": {
+        "title": "Sales and profit",
+        "description": "The chart shows cards sold each day. Profit is what you sold for minus what those cards cost you."
+      },
+      "sections": {
+        "title": "Every section",
+        "description": "Buys, picks, reservations and sales each have their own page further down."
+      }
+    },
+    "buys": {
+      "title": "How buys work",
+      "start": {
+        "title": "Start a buy",
+        "description": "Pick who you're buying from: a customer, a vendor or product you opened. Cards you scan go straight into the collection you choose."
+      },
+      "offer": {
+        "title": "Live offer",
+        "description": "Each scanned card gets an offer from your buylist, and the total updates as you scan. Opened product has no offer: you enter what it cost when you finish."
+      },
+      "adjust": {
+        "title": "Change an offer",
+        "description": "Open a card's detail to adjust its offer before you finish."
+      },
+      "finish": {
+        "title": "Finish the buy",
+        "description": "Finishing writes each card's cost, and moves the cards into storage if you picked a location."
+      },
+      "performance": {
+        "title": "Performance",
+        "description": "After a buy is finished, Performance shows what its cards have earned so far."
+      },
+      "moveIntoStock": {
+        "title": "Move cards into stock",
+        "description": "Older buys that never picked a location can still move their cards into storage with Move cards into stock."
+      }
+    },
+    "picks": {
+      "title": "How picks work",
+      "create": {
+        "title": "Create or import picks",
+        "description": "Create a pick by pasting the cards to pull, or import orders on the web."
+      },
+      "together": {
+        "title": "Pick several at once",
+        "description": "Pick all open picks together to pull every card in one trip."
+      },
+      "walk": {
+        "title": "Walk the shelves in order",
+        "description": "Cards are listed in storage order, so you go from slot to slot without doubling back."
+      },
+      "phone": {
+        "title": "Pick on your phone",
+        "description": "On the web, Pick on phone shows a QR code. Point the scan tab at it to open the pick here."
+      },
+      "complete": {
+        "title": "Complete the pick",
+        "description": "When every card is picked, complete the pick. The cards leave your stock and the sale is recorded."
+      }
+    },
+    "reservations": {
+      "title": "How reservations work",
+      "lists": {
+        "title": "Active and closed",
+        "description": "Active reservations still need something from you. Closed ones were picked up, released or ran out."
+      },
+      "stages": {
+        "title": "Stages",
+        "description": "A card can be ready for pickup, to pull, being picked or waiting in line behind another customer."
+      },
+      "pull": {
+        "title": "Pull reserved cards",
+        "description": "Create a pick to pull a customer's held cards. When the pick is done, they're ready for pickup."
+      },
+      "pickedUp": {
+        "title": "Mark picked up",
+        "description": "When the customer collects, mark it picked up. The sale is recorded at the price locked in when they reserved."
+      },
+      "release": {
+        "title": "Release",
+        "description": "Release a reservation to free the card. The next person in line gets it held for them."
+      }
+    },
+    "sales": {
+      "title": "How sales work",
+      "filters": {
+        "title": "Choose what to see",
+        "description": "Pick a date range, or show only the sales from one buy."
+      },
+      "totals": {
+        "title": "Revenue and cost",
+        "description": "Revenue is what you sold for. Cost of sold is what those cards cost you."
+      },
+      "profit": {
+        "title": "Profit and margin",
+        "description": "Profit and margin only count sales with a known cost, so cards without one are left out."
+      },
+      "list": {
+        "title": "Every sale",
+        "description": "The list shows each card sold, from completed picks and reservation pickups."
+      }
+    },
+    "scanBuy": {
+      "title": "Buying from the scan tab",
+      "open": "How buying while scanning works",
+      "start": {
+        "title": "Start a buy",
+        "description": "Tap Start a buy at the top of the scan tab to buy cards into this collection."
+      },
+      "scan": {
+        "title": "Scan the cards",
+        "description": "While the buy is open, every card you scan into this collection goes into the buy."
+      },
+      "line": {
+        "title": "Check the totals",
+        "description": "Tap the buy line at the top to see the card count, market value and your offer."
+      },
+      "finish": {
+        "title": "Finish or cancel",
+        "description": "Finish or cancel the buy from that sheet without leaving the scan tab."
+      }
+    }
   }
 }

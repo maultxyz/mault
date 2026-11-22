@@ -183,5 +183,196 @@
     }
   },
   "connectYourSorterTitle": "Sortiergerät verbinden",
-  "saveYourChangesTitle": "Änderungen speichern"
+  "saveYourChangesTitle": "Änderungen speichern",
+  "businessTours": {
+    "overview": {
+      "triggerTooltip": "So funktioniert An- & Verkauf",
+      "welcome": {
+        "title": "Willkommen bei An- & Verkauf",
+        "content": "Hier führst du deinen Laden. Kaufe Karten von Kunden an, picke und versende Bestellungen, halte Karten für Kunden zurück, drucke Preisetiketten und behalte deine Verkäufe im Blick. Du kannst jederzeit überspringen und die Tour über das Hilfe-Symbol erneut starten."
+      },
+      "now": {
+        "title": "Aktuell",
+        "content": "Diese Kacheln zeigen, was gerade offen ist: Ankäufe, Picks und Reservierungen. Klicke auf eine Kachel, um zur passenden Seite zu springen."
+      },
+      "attention": {
+        "title": "Zu erledigen",
+        "content": "Hier erscheinen deine nächsten Aufgaben, zum Beispiel Picks zum Abschließen oder Karten, die geholt werden müssen. Klicke darauf, um direkt hinzugelangen."
+      },
+      "charts": {
+        "title": "Verkäufe und Reservierungen",
+        "content": "Sieh, wie viel du in den letzten Wochen verkauft hast und wie sich die Reservierungen entwickeln."
+      },
+      "sections": {
+        "title": "Alle Bereiche des Ladens",
+        "content": "Jede Karte öffnet einen Bereich: Ankäufe, Picks, Reservierungen, Etiketten und Verkäufe. Offene Ankäufe und Picks stehen direkt hier."
+      },
+      "views": {
+        "title": "Team und Genauigkeit",
+        "content": "Wechsle den Tab, um zu sehen, was jedes Teammitglied erledigt hat und wie genau deine Scans sind."
+      },
+      "nav": {
+        "title": "Immer nur einen Klick entfernt",
+        "content": "Die Seiten von An- & Verkauf findest du auch in der Seitenleiste, so kannst du von überall zwischen ihnen wechseln."
+      }
+    },
+    "buys": {
+      "triggerTooltip": "So funktionieren Ankäufe",
+      "newBuy": {
+        "title": "Neuen Ankauf starten",
+        "content": "Starte einen Ankauf, wenn dir ein Kunde oder Händler Karten verkauft oder wenn du ein versiegeltes Produkt öffnest. Wähle die Sammlung, und jede gescannte Karte landet direkt darin."
+      },
+      "list": {
+        "title": "Deine Ankäufe",
+        "content": "Durchsuche deine Ankäufe oder filtere sie nach Status, um offene, abgeschlossene oder stornierte zu finden."
+      },
+      "unmoved": {
+        "title": "Karten in den Bestand verschieben",
+        "content": "Diese abgeschlossenen Ankäufe haben noch Karten in ihrer Ankaufssammlung. Verschiebe sie in deinen Bestand, wenn du so weit bist."
+      },
+      "stats": {
+        "title": "Das aktuelle Angebot",
+        "content": "Solange ein Ankauf offen ist, wird das Angebot beim Hinzufügen von Karten aus deiner Ankaufsliste berechnet. Ein geöffnetes Produkt hat kein Angebot: Du gibst beim Abschließen ein, was das Produkt gekostet hat."
+      },
+      "cards": {
+        "title": "Alle Karten im Ankauf",
+        "content": "Öffne eine Karte, um ihr Angebot zu ändern. Karten unter deinem Mindestwert bekommen kein Angebot, und du kannst sie mit einem Klick entfernen."
+      },
+      "finish": {
+        "title": "Ankauf abschließen",
+        "content": "Schließe ab, wenn du den Kunden bezahlst. Der gezahlte Preis wird als Einkaufspreis jeder Karte gespeichert, und die Karten kommen ins Lager, wenn du einen Lagerort gewählt hast."
+      },
+      "performance": {
+        "title": "Wie sich der Ankauf lohnt",
+        "content": "Bei abgeschlossenen Ankäufen siehst du, was die Karten bisher eingebracht haben, verglichen mit dem, was du bezahlt hast."
+      }
+    },
+    "picks": {
+      "triggerTooltip": "So funktionieren Picks",
+      "welcome": {
+        "title": "Bestellungen picken",
+        "content": "Ein Pick ist eine Liste von Karten, die du für eine Bestellung holst. Mault findet die Karten in deinem Bestand und zeigt dir, wo jede liegt."
+      },
+      "import": {
+        "title": "Pick hinzufügen",
+        "content": "Füge eine Deckliste ein oder importiere eine Bestellung, um einen Pick zu erstellen."
+      },
+      "list": {
+        "title": "Deine Picks",
+        "content": "Filtere Picks nach Status. Hake mehrere Picks an, um sie mit Zusammen picken in einem Durchgang zu holen."
+      },
+      "views": {
+        "title": "Wähle, wie du pickst",
+        "content": "Geführt leitet dich durch jede Karte. Du kannst auch alle Karten sehen, einzeln vorgehen, Box für Box arbeiten oder die Karten nach Bestellung aufteilen."
+      },
+      "phone": {
+        "title": "Auf dem Handy picken",
+        "content": "Scanne den Code mit deinem Handy, um den Pick mitzunehmen. Haken werden auf beiden Geräten gespeichert."
+      },
+      "complete": {
+        "title": "Pick abschließen",
+        "content": "Sobald jede Karte abgehakt ist, schließe den Pick ab. Die Karten verlassen deinen Bestand und der Verkauf wird erfasst."
+      }
+    },
+    "reservations": {
+      "triggerTooltip": "So funktionieren Reservierungen",
+      "welcome": {
+        "title": "Kartenreservierungen",
+        "content": "Kunden können Karten aus deinem Shop-Katalog reservieren. Du hältst die Karten für sie zurück, bis sie sie abholen."
+      },
+      "lists": {
+        "title": "Offen und Verlauf",
+        "content": "Offen zeigt die Reservierungen, um die du dich noch kümmern musst. Verlauf zeigt die erledigten."
+      },
+      "stages": {
+        "title": "Wo jede Anfrage steht",
+        "content": "Anfragen sind nach Stand gruppiert: abholbereit, zu holen, wird kommissioniert und in der Reihe hinter einem anderen Kunden."
+      },
+      "createPick": {
+        "title": "Karten holen",
+        "content": "Erstelle eine Pickliste, um reservierte Karten aus deinem Bestand zu holen. Wenn der Pick abgeschlossen ist, sind die Karten abholbereit."
+      },
+      "actions": {
+        "title": "Übergeben oder freigeben",
+        "content": "Markiere Karten als abgeholt, wenn der Kunde sie mitnimmt. Der Verkauf wird zum Preis erfasst, der beim Reservieren galt. Gib die Karten frei, wenn der Kunde sie nicht mehr möchte."
+      }
+    },
+    "labels": {
+      "triggerTooltip": "So funktionieren Preisetiketten",
+      "source": {
+        "title": "Karten auswählen",
+        "content": "Drucke Etiketten für eine Sammlung, einen Lagerort oder einen Ankauf."
+      },
+      "prices": {
+        "title": "Der Preis auf jedem Etikett",
+        "content": "Etiketten zeigen den Verkaufspreis jeder Karte. Ändere Marge und Rundung unter Einstellungen > Preise oder setze Preise für ausgewählte Karten mit Preise festlegen."
+      },
+      "sheet": {
+        "title": "Etikettenbogen wählen",
+        "content": "Wähle den Etikettenbogen, auf den du druckst, und wo auf dem Bogen der Druck beginnt, damit du angebrochene Bögen nutzen kannst."
+      },
+      "cards": {
+        "title": "Einzelne Karten anpassen",
+        "content": "Entferne den Haken bei Karten, für die du kein Etikett willst, oder gib für eine Karte einen eigenen Preis ein. Eigene Preise gelten nur für diesen Druck."
+      },
+      "print": {
+        "title": "Drucken",
+        "content": "Wenn die Vorschau passt, drucke die Etiketten."
+      }
+    },
+    "sales": {
+      "triggerTooltip": "So funktioniert der Verkaufsbericht",
+      "welcome": {
+        "title": "Deine Verkäufe",
+        "content": "Jede Karte, die du über einen Pick oder eine Reservierung verkaufst, erscheint hier."
+      },
+      "filters": {
+        "title": "Zeitraum wählen",
+        "content": "Wähle die Tage für den Bericht. Öffnest du die Verkäufe aus einem Ankauf, zeigt der Bericht nur Karten aus diesem Ankauf."
+      },
+      "totals": {
+        "title": "Summen",
+        "content": "Sieh Umsatz, Einkauf der verkauften Karten, Gewinn und Marge. Der Gewinn zählt nur Verkäufe, bei denen du weißt, was die Karte gekostet hat."
+      },
+      "table": {
+        "title": "Jeder Verkauf",
+        "content": "Jede Zeile ist eine verkaufte Karte mit ihrem Preis und, falls bekannt, ihrem Einkaufspreis."
+      },
+      "export": {
+        "title": "Exportieren",
+        "content": "Lade den Bericht als CSV-Datei für deine Buchhaltung herunter."
+      }
+    },
+    "scannerBuy": {
+      "triggerTooltip": "So funktioniert Ankaufen am Scanner",
+      "start": {
+        "title": "Karten beim Scannen ankaufen",
+        "content": "Starte hier einen Ankauf, um Karten von einem Kunden zu kaufen, ohne den Scanner zu verlassen."
+      },
+      "menu": {
+        "title": "Oder über das Sammlungsmenü",
+        "content": "Du kannst einen Ankauf auch jederzeit über das Sammlungsmenü starten."
+      },
+      "scan": {
+        "title": "Ganz normal scannen",
+        "content": "Solange ein Ankauf offen ist, landet jede gescannte Karte darin."
+      },
+      "totals": {
+        "title": "Laufende Summen",
+        "content": "Sieh beim Scannen, wie Kartenanzahl und Angebot wachsen. Liegen Karten unter deinem Mindestwert, entfernst du sie mit einem Klick."
+      },
+      "recent": {
+        "title": "Zuletzt gescannt",
+        "content": "Sieh die zuletzt gescannten Karten mit ihren Angeboten und ändere das Angebot für einzelne Karten."
+      },
+      "filter": {
+        "title": "Nur diesen Ankauf zeigen",
+        "content": "Schalte in den Ansichtsoptionen Nur dieser Ankauf ein, um im Raster nur die Karten aus diesem Ankauf zu sehen."
+      },
+      "finish": {
+        "title": "Ankauf abschließen",
+        "content": "Schließe den Ankauf hier ab, wenn du den Kunden bezahlst, ohne den Scanner zu verlassen."
+      }
+    }
+  }
 }

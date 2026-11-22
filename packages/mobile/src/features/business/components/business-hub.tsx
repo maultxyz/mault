@@ -7,11 +7,14 @@ import { IconButton } from "@/components/ui/icon-button";
 import { PageHeader } from "@/components/ui/page-header";
 import { Screen } from "@/components/ui/screen";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
+import { BusinessTipsButton } from "@/features/business/components/business-tips-button";
+import { BusinessTipsSheet } from "@/features/business/components/business-tips-sheet";
 import { BusinessOverviewView } from "@/features/business/components/business-overview-view";
 import { IntakeLotsView } from "@/features/business/components/intake-lots-view";
 import { OrdersView } from "@/features/business/components/orders-view";
 import { ReservationsView } from "@/features/business/components/reservations-view";
 import { SalesView } from "@/features/business/components/sales-view";
+import { useBusinessTips } from "@/features/business/lib/use-business-tips";
 import { useActiveOrgId } from "@/hooks/use-org";
 import {
   BUSINESS_INTAKE_VIEW,
@@ -19,6 +22,7 @@ import {
   BUSINESS_QUERY_KEY,
   BUSINESS_RESERVATIONS_VIEW,
   BUSINESS_SALES_VIEW,
+  BUSINESS_TIPS_TOPIC_BY_VIEW,
   BUSINESS_VIEWS,
 } from "@/lib/constants/business";
 import type { BusinessHubProps, BusinessView } from "@/lib/interfaces/business";
@@ -40,6 +44,10 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
   const isReservations = view === BUSINESS_RESERVATIONS_VIEW;
   const isOverview = view === BUSINESS_OVERVIEW_VIEW;
   const isSales = view === BUSINESS_SALES_VIEW;
+  const tipsTopic = BUSINESS_TIPS_TOPIC_BY_VIEW[view];
+  const tips = useBusinessTips(tipsTopic, !!access.data && !isLocked);
+  const showCreateAction =
+    !isReservations && !isOverview && !isSales && (isIntake ? canCreateIntake : canCreatePick);
 
   return (
     <Screen
@@ -50,13 +58,16 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
           subtitle={isOverview ? t("business.subtitle") : undefined}
           onBack={onBack}
           actions={
-            !isReservations && !isOverview && !isSales && (isIntake ? canCreateIntake : canCreatePick) ? (
-              <IconButton
-                icon="plus"
-                accessibilityLabel={isIntake ? t("business.intake.new") : t("business.picks.new")}
-                onPress={() => router.push(isIntake ? "/business/intake-new" : "/business/pick-new")}
-              />
-            ) : null
+            <>
+              <BusinessTipsButton onPress={tips.open} />
+              {showCreateAction ? (
+                <IconButton
+                  icon="plus"
+                  accessibilityLabel={isIntake ? t("business.intake.new") : t("business.picks.new")}
+                  onPress={() => router.push(isIntake ? "/business/intake-new" : "/business/pick-new")}
+                />
+              ) : null}
+            </>
           }
         />
       }
@@ -75,6 +86,7 @@ export function BusinessHub({ onBack }: BusinessHubProps) {
       ) : (
         <OrdersView canAct={!!access.data?.canFulfilOrders} />
       )}
+      <BusinessTipsSheet topic={tipsTopic} visible={tips.isOpen} onClose={tips.close} />
     </Screen>
   );
 }

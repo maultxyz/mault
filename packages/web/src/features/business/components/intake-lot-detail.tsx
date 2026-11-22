@@ -313,6 +313,7 @@ export function IntakeLotDetail({
         )}
         {isOpen && access?.canAcceptIntake && (
           <Button
+            data-tour="intake-finish"
             disabled={lot.cardCount === 0}
             onClick={() => setAcceptOpen(true)}
           >
@@ -346,6 +347,7 @@ export function IntakeLotDetail({
       <StatGroup
         heading={t(isOpen && usesOffers ? "intake.liveOffer" : "intake.summary")}
         live={isOpen ? true : undefined}
+        dataTour="intake-stats"
         gridClassName="grid-cols-2 sm:grid-cols-4"
         tiles={[
           {
@@ -433,7 +435,7 @@ export function IntakeLotDetail({
             alignsEnd
             pagination={toServerPagination(cardsPageData, setCardsPage)}
           />
-          <div>
+          <div data-tour="intake-cards">
             <Table>
               <TableHeader>
                 <TableRow>

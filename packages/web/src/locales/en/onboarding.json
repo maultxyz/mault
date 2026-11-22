@@ -183,5 +183,196 @@
     }
   },
   "connectYourSorterTitle": "Connect your sorter",
-  "saveYourChangesTitle": "Save your changes"
+  "saveYourChangesTitle": "Save your changes",
+  "businessTours": {
+    "overview": {
+      "triggerTooltip": "How Buy & sell works",
+      "welcome": {
+        "title": "Welcome to Buy & sell",
+        "content": "This is where you run your store. Buy cards from customers, pick and ship orders, hold cards for customers, print price labels and track your sales. Skip anytime and replay this from the help icon."
+      },
+      "now": {
+        "title": "Right now",
+        "content": "These tiles show what is open today: buys, picks and reservations. Click a tile to jump to that page."
+      },
+      "attention": {
+        "title": "Needs attention",
+        "content": "Your next jobs show up here, like picks ready to complete or cards waiting to be pulled. Click one to go straight to it."
+      },
+      "charts": {
+        "title": "Sales and reservations",
+        "content": "See how much you sold over the last weeks and how reservations are moving."
+      },
+      "sections": {
+        "title": "Every part of the store",
+        "content": "Each card opens one area: Buys, Picks, Reservations, Labels and Sales. Open buys and picks are listed right here."
+      },
+      "views": {
+        "title": "Staff and accuracy",
+        "content": "Switch tabs to see what each team member did and how accurate your scans are."
+      },
+      "nav": {
+        "title": "Always one click away",
+        "content": "The Buy & sell pages are also in the sidebar, so you can switch between them from anywhere."
+      }
+    },
+    "buys": {
+      "triggerTooltip": "How buys work",
+      "newBuy": {
+        "title": "Start a new buy",
+        "content": "Start a buy when a customer or vendor sells you cards, or when you open a sealed product. Pick the collection, and every card you scan goes straight into it."
+      },
+      "list": {
+        "title": "Your buys",
+        "content": "Search your buys or filter them by status to find open, finished or cancelled ones."
+      },
+      "unmoved": {
+        "title": "Move cards into stock",
+        "content": "These finished buys still have cards in their buy collection. Move them into your stock when you are ready."
+      },
+      "stats": {
+        "title": "The live offer",
+        "content": "While a buy is open, the offer updates from your buylist as you add cards. An opened product has no offer: you enter what the product cost when you finish it."
+      },
+      "cards": {
+        "title": "Every card in the buy",
+        "content": "Open a card to change its offer. Cards worth less than your minimum get no offer, and you can remove them in one click."
+      },
+      "finish": {
+        "title": "Finish the buy",
+        "content": "Finish when you pay the customer. The price you paid is saved as the cost of each card, and the cards move to storage if you chose a location."
+      },
+      "performance": {
+        "title": "How the buy did",
+        "content": "For finished buys, see what the cards have earned so far compared with what you paid."
+      }
+    },
+    "picks": {
+      "triggerTooltip": "How picks work",
+      "welcome": {
+        "title": "Picking orders",
+        "content": "A pick is a list of cards to pull for an order. Mault finds the cards in your stock and tells you where each one is."
+      },
+      "import": {
+        "title": "Add a pick",
+        "content": "Paste a decklist or import an order to create a pick."
+      },
+      "list": {
+        "title": "Your picks",
+        "content": "Filter picks by status. Tick several picks to pull them together in one walk with Pick together."
+      },
+      "views": {
+        "title": "Choose how to pick",
+        "content": "Guided walks you through each card. You can also see all cards, go one at a time, work box by box or split the cards by order."
+      },
+      "phone": {
+        "title": "Pick on your phone",
+        "content": "Scan the code with your phone to take the pick with you. Ticks are saved on both devices."
+      },
+      "complete": {
+        "title": "Complete the pick",
+        "content": "Once every card is ticked, complete the pick. The cards leave your stock and the sale is recorded."
+      }
+    },
+    "reservations": {
+      "triggerTooltip": "How reservations work",
+      "welcome": {
+        "title": "Card reservations",
+        "content": "Customers can reserve cards from your shop catalog. You hold the cards for them until they pick them up."
+      },
+      "lists": {
+        "title": "Open and history",
+        "content": "Open shows the reservations you still need to handle. History shows the ones that are done."
+      },
+      "stages": {
+        "title": "Where each request is",
+        "content": "Requests are grouped by stage: ready for pickup, to pull, being picked, and in line behind another customer."
+      },
+      "createPick": {
+        "title": "Pull the cards",
+        "content": "Create a pick to pull reserved cards from your stock. When the pick is complete, the cards are ready for pickup."
+      },
+      "actions": {
+        "title": "Hand over or release",
+        "content": "Mark cards as picked up when the customer collects them. This records the sale at the price shown when they reserved. Release the cards if the customer no longer wants them."
+      }
+    },
+    "labels": {
+      "triggerTooltip": "How price labels work",
+      "source": {
+        "title": "Choose your cards",
+        "content": "Print labels for a collection, a storage location or a buy."
+      },
+      "prices": {
+        "title": "The price on each label",
+        "content": "Labels show each card's sell price. Change your margin and rounding in Settings > Pricing, or set prices on selected cards with Set prices."
+      },
+      "sheet": {
+        "title": "Pick your label sheet",
+        "content": "Choose the label sheet you print on and where on the sheet to start, so you can use a sheet that is partly used."
+      },
+      "cards": {
+        "title": "Adjust single cards",
+        "content": "Untick cards you don't want a label for, or type a custom price for one card. Custom prices only apply to this print."
+      },
+      "print": {
+        "title": "Print",
+        "content": "When the preview looks right, print the labels."
+      }
+    },
+    "sales": {
+      "triggerTooltip": "How the sales report works",
+      "welcome": {
+        "title": "Your sales",
+        "content": "Every card you sell through a pick or a reservation shows up here."
+      },
+      "filters": {
+        "title": "Pick a date range",
+        "content": "Choose the dates to report on. When you open sales from a buy, the report only shows cards from that buy."
+      },
+      "totals": {
+        "title": "Totals",
+        "content": "See revenue, the cost of what you sold, profit and margin. Profit only counts sales where you know what the card cost."
+      },
+      "table": {
+        "title": "Every sale",
+        "content": "Each row is one card sold, with its price and, if known, its cost."
+      },
+      "export": {
+        "title": "Export",
+        "content": "Download the report as a CSV file for your bookkeeping."
+      }
+    },
+    "scannerBuy": {
+      "triggerTooltip": "How buying on the scanner works",
+      "start": {
+        "title": "Buy cards while you scan",
+        "content": "Start a buy right here to buy cards from a customer without leaving the scanner."
+      },
+      "menu": {
+        "title": "Or start from the collection menu",
+        "content": "You can also start a buy from the collection menu at any time."
+      },
+      "scan": {
+        "title": "Scan as usual",
+        "content": "While a buy is open, every card you scan goes into it."
+      },
+      "totals": {
+        "title": "Running totals",
+        "content": "Watch the card count and the offer grow as you scan. If cards are worth less than your minimum, remove them in one click."
+      },
+      "recent": {
+        "title": "Recent cards",
+        "content": "See the last cards you scanned with their offers, and change an offer for a single card."
+      },
+      "filter": {
+        "title": "Show only this buy",
+        "content": "Turn on Only this buy in the view options to see just the cards from this buy in the grid."
+      },
+      "finish": {
+        "title": "Finish the buy",
+        "content": "Finish the buy here when you pay the customer, without leaving the scanner."
+      }
+    }
+  }
 }

@@ -30,7 +30,7 @@ export function ScannerBuyRecentCards({ lot, editsOffers }: ScannerBuyRecentCard
   const usesOffers = lot.sourceType !== "opened";
 
   return (
-    <div className="flex flex-col gap-1.5">
+    <div data-tour="scanner-buy-recent" className="flex flex-col gap-1.5">
       <Button
         variant="ghost"
         className="-ml-2 self-start"

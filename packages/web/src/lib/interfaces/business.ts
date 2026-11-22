@@ -139,6 +139,7 @@ export interface ScannerBuyOverviewProps {
   editsOffers: boolean;
   onOpenDialog: (dialog: ScannerBuyDialog) => void;
   headingLevel?: "h2" | "h3";
+  headerAction?: ReactNode;
 }
 
 export interface ScannerBuyRecentCardsProps {

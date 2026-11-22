@@ -4743,5 +4743,144 @@
     "cancelAllConfirmTitle_one": "Diese Reservierung stornieren?",
     "cancelAllConfirmTitle_other": "Alle {{count}} offenen Reservierungen stornieren?",
     "cancelCardOption": "Stornieren: {{card}}"
+  },
+  "businessTips": {
+    "done": "Verstanden",
+    "open": "Tipps für diese Seite anzeigen",
+    "overview": {
+      "title": "Kaufen und Verkaufen im Überblick",
+      "what": {
+        "title": "Was Kaufen und Verkaufen ist",
+        "description": "Kaufe Karten von Kunden an, hole verkaufte Karten aus dem Lager und behalte im Blick, was du verdienst, alles aus deinem eigenen Bestand."
+      },
+      "rightNow": {
+        "title": "Aktuell",
+        "description": "Diese Kacheln zeigen offene Ankäufe, Picks und Verkäufe. Tippe auf eine Kachel, um den Bereich zu öffnen."
+      },
+      "attention": {
+        "title": "Zu erledigen",
+        "description": "Diese Liste zeigt dir, was als Nächstes zu tun ist, etwa ein Pick zum Abschließen oder eine Reservierung zum Heraussuchen."
+      },
+      "sales": {
+        "title": "Verkäufe und Gewinn",
+        "description": "Das Diagramm zeigt die pro Tag verkauften Karten. Gewinn ist der Verkaufspreis abzüglich dessen, was dich die Karten gekostet haben."
+      },
+      "sections": {
+        "title": "Alle Bereiche",
+        "description": "Ankäufe, Picks, Reservierungen und Verkäufe haben weiter unten jeweils eine eigene Seite."
+      }
+    },
+    "buys": {
+      "title": "So funktionieren Ankäufe",
+      "start": {
+        "title": "Ankauf starten",
+        "description": "Wähle, von wem du kaufst: ein Kunde, ein Händler oder geöffnete Ware. Gescannte Karten landen direkt in der gewählten Sammlung."
+      },
+      "offer": {
+        "title": "Live-Angebot",
+        "description": "Jede gescannte Karte bekommt ein Angebot aus deiner Ankaufsliste, und die Summe wächst beim Scannen mit. Geöffnete Ware hat kein Angebot: Du gibst beim Abschließen ein, was sie gekostet hat."
+      },
+      "adjust": {
+        "title": "Angebot ändern",
+        "description": "Öffne die Kartendetails, um ihr Angebot vor dem Abschließen anzupassen."
+      },
+      "finish": {
+        "title": "Ankauf abschließen",
+        "description": "Beim Abschließen wird der Einkaufspreis jeder Karte gespeichert, und die Karten wandern ins Lager, wenn du einen Lagerort gewählt hast."
+      },
+      "performance": {
+        "title": "Entwicklung",
+        "description": "Nach dem Abschließen zeigt Entwicklung, was die Karten eines Ankaufs bisher eingebracht haben."
+      },
+      "moveIntoStock": {
+        "title": "Karten in den Bestand verschieben",
+        "description": "Ältere Ankäufe ohne Lagerort können ihre Karten weiterhin mit Karten in den Bestand verschieben einlagern."
+      }
+    },
+    "picks": {
+      "title": "So funktionieren Picks",
+      "create": {
+        "title": "Picks erstellen oder importieren",
+        "description": "Erstelle einen Pick, indem du die Karten einfügst, oder importiere Bestellungen im Web."
+      },
+      "together": {
+        "title": "Mehrere auf einmal picken",
+        "description": "Picke alle offenen Picks zusammen, um alle Karten in einem Durchgang zu holen."
+      },
+      "walk": {
+        "title": "Der Reihe nach durchs Lager",
+        "description": "Die Karten stehen in Lagerreihenfolge, so gehst du von Fach zu Fach, ohne zurückzulaufen."
+      },
+      "phone": {
+        "title": "Auf dem Handy picken",
+        "description": "Im Web zeigt Auf dem Handy picken einen QR-Code. Richte den Scan-Tab darauf, um den Pick hier zu öffnen."
+      },
+      "complete": {
+        "title": "Pick abschließen",
+        "description": "Wenn jede Karte gepickt ist, schließe den Pick ab. Die Karten verlassen deinen Bestand und der Verkauf wird erfasst."
+      }
+    },
+    "reservations": {
+      "title": "So funktionieren Reservierungen",
+      "lists": {
+        "title": "Aktiv und abgeschlossen",
+        "description": "Aktive Reservierungen brauchen noch etwas von dir. Abgeschlossene wurden abgeholt, freigegeben oder sind abgelaufen."
+      },
+      "stages": {
+        "title": "Phasen",
+        "description": "Eine Karte kann abholbereit sein, herausgesucht werden müssen, gerade gepickt werden oder hinter einem anderen Kunden in der Warteschlange stehen."
+      },
+      "pull": {
+        "title": "Reservierte Karten heraussuchen",
+        "description": "Erstelle einen Pick, um die zurückgelegten Karten eines Kunden zu holen. Ist der Pick fertig, sind sie abholbereit."
+      },
+      "pickedUp": {
+        "title": "Als abgeholt markieren",
+        "description": "Wenn der Kunde abholt, markiere es als abgeholt. Der Verkauf wird zum Preis erfasst, der bei der Reservierung festgelegt wurde."
+      },
+      "release": {
+        "title": "Freigeben",
+        "description": "Gib eine Reservierung frei, um die Karte wieder verfügbar zu machen. Die nächste Person in der Warteschlange bekommt sie zurückgelegt."
+      }
+    },
+    "sales": {
+      "title": "So funktionieren Verkäufe",
+      "filters": {
+        "title": "Auswählen, was du siehst",
+        "description": "Wähle einen Zeitraum oder zeige nur die Verkäufe aus einem Ankauf."
+      },
+      "totals": {
+        "title": "Umsatz und Kosten",
+        "description": "Umsatz ist, wofür du verkauft hast. Wareneinsatz ist, was dich diese Karten gekostet haben."
+      },
+      "profit": {
+        "title": "Gewinn und Marge",
+        "description": "Gewinn und Marge zählen nur Verkäufe mit bekanntem Einkaufspreis, Karten ohne einen werden ausgelassen."
+      },
+      "list": {
+        "title": "Jeder Verkauf",
+        "description": "Die Liste zeigt jede verkaufte Karte aus abgeschlossenen Picks und Reservierungsabholungen."
+      }
+    },
+    "scanBuy": {
+      "title": "Ankaufen im Scan-Tab",
+      "open": "So funktioniert Ankaufen beim Scannen",
+      "start": {
+        "title": "Ankauf starten",
+        "description": "Tippe oben im Scan-Tab auf Ankauf starten, um Karten in diese Sammlung anzukaufen."
+      },
+      "scan": {
+        "title": "Karten scannen",
+        "description": "Solange der Ankauf offen ist, kommt jede Karte, die du in diese Sammlung scannst, in den Ankauf."
+      },
+      "line": {
+        "title": "Summen prüfen",
+        "description": "Tippe oben auf die Ankaufszeile, um Kartenanzahl, Marktwert und dein Angebot zu sehen."
+      },
+      "finish": {
+        "title": "Abschließen oder abbrechen",
+        "description": "Schließe den Ankauf dort ab oder brich ihn ab, ohne den Scan-Tab zu verlassen."
+      }
+    }
   }
 }

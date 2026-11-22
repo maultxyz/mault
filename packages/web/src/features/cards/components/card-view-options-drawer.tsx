@@ -64,6 +64,7 @@ export function CardViewOptionsDrawer({
           }
           size="icon"
           className={cn("shrink-0", triggerClassName)}
+          data-tour="card-view-options"
           aria-label={label}
           title={label}
         >

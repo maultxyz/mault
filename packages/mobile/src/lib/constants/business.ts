@@ -5,6 +5,7 @@ import type {
   FulfilmentOrderStatus,
   IntakeLotStatus,
 } from "@magic-vault/shared";
+import type { BusinessTip } from "@/lib/interfaces/business";
 import type { IconName, PillProps } from "@/lib/interfaces/ui";
 
 export const BUSINESS_QUERY_KEY = ["business"] as const;
@@ -87,3 +88,57 @@ export const BUSINESS_STATUS_TONES: Record<IntakeLotStatus | FulfilmentOrderStat
 export const BUSINESS_LIST_SKELETON_ROWS = 5;
 export const BUSINESS_LIST_SEARCH_DEBOUNCE_MS = 300;
 export const SELL_PRICE_PREVIEW_MARKET_PRICE = 10;
+
+export const BUSINESS_TIPS_TOPICS = ["overview", "buys", "picks", "reservations", "sales", "scanBuy"] as const;
+
+export const BUSINESS_TIPS: Record<(typeof BUSINESS_TIPS_TOPICS)[number], BusinessTip[]> = {
+  overview: [
+    { key: "what", icon: "store" },
+    { key: "rightNow", icon: "live" },
+    { key: "attention", icon: "warning" },
+    { key: "sales", icon: "stats" },
+    { key: "sections", icon: "menu" },
+  ],
+  buys: [
+    { key: "start", icon: "plus" },
+    { key: "offer", icon: "coins" },
+    { key: "adjust", icon: "edit" },
+    { key: "finish", icon: "check" },
+    { key: "performance", icon: "trophy" },
+    { key: "moveIntoStock", icon: "storage" },
+  ],
+  picks: [
+    { key: "create", icon: "plus" },
+    { key: "together", icon: "group" },
+    { key: "walk", icon: "storage" },
+    { key: "phone", icon: "qrCode" },
+    { key: "complete", icon: "checkAll" },
+  ],
+  reservations: [
+    { key: "lists", icon: "menu" },
+    { key: "stages", icon: "clock" },
+    { key: "pull", icon: "checkAll" },
+    { key: "pickedUp", icon: "check" },
+    { key: "release", icon: "close" },
+  ],
+  sales: [
+    { key: "filters", icon: "filter" },
+    { key: "totals", icon: "coins" },
+    { key: "profit", icon: "stats" },
+    { key: "list", icon: "menu" },
+  ],
+  scanBuy: [
+    { key: "start", icon: "plus" },
+    { key: "scan", icon: "camera" },
+    { key: "line", icon: "coins" },
+    { key: "finish", icon: "check" },
+  ],
+};
+
+export const BUSINESS_TIPS_TOPIC_BY_VIEW: Record<(typeof BUSINESS_VIEWS)[number], (typeof BUSINESS_TIPS_TOPICS)[number]> = {
+  [BUSINESS_OVERVIEW_VIEW]: "overview",
+  [BUSINESS_INTAKE_VIEW]: "buys",
+  [BUSINESS_PICKS_VIEW]: "picks",
+  [BUSINESS_RESERVATIONS_VIEW]: "reservations",
+  [BUSINESS_SALES_VIEW]: "sales",
+};

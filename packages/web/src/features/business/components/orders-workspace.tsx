@@ -4,7 +4,9 @@ import { MobilePageHeader } from "@/components/mobile-page-header";
 import { Button } from "@/components/ui/button";
 import { ordersQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
+import { BusinessTour } from "@/features/business/components/business-tour";
 import { BusinessUpgradeCallout } from "@/features/business/components/business-upgrade-callout";
+import { BUSINESS_PICKS_TOUR } from "@/features/business/lib/business-tours";
 import { OrderDetail } from "@/features/business/components/order-detail";
 import { OrderList } from "@/features/business/components/order-list";
 import { OrderSelectionBar } from "@/features/business/components/order-selection-bar";
@@ -172,6 +174,9 @@ export function OrdersWorkspace({ backToOverview }: OrdersWorkspaceProps) {
           <MobilePageHeader
             title={t("views.picks")}
             onBack={() => select(null)}
+            actions={
+              <BusinessTour tour={BUSINESS_PICKS_TOUR} className={MOBILE_CIRCLE_BUTTON_CLASS} />
+            }
           />
           <div
             className={cn(
@@ -196,16 +201,20 @@ export function OrdersWorkspace({ backToOverview }: OrdersWorkspaceProps) {
         <MobilePageHeader
           title={t("views.picks")}
           actions={
-            <Button
-              variant="ghost"
-              className={MOBILE_CIRCLE_BUTTON_CLASS}
-              aria-label={t("orders.importButton")}
-              disabled={access?.isLocked || !access?.canFulfilOrders}
-              render={<Link to={PICK_IMPORT_PATH} />}
-              nativeButton={false}
-            >
-              <IconFileImport />
-            </Button>
+            <>
+              <BusinessTour tour={BUSINESS_PICKS_TOUR} className={MOBILE_CIRCLE_BUTTON_CLASS} />
+              <Button
+                variant="ghost"
+                className={MOBILE_CIRCLE_BUTTON_CLASS}
+                aria-label={t("orders.importButton")}
+                data-tour="picks-import"
+                disabled={access?.isLocked || !access?.canFulfilOrders}
+                render={<Link to={PICK_IMPORT_PATH} />}
+                nativeButton={false}
+              >
+                <IconFileImport />
+              </Button>
+            </>
           }
         />
         <div
@@ -218,18 +227,20 @@ export function OrdersWorkspace({ backToOverview }: OrdersWorkspaceProps) {
             {backToOverview}
             {resumeBatch}
             {access?.isLocked && <BusinessUpgradeCallout />}
-            {listSearchInput}
-            <OrderList
-              orders={orders}
-              pagination={pagination}
-              selectedGuid={selectedGuid}
-              isLoading={isLoading}
-              onSelect={select}
-              checkedOrderGuids={checkedOrderGuids}
-              onToggleOrderChecked={toggleOrderChecked}
-              search={debouncedListSearch}
-              isFiltered={statusFilter !== null}
-            />
+            <div data-tour="picks-list" className="flex min-h-0 flex-1 flex-col gap-4">
+              {listSearchInput}
+              <OrderList
+                orders={orders}
+                pagination={pagination}
+                selectedGuid={selectedGuid}
+                isLoading={isLoading}
+                onSelect={select}
+                checkedOrderGuids={checkedOrderGuids}
+                onToggleOrderChecked={toggleOrderChecked}
+                search={debouncedListSearch}
+                isFiltered={statusFilter !== null}
+              />
+            </div>
             {selectionBar()}
           </div>
         </div>
@@ -242,29 +253,35 @@ export function OrdersWorkspace({ backToOverview }: OrdersWorkspaceProps) {
       <div className="grid flex-1 min-h-0 grid-cols-12 overflow-hidden">
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
           {backToOverview}
-          <Button
-            variant="outline"
-            className="w-full"
-            disabled={access?.isLocked || !access?.canFulfilOrders}
-            render={<Link to={PICK_IMPORT_PATH} />}
-            nativeButton={false}
-          >
-            <IconFileImport />
-            {t("orders.importButton")}
-          </Button>
+          <div className="flex gap-1.5">
+            <Button
+              variant="outline"
+              className="min-w-0 flex-1"
+              data-tour="picks-import"
+              disabled={access?.isLocked || !access?.canFulfilOrders}
+              render={<Link to={PICK_IMPORT_PATH} />}
+              nativeButton={false}
+            >
+              <IconFileImport />
+              {t("orders.importButton")}
+            </Button>
+            <BusinessTour tour={BUSINESS_PICKS_TOUR} />
+          </div>
           {resumeBatch}
-          {listSearchInput}
-          <OrderList
-            orders={orders}
-            pagination={pagination}
-            selectedGuid={selectedGuid}
-            isLoading={isLoading}
-            onSelect={select}
-            checkedOrderGuids={checkedOrderGuids}
-            onToggleOrderChecked={toggleOrderChecked}
-            search={debouncedListSearch}
-            isFiltered={statusFilter !== null}
-          />
+          <div data-tour="picks-list" className="flex min-h-0 flex-1 flex-col gap-2">
+            {listSearchInput}
+            <OrderList
+              orders={orders}
+              pagination={pagination}
+              selectedGuid={selectedGuid}
+              isLoading={isLoading}
+              onSelect={select}
+              checkedOrderGuids={checkedOrderGuids}
+              onToggleOrderChecked={toggleOrderChecked}
+              search={debouncedListSearch}
+              isFiltered={statusFilter !== null}
+            />
+          </div>
         </section>
         <section className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 md:gap-2 md:px-3 md:py-2 lg:col-span-9">
           {access?.isLocked && <BusinessUpgradeCallout />}

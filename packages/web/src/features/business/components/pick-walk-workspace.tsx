@@ -147,6 +147,7 @@ export function PickWalkWorkspace({
           <ViewTabs<PickWalkWorkspaceView>
             label={t("orders.batch.viewLabel")}
             className="shrink-0 border-b-0"
+            dataTour="pick-views"
             items={viewItems}
             value={view}
             onChange={setView}

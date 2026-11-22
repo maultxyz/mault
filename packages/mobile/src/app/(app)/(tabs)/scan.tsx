@@ -37,6 +37,8 @@ import { useOpenOrderPick } from "@/features/business/api/use-open-order-pick";
 import { useOpenBuy } from "@/features/business/api/use-open-buy";
 import { useCanStartBuy } from "@/features/business/api/use-can-start-buy";
 import { ScanBuySheet } from "@/features/business/components/scan-buy-sheet";
+import { BusinessTipsSheet } from "@/features/business/components/business-tips-sheet";
+import { useBusinessTips } from "@/features/business/lib/use-business-tips";
 import { useCameraChoice } from "@/features/scanner/api/use-camera-choice";
 import { useCameraTorch } from "@/features/scanner/api/use-camera-torch";
 import { TorchBrightness } from "@/features/scanner/components/torch-brightness";
@@ -260,6 +262,13 @@ export default function ScanScreen() {
     setTipsOpen(false);
     writeKv(SCAN_TIPS_SEEN_KEY, "true");
   };
+  const showsOpenBuyLine = !!openBuy && !!openBuyLabel && !session.removal.isEnabled;
+  const showsStartBuyLine =
+    !!collection && !openBuy && canStartBuy && !session.isRunning && !session.removal.isEnabled;
+  const scanBuyTips = useBusinessTips(
+    "scanBuy",
+    (showsOpenBuyLine || showsStartBuyLine) && !tipsOpen && !session.isRunning,
+  );
   const [unmatchedRecovery, setUnmatchedRecovery] = useState<UnmatchedScanRecovery | null>(null);
   const [savedCardName, setSavedCardName] = useState<string | null>(null);
   const latestFeedEntry = session.feed[0];
@@ -542,7 +551,7 @@ export default function ScanScreen() {
                 onPress={session.isRunning || sorter.isReady ? undefined : () => setDestinationPickerOpen(true)}
               />
             ) : null}
-            {openBuy && openBuyLabel && !session.removal.isEnabled ? (
+            {openBuy && openBuyLabel && showsOpenBuyLine ? (
               <CameraTextRow
                 icon="coins"
                 label={openBuyLabel}
@@ -553,7 +562,7 @@ export default function ScanScreen() {
                 }
               />
             ) : null}
-            {collection && !openBuy && canStartBuy && !session.isRunning && !session.removal.isEnabled ? (
+            {collection && showsStartBuyLine ? (
               <CameraTextRow
                 icon="plus"
                 label={t("scan.buy.start")}
@@ -858,7 +867,9 @@ export default function ScanScreen() {
         visible={buySheetOpen && focused}
         buy={openBuy?.guid === buySheetBuy?.guid ? openBuy : buySheetBuy}
         onClose={() => setBuySheetOpen(false)}
+        onShowTips={scanBuyTips.open}
       />
+      <BusinessTipsSheet topic="scanBuy" visible={scanBuyTips.isOpen} onClose={scanBuyTips.close} />
       <SessionScansSheet
         visible={sessionOpen}
         entries={session.feed}

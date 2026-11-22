@@ -35,10 +35,11 @@ export function StatGroup({
   tiles,
   live,
   gridClassName = "grid-cols-2 sm:grid-cols-3 lg:grid-cols-5",
+  dataTour,
 }: StatGroupProps) {
   const { t } = useTranslation("common");
   return (
-    <section className="flex flex-col gap-2">
+    <section data-tour={dataTour} className="flex flex-col gap-2">
       <div className="flex items-center gap-1.5">
         <h2 className="font-heading text-base font-semibold text-foreground md:text-sm">
           {heading}

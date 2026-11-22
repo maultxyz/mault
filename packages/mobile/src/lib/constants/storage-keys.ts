@@ -15,6 +15,7 @@ export const CAMERA_DEVICE_KEY = "mault.camera-device";
 export const HAND_SCAN_KEY = "mault.hand-scan";
 export const HAND_SCAN_BINS_KEY = "mault.hand-scan-bins";
 export const SCAN_TIPS_SEEN_KEY = "mault.scan-tips-seen";
+export const BUSINESS_TIPS_SEEN_KEY_PREFIX = "mault.business-tips-seen.";
 export const REVIEW_LAYOUT_KEY = "mault.review-layout";
 export const SCAN_TARGET_COLLECTIONS_KEY = "mault.scan-target-collections";
 export const SCAN_DESTINATIONS_KEY = "mault.scan-destinations";

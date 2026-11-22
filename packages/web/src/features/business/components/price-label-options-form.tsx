@@ -86,78 +86,82 @@ export function PriceLabelOptionsForm({ form, orgId, loadedSourceName }: PriceLa
         <CardDescription>{t("priceLabels.form.description")}</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col gap-3 md:gap-2">
-        <Field>
-          <FieldLabel htmlFor="price-label-source">{t("priceLabels.form.source")}</FieldLabel>
-          <Select
-            value={source}
-            onValueChange={(value) => {
-              if (value) changeSource(value as PriceLabelSource);
-            }}
-          >
-            <SelectTrigger id="price-label-source" className="w-full">
-              <SelectValue>{t(`priceLabels.sources.${source}`)}</SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {PRICE_LABEL_SOURCES.map((sourceOption) => (
-                <SelectItem key={sourceOption} value={sourceOption}>
-                  {t(`priceLabels.sources.${sourceOption}`)}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <Field>
-          <FieldLabel htmlFor="price-label-source-item">
-            {t(`priceLabels.sourceItems.${source}`)}
-          </FieldLabel>
-          <Select
-            value={sourceGuidField.value || null}
-            onValueChange={(value) => {
-              if (value) changeSourceGuid(value);
-            }}
-          >
-            <SelectTrigger id="price-label-source-item" className="w-full">
-              <SelectValue>
-                {selectedSourceName ?? t(`priceLabels.sourcePlaceholders.${source}`)}
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {sourceOptions.map((option) => (
-                <SelectItem key={option.guid} value={option.guid}>
-                  {option.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Field>
-        <label className="flex items-center justify-between gap-3">
-          <span className="flex flex-col">
-            <span className="text-control font-medium">{t("priceLabels.form.showPrices")}</span>
-            <span className="text-xs text-foreground/70">{t("priceLabels.form.showPricesHint")}</span>
-          </span>
-          <Switch
-            aria-label={t("priceLabels.form.showPrices")}
-            checked={showsPricesField.value}
-            onCheckedChange={showsPricesField.onChange}
-          />
-        </label>
-        {showsPricesField.value && (
-          <p className="text-xs text-foreground/70">
-            <Trans
-              t={t}
-              i18nKey="priceLabels.form.sellPriceHint"
-              components={{
-                settingsLink: (
-                  <Link
-                    to={SETTINGS_PATHS.pricing}
-                    className="font-medium text-primary underline-offset-4 hover:underline"
-                  />
-                ),
+        <div data-tour="labels-source" className="flex flex-col gap-3 md:gap-2">
+          <Field>
+            <FieldLabel htmlFor="price-label-source">{t("priceLabels.form.source")}</FieldLabel>
+            <Select
+              value={source}
+              onValueChange={(value) => {
+                if (value) changeSource(value as PriceLabelSource);
               }}
+            >
+              <SelectTrigger id="price-label-source" className="w-full">
+                <SelectValue>{t(`priceLabels.sources.${source}`)}</SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {PRICE_LABEL_SOURCES.map((sourceOption) => (
+                  <SelectItem key={sourceOption} value={sourceOption}>
+                    {t(`priceLabels.sources.${sourceOption}`)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field>
+            <FieldLabel htmlFor="price-label-source-item">
+              {t(`priceLabels.sourceItems.${source}`)}
+            </FieldLabel>
+            <Select
+              value={sourceGuidField.value || null}
+              onValueChange={(value) => {
+                if (value) changeSourceGuid(value);
+              }}
+            >
+              <SelectTrigger id="price-label-source-item" className="w-full">
+                <SelectValue>
+                  {selectedSourceName ?? t(`priceLabels.sourcePlaceholders.${source}`)}
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent>
+                {sourceOptions.map((option) => (
+                  <SelectItem key={option.guid} value={option.guid}>
+                    {option.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+        </div>
+        <div data-tour="labels-prices" className="flex flex-col gap-3 md:gap-2">
+          <label className="flex items-center justify-between gap-3">
+            <span className="flex flex-col">
+              <span className="text-control font-medium">{t("priceLabels.form.showPrices")}</span>
+              <span className="text-xs text-foreground/70">{t("priceLabels.form.showPricesHint")}</span>
+            </span>
+            <Switch
+              aria-label={t("priceLabels.form.showPrices")}
+              checked={showsPricesField.value}
+              onCheckedChange={showsPricesField.onChange}
             />
-          </p>
-        )}
-        <div className="flex flex-col gap-3 md:gap-2">
+          </label>
+          {showsPricesField.value && (
+            <p className="text-xs text-foreground/70">
+              <Trans
+                t={t}
+                i18nKey="priceLabels.form.sellPriceHint"
+                components={{
+                  settingsLink: (
+                    <Link
+                      to={SETTINGS_PATHS.pricing}
+                      className="font-medium text-primary underline-offset-4 hover:underline"
+                    />
+                  ),
+                }}
+              />
+            </p>
+          )}
+        </div>
+        <div data-tour="labels-sheet" className="flex flex-col gap-3 md:gap-2">
           <LabelSheetOptionFields
             idPrefix="price-label"
             templateId={templateField.value}

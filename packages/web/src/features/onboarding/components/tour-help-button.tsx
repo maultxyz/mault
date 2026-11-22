@@ -14,8 +14,9 @@ export function TourHelpButton({
   completedKey,
   tooltip,
   className,
+  autoStart = true,
 }: TourHelpButtonProps) {
-  const { controls, Tour } = useTour({ steps, completedKey });
+  const { controls, Tour } = useTour({ steps, completedKey, autoStart });
 
   return (
     <>

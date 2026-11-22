@@ -16,7 +16,8 @@ import type {
   SaleRow,
   UnmovedBuy,
 } from "@magic-vault/shared";
-import type { BUSINESS_VIEWS, SALES_RANGES } from "@/lib/constants/business";
+import type { BUSINESS_TIPS_TOPICS, BUSINESS_VIEWS, SALES_RANGES } from "@/lib/constants/business";
+import type { IconName } from "@/lib/interfaces/ui";
 
 export type BusinessView = (typeof BUSINESS_VIEWS)[number];
 
@@ -189,4 +190,28 @@ export interface ScanBuySheetProps {
   visible: boolean;
   buy: IntakeLot | null;
   onClose: () => void;
+  onShowTips: () => void;
+}
+
+export type BusinessTipsTopic = (typeof BUSINESS_TIPS_TOPICS)[number];
+
+export interface BusinessTip {
+  key: string;
+  icon: IconName;
+}
+
+export interface BusinessTipsSheetProps {
+  topic: BusinessTipsTopic;
+  visible: boolean;
+  onClose: () => void;
+}
+
+export interface BusinessTipsButtonProps {
+  onPress: () => void;
+}
+
+export interface BusinessTipsState {
+  isOpen: boolean;
+  open: () => void;
+  close: () => void;
 }

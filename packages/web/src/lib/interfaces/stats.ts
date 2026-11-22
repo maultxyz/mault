@@ -97,6 +97,7 @@ export interface StatsSplitEntry {
 export interface StatsHighlightsProps {
   insights: StatsInsight[];
   heading?: string;
+  dataTour?: string;
 }
 
 export interface BarListItem {

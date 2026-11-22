@@ -104,9 +104,10 @@ export function CardReservationRequestCard({
             )}
           </div>
           {canAct && (
-            <div className="flex flex-wrap gap-1.5">
+            <div data-tour="reservations-actions" className="flex flex-wrap gap-1.5">
               {group.toPullCount > 0 && (
                 <Button
+                  data-tour="reservations-create-pick"
                   variant={group.readyForPickupCount > 0 ? "outline" : "default"}
                   disabled={busyKey !== null}
                   aria-label={t("reservations.createPickFor", {

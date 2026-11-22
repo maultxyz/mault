@@ -510,7 +510,11 @@ export function AppNav() {
           }
 
           return (
-            <div key={item.to} className="mx-1">
+            <div
+              key={item.to}
+              className="mx-1"
+              data-tour={item.to === ORDERS_PATH ? "business-nav" : undefined}
+            >
               <ExpandedNavItem {...item} />
               {item.subItems && item.subItems.length > 0 && (
                 <div className="mt-0.5 flex flex-col gap-0.5">

@@ -34,7 +34,7 @@ export function BuyPerformanceSection({ lot }: BuyPerformanceSectionProps) {
   const toSales = salesPath(lot.guid);
 
   return (
-    <div className="flex flex-col gap-2">
+    <div data-tour="intake-performance" className="flex flex-col gap-2">
       <StatGroup
         heading={t("intake.performance.heading")}
         gridClassName="grid-cols-2 sm:grid-cols-4"

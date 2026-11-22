@@ -625,6 +625,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
             {!isMobile && (
               <Button
                 variant="outline"
+                data-tour="pick-phone"
                 disabled={!showPullSheet}
                 onClick={() => setPhonePickOpen(true)}
               >
@@ -640,6 +641,7 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
               {t("orders.cancel")}
             </Button>
             <Button
+              data-tour="pick-complete"
               disabled={!allPicked}
               title={allPicked ? undefined : t("orders.pickFirst")}
               onClick={() => setFulfilOpen(true)}

@@ -18,7 +18,9 @@ import {
   BusinessReservationsChart,
   BusinessSalesChart,
 } from "@/features/business/components/business-overview-charts";
+import { BusinessTour } from "@/features/business/components/business-tour";
 import { BusinessUpgradeCallout } from "@/features/business/components/business-upgrade-callout";
+import { BUSINESS_OVERVIEW_TOUR } from "@/features/business/lib/business-tours";
 import { salesMarginPercent } from "@/features/business/lib/sales-report";
 import { StaffReportView } from "@/features/business/components/staff-report";
 import { statsReportQueryOptions } from "@/features/stats/api/stats";
@@ -42,7 +44,10 @@ import {
   RESERVATIONS_PATH,
   SALES_PATH,
 } from "@/lib/constants/business";
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import {
+  MOBILE_CIRCLE_BUTTON_CLASS,
+  MOBILE_NAV_SCROLL_PADDING_CLASS,
+} from "@/lib/constants/nav";
 import type {
   BusinessOverviewBodyProps,
   BusinessOverviewRowProps,
@@ -160,6 +165,7 @@ function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
       <div className="grid gap-4 md:gap-1.5 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)]">
         <StatGroup
           heading={t("overview.now.heading")}
+          dataTour="business-now"
           live
           gridClassName="grid-cols-2 sm:grid-cols-3"
           tiles={[
@@ -268,14 +274,18 @@ function BusinessOverviewBody({ overview }: BusinessOverviewBodyProps) {
         />
       </div>
 
-      <StatsHighlights heading={t("overview.attention.heading")} insights={insights} />
+      <StatsHighlights
+        heading={t("overview.attention.heading")}
+        insights={insights}
+        dataTour="business-attention"
+      />
 
-      <div className="grid gap-4 md:gap-1.5 lg:grid-cols-2 [&>*]:min-w-0">
+      <div data-tour="business-charts" className="grid gap-4 md:gap-1.5 lg:grid-cols-2 [&>*]:min-w-0">
         <BusinessSalesChart sales={sales} />
         {reservations && <BusinessReservationsChart reservations={reservations} />}
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 md:gap-1.5">
+      <div data-tour="business-sections" className="grid gap-4 md:grid-cols-2 md:gap-1.5">
         <BusinessOverviewSection
           icon={IconCash}
           title={t("views.intake")}
@@ -389,6 +399,7 @@ export function BusinessOverviewDashboard() {
     <ViewTabs<BusinessOverviewView>
       label={title}
       className="border-b-0"
+      dataTour="business-overview-views"
       items={BUSINESS_OVERVIEW_VIEWS.map((value) => ({
         key: value,
         label: t(`overview.views.${value}`),
@@ -442,9 +453,20 @@ export function BusinessOverviewDashboard() {
   return (
     <div className={cn("min-h-0 flex-1 overflow-y-auto", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
       {isMobile ? (
-        <MobilePageHeader title={title} subtitle={description} />
+        <MobilePageHeader
+          title={title}
+          subtitle={description}
+          actions={
+            <BusinessTour tour={BUSINESS_OVERVIEW_TOUR} className={MOBILE_CIRCLE_BUTTON_CLASS} />
+          }
+        />
       ) : (
-        <PageHeader title={title} description={description} tabs={viewTabs} />
+        <PageHeader
+          title={title}
+          description={description}
+          actions={<BusinessTour tour={BUSINESS_OVERVIEW_TOUR} />}
+          tabs={viewTabs}
+        />
       )}
       <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 p-4 md:gap-2 md:px-3 md:py-2">
         {access?.isLocked && <BusinessUpgradeCallout />}

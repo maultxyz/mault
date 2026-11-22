@@ -1,4 +1,6 @@
 import { Callout } from "@/components/callout";
+import { BusinessTour } from "@/features/business/components/business-tour";
+import { BUSINESS_LABELS_TOUR } from "@/features/business/lib/business-tours";
 import { EmptyState } from "@/components/empty-state";
 import { ListSkeleton } from "@/components/list-skeleton";
 import { LoadErrorCallout } from "@/components/load-error-callout";
@@ -23,7 +25,10 @@ import {
   LABEL_SHEET_PRINT_PAGE_STYLE,
   LABEL_SHEET_TEMPLATES,
 } from "@/lib/constants/label-sheets";
-import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
+import {
+  MOBILE_CIRCLE_BUTTON_CLASS,
+  MOBILE_NAV_SCROLL_PADDING_CLASS,
+} from "@/lib/constants/nav";
 import {
   PRICE_LABEL_DEFAULT_VALUES,
   PRICE_LABEL_SOURCE_GUID_PARAM,
@@ -98,7 +103,7 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
     />
   );
   const printButton = (
-    <Button disabled={!canPrint} onClick={() => window.print()}>
+    <Button data-tour="labels-print" disabled={!canPrint} onClick={() => window.print()}>
       <IconPrinter />
       {tCommon("labelSheets.print")}
     </Button>
@@ -160,7 +165,13 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
     return (
       <div className="relative flex min-h-0 flex-1 flex-col">
         <style>{LABEL_SHEET_PRINT_PAGE_STYLE}</style>
-        <MobilePageHeader title={t("priceLabels.title")} subtitle={t("priceLabels.description")}>
+        <MobilePageHeader
+          title={t("priceLabels.title")}
+          subtitle={t("priceLabels.description")}
+          actions={
+            <BusinessTour tour={BUSINESS_LABELS_TOUR} className={MOBILE_CIRCLE_BUTTON_CLASS} />
+          }
+        >
           {printButton}
         </MobilePageHeader>
         <div className={cn("min-h-0 flex-1 overflow-y-auto", MOBILE_NAV_SCROLL_PADDING_CLASS)}>
@@ -189,7 +200,12 @@ function PriceLabelsView({ orgId }: PriceLabelsViewProps) {
           <PageHeader
             title={t("priceLabels.title")}
             description={t("priceLabels.description")}
-            actions={printButton}
+            actions={
+              <>
+                <BusinessTour tour={BUSINESS_LABELS_TOUR} />
+                {printButton}
+              </>
+            }
             spansFullWidth
           />
           <div className="flex flex-col gap-2 px-3 py-2">

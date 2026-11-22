@@ -17,7 +17,7 @@ import { SPACING } from "@/lib/constants/theme";
 import type { ScanBuySheetProps } from "@/lib/interfaces/business";
 import { runAfterSheetsDismissed } from "@/lib/sheet-presentation";
 
-export function ScanBuySheet({ visible, buy, onClose }: ScanBuySheetProps) {
+export function ScanBuySheet({ visible, buy, onClose, onShowTips }: ScanBuySheetProps) {
   const { t } = useTranslation();
   const orgId = useActiveOrgId();
   const compactCount = useCompactCount();
@@ -138,6 +138,7 @@ export function ScanBuySheet({ visible, buy, onClose }: ScanBuySheetProps) {
         {!isOpenedProduct && belowMinimumCount > 0 ? (
           <Callout tone="info" title={t("business.intake.belowMinimum", { count: belowMinimumCount })} />
         ) : null}
+        <Button variant="ghost" icon="help" label={t("businessTips.scanBuy.open")} onPress={() => closeThen(onShowTips)} />
       </View>
     </Sheet>
   );

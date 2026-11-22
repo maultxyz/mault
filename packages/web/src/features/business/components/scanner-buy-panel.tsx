@@ -3,6 +3,7 @@ import { ScannerBuyDialogs } from "@/features/business/components/scanner-buy-di
 import { ScannerBuyFinishedSummary } from "@/features/business/components/scanner-buy-finished-summary";
 import { ScannerBuyOverview } from "@/features/business/components/scanner-buy-overview";
 import { ScannerBuyStartBar } from "@/features/business/components/scanner-buy-start-bar";
+import { ScannerBuyTour } from "@/features/business/components/scanner-buy-tour";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useTranslation } from "react-i18next";
 
@@ -20,6 +21,7 @@ export function ScannerBuyPanel() {
       {hasContent && (
         <section
           aria-label={t("scannerBuy.panelLabel")}
+          data-tour="scanner-buy-panel"
           className="mx-2 mt-2 shrink-0 rounded-card bg-card p-4 animate-in fade-in-0 motion-reduce:animate-none md:p-2.5"
         >
           {state.openBuy ? (
@@ -27,6 +29,7 @@ export function ScannerBuyPanel() {
               state={state}
               editsOffers
               onOpenDialog={state.setDialog}
+              headerAction={<ScannerBuyTour />}
             />
           ) : (
             state.finishedBuyGuid && (

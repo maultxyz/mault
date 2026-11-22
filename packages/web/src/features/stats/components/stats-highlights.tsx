@@ -6,12 +6,12 @@ import { IconChevronRight } from "@tabler/icons-react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
-export function StatsHighlights({ insights, heading }: StatsHighlightsProps) {
+export function StatsHighlights({ insights, heading, dataTour }: StatsHighlightsProps) {
   const { t } = useTranslation("stats");
   if (insights.length === 0) return null;
 
   return (
-    <section className="flex flex-col gap-2">
+    <section data-tour={dataTour} className="flex flex-col gap-2">
       <h2 className="font-heading text-base font-semibold text-foreground md:text-sm">{heading ?? t("highlights.title")}</h2>
       <ul className="grid grid-cols-2 gap-2 lg:grid-cols-3 xl:grid-cols-5">
         {insights.map((insight) => {

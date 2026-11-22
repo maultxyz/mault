@@ -21,6 +21,7 @@ export function ScannerBuyOverview({
   editsOffers,
   onOpenDialog,
   headingLevel = "h2",
+  headerAction,
 }: ScannerBuyOverviewProps) {
   const { t } = useTranslation(["business", "common"]);
   const { format } = usePriceSource();
@@ -74,7 +75,7 @@ export function ScannerBuyOverview({
             {t("banner.description", { collection: lot.collectionName })}
           </p>
         </div>
-        <dl className="flex items-start gap-5 md:gap-4">
+        <dl data-tour="scanner-buy-totals" className="flex items-start gap-5 md:gap-4">
           {stats.map((stat) => (
             <div key={stat.key} className="text-right">
               <dt className="text-2xs text-foreground/70">{stat.label}</dt>
@@ -84,6 +85,7 @@ export function ScannerBuyOverview({
             </div>
           ))}
         </dl>
+        {headerAction}
       </div>
       {usesOffers && belowMinimumScanIds.length > 0 && (
         <Callout
@@ -110,6 +112,7 @@ export function ScannerBuyOverview({
       <div className="flex flex-wrap items-center gap-1.5">
         {canAccept && (
           <Button
+            data-tour="scanner-buy-finish"
             disabled={lot.cardCount === 0}
             onClick={() => onOpenDialog({ kind: "finish", lot })}
           >

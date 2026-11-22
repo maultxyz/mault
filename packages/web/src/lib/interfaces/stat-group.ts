@@ -20,6 +20,7 @@ export interface StatGroupProps {
   tiles: StatGroupTile[];
   live?: boolean;
   gridClassName?: string;
+  dataTour?: string;
 }
 
 export interface StatCellProps {

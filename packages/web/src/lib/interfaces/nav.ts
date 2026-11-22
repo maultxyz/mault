@@ -173,6 +173,7 @@ export interface ViewTabsProps<T extends string> {
   label: string;
   fill?: boolean;
   className?: string;
+  dataTour?: string;
 }
 
 export interface PageIntroProps {

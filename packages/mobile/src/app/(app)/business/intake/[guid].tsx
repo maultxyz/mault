@@ -28,6 +28,9 @@ import {
   intakeLotQueryOptions,
 } from "@/features/business/api/business";
 import { businessAccessQueryOptions } from "@/features/business/api/business-access";
+import { BusinessTipsButton } from "@/features/business/components/business-tips-button";
+import { BusinessTipsSheet } from "@/features/business/components/business-tips-sheet";
+import { useBusinessTips } from "@/features/business/lib/use-business-tips";
 import { useBusinessAction } from "@/features/business/api/use-business-action";
 import { BuyPerformanceSection } from "@/features/business/components/buy-performance-section";
 import { useScanTarget } from "@/features/collections/api/use-scan-target";
@@ -80,6 +83,7 @@ export default function IntakeLotScreen() {
   const isOpenedProduct = lot?.sourceType === "opened";
   const cards = useInfiniteQuery(intakeLotCardsQueryOptions(guid, isOpen));
   const access = useQuery(businessAccessQueryOptions(orgId));
+  const tips = useBusinessTips("buys", !!access.data && !access.data.isLocked);
   const canAccept = !!access.data?.canAcceptIntake;
   const showMoney = !!access.data?.canViewCosts;
   const cardItems = cards.data?.pages.flatMap((page) => page.items) ?? [];
@@ -148,9 +152,12 @@ export default function IntakeLotScreen() {
           }
           onBack={() => router.back()}
           actions={
-            menuOptions.length > 0 ? (
-              <IconButton icon="more" accessibilityLabel={t("business.intake.moreActions")} onPress={() => setMenuOpen(true)} />
-            ) : null
+            <>
+              <BusinessTipsButton onPress={tips.open} />
+              {menuOptions.length > 0 ? (
+                <IconButton icon="more" accessibilityLabel={t("business.intake.moreActions")} onPress={() => setMenuOpen(true)} />
+              ) : null}
+            </>
           }
         />
       }
@@ -303,6 +310,7 @@ export default function IntakeLotScreen() {
         onSelect={chooseMenuAction}
         onClose={() => setMenuOpen(false)}
       />
+      <BusinessTipsSheet topic="buys" visible={tips.isOpen} onClose={tips.close} />
     </Screen>
   );
 }
