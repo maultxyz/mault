@@ -58,3 +58,6 @@ __pycache__/
 
 # Pi image build input (CI copies the release bundle here)
 /scripts/pi/image/stage-mault/00-mault/files/
+
+# Local review tool state
+.mimosa/
