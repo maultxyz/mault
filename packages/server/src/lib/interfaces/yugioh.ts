@@ -6,6 +6,11 @@ export interface YgoCardSet {
   set_price?: string;
 }
 
+export interface YgoCardMiscInfo {
+  tcg_date?: string;
+  ocg_date?: string;
+}
+
 export interface YgoCardImage {
   id: number;
   image_url: string;
@@ -39,5 +44,6 @@ export interface YgoCard {
   card_sets?: YgoCardSet[];
   card_images?: YgoCardImage[];
   card_prices?: YgoCardPrice[];
+  misc_info?: YgoCardMiscInfo[];
 }
 

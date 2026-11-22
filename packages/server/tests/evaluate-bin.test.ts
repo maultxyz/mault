@@ -63,6 +63,24 @@ test("cheap and missing-price cards retain their color assignment", () => {
   }
 });
 
+test("numeric rules compare ISO release dates by day, not by year", () => {
+  const releaseFields: FieldMeta[] = [
+    { field: "tcgRelease", label: "First TCG release", type: "numeric", path: "misc_info.0.tcg_date", operators: [] },
+  ];
+  const beforeCutoff = bin(1, [{ id: "before", field: "tcgRelease", operator: "lt", value: 20120901 }]);
+  const fromCutoff = bin(2, [{ id: "from", field: "tcgRelease", operator: "gte", value: "2012-09-01" }]);
+  const undated = bin(3, [], { isCatchAll: true });
+  const releaseBins = [beforeCutoff, fromCutoff, undated];
+  const cardReleasedOn = (tcgDate: string | undefined) => ({ raw: { misc_info: [tcgDate ? { tcg_date: tcgDate } : {}] } });
+
+  assert.equal(getCardValue(cardReleasedOn("2012-08-31"), "tcgRelease", releaseFields), 20120831);
+  assert.equal(evaluateCardBin(cardReleasedOn("2012-08-31"), releaseBins, releaseFields), beforeCutoff);
+  assert.equal(evaluateCardBin(cardReleasedOn("2012-09-01"), releaseBins, releaseFields), fromCutoff);
+  assert.equal(evaluateCardBin(cardReleasedOn("2012-11-15"), releaseBins, releaseFields), fromCutoff);
+  assert.equal(evaluateCardBin(cardReleasedOn(undefined), releaseBins, releaseFields), undated);
+  assert.equal(evaluateCardBin({ raw: {} }, releaseBins, releaseFields), undated);
+});
+
 test("legacy and disabled overrides preserve first-match behavior", () => {
   const card = { colors: ["W", "U"], prices: { usd: 2 } };
   for (const isOverride of [undefined, false]) {

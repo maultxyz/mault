@@ -69,3 +69,5 @@ export const MULTI_VALUE_OPERATORS: ConditionOperator[] = [
   "contains_all",
   "contains_none",
 ];
+
+export const RULE_ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})(?:$|T)/;

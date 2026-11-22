@@ -18,6 +18,7 @@ import {
   ALPHABET_PREFIX_MAX_LENGTH,
   CUSTOM_BIN_HEIGHT_MAX_MM,
   CUSTOM_BIN_HEIGHT_MIN_MM,
+  RULE_ISO_DATE_PATTERN,
   DEFAULT_BIN_HEIGHT,
   DEFAULT_CARD_THICKNESS_MM,
   REPACK_UNIQUE_BY_NAME,
@@ -54,6 +55,16 @@ function getRawValue(rawRoot: SourceCard, path: string): unknown {
   return front ? getByPath(front, path) : undefined;
 }
 
+export function isoDateAsNumber(value: unknown): number | null {
+  if (typeof value !== "string") return null;
+  const match = RULE_ISO_DATE_PATTERN.exec(value.trim());
+  return match ? Number(`${match[1]}${match[2]}${match[3]}`) : null;
+}
+
+function comparableConditionNumber(value: BinCondition["value"]): number {
+  return isoDateAsNumber(value) ?? Number(value);
+}
+
 export function getCardValue(
   card: SourceCard,
   field: BinCondition["field"],
@@ -69,6 +80,8 @@ export function getCardValue(
   if (meta.type === "numeric") {
     if (typeof value === "number") return value;
     if (value === undefined || value === null) return null;
+    const isoDate = isoDateAsNumber(value);
+    if (isoDate !== null) return isoDate;
     const parsed = parseFloat(String(value));
     return Number.isNaN(parsed) ? null : parsed;
   }
@@ -139,16 +152,16 @@ export function evaluateCondition(
       return cardText.endsWith(valueText);
 
     case "gt":
-      return cardValue !== null && Number(cardValue) > Number(value);
+      return cardValue !== null && Number(cardValue) > comparableConditionNumber(value);
 
     case "gte":
-      return cardValue !== null && Number(cardValue) >= Number(value);
+      return cardValue !== null && Number(cardValue) >= comparableConditionNumber(value);
 
     case "lt":
-      return cardValue !== null && Number(cardValue) < Number(value);
+      return cardValue !== null && Number(cardValue) < comparableConditionNumber(value);
 
     case "lte":
-      return cardValue !== null && Number(cardValue) <= Number(value);
+      return cardValue !== null && Number(cardValue) <= comparableConditionNumber(value);
 
     case "is_null":
       return isNullish(cardValue);
