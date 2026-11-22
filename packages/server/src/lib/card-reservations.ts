@@ -31,7 +31,9 @@ import {
 } from "../db/schema";
 import { loadStoredCardsByRowIds, toStoredCards } from "../routes/storage-locations/shared";
 import { logActivity } from "./activity-log";
+import { containsLikePattern } from "./business-list-search";
 import {
+  CARD_RESERVATION_GUEST_ALERT_BY_STATUS,
   CARD_RESERVATIONS_GUEST_LIST_MAX,
   CARD_RESERVATIONS_LOCK_PREFIX,
   CARD_RESERVATIONS_PER_ORG_HOURLY_MAX,
@@ -72,7 +74,7 @@ async function lockCardReservations(tx: Transaction, orgId: string): Promise<voi
   );
 }
 
-async function loadActiveRows(tx: Transaction, orgId: string): Promise<ActiveCardReservationRow[]> {
+export async function loadActiveCardReservationRows(tx: Transaction, orgId: string): Promise<ActiveCardReservationRow[]> {
   const rows = await tx
     .select({
       id: cardReservations.id,
@@ -92,6 +94,11 @@ async function loadActiveRows(tx: Transaction, orgId: string): Promise<ActiveCar
   return rows as ActiveCardReservationRow[];
 }
 
+function guestAlertFor(status: CardReservationStatus, changedAt: Date) {
+  const guestAlert = CARD_RESERVATION_GUEST_ALERT_BY_STATUS[status] ?? null;
+  return { guestAlert, guestAlertAt: guestAlert ? changedAt : null };
+}
+
 async function closeReservations(
   tx: Transaction,
   ids: number[],
@@ -101,12 +108,12 @@ async function closeReservations(
   if (ids.length === 0) return;
   await tx
     .update(cardReservations)
-    .set({ status, closedAt })
+    .set({ status, closedAt, ...guestAlertFor(status, closedAt) })
     .where(inArray(cardReservations.id, ids));
 }
 
 async function settleWhileLocked(tx: Transaction, orgId: string, now: Date): Promise<boolean> {
-  const plan = planCardReservationSettlement(await loadActiveRows(tx, orgId), now);
+  const plan = planCardReservationSettlement(await loadActiveCardReservationRows(tx, orgId), now);
   await closeReservations(tx, plan.unavailableIds, "unavailable", now);
   await closeReservations(tx, plan.expiredIds, "expired", now);
   for (const promotion of plan.promotions) {
@@ -116,6 +123,8 @@ async function settleWhileLocked(tx: Transaction, orgId: string, now: Date): Pro
         status: "ready",
         holdStartedAt: promotion.holdStartedAt,
         holdExpiresAt: promotion.holdExpiresAt,
+        guestAlert: "held",
+        guestAlertAt: now,
       })
       .where(eq(cardReservations.id, promotion.id));
   }
@@ -124,7 +133,7 @@ async function settleWhileLocked(tx: Transaction, orgId: string, now: Date): Pro
 
 export async function settleCardReservations(tx: Transaction, orgId: string): Promise<boolean> {
   const now = new Date();
-  if (!cardReservationSettlementHasChanges(planCardReservationSettlement(await loadActiveRows(tx, orgId), now))) {
+  if (!cardReservationSettlementHasChanges(planCardReservationSettlement(await loadActiveCardReservationRows(tx, orgId), now))) {
     return false;
   }
   await lockCardReservations(tx, orgId);
@@ -167,7 +176,7 @@ export async function createCardReservations(
   await settleWhileLocked(tx, orgId, now);
   const rowIdByScanId = await findPublicCardRowIds(tx, input.scope, scanIds);
   if (rowIdByScanId.size !== scanIds.length) return { status: "card-not-found" };
-  const activeRows = await loadActiveRows(tx, orgId);
+  const activeRows = await loadActiveCardReservationRows(tx, orgId);
   const queues = cardReservationQueuesByCard(activeRows);
   const requestedRowIds = scanIds.map((scanId) => rowIdByScanId.get(scanId) ?? 0);
   const requestedQueues = requestedRowIds.map((rowId) => queues.get(rowId) ?? []);
@@ -214,6 +223,7 @@ export async function createCardReservations(
       guestContact: request.guestContact,
       guestNote: request.guestNote || null,
       guestKeyHash: input.guestKeyHash,
+      guestUserId: input.guestUserId,
       status: holdsCard ? "ready" : "waiting",
       holdDays: catalog.reservationHoldDays,
       holdStartedAt: holdsCard ? now : null,
@@ -235,7 +245,7 @@ export async function createCardReservations(
   };
 }
 
-function toPublicCardReservation(
+export function toPublicCardReservation(
   row: CardReservationRow,
   scanId: string | null,
   queue: ActiveCardReservationRow[],
@@ -263,7 +273,7 @@ export async function listPublicCardReservations(
   guestKeyHash: string | null,
 ): Promise<PublicCardReservations> {
   await settleCardReservations(tx, catalog.orgId);
-  const queues = cardReservationQueuesByCard(await loadActiveRows(tx, catalog.orgId));
+  const queues = cardReservationQueuesByCard(await loadActiveCardReservationRows(tx, catalog.orgId));
   const reservedCardRows =
     queues.size === 0
       ? []
@@ -317,11 +327,11 @@ export async function cancelGuestCardReservation(
   const now = new Date();
   const cancelled = await tx
     .update(cardReservations)
-    .set({ status: "cancelled", closedAt: now })
+    .set({ status: "cancelled", closedAt: now, guestAlert: null, guestAlertAt: null })
     .where(
       and(
         isActiveReservation(input.orgId),
-        eq(cardReservations.guid, input.reservationGuid),
+        selectedReservationSql(input.selection),
         eq(cardReservations.guestKeyHash, input.guestKeyHash),
       ),
     )
@@ -331,10 +341,29 @@ export async function cancelGuestCardReservation(
   return true;
 }
 
+function matchingRequestSql(orgId: string, search: string | null) {
+  if (!search) return undefined;
+  const pattern = containsLikePattern(search);
+  return sql`${cardReservations.requestGuid} IN (
+    SELECT matched.request_guid
+    FROM card_reservations matched
+    LEFT JOIN shop_catalogs matched_catalog ON matched_catalog.id = matched.shop_catalog_id
+    WHERE matched.org_id = ${orgId}
+      AND (
+        matched.guest_name ILIKE ${pattern}
+        OR matched.guest_contact ILIKE ${pattern}
+        OR matched.guest_note ILIKE ${pattern}
+        OR matched.card ->> 'name' ILIKE ${pattern}
+        OR matched_catalog.name ILIKE ${pattern}
+      )
+  )`;
+}
+
 export async function listOwnerCardReservations(
   tx: Transaction,
   orgId: string,
   view: CardReservationListView,
+  search: string | null = null,
 ): Promise<CardReservation[]> {
   await settleCardReservations(tx, orgId);
   const selectRows = () =>
@@ -366,20 +395,21 @@ export async function listOwnerCardReservations(
   const rows =
     view === "active"
       ? await selectRows()
-          .where(isActiveReservation(orgId))
+          .where(and(isActiveReservation(orgId), matchingRequestSql(orgId, search)))
           .orderBy(asc(cardReservations.createdAt), asc(cardReservations.id))
       : await selectRows()
           .where(
             and(
               eq(cardReservations.orgId, orgId),
               inArray(cardReservations.status, [...CARD_RESERVATION_CLOSED_STATUSES]),
+              matchingRequestSql(orgId, search),
             ),
           )
           .orderBy(desc(cardReservations.closedAt), desc(cardReservations.id))
           .limit(CARD_RESERVATIONS_CLOSED_LIST_MAX);
   const queues =
     view === "active"
-      ? cardReservationQueuesByCard(await loadActiveRows(tx, orgId))
+      ? cardReservationQueuesByCard(await loadActiveCardReservationRows(tx, orgId))
       : new Map<number, ActiveCardReservationRow[]>();
   const pricing = await loadOrgPricing(tx, orgId);
   const { cardsByScanId, placementsByScanId } = await loadCurrentWantedCards(
@@ -441,7 +471,12 @@ export async function releaseCardReservations(
   if (reservations.length === 0) return 0;
   await tx
     .update(cardReservations)
-    .set({ status: "released", closedAt: now, closedByUserId: input.userId })
+    .set({
+      status: "released",
+      closedAt: now,
+      closedByUserId: input.userId,
+      ...guestAlertFor("released", now),
+    })
     .where(inArray(cardReservations.id, reservations.map((reservation) => reservation.id)));
   await settleWhileLocked(tx, input.orgId, now);
   await logActivity(tx, {
@@ -522,11 +557,17 @@ export async function collectCardReservations(
     .map((reservation) => reservation.id);
   await tx
     .update(cardReservations)
-    .set({ status: "collected", closedAt: now, closedByUserId: input.userId })
+    .set({
+      status: "collected",
+      closedAt: now,
+      closedByUserId: input.userId,
+      guestAlert: null,
+      guestAlertAt: null,
+    })
     .where(inArray(cardReservations.id, collectedIds));
   await tx
     .update(cardReservations)
-    .set({ status: "unavailable", closedAt: now })
+    .set({ status: "unavailable", closedAt: now, ...guestAlertFor("unavailable", now) })
     .where(
       and(
         isActiveReservation(orgId),
@@ -664,7 +705,9 @@ export async function markReservedCardsReadyForPickup(
   await settleWhileLocked(tx, orgId, pulledAt);
   const result = await tx.execute(sql`
     UPDATE card_reservations cr
-    SET pulled_at = COALESCE(cr.pulled_at, ${pulledAt})
+    SET pulled_at = COALESCE(cr.pulled_at, ${pulledAt}),
+      guest_alert = CASE WHEN cr.pulled_at IS NULL THEN 'readyForPickup' ELSE cr.guest_alert END,
+      guest_alert_at = CASE WHEN cr.pulled_at IS NULL THEN ${pulledAt} ELSE cr.guest_alert_at END
     FROM collection_cards cc
     WHERE cc.id = cr.collection_card_id
       AND cr.org_id = ${orgId}
@@ -704,4 +747,39 @@ export async function reservationHeldScanIds(
       ),
     );
   return rows.flatMap((row) => (row.scanId ? [row.scanId] : []));
+}
+
+export async function cancelMyCardReservations(
+  tx: Transaction,
+  guestUserId: string,
+  selection: CardReservationSelection,
+): Promise<string | null> {
+  const [owned] = await tx
+    .select({ orgId: cardReservations.orgId })
+    .from(cardReservations)
+    .where(
+      and(
+        selectedReservationSql(selection),
+        eq(cardReservations.guestUserId, guestUserId),
+        inArray(cardReservations.status, ACTIVE_STATUSES),
+      ),
+    )
+    .limit(1);
+  if (!owned) return null;
+  await lockCardReservations(tx, owned.orgId);
+  const now = new Date();
+  const cancelled = await tx
+    .update(cardReservations)
+    .set({ status: "cancelled", closedAt: now, guestAlert: null, guestAlertAt: null })
+    .where(
+      and(
+        isActiveReservation(owned.orgId),
+        selectedReservationSql(selection),
+        eq(cardReservations.guestUserId, guestUserId),
+      ),
+    )
+    .returning({ id: cardReservations.id });
+  if (cancelled.length === 0) return null;
+  await settleWhileLocked(tx, owned.orgId, now);
+  return owned.orgId;
 }

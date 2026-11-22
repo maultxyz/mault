@@ -603,7 +603,8 @@
     "boxes": {
       "label": "Trade offers",
       "received": "Received",
-      "sent": "Sent"
+      "sent": "Sent",
+      "reservations": "My reservations"
     },
     "sent": {
       "title": "Sent trade offer",
@@ -750,5 +751,28 @@
   "reservations": {
     "newReservationToast_one": "{{name}} reserved {{card}}",
     "newReservationToast_other": "{{name}} reserved {{count}} cards"
+  },
+  "myReservations": {
+    "new": "New",
+    "unknownCatalog": "Shop catalog",
+    "openCatalog": "Open catalog",
+    "cancelled": "Reservation cancelled",
+    "cancelFailed": "Couldn't cancel the reservation.",
+    "loadFailed": "Couldn't load your reservations.",
+    "emptyTitle": "No reservations yet",
+    "emptyDescription": "Cards you reserve from a shop's catalog while signed in show up here.",
+    "open": "Open",
+    "past": "Past",
+    "trayHeading": "Your reservations",
+    "view": "View reservations",
+    "alerts": {
+      "held": "{{card}} is now held for you at {{catalog}}",
+      "readyForPickup": "{{card}} is ready for pickup at {{catalog}}",
+      "expired": "Your hold on {{card}} at {{catalog}} ran out",
+      "released": "{{catalog}} released your reservation of {{card}}",
+      "unavailable": "{{card}} at {{catalog}} is no longer available"
+    },
+    "dismiss": "Dismiss",
+    "dismissFor": "Dismiss the update about {{card}}"
   }
 }

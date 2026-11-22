@@ -32,6 +32,7 @@ export interface CreateCardReservationsInput {
   scope: PublicCardBrowseScope;
   request: CardReservationRequest;
   guestKeyHash: string;
+  guestUserId: string | null;
 }
 
 export type CreateCardReservationsResult =
@@ -43,7 +44,12 @@ export type CreateCardReservationsResult =
 
 export interface CancelGuestCardReservationInput {
   orgId: string;
-  reservationGuid: string;
+  selection: CardReservationSelection;
+  guestKeyHash: string;
+}
+
+export interface ClaimMyCardReservationsInput {
+  guestUserId: string;
   guestKeyHash: string;
 }
 

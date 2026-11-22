@@ -14,7 +14,8 @@ export function ReserveCardSection({ entry }: ReserveCardSectionProps) {
   const queueLength = reservations.queueLengthOf(entry.scanId);
 
   if (mine) {
-    const isCancelling = reservations.cancellingReservationGuid === mine.guid;
+    const cancelTarget = { kind: "reservation" as const, reservationGuid: mine.guid };
+    const isCancelling = reservations.isCancelling(cancelTarget);
     return (
       <div className="mt-2 flex flex-col items-start gap-1.5" role="status">
         <p className="flex items-center gap-1.5 text-sm font-medium text-success-foreground">
@@ -30,7 +31,7 @@ export function ReserveCardSection({ entry }: ReserveCardSectionProps) {
           variant="outline"
           className="max-md:w-full"
           disabled={isCancelling}
-          onClick={() => reservations.cancelReservation(mine)}
+          onClick={() => reservations.cancel(cancelTarget)}
         >
           {isCancelling && <IconLoader2 className="animate-spin" />}
           {t("reservations.cancel")}

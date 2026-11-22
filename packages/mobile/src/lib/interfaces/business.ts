@@ -38,6 +38,12 @@ export interface BusinessListViewProps {
   canAct: boolean;
 }
 
+export interface BusinessListSearchProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}
+
 export interface CardReservationGroupProps {
   group: CardReservationRequestGroup;
   onPress?: () => void;

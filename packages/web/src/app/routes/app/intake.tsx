@@ -15,6 +15,8 @@ import { IntakeCardDetail } from "@/features/business/components/intake-card-det
 import { IntakeLotDetail } from "@/features/business/components/intake-lot-detail";
 import { IntakeLotDialog } from "@/features/business/components/intake-lot-dialog";
 import { IntakeLotList } from "@/features/business/components/intake-lot-list";
+import { ListSearchInput } from "@/components/list-search-input";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { BusinessViewSwitch } from "@/features/business/components/business-view-switch";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import { useServerPagedList } from "@/hooks/use-server-paged-list";
@@ -25,6 +27,7 @@ import {
 import { cn } from "@/lib/utils";
 import {
   BUSINESS_INTAKE_VIEW,
+  BUSINESS_LIST_SEARCH_DEBOUNCE_MS,
   INTAKE_CARD_PARAM,
   INTAKE_LOT_PARAM,
   INTAKE_REVIEW_PARAM,
@@ -34,6 +37,7 @@ import { ReviewGrid } from "@/features/cards/components/review-grid";
 import { CARD_REVIEW_GRID_PARAM_VALUE } from "@/lib/constants/cards";
 import { IconCash, IconPlus } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
+import { BUSINESS_LIST_SEARCH_MAX_LENGTH } from "@magic-vault/shared";
 import { useCallback, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
@@ -46,6 +50,8 @@ export default function IntakePage() {
   const { orgId, access } = useBusinessAccess();
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedParam = searchParams.get(INTAKE_LOT_PARAM);
+  const [listSearch, setListSearch] = useState("");
+  const debouncedListSearch = useDebouncedValue(listSearch.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
   const {
     items: lots,
     pagination,
@@ -55,6 +61,15 @@ export default function IntakePage() {
   } = useServerPagedList(
     (request) => intakeLotsQueryOptions(orgId, request),
     selectedParam,
+    debouncedListSearch,
+  );
+  const listSearchInput = (
+    <ListSearchInput
+      value={listSearch}
+      onChange={setListSearch}
+      placeholder={t("search.intakePlaceholder")}
+      maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
+    />
   );
   const [createOpen, setCreateOpen] = useState(false);
   const selectedGuid = isMobile
@@ -207,12 +222,14 @@ export default function IntakePage() {
           <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
             <BusinessViewSwitch value={BUSINESS_INTAKE_VIEW} />
             {access?.isLocked && <BusinessUpgradeCallout />}
+            {listSearchInput}
             <IntakeLotList
               lots={lots}
               pagination={pagination}
               selectedGuid={selectedGuid}
               isLoading={isLoading}
               onSelect={select}
+              search={debouncedListSearch}
             />
           </div>
         </div>
@@ -241,12 +258,14 @@ export default function IntakePage() {
             <IconPlus />
             {t("intake.new")}
           </Button>
+          {listSearchInput}
           <IntakeLotList
             lots={lots}
             pagination={pagination}
             selectedGuid={selectedGuid}
             isLoading={isLoading}
             onSelect={select}
+            search={debouncedListSearch}
           />
         </section>
         {selectedGuid && openScanId && selectedLot ? (

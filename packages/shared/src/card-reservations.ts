@@ -15,6 +15,7 @@ import type {
   CardReservationQueueSettlement,
   CardReservationRequestGroup,
   CardReservationStatus,
+  PublicCardReservation,
 } from "./interfaces/card-reservations.interface";
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000;
@@ -112,6 +113,32 @@ export function groupCardReservationsByRequest(
     groups.set(reservation.requestGuid, group);
   }
   return [...groups.values()];
+}
+
+export function groupReservationsByRequestGuid<T extends { requestGuid: string }>(
+  reservations: T[],
+): { requestGuid: string; reservations: T[] }[] {
+  const groups = new Map<string, T[]>();
+  for (const reservation of reservations) {
+    const group = groups.get(reservation.requestGuid);
+    if (group) group.push(reservation);
+    else groups.set(reservation.requestGuid, [reservation]);
+  }
+  return [...groups].map(([requestGuid, grouped]) => ({ requestGuid, reservations: grouped }));
+}
+
+export function guestCardReservationCounts(
+  reservations: Pick<PublicCardReservation, "status" | "isReadyForPickup">[],
+): { readyForPickup: number; held: number; waiting: number } {
+  return {
+    readyForPickup: reservations.filter(
+      (reservation) => reservation.status === "ready" && reservation.isReadyForPickup,
+    ).length,
+    held: reservations.filter(
+      (reservation) => reservation.status === "ready" && !reservation.isReadyForPickup,
+    ).length,
+    waiting: reservations.filter((reservation) => reservation.status === "waiting").length,
+  };
 }
 
 export function cardReservationStage(

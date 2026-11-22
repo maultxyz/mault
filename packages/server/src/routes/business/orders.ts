@@ -30,7 +30,8 @@ import {
   ORDERS_CHANGED_EVENT,
   type OrderPickedInput,
 } from "@magic-vault/shared";
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
+import { containsLikePattern, parseBusinessListSearch } from "../../lib/business-list-search";
 import { uuidArraySql } from "../../lib/sql-arrays";
 import { Hono } from "hono";
 import type { Transaction } from "../../db";
@@ -185,10 +186,22 @@ export const ordersRoute = new Hono<AppEnv>()
   })
   .get("/orders", requireAuth, requireOrg, (c) => {
     const params = parsePageParams(c);
+    const search = parseBusinessListSearch(c);
     return businessQuery(c, async (tx, access) => {
+      const pattern = search ? containsLikePattern(search) : null;
       const scope = and(
         eq(fulfilmentOrders.orgId, c.get("orgId")),
         eq(fulfilmentOrders.isDeleted, false),
+        pattern
+          ? or(
+              ilike(fulfilmentOrders.name, pattern),
+              sql`EXISTS (
+                SELECT 1 FROM jsonb_array_elements(${fulfilmentOrders.lines}) AS order_line
+                WHERE order_line ->> 'name' ILIKE ${pattern}
+                  OR order_line ->> 'orderRef' ILIKE ${pattern}
+              )`,
+            )
+          : undefined,
       );
       const ordered = await tx
         .select({ guid: fulfilmentOrders.guid })

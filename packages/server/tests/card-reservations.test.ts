@@ -21,6 +21,7 @@ import {
   planCardReservationSettlement,
 } from "../src/lib/card-reservation-settlement";
 import type { ActiveCardReservationRow } from "../src/lib/interfaces/card-reservations";
+import { containsLikePattern } from "../src/lib/business-list-search";
 
 const NOW = new Date("2026-11-21T12:00:00.000Z");
 const EARLIER = new Date("2026-11-20T12:00:00.000Z");
@@ -276,4 +277,9 @@ test("a request takes the stage that needs attention first and lists its open pi
   assert.equal(cardReservationGroupStage(waitingGroup), "waiting");
   assert.equal(cardReservationGroupStage(collectedGroup), "collected");
   assert.equal(cardReservationGroupStage(mixedGroup), null);
+});
+
+test("list search escapes LIKE wildcards so they match literally", () => {
+  assert.equal(containsLikePattern("Black Lotus"), "%Black Lotus%");
+  assert.equal(containsLikePattern("100%_off\\"), "%100\\%\\_off\\\\%");
 });

@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useTradeOffers } from "@/features/trade-offers/api/trade-offers";
 import { tradeOfferSourceLabel } from "@/features/trade-offers/lib/trade-offer-source-label";
 import { OutgoingTradeOfferList } from "@/features/trade-offers/components/outgoing-trade-offer-list";
+import { MyCardReservationList } from "@/features/card-reservations/components/my-card-reservation-list";
 import {
   TRADE_OFFER_STATUS_BADGE_VARIANTS,
   TRADE_OFFERS_SKELETON_ROWS,
@@ -181,7 +182,13 @@ export function TradeOfferLibrary() {
         label={t("tradeOffers.boxes.label")}
         className="self-start"
       />
-      {box === "sent" ? <OutgoingTradeOfferList /> : <ReceivedTradeOfferList />}
+      {box === "sent" ? (
+        <OutgoingTradeOfferList />
+      ) : box === "reservations" ? (
+        <MyCardReservationList />
+      ) : (
+        <ReceivedTradeOfferList />
+      )}
     </>
   );
 }

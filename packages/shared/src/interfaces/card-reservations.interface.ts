@@ -1,5 +1,6 @@
 import type {
   CARD_RESERVATION_ACTIVE_STATUSES,
+  CARD_RESERVATION_GUEST_ALERTS,
   CARD_RESERVATION_HOLD_DAY_CHOICES,
   CARD_RESERVATION_LIST_VIEWS,
   CARD_RESERVATION_OPEN_STAGES,
@@ -21,6 +22,8 @@ export type CardReservationListView = (typeof CARD_RESERVATION_LIST_VIEWS)[numbe
 export type CardReservationStage = (typeof CARD_RESERVATION_STAGES)[number];
 
 export type CardReservationOpenStage = (typeof CARD_RESERVATION_OPEN_STAGES)[number];
+
+export type CardReservationGuestAlert = (typeof CARD_RESERVATION_GUEST_ALERTS)[number];
 
 export interface CardReservationCard {
   gameKey: string | null;
@@ -131,4 +134,16 @@ export interface CardReservationQueueEntry {
 export interface CardReservationQueueSettlement {
   expiredId: number | null;
   promoted: { id: number; holdStartedAt: Date; holdExpiresAt: Date } | null;
+}
+
+export interface MyCardReservation extends PublicCardReservation {
+  catalogName: string | null;
+  catalogUrl: string | null;
+  guestName: string;
+  guestAlert: CardReservationGuestAlert | null;
+  guestAlertAt: string | null;
+}
+
+export interface ClaimMyCardReservationsResult {
+  claimedCount: number;
 }

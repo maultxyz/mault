@@ -3629,7 +3629,8 @@
     },
     "boxes": {
       "received": "Erhalten",
-      "sent": "Gesendet"
+      "sent": "Gesendet",
+      "reservations": "Meine Reservierungen"
     },
     "sent": {
       "title": "Gesendetes Tauschangebot",
@@ -4297,6 +4298,14 @@
       "pickCreated_other": "Pickliste für {{name}} mit {{count}} Karten erstellt",
       "cardCount_one": "1 Karte",
       "cardCount_other": "{{count}} Karten"
+    },
+    "search": {
+      "noResultsTitle": "Keine Treffer",
+      "noResultsDescription": "Nichts passt zu \"{{query}}\". Versuche einen anderen Namen oder Begriff.",
+      "intakePlaceholder": "Ankäufe nach Kunde oder Notiz durchsuchen",
+      "picksPlaceholder": "Picklisten nach Name, Karte oder Bestellung durchsuchen",
+      "reservationsPlaceholder": "Nach Kunde, Karte oder Katalog suchen",
+      "clear": "Suche leeren"
     }
   },
   "machines": {
@@ -4415,5 +4424,64 @@
       "resultsCount_one": "{{count}} Neuigkeit gefunden",
       "resultsCount_other": "{{count}} Neuigkeiten gefunden"
     }
+  },
+  "myReservations": {
+    "new": "Neu",
+    "unknownCatalog": "Shop-Katalog",
+    "openCatalog": "Katalog öffnen",
+    "cancelled": "Reservierung storniert",
+    "cancelFailed": "Die Reservierung konnte nicht storniert werden.",
+    "loadFailed": "Deine Reservierungen konnten nicht geladen werden.",
+    "emptyTitle": "Noch keine Reservierungen",
+    "emptyDescription": "Karten, die du angemeldet aus einem Shop-Katalog reservierst, erscheinen hier.",
+    "open": "Offen",
+    "past": "Vergangen",
+    "trayHeading": "Deine Reservierungen",
+    "view": "Reservierungen ansehen",
+    "alerts": {
+      "held": "{{card}} ist jetzt bei {{catalog}} für dich zurückgelegt",
+      "readyForPickup": "{{card}} liegt bei {{catalog}} zur Abholung bereit",
+      "expired": "Deine Reservierung von {{card}} bei {{catalog}} ist abgelaufen",
+      "released": "{{catalog}} hat deine Reservierung von {{card}} freigegeben",
+      "unavailable": "{{card}} bei {{catalog}} ist nicht mehr verfügbar"
+    },
+    "held": "Der Laden legt sie für dich zurück.",
+    "heldUntil": "Der Laden legt sie bis {{date}} für dich zurück.",
+    "readyForPickupUntil": "Deine Karte liegt bereit. Hol sie bis {{date}} ab.",
+    "aheadOfYou_one": "{{count}} Person ist vor dir.",
+    "aheadOfYou_other": "{{count}} Personen sind vor dir.",
+    "status": {
+      "readyForPickup": "Abholbereit",
+      "ready": "Für dich reserviert",
+      "waiting": "In der Reihe",
+      "collected": "Abgeholt",
+      "cancelled": "Storniert",
+      "released": "Vom Laden freigegeben",
+      "expired": "Abgelaufen",
+      "unavailable": "Nicht mehr verfügbar"
+    },
+    "actionsHint": "Öffnet die Aktionen für diese Reservierung",
+    "cancel": "Reservierung stornieren",
+    "keep": "Behalten",
+    "cancelConfirmTitle": "Deine Reservierung von {{name}} stornieren?",
+    "cancelConfirmDescription": "Du verlierst deinen Platz. War die Karte für dich zurückgelegt, bekommt sie die nächste Person in der Reihe.",
+    "noActions": "Für diese Reservierung gibt es nichts zu tun.",
+    "requestReservedOn": "Reserviert am {{date}}",
+    "requestSummary": "{{cards}}: {{stages}}",
+    "requestCardCount_one": "1 Karte",
+    "requestCardCount_other": "{{count}} Karten",
+    "requestCounts": {
+      "readyForPickup_one": "{{count}} abholbereit",
+      "readyForPickup_other": "{{count}} abholbereit",
+      "held_one": "{{count}} für dich reserviert",
+      "held_other": "{{count}} für dich reserviert",
+      "waiting_one": "{{count}} in der Reihe",
+      "waiting_other": "{{count}} in der Reihe"
+    },
+    "cancelAll_one": "Stornieren",
+    "cancelAll_other": "Alle stornieren ({{count}})",
+    "cancelAllConfirmTitle_one": "Diese Reservierung stornieren?",
+    "cancelAllConfirmTitle_other": "Alle {{count}} offenen Reservierungen stornieren?",
+    "cancelCardOption": "Stornieren: {{card}}"
   }
 }

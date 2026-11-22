@@ -3629,7 +3629,8 @@
     },
     "boxes": {
       "received": "Received",
-      "sent": "Sent"
+      "sent": "Sent",
+      "reservations": "My reservations"
     },
     "sent": {
       "title": "Sent trade offer",
@@ -4297,6 +4298,14 @@
       "pickCreated_other": "Pick created for {{name}} with {{count}} cards",
       "cardCount_one": "1 card",
       "cardCount_other": "{{count}} cards"
+    },
+    "search": {
+      "noResultsTitle": "No matches",
+      "noResultsDescription": "Nothing matches \"{{query}}\". Try another name or word.",
+      "intakePlaceholder": "Search intake by customer or note",
+      "picksPlaceholder": "Search picks by name, card or order",
+      "reservationsPlaceholder": "Search by customer, card or catalog",
+      "clear": "Clear search"
     }
   },
   "machines": {
@@ -4415,5 +4424,64 @@
       "resultsCount_one": "{{count}} update found",
       "resultsCount_other": "{{count}} updates found"
     }
+  },
+  "myReservations": {
+    "new": "New",
+    "unknownCatalog": "Shop catalog",
+    "openCatalog": "Open catalog",
+    "cancelled": "Reservation cancelled",
+    "cancelFailed": "Couldn't cancel the reservation.",
+    "loadFailed": "Couldn't load your reservations.",
+    "emptyTitle": "No reservations yet",
+    "emptyDescription": "Cards you reserve from a shop's catalog while signed in show up here.",
+    "open": "Open",
+    "past": "Past",
+    "trayHeading": "Your reservations",
+    "view": "View reservations",
+    "alerts": {
+      "held": "{{card}} is now held for you at {{catalog}}",
+      "readyForPickup": "{{card}} is ready for pickup at {{catalog}}",
+      "expired": "Your hold on {{card}} at {{catalog}} ran out",
+      "released": "{{catalog}} released your reservation of {{card}}",
+      "unavailable": "{{card}} at {{catalog}} is no longer available"
+    },
+    "held": "The shop is holding it for you.",
+    "heldUntil": "The shop is holding it for you until {{date}}.",
+    "readyForPickupUntil": "Your card is ready. Pick it up by {{date}}.",
+    "aheadOfYou_one": "{{count}} person is ahead of you.",
+    "aheadOfYou_other": "{{count}} people are ahead of you.",
+    "status": {
+      "readyForPickup": "Ready for pickup",
+      "ready": "Reserved for you",
+      "waiting": "In line",
+      "collected": "Picked up",
+      "cancelled": "Cancelled",
+      "released": "Released by the shop",
+      "expired": "Ran out",
+      "unavailable": "No longer available"
+    },
+    "actionsHint": "Opens the actions for this reservation",
+    "cancel": "Cancel reservation",
+    "keep": "Keep it",
+    "cancelConfirmTitle": "Cancel your reservation of {{name}}?",
+    "cancelConfirmDescription": "You lose your place. If the card was held for you, the next person in line gets it.",
+    "noActions": "Nothing to do for this reservation.",
+    "requestReservedOn": "Reserved {{date}}",
+    "requestSummary": "{{cards}}: {{stages}}",
+    "requestCardCount_one": "1 card",
+    "requestCardCount_other": "{{count}} cards",
+    "requestCounts": {
+      "readyForPickup_one": "{{count}} ready for pickup",
+      "readyForPickup_other": "{{count}} ready for pickup",
+      "held_one": "{{count}} reserved for you",
+      "held_other": "{{count}} reserved for you",
+      "waiting_one": "{{count}} in line",
+      "waiting_other": "{{count}} in line"
+    },
+    "cancelAll_one": "Cancel",
+    "cancelAll_other": "Cancel all ({{count}})",
+    "cancelAllConfirmTitle_one": "Cancel this reservation?",
+    "cancelAllConfirmTitle_other": "Cancel all {{count}} open reservations?",
+    "cancelCardOption": "Cancel: {{card}}"
   }
 }

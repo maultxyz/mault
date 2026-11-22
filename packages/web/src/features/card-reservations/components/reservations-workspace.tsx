@@ -22,6 +22,9 @@ import {
   CARD_RESERVATION_LIST_SKELETON_COUNT,
   CARD_RESERVATION_REQUEST_PARAM,
 } from "@/lib/constants/card-reservations";
+import { BUSINESS_LIST_SEARCH_DEBOUNCE_MS } from "@/lib/constants/business";
+import { ListSearchInput } from "@/components/list-search-input";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { MOBILE_NAV_SCROLL_PADDING_CLASS } from "@/lib/constants/nav";
 import type {
   CardReservationActionTarget,
@@ -31,6 +34,7 @@ import type {
 } from "@/lib/interfaces/card-reservations";
 import { cn } from "@/lib/utils";
 import {
+  BUSINESS_LIST_SEARCH_MAX_LENGTH,
   CARD_RESERVATION_LIST_VIEWS,
   cardReservationGroupStage,
   groupCardReservationsByRequest,
@@ -77,7 +81,23 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
   const [view, setView] = useState<CardReservationListView>(CARD_RESERVATION_LIST_VIEWS[0]);
   const [confirmation, setConfirmation] = useState<CardReservationConfirmation>(null);
   const [busyKey, setBusyKey] = useState<string | null>(null);
-  const list = useQuery(cardReservationsQueryOptions(orgId, view));
+  const [listSearch, setListSearch] = useState("");
+  const debouncedListSearch = useDebouncedValue(listSearch.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
+  const list = useQuery(cardReservationsQueryOptions(orgId, view, debouncedListSearch));
+  const listSearchInput = (
+    <ListSearchInput
+      value={listSearch}
+      onChange={setListSearch}
+      placeholder={t("search.reservationsPlaceholder")}
+      maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
+    />
+  );
+  const emptyTitle = debouncedListSearch
+    ? t("search.noResultsTitle")
+    : t(`reservations.empty.${view}Title`);
+  const emptyDescription = debouncedListSearch
+    ? t("search.noResultsDescription", { query: debouncedListSearch })
+    : t(`reservations.empty.${view}Description`);
   const groups = groupCardReservationsByRequest(list.data ?? []);
   const readyGroups = groups.filter((group) => cardReservationGroupStage(group) === "readyForPickup");
   const pullGroups = groups.filter((group) => {
@@ -151,11 +171,7 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
   ) : list.isError ? (
     <LoadErrorCallout message={t("errors.loadFailed")} onRetry={() => void list.refetch()} />
   ) : groups.length === 0 ? (
-    <EmptyState
-      icon={IconBookmark}
-      title={t(`reservations.empty.${view}Title`)}
-      description={t(`reservations.empty.${view}Description`)}
-    />
+    <EmptyState icon={IconBookmark} title={emptyTitle} description={emptyDescription} />
   ) : view === "active" ? (
     <>
       <CardReservationRequestSection
@@ -212,6 +228,7 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
             {switcher}
             {access?.isLocked && <BusinessUpgradeCallout />}
             {viewSwitch}
+            {listSearchInput}
             {content}
           </div>
         </div>
@@ -223,12 +240,7 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
   const sidebarList = list.isPending ? (
     <ListSkeleton rows={CARD_RESERVATION_LIST_SKELETON_COUNT} />
   ) : list.isError ? null : groups.length === 0 ? (
-    <EmptyState
-      size="compact"
-      icon={IconBookmark}
-      title={t(`reservations.empty.${view}Title`)}
-      description={t(`reservations.empty.${view}Description`)}
-    />
+    <EmptyState size="compact" icon={IconBookmark} title={emptyTitle} description={emptyDescription} />
   ) : (
     <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto">
       {view === "active" ? (
@@ -269,6 +281,7 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
         <section className="col-span-4 flex h-full flex-col gap-2 overflow-hidden border-r bg-sidebar/70 p-2 lg:col-span-3">
           {switcher}
           {viewSwitch}
+          {listSearchInput}
           {sidebarList}
         </section>
         <section className="col-span-8 flex min-h-0 flex-col overflow-y-auto lg:col-span-9">
@@ -292,11 +305,13 @@ export function ReservationsWorkspace({ switcher }: ReservationsWorkspaceProps) 
               !list.isPending && (
                 <EmptyState
                   icon={IconBookmark}
-                  title={t(`reservations.empty.${view}Title`)}
+                  title={emptyTitle}
                   description={
-                    view === "active"
-                      ? t("reservations.howItWorks")
-                      : t("reservations.empty.closedDescription")
+                    debouncedListSearch
+                      ? emptyDescription
+                      : view === "active"
+                        ? t("reservations.howItWorks")
+                        : t("reservations.empty.closedDescription")
                   }
                 />
               )

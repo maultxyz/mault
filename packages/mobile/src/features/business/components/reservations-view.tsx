@@ -35,9 +35,12 @@ import {
   releaseCardReservations,
 } from "@/features/business/api/business";
 import { useBusinessAction } from "@/features/business/api/use-business-action";
+import { BusinessListSearch } from "@/features/business/components/business-list-search";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { tradeOfferPlacementLines } from "@/features/trade-offers/lib/placement-lines";
 import { useActiveOrgId } from "@/hooks/use-org";
 import {
+  BUSINESS_LIST_SEARCH_DEBOUNCE_MS,
   BUSINESS_LIST_SKELETON_ROWS,
   CARD_RESERVATION_ACTION_COLLECT,
   CARD_RESERVATION_ACTION_OPEN_PICK,
@@ -186,7 +189,9 @@ export function ReservationsView({ canAct }: BusinessListViewProps) {
   const { run } = useBusinessAction();
   const [listView, setListView] = useState<CardReservationListView>(CARD_RESERVATION_LIST_VIEWS[0]);
   const [actionsFor, setActionsFor] = useState<CardReservationRequestGroup | null>(null);
-  const reservations = useQuery(cardReservationsQueryOptions(orgId, listView, true));
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
+  const reservations = useQuery(cardReservationsQueryOptions(orgId, listView, true, debouncedSearch));
   const groups = groupCardReservationsByRequest(reservations.data ?? []);
   const readyGroups = groups.filter((group) => cardReservationGroupStage(group) === "readyForPickup");
   const pullGroups = groups.filter((group) => {
@@ -363,8 +368,12 @@ export function ReservationsView({ canAct }: BusinessListViewProps) {
   ) : groups.length === 0 ? (
     <EmptyState
       icon="bookmark"
-      title={t(`business.reservations.empty.${listView}Title`)}
-      description={t(`business.reservations.empty.${listView}Description`)}
+      title={debouncedSearch ? t("business.search.noResultsTitle") : t(`business.reservations.empty.${listView}Title`)}
+      description={
+        debouncedSearch
+          ? t("business.search.noResultsDescription", { query: debouncedSearch })
+          : t(`business.reservations.empty.${listView}Description`)
+      }
     />
   ) : listView === "active" ? (
     <>
@@ -397,6 +406,11 @@ export function ReservationsView({ canAct }: BusinessListViewProps) {
         }))}
         value={listView}
         onChange={setListView}
+      />
+      <BusinessListSearch
+        value={search}
+        onChange={setSearch}
+        placeholder={t("business.search.reservationsPlaceholder")}
       />
       {content}
       <OptionSheet

@@ -53,3 +53,4 @@ export const BUSINESS_STATUS_TONES: Record<IntakeLotStatus | FulfilmentOrderStat
   cancelled: "neutral",
 };
 export const BUSINESS_LIST_SKELETON_ROWS = 5;
+export const BUSINESS_LIST_SEARCH_DEBOUNCE_MS = 300;

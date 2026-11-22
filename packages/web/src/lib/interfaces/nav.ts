@@ -135,6 +135,13 @@ export interface MobileSegmentedControlProps<T extends string> {
   label?: string;
 }
 
+export interface ListSearchInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  maxLength?: number;
+}
+
 export interface MobileSearchInputProps extends ComponentProps<"input"> {
   placeholder: string;
 }

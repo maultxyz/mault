@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
@@ -10,10 +11,16 @@ import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Pill } from "@/components/ui/pill";
+import { BusinessListSearch } from "@/features/business/components/business-list-search";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { intakeLotCardsQueryOptions, intakeLotQueryOptions, intakeLotsQueryOptions } from "@/features/business/api/business";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { usePricing } from "@/hooks/use-pricing";
-import { BUSINESS_LIST_SKELETON_ROWS, BUSINESS_STATUS_TONES } from "@/lib/constants/business";
+import {
+  BUSINESS_LIST_SEARCH_DEBOUNCE_MS,
+  BUSINESS_LIST_SKELETON_ROWS,
+  BUSINESS_STATUS_TONES,
+} from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
 import type { BusinessListViewProps, IntakeLotRowProps } from "@/lib/interfaces/business";
 
@@ -50,14 +57,26 @@ export function IntakeLotsView({ canAct }: BusinessListViewProps) {
   const { t } = useTranslation();
   const orgId = useActiveOrgId();
   const queryClient = useQueryClient();
-  const lots = useInfiniteQuery(intakeLotsQueryOptions(orgId, true));
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
+  const lots = useInfiniteQuery(intakeLotsQueryOptions(orgId, true, debouncedSearch));
+  const searchInput = (
+    <BusinessListSearch value={search} onChange={setSearch} placeholder={t("business.search.intakePlaceholder")} />
+  );
   const prefetchIntakeLot = (guid: string) => {
     void queryClient.prefetchQuery(intakeLotQueryOptions(guid));
     void queryClient.prefetchInfiniteQuery(intakeLotCardsQueryOptions(guid, false));
   };
   const items = lots.data?.pages.flatMap((page) => page.items) ?? [];
 
-  if (lots.isPending) return <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} />;
+  if (lots.isPending) {
+    return (
+      <View style={{ gap: SPACING.md }}>
+        {searchInput}
+        <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} />
+      </View>
+    );
+  }
   if (lots.isError) {
     return (
       <Callout
@@ -73,6 +92,18 @@ export function IntakeLotsView({ canAct }: BusinessListViewProps) {
           />
         }
       />
+    );
+  }
+  if (items.length === 0 && debouncedSearch) {
+    return (
+      <View style={{ gap: SPACING.md }}>
+        {searchInput}
+        <EmptyState
+          icon="coins"
+          title={t("business.search.noResultsTitle")}
+          description={t("business.search.noResultsDescription", { query: debouncedSearch })}
+        />
+      </View>
     );
   }
   if (items.length === 0) {
@@ -91,6 +122,7 @@ export function IntakeLotsView({ canAct }: BusinessListViewProps) {
   }
   return (
     <View style={{ gap: SPACING.md }}>
+      {searchInput}
       <ListGroup>
         {items.map((lot) => (
           <IntakeLotRow

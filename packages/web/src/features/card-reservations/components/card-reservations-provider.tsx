@@ -1,5 +1,5 @@
 import {
-  cancelCardReservation,
+  cancelCardReservations,
   publicCardReservationsKey,
   publicCardReservationsQueryOptions,
 } from "@/features/card-reservations/api/public-card-reservations";
@@ -8,9 +8,11 @@ import {
   saveReservationCart,
 } from "@/features/card-reservations/lib/reservation-cart-storage";
 import { CardReservationsContext } from "@/lib/card-reservations-context";
+import { guestCancelKey } from "@/features/card-reservations/lib/guest-cancel-key";
 import type {
   CardReservationsContextValue,
   CardReservationsProviderProps,
+  GuestCardReservationCancelTarget,
 } from "@/lib/interfaces/card-reservations";
 import { toast } from "@/lib/toast";
 import {
@@ -18,7 +20,6 @@ import {
   CARD_RESERVATIONS_ACTIVE_PER_GUEST_MAX,
   isActiveCardReservationStatus,
   type PublicCard,
-  type PublicCardReservation,
 } from "@magic-vault/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
@@ -35,16 +36,19 @@ export function CardReservationsProvider({
   const { data } = useQuery(publicCardReservationsQueryOptions(source));
   const [cart, setCart] = useState<PublicCard[]>(() => readReservationCart(source));
   useEffect(() => saveReservationCart(source, cart), [source, cart]);
-  const cancel = useMutation({
-    mutationFn: (reservation: PublicCardReservation) =>
-      cancelCardReservation(source, reservation.guid),
+  const cancelMutation = useMutation({
+    mutationFn: (target: GuestCardReservationCancelTarget) =>
+      cancelCardReservations(source, target),
     onSuccess: () => toast.success(t("reservations.cancelled")),
     onError: (error) => toast.error(error.message || t("reservations.cancelFailed")),
     onSettled: () =>
       queryClient.invalidateQueries({ queryKey: publicCardReservationsKey(source) }),
   });
-  const cancellingReservationGuid = cancel.isPending ? (cancel.variables?.guid ?? null) : null;
-  const cancelReservation = cancel.mutate;
+  const cancellingKey =
+    cancelMutation.isPending && cancelMutation.variables
+      ? guestCancelKey(cancelMutation.variables)
+      : null;
+  const cancel = cancelMutation.mutate;
 
   const value = useMemo<CardReservationsContextValue>(() => {
     const queueLengthByScanId = new Map(
@@ -83,10 +87,10 @@ export function CardReservationsProvider({
       queueLengthOf: (scanId) => queueLengthByScanId.get(scanId) ?? 0,
       myReservationFor: (scanId) =>
         activeMine.find((reservation) => reservation.scanId === scanId) ?? null,
-      cancelReservation,
-      cancellingReservationGuid,
+      cancel,
+      isCancelling: (target) => cancellingKey === guestCancelKey(target),
     };
-  }, [data, holdDays, cart, onOpenComposer, cancelReservation, cancellingReservationGuid, t]);
+  }, [data, holdDays, cart, onOpenComposer, cancel, cancellingKey, t]);
 
   return <CardReservationsContext value={value}>{children}</CardReservationsContext>;
 }

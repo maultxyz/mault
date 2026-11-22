@@ -3629,7 +3629,8 @@
     },
     "boxes": {
       "received": "Reçues",
-      "sent": "Envoyées"
+      "sent": "Envoyées",
+      "reservations": "Mes réservations"
     },
     "sent": {
       "title": "Offre d'échange envoyée",
@@ -4297,6 +4298,14 @@
       "pickCreated_other": "Préparation créée pour {{name}} avec {{count}} cartes",
       "cardCount_one": "1 carte",
       "cardCount_other": "{{count}} cartes"
+    },
+    "search": {
+      "noResultsTitle": "Aucun résultat",
+      "noResultsDescription": "Rien ne correspond à « {{query}} ». Essayez un autre nom ou mot.",
+      "intakePlaceholder": "Rechercher des rachats par client ou note",
+      "picksPlaceholder": "Rechercher des préparations par nom, carte ou commande",
+      "reservationsPlaceholder": "Rechercher par client, carte ou catalogue",
+      "clear": "Effacer la recherche"
     }
   },
   "machines": {
@@ -4415,5 +4424,64 @@
       "resultsCount_one": "{{count}} nouveauté trouvée",
       "resultsCount_other": "{{count}} nouveautés trouvées"
     }
+  },
+  "myReservations": {
+    "new": "Nouveau",
+    "unknownCatalog": "Catalogue boutique",
+    "openCatalog": "Ouvrir le catalogue",
+    "cancelled": "Réservation annulée",
+    "cancelFailed": "Impossible d'annuler la réservation.",
+    "loadFailed": "Impossible de charger vos réservations.",
+    "emptyTitle": "Aucune réservation pour l'instant",
+    "emptyDescription": "Les cartes que vous réservez dans le catalogue d'une boutique en étant connecté apparaissent ici.",
+    "open": "En cours",
+    "past": "Passées",
+    "trayHeading": "Vos réservations",
+    "view": "Voir les réservations",
+    "alerts": {
+      "held": "{{card}} est maintenant gardée pour vous chez {{catalog}}",
+      "readyForPickup": "{{card}} est prête à retirer chez {{catalog}}",
+      "expired": "Votre réservation de {{card}} chez {{catalog}} a expiré",
+      "released": "{{catalog}} a libéré votre réservation de {{card}}",
+      "unavailable": "{{card}} chez {{catalog}} n'est plus disponible"
+    },
+    "held": "La boutique la garde pour vous.",
+    "heldUntil": "La boutique la garde pour vous jusqu'au {{date}}.",
+    "readyForPickupUntil": "Votre carte est prête. Retirez-la avant le {{date}}.",
+    "aheadOfYou_one": "{{count}} personne est devant vous.",
+    "aheadOfYou_other": "{{count}} personnes sont devant vous.",
+    "status": {
+      "readyForPickup": "Prête à retirer",
+      "ready": "Réservée pour vous",
+      "waiting": "Dans la file",
+      "collected": "Retirée",
+      "cancelled": "Annulée",
+      "released": "Libérée par la boutique",
+      "expired": "Expirée",
+      "unavailable": "Plus disponible"
+    },
+    "actionsHint": "Ouvre les actions pour cette réservation",
+    "cancel": "Annuler la réservation",
+    "keep": "La garder",
+    "cancelConfirmTitle": "Annuler votre réservation de {{name}} ?",
+    "cancelConfirmDescription": "Vous perdez votre place. Si la carte était gardée pour vous, la personne suivante l'obtient.",
+    "noActions": "Rien à faire pour cette réservation.",
+    "requestReservedOn": "Réservée le {{date}}",
+    "requestSummary": "{{cards}} : {{stages}}",
+    "requestCardCount_one": "1 carte",
+    "requestCardCount_other": "{{count}} cartes",
+    "requestCounts": {
+      "readyForPickup_one": "{{count}} prête à retirer",
+      "readyForPickup_other": "{{count}} prêtes à retirer",
+      "held_one": "{{count}} réservée pour vous",
+      "held_other": "{{count}} réservées pour vous",
+      "waiting_one": "{{count}} dans la file",
+      "waiting_other": "{{count}} dans la file"
+    },
+    "cancelAll_one": "Annuler",
+    "cancelAll_other": "Tout annuler ({{count}})",
+    "cancelAllConfirmTitle_one": "Annuler cette réservation ?",
+    "cancelAllConfirmTitle_other": "Annuler les {{count}} réservations en cours ?",
+    "cancelCardOption": "Annuler : {{card}}"
   }
 }

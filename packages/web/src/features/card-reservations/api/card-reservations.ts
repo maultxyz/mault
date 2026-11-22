@@ -3,6 +3,7 @@ import { apiGet, apiPost } from "@/lib/api/client";
 import { CARD_RESERVATIONS_QUERY_KEY } from "@/lib/constants/card-reservations";
 import type { CardReservationActionTarget } from "@/lib/interfaces/card-reservations";
 import {
+  BUSINESS_LIST_SEARCH_PARAM,
   CARD_RESERVATION_LIST_VIEW_PARAM,
   type CardReservation,
   type CardReservationListView,
@@ -12,28 +13,30 @@ import {
   type ReleasedCardReservations,
   type Result,
 } from "@magic-vault/shared";
-import { queryOptions } from "@tanstack/react-query";
+import { keepPreviousData, queryOptions } from "@tanstack/react-query";
 
 export const cardReservationsKeys = {
   root: () => [...businessKeys.root(), CARD_RESERVATIONS_QUERY_KEY] as const,
-  list: (orgId: string | undefined, view: CardReservationListView) =>
-    [...cardReservationsKeys.root(), orgId, view] as const,
+  list: (orgId: string | undefined, view: CardReservationListView, search: string) =>
+    [...cardReservationsKeys.root(), orgId, view, search] as const,
 };
 
 export const cardReservationsQueryOptions = (
   orgId: string | undefined,
   view: CardReservationListView,
+  search = "",
 ) =>
   queryOptions({
-    queryKey: cardReservationsKeys.list(orgId, view),
+    queryKey: cardReservationsKeys.list(orgId, view, search),
     queryFn: async () => {
-      const result = await apiGet<Result<CardReservation[]>>(
-        `/api/business/reservations?${CARD_RESERVATION_LIST_VIEW_PARAM}=${view}`,
-      );
+      const params = new URLSearchParams({ [CARD_RESERVATION_LIST_VIEW_PARAM]: view });
+      if (search) params.set(BUSINESS_LIST_SEARCH_PARAM, search);
+      const result = await apiGet<Result<CardReservation[]>>(`/api/business/reservations?${params}`);
       if (!result.success) throw new Error(result.message);
       return result.data ?? [];
     },
     enabled: !!orgId,
+    placeholderData: keepPreviousData,
   });
 
 function reservationTargetPath(target: CardReservationActionTarget): string {

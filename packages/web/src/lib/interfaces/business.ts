@@ -72,6 +72,7 @@ export interface IntakeLotListProps {
   selectedGuid: string | undefined;
   isLoading: boolean;
   onSelect: (guid: string) => void;
+  search?: string;
 }
 
 export interface IntakeLotDialogProps {
@@ -118,6 +119,7 @@ export interface OrderListProps {
   onSelect: (guid: string) => void;
   checkedOrderGuids?: ReadonlySet<string>;
   onToggleOrderChecked?: (guid: string, options: SelectToggleOptions) => void;
+  search?: string;
 }
 
 export interface OrderSelectionBarProps {

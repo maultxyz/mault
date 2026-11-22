@@ -873,5 +873,12 @@
     "description": "Karten, die Kunden über deine Shop-Kataloge reserviert haben. Erstelle eine Pickliste, um die Karten einer Person zu holen. Nach Abschluss der Pickliste sind sie abholbereit. Wer ansteht, rückt nach, wenn eine Reservierung freigegeben wird oder abläuft.",
     "createPickFor_one": "Pickliste für 1 Karte erstellen, die für {{name}} zurückgelegt ist",
     "createPickFor_other": "Pickliste für {{count}} Karten erstellen, die für {{name}} zurückgelegt sind"
+  },
+  "search": {
+    "noResultsTitle": "Keine Treffer",
+    "noResultsDescription": "Nichts passt zu \"{{query}}\". Versuche einen anderen Namen oder Begriff.",
+    "intakePlaceholder": "Ankäufe nach Kunde oder Notiz durchsuchen",
+    "picksPlaceholder": "Picklisten nach Name, Karte oder Bestellung durchsuchen",
+    "reservationsPlaceholder": "Nach Kunde, Karte oder Katalog suchen"
   }
 }

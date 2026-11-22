@@ -806,6 +806,24 @@
     "createdWithLine_other": "{{count}} cards reserved. You're in line for {{waiting}} of them.",
     "readyForPickupUntil": "Your card is ready. Pick it up by {{date}}.",
     "youCanPickUp": "This card is ready for you to pick up",
-    "tileReadyForPickup": "Ready for pickup"
+    "tileReadyForPickup": "Ready for pickup",
+    "requestReservedOn": "Reserved {{date}}",
+    "requestSummary": "{{cards}}: {{stages}}",
+    "requestCardCount_one": "1 card",
+    "requestCardCount_other": "{{count}} cards",
+    "requestCounts": {
+      "readyForPickup_one": "{{count}} ready for pickup",
+      "readyForPickup_other": "{{count}} ready for pickup",
+      "held_one": "{{count}} reserved for you",
+      "held_other": "{{count}} reserved for you",
+      "waiting_one": "{{count}} in line",
+      "waiting_other": "{{count}} in line"
+    },
+    "cancelAll_one": "Cancel",
+    "cancelAll_other": "Cancel all ({{count}})",
+    "requestTitle_one": "Reservation (1 card)",
+    "requestTitle_other": "Reservation ({{count}} cards)",
+    "cancelAllFor_one": "Cancel your reservation at {{name}}",
+    "cancelAllFor_other": "Cancel all {{count}} open reservations at {{name}}"
   }
 }

@@ -12,12 +12,21 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { IconButton } from "@/components/ui/icon-button";
 import { Icon } from "@/components/ui/icon";
 import { Sheet } from "@/components/ui/sheet";
+import { MyCardReservationAlerts } from "@/features/card-reservations/components/my-card-reservation-alerts";
 import { useAlertsRefresh } from "@/features/stream/api/use-alerts-refresh";
 import { useTheme } from "@/hooks/use-theme";
 import { SPACING, SURFACE_RADIUS } from "@/lib/constants/theme";
 import type { AlertsSheetProps } from "@/lib/interfaces/stream";
 
-export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, onClose }: AlertsSheetProps) {
+export function AlertsSheet({
+  visible,
+  alerts,
+  tradeOffers,
+  reservationAlerts,
+  onOpenTradeOffer,
+  onOpenReservations,
+  onClose,
+}: AlertsSheetProps) {
   const { t } = useTranslation();
   const colors = useTheme();
   const toneColor = { info: colors.infoForeground, warning: colors.warningForeground, danger: colors.destructiveForeground };
@@ -85,7 +94,8 @@ export function AlertsSheet({ visible, alerts, tradeOffers, onOpenTradeOffer, on
           ))}
         </View>
       ) : null}
-      {alerts.length === 0 && tradeOffers.length === 0 ? (
+      <MyCardReservationAlerts alerts={reservationAlerts} onOpenReservations={onOpenReservations} />
+      {alerts.length === 0 && tradeOffers.length === 0 && reservationAlerts.length === 0 ? (
         <EmptyState icon="bell" title={t("alerts.empty")} />
       ) : (
         alerts.map((alert) => (

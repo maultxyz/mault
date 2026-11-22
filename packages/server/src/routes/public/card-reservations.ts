@@ -18,16 +18,42 @@ import {
   CARD_RESERVATION_GUEST_LIMIT_MESSAGE,
   CARD_RESERVATION_INVALID_MESSAGE,
   CARD_RESERVATION_NOT_FOUND_MESSAGE,
+  CARD_RESERVATION_OWN_ORG_MESSAGE,
   CARD_RESERVATION_QUEUE_FULL_MESSAGE,
   CARD_RESERVATIONS_NOT_ALLOWED_MESSAGE,
 } from "../../lib/constants/card-reservations";
 import { sendCardReservationCreatedDiscordNotification } from "../../lib/discord/card-reservation";
 import { guestKeyHashFromHeader } from "../../lib/guest-keys";
+import type { CardReservationSelection } from "../../lib/interfaces/card-reservations";
 import type { ShopCatalogClaims } from "../../lib/interfaces/share-tokens";
 import { emitToOrg } from "../../lib/session-stream";
 import { shopCatalogScope } from "../../lib/share-link-scopes";
-import type { AppEnv } from "../../middleware/auth";
+import { optionalVerifiedUserId } from "../../lib/optional-auth";
+import {
+  findOrgMembership,
+  verifyHardwareClientToken,
+  type AppEnv,
+} from "../../middleware/auth";
 import { isUuid } from "../collections/cards-query";
+
+async function cancelForGuest(
+  c: Context<AppEnv>,
+  catalog: ShopCatalogClaims,
+  selection: CardReservationSelection | null,
+) {
+  const guestKeyHash = guestKeyHashFromHeader(c.req.header(SHARE_LINK_GUEST_KEY_HEADER));
+  const cancelled =
+    !!guestKeyHash &&
+    !!selection &&
+    (await db.transaction((tx) =>
+      cancelGuestCardReservation(tx, { orgId: catalog.orgId, selection, guestKeyHash }),
+    ));
+  if (!cancelled) {
+    return c.json({ success: false, message: CARD_RESERVATION_NOT_FOUND_MESSAGE }, 404);
+  }
+  emitToOrg(catalog.orgId, CARD_RESERVATIONS_CHANGED_EVENT, { createdReservation: null });
+  return c.json({ success: true, data: null });
+}
 
 export function createPublicCardReservationsRoute(
   resolveCatalog: (c: Context<AppEnv>) => Promise<ShopCatalogClaims | null>,
@@ -59,12 +85,20 @@ export function createPublicCardReservationsRoute(
       if (!parsed.success) {
         return c.json({ success: false, message: CARD_RESERVATION_INVALID_MESSAGE }, 400);
       }
+      const guestUserId = await optionalVerifiedUserId(
+        c.req.header("Authorization"),
+        verifyHardwareClientToken,
+      );
+      if (guestUserId && (await findOrgMembership(guestUserId, catalog.orgId))) {
+        return c.json({ success: false, message: CARD_RESERVATION_OWN_ORG_MESSAGE }, 409);
+      }
       const result = await db.transaction((tx) =>
         createCardReservations(tx, {
           catalog,
           scope: shopCatalogScope(catalog),
           request: parsed.data,
           guestKeyHash,
+          guestUserId,
         }),
       );
       switch (result.status) {
@@ -88,21 +122,20 @@ export function createPublicCardReservationsRoute(
           return c.json({ success: true, data: result.created });
       }
     })
+    .delete("/reservations/requests/:requestGuid", async (c) => {
+      const catalog = await resolveCatalog(c);
+      if (!catalog) return invalidLink(c);
+      const requestGuid = c.req.param("requestGuid");
+      return cancelForGuest(c, catalog, isUuid(requestGuid) ? { kind: "request", requestGuid } : null);
+    })
     .delete("/reservations/:guid", async (c) => {
       const catalog = await resolveCatalog(c);
       if (!catalog) return invalidLink(c);
-      const guestKeyHash = guestKeyHashFromHeader(c.req.header(SHARE_LINK_GUEST_KEY_HEADER));
       const reservationGuid = c.req.param("guid");
-      const cancelled =
-        !!guestKeyHash &&
-        isUuid(reservationGuid) &&
-        (await db.transaction((tx) =>
-          cancelGuestCardReservation(tx, { orgId: catalog.orgId, reservationGuid, guestKeyHash }),
-        ));
-      if (!cancelled) {
-        return c.json({ success: false, message: CARD_RESERVATION_NOT_FOUND_MESSAGE }, 404);
-      }
-      emitToOrg(catalog.orgId, CARD_RESERVATIONS_CHANGED_EVENT, { createdReservation: null });
-      return c.json({ success: true, data: null });
+      return cancelForGuest(
+        c,
+        catalog,
+        isUuid(reservationGuid) ? { kind: "reservation", reservationGuid } : null,
+      );
     });
 }

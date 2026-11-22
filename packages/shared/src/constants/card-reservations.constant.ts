@@ -33,3 +33,15 @@ export const CARD_RESERVATION_LIST_VIEW_PARAM = "view";
 export const CARD_RESERVATIONS_CLOSED_LIST_MAX = 100;
 export const CARD_RESERVATION_HOLDER_QUEUE_POSITION = 1;
 export const CARD_RESERVATIONS_WEB_PATH = "/app/orders/reservations";
+export const CARD_RESERVATION_GUEST_ALERTS = [
+  "held",
+  "readyForPickup",
+  "expired",
+  "released",
+  "unavailable",
+] as const;
+export const MY_CARD_RESERVATIONS_API_PATH = "/api/card-reservations/mine";
+export const CLAIM_MY_CARD_RESERVATIONS_API_PATH = "/api/card-reservations/mine/claim";
+export const SEEN_MY_CARD_RESERVATION_ALERTS_API_PATH = "/api/card-reservations/mine/alerts/seen";
+export const MY_CARD_RESERVATIONS_LIST_MAX = 100;
+export const MY_CARD_RESERVATION_ALERTS_SEEN_MAX = 100;

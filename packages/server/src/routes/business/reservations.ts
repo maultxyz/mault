@@ -35,6 +35,7 @@ import { deleteScanImages } from "../../lib/scan-images";
 import { emitToOrg, emitToSession } from "../../lib/session-stream";
 import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { isUuid } from "../collections/cards-query";
+import { parseBusinessListSearch } from "../../lib/business-list-search";
 import { businessQuery, notFound } from "./shared";
 
 function isListView(value: string): value is CardReservationListView {
@@ -113,9 +114,13 @@ export const reservationsRoute = new Hono<AppEnv>()
     if (!isListView(view)) {
       return c.json({ success: false, message: CARD_RESERVATION_INVALID_VIEW_MESSAGE }, 400);
     }
+    const search = parseBusinessListSearch(c);
     return businessQuery(c, async (tx, access) => {
       if (!access.canFulfilOrders) return BUSINESS_FORBIDDEN_RESULT;
-      return { success: true, data: await listOwnerCardReservations(tx, c.get("orgId"), view) };
+      return {
+        success: true,
+        data: await listOwnerCardReservations(tx, c.get("orgId"), view, search),
+      };
     });
   })
   .post("/reservations/requests/:requestGuid/pick", requireAuth, requireOrg, async (c) => {

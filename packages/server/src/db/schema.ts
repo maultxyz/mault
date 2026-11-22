@@ -1174,6 +1174,9 @@ export const cardReservations = pgTable(
     guestContact: text("guest_contact").notNull(),
     guestNote: text("guest_note"),
     guestKeyHash: text("guest_key_hash").notNull(),
+    guestUserId: text("guest_user_id"),
+    guestAlert: text("guest_alert"),
+    guestAlertAt: timestamp("guest_alert_at"),
     status: text("status").notNull().default("waiting"),
     holdDays: integer("hold_days").notNull(),
     holdStartedAt: timestamp("hold_started_at"),
@@ -1195,6 +1198,7 @@ export const cardReservations = pgTable(
       .where(sql`${table.status} = 'ready'`),
     index("card_reservations_org_closed_idx").on(table.orgId, table.closedAt),
     index("card_reservations_guest_idx").on(table.guestKeyHash),
+    index("card_reservations_guest_user_idx").on(table.guestUserId, table.createdAt),
     index("card_reservations_org_request_idx").on(table.orgId, table.requestGuid),
     crudPolicy({
       role: authenticatedRole,

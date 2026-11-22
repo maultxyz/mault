@@ -65,6 +65,7 @@ export const INTAKE_BANNER_REFETCH_MS = 10000;
 export const INTAKE_LOT_CARDS_PAGE_SIZE = 50;
 export const FLEET_REFETCH_MS = 15_000;
 export const BUSINESS_LIST_SKELETON_COUNT = 5;
+export const BUSINESS_LIST_SEARCH_DEBOUNCE_MS = 300;
 export const ACTIVITY_ALL_FILTER = "all";
 
 export const ORDER_PULL_SHEET_HEADERS = [

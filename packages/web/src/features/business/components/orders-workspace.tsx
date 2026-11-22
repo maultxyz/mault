@@ -9,10 +9,16 @@ import { OrderDetail } from "@/features/business/components/order-detail";
 import { OrderList } from "@/features/business/components/order-list";
 import { OrderSelectionBar } from "@/features/business/components/order-selection-bar";
 import { useHotkeys } from "@/hooks/use-hotkeys";
-import type { FulfilmentOrder } from "@magic-vault/shared";
+import { BUSINESS_LIST_SEARCH_MAX_LENGTH, type FulfilmentOrder } from "@magic-vault/shared";
 import { useRef, useState } from "react";
 import type { SelectToggleOptions } from "@/lib/interfaces/cards";
-import { ORDER_PARAM, PICK_IMPORT_PATH } from "@/lib/constants/business";
+import {
+  BUSINESS_LIST_SEARCH_DEBOUNCE_MS,
+  ORDER_PARAM,
+  PICK_IMPORT_PATH,
+} from "@/lib/constants/business";
+import { ListSearchInput } from "@/components/list-search-input";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
   MOBILE_CIRCLE_BUTTON_CLASS,
   MOBILE_NAV_SCROLL_PADDING_CLASS,
@@ -31,6 +37,8 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
   const { orgId, access } = useBusinessAccess();
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedParam = searchParams.get(ORDER_PARAM);
+  const [listSearch, setListSearch] = useState("");
+  const debouncedListSearch = useDebouncedValue(listSearch.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
   const {
     items: orders,
     pagination,
@@ -40,6 +48,15 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
   } = useServerPagedList(
     (request) => ordersQueryOptions(orgId, request),
     selectedParam,
+    debouncedListSearch,
+  );
+  const listSearchInput = (
+    <ListSearchInput
+      value={listSearch}
+      onChange={setListSearch}
+      placeholder={t("search.picksPlaceholder")}
+      maxLength={BUSINESS_LIST_SEARCH_MAX_LENGTH}
+    />
   );
   const selectedGuid = isMobile
     ? (selectedParam ?? undefined)
@@ -139,6 +156,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
           <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
             {switcher}
             {access?.isLocked && <BusinessUpgradeCallout />}
+            {listSearchInput}
             <OrderList
               orders={orders}
               pagination={pagination}
@@ -147,6 +165,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
               onSelect={select}
               checkedOrderGuids={checkedOrderGuids}
               onToggleOrderChecked={toggleOrderChecked}
+              search={debouncedListSearch}
             />
             {selectionBar()}
           </div>
@@ -170,6 +189,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
             <IconFileImport />
             {t("orders.importButton")}
           </Button>
+          {listSearchInput}
           <OrderList
             orders={orders}
             pagination={pagination}
@@ -178,6 +198,7 @@ export function OrdersWorkspace({ switcher }: OrdersWorkspaceProps) {
             onSelect={select}
             checkedOrderGuids={checkedOrderGuids}
             onToggleOrderChecked={toggleOrderChecked}
+            search={debouncedListSearch}
           />
         </section>
         <section className="col-span-8 flex max-h-full flex-col gap-4 overflow-y-auto p-4 md:gap-2 md:px-3 md:py-2 lg:col-span-9">

@@ -873,5 +873,12 @@
     "description": "Les cartes que vos clients ont réservées depuis vos catalogues boutique. Créez une préparation pour sortir les cartes d'un client : elles sont prêtes à retirer une fois la préparation terminée. Les personnes dans la file avancent quand une réservation est libérée ou expire.",
     "createPickFor_one": "Créer une préparation pour 1 carte réservée pour {{name}}",
     "createPickFor_other": "Créer une préparation pour {{count}} cartes réservées pour {{name}}"
+  },
+  "search": {
+    "noResultsTitle": "Aucun résultat",
+    "noResultsDescription": "Rien ne correspond à « {{query}} ». Essayez un autre nom ou mot.",
+    "intakePlaceholder": "Rechercher des rachats par client ou note",
+    "picksPlaceholder": "Rechercher des préparations par nom, carte ou commande",
+    "reservationsPlaceholder": "Rechercher par client, carte ou catalogue"
   }
 }

@@ -192,6 +192,8 @@ export const ACTIVITY_ACTION_KEYS: Record<ActivityAction, string> = {
   "reservation.collected": "reservationCollected",
   "reservation.released": "reservationReleased",
 };
+export const BUSINESS_LIST_SEARCH_PARAM = "q";
+export const BUSINESS_LIST_SEARCH_MAX_LENGTH = 100;
 export const PAGED_LIST_DEFAULT_SIZE = 20;
 export const PAGED_LIST_MAX_SIZE = 100;
 

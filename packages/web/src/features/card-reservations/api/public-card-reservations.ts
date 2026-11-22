@@ -1,9 +1,12 @@
 import { shareLinkGuestKey } from "@/features/trade-offers/lib/guest-identity";
+import { getAuthSession } from "@/lib/auth/session";
 import { API_BASE } from "@/lib/constants/api";
 import {
   PUBLIC_CARD_RESERVATIONS_QUERY_KEY,
   PUBLIC_CARD_RESERVATIONS_STALE_MS,
 } from "@/lib/constants/card-reservations";
+import { guestCancelPath } from "@/features/card-reservations/lib/guest-cancel-key";
+import type { GuestCardReservationCancelTarget } from "@/lib/interfaces/card-reservations";
 import type { PublicCardsSource } from "@/lib/interfaces/public-cards";
 import {
   SHARE_LINK_GUEST_KEY_HEADER,
@@ -44,24 +47,26 @@ export async function reserveCards(
   source: PublicCardsSource,
   request: CardReservationRequest,
 ): Promise<CreatedCardReservations> {
+  const session = await getAuthSession().catch(() => null);
   return readResult<CreatedCardReservations>(
     await fetch(reservationsUrl(source), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         [SHARE_LINK_GUEST_KEY_HEADER]: shareLinkGuestKey(),
+        ...(session?.token ? { Authorization: `Bearer ${session.token}` } : {}),
       },
       body: JSON.stringify(request),
     }),
   );
 }
 
-export async function cancelCardReservation(
+export async function cancelCardReservations(
   source: PublicCardsSource,
-  reservationGuid: string,
+  target: GuestCardReservationCancelTarget,
 ): Promise<null> {
   return readResult<null>(
-    await fetch(reservationsUrl(source, `/${encodeURIComponent(reservationGuid)}`), {
+    await fetch(reservationsUrl(source, guestCancelPath(target)), {
       method: "DELETE",
       headers: { [SHARE_LINK_GUEST_KEY_HEADER]: shareLinkGuestKey() },
     }),

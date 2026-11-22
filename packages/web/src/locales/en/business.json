@@ -873,5 +873,12 @@
     "description": "Cards customers reserved from your shop catalogs. Create a pick to pull a customer's cards, and they're ready for pickup once the pick is completed. Anyone in line moves up when a reservation is released or runs out.",
     "createPickFor_one": "Create a pick for 1 card held for {{name}}",
     "createPickFor_other": "Create a pick for {{count}} cards held for {{name}}"
+  },
+  "search": {
+    "noResultsTitle": "No matches",
+    "noResultsDescription": "Nothing matches \"{{query}}\". Try another name or word.",
+    "intakePlaceholder": "Search intake by customer or note",
+    "picksPlaceholder": "Search picks by name, card or order",
+    "reservationsPlaceholder": "Search by customer, card or catalog"
   }
 }

@@ -3,6 +3,7 @@ import type {
   CardReservation,
   CardReservationCard,
   CardReservationRequestGroup,
+  MyCardReservation,
   PublicCard,
   PublicCardReservation,
 } from "@magic-vault/shared";
@@ -20,8 +21,8 @@ export interface CardReservationsContextValue {
   activeMineCount: number;
   queueLengthOf: (scanId: string) => number;
   myReservationFor: (scanId: string) => PublicCardReservation | null;
-  cancelReservation: (reservation: PublicCardReservation) => void;
-  cancellingReservationGuid: string | null;
+  cancel: (target: GuestCardReservationCancelTarget) => void;
+  isCancelling: (target: GuestCardReservationCancelTarget) => boolean;
 }
 
 export interface CardReservationsProviderProps {
@@ -113,4 +114,37 @@ export interface CardReservationRequestListProps {
   groups: CardReservationRequestGroup[];
   selectedRequestGuid: string | null;
   onSelect: (requestGuid: string) => void;
+}
+
+export interface MyCardReservationRowProps {
+  reservation: MyCardReservation;
+  isNew: boolean;
+  isCancelling: boolean;
+  onCancel: (target: GuestCardReservationCancelTarget) => void;
+}
+
+export interface MyCardReservationSectionProps {
+  title: string;
+  groups: { requestGuid: string; reservations: MyCardReservation[] }[];
+  newGuids: ReadonlySet<string>;
+  isCancelling: (target: GuestCardReservationCancelTarget) => boolean;
+  onCancel: (target: GuestCardReservationCancelTarget) => void;
+}
+
+export interface MyCardReservationTraySectionProps {
+  alerts: MyCardReservation[];
+  onNavigate: () => void;
+}
+
+export type GuestCardReservationCancelTarget =
+  | { kind: "reservation"; reservationGuid: string }
+  | { kind: "request"; requestGuid: string };
+
+export interface GuestReservationRequestHeaderProps {
+  reservations: PublicCardReservation[];
+  title: string;
+  headingLevel?: "h3" | "h4";
+  isCancellingAll: boolean;
+  onCancelAll: () => void;
+  actions?: ReactNode;
 }

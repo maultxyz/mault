@@ -806,6 +806,24 @@
     "createdWithLine_other": "{{count}} cartes réservées. Vous êtes dans la file pour {{waiting}} d'entre elles.",
     "readyForPickupUntil": "Votre carte est prête. Retirez-la avant le {{date}}.",
     "youCanPickUp": "Cette carte est prête à être retirée",
-    "tileReadyForPickup": "Prête à retirer"
+    "tileReadyForPickup": "Prête à retirer",
+    "requestReservedOn": "Réservée le {{date}}",
+    "requestSummary": "{{cards}} : {{stages}}",
+    "requestCardCount_one": "1 carte",
+    "requestCardCount_other": "{{count}} cartes",
+    "requestCounts": {
+      "readyForPickup_one": "{{count}} prête à retirer",
+      "readyForPickup_other": "{{count}} prêtes à retirer",
+      "held_one": "{{count}} réservée pour vous",
+      "held_other": "{{count}} réservées pour vous",
+      "waiting_one": "{{count}} dans la file",
+      "waiting_other": "{{count}} dans la file"
+    },
+    "cancelAll_one": "Annuler",
+    "cancelAll_other": "Tout annuler ({{count}})",
+    "requestTitle_one": "Réservation (1 carte)",
+    "requestTitle_other": "Réservation ({{count}} cartes)",
+    "cancelAllFor_one": "Annuler votre réservation chez {{name}}",
+    "cancelAllFor_other": "Annuler les {{count}} réservations en cours chez {{name}}"
   }
 }
