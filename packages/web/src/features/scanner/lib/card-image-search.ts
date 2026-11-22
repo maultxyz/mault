@@ -8,18 +8,21 @@ import {
   canvasToBlob,
   extractCardImage,
 } from "@/features/scanner/lib/card-detection";
-import { detectAndDewarpCard } from "@/features/scanner/lib/client-vectorize";
+import {
+  detectAndDewarpCard,
+  dewarpSettledCard,
+} from "@/features/scanner/lib/client-vectorize";
 import { detectStamp } from "@/features/scanner/lib/card-stamp";
 import { detectPrintedFoilMarker } from "@/features/scanner/lib/printed-foil-marker";
 import { printingMarksSampler } from "@/features/scanner/lib/printing-marks";
 import { dewarpCard } from "@/features/scanner/lib/perspective-warp";
-import { resizeImageRegion } from "@/features/scanner/lib/resize-image-region";
 import { releaseCanvases } from "@/features/scanner/lib/scan-canvas";
 import {
   embedCanvas,
   rotateCanvas180,
 } from "@/features/scanner/lib/milo-client";
 import type {
+  CardImageSearchExtras,
   ClientDewarpResult,
   MatchScope,
   OrientedCandidate,
@@ -31,6 +34,7 @@ import type {
 import { scanLog } from "@/lib/scan-log";
 import { IDENTIFY_REQUEST_OPTIONS } from "@/lib/constants/scanner";
 import {
+  closeCardSearchMatches,
   OCR_CROP_HEIGHT,
   OCR_CROP_WIDTH,
   searchScanOrientations,
@@ -162,18 +166,13 @@ export async function captureDewarpedCardImage(
   }
 }
 
-function wholeImageAsCard(
+function knownCardOnPage(
   canvas: HTMLCanvasElement,
-  imageContour: CardContour,
+  cardContour: CardContour,
 ): ClientDewarpResult {
   return {
-    detection: {
-      cardPresent: true,
-      contour: imageContour,
-      confidence: 1,
-      sharpness: null,
-    },
-    dewarpedCanvas: resizeImageRegion(canvas, imageContour),
+    detection: { cardPresent: true, contour: cardContour, confidence: 1, sharpness: null },
+    dewarpedCanvas: dewarpCard(canvas, cardContour),
     frame: canvas,
   };
 }
@@ -240,8 +239,9 @@ async function searchCardImage(
   ocrMode: ScanOcrMode,
   checkBothOrientations: boolean,
   gameKey: string | undefined,
-  skipCardDetection: boolean,
   preferredOrientation: ScanOrientation | null,
+  knownCardContour: CardContour | null,
+  extras: CardImageSearchExtras,
 ): Promise<ScanAttemptOutcome> {
   const created: HTMLCanvasElement[] = [];
   try {
@@ -254,8 +254,9 @@ async function searchCardImage(
       ocrMode,
       checkBothOrientations,
       gameKey,
-      skipCardDetection,
       preferredOrientation,
+      knownCardContour,
+      extras,
     );
   } finally {
     releaseCanvases(created, [canvas]);
@@ -271,8 +272,9 @@ async function runCardImageSearch(
   ocrMode: ScanOcrMode,
   checkBothOrientations: boolean,
   gameKey: string | undefined,
-  skipCardDetection: boolean,
   preferredOrientation: ScanOrientation | null,
+  knownCardContour: CardContour | null,
+  { settledCapture, onImageMatchBeforeText }: CardImageSearchExtras,
 ): Promise<ScanAttemptOutcome> {
   const { collectionGuid } = scope;
   let fallbackReason = "card not detected";
@@ -287,9 +289,10 @@ async function runCardImageSearch(
       dewarpedCanvas,
       detection: corners,
       frame,
-    } =
-      skipCardDetection && contour
-        ? wholeImageAsCard(canvas, contour)
+    } = knownCardContour
+      ? knownCardOnPage(canvas, knownCardContour)
+      : settledCapture
+        ? dewarpSettledCard(settledCapture)
         : await detectAndDewarpCard(canvas, refreshFrame);
     detection = {
       cardDetected: corners.cardPresent,
@@ -340,7 +343,7 @@ async function runCardImageSearch(
         checkBothOrientations,
         preferredOrientation,
         ocrMode,
-        search: async (orientation) => {
+        search: async (orientation, reportImageResult) => {
           const oriented =
             orientation === "rotated"
               ? rotateCanvas180(dewarpedCanvas)
@@ -356,7 +359,10 @@ async function runCardImageSearch(
           const [result, textResult] = await Promise.all([
             requestIdentifyWithRetries(() =>
               searchByVector(vectorFormData, IDENTIFY_REQUEST_OPTIONS),
-            ),
+            ).then((imageResult) => {
+              reportImageResult(imageResult);
+              return imageResult;
+            }),
             readsTextWithImage ? readText(orientation, embedding) : undefined,
           ]);
           return {
@@ -377,11 +383,39 @@ async function runCardImageSearch(
             ? { ...candidate, result, ocr: result.ocr ?? null }
             : null;
         },
+        onImageMatchBeforeText: onImageMatchBeforeText
+          ? (image) => {
+              if (
+                closeCardSearchMatches(image.result).some(
+                  (match) => !match.card,
+                )
+              )
+                return;
+              void toAttemptOutcome(image, collectionGuid, true, {
+                printedFoilMarker: detectPrintedFoilMarker(
+                  ocrCrop,
+                  image.orientation,
+                  gameKey,
+                ),
+                detectedContour: corners.contour,
+                dewarpedCardImage: null,
+                vectorizedOn: "web",
+                detection,
+                ocr: null,
+                lowConfidenceMatch: false,
+                matchedBy: "embedding",
+              })
+                .then((attempt) =>
+                  onImageMatchBeforeText(toScanOutcome(attempt, [attempt], 1)),
+                )
+                .catch((err) =>
+                  console.error("[scanner] early route check failed:", err),
+                );
+            }
+          : undefined,
       });
       scanLog(
-        skipCardDetection
-          ? "[scanner] embedding the automatic feeder page without card detection"
-          : `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
+        `[scanner] using AI card detection (confidence=${corners.confidence.toFixed(3)})`,
       );
       const pick = { ...identified.pick, alternate: identified.alternate };
       const printedFoilMarker = detectPrintedFoilMarker(
@@ -475,12 +509,16 @@ export async function searchCardImageWithConsensus(
   matchesNeeded: number,
   checkBothOrientations: boolean,
   gameKey: string | undefined,
-  skipCardDetection = false,
   preferredOrientation: ScanOrientation | null = null,
+  knownCardContour: CardContour | null = null,
+  extras: CardImageSearchExtras = {},
 ): Promise<ScanOutcome> {
+  let settledCapture = extras.settledCapture ?? null;
   const result = await identifyScanWithConsensus(
-    () =>
-      searchCardImage(
+    () => {
+      const settledCaptureForAttempt = settledCapture;
+      settledCapture = null;
+      return searchCardImage(
         canvas,
         refreshFrame,
         contour,
@@ -488,9 +526,15 @@ export async function searchCardImageWithConsensus(
         ocrMode,
         checkBothOrientations,
         gameKey,
-        skipCardDetection,
         preferredOrientation,
-      ),
+        knownCardContour,
+        {
+          settledCapture: settledCaptureForAttempt,
+          onImageMatchBeforeText:
+            matchesNeeded <= 1 ? extras.onImageMatchBeforeText : undefined,
+        },
+      );
+    },
     (attempt) => attempt.card,
     matchesNeeded,
   );

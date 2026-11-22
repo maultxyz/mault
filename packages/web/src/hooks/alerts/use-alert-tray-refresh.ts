@@ -1,5 +1,6 @@
 import { activeAnnouncementsQueryOptions } from "@/features/announcements/api/announcements";
 import { TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
+import { MY_CARD_RESERVATIONS_QUERY_KEY } from "@/lib/constants/card-reservations";
 import type { AlertTrayRefresh } from "@/lib/interfaces/alerts";
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
@@ -10,7 +11,11 @@ export function useAlertTrayRefresh(): AlertTrayRefresh {
   const refresh = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      const queryKeys = [activeAnnouncementsQueryOptions.queryKey, [TRADE_OFFERS_QUERY_KEY]];
+      const queryKeys = [
+        activeAnnouncementsQueryOptions.queryKey,
+        [TRADE_OFFERS_QUERY_KEY],
+        [MY_CARD_RESERVATIONS_QUERY_KEY],
+      ];
       await Promise.all(queryKeys.map((queryKey) => queryClient.refetchQueries({ queryKey })));
       return queryKeys.every((queryKey) =>
         queryClient

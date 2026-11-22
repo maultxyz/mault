@@ -3,6 +3,7 @@ import {
   publicAnnouncementsQueryOptions,
 } from "@/features/announcements/api/announcements";
 import { ANNOUNCEMENT_SEVERITY_ICONS } from "@/lib/constants/announcements";
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import type { AppAlert } from "@/lib/interfaces/alerts";
 import type { Announcement } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
@@ -18,7 +19,11 @@ function toAnnouncementAlerts(announcements: Announcement[] | undefined): AppAle
 }
 
 export function useAnnouncementAlerts(): AppAlert[] {
-  const { data } = useQuery(activeAnnouncementsQueryOptions);
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
+  const { data } = useQuery({
+    ...activeAnnouncementsQueryOptions,
+    enabled: areSecondaryRequestsEnabled,
+  });
   return toAnnouncementAlerts(data);
 }
 

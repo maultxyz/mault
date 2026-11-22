@@ -99,7 +99,7 @@ export interface GroupedCatalogSearchSqlParams {
   adapter: CardSearchAdapter;
   gameKey: string;
   preferredLang: string;
-  matchFilter: SQL;
+  matchBranches: SQL[];
   printingFilter: SQL;
   printingMatch: SQL | undefined;
   exactName: string;
@@ -152,6 +152,7 @@ export interface SyncSourceCard {
   imageUrl: string | undefined;
   printingMarkImageUrl?: string;
   fallbackImageUrl?: string;
+  prefersLinkedProductImage?: boolean;
   backImageUrl?: string;
   hasPartialData?: boolean;
   data: string;

@@ -2,6 +2,7 @@ import { useOrg } from "@/features/companies/api/use-organization";
 import { soundClipsQueryOptions } from "@/features/sounds/api/sounds";
 import { isSoundPlaying, playSoundExclusively } from "@/features/sounds/lib/sound-playback";
 import { useAppStreamSource } from "@/lib/app-stream";
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import type { PiScanSessionState } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
@@ -9,7 +10,11 @@ import { useEffect, useRef } from "react";
 export function usePiScanSound(state: PiScanSessionState, enabled: boolean) {
   const { activeOrg } = useOrg();
   const eventSource = useAppStreamSource();
-  const { data: clips = [] } = useQuery(soundClipsQueryOptions(activeOrg?.id));
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
+  const { data: clips = [] } = useQuery({
+    ...soundClipsQueryOptions(activeOrg?.id),
+    enabled: !!activeOrg?.id && enabled && areSecondaryRequestsEnabled,
+  });
   const audioRef = useRef(new Map<string, HTMLAudioElement>());
   const seenRef = useRef(new Set<string>());
   const baselineRef = useRef(false);
@@ -20,6 +25,7 @@ export function usePiScanSound(state: PiScanSessionState, enabled: boolean) {
   }, [activeOrg?.id]);
 
   useEffect(() => {
+    if (!enabled) return;
     const next = new Map<string, HTMLAudioElement>();
     for (const clip of clips) {
       if (!clip.url) continue;
@@ -29,7 +35,7 @@ export function usePiScanSound(state: PiScanSessionState, enabled: boolean) {
       next.set(clip.guid, audio);
     }
     audioRef.current = next;
-  }, [clips, activeOrg?.id]);
+  }, [clips, activeOrg?.id, enabled]);
 
   useEffect(() => {
     baselineRef.current = false;

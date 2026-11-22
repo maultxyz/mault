@@ -17,7 +17,7 @@ export function BusinessPermissionsSettings({
           control={control}
           name={`permissions.${key}`}
           render={({ field }) => (
-            <label className="flex items-center justify-between gap-3 px-3 py-2">
+            <label className="flex min-h-12 items-center justify-between gap-3 py-2.5 first:pt-0 md:min-h-0 md:px-3 md:py-2 md:first:pt-2">
               <span className="flex min-w-0 flex-col">
                 <span className="text-sm">
                   {t(`settings.permissions.${key}.label`)}

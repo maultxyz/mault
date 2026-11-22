@@ -3,6 +3,7 @@ import { apiGet } from "@/lib/api/client";
 import {
   CARD_PRINTINGS_QUERY_KEY,
   CATALOG_CARD_QUERY_KEY,
+  CATALOG_SEARCH_PAGE_QUERY_KEY,
   CATALOG_SEARCH_QUERY_KEY,
   CATALOG_SEARCH_STALE_MS,
   OWNED_CARD_SEARCH_QUERY_KEY,
@@ -16,11 +17,9 @@ import {
   OWNED_CARD_SEARCH_GAME_PARAM,
   OWNED_CARD_SEARCH_LIMIT_PARAM,
   OWNED_CARD_SEARCH_OFFSET_PARAM,
-  catalogSearchGameKey,
-  initialCatalogOffsetsByGame,
-  nextCatalogOffsetsByGame,
+  loadCatalogGameSearchPages,
   type CardPrintingsPage,
-  type CatalogCardsSearchPage,
+  type CatalogGameSearchPages,
   type OwnedCardSearchPage,
   type CatalogCardSearchPage,
   type CatalogGame,
@@ -72,29 +71,33 @@ async function loadCatalogCardSearchPage(game: CatalogGame, query: string, offse
   return result.data;
 }
 
-export const catalogCardsSearchQueryOptions = (games: CatalogGame[], query: string, enabled: boolean) =>
-  infiniteQueryOptions({
-    queryKey: [CATALOG_SEARCH_QUERY_KEY, games.map(catalogSearchGameKey), query] as const,
-    queryFn: async ({ pageParam }): Promise<CatalogCardsSearchPage> => {
-      const pages = await Promise.all(
-        games.map(async (game) => {
-          const offset = pageParam[catalogSearchGameKey(game)];
-          return offset === undefined ? null : { game, page: await loadCatalogCardSearchPage(game, query, offset) };
-        }),
-      );
-      const loadedPages = pages.filter((entry) => entry !== null);
-      return {
-        results: loadedPages.flatMap(({ game, page }) =>
-          page.results.map(({ card, printingCount }) => ({ game, card, printingCount })),
-        ),
-        nextOffsetsByGame: nextCatalogOffsetsByGame(
-          loadedPages.map(({ game, page }) => ({ gameKey: catalogSearchGameKey(game), nextOffset: page.nextOffset })),
-        ),
-      };
+const catalogSearchPageQueryOptions = (game: CatalogGame, query: string, offset: number) =>
+  queryOptions({
+    queryKey: [CATALOG_SEARCH_PAGE_QUERY_KEY, game.gameKey, game.lang, query, offset] as const,
+    queryFn: () => loadCatalogCardSearchPage(game, query, offset),
+    staleTime: CATALOG_SEARCH_STALE_MS,
+  });
+
+export const catalogGameSearchQueryOptions = (
+  queryClient: QueryClient,
+  game: CatalogGame,
+  query: string,
+  shownPageCount: number,
+  enabled: boolean,
+) =>
+  queryOptions({
+    queryKey: [CATALOG_SEARCH_QUERY_KEY, game.gameKey, game.lang, query, shownPageCount] as const,
+    queryFn: (): Promise<CatalogGameSearchPages> =>
+      loadCatalogGameSearchPages(shownPageCount, (offset) =>
+        queryClient.fetchQuery(catalogSearchPageQueryOptions(game, query, offset)),
+      ),
+    placeholderData: (previousPages, previousQuery) => {
+      const [, previousGameKey, previousLang, previousSearchQuery] = previousQuery?.queryKey ?? [];
+      return previousGameKey === game.gameKey && previousLang === game.lang && previousSearchQuery === query
+        ? previousPages
+        : undefined;
     },
-    initialPageParam: initialCatalogOffsetsByGame(games),
-    getNextPageParam: (lastPage) => lastPage.nextOffsetsByGame ?? undefined,
-    enabled: enabled && games.length > 0,
+    enabled,
     staleTime: CATALOG_SEARCH_STALE_MS,
   });
 
@@ -106,7 +109,7 @@ export const catalogCardQueryOptions = (game: CatalogGame | null, cardId: string
     queryKey: catalogCardQueryKey(game?.gameKey ?? "", cardId),
     queryFn: async (): Promise<PlayingCard> => {
       if (!game) throw new Error("Unknown game.");
-      const result = await getCardById(cardId, game.collectionGuid, game.lang, game.gameKey);
+      const result = await getCardById(cardId, game.collectionGuid ?? undefined, game.lang, game.gameKey);
       if (!result.success || !result.data) throw new Error(result.message ?? "Card not found.");
       return result.data;
     },

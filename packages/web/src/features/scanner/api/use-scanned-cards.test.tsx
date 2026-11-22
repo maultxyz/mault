@@ -1,7 +1,12 @@
 import { act, cleanup, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { ScannedCardsProvider, useScannedCards } from "./use-scanned-cards";
-import type { PickList, PlayingCardWithDistance } from "@magic-vault/shared";
+import type {
+  MatchedScanDetails,
+  PickList,
+  PlayingCardWithDistance,
+} from "@magic-vault/shared";
+import type { EarlyRoutedScan } from "@/lib/interfaces/scanner";
 
 const mocks = vi.hoisted(() => ({
   collection: {
@@ -204,7 +209,7 @@ function mount() {
   return renderHook(() => useScannedCards(), { wrapper: ScannedCardsProvider });
 }
 
-it("reserves capacity before routing can feed the next scan and persists after routing", async () => {
+it("reserves capacity before routing can feed the next scan and saves while the card routes", async () => {
   let finishRoute: () => void = () => {};
   mocks.route.mockImplementation(
     () =>
@@ -215,12 +220,12 @@ it("reserves capacity before routing can feed the next scan and persists after r
   const { result } = mount();
   act(() => result.current.addCard(card));
   await waitFor(() => expect(mocks.route).toHaveBeenCalledOnce());
-  expect(mocks.save).not.toHaveBeenCalled();
+  expect(mocks.save).toHaveBeenCalledOnce();
   act(() => result.current.addCard(card));
   await waitFor(() => expect(mocks.pause).toHaveBeenCalled());
   expect(mocks.route).toHaveBeenCalledOnce();
   await act(async () => finishRoute());
-  await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
+  expect(mocks.save).toHaveBeenCalledOnce();
 });
 
 it("a full destination pauses before routing or persistence", async () => {
@@ -250,10 +255,9 @@ it("saves pick progress with the routed card without sending a separate incremen
   const { result } = mount();
   act(() => result.current.addCard(card));
   await waitFor(() => expect(mocks.route).toHaveBeenCalledOnce());
-  expect(mocks.save).not.toHaveBeenCalled();
+  expect(mocks.save).toHaveBeenCalledOnce();
   expect(mocks.recordPick).not.toHaveBeenCalled();
   await act(async () => finishRoute());
-  await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
   expect(mocks.save.mock.calls[0][0].record.pickListUpdate).toEqual({
     binGuid: "bin", name: card.name, delta: 1,
   });
@@ -291,7 +295,7 @@ it("retains separate pick accounting for sort-only scans", async () => {
   expect(mocks.sortOnly.mock.calls[0][1]).not.toHaveProperty("pickListUpdate");
 });
 
-it("unmatched scans reserve the catch-all before routing and save afterward", async () => {
+it("unmatched scans reserve the catch-all before routing and save while the card routes", async () => {
   let finishRoute: () => void = () => {};
   mocks.route.mockImplementation(
     () =>
@@ -302,12 +306,12 @@ it("unmatched scans reserve the catch-all before routing and save afterward", as
   const { result } = mount();
   act(() => result.current.addUnmatchedCard("image"));
   await waitFor(() => expect(mocks.route).toHaveBeenCalledOnce());
-  expect(mocks.saveUnmatched).not.toHaveBeenCalled();
+  expect(mocks.saveUnmatched).toHaveBeenCalledOnce();
   act(() => result.current.addUnmatchedCard("image"));
   await waitFor(() => expect(mocks.pause).toHaveBeenCalled());
   expect(mocks.route).toHaveBeenCalledOnce();
   await act(async () => finishRoute());
-  await waitFor(() => expect(mocks.saveUnmatched).toHaveBeenCalledOnce());
+  expect(mocks.saveUnmatched).toHaveBeenCalledOnce();
 });
 
 it("unmatched sort-only scans reserve the catch-all while skipping persistence", async () => {
@@ -407,4 +411,58 @@ it("a bin whose storage location has room for 5 routes 5 cards then pauses", asy
     }),
   );
   expect(mocks.route).toHaveBeenCalledTimes(5);
+});
+
+const matchedDetails = {
+  lowConfidenceMatch: false,
+  diagnostics: {},
+} as unknown as MatchedScanDetails;
+const reprint = { ...card, id: "reprint" } as PlayingCardWithDistance;
+
+it("routes before the text match, then saves the final card in that bin without routing again", async () => {
+  let finishRoute: () => void = () => {};
+  mocks.route.mockImplementation(
+    () =>
+      new Promise<void>((resolve) => {
+        finishRoute = resolve;
+      }),
+  );
+  const { result } = mount();
+  let earlyRoute = null as EarlyRoutedScan | null;
+  act(() => {
+    earlyRoute = result.current.routeCardEarly([card, reprint], matchedDetails);
+  });
+  expect(earlyRoute).not.toBeNull();
+  expect(mocks.route).toHaveBeenCalledOnce();
+  expect(mocks.save).not.toHaveBeenCalled();
+  act(() =>
+    result.current.addCard(
+      reprint,
+      "image",
+      [],
+      "web",
+      matchedDetails,
+      undefined,
+      earlyRoute!,
+    ),
+  );
+  await waitFor(() => expect(mocks.save).toHaveBeenCalledOnce());
+  expect(mocks.route).toHaveBeenCalledOnce();
+  const saved = mocks.save.mock.calls[0][0].record;
+  expect(saved.scanId).toBe(earlyRoute!.scanId);
+  expect(saved.card.id).toBe("reprint");
+  expect(saved.binNumber).toBe(1);
+  await act(async () => finishRoute());
+});
+
+it("never routes early into a destination that would pause", () => {
+  mocks.levels[0].count = 1;
+  const { result } = mount();
+  let earlyRoute = null as EarlyRoutedScan | null;
+  act(() => {
+    earlyRoute = result.current.routeCardEarly([card, reprint], matchedDetails);
+  });
+  expect(earlyRoute).toBeNull();
+  expect(mocks.route).not.toHaveBeenCalled();
+  expect(mocks.pause).not.toHaveBeenCalled();
 });

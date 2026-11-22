@@ -1,6 +1,6 @@
 import {
   evaluateCondition,
-  getAlphabetPassLetters,
+  getAlphabetPassLabels,
   getCardValue,
   isOverrideBin,
 } from "./evaluate-bin";
@@ -93,7 +93,7 @@ export function explainSortTest({
     matchedBinNumber,
     alphabetLetter:
       binSet?.isAlphabetMode && bin
-        ? (getAlphabetPassLetters(configs, binSet.alphabetPass, binSet.alphabetPrefix).get(bin.binNumber) ?? null)
+        ? (getAlphabetPassLabels(configs, binSet.alphabetPass, binSet.alphabetPrefix).get(bin.binNumber) ?? null)
         : null,
     pickListEntryName: pickListMatch?.entry.name ?? null,
     binChecks,

@@ -1,4 +1,7 @@
+import type { Control } from "react-hook-form";
 import type {
+  BusinessSettingsDraftValues,
+  CardReservationRequestGroup,
   FulfilmentOrder,
   FulfilmentOrderDetail,
   IntakeLot,
@@ -34,6 +37,27 @@ export interface PickWalk {
 export interface BusinessListViewProps {
   canAct: boolean;
 }
+
+export interface BusinessListSearchProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+}
+
+export interface CardReservationGroupProps {
+  group: CardReservationRequestGroup;
+  onPress?: () => void;
+}
+
+export interface CardReservationRequestSectionProps {
+  title: string;
+  groups: CardReservationRequestGroup[];
+  onPressGroup?: (group: CardReservationRequestGroup) => void;
+}
+
+export type MobileCardReservationTarget =
+  | { kind: "request"; requestGuid: string }
+  | { kind: "reservation"; reservationGuid: string };
 
 export interface IntakeLotRowProps {
   lot: IntakeLot;
@@ -75,4 +99,23 @@ export interface PickWalkNextCardProps {
   canPick: boolean;
   onPicked: () => void;
   onMissing: () => void;
+}
+
+export interface BusinessSettingsDraft {
+  control: Control<BusinessSettingsDraftValues>;
+  canManage: boolean;
+  isLoading: boolean;
+  isLoadError: boolean;
+  isRetryingLoad: boolean;
+  retryLoad: () => void;
+  isDirty: boolean;
+  isSaving: boolean;
+  saveError: boolean;
+  save: () => void;
+  discard: () => void;
+}
+
+export interface BusinessSettingsFormProps {
+  control: Control<BusinessSettingsDraftValues>;
+  disabled: boolean;
 }

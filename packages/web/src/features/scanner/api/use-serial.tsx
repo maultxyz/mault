@@ -14,6 +14,7 @@ import { refreshPiScanHold } from "@/features/scanner/api/pi-scan-session";
 import { useStation, useStations } from "@/features/scanner/api/use-stations";
 import { formatCommLog } from "@/features/scanner/lib/comm-log";
 import { rememberBleDevice } from "@/features/scanner/lib/ble-device-map";
+import { rememberRecentBluetoothSorter } from "@/features/scanner/lib/recent-sorters";
 import { claimBootNotice } from "@/features/scanner/lib/sorter-boot-notice";
 import { showSorterLimitToast } from "@/features/scanner/lib/sorter-limit-toast";
 import { JamToastBody } from "@/features/scanner/components/jam-toast-body";
@@ -35,6 +36,7 @@ import {
   SERIAL_RECOVERY_SKIP_TEST_MS,
 } from "@/lib/constants/timing";
 import type {
+  ConnectBluetoothOptions,
   ConnectTestRunner,
   FirmwareCheckResult,
   FlashEsp32Result,
@@ -70,6 +72,7 @@ import {
   SERIAL_IDENTIFY_TIMEOUT_MS,
   SERIAL_PUSH_BLOCKED_ERROR,
   isBootBanner,
+  isFirmwareFeatureSupported,
   isServoDriverMissing,
   type SerialMessageListener,
   type SerialRequestResult,
@@ -78,9 +81,10 @@ import {
   type BinRoute,
   parseFoilNudgeFirmwareLimits,
   type FoilNudgeFirmwareLimits,
+  syncSorterBluetoothName,
 } from "@magic-vault/shared";
 import { IconCopy } from "@tabler/icons-react";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   createContext,
   useCallback,
@@ -123,6 +127,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
   const [flashLog, setFlashLog] = useState<string[]>([]);
   const [leasedDeviceGuid, setLeasedDeviceGuid] = useState<string | null>(null);
   const leasedDeviceGuidRef = useRef<string | null>(null);
+  const advertisedNameRef = useRef<string | null>(null);
   const [session] = useState(createSerialSession);
   const resetWatchArmedRef = useRef(false);
   const lastUptimeMsRef = useRef<number | null>(null);
@@ -326,6 +331,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     setIsReady(false);
     clearSensorBlocked();
     setFirmwareVersion(null);
+    advertisedNameRef.current = null;
     setBoard(null);
     setHasWifi(false);
     setFoilNudgeFirmwareLimits(null);
@@ -759,6 +765,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
         if (typeof status?.version === "string") {
           setFirmwareVersion(status.version);
         }
+        advertisedNameRef.current =
+          typeof status?.name === "string" ? status.name : null;
         if (
           newTransport.kind === "pi-sorter" &&
           (status?.board !== "raspberry_pi" ||
@@ -807,13 +815,27 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
             disconnect();
             return null;
           }
+          const advertisedName = await syncSorterBluetoothName(
+            session,
+            typeof status?.version === "string" ? status.version : null,
+            advertisedNameRef.current,
+            boundDevice.name,
+          );
+          if (session.transport !== newTransport) return null;
+          if (advertisedName) advertisedNameRef.current = advertisedName;
           leasedDeviceGuidRef.current = boundDevice.guid;
           setLeasedDeviceGuid(boundDevice.guid);
           if (newTransport.kind === "bluetooth") {
-            rememberBleDevice(
-              (newTransport as BluetoothTransport).bluetoothDevice.id,
-              boundDevice.guid,
-            );
+            const bluetoothDeviceId = (newTransport as BluetoothTransport)
+              .bluetoothDevice.id;
+            rememberBleDevice(bluetoothDeviceId, boundDevice.guid);
+            if (activeOrg?.id) {
+              rememberRecentBluetoothSorter(activeOrg.id, {
+                id: bluetoothDeviceId,
+                deviceGuid: boundDevice.guid,
+                name: boundDevice.name,
+              });
+            }
           }
         }
         if (options?.autoConnect && !boundDevice?.autoConnect) {
@@ -870,6 +892,7 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       consumeRecovery,
       t,
       session,
+      activeOrg?.id,
     ],
   );
 
@@ -952,6 +975,12 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
       const result = await SerialTransport.requestAndOpen();
       if (!result.ok) {
         if (result.reason === "cancelled") return;
+        if (result.reason === "in-use") {
+          toast.error(t("serial.deviceInUse.title"), {
+            description: t("serial.deviceInUse.portDescription"),
+          });
+          return;
+        }
         toast.error(t("serial.connectionFailed.title"), {
           description: t("serial.connectionFailed.description"),
         });
@@ -1096,13 +1125,39 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => cancelBluetoothReconnect, [cancelBluetoothReconnect]);
 
+  const connectKnownBluetoothDevice = useCallback(
+    async (
+      bluetoothDevice: BluetoothDevice,
+      options?: ConnectBluetoothOptions,
+    ) => {
+      const knownTransport =
+        await BluetoothTransport.connectDevice(bluetoothDevice);
+      if (!knownTransport) {
+        toast.error(t("serial.connectionFailed.title"), {
+          description: t("serial.recentSorterUnreachable"),
+        });
+        return;
+      }
+      if (session.transport) {
+        await knownTransport.close();
+        return;
+      }
+      await openTransport(knownTransport, options);
+    },
+    [toast, openTransport, t, session],
+  );
+
   const connectBluetooth = useCallback(
-    async (options?: { skipAutoTest?: boolean }) => {
+    async (options?: ConnectBluetoothOptions) => {
       if (piSorter || refuseWhileImpersonating(true)) return;
       if (disconnectingRef.current) {
         await disconnectingRef.current;
       }
       if (session.transport) return;
+      if (options?.bluetoothDevice) {
+        await connectKnownBluetoothDevice(options.bluetoothDevice, options);
+        return;
+      }
       if (!navigator.bluetooth) return;
 
       const result = await BluetoothTransport.requestAndConnect();
@@ -1135,7 +1190,15 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
       await openTransport(result.transport, options);
     },
-    [toast, openTransport, refuseWhileImpersonating, t, session, piSorter],
+    [
+      toast,
+      openTransport,
+      refuseWhileImpersonating,
+      t,
+      session,
+      piSorter,
+      connectKnownBluetoothDevice,
+    ],
   );
 
   const connectCloud = useCallback(
@@ -1169,6 +1232,23 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     [toast, openTransport, refuseWhileImpersonating, t, session, piSorter],
   );
 
+  const { data: orgDevices } = useQuery(devicesQueryOptions(activeOrg?.id));
+  const leasedDeviceName = orgDevices?.find(
+    (orgDevice) => orgDevice.guid === leasedDeviceGuid,
+  )?.name;
+
+  useEffect(() => {
+    if (!leasedDeviceName || !firmwareVersion) return;
+    void syncSorterBluetoothName(
+      session,
+      firmwareVersion,
+      advertisedNameRef.current,
+      leasedDeviceName,
+    ).then((advertisedName) => {
+      if (advertisedName) advertisedNameRef.current = advertisedName;
+    });
+  }, [leasedDeviceName, firmwareVersion, session]);
+
   useEffect(() => {
     if (!leasedDeviceGuid) return;
     const id = setInterval(() => {
@@ -1185,7 +1265,8 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
     () =>
       stationsRef.current.registerConnector(station.id, {
         connect: (controllerId?: string) => connect({ controllerId }),
-        connectBluetooth: () => connectBluetooth(),
+        connectBluetooth: (bluetoothDevice?: BluetoothDevice) =>
+          connectBluetooth({ bluetoothDevice }),
         connectCloud: (deviceGuid: string) => connectCloud(deviceGuid),
         connectPort,
         connectBluetoothDevice,
@@ -1406,8 +1487,14 @@ export function SerialProvider({ children }: { children: React.ReactNode }) {
 
   const sendRoute = useCallback(
     (route: BinRoute, options: RouteOptions = {}) =>
-      session.sendRoute(route, options),
-    [session],
+      session.sendRoute(route, {
+        ...options,
+        firmwareChecksLoadedCard: isFirmwareFeatureSupported(
+          firmwareVersion,
+          "sensorCheckedCommands",
+        ),
+      }),
+    [session, firmwareVersion],
   );
 
   const readIR = useCallback(

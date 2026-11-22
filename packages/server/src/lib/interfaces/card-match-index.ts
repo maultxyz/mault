@@ -1,3 +1,4 @@
+import type { SQL } from "drizzle-orm";
 import type { PrintingMarkGroups } from "@magic-vault/shared";
 export interface CardMatchSourceRow {
   cardId: string;
@@ -22,6 +23,7 @@ export interface CardMatchIndexPageRow extends Record<string, unknown> {
   promo_printing: boolean;
   printed_language_code: boolean | null;
   printed_set_total: number | null;
+  match_flags_stored: boolean;
   printing_mark_groups: PrintingMarkGroups | null;
   embedding: Buffer;
   back_embedding: Buffer | null;
@@ -128,4 +130,48 @@ export interface OcrCandidateRow {
   segment: CardMatchSegment;
   row: number;
   distance: number;
+}
+
+export type CardMatchSnapshotArrayField =
+  | "cardIdReferenceByRow"
+  | "cardIdUuidBytes"
+  | "cardIdTextOffsets"
+  | "nameIndexByRow"
+  | "setCodeIndexByRow"
+  | "collectorNumberIndexByRow"
+  | "rarePrinting"
+  | "promoPrinting"
+  | "printedLanguageCode"
+  | "printedSetTotals"
+  | "printingMarkGroupIds"
+  | "frontEmbeddings"
+  | "frontEmbeddingScales"
+  | "backEmbeddings"
+  | "backEmbeddingScales"
+  | "backFaceIndexByRow";
+
+export interface CardMatchSnapshotHeader {
+  formatVersion: number;
+  stamp: string;
+  gameKey: string;
+  lang: string;
+  rowCount: number;
+  textBytes: number;
+  cardIdTextBlob: string;
+  nameTable: string[];
+  setCodeTable: string[];
+  collectorNumberTable: string[];
+  printingMarkRegionKeys: string[];
+  printingMarkGroupKeys: string[];
+  arrayLengths: Record<CardMatchSnapshotArrayField, number>;
+}
+
+export interface CardMatchFlagsSql {
+  fingerprint: number;
+  rarePrinting: SQL;
+  promoPrinting: SQL;
+  printedLanguageCode: SQL;
+  printedSetTotal: SQL;
+  excludedFromMatching: SQL;
+  storedFlagsAreCurrent: SQL;
 }

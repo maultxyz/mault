@@ -20,6 +20,7 @@ export function OrderList({
   onSelect,
   checkedOrderGuids,
   onToggleOrderChecked,
+  search = "",
 }: OrderListProps) {
   const { t } = useTranslation("business");
   const { onMouseDown: onCheckboxMouseDown, consumeShift } = useShiftClick();
@@ -31,6 +32,17 @@ export function OrderList({
           <Skeleton key={i} className="h-13 rounded-lg" />
         ))}
       </div>
+    );
+  }
+
+  if (orders.length === 0 && search) {
+    return (
+      <EmptyState
+        size="compact"
+        icon={IconTruckDelivery}
+        title={t("search.noResultsTitle")}
+        description={t("search.noResultsDescription", { query: search })}
+      />
     );
   }
 

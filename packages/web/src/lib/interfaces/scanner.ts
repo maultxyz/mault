@@ -4,14 +4,17 @@ import type { CardViewMode, ReviewSession } from "@/lib/interfaces/cards";
 import type { SessionViewer } from "@/lib/interfaces/collections";
 import type {
   BinConfig,
+  RecentSorter,
   CardCondition,
   DesktopDocumentScanArchiveRequest,
+  PersistedScanSettings,
   FoilNudgeFirmwareLimits,
   CardTag,
   CardFilters,
   CommLogEntry,
   EmptyBinOptions,
   CardContour,
+  Point,
   CornerDetection,
   CardScannerProps,
   CardSearchResult,
@@ -20,6 +23,7 @@ import type {
   ScanOrientation,
   SerialMessageListener,
   SerialRequestResult,
+  UnmatchedRetryProgress,
   UnmatchedScanDetails,
   UnmatchedScanDiagnostics,
   BinRoute,
@@ -44,7 +48,7 @@ import type {
   DesktopDocumentScanRequest,
   CardTextSearchResult,
 } from "@magic-vault/shared";
-import type { ComponentProps, ReactNode } from "react";
+import type { ComponentProps, ReactNode, RefObject } from "react";
 import type {
   PreTestHook,
   SorterLimitReason,
@@ -121,6 +125,8 @@ export interface CameraContextValue {
   zoomLevel: number | null;
   cameras: MediaDeviceInfo[];
   camerasInUseElsewhere: MediaDeviceInfo[];
+  refreshCameraList: () => Promise<void>;
+  isRefreshingCameraList: boolean;
   selectedCameraId: string | null;
   setFocusDistance: (value: number | null) => void;
   setZoomLevel: (value: number) => void;
@@ -154,13 +160,14 @@ export interface CameraContextValue {
 export interface DocumentScanSavedImages {
   savedImageUrl?: string;
   capturedBackImageUrl?: string;
-  isFromAutomaticFeeder: boolean;
+  backMirrorAxis?: ScanPageMirrorAxis;
+  cardContour?: CardContour;
 }
 
 export interface DocumentScannerPages {
   face: File;
   otherSide: File | null;
-  isFromAutomaticFeeder: boolean;
+  otherSideMirrorAxis?: ScanPageMirrorAxis;
 }
 
 export interface MatchScope {
@@ -228,7 +235,12 @@ export interface ScannedCardsContextValue {
     vectorizedOn?: ScanVectorizeSource,
     details?: MatchedScanDetails,
     capturedBackImageUrl?: string,
+    earlyRoute?: EarlyRoutedScan,
   ) => ScanPlacement | null;
+  routeCardEarly: (
+    candidates: PlayingCardWithDistance[],
+    details: MatchedScanDetails,
+  ) => EarlyRoutedScan | null;
   addUnmatchedCard: (
     capturedImageUrl?: string,
     vectorizedOn?: ScanVectorizeSource,
@@ -375,7 +387,7 @@ export interface SerialContextValue {
   deviceId: string | null;
   transport: SerialTransportType | null;
   connect: (options?: SerialConnectOptions) => Promise<void>;
-  connectBluetooth: (options?: { skipAutoTest?: boolean }) => Promise<void>;
+  connectBluetooth: (options?: ConnectBluetoothOptions) => Promise<void>;
   connectCloud: (
     deviceGuid: string,
     options?: { skipAutoTest?: boolean },
@@ -487,7 +499,7 @@ export interface ScannerOverlayProps {
   cameraMenu: CameraMenuItemsProps;
   onOpenPhonePairing: () => void;
   onConnectScanner: () => void;
-  onConnectScannerBluetooth: () => void;
+  onConnectScannerBluetooth: (bluetoothDevice?: BluetoothDevice) => void;
   onConnectScannerCloud: (deviceGuid: string) => void;
   bluetoothSupported: boolean;
   handScanActive: boolean;
@@ -899,11 +911,18 @@ export interface UnmatchedRateToastProps {
   onOpenSettings: () => void;
 }
 
+export interface UnmatchedCardsInGridSetting {
+  isEnabled: boolean;
+  isLoading: boolean;
+  setEnabled: (isEnabled: boolean) => void;
+}
+
 export interface UnmatchedCardsPanelProps {
   cards: UnmatchedCard[];
   total: number;
   collectionGuid?: string;
   canIdentify?: boolean;
+  showsInGridToggle?: boolean;
   onRemove?: (scanId: string) => Promise<boolean>;
   onRemoveAll?: () => Promise<boolean>;
 }
@@ -930,6 +949,21 @@ export interface UnmatchedCardsBrowserProps {
   className?: string;
 }
 
+export interface RetryUnmatchedCardsState {
+  progress: UnmatchedRetryProgress | null;
+  isRetrying: boolean;
+  start: (scanIds: string[]) => Promise<void>;
+  stop: () => void;
+}
+
+export interface UnmatchedCardSelectionState {
+  selectedScanIds: string[];
+  isSelected: (scanId: string) => boolean;
+  toggle: (scanId: string) => void;
+  selectMany: (scanIds: string[]) => void;
+  clear: () => void;
+}
+
 export interface UnmatchedViewState {
   isOpen: boolean;
   openIndex: number | null;
@@ -949,6 +983,22 @@ export interface UnmatchedCardDetailProps {
 
 export interface UnmatchedCardTileProps {
   entry: UnmatchedCard;
+  onOpen: () => void;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
+  className?: string;
+}
+
+export interface InlineUnmatchedCardsState {
+  open: (position: number | null) => void;
+  isMobileDialogOpen: boolean;
+  setIsMobileDialogOpen: (open: boolean) => void;
+  mobileDialogIndex: number | null;
+  setMobileDialogIndex: (index: number | null) => void;
+}
+
+export interface MoreUnmatchedCardsTileProps {
+  hiddenCount: number;
   onOpen: () => void;
 }
 
@@ -1017,6 +1067,69 @@ export interface ClientDewarpResult {
   frame: HTMLCanvasElement;
 }
 
+export interface BrowserScanOutcome {
+  card: PlayingCardWithDistance | null;
+  alternativeMatches: PlayingCardWithDistance[];
+  debugImageUrl: string;
+  capturedImageUrl: string | undefined;
+  capturedBackImageUrl: string | undefined;
+  vectorizedOn: ScanVectorizeSource;
+  dewarpedCardImage: ImageData | null;
+  matched: MatchedScanDetails | null;
+  noMatch: UnmatchedScanDetails | null;
+}
+
+export interface MatchedScanPlanSource {
+  scanId: string;
+  scannedAt: number;
+  card: PlayingCardWithDistance;
+  collection: Collection;
+  capturedImageUrl?: string;
+  capturedBackImageUrl?: string;
+  alternativeMatches?: PlayingCardWithDistance[];
+  vectorizedOn?: ScanVectorizeSource;
+  details?: MatchedScanDetails;
+}
+
+export interface SettledCardCapture {
+  frame: HTMLCanvasElement;
+  detection: CornerDetection;
+}
+
+export interface CardImageSearchExtras {
+  settledCapture?: SettledCardCapture | null;
+  onImageMatchBeforeText?: (outcome: ScanOutcome) => void;
+}
+
+export interface EarlyRoutedScan {
+  scanId: string;
+  scannedAt: number;
+  collection: Collection;
+  bin: BinConfig;
+  routing: Promise<void>;
+  feedNextCard: () => void;
+}
+
+export interface CardScannerOptions
+  extends Omit<CardScannerProps, "className" | "onSearchResults"> {
+  onSearchResults?: (
+    matches: PlayingCardWithDistance[],
+    capturedImageUrl?: string,
+    vectorizedOn?: ScanVectorizeSource,
+    details?: MatchedScanDetails,
+    capturedBackImageUrl?: string,
+    earlyRoute?: EarlyRoutedScan,
+  ) => void;
+  onRouteEarly?: (
+    candidates: PlayingCardWithDistance[],
+    details: MatchedScanDetails,
+  ) => EarlyRoutedScan | null;
+  rotated?: boolean;
+  scanRegion?: ScanRegion;
+  autoCapture?: boolean;
+  skipDuplicateCheck?: boolean;
+}
+
 export interface RouteCardToBinParams {
   route: BinRoute;
   sendRoute: (
@@ -1038,6 +1151,13 @@ export interface RouteCardToBinParams {
 }
 
 export type OnnxExecutionProviderPreference = "webgpu" | "wasm";
+
+export type OnnxRuntimeModule = typeof import("onnxruntime-web/wasm");
+
+export interface OnnxRuntimeWasmPaths {
+  mjs: string;
+  wasm: string;
+}
 
 export interface VisionModelRunOptions {
   alwaysRunOnCpu?: boolean;
@@ -1182,7 +1302,7 @@ export interface ScannerStatusBarProps {
   onCameraSelect: (deviceId: string) => void;
   onOpenPhonePairing: () => void;
   onScannerConnect: () => void;
-  onScannerConnectBluetooth: () => void;
+  onScannerConnectBluetooth: (bluetoothDevice?: BluetoothDevice) => void;
   onScannerConnectCloud: (deviceGuid: string) => void;
   bluetoothSupported: boolean;
   onScannerDisconnect: () => void;
@@ -1263,14 +1383,8 @@ export type PendingScanSave =
     });
 
 export interface PendingScanSavesContextValue {
-  saveCard: (
-    save: CardScanSave,
-    onStored?: () => void,
-  ) => Promise<CardSaveResult>;
-  saveUnmatched: (
-    save: UnmatchedScanSave,
-    onStored?: () => void,
-  ) => Promise<UnmatchedSaveResult>;
+  saveCard: (save: CardScanSave) => Promise<CardSaveResult>;
+  saveUnmatched: (save: UnmatchedScanSave) => Promise<UnmatchedSaveResult>;
   pendingCount: number;
 }
 
@@ -1635,15 +1749,66 @@ export interface ScanImageImportRowProps {
   isRunning: boolean;
 }
 
+export type ContourCornerName = keyof CardContour;
+
+export interface ScanPageEdgeLine {
+  point: Point;
+  direction: Point;
+}
+
+export interface ScanPagePixels {
+  data: Uint8ClampedArray;
+  width: number;
+  height: number;
+}
+
+export interface ScanImageRegion {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+}
+
 export interface ScanImageCanvas {
   canvas: HTMLCanvasElement;
   imageContour: CardContour;
+  cardContour?: CardContour;
+  cardContourOnPage?: CardContour;
+  otherSideMirrorAxis?: ScanPageMirrorAxis;
+}
+
+export interface ScanPageOtherSideImage {
+  imageUrl: string | undefined;
+  mirrorAxis?: ScanPageMirrorAxis;
+}
+
+export type ScanPageMirrorAxis = "horizontal" | "vertical";
+
+export interface StraightCardCrop {
+  center: Point;
+  angleRadians: number;
+  width: number;
+  height: number;
+}
+
+export interface ScanPageOtherSideCard {
+  cardOnPage: CardContour;
+  mirrorAxis: ScanPageMirrorAxis;
 }
 
 export interface MoveCardsToCollectionInput {
   sourceCollectionGuid: string;
   targetCollectionGuid: string;
   scanIds: string[];
+}
+
+export interface PersistedScanSettingsState {
+  settings: PersistedScanSettings;
+  settingsRef: RefObject<PersistedScanSettings>;
+  setFoilType: (foilType: string | null) => void;
+  setPreferredSetCodes: (preferredSetCodes: string[]) => void;
+  setCondition: (condition: CardCondition) => void;
+  setPreferredSetCodesAfterCollectionSwitch: (setCodes: string[]) => void;
 }
 
 export interface PiScanSettingsOptions {
@@ -1677,4 +1842,24 @@ export interface DocumentScanArchiveImages {
   cardName: string | null;
   frontImageUrl: string | undefined;
   backImageUrl: string | undefined;
+}
+
+export interface ConnectBluetoothOptions {
+  skipAutoTest?: boolean;
+  bluetoothDevice?: BluetoothDevice;
+}
+
+export interface RecentBluetoothSorter extends RecentSorter {
+  bluetoothDevice: BluetoothDevice | null;
+}
+
+export interface RecentSorterMenuItemsProps {
+  onSelect: (bluetoothDevice?: BluetoothDevice) => void;
+  disabled?: boolean;
+}
+
+export interface MobileRecentSortersProps {
+  disabled: boolean;
+  connectingId: string | null;
+  onConnect: (sorter: RecentBluetoothSorter) => void;
 }

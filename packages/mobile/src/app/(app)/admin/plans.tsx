@@ -18,6 +18,7 @@ import { PlansFeatureRows } from "@/features/admin/components/plans-feature-rows
 import { PlansLimitRow } from "@/features/admin/components/plans-limit-row";
 import { PlansPreviewSection } from "@/features/admin/components/plans-preview-section";
 import { PlansPricingModeSection } from "@/features/admin/components/plans-pricing-mode-section";
+import { SubscriptionSummaryPanel } from "@/features/admin/components/subscription-summary-panel";
 import { PLAN_LIMIT_FALLBACK } from "@/lib/constants/admin-plans";
 import { SPACING } from "@/lib/constants/theme";
 import { SettingsSection } from "@/features/settings/components/settings-section";
@@ -57,6 +58,7 @@ function PlanSettingsEditor() {
           <Callout tone="destructive" title={t("admin.plans.loadFailed")} />
         ) : (
           <>
+            <SubscriptionSummaryPanel />
             <PlansPricingModeSection />
             <PlansPreviewSection />
             {!draft.data.billingEnabled ? <Callout tone="info" title={t("admin.plans.billingDisabled")} /> : null}

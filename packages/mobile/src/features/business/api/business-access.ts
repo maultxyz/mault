@@ -1,6 +1,6 @@
-import type { BusinessSettingsResponse, Result } from "@magic-vault/shared";
+import type { BusinessSettings, BusinessSettingsResponse, Result } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
-import { apiGet, unwrap } from "@/lib/api/client";
+import { apiGet, apiPut, unwrap } from "@/lib/api/client";
 import { QUERY_STALE_MS } from "@/lib/constants/query";
 
 export const businessSettingsQueryOptions = (orgId: string | null) =>
@@ -16,3 +16,7 @@ export const businessAccessQueryOptions = (orgId: string | null) =>
     ...businessSettingsQueryOptions(orgId),
     select: (response: BusinessSettingsResponse) => response.access,
   });
+
+export function saveBusinessSettings(settings: BusinessSettings): Promise<BusinessSettings> {
+  return unwrap(apiPut<Result<BusinessSettings>>("/api/business/settings", settings));
+}

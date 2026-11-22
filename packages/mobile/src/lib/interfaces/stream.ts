@@ -1,3 +1,4 @@
+import type { MyCardReservation } from "@magic-vault/shared";
 import type { ScanLockInfo } from "@magic-vault/shared";
 import type { TradeOffer } from "@magic-vault/shared";
 import type { AnnouncementSeverity } from "@magic-vault/shared";
@@ -15,7 +16,9 @@ export interface AlertsSheetProps {
   visible: boolean;
   alerts: AppAlert[];
   tradeOffers: TradeOffer[];
+  reservationAlerts: MyCardReservation[];
   onOpenTradeOffer: (guid: string) => void;
+  onOpenReservations: () => void;
   onClose: () => void;
 }
 

@@ -34,6 +34,32 @@ test("Pi only advertises implemented firmware commands", () => {
   assert.equal(isFirmwareFeatureSupported("2.13.2", "emergencyStop"), true);
 });
 
+test("sensor-checked route and feed commands need firmware that implements them", () => {
+  for (const version of ["2.13.4", "2.13.4-dev.3", "2.14.0", "3.0.0", "pi-0.3.0"]) {
+    assert.equal(isFirmwareFeatureSupported(version, "sensorCheckedCommands"), true);
+  }
+  for (const version of [null, undefined, "", "2.13.3", "2.13.2", "pi-0.1.0", "pi-0.2.0", "pi-1.0.0"]) {
+    assert.equal(isFirmwareFeatureSupported(version, "sensorCheckedCommands"), false);
+  }
+});
+
+test("the pi-0.3.0 controller keeps every earlier controller feature", () => {
+  for (const feature of [
+    "pipelinedFeed",
+    "feederRollback",
+    "storedCalibration",
+    "paddleOpenDelay",
+    "emergencyStop",
+    "pusherNudge",
+    "moduleDetection",
+  ] as const) {
+    assert.equal(isFirmwareFeatureSupported("pi-0.3.0", feature), true);
+  }
+  assert.equal(isModuleDetectionSupported("pi-0.3.0", "raspberry_pi"), true);
+  assert.equal(isFirmwareFeatureSupported("pi-0.3.0", "wifiRemote"), false);
+  assert.equal(isFirmwareVersionOutdated("pi-0.2.0", "pi-0.3.0"), true);
+});
+
 test("module detection requires a capable controller version and board", () => {
   assert.equal(isFirmwareFeatureSupported("pi-0.2.0", "moduleDetection"), true);
   assert.equal(isModuleDetectionSupported("pi-0.2.0", "raspberry_pi"), true);

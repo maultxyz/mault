@@ -6,6 +6,7 @@ import {
   releasedPickListNameAfterCorrection,
   resolveCorrectedScanBin,
   toRuleCard,
+  withRawCardDataForRules,
   type AutoAssignTarget,
   type BinConfig,
   type PlayingCard,
@@ -14,6 +15,7 @@ import {
 } from "@magic-vault/shared";
 import { invalidateCollectionCards, updateCollectionCard } from "@/features/collections/api/collection-cards";
 import { binSetsQueryOptions } from "@/features/devices/api/devices";
+import { getCardById } from "@/features/scanner/api/card-search";
 import { orgSettingsQueryOptions } from "@/features/org/api/org-settings";
 import { markPickListFound, saveBinConfig } from "@/features/rules/api/bin-sets";
 import { useRulesData } from "@/features/rules/api/use-rules-data";
@@ -60,13 +62,12 @@ export function useCardCorrection(guid: string): CardCorrection {
       .catch((error: unknown) => console.warn("Updating the pick list failed", error));
   };
 
-  const promptMove = (entry: ScannedCard, card: PlayingCard) => {
+  const shouldPromptMove = (entry: ScannedCard) =>
+    promptEnabled && entry.binNumber != null && rules.collection?.guid === guid;
+
+  const promptMove = (entry: ScannedCard, card: PlayingCard, ruleCard: PlayingCard) => {
     const currentBin = entry.binNumber;
-    if (!promptEnabled || currentBin == null || rules.collection?.guid !== guid) return;
-    const ruleCard = toRuleCard(
-      { ...card, distance: 0, confidence: 1 },
-      { isFoil: !!entry.isFoil, foilType: entry.foilType ?? null },
-    );
+    if (!shouldPromptMove(entry) || currentBin == null) return;
     const routingContext: ScanRoutingContext = {
       binSet: rules.activeSet,
       configs: rules.bins,
@@ -118,10 +119,40 @@ export function useCardCorrection(guid: string): CardCorrection {
     );
   };
 
+  const ruleSourceCardOf = (card: PlayingCard, failureMessage: string) =>
+    withRawCardDataForRules(card, (cardWithoutRawData) =>
+      getCardById(cardWithoutRawData.id, guid, cardWithoutRawData.lang, cardWithoutRawData.gameKey),
+    ).catch((error: unknown) => {
+      console.warn(failureMessage, error);
+      return card;
+    });
+
   return {
     correct: async (entry, card) => {
       await correction.mutateAsync({ entry, card });
-      promptMove(entry, card);
+      if (!shouldPromptMove(entry)) return;
+      const ruleSourceCard = await ruleSourceCardOf(card, "Loading the corrected card's game fields failed");
+      promptMove(
+        entry,
+        card,
+        toRuleCard(
+          { ...ruleSourceCard, distance: 0, confidence: 1 },
+          { isFoil: !!entry.isFoil, foilType: entry.foilType ?? null },
+        ),
+      );
+    },
+    promptAfterScanStateEdit: async (editedEntry) => {
+      if (!shouldPromptMove(editedEntry) || editedEntry.storageLocation) return;
+      const ruleSourceCard = await ruleSourceCardOf(editedEntry.card, "Loading the edited card's game fields failed");
+      promptMove(
+        editedEntry,
+        editedEntry.card,
+        toRuleCard(ruleSourceCard, {
+          isFoil: !!editedEntry.isFoil,
+          foilType: editedEntry.foilType ?? null,
+          stamp: editedEntry.stamp ?? null,
+        }),
+      );
     },
     isPending: correction.isPending,
   };

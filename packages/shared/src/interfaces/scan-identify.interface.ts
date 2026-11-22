@@ -67,10 +67,14 @@ export interface ScanImageSearchOptions<T extends ScanImageCandidate> {
   preferredOrientation?: ScanOrientation | null;
   ocrEnabled?: boolean;
   ocrMode?: ScanOcrMode | ((candidate: T) => ScanOcrMode);
-  search: (orientation: ScanOrientation) => Promise<T>;
+  search: (
+    orientation: ScanOrientation,
+    reportImageResult: (imageResult: CardSearchResult) => void,
+  ) => Promise<T>;
   readText?: (
     candidate: T,
   ) => Promise<(T & { ocr: OcrDiagnostics | null }) | null>;
+  onImageMatchBeforeText?: (image: T & { alternate: T | null }) => void;
 }
 
 export interface ScanImageSearchOutcome<T extends ScanImageCandidate> {
@@ -96,6 +100,7 @@ export interface CardSettleTracker {
     observation: CardSettleObservation,
     frameLongSidePx: number,
   ) => boolean;
+  settlesOnNextStillFrame: () => boolean;
   reset: () => void;
 }
 

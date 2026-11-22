@@ -1,3 +1,4 @@
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import { publicGet } from "@/lib/api/client";
 import { useSyncState } from "@/lib/app-stream";
 import type {
@@ -18,8 +19,9 @@ export const healthQueryOptions = queryOptions({
 
 export function useHealthQuery() {
   const syncState = useSyncState();
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
   return useQuery({
     ...healthQueryOptions,
-    enabled: syncState.status !== "running",
+    enabled: syncState.status !== "running" && areSecondaryRequestsEnabled,
   });
 }

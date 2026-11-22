@@ -42,6 +42,7 @@ import { billingRouter } from "./routes/billing";
 import { businessRouter } from "./routes/business";
 import { cardHoldsRouter } from "./routes/card-holds";
 import { tradeOffersRouter } from "./routes/trade-offers";
+import { cardReservationsRouter } from "./routes/card-reservations";
 import { shareLinksRouter } from "./routes/share-links";
 import { importTemplatesRouter } from "./routes/import-templates";
 import { sortBinsRouter } from "./routes/bins";
@@ -52,6 +53,10 @@ import { collectionsRouter } from "./routes/collections";
 import { overviewRouter } from "./routes/overview";
 import { statsRouter } from "./routes/stats";
 import { leaderboardRouter } from "./routes/leaderboard";
+import {
+  hostedStatsSyncRouter,
+  selfHostedStatsSyncRouter,
+} from "./routes/stats-sync";
 import { matchValidationsRouter } from "./routes/match-validations";
 import { devicesRouter } from "./routes/devices";
 import { machinesRouter } from "./routes/machines";
@@ -82,6 +87,7 @@ import { startInventorySnapshots } from "./lib/inventory";
 import { startApiUsageFlushing } from "./lib/api-usage";
 import { startCardMatchIndexWarmup } from "./lib/card-match-index";
 import { startShortLinkStartupSync } from "./lib/short-links";
+import { startStatsSyncSchedule } from "./lib/stats-sync-connection";
 
 const app = new Hono<AppEnv>();
 const { injectWebSocket, upgradeWebSocket } = createNodeWebSocket({ app });
@@ -147,6 +153,9 @@ app.route("/stats", statsRouter);
 app.route("/leaderboard", leaderboardRouter);
 if (process.env.AUTH_PROVIDER !== "local") {
   app.route("/match-validations", matchValidationsRouter);
+  app.route("/stats-sync", hostedStatsSyncRouter);
+} else {
+  app.route("/stats-sync", selfHostedStatsSyncRouter);
 }
 app.route("/devices", devicesRouter);
 app.route(MACHINES_PATH, machinesRouter);
@@ -164,6 +173,7 @@ app.route("/billing", billingRouter);
 app.route("/business", businessRouter);
 app.route("/card-holds", cardHoldsRouter);
 app.route("/trade-offers", tradeOffersRouter);
+app.route("/card-reservations", cardReservationsRouter);
 app.route("/share-links", shareLinksRouter);
 app.route("/import-templates", importTemplatesRouter);
 app.route("/admin", adminRouter);
@@ -196,6 +206,7 @@ startInventorySnapshots();
 startApiUsageFlushing();
 startCardMatchIndexWarmup();
 startShortLinkStartupSync();
+startStatsSyncSchedule();
 startPiHostMachineStatusPublisher();
 
 const server = serve(

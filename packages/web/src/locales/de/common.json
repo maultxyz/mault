@@ -2,7 +2,9 @@
   "matchValidationProgress": {
     "label": "Fortschritt der Community-Prüfung",
     "valueText": "{{done}} von {{total}} Prüfungen erledigt",
-    "percent": "{{percent}} %"
+    "percent": "{{percent}} %",
+    "description": "Prüfe, ob die Scans anderer die richtige Karte erkannt haben. Jede Prüfung verbessert die Kartenerkennung für alle.",
+    "start": "Mit dem Prüfen beginnen"
   },
   "nav": {
     "validateMatches": "Treffer prüfen",
@@ -54,7 +56,9 @@
   },
   "userMenu": {
     "trigger": "Kontomenü",
-    "signOut": "Abmelden"
+    "signOut": "Abmelden",
+    "theme": "Design",
+    "language": "Sprache"
   },
   "emailVerification": {
     "banner": "Bitte bestätige deine E-Mail-Adresse ({{email}}), um dein Konto abzusichern.",
@@ -191,8 +195,8 @@
   "publicNav": {
     "pagesAria": "Seiten der Website",
     "pages": {
-      "home": "Startseite",
       "build": "Bauanleitung",
+      "pricing": "Preise",
       "selfHost": "Selbst hosten",
       "discordBot": "Discord-Bot",
       "download": "Download",
@@ -203,7 +207,12 @@
     "menuAriaLabel": "Menü",
     "signIn": "Anmelden",
     "getStarted": "Jetzt starten",
-    "openApp": "App öffnen"
+    "openApp": "App öffnen",
+    "groups": {
+      "hardware": "Hardware",
+      "software": "Software"
+    },
+    "opensInNewTab": "(öffnet in einem neuen Tab)"
   },
   "backHome": "Zurück zur Startseite",
   "hotkeys": {
@@ -378,7 +387,10 @@
     "catalogSourcesRequired": "Wähle mindestens eine Sammlung oder einen Lagerort.",
     "contactRequired": "Gib an, wie man dich erreicht.",
     "textTooLong": "Bleib unter {{max}} Zeichen.",
-    "jsonObjectInvalid": "Gib ein einzelnes JSON-Objekt ein, etwa {\"neutral\": true}."
+    "jsonObjectInvalid": "Gib ein einzelnes JSON-Objekt ein, etwa {\"neutral\": true}.",
+    "statsSyncKeyInvalid": "Füge den ganzen Schlüssel ein. Er beginnt mit mvstats_.",
+    "expiryDaysInvalid": "Gib ganze Tage von 1 bis {{max}} ein, durch Kommas getrennt.",
+    "expiryDaysTooMany": "Gib höchstens {{max}} Laufzeiten ein."
   },
   "memberSeatLock": {
     "title": "Diese Organisation hat ihr Mitgliederlimit überschritten",
@@ -444,6 +456,12 @@
     "expiryLabel": "Link läuft ab nach",
     "expiryOption_one": "{{count}} Tag",
     "expiryOption_other": "{{count}} Tagen",
+    "durationHours_one": "{{count}} Stunde",
+    "durationHours_other": "{{count}} Stunden",
+    "durationDays_one": "{{count}} Tag",
+    "durationDays_other": "{{count}} Tage",
+    "tradeLengthNote": "Tausch-Links gelten {{duration}}.",
+    "monitorShortLengthNote": "In deinem Tarif gelten Monitor-Links {{duration}}. Mit Enthusiast und Business bis zu {{longestDuration}}.",
     "create": "Link erstellen",
     "linkLabel": "Link",
     "copy": "Link kopieren",
@@ -467,8 +485,6 @@
     "tradeType": "Tausch-Link",
     "monitorTypeDescription": "Eine Ansicht der Karten, live während du scannst. Besucher können keine Angebote senden.",
     "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen.",
-    "tradeOneHourNote": "Tausch-Links gelten 1 Stunde.",
-    "monitorOneHourNote": "In deinem Tarif gelten Monitor-Links 1 Stunde. Mit Enthusiast und Business bis zu 30 Tage.",
     "checkFailedTitle": "Dieser Link konnte nicht geöffnet werden",
     "checkFailedDescription": "Prüfe deine Verbindung und versuche es erneut.",
     "shortLinkInvalidTitle": "Dieser Link funktioniert nicht",
@@ -592,7 +608,8 @@
     "boxes": {
       "label": "Tauschangebote",
       "received": "Erhalten",
-      "sent": "Gesendet"
+      "sent": "Gesendet",
+      "reservations": "Meine Reservierungen"
     },
     "sent": {
       "title": "Gesendetes Tauschangebot",
@@ -735,5 +752,32 @@
       "resultsCount_other": "{{count}} Neuigkeiten gefunden"
     },
     "openInTimeline": "In Neuigkeiten öffnen"
+  },
+  "reservations": {
+    "newReservationToast_one": "{{name}} hat {{card}} reserviert",
+    "newReservationToast_other": "{{name}} hat {{count}} Karten reserviert"
+  },
+  "myReservations": {
+    "new": "Neu",
+    "unknownCatalog": "Shop-Katalog",
+    "openCatalog": "Katalog öffnen",
+    "cancelled": "Reservierung storniert",
+    "cancelFailed": "Die Reservierung konnte nicht storniert werden.",
+    "loadFailed": "Deine Reservierungen konnten nicht geladen werden.",
+    "emptyTitle": "Noch keine Reservierungen",
+    "emptyDescription": "Karten, die du angemeldet aus einem Shop-Katalog reservierst, erscheinen hier.",
+    "open": "Offen",
+    "past": "Vergangen",
+    "trayHeading": "Deine Reservierungen",
+    "view": "Reservierungen ansehen",
+    "alerts": {
+      "held": "{{card}} ist jetzt bei {{catalog}} für dich zurückgelegt",
+      "readyForPickup": "{{card}} liegt bei {{catalog}} zur Abholung bereit",
+      "expired": "Deine Reservierung von {{card}} bei {{catalog}} ist abgelaufen",
+      "released": "{{catalog}} hat deine Reservierung von {{card}} freigegeben",
+      "unavailable": "{{card}} bei {{catalog}} ist nicht mehr verfügbar"
+    },
+    "dismiss": "Ausblenden",
+    "dismissFor": "Hinweis zu {{card}} ausblenden"
   }
 }

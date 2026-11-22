@@ -1,5 +1,5 @@
-import { csvEscape, exportEntryKey, finishLabel } from "./base";
-import { marketPrice, productLine, tcgplayerId } from "./tcgplayer";
+import { csvEscape, exportEntryKey } from "./base";
+import { marketPrice, productLine, tcgplayerId, tcgplayerPrinting } from "./tcgplayer";
 import {
   SORTSWIFT_CONDITION_CODES,
   SORTSWIFT_OVERRIDE_PRICE_HEADERS,
@@ -8,18 +8,12 @@ import {
 import { cardPriceFor } from "../price-source";
 import type {
   ExportAdapter,
-  ExportContext,
   GroupedEntry,
 } from "../interfaces/card-export.interface";
 
 function euPrice({ card, isFoil, foilType }: GroupedEntry): string {
   const price = cardPriceFor(card, { isFoil, foilType }, "cardmarket");
   return price != null ? price.toFixed(2) : "";
-}
-
-function printing(entry: GroupedEntry, ctx: ExportContext): string {
-  const skuVariant = ctx.tcgplayerSkusByEntryKey?.[exportEntryKey(entry)]?.variant;
-  return skuVariant ?? finishLabel(entry.isFoil, ctx.isMtg ? null : entry.foilType);
 }
 
 export const sortswiftAdapter: ExportAdapter = {
@@ -79,7 +73,7 @@ export const sortswiftAdapter: ExportAdapter = {
       euPrice(entry),
       SORTSWIFT_CONDITION_CODES[entry.condition],
       csvEscape(entry.language.toUpperCase()),
-      csvEscape(printing(entry, ctx)),
+      csvEscape(tcgplayerPrinting(entry, ctx)),
       String(entry.quantity),
       "",
       "",

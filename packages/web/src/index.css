@@ -483,19 +483,6 @@ code {
   }
 }
 
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.animate-marquee {
-  animation: marquee var(--marquee-duration, 40s) linear infinite;
-}
-
 @layer base {
   * {
     @apply border-border outline-ring;

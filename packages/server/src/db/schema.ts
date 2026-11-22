@@ -3,6 +3,7 @@ import type { CardPriceDetails } from "../lib/interfaces/card-prices";
 import {
   REPACK_UNIQUE_BY_PRINTING,
   type AdminFeatureHighlightSlideInput,
+  type CardStatsAggregate,
   type PrintingMarkGroups,
   type CsvImportMapping,
 } from "@magic-vault/shared";
@@ -112,6 +113,13 @@ export const cardImageVectors = pgTable(
     printingMarkVersion: smallint("printing_mark_version"),
     embeddingVersion: smallint("embedding_version").notNull().default(0),
     sourceDataHash: text("source_data_hash"),
+    isRarePrinting: boolean("is_rare_printing"),
+    isPromoPrinting: boolean("is_promo_printing"),
+    printedLanguageCode: boolean("printed_language_code"),
+    printedSetTotal: integer("printed_set_total"),
+    isExcludedFromMatching: boolean("is_excluded_from_matching"),
+    matchFlagsFingerprint: integer("match_flags_fingerprint"),
+    matchFlagsSourceUpdatedAt: timestamp("match_flags_source_updated_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
@@ -141,6 +149,9 @@ export const cardImageVectors = pgTable(
       table.lang,
       sql`lower(${table.setCode})`,
     ),
+    index("cards_set_list_idx")
+      .on(table.gameKey, table.lang, table.setCode, table.setName)
+      .where(sql`${table.data} IS NOT NULL`),
     crudPolicy({
       role: authenticatedRole,
       read: true,
@@ -830,6 +841,16 @@ export const collectionCards = pgTable(
       table.collectionId,
       table.scannedAt,
     ),
+    index("collection_cards_unreviewed_photo_scanned_idx")
+      .on(
+        table.scannedAt,
+        table.collectionId,
+        table.guid,
+        table.lowConfidenceMatch,
+      )
+      .where(
+        sql`${table.isReviewed} = false AND (${table.capturedImageKey} IS NOT NULL OR ${table.capturedImageDataUrl} IS NOT NULL)`,
+      ),
     index("collection_cards_card_id_idx").on(table.cardId),
     index("collection_cards_org_created_idx").on(table.orgId, table.createdAt),
     index("collection_cards_collection_card_idx").on(
@@ -870,6 +891,61 @@ export const collectionCards = pgTable(
     apiServiceOrgRead(table.orgId),
     ...apiServiceOrgWrite(table.orgId),
   ],
+).enableRLS();
+
+export const collectionCardStats = pgTable("collection_card_stats", {
+  collectionId: integer("collection_id")
+    .primaryKey()
+    .references(() => collections.id, { onDelete: "cascade" }),
+  stats: jsonb("stats").$type<CardStatsAggregate>().notNull(),
+  pricingKey: text("pricing_key").notNull(),
+  computeStartedAt: timestamp("compute_started_at", {
+    withTimezone: true,
+  }).notNull(),
+  computeDurationMs: integer("compute_duration_ms").notNull(),
+}).enableRLS();
+
+export const collectionCardStatsDirty = pgTable(
+  "collection_card_stats_dirty",
+  {
+    id: serial().primaryKey(),
+    collectionId: integer("collection_id").notNull(),
+    markedAt: timestamp("marked_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [
+    index("collection_card_stats_dirty_collection_idx").on(table.collectionId),
+  ],
+).enableRLS();
+
+export const orgCardStats = pgTable(
+  "org_card_stats",
+  {
+    orgId: text("org_id").notNull(),
+    variant: text("variant").notNull(),
+    payload: jsonb("payload").notNull(),
+    pricingKey: text("pricing_key").notNull(),
+    day: text("day").notNull(),
+    computeStartedAt: timestamp("compute_started_at", {
+      withTimezone: true,
+    }).notNull(),
+    invalidatedAt: timestamp("invalidated_at", { withTimezone: true }),
+    computeDurationMs: integer("compute_duration_ms").notNull(),
+  },
+  (table) => [primaryKey({ columns: [table.orgId, table.variant] })],
+).enableRLS();
+
+export const orgCardStatsDirty = pgTable(
+  "org_card_stats_dirty",
+  {
+    id: serial().primaryKey(),
+    orgId: text("org_id").notNull(),
+    markedAt: timestamp("marked_at", { withTimezone: true })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => [index("org_card_stats_dirty_org_idx").on(table.orgId)],
 ).enableRLS();
 
 export const orgApiKeys = pgTable(
@@ -1064,6 +1140,8 @@ export const shopCatalogs = pgTable(
       .default(sql`'{}'::integer[]`),
     showsPrices: boolean("shows_prices").notNull().default(true),
     isPublic: boolean("is_public").notNull().default(false),
+    allowsReservations: boolean("allows_reservations").notNull().default(false),
+    reservationHoldDays: integer("reservation_hold_days").notNull().default(3),
     shareLinkVersion: integer("share_link_version").notNull().default(0),
     shortCode: text("short_code").notNull(),
     isDeleted: boolean("is_deleted").notNull().default(false),
@@ -1074,6 +1152,54 @@ export const shopCatalogs = pgTable(
     unique("shop_catalogs_guid_idx").on(table.guid),
     unique("shop_catalogs_short_code_idx").on(table.shortCode),
     index("shop_catalogs_org_idx").on(table.orgId),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const cardReservations = pgTable(
+  "card_reservations",
+  {
+    id: serial().primaryKey(),
+    guid: uuid("guid").defaultRandom().notNull(),
+    orgId: text("org_id").notNull(),
+    shopCatalogId: integer("shop_catalog_id").notNull(),
+    requestGuid: uuid("request_guid").defaultRandom().notNull(),
+    collectionCardId: integer("collection_card_id").notNull(),
+    card: jsonb("card").notNull(),
+    guestName: text("guest_name").notNull(),
+    guestContact: text("guest_contact").notNull(),
+    guestNote: text("guest_note"),
+    guestKeyHash: text("guest_key_hash").notNull(),
+    guestUserId: text("guest_user_id"),
+    guestAlert: text("guest_alert"),
+    guestAlertAt: timestamp("guest_alert_at"),
+    status: text("status").notNull().default("waiting"),
+    holdDays: integer("hold_days").notNull(),
+    holdStartedAt: timestamp("hold_started_at"),
+    holdExpiresAt: timestamp("hold_expires_at"),
+    closedAt: timestamp("closed_at"),
+    closedByUserId: text("closed_by_user_id"),
+    fulfilmentOrderId: integer("fulfilment_order_id"),
+    pulledAt: timestamp("pulled_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [
+    unique("card_reservations_guid_idx").on(table.guid),
+    index("card_reservations_fulfilment_order_idx").on(table.fulfilmentOrderId),
+    index("card_reservations_org_active_idx")
+      .on(table.orgId, table.collectionCardId)
+      .where(sql`${table.status} IN ('waiting', 'ready')`),
+    uniqueIndex("card_reservations_card_holder_idx")
+      .on(table.collectionCardId)
+      .where(sql`${table.status} = 'ready'`),
+    index("card_reservations_org_closed_idx").on(table.orgId, table.closedAt),
+    index("card_reservations_guest_idx").on(table.guestKeyHash),
+    index("card_reservations_guest_user_idx").on(table.guestUserId, table.createdAt),
+    index("card_reservations_org_request_idx").on(table.orgId, table.requestGuid),
     crudPolicy({
       role: authenticatedRole,
       read: orgRls(table.orgId),
@@ -1449,6 +1575,9 @@ export const orgSettings = pgTable(
       .notNull()
       .default(true),
     leaderboardOptIn: boolean("leaderboard_opt_in").notNull().default(false),
+    unmatchedCardsInGrid: boolean("unmatched_cards_in_grid")
+      .notNull()
+      .default(false),
     priceSource: text("price_source").notNull().default("tcgplayer"),
     conditionMultipliers: jsonb("condition_multipliers"),
     buylistConfig: jsonb("buylist_config"),
@@ -1799,11 +1928,15 @@ export const scanStats = pgTable(
     isCorrected: boolean("is_corrected").notNull().default(false),
     vectorizedOn: text("vectorized_on"),
     scannedByUserId: text("scanned_by_user_id"),
+    deviceGuid: text("device_guid"),
     scannedAt: timestamp("scanned_at").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
     index("scan_stats_org_scanned_idx").on(table.orgId, table.scannedAt),
+    index("scan_stats_org_device_scanned_idx")
+      .on(table.orgId, table.deviceGuid, table.scannedAt)
+      .where(sql`${table.deviceGuid} IS NOT NULL`),
     index("scan_stats_created_idx").on(table.createdAt),
     index("scan_stats_org_user_scanned_idx").on(
       table.orgId,
@@ -1813,11 +1946,95 @@ export const scanStats = pgTable(
   ],
 );
 
+export const leaderboardSnapshots = pgTable("leaderboard_snapshots", {
+  variant: text("variant").primaryKey(),
+  day: text("day").notNull(),
+  payload: jsonb("payload").notNull(),
+  computedAt: timestamp("computed_at", { withTimezone: true }).notNull(),
+  computeDurationMs: integer("compute_duration_ms").notNull(),
+}).enableRLS();
+
+export const statsSyncKeys = pgTable(
+  "stats_sync_keys",
+  {
+    id: serial().primaryKey(),
+    orgId: text("org_id").notNull(),
+    keyPrefix: text("key_prefix").notNull(),
+    keyHash: text("key_hash").notNull(),
+    createdBy: text("created_by").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    lastSyncedAt: timestamp("last_synced_at"),
+    revokedAt: timestamp("revoked_at"),
+  },
+  (table) => [
+    unique("stats_sync_keys_hash_idx").on(table.keyHash),
+    uniqueIndex("stats_sync_keys_live_org_idx")
+      .on(table.orgId)
+      .where(sql`${table.revokedAt} IS NULL`),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: orgRls(table.orgId),
+    }),
+  ],
+).enableRLS();
+
+export const selfHostedDailyScanStats = pgTable(
+  "self_hosted_daily_scan_stats",
+  {
+    orgId: text("org_id").notNull(),
+    day: date("day", { mode: "string" }).notNull(),
+    scanCount: integer("scan_count").notNull(),
+    matchedCount: integer("matched_count").notNull(),
+    unmatchedCount: integer("unmatched_count").notNull(),
+    correctedCount: integer("corrected_count").notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.orgId, table.day] }),
+    crudPolicy({
+      role: authenticatedRole,
+      read: orgRls(table.orgId),
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
+export const statsSyncConnections = pgTable(
+  "stats_sync_connections",
+  {
+    orgId: text("org_id").primaryKey(),
+    syncKey: text("sync_key").notNull(),
+    keyPrefix: text("key_prefix").notNull(),
+    connectedBy: text("connected_by").notNull(),
+    connectedAt: timestamp("connected_at").defaultNow().notNull(),
+    lastSyncedAt: timestamp("last_synced_at"),
+    lastAttemptAt: timestamp("last_attempt_at"),
+    lastErrorCode: text("last_error_code"),
+    syncedScanCount: integer("synced_scan_count"),
+  },
+  () => [
+    crudPolicy({
+      role: authenticatedRole,
+      read: false,
+      modify: false,
+    }),
+  ],
+).enableRLS();
+
 export const platformBillingSettings = pgTable("platform_billing_settings", {
   id: text("id").primaryKey(),
   isLegacyPricingActive: boolean("is_legacy_pricing_active")
     .notNull()
     .default(true),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+});
+
+export const platformShareLinkSettings = pgTable("platform_share_link_settings", {
+  id: text("id").primaryKey(),
+  tradeLinkHours: integer("trade_link_hours").notNull(),
+  restrictedShareLinkHours: integer("restricted_share_link_hours").notNull(),
+  monitorLinkExpiryDays: integer("monitor_link_expiry_days").array().notNull(),
   updatedAt: timestamp("updated_at").defaultNow().notNull(),
 });
 
@@ -1914,6 +2131,11 @@ export const tcgplayerSkus = pgTable(
     moderatelyPlayedMarketPrice: doublePrecision("moderately_played_market_price"),
     heavilyPlayedMarketPrice: doublePrecision("heavily_played_market_price"),
     damagedMarketPrice: doublePrecision("damaged_market_price"),
+    nearMintListingCount: integer("near_mint_listing_count"),
+    lightlyPlayedListingCount: integer("lightly_played_listing_count"),
+    moderatelyPlayedListingCount: integer("moderately_played_listing_count"),
+    heavilyPlayedListingCount: integer("heavily_played_listing_count"),
+    damagedListingCount: integer("damaged_listing_count"),
     updatedAt: timestamp("updated_at").defaultNow().notNull(),
   },
   (table) => [

@@ -149,6 +149,12 @@
     "expiryLabel": "Le lien expire après",
     "expiryOption_one": "{{count}} jour",
     "expiryOption_other": "{{count}} jours",
+    "durationHours_one": "{{count}} heure",
+    "durationHours_other": "{{count}} heures",
+    "durationDays_one": "{{count}} jour",
+    "durationDays_other": "{{count}} jours",
+    "tradeLengthNote": "Les liens d'échange durent {{duration}}.",
+    "monitorShortLengthNote": "Avec votre offre, les liens de suivi durent {{duration}}. Enthusiast et Business permettent jusqu'à {{longestDuration}}.",
     "create": "Créer le lien",
     "created": "Lien créé. Le code QR et le bouton Partager sont plus bas.",
     "createFailed": "Impossible de créer le lien de partage.",
@@ -171,9 +177,7 @@
     "monitorType": "Suivi",
     "tradeType": "Échange",
     "monitorTypeDescription": "Une vue des cartes, en direct pendant que vous scannez. Les visiteurs ne peuvent pas envoyer d'offres.",
-    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications.",
-    "tradeOneHourNote": "Les liens d'échange durent 1 heure.",
-    "monitorOneHourNote": "Avec votre offre, les liens de suivi durent 1 heure. Enthusiast et Business permettent jusqu'à 30 jours."
+    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications."
   },
   "shareLinks": {
     "detailDescription": "Toute personne disposant de ce lien ou de ce QR code peut l'ouvrir sans se connecter.",
@@ -277,6 +281,14 @@
         "count": "Cartes",
         "value": "Valeur ajoutée"
       },
+      "periods": {
+        "label": "Période",
+        "allTime": "Depuis le début",
+        "week": "Dernière semaine",
+        "month": "Dernier mois",
+        "year": "Dernière année"
+      },
+      "updatedDaily": "Le classement est mis à jour une fois par jour.",
       "weekOf": "Semaine du {{date}}",
       "thisWeek": "Cette semaine",
       "today": "Aujourd'hui",
@@ -340,8 +352,17 @@
     "cardCount_other": "{{count}} cartes",
     "leaderboard": {
       "title": "Classement",
-      "description_one": "La {{count}} organisation qui a scanné le plus de cartes avec Mault.",
-      "description_other": "Les {{count}} organisations qui ont scanné le plus de cartes avec Mault.",
+      "descriptions": {
+        "totalScans_one": "La {{count}} organisation qui a scanné le plus de cartes avec Mault.",
+        "totalScans_other": "Les {{count}} organisations qui ont scanné le plus de cartes avec Mault.",
+        "cardsPerHour_one": "L'organisation dont la machine est la plus rapide sur Mault hébergé, d'après ses 15 meilleures minutes de scan, exprimé en cartes par heure.",
+        "cardsPerHour_other": "Les {{count}} organisations dont les machines sont les plus rapides sur Mault hébergé, d'après les 15 meilleures minutes de chaque machine, exprimé en cartes par heure."
+      },
+      "metrics": {
+        "label": "Classer par",
+        "totalScans": "Le plus de cartes",
+        "cardsPerHour": "Cartes par heure"
+      },
       "error": "Impossible de charger le classement. Réessayez dans un instant.",
       "rank": "#{{rank}}",
       "you": "Vous",
@@ -350,13 +371,19 @@
       "columns": {
         "rank": "Rang",
         "organization": "Organisation",
-        "scans": "Cartes scannées"
+        "totalScans": "Cartes scannées",
+        "cardsPerHour": "Cartes par heure"
       },
       "optIn": {
         "title": "Votre organisation n'apparaît pas dans le classement",
         "description": "Les autres organisations ne vous voient pas. Votre ligne indique le rang que vous auriez. Rejoignez-le depuis les paramètres pour apparaître dans la liste.",
         "action": "Rejoindre le classement"
-      }
+      },
+      "hideSelfHosted": {
+        "label": "Masquer les scans auto-hébergés",
+        "description": "Les serveurs auto-hébergés déclarent eux-mêmes leurs chiffres, qui ne peuvent pas être vérifiés. Active cette option pour ne classer que les scans hébergés."
+      },
+      "selfHostedBadge": "Auto-hébergé"
     },
     "highlights": {
       "title": "En bref"
@@ -506,6 +533,7 @@
     "firmware": "Firmware {{version}} sur {{board}}",
     "findSorters": "Rechercher des trieurs",
     "stopSearching": "Arrêter la recherche",
+    "recent": "Trieurs récents",
     "nearby": "Trieurs à proximité",
     "searching": "Recherche de trieurs",
     "noneFound": "Aucun trieur trouvé",
@@ -952,6 +980,14 @@
       "batchDescriptionNoLocations": "Vous n'avez pas encore d'emplacement de rangement. Ajoutez-en un dans Bibliothèque > Rangement, ou ajoutez les cartes à la collection uniquement.",
       "batchDescriptionLocked": "Les emplacements de rangement ne sont pas inclus dans votre offre, les cartes sont donc ajoutées à la collection uniquement.",
       "batchNoLocationDescription": "Ajouter les cartes à la collection uniquement"
+    },
+    "retainedSettings": {
+      "title": "Réglages de scan toujours actifs",
+      "foil": "Foil : {{type}}",
+      "condition": "État : {{condition}}",
+      "sets_one": "Extension : {{sets}}",
+      "sets_other": "Extensions : {{sets}}",
+      "reset": "Réinitialiser"
     }
   },
   "home": {
@@ -1061,7 +1097,11 @@
     "scanTimelineSortNote": "La chronologie affiche toujours les scans les plus récents en premier.",
     "scanTimelineBlockCount_one": "{{count}} carte",
     "scanTimelineBlockCount_other": "{{count}} cartes",
-    "loadingMoreCards": "Chargement de cartes supplémentaires"
+    "loadingMoreCards": "Chargement de cartes supplémentaires",
+    "unmatchedTileLabel": "Scan non reconnu du {{scannedAt}}",
+    "unmatchedTag": "Non reconnu",
+    "moreUnmatched_one": "{{count}} autre scan non reconnu",
+    "moreUnmatched_other": "{{count}} autres scans non reconnus"
   },
   "cardDetail": {
     "catalogCardRemovedTitle": "Carte retirée du catalogue",
@@ -1141,7 +1181,8 @@
     "shareLinkCopied": "Lien de partage copié. Toute personne qui l’a peut voir cette carte.",
     "shareLinkCopyFailed": "Impossible de copier un lien de partage pour cette carte.",
     "downloadPhoto": "Télécharger la photo",
-    "downloadPhotoFailed": "Impossible de télécharger la photo. Réessayez."
+    "downloadPhotoFailed": "Impossible de télécharger la photo. Réessayez.",
+    "backSideAlt": "{{name}}, verso"
   },
   "reviewGrid": {
     "title": "Vérifier les cartes",
@@ -1291,7 +1332,7 @@
       },
       "alphabet": {
         "title": "Tri alphabétique",
-        "description": "Une lettre par bac, en plusieurs tours, avec un tri plus fin pour les grosses piles"
+        "description": "D'abord des plages de lettres, puis une lettre par bac, avec un tri plus fin pour les grosses piles"
       },
       "chaos": {
         "title": "Tri chaos",
@@ -1351,25 +1392,24 @@
       "lastStage": "Dernière étape"
     },
     "alphabet": {
-      "needBins": "Le tri alphabétique nécessite au moins un bac en plus du bac fourre-tout.",
+      "needBins": "Le tri alphabétique nécessite au moins deux bacs en plus du bac fourre-tout.",
       "passHeading": "Tour {{current}} sur {{total}}",
-      "passRange": "Tri des noms commençant par {{from}} à {{to}}. Tout le reste va dans le bac fourre-tout.",
-      "prefixRange": "Tri de la pile {{prefix}} par la lettre suivante : {{from}} à {{to}}. Tout le reste va dans le bac fourre-tout.",
+      "passRange": "Tri des noms de {{from}} à {{to}}, une lettre par bac. Tout le reste va dans le bac fourre-tout.",
+      "rangePassRange": "Découpage des noms de {{from}} à {{to}} en plages de lettres, une plage par bac. Tout le reste va dans le bac fourre-tout.",
       "unusedBin": "Non utilisé",
-      "nextPassHint": "Quand ce tour est fini, vide chaque bac, remets les cartes du bac fourre-tout dans le chargeur, puis passe aux lettres suivantes.",
       "lastPassHint": "C'est le dernier tour. Ce qui reste ensuite dans le bac fourre-tout a un nom qui ne commence pas par une lettre.",
-      "nextPileHint": "Quand ce tour est fini, vide chaque bac en gardant chaque pile dans l'ordre. Ensuite : la pile {{prefix}}.",
+      "nextPileHint": "Quand ce tour est fini, vide chaque bac en gardant chaque pile dans l'ordre. Ensuite : la pile {{pile}}.",
+      "nextPile": "Suivant : pile {{pile}}",
       "pileDoneHint": "C'est le dernier tour pour la pile {{prefix}}. Recommence pour revenir à l'alphabet complet.",
       "previous": "Précédent",
-      "next": "Lettres suivantes",
       "startOver": "Recommencer",
       "sortDeeper": "Trier plus finement",
       "sortDeeperItem": "Pile {{label}} par lettre suivante",
       "upLevel": "Remonter d'un niveau",
-      "confirmTitle": "Passer à de nouvelles lettres ?",
-      "confirmDescription": "Vérifie que chaque bac est vide et que les cartes du bac fourre-tout sont de retour dans le chargeur. Tous les bacs seront marqués comme vidés.",
-      "confirmPileTitle": "Commencer la pile {{prefix}} ?",
-      "confirmPileDescription": "Vide chaque bac en gardant chaque pile dans l'ordre, puis mets la pile {{prefix}} dans le chargeur. Tous les bacs seront marqués comme vidés.",
+      "confirmTitle": "Revenir à l'alphabet complet ?",
+      "confirmDescription": "Vide chaque bac et remets toutes les cartes dans le chargeur. Tous les bacs seront marqués comme vidés.",
+      "confirmPileTitle": "Commencer la pile {{pile}} ?",
+      "confirmPileDescription": "Vide chaque bac en gardant chaque pile dans l'ordre, puis mets la pile {{pile}} dans le chargeur. Tous les bacs seront marqués comme vidés.",
       "confirm": "Les bacs sont vides"
     },
     "binSummary": {
@@ -1875,9 +1915,9 @@
         "title": "Webhooks",
         "description": "Envoie les événements de scan et de rangement à ton propre serveur"
       },
-      "shopCatalogs": {
-        "title": "Catalogues boutique",
-        "description": "Montrer votre stock aux clients sur une tablette ou un site"
+      "business": {
+        "title": "Business",
+        "description": "Offres de rachat, droits des membres et catalogues boutique"
       }
     },
     "appearance": {
@@ -2053,7 +2093,8 @@
       "cancelAtPeriodEnd": "Ton abonnement se termine le {{date}}.",
       "manageOnWeb": "Les changements de forfait et les informations de paiement se gèrent dans l'application web.",
       "openWeb": "Ouvrir la facturation sur le web",
-      "legacyPlanNote": "Vous avez l'offre Business d'origine, qui n'est plus proposée. Vous la conservez, avec tout ce qu'elle inclut, tant que votre abonnement reste actif. Passer à une autre offre ou résilier est définitif."
+      "legacyPlanNote": "Vous avez l'offre Business d'origine, qui n'est plus proposée. Vous la conservez, avec tout ce qu'elle inclut, tant que votre abonnement reste actif. Passer à une autre offre ou résilier est définitif.",
+      "billingDisabled": "La facturation n'est pas activée sur ce serveur, donc toutes les fonctionnalités sont disponibles sans limite."
     },
     "apiKeys": {
       "heading": "Clés API",
@@ -2331,6 +2372,49 @@
         "saveFailed": "Impossible d'enregistrer la règle sonore."
       }
     },
+    "business": {
+      "description": "Définissez vos offres de rachat et choisissez ce que les membres peuvent voir et faire.",
+      "managersOnly": "Seuls les propriétaires et les admins peuvent modifier ces réglages.",
+      "buylist": {
+        "heading": "Offres de rachat",
+        "description": "Combien vous proposez pour chaque carte lors du rachat d'une collection. Les offres utilisent votre source de prix et vos valeurs d'état.",
+        "tiers": "Paliers de prix",
+        "minPrice": "Prix du marché à partir de",
+        "percent": "Offre (% du marché)",
+        "addTier": "Ajouter un palier",
+        "removeTier": "Retirer le palier",
+        "tiersHint": "Chaque carte utilise le palier le plus élevé atteint par son prix du marché.",
+        "bulkThreshold": "Vrac en dessous de",
+        "bulkOffer": "Offre vrac par carte",
+        "creditBonus": "Bonus en avoir (%)",
+        "preview": "Exemples d'offres",
+        "previewMarket": "Carte à {{price}}",
+        "previewCredit": "{{price}} en avoir",
+        "minCardValue": "Valeur minimale par carte",
+        "minCardValueHint": "Les cartes qui valent moins ne sont pas reprises. Mettez 0 pour tout reprendre.",
+        "previewDeclined": "Non reprise"
+      },
+      "permissions": {
+        "heading": "Droits des membres",
+        "description": "Ce que les membres peuvent faire. Les propriétaires et les admins peuvent toujours tout faire.",
+        "viewCosts": {
+          "label": "Voir les prix de rachat et les coûts",
+          "description": "Offres, coûts d'achat et marges."
+        },
+        "acceptIntake": {
+          "label": "Accepter ou annuler les rachats",
+          "description": "Les membres peuvent toujours scanner dans un rachat ouvert."
+        },
+        "fulfilOrders": {
+          "label": "Créer et terminer les préparations",
+          "description": "Terminer une préparation retire ses cartes du stock."
+        },
+        "viewActivity": {
+          "label": "Voir l'activité de l'équipe",
+          "description": "Rendement par personne et journal d'activité."
+        }
+      }
+    },
     "shopCatalogs": {
       "heading": "Catalogues boutique",
       "description": "Laissez vos clients parcourir votre stock sur une tablette en boutique ou sur votre site. Chaque catalogue montre les cartes des collections et emplacements choisis, via un lien qui fonctionne jusqu'à ce que vous le réinitialisiez.",
@@ -2368,7 +2452,6 @@
       "resetLinkConfirmTitle": "Réinitialiser le lien de ce catalogue ?",
       "resetLinkConfirmDescription": "Le lien et le QR code actuels cessent de fonctionner. Mettez à jour chaque tablette ou site qui les utilise.",
       "linkReset": "Lien réinitialisé. L'ancien lien ne fonctionne plus.",
-      "managersOnly": "Seuls les propriétaires et les admins peuvent gérer les catalogues boutique.",
       "cancel": "Annuler",
       "close": "Fermer",
       "actions": "Actions du catalogue",
@@ -2390,7 +2473,80 @@
       "isPublic": "Public",
       "isPublicDescription": "Tout le monde peut ouvrir ce catalogue depuis son adresse simple, sans le lien privé.",
       "publicBadge": "Public",
-      "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé."
+      "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé.",
+      "allowsReservations": "Laisser les clients réserver des cartes",
+      "allowsReservationsDescription": "Les clients peuvent réserver une carte à retirer en boutique. Si elle est déjà réservée, ils rejoignent la file et avancent quand la personne devant eux ne vient pas la chercher.",
+      "reservationHoldLabel": "Garder une carte réservée pendant",
+      "reservationHoldDays_one": "{{count}} jour",
+      "reservationHoldDays_other": "{{count}} jours",
+      "reservationHoldDescription": "Passé ce délai, la réservation expire et la personne suivante dans la file obtient la carte.",
+      "reservationsOn": "Accepte les réservations"
+    },
+    "statsSync": {
+      "key": {
+        "heading": "Synchronisation des statistiques auto-hébergées",
+        "description": "Tu fais tourner Mault sur ton propre serveur ? Génère une clé ici et saisis-la sur ton serveur dans Paramètres > Intégrations. Ton serveur envoie alors ses totaux de scans ici une fois par jour, en commençant par tous les jours déjà scannés. Seuls les nombres de scans quotidiens sont envoyés, jamais les cartes, photos ou collections. Les scans synchronisés apparaissent dans le classement marqués comme auto-hébergés, et chacun peut les masquer.",
+        "generate": "Générer une clé",
+        "regenerate": "Remplacer la clé",
+        "revoke": "Révoquer",
+        "revoked": "Clé de synchronisation révoquée.",
+        "generateFailed": "Impossible de générer une clé de synchronisation.",
+        "revokeFailed": "Impossible de révoquer la clé de synchronisation.",
+        "loadFailed": "Impossible de charger la clé de synchronisation.",
+        "empty": "Aucun serveur auto-hébergé n'est lié à cette organisation.",
+        "managersOnly": "Seuls les propriétaires et administrateurs de l'organisation peuvent gérer la clé de synchronisation.",
+        "createdBy": "Créée par {{name}} le {{date}}",
+        "lastSynced": "Dernière synchronisation le {{date}}",
+        "neverSynced": "Pas encore synchronisée",
+        "syncedScans_one": "{{formattedCount}} scan synchronisé",
+        "syncedScans_other": "{{formattedCount}} scans synchronisés",
+        "revealTitle": "Copie ta clé de synchronisation",
+        "revealDescription": "C'est la seule fois où la clé complète est affichée. Colle-la sur ton serveur auto-hébergé dans Paramètres > Intégrations.",
+        "revealDone": "Je l'ai copiée",
+        "copy": "Copier la clé",
+        "copied": "Clé de synchronisation copiée.",
+        "copyFailed": "Impossible de copier la clé de synchronisation.",
+        "regenerateConfirmTitle": "Remplacer la clé de synchronisation ?",
+        "regenerateConfirmDescription": "La clé actuelle cesse de fonctionner immédiatement. Ton serveur ne pourra plus synchroniser tant que tu n'y auras pas saisi la nouvelle clé. Les scans déjà synchronisés restent.",
+        "revokeConfirmTitle": "Révoquer la clé de synchronisation ?",
+        "revokeConfirmDescription": "Ton serveur arrête immédiatement la synchronisation. Les scans déjà synchronisés restent dans le classement.",
+        "actionsTitle": "Clé de synchronisation",
+        "share": "Partager la clé",
+        "generateTitle": "Générer une clé de synchronisation"
+      },
+      "connection": {
+        "heading": "Synchroniser les statistiques avec Mault",
+        "description": "Ajoute les nombres de scans de cette organisation aux classements Mault. Crée une organisation sur {{url}}, génère une clé de synchronisation dans Paramètres > Intégrations et colle-la ici. Tous tes scans passés sont envoyés d'abord, puis les nouveaux totaux une fois par jour. Seuls les nombres de scans quotidiens sont envoyés, jamais les cartes, photos ou collections.",
+        "keyLabel": "Clé de synchronisation",
+        "keyPlaceholder": "mvstats_...",
+        "keyDescription": "Générée par ton organisation sur le site principal de Mault.",
+        "connect": "Connecter",
+        "connectFailed": "Le site principal de Mault n'a pas accepté cette clé. Vérifie que tu l'as copiée en entier et qu'elle n'a pas été révoquée ou remplacée.",
+        "syncNow": "Synchroniser maintenant",
+        "syncFailed": "Impossible de synchroniser les statistiques.",
+        "disconnect": "Déconnecter",
+        "disconnected": "Synchronisation des statistiques déconnectée.",
+        "disconnectFailed": "Impossible de déconnecter la synchronisation.",
+        "disconnectConfirmTitle": "Arrêter la synchronisation ?",
+        "disconnectConfirmDescription": "Les nouveaux scans ne sont plus envoyés. Les scans déjà synchronisés restent sur le site principal jusqu'à ce que la clé y soit révoquée.",
+        "loadFailed": "Impossible de charger les paramètres de synchronisation.",
+        "managersOnly": "Seuls les propriétaires et administrateurs de l'organisation peuvent gérer la synchronisation.",
+        "notConnected": "Cette organisation ne synchronise pas ses statistiques.",
+        "lastSynced": "Dernière synchronisation le {{date}}",
+        "neverSynced": "Pas encore synchronisée",
+        "syncedScans_one": "{{formattedCount}} scan sur le site principal",
+        "syncedScans_other": "{{formattedCount}} scans sur le site principal",
+        "errors": {
+          "invalidKey": "Le site principal n'accepte plus cette clé. Génères-y une nouvelle clé, puis déconnecte et reconnecte.",
+          "unreachable": "Impossible de joindre le site principal de Mault. Nouvel essai dans l'heure.",
+          "rejected": "Le site principal de Mault a refusé la dernière synchronisation. Nouvel essai dans l'heure."
+        },
+        "actionsTitle": "Synchronisation des statistiques",
+        "syncing": "Synchronisation...",
+        "synced": "Statistiques synchronisées.",
+        "connected": "Synchronisation des statistiques connectée."
+      },
+      "cancel": "Annuler"
     }
   },
   "binCorrection": {
@@ -2434,7 +2590,9 @@
     "low": "Bas",
     "regular": "Normale",
     "foil": "Foil",
-    "noPrice": "Pas de prix"
+    "noPrice": "Pas de prix",
+    "listingsHeading": "Annonces TCGplayer",
+    "noListings": "Aucune annonce"
   },
   "health": {
     "title": "État du système",
@@ -2575,7 +2733,10 @@
     "catalogSourcesRequired": "Choisis au moins une collection ou un emplacement.",
     "contactRequired": "Indique comment te joindre.",
     "textTooLong": "Reste sous {{max}} caractères.",
-    "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}."
+    "jsonObjectInvalid": "Saisis un seul objet JSON, par exemple {\"neutral\": true}.",
+    "statsSyncKeyInvalid": "Colle la clé entière. Elle commence par mvstats_.",
+    "expiryDaysInvalid": "Saisissez des nombres entiers de jours entre 1 et {{max}}, séparés par des virgules.",
+    "expiryDaysTooMany": "Saisissez au maximum {{max}} durées."
   },
   "cardTags": {
     "title": "Étiquettes",
@@ -2609,7 +2770,47 @@
     "removeAllTitle_other": "Supprimer {{count}} scans non reconnus ?",
     "removeAllDescription": "Les photos sont supprimées et aucune de ces cartes n'est ajoutée à la collection.",
     "badge_one": "{{count}} non reconnue",
-    "badge_other": "{{count}} non reconnues"
+    "badge_other": "{{count}} non reconnues",
+    "retry": {
+      "action": "Réessayer avec une précision accrue",
+      "stop": "Arrêter",
+      "progress_one": "{{checked}} sur {{total}} vérifiées, {{count}} correspondance",
+      "progress_other": "{{checked}} sur {{total}} vérifiées, {{count}} correspondances",
+      "confirmTitle_one": "Réessayer {{count}} carte non reconnue avec une précision accrue ?",
+      "confirmTitle_other": "Réessayer {{count}} cartes non reconnues avec une précision accrue ?",
+      "confirmDescription": "Mault lit le nom, l'extension et le numéro imprimés sur chaque scan enregistré et vérifie à nouveau l'image. Les cartes identifiées sont ajoutées à cette collection et marquées à vérifier. Chaque correspondance compte dans les scans du jour, et les autres restent non reconnues.",
+      "confirm": "Réessayer les cartes",
+      "matched_one": "{{count}} carte identifiée sur {{checked}}. Elle est marquée à vérifier.",
+      "matched_other": "{{count}} cartes identifiées sur {{checked}}. Elles sont marquées à vérifier.",
+      "noMatches_one": "Aucune correspondance parmi {{checked}} cartes.",
+      "noMatches_other": "Aucune correspondance parmi {{checked}} cartes.",
+      "stopped_one": "Arrêté après {{checked}} cartes. {{count}} carte identifiée.",
+      "stopped_other": "Arrêté après {{checked}} cartes. {{count}} cartes identifiées.",
+      "scanLimitReached_one": "{{count}} carte identifiée avant d'atteindre la limite de scans du jour.",
+      "scanLimitReached_other": "{{count}} cartes identifiées avant d'atteindre la limite de scans du jour.",
+      "failed": "Impossible de terminer. Les cartes déjà identifiées ont été conservées."
+    },
+    "selection": {
+      "select": "Sélectionner des scans",
+      "doneSelecting": "Terminer la sélection",
+      "hint": "Sélectionnez jusqu'à {{max}} scans, puis réessayez-les avec une précision accrue ou supprimez-les.",
+      "selectScan": "Sélectionner le scan du {{scannedAt}}",
+      "selected_one": "{{count}} scan sélectionné",
+      "selected_other": "{{count}} scans sélectionnés",
+      "selectLoaded": "Tout sélectionner",
+      "clear": "Effacer",
+      "limitReached": "Vous pouvez sélectionner jusqu'à {{max}} scans à la fois.",
+      "remove": "Supprimer",
+      "removeTitle_one": "Supprimer {{count}} scan non reconnu ?",
+      "removeTitle_other": "Supprimer {{count}} scans non reconnus ?",
+      "removed_one": "{{count}} scan non reconnu supprimé",
+      "removed_other": "{{count}} scans non reconnus supprimés",
+      "removeFailed_one": "Impossible de supprimer {{count}} scan",
+      "removeFailed_other": "Impossible de supprimer {{count}} scans"
+    },
+    "showInGrid": "Afficher dans la grille de cartes",
+    "showInGridDescription": "Les scans non reconnus apparaissent entre vos cartes avec une bordure rouge. S'applique à tous les membres de cette organisation.",
+    "showInGridFailed": "Impossible d'enregistrer le réglage"
   },
   "matchValidations": {
     "ocrFallback": "{{field}} (zone de secours)",
@@ -2825,6 +3026,18 @@
       }
     },
     "plans": {
+      "subscriptions": {
+        "heading": "Abonnements",
+        "description": "Organisations avec un abonnement payant, par offre. Le revenu mensuel récurrent utilise le prix catalogue de chaque offre, les offres annuelles réparties sur 12 mois, avant remises et taxes. Les essais comptent comme abonnés mais n'ajoutent aucun revenu.",
+        "subscribersHeading": "Abonnés",
+        "revenueHeading": "Revenu mensuel récurrent",
+        "total": "Total",
+        "trialingCount_one": "{{count}} en essai",
+        "trialingCount_other": "{{count}} en essai",
+        "unpriced_one": "Le prix de {{count}} abonné n'a pas pu être chargé depuis Stripe, il est donc exclu du revenu.",
+        "unpriced_other": "Les prix de {{count}} abonnés n'ont pas pu être chargés depuis Stripe, ils sont donc exclus du revenu.",
+        "loadFailed": "Impossible de charger les abonnements."
+      },
       "billingDisabled": "La facturation est désactivée sur ce serveur, chaque organisation a donc toutes les fonctionnalités sans limite. Ces réglages s'appliquent une fois la facturation activée.",
       "saveFailed": "Impossible d'enregistrer les réglages des offres",
       "featuresDescription": "Quelles offres peuvent utiliser chaque fonctionnalité. Les fonctionnalités sont définies dans le code, une nouvelle apparaît ici une fois développée.",
@@ -2862,7 +3075,7 @@
         },
         "longShareLinks": {
           "label": "Liens de suivi plus longs",
-          "description": "Les liens de suivi peuvent durer 1, 7 ou 30 jours. Sans cela, ils durent 1 heure. Les liens d'échange durent toujours 1 heure."
+          "description": "Les liens de suivi peuvent durer l'une des durées en jours définies sur le web dans Admin > Liens de partage. Sans cela, ils utilisent la durée courte définie là."
         }
       },
       "limits": {
@@ -3416,7 +3629,8 @@
     },
     "boxes": {
       "received": "Reçues",
-      "sent": "Envoyées"
+      "sent": "Envoyées",
+      "reservations": "Mes réservations"
     },
     "sent": {
       "title": "Offre d'échange envoyée",
@@ -3772,7 +3986,8 @@
     "delete": "Supprimer",
     "views": {
       "intake": "Rachat",
-      "picks": "Préparations"
+      "picks": "Préparations",
+      "reservations": "Réservations"
     },
     "status": {
       "open": "Ouvert",
@@ -3944,7 +4159,8 @@
         "picked": "{{name}} pris dans {{spot}}",
         "alreadyPicked": "Tous les exemplaires de {{name}} de cette préparation sont déjà préparés.",
         "notOnPick": "{{name}} ne reste pas dans cette préparation."
-      }
+      },
+      "reservationCardsNote": "Les cartes réservées restent en stock et sont marquées prêtes à retirer."
     },
     "order": {
       "title": "Préparation",
@@ -3998,6 +4214,98 @@
         "condition": "Autre état",
         "finish": "Autre finition"
       }
+    },
+    "reservations": {
+      "lists": {
+        "active": "En cours",
+        "closed": "Historique"
+      },
+      "waitingSection": "Dans la file ({{count}})",
+      "heldUntil": "Mise de côté jusqu'au {{date}}",
+      "inLinePosition": "Numéro {{position}} sur {{total}} dans la file",
+      "closedOn": "Clôturée le {{date}}",
+      "pickedUp": "Retirée",
+      "release": "Libérer",
+      "collected": "{{name}} retirée et enregistrée comme vendue",
+      "collectConfirmTitle": "Marquer {{name}} comme retirée ?",
+      "collectConfirmDescription": "La carte quitte votre stock et est enregistrée comme vendue {{price}}. Les personnes encore dans la file voient qu'elle n'est plus disponible.",
+      "collectConfirmDescriptionNoPrice": "La carte quitte votre stock et est enregistrée comme vendue sans prix. Les personnes encore dans la file voient qu'elle n'est plus disponible.",
+      "releaseConfirmDescription": "Cette personne perd sa place. Si elle était première de la file, la carte est mise de côté pour la suivante.",
+      "empty": {
+        "activeTitle": "Aucune réservation en cours",
+        "activeDescription": "Les réservations apparaissent ici quand un client réserve une carte depuis un catalogue boutique qui les accepte.",
+        "closedTitle": "Aucune réservation passée",
+        "closedDescription": "Les réservations retirées, libérées ou expirées sont listées ici."
+      },
+      "pickedUpGroup_one": "Retirée",
+      "pickedUpGroup_other": "Retirées ({{count}})",
+      "releaseGroup_one": "Libérer",
+      "releaseGroup_other": "Tout libérer ({{count}})",
+      "releaseCardConfirmTitle": "Libérer {{card}} pour {{name}} ?",
+      "releasedCard": "{{card}} libérée pour {{name}}",
+      "collectGroupConfirmTitle_one": "Marquer 1 carte comme retirée par {{name}} ?",
+      "collectGroupConfirmTitle_other": "Marquer {{count}} cartes comme retirées par {{name}} ?",
+      "collectGroupConfirmDescription_one": "La carte quitte votre stock et est enregistrée comme vendue {{total}}.",
+      "collectGroupConfirmDescription_other": "Les cartes quittent votre stock et sont enregistrées comme vendues {{total}} au total.",
+      "collectGroupConfirmDescriptionMissingPrices_one": "La carte quitte votre stock et est enregistrée comme vendue sans prix.",
+      "collectGroupConfirmDescriptionMissingPrices_other": "Les cartes quittent votre stock et sont enregistrées comme vendues {{total}} au total. Certaines n'ont pas de prix et sont enregistrées sans.",
+      "collectGroupWaitingNote_one": "La carte pour laquelle cette personne est encore dans la file reste réservée.",
+      "collectGroupWaitingNote_other": "Les {{count}} cartes pour lesquelles cette personne est encore dans la file restent réservées.",
+      "collectedGroup_one": "1 carte retirée par {{name}} et enregistrée comme vendue",
+      "collectedGroup_other": "{{count}} cartes retirées par {{name}} et enregistrées comme vendues",
+      "releaseGroupConfirmTitle_one": "Libérer la réservation de {{name}} ?",
+      "releaseGroupConfirmTitle_other": "Libérer les {{count}} réservations de {{name}} ?",
+      "releaseGroupConfirmDescription_one": "Cette personne perd sa place. Si elle était première de la file, la carte est mise de côté pour la suivante.",
+      "releaseGroupConfirmDescription_other": "Cette personne perd sa place sur chaque carte de cette demande. Là où elle était première, la carte est mise de côté pour la suivante.",
+      "releasedGroup_one": "Réservation de {{name}} libérée",
+      "releasedGroup_other": "{{count}} réservations de {{name}} libérées",
+      "customerHint": "Ouvre les actions pour la réservation de ce client",
+      "cardHint": "Ouvre les actions pour cette carte",
+      "pickedUpCardOption": "Retirée : {{card}}",
+      "releaseCardOption": "Libérer : {{card}}",
+      "stages": {
+        "readyForPickup": "Prête à retirer",
+        "beingPicked": "En préparation",
+        "toPull": "À sortir",
+        "waiting": "Dans la file",
+        "collected": "Retirée",
+        "cancelled": "Annulée",
+        "released": "Libérée",
+        "expired": "Expirée",
+        "unavailable": "Carte partie"
+      },
+      "groupSummary": "{{cards}} : {{stages}}",
+      "stageCounts": {
+        "readyForPickup_one": "{{count}} prête à retirer",
+        "readyForPickup_other": "{{count}} prêtes à retirer",
+        "beingPicked_one": "{{count}} en préparation",
+        "beingPicked_other": "{{count}} en préparation",
+        "toPull_one": "{{count}} à sortir",
+        "toPull_other": "{{count}} à sortir",
+        "waiting_one": "{{count}} dans la file",
+        "waiting_other": "{{count}} dans la file"
+      },
+      "heldTotal": "Total des cartes réservées {{total}}",
+      "heldTotalMissingPrices": "Total des cartes réservées {{total}} (certaines sans prix)",
+      "readySection": "Prêtes à retirer ({{count}})",
+      "pullSection": "À sortir ({{count}})",
+      "createPick_one": "Créer une préparation",
+      "createPick_other": "Créer une préparation ({{count}})",
+      "openPick": "Ouvrir la préparation {{name}}",
+      "inPick": "Dans la préparation {{name}}",
+      "pickName": "Réservation : {{name}}",
+      "pickCreated_one": "Préparation créée pour {{name}} avec 1 carte",
+      "pickCreated_other": "Préparation créée pour {{name}} avec {{count}} cartes",
+      "cardCount_one": "1 carte",
+      "cardCount_other": "{{count}} cartes"
+    },
+    "search": {
+      "noResultsTitle": "Aucun résultat",
+      "noResultsDescription": "Rien ne correspond à « {{query}} ». Essayez un autre nom ou mot.",
+      "intakePlaceholder": "Rechercher des rachats par client ou note",
+      "picksPlaceholder": "Rechercher des préparations par nom, carte ou commande",
+      "reservationsPlaceholder": "Rechercher par client, carte ou catalogue",
+      "clear": "Effacer la recherche"
     }
   },
   "machines": {
@@ -4116,5 +4424,64 @@
       "resultsCount_one": "{{count}} nouveauté trouvée",
       "resultsCount_other": "{{count}} nouveautés trouvées"
     }
+  },
+  "myReservations": {
+    "new": "Nouveau",
+    "unknownCatalog": "Catalogue boutique",
+    "openCatalog": "Ouvrir le catalogue",
+    "cancelled": "Réservation annulée",
+    "cancelFailed": "Impossible d'annuler la réservation.",
+    "loadFailed": "Impossible de charger vos réservations.",
+    "emptyTitle": "Aucune réservation pour l'instant",
+    "emptyDescription": "Les cartes que vous réservez dans le catalogue d'une boutique en étant connecté apparaissent ici.",
+    "open": "En cours",
+    "past": "Passées",
+    "trayHeading": "Vos réservations",
+    "view": "Voir les réservations",
+    "alerts": {
+      "held": "{{card}} est maintenant gardée pour vous chez {{catalog}}",
+      "readyForPickup": "{{card}} est prête à retirer chez {{catalog}}",
+      "expired": "Votre réservation de {{card}} chez {{catalog}} a expiré",
+      "released": "{{catalog}} a libéré votre réservation de {{card}}",
+      "unavailable": "{{card}} chez {{catalog}} n'est plus disponible"
+    },
+    "held": "La boutique la garde pour vous.",
+    "heldUntil": "La boutique la garde pour vous jusqu'au {{date}}.",
+    "readyForPickupUntil": "Votre carte est prête. Retirez-la avant le {{date}}.",
+    "aheadOfYou_one": "{{count}} personne est devant vous.",
+    "aheadOfYou_other": "{{count}} personnes sont devant vous.",
+    "status": {
+      "readyForPickup": "Prête à retirer",
+      "ready": "Réservée pour vous",
+      "waiting": "Dans la file",
+      "collected": "Retirée",
+      "cancelled": "Annulée",
+      "released": "Libérée par la boutique",
+      "expired": "Expirée",
+      "unavailable": "Plus disponible"
+    },
+    "actionsHint": "Ouvre les actions pour cette réservation",
+    "cancel": "Annuler la réservation",
+    "keep": "La garder",
+    "cancelConfirmTitle": "Annuler votre réservation de {{name}} ?",
+    "cancelConfirmDescription": "Vous perdez votre place. Si la carte était gardée pour vous, la personne suivante l'obtient.",
+    "noActions": "Rien à faire pour cette réservation.",
+    "requestReservedOn": "Réservée le {{date}}",
+    "requestSummary": "{{cards}} : {{stages}}",
+    "requestCardCount_one": "1 carte",
+    "requestCardCount_other": "{{count}} cartes",
+    "requestCounts": {
+      "readyForPickup_one": "{{count}} prête à retirer",
+      "readyForPickup_other": "{{count}} prêtes à retirer",
+      "held_one": "{{count}} réservée pour vous",
+      "held_other": "{{count}} réservées pour vous",
+      "waiting_one": "{{count}} dans la file",
+      "waiting_other": "{{count}} dans la file"
+    },
+    "cancelAll_one": "Annuler",
+    "cancelAll_other": "Tout annuler ({{count}})",
+    "cancelAllConfirmTitle_one": "Annuler cette réservation ?",
+    "cancelAllConfirmTitle_other": "Annuler les {{count}} réservations en cours ?",
+    "cancelCardOption": "Annuler : {{card}}"
   }
 }

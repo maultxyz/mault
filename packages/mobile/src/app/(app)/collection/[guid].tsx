@@ -6,6 +6,7 @@ import { useTranslation } from "react-i18next";
 import { FlatList, View, type NativeScrollEvent, type NativeSyntheticEvent } from "react-native";
 import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import {
+  buildCardGridTiles,
   computeBinCount,
   DEFAULT_MODULE_COUNT,
   deviceTimeZone,
@@ -13,6 +14,7 @@ import {
   formatScanTimelineBucketLabel,
   groupCardsByScanTime,
   type CardFilters,
+  type CardGridTile,
   type GroupedScannedCard,
 } from "@magic-vault/shared";
 import { AppText } from "@/components/ui/app-text";
@@ -33,6 +35,9 @@ import {
 import { toScanTimelineListRows } from "@/features/collections/lib/scan-timeline-rows";
 import { CardActionsSheet } from "@/features/collections/components/card-actions-sheet";
 import { CollectionCardTile } from "@/features/collections/components/collection-card-tile";
+import { CollectionMoreUnmatchedTile } from "@/features/collections/components/collection-more-unmatched-tile";
+import { CollectionUnmatchedTile } from "@/features/collections/components/collection-unmatched-tile";
+import { useUnmatchedCardsInGrid } from "@/features/org/api/use-unmatched-cards-in-grid";
 import { CardViewOptionsSheet } from "@/features/collections/components/card-view-options-sheet";
 import { CardToolbar } from "@/features/collections/components/card-toolbar";
 import { CollectionGridSkeleton } from "@/features/collections/components/collection-grid-skeleton";
@@ -109,7 +114,7 @@ export default function CollectionScreen() {
   const scanTimelineTimeZone = useMemo(() => deviceTimeZone(), []);
   const [actionsEntry, setActionsEntry] = useState<GroupedScannedCard | null>(null);
   const prefetchCollectionCard = usePrefetchCollectionCard();
-  const listRef = useRef<FlatList<GroupedScannedCard> | FlatList<ScanTimelineListRow> | null>(null);
+  const listRef = useRef<FlatList<CardGridTile> | FlatList<ScanTimelineListRow> | null>(null);
   const [initialScrollRestoreOffset] = useState(() =>
     viewMemory && viewMemory.scrollOffset > 0 && viewMemory.scanTimeline === scanTimeline ? viewMemory.scrollOffset : null,
   );
@@ -117,12 +122,13 @@ export default function CollectionScreen() {
   const pendingScrollRestoreRef = useRef<number | null>(initialScrollRestoreOffset);
   const pagesFetchedForRestoreRef = useRef(0);
   const sorter = useSorter();
+  const { isEnabled: showsUnmatchedCardsInGrid } = useUnmatchedCardsInGrid();
   const cardsQuery = useMemo(
     () => buildCollectionCardsQuery({ search: debounced, sort, filters, grouped, scanTimeline }),
     [debounced, sort, filters, grouped, scanTimeline],
   );
   const cards = useInfiniteQuery({
-    ...collectionCardsQueryOptions(guid, cardsQuery),
+    ...collectionCardsQueryOptions(guid, cardsQuery, showsUnmatchedCardsInGrid),
     placeholderData: keepPreviousData,
   });
   const summary = useQuery(collectionCardsSummaryQueryOptions(guid));
@@ -142,6 +148,10 @@ export default function CollectionScreen() {
   };
 
   const items = useMemo(() => cards.data?.pages.flatMap((page) => page.items) ?? [], [cards.data]);
+  const gridTiles = useMemo(
+    () => cards.data?.pages.flatMap((page) => buildCardGridTiles(page.items, page.unmatched)) ?? [],
+    [cards.data],
+  );
   const isUnfilteredView = !debounced && countActiveCardFilters(filters) === 0;
   const persistViewMemory = () => {
     writeCollectionViewMemory(orgId, guid, {
@@ -225,6 +235,10 @@ export default function CollectionScreen() {
         });
 
   const openUnmatched = () => router.push({ pathname: "/unmatched/[guid]", params: { guid } });
+  const openUnmatchedCard = useCallback(
+    (scanId: string) => router.push({ pathname: "/unmatched-card", params: { guid, scanId } }),
+    [guid],
+  );
 
   const openCard = useCallback(
     (scanId: string) => router.push({ pathname: "/card/[scanId]", params: { scanId, guid } }),
@@ -414,17 +428,27 @@ export default function CollectionScreen() {
           }
         />
       ) : (
-        <FlatList<GroupedScannedCard>
+        <FlatList<CardGridTile>
           key="cards"
           ref={(list) => {
             listRef.current = list;
           }}
-          data={items}
-          keyExtractor={(item) => item.scanId}
+          data={gridTiles}
+          keyExtractor={(tile) =>
+            tile.kind === "moreUnmatched" ? `more-unmatched-${tile.position}` : `${tile.kind}-${tile.entry.scanId}`
+          }
           numColumns={CARD_GRID_COLUMNS}
           columnWrapperStyle={{ gap: CARD_GRID_GAP_X }}
           {...sharedListProps}
-          renderItem={({ item }) => renderCardTile(item)}
+          renderItem={({ item: tile }) =>
+            tile.kind === "card" ? (
+              renderCardTile(tile.entry)
+            ) : tile.kind === "unmatched" ? (
+              <CollectionUnmatchedTile entry={tile.entry} width={tileWidth} onOpen={openUnmatchedCard} />
+            ) : (
+              <CollectionMoreUnmatchedTile hiddenCount={tile.hiddenCount} width={tileWidth} onOpen={openUnmatched} />
+            )
+          }
         />
       )}
       {collection ? (

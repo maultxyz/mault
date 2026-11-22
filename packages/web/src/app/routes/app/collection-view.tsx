@@ -2,9 +2,15 @@ import { EmptyState } from "@/components/empty-state";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { CardGrid } from "@/features/cards/components/card-grid";
+import {
+  clearUnmatchedScans,
+  removeUnmatchedScan,
+} from "@/features/collections/api/collections";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { ViewedCollectionContext } from "@/features/collections/api/use-viewed-collection";
 import { ShareMonitorLinkDialog } from "@/features/collections/components/share-monitor-link-dialog";
+import { useUnmatchedView } from "@/features/scanner/api/use-unmatched-view";
+import { UnmatchedCardsBrowser } from "@/features/scanner/components/unmatched-cards-browser";
 import {
   COLLECTIONS_PATH,
   monitorCollectionPath,
@@ -34,6 +40,7 @@ export default function CollectionViewPage() {
   } = useCollections();
   const collection =
     collections.find((candidate) => candidate.guid === collectionGuid) ?? null;
+  const unmatchedView = useUnmatchedView();
 
   if (collectionGuid && collectionGuid === activeCollection?.guid) {
     return <Navigate to="/app" replace />;
@@ -118,7 +125,20 @@ export default function CollectionViewPage() {
       </div>
       <section className="flex flex-1 min-h-0 flex-col overflow-y-auto @container">
         <ViewedCollectionContext value={collection}>
-          <CardGrid />
+          {unmatchedView.isOpen ? (
+            <UnmatchedCardsBrowser
+              collectionGuid={collection.guid}
+              openIndex={unmatchedView.openIndex}
+              onOpenIndexChange={unmatchedView.setOpenIndex}
+              canIdentify
+              onRemove={(scanId) => removeUnmatchedScan(collection.guid, scanId)}
+              onRemoveAll={() => clearUnmatchedScans(collection.guid)}
+              onClose={unmatchedView.close}
+              className="min-h-full"
+            />
+          ) : (
+            <CardGrid />
+          )}
         </ViewedCollectionContext>
       </section>
     </div>

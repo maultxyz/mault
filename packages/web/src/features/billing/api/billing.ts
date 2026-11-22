@@ -1,5 +1,6 @@
 import { apiGet, apiPost } from "@/lib/api/client";
 import { BILLING_STALE_MS } from "@/lib/constants/timing";
+import { loadServerVersion } from "@/lib/server-version";
 import type { CheckoutRequest } from "@/lib/interfaces/billing";
 import type { BillingStatus } from "@magic-vault/shared";
 import { queryOptions } from "@tanstack/react-query";
@@ -9,6 +10,8 @@ export async function getBillingStatus(): Promise<{
   success: boolean;
   data?: BillingStatus;
 }> {
+  const serverVersion = await loadServerVersion();
+  if (serverVersion?.billingEnabled === false) return { success: true };
   return apiGet("/api/billing");
 }
 
@@ -28,6 +31,13 @@ export async function createPortalSession(): Promise<{
   data?: { url: string };
 }> {
   return apiPost("/api/billing/portal");
+}
+
+export async function syncBillingFromStripe(): Promise<{
+  success: boolean;
+  message?: string;
+}> {
+  return apiPost("/api/billing/sync");
 }
 
 export const billingKeys = {

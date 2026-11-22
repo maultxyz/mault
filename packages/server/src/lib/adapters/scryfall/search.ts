@@ -34,12 +34,18 @@ function normalizeScryfallCard(rawInput: ScryfallApiCard): PlayingCard {
   const raw = withPrintedFields(rawInput);
   const face = raw.card_faces?.[0];
   const imageUris = raw.image_uris ?? face?.image_uris;
+  const backFaceImageUris = raw.image_uris
+    ? undefined
+    : raw.card_faces?.[1]?.image_uris;
 
   return {
     id: raw.id,
     name: raw.name,
     image: imageUris
       ? { small: imageUris.small, normal: imageUris.normal }
+      : null,
+    backImage: backFaceImageUris
+      ? { small: backFaceImageUris.small, normal: backFaceImageUris.normal }
       : null,
     set: raw.set,
     setName: raw.set_name,
@@ -89,7 +95,10 @@ export const scryfallAdapter: CardSearchAdapter = {
   cardmarket: {
     gameId: 1,
     siteGamePath: "Magic",
-    productIdFromRaw: (card) => (card.raw as ScryfallApiCard).cardmarket_id,
+    productIdFromRaw: (card) => {
+      const raw = card.raw as ScryfallApiCard;
+      return raw.cardmarket_id ?? raw.englishPrintingCardmarketId;
+    },
   },
   cardkingdom: {
     scryfallIdFromRaw: (card) => (card.raw as ScryfallApiCard | undefined)?.id,

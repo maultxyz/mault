@@ -1,4 +1,4 @@
-import { isCardLanguage } from "@magic-vault/shared";
+import { cardSearchLanguageOrCollectionDefault } from "@magic-vault/shared";
 import { and, eq } from "drizzle-orm";
 import { authQuery, orgIdOfJwtClaims } from "../../db";
 import { collections, games } from "../../db/schema";
@@ -61,6 +61,7 @@ export function adapterEntriesForGameKeys(
 const collectionMatchScopeCache = createKeyedCache<CollectionMatchScope | null>(
   COLLECTION_MATCH_SCOPE_CACHE_TTL_MS,
   AUTH_LOOKUP_CACHE_MAX_ENTRIES,
+  { staleWhileRefreshingMs: COLLECTION_MATCH_SCOPE_CACHE_TTL_MS },
 );
 
 export async function resolveGameKeyAndLang(
@@ -122,9 +123,10 @@ export async function resolveManualCardSearch(
 ): Promise<ResolvedCardSearch | null> {
   const resolved = await resolveCardSearch(jwtClaims, collectionGuid);
   if (!resolved) return null;
-  const onlyLanguage = isCardLanguage(requestedLanguage)
-    ? requestedLanguage
-    : undefined;
+  const onlyLanguage = cardSearchLanguageOrCollectionDefault(
+    requestedLanguage,
+    resolved.lang,
+  );
   return { ...resolved, searchAllLanguages: true, onlyLanguage };
 }
 

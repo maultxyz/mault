@@ -1,3 +1,4 @@
+import type { SerialReply } from "./serial-session.interface";
 import type { ChannelLayout } from "./module-configs.interface";
 import type { ScanRegion } from "./scanner.interface";
 
@@ -36,4 +37,16 @@ export interface Device {
   testOnConnect: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface RecentSorter {
+  id: string;
+  deviceGuid: string;
+  name: string;
+  connectedAt: string;
+}
+
+export interface SorterNameSyncLink {
+  runWhenIdle: <T>(task: () => Promise<T>) => Promise<T | null>;
+  sendParsed: (command: object) => Promise<SerialReply | null>;
 }

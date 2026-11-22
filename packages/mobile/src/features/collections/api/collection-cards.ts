@@ -6,6 +6,10 @@ import {
   type QueryClient,
 } from "@tanstack/react-query";
 import {
+  COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM,
+  COLLECTION_CARDS_RAW_CARD_DATA_NONE,
+  COLLECTION_CARDS_RAW_CARD_DATA_PARAM,
+  COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS,
   EMPTY_CARD_FILTERS,
   type SetCardTagsRequest,
   type CardScanOrigin,
@@ -24,11 +28,13 @@ import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/
 import { CARD_EDIT_REFRESH_DELAY_MS, SCAN_IMAGE_STALE_MS, SCAN_SAVE_REFRESH_THROTTLE_MS } from "@/lib/constants/query";
 import type { CardUpdateBody } from "@/lib/interfaces/cards";
 import type { ScanImageResponse } from "@/lib/interfaces/collections";
+import { collectionCardDetailKeys, loadThroughCardDetails } from "@/features/collections/api/card-details";
 
 function cardsParams(search: string, page?: number, review = false): string {
   const params = new URLSearchParams({
     grouped: review ? "0" : "1",
     filters: JSON.stringify(review ? { ...EMPTY_CARD_FILTERS, needsAttention: true } : EMPTY_CARD_FILTERS),
+    [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE,
   });
   if (review) params.set("unreviewed", "1");
   if (page != null) params.set("page", String(page));
@@ -37,18 +43,32 @@ function cardsParams(search: string, page?: number, review = false): string {
 }
 
 export function collectionCardsQueryParams(query: CollectionCardsQuery, page: number): string {
-  const params = new URLSearchParams({ filters: JSON.stringify(query.filters), page: String(page) });
+  const params = new URLSearchParams({
+    filters: JSON.stringify(query.filters),
+    page: String(page),
+    [COLLECTION_CARDS_RAW_CARD_DATA_PARAM]: COLLECTION_CARDS_RAW_CARD_DATA_NONE,
+  });
   if (query.grouped) params.set("grouped", "1");
   if (query.search) params.set("search", query.search);
   if (query.sort) params.set("sort", query.sort);
   return params.toString();
 }
 
-export const collectionCardsQueryOptions = (guid: string, query: CollectionCardsQuery) =>
+export const collectionCardsQueryOptions = (
+  guid: string,
+  query: CollectionCardsQuery,
+  includesUnmatchedCards = false,
+) =>
   infiniteQueryOptions({
-    queryKey: ["collection-cards", guid, "list", query] as const,
+    queryKey: ["collection-cards", guid, "list", query, includesUnmatchedCards] as const,
     queryFn: ({ pageParam }) =>
-      unwrap(apiGet<Result<CollectionCardsPage>>(`/api/collections/${guid}/cards?${collectionCardsQueryParams(query, pageParam)}`)),
+      unwrap(
+        apiGet<Result<CollectionCardsPage>>(
+          `/api/collections/${guid}/cards?${collectionCardsQueryParams(query, pageParam)}${
+            includesUnmatchedCards ? `&${COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM}=1` : ""
+          }`,
+        ),
+      ),
     initialPageParam: 0,
     getNextPageParam: (last) =>
       (last.page + 1) * last.pageSize < last.totalEntries ? last.page + 1 : undefined,
@@ -77,6 +97,8 @@ export const collectionCardsSummaryQueryOptions = (guid: string) =>
     queryKey: ["collection-cards", guid, "summary"] as const,
     queryFn: () =>
       unwrap(apiGet<Result<CollectionCardsSummary>>(`/api/collections/${guid}/cards/summary?${cardsParams("")}`)),
+    refetchInterval: (query) =>
+      query.state.data?.isRefreshing ? COLLECTION_CARDS_SUMMARY_REFRESHING_POLL_MS : false,
     placeholderData: keepPreviousData,
   });
 
@@ -165,16 +187,32 @@ export function invalidateAfterScanSave(queryClient: QueryClient, guid: string):
 
 export const cardScanOriginQueryOptions = (guid: string, scanId: string) =>
   queryOptions({
-    queryKey: ["card-scan-origin", scanId] as const,
-    queryFn: () =>
-      unwrapOr(apiGet<Result<CardScanOrigin | null>>(`/api/collections/${guid}/cards/${scanId}/origin`), null),
+    queryKey: collectionCardDetailKeys.origin(scanId),
+    queryFn: (context) =>
+      loadThroughCardDetails(
+        context,
+        guid,
+        scanId,
+        (details) => details.origin,
+        () => unwrapOr(apiGet<Result<CardScanOrigin | null>>(`/api/collections/${guid}/cards/${scanId}/origin`), null),
+      ),
     staleTime: Infinity,
   });
 
 export const scanImageQueryOptions = (guid: string, scanId: string) =>
   queryOptions({
-    queryKey: ["collection-card-image", guid, scanId] as const,
-    queryFn: () => unwrap(apiGet<Result<ScanImageResponse>>(`/api/collections/${guid}/cards/${scanId}/image`)),
+    queryKey: collectionCardDetailKeys.image(guid, scanId),
+    queryFn: (context): Promise<ScanImageResponse> =>
+      loadThroughCardDetails(
+        context,
+        guid,
+        scanId,
+        (details) => ({
+          capturedImageUrl: details.images.capturedImageUrl ?? null,
+          capturedBackImageUrl: details.images.capturedBackImageUrl ?? null,
+        }),
+        () => unwrap(apiGet<Result<ScanImageResponse>>(`/api/collections/${guid}/cards/${scanId}/image`)),
+      ),
     staleTime: SCAN_IMAGE_STALE_MS,
   });
 

@@ -22,6 +22,8 @@ export const CARD_PRICE_DETAIL_KEYS = [
   "stampPrices",
   "priceByCondition",
   "priceFoilByCondition",
+  "listingCountByCondition",
+  "listingCountFoilByCondition",
   "foilOnlyFoilType",
 ] as const;
 

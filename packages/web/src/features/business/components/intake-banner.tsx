@@ -3,6 +3,7 @@ import { openIntakeLotsQueryOptions } from "@/features/business/api/business";
 import { useBusinessAccess } from "@/features/business/api/use-business";
 import { useCollections } from "@/features/collections/api/use-collections";
 import { INTAKE_LOT_PARAM, INTAKE_PATH } from "@/lib/constants/business";
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import { IconArrowRight } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -13,7 +14,11 @@ export function IntakeBanner() {
   const { pathname } = useLocation();
   const { orgId, access } = useBusinessAccess();
   const { activeCollection } = useCollections();
-  const { data: lots = [] } = useQuery(openIntakeLotsQueryOptions(orgId));
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
+  const { data: lots = [] } = useQuery({
+    ...openIntakeLotsQueryOptions(orgId),
+    enabled: !!orgId && areSecondaryRequestsEnabled,
+  });
   const lot = lots.find(
     (candidate) =>
       candidate.status === "open" &&

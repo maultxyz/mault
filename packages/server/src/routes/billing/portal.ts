@@ -35,7 +35,7 @@ export const portalBillingRoute = new Hono<AppEnv>().post(
       const configuration = await getBillingPortalConfigurationId();
       const session = await getStripe().billingPortal.sessions.create({
         customer: billing.stripeCustomerId,
-        return_url: `${webUrl()}/app/settings`,
+        return_url: `${webUrl()}/app/settings/billing?billing=portal`,
         ...(configuration ? { configuration } : {}),
       });
       return c.json({ success: true, message: "Created.", data: { url: session.url } });

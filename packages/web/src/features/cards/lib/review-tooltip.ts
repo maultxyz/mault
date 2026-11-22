@@ -1,4 +1,20 @@
+import type {
+  CardReviewStatus,
+  CardReviewStatusInput,
+} from "@magic-vault/shared";
 import type { TFunction } from "i18next";
+
+export function reviewStatusLabel(
+  t: TFunction,
+  status: CardReviewStatus | null,
+  { lowConfidenceMatch = false, hasAlternatives = false }: CardReviewStatusInput,
+): string | null {
+  if (!status) return null;
+  if (!lowConfidenceMatch && !hasAlternatives) {
+    return t("scannedCardItem.reviewedTooltip");
+  }
+  return reviewTooltip(t, lowConfidenceMatch, status === "reviewed");
+}
 
 export function reviewTooltip(
   t: TFunction,

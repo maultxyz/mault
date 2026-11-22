@@ -9,6 +9,8 @@ import { BrandIcon } from "@/components/ui/brand-icon";
 import { useAppAlerts } from "@/features/stream/api/use-app-alerts";
 import { pendingTradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offers";
 import { AlertsSheet } from "@/features/stream/components/alerts-sheet";
+import { myCardReservationsQueryOptions } from "@/features/card-reservations/api/my-card-reservations";
+import { useSession } from "@/lib/auth/session";
 import { ValidateMatchesTopBarButton } from "@/features/match-validations/components/validate-matches-top-bar-button";
 import { MATCH_VALIDATIONS_ENABLED } from "@/lib/constants/match-validations";
 import { PlanPreviewTopBarChip } from "@/features/admin/components/plan-preview-top-bar-chip";
@@ -34,7 +36,10 @@ export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBa
   const orgId = org?.id ?? null;
   const alerts = useAppAlerts();
   const { data: tradeOffers = [] } = useQuery(pendingTradeOffersQueryOptions(orgId));
-  const notificationCount = alerts.length + tradeOffers.length;
+  const userId = useSession().user?.id ?? null;
+  const { data: myReservations = [] } = useQuery(myCardReservationsQueryOptions(userId));
+  const reservationAlerts = myReservations.filter((reservation) => reservation.guestAlert !== null);
+  const notificationCount = alerts.length + tradeOffers.length + reservationAlerts.length;
   const [openSheet, setOpenSheet] = useState<AppTopBarSheet | null>(null);
   const closeSheet = () => setOpenSheet(null);
   const openNotificationsFromLink = useGlobalSearchParams()[OPEN_NOTIFICATIONS_LINK_PARAM];
@@ -111,6 +116,11 @@ export function AppTopBar({ opensNotificationsFromWidgetLink = false }: AppTopBa
         visible={openSheet === "alerts"}
         alerts={alerts}
         tradeOffers={tradeOffers}
+        reservationAlerts={reservationAlerts}
+        onOpenReservations={() => {
+          closeSheet();
+          router.navigate({ pathname: "/collections", params: { view: "trades", box: "reservations" } });
+        }}
         onOpenTradeOffer={(guid) => {
           closeSheet();
           router.push({ pathname: "/trade-offer/[guid]", params: { guid } });

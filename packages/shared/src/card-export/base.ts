@@ -68,6 +68,7 @@ export function groupExportCards(
       stamp: entry.stamp,
       condition: toCardCondition(entry.condition),
       language: scanLanguage(entry),
+      binNumber: entry.binNumber,
     }));
   const grouped = new Map<string, GroupedEntry>();
   for (const entry of cards) {
@@ -118,6 +119,12 @@ function mergeEntriesByRowKey(
   return Array.from(merged.values());
 }
 
+function oldestScanFirst(cards: ExportableCard[]): ExportableCard[] {
+  return cards.every((card) => card.scannedAt != null)
+    ? [...cards].sort((first, second) => first.scannedAt! - second.scannedAt!)
+    : cards;
+}
+
 const dateSuffix = () => new Date().toISOString().slice(0, 10);
 
 export function buildExportCsv(
@@ -126,14 +133,16 @@ export function buildExportCsv(
   ctx: ExportContext,
   combineDuplicates: boolean,
 ): string {
-  const entries = mergeEntriesByRowKey(
-    adapter,
-    groupExportCards(cards, adapter.groupBy, combineDuplicates),
-    ctx,
-  );
+  const entries = adapter.exportsEachCopyInScanOrder
+    ? groupExportCards(oldestScanFirst(cards), adapter.groupBy, false)
+    : mergeEntriesByRowKey(
+        adapter,
+        groupExportCards(cards, adapter.groupBy, combineDuplicates),
+        ctx,
+      );
   return [
     adapter.headers(ctx).join(","),
-    ...entries.map((entry) => adapter.row(entry, ctx).join(",")),
+    ...entries.map((entry, rowIndex) => adapter.row(entry, ctx, rowIndex).join(",")),
   ].join("\n");
 }
 

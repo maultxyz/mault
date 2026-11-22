@@ -15,54 +15,11 @@ import { IconBrandDiscord, IconMenu2 } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { SkipLink } from "@/components/skip-link";
-import { Link, useLocation } from "react-router-dom";
-import { PUBLIC_NAV_PAGES } from "@/lib/constants/nav";
-
-function PageLinks({
-  className,
-  linkClassName,
-  onNavigate,
-}: {
-  className?: string;
-  linkClassName: (active: boolean) => string;
-  onNavigate?: () => void;
-}) {
-  const { t } = useTranslation("common");
-  const location = useLocation();
-
-  return (
-    <nav className={className} aria-label={t("publicNav.pagesAria")}>
-      {PUBLIC_NAV_PAGES.map((page) => {
-        if ("external" in page && page.external) {
-          return (
-            <a
-              key={page.key}
-              href={page.to}
-              target="_blank"
-              rel="noreferrer"
-              onClick={onNavigate}
-              className={linkClassName(false)}
-            >
-              {t(`publicNav.pages.${page.key}`)}
-            </a>
-          );
-        }
-        const active = location.pathname === page.to;
-        return (
-          <Link
-            key={page.key}
-            to={page.to}
-            aria-current={active ? "page" : undefined}
-            onClick={onNavigate}
-            className={linkClassName(active)}
-          >
-            {t(`publicNav.pages.${page.key}`)}
-          </Link>
-        );
-      })}
-    </nav>
-  );
-}
+import { Link } from "react-router-dom";
+import {
+  DesktopPublicNavLinks,
+  DrawerPublicNavLinks,
+} from "@/components/public-nav-links";
 
 export function PublicNav() {
   const { t } = useTranslation("common");
@@ -77,15 +34,7 @@ export function PublicNav() {
       <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
         <div className="flex items-center gap-6">
           <BrandMark className="color-primary" />
-          <PageLinks
-            className="hidden items-center gap-1 md:flex"
-            linkClassName={(active) =>
-              cn(
-                "rounded-md px-2.5 py-1.5 text-sm font-medium transition-colors hover:bg-foreground/6 hover:text-foreground",
-                active ? "text-foreground" : "text-foreground/70",
-              )
-            }
-          />
+          <DesktopPublicNavLinks />
         </div>
 
         <div className="flex items-center gap-2">
@@ -151,16 +100,7 @@ export function PublicNav() {
                 <DrawerTitle>{t("publicNav.menuAriaLabel")}</DrawerTitle>
               </DrawerHeader>
               <div className="flex flex-col gap-1 p-2">
-                <PageLinks
-                  className="flex flex-col"
-                  onNavigate={closeMenu}
-                  linkClassName={(active) =>
-                    cn(
-                      "rounded-md px-3 py-2.5 text-sm font-medium transition-colors hover:bg-foreground/6 hover:text-foreground",
-                      active ? "text-foreground" : "text-foreground/70",
-                    )
-                  }
-                />
+                <DrawerPublicNavLinks onNavigate={closeMenu} />
                 <div className="my-1 h-px bg-border" aria-hidden />
                 <a
                   href={DISCORD_URL}

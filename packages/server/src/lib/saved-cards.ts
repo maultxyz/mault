@@ -213,3 +213,16 @@ export async function toSavedCardSnapshots<
   const inCatalog = keys.length > 0 ? await findCatalogCardKeys(keys) : new Set<string>();
   return slimSavedCardSnapshots(scope, card, alternativeMatches, inCatalog);
 }
+
+function withoutRaw<C extends PlayingCard>(card: C): C {
+  return card.raw === undefined ? card : { ...card, raw: undefined };
+}
+
+export function withoutRawCardData<T extends SavedScanFields>(scans: T[]): T[] {
+  return scans.map((scan) => ({
+    ...scan,
+    card: scan.card ? withoutRaw(scan.card) : scan.card,
+    alternativeMatches:
+      scan.alternativeMatches?.map(withoutRaw) ?? scan.alternativeMatches,
+  }));
+}

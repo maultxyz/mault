@@ -25,7 +25,7 @@ export function tcgplayerId(card: PlayingCard): string {
   return legacyId != null ? String(legacyId) : "";
 }
 
-function skuMatchFor(entry: GroupedEntry, ctx: ExportContext): TcgplayerSkuMatch | undefined {
+export function skuMatchFor(entry: GroupedEntry, ctx: ExportContext): TcgplayerSkuMatch | undefined {
   return ctx.tcgplayerSkusByEntryKey?.[exportEntryKey(entry)];
 }
 
@@ -59,7 +59,11 @@ export function marketPrice({ card, isFoil, foilType }: GroupedEntry): string {
   return price != null ? price.toFixed(2) : "";
 }
 
-function tcgplayerMarketPrice(entry: GroupedEntry, ctx: ExportContext): string {
+export function tcgplayerPrinting(entry: GroupedEntry, ctx: ExportContext): string {
+  return skuMatchFor(entry, ctx)?.variant ?? finishLabel(entry.isFoil, ctx.isMtg ? null : entry.foilType);
+}
+
+export function tcgplayerMarketPrice(entry: GroupedEntry, ctx: ExportContext): string {
   const skuPrice = skuMatchFor(entry, ctx)?.marketPrice;
   return skuPrice != null ? skuPrice.toFixed(2) : marketPrice(entry);
 }

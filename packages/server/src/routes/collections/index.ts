@@ -11,6 +11,7 @@ import { clearCollectionCardsRoute } from "./cards-clear";
 import { deleteCollectionCardRoute } from "./cards-delete";
 import { collectionCardLocationRoute } from "./cards-location";
 import { collectionCardOriginRoute } from "./cards-origin";
+import { collectionCardDetailsRoute } from "./cards-details";
 import { collectionCardDiagnosticsRoute } from "./cards-diagnostics";
 import { collectionCardImageRoute } from "./cards-image";
 import { editCollectionCardRoute } from "./cards-edit";
@@ -44,6 +45,7 @@ import { clearUnmatchedCardsRoute } from "./unmatched-clear";
 import { deleteUnmatchedCardRoute } from "./unmatched-delete";
 import { identifyUnmatchedCardRoute } from "./unmatched-identify";
 import { listUnmatchedCardsRoute } from "./unmatched-list";
+import { retryUnmatchedCardsRoute } from "./unmatched-retry";
 
 const router = new Hono<AppEnv>()
   .route("/", searchOwnedCardsRoute)
@@ -71,6 +73,7 @@ const router = new Hono<AppEnv>()
   .route("/", collectionCardDiagnosticsRoute)
   .route("/", collectionCardLocationRoute)
   .route("/", collectionCardOriginRoute)
+  .route("/", collectionCardDetailsRoute)
   .route("/", editCollectionCardRoute)
   .route("/", acceptReviewCollectionCardsRoute)
   .route("/", setCollectionCardTagsRoute)
@@ -86,6 +89,7 @@ const router = new Hono<AppEnv>()
   .route("/", clearUnmatchedCardsRoute)
   .route("/", deleteUnmatchedCardRoute)
   .route("/", identifyUnmatchedCardRoute)
+  .route("/", retryUnmatchedCardsRoute)
   .route("/", releaseScanLockRoute)
   .route("/", debugErrorRoute)
   .route("/", phoneCameraSignalRoute)

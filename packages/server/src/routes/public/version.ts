@@ -3,6 +3,7 @@ import pkg from "../../../package.json";
 import { getShortLinkBaseUrl } from "../../lib/constants/urls";
 import { getLatestFirmwareVersion } from "../../lib/firmware-releases";
 import { isPiHost, isPiSorter } from "../../lib/pi-host";
+import { isBillingEnabled } from "../../lib/stripe";
 import type { AppEnv } from "../../middleware/auth";
 
 export const versionRoute = new Hono<AppEnv>().get("/version", (c) => {
@@ -15,6 +16,7 @@ export const versionRoute = new Hono<AppEnv>().get("/version", (c) => {
       piSorter: isPiSorter(),
       piController: isPiSorter(),
       shortLinkBaseUrl: getShortLinkBaseUrl(),
+      billingEnabled: isBillingEnabled(),
     },
   });
 });

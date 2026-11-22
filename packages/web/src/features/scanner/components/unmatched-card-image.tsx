@@ -26,7 +26,7 @@ export function UnmatchedCardImage({
               ? t("unmatchedCardsPanel.backSideAlt")
               : t("unmatchedCardsPanel.imageAlt")
           }
-          className="h-full w-full object-contain"
+          className="h-full w-full object-fill"
         />
       ) : (
         <div className="flex h-full w-full items-center justify-center">

@@ -2,6 +2,7 @@ import { eq } from "drizzle-orm";
 import { Hono } from "hono";
 import { db } from "../../db";
 import { orgSettings } from "../../db/schema";
+import { forgetDiscordGuildOrgs } from "../../lib/discord/guild-orgs";
 import { clearOrgDiscordReferences } from "../../lib/discord/unlink";
 import type { AppEnv } from "../../middleware/auth";
 import { getOrgName } from "./shared";
@@ -73,6 +74,7 @@ export const botLinkRoute = new Hono<AppEnv>().post("/link", async (c) => {
       })
       .where(eq(orgSettings.orgId, row.orgId));
   });
+  forgetDiscordGuildOrgs();
 
   return c.json({
     success: true,

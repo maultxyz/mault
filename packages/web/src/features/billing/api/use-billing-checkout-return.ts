@@ -5,6 +5,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
+import { billingKeys, syncBillingFromStripe } from "./billing";
 
 export function useBillingCheckoutReturn() {
   const { t } = useTranslation("billing");
@@ -15,11 +16,15 @@ export function useBillingCheckoutReturn() {
 
   useEffect(() => {
     if (!result) return;
-    if (result === "success") {
-      toast.success(t("checkoutSuccess"));
-      void queryClient.invalidateQueries({
-        queryKey: ["billing", activeOrg?.id],
-      });
+    if (result === "success" || result === "portal") {
+      if (result === "success") toast.success(t("checkoutSuccess"));
+      void syncBillingFromStripe()
+        .catch(() => undefined)
+        .then(() =>
+          queryClient.invalidateQueries({
+            queryKey: [...billingKeys.root(), activeOrg?.id],
+          }),
+        );
     }
     setSearchParams(
       (prev) => {

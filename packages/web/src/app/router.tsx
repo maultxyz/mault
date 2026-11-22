@@ -30,7 +30,7 @@ import {
   APP_SHELL_NAMESPACES,
   withNamespaces,
 } from "@/lib/i18n";
-import { lazyRoute, registerPreloadableRoutes } from "@/lib/route-chunks";
+import { lazyRoute } from "@/lib/route-chunks";
 import { MACHINES_ROUTE_PATH } from "@/lib/constants/machines";
 import { WHATS_NEW_PATH } from "@/lib/constants/feature-highlights";
 import { SORTERS_OVERVIEW_PATH } from "@/lib/constants/scanner";
@@ -83,6 +83,7 @@ import {
   PICK_BATCH_PATH,
   PICKS_PATH,
   PRICE_LABELS_PATH,
+  RESERVATIONS_PATH,
   picksPath,
   LEGACY_REPORTS_PATH,
 } from "@/lib/constants/business";
@@ -248,6 +249,12 @@ const AdminShortLinksPage = lazyRoute(
     ["admin"],
   ),
 );
+const AdminShareLinksPage = lazyRoute(
+  withNamespaces(
+    () => import("@/app/routes/app/admin/share-links"),
+    ["admin"],
+  ),
+);
 const AdminDeveloperPage = lazyRoute(
   withNamespaces(() => import("@/app/routes/app/admin/developer"), ["admin"]),
 );
@@ -330,6 +337,7 @@ const StatsPage = lazyRoute(loadStatsPage);
 const IntakePage = lazyRoute(() => import("@/app/routes/app/intake"));
 const PicksPage = lazyRoute(() => import("@/app/routes/app/picks"));
 const PriceLabelsPage = lazyRoute(() => import("@/app/routes/app/price-labels"));
+const ReservationsPage = lazyRoute(() => import("@/app/routes/app/reservations"));
 const PickBatchPage = lazyRoute(() => import("@/app/routes/app/pick-batch"));
 const PackingSlipsPage = lazyRoute(() => import("@/app/routes/app/packing-slips"));
 const PickImportPage = lazyRoute(
@@ -360,14 +368,14 @@ function AppChunkPreloader() {
     loadAuthGuard().catch(ignoreFailure);
     loadAppLayout().catch(ignoreFailure);
     loadHomePage().catch(ignoreFailure);
-    if (!isMobile || piHost) loadScannerPage().catch(ignoreFailure);
-  }, [isMobile, piHost]);
+  }, []);
   useEffect(() => {
     if (!isInApp) return;
     let cancelIdlePreload = () => {};
     const delayHandle = setTimeout(() => {
       cancelIdlePreload = runTasksOneByOneWhenIdle(
         [
+          ...(!isMobile || piHost ? [loadScannerPage] : []),
           loadLibraryPage,
           loadCollectionViewPage,
           loadStatsPage,
@@ -381,7 +389,7 @@ function AppChunkPreloader() {
       clearTimeout(delayHandle);
       cancelIdlePreload();
     };
-  }, [isInApp]);
+  }, [isInApp, isMobile, piHost]);
   return null;
 }
 
@@ -735,6 +743,15 @@ export const routes: RouteObject[] = [
                         element: <AdminShortLinksPage />,
                       },
                       {
+                        element: <AdminGuard />,
+                        children: [
+                          {
+                            path: "share-links",
+                            element: <AdminShareLinksPage />,
+                          },
+                        ],
+                      },
+                      {
                         path: "hardware",
                         element: <AdminHardwarePage />,
                       },
@@ -861,6 +878,10 @@ export const routes: RouteObject[] = [
                 element: <PriceLabelsPage />,
               },
               {
+                path: RESERVATIONS_PATH,
+                element: <ReservationsPage />,
+              },
+              {
                 path: PICK_BATCH_PATH,
                 element: <PickBatchPage />,
               },
@@ -953,5 +974,3 @@ export const routes: RouteObject[] = [
     ],
   },
 ];
-
-registerPreloadableRoutes(routes);

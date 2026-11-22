@@ -29,6 +29,12 @@ export interface GrandArchiveEdition {
   set: GrandArchiveSet;
   circulations: GrandArchiveCirculation[];
   circulationTemplates: GrandArchiveCirculation[];
+  other_orientations?: GrandArchiveOtherOrientation[];
+}
+
+export interface GrandArchiveOtherOrientation {
+  name: string;
+  edition: Pick<GrandArchiveEdition, "image" | "orientation"> | null;
 }
 
 export interface GrandArchiveCard {

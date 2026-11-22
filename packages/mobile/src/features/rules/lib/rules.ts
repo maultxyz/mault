@@ -3,7 +3,7 @@ import * as Crypto from "expo-crypto";
 import type { TFunction } from "i18next";
 import {
   COUNT_OPERATORS,
-  getAlphabetPassLetters,
+  getAlphabetPassLabels,
   getCatchAllBin,
   isRuleGroup,
   type BinCondition,
@@ -113,7 +113,7 @@ export function binModeSummaries(
   const summaries = new Map<number, string>();
   if (!set) return summaries;
   if (mode === "alphabet") {
-    const letters = getAlphabetPassLetters(bins, set.alphabetPass, set.alphabetPrefix);
+    const letters = getAlphabetPassLabels(bins, set.alphabetPass, set.alphabetPrefix);
     for (const bin of bins) {
       const letter = letters.get(bin.binNumber);
       summaries.set(

@@ -447,7 +447,8 @@ export function StatsDashboard({
   const { t: tBusiness } = useTranslation("business");
   const costed = report.costsVisible && (totals.costedCount ?? 0) > 0;
   const margin = (totals.costedValue ?? 0) - (totals.costBasis ?? 0);
-  const insights = buildStatsInsights(report, t, format, locale);
+  const isMobile = useIsMobile();
+  const insights = buildStatsInsights(report, t, format, locale, isMobile);
 
   const priceColumns = report.priceBuckets.map((bucket) => ({
     key: bucket.key,

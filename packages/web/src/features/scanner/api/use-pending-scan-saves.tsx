@@ -67,7 +67,6 @@ export function PendingScanSavesProvider({
           send: sendPendingSave,
           put: putPendingScanSave,
           remove: deletePendingScanSave,
-          storesBeforeFirstAttempt: true,
           onPendingCountChange: (delta) =>
             setPendingCount((count) => count + delta),
           onRetryableFailure: (save, error, wasQueued) =>
@@ -93,13 +92,12 @@ export function PendingScanSavesProvider({
   }, [queue]);
 
   const submit = useCallback(
-    (save: PendingScanSave, onStored?: () => void) =>
-      queue.submit(save, onStored),
+    (save: PendingScanSave) => queue.submit(save),
     [queue],
   );
 
   const saveCard = useCallback(
-    async (save: CardScanSave, onStored?: () => void) => {
+    async (save: CardScanSave) => {
       const { scanId, card } = save.record;
       if (
         !pendingScanCardsStore
@@ -113,15 +111,12 @@ export function PendingScanSavesProvider({
         });
       }
       try {
-        const result = (await submit(
-          {
-            ...save,
-            kind: "card",
-            scanId,
-            queuedAt: Date.now(),
-          },
-          onStored,
-        )) as CardSaveResult;
+        const result = (await submit({
+          ...save,
+          kind: "card",
+          scanId,
+          queuedAt: Date.now(),
+        })) as CardSaveResult;
         if (result.success) pendingScanCardsStore.markSaved(scanId);
         else pendingScanCardsStore.remove(scanId);
         return result;
@@ -134,16 +129,13 @@ export function PendingScanSavesProvider({
   );
 
   const saveUnmatched = useCallback(
-    (save: UnmatchedScanSave, onStored?: () => void) =>
-      submit(
-        {
-          ...save,
-          kind: "unmatched",
-          scanId: save.record.scanId,
-          queuedAt: Date.now(),
-        },
-        onStored,
-      ) as Promise<UnmatchedSaveResult>,
+    (save: UnmatchedScanSave) =>
+      submit({
+        ...save,
+        kind: "unmatched",
+        scanId: save.record.scanId,
+        queuedAt: Date.now(),
+      }) as Promise<UnmatchedSaveResult>,
     [submit],
   );
 

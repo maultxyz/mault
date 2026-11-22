@@ -1,4 +1,5 @@
 import {
+  SHARE_LINK_GUEST_CONTACT_STORAGE_KEY,
   SHARE_LINK_GUEST_KEY_BYTES,
   SHARE_LINK_GUEST_KEY_STORAGE_KEY,
   SHARE_LINK_GUEST_NAME_STORAGE_KEY,
@@ -35,5 +36,19 @@ export function rememberedGuestName(): string {
 export function rememberGuestName(guestName: string): void {
   try {
     localStorage.setItem(SHARE_LINK_GUEST_NAME_STORAGE_KEY, guestName);
+  } catch {}
+}
+
+export function rememberedGuestContact(): string {
+  try {
+    return localStorage.getItem(SHARE_LINK_GUEST_CONTACT_STORAGE_KEY) ?? "";
+  } catch {
+    return "";
+  }
+}
+
+export function rememberGuestContact(guestContact: string): void {
+  try {
+    localStorage.setItem(SHARE_LINK_GUEST_CONTACT_STORAGE_KEY, guestContact);
   } catch {}
 }

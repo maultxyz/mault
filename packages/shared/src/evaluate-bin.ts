@@ -1,5 +1,8 @@
 import type { SourceCard } from "./interfaces/card.interface";
 import type {
+  AlphabetLetterRange,
+  AlphabetPass,
+  AlphabetPassPlan,
   AlphabetStep,
   BinCondition,
   BinConfig,
@@ -11,9 +14,11 @@ import type {
 import { isRuleGroup } from "./interfaces/sort-bins.interface";
 import {
   ALPHABET_LETTERS,
+  ALPHABET_MIN_SORTING_BINS,
   ALPHABET_PREFIX_MAX_LENGTH,
   CUSTOM_BIN_HEIGHT_MAX_MM,
   CUSTOM_BIN_HEIGHT_MIN_MM,
+  RULE_ISO_DATE_PATTERN,
   DEFAULT_BIN_HEIGHT,
   DEFAULT_CARD_THICKNESS_MM,
   REPACK_UNIQUE_BY_NAME,
@@ -50,6 +55,16 @@ function getRawValue(rawRoot: SourceCard, path: string): unknown {
   return front ? getByPath(front, path) : undefined;
 }
 
+export function isoDateAsNumber(value: unknown): number | null {
+  if (typeof value !== "string") return null;
+  const match = RULE_ISO_DATE_PATTERN.exec(value.trim());
+  return match ? Number(`${match[1]}${match[2]}${match[3]}`) : null;
+}
+
+function comparableConditionNumber(value: BinCondition["value"]): number {
+  return isoDateAsNumber(value) ?? Number(value);
+}
+
 export function getCardValue(
   card: SourceCard,
   field: BinCondition["field"],
@@ -65,6 +80,8 @@ export function getCardValue(
   if (meta.type === "numeric") {
     if (typeof value === "number") return value;
     if (value === undefined || value === null) return null;
+    const isoDate = isoDateAsNumber(value);
+    if (isoDate !== null) return isoDate;
     const parsed = parseFloat(String(value));
     return Number.isNaN(parsed) ? null : parsed;
   }
@@ -135,16 +152,16 @@ export function evaluateCondition(
       return cardText.endsWith(valueText);
 
     case "gt":
-      return cardValue !== null && Number(cardValue) > Number(value);
+      return cardValue !== null && Number(cardValue) > comparableConditionNumber(value);
 
     case "gte":
-      return cardValue !== null && Number(cardValue) >= Number(value);
+      return cardValue !== null && Number(cardValue) >= comparableConditionNumber(value);
 
     case "lt":
-      return cardValue !== null && Number(cardValue) < Number(value);
+      return cardValue !== null && Number(cardValue) < comparableConditionNumber(value);
 
     case "lte":
-      return cardValue !== null && Number(cardValue) <= Number(value);
+      return cardValue !== null && Number(cardValue) <= comparableConditionNumber(value);
 
     case "is_null":
       return isNullish(cardValue);
@@ -720,9 +737,67 @@ export function getAlphabetBins(configs: BinConfig[]): BinConfig[] {
     .sort((a, b) => a.binNumber - b.binNumber);
 }
 
+function splitAlphabetRange(
+  range: AlphabetLetterRange,
+  binCount: number,
+): AlphabetLetterRange[] {
+  const letterCount = range.lastLetterIndex - range.firstLetterIndex + 1;
+  const groupCount = Math.min(binCount, letterCount);
+  const smallestGroupSize = Math.floor(letterCount / groupCount);
+  const largerGroupCount = letterCount % groupCount;
+  const groups: AlphabetLetterRange[] = [];
+  let firstLetterIndex = range.firstLetterIndex;
+  for (let groupIndex = 0; groupIndex < groupCount; groupIndex++) {
+    const groupSize = smallestGroupSize + (groupIndex < largerGroupCount ? 1 : 0);
+    groups.push({
+      firstLetterIndex,
+      lastLetterIndex: firstLetterIndex + groupSize - 1,
+    });
+    firstLetterIndex += groupSize;
+  }
+  return groups;
+}
+
+function planAlphabetPasses(binCount: number): AlphabetPassPlan[] {
+  if (binCount < ALPHABET_MIN_SORTING_BINS) return [];
+  const passes: AlphabetPassPlan[] = [];
+  const addPassesForRange = (range: AlphabetLetterRange) => {
+    const groups = splitAlphabetRange(range, binCount);
+    passes.push({ range, groups });
+    for (const group of groups) {
+      if (group.lastLetterIndex > group.firstLetterIndex) addPassesForRange(group);
+    }
+  };
+  addPassesForRange({
+    firstLetterIndex: 0,
+    lastLetterIndex: ALPHABET_LETTERS.length - 1,
+  });
+  return passes;
+}
+
+function alphabetPassPlanFor(
+  configs: BinConfig[],
+  pass: number,
+): AlphabetPassPlan | undefined {
+  const passes = planAlphabetPasses(getAlphabetBins(configs).length);
+  return passes[Math.min(Math.max(pass, 0), Math.max(passes.length - 1, 0))];
+}
+
+function alphabetRangeLabel(prefix: string, range: AlphabetLetterRange): string {
+  const first = prefix + ALPHABET_LETTERS[range.firstLetterIndex];
+  if (range.firstLetterIndex === range.lastLetterIndex) return first;
+  return `${first}-${prefix}${ALPHABET_LETTERS[range.lastLetterIndex]}`;
+}
+
+function coversWholeAlphabet(range: AlphabetLetterRange): boolean {
+  return (
+    range.firstLetterIndex === 0 &&
+    range.lastLetterIndex === ALPHABET_LETTERS.length - 1
+  );
+}
+
 export function getAlphabetPassCount(configs: BinConfig[]): number {
-  const binCount = getAlphabetBins(configs).length;
-  return binCount === 0 ? 0 : Math.ceil(ALPHABET_LETTERS.length / binCount);
+  return planAlphabetPasses(getAlphabetBins(configs).length).length;
 }
 
 export function clampAlphabetPass(configs: BinConfig[], pass: number): number {
@@ -767,20 +842,52 @@ export function getPreviousAlphabetStep(
   };
 }
 
-export function getAlphabetPassLetters(
+export function getAlphabetPass(
+  configs: BinConfig[],
+  pass: number,
+  prefix = "",
+): AlphabetPass | null {
+  const plan = alphabetPassPlanFor(configs, pass);
+  if (!plan) return null;
+  const bins = getAlphabetBins(configs);
+  const normalizedPrefix = normalizeAlphabetPrefix(prefix);
+  return {
+    from: normalizedPrefix + ALPHABET_LETTERS[plan.range.firstLetterIndex],
+    to: normalizedPrefix + ALPHABET_LETTERS[plan.range.lastLetterIndex],
+    sortsOneLetterPerBin: plan.groups.every(
+      (group) => group.firstLetterIndex === group.lastLetterIndex,
+    ),
+    groups: plan.groups.map((group, groupIndex) => ({
+      binNumber: bins[groupIndex].binNumber,
+      label: alphabetRangeLabel(normalizedPrefix, group),
+      isSingleLetter: group.firstLetterIndex === group.lastLetterIndex,
+    })),
+  };
+}
+
+export function getAlphabetPassLabels(
   configs: BinConfig[],
   pass: number,
   prefix = "",
 ): Map<number, string> {
-  const bins = getAlphabetBins(configs);
-  const start = clampAlphabetPass(configs, pass) * bins.length;
-  const normalizedPrefix = normalizeAlphabetPrefix(prefix);
-  const letters = new Map<number, string>();
-  bins.forEach((bin, i) => {
-    const letter = ALPHABET_LETTERS[start + i];
-    if (letter) letters.set(bin.binNumber, normalizedPrefix + letter);
-  });
-  return letters;
+  return new Map(
+    (getAlphabetPass(configs, pass, prefix)?.groups ?? []).map((group) => [
+      group.binNumber,
+      group.label,
+    ]),
+  );
+}
+
+export function getAlphabetStepPile(
+  configs: BinConfig[],
+  step: AlphabetStep,
+): string | null {
+  const normalizedPrefix = normalizeAlphabetPrefix(step.prefix);
+  const plan = alphabetPassPlanFor(configs, step.pass);
+  if (!plan || coversWholeAlphabet(plan.range)) {
+    return normalizedPrefix === "" ? null : normalizedPrefix;
+  }
+  return alphabetRangeLabel(normalizedPrefix, plan.range);
 }
 
 function toAlphabetSortKey(text: string): string {
@@ -811,17 +918,18 @@ export function evaluateAlphabetBin(
   if (!key || !key.startsWith(normalizedPrefix)) return catchAll;
   if (key.length === normalizedPrefix.length) return catchAll;
 
-  const target = normalizedPrefix + key.charAt(normalizedPrefix.length);
-  for (const [binNumber, label] of getAlphabetPassLetters(
-    configs,
-    pass,
-    normalizedPrefix,
-  )) {
-    if (label === target) {
-      return configs.find((c) => c.binNumber === binNumber);
-    }
-  }
-  return catchAll;
+  const plan = alphabetPassPlanFor(configs, pass);
+  if (!plan) return catchAll;
+  const letterIndex = ALPHABET_LETTERS.indexOf(
+    key.charAt(normalizedPrefix.length),
+  );
+  const groupIndex = plan.groups.findIndex(
+    (group) =>
+      letterIndex >= group.firstLetterIndex &&
+      letterIndex <= group.lastLetterIndex,
+  );
+  if (groupIndex === -1) return catchAll;
+  return getAlphabetBins(configs)[groupIndex];
 }
 
 export function findAutoAssignTarget(

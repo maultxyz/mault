@@ -45,6 +45,10 @@ export const TCGTRACKING_EXT_KEYS = {
   riftboundMight: ["might", "Might"],
   riftboundPowerCost: ["powerCost", "Power Cost"],
   riftboundEnergyCost: ["energyCost", "Energy Cost"],
+  yugiohMonsterType: ["MonsterType", "Monster Type"],
+  yugiohAttribute: ["Attribute", "attribute"],
+  yugiohAttack: ["Attack", "attack"],
+  yugiohDefense: ["Defense", "defense"],
   pokemonTypeHpStage: ["Card Type / HP / Stage"],
   pokemonWeaknessResistanceRetreat: ["Weakness / Resistance / Retreat Cost"],
   pokemonCardText: ["Card Text", "description", "Description"],
@@ -177,6 +181,13 @@ export const TCGPLAYER_SKU_CONDITION_PRICE_COLUMNS = {
   MP: "moderatelyPlayedMarketPrice",
   HP: "heavilyPlayedMarketPrice",
   DMG: "damagedMarketPrice",
+} as const satisfies Record<CardCondition, string>;
+export const TCGPLAYER_SKU_CONDITION_LISTING_COUNT_COLUMNS = {
+  NM: "nearMintListingCount",
+  LP: "lightlyPlayedListingCount",
+  MP: "moderatelyPlayedListingCount",
+  HP: "heavilyPlayedListingCount",
+  DMG: "damagedListingCount",
 } as const satisfies Record<CardCondition, string>;
 export const TCGTRACKING_SKU_LANGUAGE_CODES: Record<string, string> = {
   ja: "JP",

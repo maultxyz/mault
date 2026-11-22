@@ -394,6 +394,7 @@
     },
     "disconnect": "Déconnecter",
     "connectDevice": "Connecter l'appareil",
+    "sorterSelectLabel": "Trieuse à calibrer",
     "connectUsb": "Connecter via USB",
     "connectPi": "Connecter la trieuse de ce Pi",
     "connectBluetooth": "Connecter via Bluetooth",

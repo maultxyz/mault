@@ -11,6 +11,7 @@
     "sounds": "Sons",
     "deleted": "Supprimés et non reconnus",
     "shortLinks": "Liens courts",
+    "shareLinks": "Liens de partage",
     "hardware": "Matériel",
     "developer": "Développeur",
     "whatsNew": "Nouveautés"
@@ -48,6 +49,82 @@
       "failedCount_one": "{{count}} échoué",
       "failedCount_other": "{{count}} échoués",
       "historyItem": "#{{number}} canal {{channel}}"
+    },
+    "stress": {
+      "heading": "Test d'endurance",
+      "description": "Fait aller les servos du minimum au maximum sans arrêt pour savoir combien de temps ils tiennent. Pointez une webcam sur les servos et le test repère ceux qui s'arrêtent, ou surveillez-les vous-même et marquez chacun dès qu'il s'arrête.",
+      "channels": "Canaux",
+      "hint": "Choisissez un ou plusieurs canaux. Le test se termine quand chaque servo est marqué, quand vous appuyez sur Arrêter ou quand la carte ne répond plus. Les servos arrêtés sont libérés immédiatement.",
+      "start": "Démarrer",
+      "stop": "Arrêter",
+      "running": "En cours",
+      "finished": "Terminé",
+      "elapsed": "Durée {{elapsed}}",
+      "stoppedCount": "{{stopped}} sur {{total}} arrêtés",
+      "channel": "Canal {{channel}}",
+      "cycles_one": "{{count}} cycle",
+      "cycles_other": "{{count}} cycles",
+      "moving": "En mouvement",
+      "survived": "Bouge encore",
+      "stoppedAfter": "Arrêté après {{elapsed}}",
+      "markStopped": "Ne bouge plus",
+      "markStoppedOnChannel": "Le servo du canal {{channel}} ne bouge plus",
+      "endReason": {
+        "manual": "Test d'endurance arrêté après {{elapsed}}.",
+        "allServosStopped": "Tous les servos se sont arrêtés. Le test a duré {{elapsed}}.",
+        "boardStopped": "La carte ne répond plus après {{elapsed}}. Vérifiez son alimentation et sa connexion."
+      },
+      "cameraStoppedAfter": "Caméra : arrêté après {{elapsed}}",
+      "camera": {
+        "heading": "Surveiller avec une caméra",
+        "description": "Fixez une webcam pour qu'elle voie les palonniers des servos, puis tracez un cadre autour de chacun. Le premier cycle apprend ce qui change quand chaque servo bouge. Ensuite, un servo dont le cadre ne change plus pendant 3 mouvements de suite est marqué comme arrêté. Les changements lents de lumière sont suivis pendant le test.",
+        "camera": "Caméra",
+        "pickCamera": "Choisir une caméra",
+        "noCameras": "Aucune caméra trouvée",
+        "unnamedCamera": "Caméra",
+        "cameraNumber": "Caméra {{number}}",
+        "turnOff": "Éteindre la caméra",
+        "startFailed": "La caméra n'a pas démarré. Vérifiez qu'elle est branchée, qu'aucune autre application ne l'utilise et que le navigateur a le droit de l'utiliser.",
+        "pickChannels": "Choisissez les canaux à tester ci-dessus, puis tracez un cadre pour chacun.",
+        "boxFor": "Tracer le cadre pour :",
+        "channelWithBox": "Canal {{channel}} (avec cadre)",
+        "clearBox": "Effacer le cadre",
+        "editorLabel": "Aperçu de la caméra, cadre du canal {{channel}}",
+        "editorHint": "Faites glisser sur l'aperçu pour tracer un cadre autour du palonnier, ou placez-le et redimensionnez-le avec les boutons. Les canaux sans cadre sont surveillés par vous.",
+        "reached": "Caméra : {{percent}} % de mouvement",
+        "status": {
+          "learning": "Caméra : apprentissage des positions",
+          "watching": "Caméra : surveillance",
+          "noMotion": "La caméra ne voit pas ce servo bouger. Rendez le palonnier plus visible ou surveillez-le vous-même."
+        },
+        "announceStopped": "La caméra a vu le servo du canal {{channel}} s'arrêter.",
+        "adjustLabel": "Déplacer ou redimensionner le cadre du canal {{channel}}",
+        "adjust": {
+          "left": "Déplacer le cadre à gauche",
+          "right": "Déplacer le cadre à droite",
+          "up": "Déplacer le cadre vers le haut",
+          "down": "Déplacer le cadre vers le bas",
+          "grow": "Agrandir le cadre",
+          "shrink": "Réduire le cadre"
+        }
+      },
+      "channelButton": "Canal {{channel}}, {{role}}",
+      "calibrationHint": "Les servos des modules se déplacent entre leurs positions calibrées pour ce trieur, et les autres canaux utilisent toute la plage. La palette et le poussoir d'un même module ne peuvent pas tourner ensemble, car le firmware abaisse la palette avant chaque mouvement du poussoir.",
+      "calibrationHintWithFeeder": "Les servos des modules se déplacent entre leurs positions calibrées pour ce trieur, et les autres canaux utilisent toute la plage. La palette et le poussoir d'un même module ne peuvent pas tourner ensemble, car le firmware abaisse la palette avant chaque mouvement du poussoir. Le canal {{channel}} est le chargeur, qui tourne au lieu de tenir une position : il ne peut donc pas être testé.",
+      "defaultCalibration": "Aucun trieur n'est enregistré pour cette carte, les servos des modules utilisent donc la calibration par défaut. Calibrez d'abord le trieur si ses tringleries sont montées.",
+      "role": {
+        "bottom": "Module {{module}} trappe inférieure",
+        "paddle": "Module {{module}} palette",
+        "pusher": "Module {{module}} poussoir",
+        "feeder": "Chargeur",
+        "unassigned": "Non utilisé par un module"
+      },
+      "pulses": {
+        "bottom": "fermée {{min}}, ouverte {{max}}",
+        "paddle": "fermée {{min}}, ouverte {{max}}",
+        "pusher": "gauche {{min}}, droite {{max}}",
+        "unassigned": "toute la plage, de {{min}} à {{max}}"
+      }
     },
     "leds": {
       "heading": "Bandes LED",
@@ -255,6 +332,18 @@
     "startedOnly": "Démarré {{started}}",
     "loadFailed": "Impossible de charger le journal d'usurpation d'identité."
   },
+  "subscriptionSummary": {
+    "heading": "Abonnements",
+    "description": "Organisations avec un abonnement payant, par offre. Le revenu mensuel récurrent utilise le prix catalogue de chaque offre, les offres annuelles réparties sur 12 mois, avant remises et taxes. Les essais comptent comme abonnés mais n'ajoutent aucun revenu.",
+    "subscribersHeading": "Abonnés",
+    "revenueHeading": "Revenu mensuel récurrent",
+    "total": "Total",
+    "trialingCount_one": "{{count}} en essai",
+    "trialingCount_other": "{{count}} en essai",
+    "unpriced_one": "Le prix de {{count}} abonné n'a pas pu être chargé depuis Stripe, il est donc exclu du revenu.",
+    "unpriced_other": "Les prix de {{count}} abonnés n'ont pas pu être chargés depuis Stripe, ils sont donc exclus du revenu.",
+    "loadFailed": "Impossible de charger les abonnements."
+  },
   "metricsStats": {
     "heading": "Statistiques de scan",
     "description": "Activité de scan à l'échelle de l'application, toutes organisations confondues, et si chaque scan a été vectorisé sur le serveur ou dans le navigateur. Une personne est comptée comme scannant tant qu'elle a enregistré un scan au cours des {{minutes}} dernières minutes.",
@@ -351,7 +440,7 @@
       },
       "longShareLinks": {
         "label": "Liens de suivi plus longs",
-        "description": "Les liens de suivi peuvent durer 1, 7 ou 30 jours. Sans cela, ils durent 1 heure. Les liens d'échange durent toujours 1 heure."
+        "description": "Les liens de suivi peuvent durer l'une des durées en jours définies sur le web dans Admin > Liens de partage. Sans cela, ils utilisent la durée courte définie là."
       }
     },
     "limits": {
@@ -592,6 +681,28 @@
       "disabled": "Les liens courts sont désactivés sur ce serveur.",
       "codeTaken": "Ce code est déjà utilisé. Choisissez-en un autre.",
       "notFound": "Ce lien court n'existe plus."
+    }
+  },
+  "shareLinkLengths": {
+    "heading": "Durée des liens de partage",
+    "description": "Combien de temps durent les nouveaux liens de suivi et d'échange. Une durée plus courte raccourcit aussi les liens déjà partagés. Une durée plus longue s'applique aux liens créés après l'enregistrement.",
+    "restoreDefaults": "Rétablir les valeurs par défaut",
+    "saved": "Durées des liens de partage enregistrées.",
+    "saveFailed": "Impossible d'enregistrer les durées des liens de partage.",
+    "loadFailed": "Impossible de charger les durées des liens de partage.",
+    "fields": {
+      "tradeLinkHours": {
+        "label": "Liens d'échange (heures)",
+        "description": "Durée de chaque lien d'échange. Jusqu'à {{max}} heures."
+      },
+      "restrictedShareLinkHours": {
+        "label": "Liens de suivi sans liens plus longs (heures)",
+        "description": "Durée des liens de suivi pour les offres sans liens de suivi plus longs. Jusqu'à {{max}} heures."
+      },
+      "monitorLinkExpiryDays": {
+        "label": "Choix pour les liens de suivi (jours)",
+        "description": "Les durées proposées aux offres avec des liens de suivi plus longs, séparées par des virgules. Jusqu'à {{maxOptions}} choix de 1 à {{maxDays}} jours. La plus longue limite aussi les liens déjà partagés."
+      }
     }
   },
   "featureHighlights": {

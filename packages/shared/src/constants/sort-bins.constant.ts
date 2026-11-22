@@ -16,6 +16,7 @@ export const COUNT_OPERATORS: ConditionOperator[] = [
 ];
 export const CONDITION_STRING_MAX_LENGTH = 200;
 export const CONDITION_NUMERIC_MAX = 100_000;
+export const CONDITION_VALUE_NUMERIC_MAX = 99_999_999;
 export const OVERRIDE_PRIORITY_MAX = 100;
 export const LOW_MATCH_PERCENT_MAX = 100;
 
@@ -39,6 +40,7 @@ export const CUSTOM_BIN_HEIGHT_MAX_MM = 1000;
 export const DEFAULT_CARD_THICKNESS_MM = 0.3;
 export const ALPHABET_LETTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 export const ALPHABET_PREFIX_MAX_LENGTH = 10;
+export const ALPHABET_MIN_SORTING_BINS = 2;
 
 export const SORTABLE_FIELD_TYPES: FieldType[] = ["string", "numeric", "enum"];
 
@@ -68,3 +70,5 @@ export const MULTI_VALUE_OPERATORS: ConditionOperator[] = [
   "contains_all",
   "contains_none",
 ];
+
+export const RULE_ISO_DATE_PATTERN = /^(\d{4})-(\d{2})-(\d{2})(?:$|T)/;

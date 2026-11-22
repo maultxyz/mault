@@ -10,6 +10,7 @@ import { PublicBackdrop } from "@/components/public-backdrop";
 import { PublicAnnouncementBanner } from "@/components/public-announcement-banner";
 import { PublicNav } from "@/components/public-nav";
 import { usePageMeta } from "@/hooks/use-page-meta";
+import { useScrollToHash } from "@/hooks/use-scroll-to-hash";
 import { AUTH_PROVIDER } from "@/lib/constants/auth";
 import { MAIN_CONTENT_ID } from "@/lib/constants/a11y";
 import { useTranslation } from "react-i18next";
@@ -21,6 +22,7 @@ export default function LandingPage() {
     description: t("meta.description"),
     path: "/",
   });
+  useScrollToHash({ highlightTarget: false });
 
   return (
     <div className="relative isolate flex min-h-screen flex-col overflow-x-clip bg-background text-foreground">

@@ -13,24 +13,15 @@ import {
   collectionCardPriceSql,
   collectionCardPricesJoinOn,
 } from "./card-price-sql";
-import {
-  HOME_READ_CACHE_MAX_ENTRIES,
-  ORG_CARD_VALUE_SUMMARY_CACHE_TTL_MS,
-  ORG_CARD_VALUE_SUMMARY_MINIMUM_MS_BETWEEN_LOADS,
-} from "./constants/home-read-caches";
+import { ORG_CARD_VALUE_SUMMARY_VARIANT } from "./constants/stored-snapshots";
 import type {
   OrgCardValueSummary,
   OrgCardValueSummaryRow,
 } from "./interfaces/org-card-value-summary";
+import type { StoredSnapshotRead } from "./interfaces/stored-snapshots";
 import { inventoryCardSql } from "./inventory-sql";
-import { createOrgReadCache } from "./org-read-cache";
+import { readStoredOrgCardStats } from "./org-card-stats";
 import { loadOrgPricing } from "./price-source";
-
-const orgCardValueSummaryCache = createOrgReadCache<OrgCardValueSummary>(
-  ORG_CARD_VALUE_SUMMARY_CACHE_TTL_MS,
-  HOME_READ_CACHE_MAX_ENTRIES,
-  ORG_CARD_VALUE_SUMMARY_MINIMUM_MS_BETWEEN_LOADS,
-);
 
 export function utcDayKey(date: Date = new Date()): string {
   return date.toISOString().slice(0, 10);
@@ -157,16 +148,22 @@ async function loadOrgCardValueSummaryRow(
   return result.rows[0] as unknown as OrgCardValueSummaryRow;
 }
 
-export function loadCachedOrgCardValueSummary(
+export async function loadStoredOrgCardValueSummary(
   jwtClaims: string,
   orgId: string,
-): Promise<OrgCardValueSummary> {
+): Promise<StoredSnapshotRead<OrgCardValueSummary>> {
   const day = utcDayKey();
-  return orgCardValueSummaryCache.get(orgId, day, () =>
-    authQuery(jwtClaims, async (tx) => {
-      const pricing = await loadOrgPricing(tx, orgId);
-      const row = await loadOrgCardValueSummaryRow(tx, orgId, pricing, day);
-      return { ...row, pricing, day };
-    }),
-  );
+  const pricing = await authQuery(jwtClaims, (tx) => loadOrgPricing(tx, orgId));
+  return readStoredOrgCardStats<OrgCardValueSummary>({
+    orgId,
+    variant: ORG_CARD_VALUE_SUMMARY_VARIANT,
+    pricingKey: JSON.stringify(pricing),
+    day,
+    compute: () =>
+      authQuery(jwtClaims, async (tx) => ({
+        ...(await loadOrgCardValueSummaryRow(tx, orgId, pricing, day)),
+        pricing,
+        day,
+      })),
+  });
 }

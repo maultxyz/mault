@@ -1,11 +1,13 @@
-import type { ReactNode } from "react";
+import type { ReactNode, RefObject } from "react";
 import type { CameraDevice, CameraFrameOutput, CameraOutput } from "react-native-vision-camera";
 import type {
   ScanDestination,
+  UnmatchedRetryProgress,
   StorageLocation,
   BinConfig,
   CardCondition,
   CardContour,
+  PersistedScanSettings,
   CardSearchResult,
   CardTextSearchResult,
   MatchedScanDetails,
@@ -113,6 +115,30 @@ export type ScannerPauseReason =
   | "control-card"
   | "control-card-switch-failed"
   | `control-card-${ScannerControlCommandProblem | "unreadable"}`;
+
+export interface RetainedScanSettingsNotice {
+  noticeId: string;
+  settings: PersistedScanSettings;
+}
+
+export type ForcedValuesAfterCollectionSwitch = Pick<
+  ScannerControlCommand,
+  "forcedFoilType" | "forcedSetCode"
+>;
+
+export interface PersistedScanSettingsState {
+  settings: PersistedScanSettings;
+  settingsRef: RefObject<PersistedScanSettings>;
+  setFoilType: (foilType: string | null) => void;
+  setPreferredSetCodes: (preferredSetCodes: string[]) => void;
+  setCondition: (condition: CardCondition) => void;
+  queueForcedValuesAfterCollectionSwitch: (
+    forcedValues: ForcedValuesAfterCollectionSwitch | null,
+  ) => void;
+  retainedSettingsNotice: RetainedScanSettingsNotice | null;
+  dismissRetainedSettingsNotice: () => void;
+  resetScanSettings: () => void;
+}
 
 export interface ControlCardNotice {
   noticeId: string;
@@ -236,6 +262,8 @@ export interface ScanSessionValue extends ScanSessionState {
   scanCondition: CardCondition;
   setScanCondition: (condition: CardCondition) => void;
   controlCardNotice: ControlCardNotice | null;
+  retainedSettingsNotice: RetainedScanSettingsNotice | null;
+  resetScanSettings: () => void;
   fullBinNumbers: number[];
   markFullBinsEmpty: () => Promise<boolean>;
   binConfigs: BinConfig[];
@@ -524,4 +552,28 @@ export interface ScanDestinationSheetProps {
   scanDestination: ScanDestinationState;
   offersSortWithRules: boolean;
   onClose: () => void;
+}
+
+export interface RetryUnmatchedCardsState {
+  progress: UnmatchedRetryProgress | null;
+  isRetrying: boolean;
+  start: (scanIds: string[]) => Promise<void>;
+  stop: () => void;
+}
+
+export interface UnmatchedCardsInGridSetting {
+  isEnabled: boolean;
+  isLoading: boolean;
+  setEnabled: (isEnabled: boolean) => void;
+}
+
+export interface UnmatchedScanSelectionState {
+  isSelecting: boolean;
+  selectedScanIds: string[];
+  isSelected: (scanId: string) => boolean;
+  startSelecting: () => void;
+  stopSelecting: () => void;
+  toggle: (scanId: string) => void;
+  selectMany: (scanIds: string[]) => void;
+  clear: () => void;
 }

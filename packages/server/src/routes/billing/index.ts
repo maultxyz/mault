@@ -4,6 +4,7 @@ import type { AppEnv } from "../../middleware/auth";
 import { checkoutBillingRoute } from "./checkout";
 import { getBillingRoute } from "./get";
 import { portalBillingRoute } from "./portal";
+import { syncBillingRoute } from "./sync";
 
 const router = new Hono<AppEnv>();
 
@@ -17,5 +18,6 @@ router.use("*", async (c, next) => {
 router.route("/", getBillingRoute);
 router.route("/", checkoutBillingRoute);
 router.route("/", portalBillingRoute);
+router.route("/", syncBillingRoute);
 
 export { router as billingRouter };

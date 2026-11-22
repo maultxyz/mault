@@ -4,6 +4,7 @@ import {
   STATS_RANGE_DAYS,
   STATS_TOP_CARDS_LIMIT,
   STATS_WEEKLY_BUCKET_MIN_DAYS,
+  type OrgPricing,
   type StatsRange,
   type StatsReport,
 } from "@magic-vault/shared";
@@ -15,28 +16,17 @@ import {
   games,
   intakeLots,
 } from "../db/schema";
-import {
-  findCardsCollection,
-  loadAllCardStats,
-} from "../routes/collections/cards-query";
+import { findCardsCollection } from "../routes/collections/cards-query";
 import { joinedScannedCardPriceSql } from "./card-price-sql";
 import { COLLECTION_CARD_SQL_COLUMNS } from "./constants/card-prices";
-import {
-  STATS_REPORT_CACHE_MAX_ENTRIES,
-  STATS_REPORT_CACHE_TTL_MS,
-  STATS_REPORT_MINIMUM_MS_BETWEEN_LOADS,
-} from "./constants/home-read-caches";
+import { readStoredCardStats } from "./collection-card-stats";
+import { STATS_REPORT_VARIANT_PREFIX } from "./constants/stored-snapshots";
 import { ONE_DAY_MS } from "./constants/timing";
+import type { CardsCollection } from "./interfaces/collections";
 import type { LoadedStatsReport, StatsReportRow } from "./interfaces/stats";
-import { createOrgReadCache } from "./org-read-cache";
+import { readStoredOrgCardStats } from "./org-card-stats";
 import { loadOrgPricing } from "./price-source";
 import { hydrateSavedCards } from "./saved-cards";
-
-const statsReportCache = createOrgReadCache<LoadedStatsReport | null>(
-  STATS_REPORT_CACHE_TTL_MS,
-  STATS_REPORT_CACHE_MAX_ENTRIES,
-  STATS_REPORT_MINIMUM_MS_BETWEEN_LOADS,
-);
 
 function priceBucketsSql(): SQL {
   const buckets = STATS_PRICE_BUCKETS.map(({ key, min, max }) => {
@@ -55,14 +45,9 @@ export async function loadStatsReport(
   tx: Transaction,
   orgId: string,
   range: StatsRange,
-  collectionGuid: string | null,
-): Promise<LoadedStatsReport | null> {
-  const collection = collectionGuid
-    ? await findCardsCollection(tx, collectionGuid, orgId)
-    : null;
-  if (collectionGuid && !collection) return null;
-
-  const pricing = await loadOrgPricing(tx, orgId);
+  collection: CardsCollection | null,
+  pricing: OrgPricing,
+): Promise<LoadedStatsReport> {
   const currency = PRICE_SOURCE_FIELDS[pricing.source].currency;
   const cardPrice = joinedScannedCardPriceSql(
     pricing,
@@ -125,6 +110,7 @@ export async function loadStatsReport(
         (count(b.scan_id) FILTER (WHERE b.created_at >= ${sinceIso}::timestamp))::int AS "scansInRange",
         COALESCE(sum(b.price) FILTER (WHERE b.price > 0 AND b.created_at >= ${sinceIso}::timestamp), 0)::float8 AS "valueAddedInRange",
         to_char(max(b.created_at), ${isoTimestamp}) AS "lastScanAt",
+        (count(b.scan_id) FILTER (WHERE NOT b.is_corrected AND b.needs_review))::int AS "needsReviewCount",
         COALESCE(sum(b.cost), 0)::float8 AS "costBasis",
         count(b.cost)::int AS "costedCount",
         COALESCE(sum(b.price) FILTER (WHERE b.price > 0 AND b.cost IS NOT NULL), 0)::float8 AS "costedValue"
@@ -178,7 +164,7 @@ export async function loadStatsReport(
       (
         SELECT COALESCE(json_agg(r ORDER BY r."totalValue" DESC, r.name), '[]'::json) FROM (
           SELECT guid, name, "gameName", "cardCount", "uniqueCount", "totalValue", "avgValue",
-            "scansInRange", "valueAddedInRange", "lastScanAt", "costBasis", "costedCount", "costedValue"
+            "scansInRange", "valueAddedInRange", "lastScanAt", "needsReviewCount", "costBasis", "costedCount", "costedValue"
           FROM per_collection
         ) r
       ) AS collections,
@@ -215,9 +201,6 @@ export async function loadStatsReport(
   `);
   const row = result.rows[0] as unknown as StatsReportRow;
 
-  const breakdown = collection
-    ? await loadAllCardStats(tx, collection, pricing)
-    : null;
   const topCards = await hydrateSavedCards(
     row.top_cards.map((top) => ({ gameKey: top.gameKey, lang: top.cardLang, card: top.card })),
     { includeRaw: false },
@@ -244,21 +227,44 @@ export async function loadStatsReport(
     ),
     collections: row.collections,
     games: row.games,
-    breakdown,
+    breakdown: null,
     costsVisible: true,
     valueHistory: null,
   };
   return { report, currency };
 }
 
-export function loadCachedStatsReport(
+export async function loadCachedStatsReport(
   jwtClaims: string,
   orgId: string,
   range: StatsRange,
   collectionGuid: string | null,
 ): Promise<LoadedStatsReport | null> {
-  const day = new Date().toISOString().slice(0, 10);
-  return statsReportCache.get(orgId, `${day}:${range}:${collectionGuid ?? ""}`, () =>
-    authQuery(jwtClaims, (tx) => loadStatsReport(tx, orgId, range, collectionGuid)),
-  );
+  const scope = await authQuery(jwtClaims, async (tx) => {
+    const collection = collectionGuid
+      ? await findCardsCollection(tx, collectionGuid, orgId)
+      : null;
+    if (collectionGuid && !collection) return null;
+    return { collection, pricing: await loadOrgPricing(tx, orgId) };
+  });
+  if (!scope) return null;
+  const { collection, pricing } = scope;
+
+  const { payload, isRefreshing } = await readStoredOrgCardStats<LoadedStatsReport>({
+    orgId,
+    variant: `${STATS_REPORT_VARIANT_PREFIX}:${range}:${collection?.id ?? ""}`,
+    pricingKey: JSON.stringify(pricing),
+    day: new Date().toISOString().slice(0, 10),
+    compute: async () => {
+      const loaded = await authQuery(jwtClaims, (tx) =>
+        loadStatsReport(tx, orgId, range, collection, pricing),
+      );
+      if (!collection) return loaded;
+      const { payload: breakdown } = await readStoredCardStats(collection, pricing);
+      return { ...loaded, report: { ...loaded.report, breakdown } };
+    },
+  });
+  return isRefreshing
+    ? { ...payload, report: { ...payload.report, isRefreshing: true } }
+    : payload;
 }

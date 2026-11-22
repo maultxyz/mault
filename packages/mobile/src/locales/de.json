@@ -149,6 +149,12 @@
     "expiryLabel": "Link läuft ab nach",
     "expiryOption_one": "{{count}} Tag",
     "expiryOption_other": "{{count}} Tagen",
+    "durationHours_one": "{{count}} Stunde",
+    "durationHours_other": "{{count}} Stunden",
+    "durationDays_one": "{{count}} Tag",
+    "durationDays_other": "{{count}} Tage",
+    "tradeLengthNote": "Tausch-Links gelten {{duration}}.",
+    "monitorShortLengthNote": "In deinem Tarif gelten Monitor-Links {{duration}}. Mit Enthusiast und Business bis zu {{longestDuration}}.",
     "create": "Link erstellen",
     "created": "Link erstellt. QR-Code und Teilen-Taste findest du unten.",
     "createFailed": "Der Freigabelink konnte nicht erstellt werden.",
@@ -171,9 +177,7 @@
     "monitorType": "Monitor",
     "tradeType": "Tausch",
     "monitorTypeDescription": "Eine Ansicht der Karten, live während du scannst. Besucher können keine Angebote senden.",
-    "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen.",
-    "tradeOneHourNote": "Tausch-Links gelten 1 Stunde.",
-    "monitorOneHourNote": "In deinem Tarif gelten Monitor-Links 1 Stunde. Mit Enthusiast und Business bis zu 30 Tage."
+    "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen."
   },
   "shareLinks": {
     "detailDescription": "Jeder mit diesem Link oder QR-Code kann ihn ohne Anmeldung öffnen.",
@@ -277,6 +281,14 @@
         "count": "Karten",
         "value": "Wertzuwachs"
       },
+      "periods": {
+        "label": "Zeitraum",
+        "allTime": "Gesamt",
+        "week": "Letzte Woche",
+        "month": "Letzter Monat",
+        "year": "Letztes Jahr"
+      },
+      "updatedDaily": "Die Ranglisten werden einmal am Tag aktualisiert.",
       "weekOf": "Woche vom {{date}}",
       "thisWeek": "Diese Woche",
       "today": "Heute",
@@ -340,8 +352,17 @@
     "cardCount_other": "{{count}} Karten",
     "leaderboard": {
       "title": "Bestenliste",
-      "description_one": "Die {{count}} Organisation, die mit Mault die meisten Karten gescannt hat.",
-      "description_other": "Die {{count}} Organisationen, die mit Mault die meisten Karten gescannt haben.",
+      "descriptions": {
+        "totalScans_one": "Die {{count}} Organisation, die mit Mault die meisten Karten gescannt hat.",
+        "totalScans_other": "Die {{count}} Organisationen, die mit Mault die meisten Karten gescannt haben.",
+        "cardsPerHour_one": "Die {{count}} Organisation mit der schnellsten Maschine auf dem gehosteten Mault, gemessen an ihren besten 15 Minuten und als Karten pro Stunde angegeben.",
+        "cardsPerHour_other": "Die {{count}} Organisationen mit den schnellsten Maschinen auf dem gehosteten Mault, gemessen an den besten 15 Minuten jeder Maschine und als Karten pro Stunde angegeben."
+      },
+      "metrics": {
+        "label": "Rangliste nach",
+        "totalScans": "Meiste Karten",
+        "cardsPerHour": "Karten pro Stunde"
+      },
       "error": "Die Bestenliste konnte nicht geladen werden. Versuch es gleich noch einmal.",
       "rank": "#{{rank}}",
       "you": "Du",
@@ -350,13 +371,19 @@
       "columns": {
         "rank": "Rang",
         "organization": "Organisation",
-        "scans": "Gescannte Karten"
+        "totalScans": "Gescannte Karten",
+        "cardsPerHour": "Karten pro Stunde"
       },
       "optIn": {
         "title": "Deine Organisation ist nicht in der Bestenliste",
         "description": "Andere Organisationen sehen dich nicht. Deine Zeile zeigt, auf welchem Rang du wärst. Tritt in den Einstellungen bei, um in der Liste zu erscheinen.",
         "action": "Bestenliste beitreten"
-      }
+      },
+      "hideSelfHosted": {
+        "label": "Selbst gehostete Scans ausblenden",
+        "description": "Selbst gehostete Server melden ihre Zahlen selbst, diese können nicht überprüft werden. Schalte dies ein, um nur gehostete Scans zu werten."
+      },
+      "selfHostedBadge": "Selbst gehostet"
     },
     "highlights": {
       "title": "Auf einen Blick"
@@ -506,6 +533,7 @@
     "firmware": "Firmware {{version}} auf {{board}}",
     "findSorters": "Sortierer suchen",
     "stopSearching": "Suche beenden",
+    "recent": "Zuletzt verbundene Sortierer",
     "nearby": "Sortierer in der Nähe",
     "searching": "Suche nach Sortierern",
     "noneFound": "Keine Sortierer gefunden",
@@ -952,6 +980,14 @@
       "batchDescriptionNoLocations": "Du hast noch keine Lagerorte. Lege unter Bibliothek > Lager einen an oder füge Karten nur zur Sammlung hinzu.",
       "batchDescriptionLocked": "Lagerorte sind in deinem Tarif nicht enthalten, daher werden Karten nur zur Sammlung hinzugefügt.",
       "batchNoLocationDescription": "Karten nur zur Sammlung hinzufügen"
+    },
+    "retainedSettings": {
+      "title": "Scan-Einstellungen weiterhin aktiv",
+      "foil": "Foil: {{type}}",
+      "condition": "Zustand: {{condition}}",
+      "sets_one": "Set: {{sets}}",
+      "sets_other": "Sets: {{sets}}",
+      "reset": "Zurücksetzen"
     }
   },
   "home": {
@@ -1061,7 +1097,11 @@
     "scanTimelineSortNote": "Die Scan-Zeitachse zeigt immer die neuesten Scans zuerst.",
     "scanTimelineBlockCount_one": "{{count}} Karte",
     "scanTimelineBlockCount_other": "{{count}} Karten",
-    "loadingMoreCards": "Weitere Karten werden geladen"
+    "loadingMoreCards": "Weitere Karten werden geladen",
+    "unmatchedTileLabel": "Nicht erkannter Scan vom {{scannedAt}}",
+    "unmatchedTag": "Nicht erkannt",
+    "moreUnmatched_one": "{{count}} weiterer nicht erkannter Scan",
+    "moreUnmatched_other": "{{count}} weitere nicht erkannte Scans"
   },
   "cardDetail": {
     "catalogCardRemovedTitle": "Karte nicht mehr im Katalog",
@@ -1141,7 +1181,8 @@
     "shareLinkCopied": "Freigabelink kopiert. Alle mit dem Link sehen diese Karte.",
     "shareLinkCopyFailed": "Der Freigabelink für diese Karte konnte nicht kopiert werden.",
     "downloadPhoto": "Foto herunterladen",
-    "downloadPhotoFailed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut."
+    "downloadPhotoFailed": "Das Foto konnte nicht heruntergeladen werden. Versuche es erneut.",
+    "backSideAlt": "{{name}}, Rückseite"
   },
   "reviewGrid": {
     "title": "Karten prüfen",
@@ -1291,7 +1332,7 @@
       },
       "alphabet": {
         "title": "Alphabetisch sortieren",
-        "description": "Ein Buchstabe pro Fach, in Durchgängen, mit feinerer Sortierung für große Stapel"
+        "description": "Zuerst Buchstabenbereiche, dann ein Buchstabe pro Fach, mit feinerer Sortierung für große Stapel"
       },
       "chaos": {
         "title": "Chaos-Sortierung",
@@ -1351,25 +1392,24 @@
       "lastStage": "Letzte Stufe"
     },
     "alphabet": {
-      "needBins": "Die alphabetische Sortierung braucht mindestens ein Fach neben dem Auffangfach.",
+      "needBins": "Die alphabetische Sortierung braucht mindestens zwei Fächer neben dem Auffangfach.",
       "passHeading": "Durchgang {{current}} von {{total}}",
-      "passRange": "Sortiert Namen von {{from}} bis {{to}}. Alles andere kommt ins Auffangfach.",
-      "prefixRange": "Sortiert den Stapel {{prefix}} nach dem nächsten Buchstaben: {{from}} bis {{to}}. Alles andere kommt ins Auffangfach.",
+      "passRange": "Sortiert Namen von {{from}} bis {{to}}, ein Buchstabe pro Fach. Alles andere kommt ins Auffangfach.",
+      "rangePassRange": "Teilt Namen von {{from}} bis {{to}} in Buchstabenbereiche auf, ein Bereich pro Fach. Alles andere kommt ins Auffangfach.",
       "unusedBin": "Nicht verwendet",
-      "nextPassHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Fach, lege die Karten aus dem Auffangfach zurück in den Zuführer und wechsle zu den nächsten Buchstaben.",
       "lastPassHint": "Das ist der letzte Durchgang. Was danach im Auffangfach bleibt, hat einen Namen, der nicht mit einem Buchstaben beginnt.",
-      "nextPileHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Fach und halte jeden Stapel in Reihenfolge. Als Nächstes: der Stapel {{prefix}}.",
+      "nextPileHint": "Wenn dieser Durchgang fertig ist, nimm die Karten aus jedem Fach und halte jeden Stapel in Reihenfolge. Als Nächstes: der Stapel {{pile}}.",
+      "nextPile": "Weiter: Stapel {{pile}}",
       "pileDoneHint": "Das ist der letzte Durchgang für den Stapel {{prefix}}. Fange von vorn an, um zum ganzen Alphabet zurückzukehren.",
       "previous": "Zurück",
-      "next": "Nächste Buchstaben",
       "startOver": "Von vorn beginnen",
       "sortDeeper": "Feiner sortieren",
       "sortDeeperItem": "Stapel {{label}} nach nächstem Buchstaben",
       "upLevel": "Eine Ebene höher",
-      "confirmTitle": "Zu neuen Buchstaben wechseln?",
-      "confirmDescription": "Stelle sicher, dass jedes Fach leer ist und die Karten aus dem Auffangfach wieder im Zuführer liegen. Alle Fächer werden als geleert markiert.",
-      "confirmPileTitle": "Stapel {{prefix}} starten?",
-      "confirmPileDescription": "Leere jedes Fach und halte jeden Stapel in Reihenfolge. Lege dann den Stapel {{prefix}} in den Zuführer. Alle Fächer werden als geleert markiert.",
+      "confirmTitle": "Zurück zum ganzen Alphabet?",
+      "confirmDescription": "Leere jedes Fach und lege alle Karten in den Zuführer. Alle Fächer werden als geleert markiert.",
+      "confirmPileTitle": "Stapel {{pile}} starten?",
+      "confirmPileDescription": "Leere jedes Fach und halte jeden Stapel in Reihenfolge. Lege dann den Stapel {{pile}} in den Zuführer. Alle Fächer werden als geleert markiert.",
       "confirm": "Fächer sind leer"
     },
     "binSummary": {
@@ -1875,9 +1915,9 @@
         "title": "Webhooks",
         "description": "Scan- und Lagerereignisse an deinen eigenen Server senden"
       },
-      "shopCatalogs": {
-        "title": "Shop-Kataloge",
-        "description": "Kunden deinen Bestand auf einem Tablet oder deiner Website zeigen"
+      "business": {
+        "title": "Business",
+        "description": "Ankaufsangebote, Rechte für Mitglieder und Shop-Kataloge"
       }
     },
     "appearance": {
@@ -2053,7 +2093,8 @@
       "cancelAtPeriodEnd": "Dein Abonnement endet am {{date}}.",
       "manageOnWeb": "Tarifänderungen und Zahlungsdaten werden in der Web-App verwaltet.",
       "openWeb": "Abrechnung im Web öffnen",
-      "legacyPlanNote": "Du nutzt den ursprünglichen Business-Tarif, der nicht mehr angeboten wird. Du behältst ihn mit allem, was dazugehört, solange dein Abo aktiv bleibt. Ein Wechsel zu einem anderen Tarif oder eine Kündigung lässt sich nicht rückgängig machen."
+      "legacyPlanNote": "Du nutzt den ursprünglichen Business-Tarif, der nicht mehr angeboten wird. Du behältst ihn mit allem, was dazugehört, solange dein Abo aktiv bleibt. Ein Wechsel zu einem anderen Tarif oder eine Kündigung lässt sich nicht rückgängig machen.",
+      "billingDisabled": "Die Abrechnung ist auf diesem Server nicht aktiviert, daher sind alle Funktionen ohne Limits verfügbar."
     },
     "apiKeys": {
       "heading": "API-Schlüssel",
@@ -2331,6 +2372,49 @@
         "saveFailed": "Die Soundregel konnte nicht gespeichert werden."
       }
     },
+    "business": {
+      "description": "Lege deine Ankaufsangebote fest und bestimme, was Mitglieder sehen und tun dürfen.",
+      "managersOnly": "Nur Inhaber und Admins können diese Einstellungen ändern.",
+      "buylist": {
+        "heading": "Ankaufsangebote",
+        "description": "Wie viel du beim Ankauf einer Sammlung für jede Karte bietest. Angebote nutzen deine Preisquelle und Zustandswerte.",
+        "tiers": "Preisstufen",
+        "minPrice": "Marktwert ab",
+        "percent": "Angebot (% vom Marktwert)",
+        "addTier": "Stufe hinzufügen",
+        "removeTier": "Stufe entfernen",
+        "tiersHint": "Jede Karte nutzt die höchste Stufe, die ihr Marktwert erreicht.",
+        "bulkThreshold": "Bulk unter",
+        "bulkOffer": "Bulk-Angebot pro Karte",
+        "creditBonus": "Bonus für Guthaben (%)",
+        "preview": "Beispielangebote",
+        "previewMarket": "Karte für {{price}}",
+        "previewCredit": "{{price}} als Guthaben",
+        "minCardValue": "Mindestwert pro Karte",
+        "minCardValueHint": "Karten, die weniger wert sind, werden nicht angenommen. 0 nimmt alles.",
+        "previewDeclined": "Nicht angenommen"
+      },
+      "permissions": {
+        "heading": "Rechte für Mitglieder",
+        "description": "Was Mitglieder tun dürfen. Inhaber und Admins dürfen immer alles.",
+        "viewCosts": {
+          "label": "Ankaufspreise und Kosten sehen",
+          "description": "Angebote, Einkaufspreise und Margen."
+        },
+        "acceptIntake": {
+          "label": "Ankäufe annehmen oder abbrechen",
+          "description": "In einen offenen Ankauf scannen dürfen Mitglieder immer."
+        },
+        "fulfilOrders": {
+          "label": "Picks erstellen und abschließen",
+          "description": "Beim Abschließen eines Picks werden seine Karten aus dem Bestand entfernt."
+        },
+        "viewActivity": {
+          "label": "Aktivität des Teams sehen",
+          "description": "Durchsatz pro Person und das Aktivitätsprotokoll."
+        }
+      }
+    },
     "shopCatalogs": {
       "heading": "Shop-Kataloge",
       "description": "Lass Kunden deinen Bestand auf einem Tablet im Laden oder auf deiner Website durchsuchen. Jeder Katalog zeigt die Karten aus den gewählten Sammlungen und Lagerorten, über einen Link, der funktioniert, bis du ihn zurücksetzt.",
@@ -2368,7 +2452,6 @@
       "resetLinkConfirmTitle": "Link dieses Katalogs zurücksetzen?",
       "resetLinkConfirmDescription": "Der aktuelle Link und QR-Code funktionieren nicht mehr. Aktualisiere jedes Tablet und jede Website, die ihn nutzt.",
       "linkReset": "Link zurückgesetzt. Der alte Link funktioniert nicht mehr.",
-      "managersOnly": "Nur Inhaber und Admins können Shop-Kataloge verwalten.",
       "cancel": "Abbrechen",
       "close": "Schließen",
       "actions": "Katalogaktionen",
@@ -2390,7 +2473,80 @@
       "isPublic": "Öffentlich",
       "isPublicDescription": "Jeder kann diesen Katalog über seine normale Adresse öffnen, ohne den privaten Link.",
       "publicBadge": "Öffentlich",
-      "publicLinkNote": "Dieser Katalog ist öffentlich, daher funktioniert dieser Link für alle. Schalte Öffentlich aus, um einen privaten Link zu verlangen."
+      "publicLinkNote": "Dieser Katalog ist öffentlich, daher funktioniert dieser Link für alle. Schalte Öffentlich aus, um einen privaten Link zu verlangen.",
+      "allowsReservations": "Kunden Karten reservieren lassen",
+      "allowsReservationsDescription": "Kunden können eine Karte zur Abholung im Laden reservieren. Ist sie schon reserviert, stellen sie sich an und rücken nach, wenn die Person vor ihnen sie nicht abholt.",
+      "reservationHoldLabel": "Reservierte Karte zurücklegen für",
+      "reservationHoldDays_one": "{{count}} Tag",
+      "reservationHoldDays_other": "{{count}} Tage",
+      "reservationHoldDescription": "Danach läuft die Reservierung ab und die nächste Person in der Reihe bekommt die Karte.",
+      "reservationsOn": "Nimmt Reservierungen an"
+    },
+    "statsSync": {
+      "key": {
+        "heading": "Statistik-Sync für Selbsthoster",
+        "description": "Du betreibst Mault auf deinem eigenen Server? Erstelle hier einen Schlüssel und gib ihn auf deinem Server unter Einstellungen > Integrationen ein. Dein Server schickt dann einmal täglich seine Scan-Summen hierher, beginnend mit jedem Tag, an dem du schon gescannt hast. Es werden nur tägliche Scan-Zahlen gesendet, nie Karten, Fotos oder Sammlungen. Synchronisierte Scans erscheinen in der Rangliste als selbst gehostet gekennzeichnet, und Betrachter können sie ausblenden.",
+        "generate": "Schlüssel erstellen",
+        "regenerate": "Schlüssel ersetzen",
+        "revoke": "Widerrufen",
+        "revoked": "Statistik-Sync-Schlüssel widerrufen.",
+        "generateFailed": "Der Statistik-Sync-Schlüssel konnte nicht erstellt werden.",
+        "revokeFailed": "Der Statistik-Sync-Schlüssel konnte nicht widerrufen werden.",
+        "loadFailed": "Der Statistik-Sync-Schlüssel konnte nicht geladen werden.",
+        "empty": "Mit dieser Organisation ist kein selbst gehosteter Server verknüpft.",
+        "managersOnly": "Nur Inhaber und Admins der Organisation können den Statistik-Sync-Schlüssel verwalten.",
+        "createdBy": "Erstellt von {{name}} am {{date}}",
+        "lastSynced": "Zuletzt synchronisiert am {{date}}",
+        "neverSynced": "Noch nicht synchronisiert",
+        "syncedScans_one": "{{formattedCount}} synchronisierter Scan",
+        "syncedScans_other": "{{formattedCount}} synchronisierte Scans",
+        "revealTitle": "Statistik-Sync-Schlüssel kopieren",
+        "revealDescription": "Nur jetzt wird der vollständige Schlüssel angezeigt. Füge ihn auf deinem selbst gehosteten Server unter Einstellungen > Integrationen ein.",
+        "revealDone": "Ich habe ihn kopiert",
+        "copy": "Schlüssel kopieren",
+        "copied": "Statistik-Sync-Schlüssel kopiert.",
+        "copyFailed": "Der Statistik-Sync-Schlüssel konnte nicht kopiert werden.",
+        "regenerateConfirmTitle": "Statistik-Sync-Schlüssel ersetzen?",
+        "regenerateConfirmDescription": "Der aktuelle Schlüssel funktioniert sofort nicht mehr. Dein Server kann erst wieder synchronisieren, wenn du dort den neuen Schlüssel eingibst. Bereits synchronisierte Scans bleiben erhalten.",
+        "revokeConfirmTitle": "Statistik-Sync-Schlüssel widerrufen?",
+        "revokeConfirmDescription": "Dein Server hört sofort auf zu synchronisieren. Bereits synchronisierte Scans bleiben in der Rangliste.",
+        "actionsTitle": "Statistik-Sync-Schlüssel",
+        "share": "Schlüssel teilen",
+        "generateTitle": "Statistik-Sync-Schlüssel erstellen"
+      },
+      "connection": {
+        "heading": "Statistiken mit Mault synchronisieren",
+        "description": "Füge die Scan-Zahlen dieser Organisation den Mault-Ranglisten hinzu. Erstelle eine Organisation auf {{url}}, erzeuge dort unter Einstellungen > Integrationen einen Statistik-Sync-Schlüssel und füge ihn hier ein. Zuerst werden alle bisherigen Scans gesendet, danach einmal täglich die neuen Summen. Es werden nur tägliche Scan-Zahlen gesendet, nie Karten, Fotos oder Sammlungen.",
+        "keyLabel": "Statistik-Sync-Schlüssel",
+        "keyPlaceholder": "mvstats_...",
+        "keyDescription": "Von deiner Organisation auf der Mault-Hauptseite erstellt.",
+        "connect": "Verbinden",
+        "connectFailed": "Die Mault-Hauptseite hat diesen Schlüssel nicht akzeptiert. Prüfe, ob du ihn vollständig kopiert hast und ob er nicht widerrufen oder ersetzt wurde.",
+        "syncNow": "Jetzt synchronisieren",
+        "syncFailed": "Statistiken konnten nicht synchronisiert werden.",
+        "disconnect": "Trennen",
+        "disconnected": "Statistik-Sync getrennt.",
+        "disconnectFailed": "Statistik-Sync konnte nicht getrennt werden.",
+        "disconnectConfirmTitle": "Synchronisierung beenden?",
+        "disconnectConfirmDescription": "Neue Scans werden nicht mehr gesendet. Bereits synchronisierte Scans bleiben auf der Hauptseite, bis der Schlüssel dort widerrufen wird.",
+        "loadFailed": "Die Statistik-Sync-Einstellungen konnten nicht geladen werden.",
+        "managersOnly": "Nur Inhaber und Admins der Organisation können den Statistik-Sync verwalten.",
+        "notConnected": "Diese Organisation synchronisiert ihre Statistiken nicht.",
+        "lastSynced": "Zuletzt synchronisiert am {{date}}",
+        "neverSynced": "Noch nicht synchronisiert",
+        "syncedScans_one": "{{formattedCount}} Scan auf der Hauptseite",
+        "syncedScans_other": "{{formattedCount}} Scans auf der Hauptseite",
+        "errors": {
+          "invalidKey": "Die Hauptseite akzeptiert diesen Schlüssel nicht mehr. Erstelle dort einen neuen Schlüssel, trenne die Verbindung und verbinde erneut.",
+          "unreachable": "Die Mault-Hauptseite war nicht erreichbar. Innerhalb einer Stunde folgt ein neuer Versuch.",
+          "rejected": "Die Mault-Hauptseite hat die letzte Synchronisierung abgelehnt. Innerhalb einer Stunde folgt ein neuer Versuch."
+        },
+        "actionsTitle": "Statistik-Sync",
+        "syncing": "Wird synchronisiert...",
+        "synced": "Statistiken synchronisiert.",
+        "connected": "Statistik-Sync verbunden."
+      },
+      "cancel": "Abbrechen"
     }
   },
   "binCorrection": {
@@ -2434,7 +2590,9 @@
     "low": "Niedrig",
     "regular": "Normal",
     "foil": "Foil",
-    "noPrice": "Kein Preis"
+    "noPrice": "Kein Preis",
+    "listingsHeading": "TCGplayer-Angebote",
+    "noListings": "Keine Angebote"
   },
   "health": {
     "title": "Systemstatus",
@@ -2575,7 +2733,10 @@
     "catalogSourcesRequired": "Wähle mindestens eine Sammlung oder einen Lagerort.",
     "contactRequired": "Gib an, wie man dich erreicht.",
     "textTooLong": "Bleib unter {{max}} Zeichen.",
-    "jsonObjectInvalid": "Gib ein einzelnes JSON-Objekt ein, etwa {\"neutral\": true}."
+    "jsonObjectInvalid": "Gib ein einzelnes JSON-Objekt ein, etwa {\"neutral\": true}.",
+    "statsSyncKeyInvalid": "Füge den ganzen Schlüssel ein. Er beginnt mit mvstats_.",
+    "expiryDaysInvalid": "Gib ganze Tage von 1 bis {{max}} ein, durch Kommas getrennt.",
+    "expiryDaysTooMany": "Gib höchstens {{max}} Laufzeiten ein."
   },
   "cardTags": {
     "title": "Markierungen",
@@ -2609,7 +2770,47 @@
     "removeAllTitle_other": "{{count}} nicht erkannte Scans entfernen?",
     "removeAllDescription": "Die Fotos werden gelöscht und keine dieser Karten wird der Sammlung hinzugefügt.",
     "badge_one": "{{count}} nicht erkannt",
-    "badge_other": "{{count}} nicht erkannt"
+    "badge_other": "{{count}} nicht erkannt",
+    "retry": {
+      "action": "Mit höherer Genauigkeit erneut versuchen",
+      "stop": "Stoppen",
+      "progress_one": "{{checked}} von {{total}} geprüft, {{count}} Treffer",
+      "progress_other": "{{checked}} von {{total}} geprüft, {{count}} Treffer",
+      "confirmTitle_one": "{{count}} nicht erkannte Karte mit höherer Genauigkeit erneut prüfen?",
+      "confirmTitle_other": "{{count}} nicht erkannte Karten mit höherer Genauigkeit erneut prüfen?",
+      "confirmDescription": "Mault liest Name, Set und Nummer auf jedem gespeicherten Scan und prüft das Bild erneut. Erkannte Karten wandern in diese Sammlung und werden zur Überprüfung markiert. Jeder Treffer zählt zu den heutigen Scans, der Rest bleibt nicht erkannt.",
+      "confirm": "Karten erneut prüfen",
+      "matched_one": "{{count}} Karte von {{checked}} erkannt. Sie ist zur Überprüfung markiert.",
+      "matched_other": "{{count}} Karten von {{checked}} erkannt. Sie sind zur Überprüfung markiert.",
+      "noMatches_one": "Keine Treffer unter {{checked}} Karten.",
+      "noMatches_other": "Keine Treffer unter {{checked}} Karten.",
+      "stopped_one": "Nach {{checked}} Karten gestoppt. {{count}} Karte erkannt.",
+      "stopped_other": "Nach {{checked}} Karten gestoppt. {{count}} Karten erkannt.",
+      "scanLimitReached_one": "{{count}} Karte erkannt, dann wurde das heutige Scanlimit erreicht.",
+      "scanLimitReached_other": "{{count}} Karten erkannt, dann wurde das heutige Scanlimit erreicht.",
+      "failed": "Der erneute Versuch wurde nicht abgeschlossen. Bereits erkannte Karten bleiben erhalten."
+    },
+    "selection": {
+      "select": "Scans auswählen",
+      "doneSelecting": "Auswahl beenden",
+      "hint": "Wähle bis zu {{max}} Scans aus und prüfe sie dann mit höherer Genauigkeit erneut oder entferne sie.",
+      "selectScan": "Scan vom {{scannedAt}} auswählen",
+      "selected_one": "{{count}} Scan ausgewählt",
+      "selected_other": "{{count}} Scans ausgewählt",
+      "selectLoaded": "Alle auswählen",
+      "clear": "Leeren",
+      "limitReached": "Du kannst bis zu {{max}} Scans gleichzeitig auswählen.",
+      "remove": "Entfernen",
+      "removeTitle_one": "{{count}} nicht erkannten Scan entfernen?",
+      "removeTitle_other": "{{count}} nicht erkannte Scans entfernen?",
+      "removed_one": "{{count}} nicht erkannter Scan entfernt",
+      "removed_other": "{{count}} nicht erkannte Scans entfernt",
+      "removeFailed_one": "{{count}} Scan konnte nicht entfernt werden",
+      "removeFailed_other": "{{count}} Scans konnten nicht entfernt werden"
+    },
+    "showInGrid": "Im Kartenraster anzeigen",
+    "showInGridDescription": "Nicht erkannte Scans erscheinen mit rotem Rahmen zwischen deinen Karten. Gilt für alle in dieser Organisation.",
+    "showInGridFailed": "Die Einstellung konnte nicht gespeichert werden"
   },
   "matchValidations": {
     "ocrFallback": "{{field}} (Ausweichbereich)",
@@ -2825,6 +3026,18 @@
       }
     },
     "plans": {
+      "subscriptions": {
+        "heading": "Abonnements",
+        "description": "Organisationen mit einem bezahlten Abonnement, nach Plan. Der monatlich wiederkehrende Umsatz nutzt den Listenpreis jedes Plans, Jahrespläne auf 12 Monate verteilt, vor Rabatten und Steuern. Testphasen zählen als Abonnenten, bringen aber keinen Umsatz.",
+        "subscribersHeading": "Abonnenten",
+        "revenueHeading": "Monatlich wiederkehrender Umsatz",
+        "total": "Gesamt",
+        "trialingCount_one": "{{count}} in der Testphase",
+        "trialingCount_other": "{{count}} in der Testphase",
+        "unpriced_one": "Der Preis von {{count}} Abonnenten konnte nicht von Stripe geladen werden, daher fehlt er im Umsatz.",
+        "unpriced_other": "Die Preise von {{count}} Abonnenten konnten nicht von Stripe geladen werden, daher fehlen sie im Umsatz.",
+        "loadFailed": "Abonnements konnten nicht geladen werden."
+      },
       "billingDisabled": "Die Abrechnung ist auf diesem Server ausgeschaltet, daher bekommt jede Organisation alle Funktionen ohne Limits. Diese Einstellungen greifen, sobald die Abrechnung aktiv ist.",
       "saveFailed": "Tarifeinstellungen konnten nicht gespeichert werden",
       "featuresDescription": "Welche Tarife jede Funktion nutzen können. Funktionen sind im Code definiert, eine neue erscheint hier, sobald sie gebaut ist.",
@@ -2862,7 +3075,7 @@
         },
         "longShareLinks": {
           "label": "Längere Monitor-Links",
-          "description": "Monitor-Links können 1, 7 oder 30 Tage gelten. Ohne diese Funktion gelten sie 1 Stunde. Tausch-Links gelten immer 1 Stunde."
+          "description": "Monitor-Links können jede Laufzeit in Tagen haben, die im Web unter Admin > Freigabelinks festgelegt ist. Ohne diese Funktion gilt die dort festgelegte kurze Laufzeit."
         }
       },
       "limits": {
@@ -3416,7 +3629,8 @@
     },
     "boxes": {
       "received": "Erhalten",
-      "sent": "Gesendet"
+      "sent": "Gesendet",
+      "reservations": "Meine Reservierungen"
     },
     "sent": {
       "title": "Gesendetes Tauschangebot",
@@ -3772,7 +3986,8 @@
     "delete": "Löschen",
     "views": {
       "intake": "Ankauf",
-      "picks": "Picks"
+      "picks": "Picks",
+      "reservations": "Reservierungen"
     },
     "status": {
       "open": "Offen",
@@ -3944,7 +4159,8 @@
         "picked": "{{name}} aus {{spot}} gepickt",
         "alreadyPicked": "Alle Exemplare von {{name}} in diesem Pick sind schon gepickt.",
         "notOnPick": "{{name}} ist in diesem Pick nicht mehr offen."
-      }
+      },
+      "reservationCardsNote": "Für Reservierungen zurückgelegte Karten bleiben im Bestand und werden als abholbereit markiert."
     },
     "order": {
       "title": "Pick",
@@ -3998,6 +4214,98 @@
         "condition": "Anderer Zustand",
         "finish": "Andere Veredelung"
       }
+    },
+    "reservations": {
+      "lists": {
+        "active": "Offen",
+        "closed": "Verlauf"
+      },
+      "waitingSection": "In der Warteschlange ({{count}})",
+      "heldUntil": "Zurückgelegt bis {{date}}",
+      "inLinePosition": "Platz {{position}} von {{total}} in der Reihe",
+      "closedOn": "Geschlossen {{date}}",
+      "pickedUp": "Abgeholt",
+      "release": "Freigeben",
+      "collected": "{{name}} abgeholt und als verkauft erfasst",
+      "collectConfirmTitle": "{{name}} als abgeholt markieren?",
+      "collectConfirmDescription": "Die Karte verlässt deinen Bestand und wird als für {{price}} verkauft erfasst. Wer noch in der Reihe steht, sieht, dass sie nicht mehr verfügbar ist.",
+      "collectConfirmDescriptionNoPrice": "Die Karte verlässt deinen Bestand und wird ohne Preis als verkauft erfasst. Wer noch in der Reihe steht, sieht, dass sie nicht mehr verfügbar ist.",
+      "releaseConfirmDescription": "Die Person verliert ihren Platz. War sie als Erste dran, wird die Karte für die nächste Person zurückgelegt.",
+      "empty": {
+        "activeTitle": "Keine offenen Reservierungen",
+        "activeDescription": "Reservierungen erscheinen hier, sobald ein Kunde eine Karte aus einem Shop-Katalog reserviert, der sie annimmt.",
+        "closedTitle": "Keine früheren Reservierungen",
+        "closedDescription": "Abgeholte, freigegebene und abgelaufene Reservierungen stehen hier."
+      },
+      "pickedUpGroup_one": "Abgeholt",
+      "pickedUpGroup_other": "Abgeholt ({{count}})",
+      "releaseGroup_one": "Freigeben",
+      "releaseGroup_other": "Alle freigeben ({{count}})",
+      "releaseCardConfirmTitle": "{{card}} für {{name}} freigeben?",
+      "releasedCard": "{{card}} für {{name}} freigegeben",
+      "collectGroupConfirmTitle_one": "1 Karte als von {{name}} abgeholt markieren?",
+      "collectGroupConfirmTitle_other": "{{count}} Karten als von {{name}} abgeholt markieren?",
+      "collectGroupConfirmDescription_one": "Die Karte verlässt deinen Bestand und wird als für {{total}} verkauft erfasst.",
+      "collectGroupConfirmDescription_other": "Die Karten verlassen deinen Bestand und werden als für insgesamt {{total}} verkauft erfasst.",
+      "collectGroupConfirmDescriptionMissingPrices_one": "Die Karte verlässt deinen Bestand und wird ohne Preis als verkauft erfasst.",
+      "collectGroupConfirmDescriptionMissingPrices_other": "Die Karten verlassen deinen Bestand und werden als für insgesamt {{total}} verkauft erfasst. Manche haben keinen Preis und werden ohne erfasst.",
+      "collectGroupWaitingNote_one": "Die 1 Karte, für die die Person noch ansteht, bleibt reserviert.",
+      "collectGroupWaitingNote_other": "Die {{count}} Karten, für die die Person noch ansteht, bleiben reserviert.",
+      "collectedGroup_one": "1 Karte von {{name}} abgeholt und als verkauft erfasst",
+      "collectedGroup_other": "{{count}} Karten von {{name}} abgeholt und als verkauft erfasst",
+      "releaseGroupConfirmTitle_one": "Reservierung von {{name}} freigeben?",
+      "releaseGroupConfirmTitle_other": "Alle {{count}} Reservierungen von {{name}} freigeben?",
+      "releaseGroupConfirmDescription_one": "Die Person verliert ihren Platz. War sie als Erste dran, wird die Karte für die nächste Person zurückgelegt.",
+      "releaseGroupConfirmDescription_other": "Die Person verliert ihren Platz bei jeder Karte dieser Anfrage. Wo sie als Erste dran war, wird die Karte für die nächste Person zurückgelegt.",
+      "releasedGroup_one": "Reservierung von {{name}} freigegeben",
+      "releasedGroup_other": "{{count}} Reservierungen von {{name}} freigegeben",
+      "customerHint": "Öffnet die Aktionen für die Reservierung dieser Person",
+      "cardHint": "Öffnet die Aktionen für diese Karte",
+      "pickedUpCardOption": "Abgeholt: {{card}}",
+      "releaseCardOption": "Freigeben: {{card}}",
+      "stages": {
+        "readyForPickup": "Abholbereit",
+        "beingPicked": "Wird kommissioniert",
+        "toPull": "Zu holen",
+        "waiting": "In der Reihe",
+        "collected": "Abgeholt",
+        "cancelled": "Storniert",
+        "released": "Freigegeben",
+        "expired": "Abgelaufen",
+        "unavailable": "Karte weg"
+      },
+      "groupSummary": "{{cards}}: {{stages}}",
+      "stageCounts": {
+        "readyForPickup_one": "{{count}} abholbereit",
+        "readyForPickup_other": "{{count}} abholbereit",
+        "beingPicked_one": "{{count}} wird kommissioniert",
+        "beingPicked_other": "{{count}} werden kommissioniert",
+        "toPull_one": "{{count}} zu holen",
+        "toPull_other": "{{count}} zu holen",
+        "waiting_one": "{{count}} in der Reihe",
+        "waiting_other": "{{count}} in der Reihe"
+      },
+      "heldTotal": "Zurückgelegte Karten gesamt {{total}}",
+      "heldTotalMissingPrices": "Zurückgelegte Karten gesamt {{total}} (manche ohne Preis)",
+      "readySection": "Abholbereit ({{count}})",
+      "pullSection": "Zu holen ({{count}})",
+      "createPick_one": "Pickliste erstellen",
+      "createPick_other": "Pickliste erstellen ({{count}})",
+      "openPick": "Pickliste {{name}} öffnen",
+      "inPick": "In Pickliste {{name}}",
+      "pickName": "Reservierung: {{name}}",
+      "pickCreated_one": "Pickliste für {{name}} mit 1 Karte erstellt",
+      "pickCreated_other": "Pickliste für {{name}} mit {{count}} Karten erstellt",
+      "cardCount_one": "1 Karte",
+      "cardCount_other": "{{count}} Karten"
+    },
+    "search": {
+      "noResultsTitle": "Keine Treffer",
+      "noResultsDescription": "Nichts passt zu \"{{query}}\". Versuche einen anderen Namen oder Begriff.",
+      "intakePlaceholder": "Ankäufe nach Kunde oder Notiz durchsuchen",
+      "picksPlaceholder": "Picklisten nach Name, Karte oder Bestellung durchsuchen",
+      "reservationsPlaceholder": "Nach Kunde, Karte oder Katalog suchen",
+      "clear": "Suche leeren"
     }
   },
   "machines": {
@@ -4116,5 +4424,64 @@
       "resultsCount_one": "{{count}} Neuigkeit gefunden",
       "resultsCount_other": "{{count}} Neuigkeiten gefunden"
     }
+  },
+  "myReservations": {
+    "new": "Neu",
+    "unknownCatalog": "Shop-Katalog",
+    "openCatalog": "Katalog öffnen",
+    "cancelled": "Reservierung storniert",
+    "cancelFailed": "Die Reservierung konnte nicht storniert werden.",
+    "loadFailed": "Deine Reservierungen konnten nicht geladen werden.",
+    "emptyTitle": "Noch keine Reservierungen",
+    "emptyDescription": "Karten, die du angemeldet aus einem Shop-Katalog reservierst, erscheinen hier.",
+    "open": "Offen",
+    "past": "Vergangen",
+    "trayHeading": "Deine Reservierungen",
+    "view": "Reservierungen ansehen",
+    "alerts": {
+      "held": "{{card}} ist jetzt bei {{catalog}} für dich zurückgelegt",
+      "readyForPickup": "{{card}} liegt bei {{catalog}} zur Abholung bereit",
+      "expired": "Deine Reservierung von {{card}} bei {{catalog}} ist abgelaufen",
+      "released": "{{catalog}} hat deine Reservierung von {{card}} freigegeben",
+      "unavailable": "{{card}} bei {{catalog}} ist nicht mehr verfügbar"
+    },
+    "held": "Der Laden legt sie für dich zurück.",
+    "heldUntil": "Der Laden legt sie bis {{date}} für dich zurück.",
+    "readyForPickupUntil": "Deine Karte liegt bereit. Hol sie bis {{date}} ab.",
+    "aheadOfYou_one": "{{count}} Person ist vor dir.",
+    "aheadOfYou_other": "{{count}} Personen sind vor dir.",
+    "status": {
+      "readyForPickup": "Abholbereit",
+      "ready": "Für dich reserviert",
+      "waiting": "In der Reihe",
+      "collected": "Abgeholt",
+      "cancelled": "Storniert",
+      "released": "Vom Laden freigegeben",
+      "expired": "Abgelaufen",
+      "unavailable": "Nicht mehr verfügbar"
+    },
+    "actionsHint": "Öffnet die Aktionen für diese Reservierung",
+    "cancel": "Reservierung stornieren",
+    "keep": "Behalten",
+    "cancelConfirmTitle": "Deine Reservierung von {{name}} stornieren?",
+    "cancelConfirmDescription": "Du verlierst deinen Platz. War die Karte für dich zurückgelegt, bekommt sie die nächste Person in der Reihe.",
+    "noActions": "Für diese Reservierung gibt es nichts zu tun.",
+    "requestReservedOn": "Reserviert am {{date}}",
+    "requestSummary": "{{cards}}: {{stages}}",
+    "requestCardCount_one": "1 Karte",
+    "requestCardCount_other": "{{count}} Karten",
+    "requestCounts": {
+      "readyForPickup_one": "{{count}} abholbereit",
+      "readyForPickup_other": "{{count}} abholbereit",
+      "held_one": "{{count}} für dich reserviert",
+      "held_other": "{{count}} für dich reserviert",
+      "waiting_one": "{{count}} in der Reihe",
+      "waiting_other": "{{count}} in der Reihe"
+    },
+    "cancelAll_one": "Stornieren",
+    "cancelAll_other": "Alle stornieren ({{count}})",
+    "cancelAllConfirmTitle_one": "Diese Reservierung stornieren?",
+    "cancelAllConfirmTitle_other": "Alle {{count}} offenen Reservierungen stornieren?",
+    "cancelCardOption": "Stornieren: {{card}}"
   }
 }

@@ -32,6 +32,7 @@ export type PageSpreadItem = number | "start-ellipsis" | "end-ellipsis";
 export interface PageRequest {
   page: number | null;
   selected: string | null;
+  search?: string;
 }
 
 export interface ServerPagedList<T> {

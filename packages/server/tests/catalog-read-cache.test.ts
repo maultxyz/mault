@@ -53,6 +53,21 @@ test("serves cached cards and loads only the missing ones", async () => {
   assert.deepEqual([...cards.keys()], ["a", "c"]);
 });
 
+test("requests arriving together for the same cards share one load", async () => {
+  clearCatalogReadCaches();
+  const loader = recordingCardLoader();
+  const cacheKeyOfCardId = (cardId: string) => catalogCacheKey(["mtg", "en", cardId]);
+  const [upright, rotated, text] = await Promise.all([
+    loadThroughStoredCardCache(cacheKeyOfCardId, ["a", "b"], loader.load),
+    loadThroughStoredCardCache(cacheKeyOfCardId, ["b", "a"], loader.load),
+    loadThroughStoredCardCache(cacheKeyOfCardId, ["a", "c"], loader.load),
+  ]);
+  assert.deepEqual(loader.requestedBatches, [["a", "b"], ["c"]]);
+  assert.deepEqual([...upright.keys()], ["a", "b"]);
+  assert.deepEqual([...rotated.keys()], ["b", "a"]);
+  assert.deepEqual([...text.keys()], ["a", "c"]);
+});
+
 test("keeps cards of different languages apart", async () => {
   clearCatalogReadCaches();
   const loader = recordingCardLoader();

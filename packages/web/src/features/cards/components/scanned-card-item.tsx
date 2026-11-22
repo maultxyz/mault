@@ -10,14 +10,19 @@ import {
 } from "@/components/ui/tooltip";
 import { BinLocationDiagram } from "@/features/bins/components/bin-location-diagram";
 import type { ScannedCardItemProps } from "@/lib/interfaces/cards";
-import { ReviewStatusIcon } from "@/features/cards/components/review-status-icon";
+import { reviewStatusLabel } from "@/features/cards/lib/review-tooltip";
+import { CARD_REVIEW_STATUS_BORDER_CLASS } from "@/lib/constants/cards";
 import { StorageLocationBadge } from "@/features/cards/components/storage-location-badge";
 import { useShiftClick } from "@/hooks/use-shift-click";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { modifierClickSelectHandlers } from "@/lib/modifier-click-select";
 import { cn, matchPercent as getMatchPercent } from "@/lib/utils";
 import { IconDownload, IconSparkles } from "@tabler/icons-react";
-import { DEFAULT_CARD_CONDITION, rarityLabel } from "@magic-vault/shared";
+import {
+  cardReviewStatus,
+  DEFAULT_CARD_CONDITION,
+  rarityLabel,
+} from "@magic-vault/shared";
 import { memo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { raritySwatch } from "@/lib/card-swatches";
@@ -51,34 +56,42 @@ export const ScannedCardItem = memo(function ScannedCardItem({
   const { priceOf, format } = usePriceSource();
   const { onMouseDown: onSelectMouseDown, consumeShift } = useShiftClick();
   const displayPrice = priceOf(card, { isFoil, foilType }, condition);
-  const showReviewStatus = hasAlternatives || lowConfidenceMatch || isReviewed;
+  const reviewStatusInput = {
+    hasAlternatives,
+    lowConfidenceMatch,
+    wasCorrected,
+    isReviewed,
+  };
+  const reviewStatus = cardReviewStatus(reviewStatusInput);
+  const reviewLabel = reviewStatusLabel(t, reviewStatus, reviewStatusInput);
   return (
     <div
       {...modifierClickSelectHandlers(
         onToggleSelect && ((shiftKey) => onToggleSelect({ shiftKey })),
       )}
       className={cn(
-        "relative rounded-card bg-card p-1.5 transition-shadow",
+        "relative rounded-card border-2 bg-card p-1 transition-shadow",
+        reviewStatus
+          ? CARD_REVIEW_STATUS_BORDER_CLASS[reviewStatus]
+          : "border-transparent",
         isNew &&
           "animate-in fade-in-0 zoom-in-90 slide-in-from-top-2 duration-500 motion-reduce:animate-none",
         isSelected && "ring-2 ring-primary ring-offset-1",
       )}
     >
-      <button type="button" className="w-full cursor-pointer" onClick={onOpen}>
+      <button
+        type="button"
+        className="w-full cursor-pointer"
+        title={reviewLabel ?? undefined}
+        onClick={onOpen}
+      >
+        {reviewLabel && <span className="sr-only">{reviewLabel}</span>}
         <div className="aspect-[2.5/3.5] rounded-lg overflow-hidden relative">
-          <ReviewStatusIcon
-            hasAlternatives={hasAlternatives}
-            lowConfidenceMatch={lowConfidenceMatch}
-            wasCorrected={wasCorrected}
-            isReviewed={isReviewed}
-            className="absolute top-1 left-1 z-20 shadow-md"
-          />
           {isFoil && (
             <div
               className={cn(
-                "absolute top-1 z-20 rounded-full p-0.5 shadow-md",
+                "absolute top-1 left-1 z-20 rounded-full p-0.5 shadow-md",
                 FOIL_GRADIENT_CLASS,
-                showReviewStatus ? "left-6" : "left-1",
               )}
               title={foilType ?? t("foil")}
               role="img"

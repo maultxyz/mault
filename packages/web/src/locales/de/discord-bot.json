@@ -70,8 +70,8 @@
         "description": "Wähle eine deiner Regelvorlagen aus einer Liste und poste ihre Fächer und Regeln. Erfordert ein verknüpftes Konto."
       },
       "leaderboard": {
-        "usage": "/leaderboard",
-        "description": "Zeigt die Organisationen, die mit Mault die meisten Karten gescannt haben, dieselbe Liste wie die Bestenliste unter Statistiken."
+        "usage": "/leaderboard [ranking] [period]",
+        "description": "Zeigt die Organisationen, die mit Mault die meisten Karten gescannt haben, dieselbe Liste wie die Bestenliste unter Statistiken. Wähle die Rangliste Karten pro Stunde, um zu sehen, welche einzelne Maschine am schnellsten scannt, gemessen an ihren besten 15 Minuten."
       }
     },
     "eyebrow": "Befehle"

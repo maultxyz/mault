@@ -2,9 +2,12 @@ import {
   BROWSER_SYNC_PARALLEL,
   DELETED_ITEM_TYPES,
   SYNC_VECTORIZE_CONCURRENCY_MAX,
+  DEFAULT_SHARE_LINK_LENGTHS,
   type CustomShortLinkFormValues,
   type SyncState,
 } from "@magic-vault/shared";
+import { shareLinkLengthsToFormValues } from "@/features/admin/lib/share-link-lengths-form";
+import type { ShareLinkLengthsFormValues } from "@/schemas/share-link-lengths.schema";
 import type { DeletedItemTypeFilter } from "@/lib/interfaces/admin";
 import type { PlatformDiscordChannelsFormValues } from "@/schemas/platform-discord-channels.schema";
 import type { PlatformDiscordLinkedRoleFormValues } from "@/schemas/platform-discord-linked-role.schema";
@@ -15,6 +18,7 @@ import {
   IconCards,
   IconCreditCard,
   IconLink,
+  IconClockShare,
   IconMusic,
   IconRestore,
   IconRotate360,
@@ -71,6 +75,13 @@ export const API_USAGE_QUERY_KEY = ["admin", "api-usage"] as const;
 export const CUSTOM_SHORT_LINKS_QUERY_KEY = ["admin", "short-links"] as const;
 export const CUSTOM_SHORT_LINK_FORM_ID = "custom-short-link-form";
 export const EMPTY_CUSTOM_SHORT_LINK_FORM: CustomShortLinkFormValues = { code: "", targetUrl: "" };
+export const SHARE_LINK_LENGTHS_QUERY_KEY = ["admin", "share-link-lengths"] as const;
+export const EMPTY_SHARE_LINK_LENGTHS_FORM: ShareLinkLengthsFormValues =
+  shareLinkLengthsToFormValues(DEFAULT_SHARE_LINK_LENGTHS);
+export const SHARE_LINK_HOURS_FIELDS = [
+  "tradeLinkHours",
+  "restrictedShareLinkHours",
+] as const satisfies readonly (keyof ShareLinkLengthsFormValues)[];
 
 export const ADMIN_SECTIONS = [
   {
@@ -127,6 +138,13 @@ export const ADMIN_SECTIONS = [
     icon: IconLink,
     labelKey: "sections.shortLinks",
     adminOnly: false,
+    showsOnMobile: false,
+  },
+  {
+    path: "share-links",
+    icon: IconClockShare,
+    labelKey: "sections.shareLinks",
+    adminOnly: true,
     showsOnMobile: false,
   },
   {

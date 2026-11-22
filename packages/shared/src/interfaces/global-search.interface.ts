@@ -5,7 +5,7 @@ export interface CatalogGame {
   gameKey: string;
   gameName: string;
   lang: string;
-  collectionGuid: string;
+  collectionGuid: string | null;
 }
 
 export interface CatalogCardSearchResult {
@@ -40,9 +40,26 @@ export interface OwnedCardSearchPage {
   nextOffset: number | null;
 }
 
-export type CatalogSearchOffsetsByGame = Record<string, number>;
+export interface CatalogGameSearchPages {
+  pages: CatalogCardSearchPage[];
+  loadMoreFailed: boolean;
+}
 
-export interface CatalogCardsSearchPage {
+export interface CatalogGameSearchState {
+  game: CatalogGame;
+  data: CatalogGameSearchPages | undefined;
+  isPending: boolean;
+  isError: boolean;
+  isFetching: boolean;
+  isPlaceholderData: boolean;
+}
+
+export interface CatalogSearchSummary {
   results: CatalogCardResult[];
-  nextOffsetsByGame: CatalogSearchOffsetsByGame | null;
+  isLoadingFirstResults: boolean;
+  isLoadingOtherGames: boolean;
+  failed: boolean;
+  hasMore: boolean;
+  isLoadingMore: boolean;
+  loadMoreFailed: boolean;
 }

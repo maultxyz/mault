@@ -61,6 +61,7 @@ export interface CardCorrectionSearchProps {
 
 export interface CardCorrection {
   correct: (entry: ScannedCard, card: PlayingCard) => Promise<void>;
+  promptAfterScanStateEdit: (editedEntry: ScannedCard) => Promise<void>;
   isPending: boolean;
 }
 
@@ -116,12 +117,14 @@ export interface PriceTableData {
   rows: PriceTableRow[];
   highlightColumn: number;
   format: (value: number) => string;
+  missingValueLabel?: string;
 }
 
 export interface PriceSourceSection {
   source: PriceSource;
   headline: PriceHeadline;
   table: PriceTableData;
+  extraTables?: PriceTableData[];
 }
 
 export interface ExportSheetProps {
@@ -135,14 +138,6 @@ export interface ExportSheetProps {
   onCombineDuplicatesChange: (value: boolean) => void;
   onExport: (adapter: ExportAdapter) => void;
   onClose: () => void;
-}
-
-export interface PricePaidFieldProps {
-  label: string;
-  placeholder: string;
-  value: number | null;
-  onChange: (value: number | null) => void;
-  error?: string;
 }
 
 export interface CardDetailPrefetchTarget {

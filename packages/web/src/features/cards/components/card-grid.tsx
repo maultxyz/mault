@@ -54,13 +54,24 @@ import {
   type ExportAdapter,
 } from "@/features/cards/lib/export";
 import {
+  collectionCardGridPageQueryOptions,
   collectionCardPositionQueryOptions,
   collectionCardsPageQueryOptions,
   collectionCardsCountQueryOptions,
   loadCollectionCardIds,
   scanTimelineBucketsQueryOptions,
   scanTimelineCardsQueryOptions,
+  unmatchedCardsPageQueryOptions,
 } from "@/features/collections/api/collection-cards";
+import {
+  clearUnmatchedScans,
+  removeUnmatchedScan,
+} from "@/features/collections/api/collections";
+import { useInlineUnmatchedCards } from "@/features/scanner/api/use-inline-unmatched-cards";
+import { useUnmatchedCardsInGrid } from "@/features/scanner/api/use-unmatched-cards-in-grid";
+import { MoreUnmatchedCardsTile } from "@/features/scanner/components/more-unmatched-cards-tile";
+import { UnmatchedCardTile } from "@/features/scanner/components/unmatched-card-tile";
+import { UnmatchedCardsGridDialog } from "@/features/scanner/components/unmatched-cards-grid-dialog";
 import { CardScanTimeline } from "@/features/cards/components/card-scan-timeline";
 import { useCollectionCardsSummary } from "@/features/collections/api/use-collection-cards";
 import { useStoredCardCount } from "@/features/collections/api/use-stored-card-count";
@@ -108,9 +119,12 @@ import {
   IconTag,
 } from "@tabler/icons-react";
 import {
+  buildCardGridTiles,
   CARD_CONDITIONS,
   CARD_TAGS,
   computeBinCount,
+  UNMATCHED_PREVIEW_COUNT,
+  type CardGridTile,
   deviceTimeZone,
   groupCardsByScanTime,
   toReviewGridCard,
@@ -167,7 +181,11 @@ export function CardGrid() {
     setCardsTags,
     setCardsFoilType,
     sessionScanCount,
+    removeUnmatchedCard,
+    removeAllUnmatchedCards,
   } = useScannedCards();
+  const inlineUnmatched = useInlineUnmatchedCards();
+  const { isEnabled: showsUnmatchedCardsInGrid } = useUnmatchedCardsInGrid();
   const collectionGuid = viewedCollection?.guid;
   const [summaryOpen, setSummaryOpen] = useState(false);
   const [addCardOpen, setAddCardOpen] = useState(false);
@@ -213,9 +231,6 @@ export function CardGrid() {
     summary,
     allStats: stats,
     totalCount,
-    isPending: summaryPending,
-    isError: summaryLoadFailed,
-    refetch: refetchSummary,
   } = useCollectionCardsSummary();
 
   const [confirmOpen, setConfirmOpen] = useState(false);
@@ -335,6 +350,19 @@ export function CardGrid() {
     () => ({ ...cardsQuery, unreviewed: true }),
     [cardsQuery],
   );
+  const { data: openPosition, isPending: openPositionPending } = useQuery(
+    collectionCardPositionQueryOptions(
+      collectionGuid,
+      openScanId,
+      isReviewing ? reviewQuery : cardsQuery,
+    ),
+  );
+  const openEntry =
+    openPosition && openPosition.entry.scanId === openScanId
+      ? openPosition.entry
+      : null;
+  const isCardListHidden =
+    isGridReviewing || (!!openScanId && (openPositionPending || !!openEntry));
   const [reviewTotal, setReviewTotal] = useState<number | null>(null);
   const { data: reviewCount } = useQuery({
     ...collectionCardsCountQueryOptions(collectionGuid, reviewQuery),
@@ -393,32 +421,41 @@ export function CardGrid() {
   useEffect(() => () => reviewQueueStore.stop(), []);
 
   const pageQuery = useQuery({
-    ...collectionCardsPageQueryOptions(
+    ...collectionCardGridPageQueryOptions(
       collectionGuid,
       cardsQuery,
       page,
       pageSize,
+      showsUnmatchedCardsInGrid,
     ),
-    enabled: !!collectionGuid && !scanTimelineGrouping,
+    enabled: !!collectionGuid && !scanTimelineGrouping && !isCardListHidden,
   });
   const prefetchCardPage = useCallback(
     (oneBasedPage: number) => {
       if (!collectionGuid || scanTimelineGrouping) return;
       void queryClient.prefetchQuery(
-        collectionCardsPageQueryOptions(
+        collectionCardGridPageQueryOptions(
           collectionGuid,
           cardsQuery,
           oneBasedPage - 1,
           pageSize,
+          showsUnmatchedCardsInGrid,
         ),
       );
     },
-    [collectionGuid, scanTimelineGrouping, queryClient, cardsQuery, pageSize],
+    [
+      collectionGuid,
+      scanTimelineGrouping,
+      queryClient,
+      cardsQuery,
+      pageSize,
+      showsUnmatchedCardsInGrid,
+    ],
   );
   const scanTimelineTimeZone = useMemo(() => deviceTimeZone(), []);
   const scanTimelineCardsQuery = useInfiniteQuery({
     ...scanTimelineCardsQueryOptions(collectionGuid, cardsQuery),
-    enabled: !!collectionGuid && !!scanTimelineGrouping,
+    enabled: !!collectionGuid && !!scanTimelineGrouping && !isCardListHidden,
   });
   const scanTimelineBucketsQuery = useQuery({
     ...scanTimelineBucketsQueryOptions(
@@ -427,7 +464,7 @@ export function CardGrid() {
       scanTimelineGrouping ?? "day",
       scanTimelineTimeZone,
     ),
-    enabled: !!collectionGuid && !!scanTimelineGrouping,
+    enabled: !!collectionGuid && !!scanTimelineGrouping && !isCardListHidden,
   });
   const scanTimelinePages = scanTimelineCardsQuery.data?.pages;
   const pageData = scanTimelineGrouping
@@ -446,6 +483,26 @@ export function CardGrid() {
         : (pageQuery.data?.items ?? []),
     [scanTimelineGrouping, scanTimelinePages, pageQuery.data],
   );
+  const gridTiles = useMemo(
+    () =>
+      buildCardGridTiles(
+        pagedCards,
+        scanTimelineGrouping ? undefined : pageQuery.data?.unmatched,
+      ),
+    [pagedCards, scanTimelineGrouping, pageQuery.data],
+  );
+  const { data: unmatchedPreview } = useQuery(
+    unmatchedCardsPageQueryOptions(collectionGuid, 1, UNMATCHED_PREVIEW_COUNT),
+  );
+  const unmatchedCount = unmatchedPreview?.total ?? 0;
+  const removeInlineUnmatchedCard = (scanId: string) =>
+    readOnly && collectionGuid
+      ? removeUnmatchedScan(collectionGuid, scanId)
+      : removeUnmatchedCard(scanId);
+  const removeAllInlineUnmatchedCards = () =>
+    readOnly && collectionGuid
+      ? clearUnmatchedScans(collectionGuid)
+      : removeAllUnmatchedCards();
   const {
     selectedIds,
     setSelectedIds,
@@ -503,17 +560,6 @@ export function CardGrid() {
     if (page !== clampedPage) setPage(clampedPage);
   }, [page, clampedPage, setPage]);
 
-  const { data: openPosition, isPending: openPositionPending } = useQuery(
-    collectionCardPositionQueryOptions(
-      collectionGuid,
-      openScanId,
-      isReviewing ? reviewQuery : cardsQuery,
-    ),
-  );
-  const openEntry =
-    openPosition && openPosition.entry.scanId === openScanId
-      ? openPosition.entry
-      : null;
   const loadPrefetchStep = useCallback(
     (scanId: string) =>
       loadCollectionPositionStep(
@@ -714,7 +760,7 @@ export function CardGrid() {
     clearCards();
   }, [clearCards]);
 
-  if (viewedCollection && (pagePending || summaryPending)) {
+  if (viewedCollection && pagePending) {
     return (
       <>
         <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-2xl p-2 border-b">
@@ -781,16 +827,12 @@ export function CardGrid() {
   const cardListLoadFailed = scanTimelineGrouping
     ? scanTimelineCardsQuery.isError
     : pageQuery.isError;
-  const summaryHasNoData = summaryLoadFailed && !summary;
-  const cardListHasNoData = cardListLoadFailed && !pageData;
-  if (summaryHasNoData || cardListHasNoData) {
+  if (cardListLoadFailed && !pageData) {
     return (
       <div className="p-2">
         <LoadErrorCallout
           message={t("cardGrid.loadFailed")}
           onRetry={() => {
-            if (summaryHasNoData) refetchSummary();
-            if (!cardListHasNoData) return;
             if (scanTimelineGrouping) void scanTimelineCardsQuery.refetch();
             else void pageQuery.refetch();
           }}
@@ -820,7 +862,10 @@ export function CardGrid() {
     </>
   );
 
-  if (totalCount === 0 && visiblePendingScanCards.length === 0) {
+  const collectionCardCount = summary
+    ? totalCount
+    : Math.max(viewedCollection?.cardCount ?? 0, totalCards);
+  if (collectionCardCount === 0 && visiblePendingScanCards.length === 0) {
     return (
       <>
         <NoGameBanner />
@@ -1017,6 +1062,27 @@ export function CardGrid() {
     );
   };
 
+  const renderGridTile = (tile: CardGridTile) => {
+    if (tile.kind === "card") return renderCardGridItem(tile.entry);
+    if (tile.kind === "unmatched") {
+      return (
+        <UnmatchedCardTile
+          key={`unmatched-${tile.entry.scanId}`}
+          entry={tile.entry}
+          onOpen={() => inlineUnmatched.open(tile.entry.position)}
+          className="ring-2 ring-destructive"
+        />
+      );
+    }
+    return (
+      <MoreUnmatchedCardsTile
+        key={`more-unmatched-${tile.position}`}
+        hiddenCount={tile.hiddenCount}
+        onOpen={() => inlineUnmatched.open(tile.position)}
+      />
+    );
+  };
+
   const renderCardList = (entries: GroupedScannedCard[]) => (
     <div className="overflow-hidden rounded-card bg-card">
       <ScannedCardTable
@@ -1049,6 +1115,8 @@ export function CardGrid() {
           onExport={() => setSummaryOpen(true)}
           onStartReview={readOnly ? undefined : startReview}
           needsReviewCount={reviewCount?.totalCount ?? 0}
+          onShowUnmatched={() => inlineUnmatched.open(null)}
+          unmatchedCount={unmatchedCount}
           onAddCard={() => setAddCardOpen(true)}
           onImportScans={() => setImportScansOpen(true)}
           onImportCsv={readOnly ? undefined : () => setImportCsvOpen(true)}
@@ -1070,7 +1138,7 @@ export function CardGrid() {
           availableColors={stats?.colors}
           availableFoilTypes={stats?.foilTypes}
           binCount={computeBinCount(moduleCount)}
-          cardCount={totalCount}
+          cardCount={collectionCardCount}
           viewMode={viewMode}
           onViewModeChange={handleViewModeChange}
           density={density}
@@ -1081,7 +1149,9 @@ export function CardGrid() {
           onScanTimelineChange={handleScanTimelineChange}
         />
       </div>
-      {totalCards === 0 && visiblePendingScanCards.length === 0 && (
+      {totalCards === 0 &&
+        visiblePendingScanCards.length === 0 &&
+        gridTiles.length === 0 && (
         <EmptyState
           className="flex-1"
           title={t("cardGrid.noCardsMatchFilters")}
@@ -1153,7 +1223,7 @@ export function CardGrid() {
                     card={pendingScanCard.card}
                   />
                 ))}
-                {pagedCards.map(renderCardGridItem)}
+                {gridTiles.map(renderGridTile)}
               </div>
             )}
             <ListPagination
@@ -1324,6 +1394,19 @@ export function CardGrid() {
       )}
 
       {addCardDialog}
+
+      {collectionGuid && (
+        <UnmatchedCardsGridDialog
+          open={inlineUnmatched.isMobileDialogOpen}
+          onOpenChange={inlineUnmatched.setIsMobileDialogOpen}
+          openIndex={inlineUnmatched.mobileDialogIndex}
+          onOpenIndexChange={inlineUnmatched.setMobileDialogIndex}
+          collectionGuid={collectionGuid}
+          canIdentify
+          onRemove={removeInlineUnmatchedCard}
+          onRemoveAll={removeAllInlineUnmatchedCards}
+        />
+      )}
 
       <SessionSummaryDialog
         open={summaryOpen}

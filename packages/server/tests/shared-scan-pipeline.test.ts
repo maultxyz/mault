@@ -248,10 +248,10 @@ test("a preferred orientation that matches beyond the confidence distance still 
   assert.equal(outcome.pick.orientation, "rotated");
 });
 
-test("an unsure preferred orientation is never accepted alone", () => {
+test("a preferred orientation is accepted alone only for a close image match", () => {
   assert.equal(isConfidentOrientationMatch(result("card", 0.1)), true);
-  assert.equal(isConfidentOrientationMatch(result("card", 0.1, true)), false);
-  assert.equal(isConfidentOrientationMatch(closeRunnerUp("card")), false);
+  assert.equal(isConfidentOrientationMatch(result("card", 0.1, true)), true);
+  assert.equal(isConfidentOrientationMatch(closeRunnerUp("card")), true);
   assert.equal(isConfidentOrientationMatch(result(null)), false);
   assert.equal(
     isConfidentOrientationMatch(
@@ -387,4 +387,35 @@ test("movement or a missing card restarts the settle count", () => {
   assert.equal(tracker.observe(moved, 1000), false);
   assert.equal(tracker.observe(moved, 1000), false);
   assert.equal(tracker.observe(moved, 1000), true);
+});
+
+test("an unsure preferred image result starts the other orientation before the preferred text read ends", async () => {
+  const events: string[] = [];
+  let finishPreferredTextRead = () => {};
+  const outcome = await identifyScanImage({
+    checkBothOrientations: true,
+    preferredOrientation: "upright",
+    search: async (orientation, reportImageResult) => {
+      events.push(`${orientation} started`);
+      const match = result("card", orientation === "upright" ? 0.35 : 0.1);
+      reportImageResult(match);
+      if (orientation === "upright")
+        await new Promise<void>((resolve) => {
+          finishPreferredTextRead = resolve;
+        });
+      else {
+        await Promise.resolve();
+        finishPreferredTextRead();
+      }
+      events.push(`${orientation} finished`);
+      return candidate(orientation, match);
+    },
+  });
+  assert.deepEqual(events, [
+    "upright started",
+    "rotated started",
+    "rotated finished",
+    "upright finished",
+  ]);
+  assert.equal(outcome.pick.orientation, "rotated");
 });

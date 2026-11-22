@@ -118,6 +118,7 @@ export interface AppVersionResponse {
     piSorter?: boolean;
     piController?: boolean;
     latestFirmwareVersion?: string | null;
+    billingEnabled?: boolean;
   };
 }
 
@@ -132,6 +133,13 @@ export interface MobileSegmentedControlProps<T extends string> {
   value: T;
   onChange: (value: T) => void;
   label?: string;
+}
+
+export interface ListSearchInputProps {
+  value: string;
+  onChange: (value: string) => void;
+  placeholder: string;
+  maxLength?: number;
 }
 
 export interface MobileSearchInputProps extends ComponentProps<"input"> {
@@ -197,4 +205,31 @@ export interface PlanGatedPath {
 export interface PlanLock {
   tag: string;
   isDisabled: boolean;
+}
+
+export interface PublicNavLink {
+  key: string;
+  to: string;
+  external?: boolean;
+  isFeatured?: boolean;
+  isHostedOnly?: boolean;
+}
+
+export type PublicNavEntry =
+  | ({ kind: "link" } & PublicNavLink)
+  | { kind: "group"; key: string; links: PublicNavLink[] };
+
+export interface PublicNavLinksProps {
+  onNavigate?: () => void;
+}
+
+export interface PublicNavLinkItemProps {
+  link: PublicNavLink;
+  baseClassName: string;
+  onNavigate?: () => void;
+}
+
+export interface PublicNavMenuLinkProps {
+  link: PublicNavLink;
+  className: string;
 }

@@ -1,5 +1,9 @@
 import type { ScanImageUrls } from "@/lib/interfaces/cards";
 import {
+  collectionCardDetailKeys,
+  loadThroughCardDetails,
+} from "@/features/collections/api/card-details";
+import {
   apiDelete,
   apiGet,
   apiPost,
@@ -17,6 +21,8 @@ import {
   type CreateCollectionFormValues,
   type EditCollectionFormValues,
   type IdentifyUnmatchedCardRequest,
+  type RetryUnmatchedCardsBatchResult,
+  type RetryUnmatchedCardsRequest,
   type MatchedScanDiagnostics,
   type MoveCardsToCollectionResult,
   type Result,
@@ -25,6 +31,7 @@ import {
   type ReviewAcceptResult,
   type ReviewGridAttributeUpdate,
   SCAN_SAVE_ACCEPTED_STATUSES,
+  SCAN_SAVE_REQUEST_TIMEOUT_MS,
   buildScanSaveRequest,
   throwIfMemberSeatLimit,
   type ScannedCard,
@@ -110,9 +117,18 @@ export const cardDiagnosticsQueryOptions = (
   scanId: string | undefined,
 ) =>
   queryOptions({
-    queryKey: ["collection-card-diagnostics", collectionGuid, scanId],
-    queryFn: () =>
-      loadCardDiagnostics(collectionGuid!, scanId!).then((r) => r.data ?? null),
+    queryKey: collectionCardDetailKeys.diagnostics(collectionGuid, scanId),
+    queryFn: (context) =>
+      loadThroughCardDetails(
+        context,
+        collectionGuid,
+        scanId,
+        (details) => details.diagnostics,
+        () =>
+          loadCardDiagnostics(collectionGuid!, scanId!).then(
+            (r) => r.data ?? null,
+          ),
+      ),
     enabled: !!collectionGuid && !!scanId,
     staleTime: Infinity,
   });
@@ -122,11 +138,18 @@ export const cardScanOriginQueryOptions = (
   scanId: string,
 ) =>
   queryOptions({
-    queryKey: ["card-scan-origin", scanId] as const,
-    queryFn: () =>
-      apiGet<Result<CardScanOrigin | null>>(
-        `/api/collections/${collectionGuid}/cards/${scanId}/origin`,
-      ).then((r) => r.data ?? null),
+    queryKey: collectionCardDetailKeys.origin(scanId),
+    queryFn: (context) =>
+      loadThroughCardDetails(
+        context,
+        collectionGuid,
+        scanId,
+        (details) => details.origin,
+        () =>
+          apiGet<Result<CardScanOrigin | null>>(
+            `/api/collections/${collectionGuid}/cards/${scanId}/origin`,
+          ).then((r) => r.data ?? null),
+      ),
     enabled: !!collectionGuid,
     staleTime: Infinity,
   });
@@ -148,6 +171,7 @@ export async function addCollectionCard(
     method: "POST",
     headers: await scanSaveHeaders(orgId),
     body: JSON.stringify(buildScanSaveRequest(record, { deviceGuid, isRetry })),
+    signal: AbortSignal.timeout(SCAN_SAVE_REQUEST_TIMEOUT_MS),
   });
   await handleForbidden(res);
   await throwIfMemberSeatLimit(res);
@@ -165,6 +189,7 @@ export async function recordSortOnlyScan(
     method: "POST",
     headers: await scanSaveHeaders(orgId),
     body: JSON.stringify(request),
+    signal: AbortSignal.timeout(SCAN_SAVE_REQUEST_TIMEOUT_MS),
   });
   await handleForbidden(res);
   await throwIfMemberSeatLimit(res);
@@ -412,6 +437,7 @@ export async function addUnmatchedCard(
     method: "POST",
     headers: await scanSaveHeaders(orgId),
     body: JSON.stringify(buildScanSaveRequest(record, { deviceGuid, isRetry })),
+    signal: AbortSignal.timeout(SCAN_SAVE_REQUEST_TIMEOUT_MS),
   });
   await handleForbidden(res);
   await throwIfMemberSeatLimit(res);
@@ -456,6 +482,20 @@ export async function identifyUnmatchedCard(
     `/api/collections/${guid}/unmatched/${scanId}/identify`,
     request,
   );
+}
+
+export async function retryUnmatchedCardsBatch(
+  guid: string,
+  scanIds: string[],
+): Promise<RetryUnmatchedCardsBatchResult> {
+  const result = await apiPost<Result<RetryUnmatchedCardsBatchResult>>(
+    `/api/collections/${guid}/unmatched/retry`,
+    { scanIds } satisfies RetryUnmatchedCardsRequest,
+  );
+  if (!result.success || !result.data) {
+    throw new Error(result.message);
+  }
+  return result.data;
 }
 
 export async function addManualCollectionCard(

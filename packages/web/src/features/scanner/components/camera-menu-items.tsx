@@ -15,9 +15,11 @@ import {
   IconDeviceMobile,
   IconFolder,
   IconFolderOff,
+  IconRefresh,
   IconRotateClockwise2,
   IconScan,
 } from "@tabler/icons-react";
+import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
 
 export function CameraMenuItems({
@@ -38,7 +40,8 @@ export function CameraMenuItems({
 }: CameraMenuItemsProps) {
   const { t } = useTranslation("scanner");
   const piHost = usePiHost();
-  const { camerasInUseElsewhere } = useCameraContext();
+  const { camerasInUseElsewhere, refreshCameraList, isRefreshingCameraList } =
+    useCameraContext();
   const { isArchiveSupported, archiveFolder, chooseArchiveFolder, clearArchiveFolder } =
     useDocumentScanArchiveFolder();
   const isDocumentScannerSelected = documentScannerOptions.some(
@@ -53,6 +56,16 @@ export function CameraMenuItems({
       (cameras.length > 1 || !isCameraActive || !isWebcamSelected));
   const webcamLabel = (camera: MediaDeviceInfo, index: number) =>
     camera.label || t("scannerMenu.cameraFallbackLabel", { index: index + 1 });
+  const refreshListItem = (
+    <DropdownMenuItem closeOnClick={false} onClick={() => void refreshCameraList()}>
+      <IconRefresh
+        className={cn(isRefreshingCameraList && "animate-spin motion-reduce:animate-none")}
+      />
+      {isRefreshingCameraList
+        ? t("scannerMenu.refreshingCameraList")
+        : t("scannerMenu.refreshCameraList")}
+    </DropdownMenuItem>
+  );
 
   if (piHost) return <>
     {cameras.map((camera, index) => <DropdownMenuCheckboxItem key={camera.deviceId}
@@ -64,6 +77,8 @@ export function CameraMenuItems({
       {webcamLabel(camera, index)} <Badge variant="outline">{t("scannerMenu.cameraInUseElsewhere")}</Badge>
     </DropdownMenuCheckboxItem>)}
     {!cameras.length && <DropdownMenuItem disabled>{t("camera.piUnavailable")}</DropdownMenuItem>}
+    <DropdownMenuSeparator />
+    {refreshListItem}
   </>;
 
   return (
@@ -89,6 +104,7 @@ export function CameraMenuItems({
           <DropdownMenuSeparator />
         </>
       )}
+      {refreshListItem}
       {isCameraActive ? (
         <DropdownMenuItem variant="destructive" onClick={onCameraDisconnect}>
           {t("disconnect")}

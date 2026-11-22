@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useCardSearch } from "@/features/cards/api/use-card-search";
+import { useCollectionCardSearchLanguage } from "@/features/cards/api/use-collection-card-search-language";
 import { CardSearchLanguageSelect } from "@/features/cards/components/card-search-language-select";
 import { CardSearchResultSkeletonGrid } from "@/features/cards/components/card-search-result-skeleton-grid";
 import { CardSearchResultTile } from "@/features/cards/components/card-search-result-tile";
@@ -12,23 +13,20 @@ import type { CardSearchPickerProps } from "@/lib/interfaces/cards";
 import { IconLoader2, IconSearch } from "@tabler/icons-react";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import {
-  CARD_SEARCH_ALL_LANGUAGES,
-  cardSearchResultKey,
-} from "@magic-vault/shared";
+import { cardSearchResultKey } from "@magic-vault/shared";
 
 export function CardSearchPicker({
   collectionGuid,
   initialQuery = "",
-  defaultLanguage = CARD_SEARCH_ALL_LANGUAGES,
   disabled = false,
   onSelect,
 }: CardSearchPickerProps) {
   const { t } = useTranslation("cards");
   const [query, setQuery] = useState(initialQuery);
   const [selectedSet, setSelectedSet] = useState<string>(CARD_SEARCH_ALL_SETS);
-  const [selectedLanguage, setSelectedLanguage] =
-    useState<string>(defaultLanguage);
+  const collectionLanguage = useCollectionCardSearchLanguage(collectionGuid);
+  const [chosenLanguage, setChosenLanguage] = useState<string | null>(null);
+  const selectedLanguage = chosenLanguage ?? collectionLanguage;
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
   const {
     results,
@@ -65,7 +63,7 @@ export function CardSearchPicker({
         <CardSearchLanguageSelect
           value={selectedLanguage}
           onChange={(language) => {
-            setSelectedLanguage(language);
+            setChosenLanguage(language);
             setSelectedSet(CARD_SEARCH_ALL_SETS);
           }}
         />

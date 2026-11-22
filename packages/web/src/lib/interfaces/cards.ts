@@ -37,7 +37,6 @@ import type { ScanStats } from "@/lib/interfaces/scanner";
 export interface CardSearchPickerProps {
   collectionGuid: string | undefined;
   initialQuery?: string;
-  defaultLanguage?: string;
   disabled?: boolean;
   onSelect: (card: PlayingCard) => void;
 }
@@ -186,6 +185,7 @@ export interface PriceTableProps {
   rows: PriceTableRow[];
   highlightColumn: number;
   format: (value: number) => string;
+  missingValueLabel?: string;
 }
 
 export interface PriceHeadlineProps {
@@ -202,6 +202,7 @@ export interface PriceSourceSection {
   source: PriceSource;
   headline: Omit<PriceHeadlineProps, "isFoil">;
   table: PriceTableProps;
+  extraTables?: PriceTableProps[];
 }
 
 export type CardViewMode = "grid" | "list";
@@ -253,6 +254,8 @@ export interface CardToolbarProps {
   onExport?: () => void;
   onStartReview?: () => void;
   needsReviewCount?: number;
+  onShowUnmatched?: () => void;
+  unmatchedCount?: number;
   collectionName?: string;
   onClearAll?: () => void;
   hasCards: boolean;
@@ -599,6 +602,8 @@ export interface CardFilterFieldsProps {
   availableColors: ScanStats["colors"];
   availableFoilTypes: { key: string; label: string }[];
   binCount?: number;
+  unmatchedCount?: number;
+  onShowUnmatched?: () => void;
 }
 
 export interface CardDisplayOptionsProps {

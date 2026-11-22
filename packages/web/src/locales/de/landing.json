@@ -39,8 +39,6 @@
       "5": "Farblos",
       "6": "Über 20 $"
     },
-    "eyebrow": "Open-Source-Kartensortierer",
-    "tagline": "Scannen / Sortieren / Erfassen",
     "recent": "Zuletzt",
     "readout": {
       "match": "Treffer",
@@ -62,8 +60,10 @@
     "heading": "Sortiert jedes Sammelkartenspiel, das du liebst",
     "cardsIndexed_one": "{{formatted}} Karte indexiert",
     "cardsIndexed_other": "{{formatted}} Karten indexiert",
-    "pauseHint": "Drücke die Leertaste, um die laufende Liste anzuhalten.",
-    "pausedHint": "Angehalten. Drücke die Leertaste, um die laufende Liste fortzusetzen."
+    "pauseHint": "Drücke die Leertaste, um die laufende Liste anzuhalten. Mit den Pfeiltasten links und rechts kannst du sie verschieben.",
+    "pausedHint": "Angehalten. Drücke die Leertaste, um die laufende Liste fortzusetzen. Mit den Pfeiltasten links und rechts kannst du sie verschieben.",
+    "showGrid": "Alle Spiele anzeigen",
+    "showScrolling": "Als laufende Liste anzeigen"
   },
   "features": {
     "eyebrow": "Funktionen",

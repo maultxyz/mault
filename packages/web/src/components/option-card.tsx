@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import type { OptionCardProps } from "@/lib/interfaces/option-card";
 import { cn } from "@/lib/utils";
 import { IconCheck } from "@tabler/icons-react";
@@ -6,6 +7,7 @@ export function OptionCard({
   icon: Icon,
   title,
   description,
+  badge,
   selected,
   disabled,
   onSelect,
@@ -35,7 +37,14 @@ export function OptionCard({
         <Icon className="size-4" />
       </span>
       <span className="flex min-w-0 flex-1 flex-col gap-0.5 pr-6">
-        <span className="text-sm font-semibold">{title}</span>
+        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="text-sm font-semibold">{title}</span>
+          {badge && (
+            <Badge variant="success">
+              {badge}
+            </Badge>
+          )}
+        </span>
         <span className="text-sm/relaxed text-foreground/70">{description}</span>
       </span>
       <span

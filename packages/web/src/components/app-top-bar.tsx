@@ -1,9 +1,6 @@
 import { BrandBadge } from "@/components/brand-badge";
-import { LanguageSwitcherIcon } from "@/components/language-switcher";
-import { MatchValidationProgress } from "@/components/match-validation-progress";
 import { NotificationsButton } from "@/components/notifications-button";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { ValidateMatchesButton } from "@/components/validate-matches-button";
+import { ValidateMatchesPopover } from "@/components/validate-matches-popover";
 import { MATCH_VALIDATIONS_ENABLED } from "@/lib/constants/match-validations";
 import { UserMenu } from "@/features/account/components/user-menu";
 import { FeatureHighlightsButton } from "@/features/feature-highlights/components/feature-highlights-button";
@@ -45,15 +42,12 @@ export function AppTopBar() {
         <PresetMenu />
       </div>
       {MATCH_VALIDATIONS_ENABLED && (
-        <div className="ml-auto flex shrink-0 items-center gap-1.5 pr-1">
-          <MatchValidationProgress className="w-28" />
-          <ValidateMatchesButton />
+        <div className="ml-auto flex shrink-0 items-center pr-1">
+          <ValidateMatchesPopover />
         </div>
       )}
       <div className="flex shrink-0 items-center gap-0.5 **:data-[slot=button]:hover:bg-sidebar-accent **:data-[slot=button]:aria-expanded:bg-sidebar-accent">
         <FeatureHighlightsButton />
-        <LanguageSwitcherIcon />
-        <ThemeToggle />
         <NotificationsButton />
         <UserMenu />
       </div>

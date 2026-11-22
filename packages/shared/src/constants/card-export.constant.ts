@@ -13,7 +13,7 @@ export const MANABOX_LANGUAGE_CODES: Record<string, string> = {
   zht: "zh_TW",
 };
 
-export const MOXFIELD_LANGUAGE_NAMES: Record<string, string> = {
+export const CARD_LANGUAGE_NAMES: Record<string, string> = {
   en: "English",
   de: "German",
   fr: "French",

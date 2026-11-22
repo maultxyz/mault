@@ -16,6 +16,7 @@ import {
   SYNC_PRUNE_DELETE_BATCH_SIZE,
   SYNC_PRUNE_LOGGED_NAME_LIMIT,
   SYNC_PRUNE_MAX_SHARE_OF_STORED_CARDS,
+  SYNC_SHARED_FRONT_FACE_CACHE_MAX_IMAGES,
 } from "../constants/sync";
 import { vectorizeCardImage } from "../vectorize";
 import type {
@@ -195,6 +196,30 @@ async function vectorizeFrontFace(
     readCatalogPrintingMarks(source.gameKey, lang, card.id, data, buffer),
   ]);
   return { embedding, marks };
+}
+
+function createSharedImageFrontFaceVectorizer(source: SyncSource, lang: string) {
+  const sharesFrontFaces = !gameUsesPrintingMarks(source.gameKey);
+  const frontFacesByImageUrl = new Map<string, Promise<VectorizedFrontFace>>();
+  return (
+    card: SyncSourceCard,
+    imageUrl: string,
+    data: unknown,
+  ): Promise<VectorizedFrontFace> => {
+    if (!sharesFrontFaces) {
+      return vectorizeFrontFace(source, lang, card, imageUrl, data);
+    }
+    const shared = frontFacesByImageUrl.get(imageUrl);
+    if (shared) return shared;
+    const vectorized = vectorizeFrontFace(source, lang, card, imageUrl, data);
+    frontFacesByImageUrl.set(imageUrl, vectorized);
+    vectorized.catch(() => frontFacesByImageUrl.delete(imageUrl));
+    if (frontFacesByImageUrl.size > SYNC_SHARED_FRONT_FACE_CACHE_MAX_IMAGES) {
+      const oldestImageUrl = frontFacesByImageUrl.keys().next().value;
+      if (oldestImageUrl !== undefined) frontFacesByImageUrl.delete(oldestImageUrl);
+    }
+    return vectorized;
+  };
 }
 
 async function embedBackFace(
@@ -879,6 +904,11 @@ async function runSync(
     incrementCounters({ processed: 1 });
   }
 
+  const vectorizeSharedImageFrontFace = createSharedImageFrontFaceVectorizer(
+    source,
+    lang,
+  );
+
   async function processCard(card: SyncSourceCard): Promise<void> {
     const action = syncActionFor(card);
     if (action === "skip" || !card.imageUrl) {
@@ -899,7 +929,7 @@ async function runSync(
       } else {
         const data: unknown = JSON.parse(card.data);
         const [{ embedding, marks }, backEmbedding] = await Promise.all([
-          vectorizeFrontFace(source, lang, card, card.imageUrl, data),
+          vectorizeSharedImageFrontFace(card, card.imageUrl, data),
           embedBackFace(source, card),
         ]);
         const row = buildCatalogCardRow({

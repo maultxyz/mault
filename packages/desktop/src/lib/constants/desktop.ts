@@ -16,6 +16,7 @@ export const DESKTOP_CHANNEL_SETTINGS: Record<DesktopChannel, DesktopChannelSett
   },
 };
 export const DEVELOPMENT_APP_URL = "http://localhost:5173";
+export const DEVELOPMENT_CONSOLE_LOG_FILE_NAME = "mault-desktop-console.log";
 export const APP_URL_ENV = "MAULT_URL";
 export const ROOT_ENV_FILE_RELATIVE_PATH = "../../.env";
 export const START_PATH = "/app";

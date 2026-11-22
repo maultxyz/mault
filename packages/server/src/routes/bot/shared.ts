@@ -1,19 +1,10 @@
 import { and, eq, sql } from "drizzle-orm";
 import { authProvider } from "../../auth";
 import { db } from "../../db";
-import { collections, orgSettings } from "../../db/schema";
+import { collections } from "../../db/schema";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 
-export async function resolveOrgByGuild(
-  guildId: string,
-): Promise<string | null> {
-  const rows = await db
-    .select({ orgId: orgSettings.orgId })
-    .from(orgSettings)
-    .where(eq(orgSettings.discordGuildId, guildId))
-    .limit(1);
-  return rows[0]?.orgId ?? null;
-}
+export { resolveOrgByGuild } from "../../lib/discord/guild-orgs";
 
 export async function resolveOrgCollection(orgId: string, ref: string) {
   const trimmed = ref.trim();

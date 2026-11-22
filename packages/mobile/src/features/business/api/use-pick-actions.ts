@@ -50,10 +50,17 @@ export function usePickActions() {
   const confirmComplete = (orders: FulfilmentOrderDetail[], onCompleted?: () => void) =>
     Alert.alert(
       t("business.picks.completeTitle", { count: orders.length }),
-      t("business.picks.completeDescription", {
-        count: orders.reduce((sum, order) => sum + order.pullSheet.length, 0),
-        names: orders.map((order) => order.name).join(", "),
-      }),
+      [
+        t("business.picks.completeDescription", {
+          count: orders.reduce((sum, order) => sum + order.pullSheet.length, 0),
+          names: orders.map((order) => order.name).join(", "),
+        }),
+        orders.some((order) => (order.reservationHeldScanIds ?? []).length > 0)
+          ? t("business.picks.reservationCardsNote")
+          : null,
+      ]
+        .filter(Boolean)
+        .join(" "),
       [
         { text: t("business.cancel"), style: "cancel" },
         {

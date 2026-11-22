@@ -4,7 +4,11 @@ import {
   FEEDER_CARD_ROTATED_PAGE_QUALITY,
 } from "@/lib/constants/scanner";
 import { FEEDER_CARD_SETUP_STORAGE_KEY_PREFIX } from "@/lib/constants/storage-keys";
-import type { FeederCardRotationDegrees, FeederCardSetup } from "@/lib/interfaces/scanner";
+import type {
+  FeederCardRotationDegrees,
+  FeederCardSetup,
+  ScanPageMirrorAxis,
+} from "@/lib/interfaces/scanner";
 import { feederCardSetupSchema } from "@/schemas/feeder-card-setup.schema";
 
 export function loadFeederCardSetup(scannerKey: string): FeederCardSetup {
@@ -34,6 +38,12 @@ export function feederCardRotationDegrees(
   const isUpsideDown = setup.cardTop === "upside-down";
   if (setup.feedEdge === "long") return isUpsideDown ? 270 : 90;
   return isUpsideDown ? 180 : 0;
+}
+
+export function otherSideMirrorAxis(
+  rotationDegrees: FeederCardRotationDegrees,
+): ScanPageMirrorAxis {
+  return rotationDegrees === 90 || rotationDegrees === 270 ? "vertical" : "horizontal";
 }
 
 export async function rotateScanPage(

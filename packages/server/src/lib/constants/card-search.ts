@@ -147,6 +147,7 @@ export const GRAND_ARCHIVE_RARITY_NAMES: Record<number, string> = {
   8: "Collector Ultra Rare",
   9: "Collector Promo Rare",
 };
+export const GRAND_ARCHIVE_BACK_ORIENTATION = "back";
 export const GRAND_ARCHIVE_PROMO_RARITIES = new Set([6, 9]);
 
 export const MATCH_MAX_DISTANCE_RATIO = 0.9;
@@ -179,12 +180,6 @@ export const CARD_MATCH_INDEX_PI_DEFAULT_MAX_MB = 384;
 export const CARD_MATCH_INDEX_EVICTION_MIN_IDLE_MS = 10 * 60_000;
 export const RANDOM_SAMPLE_CANDIDATE_MULTIPLIER = 5;
 
-export const MATCH_GAME_DEFAULT_LANG = "en";
-
-export const MATCH_GAME_LANG_BY_GAME_KEY: Record<string, string> = {
-  pokemonjp: "ja",
-};
-
 export const MATCH_GAME_KEYS_MAX = 12;
 
 export const CATALOG_RELEASE_DATE_PATTERN = "^[0-9]{4}-[0-9]{2}-[0-9]{2}";
@@ -199,3 +194,29 @@ export const ORG_OCR_SETTING_CACHE_TTL_MS = 30_000;
 export const ORG_OCR_SETTING_CACHE_MAX_ENTRIES = 5_000;
 export const CARD_IMAGE_PROXY_CACHE_CONTROL =
   "public, max-age=604800, stale-while-revalidate=86400";
+export const CARD_MATCH_SNAPSHOT_MAGIC = "MVCI";
+export const CARD_MATCH_SNAPSHOT_FORMAT_VERSION = 1;
+export const CARD_MATCH_SNAPSHOT_ALIGNMENT_BYTES = 8;
+export const CARD_MATCH_SNAPSHOT_OBJECT_PREFIX = "system/card-match-index/";
+export const CARD_MATCH_SNAPSHOT_DIRECTORY = "card-match-index";
+export const CARD_MATCH_SNAPSHOT_CONTENT_TYPE = "application/octet-stream";
+export const CARD_MATCH_SNAPSHOT_ARRAY_FIELDS = [
+  ["cardIdReferenceByRow", Int32Array],
+  ["cardIdUuidBytes", Uint8Array],
+  ["cardIdTextOffsets", Int32Array],
+  ["nameIndexByRow", Int32Array],
+  ["setCodeIndexByRow", Int32Array],
+  ["collectorNumberIndexByRow", Int32Array],
+  ["rarePrinting", Uint8Array],
+  ["promoPrinting", Uint8Array],
+  ["printedLanguageCode", Int8Array],
+  ["printedSetTotals", Int32Array],
+  ["printingMarkGroupIds", Int32Array],
+  ["frontEmbeddings", Int8Array],
+  ["frontEmbeddingScales", Float32Array],
+  ["backEmbeddings", Int8Array],
+  ["backEmbeddingScales", Float32Array],
+  ["backFaceIndexByRow", Int32Array],
+] as const;
+export const CARD_MATCH_FLAGS_FILL_BATCH_SIZE = 2_000;
+export const CARD_MATCH_FLAGS_FINGERPRINT_MAX = 0x7fffffff;

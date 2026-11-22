@@ -9,6 +9,7 @@ import { EmptyState } from "@/components/ui/empty-state";
 import { ListGroup } from "@/components/ui/list-group";
 import { ListRow } from "@/components/ui/list-row";
 import { apiKeysQueryOptions, revokeApiKey } from "@/features/integrations/api/api-keys";
+import { StatsSyncSettingsSection } from "@/features/integrations/components/stats-sync-settings-section";
 import { billingQueryOptions } from "@/features/org/api/billing";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import { useActiveOrg } from "@/hooks/use-org";
@@ -78,6 +79,7 @@ export default function ApiKeysSettingsScreen() {
           ) : null}
         </ListGroup>
       ) : null}
+      <StatsSyncSettingsSection />
     </SettingsPage>
   );
 }

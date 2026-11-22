@@ -1,0 +1,2 @@
+ALTER TABLE "scan_stats" ADD COLUMN "device_guid" text;--> statement-breakpoint
+CREATE INDEX "scan_stats_org_device_scanned_idx" ON "scan_stats" USING btree ("org_id","device_guid","scanned_at") WHERE "scan_stats"."device_guid" IS NOT NULL;

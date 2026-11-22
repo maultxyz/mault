@@ -20,6 +20,10 @@ export interface SpacedLoaderSlot<T> {
   waitingLoad: Promise<T> | null;
 }
 
+export interface KeyedCacheOptions {
+  staleWhileRefreshingMs?: number;
+}
+
 export interface KeyedCache<T> {
   get(key: string, load: () => Promise<T>): Promise<T>;
   clear(): void;

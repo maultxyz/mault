@@ -86,3 +86,21 @@ export const BETTER_STACK_BOT_HEARTBEAT_URL =
 export const UPTIME_HEARTBEAT_INTERVAL_MS = 60_000;
 
 export const UPTIME_HEARTBEAT_TIMEOUT_MS = 10_000;
+export const LEADERBOARD_HIDE_SELF_HOSTED_OPTION = "hide_self_hosted";
+export const LEADERBOARD_INCLUDE_SELF_HOSTED_PARAM = "includeSelfHosted";
+export const LEADERBOARD_RANKING_OPTION = "ranking";
+export const LEADERBOARD_METRIC_PARAM = "metric";
+export const LEADERBOARD_RANKING_CHOICES = [
+  { name: "Most cards scanned", value: "totalScans" },
+  { name: "Cards per hour", value: "cardsPerHour" },
+] as const;
+export const DEFAULT_LEADERBOARD_RANKING = "totalScans";
+export const LEADERBOARD_PERIOD_OPTION = "period";
+export const LEADERBOARD_PERIOD_PARAM = "period";
+export const LEADERBOARD_PERIOD_CHOICES = [
+  { name: "All time", value: "allTime" },
+  { name: "Past week", value: "week" },
+  { name: "Past month", value: "month" },
+  { name: "Past year", value: "year" },
+] as const;
+export const DEFAULT_LEADERBOARD_PERIOD = "allTime";

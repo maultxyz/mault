@@ -11,6 +11,7 @@
     "sounds": "Sounds",
     "deleted": "Deleted and unmatched",
     "shortLinks": "Short links",
+    "shareLinks": "Share links",
     "hardware": "Hardware",
     "developer": "Developer",
     "whatsNew": "What's new"
@@ -48,6 +49,82 @@
       "failedCount_one": "{{count}} failed",
       "failedCount_other": "{{count}} failed",
       "historyItem": "#{{number}} ch {{channel}}"
+    },
+    "stress": {
+      "heading": "Stress test",
+      "description": "Cycle servos between min and max nonstop to find out how long they last. Point a webcam at the servos and the test spots the ones that stop moving, or watch them yourself and mark each one when it stops.",
+      "channels": "Channels",
+      "hint": "Pick one or more channels. The test ends when every servo is marked, when you press Stop, or when the board stops answering. Stopped servos are released at once.",
+      "start": "Start",
+      "stop": "Stop",
+      "running": "Running",
+      "finished": "Finished",
+      "elapsed": "Elapsed {{elapsed}}",
+      "stoppedCount": "{{stopped}} of {{total}} stopped",
+      "channel": "Channel {{channel}}",
+      "cycles_one": "{{count}} cycle",
+      "cycles_other": "{{count}} cycles",
+      "moving": "Moving",
+      "survived": "Still moving",
+      "stoppedAfter": "Stopped after {{elapsed}}",
+      "markStopped": "Stopped moving",
+      "markStoppedOnChannel": "Servo on channel {{channel}} stopped moving",
+      "endReason": {
+        "manual": "Stress test stopped after {{elapsed}}.",
+        "allServosStopped": "Every servo stopped. The test ran for {{elapsed}}.",
+        "boardStopped": "The board stopped answering after {{elapsed}}. Check its power and connection."
+      },
+      "cameraStoppedAfter": "Camera: stopped after {{elapsed}}",
+      "camera": {
+        "heading": "Watch with a camera",
+        "description": "Fix a webcam so it sees the servo horns, then draw a box around each horn. The first cycle learns what changes when each servo moves. After that, a servo whose box stops changing for 3 moves in a row is marked stopped. Slow changes in light are followed as the test runs.",
+        "camera": "Camera",
+        "pickCamera": "Pick a camera",
+        "noCameras": "No cameras found",
+        "unnamedCamera": "Camera",
+        "cameraNumber": "Camera {{number}}",
+        "turnOff": "Turn off camera",
+        "startFailed": "The camera didn't start. Check that it's plugged in, not used by another app, and that the browser may use it.",
+        "pickChannels": "Pick the channels to test above, then draw a box for each.",
+        "boxFor": "Draw box for:",
+        "channelWithBox": "Channel {{channel}} (boxed)",
+        "clearBox": "Clear box",
+        "editorLabel": "Camera preview, drawing the box for channel {{channel}}",
+        "editorHint": "Drag on the preview to draw a box around the horn, or use the buttons to place and size it. Channels without a box are watched by you.",
+        "reached": "Camera: {{percent}}% movement",
+        "status": {
+          "learning": "Camera: learning positions",
+          "watching": "Camera: watching",
+          "noMotion": "Camera can't see this servo move. Make the horn easier to see or watch it yourself."
+        },
+        "announceStopped": "The camera saw the servo on channel {{channel}} stop moving.",
+        "adjustLabel": "Move or resize the box for channel {{channel}}",
+        "adjust": {
+          "left": "Move box left",
+          "right": "Move box right",
+          "up": "Move box up",
+          "down": "Move box down",
+          "grow": "Make box bigger",
+          "shrink": "Make box smaller"
+        }
+      },
+      "channelButton": "Channel {{channel}}, {{role}}",
+      "calibrationHint": "Module servos move between their calibrated positions for this sorter, and the other channels use the full range. A module's side paddle and pusher can't run together, because the firmware lowers the paddle before every pusher move.",
+      "calibrationHintWithFeeder": "Module servos move between their calibrated positions for this sorter, and the other channels use the full range. A module's side paddle and pusher can't run together, because the firmware lowers the paddle before every pusher move. Channel {{channel}} is the feeder, which spins instead of holding a position, so it can't be stress tested.",
+      "defaultCalibration": "No sorter is saved for this board, so module servos use the default calibration. Calibrate the sorter first if its linkages are fitted.",
+      "role": {
+        "bottom": "Module {{module}} bottom paddle",
+        "paddle": "Module {{module}} side paddle",
+        "pusher": "Module {{module}} pusher",
+        "feeder": "Feeder",
+        "unassigned": "Not used by a module"
+      },
+      "pulses": {
+        "bottom": "closed {{min}}, open {{max}}",
+        "paddle": "closed {{min}}, open {{max}}",
+        "pusher": "left {{min}}, right {{max}}",
+        "unassigned": "full range {{min}} to {{max}}"
+      }
     },
     "leds": {
       "heading": "LED strips",
@@ -246,6 +323,18 @@
       "startError": "Failed to start impersonation"
     }
   },
+  "subscriptionSummary": {
+    "heading": "Subscriptions",
+    "description": "Organizations with a paid subscription, by plan. Monthly recurring revenue uses each plan's list price, with yearly plans spread over 12 months, before discounts and taxes. Trials count as subscribers but add no revenue.",
+    "subscribersHeading": "Subscribers",
+    "revenueHeading": "Monthly recurring revenue",
+    "total": "Total",
+    "trialingCount_one": "{{count}} in trial",
+    "trialingCount_other": "{{count}} in trial",
+    "unpriced_one": "{{count}} subscriber's price couldn't be loaded from Stripe, so they're left out of revenue.",
+    "unpriced_other": "{{count}} subscribers' prices couldn't be loaded from Stripe, so they're left out of revenue.",
+    "loadFailed": "Couldn't load subscriptions."
+  },
   "metricsStats": {
     "heading": "Scan stats",
     "description": "App-wide scan activity across every organization, and whether each scan was vectorized on the server or in the browser. Someone counts as actively scanning while they've saved a scan in the last {{minutes}} minutes.",
@@ -362,7 +451,7 @@
       },
       "longShareLinks": {
         "label": "Longer monitor links",
-        "description": "Monitor links can last 1, 7 or 30 days. Without it they last 1 hour. Trade links always last 1 hour."
+        "description": "Monitor links can last any of the day lengths set on the web in Admin > Share links. Without it they use the short length set there."
       }
     },
     "limits": {
@@ -592,6 +681,28 @@
       "disabled": "Short links are off on this server.",
       "codeTaken": "That code is already in use. Pick another.",
       "notFound": "That short link no longer exists."
+    }
+  },
+  "shareLinkLengths": {
+    "heading": "Share link lengths",
+    "description": "How long new monitor and trade links last. A shorter length also cuts links that are already shared. A longer one applies to links made after you save.",
+    "restoreDefaults": "Restore defaults",
+    "saved": "Share link lengths saved.",
+    "saveFailed": "Couldn't save the share link lengths.",
+    "loadFailed": "Couldn't load the share link lengths.",
+    "fields": {
+      "tradeLinkHours": {
+        "label": "Trade links (hours)",
+        "description": "Every trade link lasts this long. Up to {{max}} hours."
+      },
+      "restrictedShareLinkHours": {
+        "label": "Monitor links without longer links (hours)",
+        "description": "How long monitor links last on plans without longer monitor links. Up to {{max}} hours."
+      },
+      "monitorLinkExpiryDays": {
+        "label": "Monitor link choices (days)",
+        "description": "The lengths plans with longer monitor links can pick from, separated by commas. Up to {{maxOptions}} choices of 1 to {{maxDays}} days. The longest one also caps links already shared."
+      }
     }
   },
   "featureHighlights": {

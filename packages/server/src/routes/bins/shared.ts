@@ -6,7 +6,6 @@ import {
   type BinRuleGroup,
   type BinSet,
   type DefaultBinInit,
-  type FieldMeta,
   type RepackSlot,
   REPACK_UNIQUE_BY_PRINTING,
   SCAN_ONLY_DEFAULT_BIN,
@@ -242,13 +241,6 @@ function toBinSet(row: {
     guid: string | null;
     key: string;
     name: string;
-    isActive: boolean;
-    fieldDefinitions: unknown;
-    foilTypes: unknown;
-    apiDocsUrl: string | null;
-    cardThickness: number | null;
-    createdAt: Date;
-    updatedAt: Date;
   } | null;
 }, emptiedTimes: Map<number, number>, fillLocations: Map<number, FillLocationRow>): BinSet {
   return {
@@ -281,13 +273,6 @@ function toBinSet(row: {
           guid: row.game.guid!,
           key: row.game.key,
           name: row.game.name,
-          isActive: row.game.isActive,
-          fieldDefinitions: row.game.fieldDefinitions as FieldMeta[],
-          foilTypes: (row.game.foilTypes as string[] | null) ?? [],
-          apiDocsUrl: row.game.apiDocsUrl,
-          cardThickness: row.game.cardThickness,
-          createdAt: row.game.createdAt,
-          updatedAt: row.game.updatedAt,
         }
       : null,
     createdAt: row.createdAt,
@@ -342,7 +327,9 @@ const binSetQuery = {
         claimedStorageLocationId: true,
       },
     },
-    game: true,
+    game: {
+      columns: { guid: true, key: true, name: true },
+    },
   },
 } as const;
 

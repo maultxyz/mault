@@ -2,13 +2,20 @@ import { consensusAttemptLimit } from "./scan-decisions";
 import { pickConsensus } from "./consensus";
 import { isStrongerTextMatch } from "./text-match";
 import { gameReadsPrintedLanguage } from "./card-language";
-import { CLOSE_MATCH_DELTA } from "./constants/ocr-regions.constant";
+import {
+  CLOSE_MATCH_DELTA,
+  UNCONFIRMED_TEXT_MATCH_MAX_DISTANCE_GAP,
+} from "./constants/ocr-regions.constant";
 import {
   IDENTIFY_REQUEST_RETRY_DELAYS_MS,
   PREFERRED_ORIENTATION_MAX_DISTANCE,
 } from "./constants/scanner.constant";
 import { MemberSeatLimitError } from "./scan-save";
-import type { CardSearchResult } from "./interfaces/api.interface";
+import type {
+  CardSearchResult,
+  CardTextSearchResult,
+  SearchCardMatch,
+} from "./interfaces/api.interface";
 import type { PlayingCardWithDistance } from "./interfaces/card.interface";
 import type {
   IdentifyRequestRetryOptions,
@@ -24,6 +31,7 @@ import type {
   ScanMatchDetails,
   ScanOcrMode,
 } from "./interfaces/scan-identify.interface";
+import type { OcrDiagnostics } from "./interfaces/ocr-region.interface";
 import type {
   ScanAttemptDiagnostic,
   ScanVectorizeSource,
@@ -78,18 +86,48 @@ function imageMatchIsInOtherLanguage(
   return (leader.lang ?? leader.card?.lang) !== printedLanguage;
 }
 
+function textMatchLooksClearlyWorseThanImageMatch(
+  imageResult: CardSearchResult,
+  textResult: CardSearchResult | null | undefined,
+): boolean {
+  const imageLeader = imageResult.data?.[0];
+  const textLeader = textResult?.data?.[0];
+  if (!imageLeader || !textLeader) return false;
+  return (
+    textLeader.distance - imageLeader.distance >
+    UNCONFIRMED_TEXT_MATCH_MAX_DISTANCE_GAP
+  );
+}
+
 export function prefersTextMatch(
   imageResult: CardSearchResult,
   textOcr:
     | { printingConfirmed?: boolean; scopedToPrintedLanguage?: string | null }
     | null
     | undefined,
+  textResult?: CardSearchResult | null,
 ): boolean {
+  if (textOcr?.printingConfirmed) return true;
+  if (imageMatchIsInOtherLanguage(imageResult, textOcr?.scopedToPrintedLanguage))
+    return true;
   return (
-    needsTextSearch(imageResult) ||
-    !!textOcr?.printingConfirmed ||
-    imageMatchIsInOtherLanguage(imageResult, textOcr?.scopedToPrintedLanguage)
+    needsTextSearch(imageResult) &&
+    !textMatchLooksClearlyWorseThanImageMatch(imageResult, textResult)
   );
+}
+
+export function pickUnmatchedRetryMatch(
+  imageResult: CardSearchResult,
+  textResult: CardTextSearchResult | null,
+): "text" | "image" | null {
+  if (
+    textResult &&
+    hasCardMatch(textResult) &&
+    prefersTextMatch(imageResult, textResult.ocr, textResult)
+  ) {
+    return "text";
+  }
+  return hasCardMatch(imageResult) ? "image" : null;
 }
 
 export function pickBetterOrientation<T extends OrientedSearchCandidate>(
@@ -104,6 +142,15 @@ export function pickBetterOrientation<T extends OrientedSearchCandidate>(
   return rotatedWins
     ? { ...rotated, alternate: upright }
     : { ...upright, alternate: rotated };
+}
+
+export function closeCardSearchMatches(
+  result: CardSearchResult,
+): SearchCardMatch[] {
+  const data = result.data ?? [];
+  return data.filter(
+    (match) => match.distance - data[0].distance <= CLOSE_MATCH_DELTA,
+  );
 }
 
 export async function resolveCardSearchMatches(
@@ -125,9 +172,7 @@ export async function resolveCardSearchMatches(
     distance: match.distance,
     confidence: match.confidence,
   }));
-  const closeMatches = data.filter(
-    (match) => match.distance - data[0].distance <= CLOSE_MATCH_DELTA,
-  );
+  const closeMatches = closeCardSearchMatches(result);
   const resolved = await Promise.all(
     closeMatches.map(async (match): Promise<PlayingCardWithDistance | null> => {
       const card =
@@ -216,11 +261,7 @@ export function toScanMatchDetails(
 
 export function isConfidentOrientationMatch(result: CardSearchResult): boolean {
   const leader = result.data?.[0];
-  return (
-    leader != null &&
-    !needsTextSearch(result) &&
-    leader.distance <= PREFERRED_ORIENTATION_MAX_DISTANCE
-  );
+  return leader != null && leader.distance <= PREFERRED_ORIENTATION_MAX_DISTANCE;
 }
 
 export function isScanOrientationDetermined(
@@ -235,25 +276,40 @@ export function isScanOrientationDetermined(
 
 export async function searchScanOrientations<T extends OrientedSearchCandidate>(
   checkBothOrientations: boolean,
-  search: (orientation: ScanOrientation) => Promise<T>,
+  search: (
+    orientation: ScanOrientation,
+    reportImageResult: (imageResult: CardSearchResult) => void,
+  ) => Promise<T>,
   preferredOrientation: ScanOrientation | null = null,
 ): Promise<T & { alternate: T | null }> {
+  const ignoreImageResult = () => {};
   if (!checkBothOrientations)
-    return { ...(await search("upright")), alternate: null };
+    return { ...(await search("upright", ignoreImageResult)), alternate: null };
   if (preferredOrientation) {
-    const preferred = await search(preferredOrientation);
-    if (isConfidentOrientationMatch(preferred.result))
+    let otherSearch: Promise<T> | null = null;
+    const searchOther = () => {
+      if (!otherSearch) {
+        otherSearch = search(
+          preferredOrientation === "upright" ? "rotated" : "upright",
+          ignoreImageResult,
+        );
+        otherSearch.catch(() => undefined);
+      }
+      return otherSearch;
+    };
+    const preferred = await search(preferredOrientation, (imageResult) => {
+      if (!isConfidentOrientationMatch(imageResult)) void searchOther();
+    });
+    if (isConfidentOrientationMatch(preferred.result) && !otherSearch)
       return { ...preferred, alternate: null };
-    const other = await search(
-      preferredOrientation === "upright" ? "rotated" : "upright",
-    );
+    const other = await searchOther();
     return preferredOrientation === "upright"
       ? pickBetterOrientation(preferred, other)
       : pickBetterOrientation(other, preferred);
   }
   const [upright, rotated] = await Promise.all([
-    search("upright"),
-    search("rotated"),
+    search("upright", ignoreImageResult),
+    search("rotated", ignoreImageResult),
   ]);
   return pickBetterOrientation(upright, rotated);
 }
@@ -300,13 +356,49 @@ export async function requestIdentifyWithRetries<T>(
   }
 }
 
+function startsTextBeforeOtherOrientation(
+  candidate: ScanImageCandidate,
+): boolean {
+  return (
+    candidate.textResult === undefined &&
+    !!candidate.embedding &&
+    hasCardMatch(candidate.result) &&
+    needsTextSearch(candidate.result) &&
+    !isConfidentOrientationMatch(candidate.result)
+  );
+}
+
 export async function identifyScanImage<T extends ScanImageCandidate>(
   options: ScanImageSearchOptions<T>,
 ): Promise<ScanImageSearchOutcome<T>> {
-  const image = await searchScanOrientations(
+  const preferredOrientation = options.preferredOrientation ?? null;
+  const readsTextWhenUnsure =
+    typeof options.ocrMode === "function"
+      ? false
+      : (options.ocrMode ?? (options.ocrEnabled ? "when-unsure" : "off")) ===
+        "when-unsure";
+  const earlyTexts = new Map<
+    ScanOrientation,
+    Promise<(T & { ocr: OcrDiagnostics | null }) | null>
+  >();
+  const image = await searchScanOrientations<T>(
     options.checkBothOrientations,
-    options.search,
-    options.preferredOrientation ?? null,
+    async (orientation, reportImageResult) => {
+      const candidate = await options.search(orientation, reportImageResult);
+      if (
+        readsTextWhenUnsure &&
+        options.readText &&
+        options.checkBothOrientations &&
+        orientation === preferredOrientation &&
+        startsTextBeforeOtherOrientation(candidate)
+      ) {
+        const reading = options.readText(candidate);
+        reading.catch(() => undefined);
+        earlyTexts.set(orientation, reading);
+      }
+      return candidate;
+    },
+    preferredOrientation,
   );
   const mode =
     typeof options.ocrMode === "function"
@@ -324,6 +416,8 @@ export async function identifyScanImage<T extends ScanImageCandidate>(
       lowConfidenceMatch: false,
     };
   }
+  if (mode === "when-unsure" && hasCardMatch(image.result))
+    options.onImageMatchBeforeText?.(image);
   const candidates: T[] = [image];
   if (
     image.alternate &&
@@ -343,7 +437,8 @@ export async function identifyScanImage<T extends ScanImageCandidate>(
           : null;
       }
       return candidate.embedding && options.readText
-        ? options.readText(candidate)
+        ? (earlyTexts.get(candidate.orientation) ??
+            options.readText(candidate))
         : null;
     }),
   );
@@ -366,7 +461,9 @@ export async function identifyScanImage<T extends ScanImageCandidate>(
   const ocr =
     text?.ocr ?? texts.find((candidate) => candidate?.ocr)?.ocr ?? null;
   const usesText =
-    !!text && hasCardMatch(text.result) && prefersTextMatch(image.result, ocr);
+    !!text &&
+    hasCardMatch(text.result) &&
+    prefersTextMatch(image.result, ocr, text.result);
   return {
     pick: usesText ? text : image,
     alternate: image.alternate,

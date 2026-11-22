@@ -1,6 +1,8 @@
 import {
+  COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM,
   COLLECTION_CARDS_PAGE_SIZE,
   COLLECTION_CARDS_RAW_CARD_DATA_MAIN_ONLY,
+  COLLECTION_CARDS_RAW_CARD_DATA_NONE,
   COLLECTION_CARDS_RAW_CARD_DATA_PARAM,
   pageSizeFromQuery,
   type CollectionCardsCount,
@@ -11,6 +13,10 @@ import {
   isScanTimelineGrouping,
 } from "@magic-vault/shared";
 import type { Transaction } from "../../db";
+import {
+  loadInlineUnmatchedCards,
+  showsInlineUnmatchedCards,
+} from "./cards-inline-unmatched";
 import { applyCardPricesToScans } from "../../lib/card-search/card-prices";
 import {
   COLLECTION_CARDS_AGGREGATE_CACHE_MAX_ENTRIES,
@@ -20,13 +26,15 @@ import {
   GROUPED_CARD_RANKING_CACHE_TTL_MS,
 } from "../../lib/constants/collection-read-caches";
 import { groupedCardRankingPage } from "../../lib/grouped-card-ranking";
+import { readStoredCardStats } from "../../lib/collection-card-stats";
 import { createOrgReadCache } from "../../lib/org-read-cache";
 import { loadOrgPricing } from "../../lib/price-source";
-import { hydrateSavedScans } from "../../lib/saved-cards";
+import { hydrateSavedScans, withoutRawCardData } from "../../lib/saved-cards";
 import {
   cardFilterSql,
   cardQueryUsesCatalog,
   findCardsCollection,
+  isUnfilteredCardsQuery,
   loadCardsCount,
   loadCardStats,
   loadGroupedCardRanking,
@@ -173,16 +181,37 @@ export async function readCardsPage(
         COLLECTION_CARDS_RAW_CARD_DATA_MAIN_ONLY,
     },
   );
-  const items = await applyCardPricesToScans(
+  const pricedItems = await applyCardPricesToScans(
     result.gameKey,
     result.lang,
     hydratedItems,
   );
+  const items =
+    params[COLLECTION_CARDS_RAW_CARD_DATA_PARAM] ===
+    COLLECTION_CARDS_RAW_CARD_DATA_NONE
+      ? withoutRawCardData(pricedItems)
+      : pricedItems;
+  const unmatched =
+    params[COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM] === "1" &&
+    showsInlineUnmatchedCards(query)
+      ? await run(async (tx: Transaction) => {
+          const collection = await findCardsCollection(tx, guid, orgId);
+          return collection
+            ? loadInlineUnmatchedCards(tx, collection, query, {
+                firstScanId: items[0]?.scanId,
+                lastScanId: items.at(-1)?.scanId,
+                isFirstPage: page === 0,
+                isLastPage: (page + 1) * pageSize >= result.data.totalEntries,
+              })
+            : undefined;
+        })
+      : undefined;
   return {
     ...result.data,
     items,
     page,
     pageSize,
+    ...(unmatched ? { unmatched } : {}),
   };
 }
 
@@ -193,6 +222,19 @@ export async function readCardsSummary(
   params: Record<string, string>,
 ): Promise<CollectionCardsSummary | null> {
   const query = parseCardsQuery(params);
+  if (isUnfilteredCardsQuery(query)) {
+    const collection = await run((tx) => findCardsCollection(tx, guid, orgId));
+    if (!collection) return null;
+    const { payload: stats, isRefreshing } = await readStoredCardStats(
+      collection,
+      collection.pricing,
+    );
+    return {
+      all: stats,
+      filtered: stats,
+      ...(isRefreshing ? { isRefreshing: true } : {}),
+    };
+  }
   return cardsSummaryCache.get(orgId, cardFilterCacheKey(guid, query), () =>
     run(async (tx) => {
       const collection = await findCardsCollection(tx, guid, orgId);

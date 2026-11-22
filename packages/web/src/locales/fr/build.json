@@ -75,7 +75,8 @@
       "modules_one": "{{count}} module",
       "modules_other": "{{count}} modules"
     },
-    "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même."
+    "shopNote": "Tu préfères ne pas rassembler chaque pièce toi-même ? La <0>boutique Mault</0> vend des kits avec tout sauf les pièces imprimées en 3D - il faudra quand même les imprimer toi-même.",
+    "recommended": "Recommandé"
   },
   "bom": {
     "heading": "Nomenclature",
@@ -442,14 +443,14 @@
             "note": "Cela télécharge quelques centaines de Mo (toute la chaîne d'outils Xtensa) et prend quelques minutes."
           },
           "installLibraries": {
-            "text": "Dans l'IDE Arduino, installe les bibliothèques ArduinoJson et Adafruit PWM Servo Driver.",
+            "text": "Dans l'IDE Arduino, installe les bibliothèques ArduinoJson, Adafruit PWM Servo Driver et Adafruit NeoPixel.",
             "note": "Gestionnaire de bibliothèques → recherche chacune par son nom."
           },
           "installLibrariesEsp32": {
             "note": "Gestionnaire de bibliothèques → recherche chacune par son nom. La prise en charge du Bluetooth est déjà incluse dans le core ESP32 que tu viens d'installer, aucune bibliothèque Bluetooth supplémentaire n'est donc nécessaire."
           },
           "installLibrariesUnoR4": {
-            "text": "Dans l'IDE Arduino, installe les bibliothèques ArduinoJson, Adafruit PWM Servo Driver et ArduinoBLE.",
+            "text": "Dans l'IDE Arduino, installe les bibliothèques ArduinoJson, Adafruit PWM Servo Driver, Adafruit NeoPixel et ArduinoBLE.",
             "note": "Gestionnaire de bibliothèques → recherche chacune par son nom. ArduinoBLE gère le Bluetooth sur l'Uno R4 WiFi. L'Uno R4 Minima n'a pas de matériel Bluetooth et ne l'utilise pas, les builds Minima peuvent donc s'en passer."
           },
           "uploadSketch": {
@@ -554,7 +555,7 @@
           },
           "calibrateModules": {
             "text": "Grille de calibration des modules - définis l'impulsion ouvert/fermé pour chaque trappe inférieure et palette, et gauche/neutre/droite pour chaque poussoir, module par module.",
-            "note": "Pour pusherLeft/pusherRight, fais pivoter le bras vers la paroi intérieure mais arrête-toi avant qu'il ne la touche, à environ 10-12 % du neutre. Le poussoir n'a pas besoin de toucher la paroi pour éjecter la carte, et appuyer dessus force le servo. L'app affiche un avertissement au-delà de 16 %."
+            "note": "Pour pusherLeft/pusherRight, fais pivoter le bras vers la paroi intérieure mais arrête-toi avant qu'il ne la touche, à environ 15-16 % du neutre. Le poussoir n'a pas besoin de toucher la paroi pour éjecter la carte, et appuyer dessus force le servo. L'app affiche un avertissement au-delà de 16 %."
           },
           "installHorns": {
             "text": "Dans l'assistant de configuration (Configurer ton trieur, qui s'ouvre à la première connexion du trieur ou depuis le menu d'aide (?) sur /app/calibrate), installe les palonniers (avec leur trappe ou bras poussoir déjà fixé) un servo à la fois. Pour la trappe inférieure et les palettes latérales, mets le curseur à 90 %, puis appuie le palonnier sur l'axe du servo avec la palette en position fermée. Pour le poussoir, mets le curseur à 50 %, puis appuie le palonnier sur l'axe. Fixe chaque palonnier avec sa vis de palonnier, pour les {{count}} servos du module.",

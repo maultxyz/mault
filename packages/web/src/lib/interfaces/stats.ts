@@ -9,6 +9,7 @@ import type {
   STATS_VIEWS,
 } from "@/lib/constants/stats";
 import type {
+  LeaderboardMetric,
   OrgOverviewCard,
   StatsCollectionRow,
   StatsReport,
@@ -92,6 +93,7 @@ export interface StatsInsight {
   icon: Icon;
   title: string;
   detail: string;
+  to?: string;
 }
 
 export interface StatsSplitEntry {
@@ -157,4 +159,9 @@ export type { LeaderboardRow } from "@magic-vault/shared";
 
 export interface StatsLeaderboardButtonProps {
   iconOnly?: boolean;
+}
+
+export interface StatsLeaderboardContentProps {
+  metric: LeaderboardMetric;
+  onMetricChange: (metric: LeaderboardMetric) => void;
 }

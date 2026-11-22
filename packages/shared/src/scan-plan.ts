@@ -5,6 +5,8 @@ import {
   resolveUnmatchedScanBin,
 } from "./scan-routing";
 import { pickListEntryCard } from "./pick-list";
+import type { ScanRoutingDecision } from "./interfaces/scan-routing.interface";
+import type { BinConfig } from "./interfaces/sort-bins.interface";
 import type {
   MatchedScanPlan,
   MatchedScanPlanInput,
@@ -15,14 +17,54 @@ import type {
   UnmatchedScanPlanInput,
 } from "./interfaces/scan-plan.interface";
 
+function decisionForRoutedBin(
+  planned: ScanRoutingDecision,
+  routedBin: BinConfig,
+): ScanRoutingDecision {
+  return planned.action === "route" &&
+    planned.bin?.binNumber === routedBin.binNumber
+    ? planned
+    : {
+        action: "route",
+        bin: routedBin,
+        isLowMatch: false,
+        pickListMatch: null,
+        autoAssignTarget: null,
+      };
+}
+
+export function earlyRouteBinOf(plans: MatchedScanPlan[]): BinConfig | null {
+  const [first] = plans;
+  if (!first || first.action !== "route" || !first.bin) return null;
+  const bin = first.bin;
+  const pickedName = first.pickListUpdate?.name ?? null;
+  const everyPlanRoutesAlike = plans.every(
+    (plan) =>
+      plan.action === "route" &&
+      plan.bin?.binNumber === bin.binNumber &&
+      !plan.autoAssignTarget &&
+      !plan.record.card.stamps?.length &&
+      (plan.pickListUpdate?.name ?? null) === pickedName,
+  );
+  return everyPlanRoutesAlike ? bin : null;
+}
+
 export function prepareMatchedScanPlan(
   input: MatchedScanPlanInput,
   context: ScanPlanContext,
+  routedBin?: BinConfig,
 ): MatchedScanPlan {
-  const { ruleCard, foilType, stamp, decision } = resolveScanCard(
-    input,
-    context,
-  );
+  const {
+    ruleCard,
+    foilType,
+    stamp,
+    decision: planned,
+  } = resolveScanCard(input, context);
+  const decision = routedBin
+    ? decisionForRoutedBin(planned, routedBin)
+    : planned;
+  const wasRoutedToAnotherBin =
+    !!routedBin && planned.bin?.binNumber !== routedBin.binNumber;
   const record = buildMatchedScanRecord({
     scanId: input.scanId,
     scannedAt: input.scannedAt,
@@ -36,6 +78,7 @@ export function prepareMatchedScanPlan(
     condition: input.condition,
     lowConfidenceMatch:
       input.lowConfidenceMatch ||
+      wasRoutedToAnotherBin ||
       (decision.action === "route" && decision.isLowMatch),
     vectorizedOn: input.vectorizedOn,
     diagnostics: input.diagnostics,

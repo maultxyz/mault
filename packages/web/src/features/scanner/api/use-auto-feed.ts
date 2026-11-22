@@ -1,14 +1,19 @@
 import {
   reportSerialEvent,
 } from "@/features/notifications/api/notification-settings";
-import { useSerialMessage } from "@/features/scanner/api/use-serial";
+import {
+  useSerial,
+  useSerialMessage,
+} from "@/features/scanner/api/use-serial";
 import {
   classifyFeedReply,
   feedNextCardAfterRoutedCard,
   feedWithRetries,
   isFedEvent,
   isFeedTimeoutReply,
+  isFirmwareFeatureSupported,
   parseSerialReply,
+  SENSOR_CHECKED_FEED_COMMAND,
   SERIAL_DEFAULT_RESPONSE_TIMEOUT_MS,
 } from "@magic-vault/shared";
 import type { Collection, SerialRequestResult } from "@magic-vault/shared";
@@ -35,6 +40,12 @@ export function useAutoFeed({
 }) {
   const { t } = useTranslation("scanner");
   const toast = useStationToast();
+  const { firmwareVersion } = useSerial();
+  const firmwareChecksModuleOneRef = useRef(false);
+  firmwareChecksModuleOneRef.current = isFirmwareFeatureSupported(
+    firmwareVersion,
+    "sensorCheckedCommands",
+  );
   const [autoFeed, setAutoFeedState] = useState(true);
   const autoFeedRef = useRef(true);
   const cardArrivedHookRef = useRef<(() => void) | null>(null);
@@ -290,6 +301,10 @@ export function useAutoFeed({
     const outcome = await feedNextCardAfterRoutedCard({
       readSensors,
       feedOnce: feedOneCard,
+      feedOnceRequiringEmptyModuleOne: firmwareChecksModuleOneRef.current
+        ? () =>
+            serialRef.current.sendRequest(SENSOR_CHECKED_FEED_COMMAND, 10000)
+        : undefined,
       replyOf: replyOfFeedRequest,
       retryCount: feedRetryCount(),
     });

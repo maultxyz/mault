@@ -18,16 +18,16 @@ export const searchCardByIdRoute = new Hono<AppEnv>().get(
       c.req.query("collectionGuid"),
     );
     const requestedGameKey = c.req.query("gameKey");
-    const scope =
-      collectionScope &&
-      requestedGameKey &&
-      requestedGameKey !== collectionScope.gameKey &&
-      requestedGameKey in ADAPTERS_BY_GAME_KEY
-        ? matchScopeForGame(requestedGameKey)
-        : collectionScope;
+    const requestsOtherGame =
+      !!requestedGameKey &&
+      requestedGameKey !== collectionScope?.gameKey &&
+      requestedGameKey in ADAPTERS_BY_GAME_KEY;
+    const scope = requestsOtherGame ? matchScopeForGame(requestedGameKey) : collectionScope;
     const requestedLang = c.req.query("lang");
     const lang =
-      scope?.matchAllLanguages && requestedLang ? requestedLang : scope?.lang;
+      requestedLang && (scope?.matchAllLanguages || (!collectionScope && requestsOtherGame))
+        ? requestedLang
+        : scope?.lang;
     const resolved =
       scope && lang ? resolveCardSearchForGame(scope.gameKey, lang) : null;
     if (!scope || !resolved) {

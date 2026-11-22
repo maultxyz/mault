@@ -22,6 +22,7 @@ import {
 } from "../../lib/plan-config";
 import { currentPreviewPlan } from "../../lib/plan-preview";
 import { isLegacyPricingActive } from "../../lib/pricing-mode";
+import { getShareLinkLengths } from "../../lib/share-link-lengths";
 import {
   dailyScanLimitForPlan,
   getScansThisMonth,
@@ -113,6 +114,7 @@ export const getBillingRoute = new Hono<AppEnv>().get(
           apiAccess: planHasFeature(plan, "apiAccess"),
           businessTools: planHasFeature(plan, "businessTools"),
           longShareLinks: planHasFeature(plan, "longShareLinks"),
+          shareLinkLengths: getShareLinkLengths(),
         },
       };
     });

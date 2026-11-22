@@ -67,6 +67,7 @@
     "piBusy": "Der USB-Anschluss am Pi wird schon verwendet. Trenne ihn im anderen Browser oder stoppe den Scan auf dem Pi und versuche es erneut.",
     "piScanBusy": "Auf dem Pi läuft ein Scan, deshalb kann dieser Browser den Sorter nicht übernehmen. Stoppe zuerst den Scan.",
     "bluetoothPermissionBlocked": "Die Bluetooth-Berechtigung ist für diesen Browser blockiert. Überprüfe die Website-Einstellungen deines Browsers (oder chrome://settings/content/bluetoothDevices), um Bluetooth zuzulassen, und versuche es erneut.",
+    "recentSorterUnreachable": "Stelle sicher, dass der Sortierer eingeschaltet und in der Nähe ist, und versuche es erneut.",
     "connectionLost": {
       "title": "Verbindung getrennt",
       "description": "Der Sortierer hat die Verbindung unerwartet getrennt. Falls du über USB verbunden bist, stelle sicher, dass keine andere Anwendung (z. B. der serielle Monitor der Arduino IDE) den Port verwendet, und verbinde dich erneut."
@@ -117,7 +118,8 @@
     "deviceResolveFailed": "Dieser Sortierer konnte nicht identifiziert werden. Die zuletzt gespeicherte Kalibrierung wird verwendet.",
     "deviceInUse": {
       "title": "Sortierer bereits verbunden",
-      "description": "{{name}} ist bereits in einem anderen Sortierer-Bereich verbunden. Trenne ihn dort zuerst."
+      "description": "{{name}} ist bereits in einem anderen Sortierer-Bereich verbunden. Trenne ihn dort zuerst.",
+      "portDescription": "Dieser Anschluss ist bereits in einem anderen Sortierer-Bereich verbunden. Trenne ihn dort zuerst."
     },
     "unidentifiedBoard": {
       "title": "Ältere Firmware erkannt",
@@ -305,6 +307,8 @@
     "mostValuable": "{{price}} · {{name}}"
   },
   "scanStats": {
+    "loadFailed": "Die Statistiken dieser Sammlung konnten nicht geladen werden.",
+    "loading": "Statistiken werden geladen",
     "emptyState": "Scanne Karten, um ihre Statistiken zu sehen.",
     "totalValue": "Gesamtwert",
     "avgValue": "Durchschnittswert",
@@ -364,6 +368,10 @@
     "ignoreIrSensors": "IR-Sensoren ignorieren (ohne Sortieren)"
   },
   "scannerMenu": {
+    "refreshCameraList": "Liste aktualisieren",
+    "refreshingCameraList": "Wird aktualisiert…",
+    "cameraListRefreshed": "Kamera- und Scannerliste aktualisiert",
+    "cameraListRefreshFailed": "Kamera- und Scannerliste konnte nicht aktualisiert werden",
     "camera": "Kamera",
     "cameraFallbackLabel": "Kamera {{index}}",
     "cameraInUseElsewhere": "Von einer anderen Station verwendet",
@@ -524,7 +532,43 @@
     "openCard": "Nicht erkannte Karte öffnen",
     "expand": "Nicht erkannte Karten anzeigen",
     "collapse": "Nicht erkannte Karten ausblenden",
-    "viewAllShort": "Alle ansehen"
+    "viewAllShort": "Alle ansehen",
+    "retry": {
+      "action": "Mit höherer Genauigkeit erneut versuchen",
+      "stop": "Stoppen",
+      "progress_one": "{{checked}} von {{total}} geprüft, {{count}} Treffer",
+      "progress_other": "{{checked}} von {{total}} geprüft, {{count}} Treffer",
+      "confirmTitle_one": "{{count}} nicht erkannte Karte mit höherer Genauigkeit erneut prüfen?",
+      "confirmTitle_other": "{{count}} nicht erkannte Karten mit höherer Genauigkeit erneut prüfen?",
+      "confirmDescription": "Mault liest Name, Set und Nummer auf jedem gespeicherten Scan und prüft das Bild erneut. Erkannte Karten wandern in diese Sammlung und werden zur Überprüfung markiert. Jeder Treffer zählt zu den heutigen Scans, der Rest bleibt nicht erkannt.",
+      "confirm": "Karten erneut prüfen",
+      "matched_one": "{{count}} Karte von {{checked}} erkannt. Sie ist zur Überprüfung markiert.",
+      "matched_other": "{{count}} Karten von {{checked}} erkannt. Sie sind zur Überprüfung markiert.",
+      "noMatches_one": "Keine Treffer unter {{checked}} Karten.",
+      "noMatches_other": "Keine Treffer unter {{checked}} Karten.",
+      "stopped_one": "Nach {{checked}} Karten gestoppt. {{count}} Karte erkannt.",
+      "stopped_other": "Nach {{checked}} Karten gestoppt. {{count}} Karten erkannt.",
+      "scanLimitReached_one": "{{count}} Karte erkannt, dann wurde das heutige Scanlimit erreicht.",
+      "scanLimitReached_other": "{{count}} Karten erkannt, dann wurde das heutige Scanlimit erreicht.",
+      "failed": "Der erneute Versuch wurde nicht abgeschlossen. Bereits erkannte Karten bleiben erhalten."
+    },
+    "selection": {
+      "hint": "Wähle bis zu {{max}} Karten aus, um sie mit höherer Genauigkeit erneut zu prüfen oder zu entfernen.",
+      "selectScan": "Scan vom {{scannedAt}} auswählen",
+      "selected_one": "{{count}} Karte ausgewählt",
+      "selected_other": "{{count}} Karten ausgewählt",
+      "selectPage": "Seite auswählen",
+      "limitReached": "Du kannst bis zu {{max}} Karten gleichzeitig auswählen.",
+      "remove": "Entfernen",
+      "removeTitle_one": "{{count}} nicht erkannte Karte entfernen?",
+      "removeTitle_other": "{{count}} nicht erkannte Karten entfernen?",
+      "removed_one": "{{count}} nicht erkannte Karte entfernt.",
+      "removed_other": "{{count}} nicht erkannte Karten entfernt.",
+      "removeFailed_one": "{{count}} Karte konnte nicht entfernt werden. Versuche es erneut.",
+      "removeFailed_other": "{{count}} Karten konnten nicht entfernt werden. Versuche es erneut."
+    },
+    "showInGrid": "Im Kartenraster anzeigen",
+    "showInGridFailed": "Die Einstellung konnte nicht gespeichert werden. Versuche es erneut."
   },
   "binStatusMeter": {
     "heading": "Fach-Füllstände",
@@ -554,7 +598,15 @@
   },
   "alphabetPassControl": {
     "range": "Sortiert {{from}} bis {{to}}",
-    "stopFirst": "Stoppe den Scanner, bevor du zu den nächsten Buchstaben wechselst."
+    "stopFirst": "Stoppe den Scanner, bevor du zum nächsten Durchgang wechselst."
+  },
+  "retainedScanSettings": {
+    "title": "Scan-Einstellungen weiterhin aktiv",
+    "foil": "Foil: {{type}}",
+    "condition": "Zustand: {{condition}}",
+    "sets_one": "Set: {{sets}}",
+    "sets_other": "Sets: {{sets}}",
+    "reset": "Zurücksetzen"
   },
   "sessionStatsPanel": {
     "value": "Wert"
@@ -680,7 +732,7 @@
       "renameFailed": "Der Sortierer konnte nicht umbenannt werden",
       "renameDialog": {
         "title": "Sortierer umbenennen",
-        "description": "Der Name erscheint in den Sortierer-Tabs und auf dieser Seite.",
+        "description": "Der Name erscheint in den Sortierer-Tabs, auf dieser Seite und in Bluetooth-Gerätelisten, sobald der Sortierer mit Firmware 2.14.0 oder neuer verbunden ist.",
         "nameLabel": "Name",
         "submit": "Speichern"
       },
@@ -1015,6 +1067,10 @@
       "rejected": "Abgelehnt, WLAN erneut einrichten"
     },
     "pausedForPower": "Der Sortierer ist beim Start des WLANs wegen Spannungseinbrüchen immer wieder neu gestartet. Daher ist WLAN pausiert, USB und Bluetooth funktionieren weiter. Nutze ein stärkeres Netzteil oder versorge die Servos separat, trenne den Sortierer dann kurz vom Strom oder speichere das WLAN erneut, um es noch einmal zu versuchen."
+  },
+  "recentSorters": {
+    "title": "Zuletzt verbundene Sortierer",
+    "connected": "Verbunden"
   },
   "wifiConnect": {
     "item": "WLAN: {{name}}",

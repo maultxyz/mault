@@ -80,6 +80,7 @@ export const sortOnlyScanRoute = new Hono<AppEnv>().post(
       scannedAt,
       vectorizedOn,
       c.get("userId"),
+      deviceGuid,
     );
     void recordDeviceSorted(orgId, deviceGuid);
     return c.json(result);

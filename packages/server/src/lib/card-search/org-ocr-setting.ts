@@ -10,6 +10,8 @@ import { createOrgReadCache } from "../org-read-cache";
 const orgOcrEnabledCache = createOrgReadCache<{ ocrEnabled: boolean }>(
   ORG_OCR_SETTING_CACHE_TTL_MS,
   ORG_OCR_SETTING_CACHE_MAX_ENTRIES,
+  0,
+  { isUnaffectedByCardWrites: true },
 );
 
 export async function isOcrEnabledForOrg(

@@ -1,4 +1,7 @@
-import { isFirmwareFeatureSupported } from "./constants/firmware.constant";
+import {
+  isFirmwareFeatureSupported,
+  PI_CONTROLLER_VERSIONS,
+} from "./constants/firmware.constant";
 import {
   FOIL_NUDGE_SERVO_TIMEOUT_MS,
   FOIL_NUDGE_SETTLE_MS,
@@ -26,8 +29,7 @@ export async function executeScanFoilNudge(
     input.foilOnlyFoilType ||
     !input.isReady ||
     !(
-      input.firmwareVersion === "pi-0.1.0" ||
-      input.firmwareVersion === "pi-0.2.0" ||
+      PI_CONTROLLER_VERSIONS.includes(input.firmwareVersion ?? "") ||
       /^\d+\.\d+\.\d+(?:[-+].*)?$/.test(input.firmwareVersion ?? "")
     ) ||
     !isFirmwareFeatureSupported(input.firmwareVersion, "pusherNudge") ||

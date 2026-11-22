@@ -1,15 +1,13 @@
 import { useCollections } from "@/features/collections/api/use-collections";
 import { useOrg } from "@/features/companies/api/use-organization";
-import {
-  catalogCardsSearchQueryOptions,
-  ownedCardSearchQueryOptions,
-} from "@/features/search/api/global-search";
+import { ownedCardSearchQueryOptions } from "@/features/search/api/global-search";
+import { useCatalogCardSearch } from "@/features/search/api/use-catalog-card-search";
+import { useCatalogGames } from "@/features/search/api/use-catalog-games";
 import { storageLocationsQueryOptions } from "@/features/storage/api/storage-locations";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { useSettingsSections } from "@/hooks/use-settings-sections";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/timing";
 import {
-  catalogGamesOf,
   globalSearchGamesFor,
   isGlobalSearchGameSelected,
   selectedGlobalSearchGameKey,
@@ -24,7 +22,7 @@ import { useTranslation } from "react-i18next";
 export function useGlobalSearchResults(search: string, isSearchOpen: boolean, requestedGameKey: string | null) {
   const { t } = useTranslation("settings");
   const { activeOrg } = useOrg();
-  const { collections, activeCollection } = useCollections();
+  const { collections } = useCollections();
   const settingsSections = useSettingsSections();
   const query = search.trim();
   const debouncedQuery = useDebouncedValue(query, SEARCH_DEBOUNCE_MS);
@@ -32,10 +30,7 @@ export function useGlobalSearchResults(search: string, isSearchOpen: boolean, re
   const searchesCatalog = isSearchOpen && debouncedQuery.length >= CATALOG_SEARCH_MIN_QUERY_LENGTH;
   const isWaitingForDebounce = query.length >= GLOBAL_SEARCH_MIN_QUERY_LENGTH && query !== debouncedQuery;
 
-  const availableGames = useMemo(
-    () => catalogGamesOf(collections, activeCollection?.guid),
-    [collections, activeCollection?.guid],
-  );
+  const { catalogGames: availableGames } = useCatalogGames();
   const selectedGameKey = selectedGlobalSearchGameKey(availableGames, requestedGameKey);
   const catalogGames = useMemo(
     () => globalSearchGamesFor(availableGames, selectedGameKey),
@@ -45,7 +40,7 @@ export function useGlobalSearchResults(search: string, isSearchOpen: boolean, re
     () => collections.filter((collection) => isGlobalSearchGameSelected(selectedGameKey, collection.game?.key)),
     [collections, selectedGameKey],
   );
-  const catalog = useInfiniteQuery(catalogCardsSearchQueryOptions(catalogGames, debouncedQuery, searchesCatalog));
+  const catalog = useCatalogCardSearch(catalogGames, debouncedQuery, searchesCatalog);
   const locations = useQuery({ ...storageLocationsQueryOptions(activeOrg?.id), enabled: !!activeOrg?.id && isSearchOpen });
   const cards = useInfiniteQuery(
     ownedCardSearchQueryOptions(activeOrg?.id, debouncedQuery, selectedGameKey, searchesCards),
@@ -59,10 +54,10 @@ export function useGlobalSearchResults(search: string, isSearchOpen: boolean, re
     ? rankGlobalSearchMatches(settingsSections, (section) => t(section.labelKey), query)
     : [];
   const cardResults = searchesCards ? (cards.data?.pages.flatMap((page) => page.results) ?? []) : [];
-  const catalogResults = searchesCatalog ? (catalog.data?.pages.flatMap((page) => page.results) ?? []) : [];
+  const catalogResults = searchesCatalog ? catalog.results : [];
   const isSearchingCards = searchesCards && cards.isPending;
-  const isSearchingCatalog = searchesCatalog && catalogGames.length > 0 && catalog.isPending;
-  const catalogFailed = searchesCatalog && catalog.isError && !catalog.isFetchNextPageError;
+  const isSearchingCatalog = searchesCatalog && catalog.isLoadingFirstResults;
+  const catalogFailed = searchesCatalog && catalog.failed;
   const resultCount =
     cardResults.length +
     catalogResults.length +
@@ -83,7 +78,9 @@ export function useGlobalSearchResults(search: string, isSearchOpen: boolean, re
     showsGameName: catalogGames.length > 1,
     isLoadingCards: isSearchingCards || isWaitingForDebounce,
     isLoadingCatalog: isSearchingCatalog || (isWaitingForDebounce && catalogGames.length > 0),
-    isSettled: !isWaitingForDebounce && !isSearchingCards && !isSearchingCatalog,
+    isLoadingOtherCatalogGames: searchesCatalog && catalog.isLoadingOtherGames,
+    isSettled:
+      !isWaitingForDebounce && !isSearchingCards && !isSearchingCatalog && !(searchesCatalog && catalog.isLoadingOtherGames),
     cardsFailed: searchesCards && cards.isError && !cards.isFetchNextPageError,
     catalogFailed,
     locationsFailed: locations.isError,
@@ -91,12 +88,12 @@ export function useGlobalSearchResults(search: string, isSearchOpen: boolean, re
     isLoadingMoreCards: cards.isFetchingNextPage,
     loadMoreCardsFailed: cards.isFetchNextPageError,
     loadMoreCards: () => void cards.fetchNextPage(),
-    hasMoreCatalogCards: searchesCatalog && !!catalog.hasNextPage,
-    isLoadingMoreCatalogCards: catalog.isFetchingNextPage,
-    loadMoreCatalogCardsFailed: catalog.isFetchNextPageError,
-    loadMoreCatalogCards: () => void catalog.fetchNextPage(),
+    hasMoreCatalogCards: searchesCatalog && catalog.hasMore && !catalog.isLoadingOtherGames,
+    isLoadingMoreCatalogCards: catalog.isLoadingMore,
+    loadMoreCatalogCardsFailed: catalog.loadMoreFailed,
+    loadMoreCatalogCards: catalog.loadMore,
     retryCards: () => void cards.refetch(),
-    retryCatalog: () => void catalog.refetch(),
+    retryCatalog: catalog.retry,
     retryLocations: () => void locations.refetch(),
   };
 }

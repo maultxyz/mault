@@ -13,6 +13,7 @@ import { OptionSheet } from "@/components/ui/option-sheet";
 import { SearchInput } from "@/components/ui/search-input";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { cardSearchQueryOptions } from "@/features/cards/api/card-search";
+import { useCollectionCardSearchLanguage } from "@/features/cards/api/use-collection-card-search-language";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { usePricing } from "@/hooks/use-pricing";
 import { SEARCH_DEBOUNCE_MS } from "@/lib/constants/collections";
@@ -37,7 +38,9 @@ export function CardCorrectionSearch({
   const { t } = useTranslation();
   const pricing = usePricing();
   const [query, setQuery] = useState(initialQuery);
-  const [language, setLanguage] = useState<string>(CARD_SEARCH_ALL_LANGUAGES);
+  const collectionLanguage = useCollectionCardSearchLanguage(collectionGuid);
+  const [chosenLanguage, setLanguage] = useState<string | null>(null);
+  const language = chosenLanguage ?? collectionLanguage;
   const [languageSheetOpen, setLanguageSheetOpen] = useState(false);
   const debounced = useDebouncedValue(query.trim(), SEARCH_DEBOUNCE_MS);
   const search = useInfiniteQuery(cardSearchQueryOptions(debounced, collectionGuid, language));

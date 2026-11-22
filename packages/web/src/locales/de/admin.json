@@ -11,6 +11,7 @@
     "sounds": "Sounds",
     "deleted": "Gelöscht und nicht erkannt",
     "shortLinks": "Kurzlinks",
+    "shareLinks": "Freigabelinks",
     "hardware": "Hardware",
     "developer": "Entwickler",
     "whatsNew": "Neuigkeiten"
@@ -48,6 +49,82 @@
       "failedCount_one": "{{count}} durchgefallen",
       "failedCount_other": "{{count}} durchgefallen",
       "historyItem": "#{{number}} K {{channel}}"
+    },
+    "stress": {
+      "heading": "Belastungstest",
+      "description": "Bewegt Servos ununterbrochen zwischen Minimum und Maximum, um herauszufinden, wie lange sie halten. Richte eine Webcam auf die Servos, dann erkennt der Test, welche stehen bleiben, oder beobachte sie selbst und markiere jedes, sobald es stehen bleibt.",
+      "channels": "Kanäle",
+      "hint": "Wähle einen oder mehrere Kanäle. Der Test endet, wenn jedes Servo markiert ist, wenn du auf Stopp drückst oder wenn das Board nicht mehr antwortet. Gestoppte Servos werden sofort freigegeben.",
+      "start": "Starten",
+      "stop": "Stopp",
+      "running": "Läuft",
+      "finished": "Beendet",
+      "elapsed": "Laufzeit {{elapsed}}",
+      "stoppedCount": "{{stopped}} von {{total}} gestoppt",
+      "channel": "Kanal {{channel}}",
+      "cycles_one": "{{count}} Zyklus",
+      "cycles_other": "{{count}} Zyklen",
+      "moving": "Bewegt sich",
+      "survived": "Bewegt sich noch",
+      "stoppedAfter": "Gestoppt nach {{elapsed}}",
+      "markStopped": "Bewegt sich nicht mehr",
+      "markStoppedOnChannel": "Servo an Kanal {{channel}} bewegt sich nicht mehr",
+      "endReason": {
+        "manual": "Belastungstest nach {{elapsed}} gestoppt.",
+        "allServosStopped": "Alle Servos sind stehen geblieben. Der Test lief {{elapsed}}.",
+        "boardStopped": "Das Board hat nach {{elapsed}} nicht mehr geantwortet. Prüfe Stromversorgung und Verbindung."
+      },
+      "cameraStoppedAfter": "Kamera: gestoppt nach {{elapsed}}",
+      "camera": {
+        "heading": "Mit einer Kamera beobachten",
+        "description": "Befestige eine Webcam so, dass sie die Servohörner sieht, und ziehe dann um jedes Horn einen Rahmen. Der erste Zyklus lernt, was sich ändert, wenn sich jedes Servo bewegt. Danach wird ein Servo, dessen Rahmen sich 3 Bewegungen in Folge nicht mehr ändert, als gestoppt markiert. Langsame Lichtänderungen werden während des Tests mitverfolgt.",
+        "camera": "Kamera",
+        "pickCamera": "Kamera wählen",
+        "noCameras": "Keine Kameras gefunden",
+        "unnamedCamera": "Kamera",
+        "cameraNumber": "Kamera {{number}}",
+        "turnOff": "Kamera ausschalten",
+        "startFailed": "Die Kamera ist nicht gestartet. Prüfe, ob sie angeschlossen ist, von keiner anderen App benutzt wird und der Browser sie verwenden darf.",
+        "pickChannels": "Wähle oben die zu testenden Kanäle und ziehe dann für jeden einen Rahmen.",
+        "boxFor": "Rahmen ziehen für:",
+        "channelWithBox": "Kanal {{channel}} (mit Rahmen)",
+        "clearBox": "Rahmen entfernen",
+        "editorLabel": "Kameravorschau, Rahmen für Kanal {{channel}}",
+        "editorHint": "Ziehe auf der Vorschau einen Rahmen um das Horn oder platziere und skaliere ihn mit den Schaltflächen. Kanäle ohne Rahmen beobachtest du selbst.",
+        "reached": "Kamera: {{percent}} % Bewegung",
+        "status": {
+          "learning": "Kamera: lernt die Positionen",
+          "watching": "Kamera: beobachtet",
+          "noMotion": "Die Kamera sieht dieses Servo nicht sich bewegen. Mach das Horn besser sichtbar oder beobachte es selbst."
+        },
+        "announceStopped": "Die Kamera hat gesehen, dass das Servo an Kanal {{channel}} stehen geblieben ist.",
+        "adjustLabel": "Rahmen für Kanal {{channel}} verschieben oder in der Größe ändern",
+        "adjust": {
+          "left": "Rahmen nach links",
+          "right": "Rahmen nach rechts",
+          "up": "Rahmen nach oben",
+          "down": "Rahmen nach unten",
+          "grow": "Rahmen vergrößern",
+          "shrink": "Rahmen verkleinern"
+        }
+      },
+      "channelButton": "Kanal {{channel}}, {{role}}",
+      "calibrationHint": "Modulservos bewegen sich zwischen ihren kalibrierten Positionen für diesen Sortierer, die anderen Kanäle nutzen den vollen Bereich. Paddel und Schieber eines Moduls können nicht zusammen laufen, weil die Firmware das Paddel vor jeder Schieberbewegung absenkt.",
+      "calibrationHintWithFeeder": "Modulservos bewegen sich zwischen ihren kalibrierten Positionen für diesen Sortierer, die anderen Kanäle nutzen den vollen Bereich. Paddel und Schieber eines Moduls können nicht zusammen laufen, weil die Firmware das Paddel vor jeder Schieberbewegung absenkt. Kanal {{channel}} ist die Zuführung, die sich dreht statt eine Position zu halten, und kann daher nicht getestet werden.",
+      "defaultCalibration": "Für dieses Board ist kein Sortierer gespeichert, daher nutzen die Modulservos die Standardkalibrierung. Kalibriere den Sortierer zuerst, wenn die Gestänge montiert sind.",
+      "role": {
+        "bottom": "Modul {{module}} Bodenklappe",
+        "paddle": "Modul {{module}} Paddel",
+        "pusher": "Modul {{module}} Schieber",
+        "feeder": "Zuführung",
+        "unassigned": "Von keinem Modul genutzt"
+      },
+      "pulses": {
+        "bottom": "geschlossen {{min}}, offen {{max}}",
+        "paddle": "geschlossen {{min}}, offen {{max}}",
+        "pusher": "links {{min}}, rechts {{max}}",
+        "unassigned": "voller Bereich {{min}} bis {{max}}"
+      }
     },
     "leds": {
       "heading": "LED-Streifen",
@@ -255,6 +332,18 @@
     "startedOnly": "Gestartet {{started}}",
     "loadFailed": "Das Protokoll der Identitätsübernahmen konnte nicht geladen werden."
   },
+  "subscriptionSummary": {
+    "heading": "Abonnements",
+    "description": "Organisationen mit einem bezahlten Abonnement, nach Plan. Der monatlich wiederkehrende Umsatz nutzt den Listenpreis jedes Plans, Jahrespläne auf 12 Monate verteilt, vor Rabatten und Steuern. Testphasen zählen als Abonnenten, bringen aber keinen Umsatz.",
+    "subscribersHeading": "Abonnenten",
+    "revenueHeading": "Monatlich wiederkehrender Umsatz",
+    "total": "Gesamt",
+    "trialingCount_one": "{{count}} in der Testphase",
+    "trialingCount_other": "{{count}} in der Testphase",
+    "unpriced_one": "Der Preis von {{count}} Abonnenten konnte nicht von Stripe geladen werden, daher fehlt er im Umsatz.",
+    "unpriced_other": "Die Preise von {{count}} Abonnenten konnten nicht von Stripe geladen werden, daher fehlen sie im Umsatz.",
+    "loadFailed": "Abonnements konnten nicht geladen werden."
+  },
   "metricsStats": {
     "heading": "Scan-Statistiken",
     "description": "App-weite Scan-Aktivität über alle Organisationen hinweg und ob jeder Scan auf dem Server oder im Browser vektorisiert wurde. Jemand gilt als aktiv scannend, solange in den letzten {{minutes}} Minuten ein Scan gespeichert wurde.",
@@ -351,7 +440,7 @@
       },
       "longShareLinks": {
         "label": "Längere Monitor-Links",
-        "description": "Monitor-Links können 1, 7 oder 30 Tage gelten. Ohne diese Funktion gelten sie 1 Stunde. Tausch-Links gelten immer 1 Stunde."
+        "description": "Monitor-Links können jede Laufzeit in Tagen haben, die im Web unter Admin > Freigabelinks festgelegt ist. Ohne diese Funktion gilt die dort festgelegte kurze Laufzeit."
       }
     },
     "limits": {
@@ -592,6 +681,28 @@
       "disabled": "Kurzlinks sind auf diesem Server aus.",
       "codeTaken": "Dieser Code wird schon verwendet. Wähle einen anderen.",
       "notFound": "Diesen Kurzlink gibt es nicht mehr."
+    }
+  },
+  "shareLinkLengths": {
+    "heading": "Laufzeit von Freigabelinks",
+    "description": "Wie lange neue Monitor- und Tausch-Links gelten. Eine kürzere Laufzeit kürzt auch bereits geteilte Links. Eine längere gilt für Links, die nach dem Speichern erstellt werden.",
+    "restoreDefaults": "Standardwerte wiederherstellen",
+    "saved": "Laufzeiten der Freigabelinks gespeichert.",
+    "saveFailed": "Die Laufzeiten der Freigabelinks konnten nicht gespeichert werden.",
+    "loadFailed": "Die Laufzeiten der Freigabelinks konnten nicht geladen werden.",
+    "fields": {
+      "tradeLinkHours": {
+        "label": "Tausch-Links (Stunden)",
+        "description": "So lange gilt jeder Tausch-Link. Bis zu {{max}} Stunden."
+      },
+      "restrictedShareLinkHours": {
+        "label": "Monitor-Links ohne längere Links (Stunden)",
+        "description": "So lange gelten Monitor-Links in Tarifen ohne längere Monitor-Links. Bis zu {{max}} Stunden."
+      },
+      "monitorLinkExpiryDays": {
+        "label": "Auswahl für Monitor-Links (Tage)",
+        "description": "Die Laufzeiten, aus denen Tarife mit längeren Monitor-Links wählen, durch Kommas getrennt. Bis zu {{maxOptions}} Werte von 1 bis {{maxDays}} Tagen. Die längste begrenzt auch bereits geteilte Links."
+      }
     }
   },
   "featureHighlights": {

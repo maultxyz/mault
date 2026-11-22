@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db, type Transaction } from "../db";
 import { deleteShortLinks } from "./shortener-client";
 import {
@@ -9,10 +9,13 @@ import {
   binRoutes,
   binSetAudit,
   binSets,
+  cardReservations,
   bins,
   cardSales,
+  collectionCardStatsDirty,
   collectionCards,
   collections,
+  orgCardStats,
   deviceAlerts,
   devices,
   feederConfigAudit,
@@ -31,6 +34,9 @@ import {
   orgInventorySnapshots,
   collectionValueSnapshots,
   orgSettings,
+  selfHostedDailyScanStats,
+  statsSyncConnections,
+  statsSyncKeys,
   unmatchedCards,
   notificationRules,
   soundClips,
@@ -38,6 +44,8 @@ import {
   storageLocations,
   webhookEndpoints,
 } from "../db/schema";
+import { forgetDiscordGuildOrgs } from "./discord/guild-orgs";
+import { forgetLeaderboardOptIns } from "./leaderboard";
 const INACTIVE_SUBSCRIPTION_STATUSES = new Set([
   "canceled",
   "incomplete_expired",
@@ -85,6 +93,7 @@ export async function purgeOrgData(
   await tx.delete(cardSales).where(eq(cardSales.orgId, orgId));
   await tx.delete(fulfilmentOrders).where(eq(fulfilmentOrders.orgId, orgId));
   await tx.delete(tradeOffers).where(eq(tradeOffers.orgId, orgId));
+  await tx.delete(cardReservations).where(eq(cardReservations.orgId, orgId));
   const purgedShareLinks = await tx
     .delete(shareLinks)
     .where(eq(shareLinks.orgId, orgId))
@@ -105,6 +114,7 @@ export async function purgeOrgData(
   await tx.delete(orgActivityLog).where(eq(orgActivityLog.orgId, orgId));
   await tx.delete(apiKeyUsageDaily).where(eq(apiKeyUsageDaily.orgId, orgId));
   await tx.delete(orgApiKeys).where(eq(orgApiKeys.orgId, orgId));
+  await tx.delete(statsSyncKeys).where(eq(statsSyncKeys.orgId, orgId));
   await tx.delete(webhookEndpoints).where(eq(webhookEndpoints.orgId, orgId));
   await tx.delete(unmatchedCards).where(eq(unmatchedCards.orgId, orgId));
   await tx.delete(soundRules).where(eq(soundRules.orgId, orgId));
@@ -112,7 +122,14 @@ export async function purgeOrgData(
     .delete(notificationRules)
     .where(eq(notificationRules.orgId, orgId));
   await tx.delete(soundClips).where(eq(soundClips.orgId, orgId));
+  await tx.execute(sql`
+    DELETE FROM ${collectionCardStatsDirty}
+    WHERE ${collectionCardStatsDirty.collectionId} IN (
+      SELECT ${collections.id} FROM ${collections} WHERE ${collections.orgId} = ${orgId}
+    )
+  `);
   await tx.delete(collections).where(eq(collections.orgId, orgId));
+  await tx.delete(orgCardStats).where(eq(orgCardStats.orgId, orgId));
 
   await tx.delete(bins).where(eq(bins.orgId, orgId));
   await tx.delete(binSets).where(eq(binSets.orgId, orgId));
@@ -141,4 +158,12 @@ export async function purgeOrgServerData(orgId: string): Promise<void> {
   await db
     .delete(collectionValueSnapshots)
     .where(eq(collectionValueSnapshots.orgId, orgId));
+  await db
+    .delete(selfHostedDailyScanStats)
+    .where(eq(selfHostedDailyScanStats.orgId, orgId));
+  await db
+    .delete(statsSyncConnections)
+    .where(eq(statsSyncConnections.orgId, orgId));
+  forgetDiscordGuildOrgs();
+  forgetLeaderboardOptIns();
 }

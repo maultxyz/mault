@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { githubStarsQueryOptions } from "@/features/billing/api/github-stars";
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import { useCollections } from "@/features/collections/api/use-collections";
 import {
   collectionViewPath,
@@ -40,7 +41,6 @@ import { STORAGE_PATH } from "@/lib/constants/storage";
 import { TRADES_PATH } from "@/lib/constants/trade-offers";
 import { SORTING_RULES_PATH } from "@/lib/constants/bins";
 import { STATS_PATH } from "@/lib/constants/stats";
-import { MACHINES_ROUTE_PATH } from "@/lib/constants/machines";
 import { ORDERS_PATH } from "@/lib/constants/business";
 import { SETTINGS_PATHS } from "@/lib/constants/settings";
 import { cn } from "@/lib/utils";
@@ -49,7 +49,6 @@ import {
   IconAlbum,
   IconArrowsSplit2,
   IconChartBar,
-  IconDeviceDesktopAnalytics,
   IconBrandDiscord,
   IconBrandGithub,
   IconCameraSpark,
@@ -350,7 +349,10 @@ function SubItem({
 
 export function AppNav() {
   const { t, i18n } = useTranslation("common");
-  const { data: githubStars } = useQuery(githubStarsQueryOptions(true));
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
+  const { data: githubStars } = useQuery(
+    githubStarsQueryOptions(areSecondaryRequestsEnabled),
+  );
   const formattedStars =
     githubStars != null
       ? formatCompactNumber(githubStars, i18n.language)
@@ -437,11 +439,6 @@ export function AppNav() {
       to: STATS_PATH,
       icon: <IconChartBar size={16} />,
       label: t("nav.stats"),
-    },
-    {
-      to: MACHINES_ROUTE_PATH,
-      icon: <IconDeviceDesktopAnalytics size={16} />,
-      label: t("nav.machines"),
     },
     {
       to: ORDERS_PATH,

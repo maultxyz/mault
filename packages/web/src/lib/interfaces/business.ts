@@ -8,11 +8,9 @@ import type {
 import type { CardListFile } from "@/lib/interfaces/card-list-import";
 import type { UseCsvImportResult } from "@/lib/interfaces/csv-import";
 import type { ClientPagination } from "@/lib/interfaces/pagination";
+import type { PickImportFormValues } from "@/schemas/business.schema";
 import type {
   BusinessSettingsDraftValues,
-  PickImportFormValues,
-} from "@/schemas/business.schema";
-import type {
   AccuracyCheckStatus,
   DeviceHealth,
   FulfilmentOrder,
@@ -76,6 +74,7 @@ export interface IntakeLotListProps {
   selectedGuid: string | undefined;
   isLoading: boolean;
   onSelect: (guid: string) => void;
+  search?: string;
 }
 
 export interface IntakeLotDialogProps {
@@ -122,6 +121,7 @@ export interface OrderListProps {
   onSelect: (guid: string) => void;
   checkedOrderGuids?: ReadonlySet<string>;
   onToggleOrderChecked?: (guid: string, options: SelectToggleOptions) => void;
+  search?: string;
 }
 
 export interface OrderSelectionBarProps {

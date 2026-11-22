@@ -75,7 +75,8 @@
       "modules_one": "{{count}} Modul",
       "modules_other": "{{count}} Module"
     },
-    "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken."
+    "shopNote": "Möchtest du nicht jedes Teil selbst zusammensuchen? Im <0>Mault-Shop</0> gibt es Kits mit allem außer den 3D-gedruckten Teilen. Die musst du weiterhin selbst drucken.",
+    "recommended": "Empfohlen"
   },
   "bom": {
     "heading": "Stückliste",
@@ -442,14 +443,14 @@
             "note": "Das lädt einige hundert MB herunter (die komplette Xtensa-Toolchain) und dauert ein paar Minuten."
           },
           "installLibraries": {
-            "text": "Installiere in der Arduino-IDE die Bibliotheken ArduinoJson und Adafruit PWM Servo Driver.",
+            "text": "Installiere in der Arduino-IDE die Bibliotheken ArduinoJson, Adafruit PWM Servo Driver und Adafruit NeoPixel.",
             "note": "Bibliotheksverwaltung → jeweils nach Namen suchen."
           },
           "installLibrariesEsp32": {
             "note": "Bibliotheksverwaltung → jeweils nach Namen suchen. Die Bluetooth-Unterstützung ist bereits im gerade installierten ESP32-Core enthalten, eine zusätzliche Bluetooth-Bibliothek ist also nicht nötig."
           },
           "installLibrariesUnoR4": {
-            "text": "Installiere in der Arduino-IDE die Bibliotheken ArduinoJson, Adafruit PWM Servo Driver und ArduinoBLE.",
+            "text": "Installiere in der Arduino-IDE die Bibliotheken ArduinoJson, Adafruit PWM Servo Driver, Adafruit NeoPixel und ArduinoBLE.",
             "note": "Bibliotheksverwaltung → jeweils nach Namen suchen. ArduinoBLE stellt Bluetooth auf dem Uno R4 WiFi bereit. Der Uno R4 Minima hat keine Bluetooth-Hardware und nutzt sie nicht, Minima-Builds können sie also weglassen."
           },
           "uploadSketch": {
@@ -554,7 +555,7 @@
           },
           "calibrateModules": {
             "text": "Modul-Kalibrierungsraster – lege modulweise den Öffnungs-/Schließimpuls für jede Bodenklappe und jedes Paddel sowie links/neutral/rechts für jeden Schieber fest.",
-            "note": "Bei pusherLeft/pusherRight den Arm zur Innenwand schwingen lassen, aber stoppen, bevor er sie berührt, etwa 10-12% von neutral entfernt. Der Schieber muss die Wand nicht treffen, um die Karte hinauszuschleudern, und Druck dagegen belastet den Servo. Ab 16% zeigt die App eine Warnung."
+            "note": "Bei pusherLeft/pusherRight den Arm zur Innenwand schwingen lassen, aber stoppen, bevor er sie berührt, etwa 15-16% von neutral entfernt. Der Schieber muss die Wand nicht treffen, um die Karte hinauszuschleudern, und Druck dagegen belastet den Servo. Über 16% zeigt die App eine Warnung."
           },
           "installHorns": {
             "text": "Montiere im Einrichtungsassistenten (Sortierer einrichten, öffnet sich beim ersten Verbinden des Sortierers oder über das Hilfemenü (?) unter /app/calibrate) die Hörner (mit bereits montierter Klappe bzw. Schieberarm) Servo für Servo. Für die Bodenklappe und die Paddel stellst du den Schieberegler auf 90 % und drückst das Horn dann in geschlossener Position auf die Servowelle. Für den Schieber stellst du den Schieberegler auf 50 % und drückst dann das Horn auf die Welle. Sichere jedes Horn mit seiner Hornschraube, für alle {{count}} Modul-Servos.",

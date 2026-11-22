@@ -4,6 +4,5 @@ export interface PendingSaveQueueOptions<TSave, TResult> {
   put: (save: TSave) => void | Promise<void>;
   remove: (key: string) => void | Promise<void>;
   onPendingCountChange: (delta: 1 | -1) => void;
-  storesBeforeFirstAttempt?: boolean;
   onRetryableFailure?: (save: TSave, error: unknown, wasQueued: boolean) => void;
 }

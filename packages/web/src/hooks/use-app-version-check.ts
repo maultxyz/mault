@@ -1,7 +1,8 @@
 import { notePiHost } from "@/lib/pi-host";
 import { APP_VERSION_CHECK_INTERVAL_MS as CHECK_INTERVAL_MS } from "@/lib/constants/timing";
+import type { AppVersionResponse } from "@/lib/interfaces/nav";
 import { getLatestFirmwareVersion } from "@/lib/latest-firmware-version";
-import { fetchServerVersion } from "@/lib/server-version";
+import { fetchServerVersion, loadServerVersion } from "@/lib/server-version";
 import { useEffect, useState } from "react";
 
 export function useAppVersionCheck() {
@@ -11,9 +12,12 @@ export function useAppVersionCheck() {
     if (isOutdated) return;
     let cancelled = false;
 
-    async function check() {
+    async function check(
+      serverVersionRequest: Promise<AppVersionResponse["data"] | null>,
+    ) {
       try {
-        const serverVersion = await fetchServerVersion();
+        const serverVersion = await serverVersionRequest;
+        if (!serverVersion) return;
         notePiHost(serverVersion.piHost === true, serverVersion.piSorter === true);
         const firmwareChanged =
           (serverVersion.latestFirmwareVersion ?? null) !==
@@ -27,8 +31,11 @@ export function useAppVersionCheck() {
       } catch {}
     }
 
-    check();
-    const interval = setInterval(check, CHECK_INTERVAL_MS);
+    void check(loadServerVersion());
+    const interval = setInterval(
+      () => void check(fetchServerVersion()),
+      CHECK_INTERVAL_MS,
+    );
     return () => {
       cancelled = true;
       clearInterval(interval);

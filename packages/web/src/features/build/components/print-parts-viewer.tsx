@@ -44,17 +44,24 @@ export default function PrintPartsViewer({
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
-    const scene = new SorterScene({
-      container,
-      palette: "print",
-      reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)")
-        .matches,
-      onLoad: () => setStatus("ready"),
-      onError: () => {
-        setStatus("error");
-        printPartImagesStore.setError();
-      },
-    });
+    const showLoadFailure = () => {
+      setStatus("error");
+      printPartImagesStore.setError();
+    };
+    let scene: SorterScene;
+    try {
+      scene = new SorterScene({
+        container,
+        palette: "print",
+        reducedMotion: window.matchMedia("(prefers-reduced-motion: reduce)")
+          .matches,
+        onLoad: () => setStatus("ready"),
+        onError: showLoadFailure,
+      });
+    } catch {
+      showLoadFailure();
+      return;
+    }
     scene.setModuleCount(setupRef.current.moduleCount);
     scene.setBreakoutHeight(setupRef.current.breakoutHeight);
     sceneRef.current = scene;

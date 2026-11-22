@@ -26,6 +26,7 @@ import { AppText } from "@/components/ui/app-text";
 import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/ui/callout";
 import { CollapsibleSection } from "@/components/ui/collapsible-section";
+import { DecimalTextField } from "@/components/ui/decimal-text-field";
 import { Icon } from "@/components/ui/icon";
 import { IconButton } from "@/components/ui/icon-button";
 import { ListGroup } from "@/components/ui/list-group";
@@ -66,7 +67,6 @@ import { CardCorrectionSearch } from "@/features/cards/components/card-correctio
 import { CardDetailArt, CardImageFrame } from "@/features/cards/components/card-detail-art";
 import { CardDetailInfoSections } from "@/features/cards/components/card-detail-info-sections";
 import { CardDetailTitleBlock } from "@/features/cards/components/card-detail-title-block";
-import { PricePaidField } from "@/features/cards/components/price-paid-field";
 import { cardAcquisitionCostQueryOptions, setCardAcquisitionCost } from "@/features/business/api/card-cost";
 import {
   cachedCollectionCardPosition,
@@ -237,9 +237,17 @@ export default function CardDetailScreen() {
       });
       return { snapshot };
     },
-    onSuccess: (_, { values }) => {
+    onSuccess: (_, { values, dirtyFields }) => {
       form.reset(values);
       AccessibilityInfo.announceForAccessibility(t("common.changesSaved"));
+      if (entry && (dirtyFields.foilType || dirtyFields.stamp)) {
+        void correction.promptAfterScanStateEdit({
+          ...entry,
+          isFoil: values.foilType != null,
+          foilType: values.foilType ?? undefined,
+          stamp: values.stamp ?? undefined,
+        });
+      }
     },
     onError: (_error, _save, context) => {
       if (context) restoreCardCaches(queryClient, context.snapshot);
@@ -802,7 +810,7 @@ export default function CardDetailScreen() {
                 condition={draftCondition}
                 priceExtras={
                   entry && acquisitionCost.data ? (
-                    <PricePaidField
+                    <DecimalTextField
                       label={t("cardDetail.pricePaid", { currency: acquisitionCost.data.currency })}
                       placeholder={t("cardDetail.pricePaidEmpty")}
                       value={form.watch("acquisitionCost")}

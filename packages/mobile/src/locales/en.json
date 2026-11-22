@@ -149,6 +149,12 @@
     "expiryLabel": "Link expires after",
     "expiryOption_one": "{{count}} day",
     "expiryOption_other": "{{count}} days",
+    "durationHours_one": "{{count}} hour",
+    "durationHours_other": "{{count}} hours",
+    "durationDays_one": "{{count}} day",
+    "durationDays_other": "{{count}} days",
+    "tradeLengthNote": "Trade links last {{duration}}.",
+    "monitorShortLengthNote": "Your plan includes monitor links that last {{duration}}. Enthusiast and Business can share them for up to {{longestDuration}}.",
     "create": "Create link",
     "created": "Link created. The QR code and Share button are below.",
     "createFailed": "Couldn't create a share link.",
@@ -171,9 +177,7 @@
     "monitorType": "Monitor",
     "tradeType": "Trade",
     "monitorTypeDescription": "A view of the cards, live while you scan. Visitors can't send offers.",
-    "tradeTypeDescription": "Visitors can pick cards and send you trade offers, which show up in your notifications.",
-    "tradeOneHourNote": "Trade links last 1 hour.",
-    "monitorOneHourNote": "Your plan includes monitor links that last 1 hour. Enthusiast and Business can share them for up to 30 days."
+    "tradeTypeDescription": "Visitors can pick cards and send you trade offers, which show up in your notifications."
   },
   "shareLinks": {
     "detailDescription": "Anyone with this link or QR code can open it without logging in.",
@@ -277,6 +281,14 @@
         "count": "Cards",
         "value": "Value added"
       },
+      "periods": {
+        "label": "Time period",
+        "allTime": "All time",
+        "week": "Past week",
+        "month": "Past month",
+        "year": "Past year"
+      },
+      "updatedDaily": "Rankings update once a day.",
       "weekOf": "Week of {{date}}",
       "thisWeek": "This week",
       "today": "Today",
@@ -340,8 +352,17 @@
     "cardCount_other": "{{count}} cards",
     "leaderboard": {
       "title": "Leaderboard",
-      "description_one": "The {{count}} organization that has scanned the most cards with Mault.",
-      "description_other": "The {{count}} organizations that have scanned the most cards with Mault.",
+      "descriptions": {
+        "totalScans_one": "The {{count}} organization that has scanned the most cards with Mault.",
+        "totalScans_other": "The {{count}} organizations that have scanned the most cards with Mault.",
+        "cardsPerHour_one": "The {{count}} organization with the fastest machine on hosted Mault, from its best 15 minutes of scanning, shown as cards per hour.",
+        "cardsPerHour_other": "The {{count}} organizations with the fastest machines on hosted Mault, from each machine's best 15 minutes of scanning, shown as cards per hour."
+      },
+      "metrics": {
+        "label": "Rank by",
+        "totalScans": "Most cards",
+        "cardsPerHour": "Cards per hour"
+      },
       "error": "Couldn't load the leaderboard. Try again in a moment.",
       "rank": "#{{rank}}",
       "you": "You",
@@ -350,13 +371,19 @@
       "columns": {
         "rank": "Rank",
         "organization": "Organization",
-        "scans": "Cards scanned"
+        "totalScans": "Cards scanned",
+        "cardsPerHour": "Cards per hour"
       },
       "optIn": {
         "title": "Your organization isn't on the leaderboard",
         "description": "Other organizations can't see you. Your row shows where you would rank. Join from Settings to appear in the list.",
         "action": "Join leaderboard"
-      }
+      },
+      "hideSelfHosted": {
+        "label": "Hide self-hosted scans",
+        "description": "Self-hosted servers report their own counts, which can't be verified. Turn this on to rank hosted scans only."
+      },
+      "selfHostedBadge": "Self-hosted"
     },
     "highlights": {
       "title": "Highlights"
@@ -506,6 +533,7 @@
     "firmware": "Firmware {{version}} on {{board}}",
     "findSorters": "Find sorters",
     "stopSearching": "Stop searching",
+    "recent": "Recent sorters",
     "nearby": "Nearby sorters",
     "searching": "Searching for sorters",
     "noneFound": "No sorters found",
@@ -952,6 +980,14 @@
       "batchDescriptionNoLocations": "You have no storage locations yet. Add one under Library > Storage, or add cards to the collection only.",
       "batchDescriptionLocked": "Storage locations are not included in your plan, so cards are added to the collection only.",
       "batchNoLocationDescription": "Add cards to the collection only"
+    },
+    "retainedSettings": {
+      "title": "Scan settings still on",
+      "foil": "Foil: {{type}}",
+      "condition": "Condition: {{condition}}",
+      "sets_one": "Set: {{sets}}",
+      "sets_other": "Sets: {{sets}}",
+      "reset": "Reset"
     }
   },
   "home": {
@@ -1061,7 +1097,11 @@
     "scanTimelineSortNote": "The scan timeline always shows the newest scans first.",
     "scanTimelineBlockCount_one": "{{count}} card",
     "scanTimelineBlockCount_other": "{{count}} cards",
-    "loadingMoreCards": "Loading more cards"
+    "loadingMoreCards": "Loading more cards",
+    "unmatchedTileLabel": "Unmatched scan from {{scannedAt}}",
+    "unmatchedTag": "Unmatched",
+    "moreUnmatched_one": "{{count}} more unmatched scan",
+    "moreUnmatched_other": "{{count}} more unmatched scans"
   },
   "cardDetail": {
     "catalogCardRemovedTitle": "Card no longer in the catalog",
@@ -1141,7 +1181,8 @@
     "shareLinkCopied": "Share link copied. Anyone with it can see this card.",
     "shareLinkCopyFailed": "Couldn't copy a share link for this card.",
     "downloadPhoto": "Download photo",
-    "downloadPhotoFailed": "Couldn't download the photo. Try again."
+    "downloadPhotoFailed": "Couldn't download the photo. Try again.",
+    "backSideAlt": "{{name}}, back side"
   },
   "reviewGrid": {
     "title": "Review cards",
@@ -1291,7 +1332,7 @@
       },
       "alphabet": {
         "title": "Sort alphabetically",
-        "description": "One letter per bin, in passes, with deeper sorting for big piles"
+        "description": "Letter ranges first, then one letter per bin, with deeper sorting for big piles"
       },
       "chaos": {
         "title": "Chaos sort",
@@ -1351,25 +1392,24 @@
       "lastStage": "Last stage"
     },
     "alphabet": {
-      "needBins": "Alphabetical sort needs at least one bin besides the catch-all.",
+      "needBins": "Alphabetical sort needs at least two bins besides the catch-all.",
       "passHeading": "Pass {{current}} of {{total}}",
-      "passRange": "Sorting names starting with {{from}} to {{to}}. Everything else goes to the catch-all.",
-      "prefixRange": "Sorting the {{prefix}} pile by its next letter: {{from}} to {{to}}. Everything else goes to the catch-all.",
+      "passRange": "Sorting names from {{from}} to {{to}}, one letter per bin. Everything else goes to the catch-all.",
+      "rangePassRange": "Splitting names from {{from}} to {{to}} into letter ranges, one range per bin. Everything else goes to the catch-all.",
       "unusedBin": "Not used",
-      "nextPassHint": "When this pass is done, take the cards out of every bin, put the catch-all cards back in the feeder, then move to the next letters.",
       "lastPassHint": "This is the last pass. Anything left in the catch-all afterwards has a name that doesn't start with a letter.",
-      "nextPileHint": "When this pass is done, take the cards out of every bin and keep each pile in order. Next up: the {{prefix}} pile.",
+      "nextPileHint": "When this pass is done, take the cards out of every bin and keep each pile in order. Next up: the {{pile}} pile.",
+      "nextPile": "Next: {{pile}} pile",
       "pileDoneHint": "This is the last pass for the {{prefix}} pile. Start over to go back to the whole alphabet.",
       "previous": "Previous",
-      "next": "Next letters",
       "startOver": "Start over",
       "sortDeeper": "Sort deeper",
       "sortDeeperItem": "{{label}} pile by next letter",
       "upLevel": "Up a level",
-      "confirmTitle": "Move to a new set of letters?",
-      "confirmDescription": "Make sure every bin is empty and the catch-all cards are back in the feeder. All bins will be marked as emptied.",
-      "confirmPileTitle": "Start the {{prefix}} pile?",
-      "confirmPileDescription": "Empty every bin, keeping each pile in order, then put the {{prefix}} pile in the feeder. All bins will be marked as emptied.",
+      "confirmTitle": "Go back to the whole alphabet?",
+      "confirmDescription": "Empty every bin and put all the cards in the feeder. All bins will be marked as emptied.",
+      "confirmPileTitle": "Start the {{pile}} pile?",
+      "confirmPileDescription": "Empty every bin, keeping each pile in order, then put the {{pile}} pile in the feeder. All bins will be marked as emptied.",
       "confirm": "Bins are empty"
     },
     "binSummary": {
@@ -1875,9 +1915,9 @@
         "title": "Webhooks",
         "description": "Post scan and storage events to your own server"
       },
-      "shopCatalogs": {
-        "title": "Shop catalogs",
-        "description": "Let customers browse your stock on a tablet or website"
+      "business": {
+        "title": "Business",
+        "description": "Buylist offers, member permissions and shop catalogs"
       }
     },
     "appearance": {
@@ -2053,7 +2093,8 @@
       "cancelAtPeriodEnd": "Your subscription ends on {{date}}.",
       "manageOnWeb": "Plan changes and payment details are handled on the web app.",
       "openWeb": "Open billing on the web",
-      "legacyPlanNote": "You're on the original Business plan, which is no longer offered. You keep it, with everything it includes, for as long as your subscription stays active. Switching to another plan or cancelling can't be undone."
+      "legacyPlanNote": "You're on the original Business plan, which is no longer offered. You keep it, with everything it includes, for as long as your subscription stays active. Switching to another plan or cancelling can't be undone.",
+      "billingDisabled": "Billing isn't turned on for this server, so every feature is available with no limits."
     },
     "apiKeys": {
       "heading": "API keys",
@@ -2331,6 +2372,49 @@
         "saveFailed": "Couldn't save the sound rule."
       }
     },
+    "business": {
+      "description": "Set your buylist offers for buying collections and choose what members can see and do.",
+      "managersOnly": "Only owners and admins can change these settings.",
+      "buylist": {
+        "heading": "Buylist offers",
+        "description": "How much you offer for each card when buying a collection. Offers use your price source and condition values.",
+        "tiers": "Price tiers",
+        "minPrice": "Market price from",
+        "percent": "Offer (% of market)",
+        "addTier": "Add tier",
+        "removeTier": "Remove tier",
+        "tiersHint": "Each card uses the highest tier its market price reaches.",
+        "bulkThreshold": "Bulk below",
+        "bulkOffer": "Bulk offer per card",
+        "creditBonus": "Store credit bonus (%)",
+        "preview": "Example offers",
+        "previewMarket": "{{price}} card",
+        "previewCredit": "{{price}} in credit",
+        "minCardValue": "Minimum card value",
+        "minCardValueHint": "Cards worth less than this aren't taken. Set 0 to take everything.",
+        "previewDeclined": "Not taken"
+      },
+      "permissions": {
+        "heading": "Member permissions",
+        "description": "What members can do. Owners and admins can always do everything.",
+        "viewCosts": {
+          "label": "See buy prices and costs",
+          "description": "Offers, cost basis and margins."
+        },
+        "acceptIntake": {
+          "label": "Accept or cancel intake lots",
+          "description": "Members can always scan into an open lot."
+        },
+        "fulfilOrders": {
+          "label": "Create and complete picks",
+          "description": "Completing a pick removes its cards from inventory."
+        },
+        "viewActivity": {
+          "label": "See staff activity",
+          "description": "Throughput per person and the activity log."
+        }
+      }
+    },
     "shopCatalogs": {
       "heading": "Shop catalogs",
       "description": "Let customers browse your stock on a store tablet or your website. Each catalog shows the cards in the collections and storage locations you pick, through a link that keeps working until you reset it.",
@@ -2368,7 +2452,6 @@
       "resetLinkConfirmTitle": "Reset this catalog's link?",
       "resetLinkConfirmDescription": "The current link and QR code stop working. Update any tablet or website that uses it.",
       "linkReset": "Link reset. The old link no longer works.",
-      "managersOnly": "Only owners and admins can manage shop catalogs.",
       "cancel": "Cancel",
       "close": "Close",
       "actions": "Catalog actions",
@@ -2390,7 +2473,80 @@
       "isPublic": "Public",
       "isPublicDescription": "Anyone can open this catalog from its plain address, without the private link.",
       "publicBadge": "Public",
-      "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link."
+      "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link.",
+      "allowsReservations": "Let customers reserve cards",
+      "allowsReservationsDescription": "Customers can reserve a card to pick up in store. If it's already reserved, they join a line and move up when the person ahead doesn't pick it up.",
+      "reservationHoldLabel": "Hold a reserved card for",
+      "reservationHoldDays_one": "{{count}} day",
+      "reservationHoldDays_other": "{{count}} days",
+      "reservationHoldDescription": "After this, the reservation runs out and the next person in line gets the card.",
+      "reservationsOn": "Takes reservations"
+    },
+    "statsSync": {
+      "key": {
+        "heading": "Self-hosted stats sync",
+        "description": "Running Mault on your own server? Generate a key here and enter it on your server under Settings > Integrations. Your server then sends its scan totals here once a day, starting with every day you've already scanned. Only daily scan counts are sent, never cards, photos or collections. Synced scans show on the leaderboard marked as self-hosted, and viewers can hide them.",
+        "generate": "Generate key",
+        "regenerate": "Replace key",
+        "revoke": "Revoke",
+        "revoked": "Stats sync key revoked.",
+        "generateFailed": "Couldn't generate a stats sync key.",
+        "revokeFailed": "Couldn't revoke the stats sync key.",
+        "loadFailed": "Couldn't load the stats sync key.",
+        "empty": "No self-hosted server is linked to this organization.",
+        "managersOnly": "Only organization owners and admins can manage the stats sync key.",
+        "createdBy": "Created by {{name}} on {{date}}",
+        "lastSynced": "Last synced {{date}}",
+        "neverSynced": "Not synced yet",
+        "syncedScans_one": "{{formattedCount}} synced scan",
+        "syncedScans_other": "{{formattedCount}} synced scans",
+        "revealTitle": "Copy your stats sync key",
+        "revealDescription": "This is the only time the full key is shown. Paste it into your self-hosted server under Settings > Integrations.",
+        "revealDone": "I've copied it",
+        "copy": "Copy key",
+        "copied": "Stats sync key copied.",
+        "copyFailed": "Couldn't copy the stats sync key.",
+        "regenerateConfirmTitle": "Replace the stats sync key?",
+        "regenerateConfirmDescription": "The current key stops working right away, so your server can't sync until you enter the new key there. Scans already synced stay.",
+        "revokeConfirmTitle": "Revoke the stats sync key?",
+        "revokeConfirmDescription": "Your server stops syncing right away. Scans already synced stay on the leaderboard.",
+        "actionsTitle": "Stats sync key",
+        "share": "Share key",
+        "generateTitle": "Generate stats sync key"
+      },
+      "connection": {
+        "heading": "Sync stats to Mault",
+        "description": "Add this organization's scan counts to the Mault leaderboards. Create an organization on {{url}}, generate a stats sync key under Settings > Integrations and paste it here. Every scan you've made so far is sent first, then new totals once a day. Only daily scan counts are sent, never cards, photos or collections.",
+        "keyLabel": "Stats sync key",
+        "keyPlaceholder": "mvstats_...",
+        "keyDescription": "Generated by your organization on the main Mault site.",
+        "connect": "Connect",
+        "connectFailed": "The main Mault site didn't accept this key. Check that you copied all of it and that it hasn't been revoked or replaced.",
+        "syncNow": "Sync now",
+        "syncFailed": "Couldn't sync stats.",
+        "disconnect": "Disconnect",
+        "disconnected": "Stats sync disconnected.",
+        "disconnectFailed": "Couldn't disconnect stats sync.",
+        "disconnectConfirmTitle": "Stop syncing stats?",
+        "disconnectConfirmDescription": "New scans stop being sent. Scans already synced stay on the main site until the key is revoked there.",
+        "loadFailed": "Couldn't load the stats sync settings.",
+        "managersOnly": "Only organization owners and admins can manage stats sync.",
+        "notConnected": "This organization doesn't sync its stats.",
+        "lastSynced": "Last synced {{date}}",
+        "neverSynced": "Not synced yet",
+        "syncedScans_one": "{{formattedCount}} scan on the main site",
+        "syncedScans_other": "{{formattedCount}} scans on the main site",
+        "errors": {
+          "invalidKey": "The main site no longer accepts this key. Generate a new key there, then disconnect and connect again.",
+          "unreachable": "Couldn't reach the main Mault site. It will try again within an hour.",
+          "rejected": "The main Mault site rejected the last sync. It will try again within an hour."
+        },
+        "actionsTitle": "Stats sync",
+        "syncing": "Syncing...",
+        "synced": "Stats synced.",
+        "connected": "Stats sync connected."
+      },
+      "cancel": "Cancel"
     }
   },
   "binCorrection": {
@@ -2434,7 +2590,9 @@
     "low": "Low",
     "regular": "Regular",
     "foil": "Foil",
-    "noPrice": "No price"
+    "noPrice": "No price",
+    "listingsHeading": "TCGplayer listings",
+    "noListings": "No listings"
   },
   "health": {
     "title": "System health",
@@ -2575,7 +2733,10 @@
     "catalogSourcesRequired": "Pick at least one collection or storage location.",
     "contactRequired": "Add a way to reach you.",
     "textTooLong": "Keep this under {{max}} characters.",
-    "jsonObjectInvalid": "Enter a single JSON object, like {\"neutral\": true}."
+    "jsonObjectInvalid": "Enter a single JSON object, like {\"neutral\": true}.",
+    "statsSyncKeyInvalid": "Paste the whole key. It starts with mvstats_.",
+    "expiryDaysInvalid": "Enter whole numbers of days from 1 to {{max}}, separated by commas.",
+    "expiryDaysTooMany": "Enter no more than {{max}} lengths."
   },
   "cardTags": {
     "title": "Tags",
@@ -2609,7 +2770,47 @@
     "removeAllTitle_other": "Remove {{count}} unmatched scans?",
     "removeAllDescription": "The photos are deleted and none of these cards are added to the collection.",
     "badge_one": "{{count}} unmatched",
-    "badge_other": "{{count}} unmatched"
+    "badge_other": "{{count}} unmatched",
+    "retry": {
+      "action": "Retry with higher accuracy",
+      "stop": "Stop",
+      "progress_one": "Checked {{checked}} of {{total}}, {{count}} match",
+      "progress_other": "Checked {{checked}} of {{total}}, {{count}} matches",
+      "confirmTitle_one": "Retry {{count}} unmatched card with higher accuracy?",
+      "confirmTitle_other": "Retry {{count}} unmatched cards with higher accuracy?",
+      "confirmDescription": "Mault reads the printed name, set and number on each saved scan and checks the image again. Cards it identifies move into this collection, marked for review. Each match counts toward today's scans, and the rest stay unmatched.",
+      "confirm": "Retry cards",
+      "matched_one": "Matched {{count}} card out of {{checked}}. It's marked for review.",
+      "matched_other": "Matched {{count}} cards out of {{checked}}. They're marked for review.",
+      "noMatches_one": "No matches found in {{checked}} cards.",
+      "noMatches_other": "No matches found in {{checked}} cards.",
+      "stopped_one": "Stopped after {{checked}} cards. Matched {{count}} card.",
+      "stopped_other": "Stopped after {{checked}} cards. Matched {{count}} cards.",
+      "scanLimitReached_one": "Matched {{count}} card before reaching today's scan limit.",
+      "scanLimitReached_other": "Matched {{count}} cards before reaching today's scan limit.",
+      "failed": "Couldn't finish retrying. Cards matched so far were kept."
+    },
+    "selection": {
+      "select": "Select scans",
+      "doneSelecting": "Done selecting",
+      "hint": "Select up to {{max}} scans, then retry them with higher accuracy or remove them.",
+      "selectScan": "Select the scan from {{scannedAt}}",
+      "selected_one": "{{count}} scan selected",
+      "selected_other": "{{count}} scans selected",
+      "selectLoaded": "Select all",
+      "clear": "Clear",
+      "limitReached": "You can select up to {{max}} scans at a time.",
+      "remove": "Remove",
+      "removeTitle_one": "Remove {{count}} unmatched scan?",
+      "removeTitle_other": "Remove {{count}} unmatched scans?",
+      "removed_one": "Removed {{count}} unmatched scan",
+      "removed_other": "Removed {{count}} unmatched scans",
+      "removeFailed_one": "Couldn't remove {{count}} scan",
+      "removeFailed_other": "Couldn't remove {{count}} scans"
+    },
+    "showInGrid": "Show in card grid",
+    "showInGridDescription": "Unmatched scans appear between your cards with a red border. Applies to everyone in this organization.",
+    "showInGridFailed": "Couldn't save the setting"
   },
   "matchValidations": {
     "ocrFallback": "{{field}} (fallback)",
@@ -2825,6 +3026,18 @@
       }
     },
     "plans": {
+      "subscriptions": {
+        "heading": "Subscriptions",
+        "description": "Organizations with a paid subscription, by plan. Monthly recurring revenue uses each plan's list price, with yearly plans spread over 12 months, before discounts and taxes. Trials count as subscribers but add no revenue.",
+        "subscribersHeading": "Subscribers",
+        "revenueHeading": "Monthly recurring revenue",
+        "total": "Total",
+        "trialingCount_one": "{{count}} in trial",
+        "trialingCount_other": "{{count}} in trial",
+        "unpriced_one": "{{count}} subscriber's price couldn't be loaded from Stripe, so they're left out of revenue.",
+        "unpriced_other": "{{count}} subscribers' prices couldn't be loaded from Stripe, so they're left out of revenue.",
+        "loadFailed": "Couldn't load subscriptions."
+      },
       "billingDisabled": "Billing is turned off on this server, so every organization gets every feature with no limits. These settings take effect once billing is on.",
       "saveFailed": "Couldn't save plan settings",
       "featuresDescription": "Which plans can use each feature. Features are defined in code, so a new one shows up here once it's built.",
@@ -2862,7 +3075,7 @@
         },
         "longShareLinks": {
           "label": "Longer monitor links",
-          "description": "Monitor links can last 1, 7 or 30 days. Without it they last 1 hour. Trade links always last 1 hour."
+          "description": "Monitor links can last any of the day lengths set on the web in Admin > Share links. Without it they use the short length set there."
         }
       },
       "limits": {
@@ -3416,7 +3629,8 @@
     },
     "boxes": {
       "received": "Received",
-      "sent": "Sent"
+      "sent": "Sent",
+      "reservations": "My reservations"
     },
     "sent": {
       "title": "Sent trade offer",
@@ -3772,7 +3986,8 @@
     "delete": "Delete",
     "views": {
       "intake": "Intake",
-      "picks": "Picks"
+      "picks": "Picks",
+      "reservations": "Reservations"
     },
     "status": {
       "open": "Open",
@@ -3944,7 +4159,8 @@
         "picked": "Picked {{name}} from {{spot}}",
         "alreadyPicked": "Every copy of {{name}} on this pick is already picked.",
         "notOnPick": "{{name}} isn't left on this pick."
-      }
+      },
+      "reservationCardsNote": "Cards held for reservations stay in stock and are marked ready for pickup."
     },
     "order": {
       "title": "Pick",
@@ -3998,6 +4214,98 @@
         "condition": "Other condition",
         "finish": "Other finish"
       }
+    },
+    "reservations": {
+      "lists": {
+        "active": "Open",
+        "closed": "History"
+      },
+      "waitingSection": "Waiting in line ({{count}})",
+      "heldUntil": "Held until {{date}}",
+      "inLinePosition": "Number {{position}} of {{total}} in line",
+      "closedOn": "Closed {{date}}",
+      "pickedUp": "Picked up",
+      "release": "Release",
+      "collected": "{{name}} picked up and recorded as sold",
+      "collectConfirmTitle": "Mark {{name}} as picked up?",
+      "collectConfirmDescription": "The card leaves your inventory and is recorded as sold for {{price}}. Anyone still in line sees that it's no longer available.",
+      "collectConfirmDescriptionNoPrice": "The card leaves your inventory and is recorded as sold without a price. Anyone still in line sees that it's no longer available.",
+      "releaseConfirmDescription": "They lose their place. If they were first in line, the next person gets the card held for them.",
+      "empty": {
+        "activeTitle": "No open reservations",
+        "activeDescription": "Reservations show up here when a customer reserves a card from a shop catalog that takes them.",
+        "closedTitle": "No past reservations",
+        "closedDescription": "Reservations that were picked up, released or ran out are listed here."
+      },
+      "pickedUpGroup_one": "Picked up",
+      "pickedUpGroup_other": "Picked up ({{count}})",
+      "releaseGroup_one": "Release",
+      "releaseGroup_other": "Release all ({{count}})",
+      "releaseCardConfirmTitle": "Release {{card}} for {{name}}?",
+      "releasedCard": "Released {{card}} for {{name}}",
+      "collectGroupConfirmTitle_one": "Mark 1 card as picked up by {{name}}?",
+      "collectGroupConfirmTitle_other": "Mark {{count}} cards as picked up by {{name}}?",
+      "collectGroupConfirmDescription_one": "The card leaves your inventory and is recorded as sold for {{total}}.",
+      "collectGroupConfirmDescription_other": "The cards leave your inventory and are recorded as sold for {{total}} in total.",
+      "collectGroupConfirmDescriptionMissingPrices_one": "The card leaves your inventory and is recorded as sold without a price.",
+      "collectGroupConfirmDescriptionMissingPrices_other": "The cards leave your inventory and are recorded as sold for {{total}} in total. Some have no price and are recorded without one.",
+      "collectGroupWaitingNote_one": "The 1 card they're still in line for stays reserved.",
+      "collectGroupWaitingNote_other": "The {{count}} cards they're still in line for stay reserved.",
+      "collectedGroup_one": "1 card picked up by {{name}} and recorded as sold",
+      "collectedGroup_other": "{{count}} cards picked up by {{name}} and recorded as sold",
+      "releaseGroupConfirmTitle_one": "Release the reservation of {{name}}?",
+      "releaseGroupConfirmTitle_other": "Release all {{count}} reservations of {{name}}?",
+      "releaseGroupConfirmDescription_one": "They lose their place. If they were first in line, the next person gets the card held for them.",
+      "releaseGroupConfirmDescription_other": "They lose their place on every card in this request. Where they were first in line, the next person gets the card held for them.",
+      "releasedGroup_one": "Released the reservation of {{name}}",
+      "releasedGroup_other": "Released {{count}} reservations of {{name}}",
+      "customerHint": "Opens the actions for this customer's reservation",
+      "cardHint": "Opens the actions for this card",
+      "pickedUpCardOption": "Picked up: {{card}}",
+      "releaseCardOption": "Release: {{card}}",
+      "stages": {
+        "readyForPickup": "Ready for pickup",
+        "beingPicked": "Being picked",
+        "toPull": "To pull",
+        "waiting": "In line",
+        "collected": "Picked up",
+        "cancelled": "Cancelled",
+        "released": "Released",
+        "expired": "Ran out",
+        "unavailable": "Card gone"
+      },
+      "groupSummary": "{{cards}}: {{stages}}",
+      "stageCounts": {
+        "readyForPickup_one": "{{count}} ready for pickup",
+        "readyForPickup_other": "{{count}} ready for pickup",
+        "beingPicked_one": "{{count}} being picked",
+        "beingPicked_other": "{{count}} being picked",
+        "toPull_one": "{{count}} to pull",
+        "toPull_other": "{{count}} to pull",
+        "waiting_one": "{{count}} in line",
+        "waiting_other": "{{count}} in line"
+      },
+      "heldTotal": "Held cards total {{total}}",
+      "heldTotalMissingPrices": "Held cards total {{total}} (some have no price)",
+      "readySection": "Ready for pickup ({{count}})",
+      "pullSection": "To pull ({{count}})",
+      "createPick_one": "Create pick",
+      "createPick_other": "Create pick ({{count}})",
+      "openPick": "Open pick {{name}}",
+      "inPick": "In pick {{name}}",
+      "pickName": "Reservation: {{name}}",
+      "pickCreated_one": "Pick created for {{name}} with 1 card",
+      "pickCreated_other": "Pick created for {{name}} with {{count}} cards",
+      "cardCount_one": "1 card",
+      "cardCount_other": "{{count}} cards"
+    },
+    "search": {
+      "noResultsTitle": "No matches",
+      "noResultsDescription": "Nothing matches \"{{query}}\". Try another name or word.",
+      "intakePlaceholder": "Search intake by customer or note",
+      "picksPlaceholder": "Search picks by name, card or order",
+      "reservationsPlaceholder": "Search by customer, card or catalog",
+      "clear": "Clear search"
     }
   },
   "machines": {
@@ -4116,5 +4424,64 @@
       "resultsCount_one": "{{count}} update found",
       "resultsCount_other": "{{count}} updates found"
     }
+  },
+  "myReservations": {
+    "new": "New",
+    "unknownCatalog": "Shop catalog",
+    "openCatalog": "Open catalog",
+    "cancelled": "Reservation cancelled",
+    "cancelFailed": "Couldn't cancel the reservation.",
+    "loadFailed": "Couldn't load your reservations.",
+    "emptyTitle": "No reservations yet",
+    "emptyDescription": "Cards you reserve from a shop's catalog while signed in show up here.",
+    "open": "Open",
+    "past": "Past",
+    "trayHeading": "Your reservations",
+    "view": "View reservations",
+    "alerts": {
+      "held": "{{card}} is now held for you at {{catalog}}",
+      "readyForPickup": "{{card}} is ready for pickup at {{catalog}}",
+      "expired": "Your hold on {{card}} at {{catalog}} ran out",
+      "released": "{{catalog}} released your reservation of {{card}}",
+      "unavailable": "{{card}} at {{catalog}} is no longer available"
+    },
+    "held": "The shop is holding it for you.",
+    "heldUntil": "The shop is holding it for you until {{date}}.",
+    "readyForPickupUntil": "Your card is ready. Pick it up by {{date}}.",
+    "aheadOfYou_one": "{{count}} person is ahead of you.",
+    "aheadOfYou_other": "{{count}} people are ahead of you.",
+    "status": {
+      "readyForPickup": "Ready for pickup",
+      "ready": "Reserved for you",
+      "waiting": "In line",
+      "collected": "Picked up",
+      "cancelled": "Cancelled",
+      "released": "Released by the shop",
+      "expired": "Ran out",
+      "unavailable": "No longer available"
+    },
+    "actionsHint": "Opens the actions for this reservation",
+    "cancel": "Cancel reservation",
+    "keep": "Keep it",
+    "cancelConfirmTitle": "Cancel your reservation of {{name}}?",
+    "cancelConfirmDescription": "You lose your place. If the card was held for you, the next person in line gets it.",
+    "noActions": "Nothing to do for this reservation.",
+    "requestReservedOn": "Reserved {{date}}",
+    "requestSummary": "{{cards}}: {{stages}}",
+    "requestCardCount_one": "1 card",
+    "requestCardCount_other": "{{count}} cards",
+    "requestCounts": {
+      "readyForPickup_one": "{{count}} ready for pickup",
+      "readyForPickup_other": "{{count}} ready for pickup",
+      "held_one": "{{count}} reserved for you",
+      "held_other": "{{count}} reserved for you",
+      "waiting_one": "{{count}} in line",
+      "waiting_other": "{{count}} in line"
+    },
+    "cancelAll_one": "Cancel",
+    "cancelAll_other": "Cancel all ({{count}})",
+    "cancelAllConfirmTitle_one": "Cancel this reservation?",
+    "cancelAllConfirmTitle_other": "Cancel all {{count}} open reservations?",
+    "cancelCardOption": "Cancel: {{card}}"
   }
 }

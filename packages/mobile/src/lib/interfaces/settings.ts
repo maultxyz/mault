@@ -34,7 +34,7 @@ export interface SettingsSectionLink {
     | "/settings/notifications"
     | "/settings/webhooks"
     | "/settings/integrations"
-    | "/settings/shop-catalogs";
+    | "/settings/business";
   key: string;
   icon: IconName;
 }

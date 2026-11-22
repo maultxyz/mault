@@ -21,6 +21,7 @@ import IconUsers from "@tabler/icons-react-native/IconUsers";
 import IconDeviceGamepad2 from "@tabler/icons-react-native/IconDeviceGamepad2";
 import IconShare from "@tabler/icons-react-native/IconShare";
 import IconBuildingStore from "@tabler/icons-react-native/IconBuildingStore";
+import IconBookmark from "@tabler/icons-react-native/IconBookmark";
 import IconBolt from "@tabler/icons-react-native/IconBolt";
 import IconBoltOff from "@tabler/icons-react-native/IconBoltOff";
 import IconStar from "@tabler/icons-react-native/IconStar";
@@ -122,6 +123,7 @@ export const ICONS = {
   camera: IconCamera,
   share: IconShare,
   store: IconBuildingStore,
+  bookmark: IconBookmark,
   torchOn: IconBolt,
   torchOff: IconBoltOff,
   check: IconCheck,

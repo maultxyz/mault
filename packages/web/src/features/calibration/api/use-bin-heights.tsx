@@ -3,6 +3,7 @@ import {
   saveBinHeight,
 } from "@/features/calibration/api/bin-heights";
 import { useDevice } from "@/features/calibration/api/use-device";
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import type { BinHeightsContextValue } from "@/lib/interfaces/calibration";
 import type { BinHeight } from "@magic-vault/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -23,11 +24,15 @@ export function BinHeightsProvider({
 }) {
   const queryClient = useQueryClient();
   const device = useDevice();
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
   const [isSaving, setIsSaving] = useState(false);
   const [pending, setPending] = useState<Record<number, number>>({});
 
   const queryOpts = binHeightsQueryOptions(device?.guid);
-  const { data: savedHeights = [] } = useQuery(queryOpts);
+  const { data: savedHeights = [] } = useQuery({
+    ...queryOpts,
+    enabled: !!device?.guid && areSecondaryRequestsEnabled,
+  });
 
   const heights = useMemo((): BinHeight[] => {
     const merged = new Map(savedHeights.map((h) => [h.binNumber, h.height]));

@@ -3,6 +3,7 @@ import {
   collectionCardsSummaryQueryOptions,
 } from "@/features/collections/api/collection-cards";
 import { useViewedCollection } from "@/features/collections/api/use-viewed-collection";
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import {
   toDisplayStats,
   toScanStats,
@@ -17,14 +18,20 @@ export function useCollectionCardsSummary(
   query: CollectionCardsQuery = ALL_CARDS_QUERY,
 ) {
   const { collection: activeCollection } = useViewedCollection();
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
+  const summaryQueryOptions = collectionCardsSummaryQueryOptions(
+    activeCollection?.guid,
+    query,
+  );
   const {
     data: summary,
     isPending,
     isError,
     refetch,
-  } = useQuery(
-    collectionCardsSummaryQueryOptions(activeCollection?.guid, query),
-  );
+  } = useQuery({
+    ...summaryQueryOptions,
+    enabled: !!activeCollection?.guid && areSecondaryRequestsEnabled,
+  });
 
   const allStats = useMemo(
     () => (summary ? toScanStats(summary.all) : null),
@@ -49,9 +56,12 @@ export function useCollectionCardsSummary(
 
 export function useBinCardCounts(bins: BinWindow[]): BinCardCounts {
   const { collection: activeCollection } = useViewedCollection();
-  const { data, dataUpdatedAt } = useQuery(
-    binCardCountsQueryOptions(activeCollection?.guid, bins),
-  );
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
+  const { data, dataUpdatedAt } = useQuery({
+    ...binCardCountsQueryOptions(activeCollection?.guid, bins),
+    enabled:
+      !!activeCollection?.guid && bins.length > 0 && areSecondaryRequestsEnabled,
+  });
   const counts = useMemo(
     () => new Map((data ?? []).map((row) => [row.binNumber, row.count])),
     [data],

@@ -1,21 +1,36 @@
+import { ConfirmDialog } from "@/components/confirm-dialog";
 import { DeleteDialog } from "@/components/delete-dialog";
 import { EmptyState } from "@/components/empty-state";
 import { ListPagination } from "@/components/list-pagination";
+import { SelectionActionBar } from "@/components/selection-action-bar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { unmatchedCardsPageQueryOptions } from "@/features/collections/api/collection-cards";
 import { invalidateUnmatchedCards } from "@/features/collections/lib/card-page-cache";
+import { useRetryUnmatchedCards } from "@/features/scanner/api/use-retry-unmatched-cards";
+import { useUnmatchedCardSelection } from "@/features/scanner/api/use-unmatched-card-selection";
 import { UnmatchedCardDetail } from "@/features/scanner/components/unmatched-card-detail";
 import { UnmatchedCardTile } from "@/features/scanner/components/unmatched-card-tile";
-import { CARD_GRID_CLASS } from "@/lib/constants/card-grid";
+import {
+  CARD_GRID_CLASS,
+  SELECTION_ACTION_BAR_BUTTON_CLASS,
+  SELECTION_ACTION_BAR_DESTRUCTIVE_BUTTON_CLASS,
+} from "@/lib/constants/card-grid";
 import type { UnmatchedCardsBrowserProps } from "@/lib/interfaces/scanner";
 import { toast } from "@/lib/toast";
 import { cn } from "@/lib/utils";
 import { setPageSize, usePageSize } from "@/lib/page-size-store";
 import {
+  removeUnmatchedScans,
+  UNMATCHED_BULK_SELECTION_MAX,
+} from "@magic-vault/shared";
+import {
   IconArrowLeft,
   IconChecks,
+  IconListCheck,
   IconPlayerPlay,
+  IconPlayerStop,
+  IconTextScan2,
   IconTrash,
 } from "@tabler/icons-react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -42,6 +57,16 @@ export function UnmatchedCardsBrowser({
   };
   const [isRemoveAllDialogOpen, setIsRemoveAllDialogOpen] = useState(false);
   const [isRemovingAll, setIsRemovingAll] = useState(false);
+  const [isRetryDialogOpen, setIsRetryDialogOpen] = useState(false);
+  const [isRemoveSelectedDialogOpen, setIsRemoveSelectedDialogOpen] =
+    useState(false);
+  const [isRemovingSelected, setIsRemovingSelected] = useState(false);
+  const retry = useRetryUnmatchedCards(collectionGuid);
+  const selection = useUnmatchedCardSelection();
+  const selectedCount = selection.selectedScanIds.length;
+  const canSelect = canIdentify || onRemove != null;
+  const isBulkActionRunning =
+    retry.isRetrying || isRemovingAll || isRemovingSelected;
   const { data, isPending } = useQuery({
     ...unmatchedCardsPageQueryOptions(collectionGuid, page, pageSize),
     enabled: openIndex == null,
@@ -74,6 +99,36 @@ export function UnmatchedCardsBrowser({
     setIsRemovingAll(false);
   };
 
+  const retrySelected = () => {
+    const scanIds = selection.selectedScanIds;
+    setIsRetryDialogOpen(false);
+    selection.clear();
+    void retry.start(scanIds);
+  };
+
+  const removeSelected = async () => {
+    if (!onRemove || isRemovingSelected) return;
+    const scanIds = selection.selectedScanIds;
+    setIsRemovingSelected(true);
+    const { removedCount, failedCount } = await removeUnmatchedScans({
+      scanIds,
+      removeScan: onRemove,
+    });
+    selection.clear();
+    if (removedCount > 0) {
+      toast.success(
+        t("unmatchedCardsPanel.selection.removed", { count: removedCount }),
+      );
+    }
+    if (failedCount > 0) {
+      toast.error(
+        t("unmatchedCardsPanel.selection.removeFailed", { count: failedCount }),
+      );
+    }
+    await invalidateUnmatchedCards(queryClient, collectionGuid);
+    setIsRemovingSelected(false);
+  };
+
   if (openIndex != null) {
     return (
       <div className={cn("flex flex-1 flex-col", className)}>
@@ -103,11 +158,26 @@ export function UnmatchedCardsBrowser({
             {t("unmatchedCardsPanel.heading", { count: total })}
           </p>
         </div>
-        <div className="flex shrink-0 items-center gap-1.5">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-1.5">
+          {retry.progress && (
+            <span role="status" className="text-xs text-foreground/70 tabular-nums">
+              {t("unmatchedCardsPanel.retry.progress", {
+                checked: retry.progress.checkedCount,
+                total: retry.progress.totalCount,
+                count: retry.progress.matchedCount,
+              })}
+            </span>
+          )}
+          {retry.isRetrying && (
+            <Button variant="outline" onClick={retry.stop}>
+              <IconPlayerStop />
+              {t("unmatchedCardsPanel.retry.stop")}
+            </Button>
+          )}
           {onRemoveAll && (
             <Button
               variant="outline"
-              disabled={total === 0 || isRemovingAll}
+              disabled={total === 0 || isBulkActionRunning}
               onClick={() => setIsRemoveAllDialogOpen(true)}
             >
               <IconTrash />
@@ -120,6 +190,29 @@ export function UnmatchedCardsBrowser({
           </Button>
         </div>
       </div>
+      <ConfirmDialog
+        open={isRetryDialogOpen}
+        onOpenChange={setIsRetryDialogOpen}
+        title={t("unmatchedCardsPanel.retry.confirmTitle", {
+          count: selectedCount,
+        })}
+        description={t("unmatchedCardsPanel.retry.confirmDescription")}
+        confirmLabel={t("unmatchedCardsPanel.retry.confirm")}
+        cancelLabel={t("common:actions.cancel")}
+        onConfirm={retrySelected}
+      />
+      {onRemove && (
+        <DeleteDialog
+          open={isRemoveSelectedDialogOpen}
+          onOpenChange={setIsRemoveSelectedDialogOpen}
+          title={t("unmatchedCardsPanel.selection.removeTitle", {
+            count: selectedCount,
+          })}
+          description={t("unmatchedCardsPanel.removeAllDescription")}
+          confirmLabel={t("unmatchedCardsPanel.selection.remove")}
+          onConfirm={() => void removeSelected()}
+        />
+      )}
       {onRemoveAll && (
         <DeleteDialog
           open={isRemoveAllDialogOpen}
@@ -160,12 +253,25 @@ export function UnmatchedCardsBrowser({
             pageSize={pageSize}
             onPageSizeChange={changePageSize}
           />
+          {canSelect && (
+            <p className="pb-2 text-xs text-foreground/70">
+              {t("unmatchedCardsPanel.selection.hint", {
+                max: UNMATCHED_BULK_SELECTION_MAX,
+              })}
+            </p>
+          )}
           <div className={CARD_GRID_CLASS}>
             {cards.map((entry, i) => (
               <UnmatchedCardTile
                 key={entry.scanId}
                 entry={entry}
                 onOpen={() => setOpenIndex(pageStart + i)}
+                isSelected={selection.isSelected(entry.scanId)}
+                onToggleSelect={
+                  canSelect && !isBulkActionRunning
+                    ? () => selection.toggle(entry.scanId)
+                    : undefined
+                }
               />
             ))}
           </div>
@@ -184,6 +290,48 @@ export function UnmatchedCardsBrowser({
             onPageSizeChange={changePageSize}
           />
         </div>
+      )}
+      {selectedCount > 0 && (
+        <SelectionActionBar
+          selectedCount={selectedCount}
+          selectionLabel={t("unmatchedCardsPanel.selection.selected", {
+            count: selectedCount,
+          })}
+          onClear={selection.clear}
+        >
+          <Button
+            variant="ghost"
+            className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+            disabled={cards.every((entry) => selection.isSelected(entry.scanId))}
+            onClick={() =>
+              selection.selectMany(cards.map((entry) => entry.scanId))
+            }
+          >
+            <IconListCheck />
+            {t("unmatchedCardsPanel.selection.selectPage")}
+          </Button>
+          {canIdentify && (
+            <Button
+              variant="ghost"
+              className={SELECTION_ACTION_BAR_BUTTON_CLASS}
+              disabled={isBulkActionRunning}
+              onClick={() => setIsRetryDialogOpen(true)}
+            >
+              <IconTextScan2 />
+              {t("unmatchedCardsPanel.retry.action")}
+            </Button>
+          )}
+          {onRemove && (
+            <Button
+              className={SELECTION_ACTION_BAR_DESTRUCTIVE_BUTTON_CLASS}
+              disabled={isBulkActionRunning}
+              onClick={() => setIsRemoveSelectedDialogOpen(true)}
+            >
+              <IconTrash />
+              {t("unmatchedCardsPanel.selection.remove")}
+            </Button>
+          )}
+        </SelectionActionBar>
       )}
     </div>
   );

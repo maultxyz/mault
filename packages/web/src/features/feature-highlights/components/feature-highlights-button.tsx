@@ -1,3 +1,4 @@
+import { useSecondaryRequestsEnabled } from "@/lib/initial-load-context";
 import { EmptyState } from "@/components/empty-state";
 import { LoadErrorCallout } from "@/components/load-error-callout";
 import { Button } from "@/components/ui/button";
@@ -34,8 +35,11 @@ export function FeatureHighlightsButton() {
   );
   const { mutate: markSeen } = useMarkFeatureHighlightsSeen();
 
+  const areSecondaryRequestsEnabled = useSecondaryRequestsEnabled();
   const unseenQuery = useQuery(
-    unseenFeatureHighlightsQueryOptions(isImpersonating ? null : userId),
+    unseenFeatureHighlightsQueryOptions(
+      isImpersonating || !areSecondaryRequestsEnabled ? null : userId,
+    ),
   );
   const unseenCount = unseenQuery.data?.highlights.length ?? 0;
   const timelineQueryOptions = featureHighlightTimelineQueryOptions(userId);

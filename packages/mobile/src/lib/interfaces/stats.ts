@@ -71,6 +71,7 @@ export interface StatsInsight {
   icon: IconName;
   title: string;
   detail: string;
+  onPress?: () => void;
 }
 
 export interface StatsHighlightsProps {

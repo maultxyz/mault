@@ -1,3 +1,4 @@
+import type { ShareLinkLengths } from "./share-link-lengths.interface";
 import type {
   BILLING_INTERVALS,
   PAID_PLAN_KEYS,
@@ -5,6 +6,7 @@ import type {
   PLAN_KEYS,
   PLAN_LIMIT_KEYS,
   PUBLIC_PLAN_KEYS,
+  SUBSCRIPTION_SUMMARY_PLAN_KEYS,
 } from "../constants/plans.constant";
 
 export type PlanKey = (typeof PLAN_KEYS)[number];
@@ -36,6 +38,29 @@ export interface AdminPlanConfigResponse {
   defaults: PlanConfig;
   billingEnabled: boolean;
   isLegacyPricingActive: boolean;
+}
+
+export type SubscriptionSummaryPlanKey =
+  (typeof SUBSCRIPTION_SUMMARY_PLAN_KEYS)[number];
+
+export interface MonthlyRecurringRevenue {
+  currency: string;
+  amountInMinorUnits: number;
+}
+
+export interface SubscriptionTierSummary {
+  plan: SubscriptionSummaryPlanKey;
+  subscriberCount: number;
+  trialingSubscriberCount: number;
+  monthlyRecurringRevenue: MonthlyRecurringRevenue[];
+}
+
+export interface AdminSubscriptionSummaryResponse {
+  billingEnabled: boolean;
+  tiers: SubscriptionTierSummary[];
+  totalSubscriberCount: number;
+  totalMonthlyRecurringRevenue: MonthlyRecurringRevenue[];
+  unpricedSubscriberCount: number;
 }
 
 export interface BillingStatus {
@@ -71,6 +96,7 @@ export interface BillingStatus {
   apiAccess?: boolean;
   businessTools?: boolean;
   longShareLinks?: boolean;
+  shareLinkLengths?: ShareLinkLengths;
 }
 
 export type BillingPlanTableRow =

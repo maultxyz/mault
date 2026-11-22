@@ -1,4 +1,4 @@
-import type { BillingInterval, PaidPlanKey } from "@magic-vault/shared";
+import type { BillingInterval, PaidPlanKey, PlanKey } from "@magic-vault/shared";
 
 export const PLAN_PRICE_ID_ENV: Record<
   PaidPlanKey,
@@ -29,4 +29,18 @@ export const ACTIVE_SUBSCRIPTION_STATUSES = [
   "trialing",
   "past_due",
 ] as const;
+export const TRIALING_SUBSCRIPTION_STATUS = "trialing";
+export const MONTHS_PER_PRICE_INTERVAL: Record<string, number> = {
+  day: 12 / 365,
+  week: 12 / 52,
+  month: 1,
+  year: 12,
+};
 export const PLATFORM_BILLING_SETTINGS_ID = "platform";
+
+export const PLAN_RANK: Record<PlanKey, number> = {
+  free: 0,
+  enthusiast: 1,
+  business: 2,
+  legacyBusiness: 2,
+};

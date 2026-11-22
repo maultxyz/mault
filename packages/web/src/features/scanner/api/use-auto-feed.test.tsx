@@ -7,9 +7,13 @@ const mocks = vi.hoisted(() => ({
   error: vi.fn(),
   success: vi.fn(),
   warning: vi.fn(),
+  firmwareVersion: "2.13.3" as string | null,
 }));
 
-vi.mock("./use-serial", () => ({ useSerialMessage: () => {} }));
+vi.mock("./use-serial", () => ({
+  useSerialMessage: () => {},
+  useSerial: () => ({ firmwareVersion: mocks.firmwareVersion }),
+}));
 vi.mock("./use-station-toast", () => ({
   useStationToast: () => ({
     error: mocks.error,
@@ -45,6 +49,15 @@ function renderAutoFeed(moduleOneLoaded: boolean, supportsEmergencyStop = true) 
           line: JSON.stringify({ status: "ok", ir: [moduleOneLoaded, false] }),
         };
       }
+      if ("requireEmptyModuleOne" in command && moduleOneLoaded) {
+        return {
+          sent: true,
+          line: JSON.stringify({
+            error: "module 1 still holds a card",
+            moduleOneLoaded: true,
+          }),
+        };
+      }
       return {
         sent: true,
         line: JSON.stringify({ status: "ok", detected: true, empty: false }),
@@ -70,6 +83,7 @@ afterEach(() => {
   cleanup();
   mocks.error.mockClear();
   mocks.warning.mockClear();
+  mocks.firmwareVersion = "2.13.3";
 });
 
 describe("useAutoFeed emergency stop", () => {
@@ -134,6 +148,43 @@ describe("useAutoFeed after a routed card", () => {
     act(() => result.current.resume());
     await act(() => result.current.triggerAutoFeed());
     expect(sentCommands).toEqual([{ readIR: true }, { feeder: true }]);
+    expect(cardArrived).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("useAutoFeed after a routed card on firmware that checks module 1", () => {
+  it("pauses on the firmware refusal without a separate sensor read", async () => {
+    mocks.firmwareVersion = "2.13.4";
+    const { result, sentCommands, cardArrived } = renderAutoFeed(true);
+    await act(() => result.current.triggerAutoFeedAfterRoutedCard());
+    expect(sentCommands).toEqual([
+      { feeder: true, requireEmptyModuleOne: true },
+    ]);
+    expect(cardArrived).not.toHaveBeenCalled();
+    expect(result.current.attention?.kind).toBe("cardStuckInModuleOne");
+  });
+
+  it("feeds the next card in one command", async () => {
+    mocks.firmwareVersion = "pi-0.3.0";
+    const { result, sentCommands, cardArrived } = renderAutoFeed(false);
+    await act(() => result.current.triggerAutoFeedAfterRoutedCard());
+    expect(sentCommands).toEqual([
+      { feeder: true, requireEmptyModuleOne: true },
+    ]);
+    expect(cardArrived).toHaveBeenCalledTimes(1);
+    expect(result.current.attention).toBeNull();
+  });
+
+  it("resuming still feeds unchecked", async () => {
+    mocks.firmwareVersion = "2.13.4";
+    const { result, sentCommands, cardArrived } = renderAutoFeed(true);
+    await act(() => result.current.triggerAutoFeedAfterRoutedCard());
+    act(() => result.current.resume());
+    await act(() => result.current.triggerAutoFeed());
+    expect(sentCommands).toEqual([
+      { feeder: true, requireEmptyModuleOne: true },
+      { feeder: true },
+    ]);
     expect(cardArrived).toHaveBeenCalledTimes(1);
   });
 });

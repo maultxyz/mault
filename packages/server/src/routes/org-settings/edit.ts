@@ -9,7 +9,7 @@ import {
 } from "@magic-vault/shared";
 import { Hono } from "hono";
 import { authQuery } from "../../db";
-import { invalidateLeaderboardCache } from "../../lib/leaderboard";
+import { forgetLeaderboardOptIns } from "../../lib/leaderboard";
 import { forgetShopCatalogReadsForOrg } from "../../lib/shop-catalogs";
 import { orgSettings } from "../../db/schema";
 import { eq } from "drizzle-orm";
@@ -34,6 +34,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       correctionBinPrompt?: boolean;
       pauseScanningOnDeploy?: boolean;
       leaderboardOptIn?: boolean;
+      unmatchedCardsInGrid?: boolean;
       correctionAutoCloseSeconds?: number | null;
       priceSource?: string;
       conditionMultipliers?: Record<string, unknown>;
@@ -120,6 +121,10 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           "leaderboardOptIn" in body
             ? (body.leaderboardOptIn ?? false)
             : (existing?.leaderboardOptIn ?? false),
+        unmatchedCardsInGrid:
+          "unmatchedCardsInGrid" in body
+            ? (body.unmatchedCardsInGrid ?? false)
+            : (existing?.unmatchedCardsInGrid ?? false),
         correctionAutoCloseSeconds: toCorrectionAutoCloseSeconds(
           "correctionAutoCloseSeconds" in body
             ? body.correctionAutoCloseSeconds
@@ -160,6 +165,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           correctionBinPrompt: merged.correctionBinPrompt,
           pauseScanningOnDeploy: merged.pauseScanningOnDeploy,
           leaderboardOptIn: merged.leaderboardOptIn,
+          unmatchedCardsInGrid: merged.unmatchedCardsInGrid,
           correctionAutoCloseSeconds: merged.correctionAutoCloseSeconds,
           priceSource: merged.priceSource,
           conditionMultipliers: merged.conditionMultipliers,
@@ -167,7 +173,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
         },
       };
     });
-    if ("leaderboardOptIn" in body) invalidateLeaderboardCache();
+    if ("leaderboardOptIn" in body) forgetLeaderboardOptIns();
     forgetShopCatalogReadsForOrg(orgId);
     return c.json(result);
   },

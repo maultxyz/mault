@@ -117,11 +117,12 @@ export async function loadMatchValidationTopOrgs(): Promise<MatchValidationTopOr
     GROUP BY v.validator_org_id, v.validated_by_user_id
   `);
   const rows = result.rows as unknown as MatchValidationValidatorOrgRow[];
+  const attributedOrgIds = await Promise.all(rows.map(attributedValidatorOrgId));
   const reviewCountByOrgId = new Map<string, number>();
-  for (const row of rows) {
-    const orgId = await attributedValidatorOrgId(row);
+  rows.forEach((row, index) => {
+    const orgId = attributedOrgIds[index];
     if (orgId) reviewCountByOrgId.set(orgId, (reviewCountByOrgId.get(orgId) ?? 0) + row.review_count);
-  }
+  });
   const topOrgs = [...reviewCountByOrgId.entries()]
     .sort(([firstOrgId, first], [secondOrgId, second]) => second - first || firstOrgId.localeCompare(secondOrgId))
     .slice(0, MATCH_VALIDATION_TOP_ORG_COUNT);

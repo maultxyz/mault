@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { cardReviewStatus } from "@magic-vault/shared";
 import { View } from "react-native";
 import { CardTile } from "@/components/cards/card-tile";
 import { cardArtSources } from "@/lib/card-art";
@@ -13,7 +14,12 @@ export const CollectionCardTile = memo(function CollectionCardTile({
   onShowActions,
 }: CollectionCardTileProps) {
   const price = pricing.priceOf(item.card, { isFoil: item.isFoil, foilType: item.foilType }, item.condition);
-  const flagged = !!item.lowConfidenceMatch || !!item.alternativeMatches?.length;
+  const reviewStatus = cardReviewStatus({
+    hasAlternatives: !!item.alternativeMatches?.length,
+    lowConfidenceMatch: !!item.lowConfidenceMatch,
+    wasCorrected: !!item.corrected,
+    isReviewed: !!item.reviewed,
+  });
   return (
     <View style={{ width }}>
       <CardTile
@@ -21,8 +27,7 @@ export const CollectionCardTile = memo(function CollectionCardTile({
         caption={price != null ? pricing.format(price) : `${item.card.set.toUpperCase()} #${item.card.collectorNumber}`}
         {...cardArtSources(item.card.image)}
         quantity={item.quantity}
-        flagged={flagged}
-        corrected={!!item.corrected || !!item.reviewed}
+        reviewStatus={reviewStatus}
         onPress={() => onOpen(item.scanId)}
         onPressIn={() => onPrefetch(item.scanId)}
         onLongPress={() => onShowActions(item)}

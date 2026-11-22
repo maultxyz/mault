@@ -67,6 +67,7 @@
     "piBusy": "Le port USB du Pi est déjà utilisé. Déconnecte-le dans l'autre navigateur, ou arrête le scan sur le Pi, puis réessaie.",
     "piScanBusy": "Un scan tourne sur le Pi, donc ce navigateur ne peut pas prendre le trieur. Arrête d'abord le scan.",
     "bluetoothPermissionBlocked": "L'autorisation Bluetooth est bloquée pour ce navigateur. Vérifie les paramètres du site dans ton navigateur (ou chrome://settings/content/bluetoothDevices) pour autoriser le Bluetooth, puis réessaie.",
+    "recentSorterUnreachable": "Vérifie que le trieur est allumé et à proximité, puis réessaie.",
     "connectionLost": {
       "title": "Connexion perdue",
       "description": "Le trieur s'est déconnecté de manière inattendue. Si tu es connecté via USB, vérifie qu'aucune autre application (comme le moniteur série de l'IDE Arduino) n'utilise le port, puis reconnecte-toi."
@@ -117,7 +118,8 @@
     "deviceResolveFailed": "Impossible d'identifier cette trieuse. La dernière calibration enregistrée est utilisée.",
     "deviceInUse": {
       "title": "Trieuse déjà connectée",
-      "description": "{{name}} est déjà connectée dans un autre panneau de trieuse. Déconnectez-la d’abord."
+      "description": "{{name}} est déjà connectée dans un autre panneau de trieuse. Déconnectez-la d’abord.",
+      "portDescription": "Ce port est déjà connecté dans un autre panneau de trieuse. Déconnectez-le d’abord."
     },
     "unidentifiedBoard": {
       "title": "Ancien firmware détecté",
@@ -305,6 +307,8 @@
     "mostValuable": "{{price}} · {{name}}"
   },
   "scanStats": {
+    "loadFailed": "Impossible de charger les statistiques de cette collection.",
+    "loading": "Chargement des statistiques",
     "emptyState": "Scanne des cartes pour voir leurs statistiques.",
     "totalValue": "Valeur totale",
     "avgValue": "Valeur moyenne",
@@ -364,6 +368,10 @@
     "ignoreIrSensors": "Ignorer les capteurs IR (sans tri)"
   },
   "scannerMenu": {
+    "refreshCameraList": "Actualiser la liste",
+    "refreshingCameraList": "Actualisation…",
+    "cameraListRefreshed": "Liste des caméras et scanners actualisée",
+    "cameraListRefreshFailed": "Impossible d'actualiser la liste des caméras et scanners",
     "camera": "Caméra",
     "cameraFallbackLabel": "Caméra {{index}}",
     "cameraInUseElsewhere": "Utilisée par une autre station",
@@ -524,7 +532,43 @@
     "openCard": "Ouvrir la carte non reconnue",
     "expand": "Afficher les cartes non reconnues",
     "collapse": "Masquer les cartes non reconnues",
-    "viewAllShort": "Tout voir"
+    "viewAllShort": "Tout voir",
+    "retry": {
+      "action": "Réessayer avec une précision accrue",
+      "stop": "Arrêter",
+      "progress_one": "{{checked}} sur {{total}} vérifiées, {{count}} correspondance",
+      "progress_other": "{{checked}} sur {{total}} vérifiées, {{count}} correspondances",
+      "confirmTitle_one": "Réessayer {{count}} carte non reconnue avec une précision accrue ?",
+      "confirmTitle_other": "Réessayer {{count}} cartes non reconnues avec une précision accrue ?",
+      "confirmDescription": "Mault lit le nom, l'extension et le numéro imprimés sur chaque scan enregistré et vérifie à nouveau l'image. Les cartes identifiées sont ajoutées à cette collection et marquées à vérifier. Chaque correspondance compte dans les scans du jour, et les autres restent non reconnues.",
+      "confirm": "Réessayer les cartes",
+      "matched_one": "{{count}} carte identifiée sur {{checked}}. Elle est marquée à vérifier.",
+      "matched_other": "{{count}} cartes identifiées sur {{checked}}. Elles sont marquées à vérifier.",
+      "noMatches_one": "Aucune correspondance parmi {{checked}} cartes.",
+      "noMatches_other": "Aucune correspondance parmi {{checked}} cartes.",
+      "stopped_one": "Arrêté après {{checked}} cartes. {{count}} carte identifiée.",
+      "stopped_other": "Arrêté après {{checked}} cartes. {{count}} cartes identifiées.",
+      "scanLimitReached_one": "{{count}} carte identifiée avant d'atteindre la limite de scans du jour.",
+      "scanLimitReached_other": "{{count}} cartes identifiées avant d'atteindre la limite de scans du jour.",
+      "failed": "Impossible de terminer. Les cartes déjà identifiées ont été conservées."
+    },
+    "selection": {
+      "hint": "Sélectionne jusqu'à {{max}} cartes pour les réessayer avec une précision accrue ou les retirer.",
+      "selectScan": "Sélectionner le scan du {{scannedAt}}",
+      "selected_one": "{{count}} carte sélectionnée",
+      "selected_other": "{{count}} cartes sélectionnées",
+      "selectPage": "Sélectionner la page",
+      "limitReached": "Tu peux sélectionner jusqu'à {{max}} cartes à la fois.",
+      "remove": "Retirer",
+      "removeTitle_one": "Retirer {{count}} carte non reconnue ?",
+      "removeTitle_other": "Retirer {{count}} cartes non reconnues ?",
+      "removed_one": "{{count}} carte non reconnue retirée.",
+      "removed_other": "{{count}} cartes non reconnues retirées.",
+      "removeFailed_one": "Impossible de retirer {{count}} carte. Réessaie.",
+      "removeFailed_other": "Impossible de retirer {{count}} cartes. Réessaie."
+    },
+    "showInGrid": "Afficher dans la grille de cartes",
+    "showInGridFailed": "Impossible d'enregistrer le réglage. Réessaie."
   },
   "binStatusMeter": {
     "heading": "Niveaux des bacs",
@@ -554,7 +598,15 @@
   },
   "alphabetPassControl": {
     "range": "Tri de {{from}} à {{to}}",
-    "stopFirst": "Arrêtez le scanner avant de passer aux lettres suivantes."
+    "stopFirst": "Arrêtez le scanner avant de passer au passage suivant."
+  },
+  "retainedScanSettings": {
+    "title": "Réglages de scan toujours actifs",
+    "foil": "Foil : {{type}}",
+    "condition": "État : {{condition}}",
+    "sets_one": "Extension : {{sets}}",
+    "sets_other": "Extensions : {{sets}}",
+    "reset": "Réinitialiser"
   },
   "sessionStatsPanel": {
     "value": "Valeur"
@@ -680,7 +732,7 @@
       "renameFailed": "Impossible de renommer le trieur",
       "renameDialog": {
         "title": "Renommer le trieur",
-        "description": "Le nom apparaît dans les onglets des trieurs et sur cette page.",
+        "description": "Le nom apparaît dans les onglets des trieurs, sur cette page et dans les listes d’appareils Bluetooth une fois le trieur connecté avec le firmware 2.14.0 ou plus récent.",
         "nameLabel": "Nom",
         "submit": "Enregistrer"
       },
@@ -1015,6 +1067,10 @@
       "rejected": "Refusé, reconfigure le Wi-Fi"
     },
     "pausedForPower": "La trieuse redémarrait sans cesse à cause de chutes de tension au démarrage du Wi-Fi, donc le Wi-Fi est en pause et l'USB et le Bluetooth fonctionnent toujours. Utilise une alimentation plus puissante ou alimente les servos séparément, puis débranche et rebranche la trieuse ou enregistre à nouveau le Wi-Fi pour réessayer."
+  },
+  "recentSorters": {
+    "title": "Trieurs récents",
+    "connected": "Connecté"
   },
   "wifiConnect": {
     "item": "Wi-Fi : {{name}}",

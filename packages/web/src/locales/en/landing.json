@@ -39,8 +39,6 @@
       "5": "Colorless",
       "6": "Over $20"
     },
-    "eyebrow": "Open-source card sorter",
-    "tagline": "Scan / Sort / Track",
     "recent": "Recent",
     "readout": {
       "match": "Match",
@@ -62,8 +60,10 @@
     "heading": "Easily sorts any TCG you love",
     "cardsIndexed_one": "{{formatted}} card indexed",
     "cardsIndexed_other": "{{formatted}} cards indexed",
-    "pauseHint": "Press Space to pause the scrolling list.",
-    "pausedHint": "Paused. Press Space to resume the scrolling list."
+    "pauseHint": "Press Space to pause the scrolling list. Use the left and right arrow keys to scroll it.",
+    "pausedHint": "Paused. Press Space to resume the scrolling list. Use the left and right arrow keys to scroll it.",
+    "showGrid": "Show all games",
+    "showScrolling": "Show as scrolling list"
   },
   "features": {
     "eyebrow": "Features",

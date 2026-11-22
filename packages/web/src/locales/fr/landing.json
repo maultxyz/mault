@@ -39,8 +39,6 @@
       "5": "Incolores",
       "6": "Plus de 20 $"
     },
-    "eyebrow": "Trieuse de cartes open source",
-    "tagline": "Scanner / Trier / Suivre",
     "recent": "Récents",
     "readout": {
       "match": "Correspondance",
@@ -62,8 +60,10 @@
     "heading": "Trie facilement n'importe quel JCC que tu aimes",
     "cardsIndexed_one": "{{formatted}} carte indexée",
     "cardsIndexed_other": "{{formatted}} cartes indexées",
-    "pauseHint": "Appuyez sur Espace pour mettre en pause la liste défilante.",
-    "pausedHint": "En pause. Appuyez sur Espace pour reprendre la liste défilante."
+    "pauseHint": "Appuie sur Espace pour mettre en pause la liste qui défile. Utilise les flèches gauche et droite pour la faire défiler.",
+    "pausedHint": "En pause. Appuie sur Espace pour relancer la liste qui défile. Utilise les flèches gauche et droite pour la faire défiler.",
+    "showGrid": "Afficher tous les jeux",
+    "showScrolling": "Afficher en liste défilante"
   },
   "features": {
     "eyebrow": "Fonctionnalités",

@@ -41,7 +41,9 @@
     "market": "Marché",
     "low": "Bas",
     "regular": "Normale",
-    "foil": "Foil"
+    "foil": "Foil",
+    "listingsHeading": "Annonces TCGplayer",
+    "noListings": "Aucune annonce"
   },
   "cardDetailPanel": {
     "catalogCardRemovedTitle": "Carte retirée du catalogue",
@@ -102,7 +104,8 @@
     "actions": "Actions de la carte",
     "name": "Nom",
     "moveToLocation": "Déplacer vers un emplacement",
-    "moveToCollection": "Déplacer vers une collection"
+    "moveToCollection": "Déplacer vers une collection",
+    "backSideAlt": "{{name}}, verso"
   },
   "cardFilterPopover": {
     "color": "Couleur",
@@ -116,7 +119,8 @@
     "showDownloadedCards": "Afficher les cartes téléchargées",
     "hideDownloadedCards": "Masquer les cartes téléchargées",
     "sets": "Sets",
-    "resetFilters": "Réinitialiser les filtres"
+    "resetFilters": "Réinitialiser les filtres",
+    "unmatched": "Non reconnues"
   },
   "cardGrid": {
     "noCollectionSelected": "Aucune collection sélectionnée",
@@ -150,7 +154,9 @@
     "moveToLocation": "Déplacer",
     "exporting": "Export en cours",
     "pendingScanSaving": "Enregistrement",
-    "pendingScanSavingName": "Enregistrement de {{name}}"
+    "pendingScanSavingName": "Enregistrement de {{name}}",
+    "moreUnmatched_one": "{{count}} autre carte non reconnue",
+    "moreUnmatched_other": "{{count}} autres cartes non reconnues"
   },
   "cardSelectDialog": {
     "defaultTitle": "Sélectionner une carte",
@@ -201,7 +207,10 @@
       "day": "Par jour",
       "hour": "Par heure"
     },
-    "scanTimelineSortNote": "La chronologie affiche toujours les scans les plus récents en premier."
+    "scanTimelineSortNote": "La chronologie affiche toujours les scans les plus récents en premier.",
+    "unmatchedCount_one": "{{count}} non reconnue",
+    "unmatchedCount_other": "{{count}} non reconnues",
+    "showUnmatched": "Afficher uniquement les cartes non reconnues"
   },
   "scannedCardItem": {
     "multipleMatchesTooltip": "Plusieurs correspondances proches - appuie pour vérifier",
@@ -719,5 +728,102 @@
   "downloadScanImage": {
     "action": "Télécharger la photo",
     "failed": "Impossible de télécharger la photo. Réessayez."
+  },
+  "reservations": {
+    "reserveNote_one": "La boutique la garde pour vous pendant {{count}} jour.",
+    "reserveNote_other": "La boutique la garde pour vous pendant {{count}} jours.",
+    "reservedNote_one": "{{count}} personne a réservé cette carte. Elle est à vous si elle n'est pas retirée.",
+    "reservedNote_other": "{{count}} personnes sont dans la file pour cette carte. Elle est à vous si elle n'est pas retirée.",
+    "youReserved": "Cette carte est réservée pour vous",
+    "youAreInLine": "Vous êtes numéro {{position}} dans la file pour cette carte",
+    "held": "La boutique la garde pour vous.",
+    "heldUntil": "La boutique la garde pour vous jusqu'au {{date}}.",
+    "aheadOfYou_one": "{{count}} personne est devant vous. Vous avancez si elle ne vient pas chercher la carte.",
+    "aheadOfYou_other": "{{count}} personnes sont devant vous. Vous avancez si elles ne viennent pas chercher la carte.",
+    "cancel": "Annuler la réservation",
+    "cancelFor": "Annuler la réservation de {{name}}",
+    "cancelled": "Réservation annulée",
+    "cancelFailed": "Impossible d'annuler la réservation.",
+    "viewCard": "Voir la carte",
+    "viewCardFor": "Voir la carte {{name}}",
+    "nameLabel": "Votre nom",
+    "contactLabel": "Comment la boutique peut vous joindre",
+    "contactHint": "Numéro de téléphone, e-mail ou pseudo Discord.",
+    "noteLabel": "Note pour la boutique (facultatif)",
+    "createFailed": "Impossible de réserver cette carte.",
+    "mineTitle": "Mes réservations",
+    "mineDescription": "Les cartes que vous avez réservées dans ce catalogue depuis ce navigateur.",
+    "tileReserved": "Réservée",
+    "tileYours": "Réservée pour vous",
+    "tileInLine": "Vous êtes dans la file",
+    "status": {
+      "ready": "Réservée pour vous",
+      "waiting": "Dans la file",
+      "collected": "Retirée",
+      "cancelled": "Annulée",
+      "released": "Libérée par la boutique",
+      "expired": "Expirée",
+      "unavailable": "Plus disponible",
+      "readyForPickup": "Prête à retirer"
+    },
+    "headerButton_zero": "Réservation",
+    "headerButton_one": "Réservation (1)",
+    "headerButton_other": "Réservation ({{count}})",
+    "reviewBar_one": "Vérifier la réservation (1 carte)",
+    "reviewBar_other": "Vérifier la réservation ({{count}} cartes)",
+    "addToCart": "Ajouter à la réservation",
+    "inCart": "Dans votre réservation",
+    "quickAdd": "Ajouter {{name}} à la réservation",
+    "quickRemove": "Retirer {{name}} de la réservation",
+    "cartLimit": "Vous pouvez réserver jusqu'à {{max}} cartes à la fois.",
+    "composerTitle": "Réserver des cartes",
+    "composerDescription_one": "Réservez des cartes de {{source}} et retirez-les en boutique. La boutique garde chaque carte pendant {{count}} jour.",
+    "composerDescription_other": "Réservez des cartes de {{source}} et retirez-les en boutique. La boutique garde chaque carte pendant {{count}} jours.",
+    "detailsTitle": "Vos coordonnées",
+    "detailsDescription": "Pour que la boutique sache pour qui sont les cartes.",
+    "cardsTitle_one": "Cartes à réserver (1)",
+    "cardsTitle_other": "Cartes à réserver ({{count}})",
+    "cardsDescription": "Si quelqu'un a déjà réservé une carte, vous rejoignez la file et l'obtenez si elle n'est pas retirée.",
+    "cartEmpty": "Ajoutez des cartes du catalogue avec le bouton +.",
+    "browseCards": "Parcourir les cartes",
+    "addMoreCards": "Ajouter d'autres cartes",
+    "cartRowHeld_one": "Gardée pour vous pendant {{count}} jour",
+    "cartRowHeld_other": "Gardée pour vous pendant {{count}} jours",
+    "cartRowInLine": "Vous serez numéro {{position}} dans la file",
+    "needCards": "Ajoutez au moins une carte à réserver.",
+    "summaryHeld_one": "1 carte, gardée pour vous",
+    "summaryHeld_other": "{{count}} cartes, toutes gardées pour vous",
+    "summaryWithLine_one": "1 carte, vous rejoignez la file",
+    "summaryWithLine_other": "{{count}} cartes : {{held}} gardées pour vous, {{waiting}} dans la file",
+    "total": "Total {{total}}",
+    "totalMissingPrices": "Total {{total}} (certaines cartes n'ont pas de prix)",
+    "submit_zero": "Réserver des cartes",
+    "submit_one": "Réserver 1 carte",
+    "submit_other": "Réserver {{count}} cartes",
+    "created_one": "Carte réservée. La boutique la garde pour vous.",
+    "created_other": "{{count}} cartes réservées. La boutique les garde pour vous.",
+    "createdWithLine_one": "Réservée. Vous êtes dans la file pour cette carte.",
+    "createdWithLine_other": "{{count}} cartes réservées. Vous êtes dans la file pour {{waiting}} d'entre elles.",
+    "readyForPickupUntil": "Votre carte est prête. Retirez-la avant le {{date}}.",
+    "youCanPickUp": "Cette carte est prête à être retirée",
+    "tileReadyForPickup": "Prête à retirer",
+    "requestReservedOn": "Réservée le {{date}}",
+    "requestSummary": "{{cards}} : {{stages}}",
+    "requestCardCount_one": "1 carte",
+    "requestCardCount_other": "{{count}} cartes",
+    "requestCounts": {
+      "readyForPickup_one": "{{count}} prête à retirer",
+      "readyForPickup_other": "{{count}} prêtes à retirer",
+      "held_one": "{{count}} réservée pour vous",
+      "held_other": "{{count}} réservées pour vous",
+      "waiting_one": "{{count}} dans la file",
+      "waiting_other": "{{count}} dans la file"
+    },
+    "cancelAll_one": "Annuler",
+    "cancelAll_other": "Tout annuler ({{count}})",
+    "requestTitle_one": "Réservation (1 carte)",
+    "requestTitle_other": "Réservation ({{count}} cartes)",
+    "cancelAllFor_one": "Annuler votre réservation chez {{name}}",
+    "cancelAllFor_other": "Annuler les {{count}} réservations en cours chez {{name}}"
   }
 }

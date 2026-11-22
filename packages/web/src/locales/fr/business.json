@@ -92,7 +92,8 @@
     "label": "Vue achat et vente",
     "intake": "Rachat",
     "picks": "Préparations",
-    "labels": "Étiquettes"
+    "labels": "Étiquettes",
+    "reservations": "Réservations"
   },
   "offerEditor": {
     "title": "Offre pour {{name}}",
@@ -528,7 +529,10 @@
       "copied": "Lien de préparation copié",
       "copyFailed": "Impossible de copier le lien",
       "done": "Terminé"
-    }
+    },
+    "fulfilDescriptionWithReservations_one": "{{count}} carte réservée est marquée prête à retirer et reste en stock jusqu'au passage du client. Les cartes non réservées quittent le stock : {{removed}}.",
+    "fulfilDescriptionWithReservations_other": "{{count}} cartes réservées sont marquées prêtes à retirer et restent en stock jusqu'au passage du client. Les cartes non réservées quittent le stock : {{removed}}.",
+    "reservationCardsNote": "Les cartes réservées restent en stock et sont marquées prêtes à retirer."
   },
   "cost": {
     "title": "Fixer le coût d'achat",
@@ -603,7 +607,10 @@
       "orderSorterPickCreated": "Préparation groupée démarrée",
       "orderSorterPickApplied": "Préparation groupée appliquée",
       "orderSorterPickPresetsCleaned": "Préréglages de trieuse utilisés supprimés",
-      "tradeRecorded": "Échange enregistré"
+      "tradeRecorded": "Échange enregistré",
+      "tradeRecorded": "Échange enregistré",
+      "reservationCollected": "Réservation retirée",
+      "reservationReleased": "Réservation libérée"
     },
     "messages": {
       "cardCorrected": "{{from}} corrigée en {{to}}",
@@ -637,7 +644,10 @@
       "orderSorterPickCreated": "A démarré une préparation groupée depuis {{summary}}",
       "orderSorterPickApplied": "A appliqué une préparation groupée pour {{summary}}",
       "orderSorterPickPresetsCleaned": "A supprimé {{summary}} préréglages de trieuse utilisés",
-      "tradeRecorded": "A enregistré un échange en personne avec {{summary}}"
+      "tradeRecorded": "A enregistré un échange en personne avec {{summary}}",
+      "tradeRecorded": "A enregistré un échange en personne avec {{summary}}",
+      "reservationCollected": "A marqué la réservation de {{summary}} comme retirée",
+      "reservationReleased": "A libéré la réservation de {{summary}}"
     }
   },
   "accuracy": {
@@ -800,7 +810,14 @@
     "isPublic": "Public",
     "isPublicDescription": "Tout le monde peut ouvrir ce catalogue depuis son adresse simple, sans le lien privé. Désactivez pour exiger le lien privé.",
     "publicBadge": "Public",
-    "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé."
+    "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé.",
+    "allowsReservations": "Laisser les clients réserver des cartes",
+    "allowsReservationsDescription": "Les clients peuvent réserver une carte à retirer en boutique. Si elle est déjà réservée, ils rejoignent la file et avancent quand la personne devant eux ne vient pas la chercher.",
+    "reservationHoldLabel": "Garder une carte réservée pendant",
+    "reservationHoldDays_one": "{{count}} jour",
+    "reservationHoldDays_other": "{{count}} jours",
+    "reservationHoldDescription": "Passé ce délai, la réservation expire et la personne suivante dans la file obtient la carte.",
+    "reservationsOn": "Accepte les réservations"
   },
   "priceLabels": {
     "title": "Étiquettes de prix",
@@ -861,5 +878,109 @@
     "sheet": {
       "pageDescription": "Planche d'étiquettes de prix, page {{page}} : {{labels}}"
     }
+  },
+  "reservations": {
+    "howItWorks": "Activez les réservations pour chaque catalogue boutique dans les réglages. Une réservation expire d'elle-même après le délai défini pour son catalogue.",
+    "listLabel": "Liste des réservations",
+    "lists": {
+      "active": "En cours",
+      "closed": "Historique"
+    },
+    "waitingSection": "Dans la file ({{count}})",
+    "waitingSectionDescription": "Ces clients obtiennent la carte si personne devant eux ne vient la chercher.",
+    "catalog": "Catalogue",
+    "reservedOn": "Réservée le",
+    "heldUntil": "Mise de côté jusqu'au {{date}}",
+    "inLinePosition": "Numéro {{position}} sur {{total}} dans la file",
+    "closedOn": "Clôturée le {{date}}",
+    "pickedUp": "Retirée",
+    "release": "Libérer",
+    "collected": "{{name}} retirée et enregistrée comme vendue",
+    "collectConfirmTitle": "Marquer {{name}} comme retirée ?",
+    "collectConfirmDescription": "La carte quitte votre stock et est enregistrée comme vendue {{price}}. Les personnes encore dans la file voient qu'elle n'est plus disponible.",
+    "collectConfirmDescriptionNoPrice": "La carte quitte votre stock et est enregistrée comme vendue sans prix. Les personnes encore dans la file voient qu'elle n'est plus disponible.",
+    "releaseConfirmDescription": "Cette personne perd sa place. Si elle était première de la file, la carte est mise de côté pour la suivante.",
+    "empty": {
+      "activeTitle": "Aucune réservation en cours",
+      "activeDescription": "Les réservations apparaissent ici quand un client réserve une carte depuis un catalogue boutique qui les accepte.",
+      "closedTitle": "Aucune réservation passée",
+      "closedDescription": "Les réservations retirées, libérées ou expirées sont listées ici."
+    },
+    "pickedUpGroup_one": "Retirée",
+    "pickedUpGroup_other": "Retirées ({{count}})",
+    "releaseGroup_one": "Libérer",
+    "releaseGroup_other": "Tout libérer ({{count}})",
+    "releaseCardConfirmTitle": "Libérer {{card}} pour {{name}} ?",
+    "releasedCard": "{{card}} libérée pour {{name}}",
+    "collectGroupConfirmTitle_one": "Marquer 1 carte comme retirée par {{name}} ?",
+    "collectGroupConfirmTitle_other": "Marquer {{count}} cartes comme retirées par {{name}} ?",
+    "collectGroupConfirmDescription_one": "La carte quitte votre stock et est enregistrée comme vendue {{total}}.",
+    "collectGroupConfirmDescription_other": "Les cartes quittent votre stock et sont enregistrées comme vendues {{total}} au total.",
+    "collectGroupConfirmDescriptionMissingPrices_one": "La carte quitte votre stock et est enregistrée comme vendue sans prix.",
+    "collectGroupConfirmDescriptionMissingPrices_other": "Les cartes quittent votre stock et sont enregistrées comme vendues {{total}} au total. Certaines n'ont pas de prix et sont enregistrées sans.",
+    "collectGroupWaitingNote_one": "La carte pour laquelle cette personne est encore dans la file reste réservée.",
+    "collectGroupWaitingNote_other": "Les {{count}} cartes pour lesquelles cette personne est encore dans la file restent réservées.",
+    "collectedGroup_one": "1 carte retirée par {{name}} et enregistrée comme vendue",
+    "collectedGroup_other": "{{count}} cartes retirées par {{name}} et enregistrées comme vendues",
+    "releaseGroupConfirmTitle_one": "Libérer la réservation de {{name}} ?",
+    "releaseGroupConfirmTitle_other": "Libérer les {{count}} réservations de {{name}} ?",
+    "releaseGroupConfirmDescription_one": "Cette personne perd sa place. Si elle était première de la file, la carte est mise de côté pour la suivante.",
+    "releaseGroupConfirmDescription_other": "Cette personne perd sa place sur chaque carte de cette demande. Là où elle était première, la carte est mise de côté pour la suivante.",
+    "releasedGroup_one": "Réservation de {{name}} libérée",
+    "releasedGroup_other": "{{count}} réservations de {{name}} libérées",
+    "pickedUpCard": "Marquer {{card}} comme retirée",
+    "releaseCard": "Libérer {{card}}",
+    "pickedUpGroupFor_one": "Marquer 1 carte comme retirée par {{name}}",
+    "pickedUpGroupFor_other": "Marquer {{count}} cartes comme retirées par {{name}}",
+    "releaseGroupFor_one": "Libérer la réservation de {{name}}",
+    "releaseGroupFor_other": "Libérer les {{count}} réservations de {{name}}",
+    "groupClosed": "Clôturée",
+    "stages": {
+      "readyForPickup": "Prête à retirer",
+      "beingPicked": "En préparation",
+      "toPull": "À sortir",
+      "waiting": "Dans la file",
+      "collected": "Retirée",
+      "cancelled": "Annulée",
+      "released": "Libérée",
+      "expired": "Expirée",
+      "unavailable": "Carte partie"
+    },
+    "groupSummary": "{{cards}} : {{stages}}",
+    "stageCounts": {
+      "readyForPickup_one": "{{count}} prête à retirer",
+      "readyForPickup_other": "{{count}} prêtes à retirer",
+      "beingPicked_one": "{{count}} en préparation",
+      "beingPicked_other": "{{count}} en préparation",
+      "toPull_one": "{{count}} à sortir",
+      "toPull_other": "{{count}} à sortir",
+      "waiting_one": "{{count}} dans la file",
+      "waiting_other": "{{count}} dans la file"
+    },
+    "heldTotal": "Total des cartes réservées {{total}}",
+    "heldTotalMissingPrices": "Total des cartes réservées {{total}} (certaines sans prix)",
+    "readySection": "Prêtes à retirer ({{count}})",
+    "pullSection": "À sortir ({{count}})",
+    "createPick_one": "Créer une préparation",
+    "createPick_other": "Créer une préparation ({{count}})",
+    "openPick": "Ouvrir la préparation {{name}}",
+    "inPick": "Dans la préparation {{name}}",
+    "pickName": "Réservation : {{name}}",
+    "pickCreated_one": "Préparation créée pour {{name}} avec 1 carte",
+    "pickCreated_other": "Préparation créée pour {{name}} avec {{count}} cartes",
+    "cardCount_one": "1 carte",
+    "cardCount_other": "{{count}} cartes",
+    "readySectionDescription": "Leurs cartes sont sorties et les attendent. Marquez-les comme retirées quand ils passent.",
+    "pullSectionDescription": "Ces clients sont les premiers de la file. Créez une préparation pour sortir leurs cartes du stock. Une fois terminée, les cartes sont prêtes à retirer.",
+    "description": "Les cartes que vos clients ont réservées depuis vos catalogues boutique. Créez une préparation pour sortir les cartes d'un client : elles sont prêtes à retirer une fois la préparation terminée. Les personnes dans la file avancent quand une réservation est libérée ou expire.",
+    "createPickFor_one": "Créer une préparation pour 1 carte réservée pour {{name}}",
+    "createPickFor_other": "Créer une préparation pour {{count}} cartes réservées pour {{name}}"
+  },
+  "search": {
+    "noResultsTitle": "Aucun résultat",
+    "noResultsDescription": "Rien ne correspond à « {{query}} ». Essayez un autre nom ou mot.",
+    "intakePlaceholder": "Rechercher des rachats par client ou note",
+    "picksPlaceholder": "Rechercher des préparations par nom, carte ou commande",
+    "reservationsPlaceholder": "Rechercher par client, carte ou catalogue"
   }
 }

@@ -14,9 +14,10 @@ import {
   ORDERS_CHANGED_EVENT,
   PICK_LIST_CHANGED_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
+  CARD_RESERVATIONS_CHANGED_EVENT,
   type DeployNotice,
 } from "@magic-vault/shared";
-import { BUSINESS_ORDERS_QUERY_KEY } from "@/lib/constants/business";
+import { BUSINESS_ORDERS_QUERY_KEY, BUSINESS_RESERVATIONS_QUERY_KEY } from "@/lib/constants/business";
 import { TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
 import { getRequestAuth } from "@/lib/api/client";
 import { useSession } from "@/lib/auth/session";
@@ -67,6 +68,7 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
       void queryClient.invalidateQueries({ queryKey: ["collections"] });
       void queryClient.invalidateQueries({ queryKey: ["org-overview"] });
       void queryClient.invalidateQueries({ queryKey: BUSINESS_ORDERS_QUERY_KEY });
+      void queryClient.invalidateQueries({ queryKey: BUSINESS_RESERVATIONS_QUERY_KEY });
       void queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] });
     };
 
@@ -103,6 +105,10 @@ export function AppStreamProvider({ children }: { children: ReactNode }) {
       on(ORDERS_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: BUSINESS_ORDERS_QUERY_KEY }));
       on(PICK_LIST_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: ["bin-sets", activeOrgId] }));
       on(TRADE_OFFERS_CHANGED_EVENT, () => void queryClient.invalidateQueries({ queryKey: [TRADE_OFFERS_QUERY_KEY] }));
+      on(
+        CARD_RESERVATIONS_CHANGED_EVENT,
+        () => void queryClient.invalidateQueries({ queryKey: BUSINESS_RESERVATIONS_QUERY_KEY }),
+      );
       on(DEPLOY_STATUS_EVENT, (data) => setDeployNotice(parse<DeployNotice | null>(data)));
       on(MACHINES_INIT_EVENT, (data) =>
         setMachines(sortMachinesForDisplay(parse<{ machines: MachineStatus[] }>(data)?.machines ?? [])),

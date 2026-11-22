@@ -37,3 +37,27 @@ export const RAW_COMMAND_PRESETS = [
 export const KIT_LED_DEFAULT_SELECTION = { strip: 1, led: 1 } as const;
 export const KIT_LED_REPLY_ENTRY_LENGTH = LED_CHANNELS.length + 2;
 export const KIT_LED_SWATCH_MIN_OPACITY = 0.25;
+
+export const KIT_STRESS_STEP_MS = 600;
+export const KIT_STRESS_DEFAULT_CHANNELS = [0];
+export const KIT_WATCH_PATCH_MAX_SIDE = 80;
+export const KIT_WATCH_PATCH_MIN_SIDE = 4;
+export const KIT_WATCH_FRAME_LAG_MS = 250;
+export const KIT_WATCH_MIN_PATCH_CONTRAST = 4;
+export const KIT_WATCH_CHANGED_PIXEL_MIN_DIFFERENCE = 0.6;
+export const KIT_WATCH_MIN_CHANGED_PIXELS = 8;
+export const KIT_WATCH_MIN_MOVEMENT_PERCENT = 35;
+export const KIT_WATCH_REFERENCE_ADAPT_RATE = 0.2;
+export const KIT_WATCH_MISSES_TO_STOP = 3;
+export const KIT_WATCH_MIN_BOX_FRACTION = 0.03;
+export const KIT_WATCH_DEFAULT_BOX_FRACTION = 0.2;
+export const KIT_WATCH_BOX_STEP_FRACTION = 0.02;
+export const KIT_WATCH_BOX_ADJUSTMENTS = [
+  { key: "left" },
+  { key: "right" },
+  { key: "up" },
+  { key: "down" },
+  { key: "grow" },
+  { key: "shrink" },
+] as const;
+export const KIT_WATCH_DEFAULT_ASPECT_RATIO = 16 / 9;

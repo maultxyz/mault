@@ -23,6 +23,7 @@ export const BUYLIST_TIERS_MAX = 10;
 export const BUYLIST_PRICE_MAX = 1_000_000;
 export const BUYLIST_PERCENT_MAX = 100;
 export const BUYLIST_CREDIT_BONUS_MAX = 200;
+export const BUYLIST_PREVIEW_PRICES = [0.25, 2, 10, 50] as const;
 
 export const BUSINESS_PERMISSION_KEYS = [
   "viewCosts",
@@ -138,6 +139,8 @@ export const ACTIVITY_ACTIONS = [
   "catalog.updated",
   "catalog.deleted",
   "trade.recorded",
+  "reservation.collected",
+  "reservation.released",
 ] as const;
 
 export const ACTIVITY_PAGE_SIZE = 50;
@@ -194,7 +197,11 @@ export const ACTIVITY_ACTION_KEYS: Record<ActivityAction, string> = {
   "catalog.updated": "catalogUpdated",
   "catalog.deleted": "catalogDeleted",
   "trade.recorded": "tradeRecorded",
+  "reservation.collected": "reservationCollected",
+  "reservation.released": "reservationReleased",
 };
+export const BUSINESS_LIST_SEARCH_PARAM = "q";
+export const BUSINESS_LIST_SEARCH_MAX_LENGTH = 100;
 export const PAGED_LIST_DEFAULT_SIZE = 20;
 export const PAGED_LIST_MAX_SIZE = 100;
 
