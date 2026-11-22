@@ -1,7 +1,7 @@
 import { MULTI_VALUE_OPERATORS } from "@magic-vault/shared";
 import type { ConditionRowProps } from "@/lib/interfaces/bins";
 import {
-  CONDITION_NUMERIC_MAX,
+  CONDITION_VALUE_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,
   COUNT_OPERATORS,
   ConditionField,
@@ -66,7 +66,7 @@ function NumericConditionInput({
       aria-label={ariaLabel}
       step="any"
       placeholder="0"
-      max={CONDITION_NUMERIC_MAX}
+      max={CONDITION_VALUE_NUMERIC_MAX}
       className={cn("min-w-24 flex-1", CONDITION_INPUT_CLASS)}
       value={draftMatchesValue ? draftText : String(value)}
       onChange={(e) => {

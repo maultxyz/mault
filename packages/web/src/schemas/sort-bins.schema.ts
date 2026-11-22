@@ -1,5 +1,6 @@
 import {
   CONDITION_NUMERIC_MAX,
+  CONDITION_VALUE_NUMERIC_MAX,
   CONDITION_STRING_MAX_LENGTH,
   formValidationMessage,
   LOW_MATCH_PERCENT_MAX,
@@ -106,7 +107,7 @@ export const binConditionSchema = z.object({
   operator: z.enum(conditionOperatorValues),
   value: z.union([
     z.string().max(CONDITION_STRING_MAX_LENGTH),
-    z.number().max(CONDITION_NUMERIC_MAX),
+    z.number().max(CONDITION_VALUE_NUMERIC_MAX),
     z.array(z.string().max(CONDITION_STRING_MAX_LENGTH)),
   ]),
 });

@@ -24,6 +24,7 @@ const tribeInfectingVirus: YgoCard = {
   ],
   card_images: [{ id: 33184167, image_url: "https://images.test/33184167.jpg", image_url_small: "https://images.test/small/33184167.jpg" }],
   card_prices: [{ tcgplayer_price: "0.25" }],
+  misc_info: [{ tcg_date: "2004-05-01", ocg_date: "2003-07-17", views: 120345, viewsweek: 210, upvotes: 4 }] as YgoCard["misc_info"],
 };
 
 const darkMagician: YgoCard = {
@@ -72,10 +73,12 @@ const productsBySetId: Record<number, ReturnType<typeof product>[]> = {
   5: [product(1006, "Dark Magician", "LOB-EN005", "Ultra Rare")],
 };
 
-function mockNetwork(context: TestContext): void {
+function mockNetwork(context: TestContext): string[] {
+  const requestedUrls: string[] = [];
   context.mock.method(db, "select", () => ({ from: () => ({ where: async () => [] }) }));
   context.mock.method(globalThis, "fetch", async (url: string | URL | Request) => {
     const path = String(url);
+    requestedUrls.push(path);
     if (path.startsWith("https://db.ygoprodeck.test")) {
       return Response.json({ data: [tribeInfectingVirus, darkMagician, unreleasedCard] });
     }
@@ -86,6 +89,7 @@ function mockNetwork(context: TestContext): void {
     if (setCards) return Response.json({ products: productsBySetId[Number(setCards[1])] });
     throw new Error(`Unexpected network request: ${path}`);
   });
+  return requestedUrls;
 }
 
 function dataOf(card: SyncSourceCard | undefined): Record<string, unknown> {
@@ -94,8 +98,11 @@ function dataOf(card: SyncSourceCard | undefined): Record<string, unknown> {
 }
 
 test("Yu-Gi-Oh sync lists one card per printing and links each to its TCGplayer product", async (context) => {
-  mockNetwork(context);
+  const requestedUrls = mockNetwork(context);
   const cards = await yugiohSyncSource.fetchCards("https://db.ygoprodeck.test/cardinfo.php", () => {});
+  assert.ok(requestedUrls.includes("https://db.ygoprodeck.test/cardinfo.php?misc=yes"));
+  assert.deepEqual(dataOf(cards[0]).misc_info, [{ tcg_date: "2004-05-01", ocg_date: "2003-07-17" }]);
+  assert.equal(dataOf(cards[2]).misc_info, undefined);
   assert.deepEqual(cards.map(({ id }) => id), [
     "33184167_DR1-EN131_rare",
     "33184167_SD4-EN007_common",
