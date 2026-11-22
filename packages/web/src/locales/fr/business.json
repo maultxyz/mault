@@ -312,10 +312,8 @@
     "orderCardCount_one": "{{count}} carte",
     "orderCardCount_other": "{{count}} cartes",
     "locationColumn": "Emplacement",
-    "viewsLabel": "Vue de préparation",
     "views": {
-      "location": "Prélever par emplacement",
-      "order": "Trier par commande"
+      "lines": "Lignes de commande"
     },
     "orderRefPlaceholder": "Commande",
     "orderRefInputLabel": "Commande pour {{name}}",
@@ -326,9 +324,6 @@
     "tooManyOrders": "Votre trieur a {{count}} bacs pour les commandes, certaines commandes restent donc sans bac.",
     "saveOrderBins": "Enregistrer les bacs",
     "orderBinsSaved": "Bacs enregistrés",
-    "createSortPreset": "Créer un préréglage de tri",
-    "sortPresetTitle": "Trier cette préparation par commande ?",
-    "sortPresetDescription": "Crée un préréglage de tri avec un bac par commande et l'active. Passez les cartes prélevées dans le trieur et chacune arrive dans le bac de sa commande. Les scans avec ce préréglage ne sont pas enregistrés, votre inventaire reste donc inchangé.",
     "sortPresetCreated_one": "Préréglage de tri créé et activé",
     "sortPresetCreated_other": "{{count}} préréglages de tri créés, un par jeu",
     "openSortPreset": "Ouvrir le préréglage",
@@ -454,6 +449,7 @@
     },
     "pickSaveFailed": "Impossible d'enregistrer la préparation. Vos coches ont été rechargées depuis le serveur.",
     "pickWalk": {
+      "cardPosition": "Carte {{index}} sur {{total}}",
       "nextUp": "Prochaine carte",
       "slot": "Place {{position}}",
       "bin": "Case {{bin}}",

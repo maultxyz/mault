@@ -312,10 +312,8 @@
     "orderCardCount_one": "{{count}} card",
     "orderCardCount_other": "{{count}} cards",
     "locationColumn": "Location",
-    "viewsLabel": "Pick view",
     "views": {
-      "location": "Pick by location",
-      "order": "Sort by order"
+      "lines": "Order lines"
     },
     "orderRefPlaceholder": "Order",
     "orderRefInputLabel": "Order for {{name}}",
@@ -326,9 +324,6 @@
     "tooManyOrders": "Your sorter has {{count}} bins for orders, so some orders are left without one.",
     "saveOrderBins": "Save bins",
     "orderBinsSaved": "Order bins saved",
-    "createSortPreset": "Create sort preset",
-    "sortPresetTitle": "Sort this pick by order?",
-    "sortPresetDescription": "Creates a sorting preset with one bin per order and makes it active. Feed the pulled cards through the sorter and each lands in its order's bin. Scans with this preset are not saved, so your inventory stays as it is.",
     "sortPresetCreated_one": "Sort preset created and activated",
     "sortPresetCreated_other": "{{count}} sort presets created, one per game",
     "openSortPreset": "Open preset",
@@ -454,6 +449,7 @@
     },
     "pickSaveFailed": "Couldn't save the pick. Your ticks were refreshed from the server.",
     "pickWalk": {
+      "cardPosition": "Card {{index}} of {{total}}",
       "nextUp": "Next up",
       "slot": "Slot {{position}}",
       "bin": "Bin {{bin}}",

@@ -312,10 +312,8 @@
     "orderCardCount_one": "{{count}} Karte",
     "orderCardCount_other": "{{count}} Karten",
     "locationColumn": "Lagerort",
-    "viewsLabel": "Pick-Ansicht",
     "views": {
-      "location": "Nach Lagerort picken",
-      "order": "Nach Bestellung sortieren"
+      "lines": "Bestellpositionen"
     },
     "orderRefPlaceholder": "Bestellung",
     "orderRefInputLabel": "Bestellung für {{name}}",
@@ -326,9 +324,6 @@
     "tooManyOrders": "Dein Sortierer hat {{count}} Fächer für Bestellungen, daher bleiben einige Bestellungen ohne Fach.",
     "saveOrderBins": "Fächer speichern",
     "orderBinsSaved": "Fächer gespeichert",
-    "createSortPreset": "Sortiervorlage erstellen",
-    "sortPresetTitle": "Diesen Pick nach Bestellung sortieren?",
-    "sortPresetDescription": "Erstellt eine Sortiervorlage mit einem Fach pro Bestellung und aktiviert sie. Lass die gezogenen Karten durch den Sortierer laufen, dann landet jede im Fach ihrer Bestellung. Scans mit dieser Vorlage werden nicht gespeichert, dein Bestand bleibt also unverändert.",
     "sortPresetCreated_one": "Sortiervorlage erstellt und aktiviert",
     "sortPresetCreated_other": "{{count}} Sortiervorlagen erstellt, eine pro Spiel",
     "openSortPreset": "Vorlage öffnen",
@@ -454,6 +449,7 @@
     },
     "pickSaveFailed": "Der Pick konnte nicht gespeichert werden. Deine Häkchen wurden vom Server neu geladen.",
     "pickWalk": {
+      "cardPosition": "Karte {{index}} von {{total}}",
       "nextUp": "Als Nächstes",
       "slot": "Platz {{position}}",
       "bin": "Fach {{bin}}",

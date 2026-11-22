@@ -37,6 +37,7 @@ export function PickFocusView({
   onMissing,
   onComplete,
   completedCount,
+  completeLabel,
   onBack,
 }: PickFocusViewProps) {
   const { t } = useTranslation("business");
@@ -154,7 +155,7 @@ export function PickFocusView({
           {canPick && completedCount > 0 && (
             <Button size="lg" onClick={onComplete}>
               <IconPackageExport />
-              {t("orders.batch.complete", { count: completedCount })}
+              {completeLabel ?? t("orders.batch.complete", { count: completedCount })}
             </Button>
           )}
         </div>

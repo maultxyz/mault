@@ -82,8 +82,6 @@ export const ORDER_PULL_SHEET_HEADERS = [
   "Order bin",
 ] as const;
 
-export const ORDER_DETAIL_VIEWS = ["location", "order"] as const;
-
 export const PICK_IMPORT_STEPS = ["source", "columns", "review"] as const;
 export const PICK_IMPORT_CREATE_MODES = ["together", "separate"] as const;
 export const PICK_IMPORT_COMPOSITIONS = [

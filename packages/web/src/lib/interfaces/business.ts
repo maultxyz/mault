@@ -1,7 +1,6 @@
 import type { SelectToggleOptions } from "@/lib/interfaces/cards";
 import type {
   BUSINESS_VIEWS,
-  ORDER_DETAIL_VIEWS,
   PICK_IMPORT_CREATE_MODES,
   PICK_IMPORT_STEPS,
 } from "@/lib/constants/business";
@@ -142,8 +141,6 @@ export interface OrderDetailProps {
   onDeleted: () => void;
 }
 
-export type OrderDetailView = (typeof ORDER_DETAIL_VIEWS)[number];
-
 export interface OrderBinsDialogProps {
   order: FulfilmentOrderDetail;
   open: boolean;
@@ -229,6 +226,27 @@ export interface PackingSlipData {
 
 export type BatchPickView = "list" | "pick" | "focus" | "box" | "sort";
 
+export type PickWalkWorkspaceView = BatchPickView | "lines";
+
+export interface PickWalkWorkspaceLinesView {
+  label: string;
+  content: ReactNode;
+}
+
+export interface PickWalkWorkspaceProps {
+  orders: FulfilmentOrderDetail[];
+  pickedScanIds: ReadonlySet<string>;
+  onPickedChange: (scanIds: string[], isPicked: boolean) => void;
+  canPick: boolean;
+  completedCount: number;
+  completeLabel?: string;
+  isCompleting: boolean;
+  onComplete: () => void;
+  headingLevel?: "h2" | "h3";
+  isProgressSticky?: boolean;
+  linesView?: PickWalkWorkspaceLinesView;
+}
+
 export interface PickFocusViewProps {
   entries: PickWalkEntry[];
   pickedScanIds: ReadonlySet<string>;
@@ -243,6 +261,7 @@ export interface PickFocusViewProps {
   onMissing: (entry: PickWalkEntry) => void;
   onComplete: () => void;
   completedCount: number;
+  completeLabel?: string;
   onBack: () => void;
 }
 
