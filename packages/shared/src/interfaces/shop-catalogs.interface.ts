@@ -10,6 +10,8 @@ export interface ShopCatalog {
   name: string;
   showsPrices: boolean;
   isPublic: boolean;
+  allowsReservations?: boolean;
+  reservationHoldDays?: number;
   collections: ShopCatalogSource[];
   storageLocations: ShopCatalogSource[];
   linkToken: string | null;
@@ -22,6 +24,8 @@ export interface ShopCatalogInput {
   name: string;
   showsPrices: boolean;
   isPublic: boolean;
+  allowsReservations?: boolean;
+  reservationHoldDays?: number;
   collectionGuids: string[];
   storageLocationGuids: string[];
 }
@@ -29,6 +33,8 @@ export interface ShopCatalogInput {
 export interface ShopCatalogInfo extends PublicCardBrowseInfo {
   catalogGuid: string;
   name: string;
+  allowsReservations?: boolean;
+  reservationHoldDays?: number;
 }
 
 export interface ShopPhoto {

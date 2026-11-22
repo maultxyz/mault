@@ -14,6 +14,7 @@ export interface OrgSettings {
   correctionBinPrompt: boolean;
   pauseScanningOnDeploy: boolean;
   leaderboardOptIn: boolean;
+  unmatchedCardsInGrid: boolean;
   correctionAutoCloseSeconds: number | null;
   priceSource: PriceSource;
   conditionMultipliers: ConditionMultipliers;

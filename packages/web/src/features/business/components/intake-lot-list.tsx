@@ -16,6 +16,7 @@ export function IntakeLotList({
   selectedGuid,
   isLoading,
   onSelect,
+  search = "",
 }: IntakeLotListProps) {
   const { t } = useTranslation("business");
 
@@ -30,7 +31,14 @@ export function IntakeLotList({
   }
 
   if (lots.length === 0) {
-    return (
+    return search ? (
+      <EmptyState
+        size="compact"
+        icon={IconCash}
+        title={t("search.noResultsTitle")}
+        description={t("search.noResultsDescription", { query: search })}
+      />
+    ) : (
       <EmptyState
         size="compact"
         icon={IconCash}

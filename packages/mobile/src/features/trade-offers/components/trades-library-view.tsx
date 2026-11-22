@@ -6,8 +6,8 @@ import {
   type TradeOffer,
 } from "@magic-vault/shared";
 import { useQuery } from "@tanstack/react-query";
-import { router } from "expo-router";
-import { useState } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { AppText } from "@/components/ui/app-text";
@@ -28,6 +28,8 @@ import { tradeOffersQueryOptions } from "@/features/trade-offers/api/trade-offer
 import { NewTradeSheets } from "@/features/trade-offers/components/new-trade-sheets";
 import { useActiveOrgId } from "@/hooks/use-org";
 import { useSession } from "@/lib/auth/session";
+import { myCardReservationsQueryOptions } from "@/features/card-reservations/api/my-card-reservations";
+import { MyCardReservationsView } from "@/features/card-reservations/components/my-card-reservations-view";
 import { SPACING } from "@/lib/constants/theme";
 import {
   TRADE_OFFER_STATUS_TONES,
@@ -176,10 +178,18 @@ export function TradesLibraryView({ title, viewSwitcher }: LibraryViewProps) {
   const { t } = useTranslation();
   const orgId = useActiveOrgId();
   const userId = useSession().user?.id ?? null;
-  const [box, setBox] = useState<TradesBox>("received");
+  const { box: boxParam } = useLocalSearchParams<{ box?: string }>();
+  const [box, setBox] = useState<TradesBox>(
+    TRADES_BOXES.find((candidate) => candidate === boxParam) ?? "received",
+  );
+  const myReservations = useQuery(myCardReservationsQueryOptions(userId));
+  useEffect(() => {
+    const requestedBox = TRADES_BOXES.find((candidate) => candidate === boxParam);
+    if (requestedBox) setBox(requestedBox);
+  }, [boxParam]);
   const receivedOffers = useQuery(tradeOffersQueryOptions(orgId));
   const sentOffers = useQuery(outgoingTradeOffersQueryOptions(userId));
-  const visibleOffers = box === "sent" ? sentOffers : receivedOffers;
+  const visibleOffers = box === "sent" ? sentOffers : box === "reservations" ? myReservations : receivedOffers;
   const [newTradeSheet, setNewTradeSheet] = useState<NewTradeSheet | null>(null);
 
   return (
@@ -206,7 +216,7 @@ export function TradesLibraryView({ title, viewSwitcher }: LibraryViewProps) {
         value={box}
         onChange={setBox}
       />
-      {box === "sent" ? <SentTradeOffers /> : <ReceivedTradeOffers />}
+      {box === "sent" ? <SentTradeOffers /> : box === "reservations" ? <MyCardReservationsView /> : <ReceivedTradeOffers />}
       <NewTradeSheets openSheet={newTradeSheet} onOpenSheetChange={setNewTradeSheet} />
     </Screen>
   );

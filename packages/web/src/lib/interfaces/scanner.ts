@@ -23,6 +23,7 @@ import type {
   ScanOrientation,
   SerialMessageListener,
   SerialRequestResult,
+  UnmatchedRetryProgress,
   UnmatchedScanDetails,
   UnmatchedScanDiagnostics,
   BinRoute,
@@ -910,11 +911,18 @@ export interface UnmatchedRateToastProps {
   onOpenSettings: () => void;
 }
 
+export interface UnmatchedCardsInGridSetting {
+  isEnabled: boolean;
+  isLoading: boolean;
+  setEnabled: (isEnabled: boolean) => void;
+}
+
 export interface UnmatchedCardsPanelProps {
   cards: UnmatchedCard[];
   total: number;
   collectionGuid?: string;
   canIdentify?: boolean;
+  showsInGridToggle?: boolean;
   onRemove?: (scanId: string) => Promise<boolean>;
   onRemoveAll?: () => Promise<boolean>;
 }
@@ -941,6 +949,21 @@ export interface UnmatchedCardsBrowserProps {
   className?: string;
 }
 
+export interface RetryUnmatchedCardsState {
+  progress: UnmatchedRetryProgress | null;
+  isRetrying: boolean;
+  start: (scanIds: string[]) => Promise<void>;
+  stop: () => void;
+}
+
+export interface UnmatchedCardSelectionState {
+  selectedScanIds: string[];
+  isSelected: (scanId: string) => boolean;
+  toggle: (scanId: string) => void;
+  selectMany: (scanIds: string[]) => void;
+  clear: () => void;
+}
+
 export interface UnmatchedViewState {
   isOpen: boolean;
   openIndex: number | null;
@@ -960,6 +983,22 @@ export interface UnmatchedCardDetailProps {
 
 export interface UnmatchedCardTileProps {
   entry: UnmatchedCard;
+  onOpen: () => void;
+  isSelected?: boolean;
+  onToggleSelect?: () => void;
+  className?: string;
+}
+
+export interface InlineUnmatchedCardsState {
+  open: (position: number | null) => void;
+  isMobileDialogOpen: boolean;
+  setIsMobileDialogOpen: (open: boolean) => void;
+  mobileDialogIndex: number | null;
+  setMobileDialogIndex: (index: number | null) => void;
+}
+
+export interface MoreUnmatchedCardsTileProps {
+  hiddenCount: number;
   onOpen: () => void;
 }
 

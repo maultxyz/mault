@@ -9,6 +9,7 @@ import {
   binRoutes,
   binSetAudit,
   binSets,
+  cardReservations,
   bins,
   cardSales,
   collectionCardStatsDirty,
@@ -92,6 +93,7 @@ export async function purgeOrgData(
   await tx.delete(cardSales).where(eq(cardSales.orgId, orgId));
   await tx.delete(fulfilmentOrders).where(eq(fulfilmentOrders.orgId, orgId));
   await tx.delete(tradeOffers).where(eq(tradeOffers.orgId, orgId));
+  await tx.delete(cardReservations).where(eq(cardReservations.orgId, orgId));
   const purgedShareLinks = await tx
     .delete(shareLinks)
     .where(eq(shareLinks.orgId, orgId))

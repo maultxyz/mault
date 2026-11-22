@@ -1,6 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
 import type { AccessibilityValue, RefreshControlProps, StyleProp, TextProps, ViewStyle } from "react-native";
-import type { PlayingCard, ScanRegion } from "@magic-vault/shared";
+import type { CardReviewStatus, PlayingCard, ScanRegion } from "@magic-vault/shared";
 import type { ICONS } from "@/lib/constants/icons";
 import type { LiveCorners } from "@/lib/interfaces/scanner";
 import type { SwipeRowAction } from "@/lib/interfaces/search";
@@ -255,8 +255,7 @@ export interface CardTileProps {
   placeholderUrl?: string | null;
   isFoil?: boolean;
   quantity?: number;
-  flagged?: boolean;
-  corrected?: boolean;
+  reviewStatus?: CardReviewStatus | null;
   selected?: boolean;
   disabled?: boolean;
   onPress?: () => void;

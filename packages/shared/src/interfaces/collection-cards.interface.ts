@@ -1,6 +1,11 @@
 import type { PlayingCard, PlayingCardWithDistance } from "./card.interface";
 import type { CardAcquisitionCost } from "./business.interface";
-import type { CardScanOrigin, MatchedScanDiagnostics, ScannedCard } from "./scanner.interface";
+import type {
+  CardScanOrigin,
+  MatchedScanDiagnostics,
+  ScannedCard,
+  UnmatchedCard,
+} from "./scanner.interface";
 import type { CardStorageLocation } from "./storage-locations.interface";
 
 export interface CardFilters {
@@ -28,13 +33,37 @@ export interface GroupedScannedCard extends ScannedCard {
   storedCount?: number;
 }
 
+export type CardReviewStatus = "reviewed" | "needsAttention";
+
+export interface CardReviewStatusInput {
+  hasAlternatives?: boolean;
+  lowConfidenceMatch?: boolean;
+  wasCorrected?: boolean;
+  isReviewed?: boolean;
+}
+
+export interface InlineUnmatchedCard extends UnmatchedCard {
+  position: number;
+}
+
+export interface InlineUnmatchedCards {
+  items: InlineUnmatchedCard[];
+  totalInPage: number;
+}
+
 export interface CollectionCardsPage {
   items: GroupedScannedCard[];
   page: number;
   pageSize: number;
   totalEntries: number;
   totalCards: number;
+  unmatched?: InlineUnmatchedCards;
 }
+
+export type CardGridTile<Card extends ScannedCard = GroupedScannedCard> =
+  | { kind: "card"; entry: Card }
+  | { kind: "unmatched"; entry: InlineUnmatchedCard }
+  | { kind: "moreUnmatched"; hiddenCount: number; position: number };
 
 export interface CollectionCardPosition {
   entry: ScannedCard;
@@ -94,6 +123,16 @@ export interface IdentifyUnmatchedCardRequest {
   foilType?: string | null;
 }
 
+export interface RetryUnmatchedCardsRequest {
+  scanIds: string[];
+}
+
+export interface RetryUnmatchedCardsBatchResult {
+  checkedCount: number;
+  matchedCount: number;
+  scanLimitReached: boolean;
+}
+
 export interface AddManualCardRequest {
   card: PlayingCard;
   locationGuid?: string;
@@ -112,4 +151,32 @@ export interface CollectionCardDetails {
   origin: CardScanOrigin | null;
   location: CardStorageLocation | null;
   cost: CardAcquisitionCost | null;
+}
+
+export interface UnmatchedRetryProgress {
+  checkedCount: number;
+  matchedCount: number;
+  totalCount: number;
+}
+
+export interface UnmatchedRetrySummary extends UnmatchedRetryProgress {
+  scanLimitReached: boolean;
+  wasStopped: boolean;
+}
+
+export interface UnmatchedRetryRunOptions {
+  scanIds: readonly string[];
+  retryBatch: (scanIds: string[]) => Promise<RetryUnmatchedCardsBatchResult>;
+  onProgress?: (progress: UnmatchedRetryProgress) => void;
+  shouldStop?: () => boolean;
+}
+
+export interface UnmatchedBulkRemoveOptions {
+  scanIds: readonly string[];
+  removeScan: (scanId: string) => Promise<boolean>;
+}
+
+export interface UnmatchedBulkRemoveSummary {
+  removedCount: number;
+  failedCount: number;
 }

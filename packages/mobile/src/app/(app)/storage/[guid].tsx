@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { FlatList, View } from "react-native";
 import { PullToRefreshControl } from "@/components/ui/pull-to-refresh-control";
 import {
+  cardReviewStatus,
   allExportAdapters,
   DEFAULT_CARD_SORT,
   EMPTY_CARD_FILTERS,
@@ -337,8 +338,12 @@ export default function StorageLocationScreen() {
                     caption={[t("storage.position", { position: formatStorageSlot(entry.position, location?.batchSize) }), ...(value != null ? [pricing.format(value)] : [])].join(" · ")}
                     {...cardArtSources(entry.card.image)}
                     isFoil={entry.isFoil}
-                    flagged={(entry.lowConfidenceMatch || entry.hasAlternatives) && !entry.reviewed}
-                    corrected={entry.corrected || entry.reviewed}
+                    reviewStatus={cardReviewStatus({
+                      hasAlternatives: entry.hasAlternatives,
+                      lowConfidenceMatch: entry.lowConfidenceMatch,
+                      wasCorrected: entry.corrected,
+                      isReviewed: entry.reviewed,
+                    })}
                     onPress={openEntry}
                     onPressIn={prefetchEntry}
                   />

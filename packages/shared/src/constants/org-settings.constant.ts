@@ -15,6 +15,7 @@ export const DEFAULT_ORG_SETTINGS: OrgSettings = {
   correctionBinPrompt: true,
   pauseScanningOnDeploy: true,
   leaderboardOptIn: false,
+  unmatchedCardsInGrid: false,
   correctionAutoCloseSeconds: null,
   priceSource: DEFAULT_PRICE_SOURCE,
   conditionMultipliers: DEFAULT_CONDITION_MULTIPLIERS,

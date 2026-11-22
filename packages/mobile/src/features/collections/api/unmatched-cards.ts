@@ -1,6 +1,13 @@
 import { infiniteQueryOptions, type QueryClient } from "@tanstack/react-query";
-import type { IdentifyUnmatchedCardRequest, Result, ScannedCard, UnmatchedCardsPage } from "@magic-vault/shared";
-import { apiDelete, apiGet, apiRequest, unwrap, unwrapOr } from "@/lib/api/client";
+import type {
+  IdentifyUnmatchedCardRequest,
+  Result,
+  RetryUnmatchedCardsBatchResult,
+  RetryUnmatchedCardsRequest,
+  ScannedCard,
+  UnmatchedCardsPage,
+} from "@magic-vault/shared";
+import { apiDelete, apiGet, apiPost, apiRequest, unwrap, unwrapOr } from "@/lib/api/client";
 import { UNMATCHED_LIST_PAGE_SIZE } from "@/lib/constants/collections";
 import { invalidateCollectionCards } from "@/features/collections/api/collection-cards";
 
@@ -31,6 +38,17 @@ export function identifyUnmatchedCard(
       body: request,
       acceptStatuses: [402],
     }),
+  );
+}
+
+export function retryUnmatchedCardsBatch(
+  guid: string,
+  scanIds: string[],
+): Promise<RetryUnmatchedCardsBatchResult> {
+  return unwrap(
+    apiPost<Result<RetryUnmatchedCardsBatchResult>>(`/api/collections/${guid}/unmatched/retry`, {
+      scanIds,
+    } satisfies RetryUnmatchedCardsRequest),
   );
 }
 

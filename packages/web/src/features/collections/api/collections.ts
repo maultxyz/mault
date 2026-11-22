@@ -21,6 +21,8 @@ import {
   type CreateCollectionFormValues,
   type EditCollectionFormValues,
   type IdentifyUnmatchedCardRequest,
+  type RetryUnmatchedCardsBatchResult,
+  type RetryUnmatchedCardsRequest,
   type MatchedScanDiagnostics,
   type MoveCardsToCollectionResult,
   type Result,
@@ -480,6 +482,20 @@ export async function identifyUnmatchedCard(
     `/api/collections/${guid}/unmatched/${scanId}/identify`,
     request,
   );
+}
+
+export async function retryUnmatchedCardsBatch(
+  guid: string,
+  scanIds: string[],
+): Promise<RetryUnmatchedCardsBatchResult> {
+  const result = await apiPost<Result<RetryUnmatchedCardsBatchResult>>(
+    `/api/collections/${guid}/unmatched/retry`,
+    { scanIds } satisfies RetryUnmatchedCardsRequest,
+  );
+  if (!result.success || !result.data) {
+    throw new Error(result.message);
+  }
+  return result.data;
 }
 
 export async function addManualCollectionCard(

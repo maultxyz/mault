@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useState } from "react";
 import { activeAnnouncementsQueryOptions } from "@/features/stream/api/announcements";
 import { useActiveOrgId } from "@/hooks/use-org";
+import { MY_CARD_RESERVATIONS_QUERY_KEY } from "@/lib/constants/card-reservations";
 import { TRADE_OFFERS_QUERY_KEY } from "@/lib/constants/trade-offers";
 import type { AlertsRefresh } from "@/lib/interfaces/stream";
 
@@ -12,7 +13,11 @@ export function useAlertsRefresh(): AlertsRefresh {
   const refresh = useCallback(async () => {
     setIsRefreshing(true);
     try {
-      const queryKeys = [activeAnnouncementsQueryOptions(orgId).queryKey, [TRADE_OFFERS_QUERY_KEY]];
+      const queryKeys = [
+        activeAnnouncementsQueryOptions(orgId).queryKey,
+        [TRADE_OFFERS_QUERY_KEY],
+        [MY_CARD_RESERVATIONS_QUERY_KEY],
+      ];
       await Promise.all(queryKeys.map((queryKey) => queryClient.refetchQueries({ queryKey })));
       return queryKeys.every((queryKey) =>
         queryClient

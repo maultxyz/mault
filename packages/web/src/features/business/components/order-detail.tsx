@@ -144,6 +144,8 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
   const pickedSet = pickProgress.pickedScanIds;
   const allScanIds = order.pullSheet.map((entry) => entry.scanId);
   const livePicked = allScanIds.filter((id) => pickedSet.has(id));
+  const reservationHeldScanIds = new Set(order.reservationHeldScanIds ?? []);
+  const reservedPickedCount = livePicked.filter((id) => reservationHeldScanIds.has(id)).length;
   const allPicked =
     allScanIds.length > 0 && allScanIds.every((id) => pickedSet.has(id));
   const changePicked = pickProgress.changePicked;
@@ -854,9 +856,14 @@ export function OrderDetail({ guid, onDeleted }: OrderDetailProps) {
         open={fulfilOpen}
         onOpenChange={setFulfilOpen}
         title={t("orders.fulfilTitle")}
-        description={t("orders.fulfilDescription", {
-          count: livePicked.length,
-        })}
+        description={
+          reservedPickedCount > 0
+            ? t("orders.fulfilDescriptionWithReservations", {
+                count: reservedPickedCount,
+                removed: livePicked.length - reservedPickedCount,
+              })
+            : t("orders.fulfilDescription", { count: livePicked.length })
+        }
         confirmLabel={t("orders.fulfil")}
         cancelLabel={t("actions.back")}
         isPending={pending}

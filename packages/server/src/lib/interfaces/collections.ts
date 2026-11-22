@@ -8,6 +8,10 @@ import type {
 import type { SQL } from "drizzle-orm";
 import type { Transaction } from "../../db";
 import type { CatalogJoinScope } from "./saved-cards";
+import type {
+  StoredBackScanImageRow,
+  StoredScanImageRow,
+} from "./scan-images";
 
 export interface CardStatsSource {
   scope: CatalogJoinScope;
@@ -144,4 +148,22 @@ export interface NotifyCardScannedParams {
   gameName: string | undefined;
   gameId: number | null;
   capturedImageUrl?: string;
+}
+
+export interface InlineUnmatchedCardsWindow {
+  firstScanId: string | undefined;
+  lastScanId: string | undefined;
+  isFirstPage: boolean;
+  isLastPage: boolean;
+}
+
+export interface InlineUnmatchedCardRow
+  extends StoredScanImageRow,
+    StoredBackScanImageRow {
+  guid: string;
+  scanned_at_ms: number;
+  binNumber: number | null;
+  diagnostics: unknown;
+  total_in_page: number;
+  position: number;
 }

@@ -1,4 +1,7 @@
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { useUnmatchedCardsInGrid } from "@/features/scanner/api/use-unmatched-cards-in-grid";
 import { useIsMobile } from "@/hooks/use-is-mobile";
 import type { UnmatchedCardsPanelProps } from "@/lib/interfaces/scanner";
 import { useUnmatchedView } from "@/features/scanner/api/use-unmatched-view";
@@ -13,7 +16,7 @@ import {
   IconPhotoOff,
   IconX,
 } from "@tabler/icons-react";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 export function UnmatchedCardsPanel({
@@ -21,6 +24,7 @@ export function UnmatchedCardsPanel({
   total,
   collectionGuid,
   canIdentify = false,
+  showsInGridToggle = false,
   onRemove,
   onRemoveAll,
 }: UnmatchedCardsPanelProps) {
@@ -29,11 +33,14 @@ export function UnmatchedCardsPanel({
   const [gridOpen, setGridOpen] = useState(false);
   const [dialogIndex, setDialogIndex] = useState<number | null>(null);
   const unmatchedView = useUnmatchedView();
+  const inGrid = useUnmatchedCardsInGrid();
+  const inGridSwitchId = useId();
   const [storedExpanded, setStoredExpanded] = usePersistedFlag(
     UNMATCHED_PANEL_EXPANDED_STORAGE_KEY,
   );
-  const isCollapsible = !isMobile;
-  const expanded = !isCollapsible || storedExpanded;
+  const isCompact = showsInGridToggle && inGrid.isEnabled;
+  const isCollapsible = !isMobile && !isCompact;
+  const expanded = !isCompact && (!isCollapsible || storedExpanded);
   if (total === 0 && cards.length === 0) {
     if (gridOpen) setGridOpen(false);
     return null;
@@ -82,7 +89,7 @@ export function UnmatchedCardsPanel({
         <button
           type="button"
           disabled={!isCollapsible}
-          aria-expanded={expanded}
+          aria-expanded={isCollapsible ? expanded : undefined}
           onClick={() => setStoredExpanded(!storedExpanded)}
           className="flex min-w-0 flex-1 items-center justify-between gap-2 text-left disabled:cursor-default"
         >
@@ -147,6 +154,23 @@ export function UnmatchedCardsPanel({
               </div>
             ),
           )}
+        </div>
+      )}
+      {showsInGridToggle && (expanded || isCompact) && (
+        <div className="flex items-center justify-between gap-2 px-3 pb-2">
+          <Label
+            htmlFor={inGridSwitchId}
+            className="text-xs font-normal text-warning-foreground"
+          >
+            {t("unmatchedCardsPanel.showInGrid")}
+          </Label>
+          <Switch
+            id={inGridSwitchId}
+            size="sm"
+            checked={inGrid.isEnabled}
+            disabled={inGrid.isLoading}
+            onCheckedChange={inGrid.setEnabled}
+          />
         </div>
       )}
       {collectionGuid && (

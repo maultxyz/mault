@@ -33,8 +33,9 @@ export const TRADE_OFFER_SIDES = ["wanted", "offered"] as const;
 export const OUTGOING_TRADE_OFFERS_QUERY_KEY = "outgoing-trade-offers";
 export const TRADE_OFFER_DRAFT_STORAGE_KEY_PREFIX = "mault:trade-offer-draft:";
 export const TRADES_BOX_PARAM = "box";
-export const TRADES_BOXES = ["received", "sent"] as const;
+export const TRADES_BOXES = ["received", "sent", "reservations"] as const;
 export const SENT_TRADES_PATH = `${TRADES_PATH}?${TRADES_BOX_PARAM}=sent`;
+export const MY_RESERVATIONS_PATH = `${TRADES_PATH}?${TRADES_BOX_PARAM}=reservations`;
 export const SENT_TRADE_OFFER_PATH = `${TRADES_PATH}/sent/:offerGuid`;
 
 export function tradeOfferPath(offerGuid: string): string {

@@ -603,7 +603,8 @@
     "boxes": {
       "label": "Tauschangebote",
       "received": "Erhalten",
-      "sent": "Gesendet"
+      "sent": "Gesendet",
+      "reservations": "Meine Reservierungen"
     },
     "sent": {
       "title": "Gesendetes Tauschangebot",
@@ -746,5 +747,32 @@
       "resultsCount_other": "{{count}} Neuigkeiten gefunden"
     },
     "openInTimeline": "In Neuigkeiten öffnen"
+  },
+  "reservations": {
+    "newReservationToast_one": "{{name}} hat {{card}} reserviert",
+    "newReservationToast_other": "{{name}} hat {{count}} Karten reserviert"
+  },
+  "myReservations": {
+    "new": "Neu",
+    "unknownCatalog": "Shop-Katalog",
+    "openCatalog": "Katalog öffnen",
+    "cancelled": "Reservierung storniert",
+    "cancelFailed": "Die Reservierung konnte nicht storniert werden.",
+    "loadFailed": "Deine Reservierungen konnten nicht geladen werden.",
+    "emptyTitle": "Noch keine Reservierungen",
+    "emptyDescription": "Karten, die du angemeldet aus einem Shop-Katalog reservierst, erscheinen hier.",
+    "open": "Offen",
+    "past": "Vergangen",
+    "trayHeading": "Deine Reservierungen",
+    "view": "Reservierungen ansehen",
+    "alerts": {
+      "held": "{{card}} ist jetzt bei {{catalog}} für dich zurückgelegt",
+      "readyForPickup": "{{card}} liegt bei {{catalog}} zur Abholung bereit",
+      "expired": "Deine Reservierung von {{card}} bei {{catalog}} ist abgelaufen",
+      "released": "{{catalog}} hat deine Reservierung von {{card}} freigegeben",
+      "unavailable": "{{card}} bei {{catalog}} ist nicht mehr verfügbar"
+    },
+    "dismiss": "Ausblenden",
+    "dismissFor": "Hinweis zu {{card}} ausblenden"
   }
 }

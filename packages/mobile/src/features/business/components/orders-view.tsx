@@ -1,5 +1,6 @@
 import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { router } from "expo-router";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { View } from "react-native";
 import { ORDER_PICK_LINK_MAX_ORDERS } from "@magic-vault/shared";
@@ -11,9 +12,16 @@ import { ListRow } from "@/components/ui/list-row";
 import { ListSkeleton } from "@/components/ui/list-skeleton";
 import { Pill } from "@/components/ui/pill";
 import { SectionHeader } from "@/components/ui/section-header";
+import { BusinessListSearch } from "@/features/business/components/business-list-search";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { orderQueryOptions, ordersQueryOptions } from "@/features/business/api/business";
 import { useActiveOrgId } from "@/hooks/use-org";
-import { BUSINESS_LIST_SKELETON_ROWS, BUSINESS_STATUS_TONES, PICK_WALK_ORDERS_SEPARATOR } from "@/lib/constants/business";
+import {
+  BUSINESS_LIST_SEARCH_DEBOUNCE_MS,
+  BUSINESS_LIST_SKELETON_ROWS,
+  BUSINESS_STATUS_TONES,
+  PICK_WALK_ORDERS_SEPARATOR,
+} from "@/lib/constants/business";
 import { SPACING } from "@/lib/constants/theme";
 import type { BusinessListViewProps, OrderRowProps } from "@/lib/interfaces/business";
 
@@ -42,7 +50,12 @@ export function OrdersView({ canAct }: BusinessListViewProps) {
   const { t } = useTranslation();
   const orgId = useActiveOrgId();
   const queryClient = useQueryClient();
-  const orders = useInfiniteQuery(ordersQueryOptions(orgId, true));
+  const [search, setSearch] = useState("");
+  const debouncedSearch = useDebouncedValue(search.trim(), BUSINESS_LIST_SEARCH_DEBOUNCE_MS);
+  const orders = useInfiniteQuery(ordersQueryOptions(orgId, true, debouncedSearch));
+  const searchInput = (
+    <BusinessListSearch value={search} onChange={setSearch} placeholder={t("business.search.picksPlaceholder")} />
+  );
   const prefetchOrder = (guid: string) => void queryClient.prefetchQuery(orderQueryOptions(guid));
   const items = orders.data?.pages.flatMap((page) => page.items) ?? [];
   const openOrders = items.filter((order) => order.status === "open");
@@ -53,7 +66,14 @@ export function OrdersView({ canAct }: BusinessListViewProps) {
     .slice(0, ORDER_PICK_LINK_MAX_ORDERS)
     .map((order) => order.guid);
 
-  if (orders.isPending) return <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} />;
+  if (orders.isPending) {
+    return (
+      <View style={{ gap: SPACING.lg }}>
+        {searchInput}
+        <ListSkeleton rows={BUSINESS_LIST_SKELETON_ROWS} />
+      </View>
+    );
+  }
   if (orders.isError) {
     return (
       <Callout
@@ -71,6 +91,18 @@ export function OrdersView({ canAct }: BusinessListViewProps) {
       />
     );
   }
+  if (items.length === 0 && debouncedSearch) {
+    return (
+      <View style={{ gap: SPACING.lg }}>
+        {searchInput}
+        <EmptyState
+          icon="checkAll"
+          title={t("business.search.noResultsTitle")}
+          description={t("business.search.noResultsDescription", { query: debouncedSearch })}
+        />
+      </View>
+    );
+  }
   if (items.length === 0) {
     return (
       <EmptyState
@@ -85,6 +117,7 @@ export function OrdersView({ canAct }: BusinessListViewProps) {
   }
   return (
     <View style={{ gap: SPACING.lg }}>
+      {searchInput}
       {canAct && pickableOrderGuids.length > 1 ? (
         <Button
           icon="checkAll"

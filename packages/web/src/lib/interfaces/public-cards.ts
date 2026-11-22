@@ -35,6 +35,7 @@ export interface PublicCardBrowserProps {
   headerNote?: ReactNode;
   sidebarTop?: ReactNode;
   tradeOfferLink?: TradeOfferLink;
+  reservationHoldDays?: number | null;
 }
 
 export interface PublicCardResultsProps {
@@ -71,6 +72,7 @@ export interface SharedCardViewProps {
 export interface PublicCardBadgesProps {
   entry: PublicCard;
   className?: string;
+  children?: ReactNode;
 }
 
 export interface PublicCardFilterOption {

@@ -194,10 +194,17 @@ export function OrderBatchPick({ orderGuids }: OrderBatchPickProps) {
         open={completeOpen}
         onOpenChange={setCompleteOpen}
         title={t("orders.batch.completeTitle", { count: completedOrders.length })}
-        description={t("orders.batch.completeDescription", {
-          count: completedOrders.length,
-          names: completedOrders.map((order) => order.name).join(", "),
-        })}
+        description={[
+          t("orders.batch.completeDescription", {
+            count: completedOrders.length,
+            names: completedOrders.map((order) => order.name).join(", "),
+          }),
+          completedOrders.some((order) => (order.reservationHeldScanIds ?? []).length > 0)
+            ? t("orders.reservationCardsNote")
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" ")}
         confirmLabel={t("orders.batch.complete", { count: completedOrders.length })}
         cancelLabel={t("actions.back")}
         isPending={isCompleting}

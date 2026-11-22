@@ -1,7 +1,6 @@
 import {
   PLATFORM_STAFF_ROLES,
   CLOSE_MATCH_DELTA,
-  OCR_REGIONS_BY_GAME_KEY,
   type AdminUnmatchedOcrResult,
   type AdminUnmatchedRetryRequest,
   type AdminUnmatchedRetryResult,
@@ -13,30 +12,24 @@ import {
 } from "@magic-vault/shared";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { Hono } from "hono";
-import sharp from "sharp";
 import { authProvider } from "../../auth";
 import { db } from "../../db";
 import { collections, games, unmatchedCards } from "../../db/schema";
 import {
-  ADMIN_OCR_IMAGE_HEIGHT,
-  ADMIN_OCR_IMAGE_WIDTH,
   ADMIN_UNMATCHED_LIST_LIMIT,
   ADMIN_UNMATCHED_RETRY_CONCURRENCY,
   ADMIN_UNMATCHED_RETRY_MAX,
 } from "../../lib/constants/admin-unmatched";
 import { UUID_PATTERN } from "../../lib/constants/validation";
 import type { AdminScanRow } from "../../lib/interfaces/admin-unmatched";
-import type {
-  CardMatchSearchResult,
-  CardTextMatchResult,
-} from "../../lib/interfaces/card-search";
-import { loadScanImage, resolveScanImageUrl } from "../../lib/scan-images";
-import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
+import type { CardMatchSearchResult } from "../../lib/interfaces/card-search";
+import { resolveScanImageUrl } from "../../lib/scan-images";
 import {
-  attachMatchedCards,
-  findCardMatches,
-  findCardMatchesByOcr,
-} from "../card/shared";
+  ocrRegionsForStoredScan,
+  readStoredScanText,
+} from "../../lib/unmatched-rematch";
+import { requireAuth, requireRole, type AppEnv } from "../../middleware/auth";
+import { attachMatchedCards, findCardMatches } from "../card/shared";
 
 const liveScans = and(
   eq(unmatchedCards.isDeleted, false),
@@ -57,40 +50,6 @@ function scanRowColumns(includeImage: boolean) {
         >`CASE WHEN ${unmatchedCards.capturedImageKey} IS NULL THEN ${unmatchedCards.capturedImageDataUrl} END`
       : sql<string | null>`NULL`,
   };
-}
-
-function ocrRegionsFor(row: AdminScanRow) {
-  return row.gameKey ? (OCR_REGIONS_BY_GAME_KEY[row.gameKey] ?? []) : [];
-}
-
-async function readScanText(
-  row: AdminScanRow,
-  trace?: OcrRegionTrace[],
-): Promise<CardTextMatchResult | null> {
-  const regions = ocrRegionsFor(row);
-  if (!row.gameKey || !row.embedding || regions.length === 0) return null;
-  const photo = await loadScanImage(row);
-  if (!photo) return null;
-
-  const image = await sharp(photo)
-    .resize(ADMIN_OCR_IMAGE_WIDTH, ADMIN_OCR_IMAGE_HEIGHT, { fit: "fill" })
-    .png()
-    .toBuffer();
-  return attachMatchedCards(
-    await findCardMatchesByOcr(
-      image,
-      regions,
-      {
-        gameKey: row.gameKey,
-        lang: row.lang,
-        matchAllLanguages: row.matchAllLanguages,
-        embeddings: { embedding: row.embedding },
-      },
-      trace,
-    ),
-    row.gameKey,
-    row.lang,
-  );
 }
 
 function matchCandidates(
@@ -146,7 +105,7 @@ async function retryScan(
 
   const text =
     withOcr && needsTextSearch(result)
-      ? await readScanText(row)
+      ? await readStoredScanText(row)
       : null;
   const textLeader = text?.data?.[0];
   if (text && textLeader) {
@@ -323,7 +282,7 @@ export const unmatchedRetryRoute = new Hono<AppEnv>()
         }
         const row: AdminScanRow = { ...found, scanId };
 
-        if (ocrRegionsFor(row).length === 0) {
+        if (ocrRegionsForStoredScan(row).length === 0) {
           const data: AdminUnmatchedOcrResult = {
             scanId,
             supported: false,
@@ -342,7 +301,7 @@ export const unmatchedRetryRoute = new Hono<AppEnv>()
         }
 
         const trace: OcrRegionTrace[] = [];
-        const result = await readScanText(row, trace);
+        const result = await readStoredScanText(row, trace);
         if (!result) {
           return c.json(
             { success: false, message: "This scan has no saved photo." },

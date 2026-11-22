@@ -92,7 +92,8 @@
     "label": "Ankauf- und Verkaufsansicht",
     "intake": "Ankauf",
     "picks": "Picks",
-    "labels": "Etiketten"
+    "labels": "Etiketten",
+    "reservations": "Reservierungen"
   },
   "offerEditor": {
     "title": "Angebot für {{name}}",
@@ -436,7 +437,10 @@
       "copied": "Pick-Link kopiert",
       "copyFailed": "Link konnte nicht kopiert werden",
       "done": "Fertig"
-    }
+    },
+    "fulfilDescriptionWithReservations_one": "{{count}} reservierte Karte wird als abholbereit markiert und bleibt im Bestand, bis sie abgeholt wird. Nicht reservierte Karten verlassen den Bestand: {{removed}}.",
+    "fulfilDescriptionWithReservations_other": "{{count}} reservierte Karten werden als abholbereit markiert und bleiben im Bestand, bis sie abgeholt werden. Nicht reservierte Karten verlassen den Bestand: {{removed}}.",
+    "reservationCardsNote": "Für Reservierungen zurückgelegte Karten bleiben im Bestand und werden als abholbereit markiert."
   },
   "cost": {
     "title": "Einkaufspreis festlegen",
@@ -507,7 +511,9 @@
       "catalogUpdated": "Shop-Katalog geändert",
       "catalogDeleted": "Shop-Katalog gelöscht",
       "orderSortPresetCreated": "Sortiervorlage erstellt",
-      "tradeRecorded": "Tausch erfasst"
+      "tradeRecorded": "Tausch erfasst",
+      "reservationCollected": "Reservierung abgeholt",
+      "reservationReleased": "Reservierung freigegeben"
     },
     "messages": {
       "cardCorrected": "{{from}} zu {{to}} korrigiert",
@@ -537,7 +543,9 @@
       "catalogUpdated": "Hat den Shop-Katalog {{summary}} geändert",
       "catalogDeleted": "Hat den Shop-Katalog {{summary}} gelöscht",
       "orderSortPresetCreated": "Sortiervorlage für {{summary}} erstellt",
-      "tradeRecorded": "Hat einen Tausch vor Ort mit {{summary}} erfasst"
+      "tradeRecorded": "Hat einen Tausch vor Ort mit {{summary}} erfasst",
+      "reservationCollected": "Reservierung von {{summary}} als abgeholt markiert",
+      "reservationReleased": "Reservierung von {{summary}} freigegeben"
     }
   },
   "accuracy": {
@@ -700,7 +708,14 @@
     "isPublic": "Öffentlich",
     "isPublicDescription": "Jeder kann diesen Katalog über seine normale Adresse öffnen, ohne den privaten Link. Ausschalten, um den privaten Link zu verlangen.",
     "publicBadge": "Öffentlich",
-    "publicLinkNote": "Dieser Katalog ist öffentlich, daher funktioniert dieser Link für alle. Schalte Öffentlich aus, um einen privaten Link zu verlangen."
+    "publicLinkNote": "Dieser Katalog ist öffentlich, daher funktioniert dieser Link für alle. Schalte Öffentlich aus, um einen privaten Link zu verlangen.",
+    "allowsReservations": "Kunden Karten reservieren lassen",
+    "allowsReservationsDescription": "Kunden können eine Karte zur Abholung im Laden reservieren. Ist sie schon reserviert, stellen sie sich an und rücken nach, wenn die Person vor ihnen sie nicht abholt.",
+    "reservationHoldLabel": "Reservierte Karte zurücklegen für",
+    "reservationHoldDays_one": "{{count}} Tag",
+    "reservationHoldDays_other": "{{count}} Tage",
+    "reservationHoldDescription": "Danach läuft die Reservierung ab und die nächste Person in der Reihe bekommt die Karte.",
+    "reservationsOn": "Nimmt Reservierungen an"
   },
   "priceLabels": {
     "title": "Preisetiketten",
@@ -761,5 +776,109 @@
     "sheet": {
       "pageDescription": "Preisetikettenbogen Seite {{page}}: {{labels}}"
     }
+  },
+  "reservations": {
+    "howItWorks": "Schalte Reservierungen pro Shop-Katalog in den Einstellungen ein. Eine Reservierung läuft von selbst ab, sobald die für ihren Katalog eingestellte Zeit vorbei ist.",
+    "listLabel": "Reservierungsliste",
+    "lists": {
+      "active": "Offen",
+      "closed": "Verlauf"
+    },
+    "waitingSection": "In der Warteschlange ({{count}})",
+    "waitingSectionDescription": "Diese Kunden bekommen die Karte, wenn alle vor ihnen sie nicht abholen.",
+    "catalog": "Katalog",
+    "reservedOn": "Reserviert",
+    "heldUntil": "Zurückgelegt bis {{date}}",
+    "inLinePosition": "Platz {{position}} von {{total}} in der Reihe",
+    "closedOn": "Geschlossen {{date}}",
+    "pickedUp": "Abgeholt",
+    "release": "Freigeben",
+    "collected": "{{name}} abgeholt und als verkauft erfasst",
+    "collectConfirmTitle": "{{name}} als abgeholt markieren?",
+    "collectConfirmDescription": "Die Karte verlässt deinen Bestand und wird als für {{price}} verkauft erfasst. Wer noch in der Reihe steht, sieht, dass sie nicht mehr verfügbar ist.",
+    "collectConfirmDescriptionNoPrice": "Die Karte verlässt deinen Bestand und wird ohne Preis als verkauft erfasst. Wer noch in der Reihe steht, sieht, dass sie nicht mehr verfügbar ist.",
+    "releaseConfirmDescription": "Die Person verliert ihren Platz. War sie als Erste dran, wird die Karte für die nächste Person zurückgelegt.",
+    "empty": {
+      "activeTitle": "Keine offenen Reservierungen",
+      "activeDescription": "Reservierungen erscheinen hier, sobald ein Kunde eine Karte aus einem Shop-Katalog reserviert, der sie annimmt.",
+      "closedTitle": "Keine früheren Reservierungen",
+      "closedDescription": "Abgeholte, freigegebene und abgelaufene Reservierungen stehen hier."
+    },
+    "pickedUpGroup_one": "Abgeholt",
+    "pickedUpGroup_other": "Abgeholt ({{count}})",
+    "releaseGroup_one": "Freigeben",
+    "releaseGroup_other": "Alle freigeben ({{count}})",
+    "releaseCardConfirmTitle": "{{card}} für {{name}} freigeben?",
+    "releasedCard": "{{card}} für {{name}} freigegeben",
+    "collectGroupConfirmTitle_one": "1 Karte als von {{name}} abgeholt markieren?",
+    "collectGroupConfirmTitle_other": "{{count}} Karten als von {{name}} abgeholt markieren?",
+    "collectGroupConfirmDescription_one": "Die Karte verlässt deinen Bestand und wird als für {{total}} verkauft erfasst.",
+    "collectGroupConfirmDescription_other": "Die Karten verlassen deinen Bestand und werden als für insgesamt {{total}} verkauft erfasst.",
+    "collectGroupConfirmDescriptionMissingPrices_one": "Die Karte verlässt deinen Bestand und wird ohne Preis als verkauft erfasst.",
+    "collectGroupConfirmDescriptionMissingPrices_other": "Die Karten verlassen deinen Bestand und werden als für insgesamt {{total}} verkauft erfasst. Manche haben keinen Preis und werden ohne erfasst.",
+    "collectGroupWaitingNote_one": "Die 1 Karte, für die die Person noch ansteht, bleibt reserviert.",
+    "collectGroupWaitingNote_other": "Die {{count}} Karten, für die die Person noch ansteht, bleiben reserviert.",
+    "collectedGroup_one": "1 Karte von {{name}} abgeholt und als verkauft erfasst",
+    "collectedGroup_other": "{{count}} Karten von {{name}} abgeholt und als verkauft erfasst",
+    "releaseGroupConfirmTitle_one": "Reservierung von {{name}} freigeben?",
+    "releaseGroupConfirmTitle_other": "Alle {{count}} Reservierungen von {{name}} freigeben?",
+    "releaseGroupConfirmDescription_one": "Die Person verliert ihren Platz. War sie als Erste dran, wird die Karte für die nächste Person zurückgelegt.",
+    "releaseGroupConfirmDescription_other": "Die Person verliert ihren Platz bei jeder Karte dieser Anfrage. Wo sie als Erste dran war, wird die Karte für die nächste Person zurückgelegt.",
+    "releasedGroup_one": "Reservierung von {{name}} freigegeben",
+    "releasedGroup_other": "{{count}} Reservierungen von {{name}} freigegeben",
+    "pickedUpCard": "{{card}} als abgeholt markieren",
+    "releaseCard": "{{card}} freigeben",
+    "pickedUpGroupFor_one": "1 Karte als von {{name}} abgeholt markieren",
+    "pickedUpGroupFor_other": "{{count}} Karten als von {{name}} abgeholt markieren",
+    "releaseGroupFor_one": "Reservierung von {{name}} freigeben",
+    "releaseGroupFor_other": "Alle {{count}} Reservierungen von {{name}} freigeben",
+    "groupClosed": "Geschlossen",
+    "stages": {
+      "readyForPickup": "Abholbereit",
+      "beingPicked": "Wird kommissioniert",
+      "toPull": "Zu holen",
+      "waiting": "In der Reihe",
+      "collected": "Abgeholt",
+      "cancelled": "Storniert",
+      "released": "Freigegeben",
+      "expired": "Abgelaufen",
+      "unavailable": "Karte weg"
+    },
+    "groupSummary": "{{cards}}: {{stages}}",
+    "stageCounts": {
+      "readyForPickup_one": "{{count}} abholbereit",
+      "readyForPickup_other": "{{count}} abholbereit",
+      "beingPicked_one": "{{count}} wird kommissioniert",
+      "beingPicked_other": "{{count}} werden kommissioniert",
+      "toPull_one": "{{count}} zu holen",
+      "toPull_other": "{{count}} zu holen",
+      "waiting_one": "{{count}} in der Reihe",
+      "waiting_other": "{{count}} in der Reihe"
+    },
+    "heldTotal": "Zurückgelegte Karten gesamt {{total}}",
+    "heldTotalMissingPrices": "Zurückgelegte Karten gesamt {{total}} (manche ohne Preis)",
+    "readySection": "Abholbereit ({{count}})",
+    "pullSection": "Zu holen ({{count}})",
+    "createPick_one": "Pickliste erstellen",
+    "createPick_other": "Pickliste erstellen ({{count}})",
+    "openPick": "Pickliste {{name}} öffnen",
+    "inPick": "In Pickliste {{name}}",
+    "pickName": "Reservierung: {{name}}",
+    "pickCreated_one": "Pickliste für {{name}} mit 1 Karte erstellt",
+    "pickCreated_other": "Pickliste für {{name}} mit {{count}} Karten erstellt",
+    "cardCount_one": "1 Karte",
+    "cardCount_other": "{{count}} Karten",
+    "readySectionDescription": "Ihre Karten sind geholt und liegen bereit. Markiere sie als abgeholt, wenn die Person kommt.",
+    "pullSectionDescription": "Diese Kunden sind als Erste dran. Erstelle eine Pickliste, um ihre Karten aus dem Lager zu holen. Ist sie abgeschlossen, sind die Karten abholbereit.",
+    "description": "Karten, die Kunden über deine Shop-Kataloge reserviert haben. Erstelle eine Pickliste, um die Karten einer Person zu holen. Nach Abschluss der Pickliste sind sie abholbereit. Wer ansteht, rückt nach, wenn eine Reservierung freigegeben wird oder abläuft.",
+    "createPickFor_one": "Pickliste für 1 Karte erstellen, die für {{name}} zurückgelegt ist",
+    "createPickFor_other": "Pickliste für {{count}} Karten erstellen, die für {{name}} zurückgelegt sind"
+  },
+  "search": {
+    "noResultsTitle": "Keine Treffer",
+    "noResultsDescription": "Nichts passt zu \"{{query}}\". Versuche einen anderen Namen oder Begriff.",
+    "intakePlaceholder": "Ankäufe nach Kunde oder Notiz durchsuchen",
+    "picksPlaceholder": "Picklisten nach Name, Karte oder Bestellung durchsuchen",
+    "reservationsPlaceholder": "Nach Kunde, Karte oder Katalog suchen"
   }
 }

@@ -11,6 +11,7 @@ import {
   publicCardDetailQueryOptions,
 } from "@/features/public-cards/api/public-cards";
 import { DownloadScanImageButton } from "@/features/cards/components/download-scan-image-button";
+import { ReserveCardSection } from "@/features/card-reservations/components/reserve-card-section";
 import { CapturedImageThumb } from "@/features/cards/components/captured-image-thumb";
 import { CardDetailsList } from "@/features/cards/components/card-details-list";
 import { CardImageViewer } from "@/features/cards/components/card-image-viewer";
@@ -261,6 +262,7 @@ export function PublicCardDetailView({
                 : t("tradeOffers.addToTradeOffer")}
             </Button>
           )}
+          <ReserveCardSection entry={detail} />
         </div>
 
         <div className="grid gap-6 @3xl:grid-cols-[auto_minmax(0,1fr)]">

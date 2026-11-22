@@ -603,7 +603,8 @@
     "boxes": {
       "label": "Offres d'échange",
       "received": "Reçues",
-      "sent": "Envoyées"
+      "sent": "Envoyées",
+      "reservations": "Mes réservations"
     },
     "sent": {
       "title": "Offre d'échange envoyée",
@@ -746,5 +747,32 @@
       "resultsCount_other": "{{count}} nouveautés trouvées"
     },
     "openInTimeline": "Ouvrir dans Nouveautés"
+  },
+  "reservations": {
+    "newReservationToast_one": "{{name}} a réservé {{card}}",
+    "newReservationToast_other": "{{name}} a réservé {{count}} cartes"
+  },
+  "myReservations": {
+    "new": "Nouveau",
+    "unknownCatalog": "Catalogue boutique",
+    "openCatalog": "Ouvrir le catalogue",
+    "cancelled": "Réservation annulée",
+    "cancelFailed": "Impossible d'annuler la réservation.",
+    "loadFailed": "Impossible de charger vos réservations.",
+    "emptyTitle": "Aucune réservation pour l'instant",
+    "emptyDescription": "Les cartes que vous réservez dans le catalogue d'une boutique en étant connecté apparaissent ici.",
+    "open": "En cours",
+    "past": "Passées",
+    "trayHeading": "Vos réservations",
+    "view": "Voir les réservations",
+    "alerts": {
+      "held": "{{card}} est maintenant gardée pour vous chez {{catalog}}",
+      "readyForPickup": "{{card}} est prête à retirer chez {{catalog}}",
+      "expired": "Votre réservation de {{card}} chez {{catalog}} a expiré",
+      "released": "{{catalog}} a libéré votre réservation de {{card}}",
+      "unavailable": "{{card}} chez {{catalog}} n'est plus disponible"
+    },
+    "dismiss": "Masquer",
+    "dismissFor": "Masquer la notification pour {{card}}"
   }
 }

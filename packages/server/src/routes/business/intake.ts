@@ -21,7 +21,7 @@ import {
   type IntakeLotInput,
   type IntakePayoutMethod,
 } from "@magic-vault/shared";
-import { and, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, desc, eq, ilike, inArray, or, sql } from "drizzle-orm";
 import { Hono } from "hono";
 import {
   collectionCards,
@@ -33,6 +33,7 @@ import { collectionNameTaken } from "../collections/shared";
 import { logActivity } from "../../lib/activity-log";
 import { loadBusinessSettings } from "../../lib/business-access";
 import { UUID_PATTERN } from "../../lib/constants/validation";
+import { containsLikePattern, parseBusinessListSearch } from "../../lib/business-list-search";
 import { parsePageParams, resolvePageWindow } from "../../lib/paging";
 import type { IntakeLotRow } from "../../lib/interfaces/business";
 import type { Transaction } from "../../db";
@@ -138,9 +139,20 @@ async function toLiveIntakeLots(
 export const intakeRoute = new Hono<AppEnv>()
   .get("/intake", requireAuth, requireOrg, (c) => {
     const params = parsePageParams(c);
+    const search = parseBusinessListSearch(c);
     return businessQuery(c, async (tx, access) => {
       const orgId = c.get("orgId");
-      const live = eq(intakeLots.isDeleted, false);
+      const pattern = search ? containsLikePattern(search) : null;
+      const live = and(
+        eq(intakeLots.isDeleted, false),
+        pattern
+          ? or(
+              ilike(intakeLots.customerName, pattern),
+              ilike(intakeLots.customerContact, pattern),
+              ilike(intakeLots.notes, pattern),
+            )
+          : undefined,
+      );
       const ordered = await tx
         .select({ guid: intakeLots.guid })
         .from(intakeLots)

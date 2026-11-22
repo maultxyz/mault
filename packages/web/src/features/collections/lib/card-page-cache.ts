@@ -2,9 +2,10 @@ import {
   collectionCardsKeys,
   unmatchedCardsKeys,
 } from "@/features/collections/api/collection-cards";
-import type {
-  CollectionCardsPage,
-  GroupedScannedCard,
+import {
+  COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM,
+  type CollectionCardsPage,
+  type GroupedScannedCard,
 } from "@magic-vault/shared";
 import { CARD_QUERY_KINDS_REFRESHED_SEPARATELY } from "@/lib/constants/collections";
 import {
@@ -107,6 +108,11 @@ export function invalidateUnmatchedCards(
   queryClient: QueryClient,
   guid: string,
 ) {
+  void queryClient.invalidateQueries({
+    queryKey: [...collectionCardsKeys.all(guid), "page"],
+    predicate: (query) =>
+      query.queryKey.includes(COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM),
+  });
   return queryClient.invalidateQueries({
     queryKey: unmatchedCardsKeys.all(guid),
   });

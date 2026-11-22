@@ -1,3 +1,4 @@
+import type { CardReviewStatus } from "@magic-vault/shared";
 import type { WrappedStorySlide } from "@/lib/interfaces/cards";
 
 export const WRAPPED_SLIDE_DURATION_MS = 5000;
@@ -97,3 +98,8 @@ export const CARD_DETAIL_ACTION_BAR_CLASS = "shrink-0 bg-background/80 backdrop-
 export const CARD_DETAIL_ACTION_ROW_CLASS =
   "flex flex-wrap gap-2 items-center w-full max-md:gap-1.5 max-md:[&>*]:flex-1";
 export const CARD_DETAIL_SKELETON_SECTION_COUNT = 3;
+
+export const CARD_REVIEW_STATUS_BORDER_CLASS: Record<CardReviewStatus, string> = {
+  reviewed: "border-success-strong",
+  needsAttention: "border-dashed border-warning-strong",
+};

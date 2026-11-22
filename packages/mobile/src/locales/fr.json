@@ -1097,7 +1097,11 @@
     "scanTimelineSortNote": "La chronologie affiche toujours les scans les plus récents en premier.",
     "scanTimelineBlockCount_one": "{{count}} carte",
     "scanTimelineBlockCount_other": "{{count}} cartes",
-    "loadingMoreCards": "Chargement de cartes supplémentaires"
+    "loadingMoreCards": "Chargement de cartes supplémentaires",
+    "unmatchedTileLabel": "Scan non reconnu du {{scannedAt}}",
+    "unmatchedTag": "Non reconnu",
+    "moreUnmatched_one": "{{count}} autre scan non reconnu",
+    "moreUnmatched_other": "{{count}} autres scans non reconnus"
   },
   "cardDetail": {
     "catalogCardRemovedTitle": "Carte retirée du catalogue",
@@ -2469,7 +2473,14 @@
       "isPublic": "Public",
       "isPublicDescription": "Tout le monde peut ouvrir ce catalogue depuis son adresse simple, sans le lien privé.",
       "publicBadge": "Public",
-      "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé."
+      "publicLinkNote": "Ce catalogue est public, ce lien fonctionne donc pour tout le monde. Désactivez Public pour exiger un lien privé.",
+      "allowsReservations": "Laisser les clients réserver des cartes",
+      "allowsReservationsDescription": "Les clients peuvent réserver une carte à retirer en boutique. Si elle est déjà réservée, ils rejoignent la file et avancent quand la personne devant eux ne vient pas la chercher.",
+      "reservationHoldLabel": "Garder une carte réservée pendant",
+      "reservationHoldDays_one": "{{count}} jour",
+      "reservationHoldDays_other": "{{count}} jours",
+      "reservationHoldDescription": "Passé ce délai, la réservation expire et la personne suivante dans la file obtient la carte.",
+      "reservationsOn": "Accepte les réservations"
     },
     "statsSync": {
       "key": {
@@ -2759,7 +2770,47 @@
     "removeAllTitle_other": "Supprimer {{count}} scans non reconnus ?",
     "removeAllDescription": "Les photos sont supprimées et aucune de ces cartes n'est ajoutée à la collection.",
     "badge_one": "{{count}} non reconnue",
-    "badge_other": "{{count}} non reconnues"
+    "badge_other": "{{count}} non reconnues",
+    "retry": {
+      "action": "Réessayer avec une précision accrue",
+      "stop": "Arrêter",
+      "progress_one": "{{checked}} sur {{total}} vérifiées, {{count}} correspondance",
+      "progress_other": "{{checked}} sur {{total}} vérifiées, {{count}} correspondances",
+      "confirmTitle_one": "Réessayer {{count}} carte non reconnue avec une précision accrue ?",
+      "confirmTitle_other": "Réessayer {{count}} cartes non reconnues avec une précision accrue ?",
+      "confirmDescription": "Mault lit le nom, l'extension et le numéro imprimés sur chaque scan enregistré et vérifie à nouveau l'image. Les cartes identifiées sont ajoutées à cette collection et marquées à vérifier. Chaque correspondance compte dans les scans du jour, et les autres restent non reconnues.",
+      "confirm": "Réessayer les cartes",
+      "matched_one": "{{count}} carte identifiée sur {{checked}}. Elle est marquée à vérifier.",
+      "matched_other": "{{count}} cartes identifiées sur {{checked}}. Elles sont marquées à vérifier.",
+      "noMatches_one": "Aucune correspondance parmi {{checked}} cartes.",
+      "noMatches_other": "Aucune correspondance parmi {{checked}} cartes.",
+      "stopped_one": "Arrêté après {{checked}} cartes. {{count}} carte identifiée.",
+      "stopped_other": "Arrêté après {{checked}} cartes. {{count}} cartes identifiées.",
+      "scanLimitReached_one": "{{count}} carte identifiée avant d'atteindre la limite de scans du jour.",
+      "scanLimitReached_other": "{{count}} cartes identifiées avant d'atteindre la limite de scans du jour.",
+      "failed": "Impossible de terminer. Les cartes déjà identifiées ont été conservées."
+    },
+    "selection": {
+      "select": "Sélectionner des scans",
+      "doneSelecting": "Terminer la sélection",
+      "hint": "Sélectionnez jusqu'à {{max}} scans, puis réessayez-les avec une précision accrue ou supprimez-les.",
+      "selectScan": "Sélectionner le scan du {{scannedAt}}",
+      "selected_one": "{{count}} scan sélectionné",
+      "selected_other": "{{count}} scans sélectionnés",
+      "selectLoaded": "Tout sélectionner",
+      "clear": "Effacer",
+      "limitReached": "Vous pouvez sélectionner jusqu'à {{max}} scans à la fois.",
+      "remove": "Supprimer",
+      "removeTitle_one": "Supprimer {{count}} scan non reconnu ?",
+      "removeTitle_other": "Supprimer {{count}} scans non reconnus ?",
+      "removed_one": "{{count}} scan non reconnu supprimé",
+      "removed_other": "{{count}} scans non reconnus supprimés",
+      "removeFailed_one": "Impossible de supprimer {{count}} scan",
+      "removeFailed_other": "Impossible de supprimer {{count}} scans"
+    },
+    "showInGrid": "Afficher dans la grille de cartes",
+    "showInGridDescription": "Les scans non reconnus apparaissent entre vos cartes avec une bordure rouge. S'applique à tous les membres de cette organisation.",
+    "showInGridFailed": "Impossible d'enregistrer le réglage"
   },
   "matchValidations": {
     "ocrFallback": "{{field}} (zone de secours)",
@@ -3578,7 +3629,8 @@
     },
     "boxes": {
       "received": "Reçues",
-      "sent": "Envoyées"
+      "sent": "Envoyées",
+      "reservations": "Mes réservations"
     },
     "sent": {
       "title": "Offre d'échange envoyée",
@@ -3934,7 +3986,8 @@
     "delete": "Supprimer",
     "views": {
       "intake": "Rachat",
-      "picks": "Préparations"
+      "picks": "Préparations",
+      "reservations": "Réservations"
     },
     "status": {
       "open": "Ouvert",
@@ -4106,7 +4159,8 @@
         "picked": "{{name}} pris dans {{spot}}",
         "alreadyPicked": "Tous les exemplaires de {{name}} de cette préparation sont déjà préparés.",
         "notOnPick": "{{name}} ne reste pas dans cette préparation."
-      }
+      },
+      "reservationCardsNote": "Les cartes réservées restent en stock et sont marquées prêtes à retirer."
     },
     "order": {
       "title": "Préparation",
@@ -4160,6 +4214,98 @@
         "condition": "Autre état",
         "finish": "Autre finition"
       }
+    },
+    "reservations": {
+      "lists": {
+        "active": "En cours",
+        "closed": "Historique"
+      },
+      "waitingSection": "Dans la file ({{count}})",
+      "heldUntil": "Mise de côté jusqu'au {{date}}",
+      "inLinePosition": "Numéro {{position}} sur {{total}} dans la file",
+      "closedOn": "Clôturée le {{date}}",
+      "pickedUp": "Retirée",
+      "release": "Libérer",
+      "collected": "{{name}} retirée et enregistrée comme vendue",
+      "collectConfirmTitle": "Marquer {{name}} comme retirée ?",
+      "collectConfirmDescription": "La carte quitte votre stock et est enregistrée comme vendue {{price}}. Les personnes encore dans la file voient qu'elle n'est plus disponible.",
+      "collectConfirmDescriptionNoPrice": "La carte quitte votre stock et est enregistrée comme vendue sans prix. Les personnes encore dans la file voient qu'elle n'est plus disponible.",
+      "releaseConfirmDescription": "Cette personne perd sa place. Si elle était première de la file, la carte est mise de côté pour la suivante.",
+      "empty": {
+        "activeTitle": "Aucune réservation en cours",
+        "activeDescription": "Les réservations apparaissent ici quand un client réserve une carte depuis un catalogue boutique qui les accepte.",
+        "closedTitle": "Aucune réservation passée",
+        "closedDescription": "Les réservations retirées, libérées ou expirées sont listées ici."
+      },
+      "pickedUpGroup_one": "Retirée",
+      "pickedUpGroup_other": "Retirées ({{count}})",
+      "releaseGroup_one": "Libérer",
+      "releaseGroup_other": "Tout libérer ({{count}})",
+      "releaseCardConfirmTitle": "Libérer {{card}} pour {{name}} ?",
+      "releasedCard": "{{card}} libérée pour {{name}}",
+      "collectGroupConfirmTitle_one": "Marquer 1 carte comme retirée par {{name}} ?",
+      "collectGroupConfirmTitle_other": "Marquer {{count}} cartes comme retirées par {{name}} ?",
+      "collectGroupConfirmDescription_one": "La carte quitte votre stock et est enregistrée comme vendue {{total}}.",
+      "collectGroupConfirmDescription_other": "Les cartes quittent votre stock et sont enregistrées comme vendues {{total}} au total.",
+      "collectGroupConfirmDescriptionMissingPrices_one": "La carte quitte votre stock et est enregistrée comme vendue sans prix.",
+      "collectGroupConfirmDescriptionMissingPrices_other": "Les cartes quittent votre stock et sont enregistrées comme vendues {{total}} au total. Certaines n'ont pas de prix et sont enregistrées sans.",
+      "collectGroupWaitingNote_one": "La carte pour laquelle cette personne est encore dans la file reste réservée.",
+      "collectGroupWaitingNote_other": "Les {{count}} cartes pour lesquelles cette personne est encore dans la file restent réservées.",
+      "collectedGroup_one": "1 carte retirée par {{name}} et enregistrée comme vendue",
+      "collectedGroup_other": "{{count}} cartes retirées par {{name}} et enregistrées comme vendues",
+      "releaseGroupConfirmTitle_one": "Libérer la réservation de {{name}} ?",
+      "releaseGroupConfirmTitle_other": "Libérer les {{count}} réservations de {{name}} ?",
+      "releaseGroupConfirmDescription_one": "Cette personne perd sa place. Si elle était première de la file, la carte est mise de côté pour la suivante.",
+      "releaseGroupConfirmDescription_other": "Cette personne perd sa place sur chaque carte de cette demande. Là où elle était première, la carte est mise de côté pour la suivante.",
+      "releasedGroup_one": "Réservation de {{name}} libérée",
+      "releasedGroup_other": "{{count}} réservations de {{name}} libérées",
+      "customerHint": "Ouvre les actions pour la réservation de ce client",
+      "cardHint": "Ouvre les actions pour cette carte",
+      "pickedUpCardOption": "Retirée : {{card}}",
+      "releaseCardOption": "Libérer : {{card}}",
+      "stages": {
+        "readyForPickup": "Prête à retirer",
+        "beingPicked": "En préparation",
+        "toPull": "À sortir",
+        "waiting": "Dans la file",
+        "collected": "Retirée",
+        "cancelled": "Annulée",
+        "released": "Libérée",
+        "expired": "Expirée",
+        "unavailable": "Carte partie"
+      },
+      "groupSummary": "{{cards}} : {{stages}}",
+      "stageCounts": {
+        "readyForPickup_one": "{{count}} prête à retirer",
+        "readyForPickup_other": "{{count}} prêtes à retirer",
+        "beingPicked_one": "{{count}} en préparation",
+        "beingPicked_other": "{{count}} en préparation",
+        "toPull_one": "{{count}} à sortir",
+        "toPull_other": "{{count}} à sortir",
+        "waiting_one": "{{count}} dans la file",
+        "waiting_other": "{{count}} dans la file"
+      },
+      "heldTotal": "Total des cartes réservées {{total}}",
+      "heldTotalMissingPrices": "Total des cartes réservées {{total}} (certaines sans prix)",
+      "readySection": "Prêtes à retirer ({{count}})",
+      "pullSection": "À sortir ({{count}})",
+      "createPick_one": "Créer une préparation",
+      "createPick_other": "Créer une préparation ({{count}})",
+      "openPick": "Ouvrir la préparation {{name}}",
+      "inPick": "Dans la préparation {{name}}",
+      "pickName": "Réservation : {{name}}",
+      "pickCreated_one": "Préparation créée pour {{name}} avec 1 carte",
+      "pickCreated_other": "Préparation créée pour {{name}} avec {{count}} cartes",
+      "cardCount_one": "1 carte",
+      "cardCount_other": "{{count}} cartes"
+    },
+    "search": {
+      "noResultsTitle": "Aucun résultat",
+      "noResultsDescription": "Rien ne correspond à « {{query}} ». Essayez un autre nom ou mot.",
+      "intakePlaceholder": "Rechercher des rachats par client ou note",
+      "picksPlaceholder": "Rechercher des préparations par nom, carte ou commande",
+      "reservationsPlaceholder": "Rechercher par client, carte ou catalogue",
+      "clear": "Effacer la recherche"
     }
   },
   "machines": {
@@ -4278,5 +4424,64 @@
       "resultsCount_one": "{{count}} nouveauté trouvée",
       "resultsCount_other": "{{count}} nouveautés trouvées"
     }
+  },
+  "myReservations": {
+    "new": "Nouveau",
+    "unknownCatalog": "Catalogue boutique",
+    "openCatalog": "Ouvrir le catalogue",
+    "cancelled": "Réservation annulée",
+    "cancelFailed": "Impossible d'annuler la réservation.",
+    "loadFailed": "Impossible de charger vos réservations.",
+    "emptyTitle": "Aucune réservation pour l'instant",
+    "emptyDescription": "Les cartes que vous réservez dans le catalogue d'une boutique en étant connecté apparaissent ici.",
+    "open": "En cours",
+    "past": "Passées",
+    "trayHeading": "Vos réservations",
+    "view": "Voir les réservations",
+    "alerts": {
+      "held": "{{card}} est maintenant gardée pour vous chez {{catalog}}",
+      "readyForPickup": "{{card}} est prête à retirer chez {{catalog}}",
+      "expired": "Votre réservation de {{card}} chez {{catalog}} a expiré",
+      "released": "{{catalog}} a libéré votre réservation de {{card}}",
+      "unavailable": "{{card}} chez {{catalog}} n'est plus disponible"
+    },
+    "held": "La boutique la garde pour vous.",
+    "heldUntil": "La boutique la garde pour vous jusqu'au {{date}}.",
+    "readyForPickupUntil": "Votre carte est prête. Retirez-la avant le {{date}}.",
+    "aheadOfYou_one": "{{count}} personne est devant vous.",
+    "aheadOfYou_other": "{{count}} personnes sont devant vous.",
+    "status": {
+      "readyForPickup": "Prête à retirer",
+      "ready": "Réservée pour vous",
+      "waiting": "Dans la file",
+      "collected": "Retirée",
+      "cancelled": "Annulée",
+      "released": "Libérée par la boutique",
+      "expired": "Expirée",
+      "unavailable": "Plus disponible"
+    },
+    "actionsHint": "Ouvre les actions pour cette réservation",
+    "cancel": "Annuler la réservation",
+    "keep": "La garder",
+    "cancelConfirmTitle": "Annuler votre réservation de {{name}} ?",
+    "cancelConfirmDescription": "Vous perdez votre place. Si la carte était gardée pour vous, la personne suivante l'obtient.",
+    "noActions": "Rien à faire pour cette réservation.",
+    "requestReservedOn": "Réservée le {{date}}",
+    "requestSummary": "{{cards}} : {{stages}}",
+    "requestCardCount_one": "1 carte",
+    "requestCardCount_other": "{{count}} cartes",
+    "requestCounts": {
+      "readyForPickup_one": "{{count}} prête à retirer",
+      "readyForPickup_other": "{{count}} prêtes à retirer",
+      "held_one": "{{count}} réservée pour vous",
+      "held_other": "{{count}} réservées pour vous",
+      "waiting_one": "{{count}} dans la file",
+      "waiting_other": "{{count}} dans la file"
+    },
+    "cancelAll_one": "Annuler",
+    "cancelAll_other": "Tout annuler ({{count}})",
+    "cancelAllConfirmTitle_one": "Annuler cette réservation ?",
+    "cancelAllConfirmTitle_other": "Annuler les {{count}} réservations en cours ?",
+    "cancelCardOption": "Annuler : {{card}}"
   }
 }

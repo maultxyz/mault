@@ -36,6 +36,8 @@ export function CardToolbar({
   onExport,
   onStartReview,
   needsReviewCount,
+  onShowUnmatched,
+  unmatchedCount,
   onClearAll,
   hasCards,
   activeFilters,
@@ -111,6 +113,8 @@ export function CardToolbar({
           availableColors={availableColors ?? []}
           availableFoilTypes={availableFoilTypes ?? []}
           binCount={binCount}
+          unmatchedCount={unmatchedCount}
+          onShowUnmatched={onShowUnmatched}
           viewMode={viewMode}
           onViewModeChange={onViewModeChange}
           density={density}

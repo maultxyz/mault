@@ -1,6 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { DynamicPopover } from "@/components/ui/responsive-popover";
 import { usePendingTradeOffers } from "@/features/trade-offers/api/trade-offers";
+import { useMyCardReservationAlerts } from "@/features/card-reservations/api/use-my-card-reservations";
+import { MyCardReservationTraySection } from "@/features/card-reservations/components/my-card-reservation-tray-section";
 import { tradeOfferPath } from "@/lib/constants/trade-offers";
 import { Link } from "react-router-dom";
 import { IconArrowsExchange, IconRefresh } from "@tabler/icons-react";
@@ -66,6 +68,7 @@ export function AlertTrayTrigger({
   const tradeOffersHeadingId = useId();
   const { trayAlerts } = useAppAlertsContext();
   const tradeOffers = usePendingTradeOffers();
+  const reservationAlerts = useMyCardReservationAlerts();
   const [isTrayOpen, setIsTrayOpen] = useState(false);
   const { refresh, isRefreshing } = useAlertTrayRefresh();
   const [refreshStatus, setRefreshStatus] = useState("");
@@ -82,7 +85,7 @@ export function AlertTrayTrigger({
       side={side}
       align={align}
       contentClassName="w-80"
-      trigger={trigger(trayAlerts.length + tradeOffers.length)}
+      trigger={trigger(trayAlerts.length + tradeOffers.length + reservationAlerts.length)}
     >
       <div className="flex items-center justify-between px-1">
         <span className="text-sm font-medium">{t("alerts.tray.title")}</span>
@@ -142,7 +145,11 @@ export function AlertTrayTrigger({
           ))}
         </section>
       )}
-      {trayAlerts.length === 0 && tradeOffers.length === 0 ? (
+      <MyCardReservationTraySection
+        alerts={reservationAlerts}
+        onNavigate={() => setIsTrayOpen(false)}
+      />
+      {trayAlerts.length === 0 && tradeOffers.length === 0 && reservationAlerts.length === 0 ? (
         <p className="px-1 py-4 text-center text-foreground/70">
           {t("alerts.tray.empty")}
         </p>

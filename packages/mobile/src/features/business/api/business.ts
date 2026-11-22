@@ -1,4 +1,12 @@
 import {
+  BUSINESS_LIST_SEARCH_PARAM,
+  CARD_RESERVATION_LIST_VIEW_PARAM,
+  type CardReservation,
+  type CardReservationListView,
+  type CardReservationPickRequest,
+  type CreatedCardReservationPick,
+  type CollectedCardReservations,
+  type ReleasedCardReservations,
   type FulfilmentOrder,
   type FulfilmentOrderDetail,
   type FulfilmentOrderInput,
@@ -18,9 +26,10 @@ import {
   type PagedList,
   type Result,
 } from "@magic-vault/shared";
-import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { infiniteQueryOptions, keepPreviousData, queryOptions } from "@tanstack/react-query";
 import { apiDelete, apiGet, apiPost, apiPut, unwrap, unwrapOr } from "@/lib/api/client";
 import {
+  BUSINESS_RESERVATIONS_QUERY_KEY,
   BUSINESS_INTAKE_QUERY_KEY,
   BUSINESS_LIST_PAGE_SIZE,
   BUSINESS_ORDERS_QUERY_KEY,
@@ -28,16 +37,23 @@ import {
   INTAKE_LOT_CARDS_PAGE_SIZE,
 } from "@/lib/constants/business";
 import { QUERY_STALE_MS } from "@/lib/constants/query";
+import type { MobileCardReservationTarget } from "@/lib/interfaces/business";
 
 function nextPageOf<T>(last: PagedList<T>, pages: PagedList<T>[]): number | undefined {
   return pages.reduce((sum, page) => sum + page.items.length, 0) < last.total ? pages.length + 1 : undefined;
 }
 
-export const intakeLotsQueryOptions = (orgId: string | null, enabled: boolean) =>
+function businessListParams(page: number, search: string): string {
+  const params = new URLSearchParams({ page: String(page), limit: String(BUSINESS_LIST_PAGE_SIZE) });
+  if (search) params.set(BUSINESS_LIST_SEARCH_PARAM, search);
+  return params.toString();
+}
+
+export const intakeLotsQueryOptions = (orgId: string | null, enabled: boolean, search = "") =>
   infiniteQueryOptions({
-    queryKey: [...BUSINESS_INTAKE_QUERY_KEY, "list", orgId] as const,
+    queryKey: [...BUSINESS_INTAKE_QUERY_KEY, "list", orgId, search] as const,
     queryFn: ({ pageParam }) =>
-      unwrap(apiGet<Result<PagedList<IntakeLot>>>(`/api/business/intake?page=${pageParam}&limit=${BUSINESS_LIST_PAGE_SIZE}`)),
+      unwrap(apiGet<Result<PagedList<IntakeLot>>>(`/api/business/intake?${businessListParams(pageParam, search)}`)),
     initialPageParam: 1,
     getNextPageParam: nextPageOf<IntakeLot>,
     enabled: !!orgId && enabled,
@@ -87,13 +103,11 @@ export function deleteIntakeLot(guid: string): Promise<null> {
   return unwrapOr(apiDelete<Result<null>>(`/api/business/intake/${guid}`), null);
 }
 
-export const ordersQueryOptions = (orgId: string | null, enabled: boolean) =>
+export const ordersQueryOptions = (orgId: string | null, enabled: boolean, search = "") =>
   infiniteQueryOptions({
-    queryKey: [...BUSINESS_ORDERS_QUERY_KEY, "list", orgId] as const,
+    queryKey: [...BUSINESS_ORDERS_QUERY_KEY, "list", orgId, search] as const,
     queryFn: ({ pageParam }) =>
-      unwrap(
-        apiGet<Result<PagedList<FulfilmentOrder>>>(`/api/business/orders?page=${pageParam}&limit=${BUSINESS_LIST_PAGE_SIZE}`),
-      ),
+      unwrap(apiGet<Result<PagedList<FulfilmentOrder>>>(`/api/business/orders?${businessListParams(pageParam, search)}`)),
     initialPageParam: 1,
     getNextPageParam: nextPageOf<FulfilmentOrder>,
     enabled: !!orgId && enabled,
@@ -148,4 +162,45 @@ export function cancelOrder(guid: string): Promise<null> {
 
 export function deleteOrder(guid: string): Promise<null> {
   return unwrapOr(apiDelete<Result<null>>(`/api/business/orders/${guid}`), null);
+}
+
+export const cardReservationsQueryOptions = (
+  orgId: string | null,
+  view: CardReservationListView,
+  enabled: boolean,
+  search = "",
+) =>
+  queryOptions({
+    queryKey: [...BUSINESS_RESERVATIONS_QUERY_KEY, orgId, view, search] as const,
+    queryFn: () => {
+      const params = new URLSearchParams({ [CARD_RESERVATION_LIST_VIEW_PARAM]: view });
+      if (search) params.set(BUSINESS_LIST_SEARCH_PARAM, search);
+      return unwrap(apiGet<Result<CardReservation[]>>(`/api/business/reservations?${params}`));
+    },
+    placeholderData: keepPreviousData,
+    enabled: !!orgId && enabled,
+    staleTime: QUERY_STALE_MS,
+  });
+
+function cardReservationTargetPath(target: MobileCardReservationTarget): string {
+  return target.kind === "request"
+    ? `/api/business/reservations/requests/${target.requestGuid}`
+    : `/api/business/reservations/${target.reservationGuid}`;
+}
+
+export function collectCardReservations(target: MobileCardReservationTarget): Promise<CollectedCardReservations> {
+  return unwrap(apiPost<Result<CollectedCardReservations>>(`${cardReservationTargetPath(target)}/collect`));
+}
+
+export function releaseCardReservations(target: MobileCardReservationTarget): Promise<ReleasedCardReservations> {
+  return unwrap(apiPost<Result<ReleasedCardReservations>>(`${cardReservationTargetPath(target)}/release`));
+}
+
+export function createCardReservationPick(
+  requestGuid: string,
+  request: CardReservationPickRequest,
+): Promise<CreatedCardReservationPick> {
+  return unwrap(
+    apiPost<Result<CreatedCardReservationPick>>(`/api/business/reservations/requests/${requestGuid}/pick`, request),
+  );
 }

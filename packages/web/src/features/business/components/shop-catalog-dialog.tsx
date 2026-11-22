@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { DynamicDialog } from "@/components/ui/responsive-dialog";
+import { ResponsiveSegmented } from "@/components/responsive-segmented";
 import { Switch } from "@/components/ui/switch";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { useOrg } from "@/features/companies/api/use-organization";
@@ -16,9 +17,13 @@ import { storageLocationsQueryOptions } from "@/features/storage/api/storage-loc
 import type { ShopCatalogDialogProps } from "@/lib/interfaces/shop-catalogs";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
+  CARD_RESERVATION_HOLD_DAY_CHOICES,
+  DEFAULT_CARD_RESERVATION_HOLD_DAYS,
   DEFAULT_SHARE_LINK_SHOWS_PRICES,
+  DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
   DEFAULT_SHOP_CATALOG_IS_PUBLIC,
   shopCatalogFormSchema,
+  toCardReservationHoldDays,
   type ShopCatalogFormValues,
 } from "@magic-vault/shared";
 import { IconLoader2 } from "@tabler/icons-react";
@@ -42,6 +47,8 @@ export function ShopCatalogDialog({
   const showPricesDescriptionId = useId();
   const isPublicId = useId();
   const isPublicDescriptionId = useId();
+  const allowsReservationsId = useId();
+  const allowsReservationsDescriptionId = useId();
   const { data: collections = [] } = useQuery({
     ...collectionsQueryOptions,
     enabled: open,
@@ -56,10 +63,13 @@ export function ShopCatalogDialog({
       name: "",
       showsPrices: DEFAULT_SHARE_LINK_SHOWS_PRICES,
       isPublic: DEFAULT_SHOP_CATALOG_IS_PUBLIC,
+      allowsReservations: DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
+      reservationHoldDays: DEFAULT_CARD_RESERVATION_HOLD_DAYS,
       collectionGuids: [],
       storageLocationGuids: [],
     },
   });
+  const allowsReservations = form.watch("allowsReservations");
   const { errors } = form.formState;
 
   useEffect(() => {
@@ -68,6 +78,9 @@ export function ShopCatalogDialog({
       name: catalog?.name ?? "",
       showsPrices: catalog?.showsPrices ?? DEFAULT_SHARE_LINK_SHOWS_PRICES,
       isPublic: catalog?.isPublic ?? DEFAULT_SHOP_CATALOG_IS_PUBLIC,
+      allowsReservations:
+        catalog?.allowsReservations ?? DEFAULT_SHOP_CATALOG_ALLOWS_RESERVATIONS,
+      reservationHoldDays: toCardReservationHoldDays(catalog?.reservationHoldDays),
       collectionGuids: catalog?.collections.map((source) => source.guid) ?? [],
       storageLocationGuids:
         catalog?.storageLocations.map((source) => source.guid) ?? [],
@@ -144,6 +157,53 @@ export function ShopCatalogDialog({
             </Field>
           )}
         />
+        <Controller
+          control={form.control}
+          name="allowsReservations"
+          render={({ field }) => (
+            <Field orientation="horizontal">
+              <FieldContent>
+                <FieldLabel htmlFor={allowsReservationsId}>
+                  {t("shopCatalogs.allowsReservations")}
+                </FieldLabel>
+                <FieldDescription id={allowsReservationsDescriptionId}>
+                  {t("shopCatalogs.allowsReservationsDescription")}
+                </FieldDescription>
+              </FieldContent>
+              <Switch
+                id={allowsReservationsId}
+                aria-describedby={allowsReservationsDescriptionId}
+                checked={field.value}
+                onCheckedChange={field.onChange}
+              />
+            </Field>
+          )}
+        />
+        {allowsReservations && (
+          <Controller
+            control={form.control}
+            name="reservationHoldDays"
+            render={({ field }) => (
+              <Field>
+                <span className="text-control font-medium">
+                  {t("shopCatalogs.reservationHoldLabel")}
+                </span>
+                <ResponsiveSegmented
+                  label={t("shopCatalogs.reservationHoldLabel")}
+                  items={CARD_RESERVATION_HOLD_DAY_CHOICES.map((days) => ({
+                    key: String(days),
+                    label: t("shopCatalogs.reservationHoldDays", { count: days }),
+                  }))}
+                  value={String(field.value)}
+                  onChange={(days) => field.onChange(Number(days))}
+                />
+                <FieldDescription>
+                  {t("shopCatalogs.reservationHoldDescription")}
+                </FieldDescription>
+              </Field>
+            )}
+          />
+        )}
         <Field data-invalid={!!errors.collectionGuids}>
           <Controller
             control={form.control}

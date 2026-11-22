@@ -13,6 +13,7 @@ import {
 import { MemberSeatLimitError } from "./scan-save";
 import type {
   CardSearchResult,
+  CardTextSearchResult,
   SearchCardMatch,
 } from "./interfaces/api.interface";
 import type { PlayingCardWithDistance } from "./interfaces/card.interface";
@@ -113,6 +114,20 @@ export function prefersTextMatch(
     needsTextSearch(imageResult) &&
     !textMatchLooksClearlyWorseThanImageMatch(imageResult, textResult)
   );
+}
+
+export function pickUnmatchedRetryMatch(
+  imageResult: CardSearchResult,
+  textResult: CardTextSearchResult | null,
+): "text" | "image" | null {
+  if (
+    textResult &&
+    hasCardMatch(textResult) &&
+    prefersTextMatch(imageResult, textResult.ocr, textResult)
+  ) {
+    return "text";
+  }
+  return hasCardMatch(imageResult) ? "image" : null;
 }
 
 export function pickBetterOrientation<T extends OrientedSearchCandidate>(

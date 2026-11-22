@@ -16,8 +16,7 @@ export const CardTile = memo(function CardTile({
   imageUrl,
   placeholderUrl,
   quantity,
-  flagged = false,
-  corrected = false,
+  reviewStatus = null,
   selected = false,
   disabled = false,
   onPress,
@@ -26,13 +25,12 @@ export const CardTile = memo(function CardTile({
 }: CardTileProps) {
   const { t } = useTranslation();
   const colors = useTheme();
-  const awaitingReview = flagged && !corrected;
   const accessibilityLabel = [
     name,
     captionHighlight?.text,
     caption,
     quantity && quantity > 1 ? t("cards.quantity", { count: quantity }) : null,
-    flagged ? (corrected ? t("cards.reviewed") : t("cards.needsReview")) : null,
+    reviewStatus === "reviewed" ? t("cards.reviewed") : reviewStatus === "needsAttention" ? t("cards.needsReview") : null,
   ]
     .filter(Boolean)
     .join(", ");
@@ -58,27 +56,18 @@ export const CardTile = memo(function CardTile({
           borderRadius: CARD_ART_RADIUS,
           overflow: "hidden",
           backgroundColor: colors.muted,
-          borderWidth: selected || awaitingReview ? 2 : 0,
-          borderColor: selected ? colors.primary : colors.warningForeground,
+          borderWidth: selected || reviewStatus ? 2 : 0,
+          borderStyle: !selected && reviewStatus === "needsAttention" ? "dashed" : "solid",
+          borderColor: selected
+            ? colors.primary
+            : reviewStatus === "reviewed"
+              ? colors.successForeground
+              : colors.warningForeground,
           opacity: disabled ? 0.5 : 1,
         }}
       >
         {imageUrl ? (
           <CardArt imageUrl={imageUrl} placeholderUrl={placeholderUrl} style={{ flex: 1 }} contentFit="cover" />
-        ) : null}
-        {flagged ? (
-          <View
-            style={{
-              position: "absolute",
-              top: SPACING.xs,
-              left: SPACING.xs,
-              padding: 2,
-              borderRadius: RADIUS.full,
-              backgroundColor: corrected ? colors.successStrong : colors.warningStrong,
-            }}
-          >
-            <Icon name={corrected ? "check" : "help"} size={12} color={colors.onStatusStrong} />
-          </View>
         ) : null}
         {selected ? (
           <View

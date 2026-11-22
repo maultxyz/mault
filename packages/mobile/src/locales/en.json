@@ -1097,7 +1097,11 @@
     "scanTimelineSortNote": "The scan timeline always shows the newest scans first.",
     "scanTimelineBlockCount_one": "{{count}} card",
     "scanTimelineBlockCount_other": "{{count}} cards",
-    "loadingMoreCards": "Loading more cards"
+    "loadingMoreCards": "Loading more cards",
+    "unmatchedTileLabel": "Unmatched scan from {{scannedAt}}",
+    "unmatchedTag": "Unmatched",
+    "moreUnmatched_one": "{{count}} more unmatched scan",
+    "moreUnmatched_other": "{{count}} more unmatched scans"
   },
   "cardDetail": {
     "catalogCardRemovedTitle": "Card no longer in the catalog",
@@ -2469,7 +2473,14 @@
       "isPublic": "Public",
       "isPublicDescription": "Anyone can open this catalog from its plain address, without the private link.",
       "publicBadge": "Public",
-      "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link."
+      "publicLinkNote": "This catalog is public, so this link works for anyone. Turn off Public to require a private link.",
+      "allowsReservations": "Let customers reserve cards",
+      "allowsReservationsDescription": "Customers can reserve a card to pick up in store. If it's already reserved, they join a line and move up when the person ahead doesn't pick it up.",
+      "reservationHoldLabel": "Hold a reserved card for",
+      "reservationHoldDays_one": "{{count}} day",
+      "reservationHoldDays_other": "{{count}} days",
+      "reservationHoldDescription": "After this, the reservation runs out and the next person in line gets the card.",
+      "reservationsOn": "Takes reservations"
     },
     "statsSync": {
       "key": {
@@ -2759,7 +2770,47 @@
     "removeAllTitle_other": "Remove {{count}} unmatched scans?",
     "removeAllDescription": "The photos are deleted and none of these cards are added to the collection.",
     "badge_one": "{{count}} unmatched",
-    "badge_other": "{{count}} unmatched"
+    "badge_other": "{{count}} unmatched",
+    "retry": {
+      "action": "Retry with higher accuracy",
+      "stop": "Stop",
+      "progress_one": "Checked {{checked}} of {{total}}, {{count}} match",
+      "progress_other": "Checked {{checked}} of {{total}}, {{count}} matches",
+      "confirmTitle_one": "Retry {{count}} unmatched card with higher accuracy?",
+      "confirmTitle_other": "Retry {{count}} unmatched cards with higher accuracy?",
+      "confirmDescription": "Mault reads the printed name, set and number on each saved scan and checks the image again. Cards it identifies move into this collection, marked for review. Each match counts toward today's scans, and the rest stay unmatched.",
+      "confirm": "Retry cards",
+      "matched_one": "Matched {{count}} card out of {{checked}}. It's marked for review.",
+      "matched_other": "Matched {{count}} cards out of {{checked}}. They're marked for review.",
+      "noMatches_one": "No matches found in {{checked}} cards.",
+      "noMatches_other": "No matches found in {{checked}} cards.",
+      "stopped_one": "Stopped after {{checked}} cards. Matched {{count}} card.",
+      "stopped_other": "Stopped after {{checked}} cards. Matched {{count}} cards.",
+      "scanLimitReached_one": "Matched {{count}} card before reaching today's scan limit.",
+      "scanLimitReached_other": "Matched {{count}} cards before reaching today's scan limit.",
+      "failed": "Couldn't finish retrying. Cards matched so far were kept."
+    },
+    "selection": {
+      "select": "Select scans",
+      "doneSelecting": "Done selecting",
+      "hint": "Select up to {{max}} scans, then retry them with higher accuracy or remove them.",
+      "selectScan": "Select the scan from {{scannedAt}}",
+      "selected_one": "{{count}} scan selected",
+      "selected_other": "{{count}} scans selected",
+      "selectLoaded": "Select all",
+      "clear": "Clear",
+      "limitReached": "You can select up to {{max}} scans at a time.",
+      "remove": "Remove",
+      "removeTitle_one": "Remove {{count}} unmatched scan?",
+      "removeTitle_other": "Remove {{count}} unmatched scans?",
+      "removed_one": "Removed {{count}} unmatched scan",
+      "removed_other": "Removed {{count}} unmatched scans",
+      "removeFailed_one": "Couldn't remove {{count}} scan",
+      "removeFailed_other": "Couldn't remove {{count}} scans"
+    },
+    "showInGrid": "Show in card grid",
+    "showInGridDescription": "Unmatched scans appear between your cards with a red border. Applies to everyone in this organization.",
+    "showInGridFailed": "Couldn't save the setting"
   },
   "matchValidations": {
     "ocrFallback": "{{field}} (fallback)",
@@ -3578,7 +3629,8 @@
     },
     "boxes": {
       "received": "Received",
-      "sent": "Sent"
+      "sent": "Sent",
+      "reservations": "My reservations"
     },
     "sent": {
       "title": "Sent trade offer",
@@ -3934,7 +3986,8 @@
     "delete": "Delete",
     "views": {
       "intake": "Intake",
-      "picks": "Picks"
+      "picks": "Picks",
+      "reservations": "Reservations"
     },
     "status": {
       "open": "Open",
@@ -4106,7 +4159,8 @@
         "picked": "Picked {{name}} from {{spot}}",
         "alreadyPicked": "Every copy of {{name}} on this pick is already picked.",
         "notOnPick": "{{name}} isn't left on this pick."
-      }
+      },
+      "reservationCardsNote": "Cards held for reservations stay in stock and are marked ready for pickup."
     },
     "order": {
       "title": "Pick",
@@ -4160,6 +4214,98 @@
         "condition": "Other condition",
         "finish": "Other finish"
       }
+    },
+    "reservations": {
+      "lists": {
+        "active": "Open",
+        "closed": "History"
+      },
+      "waitingSection": "Waiting in line ({{count}})",
+      "heldUntil": "Held until {{date}}",
+      "inLinePosition": "Number {{position}} of {{total}} in line",
+      "closedOn": "Closed {{date}}",
+      "pickedUp": "Picked up",
+      "release": "Release",
+      "collected": "{{name}} picked up and recorded as sold",
+      "collectConfirmTitle": "Mark {{name}} as picked up?",
+      "collectConfirmDescription": "The card leaves your inventory and is recorded as sold for {{price}}. Anyone still in line sees that it's no longer available.",
+      "collectConfirmDescriptionNoPrice": "The card leaves your inventory and is recorded as sold without a price. Anyone still in line sees that it's no longer available.",
+      "releaseConfirmDescription": "They lose their place. If they were first in line, the next person gets the card held for them.",
+      "empty": {
+        "activeTitle": "No open reservations",
+        "activeDescription": "Reservations show up here when a customer reserves a card from a shop catalog that takes them.",
+        "closedTitle": "No past reservations",
+        "closedDescription": "Reservations that were picked up, released or ran out are listed here."
+      },
+      "pickedUpGroup_one": "Picked up",
+      "pickedUpGroup_other": "Picked up ({{count}})",
+      "releaseGroup_one": "Release",
+      "releaseGroup_other": "Release all ({{count}})",
+      "releaseCardConfirmTitle": "Release {{card}} for {{name}}?",
+      "releasedCard": "Released {{card}} for {{name}}",
+      "collectGroupConfirmTitle_one": "Mark 1 card as picked up by {{name}}?",
+      "collectGroupConfirmTitle_other": "Mark {{count}} cards as picked up by {{name}}?",
+      "collectGroupConfirmDescription_one": "The card leaves your inventory and is recorded as sold for {{total}}.",
+      "collectGroupConfirmDescription_other": "The cards leave your inventory and are recorded as sold for {{total}} in total.",
+      "collectGroupConfirmDescriptionMissingPrices_one": "The card leaves your inventory and is recorded as sold without a price.",
+      "collectGroupConfirmDescriptionMissingPrices_other": "The cards leave your inventory and are recorded as sold for {{total}} in total. Some have no price and are recorded without one.",
+      "collectGroupWaitingNote_one": "The 1 card they're still in line for stays reserved.",
+      "collectGroupWaitingNote_other": "The {{count}} cards they're still in line for stay reserved.",
+      "collectedGroup_one": "1 card picked up by {{name}} and recorded as sold",
+      "collectedGroup_other": "{{count}} cards picked up by {{name}} and recorded as sold",
+      "releaseGroupConfirmTitle_one": "Release the reservation of {{name}}?",
+      "releaseGroupConfirmTitle_other": "Release all {{count}} reservations of {{name}}?",
+      "releaseGroupConfirmDescription_one": "They lose their place. If they were first in line, the next person gets the card held for them.",
+      "releaseGroupConfirmDescription_other": "They lose their place on every card in this request. Where they were first in line, the next person gets the card held for them.",
+      "releasedGroup_one": "Released the reservation of {{name}}",
+      "releasedGroup_other": "Released {{count}} reservations of {{name}}",
+      "customerHint": "Opens the actions for this customer's reservation",
+      "cardHint": "Opens the actions for this card",
+      "pickedUpCardOption": "Picked up: {{card}}",
+      "releaseCardOption": "Release: {{card}}",
+      "stages": {
+        "readyForPickup": "Ready for pickup",
+        "beingPicked": "Being picked",
+        "toPull": "To pull",
+        "waiting": "In line",
+        "collected": "Picked up",
+        "cancelled": "Cancelled",
+        "released": "Released",
+        "expired": "Ran out",
+        "unavailable": "Card gone"
+      },
+      "groupSummary": "{{cards}}: {{stages}}",
+      "stageCounts": {
+        "readyForPickup_one": "{{count}} ready for pickup",
+        "readyForPickup_other": "{{count}} ready for pickup",
+        "beingPicked_one": "{{count}} being picked",
+        "beingPicked_other": "{{count}} being picked",
+        "toPull_one": "{{count}} to pull",
+        "toPull_other": "{{count}} to pull",
+        "waiting_one": "{{count}} in line",
+        "waiting_other": "{{count}} in line"
+      },
+      "heldTotal": "Held cards total {{total}}",
+      "heldTotalMissingPrices": "Held cards total {{total}} (some have no price)",
+      "readySection": "Ready for pickup ({{count}})",
+      "pullSection": "To pull ({{count}})",
+      "createPick_one": "Create pick",
+      "createPick_other": "Create pick ({{count}})",
+      "openPick": "Open pick {{name}}",
+      "inPick": "In pick {{name}}",
+      "pickName": "Reservation: {{name}}",
+      "pickCreated_one": "Pick created for {{name}} with 1 card",
+      "pickCreated_other": "Pick created for {{name}} with {{count}} cards",
+      "cardCount_one": "1 card",
+      "cardCount_other": "{{count}} cards"
+    },
+    "search": {
+      "noResultsTitle": "No matches",
+      "noResultsDescription": "Nothing matches \"{{query}}\". Try another name or word.",
+      "intakePlaceholder": "Search intake by customer or note",
+      "picksPlaceholder": "Search picks by name, card or order",
+      "reservationsPlaceholder": "Search by customer, card or catalog",
+      "clear": "Clear search"
     }
   },
   "machines": {
@@ -4278,5 +4424,64 @@
       "resultsCount_one": "{{count}} update found",
       "resultsCount_other": "{{count}} updates found"
     }
+  },
+  "myReservations": {
+    "new": "New",
+    "unknownCatalog": "Shop catalog",
+    "openCatalog": "Open catalog",
+    "cancelled": "Reservation cancelled",
+    "cancelFailed": "Couldn't cancel the reservation.",
+    "loadFailed": "Couldn't load your reservations.",
+    "emptyTitle": "No reservations yet",
+    "emptyDescription": "Cards you reserve from a shop's catalog while signed in show up here.",
+    "open": "Open",
+    "past": "Past",
+    "trayHeading": "Your reservations",
+    "view": "View reservations",
+    "alerts": {
+      "held": "{{card}} is now held for you at {{catalog}}",
+      "readyForPickup": "{{card}} is ready for pickup at {{catalog}}",
+      "expired": "Your hold on {{card}} at {{catalog}} ran out",
+      "released": "{{catalog}} released your reservation of {{card}}",
+      "unavailable": "{{card}} at {{catalog}} is no longer available"
+    },
+    "held": "The shop is holding it for you.",
+    "heldUntil": "The shop is holding it for you until {{date}}.",
+    "readyForPickupUntil": "Your card is ready. Pick it up by {{date}}.",
+    "aheadOfYou_one": "{{count}} person is ahead of you.",
+    "aheadOfYou_other": "{{count}} people are ahead of you.",
+    "status": {
+      "readyForPickup": "Ready for pickup",
+      "ready": "Reserved for you",
+      "waiting": "In line",
+      "collected": "Picked up",
+      "cancelled": "Cancelled",
+      "released": "Released by the shop",
+      "expired": "Ran out",
+      "unavailable": "No longer available"
+    },
+    "actionsHint": "Opens the actions for this reservation",
+    "cancel": "Cancel reservation",
+    "keep": "Keep it",
+    "cancelConfirmTitle": "Cancel your reservation of {{name}}?",
+    "cancelConfirmDescription": "You lose your place. If the card was held for you, the next person in line gets it.",
+    "noActions": "Nothing to do for this reservation.",
+    "requestReservedOn": "Reserved {{date}}",
+    "requestSummary": "{{cards}}: {{stages}}",
+    "requestCardCount_one": "1 card",
+    "requestCardCount_other": "{{count}} cards",
+    "requestCounts": {
+      "readyForPickup_one": "{{count}} ready for pickup",
+      "readyForPickup_other": "{{count}} ready for pickup",
+      "held_one": "{{count}} reserved for you",
+      "held_other": "{{count}} reserved for you",
+      "waiting_one": "{{count}} in line",
+      "waiting_other": "{{count}} in line"
+    },
+    "cancelAll_one": "Cancel",
+    "cancelAll_other": "Cancel all ({{count}})",
+    "cancelAllConfirmTitle_one": "Cancel this reservation?",
+    "cancelAllConfirmTitle_other": "Cancel all {{count}} open reservations?",
+    "cancelCardOption": "Cancel: {{card}}"
   }
 }

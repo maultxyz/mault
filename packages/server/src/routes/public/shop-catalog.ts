@@ -12,6 +12,7 @@ import {
 import { PUBLIC_SHOP_CATALOG_CACHE_PREFIX } from "../../lib/constants/shop-catalogs";
 import type { AppEnv } from "../../middleware/auth";
 import { createPublicCardBrowseRoute } from "./card-browse";
+import { createPublicCardReservationsRoute } from "./card-reservations";
 
 function claimsFor(c: Context<AppEnv>): Promise<ShopCatalogClaims | null> {
   const token = c.req.query("token");
@@ -39,11 +40,19 @@ const shopCatalogBrowseRoute = createPublicCardBrowseRoute({
   },
   infoExtras: async (c) => {
     const claims = await claimsFor(c);
-    return claims ? { catalogGuid: claims.catalogGuid, name: claims.name } : {};
+    return claims
+      ? {
+          catalogGuid: claims.catalogGuid,
+          name: claims.name,
+          allowsReservations: claims.allowsReservations,
+          reservationHoldDays: claims.reservationHoldDays,
+        }
+      : {};
   },
 });
 
 export const publicShopCatalogRoute = new Hono<AppEnv>()
   .use("/shop-catalog", shopCatalogRateLimit)
   .use("/shop-catalog/*", shopCatalogRateLimit)
+  .route("/shop-catalog", createPublicCardReservationsRoute(claimsFor))
   .route("/shop-catalog", shopCatalogBrowseRoute);

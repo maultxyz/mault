@@ -4,6 +4,7 @@ import type {
 } from "@/lib/interfaces/business";
 import type { PickImportFormValues } from "@/schemas/business.schema";
 import {
+  CARD_RESERVATIONS_WEB_PATH,
   ORDER_BATCH_PICK_PATH,
   ORDER_PICK_SEARCH_PARAM,
   ORDER_PICKS_PATH,
@@ -15,6 +16,7 @@ export const INTAKE_PATH = `${ORDERS_PATH}/intake`;
 export const PICKS_PATH = ORDER_PICKS_PATH;
 export const PICK_IMPORT_PATH = `${PICKS_PATH}/new`;
 export const PRICE_LABELS_PATH = `${ORDERS_PATH}/labels`;
+export const RESERVATIONS_PATH = CARD_RESERVATIONS_WEB_PATH;
 export const PICK_BATCH_PATH = ORDER_BATCH_PICK_PATH;
 export const PACKING_SLIPS_PATH = `${PICKS_PATH}/packing-slips`;
 export const LEGACY_INTAKE_PATH = "/app/intake";
@@ -27,19 +29,23 @@ export const intakeReceiptPath = (guid: string, autoPrint = false) =>
 
 export const BUSINESS_INTAKE_VIEW = "intake";
 export const BUSINESS_PICKS_VIEW = "picks";
+export const BUSINESS_RESERVATIONS_VIEW = "reservations";
 export const BUSINESS_LABELS_VIEW = "labels";
 export const BUSINESS_VIEWS = [
   BUSINESS_INTAKE_VIEW,
   BUSINESS_PICKS_VIEW,
+  BUSINESS_RESERVATIONS_VIEW,
   BUSINESS_LABELS_VIEW,
 ] as const;
 export const MOBILE_BUSINESS_VIEWS = [
   BUSINESS_INTAKE_VIEW,
   BUSINESS_PICKS_VIEW,
+  BUSINESS_RESERVATIONS_VIEW,
 ] as const;
 export const BUSINESS_VIEW_PATHS = {
   [BUSINESS_INTAKE_VIEW]: INTAKE_PATH,
   [BUSINESS_PICKS_VIEW]: PICKS_PATH,
+  [BUSINESS_RESERVATIONS_VIEW]: RESERVATIONS_PATH,
   [BUSINESS_LABELS_VIEW]: PRICE_LABELS_PATH,
 } as const;
 const ordersQuery = (orderGuids: string[]) =>
@@ -59,6 +65,7 @@ export const INTAKE_BANNER_REFETCH_MS = 10000;
 export const INTAKE_LOT_CARDS_PAGE_SIZE = 50;
 export const FLEET_REFETCH_MS = 15_000;
 export const BUSINESS_LIST_SKELETON_COUNT = 5;
+export const BUSINESS_LIST_SEARCH_DEBOUNCE_MS = 300;
 export const ACTIVITY_ALL_FILTER = "all";
 
 export const ORDER_PULL_SHEET_HEADERS = [

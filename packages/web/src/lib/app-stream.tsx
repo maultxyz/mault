@@ -3,6 +3,7 @@ import { recordSessionInits } from "@/lib/session-init-registry";
 import { useOrg } from "@/features/companies/api/use-organization";
 import { collectionsQueryOptions } from "@/features/collections/api/collections";
 import { businessKeys } from "@/features/business/api/business";
+import { cardReservationsKeys } from "@/features/card-reservations/api/card-reservations";
 import { createAppStreamSource } from "@/lib/api/stream";
 import { useAuthSession } from "@/lib/auth";
 import { DEFAULT_SYNC_STATE, isBrowserSaveLog } from "@/lib/constants/admin";
@@ -24,6 +25,8 @@ import {
   MACHINE_STATUS_EVENT,
   TRADE_OFFERS_CHANGED_EVENT,
   ORDERS_CHANGED_EVENT,
+  CARD_RESERVATIONS_CHANGED_EVENT,
+  type CardReservationsChangedEvent,
   type TradeOffersChangedEvent,
   type DeployNotice,
   type MachineStatus,
@@ -224,6 +227,21 @@ export function AppStreamProvider({ children }: { children: React.ReactNode }) {
             toast.info(
               i18n.t("common:tradeOffers.newOfferToast", {
                 name: changed.createdOffer.guestName,
+              }),
+            );
+          }
+        });
+        es.addEventListener(CARD_RESERVATIONS_CHANGED_EVENT, (e) => {
+          const changed = JSON.parse(
+            (e as MessageEvent).data,
+          ) as CardReservationsChangedEvent;
+          queryClient.invalidateQueries({ queryKey: cardReservationsKeys.root() });
+          if (changed.createdReservation) {
+            toast.info(
+              i18n.t("common:reservations.newReservationToast", {
+                name: changed.createdReservation.guestName,
+                card: changed.createdReservation.cardNames[0] ?? "",
+                count: changed.createdReservation.cardNames.length,
               }),
             );
           }

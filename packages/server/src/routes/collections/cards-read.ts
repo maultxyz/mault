@@ -1,4 +1,5 @@
 import {
+  COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM,
   COLLECTION_CARDS_PAGE_SIZE,
   COLLECTION_CARDS_RAW_CARD_DATA_MAIN_ONLY,
   COLLECTION_CARDS_RAW_CARD_DATA_NONE,
@@ -12,6 +13,10 @@ import {
   isScanTimelineGrouping,
 } from "@magic-vault/shared";
 import type { Transaction } from "../../db";
+import {
+  loadInlineUnmatchedCards,
+  showsInlineUnmatchedCards,
+} from "./cards-inline-unmatched";
 import { applyCardPricesToScans } from "../../lib/card-search/card-prices";
 import {
   COLLECTION_CARDS_AGGREGATE_CACHE_MAX_ENTRIES,
@@ -186,11 +191,27 @@ export async function readCardsPage(
     COLLECTION_CARDS_RAW_CARD_DATA_NONE
       ? withoutRawCardData(pricedItems)
       : pricedItems;
+  const unmatched =
+    params[COLLECTION_CARDS_INCLUDE_UNMATCHED_PARAM] === "1" &&
+    showsInlineUnmatchedCards(query)
+      ? await run(async (tx: Transaction) => {
+          const collection = await findCardsCollection(tx, guid, orgId);
+          return collection
+            ? loadInlineUnmatchedCards(tx, collection, query, {
+                firstScanId: items[0]?.scanId,
+                lastScanId: items.at(-1)?.scanId,
+                isFirstPage: page === 0,
+                isLastPage: (page + 1) * pageSize >= result.data.totalEntries,
+              })
+            : undefined;
+        })
+      : undefined;
   return {
     ...result.data,
     items,
     page,
     pageSize,
+    ...(unmatched ? { unmatched } : {}),
   };
 }
 

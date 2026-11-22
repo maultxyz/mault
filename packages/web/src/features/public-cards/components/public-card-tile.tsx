@@ -1,4 +1,7 @@
 import { CardImage } from "@/components/card-image";
+import { CardReservationQuickToggle } from "@/features/card-reservations/components/card-reservation-quick-toggle";
+import { CardReservationTileBadge } from "@/features/card-reservations/components/card-reservation-tile-badge";
+import { useCardReservationTileLabel } from "@/features/card-reservations/lib/use-card-reservation-tile-label";
 import { PublicCardBadges } from "@/features/public-cards/components/public-card-badges";
 import { usePriceSource } from "@/hooks/use-price-source";
 import { raritySwatch } from "@/lib/card-swatches";
@@ -22,6 +25,7 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
   const finish = entry.isFoil ? (entry.foilType ?? t("foil")) : null;
   const tradeOffer = useTradeOfferContext();
   const isWanted = tradeOffer?.isWanted(entry.scanId) ?? false;
+  const reservationLabel = useCardReservationTileLabel(entry.scanId);
   return (
     <div className="relative flex flex-col">
       <button
@@ -36,6 +40,7 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
             entry.condition,
             finish,
             price != null ? format(price) : null,
+            reservationLabel?.text,
           ]
             .filter(Boolean)
             .join(", "),
@@ -57,7 +62,9 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
               <IconSparkles className="size-3 text-white" />
             </span>
           )}
-          <PublicCardBadges entry={entry} className="absolute right-1 bottom-1 left-1 z-20" />
+          <PublicCardBadges entry={entry} className="absolute right-1 bottom-1 left-1 z-20">
+            <CardReservationTileBadge scanId={entry.scanId} />
+          </PublicCardBadges>
           <CardImage
             src={entry.card.image?.normal || entry.card.image?.small}
             placeholderSrc={entry.card.image?.small}
@@ -104,6 +111,7 @@ export function PublicCardTile({ entry, onOpen }: PublicCardTileProps) {
           {isWanted ? <IconCheck /> : <IconPlus />}
         </Button>
       )}
+      {!tradeOffer && <CardReservationQuickToggle entry={entry} />}
     </div>
   );
 }

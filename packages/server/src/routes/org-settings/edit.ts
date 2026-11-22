@@ -34,6 +34,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
       correctionBinPrompt?: boolean;
       pauseScanningOnDeploy?: boolean;
       leaderboardOptIn?: boolean;
+      unmatchedCardsInGrid?: boolean;
       correctionAutoCloseSeconds?: number | null;
       priceSource?: string;
       conditionMultipliers?: Record<string, unknown>;
@@ -120,6 +121,10 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           "leaderboardOptIn" in body
             ? (body.leaderboardOptIn ?? false)
             : (existing?.leaderboardOptIn ?? false),
+        unmatchedCardsInGrid:
+          "unmatchedCardsInGrid" in body
+            ? (body.unmatchedCardsInGrid ?? false)
+            : (existing?.unmatchedCardsInGrid ?? false),
         correctionAutoCloseSeconds: toCorrectionAutoCloseSeconds(
           "correctionAutoCloseSeconds" in body
             ? body.correctionAutoCloseSeconds
@@ -160,6 +165,7 @@ export const editOrgSettingsRoute = new Hono<AppEnv>().put(
           correctionBinPrompt: merged.correctionBinPrompt,
           pauseScanningOnDeploy: merged.pauseScanningOnDeploy,
           leaderboardOptIn: merged.leaderboardOptIn,
+          unmatchedCardsInGrid: merged.unmatchedCardsInGrid,
           correctionAutoCloseSeconds: merged.correctionAutoCloseSeconds,
           priceSource: merged.priceSource,
           conditionMultipliers: merged.conditionMultipliers,

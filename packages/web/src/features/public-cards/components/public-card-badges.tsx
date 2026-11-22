@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { DEFAULT_CARD_LANGUAGE, scanLanguage } from "@magic-vault/shared";
 import { useTranslation } from "react-i18next";
 
-export function PublicCardBadges({ entry, className }: PublicCardBadgesProps) {
+export function PublicCardBadges({ entry, className, children }: PublicCardBadgesProps) {
   const { t } = useTranslation("cards");
   const language = scanLanguage(entry);
   return (
@@ -22,6 +22,7 @@ export function PublicCardBadges({ entry, className }: PublicCardBadgesProps) {
           {language.toUpperCase()}
         </Badge>
       )}
+      {children}
     </span>
   );
 }
