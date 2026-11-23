@@ -30,8 +30,11 @@ export const netdeckImageRoute = new Hono<AppEnv>().get(
       signedUrl,
       (candidate) => candidate.protocol === "https:",
     );
-    if (!image) {
-      return c.json({ success: false, message: "Failed to fetch image." }, 502);
+    if ("failureReason" in image) {
+      return c.json(
+        { success: false, message: `Failed to fetch image: ${image.failureReason}.` },
+        502,
+      );
     }
 
     return c.body(image.body, 200, {

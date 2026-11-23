@@ -3,7 +3,6 @@ import { test } from "node:test";
 import type { CardReservationCard, TradeOfferWantedCard } from "@magic-vault/shared";
 import {
   cardLine,
-  reservationCardStatus,
   reservationStatusEmbed,
   tradeOfferStatusEmbed,
 } from "../src/lib/customer-status-message-embeds";
@@ -23,6 +22,13 @@ const card: CardReservationCard = {
 
 const wantedCard: TradeOfferWantedCard = { ...card, scanId: "scan-1" };
 
+const names = {
+  orgId: "org-1",
+  customerUserId: "user-1",
+  shopName: "Bob's Cards",
+  customerName: "Alex",
+};
+
 test("card lines show the printing, condition and finish", () => {
   assert.equal(cardLine(card), "**Lightning Bolt** (M10 146) · LP · Foil");
   assert.equal(
@@ -31,28 +37,71 @@ test("card lines show the printing, condition and finish", () => {
   );
 });
 
-test("reservation card statuses say what happened, or where the card stands when placed", () => {
-  const holdExpiresAt = new Date("2026-11-25T12:00:00.000Z");
-  const status = (overrides: Partial<Parameters<typeof reservationCardStatus>[0]>) =>
-    reservationCardStatus({ card, guestAlert: null, holdExpiresAt: null, queuePosition: null, ...overrides });
-  assert.equal(
-    status({ guestAlert: "held", holdExpiresAt }),
-    `held for you until <t:${holdExpiresAt.getTime() / 1000}:f>`,
-  );
-  assert.equal(status({ guestAlert: "readyForPickup" }), "ready for pickup");
-  assert.equal(status({ guestAlert: "expired" }), "your hold ran out");
-  assert.equal(status({ guestAlert: "released" }), "released by the shop");
-  assert.equal(status({ guestAlert: "unavailable" }), "no longer available");
-  assert.equal(status({ queuePosition: 2 }), "waiting, 1 person ahead of you");
-  assert.equal(status({ queuePosition: 4 }), "waiting, 3 people ahead of you");
-});
-
-test("a reservation message lists the cards and links to that request", () => {
+test("a placed reservation thanks the customer, lists the cards and says how long they're held", () => {
+  const holdExpiresAt = new Date("2026-11-28T17:00:00.000Z");
+  const seconds = holdExpiresAt.getTime() / 1000;
   const embed = reservationStatusEmbed(
     {
       discordUserId: "1",
+      ...names,
       event: "created",
-      catalogName: "Card Shop",
+      catalogName: "Main catalog",
+      requestGuid: "request-1",
+      cards: [
+        { card, guestAlert: null, holdExpiresAt, queuePosition: null },
+        { card, guestAlert: null, holdExpiresAt, queuePosition: null },
+        { card, guestAlert: null, holdExpiresAt: null, queuePosition: 2 },
+      ],
+    },
+    "https://mault.xyz",
+    new Date(0),
+  );
+  const url = "https://mault.xyz/app/trades?box=reservations&request=request-1";
+  const description = embed.description ?? "";
+  assert.equal(embed.title, "Thank you for reserving cards with Bob's Cards");
+  assert.equal(embed.url, url);
+  assert.equal(embed.footer?.text, "Main catalog");
+  assert.ok(description.startsWith("Hi Alex,\n\nThank you for reserving cards with Bob's Cards!"));
+  assert.ok(description.includes("**Held for you (2)**\n• **Lightning Bolt** (M10 146) · LP · Foil"));
+  assert.ok(description.includes(`Your cards will be held until <t:${seconds}:F> (<t:${seconds}:R>).`));
+  assert.ok(
+    description.includes(
+      "**In line for you (1)**\n• **Lightning Bolt** (M10 146) · LP · Foil, 1 person ahead of you",
+    ),
+  );
+  assert.ok(description.endsWith(`[View your reservation](${url})`));
+});
+
+test("cards held until different times show each card's time", () => {
+  const first = new Date("2026-11-28T17:00:00.000Z");
+  const second = new Date("2026-11-29T17:00:00.000Z");
+  const embed = reservationStatusEmbed(
+    {
+      discordUserId: "1",
+      ...names,
+      event: "created",
+      catalogName: null,
+      requestGuid: "request-1",
+      cards: [
+        { card, guestAlert: null, holdExpiresAt: first, queuePosition: null },
+        { card, guestAlert: null, holdExpiresAt: second, queuePosition: null },
+      ],
+    },
+    "https://mault.xyz",
+    new Date(0),
+  );
+  const description = embed.description ?? "";
+  assert.ok(description.includes(`, held until <t:${second.getTime() / 1000}:f>`));
+  assert.ok(!description.includes("Your cards will be held until"));
+});
+
+test("long card lists are cut off with a count of the rest", () => {
+  const embed = reservationStatusEmbed(
+    {
+      discordUserId: "1",
+      ...names,
+      event: "created",
+      catalogName: null,
       requestGuid: "request-1",
       cards: Array.from({ length: CUSTOMER_STATUS_MESSAGE_LINES_MAX + 2 }, () => ({
         card,
@@ -64,21 +113,40 @@ test("a reservation message lists the cards and links to that request", () => {
     "https://mault.xyz",
     new Date(0),
   );
-  const url = "https://mault.xyz/app/trades?box=reservations&request=request-1";
-  assert.equal(embed.title, "Reservation placed at Card Shop");
-  assert.equal(embed.url, url);
-  assert.equal(embed.description, `[View your reservation](${url})`);
-  const lines = embed.fields![0].value.split("\n");
-  assert.equal(embed.fields![0].name, `Cards (${CUSTOMER_STATUS_MESSAGE_LINES_MAX + 2})`);
-  assert.equal(lines.length, CUSTOMER_STATUS_MESSAGE_LINES_MAX + 1);
-  assert.equal(lines[0], "**Lightning Bolt** (M10 146) · LP · Foil: waiting, 1 person ahead of you");
-  assert.equal(lines.at(-1), "and 2 more");
+  assert.ok((embed.description ?? "").includes("\nand 2 more"));
+  assert.equal(embed.footer, undefined);
 });
 
-test("a trade offer message lists both sides with cash and links to the offer", () => {
+test("a reservation update groups cards by what happened and greets unnamed customers", () => {
+  const embed = reservationStatusEmbed(
+    {
+      discordUserId: "1",
+      ...names,
+      shopName: null,
+      customerName: null,
+      event: "changed",
+      catalogName: null,
+      requestGuid: "request-1",
+      cards: [
+        { card, guestAlert: "readyForPickup", holdExpiresAt: null, queuePosition: null },
+        { card, guestAlert: "released", holdExpiresAt: null, queuePosition: null },
+      ],
+    },
+    "https://mault.xyz",
+    new Date(0),
+  );
+  const description = embed.description ?? "";
+  assert.equal(embed.title, "Update on your reservation with the shop");
+  assert.ok(description.startsWith("Hi there,"));
+  assert.ok(description.includes("These cards are ready for you to pick up at the shop:"));
+  assert.ok(description.includes("The shop released these cards from your reservation:"));
+});
+
+test("an accepted trade offer names the shop and lists both sides with cash", () => {
   const embed = tradeOfferStatusEmbed(
     {
       discordUserId: "1",
+      ...names,
       event: "accepted",
       offerGuid: "offer-1",
       sentToName: "Binder",
@@ -104,21 +172,21 @@ test("a trade offer message lists both sides with cash and links to the offer", 
     "https://mault.xyz",
   );
   const url = "https://mault.xyz/app/trades/sent/offer-1";
-  assert.equal(embed.title, "Your trade offer was accepted");
+  const description = embed.description ?? "";
+  assert.equal(embed.title, "Bob's Cards accepted your trade offer");
   assert.equal(embed.url, url);
-  assert.equal(embed.description, `**Sent to:** Binder\n[View your trade offer](${url})`);
-  assert.deepEqual(
-    embed.fields!.map((field) => field.name),
-    ["You asked for (1)", "You offered"],
-  );
-  assert.equal(embed.fields![0].value, "**Lightning Bolt** (M10 146) · LP · Foil");
-  assert.match(embed.fields![1].value, /^2 × \*\*Shock\*\* \(M19 156\) · NM\n.*5.* cash$/);
+  assert.equal(embed.footer?.text, "Sent to Binder");
+  assert.ok(description.startsWith("Hi Alex,\n\nGreat news: Bob's Cards accepted your trade offer!"));
+  assert.ok(description.includes("**You asked for (1)**\n• **Lightning Bolt** (M10 146) · LP · Foil"));
+  assert.match(description, /\*\*You offered\*\*\n• 2 × \*\*Shock\*\* \(M19 156\) · NM\n• .*5.* cash/);
+  assert.ok(description.endsWith(`[View your trade offer](${url})`));
 });
 
-test("a trade offer with nothing offered says so", () => {
+test("a sent trade offer with nothing offered says so", () => {
   const embed = tradeOfferStatusEmbed(
     {
       discordUserId: "1",
+      ...names,
       event: "created",
       offerGuid: "offer-2",
       sentToName: null,
@@ -129,6 +197,6 @@ test("a trade offer with nothing offered says so", () => {
     },
     "https://mault.xyz",
   );
-  assert.equal(embed.title, "Trade offer sent");
-  assert.equal(embed.fields![1].value, "Nothing");
+  assert.equal(embed.title, "Thank you for your trade offer to Bob's Cards");
+  assert.ok((embed.description ?? "").includes("**You offered**\nNothing"));
 });

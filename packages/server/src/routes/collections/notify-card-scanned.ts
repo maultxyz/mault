@@ -11,6 +11,7 @@ import {
   buildSortingLogicSummary,
   sendDiscordNotification,
 } from "../../lib/discord";
+import { renderScanNotificationImage } from "../../lib/discord/scan-notification-image";
 import { postMatchingNotificationRules } from "../../lib/notification-rules";
 import { enqueueScanNotification } from "../../lib/scan-notification-queue";
 import type { NotifyCardScannedParams } from "../../lib/interfaces/collections";
@@ -50,14 +51,21 @@ export function notifyCardScanned(params: NotifyCardScannedParams): void {
       priceSource: toPriceSource(row.priceSource),
     });
 
+    let attachment: Promise<string | undefined> | null = null;
+    const loadAttachmentDataUrl = () => {
+      attachment ??= capturedImageUrl
+        ? renderScanNotificationImage(capturedImageUrl, referenceImageUrl)
+        : Promise.resolve(undefined);
+      return attachment;
+    };
+
     const ruleNotifications = postMatchingNotificationRules({
       orgId,
       gameId,
       card,
       scan: { isFoil, foilType },
       embed,
-      attachmentDataUrl: capturedImageUrl,
-      secondaryImageUrl: referenceImageUrl,
+      loadAttachmentDataUrl,
     }).catch((err) => {
       console.error("[discord] Failed to post notification rules:", err);
     });
@@ -76,7 +84,6 @@ export function notifyCardScanned(params: NotifyCardScannedParams): void {
           ),
           "scan",
           undefined,
-          undefined,
           collectionGuid,
         );
       }
@@ -85,8 +92,7 @@ export function notifyCardScanned(params: NotifyCardScannedParams): void {
         orgId,
         embed,
         "scan",
-        capturedImageUrl,
-        referenceImageUrl,
+        await loadAttachmentDataUrl(),
         collectionGuid,
       );
     }

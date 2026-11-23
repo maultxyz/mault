@@ -6,6 +6,7 @@ import {
 import type { Context } from "hono";
 import sharp from "sharp";
 import type { AppEnv } from "../middleware/auth";
+import type { BrandedCardRowOptions } from "./interfaces/branded-scan-image";
 import {
   BRANDED_SCAN_IMAGE_CARD_ASPECT_RATIO,
   BRANDED_SCAN_IMAGE_GAP_RATIO,
@@ -44,32 +45,51 @@ function brandStripSvg(width: number, height: number): string {
 </svg>`;
 }
 
-export async function renderBrandedScanImage(image: Buffer): Promise<Buffer> {
-  const metadata = await sharp(image).metadata();
-  const cardWidth = Math.min(
-    BRANDED_SCAN_IMAGE_MAX_WIDTH,
-    Math.max(BRANDED_SCAN_IMAGE_MIN_WIDTH, metadata.width ?? BRANDED_SCAN_IMAGE_MIN_WIDTH),
-  );
-  const cardHeight = Math.round(cardWidth / BRANDED_SCAN_IMAGE_CARD_ASPECT_RATIO);
-  const stripHeight = Math.round(cardWidth * BRANDED_SCAN_IMAGE_STRIP_HEIGHT_RATIO);
-  const card = await sharp(image)
+export function brandedCardHeight(cardWidth: number): number {
+  return Math.round(cardWidth / BRANDED_SCAN_IMAGE_CARD_ASPECT_RATIO);
+}
+
+export function squishToBrandedCard(image: Buffer, cardWidth: number): Promise<Buffer> {
+  return sharp(image)
     .rotate()
-    .resize(cardWidth, cardHeight, { fit: "fill" })
+    .resize(cardWidth, brandedCardHeight(cardWidth), { fit: "fill" })
     .toBuffer();
+}
+
+export function renderBrandedCardRow(
+  cards: Buffer[],
+  { cardWidth, gap, jpegQuality }: BrandedCardRowOptions,
+): Promise<Buffer> {
+  const cardHeight = brandedCardHeight(cardWidth);
+  const stripHeight = Math.round(cardWidth * BRANDED_SCAN_IMAGE_STRIP_HEIGHT_RATIO);
+  const width = cards.length * cardWidth + Math.max(0, cards.length - 1) * gap;
   return sharp({
     create: {
-      width: cardWidth,
+      width,
       height: cardHeight + stripHeight,
       channels: 3,
       background: BRANDED_SCAN_IMAGE_STRIP_BACKGROUND,
     },
   })
     .composite([
-      { input: card, top: 0, left: 0 },
-      { input: Buffer.from(brandStripSvg(cardWidth, stripHeight)), top: cardHeight, left: 0 },
+      ...cards.map((card, index) => ({ input: card, top: 0, left: index * (cardWidth + gap) })),
+      { input: Buffer.from(brandStripSvg(width, stripHeight)), top: cardHeight, left: 0 },
     ])
-    .jpeg({ quality: BRANDED_SCAN_IMAGE_JPEG_QUALITY })
+    .jpeg({ quality: jpegQuality })
     .toBuffer();
+}
+
+export async function renderBrandedScanImage(image: Buffer): Promise<Buffer> {
+  const metadata = await sharp(image).metadata();
+  const cardWidth = Math.min(
+    BRANDED_SCAN_IMAGE_MAX_WIDTH,
+    Math.max(BRANDED_SCAN_IMAGE_MIN_WIDTH, metadata.width ?? BRANDED_SCAN_IMAGE_MIN_WIDTH),
+  );
+  return renderBrandedCardRow([await squishToBrandedCard(image, cardWidth)], {
+    cardWidth,
+    gap: 0,
+    jpegQuality: BRANDED_SCAN_IMAGE_JPEG_QUALITY,
+  });
 }
 
 export async function brandedScanImageResponse(c: Context<AppEnv>, image: Buffer | null) {

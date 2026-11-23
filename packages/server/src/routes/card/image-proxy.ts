@@ -27,8 +27,11 @@ export const imageProxyRoute = new Hono<AppEnv>().get("/image-proxy", async (c) 
       candidate.protocol === "https:" &&
       ALLOWED_IMAGE_HOSTS.has(candidate.hostname),
   );
-  if (!image) {
-    return c.json({ success: false, message: "Failed to fetch image." }, 502);
+  if ("failureReason" in image) {
+    return c.json(
+      { success: false, message: `Failed to fetch image: ${image.failureReason}.` },
+      502,
+    );
   }
   return c.body(image.body, 200, {
     "Content-Type": image.contentType,

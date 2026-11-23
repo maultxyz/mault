@@ -1,5 +1,6 @@
 import type {
   ApiResult,
+  CustomerListResult,
   CalibrationDeviceSummary,
   CollectionSummary,
   DeviceCalibrationResult,
@@ -70,6 +71,16 @@ export function getStats(guildId: string, collectionGuid?: string) {
   const query = new URLSearchParams({ guildId });
   if (collectionGuid) query.set("collection", collectionGuid);
   return botFetch<StatsResult>(`/bot/stats?${query.toString()}`);
+}
+
+export function getMyReservations(discordUserId: string) {
+  const query = new URLSearchParams({ discordUserId });
+  return botFetch<CustomerListResult>(`/bot/my-reservations?${query.toString()}`);
+}
+
+export function getMyTradeOffers(discordUserId: string) {
+  const query = new URLSearchParams({ discordUserId });
+  return botFetch<CustomerListResult>(`/bot/my-trade-offers?${query.toString()}`);
 }
 
 export function getShowoff(discordUserId: string, guildId: string | null) {

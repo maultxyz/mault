@@ -98,6 +98,7 @@ export function StorageCardQueryToolbar({
         availableRarities={stats?.rarities ?? []}
         availableColors={stats?.colors ?? []}
         availableFoilTypes={stats?.foilTypes ?? []}
+        filterFacets={stats ?? undefined}
         viewMode={viewMode}
         onViewModeChange={onViewModeChange}
         density={density}

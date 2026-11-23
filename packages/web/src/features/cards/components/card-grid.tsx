@@ -1148,6 +1148,7 @@ export function CardGrid({ toolbarLeading }: CardGridProps = {}) {
           availableRarities={stats?.rarities}
           availableColors={stats?.colors}
           availableFoilTypes={stats?.foilTypes}
+          filterFacets={stats ?? undefined}
           binCount={computeBinCount(moduleCount)}
           openBuyGuid={openBuyGuid}
           cardCount={collectionCardCount}

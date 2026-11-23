@@ -39,7 +39,6 @@ export interface BotPostRequest {
   threadId?: string | null;
   threadName?: string;
   attachmentDataUrl?: string;
-  secondaryImageUrl?: string;
   guildId?: string;
   pingRoleIds?: string[];
 }

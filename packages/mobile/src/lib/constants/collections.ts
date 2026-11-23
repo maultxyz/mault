@@ -18,3 +18,5 @@ export const STORAGE_CARD_VIEW_MODE_KEY = "mault:storage-card-view-mode";
 export const COLLECTION_SEARCH_MIN_COUNT = 5;
 export const UNMATCHED_LIST_PAGE_SIZE = 30;
 export const COLLECTION_CSV_IMPORT_MIME_TYPES = ["text/csv", "text/comma-separated-values", "text/tab-separated-values", "text/plain", "application/csv", "application/vnd.ms-excel"];
+export const SET_FILTER_CHIPS_MAX = 40;
+export const SET_FILTER_SEARCH_MIN_COUNT = 8;

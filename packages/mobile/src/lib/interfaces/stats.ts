@@ -117,6 +117,10 @@ export interface StatsBreakdown {
   rarities: StatsBreakdownEntry[];
   colors: StatsBreakdownEntry[];
   foilTypes: StatsBreakdownEntry[];
+  conditions: { key: string; count: number }[];
+  languages: { key: string; count: number }[];
+  foilCount: number;
+  nonFoilCount: number;
 }
 
 export interface StatsLeaderboardSheetProps {

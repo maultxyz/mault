@@ -49,6 +49,7 @@ export function CardToolbar({
   availableRarities,
   availableColors,
   availableFoilTypes,
+  filterFacets,
   binCount,
   openBuyGuid,
   cardCount,
@@ -113,6 +114,7 @@ export function CardToolbar({
           availableRarities={availableRarities ?? []}
           availableColors={availableColors ?? []}
           availableFoilTypes={availableFoilTypes ?? []}
+          filterFacets={filterFacets}
           binCount={binCount}
           openBuyGuid={openBuyGuid}
           unmatchedCount={unmatchedCount}

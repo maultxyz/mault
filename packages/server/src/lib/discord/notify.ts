@@ -142,7 +142,6 @@ export async function sendDiscordNotification(
   embed: DiscordEmbed,
   kind: DiscordNotificationKind,
   attachmentDataUrl?: string,
-  secondaryImageUrl?: string,
   collectionGuid?: string,
 ): Promise<DiscordNotifyOutcome> {
   const config = await getNotifyConfig(orgId, kind, collectionGuid);
@@ -154,7 +153,6 @@ export async function sendDiscordNotification(
       channelId: config.channelId,
       embed,
       attachmentDataUrl,
-      secondaryImageUrl,
       pingRoleIds,
     });
     return ok ? "sent" : "failed";
@@ -166,7 +164,6 @@ export async function sendDiscordNotification(
     threadName: SCAN_THREAD_NAME,
     embed,
     attachmentDataUrl,
-    secondaryImageUrl,
     pingRoleIds,
   });
   if (newThreadId && newThreadId !== config.threadId) {

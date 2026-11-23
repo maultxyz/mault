@@ -149,3 +149,9 @@ export interface CollectionCsvImportFile {
   fileName: string;
   parsed: CollectionCsvParseResult;
 }
+
+export interface CardPriceRangeFieldsProps {
+  minPrice: number | null;
+  maxPrice: number | null;
+  onChange: (range: { minPrice: number | null; maxPrice: number | null }) => void;
+}

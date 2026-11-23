@@ -543,6 +543,10 @@ export interface ScanStats {
     count: number;
   }[];
   foilTypes: { key: string; label: string; count: number }[];
+  conditions: { key: string; count: number }[];
+  languages: { key: string; count: number }[];
+  foilCount: number;
+  nonFoilCount: number;
 }
 
 export interface BinFillLevel {

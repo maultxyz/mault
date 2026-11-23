@@ -1100,7 +1100,23 @@
       "status": "Status",
       "needsReview": "Zu prüfen",
       "hideDownloaded": "Heruntergeladene ausblenden",
-      "reset": "Zurücksetzen"
+      "reset": "Zurücksetzen",
+      "finish": "Ausführung",
+      "finishes": {
+        "all": "Jede Ausführung",
+        "foil": "Nur Foil",
+        "nonfoil": "Nur Non-Foil"
+      },
+      "condition": "Zustand",
+      "language": "Sprache",
+      "price": "Preis ({{currency}})",
+      "minPrice": "Min.",
+      "maxPrice": "Max.",
+      "sets": "Sets",
+      "findSet": "Set suchen",
+      "setsShown": "{{shown, compact}} von {{count, compact}} Sets. Suche, um weitere zu finden.",
+      "noSetMatches": "Keine passenden Sets",
+      "optionWithCount": "{{label}} ({{count, compact}})"
     },
     "sort": {
       "title": "Sortieren nach",

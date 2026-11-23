@@ -2,7 +2,9 @@ import assert from "node:assert/strict";
 import { test } from "node:test";
 import { parseScanImageSide, scanImageDownloadFileName } from "@magic-vault/shared";
 import sharp from "sharp";
-import { renderBrandedScanImage } from "../src/lib/branded-scan-image";
+import { brandedCardHeight, renderBrandedScanImage } from "../src/lib/branded-scan-image";
+import { renderScanNotificationImage } from "../src/lib/discord/scan-notification-image";
+import { SCAN_NOTIFICATION_IMAGE_CARD_WIDTH } from "../src/lib/constants/discord";
 import {
   BRANDED_SCAN_IMAGE_CARD_ASPECT_RATIO,
   BRANDED_SCAN_IMAGE_MIN_WIDTH,
@@ -40,4 +42,21 @@ test("scan image download names are slugged per side", () => {
   assert.equal(scanImageDownloadFileName(undefined, "front"), "card-mault.jpg");
   assert.equal(parseScanImageSide("back"), "back");
   assert.equal(parseScanImageSide("sideways"), "front");
+});
+
+test("discord scan images get the brand strip and post the scan alone when the reference host is not allowed", async () => {
+  const photo = await sharp({
+    create: { width: 448, height: 448, channels: 3, background: "#22aa66" },
+  })
+    .jpeg()
+    .toBuffer();
+  const dataUrl = await renderScanNotificationImage(
+    `data:image/jpeg;base64,${photo.toString("base64")}`,
+    "https://example.com/card.jpg",
+  );
+  const encoded = dataUrl.slice(dataUrl.indexOf(",") + 1);
+  const { width, height } = await sharp(Buffer.from(encoded, "base64")).metadata();
+  const stripHeight = Math.round(SCAN_NOTIFICATION_IMAGE_CARD_WIDTH * BRANDED_SCAN_IMAGE_STRIP_HEIGHT_RATIO);
+  assert.equal(width, SCAN_NOTIFICATION_IMAGE_CARD_WIDTH);
+  assert.equal(height, brandedCardHeight(SCAN_NOTIFICATION_IMAGE_CARD_WIDTH) + stripHeight);
 });

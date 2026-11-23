@@ -57,8 +57,7 @@ export async function postMatchingNotificationRules(params: {
   card: PlayingCard;
   scan: ScanRuleState;
   embed: DiscordEmbed;
-  attachmentDataUrl?: string;
-  secondaryImageUrl?: string;
+  loadAttachmentDataUrl: () => Promise<string | undefined>;
 }): Promise<void> {
   const {
     orgId,
@@ -66,8 +65,7 @@ export async function postMatchingNotificationRules(params: {
     card,
     scan,
     embed,
-    attachmentDataUrl,
-    secondaryImageUrl,
+    loadAttachmentDataUrl,
   } = params;
   if (gameId === null) return;
 
@@ -126,6 +124,8 @@ export async function postMatchingNotificationRules(params: {
     matchesByChannel.set(rule.channelId!, match);
   }
 
+  if (matchesByChannel.size === 0) return;
+  const attachmentDataUrl = await loadAttachmentDataUrl();
   await Promise.all(
     [...matchesByChannel].map(([channelId, { names, roleIds }]) =>
       sendDiscordChannelMessage({
@@ -138,7 +138,6 @@ export async function postMatchingNotificationRules(params: {
           },
         },
         attachmentDataUrl,
-        secondaryImageUrl,
         pingRoleIds: [...roleIds],
       }),
     ),

@@ -56,6 +56,7 @@ import {
 } from "../../lib/constants/storage-locations";
 import {
   cardFilterSql,
+  cardQueryFiltersByPrice,
   cardQueryUsesCatalog,
   cardSortKeySql,
   loadCardStatsForSource,
@@ -458,12 +459,12 @@ export async function loadLocationCardSortScope(
   tx: Transaction,
   orgId: string,
   locationId: number,
-  sort: string | null,
+  query: CollectionCardsQuery,
 ): Promise<CardSortScope> {
-  if (!sort) return { fieldDefinitions: [], pricing: null };
+  const needsPricing = !!query.sort || cardQueryFiltersByPrice(query);
   return {
-    fieldDefinitions: await loadLocationFieldDefinitions(tx, locationId),
-    pricing: await loadOrgPricing(tx, orgId),
+    fieldDefinitions: query.sort ? await loadLocationFieldDefinitions(tx, locationId) : [],
+    pricing: needsPricing ? await loadOrgPricing(tx, orgId) : null,
   };
 }
 
@@ -486,7 +487,7 @@ function storedCardsRankedCte(
       ${cardQueryUsesCatalog(query, sortScope) ? cardCatalogJoinSql(STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}
       ${sortUsesStoredPrices(query.sort, sortScope) ? cardPricesJoinSql("cp", STORED_CARD_CATALOG_SCOPE, CC_ALIAS_SQL_COLUMNS) : sql``}
       WHERE cc.location_id = ${locationId}
-        AND ((${cardFilterSql(query, keepScanId)})${keepCard})
+        AND ((${cardFilterSql(query, keepScanId, sortScope.pricing)})${keepCard})
     )`;
 }
 

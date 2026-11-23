@@ -10,9 +10,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  PublicCardFilterGroup,
-  PublicCardRadioGroup,
-} from "@/features/public-cards/components/public-card-filter-group";
+  CardFilterCheckboxGroup,
+  CardFilterRadioGroup,
+} from "@/components/card-filter-groups";
 import { colorSwatch } from "@/lib/card-swatches";
 import {
   ALL_PUBLIC_CARD_GAMES,
@@ -93,7 +93,7 @@ export function PublicCardFilterPanel({
         </Select>
       </div>
       {info.games.length > 1 && (
-        <PublicCardRadioGroup
+        <CardFilterRadioGroup
           legend={t("publicBrowse.gameFilter")}
           name="game"
           value={gameKey}
@@ -137,7 +137,7 @@ export function PublicCardFilterPanel({
           </div>
         </fieldset>
       )}
-      <PublicCardRadioGroup
+      <CardFilterRadioGroup
         legend={t("publicBrowse.finishFilter")}
         name="finish"
         value={filters.finish}
@@ -145,14 +145,14 @@ export function PublicCardFilterPanel({
         options={finishOptions}
       />
       {(facets?.foilTypes.length ?? 0) > 1 && (
-        <PublicCardFilterGroup
+        <CardFilterCheckboxGroup
           legend={t("publicBrowse.foilTypeFilter")}
           options={(facets?.foilTypes ?? []).map(({ key, count }) => ({ key, label: key, count }))}
           selected={filters.foilTypes}
           onChange={(foilTypes) => onFiltersChange({ ...filters, foilTypes })}
         />
       )}
-      <PublicCardFilterGroup
+      <CardFilterCheckboxGroup
         legend={tCards("condition.label")}
         options={conditions.map(({ key, count }) => ({
           key,
@@ -165,7 +165,7 @@ export function PublicCardFilterPanel({
         }
       />
       {(facets?.languages.length ?? 0) > 1 && (
-        <PublicCardFilterGroup
+        <CardFilterCheckboxGroup
           legend={t("publicBrowse.languageFilter")}
           options={(facets?.languages ?? []).map(({ key, count }) => ({
             key,
@@ -176,7 +176,7 @@ export function PublicCardFilterPanel({
           onChange={(languages) => onFiltersChange({ ...filters, languages })}
         />
       )}
-      <PublicCardFilterGroup
+      <CardFilterCheckboxGroup
         legend={t("publicBrowse.rarityFilter")}
         options={sortRarities(facets?.rarities ?? []).map(({ key, count }) => ({
           key,
@@ -186,7 +186,7 @@ export function PublicCardFilterPanel({
         selected={filters.rarities}
         onChange={(rarities) => onFiltersChange({ ...filters, rarities })}
       />
-      <PublicCardFilterGroup
+      <CardFilterCheckboxGroup
         legend={t("publicBrowse.colorFilter")}
         options={(facets?.colors ?? []).map(({ key, count }) => ({
           key,
@@ -196,7 +196,7 @@ export function PublicCardFilterPanel({
         selected={filters.colors}
         onChange={(colors) => onFiltersChange({ ...filters, colors })}
       />
-      <PublicCardFilterGroup
+      <CardFilterCheckboxGroup
         legend={t("publicBrowse.setFilter")}
         searchPlaceholder={
           (facets?.sets.length ?? 0) > PUBLIC_CARD_FILTER_SEARCHABLE_MIN_OPTIONS

@@ -76,20 +76,6 @@ export interface PublicCardBadgesProps {
   children?: ReactNode;
 }
 
-export interface PublicCardFilterOption {
-  key: string;
-  label: string;
-  count: number;
-}
-
-export interface PublicCardFilterGroupProps {
-  legend: string;
-  options: PublicCardFilterOption[];
-  selected: string[];
-  onChange: (selected: string[]) => void;
-  searchPlaceholder?: string;
-}
-
 export interface PublicCardFilterPanelProps {
   info: PublicCardBrowseInfo;
   facets: PublicCardFacets | undefined;
@@ -105,14 +91,6 @@ export interface PublicCardFilterPanelProps {
   onMinPriceInputChange: (value: string) => void;
   onMaxPriceInputChange: (value: string) => void;
   onClear: () => void;
-}
-
-export interface PublicCardRadioGroupProps<T extends string> {
-  legend: string;
-  name: string;
-  options: { key: T; label: string; count?: number }[];
-  value: T;
-  onChange: (value: T) => void;
 }
 
 export interface WatchCardBrowserProps {

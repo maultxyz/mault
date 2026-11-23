@@ -52,7 +52,7 @@ export async function loadInlineUnmatchedCards(
           (SELECT scanned_at, id FROM collection_cards
             WHERE collection_id = ${collection.id} AND guid = ${firstScanId}::uuid) first_card
         WHERE cc.collection_id = ${collection.id}
-          AND ${cardFilterSql(query)}
+          AND ${cardFilterSql(query, undefined, collection.pricing)}
           AND (cc.scanned_at, cc.id) > (first_card.scanned_at, first_card.id)
       )`
     : sql`NULL::timestamp`;

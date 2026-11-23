@@ -40,6 +40,10 @@ export function toScanStats(aggregate: CardStatsAggregate): ScanStats | null {
     foilTypes: [...aggregate.foilTypes]
       .sort((a, b) => b.count - a.count)
       .map(({ key, count }) => ({ key, label: key, count })),
+    conditions: aggregate.conditions ?? [],
+    languages: [...(aggregate.languages ?? [])].sort((a, b) => b.count - a.count),
+    foilCount: aggregate.foilCount ?? 0,
+    nonFoilCount: aggregate.nonFoilCount ?? 0,
   };
 }
 
@@ -63,5 +67,9 @@ export function toDisplayStats(
     rarities: allStats.rarities,
     colors: allStats.colors,
     foilTypes: allStats.foilTypes,
+    conditions: allStats.conditions,
+    languages: allStats.languages,
+    foilCount: allStats.foilCount,
+    nonFoilCount: allStats.nonFoilCount,
   };
 }

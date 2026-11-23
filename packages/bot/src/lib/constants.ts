@@ -34,14 +34,6 @@ export const BOT_API_SECRET = process.env.BOT_API_SECRET ?? "";
 
 export const NOTIFY_SERVER_PORT = parseInt(process.env.BOT_PORT ?? "3002");
 
-export const COMPOSITE_HEIGHT = 480;
-
-export const COMPOSITE_GAP = 16;
-
-export const SCAN_PHOTO_CARD_ASPECT_RATIO = 2.5 / 3.5;
-
-export const SCAN_PHOTO_JPEG_QUALITY = 85;
-
 export const SCAN_ATTACHMENT_NAME = "scan.jpg";
 
 export const LINK_CONFIRM_TIMEOUT_MS = 30_000;

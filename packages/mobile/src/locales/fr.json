@@ -1100,7 +1100,23 @@
       "status": "Statut",
       "needsReview": "À vérifier",
       "hideDownloaded": "Masquer les téléchargées",
-      "reset": "Réinitialiser"
+      "reset": "Réinitialiser",
+      "finish": "Finition",
+      "finishes": {
+        "all": "Toutes finitions",
+        "foil": "Foil uniquement",
+        "nonfoil": "Non foil uniquement"
+      },
+      "condition": "État",
+      "language": "Langue",
+      "price": "Prix ({{currency}})",
+      "minPrice": "Min",
+      "maxPrice": "Max",
+      "sets": "Éditions",
+      "findSet": "Trouver une édition",
+      "setsShown": "{{shown, compact}} éditions sur {{count, compact}}. Recherchez pour en trouver d’autres.",
+      "noSetMatches": "Aucune édition correspondante",
+      "optionWithCount": "{{label}} ({{count, compact}})"
     },
     "sort": {
       "title": "Trier par",

@@ -104,6 +104,11 @@ export function useCardQueryState(
     filters.bins.length +
     filters.sets.length +
     filters.foilTypes.length +
+    filters.conditions.length +
+    filters.languages.length +
+    (filters.finish === EMPTY_CARD_FILTERS.finish ? 0 : 1) +
+    (filters.minPrice === null ? 0 : 1) +
+    (filters.maxPrice === null ? 0 : 1) +
     (filters.needsAttention ? 1 : 0) +
     (filters.hideDownloaded ? 1 : 0) +
     (filters.minMatchPercent > 0 ? 1 : 0) +

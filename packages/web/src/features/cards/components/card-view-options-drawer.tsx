@@ -29,6 +29,7 @@ export function CardViewOptionsDrawer({
   availableRarities,
   availableColors,
   availableFoilTypes,
+  filterFacets,
   binCount,
   openBuyGuid,
   unmatchedCount,
@@ -121,6 +122,7 @@ export function CardViewOptionsDrawer({
               availableRarities={availableRarities}
               availableColors={availableColors}
               availableFoilTypes={availableFoilTypes}
+              filterFacets={filterFacets}
               binCount={binCount}
               openBuyGuid={openBuyGuid}
               unmatchedCount={unmatchedCount}

@@ -540,7 +540,7 @@ const router = new Hono<AppEnv>()
         tx,
         locationId,
         query,
-        await loadLocationCardSortScope(tx, orgId, locationId, query.sort),
+        await loadLocationCardSortScope(tx, orgId, locationId, query),
         pageSize,
         requestedPage,
       );
@@ -571,7 +571,7 @@ const router = new Hono<AppEnv>()
           tx,
           locationId,
           query,
-          await loadLocationCardSortScope(tx, orgId, locationId, query.sort),
+          await loadLocationCardSortScope(tx, orgId, locationId, query),
         );
       return { success: true, data };
     });
@@ -622,7 +622,7 @@ const router = new Hono<AppEnv>()
         tx,
         locationId,
         query,
-        await loadLocationCardSortScope(tx, orgId, locationId, query.sort),
+        await loadLocationCardSortScope(tx, orgId, locationId, query),
         scanId,
         query.unreviewed === true,
       );

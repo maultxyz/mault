@@ -120,7 +120,8 @@
     "resetFilters": "Réinitialiser les filtres",
     "unmatched": "Non reconnues",
     "buy": "Entrée de stock",
-    "onlyThisBuy": "Uniquement cette entrée de stock"
+    "onlyThisBuy": "Uniquement cette entrée de stock",
+    "priceInCurrency": "Prix ({{currency}})"
   },
   "cardGrid": {
     "noCollectionSelected": "Aucune collection sélectionnée",

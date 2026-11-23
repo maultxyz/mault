@@ -102,6 +102,10 @@ export interface LeaderboardResult {
   linkedOrgOptedIn: boolean | null;
 }
 
+export interface CustomerListResult {
+  embed: APIEmbed;
+}
+
 export interface ShowoffResult extends StatsResult {
   orgName: string;
 }
@@ -142,7 +146,6 @@ export interface NotifyBody {
   useThread?: boolean;
   embed?: APIEmbed;
   attachmentDataUrl?: string;
-  secondaryImageUrl?: string;
   guildId?: string;
   pingRoleIds?: string[];
 }

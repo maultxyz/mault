@@ -5,6 +5,7 @@ import {
   type StatusMessageSettingsUpdate,
 } from "@magic-vault/shared";
 import { eq, sql } from "drizzle-orm";
+import { authProvider } from "../auth";
 import { db } from "../db";
 import { customerStatusMessages } from "../db/schema";
 import { CUSTOMER_STATUS_MESSAGES_DELAY_MS } from "./constants/timing";
@@ -17,6 +18,8 @@ import { isDiscordBotConfigured, sendDiscordDirectMessage } from "./discord/dire
 import { loadDiscordUserLink } from "./discord/user-links";
 import { cardReservationQueuesByCard } from "./card-reservation-settlement";
 import { loadActiveCardReservationRows } from "./card-reservations";
+import { cachedDisplayName } from "./display-name-cache";
+import { CUSTOMER_STATUS_MESSAGE_UNKNOWN_NAME } from "./constants/discord";
 import type {
   ReservationMessageRow,
   ReservationStatusMessage,
@@ -76,6 +79,11 @@ export async function updateStatusMessageSettings(
     });
 }
 
+function customerFirstName(displayName: string): string | null {
+  const firstName = displayName.trim().split(/\s+/)[0] ?? "";
+  return firstName && firstName !== CUSTOMER_STATUS_MESSAGE_UNKNOWN_NAME ? firstName : null;
+}
+
 function epochToDate(epoch: number | null): Date | null {
   return epoch === null ? null : new Date(Number(epoch) * 1000);
 }
@@ -101,6 +109,10 @@ function toReservationMessages(
     const key = `${row.discord_user_id}\u0000${row.request_guid}`;
     const message = messages.get(key) ?? {
       discordUserId: row.discord_user_id,
+      orgId: row.org_id,
+      customerUserId: row.guest_user_id,
+      shopName: null,
+      customerName: null,
       event,
       catalogName: row.catalog_name,
       requestGuid: row.request_guid,
@@ -124,6 +136,10 @@ function toTradeOfferMessage(
 ): TradeOfferStatusMessage {
   return {
     discordUserId: row.discord_user_id,
+    orgId: row.org_id,
+    customerUserId: row.guest_user_id,
+    shopName: null,
+    customerName: null,
     event,
     offerGuid: row.guid,
     sentToName: row.sent_to_name,
@@ -138,13 +154,15 @@ function toTradeOfferMessage(
 }
 
 const RESERVATION_MESSAGE_COLUMNS = sql`
-  messaged.discord_user_id, messaged.request_guid, catalog.name AS catalog_name,
+  messaged.discord_user_id, messaged.org_id, messaged.guest_user_id,
+  messaged.request_guid, catalog.name AS catalog_name,
   messaged.collection_card_id, messaged.id AS reservation_id, messaged.card,
   messaged.guest_alert, messaged.status,
   extract(epoch FROM messaged.hold_expires_at)::float8 AS hold_expires_at_epoch`;
 
 const TRADE_OFFER_MESSAGE_COLUMNS = sql`
-  messaged.discord_user_id, messaged.guid, messaged.status,
+  messaged.discord_user_id, messaged.org_id, messaged.guest_user_id,
+  messaged.guid, messaged.status,
   COALESCE(collection.name, location.name) AS sent_to_name,
   messaged.wanted_cards, messaged.offered_cards,
   messaged.offered_cash_amount, messaged.offered_cash_currency`;
@@ -215,15 +233,38 @@ async function claimTradeOfferStatusMessages(orgId: string): Promise<TradeOfferS
   );
 }
 
+async function withNames<Message extends ReservationStatusMessage | TradeOfferStatusMessage>(
+  messages: Message[],
+): Promise<Message[]> {
+  if (messages.length === 0) return messages;
+  const orgIds = [...new Set(messages.map((message) => message.orgId))];
+  const customerUserIds = [...new Set(messages.map((message) => message.customerUserId))];
+  const [shopNames, customerNames] = await Promise.all([
+    authProvider.getOrganisationNames(orgIds).catch(() => new Map<string, string>()),
+    Promise.all(
+      customerUserIds.map(
+        async (userId) =>
+          [userId, await cachedDisplayName(userId, (id) => authProvider.getUserDisplayName(id))] as const,
+      ),
+    ),
+  ]);
+  const firstNames = new Map(customerNames.map(([userId, name]) => [userId, customerFirstName(name)]));
+  return messages.map((message) => ({
+    ...message,
+    shopName: shopNames.get(message.orgId)?.trim() || null,
+    customerName: firstNames.get(message.customerUserId) ?? null,
+  }));
+}
+
 async function sendReservationMessages(messages: ReservationStatusMessage[]) {
   const now = new Date();
-  for (const message of messages) {
+  for (const message of await withNames(messages)) {
     await sendDiscordDirectMessage(message.discordUserId, reservationStatusEmbed(message, getWebUrl(), now));
   }
 }
 
 async function sendTradeOfferMessages(messages: TradeOfferStatusMessage[]) {
-  for (const message of messages) {
+  for (const message of await withNames(messages)) {
     await sendDiscordDirectMessage(message.discordUserId, tradeOfferStatusEmbed(message, getWebUrl()));
   }
 }
