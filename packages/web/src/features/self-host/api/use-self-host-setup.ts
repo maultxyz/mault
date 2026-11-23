@@ -47,6 +47,7 @@ function writeSelfHostSetup(search: string, setup: SelfHostSetupState): string {
     if (
       setup[key] === DEFAULT_SELF_HOST_SETUP[key] ||
       ((key === "sorter" || key === "board") && setup.host !== "pi") ||
+      (key === "auth" && setup.host === "pi") ||
       (key === "board" && setup.sorter !== "gpio")
     ) {
       params.delete(SELF_HOST_SETUP_PARAMS[key]);
@@ -65,8 +66,12 @@ export function useSelfHostSetup(): SelfHostSetupValue {
 
   const updateSetup = useCallback(
     (patch: Partial<SelfHostSetupState>) => {
-      const next = { ...parseSelfHostSetup(window.location.search), ...patch };
+      const current = parseSelfHostSetup(window.location.search);
+      const next = { ...current, ...patch };
       if (next.host === "pi") next.auth = "local";
+      else if (current.host === "pi" && !patch.auth) {
+        next.auth = DEFAULT_SELF_HOST_SETUP.auth;
+      }
       navigate(
         {
           search: writeSelfHostSetup(window.location.search, next),

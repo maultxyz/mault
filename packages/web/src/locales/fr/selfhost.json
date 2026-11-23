@@ -29,13 +29,14 @@
     },
     "auth": {
       "label": "Comptes et base de données",
+      "recommended": "Recommandé",
       "local": {
         "title": "Intégré",
-        "description": "Postgres et les comptes tournent dans la pile. Aucun service externe."
+        "description": "Postgres et les comptes tournent dans la pile. Aucun service externe, mais les sauvegardes sont à ta charge."
       },
       "neon": {
         "title": "Neon",
-        "description": "Postgres hébergé et Neon Auth. Ajoute la vérification de l'e-mail, la modification du mot de passe et la connexion via les réseaux sociaux."
+        "description": "Postgres hébergé avec restauration à un instant donné, plus Neon Auth pour la vérification de l'e-mail, la modification du mot de passe et la connexion via les réseaux sociaux. L'offre gratuite suffit."
       },
       "piNote": "La version Pi/Linux configure les comptes intégrés et un Postgres local. Neon est disponible avec Docker Compose ou Coolify."
     },

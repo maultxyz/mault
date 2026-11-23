@@ -104,10 +104,8 @@ describe("Pi/Linux self-host guide", () => {
     expect(radio("Neon")).toBeDisabled();
     fireEvent.click(radio("Coolify"));
     expect(radio("Neon")).toBeEnabled();
-    fireEvent.click(radio("Neon"));
-    expect(new URLSearchParams(window.location.search).get("auth")).toBe(
-      "neon",
-    );
+    expect(radio("Neon")).toHaveAttribute("aria-checked", "true");
+    expect(new URLSearchParams(window.location.search).has("auth")).toBe(false);
     expect(
       screen.getByRole("heading", { name: "Set up Neon" }),
     ).toBeInTheDocument();
@@ -240,7 +238,25 @@ describe("Pi/Linux self-host guide", () => {
   it("falls back to the existing defaults for invalid URL choices", () => {
     renderGuide("/self-host?host=unknown&auth=unknown");
     expect(radio("Docker Compose")).toHaveAttribute("aria-checked", "true");
-    expect(radio("Built-in")).toHaveAttribute("aria-checked", "true");
+    expect(radio("Neon")).toHaveAttribute("aria-checked", "true");
+  });
+  it("recommends Neon first and bookmarks the built-in database when chosen", () => {
+    renderGuide("/self-host");
+    const authOptions = within(
+      screen.getByRole("radiogroup", { name: en.setup.auth.label }),
+    ).getAllByRole("radio");
+    expect(authOptions[0]).toHaveAccessibleName(
+      expect.stringContaining(en.setup.auth.recommended),
+    );
+    expect(authOptions[0]).toHaveAccessibleName(expect.stringMatching(/^Neon/));
+    expect(radio("Built-in")).not.toHaveAccessibleName(
+      expect.stringContaining(en.setup.auth.recommended),
+    );
+    fireEvent.click(radio("Built-in"));
+    expect(new URLSearchParams(window.location.search).get("auth")).toBe("local");
+    expect(
+      screen.queryByRole("heading", { name: "Set up Neon" }),
+    ).not.toBeInTheDocument();
   });
 });
 describe("existing hosting paths", () => {

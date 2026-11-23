@@ -7,6 +7,7 @@ import {
   SELF_HOST_BOARD_OPTIONS,
   SELF_HOST_SORTER_OPTIONS,
   SELF_HOST_HOST_OPTIONS,
+  SELF_HOST_RECOMMENDED_AUTH,
   SELF_HOST_SETUP_ANCHOR,
 } from "@/lib/constants/self-host";
 import { useTranslation } from "react-i18next";
@@ -105,6 +106,11 @@ export function SelfHostSetup() {
                 icon={option.icon}
                 title={t(`setup.auth.${option.value}.title`)}
                 description={t(`setup.auth.${option.value}.description`)}
+                badge={
+                  option.value === SELF_HOST_RECOMMENDED_AUTH
+                    ? t("setup.auth.recommended")
+                    : undefined
+                }
                 disabled={host === "pi" && option.value === "neon"}
                 selected={auth === option.value}
                 onSelect={() => updateSetup({ auth: option.value })}

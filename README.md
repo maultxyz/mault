@@ -94,8 +94,8 @@ For a production install, follow the step-by-step guide at [mault.xyz/self-host]
 
 Mault needs Postgres with pgvector and an identity provider, picked with `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER`:
 
-- **`neon`** (default): a hosted [Neon](https://neon.com) project. The free tier is enough.
-- **`local`**: fully self-hosted. `docker-compose.yml` runs Postgres, the API, the web app and the API docs. A Raspberry Pi can host the same local-auth app from a prebuilt SD image or release bundle ([Raspberry Pi](#Raspberry-Pi-and-Orange-Pi-Zero-4)).
+- **`neon`** (default, recommended for self-hosting): a hosted [Neon](https://neon.com) project. The free tier is enough. You get point-in-time restore instead of managing Postgres backups, plus email verification, password editing and social sign-in through Neon Auth.
+- **`local`**: fully self-hosted, with no outside services; you back up Postgres yourself. `docker-compose.yml` runs Postgres, the API, the web app and the API docs. A Raspberry Pi can host the same local-auth app from a prebuilt SD image or release bundle ([Raspberry Pi](#Raspberry-Pi-and-Orange-Pi-Zero-4)).
 
 Both read one `.env` in the repo root:
 
@@ -297,7 +297,7 @@ docker compose --profile bot up --build -d   # + Discord bot (internal :3002)
 ```
 
 - For production, set `WEB_URL` to your public origin and use real secrets.
-- With `AUTH_PROVIDER=neon`, `.env` must point at a migrated Neon project; the bundled `postgres` then sits unused.
+- Neon is the recommended database (see [Neon](#neon)). With `AUTH_PROVIDER=neon`, `.env` must point at a migrated Neon project; the bundled `postgres` then sits unused.
 - Prices need the cron job from [Prices](#prices).
 - Leaderboards: an owner or admin can link an organization to the hosted Mault leaderboards under Settings > Integrations with a stats sync key from mault.xyz. Only daily scan totals are sent, first every past day, then once a day. `STATS_SYNC_TARGET_URL` (default `https://mault.xyz/api`) changes where they go.
 
@@ -320,7 +320,7 @@ The API then registers each link's code with the shortener and re-registers ever
 4. Deploy. The API migrates before starting. To update, redeploy: Coolify fetches the latest compose file and pulls the current images.
 5. Under **Scheduled Tasks**, add the price sync: command `node packages/server/dist/scripts/sync-prices.js`, container `server`, frequency `0 4 * * *`.
 
-- **Neon:** also set `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER` to `neon`, `DATABASE_SSL=true` and the Neon values, and run the migrations from a checkout before each deploy.
+- **Neon (recommended):** also set `AUTH_PROVIDER` / `VITE_AUTH_PROVIDER` to `neon`, `DATABASE_SSL=true` and the Neon values, and run the migrations from a checkout before each deploy. Neon handles backups, so the `mault-postgres` volume then holds nothing you need.
 - **Short links:** route a short domain to the **shortener** service on port 3003 and set `SHORT_LINK_BASE_URL`, `SHORT_LINK_TARGET_ORIGIN` and `SHORTENER_API_SECRET` (see [Link shortener](#link-shortener)); without them the shortener idles.
 - **Discord:** set `DISCORD_BOT_TOKEN`, `DISCORD_CLIENT_ID` and `BOT_API_SECRET` and redeploy; without them the bot idles.
 - **Data:** Postgres lives in the `mault-postgres` volume; keep it and back it up. The default `DATABASE_URL` uses `POSTGRES_PASSWORD` unencoded, so keep it URL-safe (hex is). Changing `POSTGRES_PASSWORD` later doesn't change the database's password, and changing `OWN_AUTH_TOKEN_PEPPER` signs everyone out.
