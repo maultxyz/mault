@@ -11,7 +11,7 @@ packageExtensionsChecksum: b0b605f558ec6b09114be8d35b2064ed
 
 patchedDependencies:
   onnxruntime-react-native@1.24.3:
-    hash: 3moysvd5dgkfeha5schb6cuanm
+    hash: tkbzq6dwwxpgksinzwefemwnfq
     path: patches/onnxruntime-react-native@1.24.3.patch
   react-native-gesture-handler@3.3.0:
     hash: 4s33xbfquxmf32ujzvgras56zy
@@ -226,7 +226,7 @@ importers:
         version: 1.4.0
       onnxruntime-react-native:
         specifier: 1.24.3
-        version: 1.24.3(patch_hash=3moysvd5dgkfeha5schb6cuanm)(react-native@0.88.0(@babel/core@7.29.0)(@react-native/metro-config@0.88.0(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.3.0))(react@19.3.0)
+        version: 1.24.3(patch_hash=tkbzq6dwwxpgksinzwefemwnfq)(react-native@0.88.0(@babel/core@7.29.0)(@react-native/metro-config@0.88.0(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.3.0))(react@19.3.0)
       qrcode:
         specifier: ^1.5.4
         version: 1.5.4
@@ -532,7 +532,7 @@ importers:
         specifier: ^0.4.6
         version: 0.4.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       onnxruntime-web:
-        specifier: ^1.22.0
+        specifier: 1.30.0
         version: 1.30.0
       qrcode:
         specifier: ^1.5.4
@@ -21426,7 +21426,7 @@ snapshots:
       global-agent: 4.1.7
       onnxruntime-common: 1.31.1
 
-  onnxruntime-react-native@1.24.3(patch_hash=3moysvd5dgkfeha5schb6cuanm)(react-native@0.88.0(@babel/core@7.29.0)(@react-native/metro-config@0.88.0(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.3.0))(react@19.3.0):
+  onnxruntime-react-native@1.24.3(patch_hash=tkbzq6dwwxpgksinzwefemwnfq)(react-native@0.88.0(@babel/core@7.29.0)(@react-native/metro-config@0.88.0(@babel/core@7.29.0))(@types/react@19.2.14)(react@19.3.0))(react@19.3.0):
     dependencies:
       onnxruntime-common: 1.24.3
       react: 19.3.0
