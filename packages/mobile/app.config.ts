@@ -102,6 +102,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       },
     ],
     ["expo-build-properties", { ios: { deploymentTarget: "16.4" } }],
+    "./plugins/with-onnxruntime-c-mirror.js",
     [
       "expo-widgets",
       {
