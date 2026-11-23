@@ -10,7 +10,7 @@ const { version } = JSON.parse(
   readFileSync(path.resolve(__dirname, "../../package.json"), "utf-8"),
 );
 
-const BRAND_BLUE = "#1447e6";
+const BRAND_COLOR = "#6366f1";
 
 const CROSS_ORIGIN_ISOLATION_HEADERS = {
   "Cross-Origin-Opener-Policy": "same-origin",
@@ -36,8 +36,8 @@ export default defineConfig({
         start_url: "/app",
         scope: "/",
         display: "standalone",
-        theme_color: BRAND_BLUE,
-        background_color: BRAND_BLUE,
+        theme_color: BRAND_COLOR,
+        background_color: BRAND_COLOR,
         icons: [
           { src: "/icon/icon-192.png", sizes: "192x192", type: "image/png" },
           { src: "/icon/icon-512.png", sizes: "512x512", type: "image/png" },

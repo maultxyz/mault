@@ -1,0 +1,12 @@
+{
+  "title": "Find any card",
+  "subtitle": "Search your collections and the full card catalog at once",
+  "steps": {
+    "openSearch": "Open search from Home, or press Ctrl and / anywhere in the app.",
+    "openSearchMobile": "Open search from Home.",
+    "typeName": "Type part of a card's name.",
+    "readResults": "Your own copies come first, then every printing in the catalog.",
+    "openCard": "Pick a result to open it.",
+    "cardPage": "The card page shows its printings, prices and where your copies are."
+  }
+}

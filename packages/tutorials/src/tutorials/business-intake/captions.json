@@ -1,0 +1,21 @@
+{
+  "title": "Buy cards with Intake",
+  "subtitle": "Scan a customer's cards and see your offer as you go",
+  "steps": {
+    "intro": "When a customer brings cards to sell, start an intake on the scanner.",
+    "newIntake": "Choose Start an intake.",
+    "source": "Pick where the cards are coming from.",
+    "name": "Enter the customer's name.",
+    "collection": "Cards you scan go straight into this collection.",
+    "start": "Start the intake.",
+    "recentCards": "Open Recent cards to watch each card arrive with its offer.",
+    "startScanning": "Start scanning.",
+    "scanFirstCard": "Hold a card still under the camera. It is identified and added to the intake.",
+    "scanMoreCards": "Take it away and scan the next one. Each card gets a market price and an offer.",
+    "pauseScanning": "Pause the scanner when you're done.",
+    "offer": "The intake panel totals the market value and your cash offer.",
+    "finish": "When the customer accepts, finish the intake to pay out and add the cards to your stock.",
+    "cancel": "If they change their mind, cancel the intake instead.",
+    "confirmCancel": "The scanned cards are removed and nothing is paid."
+  }
+}

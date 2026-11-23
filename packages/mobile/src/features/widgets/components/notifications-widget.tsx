@@ -66,7 +66,7 @@ const notificationsLayout = (props: NotificationsWidgetProps, environment: Widge
       modifiers={[containerBackground(PlatformColor("systemBackground"), "widget"), widgetURL(props.url), accessibilityElement("combine")]}
     >
       <HStack spacing={6}>
-        <Image systemName={bellSymbol} color="#1447e6" modifiers={[accessibilityHidden()]} />
+        <Image systemName={bellSymbol} color="#6366f1" modifiers={[accessibilityHidden()]} />
         <Text modifiers={[font({ textStyle: "subheadline", weight: "semibold" }), lineLimit(1)]}>{props.title}</Text>
         <Spacer />
       </HStack>

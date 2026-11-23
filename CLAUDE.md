@@ -20,9 +20,10 @@ pnpm --filter @magic-vault/web instruction-images # resize public/instructions p
 pnpm --filter @magic-vault/mobile start        # Expo dev server (see packages/mobile/README.md)
 pnpm --filter @magic-vault/desktop start       # Electron shell against MAULT_URL
 pnpm --filter @magic-vault/shortener test      # node:test via tsx, link shortener
+pnpm --filter @magic-vault/tutorials tutorial <name> # record + render a captioned tutorial video (see the `tutorial` skill)
 ```
 
-Tests run in Build Check (`build-check.yml`): server and shortener `tests/*.test.ts` (node:test), web `src/**/*.test.{ts,tsx}` (Vitest, own `vitest.config.ts` so tests skip the PWA/Tailwind plugins), and the hardware-free Python Pi suites above. CI uses Node 26 and Python 3.13; Pi service rendering tests also require Node 26. These checks do not validate physical USB/GPIO motion or cameras. Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
+Tests run in Build Check (`build-check.yml`): server, shortener and tutorials `tests/*.test.ts` (node:test), web `src/**/*.test.{ts,tsx}` (Vitest, own `vitest.config.ts` so tests skip the PWA/Tailwind plugins), and the hardware-free Python Pi suites above. CI uses Node 26 and Python 3.13; Pi service rendering tests also require Node 26. These checks do not validate physical USB/GPIO motion or cameras. Type-check via the `web` build (`tsc -b`) and editor diagnostics. See `CONTRIBUTING.md` (migrations) and `README.md` (env, Neon, self-hosting).
 
 ## Every change: keep all surfaces in sync
 
@@ -67,7 +68,7 @@ For every change (feature, fix, copy, setting, API):
 
 ## Architecture
 
-pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.ts`, `serial-protocol.ts`; no build), `server` (Hono 4, Drizzle, Postgres), `web` (React 19 SPA), `mobile` (Expo), `desktop` (Electron shell), `bot` (Discord), `api-docs` (Scalar), `shortener` (optional Hono link shortener, :3003, `pnpm dev:shortener`). One root `.env`. The Vite proxy strips `/api`, so server routes have no `/api` prefix. `docker-compose.yml` is the self-hosted stack.
+pnpm + Turborepo: `shared` (types, constants, zod schemas, rule engine, `vision.ts`, `serial-protocol.ts`; no build), `server` (Hono 4, Drizzle, Postgres), `web` (React 19 SPA), `mobile` (Expo), `desktop` (Electron shell), `bot` (Discord), `api-docs` (Scalar), `shortener` (optional Hono link shortener, :3003, `pnpm dev:shortener`), `tutorials` (Playwright + Remotion tutorial videos, English only, dev-only, never deployed). One root `.env`. The Vite proxy strips `/api`, so server routes have no `/api` prefix. `docker-compose.yml` is the self-hosted stack.
 
 Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a timer: `/public/health` (polled by every open tab and uptime monitors) only runs `select 1` while the pool already holds connections, else it returns the last healthy result, and the bot refreshes its games list daily.
 
@@ -381,6 +382,7 @@ Neon scales to zero after about 5 idle minutes, so nothing may poll the DB on a 
 - Multi-stage presets are `preset_workflows` with an ordered list of `preset_workflow_steps` (`position`); each step references an ordinary preset by guid, so presets stay usable on their own and can appear in many steps. Running a step makes its preset the active `bin_sets` row and marks the workflow active (`activeStepGuid`); activating a preset directly (`set-active`, `add`) deactivates the game's workflows. Re-sort applies when the active preset has `is_resort_mode` or is the active step of the active workflow with `is_resort_mode` on (`activeWorkflowStepResorts`). Moving between steps marks the previous preset's bins emptied, like an alphabet pass.
 - The app stream (`lib/app-stream.tsx`) is one shared EventSource: subscribe with `addEventListener`, never `onerror`/`onopen`, which would replace other consumers' handlers.
 - localStorage access can throw (Safari private mode, blocked storage), so always guard it.
+- A new tour or first-run prompt's "seen" storage key also goes in tutorials `TUTORIAL_PRESEEDED_LOCAL_STORAGE`, or it pops up in every recorded tutorial video.
 - Only the `common` i18n namespace loads at startup; the app layout loads `APP_SHELL_NAMESPACES`, and a route that uses a namespace in `ROUTE_LOADED_NAMESPACES` must wrap its loader in `withNamespaces()`.
 - Route components are created with `lazyRoute` (`lib/route-chunks.ts`), which feeds the `RouteLoadingIndicator`; links never preload route chunks on hover or focus. The service worker registers from the app layout, never `main.tsx`, so marketing and share pages don't download the precache.
 - First paint on `/app/home`: `AppLoadingGate` waits only for the org (not `/collections`), prefetches overview, widgets and pending trade offers, and then flips `useSecondaryRequestsEnabled()` (`lib/initial-load-context.ts`; always true off Home). Shell and scanner queries Home doesn't show (calibration, bin counts, card summary, sounds, intake lots, announcements, health, highlights, GitHub stars) and the service worker wait for it; data visible in the shell at first paint (bins, games, devices, billing) doesn't.

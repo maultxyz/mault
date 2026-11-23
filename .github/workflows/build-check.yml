@@ -66,3 +66,6 @@ jobs:
 
       - name: Test (shortener)
         run: pnpm --filter @magic-vault/shortener test
+
+      - name: Test (tutorials)
+        run: pnpm --filter @magic-vault/tutorials test

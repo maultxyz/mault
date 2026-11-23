@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPost, publicGet } from "@/lib/api/client";
+import { apiDelete, apiGet, apiPost } from "@/lib/api/client";
 import type {
   AdminCardsPage,
   CardGameCount,
@@ -15,12 +15,11 @@ import type {
   BrowserSyncWorkCard,
   BrowserSyncWorkFailure,
   BrowserSyncWorkResult,
-  PublicMetrics,
+  ScanMetrics,
   Result,
   SyncState,
   SyncVectorizeOn,
 } from "@magic-vault/shared";
-
 
 export async function listSyncSources(): Promise<{
   success: boolean;
@@ -171,12 +170,8 @@ export async function reloadCardMatchIndex(): Promise<Result<null>> {
   return apiPost<Result<null>>("/api/admin/caches/card-match-index/reload");
 }
 
-export async function getPublicMetrics(): Promise<Result<PublicMetrics>> {
-  return publicGet<Result<PublicMetrics>>("/api/public/metrics");
-}
-
-export async function getAdminScanMetrics(): Promise<Result<PublicMetrics>> {
-  return apiGet<Result<PublicMetrics>>("/api/admin/scan-metrics");
+export async function getAdminScanMetrics(): Promise<Result<ScanMetrics>> {
+  return apiGet<Result<ScanMetrics>>("/api/admin/scan-metrics");
 }
 
 export async function getScanVectorizeStats(): Promise<{

@@ -79,7 +79,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     package: optionalEnv("MOBILE_ANDROID_PACKAGE"),
     adaptiveIcon: {
       foregroundImage: "./assets/adaptive-icon.png",
-      backgroundColor: "#1447e6",
+      backgroundColor: "#6366f1",
     },
     permissions: ["android.permission.CAMERA"],
   },
@@ -87,7 +87,7 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
     "expo-router",
     [
       "expo-splash-screen",
-      { image: "./assets/splash-icon.png", imageWidth: 160, backgroundColor: "#1447e6" },
+      { image: "./assets/splash-icon.png", imageWidth: 160, backgroundColor: "#6366f1" },
     ],
     ["expo-font", { android: { fonts: androidEmbeddedFontFiles } }],
     "expo-secure-store",

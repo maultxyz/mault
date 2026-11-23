@@ -1,5 +1,5 @@
 import { queryOptions } from "@tanstack/react-query";
-import type { ActiveScanningStats, PublicMetrics, Result } from "@magic-vault/shared";
+import type { ActiveScanningStats, ScanMetrics, Result } from "@magic-vault/shared";
 import { apiGet, unwrap } from "@/lib/api/client";
 import {
   ADMIN_ACTIVE_SCANNING_REFRESH_MS,
@@ -17,7 +17,7 @@ export const activeScanningQueryOptions = queryOptions({
 
 export const scanMetricsQueryOptions = queryOptions({
   queryKey: [...ADMIN_CARDS_QUERY_KEY, "scan-metrics"] as const,
-  queryFn: () => unwrap(apiGet<Result<PublicMetrics>>("/api/admin/scan-metrics")),
+  queryFn: () => unwrap(apiGet<Result<ScanMetrics>>("/api/admin/scan-metrics")),
   refetchInterval: ADMIN_SCAN_METRICS_REFRESH_MS,
 });
 

@@ -1,4 +1,4 @@
-export interface PublicMetrics {
+export interface ScanMetrics {
   totalScanned: number;
   matched: number;
   unidentified: number;
@@ -7,3 +7,10 @@ export interface PublicMetrics {
   matchRate: number | null;
   averageMatchPercent: number | null;
 }
+
+export interface CardValueMetrics {
+  totalCardValue?: number;
+  totalCardValueCurrency?: string;
+}
+
+export interface PublicMetrics extends ScanMetrics, CardValueMetrics {}

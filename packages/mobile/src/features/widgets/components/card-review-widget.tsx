@@ -126,7 +126,7 @@ const cardReviewLayout = (props: CardReviewWidgetProps, environment: WidgetEnvir
         label={props.acceptLabel}
         systemImage="checkmark"
         onPress={acceptCurrentCard}
-        modifiers={[buttonStyle("borderedProminent"), controlSize("small"), tint("#1447e6")]}
+        modifiers={[buttonStyle("borderedProminent"), controlSize("small"), tint("#6366f1")]}
       />
       <Button
         label={props.laterLabel}
@@ -170,7 +170,7 @@ const cardReviewLayout = (props: CardReviewWidgetProps, environment: WidgetEnvir
             systemImage="checkmark"
             label={props.acceptLabel}
             onPress={acceptCurrentCard}
-            modifiers={[buttonStyle("borderedProminent"), controlSize("small"), tint("#1447e6"), labelStyle("iconOnly"), frame({ maxWidth: 10_000 })]}
+            modifiers={[buttonStyle("borderedProminent"), controlSize("small"), tint("#6366f1"), labelStyle("iconOnly"), frame({ maxWidth: 10_000 })]}
           />
           <Button
             systemImage="clock"

@@ -51,6 +51,7 @@
   "stats": {
     "items": {
       "totalScanned": "cards scanned so far",
+      "totalCardValue": "total value of cards scanned",
       "bins": "sort bins, expandable",
       "games": "trading card games supported",
       "cardsPerHour": "cards sorted per hour"

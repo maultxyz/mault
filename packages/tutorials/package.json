@@ -1,0 +1,31 @@
+{
+  "name": "@magic-vault/tutorials",
+  "version": "1.0.209",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sign-in": "tsx --env-file-if-exists=../../.env src/record/sign-in.ts",
+    "record": "tsx --env-file-if-exists=../../.env src/record/record-tutorial.ts",
+    "render": "tsx src/render/render-tutorial.ts",
+    "tutorial": "tsx --env-file-if-exists=../../.env src/make-tutorial.ts",
+    "browsers": "playwright install chromium",
+    "test": "tsx --test tests/*.test.ts"
+  },
+  "dependencies": {
+    "@magic-vault/shared": "workspace:*",
+    "@remotion/bundler": "4.0.545",
+    "@remotion/google-fonts": "4.0.545",
+    "@remotion/renderer": "4.0.545",
+    "playwright": "1.65.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "remotion": "4.0.545"
+  },
+  "devDependencies": {
+    "@types/node": "^26",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "tsx": "^4.19.3",
+    "typescript": "^5"
+  }
+}
