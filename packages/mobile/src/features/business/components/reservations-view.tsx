@@ -62,6 +62,7 @@ import type {
   CardReservationRequestSectionProps,
   MobileCardReservationTarget,
 } from "@/lib/interfaces/business";
+import { guestKindLabelKey } from "@/lib/guest-kind";
 
 function CardReservationGroup({ group, onPress }: CardReservationGroupProps) {
   const { t, i18n } = useTranslation();
@@ -70,6 +71,7 @@ function CardReservationGroup({ group, onPress }: CardReservationGroupProps) {
   const activeCount = group.heldCount + group.waitingCount;
   const priceSource = group.reservations[0]?.priceSource;
   const customerSubtitle = [
+    group.isFromAccount === null ? null : t(guestKindLabelKey(group.isFromAccount)),
     group.guestContact,
     [group.catalogName, formatDateTime(group.createdAt)].filter(Boolean).join(" · "),
     group.guestNote,

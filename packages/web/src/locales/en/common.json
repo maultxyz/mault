@@ -491,7 +491,9 @@
     "shortLinkInvalidTitle": "This link doesn't work",
     "shortLinkInvalidDescription": "Check that it was copied in full, or ask whoever shared it for a new link.",
     "poweredBy": "Powered by",
-    "poweredByLabel": "Powered by {{site}} (opens in a new tab)"
+    "poweredByLabel": "Powered by {{site}} (opens in a new tab)",
+    "requireGuestAccount": "Require an account",
+    "requireGuestAccountDescription": "Only people who log in can send a trade offer on this link."
   },
   "tradeOffers": {
     "declined": "Trade offer declined",
@@ -756,7 +758,11 @@
   },
   "reservations": {
     "newReservationToast_one": "{{name}} reserved {{card}}",
-    "newReservationToast_other": "{{name}} reserved {{count}} cards"
+    "newReservationToast_other": "{{name}} reserved {{count}} cards",
+    "trayHeading": "Reservations",
+    "trayToPull_one": "{{name}} reserved {{count}} card to pull",
+    "trayToPull_other": "{{name}} reserved {{count}} cards to pull",
+    "trayReview": "Review"
   },
   "myReservations": {
     "new": "New",
@@ -780,5 +786,24 @@
     },
     "dismiss": "Dismiss",
     "dismissFor": "Dismiss the update about {{card}}"
+  },
+  "statusMessages": {
+    "tradeOffers": {
+      "label": "Discord message when an offer is answered"
+    },
+    "cardReservations": {
+      "label": "Discord message when a reservation changes"
+    },
+    "description": "The Mault bot sends a direct message to your linked Discord account.",
+    "linkDiscord": "Link your Discord account to turn this on.",
+    "openAccount": "Open account settings",
+    "updateFailed": "Couldn't update Discord messages."
+  },
+  "guestKind": {
+    "signedIn": "Signed in",
+    "guest": "Guest",
+    "label": "Sender",
+    "signedInDescription": "Signed in with an account",
+    "guestDescription": "Guest without an account"
   }
 }

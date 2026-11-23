@@ -422,6 +422,7 @@ export async function listOwnerTradeOffers(
       guestName: offer.guestName,
       guestContact: offer.guestContact,
       guestNote: offer.guestNote,
+      isFromAccount: offer.guestUserId !== null,
       linkKind: offer.linkKind as TradeOffer["linkKind"],
       sourceName: collectionName ?? locationName ?? null,
       remainingPickScanIds: offer.remainingPickScanIds ?? null,

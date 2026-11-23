@@ -16,6 +16,7 @@ import {
   PUBLIC_RESERVATION_COMPOSER_PARAM_VALUE,
 } from "@/lib/constants/card-reservations";
 import { TradeOfferHeaderButton } from "@/features/trade-offers/components/trade-offer-header-button";
+import { PublicAccountHeaderButton } from "@/features/public-cards/components/public-account-header-button";
 import { TradeOfferPage } from "@/features/trade-offers/components/trade-offer-page";
 import { TradeOfferReviewBar } from "@/features/trade-offers/components/trade-offer-review-bar";
 import { TradeOfferProvider } from "@/features/trade-offers/components/trade-offer-provider";
@@ -84,6 +85,7 @@ export function PublicCardBrowser({
   sidebarTop,
   tradeOfferLink,
   reservationHoldDays = null,
+  reservationsRequireAccount = false,
 }: PublicCardBrowserProps) {
   const { t } = useTranslation("cards");
   const isMobile = useIsMobile();
@@ -378,6 +380,7 @@ export function PublicCardBrowser({
             <>
               <TradeOfferHeaderButton isIconOnly />
               <CardReservationsHeaderButton isIconOnly />
+              <PublicAccountHeaderButton isIconOnly />
               <Button
                 variant={activeFilterCount > 0 ? "selected" : "outline"}
                 size="icon"
@@ -399,6 +402,7 @@ export function PublicCardBrowser({
           <div className="flex items-center gap-1.5 justify-end">
             <TradeOfferHeaderButton />
             <CardReservationsHeaderButton />
+            <PublicAccountHeaderButton />
           </div>
         )}
       </header>
@@ -487,6 +491,7 @@ export function PublicCardBrowser({
       <CardReservationsProvider
         source={source}
         holdDays={reservationHoldDays}
+        requiresAccount={reservationsRequireAccount}
         onOpenComposer={openReservationComposer}
       >
         {page}

@@ -65,6 +65,7 @@ export interface CardReservation extends PublicCardReservation {
   guestName: string;
   guestContact: string;
   guestNote: string | null;
+  isFromAccount?: boolean;
   catalogName: string | null;
   price: number | null;
   priceSource: PriceSource;
@@ -98,6 +99,7 @@ export interface CardReservationRequestGroup {
   guestName: string;
   guestContact: string;
   guestNote: string | null;
+  isFromAccount: boolean | null;
   catalogName: string | null;
   createdAt: string;
   reservations: CardReservation[];

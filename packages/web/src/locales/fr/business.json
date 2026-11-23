@@ -987,7 +987,9 @@
     "reservationHoldDays_one": "{{count}} jour",
     "reservationHoldDays_other": "{{count}} jours",
     "reservationHoldDescription": "Passé ce délai, la réservation expire et la personne suivante dans la file obtient la carte.",
-    "reservationsOn": "Accepte les réservations"
+    "reservationsOn": "Accepte les réservations",
+    "reservationsRequireAccount": "Exiger un compte pour réserver",
+    "reservationsRequireAccountDescription": "Seuls les clients connectés peuvent réserver des cartes. Ils reçoivent des mises à jour et voient leurs réservations sur tous leurs appareils."
   },
   "priceLabels": {
     "title": "Étiquettes de prix",

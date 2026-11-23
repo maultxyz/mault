@@ -46,6 +46,8 @@ export const BOT_SHOWCASE_KINDS = ["collection", "storage"] as const;
 export const BOT_SHOWCASE_TOP_CARD_COUNT = 5;
 
 export const TRADE_OFFER_EMBED_COLOR = 0x57f287;
+export const CUSTOMER_STATUS_MESSAGE_LINES_MAX = 10;
+export const CUSTOMER_STATUS_MESSAGE_FIELD_MAX_LENGTH = 1024;
 export const TRADE_OFFER_REVIEW_WEB_PATH = "/app/trades";
 export const BOT_LOOKUP_CACHE_TTL_MS = 60_000;
 export const BOT_STATS_CACHE_TTL_MS = 120_000;

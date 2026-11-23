@@ -8,6 +8,7 @@ export const monitorLinkSchema = z.object({
     .refine((value) => Number.isInteger(Number(value)) && Number(value) >= 1),
   showPrices: z.boolean(),
   requireGuestContact: z.boolean(),
+  requireGuestAccount: z.boolean(),
 });
 
 export type MonitorLinkFormValues = z.infer<typeof monitorLinkSchema>;

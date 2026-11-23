@@ -85,6 +85,7 @@ export default function SharedStoragePage() {
             locationName={linkInfo.locationName}
             purpose={linkInfo.purpose}
             requiresGuestContact={linkInfo.requiresGuestContact !== false}
+            requiresGuestAccount={linkInfo.requiresGuestAccount === true}
           />
       </PriceSourceProvider>
     </QueryClientProvider>

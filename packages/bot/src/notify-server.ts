@@ -23,7 +23,11 @@ import {
   SCAN_PHOTO_JPEG_QUALITY,
   SERVER_URL,
 } from "./lib/constants";
-import type { MemberRoleBody, NotifyBody } from "./lib/interfaces";
+import type {
+  DirectMessageBody,
+  MemberRoleBody,
+  NotifyBody,
+} from "./lib/interfaces";
 
 function decodeDataUrl(dataUrl: string): Buffer | null {
   const match = /^data:[^;]+;base64,(.+)$/.exec(dataUrl);
@@ -240,6 +244,40 @@ export function startNotifyServer(client: Client) {
       return c.json({ success: true, data: { threadId: thread.id } });
     } catch (err) {
       console.error("[bot] Failed to post notification:", err);
+      return c.json({ success: false, message: "Failed to send." }, 500);
+    }
+  });
+
+  app.post("/direct-messages", async (c) => {
+    const secret = c.req.header("X-Bot-Secret");
+    if (!botSecretMatches(secret)) {
+      return c.json({ success: false, message: "Unauthorized" }, 401);
+    }
+
+    const body = await c.req.json<DirectMessageBody>();
+    if (!body.discordUserId || !body.embed) {
+      return c.json(
+        { success: false, message: "discordUserId and embed are required." },
+        400,
+      );
+    }
+
+    try {
+      const user = await client.users.fetch(body.discordUserId);
+      await user.send({
+        allowedMentions: { parse: [] },
+        embeds: [EmbedBuilder.from(body.embed)],
+      });
+      return c.json({ success: true, data: {} });
+    } catch (err) {
+      if (
+        err instanceof DiscordAPIError &&
+        (err.code === RESTJSONErrorCodes.CannotSendMessagesToThisUser ||
+          err.code === RESTJSONErrorCodes.UnknownUser)
+      ) {
+        return c.json({ success: false, message: "cant_message_user" }, 403);
+      }
+      console.error("[bot] Failed to send a direct message:", err);
       return c.json({ success: false, message: "Failed to send." }, 500);
     }
   });

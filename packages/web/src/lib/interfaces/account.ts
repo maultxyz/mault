@@ -17,3 +17,11 @@ export interface SessionRow {
   ipAddress?: string | null;
   userAgent?: string | null;
 }
+
+export interface SignOutOptions {
+  staysOnPage?: boolean;
+}
+
+export interface UserInitialsProps {
+  name: string | undefined;
+}

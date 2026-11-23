@@ -491,7 +491,9 @@
     "shortLinkInvalidTitle": "Dieser Link funktioniert nicht",
     "shortLinkInvalidDescription": "Prüfe, ob er vollständig kopiert wurde, oder bitte die Person, die ihn geteilt hat, um einen neuen Link.",
     "poweredBy": "Bereitgestellt von",
-    "poweredByLabel": "Bereitgestellt von {{site}} (öffnet in einem neuen Tab)"
+    "poweredByLabel": "Bereitgestellt von {{site}} (öffnet in einem neuen Tab)",
+    "requireGuestAccount": "Konto verlangen",
+    "requireGuestAccountDescription": "Nur wer sich anmeldet, kann über diesen Link ein Tauschangebot senden."
   },
   "tradeOffers": {
     "declined": "Tauschangebot abgelehnt",
@@ -756,7 +758,11 @@
   },
   "reservations": {
     "newReservationToast_one": "{{name}} hat {{card}} reserviert",
-    "newReservationToast_other": "{{name}} hat {{count}} Karten reserviert"
+    "newReservationToast_other": "{{name}} hat {{count}} Karten reserviert",
+    "trayHeading": "Reservierungen",
+    "trayToPull_one": "{{name}} hat {{count}} Karte reserviert, die bereitgelegt werden muss",
+    "trayToPull_other": "{{name}} hat {{count}} Karten reserviert, die bereitgelegt werden müssen",
+    "trayReview": "Ansehen"
   },
   "myReservations": {
     "new": "Neu",
@@ -780,5 +786,24 @@
     },
     "dismiss": "Ausblenden",
     "dismissFor": "Hinweis zu {{card}} ausblenden"
+  },
+  "statusMessages": {
+    "tradeOffers": {
+      "label": "Discord-Nachricht, wenn ein Angebot beantwortet wird"
+    },
+    "cardReservations": {
+      "label": "Discord-Nachricht, wenn sich eine Reservierung ändert"
+    },
+    "description": "Der Mault-Bot schickt eine Direktnachricht an dein verknüpftes Discord-Konto.",
+    "linkDiscord": "Verknüpfe dein Discord-Konto, um das einzuschalten.",
+    "openAccount": "Kontoeinstellungen öffnen",
+    "updateFailed": "Discord-Nachrichten konnten nicht geändert werden."
+  },
+  "guestKind": {
+    "signedIn": "Angemeldet",
+    "guest": "Gast",
+    "label": "Absender",
+    "signedInDescription": "Mit einem Konto angemeldet",
+    "guestDescription": "Gast ohne Konto"
   }
 }

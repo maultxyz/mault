@@ -7,5 +7,6 @@ export interface MonitorLinkClaims {
   expiresAt: Date;
   showsPrices: boolean;
   requiresGuestContact: boolean;
+  requiresGuestAccount: boolean;
   purpose: ShareLinkPurpose;
 }

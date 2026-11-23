@@ -5,6 +5,8 @@ import {
   DISCORD_ACCOUNT_LINK_POLL_MS,
   LIVE_CLOCK_TICK_MS,
 } from "@/lib/constants/timing";
+import { STATUS_MESSAGE_SETTINGS_QUERY_KEY } from "@magic-vault/shared";
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -19,6 +21,7 @@ export function DiscordAccountLink() {
     unlink,
     isUnlinking,
   } = useDiscordAccount();
+  const queryClient = useQueryClient();
   const [pending, setPending] = useState<PendingDiscordLinkCode | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -35,8 +38,14 @@ export function DiscordAccountLink() {
   }, [pending, refresh]);
 
   useEffect(() => {
-    if (pending && (now >= pending.expiresAt || link)) setPending(null);
-  }, [pending, now, link]);
+    if (!pending) return;
+    if (link) {
+      setPending(null);
+      void queryClient.invalidateQueries({ queryKey: [STATUS_MESSAGE_SETTINGS_QUERY_KEY] });
+    } else if (now >= pending.expiresAt) {
+      setPending(null);
+    }
+  }, [pending, now, link, queryClient]);
 
   async function handleGenerate() {
     const result = await generateCode();

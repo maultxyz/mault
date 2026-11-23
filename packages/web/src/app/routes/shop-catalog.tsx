@@ -77,6 +77,7 @@ function ShopCatalogContent() {
             ? toCardReservationHoldDays(validInfo.reservationHoldDays)
             : null
         }
+        reservationsRequireAccount={validInfo.reservationsRequireAccount === true}
       />
     </PriceSourceProvider>
   );

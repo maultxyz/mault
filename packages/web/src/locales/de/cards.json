@@ -640,7 +640,11 @@
     "referenceImage": "Referenzbild",
     "backToCards": "Zurück zu den Karten",
     "tradeHint": "Tippe auf + bei einer Karte oder öffne sie, um sie zum Tauschangebot hinzuzufügen",
-    "shopPrice": "Preis"
+    "shopPrice": "Preis",
+    "logIn": "Anmelden",
+    "myTradeOffers": "Meine Tauschangebote",
+    "myReservations": "Meine Reservierungen",
+    "signedInAs": "Angemeldet als {{name}}."
   },
   "tradeOffers": {
     "game": "Spiel",
@@ -710,10 +714,10 @@
     "yourOffers_one": "Deine gesendeten Angebote ({{count}})",
     "yourOffers_other": "Deine gesendeten Angebote ({{count}})",
     "account": {
-      "logIn": "Anmelden",
       "logInHint": "Melde dich an, um deine gesendeten Angebote im Blick zu behalten. Sie erscheinen in deinem Konto unter Tausch > Gesendet.",
-      "signedInAs": "Angemeldet als {{name}}.",
-      "signedInHint": "Gesendete Angebote erscheinen in deinem Konto unter Tausch > Gesendet."
+      "signedInHint": "Gesendete Angebote erscheinen in deinem Konto unter Tausch > Gesendet.",
+      "logInRequiredHint": "Dieser Shop möchte, dass du dich anmeldest, bevor du ein Tauschangebot sendest.",
+      "sentLogInPrompt": "Melde dich an, um Updates zu deinem Angebot zu bekommen und es auf jedem Gerät zu sehen."
     }
   },
   "shareCardLink": {
@@ -825,6 +829,12 @@
     "requestTitle_one": "Reservierung (1 Karte)",
     "requestTitle_other": "Reservierung ({{count}} Karten)",
     "cancelAllFor_one": "Deine Reservierung bei {{name}} stornieren",
-    "cancelAllFor_other": "Alle {{count}} offenen Reservierungen bei {{name}} stornieren"
+    "cancelAllFor_other": "Alle {{count}} offenen Reservierungen bei {{name}} stornieren",
+    "account": {
+      "logInHint": "Melde dich an, um deine Reservierungen im Blick zu behalten. Sie erscheinen in deinem Konto unter Tausch > Meine Reservierungen.",
+      "logInRequiredHint": "Dieser Shop möchte, dass du dich anmeldest, bevor du Karten reservierst.",
+      "signedInHint": "Deine Reservierungen erscheinen in deinem Konto unter Tausch > Meine Reservierungen.",
+      "sentLogInPrompt": "Melde dich an, um Updates zu deiner Reservierung zu bekommen und sie auf jedem Gerät zu sehen."
+    }
   }
 }

@@ -9,6 +9,8 @@ import { useTradeOffers } from "@/features/trade-offers/api/trade-offers";
 import { tradeOfferSourceLabel } from "@/features/trade-offers/lib/trade-offer-source-label";
 import { OutgoingTradeOfferList } from "@/features/trade-offers/components/outgoing-trade-offer-list";
 import { MyCardReservationList } from "@/features/card-reservations/components/my-card-reservation-list";
+import { StatusMessagesSwitch } from "@/features/status-messages/components/status-messages-switch";
+import { GuestKindBadge } from "@/components/guest-kind-badge";
 import {
   TRADE_OFFER_STATUS_BADGE_VARIANTS,
   TRADE_OFFERS_SKELETON_ROWS,
@@ -55,6 +57,7 @@ function TradeOfferLibraryRow({ offer }: TradeOfferLibraryRowProps) {
                   ? t("tradeOffers.inPerson.title")
                   : t("tradeOffers.library.unnamedGuest"))}
             </span>
+            {offer.linkKind !== "inPerson" && <GuestKindBadge isFromAccount={offer.isFromAccount} />}
             {remainingPickCount > 0 ? (
               <Badge variant="info">
                 {t("tradeOffers.library.picking", { count: remainingPickCount })}
@@ -183,9 +186,15 @@ export function TradeOfferLibrary() {
         className="self-start"
       />
       {box === "sent" ? (
-        <OutgoingTradeOfferList />
+        <>
+          <StatusMessagesSwitch kind="tradeOffers" />
+          <OutgoingTradeOfferList />
+        </>
       ) : box === "reservations" ? (
-        <MyCardReservationList />
+        <>
+          <StatusMessagesSwitch kind="cardReservations" />
+          <MyCardReservationList />
+        </>
       ) : (
         <ReceivedTradeOfferList />
       )}

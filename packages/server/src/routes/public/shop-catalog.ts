@@ -45,6 +45,7 @@ const shopCatalogBrowseRoute = createPublicCardBrowseRoute({
           catalogGuid: claims.catalogGuid,
           name: claims.name,
           allowsReservations: claims.allowsReservations,
+          reservationsRequireAccount: claims.reservationsRequireAccount,
           reservationHoldDays: claims.reservationHoldDays,
         }
       : {};

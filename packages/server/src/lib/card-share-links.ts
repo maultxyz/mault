@@ -1,4 +1,5 @@
 import {
+  DEFAULT_SHARE_LINK_REQUIRES_GUEST_ACCOUNT,
   DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
   type CardShareLink,
   type SharedCardLink,
@@ -122,6 +123,7 @@ export async function findOrIssueCardShareLink(
     purpose: "view",
     showsPrices: CARD_SHARE_LINK_SHOWS_PRICES,
     requiresGuestContact: DEFAULT_SHARE_LINK_REQUIRES_GUEST_CONTACT,
+    requiresGuestAccount: DEFAULT_SHARE_LINK_REQUIRES_GUEST_ACCOUNT,
     expiresInMinutes: CARD_SHARE_LINK_LIFETIME_DAYS * MINUTES_PER_DAY,
     createdByUserId,
   });

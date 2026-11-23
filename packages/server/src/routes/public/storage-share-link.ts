@@ -35,6 +35,7 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
             allowsTradeOffers: claims.purpose === "trade",
             showsPrices: claims.showsPrices,
             requiresGuestContact: claims.requiresGuestContact,
+            requiresGuestAccount: claims.requiresGuestAccount,
             scope: {
               kind: "storage",
               orgId: claims.orgId,
@@ -72,6 +73,7 @@ export const publicStorageShareLinkRoute = new Hono<AppEnv>()
       expiresAt: claims.expiresAt.toISOString(),
       purpose: claims.purpose,
       requiresGuestContact: claims.requiresGuestContact,
+      requiresGuestAccount: claims.requiresGuestAccount,
     };
     const cachedInfo = sharedStorageReadsCache.get(cacheKey) as
       | StorageShareLinkInfo

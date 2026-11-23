@@ -1,5 +1,8 @@
 import type { TradeOfferContextValue, TradeOfferProviderProps } from "@/lib/interfaces/trade-offers";
-import { readTradeOfferDraft } from "@/features/trade-offers/lib/trade-offer-draft-storage";
+import {
+  readTradeOfferDraft,
+  saveTradeOfferDraft,
+} from "@/features/trade-offers/lib/trade-offer-draft-storage";
 import { TradeOfferContext } from "@/lib/trade-offer-context";
 import { TRADE_OFFER_WANTED_CARDS_MAX, type PublicCard } from "@magic-vault/shared";
 import { toast } from "@/lib/toast";
@@ -35,8 +38,11 @@ export function TradeOfferProvider({ draftLinkToken, onOpenComposer, children }:
       clearWanted: () => setWanted([]),
       replaceWanted: (entries) => setWanted(entries.slice(0, TRADE_OFFER_WANTED_CARDS_MAX)),
       openComposer: onOpenComposer,
+      keepWantedForSignIn: () => {
+        if (draftLinkToken) saveTradeOfferDraft(draftLinkToken, { wanted });
+      },
     }),
-    [wanted, onOpenComposer, t],
+    [wanted, onOpenComposer, draftLinkToken, t],
   );
 
   return <TradeOfferContext value={value}>{children}</TradeOfferContext>;

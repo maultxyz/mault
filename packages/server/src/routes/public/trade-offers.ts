@@ -16,6 +16,7 @@ import {
   TRADE_OFFER_GUEST_LIMIT_MESSAGE,
   TRADE_OFFER_INVALID_MESSAGE,
   TRADE_OFFER_OFFERED_NOT_FOUND_MESSAGE,
+  TRADE_OFFER_ACCOUNT_REQUIRED_MESSAGE,
   TRADE_OFFER_OWN_ORG_MESSAGE,
   TRADE_OFFER_UNKNOWN_GAME_MESSAGE,
   TRADE_OFFER_WANTED_NOT_FOUND_MESSAGE,
@@ -31,6 +32,8 @@ import {
   searchTradeOfferCards,
 } from "../../lib/trade-offers";
 import { optionalVerifiedUserId } from "../../lib/optional-auth";
+import { watchCustomerOrgInBackground } from "../../lib/customer-stream";
+import { sendCreatedTradeOfferStatusMessageInBackground } from "../../lib/customer-status-messages";
 import {
   findOrgMembership,
   verifyHardwareClientToken,
@@ -107,6 +110,9 @@ export function createPublicTradeOffersRoute(
         c.req.header("Authorization"),
         verifyHardwareClientToken,
       );
+      if (link.requiresGuestAccount && !guestUserId) {
+        return c.json({ success: false, message: TRADE_OFFER_ACCOUNT_REQUIRED_MESSAGE }, 401);
+      }
       if (guestUserId && (await findOrgMembership(guestUserId, link.scope.orgId))) {
         return c.json({ success: false, message: TRADE_OFFER_OWN_ORG_MESSAGE }, 409);
       }
@@ -121,6 +127,10 @@ export function createPublicTradeOffersRoute(
         case "offered-not-found":
           return c.json({ success: false, message: TRADE_OFFER_OFFERED_NOT_FOUND_MESSAGE }, 400);
         case "created":
+          if (guestUserId) {
+            watchCustomerOrgInBackground(guestUserId, link.scope.orgId);
+            sendCreatedTradeOfferStatusMessageInBackground(guestUserId, result.guid);
+          }
           emitToOrg(link.scope.orgId, TRADE_OFFERS_CHANGED_EVENT, result.changed);
           void sendTradeOfferCreatedDiscordNotification({
             scope: link.scope,

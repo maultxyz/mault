@@ -121,6 +121,7 @@ async function loadShopCatalogClaims(
       storageLocationIds: sources.storageLocations.map((source) => source.id),
       showsPrices: catalog.showsPrices,
       allowsReservations: catalog.allowsReservations,
+      reservationsRequireAccount: catalog.reservationsRequireAccount,
       reservationHoldDays: catalog.reservationHoldDays,
     };
   });

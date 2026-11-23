@@ -1083,10 +1083,14 @@ export const tradeOffers = pgTable(
     respondedAt: timestamp("responded_at"),
     respondedByUserId: text("responded_by_user_id"),
     remainingPickScanIds: text("remaining_pick_scan_ids").array(),
+    statusMessagedAt: timestamp("status_messaged_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
     unique("trade_offers_guid_idx").on(table.guid),
+    index("trade_offers_unmessaged_status_idx")
+      .on(table.orgId)
+      .where(sql`${table.statusMessagedAt} IS NULL AND ${table.respondedAt} IS NOT NULL AND ${table.guestUserId} IS NOT NULL`),
     index("trade_offers_org_status_idx").on(table.orgId, table.status),
     index("trade_offers_org_created_idx").on(table.orgId, table.createdAt),
     index("trade_offers_guest_idx").on(table.guestKeyHash),
@@ -1114,6 +1118,7 @@ export const shareLinks = pgTable(
     purpose: text("purpose").notNull(),
     showsPrices: boolean("shows_prices").notNull(),
     requiresGuestContact: boolean("requires_guest_contact").notNull().default(true),
+    requiresGuestAccount: boolean("requires_guest_account").notNull().default(false),
     issuedAt: timestamp("issued_at").notNull(),
     expiresAt: timestamp("expires_at").notNull(),
     createdByUserId: text("created_by_user_id").notNull(),
@@ -1148,6 +1153,7 @@ export const shopCatalogs = pgTable(
     showsPrices: boolean("shows_prices").notNull().default(true),
     isPublic: boolean("is_public").notNull().default(false),
     allowsReservations: boolean("allows_reservations").notNull().default(false),
+    reservationsRequireAccount: boolean("reservations_require_account").notNull().default(false),
     reservationHoldDays: integer("reservation_hold_days").notNull().default(3),
     shareLinkVersion: integer("share_link_version").notNull().default(0),
     shortCode: text("short_code").notNull(),
@@ -1194,10 +1200,14 @@ export const cardReservations = pgTable(
     pulledAt: timestamp("pulled_at"),
     priceAtReservation: doublePrecision("price_at_reservation"),
     priceCurrency: text("price_currency"),
+    guestAlertMessagedAt: timestamp("guest_alert_messaged_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [
     unique("card_reservations_guid_idx").on(table.guid),
+    index("card_reservations_unmessaged_alert_idx")
+      .on(table.orgId)
+      .where(sql`${table.guestAlert} IS NOT NULL AND ${table.guestUserId} IS NOT NULL`),
     index("card_reservations_fulfilment_order_idx").on(table.fulfilmentOrderId),
     index("card_reservations_org_active_idx")
       .on(table.orgId, table.collectionCardId)
@@ -2090,6 +2100,13 @@ export const discordUserLinks = pgTable(
     uniqueIndex("discord_user_links_code_idx").on(table.linkCode),
   ],
 ).enableRLS();
+
+export const customerStatusMessages = pgTable("customer_status_messages", {
+  userId: text("user_id").primaryKey(),
+  tradeOffersEnabledAt: timestamp("trade_offers_enabled_at"),
+  cardReservationsEnabledAt: timestamp("card_reservations_enabled_at"),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+}).enableRLS();
 
 export const tcgplayerPrices = pgTable(
   "tcgplayer_prices",

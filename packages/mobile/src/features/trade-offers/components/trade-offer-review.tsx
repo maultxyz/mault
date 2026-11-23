@@ -238,6 +238,11 @@ export function TradeOfferReview({ offer }: TradeOfferReviewProps) {
       <View style={{ gap: SPACING.sm }}>
         <SectionHeader title={t("tradeOffers.contact")} />
         <Surface style={{ gap: SPACING.xs }}>
+          {offer.linkKind !== "inPerson" && offer.isFromAccount !== undefined ? (
+            <AppText size="sm" tone="secondary">
+              {offer.isFromAccount ? t("guestKind.signedInDescription") : t("guestKind.guestDescription")}
+            </AppText>
+          ) : null}
           {offer.guestContact ? (
             <AppText selectable>{offer.guestContact}</AppText>
           ) : (

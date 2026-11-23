@@ -23,13 +23,20 @@ export function ShareMonitorLinkDialog({
   const isMobile = useIsMobile();
 
   const createLink = useCallback(
-    async ({ purpose, expiresInDays, showPrices, requireGuestContact }: ShareLinkOptions) => {
+    async ({
+      purpose,
+      expiresInDays,
+      showPrices,
+      requireGuestContact,
+      requireGuestAccount,
+    }: ShareLinkOptions) => {
       const result = await createMonitorLink(
         collectionGuid,
         expiresInDays,
         showPrices,
         purpose,
         requireGuestContact,
+        requireGuestAccount,
       );
       if (!result.success || !result.data) throw new Error(result.message);
       return {

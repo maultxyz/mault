@@ -10,6 +10,7 @@ import {
   MY_CARD_RESERVATIONS_API_PATH,
   SEEN_MY_CARD_RESERVATION_ALERTS_API_PATH,
   SHARE_LINK_GUEST_KEY_HEADER,
+  msUntilCardReservationHoldsLapse,
   type MyCardReservation,
   type Result,
 } from "@magic-vault/shared";
@@ -53,6 +54,7 @@ export const myCardReservationsQueryOptions = (userId: string | undefined) =>
       return result.data ?? [];
     },
     enabled: !!userId,
+    refetchInterval: (query) => msUntilCardReservationHoldsLapse(query.state.data),
   });
 
 export function cancelMyCardReservations(

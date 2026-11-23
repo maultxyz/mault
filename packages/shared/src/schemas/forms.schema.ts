@@ -150,6 +150,7 @@ const SHOP_CATALOG_SOURCES_REQUIRED = {
 export const shopCatalogFormSchema = shopCatalogFieldsSchema
   .extend({
     allowsReservations: z.boolean(),
+    reservationsRequireAccount: z.boolean(),
     reservationHoldDays: shopCatalogReservationHoldDaysSchema,
   })
   .refine(hasShopCatalogSource, SHOP_CATALOG_SOURCES_REQUIRED);
@@ -157,6 +158,7 @@ export const shopCatalogFormSchema = shopCatalogFieldsSchema
 export const shopCatalogRequestSchema = shopCatalogFieldsSchema
   .extend({
     allowsReservations: z.boolean().optional(),
+    reservationsRequireAccount: z.boolean().optional(),
     reservationHoldDays: shopCatalogReservationHoldDaysSchema.optional(),
   })
   .refine(hasShopCatalogSource, SHOP_CATALOG_SOURCES_REQUIRED);

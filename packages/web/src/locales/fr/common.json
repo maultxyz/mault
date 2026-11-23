@@ -491,7 +491,9 @@
     "shortLinkInvalidTitle": "Ce lien ne fonctionne pas",
     "shortLinkInvalidDescription": "Vérifie qu'il a été copié en entier, ou demande un nouveau lien à la personne qui l'a partagé.",
     "poweredBy": "Propulsé par",
-    "poweredByLabel": "Propulsé par {{site}} (s'ouvre dans un nouvel onglet)"
+    "poweredByLabel": "Propulsé par {{site}} (s'ouvre dans un nouvel onglet)",
+    "requireGuestAccount": "Exiger un compte",
+    "requireGuestAccountDescription": "Seules les personnes connectées peuvent envoyer une offre d'échange via ce lien."
   },
   "tradeOffers": {
     "declined": "Offre d'échange refusée",
@@ -756,7 +758,11 @@
   },
   "reservations": {
     "newReservationToast_one": "{{name}} a réservé {{card}}",
-    "newReservationToast_other": "{{name}} a réservé {{count}} cartes"
+    "newReservationToast_other": "{{name}} a réservé {{count}} cartes",
+    "trayHeading": "Réservations",
+    "trayToPull_one": "{{name}} a réservé {{count}} carte à sortir",
+    "trayToPull_other": "{{name}} a réservé {{count}} cartes à sortir",
+    "trayReview": "Voir"
   },
   "myReservations": {
     "new": "Nouveau",
@@ -780,5 +786,24 @@
     },
     "dismiss": "Masquer",
     "dismissFor": "Masquer la notification pour {{card}}"
+  },
+  "statusMessages": {
+    "tradeOffers": {
+      "label": "Message Discord quand une offre reçoit une réponse"
+    },
+    "cardReservations": {
+      "label": "Message Discord quand une réservation change"
+    },
+    "description": "Le bot Mault envoie un message privé à votre compte Discord associé.",
+    "linkDiscord": "Associez votre compte Discord pour activer cette option.",
+    "openAccount": "Ouvrir les paramètres du compte",
+    "updateFailed": "Impossible de modifier les messages Discord."
+  },
+  "guestKind": {
+    "signedIn": "Connecté",
+    "guest": "Invité",
+    "label": "Expéditeur",
+    "signedInDescription": "Connecté avec un compte",
+    "guestDescription": "Invité sans compte"
   }
 }

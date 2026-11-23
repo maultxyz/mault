@@ -28,6 +28,7 @@ import {
   subscribeDeployNotice,
 } from "../lib/deploy-notice";
 import { getLocksForGuids } from "../lib/scan-lock";
+import { subscribeCustomerEvents } from "../lib/customer-stream";
 import { listMachineStatuses } from "../lib/machine-status";
 import {
   getLiveCountsForGuids,
@@ -166,6 +167,14 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
       subscribeDeployNotice(write),
     ];
 
+    let streamClosed = false;
+    subscribeCustomerEvents(userId, write)
+      .then((unsubscribe) => {
+        if (streamClosed) unsubscribe();
+        else unsubs.push(unsubscribe);
+      })
+      .catch((err) => console.error("[stream] Failed to watch customer items:", err));
+
     loadActiveDeployNotice()
       .then((notice) => write(DEPLOY_STATUS_EVENT, notice))
       .catch((err) => console.error("[stream] Failed to load deploy notice:", err));
@@ -227,6 +236,7 @@ export const streamRoute = new Hono<AppEnv>().get("/", async (c) => {
     }
 
     await aborted;
+    streamClosed = true;
     for (const unsub of unsubs) unsub();
   });
 });

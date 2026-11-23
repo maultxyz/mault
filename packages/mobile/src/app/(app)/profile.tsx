@@ -18,6 +18,7 @@ import {
   updateName,
 } from "@/features/account/api/account";
 import { SignInMethodsSection } from "@/features/account/components/sign-in-methods-section";
+import { DiscordAccountSection } from "@/features/account/components/discord-account-section";
 import { describeUserAgent } from "@/features/account/lib/user-agent";
 import { SettingsPage } from "@/features/settings/components/settings-page";
 import { SettingsSection } from "@/features/settings/components/settings-section";
@@ -197,6 +198,8 @@ export default function ProfileScreen() {
           </SettingsSection>
         </>
       )}
+
+      <DiscordAccountSection onMessage={setMessage} />
     </SettingsPage>
   );
 }

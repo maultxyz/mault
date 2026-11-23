@@ -177,7 +177,9 @@
     "monitorType": "Monitor",
     "tradeType": "Tausch",
     "monitorTypeDescription": "Eine Ansicht der Karten, live während du scannst. Besucher können keine Angebote senden.",
-    "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen."
+    "tradeTypeDescription": "Besucher können Karten auswählen und dir Tauschangebote senden, die in deinen Benachrichtigungen erscheinen.",
+    "requireGuestAccount": "Konto verlangen",
+    "requireGuestAccountDescription": "Nur wer sich anmeldet, kann über diesen Link ein Tauschangebot senden."
   },
   "shareLinks": {
     "detailDescription": "Jeder mit diesem Link oder QR-Code kann ihn ohne Anmeldung öffnen.",
@@ -517,7 +519,27 @@
       },
       "localSubtitle": "Deine Kontodaten. Bitte einen Admin dieses Servers, sie zu ändern.",
       "nameLabel": "Name",
-      "signInHeading": "Anmeldung"
+      "signInHeading": "Anmeldung",
+      "discord": {
+        "heading": "Discord-Konto",
+        "description": "Verknüpfe dein Discord-Konto, damit der Mault-Bot weiß, wer du bist, dir deine Rolle auf dem Mault-Discord-Server gibt und dir zu deinen Tauschangeboten und Reservierungen schreiben kann.",
+        "linked": "Mit einem Discord-Konto verknüpft",
+        "linkedAs": "Verknüpft als @{{username}}",
+        "loadFailed": "Dein Discord-Konto konnte nicht geladen werden.",
+        "unlink": "Discord trennen",
+        "unlinkConfirmTitle": "Discord-Konto trennen?",
+        "unlinkConfirmDescription": "Der Mault-Bot erkennt dich dann nicht mehr und schickt dir keine Nachrichten mehr. Du kannst es später wieder verknüpfen.",
+        "cancel": "Abbrechen",
+        "unlinked": "Discord-Konto getrennt.",
+        "unlinkFailed": "Dein Discord-Konto konnte nicht getrennt werden.",
+        "generate": "Discord-Konto verknüpfen",
+        "generateFailed": "Verknüpfungscode konnte nicht erstellt werden.",
+        "codeInstructions": "Führe /link-account mit diesem Code auf einem Server mit dem Mault-Bot oder in einer Direktnachricht an ihn aus.",
+        "codeLabel": "Verknüpfungscode {{code}}",
+        "expiresIn": "Läuft in {{seconds}}s ab",
+        "copyCode": "Code kopieren",
+        "copied": "Code kopiert"
+      }
     },
     "settingsRow": "Kontoeinstellungen",
     "settingsRowSubtitle": "Name, E-Mail, Passwort und Sitzungen",
@@ -2544,7 +2566,9 @@
       "reservationHoldDays_one": "{{count}} Tag",
       "reservationHoldDays_other": "{{count}} Tage",
       "reservationHoldDescription": "Danach läuft die Reservierung ab und die nächste Person in der Reihe bekommt die Karte.",
-      "reservationsOn": "Nimmt Reservierungen an"
+      "reservationsOn": "Nimmt Reservierungen an",
+      "reservationsRequireAccount": "Konto zum Reservieren verlangen",
+      "reservationsRequireAccountDescription": "Nur angemeldete Kunden können Karten reservieren. Sie bekommen Updates und sehen ihre Reservierungen auf jedem Gerät."
     },
     "statsSync": {
       "key": {
@@ -4466,7 +4490,11 @@
       "pickCreated_one": "Pickliste für {{name}} mit 1 Karte erstellt",
       "pickCreated_other": "Pickliste für {{name}} mit {{count}} Karten erstellt",
       "cardCount_one": "1 Karte",
-      "cardCount_other": "{{count}} Karten"
+      "cardCount_other": "{{count}} Karten",
+      "trayHeading": "Reservierungen",
+      "trayToPull_one": "{{name}} hat {{count}} Karte reserviert, die bereitgelegt werden muss",
+      "trayToPull_other": "{{name}} hat {{count}} Karten reserviert, die bereitgelegt werden müssen",
+      "trayReview": "Ansehen"
     },
     "filters": {
       "status": "Status",
@@ -4887,5 +4915,23 @@
         "description": "Schließe den Wareneingang dort ab oder brich ihn ab, ohne den Scan-Tab zu verlassen."
       }
     }
+  },
+  "statusMessages": {
+    "tradeOffers": {
+      "label": "Discord-Nachricht, wenn ein Angebot beantwortet wird"
+    },
+    "cardReservations": {
+      "label": "Discord-Nachricht, wenn sich eine Reservierung ändert"
+    },
+    "description": "Der Mault-Bot schickt eine Direktnachricht an dein verknüpftes Discord-Konto.",
+    "linkDiscord": "Verknüpfe dein Discord-Konto, um das einzuschalten.",
+    "updateFailed": "Discord-Nachrichten konnten nicht geändert werden.",
+    "openProfile": "Discord-Konto verknüpfen"
+  },
+  "guestKind": {
+    "signedIn": "Angemeldet",
+    "guest": "Gast",
+    "signedInDescription": "Mit einem Konto angemeldet",
+    "guestDescription": "Gast ohne Konto"
   }
 }

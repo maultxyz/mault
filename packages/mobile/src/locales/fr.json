@@ -177,7 +177,9 @@
     "monitorType": "Suivi",
     "tradeType": "Échange",
     "monitorTypeDescription": "Une vue des cartes, en direct pendant que vous scannez. Les visiteurs ne peuvent pas envoyer d'offres.",
-    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications."
+    "tradeTypeDescription": "Les visiteurs peuvent choisir des cartes et vous envoyer des offres d'échange, qui apparaissent dans vos notifications.",
+    "requireGuestAccount": "Exiger un compte",
+    "requireGuestAccountDescription": "Seules les personnes connectées peuvent envoyer une offre d'échange via ce lien."
   },
   "shareLinks": {
     "detailDescription": "Toute personne disposant de ce lien ou de ce QR code peut l'ouvrir sans se connecter.",
@@ -517,7 +519,27 @@
       },
       "localSubtitle": "Les détails de ton compte. Demande à un admin de ce serveur de les modifier.",
       "nameLabel": "Nom",
-      "signInHeading": "Connexion"
+      "signInHeading": "Connexion",
+      "discord": {
+        "heading": "Compte Discord",
+        "description": "Lie ton compte Discord pour que le bot Mault sache qui tu es, te donne ton rôle sur le serveur Discord de Mault et puisse t'écrire au sujet de tes échanges et réservations.",
+        "linked": "Lié à un compte Discord",
+        "linkedAs": "Lié en tant que @{{username}}",
+        "loadFailed": "Impossible de charger ton compte Discord.",
+        "unlink": "Dissocier Discord",
+        "unlinkConfirmTitle": "Dissocier ton compte Discord ?",
+        "unlinkConfirmDescription": "Le bot Mault ne te reconnaîtra plus et ne t'enverra plus de messages. Tu pourras le lier à nouveau plus tard.",
+        "cancel": "Annuler",
+        "unlinked": "Compte Discord dissocié.",
+        "unlinkFailed": "Impossible de dissocier ton compte Discord.",
+        "generate": "Lier un compte Discord",
+        "generateFailed": "Impossible de générer un code de liaison.",
+        "codeInstructions": "Exécute /link-account avec ce code sur un serveur où se trouve le bot Mault, ou en message privé avec lui.",
+        "codeLabel": "Code de liaison {{code}}",
+        "expiresIn": "Expire dans {{seconds}}s",
+        "copyCode": "Copier le code",
+        "copied": "Code copié"
+      }
     },
     "settingsRow": "Paramètres du compte",
     "settingsRowSubtitle": "Nom, e-mail, mot de passe et sessions",
@@ -2544,7 +2566,9 @@
       "reservationHoldDays_one": "{{count}} jour",
       "reservationHoldDays_other": "{{count}} jours",
       "reservationHoldDescription": "Passé ce délai, la réservation expire et la personne suivante dans la file obtient la carte.",
-      "reservationsOn": "Accepte les réservations"
+      "reservationsOn": "Accepte les réservations",
+      "reservationsRequireAccount": "Exiger un compte pour réserver",
+      "reservationsRequireAccountDescription": "Seuls les clients connectés peuvent réserver des cartes. Ils reçoivent des mises à jour et voient leurs réservations sur tous leurs appareils."
     },
     "statsSync": {
       "key": {
@@ -4466,7 +4490,11 @@
       "pickCreated_one": "Préparation créée pour {{name}} avec 1 carte",
       "pickCreated_other": "Préparation créée pour {{name}} avec {{count}} cartes",
       "cardCount_one": "1 carte",
-      "cardCount_other": "{{count}} cartes"
+      "cardCount_other": "{{count}} cartes",
+      "trayHeading": "Réservations",
+      "trayToPull_one": "{{name}} a réservé {{count}} carte à sortir",
+      "trayToPull_other": "{{name}} a réservé {{count}} cartes à sortir",
+      "trayReview": "Voir"
     },
     "filters": {
       "status": "Statut",
@@ -4887,5 +4915,23 @@
         "description": "Terminez ou annulez l'entrée de stock depuis cette fenêtre sans quitter l'onglet de scan."
       }
     }
+  },
+  "statusMessages": {
+    "tradeOffers": {
+      "label": "Message Discord quand une offre reçoit une réponse"
+    },
+    "cardReservations": {
+      "label": "Message Discord quand une réservation change"
+    },
+    "description": "Le bot Mault envoie un message privé à votre compte Discord associé.",
+    "linkDiscord": "Associez votre compte Discord pour activer cette option.",
+    "updateFailed": "Impossible de modifier les messages Discord.",
+    "openProfile": "Lier un compte Discord"
+  },
+  "guestKind": {
+    "signedIn": "Connecté",
+    "guest": "Invité",
+    "signedInDescription": "Connecté avec un compte",
+    "guestDescription": "Invité sans compte"
   }
 }

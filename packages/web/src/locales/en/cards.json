@@ -640,7 +640,11 @@
     "referenceImage": "Reference image",
     "backToCards": "Back to cards",
     "tradeHint": "Tap + on a card or open it to add it to your trade offer",
-    "shopPrice": "Price"
+    "shopPrice": "Price",
+    "logIn": "Log in",
+    "myTradeOffers": "My trade offers",
+    "myReservations": "My reservations",
+    "signedInAs": "Signed in as {{name}}."
   },
   "tradeOffers": {
     "game": "Game",
@@ -710,10 +714,10 @@
     "yourOffers_one": "Your sent offers ({{count}})",
     "yourOffers_other": "Your sent offers ({{count}})",
     "account": {
-      "logIn": "Log in",
       "logInHint": "Log in to keep track of the offers you send. They show up under Trades > Sent in your account.",
-      "signedInAs": "Signed in as {{name}}.",
-      "signedInHint": "Offers you send show up under Trades > Sent in your account."
+      "signedInHint": "Offers you send show up under Trades > Sent in your account.",
+      "logInRequiredHint": "This shop asks you to log in before you send a trade offer.",
+      "sentLogInPrompt": "Log in to get updates on your offer and see it on any device."
     }
   },
   "shareCardLink": {
@@ -825,6 +829,12 @@
     "requestTitle_one": "Reservation (1 card)",
     "requestTitle_other": "Reservation ({{count}} cards)",
     "cancelAllFor_one": "Cancel your reservation at {{name}}",
-    "cancelAllFor_other": "Cancel all {{count}} open reservations at {{name}}"
+    "cancelAllFor_other": "Cancel all {{count}} open reservations at {{name}}",
+    "account": {
+      "logInHint": "Log in to keep track of your reservations. They show up under Trades > My reservations in your account.",
+      "logInRequiredHint": "This shop asks you to log in before you reserve cards.",
+      "signedInHint": "Reservations you make show up under Trades > My reservations in your account.",
+      "sentLogInPrompt": "Log in to get updates on your reservation and see it on any device."
+    }
   }
 }

@@ -36,6 +36,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useId, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { GuestAccountNotice } from "@/features/public-cards/components/guest-account-notice";
+import { useGuestAccount } from "@/features/public-cards/api/use-guest-account";
 
 export function ReservationComposerPage({
   source,
@@ -49,6 +51,10 @@ export function ReservationComposerPage({
   const { t: tCommon } = useTranslation("common");
   const queryClient = useQueryClient();
   const reservations = useCardReservationsContext();
+  const { mustLogIn, promptGuestToLogIn } = useGuestAccount(
+    "reservations",
+    reservations?.requiresAccount ?? false,
+  );
   const { priceOf, format } = usePriceSource();
   const headingRef = useRef<HTMLHeadingElement>(null);
   const formId = useId();
@@ -86,7 +92,7 @@ export function ReservationComposerPage({
   const isReady = cart.length > 0;
 
   const submit = form.handleSubmit(async (values) => {
-    if (!isReady || !reservations) return;
+    if (!isReady || !reservations || mustLogIn) return;
     try {
       const created = await reserveCards(source, {
         ...values,
@@ -104,6 +110,7 @@ export function ReservationComposerPage({
               waiting: created.waitingCount,
             }),
       );
+      promptGuestToLogIn();
     } catch (error) {
       toast.error(
         error instanceof Error && error.message ? error.message : t("reservations.createFailed"),
@@ -132,6 +139,11 @@ export function ReservationComposerPage({
             {t("reservations.composerDescription", { source: sourceName, count: holdDays })}
           </p>
         </div>
+
+        <GuestAccountNotice
+          kind="reservations"
+          isAccountRequired={reservations?.requiresAccount ?? false}
+        />
 
         <TradeOfferPanel
           step={1}
@@ -237,7 +249,9 @@ export function ReservationComposerPage({
         <div className="mx-auto flex w-full max-w-5xl flex-wrap items-center justify-between gap-2 px-4 py-3 max-md:flex-col max-md:items-stretch md:px-3 md:py-2">
           <div role="status" className="flex flex-col text-control">
             <span>
-              {!isReady
+              {mustLogIn
+                ? t("reservations.account.logInRequiredHint")
+                : !isReady
                 ? t("reservations.needCards")
                 : waitingCount === 0
                   ? t("reservations.summaryHeld", { count: heldCount })
@@ -255,7 +269,7 @@ export function ReservationComposerPage({
               </span>
             )}
           </div>
-          <Button type="submit" disabled={!isReady || isSubmitting}>
+          <Button type="submit" disabled={!isReady || mustLogIn || isSubmitting}>
             {isSubmitting ? <IconLoader2 className="animate-spin" /> : <IconBookmark />}
             {t("reservations.submit", { count: cart.length })}
           </Button>

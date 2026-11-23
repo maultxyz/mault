@@ -8,7 +8,13 @@ import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-export function StorageCardBrowser({ token, locationName, purpose, requiresGuestContact }: StorageCardBrowserProps) {
+export function StorageCardBrowser({
+  token,
+  locationName,
+  purpose,
+  requiresGuestContact,
+  requiresGuestAccount,
+}: StorageCardBrowserProps) {
   const { t } = useTranslation("cards");
   const { t: tStorage } = useTranslation("storage");
   const source = useMemo(
@@ -28,7 +34,14 @@ export function StorageCardBrowser({ token, locationName, purpose, requiresGuest
         purpose === "trade" ? t("publicBrowse.tradeHint") : tStorage("sharedPage.readOnly")
       }
       tradeOfferLink={
-        purpose === "trade" ? { basePath: TRADE_OFFER_LINK_PATHS.storage, token, requiresGuestContact } : undefined
+        purpose === "trade"
+          ? {
+              basePath: TRADE_OFFER_LINK_PATHS.storage,
+              token,
+              requiresGuestContact,
+              requiresGuestAccount,
+            }
+          : undefined
       }
     />
   );

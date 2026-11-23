@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui/badge";
+import { GuestKindBadge } from "@/components/guest-kind-badge";
 import { Button } from "@/components/ui/button";
 import { formatDay } from "@/features/business/lib/format";
 import { useCardReservationGroupSummary } from "@/features/card-reservations/lib/use-card-reservation-group-summary";
@@ -39,6 +40,7 @@ export function CardReservationRequestList({
                   <span className="min-w-0 flex-1 truncate text-sm font-medium">
                     {group.guestName}
                   </span>
+                  <GuestKindBadge isFromAccount={group.isFromAccount} />
                   <Badge variant={stage ? CARD_RESERVATION_STAGE_BADGE_VARIANTS[stage] : "secondary"}>
                     {stage ? t(`reservations.stages.${stage}`) : t("reservations.groupClosed")}
                   </Badge>

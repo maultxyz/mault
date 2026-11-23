@@ -104,6 +104,7 @@ export interface TradeOffer extends PublicTradeOffer {
   guestName: string;
   guestContact: string;
   guestNote: string | null;
+  isFromAccount?: boolean;
   linkKind: TradeOfferLinkKind;
   sourceName: string | null;
 }

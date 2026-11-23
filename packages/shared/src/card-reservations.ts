@@ -3,6 +3,7 @@ import {
   CARD_RESERVATION_OPEN_STAGES,
   CARD_RESERVATION_HOLD_DAY_CHOICES,
   CARD_RESERVATION_HOLDER_QUEUE_POSITION,
+  CARD_RESERVATION_HOLD_LAPSE_REFETCH_DELAY_MS,
   DEFAULT_CARD_RESERVATION_HOLD_DAYS,
 } from "./constants/card-reservations.constant";
 import type {
@@ -34,6 +35,22 @@ export function toCardReservationHoldDays(value: unknown): CardReservationHoldDa
 
 export function cardReservationHoldExpiry(holdStartedAt: Date, holdDays: number): Date {
   return new Date(holdStartedAt.getTime() + holdDays * MS_PER_DAY);
+}
+
+export function msUntilCardReservationHoldsLapse(
+  reservations: readonly Pick<PublicCardReservation, "status" | "holdExpiresAt">[] | undefined,
+  now: number = Date.now(),
+): number | false {
+  let nextExpiry: number | null = null;
+  for (const reservation of reservations ?? []) {
+    if (!isActiveCardReservationStatus(reservation.status) || !reservation.holdExpiresAt) continue;
+    const expiry = Date.parse(reservation.holdExpiresAt);
+    if (Number.isNaN(expiry) || expiry <= now) continue;
+    if (nextExpiry === null || expiry < nextExpiry) nextExpiry = expiry;
+  }
+  return nextExpiry === null
+    ? false
+    : nextExpiry - now + CARD_RESERVATION_HOLD_LAPSE_REFETCH_DELAY_MS;
 }
 
 export function settleCardReservationQueue(
@@ -80,6 +97,7 @@ export function groupCardReservationsByRequest(
       guestName: reservation.guestName,
       guestContact: reservation.guestContact,
       guestNote: reservation.guestNote,
+      isFromAccount: reservation.isFromAccount ?? null,
       catalogName: reservation.catalogName,
       createdAt: reservation.createdAt,
       reservations: [],

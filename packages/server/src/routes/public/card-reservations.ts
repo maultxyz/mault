@@ -18,6 +18,7 @@ import {
   CARD_RESERVATION_GUEST_LIMIT_MESSAGE,
   CARD_RESERVATION_INVALID_MESSAGE,
   CARD_RESERVATION_NOT_FOUND_MESSAGE,
+  CARD_RESERVATION_ACCOUNT_REQUIRED_MESSAGE,
   CARD_RESERVATION_OWN_ORG_MESSAGE,
   CARD_RESERVATION_QUEUE_FULL_MESSAGE,
   CARD_RESERVATIONS_NOT_ALLOWED_MESSAGE,
@@ -29,6 +30,8 @@ import type { ShopCatalogClaims } from "../../lib/interfaces/share-tokens";
 import { emitToOrg } from "../../lib/session-stream";
 import { shopCatalogScope } from "../../lib/share-link-scopes";
 import { optionalVerifiedUserId } from "../../lib/optional-auth";
+import { watchCustomerOrgInBackground } from "../../lib/customer-stream";
+import { sendCreatedReservationStatusMessageInBackground } from "../../lib/customer-status-messages";
 import {
   findOrgMembership,
   verifyHardwareClientToken,
@@ -89,6 +92,9 @@ export function createPublicCardReservationsRoute(
         c.req.header("Authorization"),
         verifyHardwareClientToken,
       );
+      if (catalog.reservationsRequireAccount && !guestUserId) {
+        return c.json({ success: false, message: CARD_RESERVATION_ACCOUNT_REQUIRED_MESSAGE }, 401);
+      }
       if (guestUserId && (await findOrgMembership(guestUserId, catalog.orgId))) {
         return c.json({ success: false, message: CARD_RESERVATION_OWN_ORG_MESSAGE }, 409);
       }
@@ -111,6 +117,14 @@ export function createPublicCardReservationsRoute(
         case "guest-limit-reached":
           return c.json({ success: false, message: CARD_RESERVATION_GUEST_LIMIT_MESSAGE }, 429);
         case "created":
+          if (guestUserId) {
+            watchCustomerOrgInBackground(guestUserId, catalog.orgId);
+            sendCreatedReservationStatusMessageInBackground(
+              catalog.orgId,
+              guestUserId,
+              result.requestGuid,
+            );
+          }
           emitToOrg(catalog.orgId, CARD_RESERVATIONS_CHANGED_EVENT, result.changed);
           if (result.changed.createdReservation) {
             void sendCardReservationCreatedDiscordNotification({

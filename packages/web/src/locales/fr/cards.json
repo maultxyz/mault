@@ -640,7 +640,11 @@
     "referenceImage": "Image de référence",
     "backToCards": "Retour aux cartes",
     "tradeHint": "Touchez + sur une carte ou ouvrez-la pour l'ajouter à votre offre",
-    "shopPrice": "Prix"
+    "shopPrice": "Prix",
+    "logIn": "Se connecter",
+    "myTradeOffers": "Mes offres d'échange",
+    "myReservations": "Mes réservations",
+    "signedInAs": "Connecté en tant que {{name}}."
   },
   "tradeOffers": {
     "game": "Jeu",
@@ -710,10 +714,10 @@
     "yourOffers_one": "Vos offres envoyées ({{count}})",
     "yourOffers_other": "Vos offres envoyées ({{count}})",
     "account": {
-      "logIn": "Se connecter",
       "logInHint": "Connectez-vous pour suivre les offres que vous envoyez. Elles apparaissent dans votre compte sous Échanges > Envoyées.",
-      "signedInAs": "Connecté en tant que {{name}}.",
-      "signedInHint": "Les offres que vous envoyez apparaissent dans votre compte sous Échanges > Envoyées."
+      "signedInHint": "Les offres que vous envoyez apparaissent dans votre compte sous Échanges > Envoyées.",
+      "logInRequiredHint": "Cette boutique vous demande de vous connecter avant d'envoyer une offre d'échange.",
+      "sentLogInPrompt": "Connectez-vous pour suivre votre offre et la voir sur tous vos appareils."
     }
   },
   "shareCardLink": {
@@ -825,6 +829,12 @@
     "requestTitle_one": "Réservation (1 carte)",
     "requestTitle_other": "Réservation ({{count}} cartes)",
     "cancelAllFor_one": "Annuler votre réservation chez {{name}}",
-    "cancelAllFor_other": "Annuler les {{count}} réservations en cours chez {{name}}"
+    "cancelAllFor_other": "Annuler les {{count}} réservations en cours chez {{name}}",
+    "account": {
+      "logInHint": "Connectez-vous pour suivre vos réservations. Elles apparaissent dans votre compte sous Échanges > Mes réservations.",
+      "logInRequiredHint": "Cette boutique vous demande de vous connecter avant de réserver des cartes.",
+      "signedInHint": "Les réservations que vous faites apparaissent dans votre compte sous Échanges > Mes réservations.",
+      "sentLogInPrompt": "Connectez-vous pour suivre votre réservation et la voir sur tous vos appareils."
+    }
   }
 }

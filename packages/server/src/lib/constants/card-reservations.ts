@@ -25,6 +25,7 @@ export const CARD_RESERVATION_GUEST_ALERT_BY_STATUS: Partial<
   released: "released",
   unavailable: "unavailable",
 };
+export const CARD_RESERVATION_ACCOUNT_REQUIRED_MESSAGE = "Log in to reserve cards from this catalog.";
 export const CARD_RESERVATION_OWN_ORG_MESSAGE = "You can't reserve cards from your own organization.";
 export const CARD_RESERVATION_CLAIM_RATE_LIMITED_MESSAGE = "Too many attempts to link reservations. Try again in a minute.";
 export const CARD_RESERVATION_CLAIM_RATE_LIMIT_REQUESTS = 10;

@@ -11,6 +11,7 @@ export interface ShopCatalog {
   showsPrices: boolean;
   isPublic: boolean;
   allowsReservations?: boolean;
+  reservationsRequireAccount?: boolean;
   reservationHoldDays?: number;
   collections: ShopCatalogSource[];
   storageLocations: ShopCatalogSource[];
@@ -25,6 +26,7 @@ export interface ShopCatalogInput {
   showsPrices: boolean;
   isPublic: boolean;
   allowsReservations?: boolean;
+  reservationsRequireAccount?: boolean;
   reservationHoldDays?: number;
   collectionGuids: string[];
   storageLocationGuids: string[];
@@ -34,6 +36,7 @@ export interface ShopCatalogInfo extends PublicCardBrowseInfo {
   catalogGuid: string;
   name: string;
   allowsReservations?: boolean;
+  reservationsRequireAccount?: boolean;
   reservationHoldDays?: number;
 }
 
