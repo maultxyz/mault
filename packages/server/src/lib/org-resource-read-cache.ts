@@ -5,6 +5,7 @@ import {
 import { createOrgReadCache } from "./org-read-cache";
 
 const orgResourceReadCache = createOrgReadCache<unknown>(
+  "org.resources",
   ORG_RESOURCE_READ_CACHE_TTL_MS,
   ORG_RESOURCE_READ_CACHE_MAX_ENTRIES,
 );
@@ -18,6 +19,7 @@ export function readOrgResource<T>(
 }
 
 const orgSettingsResourceReadCache = createOrgReadCache<unknown>(
+  "org.settingsResources",
   ORG_RESOURCE_READ_CACHE_TTL_MS,
   ORG_RESOURCE_READ_CACHE_MAX_ENTRIES,
   0,

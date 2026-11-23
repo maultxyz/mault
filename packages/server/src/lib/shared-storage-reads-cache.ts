@@ -5,6 +5,7 @@ import {
 import { createTtlCache } from "./ttl-cache";
 
 export const sharedStorageReadsCache = createTtlCache<unknown>({
+  name: "shareLinks.storageReads",
   ttlMs: SHARED_STORAGE_READS_CACHE_TTL_MS,
   maxEntries: SHARE_LINK_CACHE_MAX_ENTRIES,
 });

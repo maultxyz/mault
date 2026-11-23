@@ -101,12 +101,13 @@ export function buildPhases(
               }}
             />
           ),
+          note: t("assembly.phases.print.steps.printSortingModule.alternativesNote"),
         },
         {
           key: "print-feeder-module",
           modelParts: ["feederModule"],
           text: t("assembly.phases.print.steps.printFeederModule.text"),
-          note: t("assembly.phases.print.steps.printFeederModule.mg90Note"),
+          note: t("assembly.phases.print.steps.printFeederModule.alternativesNote"),
         },
         {
           key: "print-sorting-module-shroud",
@@ -125,19 +126,17 @@ export function buildPhases(
           text: breakoutSupportHeight
             ? t("assembly.phases.print.steps.printPlateBase.breakoutText", {
                 modules: moduleCount,
-                threeTall:
-                  baseSupportPieces.threeTall -
-                  (breakoutSupportHeight === 3 ? 1 : 0),
-                oneTall:
-                  baseSupportPieces.oneTall -
-                  (breakoutSupportHeight === 1 ? 1 : 0),
-                breakoutHeight: breakoutSupportHeight,
+                threeTall: baseSupportPieces.threeTall - 1,
+                oneTall: baseSupportPieces.oneTall,
               })
             : t("assembly.phases.print.steps.printPlateBase.text", {
                 modules: moduleCount,
                 threeTall: baseSupportPieces.threeTall,
                 oneTall: baseSupportPieces.oneTall,
               }),
+          note: breakoutSupportHeight
+            ? undefined
+            : t("assembly.phases.print.steps.printPlateBase.alternativeNote"),
           images: [
             "/instructions/base_module.jpg",
             "/instructions/base_module_assembled.jpg",
@@ -169,6 +168,7 @@ export function buildPhases(
             modules: moduleCount,
             count: genericBase,
           }),
+          note: t("assembly.phases.print.steps.printGenericBase.alternativeNote"),
         },
         {
           key: "print-bins-plate",
@@ -183,6 +183,11 @@ export function buildPhases(
           key: "print-end-bin-plate",
           modelParts: ["endBinPlate"],
           text: t("assembly.phases.print.steps.printEndBinPlate.text"),
+        },
+        {
+          key: "print-optional-plates",
+          modelParts: ["optionalPlate"],
+          text: t("assembly.phases.print.steps.printOptionalPlates.text"),
         },
         {
           key: "print-module-pins",
@@ -301,6 +306,9 @@ export function buildPhases(
           key: "mount-hopper-riser",
           text: t(
             "assembly.phases.assembleModules.steps.mountHopperRiser.text",
+          ),
+          alert: t(
+            "assembly.phases.assembleModules.steps.mountHopperRiser.requiredAlert",
           ),
           images: ["/instructions/feeder_riser.JPG"],
         },

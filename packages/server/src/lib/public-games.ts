@@ -40,7 +40,7 @@ async function computePublicGames(): Promise<PublicGame[]> {
   }));
 }
 
-const publicGamesValue = createCachedValue(computePublicGames);
+const publicGamesValue = createCachedValue("publicMetrics.games", computePublicGames);
 
 export const publicGamesCache: CachedValue<PublicGame[]> = {
   get: (maxAgeMs, options) => publicGamesValue.get(maxAgeMs, options),

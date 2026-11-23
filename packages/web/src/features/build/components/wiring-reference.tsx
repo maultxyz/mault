@@ -8,6 +8,8 @@ import {
   BOARD_INFO,
   BOARD_WIRE_COLORS,
   BUILD_PIN_BADGE_CLASS,
+  BUILD_TABLE_FRAME_CLASS,
+  BUILD_TABLE_HEADER_ROW_CLASS,
   WIRE_COLOR_CLASSES,
   WIRING_VIEW_MODE_ICONS,
   WIRING_VIEW_MODES,
@@ -51,10 +53,10 @@ export function WireSwatch({ wire }: WireSwatchProps) {
 
 export function WiringTable({ columns, rows }: WiringTableProps) {
   return (
-    <div className="overflow-x-auto rounded-lg border bg-card">
+    <div className={BUILD_TABLE_FRAME_CLASS}>
       <table className="w-full min-w-72 border-collapse text-sm/relaxed">
         <thead>
-          <tr className="bg-foreground/6">
+          <tr className={BUILD_TABLE_HEADER_ROW_CLASS}>
             {columns.map((col) => (
               <th
                 key={col}

@@ -14,6 +14,7 @@ import {
 import { createOrgReadCache } from "./org-read-cache";
 
 const orgPricingCache = createOrgReadCache<OrgPricing>(
+  "org.pricing",
   ORG_PRICING_CACHE_TTL_MS,
   ORG_SETTINGS_READ_CACHE_MAX_ENTRIES,
   0,

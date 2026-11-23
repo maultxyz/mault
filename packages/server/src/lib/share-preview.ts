@@ -41,6 +41,7 @@ import { verifyStorageShareLink } from "./storage-share-links";
 import { createTtlCache } from "./ttl-cache";
 
 const sharePreviewCache = createTtlCache<SharePreview>({
+  name: "shareLinks.previews",
   ttlMs: SHARE_PREVIEW_CACHE_TTL_MS,
   maxEntries: SHARE_PREVIEW_CACHE_MAX_ENTRIES,
 });

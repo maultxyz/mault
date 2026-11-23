@@ -11,12 +11,14 @@ import type { KeyedCache } from "../interfaces/cached-value";
 const catalogSearchCaches: Pick<KeyedCache<unknown>, "clear">[] = [];
 
 export const storedCardCache = createKeyedCache<PlayingCard | null>(
+  "catalog.storedCards",
   STORED_CARD_CACHE_TTL_MS,
   STORED_CARD_CACHE_MAX_ENTRIES,
 );
 
-export function createCatalogSearchCache<T>(): KeyedCache<T> {
+export function createCatalogSearchCache<T>(name: string): KeyedCache<T> {
   const cache = createKeyedCache<T>(
+    name,
     CATALOG_SEARCH_CACHE_TTL_MS,
     CATALOG_SEARCH_CACHE_MAX_ENTRIES,
   );

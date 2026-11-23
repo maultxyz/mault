@@ -1,6 +1,7 @@
 import { Skeleton } from "@/components/ui/skeleton";
 import { useBuildSetup } from "@/features/build/api/use-build-setup";
 import {
+  isBreakoutBoardBuild,
   printBreakoutHeight,
   printPartEntries,
 } from "@/features/build/lib/print-parts";
@@ -15,9 +16,10 @@ export function PrintPartsModel() {
   const { t } = useTranslation("build");
   const { moduleCount, boardType, mountType } = useBuildSetup();
   const breakoutHeight = printBreakoutHeight(moduleCount, boardType, mountType);
+  const isBreakoutBoard = isBreakoutBoardBuild(boardType, mountType);
   const entries = useMemo(
-    () => printPartEntries(moduleCount, breakoutHeight),
-    [moduleCount, breakoutHeight],
+    () => printPartEntries(moduleCount, breakoutHeight, isBreakoutBoard),
+    [moduleCount, breakoutHeight, isBreakoutBoard],
   );
 
   return (
@@ -31,6 +33,7 @@ export function PrintPartsModel() {
         <PrintPartsViewer
           moduleCount={moduleCount}
           breakoutHeight={breakoutHeight}
+          isBreakoutBoard={isBreakoutBoard}
           entries={entries}
         />
       </Suspense>

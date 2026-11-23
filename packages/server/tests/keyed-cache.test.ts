@@ -45,7 +45,7 @@ async function settleBackgroundWork(): Promise<void> {
 
 test("a fresh entry is served without loading again", async (t) => {
   freezeClock(t);
-  const cache = createKeyedCache<string>(TTL_MS, 10, {
+  const cache = createKeyedCache<string>("test.keyed", TTL_MS, 10, {
     staleWhileRefreshingMs: TTL_MS,
   });
   const loader = countingLoader(["first", "second"]);
@@ -57,7 +57,7 @@ test("a fresh entry is served without loading again", async (t) => {
 
 test("an entry inside the stale window is served at once while it refreshes", async (t) => {
   freezeClock(t);
-  const cache = createKeyedCache<string>(TTL_MS, 10, {
+  const cache = createKeyedCache<string>("test.keyed", TTL_MS, 10, {
     staleWhileRefreshingMs: TTL_MS,
   });
   const loader = deferredLoader<string>();
@@ -77,7 +77,7 @@ test("an entry inside the stale window is served at once while it refreshes", as
 
 test("only one refresh runs for a stale entry however many requests arrive", async (t) => {
   freezeClock(t);
-  const cache = createKeyedCache<string>(TTL_MS, 10, {
+  const cache = createKeyedCache<string>("test.keyed", TTL_MS, 10, {
     staleWhileRefreshingMs: TTL_MS,
   });
   const loader = deferredLoader<string>();
@@ -97,7 +97,7 @@ test("only one refresh runs for a stale entry however many requests arrive", asy
 
 test("an entry expired past the stale window blocks on a fresh load", async (t) => {
   freezeClock(t);
-  const cache = createKeyedCache<string>(TTL_MS, 10, {
+  const cache = createKeyedCache<string>("test.keyed", TTL_MS, 10, {
     staleWhileRefreshingMs: TTL_MS,
   });
   const loader = countingLoader(["first", "second"]);
@@ -109,7 +109,7 @@ test("an entry expired past the stale window blocks on a fresh load", async (t) 
 
 test("a failed background refresh keeps the stale entry only until its window ends", async (t) => {
   freezeClock(t);
-  const cache = createKeyedCache<string>(TTL_MS, 10, {
+  const cache = createKeyedCache<string>("test.keyed", TTL_MS, 10, {
     staleWhileRefreshingMs: TTL_MS,
   });
   const loader = countingLoader<string>([
@@ -133,7 +133,7 @@ test("a failed background refresh keeps the stale entry only until its window en
 
 test("a refresh that finds nothing drops the stale entry", async (t) => {
   freezeClock(t);
-  const cache = createKeyedCache<{ role: string } | null>(TTL_MS, 10, {
+  const cache = createKeyedCache<{ role: string } | null>("test.keyed", TTL_MS, 10, {
     staleWhileRefreshingMs: TTL_MS,
   });
   const loader = countingLoader<{ role: string } | null>([
@@ -151,7 +151,7 @@ test("a refresh that finds nothing drops the stale entry", async (t) => {
 
 test("a missing value is never cached", async (t) => {
   freezeClock(t);
-  const cache = createKeyedCache<string | null>(TTL_MS, 10, {
+  const cache = createKeyedCache<string | null>("test.keyed", TTL_MS, 10, {
     staleWhileRefreshingMs: TTL_MS,
   });
   const loader = countingLoader<string | null>([null, "found"]);
@@ -162,7 +162,7 @@ test("a missing value is never cached", async (t) => {
 
 test("without a stale window an expired entry always blocks on a fresh load", async (t) => {
   freezeClock(t);
-  const cache = createKeyedCache<string>(TTL_MS, 10);
+  const cache = createKeyedCache<string>("test.keyed", TTL_MS, 10);
   const loader = countingLoader(["first", "second"]);
   await cache.get("key", loader.load);
   t.mock.timers.tick(TTL_MS + 1);
@@ -172,7 +172,7 @@ test("without a stale window an expired entry always blocks on a fresh load", as
 
 test("requests arriving during a load share it", async (t) => {
   freezeClock(t);
-  const cache = createKeyedCache<string>(TTL_MS, 10);
+  const cache = createKeyedCache<string>("test.keyed", TTL_MS, 10);
   const loader = deferredLoader<string>();
   const requests = [
     cache.get("key", loader.load),

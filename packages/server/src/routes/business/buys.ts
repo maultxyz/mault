@@ -45,6 +45,7 @@ import { businessQuery, notFound, pricingCurrency } from "./shared";
 import type { BusinessResult, SaleQueryRow } from "../../lib/interfaces/business";
 
 const inventoryMarginCache = createOrgReadCache<InventoryMargin>(
+  "org.inventoryMargin",
   INVENTORY_MARGIN_CACHE_TTL_MS,
   INVENTORY_MARGIN_CACHE_MAX_ENTRIES,
   INVENTORY_MARGIN_MIN_MS_BETWEEN_LOADS,

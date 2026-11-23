@@ -3,6 +3,7 @@ import {
   KIT_BOARD_TYPE,
   KIT_MODULE_COUNT,
   DEFAULT_ESP32_MOUNT_TYPE,
+  BUILD_SETUP_KIT_VALUES,
   BUILD_SETUP_PARAMS,
   DEFAULT_BUILD_SETUP,
   ESP32_MOUNT_TYPES,
@@ -27,7 +28,18 @@ function parseBuildSetup(search: string): BuildSetupState {
   const board = params.get(BUILD_SETUP_PARAMS.boardType);
   const mount = params.get(BUILD_SETUP_PARAMS.mountType);
   const modules = Number(params.get(BUILD_SETUP_PARAMS.moduleCount));
-  if (params.get(BUILD_SETUP_PARAMS.usingKit) === "1")
+  const kitParam = params.get(BUILD_SETUP_PARAMS.usingKit);
+  const hasSourcingOwnChoice =
+    board !== null ||
+    mount !== null ||
+    params.has(BUILD_SETUP_PARAMS.moduleCount);
+  const usingKit =
+    kitParam === BUILD_SETUP_KIT_VALUES.kit
+      ? true
+      : kitParam === BUILD_SETUP_KIT_VALUES.diy || hasSourcingOwnChoice
+        ? false
+        : DEFAULT_BUILD_SETUP.usingKit;
+  if (usingKit)
     return {
       boardType: KIT_BOARD_TYPE,
       mountType: DEFAULT_ESP32_MOUNT_TYPE,
@@ -47,7 +59,7 @@ function parseBuildSetup(search: string): BuildSetupState {
       modules <= MAX_MODULES
         ? modules
         : DEFAULT_BUILD_SETUP.moduleCount,
-    usingKit: params.get(BUILD_SETUP_PARAMS.usingKit) === "1",
+    usingKit: false,
   };
 }
 
@@ -66,7 +78,12 @@ function writeBuildSetup(search: string, setup: BuildSetupState): string {
       setup.moduleCount === DEFAULT_BUILD_SETUP.moduleCount
         ? null
         : String(setup.moduleCount),
-    usingKit: setup.usingKit ? "1" : null,
+    usingKit:
+      setup.usingKit === DEFAULT_BUILD_SETUP.usingKit
+        ? null
+        : setup.usingKit
+          ? BUILD_SETUP_KIT_VALUES.kit
+          : BUILD_SETUP_KIT_VALUES.diy,
   };
   for (const key of Object.keys(values) as (keyof BuildSetupState)[]) {
     const value = values[key];

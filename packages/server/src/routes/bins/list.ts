@@ -9,6 +9,7 @@ import { requireAuth, requireOrg, type AppEnv } from "../../middleware/auth";
 import { loadSets } from "./shared";
 
 const binSetListCache = createOrgReadCache<Awaited<ReturnType<typeof loadSets>>>(
+  "org.binSetList",
   BIN_SET_LIST_CACHE_TTL_MS,
   BIN_SET_LIST_CACHE_MAX_ENTRIES,
 );

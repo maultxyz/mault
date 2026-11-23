@@ -58,6 +58,7 @@ import {
 } from "../../middleware/auth";
 
 const matchValidationProgressCache = createCachedValue(
+  "matchValidations.progress",
   async (): Promise<MatchValidationProgress> => {
     const [candidates, votes, topValidatorOrgs] = await Promise.all([
       loadMatchValidationCandidates(),

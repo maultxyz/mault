@@ -44,8 +44,8 @@ function countingLoader() {
 }
 
 test("card writes invalidate card caches and leave settings caches cached", async () => {
-  const cardCache = createOrgReadCache<{ loadCount: number }>(60_000, 10);
-  const settingsCache = createOrgReadCache<{ loadCount: number }>(60_000, 10, 0, {
+  const cardCache = createOrgReadCache<{ loadCount: number }>("test.orgRead", 60_000, 10);
+  const settingsCache = createOrgReadCache<{ loadCount: number }>("test.orgRead", 60_000, 10, 0, {
     isUnaffectedByCardWrites: true,
   });
   const cardLoader = countingLoader();
@@ -67,8 +67,8 @@ test("card writes invalidate card caches and leave settings caches cached", asyn
 });
 
 test("collections_changed only invalidates card caches while other data events invalidate everything", async () => {
-  const cardCache = createOrgReadCache<{ loadCount: number }>(60_000, 10);
-  const settingsCache = createOrgReadCache<{ loadCount: number }>(60_000, 10, 0, {
+  const cardCache = createOrgReadCache<{ loadCount: number }>("test.orgRead", 60_000, 10);
+  const settingsCache = createOrgReadCache<{ loadCount: number }>("test.orgRead", 60_000, 10, 0, {
     isUnaffectedByCardWrites: true,
   });
   const cardLoader = countingLoader();

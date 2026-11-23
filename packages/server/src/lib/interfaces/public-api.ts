@@ -124,6 +124,7 @@ export interface RateLimiterConfig {
 }
 
 export interface TtlCacheConfig {
+  name: string;
   ttlMs: number;
   maxEntries: number;
 }

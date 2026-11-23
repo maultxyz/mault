@@ -53,22 +53,26 @@ import type {
 } from "../../lib/interfaces/collections";
 
 const cardsSummaryCache = createOrgReadCache<CollectionCardsSummary | null>(
+  "org.collectionCardsSummary",
   COLLECTION_CARDS_AGGREGATE_CACHE_TTL_MS,
   COLLECTION_CARDS_AGGREGATE_CACHE_MAX_ENTRIES,
   COLLECTION_CARDS_SUMMARY_MINIMUM_MS_BETWEEN_LOADS,
 );
 
 const cardsCountCache = createOrgReadCache<CollectionCardsCount | null>(
+  "org.collectionCardsCount",
   COLLECTION_CARDS_AGGREGATE_CACHE_TTL_MS,
   COLLECTION_CARDS_AGGREGATE_CACHE_MAX_ENTRIES,
 );
 
 const scanTimelineBucketsCache = createOrgReadCache<ScanTimelineBuckets | null>(
+  "org.scanTimelineBuckets",
   COLLECTION_CARDS_AGGREGATE_CACHE_TTL_MS,
   COLLECTION_CARDS_AGGREGATE_CACHE_MAX_ENTRIES,
 );
 
 const groupedCardRankingCache = createOrgReadCache<CachedGroupedCardRanking>(
+  "org.groupedCardRanking",
   GROUPED_CARD_RANKING_CACHE_TTL_MS,
   GROUPED_CARD_RANKING_CACHE_MAX_ENTRIES,
 );

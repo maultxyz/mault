@@ -36,12 +36,13 @@ export function isMutatingRequestMethod(method: string): boolean {
 }
 
 export function createOrgReadCache<T>(
+  name: string,
   ttlMs: number,
   maxEntries: number,
   minimumMsBetweenLoads = 0,
   { isUnaffectedByCardWrites = false }: OrgReadCacheOptions = {},
 ): OrgReadCache<T> {
-  const cache = createKeyedCache<T>(ttlMs, maxEntries);
+  const cache = createKeyedCache<T>(name, ttlMs, maxEntries);
   const spacedLoader = createSpacedLoader<T>(minimumMsBetweenLoads, maxEntries);
   return {
     get(orgId, variantKey, load) {

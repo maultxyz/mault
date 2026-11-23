@@ -105,11 +105,11 @@ function findStoredCards(
   );
 }
 
-const cardSearchCache = createCatalogSearchCache<Result<CardSearchPage>>();
-const cardSetSearchCache = createCatalogSearchCache<CardSetOption[]>();
+const cardSearchCache = createCatalogSearchCache<Result<CardSearchPage>>("catalog.cardSearch");
+const cardSetSearchCache = createCatalogSearchCache<CardSetOption[]>("catalog.cardSetSearch");
 const groupedCatalogSearchCache =
-  createCatalogSearchCache<Result<CatalogCardSearchPage>>();
-const cardPrintingsCache = createCatalogSearchCache<Result<CardPrintingsPage>>();
+  createCatalogSearchCache<Result<CatalogCardSearchPage>>("catalog.groupedCardSearch");
+const cardPrintingsCache = createCatalogSearchCache<Result<CardPrintingsPage>>("catalog.cardPrintings");
 
 function resolvedSearchCacheKeyParts({
   gameKey,

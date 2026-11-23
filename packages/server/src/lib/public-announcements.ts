@@ -6,7 +6,7 @@ import { ANNOUNCEMENTS_CACHE_MAX_AGE_MS } from "./constants/timing";
 
 type AnnouncementRow = typeof announcements.$inferSelect;
 
-const liveAnnouncementsCache = createCachedValue(() =>
+const liveAnnouncementsCache = createCachedValue("announcements.live", () =>
   db
     .select()
     .from(announcements)

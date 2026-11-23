@@ -6,6 +6,7 @@ import type { BotCollectionListItem } from "./interfaces/bot";
 import { createOrgReadCache } from "./org-read-cache";
 
 const botCollectionListCache = createOrgReadCache<BotCollectionListItem[]>(
+  "bot.collectionList",
   BOT_STATS_CACHE_TTL_MS,
   BOT_CACHE_MAX_ENTRIES,
 );

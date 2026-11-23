@@ -1,0 +1,13 @@
+export const ADMIN_CACHE_KEYS_PAGE_MAX = 200;
+
+export const ADMIN_CACHE_KEY_SEARCH_MAX_LENGTH = 500;
+
+export const ADMIN_CACHE_CLEAR_KEYS_MAX = 500;
+
+export const ADMIN_CACHE_ORG_ID_MIN_LENGTH = 8;
+
+export const ADMIN_CACHE_ORG_ID_MAX_LENGTH = 200;
+
+export const ADMIN_CACHE_ORG_ID_PATTERN = /^[A-Za-z0-9_-]+$/;
+
+export const ADMIN_CACHE_KEY_PART_SEPARATOR = "\u0000";

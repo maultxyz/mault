@@ -47,11 +47,13 @@ export type AppVariables = {
 export type AppEnv = { Variables: AppVariables; Bindings: ServerScanBindings };
 
 const userRoleCache = createKeyedCache<string>(
+  "auth.userRole",
   AUTH_LOOKUP_CACHE_TTL_MS,
   AUTH_LOOKUP_CACHE_MAX_ENTRIES,
   { staleWhileRefreshingMs: AUTH_LOOKUP_CACHE_TTL_MS },
 );
 const orgMembershipCache = createKeyedCache<{ role: OrgRole } | null>(
+  "auth.orgMembership",
   AUTH_LOOKUP_CACHE_TTL_MS,
   AUTH_LOOKUP_CACHE_MAX_ENTRIES,
   { staleWhileRefreshingMs: AUTH_LOOKUP_CACHE_TTL_MS },

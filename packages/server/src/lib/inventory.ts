@@ -30,6 +30,7 @@ import { isSnapshotDue } from "./snapshot-schedule";
 
 const lastInventorySnapshotByOrgId = new Map<string, { writtenAt: number; signature: string }>();
 const inventoryHistoryCache = createOrgReadCache<StatsValuePoint[]>(
+  "org.inventoryHistory",
   INVENTORY_HISTORY_CACHE_TTL_MS,
   HOME_READ_CACHE_MAX_ENTRIES,
 );

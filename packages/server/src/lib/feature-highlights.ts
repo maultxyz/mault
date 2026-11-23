@@ -18,7 +18,7 @@ import { publishedFeatureHighlightsOf } from "./feature-highlight-selection";
 
 type FeatureHighlightRow = typeof featureHighlights.$inferSelect;
 
-const liveFeatureHighlightsCache = createCachedValue(() =>
+const liveFeatureHighlightsCache = createCachedValue("featureHighlights.live", () =>
   db
     .select()
     .from(featureHighlights)

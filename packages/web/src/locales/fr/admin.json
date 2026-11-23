@@ -623,16 +623,54 @@
   },
   "serverCaches": {
     "heading": "Caches du serveur",
-    "description": "Vide les caches en mémoire de l'API (lectures d'organisation, recherches de catalogue, rôles et adhésions, réglages des forfaits, liens de partage, classements) pour que les prochaines requêtes lisent des données à jour. Seul le processus serveur qui traite la requête est vidé.",
-    "clearButton": "Vider les caches",
+    "description": "Vide les caches en mémoire de l'API pour que les prochaines requêtes lisent des données à jour : tous, les entrées d'une organisation, un cache ou des clés précises. Seul le processus serveur qui traite la requête est concerné.",
+    "clearButton": "Vider tous les caches",
     "clearingButton": "Vidage...",
     "reloadMatchIndexButton": "Recharger l'index de correspondance des cartes",
     "reloadingMatchIndexButton": "Rechargement...",
     "toasts": {
       "cleared": "{{count}} caches vidés.",
       "clearError": "Impossible de vider les caches",
-      "matchIndexReloading": "L'index de correspondance des cartes se recharge en arrière-plan.",
-      "matchIndexError": "Impossible de recharger l'index de correspondance des cartes"
+      "matchIndexReloading": "L'index de reconnaissance des cartes se recharge en arrière-plan.",
+      "matchIndexError": "Impossible de recharger l'index de reconnaissance des cartes",
+      "entriesCleared": "{{count}} entrées vidées dans {{name}}.",
+      "entriesClearError": "Impossible de vider {{name}}",
+      "orgCleared": "{{count}} entrées en cache vidées pour cette organisation.",
+      "orgClearError": "Impossible de vider les caches de cette organisation"
+    },
+    "org": {
+      "heading": "Une organisation",
+      "description": "Supprime chaque entrée dont la clé contient cet identifiant (lectures de l'organisation, adhésions, places de membres, tarification, forfait) et marque les lectures de l'organisation comme périmées.",
+      "idLabel": "Identifiant de l'organisation",
+      "idPlaceholder": "Collez un identifiant d'organisation",
+      "clearButton": "Vider les caches de l'organisation"
+    },
+    "list": {
+      "heading": "Caches",
+      "refresh": "Actualiser",
+      "loadError": "Impossible de charger les caches",
+      "empty": "Aucun cache enregistré",
+      "columns": {
+        "name": "Cache",
+        "entries": "Entrées",
+        "actions": "Actions"
+      },
+      "showKeys": "Clés",
+      "showKeysLabel": "Afficher les clés de {{name}}",
+      "clear": "Vider",
+      "clearLabel": "Vider {{name}}"
+    },
+    "keys": {
+      "title": "Clés de {{name}}",
+      "description": "Clés du processus serveur qui a répondu. Les parties d'une clé sont séparées par un point médian.",
+      "searchLabel": "Filtrer les clés",
+      "searchPlaceholder": "Texte contenu dans la clé",
+      "shownCount": "{{shown}} sur {{count}} clés correspondantes.",
+      "empty": "Aucune clé correspondante",
+      "loadError": "Impossible de charger les clés",
+      "deleteKeyLabel": "Supprimer la clé {{key}}",
+      "clearMatching": "Vider {{count}} clés correspondantes",
+      "clearWholeCache": "Vider tout le cache"
     }
   },
   "systemSoundClips": {

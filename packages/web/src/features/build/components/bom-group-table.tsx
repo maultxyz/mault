@@ -1,6 +1,10 @@
 import { Badge } from "@/components/ui/badge";
 import { Callout } from "@/components/callout";
-import { BUILD_OPTIONAL_BADGE_CLASS } from "@/lib/constants/build";
+import {
+  BUILD_OPTIONAL_BADGE_CLASS,
+  BUILD_TABLE_FRAME_CLASS,
+  BUILD_TABLE_HEADER_ROW_CLASS,
+} from "@/lib/constants/build";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AnchorLinkButton } from "@/components/guide/anchor-link-button";
 import { bomGroupAnchorId } from "@/features/build/lib/anchors";
@@ -36,21 +40,21 @@ export function BomGroupTable({
         </h3>
         <AnchorLinkButton id={bomGroupAnchorId(group.key)} />
       </div>
-      <div className="overflow-x-auto rounded-card bg-card">
+      <div className={BUILD_TABLE_FRAME_CLASS}>
         <table className="w-full min-w-120 border-collapse text-sm/relaxed">
           <thead>
-            <tr className="bg-foreground/6">
+            <tr className={BUILD_TABLE_HEADER_ROW_CLASS}>
               <th className="w-8 border-b px-2.5 py-1.5" />
-              <th className="w-16 border-b px-2.5 py-1.5 text-left text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="w-16 border-b px-2.5 py-1.5 text-left text-sm font-semibold tracking-wide text-foreground/80 uppercase">
                 {t("bom.table.qty")}
               </th>
-              <th className="border-b px-2.5 py-1.5 text-left text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="border-b px-2.5 py-1.5 text-left text-sm font-semibold tracking-wide text-foreground/80 uppercase">
                 {t("bom.table.part")}
               </th>
-              <th className="border-b px-2.5 py-1.5 text-left text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="border-b px-2.5 py-1.5 text-left text-sm font-semibold tracking-wide text-foreground/80 uppercase">
                 {t("bom.table.notes")}
               </th>
-              <th className="w-12 border-b px-2.5 py-1.5 text-left text-sm font-semibold tracking-wide text-foreground/70 uppercase">
+              <th className="w-12 border-b px-2.5 py-1.5 text-left text-sm font-semibold tracking-wide text-foreground/80 uppercase">
                 {t("bom.table.buy")}
               </th>
             </tr>

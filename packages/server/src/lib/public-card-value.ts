@@ -41,4 +41,4 @@ async function computeCardValueMetrics(): Promise<CardValueMetrics> {
   };
 }
 
-export const cardValueMetricsCache = createCachedValue(computeCardValueMetrics);
+export const cardValueMetricsCache = createCachedValue("publicMetrics.cardValue", computeCardValueMetrics);

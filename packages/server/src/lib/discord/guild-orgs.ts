@@ -5,6 +5,7 @@ import { BOT_CACHE_MAX_ENTRIES, BOT_LOOKUP_CACHE_TTL_MS } from "../constants/dis
 import { createKeyedCache } from "../keyed-cache";
 
 const orgIdByGuildCache = createKeyedCache<string | null>(
+  "discord.orgIdByGuild",
   BOT_LOOKUP_CACHE_TTL_MS,
   BOT_CACHE_MAX_ENTRIES,
 );

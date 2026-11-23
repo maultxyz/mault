@@ -111,7 +111,7 @@ test("normalized embedding rejects the wrong dimension", () => {
 });
 
 test("keyed cache shares in-flight loads and never caches null", async () => {
-  const cache = createKeyedCache<string | null>(60_000, 10);
+  const cache = createKeyedCache<string | null>("test.keyed", 60_000, 10);
   let loads = 0;
   const load = async () => {
     loads++;

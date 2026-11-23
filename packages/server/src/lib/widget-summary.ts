@@ -44,6 +44,7 @@ import { loadOrgOverviewCards } from "./org-overview";
 import { createOrgReadCache } from "./org-read-cache";
 
 const widgetSummaryCache = createOrgReadCache<LoadedWidgetSummary>(
+  "org.widgetSummary",
   WIDGET_SUMMARY_CACHE_TTL_MS,
   HOME_READ_CACHE_MAX_ENTRIES,
 );

@@ -6,7 +6,7 @@ import { createCachedValue } from "./cached-value";
 import { GAMES_LIST_CACHE_MAX_AGE_MS } from "./constants/card-search";
 import { toGame } from "../routes/games/shared";
 
-const gamesListCache = createCachedValue(async (): Promise<Game[]> => {
+const gamesListCache = createCachedValue("games.list", async (): Promise<Game[]> => {
   const rows = await db
     .select()
     .from(games)
